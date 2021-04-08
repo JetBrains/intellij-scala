@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package refactoring.move
 
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.junit.Ignore
+import org.junit.experimental.categories.Category
 
 class ScalaMoveClassTest extends ScalaMoveClassTestBase {
 
@@ -70,7 +70,7 @@ class ScalaMoveClassTest extends ScalaMoveClassTestBase {
 
 }
 
-@Ignore("flaky tests")
+@Category(Array(classOf[FlakyTests]))
 class ScalaMoveClassTestIgnored extends ScalaMoveClassTestBase {
 
   override protected def testDataRoot = TestUtils.getTestDataPath + "/move/"

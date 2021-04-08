@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
-
 import com.intellij.debugger.engine.DebuggerUtils
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ColoredProcessHandler
@@ -9,7 +7,6 @@ import com.intellij.notification.{Notification, NotificationAction, Notification
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.options.ShowSettingsUtil
@@ -43,6 +40,7 @@ import org.jetbrains.sbt.project.{SbtExternalSystemManager, SbtProjectResolver, 
 import org.jetbrains.sbt.shell.SbtProcessManager._
 import org.jetbrains.sbt.{JvmMemorySize, Sbt, SbtBundle, SbtUtil}
 
+import java.io.{File, IOException, OutputStreamWriter, PrintWriter}
 import scala.jdk.CollectionConverters._
 
 /**
@@ -70,7 +68,7 @@ final class SbtProcessManager(project: Project) extends Disposable {
   @NonNls private def repoPath: String = normalizePath(getRepoDir)
 
   @NonNls private def pluginResolverSetting: String =
-    raw"""resolvers += Resolver.file("intellij-scala-plugin", file(raw"$repoPath"))(Resolver.ivyStylePatterns)"""
+    raw"""resolvers += Resolver.file("Scala Plugin Bundled Repository",file(raw"$repoPath"))(Resolver.mavenStylePatterns)"""
 
   /** Plugins injected into user's global sbt build. */
   // TODO add configurable plugins somewhere for users and via API; factor this stuff out
@@ -93,8 +91,8 @@ final class SbtProcessManager(project: Project) extends Disposable {
     sbtMajorVersion match {
       case "0.12" => Seq.empty // 0.12 doesn't support AutoPlugins
       case _ => Seq(
-        s"""addSbtPlugin("org.jetbrains" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
-        s"""addSbtPlugin("org.jetbrains" % "sbt-idea-shell" % "$sbtIdeaShellVersion")""",
+        s"""addSbtPlugin("org.jetbrains.scala" % "sbt-structure-extractor" % "$sbtStructureVersion")""",
+        s"""addSbtPlugin("org.jetbrains.scala" % "sbt-idea-shell" % "$sbtIdeaShellVersion")""",
       ) ++ compilerIndicesPlugin // works for 0.13.5+, for older versions it will be ignored
     }
   }

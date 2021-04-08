@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.compilation
 
-import java.net.{URL, URLClassLoader}
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.CompilerModuleExtension
@@ -15,9 +13,10 @@ import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.performance.DownloadingAndImportingTestCase
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{IncrementalityType, LibraryExt, ModuleExt}
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, SlowTests}
-import org.junit.Ignore
+import org.jetbrains.plugins.scala.{FlakyTests, LatestScalaVersions, ScalaVersion, SlowTests}
 import org.junit.experimental.categories.Category
+
+import java.net.{URL, URLClassLoader}
 
 /**
  * This test:
@@ -86,9 +85,10 @@ abstract class DottyCompilationTestBase(incrementalityType: IncrementalityType,
     getModule(githubRepoName)
 }
 
+@Category(Array(classOf[FlakyTests]))
 class DottyIdeaCompilationTest
   extends DottyCompilationTestBase(IncrementalityType.IDEA)
 
-@Ignore
+@Category(Array(classOf[FlakyTests]))
 class DottySbtCompilationTest
   extends DottyCompilationTestBase(IncrementalityType.SBT)

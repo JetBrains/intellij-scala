@@ -96,13 +96,13 @@ object Versions {
     )
 
     val Sbt013Entity: Entity = Entity(
-      url = "https://dl.bintray.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
+      url = "https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
       minVersion = "0.13.18",
       hardcodedVersions = sbtLatest_0_13 :: Nil
     )
 
     val Sbt1Entity: Entity = Entity(
-      url = "https://dl.bintray.com/sbt/maven-releases/org/scala-sbt/sbt-launch/",
+      url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/",
       minVersion = "1.4.1",
       hardcodedVersions = (sbtLatestVersion :: sbtLatest_1_0 :: Nil).distinct
     )

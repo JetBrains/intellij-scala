@@ -7,13 +7,13 @@ object Versions {
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.5"
+  val bloopVersion = "1.4.8"
   val zincVersion = "1.4.0-M12"
   val intellijVersion = "211.6693.14"
   val bspVersion = "2.0.0-M12+27-4994bd9d-SNAPSHOT"
-  val sbtStructureVersion: String = "2020.3"
-  val sbtIdeaShellVersion: String = "2018.3"
-  val compilerIndicesVersion = "1.0.8"
+  val sbtStructureVersion: String = "2021.1.1"
+  val sbtIdeaShellVersion: String = "2021.1.0"
+  val compilerIndicesVersion = "1.0.13"
   val scalaMetaVersion = "4.3.12"
   val paradiseVersion = "3.0.0-M11"
 
@@ -40,7 +40,7 @@ object Versions {
 
     val latest_0_12 = "0.12.4"
     val latest_0_13 = "0.13.18"
-    val latest_1_0 = "1.4.3"
+    val latest_1_0 = "1.4.9"
     val latest: String = latest_1_0
     // ATTENTION: after adding sbt major version, also update:
     // buildInfoKeys, Sbt.scala and SbtUtil.latestCompatibleVersion
@@ -57,10 +57,6 @@ object Dependencies {
 
   import Versions._
 
-  val sbtStructureExtractor: ModuleID = "org.jetbrains" % "sbt-structure-extractor" % sbtStructureVersion
-  val sbtStructureExtractor_013: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_0_13)
-  val sbtStructureExtractor_100: ModuleID = sbtPluginDependency(sbtStructureExtractor, Sbt.binary_1_0)
-
   val sbtLaunch: ModuleID = "org.scala-sbt" % "sbt-launch" % sbtVersion intransitive()
 //  val bloopLauncher: ModuleID = "ch.epfl.scala" % s"bloop-launcher_$scalaBinaryVersion" % bloopVersion
   val jamm: ModuleID = "com.github.jbellis" % "jamm" % "0.3.1"
@@ -71,7 +67,7 @@ object Dependencies {
   val scalaParallelCollections: ModuleID = "org.scala-lang.modules" %% "scala-parallel-collections" % "0.2.0"
 //  val scalaParserCombinators: ModuleID = "org.scala-lang.modules" %% "scala-parser-combinators" % "1.1.2"
   // this actually needs the explicit version because something in packager breaks otherwise (???)
-  val sbtStructureCore: ModuleID = "org.jetbrains" %% "sbt-structure-core" % sbtStructureVersion
+  val sbtStructureCore: ModuleID = "org.jetbrains.scala" %% "sbt-structure-core" % sbtStructureVersion
   val evoInflector: ModuleID = "org.atteo" % "evo-inflector" % "1.2"
   // NOTE: current latest version is in https://github.com/unkarjedy/scalatest-finders.git repository
 
@@ -104,7 +100,6 @@ object Dependencies {
   //  2. update version in scala-plugin-common.xml compilerServer.plugin classpath setting
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
-  val nailgun: ModuleID = "org.jetbrains" % "nailgun-patched" % "1.0.1"
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
   val sbtInterface = "org.scala-sbt" % "util-interface" % "1.3.0"
@@ -190,7 +185,6 @@ object DependencyGroups {
   )
 
   val runtime: Seq[ModuleID] = Seq(
-//    bloopLauncher,
     sbtLaunch,
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
