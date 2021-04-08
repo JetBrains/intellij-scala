@@ -258,7 +258,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     updateUseIntellijWarningVisibility(scalaSettings)
   }
 
-  override def getPanel: JComponent = {
+  override protected def getPanelInner: JComponent = {
     if (myPanel == null) {
       myPanel = new JPanel(new VerticalFlowLayout(VerticalFlowLayout.TOP, 0, 0, true, true))
       myPanel.add(buildInnerPanel)

@@ -15,7 +15,7 @@ import javax.swing._
 
 import scala.collection.immutable.ListMap
 
-final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeStylePanelBase(settings) {
+final class TrailingCommaPanel(settings: CodeStyleSettings) extends ScalaCodeStyleSubPanelBase(settings) {
 
   import ScalaCodeStyleSettings.TrailingCommaMode
   import TrailingCommaPanel.ComboBoxItem

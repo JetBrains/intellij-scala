@@ -6,15 +6,18 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeEditorHighlighterProviders;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
-import org.jetbrains.annotations.NonNls;
+import com.intellij.ui.ScrollPaneFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaFileType;
+
+import javax.swing.*;
 
 abstract public class ScalaCodeStylePanelBase extends CodeStyleAbstractPanel {
 
     @Nullable
     private final String myTabTitle;
+    private JComponent myPanel;
 
     protected ScalaCodeStylePanelBase(@NotNull CodeStyleSettings settings, @NotNull String tabTitle) {
         super(settings);
@@ -57,4 +60,15 @@ abstract public class ScalaCodeStylePanelBase extends CodeStyleAbstractPanel {
     protected final int getRightMargin() {
         return 0;
     }
+
+    @Override
+    public final JComponent getPanel() {
+        if (myPanel == null) {
+            JComponent contentPanel = getPanelInner();
+            myPanel = ScrollPaneFactory.createScrollPane(contentPanel, true);
+        }
+        return myPanel;
+    }
+
+    abstract protected JComponent getPanelInner();
 }

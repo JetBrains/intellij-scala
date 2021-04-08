@@ -101,9 +101,8 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         return false;
     }
 
-    @Nullable
     @Override
-    public JComponent getPanel() {
+    protected JComponent getPanelInner() {
         return contentPanel;
     }
 
