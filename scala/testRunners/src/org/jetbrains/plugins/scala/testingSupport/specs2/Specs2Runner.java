@@ -114,6 +114,7 @@ public class Specs2Runner {
         String className = e.getClass().getSimpleName();
         String message = "\n" + className + " for 'main' in " + runnerFQN + ": " + e.getMessage() + "\n";
         System.out.println(message);
+        e.printStackTrace(System.out);
       }
     }
   }
