@@ -2,18 +2,18 @@ package org.jetbrains.plugins.scala
 package lang
 package typeInference
 
-import java.io.File
 import com.intellij.openapi.extensions.Extensions
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, ScalaLightPlatformCodeInsightTestCaseAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector
 import org.jetbrains.plugins.scala.util.{PsiFileTestUtil, TestUtils}
 import org.junit.experimental.categories.Category
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**
@@ -27,6 +27,8 @@ abstract class TypeInferenceTestBase extends ScalaLightCodeInsightFixtureTestAda
   override val END = "/*end*/"
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/typeInference/"
+
+  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doInjectorTest(injector: SyntheticMembersInjector): Unit = {
     val extensionPoint = Extensions.getRootArea.getExtensionPoint(SyntheticMembersInjector.EP_NAME): @nowarn("cat=deprecation")

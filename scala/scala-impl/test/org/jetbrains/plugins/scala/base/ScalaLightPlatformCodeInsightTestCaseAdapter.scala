@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.base
 
-import java.util
-
 import com.intellij.openapi.actionSystem.DataContext
-import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.{JavaSdkVersion, ProjectJdkTable, Sdk}
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
@@ -15,7 +12,6 @@ import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
 import org.jetbrains.plugins.scala.util.TestUtils
-import scala.jdk.CollectionConverters._
 
 /**
  * @author Alexander Podkhalyuzin
@@ -33,6 +29,8 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
 
   override protected def getProjectJDK: Sdk = SmartJDKLoader.getOrCreateJDK()
 
+  protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken.DoNotShare
+
   override protected def librariesLoaders: Seq[LibraryLoader] = {
     val builder = Seq.newBuilder[LibraryLoader]
     val scalaLoader = new ScalaSDKLoader(isIncludeReflectLibrary)
@@ -43,7 +41,7 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
   }
 
   // TODO: can we reuse the project between test cases in an isolated class in ScalaLightPlatformCodeInsightTestCaseAdapter inheritors?
-  override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor() {
+  override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module): Unit = afterSetUpProject(module)
 
     override def getSdk: Sdk = ScalaLightPlatformCodeInsightTestCaseAdapter.this.getProjectJDK

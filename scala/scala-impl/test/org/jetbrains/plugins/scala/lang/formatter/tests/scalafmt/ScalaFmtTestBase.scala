@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
-import com.intellij.openapi.editor.EditorFactory
-import com.intellij.openapi.editor.impl.DocumentImpl
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion

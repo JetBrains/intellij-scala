@@ -2,13 +2,12 @@ package org.jetbrains.plugins.scala
 package lang
 package typeConformance
 
-import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
-import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestAdapter, ScalaLightPlatformCodeInsightTestCaseAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -20,7 +19,7 @@ import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
-import scala.annotation.nowarn
+import java.io.File
 
 /**
   * User: Alexander Podkhalyuzin
@@ -31,6 +30,8 @@ abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestA
   protected val caretMarker = "/*caret*/"
 
   def folderPath: String = TestUtils.getTestDataPath + "/typeConformance/"
+
+  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false): Unit = {
     configureFromFileText(fileText.trim, ScalaFileType.INSTANCE)
