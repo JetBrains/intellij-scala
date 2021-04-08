@@ -7,8 +7,8 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class ShapelessTest extends TypeInferenceTestBase {
-  override protected def additionalLibraries: Seq[LibraryLoader] =
-    IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.3") :: Nil
+  override protected def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+ IvyManagedLoader("com.chuusai" %% "shapeless" % "2.3.3")
 
   def testGeneric(): Unit = doTest(
     s"""

@@ -15,8 +15,8 @@ class ScalaZTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
-    IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0") :: Nil
+  override protected def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+ IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0")
 
   def testSCL5706(): Unit = {
     doTest(
