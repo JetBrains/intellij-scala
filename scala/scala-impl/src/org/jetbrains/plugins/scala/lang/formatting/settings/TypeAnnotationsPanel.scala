@@ -97,7 +97,7 @@ final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnota
     super.dispose()
   }
 
-  override protected def getPanel: JComponent = myContent
+  override protected def getPanelInner: JComponent = myContent
 
   override protected def isModified(settings: CodeStyleSettings): Boolean =
     bindingsFor(settings).exists(!_.leftEqualsRight)

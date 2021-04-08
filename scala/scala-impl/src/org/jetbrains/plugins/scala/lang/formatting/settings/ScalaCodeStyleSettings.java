@@ -24,7 +24,9 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-
+/**
+ * Represents a dedicated tab panel in Scala code style settings
+ */
 public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public ScalaCodeStyleSettings() {
     super("ScalaCodeStyleSettings", null);
