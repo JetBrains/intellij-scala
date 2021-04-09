@@ -47,5 +47,5 @@ class ScBlockExprImpl(elementType: ILazyParseableElementType, buffer: CharSequen
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = visitor.visitBlockExpression(this)
 
   override def isEnclosedByBraces: Boolean =
-    this.firstChild.forall(_.elementType == ScalaTokenTypes.tLBRACE)
+    this.firstChild.exists(_.elementType == ScalaTokenTypes.tLBRACE)
 }

@@ -27,8 +27,14 @@ trait ScParameterClause extends ScalaPsiElement {
 
   def paramTypes: Seq[ScType] = parameters.map(_.`type`().getOrAny)
 
+  // TODO: a lot of places that depend on isImplicit should also be triggered when `isUsing` is true.
+  //  Review all `isImplicit` method usages and see if it actually should be something like `isImplicitOrUsing`
+  //  Also, maybe method names should be reviewed or even split to several methods:
+  //  `isImplicit` could express the semantics (parameter clause with `using` is also kinda implicit, just with a different keyword
+  //  In those places, where the semantics is important and the keyword is not, we could use `isImplicit`
+  //  In those places, whether the keyword is important we could use `hasImplicitKeyword` / `hasUsingKeyword`
+  //  Or we could create some method `def implicitKind: Option[ImplicitKeyword | UsingKeyword]`
   def isImplicit: Boolean
-
   def isUsing: Boolean
 
   def hasRepeatedParam: Boolean = parameters.lastOption.exists(_.isRepeatedParameter)

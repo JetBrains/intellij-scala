@@ -23,6 +23,9 @@ public abstract class ScalaCodeFoldingSettings {
   public abstract void setCollapseMethodCallBodies(boolean value);
   public abstract boolean isCollapseTemplateBodies();
   public abstract void setCollapseTemplateBodies(boolean value);
+  // def, val, var, given, type, this
+  public abstract boolean isCollapseDefinitionWithAssignmentBodies();
+  public abstract void setCollapseDefinitionWithAssignmentBodies(boolean value);
   public abstract boolean isCollapseTypeLambdas();
   public abstract void setCollapseTypeLambdas(boolean value);
   public abstract boolean isCollapsePackagings();
