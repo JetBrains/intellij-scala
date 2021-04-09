@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class EmptyParenMethodCallInspectionTest extends ScalaQuickFixTestBase {
-
-  import CodeInsightTestFixture.{CARET_MARKER => CARET}
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ParameterlessAccessInspection.EmptyParenMethod]
 
@@ -47,7 +43,6 @@ class EmptyParenMethodCallInspectionTest extends ScalaQuickFixTestBase {
   }
 
   def test_ok(): Unit = {
-
     checkTextHasNoErrors(
       text =
         s"""
@@ -68,6 +63,52 @@ class EmptyParenMethodCallInspectionTest extends ScalaQuickFixTestBase {
            |
            |new S().foo()
          """.stripMargin
+    )
+  }
+
+  def test_simple_in_object(): Unit = {
+    checkTextHasError(
+      s"""
+         |def foo(): Int = 1
+         |${START}foo$END
+         |""".stripMargin
+    )
+  }
+
+  def test_eta_expand_in_call(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |def foo(): Int = 1
+        |def goo(x: () => Int) = 1
+        |goo(foo) // okay
+        |""".stripMargin
+    )
+  }
+
+  def test_eta_expand_with_type_annotation(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |def foo(): Int = 1
+        |foo : () => Int // okay
+        |""".stripMargin
+    )
+  }
+
+  def test_parenless_generic_call(): Unit = {
+    checkTextHasError(
+      s"""
+        |def bar[A]() = 0
+        |${START}bar$END[Int]
+        |""".stripMargin
+    )
+  }
+
+  def test_generic_call_eta_expand(): Unit = {
+    checkTextHasNoErrors(
+      s"""
+         |def bar[A]() = 0
+         |bar[Int]: () => Any
+         |""".stripMargin
     )
   }
 }

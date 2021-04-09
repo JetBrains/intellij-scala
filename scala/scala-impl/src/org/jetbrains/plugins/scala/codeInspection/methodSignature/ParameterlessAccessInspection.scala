@@ -99,26 +99,6 @@ object ParameterlessAccessInspection {
       case _: ScPrefixExpr => false
       case _ => super.isFixable(parent)
     }
-
-    /*
-    *
-    * TODO test:
-    * {{{
-    *   object A {
-    *     def foo(): Int = 1
-    *     foo // warn
-    *
-    *     def goo(x: () => Int) = 1
-    *     goo(foo) // okay
-    *
-    *     foo : () => Int // okay
-    *
-    *     def bar[A]() = 0
-    *     bar[Int] // warn
-    *     bar[Int]: () => Any // okay
-    *   }
-    * }}}
-    */
   }
 
   @tailrec
@@ -129,7 +109,7 @@ object ParameterlessAccessInspection {
     case _ => false
   }
 
-  private def createQuickFix(expression: ScExpression) = new AbstractFixOnPsiElement(
+  private def createQuickFix(expression: ScExpression): AbstractFixOnPsiElement[ScExpression] = new AbstractFixOnPsiElement(
     ScalaInspectionBundle.message("add.call.parentheses"),
     expression
   ) {
