@@ -27,7 +27,7 @@ final class JavaAccessorEmptyParenCallInspection extends AbstractRegisteredInspe
       case (place: ScReferenceExpression) childOf (call: ScMethodCall) if call.argumentExpressions.isEmpty =>
         import JavaAccessorEmptyParenCallInspection._
         val problemExists = place match {
-          case _ if call.getParent.isInstanceOf[ScMethodCall] => false
+          case _ if call.getParent.is[ScMethodCall] => false
           case Resolved(resolveResult@ScalaResolveResult(method: PsiMethod, _))
             if quickfix.isAccessor(method) &&
               isNotOverloadedMethod(place, resolveResult.fromType) =>
@@ -54,7 +54,7 @@ object JavaAccessorEmptyParenCallInspection {
     case _ => false
   }
 
-  private def createQuickFix(call: ScMethodCall) = {
+  private def createQuickFix(call: ScMethodCall): Option[AbstractFixOnPsiElement[ScMethodCall]] = {
     val quickFix = new AbstractFixOnPsiElement(
       ScalaInspectionBundle.message("remove.call.parentheses"),
       call
@@ -70,7 +70,7 @@ object JavaAccessorEmptyParenCallInspection {
   }
 
   private[this] def processType(`type`: ScType,
-                                place: ScReferenceExpression) = {
+                                place: ScReferenceExpression): Set[ScalaResolveResult] = {
     val processor = new CollectMethodsProcessor(place, place.refName)
     processor.processType(`type`, place)
     processor.candidatesS
