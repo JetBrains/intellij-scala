@@ -197,7 +197,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   // TODO: maybe extract some proper base method should be extracted to ScDefinitionWithAssignment?
   //  currently there are "expr", "body", none
   private def definitionBody(da: ScDefinitionWithAssignment): Option[PsiElement] = {
-    def defaultBodyImpl = da.assignment.flatMap(_.nextSiblingNotWhitespaceComment).filterByType[ScExpression]
+    def defaultBodyImpl = da.assignment.flatMap(_.nextSiblingNotWhitespaceComment).filterNot(_.is[PsiErrorElement])
 
     da match {
       case d: ScPatternDefinition  => d.expr

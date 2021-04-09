@@ -320,4 +320,10 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
       |]$END
       |""".stripMargin
   )
+
+  def testTypeAlias_Incomplete(): Unit = genericCheckRegions(
+    """/** Type of the tail of a tuple */
+      |type Tail[X <: AnyRef] <: AnyRef =
+      |""".stripMargin
+  )
 }
