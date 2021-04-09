@@ -49,8 +49,11 @@ object ScalaInsertHandler {
     case fun: ScFunction =>
       val clauses = fun.paramClauses.clauses
       if (clauses.isEmpty) (-1, false)
-      else if (clauses.head.isImplicit) (-1, false)
-      else (clauses.head.parameters.length, false)
+      else {
+        val clause = clauses.head
+        if (clause.isImplicit || clause.isUsing) (-1, false)
+        else (clause.parameters.length, false)
+      }
     case method: PsiMethod =>
       (method.getParameterList.getParametersCount, isParameterless(method))
     case fun: ScFun =>
@@ -331,7 +334,8 @@ final class ScalaInsertHandler extends InsertHandler[ScalaLookupItem] {
               insertIfNeeded(placeInto = completionChar == '(', openChar = '(', closeChar = ')',
                 withSpace = false, withSomeNum = false)
             }
-          } else if (count > 0) {
+          }
+          else if (count > 0) {
             element.getParent match {
               //case for infix expressions
               case (ref: ScReferenceExpression) && Parent(inf: ScInfixExpr) if inf.operation == ref =>

@@ -16,6 +16,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOw
  * Time: 9:46:00
  */
 trait ScTypeAlias extends ScNamedElement
+  // TODO: ScDefinitionWithAssignment should go to ScTypeAliasDefinition but first, we should fix parser
+  //  to parse incomplete type definition as definition with error, not declaration:
+  //  `type X =`
+  //  it affects Enter handling after `type X =`
   with ScDefinitionWithAssignment
   with ScPolymorphicElement
   with ScMember.WithBaseIconProvider

@@ -16,6 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
  * }
  * }}}
  * (if case clause contains braces it's represented by ScBlockExpr inside ScBlock)
+ *
+ * TODO: delete ScBlockImpl, leave just ScBlockExpr
  */
 class ScBlockImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScBlock {
   override def toString: String = "BlockOfExpressions"
