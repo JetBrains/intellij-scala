@@ -3,7 +3,6 @@ package codeInspection
 package methodSignature
 
 import java.util.regex.Pattern
-
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.{PsiElement, PsiMethod, PsiType}
 import org.jetbrains.plugins.scala.extensions._
@@ -11,8 +10,11 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectContext
+
+import scala.annotation.tailrec
 
 package object quickfix {
 
@@ -32,7 +34,7 @@ package object quickfix {
                       (implicit context: ProjectContext): Unit = {
     for {
       expression <- definition.body
-      if !expression.isInstanceOf[ScBlockExpr]
+      if !expression.is[ScBlockExpr]
       block = createBlockFromExpr(expression)
     } expression.replace(block)
 
@@ -61,9 +63,17 @@ package object quickfix {
   private[methodSignature] def isAccessor(method: PsiMethod): Boolean =
     isNotScala(method) && method.isAccessor
 
-  private[this] def isNotScala(method: PsiMethod) = !method.isInstanceOf[ScalaPsiElement]
+  @tailrec
+  private[this] def isNotScala(method: PsiElement): Boolean = method match {
+    case _: ScalaPsiElement => false
+    case FakePsiMethod(original) if original ne method =>
+      // this is important for @BeanProperty
+      // otherwise vals annotated with it will be classified as NotScala
+      isNotScala(original)
+    case _ => true
+  }
 
   private[this] def findChild(element: PsiElement,
-                              elementType: IElementType = tCOLON) =
+                              elementType: IElementType = tCOLON): Option[PsiElement] =
     element.children.find(_.getNode.getElementType == elementType)
 }

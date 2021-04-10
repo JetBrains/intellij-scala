@@ -9,7 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{ElementType, IteratorExt, ObjectExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions.{ElementType, IteratorExt, ObjectExt, OptionExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder.{FoldingInfo, MatchExprOrMatchType}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -90,7 +90,10 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
           val body = definitionBody(definition)
           body.foreach { b =>
             val rangeNew = elementRangeWithEndMarkerAttached(b, b.getTextRange)
-            descriptors.add(new FoldingDescriptor(definition, rangeNew))
+            // we generally do not expect bodies empty, but adding this `isEmpty` check just in case
+            if (!rangeNew.isEmpty) {
+              descriptors.add(new FoldingDescriptor(definition, rangeNew))
+            }
           }
         case _ =>
       }
@@ -194,7 +197,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   // TODO: maybe extract some proper base method should be extracted to ScDefinitionWithAssignment?
   //  currently there are "expr", "body", none
   private def definitionBody(da: ScDefinitionWithAssignment): Option[PsiElement] = {
-    def defaultBodyImpl = da.assignment.flatMap(_.nextSiblingNotWhitespaceComment)
+    def defaultBodyImpl = da.assignment.flatMap(_.nextSiblingNotWhitespaceComment).filterNot(_.is[PsiErrorElement])
 
     da match {
       case d: ScPatternDefinition  => d.expr

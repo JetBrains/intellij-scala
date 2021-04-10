@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.codeInspection.methodSignature
 
 import com.intellij.codeInspection.LocalInspectionTool
-import com.intellij.testFramework.EditorTestUtil
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQuickFixTestBase}
 
 class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
-
-  import CodeInsightTestFixture.{CARET_MARKER => CARET}
   protected override val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[JavaAccessorEmptyParenCallInspection]
 
@@ -92,6 +88,37 @@ class JavaAccessorEmptyParenCallInspectionTest extends ScalaQuickFixTestBase {
       text =
         """
           |new J().foo()
+        """.stripMargin
+    )
+  }
+
+  def test_bean_properties(): Unit = {
+    checkTextHasNoErrors(
+      text =
+        """
+          |object Test {
+          |  @beans.BeanProperty
+          |  val foo = ""
+          |}
+          |
+          |Test.getFoo()
+        """.stripMargin
+    )
+  }
+
+  def test_scala_get_method(): Unit = {
+    checkTextHasNoErrors(
+      text =
+        """
+          |object Test {
+          |  val getFoo() = ""
+          |  val getBar() = ""
+          |}
+          |
+          |Test.getFoo
+          |Test.getFoo()
+          |Test.getBar
+          |Test.getBar()
         """.stripMargin
     )
   }
