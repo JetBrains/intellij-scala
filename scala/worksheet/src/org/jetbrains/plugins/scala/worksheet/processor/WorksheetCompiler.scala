@@ -147,6 +147,8 @@ class WorksheetCompiler(
       } catch {
         case NonFatal(ex) =>
           callback(toError(ex))
+      } finally {
+        compilerTask.setEndCompilationStamp(ExitStatus.SUCCESS, System.currentTimeMillis)
       }
     }
   } catch {

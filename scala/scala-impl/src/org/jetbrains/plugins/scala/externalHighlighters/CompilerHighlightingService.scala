@@ -32,6 +32,8 @@ final class CompilerHighlightingService(project: Project)
 
   private val incrementalExecutor = new RescheduledExecutor("IncrementalCompilerHighlighting", this)
   private val documentExecutor = new RescheduledExecutor("DocumentCompilerHighlighting", this)
+  // TODO: unify/merge worksheet highlighting implementation with  DocumentCompiler and documentExecutor
+  //  they basically use the same idea: use temp file to highlight
   private val worksheetExecutor = new RescheduledExecutor("WorksheetCompilerHighlighting", this)
   private val showIndicatorExecutor = new RescheduledExecutor("CompilerHighlightingIndicator", this)
 
