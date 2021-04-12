@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala
 
-import java.io.File
-import java.net.URL
 import com.intellij.ProjectTopics
 import com.intellij.execution.ExecutionException
 import com.intellij.openapi.Disposable
@@ -17,6 +15,7 @@ import com.intellij.openapi.util.{Key, UserDataHolder, UserDataHolderEx}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{LanguageSubstitutors, PsiElement, PsiFile}
 import com.intellij.util.PathsList
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScStubElementType
@@ -25,8 +24,12 @@ import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings, ScalaCompilerSettingsProfile}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.{ScalaPluginJars, UnloadAwareDisposable}
+import org.jetbrains.sbt.Sbt
+import org.jetbrains.sbt.language.SbtFileImpl
 import org.jetbrains.sbt.project.module.SbtModuleType
 
+import java.io.File
+import java.net.URL
 import scala.jdk.CollectionConverters._
 import scala.language.implicitConversions
 import scala.ref.Reference
@@ -117,7 +120,7 @@ package object project {
       scalaModuleSettings.exists(_.isIdBindingEnabled)
 
     def scalaSdk: Option[LibraryEx] =
-      scalaModuleSettings.map(_.scalaSdk)
+      scalaModuleSettings.flatMap(_.scalaSdk)
 
     def isSharedSourceModule: Boolean = ModuleType.get(module).getId == "SHARED_SOURCES_MODULE"
 
@@ -212,7 +215,7 @@ package object project {
       scalaModuleSettings.map(_.scalaLanguageLevel)
 
     def scalaMinorVersion: Option[ScalaVersion] =
-      scalaSdk.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
+      scalaModuleSettings.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
 
     def scalaMinorVersionOrDefault: ScalaVersion =
       scalaMinorVersion.getOrElse(ScalaVersion.default)
@@ -366,7 +369,12 @@ package object project {
     @CachedInUserData(file, ProjectRootManager.getInstance(file.getProject))
     private def projectModule: Option[Module] =
       inReadAction { // assuming that most of the time it will be read from cache
-        Option(ModuleUtilCore.findModuleForPsiElement(file))
+        val module = ModuleUtilCore.findModuleForPsiElement(file)
+        // for build.sbt files the appropriate module is the one with `-build` suffix
+        if (module != null && file.is[SbtFileImpl])
+          findBuildModule(module)
+        else
+          Option(module)
       }
 
     def scratchFileModule: Option[Module] =
@@ -392,9 +400,26 @@ package object project {
     def isIdBindingEnabled: Boolean = isEnabledIn(_.isIdBindingEnabled)
 
     private def isEnabledIn(predicate: Module => Boolean): Boolean =
-      isUnitTestMode ||
+      isUnitTestMode && !ProjectPsiFileExt.enableFeaturesCheckInTests ||
         file.module.exists(predicate)
   }
+
+  object ProjectPsiFileExt {
+    // TODO: this is a dirty hack to suppress skipping features check in unit tests
+    //  ideally we shouldn't check for `isUnitTestMode`, we should fix expected test data in all affected tests
+    @TestOnly
+    var enableFeaturesCheckInTests = false
+  }
+
+  /** @note duplicate in [[org.jetbrains.sbt.annotator.SbtDependencyAnnotator.doAnnotate]] */
+  private def findBuildModule(m: Module): Option[Module] = m match {
+    case SbtModuleType(_) => Some(m)
+    case _ =>                moduleByName(m.getProject, s"${m.getName}${Sbt.BuildModuleSuffix}")
+  }
+
+  //noinspection SameParameterValue
+  private def moduleByName(project: Project, name: String): Option[Module] =
+    ModuleManager.getInstance(project).getModules.find(_.getName == name)
 
   implicit class ProjectPsiElementExt(private val element: PsiElement) extends AnyVal {
     def module: Option[Module] = Option(element.getContainingFile).flatMap(_.module)
