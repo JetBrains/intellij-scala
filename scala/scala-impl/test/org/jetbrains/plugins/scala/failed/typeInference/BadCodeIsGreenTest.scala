@@ -53,42 +53,6 @@ class Test2 extends BadCodeIsGreenTest {
   }
 }
 
-class Test3 extends BadCodeIsGreenTest {
-
-  override protected val description: String =
-    "Type mismatch: expected Future[?], found Option[Int]"
-
-  def testScl8684(): Unit = {
-    checkTextHasError(
-      """object Test {
-        |  def foo() = {
-        |    for {
-        |      x <- Future(1)
-        |      y <- Option(1)
-        |    } yield x + y
-        |  }
-        |}
-      """.stripMargin)
-  }
-}
-
-class Test4 extends BadCodeIsGreenTest {
-
-  override protected val description: String =
-    "Reference to a is ambiguous; it is both a method parameter and a variable in scope."
-
-  def testSCL4434(): Unit = {
-    checkTextHasError(
-      """
-        |object Foo {
-        |  def foo(a: Any) = a;
-        |  var a = 1;
-        |  foo(a = 2)
-        |}
-      """.stripMargin)
-  }
-}
-
 class Test5 extends BadCodeIsGreenTest {
 
   override protected val description: String =
@@ -96,7 +60,7 @@ class Test5 extends BadCodeIsGreenTest {
 
   def testSCL7618(): Unit = {
     checkTextHasError(
-      """
+      s"""
         |object Main extends App {
         |  trait A[T]
         |  trait C[T]
@@ -111,30 +75,7 @@ class Test5 extends BadCodeIsGreenTest {
         |  foo(new B1)
         |  foo(new B2)
         |  foo(new B3)
-        |  foo(new B4)
-        |}
-      """.stripMargin)
-  }
-}
-
-class Test6 extends BadCodeIsGreenTest {
-
-  override protected val description: String =
-    "Type mismatch, expected: Foo, actual: String"
-
-  def testSCL8983(): Unit = {
-    checkTextHasError(
-      """
-        |class Foo extends ((String,String) => String) with Serializable{
-        |  override def apply(v1: String, v2: String): String = {
-        |    v1+v2
-        |  }
-        |}
-        |
-        |object main extends App {
-        |  val x = "x"
-        |  val y = "y"
-        |  val string: Foo = new Foo()(x,y)
+        |  foo(${START}new B4$END)
         |}
       """.stripMargin)
   }
@@ -147,10 +88,10 @@ class Test7 extends BadCodeIsGreenTest {
 
   def testSCL10320(): Unit = {
     checkTextHasError(
-      """
+      s"""
         |object Hello {
         |  val foobar = new Foobar()
-        |  foobar.notRed(Array(classOf[Hello.type], classOf[Object]))
+        |  foobar.notRed(Array(classOf[${START}Hello.type$END], classOf[Object]))
         |}
         |
         |class Foobar {
@@ -170,9 +111,9 @@ class Test8 extends BadCodeIsGreenTest {
 
   def testSCL10438(): Unit = {
     checkTextHasError(
-      """
+      s"""
         |object Stuff {
-        |  val parameters = Map[String, Any]("a", "b")
+        |  val parameters = Map[String, Any]("a", $START"b"$END)
         |}
       """.stripMargin)
   }
@@ -185,26 +126,8 @@ class Test9 extends BadCodeIsGreenTest {
 
   def testSCL10583(): Unit = {
     checkTextHasError(
-      """
-        |Some(1) flatMap (Seq(_))
-      """.stripMargin)
-  }
-}
-
-class Test10 extends BadCodeIsGreenTest {
-
-  override protected val description: String =
-    "Type mismatch, expected: Int, actual: Unit"
-
-  def testSCL10608(): Unit = {
-    checkTextHasError(
-      """
-        |def abc = {
-        |    23
-        |    val b = "nope"
-        |  }
-        |def foo(par: Int) = ???
-        |foo(abc)
+      s"""
+        |Some(1) flatMap (${START}Seq(_)$END)
       """.stripMargin)
   }
 }

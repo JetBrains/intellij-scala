@@ -94,6 +94,45 @@ class IllegalInheritanceTest extends AnnotatorTestBase[ScTemplateDefinition] {
     assertNothing(messages(code))
   }
 
+  def testSCL8628(): Unit = {
+    assertNothing(
+      messages(
+        """
+          trait Engine[E <: Engine[E]] {
+          |  type IndexType[T] <: Index[T, E]
+          |}
+          |
+          |trait Index[T, E <: Engine[E]] {
+          |  self: E#IndexType[T] =>
+          |}
+          |
+          |trait IndexFoo[T, E <: Engine[E]] extends Index[T, E] {
+          |  self: E#IndexType[T] =>
+          |}
+        """.stripMargin
+      ))
+  }
+
+  def testSCL8122(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Trait { this: Singleton => }
+          |object Ob extends Trait
+        """.stripMargin
+      ))
+  }
+
+  def testSCL13674(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Foo { self: Singleton => }
+          |object Bar extends Foo
+        """.stripMargin
+      ))
+  }
+
   override protected def annotate(element: ScTemplateDefinition)
                                  (implicit holder: ScalaAnnotationHolder): Unit =
     ScTemplateDefinitionAnnotator.annotateIllegalInheritance(element)
