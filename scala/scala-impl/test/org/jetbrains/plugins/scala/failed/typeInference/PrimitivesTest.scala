@@ -33,21 +33,4 @@ class PrimitivesTest extends TypeInferenceTestBase {
       |//Byte
     """.stripMargin.trim
   }
-  
-  def testSCL7923(): Unit = doTest {
-    """
-      |object Scl7923 {
-      |  import java.lang.{Long => JLong}
-      |
-      |  class Test {
-      |
-      |    def withJavaLong(number: JLong): Unit = {}
-      |
-      |    def test(): Unit = {
-      |      val num: Int = 5
-      |      withJavaLong(number = /*start*/num/*end*/)
-      |    }
-      |  }
-      |}//Long""".stripMargin
-  }
 }

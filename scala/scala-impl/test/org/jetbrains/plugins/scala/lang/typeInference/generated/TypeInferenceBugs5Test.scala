@@ -1148,6 +1148,27 @@ class TypeInferenceBugs5Test extends TypeInferenceBugs5TestBase {
       |//SeqLike[T, SeqLike[Any, Any]]
       |""".stripMargin
   )
+
+  def testSCL7923(): Unit = doTest {
+    """
+      |object Scl7923 {
+      |  import java.lang.{Long => JLong}
+      |
+      |  class Test {
+      |
+      |    def withJavaLong(number: JLong): Unit = {}
+      |
+      |    def test(): Unit = {
+      |      val num: Int = 5
+      |      withJavaLong(number = /*start*/num/*end*/)
+      |    }
+      |  }
+      |}//Long""".stripMargin
+  }
+
+  def testSCL8661(): Unit = doTest()
+
+  def testSCL9681(): Unit = doTest()
 }
 
 class TypeInferenceBugs5Test_with_parser_combinators extends TypeInferenceBugs5TestBase {

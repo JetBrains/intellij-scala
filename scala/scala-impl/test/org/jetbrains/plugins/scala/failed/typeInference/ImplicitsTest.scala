@@ -29,18 +29,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
 
   def testSCL8831(): Unit = doTest()
 
-  def testSCL7809(): Unit = doTest {
-    """
-      |class SCL7809 {
-      |  implicit def longToString(s: Long): String = s.toString
-      |  def useString(s: String) = s
-      |  def useString(d: Boolean) = d
-      |  /*start*/useString(1)/*end*/
-      |}
-      |//String
-    """.stripMargin.trim
-  }
-
   def testSCL7658(): Unit = {
     doTest(
       """implicit def i2s(i: Int): String = i.toString

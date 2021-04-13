@@ -15,8 +15,6 @@ class SelfTypeTest extends TypeInferenceTestBase {
 
   def testSCL5947(): Unit = doTest()
 
-  def testSCL8661(): Unit = doTest()
-
   def testSCL10173a(): Unit = doTest(
     s"""
        |trait T
