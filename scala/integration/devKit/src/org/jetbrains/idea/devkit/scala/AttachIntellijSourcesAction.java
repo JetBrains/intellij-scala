@@ -18,6 +18,7 @@ import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.roots.ui.configuration.JavaVfsSourceRootDetectionUtil;
 import com.intellij.openapi.util.Computable;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.openapi.vfs.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +30,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AttachIntellijSourcesAction extends AnAction {
+
+    private static final String PLUGIN_ATTACH_KEY = "scala.internal.attach.plugin.sources";
+
     @Override
     public void actionPerformed(@NotNull AnActionEvent event) {
         if (event.getProject() != null && !event.getProject().isDisposed())
@@ -109,14 +113,13 @@ public class AttachIntellijSourcesAction extends AnAction {
                 .findFirst();
     }
 
-    private static final ArrayList<String> CLASSIFIERS = new ArrayList<>();
-    static {
-        CLASSIFIERS.add("[IJ-SDK]");
-//        CLASSIFIERS.add("[IJ-PLUGIN]"); // disabled for performance reasons until IDEA-246022 is fixed
-    }
-
     @NotNull
     private static Set<Library> getSourcelessIJLibrariesByClassifier(@NotNull Project project) {
+        final ArrayList<String> CLASSIFIERS = new ArrayList<>();
+        CLASSIFIERS.add("[IJ-SDK]");
+        if (Registry.is(PLUGIN_ATTACH_KEY, true)) {
+            CLASSIFIERS.add("[IJ-PLUGIN]"); // under flag for performance reasons until IDEA-246022 is fixed
+        }
         LibraryTable libraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(project);
         return Arrays.stream(libraryTable.getLibraries())
                 .filter(library -> {
