@@ -4,14 +4,14 @@ import java.io.File
 import java.net.URI
 import java.nio.file.{Path, Paths}
 import java.util.concurrent.CompletableFuture
-
-import com.intellij.build.events.impl.{FailureResultImpl, SuccessResultImpl}
+import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{Module, ModuleManager}
 import com.intellij.openapi.project.{Project, ProjectUtil}
 import com.intellij.openapi.roots.CompilerProjectExtension
 import com.intellij.openapi.vfs.VirtualFileManager
 import org.eclipse.lsp4j.jsonrpc.ResponseErrorException
+import org.eclipse.lsp4j.jsonrpc.messages.ResponseErrorCode
 import org.jetbrains.annotations.Nls
 import org.jetbrains.bsp.settings.BspSettings
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
@@ -70,8 +70,8 @@ object BspUtil {
   }
 
   implicit class ResponseErrorExceptionOps(err: ResponseErrorException) {
-    def toBspError: BspError = {
-      BspErrorMessage(s"bsp error: ${err.getMessage} (${err.getResponseError.getCode})")
+    def toBspError: BspResponseError = {
+      BspResponseError(s"bsp error: ${err.getMessage} (${err.getResponseError.getCode})", err.getResponseError)
     }
   }
 
@@ -100,7 +100,14 @@ object BspUtil {
       cf.thenAccept {
         case Success(_) =>
           reporter.finishTask(eventId, successMsg, new SuccessResultImpl(true))
-        case Failure(x)  =>
+        case Failure(BspResponseError(message, error)) =>
+          if (error.getCode == ResponseErrorCode.MethodNotFound.getValue) {
+            reporter.finishTask(eventId, "unsupported method", new SkippedResultImpl)
+          } else {
+            val reportMsg = failMsg + "\n" + message
+            reporter.finishTask(eventId, reportMsg, new FailureResultImpl(reportMsg))
+          }
+        case Failure(x) =>
           reporter.finishTask(eventId, failMsg, new FailureResultImpl(failMsg, x))
         case _ =>
           reporter.finishTask(eventId, successMsg, new SuccessResultImpl(true))
