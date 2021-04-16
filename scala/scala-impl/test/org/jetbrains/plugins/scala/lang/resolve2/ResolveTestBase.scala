@@ -46,11 +46,11 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
     options = List()
     references = List()
 
-    val matches = pattern.findAllIn(getFileAdapter.getText).matchData
+    val matches = pattern.findAllIn(getFile.getText).matchData
 
     for (m <- matches) {
       val parameters = parseParameters(m.group(1))
-      val reference = getFileAdapter.findReferenceAt(m.end)
+      val reference = getFile.findReferenceAt(m.end)
 
       assertKnown(parameters)
       assertNotNull("No reference found at offset " + m.end, references)
@@ -114,7 +114,7 @@ abstract class ResolveTestBase extends ScalaResolveTestCase {
             result.get.isAccessible,
             result.get.isApplicable()) else (null, true, true)
 
-    def message = format(getFileAdapter.getText, _: String, lineOf(reference))
+    def message = format(getFile.getText, _: String, lineOf(reference))
 
     def assertEquals(name: String, v1: Any, v2: Any): Unit = {
       if(v1 != v2) fail(message(name + " - expected: " + v1 + ", actual: " + v2))

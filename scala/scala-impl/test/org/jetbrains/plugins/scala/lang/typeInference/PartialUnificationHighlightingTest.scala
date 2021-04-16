@@ -1,11 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.project._
-import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[PerfCycleTests]))
 class PartialUnificationHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override def setUp(): Unit = {
     super.setUp()

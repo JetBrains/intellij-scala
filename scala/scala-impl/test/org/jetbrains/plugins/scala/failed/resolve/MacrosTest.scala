@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-import org.jetbrains.plugins.scala.PerfCycleTests
-import org.junit.experimental.categories.Category
-
 /**
   * Created by Anton.Yalyshev on 20/04/16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class MacrosTest extends FailedResolveCaretTestBase {
 
   def testSCL8507(): Unit = doResolveCaretTest(

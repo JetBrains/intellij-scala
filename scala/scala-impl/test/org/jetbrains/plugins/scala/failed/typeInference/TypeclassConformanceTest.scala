@@ -1,13 +1,14 @@
-import org.jetbrains.plugins.scala.PerfCycleTests
+package org.jetbrains.plugins.scala.failed.typeInference
+
 import org.jetbrains.plugins.scala.lang.typeConformance.TypeConformanceTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * @author Anton Yalyshev
   * @since 06.07.2016.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class TypeclassConformanceTest extends TypeConformanceTestBase {
+
+  override protected def shouldPass = false
 
   def testSCL10491(): Unit = doTest(
     s"""

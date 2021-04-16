@@ -1,22 +1,19 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.jetbrains.plugins.scala.DependencyManagerBase._
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * @author mucianm
   * @since 28.03.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class ScalaZTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
-    IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0") :: Nil
+  override protected def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+ IvyManagedLoader("org.scalaz" %% "scalaz-core" % "7.1.0")
 
   def testSCL5706(): Unit = {
     doTest(

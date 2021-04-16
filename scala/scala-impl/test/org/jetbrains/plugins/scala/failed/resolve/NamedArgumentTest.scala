@@ -1,13 +1,9 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-import org.jetbrains.plugins.scala.PerfCycleTests
-import org.junit.experimental.categories.Category
-
 /**
   * @author Nikolay.Tropin
   */
-@Category(Array(classOf[PerfCycleTests]))
-class NamedArgumentTest extends FailedResolveTest("namedArgument") {
+class NamedArgumentTest extends FailableResolveTest("namedArgument") {
 
   def testSCL10487(): Unit = doTest() //apply method
 

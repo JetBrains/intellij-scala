@@ -392,4 +392,20 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   // TODO Highlight "1 ", else expected (currently there's no highlighting for "if", "if ()", and "if (true)" cases anyway) 
   def testIncompleteIfThenElse(): Unit = assertErrors(
     "val v: Int = if (true) 1")
+
+  def testSCL10608(): Unit = {
+    assertErrors(
+      """
+        |def abc = {
+        |    23
+        |    val b = "nope"
+        |  }
+        |def foo(par: Int) = ???
+        |foo(abc)
+      """.stripMargin,
+      Hint("abc",": Unit"),
+      Error("abc", "Type mismatch, expected: Int, actual: Unit")
+    )
+  }
+
 }

@@ -40,15 +40,16 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
   val START = EditorTestUtil.SELECTION_START_TAG
   val END = EditorTestUtil.SELECTION_END_TAG
 
+  protected def sourceRootPath: String = null
+
   override final def getFixture: JavaCodeInsightTestFixture = myFixture
 
   override def getTestDataPath: String = util.TestUtils.getTestDataPath + "/"
 
   protected def loadScalaLibrary: Boolean = true
 
-  override protected def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaSDKLoader()
-  )
+  override protected def librariesLoaders: Seq[LibraryLoader] =
+    ScalaSDKLoader() :: Option(sourceRootPath).map(SourcesLoader).toList
 
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module): Unit = setUpLibraries(module)

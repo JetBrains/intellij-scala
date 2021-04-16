@@ -85,4 +85,35 @@ class JavaHighlightingTest extends JavaHighlightingTestBase() {
 
     assertNothing(errorsFromScalaCode(scala, java))
   }
+
+  def testSCL10930(): Unit = {
+    val scala =
+      """
+        |  def testThis2(): Range[Integer] = {
+        |    Range.between(1, 3)
+        |  }
+      """.stripMargin
+
+    val java =
+      """
+        |import java.util.Comparator;
+        |
+        |public class Range<T> {
+        |
+        |    private Range(T element1, T element2, Comparator<T> comparator) {
+        |    }
+        |
+        |    public static <T extends Comparable<T>> Range<T> between(T fromInclusive, T toInclusive) {
+        |        return between(fromInclusive, toInclusive, null);
+        |    }
+        |
+        |    public static <T> Range<T> between(T fromInclusive, T toInclusive, Comparator<T> comparator) {
+        |        return new Range<T>(fromInclusive, toInclusive, comparator);
+        |    }
+        |}
+      """.stripMargin
+
+    assertNothing(errorsFromScalaCode(scala, java))
+  }
+
 }

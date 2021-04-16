@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.{LatestScalaVersions, PerfCycleTests, ScalaVersion}
-import org.junit.experimental.categories.Category
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
-@Category(Array(classOf[PerfCycleTests]))
 class RepeatedParametersTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
@@ -17,7 +15,6 @@ class RepeatedParametersTest extends ScalaLightCodeInsightFixtureTestAdapter {
   )
 }
 
-@Category(Array(classOf[PerfCycleTests]))
 class UnapplySeqRepeatedParametersTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_11
 

@@ -8,11 +8,9 @@ import com.intellij.execution.ui.RunContentDescriptor
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.testFramework.EdtTestUtil
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.testingSupport.ScalaTestingTestCase
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestRunConfiguration
 import org.jetbrains.plugins.scala.testingSupport.test.testdata.{AllInPackageTestData, ClassTestData, RegexpTestData, SingleTestData}
-import org.junit.experimental.categories.Category
 
 import scala.concurrent.duration._
 import scala.concurrent.{Await, Promise}
@@ -20,7 +18,6 @@ import scala.concurrent.{Await, Promise}
 /**
   * Created by Roman.Shein on 13.04.2017.
   */
-@Category(Array(classOf[PerfCycleTests]))
 abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
 
   override def runInDispatchThread(): Boolean = false

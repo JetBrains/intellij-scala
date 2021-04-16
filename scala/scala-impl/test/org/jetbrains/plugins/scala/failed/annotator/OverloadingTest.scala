@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
 import com.intellij.psi.{PsiErrorElement, PsiReference}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotationHolder}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
@@ -10,9 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScTypeExt
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
-import org.jetbrains.plugins.scala.{PerfCycleTests, ScalaBundle}
 import org.junit.Assert._
-import org.junit.experimental.categories.Category
 
 /**
   * User: Dmitry.Naydanov
@@ -20,12 +19,10 @@ import org.junit.experimental.categories.Category
   * 
   *  
   */
-@Category(Array(classOf[PerfCycleTests]))
-class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
-
-  override protected def shouldPass: Boolean = false
+abstract class OverloadingTestBase extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
 
   //TODO this class contains a fair amount of a copy-paste code, however refactoring isn't practical here as the class is to be removed soon 
+
   import org.jetbrains.plugins.scala.extensions._
 
   protected def collectMessages(fileText: String): Option[List[Message]] = {
@@ -44,9 +41,9 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Match
 
     file.depthFirst().foreach {
       case it: ScPatternDefinition => annotate(it, mock, typeAware = true)
-      case _ => 
+      case _ =>
     }
-    
+
     Some(mock.annotations)
   }
 
@@ -58,7 +55,7 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Match
   // TODO Why do we have this custom _implementation_ in a _test_?
   // TODO Use TypeMismatchError.register
   private def checkConformance(expression: ScExpression, typeElement: ScTypeElement, holder: ScalaAnnotationHolder): Unit = {
-    expression.getTypeAfterImplicitConversion().tr.foreach {actual =>
+    expression.getTypeAfterImplicitConversion().tr.foreach { actual =>
       val expected = typeElement.calcType
       if (!actual.conforms(expected)) {
         val expr = expression match {
@@ -72,6 +69,10 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Match
       }
     }
   }
+}
+
+class OverloadingTest extends OverloadingTestBase {
+  override protected def shouldPass: Boolean = false
 
   def testSCL9908(): Unit = assertNothing(
     collectMessages(
@@ -154,32 +155,6 @@ class OverloadingTest extends ScalaLightCodeInsightFixtureTestAdapter with Match
         |    val fields: Array[Field] = this.instanceFieldsOf(v, cache, newFieldsHandler)
         |    fields.toStream.map { f => (f.get(v), f) }
         |  }
-        |}
-      """.stripMargin)
-  )
-
-  def testSCL11684(): Unit = assertNothing(
-    collectMessages(
-      """
-        |package pack1 {
-        |
-        |  trait Enclosure {
-        |
-        |    class A[T] {}
-        |
-        |    private [pack1] class B[T] extends A[T] {}
-        |
-        |    class C[T] extends B[T] {}
-        |  }
-        |}
-        |
-        |object Tester extends pack1.Enclosure {
-        |
-        |  trait Tweak[-S]
-        |
-        |  case class Sort[I](f: I => Int) extends Tweak[A[I]]
-        |
-        |  val x: Tweak[C[String]] = Sort[String](_.size)
         |}
       """.stripMargin)
   )

@@ -1,19 +1,16 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator.element.ScAssignmentAnnotator
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message}
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScAssignment
-import org.junit.experimental.categories.Category
 
 /**
   * @author mucianm 
   * @since 23.03.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class OverrideSetterTest extends SimpleTestCase {
 
   override protected def shouldPass: Boolean = false

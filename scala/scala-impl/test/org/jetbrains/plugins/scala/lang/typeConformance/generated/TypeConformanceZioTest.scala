@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.typeConformance.generated
 
-import com.intellij.openapi.util.LowMemoryWatcher
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
@@ -13,8 +12,8 @@ class TypeConformanceZioTest extends TypeConformanceTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version.languageLevel == ScalaLanguageLevel.Scala_2_13
 
-  override protected def additionalLibraries: Seq[LibraryLoader] =
-    IvyManagedLoader("dev.zio" %% "zio" % "1.0.0-RC18-2") :: Nil
+  override protected def librariesLoaders: Seq[LibraryLoader] =
+    super.librariesLoaders :+ IvyManagedLoader("dev.zio" %% "zio" % "1.0.0-RC18-2")
 
   def testSCL17210(): Unit = {
     doTest(

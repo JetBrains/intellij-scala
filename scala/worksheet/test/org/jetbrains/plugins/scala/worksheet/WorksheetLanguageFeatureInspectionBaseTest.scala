@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.openapi.fileTypes.LanguageFileType
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.codeInspection.feature.{LanguageFeatureInspection, LanguageFeatureInspectionTestBase}
 import org.jetbrains.plugins.scala.project._
@@ -46,6 +47,8 @@ class WorksheetScratchFileLanguageFeatureInspection extends WorksheetLanguageFea
   override protected val isScratchFile: Boolean = true
 
   protected val TestCompilerProfile = "TestCompilerProfile"
+
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(None)
 
   override protected def onFileCreated(file: PsiFile): Unit =
     WorksheetFilePersistentSettings(file.getVirtualFile).setCompilerProfileName(TestCompilerProfile)
