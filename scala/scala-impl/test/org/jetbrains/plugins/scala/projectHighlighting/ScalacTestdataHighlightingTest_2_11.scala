@@ -18,7 +18,6 @@ import org.junit.experimental.categories.Category
 // TODO 1: the tests should be run for 2_13 as well
 // TODO 2: there should be an easy way to update the test data
 //  (to the latest scala minor version in the corresponding version branch)
-@Category(Array(classOf[ScalacTests]))
 class ScalacTestdataHighlightingTest_2_12 extends ScalacTestdataHighlightingTestBase_2_12 {
 
   override val reporter = ProgressReporter.newInstance(getClass.getSimpleName, filesWithProblems =
@@ -38,6 +37,7 @@ class ScalacTestdataHighlightingTest_2_12 extends ScalacTestdataHighlightingTest
 
 }
 
+@Category(Array(classOf[ScalacTests]))
 abstract class ScalacTestdataHighlightingTestBase_2_12
   extends ScalaLightCodeInsightFixtureTestAdapter with SeveralFilesHighlightingTest  {
 

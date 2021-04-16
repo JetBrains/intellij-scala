@@ -59,4 +59,92 @@ class TypeConformanceCompoundTest extends TypeConformanceTestBase {
       |//True
       |""".stripMargin
   )
+
+  def testSCL13481_1(): Unit = {
+    doTest(
+      """
+        |trait M[A]
+        |
+        |trait C[A] {
+        |  type N <: M[A]
+        |  def n: N
+        |}
+        |
+        |def foo[A] =
+        |  new C[A] {
+        |    type N = M[A]
+        |    def n: N = null
+        |  }
+        |
+        |def bar[B] =
+        |  new C[B] {
+        |    type N = M[B]
+        |    /*caret*/val n: N = foo[B].n
+        |  }
+        |//True""".stripMargin
+    )
+  }
+
+  def testSCL13481_2(): Unit = {
+    doTest(
+      """
+        |trait M[A]
+        |
+        |trait C[A] {
+        |  type N <: M[A]
+        |  def n: N
+        |}
+        |
+        |def foo[A] =
+        |  new C[A] {
+        |    type N = M[A]
+        |    def n: N = null
+        |  }
+        |
+        |val f2: C[String] { type N = M[String] ; def n: M[String] } = foo[String]
+        |//True""".stripMargin
+    )
+  }
+
+  def testSCL13481_3(): Unit = {
+    doTest(
+      """
+        |trait M[A]
+        |
+        |trait C[A] {
+        |  type N <: M[A]
+        |  def n: N
+        |}
+        |
+        |def foo[A] =
+        |  new C[A] {
+        |    type N = M[A]
+        |    def n: N = null
+        |  }
+        |
+        |val n1: M[String] = foo[String].n
+        |//True""".stripMargin
+    )
+  }
+
+  def testSCL13481_4(): Unit = {
+    doTest(
+      """
+        |trait M[A]
+        |
+        |trait C[A] {
+        |  type N <: M[A]
+        |  def n: N
+        |}
+        |
+        |def foo[A] =
+        |  new C[A] {
+        |    type N = M[A]
+        |    def n: N = null
+        |  }
+        |
+        |val f1: C[String] { def n: M[String] } = foo[String]
+        |//True""".stripMargin
+    )
+  }
 }

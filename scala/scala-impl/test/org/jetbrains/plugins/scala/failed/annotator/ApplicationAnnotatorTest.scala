@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed
 package annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator._
-import org.junit.experimental.categories.Category
 
 /**
   * Created by kate on 3/24/16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class ApplicationAnnotatorTest extends ApplicationAnnotatorTestBase {
   override protected def shouldPass: Boolean = false
 

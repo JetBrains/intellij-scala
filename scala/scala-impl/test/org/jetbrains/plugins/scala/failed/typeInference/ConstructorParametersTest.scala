@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
 import org.intellij.lang.annotations.Language
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.annotator.element.ScConstructorInvocationAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
@@ -10,12 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScConstructorInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
-import org.junit.experimental.categories.Category
 
 /**
   * Created by mucianm on 23.03.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class ConstructorParametersTest extends SimpleTestCase {
 
   override protected def shouldPass: Boolean = false

@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.javaHighlighting.JavaHighlightingTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * Created by Anton Yalyshev on 07/06/16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class JavaAnnotationTest extends JavaHighlightingTestBase() {
   override protected def shouldPass: Boolean = false
   def testSCL10385(): Unit = {

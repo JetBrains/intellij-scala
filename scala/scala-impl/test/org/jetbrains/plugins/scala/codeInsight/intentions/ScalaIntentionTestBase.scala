@@ -2,14 +2,14 @@ package org.jetbrains.plugins.scala
 package codeInsight
 package intentions
 
-import org.jetbrains.plugins.scala.editor._
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.Project
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.editor._
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert.{assertFalse, assertTrue}
 
@@ -22,6 +22,8 @@ abstract class ScalaIntentionTestBase  extends ScalaLightCodeInsightFixtureTestA
   def caretTag: String = EditorTestUtil.CARET_TAG
 
   def fileType: FileType = ScalaFileType.INSTANCE
+
+  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doTest(text: String,
                        resultText: String,

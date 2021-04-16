@@ -1,12 +1,8 @@
 package org.jetbrains.plugins.scala.failed.resolve
 
-import org.jetbrains.plugins.scala.PerfCycleTests
-import org.junit.experimental.categories.Category
-
 /**
   * Created by Anton.Yalyshev on 02/05/16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class PrimitiveOperatorResolveTest extends FailedResolveCaretTestBase {
 
   def testSCL9645(): Unit = {

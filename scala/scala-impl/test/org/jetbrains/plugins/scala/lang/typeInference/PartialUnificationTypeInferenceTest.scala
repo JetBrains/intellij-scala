@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.project._
 class PartialUnificationTypeInferenceTest extends TypeInferenceTestBase {
   override protected def setUp(): Unit = {
     super.setUp()
-    val profile = getModuleAdapter.scalaCompilerSettingsProfile
+    val profile = getModule.scalaCompilerSettingsProfile
     val newSettings = profile.getSettings.copy(
       additionalCompilerOptions = Seq("-Ypartial-unification")
     )

@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed.annotator
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * @author Anton.Yalyshev
   * @since 02.12.2017.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class PatternMatchingTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def shouldPass: Boolean = false
 

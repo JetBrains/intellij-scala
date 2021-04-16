@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * @author Roman.Shein
   * @since 01.04.2016.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
@@ -49,6 +46,7 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |//true
     """.stripMargin)
 
+  //component(3) = "thing" line makes the test fail with some exception from test framework, it has too many errors
   def testSCL13432(): Unit = checkTextHasNoErrors(
     s"""
        |import scala.reflect.ClassTag
@@ -56,10 +54,11 @@ class SetConformanceTest extends ScalaLightCodeInsightFixtureTestAdapter {
        |
        |def component[T: ClassTag]: mutable.HashMap[Int, T] = ???
        |
-       |component(3) = "thing"
+       |component.update(3, "thing")
+       |//component(3) = "thing"
+       |
        |//true
     """.stripMargin)
-
 
   def testSCL9738(): Unit = {
     checkTextHasNoErrors(

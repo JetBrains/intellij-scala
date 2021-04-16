@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * @author mucianm 
   * @since 07.04.16.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class GenericsProjectionTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testSCL8969(): Unit = {

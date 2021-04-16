@@ -2,14 +2,12 @@ package org.jetbrains.plugins.scala
 package lang
 package typeConformance
 
-import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiComment, PsiElement}
-import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightPlatformCodeInsightTestCaseAdapter}
+import org.jetbrains.plugins.scala.base.{FailableTest, ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -17,24 +15,26 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TypePresentationContext}
+import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert.fail
 import org.junit.experimental.categories.Category
 
-import scala.annotation.nowarn
+import java.io.File
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 10.03.2009
   */
-@nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 @Category(Array(classOf[TypecheckerTests]))
-abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter with FailableTest {
+abstract class TypeConformanceTestBase extends ScalaLightCodeInsightFixtureTestAdapter with FailableTest {
   protected val caretMarker = "/*caret*/"
 
-  def folderPath: String = baseRootPath + "typeConformance/"
+  def folderPath: String = TestUtils.getTestDataPath + "/typeConformance/"
+
+  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   protected def doTest(fileText: String, fileName: String = getTestName(false) + ".scala", checkEquivalence: Boolean = false): Unit = {
-    configureFromFileTextAdapter(fileName, fileText.trim)
+    configureFromFileText(fileText.trim, ScalaFileType.INSTANCE)
     doTestInner(checkEquivalence)
   }
 
@@ -89,11 +89,11 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
     val file = LocalFileSystem.getInstance.findFileByPath(filePath.replace(File.separatorChar, '/'))
     assert(file != null, "file " + filePath + " not found")
     val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(fileName, fileText.trim)
+    configureFromFileText(fileText.trim, ScalaFileType.INSTANCE)
   }
 
   protected def declaredAndExpressionTypes(): (ScType, ScType) = {
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val caretIndex = scalaFile.getText.indexOf(caretMarker)
     val patternDef =
       if (caretIndex > 0) {
@@ -112,7 +112,7 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
   }
 
   private def expectedResult: Boolean = {
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
     val text = lastPsi.getText
     val output = lastPsi.getNode.getElementType match {
@@ -127,8 +127,8 @@ abstract class TypeConformanceTestBase extends ScalaLightPlatformCodeInsightTest
 
   def doApplicationConformanceTest(fileText: String, fileName: String = "dummy.scala"): Unit = {
     import org.junit.Assert._
-    configureFromFileTextAdapter(fileName, fileText.trim)
-    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+    configureFromFileText(fileText.trim, ScalaFileType.INSTANCE)
+    val scalaFile = getFile.asInstanceOf[ScalaFile]
     val caretIndex = scalaFile.getText.indexOf(caretMarker)
     val element = if (caretIndex > 0) {
       PsiTreeUtil.findElementOfClassAtOffset(scalaFile, caretIndex, classOf[ScMethodCall], false)

@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * Created by Anton Yalyshev on 06/02/17.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class TupleTypeInfererenceTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false

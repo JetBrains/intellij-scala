@@ -4,7 +4,7 @@ trait Owner {
     def bMethod(): Unit = ???
   }
   trait API {
-    type Tag = String
+    type Tagg = String
   }
   val api: API = ???
 }
@@ -12,10 +12,10 @@ trait Owner {
 object OwnerImpl extends Owner
 
 object Test {
-  val tag: /*ref*/Tag = ???
+  val tag: /*ref*/Tagg = ???
 }
 /*
-import OwnerImpl.api.Tag
+import OwnerImpl.api.Tagg
 
 trait Owner {
   trait A
@@ -23,7 +23,7 @@ trait Owner {
     def bMethod(): Unit = ???
   }
   trait API {
-    type Tag = String
+    type Tagg = String
   }
   val api: API = ???
 }
@@ -31,6 +31,6 @@ trait Owner {
 object OwnerImpl extends Owner
 
 object Test {
-  val tag: Tag = ???
+  val tag: Tagg = ???
 }
 */

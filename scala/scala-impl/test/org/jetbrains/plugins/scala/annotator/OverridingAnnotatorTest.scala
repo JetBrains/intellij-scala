@@ -459,4 +459,45 @@ class OverridingAnnotatorTest extends OverridingAnnotatorTestBase {
         |}""".stripMargin
     )
   )
+
+  def testSCL8228(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |  trait TraitWithGeneric [T]{
+          |    // If you click on the left on green down arrow, it does not list implementation from SelfTypeWildcard
+          |    def method: String
+          |  }
+          |
+          |  trait SelfType { self: TraitWithGeneric[Unit] =>
+          |    override def method = "no problem here"
+          |  }
+          |
+          |  trait SelfTypeWildcard { self: TraitWithGeneric[_] =>
+          |    // BUG: Triggers "Overrides nothing" inspection
+          |    override def method = "inspection problem here for selftype"
+          |  }
+          |  object ItActuallyCompilesAndWorks extends TraitWithGeneric[Unit] with SelfTypeWildcard
+          |  ItActuallyCompilesAndWorks.method // returns "inspection problem here for selftype"
+        """.stripMargin)
+    )
+  }
+
+  def testSCL7987(): Unit = {
+    assertNothing(
+      messages(
+        """
+          |trait Foo {
+          |  protected type T
+          |  def foo(t: T)
+          |}
+          |
+          |new Foo {
+          |  override protected type T = String // will pass if protected modifier is removed
+          |  override def foo(t: T) = ()
+          |}
+        """.stripMargin
+      )
+    )
+  }
 }

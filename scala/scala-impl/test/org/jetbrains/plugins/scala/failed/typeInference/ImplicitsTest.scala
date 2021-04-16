@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
-import org.junit.experimental.categories.Category
 
 /**
   * @author Alefas
   * @since 21/03/16
   */
 
-@Category(Array(classOf[PerfCycleTests]))
 class ImplicitsTest extends TypeInferenceTestBase {
 
   override protected def shouldPass: Boolean = false
@@ -31,18 +28,6 @@ class ImplicitsTest extends TypeInferenceTestBase {
   def testSCL7605(): Unit = doTest()
 
   def testSCL8831(): Unit = doTest()
-
-  def testSCL7809(): Unit = doTest {
-    """
-      |class SCL7809 {
-      |  implicit def longToString(s: Long): String = s.toString
-      |  def useString(s: String) = s
-      |  def useString(d: Boolean) = d
-      |  /*start*/useString(1)/*end*/
-      |}
-      |//String
-    """.stripMargin.trim
-  }
 
   def testSCL7658(): Unit = {
     doTest(

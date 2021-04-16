@@ -12,8 +12,8 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.profile.codeInspection.ProjectInspectionProfileManager
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, ScalaSdkOwner}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter.{findCaretOffset, normalize}
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, ScalaSdkOwner, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.util.MarkersUtils
@@ -30,6 +30,8 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
 
   protected val fileType: LanguageFileType = ScalaFileType.INSTANCE
   protected val isScratchFile: Boolean = false
+
+  override protected def sharedProjectToken = SharedTestProjectToken(this.getClass)
 
   override protected def setUp(): Unit = {
     super.setUp()

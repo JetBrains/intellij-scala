@@ -1,10 +1,8 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.junit.experimental.categories.Category
 
 /**
   * @author mucianm 

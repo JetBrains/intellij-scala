@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.failed.typeInference
 
-import org.jetbrains.plugins.scala.PerfCycleTests
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.junit.experimental.categories.Category
 
 /**
   * @author Roman.Shein
   * @since 28.03.2016.
   */
-@Category(Array(classOf[PerfCycleTests]))
 class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override protected def shouldPass: Boolean = false
@@ -92,35 +89,6 @@ class ParameterizedTypeTest extends ScalaLightCodeInsightFixtureTestAdapter {
          |  sealed trait Concat[B <: HList] { def :::[A <: HList](a: A): A ::: B }
          |}
       """.stripMargin.trim
-    )
-  }
-
-  def testSCL12656(): Unit = {
-    checkTextHasNoErrors(
-      """import scala.concurrent.{ExecutionContext, Future}
-        |import scala.util.Success
-        |
-        |object TestCase {
-        |  def f: Future[Any] = null
-        |
-        |  implicit class MyFuture[T](val f: Future[T]) {
-        |    def awaitAndDo[U <: T](func: U => String)(implicit ec: ExecutionContext): String = {
-        |      f onComplete {
-        |        case Success(value) => return func(value.asInstanceOf[U])
-        |        case _ => Unit
-        |      }
-        |      "bar"
-        |    }
-        |  }
-        |
-        |  private def foo = {
-        |    implicit val ec: ExecutionContext = null
-        |    var baz: String = f awaitAndDo[Option[String]] {
-        |      case Some(s) => s
-        |      case None => "oups"
-        |    }
-        |  }
-        |}""".stripMargin
     )
   }
 
