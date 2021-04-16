@@ -3,14 +3,18 @@ package testingSupport
 
 import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.openapi.util.Key
+import com.intellij.util.containers.ContainerUtil
 
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.ListHasAsScala
 
 final class TestRunnerOutputListener(printProcessOutputToConsole: Boolean)
   extends ProcessAdapter
     with TestOutputMarkers {
 
-  private val _output: mutable.Buffer[(String, Key[_])] = mutable.ArrayBuffer.empty
+  private val _output: mutable.Buffer[(String, Key[_])] =
+    ContainerUtil.createConcurrentList[(String, Key[_])].asScala
+
   private val _outputTextFromTests = new StringBuilder
 
   def outputText: String = _output.map { case (text, typ) => s"[$typ] $text" }.mkString
