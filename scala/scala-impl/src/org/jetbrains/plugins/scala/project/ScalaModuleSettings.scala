@@ -1,19 +1,21 @@
 package org.jetbrains.plugins.scala.project
 
-import java.io.File
-import java.util.jar.Attributes
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
+import com.intellij.openapi.roots.libraries.Library
 import com.intellij.openapi.roots.{OrderEnumerator, libraries}
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
-import com.intellij.util.CommonProcessors.FindProcessor
+import com.intellij.util.CommonProcessors.CollectProcessor
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
 import org.jetbrains.plugins.scala.project.ScalaModuleSettings.{Yimports, YnoPredefOrNoImports, isMetaParadiseJar}
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.settings.SbtSettings
+
+import java.io.File
+import java.util.jar.Attributes
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
 
@@ -104,16 +106,22 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
 private object ScalaModuleSettings {
 
   def apply(module: Module): Option[ScalaModuleSettings] = {
-    val processor: FindProcessor[libraries.Library] = _.isScalaSdk
+    val processor = new CollectProcessor[libraries.Library]{
+      override def accept(t: Library): Boolean = t.isScalaSdk
+    }
 
     OrderEnumerator.orderEntries(module)
       .librariesOnly
       .forEachLibrary(processor)
 
-    val scalaSdk = processor.getFoundValue.asInstanceOf[LibraryEx]
+    // TODO: this is a workaround for SCL-17196, SCL-18166, SCL-18867
+    //  (there can be 2 SDKs in Scala3 modules, if there is another Scala2 module which uses same scala2 version
+    //  that is used by Scala3
+    val scalaSdk: Option[LibraryEx] = processor.getResults.iterator().asScala
+      .map(_.asInstanceOf[LibraryEx])
+      .maxByOption(_.properties.languageLevel)
 
-    Option(scalaSdk)
-      .map(new ScalaModuleSettings(module, _))
+    scalaSdk.map(new ScalaModuleSettings(module, _))
   }
 
   private object Yimports {
