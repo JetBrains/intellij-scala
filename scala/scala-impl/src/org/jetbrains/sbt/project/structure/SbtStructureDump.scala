@@ -1,33 +1,46 @@
 package org.jetbrains.sbt.project.structure
 
-import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
-import java.nio.charset.Charset
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicBoolean
-
 import com.intellij.build.events.impl.{FailureResultImpl, SkippedResultImpl, SuccessResultImpl}
 import com.intellij.execution.process.OSProcessHandler
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ExternalSystemException
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.build.BuildMessages.EventId
 import org.jetbrains.plugins.scala.build.{BuildMessages, BuildReporter, ExternalSystemNotificationReporter}
+import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.compilation.SbtCompilationSupervisor
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.settings.CompilerIndicesSettings
+import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver.ImportCancelledException
 import org.jetbrains.sbt.project.structure.SbtStructureDump._
 import org.jetbrains.sbt.shell.SbtShellCommunication
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.SbtBundle
 
-import scala.jdk.CollectionConverters._
+import java.io.{BufferedWriter, File, OutputStreamWriter, PrintWriter}
+import java.nio.charset.Charset
+import java.util.UUID
+import java.util.concurrent.TimeoutException
+import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.Future
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success, Try, Using}
 
 class SbtStructureDump {
 
   private val cancellationFlag: AtomicBoolean = new AtomicBoolean(false)
+
+  // NOTE: if this is a first run of sbt with a particular version on current machine
+  // sbt import will take some time because it will have to download quite a lot of dependencies
+  private val MaxImportDurationInUnitTests: FiniteDuration = 10.minutes
+
+  // in failed tests we would like to see sbt process output
+  private val processOutputBuilder = new StringBuilder
+  def processOutput: String = processOutputBuilder.mkString
 
   def cancel(): Unit = cancellationFlag.set(true)
 
@@ -93,11 +106,46 @@ class SbtStructureDump {
     )
   }
 
+  /**
+   * This is a workaround for [[https://github.com/sbt/sbt/issues/5128]] (tested for sbt 1.4.9)
+   *
+   * The bug is reproduced on Teamcity, on Windows agents:
+   * ProjectImportingTest is stuck indefinitely when the test is run from sbt.<br>
+   * It's also reproduces locally when running the test from sbt.<br>
+   * But for some reason is not reproduced when running from IDEA test runners<br>
+   *
+   * Environment variables which have to be mocked are inferred from methods in
+   * `lmcoursier.internal.shaded.coursier.paths.CoursierPaths` (version 2.0.6)
+   *
+   * @see [[https://github.com/sbt/sbt/issues/5128]]
+   * @see [[https://github.com/dirs-dev/directories-jvm/issues/49]]
+   * @see [[https://github.com/ScoopInstaller/Main/pull/878/files]]
+   */
+  private def defaultCoursierDirectoriesAsEnvVariables(): Seq[(String, String)] = {
+    val LocalAppData = System.getenv("LOCALAPPDATA")
+    val AppData = System.getenv("APPDATA")
+
+    val CoursierLocalAppDataHome = LocalAppData + "/Coursier"
+    val CoursierAppDataHome = AppData + "/Coursier"
+
+    Seq(
+      // these 2 variables seems to be enough for the workaround
+      ("COURSIER_CACHE", CoursierLocalAppDataHome + "/cache/v1"),
+      ("COURSIER_CONFIG_DIR", CoursierAppDataHome + "/config"),
+      // these 2 variables seems to be optional, but we set them just in cause
+      // they might be accessed in some unpredictable cases
+      ("COURSIER_JVM_CACHE", CoursierLocalAppDataHome + "/cache/jvm"),
+      ("COURSIER_DATA_DIR", CoursierLocalAppDataHome + "/data"),
+      // this also looks like an optional in 1.4.9, but setting it just in case
+      ("COURSIER_HOME", CoursierLocalAppDataHome),
+    )
+  }
+
   /** Run sbt with some sbt commands. */
   def runSbt(directory: File,
              vmExecutable: File,
              vmOptions: Seq[String],
-             environment: Map[String, String],
+             environment0: Map[String, String],
              sbtLauncher: File,
              sbtCommandLineArgs: List[String],
              @NonNls sbtCommands: String,
@@ -105,6 +153,24 @@ class SbtStructureDump {
             )
             (implicit reporter: BuildReporter)
   : Try[BuildMessages] = {
+
+    val environment = if (ApplicationManager.getApplication.isUnitTestMode && SystemInfo.isWindows) {
+      val extraEnvs = defaultCoursierDirectoriesAsEnvVariables()
+      environment0 ++ extraEnvs
+    }
+    else environment0
+
+    Log.debugSafe(
+      s"""runSbt
+         |  directory: $directory,
+         |  vmExecutable: $vmExecutable,
+         |  vmOptions: $vmOptions,
+         |  environment: $environment,
+         |  sbtLauncher: $sbtLauncher,
+         |  sbtCommandLineArgs: $sbtCommandLineArgs,
+         |  sbtCommands: $sbtCommands,
+         |  reportMessage: $reportMessage""".stripMargin
+    )
 
     val startTime = System.currentTimeMillis()
     // assuming here that this method might still be called without valid project
@@ -119,7 +185,7 @@ class SbtStructureDump {
         "-Dfile.encoding=UTF-8") ++
       jvmOptions ++
       List("-jar", normalizePath(sbtLauncher)) ++
-      sbtCommandLineArgs
+      sbtCommandLineArgs // :+ "--debug"
 
     val processCommands = processCommandsRaw.filterNot(_.isEmpty)
 
@@ -133,6 +199,10 @@ class SbtStructureDump {
       val procString = processBuilder.command().asScala.mkString(" ")
       reporter.log(procString)
 
+      Log.debugSafe(
+        s"""processBuilder.start()
+           |  command line: ${processBuilder.command().asScala.mkString(" ")}""".stripMargin
+      )
       processBuilder.start()
     }
       .flatMap { process =>
@@ -192,43 +262,73 @@ class SbtStructureDump {
       }
     }
 
-    val processListener: (OutputType, String) => Unit = {
-      case (typ@OutputType.StdOut, text) =>
-        if (text.contains("(q)uit")) {
-          val writer = new PrintWriter(process.getOutputStream)
-          writer.println("q")
-          writer.close()
-        } else {
-          update(typ, text)
+    val isUnitTest = ApplicationManager.getApplication.isUnitTestMode
+    processOutputBuilder.clear()
+
+    val processListener: (OutputType, String) => Unit = (typ, line) => {
+      if (isUnitTest) {
+        processOutputBuilder.append(s"[${typ.getClass.getSimpleName}] $line")
+        if (!line.endsWith("\n")) {
+          processOutputBuilder.append('\n')
         }
-      case (typ@OutputType.StdErr, text) =>
-        update(typ, text)
+      }
+      (typ, line) match {
+        case (typ@OutputType.StdOut, text) =>
+          if (text.contains("(q)uit")) {
+            val writer = new PrintWriter(process.getOutputStream)
+            writer.println("q")
+            writer.close()
+          } else {
+            update(typ, text)
+          }
+        case (typ@OutputType.StdErr, text) =>
+          update(typ, text)
+        case _ => // ignore
+      }
     }
 
-    Try {
-      val handler = new OSProcessHandler(process, "sbt import", Charset.forName("UTF-8"))
+    val handler = new OSProcessHandler(process, "sbt import", Charset.forName("UTF-8"))
+    // TODO: rewrite this code, do not use try, throw
+    val result = Try {
       handler.addProcessListener(new ListenerAdapter(processListener))
+      Log.debug("handler.startNotify()")
       handler.startNotify()
 
+      val start = System.currentTimeMillis()
+
       var processEnded = false
-      while (!processEnded && !cancellationFlag.get())
+      while (!processEnded && !cancellationFlag.get()) {
         processEnded = handler.waitFor(SBT_PROCESS_CHECK_TIMEOUT_MSEC)
 
-      if (!processEnded) {
-        // task was cancelled
-        handler.setShouldDestroyProcessRecursively(false)
-        handler.destroyProcess()
+        val importIsTooLong = isUnitTest && System.currentTimeMillis() - start > MaxImportDurationInUnitTests.toMillis
+        if (importIsTooLong) {
+          throw new TimeoutException(s"sbt process hasn't finished in $MaxImportDurationInUnitTests")
+        }
+      }
+
+      val exitCode = handler.getExitCode
+      Log.debug(s"processEnded: $processEnded, exitCode: $exitCode")
+      if (!processEnded)
         throw ImportCancelledException(new Exception(SbtBundle.message("sbt.task.canceled")))
-      } else if (handler.getExitCode != 0)
-          messages.status(BuildMessages.Error)
+      else if (exitCode != 0)
+        messages.status(BuildMessages.Error)
       else if (messages.status == BuildMessages.Indeterminate)
         messages.status(BuildMessages.OK)
-      else messages
+      else
+        messages
     }
+    if (!handler.isProcessTerminated) {
+      Log.debug(s"sbt process has not terminated, destroying the process...")
+      handler.setShouldDestroyProcessRecursively(false) // TODO: why not `true`?
+      handler.destroyProcess()
+    }
+    result
   }
 }
 
 object SbtStructureDump {
+
+  private val Log = Logger.getInstance(classOf[SbtStructureDump])
 
   private val SBT_PROCESS_CHECK_TIMEOUT_MSEC = 100
 

@@ -1,9 +1,6 @@
 package org.jetbrains.sbt
 package project
 
-import java.io.{File, FileNotFoundException}
-import java.util.{Locale, UUID}
-
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
@@ -33,9 +30,11 @@ import org.jetbrains.sbt.structure.XmlSerializer._
 import org.jetbrains.sbt.structure.{BuildData, ConfigurationData, DependencyData, DirectoryData, JavaData, ProjectData}
 import org.jetbrains.sbt.{structure => sbtStructure}
 
-import scala.jdk.CollectionConverters._
+import java.io.{File, FileNotFoundException}
+import java.util.{Locale, UUID}
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Random, Success, Try}
 import scala.xml.{Elem, XML}
 
@@ -182,13 +181,22 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
       }
       activeProcessDumper = None
 
-      messageResult.flatMap { messages =>
-        val tried = if (messages.status != BuildMessages.OK || !structureFile.isFile || structureFile.length <= 0) {
-          val message = SbtBundle.message("sbt.import.extracting.structure.failed")
-          Failure(new Exception(message))
-        } else Try {
-          val elem = XML.load(structureFile.toURI.toURL)
-          (elem, messages)
+      val result: Try[(Elem, BuildMessages)] = messageResult.flatMap { messages =>
+        val tried = {
+          def failure(reason: String): Failure[(Elem, BuildMessages)] = {
+            val message = SbtBundle.message("sbt.import.extracting.structure.failed") + s", reason: ${reason}"
+            Failure(new Exception(message))
+          }
+          if (messages.status != BuildMessages.OK)
+            failure(s"not ok build status: ${messages.status} (${messages})")
+          else if (!structureFile.isFile)
+            failure(s"structure file is not a file")
+          else if (structureFile.length <= 0)
+            failure(s"structure file is empty")
+          else Try {
+            val elem = XML.load(structureFile.toURI.toURL)
+            (elem, messages)
+          }
         }
 
         tried.recoverWith { case error =>
@@ -200,6 +208,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
           Failure(new Exception(message, error.getCause))
         }
       }
+      if (result.isFailure) {
+        val processOutput = dumper.processOutput.mkString
+        // exception is logged in other places
+        log.debug(s"failed to dump sbt structure, sbt process output:\n$processOutput")
+      }
+      result
     }
   }
 
