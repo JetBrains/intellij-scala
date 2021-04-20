@@ -41,6 +41,7 @@ lazy val scalaCommunity: sbt.Project =
       gradleIntegration % "test->test;compile->compile",
       intelliLangIntegration % "test->test;compile->compile",
       mavenIntegration % "test->test;compile->compile",
+      packageSearchIntegration,
       propertiesIntegration % "test->test;compile->compile",
       javaDecompilerIntegration,
       mlCompletionIntegration % "test->test;compile->compile"
@@ -174,6 +175,7 @@ lazy val scalaImpl: sbt.Project =
         "com.intellij.gradle",     // required by Android
         "org.intellij.groovy",     // required by Gradle
         "org.jetbrains.idea.maven",      // TODO remove after extracting the SBT module (which depends on Maven)
+        "com.jetbrains.packagesearch.intellij-plugin",
         "JUnit"
       ).map(_.toPlugin),
       intellijPluginJars :=
@@ -435,6 +437,13 @@ lazy val mlCompletionIntegration =
       intellijPlugins += "com.intellij.completion.ml.ranking".toPlugin,
       resolvers += "intellij-dependencies" at "https://packages.jetbrains.team/maven/p/ij/intellij-dependencies/",
       libraryDependencies += "org.jetbrains.intellij.deps.completion" % "completion-ranking-scala" % "0.3.2"
+    )
+    
+lazy val packageSearchIntegration =
+  newProject("package-search", file("scala/integration/package-search"))
+    .dependsOn(scalaImpl)
+    .settings(
+      intellijPlugins += "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
     )
 
 
