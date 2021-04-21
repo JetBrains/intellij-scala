@@ -40,17 +40,24 @@ object ScClassFileDecompiler {
 
   object ScClsStubBuilder extends compiled.ClsStubBuilder {
 
-    override val getStubVersion = 341
+    override val getStubVersion = 342
 
     override def buildFileStub(content: FileContent): stubs.PsiFileStubImpl[_ <: PsiFile] =
       decompiledScalaFile(content)
-        .map(stubBuilder.buildStubTree)
+        .map((if (isTasty(content.getFile)) stub3Builder else stub2Builder).buildStubTree)
         .orNull
 
-    private def stubBuilder =
+    private def stub2Builder =
       LanguageParserDefinitions.INSTANCE
         .forLanguage(ScalaLanguage.INSTANCE)
         .asInstanceOf[parser.ScalaParserDefinition]
+        .getFileNodeType
+        .getBuilder
+
+    private def stub3Builder =
+      LanguageParserDefinitions.INSTANCE
+        .forLanguage(Scala3Language.INSTANCE)
+        .asInstanceOf[parser.Scala3ParserDefinition]
         .getFileNodeType
         .getBuilder
   }
@@ -60,7 +67,7 @@ object ScClassFileDecompiler {
       sourceNameAndText(original, content.getContent).map {
         case (sourceName, sourceText) => PsiFileFactory.getInstance(content.getProject).createFileFromText(
           sourceName,
-          ScalaLanguage.INSTANCE,
+          if (isTasty(content.getFile)) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE,
           sourceText,
           true,
           false,
