@@ -29,7 +29,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
     //  HighlightingLevelManager.shouldInspect ~ "Highlighting: All Problems" in code analyses widget,
     //  but we ignore HighlightingLevelManager.shouldInspect ~ "Highlighting: Syntax"
     //  we should review all our annotators and split them accordingly
-    val shouldInspect = file.isScala3File || HighlightingLevelManager.getInstance(project).shouldInspect(file)
+    val shouldInspect = HighlightingLevelManager.getInstance(project).shouldInspect(file)
     hasScala && (shouldInspect || isUnitTestMode)
   }
 
