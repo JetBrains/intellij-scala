@@ -1768,8 +1768,9 @@
                   class="org.jetbrains.plugins.scala.compiler.CompileServerLauncher$Listener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.ToggleHighlightingModeListener"/>
-        <listener topic="com.intellij.openapi.project.ProjectManagerListener"
-                  class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnProjectOpenedListener"/>
+<!--        SCL-18946 -->
+<!--        <listener topic="com.intellij.openapi.project.ProjectManagerListener"-->
+<!--                  class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnProjectOpenedListener"/>-->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$ProjectListener"/>
 
