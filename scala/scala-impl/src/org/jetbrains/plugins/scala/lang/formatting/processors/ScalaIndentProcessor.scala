@@ -110,7 +110,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
         else Indent.getNormalIndent
       case _                   => Indent.getNoneIndent
     }
-    def blockChildIndent: Indent = child match {
+    def blockChildIndent: Indent = childPsi match {
       case b: ScBlock => blockIndent(b, isBraceNextLineShifted)
       case _          => Indent.getNormalIndent
     }
@@ -351,6 +351,13 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           Indent.getNoneIndent
         } else {
           Indent.getContinuationWithoutFirstIndent
+        }
+      case _: ScReturn =>
+        if (childElementType == ScalaTokenTypes.kRETURN)
+          Indent.getNoneIndent
+        else childPsi match {
+          case b: ScBlockExpr => blockIndent(b, isBraceNextLineShifted)
+          case _              => Indent.getNormalIndent
         }
       case _: ScParameters | _: ScParameterClause | _: ScPattern | _: ScTemplateParents |
               _: ScExpression | _: ScTypeElement | _: ScTypes =>

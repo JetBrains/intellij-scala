@@ -157,4 +157,82 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')""".stripMargin
   )
+
+  def test_fun_return_with_indention_based_block(): Unit = checkTree(
+    """def foo123: String =
+      |  return
+      |    val x = 1
+      |    val y = 2
+      |    (x + y).toString""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: foo123
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo123')
+      |    Parameters
+      |      <empty list>
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: String
+      |      CodeReferenceElement: String
+      |        PsiElement(identifier)('String')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n  ')
+      |    ReturnStatement
+      |      PsiElement(return)('return')
+      |      BlockExpression
+      |        PsiWhiteSpace('\n    ')
+      |        ScPatternDefinition: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(val)('val')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: x
+      |              PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('1')
+      |        PsiWhiteSpace('\n    ')
+      |        ScPatternDefinition: y
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(val)('val')
+      |          PsiWhiteSpace(' ')
+      |          ListOfPatterns
+      |            ReferencePattern: y
+      |              PsiElement(identifier)('y')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('2')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: (x + y).toString
+      |          ExpressionInParenthesis
+      |            PsiElement(()('(')
+      |            InfixExpression
+      |              ReferenceExpression: x
+      |                PsiElement(identifier)('x')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: +
+      |                PsiElement(identifier)('+')
+      |              PsiWhiteSpace(' ')
+      |              ReferenceExpression: y
+      |                PsiElement(identifier)('y')
+      |            PsiElement())(')')
+      |          PsiElement(.)('.')
+      |          PsiElement(identifier)('toString')""".stripMargin
+  )
 }
