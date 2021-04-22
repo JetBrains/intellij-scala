@@ -3475,4 +3475,12 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
         |}""".stripMargin
     )
   }
+
+  // TODO: change s to raw and reformat: see that indentation for margin char wasn't changes
+  println(
+    raw"""one
+       |two
+       |three
+       |""".stripMargin
+  )
 }
