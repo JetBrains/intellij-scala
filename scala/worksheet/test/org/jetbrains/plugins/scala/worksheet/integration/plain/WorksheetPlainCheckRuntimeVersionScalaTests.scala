@@ -6,22 +6,6 @@ import org.jetbrains.plugins.scala.worksheet.integration.{WorksheetIntegrationBa
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetExternalRunType
 import org.junit.Ignore
 
-@RunWithScalaVersions(Array(
-  TestScalaVersion.Scala_2_13,
-  TestScalaVersion.Scala_3_0
-))
-@Ignore("for local running only")
-class WorksheetPlainCheckRuntimeVersionScalaTest
-  extends WorksheetIntegrationBaseTest
-    with WorksheetRunTestSettings
-    with WorksheetPlainCheckRuntimeVersionScalaTests {
-
-  override def runType: WorksheetExternalRunType = WorksheetExternalRunType.PlainRunType
-
-  override def runInCompileServerProcess = true
-  override def useCompileServer: Boolean = true
-}
-
 trait WorksheetPlainCheckRuntimeVersionScalaTests  {
   self: WorksheetIntegrationBaseTest =>
 
@@ -58,7 +42,7 @@ trait WorksheetPlainCheckRuntimeVersionScalaTests  {
     TestScalaVersion.Scala_3_0,
   ))
   def testRuntimeScalaVersion_Scala_3(): Unit = {
-    val runtimeScalaVersion = "2.13.4" // in Scala3 a version from 2.13 scala-library.jar is used
+    val runtimeScalaVersion = "2.13.5" // in Scala3 a version from 2.13 scala-library.jar is used
     doRenderTest(
       s"util.Properties.versionString",
       s"val res0: String = version $runtimeScalaVersion"

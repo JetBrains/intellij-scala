@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths, StandardCopyOption}
 import java.util.zip.ZipOutputStream
 import scala.io.Source
-import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala}
+import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala, MapHasAsScala}
 import scala.sys.process.Process
 import scala.util.Using
 
@@ -100,7 +100,7 @@ object AfterUpdateDottyVersionScript {
         "community", "scala", "scala-impl", "resources", "projectTemplates", "dottyTemplate.zip"
       )).toFile
 
-      val repoPath = downloadRepository("https://github.com/lampepfl/dotty.g8/archive/master.zip").toPath
+      val repoPath = downloadRepository("https://github.com/lampepfl/dotty.g8/archive/main.zip").toPath
       assertTrue("repository folder doesn't exist", repoPath.toFile.exists())
 
       val dottyTemplateDir = repoPath.resolve(Paths.get("src", "main", "g8")).toFile
@@ -258,11 +258,13 @@ object AfterUpdateDottyVersionScript {
       .toPath
   }
 
+  //noinspection MutatorLikeMethodIsParameterless
+  private def deleteTempFileOnExit = true
   private def newTempFile(): File =
-    FileUtilRt.createTempFile("imported-dotty-tests", "", true)
+    FileUtilRt.createTempFile("imported-dotty-tests", "", deleteTempFileOnExit)
 
   private def newTempDir(): File =
-    FileUtilRt.createTempDirectory("imported-dotty-tests", "", true)
+    FileUtilRt.createTempDirectory("imported-dotty-tests", "", deleteTempFileOnExit)
 
   private def allFilesIn(path: String): Iterator[File] =
     allFilesIn(new File(path))
@@ -273,8 +275,18 @@ object AfterUpdateDottyVersionScript {
     else path.listFiles.iterator.flatMap(allFilesIn)
   }
 
-  private def clearDirectory(path: String): Unit =
-    new File(path).listFiles().foreach(_.delete())
+  private def clearDirectory(path: String): Unit = {
+    val file = new File(path)
+    if (file.exists()) {
+      assert(file.isDirectory)
+      val files = new File(path).listFiles()
+      assert(files != null)
+      files.foreach(_.delete())
+    }
+    else {
+      // probably the folder is already deleted in the previous script run
+    }
+  }
 
   sealed trait Script
   object Script {
@@ -304,7 +316,7 @@ object AfterUpdateDottyVersionScript {
     patchFile(
       repoPath.resolve("compiler/test/dotty/tools/dotc/FromTastyTests.scala"),
       "compileTastyInDir(s\"tests${JFile.separator}pos\"",
-      s"compileTastyInDir(${"\"" + testFilePath + "\""}"
+      s"compileTastyInDir(${"\"" + normalisedPathSeparator1(testFilePath) + "\""}"
     )
 
     /* not needed anymore?
@@ -331,9 +343,10 @@ object AfterUpdateDottyVersionScript {
          |  accept(EOF)
          |  // we need to test if the files are actually our test files
          |  // because this function is also used to compile some bootstrap libraries
-         |  if (!source.path.contains("$testFilePath"))
+         |  if (!source.path.contains("${normalisedPathSeparator1(testFilePath)}") &&
+         |      !source.path.contains("${normalisedPathSeparator2(testFilePath)}"))
          |    return t
-         |  val w = new java.io.PrintWriter("$targetRangeDirectory/" + source.name.replace(".scala", ".ranges"), java.nio.charset.StandardCharsets.UTF_8)
+         |  val w = new java.io.PrintWriter("${normalisedPathSeparator1(targetRangeDirectory)}/" + source.name.replace(".scala", ".ranges"), java.nio.charset.StandardCharsets.UTF_8)
          |  val traverser = new dotty.tools.dotc.ast.untpd.UntypedTreeTraverser {
          |    def traverse(tree: Tree)(using Context) = {
          |      val span = tree.span
@@ -361,7 +374,9 @@ object AfterUpdateDottyVersionScript {
       clearDirectory(rangesDirectory)
     }
 
-    val sc2 = Process("sbt" :: "testCompilation --from-tasty pos" :: Nil, repoPath.toFile).!
+    val isWindows = System.getProperty("os.name").toLowerCase.contains("win")
+    val sbtExecutable = if (isWindows) "sbt.bat" else "sbt"
+    val sc2 = Process(sbtExecutable :: "testCompilation --from-tasty pos" :: Nil, repoPath.toFile).!
     assert(sc2 == 0, s"sbt failed with exit code $sc2")
 
     val blacklisted = linesInFile(repoPath.resolve("compiler/test/dotc/pos-from-tasty.blacklist"))
@@ -370,6 +385,13 @@ object AfterUpdateDottyVersionScript {
       .size
     assert(allFilesIn(dottyParserTestsFailDir).size - blacklisted == allFilesIn(rangesDirectory).size)
   }
+
+  // We need to replace `\` with `/` (or escape `\` to `\\`) to make files patching work on Windows,
+  // otherwise source file will interpret backslash as an invalid escape sequence in `C:\Users\user`
+  private def normalisedPathSeparator1(path: Path): String = normalisedPathSeparator1(path.toString)
+  private def normalisedPathSeparator1(path: String)(implicit d: DummyImplicit): String = path.replace("\\", "/")
+  private def normalisedPathSeparator2(path: Path): String = normalisedPathSeparator2(path.toString)
+  private def normalisedPathSeparator2(path: String)(implicit d: DummyImplicit): String = path.replace("\\", "\\\\")
 
   private def patchFile(path: Path, searchString0: String, replacement0: String): Unit = {
     val searchString = searchString0.replace("\r", "")

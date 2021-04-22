@@ -1,0 +1,15 @@
+[0,80]: PackageDef
+[0,0]: Ident
+[0,80]: DefDef
+[17,21]: Ident
+[24,80]: Block
+[28,76]: ValDef
+[35,70]: AppliedTypeTree
+[35,51]: Select
+[35,42]: Ident
+[52,69]: InfixOp
+[52,55]: SingletonTypeTree
+[52,55]: Literal
+[56,58]: Ident
+[59,69]: Ident
+[74,76]: Literal
