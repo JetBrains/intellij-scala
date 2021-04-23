@@ -24,7 +24,7 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
   override protected def setUp(): Unit = {
     super.setUp()
-    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false)
+    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
   }
 
   def assertNoErrors(code: String): Unit =
