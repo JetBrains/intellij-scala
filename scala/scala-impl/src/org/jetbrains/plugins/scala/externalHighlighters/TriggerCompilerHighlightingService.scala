@@ -12,7 +12,7 @@ import com.intellij.psi.{PsiFile, PsiJavaFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{PsiFileExt, ToNullSafe, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{NullSafe, PsiFileExt, ToNullSafe, inReadAction}
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
@@ -25,7 +25,7 @@ final class TriggerCompilerHighlightingService(project: Project)
   extends Disposable {
 
   private var alreadyHighlighted = Set.empty[Path]
-  private var changedDocuments = Set.empty[Document]
+  private var changedFiles = Set.empty[VirtualFile]
 
   private val threadPool = AppExecutorUtil.createBoundedApplicationPoolExecutor("TriggerCompilerHighlighting", 1)
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
@@ -36,9 +36,9 @@ final class TriggerCompilerHighlightingService(project: Project)
         if (psiFile.isScalaWorksheet) {
           triggerWorksheetCompilation(psiFile, document, markHighlighted = None)
         } else asyncAtomic {
-          val changedDocumentsSizeBefore = changedDocuments.size
-          changedDocuments += document
-          if (changedDocuments.size > 1 && changedDocuments.size != changedDocumentsSizeBefore)
+          val changedFilesSizeBefore = changedFiles.size
+          changedFiles += virtualFile
+          if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
             triggerIncrementalCompilation()
           else
             triggerDocumentCompilation(document, psiFile, markHighlighted = None)
@@ -55,7 +55,7 @@ final class TriggerCompilerHighlightingService(project: Project)
         document <- inReadAction(virtualFile.findDocument)
       } asyncAtomic {
         val path = Paths.get(pathString)
-        if (changedDocuments.nonEmpty)
+        if (changedFiles.nonEmpty)
           triggerIncrementalCompilation()
         else if (!alreadyHighlighted.contains(path))
           if (psiFile.isScalaWorksheet)
@@ -66,7 +66,8 @@ final class TriggerCompilerHighlightingService(project: Project)
 
   override def dispose(): Unit = {
     synchronized {
-      changedDocuments = Set.empty
+      changedFiles = Set.empty
+      alreadyHighlighted = Set.empty
     }
     threadPool.shutdownNow()
   }
@@ -87,8 +88,10 @@ final class TriggerCompilerHighlightingService(project: Project)
 
   private def triggerIncrementalCompilation(): Unit = {
     def saveChangedDocuments(): Unit = synchronized {
-      changedDocuments.foreach(_.syncToDisk(project))
-      changedDocuments = Set.empty
+      changedFiles
+        .flatMap { virtualFile => inReadAction(virtualFile.findDocument) }
+        .foreach(_.syncToDisk(project))
+      changedFiles = Set.empty
     }
 
     def eraseAlreadyHighlighted(): Unit = synchronized {
@@ -102,16 +105,27 @@ final class TriggerCompilerHighlightingService(project: Project)
     def clearDocumentCompilerOutputDirectories(): Unit =
       DocumentCompiler.get(project).clearOutputDirectories()
 
-    CompilerHighlightingService.get(project).triggerIncrementalCompilation(
-      beforeCompilation = { () =>
-        saveChangedDocuments()
-      },
-      afterCompilation = { () =>
-        eraseAlreadyHighlighted()
-        clearDocumentCompilerOutputDirectories()
-        triggerSelectedDocumentCompilation()
+    val psiManager = PsiManager.getInstance(project)
+    val showErrorsFromCompilerEnabledAtLeastForOneOpenedFile =
+      FileEditorManager.getInstance(project).getAllEditors.exists { editor =>
+        val isShowErrorsFromCompilerEnabled = for {
+          virtualFile <- Option(editor.getFile)
+          psiFile <- Option(inReadAction(psiManager.findFile(virtualFile)))
+        } yield ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
+        isShowErrorsFromCompilerEnabled.exists(identity)
       }
-    )
+
+    if (showErrorsFromCompilerEnabledAtLeastForOneOpenedFile) // SCL-18946
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(
+        beforeCompilation = { () =>
+          saveChangedDocuments()
+        },
+        afterCompilation = { () =>
+          eraseAlreadyHighlighted()
+          clearDocumentCompilerOutputDirectories()
+          triggerSelectedDocumentCompilation()
+        }
+      )
   }
 
   private def triggerDocumentCompilation(document: Document,
