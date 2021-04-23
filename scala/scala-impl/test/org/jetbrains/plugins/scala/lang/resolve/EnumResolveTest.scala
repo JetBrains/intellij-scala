@@ -12,7 +12,7 @@ class EnumResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with Simpl
 
   override def setUp(): Unit = {
     super.setUp()
-    Registry.get(ShowDotcErrorsKey).setValue(false)
+    Registry.get(ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
   }
 
   def testEnumClass(): Unit =
