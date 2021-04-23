@@ -41,10 +41,10 @@ final class CompilerHighlightingService(project: Project)
                                     beforeCompilation: () => Unit = () => (),
                                     afterCompilation: () => Unit = () => ()): Unit =
     incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
-      performCompilation(delayedProgressShow) {
+      performCompilation(delayedProgressShow) { client =>
         beforeCompilation()
         try {
-          IncrementalCompiler.compile(project, _)
+          IncrementalCompiler.compile(project, client)
         } finally {
           afterCompilation()
         }
@@ -53,9 +53,9 @@ final class CompilerHighlightingService(project: Project)
 
   def triggerDocumentCompilation(document: Document,
                                  afterCompilation: () => Unit = () => ()): Unit =
-    scheduleDocumentCompilation(documentExecutor, document) {
+    scheduleDocumentCompilation(documentExecutor, document) { client =>
       try {
-        DocumentCompiler.get(project).compile(document, _)
+        DocumentCompiler.get(project).compile(document, client)
       } finally {
         afterCompilation()
       }
@@ -64,9 +64,9 @@ final class CompilerHighlightingService(project: Project)
   def triggerWorksheetCompilation(psiFile: PsiFile,
                                   document: Document,
                                   afterCompilation: () => Unit = () => ()): Unit =
-    scheduleDocumentCompilation(worksheetExecutor, document) {
+    scheduleDocumentCompilation(worksheetExecutor, document) { client =>
       try {
-        WorksheetHighlightingCompiler.compile(psiFile, document, _)
+        WorksheetHighlightingCompiler.compile(psiFile, document, client)
       } finally {
         afterCompilation()
       }
