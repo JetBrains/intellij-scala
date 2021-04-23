@@ -12,7 +12,8 @@ class ListenerAdapter(listener: (OutputType, String) => Unit) extends ProcessAda
     val textType = outputType match {
       case ProcessOutputTypes.STDOUT => Some(OutputType.StdOut)
       case ProcessOutputTypes.STDERR => Some(OutputType.StdErr)
-      case _ => None
+      case ProcessOutputTypes.SYSTEM => Some(OutputType.MySystem)
+      case other                     => Some(OutputType.Other(other))
     }
     textType.foreach(t => listener(t, event.getText))
   }

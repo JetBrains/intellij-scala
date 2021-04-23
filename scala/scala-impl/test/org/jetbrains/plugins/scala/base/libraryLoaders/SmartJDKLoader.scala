@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package base
 package libraryLoaders
 
-import java.io.File
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
@@ -14,6 +12,7 @@ import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.junit.Assert
 
+import java.io.File
 import scala.annotation.nowarn
 
 case class InternalJDKLoader() extends SmartJDKLoader() {
@@ -51,13 +50,17 @@ abstract class SmartJDKLoader() extends LibraryLoader {
 
 object SmartJDKLoader {
 
-  private val jdkPaths = Seq(
-    "/usr/lib/jvm",                      // linux style
-    "C:\\Program Files\\Java\\",         // windows style
-    "C:\\Program Files (x86)\\Java\\",   // windows 32bit style
-    "/Library/Java/JavaVirtualMachines", // mac style
-    System.getProperty("user.home") + "/.jabba/jdk" // jabba (for github actions)
-  )
+  private val jdkPaths = {
+    val userHome = System.getProperty("user.home")
+    Seq(
+      "/usr/lib/jvm",                      // linux style
+      "C:\\Program Files\\Java\\",         // windows style
+      "C:\\Program Files (x86)\\Java\\",   // windows 32bit style
+      "/Library/Java/JavaVirtualMachines", // mac style
+      userHome + "/.jabba/jdk", // jabba (for github actions)
+      userHome + "/.jdks", // by default IDEA downloads JDKs here
+    )
+  }
 
   def getOrCreateJDK(languageLevel: LanguageLevel = LanguageLevel.JDK_11): Sdk = {
     val jdkVersion = JavaSdkVersion.fromLanguageLevel(languageLevel)

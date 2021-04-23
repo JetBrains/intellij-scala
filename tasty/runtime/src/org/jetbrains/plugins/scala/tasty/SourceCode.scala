@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.tasty
 
-// Copy of https://github.com/lampepfl/dotty/blob/3.0.0-RC2/compiler/src/scala/quoted/runtime/impl/printers/SourceCode.scala (with amendments)
+// Copy of https://github.com/lampepfl/dotty/blob/3.0.0-RC3/compiler/src/scala/quoted/runtime/impl/printers/SourceCode.scala (with amendments)
 
 import scala.annotation.switch
 import scala.quoted._
