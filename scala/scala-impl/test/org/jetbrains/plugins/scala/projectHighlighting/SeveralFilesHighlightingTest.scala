@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
-import java.io.File
-
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
@@ -14,7 +12,8 @@ import org.jetbrains.plugins.scala.projectHighlighting.AllProjectHighlightingTes
 import org.jetbrains.plugins.scala.util.PsiFileTestUtil
 import org.jetbrains.plugins.scala.util.reporter.ProgressReporter
 
-import scala.io.Source
+import java.io.File
+import scala.io.{Codec, Source}
 import scala.util.Using
 
 /**
@@ -57,7 +56,7 @@ trait SeveralFilesHighlightingTest {
   }
 
   private def content(file: File): String =
-    Using.resource(Source.fromFile(file))(_.getLines.mkString("\n"))
+    Using.resource(Source.fromFile(file)(Codec.UTF8))(_.getLines.mkString("\n"))
 
   private def removeFile(psiFile: PsiFile): Unit = {
     inWriteAction(psiFile.delete())

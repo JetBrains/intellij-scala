@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.decompiler
 
-import java.io.{File => jFile}
-
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
 
+import java.io.{File => jFile}
+import scala.io.Codec
 import scala.tools.nsc.io.File
 
 /**
@@ -19,7 +19,7 @@ trait DecompilerTestBase extends TestCase {
     val classFilePath = getClassFilePath(fileName, getName)
     val expectedFilePath: String = classFilePath + ".test"
 
-    val expectedResult = new File(new jFile(expectedFilePath)).slurp().replace("\r","")
+    val expectedResult = new File(new jFile(expectedFilePath))(Codec.UTF8).slurp().replace("\r","")
 
     Assert.assertEquals(expectedResult, decompile(classFilePath))
   }
@@ -34,7 +34,7 @@ trait DecompilerTestBase extends TestCase {
   }
 
   protected final def decompile(classFilePath: String): String = {
-    val file = new File(new jFile(classFilePath))
+    val file = new File(new jFile(classFilePath))(Codec.UTF8)
     val Some((_, sourceText)) = Decompiler.sourceNameAndText(file.name, file.toByteArray)
     sourceText
   }
