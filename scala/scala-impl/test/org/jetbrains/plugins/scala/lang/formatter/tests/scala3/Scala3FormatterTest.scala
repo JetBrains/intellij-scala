@@ -242,6 +242,11 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  def testGivenInstance_5_WithIndentationBasedTemplateBody(): Unit = doTextTest(
+    """given intOrd: Ord42[Int] with
+      |  def compare(x: Int, y: Int): Int = 42""".stripMargin
+  )
+
   def testPackagingWithColon(): Unit = {
     doTextTest(
       """package p1:
