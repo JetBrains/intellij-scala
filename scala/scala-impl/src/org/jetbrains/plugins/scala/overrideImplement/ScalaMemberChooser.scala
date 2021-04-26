@@ -1,46 +1,42 @@
 package org.jetbrains.plugins.scala
 package overrideImplement
 
-import java.awt.FlowLayout
-
 import com.intellij.ide.util.MemberChooser
 import com.intellij.psi._
 import com.intellij.ui.{HyperlinkLabel, NonFocusableCheckBox}
 import com.intellij.util.ui.ThreeStateCheckBox
 import com.intellij.util.ui.ThreeStateCheckBox.State
-import javax.swing.event.{HyperlinkEvent, TreeSelectionEvent, TreeSelectionListener}
-import javax.swing.{JComponent, JPanel}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.annotations.{Declaration, Location, ScalaTypeAnnotationSettings}
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil._
 
-import scala.annotation.nowarn
+import java.awt.FlowLayout
+import javax.swing.event.{HyperlinkEvent, TreeSelectionEvent, TreeSelectionListener}
+import javax.swing.{JCheckBox, JComponent, JPanel}
 import scala.collection.immutable.ArraySeq
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 2014-03-25
- */
-@nowarn("msg=early initializers")
 class ScalaMemberChooser[T <: ClassMember : scala.reflect.ClassTag](elements: ArraySeq[T],
                                                                     allowEmptySelection: Boolean,
                                                                     allowMultiSelection: Boolean,
                                                                     needAddOverrideChb: Boolean,
                                                                     needSpecifyTypeChb: Boolean,
                                                                     needCopyScalaDocChb: Boolean,
-                                                                    targetClass: ScTemplateDefinition)
-        extends {
-          val addOverrideModifierChb = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier"))
-          val copyScalaDocChb = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc"))
-          val typePanel = new JPanel()
-
-          private val otherComponents = Array[JComponent](copyScalaDocChb, addOverrideModifierChb, typePanel)
-          private val sortedElements = ScalaMemberChooser.sorted(elements, targetClass)
-
-        } with MemberChooser[T](sortedElements.toArray[T], allowEmptySelection, allowMultiSelection, targetClass.getProject, null, otherComponents) {
+                                                                    targetClass: ScTemplateDefinition,
+                                                                    // hack early initializers
+                                                                    addOverrideModifierChb: JCheckBox = new NonFocusableCheckBox(ScalaBundle.message("add.override.modifier")),
+                                                                    copyScalaDocChb: JCheckBox = new NonFocusableCheckBox(ScalaBundle.message("copy.scaladoc")),
+                                                                    typePanel: JPanel = new JPanel())
+  extends MemberChooser[T](
+    ScalaMemberChooser.sorted(elements, targetClass).toArray[T],
+    allowEmptySelection,
+    allowMultiSelection,
+    targetClass.getProject,
+    null,
+    Array[JComponent](copyScalaDocChb, addOverrideModifierChb, typePanel)
+  ) {
 
   val mySpecifyTypeChb = new ThreeStateCheckBox(ScalaBundle.message("specify.return.type.explicitly"))
 

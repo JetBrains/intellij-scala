@@ -4,15 +4,14 @@ package overrideImplement
 import com.intellij.codeInsight.generation.PsiElementClassMember
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.PsiTypeExt
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiPresentationUtils, ScalaPsiUtil}
+import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.extensions.{PsiNamedElementExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiPresentationUtils
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
-
-import scala.annotation.nowarn
 
 trait Ttt {
   type Alias
@@ -70,24 +69,22 @@ object ScMethodMember {
 
 sealed trait ScalaFieldMember extends ScalaTypedMember
 
-@nowarn("msg=early initializers")
-class ScValueMember(member: ScValue, val element: ScTypedDefinition, override val substitutor: ScSubstitutor, val isOverride: Boolean)
-        extends {
-          override val name = element.getName
-          override val scType = substitutor(element.`type`().getOrAny)
-          val text = element.name + ": " + scType.presentableText(element)
-        } with PsiElementClassMember[ScValue](member, text) with ScalaFieldMember
+sealed abstract class ScValueOrVariableMember[T <: ScValueOrVariable](member: T,
+                                                                      val element: ScTypedDefinition,
+                                                                      override val substitutor: ScSubstitutor)(
+                                                                      override val name: String = element.name,
+                                                                      override val scType: ScType = substitutor(element.`type`().getOrAny))
+  extends PsiElementClassMember[T](member, NlsString.force(s"$name: ${scType.presentableText(element)}")) with ScalaFieldMember
 
-@nowarn("msg=early initializers")
-class ScVariableMember(member: ScVariable, val element: ScTypedDefinition, override val substitutor: ScSubstitutor, val isOverride: Boolean)
-        extends {
-          override val name = element.getName
-          override val scType = substitutor(element.`type`().getOrAny)
-          val text = name + ": " + scType.presentableText(element)
-        } with PsiElementClassMember[ScVariable](member, text) with ScalaFieldMember
+class ScValueMember(member: ScValue, element: ScTypedDefinition, substitutor: ScSubstitutor, val isOverride: Boolean)
+        extends ScValueOrVariableMember[ScValue](member, element, substitutor)()
+
+class ScVariableMember(member: ScVariable, element: ScTypedDefinition, substitutor: ScSubstitutor, val isOverride: Boolean)
+      extends ScValueOrVariableMember[ScVariable](member, element, substitutor)()
 
 class JavaFieldMember private(override val getElement: PsiField,
-                              text: String, override val scType: ScType,
+                              @Nls text: String,
+                              override val scType: ScType,
                               override val substitutor: ScSubstitutor)
   extends PsiElementClassMember[PsiField](getElement, text) with ScalaFieldMember {
 
@@ -101,7 +98,7 @@ object JavaFieldMember {
     val fieldType = field.getType.toScType()
     val scType = substitutor(fieldType)
 
-    val text = s"${field.getName}: ${scType.presentableText(field)}"
+    val text = NlsString.force(s"${field.name}: ${scType.presentableText(field)}")
     new JavaFieldMember(field, text, scType, substitutor)
   }
 }

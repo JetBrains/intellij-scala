@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.psi.uast.expressions
 
-import java.{util => ju}
-
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiLocalVariable, PsiType, PsiVariable}
 import org.jetbrains.annotations.Nullable
@@ -13,9 +11,11 @@ import org.jetbrains.plugins.scala.lang.psi.uast.baseAdapters.ScUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.declarations.{ScUVariable, ScUVariableCommon}
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
+
+import java.{util => ju}
 import org.jetbrains.uast._
 
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 
 /**
@@ -61,7 +61,7 @@ final class ScULocalFunctionDeclarationExpression(
 
   override def getDeclarations: ju.List[UDeclaration] =
     Seq(
-      new ScULocalFunction(scElement, containingTypeDef, LazyUElement.just(this)): UDeclaration
+      new ScULocalFunction(scElement, containingTypeDef, LazyUElement.just(this))(): UDeclaration
     ).asJava
 
   // escapes looping caused by the default implementation
@@ -74,21 +74,19 @@ final class ScULocalFunctionDeclarationExpression(
   *
   * @param funDef Scala PSI element representing local function definition
   */
-@nowarn("msg=early initializers")
 final class ScULocalFunction(funDef: ScFunctionDefinition,
-                       containingTypeDef: ScTemplateDefinition,
-                       override protected val parent: LazyUElement)
-    extends {
-  private[this] val _lightVariable: PsiLocalVariable =
-    ScUVariable.createLightVariable(
-      isField = false,
-      name = funDef.name,
-      isVal = true,
-      containingTypeDef,
-      modifiersList = None,
-      funDef
-    )
-} with ULocalVariableAdapter(_lightVariable) with ScUVariableCommon {
+                             containingTypeDef: ScTemplateDefinition,
+                             override protected val parent: LazyUElement)
+                            // hacky early initializer
+                            (_lightVariable: PsiLocalVariable =
+                             ScUVariable.createLightVariable(
+                               isField = false,
+                               name = funDef.name,
+                               isVal = true,
+                               containingTypeDef,
+                               modifiersList = None,
+                               funDef)
+                            ) extends ULocalVariableAdapter(_lightVariable) with ScUVariableCommon {
 
   override type PsiFacade = PsiLocalVariable
 

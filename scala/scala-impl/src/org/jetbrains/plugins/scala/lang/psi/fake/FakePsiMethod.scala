@@ -1,14 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.fake
 
-import java.util
-
 import com.intellij.lang.Language
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.impl.source.HierarchicalMethodSignatureImpl
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.util.{MethodSignatureBackedByPsiMethod, PsiTreeUtil}
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.adapters.{PsiAnnotatedAdapter, PsiTypeParametersOwnerAdapter}
@@ -21,16 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 
-import scala.annotation.nowarn
+import java.util
+import javax.swing.Icon
 
-/**
- * User: Alexander Podkhalyuzin
- */
-@nowarn("msg=early initializers")
 abstract class FakePsiMethod(navElement: PsiElement,
                              psiMember: Option[PsiMember],
-                             name: String) extends {
-} with LightElement(navElement.getManager, navElement.getLanguage) with PsiMethod with PsiTypeParametersOwnerAdapter {
+                             name: String) extends LightElement(navElement.getManager, navElement.getLanguage) with PsiMethod with PsiTypeParametersOwnerAdapter {
 
   def params: Array[Parameter]
 

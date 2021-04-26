@@ -20,8 +20,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.refactoring.changeSignature.changeInfo.ScalaChangeInfo
 
-import scala.annotation.nowarn
-
 /**
  * Nikolay.Tropin
  * 2014-08-12
@@ -67,11 +65,11 @@ private[changeSignature] object ScalaNamedElementUsageInfo {
 private[changeSignature] case class FunUsageInfo(override val namedElement: ScFunction)
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo
 
-@nowarn("msg=early initializers")
 private[changeSignature] case class PrimaryConstructorUsageInfo(pc: ScPrimaryConstructor)
-        extends {
-          override val namedElement = pc.containingClass.asInstanceOf[ScClass]
-        } with UsageInfo(pc) with ScalaNamedElementUsageInfo
+        extends UsageInfo(pc) with ScalaNamedElementUsageInfo {
+  // must be lazy, because it is used by super's constructor
+  override lazy val namedElement: ScNamedElement = pc.containingClass.asInstanceOf[ScClass]
+}
 
 private[changeSignature] case class OverriderValUsageInfo(override val namedElement: ScBindingPattern)
         extends UsageInfo(namedElement) with ScalaNamedElementUsageInfo

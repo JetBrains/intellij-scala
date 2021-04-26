@@ -1,10 +1,6 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.changeSignature
 
-import java.awt._
-import java.awt.event.ActionEvent
-import java.util
-
 import com.intellij.codeInsight.daemon.impl.analysis.{FileHighlightingSetting, HighlightLevelUtil}
 import com.intellij.openapi.actionSystem.{AnActionEvent, CustomShortcutSet}
 import com.intellij.openapi.editor.event.{DocumentEvent, DocumentListener}
@@ -22,11 +18,6 @@ import com.intellij.ui.{util => _, _}
 import com.intellij.util.Consumer
 import com.intellij.util.ui.table.{JBListTable, JBTableRowEditor, JBTableRowRenderer}
 import com.intellij.util.ui.{StartupUiUtil, UIUtil}
-import javax.swing._
-import javax.swing.border.MatteBorder
-import javax.swing.event.{ChangeEvent, HyperlinkEvent}
-import javax.swing.table.TableCellEditor
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -40,29 +31,32 @@ import org.jetbrains.plugins.scala.lang.refactoring.ui.ScalaComboBoxVisibilityPa
 import org.jetbrains.plugins.scala.settings.annotations._
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
-import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
+import java.awt._
+import java.awt.event.ActionEvent
+import java.util
+import javax.swing._
+import javax.swing.border.MatteBorder
+import javax.swing.event.{ChangeEvent, HyperlinkEvent}
+import javax.swing.table.TableCellEditor
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
-/**
-* Nikolay.Tropin
-* 2014-08-29
-*/
 //noinspection ConvertNullInitializerToUnderscore
-@nowarn("msg=early initializers")
 class ScalaChangeSignatureDialog(val method: ScalaMethodDescriptor,
                                  val needSpecifyTypeChb: Boolean)
                                 (implicit val project: Project)
-  extends {
-    private var defaultValuesUsagePanel: DefaultValuesUsagePanel = null
-    var mySpecifyTypeChb: JCheckBox = null
-  }
-    with ChangeSignatureDialogBase[ScalaParameterInfo,
+  extends ChangeSignatureDialogBase[ScalaParameterInfo,
     ScFunction,
     String,
     ScalaMethodDescriptor,
     ScalaParameterTableModelItem,
     ScalaParameterTableModel](project, method, false, method.fun) {
+
+  // Must not be initialized with any value!
+  // Will be set in createNorthPanel, which is called by super's constructor.
+  // Any initializer other than _ will override the values set by that method.
+  private var defaultValuesUsagePanel: DefaultValuesUsagePanel = _
+  private var mySpecifyTypeChb: JCheckBox = _
 
   override def getFileType: LanguageFileType = ScalaFileType.INSTANCE
 

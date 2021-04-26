@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.lang.refactoring.rename
 
-import java.awt.BorderLayout
-import java.util
-
-import javax.swing.{JCheckBox, JComponent, JPanel}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.search.SearchScope
@@ -21,7 +17,10 @@ import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsin
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
-import scala.annotation.{nowarn, tailrec}
+import java.awt.BorderLayout
+import java.util
+import javax.swing.{JCheckBox, JComponent, JPanel}
+import scala.annotation.tailrec
 
 /**
  * User: Alexander Podkhalyuzin
@@ -30,7 +29,7 @@ import scala.annotation.{nowarn, tailrec}
 
 class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenameProcessor {
   override def canProcessElement(element: PsiElement): Boolean = {
-    element.isInstanceOf[ScTypeDefinition] || element.isInstanceOf[PsiClassWrapper] || element.isInstanceOf[ScTypeParam]
+    element.is[ScTypeDefinition, PsiClassWrapper, ScTypeParam]
   }
 
   override def substituteElementToRename(element: PsiElement, editor: Editor): PsiElement = element match {
@@ -116,13 +115,12 @@ class RenameScalaClassProcessor extends RenameJavaClassProcessor with ScalaRenam
   }
 }
 
-@nowarn("msg=early initializers")
 class ScalaClassRenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor)
-        extends {
-          private val chbRenameCompanion: JCheckBox = new JCheckBox("", true)
-        }
-        with RenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor) {
+        extends RenameDialog(project: Project, psiElement: PsiElement, nameSuggestionContext: PsiElement, editor: Editor) {
 
+  // must be lazy, because it is used by super's constructor
+  private lazy val chbRenameCompanion: JCheckBox = new JCheckBox("", true)
+  
   override def createCenterPanel(): JComponent = {
     val companion = psiElement.asOptionOf[ScTypeDefinition].flatMap(_.baseCompanion)
 
