@@ -117,7 +117,9 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     } else if (c == '.' && shouldAdjustIndentAfterDot(editor)) {
       prepareIndentAdjustmentBeforeDot(document, offset)
       adjustIndentBeforeDot(editor)
-    } else if (c != '.' && element != null && shouldAdjustIndentBecauseOfPostfix(offset, element, document, editor)) {
+    }
+    //SCL-18951
+    else if (c != '.' && c != ' ' && element != null && shouldAdjustIndentBecauseOfPostfix(offset, element, document, editor)) {
       adjustIndent
     } else if (c == '.') {
       startAutoPopupCompletionInInterpolatedString(file, editor)
