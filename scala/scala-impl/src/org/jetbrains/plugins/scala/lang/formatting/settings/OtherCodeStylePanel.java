@@ -19,6 +19,8 @@ import java.util.ResourceBundle;
 
 import static com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.CommenterOption;
 
+// TODO: maybe group settings "Replace ... with unicode symbol"?
+//  we currently have 4 similar settings in "Other" tab
 public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
 
     private JCheckBox enforceFunctionalSyntaxForCheckBox;
@@ -39,6 +41,9 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
     private JTextField implicitValueClassPrefix;
     private JTextField implicitValueClassSuffix;
 
+    private final Scala3SettingsPanel scala3SettingsPanel = new Scala3SettingsPanel(getSettings());
+    private JPanel scala3SettingsInnerPanel;
+
     protected OtherCodeStylePanel(@NotNull CodeStyleSettings settings) {
         super(settings, ScalaBundle.message("other.panel.title"));
 
@@ -57,6 +62,7 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
     public void dispose() {
         super.dispose();
         Disposer.dispose(trailingCommaPanel);
+        Disposer.dispose(scala3SettingsPanel);
     }
 
     @Override
@@ -76,6 +82,7 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         scalaCodeStyleSettings.IMPLICIT_VALUE_CLASS_SUFFIX = implicitValueClassSuffix.getText();
         myCommenterForm.apply(settings);
         trailingCommaPanel.apply(settings);
+        scala3SettingsPanel.apply(settings);
     }
 
     @SuppressWarnings("RedundantIfStatement")
@@ -97,6 +104,7 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         if (!ss.IMPLICIT_VALUE_CLASS_SUFFIX.equals(implicitValueClassSuffix.getText())) return true;
         if (myCommenterForm.isModified(settings)) return true;
         if (trailingCommaPanel.isModified(settings)) return true;
+        if (scala3SettingsPanel.isModified(settings)) return true;
 
         return false;
     }
@@ -121,11 +129,13 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         implicitValueClassSuffix.setText(ss.IMPLICIT_VALUE_CLASS_SUFFIX);
         myCommenterForm.reset(settings);
         trailingCommaPanel.resetImpl(settings);
+        scala3SettingsPanel.resetImpl(settings);
     }
 
     private void createUIComponents() {
         myCommenterPanel = myCommenterForm.getCommenterPanel();
         trailingCommaInnerPanel = trailingCommaPanel.getPanel();
+        scala3SettingsInnerPanel = scala3SettingsPanel.getPanel();
     }
 
     public void toggleExternalFormatter(boolean useExternalFormatter) {
@@ -186,7 +196,7 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         reformatOnCompileCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(reformatOnCompileCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "other.panel.reformat.on.compile"));
         contentPanel.add(reformatOnCompileCheckBox, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        contentPanel.add(trailingCommaInnerPanel, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        contentPanel.add(trailingCommaInnerPanel, new GridConstraints(9, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 4, new Insets(0, 0, 0, 0), -1, -1));
         contentPanel.add(panel2, new GridConstraints(10, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -201,6 +211,7 @@ public final class OtherCodeStylePanel extends ScalaCodeStylePanelBase {
         implicitValueClassSuffix = new JTextField();
         implicitValueClassSuffix.setText("Ops");
         panel2.add(implicitValueClassSuffix, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(scala3SettingsInnerPanel, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;
