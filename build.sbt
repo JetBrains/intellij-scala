@@ -167,7 +167,7 @@ lazy val scalaImpl: sbt.Project =
         "org.intellij.intelliLang",
         "com.intellij.java-i18n",
         "org.jetbrains.android",
-        "com.intellij.stats.completion", // required for ml completion testing
+        //"com.intellij.stats.completion", // required for ml completion testing (plugin manager returns 404 for it)
         "com.android.tools.idea.smali",      // required by Android
         "com.intellij.gradle",     // required by Android
         "org.intellij.groovy",     // required by Gradle
