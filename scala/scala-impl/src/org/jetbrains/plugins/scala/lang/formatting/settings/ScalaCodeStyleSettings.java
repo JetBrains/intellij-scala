@@ -157,6 +157,8 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES = false;
   public boolean MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE = false;
 
+  public boolean USE_SCALA3_INDENTATION_BASED_SYNTAX = true;
+  
   /**
    * @deprecated This field is left for migration only. Use {@link #MULTILINE_STRING_CLOSING_QUOTES_ON_NEW_LINE} and {@link #MULTILINE_STRING_INSERT_MARGIN_ON_ENTER}
    * @see org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase
