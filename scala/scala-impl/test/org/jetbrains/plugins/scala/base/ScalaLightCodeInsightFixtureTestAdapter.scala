@@ -5,6 +5,7 @@ import com.intellij.application.options.CodeStyle
 import com.intellij.codeInsight.daemon.impl.HighlightInfo
 import com.intellij.codeInsight.folding.CodeFoldingManager
 import com.intellij.openapi.actionSystem.IdeActions
+import com.intellij.openapi.editor.impl.{DocumentImpl, TrailingSpacesStripper}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.Sdk
@@ -16,6 +17,7 @@ import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
 import com.intellij.psi.{PsiDocumentManager, PsiFile}
 import com.intellij.testFramework.fixtures.{JavaCodeInsightTestFixture, LightJavaCodeInsightFixtureTestCase}
 import com.intellij.testFramework.{EditorTestUtil, LightPlatformTestCase, LightProjectDescriptor}
+import junit.framework.TestCase
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
@@ -124,21 +126,54 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
     }
   }
 
-  protected def checkCaretOffsets(expectedCarets: Seq[Int],
-                                  actualCarets: Seq[Int] = this.allCaretOffsets,
-                                  inText: String = getFile.getText): Unit = {
-    if (expectedCarets.nonEmpty) {
-      def patchTextWithCarets(text: String, caretOffsets: Seq[Int]): String =
-        caretOffsets
-          .sorted(Ordering.Int.reverse)
-          .foldLeft(text)(_.patch(_, "<caret>", 0))
+  protected def checkCaretOffsets(
+    expectedCarets: Seq[Int],
+    stripTrailingSpaces: Boolean
+  ): Unit = {
+    checkCaretOffsets(expectedCarets, getEditor.getDocument.getText, stripTrailingSpaces)
+  }
 
-      assertEquals(
-        patchTextWithCarets(inText, expectedCarets),
-        patchTextWithCarets(inText, actualCarets),
-      )
+  protected def checkCaretOffsets(
+    expectedCarets: Seq[Int],
+    expectedText: String,
+    stripTrailingSpaces: Boolean
+  ): Unit = {
+    val document = myFixture.getDocument(myFixture.getFile).asInstanceOf[DocumentImpl]
+    if (stripTrailingSpaces) {
+      TrailingSpacesStripper.strip(document, false, true)
+    }
+
+    checkCaretOffsets(
+      expectedCarets,
+      this.allCaretOffsets,
+      expectedText,
+      document.getText,
+      stripTrailingSpaces
+    )
+  }
+
+  private def doStripTrailingSpaces(text: String): String =
+    text.replaceAll(" +\n", "\n")
+
+  protected def checkCaretOffsets(
+    expectedCarets: Seq[Int],
+    actualCarets: Seq[Int],
+    expectedText: String,
+    actualText: String,
+    stripTrailingSpaces: Boolean
+  ): Unit = {
+    if (expectedCarets.nonEmpty) {
+      val expected0 = patchTextWithCarets(expectedText, expectedCarets)
+      val expected= if (stripTrailingSpaces) doStripTrailingSpaces(expected0) else expected0
+      val actual = patchTextWithCarets(actualText, actualCarets)
+      assertEquals(expected, actual)
     }
   }
+
+  protected def patchTextWithCarets(text: String, caretOffsets: Seq[Int]): String =
+    caretOffsets
+      .sorted(Ordering.Int.reverse)
+      .foldLeft(text)(_.patch(_, "<caret>", 0))
 
   protected def failingTestPassed(): Unit = throw new RuntimeException(failingPassed)
 
@@ -186,11 +221,10 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
 object ScalaLightCodeInsightFixtureTestAdapter {
 
-  def normalize(text: String, stripTrailingSpaces: Boolean = true): String =
-    text.stripMargin.replace("\r", "") match {
-      case result if stripTrailingSpaces => result.trim
-      case result => result
-    }
+  def normalize(text: String, trimContent: Boolean = true): String = {
+    val result = text.stripMargin.replace("\r", "")
+    if (trimContent) result.trim else result
+  }
 
   def findCaretOffset(text: String, stripTrailingSpaces: Boolean): (String, Int) = {
     val (textActual, caretOffsets) = findCaretOffsets(text, stripTrailingSpaces)
@@ -201,10 +235,10 @@ object ScalaLightCodeInsightFixtureTestAdapter {
     }
   }
 
-  def findCaretOffsets(text: String, stripTrailingSpaces: Boolean): (String, Seq[Int]) = {
+  def findCaretOffsets(text: String, trimText: Boolean): (String, Seq[Int]) = {
     import EditorTestUtil.CARET_TAG
 
-    val textNormalized = normalize(text, stripTrailingSpaces)
+    val textNormalized = normalize(text, trimText)
 
     def caretIndex(offset: Int) = textNormalized.indexOf(CARET_TAG, offset)
 

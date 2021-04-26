@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
+import org.apache.commons.lang3.{StringUtils => ApacheStringUtils}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, Whitespace}
 
 object IndentUtil {
@@ -31,8 +32,8 @@ object IndentUtil {
     else calcIndent(text, newLineIdx + 1, tabSize)
   }
 
-  def calcLastLineIndent(text: String, tabSize: Int): Int = {
-    val idx = text.lastIndexOf('\n')
+  def calcLastLineIndent(text: CharSequence, tabSize: Int): Int = {
+    val idx = ApacheStringUtils.lastIndexOf(text, '\n')
     calcIndent(text, idx + 1, tabSize)
   }
 

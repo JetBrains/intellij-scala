@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package editor
 package typedHandler
 
-import java.{util => ju}
-
 import com.intellij.application.options.CodeStyle
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
@@ -11,7 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{continuesConstructAfterIndentationContext, isBeforeIndentationContext, isIndentationContext, nextExpressionInIndentationContext}
+import org.jetbrains.plugins.scala.editor.AutoBraceUtils.{continuesConstructAfterIndentationContext, isBeforeIndentationContext, nextExpressionInIndentationContext}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlock, ScPostfixExpr}
@@ -19,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.IndentUtil.calcIndent
 
+import java.{util => ju}
 import scala.annotation.tailrec
 
 object AutoBraceInsertionTools {
@@ -36,6 +35,9 @@ object AutoBraceInsertionTools {
   def findAutoBraceInsertionOpportunity(c: Option[Char], caretOffset: Int, element: PsiElement)
                                        (implicit project: Project, file: PsiFile, editor: Editor): Option[AutoBraceInsertionInfo] = {
     import AutoBraceUtils._
+
+    if (useIndentationBasedSyntax(file))
+      return None
 
     val (wsBeforeCaret, caretWS, curLineIndent, isAfterPossibleContinuation) = element match {
       case caretWS: PsiWhiteSpace =>
@@ -309,6 +311,10 @@ object AutoBraceInsertionTools {
     if (!autoBraceInsertionActivated) {
       return None
     }
+    // TODO: temporary disabled auto-braces feature for Scala3, cause Scala3 doesn't require braces
+    // (also see org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.findAutoBraceInsertionOpportunity)
+    if (useIndentationBasedSyntax(file))
+      return None
 
     // check if the element or its prefix before the caret certainly starts a statement
     val (tokenBeginningWithStatement, tokenEndingFutureStatementF) = (element, element.prevVisibleLeaf) match {
