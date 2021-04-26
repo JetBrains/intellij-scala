@@ -9,10 +9,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleManager
+import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeAndWait}
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
 
@@ -121,6 +123,19 @@ package object editor {
         document.commit(project)
         CodeStyleManager.getInstance(project).adjustLineIndent(file, prev.getTextRange)
       }
+    }
+  }
+
+  private[editor] def useIndentationBasedSyntax(file: PsiFile): Boolean =
+    file.getLanguage.isKindOf(Scala3Language.INSTANCE) && {
+      val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
+      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX
+    }
+
+  private[editor] implicit class PsiWhiteSpaceOps(private val target: PsiWhiteSpace) extends AnyVal {
+    def getChars: CharSequence = target match {
+      case leaf: PsiWhiteSpaceImpl => leaf.getChars
+      case _                       => target.getText
     }
   }
 }

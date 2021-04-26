@@ -19,16 +19,16 @@ class ScWhileImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScWhile
   protected override def innerType = Right(api.Unit)
 
   override def condition: Option[ScExpression] = {
-    val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
-    val c = if (rpar != null) PsiTreeUtil.getPrevSiblingOfType(rpar, classOf[ScExpression]) else null
-    Option(c)
+    // note: also remember Scala3 new syntax: `while condition do body`
+    val whileKeyword = findChildByType[PsiElement](ScalaTokenTypes.kWHILE)
+    val res = PsiTreeUtil.getNextSiblingOfType(whileKeyword, classOf[ScExpression])
+    Option(res)
   }
-
-  override def expression: Option[ScExpression] = {
-    val rpar = findChildByType[PsiElement](ScalaTokenTypes.tRPARENTHESIS)
-    val c = if (rpar != null) PsiTreeUtil.getNextSiblingOfType(rpar, classOf[ScExpression]) else null
-    Option(c)
-  }
+  override def expression: Option[ScExpression] =
+    condition.flatMap { c =>
+      val res = PsiTreeUtil.getNextSiblingOfType(c, classOf[ScExpression])
+      Option(res)
+    }
 
   override def leftParen: Option[PsiElement] = {
     val leftParenthesis = findChildByType[PsiElement](ScalaTokenTypes.tLPARENTHESIS)
