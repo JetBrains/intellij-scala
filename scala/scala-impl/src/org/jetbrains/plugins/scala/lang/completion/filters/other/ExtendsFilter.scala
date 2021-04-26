@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /** 
@@ -18,13 +19,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 class ExtendsFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
-    if (context.isInstanceOf[PsiComment]) return false
-    val (leaf, isScriptFile) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
+    if (context.is[PsiComment]) return false
+    val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
     
     if (leaf != null) {
       var prev = leaf.getPrevSiblingNotWhitespace
       val leafParent = leaf.getParent
-      if (prev == null && leafParent != null && isScriptFile) prev = leafParent.getPrevSiblingNotWhitespace
+      // In case of script files or inside of blocks the leaf will be wrapped inside of a ScReferenceExpression
+      if (prev == null && leafParent.is[ScReferenceExpression]) {
+        prev = leafParent.getPrevSiblingNotWhitespace
+      }
       prev match {
         case _: PsiErrorElement =>
         case _ => return false

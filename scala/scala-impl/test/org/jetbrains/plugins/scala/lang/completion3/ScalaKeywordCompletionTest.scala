@@ -188,4 +188,20 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
          |}""".stripMargin,
     item = "match"
   )
+  
+  def testExtendsInObject(): Unit = doCompletionTest(
+    fileText =
+      s"""
+        |object Obj {
+        |  class Test e$CARET
+        |}
+        |""".stripMargin,
+    resultText =
+      s"""
+         |object Obj {
+         |  class Test extends $CARET
+         |}
+         |""".stripMargin,
+    item = "extends"
+  )
 }
