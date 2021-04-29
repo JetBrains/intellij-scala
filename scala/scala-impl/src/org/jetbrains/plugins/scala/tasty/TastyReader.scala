@@ -114,7 +114,7 @@ object TastyReader {
 
     def textAt(position: Position): String =
       if (position.start == -1) "<undefined>"
-      else new String(Files.readAllBytes(Paths.get(DottyExampleProject + "/" + position.file))).substring(position.start, position.end)
+      else new String(Files.readAllBytes(Paths.get(position.file))).substring(position.start, position.end)
 
     val exampleClasses = Seq(
       "ContextFunctions",
@@ -134,7 +134,7 @@ object TastyReader {
 
     assertExists(DottyExampleProject)
 
-    val outputDir = DottyExampleProject + "/target/scala-3.0.0-RC2/classes"
+    val outputDir = DottyExampleProject + "/target/scala-3.0.0-RC3/classes"
     assertExists(outputDir)
 
     exampleClasses.foreach { fqn =>
