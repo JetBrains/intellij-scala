@@ -59,10 +59,19 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
   protected def performTypingAction(charTyped: Char): Unit =
     getFixture.`type`(charTyped)
 
+  protected def performTypingAction(text: String): Unit =
+    getFixture.`type`(text)
+
   protected def checkGeneratedTextAfterTyping(textBefore: String, textAfter: String, charTyped: Char,
                                               fileName: String = defaultFileName): Unit =
     performTest(textBefore, textAfter, fileName) { () =>
       performTypingAction(charTyped)
+    }
+
+  protected def checkGeneratedTextAfterTypingText(textBefore: String, textAfter: String, textTyped: String,
+                                                  fileName: String = defaultFileName): Unit =
+    performTest(textBefore, textAfter, fileName) { () =>
+      performTypingAction(textTyped)
     }
 
   protected def performBackspaceAction(): Unit =

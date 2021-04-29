@@ -600,8 +600,10 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
     rightPsi match {
       case eb@ScExtendsBlock.TemplateBody(body) =>
         val hasExtendsKeyword = eb.firstChild.map(_.elementType).contains(ScalaTokenTypes.kEXTENDS)
-        if (!hasExtendsKeyword && !body.isEnclosedByBraces)
-          return WITHOUT_SPACING
+        val needsSpace = hasExtendsKeyword ||
+          body.isEnclosedByBraces || // indentation-based body doesn't need space, cause it already starts with whitesapce
+          leftElementType == ScalaTokenTypes.tCOLON // given with (braceless)
+        return if (needsSpace) WITH_SPACING else WITHOUT_SPACING
       case _ =>
     }
 
