@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.tasty
 // TODO Cross-compile a tasty-api module instead of duplicating the classes
 
 trait TastyApi {
-  def read(classpath: String, className: String, rightHandSide: Boolean): Option[TastyFile]
+  def read(classpath: String, tastyFile: String, rightHandSide: Boolean): Option[TastyFile]
 }
 
 case class TastyFile(source: String, text: String, references: Seq[ReferenceData], types: Seq[TypeData])
