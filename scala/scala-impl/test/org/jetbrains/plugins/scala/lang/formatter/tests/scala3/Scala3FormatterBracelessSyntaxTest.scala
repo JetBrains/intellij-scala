@@ -448,4 +448,32 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |  println(22)
       |}""".stripMargin
   )
+
+  def testAfterReturnKeyword_1(): Unit = doTextTest(
+    """def foo: String =
+      |    return
+      |        val x = 1
+      |           val y = 2
+      |               s"result: $x $y
+      |""".stripMargin,
+    """def foo: String =
+      |  return
+      |    val x = 1
+      |    val y = 2
+      |    s"result: $x $y
+      |""".stripMargin,
+    repeats = 3
+  )
+
+  def testAfterReturnKeyword_SingleExpression(): Unit = doTextTest(
+    """def foo: String =
+      |    return
+      |        "result"
+      |""".stripMargin,
+    """def foo: String =
+      |  return
+      |    "result"
+      |""".stripMargin,
+    repeats = 3
+  )
 }

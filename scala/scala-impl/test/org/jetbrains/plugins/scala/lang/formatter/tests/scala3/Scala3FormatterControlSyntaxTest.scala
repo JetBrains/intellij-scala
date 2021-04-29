@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests.scala3
 
-import org.jetbrains.plugins.scala.extensions.StringExt
-
 class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
 
   def testIfThenElse(): Unit = doTextTest(
@@ -64,6 +62,30 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  def testIf_ConditionBlockWithoutBraces(): Unit = doTextTest(
+    """if
+      |  val x = 1
+      |  val y = 2
+      |  x + y == 3
+      |then
+      |  println("Yes1!")
+      |else
+      |  println("No1 =(")""".stripMargin
+  )
+
+  def testIf_ConditionBlockWithBraces(): Unit = doTextTest(
+    """if {
+      |  val x = 1
+      |  val y = 2
+      |  x + y == 3
+      |}
+      |then
+      |  println("Yes1!")
+      |else
+      |  println("No1 =(")""".stripMargin
+  )
+
+
   def testWhileDo(): Unit = doTextTestWithExtraSpaces(
     """while x >= 0 do x = f(x)
       |
@@ -89,6 +111,28 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |  x = x + 1
       |  x = x * 2
       |  println(x)
+      |""".stripMargin
+  )
+
+  def testWhile_ConditionIsBlockWithoutBraces(): Unit = doTextTest(
+    """var idx = 2
+      |while
+      |  println("in while condition")
+      |  idx -= 1
+      |  idx >= 0
+      |do
+      |  println("in while body")
+      |""".stripMargin
+  )
+
+  def testWhile_ConditionIsBlockWithBraces(): Unit = doTextTest(
+    """var idx = 2
+      |while {
+      |  println("in while condition")
+      |  idx -= 1
+      |  idx >= 0
+      |} do
+      |  println("in while body")
       |""".stripMargin
   )
 

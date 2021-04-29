@@ -274,8 +274,8 @@ object Expr1 extends ParsingRule {
       //---------------return statement-----------//
       case ScalaTokenTypes.kRETURN =>
         builder.advanceLexer() //Ate return
-        if (!builder.newlineBeforeCurrentToken)
-        ExprInIndentationRegion()
+        if (!builder.newlineBeforeCurrentToken || builder.isScala3)
+          ExprInIndentationRegion()
         exprMarker.done(ScalaElementType.RETURN_STMT)
         return true
 
@@ -376,7 +376,7 @@ object Expr1 extends ParsingRule {
   def parseParenlessIfCondition()(implicit builder: ScalaPsiBuilder): Boolean = {
     val startedWithLParen = builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS
     val rollbackMarker = builder.mark()
-    val success = Expr() && (
+    val success = ExprInIndentationRegion() && (
       if (builder.getTokenType == ScalaTokenType.ThenKeyword) {
         builder.advanceLexer()
         true

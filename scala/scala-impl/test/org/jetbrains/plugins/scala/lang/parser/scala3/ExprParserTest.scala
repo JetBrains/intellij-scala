@@ -590,4 +590,334 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')""".stripMargin
   )
+
+  def test_if_condition_is_block_without_braces(): Unit = checkTree(
+      """if
+        |  val x = 1
+        |  val y = 2
+        |  x + y == 3
+        |then
+        |  println("Yes!")
+        |else
+        |  println("No =(")
+        |""".stripMargin,
+    """ScalaFile
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ScPatternDefinition: x
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(val)('val')
+      |        PsiWhiteSpace(' ')
+      |        ListOfPatterns
+      |          ReferencePattern: x
+      |            PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      ScPatternDefinition: y
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(val)('val')
+      |        PsiWhiteSpace(' ')
+      |        ListOfPatterns
+      |          ReferencePattern: y
+      |            PsiElement(identifier)('y')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('2')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        InfixExpression
+      |          ReferenceExpression: x
+      |            PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: +
+      |            PsiElement(identifier)('+')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: y
+      |            PsiElement(identifier)('y')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: ==
+      |          PsiElement(identifier)('==')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('3')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(then)('then')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: println
+      |        PsiElement(identifier)('println')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"Yes!"')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(else)('else')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: println
+      |        PsiElement(identifier)('println')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"No =("')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_if_condition_is_block_with_braces(): Unit = checkTree(
+      """if {
+        |  val x = 1
+        |  val y = 2
+        |  x + y == 3
+        |}
+        |then
+        |  println("Yes!")
+        |else
+        |  println("No =(")
+        |""".stripMargin,
+    """ScalaFile
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      ScPatternDefinition: x
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(val)('val')
+      |        PsiWhiteSpace(' ')
+      |        ListOfPatterns
+      |          ReferencePattern: x
+      |            PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      ScPatternDefinition: y
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(val)('val')
+      |        PsiWhiteSpace(' ')
+      |        ListOfPatterns
+      |          ReferencePattern: y
+      |            PsiElement(identifier)('y')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('2')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        InfixExpression
+      |          ReferenceExpression: x
+      |            PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: +
+      |            PsiElement(identifier)('+')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: y
+      |            PsiElement(identifier)('y')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: ==
+      |          PsiElement(identifier)('==')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('3')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(then)('then')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: println
+      |        PsiElement(identifier)('println')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"Yes!"')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(else)('else')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: println
+      |        PsiElement(identifier)('println')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"No =("')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_while_condition_is_block_without_braces(): Unit = checkTree(
+      """var idx = 2
+        |while
+        |  println("in while condition")
+        |  idx -= 1
+        |  idx >= 0
+        |do
+        |  println("in while body")
+        |""".stripMargin,
+    """ScalaFile
+      |  ScVariableDefinition: idx
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(var)('var')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: idx
+      |        PsiElement(identifier)('idx')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('2')
+      |  PsiWhiteSpace('\n')
+      |  WhileStatement
+      |    PsiElement(while)('while')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      MethodCall
+      |        ReferenceExpression: println
+      |          PsiElement(identifier)('println')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          StringLiteral
+      |            PsiElement(string content)('"in while condition"')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        ReferenceExpression: idx
+      |          PsiElement(identifier)('idx')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: -=
+      |          PsiElement(identifier)('-=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        ReferenceExpression: idx
+      |          PsiElement(identifier)('idx')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: >=
+      |          PsiElement(identifier)('>=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(do)('do')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: println
+      |        PsiElement(identifier)('println')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"in while body"')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_while_condition_is_block_with_braces(): Unit = checkTree(
+      """var idx = 2
+        |while {
+        |  println("in while condition")
+        |  idx -= 1
+        |  idx >= 0
+        |}
+        |do
+        |  println("in while body")
+        |""".stripMargin,
+    """ScalaFile
+      |  ScVariableDefinition: idx
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(var)('var')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: idx
+      |        PsiElement(identifier)('idx')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('2')
+      |  PsiWhiteSpace('\n')
+      |  WhileStatement
+      |    PsiElement(while)('while')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      MethodCall
+      |        ReferenceExpression: println
+      |          PsiElement(identifier)('println')
+      |        ArgumentList
+      |          PsiElement(()('(')
+      |          StringLiteral
+      |            PsiElement(string content)('"in while condition"')
+      |          PsiElement())(')')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        ReferenceExpression: idx
+      |          PsiElement(identifier)('idx')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: -=
+      |          PsiElement(identifier)('-=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        ReferenceExpression: idx
+      |          PsiElement(identifier)('idx')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: >=
+      |          PsiElement(identifier)('>=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(do)('do')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: println
+      |        PsiElement(identifier)('println')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        StringLiteral
+      |          PsiElement(string content)('"in while body"')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
 }

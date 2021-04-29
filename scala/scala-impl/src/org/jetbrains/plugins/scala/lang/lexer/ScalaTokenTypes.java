@@ -158,6 +158,8 @@ public interface ScalaTokenTypes {
     IElementType tCOLON = new ScalaTokenType(":");
     IElementType tASSIGN = new ScalaTokenType("=");
     IElementType tFUNTYPE = new ScalaTokenType("=>");
+    // TODO: remove tFUNTYPE_ASCII from everywhere, it's not actually used in lexer or parser
+    //  it's some aintcient outdated code from 2008
     IElementType tFUNTYPE_ASCII = new ScalaTokenType(Character.toString('\u21D2'));
     IElementType tCHOOSE = new ScalaTokenType("<-");
     IElementType tLOWER_BOUND = new ScalaTokenType(">:");

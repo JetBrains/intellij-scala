@@ -111,4 +111,16 @@ class SpaceInsertTest extends EditorActionTestBase {
          |}""".stripMargin
     doTest(before, after)
   }
+
+  def testAfterIncompleteInfixOperatorInFunctionBody(): Unit = checkGeneratedTextAfterTypingText(
+    s"""class B {
+       |  def foo = 42 +
+       |  $CARET
+       |}""".stripMargin,
+    s"""class B {
+       |  def foo = 42 +
+       |      $CARET
+       |}""",
+    "    "
+  )
 }
