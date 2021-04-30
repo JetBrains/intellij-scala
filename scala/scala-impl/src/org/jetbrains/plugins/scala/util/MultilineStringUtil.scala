@@ -64,8 +64,8 @@ object MultilineStringUtil {
     element.getText.replace("\r", "").split(s"\n[ \t]*${escapeForRegexp(marginChar)}").length > 1
   }
 
-  def needAddStripMargin(element: PsiElement, marginChar: String): Boolean = {
-    findAllMethodCallsOnMLString(element, "stripMargin").isEmpty && !hasMarginChars(element, marginChar)
+  def hasStripMarginCall(element: PsiElement): Boolean = {
+    findAllMethodCallsOnMLString(element, "stripMargin").nonEmpty
   }
 
   /** @return true<br>
@@ -104,7 +104,7 @@ object MultilineStringUtil {
   }
 
   def insertStripMargin(document: Document, literal: ScLiteral, marginChar: Char): Unit = {
-    if (needAddStripMargin(literal, "" + marginChar)) {
+    if (!hasStripMarginCall(literal) && !hasMarginChars(literal, marginChar.toString)) {
       val stripText = if (marginChar == DefaultMarginChar) ".stripMargin"
       else s".stripMargin('$marginChar')"
       document.insertString(literal.getTextRange.getEndOffset, stripText)
