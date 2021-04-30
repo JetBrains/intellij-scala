@@ -1,1 +1,2 @@
-<spot>val list = List(1,2,3)</spot>
+import java.util
+val list = <spot>new util.ArrayList[String]()</spot>

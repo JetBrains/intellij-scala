@@ -1,1 +1,3 @@
-<spot>val list = List(1,2,3).asJava</spot>
+import java.util
+import scala.jdk.CollectionConverters._
+val list = new util.ArrayList[String]().asScala

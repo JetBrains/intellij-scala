@@ -17,7 +17,7 @@ import scala.annotation.tailrec
 //noinspection ScalaExtractStringToBundle
 class JavaExtractStringToBundleInspection extends AbstractIntention(
   "Extract to Bundle",
-  "Extract Java String to bundle in Intellj Scala Plugin"
+  "Extract Java String to Intellj Bundle"
 )(
   (project, _) => {
     case MostUpperStringExpression(e, parts) =>

@@ -1,1 +1,1 @@
-Seq(1, 2, 3).filter(Set(1, 3).contains)
+Seq(1, 2, 3).filter(Set(1, 3).<spot>contains</spot>)
