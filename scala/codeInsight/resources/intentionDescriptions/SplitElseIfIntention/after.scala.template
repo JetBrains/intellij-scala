@@ -1,15 +1,6 @@
-class X {
-  def f(a: Int): Int = {
-    if (a == 0) {
-      0
+def f(a: Boolean, b: Boolean) = {
+  if (a)
+    if (b) {
+      return
     }
-    else {
-      if (a == 1) {
-        2
-      }
-      else {
-        18
-      }
-    }
-  }
 }
