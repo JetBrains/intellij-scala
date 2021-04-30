@@ -8,8 +8,8 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.util.MultilineStringUtil.{hasMarginChars, hasStripMarginCall}
 
 /**
  * User: Dmitry Naydanov
@@ -20,7 +20,7 @@ final class AddStripMarginToMLStringIntention extends PsiElementBaseIntentionAct
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
     element.getNode.getElementType match {
       case lang.lexer.ScalaTokenTypes.tMULTILINE_STRING if element.getText.contains("\n") =>
-        util.MultilineStringUtil.needAddStripMargin(element, getMarginChar(project))
+        !hasStripMarginCall(element) && hasMarginChars(element, getMarginChar(project))
       case _ => false
   }
 

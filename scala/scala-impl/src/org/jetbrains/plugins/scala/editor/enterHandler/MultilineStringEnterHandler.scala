@@ -12,7 +12,7 @@ import com.intellij.openapi.util.Ref
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.CodeStyleManager
 import org.apache.commons.lang3.StringUtils
-import org.jetbrains.plugins.scala.extensions.{BooleanExt, CharSeqExt, PsiElementExt, StringExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
@@ -28,7 +28,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
 
     val caretOffset = caretOffsetRef.get.intValue
 
-    if (!file.isInstanceOf[ScalaFile] || !editor.inScalaString(caretOffset)) return Result.Continue
+    if (!file.is[ScalaFile] || !editor.inScalaString(caretOffset)) return Result.Continue
 
     val document = editor.getDocument
     val text = document.getImmutableCharSequence
@@ -58,7 +58,7 @@ class MultilineStringEnterHandler extends EnterHandlerDelegateAdapter {
   }
 
   override def postProcessEnter(file: PsiFile, editor: Editor, dataContext: DataContext): Result = {
-    if (!file.isInstanceOf[ScalaFile]) return Result.Continue
+    if (!file.is[ScalaFile]) return Result.Continue
 
     if (!wasInMultilineString) return Result.Continue
     wasInMultilineString = false
