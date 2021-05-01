@@ -440,7 +440,7 @@ lazy val mlCompletionIntegration =
     )
     
 lazy val packageSearchIntegration =
-  newProject("package-search", file("scala/integration/package-search"))
+  newProject("packagesearch", file("scala/integration/packagesearch"))
     .dependsOn(scalaImpl)
     .settings(
       intellijPlugins += "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
