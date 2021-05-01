@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.packageSearch
+package org.jetbrains.plugins.scala.packagesearch
 
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ConfigurableContributor, ConfigurableContributorDriver}
 

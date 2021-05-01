@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.packageSearch;
+package org.jetbrains.plugins.scala.packagesearch;
 
 import com.intellij.openapi.externalSystem.service.project.manage.ProjectDataImportListener;
 import com.intellij.openapi.project.Project;

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.packageSearch
+package org.jetbrains.plugins.scala.packagesearch
 
 
 import com.intellij.openapi.project.Project
@@ -8,9 +8,7 @@ import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AbstractProjec
 
 class SbtProjectModuleOperationProvider extends AbstractProjectModuleOperationProvider {
   override def hasSupportFor(project: Project, psiFile: PsiFile): Boolean = {
-    println("Start of SbtProjectModuleOperationProvider.hasSupportFor!")
     val file = psiFile.getVirtualFile
-    print(file.getExtension)
     if (file == null) return false
     if (file.getExtension == "sbt") return true
     false

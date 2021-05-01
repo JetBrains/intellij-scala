@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.packageSearch;
+package org.jetbrains.plugins.scala.packagesearch;
 
 import kotlin.sequences.Sequence;
 import kotlin.sequences.SequencesKt;

@@ -1,9 +1,10 @@
-package org.jetbrains.plugins.scala.packageSearch
+package org.jetbrains.plugins.scala.packagesearch
 
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ProjectModule, ProjectModuleProvider}
 import kotlin.sequences.Sequence
@@ -14,18 +15,25 @@ import scala.jdk.CollectionConverters.IteratorHasAsJava
 
 class SbtProjectModuleProvider extends ProjectModuleProvider{
 
-  def findExternalProjectPath(project: Project, module: Module): File = {
+  def findModulePaths(project: Project, module: Module): Array[File] = {
     if (!SbtUtil.isSbtModule(module)) return null
-    val rootProjectPath = ExternalSystemApiUtil.getExternalRootProjectPath(module)
-    if (rootProjectPath == null) return null
-    new File(rootProjectPath)
+    val contentRoots = ModuleRootManager.getInstance(module).getContentRoots
+    if (contentRoots.length < 1) return null
+    contentRoots.map(virtualFile => {
+      println(virtualFile.getPath)
+      new File(virtualFile.getPath)
+    })
   }
 
   def obtainProjectModulesFor(project: Project, module: Module):ProjectModule = {
-    val buildFile = (findExternalProjectPath(project, module) / Sbt.BuildFile)
-    if (!buildFile.exists()) {
-      return null
-    }
+    var buildFile: File = null
+    findModulePaths(project, module).foreach(file => {
+      val tmp = file / Sbt.BuildFile
+      if (file.exists()) {
+        buildFile = tmp
+      }
+    })
+    if (!buildFile.exists()) return null
     val buildVirtualFile = LocalFileSystem.getInstance().findFileByPath(buildFile.getAbsolutePath)
     if (!buildVirtualFile.exists()) return null
 
@@ -34,7 +42,7 @@ class SbtProjectModuleProvider extends ProjectModuleProvider{
       module,
       null,
       buildVirtualFile,
-      SbtObjects.buildSystemType,
+      SbtCommon.buildSystemType,
       SbtProjectModuleType
     )
   }
