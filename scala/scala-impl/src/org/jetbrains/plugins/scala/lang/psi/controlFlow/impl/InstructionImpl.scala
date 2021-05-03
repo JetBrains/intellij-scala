@@ -50,8 +50,8 @@ sealed class InstructionImpl(override val num: Int,
 }
 
 case class DefinitionInstruction(override val num: Int,
-                                  namedElement: ScNamedElement,
-                                  defType: DefinitionType)
+                                 namedElement: ScNamedElement,
+                                 defType: DefinitionType)
         extends InstructionImpl(num, Some(namedElement)) {
   private val myName = namedElement.name
 
@@ -61,9 +61,9 @@ case class DefinitionInstruction(override val num: Int,
 }
 
 case class ReadWriteVariableInstruction(override val num: Int,
-                                    ref: ScReferenceExpression,
-                                    variable: Option[PsiNamedElement],
-                                    write: Boolean)
+                                        ref: ScReferenceExpression,
+                                        variable: Option[PsiNamedElement],
+                                        write: Boolean)
         extends InstructionImpl(num, Some(ref)) {
   private val myName = ref.getText
   def getName: String = myName

@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.actions.implicitArguments
 
-import java.awt.event.MouseEvent
-import java.awt.{BorderLayout, Dimension}
-
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem._
@@ -10,18 +7,14 @@ import com.intellij.openapi.command.CommandProcessor
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.popup.{JBPopupFactory, LightweightWindowEvent, JBPopup, JBPopupListener}
+import com.intellij.openapi.ui.popup.{JBPopup, JBPopupFactory, JBPopupListener, LightweightWindowEvent}
 import com.intellij.openapi.util.{Disposer, Ref}
 import com.intellij.psi.util.PsiUtilBase
-import com.intellij.psi.{PsiFile, PsiElement, PsiWhiteSpace}
+import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import com.intellij.ui.tree.{AsyncTreeModel, StructureTreeModel}
 import com.intellij.ui.treeStructure.Tree
-import com.intellij.ui.{ScrollPaneFactory, ClickListener}
+import com.intellij.ui.{ClickListener, ScrollPaneFactory}
 import com.intellij.util.ArrayUtil
-import javax.swing.tree.{DefaultMutableTreeNode, TreePath}
-import javax.swing.{JPanel, JTree}
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.extensions._
@@ -32,10 +25,10 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
-/**
-  * User: Alefas
-  * Date: 25.10.11
-  */
+import java.awt.event.MouseEvent
+import java.awt.{BorderLayout, Dimension}
+import javax.swing.tree.{DefaultMutableTreeNode, TreePath}
+import javax.swing.{JPanel, JTree}
 
 class ShowImplicitArgumentsAction extends AnAction(
   ScalaBundle.message("show.implicit.arguments.action.text"),
@@ -53,20 +46,20 @@ class ShowImplicitArgumentsAction extends AnAction(
     if (editor == null) return
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
-    if (!file.isInstanceOf[ScalaFile]) return
+    if (!file.is[ScalaFile]) return
 
     Stats.trigger(FeatureKey.showImplicitParameters)
 
     val targets = findAllTargets(file)
 
-    if (targets.length == 0)
-      ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
-    else if (targets.length == 1)
-      onChosen(targets(0))
-    else
-      ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
-        editor, targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
-      )
+    targets match {
+      case Seq()       => ScalaActionUtil.showHint(editor, ScalaBundle.message("no.implicit.arguments"))
+      case Seq(target) => onChosen(target)
+      case targets     =>
+        ScalaRefactoringUtil.showChooserGeneric[ImplicitArgumentsTarget](
+          editor, targets, onChosen, ScalaBundle.message("title.expressions"), _.presentation, _.expression
+        )
+    }
   }
 
   private def onChosen(target: ImplicitArgumentsTarget)(implicit editor: Editor): Unit = {
@@ -91,9 +84,9 @@ class ShowImplicitArgumentsAction extends AnAction(
 
   }
 
-  private def findAllTargets(file: PsiFile)(implicit editor: Editor, project: Project) = {
+  private def findAllTargets(file: PsiFile)(implicit editor: Editor, project: Project): Seq[ImplicitArgumentsTarget] = {
     if (editor.getSelectionModel.hasSelection)
-      getExpression(file).toSeq.flatMap(allTargets).toArray
+      getExpression(file).toSeq.flatMap(allTargets)
     else {
       val offset = editor.getCaretModel.getOffset
       val element: PsiElement = file.findElementAt(offset) match {
@@ -101,7 +94,7 @@ class ShowImplicitArgumentsAction extends AnAction(
           w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      element.withParentsInFile.toBuffer.flatMap(allTargets).toArray
+      element.withParentsInFile.flatMap(allTargets).toSeq
     }
   }
 

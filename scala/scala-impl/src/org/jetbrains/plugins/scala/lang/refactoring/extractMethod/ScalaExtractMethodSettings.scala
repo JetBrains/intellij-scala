@@ -30,7 +30,7 @@ class ScalaExtractMethodSettings(
   val typeParameters: Seq[ScTypeParam] = {
     val nextRange = nextSibling.getTextRange
 
-    val elem: PsiElement = elements.apply(0)
+    val elem: PsiElement = elements.head
     elem.parentsInFile
       .takeWhile { parent =>
         parent != null && ! {

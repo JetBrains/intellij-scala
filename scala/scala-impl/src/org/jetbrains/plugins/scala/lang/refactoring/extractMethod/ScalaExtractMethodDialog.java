@@ -17,6 +17,7 @@ import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.TitledSeparator;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody;
@@ -28,14 +29,9 @@ import scala.Option;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.MODULE$;
 
@@ -45,9 +41,7 @@ import static org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator$.
  */
 @SuppressWarnings(value = "unchecked")
 public class ScalaExtractMethodDialog extends DialogWrapper {
-  private JButton buttonOK;
-
-  private String REFACTORING_NAME = ScalaBundle.message("extract.method.title");
+  private final String REFACTORING_NAME = ScalaBundle.message("extract.method.title");
   private JPanel contentPane;
   private JPanel methodNamePanel;
   private EditorTextField editorTextField;
@@ -55,8 +49,8 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private JPanel myPreviewPanel;
   private JPanel myLinkContainer;
   private JCheckBox mySpecifyTypeChb;
-  private JComboBox multipleOutputCombobox;
-  private JComboBox visibilityComboBox;
+  private JComboBox<String> multipleOutputCombobox;
+  private JComboBox<String> visibilityComboBox;
   private JTextField visibiltyTextField;
   private JTextField multipleOutputTextField;
   private JLabel visibilityLabel;
@@ -67,19 +61,19 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private final MethodSignatureComponent mySignaturePreview;
 
   private ScalaExtractMethodSettings settings = null;
-  private Project myProject;
-  private PsiElement[] myElements;
-  private Option<ScType> myHasReturn;
+  private final Project myProject;
+  private final PsiElement[] myElements;
+  private final Option<ScType> myHasReturn;
 
-  private PsiElement mySibling;
+  private final PsiElement mySibling;
 
-  private VariableInfo[] myInput;
-  private VariableInfo[] myOutput;
+  private final VariableInfo[] myInput;
+  private final VariableInfo[] myOutput;
   private ScalaExtractMethodDialog.ScalaParameterTablePanel parameterTablePanel;
-  private boolean myLastReturn;
-  private Option<ScType> myLastMeaningful = null;
+  private final boolean myLastReturn;
+  private final Option<ScType> myLastMeaningful;
 
-  private boolean isInitialized = false;
+  private final boolean isInitialized;
 
   public ScalaExtractMethodDialog(final Project project, PsiElement[] elements, Option<ScType> hasReturn, boolean lastReturn,
                                   PsiElement sibling, VariableInfo[] input, VariableInfo[] output,
@@ -97,7 +91,6 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     mySignaturePreview.setMinimumSize(new Dimension(500, 70));
 
     setModal(true);
-    getRootPane().setDefaultButton(buttonOK);
     setTitle(REFACTORING_NAME);
     init();
     mySibling = sibling;
@@ -123,6 +116,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     return contentPane;
   }
 
+  @NotNull
   @Override
   protected JComponent createContentPane() {
     return contentPane;
@@ -146,7 +140,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myNameLabel.setLabelFor(editorTextField);
     editorTextField.addDocumentListener(new DocumentListener() {
       @Override
-      public void documentChanged(com.intellij.openapi.editor.event.DocumentEvent event) {
+      public void documentChanged(@NotNull com.intellij.openapi.editor.event.DocumentEvent event) {
         if (isDefaultClassName) updateClassName(StringUtil.capitalize(editorTextField.getText()));
         updateSignature();
       }
@@ -178,7 +172,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
     visibiltyTextField.getDocument().addDocumentListener(new DocumentAdapter() {
       @Override
-      protected void textChanged(DocumentEvent e) {
+      protected void textChanged(@NotNull DocumentEvent e) {
         updateSignature();
       }
     });
@@ -198,7 +192,7 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       VariableData d = ScalaExtractMethodUtils.convertVariableData(aMyInput, myElements);
       if (d != null) data.add(d);
     }
-    parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(new VariableData[data.size()]));
+    parameterTablePanel = new ScalaParameterTablePanel(myProject, data.toArray(new VariableData[0]));
     inputParametersPanel.add(parameterTablePanel);
   }
 
@@ -232,18 +226,15 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
       multipleOutputCombobox.addItem(v);
     }
 
-    multipleOutputCombobox.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        multipleOutputTextField.setEnabled(!isTuple());
-        updateSignature();
-      }
+    multipleOutputCombobox.addItemListener(e -> {
+      multipleOutputTextField.setEnabled(!isTuple());
+      updateSignature();
     });
 
     multipleOutputTextField.getDocument().addDocumentListener(new DocumentAdapter() {
       @Override
-      protected void textChanged(DocumentEvent e) {
-        if (!multipleOutputCombobox.getSelectedItem().equals(outputs[0])) {
+      protected void textChanged(@NotNull DocumentEvent e) {
+        if (!Objects.equals(multipleOutputCombobox.getSelectedItem(), outputs[0])) {
           isDefaultClassName = false;
         }
 
@@ -309,19 +300,9 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
   private void setUpTypeChb() {
     mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility()));
 
-    mySpecifyTypeChb.addActionListener(new ActionListener() {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        updateSignature();
-      }
-    });
+    mySpecifyTypeChb.addActionListener(e -> updateSignature());
 
-    visibilityComboBox.addItemListener(new ItemListener() {
-      @Override
-      public void itemStateChanged(ItemEvent e) {
-        mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility()));
-      }
-    });
+    visibilityComboBox.addItemListener(e -> mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility())));
   }
 
   private void setUpHyperLink() {
@@ -330,18 +311,10 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
     myLinkContainer.add(link);
 
     link.setToolTipText(ScalaBundle.message("default.ta.tooltip"));
-    link.addHyperlinkListener(new HyperlinkListener() {
-      @Override
-      public void hyperlinkUpdate(HyperlinkEvent e) {
-        ApplicationManager.getApplication().invokeLater(new Runnable() {
-          @Override
-          public void run() {
-            mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility()));
-            updateSignature();
-          }
-        });
-      }
-    });
+    link.addHyperlinkListener(e -> ApplicationManager.getApplication().invokeLater(() -> {
+      mySpecifyTypeChb.setSelected(ScalaExtractMethodUtils.isTypeAnnotationRequiredFor(settings, getVisibility()));
+      updateSignature();
+    }));
   }
 
   private String getClassName() {
@@ -354,22 +327,22 @@ public class ScalaExtractMethodDialog extends DialogWrapper {
 
   public ExtractMethodParameter[] getParameters() {
     VariableData[] data = parameterTablePanel.getVariableData();
-    ArrayList<ExtractMethodParameter> list = new ArrayList<ExtractMethodParameter>();
+    ArrayList<ExtractMethodParameter> list = new ArrayList<>();
     for (VariableData d : data) {
       ScalaVariableData variableData = (ScalaVariableData) d;
       ExtractMethodParameter param = ExtractMethodParameter.from(variableData);
       list.add(param);
     }
-    return list.toArray(new ExtractMethodParameter[list.size()]);
+    return list.toArray(new ExtractMethodParameter[0]);
   }
 
   public ExtractMethodOutput[] getReturns() {
-    ArrayList<ExtractMethodOutput> list = new ArrayList<ExtractMethodOutput>();
+    ArrayList<ExtractMethodOutput> list = new ArrayList<>();
     for (VariableInfo info : myOutput) {
       ScalaVariableData data = ScalaExtractMethodUtils.convertVariableData(info, myElements);
       list.add(ExtractMethodOutput.from(data));
     }
-    return list.toArray(new ExtractMethodOutput[list.size()]);
+    return list.toArray(new ExtractMethodOutput[0]);
   }
 
   private String getMethodName() {

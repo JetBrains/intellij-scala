@@ -213,13 +213,17 @@ object ScalaExtractMethodUtils {
   }
 
   @Nullable
-  def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): ScalaVariableData = {
-    if (!variable.element.isInstanceOf[ScTypedDefinition]) return null
+  def convertVariableData(variable: VariableInfo, elements: Array[PsiElement]): ScalaVariableData =
+    convertVariableData(variable, elements.toSeq)
+
+  @Nullable
+  def convertVariableData(variable: VariableInfo, elements: Seq[PsiElement]): ScalaVariableData = {
+    if (!variable.element.is[ScTypedDefinition]) return null
     val definition = variable.element.asInstanceOf[ScTypedDefinition]
 
-    val isInside = if (elements.length > 0) {
-      val startOffset = elements(0).getTextRange.getStartOffset
-      val endOffset = elements(elements.length - 1).getTextRange.getEndOffset
+    val isInside = if (elements.nonEmpty) {
+      val startOffset = elements.head.getTextRange.getStartOffset
+      val endOffset = elements.last.getTextRange.getEndOffset
       definition.getTextOffset >= startOffset && definition.getTextOffset < endOffset
     } else false
     val retType = definition.`type`().getOrNothing
@@ -296,32 +300,17 @@ object ScalaExtractMethodUtils {
   /**
     * methods for Unit tests
     */
-  def getParameters(myInput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodParameter] = {
-    var buffer: ArrayBuffer[VariableData] = new ArrayBuffer[VariableData]
-    for (input <- myInput) {
-      var d: VariableData = ScalaExtractMethodUtils.convertVariableData(input, elements)
-      if (d != null) buffer += d
-    }
-    val data = buffer.toArray
-    var list: ArrayBuffer[ExtractMethodParameter] = new ArrayBuffer[ExtractMethodParameter]
-    for (d <- data) {
-      list += ExtractMethodParameter.from(d.asInstanceOf[ScalaVariableData])
-    }
-    val res = list.toArray
-    Sorting.stableSort[ExtractMethodParameter](res, (p1: ExtractMethodParameter, p2: ExtractMethodParameter) => {
-      p1.oldName < p2.oldName
-    })
-    res
-  }
+  def getParameters(myInput: Seq[VariableInfo], elements: Seq[PsiElement]): Seq[ExtractMethodParameter] =
+    myInput
+      .flatMap(input => ScalaExtractMethodUtils.convertVariableData(input, elements).toOption)
+      .map(ExtractMethodParameter.from)
+      .sortBy(_.oldName)
 
-  def getReturns(myOutput: Array[VariableInfo], elements: Array[PsiElement]): Array[ExtractMethodOutput] = {
-    val list: util.ArrayList[ExtractMethodOutput] = new util.ArrayList[ExtractMethodOutput]
-    for (info <- myOutput) {
+  def getReturns(myOutput: Seq[VariableInfo], elements: Seq[PsiElement]): Seq[ExtractMethodOutput] =
+    for (info <- myOutput) yield {
       val data: ScalaVariableData = ScalaExtractMethodUtils.convertVariableData(info, elements)
-      list.add(ExtractMethodOutput.from(data))
+      ExtractMethodOutput.from(data)
     }
-    list.toArray(new Array[ExtractMethodOutput](list.size))
-  }
 
   def typedName(name: String, typeText: String, byName: Boolean = false)
                (implicit project: Project): String = {
@@ -337,7 +326,7 @@ object ScalaExtractMethodUtils {
       case _ => None
     }
 
-    val element = settings.elements(0)
+    val element = settings.elements.head
 
     ScalaTypeAnnotationSettings(element.getProject).isTypeAnnotationRequiredFor(
       Declaration(Visibility(visibility)), Location(settings.nextSibling), implementation)
@@ -345,7 +334,7 @@ object ScalaExtractMethodUtils {
 
   def previewSignatureText(settings: ScalaExtractMethodSettings): String = {
     def nameAndType(param: ExtractMethodParameter): String = {
-      val ExtractMethodParameter(oldName, newName, fromElement, tp, passAsParameter) = param
+      val ExtractMethodParameter(_, newName, fromElement, tp, _) = param
       this.typedName(newName, tp.codeText(fromElement), param.isCallByNameParameter)(fromElement.getProject)
     }
 
@@ -379,7 +368,7 @@ object ScalaExtractMethodUtils {
                             outputName: ExtractMethodOutput => String): Unit = {
     implicit val projectContext: ProjectContext = settings.projectContext
 
-    val element = elements.find(elem => elem.isInstanceOf[ScalaPsiElement]).getOrElse(return)
+    val element = elements.findByType[ScalaPsiElement].getOrElse(return)
     val processor = new CompletionProcessor(StdKinds.refExprLastRef, element) {
       override val includePrefixImports: Boolean = false
     }
@@ -482,10 +471,10 @@ object ScalaExtractMethodUtils {
         lastElem
       }
 
-      def addAssignment(ret: ExtractMethodOutput, extrText: String): Unit = {
+      def addAssignment(ret: ExtractMethodOutput, exprText: String): Unit = {
         val stmt =
-          if (ret.needNewDefinition) createDeclaration(ret.returnType, ret.paramName, !ret.isVal, extrText, isPresentableText = false)
-          else createExpressionFromText(ret.paramName + " = " + extrText)
+          if (ret.needNewDefinition) createDeclaration(ret.returnType, ret.paramName, !ret.isVal, exprText)
+          else createExpressionFromText(ret.paramName + " = " + exprText)
 
         addElement(stmt)
       }

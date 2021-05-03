@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.actions.implicitConvertions
 
-import java.awt.Color
-import java.awt.event.{MouseAdapter, MouseEvent}
-
 import com.intellij.codeInsight.CodeInsightBundle
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.editor.Editor
@@ -13,11 +10,9 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.psi._
 import com.intellij.psi.util.PsiUtilBase
 import com.intellij.util.Alarm
-import javax.swing._
-import javax.swing.border.Border
-import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.{MakeExplicitAction, Parameters, ScalaActionUtil}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -26,12 +21,12 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil.ge
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 import org.jetbrains.plugins.scala.util.JListCompatibility
 
-import scala.collection.mutable
+import java.awt.Color
+import java.awt.event.{MouseAdapter, MouseEvent}
+import javax.swing._
+import javax.swing.border.Border
+import javax.swing.event.{ListSelectionEvent, ListSelectionListener}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 02.06.2010
-  */
 final class ShowImplicitConversionsAction extends AnAction(
   ScalaBundle.message("implicit.conversions.action.text"),
   ScalaBundle.message("implicit.conversions.action.description"),
@@ -54,7 +49,7 @@ final class ShowImplicitConversionsAction extends AnAction(
     if (project == null || editor == null) return
 
     val file = PsiUtilBase.getPsiFileInEditor(editor, project)
-    if (!file.isInstanceOf[ScalaFile]) return
+    if (!file.is[ScalaFile]) return
 
     def forExpr(expr: ScExpression): Boolean = {
       val (implicitElement: Option[PsiNamedElement], fromUnderscore: Boolean) = {
@@ -122,8 +117,8 @@ final class ShowImplicitConversionsAction extends AnAction(
           w.getText.contains("\n") => file.findElementAt(offset - 1)
         case p => p
       }
-      def getExpressions(guard: Boolean): Array[ScExpression] = {
-        val res = mutable.ArrayBuffer.empty[ScExpression]
+      def getExpressions(guard: Boolean): Seq[ScExpression] = {
+        val res = Seq.newBuilder[ScExpression]
         var parent = element
         while (parent != null) {
           parent match {
@@ -144,11 +139,11 @@ final class ShowImplicitConversionsAction extends AnAction(
           }
           parent = parent.getParent
         }
-        res.toArray
+        res.result()
       }
       val expressions = {
         val falseGuard = getExpressions(guard = false)
-        if (falseGuard.length != 0) falseGuard
+        if (falseGuard.nonEmpty) falseGuard
         else getExpressions(guard = true)
       }
       def chooseExpression(expr: ScExpression): Unit = {
@@ -156,15 +151,15 @@ final class ShowImplicitConversionsAction extends AnAction(
           expr.getTextRange.getEndOffset)
         forExpr(expr)
       }
-      if (expressions.length == 0)
-        editor.getSelectionModel.selectLineAtCaret()
-      else if (expressions.length == 1) {
-        chooseExpression(expressions(0))
-      } else {
-        ScalaRefactoringUtil.showChooser(editor, expressions, (elem: ScExpression)=>
-          chooseExpression(elem), ScalaBundle.message("title.expressions"), (expr: ScExpression) => {
-          ScalaRefactoringUtil.getShortText(expr)
-        })
+
+      expressions match {
+        case Seq() => editor.getSelectionModel.selectLineAtCaret()
+        case Seq(expression) => chooseExpression(expression)
+        case expressions =>
+          ScalaRefactoringUtil.showChooser(editor, expressions, (elem: ScExpression)=>
+            chooseExpression(elem), ScalaBundle.message("title.expressions"), (expr: ScExpression) => {
+            ScalaRefactoringUtil.getShortText(expr)
+          })
       }
     }
   }
@@ -205,7 +200,7 @@ final class ShowImplicitConversionsAction extends AnAction(
     private val toolTipText: String = KeymapUtil.getFirstKeyboardShortcutText(
       ActionManager.getInstance.getAction(IdeActions.ACTION_SHOW_INTENTION_ACTIONS))
 
-    if (toolTipText.length > 0) {
+    if (toolTipText.nonEmpty) {
       setToolTipText(CodeInsightBundle.message("lightbulb.tooltip", toolTipText))
     }
 

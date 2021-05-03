@@ -17,7 +17,6 @@ import org.jetbrains.plugins.scala.lang.psi.dataFlow.impl.reachingDefs.ReachingD
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticNamedElement
 
 import scala.collection.mutable
-import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
 
 object ReachingDefinitionsCollector {
@@ -91,44 +90,42 @@ object ReachingDefinitionsCollector {
   }
 
   private def computeOutputVariables(innerInstructions: Seq[Instruction],
-                                     dfaResult: mutable.Map[Instruction, RDSet]): Iterable[VariableInfo] = {
-    val buffer = new ArrayBuffer[PsiNamedElement]
+                                     dfaResult: mutable.Map[Instruction, RDSet]): Seq[VariableInfo] = {
+    val result = mutable.SortedSet.empty[PsiNamedElement](Ordering.by(_.getTextRange.getStartOffset))
     for {
-      (read@ReadWriteVariableInstruction(_, readRef, Some(definitionToRead), false), rdset) <- dfaResult
+      (read@ReadWriteVariableInstruction(_, _, Some(definitionToRead), false), rdset) <- dfaResult
       if !innerInstructions.contains(read)
-      reaching <- rdset
+      reaching@DefinitionInstruction(_, named, _) <- rdset
+      if named == definitionToRead
       if innerInstructions.contains(reaching)
     } {
-      reaching match {
-        case DefinitionInstruction(_, named, _) if !buffer.contains(named) && (named == definitionToRead) =>
-          buffer += named
-        case _ =>
-      }
+      result += named
     }
-    buffer.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
+    result.iterator.map(VariableInfo).toSeq
   }
 
-  private def computeInputVariables(innerInstructions: Seq[Instruction]): Iterable[VariableInfo] = {
-    val buffer = mutable.Set[PsiNamedElement]()
-    val definedHere = innerInstructions.collect {
+  private def computeInputVariables(innerInstructions: Seq[Instruction]): Seq[VariableInfo] = {
+    val isDefinedHere = innerInstructions.collect {
       case DefinitionInstruction(_, named, _) => named
-    }
+    }.toSet[PsiNamedElement]
 
-    innerInstructions.foreach {
-      case ReadWriteVariableInstruction(_, _, Some(definition), _) if !definedHere.contains(definition) =>
-        definition match {
-          case _: PsiPackage =>
-          case _ => buffer += definition
-        }
-      case _ =>
-    }
-
-    val physical = buffer.filter(_.isPhysical).toSeq
-    physical.sortBy(_.getTextRange.getStartOffset).map(VariableInfo)
+    innerInstructions
+      .flatMap {
+        case ReadWriteVariableInstruction(_, _, Some(definition), _) if !isDefinedHere(definition) =>
+          definition match {
+            case _: PsiPackage => None
+            case _ => Some(definition)
+          }
+        case _ => None
+      }
+      .filter(_.isPhysical)
+      .sortBy(_.getTextRange.getStartOffset)
+      .distinct
+      .map(VariableInfo)
   }
 }
 
-case class FragmentVariableInfos(inputVariables: Iterable[VariableInfo],
-                                 outputVariables: Iterable[VariableInfo])
+case class FragmentVariableInfos(inputVariables: Seq[VariableInfo],
+                                 outputVariables: Seq[VariableInfo])
 
 case class VariableInfo(element: PsiNamedElement)

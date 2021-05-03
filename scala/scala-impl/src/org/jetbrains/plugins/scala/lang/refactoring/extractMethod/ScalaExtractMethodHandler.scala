@@ -102,60 +102,58 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
     }.getOrElse((false, None))
 
     val hasReturn: Option[ScType] = returnType
-    val stopAtScope: PsiElement = findScopeBound(elements).getOrElse(file)
-    val siblings: Array[PsiElement] = getSiblings(elements.head, stopAtScope)
-    if (siblings.length == 0) {
+    val stopAtScope = findScopeBound(elements).getOrElse(file)
+    val siblings = getSiblings(elements.head, stopAtScope)
+    if (siblings.isEmpty) {
       showErrorHint(ScalaBundle.message("extract.method.cannot.find.possible.scope"), REFACTORING_NAME)
       return
     }
-    val array = elements.toArray
-    if (ApplicationManager.getApplication.isUnitTestMode && siblings.length > 0) {
-      val targetOffset = Option(dataContext).map(_.getData("chosenTargetScope").asInstanceOf[Int])
-      val targetScope = targetOffset flatMap smallestScopeEnclosingTarget(siblings) getOrElse siblings(0)
-      invokeDialog(array, hasReturn, lastReturn, targetScope, siblings.length == 1, lastExprType)
-    } else if (siblings.length > 1) {
-      showChooser(editor, siblings, { (selectedValue: PsiElement) =>
-        invokeDialog(array, hasReturn, lastReturn, selectedValue,
-          siblings(siblings.length - 1) == selectedValue, lastExprType)
-      }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, (e: PsiElement) => e.getParent)
-    }
-    else if (siblings.length == 1) {
-      invokeDialog(array, hasReturn, lastReturn, siblings(0), smallestScope = true, lastExprType)
-    }
-  }
 
-  def smallestScopeEnclosingTarget(scopeElements: Array[PsiElement])(targetOffset: Int): Option[PsiElement] = {
-    val byScopeLength = Ordering.by[PsiElement, Int] { _.getContext.getTextLength }
-
-    def applicableScopes(inputScopes: Array[PsiElement]) =
-      inputScopes.filter {
-        _.getContext.getTextRange.containsOffset(targetOffset)
-      }
-
-    applicableScopes(scopeElements) match {
-      case Array() => None
-      case applicable => Some {
-            applicable
-            .min(byScopeLength)
-      }
+    siblings match {
+      case Seq(firstSibling, _*) if ApplicationManager.getApplication.isUnitTestMode =>
+        val targetOffset = Option(dataContext).map(_.getData("chosenTargetScope").asInstanceOf[Int])
+        val targetScope = targetOffset
+          .flatMap(smallestScopeEnclosingTarget(siblings))
+          .getOrElse(firstSibling)
+        invokeDialog(
+          elements, hasReturn, lastReturn, targetScope,
+          smallestScope = siblings.length == 1,
+          lastExprType  = lastExprType
+        )
+      case Seq() =>
+      case Seq(sibling) =>
+        invokeDialog(elements, hasReturn, lastReturn, sibling, smallestScope = true, lastExprType)
+      case siblings =>
+        showChooser(editor, siblings, { (selectedValue: PsiElement) =>
+          invokeDialog(
+            elements, hasReturn, lastReturn, selectedValue,
+            smallestScope = siblings.last == selectedValue,
+            lastExprType  = lastExprType
+          )
+        }, ScalaBundle.message("choose.level.for.extract.method"), getTextForElement, (e: PsiElement) => e.getParent)
     }
   }
 
-  private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Array[PsiElement] = {
+  def smallestScopeEnclosingTarget(scopeElements: Seq[PsiElement])(targetOffset: Int): Option[PsiElement] =
+    scopeElements
+        .filter(_.getContext.getTextRange.containsOffset(targetOffset))
+        .minByOption(_.getContext.getTextLength)
+
+  private def getSiblings(element: PsiElement, @Nullable stopAtScope: PsiElement): Seq[PsiElement] = {
     def isParentOk(parent: PsiElement): Boolean = {
       if (parent == null) return false
       assert(parent.getTextRange != null, "TextRange is null: " + parent.getText)
       stopAtScope == null || stopAtScope.getTextRange.contains(parent.getTextRange)
     }
 
-    val res = new ArrayBuffer[PsiElement]
+    var res = List.empty[PsiElement]
     var prev = element
     var parent = element.getParent
     while (isParentOk(parent)) {
       parent match {
-        case file: ScalaFile if file.isScriptFile || file.getViewProvider.getBaseLanguage != ScalaLanguage.INSTANCE => res += prev
-        case _: ScBlock => res += prev
-        case _: ScTemplateBody => res += prev
+        case file: ScalaFile if file.isScriptFile || file.getViewProvider.getBaseLanguage != ScalaLanguage.INSTANCE => res ::= prev
+        case _: ScBlock => res ::= prev
+        case _: ScTemplateBody => res ::= prev
         case _ =>
       }
       prev = parent
@@ -165,7 +163,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
         case _ => parent.getParent
       }
     }
-    res.toArray.reverse
+    res
   }
 
   private def findScopeBound(elements: Seq[PsiElement]): Option[PsiElement] = {
@@ -223,7 +221,7 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
   }
 
 
-  private def invokeDialog(elements: Array[PsiElement], hasReturn: Option[ScType],
+  private def invokeDialog(elements: Seq[PsiElement], hasReturn: Option[ScType],
                            lastReturn: Boolean, sibling: PsiElement, smallestScope: Boolean,
                            lastExprType: Option[ScType])
                           (implicit project: Project, editor: Editor): Unit = {
@@ -232,13 +230,13 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
 
     val input = info.inputVariables
     val output = info.outputVariables
-    if (output.exists(_.element.isInstanceOf[ScFunctionDefinition])) {
+    if (output.exists(_.element.is[ScFunctionDefinition])) {
       showErrorHint(ScalaBundle.message("cannot.extract.used.function.definition"), REFACTORING_NAME)
       return
     }
     val settings: ScalaExtractMethodSettings =
       if (!ApplicationManager.getApplication.isUnitTestMode) {
-        val dialog = new ScalaExtractMethodDialog(project, elements, hasReturn, lastReturn, sibling,
+        val dialog = new ScalaExtractMethodDialog(project, elements.toArray, hasReturn, lastReturn, sibling,
           input.toArray, output.toArray, lastExprType)
         dialog.show()
         if (!dialog.isOK) return
@@ -253,9 +251,9 @@ class ScalaExtractMethodHandler extends ScalaRefactoringActionHandler {
           InnerClassSettings(isCase || isInner, "TestMethodNameResult", out.toArray, isCase)
         }
 
-        new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input.toArray, elements),
-          ScalaExtractMethodUtils.getReturns(output.toArray, elements), "", sibling,
-          elements, hasReturn, ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE, lastReturn, lastExprType, innerClassSettings)
+        new ScalaExtractMethodSettings("testMethodName", ScalaExtractMethodUtils.getParameters(input, elements).toArray,
+          ScalaExtractMethodUtils.getReturns(output, elements).toArray, "", sibling,
+          elements.toArray, hasReturn, ScalaApplicationSettings.ReturnTypeLevel.BY_CODE_STYLE, lastReturn, lastExprType, innerClassSettings)
       }
     val duplicates = DuplicatesUtil.findDuplicates(settings)
     performRefactoring(settings, editor)

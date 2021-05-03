@@ -68,12 +68,12 @@ object ScalaRefactoringUtil {
     if (start == end) return
     val fileText = file.charSequence
 
-    while (file.findElementAt(start).isInstanceOf[PsiWhiteSpace] ||
-      (file.findElementAt(start).isInstanceOf[PsiComment] && trimComments) ||
+    while (file.findElementAt(start).is[PsiWhiteSpace] ||
+      (file.findElementAt(start).is[PsiComment] && trimComments) ||
       fileText.charAt(start) == '\n' ||
       fileText.charAt(start) == ' ') start = start + 1
-    while (file.findElementAt(end - 1).isInstanceOf[PsiWhiteSpace] ||
-      (file.findElementAt(end - 1).isInstanceOf[PsiComment] && trimComments) ||
+    while (file.findElementAt(end - 1).is[PsiWhiteSpace] ||
+      (file.findElementAt(end - 1).is[PsiComment] && trimComments) ||
       fileText.charAt(end - 1) == '\n' ||
       fileText.charAt(end - 1) == ' ') end = end - 1
     editor.getSelectionModel.setSelection(start, end)
@@ -486,7 +486,7 @@ object ScalaRefactoringUtil {
     highlightOccurrences(project, occurrences.map(_.getTextRange), editor)
 
   def showChooserGeneric[T](editor: Editor,
-                            elements: Array[T],
+                            elements: Seq[T],
                             onChosen: T => Unit,
                             @Nls title: String,
                             presentation: T => String,
@@ -567,7 +567,7 @@ object ScalaRefactoringUtil {
 
 
   def showChooser[T <: PsiElement](editor: Editor,
-                                   elements: Array[T],
+                                   elements: Seq[T],
                                    onChosen: T => Unit,
                                    @Nls title: String,
                                    presentation: T => String,
@@ -750,8 +750,8 @@ object ScalaRefactoringUtil {
   private[this] def getExpressions(selectedElement: PsiElement): Seq[ScExpression] =
     selectedElement.withParentsInFile
       .takeWhile(e => !isBlockLike(e))
-      .toSeq
       .filterByType[ScExpression]
+      .toSeq
 
   def isBlockLike(e: PsiElement): Boolean = e match {
     case null => true
@@ -771,10 +771,10 @@ object ScalaRefactoringUtil {
                              (invokesNext: => Unit)
                              (implicit project: Project, editor: Editor): Unit =
     invokeOnSelected(ScalaBundle.message("choose.expression.for", refactoringName))(invokesNext, (_: ScExpression) => invokesNext) {
-      possibleExpressionsToExtract(file, editor.getCaretModel.getOffset).toArray
+      possibleExpressionsToExtract(file, editor.getCaretModel.getOffset)
     }
 
-  private def getTypeElements(selectedElement: ScTypeElement): Array[ScTypeElement] = {
+  private def getTypeElements(selectedElement: ScTypeElement): Seq[ScTypeElement] = {
     val result = mutable.ArrayBuffer.empty[ScTypeElement]
     var parent = selectedElement
     while (parent != null) {
@@ -788,7 +788,7 @@ object ScalaRefactoringUtil {
       }
       parent = getParentOfType(parent, classOf[ScTypeElement])
     }
-    result.toArray
+    result.toSeq
   }
 
   def afterTypeElementChoosing(selectedElement: ScTypeElement, refactoringName: String)
@@ -800,7 +800,7 @@ object ScalaRefactoringUtil {
 
   private def invokeOnSelected[T <: ScalaPsiElement](@Nls message: String)
                                                     (default: => Unit, consumer: T => Unit)
-                                                    (elements: => Array[T])
+                                                    (elements: => Seq[T])
                                                     (implicit editor: Editor): Unit = {
     implicit val selectionModel: SelectionModel = editor.getSelectionModel
 
@@ -814,11 +814,11 @@ object ScalaRefactoringUtil {
       }
 
       elements match {
-        case Array() =>
+        case Seq() =>
           selectionModel.selectLineAtCaret()
           default
-        case Array(head) => onElement(head)
-        case array => showChooser(editor, array, onElement, message, getShortText)
+        case Seq(element) => onElement(element)
+        case elements => showChooser(editor, elements, onElement, message, getShortText)
       }
     }
   }
@@ -992,7 +992,7 @@ object ScalaRefactoringUtil {
           val nextChar = file.charSequence.charAt(newRange.getEndOffset)
           val needBraces = needBracesForInjection(newString, nextChar)
           val text = if (needBraces) s"$${$newString}" else s"$$$newString"
-          startShift = (if (needBraces) 2 else 1)
+          startShift = if (needBraces) 2 else 1
           document.replaceString(newRange.getStartOffset, newRange.getEndOffset, text)
         } else {
           val quote = if (lit.isMultiLineString) "\"\"\"" else "\""

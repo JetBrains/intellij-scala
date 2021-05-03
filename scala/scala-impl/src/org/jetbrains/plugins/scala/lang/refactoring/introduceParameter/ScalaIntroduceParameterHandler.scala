@@ -269,9 +269,9 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   private def afterMethodChoosing(element: PsiElement)
                                  (action: ScMethodLike => Unit)
                                  (implicit project: Project = element.getProject, editor: Editor): Unit = {
-    val validEnclosingMethods: Seq[ScMethodLike] = getEnclosingMethods(element)
+    val validEnclosingMethods = getEnclosingMethods(element)
     if (validEnclosingMethods.size > 1 && !ApplicationManager.getApplication.isUnitTestMode) {
-      showChooser[ScMethodLike](editor, validEnclosingMethods.toArray, action,
+      showChooser[ScMethodLike](editor, validEnclosingMethods, action,
         ScalaBundle.message("choose.function.for.refactoring", REFACTORING_NAME), getTextForElement, toHighlight)
     }
     else if (validEnclosingMethods.size == 1 || ApplicationManager.getApplication.isUnitTestMode) {
@@ -282,7 +282,7 @@ class ScalaIntroduceParameterHandler extends ScalaRefactoringActionHandler with 
   }
 
   private def isLibraryInterfaceMethod(method: PsiMethod): Boolean = {
-    (method.hasModifierPropertyScala(PsiModifier.ABSTRACT) || method.isInstanceOf[ScFunctionDefinition]) &&
+    (method.hasModifierPropertyScala(PsiModifier.ABSTRACT) || method.is[ScFunctionDefinition]) &&
       !method.getManager.isInProject(method)
   }
 
