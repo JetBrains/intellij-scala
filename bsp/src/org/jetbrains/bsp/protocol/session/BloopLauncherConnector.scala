@@ -24,6 +24,7 @@ class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: Bsp
 
     val dependencies = Seq(
       ("ch.epfl.scala" % "bloop-launcher_2.12" % bloopVersion).transitive(),
+      "org.scala-lang.modules" % "scala-collection-compat_2.12" % "2.4.2", //workaround for broken classpath
       "org.scala-lang" % "scala-library" % "2.12.12"
     )
     val launcherClasspath = DependencyManager.resolve(dependencies: _*)
