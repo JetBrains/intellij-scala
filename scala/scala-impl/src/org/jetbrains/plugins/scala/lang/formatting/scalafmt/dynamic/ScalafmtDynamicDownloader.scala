@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
-import java.net.URL
-import java.nio.file.Path
-
 import com.intellij.openapi.progress.ProcessCanceledException
 import org.apache.ivy.util.{AbstractMessageLogger, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase
@@ -10,15 +7,18 @@ import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.BuildInfo
 
+import java.net.URL
+import java.nio.file.Path
 import scala.util.control.NonFatal
 
 class ScalafmtDynamicDownloader(
+  extraResolvers: Seq[Resolver],
   progressListener: DownloadProgressListener
 ) {
 
   def download(version: String): Either[DownloadFailure, DownloadSuccess] =
     try {
-      val resolver = new ScalafmtDependencyResolver(progressListener)
+      val resolver = new ScalafmtDependencyResolver(extraResolvers, progressListener)
       val resolvedDependencies = resolver.resolve(dependencies(version): _*)
       val jars: Seq[Path] = resolvedDependencies.map(_.file.toPath)
       val urls = jars.map(_.toUri.toURL)
@@ -66,9 +66,19 @@ object ScalafmtDynamicDownloader {
     val NoopProgressListener: DownloadProgressListener = _ => {}
   }
 
-  private class ScalafmtDependencyResolver(progressListener: DownloadProgressListener) extends DependencyManagerBase {
+  private class ScalafmtDependencyResolver(
+    extraResolvers: Seq[Resolver],
+    progressListener: DownloadProgressListener
+  ) extends DependencyManagerBase {
+
+    // first search in the provided resolvers, then fallback to the default ones
+    override protected def resolvers: Seq[Resolver] =
+      extraResolvers ++ super.resolvers
+
     override protected val artifactBlackList: Set[String] = Set() // not to exclude scala-reflect & scala-library
+
     override protected val logLevel: Int = org.apache.ivy.util.Message.MSG_INFO
+
     override def createLogger: MessageLogger = new AbstractMessageLogger {
       override def doEndProgress(msg: String): Unit = progressListener.progressUpdate(format(msg))
       override def log(msg: String, level: Int): Unit = progressListener.progressUpdate(format(msg))

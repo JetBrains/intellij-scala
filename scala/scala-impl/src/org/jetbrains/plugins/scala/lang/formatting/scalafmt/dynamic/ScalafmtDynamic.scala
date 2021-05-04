@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
 import java.nio.file.attribute.FileTime
 import java.nio.file.{Files, Path}
-
 import com.typesafe.config.{ConfigException, ConfigFactory}
+import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamic.{FormatResult, _}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.{DownloadProgressListener, DownloadSuccess}
@@ -26,7 +26,8 @@ final case class ScalafmtDynamic(
   defaultVersion: String,
   fmtsCache: mutable.Map[ScalafmtVersion, ScalafmtReflect],
   cacheConfigs: Boolean,
-  configsCache: mutable.Map[Path, (ScalafmtReflectConfig, FileTime)]
+  configsCache: mutable.Map[Path, (ScalafmtReflectConfig, FileTime)],
+  extraResolvers: Seq[Resolver]
 ) extends Scalafmt {
 
   def this() = this(
@@ -37,6 +38,7 @@ final case class ScalafmtDynamic(
     TrieMap.empty,
     true,
     TrieMap.empty,
+    Nil
   )
 
   override def clear(): Unit = {
@@ -173,7 +175,7 @@ final case class ScalafmtDynamic(
       case None =>
         val downloadWriter = reporter.downloadWriter()
         val progressListener: DownloadProgressListener = message => downloadWriter.println(message)
-        val downloader = new ScalafmtDynamicDownloader(progressListener)
+        val downloader = new ScalafmtDynamicDownloader(extraResolvers, progressListener)
         downloader.download(version)
           .left.map(f => ScalafmtDynamicError.CannotDownload(f.version, Some(f.cause)))
           .flatMap(resolveClassPath)
