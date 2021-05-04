@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
-import java.net.URL
-
 import com.intellij.notification.{Notification, NotificationAction}
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.components.{PersistentStateComponent, State, Storage}
@@ -10,6 +8,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicato
 import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.annotations.{Nls, NonNls}
+import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.ScalafmtResolveError._
@@ -21,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDyna
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicDownloader, ScalafmtReflect}
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
+import java.net.URL
 import scala.beans.BeanProperty
 import scala.collection.mutable
 import scala.reflect.internal.util.ScalaClassLoader.URLClassLoader
@@ -61,7 +61,8 @@ final class ScalafmtDynamicServiceImpl
     version: ScalafmtVersion,
     downloadIfMissing: Boolean,
     verbosity: FmtVerbosity,
-    resolveFast: Boolean = false,
+    extraResolvers: Seq[Resolver],
+    resolveFast: Boolean,
     progressListener: DownloadProgressListener
   ): ResolveResult = {
     val resolveResult = formattersCache.get(version) match {
@@ -73,7 +74,7 @@ final class ScalafmtDynamicServiceImpl
           val jarUrls = state.resolvedVersions.get(version).map(new URL(_))
           resolveClassPath(version, jarUrls.toSeq)
         } else if (downloadIfMissing) {
-          downloadAndResolve(version, progressListener)
+          downloadAndResolve(version, extraResolvers, progressListener)
         } else {
           Left(ScalafmtResolveError.NotFound(version))
         }
@@ -86,8 +87,9 @@ final class ScalafmtDynamicServiceImpl
   }
 
   private def downloadAndResolve(version: ScalafmtVersion,
+                                 extraResolvers: Seq[Resolver],
                                  listener: DownloadProgressListener = NoopProgressListener): ResolveResult = {
-    val downloader = new ScalafmtDynamicDownloader(listener)
+    val downloader = new ScalafmtDynamicDownloader(extraResolvers, listener)
     downloader.download(version)
       .left.map(DownloadError.apply)
       .flatMap { case DownloadSuccess(v, jarUrls) =>
@@ -186,7 +188,8 @@ final class ScalafmtDynamicServiceImpl
             indicator.setIndeterminate(true)
             val progressListener = new ProgressIndicatorDownloadListener(indicator, title)
             val result = try {
-              resolve(version, downloadIfMissing = true, FmtVerbosity.Verbose, progressListener = progressListener)
+              val resolvers = projectResolvers(project)
+              resolve(version, downloadIfMissing = true, FmtVerbosity.Verbose, resolvers, progressListener = progressListener)
             } catch {
               case pce: ProcessCanceledException =>
                 Left(DownloadError(version, pce))
@@ -205,10 +208,11 @@ final class ScalafmtDynamicServiceImpl
 
   override def ensureVersionIsResolved(
     version: ScalafmtVersion,
+    extraResolvers: Seq[Resolver],
     progressListener: DownloadProgressListener
   ): Unit =
     if (!formattersCache.contains(version))
-      resolve(version, downloadIfMissing = true, FmtVerbosity.FailSilent, progressListener = progressListener)
+      resolve(version, downloadIfMissing = true, FmtVerbosity.FailSilent, extraResolvers, progressListener = progressListener)
 }
 
 object ScalafmtDynamicServiceImpl {

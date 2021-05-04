@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
 import java.net.URL
-
 import com.intellij.openapi.components.ServiceManager
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.annotations.RequiresEdt
+import org.jetbrains.plugins.scala.DependencyManagerBase.Resolver
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.{ResolveResult, ScalafmtResolveError, ScalafmtVersion}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener.NoopProgressListener
@@ -18,6 +18,7 @@ trait ScalafmtDynamicService {
     version: ScalafmtVersion,
     downloadIfMissing: Boolean,
     verbosity: FmtVerbosity,
+    extraResolvers: Seq[Resolver],
     resolveFast: Boolean = false,
     progressListener: DownloadProgressListener = NoopProgressListener
   ): ResolveResult
@@ -31,6 +32,7 @@ trait ScalafmtDynamicService {
 
   def ensureVersionIsResolved(
     version: ScalafmtVersion,
+    extraResolvers: Seq[Resolver],
     progressListener: DownloadProgressListener
   ): Unit
 }

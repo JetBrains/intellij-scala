@@ -25,7 +25,8 @@ abstract class DependencyManagerBase {
   protected val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
   protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
-  protected val resolvers: Seq[Resolver] = Seq(
+  protected def resolvers: Seq[Resolver] = defaultResolvers
+  private final val defaultResolvers: Seq[Resolver] = Seq(
     MavenResolver("central", "https://repo1.maven.org/maven2"),
     IvyResolver("typesafe-releases",
       "https://repo.typesafe.com/typesafe/ivy-releases/[organisation]/[module]/[revision]/[type]s/[artifact](-[classifier]).[ext]")

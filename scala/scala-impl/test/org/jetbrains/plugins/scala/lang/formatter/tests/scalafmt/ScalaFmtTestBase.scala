@@ -59,7 +59,7 @@ object ScalaFmtTestBase {
     val stringToUnit: DownloadProgressListener = progressMessage => {
       //log(progressMessage) // uncomment to test
     }
-    ScalafmtDynamicService.instance.ensureVersionIsResolved(version, stringToUnit)
+    ScalafmtDynamicService.instance.ensureVersionIsResolved(version, Nil, stringToUnit)
     log(s"[END] $downloadingMessage")
   }
 }

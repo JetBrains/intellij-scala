@@ -111,7 +111,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
 
   private def intellijDefaultConfig: Option[ScalafmtReflectConfig] = {
     ScalafmtDynamicService.instance
-      .resolve(DefaultVersion, downloadIfMissing = false, FmtVerbosity.FailSilent)
+      .resolve(DefaultVersion, downloadIfMissing = false, FmtVerbosity.FailSilent, projectResolvers(project))
       .toOption.map(_.intellijScalaFmtConfig)
   }
 
@@ -194,7 +194,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
         case Left(e)      => Left(ConfigResolveError.ConfigParseError(configPath, e))
       }
       fmtReflect <- ScalafmtDynamicService.instance
-        .resolve(version, downloadIfMissing = false, verbosity, resolveFast)
+        .resolve(version, downloadIfMissing = false, verbosity, projectResolvers(project), resolveFast)
         .left.map(ConfigResolveError.ConfigScalafmtResolveError)
       config <- parseConfig(configFile, fmtReflect)
     } yield config
