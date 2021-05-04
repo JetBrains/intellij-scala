@@ -1,4 +1,4 @@
-object Scl5739 extends TestJava {
+object SCL5739 extends TestJava {
   private val location = new Updatable
 
   <ref>location() = 3
