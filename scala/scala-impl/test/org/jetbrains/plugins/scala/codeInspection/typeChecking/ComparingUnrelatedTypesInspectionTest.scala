@@ -933,4 +933,72 @@ class TestVariousCasesWithStdTypes extends ComparingUnrelatedTypesInspectionTest
        |}
        |""".stripMargin
   )
+
+  def test_generic_type_in_compound_type(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait A
+       |trait B
+       |def test[T](a: T with A, b: T with B) =
+       |  a == b
+       |
+       |""".stripMargin
+  )
+
+  // SCL-18996
+  def test_double_dependent_type(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait NewtypeBase[T] {
+       |  type Type
+       |  def apply(x: T): Type
+       |}
+       |
+       |abstract class Newtype[T] extends NewtypeBase[T] {
+       |  val instance: NewtypeBase[T] = ???
+       |
+       |  trait Tag extends Any
+       |  type Type = instance.Type with Tag
+       |  def apply(x: T): Type = ???
+       |}
+       |
+       |object Hello extends App {
+       |  object Number extends Newtype[Long]
+       |
+       |  val x = Number(1L)
+       |  val y = Number(1L)
+       |
+       |  val equals = x == y  // <-- flags here
+       |  println(equals) // prints 'true'
+       |}
+       |
+       |""".stripMargin
+  )
+
+  def test_double_dependent_type_with_different_tag(): Unit = checkTextHasNoErrors(
+    s"""
+       |trait NewtypeBase[T] {
+       |  type Type
+       |  def apply(x: T): Type
+       |}
+       |
+       |abstract class Newtype[T] extends NewtypeBase[T] {
+       |  val instance: NewtypeBase[T] = ???
+       |
+       |  trait Tag extends Any
+       |  type Type = instance.Type with Tag
+       |  def apply(x: T): Type = ???
+       |}
+       |
+       |object Hello extends App {
+       |  object Number extends Newtype[Long]
+       |  object Number2 extends Newtype[Long]
+       |
+       |  val x = Number(1L)
+       |  val y = Number2(2L)
+       |
+       |  val equals = x == y
+       |  println(equals)
+       |}
+       |
+       |""".stripMargin
+  )
 }
