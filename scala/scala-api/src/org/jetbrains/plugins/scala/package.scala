@@ -1,7 +1,7 @@
 package org.jetbrains.plugins
 
-import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.ApplicationManager.{getApplication => application}
+import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.util.Computable
 import com.intellij.util.SystemProperties
 
@@ -11,7 +11,7 @@ package object scala {
   val NotImplementedError = "???"
 
   def isInternalMode: Boolean = application match {
-    case null => SystemProperties.is(PluginManagerCore.IDEA_IS_INTERNAL_PROPERTY)
+    case null => SystemProperties.is(ApplicationManagerEx.IS_INTERNAL_PROPERTY)
     case application => application.isInternal
   }
 

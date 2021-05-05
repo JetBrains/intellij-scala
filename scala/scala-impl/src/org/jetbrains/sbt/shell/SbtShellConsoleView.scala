@@ -2,7 +2,6 @@ package org.jetbrains.sbt
 package shell
 
 import java.beans.{PropertyChangeEvent, PropertyChangeListener}
-
 import com.intellij.execution.actions.ClearConsoleAction
 import com.intellij.execution.configurations.RemoteConnection
 import com.intellij.execution.console.LanguageConsoleImpl
@@ -18,6 +17,7 @@ import com.intellij.openapi.wm.IdeFocusManager
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.sbt.shell.action._
 
+import java.util.Collections
 import scala.collection.mutable
 
 /**
@@ -118,11 +118,11 @@ object SbtShellConsoleView {
     // file with line number
     val fileWithLinePattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}")
     // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
-    val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, null, PATH, LINE)
+    val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, Collections.emptyList[String](), PATH, LINE)
 
     // file output without lines in messages
     val fileOnlyPattern = pattern(RegexpFilter.FILE_PATH_MACROS)
-    val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, null, PATH)
+    val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, Collections.emptyList[String](), PATH)
 
     val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
     new PatternBasedFileHyperlinkFilter(project, null, dataFinder)

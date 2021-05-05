@@ -27,7 +27,7 @@ final class ScUBinaryExpressionWithType(
     scExpression.expr.convertToUExpressionOrEmpty(this)
 
   override def getOperationKind: UastBinaryExpressionWithTypeKind =
-    UastBinaryExpressionWithTypeKind.TYPE_CAST
+    UastBinaryExpressionWithTypeKind.TypeCast.INSTANCE
 
   override def getType: PsiType = scExpression.uastType()
 
