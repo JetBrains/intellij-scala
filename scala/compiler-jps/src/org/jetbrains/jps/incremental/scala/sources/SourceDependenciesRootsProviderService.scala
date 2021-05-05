@@ -1,8 +1,9 @@
 package org.jetbrains.jps.incremental.scala.sources
 
+import com.intellij.openapi.util.io.FileFilters
+
 import java.util
 import java.util.Collections
-
 import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor, ResourcesTargetType}
 import org.jetbrains.jps.builders.storage.BuildDataPaths
 import org.jetbrains.jps.builders.{AdditionalRootsProviderService, BuildTarget}
@@ -34,7 +35,7 @@ class SourceDependenciesRootsProviderService
       case j: JavaSourceRootProperties => j.getPackagePrefix
       case _ => ""
     }
-    new JavaSourceRootDescriptor(sourceRoot.getFile, target, false, false, packagePrefix, Collections.emptySet())
+    new JavaSourceRootDescriptor(sourceRoot.getFile, target, false, false, packagePrefix, Collections.emptySet(), FileFilters.EVERYTHING)
   }
 
   private def rootType(moduleBuildTarget: ModuleBuildTarget): JavaSourceRootType =
