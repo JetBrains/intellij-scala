@@ -10,9 +10,11 @@ import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
 import com.intellij.psi._
 import org.apache.commons.lang.StringUtils
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScReferencePattern, ScWildcardPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScPattern, ScTypePattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createPatternFromText
 import org.jetbrains.plugins.scala.lang.psi.types.api.TupleType
@@ -47,29 +49,38 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
     }
   }
 
-  private def findReferencePattern(element: PsiElement): Option[(ScPattern, String)] = {
-    element.getParent match {
-      case refPattern: ScReferencePattern =>
-        val expectedType = refPattern.expectedType
-        nestedPatternText(expectedType).map(patText => (refPattern, "%s @ %s".format(refPattern.getText, patText)))
-      case wildcardPattern: ScWildcardPattern =>
-        val expectedType = wildcardPattern.expectedType
-        nestedPatternText(expectedType).map(patText => (wildcardPattern, patText))
-      case _ => None
-    }
-  }
+  private def findReferencePattern(element: PsiElement): Option[(ScPattern, String)] =
+    element.parents
+      .takeWhile(_.is[ScPattern, ScTypeElement, ScTypePattern, ScReference])
+      .flatMap {
+        case typePattern: ScTypedPattern =>
+          val patText = typePattern.typePattern
+            .map(_.typeElement)
+            .flatMap(_.`type`().toOption)
+            .flatMap(nestedPatternText)
+
+          patText.map { patText =>
+            val nameId = typePattern.nameId.getText
+            nameId match {
+              case "_" => (typePattern, patText)
+              case _ => (typePattern, "%s@%s".format(nameId, patText))
+            }
+          }
+        case _ => None
+      }
+      .nextOption()
 
 
-  def nestedPatternText(expectedType: Option[ScType]): Option[String] = {
+  private def nestedPatternText(expectedType: ScType): Option[String] = {
     expectedType match {
-      case Some(TupleType(comps)) =>
+      case TupleType(comps) =>
         import org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.NameSuggester.suggestNamesByType
         val names = comps.map(t => suggestNamesByType(t).head)
         val tuplePattern = names.mkParenString
         Some(tuplePattern)
       case _ =>
-        expectedType.flatMap(_.extractDesignated(expandAliases = true)) match {
-          case Some(cls: ScClass) if cls.isCase =>
+        expectedType.extractDesignated(expandAliases = true) match {
+          case Some(cls: ScClass) if cls.isCase => // TODO: SCALA 3 has enum classes, which should work here, too
             cls.constructor match {
               case Some(primaryConstructor) =>
                 val parameters = primaryConstructor.effectiveFirstParameterSection
