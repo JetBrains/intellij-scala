@@ -84,17 +84,17 @@ object ScalaPluginUpdater {
   }
 
   @throws(classOf[InvalidRepoException])
-  def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch): AnyVal = {
+  def doUpdatePluginHosts(branch: ScalaApplicationSettings.pluginBranch, descriptor: IdeaPluginDescriptorImpl): AnyVal = {
     if(currentRepo(branch).isEmpty)
       throw new InvalidRepoException(s"Branch $branch is unavailable for IDEA version $currentVersion")
 
     // update hack - set plugin version to 0 when downgrading
     // also unpatch it back if user changed mind about downgrading
     if (getScalaPluginBranch.compareTo(branch) > 0) {
-      savedPluginVersion = pluginDescriptor.getVersion
-      patchPluginVersion("0.0.0")
+      savedPluginVersion = descriptor.getVersion
+      patchPluginVersion("0.0.0", descriptor)
     } else if (savedPluginVersion.nonEmpty) {
-      patchPluginVersion(savedPluginVersion)
+      patchPluginVersion(savedPluginVersion, descriptor)
       savedPluginVersion = ""
     }
 
@@ -111,7 +111,7 @@ object ScalaPluginUpdater {
 
   @throws(classOf[InvalidRepoException])
   def doUpdatePluginHostsAndCheck(branch: ScalaApplicationSettings.pluginBranch): Any = {
-    doUpdatePluginHosts(branch)
+    doUpdatePluginHosts(branch, pluginDescriptor)
     if(UpdateSettings.getInstance().isCheckNeeded) {
       UpdateChecker.updateAndShowResult()
         .doWhenDone(() => postCheckIdeaCompatibility(branch))
@@ -195,6 +195,9 @@ object ScalaPluginUpdater {
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val appSettings = ScalaApplicationSettings.getInstance()
 
+    if (!appSettings.ASK_PLATFORM_UPDATE)
+      return
+
     def createPlatformChannelSwitchPopup(): Notification = {
       val message = s"Your IDEA is outdated to use with $branch branch.<br/>Would you like to switch IDEA channel to EAP?" +
         s"""<p/><a href="Yes">Yes</a>""" +
@@ -222,26 +225,29 @@ object ScalaPluginUpdater {
         NotificationType.WARNING)
     }
 
-    def getPlatformUpdateResult: Option[CheckForUpdateResult] = {
+    def getPlatformUpdateResult: Option[PlatformUpdates] = {
       val url = ApplicationInfoEx.getInstanceEx.getUpdateUrls.getCheckingUrl
 
-      val info: Option[UpdatesInfo] = HttpRequests.request(url).connect { request =>
-        try   { Some(new UpdatesInfo(JDOMUtil.load(request.getInputStream))) }
+      val info: Option[Product] = HttpRequests.request(url).connect { request =>
+        val productCode = ApplicationInfo.getInstance().getBuild.getProductCode
+        try   { Option(UpdateData.parseUpdateData(JDOMUtil.load(request.getInputStream), productCode)) }
         catch { case e: JDOMException => LOG.info(e); None }
       }
 
       info.map(new UpdateStrategy(infoImpl.getBuild, _, UpdateSettings.getInstance()).checkForUpdates())
     }
 
-    def isUpToDatePlatform(result: CheckForUpdateResult): Boolean = {
-      Option(result.getNewBuild)
-        .exists(_.getNumber.compareTo(infoImpl.getBuild) <= 0)
-    }
+    def isUpToDatePlatform(result: PlatformUpdates): Boolean =
+      result match {
+        case loaded: PlatformUpdates.Loaded =>
+          loaded.getNewBuild.getNumber.compareTo(infoImpl.getBuild) <= 0
+        case _ => true
+      }
 
     val notification = getPlatformUpdateResult match {
-      case Some(result) if isUpToDatePlatform(result) && !infoImpl.isEAP && appSettings.ASK_PLATFORM_UPDATE => // platform is up to date - suggest eap
+      case Some(result) if isUpToDatePlatform(result) && !infoImpl.isEAP => // platform is up to date - suggest eap
         Some(createPlatformChannelSwitchPopup())
-      case Some(result) if result.getNewBuild != null =>
+      case Some(_: PlatformUpdates.Loaded) =>
         Some(createPlatformUpdateSuggestPopup())
       case _ => None
     }
@@ -280,34 +286,12 @@ object ScalaPluginUpdater {
     EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener, UnloadAwareDisposable.scalaPluginDisposable)
   }
 
-  // this hack uses fake plugin.xml deserialization to downgrade plugin version
-  // at least it's not using reflection
-  private def patchPluginVersion(newVersion: String): Boolean = {
-    import scala.xml._
-    val versionPatcher: RewriteRule = new RewriteRule {
-      override def transform(n: Node): NodeSeq = n match {
-        case <version>{_}</version> => <version>{newVersion}</version>
-        case <include/> => NodeSeq.Empty // relative path includes break temp file parsing
-        case other => other
-      }
-    }
-    val stream = getClass.getClassLoader.getResource("META-INF/plugin.xml").openStream()
-
-    val factory = javax.xml.parsers.SAXParserFactory.newInstance()
-    // disable DTD validation
-    factory.setValidating(false)
-    factory.setFeature("http://xml.org/sax/features/validation", false)
-    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false)
-    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
-    factory.setFeature("http://xml.org/sax/features/external-general-entities", false)
-    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false)
-
-    val document = new RuleTransformer(versionPatcher).transform(XML.withSAXParser(factory.newSAXParser).load(stream))
-    val tempFile = File.createTempFile("plugin", "xml")
-    XML.save(tempFile.getAbsolutePath, document.head, enc = "UTF-8")
-    val descriptor = pluginDescriptor
-    PluginManager.loadDescriptorFromFile(descriptor, tempFile.toPath, descriptor.getPluginPath, null, DisabledPluginsState.disabledPlugins)
-    tempFile.delete()
+  // this hack uses reflection to downgrade plugin version
+  def patchPluginVersion(newVersion: String, descriptor: IdeaPluginDescriptorImpl): Unit = {
+    val versionField = classOf[IdeaPluginDescriptorImpl].getDeclaredField("version")
+    versionField.setAccessible(true)
+    versionField.set(descriptor, newVersion)
+    versionField.setAccessible(false)
   }
 
   def askUpdatePluginBranchIfNeeded(): Unit = {
