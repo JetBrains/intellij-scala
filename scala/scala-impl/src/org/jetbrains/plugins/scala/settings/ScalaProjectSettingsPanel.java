@@ -27,6 +27,7 @@ import org.jetbrains.plugins.scala.ScalaFileType;
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings;
 import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
+import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier;
 import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 
@@ -199,7 +200,7 @@ public class ScalaProjectSettingsPanel {
         updateNowButton.addActionListener(e -> {
             try {
                 pluginBranch chanel = (pluginBranch) updateChannel.getModel().getSelectedItem();
-                ScalaPluginUpdater.doUpdatePluginHosts(chanel);
+                ScalaPluginUpdater.doUpdatePluginHosts(chanel, ScalaPluginVersionVerifier.getPluginDescriptor());
                 UpdateChecker.updateAndShowResult(myProject, UpdateSettings.getInstance());
             } catch (InvalidRepoException ex) {
                 Messages.showErrorDialog(ex.getMessage(), ScalaBundle.message("invalid.update.channel"));
