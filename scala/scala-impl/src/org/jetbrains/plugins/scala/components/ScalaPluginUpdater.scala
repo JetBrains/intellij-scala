@@ -1,9 +1,5 @@
 package org.jetbrains.plugins.scala.components
 
-import java.io.File
-import java.net.URLEncoder
-import java.util.concurrent.TimeUnit
-
 import com.intellij.ide.plugins._
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
@@ -20,18 +16,21 @@ import com.intellij.openapi.util.{BuildNumber, JDOMUtil, SystemInfo}
 import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.util.io.HttpRequests
 import com.intellij.util.io.HttpRequests.Request
-import javax.swing.event.HyperlinkEvent
 import org.jdom.JDOMException
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings.pluginBranch._
 import org.jetbrains.plugins.scala.util.{ScalaNotificationGroups, UnloadAwareDisposable}
-import org.jetbrains.plugins.scala.{ScalaFileType, extensions}
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaFileType, extensions}
 
-import scala.xml.transform.{RewriteRule, RuleTransformer}
+import java.net.URLEncoder
+import java.util.concurrent.TimeUnit
+import javax.swing.event.HyperlinkEvent
+import scala.xml.XML
 
 class InvalidRepoException(what: String) extends Exception(what)
 
+//noinspection UnstableApiUsage,ApiStatus
 object ScalaPluginUpdater {
   private val LOG = Logger.getInstance(getClass)
   private val scalaPluginId = "1347"
@@ -144,21 +143,20 @@ object ScalaPluginUpdater {
     } {
       if (updateSettings.getStoredPluginHosts.contains(repo(EAP))) {
         updateSettings.getStoredPluginHosts.remove(repo(EAP))
-        if (!currentRepo(EAP).isEmpty)
+        if (currentRepo(EAP).nonEmpty)
           updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
       }
       if (updateSettings.getStoredPluginHosts.contains(repo(Nightly))) {
         updateSettings.getStoredPluginHosts.remove(repo(Nightly))
-        if (!currentRepo(Nightly).isEmpty)
+        if (currentRepo(Nightly).nonEmpty)
           updateSettings.getStoredPluginHosts.add(currentRepo(Nightly))
-        else if (!currentRepo(EAP).isEmpty)
+        else if (currentRepo(EAP).nonEmpty)
           updateSettings.getStoredPluginHosts.add(currentRepo(EAP))
       }
     }
   }
 
   def postCheckIdeaCompatibility(branch: ScalaApplicationSettings.pluginBranch): Unit = {
-    import scala.xml._
     val infoImpl = ApplicationInfo.getInstance().asInstanceOf[ApplicationInfoImpl]
     val localBuildNumber = infoImpl.getBuild
     val url = branch match {
@@ -199,12 +197,17 @@ object ScalaPluginUpdater {
       return
 
     def createPlatformChannelSwitchPopup(): Notification = {
-      val message = s"Your IDEA is outdated to use with $branch branch.<br/>Would you like to switch IDEA channel to EAP?" +
-        s"""<p/><a href="Yes">Yes</a>""" +
-        s"""<p/><a href="No">Not now</a>""" +
-        s"""<p/><a href="Ignore">Ignore this update</a>"""
+      val switchIDEAToEAPQuestion = ScalaBundle.message("switch.idea.to.eap.question", branch)
+      val yes = ScalaBundle.message("switch.yes")
+      val notNow = ScalaBundle.message("switch.not.now")
+      val ignore = ScalaBundle.message("switch.ignore.this.update")
+      val links =
+        s"""<p/><a href="Yes">$yes</a>""" +
+          s"""<p/><a href="No">$notNow</a>""" +
+          s"""<p/><a href="Ignore">$ignore</a>"""
+      val message = switchIDEAToEAPQuestion + links
       GROUP.createNotification(
-        "Scala Plugin Update Failed",
+        ScalaBundle.message("scala.plugin.update.failed"),
         message,
         NotificationType.WARNING,
         (notification: Notification, event: HyperlinkEvent) => {
@@ -220,8 +223,7 @@ object ScalaPluginUpdater {
 
     def createPlatformUpdateSuggestPopup(): Notification = {
       GROUP.createNotification(
-        s"Your IDEA is outdated to use with Scala plugin $branch branch.<br/>" +
-          s"Please update IDEA to at least $suggestedVersion to use latest Scala plugin.",
+        ScalaBundle.message("idea.is.outdated.please.update", branch, suggestedVersion),
         NotificationType.WARNING)
     }
 
@@ -281,8 +283,6 @@ object ScalaPluginUpdater {
 
   def setupReporter(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
-
-    import com.intellij.openapi.editor.EditorFactory
     EditorFactory.getInstance().getEventMulticaster.addDocumentListener(updateListener, UnloadAwareDisposable.scalaPluginDisposable)
   }
 
@@ -300,10 +300,13 @@ object ScalaPluginUpdater {
     if (infoImpl.isEAP
       && applicationSettings.ASK_USE_LATEST_PLUGIN_BUILDS
       && ScalaPluginUpdater.pluginIsRelease) {
-      val message =
-        """Please select Scala plugin update channel:<p/>
-          |<a href="Release">Stable Releases</a> | <a href="EAP">Early Access Program</a> | <a href="Nightly">Nightly Bulds</a>""".stripMargin
-
+      val selectUpdateChannel = ScalaBundle.message("please.select.scala.plugin.update.channel")
+      val stableReleases = ScalaBundle.message("channel.stable.releases")
+      val eap = ScalaBundle.message("channel.early.access.program")
+      val nightlyBuilds = ScalaBundle.message("channel.nightly.builds")
+      val links =
+        s"""<a href="Release">$stableReleases</a> | <a href="EAP">$eap</a> | <a href="Nightly">$nightlyBuilds</a>"""
+      val message = selectUpdateChannel + "<p/>" + links
 
       val listener = new NotificationListener {
         override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
