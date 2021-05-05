@@ -5,49 +5,26 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.TypeAdjuster
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.{ScalaPsiUtil, TypeAdjuster}
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 
-/**
- * Nikolay.Tropin
- * 2014-08-10
- */
 class AdjustTypesIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.adjust.types")
 
   override def getText: String = getFamilyName
 
-  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    val file = element.getContainingFile match {
-      case sc: ScalaFile => sc
-      case _ => return false
-    }
-    val selectionModel = editor.getSelectionModel
-    selectionModel.hasSelection && {
-      val selection = ScalaPsiUtil.getElementsRange(
-        file.findElementAt(selectionModel.getSelectionStart),
-        file.findElementAt(selectionModel.getSelectionEnd))
-      selection.exists(containsPossiblyAdjustableRef)
-    }
-  }
+  override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean =
+    findMaxReference(element).isDefined
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val file = element.getContainingFile match {
-      case sf: ScalaFile => sf
-      case _ => return
-    }
-    val elements = ScalaRefactoringUtil.selectedElements(editor, file, trimComments = true)
-    TypeAdjuster.adjustFor(elements)
+    TypeAdjuster.adjustFor(findMaxReference(element).toSeq)
   }
 
-  private def containsPossiblyAdjustableRef(elem: PsiElement) = elem.depthFirst().exists {
-    case ref: ScReference =>
-      ref.qualifier.isDefined && PsiTreeUtil.getParentOfType(ref, classOf[ScImportExpr]) == null
-    case _ => false
-  }
+  private def findMaxReference(element: PsiElement): Option[PsiElement] =
+    element.withParentsInFile
+      .takeWhile(_.is[LeafPsiElement, ScReference]).lastOption
+      .filter(ref => ref.parentOfType[ScImportExpr].isEmpty)
 }
