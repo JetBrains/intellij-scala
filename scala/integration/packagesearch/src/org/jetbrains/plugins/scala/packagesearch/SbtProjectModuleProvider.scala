@@ -15,19 +15,18 @@ import scala.jdk.CollectionConverters.IteratorHasAsJava
 
 class SbtProjectModuleProvider extends ProjectModuleProvider{
 
-  def findModulePaths(project: Project, module: Module): Array[File] = {
+  def findModulePaths(module: Module): Array[File] = {
     if (!SbtUtil.isSbtModule(module)) return null
     val contentRoots = ModuleRootManager.getInstance(module).getContentRoots
     if (contentRoots.length < 1) return null
     contentRoots.map(virtualFile => {
-      println(virtualFile.getPath)
       new File(virtualFile.getPath)
     })
   }
 
   def obtainProjectModulesFor(project: Project, module: Module):ProjectModule = {
     var buildFile: File = null
-    findModulePaths(project, module).foreach(file => {
+    findModulePaths(module).foreach(file => {
       val tmp = file / Sbt.BuildFile
       if (file.exists()) {
         buildFile = tmp
