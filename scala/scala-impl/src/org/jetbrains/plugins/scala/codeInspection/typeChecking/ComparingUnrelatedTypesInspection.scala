@@ -38,7 +38,11 @@ object ComparingUnrelatedTypesInspection {
   private val isIdentityFunction = Set("ne", "eq")
   private val isComparingFunctions = Set("==", "!=", "equals") | isIdentityFunction
   private val seqFunctions = ArraySeq("contains", "indexOf", "lastIndexOf")
-  private val isUninterestingPsiBaseClass = Set("java.io.Serializable", "java.lang.Object", "java.lang.Comparable")
+  private val uninterestingPsiBaseClass = ArraySeq("java.io.Serializable", "java.lang.Object", "java.lang.Comparable")
+  private def isUninterestingBaseClass(typ: ScType): Boolean = {
+    val text = typ.toPsiType.getCanonicalText
+    uninterestingPsiBaseClass.exists(text.startsWith)
+  }
 
   // see this check in scalac: https://github.com/scala/scala/blob/8c86b7d7136839538cca0ff8fca50f59437564c0/src/compiler/scala/tools/nsc/typechecker/RefChecks.scala#L968
   private def checkComparability(type1: ScType, type2: ScType, isBuiltinOperation: => Boolean): Comparability = {
@@ -70,15 +74,23 @@ object ComparingUnrelatedTypesInspection {
     if (isBuiltinOperation && ComparingUtil.isNeverSubType(unboxed1, unboxed2) && ComparingUtil.isNeverSubType(unboxed2, unboxed1))
       return Comparability.Incomparable
 
-    if (oneTypeIsNull) return Comparability.Comparable
+    if (oneTypeIsNull) {
+      return Comparability.Comparable
+    }
+
+    if (unboxed1 equiv unboxed2) {
+      return Comparability.Comparable
+    }
 
     // check if their lub is interesting
     val lub = unboxed1 lub unboxed2
-    val psiLub = lub.toPsiType
-    if (isUninterestingPsiBaseClass(psiLub.getCanonicalText))
-      return Comparability.LikelyIncomparable
+    val noInterestingBaseClass = lub match {
+      case ScCompoundType(components, _, _) => components.forall(isUninterestingBaseClass)
+      case ty => isUninterestingBaseClass(ty)
+    }
 
-    Comparability.Comparable
+    if (noInterestingBaseClass) Comparability.LikelyIncomparable
+    else Comparability.Comparable
   }
 
   private def isNumericType(`type`: ScType): Boolean = {
