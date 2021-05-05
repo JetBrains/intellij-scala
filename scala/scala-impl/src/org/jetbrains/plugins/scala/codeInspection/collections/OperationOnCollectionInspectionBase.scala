@@ -13,6 +13,7 @@ import javax.swing._
 import javax.swing.event.ChangeEvent
 import org.jetbrains.plugins.scala.codeInspection.collections.OperationOnCollectionInspectionBase._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractInspection, ScalaInspectionBundle, charExpr}
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.settings.{ScalaApplicationSettings, ScalaProjectSettingsUtil}
 import org.jetbrains.plugins.scala.util.JListCompatibility
@@ -51,7 +52,7 @@ object OperationOnCollectionInspectionBase {
 
   object SimplifiableExpression {
     def unapply(expr: ScExpression): Option[ScExpression] =
-      if (expr.isInstanceOf[ScBlock] || expr.isInstanceOf[ScParenthesisedExpr]) None
+      if (expr.is[ScBlock, ScParenthesisedExpr]) None
       else Some(expr)
   }
 }

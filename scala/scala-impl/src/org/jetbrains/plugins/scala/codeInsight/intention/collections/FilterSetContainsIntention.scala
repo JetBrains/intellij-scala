@@ -5,4 +5,4 @@ import org.jetbrains.plugins.scala.codeInsight.intention.InspectionBasedIntentio
 import org.jetbrains.plugins.scala.codeInspection.collections.FilterSetContainsInspection
 
 class FilterSetContainsIntention
-  extends InspectionBasedIntention(ScalaBundle.message("family.name.filter.set.contains"), FilterSetContainsInspection.hint, new FilterSetContainsInspection)
+  extends InspectionBasedIntention(ScalaBundle.message("family.name.filter.set.contains"), new FilterSetContainsInspection)

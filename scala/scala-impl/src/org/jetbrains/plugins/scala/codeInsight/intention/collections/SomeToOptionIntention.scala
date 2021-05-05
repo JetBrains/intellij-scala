@@ -5,4 +5,4 @@ import org.jetbrains.plugins.scala.codeInsight.intention.InspectionBasedIntentio
 import org.jetbrains.plugins.scala.codeInspection.collections.SomeToOptionInspection
 
 class SomeToOptionIntention
-  extends InspectionBasedIntention(ScalaBundle.message("family.name.some.to.option"), SomeToOptionInspection.hint, new SomeToOptionInspection)
+  extends InspectionBasedIntention(ScalaBundle.message("family.name.some.to.option"), new SomeToOptionInspection)
