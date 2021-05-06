@@ -35,14 +35,14 @@ object TraceLogger extends LoggingMacros {
     }
   }
 
-  def loggerOutputPath(): Path = {
+  def loggerOutputPath: Path = {
     val temp = Paths.get(System.getProperty("java.io.tmpdir"))
     temp.resolve("intellij-scala-trace-logger")
   }
 
   private def createTraceLogger(topic: String): TraceLogger = this.synchronized {
     val thread = Thread.currentThread()
-    val dir = loggerOutputPath()
+    val dir = loggerOutputPath
     val ext = ".log"
     val initialName =
       if (topic.isEmpty) s"thread${thread.getId}"
@@ -56,6 +56,9 @@ object TraceLogger extends LoggingMacros {
     }
 
     val path = findFreePath(initialName, 1)
+    if (!Files.exists(dir)) {
+      Files.createDirectories(dir)
+    }
     val writer = new FileWriter(path.toFile)
 
     new FileWritingTraceLogger(writer)
