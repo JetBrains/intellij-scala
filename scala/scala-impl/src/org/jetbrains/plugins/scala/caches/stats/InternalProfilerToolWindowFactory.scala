@@ -29,8 +29,6 @@ class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware
     }
   }
 
-  override def isDoNotActivateOnStart: Boolean = true
-
   override def shouldBeAvailable(project: Project): Boolean =
     ApplicationManager.getApplication.isInternal
 }

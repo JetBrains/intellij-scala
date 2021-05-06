@@ -198,7 +198,7 @@
         <notificationGroup id="Persistent Scala Notifications" displayType="STICKY_BALLOON" />
         <notificationGroup id="Scala ToolWindow Notifications" displayType="TOOL_WINDOW" toolWindowId="Messages"/>
 
-        <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false"
+        <toolWindow id="internal-profiler" anchor="bottom" canCloseContents="false" doNotActivateOnStart="true"
                     factoryClass="org.jetbrains.plugins.scala.caches.stats.InternalProfilerToolWindowFactory"/>
 
         <framework.type implementation="org.jetbrains.plugins.scala.project.template.ScalaFrameworkType"/>
