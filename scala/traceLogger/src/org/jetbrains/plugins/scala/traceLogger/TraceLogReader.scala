@@ -4,27 +4,31 @@ import org.jetbrains.plugins.scala.traceLogger.TraceLogReader.EnclosingResult
 import org.jetbrains.plugins.scala.traceLogger.protocol.{SerializationApi, TraceLoggerEntry}
 
 import scala.annotation.tailrec
+import scala.collection.mutable
 import scala.io.Source
 
 
-abstract class TraceLogReader[+Node] {
+abstract class TraceLogReader {
+  type Node
+  type NodeSeq <: Seq[Node]
 
-  protected[this] def createMsgNode(msg: TraceLoggerEntry.Msg): Node
-  protected[this] def createEnclosingNode(start: TraceLoggerEntry.Start, inners: Seq[Node], result: EnclosingResult): Node
+  protected def newNodeSeqBuilder(): mutable.Builder[Node, NodeSeq]
+  protected def createMsgNode(msg: TraceLoggerEntry.Msg): Node
+  protected def createEnclosingNode(start: TraceLoggerEntry.Start, inners: NodeSeq, result: EnclosingResult): Node
 
-  final def readStream(stream: java.io.InputStream): Seq[Node] =
+  final def readStream(stream: java.io.InputStream): NodeSeq =
     readSource(Source.fromInputStream(stream))
 
-  final def readSource(source: Source): Seq[Node] =
+  final def readSource(source: Source): NodeSeq =
     readLines(source.getLines())
 
-  final def readText(text: String): Seq[Node] =
+  final def readText(text: String): NodeSeq =
     readLines(text.linesIterator)
 
-  final def readLines(lines: Iterator[String]): Seq[Node] = {
+  final def readLines(lines: Iterator[String]): NodeSeq = {
     import TraceLoggerEntry._
-    def convertFrame(): (EnclosingResult, Seq[Node]) = {
-      val builder = Seq.newBuilder[Node]
+    def convertFrame(): (EnclosingResult, NodeSeq) = {
+      val builder = newNodeSeqBuilder()
 
       @tailrec
       def convertNext(): EnclosingResult = {
