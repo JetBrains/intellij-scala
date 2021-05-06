@@ -29,6 +29,12 @@ trait ToData[T] {
 object ToData extends HighPriorityToDataImplicits {
   def apply[T](value: T)(implicit converter: ToData[T]): Data =
     converter.toData(value)
+
+  final case class Raw(data: Data) extends AnyVal
+
+  implicit final val rawAsData: ToData[Raw] = raw => raw.data
+
+  def raw[T: ToData](value: T): Raw = Raw(ToData(value))
 }
 
 trait HighPriorityToDataImplicits extends LowPriorityToDataImplicits {

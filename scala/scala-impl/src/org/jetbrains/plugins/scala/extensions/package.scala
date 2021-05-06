@@ -465,6 +465,12 @@ package object extensions {
     // TODO: remove, and use stripTrailing() (available since JDK 11)
     //  (search for similar methods definitions in project)
     def trimRight: String = StringExt.TrimRightRegex.replaceFirstIn(string, "")
+
+    def shorten(maxLen: Int, restMarker: String = "..."): String = {
+      assert(maxLen >= restMarker.length)
+      if (string.length <= maxLen) string
+      else string.substring(0, maxLen - restMarker.length) + restMarker
+    }
   }
 
   object StringExt {

@@ -1879,9 +1879,9 @@
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift P"/>
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="ctrl alt shift P"/>
         </action>
-        <action id="Scala.ResolveExprWithTraceLogger"
+        <action id="Scala.RunActionOnPsiElementWithTraceLogger"
                 internal="true"
-                class="org.jetbrains.plugins.scala.actions.internal.ScalaResolveExprWithTraceLoggerAction">
+                class="org.jetbrains.plugins.scala.actions.internal.RunActionOnPsiElementWithTraceLoggerAction">
         </action>
         <action id="Scala.EditPackagePrefix" class="org.jetbrains.plugins.scala.actions.EditPackagePrefixAction">
             <add-to-group group-id="ProjectViewPopupMenuSettingsGroup" relative-to-action="MarkRootGroup" anchor="after"/>
