@@ -32,6 +32,7 @@ lazy val scalaCommunity: sbt.Project =
       codeInsight % "test->test;compile->compile",
       dfa % "test->test;compile->compile",
       traceLogger % "test->test;compile->compile",
+      traceLogViewer % "test->test;compile->compile",
       conversion % "test->test;compile->compile",
       uast % "test->test;compile->compile",
       worksheet % "test->test;compile->compile",
@@ -116,6 +117,26 @@ lazy val traceLogger = newProject(
   }
 )
 
+lazy val traceLogViewer = newProject(
+  "traceLogViewer",
+  file("scala/traceLogViewer")
+).dependsOn(
+  traceLogger,
+  scalaImpl % "test->test;compile->compile"
+).settings(
+  scalacOptions ++= Seq(
+    "-deprecation",
+    "-unchecked",
+    "-feature",
+    "-Xlint",
+    "-Xfatal-warnings"
+  ),
+  // the internet says this is smart thing to do
+  scalacOptions in (Compile, console) ~= {
+    _.filterNot(Set("-Xlint"))
+  }
+)
+
 lazy val conversion = newProject(
   "conversion",
   file("scala/conversion")
@@ -173,6 +194,7 @@ lazy val scalaImpl: sbt.Project =
       compilerShared,
       scalaApi,
       macroAnnotations,
+      traceLogger,
       decompiler % "test->test;compile->compile",
       runners % "test->test;compile->compile",
       testRunners % "test->test;compile->compile",
