@@ -3,7 +3,8 @@ package lang
 package completion3
 
 import com.intellij.codeInsight.completion.{CompletionType, JavaCompletionUtil}
-import com.intellij.ui.{LayeredIcon, RowIcon}
+import com.intellij.ui.LayeredIcon
+import com.intellij.ui.icons.RowIcon
 import javax.swing.Icon
 
 /**
