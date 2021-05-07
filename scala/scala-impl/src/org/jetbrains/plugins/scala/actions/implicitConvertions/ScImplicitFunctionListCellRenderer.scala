@@ -56,21 +56,19 @@ private class ScImplicitFunctionListCellRenderer(actual: PsiNamedElement)
 
         colored.setBackground(color)
 
-        val maybeRenderer = Option(getRightCellRenderer(item))
+        val maybeTextWithIcon = Option(getItemLocation(item))
 
-        maybeRenderer
-          .map(DefaultListCellRendererAdapter.getListCellRendererComponent(_, containter.getList, item, index, isSelected, cellHasFocus))
-          .foreach { component =>
-            component.setBackground(color)
-            add(component, BorderLayout.EAST)
-          }
+        maybeTextWithIcon
+          .foreach { textWithIcon =>
+            val locationComponent = new JLabel(textWithIcon.getText, textWithIcon.getIcon, SwingConstants.RIGHT)
+            locationComponent.setBackground(color)
 
-        maybeRenderer
-          .map(_ => new JPanel)
-          .foreach { spacer =>
+            val spacer = new JPanel()
             spacer.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2))
             spacer.setBackground(color)
+
             add(spacer, BorderLayout.CENTER)
+            add(locationComponent, BorderLayout.EAST)
           }
       case _ =>
     }

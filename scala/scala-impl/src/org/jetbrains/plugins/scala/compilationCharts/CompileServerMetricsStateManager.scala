@@ -18,7 +18,7 @@ object CompileServerMetricsStateManager {
     update(project, defaultValue)
 
   private def mutableState(project: Project): MutableState =
-    ServiceManager.getService(project, classOf[MutableState])
+    project.getService(classOf[MutableState])
 
   private def defaultValue: CompileServerMemoryState = {
     val heapSizeMb = ScalaCompileServerSettings.getInstance.COMPILE_SERVER_MAXIMUM_HEAP_SIZE.toLong

@@ -142,7 +142,7 @@ object SbtCompilationSupervisor {
   private val logger = Logger.getInstance(classOf[SbtCompilationSupervisor])
 
   def apply(): SbtCompilationSupervisor =
-    ServiceManager.getService(classOf[SbtCompilationSupervisor])
+    ApplicationManager.getApplication.getService(classOf[SbtCompilationSupervisor])
 
   private class Activity extends RunOnceStartupActivity {
 

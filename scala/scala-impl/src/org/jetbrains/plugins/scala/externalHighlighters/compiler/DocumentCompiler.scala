@@ -90,7 +90,7 @@ final class DocumentCompiler(project: Project)
 object DocumentCompiler {
 
   def get(project: Project): DocumentCompiler =
-    ServiceManager.getService(project, classOf[DocumentCompiler])
+    project.getService(classOf[DocumentCompiler])
 
   def outputDirectoryFor(module: Module): Option[File] = {
     val project = module.getProject

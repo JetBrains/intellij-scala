@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.components
 
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.{Service, ServiceManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.startup.StartupActivity
@@ -16,7 +17,7 @@ import com.intellij.openapi.util.Disposer
  */
 abstract class RunOnceStartupActivity extends StartupActivity.DumbAware with Disposable {
 
-  Disposer.register(ServiceManager.getService(classOf[RunOnceStartupActivityService]), this)
+  Disposer.register(ApplicationManager.getApplication.getService(classOf[RunOnceStartupActivityService]), this)
 
   private var wasAlreadyRun = false
 

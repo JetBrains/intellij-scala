@@ -56,7 +56,7 @@ object BspProjectDataService {
     val currentMappings = vcsManager.getDirectoryMappings
 
     val detectedRoots = {
-      val detector = ServiceManager.getService(project, classOf[VcsRootDetector])
+      val detector = project.getService(classOf[VcsRootDetector])
       val detected = mutable.Set[VcsRoot](currentVcsRoots.toIndexedSeq: _*)
       vcsRootsCandidates
         .iterator
