@@ -44,4 +44,16 @@ class ConvertToJavaTypeTest extends TypeInferenceTestBase {
        |""".stripMargin
   )
 
+  def testSCL19004(): Unit = doTest(
+    s"""
+       |object Freeze {
+       |  type F[A] = F
+       |
+       |  val f: F[String] = ???
+       |  ${START}f$END
+       |}
+       |//java type: Object
+       |""".stripMargin
+  )
+
 }
