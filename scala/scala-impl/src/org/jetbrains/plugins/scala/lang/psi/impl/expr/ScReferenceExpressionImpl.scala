@@ -34,6 +34,7 @@ import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor.ScTypeForDynamicProcessorEx
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.collection.mutable
 
@@ -59,10 +60,11 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     maybeAssignment = Some(statement)
   }
 
-  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] =
+  override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = TraceLogger.func(
     maybeAssignment.fold(multiResolveImpl(incomplete)) {
       _.resolveAssignment.toArray
     }
+  )
 
   override def shapeResolve: Array[ScalaResolveResult] = {
     ProgressManager.checkCanceled()

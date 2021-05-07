@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 
 /**
@@ -54,12 +55,12 @@ object ImplicitResolveResult {
 
     def withType: ResolverStateBuilder = {
       innerState = innerState.withFromType(result.`type`)
-      innerState = innerState.withUnresolvedTypeParams(result.unresolvedTypeParameters.toSeq)
+      innerState = innerState.withUnresolvedTypeParams(result.unresolvedTypeParameters)
       this
     }
 
     def withImports: ResolverStateBuilder = {
-      innerState = innerState.withImportsUsed(result.resolveResult.importsUsed.toSet)
+      innerState = innerState.withImportsUsed(result.resolveResult.importsUsed)
       this
     }
 
@@ -94,12 +95,12 @@ object ImplicitResolveResult {
                                            refName: String, ref: ScExpression,
                                            processor: BaseProcessor,
                                            noImplicitsForArgs: Boolean)
-                                          (implicit place: ScExpression) = {
+                                          (implicit place: ScExpression): Option[ScalaResolveResult] = TraceLogger.func {
     import place.elementScope
     val functionType = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
-    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = {
+    def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = TraceLogger.func {
       val data = ExtensionConversionData(place, ref, refName, processor, noApplicability, withoutImplicitsForArgs)
 
       new ImplicitCollector(

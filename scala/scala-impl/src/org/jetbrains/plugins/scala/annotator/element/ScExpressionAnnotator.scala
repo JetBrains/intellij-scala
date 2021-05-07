@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.annotation.tailrec
 
@@ -87,7 +88,7 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
       case _ => false
     }
 
-    def checkExpressionTypeInner(fromUnderscore: Boolean): Unit = {
+    def checkExpressionTypeInner(fromUnderscore: Boolean): Unit = TraceLogger.func {
       val smartExpectedType = element.smartExpectedType(fromUnderscore)
       val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
         element.getTypeAfterImplicitConversion(expectedOption = smartExpectedType, fromUnderscore = fromUnderscore)

@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 object ImplicitCollector {
 
@@ -120,7 +121,7 @@ class ImplicitCollector(place: PsiElement,
 
   private def isExtensionConversion: Boolean = extensionData.isDefined
 
-  def collect(): Seq[ScalaResolveResult] = {
+  def collect(): Seq[ScalaResolveResult] = TraceLogger.func {
     def calc(): Seq[ScalaResolveResult] = {
       clazz match {
         case Some(c) if InferUtil.tagsAndManifists.contains(c.qualifiedName) => return Seq.empty
@@ -147,9 +148,11 @@ class ImplicitCollector(place: PsiElement,
         ImplicitCollector.cache(project)
           .getOrCompute(place, tp, mayCacheResult = !isExtensionConversion) {
             val firstCandidates = compatible(visibleNamesCandidates)
+            TraceLogger.log("Compatible candidates from visible Names", firstCandidates)
             if (firstCandidates.exists(_.isApplicable())) firstCandidates
             else {
               val secondCandidates = compatible(fromTypeCandidates)
+              TraceLogger.log("No compatible candidates from names, so try from type", secondCandidates)
               if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
             }
           }
@@ -177,7 +180,7 @@ class ImplicitCollector(place: PsiElement,
     ImplicitCollector.implicitsFromType(place, expandedTp)
       .map(_.copy(implicitSearchState = Some(collectorState)))
 
-  private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
+  private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = TraceLogger.func {
     //implicits found without local type inference have higher priority
     val withoutLocalTypeInference = collectCompatibleCandidates(candidates, withLocalTypeInference = false)
 
@@ -192,14 +195,14 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def collectFullInfo(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = {
+  private def collectFullInfo(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = TraceLogger.func {
     val allCandidates =
       candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = false)) ++
         candidates.flatMap(c => checkCompatible(c, withLocalTypeInference = true))
     val afterExtensionPredicate = allCandidates.flatMap(applyExtensionPredicate)
 
     afterExtensionPredicate
-      .filter(_.implicitReason.isInstanceOf[FullInfoResult])
+      .filter(_.implicitReason.is[FullInfoResult])
       .toSeq
   }
 
@@ -212,7 +215,7 @@ class ImplicitCollector(place: PsiElement,
         else None
     }
 
-  def checkCompatible(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean = false): Option[ScalaResolveResult] = {
+  def checkCompatible(c: ScalaResolveResult, withLocalTypeInference: Boolean, checkFast: Boolean = false): Option[ScalaResolveResult] = TraceLogger.func {
     ProgressManager.checkCanceled()
 
     c.element match {
@@ -240,7 +243,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  def collectCompatibleCandidates(candidates: Set[ScalaResolveResult], withLocalTypeInference: Boolean): Set[ScalaResolveResult] = {
+  def collectCompatibleCandidates(candidates: Set[ScalaResolveResult], withLocalTypeInference: Boolean): Set[ScalaResolveResult] = TraceLogger.func {
     var filteredCandidates = Set.empty[ScalaResolveResult]
 
     val iterator = candidates.iterator
@@ -273,7 +276,7 @@ class ImplicitCollector(place: PsiElement,
     results
   }
 
-  private def simpleConformanceCheck(c: ScalaResolveResult): Option[ScalaResolveResult] = {
+  private def simpleConformanceCheck(c: ScalaResolveResult): Option[ScalaResolveResult] = TraceLogger.func {
     c.element match {
       case typeable: Typeable =>
         val subst = c.substitutor
@@ -290,7 +293,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = {
+  private def inferValueType(tp: ScType): (ScType, Seq[TypeParameter]) = TraceLogger.func {
     if (isExtensionConversion) {
       tp match {
         case ScTypePolymorphicType(internalType, typeParams) =>
@@ -309,7 +312,7 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def updateNonValueType(nonValueType0: ScType): ScType = {
+  private def updateNonValueType(nonValueType0: ScType): ScType = TraceLogger.func {
     InferUtil.updateAccordingToExpectedType(
       nonValueType0,
       filterTypeParams = isImplicitConversion,
@@ -324,7 +327,7 @@ class ImplicitCollector(place: PsiElement,
     nonValueType0:     ScType,
     hasImplicitClause: Boolean,
     hadDependents:     Boolean
-  ): Option[ScalaResolveResult] = {
+  ): Option[ScalaResolveResult] = TraceLogger.func {
     val fun = c.element.asInstanceOf[ScFunction]
 
     def wrongTypeParam(result: ImplicitResult): Some[ScalaResolveResult] = {
@@ -434,7 +437,7 @@ class ImplicitCollector(place: PsiElement,
   private def checkFunctionType(
     c:                ScalaResolveResult,
     nonValueFunTypes: NonValueFunctionTypes
-  ): Option[ScalaResolveResult] = {
+  ): Option[ScalaResolveResult] = TraceLogger.func {
 
     def compute(): Option[ScalaResolveResult] = {
       nonValueFunTypes.methodType match {
@@ -492,7 +495,7 @@ class ImplicitCollector(place: PsiElement,
     c:                      ScalaResolveResult,
     withLocalTypeInference: Boolean,
     checkFast:              Boolean
-  ): Option[ScalaResolveResult] = {
+  ): Option[ScalaResolveResult] = TraceLogger.func {
     val fun = c.element.asInstanceOf[ScFunction]
 
     if (fun.hasTypeParameters && !withLocalTypeInference)

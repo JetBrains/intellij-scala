@@ -6,13 +6,14 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiNamedElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement, ScTypeVariableTypeElement, ScWildcardTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{DesignatorOwner, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{ParameterizedType, TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.{ScExistentialArgument, ScExistentialType, ScType, TypePresentationContext}
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameterizedTypeElement] {
 
@@ -81,7 +82,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
   }
 
   private def checkBounds(arg: ScTypeElement, argTy: ScType, param: ScTypeParam, substitute: ScSubstitutor)
-                         (implicit holder: ScalaAnnotationHolder, tcp: TypePresentationContext): Unit = {
+                         (implicit holder: ScalaAnnotationHolder, tcp: TypePresentationContext): Unit = TraceLogger.func {
     lazy val argTyText = argTy.presentableText
     for (upperBound <- param.upperBound.toOption if !argTy.conforms(substitute(upperBound))) {
       holder.createErrorAnnotation(arg, ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upperBound.presentableText, param.name))

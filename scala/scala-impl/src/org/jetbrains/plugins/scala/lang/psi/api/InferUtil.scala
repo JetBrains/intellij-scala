@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project._
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
@@ -71,7 +72,7 @@ object InferUtil {
     * @return updated type and sequence of implicit parameters
     */
   def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], canThrowSCE: Boolean,
-                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
+                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = TraceLogger.func {
     implicit val ctx: ProjectContext = element
 
     var resInner = res
@@ -158,7 +159,7 @@ object InferUtil {
     canThrowSCE:                Boolean,
     searchImplicitsRecursively: Int = 0,
     abstractSubstitutor:        ScSubstitutor = ScSubstitutor.empty
-  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = {
+  ): (Seq[Parameter], Seq[Compatibility.Expression], Seq[ScalaResolveResult]) = TraceLogger.func {
 
     implicit val project: ProjectContext = place.getProject
 

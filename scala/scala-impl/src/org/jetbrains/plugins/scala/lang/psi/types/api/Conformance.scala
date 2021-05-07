@@ -3,7 +3,6 @@ package types
 package api
 
 import java.util.concurrent.ConcurrentHashMap
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Computable
 import com.intellij.psi.PsiClass
@@ -13,6 +12,7 @@ import org.jetbrains.plugins.scala.caches.stats.CacheTracker
 import org.jetbrains.plugins.scala.caches.stats.Tracer
 import org.jetbrains.plugins.scala.extensions.NullSafe
 import org.jetbrains.plugins.scala.lang.psi.types.api.Conformance._
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 /**
   * @author adkozlov
@@ -37,7 +37,7 @@ trait Conformance {
   final def conformsInner(left: ScType, right: ScType,
                           visited: Set[PsiClass] = Set.empty,
                           constraints: ConstraintSystem = ConstraintSystem.empty,
-                          checkWeak: Boolean = false): ConstraintsResult = {
+                          checkWeak: Boolean = false): ConstraintsResult = TraceLogger.func {
     ProgressManager.checkCanceled()
 
     if (left.isAny || right.isNothing || left == right) constraints

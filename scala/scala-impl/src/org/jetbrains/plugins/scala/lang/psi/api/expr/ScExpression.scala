@@ -25,6 +25,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 import org.jetbrains.plugins.scala.util.SAMUtil
 
 import scala.annotation.tailrec
@@ -137,6 +138,9 @@ trait ScExpression extends ScBlockStatement
     else {
       val expected = expectedOption.orElse(this.expectedType(fromUnderscore = fromUnderscore))
       val tr       = this.getTypeWithoutImplicits(ignoreBaseTypes, fromUnderscore)
+
+      TraceLogger.log("Expected type: ", expected)
+      TraceLogger.log("Type without implicits: ", tr)
 
       (expected, tr.toOption) match {
         case (Some(expType), Some(tp))
@@ -517,7 +521,7 @@ object ScExpression {
     }
   }
 
-  private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = {
+  private def shape(expression: ScExpression, ignoreAssign: Boolean = false): Option[ScType] = TraceLogger.func {
     import expression.projectContext
 
     def shapeIgnoringAssign(maybeExpression: Option[ScExpression]) = maybeExpression.flatMap {
