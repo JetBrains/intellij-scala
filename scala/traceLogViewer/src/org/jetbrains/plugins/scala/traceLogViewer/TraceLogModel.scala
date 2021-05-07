@@ -3,10 +3,11 @@ package org.jetbrains.plugins.scala.traceLogViewer
 import com.intellij.ui.treeStructure.treetable.ListTreeTableModelOnColumns
 import com.intellij.util.ui.ColumnInfo
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.ToNullSafe
 import org.jetbrains.plugins.scala.traceLogViewer.TraceLogModel.{Columns, Node}
 import org.jetbrains.plugins.scala.traceLogger.{Data, TraceLogReader}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogReader.EnclosingResult
-import org.jetbrains.plugins.scala.traceLogger.protocol.TraceLoggerEntry
+import org.jetbrains.plugins.scala.traceLogger.protocol.{StackTraceEntry, TraceLoggerEntry}
 
 import java.util
 import javax.swing.table.TableCellRenderer
@@ -17,35 +18,50 @@ import scala.jdk.CollectionConverters.IteratorHasAsJava
 
 class TraceLogModel(root: Node) extends ListTreeTableModelOnColumns(root, Columns.toArray)
 
+//noinspection ScalaExtractStringToBundle
 object TraceLogModel {
   def createFromLines(lines: Iterator[String]): TraceLogModel = {
     val roots = NodesReader.readLines(lines)
-    val root = new EnclosingNode("Log Roots", Seq.empty, roots)
+    val root = new EnclosingNode("Log Roots", Seq.empty, Nil, roots)
     new TraceLogModel(root)
   }
 
   private val Columns: Array[ColumnInfo[Node, _]] = Array(
-    new ColumnInfo[Node, Node]("Message") {
+    new ColumnInfo[Node, Node]("Function") {
       override def valueOf(item: Node): Node = item
-      override def getRenderer(item: Node): TableCellRenderer = new TraceLogTreeCellRenderer
+      override def getRenderer(item: Node): TableCellRenderer = new TraceLogFunctionCellRenderer
     },
     new ColumnInfo[Node, String]("Values") {
       override def valueOf(item: Node): String = item.values
         .map { case (name, data) => s"$name: $data" }
         .mkString(", ")
-    }
+    },
+    new ColumnInfo[Node, String]("Message") {
+      override def valueOf(item: Node): String = item.msg
+    },
   )
 
-  abstract class Node(val msg: String, val values: Seq[(String, Data)]) extends TreeNode {
+  abstract class Node(val msg: String, val values: Seq[(String, Data)], val stackTrace: List[StackTraceEntry])
+    extends TreeNode
+  {
     @Nullable
-    var parent: Node = _
+    protected[TraceLogModel] var parent: Node = _
 
     lazy val depth: Int = Option(parent).fold(-1)(_.depth + 1)
 
+    final def newStackTrace: List[StackTraceEntry] = stackTrace
+    final def parentStackTrace: List[StackTraceEntry] =
+      parent.nullSafe.fold(List.empty[StackTraceEntry])(_.stackTrace)
+
+    @Nullable
     override def getParent: TreeNode = parent
   }
 
-  final class MsgNode(_msg: String, _values: Seq[(String, Data)]) extends Node(_msg, _values) {
+  final class MsgNode(_msg: String,
+                      _values: Seq[(String, Data)],
+                      _stackTrace: List[StackTraceEntry])
+      extends Node(_msg, _values, _stackTrace)
+  {
     override def getChildAt(childIndex: Int): TreeNode = throw new IndexOutOfBoundsException("MsgNodes don't have any children")
     override def getChildCount: Int = 0
     override def getIndex(node: TreeNode): Int = -1
@@ -54,7 +70,12 @@ object TraceLogModel {
     override def children(): util.Enumeration[_ <: TreeNode] = util.Collections.emptyEnumeration()
   }
 
-  final class EnclosingNode(_msg: String, _values: Seq[(String, Data)], val childrenSeq: ArraySeq[Node]) extends Node(_msg, _values) {
+  final class EnclosingNode(_msg: String,
+                            _values: Seq[(String, Data)],
+                            _stackTrace: List[StackTraceEntry],
+                            val childrenSeq: ArraySeq[Node])
+    extends Node(_msg, _values, _stackTrace)
+  {
     childrenSeq.foreach {
       child =>
         assert(child.parent == null)
@@ -76,11 +97,11 @@ object TraceLogModel {
     protected def newNodeSeqBuilder(): mutable.Builder[Node, NodeSeq] =
       ArraySeq.newBuilder
 
-    override protected def createMsgNode(msg: TraceLoggerEntry.Msg): Node =
-      new MsgNode(msg.msg, msg.values)
+    override protected def createMsgNode(msg: TraceLoggerEntry.Msg, stackTrace: List[StackTraceEntry]): Node =
+      new MsgNode(msg.msg, msg.values, stackTrace)
 
-    override protected def createEnclosingNode(start: TraceLoggerEntry.Start, inners: ArraySeq[Node], result: EnclosingResult): Node = {
-      val enclosing = new EnclosingNode(start.msg, start.values, inners)
+    override protected def createEnclosingNode(start: TraceLoggerEntry.Start, inners: ArraySeq[Node], result: EnclosingResult, stackTrace: List[StackTraceEntry]): Node = {
+      val enclosing = new EnclosingNode(start.msg, start.values, stackTrace, inners)
       enclosing
     }
   }
