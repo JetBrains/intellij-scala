@@ -105,6 +105,25 @@ class TraceLoggerTest extends TraceLoggerTestBase {
       func(true)
     }
   }
+
+  def test_unit_return(): Unit = {
+    doTest(
+      """
+        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest], early = false)
+        |  -> ()
+        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest], early = true)
+        |  -> ()
+        |""".stripMargin
+    ) {
+      def func(early: Boolean): Unit = TraceLogger.func {
+        if (early) return
+        ()
+      }
+
+      func(false)
+      func(true)
+    }
+  }
 }
 
 object TraceLoggerTest {

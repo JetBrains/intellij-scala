@@ -155,7 +155,7 @@ object LoggingMacros {
       c.Expr[T](
         q"""
         try {
-          $wrappedBody
+          $wrappedBody: @scala.annotation.nowarn("msg=enclosing")
         } catch {
           case e: scala.runtime.NonLocalReturnControl[_] =>
             ${inActiveIf(success(q"e.value.asInstanceOf[$resultType]", resultType))}
