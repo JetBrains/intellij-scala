@@ -35,6 +35,8 @@ final case class ScDesignatorType(override val element: PsiNamedElement) extends
         ta match {
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
+              case Right(tp) if tp == this => // recursive type alias
+                return Some(AliasType(ta, Right(this), Right(this)))
               case Right(tp) =>
                 tp match {
                   case ParameterizedType(des, typeArgs) =>

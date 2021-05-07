@@ -45,6 +45,8 @@ final class ScProjectionType private(val projected: ScType,
         ta match {
           case ta: ScTypeAliasDefinition => //hack for simple cases, it doesn't cover more complicated examples
             ta.aliasedType match {
+              case Right(tp) if tp == this => // recursive type alias
+                return Some(AliasType(ta, Right(this), Right(this)))
               case Right(tp) =>
                 actualSubst(tp) match {
                   case target @ ParameterizedType(des, typeArgs) =>
