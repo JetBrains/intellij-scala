@@ -13,6 +13,8 @@ abstract class TraceLogger {
   def startEnclosing(msg: String, args: Seq[ValueDesc], st: StackTrace): Unit
   def enclosingSuccess(result: Data, st: StackTrace): Unit
   def enclosingFail(exception: Throwable, st: StackTrace): Unit
+
+  def close(): Unit = ()
 }
 
 object TraceLogger extends LoggingMacros {
@@ -24,14 +26,16 @@ object TraceLogger extends LoggingMacros {
   def inst: TraceLogger = loggers.get()
 
   def runWithTraceLogger[T](topic: String, createTraceLogger: String => TraceLogger = TraceLogger.createTraceLogger)(body: => T): T = {
+    val logger = createTraceLogger(topic)
     try {
-      loggers.set(createTraceLogger(topic))
+      loggers.set(logger)
       activeLoggers.incrementAndGet()
 
       body
     } finally {
       activeLoggers.decrementAndGet()
       loggers.remove()
+      logger.close()
     }
   }
 
@@ -116,5 +120,7 @@ object TraceLogger extends LoggingMacros {
       prevCallStack = st
       write(TraceLoggerEntry.Fail(exception.getMessage))
     }
+
+    override def close(): Unit = writer.close()
   }
 }
