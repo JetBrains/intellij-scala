@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.traceLogViewer
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
-import com.intellij.ui.components.{JBScrollPane, JBTreeTable}
+import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.dualView.TreeTableView
 import org.jetbrains.plugins.scala.NlsString

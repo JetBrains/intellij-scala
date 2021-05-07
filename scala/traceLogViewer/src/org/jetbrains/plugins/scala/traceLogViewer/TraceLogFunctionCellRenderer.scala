@@ -5,7 +5,7 @@ import javax.swing.JTable
 import javax.swing.border.EmptyBorder
 import javax.swing.table.DefaultTableCellRenderer
 
-class TraceLogTreeCellRenderer extends DefaultTableCellRenderer {
+class TraceLogFunctionCellRenderer extends DefaultTableCellRenderer {
   private var currentNode: TraceLogModel.Node = _
 
   val colors = Seq(
@@ -15,18 +15,23 @@ class TraceLogTreeCellRenderer extends DefaultTableCellRenderer {
     Color.CYAN.darker().darker(),
   )
 
-  val indent = 8
+  val indentSize = 8
 
   override def getTableCellRendererComponent(table: JTable, value: Any, isSelected: Boolean,
                                              hasFocus: Boolean, row: Int, column: Int): Component = {
     val node = value.asInstanceOf[TraceLogModel.Node]
     currentNode = node
-    this.setText(node.msg)
-    this.setBorder(new EmptyBorder(0, indent * node.depth + 3, 0, 0))
+    this.setText(
+      if (node.msg != "") ""
+      else node.stackTrace.headOption.fold("")(_.method)
+    )
+    this.setBorder(new EmptyBorder(0, indentSize * (node.depth + 1) + 3, 0, 0))
     this
   }
 
   override def paint(g: Graphics): Unit = {
+    super.paint(g)
+
     def color(depth: Int) = colors(depth % colors.size)
 
     val saveColor = g.getColor
@@ -37,13 +42,15 @@ class TraceLogTreeCellRenderer extends DefaultTableCellRenderer {
     //  g.setColor(color(currentNode.depth))
     //  g.fillRect(0, 0, width, height)
     //}
-
-    for (i <- 0 until currentNode.depth) {
-      g.setColor(color(i))
-      g.fillRect(i * indent, 0, indent * currentNode.depth, height)
+    def drawIndent(i: Int, color: Color): Unit = {
+      g.setColor(color)
+      g.fillRect(i * indentSize, 0, indentSize, height)
     }
-    g.setColor(saveColor)
+    val depth = currentNode.depth
+    for (i <- 0 until depth)
+      drawIndent(i, color(i))
+    drawIndent(depth, if (currentNode.isLeaf) Color.LIGHT_GRAY else color(depth))
 
-    super.paint(g)
+    g.setColor(saveColor)
   }
 }
