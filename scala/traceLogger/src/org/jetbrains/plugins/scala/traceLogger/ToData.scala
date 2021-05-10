@@ -39,6 +39,8 @@ object ToData extends HighPriorityToDataImplicits {
 
 trait HighPriorityToDataImplicits extends LowPriorityToDataImplicits {
   implicit final val stringAsData: ToData[String] = (value: String) => "\"" + value + "\""
+  implicit final def arrayAsData[T: ToData]: ToData[Array[T]] =
+    (value: Array[T]) => value.iterator.map(ToData.apply).mkString("Array(", ", ", ")")
 }
 
 trait LowPriorityToDataImplicits {
