@@ -72,7 +72,7 @@ public class ScalaCompileServerForm implements Configurable {
         mySdkPanel.add(UI.PanelFactory.panel(myCompilationServerSdk).withTooltip(ScalaBundle.message("compile.server.description")).createPanel(), BorderLayout.CENTER);
 
         myShutdownDelay.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_SHUTDOWN_DELAY, 0, 24 * 60, 1));
-        myParallelism.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_PARALLELISM, 1, 6, 1));
+        myParallelism.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_PARALLELISM, 1, 9999, 1));
 
         updateJvmSettingsPanel();
     }
