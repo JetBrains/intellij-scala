@@ -8,7 +8,6 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
   protected val INDENT_REGION_WITH_COLON = ST(":...")
-  protected val INDENT_REGION            = ST(" ...")
   protected val INDENT_EXPR_ST           = ST(" ...")
 
   // `isFoldingForAllBlocks` setting should not affect the behaviour of block foldings
@@ -136,7 +135,6 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
            |}$END
            |""".stripMargin
       )
-
     }
 
     assertFalse(settings.isCollapseDefinitionWithAssignmentBodies)
@@ -358,6 +356,71 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
     )
   }
 
+  def testIndentationRegion_DefWithAssignmentBody_SingleExpressionOnNewLine(): Unit = {
+    val Start = INDENT_REGION
+    genericCheckRegions(
+      s"""def test =$Start
+         |  println("test")$END
+         |
+         |var test =$Start
+         |  println("test")$END
+         |
+         |val test =$Start
+         |  println("test")$END
+         |
+         |val (test1, test2) =$Start
+         |  println("test")$END
+         |
+         |given test[A]: StringParser[Option[A]] =$Start
+         |  println("test")$END
+         |
+         |given test[A]: StringParser[Option[A]] =$Start
+         |  println("test")$END
+         |
+         |class A $BLOCK_ST{
+         |  def this(i: Int) =$Start
+         |    this()$END
+         |}$END
+         |""".stripMargin
+    )
+  }
+
+  def testIndentationRegion_DefWithAssignmentBody_SingleExpressionOnNewLine_WithEndMarker(): Unit = {
+    val Start = INDENT_REGION
+    genericCheckRegions(
+      s"""def test =$Start
+         |  println("test")
+         |end test$END
+         |
+         |var test =$Start
+         |  println("test")
+         |end test$END
+         |
+         |val test =$Start
+         |  println("test")
+         |end test$END
+         |
+         |val (test1, test2) =$Start
+         |  println("test")
+         |end val$END
+         |
+         |given test[A]: StringParser[Option[A]] =$Start
+         |  println("test")
+         |end test$END
+         |
+         |given test[A]: StringParser[Option[A]] =$Start
+         |  println("test")
+         |end given$END
+         |
+         |class A $BLOCK_ST{
+         |  def this(i: Int) =$Start
+         |    this()
+         |  end this$END
+         |}$END
+         |""".stripMargin
+    )
+  }
+
   def testMatch_IndentationRegion(): Unit = genericCheckRegions(
     s"""1 match$INDENT_EXPR_ST
        |  case 1 =>
@@ -378,8 +441,8 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
   )
 
   def testMatchType_IndentationRegion(): Unit = genericCheckRegions(
-    s"""type Widen[Tup <: Tuple] <: Tuple =
-       |  ${DOTS_ST}Tup match$INDENT_EXPR_ST
+    s"""type Widen[Tup <: Tuple] <: Tuple =$INDENT_REGION
+       |  Tup match$INDENT_EXPR_ST
        |    case EmptyTuple => EmptyTuple
        |    case EmptyTuple => EmptyTuple
        |    case h *: t => h *: t$END$END
@@ -387,8 +450,8 @@ class Scala3EditorFoldingTest extends ScalaEditorFoldingTestBase {
   )
 
   def testMatchType_WithBraces(): Unit = genericCheckRegions(
-    s"""type Widen[Tup <: Tuple] <: Tuple =
-       |  ${DOTS_ST}Tup match $BLOCK_ST{
+    s"""type Widen[Tup <: Tuple] <: Tuple =$INDENT_REGION
+       |  Tup match $BLOCK_ST{
        |    case EmptyTuple => EmptyTuple
        |    case EmptyTuple => EmptyTuple
        |    case h *: t => h *: t

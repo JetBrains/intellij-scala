@@ -38,6 +38,8 @@ abstract class ScalaEditorFoldingTestBase extends ScalaLightCodeInsightFixtureTe
   val DOC_COMMENT_ST = ST("/**...*/")
   val MLS_ST = ST("\"\"\"...\"\"\"")
 
+  protected val INDENT_REGION = ST(" ...")
+
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   protected final def genericCheckRegions(fileTextRaw: String): Unit =
