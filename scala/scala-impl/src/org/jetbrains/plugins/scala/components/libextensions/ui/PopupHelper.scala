@@ -9,7 +9,9 @@ class PopupHelper {
   def showEnablePopup(yesCallback: () => Unit, noCallback: () => Unit): Unit = {
     val notification = new Notification(GROUP_ID, ScalaBundle.message("title.extensions.available"),
       ScalaBundle.message("additional.support.has.been.found.popup"),
-      NotificationType.INFORMATION, (notification: Notification, event: HyperlinkEvent) => {
+      NotificationType.INFORMATION
+    ).setListener(
+      (notification: Notification, event: HyperlinkEvent) => {
         notification.expire()
         event.getDescription match {
           case "Yes" => yesCallback()

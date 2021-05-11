@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala
 package components
 
-import java.io.File
-
 import com.intellij.ide.plugins._
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
-import com.intellij.openapi.application.{Application, ApplicationManager}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.PathUtil
-import javax.swing.event.HyperlinkEvent
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.invokeLater
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+
+import java.io.File
+import javax.swing.event.HyperlinkEvent
 
 /**
   * @author Alefas
@@ -141,8 +141,7 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       ScalaPluginVersionVerifier.LOG.error(message)
     } else {
-      val app: Application = ApplicationManager.getApplication
-      val notification = ScalaNotificationGroups.stickyBalloonGroup.createNotification(ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR, (notification: Notification, event: HyperlinkEvent) => {
+      val notification = ScalaNotificationGroups.stickyBalloonGroup.createNotification(ScalaBundle.message("incompatible.plugin.detected"), message, NotificationType.ERROR).setListener((notification: Notification, event: HyperlinkEvent) => {
         notification.expire()
         val description = event.getDescription
         callback(description)

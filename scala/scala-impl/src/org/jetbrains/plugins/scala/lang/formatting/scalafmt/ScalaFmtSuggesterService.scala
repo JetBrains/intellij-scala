@@ -72,8 +72,8 @@ final class ScalaFmtSuggesterService(private val project: Project)
       ScalaBundle.message("scalafmt.suggester.detected.in.project"),
       wrapInRef(EnableRef, enableProjectText) + Br +
         wrapInRef(DontShowRef, dontShowText) + Br,
-      NotificationType.INFORMATION, listener
-    )
+      NotificationType.INFORMATION
+    ).setListener(listener)
 
   private val listener: NotificationListener = (notification: Notification, link: HyperlinkEvent) => {
     notification.expire()

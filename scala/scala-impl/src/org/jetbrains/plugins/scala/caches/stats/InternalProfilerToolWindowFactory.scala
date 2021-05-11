@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.caches.stats
 
-import java.awt.BorderLayout
-import java.util.concurrent.{Future, TimeUnit}
-
 import com.intellij.concurrency.JobScheduler
 import com.intellij.icons.AllIcons
 import com.intellij.notification.{NotificationGroup, NotificationType}
@@ -11,16 +8,19 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{Content, ContentFactory}
-import javax.swing.{Icon, JPanel, JScrollPane}
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.plugins.scala.util.ui.extensions.ComponentExt
 
+import java.awt.BorderLayout
+import java.util.concurrent.{Future, TimeUnit}
+import javax.swing.{Icon, JPanel, JScrollPane}
 import scala.jdk.CollectionConverters._
 
 class InternalProfilerToolWindowFactory extends ToolWindowFactory with DumbAware {
 
   override def init(toolWindow: ToolWindow): Unit = {
-    toolWindow.setStripeTitle("Scala plugin profiler")
+    toolWindow.setStripeTitle(NlsString.force("Scala plugin profiler"))
   }
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {
@@ -206,8 +206,7 @@ object InternalProfilerToolWindowFactory {
            |</table>
            |</body>
            |</html>""".stripMargin,
-        NotificationType.INFORMATION,
-        null
+        NotificationType.INFORMATION
       ).notify(project)
     }
   }

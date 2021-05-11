@@ -33,14 +33,14 @@ object NotificationUtil  {
     def setTitle(@Nls title: String): this.type = {this.title = title; this}
     def removeTitle(): this.type = {this.title = null; this}
     def setNotificationType(notificationType: NotificationType): this.type = {this.notificationType = notificationType; this}
-    @deprecated
+    // @deprecated TODO: yeah! but why? and replace with what?
     def setDisplayType(displayType: NotificationDisplayType): this.type = {this.displayType = displayType; this}
     def setHandler(handler: Handler): this.type = {this.handler = handler; this}
     def addAction(action: NotificationAction): this.type = {actions += action; this}
 
     def notification: Notification = {
       //note that only this Notification constructor accepts null title
-      val notification = new Notification(group, null, title, null, message, notificationType, new HyperlinkListener(handler))
+      val notification = new Notification(group, title, message, notificationType).setListener(new HyperlinkListener(handler))
       actions.foreach(notification.addAction)
       notification
     }
@@ -60,12 +60,12 @@ object NotificationUtil  {
       setTitle(title).
       setNotificationType(notificationType).
       setDisplayType(displayType).
-      setHandler(handler).show(): @nowarn("cat=deprecation")
+      setHandler(handler).show()
   }
 
-  type Handler = (String) => (Unit)
+  type Handler = String => Unit
 
-  private val IdHandler: Handler = { (_: String) => {} }
+  private val IdHandler: Handler = _ => ()
 
   class HyperlinkListener(handler: Handler = IdHandler) extends NotificationListener {
     override def hyperlinkUpdate(notification: Notification, event: HyperlinkEvent): Unit = {
