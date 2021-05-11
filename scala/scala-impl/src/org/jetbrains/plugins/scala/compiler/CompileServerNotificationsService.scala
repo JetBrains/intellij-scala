@@ -2,18 +2,18 @@ package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.{Service, ServiceManager}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdkVersion
 import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.CompositeModificationTracker
-import javax.swing.event.HyperlinkEvent
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ProjectExt
 
+import javax.swing.event.HyperlinkEvent
 import scala.annotation.nowarn
 import scala.concurrent.duration.DurationLong
 
@@ -53,7 +53,7 @@ final class CompileServerNotificationsService(project: Project) {
          |Current JDK is $serverSdk.
          |""".stripMargin
     val listener = new FixSdkNotificationListener(recommendedSdk)
-    val warningNotification = new Notification(title, title, text, NotificationType.WARNING, listener)
+    val warningNotification = new Notification(title, title, text, NotificationType.WARNING).setListener(listener)
     Notifications.Bus.notify(warningNotification)
   }
   

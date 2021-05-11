@@ -209,7 +209,8 @@ object ScalaPluginUpdater {
       GROUP.createNotification(
         ScalaBundle.message("scala.plugin.update.failed"),
         message,
-        NotificationType.WARNING,
+        NotificationType.WARNING
+      ).setListener(
         (notification: Notification, event: HyperlinkEvent) => {
           notification.expire()
           event.getDescription match {
@@ -321,7 +322,7 @@ object ScalaPluginUpdater {
         }
       }
 
-      val notification = GROUP.createNotification(title, message, NotificationType.INFORMATION, listener, "")
+      val notification = GROUP.createNotification(title, message, NotificationType.INFORMATION).setListener(listener)
       val project = ProjectManager.getInstance().getOpenProjects.headOption.orNull
       Notifications.Bus.notify(notification, project)
     }

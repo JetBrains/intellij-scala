@@ -47,6 +47,7 @@ import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ThrowableRunnable;
 import com.intellij.util.io.TestFileSystemItem;
+import com.intellij.util.text.FilePathHashingStrategy;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -502,7 +503,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
                     file.setBinaryContent(content.getBytes(CharsetToolkit.UTF8_CHARSET), file.getModificationStamp(), file.getTimeStamp());
                 }
             }
-        }.execute().getResultObject();
+        }.execute();
     }
 
     protected static <T, U> void assertOrderedElementsAreEqual(Collection<U> actual, Collection<T> expected) {
@@ -514,8 +515,8 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
     }
 
     protected static void assertUnorderedPathsAreEqual(Collection<String> actual, Collection<String> expected) {
-        assertEquals(new SetWithToString<String>(new THashSet<String>(expected, FileUtil.PATH_HASHING_STRATEGY)),
-                new SetWithToString<String>(new THashSet<String>(actual, FileUtil.PATH_HASHING_STRATEGY)));
+        assertEquals(new SetWithToString<>(new THashSet<>(expected, FilePathHashingStrategy.create())),
+                new SetWithToString<>(new THashSet<>(actual, FilePathHashingStrategy.create())));
     }
 
     @SuppressWarnings("unchecked")
@@ -533,7 +534,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         String s = "\nexpected: " + Arrays.asList(expected) + "\nactual: " + new ArrayList<U>(actual);
         assertEquals(s, expected.length, actual.size());
 
-        java.util.List<U> actualList = new ArrayList<U>(actual);
+        java.util.List<U> actualList = new ArrayList<>(actual);
         for (int i = 0; i < expected.length; i++) {
             T expectedElement = expected[i];
             U actualElement = actualList.get(i);
@@ -549,7 +550,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
 
     @SuppressWarnings("unchecked")
     protected static <T> void assertDoNotContain(java.util.List<T> actual, T... expected) {
-        java.util.List<T> actualCopy = new ArrayList<T>(actual);
+        java.util.List<T> actualCopy = new ArrayList<>(actual);
         actualCopy.removeAll(Arrays.asList(expected));
         assertEquals(actual.toString(), actualCopy.size(), actual.size());
     }

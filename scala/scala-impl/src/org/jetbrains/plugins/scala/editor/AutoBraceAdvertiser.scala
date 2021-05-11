@@ -31,10 +31,10 @@ object AutoBraceAdvertiser {
   private def suggestAutoBraces(project: Project): Unit = {
     val notification = {
       val group = ScalaNotificationGroups.stickyBalloonGroup
-      group.createNotification(ScalaEditorBundle.message("the.curly.braces.can.be.added.or.removed.automatically"), null, null, NotificationType.INFORMATION)
+      group.createNotification(ScalaEditorBundle.message("the.curly.braces.can.be.added.or.removed.automatically"), NotificationType.INFORMATION)
     }
 
-    notification.setCollapseActionsDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
+    notification.setCollapseDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
 
     notification
       .addAction(new OpenSettingsAction())
