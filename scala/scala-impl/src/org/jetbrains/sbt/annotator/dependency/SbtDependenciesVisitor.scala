@@ -12,7 +12,7 @@ import org.jetbrains.sbt.annotator.dependency.AddSbtDependencyUtils._
 /**
   * Created by afonichkin on 8/28/17.
   */
-private object SbtDependenciesVisitor {
+object SbtDependenciesVisitor {
   @scala.annotation.tailrec
   private def getScPatternDefinition(psiElement: PsiElement): ScPatternDefinition = {
     psiElement match {
