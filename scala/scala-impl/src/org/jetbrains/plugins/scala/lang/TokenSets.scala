@@ -50,7 +50,7 @@ object TokenSets {
   def MEMBERS: TokenSet = _MEMBERS
 
   private def computeMemberTypes() = {
-    FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++
+    FUNCTIONS ++ ALIASES_SET ++ TYPE_DEFINITIONS ++ PROPERTIES + PRIMARY_CONSTRUCTOR ++ EXTENSION ++
       MemberElementTypesExtension.getExtraMemberTypes
   }
 

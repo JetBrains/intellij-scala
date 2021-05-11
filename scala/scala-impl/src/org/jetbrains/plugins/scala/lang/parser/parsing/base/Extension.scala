@@ -5,10 +5,10 @@ package parsing
 package base
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.{ExtensionKeyword, InlineKeyword}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
-import org.jetbrains.plugins.scala.lang.parser.parsing.params.{ParamClauses, TypeParamClause}
+import org.jetbrains.plugins.scala.lang.parser.parsing.params.{Param, ParamClause, TypeParamClause}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{FunDcl, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
 
@@ -35,12 +35,10 @@ object Extension extends ParsingRule {
     }
 
     TypeParamClause.parse(builder)
-
-    ParamClauses.parse(builder, expectAtLeastOneClause = true)
-
+    ExtensionParameterClauses()
     ExtMethods()
 
-    marker.done(ScalaElementType.Extension)
+    marker.done(ScalaElementType.EXTENSION)
     true
   }
 }
@@ -106,6 +104,59 @@ object ExtMethods extends ParsingRule {
     End(builder.currentIndentationWidth)
     extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
     true
+  }
+}
+
+object ExtensionParameterClauses extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val paramMarker = builder.mark
+    //@TODO: leading using clauses
+    if (!ExtensionParameterClause()) builder.error(ErrMsg("param.clause.expected"))
+
+    while (ParamClause(mustBeUsing = true)) {}
+
+    paramMarker.done(ScalaElementType.PARAM_CLAUSES)
+    true
+  }
+
+  object ExtensionParameterClause extends ParsingRule {
+    override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+      val paramMarker = builder.mark()
+      if (builder.twoNewlinesBeforeCurrentToken) {
+        paramMarker.drop()
+        return false
+      }
+
+      builder.getTokenType match {
+        case ScalaTokenTypes.tLPARENTHESIS =>
+          builder.advanceLexer() //Ate (
+          builder.disableNewlines()
+        case _ =>
+          paramMarker.rollbackTo()
+          return false
+      }
+
+      builder.getTokenType match {
+        case ScalaTokenTypes.kIMPLICIT | ScalaTokenType.UsingKeyword =>
+          builder.error(ScalaBundle.message("parameter.expected"))
+          paramMarker.rollbackTo()
+          builder.restoreNewlinesState()
+          return false
+        case _ => ()
+      }
+
+      if (!Param()) builder.error(ScalaBundle.message("parameter.expected"))
+
+      builder.getTokenType match {
+        case ScalaTokenTypes.tRPARENTHESIS =>
+          builder.advanceLexer() //Ate )
+        case _ =>
+          builder.error(ScalaBundle.message("rparenthesis.expected"))
+      }
+      builder.restoreNewlinesState()
+      paramMarker.done(ScalaElementType.PARAM_CLAUSE)
+      true
+    }
   }
 }
 
