@@ -12,17 +12,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 
-/**
- * Pavel Fatin
- */
-
 class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.convert.to.curly.braces")
 
   override def getText: String = getFamilyName
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    element match {
+    elementAndTouchingPrevElement(editor, element).exists {
       case e @ Parent(_: ScFor) =>
         List(ScalaTokenTypes.tLPARENTHESIS, ScalaTokenTypes.tRPARENTHESIS).contains(e.getNode.getElementType) &&
           IntentionAvailabilityChecker.checkIntention(this, element)
@@ -33,7 +29,9 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     implicit val ctx: ProjectContext = project
 
-    val statement = element.getParent.asInstanceOf[ScFor]
+    val statement = elementAndTouchingPrevElement(editor, element)
+      .collectFirst { case Parent(f: ScFor) => f }
+      .head
     val block = createElementFromText("{}")
 
     for (lParen <- statement.findFirstChildByType(ScalaTokenTypes.tLPARENTHESIS)) {
@@ -50,5 +48,12 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
          semi <- enumerators.findChildrenByType(ScalaTokenTypes.tSEMICOLON)) {
       semi.replace(createNewLine())
     }
+  }
+
+  private def elementAndTouchingPrevElement(editor: Editor, element: PsiElement): Seq[PsiElement] = {
+    val caretModel = editor.getCaretModel
+    val position = caretModel.getOffset
+    val prev = element.prevLeaf.filter(_.endOffset == position)
+    element :: prev.toList
   }
 }
