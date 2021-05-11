@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.packagesearch.ui
 
 import com.intellij.ide.wizard.Step
 import com.intellij.openapi.project.Project
+import com.intellij.ui.scale.JBUIScale
 import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
@@ -16,7 +17,7 @@ private class SbtPossiblePlacesStep(wizard: AddDependencyPreviewWizard, project:
 
   override def _init(): Unit = {
     wizard.setTitle(PackageSearchSbtBundle.message("packagesearch.dependency.sbt.possible.places.to.add.new.dependency"))
-    wizard.setSize(JBUI.scale(800), JBUI.scale(750))
+    wizard.setSize( JBUIScale.scale(800), JBUIScale.scale(750))
     panel.myResultList.clearSelection()
     extensions.inWriteAction {
       panel.myCurEditor.getDocument.setText(PackageSearchSbtBundle.message("packagesearch.dependency.sbt.select.a.place.from.the.list.above.to.enable.this.preview"))
