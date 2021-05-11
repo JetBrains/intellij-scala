@@ -43,8 +43,10 @@ import scala.collection.mutable.ArrayBuffer
 
 // TODO: rename it to some Builder/Producer/etc...
 object getDummyBlocks {
-  private type InterpolatedPointer = SmartPsiElementPointer[ScInterpolatedStringLiteral]
-  private val alignmentsMapKey: Key[mutable.Map[InterpolatedPointer, (Alignment, Alignment)]] = Key.create("alingnments.map")
+
+  private case class InterpolatedStringAlignments(quotes: Alignment, marginChar: Alignment)
+  private val interpolatedStringAlignmentsKey: Key[InterpolatedStringAlignments] = Key.create("interpolated.string.alignment")
+
   private val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
   private val multiLevelAlignmentKey: Key[mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]] = Key.create("multilevel.alignment")
 
@@ -66,15 +68,8 @@ object getDummyBlocks {
 
   def apply(block: ScalaBlock): getDummyBlocks = new getDummyBlocks(block)
 
-  // keeps info for interpolated multiline string literal:
-  // (opening quotes alignment, margin char alignment)
-  private def alignmentsMap(project: Project): mutable.Map[InterpolatedPointer, (Alignment, Alignment)] =
-    project.getOrUpdateUserData(alignmentsMapKey, mutable.Map[InterpolatedPointer, (Alignment, Alignment)]())
-
-  private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[(Alignment, Alignment)] =
-    alignmentsMap(literal.getProject).collectFirst {
-      case (pointer, alignment) if pointer.getElement == literal => alignment
-    }
+  private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[InterpolatedStringAlignments] =
+    Option(literal.getUserData(interpolatedStringAlignmentsKey))
 
   private def multiLevelAlignmentMap(project: Project): mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]] =
     project.getOrUpdateUserData(multiLevelAlignmentKey, mutable.Map[IElementType, List[ElementPointerAlignmentStrategy]]())
@@ -198,7 +193,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         }
       case interpolated: ScInterpolatedStringLiteral =>
         //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
-        alignmentsMap(interpolated.getProject).put(interpolated.createSmartPointer, buildQuotesAndMarginAlignments)
+        interpolated.putUserData(interpolatedStringAlignmentsKey, buildQuotesAndMarginAlignments)
       case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
         val childrenFiltered: Array[ASTNode] = node.getChildren(null).filter(isNotEmptyNode)
         val childHead :: childTail = childrenFiltered.toList
@@ -315,7 +310,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
           case _ => sharedAlignment
         }
       case literal: ScInterpolatedStringLiteral if child.getElementType == tINTERPOLATED_STRING_END =>
-        cachedAlignment(literal).map(_._1).orNull
+        cachedAlignment(literal).map(_.quotes).orNull
       case _ =>
         sharedAlignment
     }
@@ -633,17 +628,17 @@ class getDummyBlocks(private val block: ScalaBlock) {
       }
     } else 0
 
-  private def buildQuotesAndMarginAlignments: (Alignment, Alignment) = {
+  private def buildQuotesAndMarginAlignments: InterpolatedStringAlignments = {
     val quotesAlignment = if (scalaSettings.MULTILINE_STRING_ALIGN_DANGLING_CLOSING_QUOTES) Alignment.createAlignment() else null
     val marginAlignment = Alignment.createAlignment(true)
-    (quotesAlignment, marginAlignment)
+    InterpolatedStringAlignments(quotesAlignment, marginAlignment)
   }
 
   private def getMultilineStringBlocks(node: ASTNode): util.ArrayList[Block] = {
     val subBlocks = new util.ArrayList[Block]
 
     val interpolatedOpt = Option(PsiTreeUtil.getParentOfType(node.getPsi, classOf[ScInterpolatedStringLiteral]))
-    val (quotesAlignment, marginAlignment) =
+    val InterpolatedStringAlignments(quotesAlignment, marginAlignment) =
       interpolatedOpt
         .flatMap(cachedAlignment)
         .getOrElse(buildQuotesAndMarginAlignments)
@@ -672,7 +667,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         subBlocks.add(new StringLineScalaBlock(marginRange, node, block, marginAlignment, marginIndent, null, settings))
         val contentRange = relativeRange(linePrefixLength + 1, lineLength, acc)
         subBlocks.add(new StringLineScalaBlock(contentRange, node, block, null, Indent.getNoneIndent, wrap, settings))
-      } else if (trimmedLine.length > 0) {
+      } else if (trimmedLine.nonEmpty) {
         val (range, myIndent, myAlignment) =
           if (trimmedLine.startsWith(MultilineQuotes)) {
             if (acc == 0) {
