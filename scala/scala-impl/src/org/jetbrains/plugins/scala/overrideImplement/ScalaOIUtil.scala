@@ -148,7 +148,9 @@ object ScalaOIUtil {
     }
 
     val methods = signatures.allSignatures.filter {
-      case signature: PhysicalMethodSignature if signature.namedElement.isValid => f1(signature)
+      case signature: PhysicalMethodSignature
+        if signature.namedElement.isValid &&
+          !signature.isExtensionMethod => f1(signature)
       case _ => false
     }.map {
       case signature: PhysicalMethodSignature =>
@@ -168,30 +170,29 @@ object ScalaOIUtil {
     (methods ++ aliasesAndValues).toSeq
   }
 
-  def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass,
-                              visited: Set[PsiClass] = Set.empty): Boolean = {
-    if (visited.contains(clazz)) return false
-    clazz match {
-      case td: ScTypeDefinition if td.isCase =>
-        if (m.name == "apply") return true
-        if (m.name == "canEqual") return true
-        val clazz = m.containingClass
-        clazz != null && clazz.qualifiedName == "scala.Product" &&
-          (m.name match {
-            case "productArity" | "productElement" => true
-            case _ => false
-          })
-      case x: ScTemplateDefinition =>
-        x.superTypes.map(_.extractClass).find {
-          case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
-          case _ => false
-        } match {
-          case Some(_) => true
-          case _ => false
-        }
-      case _ => false
-    }
-  }
+  def isProductAbstractMethod(m: PsiMethod, clazz: PsiClass, visited: Set[PsiClass] = Set.empty): Boolean =
+    if (visited.contains(clazz)) false
+    else
+      clazz match {
+        case td: ScTypeDefinition if td.isCase =>
+          m.name == "apply" ||
+            m.name == "canEqual" || {
+            val clazz = m.containingClass
+
+            clazz != null &&
+            clazz.qualifiedName == "scala.Product" &&
+            (m.name match {
+              case "productArity" | "productElement" => true
+              case _                                 => false
+            })
+          }
+        case x: ScTemplateDefinition =>
+          x.superTypes.map(_.extractClass).exists {
+            case Some(c) => isProductAbstractMethod(m, c, visited + clazz)
+            case _       => false
+          }
+        case _ => false
+      }
 
   private def needOverride(sign: PhysicalMethodSignature, clazz: ScTemplateDefinition): Boolean = {
     sign.method match {
