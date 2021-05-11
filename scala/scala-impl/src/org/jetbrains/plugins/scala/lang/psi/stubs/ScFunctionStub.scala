@@ -25,4 +25,6 @@ trait ScFunctionStub[F <: ScFunction] extends NamedStub[F]
   def annotations: Array[String]
 
   def hasAssign: Boolean
+
+  def isExtensionMethod: Boolean
 }

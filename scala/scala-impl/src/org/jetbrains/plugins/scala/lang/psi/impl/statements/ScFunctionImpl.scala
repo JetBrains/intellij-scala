@@ -211,22 +211,42 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def parameterListCount: Int = paramClauses.clauses.length
 
-  override def isExtensionMethod: Boolean = extensionMethodClause.isDefined
+  private def extensionMethodData: Option[ScExtension] =  {
+    val parent = getParent
+    if (parent != null) {
+      parent.getParent.asOptionOf[ScExtension]
+    } else None
+  }
 
-  override def extensionMethodClause: Option[ScParameterClause] = Option(getStubOrPsiChild(ScalaElementType.PARAM_CLAUSE))
+  override def isExtensionMethod: Boolean =
+    byStubOrPsi(_.isExtensionMethod)(extensionMethodData.nonEmpty)
+
+  @CachedInUserData(this, BlockModificationTracker(this))
+  override def typeParameters: Seq[ScTypeParam] =
+    extensionMethodData.fold(super.typeParameters)(ext =>
+      ext.typeParameters ++ super.typeParameters
+    )
 
   @CachedInUserData(this, BlockModificationTracker(this))
   override def effectiveParameterClauses: Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)
-        case _ => None
+        case _                            => None
       }
-    } else Some(this)
+    } else Option(this)
 
-    paramClauses.clauses ++ maybeOwner.flatMap {
-      ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
-    }
+    val extensionParameterClauses =
+      (for {
+        ext        <- extensionMethodData
+        parameters <- ext.clauses
+      } yield parameters.clauses).getOrElse(Seq.empty)
+
+    extensionParameterClauses ++
+      paramClauses.clauses ++
+      maybeOwner.flatMap {
+        ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
+      }
   }
 
   /**

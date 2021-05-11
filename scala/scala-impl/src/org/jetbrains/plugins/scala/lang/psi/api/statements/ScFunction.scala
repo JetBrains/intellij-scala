@@ -96,8 +96,6 @@ trait ScFunction
 
   def isExtensionMethod: Boolean
 
-  def extensionMethodClause: Option[ScParameterClause]
-
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFunction(this)
   }

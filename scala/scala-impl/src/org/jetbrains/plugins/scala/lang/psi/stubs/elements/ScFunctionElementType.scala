@@ -36,6 +36,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeNames(stub.implicitClassNames)
     dataStream.writeBoolean(stub.isTopLevel)
     dataStream.writeOptionName(stub.topLevelQualifier)
+    dataStream.writeBoolean(stub.isExtensionMethod)
   }
 
   override def deserialize(dataStream: StubInputStream, parent: StubElement[_ <: PsiElement]) =
@@ -52,7 +53,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       isLocal                          = dataStream.readBoolean,
       implicitClassNames               = dataStream.readNames,
       isTopLevel                       = dataStream.readBoolean,
-      topLevelQualifier                = dataStream.readOptionName
+      topLevelQualifier                = dataStream.readOptionName,
+      isExtensionMethod                = dataStream.readBoolean
     )
 
   override def createStubImpl(function: Fun,
@@ -95,7 +97,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       isLocal                          = function.containingClass == null,
       implicitClassNames               = ScImplicitStub.implicitClassNames(function, function.returnTypeElement),
       isTopLevel                       = function.isTopLevel,
-      topLevelQualifier                = function.topLevelQualifier
+      topLevelQualifier                = function.topLevelQualifier,
+      isExtensionMethod                = function.isExtensionMethod
     )
   }
 
@@ -109,8 +112,6 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       val packageFqn = stub.topLevelQualifier
       packageFqn.foreach(sink.fqnOccurence(TOP_LEVEL_FUNCTION_BY_PKG_KEY, _))
     }
-
-
 
     if (stub.annotations.contains("main")) {
       val packageFqn = stub.topLevelQualifier

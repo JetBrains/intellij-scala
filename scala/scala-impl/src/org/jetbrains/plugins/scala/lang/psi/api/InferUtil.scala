@@ -71,8 +71,14 @@ object InferUtil {
     * @param canThrowSCE   if true can throw SafeCheckException if it not found not ambiguous implicit parameters
     * @return updated type and sequence of implicit parameters
     */
-  def updateTypeWithImplicitParameters(res: ScType, element: PsiElement, coreElement: Option[ScNamedElement], canThrowSCE: Boolean,
-                                       searchImplicitsRecursively: Int = 0, fullInfo: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = TraceLogger.func {
+  def updateTypeWithImplicitParameters(
+    res:                        ScType,
+    element:                    PsiElement,
+    coreElement:                Option[ScNamedElement],
+    canThrowSCE:                Boolean,
+    searchImplicitsRecursively: Int = 0,
+    fullInfo:                   Boolean
+  ): (ScType, Option[Seq[ScalaResolveResult]]) = TraceLogger.func {
     implicit val ctx: ProjectContext = element
 
     var resInner = res

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
@@ -29,12 +29,15 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-class TermSignature(_name: String,
-                    private val typesEval: Seq[Seq[() => ScType]],
-                    private val tParams: Seq[TypeParameter],
-                    override val substitutor: ScSubstitutor,
-                    override val namedElement: PsiNamedElement,
-                    val hasRepeatedParam: Array[Int] = Array.empty) extends Signature with ProjectContextOwner {
+class TermSignature(
+  _name:                     String,
+  private val typesEval:     Seq[Seq[() => ScType]],
+  private val tParams:       Seq[TypeParameter],
+  override val substitutor:  ScSubstitutor,
+  override val namedElement: PsiNamedElement,
+  val hasRepeatedParam:      Array[Int] = Array.empty
+) extends Signature
+    with ProjectContextOwner {
 
   override implicit def projectContext: ProjectContext = namedElement
 
@@ -338,7 +341,8 @@ object PhysicalMethodSignature {
 
 final class PhysicalMethodSignature(
   val method: PsiMethod,
-  override val substitutor: ScSubstitutor
+  override val substitutor: ScSubstitutor,
+  val isExtensionMethod: Boolean = false
 ) extends TermSignature(
   method.name,
   PhysicalMethodSignature.typesEval(method),

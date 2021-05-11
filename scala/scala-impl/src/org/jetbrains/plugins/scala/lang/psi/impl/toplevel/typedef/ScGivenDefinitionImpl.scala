@@ -9,18 +9,15 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ModTracker
-
-import javax.swing.Icon
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+
+import javax.swing.Icon
 
 class ScGivenDefinitionImpl(
   stub:      ScTemplateDefinitionStub[ScGivenDefinition],

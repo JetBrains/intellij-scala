@@ -242,11 +242,9 @@ object ScalaPsiUtil {
         elem match {
           case mem: ScMember =>
             if (mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)) true
-            else mem.containingClass match {
-              case null =>
-                false // e.g. can be null for Scala3 extension method
-              case clazz =>
-                isLocalOrPrivate(clazz)
+            else {
+              val containingCls = mem.containingClass
+              (containingCls eq null) || isLocalOrPrivate(containingCls)
             }
           case _ => false
         }

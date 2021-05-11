@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -135,6 +135,12 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
         case c: ScTypeDefinition =>
           syntheticSignaturesFromInnerClass(c, subst)
             .foreach(addSignature)
+        case ext: ScExtension =>
+          ext
+            .extensionMethods
+            .foreach(m => addSignature(
+              new PhysicalMethodSignature(m, subst, isExtensionMethod = true))
+            )
         case _ =>
       }
     }
