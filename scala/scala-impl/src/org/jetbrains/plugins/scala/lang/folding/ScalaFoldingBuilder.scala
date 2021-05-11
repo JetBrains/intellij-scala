@@ -87,9 +87,13 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case _: ScArgumentExprList =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
         case definition: ScDefinitionWithAssignment =>
-          val body = definitionBody(definition)
-          body.foreach { b =>
-            val rangeNew = elementRangeWithEndMarkerAttached(b, b.getTextRange)
+          val bodyOpt = definitionBody(definition)
+          bodyOpt.foreach { body =>
+            val start =
+              if (body.startsFromNewLine()) definition.assignment.map(_.endOffset).getOrElse(body.startOffset)
+              else body.startOffset
+            val end = definition.endOffset // will automatically include end marker
+            val rangeNew = TextRange.create(start, end)
             // we generally do not expect bodies empty, but adding this `isEmpty` check just in case
             if (!rangeNew.isEmpty) {
               descriptors.add(new FoldingDescriptor(definition, rangeNew))
@@ -217,6 +221,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     //printFoldingsDebugInfo(descriptors)
   }
 
+  //noinspection ScalaUnusedSymbol
   private def printFoldingsDebugInfo(descriptors: java.util.List[FoldingDescriptor]): Unit = {
     val infos = descriptors.iterator().asScala.map { d =>
       s"  ${d.getRange}  ${d.getPlaceholderText}"
@@ -261,12 +266,13 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case _: ScBlock => // it's basically case clause body
           return "..."
         case da: ScDefinitionWithAssignment =>
-          val body = definitionBody(da)
-          val res = body match {
-            case Some(block: ScBlockExpr) => if (block.isEnclosedByBraces) "{...}" else " ..."
-            case Some(_)                  => "..."
-            case None                     => null
-          }
+          val bodyOpt = definitionBody(da)
+          val res = bodyOpt.map {
+            case block: ScBlockExpr => if (block.isEnclosedByBraces) "{...}" else " ..."
+            case single =>
+              if (single.startsFromNewLine()) " ..."
+              else "..."
+          }.orNull
           return res
         case _ =>
       }

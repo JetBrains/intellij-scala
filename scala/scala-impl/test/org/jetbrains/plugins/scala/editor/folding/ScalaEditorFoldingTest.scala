@@ -2,32 +2,29 @@ package org.jetbrains.plugins.scala.editor.folding
 
 import org.junit.Assert.assertTrue
 
-/**
- * User: Dmitry.Naydanov
- * Date: 14.08.15.
- */
 class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
+
   def testNested(): Unit = {
     val text =
       s""" class A $BLOCK_ST{
-        |  1 match $BLOCK_ST{
-        |    case 1 => $DOTS_ST{
-        |      //azaza
-        |    }$END
-        |  }$END
-        |
-        |  object Azazaible $BLOCK_ST{
-        |    for (i <- 1 to 10) $BLOCK_ST{
-        |      println("azaza!")
-        |    }$END
-        |  }$END
-        |
-        |  def boo() $BLOCK_ST{
-        |    if (true) $BLOCK_ST{
-        |      //azaza
-        |    }$END
-        |  }$END
-        | }$END
+         |  1 match $BLOCK_ST{
+         |    case 1 => $DOTS_ST{
+         |      //azaza
+         |    }$END
+         |  }$END
+         |
+         |  object Azazaible $BLOCK_ST{
+         |    for (i <- 1 to 10) $BLOCK_ST{
+         |      println("azaza!")
+         |    }$END
+         |  }$END
+         |
+         |  def boo() $BLOCK_ST{
+         |    if (true) $BLOCK_ST{
+         |      //azaza
+         |    }$END
+         |  }$END
+         | }$END
       """.stripMargin.replace("\r", "")
 
     genericCheckRegions(text)
@@ -58,6 +55,27 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
   def testMethodBody(): Unit = {
     val text =
       s"""
+         | def boo() = $BLOCK_ST{
+         |
+         | }$END
+       """.stripMargin.replace("\r", "")
+
+    genericCheckRegions(text)
+  }
+
+  def testMethodBody_SingleExpression(): Unit = {
+    val text =
+      s"""
+         | def boo() =$INDENT_REGION
+         |   42$END
+       """.stripMargin.replace("\r", "")
+
+    genericCheckRegions(text)
+  }
+
+  def testMethodBody_ProcedureSyntax(): Unit = {
+    val text =
+      s"""
          | def boo() $BLOCK_ST{
          |
          | }$END
@@ -65,6 +83,7 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
 
     genericCheckRegions(text)
   }
+
 
   def testIfBody(): Unit = {
     val text =
@@ -231,15 +250,15 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
   //      ...
   def testMlString_AsDefinitionBody(): Unit = {
     val text =
-      s"""val test =
-         | $DOTS_ST$MLS_ST\"\"\"
+      s"""val test =$INDENT_REGION
+         | $MLS_ST\"\"\"
          |   1
          |   2
          |   3
          | \"\"\"$END$END
          |
-         |def test =
-         | $DOTS_ST$MLS_ST\"\"\"
+         |def test =$INDENT_REGION
+         | $MLS_ST\"\"\"
          |   1
          |   2
          |   3
@@ -251,15 +270,15 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
 
   def testMlString_AsDefinitionBody_WithStripMargin(): Unit = {
     val text =
-      s"""val test =
-         | $DOTS_ST$MLS_ST\"\"\"
+      s"""val test =$INDENT_REGION
+         | $MLS_ST\"\"\"
          |    |1
          |    |2
          |    |3
          |    |\"\"\"$END.stripMargin$END
          |
-         |def test =
-         |  $DOTS_ST$MLS_ST\"\"\"
+         |def test =$INDENT_REGION
+         |  $MLS_ST\"\"\"
          |    |1
          |    |2
          |    |3
@@ -271,15 +290,15 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
 
   def testMlString_AsDefinitionBody_WithStripMargin_AndTrim(): Unit = {
     val text =
-      s"""val test =
-         |  $DOTS_ST$MLS_ST\"\"\"
+      s"""val test =$INDENT_REGION
+         |  $MLS_ST\"\"\"
          |    |1
          |    |2
          |    |3
          |    |\"\"\"$END.stripMargin.trim$END
          |
-         |def test =
-         |  $DOTS_ST$MLS_ST\"\"\"
+         |def test =$INDENT_REGION
+         |  $MLS_ST\"\"\"
          |    |1
          |    |2
          |    |3
@@ -314,11 +333,11 @@ class ScalaEditorFoldingTest extends ScalaEditorFoldingTestBase {
 
   def testTypeAlias(): Unit = genericCheckRegions(
     s"""type T = ${DOTS_ST}Tuple3[
-      |  String,
-      |  Long,
-      |  Int
-      |]$END
-      |""".stripMargin
+       |  String,
+       |  Long,
+       |  Int
+       |]$END
+       |""".stripMargin
   )
 
   def testTypeAlias_Incomplete(): Unit = genericCheckRegions(
