@@ -31,7 +31,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
       case `tLBRACE` =>
         builder.advanceLexer() // Ate {
         BlockIndentation.create -> None
-      case tok =>
+      case tok if builder.isScala3IndentationBasedSyntaxEnabled =>
         tok match {
           case InScala3(ScalaTokenTypes.tCOLON) =>
             builder.advanceLexer() // Ate :
@@ -64,6 +64,10 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
             builder.restoreNewlinesState()
             return true
         }
+      case _ =>
+        marker.drop()
+        builder.restoreNewlinesState()
+        return false
     }
 
     builder.maybeWithIndentationWidth(baseIndentation) {

@@ -10,11 +10,6 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.QualId
 import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
 
-/** 
-* @author Alexander Podkhalyuzin
-* Date: 05.02.2008
-*/
-
 /*
  * Packaging := 'package' QualId [nl] '{' TopStatSeq '}'
  */
@@ -26,7 +21,7 @@ object Packaging extends ParsingRule {
       case ScalaTokenTypes.kPACKAGE =>
         val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate package
-        if (!(QualId())) {
+        if (!QualId()) {
           packMarker.drop()
           return false
         }
@@ -41,11 +36,18 @@ object Packaging extends ParsingRule {
             builder.advanceLexer() //Ate '{'
             BlockIndentation.create -> None
           case InScala3(ScalaTokenTypes.tCOLON) =>
+            // TODO: looks like this check is not required, `:` can go with arbitrary new lines before it
+            //  cover with tests and remove the check
             if (builder.twoNewlinesBeforeCurrentToken) {
               builder error ScalaBundle.message("lbrace.or.colon.expected")
               packMarker.done(ScalaElementType.PACKAGING)
               return true
             }
+            if (!builder.isScala3IndentationBasedSyntaxEnabled) {
+              // we add the error but continue to parse
+              builder.error(ScalaBundle.message("lbrace.expected"))
+            }
+
             builder.advanceLexer() // Ate :
             val currentIndent = builder.currentIndentationWidth
             builder.findPreviousIndent match {

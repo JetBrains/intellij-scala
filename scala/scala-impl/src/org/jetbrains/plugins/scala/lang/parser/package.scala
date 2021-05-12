@@ -148,10 +148,6 @@ package object parser {
 
     def maybeWithIndentationWidth[R](width: Option[IndentationWidth])(body: => R): R =
       width.fold(body)(withIndentationWidth(_)(body))
-
-    def isPrecededByNewIndent: Boolean = {
-      findPreviousIndent.exists(_ > repr.currentIndentationWidth)
-    }
   }
 
   private class SoftKeywordRollbackMarker(builder: PsiBuilder, oldTokenType: IElementType) extends PsiBuilder.Marker {

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package base
 
 import com.intellij.lang.Language
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiComment, PsiElement, PsiFileFactory, PsiWhiteSpace}
 import com.intellij.testFramework.{LightProjectDescriptor, UsefulTestCase}
@@ -27,11 +28,14 @@ abstract class SimpleTestCase extends UsefulTestCase with MatcherAssertions {
 
   override def setUp(): Unit = {
     super.setUp()
-    val fixtureBuilder: TestFixtureBuilder[IdeaProjectTestFixture] =
-      IdeaTestFixtureFactory.getFixtureFactory.createLightFixtureBuilder(getProjectDescriptor)
-
-    fixture = IdeaTestFixtureFactory.getFixtureFactory.createCodeInsightFixture(fixtureBuilder.getFixture)
+    fixture = createFixture()
     fixture.setUp()
+  }
+
+  protected def createFixture(): CodeInsightTestFixture = {
+    val factory = IdeaTestFixtureFactory.getFixtureFactory
+    val builder = factory.createLightFixtureBuilder(getProjectDescriptor)
+    factory.createCodeInsightFixture(builder.getFixture)
   }
 
   protected final def getProjectDescriptor: LightProjectDescriptor =

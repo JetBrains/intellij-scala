@@ -57,4 +57,16 @@ abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRu
 
 object Enumerators extends Enumerators(isInIndentationRegion = false)
 
+/**
+ * TODO: for poorly-indented enumerators we could show an error in annotator (but still parse the enumerators):
+ *  {{{
+ *    for
+ *        x <- 1 to 2
+ *      y <- 1 to 2
+ *    yield x + y
+ *  }}}
+ *  NOTE: with `-no-indent` flag this code is parsed OK and no error should be shown.
+ *  (note that braces are still optional, they are disabled with `-old-syntax` flag)
+ *  see https://github.com/lampepfl/dotty/issues/12427#issuecomment-839654212
+ */
 object EnumeratorsInIndentationRegion extends Enumerators(isInIndentationRegion = true)

@@ -127,6 +127,15 @@ package object project {
     def isScalaNative: Boolean =
       scalaModuleSettings.exists(_.isScalaNative)
 
+    def hasNoIndentFlag: Boolean = scalaModuleSettings.exists(_.hasNoIndentFlag)
+    def hasOldSyntaxFlag: Boolean = scalaModuleSettings.exists(_.hasOldSyntaxFlag)
+
+    // http://dotty.epfl.ch/docs/reference/other-new-features/indentation.html
+    // Significant indentation is enabled by default.
+    // It can be turned off by giving any of the options -no-indent, -old-syntax and -language:Scala2
+    // (NOTE: looks like -language:Scala2 doesn't affect anything in the compiler)
+    def isScala3IndentationBasedSyntaxEnabled: Boolean = !(hasNoIndentFlag || hasOldSyntaxFlag)
+
     def isJvmModule: Boolean = !isScalaJs && !isScalaNative && !isSharedSourceModule
 
     def findJVMModule: Option[Module] = {
@@ -413,6 +422,8 @@ package object project {
     def contextAppliedEnabled: Boolean = isDefinedInModuleOrProject(_.contextAppliedPluginEnabled)
 
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
+
+    def isScala3IndentationBasedSyntaxEnabled: Boolean = isDefinedInModuleOrProject(_.isScala3IndentationBasedSyntaxEnabled)
 
     def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
 

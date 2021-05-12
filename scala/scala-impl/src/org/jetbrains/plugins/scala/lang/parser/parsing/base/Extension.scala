@@ -24,7 +24,6 @@ object Extension extends ParsingRule {
       return false
     }
 
-    val iw = builder.currentIndentationWidth
     val marker = builder.tryParseSoftKeywordWithRollbackMarker(ExtensionKeyword) match {
       case Some(marker) => marker
       case None => return false
@@ -46,7 +45,7 @@ object Extension extends ParsingRule {
   }
 }
 
-
+// TODO: add annotator which will mark extensions without extension methods
 object ExtMethods extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): true = {
     val extensionBodyMarker = builder.mark()
@@ -54,7 +53,10 @@ object ExtMethods extends ParsingRule {
       case ScalaTokenTypes.tLBRACE  =>
         builder.advanceLexer() // Ate {
         (BlockIndentation.create, None, false)
-      case _ =>
+      case _ if builder.isScala3IndentationBasedSyntaxEnabled =>
+        // TODO: colon is not available in extension methods
+        //  we could still parse it and add an error in Annotator
+        //  (it's likely that the error with : after `extension` will be quite frequent)
         val hasColon = builder.getTokenType == ScalaTokenTypes.tCOLON
         if (hasColon) {
           builder.advanceLexer() // Ate :
@@ -80,6 +82,18 @@ object ExtMethods extends ParsingRule {
               (BlockIndentation.noBlock, None, true)
             }
         }
+      case _ =>
+        if (builder.findPreviousIndent.isEmpty) {
+          (BlockIndentation.noBlock, None, true)
+        }
+        else {
+          End(builder.currentIndentationWidth)
+          extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
+          return true
+        }
+//        End(builder.currentIndentationWidth)
+//        extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
+//        return true
     }
 
     if (onlyOne) ExtMethod()

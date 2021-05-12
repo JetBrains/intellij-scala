@@ -103,7 +103,9 @@ object GivenDef {
     } else {
       builder.error(ScalaBundle.message("expected.with"))
     }
-    GivenTemplateBody()
+    if (!GivenTemplateBody())
+      builder.error(ScalaBundle.message("lbrace.expected"))
+
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
     true
   }

@@ -32,6 +32,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def isStrictMode: Boolean
 
+  def isScala3IndentationBasedSyntaxEnabled: Boolean
+
   def currentIndentationWidth: IndentationWidth
 
   def pushIndentationWidth(width: IndentationWidth): Unit
