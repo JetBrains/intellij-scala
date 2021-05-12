@@ -194,6 +194,9 @@ object Expr1 extends ParsingRule {
               case _ => builder error ErrMsg("rparenthesis.expected")
             }
             builder.restoreNewlinesState()
+
+          // NOTE: enumerators without brackets are not controlled by `-no-indent` flag
+          // https://github.com/lampepfl/dotty/issues/12427#issuecomment-838979407
           case _ if builder.isScala3 =>
             builder.enableNewlines()
             if (!EnumeratorsInIndentationRegion()) {
@@ -411,7 +414,7 @@ object Expr1 extends ParsingRule {
         ParserUtils.parseLoopUntilRBrace(builder, foo _)
         builder.restoreNewlinesState()
 
-      case InScala3(ScalaTokenTypes.kCASE) =>
+      case InScala3(ScalaTokenTypes.kCASE) if builder.isScala3IndentationBasedSyntaxEnabled =>
         CaseClausesInIndentationRegion()
 
       case _ => builder error ErrMsg("case.clauses.expected")

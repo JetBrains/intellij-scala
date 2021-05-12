@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
-//  update all ScalaPsiBuilderImpl instantiations passing propper isScala3 value
+//  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
 class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) extends PsiBuilderAdapter(delegate)
   with ScalaPsiBuilder {
 
@@ -95,7 +95,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
          `tCOLON` |
          `tASSIGN` |
          `tFUNTYPE` |
-          `ImplicitFunctionArrow` |
+         `ImplicitFunctionArrow` |
          `tCHOOSE` |
          `tUPPER_BOUND` |
          `tLOWER_BOUND` |
@@ -128,6 +128,13 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
     super.error(messageText)
 
   private var indentationStack = List(IndentationWidth.initial)
+
+  def isScala3IndentationBasedSyntaxEnabled: Boolean = {
+    val module = containingFile.flatMap(_.module)
+    // assuming that the file it's scala3 file, and if it doesn't contain a module,
+    // enable indentation syntax (as it is by default in the compiler)
+    module.forall(_.isScala3IndentationBasedSyntaxEnabled)
+  }
 
   override def currentIndentationWidth: IndentationWidth =
     indentationStack.head

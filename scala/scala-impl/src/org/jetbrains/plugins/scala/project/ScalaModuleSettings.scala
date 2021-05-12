@@ -93,6 +93,9 @@ private class ScalaModuleSettings(module: Module, val scalaSdk: LibraryEx) {
   val isPartialUnificationEnabled: Boolean =
     scalaLanguageLevel >= Scala_2_13 || additionalCompilerOptions.contains("-Ypartial-unification")
 
+  val hasNoIndentFlag: Boolean = additionalCompilerOptions.contains("-no-indent")
+  val hasOldSyntaxFlag: Boolean = additionalCompilerOptions.contains("-old-syntax")
+
   val isCompilerStrictMode: Boolean =
     settingsForHighlighting.exists(_.strict)
 

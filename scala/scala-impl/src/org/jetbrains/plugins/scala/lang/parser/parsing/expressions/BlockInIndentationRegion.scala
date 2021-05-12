@@ -10,7 +10,7 @@ import scala.annotation.tailrec
 
 object BlockInIndentationRegion extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    assert(builder.isScala3)
+    assert(builder.isScala3 && builder.isScala3IndentationBasedSyntaxEnabled)
 
     val blockMarker = builder.mark()
 

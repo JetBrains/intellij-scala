@@ -28,7 +28,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
   )
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    if (!builder.isScala3) {
+    if (!builder.isScala3 || !builder.isScala3IndentationBasedSyntaxEnabled) {
       return exprParser()
     }
     if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
