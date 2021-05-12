@@ -2,18 +2,20 @@ package org.jetbrains.plugins.scala
 package lang.psi.uast.converter
 
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import com.intellij.psi.util.PsiTreeUtil.getParentOfType
 import com.intellij.psi.{PsiElement, PsiMethod}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, childOf}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.MethodValue
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base._
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses, ScReferencePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotation, ScLiteral, ScMethodLike, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScUnderScoreSectionUtil.isUnderscoreFunction
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -29,6 +31,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.plugins.scala.uast.ScalaUastLanguagePlugin
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast._
+import org.jetbrains.uast.expressions.UInjectionHost
 
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
@@ -320,7 +323,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
         case _: U =>
 
           if (isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
-            throw new AssertionError(s"${requiredType.getName} is not expected from ${sourcePsi.getClass.getName}")
+            throw new AssertionError(s"${requiredType.getName} is not expected from ${sourcePsi.getClass.getName}, got ${element.standalone.getClass.getName}")
           }
 
           Some(element.asInstanceOf[Free[U]])
@@ -513,12 +516,50 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
       case _ => false
     }
 
-    //avoid converting everything to UAST from PropertyFoldingBuilder
-    if (uastRequiredType == classOf[ULiteralExpression]) scalaElement.is[ScLiteral]
+    def mayBeField: Boolean = scalaElement match {
+      case namePattern: ScReferencePattern =>
+        Option(getParentOfType(namePattern, classOf[ScValueOrVariable])).exists(!_.isLocal)
+      case classParam: ScClassParameter =>
+        classParam.isClassMember
+      case _ => false
+    }
+
+    def mayBeExpression: Boolean = scalaElement match {
+      case _: ScExpression => true
+
+      //for some reason ScStableCodeReference and some type elements generate UExpression
+      case _: ScReference => true
+      case te: ScTypeElement => te.getFirstChild.is[ScReference]
+
+      case _: ScCaseClause => true
+      case _: ScCaseClauses => true
+
+      //ScUDeclarationsExpression
+      case _: ScValueOrVariable => true
+
+      //ScULocalFunctionDeclarationExpression
+      case e: ScFunctionDefinition => e.isLocal
+
+
+      case _ => false
+    }
+
+    //avoid converting everything to UAST when a particular type is expected
+    if      (uastRequiredType == classOf[ULiteralExpression]) scalaElement.is[ScLiteral]
+    else if (uastRequiredType == classOf[UInjectionHost]) scalaElement.is[ScStringLiteral]
     else if (uastRequiredType == classOf[UImportStatement]) scalaElement.is[ScImportStmt]
     else if (uastRequiredType == classOf[UIdentifier]) isIdentifier
     else if (uastRequiredType == classOf[UCallExpression]) mayBeCallExpression
     else if (uastRequiredType == classOf[UMethod]) mayBeMethod
+    else if (uastRequiredType == classOf[UClass]) scalaElement.is[ScTypeDefinition, ScTemplateBody]
+    else if (uastRequiredType == classOf[UAnonymousClass]) scalaElement.is[ScTemplateBody]
+    else if (uastRequiredType == classOf[UField]) mayBeField
+    else if (uastRequiredType == classOf[UParameter]) scalaElement.is[ScParameter]
+    else if (uastRequiredType == classOf[UExpression]) mayBeExpression
+    else if (uastRequiredType == classOf[UPolyadicExpression]) scalaElement.is[ScAssignment, ScInfixExpr]
+    else if (uastRequiredType == classOf[UFile]) scalaElement.is[ScalaFile]
+    else if (uastRequiredType == classOf[UAnnotation]) scalaElement.is[ScAnnotation, ScConstructorInvocation]
+    else if (uastRequiredType == classOf[UAnnotated]) scalaElement.is[ScAnnotationsHolder, ScExpression]
     else true
   }
 
