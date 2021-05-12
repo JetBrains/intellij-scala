@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.traceLogViewer.viewer
 
 import com.intellij.ui.TreeTableSpeedSearch
+import com.intellij.ui.dualView.TreeTableView
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jetbrains.annotations.Nullable
@@ -39,20 +40,30 @@ object TraceLogModel {
     new TraceLogModel(root)
   }
 
+  trait ToggleChildrenColumn extends ClickableColumn[Node] { this: ColumnInfo[Node, _] =>
+    override def onClick(view: TreeTableView, e: MouseEvent, item: Node, row: Int): Unit = {
+      if (e.getClickCount >= 2) {
+        val tree = view.getTree
+        if (tree.isCollapsed(row)) tree.expandRow(row)
+        else tree.collapseRow(row)
+      }
+    }
+  }
+
   private val Columns: Array[ColumnInfo[Node, _]] = Array(
     new ColumnInfo[Node, Node]("Function") with ClickableColumn[Node] {
       override def valueOf(item: Node): Node = item
       override def getRenderer(item: Node): TableCellRenderer = new TraceLogFunctionCellRenderer
-      override def onClick(e: MouseEvent, item: Node): Unit =
+      override def onClick(view: TreeTableView, e: MouseEvent, item: Node, row: Int): Unit =
         if (e.getClickCount >= 2) {
           gotoStackTraceEntry(item.stackTrace.head)
         }
     },
-    new ColumnInfo[Node, Node]("Values") {
+    new ColumnInfo[Node, Node]("Values") with ToggleChildrenColumn {
       override def valueOf(item: Node): Node = item
       override def getRenderer(item: Node): TableCellRenderer = new TraceLogValueCellRenderer
     },
-    new ColumnInfo[Node, String]("Message") {
+    new ColumnInfo[Node, String]("Message") with ToggleChildrenColumn {
       override def valueOf(item: Node): String = item.msg
     },
   )

@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import java.awt.event.{MouseAdapter, MouseEvent}
 
 trait ClickableColumn[Item] { this: ColumnInfo[Item, _] =>
-  def onClick(e: MouseEvent, item: Item): Unit
+  def onClick(view: TreeTableView, e: MouseEvent, item: Item, row: Int): Unit
 }
 
 object ClickableColumn {
@@ -24,7 +24,7 @@ object ClickableColumn {
           case Some(clickableColumn: ClickableColumn[Any] @unchecked) =>
             val row = table.rowAtPoint(point)
             if (row < table.getRowCount) {
-              clickableColumn.onClick(e, table.getValueAt(row, column))
+              clickableColumn.onClick(table, e, table.getValueAt(row, column), row)
             }
           case _ =>
         }
