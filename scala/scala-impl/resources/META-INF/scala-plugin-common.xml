@@ -1911,5 +1911,8 @@
         <action id="Scala.EditPackagePrefix" class="org.jetbrains.plugins.scala.actions.EditPackagePrefixAction">
             <add-to-group group-id="ProjectViewPopupMenuSettingsGroup" relative-to-action="MarkRootGroup" anchor="after"/>
         </action>
+        <action id="Scala.CompilerHighlighting"
+                class="org.jetbrains.plugins.scala.externalHighlighters.ToggleCompilerHighlightingAction" />
+
     </actions>
 </idea-plugin>
