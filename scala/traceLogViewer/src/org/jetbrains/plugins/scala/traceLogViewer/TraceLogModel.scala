@@ -7,12 +7,13 @@ import com.intellij.ui.TreeTableSpeedSearch
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.ToNullSafe
+import org.jetbrains.plugins.scala.extensions.{NullSafe, ToNullSafe}
 import org.jetbrains.plugins.scala.traceLogViewer.TraceLogModel.{Columns, Node}
-import org.jetbrains.plugins.scala.traceLogger.{Data, TraceLogReader}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogReader.EnclosingResult
 import org.jetbrains.plugins.scala.traceLogger.protocol.{StackTraceEntry, TraceLoggerEntry}
+import org.jetbrains.plugins.scala.traceLogger.{Data, TraceLogReader}
 
+import java.awt.event.MouseEvent
 import java.util
 import javax.swing.table.TableCellRenderer
 import javax.swing.tree.{TreeNode, TreePath}
@@ -41,9 +42,13 @@ object TraceLogModel {
   }
 
   private val Columns: Array[ColumnInfo[Node, _]] = Array(
-    new ColumnInfo[Node, Node]("Function") {
+    new ColumnInfo[Node, Node]("Function") with ClickableColumn[Node] {
       override def valueOf(item: Node): Node = item
       override def getRenderer(item: Node): TableCellRenderer = new TraceLogFunctionCellRenderer
+      override def onClick(e: MouseEvent, item: Node): Unit =
+        if (e.getClickCount >= 2) {
+          gotoStackTraceEntry(item.stackTrace.head)
+        }
     },
     new ColumnInfo[Node, String]("Values") {
       override def valueOf(item: Node): String = item.values
@@ -54,6 +59,21 @@ object TraceLogModel {
       override def valueOf(item: Node): String = item.msg
     },
   )
+
+  private def gotoStackTraceEntry(entry: StackTraceEntry): Unit = {
+    val goto = ProjectManager.getInstance()
+      .getOpenProjects.iterator
+      .flatMap { project =>
+        val filter = new CompositeFilter(project, ExceptionFilters.getFilters(GlobalSearchScope.allScope(project)))
+        val line = entry.toStackTraceElement.toString
+        NullSafe(filter.applyFilter(line, line.length))
+          .map(_.getFirstHyperlinkInfo)
+          .map(_ -> project)
+          .toOption
+      }
+      .nextOption()
+    goto.foreach { case (link, project) => link.navigate(project) }
+  }
 
   abstract class Node(val msg: String, val values: Seq[(String, Data)], val stackTrace: List[StackTraceEntry])
     extends TreeNode
