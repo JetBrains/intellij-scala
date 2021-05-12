@@ -218,7 +218,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     DONT_SHOW_CONVERSION_DIALOG = value;
   }
 
-  public boolean isShowImplisitConversions() {
+  public boolean isShowImplicitConversions() {
     return SHOW_IMPLICIT_CONVERSIONS;
   }
 
@@ -240,7 +240,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     return SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS;
   }
 
-  public void setShowImplisitConversions(boolean value) {
+  public void setShowImplicitConversions(boolean value) {
     SHOW_IMPLICIT_CONVERSIONS = value;
   }
 

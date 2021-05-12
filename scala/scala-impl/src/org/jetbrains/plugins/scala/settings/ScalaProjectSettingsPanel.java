@@ -266,7 +266,7 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setDontShowConversionDialog(donTShowDialogCheckBox.isSelected());
         scalaProjectSettings.setTreatDocCommentAsBlockComment(treatDocCommentAsBlockComment.isSelected());
 
-        scalaProjectSettings.setShowImplisitConversions(showImplicitConversionsInCheckBox.isSelected());
+        scalaProjectSettings.setShowImplicitConversions(showImplicitConversionsInCheckBox.isSelected());
         scalaProjectSettings.setShowNotFoundImplicitArguments(showNotFoundImplicitArgumentsCheckBox.isSelected());
         scalaProjectSettings.setShowAmbiguousImplicitArguments(showAmbiguousImplicitArgumentsCheckBox.isSelected());
         scalaProjectSettings.setShowArgumentsToByNameParams(showArgumentsToByNameParametersCheckBox.isSelected());
@@ -332,7 +332,7 @@ public class ScalaProjectSettingsPanel {
                 getCustomBasePackages())) return true;
         if (!scalaProjectSettings.getScalaTestDefaultSuperClass().equals(
                 scalaTestDefaultSuperClass.getText())) return true;
-        if (scalaProjectSettings.isShowImplisitConversions() !=
+        if (scalaProjectSettings.isShowImplicitConversions() !=
                 showImplicitConversionsInCheckBox.isSelected()) return true;
         if (scalaProjectSettings.isShowNotFoundImplicitArguments() !=
                 showNotFoundImplicitArgumentsCheckBox.isSelected()) return true;
@@ -464,7 +464,7 @@ public class ScalaProjectSettingsPanel {
         setValue(donTShowDialogCheckBox, scalaProjectSettings.isDontShowConversionDialog());
         setValue(treatDocCommentAsBlockComment, scalaProjectSettings.isTreatDocCommentAsBlockComment());
 
-        setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplisitConversions());
+        setValue(showImplicitConversionsInCheckBox, scalaProjectSettings.isShowImplicitConversions());
         setValue(showNotFoundImplicitArgumentsCheckBox, scalaProjectSettings.isShowNotFoundImplicitArguments());
         setValue(showAmbiguousImplicitArgumentsCheckBox, scalaProjectSettings.isShowAmbiguousImplicitArguments());
         setValue(showArgumentsToByNameParametersCheckBox, scalaProjectSettings.isShowArgumentsToByNameParams());
