@@ -50,10 +50,9 @@ object TraceLogModel {
           gotoStackTraceEntry(item.stackTrace.head)
         }
     },
-    new ColumnInfo[Node, String]("Values") {
-      override def valueOf(item: Node): String = item.values
-        .map { case (name, data) => s"$name: $data" }
-        .mkString(", ")
+    new ColumnInfo[Node, Node]("Values") {
+      override def valueOf(item: Node): Node = item
+      override def getRenderer(item: Node): TableCellRenderer = new TraceLogValueCellRenderer
     },
     new ColumnInfo[Node, String]("Message") {
       override def valueOf(item: Node): String = item.msg
@@ -83,7 +82,8 @@ object TraceLogModel {
 
     lazy val depth: Int = Option(parent).fold(-1)(_.depth + 1)
 
-    final def newStackTrace: List[StackTraceEntry] = stackTrace
+    final def newStackTrace: List[StackTraceEntry] =
+      stackTrace.dropRight(parentStackTrace.length)
     final def parentStackTrace: List[StackTraceEntry] =
       parent.nullSafe.fold(List.empty[StackTraceEntry])(_.stackTrace)
 
@@ -134,9 +134,10 @@ object TraceLogModel {
     override protected def createMsgNode(msg: TraceLoggerEntry.Msg, stackTrace: List[StackTraceEntry]): Node =
       new MsgNode(msg.msg, msg.values, stackTrace)
 
-    override protected def createEnclosingNode(start: TraceLoggerEntry.Start, inners: ArraySeq[Node], result: EnclosingResult, stackTrace: List[StackTraceEntry]): Node = {
-      val enclosing = new EnclosingNode(start.msg, start.values, stackTrace, inners)
-      enclosing
-    }
+    override protected def createEnclosingNode(start: TraceLoggerEntry.Start,
+                                               inners: ArraySeq[Node],
+                                               result: EnclosingResult,
+                                               stackTrace: List[StackTraceEntry]): Node =
+      new EnclosingNode(start.msg, start.values, stackTrace, inners)
   }
 }

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.actions.internal.RunActionOnPsiElementWithTra
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScImplicitStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
 import org.jetbrains.plugins.scala.traceLogger.ToData.{Raw => RawData}
@@ -49,15 +48,10 @@ class RunActionOnPsiElementWithTraceLoggerAction extends AnAction(
 
   private def run(action: Action)(implicit project: Project): Unit = {
     TraceLogger.runWithTraceLogger(action.id) {
-      TraceLogger.log(s"Log: ${action.presentation}")
       TraceLogger.log("Clear all caches...")
       ScalaPsiManager.instance(project).clearAllCachesAndWait()
-      TraceLogger.block("block test") {
-        TraceLogger.log("some log msg")
-      }
-      TraceLogger.block("nothing in there") {
-
-      }
+      TraceLogger.log("Caches cleared. ")
+      TraceLogger.log(s"Start logging: ${action.presentation}")
       val result = action.run()
       TraceLogger.log("Done.", result)
     }

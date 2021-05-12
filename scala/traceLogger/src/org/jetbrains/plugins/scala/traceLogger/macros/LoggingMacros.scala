@@ -204,9 +204,9 @@ object LoggingMacros {
 
       val params = thisDesc ++ method.paramLists.flatten.map(param => convertUntypedTree(param.name.toString, q"$param"))
       val paramsSeq = c.Expr[Seq[ValueDesc]](q"Seq(..$params)")
-      val name = c.Expr[String](q"${method.fullName}")
+      val emptyMessage = c.Expr[String](q"null")
       c.Expr[T](q"""
-        ${inActiveIf(enclosingStart(name, paramsSeq))}
+        ${inActiveIf(enclosingStart(emptyMessage, paramsSeq))}
         ${enclosing(body)}
        """)
     }

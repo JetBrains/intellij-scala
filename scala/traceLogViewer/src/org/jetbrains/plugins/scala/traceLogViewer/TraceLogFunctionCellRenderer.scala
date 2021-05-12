@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.traceLogViewer
 
-import java.awt.{Color, Component, Graphics}
-import javax.swing.JTable
+import org.jetbrains.plugins.scala.traceLogger.protocol.StackTraceEntry
+
+import java.awt.event.MouseEvent
+import java.awt.{Color, Graphics}
 import javax.swing.border.EmptyBorder
-import javax.swing.table.DefaultTableCellRenderer
 
-class TraceLogFunctionCellRenderer extends DefaultTableCellRenderer {
-  private var currentNode: TraceLogModel.Node = _
-
+class TraceLogFunctionCellRenderer extends TraceLogBaseCellRenderer {
   val colors = Seq(
     Color.GREEN.darker().darker(),
     Color.RED.darker().darker(),
@@ -15,18 +14,45 @@ class TraceLogFunctionCellRenderer extends DefaultTableCellRenderer {
     Color.CYAN.darker().darker(),
   )
 
-  val indentSize = 8
+  val indentSize = 4
 
-  override def getTableCellRendererComponent(table: JTable, value: Any, isSelected: Boolean,
-                                             hasFocus: Boolean, row: Int, column: Int): Component = {
-    val node = value.asInstanceOf[TraceLogModel.Node]
-    currentNode = node
+  override def setup(): Unit = {
+    // if the method names is like org$jetbrains$blub$SomeObj$$method
+    // transform it to SomeObj$$method
+    def clipMethodName(methodName: String): String =
+      methodName.split("(?<!\\$)\\$(?!\\$)").last
+
     this.setText(
-      if (node.msg != "") ""
-      else node.stackTrace.headOption.fold("")(_.method)
+      if (currentNode.msg != null) ""
+      else currentNode.stackTrace.headOption.fold("<root>")(se => clipMethodName(se.method))
     )
-    this.setBorder(new EmptyBorder(0, indentSize * (node.depth + 1) + 3, 0, 0))
-    this
+    this.setBorder(new EmptyBorder(0, indentSize * (currentNode.depth + 1) + 3, 0, 0))
+  }
+
+  override def getToolTipText(event: MouseEvent): String = {
+    val builder = new StringBuilder
+
+    def addEntry(entry: StackTraceEntry): Unit = {
+      builder.append(entry.className)
+      builder.append('.')
+      builder.append(entry.method)
+      builder.append(" (line ")
+      builder.append(entry.line)
+      builder.append(")\n")
+    }
+
+    for (entry <- currentNode.newStackTrace) {
+      builder.append("<b>")
+      addEntry(entry)
+      builder.append("</b><br />")
+    }
+
+    for (entry <- currentNode.parentStackTrace) {
+      addEntry(entry)
+      builder.append('\n')
+    }
+
+    builder.toString()
   }
 
   override def paint(g: Graphics): Unit = {
@@ -36,7 +62,6 @@ class TraceLogFunctionCellRenderer extends DefaultTableCellRenderer {
 
     val saveColor = g.getColor
     val height = getHeight
-    val width = getWidth
 
     //if (!currentNode.isLeaf) {
     //  g.setColor(color(currentNode.depth))
