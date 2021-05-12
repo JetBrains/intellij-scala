@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ProjectPsiFileExt}
 
 import scala.reflect.ClassTag
 
@@ -129,7 +130,7 @@ package object editor {
   private[editor] def useIndentationBasedSyntax(file: PsiFile): Boolean =
     file.getLanguage.isKindOf(Scala3Language.INSTANCE) && {
       val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX
+      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX && file.isScala3IndentationBasedSyntaxEnabled
     }
 
   private[editor] implicit class PsiWhiteSpaceOps(private val target: PsiWhiteSpace) extends AnyVal {
