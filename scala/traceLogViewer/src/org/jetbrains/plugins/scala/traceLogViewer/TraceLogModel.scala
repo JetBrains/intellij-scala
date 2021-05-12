@@ -1,6 +1,10 @@
 package org.jetbrains.plugins.scala.traceLogViewer
 
-import com.intellij.ui.treeStructure.treetable.ListTreeTableModelOnColumns
+import com.intellij.execution.filters.{CompositeFilter, ExceptionFilters}
+import com.intellij.openapi.project.ProjectManager
+import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.ui.TreeTableSpeedSearch
+import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ToNullSafe
@@ -11,12 +15,22 @@ import org.jetbrains.plugins.scala.traceLogger.protocol.{StackTraceEntry, TraceL
 
 import java.util
 import javax.swing.table.TableCellRenderer
-import javax.swing.tree.TreeNode
+import javax.swing.tree.{TreeNode, TreePath}
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.jdk.CollectionConverters.IteratorHasAsJava
 
-class TraceLogModel(root: Node) extends ListTreeTableModelOnColumns(root, Columns.toArray)
+class TraceLogModel(root: Node) extends ListTreeTableModelOnColumns(root, Columns.toArray) {
+  def registerSpeedSearch(table: TreeTable): Unit = {
+    new TreeTableSpeedSearch(table) {
+      override def getElementText(element: Any): Data = {
+        val path = element.asInstanceOf[TreePath]
+        val node = path.getLastPathComponent.asInstanceOf[Node]
+        s"${node.stackTrace.head.toStackTraceElement} ${node.msg} ${node.values.mkString(", ")}"
+      }
+    }.setCanExpand(true)
+  }
+}
 
 //noinspection ScalaExtractStringToBundle
 object TraceLogModel {

@@ -8,7 +8,6 @@ import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.traceLogViewer.TraceLogView.createContentFromFile
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import java.awt.BorderLayout
@@ -18,8 +17,8 @@ import java.nio.file.{Files, Path}
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, Instant, ZoneId}
 import java.util.Comparator
-import javax.swing.{JPanel, SortOrder}
 import javax.swing.RowSorter.SortKey
+import javax.swing.{JPanel, SortOrder}
 import scala.jdk.CollectionConverters.SeqHasAsJava
 import scala.jdk.StreamConverters.StreamHasToScala
 import scala.util.Try

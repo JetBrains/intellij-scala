@@ -47,6 +47,7 @@ object TraceLogView {
     actionToolbarPanel.add(actionToolBar.getComponent)
 
     val table = new TreeTableView(model)
+    model.registerSpeedSearch(table)
 
     val scrollPane = new JBScrollPane
     scrollPane.setViewportView(table)
