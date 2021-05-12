@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.traceLogViewer
+package org.jetbrains.plugins.scala.traceLogViewer.viewer
 
 import com.intellij.execution.filters.{CompositeFilter, ExceptionFilters}
 import com.intellij.openapi.project.ProjectManager
@@ -8,7 +8,8 @@ import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, Tre
 import com.intellij.util.ui.ColumnInfo
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.{NullSafe, ToNullSafe}
-import org.jetbrains.plugins.scala.traceLogViewer.TraceLogModel.{Columns, Node}
+import org.jetbrains.plugins.scala.traceLogViewer.ClickableColumn
+import org.jetbrains.plugins.scala.traceLogViewer.viewer.TraceLogModel._
 import org.jetbrains.plugins.scala.traceLogger.TraceLogReader.EnclosingResult
 import org.jetbrains.plugins.scala.traceLogger.protocol.{StackTraceEntry, TraceLoggerEntry}
 import org.jetbrains.plugins.scala.traceLogger.{Data, TraceLogReader}

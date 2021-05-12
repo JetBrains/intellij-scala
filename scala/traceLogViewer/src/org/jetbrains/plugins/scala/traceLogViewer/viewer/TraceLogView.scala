@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.traceLogViewer
+package org.jetbrains.plugins.scala.traceLogViewer.viewer
 
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.project.Project
@@ -7,7 +7,8 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.dualView.TreeTableView
 import org.jetbrains.plugins.scala.NlsString
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.invokeLater
+import org.jetbrains.plugins.scala.traceLogViewer.{ClickableColumn, TraceLogViewerWindowFactory}
 
 import java.awt.BorderLayout
 import java.nio.file.Path

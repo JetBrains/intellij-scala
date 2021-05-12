@@ -4,6 +4,7 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener}
+import org.jetbrains.plugins.scala.traceLogViewer.selection.TraceLogSelectionView
 
 class TraceLogViewerWindowFactory extends ToolWindowFactory with DumbAware {
   override def init(toolWindow: ToolWindow): Unit = {

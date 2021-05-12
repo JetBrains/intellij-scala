@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.traceLogViewer
+package org.jetbrains.plugins.scala.traceLogViewer.selection
 
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
 import com.intellij.openapi.application.ApplicationManager
@@ -8,6 +8,7 @@ import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.traceLogViewer.viewer.TraceLogView
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import java.awt.BorderLayout
@@ -19,8 +20,8 @@ import java.time.{Duration, Instant, ZoneId}
 import java.util.Comparator
 import javax.swing.RowSorter.SortKey
 import javax.swing.{JPanel, SortOrder}
-import scala.jdk.CollectionConverters.SeqHasAsJava
-import scala.jdk.StreamConverters.StreamHasToScala
+import scala.jdk.CollectionConverters._
+import scala.jdk.StreamConverters._
 import scala.util.Try
 
 object TraceLogSelectionView {
@@ -85,13 +86,14 @@ object TraceLogSelectionView {
   private object Entry {
     def nameColumn: ColumnInfo[Entry, String] = new ColumnInfo[Entry, String]("Log") {
       override def valueOf(item: Entry): String = item.name
+
       override def getComparator: Comparator[Entry] = Comparator.comparing(_.name)
     }
 
     def dateColumn: ColumnInfo[Entry, String] = new ColumnInfo[Entry, String]("Created") {
       private val formatter =
-        DateTimeFormatter.ofPattern( "hh:mm  (()) (dd.MM.yyyy)" )
-          .withZone( ZoneId.systemDefault() )
+        DateTimeFormatter.ofPattern("hh:mm  (()) (dd.MM.yyyy)")
+          .withZone(ZoneId.systemDefault())
 
       override def valueOf(item: Entry): String = {
         val date = item.date

@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.traceLogViewer
+package org.jetbrains.plugins.scala.traceLogViewer.viewer
 
 import org.jetbrains.plugins.scala.traceLogger.protocol.StackTraceEntry
 
