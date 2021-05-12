@@ -1,13 +1,10 @@
 package org.jetbrains.plugins.scala.traceLogViewer.viewer
 
-import com.intellij.execution.filters.{CompositeFilter, ExceptionFilters}
-import com.intellij.openapi.project.ProjectManager
-import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.TreeTableSpeedSearch
 import com.intellij.ui.treeStructure.treetable.{ListTreeTableModelOnColumns, TreeTable}
 import com.intellij.util.ui.ColumnInfo
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.extensions.{NullSafe, ToNullSafe}
+import org.jetbrains.plugins.scala.extensions.ToNullSafe
 import org.jetbrains.plugins.scala.traceLogViewer.ClickableColumn
 import org.jetbrains.plugins.scala.traceLogViewer.viewer.TraceLogModel._
 import org.jetbrains.plugins.scala.traceLogger.TraceLogReader.EnclosingResult
@@ -59,21 +56,6 @@ object TraceLogModel {
       override def valueOf(item: Node): String = item.msg
     },
   )
-
-  private def gotoStackTraceEntry(entry: StackTraceEntry): Unit = {
-    val goto = ProjectManager.getInstance()
-      .getOpenProjects.iterator
-      .flatMap { project =>
-        val filter = new CompositeFilter(project, ExceptionFilters.getFilters(GlobalSearchScope.allScope(project)))
-        val line = entry.toStackTraceElement.toString
-        NullSafe(filter.applyFilter(line, line.length))
-          .map(_.getFirstHyperlinkInfo)
-          .map(_ -> project)
-          .toOption
-      }
-      .nextOption()
-    goto.foreach { case (link, project) => link.navigate(project) }
-  }
 
   abstract class Node(val msg: String, val values: Seq[(String, Data)], val stackTrace: List[StackTraceEntry])
     extends TreeNode
