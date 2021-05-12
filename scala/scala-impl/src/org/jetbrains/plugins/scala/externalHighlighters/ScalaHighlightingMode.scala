@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.{ScFile, ScalaFile}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.settings.{CompilerHighlightingListener, ScalaProjectSettings}
 
 import scala.concurrent.duration._
 
@@ -26,15 +27,24 @@ object ScalaHighlightingMode {
         Registry.get(key).addListener(listener, project.unloadAwareDisposable)
       }
 
+  def addSettingsListener(project: Project)
+                         (listener: CompilerHighlightingListener): Unit =
+    project.getMessageBus
+      .connect(project.unloadAwareDisposable)
+      .subscribe(CompilerHighlightingListener.Topic, listener)
+
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
-    showDotcErrors && project.hasScala3 || showScalacErrors && project.hasScala
+    showDotcErrors && project.hasScala3 ||
+      showScalacErrors && project.hasScala ||
+      ScalaProjectSettings.getInstance(project).isCompilerHighlighting
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean =
-    file match {
-      case scalaFile: ScalaFile => isShowErrorsFromCompilerEnabled(scalaFile)
-      case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
-      case _ => false
-    }
+    ScalaProjectSettings.getInstance(file.getProject).isCompilerHighlighting ||
+      (file match {
+        case scalaFile: ScalaFile => isShowErrorsFromCompilerEnabled(scalaFile)
+        case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
+        case _ => false
+      })
 
   private def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
     val virtualFile = file match {
