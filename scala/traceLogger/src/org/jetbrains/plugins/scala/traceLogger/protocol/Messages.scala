@@ -52,18 +52,21 @@ object StackTraceDiff {
 }
 
 
-final case class StackTraceEntry(method: String, className: String, line: Int)
+final case class StackTraceEntry(method: String, className: String, line: Int, fileName: String) {
+  def toStackTraceElement: StackTraceElement =
+    new StackTraceElement(className, method, fileName, line)
+}
 
 object StackTraceEntry {
   def from(element: StackTraceElement): StackTraceEntry = {
-    StackTraceEntry(element.getMethodName, element.getClassName, element.getLineNumber)
+    StackTraceEntry(element.getMethodName, element.getClassName, element.getLineNumber, element.getFileName)
   }
 
   // Serialize StackTraceEntry as 3-tuple to have less json output
   implicit val rw: RW[StackTraceEntry] = SerializationApi
-    .readwriter[(String, String, Int)]
+    .readwriter[(String, String, Int, String)]
     .bimap[StackTraceEntry](
-      e => (e.method, e.className, e.line),
-      t => StackTraceEntry(t._1, t._2, t._3),
+      e => (e.method, e.className, e.line, e.fileName),
+      t => StackTraceEntry(t._1, t._2, t._3, t._4),
     )
 }
