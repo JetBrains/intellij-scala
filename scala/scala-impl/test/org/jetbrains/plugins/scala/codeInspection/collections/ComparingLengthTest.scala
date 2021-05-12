@@ -2,23 +2,18 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package collections
 
-import com.intellij.testFramework.EditorTestUtil
-
-/**
-  * @author t-kameyama
-  */
-class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
+abstract class ComparingLengthTestBase extends OperationsOnCollectionInspectionTest {
 
   override protected val classOfInspection: Class[_ <: OperationOnCollectionInspection] =
     classOf[ComparingLengthInspection]
 
-  override protected val hint: String = ScalaInspectionBundle.message("replace.with.lengthCompare")
+  protected def resultSuffix(op: String): String
 
   def testLengthEqual(): Unit = {
     doTest(
       s"Seq(1, 2, 3).${START}length == 2$END",
       "Seq(1, 2, 3).length == 2",
-      "Seq(1, 2, 3).lengthCompare(2) == 0"
+      s"Seq(1, 2, 3).${resultSuffix("==")}"
     )
   }
 
@@ -26,7 +21,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}length != 2$END",
       "Seq(1, 2, 3).length != 2",
-      "Seq(1, 2, 3).lengthCompare(2) != 0"
+      s"Seq(1, 2, 3).${resultSuffix("!=")}"
     )
   }
 
@@ -34,7 +29,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}length < 2$END",
       "Seq(1, 2, 3).length < 2",
-      "Seq(1, 2, 3).lengthCompare(2) < 0"
+      s"Seq(1, 2, 3).${resultSuffix("<")}"
     )
   }
 
@@ -42,7 +37,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}length <= 2$END",
       "Seq(1, 2, 3).length <= 2",
-      "Seq(1, 2, 3).lengthCompare(2) <= 0"
+      s"Seq(1, 2, 3).${resultSuffix("<=")}"
     )
   }
 
@@ -50,7 +45,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}length > 2$END",
       "Seq(1, 2, 3).length > 2",
-      "Seq(1, 2, 3).lengthCompare(2) > 0"
+      s"Seq(1, 2, 3).${resultSuffix(">")}"
     )
   }
 
@@ -58,7 +53,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}length >= 2$END",
       "Seq(1, 2, 3).length >= 2",
-      "Seq(1, 2, 3).lengthCompare(2) >= 0"
+      s"Seq(1, 2, 3).${resultSuffix(">=")}"
     )
   }
 
@@ -93,7 +88,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}size == 2$END",
       "Seq(1, 2, 3).size == 2",
-      "Seq(1, 2, 3).lengthCompare(2) == 0"
+      s"Seq(1, 2, 3).${resultSuffix("==")}"
     )
   }
 
@@ -101,7 +96,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}size != 2$END",
       "Seq(1, 2, 3).size != 2",
-      "Seq(1, 2, 3).lengthCompare(2) != 0"
+      s"Seq(1, 2, 3).${resultSuffix("!=")}"
     )
   }
 
@@ -109,7 +104,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}size < 2$END",
       "Seq(1, 2, 3).size < 2",
-      "Seq(1, 2, 3).lengthCompare(2) < 0"
+      s"Seq(1, 2, 3).${resultSuffix("<")}"
     )
   }
 
@@ -117,7 +112,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}size <= 2$END",
       "Seq(1, 2, 3).size <= 2",
-      "Seq(1, 2, 3).lengthCompare(2) <= 0"
+      s"Seq(1, 2, 3).${resultSuffix("<=")}"
     )
   }
 
@@ -125,7 +120,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}size > 2$END",
       "Seq(1, 2, 3).size > 2",
-      "Seq(1, 2, 3).lengthCompare(2) > 0"
+      s"Seq(1, 2, 3).${resultSuffix(">")}"
     )
   }
 
@@ -133,7 +128,7 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
     doTest(
       s"Seq(1, 2, 3).${START}size >= 2$END",
       "Seq(1, 2, 3).size >= 2",
-      "Seq(1, 2, 3).lengthCompare(2) >= 0"
+      s"Seq(1, 2, 3).${resultSuffix(">=")}"
     )
   }
 
@@ -163,4 +158,20 @@ class ComparingLengthTest extends OperationsOnCollectionInspectionTest {
       "Vector(1, 2, 3).size == 2"
     )
   }
+}
+
+class ComparingLengthTest_withoutSizeIs extends ComparingLengthTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
+
+  override protected val hint: String = ScalaInspectionBundle.message("replace.with.lengthCompare")
+
+  override protected def resultSuffix(op: String): String = s"lengthCompare(2) $op 0"
+}
+
+class ComparingLengthTest_withSizeIs extends ComparingLengthTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
+
+  override protected val hint: String = ScalaInspectionBundle.message("replace.with.sizeIs")
+
+  override protected def resultSuffix(op: String): String = s"sizeIs $op 2"
 }

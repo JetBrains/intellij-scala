@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala
 
+import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
+
 import java.awt.datatransfer.StringSelection
 import java.awt.{Desktop, Toolkit}
 import java.net.{URI, URL}
-
 import javax.swing.event.HyperlinkEvent
-import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
-import org.intellij.lang.annotations.Language
 
 /**
  * Pavel Fatin
@@ -24,7 +23,7 @@ object DesktopUtils {
       Desktop.getDesktop.browse(new URI(url))
     else
       Notifications.Bus.notify(new Notification("scala", ScalaBundle.message("title.problem.opening.web.page"),
-        ScalaBundle.message("html.unable.to.launch.web.browser", url), NotificationType.WARNING, Listener))
+        ScalaBundle.message("html.unable.to.launch.web.browser", url), NotificationType.WARNING).setListener(Listener))
   }
 
    private object Listener extends NotificationListener.Adapter {

@@ -121,7 +121,7 @@ object CompileServerLauncher {
               notification.expire()
               CompileServerManager.showCompileServerSettingsDialog(project)
             }
-            Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR, listener))
+            Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR).setListener(listener))
           case error: CompileServerProblem.Error =>
             val text = ScalaBundle.nls("jdk.for.compiler.process.not.found", error.text)
             Notifications.Bus.notify(new Notification(groupId, title, text, NotificationType.ERROR))

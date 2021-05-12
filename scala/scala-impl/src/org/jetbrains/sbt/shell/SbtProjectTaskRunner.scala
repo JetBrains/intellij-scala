@@ -1,8 +1,5 @@
 package org.jetbrains.sbt.shell
 
-import java.io.File
-import java.util
-
 import com.intellij.build.events.{SuccessResult, Warning}
 import com.intellij.compiler.impl.CompilerUtil
 import com.intellij.debugger.DebuggerManagerEx
@@ -34,11 +31,13 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 import org.jetbrains.sbt.shell.SbtShellCommunication._
-import org.jetbrains.sbt.{Sbt, SbtBundle, SbtUtil}
+import org.jetbrains.sbt.{SbtBundle, SbtUtil}
 
-import scala.jdk.CollectionConverters._
+import java.io.File
+import java.util
 import scala.concurrent.Await
 import scala.concurrent.duration.Duration
+import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Success}
 
 /**
@@ -85,8 +84,7 @@ class SbtProjectTaskRunner extends ProjectTaskRunner {
       val notification = ScalaNotificationGroups.balloonGroup.createNotification(
         SbtBundle.message("sbt.shell.sbt.build.failed"),
         SbtBundle.message("sbt.shell.unable.to.build.sbt.project", project.getName),
-        NotificationType.ERROR,
-        null
+        NotificationType.ERROR
       )
 
       notification.addAction(

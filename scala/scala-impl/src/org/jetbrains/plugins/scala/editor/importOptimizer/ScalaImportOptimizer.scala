@@ -4,7 +4,6 @@ package editor.importOptimizer
 
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
-
 import com.intellij.concurrency.JobLauncher
 import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
 import com.intellij.notification.{Notification, NotificationDisplayType, NotificationGroup, NotificationType}
@@ -18,6 +17,7 @@ import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
@@ -43,11 +43,6 @@ import scala.annotation.{nowarn, tailrec}
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
-
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 16.06.2009
-  */
 
 class ScalaImportOptimizer extends ImportOptimizer {
 
@@ -101,7 +96,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       else null
 
     if (indicator != null)
-      indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.getName))
+      indicator.setText2(ScalaEditorBundle.message("imports.analyzing.usage", file.name))
 
     val size = importHolders.size + importUsers.size //processAllElementsConcurrentlyUnderProgress will be called 2 times
     val counter = new AtomicInteger(0)
@@ -124,7 +119,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
       collectImportsUsed(element, usedImports, usedImportedNames)
     }
 
-    if (indicator != null) indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.getName))
+    if (indicator != null) indicator.setText2(ScalaEditorBundle.message("imports.collecting.additional.info", file.name))
 
     def collectRanges(createInfo: ScImportStmt => Seq[ImportInfo]): Seq[RangeInfo] = {
       val importsInfo = ContainerUtil.newConcurrentSet[RangeInfo]()
@@ -178,9 +173,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def getImportTextCreator: ImportTextCreator = new ImportTextCreator
 
-  protected def isImportDelimiter(psi: PsiElement): Boolean = psi.isInstanceOf[PsiWhiteSpace]
+  protected def isImportDelimiter(psi: PsiElement): Boolean = psi.is[PsiWhiteSpace]
 
-  override def supports(file: PsiFile): Boolean = file.isInstanceOf[ScalaFile]
+  override def supports(file: PsiFile): Boolean = file.is[ScalaFile]
 
   def replaceWithNewImportInfos(range: RangeInfo, importInfos: Iterable[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
     val firstPsi = range.firstPsi.retrieve()
@@ -232,7 +227,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val dummyFile = fileFactory.createFileFromText("dummy." + file.getFileType.getDefaultExtension, file.getLanguage, text,
       /*eventSystemEnabled = */ false, /*markAsCopy = */ false)
 
-    val errorElements = dummyFile.getChildren.filter(_.isInstanceOf[PsiErrorElement]).map(_.getNode)
+    val errorElements = dummyFile.children.filterByType[PsiErrorElement].map(_.getNode)
     errorElements.foreach(dummyFile.getNode.removeChild)
 
     val parentNode = firstPsi.getParent.getNode
@@ -300,7 +295,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
         case imp: ScImportStmt =>
           if (firstPsi == null) {
             imp.getPrevSibling match {
-              case a: PsiElement if isImportDelimiter(a) && !a.isInstanceOf[PsiWhiteSpace] =>
+              case a: PsiElement if isImportDelimiter(a) && !a.is[PsiWhiteSpace] =>
                 initRange(a)
                 lastPsi = imp
               case _ => initRange(imp)
@@ -443,7 +438,7 @@ object ScalaImportOptimizer {
 
   // TODO Remove the import layout notification in 2021.1+
   private def notifyAboutNewImportLayout(buffer: mutable.Buffer[ImportInfo], project: Project)(sort: => Unit): Unit = {
-    val hadJavaGroupAtTheTop = buffer.length > 1 && buffer.head.prefixQualifier.startsWith("java") && !buffer.last.prefixQualifier.startsWith("java");
+    val hadJavaGroupAtTheTop = buffer.length > 1 && buffer.head.prefixQualifier.startsWith("java") && !buffer.last.prefixQualifier.startsWith("java")
 
     sort
 
@@ -456,21 +451,21 @@ object ScalaImportOptimizer {
         val notification = {
           @nowarn
           val group = new NotificationGroup(ScalaEditorBundle.message("import.layout.group"), NotificationDisplayType.STICKY_BALLOON, true)
-          group.createNotification(ScalaEditorBundle.message("import.layout.updated.title"), null, ScalaEditorBundle.message("import.layout.updated.description"), NotificationType.INFORMATION)
+          group.createNotification(ScalaEditorBundle.message("import.layout.updated.title"), ScalaEditorBundle.message("import.layout.updated.description"), NotificationType.INFORMATION)
         }
 
-        def action(name: String)(f: () => Unit) = new AnAction(name) {
+        def action(@Nls name: String)(f: () => Unit) = new AnAction(name) {
           override def actionPerformed(e: AnActionEvent): Unit = f()
         }
 
         def hide(): Unit = Option(notification.getBalloon).foreach(_.hide())
 
-        notification.setCollapseActionsDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
+        notification.setCollapseDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
 
         notification
-          .addAction(action("Got It")(() => hide()))
-          .addAction(action("Switch to Legacy Scheme"){ () =>
-            style.setImportLayout(ScalaCodeStyleSettings.LEGACY_IMPORT_LAYOUT);
+          .addAction(action(ScalaEditorBundle.message("import.optimizer.got.it"))(() => hide()))
+          .addAction(action(ScalaEditorBundle.message("import.optimizer.switch.to.legacy.scheme")){ () =>
+            style.setImportLayout(ScalaCodeStyleSettings.LEGACY_IMPORT_LAYOUT)
             CodeStyleSettingsManager.getInstance(project).notifyCodeStyleSettingsChanged()
             hide()
           })
@@ -523,7 +518,7 @@ object ScalaImportOptimizer {
         val ref = ScalaPsiElementFactory.createReferenceFromText(name, rangeStartPsi.getContext, rangeStartPsi)
         ref.bind().map(_.element).exists {
           case p: PsiPackage =>
-            p.getParentPackage != null && p.getParentPackage.getName != null
+            p.getParentPackage != null && p.getParentPackage.name != null
           case o: ScObject if o.isPackageObject => o.qualifiedName.contains(".")
           case o: ScObject =>
             o.getParent match {

@@ -66,10 +66,10 @@ object ScalaDocRenderInEditorAdvertiser {
     val notification = {
       ScalaNotificationGroups
         .stickyBalloonGroup
-        .createNotification(ScalaEditorBundle.message("doc.rendering.advertiser.title"), null, null, NotificationType.INFORMATION)
+        .createNotification(ScalaEditorBundle.message("doc.rendering.advertiser.title"), NotificationType.INFORMATION)
     }
 
-    notification.setCollapseActionsDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
+    notification.setCollapseDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
 
     notification
       .addAction(new EnableAction)
