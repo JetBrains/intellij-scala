@@ -159,6 +159,13 @@ object AutoBraceInsertionTools {
     if (exprIndent != curLineIndent) {
       return None
     }
+    // TODO: temp disabled auto-braces feature for Scala3, cause Scala3 doesn't require braces
+    //  We need to rethink it. Maybe create some settings:
+    //  - minimum lines in indentation block before inserting braces OR end marker
+    //  - mode to use: 1. prefer braces 2. prefer indentation syntax
+    // (also see org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.findAutoBraceInsertionOpportunity)
+    if (useIndentationBasedSyntax(file))
+      return None
 
     // ========= Calculate brace positions =========
     // Start with the opening brace, and then the closing brace.
