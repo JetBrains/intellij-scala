@@ -134,17 +134,12 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
       _.getClass == classOf[GenericDebuggerRunner]
     }.get
 
-    val processHandler = Ref.create[ProcessHandler]
-    EdtTestUtil.runInEdtAndWait(() => {
-      val handler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
-        override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
-          val text = event.getText
-          if (debug) print(text)
-        }
-      }, runner)
-      processHandler.set(handler)
-    })
-    processHandler.get
+    runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+      override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
+        val text = event.getText
+        if (debug) print(text)
+      }
+    }, runner)
   }
 
   private def runProcess(className: String,
@@ -169,7 +164,10 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
       processHandler.set(handler)
       semaphore.up()
     }
-    runner.execute(environment)
+    EdtTestUtil.runInEdtAndWait(() =>
+      runner.execute(environment)
+    )
+
     semaphore.waitFor()
     processHandler.get
   }
