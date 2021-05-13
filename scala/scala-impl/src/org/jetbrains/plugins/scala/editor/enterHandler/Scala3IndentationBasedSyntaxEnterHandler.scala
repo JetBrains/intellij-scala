@@ -7,7 +7,7 @@ import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.formatting.IndentInfo
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
-import com.intellij.openapi.editor.{Document, Editor, EditorModificationUtil}
+import com.intellij.openapi.editor.{Document, Editor, EditorModificationUtil, EditorModificationUtilEx}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions
@@ -423,7 +423,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     document.insertString(caretOffset, indentString)
     val newCaretOffset = caretOffset + indentString.length
     editor.getCaretModel.moveToOffset(newCaretOffset)
-    EditorModificationUtil.scrollToCaret(editor)
+    EditorModificationUtilEx.scrollToCaret(editor)
     editor.getSelectionModel.removeSelection()
 
     if (needRemoveTrailingSpaces) {
