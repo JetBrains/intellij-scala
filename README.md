@@ -13,7 +13,7 @@ Plugin that implements Scala, sbt, Play 2, SSP and Hocon support in IntelliJ IDE
   use [IntelliJ IDEA online help](https://www.jetbrains.com/idea/help/scala.html).
 
 - If you have any question about the Scala plugin, we'd be glad to answer it in [our
-  developer community](https://devnet.jetbrains.com/community/idea/scala).
+  developer community](https://devnet.jetbrains.com/community/idea/scala) or in [our gitter channel](https://gitter.im/JetBrains/intellij-scala).
 
 - If you found a bug, please report it on [our issue
   tracker](https://youtrack.jetbrains.com/issues/SCL#newissue).
@@ -46,6 +46,9 @@ the directory where the Scala plugin repository is and then import it as sbt pro
 5. Select the `scalaCommunity` run configuration and select the `Run` or `Debug` button to build and start a
 development version of IDEA with the Scala plugin.
 
+
+##[IntelliJ Platform SDK documentation](https://plugins.jetbrains.com/docs/intellij/welcome.html)
+
 ## Browsing IntelliJ platform sources
 
 When loading the plugin in sbt, the IntelliJ platform is downloaded to `<home>/.ScalaPluginIC/sdk/<sdk version>/`. 
@@ -67,6 +70,8 @@ The "fast tests" can take over an hour. To get a quick feedback on project healt
 
     > runTypeInferenceTests
     
+### [Docs for writing tests for IntelliJ plugins](https://plugins.jetbrains.com/docs/intellij/testing-plugins.html) 
+
 ## GitHub Actions build
 
 The project is configured to build and run the typeInference tests and fast tests with Github Actions. The full test suite isn't run to avoid really long build times.
