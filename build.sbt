@@ -282,6 +282,7 @@ lazy val scalatestFinders = Project("scalatest-finders", scalatestFindersRootDir
     // in some future we will decide again to extract the library, so as it can be used even without scala jar
     crossPaths := false, // disable using the Scala version in output paths and artifacts
     autoScalaLibrary := false, // removes Scala dependency,
+    scalacOptions := Seq(), // scala is disabled anyway, set empty options to move to a separate compiler profile (in IntelliJ model)
     javacOptions := Seq("--release", "11"), // finders are run in IDEA process, so using JDK 11
     packageMethod := PackagingMethod.Standalone("lib/scalatest-finders-patched.jar")
   )
