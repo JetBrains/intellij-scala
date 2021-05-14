@@ -98,7 +98,7 @@ object TransformationTest {
        |object C extends C""".stripMargin.withNormalizedSeparator
 
   private def psiToString(file: PsiFile): String =
-    DebugUtil.psiToString(file, false)
+    DebugUtil.psiToString(file, true)
 
   private def slice(file: PsiFile)
                    (implicit headerAndFooter: (String, String)): String = {
