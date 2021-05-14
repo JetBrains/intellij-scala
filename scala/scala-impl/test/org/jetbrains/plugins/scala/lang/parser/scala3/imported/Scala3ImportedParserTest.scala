@@ -39,7 +39,7 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
     //  It can also detect that the code was parsed incorrectly
     val hasErrorElements = errors.nonEmpty
 
-    lazy val expected = psiToString(lightFile, false).replace(": " + lightFile.name, "")
+    lazy val expected = psiToString(lightFile, true).replace(": " + lightFile.name, "")
     if (hasErrorElements != shouldHaveErrors) {
       println(fileText)
       println("-------")

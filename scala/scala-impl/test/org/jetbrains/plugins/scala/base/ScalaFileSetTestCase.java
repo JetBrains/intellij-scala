@@ -111,7 +111,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                                @NotNull Project project) {
         PsiFile lightFile = createLightFile(fileText, project);
 
-        return psiToString(lightFile, false)
+        return psiToString(lightFile, true)
                 .replace(": " + lightFile.getName(), "");
     }
 

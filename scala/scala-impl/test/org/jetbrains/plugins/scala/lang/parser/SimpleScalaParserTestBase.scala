@@ -8,7 +8,6 @@ import com.intellij.psi.impl.DebugUtil.psiToString
 import org.jetbrains.plugins.scala.base.{SharedTestProjectToken, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.applicability.ApplicabilityTestBase
 import org.junit.Assert.assertEquals
 
 abstract class SimpleScalaParserTestBase extends SimpleTestCase {
@@ -57,7 +56,7 @@ abstract class SimpleScalaParserTestBase extends SimpleTestCase {
 
   def checkTree(code: String, expectedTree: String): Unit = {
     val file = parseText(code.withNormalizedSeparator, lang = language)
-    val resultTree = psiToString(file, false).replace(": " + file.name, "")
+    val resultTree = psiToString(file, true).replace(": " + file.name, "")
     assertEquals(expectedTree.trim.withNormalizedSeparator, resultTree.trim)
   }
 }
