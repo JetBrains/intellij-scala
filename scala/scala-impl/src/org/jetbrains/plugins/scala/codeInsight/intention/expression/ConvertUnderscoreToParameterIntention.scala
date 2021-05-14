@@ -8,7 +8,7 @@ import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.{TemplateManagerImpl, TemplateState}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, TextAttributesKey}
 import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
@@ -170,7 +170,7 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
       editor.getCaretModel.moveToOffset(parent.getTextRange.getStartOffset)
       val template = builder.buildInlineTemplate()
       val myHighlighters = new ArrayBuffer[RangeHighlighter]
-      val rangesToHighlight: mutable.HashMap[TextRange, TextAttributes] = new mutable.HashMap[TextRange, TextAttributes]
+      val rangesToHighlight: mutable.HashMap[TextRange, TextAttributesKey] = new mutable.HashMap
 
       TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
         override def waitingForInput(template: Template): Unit = {
@@ -191,12 +191,12 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
           clearHighlighters()
         }
 
-        private def addHighlights(ranges: mutable.HashMap[TextRange, TextAttributes], editor: Editor,
+        private def addHighlights(ranges: mutable.HashMap[TextRange, TextAttributesKey], editor: Editor,
                                   highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager): Unit = {
           for ((range, attributes) <- ranges) {
             highlightManager.addOccurrenceHighlight(
               editor, range.getStartOffset, range.getEndOffset,
-              attributes, 0, highlighters.asJava, null): @nowarn("cat=deprecation")
+              attributes, 0, highlighters.asJava)
           }
           for (highlighter <- highlighters) {
             highlighter.setGreedyToLeft(true)
@@ -205,19 +205,18 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
         }
 
         private def markCurrentVariables(index: Int): Unit = {
-          val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
           val templateState: TemplateState = TemplateManagerImpl.getTemplateState(editor)
           var i: Int = 0
 
           while (i < templateState.getSegmentsCount) {
             val segmentOffset: TextRange = templateState.getSegmentRange(i)
             val name: String = template.getSegmentName(i)
-            var attributes: TextAttributes = null
+            var attributes: TextAttributesKey = null
             if (name == params(index)) {
-              attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES)
+              attributes = EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES
             }
             else if (name == depends(index)) {
-              attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
+              attributes = EditorColors.SEARCH_RESULT_ATTRIBUTES
             }
             if (attributes != null) rangesToHighlight.put(segmentOffset, attributes)
             i += 1

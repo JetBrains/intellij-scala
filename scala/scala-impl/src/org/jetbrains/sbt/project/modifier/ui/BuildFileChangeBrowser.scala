@@ -3,25 +3,23 @@ package org.jetbrains.sbt.project.modifier.ui
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vcs.changes.Change
-import com.intellij.openapi.vcs.changes.actions.diff.{ShowDiffAction, ShowDiffContext}
-import com.intellij.openapi.vcs.changes.ui.ChangesBrowser
+import com.intellij.openapi.vcs.changes.ui.SimpleChangesBrowser
 import com.intellij.openapi.vfs.VirtualFile
 
-import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
+import java.util
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.{ListHasAsScala, SeqHasAsJava}
 
 /**
  * @author Roman.Shein
  * @since 20.03.2015.
  */
-@nowarn("msg=ChangesBrowser in package ui is deprecated")
-class BuildFileChangeBrowser(val project: Project, val changes: java.util.List[Change], val canExcludeChanges: Boolean,
-                             val fileChangesMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]) extends
-ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, ChangesBrowser.MyUseCase.LOCAL_CHANGES,
-  null) {
+class BuildFileChangeBrowser(val project: Project,
+                             val changes: java.util.List[Change],
+                             val fileChangesMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)])
+  extends SimpleChangesBrowser(project, changes) {
 
-  override def afterDiffRefresh(): Unit = {
+  override def setChangesToDisplay(changes: util.Collection[_ <: Change]): Unit = {
     val updatedChanges = new java.util.ArrayList[Change]
     updatedChanges.addAll(
       getSelectedChanges.asScala.map {
@@ -30,7 +28,7 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
           fileChangesMap.get(changeSwapped.getVirtualFile).map {
             case (modifiedStatus, modificationStamp) =>
               val newModificationStamp = FileDocumentManager.getInstance().getDocument(changeSwapped.getVirtualFile)
-                  .getModificationStamp
+                .getModificationStamp
 
               if (newModificationStamp != modificationStamp) {
                 val newStatus = modifiedStatus.changeAfterManualModification()
@@ -42,15 +40,6 @@ ChangesBrowser(project, null, changes, null, canExcludeChanges, true, null, Chan
         }
       }.asJava
     )
-
-    setChangesToDisplay(updatedChanges)
-  }
-
-  override protected def showDiffForChanges(changesArray: Array[Change], indexInSelection: Int): Unit = {
-    val context: ShowDiffContext = new ShowDiffContext()
-    val changesArraySwapped: Array[Change] = for (change <- changesArray)
-    yield BuildFileChange.swap(change.asInstanceOf[BuildFileChange])
-
-    ShowDiffAction.showDiffForChange(myProject, changesArraySwapped.toSeq.asJava, indexInSelection, context)
+    super.setChangesToDisplay(changes)
   }
 }

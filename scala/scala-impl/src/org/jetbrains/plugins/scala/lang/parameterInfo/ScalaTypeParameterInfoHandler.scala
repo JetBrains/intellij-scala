@@ -157,10 +157,6 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
     }
   }
 
-  override def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
-
-
-
   private def fromResolved(ref: ScReference, useActualElement: Boolean = false): Option[(PsiElement, ScSubstitutor)] = {
     ref.bind() match {
       case Some(r @ ScalaResolveResult(m: PsiMethod, substitutor)) =>

@@ -52,8 +52,6 @@ class ScalaPatternParameterInfoHandler extends ScalaParameterInfoHandler[ScPatte
     set
   }
 
-  override def getParametersForLookup(item: LookupElement, context: ParameterInfoContext): Array[Object] = null
-
   override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {

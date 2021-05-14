@@ -466,7 +466,7 @@ object ScalaRefactoringUtil {
     if (editor != null) {
       val highlightManager = HighlightManager.getInstance(project)
       val colorsScheme = EditorColorsManager.getInstance.getGlobalScheme
-      val attributes = colorsScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
+      val attributes = EditorColors.SEARCH_RESULT_ATTRIBUTES
 
       occurrences.foreach { occurrence =>
         highlightManager.addRangeHighlight(
@@ -474,7 +474,7 @@ object ScalaRefactoringUtil {
           occurrence.getStartOffset,
           occurrence.getEndOffset,
           attributes, true,
-          highlightersBuilder.asJava): @nowarn("cat=deprecation")
+          highlightersBuilder.asJava)
       }
     }
 
