@@ -336,6 +336,9 @@ object SbtStructureDump {
                           reporter: BuildReporter,
                           text: String): BuildMessages = {
 
+    if (ApplicationManager.getApplication.isUnitTestMode && (text.startsWith("[warn]") || text.startsWith("[error]")))
+      System.err.println(text)
+
     if (text.startsWith("[error] Total time")) {
       val msg = SbtBundle.message("sbt.task.failed.see.log.for.details")
       reporter.error(msg, None)
