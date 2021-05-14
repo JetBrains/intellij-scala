@@ -1,10 +1,10 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.util.TextRange
-import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.{FlakyTests, HighlightingTests}
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[HighlightingTests]))
+@Category(Array(classOf[FlakyTests]))
 class FinchProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
   override def githubUsername = "finagle"
 
