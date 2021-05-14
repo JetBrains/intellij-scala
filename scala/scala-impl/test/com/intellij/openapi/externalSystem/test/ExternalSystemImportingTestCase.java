@@ -410,7 +410,7 @@ public abstract class ExternalSystemImportingTestCase extends ExternalSystemTest
           @Override
           public void onSuccess(@Nullable final DataNode<ProjectData> externalProject) {
             if (externalProject == null) {
-//              fail("Got null External project after import");
+              fail("Got null External project after import");
               return;
             }
             ExternalSystemApiUtil.executeProjectChangeAction(true, new DisposeAwareProjectChange(myProject) {
