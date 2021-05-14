@@ -78,18 +78,6 @@ class ScalaFunctionParameterInfoHandler extends ScalaParameterInfoHandler[PsiEle
     set
   }
 
-  override def getParametersForLookup(item: LookupElement,
-                                      context: ParameterInfoContext): Array[Object] = item match {
-    case item: LookupItem[_] =>
-      getAllPsiElements(item) match {
-        case null => null
-        case elements if !elements.isEmpty &&
-          elements.get(0).isInstanceOf[PsiMethod] => elements.toArray()
-        case _ => null
-      }
-    case _ => null
-  }
-
   override def updateUI(p: Any, context: ParameterInfoUIContext): Unit = {
     if (context == null || context.getParameterOwner == null || !context.getParameterOwner.isValid) return
     context.getParameterOwner match {

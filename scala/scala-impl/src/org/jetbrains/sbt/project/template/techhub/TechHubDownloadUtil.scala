@@ -59,12 +59,13 @@ object TechHubDownloadUtil {
     }
   }
 
-  def downloadString(url: String): Try[String] = {
+  def downloadString(url: String, timeoutMs: Int): Try[String] = {
     val conf = HttpConfigurable.getInstance()
     var connection: HttpURLConnection = null
 
     try {
-      connection = conf openHttpConnection url
+      connection = conf.openHttpConnection(url)
+      connection.setConnectTimeout(timeoutMs)
       connection.connect()
 
       val status = connection.getResponseMessage

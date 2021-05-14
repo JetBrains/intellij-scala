@@ -37,6 +37,8 @@ object BSPCli extends App {
   private implicit val reporter: ConsoleReporter = new ConsoleReporter("BSPCli")
 
   class DummyListener extends ExternalSystemTaskNotificationListener {
+    override def onStart(externalSystemTaskId: ExternalSystemTaskId, workingDir: String): Unit = {}
+
     override def onStart(externalSystemTaskId: ExternalSystemTaskId): Unit = {}
 
     override def onStatusChange(externalSystemTaskNotificationEvent: ExternalSystemTaskNotificationEvent): Unit = {}

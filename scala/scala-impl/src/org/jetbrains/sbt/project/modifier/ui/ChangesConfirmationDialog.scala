@@ -23,14 +23,13 @@ import scala.collection.mutable
  * @since 19.03.2015.
  */
 class ChangesConfirmationDialog private (val project: IJProject, private val changes: List[BuildFileChange], var myChangesBrowser: BuildFileChangeBrowser,
-                                         val fileStatusMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)], val canExcludeChanges: Boolean = false) extends DialogWrapper(project) {
+                                         val fileStatusMap: mutable.Map[VirtualFile, (BuildFileModifiedStatus, Long)]) extends DialogWrapper(project) {
 
   setTitle(SbtBundle.message("sbt.build.file.changes"))
   init()
 
   def selectedChanges: List[BuildFileChange] = {
     myChangesBrowser
-      .getViewer
       .getIncludedChanges
       .asScala
       .map(change => BuildFileChange.swap(change.asInstanceOf[BuildFileChange]))
@@ -42,7 +41,7 @@ class ChangesConfirmationDialog private (val project: IJProject, private val cha
 
     val swappedChanges: java.util.ArrayList[Change] = new java.util.ArrayList[Change]()
     swappedChanges.addAll(changes.map(BuildFileChange.swap).asJavaCollection)
-    val changesBrowser = new BuildFileChangeBrowser(project, swappedChanges, canExcludeChanges, fileStatusMap)
+    val changesBrowser = new BuildFileChangeBrowser(project, swappedChanges, fileStatusMap)
     myChangesBrowser = changesBrowser
     changesBrowser.setChangesToDisplay(swappedChanges)
     changesBrowser.addToolbarAction(ActionManager.getInstance.getAction(IdeActions.ACTION_EDIT_SOURCE))

@@ -155,12 +155,11 @@ object DuplicatesUtil {
   }
 
   def highlightDuplicate(project: Project, editor: Editor, duplicate: DuplicateMatch, highlighters: util.Collection[RangeHighlighter]): Unit = {
-    val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
-    val attributes: TextAttributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
+    val attributes = EditorColors.SEARCH_RESULT_ATTRIBUTES
     val range = duplicate.textRange
     HighlightManager.getInstance(project).addRangeHighlight(
       editor, range.getStartOffset, range.getEndOffset, attributes, true, highlighters
-    ): @nowarn("cat=deprecation")
+    )
   }
 
 }

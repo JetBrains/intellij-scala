@@ -5,7 +5,7 @@ import com.intellij.codeInsight.CodeInsightUtilCore
 import com.intellij.codeInsight.highlighting.HighlightManager
 import com.intellij.codeInsight.template._
 import com.intellij.codeInsight.template.impl.{TemplateImpl, TemplateManagerImpl, TemplateState, TextExpression}
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, TextAttributesKey}
 import com.intellij.openapi.editor.markup.{RangeHighlighter, TextAttributes}
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory, RangeMarker}
 import com.intellij.openapi.project.Project
@@ -14,11 +14,10 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile, PsiNamedElemen
 import com.intellij.refactoring.rename.inplace.MyLookupExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 
-import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
-import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.jdk.CollectionConverters._
 
 /**
  * Nikolay.Tropin
@@ -78,7 +77,7 @@ class InplaceRenameHelper(parent: PsiElement) {
       templateVariables.set(idx, v)
     }
     val myHighlighters = mutable.ArrayBuffer[RangeHighlighter]()
-    val rangesToHighlight = mutable.HashMap[RangeMarker, TextAttributes]()
+    val rangesToHighlight = mutable.HashMap[RangeMarker, TextAttributesKey]()
 
     TemplateManager.getInstance(project).startTemplate(editor, template, new TemplateEditingAdapter {
       override def waitingForInput(template: Template): Unit = {
@@ -99,11 +98,11 @@ class InplaceRenameHelper(parent: PsiElement) {
         clearHighlighters()
       }
 
-      private def addHighlights(ranges: mutable.HashMap[RangeMarker, TextAttributes], editor: Editor,
-                        highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager): Unit = {
+      private def addHighlights(ranges: mutable.HashMap[RangeMarker, TextAttributesKey], editor: Editor,
+                                highlighters: ArrayBuffer[RangeHighlighter], highlightManager: HighlightManager): Unit = {
         for ((range, attributes) <- ranges) {
           highlightManager.addOccurrenceHighlight(editor, range.getStartOffset, range.getEndOffset,
-            attributes, 0, highlighters.asJava, null): @nowarn("cat=deprecation")
+            attributes, 0, highlighters.asJava)
         }
         for (highlighter <- highlighters) {
           highlighter.setGreedyToLeft(true)
@@ -112,7 +111,6 @@ class InplaceRenameHelper(parent: PsiElement) {
       }
 
       private def markCurrentVariables(groupIndex: Int): Unit = {
-        val colorsManager: EditorColorsManager = EditorColorsManager.getInstance
         val templateState: TemplateState = TemplateManagerImpl.getTemplateState(editor)
         val document = editor.getDocument
         val primary = primaries(groupIndex)
@@ -121,9 +119,9 @@ class InplaceRenameHelper(parent: PsiElement) {
           val segmentRange: TextRange = templateState.getSegmentRange(i)
           val segmentMarker: RangeMarker = document.createRangeMarker(segmentRange)
           val name: String = template.getSegmentName(i)
-          val attributes: TextAttributes =
-            if (name == primaryNames(primary)) colorsManager.getGlobalScheme.getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES)
-            else if (dependentNames(primary) contains name) colorsManager.getGlobalScheme.getAttributes(EditorColors.SEARCH_RESULT_ATTRIBUTES)
+          val attributes: TextAttributesKey =
+            if (name == primaryNames(primary)) EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES
+            else if (dependentNames(primary) contains name) EditorColors.SEARCH_RESULT_ATTRIBUTES
             else null
           if (attributes != null) rangesToHighlight.put(segmentMarker, attributes)
         }

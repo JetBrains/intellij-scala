@@ -69,12 +69,11 @@ class XmlRenameHandler extends RenameHandler with ScalaRefactoringActionHandler 
     val matchedRange = element.getMatchedTag.getTagNameElement.getTextRange
 
     def highlightMatched(): Unit = {
-      val colorsManager = EditorColorsManager.getInstance()
-      val attributes = colorsManager.getGlobalScheme.getAttributes(EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES)
+      val attributes = EditorColors.WRITE_SEARCH_RESULT_ATTRIBUTES
 
       HighlightManager.getInstance(editor.getProject).addOccurrenceHighlight(
-        editor, matchedRange.getStartOffset, matchedRange.getEndOffset, attributes, 0, rangeHighlighters, null
-      ): @nowarn("cat=deprecation")
+        editor, matchedRange.getStartOffset, matchedRange.getEndOffset, attributes, 0, rangeHighlighters
+      )
 
       rangeHighlighters.forEach { a =>
         a.setGreedyToLeft(true)

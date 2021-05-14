@@ -27,7 +27,7 @@ object TechHubStarterProjects {
 
 
   def downloadIndex(): Try[Map[String, IndexEntry]] = {
-    val jsonTry = TechHubDownloadUtil.downloadString(s"$API_URI/$TEMPLATES_ENDPOINT")
+    val jsonTry = TechHubDownloadUtil.downloadString(s"$API_URI/$TEMPLATES_ENDPOINT", 5000)
     val gson = new Gson
 
     jsonTry.map { json =>

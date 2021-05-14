@@ -46,6 +46,4 @@ abstract class JavaTestFrameworkBridge extends JavaTestFramework {
   override final def findSetUpMethod(clazz: PsiClass): PsiMethod = null
   override final def findTearDownMethod(clazz: PsiClass): PsiMethod = null
   override final def findOrCreateSetUpMethod(clazz: PsiClass): PsiMethod = null
-
-  override final def getMnemonic: Char = '_'
 }
