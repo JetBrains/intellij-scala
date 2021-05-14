@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.settings;
 
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.PathManager;
 import com.intellij.openapi.components.*;
 import com.intellij.openapi.module.Module;
@@ -17,7 +18,9 @@ import org.jetbrains.plugins.scala.statistics.FeatureKey;
 import org.jetbrains.plugins.scala.statistics.Stats;
 
 import java.io.File;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Ksenia.Sautina
@@ -140,6 +143,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean TYPE_MISMATCH_HINTS = true;
 
   private boolean TYPE_AWARE_HIGHLIGHTING_ENABLED = true;
+  private boolean COMPILER_HIGHLIGHTING = false;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
     return getInstance(project);
@@ -218,7 +222,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     DONT_SHOW_CONVERSION_DIALOG = value;
   }
 
-  public boolean isShowImplisitConversions() {
+  public boolean isShowImplicitConversions() {
     return SHOW_IMPLICIT_CONVERSIONS;
   }
 
@@ -240,7 +244,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     return SHOW_AMBIGUOUS_IMPLICIT_ARGUMENTS;
   }
 
-  public void setShowImplisitConversions(boolean value) {
+  public void setShowImplicitConversions(boolean value) {
     SHOW_IMPLICIT_CONVERSIONS = value;
   }
 
@@ -338,6 +342,17 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   public void setTypeMismatchHints(boolean value) {
     TYPE_MISMATCH_HINTS = value;
+  }
+
+  public boolean isCompilerHighlighting() {
+    return COMPILER_HIGHLIGHTING;
+  }
+
+  public void setCompilerHighlighting(boolean value) {
+    COMPILER_HIGHLIGHTING = value;
+    var listener = ApplicationManager.getApplication().getMessageBus()
+            .syncPublisher(CompilerHighlightingListener$.MODULE$.Topic());
+    listener.compilerHighlightingChanged(value);
   }
 
   public boolean isTypeAwareHighlightingEnabled() {

@@ -119,7 +119,7 @@ final class ScalaLookupItem private(override val getPsiElement: PsiNamedElement,
     presentation.setStrikeout(getPsiElement)
 
     presentation.setItemTextBold(bold)
-    if (ScalaProjectSettings.getInstance(getPsiElement.getProject).isShowImplisitConversions) {
+    if (ScalaProjectSettings.getInstance(getPsiElement.getProject).isShowImplicitConversions) {
       presentation.setItemTextUnderlined(isUnderlined)
     }
   }

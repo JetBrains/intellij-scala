@@ -5,7 +5,6 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.openapi.util.registry.{RegistryValue, RegistryValueListener}
 import com.intellij.psi.PsiManager
-import com.intellij.psi.impl.PsiModificationTrackerImpl
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
@@ -24,6 +23,7 @@ class ToggleHighlightingModeListener
     ScalaHighlightingMode.addRegistryListener(project)(new RegistryValueListener {
       override def afterValueChanged(value: RegistryValue): Unit = compileOrEraseHighlightings(project)
     })
+    ScalaHighlightingMode.addSettingsListener(project)((enabled: Boolean) => compileOrEraseHighlightings(project))
   }
   
   private def compileOrEraseHighlightings(project: Project): Unit =
