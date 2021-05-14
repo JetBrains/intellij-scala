@@ -143,7 +143,7 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean TYPE_MISMATCH_HINTS = true;
 
   private boolean TYPE_AWARE_HIGHLIGHTING_ENABLED = true;
-  private boolean COMPILER_HIGHLIGHTING = true;
+  private boolean COMPILER_HIGHLIGHTING = false;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
     return getInstance(project);
