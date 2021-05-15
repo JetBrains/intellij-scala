@@ -9,24 +9,24 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
+import com.intellij.openapi.vfs.{VirtualFile}
 import com.intellij.openapi.{module => OpenapiModule}
-import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
-import org.jetbrains.plugins.scala.packagesearch.SbtDependencyUtils.{LIBRARY_DEPENDENCIES, SEQ, SETTINGS, getPossiblePlacesToAddFromProjectDefinition, getTopLevelLibraryDependencies, getTopLevelPlaceToAdd, getTopLevelSbtProjects, isAddableLibraryDependencies, isAddableSettings, toDependencyPlaceInfo}
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon
+import org.jetbrains.plugins.scala.project.{ProjectContext}
 import org.jetbrains.sbt.SbtUtil.getSbtModuleData
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.{ModuleExtData, SbtModuleData}
-import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
+import org.jetbrains.sbt.{SbtUtil}
 
 import java.io.File
 import java.util
@@ -80,7 +80,7 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
     libDeps.foreach(
       libDep => {
         var processedDep: Array[String] = Array()
-        processedDep = postProcessDependency(getTextFromInfix(libDep.asInstanceOf[ScInfixExpr]).asInstanceOf[String])
+        processedDep = postProcessDependency(getTextFromInfix(libDep.asInstanceOf[ScInfixExpr])(project).asInstanceOf[String])
         var processedDepText: String = ""
         processedDep match {
           case Array(a,b,c) => processedDepText = SbtDependencyUtils.generateArtifactTextVerbose(a, b, c, SbtCommon.defaultLibScope)
@@ -89,8 +89,31 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
         }
 
         if (currentDepText.equals(processedDepText)) {
-          val newDepText: String = SbtDependencyUtils.generateArtifactTextVerbose(newCoordinates.getGroupId, newCoordinates.getArtifactId, newCoordinates.getVersion, newDependency.getScope)
-          inWriteCommandAction(libDep.asInstanceOf[ScInfixExpr].replace(code"$newDepText"))
+          libDep.asInstanceOf[ScInfixExpr].left match {
+            case refExpr: ScReferenceExpression =>
+              val moduleId = handleReferenceExpression(refExpr, identityFunc, GET_LIBRARIES_MODE)(project)
+              val newDepText: String = SbtDependencyUtils.generateArtifactTextVerbose(
+                newCoordinates.getGroupId,
+                newCoordinates.getArtifactId,
+                newCoordinates.getVersion,
+                SbtCommon.defaultLibScope)
+
+              inWriteCommandAction({
+                moduleId.head.asInstanceOf[ScInfixExpr].replace(code"$newDepText")
+                var highLevelChange = s"${libDep.asInstanceOf[ScInfixExpr].left.getText}"
+                if (newDependency.getScope != SbtCommon.defaultLibScope)
+                  highLevelChange += s" % ${newDependency.getScope}"
+
+                libDep.asInstanceOf[ScInfixExpr].replace(code"${highLevelChange}")
+              })(project)
+            case _ =>
+              val newDepText: String = SbtDependencyUtils.generateArtifactTextVerbose(
+                newCoordinates.getGroupId,
+                newCoordinates.getArtifactId,
+                newCoordinates.getVersion,
+                newDependency.getScope)
+              inWriteCommandAction(libDep.asInstanceOf[ScInfixExpr].replace(code"$newDepText"))(project)
+          }
 
         }
       }
@@ -134,30 +157,32 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
                       retriever: (ScInfixExpr) => Any,
                       mode: String)
                      (implicit projectContext: ProjectContext): Seq[Any] = try {
-    if (mode == GET_PLACES_MODE)
-      ArraySeq(toDependencyPlaceInfo(infixExpr.asInstanceOf[PsiElement], Seq())(projectContext))
-    else {
-      if (infixExpr.operation.refName == "++") {
-        var leftRes: Seq[Any] = Seq.empty
-        var rightRes: Seq[Any] = Seq.empty
-        infixExpr.left match {
-          case call: ScMethodCall => leftRes = extractLibraryDependenciesOrPlacesFromMethodCall(call, retriever, mode)(projectContext)
-          case subInfix: ScInfixExpr => leftRes = handleInfixExpr(subInfix, retriever, mode)(projectContext)
-          case refExpression: ScReferenceExpression => leftRes = handleReferenceExpression(refExpression, retriever, mode)(projectContext)
-          case _ =>
-        }
 
-        infixExpr.right match {
-          case call: ScMethodCall => rightRes = extractLibraryDependenciesOrPlacesFromMethodCall(call, retriever, mode)(projectContext)
-          case subInfix: ScInfixExpr => rightRes = handleInfixExpr(subInfix, retriever, mode)(projectContext)
-          case refExpression: ScReferenceExpression => rightRes = handleReferenceExpression(refExpression, retriever, mode)(projectContext)
-          case _ =>
-        }
-        leftRes ++ rightRes
+    if (infixExpr.operation.refName == "++") {
+      var leftRes: Seq[Any] = Seq.empty
+      var rightRes: Seq[Any] = Seq.empty
+      infixExpr.left match {
+        case call: ScMethodCall => leftRes = extractLibraryDependenciesOrPlacesFromMethodCall(call, retriever, mode)(projectContext)
+        case subInfix: ScInfixExpr => leftRes = handleInfixExpr(subInfix, retriever, mode)(projectContext)
+        case refExpression: ScReferenceExpression => leftRes = handleReferenceExpression(refExpression, retriever, mode)(projectContext)
+        case _ =>
       }
-      else
-        ArraySeq(retriever(infixExpr))
+
+      infixExpr.right match {
+        case call: ScMethodCall => rightRes = extractLibraryDependenciesOrPlacesFromMethodCall(call, retriever, mode)(projectContext)
+        case subInfix: ScInfixExpr => rightRes = handleInfixExpr(subInfix, retriever, mode)(projectContext)
+        case refExpression: ScReferenceExpression => rightRes = handleReferenceExpression(refExpression, retriever, mode)(projectContext)
+        case _ =>
+      }
+      leftRes ++ rightRes
     }
+    else {
+      if (mode == GET_PLACES_MODE) {
+        ArraySeq(toDependencyPlaceInfo(infixExpr.asInstanceOf[PsiElement], Seq())(projectContext))
+      }
+      else ArraySeq(retriever(infixExpr))
+    }
+    //    }
   } catch {
     case e: Exception =>
       throw e
@@ -170,7 +195,14 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
     if (libDeps.isEmpty) return Seq()
     val res = libDeps.flatMap(libDep => {
       libDep.right match {
-        case moduleID: ScInfixExpr => handleInfixExpr(moduleID, retriever, mode)(projectContext)
+        case moduleID: ScInfixExpr =>
+          libDep.operation.refName match {
+            case "+=" =>
+              if (mode == GET_PLACES_MODE) handleInfixExpr(libDep, retriever, mode)(projectContext)
+              else handleInfixExpr(moduleID, retriever, mode)(projectContext)
+            case _ => handleInfixExpr(moduleID, retriever, mode)(projectContext)
+          }
+
         case re: ScReferenceExpression =>
           handleReferenceExpression(re, retriever, mode)
         case _ => ArraySeq()
@@ -190,7 +222,12 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
     else {
       seq.argumentExpressions.flatMap(argExpr => {
         argExpr match {
-          case text: ScInfixExpr => ArraySeq(retriever(text))
+          case text: ScInfixExpr => {
+            if (text.left.textMatches(LIBRARY_DEPENDENCIES) && isAddableLibraryDependencies(text))
+              extractLibraryDependenciesOrPlacesFromInfixExprSeq(Seq(text), retriever, mode)
+            else
+              ArraySeq(retriever(text))
+          }
           case re: ScReferenceExpression => handleReferenceExpression(re, retriever, mode)
           case _: ScMethodCall => Seq()
           case _ => Seq()
@@ -223,14 +260,14 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
                                                        mode: String)
                                                       (implicit projectContext: ProjectContext): Seq[Any] = {
     methodCall match {
+      case seq if seq.deepestInvokedExpr.textMatches(SEQ) =>
+        extractLibraryDependenciesOrPlacesFromSeq(seq, retriever, mode)
       case settings if isAddableSettings(settings) =>
         settings.getEffectiveInvokedExpr match {
           case expr: ScReferenceExpression if expr.refName == SETTINGS =>
             extractLibraryDependenciesOrPlacesFromSettings(settings, retriever, mode)
           case _ => Seq()
         }
-      case seq if seq.deepestInvokedExpr.textMatches(SEQ) =>
-        extractLibraryDependenciesOrPlacesFromSeq(seq, retriever, mode)
       case _ => Seq()
     }
 
@@ -314,12 +351,22 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
   } catch {
     case e: Exception =>
       throw(e)
-    case _: Throwable => Seq()
   }
 
-  def getTextFromInfix(elem: ScInfixExpr): Any = {
+  def getTextFromInfix(elem: ScInfixExpr,
+                       retriever: (ScInfixExpr) => Any = identityFunc,
+                       mode: String = GET_LIBRARIES_MODE)
+                      (implicit projectContext: ProjectContext): Any = {
     var result = ""
-    inReadAction({result = elem.getText})
+    inReadAction({
+      elem.getText.count(_ == '%') match {
+        case 1 => {
+          val moduleId = handleReferenceExpression(elem.left.asInstanceOf[ScReferenceExpression], retriever, mode)(projectContext)
+          result = s"${moduleId.head.asInstanceOf[ScInfixExpr].getText} ${elem.operation.refName} ${elem.right.getText}"
+        }
+        case _ => result = elem.getText
+      }
+    })
     result
   }
   def postProcessDependency(dependency: String): Array[String] = {
@@ -334,7 +381,7 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
 
   override def declaredDependencies(module: OpenapiModule.Module): util.List[DeclaredDependency] = {
     print(module.getName)
-    val project = module.getProject
+    implicit val project: Project = module.getProject
     var scalaVer: String = ""
     val moduleExtData = SbtUtil.getModuleData(
       project,
@@ -353,7 +400,7 @@ class SbtDependencyModificator extends ExternalDependencyModificator{
 
     inReadAction({
       libDepsInfix.map(libDepInfix => {
-        val libDepArr = postProcessDependency(libDepInfix.asInstanceOf[ScInfixExpr].getText)
+        val libDepArr = postProcessDependency(getTextFromInfix(libDepInfix.asInstanceOf[ScInfixExpr])(project).asInstanceOf[String])
         libDepArr.length match {
           case x if x < 3 || x > 4 => null
           case x if x == 3 => new DeclaredDependency(
