@@ -161,7 +161,7 @@ object SbtDependencyUtils {
           result ++= Seq(libDep)
         case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) =>
           result ++= Seq(call)
-        case settings: ScMethodCall if isAddableSettings(settings) =>
+        case settings: ScMethodCall =>
           settings.getEffectiveInvokedExpr match {
             case expr: ScReferenceExpression if expr.refName == SETTINGS => result ++= Seq(settings)
             case _ =>
@@ -197,7 +197,7 @@ object SbtDependencyUtils {
             case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => res ++= Seq(typedSeq)
             case _ =>
           }
-        case settings: ScMethodCall if isAddableSettings(settings) =>
+        case settings: ScMethodCall =>
           settings.getEffectiveInvokedExpr match {
             case expr: ScReferenceExpression if expr.refName == SETTINGS => res ++= Seq(settings)
             case _ =>
@@ -256,7 +256,7 @@ object SbtDependencyUtils {
       case e: ScInfixExpr if e.left.textMatches(LIBRARY_DEPENDENCIES) => addDependencyToLibraryDependencies(e, info)
       case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => addDependencyToSeq(call, info)
       case typedSeq: ScTypedExpression if typedSeq.isSequenceArg => addDependencyToTypedSeq(typedSeq, info)
-      case settings: ScMethodCall if isAddableSettings(settings) =>
+      case settings: ScMethodCall =>
         settings.getEffectiveInvokedExpr match {
           case expr: ScReferenceExpression if expr.refName == SETTINGS =>
             Option(addDependencyToSettings(settings, info)(project))
@@ -343,31 +343,9 @@ object SbtDependencyUtils {
     addedExpr
   }
 
-  def isAddableSettings(settings: ScMethodCall): Boolean = {
-    //    val args = settings.args.exprs
-    //
-    //    if (args.length == 1) {
-    //      args.head match {
-    //        case typedStmt: ScTypedExpression if typedStmt.isSequenceArg =>
-    //          typedStmt.expr match {
-    //            case _: ScMethodCall => false
-    //            case _: ScReferenceExpression => false
-    //            case _ => true
-    //          }
-    //        case _ => true
-    //      }
-    //    } else true
-    true
-  }
-
   def isAddableLibraryDependencies(libDeps: ScInfixExpr): Boolean =
     libDeps.operation.refName match {
       case "+=" | "++=" => true
-      //      case "++=" =>  libDeps.right match {
-      //        // In this case we return false to not repeat it several times
-      //        case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => false
-      //        case _ => true
-      //      }
       case _ => false
     }
 
