@@ -163,14 +163,14 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
           case x if x == 3 => new DeclaredDependency(
             new UnifiedDependency(
               libDepArr(0),
-              SbtCommon.buildScalaDependencyString(libDepArr(1), scalaVer),
+              SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
               libDepArr(2),
               SbtCommon.defaultLibScope),
             dataContext)
           case x if x == 4 => new DeclaredDependency(
             new UnifiedDependency(
               libDepArr(0),
-              SbtCommon.buildScalaDependencyString(libDepArr(1), scalaVer),
+              SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
               libDepArr(2),
               libDepArr(3)),
             dataContext)

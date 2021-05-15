@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ProjectModule, ProjectModuleProvider}
 import kotlin.sequences.Sequence
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon
+import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyUtils, SbtProjectModuleType}
 import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil}
 
 import java.io.File

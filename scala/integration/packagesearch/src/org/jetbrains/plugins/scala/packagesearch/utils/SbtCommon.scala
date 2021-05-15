@@ -10,9 +10,4 @@ object SbtCommon {
   val libScopes = "Compile,Test"
   val defaultLibScope = "Compile"
   val scopeTerminology = "Configuration"
-
-  def buildScalaDependencyString(artifactID: String, scalaVer: String): String = {
-    val ver = scalaVer.split('.')
-    s"${artifactID}_${ver(0)}.${ver(1)}"
-  }
 }

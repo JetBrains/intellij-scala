@@ -11,9 +11,9 @@ import com.intellij.ui.{CollectionListModel, ColoredListCellRenderer, GuiUtils, 
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.{ScalaFileType, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
-import org.jetbrains.plugins.scala.packagesearch.SbtDependencyUtils
 import org.jetbrains.sbt.{SbtBundle, language}
 
 import java.awt.BorderLayout
