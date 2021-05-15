@@ -3,8 +3,8 @@ package org.jetbrains.plugins.scala.packagesearch.configuration
 import com.intellij.openapi.components.{BaseState, PersistentStateComponent, State, Storage}
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.OptionTag
-import org.jetbrains.plugins.scala.packagesearch.SbtCommon
 import com.jetbrains.packagesearch.intellij.plugin.configuration.PackageSearchGeneralConfiguration
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon
 
 @State(
   name = "PackageSearchMavenConfiguration",
