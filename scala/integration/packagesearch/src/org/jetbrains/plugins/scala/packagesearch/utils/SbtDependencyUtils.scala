@@ -38,6 +38,11 @@ object SbtDependencyUtils {
     case object GetDep extends GetMode
   }
 
+  def buildScalaDependencyString(artifactID: String, scalaVer: String): String = {
+    val ver = scalaVer.split('.')
+    s"${artifactID}_${ver(0)}.${ver(1)}"
+  }
+
   def getLibraryDependenciesOrPlacesUtil(project: Project,
                                          module: OpenapiModule,
                                          psiSbtFile: ScalaFile,

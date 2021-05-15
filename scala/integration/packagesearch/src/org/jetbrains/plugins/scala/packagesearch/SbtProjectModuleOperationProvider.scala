@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AbstractProjectModuleOperationProvider, DependencyOperationMetadata, ProjectModuleType}
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtProjectModuleType
 
 class SbtProjectModuleOperationProvider extends AbstractProjectModuleOperationProvider {
   override def hasSupportFor(project: Project, psiFile: PsiFile): Boolean = {
