@@ -1,58 +1,25 @@
-package org.jetbrains.plugins.scala.packagesearch
+package org.jetbrains.plugins.scala.packagesearch.utils
 
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.{module => OpenapiModule}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.module.{Module => OpenapiModule}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.{PsiElement, PsiFile}
-import com.jetbrains.packagesearch.intellij.plugin.extensibility.{BuildSystemType, ProjectModuleType, ProjectModuleTypeTerm}
-import org.jetbrains.plugins.scala.extensions.PsiFileExt
-import org.jetbrains.plugins.scala.icons.Icons
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import org.jetbrains.plugins.scala.extensions.{PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.packagesearch.ArtifactInfo
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.sbt.SbtUtil.getSbtModuleData
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
-import org.jetbrains.sbt.annotator.dependency.SbtDependenciesVisitor.processPatternDefinition
-import org.jetbrains.sbt.{RichFile, Sbt, language}
+import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
 import org.jetbrains.sbt.project.data.SbtModuleData
 
 import java.io.File
-import java.util
-import javax.swing.Icon
-import scala.jdk.CollectionConverters._
-
-object SbtCommon {
-  val buildSystemType = new BuildSystemType(
-    PackageSearchSbtBundle.message("packagesearch.sbt.build.system.name"),
-    PackageSearchSbtBundle.message("packagesearch.sbt.build.system.key"))
-//  val libConfigurations = "compile,test,runtime,integrationtest,default,provided,optional"
-  val libScopes = "Compile,Test"
-  val defaultLibScope = "Compile"
-  val scopeTerminology = "Configuration"
-  def buildScalaDependencyString(artifactID: String, scalaVer: String): String = {
-    val ver = scalaVer.split('.')
-    s"${artifactID}_${ver(0)}.${ver(1)}"
-  }
-}
-
-object SbtProjectModuleType extends ProjectModuleType{
-  override def getIcon: Icon = Icons.SBT
-
-  override def getPackageIcon: Icon = Icons.SBT
-
-  override def defaultScope(project: Project): String = SbtCommon.defaultLibScope
-
-  override def scopes(project: Project): util.List[String] = {
-    SbtCommon.libScopes.split(",").toList.asJava
-  }
-
-  override def terminologyFor(projectModuleTypeTerm: ProjectModuleTypeTerm): String = SbtCommon.scopeTerminology
-
-}
 
 object SbtDependencyUtils {
   val LIBRARY_DEPENDENCIES: String = "libraryDependencies"
@@ -64,6 +31,154 @@ object SbtDependencyUtils {
   val SBT_SETTING_TYPE = "_root_.sbt.Def.Setting"
 
   private val InfixOpsSet = Set(":=", "+=", "++=")
+
+  sealed trait GetMode
+  object GetMode {
+    case object GetPlace extends GetMode
+    case object GetDep extends GetMode
+  }
+
+  def getLibraryDependenciesOrPlacesUtil(project: Project,
+                                         module: OpenapiModule,
+                                         psiSbtFile: ScalaFile,
+                                         mode: GetMode): Seq[Any] = try {
+    var res: Seq[Any] = Seq()
+
+    val topLevelLibDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
+
+    val sbtProj = getSbtModuleData(module)
+
+    var extractedTopLevelLibDeps: Seq[Any] = Seq()
+
+    extractedTopLevelLibDeps = topLevelLibDeps.map(libDep => getLibraryDependenciesFromPsi(libDep, mode))
+
+    res ++= extractedTopLevelLibDeps
+
+    val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
+
+    val moduleName = module.getName
+
+    val modules = List(module)
+    def containsModuleName(proj: ScPatternDefinition, moduleName: String): Boolean =
+      proj.getText.contains("\"" + moduleName + "\"")
+    val projToAffectedModules = sbtProjects.map(proj => proj -> modules.filter(module => {
+      SbtUtil.getSbtModuleData(module) match {
+        case Some(moduleData: SbtModuleData) =>
+          proj.getText.contains(moduleData.id) || containsModuleName(proj, module.getName)
+        case _ => containsModuleName(proj, module.getName)
+      }
+
+    }).map(_.getName)).toMap
+
+    val elemToAffectedProjects = collection.mutable.Map[PsiElement, Seq[String]]()
+    sbtProjects.foreach(proj => {
+      val places = getPossiblePlacesToAddFromProjectDefinition(proj)
+      places.foreach(elem => {
+        elemToAffectedProjects.update(elem, elemToAffectedProjects.getOrElse(elem, Seq()) ++ projToAffectedModules(proj))
+      })
+    })
+    res ++= elemToAffectedProjects.toList
+      .filter(_._2.contains(moduleName))
+      .map(_._1)
+      .flatMap(elem => getLibraryDependenciesFromPsi(elem, mode))
+
+    if (mode == GetPlace) res ++= getTopLevelPlaceToAdd(psiSbtFile)(project).toList
+
+
+    res.distinct
+  } catch {
+    case e: Exception => throw(e)
+  }
+
+  def getLibraryDependenciesOrPlaces(sbtFileOpt: Option[VirtualFile],
+                                     project: Project,
+                                     module: OpenapiModule,
+                                     mode: GetMode): Seq[Any] = try {
+    val libDeps = inReadAction(
+      for {
+        sbtFile <- sbtFileOpt
+        psiSbtFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
+        deps = getLibraryDependenciesOrPlacesUtil(project, module, psiSbtFile, mode)
+      } yield deps
+    )
+    libDeps.getOrElse(Seq.empty)
+  } catch {
+    case e: Exception =>
+      throw(e)
+  }
+
+  def getTextFromInfix(elem: ScInfixExpr): String = {
+    var result = ""
+    inReadAction({
+      elem.getText.count(_ == '%') match {
+        case 1 =>
+          var moduleId: Seq[ScInfixExpr] = Seq.empty
+
+          def callback(psiElement: PsiElement):Unit = {
+            psiElement match {
+              case infixExpr: ScInfixExpr if infixExpr.operation.refName.contains("%") => moduleId ++= Seq(infixExpr)
+              case _ =>
+            }
+          }
+          elem.left match {
+            case refExpr: ScReferenceExpression => SbtDependencyTraverser.traverseReferenceExpr(refExpr)(callback)
+            case _ =>
+          }
+          result = s"${moduleId.head.getText} ${elem.operation.refName} ${elem.right.getText}"
+        case _ =>
+          result = elem.getText
+      }
+    })
+    result
+  }
+
+  def postProcessDependency(dependency: String): Array[String] = {
+    dependency.split("%")
+      .filter(_.nonEmpty) // Remove empty string
+      .map(_.trim()) // Remove space
+      .map(_.replaceAll("^\"|\"$", "")) // Remove double quotes
+  }
+
+  def getLibraryDependenciesFromPsi(psi: PsiElement, mode: GetMode): Seq[PsiElement] = {
+    var result: Seq[PsiElement] = List()
+
+    def callbackDep(psiElement: PsiElement):Unit = {
+      psiElement match {
+        case infix: ScInfixExpr if infix.operation.refName.contains("%") =>
+          result ++= Seq(infix)
+        case _ =>
+      }
+    }
+
+    def callbackPlace(psiElement: PsiElement): Unit = {
+      psiElement match {
+        case libDep: ScInfixExpr if libDep.left.textMatches(LIBRARY_DEPENDENCIES) & isAddableLibraryDependencies(libDep) =>
+          result ++= Seq(libDep)
+        case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) =>
+          result ++= Seq(call)
+        case settings: ScMethodCall if isAddableSettings(settings) =>
+          settings.getEffectiveInvokedExpr match {
+            case expr: ScReferenceExpression if expr.refName == SETTINGS => result ++= Seq(settings)
+            case _ =>
+          }
+        case _ =>
+      }
+    }
+
+    def callback(psiElement: PsiElement):Unit = {
+      if (mode == GetDep) callbackDep(psiElement)
+      else callbackPlace(psiElement)
+    }
+
+    psi match {
+      case infix: ScInfixExpr => SbtDependencyTraverser.traverseInfixExpr(infix)(callback)
+      case call: ScMethodCall => SbtDependencyTraverser.traverseMethodCall(call)(callback)
+      case refExpr: ScReferenceExpression => SbtDependencyTraverser.traverseReferenceExpr(refExpr)(callback)
+      case _ =>
+    }
+
+    result
+  }
 
   def getPossiblePlacesToAddFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = {
     var res: Seq[PsiElement] = List()
@@ -86,7 +201,7 @@ object SbtDependencyUtils {
       }
     }
 
-    processPatternDefinition(proj)(action)
+    SbtDependencyTraverser.traversePatternDef(proj)(action)
 
     res
   }
@@ -173,6 +288,14 @@ object SbtDependencyUtils {
             val addedExpr = generateArtifactPsiExpression(info)(project)
             doInSbtWriteCommandAction(call.args.addExpr(addedExpr), psiFile)
             Option(addedExpr)
+          case subInfix: ScInfixExpr if subInfix.operation.refName == "++" =>
+            val seq: ScMethodCall = generateSeqPsiMethodCall
+            doInSbtWriteCommandAction({
+              seq.args.addExpr(generateArtifactPsiExpression(info)(project))
+              infix.right.addAfter(ScalaPsiElementFactory.createElementFromText("++")(project), infix.getLastChild)
+              infix.right.addAfter(seq, infix.getLastChild)
+            }, psiFile)
+            Option(infix.right)
           case _ => None
         }
 
@@ -181,7 +304,8 @@ object SbtDependencyUtils {
   }
 
   def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
-    val addedExpr = generateArtifactPsiExpression(info)
+    val addedExpr = if (!seqCall.`type`().getOrAny.canonicalText.contains(SBT_SETTING_TYPE))
+      generateArtifactPsiExpression(info) else generateLibraryDependency(info)
     doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
     Some(addedExpr)
   }
@@ -215,30 +339,30 @@ object SbtDependencyUtils {
   }
 
   def isAddableSettings(settings: ScMethodCall): Boolean = {
-//    val args = settings.args.exprs
-//
-//    if (args.length == 1) {
-//      args.head match {
-//        case typedStmt: ScTypedExpression if typedStmt.isSequenceArg =>
-//          typedStmt.expr match {
-//            case _: ScMethodCall => false
-//            case _: ScReferenceExpression => false
-//            case _ => true
-//          }
-//        case _ => true
-//      }
-//    } else true
+    //    val args = settings.args.exprs
+    //
+    //    if (args.length == 1) {
+    //      args.head match {
+    //        case typedStmt: ScTypedExpression if typedStmt.isSequenceArg =>
+    //          typedStmt.expr match {
+    //            case _: ScMethodCall => false
+    //            case _: ScReferenceExpression => false
+    //            case _ => true
+    //          }
+    //        case _ => true
+    //      }
+    //    } else true
     true
   }
 
   def isAddableLibraryDependencies(libDeps: ScInfixExpr): Boolean =
     libDeps.operation.refName match {
-      case "+=" => true
-      case "++=" =>  libDeps.right match {
-        // In this case we return false to not repeat it several times
-        case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => false
-        case _ => true
-      }
+      case "+=" | "++=" => true
+      //      case "++=" =>  libDeps.right match {
+      //        // In this case we return false to not repeat it several times
+      //        case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => false
+      //        case _ => true
+      //      }
       case _ => false
     }
 
@@ -300,7 +424,7 @@ object SbtDependencyUtils {
     }
   }
 
-  def getSbtFileOpt(module: OpenapiModule.Module): Option[VirtualFile] = {
+  def getSbtFileOpt(module: OpenapiModule): Option[VirtualFile] = {
     val project = module.getProject
     val sbtProj: File = getSbtModuleData(module) match {
       case Some(sbtModuleData: SbtModuleData) => new File(sbtModuleData.buildURI.toString.stripPrefix("file:"))
