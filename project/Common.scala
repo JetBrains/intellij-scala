@@ -43,18 +43,7 @@ object Common {
   //  - in JPS process (JDK is calculated based on project & module JDK)
   //  - in Compile server (by default used project JDK version, can be explicitly changed by user)
   val outOfIDEAProcessJavacOptions : Seq[String] = globalJavacOptionsCommon ++ Seq(
-    "-source", "8",
-    "-target", "8"
-    // TODO: replace "-source" & "-target" with "--release"
-    //  after this is fixed: https://youtrack.jetbrains.com/issue/SCL-17597
-    //  (Scala Plugin should importing of language level and target bytecode level from --release option)
-    //  Wait until this is available in at least 2 plugin Release versions: current release and under-development version.
-    //  For why we should better use --release flag instead of just "-source" and "-target", please see
-    //  http://openjdk.java.net/jeps/247
-    //  https://stackoverflow.com/questions/43102787/what-is-the-release-flag-in-the-java-9-compiler/43103038#43103038
-    //  https://blogs.oracle.com/darcy/new-javac-warning-for-setting-an-older-source-without-bootclasspath
-    //  In short: to prevent accidental use of Java 11 API which can produce a runtime error
-    //"--release", "8"
+    "--release", "8"
   )
   val outOfIDEAProcessScalacOptions: Seq[String] = globalScalacOptionsCommon ++ Seq(
     "-target:8",
