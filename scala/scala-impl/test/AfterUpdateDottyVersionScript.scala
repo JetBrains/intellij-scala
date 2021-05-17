@@ -24,6 +24,10 @@ import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala, Ma
 import scala.sys.process.Process
 import scala.util.Using
 
+/**
+ * NOTE: tests are used instead of `main` method,
+ * because `BasePlatformTestCase` contains logic to run IDEA instance, to which we delegate some logic
+ */
 @Ignore("for local running only")
 class AfterUpdateDottyVersionScript
   extends TestCase {
@@ -42,10 +46,11 @@ class AfterUpdateDottyVersionScript
 
   private def runScript[A](script: Script): Unit = script match {
     case Script.FromTestCase(clazz) =>
+      println(s"${clazz.getSimpleName} STARTED")
       val result = new JUnitCore().run(clazz)
       result.getFailures.asScala.headOption match {
         case Some(failure) =>
-          println(s"${clazz.getSimpleName} FAILED")
+          System.err.println(s"${clazz.getSimpleName} FAILED")
           throw failure.getException
         case None =>
           println(s"${clazz.getSimpleName} COMPLETED")
