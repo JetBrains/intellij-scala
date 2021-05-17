@@ -113,61 +113,92 @@ class ScalaFindUsagesHandler(element: PsiElement, factory: ScalaFindUsagesHandle
     processor: Processor[_ >: UsageInfo],
     options:   FindUsagesOptions
   ): Boolean = {
-    def addElementUsages(e: PsiElement): Boolean =
-      super.processElementUsages(e, processor, options)
 
-    if (!addElementUsages(element)) return false
-    inReadAction {
-      options match {
-        case s: ScalaTypeDefinitionFindUsagesOptions if element.isInstanceOf[ScTypeDefinition] =>
-          val definition = element.asInstanceOf[ScTypeDefinition]
+    if (!super.processElementUsages(element, processor, options)) return false
 
-          if (s.isMembersUsages) {
-            definition.members.foreach {
-              case v: ScValueOrVariable => v.declaredElements.foreach(d => if (!addElementUsages(d)) return false)
-              case member: ScMember     => if (!addElementUsages(member)) return false
-            }
+    val scalaOptions = options.asOptionOf[ScalaTypeDefinitionFindUsagesOptions].getOrElse(return true)
 
-            definition match {
-              case c: ScClass =>
-                for {
-                  constructor <- c.constructor.toSeq
-                  clause      <- constructor.effectiveParameterClauses if !clause.isImplicit
-                  param       <- clause.effectiveParameters
-                } if (!addElementUsages(param)) return false
-              case _ =>
-            }
-          }
-
-          if (s.isSearchCompanionModule)
-            definition.baseCompanion.foreach(companion => if (!addElementUsages(companion)) return false)
-
-          if (factory.compilerIndicesOptions.isEnabledForSAMTypes && definition.isSAMable) {
-            val success =
-              CompilerIndicesInheritorsSearch.search(definition, options.searchScope)
-                .forEach((e: PsiElement) => processor.process(new UsageInfo(e)))
-            if (!success) return false
-          }
-
-          if (s.isImplementingTypeDefinitions) {
-            val success = ClassInheritorsSearch.search(definition, true).forEach((cls: PsiClass) => cls match {
-              case _: PsiClassWrapper => true
-              case aClass: PsiClass   => processor.process(new UsageInfo(aClass))
-              case _                  => true
-            })
-            if (!success) return false
-          }
-        case _ =>
-      }
-
-      element match {
-        case (named: ScNamedElement) && inNameContext(member: ScMember) if !member.isLocal =>
-          ScalaOverridingMemberSearcher.search(named).foreach(e => if (!addElementUsages(e)) return false)
-        case _ =>
-      }
-    }
-    true
+    processMemberUsages(element, processor, scalaOptions) &&
+      processCompanionUsages(element, processor, scalaOptions) &&
+      processOverridingMembers(element, processor, scalaOptions)
+      processSamUsagesWithCompilerReferences(element, processor, scalaOptions) &&
+      processImplementingTypeDefinitionsUsages(element, processor, scalaOptions)
   }
 
   override def isSearchForTextOccurrencesAvailable(psiElement: PsiElement, isSingleFile: Boolean): Boolean = !isSingleFile
+
+  private def processSamUsagesWithCompilerReferences(element: PsiElement,
+                                                     processor: Processor[_ >: UsageInfo],
+                                                     options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
+    element match {
+      case definition: ScTypeDefinition if factory.compilerIndicesOptions.isEnabledForSAMTypes && inReadAction(definition.isSAMable) =>
+        CompilerIndicesInheritorsSearch.search(definition, options.searchScope)
+          .forEach((e: PsiElement) => processor.process(new UsageInfo(e)))
+      case _ => true
+    }
+  }
+
+  private def processImplementingTypeDefinitionsUsages(element: PsiElement,
+                                                       processor: Processor[_ >: UsageInfo],
+                                                       options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
+    element match {
+      case definition: ScTypeDefinition if options.isImplementingTypeDefinitions =>
+        ClassInheritorsSearch.search(definition, true).forEach((cls: PsiClass) => cls match {
+          case _: PsiClassWrapper => true
+          case aClass: PsiClass   => processor.process(new UsageInfo(aClass))
+          case _                  => true
+        })
+      case _ => true
+    }
+  }
+
+  private def processMemberUsages(element: PsiElement,
+                                  processor: Processor[_ >: UsageInfo],
+                                  options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
+    element match {
+      case definition: ScTypeDefinition if options.isMembersUsages =>
+        val members = inReadAction {
+          val bodyMembers = definition.members.flatMap {
+            case v: ScValueOrVariable => v.declaredElements
+            case member: ScMember     => Seq(member)
+          }
+          val classParams = definition match {
+            case c: ScClass =>
+              for {
+                constructor <- c.constructor.toSeq
+                clause      <- constructor.effectiveParameterClauses if !clause.isImplicit
+                param       <- clause.effectiveParameters
+              } yield param
+            case _ =>
+              Seq.empty
+          }
+          bodyMembers ++ classParams
+        }
+        members.forall(super.processElementUsages(_, processor, options))
+      case _ => true
+    }
+  }
+
+  private def processCompanionUsages(element: PsiElement,
+                                     processor: Processor[_ >: UsageInfo],
+                                     options: ScalaTypeDefinitionFindUsagesOptions): Boolean =
+    element match {
+      case definition: ScTypeDefinition if options.isSearchCompanionModule =>
+        val companion = inReadAction(definition.baseCompanion)
+        companion.forall(super.processElementUsages(_, processor, options))
+      case _ => true
+    }
+
+  private def processOverridingMembers(element: PsiElement,
+                                       processor: Processor[_ >: UsageInfo],
+                                       options: ScalaTypeDefinitionFindUsagesOptions): Boolean = {
+    val overriding = inReadAction {
+      element match {
+        case (named: ScNamedElement) && inNameContext(member: ScMember) if !member.isLocal =>
+          ScalaOverridingMemberSearcher.search(named)
+        case _ => Array.empty[PsiNamedElement]
+      }
+    }
+    overriding.forall(super.processElementUsages(_, processor, options))
+  }
 }
