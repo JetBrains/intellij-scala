@@ -18,7 +18,7 @@ import scala.annotation.nowarn
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class VariableNullInitializerInspection extends AbstractInspection(Message) {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
-    case definition: ScVariableDefinition if !definition.isLocal =>
+    case definition: ScVariableDefinition if definition.isDefinedInClass =>
       if (definition.declaredType.exists(isApplicable)) {
         definition.expr.filter(e => e.isValid && isNull(e)).foreach { expression =>
           holder.registerProblem(expression, Message, new UseUnderscoreInitializerQuickFix(definition), new UseOptionTypeQuickFix(definition))

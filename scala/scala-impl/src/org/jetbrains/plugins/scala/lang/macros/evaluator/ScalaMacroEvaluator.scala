@@ -67,7 +67,7 @@ class ScalaMacroEvaluator(project: Project) {
 
   private def macroSupport[T](named: PsiNamedElement, map: Map[MacroImpl, T]): Option[(ScFunction, T)] = {
     named match {
-      case MacroDef(m) if !m.isLocal =>
+      case MacroDef(m) if m.isDefinedInClass =>
         val macroImpl = MacroImpl(m.name, m.containingClass.qualifiedName)
         map.get(macroImpl).map((m, _))
       case _ => None

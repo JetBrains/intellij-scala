@@ -89,7 +89,7 @@ class ScalaDeprecationInspection extends LocalInspectionTool {
     new ScalaElementVisitor {
 
       override def visitFunction(fun: ScFunction): Unit =
-        if (!fun.isLocal) {
+        if (fun.isDefinedInClass) {
           fun.superMethods.foreach(checkOverridingDeprecated(_, fun))
         }
 

@@ -425,7 +425,7 @@ object IntroduceExpressions {
   }
 
   private[this] def setPrivateModifier(declaration: PsiElement): Unit = declaration match {
-    case member: ScMember if !member.isLocal => member.setModifierProperty(PRIVATE)
+    case member: ScMember if member.isDefinedInClass => member.setModifierProperty(PRIVATE)
     case _ =>
   }
 
