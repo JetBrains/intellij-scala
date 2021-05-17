@@ -3,4 +3,5 @@ class a {
 }
 /*
 implicit
+using:scala3
 */
