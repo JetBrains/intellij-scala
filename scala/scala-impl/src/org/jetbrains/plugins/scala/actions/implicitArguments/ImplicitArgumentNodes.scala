@@ -192,6 +192,11 @@ private object ImplicitArgumentNodes {
         owner
           .map(name => ScalaBundle.message("location.description.body.of.name", name))
           .getOrElse(ScalaBundle.message("location.description.containing.block"))
+      case m: ScMember if m.isTopLevel =>
+        val packageName = m.topLevelQualifier
+
+        if (packageName.exists(_.isEmpty)) "default package"
+        else packageName.getOrElse("")
       case _ => ""
     }
     if (description != "") Some("  " + description.parenthesize())

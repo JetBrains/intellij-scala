@@ -139,7 +139,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
       val text = element.getText
 
       namedParent(element).flatMap {
-        case method: ScFunction if !method.isLocal && method.name == text =>
+        case method: ScFunction if method.isDefinedInClass && method.name == text =>
           val signatures = method.superSignaturesIncludingSelfType
           val icon       = getOverridesOrImplementsIcon(method, signatures)
           if (!isEnabled(icon)) {
@@ -167,7 +167,7 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
           val markerType = overridingMember
           if (signatures.nonEmpty) arrowUpLineMarker(element, icon, markerType).toOption
           else None
-        case ta: ScTypeAlias if !ta.isLocal && ta.name == text =>
+        case ta: ScTypeAlias if ta.isDefinedInClass && ta.name == text =>
           val elements = ScalaPsiUtil.superTypeMembers(ta, withSelfType = true)
           val icon = ImplementingMethod
           if (!isEnabled(icon)) {
@@ -201,9 +201,9 @@ final class ScalaLineMarkerProvider extends LineMarkerProviderDescriptor with Sc
       }
 
       context match {
-        case Some(tDef: ScTypeDefinition)                => collectInheritingClassesMarker(tDef)
-        case Some(member: ScMember) if !member.isLocal => collectOverriddenMemberMarker(member, identifier)
-        case _                                           => None
+        case Some(tDef: ScTypeDefinition)                      => collectInheritingClassesMarker(tDef)
+        case Some(member: ScMember) if member.isDefinedInClass => collectOverriddenMemberMarker(member, identifier)
+        case _                                                 => None
       }
     }.foreach(result.add)
   }

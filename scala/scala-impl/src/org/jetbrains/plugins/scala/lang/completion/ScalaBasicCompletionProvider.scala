@@ -200,7 +200,7 @@ object ScalaBasicCompletionProvider {
       case pattern@(_: ScBindingPattern |
                     _: ScFieldId) =>
         val context = nameContext(pattern) match {
-          case valueOrVariable: ScValueOrVariable if valueOrVariable.isLocal => valueOrVariable
+          case valueOrVariable: ScValueOrVariable if !valueOrVariable.isDefinedInClass => valueOrVariable
           case ScCaseClause(Some(pattern), _, _) => pattern
           case patterned: ScPatterned => patterned
           case _ => null

@@ -107,7 +107,9 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
   }
 
-  def isLocal: Boolean = containingClass == null
+  def isLocal: Boolean = containingClass == null && !isTopLevel
+
+  def isDefinedInClass: Boolean = containingClass != null
 
   def isTopLevel: Boolean = getParent match {
     case _: ScPackaging | _: ScFile => true

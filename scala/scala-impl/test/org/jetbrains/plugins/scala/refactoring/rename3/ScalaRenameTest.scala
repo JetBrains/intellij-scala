@@ -1,6 +1,10 @@
 package org.jetbrains .plugins.scala
 package refactoring.rename3
 
+import com.intellij.openapi.util.registry.Registry
+import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode.ShowDotcErrorsKey
+import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+
 /**
  * Nikolay.Tropin
  * 9/13/13
@@ -62,4 +66,15 @@ class ScalaRenameTest extends ScalaRenameTestBase {
   def testPrivateSamePackage(): Unit = doTest()
 
   def testPrivateMemberSamePackage(): Unit = doTest()
+}
+
+class Scala3RenameTest extends ScalaRenameTestBase {
+  override def supportedIn(v: ScalaVersion): Boolean = v >= LatestScalaVersions.Scala_3_0
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    Registry.get(ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+  }
+
+  def testTopLevelMethod(): Unit = doTest()
 }

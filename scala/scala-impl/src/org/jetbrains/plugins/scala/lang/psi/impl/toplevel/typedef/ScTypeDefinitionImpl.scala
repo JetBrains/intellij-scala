@@ -141,7 +141,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
   }
 
   override def isLocal: Boolean =
-    byStubOrPsi(_.isLocal) {
+    byStubOrPsi(stub => stub.isLocal && !stub.isTopLevel) {
       super.isLocal && PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition]) != null
     }
 

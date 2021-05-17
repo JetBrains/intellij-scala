@@ -26,7 +26,7 @@ class HashCodeUsesVarInspection extends AbstractInspection {
           exp.resolve() match {
             case field: ScReferencePattern =>
               field.nameContext match {
-                case variable: ScVariable if !variable.isLocal =>
+                case variable: ScVariable if variable.isDefinedInClass =>
                   holder.registerProblem(exp, ScalaInspectionBundle.message("non.value.field.is.accessed.in.hashcode"))
                 case _ =>
               }
