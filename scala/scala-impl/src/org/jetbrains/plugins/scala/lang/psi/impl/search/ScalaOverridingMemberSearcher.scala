@@ -96,6 +96,9 @@ object ScalaOverridingMemberSearcher {
       case x: PsiNamedElement => PsiTreeUtil.getParentOfType(x, classOf[ScTemplateDefinition])
     }
 
+    // e.g. if `member` is function inside Scala3 `given`
+    if (parentClass == null) return Array.empty
+
     if (parentClass.isEffectivelyFinal) return Array.empty
 
     val buffer = mutable.Set.empty[PsiNamedElement]

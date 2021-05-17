@@ -32,6 +32,7 @@
 [101,118]: Function
 [102,109]: ValDef
 [108,109]: Ident
+[114,118]: Block
 [114,118]: Ident
 [123,176]: ValDef
 [132,145]: PolyFunction
@@ -46,4 +47,5 @@
 [159,176]: Function
 [160,167]: ValDef
 [166,167]: Ident
+[172,176]: Block
 [172,176]: Ident
