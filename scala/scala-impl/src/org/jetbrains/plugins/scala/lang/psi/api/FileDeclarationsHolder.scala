@@ -65,6 +65,10 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
         if (place != null && PsiTreeUtil.getParentOfType(place, classOf[ScPackaging]) == null) {
           if (defaultPackage != null &&
             !packageProcessDeclarations(defaultPackage)(processor, state, null, place)) return false
+          if (defaultPackage != null &&
+            this.isInScala3Module &&
+            !defaultPackage.processTopLevelDeclarations(processor, state, place)) return false
+
         }
         else if (defaultPackage != null && !BaseProcessor.isImplicitProcessor(processor)) {
           //we will add only packages

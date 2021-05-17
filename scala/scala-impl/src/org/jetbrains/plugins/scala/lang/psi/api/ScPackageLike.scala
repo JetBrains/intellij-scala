@@ -19,7 +19,7 @@ trait ScPackageLike extends PsiElement {
 
   def fqn: String
 
-  protected def processTopLevelDeclarations(
+  def processTopLevelDeclarations(
     processor: PsiScopeProcessor,
     state:     ResolveState,
     place:     PsiElement
