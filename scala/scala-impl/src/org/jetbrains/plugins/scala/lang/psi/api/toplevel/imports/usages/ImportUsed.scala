@@ -38,9 +38,12 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
   def qualName: Option[String]
 
   def isAlwaysUsed: Boolean = {
-    val settings = ScalaCodeStyleSettings.getInstance(pointer.getProject)
+    val project = pointer.getProject
+    val settings = ScalaCodeStyleSettings.getInstance(project)
     val isScala3 = Option(element).exists(_.isInScala3Module)
-    qualName.exists(settings.isAlwaysUsedImport) || isLanguageFeatureImport || (ScalaHighlightingMode.showDotcErrors && isScala3)
+    qualName.exists(settings.isAlwaysUsedImport) ||
+      isLanguageFeatureImport ||
+      (ScalaHighlightingMode.showScala3Errors(project) && isScala3)
   }
 
   private def isLanguageFeatureImport: Boolean = {

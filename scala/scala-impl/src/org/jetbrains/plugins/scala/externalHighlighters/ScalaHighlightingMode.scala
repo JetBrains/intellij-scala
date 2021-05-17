@@ -14,18 +14,10 @@ import scala.concurrent.duration._
 
 object ScalaHighlightingMode {
 
-  final val ShowDotcErrorsKey = "dotty.highlighting.compiler.errors.in.editor"
-  final val ShowScalacErrorsKey = "scala.highlighting.compiler.errors.in.editor"
-
-  def showDotcErrors: Boolean = Registry.is(ShowDotcErrorsKey)
-  private def showScalacErrors: Boolean = Registry.is(ShowScalacErrorsKey)
-  
-  def addRegistryListener(project: Project)
-                         (listener: RegistryValueListener): Unit =
-    Seq(ShowDotcErrorsKey, ShowScalacErrorsKey)
-      .foreach { key =>
-        Registry.get(key).addListener(listener, project.unloadAwareDisposable)
-      }
+  private def showScala2Errors(project: Project): Boolean =
+    ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2
+  def showScala3Errors(project: Project): Boolean =
+    ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
 
   def addSettingsListener(project: Project)
                          (listener: CompilerHighlightingListener): Unit =
@@ -34,17 +26,15 @@ object ScalaHighlightingMode {
       .subscribe(CompilerHighlightingListener.Topic, listener)
 
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
-    showDotcErrors && project.hasScala3 ||
-      showScalacErrors && project.hasScala ||
-      ScalaProjectSettings.getInstance(project).isCompilerHighlighting
+    showScala3Errors(project) && project.hasScala3 ||
+      showScala2Errors(project) && project.hasScala
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean =
-    ScalaProjectSettings.getInstance(file.getProject).isCompilerHighlighting ||
-      (file match {
-        case scalaFile: ScalaFile => isShowErrorsFromCompilerEnabled(scalaFile)
-        case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
-        case _ => false
-      })
+    file match {
+      case scalaFile: ScalaFile => isShowErrorsFromCompilerEnabled(scalaFile)
+      case javaFile: PsiJavaFile => isShowErrorsFromCompilerEnabled(javaFile)
+      case _ => false
+    }
 
   private def isShowErrorsFromCompilerEnabled(file: ScalaFile): Boolean = {
     val virtualFile = file match {
@@ -52,23 +42,25 @@ object ScalaHighlightingMode {
       case _                         => return false
     }
 
+    val project = file.getProject
     val isRegularScalaFile = virtualFile.getFileType == ScalaFileType.INSTANCE
     if (isRegularScalaFile) {
-      file.isScala3File && showDotcErrors || file.isScala2File && showScalacErrors
+      file.isScala3File && showScala3Errors(project) ||
+        file.isScala2File && showScala2Errors(project)
     } else if (file.isWorksheetFile) {
       // actually this should work for regular files as well
-      file.isInScala3Module && showDotcErrors || file.isInScalaModule && showScalacErrors
+      file.isInScala3Module && showScala3Errors(project) ||
+        file.isInScalaModule && showScala2Errors(project)
     } else {
       false
     }
   }
 
   private def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
-    showDotcErrors && javaFile.isInScala3Module
+    showScala3Errors(javaFile.getProject) && javaFile.isInScala3Module
 
   def showParserErrors(file: PsiFile): Boolean = {
     val shouldSkip = file.isInScala3Module && isShowErrorsFromCompilerEnabled(file)
-
     !shouldSkip
   }
   

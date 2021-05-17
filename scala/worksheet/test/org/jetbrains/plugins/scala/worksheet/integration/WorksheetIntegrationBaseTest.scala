@@ -103,7 +103,7 @@ abstract class WorksheetIntegrationBaseTest
     settings.setInProcessMode(self.runInCompileServerProcess)
     settings.setAutoRunDelay(300)
 
-    revertible = CompilerTestUtil.withErrorsFromCompilerDisabled
+    revertible = CompilerTestUtil.withErrorsFromCompilerDisabled(getProject)
     revertible.applyChange()
   }
 

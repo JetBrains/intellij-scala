@@ -143,7 +143,8 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
   private boolean TYPE_MISMATCH_HINTS = true;
 
   private boolean TYPE_AWARE_HIGHLIGHTING_ENABLED = true;
-  private boolean COMPILER_HIGHLIGHTING = false;
+  private boolean COMPILER_HIGHLIGHTING_SCALA2 = false;
+  private boolean COMPILER_HIGHLIGHTING_SCALA3 = true;
 
   public static ScalaProjectSettings in(@NotNull Project project) {
     return getInstance(project);
@@ -344,15 +345,24 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     TYPE_MISMATCH_HINTS = value;
   }
 
-  public boolean isCompilerHighlighting() {
-    return COMPILER_HIGHLIGHTING;
+  public boolean isCompilerHighlightingScala2() {
+    return COMPILER_HIGHLIGHTING_SCALA2;
+  }
+  public boolean isCompilerHighlightingScala3() {
+    return COMPILER_HIGHLIGHTING_SCALA3;
   }
 
-  public void setCompilerHighlighting(boolean value) {
-    COMPILER_HIGHLIGHTING = value;
+  public void setCompilerHighlightingScala2(boolean value) {
+    COMPILER_HIGHLIGHTING_SCALA2 = value;
     var listener = ApplicationManager.getApplication().getMessageBus()
             .syncPublisher(CompilerHighlightingListener$.MODULE$.Topic());
-    listener.compilerHighlightingChanged(value);
+    listener.compilerHighlightingScala2Changed(value);
+  }
+  public void setCompilerHighlightingScala3(boolean value) {
+    COMPILER_HIGHLIGHTING_SCALA3 = value;
+    var listener = ApplicationManager.getApplication().getMessageBus()
+            .syncPublisher(CompilerHighlightingListener$.MODULE$.Topic());
+    listener.compilerHighlightingScala3Changed(value);
   }
 
   public boolean isTypeAwareHighlightingEnabled() {

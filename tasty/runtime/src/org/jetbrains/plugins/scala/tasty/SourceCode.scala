@@ -17,6 +17,7 @@ object SourceCode {
   def showConstant(using Quotes)(const: quotes.reflect.Constant)(syntaxHighlight: SyntaxHighlight, fullNames: Boolean): String =
     new SourceCodePrinter[quotes.type](syntaxHighlight, fullNames).printConstant(const).result()
 
+
   def showSymbol(using Quotes)(symbol: quotes.reflect.Symbol)(syntaxHighlight: SyntaxHighlight): String =
     symbol.fullName
 

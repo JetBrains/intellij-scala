@@ -5,7 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.plugins.scala.ScalaVersion
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withErrorsFromCompiler
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.extensions.invokeAndWait
 
@@ -30,7 +30,7 @@ abstract class ScalaWorksheetCompilerHighlightingTestBase extends ScalaCompilerH
     fileName: String,
     content: String,
     expectedResult: ExpectedResult
-  ): Unit = withErrorsFromCompiler {
+  ): Unit = runWithErrorsFromCompiler(getProject) {
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
       // Compilation is done on file opening (see RegisterCompilationListener.MyFileEditorManagerListener)
       // There is no explicit compile worksheet action for now, like we have in Build with JPS.

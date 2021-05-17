@@ -7,7 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.testFramework.EdtTestUtil
 import org.hamcrest.{Description, Matcher}
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withErrorsFromCompiler
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.extensions.{HighlightInfoExt, invokeAndWait}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
@@ -82,7 +82,7 @@ abstract class ScalaCompilerHighlightingTestBase
     content: String,
     expectedResult: ExpectedResult,
     waitUntilFileIsHighlighted: VirtualFile => Unit
-  ): Unit = withErrorsFromCompiler {
+  ): Unit = runWithErrorsFromCompiler(getProject) {
     val virtualFile = addFileToProjectSources(fileName, content)
     waitUntilFileIsHighlighted(virtualFile)
     doAssertion(virtualFile, expectedResult)
@@ -113,7 +113,7 @@ abstract class ScalaCompilerHighlightingTestBase
 
   protected def runTestCase(fileName: String,
                             content: String,
-                            expectedResult: ExpectedResult): Unit = withErrorsFromCompiler {
+                            expectedResult: ExpectedResult): Unit = runWithErrorsFromCompiler(getProject) {
     val waitUntilFileIsHighlighted: VirtualFile => Unit = virtualFile => {
       invokeAndWait {
         FileEditorManager.getInstance(getProject).openFile(virtualFile, true)
