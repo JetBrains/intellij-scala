@@ -1,0 +1,13 @@
+[0,44]: PackageDef
+[0,0]: Ident
+[0,14]: Import
+[7,12]: Ident
+[16,29]: ValDef
+[21,21]: TypeTree
+[24,29]: Apply
+[24,27]: Ident
+[30,44]: ValDef
+[35,35]: TypeTree
+[38,44]: Apply
+[38,41]: Ident
+[42,43]: Number

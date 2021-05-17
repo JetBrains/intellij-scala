@@ -134,7 +134,7 @@ object TastyReader {
 
     assertExists(DottyExampleProject)
 
-    val outputDir = DottyExampleProject + "/target/scala-3.0.0-RC3/classes"
+    val outputDir = DottyExampleProject + "/target/scala-3.0.0/classes"
     assertExists(outputDir)
 
     exampleClasses.foreach { fqn =>
