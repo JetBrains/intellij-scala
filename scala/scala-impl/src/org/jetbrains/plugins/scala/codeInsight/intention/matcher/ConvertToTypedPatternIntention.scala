@@ -51,6 +51,7 @@ class ConvertToTypedPatternIntention extends PsiElementBaseIntentionAction {
         }
       case _ => "value"
     }
-    constrPattern.replace(createPatternFromText(s"$name: ${codeRef.getText}")(codeRef.getManager))
+    val typeText = constrPattern.`type`().toOption.fold(codeRef.getText)(_.presentableText(element))
+    constrPattern.replace(createPatternFromText(s"$name: $typeText")(codeRef.getManager))
   }
 }
