@@ -54,7 +54,7 @@ trait ProgressReporter {
   }
 
   def notify(message: String): Unit
-  def updateHighlightingProgress(percent: Int): Unit
+  def updateHighlightingProgress(percent: Int, fileName: String): Unit
   def reportResults(): Unit
   def progressIndicator: ProgressIndicator
 }

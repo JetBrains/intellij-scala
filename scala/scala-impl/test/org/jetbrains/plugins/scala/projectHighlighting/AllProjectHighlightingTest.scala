@@ -52,7 +52,7 @@ trait AllProjectHighlightingTest {
     for ((file, index) <- files.zipWithIndex if !shouldSkip(file.getName)) {
       val psiFile = fileManager.findFile(file)
 
-      reporter.updateHighlightingProgress(percent(index, size))
+      reporter.updateHighlightingProgress(percent(index, size), file.getName)
 
       file.getFileType match {
         case JavaFileType.INSTANCE =>
