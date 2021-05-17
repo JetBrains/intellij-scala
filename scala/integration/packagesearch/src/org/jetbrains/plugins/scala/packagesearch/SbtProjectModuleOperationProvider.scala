@@ -5,6 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiFile
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{AbstractProjectModuleOperationProvider, DependencyOperationMetadata, ProjectModuleType}
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.refreshSbtProject
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtProjectModuleType
 
 class SbtProjectModuleOperationProvider extends AbstractProjectModuleOperationProvider {
@@ -21,6 +22,6 @@ class SbtProjectModuleOperationProvider extends AbstractProjectModuleOperationPr
   }
 
   override def refreshProject(project: Project, virtualFile: VirtualFile): Unit = {
-    print("refreshProject is not implemented!")
+    refreshSbtProject(project)
   }
 }

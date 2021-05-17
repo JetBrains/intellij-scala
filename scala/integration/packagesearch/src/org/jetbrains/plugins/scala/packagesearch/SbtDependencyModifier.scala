@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.refreshSbtProject
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.getSbtFileOpt
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
@@ -29,11 +30,6 @@ import scala.jdk.CollectionConverters._
 class SbtDependencyModifier extends ExternalDependencyModificator{
 
   override def supports(module: OpenapiModule.Module): Boolean = SbtUtil.isSbtModule(module)
-
-  def refresh(project: Project): Unit = {
-    FileDocumentManager.getInstance.saveAllDocuments()
-    ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
-  }
 
   override def addDependency(module: OpenapiModule.Module, newDependency: UnifiedDependency): Unit = try {
     implicit val project: Project = module.getProject
@@ -62,7 +58,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       wizard.search() match {
         case Some(fileLine) =>
           SbtDependencyUtils.addDependency(fileLine.element, newArtifactInfo)(project)
-          refresh(project)
+          refreshSbtProject(project)
         case _ =>
       }
     }
