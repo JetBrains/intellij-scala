@@ -18,8 +18,8 @@ class ConsoleReporter(override val filesWithProblems: Map[String, Set[TextRange]
   override def showError(fileName: String, range: TextRange, message: String): Unit =
     report.append(formatMessage(fileName, range, message))
 
-  override def updateHighlightingProgress(percent: Int): Unit = {
-    println(s"Highlighting -  $percent%")
+  override def updateHighlightingProgress(percent: Int, fileName: String): Unit = {
+    println(s"$percent% highlighted, started $fileName")
   }
 
   override def reportResults(): Unit = {

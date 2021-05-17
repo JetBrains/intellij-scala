@@ -11,7 +11,8 @@ import org.jetbrains.plugins.scala.util.reporter.ProgressReporter.TextBasedProgr
 class TeamCityReporter(name: String, override val filesWithProblems: Map[String, Set[TextRange]], reportStatus: Boolean) extends ProgressReporter {
   import TeamCityReporter._
 
-  override def updateHighlightingProgress(percent: Int): Unit = progressMessage(s"Highlighting - $percent%")
+  override def updateHighlightingProgress(percent: Int, fileName: String): Unit =
+    progressMessage(s"$percent% highlighted, started $fileName")
 
   override def showError(fileName: String, range: TextRange, message: String): Unit = {
     val escaped = escapeTC(message)
