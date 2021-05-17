@@ -81,7 +81,7 @@ public final class MultiLineStringCodeStylePanel extends ScalaCodeStylePanelBase
     }
 
     @Override
-    public JComponent getPanel() {
+    protected JComponent getPanelInner() {
         return panel1;
     }
 

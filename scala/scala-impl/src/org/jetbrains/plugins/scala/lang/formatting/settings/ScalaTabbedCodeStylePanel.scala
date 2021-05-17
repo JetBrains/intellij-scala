@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang.formatting.settings
 
-import java.awt._
-import java.awt.event.ItemEvent
-
 import com.intellij.application.options._
 import com.intellij.application.options.codeStyle.CodeStyleSchemesModel
 import com.intellij.openapi.project.Project
@@ -11,11 +8,13 @@ import com.intellij.openapi.util.Disposer
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.ui.components.JBLabel
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
-import javax.swing._
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.lang.rearranger.ScalaArrangementPanel
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
 
+import java.awt._
+import java.awt.event.ItemEvent
+import javax.swing._
 import scala.annotation.nowarn
 
 /**
@@ -127,6 +126,9 @@ class ScalaTabbedCodeStylePanel(currentSettings: CodeStyleSettings, settings: Co
 
     shortenedPanel = new ScalafmtTabbedLanguageCodeStylePanel(currentSettings, settings)
     outerPanel.add(shortenedPanel.getPanel, constraint(2, 0, FILL_BOTH, CAN_SHRINK_AND_GROW, CAN_SHRINK_AND_GROW))
+    // this is required in order scrolling works correctly with small settings window height
+    // otherwise on small screens the settings can be practically unusable
+    innerPanel.setMinimumSize(new Dimension(1, 1))
 
     toggleSettingsVisibility(false)
   }

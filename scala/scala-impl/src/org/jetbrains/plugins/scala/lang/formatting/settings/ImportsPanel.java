@@ -157,10 +157,9 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         return !Arrays.deepEquals(scalaCodeStyleSettings.getImportLayout(), getImportLayout());
     }
 
-    @Nullable
     @Override
-    public JComponent getPanel() {
-        return contentPanel;
+    protected JComponent getPanelInner() {
+        return this.contentPanel;
     }
 
     @Override

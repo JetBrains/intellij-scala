@@ -42,7 +42,7 @@ object SbtResolver {
   }
 }
 
-class SbtMavenResolver @PropertyMapping(Array("name", "root", "presentableName"))
+final class SbtMavenResolver @PropertyMapping(Array("name", "root", "presentableName"))
 (
   override val name: String,
   override val root: String,
@@ -65,7 +65,7 @@ class SbtMavenResolver @PropertyMapping(Array("name", "root", "presentableName")
   override def toString = s"$root|maven|$name"
 }
 
-class SbtIvyResolver @PropertyMapping(Array("name", "root", "isLocal", "presentableName"))
+final class SbtIvyResolver @PropertyMapping(Array("name", "root", "isLocal", "presentableName"))
 (
   override val name: String,
   override val root: String,

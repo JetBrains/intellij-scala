@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  *  CaseClauses ::= CaseClause {CaseClause}
  */
-abstract class CaseClauses extends ParsingRule {
+sealed abstract class CaseClauses extends ParsingRule {
   protected def parseCaseClause()(implicit builder: ScalaPsiBuilder): Boolean
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
