@@ -7,7 +7,7 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.EdtTestUtil
 import org.jetbrains.plugins.scala.base.libraryLoaders.SmartJDKLoader
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withErrorsFromCompiler
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.runWithErrorsFromCompiler
 import org.jetbrains.plugins.scala.compiler.{CompilerEvent, CompilerEventListener}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.junit.Assert.{assertEquals, assertTrue}
@@ -45,7 +45,7 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
     super.setUp()
   }
 
-  def testNoConflictsBetweenJpsCompilerAndUsualCompilation(): Unit = withErrorsFromCompiler {
+  def testNoConflictsBetweenJpsCompilerAndUsualCompilation(): Unit = runWithErrorsFromCompiler(getProject) {
     val className = "MyClass"
     val sourceFile = addFileToProjectSources(
       s"$className.scala",

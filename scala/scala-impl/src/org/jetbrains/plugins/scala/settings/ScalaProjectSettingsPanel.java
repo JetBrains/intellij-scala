@@ -74,7 +74,8 @@ public class ScalaProjectSettingsPanel {
     private JCheckBox myDisableLanguageInjection;
     private JCheckBox useScalaClassesPriorityCheckBox;
     private JComboBox<ScalaCollectionHighlightingLevel> collectionHighlightingChooser;
-    private JCheckBox compilerHighlightingCheckBox;
+    private JCheckBox compilerHighlightingScala2CheckBox;
+    private JCheckBox compilerHighlightingScala3CheckBox;
     private JPanel injectionJPanel;
     private JSpinner outputSpinner;
     private JSpinner implicitParametersSearchDepthSpinner;
@@ -284,7 +285,8 @@ public class ScalaProjectSettingsPanel {
         scalaProjectSettings.setAotCOmpletion(myAotCompletion.isSelected());
         scalaProjectSettings.setScalaPriority(useScalaClassesPriorityCheckBox.isSelected());
         scalaProjectSettings.setCollectionTypeHighlightingLevel((ScalaCollectionHighlightingLevel) collectionHighlightingChooser.getSelectedItem());
-        scalaProjectSettings.setCompilerHighlighting(compilerHighlightingCheckBox.isSelected());
+        scalaProjectSettings.setCompilerHighlightingScala2(compilerHighlightingScala2CheckBox.isSelected());
+        scalaProjectSettings.setCompilerHighlightingScala3(compilerHighlightingScala3CheckBox.isSelected());
 
         scalaProjectSettings.setAutoRunDelay(getWorksheetDelay());
 
@@ -394,8 +396,11 @@ public class ScalaProjectSettingsPanel {
 
         if (scalaProjectSettings.getCollectionTypeHighlightingLevel() !=
                 collectionHighlightingChooser.getSelectedItem()) return true;
-        if (scalaProjectSettings.isCompilerHighlighting() !=
-                compilerHighlightingCheckBox.isSelected()) return true;
+
+        if (scalaProjectSettings.isCompilerHighlightingScala2() !=
+                compilerHighlightingScala2CheckBox.isSelected()) return true;
+        if (scalaProjectSettings.isCompilerHighlightingScala3() !=
+                compilerHighlightingScala3CheckBox.isSelected()) return true;
 
         if (scalaProjectSettings.getAutoRunDelay() != getWorksheetDelay()) return true;
 
@@ -486,7 +491,8 @@ public class ScalaProjectSettingsPanel {
 
         setValue(myProjectViewHighlighting, scalaProjectSettings.isProjectViewHighlighting());
         setValue(myGroupPackageObjectWithPackage, scalaProjectSettings.isGroupPackageObjectWithPackage());
-        setValue(compilerHighlightingCheckBox, scalaProjectSettings.isCompilerHighlighting());
+        setValue(compilerHighlightingScala2CheckBox, scalaProjectSettings.isCompilerHighlightingScala2());
+        setValue(compilerHighlightingScala3CheckBox, scalaProjectSettings.isCompilerHighlightingScala3());
 
         scTypeSelectionCombobox.setSelectedItem(scalaProjectSettings.getScFileMode());
         trailingCommasComboBox.setSelectedItem(scalaProjectSettings.getTrailingCommasMode());
@@ -565,10 +571,10 @@ public class ScalaProjectSettingsPanel {
         tabbedPane = new JTabbedPane();
         myPanel.add(tabbedPane, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, new Dimension(200, 200), null, 0, false));
         final JPanel panel1 = new JPanel();
-        panel1.setLayout(new GridLayoutManager(19, 2, new Insets(9, 9, 0, 0), -1, -1));
+        panel1.setLayout(new GridLayoutManager(20, 2, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.editor"), panel1);
         final Spacer spacer1 = new Spacer();
-        panel1.add(spacer1, new GridConstraints(18, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel1.add(spacer1, new GridConstraints(19, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         showImplicitConversionsInCheckBox = new JCheckBox();
         showImplicitConversionsInCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(showImplicitConversionsInCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.highlight.implicit.conversions"));
@@ -592,24 +598,24 @@ public class ScalaProjectSettingsPanel {
         panel1.add(titledSeparator1, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final TitledSeparator titledSeparator2 = new TitledSeparator();
         titledSeparator2.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.autocomplete"));
-        panel1.add(titledSeparator2, new GridConstraints(11, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(titledSeparator2, new GridConstraints(12, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myAotCompletion = new JCheckBox();
         this.$$$loadButtonText$$$(myAotCompletion, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.ahead.of.time.completion"));
-        panel1.add(myAotCompletion, new GridConstraints(12, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(myAotCompletion, new GridConstraints(13, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         useScalaClassesPriorityCheckBox = new JCheckBox();
         useScalaClassesPriorityCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(useScalaClassesPriorityCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.use.scala.classes.priority.over.java"));
-        panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(13, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(useScalaClassesPriorityCheckBox, new GridConstraints(14, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         enableConversionOnCopyCheckBox = new JCheckBox();
         enableConversionOnCopyCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(enableConversionOnCopyCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.convert.java.code.to.scala.on.copy.paste"));
-        panel1.add(enableConversionOnCopyCheckBox, new GridConstraints(15, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(enableConversionOnCopyCheckBox, new GridConstraints(16, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         donTShowDialogCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(donTShowDialogCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.automatically.convert.to.scala.code.without.dialog"));
-        panel1.add(donTShowDialogCheckBox, new GridConstraints(16, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
+        panel1.add(donTShowDialogCheckBox, new GridConstraints(17, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 1, false));
         final TitledSeparator titledSeparator3 = new TitledSeparator();
         titledSeparator3.setText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.code.conversion"));
-        panel1.add(titledSeparator3, new GridConstraints(14, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        panel1.add(titledSeparator3, new GridConstraints(15, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
         panel1.add(panel2, new GridConstraints(0, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -624,7 +630,7 @@ public class ScalaProjectSettingsPanel {
         addOverrideToImplementCheckBox = new JCheckBox();
         addOverrideToImplementCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(addOverrideToImplementCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.add.override.keyword.to.method.implementation"));
-        panel1.add(addOverrideToImplementCheckBox, new GridConstraints(17, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel1.add(addOverrideToImplementCheckBox, new GridConstraints(18, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         showNotFoundImplicitArgumentsCheckBox = new JCheckBox();
         showNotFoundImplicitArgumentsCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(showNotFoundImplicitArgumentsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.hints.if.no.implicit.arguments.found"));
@@ -641,10 +647,14 @@ public class ScalaProjectSettingsPanel {
         showAmbiguousImplicitArgumentsCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(showAmbiguousImplicitArgumentsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.show.hints.if.ambiguous.implicit.arguments.found"));
         panel1.add(showAmbiguousImplicitArgumentsCheckBox, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        compilerHighlightingCheckBox = new JCheckBox();
-        this.$$$loadButtonText$$$(compilerHighlightingCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.highlighting"));
-        compilerHighlightingCheckBox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.highlighting.tooltip"));
-        panel1.add(compilerHighlightingCheckBox, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        compilerHighlightingScala2CheckBox = new JCheckBox();
+        this.$$$loadButtonText$$$(compilerHighlightingScala2CheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.highlighting.scala2"));
+        compilerHighlightingScala2CheckBox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.highlighting.tooltip"));
+        panel1.add(compilerHighlightingScala2CheckBox, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        compilerHighlightingScala3CheckBox = new JCheckBox();
+        this.$$$loadButtonText$$$(compilerHighlightingScala3CheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.highlighting.scala3"));
+        compilerHighlightingScala3CheckBox.setToolTipText(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.compiler.highlighting.tooltip"));
+        panel1.add(compilerHighlightingScala3CheckBox, new GridConstraints(11, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel4 = new JPanel();
         panel4.setLayout(new GridLayoutManager(3, 1, new Insets(9, 9, 0, 0), -1, -1));
         tabbedPane.addTab(this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "scala.project.settings.form.tabs.project.view"), panel4);

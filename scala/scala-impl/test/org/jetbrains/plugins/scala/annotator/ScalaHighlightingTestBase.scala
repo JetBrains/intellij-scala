@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
-import org.junit.experimental.categories.Category
 import org.junit.Assert.fail
+import org.junit.experimental.categories.Category
 
 /**
   * @author Alefas
@@ -24,7 +23,7 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
 
   override protected def setUp(): Unit = {
     super.setUp()
-    Registry.get(ScalaHighlightingMode.ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
   }
 
   def assertNoErrors(code: String): Unit =

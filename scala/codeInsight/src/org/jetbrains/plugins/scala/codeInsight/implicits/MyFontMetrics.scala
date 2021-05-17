@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import java.awt.font.FontRenderContext
 import java.awt.{Font, FontMetrics, RenderingHints}
-
-import com.intellij.ide.ui.AntialiasingType
+import com.intellij.ide.ui.{AntialiasingType, UISettings}
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.impl.{EditorImpl, FontInfo}
 import com.intellij.util.ui.UIUtil
@@ -40,7 +39,7 @@ private class MyFontMetrics(editor: Editor, familyName: String, size: Int) {
     new FontRenderContext(editorContext.getTransform,
       AntialiasingType.getKeyForCurrentScope(false),
       editor match {
-        case impl: EditorImpl => impl.myFractionalMetricsHintValue
+        case impl: EditorImpl => UISettings.getEditorFractionalMetricsHint
         case _ => RenderingHints.VALUE_FRACTIONALMETRICS_OFF
       })
   }
