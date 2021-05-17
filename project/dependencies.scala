@@ -9,7 +9,7 @@ object Versions {
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.4.8-26-cbddb8ba"
   val zincVersion = "1.4.0-M12"
-  val intellijVersion = "212.2932"
+  val intellijVersion = "212.3074"
   val bspVersion = "2.0.0-M12+27-4994bd9d-SNAPSHOT"
   val sbtStructureVersion: String = "2021.1.1"
   val sbtIdeaShellVersion: String = "2021.1.0"
@@ -190,6 +190,6 @@ object DependencyGroups {
     compilerBridgeSources_2_11,
     compilerBridgeSources_2_13,
     dottySbtBridge,
-    scala3SbtBridge,
+    scala3SbtBridge
   )
 }
