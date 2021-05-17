@@ -4,6 +4,7 @@ import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 
 class TopLevelMembersResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
+
   import SimpleResolveTestBase._
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
@@ -141,6 +142,32 @@ class TopLevelMembersResolveTest extends ScalaLightCodeInsightFixtureTestAdapter
     )
   }
 
+  def testDefaultPackage(): Unit = {
+    addFileToProject(
+      """
+        |def bar(): Int = 123
+        |""".stripMargin,
+      "defaultPackage.scala"
+    )
+
+    doResolveTest(
+      s"""
+         |object A {
+         |  val a = b${REFSRC}ar()
+         |}
+         |""".stripMargin
+    )
+
+    testNoResolve(
+      s"""
+         |package foo
+         |
+         |object B {
+         |  val a = b${REFSRC}ar()
+         |}
+         |""".stripMargin -> "noresolve.scala"
+    )
+  }
 
   private def addFileToProject(text: String, name: String): Unit =
     getFixture.addFileToProject(name, text)

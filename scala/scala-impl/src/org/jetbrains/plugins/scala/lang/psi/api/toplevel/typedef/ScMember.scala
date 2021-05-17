@@ -119,6 +119,10 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
       .getStubOrPsiParentOfType(this, classOf[ScPackaging])
       .toOption
       .map(_.fullPackageName)
+      .orElse {
+        if (this.getContext.is[ScalaFile]) Some("") //default package
+        else None
+      }
 
   // TODO Should be unified, see ScModifierListOwner
   override def hasModifierProperty(name: String): Boolean = {
