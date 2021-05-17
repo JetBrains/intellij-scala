@@ -16,29 +16,72 @@ import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.util.HashBuilder._
+
+import scala.annotation.tailrec
 
 final class ScParameterizedType private(override val designator: ScType, override val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
 
-  override protected def calculateAliasType: Option[AliasType] = {
+  override protected def calculateAliasType: Option[AliasType] =
     designator match {
-      case ScDesignatorType(ta: ScTypeAlias) =>
-        computeAliasType(ta, ScSubstitutor.empty)
-      case ScProjectionType.withActual(ta: ScTypeAlias, subst) =>
-        computeAliasType(ta, subst)
+      case ScDesignatorType(ta: ScTypeAlias)                   => computeAliasType(ta, ta.lowerBound, ta.upperBound)
+      case ScProjectionType.withActual(ta: ScTypeAlias, subst) => computeAliasType(ta, ta.lowerBound, ta.upperBound, subst)
+      case p: ScParameterizedType =>
+        //@TODO: scala 3 only
+        p.aliasType.flatMap {
+          case AliasType(ta, lower, upper) =>
+            computeAliasType(ta, lower, upper, isGuaranteedToBeTypeLambda = true)
+        }
       case _ => None
     }
-  }
 
-  private def computeAliasType(ta: ScTypeAlias, subst: ScSubstitutor): Some[AliasType] = {
-    val genericSubst = ScSubstitutor.bind(ta.typeParameters, typeArguments)
+  private def computeAliasType(
+    ta:                         ScTypeAlias,
+    lower:                      TypeResult,
+    upper:                      TypeResult,
+    subst:                      ScSubstitutor = ScSubstitutor.empty,
+    isGuaranteedToBeTypeLambda: Boolean       = false
+  ): Some[AliasType] = {
+    @tailrec
+    def stripParamsFromTypeLambdas(ta: ScTypeAlias, t: ScType): (ScType, Seq[TypeParameter]) =
+      if (!isGuaranteedToBeTypeLambda && ta.typeParameters.nonEmpty)
+        (t, ta.typeParameters.map(TypeParameter(_)))
+      else
+        t match {
+          case ScTypePolymorphicType(internal, tps) => (internal, tps)
+          case AliasType(ta, Right(lower), _)       => stripParamsFromTypeLambdas(ta, lower)
+          case t                                    => (t, Seq.empty)
+        }
 
-    val s = subst.followed(genericSubst)
-    val lowerBound = ta.lowerBound.map(s)
-    val upperBound =
-      if (ta.isDefinition) lowerBound
-      else ta.upperBound.map(s)
-    Some(AliasType(ta, lowerBound, upperBound))
+    val newLower = lower.map { l =>
+      val (t, tps) = stripParamsFromTypeLambdas(ta, l)
+
+      val actualTypeParameters =
+        if (tps.isEmpty) ta.typeParameters.map(TypeParameter(_))
+        else             tps
+
+      val typeArgsSubst = ScSubstitutor.bind(actualTypeParameters, typeArguments)
+      val s             = subst.followed(typeArgsSubst)
+      s(t)
+    }
+
+    val newUpper =
+      if (ta.isDefinition) newLower
+      else
+        upper.map { u =>
+          val (t, tps) = stripParamsFromTypeLambdas(ta, u)
+
+          val actualTypeParameters =
+            if (tps.isEmpty) ta.typeParameters.map(TypeParameter(_))
+            else             tps
+
+          val typeArgsSubst = ScSubstitutor.bind(actualTypeParameters, typeArguments)
+          val s             = subst.followed(typeArgsSubst)
+          s(t)
+        }
+
+    Some(AliasType(ta, newLower, newUpper))
   }
 
   private var hash: Int = -1

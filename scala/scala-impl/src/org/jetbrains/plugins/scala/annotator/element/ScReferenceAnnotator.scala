@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -81,9 +81,19 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
            val refText = genericCall.referencedExpr.getText
             refText == "Lambda" || refText == "λ"
         }
+
       (targetElement, refContext) match {
-        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall) if !isKindProjector(genericCall) =>
-          ScParameterizedTypeElementAnnotator.annotateTypeArgs(typeParamOwner, genericCall.typeArgs, r.substitutor)
+        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall)
+            if !isKindProjector(genericCall) =>
+          val typeParams = typeParamOwner.typeParameters.map(TypeParameter(_))
+          val stringPresentation = s"method ${typeParamOwner.name}"
+
+          ScParameterizedTypeElementAnnotator.annotateTypeArgs(
+            typeParams,
+            genericCall.typeArgs,
+            r.substitutor,
+            stringPresentation
+          )
         case _ =>
       }
 
