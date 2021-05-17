@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.traceLogViewer.viewer
 
 import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectManager}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowManager}
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.{Content, ContentFactory}
@@ -17,6 +17,13 @@ import scala.io.Source
 
 object TraceLogView {
   private val ActionToolbarPlace = "scala-trace-log-view-actionbar"
+
+  def openTraceLog(path: Path): Unit = {
+    ProjectManager.getInstance()
+      .getOpenProjects
+      .headOption
+      .foreach(openTraceLog(path, _))
+  }
 
   def openTraceLog(path: Path, project: Project): Unit = invokeLater {
     val toolWindowManager = ToolWindowManager.getInstance(project)

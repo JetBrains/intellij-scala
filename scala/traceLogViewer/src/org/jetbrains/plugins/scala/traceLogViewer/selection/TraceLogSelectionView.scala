@@ -56,6 +56,12 @@ object TraceLogSelectionView {
     factory.createContent(mainPanel, displayName, true)
   }
 
-  def refresh(): Unit =
-    ApplicationManager.getApplication.invokeLater(() => TraceLogSelectionModel.refresh())
+  def refresh(openNewItem: Boolean = false): Unit =
+    ApplicationManager.getApplication.invokeLater(() => {
+      TraceLogSelectionModel.refresh() match {
+        case Some(path) if openNewItem =>
+          TraceLogView.openTraceLog(path)
+        case _ =>
+      }
+    })
 }

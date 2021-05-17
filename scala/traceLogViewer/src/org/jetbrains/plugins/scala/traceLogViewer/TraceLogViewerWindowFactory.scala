@@ -4,11 +4,13 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
 import com.intellij.openapi.wm.{ToolWindow, ToolWindowFactory}
 import com.intellij.ui.content.{ContentManagerEvent, ContentManagerListener}
-import org.jetbrains.plugins.scala.traceLogViewer.selection.TraceLogSelectionView
+import org.jetbrains.plugins.scala.traceLogViewer.selection.{LogDirWatcher, TraceLogSelectionView}
 
+//noinspection ScalaExtractStringToBundle
 class TraceLogViewerWindowFactory extends ToolWindowFactory with DumbAware {
   override def init(toolWindow: ToolWindow): Unit = {
     toolWindow.setStripeTitle("Scala Trace Log Viewer")
+    LogDirWatcher.start()
   }
 
   override def createToolWindowContent(project: Project, toolWindow: ToolWindow): Unit = {

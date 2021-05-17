@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.traceLogViewer.selection
 
 import com.intellij.util.ui.{ColumnInfo, ListTableModel}
-import org.jetbrains.plugins.scala.traceLogViewer.selection.TraceLogSelectionModel.listEntries
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
-import java.nio.file.{Files, Path}
 import java.nio.file.attribute.BasicFileAttributes
+import java.nio.file.{Files, Path}
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, Instant, ZoneId}
 import java.util.Comparator
@@ -14,12 +13,16 @@ import scala.jdk.StreamConverters.StreamHasToScala
 import scala.util.Try
 
 
-private abstract class TraceLogSelectionModel extends ListTableModel[Entry](Entry.nameColumn, Entry.dateColumn) {
-  final def refresh(): Unit =
-    setItems(listEntries().asJava)
-}
+private object TraceLogSelectionModel extends ListTableModel[Entry](Entry.nameColumn, Entry.dateColumn) {
+  final def refresh(): Option[Path] = {
+    val prevItems = getItems.asScala
+    val items = listEntries()
+    setItems(items.asJava)
 
-private object TraceLogSelectionModel extends TraceLogSelectionModel {
+    val newItems = items.toSet -- prevItems
+
+    if (newItems.size == 1) newItems.headOption.map(_.path) else None
+  }
 
   private def listEntries(): Seq[Entry] = {
     val paths = Try(Files.list(TraceLogger.loggerOutputPath).toScala(Seq))
@@ -36,6 +39,7 @@ private object TraceLogSelectionModel extends TraceLogSelectionModel {
 }
 
 private case class Entry(name: String, path: Path, date: Instant)
+//noinspection ScalaExtractStringToBundle
 private object Entry {
   def nameColumn: ColumnInfo[Entry, String] = new ColumnInfo[Entry, String]("Log") {
     override def valueOf(item: Entry): String = item.name
