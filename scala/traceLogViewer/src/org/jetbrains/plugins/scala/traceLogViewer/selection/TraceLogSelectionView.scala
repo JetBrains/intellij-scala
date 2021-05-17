@@ -1,16 +1,23 @@
 package org.jetbrains.plugins.scala.traceLogViewer.selection
 
-import com.intellij.openapi.actionSystem.{ActionManager, DefaultActionGroup}
+import com.intellij.icons.AllIcons
+import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, DefaultActionGroup}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileChooser.{FileChooser, FileTypeDescriptor}
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.content.{Content, ContentFactory}
 import com.intellij.ui.table.TableView
 import org.jetbrains.annotations.Nls
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.traceLogViewer.viewer.TraceLogView
+import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import java.awt.BorderLayout
 import java.awt.event.{HierarchyEvent, MouseAdapter, MouseEvent}
+import java.nio.file.Files
 import javax.swing.RowSorter.SortKey
 import javax.swing.{JPanel, SortOrder}
 import scala.jdk.CollectionConverters._
@@ -19,11 +26,14 @@ object TraceLogSelectionView {
   private val ActionToolbarPlace = "scala-trace-log-selection-view-actionbar"
 
   @Nls
-  val displayName = "Logs"
+  val displayName: String = NlsString.force("Logs")
 
   def create(toolWindow: ToolWindow): Content = {
     val actionToolbarPanel = new JPanel
     val actionGroup = new DefaultActionGroup(
+      new RefreshAction,
+      new OpenLogAction,
+      new ClearLogDirectoryAction,
     )
     val actionToolBar = ActionManager.getInstance().createActionToolbar(ActionToolbarPlace, actionGroup, false)
     actionToolbarPanel.setLayout(new BorderLayout)
@@ -64,4 +74,40 @@ object TraceLogSelectionView {
         case _ =>
       }
     })
+
+  class RefreshAction extends AnAction with DumbAware {
+    getTemplatePresentation.setIcon(AllIcons.Actions.Refresh)
+
+    override def actionPerformed(e: AnActionEvent): Unit =
+      refresh()
+  }
+
+  class OpenLogAction extends AnAction with DumbAware {
+    getTemplatePresentation.setIcon(AllIcons.Actions.MenuOpen)
+
+    override def actionPerformed(e: AnActionEvent): Unit = {
+      val selectedFiles = FileChooser.chooseFiles(
+        new FileTypeDescriptor(NlsString.force("Select log file"), "log", "txt", "json"),
+          null,
+          VfsUtil.findFile(TraceLogger.loggerOutputPath, true
+        )
+      )
+
+      selectedFiles match {
+        case Array(logFile) if logFile.exists() => TraceLogView.openTraceLog(logFile.toNioPath)
+        case _ =>
+      }
+    }
+  }
+
+  class ClearLogDirectoryAction extends AnAction with DumbAware {
+    getTemplatePresentation.setIcon(AllIcons.Actions.GC)
+
+    override def actionPerformed(e: AnActionEvent): Unit = {
+      val dir = TraceLogger.loggerOutputPath
+      Files.list(dir)
+        .forEach(Files.delete(_))
+      refresh()
+    }
+  }
 }
