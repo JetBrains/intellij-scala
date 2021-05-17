@@ -46,7 +46,10 @@ object TraceLoggerTestBase {
       write(msg, values)
 
     override def startEnclosing(msg: String, args: Seq[(String, Data)], st: StackTrace): Unit = {
-      write(msg, args)
+      val txt =
+        if (msg == null) st.tail.head.getMethodName
+        else msg
+      write(txt, args)
       indent += 1
     }
 

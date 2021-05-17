@@ -43,7 +43,7 @@ class TraceLoggerTest extends TraceLoggerTestBase {
   def test_func(): Unit = {
     doTest(
       """
-        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest], arg = 42, implicitArg = 1.0)
+        |func$1 (this = [TraceLoggerTest], arg = 42, implicitArg = 1.0)
         |  test (x = 3)
         |  -> "blub 42..."
         |""".stripMargin
@@ -62,7 +62,7 @@ class TraceLoggerTest extends TraceLoggerTestBase {
   def test_failing_func(): Unit = {
     doTest(
       """
-        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest])
+        |func$2 (this = [TraceLoggerTest])
         |  test
         |  -> threw [muhahaha]
         |""".stripMargin
@@ -79,7 +79,7 @@ class TraceLoggerTest extends TraceLoggerTestBase {
   def test_object_func(): Unit = {
     doTest(
       """
-        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.funcInObject (x = 5)
+        |funcInObject (x = 5)
         |  -> 8
         |""".stripMargin
     ) {
@@ -90,9 +90,9 @@ class TraceLoggerTest extends TraceLoggerTestBase {
   def test_return(): Unit = {
     doTest(
       """
-        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest], early = false)
+        |func$3 (this = [TraceLoggerTest], early = false)
         |  -> "return normal"
-        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest], early = true)
+        |func$3 (this = [TraceLoggerTest], early = true)
         |  -> "return early"
         |""".stripMargin
     ) {
@@ -109,9 +109,9 @@ class TraceLoggerTest extends TraceLoggerTestBase {
   def test_unit_return(): Unit = {
     doTest(
       """
-        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest], early = false)
+        |func$4 (this = [TraceLoggerTest], early = false)
         |  -> ()
-        |org.jetbrains.plugins.scala.traceLogger.TraceLoggerTest.func (this = [TraceLoggerTest], early = true)
+        |func$4 (this = [TraceLoggerTest], early = true)
         |  -> ()
         |""".stripMargin
     ) {
