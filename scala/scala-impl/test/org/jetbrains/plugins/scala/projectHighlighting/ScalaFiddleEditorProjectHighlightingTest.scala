@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.projectHighlighting
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.FlakyTests
 import org.junit.experimental.categories.Category
 
-@Category(Array(classOf[HighlightingTests]))
+@Category(Array(classOf[FlakyTests]))
 class ScalaFiddleEditorProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
   override def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
