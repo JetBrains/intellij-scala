@@ -412,7 +412,6 @@ class StringToMultilineStringIntentionTest extends StringConversionTestBase {
   }
 
   def testConvertFromInterpolatedStringWithTripleQuotesEscaped(): Unit = {
-    getScalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = false
     // interpolated string `x` in `before` is invalid due to bug https://github.com/scala/bug/issues/6476
     // but still we would like to fix it by converting to a multiline
     val before =
@@ -442,8 +441,6 @@ class StringToMultilineStringIntentionTest extends StringConversionTestBase {
   }
 
   def testConvertFromInterpolatedStringWithTripleQuotesEscaped_3_RawInterpolator(): Unit = {
-    getScalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = false
-
     // NOTE \" is not actually an escape in raw"string"
     val before = s"""raw'''start ""\\u0022 "\\u0022" \\u0022"" end'''""".fixTripleQuotes
     // such magic is required to encode \" due to bug in compiler: https://github.com/scala/bug/issues/6476
@@ -454,9 +451,20 @@ class StringToMultilineStringIntentionTest extends StringConversionTestBase {
     doTest(after1, after2)
   }
 
-  def testConvertFromInterpolatedStringWithQuotesEscaped_RawInterpolator(): Unit = {
-    getScalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = false
+  def testConvertFromInterpolatedStringWithTripleQuotesEscaped_4_RawInterpolator_WithNewLine(): Unit = {
+    val before =
+      s"""raw'''This is raw content
+         |     |$${2 + 2}
+         |     |It doesn't treat \\t or \\r as escape sequences
+         |     |But it handles unicode symbols like \\u0025 or \\u0024!
+         |     |'''.stripMargin""".stripMargin.fixTripleQuotes
 
+    val after = """s"This is raw content\n${2 + 2}\nIt doesn't treat \\t or \\r as escape sequences\nBut it handles unicode symbols like % or $$!\n""""
+
+    doTest(before, after)
+  }
+
+  def testConvertFromInterpolatedStringWithQuotesEscaped_RawInterpolator(): Unit = {
     // NOTE \" is not actually an escape in raw"string"
     val before = s"""raw'''start " "" \\" \\"\\" \\"\\"\\" ""\\" "\\"" end'''""".fixTripleQuotes
     // such magic is required to encode \" due to bug in compiler: https://github.com/scala/bug/issues/6476
@@ -468,8 +476,6 @@ class StringToMultilineStringIntentionTest extends StringConversionTestBase {
   }
 
   def testConvertFromInterpolatedStringWithQuotesEscaped_RawInterpolator_1(): Unit = {
-    getScalaSettings.MULTILINE_STRING_OPENING_QUOTES_ON_NEW_LINE = false
-
     val before =
       s"""raw'''"'''
          |raw'''""'''
@@ -606,4 +612,5 @@ class StringToMultilineStringIntentionTest extends StringConversionTestBase {
     doTest(before, after1)
     doTest(after1, after2)
   }
+
 }
