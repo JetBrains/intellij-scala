@@ -3,7 +3,8 @@ package org.jetbrains.plugins.scala.settings
 import com.intellij.util.messages.Topic
 
 trait CompilerHighlightingListener {
-  def compilerHighlightingChanged(enabled: Boolean): Unit
+  def compilerHighlightingScala2Changed(enabled: Boolean): Unit
+  def compilerHighlightingScala3Changed(enabled: Boolean): Unit
 }
 
 object CompilerHighlightingListener {

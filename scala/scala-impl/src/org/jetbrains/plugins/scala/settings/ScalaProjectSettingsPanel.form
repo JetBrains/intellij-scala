@@ -17,7 +17,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="8283c" layout-manager="GridLayoutManager" row-count="19" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="8283c" layout-manager="GridLayoutManager" row-count="20" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="9" left="9" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title-resource-bundle="messages/ScalaBundle" title-key="scala.project.settings.form.tabs.editor"/>
@@ -27,7 +27,7 @@
             <children>
               <vspacer id="bcfeb">
                 <constraints>
-                  <grid row="18" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+                  <grid row="19" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
                 </constraints>
               </vspacer>
               <component id="fe40f" class="javax.swing.JCheckBox" binding="showImplicitConversionsInCheckBox" default-binding="true">
@@ -78,7 +78,7 @@
               </component>
               <component id="69021" class="com.intellij.ui.TitledSeparator">
                 <constraints>
-                  <grid row="11" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="12" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.autocomplete"/>
@@ -86,7 +86,7 @@
               </component>
               <component id="6ff7f" class="javax.swing.JCheckBox" binding="myAotCompletion">
                 <constraints>
-                  <grid row="12" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="13" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.ahead.of.time.completion"/>
@@ -94,7 +94,7 @@
               </component>
               <component id="15875" class="javax.swing.JCheckBox" binding="useScalaClassesPriorityCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="13" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="14" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <selected value="true"/>
@@ -103,7 +103,7 @@
               </component>
               <component id="d9aad" class="javax.swing.JCheckBox" binding="enableConversionOnCopyCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="15" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="16" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <selected value="true"/>
@@ -112,7 +112,7 @@
               </component>
               <component id="199f2" class="javax.swing.JCheckBox" binding="donTShowDialogCheckBox" default-binding="true">
                 <constraints>
-                  <grid row="16" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
+                  <grid row="17" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="1" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.automatically.convert.to.scala.code.without.dialog"/>
@@ -120,7 +120,7 @@
               </component>
               <component id="14138" class="com.intellij.ui.TitledSeparator">
                 <constraints>
-                  <grid row="14" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="15" column="0" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.code.conversion"/>
@@ -160,7 +160,7 @@
               </component>
               <component id="c4449" class="javax.swing.JCheckBox" binding="addOverrideToImplementCheckBox">
                 <constraints>
-                  <grid row="17" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="18" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <selected value="true"/>
@@ -209,12 +209,21 @@
                   <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.show.hints.if.ambiguous.implicit.arguments.found"/>
                 </properties>
               </component>
-              <component id="b18c" class="javax.swing.JCheckBox" binding="compilerHighlightingCheckBox">
+              <component id="b18c" class="javax.swing.JCheckBox" binding="compilerHighlightingScala2CheckBox">
                 <constraints>
                   <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.compiler.highlighting"/>
+                  <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.compiler.highlighting.scala2"/>
+                  <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.compiler.highlighting.tooltip"/>
+                </properties>
+              </component>
+              <component id="63488" class="javax.swing.JCheckBox" binding="compilerHighlightingScala3CheckBox">
+                <constraints>
+                  <grid row="11" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.compiler.highlighting.scala3"/>
                   <toolTipText resource-bundle="messages/ScalaBundle" key="scala.project.settings.form.compiler.highlighting.tooltip"/>
                 </properties>
               </component>

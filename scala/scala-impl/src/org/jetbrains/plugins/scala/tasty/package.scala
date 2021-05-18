@@ -24,7 +24,7 @@ package object tasty {
   val tastyName = "TASTy"
 
   def isTastyEnabledFor(element: PsiElement): Boolean =
-    ScalaHighlightingMode.showDotcErrors && element.isInScala3Module
+    ScalaHighlightingMode.showScala3Errors(element.getProject) && element.isInScala3Module
 //    element.getLanguage.is(Scala3Language.INSTANCE) // TODO SCL-17237
 
   case class TastyPath(classpath: String, className: String)

@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolve
-import com.intellij.openapi.util.registry.Registry
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode.ShowDotcErrorsKey
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class EnumResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with SimpleResolveTestBase {
   import SimpleResolveTestBase._
@@ -12,7 +11,7 @@ class EnumResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with Simpl
 
   override def setUp(): Unit = {
     super.setUp()
-    Registry.get(ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
   }
 
   def testEnumClass(): Unit =

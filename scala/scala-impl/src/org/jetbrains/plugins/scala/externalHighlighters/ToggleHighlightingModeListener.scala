@@ -9,6 +9,7 @@ import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.compiler.CompileServerNotificationsService
 import org.jetbrains.plugins.scala.project.ProjectExt
+import org.jetbrains.plugins.scala.settings.CompilerHighlightingListener
 
 /**
  * Ensures correct toggling between "standard" and "compiler-based" highlighting modes.
@@ -19,11 +20,17 @@ class ToggleHighlightingModeListener
   extends ProjectManagerListener {
   
   override def projectOpened(project: Project): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
+
     project.subscribeToModuleRootChanged() { _ => compileOrEraseHighlightings(project) }
-    ScalaHighlightingMode.addRegistryListener(project)(new RegistryValueListener {
-      override def afterValueChanged(value: RegistryValue): Unit = compileOrEraseHighlightings(project)
-    })
-    ScalaHighlightingMode.addSettingsListener(project)((enabled: Boolean) => compileOrEraseHighlightings(project))
+
+    object listener extends CompilerHighlightingListener {
+      override def compilerHighlightingScala2Changed(enabled: Boolean): Unit =
+        compileOrEraseHighlightings(project)
+      override def compilerHighlightingScala3Changed(enabled: Boolean): Unit =
+        compileOrEraseHighlightings(project)
+    }
+    
+    ScalaHighlightingMode.addSettingsListener(project)(listener)
   }
   
   private def compileOrEraseHighlightings(project: Project): Unit =
