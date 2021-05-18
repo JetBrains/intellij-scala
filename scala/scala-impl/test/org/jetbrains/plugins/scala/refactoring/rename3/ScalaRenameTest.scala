@@ -1,9 +1,7 @@
 package org.jetbrains .plugins.scala
 package refactoring.rename3
 
-import com.intellij.openapi.util.registry.Registry
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode.ShowDotcErrorsKey
-import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.{NoOpRevertableChange, RevertableChange, withErrorsFromCompilerDisabled}
 
 /**
  * Nikolay.Tropin
@@ -71,9 +69,17 @@ class ScalaRenameTest extends ScalaRenameTestBase {
 class Scala3RenameTest extends ScalaRenameTestBase {
   override def supportedIn(v: ScalaVersion): Boolean = v >= LatestScalaVersions.Scala_3_0
 
+  private var revertible: RevertableChange = NoOpRevertableChange
+
   override protected def setUp(): Unit = {
     super.setUp()
-    Registry.get(ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+    revertible = withErrorsFromCompilerDisabled(getProject)
+    revertible.applyChange()
+  }
+
+  protected override def tearDown(): Unit = {
+    revertible.revertChange()
+    super.tearDown()
   }
 
   def testTopLevelMethod(): Unit = doTest()
