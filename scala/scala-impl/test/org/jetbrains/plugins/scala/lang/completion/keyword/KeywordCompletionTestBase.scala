@@ -4,7 +4,6 @@ package completion
 package keyword
 
 import java.io.File
-
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.{LookupElementBuilder, LookupManager}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
@@ -17,7 +16,9 @@ import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAda
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.util.runners.{MultipleScalaVersionsRunner, RunWithScalaVersions, TestScalaVersion}
 import org.junit.Assert._
+import org.junit.runner.RunWith
 
 import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
@@ -26,6 +27,8 @@ import scala.jdk.CollectionConverters._
  * @author Alexander Podkhalyuzin
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
+@RunWith(classOf[MultipleScalaVersionsRunner])
+@RunWithScalaVersions(Array(TestScalaVersion.Scala_2_13, TestScalaVersion.Scala_3_0))
 abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def folderPath: String = baseRootPath + "keywordCompletion/"
@@ -69,7 +72,15 @@ abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTe
     }
     assertNotEquals("Test result must be in last comment statement.", delta, -1)
 
-    val text = lastPsi.getText
-    assertEquals(text.substring(2, text.length - delta).trim, actual.trim)
+    val commentText = lastPsi.getText
+    val text = commentText.substring(2, commentText.length - delta).trim
+    val versionTag = if (scalaFile.isInScala3Module) "scala3" else "scala2"
+    val keywords = text.linesIterator.flatMap(_.split(":") match {
+      case Array(kw, `versionTag`) => Some(kw)
+      case Array(_, _) => None
+      case Array(kw) => Some(kw)
+    }).toSeq
+    val expectedText = keywords.sorted.mkString("\n")
+    assertEquals(expectedText, actual.trim)
   }
 }
