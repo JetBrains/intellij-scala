@@ -1,15 +1,14 @@
 package org.jetbrains.plugins.scala.projectHighlighting
 
-import com.intellij.openapi.util.TextRange
 import com.intellij.pom.java.LanguageLevel
-import org.jetbrains.plugins.scala.HighlightingTests
+import org.jetbrains.plugins.scala.FlakyTests
 import org.junit.experimental.categories.Category
 
 /**
   * Nikolay.Tropin
   * 01-Aug-17
   */
-@Category(Array(classOf[HighlightingTests]))
+@Category(Array(classOf[FlakyTests]))
 class BetterFilesProjectHighlightingTest extends GithubSbtAllProjectHighlightingTest {
 
   override def jdkLanguageLevel: LanguageLevel = LanguageLevel.JDK_1_8
