@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.packagesearch.ui
 import com.intellij.ide.wizard.{AbstractWizard, Step}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.NlsString
-import org.jetbrains.plugins.scala.packagesearch.ArtifactInfo
+import org.jetbrains.plugins.scala.packagesearch.utils.ArtifactInfo
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
 
 class AddDependencyPreviewWizard(project: Project, artifactInfo: Option[ArtifactInfo], fileLines: Seq[DependencyPlaceInfo])

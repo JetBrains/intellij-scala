@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.refreshSbtProject
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.getSbtFileOpt
-import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
+import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.ModuleExtData
@@ -92,8 +92,9 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
 
 
-  override def declaredDependencies(module: OpenapiModule.Module): util.List[DeclaredDependency] = {
-    DumbService.getInstance(module.getProject).waitForSmartMode()
+  override def declaredDependencies(module: OpenapiModule.Module): util.List[DeclaredDependency] = try {
+//    DumbService.getInstance(module.getProject).waitForSmartMode()
+    if (DumbService.getInstance(module.getProject).isDumb) return List().asJava
     val libDeps = SbtDependencyUtils.
       getLibraryDependenciesOrPlaces(getSbtFileOpt(module), module.getProject, module, GetDep).
       map(_.asInstanceOf[(ScInfixExpr, String)])
@@ -138,6 +139,9 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
         }
       }).filter(_ != null).toList.asJava
     })
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
   override def declaredRepositories(module: OpenapiModule.Module): util.List[UnifiedDependencyRepository] = {
