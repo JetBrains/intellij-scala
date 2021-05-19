@@ -88,9 +88,12 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPrev
     val attributes = myCurEditor.getColorsScheme.getAttributes(CodeInsightColors.MATCHED_BRACE_ATTRIBUTES)
 
     val (startOffset, endOffset) = dep match {
-      case Some(elem) => (elem.getTextRange.getStartOffset, elem.getTextRange.getEndOffset)
+      case Some(elem) =>
+        (elem.getTextRange.getStartOffset, elem.getTextRange.getEndOffset)
       case None => (0, 0)
     }
+    // Reset all highlighters (if exist)
+    myCurEditor.getMarkupModel.removeAllHighlighters()
     myCurEditor.getMarkupModel.addRangeHighlighter(
       startOffset,
       endOffset,
