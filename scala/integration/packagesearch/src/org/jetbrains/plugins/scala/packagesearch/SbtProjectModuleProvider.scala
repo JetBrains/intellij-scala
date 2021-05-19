@@ -5,7 +5,7 @@ import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.{Navigatable, NavigatableAdapter}
@@ -29,10 +29,10 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
     })
   }
 
-  def createNavigatableDependencyCallback(project: Project,
-                                          module: Module): (String, String, PackageVersion) =>
+  def createNavigableDependencyCallback(project: Project,
+                                        module: Module): (String, String, PackageVersion) =>
     Navigatable = (groupId: String, artifactId: String, packageVersion: PackageVersion) => {
-    
+
     val targetedLibDep = SbtDependencyUtils.findLibraryDependency(
       project,
       module,
@@ -63,7 +63,7 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
           SbtCommon.buildSystemType,
           SbtProjectModuleType
         )
-        ScalaKotlinHelper.setNavigatableDependency(projectModule, createNavigatableDependencyCallback(project, module))
+        ScalaKotlinHelper.setNavigableDependency(projectModule, createNavigableDependencyCallback(project, module))
         projectModule
       case _ => null
     }
@@ -75,6 +75,9 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
   }
 
   override def obtainAllProjectModulesFor(project: Project): Sequence[ProjectModule] = {
+    // Check whether the IDE is in Dumb Mode. If it is, return empty sequence instead proceeding
+    if (DumbService.getInstance(project).isDumb) return ScalaKotlinHelper.toKotlinSequence(List().iterator.asJava)
+    
     val projectModules = ModuleManager.getInstance(project).getModules
       .map(module => obtainProjectModulesFor(project, module))
       .filter(_ != null)

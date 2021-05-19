@@ -40,11 +40,6 @@ object SbtDependencyTraverser {
   def traverseReferenceExpr(refExpr: ScReferenceExpression)(callback: PsiElement => Unit):Unit = {
     callback(refExpr)
 
-    //    val elem = refExpr.resolve()
-    //    if (elem == null) return
-    //    val patternDef = retrievePatternDef(elem)
-    //    if (patternDef == null) return
-    //    traversePatternDef(patternDef)(callback)
     refExpr.resolve() match {
       case (_: ScReferencePattern) && inNameContext(ScPatternDefinition.expr(expr)) => expr match {
         case infix: ScInfixExpr => traverseInfixExpr(infix)(callback)

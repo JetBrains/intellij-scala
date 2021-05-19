@@ -18,7 +18,9 @@ class SbtModuleChangesSignalProvider extends ModuleChangesSignalProvider {
     val sbtProjectDataImportListener: ProjectDataImportListener = (s: String) => {
       DumbService.getInstance(project).runWhenSmart(() => signal.fire(Unit.INSTANCE))
     }
-    project.getMessageBus.connect(LifetimeDisposableExKt.createNestedDisposable(lifetime, "lifetimeToDisposable")).subscribe(
+    project.getMessageBus.connect(LifetimeDisposableExKt.createNestedDisposable(
+      lifetime, 
+      "lifetimeToDisposable")).subscribe(
       ProjectDataImportListener.TOPIC,
       sbtProjectDataImportListener
     )

@@ -93,8 +93,10 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
 
   override def declaredDependencies(module: OpenapiModule.Module): util.List[DeclaredDependency] = try {
-//    DumbService.getInstance(module.getProject).waitForSmartMode()
+    
+    // Check whether the IDE is in Dumb Mode. If it is, return empty list instead proceeding
     if (DumbService.getInstance(module.getProject).isDumb) return List().asJava
+    
     val libDeps = SbtDependencyUtils.
       getLibraryDependenciesOrPlaces(getSbtFileOpt(module), module.getProject, module, GetDep).
       map(_.asInstanceOf[(ScInfixExpr, String)])
@@ -113,7 +115,6 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
         val libDepArr = SbtDependencyUtils.postProcessDependency(SbtDependencyUtils.getTextFromInfixAndString(libDepInfixAndString))
         val dataContext = new DataContext {
           override def getData(dataId: String): AnyRef = {
-            println("Hello from the other side")
             if (CommonDataKeys.PSI_ELEMENT.is(dataId)) {
               return libDepInfixAndString
             }
