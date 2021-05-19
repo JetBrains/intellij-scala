@@ -1,6 +1,20 @@
 <html>
 <body>
-Methods <code>sameElements</code> and <code>corresponds</code> use iterators of the collections. Result is
-unpredictable if order of elements is not well defined.
+Reports usages of <code>sameElements</code> and <code>corresponds</code> with unsorted collections.
+
+<p>The methods <code>sameElements</code> and <code>corresponds</code> use iterators of the given collections
+    to compare elements depending on the order of their position in the collection.
+    The result is therefore unpredictable if the order of elements is not well defined,
+    as it is the case for unordered Sets or Maps.</p>
+<p>To fix this consider using <code>==</code>, <code>subsetOf</code>, or bring the elements in some order.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  Set(3,2,1) sameElements Set(1, 2, 3) // is false
+
+  // but
+
+  Set(1, 2, 3, 4, 5) sameElements Set(5, 4, 3, 2, 1) // is true
+</code></pre>
 </body>
 </html>
