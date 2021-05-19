@@ -90,7 +90,7 @@ package object extensions {
       repr.getReturnType != PsiType.VOID
 
     def hasQueryLikeName: Boolean = {
-      val name = repr.getName
+      val name = repr.name
 
       def startsWith(prefix: String): Boolean =
         name.length > prefix.length && name.startsWith(prefix) && name.charAt(prefix.length).isUpper
