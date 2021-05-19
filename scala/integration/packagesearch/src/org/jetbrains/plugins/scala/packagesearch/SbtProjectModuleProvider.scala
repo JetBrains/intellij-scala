@@ -12,8 +12,8 @@ import com.intellij.pom.{Navigatable, NavigatableAdapter}
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ProjectModule, ProjectModuleProvider}
 import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
 import kotlin.sequences.Sequence
-import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyUtils, SbtProjectModuleType}
-import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil}
+import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyUtils, SbtProjectModuleType, ScalaKotlinHelper}
+import org.jetbrains.sbt.SbtUtil
 
 import java.io.File
 import scala.jdk.CollectionConverters.IteratorHasAsJava
@@ -63,7 +63,7 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
           SbtCommon.buildSystemType,
           SbtProjectModuleType
         )
-        ScalaHelper.setNavigatableDependency(projectModule, createNavigatableDependencyCallback(project, module))
+        ScalaKotlinHelper.setNavigatableDependency(projectModule, createNavigatableDependencyCallback(project, module))
         projectModule
       case _ => null
     }
@@ -79,7 +79,7 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
       .map(module => obtainProjectModulesFor(project, module))
       .filter(_ != null)
       .distinct
-    val res = ScalaHelper.toKotlinSequence(projectModules.iterator.asJava)
+    val res = ScalaKotlinHelper.toKotlinSequence(projectModules.iterator.asJava)
     res
   }
 }

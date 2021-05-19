@@ -21,7 +21,4 @@ class SbtProjectModuleOperationProvider extends AbstractProjectModuleOperationPr
     case _ => false
   }
 
-  override def refreshProject(project: Project, virtualFile: VirtualFile): Unit = {
-    refreshSbtProject(project)
-  }
 }

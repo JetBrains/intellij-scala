@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.packagesearch;
+package org.jetbrains.plugins.scala.packagesearch.utils;
 
 import com.intellij.pom.Navigatable;
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.ProjectModule;
@@ -9,11 +9,11 @@ import kotlin.sequences.SequencesKt;
 
 import java.util.Iterator;
 
-public class ScalaHelper {
-    static <T> Sequence<T> toKotlinSequence(Iterator<T> it) {
+public class ScalaKotlinHelper {
+    public static <T> Sequence<T> toKotlinSequence(Iterator<T> it) {
         return SequencesKt.asSequence(it);
     }
-    static void setNavigatableDependency(ProjectModule projectModule, scala.Function3<String, String, PackageVersion, Navigatable> f) {
+    public static void setNavigatableDependency(ProjectModule projectModule, scala.Function3<String, String, PackageVersion, Navigatable> f) {
         projectModule.setGetNavigatableDependency(new Function3<String, String, PackageVersion, Navigatable>() {
             @Override
             public Navigatable invoke(String s, String s2, PackageVersion packageVersion) {
