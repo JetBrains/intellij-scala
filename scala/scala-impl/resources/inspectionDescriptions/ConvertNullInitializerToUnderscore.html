@@ -1,11 +1,39 @@
-<html><body>
-There are 3 different cases of <code>var v: T = null</code>:
+<html>
+<body>
+Reports variable definitions that are explicitly initialized with <code>null</code>.
+<p>There are 3 different cases of <code>var v: T = null</code>:</p>
 <ol>
     <li><code>v</code> is an <em>optional</em> value<br>
-        - use <code>Option[T]</code> type, which is idiomatic and type safe,</li>
+        &rarr; use <code>Option[T]</code> type, which is idiomatic and type safe</li>
     <li><code>v</code> is an <em>uninitialized</em> value (a value must be assigned)<br>
-        - use <code>_</code> as initializer, which is clear, concise, and platform-independent,</li>
-    <li>it's a performance <em>optimization</em> (you actually use <code>null</code> value)<br>
-        - explicitly suppressed the inspection for the unsafe code.</li>
+        &rarr; use <code>_</code> (Scala 2) or <code>scala.compiletime.uninitialized</code> (Scala 3) as initializer,
+          which is clear, concise, and platform-independent</li>
+    <li>It is a performance <em>optimization</em> (you actually use the <code>null</code> value)<br>
+        &rarr; explicitly suppressed the inspection for the unsafe code</li>
 </ol>
-</body></html>
+<p>Two quickfixes will be offered:</p>
+<ul>
+    <li><em>Use _ initializer</em> will replace <code>null</code> with <code>_</code></li>
+    <li><em>Use Option type</em> will replace the type of the variable with <code>Option</code> and initialize it with <code>None</code></li>
+</ul>
+<p><b>Example:</b></p>
+<pre><code>
+class Test {
+  var optional: String = null
+  var uninit: String = null
+
+  uninit = "initialized later"
+}
+</code></pre>
+<p>After the quick-fixes are applied:</p>
+<pre><code>
+class Test {
+  var optional: Option[String] = None
+  var uninit: String = _
+
+  uninit = "initialized later"
+}
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>
