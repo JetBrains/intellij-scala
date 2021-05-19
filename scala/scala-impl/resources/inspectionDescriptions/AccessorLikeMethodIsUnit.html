@@ -1,10 +1,18 @@
 <html>
-<body>Methods that follow <a href="https://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors are
-expected to have no <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>. However,
-methods with a result type of <code>Unit</code> are only executed for their side effects.
-
-<br><br>
-<small>* Refer to Programming in Scala, 2.3 Define some functions</small>
-
+<body>
+Reports methods with accessor-like names that have result type <code>Unit</code>.
+<p>Methods that follow <a href="https://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors are
+    expected to have no <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>. However,
+    methods with a result type of <code>Unit</code> are only executed for their side effects.</p>
+<p>This indicates that the method should either result in a non-<code>Unit</code> type or
+    be renamed to better reflect the side effect.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  trait Test {
+    def getTarget(): Unit
+  }
+</code></pre>
+<!-- tooltip end -->
+<p>This inspection will not report methods that override other members.</p>
 </body>
 </html>
