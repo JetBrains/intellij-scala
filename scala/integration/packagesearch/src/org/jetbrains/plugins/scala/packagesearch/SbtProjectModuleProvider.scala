@@ -1,12 +1,16 @@
 package org.jetbrains.plugins.scala.packagesearch
 
+import com.intellij.buildsystem.model.unified.UnifiedDependency
+import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.pom.{Navigatable, NavigatableAdapter}
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ProjectModule, ProjectModuleProvider}
+import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
 import kotlin.sequences.Sequence
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyUtils, SbtProjectModuleType}
 import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil}
@@ -14,7 +18,7 @@ import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil}
 import java.io.File
 import scala.jdk.CollectionConverters.IteratorHasAsJava
 
-class SbtProjectModuleProvider extends ProjectModuleProvider{
+class SbtProjectModuleProvider extends ProjectModuleProvider {
 
   def findModulePaths(module: Module): Array[File] = {
     if (!SbtUtil.isSbtModule(module)) return null
@@ -25,11 +29,33 @@ class SbtProjectModuleProvider extends ProjectModuleProvider{
     })
   }
 
+  def createNavigatableDependencyCallback(project: Project,
+                                          module: Module): (String, String, PackageVersion) =>
+    Navigatable = (groupId: String, artifactId: String, packageVersion: PackageVersion) => {
+    
+    val targetedLibDep = SbtDependencyUtils.findLibraryDependency(
+      project,
+      module,
+      new UnifiedDependency(groupId, artifactId, packageVersion.toString, SbtCommon.defaultLibScope),
+      configurationRequired = false
+    )
+
+    new NavigatableAdapter() {
+      override def navigate(requestFocus: Boolean): Unit = {
+        PsiNavigationSupport.getInstance.createNavigatable(
+          project,
+          targetedLibDep.getContainingFile.getVirtualFile,
+          targetedLibDep.getTextOffset
+        ).navigate(requestFocus)
+      }
+    }
+  }
+
   def obtainProjectModulesFor(project: Project, module: Module):ProjectModule = try {
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     sbtFileOpt match {
       case Some(buildFile: VirtualFile) =>
-          new ProjectModule(
+          val projectModule = new ProjectModule(
           module.getName,
           module,
           null,
@@ -37,6 +63,8 @@ class SbtProjectModuleProvider extends ProjectModuleProvider{
           SbtCommon.buildSystemType,
           SbtProjectModuleType
         )
+        ScalaHelper.setNavigatableDependency(projectModule, createNavigatableDependencyCallback(project, module))
+        projectModule
       case _ => null
     }
 
