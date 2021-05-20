@@ -1,42 +1,23 @@
 <html>
 <body>
-It is not recommended to use procedure-like syntax for methods. It is
-inconsistent,
-may lead to errors and will be deprecated in future versions of Scala.
-<br />
-<br />
-
-* Reference: The talk <a href="https://www.parleys.com/play/51c1994ae4b0d38b54f4621b/chapter46/agenda">"Scala with
-Style"</a> by Martin Odersky at
-ScalaDays 2013
-<br />
-<br />
-
-<em>Hint:</em> You can use Analyze / Run Inspection by Name (Ctrl+Alt+Shift+I) to apply this inspection to the whole
-project
-
-<br />
-<br />
-
-<p>
-    Before:
-<pre>
-class Impl {
-  def method() {
-    // ...
+Reports method definitions with procedure syntax.
+<p>It is not recommended to use procedure-like syntax for methods.
+  It is inconsistent, may lead to errors and will be removed in Scala 3.</p>
+<p>The quick-fix converts the definition from procedure syntax to function syntax.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  class Test {
+    def method() { }
   }
-}
-</pre>
-
-<br>
-After:
-<pre>
-class Impl {
-  def method(): Unit = {
-    // ...
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  class Test {
+    def method(): Unit = { }
   }
-}
-</pre>
-</p>
+</code></pre>
+<!-- tooltip end -->
+<p><em>Hint:</em> You can use Analyze / Run Inspection by Name (Ctrl+Alt+Shift+I) to apply this inspection to the whole
+  project.</p>
 </body>
 </html>

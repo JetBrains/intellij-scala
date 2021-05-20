@@ -1284,7 +1284,7 @@
                 groupPath="Scala" groupKey="group.method.signature"
                 shortName="ProcedureDefinition"
                 level="WARNING"
-                enabledByDefault="false" language="Scala"/>
+                enabledByDefault="true" language="Scala"/>
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ProcedureDeclaration"
                 bundle="messages.ScalaInspectionBundle"
