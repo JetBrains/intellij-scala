@@ -1292,7 +1292,7 @@
                 groupPath="Scala" groupKey="group.method.signature"
                 shortName="ProcedureDeclaration"
                 language="Scala" level="WARNING"
-                enabledByDefault="false"/>
+                enabledByDefault="true"/>
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.JavaAccessorEmptyParenCallInspection"
                 bundle="messages.ScalaInspectionBundle"

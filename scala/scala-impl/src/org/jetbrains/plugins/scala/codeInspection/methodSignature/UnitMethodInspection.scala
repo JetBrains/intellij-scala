@@ -5,7 +5,7 @@ package methodSignature
 import com.intellij.codeInspection.LocalQuickFix
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
@@ -34,7 +34,7 @@ object UnitMethodInspection {
   final class ExplicitType extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
-      super.isApplicable(function) && function.isInstanceOf[ScFunctionDeclaration]
+      super.isApplicable(function) && function.is[ScFunctionDeclaration]
 
     override protected def findProblemElement(function: ScFunction): Option[PsiElement] =
       function.returnTypeElement
@@ -55,7 +55,7 @@ object UnitMethodInspection {
   final class FunctionDefinition extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
-      super.isApplicable(function) && function.isInstanceOf[ScFunctionDefinition]
+      super.isApplicable(function) && function.is[ScFunctionDefinition]
 
     override protected def findProblemElement(function: ScFunction): Option[PsiElement] =
       function.returnTypeElement
@@ -78,7 +78,7 @@ object UnitMethodInspection {
   final class ExplicitAssignment extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
-      super.isApplicable(function) && function.isInstanceOf[ScFunctionDefinition] &&
+      super.isApplicable(function) && function.is[ScFunctionDefinition] &&
         !function.hasExplicitType &&
         !function.isConstructor
 
@@ -101,7 +101,7 @@ object UnitMethodInspection {
   final class ProcedureDefinition extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
-      super.isApplicable(function) && function.isInstanceOf[ScFunctionDefinition] &&
+      super.isApplicable(function) && function.is[ScFunctionDefinition] &&
         !function.hasAssign &&
         !function.isConstructor &&
         IntentionAvailabilityChecker.checkInspection(this, function)
@@ -125,7 +125,7 @@ object UnitMethodInspection {
   final class ProcedureDeclaration extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
-      super.isApplicable(function) && function.isInstanceOf[ScFunctionDeclaration] &&
+      super.isApplicable(function) && function.is[ScFunctionDeclaration] &&
         !function.hasExplicitType
 
     override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
