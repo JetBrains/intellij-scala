@@ -1,15 +1,34 @@
 <html>
-<body>Methods that has mutators-like name are expected to have <a
-        href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+<body>
+Reports methods without parameter clauses that override Java methods with mutator-like names .
+<p>Scala allows overriding parameterless Java methods without parameter clauses.
+    This is mainly to allow Scala code to override Java accessor methods the same way as Scala accessor methods.
+    Namely without parameter clause and thereby adhere to the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>,
+    which says that the client code should not be affected by the decision to implement an attribute as a field or method.</p>
 
-The convention is that you include parentheses if the method has side effects.
+<p>For methods with <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>, however,
+    it is convention to have an empty parameter clause.
+    This would be in accordance to the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution
+        principle</a>, whereby, when an overridden method has side effects,
+    the overriding method must also be declared as a method with side effects.</p>
 
-In accordance with <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution
-    principle</a>, as overridden method has side effects,
-the overriding method must also be declared as a method with side effects.
+<p>The quick-fix adds an empty parameter clause.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  import java.util
 
-<br><br>
-<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>
+  class Test extends util.ArrayList[String] {
+    override def clear: Unit = ???
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  import java.util
 
+  class Test extends util.ArrayList[String] {
+    override def clear(): Unit = ???
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
