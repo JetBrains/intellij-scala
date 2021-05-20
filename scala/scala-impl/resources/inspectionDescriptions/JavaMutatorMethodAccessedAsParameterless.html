@@ -1,12 +1,25 @@
 <html>
-<body>Methods that has mutators-like name are expected to have <a
-        href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+<body>
+Reports calls to methods with mutator-like names without argument clauses.
+<p>Scala allows calling parameterless Java methods without argument clauses.
+    This is mainly to allow Scala code to use parameterless Java accessor methods the same way as Scala accessor methods.
+    Namely without any argument clause and thereby adhere to the<a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>,
+    which says that the client code should not be affected by the decision to implement an attribute as a field or method.</p>
 
-The convention is that you include empty parentheses in method call
-if the method has side effects.
+<p>For methods with <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>, however,
+    it is convention to use an empty argument clause.</p>
 
-<br><br>
-<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>
-
+<p>The quick-fix adds an empty argument clause.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  val stringBuilder = new java.util.ArrayList[String]
+  stringBuilder.clear
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  val stringBuilder = new java.util.ArrayList[String]
+  stringBuilder.clear()
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
