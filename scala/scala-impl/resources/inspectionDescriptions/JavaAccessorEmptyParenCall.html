@@ -1,22 +1,28 @@
 <html>
-<body>Methods that follow <a href="https://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors are
-expected
-to have no <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+<body>
+Reports calls to Java accessor methods with empty argument clauses.
 
-The recommended convention is to use a parameterless method whenever there are
-no parameters and the method have no side effect.
+<p>Methods that follow the <a href="https://en.wikipedia.org/wiki/JavaBean">JavaBean</a> naming contract for accessors are
+    expected to have no <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+    The recommended convention is to use a parameterless method whenever there are
+    no parameters and the method have no side effect.
+    This convention promotes the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>,
+    which says that the client code should not be affected by the decision to implement an attribute as a field or method.</p>
 
-This convention supports the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access
-    principle</a>, which says that client code
-should not be affected by a decision to implement an attribute as a field or method.
+<p>The problem is that Java does not implement the uniform access principle.
+    To bridge that gap, Scala allows you to leave off the empty parentheses
+    on an invocation of a Java method that takes no arguments.</p>
 
-The problem is that Java does not implement the uniform access principle.
+<p>The quick-fix removes the empty argument clause.</p>
 
-To bridge that gap, Scala allows you to leave off the empty parentheses
-on an invocation of function that takes no arguments.
-
-<br><br>
-<small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>
-
+<p><b>Example:</b></p>
+<pre><code>
+  "test".getClass()
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  "test".getClass
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
