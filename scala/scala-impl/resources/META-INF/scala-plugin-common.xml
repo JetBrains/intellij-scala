@@ -1246,14 +1246,6 @@
                 language="Scala" level="WARNING"
                 enabledByDefault="true"/>
         <localInspection
-                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ExplicitType"
-                bundle="messages.ScalaInspectionBundle"
-                key="method.signature.unit.explicit.type"
-                groupPath="Scala" groupKey="group.method.signature"
-                shortName="UnitMethodDeclaredWithTypeAnnotation"
-                language="Scala" level="WARNING"
-                enabledByDefault="false"/>
-        <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$FunctionDefinition"
                 bundle="messages.ScalaInspectionBundle"
                 key="method.signature.unit.functional.definition"
