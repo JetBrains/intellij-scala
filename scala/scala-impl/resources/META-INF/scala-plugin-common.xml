@@ -1246,14 +1246,6 @@
                 language="Scala" level="WARNING"
                 enabledByDefault="true"/>
         <localInspection
-                implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$ExplicitAssignment"
-                bundle="messages.ScalaInspectionBundle"
-                key="method.signature.unit.explicit.assignment"
-                groupPath="Scala" groupKey="group.method.signature"
-                shortName="UnitMethodDefinedWithEqualsSign"
-                language="Scala" level="WARNING"
-                enabledByDefault="false"/>
-        <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.UnitMethodInspection$Parameterless"
                 bundle="messages.ScalaInspectionBundle"
                 key="method.signature.unit.parameterless"

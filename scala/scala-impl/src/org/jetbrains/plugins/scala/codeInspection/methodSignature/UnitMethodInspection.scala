@@ -31,29 +31,6 @@ object UnitMethodInspection {
       Some(new AddEmptyParentheses(function))
   }
 
-  final class ExplicitAssignment extends UnitMethodInspection {
-
-    override protected def isApplicable(function: ScFunction): Boolean =
-      super.isApplicable(function) && function.is[ScFunctionDefinition] &&
-        !function.hasExplicitType &&
-        !function.isConstructor
-
-    override protected def findProblemElement(function: ScFunction): Option[PsiElement] =
-      function.asInstanceOf[ScFunctionDefinition].assignment
-
-    override protected def createQuickFix(function: ScFunction): Option[LocalQuickFix] = {
-      val quickFix = new AbstractFixOnPsiElement(
-        ScalaInspectionBundle.message("remove.redundant.equals.sign"),
-        function.asInstanceOf[ScFunctionDefinition]
-      ) {
-        override protected def doApplyFix(function: ScFunctionDefinition)(implicit project: Project): Unit =
-          removeAssignment(function)
-      }
-
-      Some(quickFix)
-    }
-  }
-
   final class ProcedureDefinition extends UnitMethodInspection {
 
     override protected def isApplicable(function: ScFunction): Boolean =
