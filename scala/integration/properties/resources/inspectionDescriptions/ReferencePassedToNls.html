@@ -1,5 +1,13 @@
 <html>
 <body>
-Only pass expressions to @Nls that are themselves annotated with @Nls.
+Reports expressions not annotated with <code>@Nls</code> that are passed to parameters that require a <code>@Nls</code> string.
+<p>This indicates an unwanted conversion of a normal string into a natural language string.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  def setTitle(@Nls title: String) = ???
+
+  setTitle("Hardcoded title") // This should be extracted into a bundle
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
