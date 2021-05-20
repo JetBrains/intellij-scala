@@ -1,11 +1,23 @@
 <html>
-<body>Methods with mutator-like name are expected to have <a
-        href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+<body>
+Reports methods with mutator-like names that have no parameter clauses.
 
-The convention is that you include parentheses if the method has side effects.
+<p>For a method with <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>,
+    it is convention to have an empty parameter clause to indicate that it is not just an accessor method.</p>
 
-<br><br>
-<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>
-
+<p>The quick-fix adds an empty parameter clause.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  trait Test {
+    def updateAll: Boolean
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  trait Test {
+    def updateAll(): Boolean
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
