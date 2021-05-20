@@ -1,11 +1,19 @@
 <html>
-<body>Methods with a result type of <code>Unit</code> are only executed for their <a
-        href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
-
-The convention is that you include parentheses if the method has side effects.
-
-<br><br>
-<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>
-
+<body>
+Reports methods with result type <code>Unit</code> that do not have parameter clauses.
+<p>Methods with a result type of <code>Unit</code> are only executed for their
+    <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>
+    and it is convention that methods with side effects have at least one (empty) parameter clause.
+    </p>
+<p>The quick-fix adds an empty parameter clause.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  def test: Unit = ()
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def test(): Unit = ()
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
