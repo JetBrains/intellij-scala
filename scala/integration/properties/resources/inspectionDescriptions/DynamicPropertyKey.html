@@ -1,5 +1,23 @@
 <html>
 <body>
-Only pass hardcoded strings as property keys.
+Reports non-string literals that are used as bundle property key.
+<p>This is hard to maintain. It is better to pass around already resolved natural language strings.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  val key =
+    if (???) "property.key.1"
+    else "property.key.2"
+
+  Bundle.message(key)
+</code></pre>
+<p>Use instead:</p>
+<pre><code>
+  val string =
+    if (???) Bundle.message("property.key.1")
+    else Bundle.message("property.key.2")
+
+  string
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
