@@ -1,18 +1,34 @@
 <html>
-<body>The recommended convention is to use a parameterless method whenever there are
-no parameters and the method have no <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side
-    effects</a>.
+<body>
+Reports methods with one empty parameter claus that override methods without parameter clauses.
 
-This convention supports the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access
-    principle</a>, which says that client code
-should not be affected by a decision to implement an attribute as a field or method.
+<p>The recommended convention is to use a method without parameter clauses whenever there are
+    no parameters and the method have no
+    <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.</p>
 
-In accordance with <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution
-    principle</a>, as overridden method is parameterless,
-the overriding method must also be declared as a method without side effects.
+<p>This convention promotes the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>,
+    which says that client code should not be affected by a decision to implement an attribute as a field or method.</p>
 
-<br><br>
-<small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>
+<p>In accordance to the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>,
+    whenever an overridden method doesn't have a parameter clause, the overriding method must also be declared as a method without side effects.</p>
 
+<p>The quick-fix removes the empty parameter clause.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  trait Base { def isOk: Boolean }
+
+  class Impl extends Base {
+    override def isOk(): Boolean = ???
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  trait Base { def isOk: Boolean }
+
+  class Impl extends Base {
+    override def isOk: Boolean = ???
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
