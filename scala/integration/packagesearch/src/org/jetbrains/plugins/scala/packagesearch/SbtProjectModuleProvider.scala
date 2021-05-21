@@ -44,8 +44,8 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
       override def navigate(requestFocus: Boolean): Unit = {
         PsiNavigationSupport.getInstance.createNavigatable(
           project,
-          targetedLibDep.getContainingFile.getVirtualFile,
-          targetedLibDep.getTextOffset
+          targetedLibDep._1.getContainingFile.getVirtualFile,
+          targetedLibDep._1.getTextOffset
         ).navigate(requestFocus)
       }
     }
@@ -63,7 +63,8 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
           SbtCommon.buildSystemType,
           SbtProjectModuleType
         )
-        ScalaKotlinHelper.setNavigableDependency(projectModule, createNavigableDependencyCallback(project, module))
+        if (!DumbService.getInstance(project).isDumb)
+          ScalaKotlinHelper.setNavigableDependency(projectModule, createNavigableDependencyCallback(project, module))
         projectModule
       case _ => null
     }
@@ -76,8 +77,8 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
 
   override def obtainAllProjectModulesFor(project: Project): Sequence[ProjectModule] = {
     // Check whether the IDE is in Dumb Mode. If it is, return empty sequence instead proceeding
-    if (DumbService.getInstance(project).isDumb) return ScalaKotlinHelper.toKotlinSequence(List().iterator.asJava)
-    
+//    if (DumbService.getInstance(project).isDumb) return ScalaKotlinHelper.toKotlinSequence(List().iterator.asJava)
+
     val projectModules = ModuleManager.getInstance(project).getModules
       .map(module => obtainProjectModulesFor(project, module))
       .filter(_ != null)

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.packagesearch.utils
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
@@ -11,15 +12,23 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import scala.annotation.tailrec
 
 object SbtDependencyTraverser {
-  
-  def traverseInfixExpr(infixExpr: ScInfixExpr)(callback: PsiElement => Unit):Unit = try {
-    callback(infixExpr)
+
+  def traverseStringLiteral(stringLiteral: ScStringLiteral)(callback: PsiElement => Boolean):Unit = try {
+    callback(stringLiteral)
+  } catch {
+    case e: Exception =>
+      throw e
+  }
+
+  def traverseInfixExpr(infixExpr: ScInfixExpr)(callback: PsiElement => Boolean):Unit = try {
+    if (!callback(infixExpr)) return
 
     def traverse(expr: ScExpression): Unit = {
       expr match {
         case subInfix: ScInfixExpr => traverseInfixExpr(subInfix)(callback)
         case call: ScMethodCall => traverseMethodCall(call)(callback)
         case refExpr: ScReferenceExpression => traverseReferenceExpr(refExpr)(callback)
+        case stringLiteral: ScStringLiteral => traverseStringLiteral(stringLiteral)(callback)
         case _ =>
       }
     }
@@ -30,29 +39,40 @@ object SbtDependencyTraverser {
         traverse(infixExpr.right)
       case "++=" | ":=" | "+=" =>
         traverse(infixExpr.right)
+      case "%" | "%%" =>
+        traverse(infixExpr.left)
+        traverse(infixExpr.right)
       case _ =>
     }
   } catch {
-    case e: Exception => throw(e)
+    case e: Exception =>
+      throw e
   }
 
-  @tailrec
-  def traverseReferenceExpr(refExpr: ScReferenceExpression)(callback: PsiElement => Unit):Unit = {
-    callback(refExpr)
+  def traverseReferenceExpr(refExpr: ScReferenceExpression)(callback: PsiElement => Boolean):Unit = try {
+    if (!callback(refExpr)) return
 
     refExpr.resolve() match {
       case (_: ScReferencePattern) && inNameContext(ScPatternDefinition.expr(expr)) => expr match {
-        case infix: ScInfixExpr => traverseInfixExpr(infix)(callback)
-        case re: ScReferenceExpression => traverseReferenceExpr(re)(callback)
+        case infix: ScInfixExpr =>
+          traverseInfixExpr(infix)(callback)
+        case re: ScReferenceExpression =>
+          traverseReferenceExpr(re)(callback)
         case seq: ScMethodCall if seq.deepestInvokedExpr.textMatches(SbtDependencyUtils.SEQ) =>
           traverseSeq(seq)(callback)
+        case stringLiteral: ScStringLiteral =>
+          traverseStringLiteral(stringLiteral)(callback)
+        case _ =>
       }
       case _ =>
     }
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
-  def traverseMethodCall(call: ScMethodCall)(callback: PsiElement => Unit):Unit = {
-    callback(call)
+  def traverseMethodCall(call: ScMethodCall)(callback: PsiElement => Boolean):Unit = try {
+    if (!callback(call)) return
 
     call match {
       case seq if seq.deepestInvokedExpr.textMatches(SbtDependencyUtils.SEQ) =>
@@ -63,10 +83,13 @@ object SbtDependencyTraverser {
         case _ =>
       }
     }
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
-  def traversePatternDef(patternDef: ScPatternDefinition)(callback: PsiElement => Unit):Unit = {
-    callback(patternDef)
+  def traversePatternDef(patternDef: ScPatternDefinition)(callback: PsiElement => Boolean):Unit = try {
+    if (!callback(patternDef)) return
 
     val maybeTypeName = patternDef.`type`().toOption
       .map(_.canonicalText)
@@ -80,10 +103,13 @@ object SbtDependencyTraverser {
         case _ =>
       }
     }
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
-  def traverseSeq(seq: ScMethodCall)(callback: PsiElement => Unit):Unit = {
-    callback(seq)
+  def traverseSeq(seq: ScMethodCall)(callback: PsiElement => Boolean):Unit = {
+    if (!callback(seq)) return
 
     seq.argumentExpressions.foreach {
       case infixExpr: ScInfixExpr =>
@@ -94,8 +120,8 @@ object SbtDependencyTraverser {
     }
   }
 
-  def traverseSettings(settings: ScMethodCall)(callback: PsiElement => Unit):Unit = {
-    callback(settings)
+  def traverseSettings(settings: ScMethodCall)(callback: PsiElement => Boolean):Unit = {
+    if (!callback(settings)) return
 
     settings.args.exprs.foreach {
       case infix: ScInfixExpr

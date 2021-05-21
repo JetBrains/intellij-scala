@@ -2,13 +2,14 @@ package org.jetbrains.plugins.scala.packagesearch.utils
 
 import com.intellij.buildsystem.model.unified.UnifiedDependency
 import com.intellij.openapi.command.WriteCommandAction
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.module.{Module => OpenapiModule}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.{PsiFileExt, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, inReadAction}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
@@ -50,7 +51,7 @@ object SbtDependencyUtils {
                             module: OpenapiModule,
                             dependency: UnifiedDependency,
                             versionRequired: Boolean = true,
-                            configurationRequired: Boolean = true):ScInfixExpr = {
+                            configurationRequired: Boolean = true):(ScInfixExpr, String, ScInfixExpr) = {
     val sbtFileOpt = getSbtFileOpt(module)
     val targetCoordinates = dependency.getCoordinates
     val targetDepText: String = generateArtifactTextVerbose(
@@ -61,17 +62,17 @@ object SbtDependencyUtils {
     val libDeps = getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetDep)
     libDeps.foreach(
       libDep => {
-        var processedDep: Array[String] = Array()
-        processedDep = postProcessDependency(getTextFromInfixAndString(libDep.asInstanceOf[(ScInfixExpr, String)]))
+        var processedDep: List[String] = List()
+        processedDep = processLibraryDependencyFromInfixAndString(libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]).map(_.asInstanceOf[String])
         var processedDepText: String = ""
         processedDep match {
-          case Array(a,b,c) =>
+          case List(a,b,c) =>
             processedDepText = generateArtifactTextVerbose(
               a,
               b,
               if (versionRequired) c else "",
               SbtCommon.defaultLibScope)
-          case Array(a,b,c,d) =>
+          case List(a,b,c,d) =>
             processedDepText = generateArtifactTextVerbose(
               a,
               b,
@@ -81,7 +82,7 @@ object SbtDependencyUtils {
         }
 
         if (targetDepText.equals(processedDepText)) {
-          return libDep.asInstanceOf[(ScInfixExpr, String)]._1
+          return libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]
         }
       }
     )
@@ -91,16 +92,16 @@ object SbtDependencyUtils {
 
   def getLibraryDependenciesOrPlacesUtil(module: OpenapiModule,
                                          psiSbtFile: ScalaFile,
-                                         mode: GetMode): Seq[(PsiElement, String)] = try {
-    var res: Seq[(PsiElement, String)] = Seq()
+                                         mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
+    var res: Seq[(PsiElement, String, PsiElement)] = Seq()
 
     val topLevelLibDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
 
     val sbtProj = getSbtModuleData(module)
 
-    var extractedTopLevelLibDeps: Seq[(PsiElement, String)] = Seq()
+    var extractedTopLevelLibDeps: Seq[(PsiElement, String, PsiElement)] = Seq()
 
-    extractedTopLevelLibDeps = topLevelLibDeps.flatMap(libDep => getLibraryDependenciesFromPsi(libDep, mode))
+    extractedTopLevelLibDeps = topLevelLibDeps.flatMap(libDep => getLibraryDependenciesOrPlacesFromPsi(libDep, mode))
 
     res ++= extractedTopLevelLibDeps
 
@@ -131,20 +132,24 @@ object SbtDependencyUtils {
     res ++= elemToAffectedProjects.toList
       .filter(_._2.contains(moduleName))
       .map(_._1)
-      .flatMap(elem => getLibraryDependenciesFromPsi(elem, mode))
+      .flatMap(elem => getLibraryDependenciesOrPlacesFromPsi(elem, mode))
 
 //    if (mode == GetPlace) res ++= getTopLevelPlaceToAdd(psiSbtFile)(project).toList
 
 
     res.distinct
   } catch {
-    case e: Exception => throw(e)
+    case e: Exception =>
+      throw e
   }
 
   def getLibraryDependenciesOrPlaces(sbtFileOpt: Option[VirtualFile],
                                      project: Project,
                                      module: OpenapiModule,
-                                     mode: GetMode): Seq[(PsiElement, String)] = try {
+                                     mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
+    // Check whether the IDE is in Dumb Mode. If it is, return empty list instead proceeding
+    if (DumbService.getInstance(module.getProject).isDumb) return Seq()
+
     val libDeps = inReadAction(
       for {
         sbtFile <- sbtFileOpt
@@ -158,65 +163,94 @@ object SbtDependencyUtils {
       throw(e)
   }
 
-  def getTextFromInfixAndString(elem: (ScInfixExpr, String)): String = {
-    elem._2 match {
-      case "" => elem._1.getText
-      case _ => s"${elem._1.getText}%${elem._2}"
+  def processLibraryDependencyFromInfixAndString(elem: (ScInfixExpr, String, ScInfixExpr), preserve: Boolean = false): List[Any] = {
+    var res: List[Any] = List()
+    def callback(psiElement: PsiElement):Boolean = {
+      psiElement match {
+        case stringLiteral: ScStringLiteral =>
+          if (preserve)
+            res = stringLiteral :: res
+          else {
+          res = cleanUpDependencyPart(stringLiteral.getText) :: res
+          }
+        case _ =>
+      }
+      true
     }
+    SbtDependencyTraverser.traverseInfixExpr(elem._1)(callback)
+
+    elem._2 match {
+      case s if s.nonEmpty => res = cleanUpDependencyPart(s) :: res
+      case _ =>
+    }
+    res.reverse
   }
 
-  def postProcessDependency(dependency: String): Array[String] = {
-    dependency.split("%")
-      .filter(_.nonEmpty) // Remove empty string
-      .map(_.trim()) // Remove space
-      .map(_.replaceAll("^\"|\"$", "")) // Remove double quotes
-  }
+  def cleanUpDependencyPart(s: String): String = s.trim.replaceAll("^\"|\"$", "")
 
-  def getLibraryDependenciesFromPsi(psi: PsiElement, mode: GetMode): Seq[(PsiElement, String)] = {
-    var result: Seq[(PsiElement, String)] = List()
+  /** Parse Library Dependencies or Places from PsiElement
+   * @param psi psiElement need passing
+   * @param mode whether you want the library dependencies or places to add dependencies from the PsiElement
+   * @return A sequence of tuple (PsiElement, String, PsiElement) where
+   *         the first element is the PsiElement of the library dependencies/places
+   *         the second element is the configuration string (Lib mode)
+   *         the third element is the parent PsiElement that contains library dependency and its configuration (Lib mode)
+   */
+  def getLibraryDependenciesOrPlacesFromPsi(psi: PsiElement, mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
+    var result: Seq[(PsiElement, String, PsiElement)] = List()
 
-    def callbackDep(psiElement: PsiElement):Unit = {
+    def callbackDep(psiElement: PsiElement):Boolean = {
       psiElement match {
         case infix: ScInfixExpr if infix.operation.refName.contains("%") =>
-          infix.getText.count(_ == '%') match {
-            case 1 => inReadAction {
+          infix.getText.split('%').map(_.trim).filter(_.nonEmpty).length - 1 match {
+            case 1 if SbtCommon.libScopes.contains(infix.right.getText.trim) => inReadAction {
               val configuration = infix.right.getText
-              def callbackRef(psiElement: PsiElement):Unit = {
+              def callbackRef(psiElement: PsiElement):Boolean = {
                 psiElement match {
                   case subInfix: ScInfixExpr if subInfix.operation.refName.contains("%") =>
-                    result ++= Seq((subInfix, configuration))
+                    result ++= Seq((subInfix, configuration, infix))
+                    return false
                   case _ =>
                 }
+                true
               }
               infix.left match {
                 case refExpr: ScReferenceExpression =>
                   SbtDependencyTraverser.traverseReferenceExpr(refExpr)(callbackRef)
                 case _ =>
               }
+              return false
             }
-            case _ => result ++= Seq((infix, ""))
+            case _ if SbtCommon.libScopes.contains(infix.right.getText.trim) =>
+              result ++= Seq((infix.left, infix.right.getText, infix))
+              return false
+            case _ =>
+              result ++= Seq((infix, "", infix))
+              return false
           }
 
         case _ =>
       }
+      true
     }
 
-    def callbackPlace(psiElement: PsiElement): Unit = {
+    def callbackPlace(psiElement: PsiElement): Boolean = {
       psiElement match {
         case libDep: ScInfixExpr if libDep.left.textMatches(LIBRARY_DEPENDENCIES) & isAddableLibraryDependencies(libDep) =>
-          result ++= Seq((libDep, ""))
+          result ++= Seq((libDep, "", libDep))
         case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) =>
-          result ++= Seq((call, ""))
+          result ++= Seq((call, "", call))
         case settings: ScMethodCall =>
           settings.getEffectiveInvokedExpr match {
-            case expr: ScReferenceExpression if expr.refName == SETTINGS => result ++= Seq((settings, ""))
+            case expr: ScReferenceExpression if expr.refName == SETTINGS => result ++= Seq((settings, "", settings))
             case _ =>
           }
         case _ =>
       }
+      true
     }
 
-    def callback(psiElement: PsiElement):Unit = {
+    def callback(psiElement: PsiElement):Boolean = {
       if (mode == GetDep) callbackDep(psiElement)
       else callbackPlace(psiElement)
     }
@@ -229,12 +263,15 @@ object SbtDependencyUtils {
     }
 
     result
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
-  def getPossiblePlacesToAddFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = {
+  def getPossiblePlacesToAddFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = try {
     var res: Seq[PsiElement] = List()
 
-    def action(psiElement: PsiElement): Unit = {
+    def action(psiElement: PsiElement): Boolean = {
       psiElement match {
         case e: ScInfixExpr if e.left.textMatches(LIBRARY_DEPENDENCIES) && isAddableLibraryDependencies(e) => res ++= Seq(e)
         case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => res ++= Seq(call)
@@ -250,11 +287,15 @@ object SbtDependencyUtils {
           }
         case _ =>
       }
+      true
     }
 
     SbtDependencyTraverser.traversePatternDef(proj)(action)
 
     res
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
   def getTopLevelSbtProjects(psiSbtFile: ScalaFile): Seq[ScPatternDefinition] = try {
@@ -343,14 +384,7 @@ object SbtDependencyUtils {
             doInSbtWriteCommandAction(call.args.addExpr(addedExpr), psiFile)
             Option(addedExpr)
           case subInfix: ScInfixExpr if subInfix.operation.refName == "++" =>
-//            val seq: ScMethodCall = generateSeqPsiMethodCall
             doInSbtWriteCommandAction({
-//              seq.args.addExpr(generateArtifactPsiExpression(info)(project))
-//              infix.right.addAfter(ScalaPsiElementFactory.createElementFromText(" ")(project), infix.getLastChild)
-//              infix.right.addAfter(ScalaPsiElementFactory.createElementFromText("++")(project), infix.getLastChild)
-//              infix.right.addAfter(ScalaPsiElementFactory.createElementFromText(" ")(project), infix.getLastChild)
-//              infix.right.addAfter(seq, infix.getLastChild)
-//              infix.replace(code"${infix} ++ $seq")
               subInfix.replace(ScalaPsiElementFactory.createExpressionFromText(s"${subInfix.getText} ++ Seq(${generateArtifactText(info)})")(project))
             }, psiFile)
             Option(infix.right)

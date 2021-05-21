@@ -10,12 +10,15 @@ import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, External
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiManager}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.refreshSbtProject
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.{defaultLibScope, refreshSbtProject}
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.getSbtFileOpt
 import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
@@ -35,12 +38,17 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     implicit val project: Project = module.getProject
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     if (sbtFileOpt == null) return
-    val dependencyPlaces = SbtDependencyUtils.getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetPlace).map(
-      psiAndString => inReadAction(SbtDependencyUtils.toDependencyPlaceInfo(psiAndString._1, Seq()))
-    ).map {
-      case Some(inside: DependencyPlaceInfo) => inside
-      case _ => null
-    }.filter(_ != null).sortWith(_.toString < _.toString)
+    val dependencyPlaces = inReadAction ( for {
+      sbtFile <- sbtFileOpt
+      psiSbtFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
+      depPlaces = (SbtDependencyUtils.getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetPlace).map(
+        psiAndString => SbtDependencyUtils.toDependencyPlaceInfo(psiAndString._1, Seq()))
+        ++ Seq(SbtDependencyUtils.getTopLevelPlaceToAdd(psiSbtFile)))
+        .map {
+        case Some(inside: DependencyPlaceInfo) => inside
+        case _ => null
+      }.filter(_ != null).sortWith(_.toString < _.toString)
+    } yield depPlaces).getOrElse(Seq.empty)
     val newDependencyCoordinates = newDependency.getCoordinates
     val newArtifactInfo = ArtifactInfo(
       newDependencyCoordinates.getGroupId,
@@ -64,18 +72,51 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     case e: Exception => throw(e)
   }
 
-  override def updateDependency(module: OpenapiModule.Module, currentDependency: UnifiedDependency, newDependency: UnifiedDependency): Unit = {
+  override def updateDependency(module: OpenapiModule.Module, currentDependency: UnifiedDependency, newDependency: UnifiedDependency): Unit = try {
     implicit val project: Project = module.getProject
-    val targetedLibDep = SbtDependencyUtils.findLibraryDependency(project, module, currentDependency)
-    if (targetedLibDep == null) return
+    val targetedLibDepTuple = SbtDependencyUtils.findLibraryDependency(project, module, currentDependency)
+    if (targetedLibDepTuple == null) return
+    val oldLibDep = SbtDependencyUtils.processLibraryDependencyFromInfixAndString(targetedLibDepTuple, preserve = true)
     val newCoordinates = newDependency.getCoordinates
-    val newDepText: String = SbtDependencyUtils.generateArtifactTextVerbose(
-      newCoordinates.getGroupId,
-      newCoordinates.getArtifactId,
-      newCoordinates.getVersion,
-      newDependency.getScope)
-    inWriteCommandAction(targetedLibDep.replace(code"$newDepText"))(project)
-//    }
+
+    if (SbtDependencyUtils.cleanUpDependencyPart(oldLibDep(2).asInstanceOf[ScStringLiteral].getText) != newCoordinates.getVersion) {
+      inWriteCommandAction(oldLibDep(2).asInstanceOf[ScStringLiteral].replace(ScalaPsiElementFactory.createElementFromText(s""""${newCoordinates.getVersion}"""")))
+      return
+    }
+    var oldConfiguration = ""
+    if (targetedLibDepTuple._2 != "") oldConfiguration = SbtDependencyUtils.cleanUpDependencyPart(targetedLibDepTuple._2)
+
+    if (oldLibDep.length > 3) oldConfiguration = SbtDependencyUtils.cleanUpDependencyPart(oldLibDep(3).asInstanceOf[String])
+    val newConfiguration = if (newDependency.getScope != defaultLibScope) newDependency.getScope else ""
+    if (oldConfiguration != newConfiguration) {
+      if (targetedLibDepTuple._2 != "") {
+        if (newConfiguration == "") {
+          inWriteCommandAction(targetedLibDepTuple._3.replace(code"${targetedLibDepTuple._3.left.getText}"))
+        }
+        else {
+          inWriteCommandAction(targetedLibDepTuple._3.right.replace(code"${newConfiguration}"))
+        }
+
+      }
+      else {
+        if (oldLibDep.length > 3) {
+          if (newConfiguration == "") {
+            inWriteCommandAction(targetedLibDepTuple._1.replace(code"${targetedLibDepTuple._1.left}"))
+          }
+          else {
+            inWriteCommandAction(targetedLibDepTuple._1.right.replace(ScalaPsiElementFactory.createElementFromText(s"""${newConfiguration}""")))
+          }
+        }
+        else {
+          if (newConfiguration != "") {
+            inWriteCommandAction(targetedLibDepTuple._1.replace(ScalaPsiElementFactory.createExpressionFromText(s"""${targetedLibDepTuple._1.getText} % $newConfiguration""")))
+          }
+        }
+      }
+    }
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
   override def removeDependency(module: OpenapiModule.Module, unifiedDependency: UnifiedDependency): Unit = {
@@ -93,13 +134,13 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
 
   override def declaredDependencies(module: OpenapiModule.Module): util.List[DeclaredDependency] = try {
-    
+
     // Check whether the IDE is in Dumb Mode. If it is, return empty list instead proceeding
     if (DumbService.getInstance(module.getProject).isDumb) return List().asJava
-    
+
     val libDeps = SbtDependencyUtils.
       getLibraryDependenciesOrPlaces(getSbtFileOpt(module), module.getProject, module, GetDep).
-      map(_.asInstanceOf[(ScInfixExpr, String)])
+      map(_.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)])
 
 
     implicit val project: Project = module.getProject
@@ -112,7 +153,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
     inReadAction({
       libDeps.map(libDepInfixAndString => {
-        val libDepArr = SbtDependencyUtils.postProcessDependency(SbtDependencyUtils.getTextFromInfixAndString(libDepInfixAndString))
+        val libDepArr = SbtDependencyUtils.processLibraryDependencyFromInfixAndString(libDepInfixAndString).map(_.asInstanceOf[String])
         val dataContext = new DataContext {
           override def getData(dataId: String): AnyRef = {
             if (CommonDataKeys.PSI_ELEMENT.is(dataId)) {
@@ -121,6 +162,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
             null
           }
         }
+
         libDepArr.length match {
           case x if x < 3 || x > 4 => null
           case x if x == 3 => new DeclaredDependency(
