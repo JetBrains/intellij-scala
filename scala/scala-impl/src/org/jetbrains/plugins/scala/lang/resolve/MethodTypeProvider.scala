@@ -111,7 +111,15 @@ object MethodTypeProvider {
 
     override def methodType(returnType: Option[ScType]): ScType = {
       val retType = returnType.getOrElse(element.returnType.getOrAny)
-      if (!element.hasParameterClause) return retType
+      // TODO: it looks not OK that we return the return type instead of ScMethodType
+      //  e.g we have following results
+      //  def f0: String           = ???   //type: String
+      //  def f00(): String        = ???   //type: () => String
+      //  def f1(int: Int): String = ???   //type: Int => String
+      //  Though REPL will return `() => String` for both `f0 _` and `f00 _`
+      //  looks like for empty parameter clauses we also might return () => String with some special mark "no clauses"
+      if (!element.hasParameterClause)
+        return retType
 
       val clauses = element.effectiveParameterClauses
       if (clauses.nonEmpty)

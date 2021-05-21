@@ -88,11 +88,9 @@ final class ScInterpolatedStringLiteralImpl(node: ASTNode,
 
       val expression =
         try {
-          ScalaPsiElementFactory.createExpressionWithContextFromText(
-            s"$StringContextCanonical$constructorParameters.$methodName$methodParameters",
-            context,
-            this
-          ).asInstanceOf[ScMethodCall]
+          // FIXME: fails on s"aaa /* ${s"ccc s${s"/*"} ddd"} bbb" (SCL-17625, SCL-18706)
+          val text = s"$StringContextCanonical$constructorParameters.$methodName$methodParameters"
+          ScalaPsiElementFactory.createExpressionWithContextFromText(text, context, this).asInstanceOf[ScMethodCall]
         } catch {
           case e: IncorrectOperationException =>
             throw new IncorrectOperationException(s"Couldn't desugar interpolated string ${this.getText}", e: Throwable)

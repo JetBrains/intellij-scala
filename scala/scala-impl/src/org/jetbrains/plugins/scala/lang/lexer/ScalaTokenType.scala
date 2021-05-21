@@ -40,6 +40,7 @@ object ScalaTokenType {
   val AsKeyword      = new ScalaTokenType("as")
   val DerivesKeyword = new ScalaTokenType("derives")
 
+  // soft modifiers (Scala 3)
   val InlineKeyword      = ScalaModifierTokenType(Inline)
   val TransparentKeyword = ScalaModifierTokenType(Transparent)
   val OpaqueKeyword      = ScalaModifierTokenType(Opaque)
@@ -52,7 +53,7 @@ object ScalaTokenType {
   val WildcardStar              = new ScalaTokenType("*")
   val WildcardTypeQuestionMark  = new ScalaTokenType("?")
   val TypeLambdaArrow           = new ScalaTokenType("=>>")
-  val ImplicitFunctionArrow     = new ScalaTokenType("?=>")
+  val ImplicitFunctionArrow     = new ScalaTokenType("?=>") // TODO: rename to context function arrow?
 
   object IsTemplateDefinition {
 
