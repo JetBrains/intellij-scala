@@ -4,6 +4,8 @@ package psi
 package api
 
 import com.intellij.openapi.util.TextRange
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
 /**
  * @author ilyas
@@ -12,9 +14,11 @@ trait ScalaFile extends ScalaPsiElement
   with ScFile
   with ScImportsHolder {
 
-  def firstPackaging: Option[toplevel.ScPackaging]
+  def firstPackaging: Option[ScPackaging]
 
-  def typeDefinitions: Seq[toplevel.typedef.ScTypeDefinition]
+  def typeDefinitions: Seq[ScTypeDefinition]
+
+  def members: Seq[ScMember]
 
   def packagingRanges: Seq[TextRange]
 

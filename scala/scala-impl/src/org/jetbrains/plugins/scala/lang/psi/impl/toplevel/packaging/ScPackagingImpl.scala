@@ -15,12 +15,12 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.TokenSets.TYPE_DEFINITIONS
+import org.jetbrains.plugins.scala.lang.TokenSets.{MEMBERS, TYPE_DEFINITIONS}
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsHolder, ScPackageLike, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScPackagingStub
@@ -150,6 +150,9 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
 
   override def immediateTypeDefinitions: Seq[ScTypeDefinition] =
     getStubOrPsiChildren(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory).toSeq
+
+  override def immediateMembers: Seq[ScMember] =
+    getStubOrPsiChildren(MEMBERS, JavaArrayFactoryUtil.ScMemberFactory).toSeq
 
   private def findPackage(name: String) =
     Option(JavaPsiFacade.getInstance(getProject).findPackage(name))

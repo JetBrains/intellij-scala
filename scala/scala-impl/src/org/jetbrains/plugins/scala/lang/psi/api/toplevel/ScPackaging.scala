@@ -5,6 +5,7 @@ package api
 package toplevel
 
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon
 
 trait ScPackaging extends ScImportsHolder
@@ -39,17 +40,15 @@ trait ScPackaging extends ScImportsHolder
 
   def reference: Option[base.ScStableCodeReference]
 
-  def immediateTypeDefinitions: Seq[toplevel.typedef.ScTypeDefinition]
-
   def packagings: Seq[ScPackaging]
-}
 
-object ScPackaging {
+  def immediateTypeDefinitions: Seq[ScTypeDefinition]
 
-  implicit class ScPackagingExt(private val packaging: ScPackaging) extends AnyVal {
+  def typeDefinitions: Seq[ScTypeDefinition] =
+    immediateTypeDefinitions ++ packagings.flatMap(_.typeDefinitions)
 
-    def typeDefinitions: Seq[toplevel.typedef.ScTypeDefinition] =
-      packaging.immediateTypeDefinitions ++ packaging.packagings.flatMap(_.typeDefinitions)
-  }
+  def immediateMembers: Seq[ScMember]
 
+  def members: Seq[ScMember] =
+    immediateMembers ++ packagings.flatMap(_.members)
 }

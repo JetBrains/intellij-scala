@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
@@ -342,10 +342,16 @@ class ScalaFileImpl(
       ArraySeq.unsafeWrapArray(stub.getChildrenByType(TYPE_DEFINITIONS, JavaArrayFactoryUtil.ScTypeDefinitionFactory))
     }
 
-    typeDefinitions ++ indirectTypeDefinitions
+    typeDefinitions ++ packagings.flatMap(_.typeDefinitions)
   }
 
-  protected final def indirectTypeDefinitions: Seq[ScTypeDefinition] = packagings.flatMap(_.typeDefinitions)
+  override def members: Seq[ScMember] = {
+    val members = foldStub(findChildren[ScMember]) { stub =>
+      ArraySeq.unsafeWrapArray(stub.getChildrenByType(MEMBERS, JavaArrayFactoryUtil.ScMemberFactory))
+    }
+
+    members ++ packagings.flatMap(_.members)
+  }
 
   private def foldStub[R](byPsi: => R)(byStub: ScFileStub => R): R = getStub match {
     case null => byPsi
