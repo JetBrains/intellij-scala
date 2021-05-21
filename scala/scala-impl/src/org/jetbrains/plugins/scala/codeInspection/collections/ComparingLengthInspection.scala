@@ -42,9 +42,7 @@ object ComparingLengthInspection {
     case _ => false
   }
 
-  private def doesScalaHasSizeIs(e: ScExpression): Boolean = {
-    println(e)
+  private def doesScalaHasSizeIs(e: ScExpression): Boolean =
     e.scalaLanguageLevel
       .forall(_ >= ScalaLanguageLevel.Scala_2_13)
-  }
 }
