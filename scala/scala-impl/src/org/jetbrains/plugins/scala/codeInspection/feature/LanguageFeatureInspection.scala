@@ -37,7 +37,7 @@ class LanguageFeatureInspection extends AbstractInspection(ScalaInspectionBundle
       case e: ScPostfixExpr => e.operation
     },
     Feature(ScalaInspectionBundle.message("language.feature.reflective.call"), "scala.language", "reflectiveCalls", _.reflectiveCalls, _.copy(reflectiveCalls = true)) {
-      case e @ ReferenceTarget(decl@Parent(_: ScRefinement)) if !decl.isInstanceOf[ScTypeAlias] => e.getLastChild match {
+      case e @ ReferenceTarget(decl@Parent(_: ScRefinement)) if !decl.is[ScTypeAlias] => e.getLastChild match {
         case id @ ElementType(ScalaTokenTypes.tIDENTIFIER) => id
         case _ => e
       }
