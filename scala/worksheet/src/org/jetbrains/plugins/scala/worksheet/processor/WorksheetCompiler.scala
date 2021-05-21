@@ -193,7 +193,7 @@ class WorksheetCompiler(
     }
     val logUnexpectedException: Throwable => Unit = ex => {
       val message = s"Unexpected exception occurred during worksheet execution, ${errorDetails(module).mkString(", ")}, ${runType.getName}, $makeType"
-      Log.error(message, ex)
+      Log.error(new RuntimeException(message, ex)) // wrap into extra exception to conveniently track the logging place
     }
     val consumer = new CompilerInterfaceImpl(logUnexpectedException, compilerTask, printer, ignoreCompilerMessages)
 
