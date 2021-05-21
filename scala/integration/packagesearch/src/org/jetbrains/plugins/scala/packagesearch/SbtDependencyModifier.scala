@@ -88,7 +88,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
     if (oldLibDep.length > 3) oldConfiguration = SbtDependencyUtils.cleanUpDependencyPart(oldLibDep(3).asInstanceOf[String])
     val newConfiguration = if (newDependency.getScope != defaultLibScope) newDependency.getScope else ""
-    if (oldConfiguration != newConfiguration) {
+    if (oldConfiguration.toLowerCase != newConfiguration.toLowerCase) {
       if (targetedLibDepTuple._2 != "") {
         if (newConfiguration == "") {
           inWriteCommandAction(targetedLibDepTuple._3.replace(code"${targetedLibDepTuple._3.left.getText}"))
@@ -104,12 +104,12 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
             inWriteCommandAction(targetedLibDepTuple._1.replace(code"${targetedLibDepTuple._1.left}"))
           }
           else {
-            inWriteCommandAction(targetedLibDepTuple._1.right.replace(ScalaPsiElementFactory.createElementFromText(s"""${newConfiguration}""")))
+            inWriteCommandAction(targetedLibDepTuple._1.right.replace(code"""${newConfiguration}"""))
           }
         }
         else {
           if (newConfiguration != "") {
-            inWriteCommandAction(targetedLibDepTuple._1.replace(ScalaPsiElementFactory.createExpressionFromText(s"""${targetedLibDepTuple._1.getText} % $newConfiguration""")))
+            inWriteCommandAction(targetedLibDepTuple._1.replace(code"""${targetedLibDepTuple._1.getText} % $newConfiguration"""))
           }
         }
       }
