@@ -203,8 +203,8 @@ object SbtDependencyUtils {
       psiElement match {
         case infix: ScInfixExpr if infix.operation.refName.contains("%") =>
           infix.getText.split('%').map(_.trim).filter(_.nonEmpty).length - 1 match {
-            case 1 if SbtCommon.libScopes.contains(infix.right.getText.trim) => inReadAction {
-              val configuration = infix.right.getText
+            case 1 if SbtCommon.libScopes.toLowerCase.contains(cleanUpDependencyPart(infix.right.getText).toLowerCase) => inReadAction {
+              val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
               def callbackRef(psiElement: PsiElement):Boolean = {
                 psiElement match {
                   case subInfix: ScInfixExpr if subInfix.operation.refName.contains("%") =>
@@ -221,8 +221,9 @@ object SbtDependencyUtils {
               }
               return false
             }
-            case _ if SbtCommon.libScopes.contains(infix.right.getText.trim) =>
-              result ++= Seq((infix.left, infix.right.getText, infix))
+            case _ if SbtCommon.libScopes.toLowerCase.contains(cleanUpDependencyPart(infix.right.getText).toLowerCase) =>
+              val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
+              result ++= Seq((infix.left, configuration, infix))
               return false
             case _ =>
               result ++= Seq((infix, "", infix))
