@@ -87,6 +87,10 @@ abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
     sourceFiles += relPathInSrc -> fileText
   }
 
+  protected def removeSourceFile(relPathInSrc: String) = {
+    sourceFiles -= relPathInSrc
+  }
+
   def checkOrAddAllSourceFiles(): Unit = {
     if (sourceFiles.exists {
       case (path, text) => !fileWithTextExists(new File(path), text)

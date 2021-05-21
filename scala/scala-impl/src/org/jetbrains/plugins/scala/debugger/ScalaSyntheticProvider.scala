@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.debugger
 
 import java.util.concurrent.ConcurrentMap
-
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
 import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.isAnonfunType
+import org.jetbrains.plugins.scala.debugger.TopLevelMembers.isSyntheticClassForTopLevelMembers
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 
 import scala.collection.mutable
@@ -38,7 +39,7 @@ object ScalaSyntheticProvider {
 
     val result = typeComponent match {
       case _ if hasSpecialization(typeComponent) && !isMacroDefined(typeComponent) => true
-      case m: Method if m.isConstructor && ScalaPositionManager.isAnonfunType(m.declaringType()) => true
+      case m: Method if isSyntheticConstructor(m) => true
       case m: Method if isDefaultArg(m) => true
       case m: Method if isForwarder(m) => true
       case m: Method if m.name().endsWith("$adapted") => true
@@ -67,6 +68,10 @@ object ScalaSyntheticProvider {
       case _ => false
     }
   }
+
+  private def isSyntheticConstructor(m: Method): Boolean =
+    (m.isConstructor || m.isStaticInitializer) &&
+      (isAnonfunType(m.declaringType()) || isSyntheticClassForTopLevelMembers(m.declaringType()))
 
   def isSpecialization(tc: TypeComponent): Boolean = unspecializedName(tc.name()).nonEmpty
 
