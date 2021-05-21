@@ -14,7 +14,7 @@ import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
-import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.search.{FilenameIndex, GlobalSearchScope}
 import com.intellij.psi.util.CachedValueProvider.Result
 import com.intellij.psi.util.{CachedValueProvider, CachedValuesManager, PsiTreeUtil}
 import com.intellij.util.containers.{ConcurrentIntObjectMap, ContainerUtil}
@@ -23,6 +23,7 @@ import com.sun.jdi.request.ClassPrepareRequest
 import org.jetbrains.annotations.{NotNull, Nullable}
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager._
+import org.jetbrains.plugins.scala.debugger.TopLevelMembers.{findFileWithTopLevelMembers, topLevelMemberClassName}
 import org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorBuilderUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator.ScalaCompilingEvaluator
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil._
@@ -223,6 +224,11 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
           case typeDef: ScTypeDefinition if !isLocalOrUnderDelayedInit(typeDef) =>
             val specificName = getSpecificNameForDebugger(typeDef)
             qName.set(if (insideMacro) specificName + "*" else specificName)
+          case file: ScalaFile =>
+            //top level member in default package
+            topLevelMemberClassName(file, None).foreach(qName.set)
+          case pckg: ScPackaging =>
+            topLevelMemberClassName(pckg.getContainingFile, Some(pckg)).foreach(qName.set)
           case _ =>
             findEnclosingTypeDefinition.foreach(typeDef => qName.set(typeDef.getQualifiedNameForDebugger + "*"))
         }
@@ -419,11 +425,15 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
 
       val originalQName = NameTransformer.decode(nonLambdaName(refType))
 
-      val clazz = withDollarTestName(originalQName)
-        .flatMap(tryToFindClass)
-        .orElse(tryToFindClass(topLevelClassName(originalQName)))
+      if (originalQName.endsWith("$package$"))
+        findFileWithTopLevelMembers(debugProcessScope, originalQName).orNull
+      else {
+        val clazz = withDollarTestName(originalQName)
+          .flatMap(tryToFindClass)
+          .orElse(tryToFindClass(topLevelClassName(originalQName)))
 
-      clazz.map(_.getNavigationElement.getContainingFile).orNull
+        clazz.map(_.getNavigationElement.getContainingFile).orNull
+      }
     }
 
     val file = inReadAction(findFile())
@@ -797,6 +807,8 @@ object ScalaPositionManager {
   def findGeneratingClassOrMethodParent(element: PsiElement): PsiElement = {
     element match {
       case null => null
+      case f: ScalaFile   => f
+      case p: ScPackaging => p
       case elem if ScalaEvaluatorBuilderUtil.isGenerateClass(elem) || isLambda(elem) => elem
       case elem if isMacroCall(elem) => elem
       case elem => findGeneratingClassOrMethodParent(elem.getParent)
