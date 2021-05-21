@@ -1156,12 +1156,6 @@
                          groupPath="Scala" groupKey="group.syntactic.clarification"
                          shortName="AutoTupling" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.ConcealedApplyCall"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.concealed.quot.apply.quot.call"
-                         groupPath="Scala" groupKey="group.syntactic.clarification"
-                         shortName="ConcealedApplyCall" level="WARNING"
-                         enabledByDefault="false" language="Scala"/>
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.VariableNullInitializerInspection"
                 bundle="messages.ScalaInspectionBundle"
