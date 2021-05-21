@@ -1,8 +1,9 @@
 <html>
 <body>
-Advanced language features, that require either explicitly imported feature flag
-or explicit compiler option to be enabled (<a
-        href="https://docs.scala-lang.org/sips/modularizing-language-features.html">SIP-18</a>).
+Reports uses of advanced language features that are not enabled in the current file.
+
+<p>Advanced language features need to be enabled either by a corresponding compiler option
+    or by importing an explicit feature flag in the file where they are used.</p>
 
 <p>
     Postfix operator notation:<br>
@@ -10,7 +11,7 @@ or explicit compiler option to be enabled (<a
 </p>
 
 <p>
-    Reflective call:<br>
+    Reflective call:
     <code>def foo(v: {def bar()}) = v.bar()</code>
 </p>
 
@@ -25,7 +26,7 @@ or explicit compiler option to be enabled (<a
 </p>
 
 <p>
-    Higher-kinded type:<br>
+    Higher-kinded type <small>(enabled by default since <em>Scala 2.13.1</em>)</small>:<br>
     <code>class Bar[M[A]]</code>
 </p>
 
@@ -38,13 +39,10 @@ or explicit compiler option to be enabled (<a
     Macro definition:<br>
     <code>def assert(s: String) = macro Asserts.assertImpl</code>
 </p>
+<!-- tooltip end -->
 
-<br>
-Scala compiler may also emit these warnings when "-feature" option is provided.
-<br>
-See: Project Settings / Compiler / Scala Compiler / Features
-<br>
-Since: Scala 2.10
+<p>Scala compiler may also emit these warnings when "-feature" option is provided. </p>
 
+<p>For compiler options see: <em>Project Settings / Compiler / Scala Compiler / Features</em></p>
 </body>
 </html>
