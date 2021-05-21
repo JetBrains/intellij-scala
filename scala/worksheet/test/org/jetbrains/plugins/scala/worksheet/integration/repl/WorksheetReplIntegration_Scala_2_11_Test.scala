@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegi
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.{assertIsBlank, assertStringMatches}
 import org.jetbrains.plugins.scala.util.runners.{NotSupportedScalaVersions, RunWithScalaVersions, SupportedScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
@@ -13,7 +14,6 @@ import org.jetbrains.plugins.scala.worksheet.integration.WorksheetRuntimeExcepti
 import org.jetbrains.plugins.scala.worksheet.integration.util.{EditorRobot, MyUiUtils}
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
 import org.jetbrains.plugins.scala.worksheet.runconfiguration.WorksheetCache
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector
 import org.jetbrains.plugins.scala.worksheet.ui.printers.WorksheetEditorPrinterRepl
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert.assertEquals
@@ -820,7 +820,7 @@ class WorksheetReplIntegration_Scala_2_11_Test
    * unknown3 +
    */
   def testRestoreErrorPositionsInOriginalFile(): Unit =
-    withModifiedRegistryValue(RemoteServerConnector.WorksheetContinueOnFirstFailure, newValue = true).run {
+    withModifiedRegistryValue(WorksheetUtils.ContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
         """Error:(2, 7) not found: value unknown1
           |unknown1
