@@ -15,7 +15,6 @@ false
 final
 finally
 for
-given:scala3
 if
 implicit
 import
