@@ -6,19 +6,25 @@ import org.jetbrains.plugins.scala.codeInspection.{ScalaInspectionBundle, ScalaQ
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.AppliedTypeLambdaCanBeSimplifiedInspection
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-/**
- * Author: Svyatoslav Ilinskiy
- * Date: 7/6/15
- */
-class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaQuickFixTestBase {
-
+abstract class AppliedTypeLambdaCanBeSimplifiedTestBase extends ScalaQuickFixTestBase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] = classOf[AppliedTypeLambdaCanBeSimplifiedInspection]
 
   override protected val description: String = ScalaInspectionBundle.message("applied.type.lambda.can.be.simplified")
 
   private val hint: String = ScalaInspectionBundle.message("simplify.type")
 
-  private def testFix(text: String, res: String): Unit = testQuickFix(text, res, hint)
+  protected def testFix(text: String, res: String): Unit = testQuickFix(text, res, hint)
+
+  def testSimple(): Unit = {
+    val text = s"def a: $START({type l[a] = Either[String, a]})#l[Int]$END)"
+    checkTextHasError(text)
+    val code = "def a: ({type l[a] = Either[String, a]})#l[Int]"
+    val res = "def a: Either[String, Int]"
+    testFix(code, res)
+  }
+}
+
+class AppliedTypeLambdaCanBeSimplifiedTest extends AppliedTypeLambdaCanBeSimplifiedTestBase {
 
   override protected def setUp(): Unit = {
     super.setUp()
@@ -28,14 +34,6 @@ class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaQuickFixTestBase {
       plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
     )
     defaultProfile.setSettings(newSettings)
-  }
-
-  def testSimple(): Unit = {
-    val text = s"def a: $START({type l[a] = Either[String, a]})#l[Int]$END)"
-    checkTextHasError(text)
-    val code = "def a: ({type l[a] = Either[String, a]})#l[Int]"
-    val res = "def a: Either[String, Int]"
-    testFix(code, res)
   }
 
   def testKindProjectorFunctionSyntax(): Unit = {
@@ -54,3 +52,5 @@ class AppliedTypeLambdaCanBeSimplifiedTest extends ScalaQuickFixTestBase {
     testFix(code, res)
   }
 }
+
+class AppliedTypeLambdaCanBeSimplifiedTest_Without_KindProjector extends AppliedTypeLambdaCanBeSimplifiedTestBase
