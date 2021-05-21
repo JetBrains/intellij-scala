@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 
 import scala.annotation.nowarn
 
+// TODO: this inspection is disabled by default, not covered with tests and looks like broken
+//  see the statistics, whether remove it if it's not used, or retest and cover with tests
 /**
  * Pavel Fatin
  */
