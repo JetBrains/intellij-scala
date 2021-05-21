@@ -19,6 +19,7 @@ class WorksheetReplIntegration_Scala_2_12_Test extends WorksheetReplIntegration_
   //  Error:(10, 14) not found: value unknownVar
   //  val $ires0 = unknownVar
   //  ?
+  @RunWithScalaVersions(extra = Array(TestScalaVersion.Scala_2_12_12))
   override def testRestoreErrorPositionsInOriginalFile(): Unit =
     withModifiedRegistryValue(RemoteServerConnector.WorksheetContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
