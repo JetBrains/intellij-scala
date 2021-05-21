@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.worksheet.ui.printers
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.compiler.CompilerMessageImpl
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerMessageCategory}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, Editor, LogicalPosition}
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.util.TextRange
@@ -18,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.project
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.util.{NotificationUtil, ScalaPluginUtils}
+import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.interactive.WorksheetAutoRunner
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector.CompilerMessagesConsumer
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
@@ -94,7 +96,7 @@ final class WorksheetEditorPrinterRepl private[printers](
         val outputText = chunkOutputBuffer.toString.replaceFirst("\\s++$", "")
         chunkOutputBuffer.clear()
 
-        val successfully = command == ReplChunkEnd
+        val successfully = command == ReplChunkEnd || WorksheetUtils.continueWorksheetEvaluationOnExpressionFailure
         chunkProcessed(outputText, successfully)
 
         updateLastLineMarker()
@@ -277,18 +279,37 @@ final class WorksheetEditorPrinterRepl private[printers](
   private def adjustOutputLineContent(outputLine: String): String =
     stripLambdaClassName(outputLine)
 
-  private def handleReplMessageLine(messageLine: String): Unit = {
-    val messagesConsumer = messagesConsumerOpt.getOrElse(return)
-    val currentPsi = psiToProcess.headOption.getOrElse(return)
-    val compilerMessage = buildCompilerMessage(messageLine, currentPsi)
-    messagesConsumer.message(compilerMessage)
+  private def handleReplMessageLine(encodedMessageLine: String): Unit = {
+    val replMessageInfo = extractReplMessage(encodedMessageLine).getOrElse {
+      Log.error(s"Cannot parse error message: $encodedMessageLine")
+      return
+    }
+
+    val showErrorInViewer = WorksheetUtils.showReplErrorsInEditor && replMessageInfo.messageCategory == CompilerMessageCategory.ERROR
+    if (showErrorInViewer) {
+      val line = cleanReplErrorMessage(buildMessageText(replMessageInfo))
+      chunkOutputBuffer.append(line + "\n")
+    }
+    else {
+      val currentPsi = psiToProcess.headOption.getOrElse(return)
+      val messagesConsumer = messagesConsumerOpt.getOrElse(return)
+
+      val compilerMessage = buildCompilerMessage(replMessageInfo, currentPsi)
+      messagesConsumer.message(compilerMessage)
+    }
   }
 
-  private def buildCompilerMessage(messageLine: String, chunk: QueuedPsi): CompilerMessage = {
-    val replMessageInfo = extractReplMessage(messageLine)
-      .getOrElse(ReplMessageInfo(messageLine, "", 0, 0, CompilerMessageCategory.INFORMATION))
+  private def cleanReplErrorMessage(errorMessage: String): String =
+    errorMessage.replaceAll("""^<console>:\d+:\serror:\s""", "")
 
-    val ReplMessageInfo(message, lineContent, lineOffset, columnOffset, severity) = replMessageInfo
+  private def buildMessageText(replMessageInfo: ReplMessageInfo): String = {
+    val ReplMessageInfo(message, lineContent, _, _, _) = replMessageInfo
+    val messageLines = (message.split('\n'):+ lineContent).map(_.trim).filter(_.nonEmpty)
+    messageLines.mkString("\n")
+  }
+
+  private def buildCompilerMessage(replMessageInfo: ReplMessageInfo, chunk: QueuedPsi): CompilerMessage = {
+    val ReplMessageInfo(_, _, lineOffset, columnOffset, severity) = replMessageInfo
 
     val module = WorksheetFileSettings(getScalaFile).getModule
     val sdk = module.flatMap(_.scalaSdk)
@@ -308,11 +329,11 @@ final class WorksheetEditorPrinterRepl private[printers](
       new LogicalPosition(line.max(0), column.max(0))
     }
 
-    val messageLines = (message.split('\n'):+ lineContent).map(_.trim).filter(_.length > 0)
+    val messageText = buildMessageText(replMessageInfo)
     new CompilerMessageImpl(
       project,
       severity,
-      messageLines.mkString("\n"),
+      messageText,
       file.getVirtualFile,
       // compiler messages positions are 1-based
       // (NOTE: Scala 3 doesn't report errors at this moment, it prints them to stdout/err)
@@ -343,6 +364,8 @@ final class WorksheetEditorPrinterRepl private[printers](
 }
 
 object WorksheetEditorPrinterRepl {
+
+  private val Log = Logger.getInstance(classOf[WorksheetEditorPrinterRepl])
 
   /**
    * Base on scala.tools.partest.Lambdaless (from [[https://github.com/scala/scala]])

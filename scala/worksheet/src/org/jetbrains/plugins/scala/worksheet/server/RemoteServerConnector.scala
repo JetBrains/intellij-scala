@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package worksheet.server
 
 import java.io._
-
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerPaths}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
@@ -21,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
-import org.jetbrains.plugins.scala.worksheet.WorksheetCompilerExtension
+import org.jetbrains.plugins.scala.worksheet.{WorksheetCompilerExtension, WorksheetUtils}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
@@ -61,7 +60,7 @@ final class RemoteServerConnector(
               sessionId = path,
               codeChunk,
               dropCachedReplInstance,
-              continueOnChunkError = Registry.is(WorksheetContinueOnFirstFailure),
+              continueOnChunkError = WorksheetUtils.continueWorksheetEvaluationOnExpressionFailure,
               outputDirs
             ))
           case Args.CompileOnly(_, _) =>
@@ -209,8 +208,4 @@ object RemoteServerConnector {
 
     def isCompiledWithErrors: Boolean
   }
-
-  // to test restoring of compiler messages positions in original worksheet file in one test method
-  @TestOnly
-  val WorksheetContinueOnFirstFailure = "scala.worksheet.continue.evalutaion.on.first.expression.failure"
 }
