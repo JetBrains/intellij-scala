@@ -45,7 +45,7 @@ import scala.collection.mutable
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
  */
-abstract class ScalaAnnotator protected()(implicit val project: Project) extends Annotator
+abstract class ScalaAnnotator protected()(implicit private val project: Project) extends Annotator
   with FunctionAnnotator
   with OverridingAnnotator
   with ProjectContextOwner with DumbAware {

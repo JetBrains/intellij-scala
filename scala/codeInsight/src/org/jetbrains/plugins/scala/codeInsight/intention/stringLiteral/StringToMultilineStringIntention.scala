@@ -151,13 +151,28 @@ object StringToMultilineStringIntention {
       case _                                            =>
         (literal, ScStringLiteralParser.parse(literal, checkStripMargin = false).getOrElse(Nil))
     }
-    val prefix = interpolatorPrefix(literal)
+    // If we convert multiline `raw` interpolated string with new lines, we need to somehow encode the new lines
+    // `raw` string do not support usual escape sequences, so there are 3 options:
+    // 1. convert to raw"" and use unicode escape sequence `\u000A` (`\n`)
+    // 2. convert to raw"" and use injection of new line ${'\n'}
+    // 3. convert to s"" and escape all backslashes
+    // Here we stick to 3. approach
+    val prefix = interpolatorPrefix(literal) match {
+      case "raw" if parts.exists(hasNewLine) => "s"
+      case p => p
+    }
     val content = InterpolatedStringFormatter.formatContent(parts, prefix, toMultiline = false)
     val newLiteralText = s"$prefix$Quote$content$Quote"
     val newLiteral = createExpressionFromText(newLiteralText)
     elementToReplace.replace(newLiteral)
     fixCaretPosition(prefix.length)
   }
+
+  private def hasNewLine(part: StringPart): Boolean =
+    part match {
+      case Text(t) => t.contains('\n')
+      case _ => false
+    }
 
   private def interpolatorPrefix(literal: ScStringLiteral): String =
     literal match {

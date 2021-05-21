@@ -39,7 +39,11 @@ class TeamCityReporter(name: String, override val filesWithProblems: Map[String,
 
     if (reportStatus) {
       if (testsWithProblems.isEmpty) {
-        tcPrint("buildStatus status='SUCCESS' text='No highlighting errors found in project'")
+        // NOTE: do not set build status, otherwise, even if there were failed tests before current test class,
+        //  that "FAILURE" status will be overwritten by this 'SUCCESS' status.
+        //  It results into "success" builds with failed tests.
+        // Anyway, not clear why we previously set the status here?
+        //tcPrint("buildStatus status='SUCCESS' text='No highlighting errors found in project'")
       } else {
         val testNames = testsWithProblems.mkString(", ")
         tcPrint(s"buildStatus status='FAILURE' text='Problems found in $testNames'")
