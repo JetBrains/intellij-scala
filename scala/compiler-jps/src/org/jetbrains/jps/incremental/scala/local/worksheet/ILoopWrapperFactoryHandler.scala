@@ -146,20 +146,24 @@ object ILoopWrapperFactoryHandler {
 
   // ATTENTION: when editing ILoopWrapperXXXImpl.scala ensure to increase the version
   private case class ILoopWrapperDescriptor(className: String, version: Int)
-  private def Scala2ILoopWrapperVersion = 8
-  private def Scala3ILoopWrapperVersion = 13
+  private def Scala2ILoopWrapperVersion = 10
+  private def Scala3ILoopWrapperVersion = 14
   // 2.12 works OK for 2.11 as well
-  private def ILoopWrapper212Impl   = ILoopWrapperDescriptor("ILoopWrapper212Impl", Scala2ILoopWrapperVersion)
-  private def ILoopWrapper213_0Impl = ILoopWrapperDescriptor("ILoopWrapper213_0Impl", Scala2ILoopWrapperVersion)
-  private def ILoopWrapper213Impl   = ILoopWrapperDescriptor("ILoopWrapper213Impl", Scala2ILoopWrapperVersion)
-  private def ILoopWrapper3Impl     = ILoopWrapperDescriptor("ILoopWrapper3Impl", Scala3ILoopWrapperVersion)
+  private def ILoopWrapper212Impl    = ILoopWrapperDescriptor("ILoopWrapper212Impl", Scala2ILoopWrapperVersion)
+  private def ILoopWrapper212_13Impl = ILoopWrapperDescriptor("ILoopWrapper212_13Impl", Scala2ILoopWrapperVersion)
+  private def ILoopWrapper213_0Impl  = ILoopWrapperDescriptor("ILoopWrapper213_0Impl", Scala2ILoopWrapperVersion)
+  private def ILoopWrapper213Impl    = ILoopWrapperDescriptor("ILoopWrapper213Impl", Scala2ILoopWrapperVersion)
+  private def ILoopWrapper3Impl      = ILoopWrapperDescriptor("ILoopWrapper3Impl", Scala3ILoopWrapperVersion)
 
   private def wrapperClassNameFor(version: ScalaVersion): ILoopWrapperDescriptor = {
     val v = version.value
-    if (v.startsWith("2.13.0")) ILoopWrapper213_0Impl
+    val wrapper = if (v.startsWith("2.13.0")) ILoopWrapper213_0Impl
     else if (v.startsWith("2.13")) ILoopWrapper213Impl
     else if (version.isScala3) ILoopWrapper3Impl
+    // note: lexicographic comparison is used, but it should work fine
+    else if (v >= "2.12.13") ILoopWrapper212_13Impl
     else ILoopWrapper212Impl
+    wrapper
   }
 
   private[worksheet] case class ReplWrapperCompiled(file: File, className: String, version: ScalaVersion)
