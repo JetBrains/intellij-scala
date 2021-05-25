@@ -95,15 +95,11 @@ object SbtDependencyUtils {
                                          mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
     var res: Seq[(PsiElement, String, PsiElement)] = Seq()
 
-    val topLevelLibDeps: Seq[ScInfixExpr] = getTopLevelLibraryDependencies(psiSbtFile)
+    if (psiSbtFile.module.orNull == module)
+      res ++= getTopLevelLibraryDependencies(psiSbtFile).flatMap(
+        libDep => getLibraryDependenciesOrPlacesFromPsi(libDep, mode))
 
-    val sbtProj = getSbtModuleData(module)
-
-    var extractedTopLevelLibDeps: Seq[(PsiElement, String, PsiElement)] = Seq()
-
-    extractedTopLevelLibDeps = topLevelLibDeps.flatMap(libDep => getLibraryDependenciesOrPlacesFromPsi(libDep, mode))
-
-    res ++= extractedTopLevelLibDeps
+//    val sbtProj = getSbtModuleData(module)
 
     val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
 
