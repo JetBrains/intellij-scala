@@ -59,35 +59,24 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     editor.getCaretModel.setCaretsAndSelections(caretStates.asJava)
   }
 
-  protected def performTest(textBefore: String, textAfter: String,
-                            fileName: String = defaultFileName)
-                           (testBody: () => Unit): Unit = {
-    val stripTrailingSpaces = false
-    configureByText(textBefore, fileName, stripTrailingSpaces)
-
-    testBody()
-
-    val (expected, expectedCarets) = findCaretOffsets(textAfter, stripTrailingSpaces)
-
-    // check if the text is correct
-    getFixture.checkResult(expected, stripTrailingSpaces)
-
-    // check if the carets are positioned correctly
-    checkCaretOffsets(expectedCarets, stripTrailingSpaces)
-  }
-
-  protected def performTestWithConvenientCaretsDiffView(
-    textBeforeWithCarets: String,
-    textAfterWithCarets: String,
+  /**
+   * @param textBefore                     editor text with caret markers before the action
+   * @param textAfter                      editor text with caret markers after the action
+   * @param stripTrailingSpacesAfterAction whether to trim trailing editor spaces after action perform
+   * @param testBody                       action to perform with `textBefore`
+   */
+  protected def performTest(
+    textBefore: String,
+    textAfter: String,
     fileName: String = defaultFileName,
-    stripTrailingSpaces: Boolean = false,
+    trimTestDataText: Boolean = false,
+    stripTrailingSpacesAfterAction: Boolean = false,
   )(testBody: () => Unit): Unit = {
-    val trimTestDataText = false
-    configureByText(textBeforeWithCarets, fileName, trimTestDataText)
+    configureByText(textBefore, fileName, trimTestDataText)
 
     testBody()
 
-    val (expectedText, expectedCarets) = findCaretOffsets(textAfterWithCarets, trimTestDataText)
+    val (expectedText, expectedCarets) = findCaretOffsets(textAfter, trimTestDataText)
 
     /**
      * Copied from [[com.intellij.testFramework.fixtures.impl.CodeInsightTestFixtureImpl.checkResult]]
@@ -100,12 +89,12 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
       PsiDocumentManager.getInstance(getProject).commitAllDocuments()
       EditorUtil.fillVirtualSpaceUntilCaret(InjectedLanguageEditorUtil.getTopLevelEditor(getEditor))
 
-      try checkCaretOffsets(expectedCarets, expectedText, stripTrailingSpaces) catch {
+      try checkCaretOffsets(expectedCarets, expectedText, stripTrailingSpacesAfterAction) catch {
         case cf: org.junit.ComparisonFailure =>
           // add "before" state to conveniently view failed tests
           def afterWithBeforePrefix(after: String)=
             s"""<<<Before>>>:
-               |$textBeforeWithCarets
+               |$textBefore
                |----------------------------------------------------
                |<<<After>>>:
                |$after""".stripMargin

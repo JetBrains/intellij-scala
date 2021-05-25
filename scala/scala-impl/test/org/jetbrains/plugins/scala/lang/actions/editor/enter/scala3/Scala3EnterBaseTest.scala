@@ -10,7 +10,7 @@ abstract class Scala3EnterBaseTest extends EditorActionTestBase {
 
   protected def doEnterTest(before: String, after: String, afterOther: String*): Unit = {
     (before +: after +: afterOther).sliding(2).foreach { case Seq(b, a) =>
-      performTestWithConvenientCaretsDiffView(b, a, stripTrailingSpaces = true) { () =>
+      performTest(b, a, stripTrailingSpacesAfterAction = true) { () =>
         performEnterAction()
       }
     }
@@ -18,7 +18,7 @@ abstract class Scala3EnterBaseTest extends EditorActionTestBase {
 
   protected def doEnterTest_NonStrippingTrailingSpaces(before: String, after: String, afterOther: String*): Unit = {
     (before +: after +: afterOther).sliding(2).foreach { case Seq(b, a) =>
-      performTestWithConvenientCaretsDiffView(b, a, stripTrailingSpaces = false) { () =>
+      performTest(b, a, stripTrailingSpacesAfterAction = false) { () =>
         performEnterAction()
       }
     }

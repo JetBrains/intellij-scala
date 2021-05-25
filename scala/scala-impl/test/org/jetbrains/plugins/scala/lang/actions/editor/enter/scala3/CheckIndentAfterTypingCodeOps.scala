@@ -42,7 +42,7 @@ trait CheckIndentAfterTypingCodeOps {
             .insertStringBeforeCaret("\n" + innerCodeIndentString)
             .removeSpacesAfterCaret
 
-          performTestWithConvenientCaretsDiffView(beforeEnter, expectedAfterEnter, stripTrailingSpaces = stripTrailingSpaces) { () =>
+          performTest(beforeEnter, expectedAfterEnter, stripTrailingSpacesAfterAction = stripTrailingSpaces) { () =>
             performEnterAction()
           }
           expectedAfterEnter
@@ -51,7 +51,7 @@ trait CheckIndentAfterTypingCodeOps {
 
       val expectedAfterTyping = beforeTyping.insertStringBeforeCaret(line)
       if (line.nonEmpty) {
-        performTestWithConvenientCaretsDiffView(beforeTyping, expectedAfterTyping, stripTrailingSpaces = stripTrailingSpaces) { () =>
+        performTest(beforeTyping, expectedAfterTyping, stripTrailingSpacesAfterAction = stripTrailingSpaces) { () =>
           performTypingAction(line)
           adjustLineIndentAtCaretPosition()
         }

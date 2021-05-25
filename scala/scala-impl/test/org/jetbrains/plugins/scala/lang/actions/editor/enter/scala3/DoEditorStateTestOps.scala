@@ -16,7 +16,7 @@ trait DoEditorStateTestOps extends CheckIndentAfterTypingCodeOps {
       val textToType = before.textToType
       val textAfter = after.text
 
-      performTestWithConvenientCaretsDiffView(textBefore, textAfter, stripTrailingSpaces = true) { () =>
+      performTest(textBefore, textAfter, stripTrailingSpacesAfterAction = true) { () =>
         val lines = linesToType(textToType)
         for {
           (line, lineIdx) <- lines.zipWithIndex
