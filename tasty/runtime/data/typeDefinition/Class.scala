@@ -1,3 +1,3 @@
 package typeDefinition
 
-class Class()
+class Class

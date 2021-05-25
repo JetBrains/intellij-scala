@@ -18,10 +18,12 @@ object TreePrinter {
 
     case node @ Node(TEMPLATE, _, children) =>
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
-      val text = children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)).map(textOf(_)).filter(_.nonEmpty).map(indent).mkString("\n\n") // TODO type member
-      primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("") +
-        primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("") +
-        (if (text.isEmpty) "" else " {\n" + text + "\n}")
+      val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
+      val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("")
+      val members = children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it))  // TODO type member
+        .map(textOf(_)).filter(_.nonEmpty).map(indent).mkString("\n\n")
+      (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
+        (if (members.isEmpty) "" else " {\n" + members + "\n}")
 
     case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) =>
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
@@ -128,7 +130,7 @@ object TreePrinter {
       case _ =>
     }
     if (open) params += ")"
-    params
+    if (template.isEmpty || definition.exists(it => it.hasFlag(CASE))) params else params.stripSuffix("()")
   }
 
   private def modifiersIn(node: Node, withImplicit: Boolean = true): String = { // TODO Optimize

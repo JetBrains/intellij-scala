@@ -1,6 +1,6 @@
 package parameter
 
-trait Def() {
+trait Def {
   def typeParameter[A]: Unit
 
   def typeParameters[A, B]: Unit

@@ -1,6 +1,6 @@
 package parameter
 
-trait Modifiers() {
+trait Modifiers {
   class ClassUsing(using x: Int, y: Int)
 
   class ClassImplicit(implicit x: Int, y: Int)

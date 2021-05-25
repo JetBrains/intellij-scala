@@ -1,5 +1,5 @@
 package member
 
-trait Var() {
+trait Var {
   var variable: Int
 }

@@ -1,3 +1,3 @@
 package typeDefinition
 
-trait Trait()
+trait Trait

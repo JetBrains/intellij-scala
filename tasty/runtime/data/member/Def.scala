@@ -1,6 +1,6 @@
 package member
 
-trait Def() {
+trait Def {
   def declaration: Int
 
   def definition: Int = ???

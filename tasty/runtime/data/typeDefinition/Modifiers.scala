@@ -1,25 +1,25 @@
 package typeDefinition
 
-trait Modifiers() {
-  private class PrivateClass()
+trait Modifiers {
+  private class PrivateClass
 
-  protected class ProtectedClass()
+  protected class ProtectedClass
 
-  abstract class AbstractClass()
+  abstract class AbstractClass
 
-  final class FinalClass()
+  final class FinalClass
 
-  sealed class SealedClass()
+  sealed class SealedClass
 
-  open class OpenClass()
+  open class OpenClass
 
-  private trait PrivateTrait()
+  private trait PrivateTrait
 
-  protected trait ProtectedTrait()
+  protected trait ProtectedTrait
 
-  abstract trait AbstractTrait()
+  abstract trait AbstractTrait
 
-  sealed trait SealedTrait()
+  sealed trait SealedTrait
 
-  open trait OpenTrait()
+  open trait OpenTrait
 }
