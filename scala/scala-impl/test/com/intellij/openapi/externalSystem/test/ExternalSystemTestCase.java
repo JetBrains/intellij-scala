@@ -18,6 +18,7 @@ package com.intellij.openapi.externalSystem.test;
 import com.intellij.compiler.CompilerTestUtil;
 import com.intellij.compiler.artifacts.ArtifactsTestUtil;
 import com.intellij.compiler.impl.ModuleCompileScope;
+import com.intellij.compiler.server.BuildManager;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.*;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -46,6 +47,7 @@ import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ThrowableRunnable;
+import com.intellij.util.io.PathKt;
 import com.intellij.util.io.TestFileSystemItem;
 import com.intellij.util.text.FilePathHashingStrategy;
 import gnu.trove.THashSet;
@@ -61,6 +63,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.*;
 import java.util.jar.Attributes;
@@ -103,11 +106,7 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
                     (ThrowableRunnable<Throwable>) () -> WriteAction.run(this::setUpInWriteAction)
             );
         } catch (Throwable e) {
-            try {
-                tearDown();
-            } catch (Exception e1) {
-                e1.printStackTrace();
-            }
+            e.printStackTrace();
             throw new RuntimeException(e);
         }
 
@@ -560,6 +559,24 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         return true;
     }
 
+    public static void deleteBuildSystemDirectory(Project project) {
+        BuildManager buildManager = BuildManager.getInstance();
+        if (buildManager == null) return;
+        Path buildSystemDirectory = buildManager.getBuildSystemDirectory(project);
+        try {
+            PathKt.delete(buildSystemDirectory);
+            return;
+        }
+        catch (Exception ignore) {
+        }
+        try {
+            FileUtil.delete(buildSystemDirectory.toFile());
+        }
+        catch (Exception e) {
+            LOG.warn("Unable to remove build system directory.", e);
+        }
+    }
+
     private void printIgnoredMessage(String message) {
         String toPrint = "Ignored";
         if (message != null) {
@@ -608,5 +625,4 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
             return myDelegate.hashCode();
         }
     }
-
 }
