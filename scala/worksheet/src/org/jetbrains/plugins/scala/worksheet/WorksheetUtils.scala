@@ -4,13 +4,23 @@ import com.intellij.ide.scratch.ScratchUtil
 import com.intellij.lang.LanguageUtil
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.containers.ContainerUtil
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 object WorksheetUtils {
+
+
+  // to test restoring of compiler messages positions in original worksheet file in one test method
+  @TestOnly val ContinueOnFirstFailure = "scala.worksheet.continue.repl.evaluation.on.first.expression.failure"
+  @TestOnly val ShowReplErrorsInEditor = "scala.worksheet.show.repl.errors.in.editor"
+
+  @TestOnly def continueWorksheetEvaluationOnExpressionFailure: Boolean = Registry.is(ContinueOnFirstFailure)
+  @TestOnly def showReplErrorsInEditor: Boolean = Registry.is(ShowReplErrorsInEditor)
 
   def isWorksheetFile(project: Project, file: VirtualFile): Boolean = {
     val isExplicitWorksheet = WorksheetFileType.isMyFileType(file) && !isAmmoniteEnabled(project, file)

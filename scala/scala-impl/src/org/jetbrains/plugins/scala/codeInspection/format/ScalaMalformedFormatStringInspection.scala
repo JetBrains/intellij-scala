@@ -13,8 +13,32 @@ import scala.annotation.nowarn
 
 /**
  * NOTE!!!<br>
- * We currently don't handle interpolated string in formatted context.
+ * We currently don't handle interpolated string in formatted context.<br>
  * See comment inside [[org.jetbrains.plugins.scala.format.FormattedStringParser.parse]] and SCL-15414
+ *
+ * @todo add tests for f"" strings
+ * @todo handle invalid specifiers (java does handle it) {{{
+ *  """%""".format()
+ *  """% """.format()
+ *  """%  """.format()
+ *  """text %""".format()
+ *  """text % """.format()
+ *  """text %! %""".format()
+ *  """text %! %! %""".format()
+ *  """text %) %""".format()
+ *
+ *  f"""%"""
+ *  f"""% """
+ *  f"""%  """
+ *  f"""text %"""
+ *  f"""text % """
+ *  f"""text %! %"""
+ *  f"""text %! %! %"""
+ *  f"""text %) %"""
+ *
+ *  val a = 42f
+ *  f"${a}%2.2%"
+ * }}}
  */
 @nowarn("msg=" + AbstractInspection.DeprecationText)
 class ScalaMalformedFormatStringInspection extends AbstractInspection {

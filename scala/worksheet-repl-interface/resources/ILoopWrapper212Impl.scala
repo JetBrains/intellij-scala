@@ -3,7 +3,6 @@ package org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface
 import java.io.{File, Flushable, PrintWriter}
 
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
-import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 
 import scala.reflect.classTag
 import scala.reflect.internal.util.Position
@@ -32,13 +31,13 @@ class ILoopWrapper212Impl(
     // do not use java class path because it contains scala library jars with version
     // different from one that is used during compilation (it is passed from the plugin classpath)
     mySettings.usejavacp.value = false
-    mySettings
 
     this.settings = mySettings
 
     createInterpreter()
     intp.initializeSynchronous()
     intp.quietBind(NamedParam[IMain]("$intp", intp)(tagOfIMain, classTag[IMain]))
+    // NOTE: this is NOOP method, deprecated since = "2.12.0", but the class is used in 2.122 as well
     intp.setContextClassLoader()
   }
 

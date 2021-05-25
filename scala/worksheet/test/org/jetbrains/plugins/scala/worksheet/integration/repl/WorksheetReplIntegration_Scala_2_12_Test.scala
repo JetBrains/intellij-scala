@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
+import org.jetbrains.plugins.scala.WorksheetEvaluationTests
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions.assertIsBlank
 import org.jetbrains.plugins.scala.util.runners.{RunWithScalaVersions, TestScalaVersion}
+import org.jetbrains.plugins.scala.worksheet.WorksheetUtils
 import org.jetbrains.plugins.scala.worksheet.actions.topmenu.RunWorksheetAction.RunWorksheetActionResult.WorksheetRunError
 import org.jetbrains.plugins.scala.worksheet.integration.WorksheetIntegrationBaseTest.TestRunResult
 import org.jetbrains.plugins.scala.worksheet.processor.WorksheetCompiler.WorksheetCompilerResult
-import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion, WorksheetEvaluationTests}
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
@@ -19,8 +19,9 @@ class WorksheetReplIntegration_Scala_2_12_Test extends WorksheetReplIntegration_
   //  Error:(10, 14) not found: value unknownVar
   //  val $ires0 = unknownVar
   //  ?
+  @RunWithScalaVersions(extra = Array(TestScalaVersion.Scala_2_12_12))
   override def testRestoreErrorPositionsInOriginalFile(): Unit =
-    withModifiedRegistryValue(RemoteServerConnector.WorksheetContinueOnFirstFailure, newValue = true).run {
+    withModifiedRegistryValue(WorksheetUtils.ContinueOnFirstFailure, newValue = true).run {
       val expectedCompilerOutput =
         """Error:(2, 7) not found: value unknown1
           |unknown1

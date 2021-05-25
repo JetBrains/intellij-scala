@@ -53,10 +53,17 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     if (!file.is[ScalaFile]) return Result.CONTINUE
 
     val offset = editor.offset
-    val element = file.findElementAt(offset - 1)
-    //if (element == null) return Result.CONTINUE
-
     val document = editor.getDocument
+
+    val element = file.findElementAt(offset - 1) match {
+      case null if offset == document.getTextLength =>
+        // eg when typing space in the end of worksheet
+        PsiTreeUtil.getDeepestLast(file)
+      case el => el
+    }
+    if (element == null)
+      return Result.CONTINUE
+
     val text = document.getImmutableCharSequence
 
     // TODO: do not use function literal, use dedicated class with descriptive names
@@ -76,7 +83,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       prefix.length <= offset && offset <= text.length &&
         text.substring(offset - prefix.length, offset) == prefix
 
-    val myTask: Task = if (element != null && isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
+    val myTask: Task = if (isInDocComment(element)) { //we don't have to check offset >= 3 because "/**" is already has 3 characters
       getScaladocTask(text, offset)
     } else if (c == ' ' && hasPrefix(" case ")) {
       indentKeyword[ScCaseClause](ScalaTokenTypes.kCASE, file)
@@ -88,7 +95,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       indentKeyword[ScFinallyBlock](ScalaTokenTypes.kFINALLY, file)
     } else if (c == '{' && hasPrefix(" {")) {
       indentValBraceStyle(file)
-    } else if (element != null && isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
+    } else if (isInPlace(element, classOf[ScXmlExpr], classOf[ScXmlPattern])) {
       chooseXmlTask(withAttr = true)
     } else if (file.findElementAt(offset - 2) match {
       case el: PsiElement if !ScalaNamesUtil.isOperatorName(el.getText) && !el.textMatches("=") =>
@@ -96,14 +103,14 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       case _ => false
     }) {
       chooseXmlTask(withAttr = false)
-    } else if (element != null && element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementType.CASE_CLAUSES) {
+    } else if (element.getPrevSibling != null && element.getPrevSibling.getNode.getElementType == ScalaElementType.CASE_CLAUSES) {
       val ltIndex = element.getPrevSibling.getText.indexOf("<")
       if (ltIndex > "case ".length - 1 && element.getPrevSibling.getText.substring(0, ltIndex).trim == "case") {
         chooseXmlTask(withAttr = false)
       } else {
         null
       }
-    } else if (element != null && c == '{' && (element.getParent match {
+    } else if (c == '{' && (element.getParent match {
       case l: ScInterpolatedStringLiteral => !l.isMultiLineString
       case _ => false
     })) {
@@ -119,7 +126,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
       adjustIndentBeforeDot(editor)
     }
     //SCL-18951
-    else if (c != '.' && c != ' ' && element != null && shouldAdjustIndentBecauseOfPostfix(offset, element, document, editor)) {
+    else if (c != '.' && c != ' ' && shouldAdjustIndentBecauseOfPostfix(offset, element, document, editor)) {
       adjustIndent
     } else if (c == '.') {
       startAutoPopupCompletionInInterpolatedString(file, editor)

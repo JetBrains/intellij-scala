@@ -10,7 +10,11 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.annotation.tailrec
 
-final case class ScMethodType(result: ScType, params: Seq[Parameter], isImplicit: Boolean)
+final case class ScMethodType(result: ScType,
+                              // TODO: we should also be able to express the absence of parameter clauses in method
+                              //  to distinguish between def foo: String = ??? and def foo(): String
+                              params: Seq[Parameter],
+                              isImplicit: Boolean)
                              (implicit val elementScope: ElementScope) extends NonValueType {
 
   override implicit def projectContext: project.ProjectContext = elementScope.projectContext

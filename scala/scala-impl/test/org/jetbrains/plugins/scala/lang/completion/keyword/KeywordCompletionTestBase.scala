@@ -13,7 +13,7 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.testFramework.EditorTestUtil
-import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
+import org.jetbrains.plugins.scala.base.{ScalaLightPlatformCodeInsightTestCaseAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaKeywordLookupItem.KeywordInsertHandler
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -29,6 +29,9 @@ import scala.jdk.CollectionConverters._
 abstract class KeywordCompletionTestBase extends ScalaLightPlatformCodeInsightTestCaseAdapter {
 
   def folderPath: String = baseRootPath + "keywordCompletion/"
+
+  override protected def sharedProjectToken: SharedTestProjectToken =
+    SharedTestProjectToken(this.getClass.getName + "_" + this.version.toString)
 
   protected def doTest(): Unit = {
     val filePath = folderPath + getTestName(false) + ".scala"
