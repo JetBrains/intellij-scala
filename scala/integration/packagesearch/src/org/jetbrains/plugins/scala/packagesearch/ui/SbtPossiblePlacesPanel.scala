@@ -39,6 +39,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPrev
 
     val scrollPane = ScrollPaneFactory.createScrollPane(myResultList)
     scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS) // Don't remove this line.
+    scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS)
     splitPane.setContinuousLayout(true)
     splitPane.add(scrollPane)
     splitPane.add(myCurEditor.getComponent)
