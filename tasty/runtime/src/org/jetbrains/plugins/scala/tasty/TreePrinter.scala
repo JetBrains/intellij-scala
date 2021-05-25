@@ -12,7 +12,7 @@ object TreePrinter {
         "\n" +
         tail.map(textOf).mkString("\n")
 
-    case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) =>
+    case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) =>
       modifiersIn(node) + (if (node.hasFlag(TRAIT)) "trait " else "class ") + name + textOf(template)
 
     case node @ Node(TEMPLATE, _, children) =>
@@ -22,7 +22,7 @@ object TreePrinter {
         primaryConstructor.map(it => parametersIn(it, Some(node))).getOrElse("") +
         (if (text.isEmpty) "" else " {\n" + text + "\n}")
 
-    case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) =>
+    case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) =>
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
@@ -32,7 +32,7 @@ object TreePrinter {
         modifiersIn(node) + "def " + name + parametersIn(node) + ": " + tpe.map(textOf).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, /* compiled code */
       }
 
-    case node @ Node(VALDEF, Seq(name), children) =>
+    case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) =>
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       modifiersIn(node) + (if (node.hasFlag(MUTABLE)) "var " else "val ") + name + ": " + tpe.map(textOf).getOrElse("") + (if (isDeclaration ) "" else " = ???") // TODO parameter
@@ -158,6 +158,9 @@ object TreePrinter {
     }
     if (node.hasFlag(OPEN)) {
       s += "open "
+    }
+    if (node.hasFlag(CASE)) {
+      s += "case "
     }
     s
   }

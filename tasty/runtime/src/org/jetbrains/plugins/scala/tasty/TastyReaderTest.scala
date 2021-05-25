@@ -26,6 +26,7 @@ object TastyReaderTest {
       "parameter/Trait",
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
+      "typeDefinition/CaseClass",
       "typeDefinition/Class",
       "typeDefinition/Modifiers",
 //      "typeDefinition/Object",
