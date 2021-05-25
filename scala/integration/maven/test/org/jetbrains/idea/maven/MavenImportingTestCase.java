@@ -9,6 +9,9 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.externalSystem.test.ExternalSystemTestCase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.module.ModuleTypeManager;
+import com.intellij.openapi.module.StdModuleTypes;
+import com.intellij.openapi.module.impl.ModuleTypeManagerImpl;
 import com.intellij.openapi.projectRoots.Sdk;
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl;
 import com.intellij.openapi.roots.*;
@@ -70,10 +73,18 @@ public abstract class MavenImportingTestCase extends MavenTestCase {
     if (settingsFile != null) {
       VfsRootAccess.allowRootAccess(getTestRootDisposable(), settingsFile.getAbsolutePath());
     }
+
+    // Without this HACK for some reason different instances of com.intellij.openapi.module.JavaModuleType will be used
+    // in org.jetbrains.idea.maven.importing.MavenImporter (e.g. ScalaMavenImporter)
+    // and org.jetbrains.idea.maven.importing.MavenModuleImporter
+    // (Note that it uses `==` instead of `equals` for some reason: `importer.getModuleType() == moduleType`)
+    ModuleTypeManagerImpl.getInstance().registerModuleType(StdModuleTypes.JAVA);
   }
 
   @Override
   protected void tearDown() throws Exception {
+    ModuleTypeManagerImpl.getInstance().unregisterModuleType(StdModuleTypes.JAVA);
+
     RunAll.runAll(
       () -> WriteAction.runAndWait(() -> JavaAwareProjectJdkTableImpl.removeInternalJdkInTests()),
       () -> TestDialogManager.setTestDialog(TestDialog.DEFAULT),
