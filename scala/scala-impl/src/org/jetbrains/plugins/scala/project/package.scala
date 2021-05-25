@@ -256,6 +256,9 @@ package object project {
     def isSAMEnabled: Boolean =
       scalaModuleSettings.exists(_.isSAMEnabled)
 
+    def isSource3Enabled: Boolean =
+      scalaModuleSettings.exists(_.isSource3Enabled)
+
     def isPartialUnificationEnabled: Boolean =
       scalaModuleSettings.exists(_.isPartialUnificationEnabled)
 
