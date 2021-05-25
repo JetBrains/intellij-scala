@@ -43,6 +43,7 @@ object SbtDependencyTraverser {
         traverse(infixExpr.left)
         traverse(infixExpr.right)
       case _ =>
+        traverse(infixExpr.left)
     }
   } catch {
     case e: Exception =>

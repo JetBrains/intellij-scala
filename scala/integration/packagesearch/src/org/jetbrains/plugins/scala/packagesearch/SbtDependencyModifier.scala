@@ -41,9 +41,13 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     val dependencyPlaces = inReadAction ( for {
       sbtFile <- sbtFileOpt
       psiSbtFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
+      topLevelPlace = if (psiSbtFile.module.orNull == module)
+        Seq(SbtDependencyUtils.getTopLevelPlaceToAdd(psiSbtFile))
+      else Seq.empty
+      
       depPlaces = (SbtDependencyUtils.getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetPlace).map(
         psiAndString => SbtDependencyUtils.toDependencyPlaceInfo(psiAndString._1, Seq()))
-        ++ Seq(SbtDependencyUtils.getTopLevelPlaceToAdd(psiSbtFile)))
+        ++ topLevelPlace)
         .map {
         case Some(inside: DependencyPlaceInfo) => inside
         case _ => null
