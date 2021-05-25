@@ -1,55 +1,85 @@
 package org.jetbrains.plugins.scala
 package project.maven
 
-import com.intellij.build.BuildProgressListener
 import com.intellij.build.events.BuildEvent
-
-import java.io.File
-import java.util
-import com.intellij.openapi.externalSystem.model.ExternalSystemException
+import com.intellij.ide.util.projectWizard.ModuleBuilder
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
-import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.{Module, ModuleType, StdModuleTypes}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.Key
+import com.intellij.util.PairConsumer
 import org.jdom.Element
 import org.jetbrains.idea.maven.importing.{MavenImporter, MavenRootModelAdapter}
 import org.jetbrains.idea.maven.model.{MavenArtifact, MavenArtifactInfo, MavenPlugin}
 import org.jetbrains.idea.maven.project._
 import org.jetbrains.idea.maven.server.{MavenEmbedderWrapper, NativeMavenProjectHolder}
+import org.jetbrains.jps.model.java.JavaSourceRootType
+import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.Importer
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
+import java.io.File
+import java.util
 import scala.jdk.CollectionConverters._
 
 /**
  * @author Pavel Fatin
  */
 class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-plugin") {
-  override def collectSourceFolders(mavenProject: MavenProject, result: java.util.List[String]): Unit = {
-    collectSourceOrTestFolders(mavenProject, "add-source", "sourceDir", "src/main/scala", result)
-  }
 
-  override def collectTestFolders(mavenProject: MavenProject, result: java.util.List[String]): Unit = {
-    collectSourceOrTestFolders(mavenProject, "add-source", "testSourceDir", "src/test/scala", result)
-  }
+  override def getModuleType: ModuleType[_ <: ModuleBuilder] =  StdModuleTypes.JAVA
 
-  private def collectSourceOrTestFolders(mavenProject: MavenProject, goal: String, goalPath: String,
-                                         defaultDir: String, result: java.util.List[String]): Unit = {
+  override def collectSourceRoots(
+    mavenProject: MavenProject,
+    result: PairConsumer[String, JpsModuleSourceRootType[_]]
+  ): Unit = {
+    val sourceFolders = getSourceFolders(mavenProject)
+    val testFolders = getTestFolders(mavenProject)
+
+    sourceFolders.foreach(result.consume(_, JavaSourceRootType.SOURCE))
+    testFolders.foreach(result.consume(_, JavaSourceRootType.TEST_SOURCE))
+  }
+  
+  private def getSourceFolders(mavenProject: MavenProject): Seq[String] =
+    getSourceOrTestFolders(mavenProject, "add-source", "sourceDir", "src/main/scala")
+
+  private def getTestFolders(mavenProject: MavenProject): Seq[String] =
+    getSourceOrTestFolders(mavenProject, "add-source", "testSourceDir", "src/test/scala")
+
+  private def getSourceOrTestFolders(
+    mavenProject: MavenProject,
+    goal: String,
+    goalPath: String,
+    defaultDir: String,
+  ): Seq[String] = {
     val goalConfigValue = findGoalConfigValue(mavenProject, goal, goalPath)
-    result.add(if (goalConfigValue == null) defaultDir else goalConfigValue)
+    val result = if (goalConfigValue == null) defaultDir else goalConfigValue
+    Seq(result)
   }
 
   // exclude "default" plugins, should be done inside IDEA's MavenImporter itself
   override def isApplicable(mavenProject: MavenProject): Boolean = validConfigurationIn(mavenProject).isDefined
 
-  override def preProcess(module: Module, mavenProject: MavenProject, changes: MavenProjectChanges, modelsProvider: IdeModifiableModelsProvider): Unit = {}
+  override def preProcess(
+    module: Module,
+    mavenProject: MavenProject,
+    changes: MavenProjectChanges,
+    modelsProvider: IdeModifiableModelsProvider
+  ): Unit = {}
 
-  override def process(modelsProvider: IdeModifiableModelsProvider, module: Module,
-              rootModel: MavenRootModelAdapter, mavenModel: MavenProjectsTree, mavenProject: MavenProject,
-              changes: MavenProjectChanges, mavenProjectToModuleName: util.Map[MavenProject, String],
-              postTasks: util.List[MavenProjectsProcessorTask]): Unit = {
-
+  // called after `resolve`
+  override def process(
+    modelsProvider: IdeModifiableModelsProvider,
+    module: Module,
+    rootModel: MavenRootModelAdapter,
+    mavenModel: MavenProjectsTree,
+    mavenProject: MavenProject,
+    changes: MavenProjectChanges,
+    mavenProjectToModuleName: util.Map[MavenProject, String],
+    postTasks: util.List[MavenProjectsProcessorTask]
+  ): Unit = {
     validConfigurationIn(mavenProject).foreach { configuration =>
       // TODO configuration.vmOptions
 
@@ -62,41 +92,69 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 
       val Some(version) = configuration.compilerVersion
 
-      modelsProvider.getAllLibraries.find { library =>
-        library.getName.contains("scala-library") && library.compilerVersion.contains(version)
-      } match {
-        case Some(scalaLibrary) =>
-          if (!scalaLibrary.isScalaSdk)
-            Importer.setScalaSdk(
-              modelsProvider,
-              scalaLibrary,
-              ScalaLibraryProperties(Some(version), configuration.compilerClasspath.map(mavenProject.localPathTo))
-            )
-        case None =>
-          val msg = s"Cannot find project Scala library $version for module ${module.getName}"
-          val exception = new IllegalArgumentException(msg)
-          val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
-          console.addException(exception, (_: Any, _: BuildEvent) => ())
-      }
+      convertScalaLibraryToSdk(module, modelsProvider, version)
     }
   }
 
-  override def resolve(project: Project, mavenProject: MavenProject, nativeMavenProject: NativeMavenProjectHolder,
-                       embedder: MavenEmbedderWrapper): Unit = {
-    validConfigurationIn(mavenProject).foreach { configuration =>
+  private def convertScalaLibraryToSdk(
+    module: Module,
+    modelsProvider: IdeModifiableModelsProvider,
+    compilerVersion: String,
+  ): Unit = {
+    val expectedLibraryName = scalaCompilerArtifactName("library", compilerVersion)
+    val maybeScalaLibrary = modelsProvider.getAllLibraries.find { library =>
+      val libraryName = library.getName
+      libraryName.contains(expectedLibraryName) &&
+        library.compilerVersion.contains(compilerVersion)
+    }
+    maybeScalaLibrary match {
+      case Some(scalaLibrary) =>
+        if (!scalaLibrary.isScalaSdk) {
+          val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
+          val properties = ScalaLibraryProperties(Some(compilerVersion), compilerClasspathFull)
+          Importer.setScalaSdk(modelsProvider, scalaLibrary, properties)
+        }
+      case None =>
+        val msg = s"Cannot find project Scala library $compilerVersion for module ${module.getName}"
+        val exception = new IllegalArgumentException(msg)
+        val console = MavenProjectsManager.getInstance(module.getProject).getSyncConsole
+        console.addException(exception, (_: Any, _: BuildEvent) => ())
+    }
+  }
+
+  // called before `process`
+  override def resolve(
+    project: Project,
+    mavenProject: MavenProject,
+    nativeMavenProject: NativeMavenProjectHolder,
+    embedder: MavenEmbedderWrapper,
+    context: ResolveContext
+  ): Unit = {
+    val configuration = validConfigurationIn(mavenProject)
+    configuration.foreach { configuration =>
       val repositories = mavenProject.getRemoteRepositories
 
+      def pom(id: MavenId): MavenArtifactInfo = new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "pom", null)
+      def jar(id: MavenId): MavenArtifactInfo = new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "jar", id.classifier.orNull)
+
       def resolve(id: MavenId): MavenArtifact = {
-        embedder.resolve(new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "pom", null), repositories)
-        embedder.resolve(new MavenArtifactInfo(id.groupId, id.artifactId, id.version, "jar", id.classifier.orNull), repositories)
+        embedder.resolve(pom(id), repositories)
+        embedder.resolve(jar(id), repositories)
+      }
+
+      def resolveTransitively(id: MavenId): Seq[MavenArtifact] = {
+        // NOTE: we can't use Seq + `asScala` here because the list will be serialised and passed to an external process
+        val artifacts = util.Arrays.asList(jar(id))
+        embedder.resolveTransitively(artifacts, repositories).asScala.toSeq
       }
 
       // Scala Maven plugin can add scala-library to compilation classpath, without listing it as a project dependency.
       // Such an approach is probably incorrect, but we have to support that behaviour "as is".
-      configuration.implicitScalaLibrary.foreach { scalaLibraryId =>
-        mavenProject.addDependency(resolve(scalaLibraryId))
-      }
-      configuration.compilerClasspath.foreach(resolve)
+      configuration.implicitScalaLibrary.map(resolve).foreach(mavenProject.addDependency)
+      // compiler classpath should be resolved transitively, e.g. Scala3 compiler contains quite a lot of jar files in the classpath
+      val compilerClasspathWithTransitives: Seq[File] = resolveTransitively(configuration.compilerArtifact).map(_.getFile)
+      project.putUserData(MavenFullCompilerClasspathKey, compilerClasspathWithTransitives)
+
       configuration.plugins.foreach(resolve)
     }
   }
@@ -105,6 +163,15 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
 }
 
 private object ScalaMavenImporter {
+
+  /**
+   * Hack Key to keep info about full compiler classpath after it's resolved in [[ScalaMavenImporter.resolve]]
+   * to use it later in [[ScalaMavenImporter.process]] when creating Scala SDK
+   *
+   * !!! NOTE: we assume that Maven project can have only single Scala SDK when using scala-maven-plugin
+   */
+  private val MavenFullCompilerClasspathKey = Key.create[Seq[File]]("MavenFullCompilerClasspathKey")
+
   implicit class RichMavenProject(private val project: MavenProject) extends AnyVal {
     def localPathTo(id: MavenId): File = {
       val suffix = id.classifier.map("-" + _).getOrElse("")
@@ -119,13 +186,6 @@ private object ScalaMavenImporter {
   }
 
   private class ScalaConfiguration(project: MavenProject) {
-    private def versionNumber = compilerVersion.getOrElse("unknown")
-
-    private def scalaCompilerId = MavenId("org.scala-lang", "scala-compiler", versionNumber)
-
-    private def scalaLibraryId = MavenId("org.scala-lang", "scala-library", versionNumber)
-
-    private def scalaReflectId = MavenId("org.scala-lang", "scala-reflect", versionNumber)
 
     private def compilerPlugin: Option[MavenPlugin] =
       project.findPlugin("org.scala-tools", "maven-scala-plugin").toOption.filter(!_.isDefault).orElse(
@@ -138,22 +198,29 @@ private object ScalaMavenImporter {
         plugin.getGoalConfiguration("compile").toOption.toSeq
     }
 
-    private def standardLibrary: Option[MavenArtifact] =
-      project.findDependencies("org.scala-lang", "scala-library").asScala.headOption
-
-    // An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.
-    def implicitScalaLibrary: Option[MavenId] = Some(compilerVersionProperty, standardLibrary) collect  {
-      case (Some(compilerVersion), None) => MavenId("org.scala-lang", "scala-library", compilerVersion)
+    private def standardLibrary: Option[MavenArtifact] = {
+      // Scala3 should go first (Scala3 also includes Scala2 library)
+      val maybeScala3 = project.findDependencies("org.scala-lang", "scala3-library_3").asScala.headOption
+      val result = maybeScala3.orElse(project.findDependencies("org.scala-lang", "scala-library").asScala.headOption)
+      result
     }
 
-    def compilerClasspath: Seq[MavenId] = Seq(scalaCompilerId, scalaLibraryId, scalaReflectId)
+    // An implied scala-library dependency when there's no explicit scala-library dependency, but scalaVersion is given.
+    def implicitScalaLibrary: Option[MavenId] = Some((compilerVersionProperty, standardLibrary)) collect  {
+      case (Some(compilerVersion), None) => scalaCompilerArtifactId("library", compilerVersion)
+    }
+
+    def compilerArtifact: MavenId = {
+      val version = versionNumber
+      scalaCompilerArtifactId("compiler", version)
+    }
+
+    private def versionNumber = compilerVersion.getOrElse("unknown")
 
     def compilerVersion: Option[String] = compilerVersionProperty
       .orElse(standardLibrary.map(_.getVersion))
 
     private def compilerVersionProperty: Option[String] = resolvePluginConfig(configElementName = "scalaVersion", userPropertyName = "scala.version")
-
-    def vmOptions: Seq[String] = elements("jvmArgs", "jvmArg").map(_.getTextTrim).toSeq
 
     def compilerOptions: Seq[String] = {
       val args = elements("args", "arg").map(_.getTextTrim)
@@ -204,4 +271,15 @@ private object ScalaMavenImporter {
     * Similar to [[org.jetbrains.idea.maven.model.MavenId]], but supports classifier.
     */
   private case class MavenId(groupId: String, artifactId: String, version: String, classifier: Option[String] = None)
+
+  private def scalaCompilerArtifactId(artifactSuffix: String, scalaVersion: String): MavenId = {
+    val artifactName = scalaCompilerArtifactName(artifactSuffix, scalaVersion)
+    MavenId("org.scala-lang", artifactName, scalaVersion)
+  }
+
+  private def scalaCompilerArtifactName(artifactSuffix: String, scalaVersion: String): String =
+    if (scalaVersion.startsWith("3."))
+      s"scala3-${artifactSuffix}_3"
+    else
+      s"scala-$artifactSuffix"
 }

@@ -2,9 +2,10 @@ package org.jetbrains.sbt
 package project
 
 import java.net.URI
-
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
+import org.apache.commons.lang3.StringUtils
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.external.SdkReference
 
 import scala.language.implicitConversions
@@ -60,6 +61,10 @@ object ProjectStructureDsl {
     new Attribute[Seq[String]]("classes") with LibraryAttribute
   val javadocs =
     new Attribute[Seq[String]]("javadocs") with LibraryAttribute
+  val scalaSdkSettings =
+    new Attribute[Option[ScalaSdkSettings]]("scalaSdkSettings") with LibraryAttribute
+
+  case class ScalaSdkSettings(languageLevel: ScalaLanguageLevel, classpath: Seq[String])
 
   val isExported =
     new Attribute[Boolean]("isExported") with DependencyAttribute

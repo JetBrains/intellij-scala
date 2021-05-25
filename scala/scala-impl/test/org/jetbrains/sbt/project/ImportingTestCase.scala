@@ -2,7 +2,6 @@ package org.jetbrains.sbt
 package project
 
 import java.io.File
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.externalSystem.settings.ExternalProjectSettings
@@ -12,6 +11,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
+import org.junit.Assert.assertNotNull
 
 import scala.annotation.nowarn
 
@@ -56,7 +56,9 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     setUpProjectDirectory()
   }
 
-  private def setUpProjectDirectory(): Unit =
+  private def setUpProjectDirectory(): Unit = {
     myProjectRoot = LocalFileSystem.getInstance.refreshAndFindFileByIoFile(testProjectDir)
+    assertNotNull("project root was not found: " + testProjectDir, myProjectRoot)
+  }
 }
 
