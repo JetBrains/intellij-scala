@@ -12,9 +12,9 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
 
   def name: String = names.head
 
-  def hasFlag(flag: Int): Boolean = children.exists(_.tag == flag) // TODO optimize
+  def hasFlag(flag: Int): Boolean = children.exists(_.tag == flag) // TODO hasModifier, optimize
 
-  // TODO flags
+  def flags: Seq[Node] = children.filter(_.isModifier) // TODO optimize, Set
 
   def isModifier: Boolean = TastyFormat.isModifierTag(tag)
 
