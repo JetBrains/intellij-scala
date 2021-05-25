@@ -13,7 +13,8 @@ object TreePrinter {
         tail.map(textOf).mkString("\n")
 
     case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) =>
-      modifiersIn(node) + (if (node.hasFlag(TRAIT)) "trait " else "class ") + name + textOf(template)
+      val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.name == name)
+      modifiersIn(node) + (if (isImplicitClass) "implicit " else "") + (if (node.hasFlag(TRAIT)) "trait " else "class ") + name + textOf(template)
 
     case node @ Node(TEMPLATE, _, children) =>
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))

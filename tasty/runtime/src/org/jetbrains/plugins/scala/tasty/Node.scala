@@ -21,4 +21,12 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
   def isTypeTree: Boolean = TastyFormat.isTypeTreeTag(tag)
 
   def is(tags: Int*): Boolean = tags.contains(tag)
+
+  // TODO private setter
+  var previousSibling: Option[Node] = None
+
+  var nextSibling: Option[Node] = None
+
+  // TODO
+  // var parent: Option[Node] = None
 }
