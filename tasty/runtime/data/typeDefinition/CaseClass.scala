@@ -1,6 +1,6 @@
 package typeDefinition
 
-trait CaseClass() {
+trait CaseClass {
   case class EmptyClause()
 
   case class ValParameter(x: Int)

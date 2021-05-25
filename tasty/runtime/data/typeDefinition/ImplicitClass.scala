@@ -1,5 +1,5 @@
 package typeDefinition
 
-trait ImplicitClass() {
+trait ImplicitClass {
   implicit class ImplicitClass(val x: Int)
 }
