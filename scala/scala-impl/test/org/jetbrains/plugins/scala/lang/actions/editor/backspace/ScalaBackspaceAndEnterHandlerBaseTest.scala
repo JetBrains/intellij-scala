@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.Scala3TestDa
 abstract class ScalaBackspaceAndEnterHandlerBaseTest extends ScalaBackspaceHandlerBaseTest {
 
   protected def doEnterTest(before: String, after: String): Unit = {
-    performTestWithConvenientCaretsDiffView(before, after, stripTrailingSpaces = true) { () =>
+    performTest(before, after, stripTrailingSpacesAfterAction = true) { () =>
       performEnterAction()
     }
   }

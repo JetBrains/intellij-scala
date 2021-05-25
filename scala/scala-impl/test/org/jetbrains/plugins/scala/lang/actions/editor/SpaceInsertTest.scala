@@ -1,126 +1,111 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
-import org.jetbrains.plugins.scala.base.EditorActionTestBase
+class SpaceInsertTest extends EditorTypeActionTestBase {
 
-class SpaceInsertTest extends EditorActionTestBase {
+  override protected def typedChar: Char = ' '
 
-  private def doTest(before: String, after: String): Unit =
-    checkGeneratedTextAfterTyping(before, after, ' ')
-
-  def testIfElse(): Unit = {
-    val before =
+  def testIfElse(): Unit =
+    doTestWithEmptyLastLine(
       s"""def test = {
          |  val x =
          |    if (true) 8
          |  else$CARET
-         |}""".stripMargin
-    val after =
+         |}""".stripMargin,
       s"""def test = {
          |  val x =
          |    if (true) 8
          |    else $CARET
          |}""".stripMargin
-    doTest(before, after)
-  }
+    )
 
   def testIfElse_1(): Unit = {
     getScalaSettings.ALIGN_IF_ELSE = true
-    val before =
+    doTestWithEmptyLastLine(
       s"""def test = {
          |  val x = if (true) 8
          |  else$CARET
-         |}""".stripMargin
-    val after =
+         |}""".stripMargin,
       s"""def test = {
          |  val x = if (true) 8
          |          else $CARET
          |}""".stripMargin
-    doTest(before, after)
+    )
   }
 
-  def testIfElse_EndOfTheFile(): Unit = {
-    val before =
+  def testIfElse_EndOfTheFile(): Unit =
+    doTestWithEmptyLastLine(
       s"""val x =
          |  if (true) 8
          | else$CARET
-         |""".stripMargin
-    val after =
+         |""".stripMargin,
       s"""val x =
          |  if (true) 8
          |  else $CARET
          |""".stripMargin
-    doTest(before, after)
-  }
+    )
 
-  def testIfElse_LeftMostPosition(): Unit = {
-    val before =
+  def testIfElse_EndOfTheFile_ElseAtLeftMostPosition(): Unit =
+    doTestWithEmptyLastLine(
       s"""val x =
          |  if (true) 8
          |else$CARET
-         |""".stripMargin
-    val after =
+         |""".stripMargin,
       s"""val x =
          |  if (true) 8
          |  else $CARET
          |""".stripMargin
-    doTest(before, after)
-  }
+    )
 
-  def testMatchCase(): Unit = {
-    val before =
+  def testMatchCase(): Unit =
+    doTestWithEmptyLastLine(
       s"""val x = 5 match {
          |  case 1 => 2
          |    case$CARET
-         |}""".stripMargin
-    val after =
+         |}""".stripMargin,
       s"""val x = 5 match {
          |  case 1 => 2
          |  case $CARET
          |}""".stripMargin
-    doTest(before, after)
-  }
+    )
 
-  def testTryCatch(): Unit = {
-    val before =
+  def testTryCatch(): Unit =
+    doTestWithEmptyLastLine(
       s"""def test = {
          |  val x =
          |    try ()
          |  catch$CARET
-         |}""".stripMargin
-    val after =
+         |}""".stripMargin,
       s"""def test = {
          |  val x =
          |    try ()
          |    catch $CARET
          |}""".stripMargin
-    doTest(before, after)
-  }
+    )
 
-  def testTryFinally(): Unit = {
-    val before =
+  def testTryFinally(): Unit =
+    doTestWithEmptyLastLine(
       s"""def test = {
          |  val x =
          |    try ()
          |  finally$CARET
-         |}""".stripMargin
-    val after =
+         |}""".stripMargin,
       s"""def test = {
          |  val x =
          |    try ()
          |    finally $CARET
          |}""".stripMargin
-    doTest(before, after)
-  }
+    )
 
-  def testAfterIncompleteInfixOperatorInFunctionBody(): Unit = checkGeneratedTextAfterTypingText(
-    s"""class B {
-       |  def foo = 42 +
-       |  $CARET
-       |}""".stripMargin,
-    s"""class B {
-       |  def foo = 42 +
-       |      $CARET
-       |}""",
-    "    "
-  )
+  def testAfterIncompleteInfixOperatorInFunctionBody(): Unit =
+    checkGeneratedTextAfterTypingText(
+      s"""class B {
+         |  def foo = 42 +
+         |  $CARET
+         |}""".stripMargin,
+      s"""class B {
+         |  def foo = 42 +
+         |      $CARET
+         |}""",
+      "    "
+    )
 }

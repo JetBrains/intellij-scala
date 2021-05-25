@@ -20,7 +20,7 @@ abstract class ScalaBackspaceHandlerBaseTest extends EditorActionTestBase with S
   }
 
   protected def doBackspaceTest(before: String, after: String): Unit = {
-    performTestWithConvenientCaretsDiffView(before, after, stripTrailingSpaces = true) { () =>
+    performTest(before, after, stripTrailingSpacesAfterAction = true) { () =>
       performBackspaceAction()
     }
   }
