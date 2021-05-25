@@ -451,6 +451,10 @@ package object project {
 
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
 
+    def isSource3Enabled: Boolean = isDefinedInModuleOrProject(_.isSource3Enabled)
+
+    def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
+
     def isScala3IndentationBasedSyntaxEnabled: Boolean = isDefinedInModuleOrProject(_.isScala3IndentationBasedSyntaxEnabled)
 
     def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)

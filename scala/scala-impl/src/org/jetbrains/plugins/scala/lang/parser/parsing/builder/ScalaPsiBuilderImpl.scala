@@ -35,10 +35,10 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
     containingFile.exists(_.isCompilerStrictMode)
 
   override final lazy val isSource3Enabled: Boolean =
-    containingFile.flatMap(_.module).exists(_.isSource3Enabled)
+    containingFile.exists(_.isSource3Enabled)
 
   override final lazy val isScala3orSource3: Boolean =
-    isScala3 || isSource3Enabled
+    isScala3 || containingFile.exists(_.isSource3Enabled)
 
   private lazy val _isTrailingCommasEnabled =
     containingFile.exists(_.isTrailingCommasEnabled)

@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.annotator.element.ScForBindingAnnotator.Remov
 import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.RemoveValFromGeneratorIntentionAction
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
-import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
 
@@ -25,7 +24,7 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
       annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
     }
 
-    if (!element.isInScala3Module) {
+    if (!element.isScala3OrSource3Enabled) {
       element.caseKeyword.foreach { caseKeyword =>
         val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("for.pattern.bindings.require.scala3"))
         annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
