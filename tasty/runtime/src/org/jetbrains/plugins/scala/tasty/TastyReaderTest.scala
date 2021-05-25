@@ -27,6 +27,7 @@ object TastyReaderTest {
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
       "typeDefinition/Class",
+      "typeDefinition/Modifiers",
 //      "typeDefinition/Object",
       "typeDefinition/Trait",
 //      "EmptyPackage",
@@ -54,6 +55,9 @@ object TastyReaderTest {
         println("---")
         println("")
 //        println(new String(readBytes(tastyFile.replaceFirst("\\.tasty", ".tree"))))
+
+        val actualFile = scalaFile.replaceFirst("\\.scala", ".actual")
+        Files.write(Path.of(actualFile), actual.getBytes)
       }
 
 //      Assert.assertEquals(scalaFile, expected, actual)
