@@ -13,7 +13,7 @@ object TreePrinter {
         tail.map(textOf).mkString("\n")
 
     case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) =>
-      (if (node.hasFlag(TRAIT)) "trait " else "class ") + name + textOf(template)
+      modifiersIn(node) + (if (node.hasFlag(TRAIT)) "trait " else "class ") + name + textOf(template)
 
     case node @ Node(TEMPLATE, _, children) =>
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
@@ -128,7 +128,7 @@ object TreePrinter {
     params
   }
 
-  private def modifiersIn(node: Node, withImplicit: Boolean = true): String = {
+  private def modifiersIn(node: Node, withImplicit: Boolean = true): String = { // TODO Optimize
     var s = ""
     if (node.hasFlag(OVERRIDE)) {
       s += "override "
@@ -149,6 +149,15 @@ object TreePrinter {
     }
     if (node.hasFlag(LAZY)) {
       s += "lazy "
+    }
+    if (node.hasFlag(ABSTRACT)) {
+      s += "abstract "
+    }
+    if (node.hasFlag(SEALED)) {
+      s += "sealed "
+    }
+    if (node.hasFlag(OPEN)) {
+      s += "open "
     }
     s
   }
