@@ -19,6 +19,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
                                   collectImports: Boolean,
                                   isUnicodeArrow: Boolean,
                                   spacesInImports: Boolean,
+                                  isScala3OrSource3: Boolean,
                                   classCountToUseImportOnDemand: Int,
                                   importLayout: Array[String],
                                   isAlwaysUsedImport: String => Boolean,
@@ -27,7 +28,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
   def scalastyleGroups: Option[Seq[Pattern]] = scalastyleSettings.groups
   def scalastyleOrder: Boolean = scalastyleSettings.scalastyleOrder
 
-  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings, basePackage: Option[String]) = {
+  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings, basePackage: Option[String], isScala3OrSource3: Boolean) = {
 
     this(
       s.isAddFullQualifiedImports,
@@ -37,6 +38,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
       s.isCollectImports,
       s.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR,
       s.SPACES_IN_IMPORTS,
+      isScala3OrSource3,
       s.getClassCountToUseImportOnDemand,
       s.getImportLayout,
       s.isAlwaysUsedImport,
@@ -68,6 +70,6 @@ object OptimizeImportSettings {
       }
       else None
 
-    new OptimizeImportSettings(codeStyleSettings, scalastyleSettings, basePackage)
+    new OptimizeImportSettings(codeStyleSettings, scalastyleSettings, basePackage, file.isScala3OrSource3Enabled)
   }
 }

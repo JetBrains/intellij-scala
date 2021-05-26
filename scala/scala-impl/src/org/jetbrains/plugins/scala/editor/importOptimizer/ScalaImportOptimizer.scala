@@ -203,7 +203,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
     val newLineWithIndent: String = "\n" + indentForOffset(range.startOffset)
 
     var prevGroupIndex = -1
-    def groupSeparatorsBefore(info: ImportInfo, currentGroupIndex: Int) = {
+    def groupSeparatorsBefore(currentGroupIndex: Int) = {
       if (currentGroupIndex <= prevGroupIndex || prevGroupIndex == -1) ""
       else if (scalastyleGroups.nonEmpty) newLineWithIndent
       else {
@@ -216,7 +216,7 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
     val text = importInfos.map { info =>
       val index: Int = findGroupIndex(info.prefixQualifier, info.relative, settings)
-      val blankLines = groupSeparatorsBefore(info, index)
+      val blankLines = groupSeparatorsBefore(index)
       prevGroupIndex = index
       blankLines + textCreator.getImportText(info, settings)
     }.mkString(newLineWithIndent).replaceAll("""\n[ \t]+\n""", "\n\n")
@@ -359,6 +359,7 @@ object ScalaImportOptimizer {
     private def getImportTextData(importInfo: ImportInfo,
                                   isUnicodeArrow: Boolean,
                                   spacesInImports: Boolean,
+                                  isScala3OrSource3: Boolean,
                                   nameOrdering: Option[Ordering[String]]): ImportTextData = {
       import importInfo._
 
@@ -369,16 +370,23 @@ object ScalaImportOptimizer {
         else groupStrings ++= names
       }
 
-      val arrow = if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow else "=>"
+      val arrow =
+        if (isScala3OrSource3) "as"
+        else if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow
+        else "=>"
+      val wildcard =
+        if (isScala3OrSource3) "*"
+        else "_"
       addGroup(singleNames)
-      addGroup(renames.map(pair => s"${pair._1} $arrow ${pair._2}"))
+      addGroup(renames.map { case (from, to) => s"$from $arrow $to" })
       addGroup(hiddenNames.map(_ + s" $arrow _"))
 
-      if (hasWildcard) groupStrings += "_"
+      if (hasWildcard) groupStrings += wildcard
       val space = if (spacesInImports) " " else ""
       val root = if (rootUsed) s"${_root_prefix}." else ""
+      val hasAlias = renames.nonEmpty || hiddenNames.nonEmpty
       val postfix =
-        if (groupStrings.length > 1 || renames.nonEmpty || hiddenNames.nonEmpty) groupStrings.mkString(s"{$space", ", ", s"$space}")
+        if (groupStrings.length > 1 || (hasAlias && !isScala3OrSource3)) groupStrings.mkString(s"{$space", ", ", s"$space}")
         else groupStrings.head
       val prefix = s"$root${relative.getOrElse(prefixQualifier)}"
       val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
@@ -388,18 +396,20 @@ object ScalaImportOptimizer {
     def getImportText(importInfo: ImportInfo,
                       isUnicodeArrow: Boolean,
                       spacesInImports: Boolean,
+                      isScala3OrSource3: Boolean,
                       nameOrdering: Option[Ordering[String]]): String =
-      getImportTextData(importInfo, isUnicodeArrow, spacesInImports, nameOrdering).fullText
+      getImportTextData(importInfo, isUnicodeArrow, spacesInImports, isScala3OrSource3, nameOrdering).fullText
 
     def getScalastyleSortableText(importInfo: ImportInfo): String =
-      getImportTextData(importInfo, isUnicodeArrow = false, spacesInImports = false, nameOrdering = None).forScalastyleSorting
+      getImportTextData(importInfo, isUnicodeArrow = false, spacesInImports = false, isScala3OrSource3 = false, nameOrdering = None)
+        .forScalastyleSorting
 
     def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String = {
       val ordering =
         if (settings.scalastyleOrder) Some(ScalastyleSettings.nameOrdering)
         else if (settings.sortImports) Some(Ordering.String)
         else None
-      getImportText(importInfo, settings.isUnicodeArrow, settings.spacesInImports, ordering)
+      getImportText(importInfo, settings.isUnicodeArrow, settings.spacesInImports, settings.isScala3OrSource3, ordering)
     }
   }
 
