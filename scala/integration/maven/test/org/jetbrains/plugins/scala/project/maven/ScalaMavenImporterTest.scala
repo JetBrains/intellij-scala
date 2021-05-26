@@ -100,10 +100,7 @@ class ScalaMavenImporterTest
         classes := Seq("org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar").map(mavenLocalArtifact)
         scalaSdkSettings := Some(ScalaSdkSettings(ScalaLanguageLevel.Scala_3_0, Seq(
           "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
-          "com/novocode/junit-interface/0.11/junit-interface-0.11.jar",
-          "junit/junit/4.11/junit-4.11.jar",
           "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
-          "org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
           "org/jline/jline-reader/3.19.0/jline-reader-3.19.0.jar",
           "org/jline/jline-terminal-jna/3.19.0/jline-terminal-jna-3.19.0.jar",
           "org/jline/jline-terminal/3.19.0/jline-terminal-3.19.0.jar",
@@ -114,7 +111,6 @@ class ScalaMavenImporterTest
           "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar",
           "org/scala-lang/tasty-core_3/3.0.0/tasty-core_3-3.0.0.jar",
           "org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar",
-          "org/scala-sbt/test-interface/1.0/test-interface-1.0.jar",
           "org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar"
         ).map(mavenLocalArtifact)))
       }
