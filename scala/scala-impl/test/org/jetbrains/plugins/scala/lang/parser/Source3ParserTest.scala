@@ -201,4 +201,42 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_vararg_slices(): Unit = checkTree(
+    """
+      |foo(s: _*)
+      |foo(s*)
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: foo
+      |      PsiElement(identifier)('foo')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      TypedStatement
+      |        ReferenceExpression: s
+      |          PsiElement(identifier)('s')
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace(' ')
+      |        SequenceArgumentType
+      |          PsiElement(_)('_')
+      |          PsiElement(identifier)('*')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: foo
+      |      PsiElement(identifier)('foo')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      TypedStatement
+      |        ReferenceExpression: s
+      |          PsiElement(identifier)('s')
+      |        SequenceArgumentType
+      |          PsiElement(identifier)('*')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
