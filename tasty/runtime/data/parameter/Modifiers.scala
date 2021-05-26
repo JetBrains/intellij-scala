@@ -19,6 +19,8 @@ trait Modifiers {
 
   trait TraitUsing(using x: Int, y: Int)
 
+  trait TraitImplicit(implicit x: Int, y: Int)
+
   class TraitVal(val x: Int)
 
   class TraitVar(var x: Int)
@@ -30,4 +32,8 @@ trait Modifiers {
   class TraitFinal(final val x: Int)
 
   class TraitOverride(override val hashCode: Int)
+
+  def defUsing(using x: Int, y: Int): Int
+
+  def defImplicit(implicit x: Int, y: Int): Int
 }
