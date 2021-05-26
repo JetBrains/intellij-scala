@@ -99,39 +99,23 @@ object SbtDependencyUtils {
       res ++= getTopLevelLibraryDependencies(psiSbtFile).flatMap(
         libDep => getLibraryDependenciesOrPlacesFromPsi(libDep, mode))
 
-//    val sbtProj = getSbtModuleData(module)
-
-    val sbtProjects: Seq[ScPatternDefinition] = getTopLevelSbtProjects(psiSbtFile)
-
     val moduleName = module.getName
 
-    val modules = List(module)
     def containsModuleName(proj: ScPatternDefinition, moduleName: String): Boolean =
       proj.getText.contains("\"" + moduleName + "\"")
-    val projToAffectedModules = sbtProjects.map(proj => proj -> modules.filter(module => {
+
+    val sbtProjectsInModule = getTopLevelSbtProjects(psiSbtFile).filter(proj => {
       SbtUtil.getSbtModuleData(module) match {
         case Some(moduleData: SbtModuleData) =>
           proj.getText.contains(moduleData.id) || containsModuleName(proj, module.getName)
         case _ =>
           containsModuleName(proj, module.getName)
       }
-
-    }).map(_.getName)).toMap
-
-    val elemToAffectedProjects = collection.mutable.Map[PsiElement, Seq[String]]()
-    sbtProjects.foreach(proj => {
-      val places = getPossiblePlacesToAddFromProjectDefinition(proj)
-      places.foreach(elem => {
-        elemToAffectedProjects.update(elem, elemToAffectedProjects.getOrElse(elem, Seq()) ++ projToAffectedModules(proj))
-      })
     })
-    res ++= elemToAffectedProjects.toList
-      .filter(_._2.contains(moduleName))
-      .map(_._1)
-      .flatMap(elem => getLibraryDependenciesOrPlacesFromPsi(elem, mode))
 
-//    if (mode == GetPlace) res ++= getTopLevelPlaceToAdd(psiSbtFile)(project).toList
-
+    res ++= sbtProjectsInModule.
+      flatMap(proj => getPossiblePsiFromProjectDefinition(proj)).
+      flatMap(elem => getLibraryDependenciesOrPlacesFromPsi(elem, mode))
 
     res.distinct
   } catch {
@@ -223,7 +207,7 @@ object SbtDependencyUtils {
       psiElement match {
         case infix: ScInfixExpr if infix.operation.refName.contains("%") =>
           infix.getText.split('%').map(_.trim).filter(_.nonEmpty).length - 1 match {
-            case 1 if infix.right.isInstanceOf[ScReferenceExpression] && 
+            case 1 if infix.right.isInstanceOf[ScReferenceExpression] &&
               infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) => inReadAction {
               val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
               def callbackRef(psiElement: PsiElement):Boolean = {
@@ -242,7 +226,7 @@ object SbtDependencyUtils {
               }
               return false
             }
-            case _ if infix.right.isInstanceOf[ScReferenceExpression] && 
+            case _ if infix.right.isInstanceOf[ScReferenceExpression] &&
               infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) =>
               val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
               result ++= Seq((infix.left, configuration, infix))
@@ -293,7 +277,7 @@ object SbtDependencyUtils {
       throw e
   }
 
-  def getPossiblePlacesToAddFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = try {
+  def getPossiblePsiFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = try {
     var res: Seq[PsiElement] = List()
 
     def action(psiElement: PsiElement): Boolean = {
