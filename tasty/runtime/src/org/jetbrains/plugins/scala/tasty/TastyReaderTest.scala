@@ -29,8 +29,9 @@ object TastyReaderTest {
       "typeDefinition/CaseClass",
       "typeDefinition/Class",
       "typeDefinition/ImplicitClass",
+      "typeDefinition/Members",
       "typeDefinition/Modifiers",
-//      "typeDefinition/Object",
+      "typeDefinition/Object",
       "typeDefinition/Trait",
 //      "EmptyPackage",
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
@@ -48,6 +49,8 @@ object TastyReaderTest {
         new String(readBytes(if (exists(expectedFile)) expectedFile else scalaFile))
       }
 
+      val actualFile = scalaFile.replaceFirst("\\.scala", ".actual")
+
       if (actual != expected) {
         println(scalaFile)
         println("---Actual---")
@@ -58,8 +61,11 @@ object TastyReaderTest {
         println("")
 //        println(new String(readBytes(tastyFile.replaceFirst("\\.tasty", ".tree"))))
 
-        val actualFile = scalaFile.replaceFirst("\\.scala", ".actual")
         Files.write(Path.of(actualFile), actual.getBytes)
+      } else {
+        if (exists(actual)) {
+          Files.delete(Path.of(actualFile))
+        }
       }
 
 //      Assert.assertEquals(scalaFile, expected, actual)

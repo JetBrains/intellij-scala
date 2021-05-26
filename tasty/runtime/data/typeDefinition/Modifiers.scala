@@ -22,4 +22,10 @@ trait Modifiers {
   sealed trait SealedTrait
 
   open trait OpenTrait
+
+  private class PrivateObject
+
+  protected class ProtectedObject
+
+  final class FinalObject
 }
