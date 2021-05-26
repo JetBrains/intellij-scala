@@ -13,10 +13,12 @@ object TreePrinter {
         tail.map(textOf(_)).filter(_.nonEmpty).mkString("\n")
 
     case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) =>
-      val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.name == name)
-      val keyword = if (node.hasFlag(OBJECT)) "object" else (if (node.hasFlag(TRAIT)) "trait" else "class")
-      val name0 = if (keyword == "object") node.previousSibling.fold(name)(_.name) else name
-      modifiersIn(node) + (if (isImplicitClass) "implicit " else "") + keyword + " " + name0 + textOf(template, Some(node))
+      val isObject = node.hasFlag(OBJECT)
+      val isImplicitClass = !isObject && node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.name == name)
+      val keyword = if (isObject) "object " else (if (node.hasFlag(TRAIT)) "trait " else "class ")
+      val identifier = if (isObject) node.previousSibling.fold(name)(_.name) else name
+      val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node) + (if (isImplicitClass) "implicit " else "")
+      modifiers + keyword + identifier + textOf(template, Some(node))
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
