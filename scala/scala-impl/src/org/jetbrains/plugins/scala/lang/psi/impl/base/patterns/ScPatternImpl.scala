@@ -18,7 +18,8 @@ trait ScPatternImpl extends ScPattern {
 
     def inner(p: ScPattern): Unit = {
       p match {
-        case binding: ScBindingPattern => builder += binding
+        case binding: ScBindingPattern if !binding.isWildcard =>
+          builder += binding
         case _ =>
       }
 
