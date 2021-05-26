@@ -33,7 +33,7 @@ trait Modifiers {
 
   class TraitOverride(override val hashCode: Int)
 
-  def defUsing(using x: Int, y: Int): Int
+  def defUsing(using x: Int, y: Int): Unit
 
-  def defImplicit(implicit x: Int, y: Int): Int
+  def defImplicit(implicit x: Int, y: Int): Unit
 }

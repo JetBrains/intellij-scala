@@ -2,7 +2,7 @@
 
 set -e
 
-find -regex '.*\.\(class\|tasty\)' -delete
+find -regex '.*\.\(class\|tasty\|actual\)' -delete
 
 scalaFiles=$(find . -name '*.scala')
 
