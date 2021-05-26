@@ -6,16 +6,14 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.module.{Module => OpenapiModule}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
-import com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
-import com.intellij.psi.{PsiElement, PsiFile, PsiManager, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, inReadAction}
+import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
+import org.jetbrains.plugins.scala.extensions.{PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode.ScalaCodeContext
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.sbt.SbtUtil.getSbtModuleData
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
@@ -33,6 +31,8 @@ object SbtDependencyUtils {
   val SBT_PROJECT_TYPE = "_root_.sbt.Project"
   val SBT_SEQ_TYPE = "_root_.scala.collection.Seq"
   val SBT_SETTING_TYPE = "_root_.sbt.Def.Setting"
+  val SBT_MODULE_ID_TYPE = "sbt.ModuleID"
+  val SBT_LIB_CONFIGURATION = "_root_.sbt.librarymanagement.Configuration"
 
   private val InfixOpsSet = Set(":=", "+=", "++=")
 
@@ -63,7 +63,7 @@ object SbtDependencyUtils {
     libDeps.foreach(
       libDep => {
         var processedDep: List[String] = List()
-        processedDep = processLibraryDependencyFromInfixAndString(libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]).map(_.asInstanceOf[String])
+        processedDep = processLibraryDependencyFromExprAndString(libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]).map(_.asInstanceOf[String])
         var processedDepText: String = ""
         processedDep match {
           case List(a,b,c) =>
@@ -159,21 +159,45 @@ object SbtDependencyUtils {
       throw(e)
   }
 
-  def processLibraryDependencyFromInfixAndString(elem: (ScInfixExpr, String, ScInfixExpr), preserve: Boolean = false): List[Any] = {
+  def processLibraryDependencyFromExprAndString(elem: (ScExpression, String, ScExpression), preserve: Boolean = false): List[Any] = {
     var res: List[Any] = List()
-    def callback(psiElement: PsiElement):Boolean = {
+    def callbackInfix(psiElement: PsiElement):Boolean = {
       psiElement match {
         case stringLiteral: ScStringLiteral =>
-          if (preserve)
+          if (preserve) {
             res = stringLiteral :: res
-          else {
-          res = cleanUpDependencyPart(stringLiteral.getText) :: res
+          } else {
+            res = cleanUpDependencyPart(stringLiteral.getText) :: res
+          }
+        case ref: ScReferenceExpression if ref.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) =>
+          if (preserve) {
+            res = ref :: res
+          } else {
+            res = cleanUpDependencyPart(ref.getText) :: res
           }
         case _ =>
       }
       true
     }
-    SbtDependencyTraverser.traverseInfixExpr(elem._1)(callback)
+
+    elem._1 match {
+      case infix: ScInfixExpr =>
+        SbtDependencyTraverser.traverseInfixExpr(infix)(callbackInfix)
+      case ref: ScReferenceExpression =>
+        var infix: ScInfixExpr = null
+        def callbackRef(psiElement: PsiElement):Boolean = {
+          psiElement match {
+            case subInfix: ScInfixExpr if subInfix.operation.refName.contains("%") =>
+              infix = subInfix
+              return false
+            case _ =>
+          }
+          true
+        }
+        SbtDependencyTraverser.traverseReferenceExpr(ref)(callbackRef)
+        SbtDependencyTraverser.traverseInfixExpr(infix)(callbackInfix)
+    }
+
 
     elem._2 match {
       case s if s.nonEmpty => res = cleanUpDependencyPart(s) :: res
@@ -199,7 +223,8 @@ object SbtDependencyUtils {
       psiElement match {
         case infix: ScInfixExpr if infix.operation.refName.contains("%") =>
           infix.getText.split('%').map(_.trim).filter(_.nonEmpty).length - 1 match {
-            case 1 if SbtCommon.libScopes.toLowerCase.contains(cleanUpDependencyPart(infix.right.getText).toLowerCase) => inReadAction {
+            case 1 if infix.right.isInstanceOf[ScReferenceExpression] && 
+              infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) => inReadAction {
               val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
               def callbackRef(psiElement: PsiElement):Boolean = {
                 psiElement match {
@@ -217,7 +242,8 @@ object SbtDependencyUtils {
               }
               return false
             }
-            case _ if SbtCommon.libScopes.toLowerCase.contains(cleanUpDependencyPart(infix.right.getText).toLowerCase) =>
+            case _ if infix.right.isInstanceOf[ScReferenceExpression] && 
+              infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) =>
               val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
               result ++= Seq((infix.left, configuration, infix))
               return false
@@ -225,7 +251,9 @@ object SbtDependencyUtils {
               result ++= Seq((infix, "", infix))
               return false
           }
-
+        case ref: ScReferenceExpression if ref.`type`().getOrAny.canonicalText.equals(SBT_MODULE_ID_TYPE) =>
+          result ++= Seq((ref, "", ref))
+          return false
         case _ =>
       }
       true

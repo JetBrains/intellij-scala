@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.packagesearch.ui
 import com.intellij.ide.wizard.Step
 import com.intellij.openapi.project.Project
 import com.intellij.ui.scale.JBUIScale
-import com.intellij.util.ui.JBUI
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
