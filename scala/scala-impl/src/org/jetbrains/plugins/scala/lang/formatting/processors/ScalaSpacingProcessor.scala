@@ -1268,7 +1268,7 @@ object ScalaSpacingProcessor extends ScalaTokenTypes {
       case (ScalaTokenTypes.tAT, _, _, _) => NO_SPACING
       case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tAT, ScalaElementType.NAMING_PATTERN, _) => NO_SPACING
       // Scala named seq-pattern: case Seq(other*) =>
-      case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementType.SEQ_WILDCARD, _) if rightBlockString == "*" => NO_SPACING
+      case (ScalaTokenTypes.tIDENTIFIER, ScalaTokenTypes.tIDENTIFIER, ScalaElementType.SEQ_WILDCARD_PATTERN, _) if rightBlockString == "*" => NO_SPACING
       case (_, ScalaTokenTypes.tAT, _, _) => NO_SPACING_WITH_NEWLINE
       case (ScalaElementType.ANNOTATION, _, _, _) => COMMON_SPACING
       //Prefix Identifier

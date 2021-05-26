@@ -148,7 +148,7 @@ object ParserUtils {
       builder.advanceLexer()
       if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText == "*") {
         builder.advanceLexer()
-        marker.done(ScalaElementType.SEQ_WILDCARD)
+        marker.done(ScalaElementType.SEQ_WILDCARD_PATTERN)
         true
       } else {
         marker.rollbackTo()

@@ -185,7 +185,7 @@ object SimplePattern extends ParsingRule {
 
                     if (builder.getTokenText == "*") {
                       builder.advanceLexer() // ate *
-                      marker.done(ScalaElementType.SEQ_WILDCARD)
+                      marker.done(ScalaElementType.SEQ_WILDCARD_PATTERN)
                       true
                     } else {
                       marker.rollbackTo()

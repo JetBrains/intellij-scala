@@ -173,7 +173,7 @@ trait TreeAdapter {
     }
     // WHY??(((
     def arg(pt: patterns.ScPattern): m.Pat = pt match {
-      case _: ScSeqWildcard       =>  SeqWildcard()
+      case _: ScSeqWildcardPattern       =>  SeqWildcard()
       case _: ScWildcardPattern   =>  Wildcard()
       case ScStableReferencePattern(reference) => toTermName(reference)
       case t: ScPattern           => pattern(t)

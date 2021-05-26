@@ -15,12 +15,12 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.ScBindingPatternStub
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 
-class ScSeqWildcardImpl private(stub: ScBindingPatternStub[ScSeqWildcard], node: ASTNode)
-  extends ScalaStubBasedElementImpl(stub, ScalaElementType.SEQ_WILDCARD, node) with ScPatternImpl with ScSeqWildcard {
+class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardPattern], node: ASTNode)
+  extends ScalaStubBasedElementImpl(stub, ScalaElementType.SEQ_WILDCARD_PATTERN, node) with ScPatternImpl with ScSeqWildcardPattern {
 
   def this(node: ASTNode) = this(null, node)
 
-  def this(stub: ScBindingPatternStub[ScSeqWildcard]) = this(stub, null)
+  def this(stub: ScBindingPatternStub[ScSeqWildcardPattern]) = this(stub, null)
 
   // The SeqWildCard pattern is never irrefutable, with the exception that it occurs
   // in the exact position of an Constructor pattern.
@@ -48,5 +48,5 @@ class ScSeqWildcardImpl private(stub: ScBindingPatternStub[ScSeqWildcard], node:
     } else true
   }
 
-  override def getOriginalElement: PsiElement = super[ScSeqWildcard].getOriginalElement
+  override def getOriginalElement: PsiElement = super[ScSeqWildcardPattern].getOriginalElement
 }

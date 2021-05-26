@@ -320,8 +320,8 @@ object ScPattern {
 
   private object SeqExpectingPattern {
     def unapply(e: ScPattern): Boolean = e match {
-      case named: ScNamingPattern => named.getLastChild.is[ScSeqWildcard]
-      case _: ScSeqWildcard => true
+      case named: ScNamingPattern => named.getLastChild.is[ScSeqWildcardPattern]
+      case _: ScSeqWildcardPattern => true
       case _ => false
     }
   }

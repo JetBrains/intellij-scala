@@ -23,9 +23,9 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
 
   override def isStable: Boolean = !isVar
 
-  override def isVar: Boolean = nameContext.isInstanceOf[ScVariable]
+  override def isVar: Boolean = nameContext.is[ScVariable]
 
-  override def isVal: Boolean = nameContext.isInstanceOf[ScValue]
+  override def isVal: Boolean = nameContext.is[ScValue]
 
   def isClassMember: Boolean = nameContext.getContext match {
     case _: ScTemplateBody | _: ScEarlyDefinitions => true
@@ -47,7 +47,7 @@ trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinit
     if (ccontainingClass == null) return this
     val originalClass: PsiClass = ccontainingClass.getOriginalElement.asInstanceOf[PsiClass]
     if (ccontainingClass eq originalClass) return this
-    if (!originalClass.isInstanceOf[ScTypeDefinition]) return this
+    if (!originalClass.is[ScTypeDefinition]) return this
     val c = originalClass.asInstanceOf[ScTypeDefinition]
     val membersIterator = c.members.iterator
     while (membersIterator.hasNext) {

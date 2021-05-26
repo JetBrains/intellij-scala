@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScPattern, ScPatternArgumentList, ScSeqWildcard}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScPattern, ScPatternArgumentList, ScSeqWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 
 object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
@@ -63,7 +63,7 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
   /** @return psi element for `@` or `:` */
   private def bindingElement(pattern: ScNamingPattern): Option[PsiElement] =
     pattern.named match {
-      case seqWildcard: ScSeqWildcard => Option(seqWildcard.getPrevSiblingNotWhitespace)
+      case seqWildcard: ScSeqWildcardPattern => Option(seqWildcard.getPrevSiblingNotWhitespace)
       case _                          => None
     }
 
@@ -96,7 +96,7 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
     override def invoke(project: Project, editor: Editor, file: PsiFile): Unit = {
       if (!namingPattern.isValid) return
       val pattern = ScalaPsiElementFactory.createPatternFromText(s"List(${namingPattern.name}*)")(project)
-      val newPattern = pattern.elements.find(_.elementType == ScalaElementType.SEQ_WILDCARD)
+      val newPattern = pattern.elements.find(_.elementType == ScalaElementType.SEQ_WILDCARD_PATTERN)
       newPattern.foreach(namingPattern.replace)
     }
   }

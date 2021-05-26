@@ -7,8 +7,8 @@ package elements
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.stubs._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScNamingPattern, ScReferencePattern, ScSeqWildcard, ScTypedPattern}
-import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.{ScNamingPatternImpl, ScReferencePatternImpl, ScSeqWildcardImpl, ScTypedPatternImpl}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScNamingPattern, ScReferencePattern, ScSeqWildcardPattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.{ScNamingPatternImpl, ScReferencePatternImpl, ScSeqWildcardPatternImpl, ScTypedPatternImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScBindingPatternStubImpl
 
 /**
@@ -52,10 +52,10 @@ object ScNamingPatternElementType extends ScBindingPatternElementType[ScNamingPa
     new ScNamingPatternImpl(stub)
 }
 
-object ScSeqWildcardPatternElementType extends ScBindingPatternElementType[ScSeqWildcard]("seq wildcard pattern") {
-  override def createElement(node: ASTNode): ScSeqWildcard =
-    new ScSeqWildcardImpl(node)
+object ScSeqWildcardPatternElementType extends ScBindingPatternElementType[ScSeqWildcardPattern]("seq wildcard pattern") {
+  override def createElement(node: ASTNode): ScSeqWildcardPattern =
+    new ScSeqWildcardPatternImpl(node)
 
-  override def createPsi(stub: ScBindingPatternStub[ScSeqWildcard]): ScSeqWildcard =
-    new ScSeqWildcardImpl(stub)
+  override def createPsi(stub: ScBindingPatternStub[ScSeqWildcardPattern]): ScSeqWildcardPattern =
+    new ScSeqWildcardPatternImpl(stub)
 }

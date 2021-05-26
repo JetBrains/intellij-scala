@@ -106,8 +106,8 @@ private class ScalaTrailingCommaVisitor(settings: CodeStyleSettings) extends Sca
   override def visitPatternArgumentList(args: ScPatternArgumentList): Unit = {
     doVisit(args, super.visitPatternArgumentList, TRAILING_COMMA_PATTERN_ARG_LIST_ENABLED) {
       _.patterns.lastOption.filter {
-        case _: ScSeqWildcard => false
-        case np: ScNamingPattern if np.named.isInstanceOf[ScSeqWildcard] => false
+        case _: ScSeqWildcardPattern => false
+        case np: ScNamingPattern if np.named.isInstanceOf[ScSeqWildcardPattern] => false
         case _ => true
       }
     }

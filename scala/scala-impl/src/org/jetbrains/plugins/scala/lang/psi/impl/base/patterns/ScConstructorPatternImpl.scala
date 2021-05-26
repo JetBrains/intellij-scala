@@ -122,7 +122,7 @@ object ScConstructorPatternImpl {
 
   private def extractsRepeatedParameterIrrefutably(pattern: ScPattern): Boolean = {
     pattern match {
-      case _: ScSeqWildcard => true
+      case _: ScSeqWildcardPattern => true
       case p: ScNamingPattern => extractsRepeatedParameterIrrefutably(p.named)
       case p: ScParenthesisedPattern => p.innerElement.exists(extractsRepeatedParameterIrrefutably)
       case _ => false
