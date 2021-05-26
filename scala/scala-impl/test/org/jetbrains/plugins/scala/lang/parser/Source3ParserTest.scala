@@ -170,4 +170,35 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_open_and_infix_soft_keywords(): Unit = checkTree(
+    """
+      |open infix class Test
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScClass: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      PsiElement(open)('open')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(infix)('infix')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(class)('class')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PrimaryConstructor
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      Parameters
+      |        <empty list>
+      |    ExtendsBlock
+      |      <empty list>
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
