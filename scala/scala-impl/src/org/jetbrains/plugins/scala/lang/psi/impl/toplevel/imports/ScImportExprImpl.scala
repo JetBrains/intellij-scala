@@ -7,9 +7,8 @@ package imports
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
-import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.TokenSets.IMPORT_WILDCARDS
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
@@ -32,7 +31,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
   override def isSingleWildcard: Boolean = byStubOrPsi(_.isSingleWildcard)(wildcardElement.nonEmpty)
 
   override def wildcardElement: Option[PsiElement] =
-    Option(findChildByType(ScalaTokenTypes.tUNDER))
+    Option(findChildByType(IMPORT_WILDCARDS))
       .orElse(selectorSet.flatMap(_.wildcardElement))
 
   override def qualifier: Option[ScStableCodeReference] =

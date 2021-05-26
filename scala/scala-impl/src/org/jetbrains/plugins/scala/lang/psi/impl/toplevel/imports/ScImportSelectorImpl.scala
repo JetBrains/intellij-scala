@@ -9,9 +9,9 @@ import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.BooleanExt
+import org.jetbrains.plugins.scala.extensions.{BooleanExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.TokenSets.ID_SET
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.IMPORT_SELECTOR
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector}
@@ -60,7 +60,7 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
         prev = if (forward) node.getTreeNext else node.getTreePrev
         t = node.getElementType
       }
-    } while (node != null && !(t == IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER))
+    } while (node != null && !(t == IMPORT_SELECTOR || t == ScalaTokenTypes.tUNDER || t == ScalaTokenType.WildcardStar))
 
     expr.selectors match {
       case Seq(sel: ScImportSelector) if !sel.isAliasedImport =>
@@ -74,6 +74,6 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
 
   override def isAliasedImport: Boolean = byStubOrPsi(_.isAliasedImport) {
     PsiTreeUtil.getParentOfType(this, classOf[ScImportExpr]).selectors.nonEmpty &&
-      !getLastChild.isInstanceOf[ScStableCodeReference]
+        !getLastChild.is[ScStableCodeReference]
   }
 }

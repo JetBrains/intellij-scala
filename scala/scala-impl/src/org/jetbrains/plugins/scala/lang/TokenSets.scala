@@ -6,6 +6,7 @@ package lang
   */
 
 import com.intellij.psi.tree.{IElementType, TokenSet}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.util.MemberElementTypesExtension
@@ -69,6 +70,8 @@ object TokenSets {
     INTERPOLATED_PREFIX_PATTERN_REFERENCE,
     tINTERPOLATED_STRING_ID
   )
+
+  val IMPORT_WILDCARDS: TokenSet = TokenSet.create(tUNDER, WildcardStar)
 
   implicit class TokenSetExt(private val set: TokenSet) extends AnyVal {
     def ++ (other: TokenSet): TokenSet = TokenSet.orSet(set, other)

@@ -27,7 +27,7 @@ object ImportExpr extends ParsingRule {
     }
 
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
-      if (builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+      if (builder.isScala3orSource3 && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
             builder.advanceLexer() // ate id or _
@@ -43,7 +43,7 @@ object ImportExpr extends ParsingRule {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER => builder.advanceLexer() //Ate _ or *
-      case InScala3(_) if builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
+      case InScala3.orSource3(_) if builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
       case ScalaTokenTypes.tLBRACE => ImportSelectors()
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() // Ate given
