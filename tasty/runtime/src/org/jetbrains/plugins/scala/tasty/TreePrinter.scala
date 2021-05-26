@@ -10,13 +10,15 @@ object TreePrinter {
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), tail: _*)) =>
       "package " + name + "\n" +
         "\n" +
-        tail.map(textOf(_)).mkString("\n")
+        tail.map(textOf(_)).filter(_.nonEmpty).mkString("\n")
 
     case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) =>
       val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.name == name)
-      modifiersIn(node) + (if (isImplicitClass) "implicit " else "") + (if (node.hasFlag(TRAIT)) "trait " else "class ") + name + textOf(template, Some(node))
+      val keyword = if (node.hasFlag(OBJECT)) "object" else (if (node.hasFlag(TRAIT)) "trait" else "class")
+      val name0 = if (keyword == "object") node.previousSibling.fold(name)(_.name) else name
+      modifiersIn(node) + (if (isImplicitClass) "implicit " else "") + keyword + " " + name0 + textOf(template, Some(node))
 
-    case node @ Node(TEMPLATE, _, children) =>
+    case node @ Node(TEMPLATE, _, children) => // TODO method?
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
       val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
       val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("")
@@ -35,7 +37,7 @@ object TreePrinter {
         modifiersIn(node) + "def " + name + parametersIn(node) + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, /* compiled code */
       }
 
-    case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) =>
+    case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       modifiersIn(node) + (if (node.hasFlag(MUTABLE)) "var " else "val ") + name + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration ) "" else " = ???") // TODO parameter
