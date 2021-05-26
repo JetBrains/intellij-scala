@@ -79,7 +79,7 @@ object ScPattern {
         case infix: ScInfixPattern =>
           val i =
             if (infix.left == pattern) 0
-            else if (pattern.isInstanceOf[ScTuplePattern]) return None //pattern is handled elsewhere in pattern function
+            else if (pattern.is[ScTuplePattern]) return None //pattern is handled elsewhere in pattern function
             else 1
           expectedTypeForExtractorArg(infix.operation, i, infix.expectedType, 2)
         case par: ScParenthesisedPattern => par.expectedType
@@ -123,7 +123,7 @@ object ScPattern {
             val nodeClass: Option[PsiClass] = psiManager.getCachedClass(elementScope.scope, "scala.xml.Node")
             nodeClass.flatMap { nodeClass =>
               pattern match {
-                case n: ScNamingPattern if n.getLastChild.isInstanceOf[ScSeqWildcard] =>
+                case SeqExpectingPattern() =>
                   ScDesignatorType(nodeClass).wrapIntoSeqType
                 case _ => Some(ScDesignatorType(nodeClass))
               }
@@ -135,7 +135,7 @@ object ScPattern {
             case Some(e) => Some(e.`type`().getOrAny)
             case _       => None
           }
-          case b: ScBlockExpr if b.getContext.isInstanceOf[ScCatchBlock] =>
+          case b: ScBlockExpr if b.getContext.is[ScCatchBlock] =>
             val thr = psiManager.getCachedClass(elementScope.scope, "java.lang.Throwable")
             thr.map(ScalaType.designator(_))
           case b: ScBlockExpr =>
@@ -297,8 +297,8 @@ object ScPattern {
                   else                                  subpatternTpes.last
 
                 pattern match {
-                  case named: ScNamingPattern if named.getLastChild.is[ScSeqWildcard] => subst(tpe).tryWrapIntoSeqType.toOption
-                  case _                                                              => subst(tpe).toOption
+                  case SeqExpectingPattern() => subst(tpe).tryWrapIntoSeqType.toOption
+                  case _                     => subst(tpe).toOption
                 }
               }
 
@@ -315,6 +315,14 @@ object ScPattern {
           args.lift(argIndex)
         case _ => None
       }
+    }
+  }
+
+  private object SeqExpectingPattern {
+    def unapply(e: ScPattern): Boolean = e match {
+      case named: ScNamingPattern => named.getLastChild.is[ScSeqWildcard]
+      case _: ScSeqWildcard => true
+      case _ => false
     }
   }
 
@@ -356,7 +364,7 @@ object ScPattern {
   private[this] case class ByNameExtractor(place: PsiElement) {
     def unapply(tpe: ScType): Option[Seq[ScType]] = {
       val selectors = extractPossibleProductParts(tpe, place)
-      if (selectors.length >= 2) Option(selectors.toSeq)
+      if (selectors.length >= 2) Option(selectors)
       else                       None
     }
   }

@@ -35,21 +35,12 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
 
   override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
 
-  override def `type`(): TypeResult = {
-    if (getLastChild.is[ScSeqWildcard]) {
-      return this.expectedType match {
-        case Some(x) => Right(x)
-        case _ =>  Failure(ScalaBundle.message("no.expected.type.for.wildcard.naming"))
-      }
+  // seq-wildcard patterns are handled in ScSeqWildcardPattern
+  override def `type`(): TypeResult =
+    this.expectedType match {
+      case Some(expectedType) => named.`type`().map(expectedType.glb(_))
+      case _ => named.`type`()
     }
-    if (named == null) Failure(ScalaBundle.message("cannot.infer.type"))
-    else {
-      this.expectedType match {
-        case Some(expectedType) => named.`type`().map(expectedType.glb(_))
-        case _ => named.`type`()
-      }
-    }
-  }
 
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement,
                                    place: PsiElement): Boolean = {

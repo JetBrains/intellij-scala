@@ -5,7 +5,7 @@ package parser
 import com.intellij.lang.ASTNode
 import com.intellij.psi.tree._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScTypedPattern}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScNamingPattern, ScReferencePattern, ScSeqWildcard, ScTypedPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScNewTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -164,6 +164,7 @@ object ScalaElementType {
   val REFERENCE_PATTERN: ScBindingPatternElementType[ScReferencePattern] = ScReferencePatternElementType
   val TYPED_PATTERN: ScBindingPatternElementType[ScTypedPattern] = ScTypedPatternElementType
   val NAMING_PATTERN: ScBindingPatternElementType[ScNamingPattern] = ScNamingPatternElementType
+  val SEQ_WILDCARD: ScBindingPatternElementType[ScSeqWildcard] = ScSeqWildcardPatternElementType
 
   /** ***********************************************************************************/
   /** ****************************** DEFINITION PARTS ***********************************/
@@ -463,9 +464,6 @@ object ScalaElementType {
 
   val TUPLE_PATTERN: ScalaElementType = new ScalaElementType("Tuple Pattern") {
     override def createElement(node: ASTNode) = new ScTuplePatternImpl(node)
-  }
-  val SEQ_WILDCARD: ScalaElementType = new ScalaElementType("Sequence Wildcard") {
-    override def createElement(node: ASTNode) = new ScSeqWildcardImpl(node)
   }
   val CONSTRUCTOR_PATTERN: ScalaElementType = new ScalaElementType("Constructor Pattern") {
     override def createElement(node: ASTNode) = new ScConstructorPatternImpl(node)
