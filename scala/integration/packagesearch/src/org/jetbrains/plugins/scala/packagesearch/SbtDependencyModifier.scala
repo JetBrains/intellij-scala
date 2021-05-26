@@ -5,25 +5,22 @@ import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDepende
 import com.intellij.externalSystem.ExternalDependencyModificator
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
-import com.intellij.psi.{PsiElement, PsiManager}
+import com.intellij.psi.PsiManager
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.{defaultLibScope, refreshSbtProject}
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.defaultLibScope
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.getSbtFileOpt
-import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
+import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, SbtCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.ModuleExtData
 import org.jetbrains.sbt.SbtUtil
 
@@ -44,7 +41,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       topLevelPlace = if (psiSbtFile.module.orNull == module)
         Seq(SbtDependencyUtils.getTopLevelPlaceToAdd(psiSbtFile))
       else Seq.empty
-      
+
       depPlaces = (SbtDependencyUtils.getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetPlace).map(
         psiAndString => SbtDependencyUtils.toDependencyPlaceInfo(psiAndString._1, Seq()))
         ++ topLevelPlace)
@@ -80,7 +77,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     implicit val project: Project = module.getProject
     val targetedLibDepTuple = SbtDependencyUtils.findLibraryDependency(project, module, currentDependency)
     if (targetedLibDepTuple == null) return
-    val oldLibDep = SbtDependencyUtils.processLibraryDependencyFromInfixAndString(targetedLibDepTuple, preserve = true)
+    val oldLibDep = SbtDependencyUtils.processLibraryDependencyFromExprAndString(targetedLibDepTuple, preserve = true)
     val newCoordinates = newDependency.getCoordinates
 
     if (SbtDependencyUtils.cleanUpDependencyPart(oldLibDep(2).asInstanceOf[ScStringLiteral].getText) != newCoordinates.getVersion) {
@@ -123,8 +120,21 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       throw e
   }
 
-  override def removeDependency(module: OpenapiModule.Module, unifiedDependency: UnifiedDependency): Unit = {
-
+  override def removeDependency(module: OpenapiModule.Module, toRemoveDependency: UnifiedDependency): Unit = try {
+    implicit val project: Project = module.getProject
+    val targetedLibDepTuple = SbtDependencyUtils.findLibraryDependency(project, module, toRemoveDependency)
+    targetedLibDepTuple._3.getParent match {
+      case _: ScArgumentExprList => inWriteCommandAction {
+        targetedLibDepTuple._3.delete()
+      }
+      case infix: ScInfixExpr if infix.left.textMatches(SbtDependencyUtils.LIBRARY_DEPENDENCIES) => inWriteCommandAction {
+        infix.delete()
+      }
+      case _ =>
+    }
+  } catch {
+    case e: Exception =>
+      throw e
   }
 
   override def addRepository(module: OpenapiModule.Module, unifiedDependencyRepository: UnifiedDependencyRepository): Unit = {
@@ -157,7 +167,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
     inReadAction({
       libDeps.map(libDepInfixAndString => {
-        val libDepArr = SbtDependencyUtils.processLibraryDependencyFromInfixAndString(libDepInfixAndString).map(_.asInstanceOf[String])
+        val libDepArr = SbtDependencyUtils.processLibraryDependencyFromExprAndString(libDepInfixAndString).map(_.asInstanceOf[String])
         val dataContext = new DataContext {
           override def getData(dataId: String): AnyRef = {
             if (CommonDataKeys.PSI_ELEMENT.is(dataId)) {
