@@ -51,7 +51,7 @@ ScalaFile
                     PsiElement(_)('_')
                     PsiWhiteSpace(' ')
                     PsiElement(@)('@')
-                    Sequence Wildcard
+                    SequenceWildcardPattern: _
                       PsiElement(_)('_')
                       PsiElement(identifier)('*')
                   PsiElement())(')')

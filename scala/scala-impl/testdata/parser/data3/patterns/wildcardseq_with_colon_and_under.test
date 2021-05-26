@@ -52,7 +52,7 @@ ScalaFile
                     PsiElement(_)('_')
                     PsiElement(:)(':')
                     PsiWhiteSpace(' ')
-                    Sequence Wildcard
+                    SequenceWildcardPattern: _
                       PsiElement(_)('_')
                       PsiElement(identifier)('*')
                   PsiElement())(')')

@@ -50,7 +50,7 @@ ScalaFile
                         PsiElement(identifier)('b')
                     PsiElement())(')')
                   PsiElement(,)(',')
-                  Sequence Wildcard
+                  SequenceWildcardPattern: _
                     PsiElement(_)('_')
                     PsiElement(identifier)('*')
                 PsiElement(ScalaXmlInjection End)('}')

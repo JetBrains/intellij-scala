@@ -48,7 +48,7 @@ ScalaFile
                         PsiElement(()('(')
                         PsiElement())(')')
                   PsiElement(,)(',')
-                  Sequence Wildcard
+                  SequenceWildcardPattern: _
                     PsiElement(_)('_')
                     PsiElement(identifier)('*')
                   PsiElement())(')')
@@ -67,7 +67,7 @@ ScalaFile
                   PsiElement(identifier)('Some')
                 Pattern Argument List
                   PsiElement(()('(')
-                  Sequence Wildcard
+                  SequenceWildcardPattern: _
                     PsiElement(_)('_')
                     PsiElement(identifier)('*')
                   PsiElement())(')')

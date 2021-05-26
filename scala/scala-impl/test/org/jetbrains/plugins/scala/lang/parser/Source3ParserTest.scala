@@ -239,4 +239,88 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_seq_wildcard_pattern(): Unit = checkTree(
+    """
+      |val Seq(_*) = null
+      |val Seq(all*) = null
+      |val Seq(all@_*) = null
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ConstructorPattern
+      |        CodeReferenceElement: Seq
+      |          PsiElement(identifier)('Seq')
+      |        Pattern Argument List
+      |          PsiElement(()('(')
+      |          SequenceWildcardPattern: _
+      |            PsiElement(_)('_')
+      |            PsiElement(identifier)('*')
+      |          PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    NullLiteral
+      |      PsiElement(null)('null')
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: all
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ConstructorPattern
+      |        CodeReferenceElement: Seq
+      |          PsiElement(identifier)('Seq')
+      |        Pattern Argument List
+      |          PsiElement(()('(')
+      |          SequenceWildcardPattern: all
+      |            PsiElement(identifier)('all')
+      |            PsiElement(identifier)('*')
+      |          PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    NullLiteral
+      |      PsiElement(null)('null')
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: all
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ConstructorPattern
+      |        CodeReferenceElement: Seq
+      |          PsiElement(identifier)('Seq')
+      |        Pattern Argument List
+      |          PsiElement(()('(')
+      |          NamingPattern: all
+      |            PsiElement(identifier)('all')
+      |            PsiElement(@)('@')
+      |            SequenceWildcardPattern: _
+      |              PsiElement(_)('_')
+      |              PsiElement(identifier)('*')
+      |          PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    NullLiteral
+      |      PsiElement(null)('null')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
