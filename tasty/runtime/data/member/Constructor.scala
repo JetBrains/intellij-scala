@@ -1,5 +1,5 @@
 package member
 
-class Constructor() {
+class Constructor {
   def this(x: Int) = this()
 }

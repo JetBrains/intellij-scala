@@ -1,15 +1,15 @@
 package member
 
-trait Modifiers() {
+trait Modifiers {
   class PrivatePrimaryConstructor private ()
 
   class ProtectedPrimaryConstructor protected ()
 
-  class PrivateAuxilliaryConstructor() {
+  class PrivateAuxilliaryConstructor {
     private def this(x: Int) = this()
   }
 
-  class ProtectedAuxilliaryConstructor() {
+  class ProtectedAuxilliaryConstructor {
     protected def this(x: Int, y: Int) = this()
   }
 

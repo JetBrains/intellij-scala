@@ -1,11 +1,11 @@
 package parameter
 
-trait Variance() {
-  class ClassCovariant[+A]()
+trait Variance {
+  class ClassCovariant[+A]
 
-  class ClassContravariant[-A]()
+  class ClassContravariant[-A]
 
-  trait TraitCovariant[+A]()
+  trait TraitCovariant[+A]
 
-  trait TraitContravariant[-A]()
+  trait TraitContravariant[-A]
 }

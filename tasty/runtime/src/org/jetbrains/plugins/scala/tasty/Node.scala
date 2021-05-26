@@ -12,13 +12,21 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
 
   def name: String = names.head
 
-  def hasFlag(flag: Int): Boolean = children.exists(_.tag == flag) // TODO optimize
+  def hasFlag(flag: Int): Boolean = children.exists(_.tag == flag) // TODO hasModifier, optimize
 
-  // TODO flags
+  def flags: Seq[Node] = children.filter(_.isModifier) // TODO optimize, Set
 
   def isModifier: Boolean = TastyFormat.isModifierTag(tag)
 
   def isTypeTree: Boolean = TastyFormat.isTypeTreeTag(tag)
 
   def is(tags: Int*): Boolean = tags.contains(tag)
+
+  // TODO private setter
+  var previousSibling: Option[Node] = None
+
+  var nextSibling: Option[Node] = None
+
+  // TODO
+  // var parent: Option[Node] = None
 }

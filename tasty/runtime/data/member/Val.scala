@@ -1,5 +1,5 @@
 package member
 
-trait Val() {
+trait Val {
   val value: Int
 }
