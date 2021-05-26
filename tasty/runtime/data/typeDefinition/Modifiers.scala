@@ -23,9 +23,9 @@ trait Modifiers {
 
   open trait OpenTrait
 
-  private class PrivateObject
+  private object PrivateObject
 
-  protected class ProtectedObject
+  protected object ProtectedObject
 
-  final class FinalObject
+  implicit object ImplicitObject
 }
