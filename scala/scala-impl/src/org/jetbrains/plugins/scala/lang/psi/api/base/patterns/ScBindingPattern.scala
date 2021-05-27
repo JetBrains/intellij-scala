@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, Sc
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
-  def isWildcard: Boolean
+  def isWildcard: Boolean = name == "_"
 
   override def isStable: Boolean = !isVar
 

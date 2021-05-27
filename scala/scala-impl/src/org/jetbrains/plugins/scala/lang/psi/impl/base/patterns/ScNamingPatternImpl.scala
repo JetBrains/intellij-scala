@@ -33,8 +33,6 @@ class ScNamingPatternImpl private(stub: ScBindingPatternStub[ScNamingPattern], n
 
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
-
   // seq-wildcard patterns are handled in ScSeqWildcardPattern
   override def `type`(): TypeResult =
     this.expectedType match {

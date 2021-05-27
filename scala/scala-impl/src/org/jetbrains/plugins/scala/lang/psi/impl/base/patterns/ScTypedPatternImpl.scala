@@ -37,8 +37,6 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
 
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
-
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
   override def `type`(): TypeResult = {

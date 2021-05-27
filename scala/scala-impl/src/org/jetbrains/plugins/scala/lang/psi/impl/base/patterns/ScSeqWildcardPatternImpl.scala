@@ -30,8 +30,6 @@ class ScSeqWildcardPatternImpl private(stub: ScBindingPatternStub[ScSeqWildcardP
 
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
 
-  override def isWildcard: Boolean = findChildByType[PsiElement](ScalaTokenTypes.tUNDER) != null
-
   override def toString: String = "SequenceWildcardPattern: " + ifReadAllowed(name)("")
 
 
