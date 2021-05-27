@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.packagesearch.ui
 
+import com.intellij.buildsystem.model.unified.UnifiedDependencyRepository
 import com.intellij.openapi.editor.{Editor, EditorFactory, LogicalPosition, ScrollType}
 import com.intellij.openapi.editor.colors.CodeInsightColors
 import com.intellij.openapi.editor.ex.EditorEx
@@ -7,22 +8,23 @@ import com.intellij.openapi.editor.highlighter.EditorHighlighterFactory
 import com.intellij.openapi.editor.markup.{HighlighterLayer, HighlighterTargetArea}
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
+import com.intellij.psi.PsiElement
 import com.intellij.ui.{CollectionListModel, ColoredListCellRenderer, GuiUtils, ScrollPaneFactory, SimpleTextAttributes}
 import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.{ScalaFileType, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils
+import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
+import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtDependencyUtils}
 import org.jetbrains.plugins.scala.project.ProjectExt
-import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
-import org.jetbrains.sbt.{SbtBundle, language}
+import org.jetbrains.sbt.language
 
 import java.awt.BorderLayout
 import javax.swing.{JList, JPanel, JSplitPane, ListSelectionModel, ScrollPaneConstants}
 import javax.swing.event.ListSelectionEvent
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPreviewWizard, fileLines: Seq[DependencyPlaceInfo]) extends JPanel {
-  val myResultList: JBList[DependencyPlaceInfo] = new JBList[DependencyPlaceInfo]()
+private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyOrRepositoryPreviewWizard, fileLines: Seq[DependencyOrRepositoryPlaceInfo]) extends JPanel {
+  val myResultList: JBList[DependencyOrRepositoryPlaceInfo] = new JBList[DependencyOrRepositoryPlaceInfo]()
   var myCurEditor: Editor = createEditor()
 
   private val EDITOR_TOP_MARGIN = 7
@@ -34,7 +36,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPrev
 
     val splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT)
 
-    myResultList.setModel(new CollectionListModel[DependencyPlaceInfo](fileLines.asJavaCollection))
+    myResultList.setModel(new CollectionListModel[DependencyOrRepositoryPlaceInfo](fileLines.asJavaCollection))
     myResultList.getSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION)
 
     val scrollPane = ScrollPaneFactory.createScrollPane(myResultList)
@@ -60,7 +62,7 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPrev
     }
   }
 
-  private def updateEditor(myCurFileLine: DependencyPlaceInfo): Unit = {
+  private def updateEditor(myCurFileLine: DependencyOrRepositoryPlaceInfo): Unit = {
     val document    = FileDocumentManager.getInstance.getDocument(project.baseDir.findFileByRelativePath(myCurFileLine.path))
     val tmpFile     = ScalaPsiElementFactory.createScalaFileFromText(document.getText)(project)
     var tmpElement  = tmpFile.findElementAt(myCurFileLine.element.getTextOffset)
@@ -68,15 +70,18 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPrev
       tmpElement = tmpElement.getParent
     }
 
-    val dep = for {
-      resultArtifact <- wizard.resultArtifact
-      dependency <- SbtDependencyUtils.addDependency(tmpElement, resultArtifact)(project)
-    } yield dependency
+    var dep: Option[PsiElement] = null
+    wizard.elementToAdd match {
+      case info: ArtifactInfo =>
+        dep = SbtDependencyUtils.addDependency(tmpElement, info)(project)
+      case repo: UnifiedDependencyRepository =>
+        dep = SbtDependencyUtils.addRepository(tmpElement, repo)(project)
+    }
 
     inWriteAction {
       myCurEditor.getDocument.setText {
         if (dep.isDefined) tmpFile.getText
-        else SbtBundle.message("sbt.could.not.generate.dependency.string")
+        else PackageSearchSbtBundle.message("packagesearch.dependency.sbt.could.not.generate.expression.string.to.add")
       }
     }
 
@@ -118,11 +123,11 @@ private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPrev
     viewer
   }
 
-  private class PlacesCellRenderer extends ColoredListCellRenderer[DependencyPlaceInfo] {
+  private class PlacesCellRenderer extends ColoredListCellRenderer[DependencyOrRepositoryPlaceInfo] {
 
     //noinspection ReferencePassedToNls,ScalaExtractStringToBundle
-    override def customizeCellRenderer(list: JList[_ <: DependencyPlaceInfo],
-                                       info: DependencyPlaceInfo,
+    override def customizeCellRenderer(list: JList[_ <: DependencyOrRepositoryPlaceInfo],
+                                       info: DependencyOrRepositoryPlaceInfo,
                                        index: Int,
                                        selected: Boolean,
                                        hasFocus: Boolean): Unit = {

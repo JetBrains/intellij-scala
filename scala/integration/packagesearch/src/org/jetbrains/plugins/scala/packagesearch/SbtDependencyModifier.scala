@@ -9,20 +9,21 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
 import com.intellij.psi.PsiManager
+import org.jetbrains.idea.maven.indices.MavenIndex
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
+import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPreviewWizard
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.defaultLibScope
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.getSbtFileOpt
-import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, SbtCommon, SbtDependencyUtils}
-import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.{getSbtFileOpt, getTopLevelPlaceToAdd}
+import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.project.data.ModuleExtData
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolverUtils}
 
 import java.util
 import scala.jdk.CollectionConverters._
@@ -46,7 +47,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
         psiAndString => SbtDependencyUtils.toDependencyPlaceInfo(psiAndString._1, Seq()))
         ++ topLevelPlace)
         .map {
-        case Some(inside: DependencyPlaceInfo) => inside
+        case Some(inside: DependencyOrRepositoryPlaceInfo) => inside
         case _ => null
       }.filter(_ != null).sortWith(_.toString < _.toString)
     } yield depPlaces).getOrElse(Seq.empty)
@@ -58,14 +59,13 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       newDependency.getScope)
 
     ApplicationManager.getApplication.invokeLater { () =>
-      val wizard = new AddDependencyPreviewWizard(
+      val wizard = new AddDependencyOrRepositoryPreviewWizard(
         project,
-        Some(newArtifactInfo),
+        newArtifactInfo,
         dependencyPlaces)
       wizard.search() match {
         case Some(fileLine) =>
           SbtDependencyUtils.addDependency(fileLine.element, newArtifactInfo)(project)
-//          refreshSbtProject(project)
         case _ =>
       }
     }
@@ -138,7 +138,14 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
   }
 
   override def addRepository(module: OpenapiModule.Module, unifiedDependencyRepository: UnifiedDependencyRepository): Unit = {
+    implicit val project: Project = module.getProject
+    val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
+    if (sbtFileOpt == null) return
+    val sbtFile = sbtFileOpt.orNull
+    if (sbtFile == null) return
+    val psiSbtFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
 
+    SbtDependencyUtils.addRepository(psiSbtFile, unifiedDependencyRepository)
   }
 
   override def deleteRepository(module: OpenapiModule.Module, unifiedDependencyRepository: UnifiedDependencyRepository): Unit = {
@@ -202,6 +209,9 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
   }
 
   override def declaredRepositories(module: OpenapiModule.Module): util.List[UnifiedDependencyRepository] = {
-    List().asJava
+    SbtResolverUtils.projectResolvers(module.getProject).collect {
+      case r: SbtMavenResolver =>
+        new UnifiedDependencyRepository(r.name, r.presentableName, MavenIndex.normalizePathOrUrl(r.root))
+    }.toList.asJava
   }
 }

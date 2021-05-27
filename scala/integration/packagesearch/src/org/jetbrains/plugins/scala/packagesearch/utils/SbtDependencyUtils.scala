@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.packagesearch.utils
 
-import com.intellij.buildsystem.model.unified.UnifiedDependency
+import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDependencyRepository}
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.module.{Module => OpenapiModule}
@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.sbt.SbtUtil.getSbtModuleData
-import org.jetbrains.sbt.annotator.dependency.DependencyPlaceInfo
 import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
 import org.jetbrains.sbt.project.data.SbtModuleData
 
@@ -343,10 +342,10 @@ object SbtDependencyUtils {
     res
   }
 
-  def getTopLevelPlaceToAdd(psiFile: ScalaFile)(implicit project: Project): Option[DependencyPlaceInfo] = {
+  def getTopLevelPlaceToAdd(psiFile: ScalaFile)(implicit project: Project): Option[DependencyOrRepositoryPlaceInfo] = {
     val line: Int = StringUtil.offsetToLineNumber(psiFile.charSequence, psiFile.getTextLength) + 1
     getRelativePath(psiFile).map { relpath =>
-      DependencyPlaceInfo(relpath, psiFile.getTextLength, line, psiFile, Seq())
+      DependencyOrRepositoryPlaceInfo(relpath, psiFile.getTextLength, line, psiFile, Seq())
     }
   }
 
@@ -363,6 +362,14 @@ object SbtDependencyUtils {
         }
       case file: PsiFile =>
         Option(addDependencyToFile(file, info)(project))
+      case _ => None
+    }
+  }
+
+  def addRepository(expr: PsiElement, unifiedDependencyRepository: UnifiedDependencyRepository)(implicit project: Project): Option[PsiElement] = {
+    expr match {
+      case file: PsiFile =>
+        Option(addRepositoryToFile(file, unifiedDependencyRepository)(project))
       case _ => None
     }
   }
@@ -439,6 +446,15 @@ object SbtDependencyUtils {
     addedExpr
   }
 
+  def addRepositoryToFile(file: PsiFile, unifiedDependencyRepository: UnifiedDependencyRepository)(implicit project: Project): PsiElement = {
+    var addedExpr: PsiElement = null
+    doInSbtWriteCommandAction({
+      file.addAfter(generateNewLine(project), file.getLastChild)
+      addedExpr = file.addAfter(generateResolverPsiExpression(unifiedDependencyRepository), file.getLastChild)
+    }, file)
+    addedExpr
+  }
+
   def isAddableLibraryDependencies(libDeps: ScInfixExpr): Boolean =
     libDeps.operation.refName match {
       case "+=" | "++=" => true
@@ -476,6 +492,11 @@ object SbtDependencyUtils {
     }
     artifactText
   }
+  def generateResolverText(unifiedDependencyRepository: UnifiedDependencyRepository):String =
+    s"""resolvers += Resolver.url("${unifiedDependencyRepository.getId}", url("${unifiedDependencyRepository.getUrl}"))"""
+
+  def generateResolverPsiExpression(unifiedDependencyRepository: UnifiedDependencyRepository)(implicit ctx: ProjectContext): ScExpression =
+    ScalaPsiElementFactory.createElementFromText(generateResolverText(unifiedDependencyRepository))(ctx).asInstanceOf[ScExpression]
 
   def getRelativePath(elem: PsiElement)(implicit project: ProjectContext): Option[String] = {
     for {
@@ -485,7 +506,7 @@ object SbtDependencyUtils {
       path.substring(project.getBasePath.length + 1)
   }
 
-  def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit ctx: ProjectContext): Option[DependencyPlaceInfo] = {
+  def toDependencyPlaceInfo(elem: PsiElement, affectedProjects: Seq[String])(implicit ctx: ProjectContext): Option[DependencyOrRepositoryPlaceInfo] = {
     val offset =
       elem match {
         case call: ScMethodCall =>
@@ -499,7 +520,7 @@ object SbtDependencyUtils {
     val line: Int = StringUtil.offsetToLineNumber(elem.getContainingFile.charSequence, offset) + 1
 
     getRelativePath(elem).map { relpath =>
-      DependencyPlaceInfo(relpath, offset, line, elem, affectedProjects)
+      DependencyOrRepositoryPlaceInfo(relpath, offset, line, elem, affectedProjects)
     }
   }
 
