@@ -93,8 +93,8 @@ object SbtDependencyUtils {
                                          psiSbtFile: ScalaFile,
                                          mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
     var res: Seq[(PsiElement, String, PsiElement)] = Seq()
-
-    if (psiSbtFile.module.orNull == module)
+    val sbtFileModule = psiSbtFile.module.orNull
+    if (sbtFileModule != null && (sbtFileModule == module || sbtFileModule.getName == s"""${module.getName}-build"""))
       res ++= getTopLevelLibraryDependencies(psiSbtFile).flatMap(
         libDep => getLibraryDependenciesOrPlacesFromPsi(libDep, mode))
 

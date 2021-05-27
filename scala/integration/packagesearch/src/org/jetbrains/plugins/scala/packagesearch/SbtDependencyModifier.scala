@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPreviewWizard
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.defaultLibScope
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.{getSbtFileOpt, getTopLevelPlaceToAdd}
+import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.getSbtFileOpt
 import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.project.data.ModuleExtData
 import org.jetbrains.sbt.SbtUtil
@@ -39,7 +39,8 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     val dependencyPlaces = inReadAction ( for {
       sbtFile <- sbtFileOpt
       psiSbtFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
-      topLevelPlace = if (psiSbtFile.module.orNull == module)
+      sbtFileModule = psiSbtFile.module.orNull
+      topLevelPlace = if (sbtFileModule != null && (sbtFileModule == module || sbtFileModule.getName == s"""${module.getName}-build"""))
         Seq(SbtDependencyUtils.getTopLevelPlaceToAdd(psiSbtFile))
       else Seq.empty
 
