@@ -1,19 +1,15 @@
 <html>
 <body>
-Replaces filter and size (or length) with count.
-
-<p>
-Before: 
-<pre>
-seq.filter(p).size
-</pre>
-
-<br>
-After:
-<pre>
-seq.count(p)
-</pre>
-</p>
-
+Reports using <code>filter</code> and <code>size</code> (or <code>length</code>) and suggests replacing it with <code>count</code>.
+<p><b>Example:</b></p>
+<pre><code>
+var x: Seq[Int]
+x.filter(p).size
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Seq[Int]
+x.count(p)
+</code></pre>
 </body>
 </html>

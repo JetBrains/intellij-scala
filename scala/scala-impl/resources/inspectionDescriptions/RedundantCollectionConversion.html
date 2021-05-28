@@ -1,19 +1,13 @@
 <html>
 <body>
-Removes redundant collection conversion.
-
-<p>
-Before:
-<pre>
+Reports redundant collection conversions and suggests to remove them.
+<p><b>Example:</b></p>
+<pre><code>
 List(1, 2).toList
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 List(1, 2)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

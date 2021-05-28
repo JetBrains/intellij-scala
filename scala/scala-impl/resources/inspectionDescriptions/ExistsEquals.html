@@ -1,23 +1,15 @@
 <html>
 <body>
-Replaces exists or forall with contains if possible.
-
-<p>
-Before:
-<pre>
+Reports using <code>exists</code> or <code>forall</code> with and replaces with <code>contains</code> if possible.
+<p>Example:</p>
+<pre><code>
 set.exists(x => x == "a")
 set.forall(x => x != "a")
-</pre>
-</p>
-<p>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 set.contains("a")
 !set.contains("a")
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

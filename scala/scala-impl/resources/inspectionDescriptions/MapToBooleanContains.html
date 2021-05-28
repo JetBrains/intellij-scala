@@ -1,21 +1,19 @@
 <html>
 <body>
-Replaces map with boolean function and contains true/false with <code>.exists()</code> or <code>!.forall()</code>.
-
-<p>
-Before:
-<pre>
+Reports map with boolean function and contains true/false and suggests replacing with <code>.exists()</code> or <code>!.forall()</code>.
+<p><b>Example:</b></p>
+<pre><code>
+def p(x: Int): Boolean = ???
+var seq: Seq[Int]
 seq.map(p).contains(true)
 seq.map(p).contains(false)
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def p(x: Int): Boolean = ???
+var seq: Seq[Int]
 seq.exists(p)
 !seq.forall(p)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

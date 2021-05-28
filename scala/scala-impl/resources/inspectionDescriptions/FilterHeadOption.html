@@ -1,19 +1,15 @@
 <html>
 <body>
-Replaces filter and headOption with find.
-
-<p>
-Before:
-<pre>
-seq.filter(p).headOption
-</pre>
-
-<br>
-After:
-<pre>
-seq.find(p)
-</pre>
-</p>
-
+Reports using <code>filter</code> and <code>headOption</code> and replaces with <code>find</code>.
+<p><b>Example:</b></p>
+<pre><code>
+var x: Seq[Int]
+x.filter(p).headOption
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Seq[Int]
+x.find(p)
+</code></pre>
 </body>
 </html>

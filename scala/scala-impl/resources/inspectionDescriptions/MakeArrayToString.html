@@ -1,5 +1,15 @@
 <html>
 <body>
-This inspection reports arrays being passed to print or println and helps you convert them to proper strings.
+Reports arrays being passed to print or println and suggests to convert them to proper strings.
+<p><b>Example:</b></p>
+<pre><code>
+var x: Array[Int]
+print(x)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Array[Int]
+print(x.mkString("Array(", ", ", ")"))
+</code></pre>
 </body>
 </html>

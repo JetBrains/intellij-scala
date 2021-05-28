@@ -1,22 +1,16 @@
 <html>
 <body>
-Equals on arrays and iterators checks reference equality which is rarely useful. Inspection suggests to compare their
-content with <code>sameElements</code> method. Inspection also detects comparing arrays with scala sequences.
-
-<p>
-Before:
-<pre>
+Reports using equals on arrays and iterators.
+<p>Equals on arrays and iterators checks reference equality which is rarely useful. Inspection suggests to compare their
+    content with <code>sameElements</code> method. Inspection also detects comparing arrays with scala sequences.</p>
+<pre><code>
 Array(1) == Array(1) //false
 Iterator(1) == Iterator(1) //false
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 Array(1) sameElements Array(1) //true
 Iterator(1) sameElements Iterator(1) //true
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

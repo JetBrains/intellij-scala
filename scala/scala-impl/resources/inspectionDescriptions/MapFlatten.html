@@ -1,5 +1,13 @@
 <html>
 <body>
-Replaces <code>collection.map(f).flatten(m)</code> with <code>collection.flatMap</code> if possible.
+Reports <code>collection.map(f).flatten(m)</code> and suggests replacing with <code>collection.flatMap</code> if possible.
+<p><b>Example:</b></p>
+<pre><code>
+Seq(1, 10).map(i => Seq(i, i + 10)).flatten
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+Seq(1, 10).flatMap(i => Seq(i, i + 10))
+</code></pre>
 </body>
 </html>

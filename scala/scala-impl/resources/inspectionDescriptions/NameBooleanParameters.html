@@ -1,4 +1,14 @@
 <html>
-<body>Detect and name boolean parameters.
+<body>Reports and suggests to name boolean parameters.
+<p><b>Example:</b></p>
+<pre><code>
+def execute(optionA: Boolean, optionB: Boolean): Unit = ???
+execute(true, false)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def execute(optionA: Boolean, optionB: Boolean): Unit = ???
+execute(optionA = true, optionB = false)
+</code></pre>
 </body>
 </html>

@@ -1,19 +1,15 @@
 <html>
 <body>
-Replaces map and getOrElse on Option by fold.
-
-<p>
-Before: 
-<pre>
-option.map(f)getOrElse(default)
-</pre>
-
-<br>
-After:
-<pre>
-option.fold(default)(f)
-</pre>
-</p>
-
+Reports <code>map</code> and <code>getOrElse</code> on <code>Option</code> and suggests replacing by <code>fold</code>.
+<p><b>Example:</b></p>
+<pre><code>
+def p(x: Int): Boolean = ???
+Option(0).map(p).getOrElse(false)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def p(x: Int): Boolean = ???
+Option(0).fold(false)(p)
+</code></pre>
 </body>
 </html>

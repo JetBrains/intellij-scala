@@ -1,6 +1,13 @@
 <html>
 <body>
-This inspection reports usages of forward references on class level, which can lead to unexpected behavior during class
-initialization.
+Reports usages of forward references on class level, which can lead to unexpected behavior during class initialization.
+<p><b>Example:</b></p>
+<pre><code>
+class Test {
+  val first: Int  = second + 5
+  val second: Int = 5
+  // first will be 5 and not 10
+}
+</code></pre>
 </body>
 </html>

@@ -1,19 +1,15 @@
 <html>
 <body>
-Don’t check index bounds explicitly.
-
-<p>
-Before:
-<pre>
-if (i &lt; seq.length) Some(seq(i)) else None
-</pre>
-
-<br>
-After:
-<pre>
-seq.lift(i)
-</pre>
-</p>
-
+Reports explicit checking of index bounds.
+<p><b>Example:</b></p>
+<pre><code>
+var x: Seq[Int]
+if (i < x.length) Some(x(i)) else None
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Seq[Int]
+x.lift(i)
+</code></pre>
 </body>
 </html>

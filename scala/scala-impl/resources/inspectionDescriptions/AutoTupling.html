@@ -1,6 +1,18 @@
 <html>
-<body>Scala compiler tries to convert comma separated arguments into tuples, if there are no appropriate multi-argument
+<body>
+Reports comma-separated argumenrs that could be converted into tuples.
+<p>Scala compiler tries to convert comma separated arguments into tuples, if there are no appropriate multi-argument
 methods and a single appropriate one-argument method. Such conversion may disrupt type safety and lead to unexpected
-results.
+    results.</p>
+<p><b>Example:</b></p>
+<pre><code>
+def foo(a: Any) = {}
+foo(1, 2)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def foo(a: Any) = {}
+foo((1, 2))
+</code></pre>
 </body>
 </html>

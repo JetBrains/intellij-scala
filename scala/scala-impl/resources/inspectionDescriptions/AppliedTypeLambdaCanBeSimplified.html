@@ -1,7 +1,12 @@
 <html>
-<body>Simplifies types such as <br/>
-<pre>({type l[a] = Either[String, a]})#l[Int]</pre>
-<br/>to<br/>
-<pre>Either[String, Int]</pre>
+<body>Reports types that could be simplified.
+<p><b>Example:</b></p>
+<pre><code>
+def test: ({type l[a] = Either[String, a]})#l[Int] = ???
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def test: Either[String, Int] = ???
+</code></pre>
 </body>
 </html>

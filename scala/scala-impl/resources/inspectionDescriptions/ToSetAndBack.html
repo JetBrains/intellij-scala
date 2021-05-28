@@ -1,21 +1,15 @@
 <html>
 <body>
-Replaces chained conversions of a sequence to Set and back with <code>.distinct</code> call.
-
-<p>
-Before:
-<pre>
-seq.toSet.toSeq
-list.toSet.to[List]
-</pre>
-
-<br>
-After:
-<pre>
-seq.distinct
-list.distinct
-</pre>
-</p>
-
+Reports chained conversions of a sequence to Set and back and suggests replacing with <code>.distinct</code> call.
+<p><b>Example:</b></p>
+<pre><code>
+Seq(1).toSet.toSeq
+List(1).toSet.toList
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+Seq(1).distinct
+List(1).distinct
+</code></pre>
 </body>
 </html>

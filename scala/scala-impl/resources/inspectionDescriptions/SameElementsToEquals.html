@@ -1,24 +1,15 @@
 <html>
 <body>
-Equality for scala collections checks that both collections are of same kind (Seq, Set or Map) and have same
-elements. Inspection suggests to replace appropriate usages of methods <code>sameElements</code> or
-<code>corresponds</code> with
-equivalent equality check.
-
-<p>
-Before:
-<pre>
+Reports usages of methods <code>sameElements</code> or <code>corresponds</code> to compare collections of same kind (Seq, Set or Map) and having same elements and suggests to replace them with equivalent equality check.
+<p><b>Example:</b></p>
+<pre><code>
 seq sameElements list
 hashSet sameElements treeSet
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 seq == list
 hashSet == treeSet
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

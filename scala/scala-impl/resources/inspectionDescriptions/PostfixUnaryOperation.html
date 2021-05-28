@@ -1,19 +1,13 @@
 <html>
 <body>
-Uses operator instead of postfix call to 'unary_!' or 'unary_~' etc.
-
-<p>
-    Before:
-<pre>
+Reports postfix call to <code>unary_!</code> or <code>unary_~</code> etc. and suggests replacing with operator.
+<p><b>Example:</b></p>
+<pre><code>
 val x = true.unary_!;
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 val x = !true
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

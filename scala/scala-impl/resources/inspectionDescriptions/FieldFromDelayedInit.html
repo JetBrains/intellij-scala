@@ -1,5 +1,18 @@
 <html>
 <body>
-Fields defined in subclasses of DelayedInit are initialized only when method <code>main</code> is executed.
+Reports fields defined in subclasses of DelayedInit that are initialized only when method <code>main</code> is executed.
+<p><b>Example:</b></p>
+<pre><code>
+class Test {
+  println(MyApp.initializedLater) // prints 0
+}
+object MyApp extends DelayedInit {
+  val initializedLater = 3
+  override def delayedInit(body: => Unit): Unit = {
+    new Test
+    body
+  }
+}
+</code></pre>
 </body>
 </html>

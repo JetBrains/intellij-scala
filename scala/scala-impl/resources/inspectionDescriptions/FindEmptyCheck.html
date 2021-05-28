@@ -1,23 +1,19 @@
 <html>
 <body>
-Replaces find and emptiness check with exists.
-
-<p>
-Before:
-<pre>
-seq.find(p).isDefined
-seq.find(p) != None
-seq.find(p).isEmpty
-</pre>
-
-<br>
-After:
-<pre>
-seq.exists(p)
-seq.exists(p)
-!seq.exists(p)
-</pre>
-</p>
-
+Reports <code>find</code> and emptiness check and suggests replacing with <code>exists</code>.
+<p><b>Example:</b></p>
+<pre><code>
+var x: Seq[Int]
+x.find(p).isDefined
+x.find(p) != None
+x.find(p).isEmpty
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Seq[Int]
+x.exists(p)
+x.exists(p)
+!x.exists(p)
+</code></pre>
 </body>
 </html>

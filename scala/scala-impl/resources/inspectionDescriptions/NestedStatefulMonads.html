@@ -1,5 +1,11 @@
 <html>
 <body>
-This inspection reports nested stateful monads which may lead to architectural errors.
+Reports nested stateful monads which may lead to architectural errors.
+<p><b>Example:</b></p>
+<pre><code>
+import scala.concurrent.Future
+val a = Future { }
+Future { a }
+</code></pre>
 </body>
 </html>

@@ -1,15 +1,11 @@
 <html>
 <body>
-Scala does not require the developer to use <code>override</code> on methods that implement abstract members.
+Reports functions that override abstract members but do not have an override modifier.
+<p>Scala does not require the developer to use <code>override</code> on methods that implement abstract members.
 Nonetheless, it is a good idea to mark such methods with <code>override</code> to be notified
-by the compiler when the override relationship gets broken (by a subsequent refactoring, for example).
-
-<br />
-This inspection reports functions that override abstract members but do not have an override modifier.
-
-<p>
-    Before:
-<pre>
+    by the compiler when the override relationship gets broken (by a subsequent refactoring, for example).</p>
+<p><b>Example:</b></p>
+<pre><code>
 trait Base {
   def fun(): Int
 }
@@ -17,11 +13,9 @@ trait Base {
 class Impl extends Base {
   def fun(): Int = 42
 }
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 trait Base {
   def fun(): Int
 }
@@ -29,8 +23,6 @@ trait Base {
 class Impl extends Base {
   override def fun(): Int = 42
 }
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

@@ -1,19 +1,13 @@
 <html>
 <body>
-Use PsiElement.textMatches instead of PsiElement.getText when comparing with a string.
-
-<p>
-    Before:
-<pre>
+Reports using <code>PsiElement.getText</code> when comparing with a string and suggests replacing it with <code>PsiElement.textMatches</code>.
+<p><b>Example:</b></p>
+<pre><code>
 psiElement.getText == "null"
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 psiElement.textMatches("null")
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

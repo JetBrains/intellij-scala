@@ -1,19 +1,15 @@
 <html>
 <body>
-A type can not be refined when used as result type of a function.
-When a '=' is missing between result type and function body it might look like it, however.
-
-<p>
-Before
-<pre>
+Reports '=' missing between result type and function body.
+<p>A type can not be refined when used as result type of a function.
+    When a '=' is missing between result type and function body it might look like it, however.</p>
+<p><b>Example:</b></p>
+<pre><code>
 def test(): T {}
-</pre>
-
-<br />
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied</p>
+<pre><code>
 def test(): T = {}
-</pre>
-</p>
+</code></pre>
 </body>
 </html>

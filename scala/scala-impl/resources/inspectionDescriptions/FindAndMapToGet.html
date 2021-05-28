@@ -1,19 +1,14 @@
 <html>
 <body>
-Replaces a call on a Map of find and map with get.
-
-<p>
-Before:
-<pre>
+Reports a call on a <code>Map</code> of <code>find</code> and <code>map</code> and suggests replacing with <code>get</code>.
+<pre><code>
+val map = Map(1 -> 42)
 map.find(_._1 == k).map(_._2)
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+val map = Map(1 -> 42)
 map.get(k)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

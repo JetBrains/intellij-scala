@@ -1,21 +1,17 @@
 <html>
 <body>
-Use standard methods to extract values from a Map.
-
-<p>
-Before: 
-<pre>
+Reports non-standard methods to extract values from a Map.
+<p><b>Example:</b></p>
+<pre><code>
+val map = Map(1 -> 42)
 map.map(_._2)
 map.map(_._2).toIterator
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+val map = Map(1 -> 42)
 map.values
 map.valuesIterator
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

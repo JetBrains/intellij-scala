@@ -1,19 +1,17 @@
 <html>
 <body>
-Replaces an if statement that evaluates to an Option with filter.
-
-<p>
-Before:
-<pre>
-if (method(x)) Some(x) else None
-</pre>
-
-<br>
-After:
-<pre>
-Option(x).filter(method)
-</pre>
-</p>
-
+Reports an if statement that evaluates to an <code>Option</code> and suggests replacing it with <code>filter</code>.
+<p><b>Example:</b></p>
+<pre><code>
+def condition(x: Int): Boolean = ???
+val value = 3
+if (condition(value)) Some(value) else None
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def condition(x: Int): Boolean = ???
+val value = 3
+Some(value).filter(condition)
+</code></pre>
 </body>
 </html>
