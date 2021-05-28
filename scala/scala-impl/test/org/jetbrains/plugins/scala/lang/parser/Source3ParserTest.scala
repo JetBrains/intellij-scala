@@ -323,4 +323,42 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_intersection_types(): Unit = checkTree(
+    """
+      |val x: a & b = null
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScPatternDefinition: x
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: x
+      |        PsiElement(identifier)('x')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    CompoundType: a & b
+      |      SimpleType: a
+      |        CodeReferenceElement: a
+      |          PsiElement(identifier)('a')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('&')
+      |      PsiWhiteSpace(' ')
+      |      SimpleType: b
+      |        CodeReferenceElement: b
+      |          PsiElement(identifier)('b')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    NullLiteral
+      |      PsiElement(null)('null')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
