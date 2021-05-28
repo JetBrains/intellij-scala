@@ -106,7 +106,7 @@ class ScalaTypeParameterInfoHandler extends ScalaParameterInfoHandler[ScTypeArgs
         if (refTypes.nonEmpty) {
           paramText = paramText + refTypes.map((typez: PsiType) => {
             substitutor(typez.toScType()(param.projectContext)).presentableText
-          }).mkString(" <: ", " with ", "")
+          }).mkString(" <: ", tpc.compoundTypeSeparatorText, "")
         }
         if (isBold) "<b>" + paramText + "</b>" else paramText
       }).mkString(", "))

@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.{isOpera
 import org.jetbrains.plugins.scala.lang.resolve.ResolveTargets._
 import org.jetbrains.plugins.scala.lang.resolve.processor.BaseProcessor
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.smartEquivalence
 
 import scala.annotation.{nowarn, tailrec}
@@ -307,8 +308,13 @@ object TypeAdjuster extends ApplicationListener {
               .flatMap(infoToMappings)
               .toMap
 
-            val presentationContext: TypePresentationContext = (name, target) =>
-              mappings.get(name).exists(smartEquivalence(_, target))
+            val presentationContext: TypePresentationContext = new TypePresentationContext {
+              override def nameResolvesTo(name: String, target: PsiElement): Boolean =
+                mappings.get(name).exists(smartEquivalence(_, target))
+
+              override lazy val compoundTypeWithAndToken: Boolean =
+                simple.place.containingFile.exists(_.isScala3OrSource3Enabled)
+            }
 
             val newTypeText = e.calcType.presentableText(presentationContext)
             simple.copy(replacement = newTypeText)

@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
-import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScalaType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScTypeExt, ScalaType, TypePresentationContext}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaRefactoringActionHandler
 import org.jetbrains.plugins.scala.lang.refactoring.memberPullUp.ScalaPullUpProcessor
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
@@ -301,7 +301,7 @@ class ScalaExtractTraitHandler extends ScalaRefactoringActionHandler {
         case obj: ScObject => s"${obj.qualifiedName}.type"
         case cl: ScTypeDefinition => cl.qualifiedName
         case cl: PsiClass => cl.qualifiedName
-      }.mkString(" with ")
+      }.mkString(TypePresentationContext(clazz).compoundTypeSeparatorText)
 
       if (classesForSelfType.nonEmpty) {
         val arrow = ScalaPsiUtil.functionArrow(clazz.getProject)
