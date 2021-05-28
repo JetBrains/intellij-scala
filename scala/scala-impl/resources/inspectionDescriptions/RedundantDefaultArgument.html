@@ -1,21 +1,15 @@
 <html>
 <body>
-Suggests to remove an argument from the method call if it is the same as default one.
-
-<p>
-    Before:
-<pre>
+Reports if argument in the method call is the same as default one and suggests to remove it.
+<p><b>Example:</b></p>
+<pre><code>
 def f(x: Int, y: Int = 0, z: Int) {}
 f(1, y = 0, z = 1)
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 def f(x: Int, y: Int = 0, z: Int) {}
 f(1, z = 1)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

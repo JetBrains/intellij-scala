@@ -1,5 +1,14 @@
 <html>
-<body>It is recommended to avoid floating point literals ending with a decimal point ('.'). This prevents confusion with
-method call syntax.
+<body>
+Reports floating point literals ending with a decimal point ('.').
+<p>It is recommended to avoid them to prevent confusion with method call syntax.</p>
+<p><b>Example:</b></p>
+<pre><code>
+var x = 1.
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x = 1d
+</code></pre>
 </body>
 </html>

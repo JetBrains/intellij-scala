@@ -1,21 +1,17 @@
 <html>
 <body>
-Use <code>seq.indices</code> instead of constructing range manually.
-
-<p>
-Before: 
-<pre>
-Range(0, seq.size)
-0 until seq.size
-0.to(seq.size - 1)
-</pre>
-
-<br>
-After:
-<pre>
-seq.indices
-</pre>
-</p>
-
+Reports constructing range manually and suggests to use <code>seq.indices</code> instead.
+<p><b>Example:</b></p>
+<pre><code>
+var x: Seq[Int]
+Range(0, x.size)
+0 until x.size
+0.to(x.size - 1)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Seq[Int]
+x.indices
+</code></pre>
 </body>
 </html>

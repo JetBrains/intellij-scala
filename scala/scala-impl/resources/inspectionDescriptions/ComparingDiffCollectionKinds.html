@@ -1,22 +1,17 @@
 <html>
 <body>
-Two scala collections cannot be equal if they are of different categories (Set, Seq, Map or Iterator). Comparing them
-with arrays is also pointless. Inspection suggests to convert one of the collection to make them of same kind.
-
-<p>
-Before:
-<pre>
+Reports compating scala collections of different categories.
+<p>Scala collections cannot be equal if they are of different categories (Set, Seq, Map or Iterator). Comparing them
+    with arrays is also pointless. Inspection suggests to convert one of the collection to make them of same kind.</p>
+<p><b>Example:</b></p>
+<pre><code>
 seq == iterator
 seq != array
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 seq.toIterator == iterator or seq == iterator.toSeq
 seq != array.toSeq
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

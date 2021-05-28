@@ -1,21 +1,17 @@
 <html>
 <body>
-Replaces map and getOrElse(false/true) with exists/forall.
-
-<p>
-Before: 
-<pre>
-option.map(p).getOrElse(false)
-option.map(p).getOrElse(true)
-</pre>
-
-<br>
-After:
-<pre>
-option.exists(p)
-option.forall(p)
-</pre>
-</p>
-
+Reports <code>map</code> and <code>getOrElse(false/true)</code> and suggests replacing with <code>exists/forall</code>.
+<p><b>Example:</b></p>
+<pre><code>
+def p(x: Int): Boolean = ???
+Option(0).map(p).getOrElse(false)
+Option(0).map(p).getOrElse(true)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def p(x: Int): Boolean = ???
+Option(0).exists(p)
+Option(0).forall(p)
+</code></pre>
 </body>
 </html>

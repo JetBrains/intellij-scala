@@ -1,10 +1,8 @@
 <html>
 <body>
-Inspections to offer builtin matchers in specs2.
-
-<p>
-    Before:
-<pre>
+Reports that builtin matchers in specs2 could be used.
+<p><b>Example:</b></p>
+<pre><code>
 class TestSpec extends Specification { def is = s2"""
   This is a spec
   opt
@@ -17,12 +15,9 @@ class TestSpec extends Specification { def is = s2"""
     opt must equalTo (Some(1))
   }
 }
-</pre>
-
-<br>
-After:
-<pre>
-
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 class TestSpec extends Specification { def is = s2"""
   This is a spec
   opt
@@ -35,8 +30,6 @@ class TestSpec extends Specification { def is = s2"""
     opt must beSome(1)
   }
 }
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

@@ -1,10 +1,8 @@
 <html>
 <body>
-Detects type checks and type casts in a series of if-else statements and replaces it by pattern matching.
-
-<p>
-Before: 
-<pre>
+Reports type checks and type casts in a series of if-else statements and replaces it by pattern matching.
+<p><b>Example:</b></p>
+<pre><code>
 val value = 0
 if (value.isInstanceOf[Int]) {
   val x = value.asInstanceOf[Int] + 1
@@ -13,11 +11,9 @@ if (value.isInstanceOf[Int]) {
   val x = value.asInstanceOf[Long]
   println(x)
 }
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 val value = 0
 value match {
   case i: Int =>
@@ -27,8 +23,6 @@ value match {
     println(x)
   case _ =>
 }
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

@@ -1,21 +1,15 @@
 <html>
 <body>
-Checks if an expression can be converted to SAM (Single Abstract Method).
-
-<p>
-Before:
-<pre>
+Reports if an expression that can be converted to SAM (Single Abstract Method).
+<p><b>Example:</b></p>
+<pre><code>
 new Thread(new Runnable {
     override def run() = println()
-}
-</pre>
-
-<br>
-After:
-<pre>
+})
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 new Thread(() => println())
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

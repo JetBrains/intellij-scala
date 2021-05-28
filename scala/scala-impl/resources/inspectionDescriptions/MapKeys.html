@@ -1,23 +1,19 @@
 <html>
 <body>
-Use standard methods to extract keys from a Map.
-
-<p>
-Before:
-<pre>
+Reports non-standard methods to extract keys from a Map.
+<p><b>Example:</b></p>
+<pre><code>
+val map = Map(1 -> 42)
 map.map(_._1)
 map.map(_._1).toSet
 map.map(_._1).toIterator
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+val map = Map(1 -> 42)
 map.keys
 map.keySet
 map.keysIterator
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

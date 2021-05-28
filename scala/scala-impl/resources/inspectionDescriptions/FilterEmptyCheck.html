@@ -1,25 +1,21 @@
 <html>
 <body>
-Replaces filter and check for emptiness with exists or forall.
-
-<p>
-Before:
-<pre>
-seq.filter(p).size == 0)
-seq.filter(p).length > 0
-seq.filterNot(p).isEmpty
-seq.filterNot(p).nonEmpty
-</pre>
-
-<br>
-After:
-<pre>
-!seq.exists(p)
-seq.exists(p)
-seq.forall(p)
-!seq.forall(p)
-</pre>
-</p>
-
+Reports <code>filter</code> and suggests to check for emptiness with <code>exists</code> or <code>forall</code>.
+<p><b>Example:</b></p>
+<pre><code>
+var x: Seq[Int]
+x.filter(p).size == 0
+x.filter(p).length > 0
+x.filterNot(p).isEmpty
+x.filterNot(p).nonEmpty
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Seq[Int]
+!x.exists(p)
+x.exists(p)
+x.forall(p)
+!x.forall(p)
+</code></pre>
 </body>
 </html>

@@ -1,25 +1,19 @@
 <html>
 <body>
-Detects if the match statement can be converted to pattern matching anonymous function.
-
-<p> 
-Before:
-<pre>
+Reports if the match statement can be converted to pattern matching anonymous function.
+<p><b>Example:</b></p>
+<pre><code>
 iterable.map(value => value match {
     case Some(value) => whenValue(value)
     case None => whenNothing()
 })
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 iterable.map {
     case Some(value) => whenValue(value)
     case None => whenNothing()
 }
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

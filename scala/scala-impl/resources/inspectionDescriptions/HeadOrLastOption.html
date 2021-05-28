@@ -1,27 +1,23 @@
 <html>
 <body>
-Don't emulate <code>headOption</code> or <code>lastOption</code>.
-
-<p>
-Before:
-<pre>
+Reports when <code>headOption</code> or <code>lastOption</code> is emulated, suggests to actually use <code>headOption</code> or <code>lastOption</code> instead.
+<p><b>Example:</b></p>
+<pre><code>
+var seq: Seq[Int]
 if (seq.nonEmpty) Some(seq.head) else None
 seq.lift(0)
 
 if (seq.size == 0) None else seq.lastOption
 seq.lift(seq.size - 1)
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var seq: Seq[Int]
 seq.headOption
 seq.headOption
 
 seq.lastOption
 seq.lastOption
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

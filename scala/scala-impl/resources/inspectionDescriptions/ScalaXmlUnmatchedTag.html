@@ -1,12 +1,10 @@
 <html>
 <body>
-It reports unclosed or unopened xml tags in scala xml notation.
-
-<p>
-    In the following example, <code>open</code> is marked as unopened:
+Reports unclosed or unopened xml tags in scala xml notation.
+<p>In the following example, <code>open</code> is marked as unopened:</p>
 <pre lang="xml">
 val someXml =
-  &lt;xml>&gt;
+  &lt;xml>
     &lt;/open&gt;
   &lt;/xml&gt;
 </pre>

@@ -1,19 +1,15 @@
 <html>
 <body>
-Removes unnecessary gets when getting a value from map given a key. From scala collection library documentation, <code>reverseIterator</code> may be more efficient.
-
-<p>
-Before:
-<pre>
-xs.reverse.iterator
-</pre>
-
-<br>
-After:
-<pre>
-xs.reverseIterator
-</pre>
-</p>
-
+Reports when collection is reversed explicitly to acquire reverse iterator, suggests <code>reverseIterator</code> instead.
+<p><b>Example:</b></p>
+<pre><code>
+var seq: Seq[Int]
+seq.reverse.iterator
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var seq: Seq[Int]
+seq.reverseIterator
+</code></pre>
 </body>
 </html>

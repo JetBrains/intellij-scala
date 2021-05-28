@@ -1,21 +1,15 @@
 <html>
 <body>
-Offers to replace partial functions with normal function if possible.
-
-<p>
-    Before:
-<pre>
+Reports partial functions that could be replaced with normal functions.
+<p><b>Example:</b></p>
+<pre><code>
 Seq(1).foreach {
   case _ => 3
 }
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 Seq(1).foreach(_ => 3)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>
