@@ -1,21 +1,17 @@
 <html>
 <body>
-Replaces an emptiness check of the result of Map.get with a call to Map.contains.
-
-<p>
-    Before:
-<pre>
+Reports an emptiness check of the result of <code>Map.get</code> and suggests replacing it with a call to <code>Map.contains</code>.
+<p><b>Example:</b></p>
+<pre><code>
+val map = Map(1 -> 42)
 map.get(key).nonEmpty
 map.get(key).isEmpty
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+val map = Map(1 -> 42)
 map.contains(key)
 !map.contains(key)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

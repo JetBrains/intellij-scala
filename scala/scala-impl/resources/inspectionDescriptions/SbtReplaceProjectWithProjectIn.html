@@ -1,19 +1,13 @@
 <html>
 <body>
-Replace <code>Project</code> with <code>project.in</code>.
-
-<p>
-Before:
-<pre>
+Reports using of <code>Project</code> and suggests replacing with <code>project.in</code>.
+<p><b>Example:</b></p>
+<pre><code>
 val proj = Project("proj", path)
-</pre>
-
-<br>
-After: 
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 val proj = project.in(path)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

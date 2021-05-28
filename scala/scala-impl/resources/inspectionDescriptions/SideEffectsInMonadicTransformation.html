@@ -1,7 +1,12 @@
 <html>
 <body>
-It is preferrable not to use expressions with side effects in monadic transformations (<code>map</code>,
+Reports expressions with side effects in monadic transformations (<code>map</code>,
 <code>flatMap</code> and <code>filter</code>).
-Consider moving the monadic transformations to a separate <code>foreach</code> pass.
+<p>Consider moving the monadic transformations to a separate <code>foreach</code> pass.</p>
+<p><b>Example:</b></p>
+<pre><code>
+var a = 0
+Seq(1, 2).map(a += _)
+</code></pre>
 </body>
 </html>

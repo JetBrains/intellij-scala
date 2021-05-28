@@ -1,3 +1,17 @@
 <html>
-<body>Scaladoc treats inlined tags as monospace text.</body>
+<body>
+Reports inlined tags used in Scaladoc.
+<p>Scaladoc treats inlined tags as monospace text.</p>
+<p><b>Example:</b></p>
+<pre><code>
+/**
+ * Text 1<br>
+ * Text 2 {@code some text}<br>
+ * Text 3 {@link java.lang.String}<br>
+ * Text 4 {@qwewqe some text}<br>
+ * @note text
+ */
+class A
+</code></pre>
+</body>
 </html>

@@ -1,20 +1,15 @@
 <html>
 <body>
-Replaces sorting and taking <code>head</code> or <code>last</code> element with <code>max</code> or <code>min</code>
-<p>
-Before:
-<pre>
+Reports sorting and taking <code>head</code> or <code>last</code> element and suggests to replace it with <code>max</code> or <code>min</code>.
+<p><b>Example:</b></p>
+<pre><code>
 Seq("abc", "defg", "h").sorted.head
 Seq("abc", "defg", "h").sortBy(_.length).last
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 Seq("abc", "defg", "h").min
 Seq("abc", "defg", "h").maxBy(_.length)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

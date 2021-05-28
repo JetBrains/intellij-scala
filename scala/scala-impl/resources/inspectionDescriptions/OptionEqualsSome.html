@@ -1,21 +1,15 @@
 <html>
 <body>
-Simplifying equality of the instance of <code>Option</code> and <code>Some(x)</code>.
-
-<p>
-Before:
-<pre>
+Reports opportunity to simplify equality of the instance of <code>Option</code> and <code>Some(x)</code>.
+<p><b>Example:</b></p>
+<pre><code>
 option == Some(x)
 Some(x) != option
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 option.contains(x)
 !option.contains(x)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

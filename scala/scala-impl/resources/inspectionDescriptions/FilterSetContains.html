@@ -1,18 +1,13 @@
 <html>
 <body>
-Removes redundant contains in filter.
-
-<p>
-Before: 
-<pre>
-Seq(1, 2, 3).filter(Set(1, 3).contains)</pre>
-
-<br>
-After:
-<pre>
+Reports and removes redundant <code>contains</code> in <code>filter</code>.
+<p><b>Example:</b></p>
+<pre><code>
+Seq(1, 2, 3).filter(Set(1, 3).contains)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 Seq(1, 2, 3).filter(Set(1, 3))
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

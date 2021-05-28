@@ -1,21 +1,20 @@
 <html>
 <body>
-HeadOption and lastOption are redundant on the instance of Option.
-
-<p>
-Before:
-<pre>
-option.lastOption
-seq.find(p).headOption
-</pre>
-
-<br>
-After:
-<pre>
-option
-seq.find(p)
-</pre>
-</p>
-
+Reports <code>headOption</code> and <code>lastOption</code> on the instance of Option.
+<p>They are redundant in this case.</p>
+<p><b>Example:</b></p>
+<pre><code>
+var x: Option[A]
+var y: Seq[Int]
+x.lastOption
+y.find(p).headOption
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var x: Option[A]
+var y: Seq[Int]
+x
+y.find(p)
+</code></pre>
 </body>
 </html>

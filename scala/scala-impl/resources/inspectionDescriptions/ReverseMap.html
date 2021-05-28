@@ -1,19 +1,15 @@
 <html>
 <body>
-Removes unnecessary gets when getting a value from map given a key. From scala collection library documentation, <code>xs.reverseMap(f)</code> might be more efficient.
-
-<p>
-Before:
-<pre>
-xs.reverse.map(f)
-</pre>
-
-<br>
-After:
-<pre>
-xs.reverseMap(f)
-</pre>
-</p>
-
+Reports when collection is reversed explicitly before calling <code>map</code>, suggests using <code>xs.reverseMap(f)</code> which might be more efficient for some cases.
+<p><b>Example:</b></p>
+<pre><code>
+var seq: Seq[Int]
+seq.reverse.map(f)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var seq: Seq[Int]
+seq.reverseMap(f)
+</code></pre>
 </body>
 </html>

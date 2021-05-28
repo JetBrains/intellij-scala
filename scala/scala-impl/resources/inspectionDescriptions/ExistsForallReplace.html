@@ -1,23 +1,17 @@
 <html>
 <body>
-Removes double negation from `exists` or `forall` calls.
-
-<p>
-    Before:
-<pre>
-!seq.forall(x => !condition(x))
-!seq.exists(x => !condition(x))
-</pre>
-</p>
-<p>
-
-    <br>
-    After:
-<pre>
-seq.exists(x => condition(x))
-seq.forall(x => condition(x))
-</pre>
-</p>
-
+Reports double negation in `exists` or `forall` calls and suggests removing it.
+<p><b>Example:</b></p>
+<pre><code>
+def condition(x: Int): Boolean = ???
+!Seq(1, 2).exists(x => !condition(x))
+!Seq(1, 2).forall(x => !condition(x))
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+def condition(x: Int): Boolean = ???
+Seq(1, 2).forall(x => condition(x))
+Seq(1, 2).exists(x => condition(x))
+</code></pre>
 </body>
 </html>

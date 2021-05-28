@@ -1,4 +1,14 @@
 <html>
-<body>Detects explicit references to FunctionN and TupleN that could be replaced with syntactic sugar.
+<body>Reports explicit references to FunctionN and TupleN that could be replaced with syntactic sugar.
+<p><b>Example:</b></p>
+<pre><code>
+val func: Function1[Int, Int] =
+  a => a + 4
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+val func: (Int) => Int =
+  a => a + 4
+</code></pre>
 </body>
 </html>

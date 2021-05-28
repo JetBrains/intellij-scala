@@ -1,19 +1,15 @@
 <html>
 <body>
-Removes unnecessary gets when getting a value from map given a key.
-
-<p>
-Before:
-<pre>
+Reports unnecessary gets when getting a value from map given a key.
+<p><b>Example:</b></p>
+<pre><code>
+val map = Map(1 -> 42)
 map.get(k).get
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+val map = Map(1 -> 42)
 map(k)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

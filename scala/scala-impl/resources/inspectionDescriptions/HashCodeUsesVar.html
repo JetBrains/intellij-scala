@@ -1,3 +1,13 @@
 <html>
-<body>Highlights var field if it is used in hashCode function.</body>
+<body>
+Reports <code>var</code> field if it is used in <code>hashCode</code> function.
+<p><b>Example:</b></p>
+<pre><code>
+class Test {
+  var value = 3
+  override def hashCode(): Int =
+    value // value can change, indicating a misuse in hashCode()
+}
+</code></pre>
+</body>
 </html>

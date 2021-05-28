@@ -1,19 +1,15 @@
 <html>
 <body>
-Simplifies to <code>zipWithIndex</code>.
-
-<p>
-Before:
-<pre>
+Reports if collection is zipped with its indices manually, suggests using <code>zipWithIndex</code>.
+<p><b>Example:</b></p>
+<pre><code>
+var seq: Seq[Int]
 seq.zip(seq.indices)
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var seq: Seq[Int]
 seq.zipWithIndex
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

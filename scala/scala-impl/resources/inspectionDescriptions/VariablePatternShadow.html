@@ -1,26 +1,20 @@
 <html>
 <body>
-Detects a Variable Pattern that shadows a stable identifier defined in the enclosing scope.
-To perform an equality test against that value, use backticks.
-
-<p>
-Before: 
-<pre>
+Reports a Variable Pattern that shadows a stable identifier defined in the enclosing scope.
+<p>To perform an equality test against that value, use backticks.</p>
+<p><b>Example:</b></p>
+<pre><code>
 val foo = 0
 0 match {
     case foo =>
 }
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 val foo = 0
 0 match {
     case `foo` =>
 }
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

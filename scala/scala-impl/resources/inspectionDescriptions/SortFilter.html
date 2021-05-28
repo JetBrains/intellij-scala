@@ -1,21 +1,17 @@
 <html>
 <body>
-Swaps sort and filter for better performance.
-
-<p>
-Before:
-<pre>
+Reports if <code>sort</code> and <code>filter</code> could be swapped for better performance.
+<p><b>Example:</b></p>
+<pre><code>
+var seq: Seq[Int]
 seq.sortWith(lessThan).filter(p)
 seq.sortBy(f).filter(p)
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+var seq: Seq[Int]
 seq.filter(p).sortWith(lessThan)
 seq.filter(p).sortBy(f)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

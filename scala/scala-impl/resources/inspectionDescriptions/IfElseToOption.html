@@ -1,20 +1,14 @@
 <html>
 <body>
-Don't emulate <code>Option.apply(x)</code> method.
-
-<p>
-Before:
-<pre>
+Reports emulating <code>Option.apply(x)</code> method.
+<p><b>Example:</b></p>
+<pre><code>
 if (x == null) None else Some(x)
 if (x != null) Some(x) else None
-</pre>
-
-<br>
-After:
-<pre>
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
 Option(x)
-</pre>
-</p>
-
+</code></pre>
 </body>
 </html>

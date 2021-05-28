@@ -1,17 +1,32 @@
 <html>
 <body>
-Replace different ways of checking emptiness of collections and options with <code>.isEmpty</code>,
+Reports different ways of checking emptiness of collections and options and suggests replacing with <code>.isEmpty</code>,
 <code>.nonEmpty</code> or <code>.isDefined.</code>
-<br>
-<p><code>!seq.isEmpty -> seq.nonEmpty</code></p>
-<p><code>seq.size == 0 -> seq.isEmpty</code></p>
-<p><code>seq.size != 0 -> seq.nonEmpty</code></p>
-<p><code>!(seq.length > 1) -> seq.isEmpty</code></p>
-<p><code>seq.exists(_ => true) -> seq.nonEmpty</code></p>
-<p><code>seq.exists(const(true)) -> seq.nonEmpty</code></p>
-<p><code>!option.isEmpty -> option.isDefined</code></p>
-<p><code>option == None -> option.isEmpty</code></p>
-<p><code>option != None -> option.isDefined</code></p>
-
+<p><b>Example:</b></p>
+<pre><code>
+!Seq(1).isEmpty
+Seq(1).size == 0
+Seq(1).size != 0
+!(Seq(1).length > 1)
+Seq(1).exists(_ => true)
+import scala.Function.const
+Seq(1).exists(const(true))
+!Option(0).isEmpty
+Option(0) == None
+Option(0) != None
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+Seq(1).nonEmpty
+Seq(1).isEmpty
+Seq(1).nonEmpty
+Seq(1).isEmpty
+Seq(1).nonEmpty
+import scala.Function.const
+Seq(1).nonEmpty
+Option(0).isDefined
+Option(0).isEmpty
+Option(0).isDefined
+</code></pre>
 </body>
 </html>
