@@ -7,7 +7,7 @@ import com.jetbrains.packagesearch.intellij.plugin.configuration.PackageSearchGe
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon
 
 @State(
-  name = "PackageSearchMavenConfiguration",
+  name = "PackageSearchSbtConfiguration",
   storages = Array(new Storage(PackageSearchGeneralConfiguration.StorageFileName))
 )
 class PackageSearchSbtConfiguration extends BaseState with PersistentStateComponent[PackageSearchSbtConfiguration] {
