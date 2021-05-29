@@ -35,9 +35,9 @@ class SbtConfigurableContributorDriver(project: Project) extends ConfigurableCon
       0
     )
 
-    formBuilder.addLabeledComponent(PackageSearchSbtBundle.message("packagesearch.configuration.sbt.scopes.default"), sbtScopeEditor)
+    formBuilder.addLabeledComponent(PackageSearchSbtBundle.message("packagesearch.configuration.sbt.scopes.default.string"), sbtScopeEditor)
 
-    val label = new JLabel(s"${PackageSearchSbtBundle.message("packagesearch.configuration.sbt.scopes")} ${SbtCommon.libScopes.replace(",", ", ")}")
+    val label = new JLabel(s"${PackageSearchSbtBundle.message("packagesearch.configuration.sbt.scopes.string")} ${SbtCommon.libScopes.replace(",", ", ")}")
     formBuilder.addComponentToRightColumn(RelativeFont.TINY.install(RelativeFont.ITALIC.install(label)))
   }
 

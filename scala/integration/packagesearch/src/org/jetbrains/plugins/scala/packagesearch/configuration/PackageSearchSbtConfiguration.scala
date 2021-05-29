@@ -4,6 +4,7 @@ import com.intellij.openapi.components.{BaseState, PersistentStateComponent, Sta
 import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.OptionTag
 import com.jetbrains.packagesearch.intellij.plugin.configuration.PackageSearchGeneralConfiguration
+import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
 import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon
 
 @State(
@@ -15,7 +16,7 @@ class PackageSearchSbtConfiguration extends BaseState with PersistentStateCompon
 
   override def loadState(state: PackageSearchSbtConfiguration): Unit = this.copyFrom(state)
 
-  @OptionTag("SBT_SCOPES_DEFAULT")
+  @OptionTag("SBT_CONFIGURATIONS_DEFAULT")
   var defaultSbtScope: String = SbtCommon.defaultLibScope
 
   def determineDefaultSbtConfiguration: String = {
