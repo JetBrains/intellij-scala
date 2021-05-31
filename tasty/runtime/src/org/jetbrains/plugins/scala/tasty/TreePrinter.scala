@@ -24,9 +24,18 @@ object TreePrinter {
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
       val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
       val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("")
+      val parents0 = children.collect {
+        case node if node.isTypeTree => Some(textOf(node))
+        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) =>
+          Some(textOf(tpe)).filter(_ != "Object").map(_ + "(???)") // TODO FQN, parameter
+        case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) =>
+          Some(textOf(tpe)).filter(_ != "Object").map(_ + "(???)") // TODO FQN, parameter
+      }
+      val parents = parents0.collect{ case Some(s) if s.nonEmpty => s }
       val members = children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it))  // TODO type member
         .map(textOf(_)).filter(_.nonEmpty).map(indent).mkString("\n\n")
       (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
+        (if (parents.isEmpty) "" else " extends " + parents.mkString(" with ")) +
         (if (members.isEmpty) "" else " {\n" + members + "\n}")
 
     case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) =>
