@@ -34,7 +34,7 @@ object TreePrinter {
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
       if (name == "<init>") {
-        modifiersIn(node) + "def this" + parametersIn(node) + " = this()" // TODO parameter, this(/* compiled code */)
+        modifiersIn(node) + "def this" + parametersIn(node) + " = this(???)" // TODO parameter, this(/* compiled code */)
       } else {
         modifiersIn(node) + "def " + name + parametersIn(node) + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, /* compiled code */
       }

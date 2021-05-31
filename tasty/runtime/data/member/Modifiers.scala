@@ -5,12 +5,12 @@ trait Modifiers {
 
   class ProtectedPrimaryConstructor protected ()
 
-  class PrivateAuxilliaryConstructor {
-    private def this(x: Int) = this()
+  class PrivateAuxilliaryConstructor(x: Int) {
+    private def this(x: Int, y: Int) = this(???)
   }
 
-  class ProtectedAuxilliaryConstructor {
-    protected def this(x: Int, y: Int) = this()
+  class ProtectedAuxilliaryConstructor(x: Int) {
+    protected def this(x: Int, y: Int) = this(???)
   }
 
   private def privateDef: Int = ???
