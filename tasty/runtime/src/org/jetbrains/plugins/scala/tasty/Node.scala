@@ -22,6 +22,7 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
 
   def is(tags: Int*): Boolean = tags.contains(tag)
 
+  // TODO use parameters in TreePrinter instead
   // TODO private setter
   var previousSibling: Option[Node] = None
 

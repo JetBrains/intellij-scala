@@ -44,8 +44,10 @@ object TreePrinter {
       val tpe = children.find(_.isTypeTree)
       modifiersIn(node) + (if (node.hasFlag(MUTABLE)) "var " else "val ") + name + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration ) "" else " = ???") // TODO parameter
 
+    // TODO method?
     case Node(IDENTtpt, Seq(name), _) => name
     case Node(TYPEREF, Seq(name), _) => name
+    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => textOf(constructor) + "[" + arguments.map(textOf(_)).mkString(", ") + "]"
 
     case _ => ""
 
