@@ -2,22 +2,13 @@ package org.jetbrains.plugins.scala.lang.parser
 
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
+import org.jetbrains.plugins.scala.util.Source3TestCase
 
-class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with ScalaParserTestOps {
+class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Source3TestCase with ScalaParserTestOps {
   override def parseText(text: String): ScalaFile = {
     val fixture = getFixture
     fixture.configureByText("foo.scala", text)
     fixture.getFile.asInstanceOf[ScalaFile]
-  }
-
-  override def setUp(): Unit = {
-    super.setUp()
-    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings    = defaultProfile.getSettings.copy(
-      additionalCompilerOptions = Seq("-Xsource:3")
-    )
-    defaultProfile.setSettings(newSettings)
   }
 
   override protected def sharedProjectToken: SharedTestProjectToken =

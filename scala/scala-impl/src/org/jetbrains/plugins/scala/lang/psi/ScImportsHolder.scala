@@ -183,7 +183,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
 
     def firstChildNotCommentWhitespace =
-      this.children.dropWhile(el => el.isInstanceOf[PsiComment] || el.isInstanceOf[PsiWhiteSpace]).headOption
+      this.children.dropWhile(_.is[PsiComment, PsiWhiteSpace]).headOption
 
     firstChildNotCommentWhitespace.foreach {
       case pack: ScPackaging if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>
@@ -293,7 +293,7 @@ trait ScImportsHolder extends ScalaPsiElement {
           ws.replace(indented)
         }
       case _ =>
-        if (!indent.isEmpty) {
+        if (indent.nonEmpty) {
           val indented = ScalaPsiElementFactory.createNewLine(s"$indent")
           addBefore(indented, element)
         }
@@ -339,7 +339,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
     def removeWhitespace(node: ASTNode): Unit = {
       if (node == null) return
-      if (node.getPsi.isInstanceOf[PsiWhiteSpace]) {
+      if (node.getPsi.is[PsiWhiteSpace]) {
         if (node.getText.count(_ == '\n') < 2) remove(node)
         else shortenWhitespace(node)
       }
