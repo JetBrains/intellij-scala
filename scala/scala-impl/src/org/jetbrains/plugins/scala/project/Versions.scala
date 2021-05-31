@@ -118,13 +118,13 @@ object Versions {
 
     val Sbt013Entity: Entity = Entity(
       url = "https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",
-      minVersion = "0.13.18",
+      minVersion = "0.13.5",
       hardcodedVersions = sbtLatest_0_13 :: Nil
     )
 
     val Sbt1Entity: Entity = Entity(
       url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/",
-      minVersion = "1.4.1", // TODO: looks like it should be reverted to 1.0.0
+      minVersion = "1.0.0",
       hardcodedVersions = (sbtLatestVersion :: sbtLatest_1_0 :: Nil).distinct
     )
   }
