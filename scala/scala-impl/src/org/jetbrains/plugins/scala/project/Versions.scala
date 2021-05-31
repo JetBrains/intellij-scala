@@ -3,6 +3,7 @@ package project
 
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.plugins.scala.LatestScalaVersions._
+import org.jetbrains.plugins.scala.extensions.withProgressSynchronously
 
 import scala.io.Source
 import scala.util.Try
@@ -20,17 +21,19 @@ object Versions {
 
   sealed abstract class Kind(private[Versions] val entities: List[Entity]) {
 
-    // TODO: do not do any IO in `apply` method!
-    final def apply(): Versions = {
-      val versions = extensions
-        .withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this))(loadVersions())
+    final def loadVersionsWithProgress(): Versions = {
+      val versions = withProgressSynchronously(ScalaBundle.message("title.fetching.available.this.versions", this))(loadVersions())
         .sorted
         .reverse
         .map(_.presentation)
         .toArray
 
-      val Entity(_, _, defaultVersion :: _, _) :: _ = entities
       Versions(defaultVersion, versions)
+    }
+
+    protected def defaultVersion: String = {
+      val Entity(_, _, defaultVersion :: _, _) :: _ = entities
+      defaultVersion
     }
 
     private[this] def loadVersions(): Seq[Version] = entities.flatMap {
@@ -56,10 +59,18 @@ object Versions {
 
   case object Scala extends Kind(
     if (isInternalMode)
-      ScalaCandidatesEntity :: Nil
+      Scala3CandidatesEntity :: ScalaCandidatesEntity :: Nil
     else
-      ScalaEntity :: Nil
-  )
+      Scala3Entity :: ScalaEntity :: Nil
+  ) {
+
+    override protected def defaultVersion: String = {
+      // While Scala 3 support is WIP we do not want preselect Scala 3 version
+      val Entity(_, _, dv :: _, _) :: _ =
+        entities.filterNot(_.minVersion.startsWith("3"))
+      dv
+    }
+  }
 
   case object SBT extends Kind(
     Sbt1Entity :: Sbt013Entity :: Nil
@@ -90,10 +101,15 @@ object Versions {
       minVersion = Scala_2_10.major + ".0",
       hardcodedVersions = Scala_2_13.minor :: Scala_2_12.minor :: Scala_2_11.minor :: Scala_2_10.minor :: Nil
     )
-
-    val ScalaCandidatesEntity: Entity = ScalaEntity.copy(
-      versionPattern = ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r
+    val Scala3Entity: Entity = Entity(
+      url = "https://repo1.maven.org/maven2/org/scala-lang/scala3-compiler_3/",
+      minVersion = Scala_3_0.major + ".0",
+      hardcodedVersions = Scala_3_0.minor :: Nil
     )
+
+    private val CandidateVersionPattern: Regex = ".+>(\\d+\\.\\d+\\.\\d+(?:-\\w+)?)/<.*".r
+    val ScalaCandidatesEntity: Entity = ScalaEntity.copy(versionPattern = CandidateVersionPattern)
+    val Scala3CandidatesEntity: Entity = Scala3Entity.copy(versionPattern = CandidateVersionPattern)
 
     val Sbt013Entity: Entity = Entity(
       url = "https://repo.typesafe.com/typesafe/ivy-releases/org.scala-sbt/sbt-launch/",

@@ -95,7 +95,8 @@ object ScalaLibraryType {
         ScalaLibraryProperties(version, compilerClasspath)
       ) {
         override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
-          addRootsInner(libraryFiles ++ sourceFiles)(editor)
+          addRootsInner(libraryFiles, OrderRootType.CLASSES)(editor)
+          addRootsInner(sourceFiles, OrderRootType.SOURCES)(editor)
           addRootsInner(docFiles, JavadocOrderRootType.getInstance)(editor)
 
           if (sourceFiles.isEmpty && docFiles.isEmpty) editor.addRoot(
@@ -104,8 +105,7 @@ object ScalaLibraryType {
           )
         }
 
-        private def addRootsInner(files: Iterable[File],
-                                  rootType: OrderRootType = OrderRootType.CLASSES)
+        private def addRootsInner(files: Iterable[File], rootType: OrderRootType)
                                  (implicit editor: libraryEditor.LibraryEditor): Unit =
           for {
             file <- files

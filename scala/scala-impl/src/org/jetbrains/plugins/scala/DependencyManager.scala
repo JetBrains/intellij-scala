@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala
 
-import java.io.File
-import java.nio.file.{Files, Paths}
-
 import org.apache.ivy.Ivy
 import org.apache.ivy.core.module.id.ModuleRevisionId
 import org.apache.ivy.core.report.ResolveReport
@@ -10,10 +7,13 @@ import org.apache.ivy.core.resolve.ResolveOptions
 import org.apache.ivy.core.settings.IvySettings
 import org.apache.ivy.plugins.resolver.{ChainResolver, IBiblioResolver, RepositoryResolver, URLResolver}
 import org.apache.ivy.util.{DefaultMessageLogger, MessageLogger}
-import org.jetbrains.plugins.scala.compiler.data.serialization.extensions.EitherExt
+import org.jetbrains.plugins.scala.DependencyManagerBase.DependencyDescription.scalaArtifact
+import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.template._
 
+import java.io.File
+import java.nio.file.{Files, Paths}
 import scala.jdk.CollectionConverters._
 
 abstract class DependencyManagerBase {
@@ -22,6 +22,12 @@ abstract class DependencyManagerBase {
   private val homePrefix = sys.props.get("tc.idea.prefix").orElse(sys.props.get("user.home")).map(new File(_)).get
   private val ivyHome = sys.props.get("sbt.ivy.home").map(new File(_)).orElse(Option(new File(homePrefix, ".ivy2"))).get
 
+  protected def useCacheOnly: Boolean = false
+
+  // from Michael M.: this blacklist is in order that tested libraries do not transitively fetch `scala-library`,
+  // which is loaded in a special way in tests via org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
+  //TODO: should we add scala3-* here?
+  //TODO: maybe we should only introduce this default blacklist in tests which actually rely on it and leave it empty by default?
   protected val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
   protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
@@ -106,6 +112,7 @@ abstract class DependencyManagerBase {
 
     if (deps.isEmpty) return Seq.empty
 
+    // ATTENTION: settings should be created before other code SCL-15168
     val settings = mkIvySettings()
     val ivy = new Ivy()
     ivy.getLoggerEngine.pushLogger(createLogger)
@@ -114,7 +121,10 @@ abstract class DependencyManagerBase {
 
     val report = usingTempFile("ivy", ".xml") { ivyFile =>
       Files.write(Paths.get(ivyFile.toURI), mkIvyXml(deps).getBytes)
-      ivy.resolve(ivyFile.toURI.toURL, new ResolveOptions().setConfs(Array("compile")))
+      val resolveOptions = new ResolveOptions()
+        .setConfs(Array("compile"))
+        .setUseCacheOnly(useCacheOnly)
+      ivy.resolve(ivyFile.toURI.toURL, resolveOptions)
     }
 
     processIvyReport(report)
@@ -122,8 +132,8 @@ abstract class DependencyManagerBase {
 
   protected def artToDep(id: ModuleRevisionId): DependencyDescription = DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
 
-  protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] = {
-
+  @throws[DependencyManagerBase.ResolveException]
+  protected def processIvyReport(report: ResolveReport): Seq[ResolvedDependency] =
     if (report.getAllProblemMessages.isEmpty && report.getAllArtifactsReports.nonEmpty) {
       report
         .getAllArtifactsReports
@@ -131,12 +141,31 @@ abstract class DependencyManagerBase {
         .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
         .toIndexedSeq
     } else {
-      throw new RuntimeException(report.getAllProblemMessages.asScala.mkString("\n"))
+      val resolved = report.getAllArtifactsReports.toSeq.filter(_.getLocalFile != null).map { artifactReport =>
+        val id = artifactReport.getArtifact.getModuleRevisionId
+        val file = artifactReport.getLocalFile
+        ResolvedDependency(DependencyDescription.fromId(id), file)
+      }
+      val unresolved = report.getUnresolvedDependencies.toSeq.map { node =>
+        UnresolvedDependency(DependencyDescription.fromId(node.getId))
+      }
+      throw new ResolveException(resolved, unresolved, report.getAllProblemMessages.asScala.toSeq.filterByType[String])
     }
+
+  /** see [[resolveSafe]] */
+  def resolve(dependencies: DependencyDescription*): Seq[ResolvedDependency] = {
+    val (unresolved, resolved) = resolveFromCaches(dependencies)
+    resolved ++ resolveIvy(unresolved)
   }
 
-  def resolve(dependencies: DependencyDescription*): Seq[ResolvedDependency] = {
-    val (resolved, unresolved) = dependencies.map {
+  private def resolveFromCaches(dependencies: Seq[DependencyDescription]): (Seq[DependencyDescription], Seq[ResolvedDependency]) = {
+    val result: Seq[Either[DependencyDescription, ResolvedDependency]] =
+      dependencies.map(resolveSingleFromCaches)
+    result.partitionMap(identity)
+  }
+
+  def resolveSingleFromCaches(dependency: DependencyDescription): Either[DependencyDescription, ResolvedDependency] =
+    dependency match {
       case info@DependencyDescription(org, artId, version, _, kind, false, _) =>
         val relativePath = s"cache/$org/$artId/${kind}s/$artId-$version${info.classifierBare.fold("")("-" + _)}.jar"
         val file = new File(ivyHome, relativePath)
@@ -144,10 +173,39 @@ abstract class DependencyManagerBase {
           Right(ResolvedDependency(info, file))
         else
           Left(info)
-      case info => Left(info)
-    }.partition(_.isRight)
+      case info =>
+        Left(info)
+    }
 
-    resolved.map(_.getRight) ++ resolveIvy(unresolved.map(_.getLeft))
+  /** @see [[resolve]] */
+  def resolveSafe(dependencies: DependencyDescription*): Either[ResolveFailure, Seq[ResolvedDependency]] = {
+    val (unresolvedLocally, resolvedLocally) = resolveFromCaches(dependencies)
+
+    if (unresolvedLocally.isEmpty)
+      Right(resolvedLocally)
+    else
+      resolveIvySafe(unresolvedLocally)
+        .map(deps => resolvedLocally ++ deps)
+        .left
+        .map {
+          case f: ResolveFailure.UnresolvedDependencies =>
+            f.copy(resolved = resolvedLocally ++ f.resolved)
+          case f => f
+        }
+  }
+
+  def resolveIvySafe(deps: Seq[DependencyDescription]): Either[ResolveFailure, Seq[ResolvedDependency]] = {
+    val result = scala.util.Try {
+      resolveIvy(deps)
+    }
+    result.toEither.left.map {
+      case re: ResolveException if re.unresolved.isEmpty =>
+        ResolveFailure.UnknownProblem(re.allProblemMessages)
+      case re: ResolveException =>
+        ResolveFailure.UnresolvedDependencies(re.resolved, re.unresolved, re.allProblemMessages)
+      case ex =>
+        ResolveFailure.UnknownException(ex)
+    }
   }
 
   def resolveSingle(dependency: DependencyDescription): ResolvedDependency = resolve(dependency).head
@@ -161,7 +219,7 @@ object DependencyManagerBase {
       override def toString: String = super.toString.toLowerCase
     }
 
-    val JAR, BUNDLE, SRC = new Type
+    val JAR, SRC = new Type
   }
 
   import Types._
@@ -175,10 +233,43 @@ object DependencyManagerBase {
                                    excludes: Seq[String] = Seq.empty) {
     def %(version: String): DependencyDescription = copy(version = version)
     def %(kind: Type): DependencyDescription = copy(kind = kind)
+    def sources(): DependencyDescription = copy(kind = Types.SRC)
     def configuration(conf: String): DependencyDescription = copy(conf = conf)
     def transitive(): DependencyDescription = copy(isTransitive = true)
     def exclude(patterns: String*): DependencyDescription = copy(excludes = patterns)
     override def toString: String = s"$org:$artId:$version"
+  }
+  object DependencyDescription {
+    def fromId(id: ModuleRevisionId): DependencyDescription =
+      DependencyDescription(id.getOrganisation, id.getName, id.getRevision)
+
+
+    /**
+     * @param kind compiler / library / reflect / etc...
+     */
+    def scalaArtifact(kind: String, scalaVersion: ScalaVersion): DependencyDescription = {
+      /**
+       * Examples:
+       *  - https://mvnrepository.com/artifact/ch.epfl.lamp/dotty-library_0.27/0.27.0-RC1
+       *  - https://mvnrepository.com/artifact/org.scala-lang/scala3-library_3.0.0-M1/3.0.0-M1
+       *  - https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.3
+       */
+      val (org, idPrefix, idSuffix) = scalaVersion.languageLevel match {
+        case ScalaLanguageLevel.Dotty     => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
+        // NOTE: since scala 3.0.0 release version (no suffixes) it uses `_3` suffix, compare:
+        // 3.0.0     : scala3-library_3
+        // 3.0.0-RC3 : scala3-library_3.0.0-RC3
+        case ScalaLanguageLevel.Scala_3_0 =>
+          val minorSuffix = scalaVersion.minorSuffix
+          if (minorSuffix.startsWith("0") && minorSuffix.contains("-")) // e.g. 3.0.0-RC3
+            ("org.scala-lang", "scala3", "_" + scalaVersion.major)
+          else
+            ("org.scala-lang", "scala3", "_3")
+        case _                            => ("org.scala-lang", "scala", "")
+      }
+
+      DependencyDescription(org, idPrefix + "-" + kind + idSuffix, scalaVersion.minor)
+    }
   }
 
   sealed trait Dependency
@@ -194,31 +285,9 @@ object DependencyManagerBase {
    */
   case class IvyResolver(name: String, pattern: String) extends Resolver
 
-  private def scalaDependency(kind: String)
-                             (implicit scalaVersion: ScalaVersion) = {
-    /**
-     * Examples:
-     *  - https://mvnrepository.com/artifact/ch.epfl.lamp/dotty-library_0.27/0.27.0-RC1
-     *  - https://mvnrepository.com/artifact/org.scala-lang/scala3-library_3.0.0-M1/3.0.0-M1
-     *  - https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.3
-     */
-    val (org, idPrefix, idSuffix) = scalaVersion.languageLevel match {
-      case ScalaLanguageLevel.Dotty     => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
-      // NOTE: since scala 3.0.0 release version (no suffixes) it uses `_3` suffix, compare:
-      // 3.0.0     : scala3-library_3
-      // 3.0.0-RC3 : scala3-library_3.0.0-RC3
-      case ScalaLanguageLevel.Scala_3_0 => ("org.scala-lang", "scala3", "_" + "3")
-      case _                            => ("org.scala-lang", "scala", "")
-    }
-
-    DependencyDescription(org, idPrefix + "-" + kind + idSuffix, scalaVersion.minor)
-  }
-
-  def scalaCompilerDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("compiler")
-
-  def scalaLibraryDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("library")
-
-  def scalaReflectDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaDependency("reflect")
+  def scalaCompilerDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaArtifact("compiler", scalaVersion)
+  def scalaLibraryDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaArtifact("library", scalaVersion)
+  def scalaReflectDescription(implicit scalaVersion: ScalaVersion): DependencyDescription = scalaArtifact("reflect", scalaVersion)
 
 
   implicit class RichStr(private val org: String) extends AnyVal {
@@ -245,6 +314,24 @@ object DependencyManagerBase {
   }
 
   def stripScalaVersion(str: String): String = str.replaceAll("_\\d+\\.\\d+$", "")
+
+  class ResolveException(
+    val resolved: Seq[ResolvedDependency],
+    val unresolved: Seq[UnresolvedDependency],
+    val allProblemMessages: Seq[String],
+  ) extends RuntimeException(allProblemMessages.mkString("\n"))
+
+  sealed trait ResolveFailure
+  object ResolveFailure {
+    final case class UnresolvedDependencies(
+      resolved: Seq[ResolvedDependency],
+      unresolved: Seq[UnresolvedDependency],
+      allProblemMessages: Seq[String],
+    ) extends ResolveFailure
+
+    final case class UnknownProblem(allProblemMessages: Seq[String]) extends ResolveFailure
+    final case class UnknownException(exception: Throwable) extends ResolveFailure
+  }
 }
 
 object DependencyManager extends DependencyManagerBase

@@ -1,10 +1,9 @@
-package org.jetbrains.plugins.scala
-package project
-package template
+package org.jetbrains.plugins.scala.project.template
+
+import org.jetbrains.plugins.scala.project.Version
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import java.io.File
-
-import org.jetbrains.plugins.scala.ScalaBundle
 
 /**
  * @author Pavel Fatin
@@ -16,6 +15,12 @@ final case class ScalaSdkDescriptor(version: Option[String],
                                     docFiles: Seq[File])
   extends Ordered[ScalaSdkDescriptor] {
 
+  def isScala3: Boolean = version.exists(_.startsWith("3"))
+
+  def withExtraCompilerClasspath(files: Seq[File]): ScalaSdkDescriptor = copy(compilerClasspath = compilerClasspath ++ files)
+  def withExtraLibraryFiles(files: Seq[File]): ScalaSdkDescriptor = copy(libraryFiles = libraryFiles ++ files)
+  def withExtraSourcesFiles(files: Seq[File]): ScalaSdkDescriptor = copy(sourceFiles = sourceFiles ++ files)
+
   private val comparableVersion = version.map(Version(_))
 
   override def compare(that: ScalaSdkDescriptor): Int = that.comparableVersion.compare(comparableVersion)
@@ -26,43 +31,61 @@ object ScalaSdkDescriptor {
   import Artifact._
   import Kind._
 
+  private[project]
   def buildFromComponents(components: Seq[ScalaSdkComponent]): Either[NlsString, ScalaSdkDescriptor] = {
-    val componentsByKind = components.groupBy(_.kind)
-      .withDefault(Function.const(Seq.empty))
+    assert(components.nonEmpty)
 
-    def filesByKind(kind: Kind) =
-      files(componentsByKind(kind))()
+    val componentsByKind = components.groupBy(_.kind).withDefault(Function.const(Seq.empty))
 
-    val binaryComponents = componentsByKind(Binaries)
+    val binaryComponents  = componentsByKind(Binaries)
 
-    requiredBinaryArtifacts -- binaryComponents.map(_.artifact) match {
-      case missingBinaryArtifacts if missingBinaryArtifacts.nonEmpty =>
-        Left(ScalaBundle.nls("not.found.missing.artifacts", missingBinaryArtifacts.map(_.prefix + "*.jar").mkString(", ")))
-      case _ =>
-        val libraryVersion = binaryComponents.collectFirst {
-          case ScalaSdkComponent(ScalaLibrary, _, Some(version), _) => version
-        }
+    val scala3VersionOpt = components.flatMap(_.version).find(_.startsWith("3"))
 
-        val descriptor = ScalaSdkDescriptor(
-          libraryVersion,
-          files(binaryComponents)(requiredBinaryArtifacts),
-          files(binaryComponents)(),
-          filesByKind(Sources),
-          filesByKind(Docs)
-        )
+    val requiredBinaryArtifacts: Set[Artifact] =
+      if (scala3VersionOpt.isDefined) requiredScala3BinaryArtifacts
+      else requiredScala2BinaryArtifacts
 
-        Right(descriptor)
+    val missingBinaryArtifacts = requiredBinaryArtifacts -- binaryComponents.map(_.artifact)
+
+    if (missingBinaryArtifacts.nonEmpty)
+      Left(ScalaBundle.nls("not.found.missing.artifacts", missingBinaryArtifacts.map(_.prefix + "*.jar").mkString(", ")))
+    else {
+      val compilerVersion = binaryComponents.collectFirst {
+        case ScalaSdkComponent(Scala3Compiler | ScalaCompiler, _, Some(version), _) => version
+      }
+
+      val sourcesComponents = componentsByKind(Sources)
+      val docsComponents    = componentsByKind(Docs)
+
+      val descriptor = ScalaSdkDescriptor(
+        compilerVersion,
+        compilerClasspath = files(binaryComponents)(requiredBinaryArtifacts.contains),
+        libraryFiles      = files(binaryComponents)(ScalaLibraryAndModulesArtifacts.contains),
+        sourceFiles       = files(sourcesComponents)(ScalaLibraryAndModulesArtifacts.contains),
+        docFiles          = files(docsComponents)(ScalaLibraryAndModulesArtifacts.contains)
+      )
+
+      Right(descriptor)
     }
   }
 
-  private[this] def requiredBinaryArtifacts = Set[Artifact](
-    ScalaLibrary,
-    ScalaCompiler,
-    ScalaReflect
-  )
+  private[this] def requiredScala2BinaryArtifacts: Set[Artifact] =
+    Set[Artifact](
+      ScalaLibrary,
+      ScalaCompiler,
+      ScalaReflect
+    )
+
+  private[this] def requiredScala3BinaryArtifacts: Set[Artifact] =
+    Set[Artifact](
+      Scala3Library,
+      Scala3Compiler,
+      Scala3Interfaces,
+      TastyCore,
+    )
 
   private[this] def files(components: Seq[ScalaSdkComponent])
-                         (predicate: Artifact => Boolean = ScalaArtifacts - ScalaCompiler): Seq[File] =
+                         (predicate: Artifact => Boolean): Seq[File] =
     for {
       ScalaSdkComponent(artifact, _, _, file) <- components
       if predicate(artifact)

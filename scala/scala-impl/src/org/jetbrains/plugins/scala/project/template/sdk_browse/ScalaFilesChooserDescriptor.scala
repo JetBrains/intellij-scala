@@ -1,14 +1,14 @@
-package org.jetbrains.plugins.scala
-package project.template
+package org.jetbrains.plugins.scala.project.template.sdk_browse
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.project.template.{FileExt, ScalaSdkComponent, ScalaSdkDescriptor, ValidationException}
 
 /**
  * @author Pavel Fatin
  */
-class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true, true, false, true) {
+private class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true, true, false, true) {
   setTitle(ScalaBundle.message("title.scala.sdk.files"))
   setDescription(ScalaBundle.message("choose.either.a.scala.sdk.directory.or.scala.jar.files"))
 
@@ -21,10 +21,11 @@ class ScalaFilesChooserDescriptor extends FileChooserDescriptor(true, true, true
 
     val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
 
-    val components = ScalaSdkComponent.discoverIn(allFiles.toSeq)
+    val components = ScalaSdkComponent.fromFiles(allFiles.toSeq)
 
     ScalaSdkDescriptor.buildFromComponents(components) match {
-      case Left(message) => throw new ValidationException(message)
+      case Left(message) =>
+        throw new ValidationException(message)
       case Right(_) => // OK
     }
   }

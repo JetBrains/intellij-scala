@@ -10,45 +10,37 @@ case class ScalaSdkComponent(artifact: Artifact,
 
 object ScalaSdkComponent {
 
-  type ArtifactPattern = (Artifact, Kind, Predicate[String])
+  case class ArtifactPattern(artifact: Artifact, kind: Kind, predicate: Predicate[String])
 
-  private val defaultArtifactPatterns: Set[ArtifactPattern] = for {
-    artifact <- Artifact.ScalaArtifacts
-    kind <- Kind.values
-  } yield (artifact, kind, kind.getPattern(artifact))
+  private def buildAllKindsPatterns(artifacts: Set[Artifact]): Set[ArtifactPattern] =
+    for {
+      artifact <- artifacts
+      kind <- Kind.values
+    } yield ArtifactPattern(artifact, kind, kind.getPattern(artifact))
 
-  def fromFile(file: File, patterns: Set[ArtifactPattern] = defaultArtifactPatterns): Option[ScalaSdkComponent] = {
-    patterns.collectFirst {
-      case (artifact, kind, pattern) if pattern.test(file.getName) =>
-        ScalaSdkComponent(artifact, kind, artifact.versionOf(file), file)
+  private val ScalaArtifactsAllKindsPatterns: Set[ArtifactPattern] =
+    buildAllKindsPatterns(Artifact.ScalaArtifacts)
+
+  def fromFile(file: File, patterns: Set[ArtifactPattern] = ScalaArtifactsAllKindsPatterns): Option[ScalaSdkComponent] = {
+    val pattern = patterns.find(_.predicate.test(file.getName))
+    pattern.map {
+      case ArtifactPattern(artifact, kind, _) =>
+        val version = artifact.versionOf(file)
+        ScalaSdkComponent(artifact, kind, version, file)
     }
   }
 
-  def discoverIn(files: Seq[File],
-                 artifacts: Set[Artifact] = Artifact.ScalaArtifacts): Seq[ScalaSdkComponent] = {
-    val patterns = for {
-      artifact <- artifacts
-      kind <- Kind.values
-    } yield (
-      artifact,
-      kind,
-      kind.getPattern(artifact)
-    )
-
+  def fromFiles(files: Seq[File], patterns: Set[ArtifactPattern] = ScalaArtifactsAllKindsPatterns): Seq[ScalaSdkComponent] =
     for {
       file <- files
 
       fileName = file.getName
       if file.isFile && fileName.endsWith(".jar")
 
-      (artifact, kind, pattern) <- patterns
+      ArtifactPattern(artifact, kind, pattern) <- patterns
       if pattern.test(fileName)
-
-    } yield ScalaSdkComponent(
-      artifact,
-      kind,
-      artifact.versionOf(file),
-      file
-    )
-  }
+    } yield {
+      val version = artifact.versionOf(file)
+      ScalaSdkComponent(artifact, kind, version, file)
+    }
 }

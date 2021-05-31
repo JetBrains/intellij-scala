@@ -45,9 +45,12 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     packagePrefix = None,
   )
 
-  private lazy val scalaVersions = ScalaKind()
-  private lazy val sbtVersions = SbtKind()
-  private lazy val contentRootDir: Option[File] = getOrCreateContentRootDir(getContentEntryPath)
+  private lazy val scalaVersions = {
+    // TODO: remove the filtering when Scala2 and Scala3 projects are merged in new project wizard (SCL-18841)
+    val result = ScalaKind.loadVersionsWithProgress()
+    Versions(result.defaultVersion, result.versions.filterNot(_.startsWith("3")))
+  }
+  private lazy val sbtVersions = SbtKind.loadVersionsWithProgress()
 
   {
     val settings = getExternalProjectSettings

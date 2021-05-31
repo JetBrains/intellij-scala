@@ -16,12 +16,19 @@ private[repository] object CoursierDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = CoursierSdkChoice(descriptor)
   override def friendlyName: String = ScalaBundle.message("coursier.v1.cache")
 
-  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] =
-    getCoursierCacheV1.filter(_.exists).map { v1 =>
-      v1
+  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
+    val cacheRoot = getCoursierCacheV1.filter(_.exists)
+
+    val maybeStream = cacheRoot.map { v1 =>
+      val scalaLangArtifactsDir = v1
         .walk
         .filter { f => progress(f.toString); f.isDir && f.getFileName.nameContains("scala-lang") }
+
+      scalaLangArtifactsDir
         .map[JStream[Path]](collectJarFiles)
         .flatMap(JFunction.identity[JStream[Path]]())
-    }.getOrElse(JStream.empty[Path]())
+    }
+
+    maybeStream.getOrElse(JStream.empty[Path]())
+  }
 }
