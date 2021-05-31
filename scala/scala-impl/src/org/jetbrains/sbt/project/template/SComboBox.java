@@ -8,17 +8,20 @@ import java.awt.*;
 /**
  * @author Pavel Fatin
  */
-@SuppressWarnings(value = "unchecked")
-public class SComboBox extends JComboBox {
+public class SComboBox<T> extends JComboBox<T> {
   public SComboBox() {
   }
 
-  public <T extends Object> SComboBox(T[] items) {
+  public SComboBox(T[] items) {
     super(items);
   }
 
-  public <T extends Object> void setItems(T[] items) {
-    super.setModel(new DefaultComboBoxModel(items));
+  public void setItems(T[] items) {
+    super.setModel(new DefaultComboBoxModel<>(items));
+  }
+
+  public void setSelectedItemSafe(T anObject) {
+    setSelectedItem(anObject);
   }
 
   public void setTextRenderer(final Function1<String, String> renderer) {

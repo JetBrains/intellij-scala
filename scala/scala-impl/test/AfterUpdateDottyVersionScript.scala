@@ -3,8 +3,6 @@ import com.intellij.openapi.roots.CompilerModuleExtension
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.platform.templates.github.{DownloadUtil, ZipUtil => GithubZipUtil}
 import com.intellij.pom.java.LanguageLevel
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
-import com.intellij.util.io.ZipUtil
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
@@ -15,12 +13,11 @@ import org.junit.Assert.{assertEquals, assertTrue}
 import org.junit.Ignore
 import org.junit.runner.JUnitCore
 
-import java.io.{File, FileOutputStream, PrintWriter}
+import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths, StandardCopyOption}
-import java.util.zip.ZipOutputStream
 import scala.io.Source
-import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala, MapHasAsScala}
+import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala}
 import scala.sys.process.Process
 import scala.util.Using
 
@@ -36,7 +33,6 @@ class AfterUpdateDottyVersionScript
 
   def testRunAllScripts(): Unit = {
     val tests =
-      Script.FromTestCase(classOf[DownloadLatestDottyProjectTemplate]) #::
       Script.FromTestCase(classOf[RecompileMacroPrinter3]) #::
       Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
       Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
@@ -90,37 +86,6 @@ object AfterUpdateDottyVersionScript {
     val sc = Process("git" :: "clone" :: url :: "." :: "--depth=1" :: Nil, cloneDir).!
     assert(sc == 0, s"Failed ($sc) to clone $url into $cloneDir")
     cloneDir
-  }
-
-  /**
-   * Downloads the latest Dotty project template
-   *
-   * @author artyom.semyonov
-   */
-  private class DownloadLatestDottyProjectTemplate
-    extends BasePlatformTestCase {
-
-    def test(): Unit = {
-      val resultFile = scalaUltimateProjectDir.resolve(Paths.get(
-        "community", "scala", "scala-impl", "resources", "projectTemplates", "dottyTemplate.zip"
-      )).toFile
-
-      val repoPath = downloadRepository("https://github.com/lampepfl/dotty.g8/archive/main.zip").toPath
-      assertTrue("repository folder doesn't exist", repoPath.toFile.exists())
-
-      val dottyTemplateDir = repoPath.resolve(Paths.get("src", "main", "g8")).toFile
-      assertTrue("template folder doesn't exist", dottyTemplateDir.exists())
-
-      // no need it it, it doesn't contain any useful info
-      val g8ProjectDescriptionFile = new File(dottyTemplateDir, "default.properties")
-      g8ProjectDescriptionFile.delete()
-
-      // ATTENTION !!! Ensure created zip archive is correctly unzipped on all OS. Especially if the script is run
-      // on Windows, check it on Linux: it shouldn't contain backslashes archive entries paths.
-      Using.resource(new ZipOutputStream(new FileOutputStream(resultFile))) { zipOutput =>
-        ZipUtil.addDirToZipRecursively(zipOutput, null, dottyTemplateDir, "", null, null)
-      }
-    }
   }
 
   /**

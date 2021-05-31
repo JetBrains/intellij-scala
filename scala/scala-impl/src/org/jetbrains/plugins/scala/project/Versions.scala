@@ -13,7 +13,7 @@ import scala.util.matching.Regex
   * @author Pavel Fatin
   */
 case class Versions(defaultVersion: String,
-                    versions: Array[String])
+                    versions: Seq[String])
 
 object Versions {
 
@@ -26,7 +26,6 @@ object Versions {
         .sorted
         .reverse
         .map(_.presentation)
-        .toArray
 
       Versions(defaultVersion, versions)
     }
@@ -35,6 +34,9 @@ object Versions {
       val Entity(_, _, defaultVersion :: _, _) :: _ = entities
       defaultVersion
     }
+
+    def initiallySelectedVersion(versions: Seq[String]): String =
+      versions.headOption.getOrElse(defaultVersion)
 
     private[this] def loadVersions(): Seq[Version] = entities.flatMap {
       case Entity(url, minVersion, hardcodedVersions, versionPattern) =>
@@ -64,12 +66,15 @@ object Versions {
       Scala3Entity :: ScalaEntity :: Nil
   ) {
 
-    override protected def defaultVersion: String = {
-      // While Scala 3 support is WIP we do not want preselect Scala 3 version
-      val Entity(_, _, dv :: _, _) :: _ =
-        entities.filterNot(_.minVersion.startsWith("3"))
-      dv
-    }
+    // While Scala 3 support is WIP we do not want preselect Scala 3 version
+    override protected def defaultVersion: String =
+      entities.find(v => isScala2Version(v.minVersion)).get.minVersion
+
+    // While Scala 3 support is WIP we do not want preselect Scala 3 version
+    override def initiallySelectedVersion(versions: Seq[String]): String =
+      versions.find(isScala2Version).getOrElse(defaultVersion)
+
+    private def isScala2Version(v: String) = v.startsWith("2")
   }
 
   case object SBT extends Kind(
@@ -119,7 +124,7 @@ object Versions {
 
     val Sbt1Entity: Entity = Entity(
       url = "https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/",
-      minVersion = "1.4.1",
+      minVersion = "1.4.1", // TODO: looks like it should be reverted to 1.0.0
       hardcodedVersions = (sbtLatestVersion :: sbtLatest_1_0 :: Nil).distinct
     )
   }

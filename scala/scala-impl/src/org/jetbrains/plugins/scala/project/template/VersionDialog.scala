@@ -23,7 +23,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
 
     val versions = Versions.Scala.loadVersionsWithProgress().versions
     if (versions.nonEmpty) {
-      myVersion.setItems(versions)
+      myVersion.setItems(versions.toArray)
       // While Scala 3 support is WIP we do not want preselect Scala 3 version
       val selectIndex = versions.indexWhere(v => !v.startsWith("3"))
       if (selectIndex >= 0) {

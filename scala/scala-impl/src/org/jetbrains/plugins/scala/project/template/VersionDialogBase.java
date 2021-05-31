@@ -13,7 +13,7 @@ import java.awt.*;
  * @author Pavel Fatin
  */
 abstract class VersionDialogBase extends DialogWrapper {
-    protected SComboBox myVersion;
+    protected SComboBox<String> myVersion;
     private JPanel myContent;
 
     VersionDialogBase(JComponent parent) {

@@ -2,9 +2,8 @@ package org.jetbrains.sbt
 package project
 package template
 
-import java.awt.FlowLayout
+import java.awt.{Color, FlowLayout, GridLayout}
 import java.io.File
-
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
@@ -13,11 +12,15 @@ import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkTypeI
 import com.intellij.openapi.roots.ModifiableRootModel
 import com.intellij.openapi.util.{io, text}
 import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.components.JBTextField
+import com.intellij.ui.components.{JBLabel, JBTextField}
 import com.intellij.util.ui.UI
+import com.jgoodies.forms.factories.Borders.EmptyBorder
+import net.miginfocom.layout.CC
+import net.miginfocom.swing.MigLayout
+
 import javax.swing._
 import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
@@ -37,22 +40,24 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   import Versions.{SBT => SbtKind, Scala => ScalaKind}
 
   private val selections = Selections(
-    null,
-    null,
-    null,
+    sbtVersion = None,
+    scalaVersion = None,
     resolveClassifiers = true,
     resolveSbtClassifiers = false,
     packagePrefix = None,
   )
 
-  private lazy val scalaVersions = {
-    // TODO: remove the filtering when Scala2 and Scala3 projects are merged in new project wizard (SCL-18841)
-    val result = ScalaKind.loadVersionsWithProgress()
-    Versions(result.defaultVersion, result.versions.filterNot(_.startsWith("3")))
-  }
+  private lazy val scalaVersions = ScalaKind.loadVersionsWithProgress()
   private lazy val sbtVersions = SbtKind.loadVersionsWithProgress()
 
-  {
+  // Scala3 is only supported since sbt 1.5.0
+  private val minSbtVersionForScala3 = "1.5.0"
+  private lazy val sbtVersionsForScala3 = Versions(
+    "1.5.2",
+    sbtVersions.versions.filter(_ >= minSbtVersionForScala3)
+  )
+
+  locally {
     val settings = getExternalProjectSettings
     settings.setResolveJavadocs(false)
   }
@@ -60,20 +65,21 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
-    new File(getModuleFileDirectory) match {
-      case root if root.exists() =>
-        val Selections(sbtVersion, scalaVersion, sbtPlugins, resolveClassifiers, resolveSbtClassifiers, packagePrefix) = selections
+    val root = new File(getModuleFileDirectory)
+    if (root.exists()) {
+      val Selections(sbtVersionOpt, scalaVersionOpt, resolveClassifiers, resolveSbtClassifiers, packagePrefix) = selections
+      val sbtVersion = sbtVersionOpt.getOrElse("1.5.2")
+      val scalaVersion = scalaVersionOpt.getOrElse(ScalaVersion.Latest.Scala_2_13.minor)
 
-      {
+      locally {
         val settings = getExternalProjectSettings
         settings.setResolveClassifiers(resolveClassifiers)
         settings.setResolveSbtClassifiers(resolveSbtClassifiers)
       }
 
-        createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, sbtPlugins, packagePrefix)
+      createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, packagePrefix)
 
-        setModuleFilePath(updateModuleFilePath(getModuleFilePath))
-      case _ =>
+      setModuleFilePath(updateModuleFilePath(getModuleFilePath))
     }
 
     super.createModule(moduleModel)
@@ -85,18 +91,17 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    //noinspection NameBooleanParameters
     {
-      selections(ScalaKind) = scalaVersions
-      selections(SbtKind) = sbtVersions
+      selections.update(ScalaKind, scalaVersions)
+      selections.update(SbtKind, sbtVersions)
     }
 
-    val sbtVersionComboBox = applyTo(new SComboBox())(
-      _.setItems(sbtVersions.versions),
-      _.setSelectedItem(selections.sbtVersion)
+    val sbtVersionComboBox = applyTo(new SComboBox[String]())(
+      _.setItems(sbtVersions.versions.toArray),
+      _.setSelectedItemSafe(selections.sbtVersion.orNull)
     )
 
-    val scalaVersionComboBox = applyTo(new SComboBox())(
+    val scalaVersionComboBox = applyTo(new SComboBox[String]())(
       setupScalaVersionItems
     )
 
@@ -119,11 +124,19 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     )
 
     sbtVersionComboBox.addActionListenerEx {
-      selections.sbtVersion = sbtVersionComboBox.getSelectedItem.asInstanceOf[String]
+      selections.sbtVersion = Option(sbtVersionComboBox.getSelectedItem.asInstanceOf[String])
     }
 
     scalaVersionComboBox.addActionListenerEx {
-      selections.scalaVersion = scalaVersionComboBox.getSelectedItem.asInstanceOf[String]
+      selections.scalaVersion = Option(scalaVersionComboBox.getSelectedItem.asInstanceOf[String])
+
+      val isScala3Selected = selections.scalaVersion.exists(isScala3Version)
+      val supportedSbtVersions = if (isScala3Selected) sbtVersionsForScala3 else sbtVersions
+      sbtVersionComboBox.setItems(supportedSbtVersions.versions.toArray)
+      // if we select Scala3 version but had Scala2 version selected before and some sbt version incompatible with Scala3,
+      // the latest item from the list will be automatically selected
+      sbtVersionComboBox.setSelectedItemSafe(selections.sbtVersion.orNull)
+      selections.update(SbtKind, sbtVersions)
     }
     resolveClassifiersCheckBox.addActionListenerEx {
       selections.resolveClassifiers = resolveClassifiersCheckBox.isSelected
@@ -134,16 +147,18 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     packagePrefixField.getDocument.addDocumentListener(
       (_ => selections.packagePrefix = Option(packagePrefixField.getText).filter(_.nonEmpty)): DocumentAdapter)
 
+    val SpaceBeforeClassifierCheckbox = 4
+
     val sbtVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
       _.add(sbtVersionComboBox),
-      _.add(resolveSbtClassifiersCheckBox)
+      _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
+      _.add(resolveSbtClassifiersCheckBox),
     )
 
     val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
-      _.setBorder(new border.EmptyBorder(1, 0, 0, 0)),
-      _.add(Box.createHorizontalStrut(4)),
       _.add(scalaVersionComboBox),
-      _.add(resolveClassifiersCheckBox)
+      _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
+      _.add(resolveClassifiersCheckBox),
     )
 
     settingsStep.addSettingsField(SbtBundle.message("sbt.settings.sbt"), sbtVersionPanel)
@@ -166,6 +181,8 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     step
   }
 
+  private def isScala3Version(scalaVersion: String) = scalaVersion.startsWith("3")
+
   private def sdkSettingsStep(settingsStep: SettingsStep) = new SdkSettingsStep(
     settingsStep,
     this,
@@ -176,10 +193,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       settingsStep.getContext.setProjectJdk(myJdkComboBox.getSelectedJdk)
     }
 
+    @throws[ConfigurationException]
     override def validate(): Boolean = super.validate() && {
       for {
         sdk <- Option(myJdkComboBox.getSelectedJdk)
-        version <- Option(selections.scalaVersion)
+        version <- selections.scalaVersion
 
         languageLevel <- ScalaLanguageLevel.findByVersion(version)
       } validateLanguageLevel(languageLevel, sdk)
@@ -187,9 +205,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       true
     }
 
+    @throws[ConfigurationException]
     private def validateLanguageLevel(languageLevel: ScalaLanguageLevel, sdk: Sdk): Unit = {
       import JavaSdkVersion.JDK_1_8
-      import Sbt.{Latest_1_0, Name}
       import ScalaLanguageLevel._
 
       def reportMisconfiguration(libraryName: String,
@@ -200,26 +218,22 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         )
 
       languageLevel match {
-        case Scala_3_0 if Option(selections.sbtVersion).exists(Version(_) >= Latest_1_0) =>
-          selections.sbtPlugins = Scala3RequiredSbtPlugins
-        case Scala_3_0 =>
-          reportMisconfiguration(Name, Latest_1_0.presentation)
         case _ if languageLevel >= Scala_2_12 && !JavaSdk.getInstance().getVersion(sdk).isAtLeast(JDK_1_8) =>
           reportMisconfiguration("JDK", JDK_1_8.getDescription)
         case _ =>
       }
-
     }
   }
 
-  private def setupScalaVersionItems(cbx: SComboBox): Unit = {
+  private def setupScalaVersionItems(cbx: SComboBox[String]): Unit = {
     val versions = scalaVersions.versions
-    cbx.setItems(versions)
+    cbx.setItems(versions.toArray)
 
     selections.scalaVersion match {
-      case version if versions.contains(version) =>
-        cbx.setSelectedItem(version)
-      case _ if cbx.getItemCount > 0 => cbx.setSelectedIndex(0)
+      case Some(version) if versions.contains(version) =>
+        cbx.setSelectedItemSafe(version)
+      case _ if cbx.getItemCount > 0 =>
+        cbx.setSelectedIndex(0)
       case _ =>
     }
   }
@@ -243,35 +257,26 @@ object SbtModuleBuilder {
 
   import Sbt._
 
-  @NonNls private val Scala3RequiredSbtPlugins =
-    """addSbtPlugin("ch.epfl.lamp" % "sbt-dotty" % "0.4.4")
-      |""".stripMargin
-
-  private final case class Selections(var sbtVersion: String,
-                                      var scalaVersion: String,
-                                      var sbtPlugins: String,
+  private final case class Selections(var sbtVersion: Option[String],
+                                      var scalaVersion: Option[String],
                                       var resolveClassifiers: Boolean,
                                       var resolveSbtClassifiers: Boolean,
                                       var packagePrefix: Option[String]) {
 
     import Versions.{Kind, SBT => SbtKind, Scala => ScalaKind}
 
-    def apply(kind: Kind): String = kind match {
+    def versionFromKind(kind: Kind): Option[String] = kind match {
       case ScalaKind => scalaVersion
       case SbtKind => sbtVersion
     }
 
     def update(kind: Kind, versions: Versions): Unit = {
-      val version = apply(kind) match {
-        case null =>
-          val Versions(defaultVersion, versionsArray) = versions
-          versionsArray.headOption.getOrElse(defaultVersion)
-        case value => value
-      }
+      val version = versionFromKind(kind)
+        .getOrElse(kind.initiallySelectedVersion(versions.versions))
 
       kind match {
-        case ScalaKind => scalaVersion = version
-        case SbtKind => sbtVersion = version
+        case ScalaKind => scalaVersion = Some(version)
+        case SbtKind   => sbtVersion   = Some(version)
       }
     }
   }
@@ -280,7 +285,6 @@ object SbtModuleBuilder {
                                       @NonNls name: String,
                                       @NonNls scalaVersion: String,
                                       @NonNls sbtVersion: String,
-                                      @NonNls sbtPlugins: String,
                                       packagePrefix: Option[String]): Unit = {
     val buildFile = root / BuildFile
     val projectDir = root / ProjectDirectory
@@ -312,14 +316,6 @@ object SbtModuleBuilder {
         writeToFile(
           projectDir / PluginsFile,
           """addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.1.0")"""
-        )
-      }
-
-      import text.StringUtil.isEmpty
-      if (!isEmpty(sbtPlugins)) {
-        writeToFile(
-          projectDir / PluginsFile,
-          sbtPlugins
         )
       }
     }
