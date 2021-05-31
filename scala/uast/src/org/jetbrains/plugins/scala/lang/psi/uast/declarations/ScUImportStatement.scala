@@ -63,7 +63,7 @@ final class ScUImportStatement(override protected val scElement: ScImportStmt,
       )
 
   override def isOnDemand: Boolean =
-    single(scElement.importExprs).exists(_.isSingleWildcard)
+    single(scElement.importExprs).exists(_.hasWildcardSelector)
 
   override def multiResolve(): lang.Iterable[ResolveResult] =
     (allImportingReferences

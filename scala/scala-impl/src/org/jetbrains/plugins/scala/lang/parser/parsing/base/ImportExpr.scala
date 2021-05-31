@@ -28,26 +28,52 @@ object ImportExpr extends ParsingRule {
 
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       if (builder.isScala3orSource3 && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+        // import a as b
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
             builder.advanceLexer() // ate id or _
           case _ =>
             builder error ErrMsg("identifier.or.wild.sign.expected")
         }
+        importExprMarker.done(ScalaElementType.IMPORT_SELECTOR)
+        val before = importExprMarker.precede()
+        before.done(ScalaElementType.IMPORT_SELECTORS)
+        before.precede().done(ScalaElementType.IMPORT_EXPR)
+      } else {
+        importExprMarker.done(ScalaElementType.IMPORT_EXPR)
       }
-      importExprMarker.done(ScalaElementType.IMPORT_EXPR)
       return true
     }
 
     builder.advanceLexer() // ate .
 
     builder.getTokenType match {
-      case ScalaTokenTypes.tUNDER => builder.advanceLexer() //Ate _ or *
-      case InScala3.orSource3(_) if builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
+      case ScalaTokenTypes.tUNDER => builder.advanceLexer() //Ate _
       case ScalaTokenTypes.tLBRACE => ImportSelectors()
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() // Ate given
         InfixType.parse(builder)
+      case InScala3.orSource3(ScalaTokenTypes.tIDENTIFIER) =>
+        if (!builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar)) {
+          val selectorsMarker = builder.mark()
+          val selectorMarker = builder.mark()
+
+          val sel = builder.mark()
+          builder.advanceLexer() // Ate identifier
+          sel.done(ScalaElementType.REFERENCE)
+
+          // this should always succeed... otherwise StableId should have parsed it
+          val didParseAs = builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)
+          assert(didParseAs)
+          builder.getTokenType match {
+            case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
+              builder.advanceLexer() // ate id or _
+            case _ =>
+              builder error ErrMsg("identifier.or.wild.sign.expected")
+          }
+          selectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
+          selectorsMarker.done(ScalaElementType.IMPORT_SELECTORS)
+        }
       case _ => builder error ErrMsg("identifier.or.opening.brace.expected")
     }
     importExprMarker.done(ScalaElementType.IMPORT_EXPR)

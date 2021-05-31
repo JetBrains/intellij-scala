@@ -224,7 +224,11 @@ class ScalaImportOptimizer extends ImportOptimizer {
     //it should cover play template files
     val fileFactory = PsiFileFactory.getInstance(file.getProject)
 
-    val dummyFile = fileFactory.createFileFromText("dummy." + file.getFileType.getDefaultExtension, file.getLanguage, text,
+    val dummyFile = fileFactory.createFileFromText(
+      "dummy." + file.getFileType.getDefaultExtension,
+      // a small hack to make this work with source3
+      if (file.isSource3Enabled) Scala3Language.INSTANCE else file.getLanguage,
+      text,
       /*eventSystemEnabled = */ false, /*markAsCopy = */ false)
 
     val errorElements = dummyFile.children.filterByType[PsiErrorElement].map(_.getNode)

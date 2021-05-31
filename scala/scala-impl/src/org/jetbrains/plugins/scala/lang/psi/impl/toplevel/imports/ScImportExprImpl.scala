@@ -28,7 +28,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
 
   override def toString: String = "ImportExpression"
 
-  override def isSingleWildcard: Boolean = byStubOrPsi(_.isSingleWildcard)(wildcardElement.nonEmpty)
+  override def hasWildcardSelector: Boolean = byStubOrPsi(_.hasWildcardSelector)(wildcardElement.nonEmpty)
 
   override def wildcardElement: Option[PsiElement] =
     Option(findChildByType(IMPORT_WILDCARDS))
@@ -36,7 +36,7 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
 
   override def qualifier: Option[ScStableCodeReference] =
     reference.flatMap(ref =>
-      if (isSingleWildcard || selectorSet.isDefined)
+      if (hasWildcardSelector || selectorSet.isDefined)
         Some(ref)
       else
         ref.qualifier

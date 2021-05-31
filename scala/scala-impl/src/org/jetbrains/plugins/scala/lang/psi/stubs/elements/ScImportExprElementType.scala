@@ -18,13 +18,13 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScImportExprStubImpl
 class ScImportExprElementType extends ScStubElementType[ScImportExprStub, ScImportExpr]("import expression") {
   override def serialize(stub: ScImportExprStub, dataStream: StubOutputStream): Unit = {
     dataStream.writeOptionName(stub.referenceText)
-    dataStream.writeBoolean(stub.isSingleWildcard)
+    dataStream.writeBoolean(stub.hasWildcardSelector)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub =
     new ScImportExprStubImpl(parentStub, this,
       referenceText = dataStream.readOptionName,
-      isSingleWildcard = dataStream.readBoolean)
+      hasWildcardSelector = dataStream.readBoolean)
 
   override def createStubImpl(expr: ScImportExpr, parentStub: StubElement[_ <: PsiElement]): ScImportExprStub = {
     val referenceText = expr.reference.map {
@@ -33,7 +33,7 @@ class ScImportExprElementType extends ScStubElementType[ScImportExprStub, ScImpo
 
     new ScImportExprStubImpl(parentStub, this,
       referenceText = referenceText,
-      isSingleWildcard = expr.isSingleWildcard)
+      hasWildcardSelector = expr.hasWildcardSelector)
   }
 
   override def createPsi(stub: ScImportExprStub): ScImportExpr = new ScImportExprImpl(stub)

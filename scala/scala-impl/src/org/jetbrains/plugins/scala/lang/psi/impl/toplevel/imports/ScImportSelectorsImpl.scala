@@ -29,7 +29,7 @@ class ScImportSelectorsImpl private (stub: ScImportSelectorsStub, node: ASTNode)
   override def hasWildcard: Boolean = byStubOrPsi(_.hasWildcard)(wildcardElement.nonEmpty)
 
   override def wildcardElement: Option[PsiElement] =
-    Option(findChildByType(IMPORT_WILDCARDS))
+    selectors.reverseIterator.flatMap(_.wildcardElement).nextOption()
 
   override def selectors: Seq[ScImportSelector] =
     getStubOrPsiChildren(ScalaElementType.IMPORT_SELECTOR, JavaArrayFactoryUtil.ScImportSelectorFactory).toSeq

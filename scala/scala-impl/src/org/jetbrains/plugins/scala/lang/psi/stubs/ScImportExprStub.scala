@@ -16,5 +16,5 @@ trait ScImportExprStub extends StubElement[ScImportExpr] {
 
   def reference: Option[ScStableCodeReference]
 
-  def isSingleWildcard: Boolean
+  def hasWildcardSelector: Boolean
 }

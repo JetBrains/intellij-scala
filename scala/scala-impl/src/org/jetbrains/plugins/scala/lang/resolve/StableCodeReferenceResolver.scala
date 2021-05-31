@@ -22,9 +22,9 @@ class StableCodeReferenceResolver(reference: ScStableCodeReference, shapeResolve
       new ConstructorResolveProcessor(ref, ref.refName, effectiveArgs, typeArgs, kinds, shapeResolve, allConstructorResults)
     } else ref.getContext match {
       //last ref may import many elements with the same name
-      case e: ScImportExpr if e.selectorSet.isEmpty && !e.isSingleWildcard =>
+      case e: ScImportExpr if e.selectorSet.isEmpty && !e.hasWildcardSelector =>
         new CollectAllForImportProcessor(kinds, ref, reference.refName)
-      case e: ScImportExpr if e.isSingleWildcard =>
+      case e: ScImportExpr if e.hasWildcardSelector =>
         new ResolveProcessor(kinds, ref, reference.refName)
       case _: ScImportSelector =>
         new CollectAllForImportProcessor(kinds, ref, reference.refName)

@@ -22,7 +22,7 @@ import scala.annotation.tailrec
 
 object ImportSelectors extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val importSelectorMarker = builder.mark
+    val importSelectorMarkers = builder.mark
     //Look for {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
@@ -30,14 +30,14 @@ object ImportSelectors extends ParsingRule {
         builder.enableNewlines()
       case _ =>
         builder error ErrMsg("lbrace.expected")
-        importSelectorMarker.drop()
+        importSelectorMarkers.drop()
         return false
     }
     
     def doneImportSelectors(): Unit = {
       builder.advanceLexer()
       builder.restoreNewlinesState()
-      importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
+      importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
     }
 
     //Let's parse Import selectors while we will not see Import selector or will see '}'
@@ -57,7 +57,7 @@ object ImportSelectors extends ParsingRule {
               return true
             case null =>
               builder.restoreNewlinesState()
-              importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
+              importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
               return true
             case _ =>
               builder error ErrMsg("rbrace.expected")
@@ -72,17 +72,19 @@ object ImportSelectors extends ParsingRule {
           doneImportSelectors()
           true
         case ScalaTokenTypes.tUNDER if !builder.isScala3 =>
+          val importSelectorMarker = builder.mark()
           builder.advanceLexer() //Ate _
+          importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
           builder.getTokenType match {
             case ScalaTokenTypes.tRBRACE =>
               builder.advanceLexer() //Ate }
               builder.restoreNewlinesState()
-              importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
+              importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
               true
             case _ =>
               ParserUtils.parseLoopUntilRBrace(builder, () => {}) //we need to find closing brace, otherwise we can miss important things
               builder.restoreNewlinesState()
-              importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
+              importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
               true
           }
         case ScalaTokenTypes.tIDENTIFIER | ScalaTokenType.GivenKeyword | ScalaTokenType.WildcardStar | ScalaTokenTypes.tUNDER =>
@@ -91,7 +93,7 @@ object ImportSelectors extends ParsingRule {
 
         case null =>
           builder.restoreNewlinesState()
-          importSelectorMarker.done(ScalaElementType.IMPORT_SELECTORS)
+          importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
           true
         case _ =>
           builder error ErrMsg("rbrace.expected")

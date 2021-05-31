@@ -61,6 +61,7 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
 
   def test_imports(): Unit = checkTree(
     """
+      |import a as b
       |import a.b
       |import a.*
       |import a._
@@ -75,6 +76,19 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
       |    PsiElement(import)('import')
       |    PsiWhiteSpace(' ')
       |    ImportExpression
+      |      ImportSelectors
+      |        ImportSelector
+      |          CodeReferenceElement: a
+      |            PsiElement(identifier)('a')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
       |      CodeReferenceElement: a.b
       |        CodeReferenceElement: a
       |          PsiElement(identifier)('a')
@@ -85,11 +99,10 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
       |    PsiElement(import)('import')
       |    PsiWhiteSpace(' ')
       |    ImportExpression
-      |      CodeReferenceElement: a.*
-      |        CodeReferenceElement: a
-      |          PsiElement(identifier)('a')
-      |        PsiElement(.)('.')
-      |        PsiElement(identifier)('*')
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      PsiElement(*)('*')
       |  PsiWhiteSpace('\n')
       |  ScImportStatement
       |    PsiElement(import)('import')
@@ -104,15 +117,17 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sca
       |    PsiElement(import)('import')
       |    PsiWhiteSpace(' ')
       |    ImportExpression
-      |      CodeReferenceElement: a.b
-      |        CodeReferenceElement: a
-      |          PsiElement(identifier)('a')
-      |        PsiElement(.)('.')
-      |        PsiElement(identifier)('b')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(as)('as')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(identifier)('c')
+      |      CodeReferenceElement: a
+      |        PsiElement(identifier)('a')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        ImportSelector
+      |          CodeReferenceElement: b
+      |            PsiElement(identifier)('b')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('c')
       |  PsiWhiteSpace('\n')
       |  ScImportStatement
       |    PsiElement(import)('import')

@@ -441,16 +441,17 @@ trait TreeAdapter {
 
       if (sel.isAliasedImport && importedName == "_")
         m.Importee.Unimport(ind(reference))
+      else if (sel.isWildcardSelector)
+        m.Importee.Wildcard()
       else if (sel.isAliasedImport)
         m.Importee.Rename(m.Name.Indeterminate(reference.qualName), m.Name.Indeterminate(importedName))
       else
         m.Importee.Name(m.Name.Indeterminate(importedName))
     }
     if (t.selectors.nonEmpty) {
-      val wildcards = if (t.isSingleWildcard) List(m.Importee.Wildcard()) else Nil
-      val importees = t.selectors.map(selector).toList ++ wildcards
+      val importees = t.selectors.map(selector).toList
       m.Importer(getQualifier(t.qualifier.get), importees)
-    } else if (t.isSingleWildcard)
+    } else if (t.hasWildcardSelector)
       m.Importer(getQualifier(t.qualifier.get), List(m.Importee.Wildcard()))
     else
       m.Importer(getQualifier(t.qualifier.get), List(m.Importee.Name(m.Name.Indeterminate(t.importedNames.head))))

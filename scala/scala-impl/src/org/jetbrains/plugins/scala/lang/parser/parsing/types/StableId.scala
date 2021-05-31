@@ -159,7 +159,11 @@ object StableId {
       case `kTYPE` => true
       case `tUNDER` | `tLBRACE` | ScalaTokenType.GivenKeyword if forImport => true
       case `kMATCH` if builder.isScala3 => true
-      case `tIDENTIFIER` if builder.isScala3 && builder.predict(_.getTokenText == "*") => true
+      case `tIDENTIFIER` if forImport && builder.isScala3orSource3 =>
+        builder.predict(builder => builder.getTokenText == "*" || {
+          builder.advanceLexer()
+          builder.getTokenText == "as"
+        })
       case _ => false
     }
   }

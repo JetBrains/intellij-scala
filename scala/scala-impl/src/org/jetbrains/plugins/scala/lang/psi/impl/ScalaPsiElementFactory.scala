@@ -330,14 +330,12 @@ object ScalaPsiElementFactory {
                             (implicit context: ProjectContext): PsiElement =
     createScalaFileFromText(s"$modifier class a").typeDefinitions.head.getModifierList.getFirstChild
 
-  def createImportExprFromText(@NonNls name: String)
-                              (implicit ctx: ProjectContext): ScImportExpr =
-    createScalaFileFromText(s"import ${escapeKeywordsFqn(name)}")
-      .getLastChild.getLastChild.asInstanceOf[ScImportExpr]
+  def createImportExprWithContextFromText(@NonNls name: String, context: PsiElement): ScImportExpr =
+    createImportFromText(s"import ${escapeKeywordsFqn(name)}", context)
+      .getLastChild.asInstanceOf[ScImportExpr]
 
-  def createImportFromText(@NonNls text: String)
-                          (implicit ctx: ProjectContext): ScImportStmt =
-    createScalaElementFromText[ScImportStmt](text)
+  def createImportFromText(@NonNls text: String, context: PsiElement): ScImportStmt =
+    createElementWithContext[ScImportStmt](text, context, null)(Import.parse(_))
 
   def createReferenceFromText(@NonNls name: String)
                              (implicit ctx: ProjectContext): ScStableCodeReference = {

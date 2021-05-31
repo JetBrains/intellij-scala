@@ -5,6 +5,7 @@ package api
 package toplevel
 package imports
 
+import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 
 /**
@@ -15,6 +16,10 @@ trait ScImportSelector extends ScalaPsiElement {
   def importedName: Option[String]
 
   def reference: Option[ScStableCodeReference]
+
+  def isWildcardSelector: Boolean
+
+  def wildcardElement: Option[PsiElement]
 
   def deleteSelector(): Unit
 

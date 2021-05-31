@@ -110,10 +110,10 @@ trait ScImportsHolder extends ScalaPsiElement {
             if (/*!imp.singleWildcard && */imp.selectorSet.isEmpty) {
               res += ImportExprUsed(imp)
             }
-            else if (imp.isSingleWildcard) {
+            else if (imp.hasWildcardSelector) {
               res += ImportWildcardSelectorUsed(imp)
             }
-            for (selector <- imp.selectors) {
+            for (selector <- imp.selectors if !selector.isWildcardSelector) {
               res += ImportSelectorUsed(selector)
             }
           case _ => processChild(child)
@@ -219,7 +219,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       else refsContainer == null && hasCodeBeforeImports
 
     if (needToInsertFirst) {
-      val dummyImport = createImportFromText("import dummy.dummy")
+      val dummyImport = createImportFromText("import dummy.dummy", this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
       val psiAnchor = PsiAnchor.create(inserted)
       val rangeInfo = RangeInfo(psiAnchor, psiAnchor, importInfosToAdd, usedImportedNames = Set.empty, isLocal = false)
