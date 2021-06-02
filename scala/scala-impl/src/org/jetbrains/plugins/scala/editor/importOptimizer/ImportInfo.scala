@@ -143,7 +143,7 @@ object ImportInfo {
         (prefixQual, relative)
       }
 
-    for (selector <- imp.selectors) {
+    for (selector <- imp.selectors if !selector.isWildcardSelector) {
       val importUsed: ImportSelectorUsed = ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed

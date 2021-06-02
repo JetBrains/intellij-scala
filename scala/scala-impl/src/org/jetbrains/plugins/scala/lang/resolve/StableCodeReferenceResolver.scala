@@ -26,7 +26,7 @@ class StableCodeReferenceResolver(reference: ScStableCodeReference, shapeResolve
         new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case e: ScImportExpr if e.hasWildcardSelector =>
         new ResolveProcessor(kinds, ref, reference.refName)
-      case _: ScImportSelector =>
+      case sel: ScImportSelector if !sel.isWildcardSelector =>
         new CollectAllForImportProcessor(kinds, ref, reference.refName)
       case constr: ScInterpolationPattern =>
         new ExtractorResolveProcessor(ref, reference.refName, kinds, constr.expectedType)
