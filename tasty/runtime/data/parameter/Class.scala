@@ -9,7 +9,7 @@ trait Class {
 
   class ValueParameters(x: Int, y: Int)
 
-  class EmptyClause
+  class EmptyClause/**/()/**/
 
   class MultipleClauses(x: Int)(y: Int)
 

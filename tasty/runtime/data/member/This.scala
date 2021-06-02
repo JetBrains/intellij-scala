@@ -1,7 +1,9 @@
 package member
 
 trait This {
-  class Class(x: Int) {
-    def this(x: Int, y: Int) = this(???)
+  class Class {
+    def this(x: Int) = /*???*/this()/**/
+
+    def this(x: Int, y: Int) = /*???*/this(???)/**/
   }
 }

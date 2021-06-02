@@ -28,11 +28,11 @@ object TreePrinter {
       val parents0 = children.collect {
         case node if node.isTypeTree => Some(textOf(node))
         case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object").map(_ + (if (args.nonEmpty) "(???)" else "")) // TODO FQN, parameter
+          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
         case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object").map(_ + (if (args.nonEmpty) "(???)" else "")) // TODO FQN, parameter
+          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
         case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object").map(_ + (if (args.nonEmpty) "(???)" else "")) // TODO FQN, parameter
+          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
       }
       val parents = parents0.collect{ case Some(s) if s.nonEmpty => s }
       val cases = // TODO check element types
@@ -49,9 +49,9 @@ object TreePrinter {
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
       if (name == "<init>") {
-        modifiersIn(node) + "def this" + parametersIn(node) + " = this(???)" // TODO parameter, this(/* compiled code */)
+        modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
       } else {
-        modifiersIn(node) + "def " + name + parametersIn(node) + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, /* compiled code */
+        modifiersIn(node) + "def " + name + parametersIn(node) + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
       }
 
     case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
@@ -62,7 +62,7 @@ object TreePrinter {
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
       modifiersIn(node) + (if (isCase) name +  template else
-        (if (node.hasFlag(MUTABLE)) "var " else "val ") + name + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter
+        (if (node.hasFlag(MUTABLE)) "var " else "val ") + name + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
 
     // TODO method?
     case Node(IDENTtpt, Seq(name), _) => name

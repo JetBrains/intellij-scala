@@ -9,6 +9,8 @@ trait Def {
 
   def valueParameters(x: Int, y: Int): Unit
 
+  def noClause: Unit
+
   def emptyClause(): Unit
 
   def multipleClauses(x: Int)(y: Int): Unit

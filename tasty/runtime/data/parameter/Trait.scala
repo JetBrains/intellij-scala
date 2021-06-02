@@ -9,7 +9,7 @@ trait Trait {
 
   trait ValueParameters(x: Int, y: Int)
 
-  trait EmptyClause
+  trait EmptyClause/**/()/**/
 
   trait MultipleClauses(x: Int)(y: Int)
 

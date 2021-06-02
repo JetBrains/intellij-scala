@@ -38,31 +38,31 @@ trait Modifiers {
   def defImplicit(implicit x: Int, y: Int): Unit
 
   enum EnumVal(val x: Int) {
-    case Case extends EnumVal(???)
+    case Case extends EnumVal/**/(1)/**/
   }
 
   enum EnumVar(var x: Int) {
-    case Case extends EnumVar(???)
+    case Case extends EnumVar/**/(1)/**/
   }
 
   enum EnumPrivate(private val x: Int) {
-    case Case extends EnumPrivate(???)
+    case Case extends EnumPrivate/**/(1)/**/
   }
 
   enum EnumProtected(protected val x: Int) {
-    case Case extends EnumProtected(???)
+    case Case extends EnumProtected/**/(1)/**/
   }
 
   enum EnumFinal(final val x: Int) {
-    case Case extends EnumFinal(???)
+    case Case extends EnumFinal/**/(1)/**/
   }
 
   enum EnumOverride(override val hashCode: Int) {
-    case Case extends EnumOverride(???)
+    case Case extends EnumOverride/**/(1)/**/
   }
 
   enum EnumCaseClassVal {
-    case Class(x: Int)
+    case Class(/**/val /**/x: Int)
   }
 
   enum EnumCaseClassVar {
