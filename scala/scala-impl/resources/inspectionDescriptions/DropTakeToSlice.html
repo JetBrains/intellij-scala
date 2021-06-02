@@ -1,17 +1,18 @@
 <html>
 <body>
-Reports composition of <code>drop</code> and <code>take</code> and replaces it with <code>slice</code>.
+Reports compositions of <code>drop</code> and <code>take</code> and replaces them with <code>slice</code>.
 <p><b>Example:</b></p>
 <pre><code>
-var x: Seq[Int]
-x.drop(n).take(m)
-x.take(m).drop(n)
+  var x: Seq[Int]
+  x.drop(n).take(m)
+  x.take(m).drop(n)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Seq[Int]
-x.slice(n, n + m)
-x.slice(n, m)
+  var x: Seq[Int]
+  x.slice(n, n + m)
+  x.slice(n, m)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

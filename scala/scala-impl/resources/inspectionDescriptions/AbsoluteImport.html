@@ -4,17 +4,18 @@ Reports fully qualified imports that can be relative to base package (Settings |
 <p>Only applicable when "Except for base package" is enabled in Settings | Editor | Code Style | Scala | Imports.</p>
 <p><b>Example:</b></p>
 <pre><code>
-package org.example.application
-package ui
+  package org.example.application
+  package ui
 
-import org.example.application.model.Data
+  import org.example.application.model.Data
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-package org.example.application
-package ui
+  package org.example.application
+  package ui
 
-import model.Data
+  import model.Data
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

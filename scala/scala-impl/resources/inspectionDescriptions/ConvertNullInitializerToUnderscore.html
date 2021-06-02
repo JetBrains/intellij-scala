@@ -18,21 +18,21 @@ Reports variable definitions that are explicitly initialized with <code>null</co
 </ul>
 <p><b>Example:</b></p>
 <pre><code>
-class Test {
-  var optional: String = null
-  var uninit: String = null
+  class Test {
+    var optional: String = null
+    var uninit: String = null
 
-  uninit = "initialized later"
-}
+    uninit = "initialized later"
+  }
 </code></pre>
 <p>After the quick-fixes are applied:</p>
 <pre><code>
-class Test {
-  var optional: Option[String] = None
-  var uninit: String = _
+  class Test {
+    var optional: Option[String] = None
+    var uninit: String = _
 
-  uninit = "initialized later"
-}
+    uninit = "initialized later"
+  }
 </code></pre>
 <!-- tooltip end -->
 </body>

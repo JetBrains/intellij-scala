@@ -1,17 +1,18 @@
 <html>
 <body>
 Reports <code>array.size</code> and <code>string.size</code> calls.
-<p>While such calls are legitimate, they require an additional implicit conversion to <code>SeqLike</code> to be made. A common
-    use case would be calling <code>length</code> on arrays and strings may provide significant advantages.</p>
+<p>While such calls are legitimate, they require an additional implicit conversion to <code>SeqLike</code>.
+    Calling <code>length</code> on arrays and strings may provide significant advantages.</p>
 <p><b>Example:</b></p>
 <pre><code>
-Array(1, 2, 3, 4).size
-"this is a string".size
+  Array(1, 2, 3, 4).size
+  "this is a string".size
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-Array(1, 2, 3, 4).length
-"this is a string".length
+  Array(1, 2, 3, 4).length
+  "this is a string".length
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

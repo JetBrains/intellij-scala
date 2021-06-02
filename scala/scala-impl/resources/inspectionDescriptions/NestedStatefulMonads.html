@@ -3,9 +3,10 @@
 Reports nested stateful monads which may lead to architectural errors.
 <p><b>Example:</b></p>
 <pre><code>
-import scala.concurrent.Future
-val a = Future { }
-Future { a }
+  import scala.concurrent.Future
+  val a = Future { }
+  Future { a }
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

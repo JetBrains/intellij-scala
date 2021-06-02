@@ -1,15 +1,16 @@
 <html>
 <body>
-Reports if an expression that can be converted to SAM (Single Abstract Method).
+Reports expressions that can be converted to SAM (Single Abstract Method).
 <p><b>Example:</b></p>
 <pre><code>
-new Thread(new Runnable {
-    override def run() = println()
-})
+  new Thread(new Runnable {
+      override def run() = println()
+  })
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-new Thread(() => println())
+  new Thread(() => println())
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

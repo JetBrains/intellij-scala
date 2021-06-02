@@ -1,15 +1,19 @@
 <html>
 <body>
-Reports usages of methods <code>sameElements</code> or <code>corresponds</code> to compare collections of same kind (Seq, Set or Map) and having same elements and suggests to replace them with equivalent equality check.
+Reports usages of <code>sameElements</code> or <code>corresponds</code> to compare collections of same kind (Seq, Set or Map).
+
+<p>The quick-fix uses a equality instead.</p>
+
 <p><b>Example:</b></p>
 <pre><code>
-seq sameElements list
-hashSet sameElements treeSet
+  seq sameElements list
+  hashSet sameElements treeSet
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-seq == list
-hashSet == treeSet
+  seq == list
+  hashSet == treeSet
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

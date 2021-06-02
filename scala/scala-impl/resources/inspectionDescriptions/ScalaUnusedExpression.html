@@ -1,5 +1,22 @@
 <html>
 <body>
-Reports an expression with an ignored value if it has no side effects or may only throw an exception.
+Reports expressions whose value is not used.
+
+<p>Expressions that have side-effects or divert the control flow are not reported.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  def test(): Int = {
+    3 // unused
+    3
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def test(): Int = {
+    3
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

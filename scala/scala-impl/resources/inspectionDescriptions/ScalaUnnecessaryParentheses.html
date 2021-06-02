@@ -1,7 +1,19 @@
 <html>
-<body>Reports on any instance of unnecessary parentheses in expressions, types and patterns.
+<body>
+Reports unnecessary parentheses in expressions, types, and patterns.
+
 <p>Parentheses are considered unnecessary if the semantics of the program remains unchanged if the parentheses are removed.</p>
-<p>Use checkboxes below to customize behaviour of the inspection.</p>
-<p>Parentheses are considered clarifying if they separate an infix expression, type element or pattern as a part of a larger infix element.</p>
+<p>Use the checkboxes below to customize the behaviour of the inspection.</p>
+<p>Parentheses are considered clarifying if they separate an infix expression, type element, or pattern as a part of a larger infix element.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  val x = (3)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  val x = 3
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

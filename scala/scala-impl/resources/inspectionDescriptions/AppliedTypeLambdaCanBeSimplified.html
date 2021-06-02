@@ -2,11 +2,12 @@
 <body>Reports types that could be simplified.
 <p><b>Example:</b></p>
 <pre><code>
-def test: ({type l[a] = Either[String, a]})#l[Int] = ???
+  def test: ({type l[a] = Either[String, a]})#l[Int] = ???
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-def test: Either[String, Int] = ???
+  def test: Either[String, Int] = ???
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

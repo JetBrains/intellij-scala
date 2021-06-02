@@ -1,8 +1,21 @@
 <html>
 <body>
-Reports missing final modifier for case objects.
-<p>While inner case objects are effectively final in Scala - you can’t extend them - they are not always flagged as such in the compiled bytecode.
+Reports missing final modifiers for case objects.
+<p>While inner case objects are effectively final in Scala - they cannot be extended - they are not always flagged as such in the compiled bytecode.
 So this inspection encourages you to do so.
     See best practices: https://nrinaudo.github.io/scala-best-practices/adts/final_case_objects.html</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  object Outer {
+    case object Inner
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  object Outer {
+    final case object Inner
+  }
+</code></pre>
 </body>
 </html>

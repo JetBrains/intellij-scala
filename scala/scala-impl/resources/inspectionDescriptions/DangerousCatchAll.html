@@ -1,4 +1,19 @@
 <html>
-<body>Reports catch blocks which contain case expression without type of caught exception.
+<body>
+Reports patterns in catch blocks that match all types.
+
+<p><b>Example:</b></p>
+<pre><code>
+  try f() catch {
+    case e => ???
+  }
+</code></pre>
+<p>After the quick-fixes are applied:</p>
+<pre><code>
+  try f() catch {
+    case e: Throwable => ???
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,14 +1,15 @@
 <html>
 <body>
-Reports a call on a <code>Map</code> of <code>find</code> and <code>map</code> and suggests replacing with <code>get</code>.
+Reports a call to <code>find</code> and <code>map</code> on a <code>Map</code> and suggests to replace it with <code>get</code>.
 <pre><code>
-val map = Map(1 -> 42)
-map.find(_._1 == k).map(_._2)
+  val map = Map(1 -> 42)
+  map.find(_._1 == k).map(_._2)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-val map = Map(1 -> 42)
-map.get(k)
+  val map = Map(1 -> 42)
+  map.get(k)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

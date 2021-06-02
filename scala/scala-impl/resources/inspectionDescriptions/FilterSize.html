@@ -1,15 +1,16 @@
 <html>
 <body>
-Reports using <code>filter</code> and <code>size</code> (or <code>length</code>) and suggests replacing it with <code>count</code>.
+Reports using <code>filter</code> and <code>size</code> (or <code>length</code>) and suggests to replace it with <code>count</code>.
 <p><b>Example:</b></p>
 <pre><code>
-var x: Seq[Int]
-x.filter(p).size
+  var x: Seq[Int]
+  x.filter(p).size
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Seq[Int]
-x.count(p)
+  var x: Seq[Int]
+  x.count(p)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

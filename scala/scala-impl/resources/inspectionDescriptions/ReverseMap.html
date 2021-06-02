@@ -1,15 +1,18 @@
 <html>
 <body>
-Reports when collection is reversed explicitly before calling <code>map</code>, suggests using <code>xs.reverseMap(f)</code> which might be more efficient for some cases.
+Reports when a collection is reversed explicitly before calling <code>map</code>.
+
+<p> The quick-fix will use <code>xs.reverseMap(f)</code>, which might be more efficient in some cases.</p>
 <p><b>Example:</b></p>
 <pre><code>
-var seq: Seq[Int]
-seq.reverse.map(f)
+  var seq: Seq[Int]
+  seq.reverse.map(f)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var seq: Seq[Int]
-seq.reverseMap(f)
+  var seq: Seq[Int]
+  seq.reverseMap(f)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -3,13 +3,14 @@
 Reports partial functions that could be replaced with normal functions.
 <p><b>Example:</b></p>
 <pre><code>
-Seq(1).foreach {
-  case _ => 3
-}
+  Seq(1).foreach {
+    case _ => 3
+  }
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-Seq(1).foreach(_ => 3)
+  Seq(1).foreach(_ => 3)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

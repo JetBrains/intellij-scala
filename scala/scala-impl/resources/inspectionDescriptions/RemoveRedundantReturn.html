@@ -2,5 +2,19 @@
 <body>
 Reports redundant <code>return</code>.
 <p>The last statement in a method is automatically returned, use of the <code>return</code> keyword is redundant in this case.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  def test: Int = {
+    return 3
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def test: Int = {
+    3
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

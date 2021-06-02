@@ -1,15 +1,16 @@
 <html>
 <body>
-Reports opportunity to simplify equality of the instance of <code>Option</code> and <code>Some(x)</code>.
+Reports opportunities to simplify equality checks of <code>Option</code> and <code>Some(x)</code>.
 <p><b>Example:</b></p>
 <pre><code>
-option == Some(x)
-Some(x) != option
+  option == Some(x)
+  Some(x) != option
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-option.contains(x)
-!option.contains(x)
+  option.contains(x)
+  !option.contains(x)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

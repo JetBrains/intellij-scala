@@ -1,4 +1,22 @@
 <html>
-<body>Reports local symbols that are not used.
+<body>
+Reports local symbols that are not used.
+
+<p>The quick-fix removes the unused symbol.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  def test(): Int = {
+    val unused = 3
+    3
+  }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  def test(): Int = {
+    3
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,32 +1,33 @@
 <html>
 <body>
-Reports different ways of checking emptiness of collections and options and suggests replacing with <code>.isEmpty</code>,
+Reports different ways of checking emptiness of collections and Options and suggests replacing them with <code>.isEmpty</code>,
 <code>.nonEmpty</code> or <code>.isDefined.</code>
 <p><b>Example:</b></p>
 <pre><code>
-!Seq(1).isEmpty
-Seq(1).size == 0
-Seq(1).size != 0
-!(Seq(1).length > 1)
-Seq(1).exists(_ => true)
-import scala.Function.const
-Seq(1).exists(const(true))
-!Option(0).isEmpty
-Option(0) == None
-Option(0) != None
+  !Seq(1).isEmpty
+  Seq(1).size == 0
+  Seq(1).size != 0
+  !(Seq(1).length > 1)
+  Seq(1).exists(_ => true)
+  import scala.Function.const
+  Seq(1).exists(const(true))
+  !Option(0).isEmpty
+  Option(0) == None
+  Option(0) != None
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-Seq(1).nonEmpty
-Seq(1).isEmpty
-Seq(1).nonEmpty
-Seq(1).isEmpty
-Seq(1).nonEmpty
-import scala.Function.const
-Seq(1).nonEmpty
-Option(0).isDefined
-Option(0).isEmpty
-Option(0).isDefined
+  Seq(1).nonEmpty
+  Seq(1).isEmpty
+  Seq(1).nonEmpty
+  Seq(1).isEmpty
+  Seq(1).nonEmpty
+  import scala.Function.const
+  Seq(1).nonEmpty
+  Option(0).isDefined
+  Option(0).isEmpty
+  Option(0).isDefined
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

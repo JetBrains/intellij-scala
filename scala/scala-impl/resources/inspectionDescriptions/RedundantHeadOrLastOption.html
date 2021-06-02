@@ -1,20 +1,17 @@
 <html>
 <body>
-Reports <code>headOption</code> and <code>lastOption</code> on the instance of Option.
-<p>They are redundant in this case.</p>
+Reports <code>headOption</code> and <code>lastOption</code> on an instance of Option.
+
+<p>The quick-fix removes these redundant calls.</p>
+
 <p><b>Example:</b></p>
 <pre><code>
-var x: Option[A]
-var y: Seq[Int]
-x.lastOption
-y.find(p).headOption
+  Option(1).lastOption
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Option[A]
-var y: Seq[Int]
-x
-y.find(p)
+  Option(1)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

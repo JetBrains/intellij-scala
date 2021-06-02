@@ -1,15 +1,19 @@
 <html>
 <body>
 Reports explicit checking of index bounds.
+
+<p>The quick-fix uses <code>lift</code> instead.</p>
+
 <p><b>Example:</b></p>
 <pre><code>
-var x: Seq[Int]
-if (i < x.length) Some(x(i)) else None
+  var x: Seq[Int]
+  if (i < x.length) Some(x(i)) else None
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Seq[Int]
-x.lift(i)
+  var x: Seq[Int]
+  x.lift(i)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

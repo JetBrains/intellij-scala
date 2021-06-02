@@ -3,15 +3,16 @@
 Reports an emptiness check of the result of <code>Map.get</code> and suggests replacing it with a call to <code>Map.contains</code>.
 <p><b>Example:</b></p>
 <pre><code>
-val map = Map(1 -> 42)
-map.get(key).nonEmpty
-map.get(key).isEmpty
+  val map = Map(1 -> 42)
+  map.get(key).nonEmpty
+  map.get(key).isEmpty
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-val map = Map(1 -> 42)
-map.contains(key)
-!map.contains(key)
+  val map = Map(1 -> 42)
+  map.contains(key)
+  !map.contains(key)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

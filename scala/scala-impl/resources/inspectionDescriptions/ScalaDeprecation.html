@@ -1,4 +1,14 @@
 <html>
-<body>Reports where deprecated code is used in the specified inspection scope.
+<body>
+Reports usages of deprecated symbols.
+
+<p><b>Example:</b></p>
+<pre><code>
+  @deprecated("don't use test")
+  def test = ???
+
+  test // using test is deprecated
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

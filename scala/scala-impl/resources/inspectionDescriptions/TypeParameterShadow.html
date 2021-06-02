@@ -1,3 +1,12 @@
 <html>
-<body>Reports a Type Parameter that shadows other Type Parameters defined in the enclosing scope.</body>
+<body>
+Reports type parameters that shadow other type parameters defined in the enclosing scope.
+<p><b>Example:</b></p>
+<pre><code>
+  class Test[T] {
+    def inner[T]: Int = ???
+  }
+</code></pre>
+<!-- tooltip end -->
+</body>
 </html>

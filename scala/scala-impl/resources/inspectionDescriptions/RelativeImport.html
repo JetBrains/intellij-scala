@@ -3,15 +3,16 @@
 Reports import statements that do not use fully qualified reference.
 <p><b>Example:</b></p>
 <pre><code>
-package org.something
+  package org.something
 
-import someInnerPackage
+  import someInnerPackage
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-package org.something
+  package org.something
 
-import org.something.someInnerPackage
+  import org.something.someInnerPackage
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

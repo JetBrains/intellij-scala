@@ -1,15 +1,16 @@
 <html>
 <body>
-Reports if collection is zipped with its indices manually, suggests using <code>zipWithIndex</code>.
+Reports manual zipping of the index instead of using <code>zipWithIndex</code>.
 <p><b>Example:</b></p>
 <pre><code>
-var seq: Seq[Int]
-seq.zip(seq.indices)
+  var seq: Seq[Int]
+  seq.zip(seq.indices)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var seq: Seq[Int]
-seq.zipWithIndex
+  var seq: Seq[Int]
+  seq.zipWithIndex
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

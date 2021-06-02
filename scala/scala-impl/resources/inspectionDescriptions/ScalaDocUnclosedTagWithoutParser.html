@@ -1,26 +1,28 @@
 <html>
-<body>Reports ScalaDoc unclosed tag.
+<body>
+Reports unclosed tags in Scaladoc.
 <p><b>Example:</b></p>
 <pre><code>
-/**
- * ''
- *
- * [[
- *
- * `
- */
-class A
+  /**
+   * ''
+   *
+   * [[
+   *
+   * `
+   */
+  class A
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-/**
- * &#39;&#39;
- *
- * &#91;&#91;
- *
- * &#96;
- */
-class A
+  /**
+   * &#39;&#39;
+   *
+   * &#91;&#91;
+   *
+   * &#96;
+   */
+  class A
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

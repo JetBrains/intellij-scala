@@ -1,13 +1,14 @@
 <html>
 <body>
-Reports postfix call to <code>unary_!</code> or <code>unary_~</code> etc. and suggests replacing with operator.
+Reports non-prefix calls to <code>unary_!</code> or <code>unary_~</code> etc. and suggests replacing with the prefix operator.
 <p><b>Example:</b></p>
 <pre><code>
-val x = true.unary_!;
+  val x = true.unary_!;
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-val x = !true
+  val x = !true
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

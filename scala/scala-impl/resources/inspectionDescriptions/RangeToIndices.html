@@ -1,17 +1,16 @@
 <html>
 <body>
-Reports constructing range manually and suggests to use <code>seq.indices</code> instead.
+Reports constructing ranges of collection indices manually instead of using <code>.indices</code>.
 <p><b>Example:</b></p>
 <pre><code>
-var x: Seq[Int]
-Range(0, x.size)
-0 until x.size
-0.to(x.size - 1)
+  val name = "Andy"
+  s"Do you know ${name}?"
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Seq[Int]
-x.indices
+  val name = "Andy"
+  s"Do you know $name?"
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

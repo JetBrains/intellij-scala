@@ -3,20 +3,17 @@
 Reports and fixes imported names that shadow common scala classes like <code>List</code>.
 <p><b>Example:</b></p>
 <pre><code>
-import java.util.List
+  import java.util.List
 
-object AAA {
   val list: List[Int] = null
-}
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-import java.util
-import java.util.List
+  import java.util
+  import java.util.List
 
-object AAA {
   val list: util.List[Int] = null
-}
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,23 +1,24 @@
 <html>
 <body>
-Reports unbalanced wiki syntax headers and ignored text after such headers in ScalaDocs.
+Reports unbalanced wiki syntax headers and ignored text after such headers in Scaladocs.
 <p>In the following example, <code>====</code> is marked:</p>
 <pre><code>
-/**
- * == I'm a wiki style header ====
- */
-def test(i: Int): Unit = {
+  /**
+   * == I'm a wiki style header ====
+   */
+  def test(i: Int): Unit = {
 
-}
+  }
 </code></pre>
 <p>In the following example, <code>Ignored text</code> is marked:</p>
 <pre><code>
- /**
- * == I'm a wiki style header == Ignored text
- */
-def test(i: Int): Unit = {
+  /**
+   * == I'm a wiki style header == Ignored text
+   */
+  def test(i: Int): Unit = {
 
-}
+  }
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

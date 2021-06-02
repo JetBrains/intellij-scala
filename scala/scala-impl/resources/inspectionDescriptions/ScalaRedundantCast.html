@@ -1,5 +1,15 @@
 <html>
-<body>Reports redundant <code>asInstanceOf</code> cast and suggests to remove it.
-<p>Checks whether the type of expression is the same as the cast type.</p>
+<body>Reports redundant <code>asInstanceOf</code> casts and suggests to remove them.
+<p>A cast is redundant if the type of expression is the same as the cast type.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  "test".asInstanceOf[String]
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  "test"
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

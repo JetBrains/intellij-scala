@@ -1,18 +1,18 @@
 <html>
 <body>
-Reports <code>seq(0)</code> or <code>seq.apply(0)</code> and suggests replacing to <code>seq.head</code> if <code>seq</code> is not an
-instance of IndexedSeq.
+Reports accessing the first element of a collection by index instead of <code>head</code>.
 <p><b>Example:</b></p>
 <pre><code>
-var seq: Seq[Int]
-seq(0)
-seq.apply(0)
+  var seq: Seq[Int]
+  seq(0)
+  seq.apply(0)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var seq: Seq[Int]
-seq.head
-seq.head
+  var seq: Seq[Int]
+  seq.head
+  seq.head
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

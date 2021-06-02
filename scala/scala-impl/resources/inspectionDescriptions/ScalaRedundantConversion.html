@@ -1,5 +1,17 @@
 <html>
-<body>Reports redundant conversion method call (toInt, toString, etc), i.e. when the type of expression is
-the same as the converter method result type. Suggests to remove it.
+<body>Reports redundant conversion method call (toInt, toString, etc).
+
+<p>A conversion is redundant if the conversion doesn't change the type of the collection.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  "Test".toString
+  Seq(1, 2).toSeq
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  "Test".toString
+  Seq(1, 2).toSeq
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

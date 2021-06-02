@@ -3,33 +3,34 @@
 Reports that builtin matchers in specs2 could be used.
 <p><b>Example:</b></p>
 <pre><code>
-class TestSpec extends Specification { def is = s2"""
-  This is a spec
-  opt
-    should contain 1                                  $e1
-                                                      """
-  def e1 = {
+  class TestSpec extends Specification { def is = s2"""
+    This is a spec
+    opt
+      should contain 1                                  $e1
+                                                        """
+    def e1 = {
 
-    val opt = Some(1)
+      val opt = Some(1)
 
-    opt must equalTo (Some(1))
+      opt must equalTo (Some(1))
+    }
   }
-}
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-class TestSpec extends Specification { def is = s2"""
-  This is a spec
-  opt
-    should contain 1                                  $e1
-                                                      """
-  def e1 = {
+  class TestSpec extends Specification { def is = s2"""
+    This is a spec
+    opt
+      should contain 1                                  $e1
+                                                        """
+    def e1 = {
 
-    val opt = Some(1)
+      val opt = Some(1)
 
-    opt must beSome(1)
+      opt must beSome(1)
+    }
   }
-}
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

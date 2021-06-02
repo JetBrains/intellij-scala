@@ -6,13 +6,14 @@ methods and a single appropriate one-argument method. Such conversion may disrup
     results.</p>
 <p><b>Example:</b></p>
 <pre><code>
-def foo(a: Any) = {}
-foo(1, 2)
+  def foo(a: Any) = {}
+  foo(1, 2)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-def foo(a: Any) = {}
-foo((1, 2))
+  def foo(a: Any) = {}
+  foo((1, 2))
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

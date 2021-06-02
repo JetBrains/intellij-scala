@@ -1,10 +1,13 @@
 <html>
-<body>Reports redundant 'val' modifier on case class parameters.
+<body>Reports redundant 'val' modifiers on case class parameters.
 <p><b>Example:</b></p>
 <pre><code>
-case class W (val x: Int)
+  case class W (val x: Int)
 </code></pre>
 <p>After the quick-fix is applied:</p>
-<pre><code>case class W (x: Int)</code></pre>
+<pre><code>
+  case class W (x: Int)
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

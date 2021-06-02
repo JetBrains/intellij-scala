@@ -1,14 +1,15 @@
 <html>
 <body>
-Reports type projections and suggests to convert them into Kind Projector format.
+Reports type projections and suggests to convert them to Kind Projector format.
 <p><b>Example:</b></p>
 <pre><code>
-def a: ({type L[A] = (A, A)})#L
+  def a: ({type L[A] = (A, A)})#L
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-def a: Lambda[A => (A, A)]
+  def a: Lambda[A => (A, A)]
 </code></pre>
+<!-- tooltip end -->
 <p><small>This inspection runs when Kind Projector plugin is enabled.</small></p>
 </body>
 </html>

@@ -1,15 +1,16 @@
 <html>
 <body>
-Reports using <code>filter</code> and <code>headOption</code> and replaces with <code>find</code>.
+Reports using <code>filter</code> and <code>headOption</code> and replaces them with <code>find</code>.
 <p><b>Example:</b></p>
 <pre><code>
-var x: Seq[Int]
-x.filter(p).headOption
+  var x: Seq[Int]
+  x.filter(p).headOption
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Seq[Int]
-x.find(p)
+  var x: Seq[Int]
+  x.find(p)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

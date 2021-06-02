@@ -1,17 +1,18 @@
 <html>
 <body>
-Reports if anonymous function can be converted to eta expansion with or without placeholder, also checks if placeholder can be removed from eta expansion.
+Reports anonymous functions that can be eta expanded and also reports placeholders that can be removed from eta expansions.
 <p><b>Example:</b></p>
 <pre><code>
-def f(x: Any, y: Int): Unit = ()
-val x = f(_, _)
-val y: (Int, Int) => Unit = f _
+  def f(x: Any, y: Int): Unit = ()
+  val x = f(_, _)
+  val y: (Int, Int) => Unit = f _
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-def f(x: Any, y: Int): Unit = ()
-val x = f _
-val y: (Int, Int) => Unit = f
+  def f(x: Any, y: Int): Unit = ()
+  val x = f _
+  val y: (Int, Int) => Unit = f
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

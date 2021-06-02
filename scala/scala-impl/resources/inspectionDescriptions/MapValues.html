@@ -3,15 +3,16 @@
 Reports non-standard methods to extract values from a Map.
 <p><b>Example:</b></p>
 <pre><code>
-val map = Map(1 -> 42)
-map.map(_._2)
-map.map(_._2).toIterator
+  val map = Map(1 -> 42)
+  map.map(_._2)
+  map.map(_._2).toIterator
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-val map = Map(1 -> 42)
-map.values
-map.valuesIterator
+  val map = Map(1 -> 42)
+  map.values
+  map.valuesIterator
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

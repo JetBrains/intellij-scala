@@ -1,19 +1,20 @@
 <html>
 <body>
-Reports if the match statement can be converted to pattern matching anonymous function.
+Reports match statements that can be converted to pattern matching anonymous functions.
 <p><b>Example:</b></p>
 <pre><code>
-iterable.map(value => value match {
-    case Some(value) => whenValue(value)
-    case None => whenNothing()
-})
+  iterable.map(value => value match {
+      case Some(value) => whenValue(value)
+      case None => whenNothing()
+  })
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-iterable.map {
-    case Some(value) => whenValue(value)
-    case None => whenNothing()
-}
+  iterable.map {
+      case Some(value) => whenValue(value)
+      case None => whenNothing()
+  }
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,13 +1,14 @@
 <html>
 <body>
-Reports <code>collection.map(f).flatten(m)</code> and suggests replacing with <code>collection.flatMap</code> if possible.
+Reports <code>collection.map(f).flatten(m)</code> and suggest to replace it with <code>collection.flatMap</code>.
 <p><b>Example:</b></p>
 <pre><code>
-Seq(1, 10).map(i => Seq(i, i + 10)).flatten
+  Seq(1, 10).map(i => Seq(i, i + 10)).flatten
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-Seq(1, 10).flatMap(i => Seq(i, i + 10))
+  Seq(1, 10).flatMap(i => Seq(i, i + 10))
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,21 +1,23 @@
 <html>
 <body>
-Reports <code>filter</code> and suggests to check for emptiness with <code>exists</code> or <code>forall</code>.
+Reports emptiness checks on filtered collections.
+
+<p>The quick-fix uses <code>exists</code> or <code>forall</code> to check for emptiness.</p>
 <p><b>Example:</b></p>
 <pre><code>
-var x: Seq[Int]
-x.filter(p).size == 0
-x.filter(p).length > 0
-x.filterNot(p).isEmpty
-x.filterNot(p).nonEmpty
+  var x: Seq[Int]
+  x.filter(p).size == 0
+  x.filter(p).length > 0
+  x.filterNot(p).isEmpty
+  x.filterNot(p).nonEmpty
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Seq[Int]
-!x.exists(p)
-x.exists(p)
-x.forall(p)
-!x.forall(p)
+  var x: Seq[Int]
+  !x.exists(p)
+  x.exists(p)
+  x.forall(p)
+  !x.forall(p)
 </code></pre>
 </body>
 </html>

@@ -1,14 +1,15 @@
 <html>
 <body>
-Reports using of view bounds and suggests replacing them with implicit parameters.
+Reports usages of view bounds and suggests to replace them with implicit parameters.
 <p>View bounds are deprecated: <a href="https://issues.scala-lang.org/browse/SI-7629">SI-7629</a>.</p>
 <p><b>Example:</b></p>
 <pre><code>
-class Sample[A <% Int]
+  class Sample[A <% Int]
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-class Sample[A]()
+  class Sample[A]()
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

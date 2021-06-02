@@ -1,6 +1,18 @@
 <html>
 <body>
-Reports the 'final' modifier on toplevel objects.
-<p>It is redundant (see Scala specification: https://www.scala-lang.org/files/archive/spec/2.13/05-classes-and-objects.html#final).</p>
+Reports <code>final</code> modifiers on toplevel objects.
+<p>They are redundant according to the <a href="https://www.scala-lang.org/files/archive/spec/2.13/05-classes-and-objects.html#final">Scala specification</a>.</p>
+
+<p>The quick-fix removes the <code>final</code> modifier.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  final object Test
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  object Test
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

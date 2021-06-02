@@ -1,15 +1,16 @@
 <html>
 <body>
-Reports unnecessary gets when getting a value from map given a key.
+Reports unnecessary calls to <code>Map.get</code>/<code>Option.get</code> when getting a value from a map via a key.
 <p><b>Example:</b></p>
 <pre><code>
-val map = Map(1 -> 42)
-map.get(k).get
+  val map = Map(1 -> 42)
+  map.get(k).get
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-val map = Map(1 -> 42)
-map(k)
+  val map = Map(1 -> 42)
+  map(k)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

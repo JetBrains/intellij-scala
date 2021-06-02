@@ -3,13 +3,14 @@
 Reports arrays being passed to print or println and suggests to convert them to proper strings.
 <p><b>Example:</b></p>
 <pre><code>
-var x: Array[Int]
-print(x)
+  var x: Array[Int]
+  print(x)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var x: Array[Int]
-print(x.mkString("Array(", ", ", ")"))
+  var x: Array[Int]
+  print(x.mkString("Array(", ", ", ")"))
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

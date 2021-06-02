@@ -1,13 +1,27 @@
 <html>
-<body>The convention is that method includes parentheses if it has <a
-        href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>. While it's possible to
-leave out empty parentheses in method calls (to adapt the <a
-        href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a> to Java), it's
-recommended to still write the empty parentheses when the invoked method represents more than a property of its receiver
-object.
+<body>
+Reports calls without argument clauses referring to methods with an empty parameter clause.
 
-<br><br>
-<small>* Refer to Programming in Scala, 10.3 Defining parameterless methods</small>
+<p>The convention is that a method should have parentheses if it has
+    <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+    While it is possible to leave out argument clauses in method calls
+    (to adapt the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a> for Java),
+    it is recommended to still add one empty argument clause when the invoked method represents more than a property.</p>
 
+<p>The quick-fix adds an empty argument clause.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  def test(): Int = ???
+
+  test
+</code></pre>
+<p>After the quick-fixes are applied:</p>
+<pre><code>
+  def test(): Int = ???
+
+  test()
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

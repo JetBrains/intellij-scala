@@ -1,15 +1,20 @@
 <html>
 <body>
-Reports using <code>exists</code> or <code>forall</code> with and replaces with <code>contains</code> if possible.
+Reports using <code>exists</code> or <code>forall</code> to search for a specific element.
+
+
+<p>The quick-fix uses <code>contains</code> instead.</p>
+
 <p>Example:</p>
 <pre><code>
-set.exists(x => x == "a")
-set.forall(x => x != "a")
+  set.exists(x => x == "a")
+  set.forall(x => x != "a")
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-set.contains("a")
-!set.contains("a")
+  set.contains("a")
+  !set.contains("a")
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,23 +1,25 @@
 <html>
 <body>
-Reports when <code>headOption</code> or <code>lastOption</code> is emulated, suggests to actually use <code>headOption</code> or <code>lastOption</code> instead.
+Reports when <code>headOption</code> or <code>lastOption</code> is emulated.
+
 <p><b>Example:</b></p>
 <pre><code>
-var seq: Seq[Int]
-if (seq.nonEmpty) Some(seq.head) else None
-seq.lift(0)
+  var seq: Seq[Int]
+  if (seq.nonEmpty) Some(seq.head) else None
+  seq.lift(0)
 
-if (seq.size == 0) None else seq.lastOption
-seq.lift(seq.size - 1)
+  if (seq.size == 0) None else seq.lastOption
+  seq.lift(seq.size - 1)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var seq: Seq[Int]
-seq.headOption
-seq.headOption
+  var seq: Seq[Int]
+  seq.headOption
+  seq.headOption
 
-seq.lastOption
-seq.lastOption
+  seq.lastOption
+  seq.lastOption
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

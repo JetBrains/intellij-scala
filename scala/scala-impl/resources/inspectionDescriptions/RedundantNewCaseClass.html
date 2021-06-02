@@ -1,16 +1,19 @@
 <html xmlns="http://www.w3.org/1999/html">
 <body>
 Reports <code>new</code> used to instantiate case classes and suggests to remove it.
-<p><code>apply</code>method is automatically provided on case classes.</p>
+
+<p>An <code>apply</code>-method is automatically provided for case classes.</p>
+
 <p><b>Example:</b></p>
 <pre><code>
-case class Book(isbn: String)
-val frankenstein = new Book("111-1111111111")
+  case class Book(isbn: String)
+  val guide = new Book("978-0345391803")
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-case class Book(isbn: String)
-val frankenstein = Book("111-1111111111")
+  case class Book(isbn: String)
+  val guide = Book("978-0345391803")
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

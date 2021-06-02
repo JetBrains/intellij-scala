@@ -1,15 +1,19 @@
 <html>
 <body>
-Reports if argument in the method call is the same as default one and suggests to remove it.
+Reports arguments that have the same value as the default ones.
+
+<p>The quick-fix will remove the redundant conversions.</p>
+
 <p><b>Example:</b></p>
 <pre><code>
-def f(x: Int, y: Int = 0, z: Int) {}
-f(1, y = 0, z = 1)
+  def f(x: Int, y: Int = 0, z: Int) {}
+  f(1, y = 0, z = 1)
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-def f(x: Int, y: Int = 0, z: Int) {}
-f(1, z = 1)
+  def f(x: Int, y: Int = 0, z: Int) {}
+  f(1, z = 1)
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,31 +1,32 @@
 <html>
 <body>
-Reports comparing <code>.length</code> or <code>.size</code> and suggests replacing with <code>.sizeIs</code>.
+Reports comparing <code>.length</code> or <code>.size</code> and suggests to replace it with <code>.sizeIs</code>.
 <p><b>Example:</b></p>
 <pre><code>
-var seq: Seq[Int]
-seq.length == n
-seq.length != n
-seq.length < n
-seq.length > n
+  var seq: Seq[Int]
+  seq.length == n
+  seq.length != n
+  seq.length < n
+  seq.length > n
 
-seq.size == n
-seq.size != n
-seq.size < n
-seq.size > n
+  seq.size == n
+  seq.size != n
+  seq.size < n
+  seq.size > n
 </code></pre>
 <p>After the quick-fix is applied:</p>
 <pre><code>
-var seq: Seq[Int]
-seq.sizeIs == n
-seq.sizeIs != n
-seq.sizeIs < n
-seq.sizeIs > n
+  var seq: Seq[Int]
+  seq.sizeIs == n
+  seq.sizeIs != n
+  seq.sizeIs < n
+  seq.sizeIs > n
 
-seq.sizeIs == n
-seq.sizeIs != n
-seq.sizeIs < n
-seq.sizeIs > n
+  seq.sizeIs == n
+  seq.sizeIs != n
+  seq.sizeIs < n
+  seq.sizeIs > n
 </code></pre>
+<!-- tooltip end -->
 </body>
 </html>

@@ -1,11 +1,33 @@
 <html>
-<body>The convention is that you include parentheses if the method has <a
-        href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>. In accordance with <a
-        href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>, as
-overridden method is empty-paren, the overriding method must also be declared as a method with side effects.
+<body>
+Reports methods without parameter clauses that override methods with empty parameter clauses.
 
-<br><br>
-<small>* Refer to Programming in Scala, 5.3 Operators are methods</small>
+<p>The convention is that a method should have parentheses if it has
+    <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>.
+    In accordance with the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>,
+    when an overridden method has a parameter clause, indicating a side effect,
+    the overriding method must also be declared as a method with side effects.</p>
 
+<p>The quick-fix adds an empty parameter clause.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  class Base {
+    def x() = 1
+  }
+  class Impl extends Base {
+    override def x = 2
+  }
+</code></pre>
+<p>After the quick-fixes are applied:</p>
+<pre><code>
+  class Base {
+    def x() = 1
+  }
+  class Impl extends Base {
+    override def x() = 2
+  }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>

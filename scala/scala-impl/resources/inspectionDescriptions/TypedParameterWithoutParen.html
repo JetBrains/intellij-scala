@@ -1,19 +1,17 @@
 <html>
 <body>
-In Dotty, a function literal's parameter clause with one typed parameter must be surrounded by parenthesis.
+Reports function literal parameters that are not surrounded by parenthesis.
 
-<p>
-Before:
-<pre>
-call { a: Int => a }
-</pre>
+<p>In Scala 3, a function literal with only one parameter cannot omit the parenthesis around the parameter.</p>
 
-<br>
-After:
-<pre>
-call { (a: Int) => a }
-</pre>
-</p>
-
+<p><b>Example:</b></p>
+<pre><code>
+  call { a: Int => a }
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  call { (a: Int) => a }
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
