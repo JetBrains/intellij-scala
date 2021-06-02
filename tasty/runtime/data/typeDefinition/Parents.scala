@@ -52,4 +52,88 @@ trait Parents {
   object Object6 extends ValueParameter(???)
 
   object Object7 extends TypeAndValueParameter[Int](???)
+
+  enum Enum1 extends NoParameters {
+    case Case
+  }
+
+  enum Enum2 extends TypeParameter[Int] {
+    case Case
+  }
+
+  enum Enum3 extends TypeParameters[Int, Long] {
+    case Case
+  }
+
+  enum Enum4 extends NoParameters with TypeParameter[Int] {
+    case Case
+  }
+
+  enum Enum5 extends NoParameters with TypeParameter[Int] with TypeParameters[Int, Long] {
+    case Case
+  }
+
+  enum Enum6 extends ValueParameter(???) {
+    case Case
+  }
+
+  enum Enum7 extends TypeAndValueParameter[Int](???) {
+    case Case
+  }
+
+  enum EnumCaseObject1 {
+    case CaseObject extends EnumCaseObject1 with NoParameters
+  }
+
+  enum EnumCaseObject2 {
+    case CaseObject extends EnumCaseObject2 with TypeParameter[Int]
+  }
+
+  enum EnumCaseObject3 {
+    case CaseObject extends EnumCaseObject3 with TypeParameters[Int, Long]
+  }
+
+  enum EnumCaseObject4 {
+    case CaseObject extends EnumCaseObject4 with NoParameters with TypeParameter[Int]
+  }
+
+  enum EnumCaseObject5 {
+    case CaseObject extends EnumCaseObject5 with NoParameters with TypeParameter[Int] with TypeParameters[Int, Long]
+  }
+
+  enum EnumCaseObject6 {
+    case CaseObject extends EnumCaseObject6 with ValueParameter(???)
+  }
+
+  enum EnumCaseObject7 {
+    case CaseObject extends EnumCaseObject7 with TypeAndValueParameter[Int](???)
+  }
+
+  enum EnumCaseClass1 {
+    case CaseClass() extends EnumCaseClass1 with NoParameters
+  }
+
+  enum EnumCaseClass2 {
+    case CaseClass() extends EnumCaseClass2 with TypeParameter[Int]
+  }
+
+  enum EnumCaseClass3 {
+    case CaseClass() extends EnumCaseClass3 with TypeParameters[Int, Long]
+  }
+
+  enum EnumCaseClass4 {
+    case CaseClass() extends EnumCaseClass4 with NoParameters with TypeParameter[Int]
+  }
+
+  enum EnumCaseClass5 {
+    case CaseClass() extends EnumCaseClass5 with NoParameters with TypeParameter[Int] with TypeParameters[Int, Long]
+  }
+
+  enum EnumCaseClass6 {
+    case CaseClass() extends EnumCaseClass6 with ValueParameter(???)
+  }
+
+  enum EnumCaseClass7 {
+    case CaseClass() extends EnumCaseClass7 with TypeAndValueParameter[Int](???)
+  }
 }

@@ -1,5 +1,7 @@
 package member
 
 trait Val {
-  val value: Int
+  val declaration: Int
+
+  val definition: Int = ???
 }

@@ -13,6 +13,8 @@ trait Modifiers {
 
   open class OpenClass
 
+  case class CaseClass()
+
   private trait PrivateTrait
 
   protected trait ProtectedTrait
@@ -28,4 +30,30 @@ trait Modifiers {
   protected object ProtectedObject
 
   implicit object ImplicitObject
+
+  case object CaseObject
+
+  private enum PrivateEnum {
+    case Case
+  }
+
+  protected enum ProtectedEnum {
+    case Case
+  }
+
+  enum PrivateEnumCaseObject {
+    private case Object
+  }
+
+  enum ProtectedEnumCaseObject {
+    protected case Object
+  }
+
+  enum PrivateEnumCaseClass {
+    private case Class()
+  }
+
+  enum ProtectedEnumCaseClass {
+    protected case Class()
+  }
 }

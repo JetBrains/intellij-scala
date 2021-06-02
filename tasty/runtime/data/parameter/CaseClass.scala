@@ -1,4 +1,4 @@
-package typeDefinition
+package parameter
 
 trait CaseClass {
   case class EmptyClause()

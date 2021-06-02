@@ -1,5 +1,7 @@
 package member
 
 trait Var {
-  var variable: Int
+  var declaration: Int
+
+  var definition: Int = ???
 }

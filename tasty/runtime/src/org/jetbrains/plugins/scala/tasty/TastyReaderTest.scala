@@ -13,21 +13,24 @@ object TastyReaderTest {
 
   def main(args: Array[String]): Unit =
     Seq(
-      "member/Constructor",
       "member/Def",
       "member/Modifiers",
+      "member/This",
       "member/Val",
       "member/Var",
 //      "package1/package2/Chained",
 //      "package1/package2/Flat",
       "parameter/Bounds",
+      "parameter/CaseClass",
       "parameter/Class",
       "parameter/Def",
+      "parameter/Enum",
+      "parameter/EnumCaseClass",
       "parameter/Trait",
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
-      "typeDefinition/CaseClass",
       "typeDefinition/Class",
+      "typeDefinition/Enum",
       "typeDefinition/ImplicitClass",
       "typeDefinition/Members",
       "typeDefinition/Modifiers",
@@ -64,7 +67,7 @@ object TastyReaderTest {
 
         Files.write(Path.of(actualFile), actual.getBytes)
       } else {
-        if (exists(actual)) {
+        if (exists(actualFile)) {
           Files.delete(Path.of(actualFile))
         }
       }

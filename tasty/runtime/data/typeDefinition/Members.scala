@@ -20,4 +20,10 @@ trait Members {
   class Trait {
     def member: Int = ???
   }
+
+  enum Enum {
+    def member: Int = ???
+
+    case Case
+  }
 }

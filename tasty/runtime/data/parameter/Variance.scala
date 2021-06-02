@@ -8,4 +8,20 @@ trait Variance {
   trait TraitCovariant[+A]
 
   trait TraitContravariant[-A]
+
+  enum EnumCovariant[+A] {
+    case Case
+  }
+
+  enum EnumContravariant[+A] {
+    case Case
+  }
+
+  enum EnumCaseClassCovariant {
+    case Class[+A]()
+  }
+
+  enum EnumCaseClassContravariant {
+    case Class[+A]()
+  }
 }
