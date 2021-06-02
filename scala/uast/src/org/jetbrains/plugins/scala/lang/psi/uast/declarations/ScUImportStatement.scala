@@ -42,7 +42,7 @@ final class ScUImportStatement(override protected val scElement: ScImportStmt,
     for {
       importExpr <- single(scElement.importExprs)
       singleRef <- importExpr.reference
-        .filter(_ => importExpr.selectors.isEmpty) // a.b
+        .filter(_ => importExpr.selectors.forall(_.isWildcardSelector)) // a.b
         .orElse(single(importExpr.selectors).flatMap(_.reference)) // a.{b}
     } yield singleRef
 

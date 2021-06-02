@@ -431,23 +431,23 @@ trait TreeAdapter {
   }
 
   def imports(t: p.toplevel.imports.ScImportExpr):m.Importer = {
-    def selector(sel: p.toplevel.imports.ScImportSelector): m.Importee = {
-      val importedName = sel.importedName.getOrElse {
-        throw new AbortException(ScalaMetaBundle.message("imported.name.is.null"))
-      }
-      val reference = sel.reference.getOrElse {
-        throw new AbortException(ScalaMetaBundle.message("reference.is.null"))
-      }
+    def selector(sel: p.toplevel.imports.ScImportSelector): m.Importee =
+      if (sel.isWildcardSelector) m.Importee.Wildcard()
+      else {
+        val importedName = sel.importedName.getOrElse {
+          throw new AbortException(ScalaMetaBundle.message("imported.name.is.null"))
+        }
+        val reference = sel.reference.getOrElse {
+          throw new AbortException(ScalaMetaBundle.message("reference.is.null"))
+        }
 
-      if (sel.isAliasedImport && importedName == "_")
-        m.Importee.Unimport(ind(reference))
-      else if (sel.isWildcardSelector)
-        m.Importee.Wildcard()
-      else if (sel.isAliasedImport)
-        m.Importee.Rename(m.Name.Indeterminate(reference.qualName), m.Name.Indeterminate(importedName))
-      else
-        m.Importee.Name(m.Name.Indeterminate(importedName))
-    }
+        if (sel.isAliasedImport && importedName == "_")
+          m.Importee.Unimport(ind(reference))
+        else if (sel.isAliasedImport)
+          m.Importee.Rename(m.Name.Indeterminate(reference.qualName), m.Name.Indeterminate(importedName))
+        else
+          m.Importee.Name(m.Name.Indeterminate(importedName))
+      }
     if (t.selectors.nonEmpty) {
       val importees = t.selectors.map(selector).toList
       m.Importer(getQualifier(t.qualifier.get), importees)
