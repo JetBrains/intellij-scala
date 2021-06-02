@@ -1704,7 +1704,7 @@
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.specs2.matchers"
-                         shortName="Specs2Matchers" groupKey="group.specs2" groupPath="Scala,Specs2"
+                         shortName="Specs2Matchers" groupKey="group.specs2" groupPath="Scala"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
         <!-- end of inspections -->
 
