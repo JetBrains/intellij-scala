@@ -6,11 +6,11 @@ trait Modifiers {
   class ProtectedPrimaryConstructor protected ()
 
   class PrivateAuxilliaryConstructor {
-    private def this(x: Int) = /*???*/this()/**/
+    private def this(x: Int) = /**/this()/*???*/
   }
 
   class ProtectedAuxilliaryConstructor {
-    protected def this(x: Int) = /*???*/this()/**/
+    protected def this(x: Int) = /**/this()/*???*/
   }
 
   private def privateDef: Int = ???

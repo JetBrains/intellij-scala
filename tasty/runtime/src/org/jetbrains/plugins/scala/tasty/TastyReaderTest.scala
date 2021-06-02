@@ -49,7 +49,7 @@ object TastyReaderTest {
       val actual = textOf(tree)
 
       val expected = new String(readBytes(scalaFile))
-        .replaceAll(raw"/\*(.*)\*/.*/\*\*/", "$1")
+        .replaceAll(raw"/\*\*/.*/\*(.*)\*/", "$1")
 
       val actualFile = scalaFile.replaceFirst("\\.scala", ".actual")
 
