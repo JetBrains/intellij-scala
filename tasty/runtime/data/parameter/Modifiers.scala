@@ -1,9 +1,9 @@
 package parameter
 
 trait Modifiers {
-  class ClassUsing(using x: Int, y: Int)
+  class ClassUsing(using x: Int, y: Long)
 
-  class ClassImplicit(implicit x: Int, y: Int)
+  class ClassImplicit(implicit x: Int, y: Long)
 
   class ClassVal(val x: Int)
 
@@ -17,9 +17,9 @@ trait Modifiers {
 
   class ClassOverride(override val hashCode: Int)
 
-  trait TraitUsing(using x: Int, y: Int)
+  trait TraitUsing(using x: Int, y: Long)
 
-  trait TraitImplicit(implicit x: Int, y: Int)
+  trait TraitImplicit(implicit x: Int, y: Long)
 
   class TraitVal(val x: Int)
 
@@ -33,9 +33,9 @@ trait Modifiers {
 
   class TraitOverride(override val hashCode: Int)
 
-  def defUsing(using x: Int, y: Int): Unit
+  def defUsing(using x: Int, y: Long): Unit
 
-  def defImplicit(implicit x: Int, y: Int): Unit
+  def defImplicit(implicit x: Int, y: Long): Unit
 
   enum EnumVal(val x: Int) {
     case Case extends EnumVal/**/(1)/**/

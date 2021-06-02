@@ -7,13 +7,13 @@ trait Def {
 
   def valueParameter(x: Int): Unit
 
-  def valueParameters(x: Int, y: Int): Unit
+  def valueParameters(x: Int, y: Long): Unit
 
   def noClause: Unit
 
   def emptyClause(): Unit
 
-  def multipleClauses(x: Int)(y: Int): Unit
+  def multipleClauses(x: Int)(y: Long): Unit
 
   def typeAndValueParameters[A](x: Int): Unit
 }

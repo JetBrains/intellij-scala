@@ -14,7 +14,7 @@ trait EnumCaseClass {
   }
 
   enum ValueParameters {
-    case Class(x: Int, y: Int)
+    case Class(x: Int, y: Long)
   }
 
   enum EmptyClause {
@@ -22,7 +22,7 @@ trait EnumCaseClass {
   }
 
   enum MultipleClauses {
-    case Class(x: Int)(y: Int)
+    case Class(x: Int)(y: Long)
   }
 
   enum TypeAndValueParameters {

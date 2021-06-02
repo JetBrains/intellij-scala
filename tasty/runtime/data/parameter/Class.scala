@@ -7,11 +7,11 @@ trait Class {
 
   class ValueParameter(x: Int)
 
-  class ValueParameters(x: Int, y: Int)
+  class ValueParameters(x: Int, y: Long)
 
   class EmptyClause/**/()/**/
 
-  class MultipleClauses(x: Int)(y: Int)
+  class MultipleClauses(x: Int)(y: Long)
 
   class TypeAndValueParameters[A](x: Int)
 }

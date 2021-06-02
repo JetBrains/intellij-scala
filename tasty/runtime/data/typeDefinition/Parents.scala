@@ -9,9 +9,9 @@ trait Parents {
 
   trait ValueParameter(x: Int)
 
-  trait ValueParameters(x: Int, y: Int)
+  trait ValueParameters(x: Int, y: Long)
 
-  trait MultipleClauses(x: Int)(y: Int)
+  trait MultipleClauses(x: Int)(y: Long)
 
   trait TypeAndValueParameter[A](x: Int)
 
@@ -27,9 +27,9 @@ trait Parents {
 
   class Class6 extends ValueParameter/**/(1)/**/
 
-  class Class7 extends ValueParameters/**/(1, 2)/**/
+  class Class7 extends ValueParameters/**/(1, 2L)/**/
 
-  class Class8 extends MultipleClauses/**/(1)(2)/**/
+  class Class8 extends MultipleClauses/**/(1)(2L)/**/
 
   class Class9 extends TypeAndValueParameter[Int]/**/(1)/**/
 
@@ -63,9 +63,9 @@ trait Parents {
 
   object Object6 extends ValueParameter/**/(1)/**/
 
-  object Object7 extends ValueParameters/**/(1, 2)/**/
+  object Object7 extends ValueParameters/**/(1, 2L)/**/
 
-  object Object8 extends MultipleClauses/**/(1)(2)/**/
+  object Object8 extends MultipleClauses/**/(1)(2L)/**/
 
   object Object9 extends TypeAndValueParameter[Int]/**/(1)/**/
 
@@ -93,11 +93,11 @@ trait Parents {
     case Case
   }
 
-  enum Enum7 extends ValueParameters/**/(1, 2)/**/ {
+  enum Enum7 extends ValueParameters/**/(1, 2L)/**/ {
     case Case
   }
 
-  enum Enum8 extends MultipleClauses/**/(1)(2)/**/ {
+  enum Enum8 extends MultipleClauses/**/(1)(2L)/**/ {
     case Case
   }
 
@@ -130,11 +130,11 @@ trait Parents {
   }
 
   enum EnumCaseObject7 {
-    case CaseObject extends EnumCaseObject7 with ValueParameters/**/(1, 2)/**/
+    case CaseObject extends EnumCaseObject7 with ValueParameters/**/(1, 2L)/**/
   }
 
   enum EnumCaseObject8 {
-    case CaseObject extends EnumCaseObject8 with MultipleClauses/**/(1)(2)/**/
+    case CaseObject extends EnumCaseObject8 with MultipleClauses/**/(1)(2L)/**/
   }
 
   enum EnumCaseObject9 {
@@ -166,11 +166,11 @@ trait Parents {
   }
 
   enum EnumCaseClass7 {
-    case CaseClass() extends EnumCaseClass7 with ValueParameters/**/(1, 2)/**/
+    case CaseClass() extends EnumCaseClass7 with ValueParameters/**/(1, 2L)/**/
   }
 
   enum EnumCaseClass8 {
-    case CaseClass() extends EnumCaseClass8 with MultipleClauses/**/(1)(2)/**/
+    case CaseClass() extends EnumCaseClass8 with MultipleClauses/**/(1)(2L)/**/
   }
 
   enum EnumCaseClass9 {

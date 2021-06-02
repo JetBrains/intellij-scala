@@ -7,11 +7,11 @@ trait Trait {
 
   trait ValueParameter(x: Int)
 
-  trait ValueParameters(x: Int, y: Int)
+  trait ValueParameters(x: Int, y: Long)
 
   trait EmptyClause/**/()/**/
 
-  trait MultipleClauses(x: Int)(y: Int)
+  trait MultipleClauses(x: Int)(y: Long)
 
   trait TypeAndValueParameters[A](x: Int)
 }
