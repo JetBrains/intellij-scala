@@ -82,22 +82,21 @@ public class AttachIntellijSourcesAction extends AnAction {
                 Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(maybeSourcesZip.get(), indicator);
 
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    ijLibraries.stream()
-                            .filter(LibraryEx.class::isInstance)
-                            .map(LibraryEx.class::cast)
-                            .forEach(library -> application.runWriteAction(addLibrary(library, roots, indicator)));
+                    application.runWriteAction(() ->
+                            ijLibraries.stream()
+                                    .filter(LibraryEx.class::isInstance)
+                                    .map(LibraryEx.class::cast)
+                                    .forEach(library -> addLibrary(library, roots, indicator)));
                     LOG.info("Finished attaching IDEA sources");
                 });
             }
 
-            private Runnable addLibrary(LibraryEx library, Collection<VirtualFile> roots, ProgressIndicator indicator) {
-                return () -> {
-                    if (library.isDisposed()) return;
-                    indicator.checkCanceled();
-                    Library.ModifiableModel model = library.getModifiableModel();
-                    roots.forEach(file -> model.addRoot(file, OrderRootType.SOURCES));
-                    model.commit();
-                };
+            private void addLibrary(LibraryEx library, Collection<VirtualFile> roots, ProgressIndicator indicator) {
+                if (library.isDisposed()) return;
+                indicator.checkCanceled();
+                Library.ModifiableModel model = library.getModifiableModel();
+                roots.forEach(file -> model.addRoot(file, OrderRootType.SOURCES));
+                model.commit();
             }
         }.queue();
     }
