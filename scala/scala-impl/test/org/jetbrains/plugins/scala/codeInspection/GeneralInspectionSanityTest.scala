@@ -14,6 +14,9 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
   def acquireAllScalaInspectionEPs(): Seq[LocalInspectionEP] =
     acquireAllInspectionEPs().filter(ep => ep.language == "Scala" || Option(ep.groupPath).exists(_.toLowerCase.contains("scala")))
 
+  def getDescription(inspectionEP: LocalInspectionEP): String =
+    new LocalInspectionToolWrapper(inspectionEP).loadDescription()
+
   def test_no_lowercase_language_used(): Unit = {
     assert(!acquireAllInspectionEPs()
       .flatMap(insp => Option(insp.language))
@@ -23,8 +26,7 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
   def test_all_inspections_have_descriptions(): Unit = {
     val inspectionsWithoutProperDescription =
       acquireAllScalaInspectionEPs().filter { inspectionEP =>
-        val inspectionWrapper = new LocalInspectionToolWrapper(inspectionEP)
-        val description = inspectionWrapper.loadDescription()
+        val description = getDescription(inspectionEP)
         description == null ||
           description.length <= 5
       }.sortBy(_.getShortName)
@@ -41,6 +43,32 @@ class GeneralInspectionSanityTest extends SimpleTestCase {
     scalaShortNames.foreach { scalaShortName =>
       assert(allShortNames(scalaShortName) == 1, s"shortName $scalaShortName exists multiple times!")
     }
+  }
+
+  def test_all_inspection_descriptions_have_tooltip_end(): Unit = {
+    val inspectionsWithoutProperDescription =
+      acquireAllScalaInspectionEPs().filterNot { inspectionEP =>
+        getDescription(inspectionEP).contains("<!-- tooltip end -->")
+      }.sortBy(_.getShortName)
+        .map(insp => s"${insp.getShortName} (${insp.getDisplayName})")
+
+    assert(inspectionsWithoutProperDescription.isEmpty,
+      s"The following inspection's description files don't have <!-- tooltip end -->:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
+  }
+
+  def test_all_inspection_code_blocks_are_indented_by_at_least_two_space(): Unit = {
+    val regex = raw"""<pre><code>((.|\n)*)</pre></code>""".r
+    val inspectionsWithoutProperDescription =
+      acquireAllScalaInspectionEPs().filterNot { inspectionEP =>
+        regex.findAllMatchIn(getDescription(inspectionEP)).forall { aMatch =>
+          val code = aMatch.group(1)
+          code.linesIterator.forall(s => s.isBlank || s.startsWith("  "))
+        }
+      }.sortBy(_.getShortName)
+        .map(insp => s"${insp.getShortName} (${insp.getDisplayName})")
+
+    assert(inspectionsWithoutProperDescription.isEmpty,
+      s"The following inspection's description files have code blocks with wrong indentation:\n  ${inspectionsWithoutProperDescription.mkString(",\n  ")}")
   }
 
   /*

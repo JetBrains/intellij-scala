@@ -1,5 +1,21 @@
 <html>
-<body>Reports tail recursive methods without <code>@tailrec</code> annotation which verifies that the method will be compiled with
+<body>
+Reports tail recursive methods without <code>@tailrec</code> annotation which verifies that the method will be compiled with
 tail call optimization.
+
+<p>Note that a method must be effectively <code>final</code> for this inspection to be shown.</p>
+
+<p><b>Example:</b></p>
+<pre><code>
+  def factorial(n: Long, acc: Long = 1): Long =
+    if (n <= 1) acc else factorial(n - 1, acc * n)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  @tailrec
+  def factorial(n: Long, acc: Long = 1): Long =
+    if (n <= 1) acc else factorial(n - 1, acc * n)
+</code></pre>
+<!-- tooltip end -->
 </body>
 </html>
