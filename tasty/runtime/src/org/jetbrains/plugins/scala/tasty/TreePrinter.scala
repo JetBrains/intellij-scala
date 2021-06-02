@@ -39,7 +39,7 @@ object TreePrinter {
         if (definition.exists(_.hasFlag(ENUM))) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
         else Seq.empty
       val members = (children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases) // TODO type member
-        .map(textOf(_)).filter(_.nonEmpty).map(indent).mkString("\n\n")
+        .map(textOf(_, definition)).filter(_.nonEmpty).map(indent).mkString("\n\n")
       (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
         (if (parents.isEmpty) "" else " extends " + parents.mkString(" with ")) +
         (if (members.isEmpty) "" else " {\n" + members + "\n}")
@@ -61,7 +61,7 @@ object TreePrinter {
       val template = // TODO check element types
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
-      modifiersIn(node) + (if (isCase) name +  template else
+      if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node) + (if (isCase) name +  template else
         (if (node.hasFlag(MUTABLE)) "var " else "val ") + name + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
 
     // TODO method?

@@ -11,7 +11,9 @@ import scala.collection.mutable
 // TODO Convert ./data to test data
 object TastyReaderTest {
 
-  def main(args: Array[String]): Unit =
+  def main(args: Array[String]): Unit = {
+    var passed, failed = 0
+
     Seq(
       "member/Def",
       "member/Modifiers",
@@ -30,6 +32,7 @@ object TastyReaderTest {
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
       "typeDefinition/Class",
+      "typeDefinition/Companions",
       "typeDefinition/Enum",
       "typeDefinition/ImplicitClass",
       "typeDefinition/Members",
@@ -61,17 +64,20 @@ object TastyReaderTest {
         println(expected)
         println("---")
         println("")
-//        println(new String(readBytes(tastyFile.replaceFirst("\\.tasty", ".tree"))))
-
         Files.write(Path.of(actualFile), actual.getBytes)
+        failed += 1
       } else {
         if (exists(actualFile)) {
           Files.delete(Path.of(actualFile))
         }
+        passed += 1
       }
 
 //      Assert.assertEquals(scalaFile, expected, actual)
     }
+    if (failed == 0) println(s"Passed: $passed")
+    else Console.err.println(s"Passed: $passed, failed: $failed")
+  }
 
   private def assertExists(path: String): Unit = assert(exists(path), path)
 
