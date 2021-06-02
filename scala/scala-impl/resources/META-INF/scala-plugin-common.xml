@@ -812,11 +812,6 @@
                          key="displayname.unused.symbol"
                          groupPath="Scala" groupKey="group.general" shortName="ScalaUnusedSymbol"
                          level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.defaultFileTemplateInspection.ScalaDefaultFileTemplateUsageInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.default.file.template.inspection"
-                         groupPath="Scala" groupKey="group.general" shortName="ScalaDefaultFileTemplateUsage"
-                         id="ScalaDefaultFileTemplateUsage" level="WARNING" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorUseCorrectLambdaKeywordInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.in.kind.projector.use.correct.lambda.keyword"
