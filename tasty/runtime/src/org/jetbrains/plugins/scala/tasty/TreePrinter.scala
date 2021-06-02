@@ -44,7 +44,7 @@ object TreePrinter {
         (if (parents.isEmpty) "" else " extends " + parents.mkString(" with ")) +
         (if (members.isEmpty) "" else " {\n" + members + "\n}")
 
-    case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) =>
+    case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !name.contains("$default$") => // TODO why it's not synthetic?
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
@@ -70,7 +70,6 @@ object TreePrinter {
     case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => textOf(constructor) + "[" + arguments.map(textOf(_)).mkString(", ") + "]"
 
     case _ => ""
-
   }
 
   private def indent(s: String): String = s.split("\n").map(s => if (s.forall(_.isWhitespace)) "" else "  " + s).mkString("\n") // TODO use indent: Int parameter instead
@@ -145,13 +144,16 @@ object TreePrinter {
             if (valueParam.hasFlag(MUTABLE)) {
               params += "var "
             } else {
-              if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.size == 1)) {
+              if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.forall(_.is(CASEaccessor, HASDEFAULT)))) {
                 params += "val "
               }
             }
           }
         }
         params += name + ": " + textOf(children.head)
+        if (node.hasFlag(HASDEFAULT)) {
+          params += " = ???" // TODO parameter, /* compiled code */
+        }
         next = true
       case _ =>
     }

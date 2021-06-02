@@ -26,6 +26,7 @@ object TastyReaderTest {
       "parameter/CaseClass",
       "parameter/Class",
       "parameter/Def",
+      "parameter/DefaultArguments",
       "parameter/Enum",
       "parameter/EnumCaseClass",
       "parameter/Trait",
@@ -75,8 +76,8 @@ object TastyReaderTest {
 
 //      Assert.assertEquals(scalaFile, expected, actual)
     }
-    if (failed == 0) println(s"Passed: $passed")
-    else Console.err.println(s"Passed: $passed, failed: $failed")
+    if (failed == 0) println(s"Tests passed: $passed")
+    else Console.err.println(s"Tests passed: $passed, failed: $failed")
   }
 
   private def assertExists(path: String): Unit = assert(exists(path), path)
