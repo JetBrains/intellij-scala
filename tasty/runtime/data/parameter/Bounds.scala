@@ -5,19 +5,19 @@ trait Bounds {
 
   class ClassUpperBound[A <: Int]
 
-  class ClassLowerAndUpperBounds[A >: Int <: Int]
+  class ClassLowerAndUpperBounds[A >: Int <: AnyVal]
 
   trait TraitLowerBound[A >: Int]
 
   trait TraitUpperBound[A <: Int]
 
-  trait TraitLowerAndUpperBounds[A >: Int <: Int]
+  trait TraitLowerAndUpperBounds[A >: Int <: AnyVal]
 
   def defLowerBound[A >: Int]: Unit
 
   def defUpperBound[A <: Int]: Unit
 
-  def defLowerAndUpperBounds[A >: Int <: Int]: Unit
+  def defLowerAndUpperBounds[A >: Int <: AnyVal]: Unit
 
   enum EnumLowerBound[A >: Int] {
     case Case extends EnumLowerBound[Int]
@@ -27,7 +27,7 @@ trait Bounds {
     case Case extends EnumUpperBound[Int]
   }
 
-  enum EnumLowerAndUpperBounds[A >: Int <: Int] {
+  enum EnumLowerAndUpperBounds[A >: Int <: AnyVal] {
     case Case extends EnumLowerAndUpperBounds[Int]
   }
 
@@ -40,6 +40,6 @@ trait Bounds {
   }
 
   enum EnumCaseClassLowerAndUpperBounds {
-    case CaseClass[A >: Int <: Int]()
+    case CaseClass[A >: Int <: AnyVal]()
   }
 }
