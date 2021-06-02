@@ -5,15 +5,14 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.source3.Source3Inspection._
-import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
+import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScNamingPattern, ScSeqWildcardPattern}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScSequenceArg, ScWildcardTypeElement}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScWildcardTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScGenerator, ScMethodCall, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.types.ScCompoundType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 class Source3Inspection extends AbstractRegisteredInspection {
@@ -30,14 +29,14 @@ class Source3Inspection extends AbstractRegisteredInspection {
       case ScWildcardTypeElementUnderscore(wildcardTypeElement, underscore) =>
         super.problemDescriptor(
           underscore,
-          createReplacingQuickFix(wildcardTypeElement, "Replace with ?") { e =>
+          createReplacingQuickFix(wildcardTypeElement, ScalaInspectionBundle.message("replace.with.questionmark")) { e =>
             ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
           }
         )
       case gen@ScGenerator(pattern, Some(expr)) if gen.caseKeyword.isEmpty && !pattern.isIrrefutableFor(expr.`type`().toOption)=>
         super.problemDescriptor(
           pattern,
-          createReplacingQuickFix(gen, "Add 'case'") { gen =>
+          createReplacingQuickFix(gen, ScalaInspectionBundle.message("add.case")) { gen =>
             ScalaPsiElementFactory.createExpressionFromText(s"for { case ${gen.getText} } ()")(gen)
               .asInstanceOf[ScFor].enumerators.head.generators.head
           }
@@ -46,14 +45,14 @@ class Source3Inspection extends AbstractRegisteredInspection {
                                                   element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT) =>
         super.problemDescriptor(
           element,
-          createReplacingQuickFix(element, "Replace with *") { underscore =>
+          createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.star")) { underscore =>
             ScalaPsiElementFactory.createImportFromTextWithContext("import a.*", underscore.getContext, null).lastLeaf
           }
         )
       case ElementType(ScalaTokenTypes.tFUNTYPE) if element.getParent.is[ScImportSelector] =>
         super.problemDescriptor(
           element,
-          createReplacingQuickFix(element, "Replace with 'as'") { arrow =>
+          createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.as")) { arrow =>
             ScalaPsiElementFactory.createImportFromTextWithContext("import a.{x as y}", arrow.getContext, null)
               .importExprs.head.selectors.head.findFirstChildByType(ScalaTokenType.AsKeyword).get
           }
@@ -61,7 +60,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
       case typed@ScTypedExpression.sequenceArg(seqArg) if seqArg.getFirstChild.elementType == ScalaTokenTypes.tUNDER =>
         super.problemDescriptor(
           seqArg,
-          createReplacingQuickFix(typed, "Replace with *") { typed =>
+          createReplacingQuickFix(typed, ScalaInspectionBundle.message("replace.with.star")) { typed =>
             ScalaPsiElementFactory.createExpressionWithContextFromText(s"call(${typed.expr.getText}*)" , typed.getContext, typed)
               .asInstanceOf[ScMethodCall].argumentExpressions.head
           }
@@ -69,7 +68,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
       case named@ScNamingPattern(seqWildcard: ScSeqWildcardPattern) if seqWildcard.isWildcard =>
         super.problemDescriptor(
           named,
-          createReplacingQuickFix(named, s"Replace with '${named.name}*'") { named =>
+          createReplacingQuickFix(named, ScalaInspectionBundle.message("replace.with.name.followed.by.star", named.name)) { named =>
             ScalaPsiElementFactory.createPatternFromTextWithContext(s"Seq(${named.name}*)", named.getContext, named)
               .asInstanceOf[ScConstructorPattern].args.patterns.head
           }
@@ -77,7 +76,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
       case withKw@ElementType(ScalaTokenTypes.kWITH) && Parent(_: ScCompoundTypeElement) =>
         super.problemDescriptor(
           withKw,
-          createReplacingQuickFix(withKw, "Replace with &") { withKw =>
+          createReplacingQuickFix(withKw, ScalaInspectionBundle.message("replace.with.and.char")) { withKw =>
             ScalaPsiElementFactory.createIdentifier("&")(withKw).getPsi
           }
         )
