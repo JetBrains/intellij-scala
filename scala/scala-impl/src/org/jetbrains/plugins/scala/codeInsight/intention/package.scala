@@ -46,7 +46,7 @@ package object intention {
       case _ => false
     }
     val allNamesDefined = argsAndMatchedParams.forall {
-      case (_, param) => !StringUtil.isEmpty(param.name) && param.psiParam.exists(_.isInstanceOf[ScParameter])
+      case (_, param) => !StringUtil.isEmpty(param.name) && param.psiParam.exists(_.is[ScParameter])
     }
     val hasUnderscore = argsAndMatchedParams.exists {
       case (_: ScUnderscoreSection, _) => true
@@ -116,4 +116,10 @@ package object intention {
       "!" + text.parenthesize(needParenthesis)
   }
 
+  def elementAndTouchingPrevElement(editor: Editor, element: PsiElement): Seq[PsiElement] = {
+    val caretModel = editor.getCaretModel
+    val position = caretModel.getOffset
+    val prev = element.prevLeaf.filter(_.endOffset == position)
+    element :: prev.toList
+  }
 }

@@ -5,6 +5,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.codeInsight.intention.elementAndTouchingPrevElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFor
@@ -48,12 +49,5 @@ class ConvertToCurlyBracesIntention extends PsiElementBaseIntentionAction {
          semi <- enumerators.findChildrenByType(ScalaTokenTypes.tSEMICOLON)) {
       semi.replace(createNewLine())
     }
-  }
-
-  private def elementAndTouchingPrevElement(editor: Editor, element: PsiElement): Seq[PsiElement] = {
-    val caretModel = editor.getCaretModel
-    val position = caretModel.getOffset
-    val prev = element.prevLeaf.filter(_.endOffset == position)
-    element :: prev.toList
   }
 }

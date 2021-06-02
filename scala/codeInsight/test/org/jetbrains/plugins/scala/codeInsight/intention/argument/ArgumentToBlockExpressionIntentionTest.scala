@@ -62,4 +62,27 @@ class ArgumentToBlockExpressionIntentionTest extends intentions.ScalaIntentionTe
     doTest(text, resultText)
   }
 
+  def testCursorAfterParenthesis(): Unit = doTest(
+    s"""
+      |call($CARET???)
+      |""".stripMargin,
+    """
+      |call {
+      |  ???
+      |}
+      |""".stripMargin
+  )
+
+  def testCursorAfterParenthesis2(): Unit = doTest(
+    s"""
+       |call(???)$CARET
+       |after
+       |""".stripMargin,
+    """
+      |call {
+      |  ???
+      |}
+      |after
+      |""".stripMargin
+  )
 }

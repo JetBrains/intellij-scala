@@ -21,24 +21,29 @@ import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
 final class ArgumentToBlockExpressionIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
-    IntentionAvailabilityChecker.checkIntention(this, element) && (element match {
-      case Parent(list: ScArgumentExprList) if list.exprs.size == 1 && !list.exprs.head.isInstanceOf[ScUnderscoreSection] => true
-      case _ => false
-    })
+    elementAndTouchingPrevElement(editor, element).exists( element =>
+      IntentionAvailabilityChecker.checkIntention(this, element) && (element match {
+        case Parent(list: ScArgumentExprList) if list.exprs.size == 1 && !list.exprs.head.is[ScUnderscoreSection] => true
+        case _ => false
+      })
+    )
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
-    val list = element.getParent.asInstanceOf[ScArgumentExprList]
-    val exp = list.exprs.head
-    implicit val projectContext: ProjectContext = list.projectContext
-    val block = exp match {
-      case funExpr: ScFunctionExpr => createAnonFunBlockFromFunExpr(funExpr)
-      case _ => createBlockFromExpr(exp)
-    }
-    exp.replace(block)
-    list.getFirstChild.delete()
-    list.getLastChild.delete()
-    CodeStyleManager.getInstance(project).reformat(block)
+    elementAndTouchingPrevElement(editor, element)
+      .collectFirst { case Parent(argList: ScArgumentExprList) => argList }
+      .foreach { list =>
+        val exp = list.exprs.head
+        implicit val projectContext: ProjectContext = list.projectContext
+        val block = exp match {
+          case funExpr: ScFunctionExpr => createAnonFunBlockFromFunExpr(funExpr)
+          case _ => createBlockFromExpr(exp)
+        }
+        exp.replace(block)
+        list.getFirstChild.delete()
+        list.getLastChild.delete()
+        CodeStyleManager.getInstance(project).reformat(block)
+      }
   }
 
   override def getFamilyName: String = ScalaCodeInsightBundle.message("family.name.convert.to.block.expression")
