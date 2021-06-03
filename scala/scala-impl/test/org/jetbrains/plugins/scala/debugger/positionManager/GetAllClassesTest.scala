@@ -9,7 +9,8 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version  >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
   override def testForStmt(): Unit = {
     checkGetAllClasses("ForStmt$")
@@ -53,6 +54,15 @@ class GetAllClassesTest_since_2_12 extends GetAllClassesTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
+class GetAllClassesTest_3_0 extends GetAllClassesTest_since_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override def testPartialFunctionArg(): Unit = failing(super.testPartialFunctionArg())
+
+  override def testPartialFunctions(): Unit = failing(super.testPartialFunctions())
+}
+
+@Category(Array(classOf[DebuggerTests]))
 class GetAllClassesTest_2_11 extends GetAllClassesTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
 }
@@ -62,8 +72,8 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("Simple.scala",
     s"""
       |object Simple {
-      |  def main(args: Array[String]) {
-      |    $offsetMarker"" $bp
+      |  def main(args: Array[String]): Unit = {
+      |    ${offsetMarker}println() $bp
       |  }
       |}
     """.stripMargin.trim)
@@ -75,9 +85,9 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("SimpleClass.scala",
     s"""
        |object SimpleClass {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    new TestClass().foo()
-       |    "" $bp
+       |    println() $bp
        |  }
        |}
        |
@@ -94,9 +104,9 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("SimpleClassWithComplexName.scala",
     s"""
        |object SimpleClassWithComplexName {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    new `Hi there`().foo()
-       |    "" $bp
+       |    println() $bp
        |  }
        |}
        |
@@ -113,9 +123,9 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("SimpleTrait.scala",
     s"""
        |object SimpleTrait extends Test {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    foo()
-       |    "" $bp
+       |    println() $bp
        |  }
        |}
        |
@@ -132,7 +142,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("InnerClassInObject.scala",
     s"""
        |object InnerClassInObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    new A
        |    ""$bp
        |  }
@@ -152,7 +162,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
     s"""package test
        |
        |object LocalClassInAnonClass {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val r = new Runnable() {
        |      class A {
        |        def foo(): Unit = {
@@ -176,14 +186,14 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("LocalObject.scala",
     s"""
        |object LocalObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    object A {
        |      def foo(): Unit = {
        |        $offsetMarker""
        |      }
        |    }
        |    A.foo()
-       |    "" $bp
+       |    println() $bp
        |  }
        |}
     """.stripMargin.trim)
@@ -194,14 +204,14 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("LocalClassSymbolicName.scala",
     s"""
        |object LocalClassSymbolicName {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    class !!! {
        |      def foo(): Unit = {
        |        $offsetMarker""
        |      }
        |    }
        |    new !!!().foo()
-       |    "" $bp
+       |    println() $bp
        |  }
        |}
     """.stripMargin.trim)
@@ -220,7 +230,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
        |        case i => "aa" + i
        |      }.foreach(${offsetMarker}println)
        |
-       |    "" $bp
+       |    println() $bp
        |  }
        |}
     """.stripMargin.trim)
@@ -231,9 +241,9 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("ByNameArgument.scala",
     s"""
        |object ByNameArgument {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    Some(1).orElse(${offsetMarker}None).getOrElse(${offsetMarker}2)
-       |    "" $bp
+       |    println() $bp
        |  }
        |}
     """.stripMargin.trim)
@@ -244,7 +254,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("ForStmt.scala",
     s"""
        |object ForStmt {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val seq = Seq("a", "b", "c")
        |    for {
        |      ${offsetMarker}s <- seq
@@ -264,7 +274,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("AnonClass.scala",
     s"""
        |object AnonClass {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val r = new Runnable {
        |      override def run(): Unit = $offsetMarker()
        |    }
@@ -279,7 +289,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("ByNameParamInBlock.scala",
     s"""
        |object ByNameParamInBlock {
-       |  def main (args: Array[String]){
+       |  def main (args: Array[String]): Unit = {
        |    getOrElse(None) {
        |      ""$offsetMarker
        |    }
@@ -298,7 +308,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("ClassInBlock.scala",
     s"""
        |object ClassInBlock {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    1 match {
        |      case 1 =>
        |        ${offsetMarker}class A {
@@ -317,7 +327,7 @@ abstract class GetAllClassesTestBase extends PositionManagerTestBase {
   setupFile("PartialFunctionArg.scala",
     s"""
        |object PartialFunctionArg {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    ${offsetMarker}Seq(Option(1)).exists {
        |      case None =>
        |        ${offsetMarker}true

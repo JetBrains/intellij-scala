@@ -9,7 +9,8 @@ import org.junit.experimental.categories.Category
  */
 @Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_since_2_12 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
   override def testLambdas(): Unit = {
     checkLocationsOfLine(
@@ -35,7 +36,22 @@ class LocationOfLineTest_since_2_12 extends LocationsOfLineTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class LocationOfLineTest_2_11 extends LocationsOfLineTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_11
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class LocationOfLineTest_3_0 extends LocationOfLineTest_since_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override def testSimple(): Unit = failing(super.testSimple())
+
+  override def testSimpleClass(): Unit = failing(super.testSimpleClass())
+
+  override def testLambdas(): Unit = failing(super.testLambdas())
+
+  override def testLocalFunction(): Unit = failing(super.testLocalFunction())
+
+  override def testMultilevel(): Unit = failing(super.testMultilevel())
 }
 
 abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
@@ -45,7 +61,7 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
     s"""
         |object Simple {
         |  ${offsetMarker}val z = 1
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
         |    ${offsetMarker}val i = 1
         |    $offsetMarker"asd".substring(i)
         |    ${offsetMarker}foo()
@@ -72,7 +88,7 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
   setupFile("SimpleClass.scala",
     s"""
        |object SimpleClass {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val b = new Bar(1)
        |    b.foo()$bp
        |  }
@@ -103,7 +119,7 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
         |    ${offsetMarker}Some(1).getOrElse(2)
         |    ${offsetMarker}list.filter(_ < 10).map(x => "aaa" + x)
         |       .foreach(${offsetMarker}println)
-        |    ""$bp
+        |    println()$bp
         |  }
         |}
         |""".stripMargin.trim)
@@ -119,7 +135,7 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
     s"""
         |object LocalFunction {
         |
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
         |    def foo(s: String): Unit = {
         |      def bar() = {
         |        $offsetMarker"bar"
@@ -145,15 +161,15 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
      s"""package test
         |
         |object Multilevel {
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
         |    ${offsetMarker}class This {
         |      ${offsetMarker}val x = 1
-        |      def foo() {
+        |      def foo(): Unit = {
         |        ${offsetMarker}val runnable = ${offsetMarker}new Runnable {
-        |          def run() {
+        |          def run(): Unit = {
         |            ${offsetMarker}val x = $offsetMarker() => {
         |              ${offsetMarker}This.this.x + 1
-        |              "stop here"$bp
+        |              println()$bp
         |            }
         |            x()
         |          }
@@ -172,7 +188,7 @@ abstract class LocationsOfLineTestBase extends PositionManagerTestBase {
       Set(Loc("test.Multilevel$This$1$$anon$1", "<init>", 8)),
       Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
       Set(Loc("test.Multilevel$This$1$$anon$1", "run", 10)),
-      Set(Loc("test.Multilevel$This$1$$anon$1$$anonfun$1", "apply", 11)),
+      Set(Loc("test.Multilevel$This$1$$anon$1$$anonfun$1", "apply$mcV$sp", 11)),
       Set(Loc("test.Multilevel$", "main", 20))
     )
   }

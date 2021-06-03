@@ -15,9 +15,10 @@ import org.junit.runners.JUnit4
 @RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_11
 
   //todo move to ScalaMethodEvaluationTestBase when SCL-17927 is fixed
+  @Test
   override def testInForStmt(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -40,13 +41,30 @@ class ScalaMethodEvaluationTest_2_11 extends ScalaMethodEvaluationTestBase {
 @RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_12 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_12
 }
 
 @RunWith(classOf[JUnit4])
 @Category(Array(classOf[DebuggerTests]))
 class ScalaMethodEvaluationTest_2_13 extends ScalaMethodEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_13
+}
+
+@RunWith(classOf[JUnit4])
+@Category(Array(classOf[DebuggerTests]))
+class ScalaMethodEvaluationTest_3_0 extends ScalaMethodEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+
+  //todo fix
+  override def testNonStaticFunction(): Unit            = failing(super.testNonStaticFunction())
+  override def testLocalFunctions(): Unit               = failing(super.testLocalFunctions())
+  override def testClosure(): Unit                      = failing(super.testClosure())
+  override def testClosureWithDefaultParameter(): Unit  = failing(super.testClosureWithDefaultParameter())
+  override def testFunctionsWithLocalParameters(): Unit = failing(super.testFunctionsWithLocalParameters())
+  override def testDefaultArgsInTrait(): Unit           = failing(super.testDefaultArgsInTrait())
+  override def testLocalMethodsWithSameName(): Unit     = failing(super.testLocalMethodsWithSameName())
+  override def testLocalMethodsWithSameName1(): Unit    = failing(super.testLocalMethodsWithSameName1())
+  override def testLocalMethodsWithSameName2(): Unit    = failing(super.testLocalMethodsWithSameName2())
 }
 
 @RunWith(classOf[JUnit4])
@@ -58,9 +76,9 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |object SmartBoxing {
       |  def foo(x: AnyVal) = 1
       |  def goo(x: Int) = x + 1
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val z = java.lang.Integer.valueOf(5)
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -83,12 +101,13 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |    i = i + 1
       |    i
       |  }
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
   )
+  @Test
   def testFunctionWithSideEffects(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -101,12 +120,13 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
    s"""
       |object SimpleFunction {
       |  def foo() = 2
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
   )
+  @Test
   def testSimpleFunction(): Unit = {
     runDebugger() {
       waitForBreakpoint()
@@ -119,8 +139,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |import PrivateMethods._
       |object PrivateMethods {
       |  private def foo() = 2
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
       |class PrivateMethods {
@@ -144,9 +164,9 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |  class A {
       |    def apply(x: Int) = x + 1
       |  }
-      |  def main(args : Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val a = new A()
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -165,8 +185,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
    s"""
       |object CurriedFunction {
       |  def foo(x: Int)(y: Int) = x * 2 + y
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -183,10 +203,10 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ArrayApplyFunction.scala",
    s"""
       |object ArrayApplyFunction {
-      |  def main(args : Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val s = Array.ofDim[String](2, 2)
       |    s(1)(1) = "test"
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -205,8 +225,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |object OverloadedFunction {
       |  def foo(x: Int) = 1
       |  def foo(x: String) = 2
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -224,8 +244,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImplicitConversion.scala",
    s"""
       |object ImplicitConversion {
-      |  def main(args : Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -245,9 +265,9 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
    s"""
       |object SequenceArgument {
       |  def moo(x: String*) = x.foldLeft(0)(_ + _.length())
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val x = Seq("a", "b")
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -264,9 +284,9 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ArrayLengthFunction.scala",
    s"""
       |object ArrayLengthFunction {
-      |  def main(args : Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val s = Array(1, 2, 3)
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -284,11 +304,11 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
    s"""
       |object SimpleFunctionFromInner {
       |  def foo() = 2
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val x = 1
       |    val r = () => {
       |      x
-      |      ""$bp
+      |      println()$bp
       |    }
       |    r()
       |  }
@@ -307,8 +327,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("LibraryFunctions.scala",
    s"""
       |object LibraryFunctions {
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -340,9 +360,9 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |  def bar(s: String) = s
        |}
        |object DynamicFunctionApplication {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val a: A = new B
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
       """.stripMargin.trim()
@@ -362,16 +382,16 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |object NonStaticFunction {
       |  def foo() = 2
       |  val x = 1
-      |  def main(args: Array[String]) {
-      |    def moo() {}
+      |  def main(args: Array[String]): Unit = {
+      |    def moo(): Unit = {}
       |    class A {
       |      val x = 1
       |      def goo() = 2
-      |      def foo() {
+      |      def foo(): Unit = {
       |        val r = () => {
       |          moo()
       |          x
-      |          ""$bp
+      |          println()$bp
       |        }
       |        r()
       |      }
@@ -395,8 +415,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
    s"""
       |object DefaultAndNamedParameters {
       |  def foo(x: Int, y: Int = 1, z: Int)(h: Int = x + y, m: Int) = x + y + z + h + m
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -416,8 +436,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
    s"""
       |object RepeatedParameters {
       |  def foo(x: String*) = x.foldLeft("")(_ + _)
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -440,10 +460,10 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |  def moo(x: Int)(implicit s: String) = x + s.length()
       |  def foo(x: Int)(implicit y: Int) = {
       |    implicit val s = "test"
-      |    ""$bp
+      |    println()$bp
       |    x + y
       |  }
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    implicit val x = 1
       |    foo(1)
       |  }
@@ -467,8 +487,8 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |case class CCA(x: Int)
       |object CaseClasses {
       |  case class CCB(x: Int)
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -496,14 +516,14 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |  private val privConst = 42
       |
       |  def open() = {
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
       |
       |object PrivateInTrait {
       |  class A extends Privates
       |
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val a = new A
       |    a.open()
       |  }
@@ -533,7 +553,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |object LocalsInTrait {
       |  class A extends TTT
       |
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val a = new A
       |    a.foo()
       |  }
@@ -559,7 +579,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |object LocalFunctions {
        |  val field = 1
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    simple()
        |    withParameters()
        |    withParamFromLocal()
@@ -571,68 +591,68 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |    useField()
        |  }
        |
-       |  def simple() {
+       |  def simple(): Unit = {
        |    def foo1: Int = 1
-       |    ""$bp
+       |    println()$bp
        |  }
        |
-       |  def withParameters() {
+       |  def withParameters(): Unit = {
        |    val y = "test"
        |    def foo2(x: Int): Int = x + y.length
-       |    ""$bp
+       |    println()$bp
        |  }
        |
-       |  def withParamFromLocal() {
+       |  def withParamFromLocal(): Unit = {
        |    val x = 2
        |    def foo3: Int = x - 1
-       |    ""$bp
+       |    println()$bp
        |  }
        |
-       |  def withDiffParams1() {
+       |  def withDiffParams1(): Unit = {
        |    val x = 2
        |    val y = "c"
        |    def foo4: Int = x - y.length()
-       |    ""$bp
+       |    println()$bp
        |  }
        |
-       |  def withDiffParams2() {
+       |  def withDiffParams2(): Unit = {
        |    val y = "c"
        |    val x = 2
        |    def foo5(): Int = x - y.length()
-       |    ""$bp
+       |    println()$bp
        |  }
        |
-       |  def withDiffParams3() {
+       |  def withDiffParams3(): Unit = {
        |    val y = "c"
        |    val x = 2
        |    def foo6: Int = - y.length() + x
-       |    ""$bp
+       |    println()$bp
        |  }
        |
-       |  def withObject() {
+       |  def withObject(): Unit = {
        |    object y {val y = 1}
        |    val x = 2
        |    def foo7: Int = x - y.y
-       |    ""$bp
+       |    println()$bp
        |  }
        |
-       |  def withAnonfunField() {
+       |  def withAnonfunField(): Unit = {
        |    val g = 1
        |    def moo(x: Int) = g + x
        |    val zz = (y: Int) => {
        |      val uu = (x: Int) => {
        |        g
-       |        ""$bp
+       |        println()$bp
        |      }
        |      uu(1)
        |    }
        |    zz(2)
        |  }
        |
-       |  def useField() {
+       |  def useField(): Unit = {
        |    val x = 2
        |    def foo8: Int = x - field
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
     """.stripMargin.trim()
@@ -674,11 +694,11 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Closure.scala",
     s"""
        |object Closure {
-       |  def main(args: Array[String]) {
-       |    def outer() {
+       |  def main(args: Array[String]): Unit = {
+       |    def outer(): Unit = {
        |      val s = "start"
        |      def inner(a: String, b: String): String = {
-       |        ""$bp
+       |        println()$bp
        |        s + a + b
        |      }
        |      inner("aa", "bb")
@@ -703,10 +723,10 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("LocalWithDefaultAndNamedParams.scala",
     s"""
        |object LocalWithDefaultAndNamedParams {
-       |  def main(args: Array[String]) {
-       |    def outer() {
+       |  def main(args: Array[String]): Unit = {
+       |    def outer(): Unit = {
        |      def inner(a: String, b: String = "default", c: String = "other"): String = {
-       |        ""$bp
+       |        println()$bp
        |        a + b + c
        |      }
        |      inner("aa")
@@ -733,19 +753,19 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("LocalMethodsWithSameName.scala",
     s"""
        |object LocalMethodsWithSameName {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    def foo(i: Int = 1) = {
        |      def foo(j: Int = 2) = j
        |      i$bp
        |    }
-       |    ""$bp
-       |    def other() {
+       |    println()$bp
+       |    def other(): Unit = {
        |      def foo(i: Int = 3) = i
-       |      ""$bp
+       |      println()$bp
        |    }
-       |    def third() {
+       |    def third(): Unit = {
        |      def foo(i: Int = 4) = i
-       |      ""$bp
+       |      println()$bp
        |    }
        |    foo()
        |    other()
@@ -774,19 +794,19 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("LocalMethodsWithSameName1.scala",
     s"""
        |object LocalMethodsWithSameName1 {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    def foo(i: Int = 1, u: Int = 10, v: Long = 100) = {
        |      def foo(j: Int = 2) = 20 + j
        |      1000 + i + u + v$bp
        |    }
-       |    ""$bp
-       |    def other() {
+       |    println()$bp
+       |    def other(): Unit = {
        |      def foo(i: Int = 3, u: Int = 30, v: Long = 300) = 3000 + i + u + v
-       |      ""$bp
+       |      println()$bp
        |    }
-       |    def third() {
+       |    def third(): Unit = {
        |      def foo(i: Int, u: Int = 40, v: Long = 400) = 4000 + i + u + v
-       |      ""$bp
+       |      println()$bp
        |    }
        |    foo()
        |    other()
@@ -815,12 +835,12 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("LocalMethodsWithSameName2.scala",
     s"""
        |object LocalMethodsWithSameName2 {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    def foo(i: Int = 1, u: Int = 10, v: Long = 100) = {
        |      def foo(j: Int = 2, u: Int = 20) = 200 + j + u
        |      1000 + i + u + v$bp
        |    }
-       |    ""$bp
+       |    println()$bp
        |    foo()
        |  }
        |}
@@ -840,12 +860,12 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ClosureWithDefaultParameter.scala",
     s"""
        |object ClosureWithDefaultParameter {
-       |  def main(args: Array[String]) {
-       |    def outer() {
+       |  def main(args: Array[String]): Unit = {
+       |    def outer(): Unit = {
        |      val s = "start"
        |      val d = "default"
        |      def inner(a: String, b: String = d): String = {
-       |        ""$bp
+       |        println()$bp
        |        s + a + b
        |      }
        |      inner("aa")
@@ -871,7 +891,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("FunctionsWithLocalParameters.scala",
     s"""
        |object FunctionsWithLocalParameters {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = 1
        |    val y = 2
        |    def outer() = {
@@ -883,7 +903,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
        |          z + x
        |        }
        |        inInner()
-       |        ""$bp
+       |        println()$bp
        |        z
        |      }
        |      inner("aa")
@@ -915,7 +935,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("WithFieldsFromOtherThread.scala",
     s"""object WithFieldsFromOtherThread {
         |  val field = "field"
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
         |    def localFun1() = "localFun1"
         |
         |    val inMain = "inMain"
@@ -929,7 +949,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
         |      inOtherThread {
         |        val local = "local"
         |        inMain + inFirst + inFirstVar
-        |        ""$bp
+        |        println()$bp
         |      }
         |    }
         |  }
@@ -960,7 +980,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("InForStmt.scala",
     s"""
       |object InForStmt {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    for {
       |      x <- Seq(1, 2)
       |      x1 = x + 1
@@ -976,7 +996,7 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
       |      def getY = y
       |      def getY1 = y1
       |      new Inner().foo
-      |      ""$bp
+      |      println()$bp
       |    }
       |  }
       |}
@@ -1005,11 +1025,11 @@ abstract class ScalaMethodEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("QualifierNamedAsPackage.scala",
     s"""
        |object QualifierNamedAsPackage {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val invoke = "invoke"
        |    val text = "text"
        |    val ref = "ref"
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
     """.stripMargin.trim)

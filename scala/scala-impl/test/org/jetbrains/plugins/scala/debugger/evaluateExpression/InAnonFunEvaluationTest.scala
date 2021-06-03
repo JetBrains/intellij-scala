@@ -7,7 +7,8 @@ import org.junit.experimental.categories.Category
 @Category(Array(classOf[FlakyTests])) // works locally, may fail on server
 class InAnonFunEvaluationTest_212 extends InAnonFunEvaluationTestBase {
 
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
   //todo SCL-9139
   override def testPartialFunction(): Unit = {
@@ -29,17 +30,24 @@ class InAnonFunEvaluationTest_211 extends InAnonFunEvaluationTestBase {
 }
 
 @Category(Array(classOf[DebuggerTests]))
+class InAnonFunEvaluationTest_3_0 extends InAnonFunEvaluationTest_212 {
+  override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_3_0
+
+  override def testFunctionExpr(): Unit = failing(super.testFunctionExpr())
+}
+
+@Category(Array(classOf[DebuggerTests]))
 abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
 
   addFileWithBreakpoints("FunctionValue.scala",
     s"""
        |object FunctionValue {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val a = "a"
        |    var b = "b"
        |    val f: (Int) => Unit = n => {
        |      val x = "x"
-       |      ""$bp
+       |      println()$bp
        |    }
        |    f(10)
        |  }
@@ -61,13 +69,13 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     s"""
        |object PartialFunction {
        |  val name = "name"
-       |  def main(args: Array[String]) {
-       |    def printName(param: String, notUsed: String) {
+       |  def main(args: Array[String]): Unit = {
+       |    def printName(param: String, notUsed: String): Unit = {
        |      List(("a", 10)).foreach {
        |        case (a, i: Int) =>
        |            val x = "x"
        |            println(a + param)
-       |            ""$bp
+       |            println()$bp
        |      }
        |    }
        |    printName("param", "notUsed")
@@ -92,13 +100,13 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     s"""
        |object FunctionExpr {
        |  val name = "name"
-       |  def main(args: Array[String]) {
-       |    def printName(param: String, notUsed: String) {
+       |  def main(args: Array[String]): Unit = {
+       |    def printName(param: String, notUsed: String): Unit = {
        |      List("a").foreach {
        |        a =>
        |            val x = "x"
        |            println(a + param)
-       |            ""$bp
+       |            println()$bp
        |      }
        |    }
        |    printName("param", "notUsed")
@@ -122,12 +130,12 @@ abstract class InAnonFunEvaluationTestBase extends ScalaDebuggerTestCase{
     s"""
        |object ForStmt {
        |  val name = "name"
-       |  def main(args: Array[String]) {
-       |    def printName(param: String, notUsed: String) {
+       |  def main(args: Array[String]): Unit = {
+       |    def printName(param: String, notUsed: String): Unit = {
        |      for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
        |        val in = "in"
        |        println(s + param + ss)
-       |        ""$bp
+       |        println()$bp
        |      }
        |    }
        |    printName("param", "notUsed")

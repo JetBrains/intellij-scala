@@ -17,7 +17,12 @@ class SpecializedRenderer_until_2_11 extends SpecializedRendererTestBase {
 }
 @Category(Array(classOf[DebuggerTests]))
 class SpecializedRenderer_since_2_12 extends SpecializedRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+}
+@Category(Array(classOf[DebuggerTests]))
+class SpecializedRenderer_since_3_0 extends SpecializedRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 }
 
 abstract class SpecializedRendererTestBase extends RendererTestBase {
@@ -39,7 +44,7 @@ abstract class SpecializedRendererTestBase extends RendererTestBase {
   s"""object SpecializedTuple {
     |  def main(args: Array[String]): Unit = {
     |    val x = (1, 2)
-    |    "stop"$bp
+    |    println()$bp
     |  }
     |}
   """.stripMargin)

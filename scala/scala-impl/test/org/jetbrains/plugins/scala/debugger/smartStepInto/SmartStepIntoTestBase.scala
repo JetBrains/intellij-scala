@@ -20,7 +20,8 @@ class SmartStepIntoTest_until_2_11 extends SmartStepIntoTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class SmartStepIntoTest_since_2_12 extends SmartStepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
   override def testByNameArgument(): Unit = {
     runDebugger() {
@@ -34,6 +35,42 @@ class SmartStepIntoTest_since_2_12 extends SmartStepIntoTestBase {
     }
   }
 
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class SmartStepIntoTest_3_0 extends SmartStepIntoTest_since_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  addFileWithBreakpoints("PostfixAndUnapply.scala",
+    s"""import scala.language.postfixOps
+       |object PostfixAndUnapply {
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    new D(1) match {
+       |      case a @ D(1) => a foo $bp
+       |    }
+       |  }
+       |}
+       |
+       |class D(val i: Int) {
+       |  def foo = {}
+       |
+       |}
+       |
+       |object D {
+       |  def unapply(a: D) = Some(a.i)
+       |}""".stripMargin.trim()
+  )
+
+  override def testByNameArgument(): Unit = failing(super.testByNameArgument())
+
+  override def testInfixAndApply(): Unit = failing(super.testInfixAndApply())
+
+  override def testPostfixAndUnapply(): Unit = failing(super.testPostfixAndUnapply())
+
+  override def testAnonymousClassFromClass(): Unit = failing(super.testAnonymousClassFromClass())
+
+  override def testAnonymousClassFromTrait(): Unit = failing(super.testAnonymousClassFromTrait())
 }
 
 abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
@@ -71,7 +108,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ChainedMethodsAndConstructor.scala",
     s"""
        |object ChainedMethodsAndConstructor {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val s = new A(11).id1().id2.asString  $bp
        |  }
        |}
@@ -116,7 +153,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("InnerClassAndConstructor.scala",
     s"""
        |object InnerClassAndConstructor {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val s = new A(10).id1().asString $bp
        |  }
        |
@@ -151,7 +188,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |  def foo(a: B, a1: B) = {}
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val a = new B(2)
        |    foo(new B(1), a.id()) $bp
        |  }
@@ -183,7 +220,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     s"""
        |object InfixAndApply {
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val a = new C(2)
        |    a add C(1) $bp
        |  }
@@ -216,7 +253,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     s"""
        |object PostfixAndUnapply {
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    new D(1) match {
        |      case a @ D(1) => a foo $bp
        |    }
@@ -250,7 +287,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |  def execute(processor: Processor) = processor.execute()
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |     execute(new Processor { $bp
        |       val z = 1
        |
@@ -262,7 +299,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |}
        |
        |trait Processor {
-       |  def execute()
+       |  def execute(): Unit
        |}""".stripMargin.trim()
   )
   def testAnonymousClassFromTrait(): Unit = {
@@ -283,7 +320,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |  def execute(processor: ProcessorClass) = processor.execute()
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |     execute(new ProcessorClass("aa") { $bp
        |       val z = 1
        |
@@ -323,7 +360,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |    }
        |  }
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    inTryBlock { $bp
        |      val s = "a"
        |      s + "aaa"
@@ -347,7 +384,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
     s"""
        |object LocalFunction {
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    def foo(s: String): Unit = {
        |      println(s)
        |    }
@@ -376,7 +413,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |    i + 1
        |  }
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    inc("1") $bp
        |  }
        |}""".stripMargin.trim()
@@ -399,7 +436,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |    def toOption: Option[T] = Option(v)
        |  }
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    "aaa".charAt(1).toOption $bp
        |  }
        |}""".stripMargin.trim()
@@ -422,7 +459,7 @@ abstract class SmartStepIntoTestBase extends ScalaDebuggerTestCase {
        |    def toOption: Option[T] = Option(v)
        |  }
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    "aaa".charAt(1).toOption $bp
        |  }
        |}""".stripMargin.trim()

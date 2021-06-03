@@ -11,7 +11,16 @@ class ScalaObjectEvaluationTest_2_11 extends ScalaObjectEvaluationTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaObjectEvaluationTest_2_12 extends ScalaObjectEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+}
+@Category(Array(classOf[DebuggerTests]))
+class ScalaObjectEvaluationTest_3_0 extends ScalaObjectEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_3_0
+
+  override def testEvaluateObjects(): Unit = failing(super.testEvaluateObjects())
+
+  override def testInnerClassObjectFromObject(): Unit = failing(super.testInnerClassObjectFromObject())
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -19,8 +28,8 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("SimpleObject.scala",
     s"""
        |object EvaluateObjects {
-       |  def main(args: Array[String]) {
-       |    ""$bp
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
        |  }
        |}
        """.stripMargin.trim()
@@ -76,19 +85,19 @@ abstract class ScalaObjectEvaluationTestBase extends ScalaDebuggerTestCase {
        |  class S {
        |    object SS {
        |      object S {
-       |        def foo() {
+       |        def foo(): Unit = {
        |          SS.S //to have $$outer field
-       |          ""$bp
+       |          println()$bp
        |        }
        |      }
        |      object G
        |    }
-       |    def foo() {
+       |    def foo(): Unit = {
        |      SS.S.foo()
        |    }
        |  }
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = new S()
        |    x.foo()
        |  }

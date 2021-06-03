@@ -4,12 +4,12 @@ package debugger
 import java.io._
 import java.security.MessageDigest
 import java.util
-
 import com.intellij.execution.application.{ApplicationConfiguration, ApplicationConfigurationType}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VfsUtil, VirtualFile}
 import com.intellij.testFramework._
+import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -21,7 +21,7 @@ import scala.util.{Try, Using}
   * @author Roman.Shein
   *         Date: 03.03.14
   */
-abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase {
+abstract class ScalaDebuggerTestBase extends ScalaCompilerTestBase with FailableTest {
   protected def checksumsFileName = "checksums.dat"
 
   protected val testDataBasePrefix = "debugger"

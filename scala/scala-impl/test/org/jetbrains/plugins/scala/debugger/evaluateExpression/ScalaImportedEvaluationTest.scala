@@ -11,7 +11,13 @@ class ScalaImportedEvaluationTest_2_11 extends ScalaImportedEvaluationTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaImportedEvaluationTest_2_12 extends ScalaImportedEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaImportedEvaluationTest_3_0 extends ScalaImportedEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -19,9 +25,9 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImportFromObject.scala",
     s"""
        |object ImportFromObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    import test.Stuff._
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
     """.stripMargin.trim()
@@ -48,9 +54,9 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImportFromPackageObject.scala",
     s"""
        |object ImportFromPackageObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    import test.stuff._
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
     """.stripMargin.trim()
@@ -65,8 +71,8 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |  class AAA {
        |    val a = "a"
        |
-       |    def bar() {
-       |      ""$bp
+       |    def bar(): Unit = {
+       |      println()$bp
        |    }
        |  }
        |
@@ -88,7 +94,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("StopInsidePackageObject.scala",
     s"""
        |object StopInsidePackageObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    import test.stuff._
        |    foo()
        |  }
@@ -107,7 +113,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("StopInsideClassInPackageObject.scala",
     s"""
        |object StopInsideClassInPackageObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    import test.stuff._
        |    new AAA().bar()
        |  }
@@ -127,7 +133,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("StopInsideValueClass.scala",
     s"""
        |object StopInsideValueClass {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    import test.stuff._
        |    "v".toOption
        |  }
@@ -146,10 +152,10 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImportVal.scala",
     s"""
        |object ImportVal {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val a = new A(0)
        |    import a._
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
        |
@@ -173,7 +179,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     s"""
        |object ImportProjectionType {
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    new ImportProjectionType().foo()
        |  }
        |}
@@ -185,12 +191,12 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |
        |  val x = "abc"
        |
-       |  def foo() {
+       |  def foo(): Unit = {
        |    val b = new B
        |    import b.y._
        |    import x._
        |
-       |    ""$bp
+       |    println()$bp
        |  }
        |
        |}
@@ -208,7 +214,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImportJava.scala",
     s"""
        |object ImportJava {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val jc = new test.JavaClass()
        |    import jc._
        |    import test.JavaClass._
@@ -216,7 +222,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
        |    val inner = new JavaInner()
        |    import inner._
        |
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
     """.stripMargin.trim()
@@ -260,7 +266,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("implicits/package.scala",
     s"""
        |package object implicits {
-       |  implicit def intToString(x: Int) = x.toString + x.toString
+       |  implicit def intToString(x: Int): String = x.toString + x.toString
        |  implicit val implicitInt: Int = 0
        |
        |  implicit class IntWrapper(i: Int) {
@@ -276,10 +282,10 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
     s"""
        |import implicits._
        |object ImportedImplicits {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val i1 = 123
        |    def bar(s: String)(implicit i: Int) = if (i < s.length) s.charAt(i) else '0'
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
     """.stripMargin.trim)
@@ -299,7 +305,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("ImportedFromOuterThis.scala",
    s"""
       |object ImportedFromOuterThis {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val o = new OuterThis
       |    val b = new o.B()
       |    b.bar()
@@ -314,7 +320,7 @@ abstract class ScalaImportedEvaluationTestBase extends ScalaDebuggerTestCase {
       |  class B {
       |    def bar() = {
       |      val f = foo()
-      |      ""$bp
+      |      println()$bp
       |    }
       |  }
       |}

@@ -20,7 +20,7 @@ class ScalaExpressionsEvaluator_212 extends ScalaExpressionsEvaluatorBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion) = version == LatestScalaVersions.Scala_2_13
 
   override def testSymbolLiteral(): Unit = {
     runDebugger() {
@@ -31,6 +31,18 @@ class ScalaExpressionsEvaluator_213 extends ScalaExpressionsEvaluatorBase {
   }
 }
 
+@Category(Array(classOf[DebuggerTests]))
+class ScalaExpressionsEvaluator_3_0 extends ScalaExpressionsEvaluator_213 {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+
+  override def testPrefixedThis(): Unit = failing(super.testPrefixedThis())
+
+  override def testPostfix(): Unit = failing(super.testPostfix())
+
+  override def testLiteral(): Unit = failing(super.testLiteral())
+}
+
+
 abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("PrefixUnary.scala",
     s"""
@@ -38,9 +50,9 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
       |  class U {
       |    def unary_!(): Boolean = false
       |  }
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val u = new U
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -56,8 +68,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("VariousExprs.scala",
     s"""
       |object VariousExprs {
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -77,9 +89,9 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     s"""
       |object SmartBoxing {
       |  def foo[T](x: T)(y: T) = x
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val tup = (1, 2)
-      |    ""$bp
+      |    println()$bp
       |  }
       |  def test(tup: (Int,  Int)) = tup._1
       |  def test2(tup: Tuple2[Int,  Int]) = tup._2
@@ -104,11 +116,11 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     s"""
       |object Assignment {
       |  var m = 0
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    var z = 1
       |    val y = 0
       |    val x: Array[Array[Int]] = Array(Array(1, 2), Array(2, 3))
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -133,11 +145,11 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("This.scala",
     s"""
       |object This {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    class This {
       |      val x = 1
-      |      def foo() {
-      |       ""$bp
+      |      def foo(): Unit = {
+      |       println()$bp
       |      }
       |    }
       |    new This().foo()
@@ -155,15 +167,15 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("PrefixedThis.scala",
     s"""
       |object PrefixedThis {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    class This {
       |      val x = 1
-      |      def foo() {
+      |      def foo(): Unit = {
       |        val runnable = new Runnable {
-      |          def run() {
+      |          def run(): Unit = {
       |            val x = () => {
       |             This.this.x //to have This.this in scope
-      |             ""$bp
+      |             println()$bp
       |            }
       |            x()
       |          }
@@ -186,10 +198,10 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Postfix.scala",
     s"""
       |object Postfix {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    object x {val x = 1}
       |    x
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -205,9 +217,9 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Backticks.scala",
     s"""
       |object Backticks {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val `val` = 100
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -222,10 +234,10 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Literal.scala",
     s"""
       |object Literal {
-      |  implicit def intToString(x: Int) = x.toString + x.toString
-      |  def main(args: Array[String]) {
+      |  implicit def intToString(x: Int): String = x.toString + x.toString
+      |  def main(args: Array[String]): Unit = {
       |    val n = 1
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -251,7 +263,7 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("SymbolLiteral.scala",
     s"""object SymbolLiteral {
        |  def main(args: Array[String]): Unit =
-       |    ""$bp
+       |    println()$bp
        |}
        |""".stripMargin.trim()
   )
@@ -266,8 +278,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("JavaLib.scala",
     s"""
       |object JavaLib {
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -284,8 +296,8 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     s"""
       |object InnerClass {
       |  class Expr {}
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -301,12 +313,12 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     s"""
       |object OverloadingClass {
       |  class Expr(s: String) {
-      |    def this(t: Int) {
+      |    def this(t: Int) = {
       |      this("test")
       |    }
       |  }
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -324,10 +336,10 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
        |object IsInstanceOf {
        |  class A
        |  class B
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = new A
        |    val y = new B
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
       """.stripMargin.trim()
@@ -347,10 +359,10 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     s"""
        |object SyntheticOperators {
        |  def fail: Boolean = throw new Exception("fail!")
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |     val tr = true
        |     val fls = false
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
       """.stripMargin.trim()

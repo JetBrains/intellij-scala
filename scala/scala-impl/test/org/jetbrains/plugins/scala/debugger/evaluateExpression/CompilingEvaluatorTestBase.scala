@@ -12,7 +12,8 @@ class CompilingEvaluatorTest_2_11 extends CompilingEvaluatorTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class CompilingEvaluatorTest_2_12 extends CompilingEvaluatorTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
   // from scala 2.12.12 (or maybe from 2.12.11) ++ calls `List.:::`, not `TraversableLike.++`
   override def testFromLibrary(): Unit = {
@@ -26,6 +27,17 @@ class CompilingEvaluatorTest_2_12 extends CompilingEvaluatorTestBase {
       evalEquals("None.getOrElse(1)", "1")
     }
   }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class CompilingEvaluatorTest_3_0 extends CompilingEvaluatorTest_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override def testFromLibrary(): Unit   = failing(super.testFromLibrary())
+  override def testSimplePlace(): Unit   = failing(super.testSimplePlace())
+  override def testInForStmt(): Unit     = failing(super.testInForStmt())
+  override def testInConstructor(): Unit = failing(super.testInConstructor())
+  override def testAddBraces(): Unit     = failing(super.testAddBraces())
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -43,10 +55,10 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
       |
       |  def foo(i: Int): Unit = {
       |    val x = 1
-      |    ""$bp
+      |    println()$bp
       |  }
       |
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    foo(3)
       |  }
       |}
@@ -83,7 +95,7 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("InForStmt.scala",
    s"""
       |object InForStmt {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    for {
       |      x <- Seq(1, 2)
       |      if x == 2
@@ -109,7 +121,7 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("InConstructor.scala",
    s"""
       |object InConstructor {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    new Sample().foo()
       |  }
       |
@@ -134,7 +146,7 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
  s"""package test
     |
     |object AddBraces {
-    |  def main(args: Array[String]) {
+    |  def main(args: Array[String]): Unit = {
     |    foo()
     |  }
     |
@@ -155,11 +167,11 @@ abstract class CompilingEvaluatorTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("FromPattern.scala",
     s"""
        |object FromPattern {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    Some("ab").map(x => (x, x + x)) match {
        |      case Some((a, b)) =>
        |        println(a)
-       |        ""$bp
+       |        println()$bp
        |      case _ =>
        |    }
        |  }

@@ -11,8 +11,18 @@ class ScalaFieldEvaluationTest_2_11 extends ScalaFieldEvaluationTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class ScalaFieldEvaluationTest_2_12 extends ScalaFieldEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 }
+@Category(Array(classOf[DebuggerTests]))
+class ScalaFieldEvaluationTest_3_0 extends ScalaFieldEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+
+  override def testStatic(): Unit = failing(super.testStatic())
+
+  override def testPrivateThisField(): Unit = failing(super.testPrivateThisField())
+}
+
 @Category(Array(classOf[DebuggerTests]))
 abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
 
@@ -22,8 +32,8 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
       |  val x = 23
       |  private[this] val y = 1
       |
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -53,8 +63,8 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
       |object SimpleJava {
       |  import test.Java
       |  val x = new Java
-      |  def main(args: Array[String]) {
-      |    ""$bp
+      |  def main(args: Array[String]): Unit = {
+      |    println()$bp
       |  }
       |}
     """.stripMargin.trim()
@@ -72,7 +82,7 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
       |object PrivateThisField {
       |  private[this] val x = 1
       |
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    new PrivateThisField().foo()
       |  }
       |}
@@ -84,7 +94,7 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
       |  private[this] val w = 3
       |
       |  def foo(): Unit = {
-      |    ""$bp
+      |    println()$bp
       |  }
       |
       |  class KnowsYW {
@@ -106,9 +116,9 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("NonStatic.scala",
    s"""
       |object NonStatic {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val a = new A(2, 3)
-      |    ""$bp
+      |    println()$bp
       |  }
       |}
       |
@@ -137,8 +147,8 @@ abstract class ScalaFieldEvaluationTestBase extends ScalaDebuggerTestCase {
        |class B1 extends A1 {val x = 23}
        |object SimpleDynamicField {
        |  val x: A1 = new B1
-       |  def main(args: Array[String]) {
-       |    ""$bp
+       |  def main(args: Array[String]): Unit = {
+       |    println()$bp
        |  }
        |}
       """.stripMargin.trim()

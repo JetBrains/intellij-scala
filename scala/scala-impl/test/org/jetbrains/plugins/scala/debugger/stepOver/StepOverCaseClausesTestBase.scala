@@ -13,12 +13,27 @@ class StepOverTest_2_11 extends StepOverTest {
   override protected def supportedIn(version: ScalaVersion) = version  == LatestScalaVersions.Scala_2_11
 }
 
+@Category(Array(classOf[DebuggerTests]))
+class StepOverTest_3_0 extends StepOverTest {
+  override protected def supportedIn(version: ScalaVersion) = version >= LatestScalaVersions.Scala_3_0
+
+  override def testSimple(): Unit = failing(super.testSimple())
+
+  override def testMultilineExpr(): Unit = failing(super.testMultilineExpr())
+
+  override def testSkipStoreResult(): Unit = failing(super.testSkipStoreResult())
+
+  override def testPartialFun(): Unit = failing(super.testPartialFun())
+
+  override def testNestedMatch(): Unit = failing(super.testNestedMatch())
+}
+
 abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("Simple.scala",
     s"""
       |object Simple {
-      |  def main (args: Array[String]){
-      |    ""$bp
+      |  def main (args: Array[String]): Unit = {
+      |    println()$bp
       |    List(1) match {
       |      case Seq(2) =>
       |      case Seq(3) =>
@@ -38,8 +53,8 @@ abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("MultilineExpr.scala",
     s"""
        |object MultilineExpr {
-       |  def main (args: Array[String]){
-       |    ""$bp
+       |  def main (args: Array[String]): Unit = {
+       |    println()$bp
        |    Seq(2, 3)
        |      .map(_ - 1)
        |    match {
@@ -59,8 +74,8 @@ abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("SkipStoreResult.scala",
     s"""
        |object SkipStoreResult {
-       |  def main (args: Array[String]){
-       |    ""$bp
+       |  def main (args: Array[String]): Unit = {
+       |    println()$bp
        |    val z = Seq(1, 2) match {
        |      case Seq(1, _) =>
        |        foo()
@@ -83,7 +98,7 @@ abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("PartialFun.scala",
     s"""
         |object PartialFun {
-        |  def main (args: Array[String]){
+        |  def main (args: Array[String]): Unit = {
         |    ""
         |    val z = Seq(Some(1), Some(2), Some(3)) collect {
         |      case Some(1) =>$bp
@@ -108,8 +123,8 @@ abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("ComplexPattern.scala",
     s"""
        |object ComplexPattern {
-       |  def main (args: Array[String]){
-       |    ""$bp
+       |  def main (args: Array[String]): Unit = {
+       |    println()$bp
        |    val z = Seq(left(1), left(2)) match {
        |      case Seq(Right("1")) =>
        |        foo()
@@ -146,8 +161,8 @@ abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("NestedMatch.scala",
     s"""
        |object NestedMatch {
-       |  def main (args: Array[String]){
-       |    ""$bp
+       |  def main (args: Array[String]): Unit = {
+       |    println()$bp
        |    val z = Seq(left(1), left(2)) match {
        |      case Seq(Left(Seq(Some(1))), x) => x match {
        |        case Left(Seq(None)) =>
@@ -174,7 +189,7 @@ abstract class StepOverTest extends StepOverTestBase {
   addFileWithBreakpoints("CaseClausesReturn.scala",
     s"""
       |object CaseClausesReturn {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    foo()
       |  }
       |

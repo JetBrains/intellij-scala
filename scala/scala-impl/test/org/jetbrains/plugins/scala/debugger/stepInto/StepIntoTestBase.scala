@@ -22,7 +22,8 @@ class StepIntoTest_until_2_11 extends StepIntoTestBase {
 
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_since_2_12 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
 
   addFileWithBreakpoints("SamAbstractClass.scala",
     s"""object SamAbstractClass {
@@ -48,6 +49,24 @@ class StepIntoTest_since_2_12 extends StepIntoTestBase {
   }
 }
 
+@Category(Array(classOf[DebuggerTests]))
+class StepIntoTest_3_0 extends StepIntoTest_since_2_12 {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override def testSamAbstractClass(): Unit = failing(super.testSamAbstractClass())
+
+  override def testTraitMethod(): Unit = failing(super.testTraitMethod())
+
+  override def testLazyVal(): Unit = failing(super.testLazyVal())
+
+  override def testPrivateMethodUsedInLambda(): Unit = failing(super.testPrivateMethodUsedInLambda())
+
+  override def testSpecialization(): Unit = failing(super.testSpecialization())
+
+  override def testTraitObjectSameName(): Unit = failing(super.testTraitObjectSameName())
+}
+
+
 abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   protected def waitBreakpointAndStepInto(fileName: String, methodName: String, line: Int): Unit = {
     val breakpointCtx = waitForBreakpoint()
@@ -62,7 +81,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Simple.scala",
     s"""
        |object Simple {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = AAA.foo("123") $bp
        |  }
        |}
@@ -85,7 +104,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Constructor.scala",
     s"""
        |object Constructor {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = new ZZZ(1).foo() $bp
        |  }
        |}
@@ -110,7 +129,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Sample.scala",
     s"""
        |object ApplyMethod {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = QQQ(1).foo() $bp
        |  }
        |}
@@ -143,7 +162,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |package test
        |
        |object IntoPackageObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    foo(1)$bp
        |  }
        |}
@@ -172,11 +191,11 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |package test1
        |
        |object FromPackageObject {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    foo(1)
        |  }
        |
-       |  def bar() {
+       |  def bar(): Unit = {
        |    println("bar") //should step here
        |  }
        |}
@@ -202,7 +221,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("WithDefaultParam.scala",
     s"""
        |object WithDefaultParam {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = EEE.withDefault(1)  $bp
        |  }
        |}
@@ -226,7 +245,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("TraitMethod.scala",
     s"""
        |object TraitMethod extends RRR{
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = foo(1)  $bp
        |  }
        |}
@@ -250,7 +269,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("UnapplyMethod.scala",
     s"""
        |object UnapplyMethod {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val z = Some(1)
        |    z match {
        |      case TTT(a) => TTT(a)  $bp
@@ -287,7 +306,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |
        |  def foo(b: B): Unit = {}
        |
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val a = new A
        |    foo(a) $bp
        |  }
@@ -306,7 +325,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |object LazyVal {
        |  lazy val lzy = Some(1)  //should step here
        |
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
        |    val x = lzy $bp
        |  }
        |}
@@ -324,13 +343,13 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |object LazyVal2 {
        |  lazy val lzy = new AAA
        |
-        |  def main(args: Array[String]) {
+        |  def main(args: Array[String]): Unit = {
        |    val x = lzy
        |    val y = lzy.foo() $bp
        |  }
        |
         |  class AAA {
-       |    def foo() {} //should step here
+       |    def foo(): Unit = {} //should step here
        |  }
        |}
       """.stripMargin.trim()
@@ -346,7 +365,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
     s"""object SimpleGetters {
        |  val z = 0
        |
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
        |    val x = new SimpleGetters
        |    x.getA $bp
        |    sum(x.z, x.gB)
@@ -376,7 +395,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
 
   addFileWithBreakpoints("CustomizedPatternMatching.scala",
     s"""object CustomizedPatternMatching {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val b = new B()
        |    foo(b)$bp
        |  }

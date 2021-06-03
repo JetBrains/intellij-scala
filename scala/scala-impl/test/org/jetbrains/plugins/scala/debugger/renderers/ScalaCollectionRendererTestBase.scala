@@ -19,12 +19,12 @@ class ScalaCollectionRendererTest_until_2_11 extends ScalaCollectionRendererTest
 }
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_12
 
   addFileWithBreakpoints("Lazy.scala",
     s"""
        |object Lazy {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val stream = Stream.from(42)
        |    val a = 1$bp
        |  }
@@ -38,12 +38,12 @@ class ScalaCollectionRendererTest_since_2_12 extends ScalaCollectionRendererTest
 }
 @Category(Array(classOf[DebuggerTests]))
 class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_13
+  override protected def supportedIn(version: ScalaVersion): Boolean = version == LatestScalaVersions.Scala_2_13
 
   addFileWithBreakpoints("Lazy.scala",
     s"""
        |object Lazy {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val list = LazyList.from(1)
        |    val stream = Stream.from(1)
        |    val a = 1$bp
@@ -56,6 +56,11 @@ class ScalaCollectionRendererTest_since_2_13 extends ScalaCollectionRendererTest
     testLazyCollectionRendering("list", "scala.collection.immutable.LazyList", "LazyList(<not computed>)")(10.seconds)
     testLazyCollectionRendering("stream", "scala.collection.immutable.Stream$Cons", "Stream(1, <not computed>)")(10.seconds)
   }
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class ScalaCollectionRendererTest_3_0 extends ScalaCollectionRendererTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 }
 
 abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
@@ -144,7 +149,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   addFileWithBreakpoints("ShortList.scala",
     s"""
        |object ShortList {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val lst = List(1, 2, 3, 4, 5, 6)
        |    val a = 1$bp
        |  }
@@ -159,7 +164,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   addFileWithBreakpoints("Stack.scala",
     s"""
        |object Stack {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    import scala.collection.mutable
        |    val stack = mutable.Stack(1,2,3,4,5,6,7,8)
        |    val b = 45$bp
@@ -174,7 +179,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   addFileWithBreakpoints("ListBuffer.scala",
     s"""
        |object MutableList {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val mutableList = scala.collection.mutable.ListBuffer(1,2,3,4,5)
        |    val a = 1$bp
        |  }
@@ -188,7 +193,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   addFileWithBreakpoints("Queue.scala",
     s"""
        |object Queue {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val queue = scala.collection.immutable.Queue(1,2,3,4)
        |    val a = 1$bp
        |  }
@@ -201,7 +206,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
 
   addFileWithBreakpoints("QueueWithLongToStringChildren.scala",
     s"""object QueueWithLongToStringChildren {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val queue = scala.collection.immutable.Queue(
        |      new LongToString(0),
        |      new LongToString(1),
@@ -234,7 +239,7 @@ abstract class ScalaCollectionRendererTestBase extends RendererTestBase {
   addFileWithBreakpoints("LongList.scala",
     s"""
        |object LongList {
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val longList = (1 to 50).toList
        |    val a = 1$bp
        |  }

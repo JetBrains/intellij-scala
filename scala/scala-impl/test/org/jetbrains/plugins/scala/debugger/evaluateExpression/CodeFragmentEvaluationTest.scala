@@ -12,7 +12,15 @@ class CodeFragmentEvaluationTest_2_11 extends CodeFragmentEvaluationTestBase wit
 
 @Category(Array(classOf[DebuggerTests]))
 class CodeFragmentEvaluationTest_2_12 extends CodeFragmentEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+}
+
+@Category(Array(classOf[DebuggerTests]))
+class CodeFragmentEvaluationTest_3_0 extends CodeFragmentEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override def testCodeFragments(): Unit = failing(super.testCodeFragments())
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -23,9 +31,9 @@ abstract class CodeFragmentEvaluationTestBase extends ScalaDebuggerTestCase with
        |
        |object CodeFragments {
        |  var n = 0
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val str = "some string"
-       |    ""$bp
+       |    println()$bp
        |  }
        |}
       """.stripMargin.trim()

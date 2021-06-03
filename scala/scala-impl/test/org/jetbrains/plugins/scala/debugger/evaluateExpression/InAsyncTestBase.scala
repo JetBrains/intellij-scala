@@ -24,7 +24,7 @@ abstract class InAsyncTestBase extends ScalaDebuggerTestCase {
       |import scala.concurrent.ExecutionContext.Implicits.global
       |
       |object InAsync {
-      |  def main(args: Array[String]) {
+      |  def main(args: Array[String]): Unit = {
       |    val future = async {
       |      val q = "q"
       |      val f1 = async { false }

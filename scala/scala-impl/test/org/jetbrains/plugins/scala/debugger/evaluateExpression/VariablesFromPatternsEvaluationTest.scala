@@ -14,7 +14,14 @@ class VariablesFromPatternsEvaluationTest_211 extends VariablesFromPatternsEvalu
 }
 @Category(Array(classOf[DebuggerTests]))
 class VariablesFromPatternsEvaluationTest_212 extends VariablesFromPatternsEvaluationTestBase {
-  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_2_12
+  override protected def supportedIn(version: ScalaVersion) =
+    version >= LatestScalaVersions.Scala_2_12 && version <= LatestScalaVersions.Scala_2_13
+}
+@Category(Array(classOf[DebuggerTests]))
+class VariablesFromPatternsEvaluationTest_3_0 extends VariablesFromPatternsEvaluationTestBase {
+  override protected def supportedIn(version: ScalaVersion) = version  >= LatestScalaVersions.Scala_3_0
+
+  override def testAnonymousInMatch(): Unit = failing(super.testAnonymousInMatch())
 }
 
 @Category(Array(classOf[DebuggerTests]))
@@ -23,11 +30,11 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     s"""
        |object Match {
        |  val name = "name"
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    val x = (List(1, 2), Some("z"), None)
        |    x match {
        |      case all @ (list @ List(q, w), some @ Some(z), _) =>
-       |        ""$bp
+       |        println()$bp
        |      case _ =>
        |    }
        |  }
@@ -52,12 +59,12 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     s"""
        |object MatchInForStmt {
        |  val name = "name"
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    for (s <- List("a", "b"); if s == "a"; ss = s + s; i <- List(1,2); if i == 1; si = s + i) {
        |      val x = (List(1, 2), Some("z"), ss :: i :: Nil)
        |      x match {
        |        case all @ (q :: qs, some @ Some(z), list @ List(m, _)) =>
-       |          ""$bp
+       |          println()$bp
        |        case _ =>
        |      }
        |    }
@@ -89,11 +96,11 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
       s"""
          |object RegexMatch {
          |  val name = "name"
-         |  def main(args: Array[String]) {
+         |  def main(args: Array[String]): Unit = {
          |    val Decimal = $pattern
          |    "-2.5" match {
          |      case number @ Decimal(sign, _, dec) =>
-         |        ""$bp
+         |        println()$bp
          |      case _ =>
          |    }
          |  }
@@ -116,14 +123,14 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     s"""
        |object Multilevel {
        |  val name = "name"
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    List(None, Some(1 :: 2 :: Nil)) match {
        |      case List(none, some) =>
        |        some match {
        |          case Some(seq) =>
        |            seq match {
        |              case Seq(1, two) =>
-       |                ""$bp
+       |                println()$bp
        |              case _ =>
        |            }
        |          case _ =>
@@ -150,12 +157,12 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     s"""
        |object LocalInMatch {
        |  val name = "name"
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    Option("a") match {
        |      case None =>
        |      case some @ Some(a) =>
-       |        def foo(i: Int) {
-       |          ""$bp
+       |        def foo(i: Int): Unit = {
+       |          println()$bp
        |        }
        |        foo(10)
        |    }
@@ -178,12 +185,12 @@ abstract class VariablesFromPatternsEvaluationTestBase extends ScalaDebuggerTest
     s"""
        |object AnonymousInMatch {
        |  val name = "name"
-       |  def main(args: Array[String]) {
+       |  def main(args: Array[String]): Unit = {
        |    Option("a") match {
        |      case None =>
        |      case some @ Some(a) =>
        |        List(10) foreach { i =>
-       |          ""$bp
+       |          println()$bp
        |        }
        |    }
        |  }
