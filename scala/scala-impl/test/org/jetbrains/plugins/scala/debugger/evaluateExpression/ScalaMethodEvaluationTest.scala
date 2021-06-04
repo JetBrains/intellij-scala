@@ -65,6 +65,42 @@ class ScalaMethodEvaluationTest_3_0 extends ScalaMethodEvaluationTestBase {
   override def testLocalMethodsWithSameName(): Unit     = failing(super.testLocalMethodsWithSameName())
   override def testLocalMethodsWithSameName1(): Unit    = failing(super.testLocalMethodsWithSameName1())
   override def testLocalMethodsWithSameName2(): Unit    = failing(super.testLocalMethodsWithSameName2())
+
+  addSourceFile("one.scala", "def one() = 1")
+  addSourceFile("a/two.scala",
+    """package a
+      |
+      |def two() = 2
+      |""".stripMargin)
+  addSourceFile("a/b/three.scala",
+    """package a.b
+      |
+      |def three =
+      |  3
+      |""".stripMargin)
+  addFileWithBreakpoints("topLevel.scala",
+    s"""import a.two
+       |import a.b.three
+       |
+       |@main
+       |def topLevel(): Unit =
+       |  def local() = "local"
+       |  println()$bp
+       |
+       |private val ten = 10
+       |private def fortyTwo(): Int = 42
+       |""".stripMargin)
+  @Test
+  def testtopLevel(): Unit =
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("one()", "1")
+      evalEquals("two()", "2")
+      evalEquals("three", "3")
+      evalEquals("ten", "10")
+      evalEquals("fortyTwo()", "42")
+      evalEquals("local()", "local")
+    }
 }
 
 @RunWith(classOf[JUnit4])

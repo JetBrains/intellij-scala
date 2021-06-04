@@ -1,28 +1,40 @@
 package org.jetbrains.plugins.scala.debugger
 
-import com.intellij.psi.PsiFile
 import com.intellij.psi.search.FilenameIndex
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiFile}
 import com.sun.jdi.ReferenceType
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt}
 import org.jetbrains.plugins.scala.lang.psi.ElementScope
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
 object TopLevelMembers {
   private val classSuffix = "$package$"
 
   def isSyntheticClassForTopLevelMembers(refType: ReferenceType): Boolean = refType.name.endsWith(classSuffix)
 
-  def topLevelMemberClassName(file: PsiFile, packaging: Option[ScPackaging]): Option[String] =
-    for {
-      vf <- file.getVirtualFile.toOption
-      packageName = packaging.fold("")(_.fullPackageName)
-    } yield {
-      val path =
-        if (packageName.isEmpty) vf.getNameWithoutExtension
-        else packageName + "." + vf.getNameWithoutExtension
-      path + classSuffix
+  def topLevelMemberClassName(file: PsiFile, packaging: Option[ScPackaging]): String = {
+    val vf = file.getVirtualFile
+    val packageName = packaging.fold("")(_.fullPackageName)
+    val path =
+      if (packageName.isEmpty) vf.getNameWithoutExtension
+      else packageName + "." + vf.getNameWithoutExtension
+    path + classSuffix
+  }
+
+  def topLevelMemberClassName(element: PsiElement): String =
+    topLevelMemberClassName(element.getContainingFile, PsiTreeUtil.getParentOfType(element, classOf[ScPackaging]).toOption)
+
+  def hasTopLevelMembers(elem: PsiElement): Boolean = {
+    val members = elem match {
+      case p: ScPackaging                           => p.immediateMembers
+      case f: ScalaFile if f.firstPackaging.isEmpty => f.members
+      case _                                        => Seq.empty
     }
+    members.exists(!_.is[ScTypeDefinition])
+  }
 
   def findFileWithTopLevelMembers(scope: ElementScope, originalQName: String): Option[PsiFile] = {
     val path = originalQName.stripSuffix(classSuffix)

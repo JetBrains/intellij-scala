@@ -226,9 +226,9 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
             qName.set(if (insideMacro) specificName + "*" else specificName)
           case file: ScalaFile =>
             //top level member in default package
-            topLevelMemberClassName(file, None).foreach(qName.set)
+            qName.set(topLevelMemberClassName(file, None))
           case pckg: ScPackaging =>
-            topLevelMemberClassName(pckg.getContainingFile, Some(pckg)).foreach(qName.set)
+            qName.set(topLevelMemberClassName(pckg.getContainingFile, Some(pckg)))
           case _ =>
             findEnclosingTypeDefinition.foreach(typeDef => qName.set(typeDef.getQualifiedNameForDebugger + "*"))
         }
@@ -758,7 +758,7 @@ object ScalaPositionManager {
   }
 
   def isLambda(element: PsiElement): Boolean = {
-    ScalaEvaluatorBuilderUtil.isGenerateAnonfun(element) && !isInsideMacro(element)
+    ScalaEvaluatorBuilderUtil.isGenerateAnonfun211(element) && !isInsideMacro(element)
   }
 
   def lambdasOnLine(file: PsiFile, lineNumber: Int): Seq[PsiElement] = {

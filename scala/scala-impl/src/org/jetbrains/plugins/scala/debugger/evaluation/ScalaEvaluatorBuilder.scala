@@ -180,7 +180,7 @@ private object needsCompilation {
       case LazyVal(_) => Some(ScalaBundle.nls("evaluation.of.lazy.val.definition.needs.compilation"))
       case _ => None
     }
-    case expr if ScalaEvaluatorBuilderUtil.isGenerateAnonfun(expr) => Some(ScalaBundle.nls("evaluation.of.anonymous.function.needs.compilation"))
+    case expr if ScalaEvaluatorBuilderUtil.isGenerateAnonfun211(expr) => Some(ScalaBundle.nls("evaluation.of.anonymous.function.needs.compilation"))
     case _: ScFor => Some(ScalaBundle.nls("evaluation.of.for.expression.needs.compilation"))
     case _: ScTry => Some(ScalaBundle.nls("evaluation.of.try.statement.needs.compilation"))
     case _: ScReturn => Some(ScalaBundle.nls("evaluation.of.return.statement.needs.compilation"))

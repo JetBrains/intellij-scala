@@ -16,7 +16,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
-import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.InsideAsync
+import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.{InsideAsync, isCompiledWithIndyLambdas}
+import org.jetbrains.plugins.scala.debugger.TopLevelMembers.{hasTopLevelMembers, topLevelMemberClassName}
 import org.jetbrains.plugins.scala.debugger.evaluation.evaluator._
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil.isAtLeast212
@@ -32,8 +33,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParame
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScPackage}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScNamedElement, ScPackaging, ScTypedDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScPackage, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.source.ScalaCodeFragment
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -191,6 +192,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         stableObjectEvaluator(obj)
       case _: ScTrait =>
         thisOrSuperEvaluator(None, isSuper = true)
+      case _: ScalaFile | _: ScPackaging if fun.isTopLevel =>
+        stableObjectEvaluator(topLevelMemberClassName(fun))
       case _ =>
         val (outerClass, iters) = findContextClass(e => e == null || e == containingClass)
 
@@ -637,6 +640,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         val withTraitImpl = ScalaMethodEvaluator(traitTypeEval, name, null, qualEval +: argEvaluators)
         val withDefault = ScalaMethodEvaluator(qualEval, name, null, argEvaluators, traitImplementation(fun))
         ScalaDuplexEvaluator(withTraitImpl, withDefault)
+      case Some(ScalaResolveResult(fun: ScFunction, _)) if fun.isTopLevel =>
+        val objectEval = stableObjectEvaluator(topLevelMemberClassName(fun))
+        val signature = DebuggerUtil.getFunctionJVMSignature(fun)
+        ScalaMethodEvaluator(objectEval, name, signature, argEvaluators,
+          None, DebuggerUtil.getSourcePositions(fun.getNavigationElement))
       case Some(r) =>
         val resolve = r.element
         val qualEval = qualEvaluator(r)
@@ -659,7 +667,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     val resolve = ref.resolve()
 
     resolve match {
-      case fun: ScFunctionDefinition if isLocalFunction(fun) =>
+      case fun: ScFunctionDefinition if fun.isLocal =>
         val args = argumentEvaluators(fun, matchedParameters, call, ref, arguments)
         localMethodEvaluator(fun, args)
       case fun: ScFunction if isClassOfFunction(fun) =>
@@ -1462,11 +1470,15 @@ object ScalaEvaluatorBuilderUtil {
     else elem.contexts.find(isGenerateClass).orNull
   }
 
-  def isGenerateClass(elem: PsiElement): Boolean = {
-    if (ScalaPositionManager.isCompiledWithIndyLambdas(elem.getContainingFile))
-      isGenerateNonAnonfunClass(elem) || isPartialFunction(elem) || isAnonfunInsideSuperCall(elem)
-    else isGenerateNonAnonfunClass(elem) || isGenerateAnonfun(elem)
-  }
+  def isGenerateClass(elem: PsiElement): Boolean =
+    isGenerateNonAnonfunClass(elem) ||
+      hasTopLevelMembers(elem) ||
+      isGenerateAnonfun(elem)
+
+  private def isGenerateAnonfun(elem: PsiElement): Boolean =
+    if (isCompiledWithIndyLambdas(elem.getContainingFile))
+      isPartialFunction(elem) || isAnonfunInsideSuperCall(elem)
+    else isGenerateAnonfun211(elem)
 
   def isGenerateNonAnonfunClass(elem: PsiElement): Boolean = {
     elem match {
@@ -1487,10 +1499,10 @@ object ScalaEvaluatorBuilderUtil {
     }
 
     val containingClass = PsiTreeUtil.getParentOfType(elem, classOf[ScTypeDefinition])
-    isGenerateAnonfun(elem) && isInsideSuperCall(containingClass)
+    isGenerateAnonfun211(elem) && isInsideSuperCall(containingClass)
   }
 
-  def isGenerateAnonfun(elem: PsiElement): Boolean = {
+  def isGenerateAnonfun211(elem: PsiElement): Boolean = {
 
     @CachedInUserData(elem, BlockModificationTracker(elem))
     def isAnonfunCached: Boolean = {
@@ -1614,10 +1626,6 @@ object ScalaEvaluatorBuilderUtil {
     }
   }
 
-  def isLocalFunction(fun: ScFunction): Boolean = {
-    !fun.getContext.isInstanceOf[ScTemplateBody]
-  }
-
   def isNotUsedEnumerator(named: PsiNamedElement, place: PsiElement): Boolean = {
     named match {
       case ScalaPsiUtil.inNameContext(enum @ (_: ScForBinding | _: ScGenerator)) =>
@@ -1654,7 +1662,7 @@ object ScalaEvaluatorBuilderUtil {
       def inner(element: PsiElement): Option[ScFunction] = {
         element match {
           case null => None
-          case fun: ScFunction if isLocalFunction(fun) &&
+          case fun: ScFunction if fun.isLocal &&
                   !fun.parameters.exists(param => PsiTreeUtil.isAncestor(param, elem, false)) =>
             Some(fun)
           case other if other.getContext != null => inner(other.getContext)
