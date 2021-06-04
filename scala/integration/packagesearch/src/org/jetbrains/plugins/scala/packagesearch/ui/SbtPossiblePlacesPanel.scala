@@ -14,9 +14,9 @@ import com.intellij.ui.components.JBList
 import org.jetbrains.plugins.scala.{ScalaFileType, inWriteAction}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
-import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtDependencyUtils}
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.sbt.language
+import org.jetbrains.sbt.language.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtDependencyUtils}
 
 import java.awt.BorderLayout
 import javax.swing.{JList, JPanel, JSplitPane, ListSelectionModel, ScrollPaneConstants}

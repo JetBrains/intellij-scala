@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.packagesearch.utils
+package org.jetbrains.sbt.language.utils
 
 import com.intellij.psi.PsiElement
 

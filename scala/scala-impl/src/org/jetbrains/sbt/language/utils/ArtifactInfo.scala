@@ -1,3 +1,3 @@
-package org.jetbrains.plugins.scala.packagesearch.utils
+package org.jetbrains.sbt.language.utils
 
 case class ArtifactInfo(groupId: String, artifactId: String, version: String, configuration: String)

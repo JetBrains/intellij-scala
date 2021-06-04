@@ -5,7 +5,7 @@ import com.intellij.ide.wizard.{AbstractWizard, Step}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
-import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo}
+import org.jetbrains.sbt.language.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo}
 
 class AddDependencyOrRepositoryPreviewWizard(project: Project, elem: Any, fileLines: Seq[DependencyOrRepositoryPlaceInfo])
   extends AbstractWizard[Step](NlsString.force(""), project) {

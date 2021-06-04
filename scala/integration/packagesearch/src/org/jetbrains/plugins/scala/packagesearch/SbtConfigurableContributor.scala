@@ -8,7 +8,7 @@ import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ConfigurableCo
 import javax.swing.{JLabel, JTextField}
 import javax.swing.event.DocumentEvent
 import org.jetbrains.plugins.scala.packagesearch.configuration.{PackageSearchSbtConfiguration, packageSearchSbtConfigurationForProject}
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon
+import org.jetbrains.sbt.language.utils.SbtCommon
 
 class SbtConfigurableContributor(project: Project) extends ConfigurableContributor {
   override def createDriver(): ConfigurableContributorDriver = new SbtConfigurableContributorDriver(project)

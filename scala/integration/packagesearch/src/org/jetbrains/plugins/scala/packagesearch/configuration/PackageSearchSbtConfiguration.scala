@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.util.xmlb.annotations.OptionTag
 import com.jetbrains.packagesearch.intellij.plugin.configuration.PackageSearchGeneralConfiguration
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon
+import org.jetbrains.sbt.language.utils.SbtCommon
 
 @State(
   name = "PackageSearchSbtConfiguration",

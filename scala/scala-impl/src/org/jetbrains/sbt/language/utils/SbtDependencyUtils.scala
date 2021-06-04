@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.packagesearch.utils
+package org.jetbrains.sbt.language.utils
 
 import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDependencyRepository}
 import com.intellij.openapi.command.WriteCommandAction
@@ -9,15 +9,15 @@ import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import org.jetbrains.plugins.scala.extensions.{PsiFileExt, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
 import org.jetbrains.sbt.SbtUtil.getSbtModuleData
-import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
+import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.project.data.SbtModuleData
+import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
 
 import java.io.File
 
@@ -50,7 +50,7 @@ object SbtDependencyUtils {
                             module: OpenapiModule,
                             dependency: UnifiedDependency,
                             versionRequired: Boolean = true,
-                            configurationRequired: Boolean = true):(ScInfixExpr, String, ScInfixExpr) = {
+                            configurationRequired: Boolean = true): (ScInfixExpr, String, ScInfixExpr) = {
     val sbtFileOpt = getSbtFileOpt(module)
     val targetCoordinates = dependency.getCoordinates
     val targetDepText: String = generateArtifactTextVerbose(
@@ -65,13 +65,13 @@ object SbtDependencyUtils {
         processedDep = processLibraryDependencyFromExprAndString(libDep.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]).map(_.asInstanceOf[String])
         var processedDepText: String = ""
         processedDep match {
-          case List(a,b,c) =>
+          case List(a, b, c) =>
             processedDepText = generateArtifactTextVerbose(
               a,
               b,
               if (versionRequired) c else "",
               SbtCommon.defaultLibScope)
-          case List(a,b,c,d) =>
+          case List(a, b, c, d) =>
             processedDepText = generateArtifactTextVerbose(
               a,
               b,
@@ -139,12 +139,13 @@ object SbtDependencyUtils {
     libDeps.getOrElse(Seq.empty)
   } catch {
     case e: Exception =>
-      throw(e)
+      throw (e)
   }
 
   def processLibraryDependencyFromExprAndString(elem: (ScExpression, String, ScExpression), preserve: Boolean = false): List[Any] = {
     var res: List[Any] = List()
-    def callbackInfix(psiElement: PsiElement):Boolean = {
+
+    def callbackInfix(psiElement: PsiElement): Boolean = {
       psiElement match {
         case stringLiteral: ScStringLiteral =>
           if (preserve) {
@@ -168,7 +169,8 @@ object SbtDependencyUtils {
         SbtDependencyTraverser.traverseInfixExpr(infix)(callbackInfix)
       case ref: ScReferenceExpression =>
         var infix: ScInfixExpr = null
-        def callbackRef(psiElement: PsiElement):Boolean = {
+
+        def callbackRef(psiElement: PsiElement): Boolean = {
           psiElement match {
             case subInfix: ScInfixExpr if subInfix.operation.refName.contains("%") =>
               infix = subInfix
@@ -177,6 +179,7 @@ object SbtDependencyUtils {
           }
           true
         }
+
         SbtDependencyTraverser.traverseReferenceExpr(ref)(callbackRef)
         SbtDependencyTraverser.traverseInfixExpr(infix)(callbackInfix)
     }
@@ -192,7 +195,8 @@ object SbtDependencyUtils {
   def cleanUpDependencyPart(s: String): String = s.trim.replaceAll("^\"|\"$", "")
 
   /** Parse Library Dependencies or Places from PsiElement
-   * @param psi psiElement need passing
+   *
+   * @param psi  psiElement need passing
    * @param mode whether you want the library dependencies or places to add dependencies from the PsiElement
    * @return A sequence of tuple (PsiElement, String, PsiElement) where
    *         the first element is the PsiElement of the library dependencies/places
@@ -202,14 +206,15 @@ object SbtDependencyUtils {
   def getLibraryDependenciesOrPlacesFromPsi(psi: PsiElement, mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
     var result: Seq[(PsiElement, String, PsiElement)] = List()
 
-    def callbackDep(psiElement: PsiElement):Boolean = {
+    def callbackDep(psiElement: PsiElement): Boolean = {
       psiElement match {
         case infix: ScInfixExpr if infix.operation.refName.contains("%") =>
           infix.getText.split('%').map(_.trim).filter(_.nonEmpty).length - 1 match {
             case 1 if infix.right.isInstanceOf[ScReferenceExpression] &&
               infix.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION) => inReadAction {
               val configuration = cleanUpDependencyPart(infix.right.getText).toLowerCase.capitalize
-              def callbackRef(psiElement: PsiElement):Boolean = {
+
+              def callbackRef(psiElement: PsiElement): Boolean = {
                 psiElement match {
                   case subInfix: ScInfixExpr if subInfix.operation.refName.contains("%") =>
                     result ++= Seq((subInfix, configuration, infix))
@@ -218,6 +223,7 @@ object SbtDependencyUtils {
                 }
                 true
               }
+
               infix.left match {
                 case refExpr: ScReferenceExpression =>
                   SbtDependencyTraverser.traverseReferenceExpr(refExpr)(callbackRef)
@@ -258,7 +264,7 @@ object SbtDependencyUtils {
       true
     }
 
-    def callback(psiElement: PsiElement):Boolean = {
+    def callback(psiElement: PsiElement): Boolean = {
       if (mode == GetDep) callbackDep(psiElement)
       else callbackPlace(psiElement)
     }
@@ -325,7 +331,7 @@ object SbtDependencyUtils {
     res
   } catch {
     case e: Exception =>
-      throw(e)
+      throw (e)
   }
 
   def getTopLevelLibraryDependencies(psiSbtFile: ScalaFile): Seq[ScInfixExpr] = {
@@ -492,7 +498,8 @@ object SbtDependencyUtils {
     }
     artifactText
   }
-  def generateResolverText(unifiedDependencyRepository: UnifiedDependencyRepository):String =
+
+  def generateResolverText(unifiedDependencyRepository: UnifiedDependencyRepository): String =
     s"""resolvers += Resolver.url("${unifiedDependencyRepository.getId}", url("${unifiedDependencyRepository.getUrl}"))"""
 
   def generateResolverPsiExpression(unifiedDependencyRepository: UnifiedDependencyRepository)(implicit ctx: ProjectContext): ScExpression =

@@ -5,7 +5,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.ui.scale.JBUIScale
 import org.jetbrains.plugins.scala.extensions
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
-import org.jetbrains.plugins.scala.packagesearch.utils.DependencyOrRepositoryPlaceInfo
+import org.jetbrains.sbt.language.utils.DependencyOrRepositoryPlaceInfo
 
 import javax.swing.{Icon, JComponent}
 
