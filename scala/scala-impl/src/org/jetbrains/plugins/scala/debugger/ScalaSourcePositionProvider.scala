@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.debugger
 
 import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.SourcePositionProvider
-import com.intellij.debugger.impl.{DebuggerContextImpl, PositionUtil}
+import com.intellij.debugger.impl.{DebuggerContextImpl, DebuggerContextUtil, PositionUtil}
 import com.intellij.debugger.ui.tree.{FieldDescriptor, LocalVariableDescriptor, NodeDescriptor}
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{IndexNotReadyException, Project}
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -36,7 +36,17 @@ class ScalaSourcePositionProvider extends SourcePositionProvider {
 
     val name = descriptor.getName
     resolveReferenceWithName(name, contextElement) match {
-      case bp: ScBindingPattern => SourcePosition.createFromElement(bp)
+      case bp: ScBindingPattern =>
+        val containingFile = bp.getContainingFile
+        if (containingFile == null)
+          return null
+
+        try
+          if (nearest) DebuggerContextUtil.findNearest(context, bp, containingFile)
+          else         SourcePosition.createFromElement(bp)
+        catch {
+          case _: IndexNotReadyException => SourcePosition.createFromElement(bp)
+        }
       case _ => null
     }
   }
