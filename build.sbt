@@ -8,21 +8,21 @@ import java.nio.file.Paths
 
 // Global build settings
 
-intellijPluginName in ThisBuild := "Scala"
+(ThisBuild / intellijPluginName) := "Scala"
 
-intellijBuild in ThisBuild := Versions.intellijVersion
+(ThisBuild / intellijBuild) := Versions.intellijVersion
 
-intellijPlatform in ThisBuild := intellijPlatform.in(Global).??(IntelliJPlatform.IdeaCommunity).value
+(ThisBuild / intellijPlatform) := (Global / intellijPlatform).??(IntelliJPlatform.IdeaCommunity).value
 
- resolvers in ThisBuild ++= Seq(
+ (ThisBuild / resolvers) ++= Seq(
    Resolver.sonatypeRepo("releases"),
    Resolver.sonatypeRepo("staging"),
    Resolver.sonatypeRepo("snapshots"),
  )
 
-javacOptions in Global := globalJavacOptions
+(Global / javacOptions) := globalJavacOptions
 
-scalacOptions in Global := globalScalacOptions
+(Global / scalacOptions) := globalScalacOptions
 
 // Main projects
 lazy val scalaCommunity: sbt.Project =
@@ -63,7 +63,7 @@ lazy val scalaCommunity: sbt.Project =
       ),
       packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       intellijPlugins := intellijPlugins.all(ScopeFilter(inDependencies(ThisProject, includeRoot = false))).value.flatten.distinct,
-      definedTests in Test := { // all sub-project tests need to be run within main project's classpath
+      (Test / definedTests) := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
     )
 
@@ -83,7 +83,7 @@ lazy val dfa = newProject(
   "dfa",
   file("scala/dfa")
 ).settings(
-  testFrameworks in Test += TestFrameworks.ScalaTest,
+  (Test / testFrameworks) += TestFrameworks.ScalaTest,
   libraryDependencies ++= DependencyGroups.dfa,
   scalacOptions ++= Seq(
     "-deprecation",
@@ -93,7 +93,7 @@ lazy val dfa = newProject(
     "-Xfatal-warnings"
   ),
   // the internet says this is smart thing to do
-  scalacOptions in (Compile, console) ~= {
+  (Compile / console / scalacOptions) ~= {
     _.filterNot(Set("-Xlint"))
   }
 )
@@ -112,7 +112,7 @@ lazy val traceLogger = newProject(
     "-Xfatal-warnings"
   ),
   // the internet says this is smart thing to do
-  scalacOptions in (Compile, console) ~= {
+  (Compile / console / scalacOptions) ~= {
     _.filterNot(Set("-Xlint"))
   }
 )
@@ -132,7 +132,7 @@ lazy val traceLogViewer = newProject(
     "-Xfatal-warnings"
   ),
   // the internet says this is smart thing to do
-  scalacOptions in (Compile, console) ~= {
+  (Compile / console / scalacOptions) ~= {
     _.filterNot(Set("-Xlint"))
   }
 )
@@ -161,16 +161,15 @@ lazy val worksheet =
 lazy val worksheetReplInterface =
   newProject("worksheet-repl-interface", file("scala/worksheet-repl-interface"))
     .settings(
-      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
-      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod :=  PackagingMethod.Standalone("lib/repl-interface.jar", static = true)
     )
 
 lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
-  .enablePlugins(DottyPlugin_Patched)
   .settings(
     intellijMainJars := Seq.empty,
-    scalaVersion := "3.0.0", // NOTE: it currently works with a workaround DottyPlugin_Patched
+    scalaVersion := "3.0.0",
     libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3" % "3.0.0" excludeAll(
       ExclusionRule(organization = "org.scala-lang.modules"),
       ExclusionRule(organization = "org.scala-sbt"),
@@ -178,8 +177,8 @@ lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
       ExclusionRule(organization = "net.java.dev.jna"),
       ExclusionRule(organization = "com.google.protobuf")
     ),
-    scalacOptions in Compile := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
-    unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
+    (Compile / scalacOptions) := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
+    (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
     packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"),
     packageLibraryBaseDir := file("lib/tasty/"),
     // TODO Use scala3-library in lib/ (when there will be one)
@@ -251,14 +250,14 @@ lazy val scalaImpl: sbt.Project =
     )
 
 val nailgunJar = settingKey[File]("location of nailgun jar").withRank(KeyRanks.Invisible)
-nailgunJar in ThisBuild := (unmanagedBase in scalaCommunity).value / "nailgun.jar"
+(ThisBuild / nailgunJar) := (scalaCommunity / unmanagedBase).value / "nailgun.jar"
 
 lazy val compilerJps =
   newProject("compiler-jps", file("scala/compiler-jps"))
     .dependsOn(compilerShared, repackagedZinc, worksheetReplInterface)
     .settings(
-      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
-      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod            :=  PackagingMethod.Standalone("lib/jps/compiler-jps.jar", static = true),
       Compile/unmanagedJars    += nailgunJar.value,
       libraryDependencies      ++= Seq(Dependencies.zincInterface, Dependencies.scalaParallelCollections),
@@ -280,8 +279,8 @@ lazy val repackagedZinc =
 lazy val compilerShared =
   newProject("compiler-shared", file("scala/compiler-shared"))
     .settings(
-      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
-      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       Compile/unmanagedJars += nailgunJar.value,
       libraryDependencies ++= Seq(Dependencies.compilerIndicesProtocol, Dependencies.zincInterface),
       packageLibraryMappings ++= Seq(
@@ -293,8 +292,8 @@ lazy val compilerShared =
 lazy val runners: Project =
   newProject("runners", file("scala/runners"))
     .settings(
-      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
-      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.Standalone(static = true),
       packageAdditionalProjects ++= Seq(testRunners, testRunners_spec2_2x)
     )
@@ -302,8 +301,8 @@ lazy val runners: Project =
 lazy val testRunners: Project =
   newProject("testRunners", file("scala/testRunners"))
     .settings(
-      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
-      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
       libraryDependencies ++= DependencyGroups.testRunners
     )
@@ -312,8 +311,8 @@ lazy val testRunners_spec2_2x: Project =
   newProject("testRunners_spec2_2x", file("scala/testRunners_spec2_2x"))
     .dependsOn(testRunners)
     .settings(
-      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
-      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       packageMethod := PackagingMethod.MergeIntoOther(runners),
       libraryDependencies ++= Seq(provided.specs2_2x)
     )
@@ -369,8 +368,8 @@ lazy val scalatestFindersTests_3_2 = Project("scalatest-finders-tests-3_2", scal
 lazy val nailgunRunners =
   newProject("nailgun", file("scala/nailgun"))
     .settings(
-      javacOptions  in Compile := outOfIDEAProcessJavacOptions,
-      scalacOptions in Compile := outOfIDEAProcessScalacOptions,
+      (Compile / javacOptions) := outOfIDEAProcessJavacOptions,
+      (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       Compile/unmanagedJars += nailgunJar.value,
       packageFileMappings += nailgunJar.value -> "lib/jps/nailgun.jar",
       packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
@@ -573,6 +572,6 @@ addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
 // run dfa tests directly in that module
 addCommandAlias("runDfaTests", "dfa/test")
 
-communityFullClasspath in ThisBuild :=
-  deduplicatedClasspath(fullClasspath.in(scalaCommunity, Test).value, fullClasspath.in(scalaCommunity, Compile).value)
+(ThisBuild / communityFullClasspath) :=
+  deduplicatedClasspath((scalaCommunity / Test / fullClasspath).value, (scalaCommunity / Compile / fullClasspath).value)
 

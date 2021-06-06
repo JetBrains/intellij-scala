@@ -55,20 +55,20 @@ object Common {
       name := projectName,
       organization := "JetBrains",
       scalaVersion := Versions.scalaVersion,
-      javacOptions in Compile := globalJavacOptions,
-      scalacOptions in Compile := globalScalacOptions,
-      unmanagedSourceDirectories in Compile += baseDirectory.value / "src",
-      unmanagedSourceDirectories in Test += baseDirectory.value / "test",
-      unmanagedResourceDirectories in Compile += baseDirectory.value / "resources",
-      unmanagedResourceDirectories in Test += baseDirectory.value / "testResources",
+      (Compile / javacOptions) := globalJavacOptions,
+      (Compile / scalacOptions) := globalScalacOptions,
+      (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
+      (Test / unmanagedSourceDirectories) += baseDirectory.value / "test",
+      (Compile / unmanagedResourceDirectories) += baseDirectory.value / "resources",
+      (Test / unmanagedResourceDirectories) += baseDirectory.value / "testResources",
       libraryDependencies ++= Seq(Dependencies.junitInterface),
       updateOptions := updateOptions.value.withCachedResolution(true),
       intellijMainJars := intellijMainJars.value.filterNot(file => Dependencies.excludeJarsFromPlatformDependencies(file.data)),
       intellijPlugins += "com.intellij.java".toPlugin,
       pathExcludeFilter := excludePathsFromPackage,
-      testOptions in Test += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
-      testFrameworks in Test := (testFrameworks in Test).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
-      scalacOptions in Test += "-Xmacro-settings:enable-expression-tracers"
+      (Test / testOptions) += Tests.Argument(TestFrameworks.ScalaCheck, "-maxSize", "20"),
+      (Test / testFrameworks) := (Test / testFrameworks).value.filterNot(_.implClassNames.exists(_.contains("org.scalatest"))),
+      (Test / scalacOptions) += "-Xmacro-settings:enable-expression-tracers"
     )
 
   def excludePathsFromPackage(path: java.nio.file.Path): Boolean = {

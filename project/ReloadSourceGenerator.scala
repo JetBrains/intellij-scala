@@ -11,7 +11,7 @@ object ReloadSourceGenerator extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
     generateSources := Def.taskDyn {
-      val gens: Seq[Task[Seq[File]]] = (Keys.sourceGenerators in Compile).value
+      val gens: Seq[Task[Seq[File]]] = (Compile / Keys.sourceGenerators).value
       Def.task {joinTasks(gens).join.value.flatten}
     }.value
   )
@@ -21,7 +21,7 @@ object ReloadSourceGenerator extends AutoPlugin {
   )
 
   override def globalSettings: Seq[Def.Setting[_]] = Seq(
-    Keys.onLoad := ((s: State) => { generateAllSources.key.toString :: s}) compose (Keys.onLoad in Global).value
+    Keys.onLoad := ((s: State) => { generateAllSources.key.toString :: s}) compose (Global / Keys.onLoad).value
   )
 
 }
