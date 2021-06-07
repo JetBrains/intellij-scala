@@ -68,6 +68,12 @@ object TreePrinter {
     case Node(IDENTtpt, Seq(name), _) => name
     case Node(TYPEREF, Seq(name), _) => name
     case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => textOf(constructor) + "[" + arguments.map(textOf(_)).mkString(", ") + "]"
+    case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
+      annotation match {
+        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) if textOf(tpe0) == "Repeated" => // TODO FQN
+          textOf(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
+        case _ => textOf(tpe)
+      }
 
     case _ => ""
   }

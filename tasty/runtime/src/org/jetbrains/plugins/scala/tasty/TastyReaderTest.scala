@@ -29,6 +29,7 @@ object TastyReaderTest {
       "parameter/DefaultArguments",
       "parameter/Enum",
       "parameter/EnumCaseClass",
+      "parameter/Repeated",
       "parameter/Trait",
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
