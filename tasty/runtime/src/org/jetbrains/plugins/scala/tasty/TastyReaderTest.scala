@@ -18,6 +18,7 @@ object TastyReaderTest {
       "member/Def",
       "member/Modifiers",
       "member/This",
+      "member/Type",
       "member/Val",
       "member/Var",
 //      "package1/package2/Chained",
@@ -32,6 +33,7 @@ object TastyReaderTest {
       "parameter/EnumCaseClass",
       "parameter/Repeated",
       "parameter/Trait",
+      "parameter/Type",
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
       "typeDefinition/Class",

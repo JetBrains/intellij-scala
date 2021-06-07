@@ -24,4 +24,12 @@ trait Variance {
   enum EnumCaseClassContravariant {
     case Class[+A]()
   }
+
+  type AbstractTypeCovariant[+A]
+
+  type AbstractTypeContravariant[-A]
+
+  type TypeAliasCovariant[+A] = Int
+
+  type TypeAliasContravariant[-A] = Int
 }

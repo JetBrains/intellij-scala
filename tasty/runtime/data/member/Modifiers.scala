@@ -42,4 +42,18 @@ trait Modifiers {
   final var finalVar: Int = ???
 
   implicit var implicitVar: Int = ???
+
+  private type PrivateAbstractType
+
+  protected type ProtectedAbstractType
+
+  final type FinalAbstractType
+
+  private type PrivateTypeAlias = Int
+
+  protected type ProtectedTypeAlias = Int
+
+  final type FinalTypeAlias = Int
+
+  opaque type OpaqueTypeAlias = /**/Int/*???*/
 }

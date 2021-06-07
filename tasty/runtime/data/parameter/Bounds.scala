@@ -42,4 +42,16 @@ trait Bounds {
   enum EnumCaseClassLowerAndUpperBounds {
     case CaseClass[A >: Int <: AnyVal]()
   }
+
+  type AbstractTypeLowerBound[A >: Int]
+
+  type AbstractTypeUpperBound[A <: Int]
+
+  type AbstractTypeLowerAndUpperBounds[A >: Int <: AnyVal]
+
+  type TypeAliasLowerBound[A >: Int] = Int
+
+  type TypeAliasUpperBound[A <: Int] = Int
+
+  type TypeAliasLowerAndUpperBounds[A >: Int <: AnyVal] = Int
 }

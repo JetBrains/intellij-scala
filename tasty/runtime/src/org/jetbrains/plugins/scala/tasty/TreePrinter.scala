@@ -16,10 +16,16 @@ object TreePrinter {
       val isEnum = node.hasFlag(ENUM)
       val isObject = !isEnum && node.hasFlag(OBJECT)
       val isImplicitClass = !isObject && node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.name == name)
-      val keyword = if (isEnum) (if (node.hasFlag(CASE)) "case " else "enum ") else (if (isObject) "object " else (if (node.hasFlag(TRAIT)) "trait " else "class "))
+      val isTypeMember = !template.is(TEMPLATE)
+      val keyword = if (isEnum) (if (node.hasFlag(CASE)) "case " else "enum ") else (if (isObject) "object " else (if (node.hasFlag(TRAIT)) "trait " else if (isTypeMember) "type " else "class "))
       val identifier = if (isObject) node.previousSibling.fold(name)(_.name) else name
-      val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node, if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else Set.empty) + (if (isImplicitClass) "implicit " else "")
-      modifiers + keyword + identifier + textOf(template, Some(node))
+      val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
+        if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))) + (if (isImplicitClass) "implicit " else "")
+      modifiers + keyword + identifier + (if (!isTypeMember) textOf(template, Some(node)) else {
+        val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node)
+        val isAbstract = repr.children.exists(_.is(TYPEBOUNDStpt))
+        parametersIn(repr) + (if (isAbstract) ""else " = " + (if (node.hasFlag(OPAQUE)) "???" else textOf(repr.children.findLast(_.isTypeTree).get))) // TODO parameter, { /* compiled code */ }
+      })
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
@@ -90,7 +96,7 @@ object TreePrinter {
     val valueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
 
     node.children.foreach {
-      case Node(TYPEPARAM, Seq(name), Seq(Node(TYPEBOUNDStpt, _, Seq(lower, upper)))) =>
+      case tp @ Node(TYPEPARAM, Seq(name), Seq(Node(TYPEBOUNDStpt, _, Seq(lower, upper)), _: _*)) =>
         if (!open) {
           params += "["
           open = true
@@ -98,6 +104,12 @@ object TreePrinter {
         }
         if (next) {
           params += ", "
+        }
+        if (tp.hasFlag(COVARIANT)) {
+          params += "+"
+        }
+        if (tp.hasFlag(CONTRAVARIANT)) {
+          params += "-"
         }
         typeParams.map(_.next()).foreach { typeParam =>
           if (typeParam.hasFlag(COVARIANT)) {
@@ -201,6 +213,9 @@ object TreePrinter {
     }
     if (node.hasFlag(TRANSPARENT)) {
       s += "transparent "
+    }
+    if (node.hasFlag(OPAQUE) && !excluding(OPAQUE)) {
+      s += "opaque "
     }
     if (node.hasFlag(CASE) && !excluding(CASE)) {
       s += "case "
