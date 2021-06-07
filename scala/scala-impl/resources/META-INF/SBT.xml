@@ -72,8 +72,11 @@
         <completion.contributor language="Scala" implementationClass="org.jetbrains.sbt.language.completion.SbtCompletionContributor"
                                 order="first, before liveTemplates" id="sbtCompletionContributor"/>
         <completion.contributor language="Scala"
-                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"
-                                order="after scalaCompletionContrubutor"/>
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionContributor"
+                                order="after scalaCompletionContrubutor" id="sbtPackageSearchDependencyCompletionContributor"/>
+<!--        <completion.contributor language="Scala"-->
+<!--                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"-->
+<!--                                order="first, before liveTemplates" id="sbtMavenDependencyCompletionContributor"/>-->
         <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
                                 order="first"/>
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
