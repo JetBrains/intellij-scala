@@ -78,6 +78,7 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
 
     tag match {
       case SHAREDtype => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache (and resuse string presentation?)
+      case SHAREDterm => readTree(in.subReader(Addr(nat), in.endAddr)) // TODO cache
       case _ =>
         children.zip(children.drop(1)).foreach { case (a, b) =>
           a.nextSibling = Some(b)
