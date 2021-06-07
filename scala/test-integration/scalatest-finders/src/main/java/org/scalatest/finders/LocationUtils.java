@@ -42,7 +42,7 @@ public class LocationUtils {
       String[] finderClassNames = (String[]) valueMethod.invoke(findersAnnotation);
       for (String finderClassName : finderClassNames) {
         Class<?> finderClass = clazz.getClassLoader().loadClass(finderClassName);
-        Object instance = finderClass.newInstance();
+        Object instance = finderClass.getDeclaredConstructor().newInstance();
         if (instance instanceof Finder)
           finderList.add((Finder) instance);
       }
