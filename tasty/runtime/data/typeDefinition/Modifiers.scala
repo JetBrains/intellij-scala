@@ -25,6 +25,8 @@ trait Modifiers {
 
   open trait OpenTrait
 
+  transparent trait TransparentTrait
+
   private object PrivateObject
 
   protected object ProtectedObject

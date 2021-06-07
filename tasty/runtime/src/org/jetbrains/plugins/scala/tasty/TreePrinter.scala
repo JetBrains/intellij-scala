@@ -199,6 +199,9 @@ object TreePrinter {
     if (node.hasFlag(OPEN)) {
       s += "open "
     }
+    if (node.hasFlag(TRANSPARENT)) {
+      s += "transparent "
+    }
     if (node.hasFlag(CASE) && !excluding(CASE)) {
       s += "case "
     }
