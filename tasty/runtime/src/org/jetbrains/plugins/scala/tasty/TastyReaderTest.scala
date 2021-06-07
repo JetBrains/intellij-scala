@@ -23,6 +23,7 @@ object TastyReaderTest {
 //      "package1/package2/Chained",
 //      "package1/package2/Flat",
       "parameter/Bounds",
+      "parameter/ByName",
       "parameter/CaseClass",
       "parameter/Class",
       "parameter/Def",

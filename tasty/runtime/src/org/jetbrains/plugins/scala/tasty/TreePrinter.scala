@@ -74,6 +74,7 @@ object TreePrinter {
           textOf(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
         case _ => textOf(tpe)
       }
+    case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + textOf(tpe)
 
     case _ => ""
   }
