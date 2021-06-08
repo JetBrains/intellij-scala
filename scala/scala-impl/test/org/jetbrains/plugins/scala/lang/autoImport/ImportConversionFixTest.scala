@@ -223,5 +223,84 @@ class ImportConversionFixTest extends ImportElementFixTestBase[ScReferenceExpres
     "OwnerImpl.api.a2b"
   )
 
+  def testImplicitConversionOnGenericType(): Unit = doTest(
+    fileText =
+      s"""
+         |object conversions {
+         |  implicit class ObjectExt[T](private val v: T) extends AnyVal {
+         |    def toOption: Option[T] = Option(v)
+         |  }
+         |}
+         |class Test {
+         |  def foo[T](t: T): Unit = {
+         |    t.${CARET}toOption
+         |  }
+         |}
+         |""".stripMargin,
+    expectedText =
+      """
+        |import conversions.ObjectExt
+        |
+        |object conversions {
+        |  implicit class ObjectExt[T](private val v: T) extends AnyVal {
+        |    def toOption: Option[T] = Option(v)
+        |  }
+        |}
+        |class Test {
+        |  def foo[T](t: T): Unit = {
+        |    t.toOption
+        |  }
+        |}""".stripMargin,
 
+    "conversions.ObjectExt"
+  )
+
+  def testImplicitConversionOnGenericType1(): Unit = checkElementsToImport(
+    s"""
+       |object show {
+       |  trait Show[T] {
+       |    def show(t: T): String
+       |  }
+       |  trait Ops {
+       |    def show: String = ???
+       |  }
+       |}
+       |
+       |object implicits {
+       |  implicit def toShow[A](target: A)(implicit tc: show.Show[A]): show.Ops = ???
+       |}
+       |
+       |class Test {
+       |  def printShow[T](elem: T)(implicit show: show.Show[T]) {
+       |    print(elem.${CARET}show)
+       |  }
+       |}""".stripMargin,
+
+    "implicits.toShow"
+  )
+
+  def testImplicitConversionOnGenericType2(): Unit = checkElementsToImport(
+    s"""
+      |import scala.language.implicitConversions
+      |trait DoubleParam[F[_], SubParam] {
+      |  def foo2 = true
+      |}
+      |final class DoubleParamOps[F[_], SubParam, Val](private val p: F[Val])
+      |  extends AnyVal {
+      |  def foo2(implicit F: DoubleParam[F, SubParam]) = F.foo2
+      |}
+      |
+      |object mySyntax {
+      |  implicit def syntaxDoubleParam[F[_], SubParam, Val](
+      |                                                       p: F[Val]
+      |                                                     )(implicit F: DoubleParam[F, SubParam]) = {
+      |    new DoubleParamOps[F, SubParam, Val](p)
+      |  }
+      |}
+      |class Main {
+      |  def f2[F[_]](x: F[Int])(implicit F: DoubleParam[F, Throwable]) = {
+      |    x.${CARET}foo2
+      |  }
+      |}""".stripMargin,
+  "mySyntax.syntaxDoubleParam")
 }

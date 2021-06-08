@@ -10,9 +10,13 @@ import org.jetbrains.plugins.scala.actions.ScalaActionUtil
 import org.jetbrains.plugins.scala.actions.internal.RunActionOnPsiElementWithTraceLoggerAction._
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaRefactoringUtil
+import org.jetbrains.plugins.scala.lang.resolve.ReferenceExpressionResolver
+import org.jetbrains.plugins.scala.lang.resolve.processor.CompletionProcessor
+import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.traceLogger.ToData.{Raw => RawData}
 import org.jetbrains.plugins.scala.traceLogger.{ToData, TraceLogger}
 
@@ -101,7 +105,7 @@ object RunActionOnPsiElementWithTraceLoggerAction {
       }
     }
 
-    override def id: String = s"${name.replaceAll(" ", "-")}-$element"
+    override def id: String = s"$name-$element".replaceAll("[ :]", "-")
 
     override val presentation: String = {
       s"$name ${element.getText.shorten(30)}"
@@ -113,6 +117,7 @@ object RunActionOnPsiElementWithTraceLoggerAction {
   val actionProviders: Seq[ActionProvider] = ArraySeq(
     typeableActionProvider,
     resolveActionProvider,
+    completionActionProvider,
   )
 
   def typeableActionProvider: ActionProvider = {
@@ -128,6 +133,15 @@ object RunActionOnPsiElementWithTraceLoggerAction {
         case results =>
           results
       }
+    }
+  }
+
+  def completionActionProvider: ActionProvider = {
+    case ref: ScReferenceExpression => ActionImpl("Invoke completion processor", ref) { ref =>
+      implicit val ctx: ProjectContext = ref.getProject
+      val resolver = new ReferenceExpressionResolver
+      val processor = new CompletionProcessor(ref.getKinds(incomplete = true, completion = true), ref, withImplicitConversions = true)
+      resolver.doResolve(ref, processor)
     }
   }
 }

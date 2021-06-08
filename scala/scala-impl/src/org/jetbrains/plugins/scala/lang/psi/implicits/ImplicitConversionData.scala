@@ -110,7 +110,7 @@ object ImplicitConversionData {
       case Some(originalType) =>
         val withSuperClasses = originalType.widen.extractClass match {
           case Some(clazz) => MixinNodes.allSuperClasses(clazz).map(_.qualifiedName) + clazz.qualifiedName + AnyFqn
-          case _ => Set.empty
+          case _ => Set(AnyFqn)
         }
         val scope = expr.resolveScope
         (for {
