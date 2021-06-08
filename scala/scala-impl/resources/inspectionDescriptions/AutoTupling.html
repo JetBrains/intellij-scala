@@ -1,9 +1,7 @@
 <html>
 <body>
-Reports comma-separated argumenrs that could be converted into tuples.
-<p>Scala compiler tries to convert comma separated arguments into tuples, if there are no appropriate multi-argument
-methods and a single appropriate one-argument method. Such conversion may disrupt type safety and lead to unexpected
-    results.</p>
+<p>Reports comma-separated argumenrs that could be converted into tuples.</p>
+<p>Scala compiler tries to convert comma-separated arguments into tuples if there are no appropriate multi-argument methods but there is a single appropriate one-argument method. Such conversion may disrupt type safety and lead to unexpected results.</p>
 <p><b>Example:</b></p>
 <pre><code>
   def foo(a: Any) = {}
