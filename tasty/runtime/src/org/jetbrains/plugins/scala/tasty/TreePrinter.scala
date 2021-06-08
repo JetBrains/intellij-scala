@@ -24,7 +24,7 @@ object TreePrinter {
       modifiers + keyword + identifier + (if (!isTypeMember) textOf(template, Some(node)) else {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node)
         val isAbstract = repr.children.exists(_.is(TYPEBOUNDStpt))
-        parametersIn(repr) + (if (isAbstract) ""else " = " + (if (node.hasFlag(OPAQUE)) "???" else textOf(repr.children.findLast(_.isTypeTree).get))) // TODO parameter, { /* compiled code */ }
+        parametersIn(repr, Some(repr)) + (if (isAbstract) ""else " = " + (if (node.hasFlag(OPAQUE)) "???" else textOf(repr.children.findLast(_.isTypeTree).get))) // TODO parameter, { /* compiled code */ }
       })
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
@@ -96,7 +96,7 @@ object TreePrinter {
     val valueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
 
     node.children.foreach {
-      case tp @ Node(TYPEPARAM, Seq(name), Seq(Node(TYPEBOUNDStpt, _, Seq(lower, upper)), _: _*)) =>
+      case Node(TYPEPARAM, Seq(name), Seq(Node(TYPEBOUNDStpt, _, Seq(lower, upper)), _: _*)) =>
         if (!open) {
           params += "["
           open = true
@@ -104,12 +104,6 @@ object TreePrinter {
         }
         if (next) {
           params += ", "
-        }
-        if (tp.hasFlag(COVARIANT)) {
-          params += "+"
-        }
-        if (tp.hasFlag(CONTRAVARIANT)) {
-          params += "-"
         }
         typeParams.map(_.next()).foreach { typeParam =>
           if (typeParam.hasFlag(COVARIANT)) {
