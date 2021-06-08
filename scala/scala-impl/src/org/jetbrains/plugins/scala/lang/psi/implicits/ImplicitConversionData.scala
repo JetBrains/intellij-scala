@@ -7,20 +7,22 @@ import org.jetbrains.plugins.scala.autoImport.GlobalImplicitConversion
 import org.jetbrains.plugins.scala.autoImport.GlobalMember.findGlobalMembers
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.{PsiClassExt, PsiElementExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
-import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.findImplicits
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes
+import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.ImplicitState
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitConversionIndex
-import org.jetbrains.plugins.scala.lang.psi.types.api.StdTypes
-import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, StdTypes}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.result.{TypeResult, Typeable}
+import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ConstraintSystem, ConstraintsResult, ScParameterizedType, ScType}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
+
+import scala.annotation.tailrec
 
 abstract class ImplicitConversionData {
   def element: PsiNamedElement
@@ -42,10 +44,10 @@ abstract class ImplicitConversionData {
 
     fromType.conforms(paramType, ConstraintSystem.empty, checkWeak = true) match {
       case ConstraintsResult.Left => None
-      case system: ConstraintSystem =>
+      case _ =>
         element match {
           case f: ScFunction if f.hasTypeParameters =>
-            returnTypeWithLocalTypeInference(f, fromType, place, system)
+            returnTypeWithLocalTypeInference(f, fromType, place)
           case _ =>
             Some(ImplicitConversionApplication(returnType))
         }
@@ -57,70 +59,32 @@ abstract class ImplicitConversionData {
 
   private def returnTypeWithLocalTypeInference(function: ScFunction,
                                                fromType: ScType,
-                                               place: PsiElement,
-                                               constraints: ConstraintSystem): Option[ImplicitConversionApplication] = {
+                                               place: PsiElement): Option[ImplicitConversionApplication] = {
 
     implicit val projectContext: ProjectContext = function.projectContext
+    implicit val elementScope: ElementScope = function.elementScope
 
-    constraints match {
-      case ConstraintSystem(unSubst) =>
-        val typeParameters = function.typeParameters.map { typeParameter =>
-          typeParameter -> typeParameter.typeParamId
-        }
-        val typeParamIds = typeParameters.map(_._2).toSet
+    val functionType = FunctionType(Any, Seq(fromType.tryExtractDesignatorSingleton))
+    val implicitState = ImplicitState(place, functionType, functionType, None, isImplicitConversion = true,
+      searchImplicitsRecursively = 0, None, fullInfo = true, Some(ImplicitsRecursionGuard.currentMap))
+    val resolveResult = new ScalaResolveResult(function, ScSubstitutor.empty)
+    val collector = new ImplicitCollector(implicitState)
+    val compatible = collector.checkFunctionByType(resolveResult, withLocalTypeInference = true, checkFast = false)
 
-        var lastConstraints = constraints
-        val boundsSubstitutor = substitutor.andThen(unSubst)
-
-        def substitute(maybeBound: TypeResult) =
-          for {
-            bound <- maybeBound.toOption
-            substituted = boundsSubstitutor(bound)
-            if !substituted.hasRecursiveTypeParameters(typeParamIds)
-          } yield substituted
-
-        for {
-          (typeParameter, typeParamId) <- typeParameters
-        } {
-          lastConstraints = substitute(typeParameter.lowerBound).fold(lastConstraints) {
-            lastConstraints.withLower(typeParamId, _)
-          }
-
-          lastConstraints = substitute(typeParameter.upperBound).fold(lastConstraints) {
-            lastConstraints.withUpper(typeParamId, _)
-          }
-        }
-
-        lastConstraints match {
-          case ConstraintSystem(lastSubstitutor) =>
-
-            val firstParameter = function.parameters.headOption.map(Parameter(_))
-
-            val firstParamSubstitutor = ScSubstitutor.paramToType(firstParameter.toSeq, Seq(fromType))
-
-            val implicitParameters =
-              function.parameters
-                .filter(_.isImplicitParameter)
-                .map(Parameter(_))
-
-            val (inferredParameters, expressions, found) =
-              findImplicits(implicitParameters,
-                None,
-                place,
-                canThrowSCE = false,
-                abstractSubstitutor = lastSubstitutor.followed(firstParamSubstitutor).followed(unSubst)
-              )
-
-            val resultType = lastSubstitutor(firstParamSubstitutor(returnType))
-
-            val resultSubstitutor =
-              ScSubstitutor.paramToExprType(inferredParameters, expressions, useExpected = false)
-
-            Some(ImplicitConversionApplication(resultType, resultSubstitutor, found.toSeq))
-          case _ => None
-        }
-      case _ => None
+    for {
+      srr            <- compatible
+      conversionType <- srr.implicitParameterType
+      resultType     <- resultType(conversionType)
+    } yield {
+      ImplicitConversionApplication(resultType, srr.implicitParameters)
     }
+  }
+
+  @tailrec
+  private def resultType(conversionType: ScType, isResult: Boolean = false): Option[ScType] = conversionType match {
+    case FunctionType(res, _) => resultType(res, isResult = true)
+    case _ if isResult        => Option(conversionType)
+    case _                    => None
   }
 }
 

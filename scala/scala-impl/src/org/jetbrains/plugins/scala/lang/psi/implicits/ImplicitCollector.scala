@@ -330,12 +330,22 @@ class ImplicitCollector(place: PsiElement,
   ): Option[ScalaResolveResult] = TraceLogger.func {
     val fun = c.element.asInstanceOf[ScFunction]
 
-    def wrongTypeParam(result: ImplicitResult): Some[ScalaResolveResult] = {
-      Some(c.copy(problems = Seq(WrongTypeParameterInferred), implicitReason = result))
+    def wrongTypeParam(nonValueType: ScType, result: ImplicitResult): Some[ScalaResolveResult] = {
+      val (valueType, typeParams) = inferValueType(nonValueType)
+      Some(c.copy(
+        problems = Seq(WrongTypeParameterInferred),
+        implicitParameterType = Some(valueType),
+        implicitReason = result,
+        unresolvedTypeParameters = Some(typeParams)
+      ))
     }
 
-    def reportParamNotFoundResult(implicitParams: Seq[ScalaResolveResult]): Option[ScalaResolveResult] = {
-      reportWrong(c.copy(implicitParameters = implicitParams), ImplicitParameterNotFoundResult)
+    def reportParamNotFoundResult(resType: ScType, implicitParams: Seq[ScalaResolveResult]): Option[ScalaResolveResult] = {
+      val (valueType, typeParams) = inferValueType(resType)
+      reportWrong(
+        c.copy(implicitParameters = implicitParams, implicitParameterType = Some(valueType), unresolvedTypeParameters = Some(typeParams)),
+        ImplicitParameterNotFoundResult
+      )
     }
 
     def noImplicitParametersResult(nonValueType: ScType): Some[ScalaResolveResult] = {
@@ -376,11 +386,11 @@ class ImplicitCollector(place: PsiElement,
           case (FunctionType(rt, _), _) =>
             val newCandidate = c.copy(implicitParameterType = Some(rt))
             if (extensionConversionCheck(data, newCandidate).isEmpty)
-              wrongTypeParam(CantFindExtensionMethodResult)
+              wrongTypeParam(nonValueType, CantFindExtensionMethodResult)
             else None
           //this is not a function, when we still need to pass implicit?..
           case _ =>
-            wrongTypeParam(UnhandledResult)
+            wrongTypeParam(nonValueType, UnhandledResult)
         }
       }
     }
@@ -393,7 +403,7 @@ class ImplicitCollector(place: PsiElement,
         else updated
       }
       catch {
-        case _: SafeCheckException => return wrongTypeParam(CantInferTypeParameterResult)
+        case _: SafeCheckException => return wrongTypeParam(nonValueType0, CantInferTypeParameterResult)
       }
 
     val depth = ScalaProjectSettings.getInstance(project).getImplicitParametersSearchDepth
@@ -421,12 +431,12 @@ class ImplicitCollector(place: PsiElement,
         val implicitParams = implicitParams0.getOrElse(Seq.empty)
 
         if (implicitParams.exists(_.isImplicitParameterProblem))
-          reportParamNotFoundResult(implicitParams)
+          reportParamNotFoundResult(resType, implicitParams)
         else
           fullResult(resType, implicitParams, hadDependents)
       }
       catch {
-        case _: SafeCheckException => wrongTypeParam(CantInferTypeParameterResult)
+        case _: SafeCheckException => wrongTypeParam(nonValueType, CantInferTypeParameterResult)
       }
     } else {
       noImplicitParametersResult(nonValueType)
@@ -491,7 +501,7 @@ class ImplicitCollector(place: PsiElement,
   }
 
   @Measure
-  private def checkFunctionByType(
+  def checkFunctionByType(
     c:                      ScalaResolveResult,
     withLocalTypeInference: Boolean,
     checkFast:              Boolean

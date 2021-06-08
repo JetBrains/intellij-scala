@@ -1586,6 +1586,57 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
          |""".stripMargin,
     item = "bMethod"
   )
+
+  //SCL-19124
+  def testConversionWithImplicitParameter3(): Unit = doCompletionTest(
+    s"""
+       |import scala.language.implicitConversions
+       |trait DoubleParam[F[_], SubParam] {
+       |  def foo2 = true
+       |}
+       |final class DoubleParamOps[F[_], SubParam, Val](private val p: F[Val])
+       |  extends AnyVal {
+       |  def foo2(implicit F: DoubleParam[F, SubParam]) = F.foo2
+       |}
+       |
+       |object mySyntax {
+       |  implicit def syntaxDoubleParam[F[_], SubParam, Val](
+       |                                                       p: F[Val]
+       |                                                     )(implicit F: DoubleParam[F, SubParam]) = {
+       |    new DoubleParamOps[F, SubParam, Val](p)
+       |  }
+       |}
+       |class Main {
+       |  import mySyntax._
+       |  def f2[F[_]](x: F[Int])(implicit F: DoubleParam[F, Throwable]) = {
+       |    x.fo$CARET
+       |  }
+       |}""".stripMargin,
+    resultText =
+      s"""
+         |import scala.language.implicitConversions
+         |trait DoubleParam[F[_], SubParam] {
+         |  def foo2 = true
+         |}
+         |final class DoubleParamOps[F[_], SubParam, Val](private val p: F[Val])
+         |  extends AnyVal {
+         |  def foo2(implicit F: DoubleParam[F, SubParam]) = F.foo2
+         |}
+         |
+         |object mySyntax {
+         |  implicit def syntaxDoubleParam[F[_], SubParam, Val](
+         |                                                       p: F[Val]
+         |                                                     )(implicit F: DoubleParam[F, SubParam]) = {
+         |    new DoubleParamOps[F, SubParam, Val](p)
+         |  }
+         |}
+         |class Main {
+         |  import mySyntax._
+         |  def f2[F[_]](x: F[Int])(implicit F: DoubleParam[F, Throwable]) = {
+         |    x.foo2
+         |  }
+         |}""".stripMargin,
+    item = "foo2")
 }
 
 class ScalaBasicCompletionTest_with_2_13_extensionMethods extends ScalaBasicCompletionTestBase {
