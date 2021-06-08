@@ -1,7 +1,7 @@
 <html>
 <body>
 <p>Reports comparing Scala collections of different categories.</p>
-<p>Scala collections cannot be equal if they are of different categories (Set, Seq, Map or Iterator). Comparing them with arrays is also pointless. This inspection suggests converting one of the collections into the same category.</p>
+<p>Scala collections of different categories (Set, Seq, Map or Iterator) cannot be equal and should not be compared with arrays either. This inspection suggests converting one of the collections into the same category.</p>
 <p><b>Example:</b></p>
 <pre><code>
   seq == iterator
