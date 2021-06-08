@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.compilationCharts
 
-import java.util.UUID
 import com.intellij.compiler.server.BuildManagerListener
 import com.intellij.openapi.compiler.{CompileContext, CompileTask}
-import com.intellij.openapi.components.{ComponentManager, Service, ServiceManager}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsComponentHolder
 import org.jetbrains.plugins.scala.compiler.CompileServerClient
+import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.util.ScheduledService
 
+import java.util.UUID
 import scala.concurrent.duration.DurationInt
 
 class CompilationChartsBuildManagerListener
@@ -19,6 +20,9 @@ class CompilationChartsBuildManagerListener
   // We use it instead of buildStarted or beforeBuildProcessStarted methods to avoid an exception (EA-263973).
   // Also it's an optimization. We need to schedule updates only for compilation not for UP_TO_DATE_CHECK.
   override def execute(compileContext: CompileContext): Boolean = {
+    if (isUnitTestMode)
+      return true
+
     val project = compileContext.getProject
     CompilationProgressStateManager.erase(project)
     CompileServerMetricsStateManager.reset(project)
