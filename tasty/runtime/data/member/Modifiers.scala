@@ -56,4 +56,13 @@ trait Modifiers {
   final type FinalTypeAlias = Int
 
   opaque type OpaqueTypeAlias = /**/Int/*???*/
+
+  extension (i: Int)
+    private def privateExtensionMethod: Unit = ???
+
+  extension (i: Int)
+    protected def protectedExtensionMethod: Unit = ???
+
+  extension (i: Int)
+    final def finalExtensionMethod: Unit = ???
 }
