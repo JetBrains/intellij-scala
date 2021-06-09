@@ -345,6 +345,9 @@ object LocationLineManager {
   val lstore_2: Byte = 0x41.toByte
   val lstore_3: Byte = 0x42.toByte
 
+  val getStatic: Byte = 0xB2.toByte
+  val invokeVirtual: Byte = 0xB6.toByte
+  val invokeSpecial: Byte = 0xB7.toByte
   val invokeStatic: Byte = 0xB8.toByte
 
   val areturn: Byte = 0xB0.toByte

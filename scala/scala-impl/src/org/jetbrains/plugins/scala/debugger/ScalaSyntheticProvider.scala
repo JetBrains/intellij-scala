@@ -4,9 +4,11 @@ import java.util.concurrent.ConcurrentMap
 import com.intellij.debugger.engine.SyntheticTypeComponentProvider
 import com.intellij.util.containers.ContainerUtil
 import com.sun.jdi._
+import org.jetbrains.plugins.scala.debugger.LocationLineManager.{invokeStatic, invokeVirtual}
 import org.jetbrains.plugins.scala.debugger.ScalaPositionManager.isAnonfunType
 import org.jetbrains.plugins.scala.debugger.TopLevelMembers.isSyntheticClassForTopLevelMembers
 import org.jetbrains.plugins.scala.debugger.evaluation.util.DebuggerUtil
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import scala.collection.mutable
 import scala.jdk.CollectionConverters._
@@ -39,6 +41,7 @@ object ScalaSyntheticProvider {
 
     val result = typeComponent match {
       case _ if hasSpecialization(typeComponent) && !isMacroDefined(typeComponent) => true
+      case m: Method if m.isBridge => true
       case m: Method if isSyntheticConstructor(m) => true
       case m: Method if isDefaultArg(m) => true
       case m: Method if isForwarder(m) => true
@@ -109,7 +112,7 @@ object ScalaSyntheticProvider {
       lines.nonEmpty && line <= lines.min
     }
 
-    Try(onlyInvokesStatic(m) && (hasTraitWithImplementation(m) || isSAMImplementation(m)) && looksLikeForwarderLocation)
+    Try(invokesSingleMethod(m) && (isTraitForwarder(m) || isSAMImplementation(m)) && looksLikeForwarderLocation)
       .getOrElse(false)
   }
 
@@ -118,19 +121,24 @@ object ScalaSyntheticProvider {
     typeName.contains("$macro") || typeName.contains("$stateMachine$")
   }
 
-  private def onlyInvokesStatic(m: Method): Boolean = {
+  private def invokesSingleMethod(m: Method): Boolean = {
     import LocationLineManager._
 
     val bytecodes: Array[Byte] =
       try m.bytecodes()
       catch {case _: Throwable => return false}
 
+    var staticFieldLoaded = false
     var i = 0
     while (i < bytecodes.length) {
       val instr = bytecodes(i)
       if (twoBytesLoadCodes.contains(instr)) i += 2
       else if (oneByteLoadCodes.contains(instr)) i += 1
-      else if (instr == invokeStatic) {
+      else if (instr == getStatic && !staticFieldLoaded) {
+        i += 3
+        staticFieldLoaded = true
+      }
+      else if (instr == invokeStatic || instr == invokeVirtual || instr == invokeSpecial) {
         val nextIdx = i + 3
         val nextInstr = bytecodes(nextIdx)
         return nextIdx == (bytecodes.length - 1) && returnCodes.contains(nextInstr)
@@ -138,6 +146,14 @@ object ScalaSyntheticProvider {
       else return false
     }
     false
+  }
+
+  private def isTraitForwarder(m: Method): Boolean = hasTraitWithImplementation(m) || isScala3TraitForwarder(m)
+
+  private def isScala3TraitForwarder(m: Method): Boolean = m.declaringType() match {
+    case it: InterfaceType =>
+      m.isStatic && m.name.endsWith("$") && it.methods().asScala.exists(_.name() == m.name.stripSuffix("$"))
+    case _ => false
   }
 
   private def hasTraitWithImplementation(m: Method): Boolean = {

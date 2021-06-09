@@ -7,11 +7,11 @@ import com.intellij.debugger.settings.DebuggerSettings
 import org.junit.experimental.categories.Category
 
 /**
-  * @author Nikolay.Tropin
-  */
+ * @author Nikolay.Tropin
+ */
 @Category(Array(classOf[DebuggerTests]))
 class StepIntoTest_until_2_11 extends StepIntoTestBase {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version  <= LatestScalaVersions.Scala_2_11
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_11
 
   override def testPrivateMethodUsedInLambda(): Unit = {
     runDebugger() {
@@ -42,6 +42,7 @@ class StepIntoTest_since_2_12 extends StepIntoTestBase {
        |}
       """.stripMargin.trim()
   )
+
   def testSamAbstractClass(): Unit = {
     runDebugger() {
       waitBreakpointAndStepInto("SamAbstractClass.scala", "SamAbstractClass$$$anonfun$main$1", 4)
@@ -53,17 +54,15 @@ class StepIntoTest_since_2_12 extends StepIntoTestBase {
 class StepIntoTest_3_0 extends StepIntoTest_since_2_12 {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
-  override def testSamAbstractClass(): Unit = failing(super.testSamAbstractClass())
+  override def testSamAbstractClass(): Unit =
+    runDebugger() {
+      waitBreakpointAndStepInto("SamAbstractClass.scala", "SamAbstractClass$$$_$_$$anonfun$1", 4)
+    }
 
-  override def testTraitMethod(): Unit = failing(super.testTraitMethod())
-
+  //todo:
+  // doesn't work although the method is not marked as synthetic
+  // maybe that's because the method has non-trivial stack frame table?
   override def testLazyVal(): Unit = failing(super.testLazyVal())
-
-  override def testPrivateMethodUsedInLambda(): Unit = failing(super.testPrivateMethodUsedInLambda())
-
-  override def testSpecialization(): Unit = failing(super.testSpecialization())
-
-  override def testTraitObjectSameName(): Unit = failing(super.testTraitObjectSameName())
 }
 
 
@@ -284,7 +283,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |object TTT {
        |  def unapply(z: Option[Int]) = z  //should step here
        |
-        |  def apply(i: Int) = Some(i)
+       |  def apply(i: Int) = Some(i)
        |}""".stripMargin.trim()
   )
 
@@ -325,7 +324,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |object LazyVal {
        |  lazy val lzy = Some(1)  //should step here
        |
-        |  def main(args: Array[String]): Unit = {
+       |  def main(args: Array[String]): Unit = {
        |    val x = lzy $bp
        |  }
        |}
@@ -343,12 +342,12 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |object LazyVal2 {
        |  lazy val lzy = new AAA
        |
-        |  def main(args: Array[String]): Unit = {
+       |  def main(args: Array[String]): Unit = {
        |    val x = lzy
        |    val y = lzy.foo() $bp
        |  }
        |
-        |  class AAA {
+       |  class AAA {
        |    def foo(): Unit = {} //should step here
        |  }
        |}
@@ -365,20 +364,20 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
     s"""object SimpleGetters {
        |  val z = 0
        |
-      |  def main(args: Array[String]): Unit = {
+       |  def main(args: Array[String]): Unit = {
        |    val x = new SimpleGetters
        |    x.getA $bp
        |    sum(x.z, x.gB)
        |  }
        |
-      |  def sum(i1: Int, i2: Int) = i1 + i2
+       |  def sum(i1: Int, i2: Int) = i1 + i2
        |}
        |
-      |class SimpleGetters {
+       |class SimpleGetters {
        |  val a = 0
        |  var b = 1
        |
-      |  def getA = a
+       |  def getA = a
        |  def gB = this.b
        |  def z = SimpleGetters.z
        |}
@@ -400,7 +399,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |    foo(b)$bp
        |  }
        |
-      |  def foo(b: B): Unit = {
+       |  def foo(b: B): Unit = {
        |    b.b() match {
        |      case "a" =>
        |      case "b" =>
@@ -408,7 +407,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |    }
        |  }
        |
-      |  class B {
+       |  class B {
        |    def b() = "b"
        |  }
        |}
@@ -424,7 +423,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("PrivateMethodUsedInLambda.scala",
     s"""object PrivateMethodUsedInLambda {
        |  private def privateMethod(i: Int) = {
-       |    "hello!" //should step here
+       |    println("hello!") //should step here
        |  }
        |
        |  def main(args: Array[String]): Unit = {
@@ -443,14 +442,14 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
   addFileWithBreakpoints("Specialization.scala",
     s"""class FunctionA extends Function[Int, Int] {
        |  override def apply(v1: Int): Int = {
-       |    "stop"
+       |    println("stop")
        |    v1
        |  }
        |}
        |
        |class FunctionB extends Function[String, Int] {
        |  override def apply(v1: String): Int = {
-       |    "stop"
+       |    println("stop")
        |    v1.length
        |  }
        |}
@@ -530,6 +529,7 @@ abstract class StepIntoTestBase extends ScalaDebuggerTestCase {
        |    true
        |  }
        |}""".stripMargin)
+
   def testTraitObjectSameName(): Unit = {
     runDebugger() {
       waitBreakpointAndStepInto("TraitObjectSameName.scala", "parse", 11)
