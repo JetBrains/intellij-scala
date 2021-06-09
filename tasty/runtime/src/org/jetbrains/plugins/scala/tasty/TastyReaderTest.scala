@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.tasty
 
 import org.jetbrains.plugins.scala.tasty.TreePrinter.textOf
+
+import scala.util.control.NonFatal
 //import org.junit.Assert
 
 import java.io.File
@@ -54,7 +56,13 @@ object TastyReaderTest {
 
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
-      val actual = textOf(tree)
+      val actual = try {
+        textOf(tree)
+      } catch {
+        case NonFatal(e) =>
+          Console.err.println(scalaFile)
+          throw e
+      }
 
       val expected = new String(readBytes(scalaFile))
         .replaceAll(raw"/\*\*/.*/\*(.*)\*/", "$1")
