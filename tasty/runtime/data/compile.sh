@@ -1,6 +1,4 @@
-#!/bin/bash
-
-set -e
+#!/bin/bash -e
 
 find -regex '.*\.\(class\|tasty\|actual\)' -delete
 
@@ -15,9 +13,9 @@ for scalaFile in $scalaFiles; do
   treeFile="$name.tree"
   if [ ! "$treeFile" -nt "$scalaFile" ]; then
     echo "Parsing $tastyFile..."
-    dotc $tastyFile -print-tasty -color:never >> $treeFile
+    dotc $tastyFile -print-tasty -color:never | grep -Po '^[ |\d]{6}: .*' > $treeFile
   fi
-  rm $name.class
+  #rm $name.class
 done
 
 echo Done.
