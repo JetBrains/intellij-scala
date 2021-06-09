@@ -53,7 +53,7 @@ class ScalaExplicitlyImportedWeigher extends ProximityWeigher {
       val exprIter = stmt.importExprs.iterator
       while (exprIter.hasNext) {
         val expr = exprIter.next()
-        if (expr.isSingleWildcard && qualNoPoint != null) {
+        if (expr.hasWildcardSelector && qualNoPoint != null) {
           for (qualifier <- expr.qualifier; resolve <- qualifier.multiResolveScala(false))
             resolve.element match {
               case pack: PsiPackage =>

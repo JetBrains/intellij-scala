@@ -18,7 +18,8 @@ ScalaFile
           CodeReferenceElement: b
             PsiElement(identifier)('b')
         PsiElement(,)(',')
-        PsiElement(_)('_')
+        ImportSelector
+          PsiElement(_)('_')
         PsiErrorElement:'}' expected
           <empty list>
         PsiElement(,)(',')

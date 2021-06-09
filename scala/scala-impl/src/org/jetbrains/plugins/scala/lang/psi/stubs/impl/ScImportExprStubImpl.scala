@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createRe
 class ScImportExprStubImpl(parent: StubElement[_ <: PsiElement],
                            elementType: IStubElementType[_ <: StubElement[_ <: PsiElement], _ <: PsiElement],
                            override val referenceText: Option[String],
-                           override val isSingleWildcard: Boolean)
+                           override val hasWildcardSelector: Boolean)
   extends StubBase[ScImportExpr](parent, elementType) with ScImportExprStub with PsiOwner[ScImportExpr] {
 
   private var referenceReference: SofterReference[Option[ScStableCodeReference]] = null

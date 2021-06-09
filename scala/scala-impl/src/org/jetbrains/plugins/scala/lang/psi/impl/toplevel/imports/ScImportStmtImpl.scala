@@ -71,7 +71,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
         val nameHint = processor.getHint(NameHint.KEY).nullSafe
         val name     = nameHint.fold("")(_.getName(state))
 
-        if (name != "" && !importExpr.isSingleWildcard) {
+        if (name != "" && !importExpr.hasWildcardSelector) {
           val decodedName   = clean(name)
           val importedNames = importExpr.importedNames.map(clean)
           if (!importedNames.contains(decodedName)) return true
@@ -198,12 +198,12 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
                 .withSubstitutor(subst)
                 .withFromType(refType)
 
-              if (importExpr.isSingleWildcard) {
+              if (importExpr.hasWildcardSelector) {
                 if (!checkWildcardImports)
                   return true
 
                 val processed = (elem, refType, processor) match {
-                  case (cl: PsiClass, _, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
+                  case (cl: PsiClass, _, processor: BaseProcessor) if !cl.is[ScTemplateDefinition] =>
                     processor.processType(ScDesignatorType.static(cl), place, newState)
                   case (_, Some(value), processor: BaseProcessor) =>
                     processor.processType(value, place, newState)

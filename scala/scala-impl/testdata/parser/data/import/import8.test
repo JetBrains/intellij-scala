@@ -35,5 +35,6 @@ ScalaFile
           PsiElement(_)('_')
         PsiElement(,)(',')
         PsiWhiteSpace(' ')
-        PsiElement(_)('_')
+        ImportSelector
+          PsiElement(_)('_')
         PsiElement(})('}')

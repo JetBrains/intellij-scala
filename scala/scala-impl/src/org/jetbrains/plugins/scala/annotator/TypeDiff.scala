@@ -70,7 +70,7 @@ object TypeDiff {
     (tpe1, tpe2) match {
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
       case (_: ScCompoundType, ScCompoundType(cs2, tms2, tps2)) if tpe1 == tpe2 =>
-        val components = (cs2 lazyZip cs2).map(diff).intersperse(aMatch(" with "))
+        val components = (cs2 lazyZip cs2).map(diff).intersperse(aMatch(context.compoundTypeSeparatorText))
         if (tms2.isEmpty && tps2.isEmpty) Node(components: _*) else {
           val declarations = {
             val members = (tms2.keys.map(_.namedElement) ++ tps2.values.map(_.typeAlias)).toSeq
@@ -81,7 +81,7 @@ object TypeDiff {
 
       // TODO More flexible comparison, unify with the clause above
       case (ScCompoundType(cs1, EmptyMap(), EmptyMap()), ScCompoundType(cs2, EmptyMap(), EmptyMap())) if cs1.length == cs2.length =>
-        Node((cs1 lazyZip cs2).map(diff).intersperse(aMatch(" with ")): _*)
+        Node((cs1 lazyZip cs2).map(diff).intersperse(aMatch(context.compoundTypeSeparatorText)): _*)
 
       // TODO Comparison (now, it's just "parsing" for the type annotation hints)
       case (_: ScExistentialType, ScExistentialType(q2: ScParameterizedType, ws2)) if tpe1 == tpe2 =>

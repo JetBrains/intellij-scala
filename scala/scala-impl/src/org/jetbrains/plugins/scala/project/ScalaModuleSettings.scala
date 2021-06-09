@@ -91,6 +91,9 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
     case _ => false
   }
 
+  val isSource3Enabled: Boolean =
+    additionalCompilerOptions.contains("-Xsource:3")
+
   val isPartialUnificationEnabled: Boolean =
     scalaLanguageLevel >= Scala_2_13 || additionalCompilerOptions.contains("-Ypartial-unification")
 

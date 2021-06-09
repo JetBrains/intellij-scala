@@ -23,7 +23,7 @@ object Patterns {
           builder.getTokenText match {
             case "*" =>
               builder.advanceLexer()
-              patternsMarker.done(ScalaElementType.SEQ_WILDCARD)
+              patternsMarker.done(ScalaElementType.SEQ_WILDCARD_PATTERN)
               return true
             case _ =>
           }

@@ -20,5 +20,7 @@ trait ScImportSelectorStub extends StubElement[ScImportSelector] {
 
   def reference: Option[ScStableCodeReference]
 
+  def isWildcardSelector: Boolean
+
   def importedName: Option[String]
 }

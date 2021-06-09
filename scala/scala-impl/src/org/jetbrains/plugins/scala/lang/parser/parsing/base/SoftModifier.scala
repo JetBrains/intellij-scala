@@ -16,7 +16,7 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
   import ScalaTokenTypes._
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
-    case IsSoftModifier(tokenType) if builder.isScala3 =>
+    case IsSoftModifier(tokenType) if isAllowed(tokenType) =>
       val marker = builder.mark()
 
       builder.remapCurrentToken(tokenType)
@@ -44,10 +44,15 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
     case _ => false
   }
 
+  private def isAllowed(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.isScala3 || (builder.isSource3Enabled && isAllowedInSource3(tokenType))
+
+  protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean = false
+
   private object IsSoftModifier {
 
     def unapply(tokenType: IElementType)
-               (implicit builder: ScalaPsiBuilder): Option[ScalaTokenType] =
+               (implicit builder: ScalaPsiBuilder): Option[ScalaModifierTokenType] =
       Option(ScalaModifier.byText(builder.getTokenText))
         .filter(modifiers.contains)
         .map(ScalaModifierTokenType(_))
@@ -101,7 +106,12 @@ object LocalSoftModifier extends SoftModifier(
   Transparent,
   Open,
   Infix,
-)
+) {
+  override protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val modifier = tokenType.modifier
+    modifier == Open || modifier == Infix
+  }
+}
 
 /**
  * [[OpaqueModifier]] ::= 'opaque'

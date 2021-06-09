@@ -81,7 +81,7 @@ class ImportExprUsed(e: ScImportExpr) extends ImportUsed(e) {
     val expr = importExpr.getOrElse(return None)
 
     expr.qualifier.flatMap(qualifier =>
-      if (expr.isSingleWildcard) Some(qualifier.qualName + "._")
+      if (expr.hasWildcardSelector) Some(qualifier.qualName + "." + TokenTexts.importWildcardText(element))
       else expr.reference.map(ref => qualifier.qualName + "." + ref.refName)
     )
   }
@@ -131,7 +131,7 @@ class ImportSelectorUsed(sel: ScImportSelector) extends ImportUsed(sel) {
   override def qualName: Option[String] = {
     importExpr.flatMap(_.reference).zip(sel.reference).map {
       case (left, right) => s"${left.qualName}.${right.refName}"
-    }.headOption
+    }
   }
 
   override def toString: String = "ImportSelectorUsed(" + super.toString + ")"

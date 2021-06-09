@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.lang.imports.unused
 
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 
 /**
@@ -199,6 +201,35 @@ class UnusedImportTest extends UnusedImportTestBase with MatcherAssertions {
 
     assertMatches(messages(text)) {
       case HighlightMessage("_", _) :: Nil =>
+    }
+  }
+}
+
+
+class UnusedImportTest_InScala3 extends UnusedImportTestBase with MatcherAssertions {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+
+  override protected def setUp(): Unit = {
+    super.setUp()
+    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
+  }
+
+  def testUnusedWildcard(): Unit = {
+    val text =
+      """
+        |object A {
+        |  class X
+        |  class Y
+        |}
+        |
+        |import A.{Y, X as Z, *}
+        |object B {
+        |  (new Y, new Z)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("*", _) :: Nil =>
     }
   }
 }

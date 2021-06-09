@@ -6,6 +6,7 @@ package expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
 * @author Alexander Podkhalyuzin
@@ -24,6 +25,9 @@ object PostfixExpr extends ParsingRule {
       return false
     }
     builder.getTokenType match {
+      case InScala3.orSource3(ScalaTokenTypes.tIDENTIFIER) if builder.getTokenText == "*" && builder.lookAhead(1) == ScalaTokenTypes.tRPARENTHESIS =>
+        // Seq(a, ax*)
+        postfixMarker.drop()
       case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken =>
         val refMarker = builder.mark
         builder.advanceLexer() //Ate id

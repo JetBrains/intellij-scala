@@ -143,7 +143,7 @@ object ImportInfo {
         (prefixQual, relative)
       }
 
-    for (selector <- imp.selectors) {
+    for (selector <- imp.selectors if !selector.isWildcardSelector) {
       val importUsed: ImportSelectorUsed = ImportSelectorUsed(selector)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
@@ -169,7 +169,7 @@ object ImportInfo {
       }
     }
 
-    if (imp.selectorSet.isEmpty && !imp.isSingleWildcard) {
+    if (imp.selectorSet.isEmpty && !imp.hasWildcardSelector) {
       val importUsed: ImportExprUsed = ImportExprUsed(imp)
       if (isImportUsed(importUsed)) {
         importsUsed += importUsed
@@ -180,7 +180,7 @@ object ImportInfo {
           case None => //something is not valid
         }
       }
-    } else if (imp.isSingleWildcard) {
+    } else if (imp.hasWildcardSelector) {
       val importUsed =
         if (imp.selectorSet.isEmpty) ImportExprUsed(imp)
         else ImportWildcardSelectorUsed(imp)

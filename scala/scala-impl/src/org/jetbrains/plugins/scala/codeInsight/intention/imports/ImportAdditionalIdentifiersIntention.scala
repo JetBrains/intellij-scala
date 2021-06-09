@@ -8,7 +8,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportExpr
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImportExprWithContextFromText
 
 import scala.annotation.tailrec
 
@@ -47,7 +47,7 @@ class ImportAdditionalIdentifiersIntention extends PsiElementBaseIntentionAction
               val name = s"${qualifier.getText}.{${id.nameId.getText}}"
 
               val replaced = inWriteAction {
-                val replaced = imp.replace(createImportExprFromText(name)(element.getManager))
+                val replaced = imp.replace(createImportExprWithContextFromText(name, element))
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
                 replaced
               }

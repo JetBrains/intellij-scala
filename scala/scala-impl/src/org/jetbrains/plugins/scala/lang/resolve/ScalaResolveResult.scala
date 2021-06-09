@@ -268,7 +268,7 @@ class ScalaResolveResult(
       //      these separately.
       val isWildcard = importUsed match {
         case _: ImportWildcardSelectorUsed => true
-        case ImportExprUsed(expr)          => expr.isSingleWildcard
+        case ImportExprUsed(expr)          => expr.hasWildcardSelector
         case _                             => false
       }
 

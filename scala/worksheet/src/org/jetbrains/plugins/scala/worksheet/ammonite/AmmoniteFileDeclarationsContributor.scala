@@ -30,7 +30,7 @@ final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContribu
 
         DEFAULT_IMPORTS.foreach {
           imp =>
-            val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp")(ammoniteFile.projectContext)
+            val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp", holder)
             importStmt.processDeclarations(processor, state, null, ammoniteFile)
         }
       case _ =>

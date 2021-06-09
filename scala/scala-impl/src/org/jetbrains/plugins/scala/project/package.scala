@@ -256,6 +256,9 @@ package object project {
     def isSAMEnabled: Boolean =
       scalaModuleSettings.exists(_.isSAMEnabled)
 
+    def isSource3Enabled: Boolean =
+      scalaModuleSettings.exists(_.isSource3Enabled)
+
     def isPartialUnificationEnabled: Boolean =
       scalaModuleSettings.exists(_.isPartialUnificationEnabled)
 
@@ -447,6 +450,10 @@ package object project {
     def contextAppliedEnabled: Boolean = isDefinedInModuleOrProject(_.contextAppliedPluginEnabled)
 
     def isSAMEnabled: Boolean = isDefinedInModuleOrProject(_.isSAMEnabled)
+
+    def isSource3Enabled: Boolean = isDefinedInModuleOrProject(_.isSource3Enabled)
+
+    def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
 
     def isScala3IndentationBasedSyntaxEnabled: Boolean = isDefinedInModuleOrProject(_.isScala3IndentationBasedSyntaxEnabled)
 

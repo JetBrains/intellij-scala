@@ -24,11 +24,12 @@ object Type extends Type {
   //   In Scala 3.1, _ is deprecated in favor of ? as a name for a wildcard. A -rewrite option is available to rewrite one to the other.
   //   In Scala 3.2, the meaning of _ changes from wildcard to placeholder for type parameter.
   //   The Scala 3.1 behavior is already available today under the -strict setting.
+  //   In Scala >2.13.6 or >2.12.14 and when -Xsource:3 is given then ? is also ok
   def parseWildcardStartToken()(implicit builder: ScalaPsiBuilder): Boolean =
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()
       true
-    } else builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
+    } else builder.isScala3orSource3 && builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
 }
 
 trait Type {

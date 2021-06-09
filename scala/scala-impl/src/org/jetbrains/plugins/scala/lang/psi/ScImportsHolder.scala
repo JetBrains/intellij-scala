@@ -110,10 +110,10 @@ trait ScImportsHolder extends ScalaPsiElement {
             if (/*!imp.singleWildcard && */imp.selectorSet.isEmpty) {
               res += ImportExprUsed(imp)
             }
-            else if (imp.isSingleWildcard) {
+            else if (imp.hasWildcardSelector) {
               res += ImportWildcardSelectorUsed(imp)
             }
-            for (selector <- imp.selectors) {
+            for (selector <- imp.selectors if !selector.isWildcardSelector) {
               res += ImportSelectorUsed(selector)
             }
           case _ => processChild(child)
@@ -183,7 +183,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
 
     def firstChildNotCommentWhitespace =
-      this.children.dropWhile(el => el.isInstanceOf[PsiComment] || el.isInstanceOf[PsiWhiteSpace]).headOption
+      this.children.dropWhile(_.is[PsiComment, PsiWhiteSpace]).headOption
 
     firstChildNotCommentWhitespace.foreach {
       case pack: ScPackaging if !pack.isExplicit && this.children.filterByType[ScImportStmt].isEmpty =>
@@ -219,7 +219,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       else refsContainer == null && hasCodeBeforeImports
 
     if (needToInsertFirst) {
-      val dummyImport = createImportFromText("import dummy.dummy")
+      val dummyImport = createImportFromText("import dummy.dummy", this)
       val inserted = insertFirstImport(dummyImport, getFirstChild).asInstanceOf[ScImportStmt]
       val psiAnchor = PsiAnchor.create(inserted)
       val rangeInfo = RangeInfo(psiAnchor, psiAnchor, importInfosToAdd, usedImportedNames = Set.empty, isLocal = false)
@@ -293,7 +293,7 @@ trait ScImportsHolder extends ScalaPsiElement {
           ws.replace(indented)
         }
       case _ =>
-        if (!indent.isEmpty) {
+        if (indent.nonEmpty) {
           val indented = ScalaPsiElementFactory.createNewLine(s"$indent")
           addBefore(indented, element)
         }
@@ -339,7 +339,7 @@ trait ScImportsHolder extends ScalaPsiElement {
     }
     def removeWhitespace(node: ASTNode): Unit = {
       if (node == null) return
-      if (node.getPsi.isInstanceOf[PsiWhiteSpace]) {
+      if (node.getPsi.is[PsiWhiteSpace]) {
         if (node.getText.count(_ == '\n') < 2) remove(node)
         else shortenWhitespace(node)
       }

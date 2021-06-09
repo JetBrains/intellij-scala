@@ -70,11 +70,11 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         else stableQualRef
       case e: ScImportExpr => if (e.selectorSet.isDefined
               //import Class._ is not allowed
-        || qualifier.isEmpty || e.isSingleWildcard) stableQualRef
+        || qualifier.isEmpty || e.hasWildcardSelector) stableQualRef
       else stableImportSelector
       case ste: ScSimpleTypeElement =>
         if (incomplete) noPackagesClassCompletion // todo use the settings to include packages
-        else if (ste.getLastChild.isInstanceOf[PsiErrorElement]) stableQualRef
+        else if (ste.getLastChild.is[PsiErrorElement]) stableQualRef
 
         else if (ste.singleton) stableQualRef
         else if (ste.annotation) annotCtor
@@ -119,7 +119,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         selector.deleteSelector()
       }
       else if (importExpr != null) {
-        if (importExpr == getParent && !importExpr.isSingleWildcard && importExpr.selectorSet.isEmpty) {
+        if (importExpr == getParent && !importExpr.hasWildcardSelector && importExpr.selectorSet.isEmpty) {
           val holder = PsiTreeUtil.getParentOfType(this, classOf[ScImportsHolder])
           importExpr.deleteExpr()
           c match {
@@ -432,7 +432,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case _: ScalaFile => true // scala classes are available from default package
             /** in completion in [[ScalaFile]] [[JavaDummyHolder]] usually used as file */
             case dummyHolder: JavaDummyHolder
-              if Option(dummyHolder.getContext).map(_.getContainingFile).exists(_.isInstanceOf[ScalaFile]) =>
+              if Option(dummyHolder.getContext).map(_.getContainingFile).exists(_.is[ScalaFile]) =>
               true
             // Other classes from default package are available only for top-level Scala statements
             case _ => PsiTreeUtil.getContextOfType(this, true, classOf[ScPackaging]) == null
@@ -455,7 +455,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         val importExprs = importHolder.getImportStatements
           .takeWhile(_ != importStmt)
           .flatMap(_.importExprs)
-          .filter(_.isSingleWildcard)
+          .filter(_.hasWildcardSelector)
           .iterator
 
         while (importExprs.hasNext) {
@@ -474,7 +474,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
 
         if (!refText.contains("this") &&
           !refText.contains("super") &&
-          (refText.contains(".") || getContext.isInstanceOf[ScStableCodeReference])) {
+          (refText.contains(".") || getContext.is[ScStableCodeReference])) {
           //so this is full qualified reference => findClass, or findPackage
           val manager = ScalaPsiManager.instance(getProject)
           val classes = manager.getCachedClasses(getResolveScope, refText)

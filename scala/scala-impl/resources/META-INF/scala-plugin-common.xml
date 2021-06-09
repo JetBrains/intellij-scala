@@ -1291,13 +1291,20 @@
                 language="Scala" level="INFORMATION"
                 enabledByDefault="true"/>
 
-        <!--Scalastyle inspection-->
+        <!--Code style inspections-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.scala.style.inspection"
                          groupPath="Scala" groupKey="group.code.style"
                          shortName="ScalaStyle"
                          enabledByDefault="true" language="Scala"/>
+
+
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.source3.Source3Inspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.source3.scala2.syntax"
+                         shortName="scala2InSource3" groupKey="group.code.style" groupPath="Scala"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <!--collection inspections-->
         <!--size-->

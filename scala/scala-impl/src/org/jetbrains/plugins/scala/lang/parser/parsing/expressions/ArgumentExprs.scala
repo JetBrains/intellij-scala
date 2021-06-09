@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * ArgumentExprs     ::=  ParArgumentExprs
  *                     |  BlockExpr
  * ParArgumentExprs  ::=  ‘(’ [‘using’] ExprsInParens ‘)’
- *                     |  ‘(’ [ExprsInParens ‘,’] PostfixExpr ‘:’ ‘_’ ‘*’ ‘)’
+ *                     |  ‘(’ [ExprsInParens ‘,’] PostfixExpr ‘*’ ‘)’
  * }}}
  */
 object ArgumentExprs extends ParsingRule {

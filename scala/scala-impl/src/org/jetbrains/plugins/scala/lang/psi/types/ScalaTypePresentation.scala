@@ -116,10 +116,10 @@ trait ScalaTypePresentation extends api.TypePresentation {
       val componentsText = if (comps.isEmpty) Nil else Seq(comps.map {
         case tp@FunctionType(_, _) => "(" + innerTypeText(tp) + ")"
         case tp => innerTypeText(tp)
-      }.mkString(" with "))
+      }.mkString(context.compoundTypeSeparatorText))
 
       val declsTexts = (signatureMap ++ typeMap).flatMap {
-        case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScFunction] =>
+        case (s: TermSignature, returnType: ScType) if s.namedElement.is[ScFunction] =>
           val function = s.namedElement.asInstanceOf[ScFunction]
           val substitutor = s.substitutor
 
@@ -145,7 +145,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
           val typeParameters = typeParametersText(function, substitutor)
 
           Some(s"def ${s.name}$typeParameters$paramClauses: $retType")
-        case (s: TermSignature, returnType: ScType) if s.namedElement.isInstanceOf[ScTypedDefinition] =>
+        case (s: TermSignature, returnType: ScType) if s.namedElement.is[ScTypedDefinition] =>
           val substitutor = s.substitutor
           val named: Option[ScTypedDefinition] = s.namedElement match {
             case _ if s.paramLength > 0 => None

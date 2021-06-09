@@ -69,6 +69,29 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_local_rename(): Unit = checkTree(
+    """
+      |import x as y
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      ImportSelectors
+      |        ImportSelector
+      |          CodeReferenceElement: x
+      |            PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('y')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_as(): Unit = checkTree(
     """
       |import x.y as yy
@@ -80,15 +103,17 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |    PsiElement(import)('import')
       |    PsiWhiteSpace(' ')
       |    ImportExpression
-      |      CodeReferenceElement: x.y
-      |        CodeReferenceElement: x
-      |          PsiElement(identifier)('x')
-      |        PsiElement(.)('.')
-      |        PsiElement(identifier)('y')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(as)('as')
-      |      PsiWhiteSpace(' ')
-      |      PsiElement(identifier)('yy')
+      |      CodeReferenceElement: x
+      |        PsiElement(identifier)('x')
+      |      PsiElement(.)('.')
+      |      ImportSelectors
+      |        ImportSelector
+      |          CodeReferenceElement: y
+      |            PsiElement(identifier)('y')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(as)('as')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('yy')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )

@@ -22,3 +22,13 @@ trait ScTypedExpression extends ScExpression {
     visitor.visitTypedStmt(this)
   }
 }
+
+object ScTypedExpression {
+  def unapply(typed: ScTypedExpression): Option[(ScExpression, ScTypeElement)] =
+    typed.typeElement.map(typed.expr -> _)
+
+  object sequenceArg {
+    def unapply(typed: ScTypedExpression): Option[ScSequenceArg] =
+      typed.findLastChild[ScSequenceArg]
+  }
+}

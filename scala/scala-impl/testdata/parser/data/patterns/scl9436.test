@@ -82,7 +82,7 @@ ScalaFile
                     NamingPattern: _
                       PsiElement(_)('_')
                       PsiElement(@)('@')
-                      Sequence Wildcard
+                      SequenceWildcardPattern: _
                         PsiElement(_)('_')
                         PsiElement(identifier)('*')
                     PsiElement())(')')
