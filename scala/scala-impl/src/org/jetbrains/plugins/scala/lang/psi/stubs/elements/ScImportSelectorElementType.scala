@@ -20,13 +20,15 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
     dataStream.writeOptionName(stub.referenceText)
     dataStream.writeOptionName(stub.importedName)
     dataStream.writeBoolean(stub.isAliasedImport)
+    dataStream.writeBoolean(stub.isWildcardSelector)
   }
 
   override def deserialize(dataStream: StubInputStream, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub =
     new ScImportSelectorStubImpl(parentStub, this,
       referenceText = dataStream.readOptionName,
       importedName = dataStream.readOptionName,
-      isAliasedImport = dataStream.readBoolean)
+      isAliasedImport = dataStream.readBoolean(),
+      isWildcardSelector = dataStream.readBoolean())
 
   override def createStubImpl(selector: ScImportSelector, parentStub: StubElement[_ <: PsiElement]): ScImportSelectorStub = {
     val referenceText = selector.reference.map {
@@ -36,7 +38,9 @@ class ScImportSelectorElementType extends ScStubElementType[ScImportSelectorStub
     new ScImportSelectorStubImpl(parentStub, this,
       referenceText = referenceText,
       importedName = selector.importedName,
-      isAliasedImport = selector.isAliasedImport)
+      isAliasedImport = selector.isAliasedImport,
+      isWildcardSelector = selector.isWildcardSelector
+    )
   }
 
   override def createElement(node: ASTNode): ScImportSelector = new ScImportSelectorImpl(node)

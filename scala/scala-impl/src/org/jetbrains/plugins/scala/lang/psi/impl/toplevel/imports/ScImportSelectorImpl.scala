@@ -46,7 +46,7 @@ class ScImportSelectorImpl private(stub: ScImportSelectorStub, node: ASTNode)
   }(_.reference)
 
   override def isWildcardSelector: Boolean =
-    wildcardElement.isDefined
+    byPsiOrStub(wildcardElement.isDefined)(_.isWildcardSelector)
 
   override def wildcardElement: Option[PsiElement] = {
     val firstChild = getFirstChild
