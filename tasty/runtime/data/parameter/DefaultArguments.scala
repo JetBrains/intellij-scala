@@ -26,4 +26,10 @@ trait DefaultArguments {
   enum EnumCaseClass {
     case Class(x: Int = /**/1/*???*/)
   }
+
+  extension (i: Int = /**/1/*???*/)
+    def extension: Unit = ???
+
+  extension (i: Int)
+    def extensionMethod(x: Int = /**/1/*???*/): Unit = ???
 }

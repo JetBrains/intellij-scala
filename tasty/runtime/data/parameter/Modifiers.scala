@@ -84,4 +84,7 @@ trait Modifiers {
   enum EnumCaseClassOverride {
     case Class(override val hashCode: Int)
   }
+
+  extension (i: Int)
+    def extensionMethodImplicit(implicit x: Int, y: Int): Unit = ???
 }

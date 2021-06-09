@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.tasty.TastyFormat._
 
+import scala.collection.mutable
+
 // TODO refactor
 // TODO use StringBuilder
 object TreePrinter {
@@ -57,7 +59,9 @@ object TreePrinter {
       if (name == "<init>") {
         modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
       } else {
-        modifiersIn(node) + "def " + name + parametersIn(node) + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
+        (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
+          modifiersIn(node) + "def " + name + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
+          ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
       }
 
     case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
@@ -87,15 +91,37 @@ object TreePrinter {
 
   private def indent(s: String): String = s.split("\n").map(s => if (s.forall(_.isWhitespace)) "" else "  " + s).mkString("\n") // TODO use indent: Int parameter instead
 
-  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None): String = {
+  private enum Target {
+    case Definition
+    case Extension
+    case ExtensionMethod
+  }
+
+  private def popExtensionParams(stack: mutable.Stack[Node]): Seq[Node] = {
+    val buffer = mutable.Buffer[Node]()
+    buffer ++= stack.popWhile(!_.is(PARAM))
+    buffer += stack.pop()
+    while (stack(0).is(SPLITCLAUSE) && stack(1).hasFlag(GIVEN)) {
+      buffer += stack.pop()
+      buffer ++= stack.popWhile(_.is(PARAM))
+    }
+    buffer.toSeq
+  }
+
+  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition): String = {
+    val tps = target match {
+      case Target.Extension => node.children.takeWhile(!_.is(PARAM))
+      case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
+      case Target.Definition => node.children
+    }
+
+    val templateTypeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
+
     var params = ""
     var open = false
     var next = false
 
-    val typeParams = template.map(_.children.filter(_.is(TYPEPARAM)).iterator)
-    val valueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
-
-    node.children.foreach {
+    tps.foreach {
       case Node(TYPEPARAM, Seq(name), Seq(Node(TYPEBOUNDStpt, _, Seq(lower, upper)), _: _*)) =>
         if (!open) {
           params += "["
@@ -105,7 +131,7 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
-        typeParams.map(_.next()).foreach { typeParam =>
+        templateTypeParams.map(_.next()).foreach { typeParam =>
           if (typeParam.hasFlag(COVARIANT)) {
             params += "+"
           }
@@ -127,10 +153,22 @@ object TreePrinter {
     }
     if (open) params += "]"
 
+    val ps = target match {
+      case Target.Extension =>
+        popExtensionParams(mutable.Stack[Node](node.children: _*))
+      case Target.ExtensionMethod =>
+        val stack = mutable.Stack[Node](node.children: _*)
+        popExtensionParams(stack)
+        stack.toSeq.dropWhile(_.is(SPLITCLAUSE))
+      case Target.Definition => node.children
+    }
+
+    val templateValueParams = template.map(_.children.filter(_.is(PARAM)).iterator)
+
     open = false
     next = false
 
-    node.children.foreach {
+    ps.foreach {
       case Node(EMPTYCLAUSE, _, _) =>
         params += "()"
       case Node(SPLITCLAUSE, _, _) =>
@@ -151,7 +189,7 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
-        valueParams.map(_.next()).foreach { valueParam =>
+        templateValueParams.map(_.next()).foreach { valueParam =>
           if (!valueParam.hasFlag(LOCAL)) {
             params += modifiersIn(valueParam)
             if (valueParam.hasFlag(MUTABLE)) {

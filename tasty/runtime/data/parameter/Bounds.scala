@@ -54,4 +54,22 @@ trait Bounds {
   type TypeAliasUpperBound[A <: Int] = Int
 
   type TypeAliasLowerAndUpperBounds[A >: Int <: AnyVal] = Int
+
+  extension [A >: Int](i: Int)
+    def extensionLowerBound: Unit = ???
+
+  extension [A <: Int](i: Int)
+    def extensionUpperBound: Unit = ???
+
+  extension [A >: Int <: AnyVal](i: Int)
+    def extensionLowerAndUpperBounds: Unit = ???
+
+  extension (i: Int)
+    def extensionMethodLowerBound[A >: Int]: Unit = ???
+
+  extension (i: Int)
+    def extensionMethodUpperBound[A <: Int]: Unit = ???
+
+  extension (i: Int)
+    def extensionMethodLowerAndUpperBounds[A >: Int <: AnyVal]: Unit = ???
 }

@@ -8,4 +8,10 @@ trait ByName {
   enum Enum(x: => Int) {
     case Case extends Enum/**/(1)/**/
   }
+
+  extension (i: => Int)
+    def extension: Unit = ???
+
+  extension (i: Int)
+    def extensionMethod(x: => Int): Unit = ???
 }

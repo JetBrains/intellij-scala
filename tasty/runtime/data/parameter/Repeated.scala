@@ -16,4 +16,7 @@ trait Repeated {
   enum EnumCaseClass {
     case Class(xs: Int*)
   }
+
+  extension (i: Int)
+    def extensionMethod(x: Int*): Unit = ???
 }

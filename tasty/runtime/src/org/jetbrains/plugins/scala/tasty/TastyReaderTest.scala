@@ -18,6 +18,7 @@ object TastyReaderTest {
 
     Seq(
       "member/Def",
+      "member/ExtensionMethod",
       "member/Modifiers",
       "member/This",
       "member/Type",
@@ -33,6 +34,8 @@ object TastyReaderTest {
       "parameter/DefaultArguments",
       "parameter/Enum",
       "parameter/EnumCaseClass",
+      "parameter/Extension",
+      "parameter/ExtensionMethod",
       "parameter/Repeated",
       "parameter/Trait",
       "parameter/Type",
