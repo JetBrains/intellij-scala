@@ -9,7 +9,6 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.lexer._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 
 /** 
@@ -21,32 +20,22 @@ class ExtendsFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
     if (context.is[PsiComment]) return false
     val (leaf, _) = processPsiLeafForFilter(getLeafByOffset(context.getTextRange.getStartOffset, context))
-    
-    if (leaf != null) {
-      var prev = leaf.getPrevSiblingNotWhitespace
-      val leafParent = leaf.getParent
-      // In case of script files or inside of blocks the leaf will be wrapped inside of a ScReferenceExpression
-      if (prev == null && leafParent.is[ScReferenceExpression]) {
-        prev = leafParent.getPrevSiblingNotWhitespace
-      }
-      prev match {
-        case _: PsiErrorElement =>
-        case _ => return false
-      }
-      val prev2 = prev.getPrevSibling
-      prev2 match {
-        case x: ScTypeDefinition =>
-          if (x.extendsBlock.templateParents.isDefined) return false
-          else {
-            if (leaf.getNextSibling != null &&
-              leaf.getNextSibling.getNextSibling != null &&
-              leaf.getNextSibling.getNextSibling.getNode.getElementType == ScalaTokenTypes.kEXTENDS) return false
-            else return true
-          }
-        case _ => return false
-      }
+
+    // class Test exten
+    //           ^ find error here
+    val errorBeforeExtendsStart = leaf.prevLeafs.filterNot(_.is[PsiComment, PsiWhiteSpace]).nextOption()
+
+    errorBeforeExtendsStart match {
+      case Some((_: PsiErrorElement) && PrevSibling(typeDefBeforeError: ScTypeDefinition)) =>
+        if (typeDefBeforeError.extendsBlock.templateParents.isDefined) false
+        else {
+          // do not suggest if there is already an extends. i.e.:
+          // class Test e<caret> extends
+          !leaf.nextVisibleLeaf.exists(_.elementType == ScalaTokenTypes.kEXTENDS)
+        }
+      case _ =>
+        false
     }
-    false
   }
 
   override def isClassAcceptable(hintClass: java.lang.Class[_]): Boolean = true
