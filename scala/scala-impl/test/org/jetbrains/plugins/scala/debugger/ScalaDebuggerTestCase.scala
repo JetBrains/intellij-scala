@@ -252,8 +252,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
   protected def waitForBreakpoint(): SuspendContextImpl = {
     val suspendContext = waitForBreakpointInner()
 
+    val debugProcessState = DebugProcessState(getDebugProcess)
     val message =
-      if (!isAttached) "process terminated before breakpoint"
+      if (!debugProcessState.isAttached) debugProcessState.description
       else "too long waiting for breakpoint"
 
     Assert.assertTrue(message, suspendContext != null)
@@ -264,7 +265,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
 
   protected def processTerminatedNoBreakpoints(): Boolean = {
     waitForBreakpointInner()
-    !isAttached
+    !DebugProcessState(getDebugProcess).isAttached
   }
 
   private def waitForBreakpointInner(): SuspendContextImpl = {
@@ -274,8 +275,6 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
 
     currentSuspendContext()
   }
-
-  def isAttached: Boolean = Option(getDebugProcess).exists(_.isAttached)
 
   private def assertNotManagerThread(): Unit = {
     Assert.assertTrue("Waiting on manager thread will cause deadlock",
