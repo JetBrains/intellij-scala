@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.lexer
 
-case class ScalaModifierTokenType private (modifier: ScalaModifier) extends ScalaTokenType(modifier.text())
+case class ScalaModifierTokenType private (modifier: ScalaModifier) extends ScalaKeywordTokenType(modifier.text())
 
 object ScalaModifierTokenType {
 

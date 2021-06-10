@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater, scheduleOnPooledThread}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
@@ -43,7 +44,7 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
   def shouldShowHint(): Boolean =
-    !isShowErrorsFromCompilerEnabled(place.getContainingFile)
+    !isShowErrorsFromCompilerEnabled(place.getContainingFile) && !mayBeKeyword(place)
 
   def isAddUnambiguous: Boolean
 
@@ -214,4 +215,12 @@ private object ScalaImportElementFix {
 
   private def isQualified(name: String) =
     name.indexOf('.') != -1
+
+  private val softKeywords: Set[String] =
+    ScalaTokenTypes.SOFT_KEYWORDS.getTypes.map(_.asInstanceOf[ScalaKeywordTokenType].keywordText).toSet
+
+  private def mayBeKeyword(place: PsiElement): Boolean = place match {
+    case ref: ScReference if ref.qualifier.isEmpty => softKeywords.contains(ref.refName)
+    case _ => false
+  }
 }
