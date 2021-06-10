@@ -53,6 +53,7 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
 
   private val breakpoints: mutable.Set[(String, Int, Integer)] = mutable.Set.empty
 
+  @volatile
   private var breakpointTracker: BreakpointTracker = _
 
   private val threadLeakDisposable = new TestDisposable
@@ -78,12 +79,9 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
                             debug: Boolean = false,
                             shouldStopAtBreakpoint: Boolean = true)(callback: => Unit): Unit = {
     setupBreakpoints()
-    breakpointTracker = new BreakpointTracker()
 
     val processHandler = runProcess(mainClass, debug)
     val debugProcess = getDebugProcess
-
-    breakpointTracker.addListener(debugProcess)
 
     def failedToStopAtBreakpoint: Boolean = shouldStopAtBreakpoint && !breakpointTracker.wasAtBreakpoint
     val result = Try {
@@ -134,12 +132,20 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
       _.getClass == classOf[GenericDebuggerRunner]
     }.get
 
-    runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+    val processHandler = runProcess(mainClass, getModule, classOf[DefaultDebugExecutor], new ProcessAdapter {
+
+      override def startNotified(event: ProcessEvent): Unit =
+        tryInitBreakpointTracker()
+
       override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
         val text = event.getText
         if (debug) print(text)
       }
     }, runner)
+
+    tryInitBreakpointTracker()
+
+    processHandler
   }
 
   private def runProcess(className: String,
@@ -458,6 +464,13 @@ abstract class ScalaDebuggerTestCase extends ScalaDebuggerTestBase with ScalaSdk
     addSourceFile(path, cleanedText)
 
     breakpointLines.foreach(addBreakpoint(_, path))
+  }
+
+  private def tryInitBreakpointTracker(): Unit = synchronized {
+    if (breakpointTracker == null) {
+      breakpointTracker = new BreakpointTracker
+      breakpointTracker.addListener(getDebugProcess)
+    }
   }
 
   //should be initialized before debug process is started
