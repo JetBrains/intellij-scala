@@ -367,4 +367,218 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sou
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_infix_expression(): Unit = checkTree(
+    """
+      |def f = c
+      |  `c c` i
+      |
+      |def g = i +
+      |  `n n`
+      |
+      |def basic =
+      |    1
+      |  + 2
+      |
+      |val x = 1
+      |  +
+      |  `a`
+      |  *
+      |  6
+      |
+      |def f =
+      |  x < 0
+      |  ||
+      |  x > 0
+      |  &&
+      |  x != 3
+      |
+      |acc += (i * `i`)
+      |`i` += 1
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: f
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('f')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    InfixExpression
+      |      ReferenceExpression: c
+      |        PsiElement(identifier)('c')
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: `c c`
+      |        PsiElement(identifier)('`c c`')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: i
+      |        PsiElement(identifier)('i')
+      |  PsiWhiteSpace('\n\n')
+      |  ScFunctionDefinition: g
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('g')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    InfixExpression
+      |      ReferenceExpression: i
+      |        PsiElement(identifier)('i')
+      |      PsiWhiteSpace(' ')
+      |      ReferenceExpression: +
+      |        PsiElement(identifier)('+')
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: `n n`
+      |        PsiElement(identifier)('`n n`')
+      |  PsiWhiteSpace('\n\n')
+      |  ScFunctionDefinition: basic
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('basic')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n    ')
+      |    InfixExpression
+      |      IntegerLiteral
+      |        PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: +
+      |        PsiElement(identifier)('+')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('2')
+      |  PsiWhiteSpace('\n\n')
+      |  ScPatternDefinition: x
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(val)('val')
+      |    PsiWhiteSpace(' ')
+      |    ListOfPatterns
+      |      ReferencePattern: x
+      |        PsiElement(identifier)('x')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    InfixExpression
+      |      IntegerLiteral
+      |        PsiElement(integer)('1')
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: +
+      |        PsiElement(identifier)('+')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        ReferenceExpression: `a`
+      |          PsiElement(identifier)('`a`')
+      |        PsiWhiteSpace('\n  ')
+      |        ReferenceExpression: *
+      |          PsiElement(identifier)('*')
+      |        PsiWhiteSpace('\n  ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('6')
+      |  PsiWhiteSpace('\n\n')
+      |  ScFunctionDefinition: f
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('f')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n  ')
+      |    InfixExpression
+      |      InfixExpression
+      |        ReferenceExpression: x
+      |          PsiElement(identifier)('x')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: <
+      |          PsiElement(identifier)('<')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('0')
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: ||
+      |        PsiElement(identifier)('||')
+      |      PsiWhiteSpace('\n  ')
+      |      InfixExpression
+      |        InfixExpression
+      |          ReferenceExpression: x
+      |            PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: >
+      |            PsiElement(identifier)('>')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('0')
+      |        PsiWhiteSpace('\n  ')
+      |        ReferenceExpression: &&
+      |          PsiElement(identifier)('&&')
+      |        PsiWhiteSpace('\n  ')
+      |        InfixExpression
+      |          ReferenceExpression: x
+      |            PsiElement(identifier)('x')
+      |          PsiWhiteSpace(' ')
+      |          ReferenceExpression: !=
+      |            PsiElement(identifier)('!=')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n\n')
+      |  InfixExpression
+      |    ReferenceExpression: acc
+      |      PsiElement(identifier)('acc')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: +=
+      |      PsiElement(identifier)('+=')
+      |    PsiWhiteSpace(' ')
+      |    ExpressionInParenthesis
+      |      PsiElement(()('(')
+      |      InfixExpression
+      |        ReferenceExpression: i
+      |          PsiElement(identifier)('i')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: *
+      |          PsiElement(identifier)('*')
+      |        PsiWhiteSpace(' ')
+      |        ReferenceExpression: `i`
+      |          PsiElement(identifier)('`i`')
+      |      PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |  InfixExpression
+      |    ReferenceExpression: `i`
+      |      PsiElement(identifier)('`i`')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: +=
+      |      PsiElement(identifier)('+=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('1')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

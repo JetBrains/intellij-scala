@@ -28,8 +28,9 @@ object ParserUtils {
     case id => id.head != '=' && id.last == '='
   }
 
+  // a symbolic identifier such as +, or approx_==, or an identifier in backticks
   def isSymbolicIdentifier(s: String): Boolean =
-    !s.startsWith("`") && !s.forall(_.isUnicodeIdentifierPart)
+    !s.forall(_.isUnicodeIdentifierPart)
 
   /** Defines the precedence of an infix operator, according
     * to its first character.
