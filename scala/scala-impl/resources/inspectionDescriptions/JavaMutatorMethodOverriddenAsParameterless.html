@@ -1,6 +1,6 @@
 <html>
 <body>
-Reports methods without parameter clauses that override Java methods with mutator-like names .
+<p>Reports methods without parameter clauses that override Java methods with mutator-like names.</p>
 <p>Scala allows overriding parameterless Java methods without parameter clauses.
     This is mainly to allow Scala code to override Java accessor methods the same way as Scala accessor methods.
     Namely without parameter clause and thereby adhere to the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>,
@@ -8,7 +8,7 @@ Reports methods without parameter clauses that override Java methods with mutato
 
 <p>For methods with <a href="https://en.wikipedia.org/wiki/Side_effect_(computer_science)">side effects</a>, however,
     it is convention to have an empty parameter clause.
-    This would be in accordance to the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution
+    This would be in accordance with the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution
         principle</a>, whereby, when an overridden method has side effects,
     the overriding method must also be declared as a method with side effects.</p>
 
