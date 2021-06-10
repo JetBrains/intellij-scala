@@ -240,6 +240,9 @@ package object project {
     def kindProjectorPlugin: Option[String] =
       scalaModuleSettings.flatMap(_.kindProjectorPlugin)
 
+    def kindProjectorUnderscorePlaceholdersEnabled: Boolean =
+      scalaModuleSettings.exists(_.kindProjectorUnderscorePlaceholdersEnabled)
+
     def betterMonadicForPluginEnabled: Boolean =
       scalaModuleSettings.exists(_.betterMonadicForPluginEnabled)
 
@@ -444,6 +447,8 @@ package object project {
     def kindProjectorPluginEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorPluginEnabled)
 
     def kindProjectorPlugin: Option[String] = inThisModuleOrProject(_.kindProjectorPlugin).flatten
+
+    def kindProjectorUnderscorePlaceholdersEnabled: Boolean = isDefinedInModuleOrProject(_.kindProjectorUnderscorePlaceholdersEnabled)
 
     def betterMonadicForEnabled: Boolean = isDefinedInModuleOrProject(_.betterMonadicForPluginEnabled)
 
