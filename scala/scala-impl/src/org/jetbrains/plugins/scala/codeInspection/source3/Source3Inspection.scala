@@ -41,7 +41,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
               .asInstanceOf[ScFor].enumerators.head.generators.head
           }
         )
-      case ElementType(ScalaTokenTypes.tUNDER) if element.getParent.is[ScImportSelector, ScImportExpr] &&
+      case ElementType(ScalaTokenTypes.tUNDER) if element.getParent.is[/*ScImportSelector TODO: this is correct but the scala compiler has a bug in 2.13.6*/ ScImportExpr] &&
                                                   element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT) =>
         super.problemDescriptor(
           element,
