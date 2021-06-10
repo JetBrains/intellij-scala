@@ -355,7 +355,7 @@ object SbtDependencyUtils {
     }
   }
 
-  def addDependency(expr: PsiElement, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
+  def addDependency(expr: PsiElement, info: SbtArtifactInfo)(implicit project: Project): Option[PsiElement] = {
     expr match {
       case e: ScInfixExpr if e.left.textMatches(LIBRARY_DEPENDENCIES) => addDependencyToLibraryDependencies(e, info)
       case call: ScMethodCall if call.deepestInvokedExpr.textMatches(SEQ) => addDependencyToSeq(call, info)
@@ -380,7 +380,7 @@ object SbtDependencyUtils {
     }
   }
 
-  def addDependencyToLibraryDependencies(infix: ScInfixExpr, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
+  def addDependencyToLibraryDependencies(infix: ScInfixExpr, info: SbtArtifactInfo)(implicit project: Project): Option[PsiElement] = {
 
     val psiFile = infix.getContainingFile
 
@@ -417,14 +417,14 @@ object SbtDependencyUtils {
     }
   }
 
-  def addDependencyToSeq(seqCall: ScMethodCall, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] = {
+  def addDependencyToSeq(seqCall: ScMethodCall, info: SbtArtifactInfo)(implicit project: Project): Option[PsiElement] = {
     val addedExpr = if (!seqCall.`type`().getOrAny.canonicalText.contains(SBT_SETTING_TYPE))
       generateArtifactPsiExpression(info) else generateLibraryDependency(info)
     doInSbtWriteCommandAction(seqCall.args.addExpr(addedExpr), seqCall.getContainingFile)
     Some(addedExpr)
   }
 
-  def addDependencyToTypedSeq(typedSeq: ScTypedExpression, info: ArtifactInfo)(implicit project: Project): Option[PsiElement] =
+  def addDependencyToTypedSeq(typedSeq: ScTypedExpression, info: SbtArtifactInfo)(implicit project: Project): Option[PsiElement] =
     typedSeq.expr match {
       case seqCall: ScMethodCall =>
         val addedExpr = generateLibraryDependency(info)(project)
@@ -435,7 +435,7 @@ object SbtDependencyUtils {
       case _ => None
     }
 
-  def addDependencyToFile(file: PsiFile, info: ArtifactInfo)(implicit project: Project): PsiElement = {
+  def addDependencyToFile(file: PsiFile, info: SbtArtifactInfo)(implicit project: Project): PsiElement = {
     var addedExpr: PsiElement = null
     doInSbtWriteCommandAction({
       file.addAfter(generateNewLine(project), file.getLastChild)
@@ -444,7 +444,7 @@ object SbtDependencyUtils {
     addedExpr
   }
 
-  def addDependencyToSettings(settings: ScMethodCall, info: ArtifactInfo)(implicit project: Project): PsiElement = {
+  def addDependencyToSettings(settings: ScMethodCall, info: SbtArtifactInfo)(implicit project: Project): PsiElement = {
     val addedExpr = generateLibraryDependency(info)(project)
     doInSbtWriteCommandAction({
       settings.args.addExpr(addedExpr)
@@ -475,15 +475,15 @@ object SbtDependencyUtils {
   private def generateSeqPsiMethodCall(implicit ctx: ProjectContext): ScMethodCall =
     ScalaPsiElementFactory.createElementFromText(s"$SEQ()").asInstanceOf[ScMethodCall]
 
-  private def generateLibraryDependency(info: ArtifactInfo)(implicit ctx: ProjectContext): ScInfixExpr =
+  private def generateLibraryDependency(info: SbtArtifactInfo)(implicit ctx: ProjectContext): ScInfixExpr =
     ScalaPsiElementFactory.createElementFromText(s"$LIBRARY_DEPENDENCIES += ${generateArtifactText(info)}").asInstanceOf[ScInfixExpr]
 
-  private def generateArtifactPsiExpression(info: ArtifactInfo)(implicit ctx: ProjectContext): ScExpression =
+   def generateArtifactPsiExpression(info: SbtArtifactInfo)(implicit ctx: ProjectContext): ScExpression =
     ScalaPsiElementFactory.createElementFromText(generateArtifactText(info))(ctx).asInstanceOf[ScExpression]
 
   private def generateNewLine(implicit ctx: ProjectContext): PsiElement = ScalaPsiElementFactory.createElementFromText("\n")
 
-  def generateArtifactText(info: ArtifactInfo): String =
+  def generateArtifactText(info: SbtArtifactInfo): String =
     generateArtifactTextVerbose(info.groupId, info.artifactId, info.version, info.configuration)
 
   def generateArtifactTextVerbose(groupId: String, artifactId: String, version: String, configuration: String): String = {

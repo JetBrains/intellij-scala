@@ -22,7 +22,7 @@ import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetP
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.getSbtFileOpt
 import org.jetbrains.sbt.project.data.ModuleExtData
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.language.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{SbtArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolverUtils}
 
 import java.util
@@ -53,7 +53,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       }.filter(_ != null).sortWith(_.toString < _.toString)
     } yield depPlaces).getOrElse(Seq.empty)
     val newDependencyCoordinates = newDependency.getCoordinates
-    val newArtifactInfo = ArtifactInfo(
+    val newArtifactInfo = SbtArtifactInfo(
       newDependencyCoordinates.getGroupId,
       newDependencyCoordinates.getArtifactId,
       newDependencyCoordinates.getVersion,

@@ -5,7 +5,7 @@ import com.intellij.ide.wizard.{AbstractWizard, Step}
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.packagesearch.PackageSearchSbtBundle
-import org.jetbrains.sbt.language.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo}
+import org.jetbrains.sbt.language.utils.{SbtArtifactInfo, DependencyOrRepositoryPlaceInfo}
 
 class AddDependencyOrRepositoryPreviewWizard(project: Project, elem: Any, fileLines: Seq[DependencyOrRepositoryPlaceInfo])
   extends AbstractWizard[Step](NlsString.force(""), project) {
@@ -26,7 +26,7 @@ class AddDependencyOrRepositoryPreviewWizard(project: Project, elem: Any, fileLi
 
   def getSubject: String = {
     elementToAdd match {
-      case _:ArtifactInfo =>
+      case _:SbtArtifactInfo =>
         PackageSearchSbtBundle.message("packagesearch.dependency.sbt.dependency")
       case _: UnifiedDependencyRepository =>
         PackageSearchSbtBundle.message("packagesearch.dependency.sbt.repository")

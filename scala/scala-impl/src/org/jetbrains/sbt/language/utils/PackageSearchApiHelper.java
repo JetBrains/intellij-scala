@@ -32,12 +32,15 @@ public class PackageSearchApiHelper {
 
     }
 
-    public static Promise<Integer> searchVersion(String groupId,
-                                                 String artifactId,
-                                                 DependencySearchService service, 
-                                                 SearchParameters searchParameters, 
-                                                 ConcurrentLinkedDeque<MavenRepositoryArtifactInfo> cld) {
-        return service.fulltextSearch(String.format("%s:%s", groupId, artifactId), searchParameters, repo -> {
+    public static Promise<Integer> searchFullTextDependency(String groupId,
+                                                            String artifactId,
+                                                            DependencySearchService service,
+                                                            SearchParameters searchParameters,
+                                                            ConcurrentLinkedDeque<MavenRepositoryArtifactInfo> cld) {
+        String textSearch = "";
+        if (!groupId.equals("")) textSearch = String.format("%s:%s", groupId, artifactId);
+        else textSearch = artifactId;
+        return service.fulltextSearch(textSearch, searchParameters, repo -> {
             if (repo instanceof MavenRepositoryArtifactInfo) {
                 cld.add((MavenRepositoryArtifactInfo) repo);
             }
