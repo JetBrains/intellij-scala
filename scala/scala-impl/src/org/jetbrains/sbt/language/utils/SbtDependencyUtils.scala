@@ -488,8 +488,8 @@ object SbtDependencyUtils {
 
   def generateArtifactTextVerbose(groupId: String, artifactId: String, version: String, configuration: String): String = {
     var artifactText = ""
-    if (artifactId.matches("^.+_\\d+\\.\\d+$"))
-      artifactText += s""""${groupId}" %% "${artifactId.replaceAll("_\\d+\\.\\d+$", "")}" % "${version}""""
+    if (artifactId.matches("^.+_\\d+.*$"))
+      artifactText += s""""${groupId}" %% "${artifactId.replaceAll("_\\d+.*$", "")}" % "${version}""""
     else
       artifactText += s""""${groupId}" %% "${artifactId}" % "${version}""""
 
