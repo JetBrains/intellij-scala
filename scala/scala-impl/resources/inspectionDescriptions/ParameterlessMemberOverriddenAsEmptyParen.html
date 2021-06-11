@@ -1,6 +1,6 @@
 <html>
 <body>
-Reports methods with one empty parameter clause that override methods without parameter clauses.
+<p>Reports methods with one empty parameter clause that override methods without parameter clauses.</p>
 
 <p>The recommended convention is to use a method without parameter clauses whenever there are
     no parameters and the method have no
@@ -9,7 +9,7 @@ Reports methods with one empty parameter clause that override methods without pa
 <p>This convention promotes the <a href="https://en.wikipedia.org/wiki/Uniform_access_principle">uniform access principle</a>,
     which says that client code should not be affected by a decision to implement an attribute as a field or method.</p>
 
-<p>In accordance to the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>,
+<p>In accordance with the <a href="https://en.wikipedia.org/wiki/Liskov_substitution_principle">Liskov substitution principle</a>,
     whenever an overridden method doesn't have a parameter clause, the overriding method must also be declared as a method without side effects.</p>
 
 <p>The quick-fix removes the empty parameter clause.</p>
