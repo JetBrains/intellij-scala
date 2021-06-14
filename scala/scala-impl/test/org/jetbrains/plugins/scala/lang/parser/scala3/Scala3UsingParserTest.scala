@@ -138,24 +138,27 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          SimpleType: Int
-      |            CodeReferenceElement: Int
-      |              PsiElement(identifier)('Int')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |      ParametersClause
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          SimpleType: String
-      |            CodeReferenceElement: String
-      |              PsiElement(identifier)('String')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          SimpleType: Double
-      |            CodeReferenceElement: Double
-      |              PsiElement(identifier)('Double')
+      |          ParameterType
+      |            SimpleType: Double
+      |              CodeReferenceElement: Double
+      |                PsiElement(identifier)('Double')
       |        PsiElement(,)(',')
       |        PsiErrorElement:Expected more types
       |          <empty list>
@@ -203,15 +206,17 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(using)('using')
       |          PsiWhiteSpace(' ')
       |          ClassParameter: _
-      |            SimpleType: Int
-      |              CodeReferenceElement: Int
-      |                PsiElement(identifier)('Int')
+      |            ParameterType
+      |              SimpleType: Int
+      |                CodeReferenceElement: Int
+      |                  PsiElement(identifier)('Int')
       |          PsiElement(,)(',')
       |          PsiWhiteSpace(' ')
       |          ClassParameter: _
-      |            SimpleType: Test
-      |              CodeReferenceElement: Test
-      |                PsiElement(identifier)('Test')
+      |            ParameterType
+      |              SimpleType: Test
+      |                CodeReferenceElement: Test
+      |                  PsiElement(identifier)('Test')
       |          PsiElement())(')')
       |        ParametersClause
       |          PsiElement(()('(')

@@ -43,13 +43,16 @@ abstract class TypesAsParams(val paramType: IElementType) extends ParsingRule {
   }
 
   private def tryParseTypeAsParam(rollback: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val marker = builder.mark()
+    val paramMarker = builder.mark()
+    val typeMarker = builder.mark()
     if (Type.parse(builder)) {
-      marker.done(paramType)
+      typeMarker.done(ScalaElementType.PARAM_TYPE)
+      paramMarker.done(paramType)
       true
     } else {
-      if (rollback) marker.rollbackTo()
-      else marker.drop()
+      typeMarker.drop()
+      if (rollback) paramMarker.rollbackTo()
+      else paramMarker.drop()
       false
     }
   }

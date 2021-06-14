@@ -280,16 +280,17 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          ParametrizedType: Ord[T]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: T
-      |                CodeReferenceElement: T
-      |                  PsiElement(identifier)('T')
-      |              PsiElement(])(']')
+      |          ParameterType
+      |            ParametrizedType: Ord[T]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: T
+      |                  CodeReferenceElement: T
+      |                    PsiElement(identifier)('T')
+      |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
@@ -341,16 +342,17 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          ParametrizedType: Ord[T]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: T
-      |                CodeReferenceElement: T
-      |                  PsiElement(identifier)('T')
-      |              PsiElement(])(']')
+      |          ParameterType
+      |            ParametrizedType: Ord[T]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: T
+      |                  CodeReferenceElement: T
+      |                    PsiElement(identifier)('T')
+      |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
@@ -398,16 +400,17 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          ParametrizedType: Ord[Int]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
-      |              PsiElement(])(']')
+      |          ParameterType
+      |            ParametrizedType: Ord[Int]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
+      |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
@@ -666,16 +669,17 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          ParametrizedType: Ord[T]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: T
-      |                CodeReferenceElement: T
-      |                  PsiElement(identifier)('T')
-      |              PsiElement(])(']')
+      |          ParameterType
+      |            ParametrizedType: Ord[T]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: T
+      |                  CodeReferenceElement: T
+      |                    PsiElement(identifier)('T')
+      |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
@@ -723,16 +727,17 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          ParametrizedType: Ord[T]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: T
-      |                CodeReferenceElement: T
-      |                  PsiElement(identifier)('T')
-      |              PsiElement(])(']')
+      |          ParameterType
+      |            ParametrizedType: Ord[T]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: T
+      |                  CodeReferenceElement: T
+      |                    PsiElement(identifier)('T')
+      |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
@@ -776,16 +781,17 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          ParametrizedType: Ord[Int]
-      |            SimpleType: Ord
-      |              CodeReferenceElement: Ord
-      |                PsiElement(identifier)('Ord')
-      |            TypeArgumentsList
-      |              PsiElement([)('[')
-      |              SimpleType: Int
-      |                CodeReferenceElement: Int
-      |                  PsiElement(identifier)('Int')
-      |              PsiElement(])(']')
+      |          ParameterType
+      |            ParametrizedType: Ord[Int]
+      |              SimpleType: Ord
+      |                CodeReferenceElement: Ord
+      |                  PsiElement(identifier)('Ord')
+      |              TypeArgumentsList
+      |                PsiElement([)('[')
+      |                SimpleType: Int
+      |                  CodeReferenceElement: Int
+      |                    PsiElement(identifier)('Int')
+      |                PsiElement(])(']')
       |        PsiElement())(')')
       |    PsiElement(:)(':')
       |    PsiWhiteSpace(' ')
