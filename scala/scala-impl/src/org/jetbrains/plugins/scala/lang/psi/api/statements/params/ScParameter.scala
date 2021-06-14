@@ -72,7 +72,7 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def owner: PsiElement = {
     ScalaPsiUtil.getContextOfType(this, true, classOf[ScFunctionExpr],
-      classOf[ScFunction], classOf[ScPrimaryConstructor])
+      classOf[ScFunction], classOf[ScPrimaryConstructor], classOf[ScExtension])
   }
 
   def isImplicitParameter: Boolean = {
