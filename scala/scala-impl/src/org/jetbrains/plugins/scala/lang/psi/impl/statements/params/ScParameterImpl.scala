@@ -45,7 +45,8 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
-  override def getNameIdentifier: PsiIdentifier = new JavaIdentifier(nameId)
+  override def getNameIdentifier: PsiIdentifier =
+    physicalNameId.map(new JavaIdentifier(_)).orNull
 
   override def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
     // by-text heuristic is used because this method is called during stub creation,
@@ -67,15 +68,12 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
   //                                    ^^^^^^^^^^^^^ <- parameter without name
   private lazy val syntheticWildcardIdForTypeOnlyUsingParameter: PsiElement = createWildcardPattern
 
-  override def nameId: PsiElement = {
-    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
-    if (id != null) id
-    else {
-      val under = findChildByType[PsiElement](ScalaTokenTypes.tUNDER)
-      if (under != null) under
-      else syntheticWildcardIdForTypeOnlyUsingParameter
-    }
-  }
+  override def nameId: PsiElement =
+    physicalNameId.getOrElse(syntheticWildcardIdForTypeOnlyUsingParameter)
+
+  private def physicalNameId: Option[PsiElement] =
+    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER).toOption
+      .orElse(findChildByType[PsiElement](ScalaTokenTypes.tUNDER).toOption)
 
   override def getTypeElement: PsiTypeElement = null
 
