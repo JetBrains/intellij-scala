@@ -2,23 +2,21 @@ package org.jetbrains.plugins.scala.packagesearch
 
 import com.intellij.buildsystem.model.unified.UnifiedDependency
 import com.intellij.ide.util.PsiNavigationSupport
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
-import com.intellij.openapi.module.ModuleManager
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.{Navigatable, NavigatableAdapter}
-import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ProjectModule, ProjectModuleProvider}
+import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ModuleTransformer, ProjectModule}
 import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
-import kotlin.sequences.Sequence
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyUtils, SbtProjectModuleType, ScalaKotlinHelper}
 import org.jetbrains.sbt.SbtUtil
 
 import java.io.File
-import scala.jdk.CollectionConverters.IteratorHasAsJava
+import java.util
+import scala.jdk.CollectionConverters._
 
-class SbtProjectModuleProvider extends ProjectModuleProvider {
+class SbtModuleTransformer(private val project: Project) extends ModuleTransformer {
 
   def findModulePaths(module: Module): Array[File] = {
     if (!SbtUtil.isSbtModule(module)) return null
@@ -51,39 +49,37 @@ class SbtProjectModuleProvider extends ProjectModuleProvider {
     }
   }
 
-  def obtainProjectModulesFor(project: Project, module: Module):ProjectModule = try {
+  def obtainProjectModulesFor(module: Module):ProjectModule = try {
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     sbtFileOpt match {
       case Some(buildFile: VirtualFile) =>
           val projectModule = new ProjectModule(
-          module.getName,
-          module,
-          null,
+            module.getName,
+            module,
+            null,
             buildFile,
-          SbtCommon.buildSystemType,
-          SbtProjectModuleType
+            SbtCommon.buildSystemType,
+            SbtProjectModuleType,
+            (_,_,_) => null
         )
         if (!DumbService.getInstance(project).isDumb)
-          ScalaKotlinHelper.setNavigableDependency(projectModule, createNavigableDependencyCallback(project, module))
-        projectModule
+          ScalaKotlinHelper.createNavigatableProjectModule(projectModule, createNavigableDependencyCallback(project, module))
+        else
+          projectModule
       case _ => null
     }
 
   } catch {
-    case exception: Exception =>
-      throw(exception)
-    case x: Throwable => throw(x)
+    case e: Exception => null
   }
 
-  override def obtainAllProjectModulesFor(project: Project): Sequence[ProjectModule] = {
-    // Check whether the IDE is in Dumb Mode. If it is, return empty sequence instead proceeding
-//    if (DumbService.getInstance(project).isDumb) return ScalaKotlinHelper.toKotlinSequence(List().iterator.asJava)
+  override def transformModules(list: util.List[_ <: Module]): util.List[ProjectModule] = {
+//    if (DumbService.getInstance(project).isDumb) return List.empty.asJava
+    list.asScala.map(module => obtainProjectModulesFor(module)).filter(_ != null).distinct.asJava
+  }
 
-    val projectModules = ModuleManager.getInstance(project).getModules
-      .map(module => obtainProjectModulesFor(project, module))
-      .filter(_ != null)
-      .distinct
-    val res = ScalaKotlinHelper.toKotlinSequence(projectModules.iterator.asJava)
-    res
+  // TODO remove this function from the interface when needed
+  override def transformModules(modules: Array[Module]): util.List[ProjectModule] = {
+    transformModules(modules.toList.asJava)
   }
 }

@@ -10,7 +10,7 @@ class SbtProjectModuleOperationProvider extends AbstractProjectModuleOperationPr
   override def hasSupportFor(project: Project, psiFile: PsiFile): Boolean = {
     val file = psiFile.getVirtualFile
     if (file == null) return false
-    if (file.getExtension == "sbt") return true
+    if (file.getExtension.toLowerCase() == "sbt" || file.getExtension.toLowerCase() == "scala") return true
     false
   }
 

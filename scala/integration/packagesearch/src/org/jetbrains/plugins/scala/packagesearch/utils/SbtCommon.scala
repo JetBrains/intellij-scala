@@ -11,6 +11,7 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 object SbtCommon {
   val buildSystemType = new BuildSystemType(
     PackageSearchSbtBundle.message("packagesearch.sbt.build.system.name"),
+    PackageSearchSbtBundle.message("packagesearch.sbt.build.system.language"),
     PackageSearchSbtBundle.message("packagesearch.sbt.build.system.key"))
   val libScopes = "Compile,Provided,Test"
   val defaultLibScope = "Compile"

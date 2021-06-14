@@ -13,13 +13,16 @@ public class ScalaKotlinHelper {
     public static <T> Sequence<T> toKotlinSequence(Iterator<T> it) {
         return SequencesKt.asSequence(it);
     }
-    public static void setNavigableDependency(ProjectModule projectModule, scala.Function3<String, String, PackageVersion, Navigatable> f) {
-        projectModule.setGetNavigatableDependency(new Function3<String, String, PackageVersion, Navigatable>() {
-            @Override
-            public Navigatable invoke(String s, String s2, PackageVersion packageVersion) {
-                return f.apply(s, s2, packageVersion);
-            }
-        });
+    public static ProjectModule createNavigatableProjectModule(ProjectModule projectModule, scala.Function3<String, String, PackageVersion, Navigatable> f) {
+        return new ProjectModule(
+                projectModule.getName(),
+                projectModule.getNativeModule(),
+                projectModule.getParent(),
+                projectModule.getBuildFile(),
+                projectModule.getBuildSystemType(),
+                projectModule.getModuleType(),
+                (s, s2, packageVersion) -> f.apply(s, s2, packageVersion)
+        );
     }
 
 }
