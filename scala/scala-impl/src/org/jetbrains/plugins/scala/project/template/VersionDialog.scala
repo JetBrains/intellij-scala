@@ -62,7 +62,11 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
           // scala3-library has also dependency on scala-library, so set transitive
           DependencyDescription.scalaArtifact("library", scalaVersion).transitive().sources(),
         )
-        dependencyManager.resolve(compiler, librarySources)
+        dependencyManager.resolve(compiler)
+        // ATTENTION:
+        // Sources jars should be resolved in a separate request to dependency manager
+        // Otherwise resolved jars will contain only "sources" jar, without "classes"
+        dependencyManager.resolve(librarySources)
         ()
       }.recover {
         case _: ProcessCanceledException => // downloading aborted by user
