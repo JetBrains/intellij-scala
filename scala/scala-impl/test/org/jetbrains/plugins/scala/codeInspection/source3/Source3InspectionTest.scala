@@ -91,6 +91,28 @@ class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase 
     )
   }
 
+  def test_infix_vararg_slices(): Unit = {
+    val selectedText = s"Seq(a: ${START}_*$END)"
+    checkTextHasError(selectedText)
+
+    testQuickFix(
+      "Seq(a ++ a: _*)",
+      "Seq((a ++ a)*)",
+      "Replace with *"
+    )
+  }
+
+  def test_vararg_slices_undersocered(): Unit = {
+    val selectedText = s"Seq(a: ${START}_*$END)"
+    checkTextHasError(selectedText)
+
+    testQuickFix(
+      "Seq(a_ : _*)",
+      "Seq(a_ *)",
+      "Replace with *"
+    )
+  }
+
   def test_vararg_pattern(): Unit = {
     val selectedText = s"val Seq(${START}a@_*$END) = null"
     checkTextHasError(selectedText)

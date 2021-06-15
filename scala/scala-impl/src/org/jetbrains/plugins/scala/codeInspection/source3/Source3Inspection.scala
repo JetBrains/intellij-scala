@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScNamingPattern, ScSeqWildcardPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScWildcardTypeElement}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScGenerator, ScMethodCall, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFor, ScGenerator, ScInfixExpr, ScMethodCall, ScPostfixExpr, ScPrefixExpr, ScReferenceExpression, ScTypedExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -61,7 +61,12 @@ class Source3Inspection extends AbstractRegisteredInspection {
         super.problemDescriptor(
           seqArg,
           createReplacingQuickFix(typed, ScalaInspectionBundle.message("replace.with.star")) { typed =>
-            ScalaPsiElementFactory.createExpressionWithContextFromText(s"call(${typed.expr.getText}*)" , typed.getContext, typed)
+            val innerText = typed.expr match {
+              case _: ScInfixExpr | _: ScPostfixExpr | _: ScPrefixExpr => s"(${typed.expr.getText})"
+              case expr if expr.getText.endsWith("_") => typed.expr.getText + " "
+              case _ => typed.expr.getText
+            }
+            ScalaPsiElementFactory.createExpressionWithContextFromText(s"call($innerText*)" , typed.getContext, typed)
               .asInstanceOf[ScMethodCall].argumentExpressions.head
           }
         )
