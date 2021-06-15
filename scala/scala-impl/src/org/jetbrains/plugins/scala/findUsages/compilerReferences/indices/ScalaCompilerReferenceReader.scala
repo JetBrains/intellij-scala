@@ -71,13 +71,13 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
       usages.result()
     }
 
-  override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): IntSet =
+  override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): util.Set[VirtualFile] =
     rethrowStorageExceptionIn {
-      val referentFiles = new IntOpenHashSet()
+      val referentFiles: util.Set[VirtualFile] = new util.HashSet[VirtualFile]()
 
       searchInBackwardUsagesIndex(ref) {
         case (fileId, _) =>
-          findFileByEnumeratorId(fileId).foreach(f => referentFiles.add(f.asInstanceOf[VirtualFileWithId].getId))
+          findFileByEnumeratorId(fileId).foreach(f => referentFiles.add(f))
           true
       }
 
@@ -156,5 +156,5 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
     compilerHierarchySearchType: CompilerHierarchySearchType
   ): util.Map[VirtualFile, Array[SearchId]] = null
 
-  override def findFileIdsWithImplicitToString(compilerRef: CompilerRef): IntSet = null
+  override def findFileIdsWithImplicitToString(compilerRef: CompilerRef): util.Set[VirtualFile] = null
 }

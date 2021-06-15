@@ -127,7 +127,7 @@ object SbtDependencyUtils {
                                      module: OpenapiModule,
                                      mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
     // Check whether the IDE is in Dumb Mode. If it is, return empty list instead proceeding
-    if (DumbService.getInstance(module.getProject).isDumb) return Seq()
+//    if (DumbService.getInstance(module.getProject).isDumb) return Seq()
 
     val libDeps = inReadAction(
       for {

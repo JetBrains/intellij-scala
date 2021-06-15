@@ -196,9 +196,9 @@ object JavaToScala {
         val caseValues = if (s.isDefaultCase)
           Seq(LiteralExpression("_"))
         else
-          Option(s.getCaseValues)
-            .map(it => it.getExpressions.toSeq.map(convertPsiToIntermediate(_, externalProperties)))
-              .getOrElse(Seq.empty)
+          Option(s.getCaseLabelElementList)
+            .map(it => it.getElements.iterator.map(convertPsiToIntermediate(_, externalProperties)).toSeq)
+            .getOrElse(Seq.empty)
         val body : Option[PsiStatement] = s match {
           case rs: PsiSwitchLabeledRuleStatement => Option(rs.getBody)
           case _ => None

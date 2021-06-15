@@ -21,6 +21,7 @@ import org.junit.Assert._
 
 import java.io.File
 import java.net.URI
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Try}
 
@@ -268,7 +269,7 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
       assertTrue(moduleRootManager.isSdkInherited)
     } else {
       assertEquals(expectedSdk, moduleRootManager.getSdk)
-      val languageLevelModuleExtension = LanguageLevelModuleExtensionImpl.getInstance(getModule)
+      val languageLevelModuleExtension = LanguageLevelModuleExtensionImpl.getInstance(getModule): @nowarn("msg=deprecated")
       val actualLanguageLevel = languageLevelModuleExtension.getLanguageLevel
       assertEquals(expectedLanguageLevel, actualLanguageLevel)
     }

@@ -3,10 +3,9 @@
     <depends>com.intellij.externalSystem.dependencyUpdater</depends>
     <extensions defaultExtensionNs="com.intellij">
         <externalSystem.dependencyModifier implementation="org.jetbrains.plugins.scala.packagesearch.SbtDependencyModifier"/>
-        <packagesearch.projectModuleProvider implementation="org.jetbrains.plugins.scala.packagesearch.SbtProjectModuleProvider"/>
+        <packagesearch.moduleTransformer implementation="org.jetbrains.plugins.scala.packagesearch.SbtModuleTransformer"/>
         <packagesearch.projectModuleOperationProvider implementation="org.jetbrains.plugins.scala.packagesearch.SbtProjectModuleOperationProvider"/>
         <packagesearch.configurableContributor implementation="org.jetbrains.plugins.scala.packagesearch.SbtConfigurableContributor"/>
-        <packagesearch.moduleChangesSignalProvider implementation="org.jetbrains.plugins.scala.packagesearch.SbtModuleChangesSignalProvider"/>
         <search.optionContributor implementation="org.jetbrains.plugins.scala.packagesearch.configuration.SbtSearchableOptionContributor"/>
         <projectService serviceImplementation="org.jetbrains.plugins.scala.packagesearch.configuration.PackageSearchSbtConfiguration"/>
     </extensions>

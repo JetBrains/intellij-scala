@@ -358,7 +358,7 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     compilerSettings.setBytecodeTargetLevel(module, target)
     compilerSettings.setAdditionalOptions(module, other.asJava)
 
-    val model = LanguageLevelModuleExtensionImpl.getInstance(module)
+    val model = LanguageLevelModuleExtensionImpl.getInstance(module): @nowarn("msg=deprecated")
     val modifiableModel = model.getModifiableModel(true).asInstanceOf[LanguageLevelModuleExtensionImpl]
     modifiableModel.setLanguageLevel(source)
   }

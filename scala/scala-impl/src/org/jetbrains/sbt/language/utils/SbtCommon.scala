@@ -10,7 +10,9 @@ import org.jetbrains.sbt.project.SbtProjectSystem
 object SbtCommon {
   val buildSystemType = new BuildSystemType(
     "SBT",
-    "sbt")
+    "sbt",
+    "scala"
+  )
   val libScopes = "Compile,Provided,Test"
   val defaultLibScope = "Compile"
   val scopeTerminology = "Configuration"
