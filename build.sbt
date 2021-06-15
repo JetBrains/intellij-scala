@@ -18,6 +18,7 @@ import java.nio.file.Paths
    Resolver.sonatypeRepo("releases"),
    Resolver.sonatypeRepo("staging"),
    Resolver.sonatypeRepo("snapshots"),
+   "scala-integration" at "https://scala-ci.typesafe.com/artifactory/scala-integration/"
  )
 
 (Global / javacOptions) := globalJavacOptions
