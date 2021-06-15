@@ -85,6 +85,6 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
   @throws(classOf[Exception])
   override protected def tearDown(): Unit = try {
     disposeLibraries(getModule)
-    inWriteAction(ProjectJdkTable.getInstance().removeJdk(ScalaLightPlatformCodeInsightTestCaseAdapter.this.getProjectJDK))
+    inWriteAction(ProjectJdkTable.getInstance().removeJdk(getProjectJDK))
   } finally super.tearDown()
 }

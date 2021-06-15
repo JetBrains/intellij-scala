@@ -73,13 +73,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     case e: Exception => null
   }
 
-  override def transformModules(list: util.List[_ <: Module]): util.List[ProjectModule] = {
-//    if (DumbService.getInstance(project).isDumb) return List.empty.asJava
+  override def transformModules(project: Project, list: util.List[_ <: Module]): util.List[ProjectModule] = {
     list.asScala.map(module => obtainProjectModulesFor(module)).filter(_ != null).distinct.asJava
-  }
-
-  // TODO remove this function from the interface when needed
-  override def transformModules(modules: Array[Module]): util.List[ProjectModule] = {
-    transformModules(modules.toList.asJava)
   }
 }
