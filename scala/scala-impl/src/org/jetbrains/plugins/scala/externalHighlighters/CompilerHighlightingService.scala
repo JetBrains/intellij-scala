@@ -112,7 +112,7 @@ final class CompilerHighlightingService(project: Project)
                                 (compile: Client => Unit): Unit = {
     saveProjectOnce()
     CompileServerLauncher.ensureServerRunning(project)
-    val promise = Promise[Unit]
+    val promise = Promise[Unit]()
 
     val taskMsg = ScalaBundle.message("highlighting.compilation")
     val task: Task.Backgroundable = new Task.Backgroundable(project, taskMsg, true) {

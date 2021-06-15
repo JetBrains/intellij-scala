@@ -82,9 +82,9 @@ object FileKind {
           override def isAlwaysLeaf: Boolean = true
 
           //noinspection TypeAnnotation
-          override protected def getChildrenImpl = emptyNodesList
+          override def getChildrenImpl = emptyNodesList
 
-          override protected def updateImpl(data: PresentationData): Unit = {
+          override def updateImpl(data: PresentationData): Unit = {
             super.updateImpl(data)
             setIcon(data)
           }

@@ -1144,7 +1144,7 @@ object ScalaRefactoringUtil {
   def inSuperConstructor(element: PsiElement, aClass: ScTemplateDefinition): Boolean = {
     aClass.extendsBlock.templateParents match {
       case Some(parents) if parents.isAncestorOf(element) => true
-      case None => false
+      case _ => false
     }
   }
 

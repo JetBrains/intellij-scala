@@ -75,7 +75,7 @@ abstract class ImportingProjectTestCase extends ExternalSystemImportingTestCase 
 
   override protected def getCurrentExternalProjectSettings: ExternalProjectSettings = {
     val sbtSettings = SbtSettings.getInstance(myProject)
-    sbtSettings.setVmParameters(sbtSettings.getVmParameters + s"-Dsbt.ivy.home=$rootDirPath/.ivy_cache")
+    sbtSettings.setVmParameters(sbtSettings.vmParameters + s"-Dsbt.ivy.home=$rootDirPath/.ivy_cache")
 
     val settings = new SbtProjectSettings
     settings.jdk = getJdk.getName

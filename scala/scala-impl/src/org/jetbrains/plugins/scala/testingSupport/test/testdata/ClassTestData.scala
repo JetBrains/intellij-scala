@@ -20,22 +20,22 @@ class ClassTestData(config: AbstractTestRunConfiguration) extends TestConfigurat
 
   override def getKind: TestKind = TestKind.CLAZZ
 
-  protected[test] def getClassPathClazz: PsiClass = config.getClazz(getTestClassPath)
+  protected[test] def getClassPathClazz: PsiClass = config.getClazz(testClassPath)
 
   override def checkSuiteAndTestName: CheckResult =
     for {
       _ <- checkModule
-      _ <- check(StringUtils.isNotBlank(getTestClassPath), configurationException(ScalaBundle.message("test.config.test.class.is.not.specified")))
+      _ <- check(StringUtils.isNotBlank(testClassPath), configurationException(ScalaBundle.message("test.config.test.class.is.not.specified")))
       testClass = getClassPathClazz
-      _ <- check(testClass != null, configurationException(ScalaBundle.message("test.config.test.class.not.found.in.module", getTestClassPath, getModule.getName)))
+      _ <- check(testClass != null, configurationException(ScalaBundle.message("test.config.test.class.not.found.in.module", testClassPath, getModule.getName)))
       //TODO: config.isInvalidSuite calls config.getSuiteClass and we call config.getSuiteClass again on the next line
       //  we should refactor how isInvalidSuite is currently implemented to avoid this
       _ <- check(config.isValidSuite(testClass), {
         val suiteClass = config.getSuiteClass.toTry.get
         val message = if (ScalaPsiUtil.isInheritorDeep(testClass, suiteClass)) {
-          ScalaBundle.message("test.config.no.suite.class.is.found.for.class.in.module", getTestClassPath, getModule.getName)
+          ScalaBundle.message("test.config.no.suite.class.is.found.for.class.in.module", testClassPath, getModule.getName)
         } else {
-          ScalaBundle.message("test.config.class.is.not.inheritor.of.suite.trait", getTestClassPath)
+          ScalaBundle.message("test.config.class.is.not.inheritor.of.suite.trait", testClassPath)
         }
         configurationException(message)
       })

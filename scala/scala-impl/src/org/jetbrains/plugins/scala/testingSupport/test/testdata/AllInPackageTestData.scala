@@ -33,7 +33,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   override def checkSuiteAndTestName: CheckResult =
     for {
       _ <- myCheckModule
-      pack = JavaPsiFacade.getInstance(getProject).findPackage(getTestPackagePath)
+      pack = JavaPsiFacade.getInstance(getProject).findPackage(testPackagePath)
       _ <- check(pack != null, configurationException(ScalaBundle.message("test.config.package.does.not.exist")))
     } yield ()
 
@@ -58,7 +58,7 @@ class AllInPackageTestData(config: AbstractTestRunConfiguration) extends TestCon
   }
 
   private def findTestSuites(scope: GlobalSearchScope): Seq[String] = {
-    val pack = ScPackageImpl(getPackage(getTestPackagePath))
+    val pack = ScPackageImpl(getPackage(testPackagePath))
 
     if (pack == null) throw executionException(ScalaBundle.message("test.run.config.test.package.not.found", testPackagePath))
 

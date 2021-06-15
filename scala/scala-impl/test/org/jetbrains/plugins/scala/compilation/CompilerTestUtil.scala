@@ -186,7 +186,7 @@ object CompilerTestUtil {
 
   def withModifiedSetting[Settings, T](instance: => Settings)
                                       (value: T)
-                                      (get: Settings => T, set: (Settings, T) => ()): RevertableChange = new RevertableChange {
+                                      (get: Settings => T, set: (Settings, T) => Unit): RevertableChange = new RevertableChange {
     private var before: Option[T] = None
 
     override def applyChange(): Unit = {

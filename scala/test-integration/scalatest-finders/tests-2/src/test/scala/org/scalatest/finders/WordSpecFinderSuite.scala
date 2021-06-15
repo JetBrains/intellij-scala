@@ -170,7 +170,7 @@ class WordSpecFinderSuite extends FinderSuite {
     class TestingWordSpec3 extends WordSpec {
 
       "The ScalaTest Matchers DSL" should { 
-        "provide an and operator" that { 
+        "provide an and operator" which {
           "returns silently when evaluating true and true" in {} 
           "throws a TestFailedException when evaluating true and false" in {} 
           "throws a TestFailedException when evaluating false and true" in {
@@ -178,7 +178,7 @@ class WordSpecFinderSuite extends FinderSuite {
           } 
           "throws a TestFailedException when evaluating false and false" in {} 
         } 
-        "provide an or operator" that { // we'll use 'which' in the DSL below.
+        "provide an or operator" which { // we'll use 'which' in the DSL below.
           "returns silently when evaluating true or true" in {} 
           "returns silently when evaluating true or false" in {} 
           "returns silently when evaluating false or true" in {} 

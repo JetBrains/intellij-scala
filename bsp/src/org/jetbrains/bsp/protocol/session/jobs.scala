@@ -67,7 +67,7 @@ private[session] class Bsp4jJob[T,A](task: BspSessionTask[T],
                                      processLogger: ProcessLogger)
   extends BspSessionJob[T,A] {
 
-  private val promise = Promise[(T,A)]
+  private val promise = Promise[(T,A)]()
   private var a: A = default
 
   private val runningTask: AtomicReference[Option[CompletableFuture[(T,A)]]] = new AtomicReference(None)

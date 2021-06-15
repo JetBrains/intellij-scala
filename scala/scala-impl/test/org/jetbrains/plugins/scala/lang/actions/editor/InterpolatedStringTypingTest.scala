@@ -100,7 +100,7 @@ class InterpolatedStringTypingTest extends EditorActionTestBase {
 
   private def withModifiedCodeInsightSettings[T](
     get: CodeInsightSettings => T,
-    set: (CodeInsightSettings, T) => (),
+    set: (CodeInsightSettings, T) => Unit,
     value: T
   ): RevertableChange = new RevertableChange {
     private def instance = CodeInsightSettings.getInstance

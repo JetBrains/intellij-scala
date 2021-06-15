@@ -255,8 +255,8 @@ object ScExistentialType {
     val rightIterator = right.wildcards.iterator
 
     while (leftIterator.hasNext && rightIterator.hasNext) {
-      val left = leftIterator.next
-      val right = rightIterator.next
+      val left = leftIterator.next()
+      val right = rightIterator.next()
 
       val subst = ScSubstitutor.bind(right.typeParameters, left.typeParameters)(TypeParameterType(_))
       val updatedRightLower = replaceRightToLeft(subst(right.lower))

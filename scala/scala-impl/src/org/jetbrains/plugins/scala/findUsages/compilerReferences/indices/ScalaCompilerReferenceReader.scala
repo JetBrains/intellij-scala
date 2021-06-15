@@ -1,24 +1,18 @@
 package org.jetbrains.plugins.scala.findUsages.compilerReferences.indices
 
-import java.io.File
-import java.io.IOException
-import java.util
-import com.intellij.compiler.backwardRefs.CompilerHierarchySearchType
-import com.intellij.compiler.backwardRefs.CompilerReferenceReader
-import com.intellij.compiler.backwardRefs.SearchId
+import com.intellij.compiler.backwardRefs.{CompilerHierarchySearchType, CompilerReferenceReader, SearchId}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.vfs.{CompactVirtualFileSet, VfsUtil, VfsUtilCore, VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.vfs.{VfsUtil, VfsUtilCore, VirtualFile}
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.util.containers.Queue
 import com.intellij.util.indexing.StorageException
 import com.intellij.util.indexing.ValueContainer.ContainerAction
 import gnu.trove.THashSet
-import it.unimi.dsi.fastutil.ints.IntOpenHashSet
-import it.unimi.dsi.fastutil.ints.IntSet
 import org.jetbrains.jps.backwardRefs.CompilerRef
 import org.jetbrains.plugins.scala.findUsages.compilerReferences.UsagesInFile
 
+import java.io.{File, IOException}
+import java.util
 import scala.annotation.tailrec
 
 private[findUsages] class ScalaCompilerReferenceReader private[compilerReferences] (
@@ -74,7 +68,8 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
 
       searchInBackwardUsagesIndex(ref) {
         case (fileId, _) =>
-          findFileByEnumeratorId(fileId).foreach(f => referentFiles.add(f))
+          findFileByEnumeratorId(fileId)
+            .foreach(referentFiles.add)
           true
       }
 

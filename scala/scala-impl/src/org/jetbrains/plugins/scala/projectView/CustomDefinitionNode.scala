@@ -15,7 +15,7 @@ private[projectView] abstract class CustomDefinitionNode(definition: ScTypeDefin
 
   myName = definition.name
 
-  override protected def updateImpl(data: PresentationData): Unit = validValue match {
+  override def updateImpl(data: PresentationData): Unit = validValue match {
     case Some(definition) => data.setPresentableText(definition.name)
     case _ => super.updateImpl(data)
   }

@@ -186,7 +186,7 @@ private[cfg] class BuilderImpl[SourceInfo] extends Builder[SourceInfo] {
     {
       // check if blocks have correct boundaries
       assert(blocks.head.nodeBegin == 0)
-      assert(blocks.size == 1 || blocks.sliding(2).forall { case ArraySeq(a, b) => a.nodeEnd == b.nodeBegin })
+      assert(blocks.size == 1 || (blocks: Seq[Block]).sliding(2).forall { case Seq(a, b) => a.nodeEnd == b.nodeBegin })
       assert(blocks.last.nodeEnd == graph.nodes.size)
 
       // check indices

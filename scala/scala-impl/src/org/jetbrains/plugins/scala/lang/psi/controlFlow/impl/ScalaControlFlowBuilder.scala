@@ -81,8 +81,8 @@ class ScalaControlFlowBuilder(startInScope: ScalaPsiElement,
 
   private def addEdge(from: InstructionImpl, to: InstructionImpl): Unit = {
     if (from == null || to == null) return
-    if (!from.succ().contains(to)) from.addSucc(to)
-    if (!to.pred().contains(from)) to.addPred(from)
+    if (!from.succ.contains(to)) from.addSucc(to)
+    if (!to.pred.contains(from)) to.addPred(from)
   }
 
   private def checkPendingEdges(instruction: InstructionImpl): Unit = {

@@ -27,11 +27,11 @@ class CompilerIndicesSettings(project: Project) extends PersistentStateComponent
     * makes sense in the context of the current project (i.e. this is a project built
     * with sbt shell or IDEA's JPS builder).
     */
-  def isIndexingEnabled: Boolean                   = state.isIndexingEnabled
-  def isEnabledForImplicitDefs: Boolean            = state.isEnabledForImplicitDefs
-  def isEnabledForApplyUnapply: Boolean            = state.isEnabledForApplyUnapply
-  def isEnabledForSAMTypes: Boolean                = state.isEnabledForSAMTypes
-  def isEnabledForForComprehensionMethods: Boolean = state.isEnabledForForCompMethods
+  def isIndexingEnabled: Boolean                   = state.isIndexingEnabled()
+  def isEnabledForImplicitDefs: Boolean            = state.isEnabledForImplicitDefs()
+  def isEnabledForApplyUnapply: Boolean            = state.isEnabledForApplyUnapply()
+  def isEnabledForSAMTypes: Boolean                = state.isEnabledForSAMTypes()
+  def isEnabledForForComprehensionMethods: Boolean = state.isEnabledForForCompMethods()
 
   def setEnabledForImplicitDefs(enabled:            Boolean): Unit = state.setEnabledForImplicitDefs(enabled)
   def setEnabledForApplyUnapply(enabled:            Boolean): Unit = state.setEnabledForApplyUnapply(enabled)

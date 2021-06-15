@@ -48,7 +48,7 @@ class BspSession private(bspIn: InputStream,
 
   private val serverConnection: ServerConnection = startServerConnection
   private val sessionInitialized = initializeSession
-  private val sessionShutdown = Promise[Unit]
+  private val sessionShutdown = Promise[Unit]()
 
   private val queuePause = 10.millis
   private val queueTimeout = 1.second

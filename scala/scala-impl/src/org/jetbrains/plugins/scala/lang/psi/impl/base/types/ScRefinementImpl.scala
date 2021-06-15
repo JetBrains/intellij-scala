@@ -21,13 +21,13 @@ class ScRefinementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScR
   override def processDeclarations(processor: PsiScopeProcessor, state: ResolveState, lastParent: PsiElement, place: PsiElement): Boolean = {
     val iterator = types.iterator
     while (iterator.hasNext) {
-      val elem = iterator.next
+      val elem = iterator.next()
       if (!processor.execute(elem, state)) return false
     }
 
     val iterator1 = holders.iterator.flatMap(_.declaredElements.iterator)
     while (iterator1.hasNext) {
-      val elem = iterator1.next
+      val elem = iterator1.next()
       if (!processor.execute(elem, state)) return false
     }
     true

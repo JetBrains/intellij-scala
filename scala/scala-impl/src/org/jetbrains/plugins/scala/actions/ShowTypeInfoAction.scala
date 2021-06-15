@@ -54,7 +54,7 @@ class ShowTypeInfoAction extends AnAction(
 
       implicit val project: Project = file.getProject
 
-      def hintForExpression(): Option[String] = {
+      def hintForExpression: Option[String] = {
         getExpression(file).map {
           case expr@Typeable(tpe) =>
             implicit val context: TypePresentationContext = expr

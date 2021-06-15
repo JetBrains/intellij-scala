@@ -24,7 +24,7 @@ trait Types {
   def parse(builder: ScalaPsiBuilder): (Boolean, Boolean) ={
     var isTuple = false
 
-    def typesParse() = if (`type`.parseInner(builder)) {
+    def parseTypes() = if (`type`.parseInner(builder)) {
       true
     } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()
@@ -34,7 +34,7 @@ trait Types {
     }
 
     val typesMarker = builder.mark
-    if (!typesParse) {
+    if (!parseTypes()) {
       typesMarker.drop()
       return (false, isTuple)
     }
@@ -42,7 +42,7 @@ trait Types {
     while (exit && builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
       isTuple = true
       builder.advanceLexer() //Ate ,
-      if (!typesParse) {
+      if (!parseTypes()) {
         exit = false
         //builder error ScalaBundle.message("wrong.type",new Array[Object](0))
       }

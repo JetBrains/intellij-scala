@@ -186,7 +186,7 @@ final class WorksheetEditorPrinterPlain private[printers](
   }
 
   private def currentOutputBufferText: String =
-    currentOutputBuffer.result.replaceFirst("\\s++$", "")
+    currentOutputBuffer.result().replaceFirst("\\s++$", "")
 
   // TODO: there can be a lot of worksheet output, make these checks mor efficient to lower GC usage
   private def isTerminationLine(line: String): Boolean =

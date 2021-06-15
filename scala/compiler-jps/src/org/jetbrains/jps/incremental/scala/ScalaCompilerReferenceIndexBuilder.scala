@@ -111,7 +111,7 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
       }
     }
 
-    (classes.result, timestamp)
+    (classes.result(), timestamp)
   }
 
   private val allJavaTargetTypes = JavaModuleBuildTargetType.ALL_TYPES.asScala

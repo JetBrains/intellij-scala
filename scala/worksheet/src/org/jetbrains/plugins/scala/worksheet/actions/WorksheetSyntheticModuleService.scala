@@ -77,7 +77,7 @@ final class WorksheetSyntheticModuleService(project: Project) {
       override def get: Option[Module] = Some(apply())
       override def clear(): Unit = ()
       override def enqueue(): Boolean = false
-      override def isEnqueued(): Boolean = false
+      override def isEnqueued: Boolean = false
     }
 }
 

@@ -7,19 +7,13 @@ import com.intellij.testFramework.{EditorTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil
 import org.jetbrains.plugins.scala.lang.completion
 
-import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Nikolay Obedin
- * @since 7/17/14.
- */
-@nowarn("msg=early initializers")
-abstract class SbtCompletionTestBase extends {
-  override protected val caretMarker = EditorTestUtil.CARET_TAG
-  override protected val extension = "sbt"
-} with completion.CompletionTestBase {
+abstract class SbtCompletionTestBase extends completion.CompletionTestBase {
   self: MockSbtBase =>
+
+  override protected lazy val caretMarker = EditorTestUtil.CARET_TAG
+  override protected lazy val extension = "sbt"
 
   override def folderPath: String = super.folderPath + "Sbt/"
 

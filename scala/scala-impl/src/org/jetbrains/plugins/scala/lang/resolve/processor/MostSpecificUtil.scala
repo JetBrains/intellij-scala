@@ -333,7 +333,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     if (rest.size == 1) return Some(rest.head)
 
     val iter = rest.iterator
-    var foundMax = iter.next
+    var foundMax = iter.next()
 
     while (iter.hasNext) {
       val res = iter.next()

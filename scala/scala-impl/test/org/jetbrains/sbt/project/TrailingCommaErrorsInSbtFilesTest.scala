@@ -136,7 +136,7 @@ object TrailingCommaErrorsInSbtFilesTest {
 
   private def withModifiedValue[T](newValue: T,
                                    getter: () => T,
-                                   setter: T => ()): RevertableChange =
+                                   setter: T => Unit): RevertableChange =
     new RevertableChange {
       private var before: Option[T] = None
 

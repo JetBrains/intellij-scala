@@ -51,14 +51,14 @@ class ScalaBlankLinesTest_MembersExhaustive(tuple: (String, String, String))
   // size of "fair" product of all possible settings values is very huge, and tests would take ages to end
   // so we do some optimisation to drop irrelevant settings in some cases
   private def allBlankLinesSettingsCombinations(first: String, second: String, container: String)(body: () => Unit): Unit = {
-    val fSetter  : Int => () = cs.BLANK_LINES_AROUND_FIELD = _
-    val fiSetter : Int => () = cs.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = _
-    val fisSetter: Int => () = ss.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = _
-    val mSetter  : Int => () = cs.BLANK_LINES_AROUND_METHOD = _
-    val miSetter : Int => () = cs.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = _
-    val misSetter: Int => () = ss.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = _
-    val cSetter  : Int => () = cs.BLANK_LINES_AROUND_CLASS = _
-    val cisSetter: Int => () = ss.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = _
+    val fSetter  : Int => Unit = cs.BLANK_LINES_AROUND_FIELD = _
+    val fiSetter : Int => Unit = cs.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = _
+    val fisSetter: Int => Unit = ss.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = _
+    val mSetter  : Int => Unit = cs.BLANK_LINES_AROUND_METHOD = _
+    val miSetter : Int => Unit = cs.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = _
+    val misSetter: Int => Unit = ss.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = _
+    val cSetter  : Int => Unit = cs.BLANK_LINES_AROUND_CLASS = _
+    val cisSetter: Int => Unit = ss.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = _
 
     val memberTypes = firstToken(first) :: firstToken(second) :: Nil
 
@@ -85,7 +85,7 @@ class ScalaBlankLinesTest_MembersExhaustive(tuple: (String, String, String))
 
     val maxBlankLine = 2
 
-    def applications(setters: List[Int => ()]): List[List[() => Unit]] =
+    def applications(setters: List[Int => Unit]): List[List[() => Unit]] =
       setters.map(setter => (0 to maxBlankLine).map(idx => () => setter.apply(idx)).toList)
 
     val relevantApplications = applications(relevantSetters)

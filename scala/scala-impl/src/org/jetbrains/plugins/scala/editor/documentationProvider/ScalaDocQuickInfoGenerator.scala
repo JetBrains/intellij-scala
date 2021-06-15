@@ -84,7 +84,7 @@ object ScalaDocQuickInfoGenerator {
     if (buffer.nonEmpty)
       buffer.append("\n")
 
-    buffer.result
+    buffer.result()
   }
 
   private def constructor(clazz: ScTypeDefinition) =

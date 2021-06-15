@@ -114,7 +114,7 @@ object SimpleBuildFileModifier {
         //modification is performed from setupLibrary (see org.jetbrains.plugins.scala.testingSupport.test.AbstractTestFramework)
         VfsUtil.saveText(res, psiFile.getText)
         Some(res)
-      case None => None
+      case _ => None
     }
   }
 

@@ -56,7 +56,7 @@ trait SeveralFilesHighlightingTest {
   }
 
   private def content(file: File): String =
-    Using.resource(Source.fromFile(file)(Codec.UTF8))(_.getLines.mkString("\n"))
+    Using.resource(Source.fromFile(file)(Codec.UTF8))(_.getLines().mkString("\n"))
 
   private def removeFile(psiFile: PsiFile): Unit = {
     inWriteAction(psiFile.delete())

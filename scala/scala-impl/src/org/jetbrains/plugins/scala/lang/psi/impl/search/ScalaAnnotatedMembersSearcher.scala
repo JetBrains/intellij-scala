@@ -71,7 +71,7 @@ class ScalaAnnotatedMembersSearcher extends QueryExecutor[PsiMember, AnnotatedEl
         val iter = ANNOTATED_MEMBER_KEY.elements(annClass.name, scope)(annClass.getProject)
             .iterator
         while (iter.hasNext) {
-          val annotation = iter.next
+          val annotation = iter.next()
           annotation.getParent match {
             case ann: ScAnnotations =>
               val continue = Option(ann.getParent)

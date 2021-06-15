@@ -74,7 +74,7 @@ object SbtExternalSystemManager {
     val linkedProjectSettings = settings.getLinkedProjectSettings(path)
     val projectSettings = Option(linkedProjectSettings).getOrElse(SbtProjectSettings.default)
 
-    val customLauncher = settingsState.customLauncherEnabled.option(settingsState.getCustomLauncherPath).map(_.toFile)
+    val customLauncher = settingsState.customLauncherEnabled.option(settingsState.customLauncherPath).map(_.toFile)
     val customSbtStructureFile = settingsState.customSbtStructurePath.nonEmpty.option(settingsState.customSbtStructurePath.toFile)
 
     val realProjectPath = Option(projectSettings.getExternalProjectPath).getOrElse(path)
@@ -119,7 +119,7 @@ object SbtExternalSystemManager {
     // automatically detect JDK if none is defined
     ApplicationManager.getApplication.invokeAndWait(() => jdkTable.preconfigure())
 
-    val customPath = settings.getCustomVMPath
+    val customPath = settings.customVMPath
     val customVmExecutable =
       if (settings.customVMEnabled && JdkUtil.checkForJre(customPath)) {
         @NonNls val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
@@ -167,9 +167,9 @@ object SbtExternalSystemManager {
       .getOrElse(Map.empty)
 
   private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): Seq[String] = {
-    @NonNls val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
+    @NonNls val userOptions = settings.vmParameters.split("\\s+").toSeq.filter(_.nonEmpty)
 
-    @NonNls val maxHeapSizeString = settings.getMaximumHeapSize.trim
+    @NonNls val maxHeapSizeString = settings.maximumHeapSize.trim
     @NonNls val maxHeapOptions =
       if (maxHeapSizeString.nonEmpty) {
         val maxHeapSize =

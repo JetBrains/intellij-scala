@@ -56,7 +56,7 @@ class WorksheetCompiler(
   private val virtualFile = worksheetFile.getVirtualFile
 
   def compileOnlySync(document: Document, client: Client, waitAtMost: Duration): Either[Exception, WorksheetCompilerResult] = {
-    val promise = Promise[WorksheetCompilerResult]
+    val promise = Promise[WorksheetCompilerResult]()
     compileOnly(document, client) { result =>
       promise.complete(Success(result))
     }

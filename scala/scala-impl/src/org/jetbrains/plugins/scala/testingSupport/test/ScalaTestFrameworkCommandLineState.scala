@@ -49,7 +49,7 @@ class ScalaTestFrameworkCommandLineState(
     params.setEnv(envs)
 
     val vmParams = {
-      val params0 = testConfigurationData.getJavaOptions
+      val params0 = testConfigurationData.javaOptions
       val params1 = expandPath(params0)
       expandEnvs(params1, envs.asScala)
     }
@@ -140,7 +140,7 @@ class ScalaTestFrameworkCommandLineState(
   private def buildProgramParameters(suitesToTests: Map[String, Set[String]]): ScalaTestRunnerProgramArgs = {
     val classesAndTests = buildClassesAndTestsParameters(suitesToTests)
     val progress = Seq("-showProgressMessages", testConfigurationData.showProgressMessages.toString)
-    val other = ParametersList.parse(testConfigurationData.getTestArgs)
+    val other = ParametersList.parse(testConfigurationData.testArgs)
     ScalaTestRunnerProgramArgs(
       classesAndTests,
       progress ++ other

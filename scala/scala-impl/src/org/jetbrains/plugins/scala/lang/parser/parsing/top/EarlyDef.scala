@@ -34,7 +34,7 @@ object EarlyDef extends ParsingRule {
     }
     //this metod parse recursively PatVarDef {semi PatVarDef}
     @tailrec
-    def subparse(): Boolean = {
+    def parseSub(): Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tRBRACE =>
           builder.advanceLexer() //Ate }
@@ -47,10 +47,10 @@ object EarlyDef extends ParsingRule {
                 true
               case ScalaTokenTypes.tSEMICOLON =>
                 builder.advanceLexer() //Ate semicolon
-                subparse()
+                parseSub()
               case _ =>
                 if (builder.newlineBeforeCurrentToken) {
-                  subparse()
+                  parseSub()
                 } else {
                   false
                 }
@@ -61,7 +61,7 @@ object EarlyDef extends ParsingRule {
           }
       }
     }
-    if (!subparse) {
+    if (!parseSub()) {
       builder.restoreNewlinesState()
       builder error ScalaBundle.message("unreachable.error")
       earlyMarker.rollbackTo()

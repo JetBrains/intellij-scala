@@ -96,8 +96,8 @@ class SbtRunConfiguration(val project: Project, val configurationFactory: Config
       Option(attributes.getValue("Main-Class")).getOrElse("xsbt.boot.Boot")
     }
 
-  protected def preprocessTasks(): String = if (!getUseSbtShell || getTasks.trim.startsWith(";")) getTasks else {
-    val commands = ParametersListUtil.parse(getTasks, false).asScala
+  protected def preprocessTasks(): String = if (!useSbtShell || tasks.trim.startsWith(";")) tasks else {
+    val commands = ParametersListUtil.parse(tasks, false).asScala
     if (commands.length == 1) commands.head else commands.mkString(";", " ;", "")
   }
 }
@@ -129,13 +129,13 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
     val additionalEnvVariables = SbtEnvironmentVariablesProvider.computeAdditionalVariables(jdk).asJava
     environmentVariables.putAll(additionalEnvVariables)
 
-    params.setWorkingDirectory(configuration.getWorkingDir)
+    params.setWorkingDirectory(configuration.workingDir)
     params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
     
     val sbtSystemSettings = SbtSettings.getInstance(configuration.getProject).getState
-    if (sbtSystemSettings.getCustomLauncherEnabled) {
-      params.getClassPath.add(sbtSystemSettings.getCustomLauncherPath)
-      params.setMainClass(determineMainClass(sbtSystemSettings.getCustomLauncherPath))
+    if (sbtSystemSettings.customLauncherEnabled) {
+      params.getClassPath.add(sbtSystemSettings.customLauncherPath)
+      params.setMainClass(determineMainClass(sbtSystemSettings.customLauncherPath))
     } else {
       val launcher = SbtUtil.getDefaultLauncher
       params.getClassPath.add(launcher)
@@ -143,7 +143,7 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
     }
     
     params.setEnv(environmentVariables)
-    params.getVMParametersList.addParametersString(configuration.getVmparams)
+    params.getVMParametersList.addParametersString(configuration.vmparams)
     params.getProgramParametersList.addParametersString(processedCommands)
     
     params

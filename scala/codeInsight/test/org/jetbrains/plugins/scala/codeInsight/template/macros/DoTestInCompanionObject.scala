@@ -7,7 +7,7 @@ trait DoTestInCompanionObject {
 
   protected def doTestInCompanionObject(classText: String, expectedMethodText: String): Unit = {
     val regex = """.*?class\s+([\w\d]+).*""".r
-    val className = classText.linesIterator.next match {
+    val className = classText.linesIterator.next() match {
       case regex(name) => name
       case _           => fail(s"couldn't extract class name from class:\n${classText}")
     }

@@ -98,7 +98,7 @@ abstract class RendererTestBase extends ScalaDebuggerTestCase {
     val evaluatedChildren = mutable.HashSet.empty[NodeDescriptor]
     val childrenEvaluatedPromise: Promise[Unit] =
       if (renderChildren) Promise()
-      else Promise.successful(Nil)
+      else Promise.successful(())
 
     testVariableChildren.foreach {
       case child: NodeDescriptorImpl =>

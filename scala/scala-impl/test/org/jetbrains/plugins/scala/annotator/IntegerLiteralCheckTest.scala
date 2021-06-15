@@ -125,9 +125,9 @@ private object IntegerLiteralCheckTest {
     LongMaxValue
   )
 
-  def randomInts: LazyList[Int] = randomValues(nextInt)()
+  def randomInts: LazyList[Int] = randomValues(nextInt())()
 
-  def randomLongs: LazyList[Long] = randomValues(nextLong) {
+  def randomLongs: LazyList[Long] = randomValues(nextLong()) {
     _.toHexString.length > 8
   }
 
