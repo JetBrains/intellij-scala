@@ -4,7 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.util.Source3TestCase
 
-class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase {
+class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[Source3Inspection]
 
@@ -44,7 +44,7 @@ class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase 
     checkTextHasError(selectedText)
 
     testQuickFix(
-    "import base._",
+      "import base._",
       "import base.*",
       "Replace with *"
     )
@@ -134,4 +134,7 @@ class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase 
       "Replace with &"
     )
   }
+
+  def test_compound_type_in_pattern(): Unit =
+    checkTextHasNoErrors("??? match { case x: A with B => }")
 }
