@@ -309,7 +309,7 @@ private[importing] object BspResolverLogic {
 
     val targetDeps = target.getDependencies.asScala.toSeq
 
-    val data = if(tags.contains(TEST))
+    val data = if(tags.contains(TEST) || tags.contains(INTEGRATION_TEST))
       dataBasic.copy(
         targetTestDependencies = targetDeps,
         testOutput = outputPath,
@@ -364,7 +364,10 @@ private[importing] object BspResolverLogic {
     val merged = mergeModules(ancestors)
     val id = sharedModuleId(targets)
     val sources = sourceRoots ++ generatedSourceRoots
-    val isTest = targets.forall(_.getTags.asScala.contains(BuildTargetTag.TEST))
+    val isTest = targets.forall{ buildTarget =>
+      val tags = buildTarget.getTags.asScala
+      tags.contains(BuildTargetTag.TEST) || tags.contains(BuildTargetTag.INTEGRATION_TEST)
+    }
 
     val inheritorData = merged.data.copy(
       id = id,
