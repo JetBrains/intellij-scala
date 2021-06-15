@@ -6,13 +6,13 @@ import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.ui.Messages
 import org.apache.ivy.util.MessageLogger
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
-import org.jetbrains.plugins.scala.extensions.withProgressSynchronouslyTry
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
+import org.jetbrains.plugins.scala.project.template.VersionDialog.preselectLatestScala2Version
+import org.jetbrains.sbt.project.template.SComboBox
 
-import javax.swing.JComponent
+import java.awt.Point
+import javax.swing.{JComponent, JPopupMenu, JScrollPane}
 
-/**
- * @author Pavel Fatin
- */
 final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
 
   {
@@ -24,11 +24,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
     val versions = Versions.Scala.loadVersionsWithProgress().versions
     if (versions.nonEmpty) {
       myVersion.setItems(versions.toArray)
-      // While Scala 3 support is WIP we do not want preselect Scala 3 version
-      val selectIndex = versions.indexWhere(v => !v.startsWith("3"))
-      if (selectIndex >= 0) {
-        myVersion.setSelectedIndex(selectIndex)
-      }
+      preselectLatestScala2Version(myVersion, versions)
     }
     else
       Messages.showErrorDialog(
@@ -81,5 +77,59 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
         scalaVersion.minor
       }.toOption
     } else None
+}
 
+object VersionDialog {
+
+  /**
+   * While Scala 3 support is WIP we do not want preselect Scala 3 version
+   * @param versions assumed to be sorted
+   */
+  private def preselectLatestScala2Version(versionComboBox: SComboBox[String], versions: Seq[String]): Unit = {
+    val selectIndex = versions.indexWhere(v => !v.startsWith("3"))
+    if (selectIndex >= 0) {
+      versionComboBox.setSelectedIndex(selectIndex)
+
+      if (selectIndex > 0) {
+        // without this, Scala 3 versions will be hard to notice, because by default Swing scrolls to the selected item
+        UiUtils.scrollToTheTop(versionComboBox)
+      }
+    }
+  }
+
+  private object UiUtils {
+
+    def scrollToTheTop(versionComboBox: SComboBox[String]): Unit = {
+      for {
+        scrollPane <- findPopupScrollPane(versionComboBox)
+      } scrollToTop(scrollPane)
+    }
+
+    def findPopupScrollPane(comboBox: SComboBox[_]): Option[JScrollPane] =
+      for {
+        popup <- findPopupMenu(comboBox)
+        scrollPane <- findScrollPane(popup)
+      } yield scrollPane
+
+    def findPopupMenu(versionComboBox: SComboBox[_]): Option[JPopupMenu] = {
+      val ui = versionComboBox.getUI
+      val children = Iterable.tabulate(ui.getAccessibleChildrenCount(versionComboBox))(ui.getAccessibleChild(versionComboBox, _))
+      children.findByType[JPopupMenu]
+    }
+
+    def findScrollPane(popup: JPopupMenu): Option[JScrollPane] = {
+      val children = Iterable.tabulate(popup.getComponentCount)(popup.getComponent)
+      children.findByType[JScrollPane]
+    }
+
+    def scrollToTop(scrollPane: JScrollPane): Unit = {
+      val viewport = scrollPane.getViewport
+
+      // NOTE: without this call `setViewPosition` will do nothing until user manually scrolls the viewport
+      // (though in general `setSize` shouldn't be called manually)
+      viewport.setSize(viewport.getPreferredSize)
+
+      viewport.setViewPosition(new Point(0, 0))
+    }
+  }
 }
