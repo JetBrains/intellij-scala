@@ -9,8 +9,9 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.{Navigatable, NavigatableAdapter}
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ModuleTransformer, ProjectModule}
 import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
-import org.jetbrains.plugins.scala.packagesearch.utils.{SbtCommon, SbtDependencyUtils, SbtProjectModuleType, ScalaKotlinHelper}
+import org.jetbrains.plugins.scala.packagesearch.utils.{SbtProjectModuleType, ScalaKotlinHelper}
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.language.utils.{SbtCommon, SbtDependencyUtils}
 
 import java.io.File
 import java.util

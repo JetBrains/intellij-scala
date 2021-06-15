@@ -2,6 +2,7 @@ package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion.{CompletionContributor, CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
@@ -28,6 +29,7 @@ import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.language.utils.{PackageSearchApiHelper, SbtArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
 import org.jetbrains.sbt.project.data.ModuleExtData
+import scala.jdk.CollectionConverters._
 
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -44,27 +46,29 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = try {
       val depCache = collection.mutable.Map[String, Boolean]()
       val place = positionFromParameters(params)
-      var containingScalaFile: ScalaFile = null
-      place.getContainingFile match {
-        case dummyHolder: JavaDummyHolder =>
-          Option(dummyHolder.getContext).map(_.getContainingFile).foreach {
-            case scalaFile: ScalaFile =>
-              containingScalaFile = scalaFile
-            case _ =>
-          }
-      }
-
-      // Search for Scala Version
+//      var containingScalaFile: ScalaFile = null
+//      place.getContainingFile match {
+//        case dummyHolder: JavaDummyHolder =>
+//          Option(dummyHolder.getContext).map(_.getContainingFile).foreach {
+//            case scalaFile: ScalaFile =>
+//              containingScalaFile = scalaFile
+//            case _ =>
+//          }
+//      }
+//
+//      // Search for Scala Version
       implicit val project: Project = place.getProject
-      val module: Module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(
-        Option(containingScalaFile.getVirtualFile).getOrElse(containingScalaFile.getViewProvider.getVirtualFile))
-      var scalaVer: String = ""
-      val moduleExtData = SbtUtil.getModuleData(project, ExternalSystemApiUtil.getExternalProjectId(module), ModuleExtData.Key).toSeq
-      if (moduleExtData.nonEmpty) scalaVer = moduleExtData.head.scalaVersion
+//      val module: Module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(
+//        Option(containingScalaFile.getVirtualFile).getOrElse(containingScalaFile.getViewProvider.getVirtualFile))
+//      var scalaVer: String = ""
+//      val moduleExtData = SbtUtil.getModuleData(project, ExternalSystemApiUtil.getExternalProjectId(module), ModuleExtData.Key).toSeq
+//      if (moduleExtData.nonEmpty) scalaVer = moduleExtData.head.scalaVersion
+//
+//      if (scalaVer == "") {
+//        scalaVer = place.scalaLanguageLevelOrDefault.getVersion
+//      }
 
-      if (scalaVer == "") {
-        scalaVer = place.scalaLanguageLevelOrDefault.getVersion
-      }
+      val scalaVer = place.scalaLanguageLevelOrDefault.getVersion
 
       results.restartCompletionOnAnyPrefixChange()
 
@@ -134,6 +138,13 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                     searchPromise: Promise[Integer],
                     cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo],
                     handler: MavenRepositoryArtifactInfo => Unit): Unit = {
+
+        // Return this dummy artifact info for testing purpose
+        if (ApplicationManager.getApplication.isUnitTestMode) {
+          handler(new MavenRepositoryArtifactInfo("org.scalatest", "scalatest", List("3.0.8", "3.0.8-RC1", "3.0.8-RC2", "3.0.8-RC3", "3.0.8-RC4", "3.0.8-RC5").asJava))
+          return
+        }
+
         while (searchPromise.getState == Promise.State.PENDING || !cld.isEmpty) {
           ProgressManager.checkCanceled()
           val item = cld.poll()

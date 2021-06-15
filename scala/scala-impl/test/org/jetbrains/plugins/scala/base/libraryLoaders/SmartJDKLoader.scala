@@ -97,7 +97,7 @@ object SmartJDKLoader {
 
   private def findJDK(dir: File) = {
     val macDir = new File(dir, "/Contents/Home") // mac workaround
-    val candidates = List(macDir, dir)
+    val candidates = List(macDir, dir, new File(dir, "/Home"))
     candidates
       .filter(_.isDirectory)
       .find { _
