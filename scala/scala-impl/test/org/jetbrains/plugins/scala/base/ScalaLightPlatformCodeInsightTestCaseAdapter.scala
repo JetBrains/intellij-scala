@@ -4,13 +4,14 @@ import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.projectRoots.Sdk
+import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiManager}
 import com.intellij.testFramework.{LightPlatformCodeInsightTestCase, LightPlatformTestCase, LightProjectDescriptor}
 import org.jetbrains.plugins.scala.base.libraryLoaders._
+import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.util.TestUtils
 
 /**
@@ -84,5 +85,6 @@ abstract class ScalaLightPlatformCodeInsightTestCaseAdapter extends LightPlatfor
   @throws(classOf[Exception])
   override protected def tearDown(): Unit = try {
     disposeLibraries(getModule)
+    inWriteAction(ProjectJdkTable.getInstance().removeJdk(ScalaLightPlatformCodeInsightTestCaseAdapter.this.getProjectJDK))
   } finally super.tearDown()
 }
