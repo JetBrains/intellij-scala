@@ -20,6 +20,7 @@ import com.intellij.openapi.editor.actions.ScrollToTheEndToolbarAction
 import com.intellij.openapi.editor.ex.util.EditorUtil
 import com.intellij.openapi.editor.{Editor, SelectionModel}
 import com.intellij.openapi.project.{DumbAwareAction, Project}
+import com.intellij.openapi.util.SystemInfo
 import javax.swing.{Icon, KeyStroke}
 import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.sbt.SbtBundle
@@ -140,7 +141,7 @@ class SigIntAction(project: Project, view: SbtShellConsoleView) extends DumbAwar
 
 class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAction {
 
-  setShortcutSet(`ctrl + C`)
+  setShortcutSet(copyShortcut)
 
   override def update(e: AnActionEvent): Unit = {
     e.getPresentation.setEnabled(CopyFromHistoryViewerAction.isEnabled(view))
@@ -153,6 +154,10 @@ class CopyFromHistoryViewerAction(view: SbtShellConsoleView) extends DumbAwareAc
 
 private object CopyFromHistoryViewerAction {
   def `ctrl + C` = new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, InputEvent.CTRL_DOWN_MASK))
+  def copyShortcut = {
+    val modifier = if(SystemInfo.isMac) InputEvent.META_DOWN_MASK else InputEvent.CTRL_DOWN_MASK
+    new CustomShortcutSet(KeyStroke.getKeyStroke(KeyEvent.VK_C, modifier))
+  }
 
   private def selectionModel(view: SbtShellConsoleView): SelectionModel =
     view.getHistoryViewer.getSelectionModel
