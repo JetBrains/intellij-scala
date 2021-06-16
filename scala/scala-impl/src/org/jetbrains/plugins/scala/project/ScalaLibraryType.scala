@@ -3,14 +3,18 @@ package project
 
 import java.io.File
 import java.{util => ju}
-
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries._
 import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
+import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VirtualFile
+
 import javax.swing.{Icon, JComponent}
 import org.jetbrains.plugins.scala.ScalaBundle
+
+import java.awt.Dimension
+import java.awt.event.{WindowAdapter, WindowEvent}
 
 /**
  * @author Pavel Fatin
@@ -76,12 +80,11 @@ object ScalaLibraryType {
     override def getSuitableLibraryKinds = ju.Collections.singleton(Kind)
 
     override def createNewLibrary(parent: JComponent,
-                                  contextDirectory: VirtualFile) = {
-      val sdkSelectionDialog = new SdkSelectionDialog(parent, contextDirectory)
-      sdkSelectionDialog
-        .open()
-        .map(createNewScalaLibrary)
-        .orNull
+                                  contextDirectory: VirtualFile): NewLibraryConfiguration = {
+      val dialogWrapper = new SdkSelectionDialogWrapper(contextDirectory)
+      val selectedSdkDescriptor = dialogWrapper.open()
+      val scalaLibrary = selectedSdkDescriptor.map(createNewScalaLibrary)
+      scalaLibrary.orNull
     }
 
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL

@@ -7,13 +7,15 @@ import com.intellij.openapi.ui.Messages
 import org.apache.ivy.util.MessageLogger
 import org.jetbrains.plugins.scala.components.libextensions.ProgressIndicatorLogger
 import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, withProgressSynchronouslyTry}
-import org.jetbrains.plugins.scala.project.template.VersionDialog.preselectLatestScala2Version
+import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.{ScalaVersionResolveResult, preselectLatestScala2Version}
 import org.jetbrains.sbt.project.template.SComboBox
 
 import java.awt.Point
+import java.io.File
 import javax.swing.{JComponent, JPopupMenu, JScrollPane}
+import scala.util.Try
 
-final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) {
+final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDialogBase(parent) {
 
   {
     init()
@@ -34,7 +36,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
       )
   }
 
-  def showAndGetSelected(): Option[String] =
+  def showAndGetSelected(): Option[ScalaVersionResolveResult] =
     if (showAndGet()) {
       val scalaVersionStr = myVersion.getSelectedItem.asInstanceOf[String]
       val scalaVersion = ScalaVersion.fromString(scalaVersionStr).getOrElse {
@@ -46,7 +48,7 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
         return None
       }
 
-      withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersion), canBeCanceled = true) { manager =>
+      val tri: Try[ScalaVersionResolveResult] = withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersion), canBeCanceled = true) { manager =>
         import DependencyManagerBase._
         val dependencyManager = new DependencyManagerBase {
           override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
@@ -58,14 +60,21 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
           // scala3-library has also dependency on scala-library, so set transitive
           DependencyDescription.scalaArtifact("library", scalaVersion).transitive().sources(),
         )
-        dependencyManager.resolve(compiler)
+        val compilerClasspathResolveResult = dependencyManager.resolve(compiler)
         // ATTENTION:
         // Sources jars should be resolved in a separate request to dependency manager
         // Otherwise resolved jars will contain only "sources" jar, without "classes"
-        dependencyManager.resolve(librarySources)
-        ()
-      }.recover {
-        case _: ProcessCanceledException => // downloading aborted by user
+        val librarySourcesResolveResult = dependencyManager.resolve(librarySources)
+
+        ScalaVersionResolveResult(
+          scalaVersion.minor,
+          compilerClasspathResolveResult.map(_.file),
+          librarySourcesResolveResult.map(_.file)
+        )
+      }
+      tri.fold({
+        case _: ProcessCanceledException =>
+          None
         case exception =>
           //noinspection ReferencePassedToNls
           Messages.showErrorDialog(
@@ -73,13 +82,15 @@ final class VersionDialog(parent: JComponent) extends VersionDialogBase(parent) 
             exception.getMessage,
             ScalaBundle.message("error.downloading.scala.version", scalaVersionStr)
           )
-      }.map { _ =>
-        scalaVersion.minor
-      }.toOption
-    } else None
+          None
+      }, Some(_))
+    }
+    else None
 }
 
-object VersionDialog {
+object ScalaVersionDownloadingDialog {
+
+  final case class ScalaVersionResolveResult(scalaVersion: String, compilerClassPathJars: Seq[File], librarySourcesJars: Seq[File])
 
   /**
    * While Scala 3 support is WIP we do not want preselect Scala 3 version

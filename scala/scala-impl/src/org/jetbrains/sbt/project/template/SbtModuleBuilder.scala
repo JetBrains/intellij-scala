@@ -23,7 +23,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.project.template.VersionDialog
+import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{doSetupModule, getOrCreateContentRootDir}
@@ -234,7 +234,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
       case Some(version) if versions.contains(version) =>
         cbx.setSelectedItemSafe(version)
         if (selections.scrollScalaVersionDialogToTheTop) {
-          VersionDialog.UiUtils.scrollToTheTop(cbx)
+          ScalaVersionDownloadingDialog.UiUtils.scrollToTheTop(cbx)
         }
       case _ if cbx.getItemCount > 0 =>
         cbx.setSelectedIndex(0)

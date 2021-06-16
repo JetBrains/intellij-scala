@@ -2,11 +2,10 @@ package org.jetbrains.plugins.scala.project.sdkdetect
 
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
-import com.intellij.openapi.vfs.VirtualFile
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.ScalaBundle.message
 import org.jetbrains.plugins.scala.project.sdkdetect.ScalaSdkProvider.Log
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.ExtraCompilerPathResolveFailure
 import org.jetbrains.plugins.scala.project.template.{ScalaSdkComponent, ScalaSdkDescriptor, SdkChoice}
 
 import java.util.function.Consumer
@@ -14,17 +13,20 @@ import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
 // TODO: use Java -> Scala stream converters from Scala 2.13
-class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: VirtualFile) {
+final class ScalaSdkProvider(
+  indicator: ProgressIndicator,
+  scalaJarDetectors: Seq[ScalaSdkDetector]
+) {
 
-  protected val scalaJarDetectors: Seq[ScalaSdkDetector] = ScalaSdkDetector.allDetectors(contextDirectory)
-
-  def discoverSDKs(callback: Consumer[SdkChoice]): Unit =
+  def discoverSDKs(callback: Consumer[SdkChoice]): Unit = {
+    // TODO: coursier SDKs are shown with a big delay because coursier needs to scan more folders
+    //  we could show the progress "Searching for SDKs in coursier" in the dialog itself
     scalaJarDetectors.foreach { detector =>
       indicator.setText(message("sdk.scan.title", detector.friendlyName))
       indicator.setIndeterminate(true)
 
-      val jarStream = detector.buildJarStream
-      val components = try {
+      val jarStream = detector.buildJarStream(indicator)
+      val components: Seq[ScalaSdkComponent] = try {
         jarStream
           .iterator().asScala
           .map { f =>
@@ -52,8 +54,7 @@ class ScalaSdkProvider(implicit indicator: ProgressIndicator, contextDirectory: 
       sdkDescriptors.foreach {
         case (version, Left(errors)) =>
           Log.trace(
-            s"""Scala SDK Descriptor candidate is skipped (detector: ${detector.getClass.getSimpleName}, scalaVersion: $version)
-               |${errors.mkString("\n")}""".stripMargin
+            s"""Scala SDK Descriptor candidate is skipped (detector: ${detector.getClass.getSimpleName}, scalaVersion: $version), errors: ${errors.zipWithIndex.mkString(", ")}""".stripMargin
           )
         case _ =>
       }
