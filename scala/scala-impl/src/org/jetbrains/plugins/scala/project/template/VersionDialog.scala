@@ -97,32 +97,32 @@ object VersionDialog {
     }
   }
 
-  private object UiUtils {
+  object UiUtils {
 
-    def scrollToTheTop(versionComboBox: SComboBox[String]): Unit = {
+    def scrollToTheTop(versionComboBox: SComboBox[_]): Unit = {
       for {
         scrollPane <- findPopupScrollPane(versionComboBox)
       } scrollToTop(scrollPane)
     }
 
-    def findPopupScrollPane(comboBox: SComboBox[_]): Option[JScrollPane] =
+    private def findPopupScrollPane(comboBox: SComboBox[_]): Option[JScrollPane] =
       for {
         popup <- findPopupMenu(comboBox)
         scrollPane <- findScrollPane(popup)
       } yield scrollPane
 
-    def findPopupMenu(versionComboBox: SComboBox[_]): Option[JPopupMenu] = {
+    private def findPopupMenu(versionComboBox: SComboBox[_]): Option[JPopupMenu] = {
       val ui = versionComboBox.getUI
       val children = Iterable.tabulate(ui.getAccessibleChildrenCount(versionComboBox))(ui.getAccessibleChild(versionComboBox, _))
       children.findByType[JPopupMenu]
     }
 
-    def findScrollPane(popup: JPopupMenu): Option[JScrollPane] = {
+    private def findScrollPane(popup: JPopupMenu): Option[JScrollPane] = {
       val children = Iterable.tabulate(popup.getComponentCount)(popup.getComponent)
       children.findByType[JScrollPane]
     }
 
-    def scrollToTop(scrollPane: JScrollPane): Unit = {
+    private def scrollToTop(scrollPane: JScrollPane): Unit = {
       val viewport = scrollPane.getViewport
 
       // NOTE: without this call `setViewPosition` will do nothing until user manually scrolls the viewport

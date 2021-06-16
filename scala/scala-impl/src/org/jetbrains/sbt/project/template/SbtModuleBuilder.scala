@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.project.template.VersionDialog
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{doSetupModule, getOrCreateContentRootDir}
@@ -232,6 +233,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     selections.scalaVersion match {
       case Some(version) if versions.contains(version) =>
         cbx.setSelectedItemSafe(version)
+        if (selections.scrollScalaVersionDialogToTheTop) {
+          VersionDialog.UiUtils.scrollToTheTop(cbx)
+        }
       case _ if cbx.getItemCount > 0 =>
         cbx.setSelectedIndex(0)
       case _ =>
@@ -263,6 +267,8 @@ object SbtModuleBuilder {
                                       var resolveSbtClassifiers: Boolean,
                                       var packagePrefix: Option[String]) {
 
+    var scrollScalaVersionDialogToTheTop = false
+
     import Versions.{Kind, SBT => SbtKind, Scala => ScalaKind}
 
     def versionFromKind(kind: Kind): Option[String] = kind match {
@@ -271,12 +277,15 @@ object SbtModuleBuilder {
     }
 
     def update(kind: Kind, versions: Versions): Unit = {
-      val version = versionFromKind(kind)
-        .getOrElse(kind.initiallySelectedVersion(versions.versions))
+      val explicitlySelectedVersion = versionFromKind(kind)
+      val version = explicitlySelectedVersion.getOrElse(kind.initiallySelectedVersion(versions.versions))
 
       kind match {
-        case ScalaKind => scalaVersion = Some(version)
-        case SbtKind   => sbtVersion   = Some(version)
+        case ScalaKind =>
+          scalaVersion = Some(version)
+          scrollScalaVersionDialogToTheTop = explicitlySelectedVersion.isEmpty
+        case SbtKind   =>
+          sbtVersion = Some(version)
       }
     }
   }
