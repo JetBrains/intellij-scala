@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.project.template
 
+import com.intellij.openapi.progress.{EmptyProgressIndicator, ProgressIndicator}
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure
 
 import java.io.File
 
@@ -32,9 +34,27 @@ object ScalaSdkDescriptor {
   import Kind._
 
   private[project]
-  def buildFromComponents(components: Seq[ScalaSdkComponent]): Either[NlsString, ScalaSdkDescriptor] = {
-    assert(components.nonEmpty)
+  def buildFromComponentsFull(
+    detector: ScalaSdkDetector,
+    components: Seq[ScalaSdkComponent]
+  ): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
+    buildFromComponentsFull(detector, components, new EmptyProgressIndicator)
+  }
 
+  private[project]
+  def buildFromComponentsFull(
+    detector: ScalaSdkDetector,
+    components: Seq[ScalaSdkComponent],
+    indicator: ProgressIndicator
+  ): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
+    val descriptorShort = ScalaSdkDescriptor.buildFromComponents(components)
+    val descriptorFull = descriptorShort.flatMap(detector.resolveExtraRequiredJars(_)(indicator))
+    descriptorFull
+  }
+
+  private def buildFromComponents(
+    components: Seq[ScalaSdkComponent]
+  ): Either[Seq[CompilerClasspathResolveFailure.UnresolvedArtifact], ScalaSdkDescriptor] = {
     val componentsByKind = components.groupBy(_.kind).withDefault(Function.const(Seq.empty))
 
     val binaryComponents  = componentsByKind(Binaries)
@@ -48,7 +68,7 @@ object ScalaSdkDescriptor {
     val missingBinaryArtifacts = requiredBinaryArtifacts -- binaryComponents.map(_.artifact)
 
     if (missingBinaryArtifacts.nonEmpty)
-      Left(ScalaBundle.nls("not.found.missing.artifacts", missingBinaryArtifacts.map(_.prefix + "*.jar").mkString(", ")))
+      Left(missingBinaryArtifacts.toSeq.map(_.prefix).sorted.map(CompilerClasspathResolveFailure.UnresolvedArtifact))
     else {
       val compilerVersion = binaryComponents.collectFirst {
         case ScalaSdkComponent(Scala3Compiler | ScalaCompiler, _, Some(version), _) => version
