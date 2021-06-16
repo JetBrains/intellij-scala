@@ -60,20 +60,21 @@ object TreePrinter {
           Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
       }
       val parents = parents0.collect{ case Some(s) if s.nonEmpty => s }
+      val isInEnum = definition.exists(_.hasFlag(ENUM))
+      val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
+      val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
       val cases = // TODO check element types
-        if (definition.exists(_.hasFlag(ENUM))) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
+        if (isInEnum) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
         else Seq.empty
-      val isGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
-      val isAnonymousGiven = isGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
       val members = (children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases) // TODO type member
         .map(textOf(_, definition)).filter(_.nonEmpty).map(indent).mkString("\n\n")
       (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
-        (if (isGiven && (!isAnonymousGiven || parameters.nonEmpty)) ": " else "") +
-        (if (isGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(" with "))) +
-        (if (members.isEmpty) (if (isGiven) " {}" else "") else " {\n" + members + "\n}")
+        (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
+        (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(" with "))) +
+        (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
 
     case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !name.contains("$default$") => // TODO why it's not synthetic?
-      val isGiven = node.hasFlag(GIVEN)
+      val isAbstractGiven = node.hasFlag(GIVEN)
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
@@ -81,21 +82,21 @@ object TreePrinter {
         modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
       } else {
         (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
-          modifiersIn(node, (if (isGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isGiven) "" else "def ") + name + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
+          modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isAbstractGiven) "" else "def ") + name + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
           ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
       }
 
     case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val isCase = node.hasFlag(CASE)
-      val isGiven = node.hasFlag(GIVEN)
-      val isAnonymousGiven = isGiven && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
+      val isGivenAlias = node.hasFlag(GIVEN)
+      val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
       val tpe = children.find(_.isTypeTree)
       val template = // TODO check element types
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
-      if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGiven) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
-        (if (isGiven) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
+      if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
+        (if (isGivenAlias) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
           (if (isAnonymousGiven) "" else name + ": ") +
           tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
 
