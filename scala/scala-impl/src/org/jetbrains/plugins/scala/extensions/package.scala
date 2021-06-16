@@ -763,8 +763,32 @@ package object extensions {
     def nextLeaf: Option[PsiElement] =
       PsiTreeUtil.nextLeaf(element).toOption
 
+    def nextLeafs: Iterator[PsiElement] = new Iterator[PsiElement] {
+      private var cur: PsiElement = element
+      next()
+
+      override def hasNext: Boolean = cur != null
+      override def next(): PsiElement = {
+        val result = cur
+        cur = PsiTreeUtil.nextLeaf(cur)
+        result
+      }
+    }
+
     def prevLeaf: Option[PsiElement] =
       PsiTreeUtil.prevLeaf(element).toOption
+
+    def prevLeafs: Iterator[PsiElement] = new Iterator[PsiElement] {
+      private var cur: PsiElement = element
+      next()
+
+      override def hasNext: Boolean = cur != null
+      override def next(): PsiElement = {
+        val result = cur
+        cur = PsiTreeUtil.prevLeaf(cur)
+        result
+      }
+    }
 
     final def nextVisibleLeaf: Option[PsiElement] =
       nextVisibleLeaf(skipComments = false)

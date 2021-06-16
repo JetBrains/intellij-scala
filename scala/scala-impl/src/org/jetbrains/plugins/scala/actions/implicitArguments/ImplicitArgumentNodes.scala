@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.actions.implicitArguments
 
-import java.util
-import java.util.Collections.singletonList
-
 import com.intellij.ide.projectView.impl.nodes.AbstractPsiBasedNode
 import com.intellij.ide.projectView.{PresentationData, ViewSettings}
 import com.intellij.ide.util.treeView.AbstractTreeNode
@@ -11,7 +8,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiNamedElement
 import com.intellij.ui.SimpleTextAttributes
 import com.intellij.ui.SimpleTextAttributes.{GRAYED_ATTRIBUTES, REGULAR_ATTRIBUTES, STYLE_WAVED}
-import javax.swing.Icon
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.actions.implicitArguments.ImplicitArgumentNodes.resolveResultNode
@@ -25,6 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
+import java.util
+import java.util.Collections.singletonList
+import javax.swing.Icon
 import scala.jdk.CollectionConverters._
 
 private abstract class ImplicitParameterErrorNodeBase(value: ScalaResolveResult) extends ImplicitParametersNodeBase(value) {

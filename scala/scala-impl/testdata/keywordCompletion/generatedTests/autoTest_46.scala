@@ -5,5 +5,4 @@
    def foo( ) = return true 
  } 
 /*
-extends
 */

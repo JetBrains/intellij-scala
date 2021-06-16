@@ -1,12 +1,15 @@
 package org.jetbrains.plugins.scala
 package lang
 package completion3
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 
 /**
   * User: Alexander Podkhalyuzin
   * Date: 04.01.12
   */
 class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
+
+  override def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
 
   def testPrivateVal(): Unit = doCompletionTest(
     fileText =
@@ -188,19 +191,79 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
          |}""".stripMargin,
     item = "match"
   )
-  
-  def testExtendsInObject(): Unit = doCompletionTest(
+
+
+  def testExtendsAsLastInFile(): Unit = doCompletionTest(
     fileText =
       s"""
-        |object Obj {
-        |  class Test e$CARET
-        |}
-        |""".stripMargin,
+         |class Test e$CARET
+         |""".stripMargin,
     resultText =
       s"""
-         |object Obj {
-         |  class Test extends $CARET
+         |class Test extends $CARET
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsBeforeSemicolon(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test e$CARET;
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test extends $CARET;
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsBetweenClasses(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test e$CARET
+         |class Test2
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test extends $CARET
+         |class Test2
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  // SCL-19022
+  def testExtendsBeforeBody(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test e$CARET {
          |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test extends $CARET{
+         |}
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsBeforeObjectBody(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |object Test e$CARET {
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""
+         |object Test extends $CARET{
+         |}
+         |""".stripMargin,
+    item = "extends"
+  )
+
+  def testExtendsBeforeExtends(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""
+         |object Obj e$CARET extends
          |""".stripMargin,
     item = "extends"
   )

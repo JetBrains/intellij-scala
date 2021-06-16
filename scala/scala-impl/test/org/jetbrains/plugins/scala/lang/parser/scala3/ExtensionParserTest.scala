@@ -82,9 +82,10 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
       |        Parameter: _
-      |          SimpleType: X
-      |            CodeReferenceElement: X
-      |              PsiElement(identifier)('X')
+      |          ParameterType
+      |            SimpleType: X
+      |              CodeReferenceElement: X
+      |                PsiElement(identifier)('X')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
       |    ScTemplateBody

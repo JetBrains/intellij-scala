@@ -39,7 +39,7 @@ object TraceLoggerTestBase {
         buffer += ')'
       }
 
-      buffer += '\n'
+      buffer ++= System.lineSeparator()
     }
 
     override def log(msg: String, values: Seq[(String, Data)], st: StackTrace): Unit =

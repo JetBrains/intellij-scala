@@ -727,7 +727,9 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
       case param: ScParameter =>
         param.owner match {
           case fun@(_: ScFunction | _: ScFunctionExpr) => parameterEvaluator(fun, param)
-          case _ => throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
+          case _ =>
+            // TODO: could also be primary constructor or extension method... maybe need handling too?
+            throw EvaluationException(ScalaBundle.message("cannot.evaluate.parameter", param.name))
         }
       case caseCl: ScCaseClause => patternEvaluator(caseCl, named)
       case _: ScGenerator | _: ScForBinding if position != null && isNotUsedEnumerator(named, position.getElementAt) =>

@@ -381,7 +381,7 @@ object DebuggerUtil {
     val container = ScalaEvaluatorBuilderUtil.getContextClass {
       owner match {
         case pc: ScPrimaryConstructor => pc.containingClass
-        case fun => fun
+        case owner /* function/funcexpr/extension */ => owner
       }
     }
     param.getDefaultExpression match {
