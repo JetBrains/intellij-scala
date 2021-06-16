@@ -5,8 +5,8 @@ import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.ivy.util.{AbstractMessageLogger, Message, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolveFailure, ResolvedDependency, Types, UnresolvedDependency}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.ExtraCompilerPathResolveFailure
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.ExtraCompilerPathResolveFailure.{UnknownException, UnknownResolveProblem, UnresolvedArtifact}
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure.{UnknownException, UnknownResolveIssue, UnresolvedArtifact}
 import org.jetbrains.plugins.scala.project.template.{PathExt, ScalaSdkDescriptor, _}
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle}
 
@@ -32,7 +32,7 @@ private[repository] object IvyDetector extends ScalaSdkDetector {
   }
 
   override protected def resolveExtraRequiredJarsScala3(descriptor: ScalaSdkDescriptor)
-                                                       (implicit indicator: ProgressIndicator): Either[Seq[ExtraCompilerPathResolveFailure], ScalaSdkDescriptor] = {
+                                                       (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
     val scala3Version = descriptor.version match {
       case Some(v) => v
       case None    =>
@@ -52,7 +52,7 @@ private[repository] object IvyDetector extends ScalaSdkDetector {
             else
               Left(unresolved.map(_.toString).map(UnresolvedArtifact.apply))
           case ResolveFailure.UnknownProblem(problems) =>
-            Left(Seq(UnknownResolveProblem(problems)))
+            Left(Seq(UnknownResolveIssue(problems)))
           case ResolveFailure.UnknownException(exception) =>
             Left(Seq(UnknownException(exception)))
         }

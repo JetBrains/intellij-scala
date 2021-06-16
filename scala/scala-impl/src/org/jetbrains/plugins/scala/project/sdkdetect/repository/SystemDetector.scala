@@ -4,8 +4,8 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.ExtraCompilerPathResolveFailure
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.ExtraCompilerPathResolveFailure._
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure._
 import org.jetbrains.plugins.scala.project.template._
 
 import java.io.File
@@ -15,7 +15,7 @@ import java.util.stream.{Stream => JStream}
 import scala.util.Using
 
 
-private[repository] object SystemDetector extends ScalaSdkDetector {
+private[project] object SystemDetector extends ScalaSdkDetector {
   override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = SystemSdkChoice(descriptor)
   override def friendlyName: String = ScalaBundle.message("system.wide.scala")
 
@@ -118,7 +118,7 @@ private[repository] object SystemDetector extends ScalaSdkDetector {
   }
 
   override protected def resolveExtraRequiredJarsScala3(descriptor: ScalaSdkDescriptor)
-                                                       (implicit indicator: ProgressIndicator): Either[Seq[ExtraCompilerPathResolveFailure], ScalaSdkDescriptor] = {
+                                                       (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
     // assuming that all libraries are located in the same `lib` folder
     val systemRoot = descriptor.compilerClasspath.headOption.map(_.getParentFile) match {
       case Some(root) => root
@@ -128,7 +128,7 @@ private[repository] object SystemDetector extends ScalaSdkDetector {
 
     val jarArtifacts = systemRoot.children.flatMap(JarArtifact.from)
 
-    val localResolveResults: Seq[Either[ExtraCompilerPathResolveFailure, JarArtifact]] =
+    val localResolveResults: Seq[Either[CompilerClasspathResolveFailure, JarArtifact]] =
       Scala3ExtraCompilerClasspathArtifacts.map(resolve(_, jarArtifacts))
 
     val (errors, jars) = localResolveResults.partitionMap(identity)
@@ -144,7 +144,7 @@ private[repository] object SystemDetector extends ScalaSdkDetector {
     }
   }
 
-  private def resolve(expectedArtifactName: String, jarArtifacts: Seq[JarArtifact]): Either[ExtraCompilerPathResolveFailure, JarArtifact] = {
+  private def resolve(expectedArtifactName: String, jarArtifacts: Seq[JarArtifact]): Either[CompilerClasspathResolveFailure, JarArtifact] = {
     val matchingJars = jarArtifacts.filter(_.shortName == expectedArtifactName)
     matchingJars match {
       case Seq(jar)     => Right(jar).filterOrElse(_.file.exists(), UnresolvedArtifact(expectedArtifactName))

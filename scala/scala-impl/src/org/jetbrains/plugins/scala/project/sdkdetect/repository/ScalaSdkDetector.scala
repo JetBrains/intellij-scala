@@ -3,8 +3,9 @@ package org.jetbrains.plugins.scala.project.sdkdetect.repository
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.vfs.VirtualFile
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.ExtraCompilerPathResolveFailure
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.ExtraCompilerPathResolveFailure.NotSupportedForScalaVersion
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure.NotSupportedForScalaVersion
 import org.jetbrains.plugins.scala.project.template._
 
 import java.nio.file.{Files, Path}
@@ -43,7 +44,7 @@ trait ScalaSdkDetector {
    * @return new descriptor with extra jars attached to the compiler classpath and/or library/sources jars
    */
   final def resolveExtraRequiredJars(descriptor: ScalaSdkDescriptor)
-                                    (implicit indicator: ProgressIndicator): Either[Seq[ExtraCompilerPathResolveFailure], ScalaSdkDescriptor] = {
+                                    (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] = {
     val descriptorUpdated = if (descriptor.isScala3)
       resolveExtraRequiredJarsScala3(descriptor)
     else
@@ -52,12 +53,12 @@ trait ScalaSdkDetector {
   }
 
   protected def resolveExtraRequiredJarsScala2(descriptor: ScalaSdkDescriptor)
-                                              (implicit indicator: ProgressIndicator): Either[Seq[ExtraCompilerPathResolveFailure], ScalaSdkDescriptor] =
+                                              (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] =
     Right(descriptor)
 
   protected def resolveExtraRequiredJarsScala3(descriptor: ScalaSdkDescriptor)
-                                              (implicit indicator: ProgressIndicator): Either[Seq[ExtraCompilerPathResolveFailure], ScalaSdkDescriptor] =
-    Left(Seq(NotSupportedForScalaVersion(descriptor.version.getOrElse("<unknown>"))))
+                                              (implicit indicator: ProgressIndicator): Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor] =
+    Left(Seq(NotSupportedForScalaVersion(descriptor.version.getOrElse("<unknown>"), this)))
 }
 
 object ScalaSdkDetector {
@@ -72,13 +73,38 @@ object ScalaSdkDetector {
       CoursierDetector
     )
 
-  sealed trait ExtraCompilerPathResolveFailure
-  object ExtraCompilerPathResolveFailure {
-    case class NotSupportedForScalaVersion(scalaVersion: String) extends ExtraCompilerPathResolveFailure
-    case class UnresolvedArtifact(artifactName: String) extends ExtraCompilerPathResolveFailure
-    case class UnknownException(exception: Throwable) extends ExtraCompilerPathResolveFailure
-    case class UnknownResolveProblem(resolveProblems: Seq[String]) extends ExtraCompilerPathResolveFailure
-    case class AmbiguousArtifactsResolved(fileNames: Seq[String]) extends ExtraCompilerPathResolveFailure
+  sealed trait CompilerClasspathResolveFailure {
+    import CompilerClasspathResolveFailure._
+
+    // used to print to logs
+    def errorMessage: String = this match {
+      case NotSupportedForScalaVersion(scalaVersion, detector) => s"resolve not supported for scala version $scalaVersion and detector ${detector.getClass.getSimpleName}"
+      case UnresolvedArtifact(artifactName)                    => s"unresolved artifact: $artifactName"
+      case AmbiguousArtifactsResolved(fileNames)               => s"ambiguous artifact resolved: ${fileNames.mkString(", ")}"
+      case UnknownResolveIssue(resolveProblems)                => s"unknown resolve issues: ${resolveProblems.zipWithIndex.mkString(", ")}"
+      case UnknownException(exception)                         => s"unknown exception: ${exception.getMessage}"
+    }
+
+    // used to display on UI
+
+    /** @return None if the error isn't supposed to be displayed on Ui */
+    def nlsErrorMessage: Option[NlsString] = {
+      this match {
+        case NotSupportedForScalaVersion(_, _)     => None
+        case UnresolvedArtifact(artifactName)      => Some(NlsString(ScalaBundle.message("unresolved.artifact", artifactName)))
+        case AmbiguousArtifactsResolved(fileNames) => Some(NlsString(ScalaBundle.message("ambiguous.artifact.resolved", fileNames.mkString(", "))))
+        case UnknownResolveIssue(resolveProblems)  => Some(NlsString(ScalaBundle.message("unknown.resolve.issues", resolveProblems.zipWithIndex.mkString(", "))))
+        case UnknownException(exception)           => Some(NlsString(ScalaBundle.message("unknown.exception", exception.getMessage)))
+      }
+    }
+  }
+
+  object CompilerClasspathResolveFailure {
+    case class UnresolvedArtifact(artifactName: String) extends CompilerClasspathResolveFailure
+    case class AmbiguousArtifactsResolved(fileNames: Seq[String]) extends CompilerClasspathResolveFailure
+    case class NotSupportedForScalaVersion(scalaVersion: String, detector: ScalaSdkDetector) extends CompilerClasspathResolveFailure
+    case class UnknownResolveIssue(resolveProblems: Seq[String]) extends CompilerClasspathResolveFailure
+    case class UnknownException(exception: Throwable) extends CompilerClasspathResolveFailure
   }
 }
 
