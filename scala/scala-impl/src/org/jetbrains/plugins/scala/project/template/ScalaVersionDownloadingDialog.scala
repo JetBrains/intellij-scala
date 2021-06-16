@@ -48,7 +48,7 @@ final class ScalaVersionDownloadingDialog(parent: JComponent) extends VersionDia
         return None
       }
 
-      val tri: Try[ScalaVersionResolveResult] = withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersion), canBeCanceled = true) { manager =>
+      val tri: Try[ScalaVersionResolveResult] = withProgressSynchronouslyTry(ScalaBundle.message("downloading.scala.version", scalaVersionStr), canBeCanceled = true) { manager =>
         import DependencyManagerBase._
         val dependencyManager = new DependencyManagerBase {
           override def createLogger: MessageLogger = new ProgressIndicatorLogger(manager.getProgressIndicator)
