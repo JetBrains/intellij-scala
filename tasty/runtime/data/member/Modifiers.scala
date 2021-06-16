@@ -65,4 +65,16 @@ trait Modifiers {
 
   extension (i: Int)
     final def finalExtensionMethod: Unit = ???
+
+  trait T1
+
+  trait T2
+
+  private given privateGivenAlias: T1 = ???
+
+  private given T1 = ???
+
+  private given privateGivenInstance: T1 with {}
+
+  private given T2 with {}
 }

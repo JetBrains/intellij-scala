@@ -72,4 +72,18 @@ trait Bounds {
 
   extension (i: Int)
     def extensionMethodLowerAndUpperBounds[A >: Int <: AnyVal]: Unit = ???
+
+  trait T
+
+  given givenAliasLowerBound[A >: Int]: T = ???
+
+  given givenAliasUpperBound[A <: Int]: T = ???
+
+  given givenAliasLowerAndUpperBounds[A >: Int <: AnyVal]: T = ???
+
+  given givenInstanceLowerBound[A >: Int]: T with {}
+
+  given givenInstanceUpperBound[A <: Int]: T with {}
+
+  given givenInstanceLowerAndUpperBounds[A >: Int <: AnyVal]: T with {}
 }

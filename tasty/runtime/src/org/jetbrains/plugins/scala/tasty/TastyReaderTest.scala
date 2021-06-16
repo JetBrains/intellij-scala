@@ -19,6 +19,7 @@ object TastyReaderTest {
     Seq(
       "member/Def",
       "member/ExtensionMethod",
+      "member/Given",
       "member/Modifiers",
       "member/This",
       "member/Type",

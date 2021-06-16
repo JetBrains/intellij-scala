@@ -26,4 +26,18 @@ trait Members {
 
     case Case
   }
+
+  trait T
+
+  given givenInstance: T with {
+    def member: Int = ???
+  }
+
+  given T with {
+    def member: Int = ???
+  }
+
+  given givenInstanceUsing(using x: Int): T with {
+    def member: Int = ???
+  }
 }

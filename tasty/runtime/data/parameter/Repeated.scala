@@ -19,4 +19,10 @@ trait Repeated {
 
   extension (i: Int)
     def extensionMethod(x: Int*): Unit = ???
+
+  trait T
+
+  given givenAlias(using i: Int*): T = ???
+
+  given givenInstance(using i: Int*): T with {}
 }
