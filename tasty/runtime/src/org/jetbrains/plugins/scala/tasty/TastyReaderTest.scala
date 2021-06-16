@@ -14,7 +14,7 @@ import scala.collection.mutable
 object TastyReaderTest {
 
   def main(args: Array[String]): Unit = {
-    var passed, failed = 0
+    var passed, failed = Seq.empty[String]
 
     Seq(
       "member/Def",
@@ -81,18 +81,18 @@ object TastyReaderTest {
         println("---")
         println("")
         Files.write(Path.of(actualFile), actual.getBytes)
-        failed += 1
+        failed :+= scalaFile
       } else {
         if (exists(actualFile)) {
           Files.delete(Path.of(actualFile))
         }
-        passed += 1
+        passed :+= scalaFile
       }
 
 //      Assert.assertEquals(scalaFile, expected, actual)
     }
-    if (failed == 0) println(s"Tests passed: $passed")
-    else Console.err.println(s"Tests passed: $passed, failed: $failed")
+    if (failed.isEmpty) println(s"Tests passed: ${passed.length}")
+    else Console.err.println(s"Tests passed: ${passed.length}, failed: ${failed.length}:\n" + failed.map("  " + _).mkString("\n"))
   }
 
   private def assertExists(path: String): Unit = assert(exists(path), path)
