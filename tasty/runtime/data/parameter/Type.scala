@@ -1,7 +1,7 @@
 package parameter
 
 trait Type {
-  class TypeParameter[A]
+  type TypeParameter[A]
 
-  class TypeParameters[A, B]
+  type TypeParameters[A, B]
 }

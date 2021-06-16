@@ -8,22 +8,39 @@ import scala.collection.mutable
 // TODO use StringBuilder
 object TreePrinter {
 
+  private def isGivenObject0(typedef: Node): Boolean =
+    typedef.hasFlag(OBJECT) && typedef.previousSibling.exists(prev => prev.is(VALDEF) && prev.hasFlag(OBJECT) && prev.hasFlag(GIVEN))
+
+  private def isGivenImplicitClass0(typedef: Node): Boolean = {
+    def isImplicitConversion(node: Node) = node.is(DEFDEF) && node.hasFlag(SYNTHETIC) && node.hasFlag(GIVEN) && node.name == typedef.name
+    typedef.hasFlag(SYNTHETIC) &&
+      (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
+  }
+
   def textOf(node: Node, definition: Option[Node] = None): String = node match {
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), tail: _*)) =>
       "package " + name + "\n" +
         "\n" +
         tail.map(textOf(_)).filter(_.nonEmpty).mkString("\n")
 
-    case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) =>
+    case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node) => // TODO why both are synthetic?
       val isEnum = node.hasFlag(ENUM)
-      val isObject = !isEnum && node.hasFlag(OBJECT)
-      val isImplicitClass = !isObject && node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.name == name)
+      val isObject = node.hasFlag(OBJECT)
+      val isGivenObject = isGivenObject0(node)
+      val isImplicitClass = node.nextSibling.exists(it => it.is(DEFDEF) && it.hasFlag(SYNTHETIC) && it.hasFlag(IMPLICIT) && it.name == name)
+      val isGivenImplicitClass = isGivenImplicitClass0(node)
       val isTypeMember = !template.is(TEMPLATE)
-      val keyword = if (isEnum) (if (node.hasFlag(CASE)) "case " else "enum ") else (if (isObject) "object " else (if (node.hasFlag(TRAIT)) "trait " else if (isTypeMember) "type " else "class "))
-      val identifier = if (isObject) node.previousSibling.fold(name)(_.name) else name
+      val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
+      val keyword =
+        if (isEnum) (if (node.hasFlag(CASE)) "case " else "enum ")
+        else if (isObject) (if (isGivenObject) "" else "object ")
+        else if (node.hasFlag(TRAIT)) "trait "
+        else if (isTypeMember) "type "
+        else if (isGivenImplicitClass) "given " else "class "
+      val identifier = if (isObject) node.previousSibling.fold(name)(_.name) else name // TODO check type
       val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
-        if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))) + (if (isImplicitClass) "implicit " else "")
-      modifiers + keyword + identifier + (if (!isTypeMember) textOf(template, Some(node)) else {
+        if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
+      modifiers + keyword + (if (isAnonymousGiven) "" else identifier) + (if (!isTypeMember) textOf(template, Some(node)) else {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node)
         val isAbstract = repr.children.exists(_.is(TYPEBOUNDStpt))
         parametersIn(repr, Some(repr)) + (if (isAbstract) ""else " = " + (if (node.hasFlag(OPAQUE)) "???" else textOf(repr.children.findLast(_.isTypeTree).get))) // TODO parameter, { /* compiled code */ }
@@ -46,13 +63,17 @@ object TreePrinter {
       val cases = // TODO check element types
         if (definition.exists(_.hasFlag(ENUM))) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
         else Seq.empty
+      val isGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
+      val isAnonymousGiven = isGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
       val members = (children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases) // TODO type member
         .map(textOf(_, definition)).filter(_.nonEmpty).map(indent).mkString("\n\n")
       (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
-        (if (parents.isEmpty) "" else " extends " + parents.mkString(" with ")) +
-        (if (members.isEmpty) "" else " {\n" + members + "\n}")
+        (if (isGiven && (!isAnonymousGiven || parameters.nonEmpty)) ": " else "") +
+        (if (isGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(" with "))) +
+        (if (members.isEmpty) (if (isGiven) " {}" else "") else " {\n" + members + "\n}")
 
     case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !name.contains("$default$") => // TODO why it's not synthetic?
+      val isGiven = node.hasFlag(GIVEN)
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
@@ -60,19 +81,23 @@ object TreePrinter {
         modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
       } else {
         (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
-          modifiersIn(node) + "def " + name + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
+          modifiersIn(node, (if (isGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isGiven) "" else "def ") + name + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
           ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
       }
 
     case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val isCase = node.hasFlag(CASE)
+      val isGiven = node.hasFlag(GIVEN)
+      val isAnonymousGiven = isGiven && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
       val tpe = children.find(_.isTypeTree)
       val template = // TODO check element types
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
-      if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node) + (if (isCase) name +  template else
-        (if (node.hasFlag(MUTABLE)) "var " else "val ") + name + ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
+      if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGiven) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
+        (if (isGiven) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
+          (if (isAnonymousGiven) "" else name + ": ") +
+          tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
 
     // TODO method?
     case Node(IDENTtpt, Seq(name), _) => name
@@ -190,13 +215,15 @@ object TreePrinter {
           params += ", "
         }
         templateValueParams.map(_.next()).foreach { valueParam =>
-          if (!valueParam.hasFlag(LOCAL)) {
-            params += modifiersIn(valueParam)
-            if (valueParam.hasFlag(MUTABLE)) {
-              params += "var "
-            } else {
-              if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.forall(_.is(CASEaccessor, HASDEFAULT)))) {
-                params += "val "
+          if (!definition.exists(isGivenImplicitClass0)) {
+            if (!valueParam.hasFlag(LOCAL)) {
+              params += modifiersIn(valueParam)
+              if (valueParam.hasFlag(MUTABLE)) {
+                params += "var "
+              } else {
+                if (!(definition.exists(_.hasFlag(CASE)) && valueParam.flags.forall(_.is(CASEaccessor, HASDEFAULT)))) {
+                  params += "val "
+                }
               }
             }
           }
@@ -212,7 +239,7 @@ object TreePrinter {
     if (template.isEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
   }
 
-  private def modifiersIn(node: Node, excluding: Set[Int] = Set.empty): String = { // TODO Optimize
+  private def modifiersIn(node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): String = { // TODO Optimize
     var s = ""
     if (node.hasFlag(OVERRIDE)) {
       s += "override "
@@ -223,7 +250,7 @@ object TreePrinter {
       s += "protected "
     }
     if (node.hasFlag(GIVEN)) {
-      s += "using "
+      s += (if (isParameter) "using " else "given ")
     }
     if (node.hasFlag(IMPLICIT)) {
       s += "implicit "
@@ -231,7 +258,7 @@ object TreePrinter {
     if (node.hasFlag(FINAL) && !excluding(FINAL)) {
       s += "final "
     }
-    if (node.hasFlag(LAZY)) {
+    if (node.hasFlag(LAZY) && !excluding(LAZY)) {
       s += "lazy "
     }
     if (node.hasFlag(ABSTRACT) && !excluding(ABSTRACT)) {

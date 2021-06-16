@@ -32,4 +32,10 @@ trait DefaultArguments {
 
   extension (i: Int)
     def extensionMethod(x: Int = /**/1/*???*/): Unit = ???
+
+  trait T
+
+  given givenAlias(using i: Int = /**/1/*???*/): T = ???
+
+  given givenInstance(using i: Int = /**/1/*???*/): T with {}
 }

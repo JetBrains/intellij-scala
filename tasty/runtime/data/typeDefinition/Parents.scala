@@ -176,4 +176,40 @@ trait Parents {
   enum EnumCaseClass9 {
     case CaseClass() extends EnumCaseClass9 with TypeAndValueParameter[Int]/**/(1)/**/
   }
+
+  given givenInstance1: NoParameters with {}
+
+  given givenInstance2: TypeParameter[Int] with {}
+
+  given givenInstance3: TypeParameters[Int, Long] with {}
+
+  given givenInstance4: NoParameters with TypeParameter[Int] with {}
+
+  given givenInstance5: NoParameters with TypeParameter[Int] with TypeParameters[Int, Long] with {}
+
+  given givenInstance6: ValueParameter/**/(1)/**/ with {}
+
+  given givenInstance7: ValueParameters/**/(1, 2L)/**/ with {}
+
+  given givenInstance8: MultipleClauses/**/(1)(2L)/**/ with {}
+
+  given givenInstance9: TypeAndValueParameter[Int]/**/(1)/**/ with {}
+
+  given NoParameters with {}
+
+  given TypeParameter[Int] with {}
+
+  given TypeParameters[Int, Long] with {}
+
+  given NoParameters with TypeParameter[Int] with {}
+
+  given NoParameters with TypeParameter[Int] with TypeParameters[Int, Long] with {}
+
+  given ValueParameter/**/(1)/**/ with {}
+
+  given ValueParameters/**/(1, 2L)/**/ with {}
+
+  given MultipleClauses/**/(1)(2L)/**/ with {}
+
+  given TypeAndValueParameter[Int]/**/(1)/**/ with {}
 }
