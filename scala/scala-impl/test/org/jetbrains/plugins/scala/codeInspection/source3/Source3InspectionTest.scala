@@ -4,7 +4,7 @@ import com.intellij.codeInspection.LocalInspectionTool
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.util.Source3TestCase
 
-class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase {
+class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[Source3Inspection]
 
@@ -44,22 +44,25 @@ class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase 
     checkTextHasError(selectedText)
 
     testQuickFix(
-    "import base._",
+      "import base._",
       "import base.*",
       "Replace with *"
     )
   }
 
-  def test_wildcard_import_in_selector(): Unit = {
-    val selectedText = s"import base.{nope, ${START}_$END}"
-    checkTextHasError(selectedText)
+  def test_wildcard_import_in_selector(): Unit =
+    checkTextHasNoErrors("import base.{nope, _}")
 
-    testQuickFix(
-      "import base.{nope, _}",
-      "import base.{nope, *}",
-      "Replace with *"
-    )
-  }
+  //def test_wildcard_import_in_selector(): Unit = {
+  //  val selectedText = s"import base.{nope, ${START}_$END}"
+  //  checkTextHasError(selectedText)
+  //
+  //  testQuickFix(
+  //    "import base.{nope, _}",
+  //    "import base.{nope, *}",
+  //    "Replace with *"
+  //  )
+  //}
 
   def test_underscore_is_shadowing(): Unit = {
     val selectedText = s"import base.{x as _}"
@@ -88,6 +91,28 @@ class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase 
     )
   }
 
+  def test_infix_vararg_slices(): Unit = {
+    val selectedText = s"Seq(a: ${START}_*$END)"
+    checkTextHasError(selectedText)
+
+    testQuickFix(
+      "Seq(a ++ a: _*)",
+      "Seq((a ++ a)*)",
+      "Replace with *"
+    )
+  }
+
+  def test_vararg_slices_undersocered(): Unit = {
+    val selectedText = s"Seq(a: ${START}_*$END)"
+    checkTextHasError(selectedText)
+
+    testQuickFix(
+      "Seq(a_ : _*)",
+      "Seq(a_ *)",
+      "Replace with *"
+    )
+  }
+
   def test_vararg_pattern(): Unit = {
     val selectedText = s"val Seq(${START}a@_*$END) = null"
     checkTextHasError(selectedText)
@@ -109,4 +134,7 @@ class Source3InspectionTest  extends ScalaQuickFixTestBase with Source3TestCase 
       "Replace with &"
     )
   }
+
+  def test_compound_type_in_pattern(): Unit =
+    checkTextHasNoErrors("??? match { case x: A with B => }")
 }

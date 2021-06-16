@@ -8,7 +8,7 @@ import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.{Associativity, ParsingRule}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isSymbolicIdentifier, operatorAssociativity, priority}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.{isAssignmentOperator, isSymbolicIdentifier, operatorAssociativity, priority}
 
 abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
   protected def parseFirstOperator()(implicit builder: ScalaPsiBuilder): Boolean = parseOperator()
@@ -119,20 +119,35 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
   protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
     !builder.newlineBeforeCurrentToken || {
-      if (builder.isScala3) {
+      if (builder.isScala3orSource3) {
         // In scala 3 the infix operator may be on the next line
-        // but only if
-        // - it is a symbolic identifier,
-        // - followed by at least one whitespace, and
-        // - the next token is in the same line and this token can start an expression
+        // but only if it is a leading infix operator. (https://dotty.epfl.ch/docs/reference/changed-features/operators.html)
+        // A leading infix operator is
+        // - a symbolic identifier such as +, or approx_==, or an identifier in backticks that
+        //   starts a new line, and
+        // - is not following a blank line, and
+        // - is followed by at least one whitespace character and a token that can start an expression.
+        // - Furthermore, if the operator appears on its own line, the next line must have at least the same indentation width as the operator.
+        val opText = builder.getTokenText
         builder.rawLookup(1) == ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
-          isSymbolicIdentifier(builder.getTokenText) && {
-          val rollbackMarker = builder.mark()
-          try {
-            builder.advanceLexer() // ate identifier
+          isSymbolicIdentifier(opText) && {
+          val Some(opIndent) = builder.findPreviousIndent
+          builder.predict { builder =>
+            // A leading infix operator must be followed by a lexically suitable expression.
+            // Usually any simple expr will do. However, a backquoted identifier may serve as
+            // either an op or a reference. So the additional constraint is that the following
+            // token can't be an assignment operator.
+            // (https://github.com/scala/scala/pull/9567/files#diff-1bfb209890ef057b7b17d9124b3a5c518e22acd4d554a6b561598af8087f0fd5R455)
+            // Example:
+            //   test += (a + b)
+            //   `test` += 12 // `test` should not be a leading infix operator
+            def opIsBacktickIdFollowedByAssignment: Boolean =
+              opText.startsWith("`") && isAssignmentOperator(builder.getTokenText)
+
             startsExpression(builder.getTokenType) &&
-              builder.findPreviousNewLine.isEmpty
-          } finally rollbackMarker.rollbackTo()
+              builder.findPreviousIndent.forall(rhsIndent => rhsIndent >= opIndent) &&
+              !opIsBacktickIdFollowedByAssignment
+          }
         }
 
       } else false

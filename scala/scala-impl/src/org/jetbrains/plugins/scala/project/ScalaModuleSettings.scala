@@ -69,6 +69,9 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
   val kindProjectorPlugin: Option[String] =
     compilerPlugins.find(_.contains("kind-projector"))
 
+  def kindProjectorUnderscorePlaceholdersEnabled: Boolean =
+    additionalCompilerOptions.contains("-P:kind-projector:underscore-placeholders")
+
   val betterMonadicForPluginEnabled: Boolean =
     compilerPlugins.exists(_.contains("better-monadic-for"))
 
