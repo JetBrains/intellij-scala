@@ -1101,7 +1101,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.syntactic.sugar"
                          groupPath="Scala" groupKey="group.syntactic.simplification"
-                         shortName="FunctionTupleSyntacticSugar" level="WARNING"
+                         shortName="FunctionTupleSyntacticSugar" level="WEAK WARNING"
                          id="FunctionTupleSyntacticSugar" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ScalaUnnecessarySemicolonInspection"
                          bundle="messages.ScalaInspectionBundle"
