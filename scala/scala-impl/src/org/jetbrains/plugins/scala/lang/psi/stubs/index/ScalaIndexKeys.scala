@@ -54,6 +54,7 @@ object ScalaIndexKeys {
   val TOP_LEVEL_VAL_OR_VAR_BY_PKG_KEY     = createIndexKey[String, ScValueOrVariable]("sc.top.level.valvar.by.package.key")
   val TOP_LEVEL_FUNCTION_BY_PKG_KEY       = createIndexKey[String, ScFunction]("sc.top.level.function.by.package.key")
   val TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY = createIndexKey[String, ScClass]("sc.top.level.implicit.class.by.package.key")
+  val TOP_LEVEL_EXTENSION_BY_PKG_KEY      = createIndexKey[String, ScExtension]("sc.top.level.extension.by.package.key")
 
   // Scala3 @main methods
   val ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY  = createIndexKey[String, ScFunction]("sc.annotated.main.function.by.package.key")

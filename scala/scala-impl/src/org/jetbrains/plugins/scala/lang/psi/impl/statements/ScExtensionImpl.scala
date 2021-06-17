@@ -3,11 +3,10 @@ package org.jetbrains.plugins.scala.lang.psi.impl.statements
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.scope.PsiScopeProcessor
-import com.intellij.psi.{PsiClass, PsiElement, PsiModifierList, ResolveState}
+import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionDefinitionFactory
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.TokenSets.FUNCTIONS
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil

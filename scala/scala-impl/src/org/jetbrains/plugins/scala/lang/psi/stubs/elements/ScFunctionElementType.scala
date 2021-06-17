@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 /**
   * User: Alexander Podkhalyuzin
