@@ -216,10 +216,10 @@ object TreePrinter {
           params += ", "
         }
         val templateValueParam = templateValueParams.map(_.next())
-        templateValueParam.foreach { valueParam =>
-          if (!definition.exists(isGivenImplicitClass0)) {
+        if (!definition.exists(isGivenImplicitClass0)) {
+          templateValueParam.foreach { valueParam =>
             if (!valueParam.hasFlag(LOCAL)) {
-              params += modifiersIn(valueParam)
+              params += modifiersIn(valueParam, Set(GIVEN))
               if (valueParam.hasFlag(MUTABLE)) {
                 params += "var "
               } else {
@@ -254,7 +254,7 @@ object TreePrinter {
     } else if (node.hasFlag(PROTECTED)) {
       s += "protected "
     }
-    if (node.hasFlag(GIVEN)) {
+    if (node.hasFlag(GIVEN) && !excluding(GIVEN)) {
       s += (if (isParameter) "using " else "given ")
     }
     if (node.hasFlag(IMPLICIT)) {
