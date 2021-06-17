@@ -25,7 +25,7 @@ object TreePrinter {
           case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if name1.endsWith("$package") && name2.endsWith("$package$") =>
             template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).map(textOf(_)).filter(_.nonEmpty).mkString("\n\n")
           case _ =>
-            tail.map(textOf(_)).filter(_.nonEmpty).mkString("\n")
+            tail.map(textOf(_)).filter(_.nonEmpty).mkString("\n\n")
         })
     }
 
