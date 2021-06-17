@@ -217,6 +217,20 @@ class ScalaKeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "extends"
   )
 
+  // SCL-19181
+  def testExtendsBeforeId(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |class Test e$CARET Base
+         |""".stripMargin,
+    resultText =
+      s"""
+         |class Test extends ${CARET}Base
+         |""".stripMargin,
+    item = "extends"
+  )
+
+
   def testExtendsBetweenClasses(): Unit = doCompletionTest(
     fileText =
       s"""
