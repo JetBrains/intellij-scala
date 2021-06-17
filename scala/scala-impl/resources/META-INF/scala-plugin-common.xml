@@ -1462,6 +1462,12 @@
                          groupPath="Scala,Collections" groupKey="group.simplifications.other"
                          shortName="ReverseIterator" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseFindInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.reverse.find.to.findLast"
+                         groupPath="Scala,Collections" groupKey="group.simplifications.other"
+                         shortName="ReverseFind" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ToSetAndBackInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.conversion.to.set.and.back.to.distinct"
