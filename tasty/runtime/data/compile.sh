@@ -10,6 +10,9 @@ dotc $scalaFiles
 for scalaFile in $scalaFiles; do
   name="${scalaFile%.*}"
   tastyFile="$name.tasty"
+  if [ -f $name\$package.tasty ]; then
+    tastyFile=$name\$package.tasty
+  fi
   treeFile="$name.tree"
   if [ ! "$treeFile" -nt "$scalaFile" ]; then
     echo "Parsing $tastyFile..."

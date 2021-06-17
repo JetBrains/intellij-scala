@@ -25,6 +25,7 @@ object TastyReaderTest {
       "member/Type",
       "member/Val",
       "member/Var",
+      "package1/topLevel",
       "package1/package2/Chained",
       "package1/package2/Flat",
       "parameter/Bounds",
@@ -55,7 +56,10 @@ object TastyReaderTest {
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
       assertExists(scalaFile)
 
-      val tastyFile = scalaFile.replaceFirst("\\.scala", ".tasty")
+      val tastyFile = {
+        val packageFile = scalaFile.replaceFirst("\\.scala", "\\$package.tasty")
+        if (exists(packageFile)) packageFile else scalaFile.replaceFirst("\\.scala", ".tasty")
+      }
       assertExists(tastyFile)
 
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
