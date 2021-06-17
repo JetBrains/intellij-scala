@@ -53,6 +53,7 @@ object TastyReaderTest {
       "typeDefinition/Parents",
       "typeDefinition/Trait",
       "EmptyPackage",
+      "Nesting",
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
       assertExists(scalaFile)
 
