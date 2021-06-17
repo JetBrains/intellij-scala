@@ -17,9 +17,11 @@ object TastyReaderTest {
     var passed, failed = Seq.empty[String]
 
     Seq(
+      "member/Bounds",
       "member/Def",
       "member/ExtensionMethod",
       "member/Given",
+      "member/InlineModifier",
       "member/Modifiers",
       "member/This",
       "member/Type",
@@ -42,6 +44,7 @@ object TastyReaderTest {
       "parameter/Repeated",
       "parameter/Trait",
       "parameter/Type",
+      "parameter/InlineModifier",
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
       "typeDefinition/Class",
