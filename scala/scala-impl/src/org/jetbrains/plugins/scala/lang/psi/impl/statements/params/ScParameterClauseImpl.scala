@@ -14,9 +14,9 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScModifierList, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScGivenDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScParamClauseStub
 import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
@@ -143,7 +143,14 @@ class ScParameterClauseImpl private(stub: ScParamClauseStub, node: ASTNode)
     }
   }
 
-  override def owner: PsiElement = {
-    ScalaPsiUtil.getContextOfType(this, true, classOf[ScFunctionExpr], classOf[ScFunction], classOf[ScPrimaryConstructor])
-  }
+  override def owner: PsiElement =
+    ScalaPsiUtil.getContextOfType(
+      this,
+      true,
+      classOf[ScFunctionExpr],
+      classOf[ScFunction],
+      classOf[ScPrimaryConstructor],
+      classOf[ScGivenDefinition],
+      classOf[ScExtension]
+    )
 }

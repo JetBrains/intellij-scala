@@ -342,7 +342,7 @@ object PhysicalMethodSignature {
 final class PhysicalMethodSignature(
   val method: PsiMethod,
   override val substitutor: ScSubstitutor,
-  val isExtensionMethod: Boolean = false
+  override val isExtensionMethod: Boolean = false
 ) extends TermSignature(
   method.name,
   PhysicalMethodSignature.typesEval(method),

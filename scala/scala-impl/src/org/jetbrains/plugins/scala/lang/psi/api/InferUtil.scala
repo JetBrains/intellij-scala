@@ -78,17 +78,20 @@ object InferUtil {
     canThrowSCE:                Boolean,
     searchImplicitsRecursively: Int = 0,
     fullInfo:                   Boolean
-  ): (ScType, Option[Seq[ScalaResolveResult]]) = TraceLogger.func {
+  ): (ScType, Option[Seq[ScalaResolveResult]], ConstraintSystem) = TraceLogger.func {
     implicit val ctx: ProjectContext = element
 
-    var resInner = res
     var implicitParameters: Option[Seq[ScalaResolveResult]] = None
+    var resInner    = res
+    var constraints = ConstraintSystem.empty
+
     res match {
       case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
         // See SCL-3516
-        val (updatedType, ps) =
+        val (updatedType, ps, constraintsRec) =
           updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, canThrowSCE, fullInfo = fullInfo)
         implicitParameters = ps
+        constraints = constraintsRec
         implicit val elementScope: ElementScope = mt.elementScope
 
         updatedType match {
@@ -122,11 +125,26 @@ object InferUtil {
               val abstractSubstitutor = t.abstractOrLowerTypeSubstitutor
 
               val (paramsForInfer, exprs, resolveResults) =
-                findImplicits(paramsSingle, coreElement, element, canThrowSCE, searchImplicitsRecursively, abstractSubstitutor)
+                findImplicits(
+                  paramsSingle,
+                  coreElement,
+                  element,
+                  canThrowSCE,
+                  searchImplicitsRecursively,
+                  abstractSubstitutor
+                )
 
-              resInner = localTypeInference(retTypeSingle, paramsForInfer, exprs, typeParamsSingle,
-                canThrowSCE = canThrowSCE || fullInfo)
+              val (updatedType, conformanceResult) =
+                localTypeInferenceWithApplicabilityExt(
+                  retTypeSingle,
+                  paramsForInfer,
+                  exprs,
+                  typeParamsSingle,
+                  canThrowSCE = canThrowSCE || fullInfo
+                )
 
+              resInner               = updatedType
+              constraints           += conformanceResult.constraints
               paramsForInferBuffer ++= paramsForInfer
               exprsBuffer          ++= exprs
               resolveResultsBuffer ++= resolveResults
@@ -139,7 +157,9 @@ object InferUtil {
         resInner = dependentSubst(resInner)
       case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
-        val (updatedType, ps) = updateTypeWithImplicitParameters(retType, element, coreElement, canThrowSCE, fullInfo = fullInfo)
+        val (updatedType, ps, _) =
+          updateTypeWithImplicitParameters(retType, element, coreElement, canThrowSCE, fullInfo = fullInfo)
+
         implicitParameters = ps
         implicit val elementScope: ElementScope = mt.elementScope
 
@@ -154,7 +174,7 @@ object InferUtil {
         resInner = dependentSubst(resInner)
       case _ =>
     }
-    (resInner, implicitParameters)
+    (resInner, implicitParameters, constraints)
   }
 
 
@@ -610,7 +630,6 @@ object InferUtil {
 
             val newConstraints = typeParams.foldLeft(constraints)(addConstraints)
 
-
             val notInferred =
               if (!retType.isValue) Seq.empty
               else
@@ -671,7 +690,7 @@ object InferUtil {
 
   private def collectReverseParamTypesNoImplicits(function: ScFunction): Option[Seq[Seq[ScType]]] = {
     val builder = Seq.newBuilder[Seq[ScType]]
-    val clauses = function.paramClauses.clauses
+    val clauses = function.extensionMethodOwner.fold(function.paramClauses.clauses)(_.allClauses)
 
     //for performance
     var idx = clauses.length - 1
@@ -686,6 +705,7 @@ object InferUtil {
       }
       idx -= 1
     }
-    Some(builder.result())
+
+    Option(builder.result())
   }
 }

@@ -88,7 +88,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               ScTypePolymorphicType(ScMethodType(i, params.last, isImplicit = true), p)
             case _ => ScMethodType(tp, params.last, isImplicit = true)
           }
-          InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
+          val (updatedTp, implicits, _) =
+            InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
+
+          (updatedTp, implicits)
         } else {
           (tp, None)
         }

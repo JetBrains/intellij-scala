@@ -222,16 +222,13 @@ object ScalaPsiUtil {
     }
   }
 
-  /**
-    * Pick all type parameters by method maps them to the appropriate type arguments, if they are
-    */
   def undefineMethodTypeParams(fun: PsiMethod): ScSubstitutor = {
-    implicit val ctx: ProjectContext = fun
     val typeParameters = fun match {
-      case fun: ScFunction => fun.typeParameters
-      case fun: PsiMethod => fun.getTypeParameters.toSeq
+      case fun: ScFunction => fun.typeParametersWithExtension
+      case fun: PsiMethod  => fun.getTypeParameters.toSeq
     }
-    ScSubstitutor.bind(typeParameters.map(TypeParameter(_)))(UndefinedType(_, level = 1))
+
+    ScSubstitutor.bind(typeParameters)(UndefinedType(_, level = 1))
   }
 
   @tailrec
@@ -1525,12 +1522,12 @@ object ScalaPsiUtil {
 
   def isImplicit(namedElement: PsiNamedElement): Boolean =
     namedElement match {
-      case _: ScGiven                                => true
-      case _: ScGivenPattern                         => true
-      case Implicit0Binding()                        => true /** See [[BetterMonadicForSupport]] */
-      case owner: ScModifierListOwner                => hasImplicitModifier(owner)
-      case inNameContext(owner: ScModifierListOwner) => hasImplicitModifier(owner)
-      case _                                         => false
+      case _: ScGiven                                           => true
+      case _: ScGivenPattern                                    => true
+      case Implicit0Binding()                                   => true /** See [[BetterMonadicForSupport]] */
+      case owner: ScModifierListOwner                           => hasImplicitModifier(owner)
+      case inNameContext(owner: ScModifierListOwner)            => hasImplicitModifier(owner)
+      case _                                                    => false
     }
 
   def hasImplicitModifier(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {

@@ -57,6 +57,8 @@ trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Type
 
   def syntheticMembers: Seq[ScMember] = Seq.empty
 
+  def extensions: Seq[ScExtension] = extendsBlock.extensions
+
   def selfTypeElement: Option[ScSelfTypeElement]
 
   def selfType: Option[ScType] = extendsBlock.selfType

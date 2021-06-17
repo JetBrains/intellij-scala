@@ -53,10 +53,10 @@ private object NonValueFunctionTypes {
   private def computeMethodType(fun: ScFunction,
                                 substitutor: ScSubstitutor,
                                 undefinedTypeData: UndefinedTypeData): Option[MethodTypeData] = {
-
-    val typeParameters = fun.typeParameters
+    val typeParameters = fun.typeParametersWithExtension
     //@TODO: multiple using clauses
-    val implicitClause = fun.effectiveParameterClauses.lastOption.filter(_.isImplicitOrUsing)
+    val clauses        = fun.parameterClausesWithExtension
+    val implicitClause = clauses.find(_.isImplicitOrUsing)
 
     if (typeParameters.isEmpty && implicitClause.isEmpty) {
       None
@@ -87,15 +87,13 @@ private object NonValueFunctionTypes {
 
     ft match {
       case Some(_funType: ScType) =>
-        val funType = typeFromMacro.getOrElse(_funType)
-
+        val funType            = typeFromMacro.getOrElse(_funType)
         val undefineTypeParams = ScalaPsiUtil.undefineMethodTypeParams(fun)
+        val substedFunTp       = substitutor.followed(undefineTypeParams)(funType)
+        val withoutDependents  = approximateDependent(substedFunTp, fun.parameters.toSet)
+        val undefinedType      = withoutDependents.getOrElse(substedFunTp)
 
-        val substedFunTp = substitutor.followed(undefineTypeParams)(funType)
-        val withoutDependents = approximateDependent(substedFunTp, fun.parameters.toSet)
-        val undefinedType = withoutDependents.getOrElse(substedFunTp)
-
-        Some(UndefinedTypeData(undefinedType, withoutDependents.nonEmpty))
+        Option(UndefinedTypeData(undefinedType, withoutDependents.nonEmpty))
       case _ =>
         None
     }

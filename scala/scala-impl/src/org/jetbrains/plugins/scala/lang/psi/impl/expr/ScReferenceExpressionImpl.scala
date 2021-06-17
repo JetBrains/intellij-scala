@@ -357,11 +357,21 @@ class ScReferenceExpressionImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             }
         }
       case ScalaResolveResult(value: ScSyntheticValue, _) => value.tp
-      case ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
+      case result @ ScalaResolveResult(fun: ScFunction, s) if fun.isProbablyRecursive =>
         val maybeResult = fun.definedReturnType.toOption
-        fun.polymorphicType(s, maybeResult)
-      case result@ScalaResolveResult(fun: ScFunction, s) =>
-        fun.polymorphicType(s).updateTypeOfDynamicCall(result.isDynamic)
+        val dropExtensionClauses =
+          result.isExtension ||
+            (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
+
+        fun.polymorphicType(s, maybeResult, dropExtensionClauses = dropExtensionClauses)
+      case result @ ScalaResolveResult(fun: ScFunction, s) =>
+        val dropExtensionClauses =
+          result.isExtension ||
+            (result.extensionContext.nonEmpty && result.extensionContext == fun.extensionMethodOwner)
+
+        fun
+          .polymorphicType(s, dropExtensionClauses = dropExtensionClauses)
+          .updateTypeOfDynamicCall(result.isDynamic)
       case ScalaResolveResult(param: ScParameter, s) if param.isRepeatedParameter =>
         val result = param.`type`()
         val computeType = s(result match {

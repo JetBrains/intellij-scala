@@ -7,14 +7,14 @@ package templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScTemplateParentsFactory, ScTemplateDerivesFactory}
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScTemplateDerivesFactory, ScTemplateParentsFactory}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScTypeAliasDefinition, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScEarlyDefinitions
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -184,43 +184,19 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
     buffer.toSeq
   }
 
-  override def members: Seq[ScMember] = {
-    templateBodies.flatMap {
-      _.members
-    } ++ earlyDefinitions.toSeq.flatMap {
-      _.members
-    }
-  }
-
-  override def typeDefinitions: Seq[ScTypeDefinition] =
-    templateBodies.flatMap {
-      _.typeDefinitions
-    }
-
   def nameId: Null = null
 
-  override def aliases: Seq[ScTypeAlias] =
-    templateBodies.flatMap {
-      _.aliases
-    }
+  override def members: Seq[ScMember] =
+    templateBodies.flatMap(_.members) ++
+      earlyDefinitions.toSeq.flatMap(_.members)
 
-  override def cases: Seq[ScEnumCases] =
-    templateBodies.flatMap(_.cases)
-
-  override def functions: Seq[ScFunction] =
-    templateBodies.flatMap {
-      _.functions
-    }
-
-  override def properties: Seq[ScValueOrVariable] =
-    templateBodies.flatMap {
-      _.properties
-    }
-
-  override def selfTypeElement: Option[ScSelfTypeElement] =
-    templateBody.flatMap {
-      _.selfTypeElement
-    }
+  override def typeDefinitions: Seq[ScTypeDefinition]     = templateBodies.flatMap(_.typeDefinitions)
+  override def aliases: Seq[ScTypeAlias]                  = templateBodies.flatMap(_.aliases)
+  override def cases: Seq[ScEnumCases]                    = templateBodies.flatMap(_.cases)
+  override def functions: Seq[ScFunction]                 = templateBodies.flatMap(_.functions)
+  override def properties: Seq[ScValueOrVariable]         = templateBodies.flatMap(_.properties)
+  override def selfTypeElement: Option[ScSelfTypeElement] = templateBody.flatMap(_.selfTypeElement)
+  override def extensions: Seq[ScExtension]               = templateBodies.flatMap(_.extensions)
 
   override def templateParents: Option[ScTemplateParents] =
     getStubOrPsiChildren(TEMPLATE_PARENTS, ScTemplateParentsFactory).headOption

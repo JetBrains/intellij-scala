@@ -462,7 +462,7 @@ object ResolveUtils {
       if (cand.isEmpty && call.isDefined) {
         val expr = call.get.getEffectiveInvokedExpr
 
-        ImplicitResolveResult.processImplicitConversions(
+        ImplicitResolveResult.processImplicitConversionsAndExtensions(
           "apply",
           expr,
           applyProc,
@@ -482,4 +482,23 @@ object ResolveUtils {
       cand
     }
   }
+
+  object ExtensionMethod {
+    def unapply(fdef: ScFunctionDefinition): Boolean = fdef.isExtensionMethod
+  }
+
+  def isExtensionMethod(e: PsiElement): Boolean = e match {
+    case ExtensionMethod() => true
+    case _                 => false
+  }
+
+  /**
+   * Is `invokedExpr` an invocation of an extension method `fun`
+   * of shape `x.fun`, i.e. an actual extension and not regular method call.
+   */
+  def isExtensionMethodCall(invokedExpr: PsiElement, fun: PsiNamedElement): Boolean =
+    isExtensionMethod(fun) && (invokedExpr match {
+      case ref: ScReferenceExpression => ref.isQualified
+      case _                          => false
+    })
 }

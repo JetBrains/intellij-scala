@@ -211,7 +211,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def parameterListCount: Int = paramClauses.clauses.length
 
-  private def extensionMethodData: Option[ScExtension] =  {
+  def extensionMethodOwner: Option[ScExtension] =  {
     val parent = getParent
     if (parent != null) {
       parent.getParent.asOptionOf[ScExtension]
@@ -219,13 +219,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   }
 
   override def isExtensionMethod: Boolean =
-    byStubOrPsi(_.isExtensionMethod)(extensionMethodData.nonEmpty)
-
-  @CachedInUserData(this, BlockModificationTracker(this))
-  override def typeParameters: Seq[ScTypeParam] =
-    extensionMethodData.fold(super.typeParameters)(ext =>
-      ext.typeParameters ++ super.typeParameters
-    )
+    byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
   @CachedInUserData(this, BlockModificationTracker(this))
   override def effectiveParameterClauses: Seq[ScParameterClause] = {
@@ -236,13 +230,6 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
     } else Option(this)
 
-    val extensionParameterClauses =
-      (for {
-        ext        <- extensionMethodData
-        parameters <- ext.clauses
-      } yield parameters.clauses).getOrElse(Seq.empty)
-
-    extensionParameterClauses ++
       paramClauses.clauses ++
       maybeOwner.flatMap {
         ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()

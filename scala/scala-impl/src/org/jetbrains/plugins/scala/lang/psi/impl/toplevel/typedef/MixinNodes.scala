@@ -10,7 +10,6 @@ package typedef
 
 import java.util.concurrent.ConcurrentHashMap
 import java.util.{List => JList}
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.{PsiClass, PsiClassType, PsiNamedElement}
 import com.intellij.util.containers.{ContainerUtil, SmartHashSet}
@@ -20,7 +19,7 @@ import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScNewTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScObject, ScTemplateDefinition, ScTrait, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.MixinNodes.SuperTypesData
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -179,7 +178,7 @@ object MixinNodes {
       while (iterator.hasNext) {
         val thisMap = forName(iterator.next)
         thisMap.nodesIterator.foreach { node =>
-          if (node.info.isImplicit) {
+          if (node.info.isImplicit || node.info.isExtensionMethod) {
             builder += node
           }
         }
@@ -203,7 +202,7 @@ object MixinNodes {
 
       allNames.add(name)
 
-      if (signature.isImplicit)
+      if (signature.isImplicit || signature.isExtensionMethod)
         implicitNames.add(name)
 
     }

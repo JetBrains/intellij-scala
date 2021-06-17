@@ -58,7 +58,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
         case TEMPLATE_BODY =>
           // extensions template body do not support `:` in the beginning,
           // we should capture new line before
-          val isExtensionsTemplateBody  = node.getTreeParent.getElementType == ScalaElementType.Extension
+          val isExtensionsTemplateBody = node.getTreeParent.getElementType == ScalaElementType.EXTENSION
           val range = if (isExtensionsTemplateBody) captureWhitespaceBefore(node, nodeTextRange) else nodeTextRange
           descriptors add new FoldingDescriptor(node, range)
         case ImportStatement if isGoodImport(node) =>

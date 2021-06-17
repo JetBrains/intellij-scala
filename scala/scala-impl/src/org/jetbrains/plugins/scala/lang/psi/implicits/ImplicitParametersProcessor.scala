@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isImplicit, strictlyOrderedByContext}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
@@ -19,13 +19,16 @@ private[implicits] final class ImplicitParametersProcessor(override val getPlace
   )(implicit
     state: ResolveState
   ): Boolean = {
-    if (isImplicit(namedElement) && isAccessible(namedElement)) {
+    val isExtensionMethod = ResolveUtils.isExtensionMethod(namedElement)
+
+    if ((isImplicit(namedElement) || isExtensionMethod) && isAccessible(namedElement)) {
       addResult(
         new ScalaResolveResult(
           namedElement,
           state.substitutorWithThisType,
           importsUsed         = state.importsUsed,
-          implicitScopeObject = state.implicitScopeObject
+          implicitScopeObject = state.implicitScopeObject,
+          isExtension         = isExtensionMethod
         )
       )
     }
