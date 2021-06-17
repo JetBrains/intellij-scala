@@ -3,6 +3,8 @@ package parameter
 trait Modifiers {
   class ClassUsing(using x: Int, y: Long)
 
+  class ClassAnonymousUsing(using Int)
+
   class ClassImplicit(implicit x: Int, y: Long)
 
   class ClassVal(val x: Int)
@@ -19,6 +21,8 @@ trait Modifiers {
 
   trait TraitUsing(using x: Int, y: Long)
 
+  class TraitAnonymousUsing(using Int)
+
   trait TraitImplicit(implicit x: Int, y: Long)
 
   class TraitVal(val x: Int)
@@ -34,6 +38,8 @@ trait Modifiers {
   class TraitOverride(override val hashCode: Int)
 
   def defUsing(using x: Int, y: Long): Unit
+
+  def defAnonymousUsing(using Int): Unit
 
   def defImplicit(implicit x: Int, y: Long): Unit
 

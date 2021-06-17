@@ -215,7 +215,8 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
-        templateValueParams.map(_.next()).foreach { valueParam =>
+        val templateValueParam = templateValueParams.map(_.next())
+        templateValueParam.foreach { valueParam =>
           if (!definition.exists(isGivenImplicitClass0)) {
             if (!valueParam.hasFlag(LOCAL)) {
               params += modifiersIn(valueParam)
@@ -229,7 +230,10 @@ object TreePrinter {
             }
           }
         }
-        params += name + ": " + textOf(children.head)
+        if (!(node.hasFlag(SYNTHETIC) || templateValueParam.exists(_.hasFlag(SYNTHETIC)))) {
+          params += name + ": "
+        }
+        params += textOf(children.head)
         if (node.hasFlag(HASDEFAULT)) {
           params += " = ???" // TODO parameter, /* compiled code */
         }
