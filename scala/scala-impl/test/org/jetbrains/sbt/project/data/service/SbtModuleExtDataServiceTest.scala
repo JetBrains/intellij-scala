@@ -4,7 +4,7 @@ import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
-import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.module.{LanguageLevelUtil, Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
@@ -268,8 +268,7 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
       assertTrue(moduleRootManager.isSdkInherited)
     } else {
       assertEquals(expectedSdk, moduleRootManager.getSdk)
-      val languageLevelModuleExtension = LanguageLevelModuleExtensionImpl.getInstance(getModule)
-      val actualLanguageLevel = languageLevelModuleExtension.getLanguageLevel
+      val actualLanguageLevel = LanguageLevelUtil.getCustomLanguageLevel(getModule)
       assertEquals(expectedLanguageLevel, actualLanguageLevel)
     }
   }

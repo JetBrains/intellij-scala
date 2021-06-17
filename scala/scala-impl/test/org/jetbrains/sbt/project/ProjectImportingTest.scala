@@ -8,7 +8,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, LanguageLevelProjectExtension}
+import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelModuleExtensionImpl, LanguageLevelProjectExtension, ModifiableRootModel, ModuleRootModificationUtil}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
@@ -358,9 +358,9 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     compilerSettings.setBytecodeTargetLevel(module, target)
     compilerSettings.setAdditionalOptions(module, other.asJava)
 
-    val model = LanguageLevelModuleExtensionImpl.getInstance(module)
-    val modifiableModel = model.getModifiableModel(true).asInstanceOf[LanguageLevelModuleExtensionImpl]
-    modifiableModel.setLanguageLevel(source)
+    ModuleRootModificationUtil.updateModel(module,
+      _.getModuleExtension(classOf[LanguageLevelModuleExtension]).setLanguageLevel(source)
+    )
   }
 
   // TODO: also create test for scalacOptions

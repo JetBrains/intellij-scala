@@ -1,5 +1,9 @@
-libraryDependencies += "org.jetbrains" % "test-one" % "<caret>"
+libraryDependencies += "org.scalatest" % "scalatest" % "3.0.8<caret>"
 /*
-0.0.1
-0.0.2
+3.0.8
+3.0.8-RC1
+3.0.8-RC2
+3.0.8-RC3
+3.0.8-RC4
+3.0.8-RC5
 */

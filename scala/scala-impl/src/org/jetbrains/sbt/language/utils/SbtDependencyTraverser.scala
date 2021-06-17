@@ -1,26 +1,26 @@
-package org.jetbrains.plugins.scala.packagesearch.utils
+package org.jetbrains.sbt.language.utils
 
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
 import scala.annotation.tailrec
 
 object SbtDependencyTraverser {
 
-  def traverseStringLiteral(stringLiteral: ScStringLiteral)(callback: PsiElement => Boolean):Unit = try {
+  def traverseStringLiteral(stringLiteral: ScStringLiteral)(callback: PsiElement => Boolean): Unit = try {
     callback(stringLiteral)
   } catch {
     case e: Exception =>
       throw e
   }
 
-  def traverseInfixExpr(infixExpr: ScInfixExpr)(callback: PsiElement => Boolean):Unit = try {
+  def traverseInfixExpr(infixExpr: ScInfixExpr)(callback: PsiElement => Boolean): Unit = try {
     if (!callback(infixExpr)) return
 
     def traverse(expr: ScExpression): Unit = {
@@ -50,7 +50,7 @@ object SbtDependencyTraverser {
       throw e
   }
 
-  def traverseReferenceExpr(refExpr: ScReferenceExpression)(callback: PsiElement => Boolean):Unit = try {
+  def traverseReferenceExpr(refExpr: ScReferenceExpression)(callback: PsiElement => Boolean): Unit = try {
     if (!callback(refExpr)) return
 
     refExpr.resolve() match {
@@ -72,7 +72,7 @@ object SbtDependencyTraverser {
       throw e
   }
 
-  def traverseMethodCall(call: ScMethodCall)(callback: PsiElement => Boolean):Unit = try {
+  def traverseMethodCall(call: ScMethodCall)(callback: PsiElement => Boolean): Unit = try {
     if (!callback(call)) return
 
     call match {
@@ -89,7 +89,7 @@ object SbtDependencyTraverser {
       throw e
   }
 
-  def traversePatternDef(patternDef: ScPatternDefinition)(callback: PsiElement => Boolean):Unit = try {
+  def traversePatternDef(patternDef: ScPatternDefinition)(callback: PsiElement => Boolean): Unit = try {
     if (!callback(patternDef)) return
 
     val maybeTypeName = patternDef.`type`().toOption
@@ -109,7 +109,7 @@ object SbtDependencyTraverser {
       throw e
   }
 
-  def traverseSeq(seq: ScMethodCall)(callback: PsiElement => Boolean):Unit = {
+  def traverseSeq(seq: ScMethodCall)(callback: PsiElement => Boolean): Unit = {
     if (!callback(seq)) return
 
     seq.argumentExpressions.foreach {
@@ -121,7 +121,7 @@ object SbtDependencyTraverser {
     }
   }
 
-  def traverseSettings(settings: ScMethodCall)(callback: PsiElement => Boolean):Unit = {
+  def traverseSettings(settings: ScMethodCall)(callback: PsiElement => Boolean): Unit = {
     if (!callback(settings)) return
 
     settings.args.exprs.foreach {
@@ -144,7 +144,7 @@ object SbtDependencyTraverser {
     }
   }
 
-  def retrieveSettings(patternDef: ScPatternDefinition):Seq[ScMethodCall] = {
+  def retrieveSettings(patternDef: ScPatternDefinition): Seq[ScMethodCall] = {
     var res: Seq[ScMethodCall] = Seq.empty
 
     def traverse(pd: ScalaPsiElement): Unit = {

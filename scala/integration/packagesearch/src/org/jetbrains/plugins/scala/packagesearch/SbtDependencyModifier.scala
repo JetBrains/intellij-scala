@@ -17,12 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPreviewWizard
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtCommon.defaultLibScope
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
-import org.jetbrains.plugins.scala.packagesearch.utils.SbtDependencyUtils.getSbtFileOpt
-import org.jetbrains.plugins.scala.packagesearch.utils.{ArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.SbtCommon.defaultLibScope
+import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
+import org.jetbrains.sbt.language.utils.SbtDependencyUtils.getSbtFileOpt
 import org.jetbrains.sbt.project.data.ModuleExtData
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.language.utils.{SbtArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolverUtils}
 
 import java.util
@@ -53,7 +53,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       }.filter(_ != null).sortWith(_.toString < _.toString)
     } yield depPlaces).getOrElse(Seq.empty)
     val newDependencyCoordinates = newDependency.getCoordinates
-    val newArtifactInfo = ArtifactInfo(
+    val newArtifactInfo = SbtArtifactInfo(
       newDependencyCoordinates.getGroupId,
       newDependencyCoordinates.getArtifactId,
       newDependencyCoordinates.getVersion,

@@ -3,10 +3,10 @@ package org.jetbrains.plugins.scala.packagesearch.utils
 import com.intellij.openapi.project.Project
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ProjectModuleType, ProjectModuleTypeTerm}
 import org.jetbrains.plugins.scala.icons.Icons
+import org.jetbrains.sbt.language.utils.SbtCommon
 
 import java.util
 import javax.swing.Icon
-
 import scala.jdk.CollectionConverters._
 
 object SbtProjectModuleType extends ProjectModuleType{

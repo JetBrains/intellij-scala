@@ -3,15 +3,12 @@ package org.jetbrains.plugins.scala.findUsages.compilerReferences.indices
 import java.io.File
 import java.io.IOException
 import java.util
-
 import com.intellij.compiler.backwardRefs.CompilerHierarchySearchType
 import com.intellij.compiler.backwardRefs.CompilerReferenceReader
 import com.intellij.compiler.backwardRefs.SearchId
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.vfs.VfsUtil
-import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileWithId
+import com.intellij.openapi.vfs.{CompactVirtualFileSet, VfsUtil, VirtualFile, VirtualFileWithId}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.containers.Queue
 import com.intellij.util.indexing.StorageException
@@ -71,13 +68,13 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
       usages.result()
     }
 
-  override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): IntSet =
+  override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): util.Set[VirtualFile] =
     rethrowStorageExceptionIn {
-      val referentFiles = new IntOpenHashSet()
+      val referentFiles = new CompactVirtualFileSet
 
       searchInBackwardUsagesIndex(ref) {
         case (fileId, _) =>
-          findFileByEnumeratorId(fileId).foreach(f => referentFiles.add(f.asInstanceOf[VirtualFileWithId].getId))
+          findFileByEnumeratorId(fileId).foreach(f => referentFiles.add(f))
           true
       }
 
@@ -156,5 +153,5 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
     compilerHierarchySearchType: CompilerHierarchySearchType
   ): util.Map[VirtualFile, Array[SearchId]] = null
 
-  override def findFileIdsWithImplicitToString(compilerRef: CompilerRef): IntSet = null
+  override def findFileIdsWithImplicitToString(compilerRef: CompilerRef): util.Set[VirtualFile] = null
 }
