@@ -215,6 +215,9 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
+        if (node.hasFlag(INLINE)) {
+          params += "inline "
+        }
         val templateValueParam = templateValueParams.map(_.next())
         if (!definition.exists(isGivenImplicitClass0)) {
           templateValueParam.foreach { valueParam =>
@@ -280,6 +283,9 @@ object TreePrinter {
     }
     if (node.hasFlag(OPAQUE) && !excluding(OPAQUE)) {
       s += "opaque "
+    }
+    if (node.hasFlag(INLINE)) {
+      s += "inline "
     }
     if (node.hasFlag(CASE) && !excluding(CASE)) {
       s += "case "
