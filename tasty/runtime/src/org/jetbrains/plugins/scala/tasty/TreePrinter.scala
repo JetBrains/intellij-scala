@@ -48,8 +48,9 @@ object TreePrinter {
         if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
       modifiers + keyword + (if (isAnonymousGiven) "" else identifier) + (if (!isTypeMember) textOf(template, Some(node)) else {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node)
-        val isAbstract = repr.children.exists(_.is(TYPEBOUNDStpt))
-        parametersIn(repr, Some(repr)) + (if (isAbstract) ""else " = " + (if (node.hasFlag(OPAQUE)) "???" else textOf(repr.children.findLast(_.isTypeTree).get))) // TODO parameter, { /* compiled code */ }
+        val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
+        parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
+        else " = " + (if (node.hasFlag(OPAQUE)) "???" else textOf(repr.children.findLast(_.isTypeTree).get))) // TODO parameter, { /* compiled code */ }
       })
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
@@ -154,7 +155,7 @@ object TreePrinter {
     var next = false
 
     tps.foreach {
-      case Node(TYPEPARAM, Seq(name), Seq(Node(TYPEBOUNDStpt, _, Seq(lower, upper)), _: _*)) =>
+      case Node(TYPEPARAM, Seq(name), Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*)) =>
         if (!open) {
           params += "["
           open = true
@@ -172,14 +173,7 @@ object TreePrinter {
           }
         }
         params += name
-        val l = textOf(lower)
-        if (l.nonEmpty && l != "Nothing") {
-          params += " >: " + l
-        }
-        val u = textOf(upper)
-        if (u.nonEmpty && u != "Any") {
-          params += " <: " + u
-        }
+        params += boundsIn(bounds)
         next = true
       case _ =>
     }
@@ -291,5 +285,20 @@ object TreePrinter {
       s += "case "
     }
     s
+  }
+
+  private def boundsIn(node: Node) = node match {
+    case Node(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
+      var s = ""
+      val l = textOf(lower)
+      if (l.nonEmpty && l != "Nothing") {
+        s += " >: " + l
+      }
+      val u = textOf(upper)
+      if (u.nonEmpty && u != "Any") {
+        s += " <: " + u
+      }
+      s
+    case _ => throw new RuntimeException(node.toString)
   }
 }
