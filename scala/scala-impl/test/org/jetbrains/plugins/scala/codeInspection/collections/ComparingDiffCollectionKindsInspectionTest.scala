@@ -42,8 +42,9 @@ class SetToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest 
       "Seq(1) == Set(1).toSeq")
 }
 
-class SeqToIteratorInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
+class SeqToIteratorInspectionTest_2_12 extends ComparingDiffCollectionKindsInspectionTest {
 
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_12
   override protected val side: Side = Side.Left
   override protected val toCollection: String = "Iterator"
 
@@ -51,6 +52,18 @@ class SeqToIteratorInspectionTest extends ComparingDiffCollectionKindsInspection
     doTest(s"Seq(1) ++ Seq(2) $START==$END Iterator(1)",
       "Seq(1) ++ Seq(2) == Iterator(1)",
       "(Seq(1) ++ Seq(2)).toIterator == Iterator(1)")
+}
+
+class SeqToIteratorInspectionTest_2_13 extends ComparingDiffCollectionKindsInspectionTest {
+
+  override protected def supportedIn(version: ScalaVersion): Boolean = version > LatestScalaVersions.Scala_2_12
+  override protected val side: Side = Side.Left
+  override protected val toCollection: String = "Iterator"
+
+  def test(): Unit =
+    doTest(s"Seq(1) ++ Seq(2) $START==$END Iterator(1)",
+      "Seq(1) ++ Seq(2) == Iterator(1)",
+      "(Seq(1) ++ Seq(2)).iterator == Iterator(1)")
 }
 
 class IteratorToSeqInspectionTest extends ComparingDiffCollectionKindsInspectionTest {
