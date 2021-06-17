@@ -58,7 +58,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
           }
         )
       case ElementType(ScalaTokenTypes.tUNDER) if convertWildcardImport &&
-                                                  element.getParent.is[/*ScImportSelector TODO: this is correct but the scala compiler has a bug in 2.13.6*/ ScImportExpr] &&
+                                                  element.getParent.is[ScImportSelector, ScImportExpr] &&
                                                   element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT) =>
         super.problemDescriptor(
           element,
