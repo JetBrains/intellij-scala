@@ -58,6 +58,18 @@ class HeadOptionTest extends HeadOrLastOptionTest {
       "val seq = Seq(0); seq.headOption"
     )
   }
+
+  def test5(): Unit = doTest(
+    s"val seq = Seq(0); ${START}if (seq.nonEmpty) seq.headOption else None$END",
+    "val seq = Seq(0); if (seq.nonEmpty) seq.headOption else None",
+    "val seq = Seq(0); seq.headOption"
+  )
+
+  def test6(): Unit = doTest(
+    s"val seq = Seq(0); ${START}if (seq.isEmpty) None else seq.headOption$END",
+    "val seq = Seq(0); if (seq.isEmpty) None else seq.headOption",
+    "val seq = Seq(0); seq.headOption"
+  )
 }
 
 class LastOptionTest extends HeadOrLastOptionTest {
@@ -105,4 +117,16 @@ class LastOptionTest extends HeadOrLastOptionTest {
       "val seq = Seq(0); seq.lastOption"
     )
   }
+
+  def test5(): Unit = doTest(
+    s"val seq = Seq(0); ${START}if (seq.isEmpty) None else seq.lastOption$END",
+    "val seq = Seq(0); if (seq.isEmpty) None else seq.lastOption",
+    "val seq = Seq(0); seq.lastOption"
+  )
+
+  def test6(): Unit = doTest(
+    s"val seq = Seq(0); ${START}if (seq.nonEmpty) seq.lastOption else None$END",
+    "val seq = Seq(0); if (seq.nonEmpty) seq.lastOption else None",
+    "val seq = Seq(0); seq.lastOption"
+  )
 }
