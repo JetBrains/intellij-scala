@@ -51,7 +51,7 @@ object TastyReaderTest {
       "typeDefinition/Object",
       "typeDefinition/Parents",
       "typeDefinition/Trait",
-//      "EmptyPackage",
+      "EmptyPackage",
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
       assertExists(scalaFile)
 
@@ -69,7 +69,7 @@ object TastyReaderTest {
       }
 
       val expected = new String(readBytes(scalaFile))
-        .replaceAll(raw"/\*\*/.*/\*(.*)\*/", "$1")
+        .replaceAll(raw"(?s)/\*\*/.*?/\*(.*?)\*/", "$1")
 
       val actualFile = scalaFile.replaceFirst("\\.scala", ".actual")
 
