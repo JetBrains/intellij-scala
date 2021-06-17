@@ -18,10 +18,13 @@ object TreePrinter {
   }
 
   def textOf(node: Node, definition: Option[Node] = None): String = node match {
-    case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), tail: _*)) =>
-      "package " + name + "\n" +
-        "\n" +
-        tail.map(textOf(_)).filter(_.nonEmpty).mkString("\n")
+    case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), tail: _*)) => tail match {
+      case Seq(node @ Node(PACKAGE, _, _), _: _*) => textOf(node, definition) // TODO make sure that there's a single nested package
+      case _ =>
+        "package " + name + "\n" +
+          "\n" +
+          tail.map(textOf(_)).filter(_.nonEmpty).mkString("\n")
+    }
 
     case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node) => // TODO why both are synthetic?
       val isEnum = node.hasFlag(ENUM)
