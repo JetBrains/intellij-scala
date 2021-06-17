@@ -1,5 +1,5 @@
 package parameter
 
 trait InlineModifier {
-  inline def parameter(inline x: Int): Unit
+  inline def defInline(inline x: Int): Unit
 }

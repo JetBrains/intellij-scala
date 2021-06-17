@@ -1,5 +1,7 @@
 package member
 
 trait InlineModifier {
-  inline def method: Int = ???
+  inline def inlineDef: Int = ???
+
+  transparent inline def transparentInlineDef: Int = ???
 }
