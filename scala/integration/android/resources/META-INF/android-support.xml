@@ -5,6 +5,7 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.AndroidFacetDataService"/>
+    <sbt.environmentVariableProvider implementation="org.jetbrains.sbt.project.data.AndroidSbtEnvironmentVariablesProvider"/>
   </extensions>
 
   <extensions defaultExtensionNs="org.intellij.scala">

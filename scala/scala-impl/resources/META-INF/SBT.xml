@@ -2,6 +2,12 @@
 
 <idea-plugin>
 
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.intellij.sbt.environmentVariableProvider"
+                        interface="org.jetbrains.sbt.project.SbtEnvironmentVariablesProvider"
+                        dynamic="true"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
