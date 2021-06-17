@@ -77,7 +77,7 @@ object TreePrinter {
         .map(textOf(_, definition)).filter(_.nonEmpty).map(indent).mkString("\n\n")
       (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
         (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
-        (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(" with "))) +
+        (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
         (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
 
     case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !name.contains("$default$") => // TODO why it's not synthetic?
