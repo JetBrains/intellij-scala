@@ -17,14 +17,17 @@ object TastyReaderTest {
     var passed, failed = Seq.empty[String]
 
     Seq(
+      "member/Bounds",
       "member/Def",
       "member/ExtensionMethod",
       "member/Given",
+      "member/InlineModifier",
       "member/Modifiers",
       "member/This",
       "member/Type",
       "member/Val",
       "member/Var",
+      "package1/Members",
       "package1/topLevel",
       "package1/package2/Chained",
       "package1/package2/Flat",
@@ -41,6 +44,7 @@ object TastyReaderTest {
       "parameter/Repeated",
       "parameter/Trait",
       "parameter/Type",
+      "parameter/InlineModifier",
       "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
       "typeDefinition/Class",
@@ -53,6 +57,7 @@ object TastyReaderTest {
       "typeDefinition/Parents",
       "typeDefinition/Trait",
       "EmptyPackage",
+      "Nesting",
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
       assertExists(scalaFile)
 
