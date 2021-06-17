@@ -72,16 +72,17 @@ object EnumMembersInjector {
       else             tps.map(_ => "_").commaSeparated(model = Model.SquareBrackets)
 
     val rawEnumTypeText = s"${owner.name}$wildcardsText"
-    val fromOrdinalString = s"def fromOrdinal(ordinal: Int): $rawEnumTypeText = ???"
+    val fromOrdinal     = s"def fromOrdinal(ordinal: Int): $rawEnumTypeText = ???"
+    val ordinal         = s"override def ordinal: Int = ???"
 
     // @TODO: valueOf return type is acutually LUB of all singleton cases
     if (singletonCases.size == owner.cases.size)
       Seq(
         s"def values: Array[$rawEnumTypeText] = ???",
         s"def valueOf(name: String): $rawEnumTypeText = ???",
-        fromOrdinalString
+        ordinal,
+        fromOrdinal
       )
-    else Seq(fromOrdinalString)
+    else Seq(ordinal, fromOrdinal)
   }
-
 }
