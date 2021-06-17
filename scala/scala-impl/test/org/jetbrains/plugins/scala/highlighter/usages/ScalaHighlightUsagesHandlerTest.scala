@@ -147,7 +147,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
     doTest(code, Seq("a", "for"))
   }
 
-  def testIf(): Unit = {
+  def testIfWithElse(): Unit = {
     val code =
       s"""
          |object Zoo {
@@ -159,6 +159,18 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
        """.stripMargin
     doTest(code, Seq("println(s)", "println(\"empty\")", "if"))
   }
+
+  def testIfWithoutElse(): Unit =
+    assertHandlerIsNull(
+      s"""
+         |object Zoo {
+         |  def foo(s: Seq[String]): Unit = {
+         |    i${|}f (s.isEmpty)
+         |      println("empty")
+         |  }
+         |}
+       """.stripMargin
+    )
 
   def testAnonymousFunction(): Unit = {
     val code =
