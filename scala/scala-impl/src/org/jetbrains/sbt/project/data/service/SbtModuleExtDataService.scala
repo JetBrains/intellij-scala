@@ -3,7 +3,6 @@ package project
 package data
 package service
 
-import java.io.File
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
 import com.intellij.openapi.application.ApplicationManager
@@ -16,10 +15,12 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.LanguageLevelModuleExtensionImpl
 import com.intellij.openapi.roots.libraries.Library
 import com.intellij.util.CommonProcessors.{CollectProcessor, UniqueProcessor}
+import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external._
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
+import java.io.File
 import scala.jdk.CollectionConverters._
 
 /**
@@ -57,24 +58,28 @@ object SbtModuleExtDataService {
 
     private def configureScalaSdk(module: Module,
                                   compilerVersion: String,
-                                  scalacClasspath: Seq[File]): Unit = getScalaLibraries(module) match {
-      case libraries if libraries.isEmpty =>
-      case libraries =>
-        val maybeLibrary = libraries.asScala.find { library =>
-          library.compilerVersion.exists { version =>
-            version == compilerVersion ||
-              ScalaLanguageLevel.findByVersion(version) == ScalaLanguageLevel.findByVersion(compilerVersion)
-          }
-        }
+                                  scalacClasspath: Seq[File]): Unit = {
+      val scalaLibraries = librariesWithScalaRuntimeJar(module)
+      val scalaLibraryWithSameVersion = scalaLibraries.find(isSameCompileVersionOrLanguageLevel(compilerVersion, _))
 
-        maybeLibrary match {
-          case Some(library) if !library.isScalaSdk => setScalaSdk(library, scalacClasspath)()
-          case None => showWarning(compilerVersion, module.getName)(project)
-          case _ => // do nothing
-        }
+      scalaLibraryWithSameVersion match {
+        case Some(library) =>
+          if (!library.isScalaSdk) {
+            // library created but not yet marked as Scala SDK
+            setScalaSdk(library, scalacClasspath)()
+          }
+        case None                                 =>
+          showScalaLibraryNotFoundWarning(compilerVersion, module.getName)(project)
+      }
     }
 
-    private def getScalaLibraries(module: Module) = {
+    private def isSameCompileVersionOrLanguageLevel(compilerVersion: String, scalaLibrary: Library): Boolean =
+      scalaLibrary.compilerVersion.exists { version =>
+        version == compilerVersion ||
+          ScalaLanguageLevel.findByVersion(version) == ScalaLanguageLevel.findByVersion(compilerVersion)
+      }
+
+    private def librariesWithScalaRuntimeJar(module: Module): Iterable[Library] = {
       val delegate = new CollectProcessor[Library] {
         override def accept(library: Library): Boolean = library.hasRuntimeLibrary
       }
@@ -84,7 +89,7 @@ object SbtModuleExtDataService {
         .librariesOnly
         .forEachLibrary(new UniqueProcessor[Library](delegate))
 
-      delegate.getResults
+      delegate.getResults.asScala
     }
 
     private def configureOrInheritSdk(module: Module, sdk: Option[SdkReference]): Unit = {
@@ -140,23 +145,39 @@ object SbtModuleExtDataService {
     }
   }
 
-  case class NotificationException(notificationData: NotificationData, id: ProjectSystemId) extends Exception
+  case class NotificationException(notificationData: NotificationData, id: ProjectSystemId) extends RuntimeException(
+    s"""Notification was shown during $id module creation.
+       |Category: ${notificationData.getNotificationCategory}
+       |Title: ${notificationData.getTitle}
+       |Message: ${notificationData.getMessage}
+       |NotificationSource: ${notificationData.getNotificationSource}
+       |""".stripMargin
+  )
 
-  private def showWarning(version: String, module: String)
+  private def showScalaLibraryNotFoundWarning(version: String, module: String)
+                                             (implicit project: Project): Unit = {
+    showWarning(
+      NlsString(SbtBundle.message("sbt.notificationGroupTitle")),
+      NlsString(SbtBundle.message("sbt.dataService.scalaLibraryIsNotFound", module, version))
+    )
+  }
+
+  private def showWarning(title: NlsString, message: NlsString)
                          (implicit project: Project): Unit = {
     val notificationData = new NotificationData(
-      SbtBundle.message("sbt.notificationGroupTitle"),
-      SbtBundle.message("sbt.dataService.scalaLibraryIsNotFound", version, module),
+      title.nls,
+      message.nls,
       NotificationCategory.WARNING,
       NotificationSource.PROJECT_SYNC
     )
     notificationData.setBalloonGroup(SbtBundle.message("sbt.notificationGroupName"))
 
-    SbtProjectSystem.Id match {
-      case systemId if ApplicationManager.getApplication.isUnitTestMode =>
-        throw NotificationException(notificationData, systemId)
-      case systemId =>
-        ExternalSystemNotificationManager.getInstance(project).showNotification(systemId, notificationData)
+    val systemId = SbtProjectSystem.Id
+    if (ApplicationManager.getApplication.isUnitTestMode)
+      throw NotificationException(notificationData, systemId)
+    else {
+      // TODO: maybe show notification in Build (where all the other importing progress is shown) and not in the "Messages" tool window
+      ExternalSystemNotificationManager.getInstance(project).showNotification(systemId, notificationData)
     }
   }
 }
