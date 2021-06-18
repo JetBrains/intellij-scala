@@ -61,7 +61,7 @@ lazy val scalaCommunity: sbt.Project =
         runners,
         runtimeDependencies,
       ),
-      packageLibraryMappings    := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
+      packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
       intellijPlugins := intellijPlugins.all(ScopeFilter(inDependencies(ThisProject, includeRoot = false))).value.flatten.distinct,
       (Test / definedTests) := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
@@ -221,13 +221,13 @@ lazy val scalaImpl: sbt.Project =
         intellijPluginJars.value.map { case (descriptor, cp) => descriptor -> cp.filterNot(_.data.getName.contains("junit-jupiter-api")) },
       packageMethod := PackagingMethod.MergeIntoOther(scalaCommunity),
       packageAdditionalProjects := Seq(tastyRuntime),
-      packageLibraryMappings ++= Seq(
-        "org.scalameta" %% ".*" % ".*"                        -> Some("lib/scalameta.jar"),
-        "com.thesamet.scalapb" %% "scalapb-runtime" % ".*"  -> None,
-        "com.thesamet.scalapb" %% "lenses" % ".*"            -> None,
-        Dependencies.scalaXml                                 -> Some("lib/scala-xml.jar"),
-        Dependencies.scalaReflect                             -> Some("lib/scala-reflect.jar"),
-        Dependencies.scalaLibrary                             -> None
+      packageLibraryMappings := Seq(
+        "org.scalameta" %% ".*" % ".*"                     -> Some("lib/scalameta.jar"),
+        "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,
+        "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
+        Dependencies.scalaXml                              -> Some("lib/scala-xml.jar"),
+        Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
+        Dependencies.scalaLibrary                          -> None
       ),
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
