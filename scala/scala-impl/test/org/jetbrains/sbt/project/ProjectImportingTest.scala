@@ -8,13 +8,13 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelModuleExtensionImpl, LanguageLevelProjectExtension, ModifiableRootModel, ModuleRootModificationUtil}
+import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
-import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
+import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLanguageLevel}
 import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, LatestScalaVersions, ScalaVersion, SlowTests}
 import org.jetbrains.sbt.settings.SbtSettings
 import org.junit.Assert.assertEquals
@@ -26,7 +26,9 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Category(Array(classOf[SlowTests]))
-class ProjectImportingTest extends ImportingTestCase with InexactMatch {
+class ProjectImportingTest extends ImportingTestCase
+  with ProjectStructureExpectedLibrariesOps
+  with InexactMatch {
 
   import DependencyManagerBase._
   import ProjectImportingTest._
@@ -340,6 +342,21 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
 
     // Manually set settings should be rewritten if no explicit javac options provided
     doRunTest()
+  }
+
+  def testProjectWithUppercaseName(): Unit = runTest {
+    new project("MyProjectWithUppercaseName") {
+      lazy val scalaLibrary: library = expectedScalaLibrary(ScalaVersion.fromString("2.13.6").get)
+      libraries += scalaLibrary
+
+      modules := Seq(
+        new module("MyProjectWithUppercaseName") {
+          libraryDependencies += scalaLibrary
+        },
+        new module("MyProjectWithUppercaseName-build") {
+        }
+      )
+    }
   }
 
   private def setOptions(project: Project, source: LanguageLevel, target: String, other: Seq[String]): Unit = {
