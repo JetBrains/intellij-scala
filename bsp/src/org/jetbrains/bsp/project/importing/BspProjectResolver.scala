@@ -296,7 +296,7 @@ object BspProjectResolver {
   //noinspection ReferencePassedToNls
   private def fetchScalacOptions(targets: List[BuildTarget], parentId: EventId)(implicit bsp: BspServer, reporter: BuildReporter) = {
     val scalaTargetIds = targets
-      .filter(t => t.getLanguageIds.contains("scala") && t.getDataKind == BuildTargetDataKind.SCALA)
+      .filter(t => t.getLanguageIds.contains("scala") && t.getDataKind == BuildTargetDataKind.SCALA || t.getDataKind == BuildTargetDataKind.SBT)
       .map(_.getId).asJava
 
     if (! scalaTargetIds.isEmpty) {
