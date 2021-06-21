@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
-import com.intellij.openapi.components.{Service, ServiceManager}
+import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager}
 import com.intellij.openapi.project.Project
@@ -12,7 +12,7 @@ import com.intellij.psi.{PsiFile, PsiJavaFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{NullSafe, PsiFileExt, ToNullSafe, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, ToNullSafe, inReadAction}
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
@@ -33,15 +33,16 @@ final class TriggerCompilerHighlightingService(project: Project)
   def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit =
     if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile))
       virtualFile.findDocument.foreach { document =>
-        if (psiFile.isScalaWorksheet) {
-          triggerWorksheetCompilation(psiFile, document, markHighlighted = None)
-        } else asyncAtomic {
+        val scalaFile = psiFile.asOptionOf[ScalaFile]
+        if (psiFile.isScalaWorksheet)
+          scalaFile.foreach(triggerWorksheetCompilation(_, document, markHighlighted = None))
+        else asyncAtomic {
           val changedFilesSizeBefore = changedFiles.size
           changedFiles += virtualFile
           if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
             triggerIncrementalCompilation()
           else
-            triggerDocumentCompilation(document, psiFile, markHighlighted = None)
+            scalaFile.foreach(triggerDocumentCompilation(document, _, markHighlighted = None))
         }
       }
 
@@ -57,11 +58,14 @@ final class TriggerCompilerHighlightingService(project: Project)
         val path = Paths.get(pathString)
         if (changedFiles.nonEmpty)
           triggerIncrementalCompilation()
-        else if (!alreadyHighlighted.contains(path))
-          if (psiFile.isScalaWorksheet)
-            triggerWorksheetCompilation(psiFile, document, markHighlighted = Some(path))
-          else
-            triggerDocumentCompilation(document, psiFile, markHighlighted = Some(path))
+        else if (!alreadyHighlighted.contains(path)) {
+          psiFile match {
+            case scalaFile: ScalaFile =>
+              if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
+              else triggerDocumentCompilation(document, scalaFile, markHighlighted = Some(path))
+            case _ =>
+          }
+        }
       }
 
   override def dispose(): Unit = {
@@ -129,7 +133,7 @@ final class TriggerCompilerHighlightingService(project: Project)
   }
 
   private def triggerDocumentCompilation(document: Document,
-                                         psiFile: PsiFile,
+                                         psiFile: ScalaFile,
                                          markHighlighted: Option[Path]): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile))
       CompilerHighlightingService.get(project).triggerDocumentCompilation(
@@ -137,7 +141,7 @@ final class TriggerCompilerHighlightingService(project: Project)
         afterCompilation = () => mark(markHighlighted)
       )
 
-  private def triggerWorksheetCompilation(psiFile: PsiFile,
+  private def triggerWorksheetCompilation(psiFile: ScalaFile,
                                           document: Document,
                                           markHighlighted: Option[Path]): Unit =
     CompilerHighlightingService.get(project).triggerWorksheetCompilation(
