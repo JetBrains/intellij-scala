@@ -9,8 +9,8 @@ import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions.Valid
 
+import scala.collection.immutable.ArraySeq
 import scala.reflect.{ClassTag, classTag}
-import scala.collection.compat.immutable.ArraySeq
 
 trait ScalaPsiElement extends PsiElement
   with project.ProjectContextOwner {
