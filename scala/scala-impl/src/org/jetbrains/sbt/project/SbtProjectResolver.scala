@@ -412,7 +412,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sdk = android.map(_.targetVersion).map(AndroidJdk)
       .orElse(java.flatMap(_.home).map(JdkByHome))
 
-    val data = ModuleExtData(
+    val data = SbtModuleExtData(
       scala.map(_.version),
       scala.fold(Seq.empty[File])(_.jars),
       scala.fold(Seq.empty[String])(_.options),

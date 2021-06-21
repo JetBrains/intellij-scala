@@ -123,7 +123,7 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
       name := getProject.getName
       ideDirectoryPath := getProject.getBasePath
       linkedProjectPath := getProject.getBasePath
-      arbitraryNodes += new ModuleExtNode(ModuleExtData(Some("2.11.5")))
+      arbitraryNodes += new ModuleExtNode(SbtModuleExtData(Some("2.11.5")))
     }.build.toDataNode
 
     importProjectData(testProject)
@@ -194,7 +194,7 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         libraryDependencies += newScalaLibrary
-        arbitraryNodes += new ModuleExtNode(ModuleExtData(Some(evictedVersion)))
+        arbitraryNodes += new ModuleExtNode(SbtModuleExtData(Some(evictedVersion)))
       }
     }.build.toDataNode
 
@@ -239,7 +239,7 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         scalaLibrary.foreach(libraryDependencies += _)
-        arbitraryNodes += new ModuleExtNode(ModuleExtData(scalaVersion, Seq.empty, scalacOptions, sdk, javacOptions))
+        arbitraryNodes += new ModuleExtNode(SbtModuleExtData(scalaVersion, Seq.empty, scalacOptions, sdk, javacOptions))
       }
     }.build.toDataNode
 

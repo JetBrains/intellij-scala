@@ -21,6 +21,7 @@ class ProjectNode(override val data: ProjectData)
 
 class ModuleNode(override val data: ModuleData)
   extends Node[ModuleData] {
+  //TODO: remove projectURI?
   def this(typeId: String, projectId: String, projectURI: URI, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) = {
     this(new ModuleData(projectId, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
@@ -117,8 +118,8 @@ class SbtCommandNode(override val data: SbtCommandData) extends Node[SbtCommandD
   override protected def key: Key[SbtCommandData] = SbtCommandData.Key
 }
 
-class ModuleExtNode(override val data: ModuleExtData) extends Node[ModuleExtData] {
-  override protected def key: Key[ModuleExtData] = ModuleExtData.Key
+class ModuleExtNode(override val data: SbtModuleExtData) extends Node[SbtModuleExtData] {
+  override protected def key: Key[SbtModuleExtData] = SbtModuleExtData.Key
 }
 
 class AndroidFacetNode(override val data: AndroidFacetData) extends Node[AndroidFacetData] {

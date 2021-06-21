@@ -19,6 +19,9 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.language.utils.{PackageSearchApiHelper, SbtArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
+import org.jetbrains.sbt.project.data.SbtModuleExtData
+import scala.jdk.CollectionConverters._
+
 import java.util.concurrent.ConcurrentLinkedDeque
 
 class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {

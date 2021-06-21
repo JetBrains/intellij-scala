@@ -22,10 +22,10 @@ import java.io.File
 import java.util
 import scala.jdk.CollectionConverters._
 
-final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[ModuleExtData, Library](ModuleExtData.Key) {
+final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtModuleExtData, Library](SbtModuleExtData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[ModuleExtData]],
+    toImport: util.Collection[_ <: DataNode[SbtModuleExtData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
@@ -34,7 +34,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[Modu
     for {
       dataNode <- dataToImport
       module <- modelsProvider.getIdeModuleByNode(dataNode)
-      ModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix, basePackage) = dataNode.getData
+      SbtModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix, basePackage) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
       Option(scalaVersion).foreach(configureScalaSdk(project, module, _, scalacClasspath.asScala.toSeq)(modelsProvider))

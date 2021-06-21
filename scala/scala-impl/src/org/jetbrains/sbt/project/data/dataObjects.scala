@@ -59,7 +59,6 @@ object SbtBuildModuleData {
     SbtBuildModuleData(imports.toJavaList, toJavaSet(resolvers), buildFor)
 }
 
-
 /** Data describing a project which is part of an sbt build. */
 @SerialVersionUID(1)
 case class SbtModuleData @PropertyMapping(Array("id", "buildURI")) (
@@ -136,8 +135,9 @@ object SbtCommandData {
     SbtCommandData(name, toJavaMap(help.toMap))
 }
 
-@SerialVersionUID(1)
-case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage")) (
+// TODO: rename to SbtModuleExtData?
+@SerialVersionUID(2)
+case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage")) (
   @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
   scalacOptions: JList[String],
@@ -147,8 +147,8 @@ case class ModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath
   basePackage: String,
 ) extends SbtEntityData
 
-object ModuleExtData {
-  val Key: Key[ModuleExtData] = datakey(classOf[ModuleExtData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
+object SbtModuleExtData {
+  val Key: Key[SbtModuleExtData] = datakey(classOf[SbtModuleExtData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight + 1)
 
   def apply(
     scalaVersion: Option[String],
@@ -158,8 +158,8 @@ object ModuleExtData {
     javacOptions: Seq[String] = Seq.empty,
     packagePrefix: Option[String] = None,
     basePackage: Option[String] = None
-  ): ModuleExtData =
-    ModuleExtData(
+  ): SbtModuleExtData =
+    SbtModuleExtData(
       scalaVersion.orNull,
       scalacClasspath.toJavaList,
       scalacOptions.toJavaList,
