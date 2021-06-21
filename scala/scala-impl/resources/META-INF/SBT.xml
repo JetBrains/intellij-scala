@@ -100,6 +100,16 @@
                          shortName="SbtReplaceProjectWithProjectIn"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 
+        <!--Package Search inspections-->
+
+        <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection"
+                         bundle="messages.ScalaSbtBundle"
+                         key="packagesearch.newer.stable.version.available"
+                         shortName="SbtDependencyVersionInspection" groupKey="group.sbt" groupPath="Scala"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
+
+        <!--end of Package Search inspections-->
+
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
 
         <programRunner implementation="org.jetbrains.sbt.runner.SbtProgramRunner" order="first"/>

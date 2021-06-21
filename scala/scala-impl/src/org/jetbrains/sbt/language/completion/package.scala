@@ -13,6 +13,7 @@ package object completion {
   val SBT_MODULE_ID_TYPE = List("sbt.ModuleID", "_root_.sbt.librarymanagement.ModuleID")
   val SEQ: String = "Seq"
   val SBT_LIB_CONFIGURATION = "_root_.sbt.librarymanagement.Configuration"
+  val SBT_ORG_ARTIFACT = "_root_.sbt.librarymanagement.DependencyBuilders.OrganizationArtifactName"
 
   def sbtFilePattern: Capture[PsiElement] = psiElement.inFile {
     psiFile.withFileType(instanceOf(SbtFileType.getClass))
