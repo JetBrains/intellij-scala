@@ -31,10 +31,7 @@ import javax.swing._
  * User: Dmitry Naydanov, Pavel Fatin
  * Date: 11/23/13
  */
-class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](
-  SbtProjectSystem.Id,
-  new SbtProjectSettings
-) {
+class SbtModuleBuilder extends SbtModuleBuilderBase {
 
   import SbtModuleBuilder._
   import Versions.{SBT => SbtKind, Scala => ScalaKind}
@@ -57,11 +54,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     sbtVersions.versions.filter(_ >= minSbtVersionForScala3)
   )
 
-  locally {
-    val settings = getExternalProjectSettings
-    settings.setResolveJavadocs(false)
-  }
-
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
@@ -79,11 +71,14 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
       createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, packagePrefix)
 
-      setModuleFilePath(updateModuleFilePath(getModuleFilePath))
+      setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
     }
 
     super.createModule(moduleModel)
   }
+
+  override def setupRootModel(model: ModifiableRootModel): Unit =
+    SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath)
 
   override def setupModule(module: Module): Unit = {
     super.setupModule(module)
@@ -244,18 +239,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def getNodeIcon: Icon = Sbt.Icon
-
-  override def setupRootModel(model: ModifiableRootModel): Unit = SbtModuleBuilderUtil.tryToSetupRootModel(
-    model,
-    getContentEntryPath,
-  )
-
-  // TODO customize the path in UI when IDEA-122951 will be implemented
-  protected def updateModuleFilePath(pathname: String): String = {
-    val file = new File(pathname)
-    file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
-  }
-
 }
 
 object SbtModuleBuilder {

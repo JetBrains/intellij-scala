@@ -3,7 +3,6 @@ package org.jetbrains.sbt.project.template.techhub
 
 import com.intellij.CommonBundle
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SettingsStep}
-import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
 import com.intellij.openapi.progress.ProgressManager
@@ -12,10 +11,8 @@ import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.io.ZipUtil
 import org.jetbrains.annotations.{Nls, TestOnly}
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isIdentifier
-import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.tryToSetupRootModel
-import org.jetbrains.sbt.project.template.{SbtModuleBuilderUtil, ScalaSettingsStepBase}
+import org.jetbrains.sbt.project.template.{SbtModuleBuilderBase, SbtModuleBuilderUtil, ScalaSettingsStepBase}
 import org.jetbrains.sbt.{Sbt, SbtBundle}
 
 import java.io.File
@@ -24,8 +21,7 @@ import javax.swing.Icon
 /**
  * Creates sbt projects based on Lightbend tech hub project starter API.
  */
-class TechHubModuleBuilder extends
-  AbstractExternalModuleBuilder[SbtProjectSettings](SbtProjectSystem.Id, new SbtProjectSettings) with SbtRefreshCaller {
+final class TechHubModuleBuilder extends SbtModuleBuilderBase {
 
   private var allTemplates: Map[String, IndexEntry] = Map.empty
 
@@ -40,21 +36,15 @@ class TechHubModuleBuilder extends
 
   override def getNodeIcon: Icon = Sbt.Icon
 
+  // TODO: shouldn't we reuse logic with from org.jetbrains.sbt.project.template.SbtModuleBuilder?
+  //  Looks like the only `TechHubModuleBuilder`-specific logic is template construction:
+  //  it downloads the template, and `SbtModuleBuilder` creates the template manually
+  //  Otherwise the importing logic should be the same.
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
-    val oldPath = getModuleFilePath
-    val file = new File(oldPath)
-    val path = file.getParent + "/" + file.getName.toLowerCase
-    setModuleFilePath(path)
+    setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
 
-    val settings = getExternalProjectSettings
-    settings.setExternalProjectPath(path)
-    settings.setResolveJavadocs(false)
-
-    ModuleBuilder.deleteModuleFile(oldPath)
-
-    val moduleType = getModuleType
-    val module: Module = moduleModel.newModule(path, moduleType.getId)
-    setupModule(module)
+    val module = moduleModel.newModule(getModuleFilePath, getModuleType.getId)
+    setupModule(module) // TODO: shouldn't this method be called by platform and not by ourselves
     module
   }
 
@@ -66,7 +56,7 @@ class TechHubModuleBuilder extends
       if moduleDir.exists() || moduleDir.mkdirs()
     } {
       doWithProgress(
-        createTemplate(info, moduleDir, getName),
+        downloadTemplate(info, getName, moduleDir),
         SbtBundle.message("downloading.template")
       )
 
@@ -126,13 +116,13 @@ class TechHubModuleBuilder extends
       title, false, null
     )
 
-  private def createTemplate(template: IndexEntry, createIn: File, name: String): Unit = {
+  private def downloadTemplate(template: IndexEntry, projectName: String, downloadTo: File): Unit = {
     val contentDir = FileUtil.createTempDirectory(s"${template.templateName}-template-content", "", true)
     val contentFile =  new File(contentDir, "content.zip")
 
     contentFile.createNewFile()
 
-    TechHubStarterProjects.downloadTemplate(template, contentFile, name, onError = error(_))
+    TechHubStarterProjects.downloadTemplate(template, contentFile, projectName, onError = error(_))
 
     ZipUtil.extract(contentFile.toPath, contentDir.toPath, null)
 
@@ -140,7 +130,7 @@ class TechHubModuleBuilder extends
     val dirs = contentDir.listFiles(f => f.isDirectory)
     assert(dirs.size == 1, "Expected only one directory in archive. Did Lightbend API change?")
     val projectDir = dirs.head
-    FileUtil.copyDirContent(projectDir, createIn)
+    FileUtil.copyDirContent(projectDir, downloadTo)
   }
 
 }
