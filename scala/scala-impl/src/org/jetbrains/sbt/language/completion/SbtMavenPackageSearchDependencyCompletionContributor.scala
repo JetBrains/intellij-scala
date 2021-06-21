@@ -2,35 +2,23 @@ package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion.{CompletionContributor, CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
-import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.Module
-import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.patterns.StandardPatterns.{instanceOf, string}
 import com.intellij.psi.PsiElement
-import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.util.ProcessingContext
-import org.jetbrains.concurrency.Promise
-import org.jetbrains.idea.maven.dom.model.completion.MavenVersionNegatingWeigher
 import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
 import org.jetbrains.idea.reposearch.DependencySearchService
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.lang.completion._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.language.utils.{PackageSearchApiHelper, SbtArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
-import org.jetbrains.sbt.project.data.ModuleExtData
-import scala.jdk.CollectionConverters._
-
 import java.util.concurrent.ConcurrentLinkedDeque
 
 class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {
@@ -46,27 +34,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = try {
       val depCache = collection.mutable.Map[String, Boolean]()
       val place = positionFromParameters(params)
-//      var containingScalaFile: ScalaFile = null
-//      place.getContainingFile match {
-//        case dummyHolder: JavaDummyHolder =>
-//          Option(dummyHolder.getContext).map(_.getContainingFile).foreach {
-//            case scalaFile: ScalaFile =>
-//              containingScalaFile = scalaFile
-//            case _ =>
-//          }
-//      }
-//
-//      // Search for Scala Version
       implicit val project: Project = place.getProject
-//      val module: Module = ProjectRootManager.getInstance(project).getFileIndex.getModuleForFile(
-//        Option(containingScalaFile.getVirtualFile).getOrElse(containingScalaFile.getViewProvider.getVirtualFile))
-//      var scalaVer: String = ""
-//      val moduleExtData = SbtUtil.getModuleData(project, ExternalSystemApiUtil.getExternalProjectId(module), ModuleExtData.Key).toSeq
-//      if (moduleExtData.nonEmpty) scalaVer = moduleExtData.head.scalaVersion
-//
-//      if (scalaVer == "") {
-//        scalaVer = place.scalaLanguageLevelOrDefault.getVersion
-//      }
 
       val scalaVer = place.scalaLanguageLevelOrDefault.getVersion
 
@@ -134,26 +102,6 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
           throw e
       }
 
-      def waitAndAdd(
-                    searchPromise: Promise[Integer],
-                    cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo],
-                    handler: MavenRepositoryArtifactInfo => Unit): Unit = {
-
-        // Return this dummy artifact info for testing purpose
-        if (ApplicationManager.getApplication.isUnitTestMode) {
-          handler(new MavenRepositoryArtifactInfo("org.scalatest", "scalatest", List("3.0.8", "3.0.8-RC1", "3.0.8-RC2", "3.0.8-RC3", "3.0.8-RC4", "3.0.8-RC5").asJava))
-          return
-        }
-
-        while (searchPromise.getState == Promise.State.PENDING || !cld.isEmpty) {
-          ProgressManager.checkCanceled()
-          val item = cld.poll()
-          if (item != null) {
-            handler(item)
-          }
-        }
-      }
-
       def completeDependency(resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => try {
         addResult(resultSet, s"${repo.getGroupId}:${repo.getArtifactId}:")
         resultSet.stopHere()
@@ -161,16 +109,6 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         case e: Exception =>
           throw e
       }
-
-//      def completeGroup(resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => {
-//        resultSet.addElement(LookupElementBuilder.create(repo.getGroupId))
-//        resultSet.stopHere()
-//      }
-//
-//      def completeArtifact(resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => {
-//        resultSet.addElement(LookupElementBuilder.create(repo.getArtifactId.replaceAll("_\\d+\\.\\d+.*$", "")))
-//        resultSet.stopHere()
-//      }
 
       def completeVersion(groupId: String, artifactId: String, resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => {
         if (repo.getGroupId == groupId && (repo.getArtifactId == artifactId || repo.getArtifactId == s"${artifactId}_$scalaVer"))
