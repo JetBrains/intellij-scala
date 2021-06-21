@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters.CollectionHasAsScala
 import scala.reflect.{ClassTag, classTag}
 
 @Category(Array(classOf[SlowTests]))
-abstract class NewScalaProjectTestCase extends NewProjectWizardTestCase
+abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
   with ProjectStructureMatcher
   with ProjectStructureExpectedLibrariesOps {
 

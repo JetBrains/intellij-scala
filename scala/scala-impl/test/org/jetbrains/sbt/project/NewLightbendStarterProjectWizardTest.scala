@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl.{excluded, libraries, libraryDependencies, module, modules, project, sources, testSources, _}
 import org.jetbrains.sbt.project.template.techhub.{TechHubModuleBuilder, TechHubProjectTemplate}
 
-class NewLightbendStarterProjectTest extends NewScalaProjectTestCase with ExactMatch {
+class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMatch {
 
   // TODO: SCL-19192
 //  def testCreateLightbendStarterProject_LowerCaseNameWithDashes(): Unit =

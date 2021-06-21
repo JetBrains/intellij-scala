@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.template.SbtModuleBuilder
 
-class NewSbtProjectWizardTest extends NewScalaProjectTestCase with ExactMatch {
+class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMatch {
 
   override protected def setUp(): Unit = {
     super.setUp()
