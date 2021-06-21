@@ -17,7 +17,7 @@ import org.jetbrains.jps.model.java.JavaSourceRootType
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project._
-import org.jetbrains.plugins.scala.project.external.Importer
+import org.jetbrains.plugins.scala.project.external.ScalaSdkUtils
 import org.jetbrains.plugins.scala.project.maven.ScalaMavenImporter._
 
 import java.io.File
@@ -111,8 +111,12 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
       case Some(scalaLibrary) =>
         if (!scalaLibrary.isScalaSdk) {
           val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
-          val properties = ScalaLibraryProperties(Some(compilerVersion), compilerClasspathFull)
-          Importer.setScalaSdk(modelsProvider, scalaLibrary, properties)
+          ScalaSdkUtils.convertScalaLibraryToScalaSdk(
+            modelsProvider,
+            scalaLibrary,
+            compilerClasspathFull,
+            Some(compilerVersion)
+          )
         }
       case None =>
         val msg = s"Cannot find project Scala library $compilerVersion for module ${module.getName}"

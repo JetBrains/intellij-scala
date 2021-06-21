@@ -7,16 +7,16 @@ import com.intellij.openapi.externalSystem.service.notification.{NotificationCat
 import com.intellij.openapi.module.{LanguageLevelUtil, Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
+import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService.NotificationException
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
-import org.jetbrains.sbt.project.data.service.SbtModuleExtDataService.NotificationException
 import org.junit.Assert._
 
 import java.io.File
@@ -24,11 +24,6 @@ import java.net.URI
 import scala.jdk.CollectionConverters._
 import scala.util.{Failure, Try}
 
-
-/**
- * @author Nikolay Obedin
- * @since 6/9/15.
- */
 class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
 
   import ExternalSystemDataDsl._
