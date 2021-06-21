@@ -480,7 +480,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     // TODO use both ID and Name when related flaws in the External System will be fixed
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
     val projectId = ModuleNode.combinedId(project.id, Option(project.buildURI))
-    val result = new ModuleNode(StdModuleTypes.JAVA.getId, projectId, project.buildURI, moduleName,
+    val result = new ModuleNode(StdModuleTypes.JAVA.getId, projectId, moduleName,
       moduleFilesDirectory.path, project.base.canonicalPath)
 
     result.setInheritProjectCompileOutputPath(false)
@@ -579,7 +579,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val buildRoot = buildBaseDir / Sbt.ProjectDirectory
 
     // TODO explicit canonical path is needed until IDEA-126011 is fixed
-    val result = new ModuleNode(SbtModuleType.instance.getId, buildId, build.uri, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath)
+    val result = new ModuleNode(SbtModuleType.instance.getId, buildId, buildId, moduleFilesDirectory.path, buildRoot.canonicalPath)
 
     //todo: probably it should depend on sbt version?
     result.add(ModuleSdkNode.inheritFromProject)
