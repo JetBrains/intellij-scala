@@ -8,9 +8,8 @@ import org.jetbrains.sbt.project.template.techhub.{TechHubModuleBuilder, TechHub
 
 class NewLightbendStarterProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMatch {
 
-  // TODO: SCL-19192
-//  def testCreateLightbendStarterProject_LowerCaseNameWithDashes(): Unit =
-//    runCreateLightbendStarterProjectTest("lower-case-name-with-dashes")
+  def testCreateLightbendStarterProject_LowerCaseNameWithDashes(): Unit =
+    runCreateLightbendStarterProjectTest("lower-case-name-with-dashes")
 
   def testCreateLightbendStarterProject_LowerCaseName(): Unit =
     runCreateLightbendStarterProjectTest("lower_case_name")

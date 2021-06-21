@@ -84,13 +84,10 @@ final class TechHubModuleBuilder extends SbtModuleBuilderBase {
 
     override def validate(): Boolean = {
       val selected = settingsComponent.getSelectedTemplate
+
+      // TODO: use modern validation, do not show error notification, highlight UI elements with red and add a tooltip
       if (selected == null)
         error(SbtBundle.message("select.template"))
-
-      val text = settingsStep.getModuleNameLocationSettings.getModuleName
-      // TODO: this looks wrong, we should allow e.g. projects with dashes: "my-project-name" SCL-19192
-      if (!isIdentifier(text))
-        error(SbtBundle.message("sbt.project.name.must.be.valid.scala.identifier"))
 
       true
     }
