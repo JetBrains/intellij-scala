@@ -122,12 +122,12 @@ class ModuleExtNode(override val data: SbtModuleExtData) extends Node[SbtModuleE
   override protected def key: Key[SbtModuleExtData] = SbtModuleExtData.Key
 }
 
-class AndroidFacetNode(override val data: AndroidFacetData) extends Node[AndroidFacetData] {
-  override protected def key: Key[AndroidFacetData] = AndroidFacetData.Key
+class AndroidFacetNode(override val data: SbtAndroidFacetData) extends Node[SbtAndroidFacetData] {
+  override protected def key: Key[SbtAndroidFacetData] = SbtAndroidFacetData.Key
 }
 
-class Play2ProjectNode(override val data: Play2ProjectData) extends Node[Play2ProjectData] {
-  override def key: Key[Play2ProjectData] = Play2ProjectData.Key
+class Play2ProjectNode(override val data: SbtPlay2ProjectData) extends Node[SbtPlay2ProjectData] {
+  override def key: Key[SbtPlay2ProjectData] = SbtPlay2ProjectData.Key
 }
 
 class SbtBuildModuleNode(override val data: SbtBuildModuleData) extends Node[SbtBuildModuleData] {

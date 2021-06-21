@@ -9,16 +9,16 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.android.facet.{AndroidFacet, AndroidFacetType, AndroidRootUtil}
 import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService
-import org.jetbrains.sbt.project.data.AndroidFacetData
+import org.jetbrains.sbt.project.data.SbtAndroidFacetData
 
 import java.io.File
 import java.util
 import scala.jdk.CollectionConverters._
 
-class AndroidFacetDataService extends ScalaAbstractProjectDataService[AndroidFacetData, AndroidFacet](AndroidFacetData.Key) {
+class SbtAndroidFacetDataService extends ScalaAbstractProjectDataService[SbtAndroidFacetData, AndroidFacet](SbtAndroidFacetData.Key) {
 
   override def importData(
-    toImport: util.Collection[_ <: DataNode[AndroidFacetData]],
+    toImport: util.Collection[_ <: DataNode[SbtAndroidFacetData]],
     projectData: ProjectData,
     project: Project,
     modelsProvider: IdeModifiableModelsProvider
@@ -45,7 +45,7 @@ class AndroidFacetDataService extends ScalaAbstractProjectDataService[AndroidFac
     facet
   }
 
-  private def configureFacet(module: Module, facet: AndroidFacet, data: AndroidFacetData): Unit = {
+  private def configureFacet(module: Module, facet: AndroidFacet, data: SbtAndroidFacetData): Unit = {
     val configuration = facet.getConfiguration.getState
 
     val base = AndroidRootUtil.getModuleDirPath(module)

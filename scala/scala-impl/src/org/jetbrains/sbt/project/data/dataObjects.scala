@@ -171,8 +171,8 @@ object SbtModuleExtData {
 }
 
 
-@SerialVersionUID(1)
-case class Play2ProjectData @PropertyMapping(Array("stringValues", "seqStringsValues")) (
+@SerialVersionUID(2)
+case class SbtPlay2ProjectData @PropertyMapping(Array("stringValues", "seqStringsValues")) (
   stringValues: JMap[String, JMap[String, StringParsedValue]],
   seqStringsValues: JMap[String, JMap[String, SeqStringParsedValue]]
 ) extends SbtEntityData {
@@ -183,11 +183,10 @@ case class Play2ProjectData @PropertyMapping(Array("stringValues", "seqStringsVa
     }
 }
 
+object SbtPlay2ProjectData {
+  val Key: Key[SbtPlay2ProjectData] = datakey(classOf[SbtPlay2ProjectData], ProjectKeys.PROJECT.getProcessingWeight + 1)
 
-object Play2ProjectData {
-  val Key: Key[Play2ProjectData] = datakey(classOf[Play2ProjectData], ProjectKeys.PROJECT.getProcessingWeight + 1)
-
-  def apply(projectKeys: Map[String, Map[String, ParsedValue[_]]]): Play2ProjectData = {
+  def apply(projectKeys: Map[String, Map[String, ParsedValue[_]]]): SbtPlay2ProjectData = {
     val stringValues = new JHashMap[String, JMap[String, StringParsedValue]]()
     val seqStringsValues = new JHashMap[String, JMap[String, SeqStringParsedValue]]()
     for {
@@ -203,12 +202,12 @@ object Play2ProjectData {
           innerMap.put(innerKey, seqStr)
       }
     }
-    Play2ProjectData(stringValues, seqStringsValues)
+    SbtPlay2ProjectData(stringValues, seqStringsValues)
   }
 }
 
-@SerialVersionUID(1)
-case class AndroidFacetData @PropertyMapping(Array("version", "manifest", "apk", "res", "assets", "gen", "libs", "isLibrary", "proguardConfig")) (
+@SerialVersionUID(2)
+case class SbtAndroidFacetData @PropertyMapping(Array("version", "manifest", "apk", "res", "assets", "gen", "libs", "isLibrary", "proguardConfig")) (
   version: String,
   manifest: File,
   apk: File,
@@ -220,18 +219,18 @@ case class AndroidFacetData @PropertyMapping(Array("version", "manifest", "apk",
   proguardConfig: JList[String]
 ) extends SbtEntityData
 
-object AndroidFacetData {
+object SbtAndroidFacetData {
   // TODO Change to "+ 1" when external system will enable the proper service separation.
   // The external system now invokes data services regardless of system ID.
   // Consequently, com.android.tools.idea.gradle.project.sync.setup.* services in the Android plugin remove _all_ Android facets.
   // As a workaround, we now rely on the additional "weight" to invoke the service after the Android / Gradle's one.
   // We expect the external system to update the architecture so that different services will be properly separated.
-  val Key: Key[AndroidFacetData] = datakey(classOf[AndroidFacetData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight +100500)
+  val Key: Key[SbtAndroidFacetData] = datakey(classOf[SbtAndroidFacetData], ProjectKeys.LIBRARY_DEPENDENCY.getProcessingWeight +100500)
 
   def apply(
     version: String, manifest: File, apk: File,
     res: File, assets: File, gen: File, libs: File,
     isLibrary: Boolean, proguardConfig: Seq[String]
-  ): AndroidFacetData =
-    AndroidFacetData(version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig.toJavaList)
+  ): SbtAndroidFacetData =
+    SbtAndroidFacetData(version, manifest, apk, res, assets, gen, libs, isLibrary, proguardConfig.toJavaList)
 }
