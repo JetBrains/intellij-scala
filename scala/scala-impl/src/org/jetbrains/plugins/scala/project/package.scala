@@ -200,12 +200,30 @@ package object project {
 
     private def withPathsRelativeTo(baseDirectory: String, options: Seq[String]): Seq[String] = options.map { option =>
       if (option.startsWith("-Xplugin:")) {
-        val path = option.substring(9)
-        val absolutePath = if (new File(path).isAbsolute) path else new File(baseDirectory, path).getPath;
-        "-Xplugin:" + absolutePath
+        val compoundPath = option.substring(9)
+        val compoundPathAbsolute = toAbsoluteCompoundPath(baseDirectory, compoundPath)
+        "-Xplugin:" + compoundPathAbsolute
       } else {
         option
       }
+    }
+
+    // SCL-11861, SCL-18534
+    private def toAbsoluteCompoundPath(baseDirectory: String, compoundPath: String): String = {
+      // according to https://docs.scala-lang.org/overviews/compiler-options/index.html
+      // `,` is used as plugins separator: `-Xplugin PATHS1,PATHS2`
+      // but in SCL-11861 `;` is used
+      val pluginSeparator = if (compoundPath.contains(";")) ';' else ','
+
+      val paths = compoundPath.split(pluginSeparator)
+      val pathsAbsolute = paths.map(toAbsolutePath(baseDirectory, _))
+      pathsAbsolute.mkString(pluginSeparator.toString)
+    }
+
+    private def toAbsolutePath(baseDirectory: String, path: String): String = {
+      val file = new File(path).isAbsolute
+      if (file) path
+      else new File(baseDirectory, path).getPath
     }
 
     private def compilerConfiguration =

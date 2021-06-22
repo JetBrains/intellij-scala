@@ -149,9 +149,10 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
   )(implicit project: Project): Unit = {
     showScalaLibraryNotFoundWarning(
       NlsString(SbtBundle.message("sbt.notificationGroupTitle")),
-      SbtBundle.message("sbt.notificationGroupName"), // TODO: should balloon group be taken from localised messages?
       version,
-      module
+      module,
+      SbtBundle.message("sbt.notificationGroupName"), // TODO: should balloon group be taken from localised messages?
+      SbtProjectSystem.Id
     )
   }
 }

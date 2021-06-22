@@ -31,11 +31,13 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
   def runTest(expected: project): Unit = {
     importProject()
     assertProjectsEqual(expected, myProject)
+    assertNoNotificationsShown(myProject)
   }
 
   def runTestWithSdk(sdk: com.intellij.openapi.projectRoots.Sdk, expected: project): Unit = {
     importProject(sdk)
     assertProjectsEqual(expected, myProject)
+    assertNoNotificationsShown(myProject)
   }
 
   override protected def getExternalSystemId: ProjectSystemId = SbtProjectSystem.Id

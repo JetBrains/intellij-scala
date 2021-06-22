@@ -8,6 +8,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries.Library
 import org.jetbrains.plugins.gradle.model.data.ScalaModelData
+import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.project.external.{ScalaAbstractProjectDataService, ScalaSdkUtils}
 
@@ -15,9 +16,6 @@ import java.io.File
 import java.util
 import scala.jdk.CollectionConverters._
 
-/**
- * @author Pavel Fatin
- */
 class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelData, Library](ScalaModelData.KEY) {
 
   override def importData(
@@ -123,13 +121,14 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
 
   private val Title: NlsString = NlsString(ScalaGradleBundle.message("gradle.sync"))
   private val BalloonGroup = "Gradle"
+  private val SystemId = GradleConstants.SYSTEM_ID
 
   private def showWarning(message: NlsString)(implicit project: Project): Unit =
-    super.showWarning(Title, message, BalloonGroup)
+    super.showWarning(Title, message, BalloonGroup, SystemId)
 
   protected def showScalaLibraryNotFoundWarning(
     version: String,
     module: String
   )(implicit project: Project): Unit =
-    showScalaLibraryNotFoundWarning(Title, BalloonGroup, version, module)
+    showScalaLibraryNotFoundWarning(Title, version, module, BalloonGroup, SystemId)
 }

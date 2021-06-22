@@ -14,7 +14,7 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.{CommonProcessors, PathUtil}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
-import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils}
+import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
 import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLibraryProperties}
 import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.project.ProjectStructureDsl._
@@ -295,6 +295,27 @@ trait ProjectStructureMatcher {
         .map((e,_))
         .toIterable
     }
+  }
+
+  protected def assertNoNotificationsShown(myProject: Project): Unit = {
+    myProject.getUserData(ShownNotificationsKey) match {
+      case null =>
+      case notifications =>
+        fail(
+          s"""Expected no notifications, but following notifications were shown:
+             |${notifications.map(notificationMessage).mkString("\n")}""".stripMargin
+        )
+    }
+  }
+
+  private def notificationMessage(shownNotification: ShownNotification) = {
+    val data = shownNotification.data
+    s"""Notification was shown during ${shownNotification.id} module creation.
+       |Category: ${data.getNotificationCategory}
+       |Title: ${data.getTitle}
+       |Message: ${data.getMessage}
+       |NotificationSource: ${data.getNotificationSource}
+       |""".stripMargin
   }
 }
 

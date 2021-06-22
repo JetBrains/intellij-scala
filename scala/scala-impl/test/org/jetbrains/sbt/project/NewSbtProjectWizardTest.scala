@@ -14,21 +14,14 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
   }
 
   def testCreateProjectWithLowerCaseName(): Unit =
-    runCreateSbtProjectTest("lower-case-project-name")
+    runCreateSbtProjectTest("lowe_case_project_name")
 
-  def testCreateProjectWithUpperCaseName_LowerCaseFirstLetter(): Unit =
-    runCreateSbtProjectTest("lowerCaseFirstLetterProjectName")
-
-  def testCreateProjectWithUpperCaseName_UpperCaseFirstLetter(): Unit =
-    runCreateSbtProjectTest("UpperCaseFirstLetterProjectName")
+  def testCreateProjectWithUpperCaseName(): Unit =
+    runCreateSbtProjectTest("UpperCaseProjectName")
   
-  //SCL-12528
-  def testCreateProjectWithDotsInNameName(): Unit =
-    runCreateSbtProjectTest("project.name.with.dots")
-
-  //SCL-12528
-  def testCreateProjectWithSpacesInNameName(): Unit =
-    runCreateSbtProjectTest("project name with spaces")
+  //SCL-12528, SCL-12528
+  def testCreateProjectWithDotsSpacesAndDashesInNameName(): Unit =
+    runCreateSbtProjectTest("project.name.with.dots spaces and-dashes and UPPERCASE")
 
   private def runCreateSbtProjectTest(projectName: String): Unit = {
     val scalaVersion = ScalaVersion.fromString("2.13.6").get

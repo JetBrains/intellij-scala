@@ -53,6 +53,8 @@ abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
     assertNotNull(jdkVersion)
     Assert.assertEquals(jdkVersion.getMaxLanguageLevel, LanguageLevelProjectExtension.getInstance(project).getLanguageLevel)
 
+    assertNoNotificationsShown(project)
+
     project
   }
 

@@ -3,7 +3,6 @@ package org.jetbrains.sbt.project.data.service
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.openapi.externalSystem.model.DataNode
 import com.intellij.openapi.externalSystem.model.project.ProjectData
-import com.intellij.openapi.externalSystem.service.notification.{NotificationCategory, NotificationSource}
 import com.intellij.openapi.module.{LanguageLevelUtil, Module, ModuleManager}
 import com.intellij.openapi.projectRoots
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -12,7 +11,6 @@ import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.{IdeaTestUtil, UsefulTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.DebuggingInfoLevel
-import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService.NotificationException
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByName, SdkReference, SdkUtils}
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.project.SbtProjectSystem
@@ -22,7 +20,6 @@ import org.junit.Assert._
 import java.io.File
 import java.net.URI
 import scala.jdk.CollectionConverters._
-import scala.util.{Failure, Try}
 
 class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
 
@@ -42,21 +39,8 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
     importProjectData(generateScalaProject("2.11.5", None, Seq.empty))
 
   def testWithIncompatibleScalaLibrary(): Unit = {
-    @scala.annotation.tailrec
-    def checkFailure(t: Throwable): Boolean = {
-      t match {
-        case null => false
-        case NotificationException(data, SbtProjectSystem.Id)
-          if data.getNotificationSource == NotificationSource.PROJECT_SYNC &&
-            data.getNotificationCategory == NotificationCategory.WARNING => true
-        case _ if t.getCause != t => checkFailure(t.getCause)
-      }
-    }
-
-    Try(importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))) match {
-      case Failure(t) if checkFailure(t) =>
-      case _ => fail("Warning notification is expected")
-    }
+    importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))
+    assertScalaLibraryWarningNotificationShown(getProject, SbtProjectSystem.Id)
   }
 
   def testWithCompatibleScalaLibrary(): Unit = {
@@ -206,7 +190,11 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
     assertTrue("Scala library is not set up", isLibrarySetUp)
   }
 
-  private def generateScalaProject(scalaVersion: String, scalaLibraryVersion: Option[String], scalacOptions: Seq[String]): DataNode[ProjectData] =
+  private def generateScalaProject(
+    scalaVersion: String,
+    scalaLibraryVersion: Option[String],
+    scalacOptions: Seq[String]
+  ): DataNode[ProjectData] =
     generateProject(Some(scalaVersion), scalaLibraryVersion, scalacOptions, None, Seq.empty)
 
   private def generateJavaProject(sdk: Option[SdkReference], moduleJavacOptions: Seq[String]): DataNode[ProjectData] =
