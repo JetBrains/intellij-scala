@@ -72,7 +72,9 @@ object TreePrinter {
         if (isInEnum) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
         else Seq.empty
       val members = (children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases) // TODO type member
-        .map(textOf(_, definition)).filter(_.nonEmpty).map(indent).mkString("\n\n")
+        .map(textOf(_, definition)).filter(_.nonEmpty).map(indent)
+        .map(s => if (definition.exists(_.hasFlag(ENUM))) s.stripSuffix(" extends " + definition.map(_.name).getOrElse("")) else s) // TODO not text-based (need to know an outer definition)
+        .mkString("\n\n")
       (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
         (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
         (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
