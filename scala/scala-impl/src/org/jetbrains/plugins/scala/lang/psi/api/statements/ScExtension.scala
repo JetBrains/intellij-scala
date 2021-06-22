@@ -7,7 +7,6 @@ package statements
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScDocCommentOwner, ScMember}
 
 trait ScExtension extends ScTypeParametersOwner
@@ -18,6 +17,5 @@ trait ScExtension extends ScTypeParametersOwner
 
   def targetTypeElement: Option[ScTypeElement]
   def extensionMethods: Seq[ScFunctionDefinition]
-  def templateBody: Option[ScTemplateBody]
   def effectiveParameterClauses: Seq[ScParameterClause]
 }

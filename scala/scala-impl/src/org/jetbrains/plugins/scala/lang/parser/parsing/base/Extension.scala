@@ -46,7 +46,6 @@ object Extension extends ParsingRule {
 // TODO: add annotator which will mark extensions without extension methods
 object ExtMethods extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): true = {
-    val extensionBodyMarker = builder.mark()
     val (blockIndentation, baseIndentation, onlyOne) = builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE  =>
         builder.advanceLexer() // Ate {
@@ -67,14 +66,12 @@ object ExtMethods extends ParsingRule {
             } else {
               builder error ErrMsg("expected.at.least.one.extension.method")
               End(builder.currentIndentationWidth)
-              extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
               return true
             }
           case None =>
             if (hasColon) {
               builder error ScalaBundle.message("expected.new.line.after.colon")
               End(builder.currentIndentationWidth)
-              extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
               return true
             } else {
               (BlockIndentation.noBlock, None, true)
@@ -102,7 +99,6 @@ object ExtMethods extends ParsingRule {
     }
     blockIndentation.drop()
     End(builder.currentIndentationWidth)
-    extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
     true
   }
 }

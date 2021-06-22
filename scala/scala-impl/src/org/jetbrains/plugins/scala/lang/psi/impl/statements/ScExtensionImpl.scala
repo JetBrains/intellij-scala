@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtensionStub
 
@@ -29,13 +28,8 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
   override def targetTypeElement: Option[ScTypeElement] =
     parameters.headOption.flatMap(_.typeElement)
 
-  override def templateBody: Option[ScTemplateBody] =
-    findChildByType[ScTemplateBody](ScalaElementType.TEMPLATE_BODY).toOption
-
   override def extensionMethods: Seq[ScFunctionDefinition] =
-    templateBody.fold(Seq.empty[ScFunctionDefinition])(
-      _.stubOrPsiChildren(FUNCTION_DEFINITION, ScFunctionDefinitionFactory).toSeq
-    )
+    this.stubOrPsiChildren(FUNCTION_DEFINITION, ScFunctionDefinitionFactory).toSeq
 
   override def parameters: Seq[ScParameter] =
     clauses.toSeq.flatMap(_.clauses.flatMap(_.parameters))
