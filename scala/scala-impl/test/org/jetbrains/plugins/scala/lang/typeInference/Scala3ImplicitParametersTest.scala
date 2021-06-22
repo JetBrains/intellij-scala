@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import com.intellij.openapi.util.registry.Registry
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode.ShowDotcErrorsKey
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
@@ -10,7 +9,7 @@ class Scala3ImplicitParametersTest extends ImplicitParametersTestBase {
 
   override def setUp(): Unit = {
     super.setUp()
-    Registry.get(ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
   }
 
   def testSimpleGiven(): Unit = checkNoImplicitParameterProblems(

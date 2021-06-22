@@ -44,9 +44,6 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
-  override def getNameIdentifier: PsiIdentifier =
-    physicalNameId.map(new JavaIdentifier(_)).orNull
-
   override def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
     // by-text heuristic is used because this method is called during stub creation,
     // so actual resolving of an annotation causes deadlock

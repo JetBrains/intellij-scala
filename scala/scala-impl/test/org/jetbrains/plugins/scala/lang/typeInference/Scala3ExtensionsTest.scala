@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.typeInference
 
-import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode.ShowDotcErrorsKey
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
   override def supportedIn(version: ScalaVersion): Boolean =
@@ -11,7 +10,7 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
 
   override def setUp(): Unit = {
     super.setUp()
-    Registry.get(ShowDotcErrorsKey).setValue(false, getTestRootDisposable)
+    ScalaProjectSettings.getInstance(getProject).setCompilerHighlightingScala3(false)
   }
 
   def testSimpleExtension(): Unit = checkTextHasNoErrors(

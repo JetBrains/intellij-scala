@@ -131,7 +131,7 @@ object ImplicitResolveResult {
         coreElement          = None,
         isImplicitConversion = true,
         extensionData        = Option(data),
-        withExtensionMethods = place.isInScala3Module
+        withExtensions       = place.isInScala3Module
       ).collect()
     }
 

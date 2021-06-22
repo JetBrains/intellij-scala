@@ -83,7 +83,6 @@ object ExtMethods extends ParsingRule {
         }
         else {
           End(builder.currentIndentationWidth)
-          extensionBodyMarker.done(ScalaElementType.TEMPLATE_BODY)
           return true
         }
 //        End(builder.currentIndentationWidth)
