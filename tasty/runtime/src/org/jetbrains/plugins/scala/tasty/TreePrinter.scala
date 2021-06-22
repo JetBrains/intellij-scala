@@ -112,6 +112,7 @@ object TreePrinter {
     case _ => "" // TODO exhaustive match
   }
 
+  // TODO include in textOfType
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
   private def simple(tpe: String): String = {
     val s1 = tpe.stripPrefix("_root_.")
@@ -127,7 +128,7 @@ object TreePrinter {
     case Node(TYPEREFsymbol, _, _) => node.refName.getOrElse("") // TODO
     case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
     case Node(TERMREFpkg, Seq(name), _: _*) => name
-    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => textOfType(constructor) + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
+    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => simple(textOfType(constructor)) + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
     case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
       annotation match {
         case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) if textOfType(tpe0) == "scala.annotation.internal.Repeated" => // TODO FQN
