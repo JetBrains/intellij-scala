@@ -227,7 +227,8 @@ lazy val scalaImpl: sbt.Project =
         "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
         Dependencies.scalaXml                              -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
-        Dependencies.scalaLibrary                          -> None
+        Dependencies.scalaLibrary                          -> None,
+        Dependencies.scalaCompiler                         -> None,
       ),
       buildInfoPackage := "org.jetbrains.plugins.scala.buildinfo",
       buildInfoKeys := Seq(
