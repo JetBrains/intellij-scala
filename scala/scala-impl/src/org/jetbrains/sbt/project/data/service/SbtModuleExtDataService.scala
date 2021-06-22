@@ -56,16 +56,23 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     implicit modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
     val scalaLibraries = librariesWithScalaRuntimeJar(module)
-    val scalaLibraryWithSameVersion = scalaLibraries.find(isSameCompileVersionOrLanguageLevel(compilerVersion, _))
+    if (scalaLibraries.nonEmpty) {
+      // NOTE:
+      // Reminder: SbtModuleExtData is built based on `show scalaInstance` sbt command result.
+      // In theory looks like if there are no scala libraries in the module, no SbtModuleExtData should be reported for the module
+      // But sbt creates `scalaInstance` in such cases anyway
+      // see https://github.com/sbt/sbt/issues/6559
+      val scalaLibraryWithSameVersion = scalaLibraries.find(isSameCompileVersionOrLanguageLevel(compilerVersion, _))
 
-    scalaLibraryWithSameVersion match {
-      case Some(library) =>
-        if (!library.isScalaSdk) {
-          // library created but not yet marked as Scala SDK
-          ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, scalacClasspath)
-        }
-      case None =>
-        showScalaLibraryNotFoundWarning(compilerVersion, module.getName)(project)
+      scalaLibraryWithSameVersion match {
+        case Some(library) =>
+          if (!library.isScalaSdk) {
+            // library created but not yet marked as Scala SDK
+            ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, scalacClasspath)
+          }
+        case None          =>
+          showScalaLibraryNotFoundWarning(compilerVersion, module.getName)(project)
+      }
     }
   }
 
