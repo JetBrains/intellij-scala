@@ -42,19 +42,23 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
           inReadAction(SbtDependencyUtils.getLibraryDependenciesOrPlacesFromPsi(infix, mode = GetDep)
           ).head.asInstanceOf[(ScExpression, String, ScExpression)]).map(_.asInstanceOf[String])
 
+        val groupId = libDep(0)
+        val artifactId = libDep(1)
+        val version = libDep(2)
+
         val cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo] = new ConcurrentLinkedDeque[MavenRepositoryArtifactInfo]()
         val dependencySearch = DependencySearchService.getInstance(element.getProject)
         val versions = ArrayBuffer[String]()
         val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-          libDep(0),
-          libDep(1),
+          groupId,
+          artifactId,
           dependencySearch,
           new SearchParameters(true, isUnitTestMode),
           cld)
-        var newerStableVersion = libDep(2)
+        var newerStableVersion = version
 
         def addVersion(repo: MavenRepositoryArtifactInfo): Unit = {
-          if (repo.getGroupId == libDep(0) && (repo.getArtifactId == libDep(0) || repo.getArtifactId == s"${libDep(1)}_$scalaVer"))
+          if (repo.getGroupId == groupId && (repo.getArtifactId == artifactId || repo.getArtifactId == s"${artifactId}_$scalaVer"))
             repo.getItems.foreach(item => versions += item.getVersion)
         }
 
@@ -75,19 +79,17 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
             .find {case(a, b) => a != b }
             .fold(0) { case (a, b) => a.toInt - b.toInt } > 0
         }
-        if (!isUnitTestMode) {
-          waitAndAdd(searchPromise, cld, addVersion)
+        waitAndAdd(searchPromise, cld, addVersion)
 
-          versions.foreach(ver => {
-            if (!ver.contains('-') && isGreaterStableVersion(ver, newerStableVersion)) {
-              newerStableVersion = ver
-            }
-          })
-        }
-        if (libDep(2) != newerStableVersion)
+        versions.foreach(ver => {
+          if (!ver.contains('-') && isGreaterStableVersion(ver, newerStableVersion)) {
+            newerStableVersion = ver
+          }
+        })
+        if (version != newerStableVersion)
           Some(manager.createProblemDescriptor(
             element,
-            SbtBundle.message("packagesearch.newer.stable.version.available", libDep(0), libDep(1)),
+            SbtBundle.message("packagesearch.newer.stable.version.available", groupId, artifactId),
             isOnTheFly,
             Array(new SbtUpdateDependencyVersionQuickFix(element, newerStableVersion).asInstanceOf[LocalQuickFix]),
             highlightType))
