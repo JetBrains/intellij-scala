@@ -288,7 +288,7 @@ class ImplicitCollector(
 
     c.element match {
       case fun: ScFunction =>
-        if (!fun.hasTypeParameters && withLocalTypeInference) return None
+        if (fun.typeParametersWithExtension.isEmpty && withLocalTypeInference) return None
 
         //scala.Predef.$conforms should be excluded
         if (isImplicitConversion && isPredefConforms(fun)) return None
@@ -603,7 +603,7 @@ class ImplicitCollector(
   ): Option[ScalaResolveResult] = TraceLogger.func {
     val fun = c.element.asInstanceOf[ScFunction]
 
-    if (fun.hasTypeParameters && !withLocalTypeInference)
+    if (fun.typeParametersWithExtension.nonEmpty && !withLocalTypeInference)
       return None
 
     val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
