@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
  *         | 'do' Expr [semi] 'while' '(' Expr ')'
  *         | 'for' ('(' Enumerators ')' | '{' Enumerators '}') {nl} ['yield'] Expr
  *         | 'throw' Expr
- * 
+ *
  *         | implicit Id => Expr  # Not in Scala Specification yet!
  *
  *         | 'return' [Expr]
