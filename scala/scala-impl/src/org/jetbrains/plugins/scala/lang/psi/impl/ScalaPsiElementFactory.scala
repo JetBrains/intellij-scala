@@ -243,8 +243,13 @@ object ScalaPsiElementFactory {
                                               isClassParameter: Boolean): ScParameterClause =
     if (clauses.isEmpty)
       throw new IncorrectOperationException("At least one clause required.")
+    else if (context.isInScala3File)
+      createElementWithContext[ScParameterClause](s"(using ${clauses.commaSeparated()})", context, null) {
+        case builder if isClassParameter => top.params.ClassParamClause.parse(builder)
+        case builder => params.ParamClause.parse(builder)
+      }
     else
-      createElementWithContext[ScParameterClause](s"(implicit ${clauses.commaSeparated()})", context, contextLastChild(context)) {
+      createElementWithContext[ScParameterClause](s"(implicit ${clauses.commaSeparated()})", context, null) {
         case builder if isClassParameter => top.params.ImplicitClassParamClause.parse(builder)
         case builder => params.ImplicitParamClause.parse(builder)
       }

@@ -4,6 +4,9 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 object TokenTexts {
+  def implicitOrUsing(context: PsiElement): String =
+    text(context, "using", "implicit")
+
   def importWildcardText(context: PsiElement): String =
     text(context, "*", "_")
 

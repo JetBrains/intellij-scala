@@ -3,10 +3,6 @@ package lang
 package refactoring
 package rename
 
-import java.awt.{BorderLayout, GridLayout}
-import java.util
-
-import javax.swing._
 import com.intellij.CommonBundle
 import com.intellij.ide.IdeBundle
 import com.intellij.openapi.application.ApplicationManager
@@ -14,8 +10,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.util.Pass
-import com.intellij.psi.search.{PsiElementProcessor, SearchScope}
-import com.intellij.psi.{PsiElement, PsiNamedElement, PsiReference}
+import com.intellij.psi.{PsiElement, PsiNamedElement}
 import com.intellij.refactoring.listeners.RefactoringElementListener
 import com.intellij.refactoring.rename.{RenameJavaMethodProcessor, RenamePsiElementProcessor}
 import com.intellij.usageView.UsageInfo
@@ -27,6 +22,9 @@ import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.search.ScalaOverridingMemberSearcher
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 
+import java.awt.{BorderLayout, GridLayout}
+import java.util
+import javax.swing._
 import scala.collection.mutable.ArrayBuffer
 
 /**
@@ -50,8 +48,6 @@ class RenameScalaMethodProcessor extends RenameJavaMethodProcessor with ScalaRen
       false
     }, editor)
   }
-
-  def capitalize(text: String): String = Character.toUpperCase(text.charAt(0)).toString + text.substring(1)
 
   override def renameElement(psiElement: PsiElement, newName: String, usages: Array[UsageInfo], listener: RefactoringElementListener): Unit = {
     ScalaRenameUtil.doRenameGenericNamedElement(psiElement, newName, usages, listener)
