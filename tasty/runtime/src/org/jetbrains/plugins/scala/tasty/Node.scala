@@ -30,4 +30,6 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
 
   // TODO
   // var parent: Option[Node] = None
+
+  var refName: Option[String] = None
 }

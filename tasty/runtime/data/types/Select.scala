@@ -1,5 +1,11 @@
 package types
 
 trait Select {
-  type T = scala.Int
+  type T1 = /**/scala./**/Int
+
+  type T2 = /**/java.lang./**/Integer
+
+  type T3 = /**/scala.Predef./**/String
+
+  type T4 = scala.math.BigInt
 }

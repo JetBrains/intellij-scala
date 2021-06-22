@@ -64,7 +64,8 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
     else if (tag >= firstNatASTTreeTag) {
       tag match {
         case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF => names :+= readName(in)
-        case _ => readNat(in)
+        case _ =>
+          nat = readNat(in)
       }
       children :+= readTree(in)
     }
@@ -84,7 +85,17 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
           a.nextSibling = Some(b)
           b.previousSibling = Some(a)
         }
-        Node(tag, names, children)
+        val node = Node(tag, names, children)
+        tag match {
+          case TYPEREFsymbol =>
+            val in0 = in.subReader(Addr(nat), in.endAddr)
+            if (in0.readByte() == TYPEDEF) {
+              in0.readNat()
+              node.refName = Some(readName(in0)) // TODO use as node name?
+            }
+          case _ =>
+        }
+        node
     }
   }
 }

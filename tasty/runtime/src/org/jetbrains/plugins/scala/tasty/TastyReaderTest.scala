@@ -56,6 +56,7 @@ object TastyReaderTest {
       "typeDefinition/Object",
       "typeDefinition/Parents",
       "typeDefinition/Trait",
+      "types/Ident",
       "types/Select",
       "EmptyPackage",
       "Nesting",
