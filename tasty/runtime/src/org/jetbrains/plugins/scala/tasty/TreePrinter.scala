@@ -57,17 +57,15 @@ object TreePrinter {
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
       val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
       val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("")
-      val parents0 = children.collect {
-        case node if node.isTypeTree => Some(textOf(node))
-        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
-        case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
-        case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
-      }
-      val parents = parents0.collect{ case Some(s) if s.nonEmpty => s }
       val isInEnum = definition.exists(_.hasFlag(ENUM))
+      val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
+      val parents = children.collect {
+        case node if node.isTypeTree => node
+        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
+        case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+        case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+      }.map(textOf(_)).filter(s => s.nonEmpty && s != "Object" && s != "scala.runtime.EnumValue" &&
+        !(isInCaseClass && s == "scala.Product" || s == "scala.Serializable")) // TODO FQN
       val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
       val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
       val cases = // TODO check element types
@@ -108,8 +106,12 @@ object TreePrinter {
           tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
 
     // TODO method?
-    case Node(IDENTtpt, Seq(name), _) => name
+    case Node(IDENTtpt, Seq(name), _) => name // TODO FQN
     case Node(TYPEREF, Seq(name), _) => name
+    case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
+      val qualifier = textOf(tail)
+      if (qualifier == "_root_") name else qualifier + "." + name // TODO include _root_?
+    case Node(TERMREFpkg, Seq(name), _: _*) => name
     case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => textOf(constructor) + "[" + arguments.map(textOf(_)).mkString(", ") + "]"
     case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
       annotation match {

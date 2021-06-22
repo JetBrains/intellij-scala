@@ -56,6 +56,7 @@ object TastyReaderTest {
       "typeDefinition/Object",
       "typeDefinition/Parents",
       "typeDefinition/Trait",
+      "types/Select",
       "EmptyPackage",
       "Nesting",
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
