@@ -105,7 +105,7 @@
         <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection"
                          bundle="messages.ScalaSbtBundle"
                          key="packagesearch.dependency.version.inspection.description"
-                         shortName="SbtDependencyVersionInspection" groupKey="group.sbt" groupPath="Scala"
+                         shortName="SbtDependencyVersionInspection" groupKey="group.sbt"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <!--end of Package Search inspections-->
