@@ -41,6 +41,7 @@ object TastyReaderTest {
       "parameter/EnumCaseClass",
       "parameter/Extension",
       "parameter/ExtensionMethod",
+      "parameter/Given",
       "parameter/HKT",
       "parameter/InlineModifier",
       "parameter/Modifiers",
