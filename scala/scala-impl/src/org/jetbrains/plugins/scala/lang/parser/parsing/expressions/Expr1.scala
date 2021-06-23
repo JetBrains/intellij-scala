@@ -359,7 +359,8 @@ object Expr1 extends ParsingRule {
         builder error ErrMsg("condition.expected")
 
         if (builder.findPreviousIndent.exists(_ <= iw)) {
-          exprMarker.drop()
+          exprMarker.done(ScalaElementType.IF_STMT)
+          End(iw)
           return
         }
     }
