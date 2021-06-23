@@ -4,37 +4,37 @@ import junit.framework.Test
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaSdkOwner
-import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader, ScalaSDKLoader}
 import org.jetbrains.plugins.scala.project.Version
 
 trait MockSbtBase extends ScalaSdkOwner { this: Test =>
 
-  implicit val sbtVersion: Version
+  implicit def sbtVersion: Version
 
-  override def librariesLoaders: Seq[LibraryLoader] = Seq(
-    IvyManagedLoader(
-      (scalaJars :+ ("org.scala-sbt" % "sbt" % sbtVersion.presentation).transitive()): _*
+  override protected def buildVersionsDetailsMessage: String = {
+    super.buildVersionsDetailsMessage + s", sbt: $sbtVersion"
+  }
+
+  protected def scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader(includeScalaReflect = true)
+
+  override def librariesLoaders: Seq[LibraryLoader] =
+    Seq(
+      scalaSdkLoader,
+      IvyManagedLoader(("org.scala-sbt" % "sbt" % sbtVersion.presentation).transitive())
     )
-  )
-
-  protected def scalaJars: Seq[DependencyDescription] = Seq(
-    scalaCompilerDescription,
-    scalaLibraryDescription,
-    scalaReflectDescription
-  )
 }
 
 trait MockSbt_0_12 extends MockSbtBase { this: Test =>
-  override protected def scalaJars: Seq[DependencyDescription] = Seq(
-    scalaCompilerDescription,
-    scalaLibraryDescription
-  )
+  override val sbtVersion: Version = Sbt.Latest_0_12
+  override protected def scalaSdkLoader: ScalaSDKLoader = ScalaSDKLoader()
 }
 
 trait MockSbt_0_13 extends MockSbtBase { this: Test =>
+  override val sbtVersion: Version = Sbt.Latest_0_13
   override protected def supportedIn(version: ScalaVersion): Boolean = version <= LatestScalaVersions.Scala_2_10
 }
 
 trait MockSbt_1_0 extends MockSbtBase { this: Test =>
+  override val sbtVersion: Version = Sbt.LatestVersion
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_12
 }

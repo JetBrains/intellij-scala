@@ -35,19 +35,21 @@ trait ScalaSdkOwner extends Test
 
   def skip: Boolean = configuredScalaVersion.exists(!supportedIn(_))
 
+  protected def buildVersionsDetailsMessage: String = {
+    val detail = configuredScalaVersion match {
+      case Some(value) if value != version => s" (configured: $value)"
+      case _                               => ""
+    }
+    s"scala: ${version.minor}$detail, jdk: $testProjectJdkVersion"
+  }
+
   abstract override def run(result: TestResult): Unit = {
     if (!skip) {
       // Need to initialize before test is run because all tests fields can be reset to null
       // (including injectedScalaVersion) after test is finished
       // see HeavyPlatformTestCase.runBare & UsefulTestCase.clearDeclaredFields
-      val scalaVersionMessage = {
-        val detail = configuredScalaVersion match {
-          case Some(value) if value != version => s" (configured: $value)"
-          case _                               => ""
-        }
-        s"### scala: ${version.minor}$detail, jdk: $testProjectJdkVersion ###"
-      }
-      lazy val logVersion: Unit = System.err.println(scalaVersionMessage) // lazy val to log only once
+      val versionsDetailMessage = s"### $buildVersionsDetailsMessage ###"
+      lazy val logVersion: Unit = System.err.println(versionsDetailMessage) // lazy val to log only once
       val listener = new TestListener {
         override def addError(test: Test, t: Throwable): Unit = logVersion
         override def addFailure(test: Test, t: AssertionFailedError): Unit = logVersion
