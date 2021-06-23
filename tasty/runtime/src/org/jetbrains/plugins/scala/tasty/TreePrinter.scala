@@ -49,7 +49,7 @@ object TreePrinter {
       val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
         if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
       modifiers + keyword + (if (isAnonymousGiven) "" else identifier) + (if (!isTypeMember) textOf(template, Some(node)) else {
-        val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node)
+        val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
         val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
         parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
         else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(textOfType(repr.children.findLast(_.isTypeTree).get)))) // TODO parameter, { /* compiled code */ }
@@ -200,7 +200,7 @@ object TreePrinter {
     var next = false
 
     tps.foreach {
-      case Node(TYPEPARAM, Seq(name), Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*)) =>
+      case node @ Node(TYPEPARAM, Seq(name), _: _*) =>
         if (!open) {
           params += "["
           open = true
@@ -217,8 +217,14 @@ object TreePrinter {
             params += "-"
           }
         }
-        params += name
-        params += boundsIn(bounds)
+        params += (if (name.startsWith("_$")) "_" else name) // TODO detect Unique name
+        node.children match {
+          case Seq(lambda @ Node(LAMBDAtpt, _, _: _*), _: _*) =>
+            params += parametersIn(lambda)
+          case Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*) =>
+            params += boundsIn(bounds)
+        }
+
         next = true
       case _ =>
     }
