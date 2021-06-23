@@ -66,6 +66,8 @@ object TraceLogView {
     mainPanel.add(actionToolbarPanel, BorderLayout.WEST)
     mainPanel.add(scrollPane, BorderLayout.CENTER)
 
+    actionToolBar.setTargetComponent(mainPanel)
+
     val factory = ContentFactory.SERVICE.getInstance()
     factory.createContent(mainPanel, NlsString.force(path.getFileName.toString), true)
   }
