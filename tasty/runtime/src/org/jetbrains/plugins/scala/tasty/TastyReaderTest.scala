@@ -60,6 +60,7 @@ object TastyReaderTest {
       "types/Ident",
       "types/Literal",
       "types/Or",
+      "types/Projection",
       "types/Refs",
       "types/Select",
       "types/Singleton",
