@@ -10,7 +10,7 @@ trait Repeated {
   case class CaseClass(xs: Int*)
 
   enum Enum(xs: Int*) {
-    case Case extends Enum/**/(1)/**/
+    case Case/**/ extends Enum(1)/**/
   }
 
   enum EnumCaseClass {

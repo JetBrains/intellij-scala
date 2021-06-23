@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.tasty.TastyFormat._
 
+import java.lang.Double.longBitsToDouble
+import java.lang.Float.intBitsToFloat
 import scala.collection.mutable
 
 // TODO refactor
@@ -50,31 +52,33 @@ object TreePrinter {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node)
         val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
         parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
-        else " = " + (if (node.hasFlag(OPAQUE)) "???" else textOf(repr.children.findLast(_.isTypeTree).get))) // TODO parameter, { /* compiled code */ }
+        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(textOfType(repr.children.findLast(_.isTypeTree).get)))) // TODO parameter, { /* compiled code */ }
       })
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
       val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
       val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("")
-      val parents0 = children.collect {
-        case node if node.isTypeTree => Some(textOf(node))
-        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
-        case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
-        case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), args: _*)) =>
-          Some(textOf(tpe)).filter(_ != "Object") // TODO FQN
-      }
-      val parents = parents0.collect{ case Some(s) if s.nonEmpty => s }
       val isInEnum = definition.exists(_.hasFlag(ENUM))
+      val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
+      val parents = children.collect {
+        case node if node.isTypeTree => node
+        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
+        case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+        case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+      }.map(textOfType)
+        .filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
+          !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
+        .map(simple)
       val isInGiven = definition.exists(it => isGivenObject0(it) || isGivenImplicitClass0(it))
       val isInAnonymousGiven = isInGiven && definition.exists(_.name.startsWith("given_")) // TODO common method
       val cases = // TODO check element types
         if (isInEnum) definition.get.nextSibling.get.nextSibling.get.children.head.children.filter(it => it.is(VALDEF) || it.is(TYPEDEF))
         else Seq.empty
       val members = (children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && !primaryConstructor.contains(it)) ++ cases) // TODO type member
-        .map(textOf(_, definition)).filter(_.nonEmpty).map(indent).mkString("\n\n")
+        .map(textOf(_, definition)).filter(_.nonEmpty).map(indent)
+        .map(s => if (definition.exists(_.hasFlag(ENUM))) s.stripSuffix(" extends " + definition.map(_.name).getOrElse("")) else s) // TODO not text-based (need to know an outer definition)
+        .mkString("\n\n")
       (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
         (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
         (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
@@ -90,7 +94,7 @@ object TreePrinter {
       } else {
         (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
           modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isAbstractGiven) "" else "def ") + name + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
-          ": " + tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
+          ": " + tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
       }
 
     case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
@@ -105,21 +109,56 @@ object TreePrinter {
       if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
         (if (isGivenAlias) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
           (if (isAnonymousGiven) "" else name + ": ") +
-          tpe.map(textOf(_)).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
+          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
 
-    // TODO method?
-    case Node(IDENTtpt, Seq(name), _) => name
-    case Node(TYPEREF, Seq(name), _) => name
-    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => textOf(constructor) + "[" + arguments.map(textOf(_)).mkString(", ") + "]"
+    case _ => "" // TODO exhaustive match
+  }
+
+  // TODO include in textOfType
+  // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
+  private def simple(tpe: String): String = {
+    val s1 = tpe.stripPrefix("_root_.")
+    val s2 = if (!s1.stripPrefix("scala.").stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
+    val s3 = if (!s2.stripPrefix("java.lang.").stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
+    if (!s3.stripPrefix("scala.Predef.").stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+  }
+
+  private def textOfType(node: Node): String = node match {
+    case Node(IDENTtpt, _, Seq(tail)) => textOfType(tail)
+    case Node(SINGLETONtpt, _, Seq(tail)) =>
+      val literal: String = tail.tag match {
+        case UNITconst => "()"
+        case TRUEconst => "true"
+        case FALSEconst => "false"
+        case BYTEconst | SHORTconst | INTconst => tail.value.toString
+        case LONGconst => tail.value + "L"
+        case FLOATconst => intBitsToFloat(tail.value.toInt) + "F"
+        case DOUBLEconst => longBitsToDouble(tail.value) + "D"
+        case CHARconst => "'" + tail.value.toChar + "'"
+        case STRINGconst => "\"" + tail.name + "\""
+        case NULLconst => "null"
+        case _ => ""
+      }
+      if (literal.nonEmpty) literal else textOfType(tail) + ".type"
+    case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
+    case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in rare cases?
+    case Node(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, _) => node.refName.getOrElse("") // TODO
+    case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
+    case Node(TERMREFpkg, Seq(name), _: _*) => name
+    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
+      val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
+      if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
+      else if (base == "scala.|") elements.mkString(" | ")
+      else simple(base) + "[" + elements.mkString(", ") + "]"
     case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
       annotation match {
-        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) if textOf(tpe0) == "Repeated" => // TODO FQN
-          textOf(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
-        case _ => textOf(tpe)
+        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) if textOfType(tpe0) == "scala.annotation.internal.Repeated" => // TODO FQN
+          textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
+        case _ => textOfType(tpe)
       }
-    case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + textOf(tpe)
+    case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
 
-    case _ => ""
+    case _ => "" // TODO exhaustive match
   }
 
   private def indent(s: String): String = s.split("\n").map(s => if (s.forall(_.isWhitespace)) "" else "  " + s).mkString("\n") // TODO use indent: Int parameter instead
@@ -236,7 +275,7 @@ object TreePrinter {
         if (!(node.hasFlag(SYNTHETIC) || templateValueParam.exists(_.hasFlag(SYNTHETIC)))) {
           params += name + ": "
         }
-        params += textOf(children.head)
+        params += simple(textOfType(children.head))
         if (node.hasFlag(HASDEFAULT)) {
           params += " = ???" // TODO parameter, /* compiled code */
         }
@@ -296,11 +335,11 @@ object TreePrinter {
   private def boundsIn(node: Node) = node match {
     case Node(TYPEBOUNDStpt, _, Seq(lower, upper)) =>
       var s = ""
-      val l = textOf(lower)
+      val l = simple(textOfType(lower))
       if (l.nonEmpty && l != "Nothing") {
         s += " >: " + l
       }
-      val u = textOf(upper)
+      val u = simple(textOfType(upper))
       if (u.nonEmpty && u != "Any") {
         s += " <: " + u
       }
