@@ -116,15 +116,15 @@ object TreePrinter {
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
   private def simple(tpe: String): String = {
     val s1 = tpe.stripPrefix("_root_.")
-    val s2 = if (!s1.stripPrefix("scala.").contains('.')) s1.stripPrefix("scala.") else s1
-    val s3 = if (!s2.stripPrefix("java.lang.").contains('.')) s2.stripPrefix("java.lang.") else s2
-    if (!s3.stripPrefix("scala.Predef.").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+    val s2 = if (!s1.stripPrefix("scala.").stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
+    val s3 = if (!s2.stripPrefix("java.lang.").stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
+    if (!s3.stripPrefix("scala.Predef.").stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
   }
 
   private def textOfType(node: Node): String = node match {
     case Node(IDENTtpt, _, Seq(tail)) => textOfType(tail)
     case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
-    case Node(TERMREF, _, Seq(tail)) => textOfType(tail)
+    case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in rare cases?
     case Node(TYPEREFsymbol, _, _) => node.refName.getOrElse("") // TODO
     case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
     case Node(TERMREFpkg, Seq(name), _: _*) => name

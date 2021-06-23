@@ -7,5 +7,7 @@ trait Select {
 
   type T3 = /**/scala.Predef./**/String
 
-  type T4 = scala.math.BigInt
+  type T4 = /**//*scala.*/math.BigInt
+
+  type T5 = scala.math.BigInt
 }
