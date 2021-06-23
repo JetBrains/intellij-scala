@@ -26,7 +26,11 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
   // TODO private setter
   var previousSibling: Option[Node] = None
 
+  val nextSiblings: Iterator[Node] = Iterator.unfold(this)(_.nextSibling.map(x => (x, x)))
+
   var nextSibling: Option[Node] = None
+
+  val prevSiblings: Iterator[Node] = Iterator.unfold(this)(_.previousSibling.map(x => (x, x)))
 
   // TODO
   // var parent: Option[Node] = None

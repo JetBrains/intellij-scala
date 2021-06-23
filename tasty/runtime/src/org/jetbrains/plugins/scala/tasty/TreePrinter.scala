@@ -49,7 +49,7 @@ object TreePrinter {
       val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
         if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
       modifiers + keyword + (if (isAnonymousGiven) "" else identifier) + (if (!isTypeMember) textOf(template, Some(node)) else {
-        val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node)
+        val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
         val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
         parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
         else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(textOfType(repr.children.findLast(_.isTypeTree).get)))) // TODO parameter, { /* compiled code */ }
@@ -86,6 +86,7 @@ object TreePrinter {
 
     case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !name.contains("$default$") => // TODO why it's not synthetic?
       val isAbstractGiven = node.hasFlag(GIVEN)
+      val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
@@ -93,7 +94,8 @@ object TreePrinter {
         modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
       } else {
         (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
-          modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isAbstractGiven) "" else "def ") + name + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
+          modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isAbstractGiven) "" else "def ") +
+          (if (isAnonymousGiven) "" else name) + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
           ": " + tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
       }
 
@@ -103,13 +105,14 @@ object TreePrinter {
       val isGivenAlias = node.hasFlag(GIVEN)
       val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
       val tpe = children.find(_.isTypeTree)
+      val ref = if (tpe.isEmpty) children.find(_.is(TERMREFsymbol)) else None // TODO Why "val alias"es have no type annotations?
       val template = // TODO check element types
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
       if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
         (if (isGivenAlias) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
-          (if (isAnonymousGiven) "" else name + ": ") +
-          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
+          (if (isAnonymousGiven) "" else name + (if (tpe.nonEmpty) ": " else "")) +
+          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = " + ref.flatMap(_.refName).getOrElse("???"))) // TODO parameter, /* compiled code */
 
     case _ => "" // TODO exhaustive match
   }
@@ -142,6 +145,7 @@ object TreePrinter {
       if (literal.nonEmpty) literal else textOfType(tail) + ".type"
     case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
     case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in rare cases?
+    case Node(THIS, _, _) => "this" // TODO prefix
     case Node(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, _) => node.refName.getOrElse("") // TODO
     case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
       if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
@@ -199,7 +203,7 @@ object TreePrinter {
     var next = false
 
     tps.foreach {
-      case Node(TYPEPARAM, Seq(name), Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*)) =>
+      case node @ Node(TYPEPARAM, Seq(name), _: _*) =>
         if (!open) {
           params += "["
           open = true
@@ -216,8 +220,14 @@ object TreePrinter {
             params += "-"
           }
         }
-        params += name
-        params += boundsIn(bounds)
+        params += (if (name.startsWith("_$")) "_" else name) // TODO detect Unique name
+        node.children match {
+          case Seq(lambda @ Node(LAMBDAtpt, _, _: _*), _: _*) =>
+            params += parametersIn(lambda)
+          case Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*) =>
+            params += boundsIn(bounds)
+        }
+
         next = true
       case _ =>
     }
