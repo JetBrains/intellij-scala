@@ -1,21 +1,23 @@
 package org.jetbrains.plugins.scala.project.gradle
 
-import java.io.File
-import java.net.URI
-import java.util
-
 import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key}
 import com.intellij.openapi.module.ModuleManager
+import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.gradle.model.data.{ScalaCompileOptionsData, ScalaModelData}
+import org.jetbrains.plugins.gradle.util.GradleConstants
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.plugins.scala.project.{DebuggingInfoLevel, _}
+import org.jetbrains.plugins.scala.util.assertions.CollectionsAssertions.assertCollectionEquals
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data._
 import org.jetbrains.sbt.project.data.service.ExternalSystemDataDsl._
 import org.jetbrains.sbt.project.data.service.ProjectDataServiceTestCase
 import org.junit.Assert._
 
+import java.io.File
+import java.net.URI
+import java.util
 import scala.jdk.CollectionConverters._
 
 
@@ -99,33 +101,36 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
 
   def testEmptyScalaCompilerClasspath(): Unit = {
     importProjectData(generateProject())
-    // FIXME: can't check notification count for Gradle because tool window is uninitialized
-    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+    assertScalaLibraryWarningNotificationShown(getProject)
   }
 
   def testScalaCompilerClasspathWithoutScala(): Unit = {
     importProjectData(
       generateProject(scalaCompilerClasspath = Set(new File("/tmp/test/not-a-scala-library.jar")))
     )
-    // FIXME: can't check notification count for Gradle because tool window is uninitialized
-    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+    assertScalaLibraryWarningNotificationShown(getProject)
   }
 
   def testWithoutScalaLibrary(): Unit = {
     importProjectData(
       generateProject(scalaCompilerClasspath = defaultCompilerClasspath)
     )
-    // FIXME: can't check notification count for Gradle because tool window is uninitialized
-    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+    // TODO: Should we show notification if there no scala library?
+    //  Need to understand how would a real Gradle project look like in such case,
+    //  when `ScalaModelData` is reported for module without scala library, is it even possible?
+    //assertScalaLibraryWarningNotificationShown(getProject)
   }
 
   def testWithDifferentVersionOfScalaLibrary(): Unit = {
     importProjectData(
-      generateProject(Some("2.11.5"), defaultCompilerClasspath
-      )
+      generateProject(Some("2.11.5"), defaultCompilerClasspath)
     )
-    // FIXME: can't check notification count for Gradle because tool window is uninitialized
-    // assertNotificationsCount(NotificationSource.PROJECT_SYNC, NotificationCategory.WARNING, GradleConstants.SYSTEM_ID, 1)
+
+    assertScalaLibraryWarningNotificationShown(getProject)
+  }
+
+  private def assertScalaLibraryWarningNotificationShown(project: Project): Unit = {
+    assertScalaLibraryWarningNotificationShown(project, GradleConstants.SYSTEM_ID)
   }
 
   def testWithTheSameVersionOfScalaLibrary(): Unit = {
@@ -203,32 +208,35 @@ class ScalaGradleDataServiceTest extends ProjectDataServiceTestCase {
       ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
     }
 
-    assert(compilerConfiguration.debuggingInfoLevel == DebuggingInfoLevel.Source)
-    assert(compilerConfiguration.plugins == Seq("test-plugin1.jar", "test-plugin2.jar"))
-    assert(compilerConfiguration.additionalCompilerOptions == Seq("-encoding", "utf-8", "-target:jvm-1.5"))
-    assert(compilerConfiguration.experimental)
-    assert(compilerConfiguration.continuations)
-    assert(compilerConfiguration.deprecationWarnings)
-    assert(compilerConfiguration.dynamics)
-    assert(compilerConfiguration.existentials)
-    assert(compilerConfiguration.explainTypeErrors)
-    assert(compilerConfiguration.featureWarnings)
-    assert(compilerConfiguration.higherKinds)
-    assert(compilerConfiguration.implicitConversions)
-    assert(compilerConfiguration.macros)
-    assert(compilerConfiguration.optimiseBytecode)
-    assert(compilerConfiguration.postfixOps)
-    assert(compilerConfiguration.reflectiveCalls)
-    assert(!compilerConfiguration.specialization)
-    assert(compilerConfiguration.uncheckedWarnings)
-    assert(!compilerConfiguration.warnings)
+    def toProjectAbsolutePath(relativePath: String): String =
+      new File(getProject.getBasePath).getAbsolutePath + File.separator + relativePath
+
+    assertEquals("debugging info level", DebuggingInfoLevel.Source, compilerConfiguration.debuggingInfoLevel)
+    assertCollectionEquals("plugins", Seq("test-plugin1.jar", "test-plugin2.jar").map(toProjectAbsolutePath), compilerConfiguration.plugins)
+    assertCollectionEquals("additional compiler options", Seq("-encoding", "utf-8", "-target:jvm-1.5"), compilerConfiguration.additionalCompilerOptions)
+    assertTrue("experimental", compilerConfiguration.experimental)
+    assertTrue("continuations", compilerConfiguration.continuations)
+    assertTrue("deprecationWarnings", compilerConfiguration.deprecationWarnings)
+    assertTrue("dynamics", compilerConfiguration.dynamics)
+    assertTrue("existentials", compilerConfiguration.existentials)
+    assertTrue("explainTypeErrors", compilerConfiguration.explainTypeErrors)
+    assertTrue("featureWarnings", compilerConfiguration.featureWarnings)
+    assertTrue("higherKinds", compilerConfiguration.higherKinds)
+    assertTrue("implicitConversions", compilerConfiguration.implicitConversions)
+    assertTrue("macros", compilerConfiguration.macros)
+    assertTrue("optimiseBytecode", compilerConfiguration.optimiseBytecode)
+    assertTrue("postfixOps", compilerConfiguration.postfixOps)
+    assertTrue("reflectiveCalls", compilerConfiguration.reflectiveCalls)
+    assertFalse("specialization", compilerConfiguration.specialization)
+    assertTrue("uncheckedWarnings", compilerConfiguration.uncheckedWarnings)
+    assertFalse("warnings", compilerConfiguration.warnings)
 
     val testCompilerConfiguration = {
       val module = ModuleManager.getInstance(getProject).findModuleByName("module_test")
       ScalaCompilerConfiguration.instanceIn(getProject).getSettingsForModule(module)
     }
 
-    assert(testCompilerConfiguration.additionalCompilerOptions == Seq("-encoding", "utf-8", "-target:jvm-1.5"))
+    assertCollectionEquals("additional compiler options (tests) ", Seq("-encoding", "utf-8", "-target:jvm-1.5"), testCompilerConfiguration.additionalCompilerOptions)
   }
 
   def testModuleIsNull(): Unit = {

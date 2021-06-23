@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPre
 import org.jetbrains.sbt.language.utils.SbtCommon.defaultLibScope
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.getSbtFileOpt
-import org.jetbrains.sbt.project.data.ModuleExtData
+import org.jetbrains.sbt.project.data.SbtModuleExtData
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.language.utils.{SbtArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolverUtils}
@@ -170,7 +170,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     val moduleExtData = SbtUtil.getModuleData(
       project,
       ExternalSystemApiUtil.getExternalProjectId(module),
-      ModuleExtData.Key).toSeq
+      SbtModuleExtData.Key).toSeq
     if (moduleExtData.nonEmpty) scalaVer = moduleExtData.head.scalaVersion
 
     inReadAction({

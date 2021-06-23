@@ -2,6 +2,7 @@ package org.jetbrains.sbt
 package lang.completion
 
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.plugins.scala.base.SharedTestProjectToken
 import org.junit.experimental.categories.Category
 
 /**
@@ -10,6 +11,10 @@ import org.junit.experimental.categories.Category
  */
 
 abstract class SbtCompletionDefinitionTestBase extends SbtCompletionTestBase {
+  self: MockSbtBase =>
+
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(this.getClass)
+
   def testObjectValues(): Unit = doTest()
   def testLocalVars(): Unit = doTest()
   def testJavaEnumValues(): Unit = doTest()
@@ -18,14 +23,10 @@ abstract class SbtCompletionDefinitionTestBase extends SbtCompletionTestBase {
 
 @Category(Array(classOf[SlowTests]))
 class SbtCompletionDefinitionTest_0_13 extends SbtCompletionDefinitionTestBase with MockSbt_0_13 {
-  override val sbtVersion = Sbt.Latest_0_13
-
   def testIvyConfigurations_0_13(): Unit = doTest()
 }
 
 @Category(Array(classOf[SlowTests]))
 class SbtCompletionDefinitionTest_1_0 extends SbtCompletionDefinitionTestBase with MockSbt_1_0 {
-  override val sbtVersion = Sbt.LatestVersion
-
   def testIvyConfigurations_1_0(): Unit = doTest()
 }

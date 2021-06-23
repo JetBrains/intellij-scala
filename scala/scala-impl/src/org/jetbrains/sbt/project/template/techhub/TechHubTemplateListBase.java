@@ -14,14 +14,14 @@ import java.util.Arrays;
  * User: Dmitry.Naydanov
  * Date: 29.01.15.
  */
-public class TechHubTemplateList {
+public abstract class TechHubTemplateListBase {
   private JPanel mainPanel;
-  private JBList<IndexEntry> list1;
+  protected JBList<IndexEntry> list1;
   //  private JTextArea textArea1;
   private JPanel listPanel;
   private JTextPane descriptionPane;
 
-  public TechHubTemplateList(IndexEntry[] items) {
+  public TechHubTemplateListBase(IndexEntry[] items) {
     list1 = new JBList<>();
     TemplateListModel templateListModel = new TemplateListModel(items);
     $$$setupUI$$$();

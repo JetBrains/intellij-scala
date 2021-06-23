@@ -1,23 +1,23 @@
 package org.jetbrains.sbt
 package project.settings
 
-import java.awt.FlowLayout
-
 import com.intellij.openapi.externalSystem.service.settings.AbstractExternalProjectSettingsControl
 import com.intellij.openapi.externalSystem.util.ExternalSystemUiUtil._
 import com.intellij.openapi.externalSystem.util.PaintAwarePanel
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable, SdkTypeId}
 import com.intellij.openapi.roots.ui.configuration.JdkComboBox
 import com.intellij.openapi.roots.ui.configuration.projectRoot.ProjectSdksModel
-import com.intellij.openapi.util.{Condition, Disposer}
-import javax.swing._
+import com.intellij.openapi.util.Condition
 import org.jetbrains.annotations.NotNull
+
+import java.awt.FlowLayout
+import javax.swing._
 
 /**
  * @author Pavel Fatin
  */
 class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSettings)
-        extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
+  extends AbstractExternalProjectSettingsControl[SbtProjectSettings](initialSettings) {
 
   private val jdkComboBox: JdkComboBox = {
     val model = new ProjectSdksModel()
@@ -27,13 +27,13 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     new JdkComboBox(getProject, model, jdkFilter, null, jdkFilter, null)
   }
 
-  private val extraControls = new SbtExtraControlsEx()
+  private val extraControls = new SbtExtraControls()
 
   override def fillExtraControls(@NotNull content: PaintAwarePanel, indentLevel: Int): Unit = {
     val labelConstraints = getLabelConstraints(indentLevel)
     val fillLineConstraints = getFillLineConstraints(indentLevel)
 
-    content.add(extraControls.$$$getRootComponent$$$(), fillLineConstraints)
+    content.add(extraControls.rootComponent, fillLineConstraints)
 
     if (context == Context.Wizard) {
       val label = new JLabel(SbtBundle.message("sbt.settings.project.jdk"))
@@ -45,7 +45,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       content.add(label, labelConstraints)
       content.add(jdkPanel, fillLineConstraints)
 
-      extraControls.remoteDebugSbtShellCheckBox.setVisible(false)
+      extraControls.remoteDebugSbtShellCheckBox.panelWithTooltip.setVisible(false)
     }
   }
 

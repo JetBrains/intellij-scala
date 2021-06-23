@@ -133,7 +133,6 @@ object ExternalSystemDataDsl {
       val node = new ModuleNode(
         typeId,
         attributes.getOrFail(projectId),
-        attributes.getOrFail(projectURI),
         attributes.getOrFail(name),
         attributes.getOrFail(moduleFileDirectoryPath),
         attributes.getOrFail(externalConfigPath)

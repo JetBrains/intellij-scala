@@ -96,7 +96,7 @@ trait ExternalSourceRootResolution { self: SbtProjectResolver =>
 
   private def createSourceModule(group: RootGroup, moduleFilesDirectory: File): ModuleNode = {
     val moduleNode = new ModuleNode(SharedSourcesModuleType.instance.getId,
-      group.name, null, group.name, moduleFilesDirectory.path, group.base.canonicalPath)
+      group.name, group.name, moduleFilesDirectory.path, group.base.canonicalPath)
 
     val contentRootNode = {
       val node = new ContentRootNode(group.base.path)

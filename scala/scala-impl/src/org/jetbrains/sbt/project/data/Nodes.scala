@@ -21,7 +21,8 @@ class ProjectNode(override val data: ProjectData)
 
 class ModuleNode(override val data: ModuleData)
   extends Node[ModuleData] {
-  def this(typeId: String, projectId: String, projectURI: URI, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) = {
+  //TODO: remove projectURI?
+  def this(typeId: String, projectId: String, name: String, moduleFileDirectoryPath: String, externalConfigPath: String) = {
     this(new ModuleData(projectId, SbtProjectSystem.Id, typeId, name, moduleFileDirectoryPath, externalConfigPath))
   }
 
@@ -117,16 +118,16 @@ class SbtCommandNode(override val data: SbtCommandData) extends Node[SbtCommandD
   override protected def key: Key[SbtCommandData] = SbtCommandData.Key
 }
 
-class ModuleExtNode(override val data: ModuleExtData) extends Node[ModuleExtData] {
-  override protected def key: Key[ModuleExtData] = ModuleExtData.Key
+class ModuleExtNode(override val data: SbtModuleExtData) extends Node[SbtModuleExtData] {
+  override protected def key: Key[SbtModuleExtData] = SbtModuleExtData.Key
 }
 
-class AndroidFacetNode(override val data: AndroidFacetData) extends Node[AndroidFacetData] {
-  override protected def key: Key[AndroidFacetData] = AndroidFacetData.Key
+class AndroidFacetNode(override val data: SbtAndroidFacetData) extends Node[SbtAndroidFacetData] {
+  override protected def key: Key[SbtAndroidFacetData] = SbtAndroidFacetData.Key
 }
 
-class Play2ProjectNode(override val data: Play2ProjectData) extends Node[Play2ProjectData] {
-  override def key: Key[Play2ProjectData] = Play2ProjectData.Key
+class Play2ProjectNode(override val data: SbtPlay2ProjectData) extends Node[SbtPlay2ProjectData] {
+  override def key: Key[SbtPlay2ProjectData] = SbtPlay2ProjectData.Key
 }
 
 class SbtBuildModuleNode(override val data: SbtBuildModuleData) extends Node[SbtBuildModuleData] {

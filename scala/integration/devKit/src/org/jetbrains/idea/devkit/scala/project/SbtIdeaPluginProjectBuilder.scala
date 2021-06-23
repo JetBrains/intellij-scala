@@ -64,7 +64,7 @@ class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
     new SbtIdeaPluginWizardStep(settingsStep, this, newProjectSettings, projectNameField)
   }
 
-  override protected def updateModuleFilePath(pathname: String): String = {
+  override protected def moduleFilePathUpdated(pathname: String): String = {
     val file = new File(pathname)
     file.getParent + "/" + Sbt.ModulesDirectory + "/" + toCamelCase(newProjectSettings.pluginName) + ".iml"
   }

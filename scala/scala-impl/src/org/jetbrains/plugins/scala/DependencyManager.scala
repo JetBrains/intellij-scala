@@ -29,6 +29,7 @@ abstract class DependencyManagerBase {
   //TODO: should we add scala3-* here?
   //TODO: maybe we should only introduce this default blacklist in tests which actually rely on it and leave it empty by default?
   protected val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
+  private def ignoreArtifact(artifactName: String): Boolean = artifactBlackList.contains(stripScalaVersion(artifactName))
   protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
   protected def resolvers: Seq[Resolver] = defaultResolvers
@@ -137,7 +138,7 @@ abstract class DependencyManagerBase {
     if (report.getAllProblemMessages.isEmpty && report.getAllArtifactsReports.nonEmpty) {
       report
         .getAllArtifactsReports
-        .filter(r => !artifactBlackList.contains(stripScalaVersion(r.getName)))
+        .filter(r => !ignoreArtifact(r.getName))
         .map(a => ResolvedDependency(artToDep(a.getArtifact.getModuleRevisionId), a.getLocalFile))
         .toIndexedSeq
     } else {
@@ -166,7 +167,7 @@ abstract class DependencyManagerBase {
 
   def resolveSingleFromCaches(dependency: DependencyDescription): Either[DependencyDescription, ResolvedDependency] =
     dependency match {
-      case info@DependencyDescription(org, artId, version, _, kind, false, _) =>
+      case info@DependencyDescription(org, artId, version, _, kind, false, _) if !ignoreArtifact(artId) =>
         val relativePath = s"cache/$org/$artId/${kind}s/$artId-$version${info.classifierBare.fold("")("-" + _)}.jar"
         val file = new File(ivyHome, relativePath)
         if (file.exists())
@@ -208,7 +209,9 @@ abstract class DependencyManagerBase {
     }
   }
 
-  def resolveSingle(dependency: DependencyDescription): ResolvedDependency = resolve(dependency).head
+  def resolveSingle(dependency: DependencyDescription): ResolvedDependency = resolve(dependency).headOption.getOrElse {
+    throw new ResolveException(Nil, Seq(UnresolvedDependency(dependency)), Seq(s"Can't resolve single dependency: ${dependency.toString}"))
+  }
 }
 
 object DependencyManagerBase {
