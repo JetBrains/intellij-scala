@@ -118,11 +118,13 @@ object SbtShellConsoleView {
     // file with line number
     val fileWithLinePattern = pattern(s"${RegexpFilter.FILE_PATH_MACROS}:${RegexpFilter.LINE_MACROS}")
     // FILE_PATH_MACROS includes a capturing group at the beginning that the format only can handle if the first linkPart is null
-    val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, Collections.emptyList[String](), PATH, LINE)
+    val fileWithLineFormat = new PatternHyperlinkFormat(fileWithLinePattern, false, false, Collections.emptyList[String](),
+      /*linkParts*/null, PATH, LINE)
 
     // file output without lines in messages
     val fileOnlyPattern = pattern(RegexpFilter.FILE_PATH_MACROS)
-    val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, Collections.emptyList[String](), PATH)
+    val fileOnlyFormat = new PatternHyperlinkFormat(fileOnlyPattern, false, false, Collections.emptyList[String](),
+      /*linkParts*/ null, PATH)
 
     val dataFinder = new PatternBasedFileHyperlinkRawDataFinder(Array(fileWithLineFormat, fileOnlyFormat))
     new PatternBasedFileHyperlinkFilter(project, null, dataFinder)
