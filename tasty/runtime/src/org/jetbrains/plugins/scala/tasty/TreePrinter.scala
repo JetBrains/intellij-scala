@@ -143,7 +143,12 @@ object TreePrinter {
     case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
     case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in rare cases?
     case Node(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, _) => node.refName.getOrElse("") // TODO
-    case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
+    case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
+      if (Iterator.unfold(node)(_.children.headOption.map(it => (it, it))).exists(_.tag == THIS)) textOfType(tail) + "#" + name // TODO unify
+      else {
+        val qualifier = textOfType(tail)
+        if (qualifier.nonEmpty) qualifier + "." + name else name
+      }
     case Node(TERMREFpkg, Seq(name), _: _*) => name
     case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
       val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
