@@ -382,7 +382,7 @@ object MethodResolveProcessor {
 
       if (typeArgElements.isEmpty || allTypeParametersDefined) {
         val result =
-          Compatibility.compatible(c, substitutor, argumentClauses, checkWithImplicits, isShapeResolve)
+          Compatibility.compatible(realResolveResult, substitutor, argumentClauses, checkWithImplicits, isShapeResolve)
         problems ++= result.problems
         result.copy(problems = problems.result())
       } else {
@@ -434,7 +434,7 @@ object MethodResolveProcessor {
 
         val argsConformance =
           Compatibility.compatible(
-            c,
+            realResolveResult,
             substitutorWithExpected,
             args,
             checkWithImplicits,
