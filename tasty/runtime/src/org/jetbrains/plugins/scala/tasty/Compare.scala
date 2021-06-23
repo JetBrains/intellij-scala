@@ -13,11 +13,15 @@ object Compare {
 
   // scalaVersion := "3.0.0",
   // libraryDependencies += "dev.zio" %% "zio" % "1.0.9",
+  // libraryDependencies += "dev.zio" %% "zio-streams" % "1.0.9",
   // libraryDependencies += "org.typelevel" %% "cats-core" % "2.6.1",
+  // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.1.1",
   private val Libraries = Seq(
     ("scala3-library", "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar"),
     ("zio", "dev/zio/zio_3/1.0.9/zio_3-1.0.9.jar"),
+    ("zio-streams", "dev/zio/zio-streams_3/1.0.9/zio-streams_3-1.0.9.jar"),
     ("cats-core", "org/typelevel/cats-core_3/2.6.1/cats-core_3-2.6.1.jar"),
+    ("cats-effect", "org/typelevel/cats-effect_3/3.1.1/cats-effect_3-3.1.1.jar"),
   )
 
   def main(args: Array[String]): Unit = {
