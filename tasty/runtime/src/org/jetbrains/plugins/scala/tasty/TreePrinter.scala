@@ -145,7 +145,11 @@ object TreePrinter {
     case Node(TYPEREFsymbol, _, _) => node.refName.getOrElse("") // TODO
     case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
     case Node(TERMREFpkg, Seq(name), _: _*) => name
-    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) => simple(textOfType(constructor)) + "[" + arguments.map(it => simple(textOfType(it))).mkString(", ") + "]"
+    case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
+      val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
+      if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
+      else if (base == "scala.|") elements.mkString(" | ")
+      else simple(base) + "[" + elements.mkString(", ") + "]"
     case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
       annotation match {
         case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) if textOfType(tpe0) == "scala.annotation.internal.Repeated" => // TODO FQN
