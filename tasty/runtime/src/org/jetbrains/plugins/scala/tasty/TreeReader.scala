@@ -91,12 +91,11 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
         }
         val node = Node(tag, names, children)
         tag match {
-          case TYPEREFsymbol =>
+          case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
             val in0 = in.subReader(Addr(nat), in.endAddr)
-            if (in0.readByte() == TYPEDEF) {
-              in0.readNat()
-              node.refName = Some(readName(in0)) // TODO use as node name?
-            }
+            in0.readByte() // Tag
+            in0.readNat() // Length
+            node.refName = Some(readName(in0)) // TODO use as node name?
           case _ =>
         }
         node.value = value
