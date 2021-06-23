@@ -109,7 +109,7 @@ abstract class OperationOnCollectionInspectionBase extends AbstractInspection(in
         val enabled = getSimplificationTypesEnabled
         val checkBox = new JCheckBox(possibleSimplificationTypes(i).description, enabled(i))
         checkBox.getModel.addChangeListener((_: ChangeEvent) => {
-          setSimplificationTypesEnabled(enabled.updated(i, checkBox.isSelected))
+          setSimplificationTypesEnabled(getSimplificationTypesEnabled.updated(i, checkBox.isSelected))
         })
         innerPanel.add(checkBox)
       }

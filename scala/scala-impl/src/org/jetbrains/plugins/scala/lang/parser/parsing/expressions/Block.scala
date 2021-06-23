@@ -53,13 +53,15 @@ object Block {
     }
   }
 
-  private def parseImpl(builder: ScalaPsiBuilder): Int = {
+  private def parseImpl(implicit builder: ScalaPsiBuilder): Int = {
     var i: Int = 0
+    val blockIndentation = BlockIndentation.create
 
     var tts: List[IElementType] = Nil
     var continue = true
 
     while (continue) {
+      blockIndentation.fromHere()
       if (ResultExpr.parse(builder)) {
         continue = false
         i = i + 1
@@ -72,7 +74,7 @@ object Block {
       }
     }
     if (tts.drop(1).headOption.contains(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test
-
+    blockIndentation.drop()
     i
   }
 

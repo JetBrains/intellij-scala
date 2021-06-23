@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElemen
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import javax.swing.JComponent
@@ -49,7 +51,8 @@ class Source3Inspection extends AbstractRegisteredInspection {
             ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
           }
         )
-      case gen@ScGenerator(pattern, Some(expr)) if addGeneratorCase && gen.caseKeyword.isEmpty && !pattern.isIrrefutableFor(expr.`type`().toOption)=>
+      case gen@ScGenerator(pattern, _) if addGeneratorCase && gen.caseKeyword.isEmpty &&
+          generatorType(gen).exists(ty => !pattern.isIrrefutableFor(Some(ty))) =>
         super.problemDescriptor(
           pattern,
           createReplacingQuickFix(gen, ScalaInspectionBundle.message("add.case")) { gen =>
@@ -58,7 +61,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
           }
         )
       case ElementType(ScalaTokenTypes.tUNDER) if convertWildcardImport &&
-                                                  element.getParent.is[/*ScImportSelector TODO: this is correct but the scala compiler has a bug in 2.13.6*/ ScImportExpr] &&
+                                                  element.getParent.is[ScImportSelector, ScImportExpr] &&
                                                   element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT) =>
         super.problemDescriptor(
           element,
@@ -149,4 +152,11 @@ object Source3Inspection {
         element.replace(transform(element))
       }
     })
+
+  private def generatorType(gen: ScGenerator): Option[ScType] =
+    for {
+      desugared <- gen.desugared
+      (_, param) <- desugared.analogMethodCall.matchedParameters.headOption
+      ty <- Some(param.expectedType).collect { case ParameterizedType(_, Seq(p, _)) => p }
+    } yield ty
 }

@@ -91,7 +91,7 @@ final class ScalaHighlightUsagesHandlerFactory extends HighlightUsagesHandlerFac
         }
       case `kIF` =>
         val ifStmt = PsiTreeUtil.getParentOfType(element, classOf[ScIf])
-        if (ifStmt != null) {
+        if (ifStmt != null && ifStmt.elseExpression.isDefined) {
           return new ScalaHighlightExprResultHandler(ifStmt, editor, file, element)
         }
       case `tFUNTYPE` | `tFUNTYPE_ASCII` =>

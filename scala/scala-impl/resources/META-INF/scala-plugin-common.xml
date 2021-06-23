@@ -1101,7 +1101,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.syntactic.sugar"
                          groupPath="Scala" groupKey="group.syntactic.simplification"
-                         shortName="FunctionTupleSyntacticSugar" level="WARNING"
+                         shortName="FunctionTupleSyntacticSugar" level="WEAK WARNING"
                          id="FunctionTupleSyntacticSugar" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ScalaUnnecessarySemicolonInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1461,6 +1461,12 @@
                          key="displayname.reverse.and.iterator.to.reverseiterator"
                          groupPath="Scala,Collections" groupKey="group.simplifications.other"
                          shortName="ReverseIterator" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseFindInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.reverse.find.to.findLast"
+                         groupPath="Scala,Collections" groupKey="group.simplifications.other"
+                         shortName="ReverseFind" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ToSetAndBackInspection"
                          bundle="messages.ScalaInspectionBundle"

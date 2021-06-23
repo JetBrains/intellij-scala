@@ -19,3 +19,8 @@ trait ScImportSelectors extends ScalaPsiElement {
 
   def wildcardElement: Option[PsiElement]
 }
+
+object ScImportSelectors {
+  def unapplySeq(importSelectors: ScImportSelectors): Some[Seq[ScImportSelector]] =
+    Some(importSelectors.selectors)
+}

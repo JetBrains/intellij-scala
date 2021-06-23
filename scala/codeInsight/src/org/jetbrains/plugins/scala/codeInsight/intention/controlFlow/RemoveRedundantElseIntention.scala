@@ -60,7 +60,7 @@ final class RemoveRedundantElseIntention extends PsiElementBaseIntentionAction {
     val children = elseBranch.copy().children.toList
     var from = children.find(_.getNode.getElementType != ScalaTokenTypes.tLBRACE).getOrElse(return)
     if (ScalaTokenTypes.WHITES_SPACES_TOKEN_SET.contains(from.getNode.getElementType)) from = from.getNextSibling
-    val to = children.reverse.find(_.getNode.getElementType != ScalaTokenTypes.tRBRACE).getOrElse(return)
+    val to = children.findLast(_.getNode.getElementType != ScalaTokenTypes.tRBRACE).getOrElse(return)
 
     inWriteAction {
       elseKeyWord.delete()

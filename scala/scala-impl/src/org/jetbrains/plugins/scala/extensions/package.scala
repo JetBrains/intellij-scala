@@ -392,10 +392,10 @@ package object extensions {
     // Use for safely checking for null in chained calls
     @inline def safeMap[A](f: T => A): Option[A] = if (option.isEmpty) None else Option(f(option.get))
 
-    def filterByType[S <: AnyRef : ClassTag]: Option[S] = {
+    def filterByType[S <: AnyRef : ClassTag]: Option[T with S] = {
       option match {
         case Some(element) if implicitly[ClassTag[S]].runtimeClass.isInstance(element) =>
-          option.asInstanceOf[Option[S]]
+          option.asInstanceOf[Option[T with S]]
         case _ => None
       }
     }
@@ -471,6 +471,10 @@ package object extensions {
       if (string.length <= maxLen) string
       else string.substring(0, maxLen - restMarker.length) + restMarker
     }
+
+    def lowercased: String =
+      if (string == null || string.length == 0 || !string.charAt(0).isUpper) string
+      else string.updated(0, string.charAt(0).toLower)
   }
 
   object StringExt {

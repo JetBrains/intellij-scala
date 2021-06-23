@@ -342,7 +342,7 @@ object Expr1 extends ParsingRule {
     val iw = builder.currentIndentationWidth
     builder.advanceLexer() //Ate if
     builder.getTokenType match {
-      case InScala3(_) if parseParenlessIfCondition() =>
+      case InScala3(_) if builder.findPreviousIndent.forall(_ > iw) && parseParenlessIfCondition() =>
         // already parsed everything till after 'then'
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
@@ -357,6 +357,12 @@ object Expr1 extends ParsingRule {
         builder.restoreNewlinesState()
       case _ =>
         builder error ErrMsg("condition.expected")
+
+        if (builder.findPreviousIndent.exists(_ <= iw)) {
+          exprMarker.done(ScalaElementType.IF_STMT)
+          End(iw)
+          return
+        }
     }
 
     builder.skipExternalToken()

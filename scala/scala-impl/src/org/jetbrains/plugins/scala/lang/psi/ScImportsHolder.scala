@@ -231,7 +231,7 @@ trait ScImportsHolder extends ScalaPsiElement {
       val sortedRanges = importRanges.toSeq.sortBy(_.startOffset)
       val selectedRange =
         if (refsContainer != null && ScalaCodeStyleSettings.getInstance(getProject).isAddImportMostCloseToReference)
-          sortedRanges.reverse.find(_.endOffset < refsContainer.getTextRange.getStartOffset)
+          sortedRanges.findLast(_.endOffset < refsContainer.getTextRange.getStartOffset)
         else sortedRanges.headOption
 
       selectedRange match {

@@ -22,6 +22,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
+import scala.annotation.tailrec
+
 class RemoveApplyIntention extends PsiElementBaseIntentionAction {
   override def getFamilyName: String = ScalaBundle.message("family.name.remove.unnecessary.apply")
 
@@ -29,22 +31,34 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
 
   override def isAvailable(project: Project, editor: Editor, element: PsiElement): Boolean = {
     val methodCallExpr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
-    if (methodCallExpr == null) return false
-
-    methodCallExpr.getInvokedExpr match {
-      case ref: ScReferenceExpression =>
+    Option(methodCallExpr).map(_.getInvokedExpr) match {
+      case Some(ref: ScReferenceExpression) =>
         val range: TextRange = ref.nameId.getTextRange
         val offset = editor.getCaretModel.getOffset
 
-        if (!(range.getStartOffset <= offset && offset <= range.getEndOffset)) return false
-        if (ref.isQualified && ref.nameId.textMatches("apply")) return true
+        (range.getStartOffset <= offset && offset <= range.getEndOffset) &&
+          ref.isQualified &&
+          ref.nameId.textMatches("apply") &&
+          buildReplacement(methodCallExpr).isDefined
       case _ =>
+        false
     }
-
-    false
   }
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
+    val expr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
+    if (expr != null && expr.isValid) {
+      buildReplacement(expr).foreach { case (replacementText, start) =>
+        inWriteAction {
+          expr.replace(createExpressionFromText(replacementText)(element.getManager))
+          editor.getCaretModel.moveToOffset(start)
+          PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
+        }
+      }
+    }
+  }
+
+  private def buildReplacement(expr: ScMethodCall): Option[(String, Int)] = {
     def countMethodCall(call: ScMethodCall): Int = {
       call.getInvokedExpr match {
         case call: ScMethodCall => 1 + countMethodCall(call)
@@ -52,32 +66,31 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       }
     }
 
-    def showErrorHint(@Nls hint: String): Unit = {
-      if (ApplicationManager.getApplication.isUnitTestMode) {
-        throw new RuntimeException(hint)
-      } else {
-        HintManager.getInstance().showErrorHint(editor, hint)
+    @tailrec
+    def dig(e: ScExpression): ScExpression =
+      e match {
+        case ScParenthesisedExpr(inner) => dig(inner)
+        case ScGenericCall(actual, _) => dig(actual)
+        case _ => e
       }
-    }
-
-    val expr: ScMethodCall = PsiTreeUtil.getParentOfType(element, classOf[ScMethodCall], false)
-    if (expr == null || !expr.isValid) return
 
     var start = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].nameId.getTextRange.getStartOffset - 1
     val buf = new StringBuilder
-    var qualifier = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
+    val qualifier = expr.getInvokedExpr.asInstanceOf[ScReferenceExpression].qualifier.get
     buf.append(qualifier.getText)
 
-    qualifier match {
-      case parenth: ScParenthesisedExpr =>
-        qualifier = parenth.innerElement.get
-      case _ =>
+    def checkFun(fun: ScFunction, currentCalledClauses: Int): Boolean = {
+      // TODO: this needs probably be fixed for using clauses
+      val clauses = fun.effectiveParameterClauses
+      clauses.lastOption.exists(_.isImplicit) && clauses.length == currentCalledClauses + 1
     }
 
-    qualifier match {
+    dig(qualifier) match {
       case ref: ScReferenceExpression =>
         val resolved = ref.resolve()
         resolved match {
+          case fun: ScFunction if checkFun(fun, 0) =>
+            return None
           case namedElement: PsiNamedElement =>
             val name = namedElement.name
             val clazz: Option[ScTemplateDefinition] = expr.getParent match {
@@ -120,9 +133,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
             }
 
             if (flag) {
-              showErrorHint(ScalaInspectionBundle.message("remove.apply.overloaded",
-                namedElement.name))
-              return
+              return None
             }
           case _ =>
         }
@@ -130,18 +141,8 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
       case call: ScMethodCall =>
         val cmc = countMethodCall(call)
         call.deepestInvokedExpr match {
-          case ref: ScReferenceExpression =>
-            val resolve: PsiElement = ref.resolve()
-            resolve match {
-              case fun: ScFunction =>
-                val clauses = fun.effectiveParameterClauses
-                if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == cmc + 1) {
-                  showErrorHint(ScalaInspectionBundle.message("remove.apply.implicit.parameter",
-                    resolve.asInstanceOf[PsiNamedElement].name))
-                  return
-                }
-              case _ => //all is ok
-            }
+          case ResolvesTo(fun: ScFunction) if checkFun(fun, cmc) =>
+              return None
           case _ => //all is ok
         }
 
@@ -156,8 +157,7 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
               val argsCount = constrInvocation.arguments.length
               val clauses = constr.effectiveParameterClauses
               if (clauses.length > 1 && clauses.last.isImplicit && clauses.length == argsCount + 1) {
-                showErrorHint(ScalaInspectionBundle.message("remove.apply.constructor.implicit.parameter", constrInvocation.getText))
-                return
+                return None
               }
             case _ =>
           }
@@ -166,10 +166,6 @@ class RemoveApplyIntention extends PsiElementBaseIntentionAction {
     }
 
     buf.append(expr.args.getText)
-    inWriteAction {
-      expr.replace(createExpressionFromText(buf.toString())(element.getManager))
-      editor.getCaretModel.moveToOffset(start)
-      PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument)
-    }
+    Some((buf.toString(), start))
   }
 }

@@ -37,3 +37,10 @@ trait ScConstructorOwner extends ScTypeDefinition
 
   override def members: Seq[ScMember] = super.members ++ constructor
 }
+
+object ScConstructorOwner {
+  object constructor {
+    def unapply(owner: ScConstructorOwner): Option[ScPrimaryConstructor] =
+      owner.constructor
+  }
+}

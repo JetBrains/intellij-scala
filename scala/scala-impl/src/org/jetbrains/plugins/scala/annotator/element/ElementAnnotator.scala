@@ -22,6 +22,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
     ScAnnotationAnnotator ::
       ScAssignmentAnnotator ::
       ScCatchBlockAnnotator ::
+      ScCharLiteralAnnotator ::
       ScClassAnnotator ::
       ScConstrBlockExprAnnotator ::
       ScConstructorInvocationAnnotator ::
