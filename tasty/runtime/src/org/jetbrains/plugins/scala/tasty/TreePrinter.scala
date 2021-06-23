@@ -58,7 +58,7 @@ object TreePrinter {
     case node @ Node(TEMPLATE, _, children) => // TODO method?
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
       val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
-      val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("")
+      val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition, modifiers = modifiers)).getOrElse("")
       val isInEnum = definition.exists(_.hasFlag(ENUM))
       val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
       val parents = children.collect {
@@ -79,7 +79,7 @@ object TreePrinter {
         .map(textOf(_, definition)).filter(_.nonEmpty).map(indent)
         .map(s => if (definition.exists(_.hasFlag(ENUM))) s.stripSuffix(" extends " + definition.map(_.name).getOrElse("")) else s) // TODO not text-based (need to know an outer definition)
         .mkString("\n\n")
-      (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
+      parameters +
         (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
         (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
         (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
@@ -189,7 +189,7 @@ object TreePrinter {
     buffer.toSeq
   }
 
-  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition): String = {
+  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: String = ""): String = {
     val tps = target match {
       case Target.Extension => node.children.takeWhile(!_.is(PARAM))
       case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
@@ -232,6 +232,8 @@ object TreePrinter {
       case _ =>
     }
     if (open) params += "]"
+
+    params += modifiers
 
     val ps = target match {
       case Target.Extension =>
@@ -298,7 +300,7 @@ object TreePrinter {
       case _ =>
     }
     if (open) params += ")"
-    if (template.isEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
+    if (template.isEmpty || modifiers.nonEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
   }
 
   private def modifiersIn(node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): String = { // TODO Optimize
