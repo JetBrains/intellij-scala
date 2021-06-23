@@ -51,7 +51,8 @@ class Source3Inspection extends AbstractRegisteredInspection {
             ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
           }
         )
-      case gen@ScGenerator(pattern, _) if addGeneratorCase && gen.caseKeyword.isEmpty && !pattern.isIrrefutableFor(generatorType(gen)) =>
+      case gen@ScGenerator(pattern, _) if addGeneratorCase && gen.caseKeyword.isEmpty &&
+          generatorType(gen).exists(ty => !pattern.isIrrefutableFor(Some(ty))) =>
         super.problemDescriptor(
           pattern,
           createReplacingQuickFix(gen, ScalaInspectionBundle.message("add.case")) { gen =>

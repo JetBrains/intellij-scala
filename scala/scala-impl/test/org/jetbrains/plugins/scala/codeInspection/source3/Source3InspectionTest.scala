@@ -44,6 +44,18 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
     checkTextHasNoErrors(selectedText)
   }
 
+  // SCL-19204
+  def test_yield(): Unit = checkTextHasNoErrors(
+    """
+      |for {
+      |  (a, b) <- returnTuple
+      |  _ = println(a)
+      |  _ = println(b)
+      |} yield ()
+      |""".stripMargin
+  )
+
+
   def test_wildcard_import(): Unit = {
     val selectedText = s"import base.${START}_$END"
     checkTextHasError(selectedText)
