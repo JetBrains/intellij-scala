@@ -39,6 +39,11 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
     checkTextHasNoErrors(selectedText)
   }
 
+  def test_case_not_needed_for_irrefutable_pattern_tuple(): Unit = {
+    val selectedText = s"for { (a, b) <- Seq((1, 2)) } ()"
+    checkTextHasNoErrors(selectedText)
+  }
+
   def test_wildcard_import(): Unit = {
     val selectedText = s"import base.${START}_$END"
     checkTextHasError(selectedText)

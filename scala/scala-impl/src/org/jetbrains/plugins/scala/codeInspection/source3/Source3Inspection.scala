@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElemen
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import javax.swing.JComponent
@@ -49,7 +51,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
             ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
           }
         )
-      case gen@ScGenerator(pattern, Some(expr)) if addGeneratorCase && gen.caseKeyword.isEmpty && !pattern.isIrrefutableFor(expr.`type`().toOption)=>
+      case gen@ScGenerator(pattern, _) if addGeneratorCase && gen.caseKeyword.isEmpty && !pattern.isIrrefutableFor(generatorType(gen)) =>
         super.problemDescriptor(
           pattern,
           createReplacingQuickFix(gen, ScalaInspectionBundle.message("add.case")) { gen =>
@@ -149,4 +151,11 @@ object Source3Inspection {
         element.replace(transform(element))
       }
     })
+
+  private def generatorType(gen: ScGenerator): Option[ScType] =
+    for {
+      desugared <- gen.desugared
+      (_, param) <- desugared.analogMethodCall.matchedParameters.headOption
+      ty <- Some(param.expectedType).collect { case ParameterizedType(_, Seq(p, _)) => p }
+    } yield ty
 }
