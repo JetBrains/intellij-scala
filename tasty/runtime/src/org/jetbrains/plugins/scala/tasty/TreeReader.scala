@@ -29,6 +29,8 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
 
     var nat = -1
 
+    var value = -1L
+
     var names = Seq.empty[String]
     var children = Seq.empty[Node]
 
@@ -64,8 +66,7 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
     else if (tag >= firstNatASTTreeTag) {
       tag match {
         case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF => names :+= readName(in)
-        case _ =>
-          nat = readNat(in)
+        case _ => nat = readNat(in)
       }
       children :+= readTree(in)
     }
@@ -74,6 +75,9 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
     else if (tag >= firstNatTreeTag)
       tag match {
         case TERMREFpkg | TYPEREFpkg | STRINGconst | IMPORTED => names :+= readName(in)
+        case CHARconst => value = in.readNat()
+        case BYTEconst | SHORTconst | INTconst | FLOATconst => value = in.readInt()
+        case LONGconst | DOUBLEconst => value = in.readLongInt()
         case _ => nat = readNat(in)
       }
 
@@ -95,6 +99,7 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
             }
           case _ =>
         }
+        node.value = value
         node
     }
   }

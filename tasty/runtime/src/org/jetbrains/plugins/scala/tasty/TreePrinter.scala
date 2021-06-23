@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.tasty.TastyFormat._
 
+import java.lang.Double.longBitsToDouble
+import java.lang.Float.intBitsToFloat
 import scala.collection.mutable
 
 // TODO refactor
@@ -123,6 +125,21 @@ object TreePrinter {
 
   private def textOfType(node: Node): String = node match {
     case Node(IDENTtpt, _, Seq(tail)) => textOfType(tail)
+    case Node(SINGLETONtpt, _, Seq(tail)) =>
+      val literal: String = tail.tag match {
+        case UNITconst => "()"
+        case TRUEconst => "true"
+        case FALSEconst => "false"
+        case BYTEconst | SHORTconst | INTconst => tail.value.toString
+        case LONGconst => tail.value + "L"
+        case FLOATconst => intBitsToFloat(tail.value.toInt) + "F"
+        case DOUBLEconst => longBitsToDouble(tail.value) + "D"
+        case CHARconst => "'" + tail.value.toChar + "'"
+        case STRINGconst => "\"" + tail.name + "\""
+        case NULLconst => "null"
+        case _ => ""
+      }
+      if (literal.nonEmpty) literal else textOfType(tail) + ".type"
     case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
     case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in rare cases?
     case Node(TYPEREFsymbol, _, _) => node.refName.getOrElse("") // TODO

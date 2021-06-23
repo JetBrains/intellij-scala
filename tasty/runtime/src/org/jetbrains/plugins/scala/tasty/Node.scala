@@ -32,4 +32,6 @@ case class Node(tag: Int, names: Seq[String], children: Seq[Node]) {
   // var parent: Option[Node] = None
 
   var refName: Option[String] = None
+
+  var value: Long = -1L
 }
