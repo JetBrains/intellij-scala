@@ -1,16 +1,30 @@
 package org.jetbrains.sbt.project
 
-import org.jetbrains.plugins.scala.DependencyManagerBase.{RichStr, scalaCompilerDescription, scalaLibraryDescription}
+import org.jetbrains.plugins.scala.DependencyManagerBase.scalaLibraryDescription
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.CoursierPaths
-import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaVersion}
 import org.jetbrains.sbt.project.ProjectStructureDsl.{ScalaSdkAttributes, classes, library, scalaSdkSettings}
 
 trait ProjectStructureExpectedLibrariesOps {
 
-  private def coursierCacheArtifact(relativePath: String): String = {
-    val cacheRoot = CoursierPaths.cacheDirectory.getAbsolutePath.stripSuffix("/").stripSuffix("\\")
-    cacheRoot + "/https/repo1.maven.org/maven2/" + relativePath
-  }
+  private val systemHome = sys.props.get("user.home").get
+  private val ivyCacheRootHome = withoutPathSuffix(systemHome) + "/.ivy2/cache"
+  private val coursierCacheRoot = withoutPathSuffix(CoursierPaths.cacheDirectory.getAbsolutePath)
+
+  private def withoutPathSuffix(path: String) =
+    path.stripSuffix("/").stripSuffix("\\")
+
+  private def coursierCacheArtifact(relativePath: String): String =
+    coursierCacheRoot + "/https/repo1.maven.org/maven2/" + relativePath
+
+  private def ivyCacheArtifact(relativePath: String): String =
+    ivyCacheRootHome + "/" + relativePath
+
+  private def coursierCacheArtifacts(relativePaths: String*): Seq[String] =
+    relativePaths.map(coursierCacheArtifact)
+
+  private def ivyCacheArtifacts(relativePaths: String*): Seq[String] =
+    relativePaths.map(ivyCacheArtifact)
 
   protected sealed trait ResolveScalaLibraryFrom
   protected object ResolveScalaLibraryFrom {
@@ -18,62 +32,51 @@ trait ProjectStructureExpectedLibrariesOps {
     object Coursier extends ResolveScalaLibraryFrom
   }
 
-  protected def expectedScalaLibrary(scalaVersion: ScalaVersion, resolveFrom: ResolveScalaLibraryFrom = ResolveScalaLibraryFrom.Coursier): library = {
-    resolveFrom match {
-      case ResolveScalaLibraryFrom.Ivy      => expectedScalaLibraryIvy(scalaVersion)
-      case ResolveScalaLibraryFrom.Coursier => expectedScalaLibraryCoursier(scalaVersion)
-    }
-  }
+  protected def expectedScalaLibrary(scalaVersion: ScalaVersion): library =
+    expectedScalaLibraryFromCoursier(scalaVersion)
 
-  // NOTE: currently it downloads from the internet if needed,
-  // while in *Coursier implementation all paths are constructed manually, without invoking resolve
-  protected def expectedScalaLibraryIvy(scalaVersion: ScalaVersion): library = {
-    val scalaLibraryDependency = scalaLibraryDescription(scalaVersion)
-    val scalaCompilerDependency = scalaCompilerDescription(scalaVersion).transitive()
-
-    val manager: DependencyManagerBase = new DependencyManagerBase {
-      override protected val artifactBlackList: Set[String] = Set.empty
-    }
-
-    val libraryJar: String = manager.resolveSingle(scalaLibraryDependency).file.getAbsolutePath
-    val compilerClassPath: Seq[String] = manager.resolve(scalaCompilerDependency).map(_.file.getAbsolutePath)
-
-    // NOTE: in Scala2 these compiler jars are not within transitive dependencies of scala-compiler (as in Scala 3)
-    // TODO: support all scala versions, current implementation tested with 2.12.10
-    val extraCompilerClassPath: Seq[String] = manager.resolve(
-      "jline" % "jline" % "2.14.6",
-      "org.fusesource.jansi" % "jansi" % "1.12",
-    ).map(_.file.getAbsolutePath)
-
-    new library(s"sbt: $scalaLibraryDependency:jar") {
-      classes := Seq(libraryJar)
-
-      scalaSdkSettings := Some(ScalaSdkAttributes(
-        scalaVersion.languageLevel,
-        classpath = compilerClassPath ++ extraCompilerClassPath
-      ))
-    }
-  }
-
-  protected def expectedScalaLibraryCoursier(scalaVersion: ScalaVersion): library = {
+  protected def expectedScalaLibraryFromIvy(scalaVersion: ScalaVersion): library = {
     val scalaVersionStr = scalaVersion.minor
     val dependency = scalaLibraryDescription(scalaVersion)
 
     new library(s"sbt: $dependency:jar") {
-      classes := Seq(
+      classes := ivyCacheArtifacts(
+        s"org.scala-lang/scala-library/jars/scala-library-$scalaVersionStr.jar"
+      )
+      scalaSdkSettings := Some(ScalaSdkAttributes(
+        scalaVersion.languageLevel,
+        classpath = ivyCacheArtifacts(
+          // TODO: build expected classpath depending on scalaVersion, currently extra classpath tested only for 2.12.10
+          "jline/jline/jars/jline-2.14.6.jar",
+          "org.fusesource.jansi/jansi/jars/jansi-1.12.jar",
+          "org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.6.jar",
+          "org.scala-lang/scala-compiler/jars/scala-compiler-2.12.10.jar",
+          "org.scala-lang/scala-library/jars/scala-library-2.12.10.jar",
+          "org.scala-lang/scala-reflect/jars/scala-reflect-2.12.10.jar",
+        )
+      ))
+    }
+  }
+
+  protected def expectedScalaLibraryFromCoursier(scalaVersion: ScalaVersion): library = {
+    val scalaVersionStr = scalaVersion.minor
+    val dependency = scalaLibraryDescription(scalaVersion)
+
+    new library(s"sbt: $dependency:jar") {
+      classes := coursierCacheArtifacts(
         s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr.jar"
-      ).map(coursierCacheArtifact)
+      )
 
       scalaSdkSettings := Some(ScalaSdkAttributes(
         scalaVersion.languageLevel,
-        classpath = Seq(
-          // TODO: build expected classpath depending on scalaVersion
+        classpath = coursierCacheArtifacts(
+          // TODO: build expected classpath depending on scalaVersion, currently extra classpath tested only for 2.13.5, 2.13.6
           "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
           "org/jline/jline/3.19.0/jline-3.19.0.jar",
           s"org/scala-lang/scala-compiler/$scalaVersionStr/scala-compiler-$scalaVersionStr.jar",
           s"org/scala-lang/scala-library/$scalaVersionStr/scala-library-$scalaVersionStr.jar",
           s"org/scala-lang/scala-reflect/$scalaVersionStr/scala-reflect-$scalaVersionStr.jar",
-        ).map(coursierCacheArtifact)
+        )
       ))
     }
   }

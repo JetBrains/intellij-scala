@@ -38,7 +38,7 @@ class ProjectImportingTest extends ImportingTestCase
   }
 
   def testSimpleDoNotUseCoursier(): Unit = {
-    val scalaLibrary = expectedScalaLibrary(ScalaVersion.fromString("2.12.10").get, ResolveScalaLibraryFrom.Ivy)
+    val scalaLibrary = expectedScalaLibraryFromIvy(ScalaVersion.fromString("2.12.10").get)
     runSimpleTest("simpleDoNotUseCoursier", scalaLibrary)
   }
 
