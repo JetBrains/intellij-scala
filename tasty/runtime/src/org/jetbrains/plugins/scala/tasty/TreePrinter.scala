@@ -105,13 +105,14 @@ object TreePrinter {
       val isGivenAlias = node.hasFlag(GIVEN)
       val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
       val tpe = children.find(_.isTypeTree)
+      val ref = if (tpe.isEmpty) children.find(_.is(TERMREFsymbol)) else None // TODO Why "val alias"es have no type annotations?
       val template = // TODO check element types
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
       if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
         (if (isGivenAlias) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
-          (if (isAnonymousGiven) "" else name + ": ") +
-          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
+          (if (isAnonymousGiven) "" else name + (if (tpe.nonEmpty) ": " else "")) +
+          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = " + ref.flatMap(_.refName).getOrElse("???"))) // TODO parameter, /* compiled code */
 
     case _ => "" // TODO exhaustive match
   }

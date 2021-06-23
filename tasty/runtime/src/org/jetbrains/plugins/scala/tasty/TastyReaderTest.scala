@@ -26,6 +26,7 @@ object TastyReaderTest {
       "member/This",
       "member/Type",
       "member/Val",
+      "member/ValAlias",
       "member/Var",
       "package1/package2/Chained",
       "package1/package2/Flat",
