@@ -42,6 +42,8 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
           inReadAction(SbtDependencyUtils.getLibraryDependenciesOrPlacesFromPsi(infix, mode = GetDep)
           ).head.asInstanceOf[(ScExpression, String, ScExpression)]).map(_.asInstanceOf[String])
 
+        if (libDep.length < 3) return None
+
         val groupId = libDep(0)
         val artifactId = libDep(1)
         val version = libDep(2)

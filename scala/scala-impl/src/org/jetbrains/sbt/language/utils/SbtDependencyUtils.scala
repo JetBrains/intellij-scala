@@ -43,7 +43,14 @@ object SbtDependencyUtils {
 
   def buildScalaDependencyString(artifactID: String, scalaVer: String): String = {
     val ver = scalaVer.split('.')
-    s"${artifactID}_${ver(0)}.${ver(1)}"
+    ver.length match {
+      case 1 =>
+        s"${artifactID}_${ver(0)}"
+      case 2 | 3 =>
+        s"${artifactID}_${ver(0)}.${ver(1)}"
+      case _ =>
+        s"${artifactID}"
+    }
   }
 
   def findLibraryDependency(project: Project,
