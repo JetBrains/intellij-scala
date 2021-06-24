@@ -9,6 +9,7 @@ import com.intellij.openapi.module.StdModuleTypes
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.pom.java.LanguageLevel
+
 import java.io.File
 import java.net.URI
 import java.nio.file.Paths
@@ -20,6 +21,8 @@ import org.jetbrains.bsp.project.importing.BspResolverDescriptors._
 import org.jetbrains.bsp.{BSP, BspBundle}
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.plugins.scala.project.external.{JdkByHome, JdkByVersion}
+import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleNode}
+import org.jetbrains.sbt.project.module.SbtModuleType
 
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
@@ -560,7 +563,13 @@ private[importing] object BspResolverLogic {
     val allSourceRoots = sourceRoots ++ testRoots ++ resourceRoots ++ testResourceRoots
 
     val moduleName = moduleDescriptionData.name
-    val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, StdModuleTypes.JAVA.getId, moduleName, moduleFileDirectoryPath, projectRootPath)
+    val moduleType = moduleDescription.moduleKindData match {
+      case SbtModule(_, _, _) =>
+        SbtModuleType.instance
+      case _ =>
+        StdModuleTypes.JAVA
+    }
+    val moduleData = new ModuleData(moduleDescriptionData.id, BSP.ProjectSystemId, moduleType.getId, moduleName, moduleFileDirectoryPath, projectRootPath)
 
     moduleDescriptionData.output.foreach { outputPath =>
       moduleData.setCompileOutputPath(SOURCE, outputPath.getCanonicalPath)
@@ -606,22 +615,29 @@ private[importing] object BspResolverLogic {
     val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
     moduleNode.addChild(libraryTestDependencyNode)
 
-    val contentRootData = allSourceRoots.map { case (sourceType, root) =>
-      val data = getContentRoot(root.directory, moduleBase)
-      data.storePath(sourceType, root.directory.getCanonicalPath, root.packagePrefix.orNull)
-      data.getRootPath -> data
-    }.toMap.values // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
+    if (moduleType == SbtModuleType.instance) {
+      moduleBase.foreach { base =>
+        val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, base, moduleNode)
+        moduleNode.addChild(contentRootDataNode)
+      }
+    } else {
+      val contentRootData: Iterable[ContentRootData] = allSourceRoots.map { case (sourceType, root) =>
+        val data = getContentRoot(root.directory, moduleBase)
+        data.storePath(sourceType, root.directory.getCanonicalPath, root.packagePrefix.orNull)
+        data.getRootPath -> data
+      }.toMap.values // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
 
-    contentRootData.foreach { data =>
-      val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
-      moduleNode.addChild(contentRootDataNode)
+      contentRootData.foreach { data =>
+        val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
+        moduleNode.addChild(contentRootDataNode)
+      }
     }
 
     val metadata = createBspMetadata(moduleDescription)
     val metadataNode = new DataNode[BspMetadata](BspMetadata.Key, metadata, moduleNode)
     moduleNode.addChild(metadataNode)
 
-    addNodeKindData(moduleNode, moduleDescription.moduleKindData)
+    addNodeKindData(moduleNode, moduleDescription.moduleKindData, moduleDescription.data)
 
     moduleNode
   }
@@ -715,7 +731,7 @@ private[importing] object BspResolverLogic {
     child
   }
 
-  private[importing] def addNodeKindData(moduleNode: DataNode[ModuleData], moduleKind: ModuleKind): Unit = {
+  private[importing] def addNodeKindData(moduleNode: DataNode[ModuleData], moduleKind: ModuleKind, moduleData: ModuleDescriptionData): Unit = {
     moduleKind match {
       case ScalaModule(_, scalaSdkData) =>
 
@@ -738,9 +754,10 @@ private[importing] object BspResolverLogic {
 
       case SbtModule(_, scalaSdkData, sbtData) =>
         val scalaSdkNode = new DataNode[ScalaSdkData](ScalaSdkData.Key, scalaSdkData, moduleNode)
-        val sbtNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtData, moduleNode)
+        val sbtBuildModuleDataNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtData, moduleNode)
         moduleNode.addChild(scalaSdkNode)
-        moduleNode.addChild(sbtNode)
+        moduleNode.addChild(sbtBuildModuleDataNode)
+        moduleNode.addChild(new SbtModuleNode(SbtModuleData(moduleData.id, new URI(moduleData.id))).toDataNode)
 
       case JvmModule(JdkData(javaHome, javaVersion)) =>
         // FIXME set jdk form home or version

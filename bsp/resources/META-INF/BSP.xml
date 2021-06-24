@@ -27,6 +27,7 @@
         <externalProjectDataService implementation="org.jetbrains.bsp.data.ScalaSdkService" order="last"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspMetadataService"/>
         <externalProjectDataService implementation="org.jetbrains.bsp.data.BspProjectDataService"/>
+        <externalProjectDataService implementation="org.jetbrains.bsp.data.SbtBuildModuleDataBspService"/>
 
         <externalIconProvider key="BSP" implementationClass="org.jetbrains.bsp.BspIconProvider" />
 
