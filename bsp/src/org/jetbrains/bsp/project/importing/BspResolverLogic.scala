@@ -757,10 +757,12 @@ private[importing] object BspResolverLogic {
         val sbtBuildModuleDataNode = new DataNode[SbtBuildModuleDataBsp](SbtBuildModuleDataBsp.Key, sbtData, moduleNode)
         moduleNode.addChild(scalaSdkNode)
         moduleNode.addChild(sbtBuildModuleDataNode)
+        // TODO adding module nodes from sbt mixes the data models of the BSP and sbt external system support
+        // so it's a bit of a hack that should be addressed. For now this allows supporting sbt file within BSP projects.
         moduleNode.addChild(new SbtModuleNode(SbtModuleData(moduleData.id, new URI(moduleData.id))).toDataNode)
 
       case JvmModule(JdkData(javaHome, javaVersion)) =>
-        // FIXME set jdk form home or version
+        // FIXME set jdk from home or version
 
       case UnspecifiedModule() =>
     }
