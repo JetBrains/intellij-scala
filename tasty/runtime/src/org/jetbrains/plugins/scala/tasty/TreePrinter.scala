@@ -58,7 +58,7 @@ object TreePrinter {
     case node @ Node(TEMPLATE, _, children) => // TODO method?
       val primaryConstructor = children.find(it => it.is(DEFDEF) && it.names == Seq("<init>"))
       val modifiers = primaryConstructor.map(modifiersIn(_)).map(it => if (it.nonEmpty) " " + it else "").getOrElse("")
-      val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition)).getOrElse("")
+      val parameters = primaryConstructor.map(it => parametersIn(it, Some(node), definition, modifiers = modifiers)).getOrElse("")
       val isInEnum = definition.exists(_.hasFlag(ENUM))
       val isInCaseClass = !isInEnum && definition.exists(_.hasFlag(CASE))
       val parents = children.collect {
@@ -79,7 +79,7 @@ object TreePrinter {
         .map(textOf(_, definition)).filter(_.nonEmpty).map(indent)
         .map(s => if (definition.exists(_.hasFlag(ENUM))) s.stripSuffix(" extends " + definition.map(_.name).getOrElse("")) else s) // TODO not text-based (need to know an outer definition)
         .mkString("\n\n")
-      (modifiers + (if (modifiers.nonEmpty && parameters.isEmpty) "()" else parameters)) +
+      parameters +
         (if (isInGiven && (!isInAnonymousGiven || parameters.nonEmpty)) ": " else "") +
         (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
         (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
@@ -104,15 +104,14 @@ object TreePrinter {
       val isCase = node.hasFlag(CASE)
       val isGivenAlias = node.hasFlag(GIVEN)
       val isAnonymousGiven = isGivenAlias && name.startsWith("given_") // TODO How to detect anonymous givens reliably?
-      val tpe = children.find(_.isTypeTree)
-      val ref = if (tpe.isEmpty) children.find(_.is(TERMREFsymbol)) else None // TODO Why "val alias"es have no type annotations?
+      val tpe = children.headOption
       val template = // TODO check element types
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
       if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
         (if (isGivenAlias) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
-          (if (isAnonymousGiven) "" else name + (if (tpe.nonEmpty) ": " else "")) +
-          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = " + ref.flatMap(_.refName).getOrElse("???"))) // TODO parameter, /* compiled code */
+          (if (isAnonymousGiven) "" else name + ": ") +
+          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
 
     case _ => "" // TODO exhaustive match
   }
@@ -129,20 +128,9 @@ object TreePrinter {
   private def textOfType(node: Node): String = node match {
     case Node(IDENTtpt, _, Seq(tail)) => textOfType(tail)
     case Node(SINGLETONtpt, _, Seq(tail)) =>
-      val literal: String = tail.tag match {
-        case UNITconst => "()"
-        case TRUEconst => "true"
-        case FALSEconst => "false"
-        case BYTEconst | SHORTconst | INTconst => tail.value.toString
-        case LONGconst => tail.value + "L"
-        case FLOATconst => intBitsToFloat(tail.value.toInt) + "F"
-        case DOUBLEconst => longBitsToDouble(tail.value) + "D"
-        case CHARconst => "'" + tail.value.toChar + "'"
-        case STRINGconst => "\"" + tail.name + "\""
-        case NULLconst => "null"
-        case _ => ""
-      }
+      val literal = textOfConstant(tail)
       if (literal.nonEmpty) literal else textOfType(tail) + ".type"
+    case const @ Node(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst, _, _: _*) => textOfConstant(const)
     case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
     case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in rare cases?
     case Node(THIS, _, _) => "this" // TODO prefix
@@ -170,6 +158,20 @@ object TreePrinter {
     case _ => "" // TODO exhaustive match
   }
 
+  private def textOfConstant(node: Node): String = node.tag match {
+    case UNITconst => "()"
+    case TRUEconst => "true"
+    case FALSEconst => "false"
+    case BYTEconst | SHORTconst | INTconst => node.value.toString
+    case LONGconst => node.value + "L"
+    case FLOATconst => intBitsToFloat(node.value.toInt) + "F"
+    case DOUBLEconst => longBitsToDouble(node.value) + "D"
+    case CHARconst => "'" + node.value.toChar + "'"
+    case STRINGconst => "\"" + node.name + "\""
+    case NULLconst => "null"
+    case _ => ""
+  }
+
   private def indent(s: String): String = s.split("\n").map(s => if (s.forall(_.isWhitespace)) "" else "  " + s).mkString("\n") // TODO use indent: Int parameter instead
 
   private enum Target {
@@ -189,7 +191,7 @@ object TreePrinter {
     buffer.toSeq
   }
 
-  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition): String = {
+  private def parametersIn(node: Node, template: Option[Node] = None, definition: Option[Node] = None, target: Target = Target.Definition, modifiers: String = ""): String = {
     val tps = target match {
       case Target.Extension => node.children.takeWhile(!_.is(PARAM))
       case Target.ExtensionMethod => node.children.dropWhile(!_.is(PARAM))
@@ -226,12 +228,15 @@ object TreePrinter {
             params += parametersIn(lambda)
           case Seq(bounds @ Node(TYPEBOUNDStpt, _, _: _*), _: _*) =>
             params += boundsIn(bounds)
+          case _ =>
         }
 
         next = true
       case _ =>
     }
     if (open) params += "]"
+
+    params += modifiers
 
     val ps = target match {
       case Target.Extension =>
@@ -298,7 +303,7 @@ object TreePrinter {
       case _ =>
     }
     if (open) params += ")"
-    if (template.isEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
+    if (template.isEmpty || modifiers.nonEmpty || definition.exists(it => it.hasFlag(CASE) && !it.hasFlag(OBJECT))) params else params.stripSuffix("()")
   }
 
   private def modifiersIn(node: Node, excluding: Set[Int] = Set.empty, isParameter: Boolean = true): String = { // TODO Optimize

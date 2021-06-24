@@ -5,6 +5,10 @@ trait Modifiers {
 
   class ProtectedPrimaryConstructor protected ()
 
+  class PrivatePrimaryConstructorTypeParameter[A] private ()
+
+  class ProtectedPrimaryConstructorTypeParameter[A] protected ()
+
   class PrivateAuxilliaryConstructor {
     private def this(x: Int) = /**/this()/*???*/
   }

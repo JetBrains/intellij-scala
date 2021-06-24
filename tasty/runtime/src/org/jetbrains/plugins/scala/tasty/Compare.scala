@@ -18,6 +18,7 @@ object Compare {
   // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.1.1",
   private val Libraries = Seq(
     ("scala3-library", "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar"),
+    ("scalatest-core", "org/scalatest/scalatest-core_3/3.2.9/scalatest-core_3-3.2.9.jar"),
     ("zio", "dev/zio/zio_3/1.0.9/zio_3-1.0.9.jar"),
     ("zio-streams", "dev/zio/zio-streams_3/1.0.9/zio-streams_3-1.0.9.jar"),
     ("cats-core", "org/typelevel/cats-core_3/2.6.1/cats-core_3-2.6.1.jar"),
