@@ -1,15 +1,15 @@
 package types
 
 trait Refs {
-  class C
+  trait T
 
-  type T1 = C
+  type TYPEREF = Int
 
-  type T
+  type TERMREFpkg = /**/scala./**/Long
 
-  type T2 = T
+  type TYPEREFsymbol = T
 
-  def f[A]: A
+  def TYPEREFdirect[T]: T
 
-  def f(x: Int): x.type
+  def TERMREFdirect(x: Int): x.type
 }
