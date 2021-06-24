@@ -332,6 +332,12 @@ object TreePrinter {
     } else if (node.hasFlag(PROTECTED)) {
       s += "protected "
     }
+    if (node.hasFlag(SEALED) && !excluding(SEALED)) {
+      s += "sealed "
+    }
+    if (node.hasFlag(OPEN)) {
+      s += "open "
+    }
     if (node.hasFlag(GIVEN) && !excluding(GIVEN)) {
       s += (if (isParameter) "using " else "given ")
     }
@@ -346,12 +352,6 @@ object TreePrinter {
     }
     if (node.hasFlag(ABSTRACT) && !excluding(ABSTRACT)) {
       s += "abstract "
-    }
-    if (node.hasFlag(SEALED) && !excluding(SEALED)) {
-      s += "sealed "
-    }
-    if (node.hasFlag(OPEN)) {
-      s += "open "
     }
     if (node.hasFlag(TRANSPARENT)) {
       s += "transparent "
