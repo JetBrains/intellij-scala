@@ -49,6 +49,7 @@ object TreePrinter {
       val identifier = if (isObject) node.previousSibling.fold(name)(_.name) else name // TODO check type
       val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
         if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
+      textOfAnnotationIn(node) +
       modifiers + keyword + (if (isAnonymousGiven) "" else identifier) + (if (!isTypeMember) textOf(template, Some(node)) else {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
         val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
@@ -91,14 +92,15 @@ object TreePrinter {
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val tpe = children.find(_.isTypeTree)
       children.filter(_.is(EMPTYCLAUSE, PARAM))
-      if (name == "<init>") {
+      textOfAnnotationIn(node) +
+      (if (name == "<init>") {
         modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
       } else {
         (if (node.hasFlag(EXTENSION)) "extension " + parametersIn(node, target = Target.Extension) + "\n  " else "") +
           modifiersIn(node, (if (isAbstractGiven) Set(FINAL) else Set.empty), isParameter = false) + (if (isAbstractGiven) "" else "def ") +
           (if (isAnonymousGiven) "" else name) + parametersIn(node, target = if (node.hasFlag(EXTENSION)) Target.ExtensionMethod else Target.Definition) +
           ": " + tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???") // TODO parameter, { /* compiled code */ }
-      }
+      })
 
     case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
@@ -109,10 +111,11 @@ object TreePrinter {
       val template = // TODO check element types
         if (isCase) children.lift(1).flatMap(_.children.lift(1)).flatMap(_.children.headOption).map(textOf(_)).getOrElse("")
         else ""
-      if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
+      textOfAnnotationIn(node) +
+      (if (isCase && !definition.exists(_.hasFlag(ENUM))) "" else modifiersIn(node, (if (isGivenAlias) Set(FINAL, LAZY) else Set.empty), isParameter = false) + (if (isCase) name +  template else
         (if (isGivenAlias) "" else (if (node.hasFlag(MUTABLE)) "var " else "val ")) +
           (if (isAnonymousGiven) "" else name + ": ") +
-          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???")) // TODO parameter, /* compiled code */
+          tpe.map(it => simple(textOfType(it))).getOrElse("") + (if (isDeclaration) "" else " = ???"))) // TODO parameter, /* compiled code */
 
     case _ => "" // TODO exhaustive match
   }
@@ -171,6 +174,18 @@ object TreePrinter {
     case STRINGconst => "\"" + node.name + "\""
     case NULLconst => "null"
     case _ => ""
+  }
+
+  private def textOfAnnotationIn(node: Node): String = {
+    node.children.lastOption match {
+      case Some(Node(ANNOTATION, _, Seq(tpe, Node(APPLY, _, children)))) =>
+        val name = Option(tpe).map(textOfType).filter(!_.startsWith("scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("")
+        if (name.isEmpty) "" else {
+          val args = children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
+          name + (if (args.nonEmpty) "(" + args + ")" else "") + "\n"
+        }
+      case _ => ""
+    }
   }
 
   private def indent(s: String): String = s.split("\n").map(s => if (s.forall(_.isWhitespace)) "" else "  " + s).mkString("\n") // TODO use indent: Int parameter instead

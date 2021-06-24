@@ -17,6 +17,8 @@ object TastyReaderTest {
     var passed, failed = Seq.empty[String]
 
     Seq(
+      "annotation/Members",
+      "annotation/Text",
       "member/Bounds",
       "member/Def",
       "member/ExtensionMethod",
