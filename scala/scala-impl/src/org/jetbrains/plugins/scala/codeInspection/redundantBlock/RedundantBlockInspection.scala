@@ -3,12 +3,11 @@ package codeInspection.redundantBlock
 
 import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.codeInspection.parentheses.registerRedundantParensProblem
 import org.jetbrains.plugins.scala.codeInspection.redundantBlock.RedundantBlockInspection.{InCaseClauseQuickFix, UnwrapExpressionQuickFix}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractInspection, ScalaInspectionBundle}
-import org.jetbrains.plugins.scala.extensions.childOf
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, childOf}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -24,8 +23,8 @@ class RedundantBlockInspection extends AbstractInspection {
   override def actionFor(implicit holder: ProblemsHolder, isOnTheFly: Boolean): PartialFunction[PsiElement, Unit] = {
     case (block: ScBlock) childOf ((blockOfExpr: ScBlock) childOf (_: ScCaseClause))
       if block.hasRBrace && block.getFirstChild.textMatches("{") &&
-        blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.isInstanceOf[ScCaseClauses]) =>
-      holder.registerProblem(block, new TextRange(0, 1), ScalaInspectionBundle.message("redundant.braces.in.case.clause"), new InCaseClauseQuickFix(block))
+        blockOfExpr.getChildren.length == 1 && !block.getChildren.exists(_.is[ScCaseClauses]) =>
+      registerRedundantParensProblem(ScalaInspectionBundle.message("redundant.braces.in.case.clause"), block, new InCaseClauseQuickFix(block))
     case block: ScBlockExpr if block.statements.length == 1 =>
       if (RedundantBlockInspection.isRedundantBlock(block)) {
         registerRedundantParensProblem(ScalaInspectionBundle.message("the.enclosing.block.is.redundant"), block, new UnwrapExpressionQuickFix(block))
@@ -64,7 +63,7 @@ object RedundantBlockInspection {
     if (probablyRedundant) {
       val next: PsiElement = block.getNextSibling
       val parent = block.getParent
-      val hasWhitespacesInBlock = block.getChildren.exists(_.isInstanceOf[PsiWhiteSpace])
+      val hasWhitespacesInBlock = block.getChildren.exists(_.is[PsiWhiteSpace])
       parent match {
         case _: ScArgumentExprList => false
         case _ if next == null && !hasWhitespacesInBlock => true
