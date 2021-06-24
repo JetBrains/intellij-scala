@@ -9,7 +9,6 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
 import com.intellij.psi.PsiManager
-import org.jetbrains.idea.maven.indices.MavenIndex
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -212,7 +211,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
   override def declaredRepositories(module: OpenapiModule.Module): util.List[UnifiedDependencyRepository] = {
     SbtResolverUtils.projectResolvers(module.getProject).collect {
       case r: SbtMavenResolver =>
-        new UnifiedDependencyRepository(r.name, r.presentableName, MavenIndex.normalizePathOrUrl(r.root))
+        new UnifiedDependencyRepository(r.name, r.presentableName, r.normalizedRoot)
     }.toList.asJava
   }
 }
