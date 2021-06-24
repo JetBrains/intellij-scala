@@ -86,6 +86,9 @@
 <!--                                order="first, before liveTemplates" id="sbtMavenDependencyCompletionContributor"/>-->
         <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
                                 order="first"/>
+
+        <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInDependencyStrings" order="first"/>
+
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
 
