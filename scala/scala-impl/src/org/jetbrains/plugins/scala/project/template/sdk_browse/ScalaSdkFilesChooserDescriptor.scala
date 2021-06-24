@@ -2,8 +2,7 @@ package org.jetbrains.plugins.scala.project.template.sdk_browse
 
 import com.intellij.openapi.fileChooser.FileChooserDescriptor
 import com.intellij.openapi.vfs.{VfsUtilCore, VirtualFile}
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.SystemDetector
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.{CompilerClasspathResolveFailure, SystemDetector}
 import org.jetbrains.plugins.scala.project.template.sdk_browse.ScalaSdkFilesChooserDescriptor._
 import org.jetbrains.plugins.scala.project.template.{FileExt, ScalaSdkComponent, ScalaSdkDescriptor}
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
@@ -41,7 +40,7 @@ object ScalaSdkFilesChooserDescriptor {
     val files = virtualFiles.map(VfsUtilCore.virtualToIoFile)
     val allFiles = files.filter(_.isFile) ++ files.flatMap(_.allFiles)
     val components = ScalaSdkComponent.fromFiles(allFiles)
-    ScalaSdkDescriptor.buildFromComponentsFull(SystemDetector, components)
+    SystemDetector.buildFromComponents(components, None)
   }
 
   //noinspection ReferencePassedToNls

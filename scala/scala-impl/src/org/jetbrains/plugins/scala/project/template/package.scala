@@ -1,17 +1,13 @@
 package org.jetbrains.plugins.scala
 package project
 
+import com.intellij.openapi.util.io
+import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
+
 import java.io._
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path}
-import java.util.stream
-
-import com.intellij.execution.process.{OSProcessHandler, ProcessAdapter, ProcessEvent}
-import com.intellij.openapi.util.{Key, io}
-import com.intellij.openapi.vfs.{VfsUtil, VirtualFile, VirtualFileManager}
-import com.intellij.util.{PathUtil, net}
-
 import scala.util.Using
 
 /**
@@ -49,8 +45,8 @@ package object template {
 
   implicit class PathExt(path: Path) {
     def /(string: String): Path = path.resolve(string)
-    def walk: stream.Stream[Path] = Files.walk(path)
-    def children: stream.Stream[Path] = Files.list(path)
+    def walk: java.util.stream.Stream[Path] = Files.walk(path)
+    def children: java.util.stream.Stream[Path] = Files.list(path)
     def exists: Boolean = Files.exists(path)
     def childExists(sub: String): Boolean = Files.exists(path / sub)
     def isDir: Boolean = Files.isDirectory(path)

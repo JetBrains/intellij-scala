@@ -6,12 +6,15 @@ import com.intellij.openapi.progress.ProgressIndicator
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
-object SdkmanDetector extends ScalaSdkDetector {
+object SdkmanDetector extends ScalaSdkDetectorDependencyManagerBase {
   private val SDKMAN_DIR_ENV     = "SDKMAN_DIR"
   private val SDKMAN_DEFAULT_DIR = sys.props.get("user.home").map(x => Paths.get(x) / ".sdkman")
+
   override def friendlyName: String = ScalaBundle.message("sdkman")
-  override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = SdkmanSdkChoice(descriptor)
-  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
+
+  override protected def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = SdkmanSdkChoice(descriptor)
+
+  override protected def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
     val sdkmanHome = sys.env.get(SDKMAN_DIR_ENV)
       .map(x => Paths.get(x))
       .orElse(SDKMAN_DEFAULT_DIR)

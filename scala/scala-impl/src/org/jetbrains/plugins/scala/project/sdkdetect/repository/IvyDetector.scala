@@ -5,22 +5,21 @@ import com.intellij.openapi.progress.ProgressIndicator
 import org.apache.ivy.util.{AbstractMessageLogger, Message, MessageLogger}
 import org.jetbrains.plugins.scala.DependencyManagerBase.{DependencyDescription, ResolveFailure, ResolvedDependency, Types, UnresolvedDependency}
 import org.jetbrains.plugins.scala.extensions.LoggerExt
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure.{UnknownException, UnknownResolveIssue, UnresolvedArtifact}
 import org.jetbrains.plugins.scala.project.template.{PathExt, ScalaSdkDescriptor, _}
 import org.jetbrains.plugins.scala.{DependencyManagerBase, ScalaBundle}
 
 import java.nio.file.{Path, Paths}
 import java.util.stream.{Stream => JStream}
 
-private[repository] object IvyDetector extends ScalaSdkDetector {
+private[repository] object IvyDetector extends ScalaSdkDetectorDependencyManagerBase {
 
   private val Log = Logger.getInstance(this.getClass)
 
-  override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = IvySdkChoice(descriptor)
   override def friendlyName: String = ScalaBundle.message("ivy2.cache")
 
-  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
+  override protected def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = IvySdkChoice(descriptor)
+
+  override protected def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
     val homePrefix = Paths.get(sys.props("user.home"))
     val ivyHome    = sys.props.get("sbt.ivy.home").map(Paths.get(_)).orElse(Option(homePrefix / ".ivy2")).get
     val scalaRoot = ivyHome / "cache" / "org.scala-lang"
@@ -45,6 +44,7 @@ private[repository] object IvyDetector extends ScalaSdkDetector {
 
     resolveResult match {
       case Left(value)  =>
+        import CompilerClasspathResolveFailure._
         value match {
           case ResolveFailure.UnresolvedDependencies(resolved, unresolved, _) =>
             if (unresolved.forall(isOptionalDependency))

@@ -1,20 +1,15 @@
 package org.jetbrains.plugins.scala
 package project
 
-import java.io.File
-import java.{util => ju}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.libraries._
 import com.intellij.openapi.roots.ui.configuration._
 import com.intellij.openapi.roots.{JavadocOrderRootType, OrderRootType}
-import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.vfs.VirtualFile
 
+import java.io.File
+import java.{util => ju}
 import javax.swing.{Icon, JComponent}
-import org.jetbrains.plugins.scala.ScalaBundle
-
-import java.awt.Dimension
-import java.awt.event.{WindowAdapter, WindowEvent}
 
 /**
  * @author Pavel Fatin
@@ -90,7 +85,7 @@ object ScalaLibraryType {
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
 
     private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
-      val ScalaSdkDescriptor(version, compilerClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
+      val ScalaSdkDescriptor(version, _, compilerClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
 
       new NewLibraryConfiguration(
         "scala-sdk-" + version.getOrElse(Version.Default),
