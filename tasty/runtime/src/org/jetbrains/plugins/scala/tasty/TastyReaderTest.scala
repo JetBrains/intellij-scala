@@ -17,6 +17,8 @@ object TastyReaderTest {
     var passed, failed = Seq.empty[String]
 
     Seq(
+      "annotation/Members",
+      "annotation/Text",
       "member/Bounds",
       "member/Def",
       "member/ExtensionMethod",
@@ -29,6 +31,7 @@ object TastyReaderTest {
       "member/Var",
       "package1/package2/Chained",
       "package1/package2/Flat",
+      "package1/package2/package",
       "package1/Members",
       "package1/topLevel",
       "parameter/Bounds",
