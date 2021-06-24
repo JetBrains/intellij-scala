@@ -3,10 +3,9 @@ package lang
 package completion
 
 import java.io.File
-
 import com.intellij.codeInsight.completion.{CodeCompletionHandlerBase, CompletionType}
 import com.intellij.codeInsight.lookup.impl.LookupImpl
-import com.intellij.codeInsight.lookup.{LookupElement, LookupManager}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation, LookupManager}
 import com.intellij.openapi.fileEditor.{FileEditorManager, OpenFileDescriptor}
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
@@ -94,7 +93,17 @@ abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTest
 
     val items = LookupManager.getActiveLookup(editor) match {
       case lookup: LookupImpl =>
-        lookup.getItems.toArray(LookupElement.EMPTY_ARRAY).map(_.getLookupString)
+        val items = lookup.getItems.toArray(LookupElement.EMPTY_ARRAY)
+        // TODO: test completion items presentations instead of just getLookupString
+        //  something like:
+        //  val presentations: Array[LookupElementPresentation] = items.map { item =>
+        //    val presentation = new LookupElementPresentation
+        //    item.renderElement(presentation)
+        //    presentation
+        //  }
+        //  val itemTexts = presentations.map(_.getItemText)
+        val lookups = items.map(_.getLookupString)
+        lookups
       case _ => Array.empty[String]
     }
 
