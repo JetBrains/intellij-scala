@@ -29,6 +29,7 @@ object TastyReaderTest {
       "member/Var",
       "package1/package2/Chained",
       "package1/package2/Flat",
+      "package1/package2/package",
       "package1/Members",
       "package1/topLevel",
       "parameter/Bounds",
