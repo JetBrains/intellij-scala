@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScExtension}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.util.IndentUtil
 
@@ -31,6 +31,7 @@ import org.jetbrains.plugins.scala.util.IndentUtil
  * Some other indentation-related logic:
  *  - [[com.intellij.codeInsight.editorActions.EnterHandler#executeWriteActionInner]]
  *  - [[com.intellij.formatting.FormatProcessor#getIndent]]
+ *  - [[org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcessor.getChildIndent]]
  *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isIncomplete]]
  *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.getChildAttributes]]<br>
  *    used when typing after incomplete block, in the beginning of some structure, e.g.: {{{
@@ -170,7 +171,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
    *
    * @todo extract to [[AutoBraceUtils]] if want to reuse e.g. in backspace handlers?
    */
-    private[editor] def previousElementInIndentationContext(
+  private[editor] def previousElementInIndentationContext(
     @NotNull elementAtCaret: PsiElement,
     caretOffset: Int,
     documentText: CharSequence,
@@ -231,9 +232,6 @@ object Scala3IndentationBasedSyntaxEnterHandler {
       case _: ScBlockStatement | _: ScCommentOwner =>
         val parent = element.getParent
 
-
-        val isInsideTemplateBody = parent.is[ScTemplateBody]
-
         val isInsideIndentationBlock = parent match {
           case block: ScBlock =>
             !block.isEnclosedByBraces
@@ -282,7 +280,8 @@ object Scala3IndentationBasedSyntaxEnterHandler {
         }
 
         val isInIndentationContext =
-          isInsideTemplateBody ||
+          parent.is[ScTemplateBody] ||
+            parent.is[ScExtension] ||
             isInsideIndentationBlock ||
             isInsideIndentationBlock_AsSingleBlockElement1 ||
             isInsideIndentationBlock_AsSingleBlockElement2
