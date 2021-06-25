@@ -32,32 +32,6 @@ object FunDef extends ParsingRule {
         return false
     }
 
-    if (builder.isScala3) {
-      if (FunTypeParamClause()) {
-        if (builder.getTokenType != ScalaTokenTypes.tLPARENTHESIS) {
-          builder error ErrMsg("expected.parameter.clause.for.extension.method")
-        }
-      }
-
-      if (builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS) {
-        val extensionMethodParamMarker = builder.mark()
-        builder.advanceLexer()
-        Params()
-
-        if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS) {
-          builder.advanceLexer() // ate )
-
-          extensionMethodParamMarker.done(ScalaElementType.PARAM_CLAUSE)
-
-          if (builder.getTokenType == ScalaTokenTypes.tDOT) {
-            builder.advanceLexer() // ate .
-          }
-        } else {
-          extensionMethodParamMarker.drop()
-        }
-      }
-    }
-
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         FunSig()

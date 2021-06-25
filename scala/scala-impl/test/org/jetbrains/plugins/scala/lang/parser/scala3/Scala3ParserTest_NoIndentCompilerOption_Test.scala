@@ -985,8 +985,6 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement())(')')
-      |    ScTemplateBody
-      |      <empty list>
       |  PsiWhiteSpace('\n  ')
       |  ScFunctionDefinition: f1
       |    AnnotationsList
@@ -1023,8 +1021,6 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement())(')')
-      |    ScTemplateBody
-      |      <empty list>
       |  PsiWhiteSpace('\n  ')
       |  ScFunctionDefinition: f2
       |    AnnotationsList
@@ -1085,22 +1081,21 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
         |                PsiElement(identifier)('String')
         |        PsiElement())(')')
         |    PsiWhiteSpace(' ')
-        |    ScTemplateBody
-        |      ScFunctionDefinition: f1
-        |        AnnotationsList
-        |          <empty list>
-        |        Modifiers
-        |          <empty list>
-        |        PsiElement(def)('def')
-        |        PsiWhiteSpace(' ')
-        |        PsiElement(identifier)('f1')
-        |        Parameters
-        |          <empty list>
-        |        PsiWhiteSpace(' ')
-        |        PsiElement(=)('=')
-        |        PsiWhiteSpace(' ')
-        |        ReferenceExpression: ???
-        |          PsiElement(identifier)('???')""".stripMargin,
+        |    ScFunctionDefinition: f1
+        |      AnnotationsList
+        |        <empty list>
+        |      Modifiers
+        |        <empty list>
+        |      PsiElement(def)('def')
+        |      PsiWhiteSpace(' ')
+        |      PsiElement(identifier)('f1')
+        |      Parameters
+        |        <empty list>
+        |      PsiWhiteSpace(' ')
+        |      PsiElement(=)('=')
+        |      PsiWhiteSpace(' ')
+        |      ReferenceExpression: ???
+        |        PsiElement(identifier)('???')""".stripMargin,
     )
   }
 

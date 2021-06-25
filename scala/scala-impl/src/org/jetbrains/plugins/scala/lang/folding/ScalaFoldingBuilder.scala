@@ -9,7 +9,7 @@ import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.extensions.{ElementType, IteratorExt, ObjectExt, OptionExt, PsiElementExt}
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.folding.ScalaFoldingBuilder.{FoldingInfo, MatchExprOrMatchType}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -55,12 +55,19 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
-        case TEMPLATE_BODY =>
-          // extensions template body do not support `:` in the beginning,
-          // we should capture new line before
-          val isExtensionsTemplateBody = node.getTreeParent.getElementType == ScalaElementType.EXTENSION
-          val range = if (isExtensionsTemplateBody) captureWhitespaceBefore(node, nodeTextRange) else nodeTextRange
-          descriptors add new FoldingDescriptor(node, range)
+        case EXTENSION =>
+          val params = Option(node.findChildByType(ScalaElementType.PARAM_CLAUSES))
+
+          val rangeStart =
+            params.map(_.nextNonWhitespaceNode).collect {
+              case node if node.getElementType == ScalaTokenTypes.tLBRACE => node.getStartOffset
+            }.orElse(params.flatMap(n => Option(n.getTreeNext)).map(_.getStartOffset))
+
+          rangeStart.foreach { start =>
+            val range = TextRange.create(start, nodeTextRange.getEndOffset)
+            descriptors.add(new FoldingDescriptor(node, range))
+          }
+        case TEMPLATE_BODY => descriptors.add(new FoldingDescriptor(node, nodeTextRange))
         case ImportStatement if isGoodImport(node) =>
           descriptors add new FoldingDescriptor(node,
             new TextRange(nodeTextRange.getStartOffset + IMPORT_KEYWORD.length + 1, getImportEnd(node)))
@@ -185,12 +192,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
     }
   }
 
-  private def captureWhitespaceBefore(node: ASTNode, nodeRange: TextRange): TextRange =
-    node.getTreePrev match {
-      case ws: PsiWhiteSpace => TextRange.create(ws.getStartOffset, nodeRange.getEndOffset)
-      case _                 => nodeRange
-    }
-
   // include end marker if it goes after the block
   private def elementRangeWithEndMarkerAttached(element: PsiElement, elementRange: TextRange): TextRange =
     element.nextSiblingNotWhitespace match {
@@ -232,6 +233,7 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
+        case EXTENSION => return " ..."
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
         case TEMPLATE_BODY =>

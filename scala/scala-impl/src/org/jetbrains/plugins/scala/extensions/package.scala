@@ -1141,6 +1141,24 @@ package object extensions {
     def isWhitespaceOrComment: Boolean = {
       node != null && PsiImplUtil.isWhitespaceOrComment(node)
     }
+
+    def nextNonWhitespaceNode: ASTNode = {
+      var next = node.getTreeNext
+
+      while (next != null && next.isWhitespaceOrComment)
+        next = next.getTreeNext
+
+      next
+    }
+
+    def prevNonWhitespaceNode: ASTNode = {
+      var prev = node.getTreePrev
+
+      while (prev != null && prev.isWhitespaceOrComment)
+        prev = prev.getTreePrev
+
+      prev
+    }
   }
 
   implicit class PipedObject[T](private val value: T) extends AnyVal {

@@ -30,22 +30,21 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
-      |      ScFunctionDefinition: test
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('test')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
+      |    ScFunctionDefinition: test
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('test')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -81,29 +80,28 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: X
       |          ParameterType
       |            SimpleType: X
       |              CodeReferenceElement: X
       |                PsiElement(identifier)('X')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
-      |      ScFunctionDefinition: test
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('test')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
+      |    ScFunctionDefinition: test
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('test')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -136,22 +134,21 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      ScFunctionDefinition: test
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('test')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
+      |    ScFunctionDefinition: test
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('test')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
       |  PsiWhiteSpace('\n  ')
       |  ScFunctionDefinition: not_extension
       |    AnnotationsList
@@ -202,42 +199,41 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
-      |      PsiElement({)('{')
-      |      PsiWhiteSpace('\n  ')
-      |      ScFunctionDefinition: a
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('a')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
-      |      PsiWhiteSpace('\n  ')
-      |      ScFunctionDefinition: b
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('b')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
-      |      PsiWhiteSpace('\n')
-      |      PsiElement(})('}')
+      |    PsiElement({)('{')
+      |    PsiWhiteSpace('\n  ')
+      |    ScFunctionDefinition: a
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('a')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace('\n  ')
+      |    ScFunctionDefinition: b
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('b')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(})('}')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -271,38 +267,37 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
-      |      ScFunctionDefinition: a
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('a')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
-      |      PsiWhiteSpace('\n  ')
-      |      ScFunctionDefinition: b
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('b')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
+      |    ScFunctionDefinition: a
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('a')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace('\n  ')
+      |    ScFunctionDefinition: b
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('b')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -335,40 +330,39 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |              CodeReferenceElement: Int
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
-      |    ScTemplateBody
-      |      PsiElement(:)(':')
-      |      PsiWhiteSpace('\n  ')
-      |      ScFunctionDefinition: a
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('a')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
-      |      PsiWhiteSpace('\n  ')
-      |      ScFunctionDefinition: b
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('b')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace('\n  ')
+      |    ScFunctionDefinition: a
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('a')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace('\n  ')
+      |    ScFunctionDefinition: b
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('b')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -403,43 +397,42 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
-      |      ScFunctionDefinition: a
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('a')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('0')
-      |      PsiWhiteSpace('\n  ')
-      |      ScFunctionDefinition: b
-      |        AnnotationsList
-      |          <empty list>
-      |        Modifiers
-      |          <empty list>
-      |        PsiElement(def)('def')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('b')
-      |        Parameters
-      |          <empty list>
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(=)('=')
-      |        PsiWhiteSpace(' ')
-      |        IntegerLiteral
-      |          PsiElement(integer)('1')
-      |      PsiWhiteSpace('\n')
-      |      End: extension
-      |        PsiElement(end)('end')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('extension')
+      |    ScFunctionDefinition: a
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('a')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('0')
+      |    PsiWhiteSpace('\n  ')
+      |    ScFunctionDefinition: b
+      |      AnnotationsList
+      |        <empty list>
+      |      Modifiers
+      |        <empty list>
+      |      PsiElement(def)('def')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('b')
+      |      Parameters
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(=)('=')
+      |      PsiWhiteSpace(' ')
+      |      IntegerLiteral
+      |        PsiElement(integer)('1')
+      |    PsiWhiteSpace('\n')
+      |    End: extension
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('extension')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
@@ -468,14 +461,13 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement())(')')
+      |    PsiErrorElement:Expected at least one extension method
+      |      <empty list>
       |    PsiWhiteSpace('\n')
-      |    ScTemplateBody
-      |      PsiErrorElement:Expected at least one extension method
-      |        <empty list>
-      |      End: extension
-      |        PsiElement(end)('end')
-      |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('extension')""".stripMargin
+      |    End: extension
+      |      PsiElement(end)('end')
+      |      PsiWhiteSpace(' ')
+      |      PsiElement(identifier)('extension')""".stripMargin
   )
 
   // #EA-5880432
@@ -512,8 +504,6 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |          Parameters
       |            PsiErrorElement:Parameter clause expected
       |              <empty list>
-      |          ScTemplateBody
-      |            <empty list>
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')
       |  PsiWhiteSpace('\n')
