@@ -19,19 +19,9 @@ object TastyReader {
   // * https://github.com/scala/scala/pull/9109/files#diff-b57f5a78fc6ead7f134260b01093bed096c9dd51b12cc59e094c1a58a14eea1bR27
   private val Header: Array[Byte] = Array(0x5C, 0xA1, 0xAB, 0x1F, 0x80 | MajorVersion, 0x80 | MinorVersion).map(_.toByte)
 
-  def read(classpath: String, bytes: Array[Byte], rightHandSide: Boolean): Option[TastyFile] = {
-    if (!bytes.startsWith(Header)) {
-      return None
-    }
-
-    val file = File.createTempFile("foo", ".tasty")
-    try {
-      Files.write(file.toPath, bytes, StandardOpenOption.TRUNCATE_EXISTING)
-      read(api, classpath: String, file.getPath, rightHandSide)
-    } finally {
-      file.delete()
-    }
-  }
+  // TODO Don't depend on the specific header version
+  def read(bytes: Array[Byte]): Option[(String, String)] =
+    Option.when(bytes.startsWith(Header))(api.read(bytes))
 
   // TODO fully-qualified name VS .tasty file path, handle symbols
   // There is no way to read a specific (one) .tasty file in a JAR using the API of https://github.com/lampepfl/dotty/blob/M2/tasty-inspector/src/scala/tasty/inspector/TastyInspector.scala?

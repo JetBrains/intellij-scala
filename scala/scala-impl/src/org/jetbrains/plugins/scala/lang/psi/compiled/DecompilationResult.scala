@@ -11,7 +11,9 @@ import com.intellij.reference.SoftReference
 import org.jetbrains.plugins.scala.decompiler.Decompiler
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
-import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyPath, TastyReader}
+import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyReader}
+
+import scala.util.control.NonFatal
 
 private sealed trait DecompilationResult {
   val isScala: Boolean
@@ -122,12 +124,9 @@ private object DecompilationResult {
   private def sourceNameAndText(file: VirtualFile, content: () => Array[Byte]): Option[(String, String)] = {
     if (file.getExtension == TastyFileType.getDefaultExtension) {
       try {
-        // TODO Can we decompile TASTy file content, not a class name? https://github.com/lampepfl/dotty-feature-requests/issues/96
-        TastyPath(file)
-          .flatMap(path => TastyReader.read(path.classpath, content.apply(), rightHandSide = false))
-          .map(tastyFile => (tastyFile.source, tastyFile.text))
+        TastyReader.read(content.apply())
       } catch {
-        case _: Throwable => None // TODO Handle errors more gracefully.
+        case NonFatal(_) => None // TODO Propagate or log
       }
     } else {
       Decompiler.sourceNameAndText(file.getName, content())

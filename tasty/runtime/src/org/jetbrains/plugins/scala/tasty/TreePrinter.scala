@@ -54,7 +54,7 @@ object TreePrinter {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
         val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
         parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
-        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(textOfType(repr.children.findLast(_.isTypeTree).get)))) // TODO parameter, { /* compiled code */ }
+        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(repr.children.findLast(_.isTypeTree).map(textOfType).getOrElse("")))) // TODO parameter, { /* compiled code */ }
       })
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
@@ -126,7 +126,8 @@ object TreePrinter {
     val s1 = tpe.stripPrefix("_root_.")
     val s2 = if (!s1.stripPrefix("scala.").stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
     val s3 = if (!s2.stripPrefix("java.lang.").stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
-    if (!s3.stripPrefix("scala.Predef.").stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+    val s4 = if (!s3.stripPrefix("scala.Predef.").stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+    if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
   private def textOfType(node: Node): String = node match {
@@ -380,6 +381,6 @@ object TreePrinter {
         s += " <: " + u
       }
       s
-    case _ => throw new RuntimeException(node.toString)
+    case _ => "" // TODO exhaustive match
   }
 }
