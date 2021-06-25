@@ -7,6 +7,8 @@ trait Refs {
 
   type TERMREFpkg = /**/scala./**/Long
 
+  private[types] val TYPEREFpkg: Int = ???
+
   type TYPEREFsymbol = T
 
   def TYPEREFdirect[T]: T
