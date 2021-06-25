@@ -4,7 +4,6 @@ import com.intellij.codeInsight.completion.{CompletionContributor, CompletionIni
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.patterns.StandardPatterns.{instanceOf, string}
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
@@ -13,23 +12,18 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, inWr
 import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.language.utils.{PackageSearchApiHelper, SbtArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
-import org.jetbrains.sbt.project.data.SbtModuleExtData
-import scala.jdk.CollectionConverters._
 
 import java.util.concurrent.ConcurrentLinkedDeque
 
 class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
-      psiElement.inside(
-        instanceOf(classOf[ScInfixExpr]) && (psiElement.withChild(psiElement.withText("libraryDependencies")) ||
-          psiElement.withText(string.oneOf(VALID_OPS: _*))) ||
-          SbtPsiElementPatterns.sbtModuleIdPattern)
+      psiElement.inside(SbtPsiElementPatterns.sbtModuleIdPattern)
 
   private val RENDERING_PLACEHOLDER = "Sbtzzz"
 
@@ -72,7 +66,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
               var parentElemToChange = psiElement.getContext
               while (parentElemToChange.getParent.isInstanceOf[ScInfixExpr] &&
-                VALID_OPS.contains(parentElemToChange.getParent.asInstanceOf[ScInfixExpr].operation.refName)
+                MODULE_ID_OPS.contains(parentElemToChange.getParent.asInstanceOf[ScInfixExpr].operation.refName)
               )
                 parentElemToChange = parentElemToChange.getParent
               parentElemToChange = parentElemToChange.getParent
@@ -137,7 +131,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       }
 
       place.parentOfType(classOf[ScInfixExpr], strict = false).foreach(expr => {
-        if (VALID_OPS.contains(expr.operation.refName)) {
+        if (MODULE_ID_OPS.contains(expr.operation.refName)) {
           expr.getText.split('%').map(_.trim).count(_.nonEmpty) - 1 match {
             case 1 if !(expr.right.isInstanceOf[ScReferenceExpression] &&
                 expr.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION)) =>
@@ -193,22 +187,51 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
             case _ =>
           }
         }
-        else if (expr.operation.refName == "+=" && expr.left.textMatches("libraryDependencies")) {
-          val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-            cleanText,
-            "",
-            dependencySearch,
-            PackageSearchApiHelper.createSearchParameters(params),
-            cld)
+        else if (expr.left.textMatches("libraryDependencies")) {
+          expr.operation.refName match {
+            case "+=" =>
+              val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
+                cleanText,
+                "",
+                dependencySearch,
+                PackageSearchApiHelper.createSearchParameters(params),
+                cld)
 
-          waitAndAdd(searchPromise, cld, completeDependency(results))
-          return
+              waitAndAdd(searchPromise, cld, completeDependency(results))
+              return
+
+            /*
+              e.g. libraryDependencies ++= Seq("")
+             */
+            case "++=" =>
+              expr.right match {
+                case seq: ScMethodCall if seq.deepestInvokedExpr.textMatches(SbtDependencyUtils.SEQ) =>
+                  seq.args.exprs.foreach(expr => {
+                    if (trimDummy(expr.getText) == cleanText) {
+                      val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
+                        cleanText,
+                        "",
+                        dependencySearch,
+                        PackageSearchApiHelper.createSearchParameters(params),
+                        cld)
+
+                      waitAndAdd(searchPromise, cld, completeDependency(results))
+                      return
+                    }
+                  })
+              }
+            case _ =>
+          }
+
         }
       })
 
       if (place.getContext != null && place.getContext.getContext != null) {
         val superContext = place.getContext.getContext
         superContext match {
+          /*
+            e.g. val scalariformTest: ModuleID = ""
+           */
           case patDef: ScPatternDefinition if SBT_MODULE_ID_TYPE.contains(patDef.`type`().getOrAny.canonicalText) =>
             val lastLeaf = patDef.lastLeaf
             if (trimDummy(lastLeaf.getText) == cleanText) {
@@ -222,12 +245,33 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
               waitAndAdd(searchPromise, cld, completeDependency(results))
               return
             }
+          /*
+            e.g. val seqModuleIdList: Seq[ModuleID] = Seq(...)
+           */
+          case argList: ScArgumentExprList =>
+            argList.getContext.getContext match {
+              case patDef: ScPatternDefinition if SBT_MODULE_ID_TYPE.exists(patDef.`type`().getOrAny.canonicalText.contains) =>
+                argList.exprs.foreach(expr => {
+                  if (trimDummy(expr.getText) == cleanText) {
+                    val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
+                      cleanText,
+                      "",
+                      dependencySearch,
+                      PackageSearchApiHelper.createSearchParameters(params),
+                      cld)
+
+                    waitAndAdd(searchPromise, cld, completeDependency(results))
+                    return
+                  }
+                })
+              case _ =>
+            }
           case _ =>
         }
       }
     } catch {
       case e: Exception =>
-        throw e
+
     }
   })
 
