@@ -149,7 +149,7 @@ class EnumResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with Simpl
     checkHasErrorAroundCaret(
       s"""
          |object Test {
-         |  enum Foo { private case Btr }
+         |  enum Foo { private case Bar }
          |  val a = Foo.Ba${CARET}r
          |}
          |""".stripMargin
