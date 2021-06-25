@@ -88,7 +88,7 @@ object TastyReaderTest {
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
       val actual = try {
-        textOf(tree)
+        textOf(tree)(using privateMembers = true)
       } catch {
         case NonFatal(e) =>
           Console.err.println(scalaFile)

@@ -19,7 +19,7 @@ object TreePrinter {
       (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
   }
 
-  def textOf(node: Node, definition: Option[Node] = None): String = node match {
+  def textOf(node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): String = node match { // TODO settings
     case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), tail: _*)) => tail match {
       case Seq(node @ Node(PACKAGE, _, _), _: _*) => textOf(node)
       case _ =>
@@ -33,6 +33,7 @@ object TreePrinter {
     }
 
     case node @ Node(TYPEDEF, Seq(name), Seq(template, _: _*)) if !node.hasFlag(SYNTHETIC) || isGivenImplicitClass0(node) => // TODO why both are synthetic?
+      if (!privateMembers && node.hasFlag(PRIVATE)) return ""
       val isEnum = node.hasFlag(ENUM)
       val isObject = node.hasFlag(OBJECT)
       val isGivenObject = isGivenObject0(node)
@@ -87,6 +88,7 @@ object TreePrinter {
         (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
 
     case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !name.contains("$default$") => // TODO why it's not synthetic?
+      if (!privateMembers && node.hasFlag(PRIVATE)) return ""
       val isAbstractGiven = node.hasFlag(GIVEN)
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
@@ -103,6 +105,7 @@ object TreePrinter {
       })
 
     case node @ Node(VALDEF, Seq(name), children) if !node.hasFlag(SYNTHETIC) && !node.hasFlag(OBJECT) =>
+      if (!privateMembers && node.hasFlag(PRIVATE)) return ""
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
       val isCase = node.hasFlag(CASE)
       val isGivenAlias = node.hasFlag(GIVEN)
