@@ -146,7 +146,7 @@ object TreePrinter {
         val qualifier = textOfType(tail)
         if (qualifier.nonEmpty) qualifier + "." + name else name
       }
-    case Node(TERMREFpkg, Seq(name), _: _*) => name
+    case Node(TERMREFpkg | TYPEREFpkg, Seq(name), _: _*) => name
     case Node(APPLIEDtpt, _, Seq(constructor, arguments: _*)) =>
       val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
       if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
@@ -329,9 +329,22 @@ object TreePrinter {
       s += "override "
     }
     if (node.hasFlag(PRIVATE)) {
-      s += "private "
+      if (node.hasFlag(LOCAL)) {
+//        s += "private[this] " TODO Enable? (in Scala 3 it's almost always inferred)
+        s += "private "
+      } else {
+        s += "private "
+      }
     } else if (node.hasFlag(PROTECTED)) {
       s += "protected "
+    } else {
+      node.children.foreach {
+        case Node(PRIVATEqualified, _, Seq(qualifier)) =>
+          s += "private[" + textOfType(qualifier) + "] "
+        case Node(PROTECTEDqualified, _, Seq(qualifier)) =>
+          s += "protected[" + textOfType(qualifier) + "] "
+        case _ =>
+      }
     }
     if (node.hasFlag(SEALED) && !excluding(SEALED)) {
       s += "sealed "
