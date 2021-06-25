@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettin
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScFunctionalTypeElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScFunctionalTypeElement, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
@@ -340,14 +340,24 @@ object ScalaBlock {
       case _: ScTemplateBody => lastChild.getElementType == ScalaTokenTypes.tCOLON
       // `given intOrd: Ord[Int] with <caret>`
       case _: ScExtendsBlock => lastChild.getElementType == ScalaTokenTypes.kWITH
-      // NOTE: strictly speaking, `return` statement without any value is not incomplete in methods with Unit return type
-      case _: ScReturn => true
+      case ret: ScReturn =>
+        // NOTE: compare only type text, do not
+        val hasUnitReturnType: Boolean = ret.method.exists(_.returnTypeElement.exists(isUnitTypeText))
+        !hasUnitReturnType
       case _ => false
     }
     if (isCurrentIncomplete)
       true
     else
       isIncomplete(lastChild)
+  }
+
+  private def isUnitTypeText(typeElement: ScTypeElement): Boolean = {
+    val text = typeElement.getText
+    text match {
+      case "Unit" | "scala.Unit" | "_root_.scala.Unit" => true
+      case _ => false
+    }
   }
 
   private def findLastNonBlankChild(node: ASTNode): ASTNode = {

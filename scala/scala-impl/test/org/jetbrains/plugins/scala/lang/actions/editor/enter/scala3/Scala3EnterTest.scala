@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3
 
 import com.intellij.application.options.CodeStyle
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.Scala2AndScala3EnterActionCommonTests
 import org.jetbrains.plugins.scala.{ScalaFileType, ScalaLanguage}
 
 /** NOTE: much more tests are generated and run in [[Scala3BracelessSyntaxEnterHandlerTest_Exhaustive]] */
 class Scala3EnterTest extends Scala3EnterBaseTest
   with CheckIndentAfterTypingCodeOps
-  with DoEditorStateTestOps {
+  with DoEditorStateTestOps
+  with Scala2AndScala3EnterActionCommonTests {
 
   import Scala3TestDataBracelessCode._
 
