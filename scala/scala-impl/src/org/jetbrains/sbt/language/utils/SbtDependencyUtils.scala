@@ -498,7 +498,7 @@ object SbtDependencyUtils {
     if (artifactId.matches("^.+_\\d+.*$"))
       artifactText += s""""${groupId}" %% "${artifactId.replaceAll("_\\d+.*$", "")}" % "${version}""""
     else
-      artifactText += s""""${groupId}" %% "${artifactId}" % "${version}""""
+      artifactText += s""""${groupId}" % "${artifactId}" % "${version}""""
 
     if (configuration != SbtCommon.defaultLibScope) {
       artifactText += s""" % $configuration"""
