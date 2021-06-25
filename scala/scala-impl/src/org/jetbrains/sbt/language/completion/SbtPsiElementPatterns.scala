@@ -7,7 +7,7 @@ import com.intellij.patterns.StandardPatterns.instanceOf
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.sbt.language.SbtFileType
 
@@ -23,8 +23,9 @@ object SbtPsiElementPatterns {
   def sbtModuleIdPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isSbtModuleIdPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
       elem match {
-        case expr: ScInfixExpr => SBT_MODULE_ID_TYPE.contains(expr.`type`().getOrAny.canonicalText)
-        case patDef: ScPatternDefinition => SBT_MODULE_ID_TYPE.contains(patDef.`type`().getOrAny.canonicalText)
+        case expr: ScInfixExpr => expr.left.getText == "libraryDependencies" && LIB_DEP_OPS.contains(expr.operation.refName) || SBT_MODULE_ID_TYPE.contains(expr.`type`().getOrAny.canonicalText)
+        case patDef: ScPatternDefinition =>
+          SBT_MODULE_ID_TYPE.contains(patDef.`type`().getOrAny.canonicalText) || SBT_MODULE_ID_TYPE.exists(patDef.`type`().getOrAny.canonicalText.contains)
         case _ => false
       }
 
