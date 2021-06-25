@@ -34,17 +34,31 @@ public class PackageSearchApiHelper {
 
     }
 
+    private static String formatString(String str) {
+        return str.replaceAll("^\"+|\"+$", "");
+    }
+
     public static Promise<Integer> searchFullTextDependency(String groupId,
                                                             String artifactId,
                                                             DependencySearchService service,
                                                             SearchParameters searchParameters,
                                                             ConcurrentLinkedDeque<MavenRepositoryArtifactInfo> cld) {
+        String finalGroupId = formatString(groupId);
+        String finalArtifactId = formatString(artifactId);
         String textSearch = "";
-        if (!groupId.equals("")) textSearch = String.format("%s:%s", groupId, artifactId);
-        else textSearch = artifactId;
+        if (!finalGroupId.equals("")) textSearch = String.format("%s:%s", finalGroupId, finalArtifactId);
+        else textSearch = finalArtifactId;
         return service.fulltextSearch(textSearch, searchParameters, repo -> {
             if (repo instanceof MavenRepositoryArtifactInfo) {
-                cld.add((MavenRepositoryArtifactInfo) repo);
+                MavenRepositoryArtifactInfo tempRepo = (MavenRepositoryArtifactInfo) repo;
+                if (!finalArtifactId.isEmpty()) {
+                    if (tempRepo.getGroupId().equals(finalGroupId))
+                        cld.add((MavenRepositoryArtifactInfo) repo);
+                }
+                else {
+                    cld.add((MavenRepositoryArtifactInfo) repo);
+                }
+
             }
         });
 
