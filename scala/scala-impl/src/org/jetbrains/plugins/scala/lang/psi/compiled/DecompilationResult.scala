@@ -11,7 +11,9 @@ import com.intellij.reference.SoftReference
 import org.jetbrains.plugins.scala.decompiler.Decompiler
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.compiled.ScClassFileDecompiler.ScClsStubBuilder.getStubVersion
-import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyPath, TastyReader}
+import org.jetbrains.plugins.scala.tasty.{TastyFileType, TastyReader}
+
+import scala.util.control.NonFatal
 
 private sealed trait DecompilationResult {
   val isScala: Boolean
@@ -121,7 +123,11 @@ private object DecompilationResult {
 
   private def sourceNameAndText(file: VirtualFile, content: () => Array[Byte]): Option[(String, String)] = {
     if (file.getExtension == TastyFileType.getDefaultExtension) {
-      TastyReader.read(content.apply())
+      try {
+        TastyReader.read(content.apply())
+      } catch {
+        case NonFatal(_) => None // TODO Propagate or log
+      }
     } else {
       Decompiler.sourceNameAndText(file.getName, content())
     }

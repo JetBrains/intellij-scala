@@ -54,7 +54,7 @@ object TreePrinter {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
         val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
         parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
-        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(textOfType(repr.children.findLast(_.isTypeTree).get)))) // TODO parameter, { /* compiled code */ }
+        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(repr.children.findLast(_.isTypeTree).map(textOfType).getOrElse("")))) // TODO parameter, { /* compiled code */ }
       })
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
@@ -380,6 +380,6 @@ object TreePrinter {
         s += " <: " + u
       }
       s
-    case _ => throw new RuntimeException(node.toString)
+    case _ => "" // TODO exhaustive match
   }
 }
