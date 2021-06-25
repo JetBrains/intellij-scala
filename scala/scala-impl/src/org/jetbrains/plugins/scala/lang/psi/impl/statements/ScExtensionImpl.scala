@@ -5,14 +5,11 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionDefinitionFactory
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtensionStub
@@ -29,13 +26,13 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     parameters.headOption.flatMap(_.typeElement)
 
   override def extensionMethods: Seq[ScFunctionDefinition] =
-    this.stubOrPsiChildren(FUNCTION_DEFINITION, ScFunctionDefinitionFactory).toSeq
+    extensionBody.fold(Seq.empty[ScFunctionDefinition])(_.functions)
 
   override def parameters: Seq[ScParameter] =
     clauses.toSeq.flatMap(_.clauses.flatMap(_.parameters))
 
-  override def clauses: Option[ScParameters] =
-    findChildByType[ScParameters](ScalaElementType.PARAM_CLAUSES).toOption
+  override def clauses: Option[ScParameters]          = findChild[ScParameters]
+  override def extensionBody: Option[ScExtensionBody] = findChild[ScExtensionBody]
 
   override def getContainingClass: PsiClass = null
 

@@ -211,7 +211,13 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def parameterListCount: Int = paramClauses.clauses.length
 
-  def extensionMethodOwner: Option[ScExtension] = getParent.asOptionOf[ScExtension]
+  def extensionMethodOwner: Option[ScExtension] = {
+    val parent = getParent
+
+    if (parent != null && parent.is[ScExtensionBody])
+      parent.getParent.asOptionOf[ScExtension]
+    else None
+  }
 
   override def isExtensionMethod: Boolean =
     byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)

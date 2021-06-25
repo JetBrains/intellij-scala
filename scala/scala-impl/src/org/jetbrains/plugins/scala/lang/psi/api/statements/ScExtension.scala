@@ -15,6 +15,7 @@ trait ScExtension extends ScTypeParametersOwner
   with ScCommentOwner
   with ScMember {
 
+  def extensionBody: Option[ScExtensionBody]
   def targetTypeElement: Option[ScTypeElement]
   def extensionMethods: Seq[ScFunctionDefinition]
   def effectiveParameterClauses: Seq[ScParameterClause]

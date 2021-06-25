@@ -7,7 +7,7 @@ import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.formatting.IndentInfo
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
-import com.intellij.openapi.editor.{Document, Editor, EditorModificationUtil, EditorModificationUtilEx}
+import com.intellij.openapi.editor.{Document, Editor, EditorModificationUtilEx}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions
@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScExtension}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScExtensionBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.util.IndentUtil
 
@@ -281,7 +281,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
 
         val isInIndentationContext =
           parent.is[ScTemplateBody] ||
-            parent.is[ScExtension] ||
+            parent.is[ScExtensionBody] ||
             isInsideIndentationBlock ||
             isInsideIndentationBlock_AsSingleBlockElement1 ||
             isInsideIndentationBlock_AsSingleBlockElement2
@@ -393,8 +393,6 @@ object Scala3IndentationBasedSyntaxEnterHandler {
   }
 
   private val SpaceOrTab = " \t"
-
-
 
   /** The logic is inspired by [[com.intellij.openapi.editor.actions.EnterAction.insertNewLineAtCaret]] */
   private def insertNewLineWithSpacesAtCaret(

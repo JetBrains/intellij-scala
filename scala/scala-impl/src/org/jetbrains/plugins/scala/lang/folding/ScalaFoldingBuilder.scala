@@ -55,18 +55,12 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       node.getElementType match {
         case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tSH_COMMENT | ScalaDocElementTypes.SCALA_DOC_COMMENT =>
           descriptors add new FoldingDescriptor(node, nodeTextRange)
-        case EXTENSION =>
-          val params = Option(node.findChildByType(ScalaElementType.PARAM_CLAUSES))
-
-          val rangeStart =
-            params.map(_.nextNonWhitespaceNode).collect {
-              case node if node.getElementType == ScalaTokenTypes.tLBRACE => node.getStartOffset
-            }.orElse(params.flatMap(n => Option(n.getTreeNext)).map(_.getStartOffset))
-
-          rangeStart.foreach { start =>
-            val range = TextRange.create(start, nodeTextRange.getEndOffset)
-            descriptors.add(new FoldingDescriptor(node, range))
-          }
+        case EXTENSION_BODY =>
+          // extensions template body do not support `:` in the beginning,
+          // we should capture new line before
+          val isExtensionsTemplateBody = node.getTreeParent.getElementType == ScalaElementType.EXTENSION
+          val range = if (isExtensionsTemplateBody) captureWhitespaceBefore(node, nodeTextRange) else nodeTextRange
+          descriptors.add(new FoldingDescriptor(node, range))
         case TEMPLATE_BODY => descriptors.add(new FoldingDescriptor(node, nodeTextRange))
         case ImportStatement if isGoodImport(node) =>
           descriptors add new FoldingDescriptor(node,
@@ -199,6 +193,12 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       case _                => elementRange
     }
 
+  private def captureWhitespaceBefore(node: ASTNode, nodeRange: TextRange): TextRange =
+    node.getTreePrev match {
+      case ws: PsiWhiteSpace => TextRange.create(ws.getStartOffset, nodeRange.getEndOffset)
+      case _                 => nodeRange
+    }
+
   // TODO: maybe extract some proper base method should be extracted to ScDefinitionWithAssignment?
   //  currently there are "expr", "body", none
   private def definitionBody(da: ScDefinitionWithAssignment): Option[PsiElement] = {
@@ -233,10 +233,9 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
   override def getLanguagePlaceholderText(node: ASTNode, textRange: TextRange): String = {
     if (isMultiline(node) || isMultilineImport(node)) {
       node.getElementType match {
-        case EXTENSION => return " ..."
         case ScalaTokenTypes.tBLOCK_COMMENT => return "/.../"
         case ScalaDocElementTypes.SCALA_DOC_COMMENT => return "/**...*/"
-        case TEMPLATE_BODY =>
+        case TEMPLATE_BODY | EXTENSION_BODY =>
           val result = Option(node.getFirstChildNode).map(_.getElementType) match {
             case Some(ScalaTokenTypes.tLBRACE) => "{...}"
             case Some(ScalaTokenTypes.tCOLON)  => ":..."

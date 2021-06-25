@@ -38,33 +38,34 @@ ScalaFile
                     PsiElement(identifier)('String')
             PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScFunctionDefinition: foo
-          AnnotationsList
-            <empty list>
-          Modifiers
-            <empty list>
-          PsiElement(def)('def')
-          PsiWhiteSpace(' ')
-          PsiElement(identifier)('foo')
-          Parameters
-            <empty list>
-          PsiElement(:)(':')
-          PsiWhiteSpace(' ')
-          SimpleType: String
-            CodeReferenceElement: String
-              PsiElement(identifier)('String')
-          PsiWhiteSpace(' ')
-          PsiElement(=)('=')
-          PsiWhiteSpace(' ')
-          InfixExpression
-            ReferenceExpression: x
-              PsiElement(identifier)('x')
+        ScExtensionBody
+          ScFunctionDefinition: foo
+            AnnotationsList
+              <empty list>
+            Modifiers
+              <empty list>
+            PsiElement(def)('def')
             PsiWhiteSpace(' ')
-            ReferenceExpression: +
-              PsiElement(identifier)('+')
+            PsiElement(identifier)('foo')
+            Parameters
+              <empty list>
+            PsiElement(:)(':')
             PsiWhiteSpace(' ')
-            StringLiteral
-              PsiElement(string content)('"_extented"')
+            SimpleType: String
+              CodeReferenceElement: String
+                PsiElement(identifier)('String')
+            PsiWhiteSpace(' ')
+            PsiElement(=)('=')
+            PsiWhiteSpace(' ')
+            InfixExpression
+              ReferenceExpression: x
+                PsiElement(identifier)('x')
+              PsiWhiteSpace(' ')
+              ReferenceExpression: +
+                PsiElement(identifier)('+')
+              PsiWhiteSpace(' ')
+              StringLiteral
+                PsiElement(string content)('"_extented"')
       PsiWhiteSpace('\n  ')
       ReferenceExpression: "qwe".foo
         StringLiteral

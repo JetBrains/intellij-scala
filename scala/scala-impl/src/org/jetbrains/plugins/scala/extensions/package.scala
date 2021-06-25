@@ -376,7 +376,7 @@ package object extensions {
     // For `is` there's "unsafe" `isInstanceOf`, but for `asOption` there's only `match` (which is verbose).
     def asOptionOfUnsafe[E : ClassTag]: Option[E] =
       v match {
-        case e: E => Some(e)
+        case e: E => Option(e)
         case _    => None
       }
   }
