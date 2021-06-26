@@ -46,8 +46,9 @@ public class PackageSearchApiHelper {
         String finalGroupId = formatString(groupId);
         String finalArtifactId = formatString(artifactId);
         String textSearch = "";
-        if (!finalGroupId.equals("")) textSearch = String.format("%s:%s", finalGroupId, finalArtifactId);
-        else textSearch = finalArtifactId;
+        if (!finalGroupId.equals("") && !finalArtifactId.equals(""))
+            textSearch = String.format("%s:%s", finalGroupId, finalArtifactId);
+        else textSearch = finalGroupId + finalArtifactId;
         return service.fulltextSearch(textSearch, searchParameters, repo -> {
             if (repo instanceof MavenRepositoryArtifactInfo) {
                 MavenRepositoryArtifactInfo tempRepo = (MavenRepositoryArtifactInfo) repo;
