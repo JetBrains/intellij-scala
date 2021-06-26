@@ -21,6 +21,8 @@ import scala.reflect.ClassTag
 class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 
+  override protected val includeCompilerAsLibrary: Boolean = true
+
   private def intKey(s: String): Integer = Integer.valueOf(s.hashCode)
 
   private def moduleWithLibraries: GlobalSearchScope = GlobalSearchScope.moduleWithLibrariesScope(getModule)

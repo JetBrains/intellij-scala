@@ -50,8 +50,11 @@ abstract class ScalaLightCodeInsightFixtureTestAdapter
 
   protected def loadScalaLibrary: Boolean = true
 
+  protected val includeReflectLibrary: Boolean = false
+  protected val includeCompilerAsLibrary: Boolean = false
+
   override protected def librariesLoaders: Seq[LibraryLoader] =
-    ScalaSDKLoader() :: Option(sourceRootPath).map(SourcesLoader).toList
+    ScalaSDKLoader(includeReflectLibrary, includeCompilerAsLibrary) :: Option(sourceRootPath).map(SourcesLoader).toList
 
   override protected def getProjectDescriptor: LightProjectDescriptor = new ScalaLightProjectDescriptor(sharedProjectToken) {
     override def tuneModule(module: Module): Unit = setUpLibraries(module)

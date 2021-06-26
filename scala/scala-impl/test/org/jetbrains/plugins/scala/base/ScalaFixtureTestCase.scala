@@ -17,13 +17,14 @@ abstract class ScalaFixtureTestCase extends CodeInsightFixtureTestCase with Scal
   protected val CARET = EditorTestUtil.CARET_TAG
 
   protected val includeReflectLibrary: Boolean = false
+  protected val includeCompilerAsLibrary: Boolean = false
 
   override final def getFixture: CodeInsightTestFixture = myFixture
 
   protected final implicit def projectContext: Project = getProject
 
   override def librariesLoaders: Seq[LibraryLoader] = Seq(
-    ScalaSDKLoader(includeReflectLibrary),
+    ScalaSDKLoader(includeReflectLibrary, includeCompilerAsLibrary),
     HeavyJDKLoader()
   )
 

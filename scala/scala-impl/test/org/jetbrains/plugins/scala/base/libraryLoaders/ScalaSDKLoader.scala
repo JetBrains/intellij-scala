@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.{ModuleExt, ScalaLanguageLevel, ScalaLibraryProperties, ScalaLibraryType, template}
 import org.junit.Assert._
 
-case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryLoader {
+case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaCompiler: Boolean = false) extends LibraryLoader {
 
   protected lazy val dependencyManager: DependencyManagerBase = new DependencyManagerBase {
     override protected val artifactBlackList: Set[String] = Set.empty
@@ -93,7 +93,10 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false) extends LibraryL
 
     val classesRoots = {
       import scala.jdk.CollectionConverters._
-      compilerClasspath.map(findJarFile).asJava
+      val files =
+        if (includeScalaCompiler) compilerClasspath
+        else compilerClasspath.filterNot(compilerFile == _)
+      files.map(findJarFile).asJava
     }
 
     val libraryTable = LibraryTablesRegistrar.getInstance.getLibraryTable(module.getProject)
