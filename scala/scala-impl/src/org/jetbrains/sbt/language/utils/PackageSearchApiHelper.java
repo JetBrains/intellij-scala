@@ -52,7 +52,7 @@ public class PackageSearchApiHelper {
         return service.fulltextSearch(textSearch, searchParameters, repo -> {
             if (repo instanceof MavenRepositoryArtifactInfo) {
                 MavenRepositoryArtifactInfo tempRepo = (MavenRepositoryArtifactInfo) repo;
-                if (!finalArtifactId.isEmpty()) {
+                if (!finalGroupId.equals("") && !finalArtifactId.equals("")) {
                     if (tempRepo.getGroupId().equals(finalGroupId))
                         cld.add((MavenRepositoryArtifactInfo) repo);
                 }
