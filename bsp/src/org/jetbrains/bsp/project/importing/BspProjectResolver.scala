@@ -72,7 +72,8 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
     reporter.startTask(structureEventId, None, BspBundle.message("bsp.resolver.resolving.build.structure"))
     val targetsEventId = BuildMessages.randomEventId
     reporter.startTask(targetsEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.targets"))
-    val targetsRequest = server.workspaceBuildTargets()
+    val reloadFuture = if (capabilities.getCanReload) server.workspaceReload() else CompletableFuture.completedFuture(new Object)
+    val targetsRequest = reloadFuture.thenCompose(_ => server.workspaceBuildTargets())
 
     val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
       targetsRequest
