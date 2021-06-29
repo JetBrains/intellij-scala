@@ -44,8 +44,7 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
 
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
-  def shouldShowHint(): Boolean =
-    !isScala3AndErrorsFromCompiler(place.getContainingFile) && !mayBeKeyword(place)
+  def shouldShowHint(): Boolean = !mayBeKeyword(place)
 
   def isAddUnambiguous: Boolean
 
