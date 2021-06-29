@@ -17,6 +17,7 @@ class ScalaConsoleActionsPromoter extends ActionPromoter {
         .filter((action: AnAction) => action.is[
           ScalaConsoleExecuteAction,
           ScalaConsoleNewLineAction,
+          ScalaConsoleCleanAction,
           ChooseItemAction
         ])
         .asJava
