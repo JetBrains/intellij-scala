@@ -32,4 +32,14 @@ object SbtPsiElementPatterns {
     }
   })
 
+  def scalaVersionPattern:Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isScalaVersionPattern") {
+    override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
+      elem match {
+        case infix: ScInfixExpr =>
+          infix.left.getText == "scalaVersion" && infix.operation.refName == ":="
+        case _ => false
+      }
+    }
+  })
+
 }
