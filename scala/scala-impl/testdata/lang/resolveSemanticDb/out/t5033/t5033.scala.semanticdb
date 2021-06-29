@@ -1,0 +1,49 @@
+
+Ýtests/pos/t5033.scala*
+_empty_/Eater#*Eater€*+
+_empty_/Eater#`<init>`(). €@*<init>€* 
+_empty_/Eater#Food#*Food€* 
+_empty_/Eater#Food#[T]	*T€*
+_empty_/Fruit#*Fruit€*+
+_empty_/Fruit#`<init>`(). €@*<init>€* 
+_empty_/Fruit#Seed#*Seed€**
+_empty_/PipExtractor#*PipExtractor€*2
+ _empty_/PipExtractor#`<init>`(). €@*<init>€*1
+_empty_/PipExtractor#extract(). *extract€*,
+"_empty_/PipExtractor#extract().(a)*a€*,
+"_empty_/PipExtractor#extract().(b)*b€*@
+ _empty_/LaserGuidedPipExtractor#*LaserGuidedPipExtractor€*=
++_empty_/LaserGuidedPipExtractor#`<init>`(). €@*<init>€*<
+*_empty_/LaserGuidedPipExtractor#extract(). *extract€*7
+-_empty_/LaserGuidedPipExtractor#extract().(f)*f€*7
+-_empty_/LaserGuidedPipExtractor#extract().(g)*g€2
+ _empty_/Eater#2'
+ _empty_/Eater#`<init>`().2!
+ _empty_/Eater#Food#2$
+ _empty_/Eater#Food#[T]2
+ _empty_/Fruit#2'
+ _empty_/Fruit#`<init>`().2!
+ _empty_/Fruit#Seed#2#
+ _empty_/PipExtractor#2.
+		  _empty_/PipExtractor#`<init>`().2-
+		 _empty_/PipExtractor#extract().20
+		 "_empty_/PipExtractor#extract().(a)2
+		 _empty_/Fruit#20
+		 "_empty_/PipExtractor#extract().(b)2
+		  _empty_/Eater#2!
+	%	 )_empty_/Eater#Food#20
+	#	 $"_empty_/PipExtractor#extract().(b)2!
+	,	 0_empty_/Fruit#Seed#20
+	*	 +"_empty_/PipExtractor#extract().(a)2.
+  _empty_/LaserGuidedPipExtractor#29
+& &+_empty_/LaserGuidedPipExtractor#`<init>`().2#
+& 2_empty_/PipExtractor#28
+ *_empty_/LaserGuidedPipExtractor#extract().2;
+ -_empty_/LaserGuidedPipExtractor#extract().(f)2
+ _empty_/Fruit#2;
+ -_empty_/LaserGuidedPipExtractor#extract().(g)2
+  _empty_/Eater#2!
+% )_empty_/Eater#Food#2;
+# $-_empty_/LaserGuidedPipExtractor#extract().(g)2!
+, 0_empty_/Fruit#Seed#2;
+* +-_empty_/LaserGuidedPipExtractor#extract().(f)PZ 97D2A035F2FDB897D3290F2425F007E1

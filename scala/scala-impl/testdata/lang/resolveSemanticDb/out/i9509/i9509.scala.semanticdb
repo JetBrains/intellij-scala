@@ -1,0 +1,96 @@
+
+≈tests/pos/i9509.scala* 
+_empty_/AList# îÄ*AListÄ*+
+_empty_/AList#`<init>`(). Ä@*<init>Ä*
+_empty_/AList#[A]	 Ä*AÄ*
+_empty_/AList.
+ *AListÄ*$
+_empty_/AList.Cons# àÅ*ConsÄ*0
+_empty_/AList.Cons#`<init>`(). Ä@*<init>Ä*4
+$_empty_/AList.Cons#`<init>`().(head) Ä*headÄ*4
+$_empty_/AList.Cons#`<init>`().(tail) Ä*tailÄ* 
+_empty_/AList.Cons#[X]	*XÄ*(
+_empty_/AList.Cons#head. Ä*headÄ*(
+_empty_/AList.Cons#tail. Ä*tailÄ*'
+_empty_/AList.Cons#copy().*copyÄ*'
+_empty_/AList.Cons#copy().[X]	*XÄ*-
+ _empty_/AList.Cons#copy().(head)*headÄ*-
+ _empty_/AList.Cons#copy().(tail)*tailÄ*;
+$_empty_/AList.Cons#copy$default$1().*copy$default$1Ä*1
+'_empty_/AList.Cons#copy$default$1().[X]	*XÄ*;
+$_empty_/AList.Cons#copy$default$2().*copy$default$2Ä*1
+'_empty_/AList.Cons#copy$default$2().[X]	*XÄ*-
+_empty_/AList.Cons#ordinal().*ordinalÄ*#
+_empty_/AList.Cons#_1().*_1Ä*#
+_empty_/AList.Cons#_2().*_2Ä*"
+_empty_/AList.Cons.
+ *ConsÄ*)
+_empty_/AList.Cons.apply().*applyÄ*(
+_empty_/AList.Cons.apply().[X]	*XÄ*.
+!_empty_/AList.Cons.apply().(head)*headÄ*.
+!_empty_/AList.Cons.apply().(tail)*tailÄ*-
+_empty_/AList.Cons.unapply().*unapplyÄ**
+ _empty_/AList.Cons.unapply().[X]	*XÄ*.
+"_empty_/AList.Cons.unapply().(x$1)*x$1Ä*/
+_empty_/AList.Cons.toString().*toStringÄ*"
+_empty_/AList.Nil. Ä©*NilÄ*0
+_empty_/AList.fromOrdinal().*fromOrdinalÄ*5
+%_empty_/AList.fromOrdinal().(ordinal)*ordinalÄ* 
+_empty_/AList.sum().*sumÄ*!
+_empty_/AList.sum().[A]	*AÄ*!
+_empty_/AList.sum().(l)*lÄ*/
+_empty_/AList.sum().(numeric)  *numericÄ*
+local0 Ä	*X$1Ä*
+local1 Ä*xÄ*
+local2 Ä*xsÄ2
+ 
+_empty_/AList#2#
+
+ 
+_empty_/AList#`<init>`().2
+ _empty_/AList#[A]2
+ _empty_/AList.2!
+ _empty_/AList.Cons#2,
+ _empty_/AList.Cons#`<init>`().2$
+ _empty_/AList.Cons#[X]2
+ #_empty_/AList#2$
+$ %_empty_/AList.Cons#[X]2'
+8 8_empty_/AList#`<init>`().2
+0 5_empty_/AList#2$
+6 7_empty_/AList.Cons#[X]2$
+ _empty_/AList.Cons#[X]2&
+ _empty_/AList.Cons#head.2&
+ _empty_/AList.Cons#tail.2(
+ _empty_/AList.Cons#copy().2&
+ _empty_/AList.Cons#_1().2&
+ _empty_/AList.Cons#_2().2!
+ _empty_/AList.Cons.2)
+ _empty_/AList.Cons.apply().2+
+ _empty_/AList.Cons.unapply().2 
+ 
+_empty_/AList.Nil.2*
+ _empty_/AList.fromOrdinal().2"
+! $_empty_/AList.sum().2%
+ _empty_/AList.sum().[A]2%
+ _empty_/AList.sum().(l)2
+ _empty_/AList#2%
+ _empty_/AList.sum().[A]2+
++ 2_empty_/AList.sum().(numeric)2$
+4 ;scala/package.Numeric#2%
+< =_empty_/AList.sum().[A]2%
+A B_empty_/AList.sum().[A]2%
+E F_empty_/AList.sum().(l)2+
+ _empty_/AList.Cons.unapply().2!
+	 _empty_/AList.Cons.2
+ local02
+ local12
+ local22(
+  $scala/math/Numeric#plus().2+
+ _empty_/AList.sum().(numeric)2
+% &local12"
++ ._empty_/AList.sum().2
+( *local22+
+5 <_empty_/AList.sum().(numeric)2 
+	 _empty_/AList.Nil.2(
+  $scala/math/Numeric#zero().2+
+ _empty_/AList.sum().(numeric)PZ 645E93817B0DDD5E84A754901E4C7265

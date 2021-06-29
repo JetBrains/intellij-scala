@@ -1,0 +1,211 @@
+
+ñCtests/pos/t5399.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#A#*A€*,
+_empty_/Test#A#`<init>`(). €@*<init>€*
+_empty_/Test#A#[T]	*T€*
+_empty_/Test#B#*B€*,
+_empty_/Test#B#`<init>`(). €@*<init>€**
+_empty_/Test#B#`<init>`().(a) €*a€*
+_empty_/Test#B#[T]	*T€*
+_empty_/Test#B#a. €*a€*,
+_empty_/Test#CaseClass# €*	CaseClass€*4
+"_empty_/Test#CaseClass#`<init>`(). €@*<init>€*2
+%_empty_/Test#CaseClass#`<init>`().(x) €*x€*$
+_empty_/Test#CaseClass#[T]	*T€*&
+_empty_/Test#CaseClass#x. €*x€*+
+_empty_/Test#CaseClass#copy().*copy€*+
+!_empty_/Test#CaseClass#copy().[T]	*T€*+
+!_empty_/Test#CaseClass#copy().(x)*x€*?
+(_empty_/Test#CaseClass#copy$default$1().*copy$default$1€*5
++_empty_/Test#CaseClass#copy$default$1().[T]	*T€*'
+_empty_/Test#CaseClass#_1().*_1€*+
+_empty_/Test#CaseClass.
+ *	CaseClass€*-
+_empty_/Test#CaseClass.apply().*apply€*,
+"_empty_/Test#CaseClass.apply().[T]	*T€*,
+"_empty_/Test#CaseClass.apply().(x)*x€*1
+!_empty_/Test#CaseClass.unapply().*unapply€*.
+$_empty_/Test#CaseClass.unapply().[T]	*T€*2
+&_empty_/Test#CaseClass.unapply().(x$1)*x$1€*3
+"_empty_/Test#CaseClass.toString().*toString€*#
+_empty_/Test#break().*break€*,
+_empty_/Test#break().(existB)*existB€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#Init#*Init€*.
+_empty_/Foo#Init#`<init>`(). €@*<init>€*
+_empty_/Foo#Init#[T]	*T€*(
+_empty_/Foo#ScopedKey#*	ScopedKey€*3
+!_empty_/Foo#ScopedKey#`<init>`(). €@*<init>€*#
+_empty_/Foo#ScopedKey#[T]	*T€*$
+_empty_/Foo#Setting#*Setting€*1
+_empty_/Foo#Setting#`<init>`(). €@*<init>€*!
+_empty_/Foo#Setting#[T]	*T€*'
+_empty_/Foo#Setting#key. „*key€*-
+_empty_/Foo#ScopedKey1# €*
+ScopedKey1€*4
+"_empty_/Foo#ScopedKey1#`<init>`(). €@*<init>€*6
+'_empty_/Foo#ScopedKey1#`<init>`().(foo) €*foo€*$
+_empty_/Foo#ScopedKey1#[T]	*T€**
+_empty_/Foo#ScopedKey1#foo. €*foo€*+
+_empty_/Foo#ScopedKey1#copy().*copy€*+
+!_empty_/Foo#ScopedKey1#copy().[T]	*T€*/
+#_empty_/Foo#ScopedKey1#copy().(foo)*foo€*?
+(_empty_/Foo#ScopedKey1#copy$default$1().*copy$default$1€*5
++_empty_/Foo#ScopedKey1#copy$default$1().[T]	*T€*'
+_empty_/Foo#ScopedKey1#_1().*_1€*,
+_empty_/Foo#ScopedKey1.
+ *
+ScopedKey1€*-
+_empty_/Foo#ScopedKey1.apply().*apply€*,
+"_empty_/Foo#ScopedKey1.apply().[T]	*T€*0
+$_empty_/Foo#ScopedKey1.apply().(foo)*foo€*1
+!_empty_/Foo#ScopedKey1.unapply().*unapply€*.
+$_empty_/Foo#ScopedKey1.unapply().[T]	*T€*2
+&_empty_/Foo#ScopedKey1.unapply().(x$1)*x$1€*3
+"_empty_/Foo#ScopedKey1.toString().*toString€*+
+_empty_/Foo#scalaHome. €*	scalaHome€*1
+_empty_/Foo#scalaVersion. €*scalaVersion€*8
+_empty_/Foo#testPatternMatch().*testPatternMatch€*,
+"_empty_/Foo#testPatternMatch().(s)*s€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€**
+_empty_/Test2#AnyCyclic#*	AnyCyclic€* 
+_empty_/Test2#Task#*Task€*0
+_empty_/Test2#Task#`<init>`(). €@*<init>€* 
+_empty_/Test2#Task#[T]	*T€*&
+_empty_/Test2#Execute#*Execute€*3
+!_empty_/Test2#Execute#`<init>`(). €@*<init>€*#
+_empty_/Test2#Execute#[A]	*A€*>
+&_empty_/Test2#Execute#CyclicException#*CyclicException€*C
+1_empty_/Test2#Execute#CyclicException#`<init>`(). €@*<init>€*K
+9_empty_/Test2#Execute#CyclicException#`<init>`().(caller) €*caller€*K
+9_empty_/Test2#Execute#CyclicException#`<init>`().(target) €*target€*3
+)_empty_/Test2#Execute#CyclicException#[T]	*T€*?
+-_empty_/Test2#Execute#CyclicException#caller. €*caller€*?
+-_empty_/Test2#Execute#CyclicException#target. €*target€*4
+_empty_/Test2#convertCyclic().*convertCyclic€*+
+!_empty_/Test2#convertCyclic().(c)*c€*
+local0 €*caller€*
+local1 €*target€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ 	_empty_/Test#A#2(
+	 	_empty_/Test#A#`<init>`().2 
+
+ _empty_/Test#A#[T]2
+ 	_empty_/Test#B#2(
+	 	_empty_/Test#B#`<init>`().2
+ _empty_/Test#A#2 
+ _empty_/Test#B#[T]2 
+
+ _empty_/Test#B#[T]2
+ _empty_/Test#B#a.2%
+ _empty_/Test#CaseClass#20
+ "_empty_/Test#CaseClass#`<init>`().2(
+ _empty_/Test#CaseClass#[T]2(
+ _empty_/Test#CaseClass#[T]2'
+ _empty_/Test#CaseClass#x.2,
+ _empty_/Test#CaseClass#copy().2*
+ _empty_/Test#CaseClass#_1().2%
+ _empty_/Test#CaseClass.2-
+ _empty_/Test#CaseClass.apply().2/
+ !_empty_/Test#CaseClass.unapply().2#
+ _empty_/Test#break().2+
+ _empty_/Test#break().(existB)2
+ _empty_/Test#B#2-
+ _empty_/Test#CaseClass.apply().2%
+ _empty_/Test#CaseClass.2
+ _empty_/Test#B#a.2+
+ _empty_/Test#break().(existB)2/
+. .!_empty_/Test#CaseClass.unapply().2%
+% ._empty_/Test#CaseClass.2
+
+
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#Init#2*
+ _empty_/Foo#Init#`<init>`().2"
+ _empty_/Foo#Init#[T]2$
+ _empty_/Foo#ScopedKey#2/
+ !_empty_/Foo#ScopedKey#`<init>`().2
+ !_empty_/Foo#Init#2'
+" #_empty_/Foo#ScopedKey#[T]2'
+ _empty_/Foo#ScopedKey#[T]2"
+ _empty_/Foo#Setting#2-
+ _empty_/Foo#Setting#`<init>`().2%
+ _empty_/Foo#Setting#[T]2&
+ _empty_/Foo#Setting#key.2$
+ _empty_/Foo#ScopedKey#2%
+ _empty_/Foo#Setting#[T]2%
+ _empty_/Foo#ScopedKey1#20
+ "_empty_/Foo#ScopedKey1#`<init>`().2
+$ (_empty_/Foo#Init#2(
+) *_empty_/Foo#ScopedKey1#[T]2/
+A A!_empty_/Foo#ScopedKey#`<init>`().2$
+5 >_empty_/Foo#ScopedKey#2(
+? @_empty_/Foo#ScopedKey1#[T]2(
+ _empty_/Foo#ScopedKey1#[T]2)
+ "_empty_/Foo#ScopedKey1#foo.2,
+ _empty_/Foo#ScopedKey1#copy().2*
+$ $_empty_/Foo#ScopedKey1#_1().2%
+ _empty_/Foo#ScopedKey1.2-
+ _empty_/Foo#ScopedKey1.apply().2/
+ !_empty_/Foo#ScopedKey1.unapply().2$
+ _empty_/Foo#scalaHome.2"
+ _empty_/Foo#Setting#2
+ scala/Option#2"
+  &scala/Predef.String#2'
+ _empty_/Foo#scalaVersion.2"
+ _empty_/Foo#Setting#2"
+ "scala/Predef.String#2-
+ _empty_/Foo#testPatternMatch().20
+ "_empty_/Foo#testPatternMatch().(s)2"
+ !_empty_/Foo#Setting#2
+' +scala/Unit#2&
+ 	_empty_/Foo#Setting#key.20
+ "_empty_/Foo#testPatternMatch().(s)2/
+ !_empty_/Foo#ScopedKey1.unapply().2%
+ _empty_/Foo#ScopedKey1.2&
+  #_empty_/Foo#Setting#key.2$
+ _empty_/Foo#scalaHome.2&
+3 6_empty_/Foo#Setting#key.2'
+& 2_empty_/Foo#scalaVersion.2
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2&
+ _empty_/Test2#AnyCyclic#24
+! 0&_empty_/Test2#Execute#CyclicException#2$
+ _empty_/Test2#Execute#2!
+!! _empty_/Test2#Task#2,
+!! _empty_/Test2#Task#`<init>`().2$
+!! _empty_/Test2#Task#[T]2$
+## _empty_/Test2#Execute#2/
+## !_empty_/Test2#Execute#`<init>`().2'
+## _empty_/Test2#Execute#[A]24
+$
+$ &_empty_/Test2#Execute#CyclicException#2?
+$$ 1_empty_/Test2#Execute#CyclicException#`<init>`().2'
+$)$ *_empty_/Test2#Execute#[A]27
+$+$ ,)_empty_/Test2#Execute#CyclicException#[T]2'
+$;$ <_empty_/Test2#Execute#[A]27
+$=$ >)_empty_/Test2#Execute#CyclicException#[T]27
+$$ )_empty_/Test2#Execute#CyclicException#[T]2;
+$!$ '-_empty_/Test2#Execute#CyclicException#caller.2;
+$3$ 9-_empty_/Test2#Execute#CyclicException#target.2,
+'' _empty_/Test2#convertCyclic().2/
+'' !_empty_/Test2#convertCyclic().(c)2&
+''  _empty_/Test2#AnyCyclic#2"
+'#' )scala/Predef.String#2#
+(( scala/Tuple2.apply().2;
+(( -_empty_/Test2#Execute#CyclicException#caller.2/
+(( !_empty_/Test2#convertCyclic().(c)2;
+(( -_empty_/Test2#Execute#CyclicException#target.2/
+(( !_empty_/Test2#convertCyclic().(c)2%
+)) scala/Tuple2.unapply().2
+)) local02!
+)) _empty_/Test2#Task#2
+)) #local12!
+)%) )_empty_/Test2#Task#PZ 718D4B3F437603906142E4AF590B00F0

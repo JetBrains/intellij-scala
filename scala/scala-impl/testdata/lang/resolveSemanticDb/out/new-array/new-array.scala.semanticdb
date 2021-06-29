@@ -1,0 +1,87 @@
+
+¤tests/pos/new-array.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.w. €*w€*
+_empty_/Test.x. €*x€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€*
+_empty_/Test.y. €*y€*
+_empty_/Test.z. €*z€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.w. €*w€*
+_empty_/Test2.x. €*x€*
+_empty_/Test2.f().*f€*
+_empty_/Test2.f().[T]	*T€*
+_empty_/Test2.y. €*y€*
+_empty_/Test2.z. €*z€2
+ _empty_/Test.2
+ _empty_/Test.w.2%
+ scala/Array#`<init>`().2
+ scala/Array#2"
+ scala/Predef.String#2
+ _empty_/Test.x.2%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ 
+scala/Int#2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2"
+ _empty_/Test.f().[T]25
+  /'scala/runtime/Arrays.newGenericArray().2
+ _empty_/Test.y.2%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ 
+scala/Any#2
+ _empty_/Test.z.2%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ scala/Unit#2
+ _empty_/Test2.2
+ _empty_/Test2.w.2
+	 scala/Array#2
+ 
+scala/Any#2%
+ scala/Array#`<init>`().2
+		 _empty_/Test2.x.2
+			 scala/Array#2
+		 
+scala/Int#2%
+		 scala/Array#`<init>`().2 
+
+
+ _empty_/Test2.f().2#
+
+
+ 	_empty_/Test2.f().[T]2%
+
+
+ scala/reflect/ClassTag#2
+
+
+ scala/reflect/2#
+
+
+ _empty_/Test2.f().[T]2
+
+
+ #scala/Array#2#
+
+$
+ %_empty_/Test2.f().[T]25
+
+)
+ 6'scala/runtime/Arrays.newGenericArray().2
+ _empty_/Test2.y.2
+	 scala/Array#2
+ 
+scala/Any#2%
+ scala/Array#`<init>`().2
+ _empty_/Test2.z.2
+	 scala/Array#2
+ scala/Unit#2%
+   scala/Array#`<init>`().PZ 1FDE00B702CD7A104CAAA1E0FF826BC8

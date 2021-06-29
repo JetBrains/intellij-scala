@@ -1,0 +1,19 @@
+
+ìtests/pos/i11581.scala*
+_empty_/Abc#*Abc€*)
+_empty_/Abc#`<init>`(). €@*<init>€*
+_empty_/Abc#a().*a€*
+_empty_/Xyz#*Xyz€*)
+_empty_/Xyz#`<init>`(). €@*<init>€*
+_empty_/Xyz#a().*a€2
+ 	_empty_/Abc#2%
+ _empty_/Abc#`<init>`().2
+ _empty_/Abc#a().2'
+ scala/Predef.println(+1).2
+ _empty_/Abc#a().2
+ _empty_/Abc#2
+ 	_empty_/Xyz#2%
+ _empty_/Xyz#`<init>`().2
+ _empty_/Xyz#a().2'
+ scala/Predef.println(+1).2
+ _empty_/Xyz#PZ 9D04FCC3A671231114BE8287989DBAAD

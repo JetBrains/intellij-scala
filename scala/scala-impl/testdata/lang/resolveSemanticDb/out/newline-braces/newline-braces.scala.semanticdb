@@ -1,0 +1,47 @@
+
+÷	tests/pos/newline-braces.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#x. €*x€*3
+!_empty_/`newline-braces$package`. *_empty_€*3
+'_empty_/`newline-braces$package`.bar().*bar€*
+local0 €*x€*/
+%_empty_/`newline-braces$package`.f().*f€*
+local1*f€*
+local2*x€*0
+#_empty_/`newline-braces$package`.x. €*x€*
+local3 €*xyz€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#x.2
+	 
+scala/Int#2+
+!_empty_/`newline-braces$package`.25
+ '_empty_/`newline-braces$package`.bar().2
+ 
+scala/Int#2
+ local02#
+
+ scala/Predef.`???`().2
+ local023
+ %_empty_/`newline-braces$package`.f().2
+ 
+
+scala/Int#2
+ 
+scala/Int#27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local12
+ local22
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2
+ local221
+ #_empty_/`newline-braces$package`.x.2#
+	 scala/Boolean#`&&`().2
+
+ local32#
+
+ scala/Boolean#`&&`().2
+ 	local3PZ E5DFCAD8C2798500984A3D6BC089C46C

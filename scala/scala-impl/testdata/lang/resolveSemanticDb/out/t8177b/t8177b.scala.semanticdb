@@ -1,0 +1,69 @@
+
+ätests/pos/t8177b.scala*
+_empty_/Thing#*Thing€*+
+_empty_/Thing#`<init>`(). €@*<init>€*
+_empty_/Thing#A#*A€*$
+_empty_/IntThing.
+ *IntThing€*
+_empty_/IntThing.A#*A€**
+_empty_/ThingHolder.
+ *ThingHolder€*(
+_empty_/ThingHolder.Alias#*Alias€*+
+_empty_/ThingHolder.Alias#[AIn]	*AIn€*
+local0*A€*
+_empty_/View#*View€**
+_empty_/View#`<init>`(). €@*<init>€**
+_empty_/View#`<init>`().(in) €*in€*
+_empty_/View#[AIn]	*AIn€*
+_empty_/View#in. €*in€*
+_empty_/View#f().*f€*
+_empty_/View#f().(p)*p€* 
+_empty_/SubView#*SubView€*-
+_empty_/SubView#`<init>`(). €@*<init>€*
+_empty_/SubView#f().*f€*!
+_empty_/SubView#f().(p)*p€2
+ _empty_/Thing#2'
+ _empty_/Thing#`<init>`().2
+ _empty_/Thing#A#2
+ _empty_/IntThing.2
+ _empty_/Thing#2!
+% &_empty_/IntThing.A#2
+) ,
+scala/Int#2"
+ _empty_/ThingHolder.2(
+ _empty_/ThingHolder.Alias#2-
+  #_empty_/ThingHolder.Alias#[AIn]2
+' ,_empty_/Thing#2
+4 5local02-
+8 ;_empty_/ThingHolder.Alias#[AIn]2
+ 
+_empty_/View#2&
+
+ 
+_empty_/View#`<init>`().2(
+$ )_empty_/ThingHolder.Alias#2"
+ #_empty_/ThingHolder.2 
+* -_empty_/View#[AIn]2 
+ _empty_/View#[AIn]2
+ _empty_/View#in.2
+? @_empty_/View#f().2"
+A B_empty_/View#f().(p)2
+G H_empty_/Thing#A#2
+D F_empty_/View#in.2
+N O_empty_/Thing#A#2
+K M_empty_/View#in.2"
+R S_empty_/View#f().(p)2
+ _empty_/SubView#2)
+ _empty_/SubView#`<init>`().2&
+ _empty_/View#`<init>`().2
+ _empty_/View#2
+ 
+scala/Int#2
+  (_empty_/IntThing.2"
+? @_empty_/SubView#f().2%
+A B_empty_/SubView#f().(p)2
+G H_empty_/Thing#A#2
+D F_empty_/View#in.2
+N O_empty_/Thing#A#2
+K M_empty_/View#in.2%
+R S_empty_/SubView#f().(p)PZ 435514D0BD0CFF6AD8081772DE81913A

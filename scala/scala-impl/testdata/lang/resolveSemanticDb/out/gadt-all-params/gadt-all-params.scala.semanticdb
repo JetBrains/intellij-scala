@@ -1,0 +1,46 @@
+
+°tests/pos/gadt-all-params.scala*4
+_empty_/`gadt-all-params`.
+ *gadt-all-params€*0
+_empty_/`gadt-all-params`.Expr# ”€*Expr€*<
+*_empty_/`gadt-all-params`.Expr#`<init>`(). €@*<init>€*,
+"_empty_/`gadt-all-params`.Expr#[T]	*T€*.
+_empty_/`gadt-all-params`.Expr.
+ *Expr€*;
+'_empty_/`gadt-all-params`.Expr.UnitLit. €©*UnitLit€*:
+'_empty_/`gadt-all-params`.Expr.$values. €*$values€*7
+(_empty_/`gadt-all-params`.Expr.values().*values€*9
+)_empty_/`gadt-all-params`.Expr.valueOf().*valueOf€*>
+0_empty_/`gadt-all-params`.Expr.valueOf().($name)*$name€*A
+-_empty_/`gadt-all-params`.Expr.fromOrdinal().*fromOrdinal€*F
+6_empty_/`gadt-all-params`.Expr.fromOrdinal().(ordinal)*ordinal€*,
+ _empty_/`gadt-all-params`.foo().*foo€*-
+#_empty_/`gadt-all-params`.foo().[T]	*T€*/
+$_empty_/`gadt-all-params`.foo().[TT]	*TT€*-
+#_empty_/`gadt-all-params`.foo().(e)*e€2$
+ _empty_/`gadt-all-params`.2-
+ _empty_/`gadt-all-params`.Expr#28
+ *_empty_/`gadt-all-params`.Expr#`<init>`().20
+ "_empty_/`gadt-all-params`.Expr#[T]2-
+ _empty_/`gadt-all-params`.Expr.25
+	 '_empty_/`gadt-all-params`.Expr.UnitLit.28
+# #*_empty_/`gadt-all-params`.Expr#`<init>`().2-
+ _empty_/`gadt-all-params`.Expr#2
+ "scala/Unit#25
+	 	'_empty_/`gadt-all-params`.Expr.$values.26
+	 	(_empty_/`gadt-all-params`.Expr.values().27
+	 	)_empty_/`gadt-all-params`.Expr.valueOf().2;
+	 	-_empty_/`gadt-all-params`.Expr.fromOrdinal().2.
+ 	 _empty_/`gadt-all-params`.foo().21
+
+ #_empty_/`gadt-all-params`.foo().[T]22
+ $_empty_/`gadt-all-params`.foo().[TT]22
+ $_empty_/`gadt-all-params`.foo().[TT]22
+ $_empty_/`gadt-all-params`.foo().[TT]21
+ #_empty_/`gadt-all-params`.foo().(e)2-
+  $_empty_/`gadt-all-params`.Expr#21
+% &#_empty_/`gadt-all-params`.foo().[T]21
+* +#_empty_/`gadt-all-params`.foo().[T]21
+. /#_empty_/`gadt-all-params`.foo().(e)25
+ '_empty_/`gadt-all-params`.Expr.UnitLit.2-
+	 _empty_/`gadt-all-params`.Expr.PZ 85FA6AA2CEE79187D58D119956E913A5

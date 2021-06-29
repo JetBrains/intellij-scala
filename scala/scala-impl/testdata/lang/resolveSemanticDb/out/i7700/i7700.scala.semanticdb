@@ -1,0 +1,64 @@
+
+Ètests/pos/i7700.scala*
+
+test/Show#*Show€*'
+test/Show#`<init>`(). €@*<init>€*
+test/Show#[A]	 €*A€* 
+test/Show#show(). *show€*
+test/Show#show().(a)*a€*
+test/Macros.
+ *Macros€* 
+test/Macros.show().*show€*"
+test/Macros.show().(sc)*sc€*&
+test/Macros.show().(args)*args€*
+
+test/Show.
+ *Show€*
+test/Show.show().*show€*
+test/Show.show().[A]	*A€*
+test/Show.show().(a)*a€* 
+test/Show.show().(S)  *S€*"
+test/Show.show(+1). *show€*"
+test/Show.show(+1).(sc)*sc€*&
+test/Show.show(+1).(args)*args€2
+ test/2
+ 
+
+test/Show#2#
+
+ 
+test/Show#`<init>`().2
+ test/Show#[A]2
+ 
+test/Show#show().2"
+ test/Show#show().(a)2
+ test/Show#[A]2"
+ scala/Predef.String#2
+ test/Macros.2!
++ /test/Macros.show().2%
+ test/Macros.show().(sc)2"
+ scala/StringContext#2'
+0 4test/Macros.show().(args)2
+8 ;
+scala/Any#2"
+? Escala/Predef.String#2#
+H Kscala/Predef.`???`().2
+ 
+test/Show.2
+		 test/Show.show().2"
+		 test/Show.show().[A]2"
+		 test/Show.show().(a)2"
+		 test/Show.show().[A]2"
+	&	 'test/Show.show().(S)2
+	)	 -
+test/Show#2"
+	.	 /test/Show.show().[A]2"
+	3	 9scala/Predef.String#2
+	>	 Btest/Show#show().2"
+	<	 =test/Show.show().(S)2"
+	C	 Dtest/Show.show().(a)2
+	 test/Macros.2!
+ test/Show.show(+1).2!
+ test/Macros.show().2%
+ test/Show.show(+1).(sc)2'
+ test/Show.show(+1).(args)PZ ACA521CC3A999CF1986DA9FA10F3682C

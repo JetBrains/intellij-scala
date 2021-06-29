@@ -1,0 +1,88 @@
+
+¡tests/pos/t8230a.scala*
+_empty_/Arr#*Arr€*)
+_empty_/Arr#`<init>`(). €@*<init>€*
+_empty_/Arr#[T]	*T€*
+_empty_/Arr.
+ *Arr€*"
+_empty_/Arr.apply().*apply€*!
+_empty_/Arr.apply().[T]	*T€*#
+_empty_/Arr.apply().(xs)*xs€*$
+_empty_/Arr.apply(+1).*apply€*#
+_empty_/Arr.apply(+1).(x)*x€*
+
+_empty_/I.
+ *I€**
+_empty_/I.arrToTrav().  *	arrToTrav€*#
+_empty_/I.arrToTrav().[T]	*T€*#
+_empty_/I.arrToTrav().(a)*a€*2
+_empty_/I.longArrToTrav().  *longArrToTrav€*'
+_empty_/I.longArrToTrav().(a)*a€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(t)*t€*!
+_empty_/Test.Okay.
+ *Okay€*!
+_empty_/Test.Okay.x. €*x€*!
+_empty_/Test.Fail.
+ *Fail€2
+ 	_empty_/Arr#2!
+	 	_empty_/Arr#`<init>`().2
+
+ _empty_/Arr#[T]2
+ 
+_empty_/Arr.2"
+ _empty_/Arr.apply().2%
+ _empty_/Arr.apply().[T]2&
+ _empty_/Arr.apply().(xs)2%
+ _empty_/Arr.apply().[T]2
+ _empty_/Arr#2%
+ _empty_/Arr.apply().[T]2$
+ _empty_/Arr.apply(+1).2'
+ _empty_/Arr.apply(+1).(x)2
+ scala/Long#2
+ _empty_/Arr#2
+ scala/Long#2
+ 
+_empty_/I.2$
+ _empty_/I.arrToTrav().2'
+ _empty_/I.arrToTrav().[T]2'
+ _empty_/I.arrToTrav().(a)2
+  #_empty_/Arr#2'
+$ %_empty_/I.arrToTrav().[T]2(
+, 7scala/package.Traversable#2'
+8 9_empty_/I.arrToTrav().[T]2(
+ _empty_/I.longArrToTrav().2+
+ _empty_/I.longArrToTrav().(a)2
+  #_empty_/Arr#2
+$ (scala/Long#2(
+, 7scala/package.Traversable#2
+8 <scala/Long#2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(t)2(
+ scala/package.Traversable#2
+ 
+scala/Any#2 
+	 _empty_/Test.Okay.2"
+ _empty_/Arr.apply().2
+ _empty_/Arr.2$
+ _empty_/I.arrToTrav().2(
+ '_empty_/I.longArrToTrav().2
+ 
+_empty_/I.2"
+ 	_empty_/Test.Okay.x.2!
+ _empty_/Test.foo().2$
+ _empty_/I.arrToTrav().2"
+ _empty_/Arr.apply().2
+ _empty_/Arr.2 
+	 _empty_/Test.Fail.2$
+ _empty_/I.arrToTrav().2
+ 
+_empty_/I.2!
+ _empty_/Test.foo().2$
+ _empty_/I.arrToTrav().2"
+ _empty_/Arr.apply().2
+ _empty_/Arr.PZ 04C0D995EA1AE0B282C07359A449D17C

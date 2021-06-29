@@ -1,0 +1,38 @@
+
+‰#tests/pos/abstract-inline-val.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#x(). *x€*
+_empty_/C#y. „*y€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*
+_empty_/C1#x. €*x€*
+_empty_/C1#y. €*y€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+_empty_/C2#x().*x€*
+_empty_/C2#y. €*y€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#x().2
+ 
+scala/Int#2
+ _empty_/C#y.2
+ 
+scala/Int#2
+ _empty_/C1#2$
+ _empty_/C1#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/C1#x.2
+ _empty_/C1#y.2
+ _empty_/C2#2$
+ _empty_/C2#`<init>`().2
+ 
+_empty_/C#2
+		 _empty_/C2#x().2
+
+
+ _empty_/C2#y.PZ B7911025A3E5D4CC698E5CF70CF28C1C

@@ -1,0 +1,157 @@
+
+í$tests/pos/infersingle.scala*
+_empty_/Test1.
+ *Test1€* 
+_empty_/Test1.one().*one€*!
+_empty_/Test1.one().[T]	*T€*!
+_empty_/Test1.one().(x)*x€*
+_empty_/Test1.x. €*x€*
+_empty_/Test1.y. €*y€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.a. €*a€*
+_empty_/Test2.Id.
+ *Id€*+
+_empty_/Test2.Id.unapply().*unapply€*.
+!_empty_/Test2.Id.unapply().(xxxx)*xxxx€*
+_empty_/Test2.b. €*b€*
+local0 €*x€*
+_empty_/Test3.
+ *Test3€*
+_empty_/Test3.a. €*a€*
+_empty_/Test3.Id.
+ *Id€*+
+_empty_/Test3.Id.unapply().*unapply€*.
+!_empty_/Test3.Id.unapply().(xxxx)*xxxx€*
+_empty_/Test3.b. €*b€*
+local1 €*x€*
+_empty_/Test4#*Test4€*+
+_empty_/Test4#`<init>`(). €@*<init>€*
+_empty_/Test4#a. €*a€*
+_empty_/Test4#Id.
+ *Id€*+
+_empty_/Test4#Id.unapply().*unapply€*.
+!_empty_/Test4#Id.unapply().(xxxx)*xxxx€*
+_empty_/Test4#b. €*b€*
+local2 €*x€*
+_empty_/Super5#*Super5€*,
+_empty_/Super5#`<init>`(). €@*<init>€*
+_empty_/Super5#q. ˆ*q€*
+_empty_/Super5#q1().*q1€*
+_empty_/Test5#*Test5€*+
+_empty_/Test5#`<init>`(). €@*<init>€*
+_empty_/Test5#a. €*a€*
+_empty_/Test5#Id.
+ *Id€*+
+_empty_/Test5#Id.unapply().*unapply€*.
+!_empty_/Test5#Id.unapply().(xxxx)*xxxx€*
+_empty_/Test5#b. €*b€*
+local3 €*x€2
+ _empty_/Test1.2"
+ 	_empty_/Test1.one().2%
+
+ _empty_/Test1.one().[T]2%
+ _empty_/Test1.one().(x)2%
+ _empty_/Test1.one().[T]2
+ scala/Option#2%
+ _empty_/Test1.one().[T]2!
+$ $scala/Some.apply().2
+  $scala/Some.2%
+% &_empty_/Test1.one().(x)2
+ _empty_/Test1.x.2
+ _empty_/Test1.y.2
+	 scala/Option#2
+ _empty_/Test1.x.2"
+ _empty_/Test1.one().2
+ _empty_/Test1.x.2
+ _empty_/Test2.2
+		 _empty_/Test2.a.2
+
+	
+ _empty_/Test2.Id.2)
+ _empty_/Test2.Id.unapply().2/
+ !_empty_/Test2.Id.unapply().(xxxx)2
+ 
+scala/Any#2
+  scala/Some#2
+! "_empty_/Test2.a.2!
+/ /scala/Some.apply().2
++ /scala/Some.2
+0 1_empty_/Test2.a.2
+8 9_empty_/Test2.a.2
+ _empty_/Test2.b.2
+	 
+_empty_/Test2.a.2
+ _empty_/Test2.a.2
+ _empty_/Test2.a.2)
+ _empty_/Test2.Id.unapply().2
+	 _empty_/Test2.Id.2
+ local02
+ local02
+ _empty_/Test3.2
+ _empty_/Test3.a.2
+	 _empty_/Test3.Id.2)
+ _empty_/Test3.Id.unapply().2/
+ !_empty_/Test3.Id.unapply().(xxxx)2
+ 
+scala/Any#2
+  scala/Some#2
+! &_empty_/Test3.2!
+3 3scala/Some.apply().2
+/ 3scala/Some.2
+4 9_empty_/Test3.2
+@ E_empty_/Test3.2
+ _empty_/Test3.b.2
+	 _empty_/Test3.2
+ _empty_/Test3.a.2)
+ _empty_/Test3.Id.unapply().2
+	 _empty_/Test3.Id.2
+ local12
+ local12
+ _empty_/Test4#2'
+ _empty_/Test4#`<init>`().2
+ _empty_/Test4#a.2
+	 _empty_/Test4#Id.2)
+ _empty_/Test4#Id.unapply().2/
+ !_empty_/Test4#Id.unapply().(xxxx)2
+ 
+scala/Any#2
+  scala/Some#2!
+8 8scala/Some.apply().2
+4 8scala/Some.2
+!! _empty_/Test4#b.2
+!! _empty_/Test4#a.2)
+"" _empty_/Test4#Id.unapply().2
+"	" _empty_/Test4#Id.2
+"" local22
+"" local22
+&& _empty_/Super5#2(
+'' _empty_/Super5#`<init>`().2
+'' _empty_/Super5#q.2"
+(( _empty_/Super5#q1().2
+(
+( _empty_/Super5#q.2
+(( _empty_/Super5#q.2
+++ _empty_/Test5#2'
+++ _empty_/Test5#`<init>`().2(
+++ _empty_/Super5#`<init>`().2
+++ _empty_/Super5#2
+,, _empty_/Test5#a.2
+-	- _empty_/Test5#Id.2)
+.. _empty_/Test5#Id.unapply().2/
+.. !_empty_/Test5#Id.unapply().(xxxx)2
+.. 
+scala/Any#2
+..  scala/Some#2
+.-. ._empty_/Super5#q.2!
+.;. ;scala/Some.apply().2
+.7. ;scala/Some.2
+.H. I_empty_/Super5#q.2"
+.P. R_empty_/Super5#q1().2
+00 _empty_/Test5#b.2
+00 _empty_/Super5#q.2
+00 _empty_/Test5#a.2)
+11 _empty_/Test5#Id.unapply().2
+1	1 _empty_/Test5#Id.2
+11 local32
+11 local3PZ 14C6A79FA7EA77CF3BBD7CD25827A055

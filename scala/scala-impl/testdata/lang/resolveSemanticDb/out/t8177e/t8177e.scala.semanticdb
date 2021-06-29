@@ -1,0 +1,31 @@
+
+½tests/pos/t8177e.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#[A]	*A€*
+_empty_/T#foo. €*foo€*
+local0*B€*
+_empty_/T#bar().*bar€*
+_empty_/T#bar().(b)*b€*
+
+_empty_/O.
+ *O€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ 	_empty_/T#[A]2
+ _empty_/T#foo.2
+ local02
+! "_empty_/T#[A]2#
+' *scala/Predef.`???`().2
+0 3_empty_/T#bar().2!
+4 5_empty_/T#bar().(b)2
+7 :_empty_/T#foo.2
+ 
+_empty_/O.2
+ 
+_empty_/T#2
+ 
+scala/Int#2
+ _empty_/T#bar().PZ 79BC6DDA9F2440FC3C391E2967902B7F

@@ -1,0 +1,20 @@
+
+Ítests/pos/t3249/a.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[U]	*U€*
+_empty_/A#f().*f€*
+_empty_/A#f().[T]	*T€*
+local0*X€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 	_empty_/A#[U]2
+ _empty_/A#f().2
+ _empty_/A#f().[T]2
+  !local02
+. ._empty_/A#`<init>`().2
+* +
+_empty_/A#2
+, -_empty_/A#f().[T]PZ 43882E5AA92DBB1DDB8382669123E15A

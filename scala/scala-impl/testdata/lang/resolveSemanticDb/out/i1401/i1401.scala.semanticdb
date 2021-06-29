@@ -1,0 +1,48 @@
+
+Ítests/pos/i1401.scala*(
+i1401/Subtractable#*Subtractable€*0
+i1401/Subtractable#`<init>`(). €@*<init>€*"
+i1401/Subtractable#[AS]	*AS€*)
+i1401/Subtractable#[Repr]	 €*Repr€*%
+i1401/Subtractable#`-`(). *-€*,
+i1401/Subtractable#`-`().(elem)*elem€*$
+i1401/BufferLike#*
+BufferLike€*.
+i1401/BufferLike#`<init>`(). €@*<init>€*
+local0*self€* 
+i1401/BufferLike#[BA]	*BA€*'
+i1401/BufferLike#[This]	 €*This€*#
+i1401/BufferLike#`-`(). *-€**
+i1401/BufferLike#`-`().(elem)*elem€*
+i1401/Buffer#*Buffer€**
+i1401/Buffer#`<init>`(). €@*<init>€*
+i1401/Buffer#[A]	*A€2
+ i1401/2!
+ i1401/Subtractable#2,
+ i1401/Subtractable#`<init>`().2%
+ i1401/Subtractable#[AS]2'
+ i1401/Subtractable#[Repr]2'
+ i1401/Subtractable#`-`().2-
+ i1401/Subtractable#`-`().(elem)2%
+ i1401/Subtractable#[AS]2'
+ i1401/Subtractable#[Repr]2
+ i1401/BufferLike#2*
+ i1401/BufferLike#`<init>`().2!
+ $i1401/Subtractable#2#
+% 'i1401/BufferLike#[BA]2%
+) -i1401/BufferLike#[This]2
+ local02%
+	 i1401/BufferLike#[This]2#
+ i1401/BufferLike#[BA]2%
+ i1401/BufferLike#[This]2%
+ i1401/BufferLike#`-`().2+
+ i1401/BufferLike#`-`().(elem)2#
+ i1401/BufferLike#[BA]2%
+ i1401/BufferLike#[This]2
+ i1401/Buffer#2&
+ i1401/Buffer#`<init>`().2
+ "i1401/BufferLike#2
+# $i1401/Buffer#[A]2
+& ,i1401/Buffer#2
+- .i1401/Buffer#[A]2
+ i1401/Buffer#[A]PZ 1E909914E78D4A1E5AD6A4790FF84E48

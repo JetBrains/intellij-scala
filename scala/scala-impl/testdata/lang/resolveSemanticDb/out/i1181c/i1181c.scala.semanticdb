@@ -1,0 +1,73 @@
+
+¼tests/pos/i1181c.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*
+_empty_/Bar#[DD]	*DD€*
+_empty_/Bar#x. „*x€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.F#*F€*
+_empty_/Test.F#[X]	*X€*
+_empty_/Test.F#[Y]	*Y€*#
+_empty_/Test.LAMBDA#*LAMBDA€*!
+_empty_/Test.LAMBDA#[X]	*X€*!
+_empty_/Test.LAMBDA#[Y]	*Y€*
+_empty_/Test.Baz#*Baz€*.
+_empty_/Test.Baz#`<init>`(). €@*<init>€*#
+_empty_/Test.Baz#foo().*foo€*$
+_empty_/Test.Baz#foo().[M]	*M€*$
+_empty_/Test.Baz#foo().(x)*x€2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A]2
+ 	_empty_/Bar#2%
+	 	_empty_/Bar#`<init>`().2
+
+ _empty_/Bar#[DD]2
+ _empty_/Bar#x.2
+	 _empty_/Bar#[DD]2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ _empty_/Test.2
+ _empty_/Test.F#2 
+	 
+_empty_/Test.F#[X]2 
+ _empty_/Test.F#[Y]2
+ _empty_/Foo#2 
+ _empty_/Test.F#[X]2"
+
+
+ _empty_/Test.LAMBDA#2%
+
+
+ _empty_/Test.LAMBDA#[X]2%
+
+
+ _empty_/Test.LAMBDA#[Y]2
+
+
+ _empty_/Foo#2%
+
+
+ _empty_/Test.LAMBDA#[X]2
+ _empty_/Test.Baz#2*
+ _empty_/Test.Baz#`<init>`().2
+ _empty_/Bar#2"
+ _empty_/Test.LAMBDA#2%
+ _empty_/Test.Baz#foo().2(
+ _empty_/Test.Baz#foo().[M]2(
+ _empty_/Test.Baz#foo().(x)2(
+ _empty_/Test.Baz#foo().[M]2
+ 
+scala/Int#2
+ !
+scala/Int#2(
+& '_empty_/Test.Baz#foo().(x)2%
+ _empty_/Test.Baz#foo().2
+ 	_empty_/Bar#x.PZ B700B26DB80D87237CAE3D9A4E1B1B11

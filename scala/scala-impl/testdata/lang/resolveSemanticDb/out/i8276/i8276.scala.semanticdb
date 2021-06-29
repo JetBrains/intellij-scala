@@ -1,0 +1,43 @@
+
+Êtests/pos/i8276.scala*"
+_empty_/NOTHING.
+ *NOTHING€*(
+_empty_/i8276$package. *_empty_€*l
+=_empty_/i8276$package.given_Conversion_NOTHING_type_Option(). (*$given_Conversion_NOTHING_type_Option€*J
+@_empty_/i8276$package.given_Conversion_NOTHING_type_Option().[A]	*A€*,
+_empty_/i8276$package.apply().*apply€*+
+!_empty_/i8276$package.apply().[A]	*A€*+
+!_empty_/i8276$package.apply().(p)*p€*+
+!_empty_/i8276$package.apply().(o)*o€*@
+(_empty_/i8276$package.apply$default$2().*apply$default$2€*5
++_empty_/i8276$package.apply$default$2().[A]	*A€**
+_empty_/i8276$package.test().*test€2
+ _empty_/NOTHING.2 
+_empty_/i8276$package.2K
+ =_empty_/i8276$package.given_Conversion_NOTHING_type_Option().2N
+ @_empty_/i8276$package.given_Conversion_NOTHING_type_Option().[A]2
+ scala/Conversion#2
+ $_empty_/NOTHING.2
++ 1scala/Option#2N
+2 3@_empty_/i8276$package.given_Conversion_NOTHING_type_Option().[A]2
+= Ascala/None.2,
+ 	_empty_/i8276$package.apply().2/
+
+ !_empty_/i8276$package.apply().[A]2/
+ !_empty_/i8276$package.apply().(p)2#
+ scala/package.Vector#2/
+ !_empty_/i8276$package.apply().[A]2/
+ !_empty_/i8276$package.apply().(o)2
+ $scala/Option#2/
+% &!_empty_/i8276$package.apply().[A]2
+4 8scala/Unit#2#
+; >scala/Predef.`???`().29
+
+ +_empty_/i8276$package.apply$default$2().[A]2'
+* *scala/Conversion#apply().2
+* 1_empty_/NOTHING.2+
+ _empty_/i8276$package.test().2,
+ _empty_/i8276$package.apply().2"
+ scala/Predef.String#28
+  %*scala/collection/immutable/Vector.empty().2#
+ scala/package.Vector.PZ EAEF7816FF179CBAFE6B50080C167834

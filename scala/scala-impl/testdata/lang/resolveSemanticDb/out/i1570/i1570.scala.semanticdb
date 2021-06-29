@@ -1,0 +1,20 @@
+
+¯tests/pos/i1570.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(n)*n€*
+_empty_/Test.bar().*bar€* 
+_empty_/Test.bar().(n)*n€2
+ _empty_/Test.2!
+ _empty_/Test.foo().2$
+ _empty_/Test.foo().(n)2
+ 
+scala/Int#2!
+" %_empty_/Test.bar().2$
+& '_empty_/Test.foo().(n)2!
+ _empty_/Test.bar().2$
+ _empty_/Test.bar().(n)2
+ 
+scala/Int#2$
+" #_empty_/Test.bar().(n)PZ DAF5B9D32002BF5F64CB0BBC2C7E4A46

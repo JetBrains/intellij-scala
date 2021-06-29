@@ -1,0 +1,270 @@
+
+∆Atests/pos/i8927.scala*
+_empty_/Eq#*EqÄ*(
+_empty_/Eq#`<init>`(). Ä@*<init>Ä*
+_empty_/Eq#[k]	*kÄ*
+_empty_/Eq#[K]	*KÄ*!
+_empty_/Eq#isEq(). *isEqÄ*
+_empty_/Eq#isEq().[A]	*AÄ*
+_empty_/Eq#isEq().[B]	*BÄ*
+_empty_/Eq#isEq().(k)*kÄ*!
+_empty_/Eq#isEq().(k2)*k2Ä*
+_empty_/Eq.
+ *EqÄ*
+_empty_/Eq.GEQ# îÄ*GEQÄ*,
+_empty_/Eq.GEQ#`<init>`(). Ä@*<init>Ä*
+_empty_/Eq.GEQ#[k]	*kÄ*
+_empty_/Eq.GEQ#[K]	*KÄ*
+_empty_/Eq.GEQ#[A]	*AÄ*
+_empty_/Eq.GEQ#[B]	*BÄ*
+_empty_/Eq.GEQ.
+ *GEQÄ*
+_empty_/Eq.GEQ.Y# àÅ*YÄ*.
+_empty_/Eq.GEQ.Y#`<init>`(). Ä@*<init>Ä*0
+!_empty_/Eq.GEQ.Y#`<init>`().(res) Ä*resÄ*
+_empty_/Eq.GEQ.Y#[k]	*kÄ*
+_empty_/Eq.GEQ.Y#[K]	*KÄ*
+_empty_/Eq.GEQ.Y#[A]	*AÄ*$
+_empty_/Eq.GEQ.Y#res. Ä*resÄ*%
+_empty_/Eq.GEQ.Y#copy().*copyÄ*%
+_empty_/Eq.GEQ.Y#copy().[k]	*kÄ*%
+_empty_/Eq.GEQ.Y#copy().[K]	*KÄ*%
+_empty_/Eq.GEQ.Y#copy().[A]	*AÄ*)
+_empty_/Eq.GEQ.Y#copy().(res)*resÄ*9
+"_empty_/Eq.GEQ.Y#copy$default$1().*copy$default$1Ä*/
+%_empty_/Eq.GEQ.Y#copy$default$1().[k]	*kÄ*/
+%_empty_/Eq.GEQ.Y#copy$default$1().[K]	*KÄ*/
+%_empty_/Eq.GEQ.Y#copy$default$1().[A]	*AÄ*+
+_empty_/Eq.GEQ.Y#ordinal().*ordinalÄ*!
+_empty_/Eq.GEQ.Y#_1().*_1Ä*
+_empty_/Eq.GEQ.Y.
+ *YÄ*'
+_empty_/Eq.GEQ.Y.apply().*applyÄ*&
+_empty_/Eq.GEQ.Y.apply().[k]	*kÄ*&
+_empty_/Eq.GEQ.Y.apply().[K]	*KÄ*&
+_empty_/Eq.GEQ.Y.apply().[A]	*AÄ**
+_empty_/Eq.GEQ.Y.apply().(res)*resÄ*+
+_empty_/Eq.GEQ.Y.unapply().*unapplyÄ*(
+_empty_/Eq.GEQ.Y.unapply().[k]	*kÄ*(
+_empty_/Eq.GEQ.Y.unapply().[K]	*KÄ*(
+_empty_/Eq.GEQ.Y.unapply().[A]	*AÄ*,
+ _empty_/Eq.GEQ.Y.unapply().(x$1)*x$1Ä*-
+_empty_/Eq.GEQ.Y.toString().*toStringÄ*
+_empty_/Eq.GEQ.N# àÅ*NÄ*.
+_empty_/Eq.GEQ.N#`<init>`(). Ä@*<init>Ä*
+_empty_/Eq.GEQ.N#[k]	*kÄ*
+_empty_/Eq.GEQ.N#[K]	*KÄ*
+_empty_/Eq.GEQ.N#[A]	*AÄ*
+_empty_/Eq.GEQ.N#[B]	*BÄ*%
+_empty_/Eq.GEQ.N#copy().*copyÄ*%
+_empty_/Eq.GEQ.N#copy().[k]	*kÄ*%
+_empty_/Eq.GEQ.N#copy().[K]	*KÄ*%
+_empty_/Eq.GEQ.N#copy().[A]	*AÄ*%
+_empty_/Eq.GEQ.N#copy().[B]	*BÄ*+
+_empty_/Eq.GEQ.N#ordinal().*ordinalÄ*
+_empty_/Eq.GEQ.N.
+ *NÄ*'
+_empty_/Eq.GEQ.N.apply().*applyÄ*&
+_empty_/Eq.GEQ.N.apply().[k]	*kÄ*&
+_empty_/Eq.GEQ.N.apply().[K]	*KÄ*&
+_empty_/Eq.GEQ.N.apply().[A]	*AÄ*&
+_empty_/Eq.GEQ.N.apply().[B]	*BÄ*+
+_empty_/Eq.GEQ.N.unapply().*unapplyÄ*(
+_empty_/Eq.GEQ.N.unapply().[k]	*kÄ*(
+_empty_/Eq.GEQ.N.unapply().[K]	*KÄ*(
+_empty_/Eq.GEQ.N.unapply().[A]	*AÄ*(
+_empty_/Eq.GEQ.N.unapply().[B]	*BÄ*,
+ _empty_/Eq.GEQ.N.unapply().(x$1)*x$1Ä*-
+_empty_/Eq.GEQ.N.toString().*toStringÄ*1
+_empty_/Eq.GEQ.fromOrdinal().*fromOrdinalÄ*6
+&_empty_/Eq.GEQ.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/DPair# *DPairÄ*+
+_empty_/DPair#`<init>`(). Ä@*<init>Ä*
+_empty_/DPair#[k]	*kÄ*
+_empty_/DPair#[K]	*KÄ*
+_empty_/DPair#[V]	 Ä*VÄ*
+_empty_/DPair#A#*AÄ*!
+_empty_/DPair#key. Ñ*keyÄ*%
+_empty_/DPair#value. Ñ*valueÄ**
+_empty_/DPair#extract(). *extractÄ*%
+_empty_/DPair#extract().[B]	*BÄ*%
+_empty_/DPair#extract().(k)*kÄ*+
+_empty_/DPair#extract().(x$2)  *x$2Ä*
+local0 Ä*yÄ*
+local1 Ä	*kÄ*
+_empty_/DPair.
+ *DPairÄ*$
+_empty_/DPair.pair(). (*pairÄ*"
+_empty_/DPair.pair().[k]	*kÄ*"
+_empty_/DPair.pair().[K]	*KÄ*"
+_empty_/DPair.pair().[V]	*VÄ*"
+_empty_/DPair.pair().[C]	*CÄ*
+local2*tupÄ*
+local3 Ä*dpairÄ*
+local4 Ä*keyÄ*
+local5 Ä*valueÄ*
+local6*AÄ*
+local7*copyÄ*
+local8*copy$default$1Ä*
+local9*copy$default$2Ä*
+local10*_1Ä*
+local11*_2Ä*
+local12
+ *dpairÄ*
+local13*applyÄ*
+local14*unapplyÄ*
+local15*x$1Ä*
+local16*toStringÄ2-
+ )#scala/language.implicitConversions.2
+ scala/language.2
+ scala/2
+ _empty_/Eq#2$
+ _empty_/Eq#`<init>`().2
+	 
+_empty_/Eq#[k]2
+ _empty_/Eq#[K]2 
+* ._empty_/Eq#isEq().2#
+ _empty_/Eq#isEq().[A]2
+ _empty_/Eq#[k]2#
+ _empty_/Eq#isEq().[B]2
+ _empty_/Eq#[k]2#
+ _empty_/Eq#isEq().(k)2
+  !_empty_/Eq#[K]2#
+" #_empty_/Eq#isEq().[A]2$
+0 2_empty_/Eq#isEq().(k2)2
+4 5_empty_/Eq#[K]2#
+6 7_empty_/Eq#isEq().[B]2
+> A_empty_/Eq.GEQ#2
+; =_empty_/Eq.2
+B C_empty_/Eq#[k]2
+E F_empty_/Eq#[K]2#
+H I_empty_/Eq#isEq().[A]2#
+K L_empty_/Eq#isEq().[B]2
+ 	_empty_/Eq.2
+ 
+_empty_/Eq.GEQ#2(
+
+ 
+_empty_/Eq.GEQ#`<init>`().2 
+ _empty_/Eq.GEQ#[k]2 
+ _empty_/Eq.GEQ#[K]2 
+$ %_empty_/Eq.GEQ#[A]2 
+, -_empty_/Eq.GEQ#[B]2
+ _empty_/Eq.GEQ.2
+	 
+_empty_/Eq.GEQ.Y#2*
+
+ 
+_empty_/Eq.GEQ.Y#`<init>`().2"
+1 2_empty_/Eq.GEQ.Y#[K]2"
+3 4_empty_/Eq.GEQ.Y#[A]2(
+N N_empty_/Eq.GEQ#`<init>`().2
+? B_empty_/Eq.GEQ#2"
+C D_empty_/Eq.GEQ.Y#[k]2"
+F G_empty_/Eq.GEQ.Y#[K]2"
+I J_empty_/Eq.GEQ.Y#[A]2"
+L M_empty_/Eq.GEQ.Y#[A]2"
+ _empty_/Eq.GEQ.Y#[k]2"
+ _empty_/Eq.GEQ.Y#[K]2"
+$ %_empty_/Eq.GEQ.Y#[A]2#
+, /_empty_/Eq.GEQ.Y#res.2&
+ _empty_/Eq.GEQ.Y#copy().2$
+1 1_empty_/Eq.GEQ.Y#_1().2
+	 	_empty_/Eq.GEQ.Y.2'
+ _empty_/Eq.GEQ.Y.apply().2)
+ _empty_/Eq.GEQ.Y.unapply().2
+	 
+_empty_/Eq.GEQ.N#2*
+
+ 
+_empty_/Eq.GEQ.N#`<init>`().2
+	 	_empty_/Eq.GEQ.N.2
+
+
+ _empty_/DPair#2'
+
+
+ _empty_/DPair#`<init>`().2
+
+
+ _empty_/DPair#[k]2
+
+!
+ "_empty_/DPair#[K]2
+
+-
+ ._empty_/DPair#[V]2
+ _empty_/DPair#A#2
+ _empty_/DPair#[k]2 
+ 	_empty_/DPair#key.2
+ _empty_/DPair#[K]2
+ _empty_/DPair#A#2"
+ _empty_/DPair#value.2
+ _empty_/DPair#[V]2
+ _empty_/DPair#A#2&
+ _empty_/DPair#extract().2)
+ _empty_/DPair#extract().[B]2
+ _empty_/DPair#[k]2)
+ _empty_/DPair#extract().(k)2
+  _empty_/DPair#[K]2)
+! "_empty_/DPair#extract().[B]2+
++ +_empty_/DPair#extract().(x$2)2
++ -_empty_/Eq#2
+. /_empty_/DPair#[k]2
+1 2_empty_/DPair#[K]2
+6 <scala/Option#2
+= >_empty_/DPair#[V]2)
+? @_empty_/DPair#extract().[B]2 
+E E_empty_/Eq#isEq().2 
+E H_empty_/DPair#key.2)
+N O_empty_/DPair#extract().(k)2
+	 
+local02
+ _empty_/Eq.GEQ.Y#2
+ _empty_/Eq.GEQ.2
+ _empty_/Eq.2
+ local12
+ _empty_/DPair#[K]2
+ _empty_/DPair#A#2!
+% %scala/Some.apply().2
+! %scala/Some.2"
+& +_empty_/DPair#value.2
+ scala/None.2
+ _empty_/DPair.2#
+ _empty_/DPair.pair().2&
+ _empty_/DPair.pair().[k]2&
+ _empty_/DPair.pair().[K]2&
+ _empty_/DPair.pair().[V]2&
+' (_empty_/DPair.pair().[C]2&
+, -_empty_/DPair.pair().[k]2
+0 :scala/Conversion#2&
+< =_empty_/DPair.pair().[K]2&
+> ?_empty_/DPair.pair().[C]2&
+B C_empty_/DPair.pair().[V]2&
+D E_empty_/DPair.pair().[C]2
+I N_empty_/DPair#2&
+O P_empty_/DPair.pair().[k]2&
+R S_empty_/DPair.pair().[K]2&
+U V_empty_/DPair.pair().[V]2
+[ ^local22
+ local32
+5 :_empty_/DPair#2&
+; <_empty_/DPair.pair().[k]2&
+> ?_empty_/DPair.pair().[K]2&
+A B_empty_/DPair.pair().[V]2
+ local42
+  %local52
+ local62&
+ _empty_/DPair.pair().[C]2
+ local72
+ local102
+' 'local112
+ local122
+ local132
+	 	local132
+ 	local172
+ scala/Tuple2#_1.2
+
+ local22
+ scala/Tuple2#_2.2
+ local2PZ 0484F82AC74A6E37674C574654309745

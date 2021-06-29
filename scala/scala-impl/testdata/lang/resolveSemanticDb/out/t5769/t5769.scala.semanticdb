@@ -1,0 +1,30 @@
+
+âtests/pos/t5769.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#AI#*AI€*
+_empty_/A#f1().*f1€*
+_empty_/A#f2().*f2€2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2/
+  (!scala/reflect/package.classTag().2
+ scala/reflect/2
+ scala/2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#AI#2
+ scala/Array#2
+ 
+scala/Int#2
+ _empty_/A#f1().2/
+ !scala/reflect/package.classTag().2
+ scala/Array#2
+ 
+scala/Int#2,
+ scala/reflect/ClassTag#wrap().2
+ _empty_/A#f2().2/
+ !scala/reflect/package.classTag().2
+ _empty_/A#AI#2,
+ scala/reflect/ClassTag#wrap().PZ 657C815BC3CCDF1F5CDE20D6349BD42C

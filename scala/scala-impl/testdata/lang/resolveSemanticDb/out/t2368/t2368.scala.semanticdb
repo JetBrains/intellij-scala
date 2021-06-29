@@ -1,0 +1,16 @@
+
+ätests/pos/t2368.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#x(). €*x€*!
+_empty_/C#`x_=`(). €*x_=€*#
+_empty_/C#`x_=`().(x$1)*x$1€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#x().2"
+	 scala/Predef.String#2@
+ +2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2 
+ 	_empty_/C#`x_=`().PZ 7A6B882B7A25CFA4A8DB8CDDE366D6D0

@@ -1,0 +1,346 @@
+
+­Rtests/pos/overloaded.scala*(
+_empty_/overloaded.
+ *
+overloaded€*!
+_empty_/overloaded.f().*f€*$
+_empty_/overloaded.f().(x)*x€*#
+_empty_/overloaded.f(+1).*f€*&
+_empty_/overloaded.f(+1).[T]	*T€*&
+_empty_/overloaded.f(+1).(x)*x€*$
+_empty_/overloaded.x1. €*x1€*$
+_empty_/overloaded.x2. €*x2€*$
+_empty_/overloaded.x3. €*x3€*$
+_empty_/overloaded.x4. €*x4€*
+local0*x€*$
+_empty_/overloaded.x5. €*x5€*
+local1*x€*$
+_empty_/overloaded.x6. €*x6€*
+local2*x€*!
+_empty_/overloaded.g().*g€*#
+_empty_/overloaded.g(+1).*g€*&
+_empty_/overloaded.g(+1).(x)*x€*$
+_empty_/overloaded.y1. €*y1€*
+local3*x€*$
+_empty_/overloaded.y2. €*y2€*$
+_empty_/overloaded.xs. €*xs€*%
+_empty_/overloaded.map().*map€*&
+_empty_/overloaded.map().(f)*f€*'
+_empty_/overloaded.map(+1).*map€*(
+_empty_/overloaded.map(+1).[U]	*U€*(
+_empty_/overloaded.map(+1).(f)*f€*$
+_empty_/overloaded.r1. €*r1€*
+local4*x€*$
+_empty_/overloaded.t1. €*t1€*$
+_empty_/overloaded.r2. €*r2€*
+local5*x€*$
+_empty_/overloaded.t2. €*t2€*&
+_empty_/overloaded.rp1. €*rp1€*
+local6*x$1€*
+local7 €*x€*&
+_empty_/overloaded.tp1. €*tp1€*&
+_empty_/overloaded.rp2. €*rp2€*
+local8*x$1€*
+local9 €*x€*&
+_empty_/overloaded.tp2. €*tp2€*-
+_empty_/overloaded.flatMap().*flatMap€**
+ _empty_/overloaded.flatMap().(f)*f€*/
+_empty_/overloaded.flatMap(+1).*flatMap€*,
+"_empty_/overloaded.flatMap(+1).[U]	*U€*,
+"_empty_/overloaded.flatMap(+1).(f)*f€*$
+_empty_/overloaded.r3. €*r3€*
+local10*x€*$
+_empty_/overloaded.t3. €*t3€*$
+_empty_/overloaded.r4. €*r4€*
+local11*x€*$
+_empty_/overloaded.t4. €*t4€*&
+_empty_/overloaded.rp3. €*rp3€*
+local12*x$1€*
+local13 €*x€*&
+_empty_/overloaded.tp3. €*tp3€*&
+_empty_/overloaded.rp4. €*rp4€*
+local14*x$1€*
+local15 €*x€*&
+_empty_/overloaded.tp4. €*tp4€*%
+_empty_/overloaded.bar().*bar€*&
+_empty_/overloaded.bar().(f)*f€*'
+_empty_/overloaded.bar(+1).*bar€*(
+_empty_/overloaded.bar(+1).(f)*f€*
+local16*x€*
+local17*y€*
+local18*x€*
+local19*x$1€*
+local20 €*x€*-
+_empty_/overloaded.combine().*combine€**
+ _empty_/overloaded.combine().(f)*f€*/
+_empty_/overloaded.combine(+1).*combine€*,
+"_empty_/overloaded.combine(+1).(f)*f€*$
+_empty_/overloaded.r5. €*r5€*
+local21*x€*
+local22*y€*$
+_empty_/overloaded.t5. €*t5€*$
+_empty_/overloaded.r6. €*r6€*
+local23*x€*
+local24*y€*$
+_empty_/overloaded.t6. €*t6€2
+ _empty_/overloaded.2%
+ _empty_/overloaded.f().2(
+ 	_empty_/overloaded.f().(x)2"
+ scala/Predef.String#2"
+ scala/Predef.String#2(
+ _empty_/overloaded.f().(x)2'
+ _empty_/overloaded.f(+1).2*
+ 	_empty_/overloaded.f(+1).[T]2
+ scala/Null#2*
+ _empty_/overloaded.f(+1).(x)2*
+ _empty_/overloaded.f(+1).[T]2
+ 
+scala/Int#2$
+ _empty_/overloaded.x1.2%
+ _empty_/overloaded.f().2$
+ _empty_/overloaded.x2.2'
+ _empty_/overloaded.f(+1).2+
+ java/lang/Integer#`<init>`().2 
+ java/lang/Integer#2$
+ _empty_/overloaded.x3.2%
+ _empty_/overloaded.f().2$
+		 _empty_/overloaded.x4.2"
+	
+	 scala/Predef.String#2"
+		 scala/Predef.String#2%
+		 _empty_/overloaded.f().2
+		 local02$
+
+
+ _empty_/overloaded.x5.2"
+
+
+
+ scala/Predef.String#2
+
+
+ 
+scala/Any#2%
+
+
+ _empty_/overloaded.f().2
+
+
+ local12$
+ _empty_/overloaded.x6.2
+
+ 
+scala/Any#2%
+ _empty_/overloaded.f().2
+ local22%
+ _empty_/overloaded.g().2
+ 
+scala/Int#2'
+ _empty_/overloaded.g(+1).2*
+ 	_empty_/overloaded.g(+1).(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2$
+ _empty_/overloaded.y1.2
+
+ 
+scala/Int#2
+ 
+scala/Int#2'
+ _empty_/overloaded.g(+1).2
+ local32$
+ _empty_/overloaded.y2.2
+
+ 
+scala/Any#2%
+ _empty_/overloaded.g().2'
+ 	scala/Predef.println(+1).2%
+
+ _empty_/overloaded.g().2$
+ _empty_/overloaded.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2<
+ .scala/collection/IterableOnceOps#mkString(+2).2$
+ _empty_/overloaded.xs.2'
+ 	_empty_/overloaded.map().2*
+
+ _empty_/overloaded.map().(f)2
+ scala/Char#2
+ scala/Char#2"
+ "scala/Predef.String#2#
+% (scala/Predef.`???`().2)
+ 	_empty_/overloaded.map(+1).2,
+
+ _empty_/overloaded.map(+1).[U]2,
+ _empty_/overloaded.map(+1).(f)2
+ scala/Char#2,
+ _empty_/overloaded.map(+1).[U]2 
+ scala/package.Seq#2,
+  !_empty_/overloaded.map(+1).[U]2#
+% (scala/Predef.`???`().2$
+ _empty_/overloaded.r1.2'
+ _empty_/overloaded.map().2
+ local42/
+ !scala/runtime/RichChar#toUpper().27
+ )scala/LowPriorityImplicits#charWrapper().2
+ local42$
+ _empty_/overloaded.t1.2"
+
+ scala/Predef.String#2$
+ _empty_/overloaded.r1.2$
+ _empty_/overloaded.r2.2)
+ _empty_/overloaded.map(+1).2
+ local52!
+ scala/Char#toInt().2
+ local52$
+ _empty_/overloaded.t2.2 
+
+ scala/package.Seq#2
+ 
+scala/Int#2$
+ _empty_/overloaded.r2.2%
+ 	_empty_/overloaded.rp1.2'
+ _empty_/overloaded.map().2
+ local62
+ local72/
+ %!scala/runtime/RichChar#toUpper().27
+ )scala/LowPriorityImplicits#charWrapper().2
+ local72%
+   	_empty_/overloaded.tp1.2"
+   scala/Predef.String#2%
+   _empty_/overloaded.rp1.2%
+!! 	_empty_/overloaded.rp2.2)
+!! _empty_/overloaded.map(+1).2
+!! local82
+!! local92!
+!! #scala/Char#toInt().2
+!! local92%
+"" 	_empty_/overloaded.tp2.2 
+"" scala/package.Seq#2
+"" 
+scala/Int#2%
+"" _empty_/overloaded.rp2.2+
+$$ _empty_/overloaded.flatMap().2.
+$$  _empty_/overloaded.flatMap().(f)2
+$$ scala/Char#2"
+$$ scala/Predef.String#2"
+$"$ (scala/Predef.String#2#
+$+$ .scala/Predef.`???`().2-
+%% _empty_/overloaded.flatMap(+1).20
+%% "_empty_/overloaded.flatMap(+1).[U]20
+%% "_empty_/overloaded.flatMap(+1).(f)2
+%% scala/Char#2 
+%% scala/package.Seq#20
+% % !"_empty_/overloaded.flatMap(+1).[U]2 
+%%% (scala/package.Seq#20
+%)% *"_empty_/overloaded.flatMap(+1).[U]2#
+%.% 1scala/Predef.`???`().2$
+&& _empty_/overloaded.r3.2+
+&& _empty_/overloaded.flatMap().2
+&& local102#
+&& "scala/Any#toString().2
+&& local102$
+'' _empty_/overloaded.t3.2"
+'
+' scala/Predef.String#2$
+'' _empty_/overloaded.r3.2$
+(( _empty_/overloaded.r4.2-
+(( _empty_/overloaded.flatMap(+1).2
+(( local1127
+(( )scala/collection/IterableFactory#apply().2!
+(( scala/package.List.2
+(( local112$
+)) _empty_/overloaded.t4.2 
+)
+) scala/package.Seq#2
+)) scala/Char#2$
+)) _empty_/overloaded.r4.2%
+++ 	_empty_/overloaded.rp3.2+
+++ _empty_/overloaded.flatMap().2
+++ local122
+++ local132#
++"+ *scala/Any#toString().2
++ + !local132%
+,, 	_empty_/overloaded.tp3.2"
+,, scala/Predef.String#2%
+,, _empty_/overloaded.rp3.2%
+-- 	_empty_/overloaded.rp4.2-
+-- _empty_/overloaded.flatMap(+1).2
+-- local142
+-- local1527
+-$- $)scala/collection/IterableFactory#apply().2!
+- - $scala/package.List.2
+-%- &local152%
+.. 	_empty_/overloaded.tp4.2 
+.. scala/package.Seq#2
+.. scala/Char#2%
+.. _empty_/overloaded.rp4.2'
+00 	_empty_/overloaded.bar().2*
+0
+0 _empty_/overloaded.bar().(f)2
+00 scala/Char#2
+00 scala/Char#2
+00 !scala/Unit#2
+0$0 (scala/Unit#2#
+0+0 .scala/Predef.`???`().2)
+11 	_empty_/overloaded.bar(+1).2,
+1
+1 _empty_/overloaded.bar(+1).(f)2
+11 scala/Char#2
+11 scala/Unit#2#
+11  scala/Predef.`???`().2'
+22 _empty_/overloaded.bar().2
+22 local162
+2
+2 local172)
+33 _empty_/overloaded.bar(+1).2
+33 local182)
+55 _empty_/overloaded.bar(+1).2
+55 local192
+55 local202+
+77 _empty_/overloaded.combine().2.
+77  _empty_/overloaded.combine().(f)2
+77 scala/Char#2
+77 
+scala/Int#2
+7 7 #
+scala/Int#2
+7&7 )
+scala/Int#2#
+7,7 /scala/Predef.`???`().2-
+88 _empty_/overloaded.combine(+1).20
+88 "_empty_/overloaded.combine(+1).(f)2"
+88 scala/Predef.String#2
+88 
+scala/Int#2"
+8"8 (scala/Predef.String#2"
+8+8 1scala/Predef.String#2#
+848 7scala/Predef.`???`().2$
+99 _empty_/overloaded.r5.2+
+99 _empty_/overloaded.combine().2
+99 local212
+99 scala/Char#2
+99 local222!
+9%9 &scala/Char#`+`(+4).2
+9#9 $local212
+9'9 (local222$
+:: _empty_/overloaded.t5.2
+:
+: 
+scala/Int#2$
+:: _empty_/overloaded.r5.2$
+;; _empty_/overloaded.r6.2-
+;; _empty_/overloaded.combine(+1).2
+;; local232"
+;; scala/Predef.String#2
+;;  local2422
+;'; )$scala/collection/StringOps#`++`(+2).2+
+;%; %scala/Predef.augmentString().2
+;%; &local232#
+;,; 4scala/Any#toString().2
+;*; +local242$
+<< _empty_/overloaded.t6.2"
+<
+< scala/Predef.String#2$
+<< _empty_/overloaded.r6.PZ 6A8C29947F12645FCDF8570DCBF367A1

@@ -1,0 +1,86 @@
+
+¤tests/pos/i2468.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€* 
+_empty_/Test.A#x(). €*x€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€* 
+_empty_/Test.B#x(). €*x€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*"
+_empty_/Test.C#x1(). €*x1€*"
+_empty_/Test.C#x2(). €*x2€*"
+_empty_/Test.C#x3(). €*x3€*"
+_empty_/Test.C#x4(). €*x4€*"
+_empty_/Test.C#x5(). €*x5€*"
+_empty_/Test.C#x6(). €*x6€*"
+_empty_/Test.C#x7(). €*x7€*"
+_empty_/Test.C#x8(). €*x8€*"
+_empty_/Test.C#x9(). €*x9€*$
+_empty_/Test.C#x10(). €*x10€*
+_empty_/Test.D# *D€*,
+_empty_/Test.D#`<init>`(). €@*<init>€*'
+_empty_/Test.D#`<init>`().(x)*x€*
+_empty_/Test.D#x. €*x€*
+_empty_/Test.D.
+ *D€2@
+  2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2
+ _empty_/Test.2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2!
+ _empty_/Test.A#x().2"
+ scala/Predef.String#2@
+" /2scala/compiletime/package$package.uninitialized().2
+ 	_empty_/Test.B#2(
+		 _empty_/Test.B#`<init>`().2!
+		 _empty_/Test.B#x().2"
+		 scala/Predef.String#2@
+	"	 /2scala/compiletime/package$package.uninitialized().2!
+
+
+ _empty_/Test.B#x().2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2"
+ _empty_/Test.C#x1().2
+ 
+scala/Int#2@
+  -2scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x2().2
+ scala/Unit#2@
+! .2scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x3().2
+ scala/Char#2@
+! .2scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x4().2
+ !scala/Boolean#2@
+$ 12scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x5().2
+ scala/Float#2@
+" /2scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x6().2
+  scala/Double#2@
+# 02scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x7().2
+ scala/Char#2@
+! .2scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x8().2
+ scala/Byte#2@
+! .2scala/compiletime/package$package.uninitialized().2"
+ _empty_/Test.C#x9().2
+  scala/AnyVal#2@
+# 02scala/compiletime/package$package.uninitialized().2#
+ _empty_/Test.C#x10().2
+ _empty_/Test.D#2@
+ ,2scala/compiletime/package$package.uninitialized().2
+ 	_empty_/Test.D#2(
+	 	_empty_/Test.D#`<init>`().2
+ 
+scala/Int#2&
+   scala/AnyVal#`<init>`().2
+  scala/AnyVal#2
+
+ _empty_/Test.D#x.2
+ _empty_/Test.D.PZ 2B4A0697DF2B3E113BFF4FBEF5F40354

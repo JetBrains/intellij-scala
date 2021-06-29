@@ -1,0 +1,46 @@
+
+µtests/pos/i3976.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.Hoge# ”€*Hoge€*/
+_empty_/Test.Hoge#`<init>`(). €@*<init>€*
+_empty_/Test.Hoge#[F]	*F€*!
+_empty_/Test.Hoge.
+ *Hoge€*"
+_empty_/Test.Hoge.A. €©*A€*"
+_empty_/Test.Hoge.B. €©*B€*
+local0	*X€*-
+_empty_/Test.Hoge.$values. €*$values€**
+_empty_/Test.Hoge.values().*values€*,
+_empty_/Test.Hoge.valueOf().*valueOf€*1
+#_empty_/Test.Hoge.valueOf().($name)*$name€*4
+ _empty_/Test.Hoge.fromOrdinal().*fromOrdinal€*9
+)_empty_/Test.Hoge.fromOrdinal().(ordinal)*ordinal€2
+ _empty_/Test.2 
+ _empty_/Test.Hoge#2+
+ _empty_/Test.Hoge#`<init>`().2#
+ _empty_/Test.Hoge#[F]2 
+ _empty_/Test.Hoge.2"
+	 
+_empty_/Test.Hoge.A.2+
+ _empty_/Test.Hoge#`<init>`().2 
+ _empty_/Test.Hoge#2!
+ scala/package.List#2"
+	 
+_empty_/Test.Hoge.B.2+
+' '_empty_/Test.Hoge#`<init>`().2 
+ _empty_/Test.Hoge#2
+ local02"
+  &scala/Predef.String#2(
+	 	_empty_/Test.Hoge.$values.2)
+	 	_empty_/Test.Hoge.values().2*
+	 	_empty_/Test.Hoge.valueOf().2.
+	 	 _empty_/Test.Hoge.fromOrdinal().2 
+	 _empty_/Test.Hoge.2
+ scala/Any#`==`().2"
+ _empty_/Test.Hoge.A.2"
+ _empty_/Test.Hoge.A.2
+ scala/Any#`==`().2"
+ _empty_/Test.Hoge.A.2"
+ 	_empty_/Test.Hoge.B.2 
+ _empty_/Test.Hoge#PZ DE0A1D84193A881FC7DF417ABA1C9F5E

@@ -1,0 +1,24 @@
+
+Òtests/pos/i6015.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.i.  *i€*
+_empty_/Test.foo().*foo€2
+ scala/compiletime/2
+ scala/2
+ _empty_/Test.2
+ _empty_/Test.i.2
+ 
+scala/Int#2!
+ _empty_/Test.foo().2"
+	 	scala/Array.apply().2
+ 	scala/Array.2
+
+ 
+scala/Int#2(
+ scala/Predef.implicitly().2
+ 
+scala/Int#2
+ _empty_/Test.i.2-
+ scala/reflect/ClassTag.apply().2!
+		 _empty_/Test.foo().PZ 66480EEE421589CAFA9F77F86D4C817B

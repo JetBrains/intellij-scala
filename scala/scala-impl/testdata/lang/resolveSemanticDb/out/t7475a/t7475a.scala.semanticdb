@@ -1,0 +1,31 @@
+
+ítests/pos/t7475a.scala*.
+_empty_/AbstractPublic#*AbstractPublic€*4
+"_empty_/AbstractPublic#`<init>`(). €@*<init>€*/
+_empty_/AbstractPublic#queue(). *queue€*0
+_empty_/ConcretePrivate#*ConcretePrivate€*5
+#_empty_/ConcretePrivate#`<init>`(). €@*<init>€*/
+_empty_/ConcretePrivate#queue. €*queue€*
+_empty_/Mix# *Mix€*)
+_empty_/Mix#`<init>`(). €@*<init>€*$
+_empty_/Mix#queue(). *queue€2!
+ _empty_/AbstractPublic#20
+ "_empty_/AbstractPublic#`<init>`().2-
+ _empty_/AbstractPublic#queue().2
+ 
+scala/Any#2&
+ _empty_/ConcretePrivate#21
+ #_empty_/ConcretePrivate#`<init>`().2,
+ _empty_/ConcretePrivate#queue.2
+ 
+scala/Any#2
+ _empty_/Mix#2%
+
+ 
+_empty_/Mix#`<init>`().2&
+
+ _empty_/ConcretePrivate#2%
+ -_empty_/AbstractPublic#2"
+		 _empty_/Mix#queue().2
+		 
+scala/Any#PZ 06AA88506FA81CC58B7DF1223F90879B

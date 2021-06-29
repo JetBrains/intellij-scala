@@ -1,0 +1,46 @@
+
+®tests/pos/i2218.scala*
+_empty_/Rule#*Rule€**
+_empty_/Rule#`<init>`(). €@*<init>€*
+_empty_/Rule#[In]	*In€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*.
+_empty_/C#ruleWithName().*ruleWithName€*(
+_empty_/C#ruleWithName().[In]	*In€*&
+_empty_/C#ruleWithName().(f)*f€*
+local0 *$anon€**
+_empty_/C#DefaultRule#*DefaultRule€*3
+!_empty_/C#DefaultRule#`<init>`(). €@*<init>€*.
+$_empty_/C#DefaultRule#`<init>`().(f)*f€*%
+_empty_/C#DefaultRule#[In]	*In€*%
+_empty_/C#DefaultRule#f. €*f€2
+ 
+_empty_/Rule#2"
+
+ 
+_empty_/Rule#`<init>`().2
+ _empty_/Rule#[In]2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2'
+ _empty_/C#ruleWithName().2+
+ _empty_/C#ruleWithName().[In]2*
+ _empty_/C#ruleWithName().(f)2+
+ _empty_/C#ruleWithName().[In]2
+  #
+scala/Int#2
+& *_empty_/Rule#2+
++ -_empty_/C#ruleWithName().[In]2
+ local02/
+ !_empty_/C#DefaultRule#`<init>`().2*
+ _empty_/C#ruleWithName().(f)2$
+ _empty_/C#DefaultRule#2/
+ !_empty_/C#DefaultRule#`<init>`().2(
+ _empty_/C#DefaultRule#[In]2
+! $
+scala/Int#2
+. 2_empty_/Rule#2(
+3 5_empty_/C#DefaultRule#[In]2(
+ _empty_/C#DefaultRule#[In]2&
+ _empty_/C#DefaultRule#f.PZ 2103BC7CB7A240517783B5CB626CEC3F

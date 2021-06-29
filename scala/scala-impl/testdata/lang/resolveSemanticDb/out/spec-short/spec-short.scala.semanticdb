@@ -1,0 +1,109 @@
+
+ûtests/pos/spec-short.scala* 
+_empty_/AbsFun# *AbsFun€*,
+_empty_/AbsFun#`<init>`(). €@*<init>€*
+_empty_/AbsFun#[T]	*T€*
+_empty_/AbsFun#[U]	*U€*'
+_empty_/AbsFun#apply(). *apply€*$
+_empty_/AbsFun#apply().(x)*x€*#
+_empty_/AbsFun#sum(). *sum€*$
+_empty_/AbsFun#sum().(xs)*xs€*#
+_empty_/AbsFun#prod().*prod€*%
+_empty_/AbsFun#prod().(xs)*xs€*'
+_empty_/AbsFun#prod().(mul)*mul€*!
+_empty_/AbsFun#bar().*bar€*"
+_empty_/AbsFun#bar().(m)*m€*#
+_empty_/AbsFun#abs(). *abs€*"
+_empty_/AbsFun#abs().(m)*m€*
+_empty_/Square#*Square€*,
+_empty_/Square#`<init>`(). €@*<init>€*%
+_empty_/Square#apply().*apply€*$
+_empty_/Square#apply().(x)*x€*!
+_empty_/Square#sum().*sum€*$
+_empty_/Square#sum().(xs)*xs€*!
+_empty_/Square#abs().*abs€*"
+_empty_/Square#abs().(m)*m€2
+ _empty_/AbsFun#2$
+ _empty_/AbsFun#`<init>`().2
+ "scala/specialized#2
+# $_empty_/AbsFun#[T]2
+' 2scala/specialized#2
+3 4_empty_/AbsFun#[U]2%
+ _empty_/AbsFun#apply().2(
+ _empty_/AbsFun#apply().(x)2 
+ _empty_/AbsFun#[T]2 
+ _empty_/AbsFun#[U]2#
+ 	_empty_/AbsFun#sum().2'
+
+ _empty_/AbsFun#sum().(xs)2!
+ scala/package.List#2 
+ _empty_/AbsFun#[T]2
+ 
+scala/Int#2$
+ 
+_empty_/AbsFun#prod().2(
+ _empty_/AbsFun#prod().(xs)2!
+ scala/package.List#2 
+ _empty_/AbsFun#[T]2)
+ _empty_/AbsFun#prod().(mul)2
+ !
+scala/Int#2 
+# $_empty_/AbsFun#[T]2
+) ,
+scala/Int#2
+/ 2
+scala/Int#27
+ )scala/collection/LinearSeqOps#foldLeft().2(
+ _empty_/AbsFun#prod().(xs)2)
+ _empty_/AbsFun#prod().(mul)2#
+ 	_empty_/AbsFun#bar().2&
+
+ _empty_/AbsFun#bar().(m)2"
+ scala/Predef.String#2"
+ scala/Predef.String#2&
+  _empty_/AbsFun#bar().(m)2#
+ 	_empty_/AbsFun#abs().2&
+
+ _empty_/AbsFun#abs().(m)2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ _empty_/Square#2(
+ _empty_/Square#`<init>`().2(
+% %_empty_/AbsFun#`<init>`().2
+ _empty_/AbsFun#2
+ 
+scala/Int#2
+! $
+scala/Int#2%
+ _empty_/Square#apply().2(
+ _empty_/Square#apply().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`*`(+3).2(
+ _empty_/Square#apply().(x)2(
+  _empty_/Square#apply().(x)2#
+ 	_empty_/Square#sum().2'
+
+ _empty_/Square#sum().(xs)2!
+ scala/package.List#2
+ 
+scala/Int#2
+ 
+scala/Int#27
+ )scala/collection/LinearSeqOps#foldLeft().2'
+ _empty_/Square#sum().(xs)2 
+ scala/Int#`+`(+4).2#
+ 	_empty_/Square#abs().2&
+
+ _empty_/Square#abs().(m)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+ _empty_/Square#sum().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.PZ 51587BF5828CB88EFDE439089656E8ED

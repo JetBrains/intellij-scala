@@ -1,0 +1,20 @@
+
+êtests/pos/i4588.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#`â†’`#*â†’€*
+_empty_/Test#bar().*bar€*!
+_empty_/Test#`ðŸ¤ª`#*ðŸ¤ª€*
+_empty_/Test#baz().*baz€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ _empty_/Test#`â†’`#2!
+ 	_empty_/Test#bar().2!
+ _empty_/Test#`â†’`#2#
+ scala/Predef.`???`().2"
+ 
+_empty_/Test#`ðŸ¤ª`#2!
+ 	_empty_/Test#baz().2"
+ _empty_/Test#`ðŸ¤ª`#2#
+ scala/Predef.`???`().PZ 8459D4B913CE0260658C057019E99F12

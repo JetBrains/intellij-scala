@@ -1,0 +1,29 @@
+
+ÿ	:tests/pos/pos_valueclasses/value-class-override-spec.scala*&
+value_class_override_spec/T#*T€*9
+'value_class_override_spec/T#`<init>`(). €@*<init>€*,
+ value_class_override_spec/T#x(). *x€*8
+$value_class_override_spec/StringOps# *	StringOps€*A
+/value_class_override_spec/StringOps#`<init>`(). €@*<init>€*G
+6value_class_override_spec/StringOps#`<init>`().(repr0) €*repr0€*;
+*value_class_override_spec/StringOps#repr0. €*repr0€*2
+(value_class_override_spec/StringOps#x().*x€*8
+$value_class_override_spec/StringOps.
+ *	StringOps€2$
+ !value_class_override_spec/2*
+ value_class_override_spec/T#25
+ 'value_class_override_spec/T#`<init>`().2
+ 
+scala/Any#2.
+  value_class_override_spec/T#x().2
+	 
+scala/Any#22
+ $value_class_override_spec/StringOps#2=
+ /value_class_override_spec/StringOps#`<init>`().2"
+! 'scala/Predef.String#2&
+7 7scala/AnyVal#`<init>`().2
+1 7scala/AnyVal#2*
+= >value_class_override_spec/T#28
+ *value_class_override_spec/StringOps#repr0.26
+		 (value_class_override_spec/StringOps#x().22
+ $value_class_override_spec/StringOps.PZ F3AAAF1F55EC0EFD3C76083C073A1205

@@ -1,0 +1,13 @@
+
+¿tests/pos/t6499.scala*
+_empty_/Test.
+ *Test€2
+ _empty_/Test.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+	 scala/Predef.Map#2
+ 
+scala/Int#2
+ scala/Predef.Map#2
+! $
+scala/Int#PZ CC6EC421425F11411207185FF983CC5B

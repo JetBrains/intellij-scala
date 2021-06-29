@@ -1,0 +1,12 @@
+
+¾tests/pos/native-warning.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*"
+_empty_/A#setup(). *setup€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	scala/native#2 
+ _empty_/A#setup().2
+ scala/Unit#PZ A068B796C60B98FCEB16110A2183DD08

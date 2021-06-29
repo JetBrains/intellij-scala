@@ -1,0 +1,30 @@
+
+†tests/pos/t4757/P_1.scala*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*
+_empty_/S#[T]	*T€*
+
+_empty_/P.
+ *P€*
+_empty_/P.x().*x€*
+_empty_/P.x().(t)*t€*
+_empty_/P.x().(ss)*ss€2
+ 
+_empty_/S#2
+ _empty_/S#`<init>`().2
+ 	_empty_/S#[T]2
+ 
+_empty_/P.2
+ _empty_/P.x().2
+ 	_empty_/P.x().(t)2
+ 
+scala/Int#2 
+ _empty_/P.x().(ss)2 
+ scala/package.Seq#2
+ 
+_empty_/S#2 
+  #scala/package.Seq#2
+$ %
+_empty_/S#2 
+, ._empty_/P.x().(ss)PZ 01AB948BE0FC7AD80B0F6BB57F02697C

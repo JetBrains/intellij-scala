@@ -1,0 +1,57 @@
+
+Åtests/pos/spec-maps.scala*
+_empty_/Fun1#*Fun1€**
+_empty_/Fun1#`<init>`(). €@*<init>€*
+_empty_/Fun1#[R]	 €*R€*
+_empty_/Fun1#[T]	 €*T€*%
+_empty_/Fun1#apply(). *apply€*"
+_empty_/Fun1#apply().(x)*x€*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.mapA().*mapA€*!
+_empty_/Main.mapA().[B]	*B€*#
+_empty_/Main.mapA().(xs)*xs€*!
+_empty_/Main.mapA().(f)*f€*
+local0*i€2
+ 
+_empty_/Fun1#2"
+
+ 
+_empty_/Fun1#`<init>`().2
+ scala/specialized#2
+ _empty_/Fun1#[R]2
+ (scala/specialized#2
+* +_empty_/Fun1#[T]2#
+ _empty_/Fun1#apply().2&
+ _empty_/Fun1#apply().(x)2
+ _empty_/Fun1#[T]2
+ _empty_/Fun1#[R]2
+ _empty_/Main.2"
+ 
+_empty_/Main.mapA().2 
+ scala/specialized#2%
+ _empty_/Main.mapA().[B]2&
+ _empty_/Main.mapA().(xs)2
+ $scala/Array#2%
+% &_empty_/Main.mapA().[B]2%
+) *_empty_/Main.mapA().(f)2
+, 0_empty_/Fun1#2%
+1 2_empty_/Main.mapA().[B]2%
+4 5_empty_/Main.mapA().[B]2
+9 =scala/Unit#29
+ +scala/collection/immutable/Range#foreach().2,
+ scala/runtime/RichInt#until().26
+ (scala/LowPriorityImplicits#intWrapper().2#
+ scala/Array#length().2&
+ _empty_/Main.mapA().(xs)2
+	 
+local02#
+ scala/Array#update().2&
+ _empty_/Main.mapA().(xs)2
+	 
+local02#
+ _empty_/Fun1#apply().2%
+ _empty_/Main.mapA().(f)2"
+ scala/Array#apply().2&
+ _empty_/Main.mapA().(xs)2
+ local0PZ 21C67F981AF3ACF1BD7C483F86534A64

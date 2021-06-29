@@ -1,0 +1,26 @@
+
+Òtests/pos/t5968.scala*
+
+_empty_/X.
+ *X€*
+_empty_/X.f().*f€*
+_empty_/X.f().(e)*e€*
+local0 €*i€2
+ 
+_empty_/X.2
+ _empty_/X.f().2
+ 	_empty_/X.f().(e)2#
+ scala/package.Either#2
+ 
+scala/Int#2
+ 
+_empty_/X.2
+" #_empty_/X.f().(e)2(
+ scala/util/Left.unapply().2!
+	 scala/package.Left.2
+ local02
+ local02)
+ scala/util/Right.unapply().2"
+	 scala/package.Right.2
+ 
+_empty_/X.PZ 5A245613101F8B8049FCA921FB6091B8

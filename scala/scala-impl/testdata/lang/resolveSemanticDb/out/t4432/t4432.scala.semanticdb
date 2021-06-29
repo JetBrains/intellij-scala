@@ -1,0 +1,58 @@
+
+™tests/pos/t4432.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.foo1().*foo1€*
+local0*A€*
+local1 €*x€*
+local2 À*cc€*!
+_empty_/Main.foo2().*foo2€*
+local3*B€*
+local4 €*x€*
+local5
+ *cc€*!
+_empty_/Main.foo3().*foo3€*
+local7
+ *C€*
+local8 €*x€*
+local9 À*cc€*!
+_empty_/Main.foo4().*foo4€*
+local11*D€*
+local12 À*cc€2
+ _empty_/Main.2"
+ 
+_empty_/Main.foo1().2
+
+ local02
+
+ local12
+ local22
+ 
+local22
+		 	local02"
+ 
+_empty_/Main.foo2().2
+
+ local32
+
+ local42
+ local52
+ 
+local62
+ 	local32"
+ 
+_empty_/Main.foo3().2
+ local72
+
+ local82
+ local92
+ 
+local92
+ local102"
+!! 
+_empty_/Main.foo4().2
+"
+" local112
+## local122
+$$ local122
+&& 	local11PZ C09121EA6053B04FF80F2500A4BF6DF2

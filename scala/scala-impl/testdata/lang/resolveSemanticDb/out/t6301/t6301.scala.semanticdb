@@ -1,0 +1,41 @@
+
+°	tests/pos/t6301.scala*&
+_empty_/LoadedOver#*
+LoadedOver€*0
+_empty_/LoadedOver#`<init>`(). €@*<init>€* 
+_empty_/LoadedOver#[A]	*A€*'
+_empty_/LoadedOver#foo(). *foo€*&
+_empty_/LoadedOver#foo().(x)*x€*)
+_empty_/LoadedOver#foo(+1). *foo€**
+_empty_/LoadedOver#foo(+1).(xs)*xs€*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.loaded().*loaded€2
+ _empty_/LoadedOver#2(
+ _empty_/LoadedOver#`<init>`().2
+ scala/specialized#2
+ !
+scala/Int.2 
+# $_empty_/LoadedOver#[A]2'
+ 	_empty_/LoadedOver#foo().2*
+
+ _empty_/LoadedOver#foo().(x)2
+ 
+scala/Any#2$
+ _empty_/LoadedOver#[A]2)
+ 	_empty_/LoadedOver#foo(+1).2-
+
+ _empty_/LoadedOver#foo(+1).(xs)2"
+ scala/Predef.String#2$
+ _empty_/LoadedOver#[A]2
+ _empty_/Test.2$
+ _empty_/Test.loaded().2
+ scala/AnyRef#2!
+ $_empty_/LoadedOver#2
+% (
+scala/Int#2(
+0 5scala/sys/package.error().2
+, /
+scala/sys/2)
+	 _empty_/LoadedOver#foo(+1).2$
+ _empty_/Test.loaded().PZ 4C8102F358DF8E2FF8451FB246F26A1D

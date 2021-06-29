@@ -1,0 +1,25 @@
+
+”tests/pos/t3570.scala*
+_empty_/test#*test€**
+_empty_/test#`<init>`(). €@*<init>€*#
+_empty_/test#Break.
+ *Break€*#
+_empty_/test#break().*break€*#
+_empty_/test#block().*block€*"
+_empty_/test#block().(x)*x€*
+local0 €*e€2
+ 
+_empty_/test#2&
+ _empty_/test#`<init>`().2!
+ _empty_/test#Break.2-
+" "java/lang/Throwable#`<init>`().2&
+ "scala/package.Throwable#2#
+ _empty_/test#break().2!
+ _empty_/test#Break.2#
+ _empty_/test#block().2&
+ _empty_/test#block().(x)2
+ scala/Unit#2
+ scala/Unit#2&
+ _empty_/test#block().(x)2
+  local02!
+" '_empty_/test#Break.PZ 6CA10D0641CCB5F209E7BED1ADD7355C

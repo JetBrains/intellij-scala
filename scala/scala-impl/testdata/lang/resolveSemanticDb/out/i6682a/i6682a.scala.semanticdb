@@ -1,0 +1,26 @@
+
+‘tests/pos/i6682a.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.v. €*v€*
+local0 *$anon€*
+local1*apply€*
+local2	*T€*
+local3*y€*
+local4*x€*
+_empty_/O.m().*m€2
+ 
+_empty_/O.2
+ _empty_/O.v.2
+ local02
+ local12
+ local22
+ local32
+ local22
+ local42
+ local32
+ _empty_/O.m().2
+
+ _empty_/O.v.2
+ _empty_/O.v.PZ B9961B87DC4B79096016566C9B44D453

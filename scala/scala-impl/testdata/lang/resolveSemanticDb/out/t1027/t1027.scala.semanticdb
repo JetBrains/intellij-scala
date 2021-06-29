@@ -1,0 +1,112 @@
+
+âtests/pos/t1027.scala*
+_empty_/T1027.
+ *T1027€*,
+_empty_/T1027.Comparable#*
+Comparable€*6
+$_empty_/T1027.Comparable#`<init>`(). €@*<init>€*&
+_empty_/T1027.Comparable#[T]	*T€*+
+_empty_/T1027.Comparable#`<`(). *<€*2
+%_empty_/T1027.Comparable#`<`().(that)*that€*+
+ _empty_/T1027.Comparable#`<=`().*<=€*3
+&_empty_/T1027.Comparable#`<=`().(that)*that€*)
+_empty_/T1027.Comparable#`>`().*>€*2
+%_empty_/T1027.Comparable#`>`().(that)*that€*+
+ _empty_/T1027.Comparable#`>=`().*>=€*3
+&_empty_/T1027.Comparable#`>=`().(that)*that€*
+_empty_/T1027.A#*A€*-
+_empty_/T1027.A#`<init>`(). €@*<init>€*+
+_empty_/T1027.A#`<init>`().(x) €*x€*
+_empty_/T1027.A#x. €*x€* 
+_empty_/T1027.A#`<`().*<€*)
+_empty_/T1027.A#`<`().(that)*that€*
+_empty_/T1027.a. €*a€*
+_empty_/T1027.b. €*b€2
+ _empty_/T1027.2
+ 
+scala/App#2'
+ _empty_/T1027.Comparable#22
+ $_empty_/T1027.Comparable#`<init>`().2*
+/ 0_empty_/T1027.Comparable#[T]2*
+ _empty_/T1027.Comparable#[T]2-
+ 	_empty_/T1027.Comparable#`<`().23
+ %_empty_/T1027.Comparable#`<`().(that)2*
+ _empty_/T1027.Comparable#[T]2
+ scala/Boolean#2.
+ 
+ _empty_/T1027.Comparable#`<=`().24
+ &_empty_/T1027.Comparable#`<=`().(that)2*
+ _empty_/T1027.Comparable#[T]2
+ scala/Boolean#2#
++ -scala/Boolean#`||`().2-
+$ %_empty_/T1027.Comparable#`<`().24
+& *&_empty_/T1027.Comparable#`<=`().(that)2
+3 5scala/Any#`==`().24
+6 :&_empty_/T1027.Comparable#`<=`().(that)2-
+ 	_empty_/T1027.Comparable#`>`().23
+ %_empty_/T1027.Comparable#`>`().(that)2*
+ _empty_/T1027.Comparable#[T]2
+ scala/Boolean#2-
+$ %_empty_/T1027.Comparable#`<`().23
+ #%_empty_/T1027.Comparable#`>`().(that)2.
+ 
+ _empty_/T1027.Comparable#`>=`().24
+ &_empty_/T1027.Comparable#`>=`().(that)2*
+ _empty_/T1027.Comparable#[T]2
+ scala/Boolean#2.
+$ & _empty_/T1027.Comparable#`<=`().24
+ #&_empty_/T1027.Comparable#`>=`().(that)2
+ 	_empty_/T1027.A#2)
+	 	_empty_/T1027.A#`<init>`().2"
+ scala/Predef.String#2'
+! +_empty_/T1027.Comparable#2
+, -_empty_/T1027.A#2 
+ _empty_/T1027.A#x.2$
+ 	_empty_/T1027.A#`<`().2*
+ _empty_/T1027.A#`<`().(that)2
+ _empty_/T1027.A#2/
+ !scala/collection/StringOps#`<`().2+
+ scala/Predef.augmentString().2 
+ _empty_/T1027.A#x.2 
+$ %_empty_/T1027.A#x.2*
+ #_empty_/T1027.A#`<`().(that)2
+
+
+ _empty_/T1027.a.2)
+
+
+ _empty_/T1027.A#`<init>`().2
+
+
+ _empty_/T1027.A#2
+ _empty_/T1027.b.2)
+ _empty_/T1027.A#`<init>`().2
+ _empty_/T1027.A#2'
+ 	scala/Predef.println(+1).2$
+ _empty_/T1027.A#`<`().2
+
+ _empty_/T1027.a.2
+ _empty_/T1027.b.2'
+ 	scala/Predef.println(+1).2-
+ _empty_/T1027.Comparable#`>`().2
+
+ _empty_/T1027.a.2
+ _empty_/T1027.b.2'
+ 	scala/Predef.println(+1).2.
+  _empty_/T1027.Comparable#`<=`().2
+
+ _empty_/T1027.a.2
+ _empty_/T1027.b.2'
+ 	scala/Predef.println(+1).2.
+  _empty_/T1027.Comparable#`>=`().2
+
+ _empty_/T1027.a.2
+ _empty_/T1027.b.2'
+ 	scala/Predef.println(+1).2%
+! "java/lang/String#`+`().2#
+= Escala/Any#toString().2-
+/ 0_empty_/T1027.Comparable#`>`().2)
+) )_empty_/T1027.A#`<init>`().2
+( )_empty_/T1027.A#2)
+6 6_empty_/T1027.A#`<init>`().2
+5 6_empty_/T1027.A#PZ 5FAEDA3490F604302D14BB095CBA011A

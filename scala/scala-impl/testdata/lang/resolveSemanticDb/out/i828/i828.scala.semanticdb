@@ -1,0 +1,13 @@
+
+‚tests/pos/i828.scala*
+
+_empty_/X.
+ *X€*
+_empty_/X.x. €*x€2
+ 
+_empty_/X.2
+ _empty_/X.x.2
+	 
+scala/Int#2'
+  scala/Any#asInstanceOf().2
+! (scala/Nothing#PZ 3D6365E5BFDA94DFA765E4A0CF605BD1

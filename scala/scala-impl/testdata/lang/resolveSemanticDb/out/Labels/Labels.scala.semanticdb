@@ -1,0 +1,56 @@
+
+¦tests/pos/Labels.scala* 
+_empty_/Labels.
+ *Labels€*#
+_empty_/Labels.main().*main€*)
+_empty_/Labels.main().(args)*args€*
+local0 €*i€*
+local1 €*j€*)
+_empty_/Labels.pattern().*pattern€*&
+_empty_/Labels.pattern().(a)*a€*
+local2 €*t€2
+ _empty_/Labels.2$
+ 
+_empty_/Labels.main().2*
+ _empty_/Labels.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02 
+ scala/Int#`>`(+3).2
+
+ local02
+
+ local12 
+ scala/Int#`<`(+3).2
+ local12
+ local02'
+ scala/Predef.println(+1).2%
+ java/lang/String#`+`().2
+ scala/Int#`+`().2
+ local12
+ local02
+ 	local12 
+ scala/Int#`+`(+4).2
+ local12
+		 local02 
+		 scala/Int#`-`(+3).2
+	
+	 local02'
+ _empty_/Labels.pattern().2'
+ _empty_/Labels.pattern().2'
+ _empty_/Labels.pattern().2'
+ _empty_/Labels.pattern().2*
+ _empty_/Labels.pattern().(a)2
+ 
+scala/Int#2*
+ _empty_/Labels.pattern().(a)2 
+ scala/Int#`>`(+3).2*
+ _empty_/Labels.pattern().(a)2'
+ scala/Predef.println(+1).2
+	 
+local22'
+ scala/Predef.println(+1).2%
+ java/lang/String#`+`().2
+  !local22'
+ scala/Predef.println(+1).PZ D5EDB8ECA6C7DACF3F71A4234E31E0F8

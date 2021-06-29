@@ -1,0 +1,25 @@
+
+îtests/pos/S1.scala*
+_empty_/S1#*S1€*(
+_empty_/S1#`<init>`(). €@*<init>€*
+_empty_/S1#foo().*foo€*
+_empty_/S1#foo().[T]	*T€*
+_empty_/S1#foo().(x)*x€2
+		 _empty_/S1#2$
+		 _empty_/S1#`<init>`().2
+
+
+ _empty_/S1#foo().2"
+
+
+ _empty_/S1#foo().[T]2"
+
+
+ _empty_/S1#foo().(x)2"
+
+
+  _empty_/S1#foo().[T]2"
+
+$
+ %_empty_/S1#foo().(x)2
+ _empty_/S1#foo().PZ 070BF52385DBC82D388D118D6E84FD3F

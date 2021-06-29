@@ -1,0 +1,29 @@
+
+Ätests/pos/t4603/S.scala*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ 
+_empty_/S#2#
+ _empty_/S#`<init>`().2%
+ _empty_/J#`<init>`(+1).2
+ 
+_empty_/J#2
+ scala/AnyRef#2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+  $scala/Unit#2
+ _empty_/J#f().2
+ 
+_empty_/J#2%
+ scala/Predef.classOf().2
+ 
+_empty_/S#PZ 8FA7F61BB5D6D69A9443DC1EC1C96CBF

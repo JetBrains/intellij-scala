@@ -1,0 +1,22 @@
+
+ètests/pos/t1785.scala*
+_empty_/t1785#*t1785Ä*+
+_empty_/t1785#`<init>`(). Ä@*<init>Ä*$
+_empty_/t1785#apply().*applyÄ*#
+_empty_/t1785#apply().[T]	*TÄ*#
+_empty_/t1785#apply().(x)*xÄ*
+_empty_/test.
+ *testÄ2
+ _empty_/t1785#2'
+ _empty_/t1785#`<init>`().2$
+ _empty_/t1785#apply().2'
+ _empty_/t1785#apply().[T]2'
+ _empty_/t1785#apply().(x)2
+ 
+scala/Int#2
+ _empty_/test.2$
+ _empty_/t1785#apply().2'
+ _empty_/t1785#`<init>`().2
+ _empty_/t1785#2
+ 
+scala/Int#PZ ADB2A98B2EF75AF7FF2F27CC88D48D71

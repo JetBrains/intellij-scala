@@ -1,0 +1,76 @@
+
+Ìtests/pos/i1753.scala*4
+_empty_/BackendInterface# *BackendInterface€*6
+$_empty_/BackendInterface#`<init>`(). €@*<init>€*/
+ _empty_/BackendInterface#Symbol#*Symbol€*3
+"_empty_/BackendInterface#ClassDef#*ClassDef€*4
+_empty_/BTypesFromSymbols#*BTypesFromSymbols€*7
+%_empty_/BTypesFromSymbols#`<init>`(). €@*<init>€*9
+*_empty_/BTypesFromSymbols#`<init>`().(int) €*int€*'
+_empty_/BTypesFromSymbols#[I]	*I€*-
+_empty_/BTypesFromSymbols#int. €*int€*6
+%_empty_/BTypesFromSymbols#isRemote().*isRemote€*2
+(_empty_/BTypesFromSymbols#isRemote().(s)*s€*.
+_empty_/BCodeIdiomatic#*BCodeIdiomatic€*4
+"_empty_/BCodeIdiomatic#`<init>`(). €@*<init>€**
+_empty_/BCodeIdiomatic#int. „*int€*0
+_empty_/BCodeIdiomatic#bTypes. È*bTypes€*2
+_empty_/BCodeSkelBuilder#*BCodeSkelBuilder€*6
+$_empty_/BCodeSkelBuilder#`<init>`(). €@*<init>€*(
+_empty_/BCodeSkelBuilder#b. €*b€*(
+_empty_/BCodeSkelBuilder#x. €*x€*(
+_empty_/BCodeSkelBuilder#y. €*y€*?
+)_empty_/BCodeSkelBuilder#getPlainClass().*getPlainClass€*8
+-_empty_/BCodeSkelBuilder#getPlainClass().(cd)*cd€2#
+ _empty_/BackendInterface#22
+ $_empty_/BackendInterface#`<init>`().2.
+  _empty_/BackendInterface#Symbol#2
+ scala/Null#20
+ "_empty_/BackendInterface#ClassDef#2
+ scala/Null#2(
+ _empty_/BTypesFromSymbols#23
+ %_empty_/BTypesFromSymbols#`<init>`().2+
+8 9_empty_/BTypesFromSymbols#[I]2+
+ _empty_/BTypesFromSymbols#[I]2,
+3 6_empty_/BTypesFromSymbols#int.23
+ %_empty_/BTypesFromSymbols#isRemote().26
+ (_empty_/BTypesFromSymbols#isRemote().(s)2.
+  _empty_/BackendInterface#Symbol#2,
+ _empty_/BTypesFromSymbols#int.2'
+  'scala/Predef.println(+1).2%
+		 _empty_/BCodeIdiomatic#20
+
+
+ "_empty_/BCodeIdiomatic#`<init>`().2)
+
+
+ 	_empty_/BCodeIdiomatic#int.2'
+
+
+ _empty_/BackendInterface#2,
+ _empty_/BCodeIdiomatic#bTypes.23
+9 9%_empty_/BTypesFromSymbols#`<init>`().2(
+ /_empty_/BTypesFromSymbols#2)
+0 3_empty_/BCodeIdiomatic#int.2)
+: =_empty_/BCodeIdiomatic#int.2'
+ _empty_/BCodeSkelBuilder#22
+ $_empty_/BCodeSkelBuilder#`<init>`().2%
+ -_empty_/BCodeIdiomatic#2)
+	 _empty_/BCodeIdiomatic#int.2,
+	 _empty_/BCodeIdiomatic#bTypes.2)
+ _empty_/BCodeSkelBuilder#b.2(
+	 _empty_/BTypesFromSymbols#2)
+ _empty_/BCodeIdiomatic#int.2,
+' -_empty_/BCodeIdiomatic#bTypes.2)
+ _empty_/BCodeSkelBuilder#x.2)
+	 _empty_/BCodeIdiomatic#int.2,
+ _empty_/BTypesFromSymbols#int.2,
+ _empty_/BCodeIdiomatic#bTypes.2)
+ _empty_/BCodeSkelBuilder#y.2,
+ _empty_/BTypesFromSymbols#int.2,
+	 _empty_/BCodeIdiomatic#bTypes.2)
+ _empty_/BCodeIdiomatic#int.27
+ )_empty_/BCodeSkelBuilder#getPlainClass().2;
+ -_empty_/BCodeSkelBuilder#getPlainClass().(cd)23
++ 3%_empty_/BTypesFromSymbols#isRemote().2,
+$ *_empty_/BCodeIdiomatic#bTypes.PZ 32FD4C217DA87FCE831F6A125F8DBC49

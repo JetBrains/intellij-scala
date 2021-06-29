@@ -1,0 +1,63 @@
+
+Žtests/pos/scoping3.scala*
+_empty_/CI.
+ *CI€*+
+_empty_/CI.TreeDisplay#*TreeDisplay€*4
+"_empty_/CI.TreeDisplay#`<init>`(). €@*<init>€*1
+ _empty_/CI.TreeDisplay#TreeNode#*TreeNode€*3
+!_empty_/CI.TreeDisplay#ITreeNode#*	ITreeNode€*>
+,_empty_/CI.TreeDisplay#ITreeNode#`<init>`(). €@*<init>€*=
++_empty_/CI.TreeDisplay#ITreeNode#display(). *display€*1
+_empty_/CI.TreeDisplayExp#*TreeDisplayExp€*7
+%_empty_/CI.TreeDisplayExp#`<init>`(). €@*<init>€*6
+$_empty_/CI.TreeDisplayExp#getRoot(). *getRoot€*4
+#_empty_/CI.TreeDisplayExp#TreeNode#*TreeNode€*<
+'_empty_/CI.TreeDisplayExp#ITreeNodeExp#*ITreeNodeExp€*D
+2_empty_/CI.TreeDisplayExp#ITreeNodeExp#`<init>`(). €@*<init>€*5
+_empty_/CI.TreeDisplayFinal#*TreeDisplayFinal€*9
+'_empty_/CI.TreeDisplayFinal#`<init>`(). €@*<init>€*6
+%_empty_/CI.TreeDisplayFinal#TreeNode#*TreeNode€*9
+_empty_/CI.SimpleTreeDisplay# *SimpleTreeDisplay€*:
+(_empty_/CI.SimpleTreeDisplay#`<init>`(). €@*<init>€*
+local0*self€*7
+'_empty_/CI.SimpleTreeDisplay#display().*display€2
+ 	_empty_/CI.2%
+ _empty_/CI.TreeDisplay#20
+ "_empty_/CI.TreeDisplay#`<init>`().2.
+	  _empty_/CI.TreeDisplay#TreeNode#2/
+ !_empty_/CI.TreeDisplay#ITreeNode#2/
+
+ !_empty_/CI.TreeDisplay#ITreeNode#2:
+ ,_empty_/CI.TreeDisplay#ITreeNode#`<init>`().29
+
+ +_empty_/CI.TreeDisplay#ITreeNode#display().2
+ scala/Unit#2(
+ _empty_/CI.TreeDisplayExp#23
+		 %_empty_/CI.TreeDisplayExp#`<init>`().22
+		 $_empty_/CI.TreeDisplayExp#getRoot().21
+		 #_empty_/CI.TreeDisplayExp#TreeNode#21
+
+	
+ #_empty_/CI.TreeDisplayExp#TreeNode#25
+
+
+ !'_empty_/CI.TreeDisplayExp#ITreeNodeExp#25
+
+ '_empty_/CI.TreeDisplayExp#ITreeNodeExp#2@
+ 2_empty_/CI.TreeDisplayExp#ITreeNodeExp#`<init>`().2*
+ _empty_/CI.TreeDisplayFinal#25
+! !'_empty_/CI.TreeDisplayFinal#`<init>`().2%
+! ,_empty_/CI.TreeDisplay#2(
+2 @_empty_/CI.TreeDisplayExp#23
+	 %_empty_/CI.TreeDisplayFinal#TreeNode#2/
+ !_empty_/CI.TreeDisplay#ITreeNode#25
+$ 0'_empty_/CI.TreeDisplayExp#ITreeNodeExp#2+
+ "_empty_/CI.SimpleTreeDisplay#26
++ +(_empty_/CI.SimpleTreeDisplay#`<init>`().2%
++ 6_empty_/CI.TreeDisplay#2
+9 =local02*
+? O_empty_/CI.TreeDisplayFinal#25
+ '_empty_/CI.SimpleTreeDisplay#display().2
+ scala/Unit#29
++ 2+_empty_/CI.TreeDisplay#ITreeNode#display().22
+! ($_empty_/CI.TreeDisplayExp#getRoot().PZ 5C000733EB1C79086AFE862514EF78CB

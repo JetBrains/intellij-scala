@@ -1,0 +1,23 @@
+
+Œtests/pos/t4812.scala*
+_empty_/Test1#*Test1€*+
+_empty_/Test1#`<init>`(). €@*<init>€* 
+_empty_/Test1#m1(). *m1€*$
+_empty_/Test1#m1().(sym)*sym€*2
+_empty_/Test1#m1$default$1().*m1$default$1€* 
+_empty_/Test1#m2(). *m2€* 
+_empty_/Test1#m2().(s)*s€*2
+_empty_/Test1#m2$default$1().*m2$default$1€2
+ _empty_/Test1#2'
+ _empty_/Test1#`<init>`().2!
+ _empty_/Test1#m1().2&
+	 _empty_/Test1#m1().(sym)2
+ scala/Symbol#2
++ /scala/Unit#2#
+ scala/Symbol.apply().2
+ scala/Symbol.2!
+ _empty_/Test1#m2().2$
+	 
+_empty_/Test1#m2().(s)2"
+ scala/Predef.String#2
+$ (scala/Unit#PZ EE738E7EE2B3E8BC0F052ED6531EC673

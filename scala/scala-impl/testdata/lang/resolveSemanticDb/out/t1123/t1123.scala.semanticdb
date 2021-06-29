@@ -1,0 +1,34 @@
+
+tests/pos/t1123.scala*
+
+test/Test.
+ *Test€* 
+test/Test.Editor#*Editor€*.
+test/Test.Editor#`<init>`(). €@*<init>€*7
+test/Test.Editor#extraListener.
+ *extraListener€*-
+#test/Test.Editor#extraListener.h().*h€*
+test/Test.Editor#f().*f€*
+test/Test.main().*main€*$
+test/Test.main().(args)*args€2
+ test/2
+ 
+test/Test.2
+ test/Test.Editor#2*
+ test/Test.Editor#`<init>`().2-
+  test/Test.Editor#extraListener.21
+
+ #test/Test.Editor#extraListener.h().2
+ scala/AnyRef#2#
+ 	test/Test.Editor#f().21
+ #test/Test.Editor#extraListener.h().2-
+ test/Test.Editor#extraListener.2
+		 
+test/Test.main().2%
+		 test/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	"	 &scala/Unit#2#
+	6	 7test/Test.Editor#f().2*
+	4	 4test/Test.Editor#`<init>`().2
+	.	 4test/Test.Editor#PZ C3E9D92DD163D68F305243F5636B8863

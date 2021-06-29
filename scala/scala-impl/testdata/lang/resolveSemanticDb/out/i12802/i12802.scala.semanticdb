@@ -1,0 +1,46 @@
+
+‚
+tests/pos/i12802.scala*
+_empty_/Boo.
+ *Boo€*
+_empty_/Boo.foo().*foo€*%
+_empty_/Boo.foo().(x$1)  *x$1€*%
+local0 è*given_Option_Symbol€*
+_empty_/Boo.bar().*bar€*%
+_empty_/Boo.bar().(x$1)  *x$1€*%
+local1 è*given_Option_Symbol€2
+ scala/quoted/2
+ scala/2
+ 
+_empty_/Boo.2 
+ 	_empty_/Boo.foo().2%
+ _empty_/Boo.foo().(x$1)2"
+ scala/quoted/Quotes#2
+ scala/Unit#2*
+ scala/quoted/Quotes#reflect.23
+ %scala/quoted/Quotes$package.quotes().2%
+ _empty_/Boo.foo().(x$1)2
+
+ 
+local02
+
+ scala/Option#2!
+ scala/Some.apply().2
+ scala/Some.2#
+( +scala/Predef.`???`().2 
+ 	_empty_/Boo.bar().2%
+ _empty_/Boo.bar().(x$1)2"
+ scala/quoted/Quotes#2
+ scala/Unit#27
+  )scala/quoted/Quotes#reflectModule#Symbol.2*
+ scala/quoted/Quotes#reflect.23
+ %scala/quoted/Quotes$package.quotes().2%
+ _empty_/Boo.bar().(x$1)2
+
+ 
+local12
+
+ scala/Option#2!
+ scala/Some.apply().2
+ scala/Some.2#
+( +scala/Predef.`???`().PZ 5503C2346CEAE9682B854B7DDD87C173

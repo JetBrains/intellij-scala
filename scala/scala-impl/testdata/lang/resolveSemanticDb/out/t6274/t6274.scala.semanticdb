@@ -1,0 +1,26 @@
+
+Ætests/pos/t6274.scala*
+_empty_/Crash#*Crash€*+
+_empty_/Crash#`<init>`(). €@*<init>€*"
+_empty_/Crash#foo(). *foo€*!
+_empty_/Crash#foo().(i)*i€*!
+_empty_/Crash#foo().(j)*j€*
+_empty_/Crash#t().*t€*
+local0*j€*
+local1 €*count€2
+ _empty_/Crash#2'
+ _empty_/Crash#`<init>`().2"
+ _empty_/Crash#foo().2%
+ _empty_/Crash#foo().(i)2
+ 
+scala/Int#2%
+ _empty_/Crash#foo().(j)2
+ 
+scala/Int#2
+! $
+scala/Int#2 
+ 	_empty_/Crash#t().2"
+ _empty_/Crash#foo().2
+ local12
+ local12
+ local0PZ 08ADD46C4B21620ADED739792D0E895B

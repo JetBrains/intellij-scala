@@ -1,0 +1,23 @@
+
+ítests/pos/t1056.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.T#*T€*
+_empty_/Test.g().*g€*
+_empty_/Test.g().(h)*h€*
+local0*x$1€*
+local1 €*s€2
+ _empty_/Test.2
+ _empty_/Test.T#2$
+ scala/PartialFunction#2"
+ !scala/Predef.String#2"
+" (scala/Predef.String#2
+ _empty_/Test.g().2"
+ 	_empty_/Test.g().(h)2
+ _empty_/Test.T#2
+ _empty_/Test.g().2
+ local02
+
+ local12"
+ scala/Predef.String#2
+ local1PZ C531396F23844F1AFF5C3D122D60B7D5

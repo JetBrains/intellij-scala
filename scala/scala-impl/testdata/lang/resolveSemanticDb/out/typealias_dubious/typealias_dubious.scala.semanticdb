@@ -1,0 +1,50 @@
+
+Õ!tests/pos/typealias_dubious.scala* 
+_empty_/MailBox#*MailBox€*-
+_empty_/MailBox#`<init>`(). €@*<init>€*(
+_empty_/MailBox#Message#*Message€*
+_empty_/Actor# *Actor€*+
+_empty_/Actor#`<init>`(). €@*<init>€*
+_empty_/Actor#in. €*in€*"
+_empty_/Actor#send().*send€*&
+_empty_/Actor#send().(msg)*msg€**
+_empty_/Actor#unstable().*unstable€*0
+_empty_/Actor#dubiousSend().*dubiousSend€*-
+!_empty_/Actor#dubiousSend().(msg)*msg€2
+ _empty_/MailBox#2)
+ _empty_/MailBox#`<init>`().2&
+ _empty_/MailBox#Message#2
+ scala/AnyRef#2
+ _empty_/Actor#2'
+ _empty_/Actor#`<init>`().2
+ _empty_/Actor#in.2)
+ _empty_/MailBox#`<init>`().2
+ _empty_/MailBox#2#
+ 
+_empty_/Actor#send().2(
+ _empty_/Actor#send().(msg)2&
+ _empty_/MailBox#Message#2
+ _empty_/Actor#in.2(
+# (scala/sys/package.error().2
+ "
+scala/sys/2'
+
+
+ _empty_/Actor#unstable().2
+
+
+ _empty_/Actor#2(
+
+
+ !scala/sys/package.error().2
+
+
+ 
+scala/sys/2*
+ _empty_/Actor#dubiousSend().2/
+ !_empty_/Actor#dubiousSend().(msg)2&
+ &_empty_/MailBox#Message#2
+ _empty_/MailBox#2#
+ _empty_/Actor#send().2'
+ _empty_/Actor#unstable().2/
+ !_empty_/Actor#dubiousSend().(msg)PZ 14BF1CB56E9B816F91AD97B3A9D3697A

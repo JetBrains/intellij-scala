@@ -1,0 +1,134 @@
+
+¤"tests/pos/simpleExtractors-1.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#bar().*bar€*
+_empty_/Foo#bar().(x)*x€*
+local0 €*a€*
+local1 €*a€*
+local2 €*a€*
+local3 €*b€*
+_empty_/Foo#baz().*baz€*
+_empty_/Foo#baz().(x)*x€*
+local4 €*a€*
+local5 €*a€*
+local6 €*a€*
+local7 €*b€*
+_empty_/Bar.
+ *Bar€*&
+_empty_/Bar.unapply().*unapply€*'
+_empty_/Bar.unapply().(arg)*arg€* 
+_empty_/BarSeq.
+ *BarSeq€*/
+_empty_/BarSeq.unapplySeq().*
+unapplySeq€*-
+!_empty_/BarSeq.unapplySeq().(arg)*arg€*
+_empty_/Baz.
+ *Baz€*&
+_empty_/Baz.unapply().*unapply€*#
+_empty_/Baz.unapply().[T]	*T€*'
+_empty_/Baz.unapply().(arg)*arg€* 
+_empty_/BazSeq.
+ *BazSeq€*/
+_empty_/BazSeq.unapplySeq().*
+unapplySeq€*)
+_empty_/BazSeq.unapplySeq().[T]	*T€*-
+!_empty_/BazSeq.unapplySeq().(arg)*arg€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#bar().2#
+
+ _empty_/Foo#bar().(x)2
+ 
+scala/Any#2
+ scala/Unit#2#
+ _empty_/Foo#bar().(x)2$
+ _empty_/Bar.unapply().2
+	 _empty_/Bar.2
+ local02'
+ scala/Predef.println(+1).2
+ local02*
+ _empty_/BarSeq.unapplySeq().2
+	 _empty_/BarSeq.2
+ local12'
+ scala/Predef.println(+1).2
+ local12*
+ _empty_/BarSeq.unapplySeq().2
+	 _empty_/BarSeq.2
+ local22
+ local32'
+  scala/Predef.println(+1).2
+! "local22 
+ 	_empty_/Foo#baz().2#
+
+ _empty_/Foo#baz().(x)2
+ 
+scala/Any#2
+ scala/Unit#2#
+ _empty_/Foo#baz().(x)2$
+ _empty_/Baz.unapply().2
+	 _empty_/Baz.2
+ local42'
+ scala/Predef.println(+1).2
+ local42*
+ _empty_/BazSeq.unapplySeq().2
+	 _empty_/BazSeq.2
+ local52'
+ scala/Predef.println(+1).2
+ local52*
+		 _empty_/BazSeq.unapplySeq().2
+			 _empty_/BazSeq.2
+		 local62
+		 local72'
+		  scala/Predef.println(+1).2
+	!	 "local62
+ 
+_empty_/Bar.2$
+ _empty_/Bar.unapply().2)
+ _empty_/Bar.unapply().(arg)2
+ 
+scala/Any#2
+ scala/Option#2
+  #
+scala/Any#2!
++ +scala/Some.apply().2
+' +scala/Some.2)
+, /_empty_/Bar.unapply().(arg)2
+ _empty_/BarSeq.2*
+ _empty_/BarSeq.unapplySeq().2/
+ !_empty_/BarSeq.unapplySeq().(arg)2
+ 
+scala/Any#2
+ "scala/Option#2 
+# &scala/package.Seq#2
+' *
+scala/Any#2!
+3 3scala/Some.apply().2
+/ 3scala/Some.27
+8 8)scala/collection/IterableFactory#apply().2!
+4 8scala/package.List.2/
+9 <!_empty_/BarSeq.unapplySeq().(arg)2
+ 
+_empty_/Baz.2$
+ _empty_/Baz.unapply().2'
+ _empty_/Baz.unapply().[T]2)
+ _empty_/Baz.unapply().(arg)2'
+ _empty_/Baz.unapply().[T]2
+  scala/Option#2'
+! "_empty_/Baz.unapply().[T]2!
+* *scala/Some.apply().2
+& *scala/Some.2)
++ ._empty_/Baz.unapply().(arg)2
+ _empty_/BazSeq.2*
+ _empty_/BazSeq.unapplySeq().2-
+ _empty_/BazSeq.unapplySeq().[T]2/
+ !_empty_/BazSeq.unapplySeq().(arg)2-
+ _empty_/BazSeq.unapplySeq().[T]2
+ #scala/Option#2 
+$ 'scala/package.Seq#2-
+( )_empty_/BazSeq.unapplySeq().[T]2!
+2 2scala/Some.apply().2
+. 2scala/Some.27
+7 7)scala/collection/IterableFactory#apply().2!
+3 7scala/package.List.2/
+8 ;!_empty_/BazSeq.unapplySeq().(arg)PZ FAB6F3D1DCC14982270E0BB68FDE1395

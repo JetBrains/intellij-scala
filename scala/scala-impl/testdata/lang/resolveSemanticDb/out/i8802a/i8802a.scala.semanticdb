@@ -1,0 +1,89 @@
+
+Ùtests/pos/i8802a.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A1]	*A1€*
+_empty_/Foo#[B1]	*B1€*
+_empty_/Foo#Out#*Out€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Bar#*Bar€* 
+_empty_/Test.Bar#[A2]	*A2€*!
+_empty_/Test.unit().*unit€*'
+_empty_/Test.product().*product€*&
+_empty_/Test.product().[A3]	*A3€*&
+_empty_/Test.product().[B3]	*B3€*(
+_empty_/Test.product().(fst)*fst€*(
+_empty_/Test.product().(snd)*snd€**
+_empty_/Test.product().(foo)  *foo€*!
+_empty_/Test.foo().  *foo€*"
+_empty_/Test.foo().[A4]	*A4€*
+local0*Out€*#
+_empty_/Test.check().*check€*$
+_empty_/Test.check().[A5]	*A5€*&
+_empty_/Test.check().(bar)*bar€*"
+_empty_/Test.check().(a)*a€*
+local1 €*bar$1€*
+local2*a€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A1]2
+ _empty_/Foo#[B1]2
+ 
+_empty_/Foo#Out#2
+ _empty_/Test.2
+ 
+_empty_/Test.Bar#2#
+ _empty_/Test.Bar#[A2]2"
+ 
+_empty_/Test.unit().2
+ _empty_/Test.Bar#2
+ scala/Unit#2#
+ scala/Predef.`???`().2%
+		 _empty_/Test.product().2)
+		 _empty_/Test.product().[A3]2)
+		 _empty_/Test.product().[B3]2*
+		 _empty_/Test.product().(fst)2
+		 _empty_/Test.Bar#2)
+		 !_empty_/Test.product().[A3]2*
+	$	 '_empty_/Test.product().(snd)2
+	)	 ,_empty_/Test.Bar#2)
+	-	 /_empty_/Test.product().[B3]2*
+	;	 >_empty_/Test.product().(foo)2
+	@	 C_empty_/Foo#2)
+	D	 F_empty_/Test.product().[A3]2)
+	H	 J_empty_/Test.product().[B3]2
+	N	 Q_empty_/Test.Bar#2
+	V	 Y_empty_/Foo#Out#2*
+	R	 U_empty_/Test.product().(foo)2#
+	]	 `scala/Predef.`???`().2!
+ _empty_/Test.foo().2%
+ _empty_/Test.foo().[A4]2
+ _empty_/Foo#2%
+ _empty_/Test.foo().[A4]2
+  $scala/Unit#2
+- 0local02%
+3 5_empty_/Test.foo().[A4]2#
+: =scala/Predef.`???`().2#
+ _empty_/Test.check().2'
+ _empty_/Test.check().[A5]2(
+ _empty_/Test.check().(bar)2
+ _empty_/Test.Bar#2'
+ _empty_/Test.check().[A5]2&
+ _empty_/Test.check().(a)2'
+! #_empty_/Test.check().[A5]2
+& *scala/Unit#2
+ local12#
+ _empty_/Test.check().2
+ local12
+ local22#
+ _empty_/Test.check().2%
+ _empty_/Test.product().2"
+ _empty_/Test.unit().2"
+ _empty_/Test.unit().2$
+ "scala/Predef.summon().2
+# &_empty_/Foo#2
+' +scala/Unit#2
+- 1scala/Unit#2!
+3 3_empty_/Test.foo().PZ 730232F042BFA3E986B645D324054D79

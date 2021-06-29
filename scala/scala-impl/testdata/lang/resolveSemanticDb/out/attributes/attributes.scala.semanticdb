@@ -1,0 +1,426 @@
+
+‹ftests/pos/attributes.scala**
+_empty_/serializable#*serializable€*2
+ _empty_/serializable#`<init>`(). €@*<init>€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+_empty_/C3#*C3€*(
+_empty_/C3#`<init>`(). €@*<init>€*
+_empty_/C4#*C4€*(
+_empty_/C4#`<init>`(). €@*<init>€*
+_empty_/T1#*T1€*(
+_empty_/T1#`<init>`(). €@*<init>€*
+_empty_/T2#*T2€*(
+_empty_/T2#`<init>`(). €@*<init>€*
+_empty_/T3#*T3€*(
+_empty_/T3#`<init>`(). €@*<init>€*
+_empty_/T4#*T4€*(
+_empty_/T4#`<init>`(). €@*<init>€*
+_empty_/O1.
+ *O1€*
+_empty_/O2.
+ *O2€*
+_empty_/O3.
+ *O3€*
+_empty_/O4.
+ *O4€*
+_empty_/O5.
+ *O5€*
+_empty_/O5.n. ˆ*n€*
+_empty_/O5.C1#*C1€*+
+_empty_/O5.C1#`<init>`(). €@*<init>€*
+_empty_/O5.C2#*C2€*+
+_empty_/O5.C2#`<init>`(). €@*<init>€*
+_empty_/O5.C3#*C3€*+
+_empty_/O5.C3#`<init>`(). €@*<init>€*
+_empty_/O5.C4#*C4€*+
+_empty_/O5.C4#`<init>`(). €@*<init>€*
+_empty_/A1# *A1€*(
+_empty_/A1#`<init>`(). €@*<init>€*
+_empty_/A1#y1(). „*y1€*$
+_empty_/A1#`y1_=`(). €*y1_=€*%
+_empty_/A1#`y1_=`().(x$1)*x$1€*
+_empty_/A1#y2(). „*y2€*$
+_empty_/A1#`y2_=`(). €*y2_=€*%
+_empty_/A1#`y2_=`().(x$1)*x$1€*
+_empty_/A1#y3(). „*y3€*$
+_empty_/A1#`y3_=`(). €*y3_=€*%
+_empty_/A1#`y3_=`().(x$1)*x$1€*
+_empty_/A1#y4(). „*y4€*$
+_empty_/A1#`y4_=`(). €*y4_=€*%
+_empty_/A1#`y4_=`().(x$1)*x$1€*!
+_empty_/A1#foo1(). *foo1€*!
+_empty_/A1#foo2(). *foo2€*!
+_empty_/A1#foo3(). *foo3€*!
+_empty_/A1#foo4(). *foo4€*
+_empty_/O6.
+ *O6€*
+_empty_/O6.x1. €*x1€*
+_empty_/O6.x2. €*x2€*
+_empty_/O6.x3. €*x3€*
+_empty_/O6.x4. €*x4€*
+_empty_/O6.y1(). €*y1€*$
+_empty_/O6.`y1_=`(). €*y1_=€*%
+_empty_/O6.`y1_=`().(x$1)*x$1€*
+_empty_/O6.y2(). €*y2€*$
+_empty_/O6.`y2_=`(). €*y2_=€*%
+_empty_/O6.`y2_=`().(x$1)*x$1€*
+_empty_/O6.y3(). €*y3€*$
+_empty_/O6.`y3_=`(). €*y3_=€*%
+_empty_/O6.`y3_=`().(x$1)*x$1€*
+_empty_/O6.y4(). €*y4€*$
+_empty_/O6.`y4_=`(). €*y4_=€*%
+_empty_/O6.`y4_=`().(x$1)*x$1€*
+_empty_/O6.foo1().*foo1€*
+_empty_/O6.foo2().*foo2€*
+_empty_/O6.foo3().*foo3€*
+_empty_/O6.foo4().*foo4€*"
+_empty_/myAttrs.
+ *myAttrs€*
+_empty_/myAttrs.a1#*a1€*0
+_empty_/myAttrs.a1#`<init>`(). €@*<init>€*
+_empty_/myAttrs.a2#*a2€*0
+_empty_/myAttrs.a2#`<init>`(). €@*<init>€*+
+!_empty_/myAttrs.a2#`<init>`().(x)*x€*"
+_empty_/myAttrs.a2#x. €*x€*
+_empty_/myAttrs.a3#*a3€*0
+_empty_/myAttrs.a3#`<init>`(). €@*<init>€*+
+!_empty_/myAttrs.a3#`<init>`().(x)*x€*"
+_empty_/myAttrs.a3#x. €*x€*
+_empty_/a4#*a4€*(
+_empty_/a4#`<init>`(). €@*<init>€*%
+_empty_/a4#`<init>`().(ns)*ns€*
+_empty_/a4#ns. €*ns€*
+_empty_/O7.
+ *O7€*
+_empty_/O7.a1#*a1€*+
+_empty_/O7.a1#`<init>`(). €@*<init>€*
+_empty_/O7.a2#*a2€*+
+_empty_/O7.a2#`<init>`(). €@*<init>€*&
+_empty_/O7.a2#`<init>`().(x)*x€*
+_empty_/O7.a2#x. €*x€*
+_empty_/O7.a3#*a3€*+
+_empty_/O7.a3#`<init>`(). €@*<init>€*&
+_empty_/O7.a3#`<init>`().(x)*x€*
+_empty_/O7.a3#x. €*x€*
+_empty_/O7.x. ˆ*x€*
+_empty_/O7.C1#*C1€*+
+_empty_/O7.C1#`<init>`(). €@*<init>€*
+_empty_/O7.C2#*C2€*+
+_empty_/O7.C2#`<init>`(). €@*<init>€*
+_empty_/O7.C3#*C3€*+
+_empty_/O7.C3#`<init>`(). €@*<init>€*
+_empty_/O7.C4#*C4€*+
+_empty_/O7.C4#`<init>`(). €@*<init>€*
+_empty_/O7.A1#*A1€*+
+_empty_/O7.A1#`<init>`(). €@*<init>€*
+_empty_/O7.A2#*A2€*+
+_empty_/O7.A2#`<init>`(). €@*<init>€*
+_empty_/O7.A3#*A3€*+
+_empty_/O7.A3#`<init>`(). €@*<init>€*
+_empty_/O7.A4#*A4€*+
+_empty_/O7.A4#`<init>`(). €@*<init>€*
+_empty_/O7.A5#*A5€*+
+_empty_/O7.A5#`<init>`(). €@*<init>€*
+_empty_/O7.A6#*A6€*+
+_empty_/O7.A6#`<init>`(). €@*<init>€* 
+_empty_/O7.zero. €*zero€2
+ _empty_/serializable#2*
+  _empty_/serializable#`<init>`().2,
+& 6"scala/annotation/StaticAnnotation#2
+ %scala/annotation/2#
+ _empty_/serializable#2
+ _empty_/C1#2 
+_empty_/C1#`<init>`().2
+ scala/volatile#2#
+ _empty_/serializable#2
+ !_empty_/C2#2 
+_empty_/C2#`<init>`().2
+ scala/volatile#2#
+ _empty_/serializable#2
+ !_empty_/C3#2 
+_empty_/C3#`<init>`().2#
+ %_empty_/serializable#2
+ scala/volatile#2#
+ _empty_/serializable#2
+, ._empty_/C4#2 
+_empty_/C4#`<init>`().2#
+ _empty_/serializable#2
+ _empty_/T1#2 
+_empty_/T1#`<init>`().2
+ scala/volatile#2#
+ _empty_/serializable#2
+  _empty_/T2#2 
+_empty_/T2#`<init>`().2
+		 scala/volatile#2#
+		 _empty_/serializable#2
+		 !_empty_/T3#2 
+		_empty_/T3#`<init>`().2#
+
+
+ %_empty_/serializable#2
+
+
+ scala/volatile#2#
+
+
+ _empty_/serializable#2
+
+,
+ ._empty_/T4#2 
+
+
+_empty_/T4#`<init>`().2#
+ _empty_/serializable#2
+ _empty_/O1.2$
+# #_empty_/C1#`<init>`().2
+! #_empty_/C1#2
+ scala/volatile#2#
+ _empty_/serializable#2
+ !_empty_/O2.2$
+, ,_empty_/C2#`<init>`().2
+* ,_empty_/C2#2
+ scala/volatile#2#
+ _empty_/serializable#2
+  "_empty_/O3.2$
+- -_empty_/C3#`<init>`().2
++ -_empty_/C3#2#
+ %_empty_/serializable#2
+ scala/volatile#2#
+ _empty_/serializable#2
+- /_empty_/O4.2$
+: :_empty_/C4#`<init>`().2
+8 :_empty_/C4#2
+ 	_empty_/O5.2
+ _empty_/O5.n.2%
+ scala/SerialVersionUID#2
+  _empty_/O5.C1#2'
+ _empty_/O5.C1#`<init>`().2%
+ scala/SerialVersionUID#2
+  _empty_/O5.C2#2'
+ _empty_/O5.C2#`<init>`().2%
+ (scala/SerialVersionUID#2%
+ scala/SerialVersionUID#2
+3 5_empty_/O5.C3#2'
+ _empty_/O5.C3#`<init>`().2%
+ (scala/SerialVersionUID#2%
+ scala/SerialVersionUID#2
+3 5_empty_/O5.C4#2'
+ _empty_/O5.C4#`<init>`().2
+ _empty_/A1#2$
+ _empty_/A1#`<init>`().2#
+ _empty_/serializable#2
+ _empty_/A1#y1().2
+ _empty_/C1#2"
+ _empty_/A1#`y1_=`().2
+ scala/volatile#2#
+ _empty_/serializable#2
+ !_empty_/A1#y2().2
+# %_empty_/C2#2"
+ #_empty_/A1#`y2_=`().2
+ scala/volatile#2#
+ _empty_/serializable#2
+ !_empty_/A1#y3().2
+# %_empty_/C3#2"
+ #_empty_/A1#`y3_=`().2#
+ '_empty_/serializable#2
+ scala/volatile#2#
+ _empty_/serializable#2
+- /_empty_/A1#y4().2
+1 3_empty_/C4#2"
+- 1_empty_/A1#`y4_=`().2#
+ _empty_/serializable#2 
+ _empty_/A1#foo1().2
+ _empty_/C1#2
+   scala/volatile#2#
+   _empty_/serializable#2 
+   #_empty_/A1#foo2().2
+ %  '_empty_/C2#2
+!! scala/volatile#2#
+!! _empty_/serializable#2 
+!! #_empty_/A1#foo3().2
+!%! '_empty_/C3#2#
+"" '_empty_/serializable#2
+"" scala/volatile#2#
+"" _empty_/serializable#2 
+"-" 1_empty_/A1#foo4().2
+"3" 5_empty_/C4#2
+%% 	_empty_/O6.2#
+&& _empty_/serializable#2
+&& _empty_/O6.x1.2$
+& &  _empty_/C1#`<init>`().2
+&&  _empty_/C1#2#
+(( _empty_/serializable#2
+(( _empty_/O6.x2.2$
+(( _empty_/C2#`<init>`().2
+(( _empty_/C2#2#
+)) _empty_/serializable#2
+)) _empty_/O6.x3.2$
+)) _empty_/C3#`<init>`().2
+)) _empty_/C3#2#
+** _empty_/serializable#2
+** _empty_/O6.x4.2$
+** _empty_/C4#`<init>`().2
+** _empty_/C4#2#
+,, _empty_/serializable#2
+,, _empty_/O6.y1().2
+,, _empty_/C1#2"
+,, _empty_/O6.`y1_=`().2
+-- scala/volatile#2#
+-- _empty_/serializable#2
+-- !_empty_/O6.y2().2
+-#- %_empty_/C2#2"
+-- #_empty_/O6.`y2_=`().2
+.. scala/volatile#2#
+.. _empty_/serializable#2
+.. !_empty_/O6.y3().2
+.#. %_empty_/C3#2"
+.. #_empty_/O6.`y3_=`().2#
+// '_empty_/serializable#2
+// scala/volatile#2#
+// _empty_/serializable#2
+/-/ /_empty_/O6.y4().2
+/1/ 3_empty_/C4#2"
+/-/ 1_empty_/O6.`y4_=`().2#
+11 _empty_/serializable#2 
+11 !_empty_/O6.foo1().2
+1$1 &_empty_/O6.x1.2
+22 scala/volatile#2#
+22 _empty_/serializable#2 
+2'2 +_empty_/O6.foo2().2
+2.2 0_empty_/O6.x2.2
+33 scala/volatile#2#
+33 _empty_/serializable#2 
+3)3 -_empty_/O6.foo3().2
+303 2_empty_/O6.x3.2#
+44 '_empty_/serializable#2
+44 scala/volatile#2#
+44 _empty_/serializable#2 
+474 ;_empty_/O6.foo4().2
+4>4 @_empty_/O6.x4.2
+77 _empty_/myAttrs.2!
+88 
+_empty_/myAttrs.a1#2,
+88 _empty_/myAttrs.a1#`<init>`().2*
+8$8 .scala/annotation/Annotation#2
+88 #scala/annotation/2
+88 scala/2!
+99 
+_empty_/myAttrs.a2#2,
+9
+9 
+_empty_/myAttrs.a2#`<init>`().2
+99 
+scala/Int#2*
+9,9 6scala/annotation/Annotation#2
+9!9 +scala/annotation/2
+99  scala/2#
+99 _empty_/myAttrs.a2#x.2!
+:: 
+_empty_/myAttrs.a3#2,
+:
+: 
+_empty_/myAttrs.a3#`<init>`().2!
+:: _empty_/myAttrs.a1#2*
+:+: 5scala/annotation/Annotation#2
+: : *scala/annotation/2
+:: scala/2#
+:: _empty_/myAttrs.a3#x.2
+<< _empty_/a4#2$
+<< _empty_/a4#`<init>`().2
+<< scala/Array#2
+<< 
+scala/Int#2*
+<2< <scala/annotation/Annotation#2
+<'< 1scala/annotation/2
+<!< &scala/2
+<	< _empty_/a4#ns.2
+== 	_empty_/O7.2
+>> 
+_empty_/O7.a1#2'
+>> _empty_/O7.a1#`<init>`().2*
+>$> .scala/annotation/Annotation#2
+>> #scala/annotation/2
+>> scala/2
+?? 
+_empty_/O7.a2#2'
+?
+? 
+_empty_/O7.a2#`<init>`().2
+?? 
+scala/Int#2*
+?,? 6scala/annotation/Annotation#2
+?!? +scala/annotation/2
+??  scala/2
+?? _empty_/O7.a2#x.2
+@@ 
+_empty_/O7.a3#2'
+@
+@ 
+_empty_/O7.a3#`<init>`().2
+@@ _empty_/O7.a1#2*
+@+@ 5scala/annotation/Annotation#2
+@ @ *scala/annotation/2
+@@ scala/2
+@@ _empty_/O7.a3#x.2
+BB _empty_/O7.x.2
+BB _empty_/O7.a1#2
+CC _empty_/O7.a1#2
+CC _empty_/O7.C1#2'
+CC _empty_/O7.C1#`<init>`().2
+DD 	_empty_/O7.a2#2
+DD _empty_/O7.a1#2
+DD _empty_/O7.C2#2'
+DD _empty_/O7.C2#`<init>`().2
+EE 	_empty_/O7.a2#2
+EE _empty_/O7.a1#2
+EE _empty_/O7.C3#2'
+EE _empty_/O7.C3#`<init>`().2
+FF _empty_/O7.a3#2
+FF 	_empty_/O7.a2#2
+FF _empty_/O7.a1#2
+FF !_empty_/O7.C4#2'
+FF _empty_/O7.C4#`<init>`().2!
+HH _empty_/myAttrs.a1#2
+HH 
+_empty_/myAttrs.2
+HH _empty_/O7.A1#2'
+HH _empty_/O7.A1#`<init>`().2!
+II _empty_/myAttrs.a2#2
+II _empty_/myAttrs.2!
+II _empty_/myAttrs.a1#2
+II 
+_empty_/myAttrs.2
+I%I '_empty_/O7.A2#2'
+II _empty_/O7.A2#`<init>`().2!
+JJ _empty_/myAttrs.a2#2
+JJ _empty_/myAttrs.2!
+JJ _empty_/myAttrs.a1#2
+JJ 
+_empty_/myAttrs.2
+J%J '_empty_/O7.A3#2'
+JJ _empty_/O7.A3#`<init>`().2!
+K'K )_empty_/myAttrs.a3#2
+KK &_empty_/myAttrs.2!
+KK _empty_/myAttrs.a2#2
+KK _empty_/myAttrs.2!
+KK _empty_/myAttrs.a1#2
+KK 
+_empty_/myAttrs.2
+K7K 9_empty_/O7.A4#2'
+KK _empty_/O7.A4#`<init>`().2
+LL _empty_/a4#2$
+LL scala/Array.apply(+5).2
+LL scala/Array.2
+LL _empty_/O7.A5#2'
+LL _empty_/O7.A5#`<init>`().2
+MM _empty_/a4#2"
+MM scala/Array.apply().2
+MM scala/Array.2-
+MM scala/reflect/ClassTag.apply().2
+MM _empty_/O7.A6#2'
+MM _empty_/O7.A6#`<init>`().2
+OO 
+_empty_/O7.zero.PZ 3AF5EFACA541E90F1059E8029A9B85D6

@@ -1,0 +1,73 @@
+
+Ÿtests/pos/t112606A.scala*
+
+test/Test#*Test€*'
+test/Test#`<init>`(). €@*<init>€* 
+test/Test#Global#*Global€*.
+test/Test#Global#`<init>`(). €@*<init>€*#
+test/Test#Global#Tree#*Tree€*%
+test/Test#Global#get(). *get€**
+test/Test#TreeBuilder#*TreeBuilder€*3
+!test/Test#TreeBuilder#`<init>`(). €@*<init>€*/
+test/Test#TreeBuilder#global. „*global€*(
+test/Test#TreeBuilder#set().*set€*/
+"test/Test#TreeBuilder#set().(tree)*tree€*
+test/Test#nsc. „*nsc€*$
+test/Test#FileImpl#*FileImpl€*0
+test/Test#FileImpl#`<init>`(). €@*<init>€*5
+test/Test#FileImpl#treeBuilder.
+ *treeBuilder€*8
+&test/Test#FileImpl#treeBuilder.global. €*global€*!
+test/Test#file0. „*file0€* 
+test/Test#file(). *file€2
+ test/2
+ 
+
+test/Test#2#
+ test/Test#`<init>`().2
+ test/Test#Global#2*
+ test/Test#Global#`<init>`().2$
+	 test/Test#Global#Tree#2%
+ test/Test#Global#get().2$
+ test/Test#Global#Tree#2$
+ test/Test#TreeBuilder#2/
+ !test/Test#TreeBuilder#`<init>`().2+
+ test/Test#TreeBuilder#global.2
+ test/Test#Global#2*
+ test/Test#TreeBuilder#set().20
+ "test/Test#TreeBuilder#set().(tree)2$
+ test/Test#Global#Tree#2+
+ test/Test#TreeBuilder#global.2
+
+
+ 	test/Test#nsc.2
+
+
+ test/Test#Global#2!
+ test/Test#FileImpl#2,
+ test/Test#FileImpl#`<init>`().2-
+ test/Test#FileImpl#treeBuilder.2$
+ *test/Test#TreeBuilder#24
+
+ &test/Test#FileImpl#treeBuilder.global.2
+ test/Test#nsc.2
+ !test/Test#nsc.2*
+ test/Test#TreeBuilder#set().2-
+ test/Test#FileImpl#treeBuilder.2%
+ test/Test#Global#get().2
+ test/Test#nsc.2
+ test/Test#file0.2!
+ test/Test#FileImpl#2*
+ test/Test#TreeBuilder#set().2-
+ test/Test#FileImpl#treeBuilder.2
+ test/Test#file0.2%
+ test/Test#Global#get().2
+ test/Test#nsc.2
+ 
+test/Test#file().2!
+ test/Test#FileImpl#2*
+ test/Test#TreeBuilder#set().2-
+ test/Test#FileImpl#treeBuilder.2
+ test/Test#file().2%
+ test/Test#Global#get().2
+ test/Test#nsc.PZ 54161B5AF8CF07D7C9E306E8DBBB3782

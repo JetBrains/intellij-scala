@@ -1,0 +1,105 @@
+
+Å tests/pos/i3965.scala*"
+_empty_/Iterable#*Iterable€*.
+_empty_/Iterable#`<init>`(). €@*<init>€*!
+_empty_/Iterable#[A]	 €*A€*(
+_empty_/IterableOps#*IterableOps€*1
+_empty_/IterableOps#`<init>`(). €@*<init>€*$
+_empty_/IterableOps#[A]	 €*A€**
+_empty_/IterableOps#[CCop]	 €*CCop€*$
+_empty_/IterableOps#[C]	 €*C€*$
+_empty_/SortedSet#*	SortedSet€*/
+_empty_/SortedSet#`<init>`(). €@*<init>€*
+_empty_/SortedSet#[A]	*A€**
+_empty_/SortedSetOps#*SortedSetOps€*2
+ _empty_/SortedSetOps#`<init>`(). €@*<init>€*"
+_empty_/SortedSetOps#[A]	*A€*+
+_empty_/SortedSetOps#[CCss]	 €*CCss€*%
+_empty_/SortedSetOps#[C]	 €*C€* 
+_empty_/TreeSet#*TreeSet€*-
+_empty_/TreeSet#`<init>`(). €@*<init>€*
+_empty_/TreeSet#[A]	*A€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*7
+_empty_/Test#optionSequence1().*optionSequence1€*2
+%_empty_/Test#optionSequence1().[CCos]	*CCos€*,
+"_empty_/Test#optionSequence1().[A]	*A€*.
+#_empty_/Test#optionSequence1().(xs)*xs€*9
+!_empty_/Test#optionSequence1(+1).*optionSequence1€*0
+%_empty_/Test#optionSequence1(+1).[CC]	*CC€*.
+$_empty_/Test#optionSequence1(+1).[A]	*A€*0
+%_empty_/Test#optionSequence1(+1).(xs)*xs€*!
+_empty_/Test#test().*test€*%
+_empty_/Test#test().(xs2)*xs2€2
+ _empty_/Iterable#2&
+ _empty_/Iterable#`<init>`().2
+ '_empty_/IterableOps#2
+( )_empty_/Iterable#[A]2
+5 =_empty_/Iterable#2
+> ?_empty_/Iterable#[A]2
+ _empty_/Iterable#[A]2"
+ _empty_/IterableOps#2-
+ _empty_/IterableOps#`<init>`().2%
+ _empty_/IterableOps#[A]2(
+ _empty_/IterableOps#[CCop]2%
+! "_empty_/IterableOps#[C]2 
+ _empty_/SortedSet#2+
+ _empty_/SortedSet#`<init>`().2
+ #_empty_/Iterable#2#
+$ %_empty_/SortedSet#[A]2#
+, 8_empty_/SortedSetOps#2#
+9 :_empty_/SortedSet#[A]2 
+G P_empty_/SortedSet#2#
+Q R_empty_/SortedSet#[A]2#
+ _empty_/SortedSet#[A]2#
+ _empty_/SortedSetOps#2.
+  _empty_/SortedSetOps#`<init>`().2&
+ _empty_/SortedSetOps#[A]2)
+ _empty_/SortedSetOps#[CCss]2&
+1 2_empty_/SortedSetOps#[C]2
+ _empty_/TreeSet#2)
+ _empty_/TreeSet#`<init>`().2 
+
+ _empty_/SortedSet#2!
+ _empty_/TreeSet#[A]2#
+			 _empty_/SortedSetOps#2!
+		 _empty_/TreeSet#[A]2
+	"	 )_empty_/TreeSet#2!
+	*	 +_empty_/TreeSet#[A]2!
+ _empty_/TreeSet#[A]2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2-
+ _empty_/Test#optionSequence1().23
+ %_empty_/Test#optionSequence1().[CCos]20
+: ;"_empty_/Test#optionSequence1().[A]21
+= ?#_empty_/Test#optionSequence1().(xs)23
+A E%_empty_/Test#optionSequence1().[CCos]2
+F Lscala/Option#20
+M N"_empty_/Test#optionSequence1().[A]2
+S Yscala/Option#23
+Z ^%_empty_/Test#optionSequence1().[CCos]20
+_ `"_empty_/Test#optionSequence1().[A]2#
+e hscala/Predef.`???`().2/
+ !_empty_/Test#optionSequence1(+1).23
+ %_empty_/Test#optionSequence1(+1).[CC]22
+M N$_empty_/Test#optionSequence1(+1).[A]23
+[ ]%_empty_/Test#optionSequence1(+1).(xs)23
+_ a%_empty_/Test#optionSequence1(+1).[CC]2
+b hscala/Option#22
+i j$_empty_/Test#optionSequence1(+1).[A]2%
+Q Yscala/package.Ordering#22
+Y Y$_empty_/Test#optionSequence1(+1).[A]2
+o uscala/Option#23
+v x%_empty_/Test#optionSequence1(+1).[CC]22
+y z$_empty_/Test#optionSequence1(+1).[A]2$
+	 ‚scala/Predef.`???`().2"
+ 
+_empty_/Test#test().2'
+ _empty_/Test#test().(xs2)2
+ _empty_/TreeSet#2
+ scala/Option#2"
+ %scala/Predef.String#2/
+ !_empty_/Test#optionSequence1(+1).2'
+ _empty_/Test#test().(xs2)2)
+ scala/math/Ordering.String.PZ 0BADAC984F5A6EF080F7F7C31CE6C356

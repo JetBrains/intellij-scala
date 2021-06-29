@@ -1,0 +1,37 @@
+
+°tests/pos/t3672.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(f)*f€*
+local0  *x€*
+_empty_/Test.bar().*bar€* 
+_empty_/Test.bar().(f)*f€*
+local1*x€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(f)2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+  #_empty_/Test.foo().2
+0 1local02
+4 7
+scala/Int#2 
+> ?scala/Int#`+`(+4).2
+< =local02!
+ 	_empty_/Test.bar().2$
+
+ _empty_/Test.bar().(f)2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+  #_empty_/Test.foo().2
+' (local12
++ .
+scala/Int#2 
+5 6scala/Int#`+`(+4).2
+3 4local1PZ 639973B1EA15AA220C39C9B66866CD04

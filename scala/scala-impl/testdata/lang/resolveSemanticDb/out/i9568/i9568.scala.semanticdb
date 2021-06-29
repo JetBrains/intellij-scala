@@ -1,0 +1,141 @@
+
+ötests/pos/i9568.scala*
+_empty_/Monad#*Monad€*+
+_empty_/Monad#`<init>`(). €@*<init>€*
+_empty_/Monad#[F]	*F€* 
+_empty_/Monad#foo().*foo€*!
+_empty_/Monad#foo().[A]	*A€*#
+_empty_/Monad#foo().(fa)*fa€*
+_empty_/Bla#*Bla€*)
+_empty_/Bla#`<init>`(). €@*<init>€*
+_empty_/Bla#[F]	*F€*
+_empty_/Bla#[A]	*A€*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.Id#*Id€*
+_empty_/Test1.Id#[A]	*A€*!
+_empty_/Test1.bla. €*bla€*,
+_empty_/Test1.blaMonad().  *blaMonad€*&
+_empty_/Test1.blaMonad().[F]	*F€*&
+_empty_/Test1.blaMonad().[S]	*S€*
+local0*L€*
+local1	*X€**
+_empty_/Test1.idMonad().  *idMonad€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.Id#*Id€*
+_empty_/Test2.Id#[A]	*A€*!
+_empty_/Test2.bla. €*bla€*,
+_empty_/Test2.blaMonad().  *blaMonad€*&
+_empty_/Test2.blaMonad().[F]	*F€*&
+_empty_/Test2.blaMonad().[S]	*S€**
+_empty_/Test2.blaMonad().(ev)  *ev€*
+local2*L€*
+local3	*X€**
+_empty_/Test2.idMonad().  *idMonad€2
+ _empty_/Monad#2#
+ _empty_/Monad#`<init>`().2
+ _empty_/Monad#[F]2"
+ 	_empty_/Monad#foo().2%
+
+ _empty_/Monad#foo().[A]2&
+ _empty_/Monad#foo().(fa)2
+ _empty_/Monad#[F]2%
+ _empty_/Monad#foo().[A]2
+ scala/Unit#2
+ 	_empty_/Bla#2%
+	 	_empty_/Bla#`<init>`().2
+
+ _empty_/Bla#[F]2
+ _empty_/Bla#[A]2
+ _empty_/Test1.2
+ 	_empty_/Test1.Id#2"
+
+ _empty_/Test1.Id#[A]2"
+ _empty_/Test1.Id#[A]2 
+		 	_empty_/Test1.bla.2
+		 _empty_/Bla#2
+		 _empty_/Test1.Id#2
+		 scala/Unit#2#
+		 scala/Predef.`???`().2'
+
+
+ _empty_/Test1.blaMonad().2*
+
+
+ _empty_/Test1.blaMonad().[F]2*
+
+%
+ &_empty_/Test1.blaMonad().[S]2
+
+
+ #_empty_/Monad#2*
+
+#
+ #_empty_/Test1.blaMonad().[F]2
+
+)
+ ._empty_/Monad#2
+
+6
+ 7local02
+
+8
+ 9local12
+
+=
+ @_empty_/Bla#2*
+
+A
+ B_empty_/Test1.blaMonad().[F]2
+
+D
+ Elocal12#
+
+N
+ Qscala/Predef.`???`().2&
+ _empty_/Test1.idMonad().2
+ _empty_/Monad#2
+  _empty_/Test1.Id#2#
+$ 'scala/Predef.`???`().2"
+ _empty_/Monad#foo().2'
+ 
+_empty_/Test1.blaMonad().2&
+
+ 
+_empty_/Test1.idMonad().2 
+ _empty_/Test1.bla.2
+ _empty_/Test2.2
+ 	_empty_/Test2.Id#2"
+
+ _empty_/Test2.Id#[A]2"
+ _empty_/Test2.Id#[A]2 
+ 	_empty_/Test2.bla.2
+ _empty_/Bla#2
+ _empty_/Test2.Id#2
+ scala/Unit#2#
+ scala/Predef.`???`().2'
+ _empty_/Test2.blaMonad().2*
+ _empty_/Test2.blaMonad().[F]2*
+ _empty_/Test2.blaMonad().[S]2+
+* ,_empty_/Test2.blaMonad().(ev)2
+1 6_empty_/Monad#2*
+7 8_empty_/Test2.blaMonad().[F]2
+< A_empty_/Monad#2
+I Jlocal22
+K Llocal32
+P S_empty_/Bla#2*
+T U_empty_/Test2.blaMonad().[F]2
+W Xlocal32#
+a dscala/Predef.`???`().2&
+ _empty_/Test2.idMonad().2
+ _empty_/Monad#2
+  _empty_/Test2.Id#2#
+$ 'scala/Predef.`???`().2"
+ _empty_/Monad#foo().2'
+ 
+_empty_/Test2.blaMonad().2&
+
+ 
+_empty_/Test2.idMonad().2 
+ _empty_/Test2.bla.PZ 70EB90AA76449E5B498952C0DF116DDA

@@ -1,0 +1,52 @@
+
+¸tests/pos/i4811.scala*&
+_empty_/StringOps# *	StringOps€*/
+_empty_/StringOps#`<init>`(). €@*<init>€*-
+ _empty_/StringOps#`<init>`().(s) €*s€*!
+_empty_/StringOps#s. €*s€*(
+_empty_/StringOps#lines().*lines€*
+local0 *$anon€*
+local1 €*index€*
+local2*hasNext€*
+local3*next€*&
+_empty_/StringOps.
+ *	StringOps€* 
+_empty_/FooOps# *FooOps€*,
+_empty_/FooOps#`<init>`(). €@*<init>€**
+_empty_/FooOps#`<init>`().(s) €*s€*
+_empty_/FooOps#s. €*s€*!
+_empty_/FooOps#bar().*bar€*!
+_empty_/FooOps#foo().*foo€* 
+_empty_/FooOps.
+ *FooOps€2
+ _empty_/StringOps#2'
+ _empty_/StringOps#`<init>`().2
+ scala/Predef.String#2"
+- -scala/AnyVal#`<init>`().2
+' -scala/AnyVal#2
+ _empty_/StringOps#s.2(
+ _empty_/StringOps#lines().2%
+ scala/package.Iterator#2"
+ scala/Predef.String#2
+   local02;
+G G-scala/collection/AbstractIterator#`<init>`().20
+/ ?"scala/collection/AbstractIterator#2
+$ .scala/collection/2"
+@ Fscala/Predef.String#2
+ local12
+ local22
+ scala/Boolean#2
+ local32"
+ scala/Predef.String#2
+ local12
+ _empty_/StringOps.2
+ _empty_/FooOps#2(
+ _empty_/FooOps#`<init>`().2"
+ scala/Predef.String#2&
+* *scala/AnyVal#`<init>`().2
+$ *scala/AnyVal#2
+ _empty_/FooOps#s.2#
+ _empty_/FooOps#bar().2#
+ 	_empty_/FooOps#foo().2#
+ _empty_/FooOps#bar().2
+ _empty_/FooOps.PZ 2D3E5BE81171390FE01CFFD86D56F07E

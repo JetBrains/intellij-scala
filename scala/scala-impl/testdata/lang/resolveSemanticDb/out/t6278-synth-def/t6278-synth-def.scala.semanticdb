@@ -1,0 +1,96 @@
+
+çtests/pos/t6278-synth-def.scala*
+t6278/test.
+ *test€*
+t6278/test.ok().*ok€*
+local0*Foo€*
+local1 €*i€*
+local2*foo€*
+local3	*A€*
+local4*body€*
+local5  *toFoo€*
+local6*i€*
+local7 €*k€*
+local8 €*j€*
+t6278/test.nope().*nope€*
+local9*Foo€*
+local10 €*i€*
+local11*foo€*
+local12	*A€*
+local13*body€*
+local14 (*Foo€*
+local15 €*k€*
+local16 €*j€*
+t6278/test.main().*main€*%
+t6278/test.main().(args)*args€2
+ t6278/21
+ ##scala/language.implicitConversions.2
+ scala/language.2
+ t6278/test.2
+ t6278/test.ok().2
+ scala/Unit#2
+
+ local02
+ local12
+
+ local22
+ local32
+ local42
+ local32
+ local32
+! %local42
+
+
+ local52
+
+
+ local62
+
+
+ 
+scala/Int#2
+
+ 
+ #local02
+
+*
+ -local02
+
+.
+ /local62
+ 	local72
+ 	local22
+ local52
+ local72'
+
+ scala/Predef.println(+1).2
+ 	local82 
+ 
+t6278/test.nope().2
+ scala/Unit#2
+ local92
+ local102
+
+ local112
+ local122
+ local132
+ local122
+ local122
+! %local132
+ local142
+ 	local152
+ 	local112
+ local142
+ local152'
+
+ scala/Predef.println(+1).2
+ 	local162 
+ 
+t6278/test.main().2&
+ t6278/test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ t6278/test.ok().2 
+
+ t6278/test.nope().PZ 77E8E206CD872099FEEBE3BA2B588B6A

@@ -1,0 +1,30 @@
+
+õtests/pos/t8364.scala*&
+_empty_/MyDynamic.
+ *	MyDynamic€*8
+"_empty_/MyDynamic.selectDynamic().*selectDynamic€*5
+(_empty_/MyDynamic.selectDynamic().(name)*name€*
+_empty_/Test.
+ *Test€2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2 
+ _empty_/MyDynamic.2
+  scala/Dynamic#20
+ "_empty_/MyDynamic.selectDynamic().26
+ (_empty_/MyDynamic.selectDynamic().(name)2"
+  scala/Predef.String#2
+# &
+scala/Any#2#
+) ,scala/Predef.`???`().2
+ _empty_/Test.2
+ 
+scala/App#2%
+ 	scala/Predef.locally().2
+ java/lang/String.2
+ java/lang/String#2
+ 
+java/lang/2
+ java/20
+		 "_empty_/MyDynamic.selectDynamic().2 
+		 _empty_/MyDynamic.PZ BF1A15637E33A6A51249ACA1ADD17384

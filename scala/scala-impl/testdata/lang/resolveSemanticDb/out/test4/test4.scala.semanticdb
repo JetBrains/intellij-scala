@@ -1,0 +1,147 @@
+
+÷tests/pos/test4.scala*
+test/C#*C€*$
+test/C#`<init>`(). €@*<init>€*
+test/D#*D€*$
+test/D#`<init>`(). €@*<init>€*
+test/E#*E€*$
+test/E#`<init>`(). €@*<init>€*
+
+test/test.
+ *test€*
+test/test.c().*c€*
+test/test.d().*d€*
+test/test.e().*e€*
+test/S#*S€*$
+test/S#`<init>`(). €@*<init>€*
+test/S#bar().*bar€*
+test/O#*O€*$
+test/O#`<init>`(). €@*<init>€*
+
+test/O#[X]	*X€*
+	test/O#I#*I€*&
+test/O#I#`<init>`(). €@*<init>€*
+test/O#I#[Y]	*Y€*
+test/O#I#foo().*foo€*
+test/O#I#foo().(x)*x€*
+test/O#I#foo().(y)*y€*
+	test/O#i. €*i€*
+	test/O#j. €*j€*
+	test/ooo.
+ *ooo€*
+test/ooo.main().*main€*
+local0 €*s€*
+
+test/Main#*Main€*'
+test/Main#`<init>`(). €@*<init>€*
+test/Main#s. €*s€2
+ test/2
+ test/C#2
+test/C#`<init>`().2
+ test/D#2
+test/D#`<init>`().2
+ test/E#2
+test/E#`<init>`().2
+ 
+test/test.2
+ test/test.c().2
+	 
+test/C#2
+ test/test.c().2
+ test/test.d().2
+	 
+test/D#2
+ test/test.d().2
+		 test/test.e().2
+			 
+test/E#2
+		 test/test.e().2
+ 
+test/test.2
+ test/S#2 
+ test/S#`<init>`().2
+ 	test/O#I#2
+ 	test/ooo.2
+ test/D#2
+ test/S#bar().2
+ test/E#2
+ test/O#I#foo().2
+ test/test.c().2
+ test/test.d().2
+ test/O#2 
+ test/O#`<init>`().2
+ 	
+test/O#[X]2
+
+ 	test/O#I#2"
+ test/O#I#`<init>`().2
+ test/O#I#[Y]2
+ test/O#I#foo().2 
+ test/O#I#foo().(x)2
+ 
+test/O#[X]2 
+ test/O#I#foo().(y)2
+ test/O#I#[Y]2
+ test/E#2
+! "test/test.e().2
+ 		test/O#i.2
+
+ 	test/O#I#2
+ test/E#2
+ 		test/O#j.2
+
+ 	test/O#I#2
+ 
+test/O#[X]2
+ 
+	test/ooo.2 
+ test/O#`<init>`().2
+ test/O#2
+ test/C#2
+ 
+test/ooo.main().2
+ 	local02
+ test/S#2
+ local02
+ test/O#I#foo().2
+ 	test/test.c().2
+
+ test/test.d().2
+ 
+  test/O#I#foo().2
+   		test/O#i.2
+   	test/ooo.2
+   test/test.c().2
+   test/test.e().2
+!
+! test/O#I#foo().2
+!! 		test/O#j.2
+!! 	test/ooo.2
+!! test/test.c().2
+!! test/test.c().2
+"" test/S#bar().2
+&& 
+
+test/Main#2#
+&
+& 
+test/Main#`<init>`().2
+'' test/Main#s.2
+'	' 
+test/S#2
+(	( 
+test/Main#s.2
+)) test/O#I#foo().2
+)) test/test.c().2
+)) 	test/test.d().2
+** test/O#I#foo().2
+** 	test/O#i.2
+** 	test/ooo.2
+** test/test.c().2
+** test/test.e().2
+++ test/O#I#foo().2
+++ 	test/O#j.2
+++ 	test/ooo.2
+++ test/test.c().2
+++ test/test.c().2
+,, test/S#bar().PZ 7FF379D5990BECBC9EAD862ABD0392F3

@@ -1,0 +1,29 @@
+
+ètests/pos/t2130-1.scala*
+foo/bar/package. *bar€*'
+foo/bar/package.Bippy# €*Bippy€*3
+!foo/bar/package.Bippy#`<init>`(). €@*<init>€*1
+$foo/bar/package.Bippy#`<init>`().(x) €*x€*%
+foo/bar/package.Bippy#x. €*x€**
+foo/bar/package.Bippy#copy().*copy€**
+ foo/bar/package.Bippy#copy().(x)*x€*>
+'foo/bar/package.Bippy#copy$default$1().*copy$default$1€*&
+foo/bar/package.Bippy#_1().*_1€*&
+foo/bar/package.Bippy.
+ *Bippy€*,
+foo/bar/package.Bippy.apply().*apply€*+
+!foo/bar/package.Bippy.apply().(x)*x€*0
+ foo/bar/package.Bippy.unapply().*unapply€*1
+%foo/bar/package.Bippy.unapply().(x$1)*x$1€*2
+!foo/bar/package.Bippy.toString().*toString€2
+ foo/2
+ foo/bar/package.2$
+ foo/bar/package.Bippy#2/
+ !foo/bar/package.Bippy#`<init>`().2
+ 
+scala/Int#2&
+ foo/bar/package.Bippy#x.2+
+ foo/bar/package.Bippy#copy().2)
+ foo/bar/package.Bippy#_1().2$
+ foo/bar/package.Bippy.2,
+ foo/bar/package.Bippy.apply().PZ 98368C6F42BA70282E8DF20DCDC5FA0B

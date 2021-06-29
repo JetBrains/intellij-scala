@@ -1,0 +1,20 @@
+
+…tests/pos/hkarray.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[CC]	*CC€*
+_empty_/Bip#*Bip€*)
+_empty_/Bip#`<init>`(). €@*<init>€*
+_empty_/Bip#x. €*x€*
+local0 *$anon€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[CC]2
+ 	_empty_/Bip#2%
+ _empty_/Bip#`<init>`().2
+ _empty_/Bip#x.2
+
+ 
+local02
+ _empty_/Foo#PZ 7267E12FFAF1A4F319D29943E334FB2A

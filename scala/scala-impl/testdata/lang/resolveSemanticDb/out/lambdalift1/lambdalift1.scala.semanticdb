@@ -1,0 +1,43 @@
+
+Ítests/pos/lambdalift1.scala*
+_empty_/test.
+ *test€*
+_empty_/test.f().*f€*
+_empty_/test.f().[a]	*a€*
+_empty_/test.f().(x)*x€*
+local0*print€*
+local1*A€*
+local2*g€*
+local3*B€*
+local4*h€2
+ scala/2
+ _empty_/test.2
+ _empty_/test.f().2"
+ 	_empty_/test.f().[a]2
+ java/lang/Object#2
+ 
+java/lang/2
+ java/2"
+  _empty_/test.f().(x)2"
+" #_empty_/test.f().[a]2
+ local02.
+' . java/io/PrintStream#println(+9).2#
+# &java/lang/System#out.2
+ "java/lang/System#2
+ 
+java/lang/2
+ java/2"
+/ 0_empty_/test.f().(x)2
+
+ local12
+
+ local22
+
+ local32
+	
+	 local42
+		 local02
+ local42
+ 	local32
+ local22
+ 	local1PZ 7191FB5E5FC54AB4240C68220CD4255C

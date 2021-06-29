@@ -1,0 +1,83 @@
+
+Ètests/pos/t7690.scala*
+
+_empty_/A.
+ *A€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#[T]	*T€*
+
+_empty_/C.
+ *C€*&
+_empty_/C.notUsed().  *notUsed€*!
+_empty_/C.notUsed().[L]	*L€*#
+_empty_/C.notUsed().(in)*in€*
+_empty_/C.E#*E€*)
+_empty_/C.E#`<init>`(). €@*<init>€*)
+_empty_/C.E#`<init>`().(ls) €*ls€*
+_empty_/C.E#ls. €*ls€*
+_empty_/C.E#x().*x€*
+_empty_/C.E#x().(f)*f€*$
+_empty_/C.isUsed().  *isUsed€*"
+_empty_/C.isUsed().(ls)*ls€*$
+_empty_/C.amethod().*amethod€*#
+_empty_/C.amethod().(in)*in€*
+local0*i€2
+ 
+_empty_/A.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 	_empty_/B#[T]2
+ 
+_empty_/C.2"
+ _empty_/C.notUsed().2%
+ _empty_/C.notUsed().[L]2&
+ _empty_/C.notUsed().(in)2%
+! "_empty_/C.notUsed().[L]2
+# &
+scala/Int#2
+* +
+_empty_/B#2%
+, -_empty_/C.notUsed().[L]2
+. 1
+scala/Int#2#
+6 9scala/Predef.`???`().2
+ 	_empty_/C.E#2%
+	 	_empty_/C.E#`<init>`().2
+ 
+scala/Int#2
+ _empty_/C.E#ls.2
+ 	_empty_/C.E#x().2!
+
+ _empty_/C.E#x().(f)2
+ 
+scala/Int#2
+ scala/Boolean#2
+ %scala/Boolean#2&
+) )scala/Function1#apply().2!
+( )_empty_/C.E#x().(f)2
+* ,_empty_/C.E#ls.2!
+		 _empty_/C.isUsed().2%
+		 _empty_/C.isUsed().(ls)2
+		 
+scala/Int#2
+	 	 !_empty_/C.E#2%
+	)	 )_empty_/C.E#`<init>`().2
+	(	 )_empty_/C.E#2%
+	*	 ,_empty_/C.isUsed().(ls)2"
+ _empty_/C.amethod().2&
+ _empty_/C.amethod().(in)2
+ 
+scala/Int#2
+ scala/Boolean#2
+ _empty_/C.E#x().2!
+ _empty_/C.isUsed().2&
+ _empty_/C.amethod().(in)2
+ local02
+ 
+_empty_/A.2
+ scala/Any#`==`().2#
+ scala/Any#toString().2
+ local0PZ 6976B1D64BDFC451CE1B45717C2E0D90

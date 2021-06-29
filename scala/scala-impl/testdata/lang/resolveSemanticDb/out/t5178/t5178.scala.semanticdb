@@ -1,0 +1,55 @@
+
+¼tests/pos/t5178.scala*"
+_empty_/FileOps# *FileOps€*-
+_empty_/FileOps#`<init>`(). €@*<init>€*.
+_empty_/FileOps#withLock(). *withLock€*(
+_empty_/FileOps#withLock().[R]	*R€*0
+"_empty_/FileOps#withLock().(start)*start€*@
+%_empty_/FileOps#withLock$default$1().*withLock$default$1€*2
+(_empty_/FileOps#withLock$default$1().[R]	*R€*.
+_empty_/DefaultFileOps#*DefaultFileOps€*4
+"_empty_/DefaultFileOps#`<init>`(). €@*<init>€*
+local0*self€*3
+"_empty_/DefaultFileOps#withLock().*withLock€*/
+%_empty_/DefaultFileOps#withLock().[R]	*R€*7
+)_empty_/DefaultFileOps#withLock().(start)*start€*G
+,_empty_/DefaultFileOps#withLock$default$1().*withLock$default$1€*9
+/_empty_/DefaultFileOps#withLock$default$1().[R]	*R€*(
+_empty_/DefaultPath#*DefaultPath€*1
+_empty_/DefaultPath#`<init>`(). €@*<init>€2
+ _empty_/FileOps#2)
+ _empty_/FileOps#`<init>`().2)
+ _empty_/FileOps#withLock().2,
+ _empty_/FileOps#withLock().[R]20
+ "_empty_/FileOps#withLock().(start)2
+ scala/Long#2
+$ *scala/Option#2,
++ ,_empty_/FileOps#withLock().[R]26
+ (_empty_/FileOps#withLock$default$1().[R]2%
+ _empty_/DefaultFileOps#20
+ "_empty_/DefaultFileOps#`<init>`().2
+ local02"
+ _empty_/DefaultPath#20
+ "_empty_/DefaultFileOps#withLock().23
+ %_empty_/DefaultFileOps#withLock().[R]27
+  )_empty_/DefaultFileOps#withLock().(start)2
+" &scala/Long#2
+- 3scala/Option#23
+4 5%_empty_/DefaultFileOps#withLock().[R]2
+9 =scala/None.2=
+ /_empty_/DefaultFileOps#withLock$default$1().[R]2"
+
+
+ _empty_/DefaultPath#2-
+
+
+ _empty_/DefaultPath#`<init>`().2)
+
+!
+ !_empty_/FileOps#`<init>`().2
+
+
+ !_empty_/FileOps#2%
+
+'
+ 5_empty_/DefaultFileOps#PZ 4E1FDBEAB7F324DC45ED744F2AE88A9D

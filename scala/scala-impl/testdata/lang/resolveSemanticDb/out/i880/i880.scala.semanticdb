@@ -1,0 +1,45 @@
+
+ÿtests/pos/i880.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*
+local0 €*myName€*
+local1 *$anon€*
+local2 *$anon€*
+local3*name€*
+local4 *$anon€*
+local5 *$anon€*
+local6 *$anon€*
+local7*name€2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ local02"
+ scala/Predef.String#2
+ local12*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ local22-
+ java/lang/Exception#`<init>`().2&
+
+ scala/package.Exception#2
+ local32
+ local02
+ local42*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+		 local52-
+		 java/lang/Exception#`<init>`().2&
+	
+	 scala/package.Exception#2
+
+
+ local62*
+
+
+ java/lang/Object#`<init>`().2
+
+
+ scala/AnyRef#2
+ local72
+ local0PZ F2618CD03CA736E0D1293E2136B5DB05

@@ -1,0 +1,76 @@
+
+§tests/pos/i3488.scala*
+
+test/Sett#*Sett€*'
+test/Sett#`<init>`(). €@*<init>€*
+test/Sett#[A]	*A€*
+test/Sett#incl().*incl€*$
+test/Sett#incl().(elem)*elem€*
+test/Sett#`+`(). *+€*#
+test/Sett#`+`().(elem)*elem€*
+
+test/Sett.
+ *Sett€* 
+test/Sett.apply().*apply€*
+test/Sett.apply().[A]	*A€*'
+test/Sett.apply().(elems)*elems€*
+
+test/Test#*Test€*'
+test/Test#`<init>`(). €@*<init>€2
+ test/2
+ 
+
+test/Sett#2#
+
+ 
+test/Sett#`<init>`().2
+ test/Sett#[A]2
+ 
+test/Sett#incl().2%
+ test/Sett#incl().(elem)2
+ test/Sett#[A]2
+ 
+test/Sett#2
+ test/Sett#[A]2#
+ "scala/Predef.`???`().2
+ test/Sett#`+`().2$
+ test/Sett#`+`().(elem)2
+ test/Sett#[A]2
+  $
+test/Sett#2
+% &test/Sett#[A]2
+* .test/Sett#incl().2$
+/ 3test/Sett#`+`().(elem)2
+		 
+test/Sett.2 
+
+
+ test/Sett.apply().2#
+
+
+ test/Sett.apply().[A]2'
+
+
+ test/Sett.apply().(elems)2#
+
+
+ test/Sett.apply().[A]2
+
+
+ 
+test/Sett#2#
+
+ 
+ !test/Sett.apply().[A]2#
+
+%
+ (scala/Predef.`???`().2
+ 
+
+test/Test#2#
+ test/Test#`<init>`().2
+
+ test/Sett#`+`().2 
+ test/Sett.apply().2
+ 
+test/Sett.PZ 01E4744A17ADAFB1DE11B64858AA8EB0

@@ -1,0 +1,86 @@
+
+çtests/pos/cls.scala*
+scalac/util/A#*A€*+
+scalac/util/A#`<init>`(). €@*<init>€*(
+scalac/util/A#`<init>`().(x1)*x1€*(
+scalac/util/A#`<init>`().(x2)*x2€*
+scalac/util/A#[X1]	*X1€*
+scalac/util/A#[X2]	*X2€*
+scalac/util/A#x1. €*x1€*
+scalac/util/A#x2. €*x2€*
+scalac/util/B#*B€*+
+scalac/util/B#`<init>`(). €@*<init>€*(
+scalac/util/B#`<init>`().(y1)*y1€*(
+scalac/util/B#`<init>`().(y2)*y2€*
+scalac/util/B#[Y]	*Y€*
+scalac/util/B#y1. €*y1€*
+scalac/util/B#y2. €*y2€*
+scalac/util/B#f().*f€*
+scalac/util/B#f().(x)*x€*!
+scalac/util/B#f().(xs)*xs€*
+scalac/util/B#g().*g€* 
+scalac/util/test.
+ *test€* 
+scalac/util/test.b. €*b€* 
+scalac/util/test.a. €*a€*"
+scalac/util/test.a1. €*a1€*"
+scalac/util/test.b1. €*b1€2
+ scala/2
+ scalac/util/2
+ scalac/2
+ scalac/util/A#2'
+ scalac/util/A#`<init>`().2 
+ scalac/util/A#[X1]2 
+ scalac/util/A#[X2]2 
+ 
+scalac/util/A#[X1]2 
+ scalac/util/A#[X2]2
+ scalac/util/A#x1.2
+ scalac/util/A#x2.2
+ scalac/util/B#2'
+ scalac/util/B#`<init>`().2
+ scalac/util/B#[Y]2
+ scalac/util/B#[Y]2'
+( (scalac/util/A#`<init>`().2
+! "scalac/util/A#2
+# $scalac/util/B#[Y]2
+& 'scalac/util/B#[Y]2
+) +scalac/util/B#y1.2
+- /scalac/util/B#y2.2
+ 	scalac/util/B#[Y]2
+ scalac/util/B#y1.2
+ scalac/util/B#y2.2 
+ scalac/util/B#f().2#
+ 	scalac/util/B#f().(x)2
+ scalac/util/B#[Y]2$
+ scalac/util/B#f().(xs)2
+ scalac/util/B#2
+ scalac/util/B#[Y]2
+ scala/Unit#2 
+ scalac/util/B#g().2 
+ scalac/util/B#f().2
+ scalac/util/B#y1.2
+
+
+ scalac/util/test.2!
+ scalac/util/test.b.2
+	 
+scalac/util/B#2
+ 
+scala/Int#2'
+ scalac/util/B#`<init>`().2
+ scalac/util/B#2
+ 
+scala/Int#2!
+ scalac/util/test.a.2
+	 
+scalac/util/A#2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+ scalac/util/test.b.2"
+ scalac/util/test.a1.2'
+ scalac/util/A#`<init>`().2"
+ scalac/util/test.b1.2'
+ scalac/util/B#`<init>`().PZ C65543B97DE997FC824D44EAE65AD40C

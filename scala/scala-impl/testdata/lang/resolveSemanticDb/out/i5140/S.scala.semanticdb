@@ -1,0 +1,27 @@
+
+ãtests/pos/i5140/S.scala*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*
+_empty_/S#j. €*j€*
+_empty_/S#x. €*x€2
+ 
+_empty_/S#2#
+ _empty_/S#`<init>`().2
+ _empty_/S#j.2%
+ _empty_/J#`<init>`(+1).2
+ 
+_empty_/J#2
+ _empty_/S#x.2
+	 scala/Array#2
+ _empty_/Dog#2#
+ scala/Predef.`???`().2
+ _empty_/J#foo().2
+ _empty_/S#j.2
+ 	_empty_/S#x.2
+ _empty_/J#foo().2
+ _empty_/S#j.2'
+ _empty_/Dog#`<init>`(+1).2
+ _empty_/Dog#2'
+ _empty_/Dog#`<init>`(+1).2
+ _empty_/Dog#PZ 00778B2A91E23AA7FBAD3B8720D147DA

@@ -1,0 +1,164 @@
+
+‚&tests/pos/syntaxRewrites.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*
+local0*x€*
+local1*x€*
+local2*x€*
+local3*y€*
+local4*x€*
+local5*y€*
+local6*x€*
+local7*y€*
+local8*x€*
+local9*x€*
+local10*x€*
+local11*x€*
+local12*y€*
+local13*x€*
+local14*y€*
+local15*x€*
+local16*y€*
+local17*x€*
+local18 €*ys€*
+local19 €*ys€2
+ _empty_/Test.2
+ _empty_/Test.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.24
+ &scala/collection/immutable/List#map().2
+ _empty_/Test.xs.2
+ local02 
+ scala/Int#`*`(+3).2
+ local024
+
+
+ &scala/collection/immutable/List#map().2
+
+
+ _empty_/Test.xs.2
+
+
+ local12 
+
+ scala/Int#`*`(+3).2
+ 	local128
+ *scala/collection/immutable/List#flatMap().2
+ _empty_/Test.xs.2
+ 	local224
+ &scala/collection/immutable/List#map().2
+ _empty_/Test.xs.2
+ local32 
+# $scala/Int#`*`(+3).2
+! "local22
+% &local328
+ *scala/collection/immutable/List#flatMap().2
+	 _empty_/Test.xs.2
+ local424
+ &scala/collection/immutable/List#map().2
+	 _empty_/Test.xs.2
+ local52 
+ scala/Int#`*`(+3).2
+
+ local42
+ local528
+ *scala/collection/immutable/List#flatMap().2
+	 _empty_/Test.xs.2
+ local624
+ &scala/collection/immutable/List#map().2
+	 _empty_/Test.xs.2
+ local72 
+ scala/Int#`*`(+3).2
+
+ local62
+ local724
+ &scala/collection/immutable/List#map().2
+ _empty_/Test.xs.2
+ 	local82 
+
+ scala/Int#`*`(+3).2
+ 	local828
+ *scala/collection/immutable/List#foreach().2
+ _empty_/Test.xs.2
+ local92'
+ scala/Predef.println(+1).2
+ local928
+   *scala/collection/immutable/List#foreach().2
+   _empty_/Test.xs.2
+   local102'
+!! scala/Predef.println(+1).2
+!! local1028
+## *scala/collection/immutable/List#foreach().2
+## _empty_/Test.xs.2
+## 	local1128
+## *scala/collection/immutable/List#foreach().2
+## _empty_/Test.xs.2
+## local122'
+## "scala/Predef.println(+1).2 
+#%# &scala/Int#`*`(+3).2
+### $local112
+#'# (local1228
+&& *scala/collection/immutable/List#foreach().2
+&	& _empty_/Test.xs.2
+&& local1328
+'' *scala/collection/immutable/List#foreach().2
+'	' _empty_/Test.xs.2
+'' local142'
+)) 	scala/Predef.println(+1).2 
+)) scala/Int#`*`(+3).2
+)
+) local132
+)) local1428
+,, *scala/collection/immutable/List#foreach().2
+,	, _empty_/Test.xs.2
+,, local1528
+-- *scala/collection/immutable/List#foreach().2
+-	- _empty_/Test.xs.2
+-- local162'
+.. scala/Predef.println(+1).2 
+.. scala/Int#`*`(+3).2
+.. local152
+.. local1628
+00 *scala/collection/immutable/List#foreach().2
+00 _empty_/Test.xs.2
+00 	local172'
+11 scala/Predef.println(+1).2
+11 local172
+3	3 scala/Any#`==`().2
+33 _empty_/Test.xs.2 
+33 scala/package.Nil.2'
+33 scala/Predef.println(+1).2
+5	5 scala/Any#`==`().2
+55 _empty_/Test.xs.2 
+55 scala/package.Nil.2'
+66 scala/Predef.println(+1).2#
+99 scala/Boolean#`&&`().2
+8	8 scala/Any#`==`().2
+88 _empty_/Test.xs.2 
+88 scala/package.Nil.2!
+99 scala/Int#`==`(+3).27
+99 )scala/collection/immutable/List#length().2
+99 
+_empty_/Test.xs.2'
+:: scala/Predef.println(+1).2
+<< scala/Any#`==`().2
+<	< _empty_/Test.xs.2 
+<< scala/package.Nil.2'
+<< scala/Predef.println(+1).2
+?? 
+local1822
+?? $scala/collection/IterableOps#`++`().2
+?? _empty_/Test.xs.2
+?? _empty_/Test.xs.2:
+@@ ,scala/collection/IterableOnceOps#nonEmpty().2
+@@ local182'
+AA scala/Predef.println(+1).2
+DD 
+local1922
+DD $scala/collection/IterableOps#`++`().2
+DD _empty_/Test.xs.2
+DD _empty_/Test.xs.2:
+EE ,scala/collection/IterableOnceOps#nonEmpty().2
+EE local192'
+GG 	scala/Predef.println(+1).PZ 710E291CFA5F3F7CF13F0BC789D88195

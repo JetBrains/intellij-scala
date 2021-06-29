@@ -1,0 +1,189 @@
+
+ó7tests/pos/t1513a.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.HList# *HList€*0
+_empty_/Test.HList#`<init>`(). €@*<init>€*
+_empty_/Test.`::`# *::€*/
+_empty_/Test.`::`#`<init>`(). €@*<init>€*
+_empty_/Test.`::`#[H]	*H€*
+_empty_/Test.`::`#[T]	*T€*!
+_empty_/Test.HNil# *HNil€*/
+_empty_/Test.HNil#`<init>`(). €@*<init>€*
+_empty_/Test.Nat# *Nat€*.
+_empty_/Test.Nat#`<init>`(). €@*<init>€*!
+_empty_/Test.Succ# *Succ€*/
+_empty_/Test.Succ#`<init>`(). €@*<init>€*
+_empty_/Test.Succ#[P]	*P€*!
+_empty_/Test.Zero# *Zero€*/
+_empty_/Test.Zero#`<init>`(). €@*<init>€*'
+_empty_/Test.Accessor#*Accessor€*3
+!_empty_/Test.Accessor#`<init>`(). €@*<init>€*#
+_empty_/Test.Accessor#[L]	*L€*#
+_empty_/Test.Accessor#[N]	*N€*&
+_empty_/Test.Accessor#Out#*Out€*)
+_empty_/Test.Accessor.
+ *Accessor€*&
+_empty_/Test.Accessor.Aux#*Aux€*'
+_empty_/Test.Accessor.Aux#[L]	*L€*'
+_empty_/Test.Accessor.Aux#[N]	*N€*'
+_empty_/Test.Accessor.Aux#[O]	*O€*
+local0*Out€*4
+!_empty_/Test.Accessor.caseZero().  *caseZero€*.
+$_empty_/Test.Accessor.caseZero().[H]	*H€*.
+$_empty_/Test.Accessor.caseZero().[T]	*T€*.
+_empty_/Test.Accessor.caseN().  *caseN€*+
+!_empty_/Test.Accessor.caseN().[H]	*H€*+
+!_empty_/Test.Accessor.caseN().[T]	*T€*+
+!_empty_/Test.Accessor.caseN().[N]	*N€*+
+!_empty_/Test.Accessor.caseN().[O]	*O€*-
+!_empty_/Test.Accessor.caseN().(a)  *a€*$
+_empty_/Test.Proxy# €*Proxy€*0
+_empty_/Test.Proxy#`<init>`(). €@*<init>€* 
+_empty_/Test.Proxy#[T]	*T€*'
+_empty_/Test.Proxy#copy().*copy€*'
+_empty_/Test.Proxy#copy().[T]	*T€*#
+_empty_/Test.Proxy.
+ *Proxy€*)
+_empty_/Test.Proxy.apply().*apply€*(
+_empty_/Test.Proxy.apply().[T]	*T€*-
+_empty_/Test.Proxy.unapply().*unapply€**
+ _empty_/Test.Proxy.unapply().[T]	*T€*.
+"_empty_/Test.Proxy.unapply().(x$1)*x$1€*/
+_empty_/Test.Proxy.toString().*toString€*
+_empty_/Test.at1().*at1€*"
+_empty_/Test.at1().[NN]	*NN€*"
+_empty_/Test.at1().[OO]	*OO€*"
+_empty_/Test.at1().(e)  *e€*
+_empty_/Test.at2().*at2€*"
+_empty_/Test.at2().[NN]	*NN€*"
+_empty_/Test.at2().[OO]	*OO€* 
+_empty_/Test.at2().(p)*p€*"
+_empty_/Test.at2().(e)  *e€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ _empty_/Test.2!
+ _empty_/Test.HList#2,
+ _empty_/Test.HList#`<init>`().2 
+ _empty_/Test.`::`#2+
+ _empty_/Test.`::`#`<init>`().2!
+) ._empty_/Test.HList#2#
+ _empty_/Test.`::`#[H]2#
+ _empty_/Test.`::`#[T]2 
+ _empty_/Test.HNil#2+
+ _empty_/Test.HNil#`<init>`().2!
+ !_empty_/Test.HList#2
+ _empty_/Test.Nat#2*
+ _empty_/Test.Nat#`<init>`().2 
+		 _empty_/Test.Succ#2+
+		 _empty_/Test.Succ#`<init>`().2
+	&	 )_empty_/Test.Nat#2#
+		 _empty_/Test.Succ#[P]2 
+
+
+ _empty_/Test.Zero#2+
+
+
+ _empty_/Test.Zero#`<init>`().2
+
+
+ _empty_/Test.Nat#2$
+ _empty_/Test.Accessor#2/
+ !_empty_/Test.Accessor#`<init>`().2'
+ _empty_/Test.Accessor#[L]2'
+ _empty_/Test.Accessor#[N]2(
+. 1_empty_/Test.Accessor#Out#2$
+	 _empty_/Test.Accessor.2(
+	 _empty_/Test.Accessor.Aux#2+
+ _empty_/Test.Accessor.Aux#[L]2!
+ _empty_/Test.HList#2+
+ _empty_/Test.Accessor.Aux#[N]2
+ !_empty_/Test.Nat#2+
+# $_empty_/Test.Accessor.Aux#[O]2$
+( 0_empty_/Test.Accessor#2+
+1 2_empty_/Test.Accessor.Aux#[L]2+
+4 5_empty_/Test.Accessor.Aux#[N]2
+> Alocal02+
+D E_empty_/Test.Accessor.Aux#[O]2/
+ !_empty_/Test.Accessor.caseZero().22
+ $_empty_/Test.Accessor.caseZero().[H]22
+ $_empty_/Test.Accessor.caseZero().[T]2!
+" '_empty_/Test.HList#2(
+* -_empty_/Test.Accessor.Aux#2 
+0 2_empty_/Test.`::`#22
+. /$_empty_/Test.Accessor.caseZero().[H]22
+3 4$_empty_/Test.Accessor.caseZero().[T]2 
+6 :_empty_/Test.Zero#22
+< =$_empty_/Test.Accessor.caseZero().[H]2#
+A Dscala/Predef.`???`().2,
+ _empty_/Test.Accessor.caseN().2/
+ !_empty_/Test.Accessor.caseN().[H]2/
+ !_empty_/Test.Accessor.caseN().[T]2!
+ $_empty_/Test.HList#2/
+& '!_empty_/Test.Accessor.caseN().[N]2
++ ._empty_/Test.Nat#2/
+0 1!_empty_/Test.Accessor.caseN().[O]2/
+ !_empty_/Test.Accessor.caseN().(a)2(
+ _empty_/Test.Accessor.Aux#2/
+ !_empty_/Test.Accessor.caseN().[T]2/
+ !_empty_/Test.Accessor.caseN().[N]2/
+ !_empty_/Test.Accessor.caseN().[O]2(
+" %_empty_/Test.Accessor.Aux#2 
+( *_empty_/Test.`::`#2/
+& '!_empty_/Test.Accessor.caseN().[H]2/
++ ,!_empty_/Test.Accessor.caseN().[T]2 
+. 2_empty_/Test.Succ#2/
+3 4!_empty_/Test.Accessor.caseN().[N]2/
+7 8!_empty_/Test.Accessor.caseN().[O]2#
+< ?scala/Predef.`???`().2!
+ _empty_/Test.Proxy#2,
+ _empty_/Test.Proxy#`<init>`().2$
+ _empty_/Test.Proxy#[T]2(
+ _empty_/Test.Proxy#copy().2!
+ _empty_/Test.Proxy.2)
+ _empty_/Test.Proxy.apply().2+
+ _empty_/Test.Proxy.unapply().2!
+ 	_empty_/Test.at1().2%
+
+ _empty_/Test.at1().[NN]2
+ _empty_/Test.Nat#2%
+ _empty_/Test.at1().[OO]2$
+0 1_empty_/Test.at1().(e)2(
+< ?_empty_/Test.Accessor.Aux#2$
+3 ;_empty_/Test.Accessor.2 
+G I_empty_/Test.`::`#2"
+@ Fscala/Predef.String#2 
+J N_empty_/Test.HNil#2%
+P R_empty_/Test.at1().[NN]2%
+T V_empty_/Test.at1().[OO]2%
+Z \_empty_/Test.at1().[OO]2#
+_ bscala/Predef.`???`().2!
+ 	_empty_/Test.at2().2%
+
+ _empty_/Test.at2().[NN]2
+ _empty_/Test.Nat#2%
+ _empty_/Test.at2().[OO]2$
+ _empty_/Test.at2().(p)2!
+ !_empty_/Test.Proxy#2%
+" $_empty_/Test.at2().[NN]2$
+0 1_empty_/Test.at2().(e)2(
+< ?_empty_/Test.Accessor.Aux#2$
+3 ;_empty_/Test.Accessor.2 
+G I_empty_/Test.`::`#2"
+@ Fscala/Predef.String#2 
+J N_empty_/Test.HNil#2%
+P R_empty_/Test.at2().[NN]2%
+T V_empty_/Test.at2().[OO]2%
+Z \_empty_/Test.at2().[OO]2#
+_ bscala/Predef.`???`().2!
+   _empty_/Test.at2().2)
+   _empty_/Test.Proxy.apply().2!
+   _empty_/Test.Proxy.2 
+   _empty_/Test.Zero#2/
+   !_empty_/Test.Accessor.caseZero().2"
+   scala/Predef.String#2!
+## _empty_/Test.at1().2 
+## _empty_/Test.Zero#2/
+## !_empty_/Test.Accessor.caseZero().2"
+## scala/Predef.String#PZ F0373D0180B7D11E21890C1F8CB285B7

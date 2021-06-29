@@ -1,0 +1,73 @@
+
+ÿtests/pos/pat_gilles.scala* 
+_empty_/Table2# *Table2€*,
+_empty_/Table2#`<init>`(). €@*<init>€*
+_empty_/Table2#x. €*x€*
+local0*zz€*
+local1 €*row€*
+local2 €*column€*
+local3 €*foo€* 
+_empty_/Table2.
+ *Table2€*2
+_empty_/Table2.CellUpdated# €*CellUpdated€*8
+&_empty_/Table2.CellUpdated#`<init>`(). €@*<init>€*:
++_empty_/Table2.CellUpdated#`<init>`().(row) €*row€*@
+._empty_/Table2.CellUpdated#`<init>`().(column) €*column€*.
+_empty_/Table2.CellUpdated#row. €*row€*4
+"_empty_/Table2.CellUpdated#column. €*column€*/
+"_empty_/Table2.CellUpdated#copy().*copy€*3
+'_empty_/Table2.CellUpdated#copy().(row)*row€*9
+*_empty_/Table2.CellUpdated#copy().(column)*column€*C
+,_empty_/Table2.CellUpdated#copy$default$1().*copy$default$1€*C
+,_empty_/Table2.CellUpdated#copy$default$2().*copy$default$2€*+
+ _empty_/Table2.CellUpdated#_1().*_1€*+
+ _empty_/Table2.CellUpdated#_2().*_2€*1
+_empty_/Table2.CellUpdated.
+ *CellUpdated€*1
+#_empty_/Table2.CellUpdated.apply().*apply€*4
+(_empty_/Table2.CellUpdated.apply().(row)*row€*:
++_empty_/Table2.CellUpdated.apply().(column)*column€*5
+%_empty_/Table2.CellUpdated.unapply().*unapply€*6
+*_empty_/Table2.CellUpdated.unapply().(x$1)*x$1€*7
+&_empty_/Table2.CellUpdated.toString().*toString€*$
+_empty_/Table2.Gaga.
+ ˆ*Gaga€2
+ _empty_/Table2#2(
+ _empty_/Table2#`<init>`().2
+ _empty_/Table2#x.2
+	 
+scala/Any#2
+ scala/Unit#2
+ local02
+  
+scala/Any#2
+ local023
+ %_empty_/Table2.CellUpdated.unapply().2)
+ _empty_/Table2.CellUpdated.2
+	 _empty_/Table2.2
+ local12
+! 'local22
+
+ local321
+" "#_empty_/Table2.CellUpdated.apply().2)
+ "_empty_/Table2.CellUpdated.2
+ _empty_/Table2.2(
+ scala/Console.println(+1).2
+ scala/Console.2"
+ _empty_/Table2.Gaga.2
+	 _empty_/Table2.2
+ _empty_/Table2.2)
+ _empty_/Table2.CellUpdated#24
+ &_empty_/Table2.CellUpdated#`<init>`().2
+ !
+scala/Int#2
++ .
+scala/Int#2-
+ _empty_/Table2.CellUpdated#row.20
+# )"_empty_/Table2.CellUpdated#column.20
+ "_empty_/Table2.CellUpdated#copy().2.
+  _empty_/Table2.CellUpdated#_1().2.
++ + _empty_/Table2.CellUpdated#_2().2)
+ _empty_/Table2.CellUpdated.21
+ #_empty_/Table2.CellUpdated.apply().2"
+ _empty_/Table2.Gaga.PZ 8B6564E366B27090BF97279BEC82D9B3

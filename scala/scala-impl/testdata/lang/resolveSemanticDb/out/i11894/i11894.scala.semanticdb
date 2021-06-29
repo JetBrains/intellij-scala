@@ -1,0 +1,40 @@
+
+Ý
+tests/pos/i11894.scala*&
+_empty_/CallbackTo#*
+CallbackTo€*0
+_empty_/CallbackTo#`<init>`(). €@*<init>€*.
+!_empty_/CallbackTo#`<init>`().(x) €*x€* 
+_empty_/CallbackTo#[A]	*A€*"
+_empty_/CallbackTo#x. €*x€*+
+_empty_/CallbackTo#runNow().*runNow€*1
+_empty_/CallbackTo#toScalaFn().*	toScalaFn€*/
+_empty_/CallbackTo#toOption().*toOption€*
+local0 €*y€*
+local1 €*f€2
+ _empty_/CallbackTo#2(
+ _empty_/CallbackTo#`<init>`().2 
+ _empty_/CallbackTo#[A]2 
+ _empty_/CallbackTo#[A]2
+ _empty_/CallbackTo#x.2*
+ _empty_/CallbackTo#runNow().2$
+ _empty_/CallbackTo#[A]2#
+ _empty_/CallbackTo#x.2-
+ _empty_/CallbackTo#toScalaFn().2$
+ _empty_/CallbackTo#[A]2*
+( ._empty_/CallbackTo#runNow().2,
+ _empty_/CallbackTo#toOption().2
+ scala/Option#2$
+ _empty_/CallbackTo#[A]2
+ 	local02!
+ _empty_/CallbackTo#2
+ scala/Option#2$
+ _empty_/CallbackTo#[A]2#
+# &scala/Predef.`???`().2
+ 	local12
+ scala/Option#2$
+ _empty_/CallbackTo#[A]2-
+ (_empty_/CallbackTo#toScalaFn().2
+ local02&
+ scala/Function0#apply().2
+ local1PZ 17F309E03241353C406FD70797C1526A

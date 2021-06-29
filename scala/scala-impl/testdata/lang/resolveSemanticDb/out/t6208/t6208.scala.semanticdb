@@ -1,0 +1,23 @@
+
+ðtests/pos/t6208.scala*
+_empty_/Test.
+ *Test€* 
+_empty_/Test.col. €*col€*"
+_empty_/Test.WORK. €*WORK€2
+ _empty_/Test.2
+ 	_empty_/Test.col.27
+$ $)scala/collection/IterableFactory#apply().2-
+ $scala/collection/mutable/Queue.2'
+ scala/collection/mutable/2
+ scala/collection/2 
+ 
+_empty_/Test.WORK.2-
+ $scala/collection/mutable/Queue#2'
+ scala/collection/mutable/2
+ scala/collection/2
+% (
+scala/Int#2F
+0 98scala/collection/StrictOptimizedIterableOps#filterNot().2
+, /_empty_/Test.col.2!
+A Cscala/Int#`==`(+3).2 
+= >scala/Int#`%`(+3).PZ 442C214E0F577D7224153D135407203B

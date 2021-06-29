@@ -1,0 +1,32 @@
+
+ëtests/pos/i5413-a.scala*
+_empty_/Or#*Or€*(
+_empty_/Or#`<init>`(). €@*<init>€*
+_empty_/Or#[A]	*A€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*6
+_empty_/ImplicitChainTest.
+ *ImplicitChainTest€*,
+ _empty_/ImplicitChainTest.ipl().*ipl€*-
+#_empty_/ImplicitChainTest.ipl().[A]	*A€*5
+&_empty_/ImplicitChainTest.ipl().(from)  *from€2
+ _empty_/Or#2 
+ _empty_/Or#`<init>`().2
+	 
+_empty_/Or#[A]2
+ 
+_empty_/C#2
+_empty_/C#`<init>`().2(
+ _empty_/ImplicitChainTest.2.
+ 	 _empty_/ImplicitChainTest.ipl().21
+
+ #_empty_/ImplicitChainTest.ipl().[A]24
+ &_empty_/ImplicitChainTest.ipl().(from)21
+ #_empty_/ImplicitChainTest.ipl().[A]2
+! #_empty_/Or#21
+$ %#_empty_/ImplicitChainTest.ipl().[A]2
+) *
+_empty_/C#2.
+  _empty_/ImplicitChainTest.ipl().2'
+ scala/Predef.$conforms().PZ D3C0CC6272751E293F347190F90DDB83

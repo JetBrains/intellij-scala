@@ -1,0 +1,72 @@
+
+ôtests/pos/inline-unapply.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€**
+_empty_/Test.C#`<init>`().(x) €*x€**
+_empty_/Test.C#`<init>`().(y) €*y€*
+_empty_/Test.C#x. €*x€*
+_empty_/Test.C#y. €*y€*'
+_empty_/Test.unapply().*unapply€*$
+_empty_/Test.unapply().(c)*c€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.C#*C€*-
+_empty_/Test2.C#`<init>`(). €@*<init>€*(
+_empty_/Test2.C#`<init>`().(x)*x€*(
+_empty_/Test2.C#`<init>`().(y)*y€*
+_empty_/Test2.C#x. €*x€*
+_empty_/Test2.C#y. €*y€*(
+_empty_/Test2.unapply().*unapply€*%
+_empty_/Test2.unapply().(c)*c€*
+local0 €*x€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+	 	_empty_/Test.C#`<init>`().2
+ 
+scala/Int#2
+  
+scala/Int#2
+ _empty_/Test.C#x.2
+ _empty_/Test.C#y.2%
+ _empty_/Test.unapply().2(
+ _empty_/Test.unapply().(c)2
+ _empty_/Test.C#2
+  scala/Some#2
+" %
+scala/Int#2
+' *
+scala/Int#2!
+3 3scala/Some.apply().2
+/ 3scala/Some.2#
+5 5scala/Tuple2.apply().2
+7 8_empty_/Test.C#x.2(
+5 6_empty_/Test.unapply().(c)2
+< =_empty_/Test.C#y.2(
+: ;_empty_/Test.unapply().(c)2
+ _empty_/Test2.2
+		 	_empty_/Test2.C#2)
+			 	_empty_/Test2.C#`<init>`().2
+		 
+scala/Int#2
+		 
+scala/Int#2 
+	
+	 _empty_/Test2.C#x.2 
+		 _empty_/Test2.C#y.2&
+ _empty_/Test2.unapply().2)
+ _empty_/Test2.unapply().(c)2
+ _empty_/Test2.C#2
+ "scala/Option#2
+$ '
+scala/Int#2
+) ,
+scala/Int#2)
+8 9_empty_/Test2.unapply().(c)2
+	 
+local02
+ _empty_/Test2.C#2!
+ scala/Some.apply().2
+ scala/Some.2#
+ scala/Tuple2.apply().PZ B1394F6D8DD61A6E6E47070DD98B9EB9

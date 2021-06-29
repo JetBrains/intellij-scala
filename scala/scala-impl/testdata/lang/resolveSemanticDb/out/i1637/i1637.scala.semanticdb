@@ -1,0 +1,45 @@
+
+¯tests/pos/i1637.scala*
+_empty_/Main.
+ *Main€* 
+_empty_/Main.Foo# €*Foo€*.
+_empty_/Main.Foo#`<init>`(). €@*<init>€*4
+#_empty_/Main.Foo#`<init>`().(field) €*field€*(
+_empty_/Main.Foo#field. €*field€*%
+_empty_/Main.Foo#copy().*copy€*-
+_empty_/Main.Foo#copy().(field)*field€*9
+"_empty_/Main.Foo#copy$default$1().*copy$default$1€*!
+_empty_/Main.Foo#_1().*_1€*
+_empty_/Main.Foo.
+ *Foo€*'
+_empty_/Main.Foo.apply().*apply€*.
+ _empty_/Main.Foo.apply().(field)*field€*+
+_empty_/Main.Foo.unapply().*unapply€*,
+ _empty_/Main.Foo.unapply().(x$1)*x$1€*-
+_empty_/Main.Foo.toString().*toString€*
+_empty_/Main.x. €*x€*
+local0*c€*
+local1 €*s€2
+ _empty_/Main.2
+ 
+scala/App#2
+ _empty_/Main.Foo#2*
+ _empty_/Main.Foo#`<init>`().2
+ scala/Option#2"
+ %scala/Predef.String#2%
+ _empty_/Main.Foo#field.2&
+ _empty_/Main.Foo#copy().2$
+ _empty_/Main.Foo#_1().2
+ _empty_/Main.Foo.2'
+ _empty_/Main.Foo.apply().2
+ _empty_/Main.x.2$
+	 scala/PartialFunction#2
+ _empty_/Main.Foo#2
+ !
+scala/Int#2
+' (local02%
+ _empty_/Main.Foo#field.2
+ local02#
+ scala/Some.unapply().2
+ scala/Some.2
+ local1PZ 2607A222A9296F48EA2C2024DE32C5D3

@@ -1,0 +1,69 @@
+
+Òtests/pos/i1756.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+local0 €*x€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*"
+_empty_/B#`<init>`().(x)*x€*
+_empty_/B#x. €*x€*
+_empty_/B#C#*C€*)
+_empty_/B#C#`<init>`(). €@*<init>€*$
+_empty_/B#C#`<init>`().(x)*x€*
+local1 €*test€*
+_empty_/B#C#x. €*x€*(
+_empty_/B#C#`<init>`(+1).*<init>€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*"
+_empty_/D#`<init>`().(x)*x€*
+_empty_/D#x. €*x€*
+_empty_/D#E#*E€*)
+_empty_/D#E#`<init>`(). €@*<init>€*$
+_empty_/D#E#`<init>`().(x)*x€*
+local2 €*test€*
+_empty_/D#E#x. €*x€2
+ 
+_empty_/A#2
+
+ 
+_empty_/A#`<init>`().2
+ local02
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+scala/Int#2
+ 	_empty_/B#x.2
+ 	_empty_/B#C#2%
+	 	_empty_/B#C#`<init>`().2
+ 
+scala/Int#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ local12
+ 	_empty_/B#C#x.2
+
+ _empty_/B#C#x.2'
+ _empty_/B#C#`<init>`(+1).2%
+ _empty_/B#C#`<init>`().2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 
+scala/Int#2
+ 	_empty_/D#x.2
+ 	_empty_/D#E#2%
+	 	_empty_/D#E#`<init>`().2
+ 
+scala/Int#2#
+ _empty_/D#`<init>`().2
+ 
+_empty_/D#2
+! %local22
+0 1_empty_/D#E#x.2
+
+ _empty_/D#E#x.PZ 5FAF03D96CF6F1C5B48A94609D896A31

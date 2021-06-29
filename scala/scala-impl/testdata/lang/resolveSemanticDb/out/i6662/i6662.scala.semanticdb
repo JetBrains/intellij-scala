@@ -1,0 +1,178 @@
+
+š+tests/pos/i6662.scala*
+_empty_/opt.
+ *opt€*
+_empty_/opt.Opt#*Opt€*
+_empty_/opt.Opt#[A]	*A€*
+_empty_/opt.Opt.
+ *Opt€*&
+_empty_/opt.Opt.unOpt().*unOpt€*%
+_empty_/opt.Opt.unOpt().[A]	*A€*%
+_empty_/opt.Opt.unOpt().(x)*x€*&
+_empty_/opt.Opt.apply().*apply€*%
+_empty_/opt.Opt.apply().[A]	*A€*%
+_empty_/opt.Opt.apply().(x)*x€*$
+_empty_/opt.Opt.some().*some€*$
+_empty_/opt.Opt.some().[A]	*A€*$
+_empty_/opt.Opt.some().(x)*x€*$
+_empty_/opt.Opt.none().*none€*$
+_empty_/opt.Opt.none().[A]	*A€*0
+_empty_/opt.Opt.fromOption().*
+fromOption€**
+ _empty_/opt.Opt.fromOption().[A]	*A€**
+ _empty_/opt.Opt.fromOption().(x)*x€*(
+_empty_/i6662$package. *_empty_€*2
+!_empty_/i6662$package.nonEmpty().*nonEmpty€*.
+$_empty_/i6662$package.nonEmpty().[A]	*A€*.
+$_empty_/i6662$package.nonEmpty().(x)*x€*0
+ _empty_/i6662$package.isEmpty().*isEmpty€*-
+#_empty_/i6662$package.isEmpty().[A]	*A€*-
+#_empty_/i6662$package.isEmpty().(x)*x€*4
+"_empty_/i6662$package.isDefined().*	isDefined€*/
+%_empty_/i6662$package.isDefined().[A]	*A€*/
+%_empty_/i6662$package.isDefined().(x)*x€*(
+_empty_/i6662$package.get().*get€*)
+_empty_/i6662$package.get().[A]	*A€*)
+_empty_/i6662$package.get().(x)*x€**
+_empty_/i6662$package.Test().*Test€*
+local0 €*x€*
+local1 €*y€*
+_empty_/Test# *Test€**
+_empty_/Test#`<init>`(). €@*<init>€*$
+_empty_/Test#main(). € *main€*'
+_empty_/Test#main().(args)*args€*
+local2 €*error€2
+ 
+_empty_/opt.2
+ _empty_/opt.Opt#2!
+ _empty_/opt.Opt#[A]2
+ scala/Null#2!
+! "_empty_/opt.Opt#[A]2
+ _empty_/opt.Opt.2&
+ _empty_/opt.Opt.unOpt().2)
+ _empty_/opt.Opt.unOpt().[A]2
+ "scala/Null#2)
+$ %_empty_/opt.Opt.unOpt().(x)2
+' *_empty_/opt.Opt#2)
++ ,_empty_/opt.Opt.unOpt().[A]2)
+0 1_empty_/opt.Opt.unOpt().[A]2)
+4 5_empty_/opt.Opt.unOpt().(x)2&
+ _empty_/opt.Opt.apply().2)
+ _empty_/opt.Opt.apply().[A]2
+ "scala/Null#2)
+$ %_empty_/opt.Opt.apply().(x)2)
+' (_empty_/opt.Opt.apply().[A]2
++ ._empty_/opt.Opt#2)
+/ 0_empty_/opt.Opt.apply().[A]2)
+4 5_empty_/opt.Opt.apply().(x)2%
+ _empty_/opt.Opt.some().2(
+ _empty_/opt.Opt.some().[A]2
+ !scala/Null#2(
+# $_empty_/opt.Opt.some().(x)2(
+& '_empty_/opt.Opt.some().[A]2
+* -_empty_/opt.Opt#2(
+. /_empty_/opt.Opt.some().[A]2(
+3 4_empty_/opt.Opt.some().(x)2%
+ _empty_/opt.Opt.none().2(
+ _empty_/opt.Opt.none().[A]2
+ !scala/Null#2
+$ '_empty_/opt.Opt#2(
+( )_empty_/opt.Opt.none().[A]2+
+ _empty_/opt.Opt.fromOption().2.
+  _empty_/opt.Opt.fromOption().[A]2
+# 'scala/Null#2.
+) * _empty_/opt.Opt.fromOption().(x)2
+, 2scala/Option#2.
+3 4 _empty_/opt.Opt.fromOption().[A]2$
+; Ascala/Option#orNull().2.
+9 : _empty_/opt.Opt.fromOption().(x)2!
+A Ascala/`<:<`.refl().2
+		 _empty_/opt.Opt.2
+		 
+_empty_/opt.2 
+
+
+_empty_/i6662$package.2/
+ !_empty_/i6662$package.nonEmpty().22
+
+
+ $_empty_/i6662$package.nonEmpty().[A]2
+
+
+ scala/Null#22
+
+
+ $_empty_/i6662$package.nonEmpty().(x)2
+
+
+ _empty_/opt.Opt#22
+
+
+ $_empty_/i6662$package.nonEmpty().[A]2
+ !scala/Boolean#2
+* ,scala/Any#`!=`().2*
+& )_empty_/i6662$package.get().22
+$ %$_empty_/i6662$package.nonEmpty().(x)2.
+  _empty_/i6662$package.isEmpty().21
+
+
+ #_empty_/i6662$package.isEmpty().[A]21
+
+
+ #_empty_/i6662$package.isEmpty().(x)21
+
+
+ #_empty_/i6662$package.isEmpty().[A]2
+ !scala/Boolean#2
+* ,scala/Any#`==`().2*
+& )_empty_/i6662$package.get().21
+$ %#_empty_/i6662$package.isEmpty().(x)20
+ "_empty_/i6662$package.isDefined().23
+
+
+ %_empty_/i6662$package.isDefined().[A]23
+
+
+ %_empty_/i6662$package.isDefined().(x)23
+
+
+ %_empty_/i6662$package.isDefined().[A]2
+ !scala/Boolean#2/
+& .!_empty_/i6662$package.nonEmpty().23
+$ %%_empty_/i6662$package.isDefined().(x)2*
+ _empty_/i6662$package.get().2-
+
+
+ _empty_/i6662$package.get().[A]2-
+
+
+ _empty_/i6662$package.get().(x)2-
+
+
+ _empty_/i6662$package.get().[A]2-
+ _empty_/i6662$package.get().[A]2&
+( -_empty_/opt.Opt.unOpt().2
+$ '_empty_/opt.Opt.2-
+. /_empty_/i6662$package.get().(x)2
+ scala/main#2+
+
+ _empty_/i6662$package.Test().2
+ local02
+	 _empty_/opt.Opt#2"
+ scala/Predef.String#2%
+ _empty_/opt.Opt.some().2
+ _empty_/opt.Opt.2&
+ scala/Predef.assert(+1).2/
+ !_empty_/i6662$package.nonEmpty().2
+	 
+local02
+ local12"
+	 scala/Predef.String#2&
+ _empty_/opt.Opt.unOpt().2
+ _empty_/opt.Opt.2
+ local02
+_empty_/Test#2"
+_empty_/Test#`<init>`().2'
+_empty_/i6662$package.Test().23
+)scala/util/CommandLineParser.showError().2
+local2PZ 078A53116CFB8E4A207221935F7EE4D7

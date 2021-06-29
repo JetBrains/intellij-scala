@@ -1,0 +1,50 @@
+
+œtests/pos/i4316.scala*
+_empty_/Test.
+ *Test€* 
+_empty_/Test.Bar# €*Bar€*.
+_empty_/Test.Bar#`<init>`(). €@*<init>€*
+_empty_/Test.Bar#[A]	*A€*%
+_empty_/Test.Bar#copy().*copy€*%
+_empty_/Test.Bar#copy().[A]	*A€*
+_empty_/Test.Bar.
+ *Bar€*'
+_empty_/Test.Bar.apply().*apply€*&
+_empty_/Test.Bar.apply().[A]	*A€*+
+_empty_/Test.Bar.unapply().*unapply€*(
+_empty_/Test.Bar.unapply().[A]	*A€*,
+ _empty_/Test.Bar.unapply().(x$1)*x$1€*-
+_empty_/Test.Bar.toString().*toString€*!
+_empty_/Test.meth().*meth€*!
+_empty_/Test.meth().[A]	*A€*/
+_empty_/Test.meth().(consumer)*consumer€*!
+_empty_/Test.meth().(s)*s€*
+local0 €*bar€*
+local1 €	*a€2
+ _empty_/Test.2
+ _empty_/Test.Bar#2*
+ _empty_/Test.Bar#`<init>`().2"
+ _empty_/Test.Bar#[A]2&
+ _empty_/Test.Bar#copy().2
+ _empty_/Test.Bar.2'
+ _empty_/Test.Bar.apply().2)
+ _empty_/Test.Bar.unapply().2"
+ 
+_empty_/Test.meth().2%
+ _empty_/Test.meth().[A]2,
+ _empty_/Test.meth().(consumer)2%
+ _empty_/Test.meth().[A]2
+ !scala/Unit#2%
+# $_empty_/Test.meth().(s)2
+& )_empty_/Test.Bar#2%
+* +_empty_/Test.meth().[A]2
+/ 3scala/Unit#2%
+ _empty_/Test.meth().(s)2
+ local02
+ _empty_/Test.Bar#2
+ local12"
+ _empty_/Test.meth().2,
+ _empty_/Test.meth().(consumer)2*
+! !_empty_/Test.Bar#`<init>`().2
+ _empty_/Test.Bar#2
+  local1PZ EFB973AEFBA06CBD368C690F785FC2C3

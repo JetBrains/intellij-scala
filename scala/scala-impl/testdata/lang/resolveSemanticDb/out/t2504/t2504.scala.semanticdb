@@ -1,0 +1,30 @@
+
+œtests/pos/t2504.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.zs. €*zs€*
+_empty_/Test.ys. €*ys€*
+_empty_/Test.xs. €*xs€2
+ _empty_/Test.2
+ _empty_/Test.zs.2"
+ scala/Array.apply().2
+ scala/Array.2-
+ scala/reflect/ClassTag.apply().2
+ _empty_/Test.ys.2%
+
+ scala/package.Iterable#28
+ *scala/LowPriorityImplicits#wrapRefArray().2"
+ scala/Array.apply().2
+ scala/Array.2-
+$ $scala/reflect/ClassTag.apply().2
+ _empty_/Test.xs.2"
+ scala/Array.apply().2
+ scala/Array.2-
+ scala/reflect/ClassTag.apply().25
+ 'scala/collection/SeqOps#sameElements().28
+ *scala/LowPriorityImplicits#wrapRefArray().2
+ _empty_/Test.xs.28
+ *scala/LowPriorityImplicits#wrapRefArray().2"
+ scala/Array.apply().2
+ scala/Array.2-
+ scala/reflect/ClassTag.apply().PZ 6070FC976C054E2E2BD9ACF9FAF99FFB

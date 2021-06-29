@@ -1,0 +1,96 @@
+
+œtests/pos/spec-partialmap.scala*&
+_empty_/PartialMap#*
+PartialMap€*0
+_empty_/PartialMap#`<init>`(). €@*<init>€* 
+_empty_/PartialMap#[A]	*A€* 
+_empty_/PartialMap#[B]	*B€*)
+_empty_/PartialMap#apply().*apply€*(
+_empty_/PartialMap#apply().(f)*f€*
+local0*x$1€*
+local1 €*k€*
+local2 €*v€*+
+_empty_/PartialMap#apply(+1).*apply€*0
+#_empty_/PartialMap#apply(+1).[This]	*This€*0
+#_empty_/PartialMap#apply(+1).(keys)*keys€*
+local3*v1€2(
+ !scala/collection/Iterable.2(
+ !scala/collection/Iterable#2+
+" -scala/collection/IterableOps.2+
+" -scala/collection/IterableOps#2
+ scala/collection/2
+ scala/2!
+ _empty_/PartialMap#2,
+ _empty_/PartialMap#`<init>`().2$
+8 Gscala/PartialFunction#2$
+H I_empty_/PartialMap#[A]2$
+J K_empty_/PartialMap#[B]2(
+R Zscala/collection/Iterable#2$
+\ ]_empty_/PartialMap#[A]2$
+^ __empty_/PartialMap#[B]2 
+ scala/specialized#2$
+ _empty_/PartialMap#[A]2 
+! ,scala/specialized#2$
+- ._empty_/PartialMap#[B]2)
+ _empty_/PartialMap#apply().2,
+ _empty_/PartialMap#apply().(f)2$
+ _empty_/PartialMap#[A]2
+ scala/Boolean#2%
+" *scala/package.Iterator#2$
++ ,_empty_/PartialMap#[B]2.
+# # scala/collection/Iterator#map().25
+ 'scala/collection/Iterator#withFilter().27
+ )scala/collection/IterableOnce#iterator().2
+	 	local02%
+
+ 
+scala/Tuple2.unapply().2
+
+ local12
+ local22&
+   scala/Function1#apply().2,
+  _empty_/PartialMap#apply().(f)2
+! "local12
++ ,local22+
+
+
+ _empty_/PartialMap#apply(+1).21
+
+
+ #_empty_/PartialMap#apply(+1).[This]2(
+
+
+ scala/collection/Iterable#2$
+
+
+ _empty_/PartialMap#[A]21
+
+!
+ %#_empty_/PartialMap#apply(+1).(keys)2+
+
+(
+ 3scala/collection/IterableOps#2$
+
+4
+ 5_empty_/PartialMap#[A]21
+
+A
+ E#_empty_/PartialMap#apply(+1).[This]2(
+
+I
+ Qscala/collection/Iterable#2$
+
+R
+ S_empty_/PartialMap#[B]21
+
+\
+ _#scala/collection/IterableOps#map().21
+
+W
+ [#_empty_/PartialMap#apply(+1).(keys)2&
+
+`
+ escala/Function1#apply().2
+
+`
+ `local3PZ 761D1D780296FAD4868A4F87970D8758

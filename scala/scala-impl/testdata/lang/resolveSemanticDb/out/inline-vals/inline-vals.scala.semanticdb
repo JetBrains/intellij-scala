@@ -1,0 +1,56 @@
+
+™tests/pos/inline-vals.scala*0
+_empty_/InlineConstants#*InlineConstants€*5
+#_empty_/InlineConstants#`<init>`(). €@*<init>€*E
+)_empty_/InlineConstants#myInlinedBoolean. „*myInlinedBoolean€*?
+&_empty_/InlineConstants#myInlinedByte. „*myInlinedByte€*A
+'_empty_/InlineConstants#myInlinedShort. „*myInlinedShort€*=
+%_empty_/InlineConstants#myInlinedInt. „*myInlinedInt€*?
+&_empty_/InlineConstants#myInlinedLong. „*myInlinedLong€*A
+'_empty_/InlineConstants#myInlinedFloat. „*myInlinedFloat€*C
+(_empty_/InlineConstants#myInlinedDouble. „*myInlinedDouble€*?
+&_empty_/InlineConstants#myInlinedChar. „*myInlinedChar€*C
+(_empty_/InlineConstants#myInlinedString. „*myInlinedString€*&
+_empty_/Constants.
+ *	Constants€*?
+#_empty_/Constants.myInlinedBoolean. €*myInlinedBoolean€*9
+ _empty_/Constants.myInlinedByte. €*myInlinedByte€*;
+!_empty_/Constants.myInlinedShort. €*myInlinedShort€*7
+_empty_/Constants.myInlinedInt. €*myInlinedInt€*9
+ _empty_/Constants.myInlinedLong. €*myInlinedLong€*;
+!_empty_/Constants.myInlinedFloat. €*myInlinedFloat€*=
+"_empty_/Constants.myInlinedDouble. €*myInlinedDouble€*9
+ _empty_/Constants.myInlinedChar. €*myInlinedChar€*=
+"_empty_/Constants.myInlinedString. €*myInlinedString€2"
+ _empty_/InlineConstants#21
+ #_empty_/InlineConstants#`<init>`().27
+ )_empty_/InlineConstants#myInlinedBoolean.2
+ &scala/Boolean#24
+ &_empty_/InlineConstants#myInlinedByte.2
+  scala/Byte#25
+ '_empty_/InlineConstants#myInlinedShort.2
+ "scala/Short#23
+ %_empty_/InlineConstants#myInlinedInt.2
+ 
+scala/Int#24
+ &_empty_/InlineConstants#myInlinedLong.2
+  scala/Long#25
+ '_empty_/InlineConstants#myInlinedFloat.2
+ "scala/Float#26
+ (_empty_/InlineConstants#myInlinedDouble.2
+ $scala/Double#24
+ &_empty_/InlineConstants#myInlinedChar.2
+  scala/Char#26
+		 (_empty_/InlineConstants#myInlinedString.2"
+		 $scala/Predef.String#2 
+ _empty_/Constants.2&
+ (_empty_/InlineConstants#21
+ #_empty_/Constants.myInlinedBoolean.2.
+  _empty_/Constants.myInlinedByte.2/
+ !_empty_/Constants.myInlinedShort.2-
+ _empty_/Constants.myInlinedInt.2.
+  _empty_/Constants.myInlinedLong.2/
+ !_empty_/Constants.myInlinedFloat.20
+ "_empty_/Constants.myInlinedDouble.2.
+  _empty_/Constants.myInlinedChar.20
+ "_empty_/Constants.myInlinedString.PZ 3658782685F62D7E9D5D5BB7838518C0

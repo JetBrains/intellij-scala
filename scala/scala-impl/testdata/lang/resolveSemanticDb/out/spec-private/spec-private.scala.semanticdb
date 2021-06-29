@@ -1,0 +1,28 @@
+
+Útests/pos/spec-private.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().[T]	*T€*
+_empty_/Foo#foo().(x)*x€*
+local0 *$anon€*
+local1 ˆ*myEdges€*
+local2*boo€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#foo().2 
+ scala/specialized#2
+ 
+scala/Int.2#
+ _empty_/Foo#foo().[T]2#
+  _empty_/Foo#foo().(x)2#
+" #_empty_/Foo#foo().[T]2
+' 'local02*
+1 1java/lang/Object#`<init>`().2
++ 1java/lang/Object#2
+ local127
+$ $)scala/collection/IterableFactory#apply().2!
+  $scala/package.List.2
+ local22
+ scala/Unit#2
+ local1PZ FE0CFB2B273A7D31D6D725E1B2BDDBCD

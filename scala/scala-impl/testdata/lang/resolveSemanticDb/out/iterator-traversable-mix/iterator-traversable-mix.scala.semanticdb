@@ -1,0 +1,38 @@
+
+ò(tests/pos/iterator-traversable-mix.scala*
+_empty_/Test.
+ *Test€*
+local0*x1€*
+local1*x2€*
+local2*x3€*
+local3*x4€2
+ _empty_/Test.28
+ *scala/collection/immutable/List#flatMap().27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2
+ local022
+ $scala/collection/Iterator#flatMap().20
+ "scala/collection/Iterator.apply().2%
+
+ scala/package.Iterator.2
+ local122
+ $scala/collection/Iterator#flatMap().27
+ )scala/collection/IterableOnce#iterator().2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+
+ scala/package.Seq.2
+ local228
+ *scala/collection/immutable/LazyList#map().27
+ )scala/collection/IterableFactory#apply().2%
+
+ scala/package.LazyList.2
+ local32 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2
+
+ local02
+ local12
+ local22
+ local3PZ 32DD906D9B02866E7D4D13B2F261F91E

@@ -1,0 +1,98 @@
+
+Ìtests/pos/t5384.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*"
+_empty_/A#`<init>`().(x)*x€*"
+_empty_/A#`<init>`().(y)*y€*$
+_empty_/A#`<init>`().(o)  *o€*
+_empty_/A#x. €*x€*
+_empty_/A#y. €*y€*
+_empty_/A#o.  *o€*
+_empty_/B1#*B1€*(
+_empty_/B1#`<init>`(). €@*<init>€*%
+_empty_/B1#`<init>`().(o)  *o€*
+_empty_/B1#o.  *o€*
+_empty_/B2#*B2€*(
+_empty_/B2#`<init>`(). €@*<init>€*%
+_empty_/B2#`<init>`().(o)  *o€*
+_empty_/B2#o.  *o€*
+_empty_/B3#*B3€*(
+_empty_/B3#`<init>`(). €@*<init>€*%
+_empty_/B3#`<init>`().(o)  *o€*
+_empty_/B3#o.  *o€*
+_empty_/AM#*AM€*(
+_empty_/AM#`<init>`(). €@*<init>€*&
+_empty_/AM#`<init>`().(x) €*x€*#
+_empty_/AM#`<init>`().(y)*y€*
+_empty_/AM#[E]	*E€*
+_empty_/AM#x. €*x€*
+_empty_/AM#y. €*y€*
+_empty_/AM.
+ *AM€*M
+)_empty_/AM.$lessinit$greater$default$1().*$lessinit$greater$default$1€*6
+,_empty_/AM.$lessinit$greater$default$1().[E]	*E€*
+_empty_/BM#*BM€*(
+_empty_/BM#`<init>`(). €@*<init>€*
+_empty_/BM#[E]	*E€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ scala/Predef.String#2
+ 
+scala/Int#2
+' -scala/Predef.String#2
+ 	_empty_/A#x.2
+ _empty_/A#y.2
+$ %_empty_/A#o.2
+ _empty_/B1#2$
+ _empty_/B1#`<init>`().2"
+ scala/Predef.String#2#
+& &_empty_/A#`<init>`().2
+% &
+_empty_/A#2&
+. /_empty_/A#`<init>`().(x)2&
+' (_empty_/A#`<init>`().(y)2
+6 6_empty_/B1#o.2
+ _empty_/B1#o.2
+ _empty_/B2#2$
+ _empty_/B2#`<init>`().2"
+ scala/Predef.String#2#
+& &_empty_/A#`<init>`().2
+% &
+_empty_/A#2
+. ._empty_/B2#o.2
+ _empty_/B2#o.2
+ _empty_/B3#2$
+ _empty_/B3#`<init>`().2"
+ scala/Predef.String#2#
+& &_empty_/A#`<init>`().2
+% &
+_empty_/A#2&
+. /_empty_/A#`<init>`().(x)2&
+' (_empty_/A#`<init>`().(y)2
+7 8_empty_/B3#o.2
+ _empty_/B3#o.2
+ _empty_/AM#2$
+ _empty_/AM#`<init>`().2
+ !scala/Unit#2
++ /scala/Unit#2$
+ scala/Predef.Manifest#2
+ _empty_/AM#[E]2
+	 
+_empty_/AM#[E]2
+ _empty_/AM#x.2
+( )_empty_/AM#y.2
+ _empty_/AM.2:
+	 
+,_empty_/AM.$lessinit$greater$default$1().[E]2
+ _empty_/BM#2$
+ _empty_/BM#`<init>`().2$
+ scala/Predef.Manifest#2
+ _empty_/BM#[E]2$
+# #_empty_/AM#`<init>`().2
+  _empty_/AM#2
+! "_empty_/BM#[E]2'
+$ %_empty_/AM#`<init>`().(y)2
+	 
+_empty_/BM#[E]PZ FE716D2424035BD9C750E52A60014AED

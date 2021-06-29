@@ -1,0 +1,33 @@
+
+Øtests/pos/t4975.scala*.
+_empty_/ImplicitScope.
+ *ImplicitScope€*"
+_empty_/ImplicitScope.A#*A€*5
+#_empty_/ImplicitScope.A#`<init>`(). €@*<init>€*%
+_empty_/ImplicitScope.A#[T]	*T€*(
+_empty_/ImplicitScope.foo().*foo€*
+local0*B€*
+local1
+ *B€*
+local2  *ab€2 
+ _empty_/ImplicitScope.2&
+ 	_empty_/ImplicitScope.A#21
+	 	#_empty_/ImplicitScope.A#`<init>`().2)
+
+ _empty_/ImplicitScope.A#[T]2*
+ 	_empty_/ImplicitScope.foo().2
+ scala/Unit#2
+
+ local02
+ local12
+ local22&
+% &_empty_/ImplicitScope.A#2$
+ $_empty_/ImplicitScope.2
+' (local021
+4 4#_empty_/ImplicitScope.A#`<init>`().2&
+0 1_empty_/ImplicitScope.A#2
+2 3local02(
+		 scala/Predef.implicitly().2&
+		 _empty_/ImplicitScope.A#2
+		 local02
+		 local2PZ B910CD4C92D73706446CB9949A4CB8EC

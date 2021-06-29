@@ -1,0 +1,40 @@
+
+†tests/pos/t8132.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#s(). *s€*
+
+_empty_/G# €*G€*'
+_empty_/G#`<init>`(). €@*<init>€*%
+_empty_/G#`<init>`().(s) €*s€*
+_empty_/G#s. €*s€*
+_empty_/G#copy().*copy€*
+_empty_/G#copy().(s)*s€*2
+_empty_/G#copy$default$1().*copy$default$1€*
+_empty_/G#_1().*_1€*
+
+_empty_/G.
+ *G€* 
+_empty_/G.apply().*apply€*
+_empty_/G.apply().(s)*s€*$
+_empty_/G.unapply().*unapply€*%
+_empty_/G.unapply().(x$1)*x$1€*&
+_empty_/G.toString().*toString€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ _empty_/T#s().2"
+ scala/Predef.String#2
+ 
+_empty_/G#2#
+ _empty_/G#`<init>`().2"
+' -scala/Predef.String#2
+7 8
+_empty_/T#2
+$ %_empty_/G#s.2
+_empty_/G#copy().2
+' '_empty_/G#_1().2
+ 
+_empty_/G.2
+_empty_/G.apply().PZ 8302B64A1622CFEB44DFE381BBD5ED60

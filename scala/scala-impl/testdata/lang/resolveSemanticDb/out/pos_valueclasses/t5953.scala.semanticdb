@@ -1,0 +1,126 @@
+
+’&tests/pos/pos_valueclasses/t5953.scala*
+_empty_/CBF#*CBF€*)
+_empty_/CBF#`<init>`(). €@*<init>€*
+_empty_/CBF#[F]	 €*F€*
+_empty_/CBF#[A]	 €*A€*
+_empty_/CBF#[C]	 €*C€*.
+_empty_/GenTraversable#*GenTraversable€*4
+"_empty_/GenTraversable#`<init>`(). €@*<init>€*'
+_empty_/GenTraversable#[A]	 €*A€*(
+_empty_/Traversable#*Traversable€*1
+_empty_/Traversable#`<init>`(). €@*<init>€*$
+_empty_/Traversable#[A]	 €*A€*
+_empty_/Vector#*Vector€*,
+_empty_/Vector#`<init>`(). €@*<init>€*
+_empty_/Vector#[A]	*A€* 
+_empty_/Vector.
+ *Vector€*#
+_empty_/Vector.cbf().  *cbf€*"
+_empty_/Vector.cbf().[A]	*A€*
+foo/package. *foo€*&
+foo/package.TravOps# *TravOps€*1
+foo/package.TravOps#`<init>`(). €@*<init>€*5
+%foo/package.TravOps#`<init>`().(coll) €*coll€*!
+foo/package.TravOps#[A]	*A€*#
+foo/package.TravOps#[CC]	*CC€*)
+foo/package.TravOps#coll. €*coll€**
+foo/package.TravOps#build().*build€*-
+!foo/package.TravOps#build().[CC2]	*CC2€*/
+!foo/package.TravOps#build().(cbf)  *cbf€*&
+foo/package.TravOps.
+ *TravOps€*(
+foo/package.TravOps(). (*TravOps€*#
+foo/package.TravOps().[A]	*A€*%
+foo/package.TravOps().[CC]	*CC€*)
+foo/package.TravOps().(coll)*coll€*
+	foo/Test.
+ *Test€*
+foo/Test.f2().*f2€*
+foo/Test.f2().[T]	*T€*
+foo/Test.f2().(xs)*xs€2
+ 	_empty_/CBF#2!
+	 	_empty_/CBF#`<init>`().2
+ _empty_/CBF#[F]2
+ _empty_/CBF#[A]2
+ _empty_/CBF#[C]2%
+ _empty_/GenTraversable#20
+ "_empty_/GenTraversable#`<init>`().2(
+ _empty_/GenTraversable#[A]2"
+ _empty_/Traversable#2-
+ _empty_/Traversable#`<init>`().2%
+ ,_empty_/GenTraversable#2%
+- ._empty_/Traversable#[A]2%
+ _empty_/Traversable#[A]2
+ _empty_/Vector#2(
+ _empty_/Vector#`<init>`().2"
+ #_empty_/Traversable#2 
+$ %_empty_/Vector#[A]2 
+ _empty_/Vector#[A]2
+ _empty_/Vector.2#
+ _empty_/Vector.cbf().2&
+ _empty_/Vector.cbf().[A]2
+ _empty_/CBF#2
+ !_empty_/Vector#2&
+& '_empty_/Vector.cbf().[A]2
+) /_empty_/Vector#2&
+0 1_empty_/Vector.cbf().[A]2#
+6 9scala/Predef.`???`().2
+ foo/package.2
+		 	scala/inline#2"
+		  foo/package.TravOps#2-
+	 	  foo/package.TravOps#`<init>`().2&
+	J	 Lfoo/package.TravOps#[CC]2%
+	M	 Nfoo/package.TravOps#[A]2&
+	_	 _scala/AnyVal#`<init>`().2
+	Y	 _scala/AnyVal#2%
+	!	 "foo/package.TravOps#[A]2&
+	$	 &foo/package.TravOps#[CC]2'
+	D	 Hfoo/package.TravOps#coll.2*
+
+
+ foo/package.TravOps#build().2/
+
+
+ !foo/package.TravOps#build().[CC2]2/
+
+
+ "!foo/package.TravOps#build().(cbf)2
+
+$
+ '_empty_/CBF#2
+
+(
+ /scala/Nothing#2%
+
+1
+ 2foo/package.TravOps#[A]2/
+
+4
+ 7!foo/package.TravOps#build().[CC2]2%
+
+8
+ 9foo/package.TravOps#[A]2/
+
+>
+ A!foo/package.TravOps#build().[CC2]2%
+
+B
+ Cfoo/package.TravOps#[A]2#
+
+G
+ Jscala/Predef.`???`().2"
+		 foo/package.TravOps.2$
+		 foo/package.TravOps().2
+ foo/2
+	 	foo/Test.2
+ 
+foo/Test.f2().2
+ foo/Test.f2().[T]2 
+ foo/Test.f2().(xs)2"
+ _empty_/Traversable#2
+ foo/Test.f2().[T]2*
+' ,foo/package.TravOps#build().2$
+$ $foo/package.TravOps().2 
+$ &foo/Test.f2().(xs)2#
+4 4_empty_/Vector.cbf().PZ C80260CA77689153055E64F02CE78744

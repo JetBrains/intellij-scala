@@ -1,0 +1,26 @@
+
+«tests/pos/t0305.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*"
+_empty_/Test.foo().(is)*is€*!
+_empty_/Test.foo(+1).*foo€*"
+_empty_/Test.foo(+1).(i)*i€2
+ _empty_/Test.2
+ 
+scala/App#2!
+ 	_empty_/Test.foo().2%
+
+ _empty_/Test.foo().(is)2
+ 
+scala/Int#2#
+ 	_empty_/Test.foo(+1).2&
+
+ _empty_/Test.foo(+1).(i)2
+ 
+scala/Int#2&
+ scala/Predef.assert(+1).2!
+ scala/Int#`==`(+3).2!
+	 _empty_/Test.foo().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.PZ 50C7C16EC1ACEF5F1C415454B20D3296

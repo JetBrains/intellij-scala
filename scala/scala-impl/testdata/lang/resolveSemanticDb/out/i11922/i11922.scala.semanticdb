@@ -1,0 +1,135 @@
+
+ötests/pos/i11922.scala*"
+_empty_/example.
+ *example€*&
+_empty_/example.MyType#*MyType€*4
+"_empty_/example.MyType#`<init>`(). €@*<init>€*$
+_empty_/example.MyType#[A]	*A€*$
+_empty_/example.Alias#*Alias€*#
+_empty_/example.Alias#[A]	*A€*#
+_empty_/example.Alias#[B]	*B€*
+_empty_/bug.
+ *bug€*$
+_empty_/bug.MyType# *MyType€*"
+_empty_/bug.Alias# *Alias€*
+_empty_/bug.bug().*bug€*
+_empty_/bug.bug().[A]	*A€*
+_empty_/bug.bug().(m)*m€*!
+_empty_/bug.bug2. €*bug2€*
+local0*m€* 
+_empty_/bug.bug3().*bug3€* 
+_empty_/bug.bug3().[A]	*A€* 
+_empty_/bug.bug3().[B]	*B€* 
+_empty_/bug.bug3().(m)*m€* 
+_empty_/bug.bug4().*bug4€* 
+_empty_/bug.bug4().[A]	*A€* 
+_empty_/bug.bug4().[B]	*B€* 
+_empty_/bug.bug4().(m)*m€**
+_empty_/bug.thisWorks().*	thisWorks€*%
+_empty_/bug.thisWorks().[A]	*A€*%
+_empty_/bug.thisWorks().(m)*m€*-
+_empty_/bug.thisWorks2. €*
+thisWorks2€*
+local1*m€*-
+_empty_/bug.thisWorks3. €*
+thisWorks3€2
+ _empty_/example.2%
+ _empty_/example.MyType#20
+ "_empty_/example.MyType#`<init>`().2(
+ _empty_/example.MyType#[A]2$
+ _empty_/example.Alias#2'
+ _empty_/example.Alias#[A]2'
+ _empty_/example.Alias#[B]2%
+ _empty_/example.MyType#2'
+ _empty_/example.Alias#[B]2
+ 
+_empty_/bug.2
+	 _empty_/example.2!
+ _empty_/bug.MyType#2 
+ _empty_/bug.Alias#2 
+ 	_empty_/bug.bug().2#
+
+ _empty_/bug.bug().[A]2#
+ _empty_/bug.bug().(m)2!
+ _empty_/bug.MyType#2#
+ _empty_/bug.bug().[A]2!
+ "_empty_/bug.MyType#2#
+# $_empty_/bug.bug().[A]2#
+( )_empty_/bug.bug().(m)2
+ 
+_empty_/bug.bug2.2!
+ _empty_/bug.MyType#2"
+ scala/Predef.String#2!
+ $_empty_/bug.MyType#2"
+% +scala/Predef.String#2
+/ 0local02
+4 5local02!
+		 
+_empty_/bug.bug3().2$
+		 _empty_/bug.bug3().[A]2$
+		 _empty_/bug.bug3().[B]2$
+		 _empty_/bug.bug3().(m)2 
+		 _empty_/bug.Alias#2$
+		 _empty_/bug.bug3().[A]2$
+		 _empty_/bug.bug3().[B]2!
+	"	 (_empty_/bug.MyType#2$
+	)	 *_empty_/bug.bug3().[B]2$
+	.	 /_empty_/bug.bug3().(m)2!
+
+
+ 
+_empty_/bug.bug4().2$
+
+
+ _empty_/bug.bug4().[A]2$
+
+
+ _empty_/bug.bug4().[B]2$
+
+
+ _empty_/bug.bug4().(m)2 
+
+
+ _empty_/bug.Alias#2$
+
+
+ _empty_/bug.bug4().[A]2$
+
+
+ _empty_/bug.bug4().[B]2 
+
+"
+ '_empty_/bug.Alias#2
+
+(
+ +
+scala/Int#2$
+
+-
+ ._empty_/bug.bug4().[B]2$
+
+2
+ 3_empty_/bug.bug4().(m)2&
+ _empty_/bug.thisWorks().2)
+ _empty_/bug.thisWorks().[A]2)
+ _empty_/bug.thisWorks().(m)2%
+ $_empty_/example.MyType#2
+ _empty_/example.2)
+% &_empty_/bug.thisWorks().[A]2!
+* 0_empty_/bug.MyType#2)
+1 2_empty_/bug.thisWorks().[A]2)
+6 7_empty_/bug.thisWorks().(m)2%
+ _empty_/bug.thisWorks2.2%
+  _empty_/example.MyType#2
+ _empty_/example.2"
+! 'scala/Predef.String#2!
+, 2_empty_/bug.MyType#2"
+3 9scala/Predef.String#2
+= >local12
+B Clocal12%
+ _empty_/bug.thisWorks3.2!
+ _empty_/bug.MyType#2"
+ scala/Predef.String#2#
+$ 'scala/Predef.`???`().2!
+* 0_empty_/bug.MyType#2"
+1 7scala/Predef.String#PZ AF846D7DB32311F967770CAE469E9CD3

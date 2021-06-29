@@ -1,0 +1,39 @@
+
+Ðtests/pos/annot-bootstrap.scala*/
+ scala/annotation/unchecked/test.
+ *test€*/
+"scala/annotation/unchecked/test.L# €*L€*?
+-scala/annotation/unchecked/test.L#`<init>`(). €@*<init>€*=
+0scala/annotation/unchecked/test.L#`<init>`().(a) €*a€*1
+$scala/annotation/unchecked/test.L#a. €*a€*6
+)scala/annotation/unchecked/test.L#copy().*copy€*6
+,scala/annotation/unchecked/test.L#copy().(a)*a€*J
+3scala/annotation/unchecked/test.L#copy$default$1().*copy$default$1€*2
+'scala/annotation/unchecked/test.L#_1().*_1€*.
+"scala/annotation/unchecked/test.L.
+ *L€*8
+*scala/annotation/unchecked/test.L.apply().*apply€*7
+-scala/annotation/unchecked/test.L.apply().(a)*a€*<
+,scala/annotation/unchecked/test.L.unapply().*unapply€*=
+1scala/annotation/unchecked/test.L.unapply().(x$1)*x$1€*>
+-scala/annotation/unchecked/test.L.toString().*toString€*I
+-scala/annotation/unchecked/uncheckedVariance# *uncheckedVariance€*J
+8scala/annotation/unchecked/uncheckedVariance#`<init>`(). €@*<init>€2%
+ "scala/annotation/unchecked/2
+ scala/annotation/2
+ scala/2.
+  scala/annotation/unchecked/test.20
+ "scala/annotation/unchecked/test.L#2;
+ -scala/annotation/unchecked/test.L#`<init>`().2
+ 
+scala/Int#22
+ $scala/annotation/unchecked/test.L#a.27
+ )scala/annotation/unchecked/test.L#copy().25
+ 'scala/annotation/unchecked/test.L#_1().20
+ "scala/annotation/unchecked/test.L.28
+ *scala/annotation/unchecked/test.L.apply().2;
+ -scala/annotation/unchecked/uncheckedVariance#2F
+& &8scala/annotation/unchecked/uncheckedVariance#`<init>`().20
+7 G"scala/annotation/StaticAnnotation#2
+, 6scala/annotation/2
+& +scala/PZ 1FBC3CDCB450163136E90A4E1A1FCD72

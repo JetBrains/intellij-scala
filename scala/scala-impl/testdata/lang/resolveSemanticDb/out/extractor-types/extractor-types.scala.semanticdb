@@ -1,0 +1,64 @@
+
+­tests/pos/extractor-types.scala*
+p1/Ex.
+ *Ex€* 
+p1/Ex.unapply().*unapply€*
+p1/Ex.unapply().(p)*p€*
+p1/Foo.
+ *Foo€*
+	p2/Other#*Other€*&
+p2/Other#`<init>`(). €@*<init>€*
+p2/Other#Quux#*Quux€*+
+p2/Other#Quux#`<init>`(). €@*<init>€*
+p2/Other#Baz.
+ *Baz€*'
+p2/Other#Baz.unapply().*unapply€*$
+p2/Other#Baz.unapply().(x)*x€*
+p2/Reifiers#*Reifiers€*)
+p2/Reifiers#`<init>`(). €@*<init>€*
+p2/Reifiers#f().*f€*
+local0 €*u2€*
+local1 €*x€2
+ 
+p1/2
+	 p1/Ex.2
+ p1/Ex.unapply().2!
+ p1/Ex.unapply().(p)2
+ !
+scala/Any#2
+$ *scala/Option#2
+0 3
+scala/Int#2
+	 p1/Foo.2
+ p1/Ex.unapply().2
+ p1/Ex.2
+ 
+p2/2
+ 	p2/Other#2"
+ p2/Other#`<init>`().2
+
+ p2/Other#Quux#2'
+ p2/Other#Quux#`<init>`().2
+ p2/Other#Baz.2%
+ p2/Other#Baz.unapply().2(
+ p2/Other#Baz.unapply().(x)2
+  #
+scala/Any#2
+& ,scala/Option#2
+- 1p2/Other#Quux#2
+5 9scala/None.2
+ p2/Reifiers#2%
+ p2/Reifiers#`<init>`().2
+ 	p2/Reifiers#f().2
+ scala/Unit#2
+
+ local02
+ 	p2/Other#2
+ 
+scala/Any#2%
+% %p2/Other#Baz.unapply().2
+" %p2/Other#Baz.2
+ !local02
+& 'local12'
+, 3scala/Predef.println(+1).2
+4 5local1PZ 3F07523FA1895A2362E05183E40A3CCF

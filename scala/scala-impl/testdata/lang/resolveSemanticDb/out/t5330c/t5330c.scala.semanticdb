@@ -1,0 +1,25 @@
+
+Ótests/pos/t5330c.scala* 
+_empty_/t5330c.
+ *t5330c€*
+_empty_/t5330c.s. €*s€*
+local0*c€2
+ _empty_/t5330c.2
+ _empty_/t5330c.s.2
+	 scala/Predef.Set#2
+ scala/Char#27
+ )scala/collection/IterableFactory#apply().2
+ scala/Predef.Set.28
+ 
+*scala/collection/IterableOnceOps#forall().2
+ _empty_/t5330c.s.21
+ #scala/collection/SeqOps#contains().26
+ (scala/LowPriorityImplicits#wrapString().28
+ 
+*scala/collection/IterableOnceOps#forall().2
+ _empty_/t5330c.s.2
+ local021
+ %#scala/collection/SeqOps#contains().25
+ 'scala/collection/immutable/Seq#toSeq().26
+ (scala/LowPriorityImplicits#wrapString().2
+' (local0PZ BC9603DE26041089055E1713B9BD9F71

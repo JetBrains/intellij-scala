@@ -1,0 +1,398 @@
+
+¿etests/pos/t3578.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.JValue# *JValue€*1
+_empty_/Test.JValue#`<init>`(). €@*<init>€*&
+_empty_/Test.JValue#`++`().*++€*0
+"_empty_/Test.JValue#`++`().(other)*other€*
+local0*append€*
+local1*value1€*
+local2*value2€*
+local3 €*x€*
+local4 €*x€*
+local5 €*xs€*
+local6 €*x€*
+local7 €*x€*
+local8 €*xs€*
+local9 €*xs€*
+local10 €*ys€*
+local11 €*xs€*
+local12 €*v€*
+local13 €*v€*
+local14 €*xs€*
+local15 €*f1€*
+local16 €*f2€*
+local17 €*n€*
+local18 €*v1€*
+local19 €*v2€*
+local20 €*x€*
+local21 €*y€**
+_empty_/Test.JNothing.
+ ˆ*JNothing€*$
+_empty_/Test.JNull.
+ ˆ*JNull€*(
+_empty_/Test.JString# €*JString€*2
+ _empty_/Test.JString#`<init>`(). €@*<init>€*0
+#_empty_/Test.JString#`<init>`().(s) €*s€*$
+_empty_/Test.JString#s. €*s€*)
+_empty_/Test.JString#copy().*copy€*)
+_empty_/Test.JString#copy().(s)*s€*=
+&_empty_/Test.JString#copy$default$1().*copy$default$1€*%
+_empty_/Test.JString#_1().*_1€*'
+_empty_/Test.JString.
+ *JString€*+
+_empty_/Test.JString.apply().*apply€**
+ _empty_/Test.JString.apply().(s)*s€*/
+_empty_/Test.JString.unapply().*unapply€*0
+$_empty_/Test.JString.unapply().(x$1)*x$1€*1
+ _empty_/Test.JString.toString().*toString€*(
+_empty_/Test.JDouble# €*JDouble€*2
+ _empty_/Test.JDouble#`<init>`(). €@*<init>€*4
+%_empty_/Test.JDouble#`<init>`().(num) €*num€*(
+_empty_/Test.JDouble#num. €*num€*)
+_empty_/Test.JDouble#copy().*copy€*-
+!_empty_/Test.JDouble#copy().(num)*num€*=
+&_empty_/Test.JDouble#copy$default$1().*copy$default$1€*%
+_empty_/Test.JDouble#_1().*_1€*'
+_empty_/Test.JDouble.
+ *JDouble€*+
+_empty_/Test.JDouble.apply().*apply€*.
+"_empty_/Test.JDouble.apply().(num)*num€*/
+_empty_/Test.JDouble.unapply().*unapply€*0
+$_empty_/Test.JDouble.unapply().(x$1)*x$1€*1
+ _empty_/Test.JDouble.toString().*toString€*"
+_empty_/Test.JInt# €*JInt€*/
+_empty_/Test.JInt#`<init>`(). €@*<init>€*1
+"_empty_/Test.JInt#`<init>`().(num) €*num€*%
+_empty_/Test.JInt#num. €*num€*&
+_empty_/Test.JInt#copy().*copy€**
+_empty_/Test.JInt#copy().(num)*num€*:
+#_empty_/Test.JInt#copy$default$1().*copy$default$1€*"
+_empty_/Test.JInt#_1().*_1€*!
+_empty_/Test.JInt.
+ *JInt€*(
+_empty_/Test.JInt.apply().*apply€*+
+_empty_/Test.JInt.apply().(num)*num€*,
+_empty_/Test.JInt.unapply().*unapply€*-
+!_empty_/Test.JInt.unapply().(x$1)*x$1€*.
+_empty_/Test.JInt.toString().*toString€*$
+_empty_/Test.JBool# €*JBool€*0
+_empty_/Test.JBool#`<init>`(). €@*<init>€*6
+%_empty_/Test.JBool#`<init>`().(value) €*value€**
+_empty_/Test.JBool#value. €*value€*'
+_empty_/Test.JBool#copy().*copy€*/
+!_empty_/Test.JBool#copy().(value)*value€*;
+$_empty_/Test.JBool#copy$default$1().*copy$default$1€*#
+_empty_/Test.JBool#_1().*_1€*#
+_empty_/Test.JBool.
+ *JBool€*)
+_empty_/Test.JBool.apply().*apply€*0
+"_empty_/Test.JBool.apply().(value)*value€*-
+_empty_/Test.JBool.unapply().*unapply€*.
+"_empty_/Test.JBool.unapply().(x$1)*x$1€*/
+_empty_/Test.JBool.toString().*toString€*&
+_empty_/Test.JField# €*JField€*1
+_empty_/Test.JField#`<init>`(). €@*<init>€*5
+%_empty_/Test.JField#`<init>`().(name) €*name€*7
+&_empty_/Test.JField#`<init>`().(value) €*value€*)
+_empty_/Test.JField#name. €*name€*+
+_empty_/Test.JField#value. €*value€*(
+_empty_/Test.JField#copy().*copy€*.
+!_empty_/Test.JField#copy().(name)*name€*0
+"_empty_/Test.JField#copy().(value)*value€*<
+%_empty_/Test.JField#copy$default$1().*copy$default$1€*<
+%_empty_/Test.JField#copy$default$2().*copy$default$2€*$
+_empty_/Test.JField#_1().*_1€*$
+_empty_/Test.JField#_2().*_2€*%
+_empty_/Test.JField.
+ *JField€**
+_empty_/Test.JField.apply().*apply€*/
+"_empty_/Test.JField.apply().(name)*name€*1
+#_empty_/Test.JField.apply().(value)*value€*.
+_empty_/Test.JField.unapply().*unapply€*/
+#_empty_/Test.JField.unapply().(x$1)*x$1€*0
+_empty_/Test.JField.toString().*toString€*(
+_empty_/Test.JObject# €*JObject€*2
+ _empty_/Test.JObject#`<init>`(). €@*<init>€*4
+%_empty_/Test.JObject#`<init>`().(obj) €*obj€*(
+_empty_/Test.JObject#obj. €*obj€*)
+_empty_/Test.JObject#copy().*copy€*-
+!_empty_/Test.JObject#copy().(obj)*obj€*=
+&_empty_/Test.JObject#copy$default$1().*copy$default$1€*%
+_empty_/Test.JObject#_1().*_1€*'
+_empty_/Test.JObject.
+ *JObject€*+
+_empty_/Test.JObject.apply().*apply€*.
+"_empty_/Test.JObject.apply().(obj)*obj€*/
+_empty_/Test.JObject.unapply().*unapply€*0
+$_empty_/Test.JObject.unapply().(x$1)*x$1€*1
+ _empty_/Test.JObject.toString().*toString€*&
+_empty_/Test.JArray# €*JArray€*1
+_empty_/Test.JArray#`<init>`(). €@*<init>€*3
+$_empty_/Test.JArray#`<init>`().(arr) €*arr€*'
+_empty_/Test.JArray#arr. €*arr€*(
+_empty_/Test.JArray#copy().*copy€*,
+ _empty_/Test.JArray#copy().(arr)*arr€*<
+%_empty_/Test.JArray#copy$default$1().*copy$default$1€*$
+_empty_/Test.JArray#_1().*_1€*%
+_empty_/Test.JArray.
+ *JArray€**
+_empty_/Test.JArray.apply().*apply€*-
+!_empty_/Test.JArray.apply().(arr)*arr€*.
+_empty_/Test.JArray.unapply().*unapply€*/
+#_empty_/Test.JArray.unapply().(x$1)*x$1€*0
+_empty_/Test.JArray.toString().*toString€2
+ _empty_/Test.2"
+ _empty_/Test.JValue#2-
+ _empty_/Test.JValue#`<init>`().2)
+ 
+_empty_/Test.JValue#`++`().20
+ "_empty_/Test.JValue#`++`().(other)2"
+ _empty_/Test.JValue#2
+
+ local02
+ local12"
+ _empty_/Test.JValue#2
+! 'local22"
+) /_empty_/Test.JValue#2"
+2 8_empty_/Test.JValue#2#
+< <scala/Tuple2.apply().2
+< Blocal12
+D Jlocal22%
+
+ 
+scala/Tuple2.unapply().2$
+
+ _empty_/Test.JNothing.2
+ local32
+ local32%
+
+ 
+scala/Tuple2.unapply().2
+
+ local42$
+ _empty_/Test.JNothing.2
+ local42%
+
+ 
+scala/Tuple2.unapply().2-
+ _empty_/Test.JObject.unapply().2#
+
+ _empty_/Test.JObject.2
+ local52
+ local62"
+  _empty_/Test.JField#2+
+, ,_empty_/Test.JObject.apply().2#
+% ,_empty_/Test.JObject.26
+; ;(scala/collection/immutable/List#`:::`().27
+8 8)scala/collection/IterableFactory#apply().2!
+4 8scala/package.List.2
+9 :local62
+- /local52%
+
+ 
+scala/Tuple2.unapply().2
+
+ local72"
+ _empty_/Test.JField#2-
+ _empty_/Test.JObject.unapply().2#
+ _empty_/Test.JObject.2
+ local82+
+, ,_empty_/Test.JObject.apply().2#
+% ,_empty_/Test.JObject.25
+4 4'scala/collection/immutable/List#`::`().2
+2 4local82
+- .local72%
+
+ 
+scala/Tuple2.unapply().2,
+ _empty_/Test.JArray.unapply().2"
+
+ _empty_/Test.JArray.2
+ local92,
+ _empty_/Test.JArray.unapply().2"
+ _empty_/Test.JArray.2
+ local102*
++ +_empty_/Test.JArray.apply().2"
+% +_empty_/Test.JArray.26
+5 5(scala/collection/immutable/List#`:::`().2
+3 5local102
+, .local92%
+	
+	 
+scala/Tuple2.unapply().2,
+		 _empty_/Test.JArray.unapply().2"
+	
+	 _empty_/Test.JArray.2
+		 local112
+		 local122"
+		 _empty_/Test.JValue#2*
+	*	 *_empty_/Test.JArray.apply().2"
+	$	 *_empty_/Test.JArray.26
+	9	 9(scala/collection/immutable/List#`:::`().27
+	6	 6)scala/collection/IterableFactory#apply().2!
+	2	 6scala/package.List.2
+	7	 8local122
+	+	 -local112%
+
+
+
+ 
+scala/Tuple2.unapply().2
+
+
+
+ local132"
+
+
+ _empty_/Test.JValue#2,
+
+
+ _empty_/Test.JArray.unapply().2"
+
+
+ _empty_/Test.JArray.2
+
+
+ local142*
+
+*
+ *_empty_/Test.JArray.apply().2"
+
+$
+ *_empty_/Test.JArray.25
+
+2
+ 2'scala/collection/immutable/List#`::`().2
+
+0
+ 2local142
+
++
+ ,local132%
+
+ 
+scala/Tuple2.unapply().2
+
+ local152"
+ _empty_/Test.JField#2
+ local162"
+  _empty_/Test.JField#2+
+, ,_empty_/Test.JObject.apply().2#
+% ,_empty_/Test.JObject.25
+< <'scala/collection/immutable/List#`::`().2 
+9 <scala/package.Nil.2
+3 5local162
+- /local152%
+
+ 
+scala/Tuple2.unapply().2,
+ _empty_/Test.JField.unapply().2"
+
+ _empty_/Test.JField.2
+ local172
+ local182
+ local192"
+ #_empty_/Test.JValue#2*
+. ._empty_/Test.JField.apply().2"
+( ._empty_/Test.JField.2
+/ 0local172
+2 8local02
+9 ;local182
+= ?local192%
+
+ 
+scala/Tuple2.unapply().2
+
+ local202
+ local212*
+ _empty_/Test.JArray.apply().2"
+ _empty_/Test.JArray.25
+' ''scala/collection/immutable/List#`::`().2 
+$ 'scala/package.Nil.2
+  local212
+ local202
+ local020
+ "_empty_/Test.JValue#`++`().(other)2$
+ _empty_/Test.JNothing.2-
+% %_empty_/Test.JValue#`<init>`().2"
+ %_empty_/Test.JValue#2!
+ _empty_/Test.JNull.2-
+" "_empty_/Test.JValue#`<init>`().2"
+ "_empty_/Test.JValue#2#
+ _empty_/Test.JString#2.
+  _empty_/Test.JString#`<init>`().2"
+ scala/Predef.String#2-
+. ._empty_/Test.JValue#`<init>`().2"
+( ._empty_/Test.JValue#2%
+ _empty_/Test.JString#s.2*
+ _empty_/Test.JString#copy().2(
+ _empty_/Test.JString#_1().2#
+ _empty_/Test.JString.2+
+ _empty_/Test.JString.apply().2#
+ _empty_/Test.JDouble#2.
+  _empty_/Test.JDouble#`<init>`().2
+  scala/Double#2-
+0 0_empty_/Test.JValue#`<init>`().2"
+* 0_empty_/Test.JValue#2'
+ _empty_/Test.JDouble#num.2*
+ _empty_/Test.JDouble#copy().2(
+ _empty_/Test.JDouble#_1().2#
+ _empty_/Test.JDouble.2+
+ _empty_/Test.JDouble.apply().2 
+ _empty_/Test.JInt#2+
+ _empty_/Test.JInt#`<init>`().2#
+ scala/package.BigInt#2-
+- -_empty_/Test.JValue#`<init>`().2"
+' -_empty_/Test.JValue#2$
+ _empty_/Test.JInt#num.2'
+ _empty_/Test.JInt#copy().2%
+ _empty_/Test.JInt#_1().2 
+ _empty_/Test.JInt.2(
+ _empty_/Test.JInt.apply().2!
+ _empty_/Test.JBool#2,
+ _empty_/Test.JBool#`<init>`().2
+ !scala/Boolean#2-
+1 1_empty_/Test.JValue#`<init>`().2"
++ 1_empty_/Test.JValue#2'
+ _empty_/Test.JBool#value.2(
+ _empty_/Test.JBool#copy().2&
+ _empty_/Test.JBool#_1().2!
+ _empty_/Test.JBool.2)
+ _empty_/Test.JBool.apply().2"
+ _empty_/Test.JField#2-
+ _empty_/Test.JField#`<init>`().2"
+  scala/Predef.String#2"
+) /_empty_/Test.JValue#2-
+? ?_empty_/Test.JValue#`<init>`().2"
+9 ?_empty_/Test.JValue#2'
+ _empty_/Test.JField#name.2(
+" '_empty_/Test.JField#value.2)
+ _empty_/Test.JField#copy().2'
+ _empty_/Test.JField#_1().2'
+) )_empty_/Test.JField#_2().2"
+ _empty_/Test.JField.2*
+ _empty_/Test.JField.apply().2#
+ _empty_/Test.JObject#2.
+  _empty_/Test.JObject#`<init>`().2!
+ scala/package.List#2"
+ %_empty_/Test.JField#2-
+6 6_empty_/Test.JValue#`<init>`().2"
+0 6_empty_/Test.JValue#2'
+ _empty_/Test.JObject#obj.2*
+ _empty_/Test.JObject#copy().2(
+ _empty_/Test.JObject#_1().2#
+ _empty_/Test.JObject.2+
+ _empty_/Test.JObject.apply().2"
+ _empty_/Test.JArray#2-
+ _empty_/Test.JArray#`<init>`().2!
+ scala/package.List#2"
+ $_empty_/Test.JValue#2-
+5 5_empty_/Test.JValue#`<init>`().2"
+/ 5_empty_/Test.JValue#2&
+ _empty_/Test.JArray#arr.2)
+ _empty_/Test.JArray#copy().2'
+ _empty_/Test.JArray#_1().2"
+ _empty_/Test.JArray.2*
+ _empty_/Test.JArray.apply().PZ 1AA7C392C1383AD39360CC7FE1CA4B75

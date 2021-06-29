@@ -1,0 +1,22 @@
+
+Àtests/pos/t6231b.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#f1().*f1€*
+_empty_/Test#f1().(t)*t€*
+local0*T€*
+local1*xs€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2 
+ _empty_/Test#f1().2#
+	 
+_empty_/Test#f1().(t)2"
+ scala/Predef.String#2
+
+ local02
+
+ local124
+ &scala/collection/immutable/List#map().2 
+ scala/package.Nil.2#
+ _empty_/Test#f1().(t)PZ FE3BB6C66D624548CC47F5322F2D9412

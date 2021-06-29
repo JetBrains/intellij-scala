@@ -1,0 +1,41 @@
+
+¡tests/pos/companions.scala*(
+_empty_/companions.
+ *
+companions€*%
+_empty_/companions.foo().*foo€*
+local0*C€*
+local3 €*q€*
+local4
+ *C€*
+local1 €*p€**
+_empty_/companions2.
+ *companions2€*&
+_empty_/companions2.foo().*foo€*
+local5*C€*
+local8
+ *C€*
+local6 €*p€2
+ _empty_/companions.2'
+ 	_empty_/companions.foo().2
+
+ local02'
+ scala/Predef.println(+1).2
+ local12
+ local22
+ local32
+		 local42
+
+
+ local12'
+ scala/Predef.println(+1).2
+ local32
+ local02"
+ _empty_/companions2.2(
+ 	_empty_/companions2.foo().2
+ local52'
+ scala/Predef.println(+1).2
+ local62
+ local72
+ local82
+ local6PZ A3027711FDF1FD2C52122EDD3A749E54

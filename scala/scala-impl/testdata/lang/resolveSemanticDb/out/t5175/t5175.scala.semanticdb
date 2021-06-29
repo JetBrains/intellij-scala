@@ -1,0 +1,23 @@
+
+“tests/pos/t5175.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.`==`().*==€*!
+_empty_/Test.`==`().(p)*p€*
+_empty_/Test.foo().*foo€*
+_empty_/Phase#*Phase€*+
+_empty_/Phase#`<init>`(). €@*<init>€2
+ _empty_/Test.2"
+ _empty_/Test.`==`().2%
+	 
+_empty_/Test.`==`().(p)2
+ _empty_/Phase#2
+ 
+scala/Int#2!
+ 	_empty_/Test.foo().2
+ scala/Unit#2"
+ _empty_/Test.`==`().2'
+ _empty_/Phase#`<init>`().2
+ _empty_/Phase#2
+ _empty_/Phase#2#
+_empty_/Phase#`<init>`().PZ F20E0D96147F2BC24D1ADC9356D0C996

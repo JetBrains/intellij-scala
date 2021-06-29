@@ -1,0 +1,92 @@
+
+‘tests/pos/i1365.scala* 
+_empty_/Message#*Message€*-
+_empty_/Message#`<init>`(). €@*<init>€*
+_empty_/Message#[M]	*M€*
+_empty_/Script#*Script€*,
+_empty_/Script#`<init>`(). €@*<init>€*
+_empty_/Script#[S]	*S€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#[A]	*A€*
+_empty_/Test#f().*f€*"
+_empty_/Test#f().(cmd)*cmd€*
+local0 €*s€*
+local1*x€*
+_empty_/Test#g().*g€*"
+_empty_/Test#g().(cmd)*cmd€*
+local2 €*s€*
+local3 €	*z€*
+local4*x€2/
+  +%scala/collection/mutable/ArrayBuffer.2/
+  +%scala/collection/mutable/ArrayBuffer#2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ _empty_/Message#2)
+ _empty_/Message#`<init>`().2!
+ _empty_/Message#[M]2
+ _empty_/Script#2(
+ _empty_/Script#`<init>`().2@
+/ /2scala/collection/mutable/ArrayBuffer#`<init>`(+1).23
+ #%scala/collection/mutable/ArrayBuffer#2
+$ +_empty_/Message#2 
+, -_empty_/Script#[S]2
+5 <_empty_/Message#2 
+= >_empty_/Script#[S]2 
+ _empty_/Script#[S]2
+ 
+_empty_/Test#2&
+
+ 
+_empty_/Test#`<init>`().2
+ _empty_/Test#[A]2
+ _empty_/Test#f().2$
+ _empty_/Test#f().(cmd)2
+ _empty_/Message#2
+ _empty_/Test#[A]2
+ scala/Unit#2$
+! $_empty_/Test#f().(cmd)2
+	 
+local02
+ _empty_/Script#29
+$ ++scala/collection/IterableOnceOps#foreach().28
+ #*scala/collection/IndexedSeqOps#iterator().2
+ local02
+, -local12
+1 2_empty_/Test#f().2
+3 4local12
+		 _empty_/Test#g().2$
+		 _empty_/Test#g().(cmd)2
+		 _empty_/Message#2
+		 _empty_/Test#[A]2
+		 scala/Unit#2$
+	!	 $_empty_/Test#g().(cmd)2
+
+	
+ 
+local22
+
+
+ _empty_/Script#2
+
+
+ local329
+
+$
+ ++scala/collection/IterableOnceOps#foreach().28
+
+
+ #*scala/collection/IndexedSeqOps#iterator().2
+
+
+ local22
+
+,
+ -local42
+
+1
+ 2_empty_/Test#g().2
+
+3
+ 4local4PZ 33B105E411A6E2B8C82F267CAE150587

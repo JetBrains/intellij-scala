@@ -1,0 +1,11 @@
+
+›tests/pos/t5031_3/package.scala*
+foo/bar/package. *bar€* 
+foo/bar/package.Foo#*Foo€2
+ foo/2
+ foo/bar/package.2"
+ 
+foo/bar/package.Foo#2
+ 
+scala/Int#2"
+ scala/Predef.String#PZ ED13EE844537DBF80CF1988B8158813E

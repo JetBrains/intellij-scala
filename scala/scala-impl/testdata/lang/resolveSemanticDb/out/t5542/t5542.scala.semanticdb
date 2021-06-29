@@ -1,0 +1,15 @@
+
+¤tests/pos/t5542.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+local0 €*n€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2#
+ scala/Option.apply().2
+ scala/Option.2#
+ scala/Some.unapply().2
+ scala/Some.2
+ local02
+$ %local02
+, 0scala/None.PZ 12753983ACA95A8707AD6E9621983DDD

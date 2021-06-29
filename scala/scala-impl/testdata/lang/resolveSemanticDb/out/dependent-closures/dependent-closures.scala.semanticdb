@@ -1,0 +1,173 @@
+
+ó"tests/pos/dependent-closures.scala*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*
+_empty_/S#N#*N€*
+_empty_/S#n(). *n€*7
+%_empty_/`dependent-closures$package`. *_empty_€*9
+,_empty_/`dependent-closures$package`.newS().*newS€*9
+/_empty_/`dependent-closures$package`.newS().[X]	*X€*9
+/_empty_/`dependent-closures$package`.newS().(n)*n€*
+local0*N€*9
+,_empty_/`dependent-closures$package`.test().*test€*
+local1 €*ss€*
+local2 €*cl1€*
+local3*s€*
+local4 €*cl2€*
+local5 *apply€*
+local6*s€*
+local7*N€*
+local8*f€*
+local9	*R€*
+local10*cl€*
+local11 *apply€*
+local12*s€*
+local13 €*x€*
+local14*s€*
+local15 €*x1€*
+local16 *apply€*
+local17*s€*
+local18*s€*
+local19*g€*
+local20	*R€*
+local21*cl€*
+local22 *apply€*
+local23*s€*
+local24*N€*
+local25*s€*
+local26*h€*
+local27*cl€*
+local28 *apply€*
+local29*s€*
+local30*N€*
+local31*s€2
+ 
+_empty_/S#2
+
+ 
+_empty_/S#`<init>`().2
+ _empty_/S#N#2
+ _empty_/S#n().2
+ _empty_/S#N#2/
+%_empty_/`dependent-closures$package`.2:
+ ,_empty_/`dependent-closures$package`.newS().2=
+	 
+/_empty_/`dependent-closures$package`.newS().[X]2=
+ /_empty_/`dependent-closures$package`.newS().(n)2=
+ /_empty_/`dependent-closures$package`.newS().[X]2
+ 
+_empty_/S#2
+ local02=
+  !/_empty_/`dependent-closures$package`.newS().[X]2#
+& )scala/Predef.`???`().2:
+ ,_empty_/`dependent-closures$package`.test().2
+ local12!
+
+ scala/package.List#2
+ 
+_empty_/S#2#
+ scala/Predef.`???`().2
+ 	local22
+ local32
+ 
+_empty_/S#2:
+ ,_empty_/`dependent-closures$package`.newS().2
+ _empty_/S#n().2
+ local32
+ 	local42
+ 
+_empty_/S#2
+ local52
+ local62
+ 
+_empty_/S#2
+ local72
+$ %_empty_/S#N#2
+" #local62
+* -local22
+ local82
+ 	local92
+ local102
+ 
+_empty_/S#2
+ local112
+ local122
+ local92
+  local102
+		 local132
+	
+	 local82
+		 local142:
+		 ,_empty_/`dependent-closures$package`.newS().2
+		 _empty_/S#n().2
+		 local142
+
+
+ local152
+
+
+ 
+_empty_/S#2
+
+
+ local162
+
+
+ local172
+
+
+ 
+_empty_/S#2
+
+
+ local1324
+ &scala/collection/immutable/List#map().2
+ local12
+	 
+local182:
+ ,_empty_/`dependent-closures$package`.newS().2
+ _empty_/S#n().2
+ local182
+ local192
+ 	local202
+ local212
+ 
+_empty_/S#2
+ local222
+ local232
+ 
+_empty_/S#2
+# $local242
+) *_empty_/S#N#2
+' (local232
+. /local202#
+4 7scala/Predef.`???`().2
+ local192
+ local252#
+
+ 
+scala/Tuple2.apply().2:
+
+ ,_empty_/`dependent-closures$package`.newS().2
+ _empty_/S#n().2
+ local252&
+ scala/Predef.identity().2
+ local262
+ 
+local272
+ 
+_empty_/S#2
+ local282
+ local292
+ 
+_empty_/S#2
+  local302
+% &_empty_/S#N#2
+# $local292#
+, /scala/Predef.`???`().2
+ local262
+ local312:
+	 ,_empty_/`dependent-closures$package`.newS().2
+ _empty_/S#n().2
+ local31PZ 1F77FA82FB492A51B53CD2F5AAA71351

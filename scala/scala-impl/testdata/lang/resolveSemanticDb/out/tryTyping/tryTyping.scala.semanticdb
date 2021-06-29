@@ -1,0 +1,57 @@
+
+Ñ	tests/pos/tryTyping.scala*&
+_empty_/tryTyping.
+ *	tryTyping€*$
+_empty_/tryTyping.foo().*foo€*
+local0 €*e€*&
+_empty_/tryTyping.foo2().*foo2€*
+local1 €*a2€*
+local2 €*ex€*&
+_empty_/tryTyping.foo3().*foo3€*
+local3 €*a3€*
+local4*b€*
+local5 €*ex€2
+ _empty_/tryTyping.2&
+ 	_empty_/tryTyping.foo().2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ local02&
+ scala/package.Exception#2'
+ 
+_empty_/tryTyping.foo2().2
+ 
+scala/Int#2
+		 
+local12&
+		 scala/package.Throwable#2
+		 
+scala/Int#2#
+
+
+ scala/Predef.`???`().2&
+ scala/Function1#apply().2
+
+ local12
+ local22'
+ 
+_empty_/tryTyping.foo3().2
+ 
+scala/Int#2
+ 
+local32
+ 
+scala/Int#2&
+ scala/package.Throwable#2
+! $
+scala/Int#2
+) *local42
+, /
+scala/Int#2
+G Hlocal42#
+ scala/Predef.`???`().2&
+ scala/Function1#apply().2&
+ scala/Function1#apply().2
+
+ local32
+ local5PZ 53CAAB4E0A20FF414824CDD951AB95EA

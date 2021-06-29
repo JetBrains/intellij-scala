@@ -1,0 +1,29 @@
+
+Ìtests/pos/t1237.scala*&
+_empty_/HelloWorld#*
+HelloWorld€*0
+_empty_/HelloWorld#`<init>`(). €@*<init>€*'
+_empty_/HelloWorld#main().*main€*-
+ _empty_/HelloWorld#main().(args)*args€*
+local0
+ *TypeBool€*
+local1*Fct€*
+local2*g€*
+local3*x€2
+ _empty_/HelloWorld#2,
+ _empty_/HelloWorld#`<init>`().2(
+ 
+_empty_/HelloWorld#main().2.
+  _empty_/HelloWorld#main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02
+
+ local12
+
+ local22
+ local32
+ 
+scala/Int#2
+ local4PZ 0D55110F5ECC30B27DAA4F1C2FC129A0

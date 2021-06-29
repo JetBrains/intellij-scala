@@ -1,0 +1,78 @@
+
+«tests/pos/t3883.scala*
+_empty_/A1.
+ *A1€*
+_empty_/A1.i().  *i€*
+_empty_/A1.div().  *div€*
+_empty_/A1.div().[T]	*T€*
+_empty_/A1.div().[A]	*A€* 
+_empty_/A1.div().(f)  *f€*"
+_empty_/A1.div().(eq)  *eq€*
+_empty_/A2.
+ *A2€*
+_empty_/A2.div().  *div€*
+_empty_/A2.div().[T]	*T€*
+_empty_/A2.div().[A]	*A€* 
+_empty_/A2.div().(f)  *f€*"
+_empty_/A2.div().(eq)  *eq€*
+_empty_/A2.i().  *i€2
+ 	_empty_/A1.2
+ _empty_/A1.i().2"
+ scala/package.Equiv#2
+ scala/Boolean#2(
+' ,scala/sys/package.error().2
+# &
+scala/sys/2
+ _empty_/A1.div().2"
+ _empty_/A1.div().[T]2"
+ _empty_/A1.div().[A]2"
+" #_empty_/A1.div().(f)2"
+% &_empty_/A1.div().[T]2"
+* +_empty_/A1.div().[A]2#
+- /_empty_/A1.div().(eq)2"
+1 6scala/package.Equiv#2"
+7 8_empty_/A1.div().[A]2"
+< Ascala/package.Equiv#2"
+B C_empty_/A1.div().[T]2(
+K Pscala/sys/package.error().2
+G J
+scala/sys/2(
+ scala/Predef.implicitly().2"
+ scala/package.Equiv#2
+ scala/Boolean#2
+ _empty_/A1.i().2
+ 	_empty_/A2.2
+		 _empty_/A2.div().2"
+		 _empty_/A2.div().[T]2"
+		 _empty_/A2.div().[A]2"
+	"	 #_empty_/A2.div().(f)2"
+	%	 &_empty_/A2.div().[T]2"
+	*	 +_empty_/A2.div().[A]2#
+	-	 /_empty_/A2.div().(eq)2"
+	1	 6scala/package.Equiv#2"
+	7	 8_empty_/A2.div().[A]2"
+	<	 Ascala/package.Equiv#2"
+	B	 C_empty_/A2.div().[T]2(
+	K	 Pscala/sys/package.error().2
+	G	 J
+scala/sys/2
+
+
+ _empty_/A2.i().2"
+
+
+ scala/package.Equiv#2
+
+
+ scala/Boolean#2(
+
+'
+ ,scala/sys/package.error().2
+
+#
+ &
+scala/sys/2(
+ scala/Predef.implicitly().2"
+ scala/package.Equiv#2
+ scala/Boolean#2
+ _empty_/A2.i().PZ A02FBB63BA5D42B2FBC7ABB67F139EC7

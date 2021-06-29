@@ -1,0 +1,13 @@
+
+§tests/pos/i3302/A.scala*
+test/A.
+ *A€*
+test/A.apply().*apply€*
+test/A.apply().(x)*x€2
+ test/2
+ test/A.2
+ test/2
+ test/A.apply().2 
+ test/A.apply().(x)2
+  #
+scala/Int#PZ 2030748F31C0CCD6C16CC824AB214559

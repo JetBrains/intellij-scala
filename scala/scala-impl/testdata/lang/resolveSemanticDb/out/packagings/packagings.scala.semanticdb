@@ -1,0 +1,30 @@
+
+îtests/pos/packagings.scala*
+
+foo/bar/A.
+ *A€*
+foo/bar/A.foo().*foo€*
+baz/B.
+ *B€*
+
+baz/B.f().*f€2
+ foo/2
+
+ foo/bar/2
+ 
+foo/bar/A.2
+
+ foo/bar/A.foo().2
+ 	foo/bar/2
+ foo/2
+ baz/2
+	 
+baz/B.2
+ 	
+baz/B.f().2
+ foo/bar/A.foo().2
+ 
+foo/bar/A.2
+ foo/bar/2
+ foo/2
+		 baz/PZ 2EC4831DBD104A5E1B5362A363E6F0E8

@@ -1,0 +1,44 @@
+
+Ô
+ tests/pos/varargs-position.scala*(
+_empty_/varargspos.
+ *
+varargspos€*!
+_empty_/varargspos.g().*g€*$
+_empty_/varargspos.g().(a)*a€*$
+_empty_/varargspos.g().(x)*x€*$
+_empty_/varargspos.xs. €*xs€*"
+_empty_/varargspos.a. €*a€*"
+_empty_/varargspos.b. €*b€2
+ _empty_/varargspos.2%
+ _empty_/varargspos.g().2(
+ 	_empty_/varargspos.g().(a)2
+ 
+scala/Int#2(
+ _empty_/varargspos.g().(x)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2(
+ _empty_/varargspos.g().(a)2/
+! '!scala/collection/SeqOps#length().2(
+  _empty_/varargspos.g().(x)2%
+ _empty_/varargspos.g().2$
+ _empty_/varargspos.xs.25
+ 'scala/collection/immutable/List#`::`().2 
+ scala/package.Nil.2#
+ _empty_/varargspos.a.2#
+ _empty_/varargspos.b.2%
+ _empty_/varargspos.g().2$
+ 	_empty_/varargspos.xs.2%
+ _empty_/varargspos.g().2 
+ 
+scala/package.Nil.2%
+ _empty_/varargspos.g().2#
+ _empty_/varargspos.a.2$
+ 	_empty_/varargspos.xs.2%
+		 _empty_/varargspos.g().2#
+		 _empty_/varargspos.a.2#
+		 _empty_/varargspos.b.2%
+
+
+ _empty_/varargspos.g().PZ E5D351772CBD33E8A19C846C3298343C

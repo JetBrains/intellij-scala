@@ -1,0 +1,23 @@
+
+‘tests/pos/i480.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.x. €*x€*
+local0*a€*
+_empty_/O.x2. €*x2€*
+local1*a€2
+ 
+_empty_/O.2
+ _empty_/O.x.2
+	 scala/Function1#2"
+ scala/Predef.String#2"
+ !scala/Predef.String#2
+% &local02
+* +local02
+ _empty_/O.x2.2
+
+ scala/Function1#2"
+ scala/Predef.String#2"
+ "scala/Predef.String#2
+& 'local1PZ 5DC54A19D73F8AD8EFFF3A2E2D032A65

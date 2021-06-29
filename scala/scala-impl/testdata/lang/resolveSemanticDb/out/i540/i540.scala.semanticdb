@@ -1,0 +1,27 @@
+
+•tests/pos/i540.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Univ.
+ *Univ€*!
+_empty_/Univ.univ().*univ€*!
+_empty_/Univ.univ().[T]	*T€*!
+_empty_/Univ.univ().(x)*x€*#
+_empty_/Univ.univ2().*univ2€*"
+_empty_/Univ.univ2().(x)*x€2
+ 	_empty_/Foo#2!
+ _empty_/Foo#`<init>`().2
+ 
+scala/Any#2
+ _empty_/Univ.2"
+ 
+_empty_/Univ.univ().2%
+ _empty_/Univ.univ().[T]2
+ _empty_/Foo#2%
+ _empty_/Univ.univ().(x)2
+ scala/Array#2%
+ _empty_/Univ.univ().[T]2#
+ _empty_/Univ.univ2().2&
+ _empty_/Univ.univ2().(x)2
+ scala/Array#2
+ _empty_/Foo#PZ F4A4C09F3C7EF3233EBC1251CEC1B47D

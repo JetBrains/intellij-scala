@@ -1,0 +1,59 @@
+
+¢tests/pos/spec-fields-old.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€**
+_empty_/Foo#`<init>`().(size)*size€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo#[U]	*U€*
+_empty_/Foo#x. €*x€*!
+_empty_/Foo#size. €*size€*
+_empty_/Foo#y(). „*y€*#
+_empty_/Foo#`y_=`(). €*y_=€*%
+_empty_/Foo#`y_=`().(x$1)*x$1€*
+_empty_/Foo#z(). €*z€*#
+_empty_/Foo#`z_=`(). €*z_=€*%
+_empty_/Foo#`z_=`().(x$1)*x$1€*.
+_empty_/Foo#initialSize().*initialSize€*#
+_empty_/Foo#array. €*array€* 
+_empty_/Foo#getZ().*getZ€* 
+_empty_/Foo#setZ().*setZ€*"
+_empty_/Foo#setZ().(zz)*zz€2
+ _empty_/Foo#2!
+ _empty_/Foo#`<init>`().2
+T U_empty_/Foo#[T]2
+] `
+scala/Int#2.
+1 >$scala/reflect/package.ClassManifest#2
+) 0scala/reflect/2
+# (scala/2
+> >_empty_/Foo#[T]2
+ scala/specialized#2
+  !_empty_/Foo#[T]2
+@ A_empty_/Foo#[U]2
+Q R_empty_/Foo#x.2
+W [_empty_/Foo#size.2
+ _empty_/Foo#y().2
+	 
+_empty_/Foo#[T]2"
+ 	_empty_/Foo#`y_=`().2
+ _empty_/Foo#z().2
+	 
+_empty_/Foo#[T]2
+ _empty_/Foo#x.2"
+ 	_empty_/Foo#`z_=`().2(
+ _empty_/Foo#initialSize().2 
+ _empty_/Foo#array.25
+ .'scala/runtime/Arrays.newGenericArray().2 
+' (scala/Int#`+`(+4).2(
+ &_empty_/Foo#initialSize().2
+) -_empty_/Foo#size.2!
+ 
+_empty_/Foo#getZ().2
+ _empty_/Foo#z().2!
+ 
+_empty_/Foo#setZ().2%
+ _empty_/Foo#setZ().(zz)2
+ _empty_/Foo#[T]2"
+ _empty_/Foo#`z_=`().2%
+ _empty_/Foo#setZ().(zz)PZ 713A1D2635CBCE7EB6EC049A10B90D1C

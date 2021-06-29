@@ -1,0 +1,58 @@
+
+‰$tests/pos/enum-companion-first.scala* 
+_empty_/Planet.
+ *Planet€*+
+_empty_/Planet.Mercury. €©*Mercury€*'
+_empty_/Planet.Venus. €©*Venus€**
+_empty_/Planet.$values. €*$values€*'
+_empty_/Planet.values().*values€*)
+_empty_/Planet.valueOf().*valueOf€*.
+ _empty_/Planet.valueOf().($name)*$name€*1
+_empty_/Planet.fromOrdinal().*fromOrdinal€*6
+&_empty_/Planet.fromOrdinal().(ordinal)*ordinal€*
+_empty_/Planet.G. ˆ*G€*"
+_empty_/Planet# ”€*Planet€*,
+_empty_/Planet#`<init>`(). €@*<init>€*-
+ _empty_/Planet#`<init>`().(mass)*mass€*1
+"_empty_/Planet#`<init>`().(radius)*radius€*$
+_empty_/Planet#mass. €*mass€*(
+_empty_/Planet#radius. €*radius€*7
+ _empty_/Planet#surfaceGravity().*surfaceGravity€*5
+_empty_/Planet#surfaceWeight().*surfaceWeight€*<
+*_empty_/Planet#surfaceWeight().(otherMass)*	otherMass€2
+ _empty_/Planet.2%
+ _empty_/Planet.Mercury.2(
+ _empty_/Planet#`<init>`().2
+ _empty_/Planet#2#
+ _empty_/Planet.Venus.2(
+ _empty_/Planet#`<init>`().2
+ _empty_/Planet#2%
+ _empty_/Planet.$values.2&
+ _empty_/Planet.values().2'
+ _empty_/Planet.valueOf().2+
+ _empty_/Planet.fromOrdinal().2
+ _empty_/Planet.G.2
+ _empty_/Planet#2(
+ _empty_/Planet#`<init>`().2
+ scala/Double#2
+" (scala/Double#2(
+> >java/lang/Enum#`<init>`().2
+2 6java/lang/Enum#2
+7 =_empty_/Planet#2"
+ _empty_/Planet#mass.2$
+  _empty_/Planet#radius.2.
+  _empty_/Planet#surfaceGravity().2#
+' (scala/Double#`/`(+6).2#
+  !scala/Double#`*`(+6).2
+ _empty_/Planet.G.2
+ _empty_/Planet.2"
+" &_empty_/Planet#mass.2#
+1 2scala/Double#`*`(+6).2$
+* 0_empty_/Planet#radius.2$
+3 9_empty_/Planet#radius.2-
+ _empty_/Planet#surfaceWeight().28
+ *_empty_/Planet#surfaceWeight().(otherMass)2
+ %scala/Double#2#
+4 5scala/Double#`*`(+6).28
+* 3*_empty_/Planet#surfaceWeight().(otherMass)2.
+6 D _empty_/Planet#surfaceGravity().PZ 681C58BB6F098DB6E7DCDE5D59B351E3

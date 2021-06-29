@@ -1,0 +1,105 @@
+
+Ètests/pos/i5588b.scala*&
+_empty_/TestMain2.
+ *	TestMain2€*&
+_empty_/TestMain2.main().*main€*,
+_empty_/TestMain2.main().(args)*args€*%
+_empty_/TestMain2.Foo# €*Foo€*3
+!_empty_/TestMain2.Foo#`<init>`(). €@*<init>€*5
+&_empty_/TestMain2.Foo#`<init>`().(foo) €*foo€*+
+_empty_/TestMain2.Foo#foo(). €*foo€*1
+ _empty_/TestMain2.Foo#`foo_=`(). €*foo_=€*1
+%_empty_/TestMain2.Foo#`foo_=`().(x$1)*x$1€**
+_empty_/TestMain2.Foo#copy().*copy€*.
+"_empty_/TestMain2.Foo#copy().(foo)*foo€*>
+'_empty_/TestMain2.Foo#copy$default$1().*copy$default$1€*&
+_empty_/TestMain2.Foo#_1().*_1€*$
+_empty_/TestMain2.Foo.
+ *Foo€*,
+_empty_/TestMain2.Foo.apply().*apply€*/
+#_empty_/TestMain2.Foo.apply().(foo)*foo€*0
+ _empty_/TestMain2.Foo.unapply().*unapply€*1
+%_empty_/TestMain2.Foo.unapply().(x$1)*x$1€*2
+!_empty_/TestMain2.Foo.toString().*toString€**
+_empty_/TestMain2.fooExt.
+ (*fooExt€*1
+"_empty_/TestMain2.fooExt.fooExt().*fooExt€*;
++_empty_/TestMain2.fooExt.fooExt().(thisFoo)*thisFoo€*7
+&_empty_/TestMain2.fooExt.`fooExt_=`().*fooExt_=€*?
+/_empty_/TestMain2.fooExt.`fooExt_=`().(thisFoo)*thisFoo€*;
+-_empty_/TestMain2.fooExt.`fooExt_=`().(value)*value€*H
+*_empty_/TestMain2.testExtensionProperty().*testExtensionProperty€*
+local0 €*foo€2
+ _empty_/TestMain2.2'
+ 
+_empty_/TestMain2.main().2-
+ _empty_/TestMain2.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#28
+ *_empty_/TestMain2.testExtensionProperty().2$
+ _empty_/TestMain2.Foo#2/
+ !_empty_/TestMain2.Foo#`<init>`().2"
+  scala/Predef.String#2*
+ _empty_/TestMain2.Foo#foo().2.
+  _empty_/TestMain2.Foo#`foo_=`().2+
+ _empty_/TestMain2.Foo#copy().2)
+ _empty_/TestMain2.Foo#_1().2$
+ _empty_/TestMain2.Foo.2,
+ _empty_/TestMain2.Foo.apply().2'
+ _empty_/TestMain2.fooExt.20
+	!	 '"_empty_/TestMain2.fooExt.fooExt().29
+		 +_empty_/TestMain2.fooExt.fooExt().(thisFoo)2$
+		 _empty_/TestMain2.Foo#2"
+	)	 /scala/Predef.String#2*
+	:	 =_empty_/TestMain2.Foo#foo().29
+	2	 9+_empty_/TestMain2.fooExt.fooExt().(thisFoo)24
+
+!
+ )&_empty_/TestMain2.fooExt.`fooExt_=`().2=
+
+
+ /_empty_/TestMain2.fooExt.`fooExt_=`().(thisFoo)2$
+
+
+ _empty_/TestMain2.Foo#2;
+
++
+ 0-_empty_/TestMain2.fooExt.`fooExt_=`().(value)2"
+
+2
+ 8scala/Predef.String#2
+
+;
+ ?scala/Unit#2.
+
+L
+ O _empty_/TestMain2.Foo#`foo_=`().2=
+
+D
+ K/_empty_/TestMain2.fooExt.`fooExt_=`().(thisFoo)2;
+
+R
+ W-_empty_/TestMain2.fooExt.`fooExt_=`().(value)28
+ *_empty_/TestMain2.testExtensionProperty().2
+ #scala/Unit#2
+ local02,
+ _empty_/TestMain2.Foo.apply().2$
+ _empty_/TestMain2.Foo.2&
+ 
+scala/Predef.assert(+1).2
+ scala/Any#`==`().20
+ "_empty_/TestMain2.fooExt.fooExt().2
+ local024
+ &_empty_/TestMain2.fooExt.`fooExt_=`().2
+ local02&
+ 
+scala/Predef.assert(+1).2
+ scala/Any#`==`().2*
+ _empty_/TestMain2.Foo#foo().2
+ local02&
+ 
+scala/Predef.assert(+1).2
+ scala/Any#`==`().20
+ "_empty_/TestMain2.fooExt.fooExt().2
+ local0PZ 6162806E1912B2124F3C6EC0B7B49DB5

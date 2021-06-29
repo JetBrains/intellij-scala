@@ -1,0 +1,26 @@
+
+†tests/pos/t0076.scala*
+_empty_/bug.
+ *bug€*
+_empty_/bug.foo().*foo€*
+_empty_/bug.foo().(i)*i€*
+_empty_/bug.bar().*bar€*
+local0 €*i€2
+ 
+_empty_/bug.2 
+ 	_empty_/bug.foo().2#
+
+ _empty_/bug.foo().(i)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ 	_empty_/bug.bar().2
+ 
+scala/Int#2
+ 	local02
+ 
+scala/Int#2 
+ _empty_/bug.foo().2
+	 
+local0PZ 42DA003C93A3137AB22EA2C7EC96AB65

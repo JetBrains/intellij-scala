@@ -1,0 +1,46 @@
+
+ýtests/pos/i6288.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.T#*T€*
+_empty_/A.T.
+ *T€*
+_empty_/A.T.x. €*x€*
+
+_empty_/O.
+ *O€*
+_empty_/O.x. €*x€*
+_empty_/O.T#*T€*
+_empty_/O.T.
+ *T€* 
+_empty_/O.T.wrap().*wrap€* 
+_empty_/O.T.wrap().(a)*a€*$
+_empty_/O.T.unwrap().*unwrap€*"
+_empty_/O.T.unwrap().(a)*a€2
+ 
+_empty_/A.2
+ _empty_/A.T#2
+	 
+_empty_/A.T.2
+ 	_empty_/A.T.x.2
+ _empty_/A.T#2
+ 
+_empty_/O.2
+ _empty_/O.x.2
+		 _empty_/O.T#2
+		 _empty_/O.x.2
+
+	
+ 
+_empty_/O.T.2!
+ _empty_/O.T.wrap().2$
+ _empty_/O.T.wrap().(a)2
+ _empty_/O.x.2
+ _empty_/O.T#2$
+ _empty_/O.T.wrap().(a)2#
+ _empty_/O.T.unwrap().2&
+ _empty_/O.T.unwrap().(a)2
+ _empty_/O.T#2
+ _empty_/O.x.2&
+  _empty_/O.T.unwrap().(a)PZ 723C109F03B8FA5149CDEA56060F2B5C

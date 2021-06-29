@@ -1,0 +1,46 @@
+
+¯tests/pos/t1075.scala*$
+_empty_/Directory#*	Directory€*/
+_empty_/Directory#`<init>`(). €@*<init>€*3
+#_empty_/Directory#`<init>`().(dir_) €*dir_€*)
+_empty_/Directory#dir_(). €*dir_€*/
+_empty_/Directory#`dir__=`(). €*dir__=€*.
+"_empty_/Directory#`dir__=`().(x$1)*x$1€*.
+_empty_/Directory#`<init>`(+1).*<init>€*>
++_empty_/Directory#`<init>`(+1).(serialized)*
+serialized€*$
+_empty_/Directory#dir().*dir€*
+_empty_/Test.
+ *Test€2
+ _empty_/Directory#2'
+ _empty_/Directory#`<init>`().2
+ !scala/Predef.String#2#
+ _empty_/Directory#dir_().2'
+ _empty_/Directory#`dir__=`().2(
+ scala/Boolean#`unary_!`().2.
+  java/lang/String#startsWith(+1).2'
+ _empty_/Directory#dir_().26
+ (java/lang/RuntimeException#`<init>`(+1).2-
+ scala/package.RuntimeException#2+
+ _empty_/Directory#`dir__=`().2,
+ java/lang/String#replaceAll().2'
+	 _empty_/Directory#dir_().2-
+ 
+_empty_/Directory#`<init>`(+1).29
+ +_empty_/Directory#`<init>`(+1).(serialized)2
+ scala/Array#2
+ "scala/Byte#2+
+	 	_empty_/Directory#`<init>`().2,
+ java/lang/String#`<init>`(+9).2"
+ scala/Predef.String#29
+ +_empty_/Directory#`<init>`(+1).(serialized)2&
+ 	_empty_/Directory#dir().2'
+ _empty_/Directory#dir_().2
+ _empty_/Test.2+
+ _empty_/Directory#`<init>`().2 
+ _empty_/Directory#2
+? B
+scala/App#2'
+ 	scala/Predef.println(+1).2&
+
+ _empty_/Directory#dir().PZ 5894E418FC8ABC601CFF211752E542CD

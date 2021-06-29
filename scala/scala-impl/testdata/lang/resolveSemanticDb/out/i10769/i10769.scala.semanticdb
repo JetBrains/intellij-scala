@@ -1,0 +1,66 @@
+
+Ðtests/pos/i10769.scala*
+stm/STMLike#*STMLike€*)
+stm/STMLike#`<init>`(). €@*<init>€*
+stm/STMLike#[F]	*F€*
+stm/STMLike#Txn# *Txn€*-
+stm/STMLike#Txn#`<init>`(). €@*<init>€* 
+stm/STMLike#Txn#[A]	 €*A€*
+stm/STMLike#Txn.
+ *Txn€*&
+stm/STMLike#Txn.abort().*abort€*%
+stm/STMLike#Txn.abort().[A]	*A€*%
+stm/STMLike#Txn.abort().(e)*e€**
+stm/STMLike#Internals.
+ *	Internals€*-
+stm/STMLike#Internals.Abort# €*Abort€*9
+'stm/STMLike#Internals.Abort#`<init>`(). €@*<init>€*?
+.stm/STMLike#Internals.Abort#`<init>`().(error) €*error€*3
+"stm/STMLike#Internals.Abort#error. €*error€*0
+#stm/STMLike#Internals.Abort#copy().*copy€*8
+*stm/STMLike#Internals.Abort#copy().(error)*error€*D
+-stm/STMLike#Internals.Abort#copy$default$1().*copy$default$1€*,
+!stm/STMLike#Internals.Abort#_1().*_1€*,
+stm/STMLike#Internals.Abort.
+ *Abort€*2
+$stm/STMLike#Internals.Abort.apply().*apply€*9
++stm/STMLike#Internals.Abort.apply().(error)*error€*6
+&stm/STMLike#Internals.Abort.unapply().*unapply€*7
++stm/STMLike#Internals.Abort.unapply().(x$1)*x$1€*8
+'stm/STMLike#Internals.Abort.toString().*toString€*+
+stm/STMLike#Internals.Noop.
+ ˆ*Noop€2
+ stm/2
+ stm/STMLike#2%
+ stm/STMLike#`<init>`().2
+ stm/STMLike#[F]2$
+	 stm/STMLike#Internals.2
+ stm/STMLike#Txn#2)
+ stm/STMLike#Txn#`<init>`().2!
+ stm/STMLike#Txn#[A]2
+	 stm/STMLike#Txn.2&
+ stm/STMLike#Txn.abort().2)
+ stm/STMLike#Txn.abort().[A]2)
+ stm/STMLike#Txn.abort().(e)2&
+ scala/package.Throwable#2
+  #stm/STMLike#Txn#2)
+$ %stm/STMLike#Txn.abort().[A]22
+. .$stm/STMLike#Internals.Abort.apply().2*
+) .stm/STMLike#Internals.Abort.2)
+/ 0stm/STMLike#Txn.abort().(e)2$
+	 stm/STMLike#Internals.2*
+ stm/STMLike#Internals.Abort#25
+ 'stm/STMLike#Internals.Abort#`<init>`().2&
+ %scala/package.Throwable#2)
+; ;stm/STMLike#Txn#`<init>`().2
+/ 2stm/STMLike#Txn#2
+3 :scala/Nothing#20
+ "stm/STMLike#Internals.Abort#error.21
+ #stm/STMLike#Internals.Abort#copy().2/
+ !stm/STMLike#Internals.Abort#_1().2*
+ stm/STMLike#Internals.Abort.22
+ $stm/STMLike#Internals.Abort.apply().2)
+ stm/STMLike#Internals.Noop.2)
+) )stm/STMLike#Txn#`<init>`().2
+  stm/STMLike#Txn#2
+! (scala/Nothing#PZ 461A2E5C1F7B67BE3792B79488C24A9B

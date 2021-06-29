@@ -1,0 +1,26 @@
+
+°'tests/pos/sip23-negative-literals.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.`~~`#*~~€*
+_empty_/Test.`~~`#[A]	*A€*
+_empty_/Test.`~~`#[B]	*B€*#
+_empty_/Test.nonNeg#*nonNeg€*
+_empty_/Test.neg0#*neg0€*
+_empty_/Test.neg1#*neg1€*
+_empty_/Test.neg2#*neg2€*
+_empty_/Test.neg3#*neg3€2
+ _empty_/Test.2 
+ 	_empty_/Test.`~~`#2#
+
+ _empty_/Test.`~~`#[A]2#
+ _empty_/Test.`~~`#[B]2"
+ _empty_/Test.nonNeg#2 
+ _empty_/Test.`~~`#2 
+ _empty_/Test.neg0#2 
+ _empty_/Test.neg1#2 
+ _empty_/Test.`~~`#2 
+ _empty_/Test.neg2#2 
+ _empty_/Test.`~~`#2 
+ _empty_/Test.neg3#2 
+ _empty_/Test.`~~`#PZ ADC051031F4468EBE3787C3A5817EBB6

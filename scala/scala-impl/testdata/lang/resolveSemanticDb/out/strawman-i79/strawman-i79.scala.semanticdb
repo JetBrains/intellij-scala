@@ -1,0 +1,83 @@
+
+¢tests/pos/strawman-i79.scala*
+_empty_/Empty.
+ *Empty€*(
+_empty_/Empty.Iterable#*Iterable€*4
+"_empty_/Empty.Iterable#`<init>`(). €@*<init>€*'
+_empty_/Empty.Iterable#[A]	 €*A€*.
+_empty_/Empty.IterableOps#*IterableOps€*7
+%_empty_/Empty.IterableOps#`<init>`(). €@*<init>€**
+_empty_/Empty.IterableOps#[A]	 €*A€*,
+_empty_/Empty.IterableOps#[CC]	 €*CC€**
+_empty_/Empty.IterableOps#[C]	 €*C€*,
+!_empty_/Empty.IterableOps#`++`().*++€*.
+$_empty_/Empty.IterableOps#`++`().[B]	*B€*0
+%_empty_/Empty.IterableOps#`++`().(xs)*xs€*0
+_empty_/Empty.IterableOnce#*IterableOnce€*8
+&_empty_/Empty.IterableOnce#`<init>`(). €@*<init>€*+
+_empty_/Empty.IterableOnce#[A]	 €*A€*(
+_empty_/Empty.LazyList#*LazyList€*4
+"_empty_/Empty.LazyList#`<init>`(). €@*<init>€*'
+_empty_/Empty.LazyList#[A]	 €*A€**
+_empty_/Empty.LazyList.
+ *LazyList€*-
+_empty_/Empty.LazyList.empty().*empty€*,
+"_empty_/Empty.LazyList.empty().[A]	*A€2
+ _empty_/Empty.2
+
+ 
+scala/App#2%
+ _empty_/Empty.Iterable#20
+ "_empty_/Empty.Iterable#`<init>`().2)
+ _empty_/Empty.IterableOnce#2(
+ _empty_/Empty.Iterable#[A]2(
+ _empty_/Empty.Iterable#[A]2(
+ _empty_/Empty.IterableOps#23
+ %_empty_/Empty.IterableOps#`<init>`().2+
+ _empty_/Empty.IterableOps#[A]2,
+ _empty_/Empty.IterableOps#[CC]2+
+! "_empty_/Empty.IterableOps#[C]2/
+ 
+!_empty_/Empty.IterableOps#`++`().22
+ $_empty_/Empty.IterableOps#`++`().[B]2+
+ _empty_/Empty.IterableOps#[A]23
+ %_empty_/Empty.IterableOps#`++`().(xs)2)
+ #_empty_/Empty.IterableOnce#22
+$ %$_empty_/Empty.IterableOps#`++`().[B]2,
+) +_empty_/Empty.IterableOps#[CC]22
+, -$_empty_/Empty.IterableOps#`++`().[B]2#
+1 4scala/Predef.`???`().2)
+
+
+ _empty_/Empty.IterableOnce#24
+
+
+ &_empty_/Empty.IterableOnce#`<init>`().2,
+
+
+ _empty_/Empty.IterableOnce#[A]2%
+ _empty_/Empty.LazyList#20
+ "_empty_/Empty.LazyList#`<init>`().2(
+ _empty_/Empty.IterableOps#2(
+ _empty_/Empty.LazyList#[A]2%
+' /_empty_/Empty.LazyList#2(
+0 1_empty_/Empty.LazyList#[A]2%
+ _empty_/Empty.Iterable#2(
+ _empty_/Empty.LazyList#[A]2(
+ _empty_/Empty.LazyList#[A]2%
+	 _empty_/Empty.LazyList.2-
+ _empty_/Empty.LazyList.empty().20
+ "_empty_/Empty.LazyList.empty().[A]2
+ 
+scala/Any#2%
+ !_empty_/Empty.LazyList#20
+" #"_empty_/Empty.LazyList.empty().[A]20
+6 6"_empty_/Empty.LazyList#`<init>`().2%
++ 3_empty_/Empty.LazyList#20
+4 5"_empty_/Empty.LazyList.empty().[A]2/
+ !_empty_/Empty.IterableOps#`++`().2-
+ _empty_/Empty.LazyList.empty().2%
+ 
+_empty_/Empty.LazyList.2-
+ "_empty_/Empty.LazyList.empty().2%
+ _empty_/Empty.LazyList.PZ 44A3E8B40549AD3297E03304D4AF2706

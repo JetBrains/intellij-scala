@@ -1,0 +1,224 @@
+
+–<tests/pos/reference/enums.scala*
+	enums/t1.
+ *t1€*!
+enums/t1.Color# ”€*Color€*,
+enums/t1.Color#`<init>`(). €@*<init>€*
+enums/t1.Color.
+ *Color€*#
+enums/t1.Color.Red. €©*Red€*'
+enums/t1.Color.Green. €©*Green€*%
+enums/t1.Color.Blue. €©*Blue€**
+enums/t1.Color.$values. €*$values€*'
+enums/t1.Color.values().*values€*)
+enums/t1.Color.valueOf().*valueOf€*.
+ enums/t1.Color.valueOf().($name)*$name€*#
+enums/t1.Color.$new().*$new€*3
+!enums/t1.Color.$new().(_$ordinal)*	_$ordinal€*+
+enums/t1.Color.$new().($name)*$name€*1
+enums/t1.Color.fromOrdinal().*fromOrdinal€*6
+&enums/t1.Color.fromOrdinal().(ordinal)*ordinal€*
+	enums/t2.
+ *t2€*!
+enums/t2.Color# ”€*Color€*,
+enums/t2.Color#`<init>`(). €@*<init>€*
+enums/t2.Color.
+ *Color€*#
+enums/t2.Color.Red. €©*Red€*'
+enums/t2.Color.Green. €©*Green€*%
+enums/t2.Color.Blue. €©*Blue€**
+enums/t2.Color.$values. €*$values€*'
+enums/t2.Color.values().*values€*)
+enums/t2.Color.valueOf().*valueOf€*.
+ enums/t2.Color.valueOf().($name)*$name€*#
+enums/t2.Color.$new().*$new€*3
+!enums/t2.Color.$new().(_$ordinal)*	_$ordinal€*+
+enums/t2.Color.$new().($name)*$name€*1
+enums/t2.Color.fromOrdinal().*fromOrdinal€*6
+&enums/t2.Color.fromOrdinal().(ordinal)*ordinal€*
+	enums/t3.
+ *t3€*!
+enums/t3.Color# ”€*Color€*,
+enums/t3.Color#`<init>`(). €@*<init>€*.
+enums/t3.Color#`<init>`().(rgb) €*rgb€*"
+enums/t3.Color#rgb. €*rgb€*
+enums/t3.Color.
+ *Color€*#
+enums/t3.Color.Red. €©*Red€*'
+enums/t3.Color.Green. €©*Green€*%
+enums/t3.Color.Blue. €©*Blue€**
+enums/t3.Color.$values. €*$values€*'
+enums/t3.Color.values().*values€*)
+enums/t3.Color.valueOf().*valueOf€*.
+ enums/t3.Color.valueOf().($name)*$name€*1
+enums/t3.Color.fromOrdinal().*fromOrdinal€*6
+&enums/t3.Color.fromOrdinal().(ordinal)*ordinal€* 
+enums/Planet# ”€*Planet€**
+enums/Planet#`<init>`(). €@*<init>€*+
+enums/Planet#`<init>`().(mass)*mass€*/
+ enums/Planet#`<init>`().(radius)*radius€*"
+enums/Planet#mass. €*mass€*&
+enums/Planet#radius. €*radius€*
+enums/Planet#G. ˆ*G€*5
+enums/Planet#surfaceGravity().*surfaceGravity€*3
+enums/Planet#surfaceWeight().*surfaceWeight€*:
+(enums/Planet#surfaceWeight().(otherMass)*	otherMass€*
+enums/Planet.
+ *Planet€*)
+enums/Planet.MERCURY. €©*MERCURY€*%
+enums/Planet.VENUS. €©*VENUS€*%
+enums/Planet.EARTH. €©*EARTH€*#
+enums/Planet.MARS. €©*MARS€*)
+enums/Planet.JUPITER. €©*JUPITER€*'
+enums/Planet.SATURN. €©*SATURN€*'
+enums/Planet.URANUS. €©*URANUS€*)
+enums/Planet.NEPTUNE. €©*NEPTUNE€*(
+enums/Planet.$values. €*$values€*%
+enums/Planet.values().*values€*'
+enums/Planet.valueOf().*valueOf€*,
+enums/Planet.valueOf().($name)*$name€*/
+enums/Planet.fromOrdinal().*fromOrdinal€*4
+$enums/Planet.fromOrdinal().(ordinal)*ordinal€*!
+enums/Planet.main().*main€*'
+enums/Planet.main().(args)*args€*
+local0 €*earthWeight€*
+local1 €*mass€*
+local2*p€2
+ enums/2
+ 		enums/t1.2
+ 
+enums/t1.Color#2(
+ enums/t1.Color#`<init>`().2
+ enums/t1.Color.2!
+ 
+enums/t1.Color.Red.2#
+ enums/t1.Color.Green.2"
+ enums/t1.Color.Blue.2%
+ enums/t1.Color.$values.2&
+ enums/t1.Color.values().2'
+ enums/t1.Color.valueOf().2$
+ enums/t1.Color.$new().2+
+ enums/t1.Color.fromOrdinal().2
+
+
+ 		enums/t2.2
+ 
+enums/t2.Color#2(
+ enums/t2.Color#`<init>`().2
+ enums/t2.Color.2!
+ 
+enums/t2.Color.Red.2#
+ enums/t2.Color.Green.2"
+ enums/t2.Color.Blue.2%
+ enums/t2.Color.$values.2&
+ enums/t2.Color.values().2'
+ enums/t2.Color.valueOf().2$
+ enums/t2.Color.$new().2+
+ enums/t2.Color.fromOrdinal().2
+ 		enums/t3.2
+ 
+enums/t3.Color#2(
+
+ 
+enums/t3.Color#`<init>`().2
+ 
+scala/Int#2!
+ enums/t3.Color#rgb.2
+ enums/t3.Color.2!
+ 
+enums/t3.Color.Red.2(
+ enums/t3.Color#`<init>`().2
+ enums/t3.Color#2#
+ enums/t3.Color.Green.2(
+ enums/t3.Color#`<init>`().2
+ enums/t3.Color#2"
+ enums/t3.Color.Blue.2(
+ enums/t3.Color#`<init>`().2
+ enums/t3.Color#2%
+ enums/t3.Color.$values.2&
+ enums/t3.Color.values().2'
+ enums/t3.Color.valueOf().2+
+ enums/t3.Color.fromOrdinal().2
+ enums/Planet#2&
+ enums/Planet#`<init>`().2
+ scala/Double#2
+" (scala/Double#2(
+ java/lang/Enum#`<init>`().2
+ java/lang/Enum#2
+ 
+java/lang/2
+ java/2
+ enums/Planet#2 
+ enums/Planet#mass.2"
+  enums/Planet#radius.2
+   enums/Planet#G.2,
+!! enums/Planet#surfaceGravity().2#
+! ! !scala/Double#`/`(+6).2#
+!! scala/Double#`*`(+6).2
+!! enums/Planet#G.2 
+!! enums/Planet#mass.2#
+!*! +scala/Double#`*`(+6).2"
+!#! )enums/Planet#radius.2"
+!,! 2enums/Planet#radius.2+
+"" enums/Planet#surfaceWeight().26
+"" (enums/Planet#surfaceWeight().(otherMass)2
+"" %scala/Double#2#
+"4" 5scala/Double#`*`(+6).26
+"*" 3(enums/Planet#surfaceWeight().(otherMass)2,
+"6" Denums/Planet#surfaceGravity().2
+.. enums/Planet.2#
+$$ enums/Planet.MERCURY.2&
+$$ enums/Planet#`<init>`().2
+$$ enums/Planet#2!
+%% enums/Planet.VENUS.2&
+%% enums/Planet#`<init>`().2
+%% enums/Planet#2!
+&& enums/Planet.EARTH.2&
+&& enums/Planet#`<init>`().2
+&& enums/Planet#2 
+'' enums/Planet.MARS.2&
+'' enums/Planet#`<init>`().2
+'' enums/Planet#2#
+(( enums/Planet.JUPITER.2&
+(( enums/Planet#`<init>`().2
+(( enums/Planet#2"
+)) enums/Planet.SATURN.2&
+)) enums/Planet#`<init>`().2
+)) enums/Planet#2"
+** enums/Planet.URANUS.2&
+** enums/Planet#`<init>`().2
+** enums/Planet#2#
+++ enums/Planet.NEPTUNE.2&
+++ enums/Planet#`<init>`().2
+++ enums/Planet#2#
+++ enums/Planet.$values.2$
+++ enums/Planet.values().2%
+++ enums/Planet.valueOf().2)
+++ enums/Planet.fromOrdinal().2"
+// 
+enums/Planet.main().2(
+// enums/Planet.main().(args)2
+// scala/Array#2"
+// scala/Predef.String#2
+00 local024
+00 &&scala/collection/StringOps#toDouble().2+
+00 scala/Predef.augmentString().2"
+00 scala/Array#apply().2(
+00 enums/Planet.main().(args)2
+11 local12#
+11 scala/Double#`/`(+6).2
+11 local02,
+1!1 /enums/Planet#surfaceGravity().2!
+11  enums/Planet.EARTH.22
+22 $scala/collection/ArrayOps#foreach().2)
+22 scala/Predef.refArrayOps().2$
+22 enums/Planet.values().2
+2	2 
+local22'
+33 scala/Predef.println(+1).2&
+3=3 >scala/StringContext#s().2*
+33 scala/StringContext.apply().2
+3 3 !local22+
+3)3 6enums/Planet#surfaceWeight().2
+3'3 (local22
+373 ;local1PZ A37AF389B063B9DAF362A829A4B39345

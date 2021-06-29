@@ -1,0 +1,132 @@
+
+Ó%tests/pos/multiversal.scala*
+_empty_/Test.
+ *Test€*K
+(_empty_/Test.given_CanEqual_List_List(). (*given_CanEqual_List_List€*5
++_empty_/Test.given_CanEqual_List_List().[X]	*X€*5
++_empty_/Test.given_CanEqual_List_List().[Y]	*Y€*;
+-_empty_/Test.given_CanEqual_List_List().(x$1)  *x$1€*
+_empty_/Test.b. €*b€*
+_empty_/Test.c. €*c€*
+_empty_/Test.i. €*i€*
+_empty_/Test.l. €*l€*
+_empty_/Test.ii. €*ii€*.
+_empty_/Test.BooleanTag. €*
+BooleanTag€*%
+_empty_/Test.Setting#*Setting€*2
+ _empty_/Test.Setting#`<init>`(). €@*<init>€*"
+_empty_/Test.Setting#[T]	*T€*+
+_empty_/Test.Setting#doSet().*doSet€2
+ _empty_/Test.2
+ scala/CanEqual.2
+ scala/CanEqual#2
+	 scala/26
+ (_empty_/Test.given_CanEqual_List_List().29
+	 
++_empty_/Test.given_CanEqual_List_List().[X]29
+ +_empty_/Test.given_CanEqual_List_List().[Y]2;
+ -_empty_/Test.given_CanEqual_List_List().(x$1)2
+ scala/CanEqual#29
+ +_empty_/Test.given_CanEqual_List_List().[X]29
+! "+_empty_/Test.given_CanEqual_List_List().[Y]2
+& .scala/CanEqual#2!
+/ 3scala/package.List#29
+4 5+_empty_/Test.given_CanEqual_List_List().[X]2!
+8 <scala/package.List#29
+= >+_empty_/Test.given_CanEqual_List_List().[Y]2%
+L Sscala/CanEqual.derived.2
+C Kscala/CanEqual.2
+ _empty_/Test.b.2
+	 scala/Byte#2
+ _empty_/Test.c.2
+	 scala/Char#2
+ _empty_/Test.i.2
+	 
+scala/Int#2
+ _empty_/Test.l.2
+	 scala/Long#2
+		 _empty_/Test.ii.2 
+	
+	 java/lang/Integer#2)
+		 scala/Predef.int2Integer().2
+		 _empty_/Test.i.2
+
+ scala/Any#`==`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.b.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.l.2
+
+ scala/Any#`==`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.l.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.c.2
+
+ scala/Any#`!=`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.b.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.c.2
+
+ scala/Any#`==`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.i.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.l.2
+
+ scala/Any#`==`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.i.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.ii.2
+ scala/Any#`==`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 	_empty_/Test.ii.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.l.2
+
+ scala/Any#`==`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.b.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.ii.2
+ scala/Any#`==`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 	_empty_/Test.ii.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.l.2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+	 scala/reflect/2&
+ _empty_/Test.BooleanTag.2%
+ scala/reflect/ClassTag#2
+ "scala/Boolean#2-
+4 ;scala/reflect/ClassTag.Boolean.2%
++ 3scala/reflect/ClassTag.2#
+ _empty_/Test.Setting#2.
+  _empty_/Test.Setting#`<init>`().2%
+ scala/reflect/ClassTag#2&
+ _empty_/Test.Setting#[T]2&
+ _empty_/Test.Setting#[T]2+
+ _empty_/Test.Setting#doSet().2(
+ scala/Predef.implicitly().2%
+ %scala/reflect/ClassTag#2&
+& '_empty_/Test.Setting#[T]2&
+ _empty_/Test.BooleanTag.PZ A52A33795627EF229832582136C44828

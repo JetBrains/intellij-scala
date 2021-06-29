@@ -1,0 +1,23 @@
+
+Ê&tests/pos/import-rewrite/rewrite.scala*
+
+file/Main.
+ *Main€*
+local0*str€2
+ file/2
+ java/io/File.2
+ java/io/File#2
+ java/io/2
+ java/2-
+3 9java/io/StreamTokenizer#TT_EOF.2&
+# 2java/io/StreamTokenizer#2
+ 
+file/Main.21
+
+ #scala/collection/IterableOps#map().2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+ scala/package.Seq.2 
+ file/File.apply().2
+ 
+file/File.2
+ local0PZ F5563AA751BD947BDD9EE3BEFF9FD3DB

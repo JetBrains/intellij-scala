@@ -1,0 +1,37 @@
+
+Ótests/pos/i3598.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€*
+_empty_/Foo#baz().*baz€*#
+_empty_/Foo#baz().(foo)*foo€*
+_empty_/Foo#bam().*bam€*#
+_empty_/Foo#bam().(foo)*foo€*
+_empty_/Foo#bar().*bar€*
+_empty_/Foo#bar().[A]	*A€*#
+_empty_/Foo#bar().(foo)*foo€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A]2 
+ 	_empty_/Foo#baz().2%
+
+ _empty_/Foo#baz().(foo)2
+ _empty_/Foo#2
+ scala/Unit#2 
+ "_empty_/Foo#bar().2%
+# &_empty_/Foo#baz().(foo)2 
+ 	_empty_/Foo#bam().2%
+
+ _empty_/Foo#bam().(foo)2
+ _empty_/Foo#2 
+ _empty_/Foo#bar().2%
+  #_empty_/Foo#bam().(foo)2 
+ 	_empty_/Foo#bar().2#
+
+ _empty_/Foo#bar().[A]2%
+ _empty_/Foo#bar().(foo)2
+ _empty_/Foo#2#
+ _empty_/Foo#bar().[A]2#
+ _empty_/Foo#bar().[A]2#
+ "scala/Predef.`???`().PZ 0E46BD6410305B02C8E0C0EDA458131C

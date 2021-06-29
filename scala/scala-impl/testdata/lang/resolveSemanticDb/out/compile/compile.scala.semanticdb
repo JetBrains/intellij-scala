@@ -1,0 +1,67 @@
+
+ûtests/pos/compile.scala*"
+_empty_/Test3Foo#*Test3FooÄ*.
+_empty_/Test3Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Test3A#*Test3AÄ*,
+_empty_/Test3A#`<init>`(). Ä@*<init>Ä*
+_empty_/Test3A#[T]	*TÄ*!
+_empty_/Test3A#fun().*funÄ*
+_empty_/Test3B#*Test3BÄ*,
+_empty_/Test3B#`<init>`(). Ä@*<init>Ä*
+_empty_/Test3M#*Test3MÄ*,
+_empty_/Test3M#`<init>`(). Ä@*<init>Ä*!
+_empty_/Test3M#fun().*funÄ*
+_empty_/Test3C#*Test3CÄ*,
+_empty_/Test3C#`<init>`(). Ä@*<init>Ä2
+ java/lang/System.2
+ java/lang/System#2
+ 
+java/lang/2
+ java/2!
+
+ÜÜ _empty_/Test3Foo#2(
+ÜÜ_empty_/Test3Foo#`<init>`().2
+
+àà _empty_/Test3A#2*
+
+àà _empty_/Test3A#`<init>`().2"
+
+àà _empty_/Test3A#[T]2%
+
+ââ 	_empty_/Test3A#fun().2"
+
+ââ _empty_/Test3A#[T]2%
+
+ââ _empty_/Test3A#fun().2
+
+åå _empty_/Test3B#2*
+
+åå _empty_/Test3B#`<init>`().2
+
+åå _empty_/Test3A#2!
+
+åå $_empty_/Test3Foo#2
+
+éé _empty_/Test3M#2*
+
+éé _empty_/Test3M#`<init>`().2
+
+éé _empty_/Test3A#2!
+
+éé $_empty_/Test3Foo#2%
+
+èè _empty_/Test3M#fun().2!
+
+èè _empty_/Test3Foo#2%
+
+è%è (_empty_/Test3A#fun().2
+
+íí _empty_/Test3C#2*
+
+íí _empty_/Test3C#`<init>`().2*
+
+íí _empty_/Test3B#`<init>`().2
+
+íí _empty_/Test3B#2
+
+í!í '_empty_/Test3M#PZ 9E2D89EB7BC93989CC055257EEAAB511

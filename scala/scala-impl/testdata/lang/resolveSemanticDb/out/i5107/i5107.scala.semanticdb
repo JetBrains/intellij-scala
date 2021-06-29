@@ -1,0 +1,37 @@
+
+þtests/pos/i5107.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().(x)*x€*"
+_empty_/Test#foo().(y)  *y€*3
+_empty_/Test#foo$default$1().*foo$default$1€*
+_empty_/Test#m.  *m€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ _empty_/Test#foo().2$
+ _empty_/Test#foo().(x)2
+ 
+scala/Int#2$
+& '_empty_/Test#foo().(y)2
+) ,
+scala/Int#2
+/ 2
+scala/Int#2 
+
+ scala/Int#`>`(+3).2$
+ 	_empty_/Test#foo().(x)2 
+ scala/Int#`*`(+3).2$
+ _empty_/Test#foo().(y)2$
+ _empty_/Test#foo().(y)2 
+ scala/Int#`+`(+4).2$
+	 
+_empty_/Test#foo().(y)2$
+ _empty_/Test#foo().(y)2
+ _empty_/Test#m.2
+ 
+scala/Int#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#2
+ _empty_/Test#m.PZ F9DAF747D731F0281893DDB6BB4C0E22

@@ -1,0 +1,36 @@
+
+é
+#tests/pos/i10634/BasicSupport.scala**
+_empty_/BasicSupport#*BasicSupport€*2
+ _empty_/BasicSupport#`<init>`(). €@*<init>€*
+local0*self€*-
+_empty_/BasicSupport#SymOps.
+ *SymOps€*#
+_empty_/BasicSupport#c. *c€*=
+%_empty_/BasicSupport#getVisibility(). *getVisibility€*6
+*_empty_/BasicSupport#getVisibility().(sym)*sym€*+
+_empty_/BasicSupport#parse().*parse€*.
+"_empty_/BasicSupport#parse().(sym)*sym€2#
+ _empty_/BasicSupport#2.
+  _empty_/BasicSupport#`<init>`().2
+ local02
+ _empty_/Parser#2*
+	 _empty_/BasicSupport#SymOps.2(
+( (_empty_/SymOps#`<init>`().2
+ _empty_/SymOps#2!
+ "_empty_/Parser#ctx.2!
+) ,_empty_/Parser#ctx.2*
+	 _empty_/BasicSupport#SymOps.2%
+ _empty_/BasicSupport#c.2
+ _empty_/SymOps#c.23
+ %_empty_/BasicSupport#getVisibility().2-
+ _empty_/SymOps#getVisibility().28
+ *_empty_/BasicSupport#getVisibility().(sym)2+
+ _empty_/BasicSupport#parse().20
+ "_empty_/BasicSupport#parse().(sym)2%
+ _empty_/Context#Symbol#2!
+ _empty_/Parser#ctx.2
+ !
+scala/Int#23
+ %_empty_/BasicSupport#getVisibility().20
+ "_empty_/BasicSupport#parse().(sym)PZ 8DAD6B24F559F6545B56572C91F55BEB

@@ -1,0 +1,40 @@
+
+–tests/pos/default-super.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*"
+_empty_/A#`<init>`().(x)*x€*"
+_empty_/A#`<init>`().(y)*y€*
+_empty_/A#x. €*x€*
+_empty_/A#y. €*y€*
+
+_empty_/A.
+ *A€*L
+(_empty_/A.$lessinit$greater$default$2().*$lessinit$greater$default$2€*5
++_empty_/A.$lessinit$greater$default$2().(x)*x€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+local0 €*x$1€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 
+scala/Int#2
+ scala/Predef.String#2
+ 	_empty_/A#x.2
+ _empty_/A#y.2
+ 
+_empty_/A.25
+ 	+_empty_/A.$lessinit$greater$default$2().(x)2
+ _empty_/Test.2
+ _empty_/Test.f().2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+ local02#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ local0PZ CFDACA6C93BE3F00B4010CFF95F80921

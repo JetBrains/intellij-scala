@@ -1,0 +1,42 @@
+
+Ô	tests/pos/array-overload.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#A.
+ *A€*%
+_empty_/Test#A.apply().*apply€*$
+_empty_/Test#A.apply().(x)*x€*&
+_empty_/Test#A.apply().(xs)*xs€*'
+_empty_/Test#A.apply(+1).*apply€*&
+_empty_/Test#A.apply(+1).(x)*x€*(
+_empty_/Test#A.apply(+1).(xs)*xs€*
+_empty_/Test#x. €*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+	 
+_empty_/Test#A.2%
+ _empty_/Test#A.apply().2(
+ _empty_/Test#A.apply().(x)2
+ scala/Byte#2)
+ _empty_/Test#A.apply().(xs)2
+ scala/Byte#2
+# (scala/Array#2
+) -scala/Byte#2#
+1 4scala/Predef.`???`().2'
+ _empty_/Test#A.apply(+1).2*
+ _empty_/Test#A.apply(+1).(x)2
+ 
+scala/Int#2+
+ _empty_/Test#A.apply(+1).(xs)2
+ 
+scala/Int#2
+! &scala/Array#2
+' *
+scala/Int#2#
+. 1scala/Predef.`???`().2
+ _empty_/Test#x.2
+	 scala/Array#2
+ scala/Byte#2%
+ _empty_/Test#A.apply().2
+ _empty_/Test#A.PZ 2E8723F059084E60DEEDBB4E6E076E6B

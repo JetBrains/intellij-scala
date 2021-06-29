@@ -1,0 +1,121 @@
+
+à&tests/pos/unapplyNeedsMemberType.scala*
+_empty_/Gunk#*Gunk€**
+_empty_/Gunk#`<init>`(). €@*<init>€*
+_empty_/Gunk#[a]	*a€*
+_empty_/Gunk#Seq#*Seq€*!
+_empty_/Gunk#Cons.
+ *Cons€*,
+_empty_/Gunk#Cons.unapply().*unapply€*)
+_empty_/Gunk#Cons.unapply().(s)*s€*3
+_empty_/Gunk#unapply_Cons(). *unapply_Cons€*)
+_empty_/Gunk#unapply_Cons().(s)*s€*
+_empty_/Join#*Join€**
+_empty_/Join#`<init>`(). €@*<init>€*
+_empty_/Join#[a]	*a€*
+_empty_/Join#Seq#*Seq€*'
+_empty_/Join#JoinSeq# *JoinSeq€*2
+ _empty_/Join#JoinSeq#`<init>`(). €@*<init>€* 
+_empty_/Join#App# €*App€*.
+_empty_/Join#App#`<init>`(). €@*<init>€*.
+ _empty_/Join#App#`<init>`().(xs) €*xs€*.
+ _empty_/Join#App#`<init>`().(ys) €*ys€*"
+_empty_/Join#App#xs. €*xs€*"
+_empty_/Join#App#ys. €*ys€*%
+_empty_/Join#App#copy().*copy€*'
+_empty_/Join#App#copy().(xs)*xs€*'
+_empty_/Join#App#copy().(ys)*ys€*9
+"_empty_/Join#App#copy$default$1().*copy$default$1€*9
+"_empty_/Join#App#copy$default$2().*copy$default$2€*!
+_empty_/Join#App#_1().*_1€*!
+_empty_/Join#App#_2().*_2€*
+_empty_/Join#App.
+ *App€*'
+_empty_/Join#App.apply().*apply€*(
+_empty_/Join#App.apply().(xs)*xs€*(
+_empty_/Join#App.apply().(ys)*ys€*+
+_empty_/Join#App.unapply().*unapply€*,
+ _empty_/Join#App.unapply().(x$1)*x$1€*-
+_empty_/Join#App.toString().*toString€*%
+_empty_/Join#append().*append€*%
+_empty_/Join#append().(s1)*s1€*%
+_empty_/Join#append().(s2)*s2€*1
+_empty_/Join#unapply_Cons().*unapply_Cons€*)
+_empty_/Join#unapply_Cons().(s)*s€*
+local0 €*x€*
+local1 €*xs€*
+local2 €*ys€2
+ 
+_empty_/Gunk#2&
+
+ 
+_empty_/Gunk#`<init>`().2
+ _empty_/Gunk#[a]2
+ 
+_empty_/Gunk#Seq#2 
+	 _empty_/Gunk#Cons.2*
+ _empty_/Gunk#Cons.unapply().2-
+ _empty_/Gunk#Cons.unapply().(s)2
+ _empty_/Gunk#Seq#2*
+ &_empty_/Gunk#unapply_Cons().2-
+' (_empty_/Gunk#Cons.unapply().(s)2*
+		 _empty_/Gunk#unapply_Cons().2-
+		 _empty_/Gunk#unapply_Cons().(s)2
+		 
+scala/Any#2
+		 "scala/Option#2
+	#	 )scala/Tuple2#2
+	*	 +_empty_/Gunk#[a]2
+	-	 0_empty_/Gunk#Seq#2
+ 
+_empty_/Join#2&
+
+ 
+_empty_/Join#`<init>`().2
+ _empty_/Gunk#2
+ _empty_/Join#[a]2
+ _empty_/Join#[a]2
+ 
+_empty_/Join#Seq#2#
+ _empty_/Join#JoinSeq#2#
+ _empty_/Join#JoinSeq#2.
+  _empty_/Join#JoinSeq#`<init>`().2
+ _empty_/Join#App#2*
+ _empty_/Join#App#`<init>`().2
+ _empty_/Join#Seq#2
+ !_empty_/Join#Seq#2.
+2 2 _empty_/Join#JoinSeq#`<init>`().2#
++ 2_empty_/Join#JoinSeq#2"
+ _empty_/Join#App#xs.2"
+ _empty_/Join#App#ys.2&
+ _empty_/Join#App#copy().2$
+ _empty_/Join#App#_1().2$
+ _empty_/Join#App#_2().2
+ _empty_/Join#App.2'
+ _empty_/Join#App.apply().2$
+ _empty_/Join#append().2(
+ _empty_/Join#append().(s1)2
+ _empty_/Join#Seq#2(
+ _empty_/Join#append().(s2)2
+ _empty_/Join#Seq#2
+  #_empty_/Join#Seq#2(
+& (_empty_/Join#append().(s1)2*
+ _empty_/Join#unapply_Cons().2-
+ _empty_/Join#unapply_Cons().(s)2
+ 
+scala/Any#2-
+ _empty_/Join#unapply_Cons().(s)2)
+ _empty_/Join#App.unapply().2
+	 _empty_/Join#App.2*
+ _empty_/Gunk#Cons.unapply().2 
+ _empty_/Gunk#Cons.2
+ local02
+ local12
+ local22!
+% %scala/Some.apply().2
+! %scala/Some.2#
+' 'scala/Tuple2.apply().2
+' (local02$
+* 0_empty_/Join#append().2
+1 3local12
+5 7local2PZ C8525FB47BC61A9E7BEEA9500B46518F

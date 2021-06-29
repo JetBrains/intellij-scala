@@ -1,0 +1,32 @@
+
+Ëtests/pos/realizable-mut.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.x. €*x€*
+_empty_/Foo.A#*A€*+
+_empty_/Foo.A#`<init>`(). €@*<init>€*)
+_empty_/Foo.A#`<init>`().(y) €*y€*
+_empty_/Foo.A#y(). €*y€*%
+_empty_/Foo.A#`y_=`(). €*y_=€*'
+_empty_/Foo.A#`y_=`().(x$1)*x$1€*
+_empty_/Foo.a. €*a€*
+_empty_/Foo.y. €*y€2
+ 
+_empty_/Foo.2
+ _empty_/Foo.x.2*
+ java/lang/Object#`<init>`().2
+ java/lang/Object#2
+ 	_empty_/Foo.A#2'
+	 	_empty_/Foo.A#`<init>`().2
+ _empty_/Foo.x.2 
+ _empty_/Foo.A#y().2$
+ _empty_/Foo.A#`y_=`().2
+ _empty_/Foo.a.2'
+ _empty_/Foo.A#`<init>`().2
+ _empty_/Foo.A#2
+ _empty_/Foo.x.2
+ _empty_/Foo.y.2 
+ _empty_/Foo.A#y().2
+	 
+_empty_/Foo.a.2
+ _empty_/Foo.x.PZ DD167C38FDB08E401207CB58AB8DED07

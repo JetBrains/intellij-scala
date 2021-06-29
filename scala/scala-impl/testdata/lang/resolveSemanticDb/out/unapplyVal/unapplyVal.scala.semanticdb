@@ -1,0 +1,95 @@
+
+˜tests/pos/unapplyVal.scala*
+test/Async#*Async€*(
+test/Async#`<init>`(). €@*<init>€*%
+test/Async#unapply().*unapply€**
+test/Async#unapply().(scrut)*scrut€*
+test/Buffer#*Buffer€*)
+test/Buffer#`<init>`(). €@*<init>€*
+test/Buffer#Put. €*Put€*&
+test/Buffer#joinPat().*joinPat€*#
+test/Buffer#joinPat().(x)*x€*
+local0 €*y€*)
+test/unapplyJoins.
+ *unapplyJoins€*$
+test/unapplyJoins.Sync#*Sync€*4
+"test/unapplyJoins.Sync#`<init>`(). €@*<init>€*-
+test/unapplyJoins.Sync#apply().*apply€*1
+!test/unapplyJoins.Sync#unapply().*unapply€*6
+(test/unapplyJoins.Sync#unapply().(scrut)*scrut€*(
+test/unapplyJoins.Buffer#*Buffer€*6
+$test/unapplyJoins.Buffer#`<init>`(). €@*<init>€*+
+test/unapplyJoins.Buffer#Get.
+ *Get€**
+test/unapplyJoins.Buffer#jp. €*jp€*
+local1*x$1€2
+ test/2
+ test/Async#2$
+ test/Async#`<init>`().2#
+ test/Async#unapply().2*
+ test/Async#unapply().(scrut)2
+ 
+scala/Any#2
+ !scala/Option#2
+" %
+scala/Any#2
+) -scala/None.2
+ test/Buffer#2%
+ test/Buffer#`<init>`().2
+ 	test/Buffer#Put.2$
+ test/Async#`<init>`().2
+ test/Async#2$
+
+
+ test/Buffer#joinPat().2'
+
+
+ test/Buffer#joinPat().(x)2
+
+
+ 
+scala/Any#2
+
+
+ scala/Unit#2'
+ test/Buffer#joinPat().(x)2
+ test/Buffer#Put.2#
+ test/Async#unapply().2
+ test/Buffer#Put.2
+ local02'
+ scala/Predef.println(+1).2%
+ java/lang/String#`+`().2
+  local02 
+ test/unapplyJoins.2
+ 
+scala/App#2%
+ test/unapplyJoins.Sync#20
+ "test/unapplyJoins.Sync#`<init>`().2-
+ test/unapplyJoins.Sync#apply().2
+ 
+scala/Int#2/
+ !test/unapplyJoins.Sync#unapply().26
+ (test/unapplyJoins.Sync#unapply().(scrut)2
+ 
+scala/Any#2
+ $scala/Boolean#2'
+ test/unapplyJoins.Buffer#22
+ $test/unapplyJoins.Buffer#`<init>`().2+
+ test/unapplyJoins.Buffer#Get.20
+ "test/unapplyJoins.Sync#`<init>`().2%
+ test/unapplyJoins.Sync#2*
+ 
+test/unapplyJoins.Buffer#jp.2$
+ scala/PartialFunction#2
+ 
+scala/Any#2
+! $
+scala/Any#2
+ local12/
+ !test/unapplyJoins.Sync#unapply().2+
+ test/unapplyJoins.Buffer#Get.2'
+## 	scala/Predef.println(+1).22
+## %$scala/PartialFunction#isDefinedAt().2*
+## test/unapplyJoins.Buffer#jp.22
+## $test/unapplyJoins.Buffer#`<init>`().2'
+## test/unapplyJoins.Buffer#PZ 8C8FF722DE3394DC602E5DD603CF756E

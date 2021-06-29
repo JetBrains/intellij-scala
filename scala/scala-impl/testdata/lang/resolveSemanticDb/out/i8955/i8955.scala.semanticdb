@@ -1,0 +1,84 @@
+
+ëtests/pos/i8955.scala*
+_empty_/One#*One€*)
+_empty_/One#`<init>`(). €@*<init>€*
+_empty_/One#[A]	*A€*(
+_empty_/i8955$package. *_empty_€**
+_empty_/i8955$package.test().*test€**
+ _empty_/i8955$package.test().[A]	*A€**
+ _empty_/i8955$package.test().(a)*a€*,
+_empty_/i8955$package.test(+1).*test€*,
+"_empty_/i8955$package.test(+1).[A]	*A€*.
+#_empty_/i8955$package.test(+1).(as)*as€**
+_empty_/i8955$package.tost().*tost€**
+ _empty_/i8955$package.tost().[A]	*A€**
+ _empty_/i8955$package.tost().(a)*a€**
+_empty_/i8955$package.main().*main€*
+local0 €*one€*
+local1 €*cls€*
+_empty_/main# *main€**
+_empty_/main#`<init>`(). €@*<init>€*$
+_empty_/main#main(). € *main€*'
+_empty_/main#main().(args)*args€*
+local2 €*error€2
+ 	_empty_/One#2!
+	 	_empty_/One#`<init>`().2
+
+ _empty_/One#[A]2 
+_empty_/i8955$package.2+
+ _empty_/i8955$package.test().2.
+	 
+ _empty_/i8955$package.test().[A]2.
+  _empty_/i8955$package.test().(a)2!
+ scala/Predef.Class#2.
+  _empty_/i8955$package.test().[A]2'
+ "scala/Predef.println(+1).2.
+# $ _empty_/i8955$package.test().(a)2-
+ _empty_/i8955$package.test(+1).20
+	 
+"_empty_/i8955$package.test(+1).[A]21
+ #_empty_/i8955$package.test(+1).(as)2!
+ scala/package.List#20
+ "_empty_/i8955$package.test(+1).[A]2'
+ "scala/Predef.println(+1).21
+# %#_empty_/i8955$package.test(+1).(as)2+
+ _empty_/i8955$package.tost().2.
+	 
+ _empty_/i8955$package.tost().[A]2.
+  _empty_/i8955$package.tost().(a)2!
+ scala/Predef.Class#2.
+  _empty_/i8955$package.tost().[A]2'
+ "scala/Predef.println(+1).2.
+# $ _empty_/i8955$package.tost().(a)2
+ scala/main#2+
+
+ _empty_/i8955$package.main().2
+ 	local02
+ _empty_/One#2%
+ _empty_/One#`<init>`().2+
+ _empty_/i8955$package.test().2#
+ scala/Any#getClass().2
+ 
+local02!
+ scala/Predef.Class#2
+ 	local12#
+ scala/Any#getClass().2
+ local02+
+		 _empty_/i8955$package.test().2
+		 
+local12+
+
+
+ _empty_/i8955$package.tost().2#
+
+
+ scala/Any#getClass().2
+
+
+ 
+local02
+_empty_/main#2"
+_empty_/main#`<init>`().2'
+_empty_/i8955$package.main().23
+)scala/util/CommandLineParser.showError().2
+local2PZ 307C69D9A3C926BA4CF7D471F5E3B44F

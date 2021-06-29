@@ -1,0 +1,15 @@
+
+Òtests/pos/t2799.scala*
+_empty_/Bob# €*Bob€*)
+_empty_/Bob#`<init>`(). €@*<init>€* 
+_empty_/Bob#copy().*copy€*
+_empty_/Bob.
+ *Bob€*"
+_empty_/Bob.apply().*apply€*&
+_empty_/Bob.unapply().*unapply€*'
+_empty_/Bob.unapply().(x$1)*x$1€*(
+_empty_/Bob.toString().*toString€2
+ scala/deprecated#2
+% (_empty_/Bob#2!
+( (_empty_/Bob#`<init>`().2
+% %_empty_/Bob.PZ F8D9F0749106E4C2BA8B3A43B50637FB

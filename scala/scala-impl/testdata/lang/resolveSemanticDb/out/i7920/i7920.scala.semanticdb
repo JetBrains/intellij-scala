@@ -1,0 +1,41 @@
+
+ƒ
+tests/pos/i7920.scala*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*#
+_empty_/Bar#glass. €*glass€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*+
+_empty_/Foo#`<init>`().(bar) €*bar€*
+_empty_/Foo#bar. €*bar€*(
+_empty_/i7920$package. *_empty_€*%
+_empty_/i7920$package.f. €*f€*
+local0 *$anon€*
+local1 *glass€*/
+_empty_/i7920$package.fGlass. €*fGlass€2
+ 	_empty_/Bar#2!
+ _empty_/Bar#`<init>`().2
+ _empty_/Bar#glass.2
+ 
+scala/Int#2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+ _empty_/Bar#2'
+/ 9scala/reflect/Selectable#2
+' .scala/reflect/2
+! &scala/2
+ _empty_/Foo#bar.2 
+_empty_/i7920$package.2&
+ _empty_/i7920$package.f.2
+ local02%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2%
+ _empty_/Bar#`<init>`().2
+ _empty_/Bar#2
+	 _empty_/Foo#bar.2
+ local12 
+ _empty_/Bar#glass.2+
+ 
+_empty_/i7920$package.fGlass.27
+ )scala/reflect/Selectable#selectDynamic().2&
+ _empty_/i7920$package.f.PZ A10803A749E2DF6C9759F0AE073706F8

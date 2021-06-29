@@ -1,0 +1,413 @@
+
+ûstests/pos/i4471-gadt.scala*
+_empty_/i4471.
+ *i4471€*(
+_empty_/i4471.Shuffle# *Shuffle€*3
+!_empty_/i4471.Shuffle#`<init>`(). €@*<init>€*%
+_empty_/i4471.Shuffle#[A1]	*A1€*%
+_empty_/i4471.Shuffle#[A2]	*A2€*0
+ _empty_/i4471.Shuffle#andThen().*andThen€*/
+$_empty_/i4471.Shuffle#andThen().[A3]	*A3€*3
+&_empty_/i4471.Shuffle#andThen().(that)*that€*
+_empty_/i4471.Id# €*Id€*.
+_empty_/i4471.Id#`<init>`(). €@*<init>€*
+_empty_/i4471.Id#[A]	*A€*%
+_empty_/i4471.Id#copy().*copy€*%
+_empty_/i4471.Id#copy().[A]	*A€*
+_empty_/i4471.Id.
+ *Id€*'
+_empty_/i4471.Id.apply().*apply€*&
+_empty_/i4471.Id.apply().[A]	*A€*+
+_empty_/i4471.Id.unapply().*unapply€*(
+_empty_/i4471.Id.unapply().[A]	*A€*,
+ _empty_/i4471.Id.unapply().(x$1)*x$1€*-
+_empty_/i4471.Id.toString().*toString€*#
+_empty_/i4471.Swap# €*Swap€*0
+_empty_/i4471.Swap#`<init>`(). €@*<init>€* 
+_empty_/i4471.Swap#[A]	*A€* 
+_empty_/i4471.Swap#[B]	*B€*'
+_empty_/i4471.Swap#copy().*copy€*'
+_empty_/i4471.Swap#copy().[A]	*A€*'
+_empty_/i4471.Swap#copy().[B]	*B€*"
+_empty_/i4471.Swap.
+ *Swap€*)
+_empty_/i4471.Swap.apply().*apply€*(
+_empty_/i4471.Swap.apply().[A]	*A€*(
+_empty_/i4471.Swap.apply().[B]	*B€*-
+_empty_/i4471.Swap.unapply().*unapply€**
+ _empty_/i4471.Swap.unapply().[A]	*A€**
+ _empty_/i4471.Swap.unapply().[B]	*B€*.
+"_empty_/i4471.Swap.unapply().(x$1)*x$1€*/
+_empty_/i4471.Swap.toString().*toString€*)
+_empty_/i4471.AssocLR# €*AssocLR€*3
+!_empty_/i4471.AssocLR#`<init>`(). €@*<init>€*#
+_empty_/i4471.AssocLR#[A]	*A€*#
+_empty_/i4471.AssocLR#[B]	*B€*#
+_empty_/i4471.AssocLR#[C]	*C€**
+_empty_/i4471.AssocLR#copy().*copy€**
+ _empty_/i4471.AssocLR#copy().[A]	*A€**
+ _empty_/i4471.AssocLR#copy().[B]	*B€**
+ _empty_/i4471.AssocLR#copy().[C]	*C€*(
+_empty_/i4471.AssocLR.
+ *AssocLR€*,
+_empty_/i4471.AssocLR.apply().*apply€*+
+!_empty_/i4471.AssocLR.apply().[A]	*A€*+
+!_empty_/i4471.AssocLR.apply().[B]	*B€*+
+!_empty_/i4471.AssocLR.apply().[C]	*C€*0
+ _empty_/i4471.AssocLR.unapply().*unapply€*-
+#_empty_/i4471.AssocLR.unapply().[A]	*A€*-
+#_empty_/i4471.AssocLR.unapply().[B]	*B€*-
+#_empty_/i4471.AssocLR.unapply().[C]	*C€*1
+%_empty_/i4471.AssocLR.unapply().(x$1)*x$1€*2
+!_empty_/i4471.AssocLR.toString().*toString€*)
+_empty_/i4471.AssocRL# €*AssocRL€*3
+!_empty_/i4471.AssocRL#`<init>`(). €@*<init>€*#
+_empty_/i4471.AssocRL#[A]	*A€*#
+_empty_/i4471.AssocRL#[B]	*B€*#
+_empty_/i4471.AssocRL#[C]	*C€**
+_empty_/i4471.AssocRL#copy().*copy€**
+ _empty_/i4471.AssocRL#copy().[A]	*A€**
+ _empty_/i4471.AssocRL#copy().[B]	*B€**
+ _empty_/i4471.AssocRL#copy().[C]	*C€*(
+_empty_/i4471.AssocRL.
+ *AssocRL€*,
+_empty_/i4471.AssocRL.apply().*apply€*+
+!_empty_/i4471.AssocRL.apply().[A]	*A€*+
+!_empty_/i4471.AssocRL.apply().[B]	*B€*+
+!_empty_/i4471.AssocRL.apply().[C]	*C€*0
+ _empty_/i4471.AssocRL.unapply().*unapply€*-
+#_empty_/i4471.AssocRL.unapply().[A]	*A€*-
+#_empty_/i4471.AssocRL.unapply().[B]	*B€*-
+#_empty_/i4471.AssocRL.unapply().[C]	*C€*1
+%_empty_/i4471.AssocRL.unapply().(x$1)*x$1€*2
+!_empty_/i4471.AssocRL.toString().*toString€*!
+_empty_/i4471.Par# €*Par€*/
+_empty_/i4471.Par#`<init>`(). €@*<init>€*/
+!_empty_/i4471.Par#`<init>`().(_1) €*_1€*/
+!_empty_/i4471.Par#`<init>`().(_2) €*_2€*!
+_empty_/i4471.Par#[A1]	*A1€*!
+_empty_/i4471.Par#[B1]	*B1€*!
+_empty_/i4471.Par#[A2]	*A2€*!
+_empty_/i4471.Par#[B2]	*B2€*#
+_empty_/i4471.Par#_1. €*_1€*#
+_empty_/i4471.Par#_2. €*_2€*&
+_empty_/i4471.Par#copy().*copy€*(
+_empty_/i4471.Par#copy().[A1]	*A1€*(
+_empty_/i4471.Par#copy().[B1]	*B1€*(
+_empty_/i4471.Par#copy().[A2]	*A2€*(
+_empty_/i4471.Par#copy().[B2]	*B2€*(
+_empty_/i4471.Par#copy().(_1)*_1€*(
+_empty_/i4471.Par#copy().(_2)*_2€*:
+#_empty_/i4471.Par#copy$default$1().*copy$default$1€*2
+'_empty_/i4471.Par#copy$default$1().[A1]	*A1€*2
+'_empty_/i4471.Par#copy$default$1().[B1]	*B1€*2
+'_empty_/i4471.Par#copy$default$1().[A2]	*A2€*2
+'_empty_/i4471.Par#copy$default$1().[B2]	*B2€*:
+#_empty_/i4471.Par#copy$default$2().*copy$default$2€*2
+'_empty_/i4471.Par#copy$default$2().[A1]	*A1€*2
+'_empty_/i4471.Par#copy$default$2().[B1]	*B1€*2
+'_empty_/i4471.Par#copy$default$2().[A2]	*A2€*2
+'_empty_/i4471.Par#copy$default$2().[B2]	*B2€* 
+_empty_/i4471.Par.
+ *Par€*(
+_empty_/i4471.Par.apply().*apply€*)
+_empty_/i4471.Par.apply().[A1]	*A1€*)
+_empty_/i4471.Par.apply().[B1]	*B1€*)
+_empty_/i4471.Par.apply().[A2]	*A2€*)
+_empty_/i4471.Par.apply().[B2]	*B2€*)
+_empty_/i4471.Par.apply().(_1)*_1€*)
+_empty_/i4471.Par.apply().(_2)*_2€*,
+_empty_/i4471.Par.unapply().*unapply€*+
+ _empty_/i4471.Par.unapply().[A1]	*A1€*+
+ _empty_/i4471.Par.unapply().[B1]	*B1€*+
+ _empty_/i4471.Par.unapply().[A2]	*A2€*+
+ _empty_/i4471.Par.unapply().[B2]	*B2€*-
+!_empty_/i4471.Par.unapply().(x$1)*x$1€*.
+_empty_/i4471.Par.toString().*toString€*)
+_empty_/i4471.AndThen# €*AndThen€*3
+!_empty_/i4471.AndThen#`<init>`(). €@*<init>€*3
+%_empty_/i4471.AndThen#`<init>`().(_1) €*_1€*3
+%_empty_/i4471.AndThen#`<init>`().(_2) €*_2€*%
+_empty_/i4471.AndThen#[A1]	*A1€*%
+_empty_/i4471.AndThen#[A2]	*A2€*%
+_empty_/i4471.AndThen#[A3]	*A3€*'
+_empty_/i4471.AndThen#_1. €*_1€*'
+_empty_/i4471.AndThen#_2. €*_2€**
+_empty_/i4471.AndThen#copy().*copy€*,
+!_empty_/i4471.AndThen#copy().[A1]	*A1€*,
+!_empty_/i4471.AndThen#copy().[A2]	*A2€*,
+!_empty_/i4471.AndThen#copy().[A3]	*A3€*,
+!_empty_/i4471.AndThen#copy().(_1)*_1€*,
+!_empty_/i4471.AndThen#copy().(_2)*_2€*>
+'_empty_/i4471.AndThen#copy$default$1().*copy$default$1€*6
++_empty_/i4471.AndThen#copy$default$1().[A1]	*A1€*6
++_empty_/i4471.AndThen#copy$default$1().[A2]	*A2€*6
++_empty_/i4471.AndThen#copy$default$1().[A3]	*A3€*>
+'_empty_/i4471.AndThen#copy$default$2().*copy$default$2€*6
++_empty_/i4471.AndThen#copy$default$2().[A1]	*A1€*6
++_empty_/i4471.AndThen#copy$default$2().[A2]	*A2€*6
++_empty_/i4471.AndThen#copy$default$2().[A3]	*A3€*(
+_empty_/i4471.AndThen.
+ *AndThen€*,
+_empty_/i4471.AndThen.apply().*apply€*-
+"_empty_/i4471.AndThen.apply().[A1]	*A1€*-
+"_empty_/i4471.AndThen.apply().[A2]	*A2€*-
+"_empty_/i4471.AndThen.apply().[A3]	*A3€*-
+"_empty_/i4471.AndThen.apply().(_1)*_1€*-
+"_empty_/i4471.AndThen.apply().(_2)*_2€*0
+ _empty_/i4471.AndThen.unapply().*unapply€*/
+$_empty_/i4471.AndThen.unapply().[A1]	*A1€*/
+$_empty_/i4471.AndThen.unapply().[A2]	*A2€*/
+$_empty_/i4471.AndThen.unapply().[A3]	*A3€*1
+%_empty_/i4471.AndThen.unapply().(x$1)*x$1€*2
+!_empty_/i4471.AndThen.toString().*toString€**
+_empty_/i4471.rewrite3().*rewrite3€*(
+_empty_/i4471.rewrite3().[A1]	*A1€*(
+_empty_/i4471.rewrite3().[A2]	*A2€*(
+_empty_/i4471.rewrite3().[A3]	*A3€*(
+_empty_/i4471.rewrite3().[A4]	*A4€**
+_empty_/i4471.rewrite3().(op1)*op1€**
+_empty_/i4471.rewrite3().(op2)*op2€**
+_empty_/i4471.rewrite3().(op3)*op3€*
+local0 €	*x€*
+local1 €	*y€*
+local2 €	*u€*
+local3 €	*v€*
+local4 €	*w€*
+local5 €*op3_€*
+local6 €	*p1€*
+local7 €	*q1€*
+local8 €	*p2€*
+local9 €	*q2€*
+local10 €	*r€*
+local11 €	*s€*
+local12 €	*p2_€2
+ _empty_/i4471.2$
+ _empty_/i4471.Shuffle#2/
+ !_empty_/i4471.Shuffle#`<init>`().2(
+ _empty_/i4471.Shuffle#[A1]2(
+ _empty_/i4471.Shuffle#[A2]2.
+  _empty_/i4471.Shuffle#andThen().22
+ $_empty_/i4471.Shuffle#andThen().[A3]24
+ &_empty_/i4471.Shuffle#andThen().(that)2$
+ !_empty_/i4471.Shuffle#2(
+" $_empty_/i4471.Shuffle#[A2]22
+& ($_empty_/i4471.Shuffle#andThen().[A3]2$
+, 3_empty_/i4471.Shuffle#2(
+4 6_empty_/i4471.Shuffle#[A1]22
+8 :$_empty_/i4471.Shuffle#andThen().[A3]2,
+E E_empty_/i4471.AndThen.apply().2$
+> E_empty_/i4471.AndThen.24
+L P&_empty_/i4471.Shuffle#andThen().(that)2
+ _empty_/i4471.Id#2*
+ _empty_/i4471.Id#`<init>`().2$
+ $_empty_/i4471.Shuffle#2"
+% &_empty_/i4471.Id#[A]2"
+( )_empty_/i4471.Id#[A]2"
+ _empty_/i4471.Id#[A]2&
+ _empty_/i4471.Id#copy().2
+ _empty_/i4471.Id.2'
+ _empty_/i4471.Id.apply().2)
+ _empty_/i4471.Id.unapply().2!
+ _empty_/i4471.Swap#2,
+ _empty_/i4471.Swap#`<init>`().2$
+" )_empty_/i4471.Shuffle#2$
++ ,_empty_/i4471.Swap#[A]2$
+. /_empty_/i4471.Swap#[B]2$
+3 4_empty_/i4471.Swap#[B]2$
+6 7_empty_/i4471.Swap#[A]2$
+ _empty_/i4471.Swap#[A]2$
+ _empty_/i4471.Swap#[B]2(
+ _empty_/i4471.Swap#copy().2!
+ _empty_/i4471.Swap.2)
+ _empty_/i4471.Swap.apply().2+
+ _empty_/i4471.Swap.unapply().2$
+ _empty_/i4471.AssocLR#2/
+ !_empty_/i4471.AssocLR#`<init>`().2$
+( /_empty_/i4471.Shuffle#2'
+2 3_empty_/i4471.AssocLR#[A]2'
+5 6_empty_/i4471.AssocLR#[B]2'
+9 :_empty_/i4471.AssocLR#[C]2'
+> ?_empty_/i4471.AssocLR#[A]2'
+B C_empty_/i4471.AssocLR#[B]2'
+E F_empty_/i4471.AssocLR#[C]2'
+ _empty_/i4471.AssocLR#[A]2'
+ _empty_/i4471.AssocLR#[B]2'
+ _empty_/i4471.AssocLR#[C]2+
+ _empty_/i4471.AssocLR#copy().2$
+ _empty_/i4471.AssocLR.2,
+ _empty_/i4471.AssocLR.apply().2.
+  _empty_/i4471.AssocLR.unapply().2$
+ _empty_/i4471.AssocRL#2/
+ !_empty_/i4471.AssocRL#`<init>`().2$
+( /_empty_/i4471.Shuffle#2'
+1 2_empty_/i4471.AssocRL#[A]2'
+5 6_empty_/i4471.AssocRL#[B]2'
+8 9_empty_/i4471.AssocRL#[C]2'
+? @_empty_/i4471.AssocRL#[A]2'
+B C_empty_/i4471.AssocRL#[B]2'
+F G_empty_/i4471.AssocRL#[C]2'
+ _empty_/i4471.AssocRL#[A]2'
+ _empty_/i4471.AssocRL#[B]2'
+ _empty_/i4471.AssocRL#[C]2+
+ _empty_/i4471.AssocRL#copy().2$
+ _empty_/i4471.AssocRL.2,
+ _empty_/i4471.AssocRL.apply().2.
+  _empty_/i4471.AssocRL.unapply().2 
+		 _empty_/i4471.Par#2+
+		 _empty_/i4471.Par#`<init>`().2$
+	%	 ,_empty_/i4471.Shuffle#2$
+	-	 /_empty_/i4471.Par#[A1]2$
+	1	 3_empty_/i4471.Par#[B1]2$
+	:	 A_empty_/i4471.Shuffle#2$
+	B	 D_empty_/i4471.Par#[A2]2$
+	F	 H_empty_/i4471.Par#[B2]2$
+	S	 Z_empty_/i4471.Shuffle#2$
+	\	 ^_empty_/i4471.Par#[A1]2$
+	`	 b_empty_/i4471.Par#[A2]2$
+	f	 h_empty_/i4471.Par#[B1]2$
+	j	 l_empty_/i4471.Par#[B2]2$
+		 _empty_/i4471.Par#[A1]2$
+		 _empty_/i4471.Par#[B1]2$
+		 _empty_/i4471.Par#[A2]2$
+		 _empty_/i4471.Par#[B2]2#
+	!	 #_empty_/i4471.Par#_1.2#
+	6	 8_empty_/i4471.Par#_2.2'
+		 _empty_/i4471.Par#copy().2 
+		 _empty_/i4471.Par.2(
+		 _empty_/i4471.Par.apply().2*
+		 _empty_/i4471.Par.unapply().2$
+
+
+ _empty_/i4471.AndThen#2/
+
+
+ !_empty_/i4471.AndThen#`<init>`().2$
+
+%
+ ,_empty_/i4471.Shuffle#2(
+
+-
+ /_empty_/i4471.AndThen#[A1]2(
+
+1
+ 3_empty_/i4471.AndThen#[A2]2$
+
+:
+ A_empty_/i4471.Shuffle#2(
+
+B
+ D_empty_/i4471.AndThen#[A2]2(
+
+F
+ H_empty_/i4471.AndThen#[A3]2$
+
+S
+ Z_empty_/i4471.Shuffle#2(
+
+[
+ ]_empty_/i4471.AndThen#[A1]2(
+
+_
+ a_empty_/i4471.AndThen#[A3]2(
+
+
+ _empty_/i4471.AndThen#[A1]2(
+
+
+ _empty_/i4471.AndThen#[A2]2(
+
+
+ _empty_/i4471.AndThen#[A3]2'
+
+!
+ #_empty_/i4471.AndThen#_1.2'
+
+6
+ 8_empty_/i4471.AndThen#_2.2+
+
+
+ _empty_/i4471.AndThen#copy().2$
+
+
+ _empty_/i4471.AndThen.2,
+
+
+ _empty_/i4471.AndThen.apply().2.
+
+
+  _empty_/i4471.AndThen.unapply().2'
+ _empty_/i4471.rewrite3().2+
+ _empty_/i4471.rewrite3().[A1]2+
+ _empty_/i4471.rewrite3().[A2]2+
+ _empty_/i4471.rewrite3().[A3]2+
+ _empty_/i4471.rewrite3().[A4]2,
+ _empty_/i4471.rewrite3().(op1)2$
+	 _empty_/i4471.Shuffle#2+
+ _empty_/i4471.rewrite3().[A1]2+
+ _empty_/i4471.rewrite3().[A2]2,
+ _empty_/i4471.rewrite3().(op2)2$
+	 _empty_/i4471.Shuffle#2+
+ _empty_/i4471.rewrite3().[A2]2+
+ _empty_/i4471.rewrite3().[A3]2,
+ _empty_/i4471.rewrite3().(op3)2$
+	 _empty_/i4471.Shuffle#2+
+ _empty_/i4471.rewrite3().[A3]2+
+ _empty_/i4471.rewrite3().[A4]2
+ scala/Option#2$
+ _empty_/i4471.Shuffle#2+
+ _empty_/i4471.rewrite3().[A1]2+
+ _empty_/i4471.rewrite3().[A4]2#
+   scala/Tuple3.apply().2,
+  #_empty_/i4471.rewrite3().(op1)2,
+% (_empty_/i4471.rewrite3().(op2)2,
+* -_empty_/i4471.rewrite3().(op3)2%
+ scala/Tuple3.unapply().2!
+	 _empty_/i4471.Swap#2
+ local02
+ local12$
+	 _empty_/i4471.AssocRL#2
+ local22
+ local32
+ local42
+ 
+local52 
+ _empty_/i4471.Par#2
+ local62
+ local72
+ local82
+ local92
+	 local52*
+ _empty_/i4471.Par.unapply().2 
+ _empty_/i4471.Par.2!
+ _empty_/i4471.Swap#2
+ local102
+ local112
+! #_empty_/i4471.Id#2
+$ 'local122!
+ scala/Some.apply().2
+ scala/Some.2.
+@ G _empty_/i4471.Shuffle#andThen().2.
+ $ _empty_/i4471.Shuffle#andThen().2,
+ _empty_/i4471.AssocLR.apply().2$
+
+ _empty_/i4471.AssocLR.2
+ local32
+ local42
+ local22(
+( (_empty_/i4471.Par.apply().2 
+% (_empty_/i4471.Par.2'
++ +_empty_/i4471.Id.apply().2
+) +_empty_/i4471.Id.2
+, -local32)
+6 6_empty_/i4471.Swap.apply().2!
+2 6_empty_/i4471.Swap.2
+7 8local42
+: ;local22,
+O O_empty_/i4471.AssocRL.apply().2$
+H O_empty_/i4471.AssocRL.2
+P Qlocal32
+S Tlocal22
+V Wlocal42
+ scala/None.2
+ scala/None.PZ 62A6FE3DA2475C44E6EE93B71D6C3495

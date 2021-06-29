@@ -1,0 +1,52 @@
+
+™ tests/pos/overloadedAccess.scala*4
+_empty_/overloadedAccess.
+ *overloadedAccess€*'
+_empty_/overloadedAccess.ST#*ST€*9
+'_empty_/overloadedAccess.ST#`<init>`(). €@*<init>€**
+ _empty_/overloadedAccess.ST#f().*f€*-
+#_empty_/overloadedAccess.ST#f().(x)*x€*,
+"_empty_/overloadedAccess.ST#f(+1).*f€*/
+%_empty_/overloadedAccess.ST#f(+1).(x)*x€*'
+_empty_/overloadedAccess.O.
+ *O€*)
+_empty_/overloadedAccess.O.f().*f€*,
+"_empty_/overloadedAccess.O.f().(x)*x€*%
+_empty_/overloadedAccess.C#*C€*8
+&_empty_/overloadedAccess.C#`<init>`(). €@*<init>€**
+_empty_/overloadedAccess.C#x. €*x€**
+_empty_/overloadedAccess.C#y. €*y€2#
+ _empty_/overloadedAccess.2*
+ 
+_empty_/overloadedAccess.ST#25
+ '_empty_/overloadedAccess.ST#`<init>`().2.
+ 	 _empty_/overloadedAccess.ST#f().21
+
+ #_empty_/overloadedAccess.ST#f().(x)2
+ java/lang/Object#2
+ 
+scala/Int#20
+ 	"_empty_/overloadedAccess.ST#f(+1).23
+
+ %_empty_/overloadedAccess.ST#f(+1).(x)2
+ 
+scala/Int#2
+ scala/Unit#2)
+	 
+_empty_/overloadedAccess.O.2*
+ _empty_/overloadedAccess.ST#2-
+ 	_empty_/overloadedAccess.O.f().20
+
+ "_empty_/overloadedAccess.O.f().(x)2"
+ scala/Predef.String#2
+ scala/Unit#2)
+ 	_empty_/overloadedAccess.C#24
+ &_empty_/overloadedAccess.C#`<init>`().2*
+ _empty_/overloadedAccess.ST#2)
+ _empty_/overloadedAccess.O.2+
+ 	_empty_/overloadedAccess.C#x.2.
+  _empty_/overloadedAccess.ST#f().2+
+ 	_empty_/overloadedAccess.C#y.2
+ 
+scala/Int#2+
+ _empty_/overloadedAccess.C#x.PZ E1125385FFF71BDDF9CEB4CDB63383AD

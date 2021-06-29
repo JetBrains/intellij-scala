@@ -1,0 +1,84 @@
+
+Ìtests/pos/i3544.scala*
+_empty_/Test.
+ *Test€*(
+_empty_/Test.Tuple2K# €*Tuple2K€*2
+ _empty_/Test.Tuple2K#`<init>`(). €@*<init>€*0
+#_empty_/Test.Tuple2K#`<init>`().(f) €*f€*0
+#_empty_/Test.Tuple2K#`<init>`().(g) €*g€*"
+_empty_/Test.Tuple2K#[F]	*F€*"
+_empty_/Test.Tuple2K#[G]	*G€*"
+_empty_/Test.Tuple2K#[A]	*A€*$
+_empty_/Test.Tuple2K#f. €*f€*$
+_empty_/Test.Tuple2K#g. €*g€*)
+_empty_/Test.Tuple2K#copy().*copy€*)
+_empty_/Test.Tuple2K#copy().[F]	*F€*)
+_empty_/Test.Tuple2K#copy().[G]	*G€*)
+_empty_/Test.Tuple2K#copy().[A]	*A€*)
+_empty_/Test.Tuple2K#copy().(f)*f€*)
+_empty_/Test.Tuple2K#copy().(g)*g€*=
+&_empty_/Test.Tuple2K#copy$default$1().*copy$default$1€*3
+)_empty_/Test.Tuple2K#copy$default$1().[F]	*F€*3
+)_empty_/Test.Tuple2K#copy$default$1().[G]	*G€*3
+)_empty_/Test.Tuple2K#copy$default$1().[A]	*A€*=
+&_empty_/Test.Tuple2K#copy$default$2().*copy$default$2€*3
+)_empty_/Test.Tuple2K#copy$default$2().[F]	*F€*3
+)_empty_/Test.Tuple2K#copy$default$2().[G]	*G€*3
+)_empty_/Test.Tuple2K#copy$default$2().[A]	*A€*%
+_empty_/Test.Tuple2K#_1().*_1€*%
+_empty_/Test.Tuple2K#_2().*_2€*'
+_empty_/Test.Tuple2K.
+ *Tuple2K€*+
+_empty_/Test.Tuple2K.apply().*apply€**
+ _empty_/Test.Tuple2K.apply().[F]	*F€**
+ _empty_/Test.Tuple2K.apply().[G]	*G€**
+ _empty_/Test.Tuple2K.apply().[A]	*A€**
+ _empty_/Test.Tuple2K.apply().(f)*f€**
+ _empty_/Test.Tuple2K.apply().(g)*g€*/
+_empty_/Test.Tuple2K.unapply().*unapply€*,
+"_empty_/Test.Tuple2K.unapply().[F]	*F€*,
+"_empty_/Test.Tuple2K.unapply().[G]	*G€*,
+"_empty_/Test.Tuple2K.unapply().[A]	*A€*0
+$_empty_/Test.Tuple2K.unapply().(x$1)*x$1€*1
+ _empty_/Test.Tuple2K.toString().*toString€*
+_empty_/Test.p0. €*p0€*
+_empty_/Test.p0.[X]	*X€*
+_empty_/Test.p0.[X]	*X€2
+ _empty_/Test.2#
+ _empty_/Test.Tuple2K#2.
+  _empty_/Test.Tuple2K#`<init>`().2&
+' (_empty_/Test.Tuple2K#[F]2&
+) *_empty_/Test.Tuple2K#[A]2&
+0 1_empty_/Test.Tuple2K#[G]2&
+2 3_empty_/Test.Tuple2K#[A]2&
+ _empty_/Test.Tuple2K#[F]2&
+ _empty_/Test.Tuple2K#[G]2&
+! "_empty_/Test.Tuple2K#[A]2%
+$ %_empty_/Test.Tuple2K#f.2%
+- ._empty_/Test.Tuple2K#g.2*
+ _empty_/Test.Tuple2K#copy().2(
+' '_empty_/Test.Tuple2K#_1().2(
+0 0_empty_/Test.Tuple2K#_2().2#
+ _empty_/Test.Tuple2K.2+
+ _empty_/Test.Tuple2K.apply().2-
+ _empty_/Test.Tuple2K.unapply().2
+ _empty_/Test.p0.2#
+
+ _empty_/Test.Tuple2K#2!
+ _empty_/Test.p0.[X]2
+ 
+scala/Int#2!
+  !_empty_/Test.p0.[X]2"
+' -scala/Predef.String#2
+/ 2
+scala/Any#2+
+= =_empty_/Test.Tuple2K.apply().2#
+6 =_empty_/Test.Tuple2K.2
+ scala/Any#`==`().2
+ _empty_/Test.p0.2+
+ _empty_/Test.Tuple2K.apply().2#
+ _empty_/Test.Tuple2K.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ scala/Option.apply().2
+ scala/Option.PZ 87C4A6A902317BDEF1E62B69C5AC8951

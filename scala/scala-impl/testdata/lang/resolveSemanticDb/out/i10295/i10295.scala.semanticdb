@@ -1,0 +1,92 @@
+
+Ætests/pos/i10295.scala*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#X#*X€*
+_empty_/M#X.
+ *X€*
+_empty_/M#X.foo().*foo€*)
+_empty_/i10295$package. *_empty_€*%
+_empty_/i10295$package.m().*m€**
+_empty_/i10295$package.m().(m)  *m€*9
+%_empty_/i10295$package.doSomething().*doSomething€*8
++_empty_/i10295$package.doSomething().(body)*body€*
+local0 *$anon€*-
+_empty_/i10295$package.Test1().*Test1€*
+local1 è*given_M€*
+local2 *$anon€*
+local3 €*x€*-
+_empty_/i10295$package.Test2().*Test2€*
+local4 €*x€*
+local5 €*x€*
+local6 €*myM€*
+local7 €*x€2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ _empty_/M#X#2
+	 
+_empty_/M#X.2 
+ _empty_/M#X.foo().2
+ _empty_/M#X#2#
+ scala/Predef.`???`().2!
+_empty_/i10295$package.2,
+/ 0_empty_/i10295$package.m().(m)2)
+ _empty_/i10295$package.m().2,
+  _empty_/i10295$package.m().(m)2
+" #
+_empty_/M#2,
+& '_empty_/i10295$package.m().(m)23
+ %_empty_/i10295$package.doSomething().29
+ +_empty_/i10295$package.doSomething().(body)2
+ 
+_empty_/M#2
+  scala/Unit#2-
+( (scala/ContextFunction1#apply().29
+$ (+_empty_/i10295$package.doSomething().(body)2
+/ /local02
+3 4
+_empty_/M#2-
+
+
+ 	_empty_/i10295$package.Test1().2
+ local12
+ 	
+_empty_/M#2
+ local22
+ 
+_empty_/M#2%
+ 	scala/Predef.locally().2)
+ _empty_/i10295$package.m().2
+ local12
+ 	local32 
+ _empty_/M#X.foo().2
+ _empty_/M#X.2'
+ scala/Predef.println(+1).2
+ local32-
+ 	_empty_/i10295$package.Test2().23
+ %_empty_/i10295$package.doSomething().2
+ 	local42
+ _empty_/M#X#2)
+ _empty_/i10295$package.m().2 
+ _empty_/M#X.foo().2
+ _empty_/M#X.2)
+ _empty_/i10295$package.m().2'
+ scala/Predef.println(+1).2
+ local423
+ %_empty_/i10295$package.doSomething().2)
+ _empty_/i10295$package.m().2
+ 	local52 
+ _empty_/M#X.foo().2'
+ scala/Predef.println(+1).2
+ local523
+ %_empty_/i10295$package.doSomething().2
+!! local62)
+!! _empty_/i10295$package.m().2
+"" local62
+## 	local72 
+## _empty_/M#X.foo().2
+## _empty_/M#X.2'
+$$ scala/Predef.println(+1).2
+$$ local7PZ AE5ECED4379BB6AA430E530D3C2BAC61

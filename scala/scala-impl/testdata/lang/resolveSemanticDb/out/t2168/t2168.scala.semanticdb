@@ -1,0 +1,33 @@
+
+àtests/pos/t2168.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.foo1().*foo1€*!
+_empty_/Test.foo1().(x)*x€*
+local0 €*x€*!
+_empty_/Test.foo2().*foo2€*!
+_empty_/Test.foo2().(x)*x€*
+local1 €*x€2
+ _empty_/Test.2
+ 
+scala/App#2"
+ 
+_empty_/Test.foo1().2%
+ _empty_/Test.foo1().(x)2
+ scala/AnyRef#2%
+ _empty_/Test.foo1().(x)2
+' (local02
+* 3scala/Function0#2&
+; ;scala/Function0#apply().2
+: ;local02"
+ 
+_empty_/Test.foo2().2%
+ _empty_/Test.foo2().(x)2
+ scala/AnyRef#2%
+ _empty_/Test.foo2().(x)2
+' (local12
+* 3scala/Function0#2
+4 7
+scala/Any#2&
+= =scala/Function0#apply().2
+< =local1PZ 6AB397EDC481302EEC70A8CFD4F32F4E

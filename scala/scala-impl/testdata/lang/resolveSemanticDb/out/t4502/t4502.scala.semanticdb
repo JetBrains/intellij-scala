@@ -1,0 +1,36 @@
+
+ötests/pos/t4502.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#send().*send€*
+_empty_/T#send().(o)*o€*
+_empty_/T#send().(d)*d€*2
+_empty_/T#send$default$2().*send$default$2€*
+_empty_/T#c().*c€*
+_empty_/T#c().(f)*f€*
+_empty_/T#f().*f€*
+local0 €*a€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ 
+_empty_/T#send().2"
+ _empty_/T#send().(o)2
+ 
+scala/Any#2"
+ _empty_/T#send().(d)2
+ 
+scala/Int#2
+! %scala/Unit#2
+ _empty_/T#c().2
+ 	_empty_/T#c().(f)2
+ 
+scala/Any#2
+ scala/Unit#2
+ _empty_/T#f().2
+ scala/Unit#2
+ 	local02
+ local02
+ _empty_/T#c().2
+ 	local0PZ 09AA08538C51D911E510F46C1D82E068

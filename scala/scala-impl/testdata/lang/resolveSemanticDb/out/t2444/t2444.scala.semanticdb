@@ -1,0 +1,55 @@
+
+Ð
+tests/pos/t2444.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*
+_empty_/Test.Bar#*Bar€*.
+_empty_/Test.Bar#`<init>`(). €@*<init>€*#
+_empty_/Test.Bar#baz.
+ *baz€*!
+_empty_/Test.frob().*frob€*#
+_empty_/Test.frob().[P1]	*P1€*#
+_empty_/Test.frob().[P2]	*P2€*!
+_empty_/Test.frob().(f)*f€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0*p€2
+ _empty_/Test.2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2
+ _empty_/Test.Bar#2*
+ _empty_/Test.Bar#`<init>`().2#
+ _empty_/Test.Bar#baz.2
+ _empty_/Test.Foo#2"
+ 
+_empty_/Test.frob().2&
+ _empty_/Test.frob().[P1]2&
+ _empty_/Test.frob().[P2]2
+ _empty_/Test.Foo#2%
+ _empty_/Test.frob().(f)2&
+ _empty_/Test.frob().[P1]2&
+  "_empty_/Test.frob().[P2]2"
+
+
+ 
+_empty_/Test.main().2(
+
+
+ _empty_/Test.main().(args)2
+
+
+ scala/Array#2"
+
+
+ scala/Predef.String#2
+
+!
+ %scala/Unit#2"
+ _empty_/Test.frob().2
+
+ local02
+ _empty_/Test.Bar#2#
+ _empty_/Test.Bar#baz.2
+ local0PZ 5071B6CF77E2991F3D541AD30D4CD992

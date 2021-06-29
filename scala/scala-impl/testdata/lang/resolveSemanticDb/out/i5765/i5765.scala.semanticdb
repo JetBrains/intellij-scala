@@ -1,0 +1,151 @@
+
+¿+tests/pos/i5765.scala*
+_empty_/LogDSL#*LogDSL€*,
+_empty_/LogDSL#`<init>`(). €@*<init>€*
+_empty_/LogDSL#[L]	*L€* 
+_empty_/LogDSL.
+ *LogDSL€*5
+_empty_/LogDSL.LogRecsLogDSL.
+ (*LogRecsLogDSL€*'
+_empty_/LogDSL.runLog().*runLog€*'
+_empty_/LogDSL.runLog().(ls)*ls€*$
+_empty_/Direction#*	Direction€*/
+_empty_/Direction#`<init>`(). €@*<init>€*
+_empty_/Direction#[D]	*D€**
+_empty_/Direction#north(). *north€*&
+_empty_/Direction.
+ *	Direction€*8
+!_empty_/Direction.logDirection().  *logDirection€*.
+$_empty_/Direction.logDirection().[L]	*L€*0
+$_empty_/Direction.logDirection().(L)  *L€*>
+$_empty_/Direction.RotateDirection().  *RotateDirection€*1
+'_empty_/Direction.RotateDirection().[D]	*D€*3
+'_empty_/Direction.RotateDirection().(D)  *D€*
+_empty_/Rotate#*Rotate€*,
+_empty_/Rotate#`<init>`(). €@*<init>€*
+_empty_/Rotate#[R]	*R€*)
+_empty_/Rotate#rotate(). *rotate€*%
+_empty_/Rotate#rotate().(r)*r€* 
+_empty_/Rotate.
+ *Rotate€*/
+_empty_/Rotate.logRotate().  *	logRotate€*(
+_empty_/Rotate.logRotate().[L]	*L€**
+_empty_/Rotate.logRotate().(L)  *L€*)
+_empty_/Rotate.Rotation#*Rotation€*%
+_empty_/Rotate.Rotation#[T]	*T€*
+_empty_/Main.
+ *Main€*#
+_empty_/Main.north().*north€*"
+_empty_/Main.north().[D]	*D€*$
+_empty_/Main.north().(D)  *D€*%
+_empty_/Main.rotate().*rotate€*#
+_empty_/Main.rotate().[R]	*R€*#
+_empty_/Main.rotate().(r)*r€*'
+_empty_/Main.rotate().(RR)  *RR€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€2%
+ !scala/language.higherKinds.2
+ scala/language.2
+ scala/2
+ _empty_/LogDSL#2(
+ _empty_/LogDSL#`<init>`().2 
+ _empty_/LogDSL#[L]2
+ _empty_/LogDSL.2+
+ _empty_/LogDSL.LogRecsLogDSL.2
+( ._empty_/LogDSL#2"
+/ 5scala/Predef.String#2&
+ _empty_/LogDSL.runLog().2*
+ _empty_/LogDSL.runLog().(ls)2"
+ scala/Predef.String#2"
+  scala/Predef.String#2#
+# &scala/Predef.`???`().2 
+		 _empty_/Direction#2+
+		 _empty_/Direction#`<init>`().2#
+		 _empty_/Direction#[D]2(
+
+
+ _empty_/Direction#north().2#
+
+
+ _empty_/Direction#[D]2 
+ _empty_/Direction.2/
+ !_empty_/Direction.logDirection().22
+ $_empty_/Direction.logDirection().[L]22
+( )$_empty_/Direction.logDirection().(L)2
++ 1_empty_/LogDSL#22
+2 3$_empty_/Direction.logDirection().[L]2 
+7 @_empty_/Direction#22
+A B$_empty_/Direction.logDirection().[L]2#
+F Iscala/Predef.`???`().22
+ $_empty_/Direction.RotateDirection().25
+  '_empty_/Direction.RotateDirection().[D]25
++ ,'_empty_/Direction.RotateDirection().(D)2 
+. 7_empty_/Direction#25
+8 9'_empty_/Direction.RotateDirection().[D]2 
+= F_empty_/Direction#2&
+N V_empty_/Rotate.Rotation#2
+G M_empty_/Rotate.25
+W X'_empty_/Direction.RotateDirection().[D]2#
+] `scala/Predef.`???`().2
+ _empty_/Rotate#2(
+ _empty_/Rotate#`<init>`().2 
+ _empty_/Rotate#[R]2&
+ _empty_/Rotate#rotate().2)
+ _empty_/Rotate#rotate().(r)2 
+ _empty_/Rotate#[R]2 
+ _empty_/Rotate#[R]2
+ _empty_/Rotate.2)
+ _empty_/Rotate.logRotate().2,
+ _empty_/Rotate.logRotate().[L]2,
+% &_empty_/Rotate.logRotate().(L)2
+( ._empty_/LogDSL#2,
+/ 0_empty_/Rotate.logRotate().[L]2
+4 :_empty_/Rotate#2,
+; <_empty_/Rotate.logRotate().[L]2#
+@ Cscala/Predef.`???`().2&
+ _empty_/Rotate.Rotation#2)
+ _empty_/Rotate.Rotation#[T]2
+ 
+scala/Int#2)
+# $_empty_/Rotate.Rotation#[T]2
+ _empty_/Main.2#
+ _empty_/Main.north().2&
+ _empty_/Main.north().[D]2&
+ _empty_/Main.north().(D)2 
+ $_empty_/Direction#2&
+% &_empty_/Main.north().[D]2&
+* +_empty_/Main.north().[D]2#
+. 1scala/Predef.`???`().2$
+   _empty_/Main.rotate().2'
+   _empty_/Main.rotate().[R]2'
+   _empty_/Main.rotate().(r)2'
+   _empty_/Main.rotate().[R]2(
+   !_empty_/Main.rotate().(RR)2
+ #  )_empty_/Rotate#2'
+ *  +_empty_/Main.rotate().[R]2'
+ /  0_empty_/Main.rotate().[R]2#
+ 3  6scala/Predef.`???`().2"
+"" 
+_empty_/Main.main().2(
+"" _empty_/Main.main().(args)2
+"" scala/Array#2"
+"" scala/Predef.String#2
+"!" %scala/Unit#2'
+%% scala/Predef.println(+1).2&
+%% _empty_/LogDSL.runLog().2
+%% _empty_/LogDSL.2$
+%%  _empty_/Main.rotate().2#
+%!% &_empty_/Main.north().2/
+%&% &!_empty_/Direction.logDirection().2+
+%&% &_empty_/LogDSL.LogRecsLogDSL.2)
+%'% '_empty_/Rotate.logRotate().2+
+%'% '_empty_/LogDSL.LogRecsLogDSL.2'
+&& scala/Predef.println(+1).2&
+&& _empty_/LogDSL.runLog().2
+&& _empty_/LogDSL.2$
+&&  _empty_/Main.rotate().2#
+&!& &_empty_/Main.north().2/
+&&& &!_empty_/Direction.logDirection().2+
+&&& &_empty_/LogDSL.LogRecsLogDSL.2)
+&'& '_empty_/Rotate.logRotate().2+
+&'& '_empty_/LogDSL.LogRecsLogDSL.PZ ED236660D82234D5915C1068FFD38324

@@ -1,0 +1,63 @@
+
+Átests/pos/i3965a.scala*$
+_empty_/SortedSet#*	SortedSet€*/
+_empty_/SortedSet#`<init>`(). €@*<init>€*
+_empty_/SortedSet#[A]	*A€**
+_empty_/SortedSetOps#*SortedSetOps€*2
+ _empty_/SortedSetOps#`<init>`(). €@*<init>€*"
+_empty_/SortedSetOps#[A]	*A€*'
+_empty_/SortedSetOps#[CC]	 €*CC€*%
+_empty_/SortedSetOps#[C]	 €*C€* 
+_empty_/TreeSet#*TreeSet€*-
+_empty_/TreeSet#`<init>`(). €@*<init>€*
+_empty_/TreeSet#[A]	*A€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*7
+_empty_/Test#optionSequence1().*optionSequence1€*.
+#_empty_/Test#optionSequence1().[CC]	*CC€*,
+"_empty_/Test#optionSequence1().[A]	*A€*.
+#_empty_/Test#optionSequence1().(xs)*xs€*!
+_empty_/Test#test().*test€*%
+_empty_/Test#test().(xs2)*xs2€2
+ _empty_/SortedSet#2'
+ _empty_/SortedSet#`<init>`().2
+ '_empty_/SortedSetOps#2
+( )_empty_/SortedSet#[A]2
+6 ?_empty_/SortedSet#2
+@ A_empty_/SortedSet#[A]2
+ _empty_/SortedSet#[A]2#
+ _empty_/SortedSetOps#2.
+  _empty_/SortedSetOps#`<init>`().2&
+ _empty_/SortedSetOps#[A]2'
+ _empty_/SortedSetOps#[CC]2&
+/ 0_empty_/SortedSetOps#[C]2
+ _empty_/TreeSet#2)
+ _empty_/TreeSet#`<init>`().2 
+
+ _empty_/SortedSet#2!
+ _empty_/TreeSet#[A]2#
+	 _empty_/SortedSetOps#2!
+ _empty_/TreeSet#[A]2
+" )_empty_/TreeSet#2!
+* +_empty_/TreeSet#[A]2!
+ _empty_/TreeSet#[A]2
+ 
+_empty_/Test#2&
+		 _empty_/Test#`<init>`().2-
+		 _empty_/Test#optionSequence1().21
+		 #_empty_/Test#optionSequence1().[CC]20
+	M	 N"_empty_/Test#optionSequence1().[A]21
+	[	 ]#_empty_/Test#optionSequence1().(xs)21
+	_	 a#_empty_/Test#optionSequence1().[CC]20
+	b	 c"_empty_/Test#optionSequence1().[A]2%
+	Q	 Yscala/package.Ordering#20
+	Y	 Y"_empty_/Test#optionSequence1().[A]2
+	g	 kscala/Unit#2"
+ 
+_empty_/Test#test().2'
+ _empty_/Test#test().(xs2)2
+ _empty_/TreeSet#2"
+ scala/Predef.String#2-
+ _empty_/Test#optionSequence1().2'
+ _empty_/Test#test().(xs2)2)
+ scala/math/Ordering.String.PZ 4F30039281A1C8EBCF0F4F015C7E315A

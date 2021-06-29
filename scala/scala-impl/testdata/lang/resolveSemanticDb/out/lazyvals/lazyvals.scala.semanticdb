@@ -1,0 +1,37 @@
+
+þtests/pos/lazyvals.scala*"
+_empty_/Iterator#*Iterator€*.
+_empty_/Iterator#`<init>`(). €@*<init>€*%
+_empty_/Iterator#span().*span€*
+local0 €*self€*
+local1*Leading€*
+local2*finish€*
+local3 €*leading€*
+local4*Trailing€*
+local5 À*it€*
+local6 €*trailing€2
+ _empty_/Iterator#2*
+ _empty_/Iterator#`<init>`().2&
+ 
+_empty_/Iterator#span().2
+ local02
+ 
+scala/Int#2
+
+ local12
+
+ local22
+ scala/Unit#2'
+ "scala/Predef.println(+1).2
+		 local32
+		 local12
+
+ local42
+ local52
+ "local22
+ local32
+ local62
+ local42#
+ scala/Tuple2.apply().2
+ local32
+ local6PZ 8E0EA2E1548FD83D1C7B3352F23B03BE

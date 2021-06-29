@@ -1,0 +1,32 @@
+
+“tests/pos/i4720.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+_empty_/Test.m().*m€*
+_empty_/Test.m().[Y]	*Y€*
+_empty_/Test.m().[Z]	*Z€*
+_empty_/Test.m().[W]	*W€*
+_empty_/Test.m().(d)*d€2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+  $scala/Unit#2
+' (_empty_/Test.m().2
+ _empty_/Test.m().2"
+ 	_empty_/Test.m().[Y]2
+ 
+scala/Int#2"
+ _empty_/Test.m().[Z]2
+ 
+scala/Int#2"
+ _empty_/Test.m().[W]2"
+ _empty_/Test.m().[Z]2"
+ _empty_/Test.m().[Y]2"
+! "_empty_/Test.m().(d)2"
+# $_empty_/Test.m().[Y]2
+& *scala/Unit#PZ 4B85F450EBABE86AA3AAF7716C665873

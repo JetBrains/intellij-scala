@@ -1,0 +1,131 @@
+
+•(tests/pos/t5070.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#T#*T€*
+
+_empty_/O.
+ *O€*
+_empty_/O.b().  *b€*
+_empty_/O.b().(x)  *x€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#a.  *a€*
+local0 *$anon€*@
+ _empty_/ImplicitVsTypeAliasTezt#*ImplicitVsTypeAliasTezt€*=
++_empty_/ImplicitVsTypeAliasTezt#`<init>`(). €@*<init>€*4
+&_empty_/ImplicitVsTypeAliasTezt#Monad#*Monad€*C
+1_empty_/ImplicitVsTypeAliasTezt#Monad#`<init>`(). €@*<init>€*3
+)_empty_/ImplicitVsTypeAliasTezt#Monad#[m]	*m€*6
+*_empty_/ImplicitVsTypeAliasTezt#Monad#For#*For€*7
+-_empty_/ImplicitVsTypeAliasTezt#Monad#For#[a]	*a€*>
+._empty_/ImplicitVsTypeAliasTezt#Monad#toFor().  *toFor€*;
+1_empty_/ImplicitVsTypeAliasTezt#Monad#toFor().[a]	*a€*;
+1_empty_/ImplicitVsTypeAliasTezt#Monad#toFor().(m)*m€*2
+%_empty_/ImplicitVsTypeAliasTezt#_For#*_For€*B
+0_empty_/ImplicitVsTypeAliasTezt#_For#`<init>`(). €@*<init>€*2
+(_empty_/ImplicitVsTypeAliasTezt#_For#[m]	*m€*2
+(_empty_/ImplicitVsTypeAliasTezt#_For#[a]	*a€*9
++_empty_/ImplicitVsTypeAliasTezt#_For#map(). *map€*8
+._empty_/ImplicitVsTypeAliasTezt#_For#map().[b]	*b€*8
+._empty_/ImplicitVsTypeAliasTezt#_For#map().(p)*p€*<
++_empty_/ImplicitVsTypeAliasTezt#useMonad().*useMonad€*8
+._empty_/ImplicitVsTypeAliasTezt#useMonad().[m]	*m€*8
+._empty_/ImplicitVsTypeAliasTezt#useMonad().[a]	*a€*8
+._empty_/ImplicitVsTypeAliasTezt#useMonad().(m)*m€*:
+._empty_/ImplicitVsTypeAliasTezt#useMonad().(i)  *i€*
+local1*x€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#T#2
+ 
+_empty_/O.2
+ _empty_/O.b().2
+ _empty_/O.b().(x)2
+ 
+_empty_/A#2
+# $_empty_/A#T#2
+! "_empty_/O.b().(x)2(
++ 0scala/sys/package.error().2
+' *
+scala/sys/2
+ 
+_empty_/Test#2&
+		 _empty_/Test#`<init>`().2
+			 
+
+_empty_/O.2
+
+
+ _empty_/Test#a.2
+
+
+ 
+_empty_/A#2
+
+
+ local02
+
+
+ 
+_empty_/A#2(
+ scala/Predef.implicitly().2
+ _empty_/A#T#2
+ _empty_/Test#a.2
+ _empty_/O.b().2
+ _empty_/Test#a.2(
+ scala/Predef.implicitly().2
+ _empty_/A#T#2
+ _empty_/Test#a.2
+ _empty_/O.b().2
+ _empty_/Test#a.2.
+  _empty_/ImplicitVsTypeAliasTezt#29
+ +_empty_/ImplicitVsTypeAliasTezt#`<init>`().24
+
+ &_empty_/ImplicitVsTypeAliasTezt#Monad#2?
+ 1_empty_/ImplicitVsTypeAliasTezt#Monad#`<init>`().27
+ )_empty_/ImplicitVsTypeAliasTezt#Monad#[m]28
+ *_empty_/ImplicitVsTypeAliasTezt#Monad#For#2;
+ -_empty_/ImplicitVsTypeAliasTezt#Monad#For#[a]23
+ %_empty_/ImplicitVsTypeAliasTezt#_For#27
+ )_empty_/ImplicitVsTypeAliasTezt#Monad#[m]2;
+ -_empty_/ImplicitVsTypeAliasTezt#Monad#For#[a]2<
+ ._empty_/ImplicitVsTypeAliasTezt#Monad#toFor().2?
+ 1_empty_/ImplicitVsTypeAliasTezt#Monad#toFor().[a]2?
+ 1_empty_/ImplicitVsTypeAliasTezt#Monad#toFor().(m)27
+! ")_empty_/ImplicitVsTypeAliasTezt#Monad#[m]2?
+# $1_empty_/ImplicitVsTypeAliasTezt#Monad#toFor().[a]28
+( +*_empty_/ImplicitVsTypeAliasTezt#Monad#For#2?
+, -1_empty_/ImplicitVsTypeAliasTezt#Monad#toFor().[a]2+
+@ @java/lang/Error#`<init>`(+1).2"
+; @scala/package.Error#23
+
+ %_empty_/ImplicitVsTypeAliasTezt#_For#2>
+ 0_empty_/ImplicitVsTypeAliasTezt#_For#`<init>`().26
+ (_empty_/ImplicitVsTypeAliasTezt#_For#[m]26
+ (_empty_/ImplicitVsTypeAliasTezt#_For#[a]29
+ +_empty_/ImplicitVsTypeAliasTezt#_For#map().2<
+ ._empty_/ImplicitVsTypeAliasTezt#_For#map().[b]2<
+ ._empty_/ImplicitVsTypeAliasTezt#_For#map().(p)26
+ (_empty_/ImplicitVsTypeAliasTezt#_For#[a]2<
+ ._empty_/ImplicitVsTypeAliasTezt#_For#map().[b]26
+  (_empty_/ImplicitVsTypeAliasTezt#_For#[m]2<
+! "._empty_/ImplicitVsTypeAliasTezt#_For#map().[b]29
+ +_empty_/ImplicitVsTypeAliasTezt#useMonad().2<
+ ._empty_/ImplicitVsTypeAliasTezt#useMonad().[m]2<
+ ._empty_/ImplicitVsTypeAliasTezt#useMonad().[a]2<
+ ._empty_/ImplicitVsTypeAliasTezt#useMonad().(m)2<
+ ._empty_/ImplicitVsTypeAliasTezt#useMonad().[m]2<
+  ._empty_/ImplicitVsTypeAliasTezt#useMonad().[a]2<
+, -._empty_/ImplicitVsTypeAliasTezt#useMonad().(i)24
+/ 4&_empty_/ImplicitVsTypeAliasTezt#Monad#2<
+5 6._empty_/ImplicitVsTypeAliasTezt#useMonad().[m]2<
+ ._empty_/ImplicitVsTypeAliasTezt#useMonad().(i)29
+"" +_empty_/ImplicitVsTypeAliasTezt#_For#map().2<
+"" ._empty_/ImplicitVsTypeAliasTezt#Monad#toFor().2<
+"" ._empty_/ImplicitVsTypeAliasTezt#useMonad().(m)2
+"" local12#
+## scala/Any#toString().2
+## local1PZ 172918F5D853B75BC5A26BF243E12EBE

@@ -1,0 +1,37 @@
+
+ëtests/pos/nullarify.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*
+_empty_/Test.bar().*bar€* 
+_empty_/Test.bar().(x)*x€*
+_empty_/Test.baz().*baz€* 
+_empty_/Test.baz().(y)*y€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2
+ 
+scala/Int#2'
+ 	scala/Predef.println(+1).2!
+
+ _empty_/Test.foo().2!
+ 	_empty_/Test.bar().2$
+
+ _empty_/Test.bar().(x)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2$
+ _empty_/Test.bar().(x)2!
+ _empty_/Test.baz().2$
+  _empty_/Test.bar().(x)2!
+ 	_empty_/Test.baz().2$
+
+ _empty_/Test.baz().(y)2
+ 
+scala/Int#2$
+ _empty_/Test.baz().(y)2!
+
+
+ _empty_/Test.bar().2!
+
+
+ 	_empty_/Test.foo().PZ 48DE72849641F0EE52E8550301CDE477

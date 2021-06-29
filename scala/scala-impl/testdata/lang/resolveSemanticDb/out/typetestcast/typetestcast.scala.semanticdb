@@ -1,0 +1,27 @@
+
+Ætests/pos/typetestcast.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.o. €*o€*
+_empty_/Test.i. €*i€*
+_empty_/Test.o2. €*o2€2
+ _empty_/Test.2
+ _empty_/Test.o.2
+	 java/lang/Object#2'
+ 	scala/Predef.println(+1).2'
+ scala/Any#isInstanceOf().2
+
+ _empty_/Test.o.2
+ 
+scala/Int#2
+ _empty_/Test.i.2
+	 
+scala/Int#2'
+ scala/Any#asInstanceOf().2
+ _empty_/Test.o.2
+ !
+scala/Int#2
+ _empty_/Test.o2.2'
+ scala/Any#asInstanceOf().2
+ _empty_/Test.i.2
+  java/lang/Object#PZ 5FF851B8DF307575A70ABE5B5D62BD50

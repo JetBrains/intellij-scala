@@ -1,0 +1,24 @@
+
+±tests/pos/t151.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#T#*T€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().(a)*a€*
+_empty_/Foo#foo. €*foo€*
+_empty_/Foo#a().*a€2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#T#2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().(a)2
+ _empty_/Foo#T#2
+ 
+scala/Int#2
+ 	_empty_/Foo#foo.2
+ _empty_/Foo#2
+ _empty_/Foo#a().2
+ _empty_/Foo#T#2
+	 _empty_/Foo#foo.2
+ _empty_/Foo#a().PZ 206E77F8E822DE7F20E1EB4CBDA7D357

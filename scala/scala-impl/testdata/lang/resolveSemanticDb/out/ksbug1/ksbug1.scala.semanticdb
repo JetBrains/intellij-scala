@@ -1,0 +1,26 @@
+
+ätests/pos/ksbug1.scala*
+_empty_/test.
+ *test€*
+_empty_/test.z#*z€*
+_empty_/test.z#[a]	*a€*
+_empty_/test.z#[b]	*b€*
+_empty_/test.f().*f€*
+local0*i€2
+ _empty_/test.2
+ _empty_/test.z#2 
+	 
+_empty_/test.z#[a]2 
+ _empty_/test.z#[b]2 
+ _empty_/test.z#[a]2 
+ _empty_/test.z#[b]2
+ _empty_/test.f().2
+
+ _empty_/test.z#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ local02 
+  !scala/Int#`+`(+4).2
+ local0PZ 1F2B85597F30E16AF177202E67D219AC

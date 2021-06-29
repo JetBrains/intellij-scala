@@ -1,0 +1,117 @@
+
+€(tests/pos/i2741.scala* 
+_empty_/Result.
+ *Result€*'
+_empty_/Result.ResultF#*ResultF€*$
+_empty_/Result.ResultF#[F]	*F€*)
+_empty_/Result.ResultF2#*ResultF2€*%
+_empty_/Result.ResultF2#[F]	*F€*(
+_empty_/Result.Errors# €*Errors€*3
+!_empty_/Result.Errors#`<init>`(). €@*<init>€*7
+'_empty_/Result.Errors#`<init>`().(msgs) €*msgs€*+
+_empty_/Result.Errors#msgs. €*msgs€**
+_empty_/Result.Errors#copy().*copy€*0
+#_empty_/Result.Errors#copy().(msgs)*msgs€*>
+'_empty_/Result.Errors#copy$default$1().*copy$default$1€*&
+_empty_/Result.Errors#_1().*_1€*'
+_empty_/Result.Errors.
+ *Errors€*,
+_empty_/Result.Errors.apply().*apply€*1
+$_empty_/Result.Errors.apply().(msgs)*msgs€*0
+ _empty_/Result.Errors.unapply().*unapply€*1
+%_empty_/Result.Errors.unapply().(x$1)*x$1€*2
+!_empty_/Result.Errors.toString().*toString€*9
+_empty_/Result.ResultFunctions# *ResultFunctions€*<
+*_empty_/Result.ResultFunctions#`<init>`(). €@*<init>€*>
+/_empty_/Result.ResultFunctions#`<init>`().(res) €*res€*,
+"_empty_/Result.ResultFunctions#[A]	*A€*2
+#_empty_/Result.ResultFunctions#res. €*res€*1
+%_empty_/Result.ResultFunctions#map().*map€*2
+(_empty_/Result.ResultFunctions#map().[B]	*B€*2
+(_empty_/Result.ResultFunctions#map().(f)*f€*
+local0 €*errs€*
+local1 €*x€*9
+_empty_/Result.ResultFunctions.
+ *ResultFunctions€*;
+!_empty_/Result.ResultFunctions(). (*ResultFunctions€*.
+$_empty_/Result.ResultFunctions().[A]	*A€*2
+&_empty_/Result.ResultFunctions().(res)*res€*;
+ _empty_/Result.ResultFunctions2# *ResultFunctions2€*=
++_empty_/Result.ResultFunctions2#`<init>`(). €@*<init>€*?
+0_empty_/Result.ResultFunctions2#`<init>`().(res) €*res€*-
+#_empty_/Result.ResultFunctions2#[A]	*A€*3
+$_empty_/Result.ResultFunctions2#res. €*res€*2
+&_empty_/Result.ResultFunctions2#map().*map€*3
+)_empty_/Result.ResultFunctions2#map().[B]	*B€*3
+)_empty_/Result.ResultFunctions2#map().(f)*f€*;
+ _empty_/Result.ResultFunctions2.
+ *ResultFunctions2€*=
+"_empty_/Result.ResultFunctions2(). (*ResultFunctions2€*/
+%_empty_/Result.ResultFunctions2().[A]	*A€*3
+'_empty_/Result.ResultFunctions2().(res)*res€2
+ _empty_/Result.2%
+ _empty_/Result.ResultF#2(
+ _empty_/Result.ResultF#[F]2
+ 
+scala/`|`#2(
+ _empty_/Result.ResultF#[F]2$
+ _empty_/Result.Errors#2&
+ _empty_/Result.ResultF2#2)
+ _empty_/Result.ResultF2#[F]2
+ 
+scala/`&`#2)
+ _empty_/Result.ResultF2#[F]2$
+ _empty_/Result.Errors#2$
+ _empty_/Result.Errors#2/
+ !_empty_/Result.Errors#`<init>`().2 
+ scala/package.Seq#2"
+ $scala/Predef.String#2)
+ _empty_/Result.Errors#msgs.2+
+ _empty_/Result.Errors#copy().2)
+ _empty_/Result.Errors#_1().2$
+ _empty_/Result.Errors.2,
+ _empty_/Result.Errors.apply().2-
+  _empty_/Result.ResultFunctions#28
+   *_empty_/Result.ResultFunctions#`<init>`().2%
+- 4_empty_/Result.ResultF#20
+5 6"_empty_/Result.ResultFunctions#[A]2&
+G Gscala/AnyVal#`<init>`().2
+A Gscala/AnyVal#20
+! ""_empty_/Result.ResultFunctions#[A]21
+( +#_empty_/Result.ResultFunctions#res.23
+ %_empty_/Result.ResultFunctions#map().26
+ (_empty_/Result.ResultFunctions#map().[B]26
+ (_empty_/Result.ResultFunctions#map().(f)20
+ "_empty_/Result.ResultFunctions#[A]26
+ (_empty_/Result.ResultFunctions#map().[B]2%
+ "_empty_/Result.ResultF#26
+# $(_empty_/Result.ResultFunctions#map().[B]21
+( +#_empty_/Result.ResultFunctions#res.2
+ local02$
+ _empty_/Result.Errors#2
+ local02
+		 local120
+		 "_empty_/Result.ResultFunctions#[A]2&
+		 scala/Function1#apply().26
+		 (_empty_/Result.ResultFunctions#map().(f)2
+		 local12-
+ _empty_/Result.ResultFunctions.2/
+ !_empty_/Result.ResultFunctions().2.
+ ! _empty_/Result.ResultFunctions2#29
+! !+_empty_/Result.ResultFunctions2#`<init>`().2&
+. 6_empty_/Result.ResultF2#21
+7 8#_empty_/Result.ResultFunctions2#[A]2&
+I Iscala/AnyVal#`<init>`().2
+C Iscala/AnyVal#21
+" ##_empty_/Result.ResultFunctions2#[A]22
+) ,$_empty_/Result.ResultFunctions2#res.24
+ &_empty_/Result.ResultFunctions2#map().27
+ )_empty_/Result.ResultFunctions2#map().[B]27
+ )_empty_/Result.ResultFunctions2#map().(f)21
+ #_empty_/Result.ResultFunctions2#[A]27
+ )_empty_/Result.ResultFunctions2#map().[B]2%
+ "_empty_/Result.ResultF#27
+# $)_empty_/Result.ResultFunctions2#map().[B]2#
+( +scala/Predef.`???`().2.
+  _empty_/Result.ResultFunctions2.20
+ "_empty_/Result.ResultFunctions2().PZ 63FF09C2C953BD14C530734FE571485F

@@ -1,0 +1,57 @@
+
+Ùtests/pos/hygiene.scala*"
+_empty_/hygiene.
+ *hygiene€*
+_empty_/hygiene.D#*D€*/
+_empty_/hygiene.D#`<init>`(). €@*<init>€*
+_empty_/hygiene.D#[T]	*T€*
+_empty_/hygiene.C# €*C€*/
+_empty_/hygiene.C#`<init>`(). €@*<init>€*-
+ _empty_/hygiene.C#`<init>`().(x) €*x€*
+_empty_/hygiene.C#[T]	*T€*!
+_empty_/hygiene.C#x. €*x€*&
+_empty_/hygiene.C#copy().*copy€*&
+_empty_/hygiene.C#copy().[T]	*T€*&
+_empty_/hygiene.C#copy().(x)*x€*:
+#_empty_/hygiene.C#copy$default$1().*copy$default$1€*0
+&_empty_/hygiene.C#copy$default$1().[T]	*T€*"
+_empty_/hygiene.C#_1().*_1€*
+_empty_/hygiene.C.
+ *C€*(
+_empty_/hygiene.C.apply().*apply€*'
+_empty_/hygiene.C.apply().[T]	*T€*'
+_empty_/hygiene.C.apply().(x)*x€*,
+_empty_/hygiene.C.unapply().*unapply€*)
+_empty_/hygiene.C.unapply().[T]	*T€*-
+!_empty_/hygiene.C.unapply().(x$1)*x$1€*.
+_empty_/hygiene.C.toString().*toString€*
+_empty_/hygiene.C.C#*C€*1
+_empty_/hygiene.C.C#`<init>`(). €@*<init>€*
+_empty_/hygiene.c. €*c€2
+ _empty_/hygiene.2 
+ 	_empty_/hygiene.D#2+
+	 	_empty_/hygiene.D#`<init>`().2#
+
+ _empty_/hygiene.D#[T]2 
+ _empty_/hygiene.C#2+
+ _empty_/hygiene.C#`<init>`().2 
+ _empty_/hygiene.D#2#
+ _empty_/hygiene.C#[T]2#
+ _empty_/hygiene.C#[T]2"
+ _empty_/hygiene.C#x.2'
+ _empty_/hygiene.C#copy().2%
+ _empty_/hygiene.C#_1().2 
+	 
+_empty_/hygiene.C.2(
+ _empty_/hygiene.C.apply().2*
+ _empty_/hygiene.C.unapply().2"
+
+ _empty_/hygiene.C.C#2-
+ _empty_/hygiene.C.C#`<init>`().2 
+ _empty_/hygiene.c.2(
+ _empty_/hygiene.C.apply().2 
+
+ _empty_/hygiene.C.2+
+ _empty_/hygiene.D#`<init>`().2"
+ _empty_/hygiene.C#x.2 
+ _empty_/hygiene.c.PZ 23C4A224997E824E66860672A1C54C9C

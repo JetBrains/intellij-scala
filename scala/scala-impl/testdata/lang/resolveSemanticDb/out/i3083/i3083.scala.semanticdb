@@ -1,0 +1,50 @@
+
+Ètests/pos/i3083.scala*&
+_empty_/Minimized.
+ *	Minimized€**
+_empty_/Minimized.Literal#*Literal€*7
+%_empty_/Minimized.Literal#`<init>`(). €@*<init>€*&
+_empty_/Minimized.Literal#F#*F€*)
+_empty_/Minimized.Literal#F#[T]	*T€*,
+_empty_/Minimized.Addition#*Addition€*8
+&_empty_/Minimized.Addition#`<init>`(). €@*<init>€*
+local0*self€*/
+!_empty_/Minimized.Addition#foo(). *foo€*&
+_empty_/Minimized.Main.
+ *Main€*7
+$_empty_/Minimized.Main.expression().*
+expression€*9
++_empty_/Minimized.Main.expression().(adder)*adder€2
+ _empty_/Minimized.2(
+ _empty_/Minimized.Literal#23
+ %_empty_/Minimized.Literal#`<init>`().2*
+	 
+_empty_/Minimized.Literal#F#2-
+ _empty_/Minimized.Literal#F#[T]2)
+ _empty_/Minimized.Addition#24
+ &_empty_/Minimized.Addition#`<init>`().2
+ local02(
+  _empty_/Minimized.Literal#2/
+ !_empty_/Minimized.Addition#foo().2*
+ _empty_/Minimized.Literal#F#2
+ 
+scala/Int#2%
+			 _empty_/Minimized.Main.22
+
+
+ $_empty_/Minimized.Main.expression().29
+
+
+ +_empty_/Minimized.Main.expression().(adder)2
+
+#
+ $
+scala/`&`#2)
+
+
+ "_empty_/Minimized.Addition#2(
+
+%
+ ,_empty_/Minimized.Literal#2/
+ !_empty_/Minimized.Addition#foo().29
+ +_empty_/Minimized.Main.expression().(adder)PZ 7ED7B67E0B36370B030282C86C62FC94

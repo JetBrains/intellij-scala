@@ -1,0 +1,36 @@
+
+´
+%tests/pos/gadt-strip-refinement.scala*
+_empty_/Tag#*Tag€*)
+_empty_/Tag#`<init>`(). €@*<init>€*
+_empty_/Tag#[T]	*T€*
+_empty_/Tag#X#*X€*
+_empty_/IntTag#*IntTag€*,
+_empty_/IntTag#`<init>`(). €@*<init>€*:
+(_empty_/`gadt-strip-refinement$package`. *_empty_€*:
+._empty_/`gadt-strip-refinement$package`.foo().*foo€*;
+1_empty_/`gadt-strip-refinement$package`.foo().[T]	*T€*;
+1_empty_/`gadt-strip-refinement$package`.foo().(x)*x€*
+local0*X€2
+ 	_empty_/Tag#2!
+	 	_empty_/Tag#`<init>`().2
+
+ _empty_/Tag#[T]2
+ _empty_/Tag#X#2
+ _empty_/IntTag#2(
+ _empty_/IntTag#`<init>`().2
+ _empty_/Tag#2
+ 
+scala/Int#22
+(_empty_/`gadt-strip-refinement$package`.2<
+ ._empty_/`gadt-strip-refinement$package`.foo().2?
+ 	1_empty_/`gadt-strip-refinement$package`.foo().[T]2?
+ 1_empty_/`gadt-strip-refinement$package`.foo().(x)2
+ _empty_/Tag#2?
+ 1_empty_/`gadt-strip-refinement$package`.foo().[T]2?
+ 1_empty_/`gadt-strip-refinement$package`.foo().[T]2?
+ 1_empty_/`gadt-strip-refinement$package`.foo().(x)2
+
+ _empty_/IntTag#2
+ local02"
+ "scala/Predef.String#PZ 1AEACD4801A997E76E5747544CB6CB11

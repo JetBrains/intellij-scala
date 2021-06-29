@@ -1,0 +1,240 @@
+
+â6tests/pos/annotations2.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*"
+_empty_/B#`<init>`().(x)*x€*
+_empty_/B#[T]	*T€*
+_empty_/B#x. €*x€*&
+_empty_/B#`<init>`(+1).*<init>€*&
+_empty_/B#`<init>`(+1).(xx)*xx€*
+_empty_/BAnn#*BAnn€**
+_empty_/BAnn#`<init>`(). €@*<init>€*%
+_empty_/BAnn#`<init>`().(x)*x€*
+_empty_/BAnn#[T]	*T€*
+_empty_/BAnn#x. €*x€*)
+_empty_/BAnn#`<init>`(+1).*<init>€*)
+_empty_/BAnn#`<init>`(+1).(xx)*xx€*
+_empty_/CAnn#*CAnn€**
+_empty_/CAnn#`<init>`(). €@*<init>€*%
+_empty_/CAnn#`<init>`().(x)*x€*
+_empty_/CAnn#[T]	*T€*
+_empty_/CAnn#x. €*x€*)
+_empty_/CAnn#`<init>`(+1).*<init>€*)
+_empty_/CAnn#`<init>`(+1).(xx)*xx€*
+_empty_/A1#*A1€*(
+_empty_/A1#`<init>`(). €@*<init>€*
+_empty_/A1#b1. €*b1€*
+_empty_/A1#b2. €*b2€*
+_empty_/A1#b3. €*b3€*
+_empty_/A1#b4. €*b4€*
+_empty_/A2#*A2€*(
+_empty_/A2#`<init>`(). €@*<init>€*
+_empty_/A2#b1. €*b1€*
+_empty_/A2#b2. €*b2€*
+_empty_/A2#b3. €*b3€*
+_empty_/A2#b4. €*b4€*
+_empty_/A3#*A3€*(
+_empty_/A3#`<init>`(). €@*<init>€*
+_empty_/A3#b1. €*b1€*
+_empty_/A3#b2. €*b2€*
+_empty_/A3#b3. €*b3€*
+_empty_/A3#b4. €*b4€*
+_empty_/B1#*B1€*(
+_empty_/B1#`<init>`(). €@*<init>€*
+_empty_/B2#*B2€*(
+_empty_/B2#`<init>`(). €@*<init>€*
+_empty_/B3#*B3€*(
+_empty_/B3#`<init>`(). €@*<init>€*
+_empty_/B4#*B4€*(
+_empty_/B4#`<init>`(). €@*<init>€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+_empty_/C3#*C3€*(
+_empty_/C3#`<init>`(). €@*<init>€*
+_empty_/C4#*C4€*(
+_empty_/C4#`<init>`(). €@*<init>€2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ _empty_/B#[T]2
+ _empty_/B#[T]2
+ 	_empty_/B#[T]2
+ _empty_/B#x.2%
+ 
+_empty_/B#`<init>`(+1).2)
+ _empty_/B#`<init>`(+1).(xx)2
+ _empty_/B#[T]2
+ 
+scala/Any#2
+ 
+scala/Any#2#
+% %_empty_/B#`<init>`().2#
+& &scala/Tuple2.apply().2
+) +scala/Tuple3#_1.2)
+& (_empty_/B#`<init>`(+1).(xx)2
+0 2scala/Tuple3#_1.2)
+- /_empty_/B#`<init>`(+1).(xx)2
+ 
+_empty_/BAnn#2&
+
+ 
+_empty_/BAnn#`<init>`().2
+ _empty_/BAnn#[T]2
+ _empty_/BAnn#[T]20
+2 B"scala/annotation/StaticAnnotation#2
+' 1scala/annotation/2
+! &scala/2
+ _empty_/BAnn#[T]2
+ _empty_/BAnn#x.2(
+ 
+_empty_/BAnn#`<init>`(+1).2,
+ _empty_/BAnn#`<init>`(+1).(xx)2
+ _empty_/BAnn#[T]2
+ 
+scala/Any#2
+ 
+scala/Any#2#
+& &scala/Tuple2.apply().2
+) +scala/Tuple3#_1.2,
+& (_empty_/BAnn#`<init>`(+1).(xx)2
+0 2scala/Tuple3#_1.2,
+- /_empty_/BAnn#`<init>`(+1).(xx)2
+ 
+_empty_/CAnn#2&
+
+ 
+_empty_/CAnn#`<init>`().2
+ _empty_/CAnn#[T]2
+ _empty_/CAnn#[T]20
+2 B"scala/annotation/StaticAnnotation#2
+' 1scala/annotation/2
+! &scala/2
+ _empty_/CAnn#[T]2
+ _empty_/CAnn#x.2(
+ 
+_empty_/CAnn#`<init>`(+1).2,
+ _empty_/CAnn#`<init>`(+1).(xx)2!
+ scala/Predef.Class#2
+ _empty_/CAnn#[T]2#
+! !scala/Tuple2.apply().2,
+$ /java/lang/Class#newInstance().2,
+! #_empty_/CAnn#`<init>`(+1).(xx)2,
+6 Ajava/lang/Class#newInstance().2,
+3 5_empty_/CAnn#`<init>`(+1).(xx)2
+ _empty_/A1#2$
+ _empty_/A1#`<init>`().2
+ _empty_/A1#b1.2%
+ _empty_/B#`<init>`(+1).2#
+ scala/Tuple3.apply().2
+ _empty_/A1#b2.2#
+ _empty_/B#`<init>`().2#
+ scala/Tuple2.apply().2
+ _empty_/A1#b3.2%
+ _empty_/B#`<init>`(+1).2
+ 
+_empty_/B#2
+ 
+scala/Int#2#
+ scala/Tuple3.apply().2
+ _empty_/A1#b4.2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ 
+scala/Int#2#
+ scala/Tuple2.apply().2
+ _empty_/A2#2$
+ _empty_/A2#`<init>`().2#
+	 	scala/Tuple3.apply().2
+ _empty_/A2#b1.2#
+	 	scala/Tuple2.apply().2
+ _empty_/A2#b2.2
+ _empty_/BAnn#2
+ 
+scala/Int#2#
+ scala/Tuple3.apply().2
+ _empty_/A2#b3.2
+ _empty_/BAnn#2
+ 
+scala/Int#2#
+ scala/Tuple2.apply().2
+ _empty_/A2#b4.2
+ _empty_/A3#2$
+ _empty_/A3#`<init>`().2%
+ scala/Predef.classOf().2
+ 
+scala/Int#2
+ _empty_/A3#b1.2#
+	 	scala/Tuple2.apply().2
+ _empty_/A3#b2.2
+ _empty_/CAnn#2
+ 
+scala/Int#2%
+ scala/Predef.classOf().2
+ 
+scala/Int#2
+ !_empty_/A3#b3.2
+ _empty_/CAnn#2
+ 
+scala/Int#2#
+ scala/Tuple2.apply().2
+ _empty_/A3#b4.2
+   _empty_/B1#2$
+   _empty_/B1#`<init>`().2*
+ (  (java/lang/Object#`<init>`().2
+   scala/AnyRef#2#
+   scala/Tuple3.apply().2
+!! _empty_/B2#2$
+!! _empty_/B2#`<init>`().2*
+!%! %java/lang/Object#`<init>`().2
+!! scala/AnyRef#2#
+!! scala/Tuple2.apply().2
+"" _empty_/B3#2$
+"" _empty_/B3#`<init>`().2*
+"-" -java/lang/Object#`<init>`().2
+"" scala/AnyRef#2
+"" _empty_/BAnn#2
+"" !
+scala/Int#2#
+"$" $scala/Tuple3.apply().2
+## _empty_/B4#2$
+## _empty_/B4#`<init>`().2*
+#*# *java/lang/Object#`<init>`().2
+## scala/AnyRef#2
+## _empty_/BAnn#2
+## !
+scala/Int#2#
+#$# $scala/Tuple2.apply().2
+%% _empty_/C1#2$
+%% _empty_/C1#`<init>`().2*
+%%% %java/lang/Object#`<init>`().2
+%% scala/AnyRef#2#
+%% scala/Tuple2.apply().2
+&& _empty_/C2#2$
+&& _empty_/C2#`<init>`().2*
+&+& +java/lang/Object#`<init>`().2
+&& scala/AnyRef#2%
+&& %scala/Predef.classOf().2
+&&& )
+scala/Int#2
+'' _empty_/C3#2$
+'' _empty_/C3#`<init>`().2*
+'*' *java/lang/Object#`<init>`().2
+'' scala/AnyRef#2
+'' _empty_/CAnn#2
+'' !
+scala/Int#2#
+'$' $scala/Tuple2.apply().2
+(( _empty_/C4#2$
+(( _empty_/C4#`<init>`().2*
+(0( 0java/lang/Object#`<init>`().2
+(( scala/AnyRef#2
+(( _empty_/CAnn#2
+(( !
+scala/Int#2%
+(#( *scala/Predef.classOf().2
+(+( .
+scala/Int#PZ 36E4179709DDC15A7535EAD8FAE36BD8

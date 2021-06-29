@@ -1,0 +1,312 @@
+
+Ä’tests/pos/Iterable.scala*:
+'dotty/collections/immutable/Collection#*
+Collection€*D
+2dotty/collections/immutable/Collection#`<init>`(). €@*<init>€*9
++dotty/collections/immutable/Collection#[CC]	 €*CC€*4
+*dotty/collections/immutable/Collection#[T]	*T€*G
+3dotty/collections/immutable/Collection#companion(). *	companion€*6
+%dotty/collections/immutable/Iterable#*Iterable€*B
+0dotty/collections/immutable/Iterable#`<init>`(). €@*<init>€*2
+(dotty/collections/immutable/Iterable#[T]	*T€*C
+0dotty/collections/immutable/Iterable#iterator(). *iterator€*C
+1dotty/collections/immutable/Iterable#companion().*	companion€*,
+ dotty/collections/immutable/Seq#*Seq€*=
++dotty/collections/immutable/Seq#`<init>`(). €@*<init>€*-
+#dotty/collections/immutable/Seq#[T]	*T€*8
+(dotty/collections/immutable/Seq#apply(). *apply€*5
++dotty/collections/immutable/Seq#apply().(x)*x€*>
+,dotty/collections/immutable/Seq#companion().*	companion€*N
+0dotty/collections/immutable/CollectionCompanion# *CollectionCompanion€*M
+;dotty/collections/immutable/CollectionCompanion#`<init>`(). €@*<init>€*B
+4dotty/collections/immutable/CollectionCompanion#[CC]	 €*CC€*@
+*dotty/collections/immutable/IterableImpls#*IterableImpls€*G
+5dotty/collections/immutable/IterableImpls#`<init>`(). €@*<init>€*9
+.dotty/collections/immutable/IterableImpls#[CC]	*CC€*P
+9dotty/collections/immutable/IterableImpls#fromIterator(). *fromIterator€*F
+<dotty/collections/immutable/IterableImpls#fromIterator().[T]	*T€*H
+=dotty/collections/immutable/IterableImpls#fromIterator().(it)*it€*L
+7dotty/collections/immutable/IterableImpls#toIterator(). *
+toIterator€*D
+:dotty/collections/immutable/IterableImpls#toIterator().[T]	*T€*F
+;dotty/collections/immutable/IterableImpls#toIterator().(xs)*xs€*<
+0dotty/collections/immutable/IterableImpls#map().*map€*=
+3dotty/collections/immutable/IterableImpls#map().[T]	*T€*=
+3dotty/collections/immutable/IterableImpls#map().[U]	*U€*?
+4dotty/collections/immutable/IterableImpls#map().(xs)*xs€*=
+3dotty/collections/immutable/IterableImpls#map().(f)*f€*B
+3dotty/collections/immutable/IterableImpls#filter().*filter€*@
+6dotty/collections/immutable/IterableImpls#filter().[T]	*T€*B
+7dotty/collections/immutable/IterableImpls#filter().(xs)*xs€*@
+6dotty/collections/immutable/IterableImpls#filter().(p)*p€*D
+4dotty/collections/immutable/IterableImpls#flatMap().*flatMap€*A
+7dotty/collections/immutable/IterableImpls#flatMap().[T]	*T€*A
+7dotty/collections/immutable/IterableImpls#flatMap().[U]	*U€*C
+8dotty/collections/immutable/IterableImpls#flatMap().(xs)*xs€*A
+7dotty/collections/immutable/IterableImpls#flatMap().(f)*f€*J
+.dotty/collections/immutable/IterableCompanion# *IterableCompanion€*K
+9dotty/collections/immutable/IterableCompanion#`<init>`(). €@*<init>€*@
+2dotty/collections/immutable/IterableCompanion#[CC]	 €*CC€*N
+;dotty/collections/immutable/IterableCompanion#toIterator().*
+toIterator€*H
+>dotty/collections/immutable/IterableCompanion#toIterator().[T]	*T€*J
+?dotty/collections/immutable/IterableCompanion#toIterator().(xs)*xs€*T
+=dotty/collections/immutable/IterableCompanion#transformOps().  *transformOps€*J
+@dotty/collections/immutable/IterableCompanion#transformOps().[T]	*T€*L
+Adotty/collections/immutable/IterableCompanion#transformOps().(xs)*xs€*@
+)dotty/collections/immutable/TransformOps# *TransformOps€*F
+4dotty/collections/immutable/TransformOps#`<init>`(). €@*<init>€*F
+8dotty/collections/immutable/TransformOps#`<init>`().(xs) €*xs€*;
+-dotty/collections/immutable/TransformOps#[CC]	 €*CC€*6
+,dotty/collections/immutable/TransformOps#[T]	*T€*:
+,dotty/collections/immutable/TransformOps#xs. €*xs€*G
+5dotty/collections/immutable/TransformOps#companion().*	companion€*B
+8dotty/collections/immutable/TransformOps#companion().[T]	*T€*D
+9dotty/collections/immutable/TransformOps#companion().(xs)*xs€*;
+/dotty/collections/immutable/TransformOps#map().*map€*<
+2dotty/collections/immutable/TransformOps#map().[U]	*U€*<
+2dotty/collections/immutable/TransformOps#map().(f)*f€*A
+2dotty/collections/immutable/TransformOps#filter().*filter€*?
+5dotty/collections/immutable/TransformOps#filter().(p)*p€*C
+3dotty/collections/immutable/TransformOps#flatMap().*flatMap€*@
+6dotty/collections/immutable/TransformOps#flatMap().[U]	*U€*@
+6dotty/collections/immutable/TransformOps#flatMap().(f)*f€*@
+)dotty/collections/immutable/TransformOps.
+ *TransformOps€*8
+%dotty/collections/immutable/Iterable.
+ *Iterable€*I
+4dotty/collections/immutable/Iterable.fromIterator().*fromIterator€*A
+7dotty/collections/immutable/Iterable.fromIterator().[T]	*T€*C
+8dotty/collections/immutable/Iterable.fromIterator().(it)*it€*.
+ dotty/collections/immutable/Seq.
+ *Seq€*D
+/dotty/collections/immutable/Seq.fromIterator().*fromIterator€*<
+2dotty/collections/immutable/Seq.fromIterator().[T]	*T€*>
+3dotty/collections/immutable/Seq.fromIterator().(it)*it€2
+ dotty/collections/2
+ dotty/2*
+ dotty/collections/immutable/2;
+ --scala/annotation/unchecked/uncheckedVariance#2)
+ scala/annotation/unchecked/2
+ scala/annotation/25
+ 'dotty/collections/immutable/Collection#2@
+ 2dotty/collections/immutable/Collection#`<init>`().29
+ +dotty/collections/immutable/Collection#[CC]28
+. /*dotty/collections/immutable/Collection#[T]2A
+ 3dotty/collections/immutable/Collection#companion().2>
+ $0dotty/collections/immutable/CollectionCompanion#29
+% '+dotty/collections/immutable/Collection#[CC]23
+		 %dotty/collections/immutable/Iterable#2>
+		 0dotty/collections/immutable/Iterable#`<init>`().25
+		 $'dotty/collections/immutable/Collection#26
+	/	 0(dotty/collections/immutable/Iterable#[T]26
+		 (dotty/collections/immutable/Iterable#[T]2>
+
+
+ 0dotty/collections/immutable/Iterable#iterator().2%
+
+
+ scala/package.Iterator#26
+
+
+ (dotty/collections/immutable/Iterable#[T]2?
+ 1dotty/collections/immutable/Iterable#companion().2<
+ +.dotty/collections/immutable/IterableCompanion#23
+8 @%dotty/collections/immutable/Iterable.2.
+ 	 dotty/collections/immutable/Seq#29
+	 	+dotty/collections/immutable/Seq#`<init>`().23
+ %dotty/collections/immutable/Iterable#21
+ #dotty/collections/immutable/Seq#[T]25
+& 0'dotty/collections/immutable/Collection#21
+6 7#dotty/collections/immutable/Seq#[T]21
+
+ #dotty/collections/immutable/Seq#[T]26
+ (dotty/collections/immutable/Seq#apply().29
+ +dotty/collections/immutable/Seq#apply().(x)2
+ 
+scala/Int#21
+ #dotty/collections/immutable/Seq#[T]2:
+ ,dotty/collections/immutable/Seq#companion().2<
+ +.dotty/collections/immutable/IterableCompanion#2.
+3 6 dotty/collections/immutable/Seq.2>
+ "0dotty/collections/immutable/CollectionCompanion#2I
+" ";dotty/collections/immutable/CollectionCompanion#`<init>`().2B
+$ &4dotty/collections/immutable/CollectionCompanion#[CC]28
+ *dotty/collections/immutable/IterableImpls#2C
+ 5dotty/collections/immutable/IterableImpls#`<init>`().2<
+ .dotty/collections/immutable/IterableImpls#[CC]2G
+ 9dotty/collections/immutable/IterableImpls#fromIterator().2J
+ <dotty/collections/immutable/IterableImpls#fromIterator().[T]2K
+ =dotty/collections/immutable/IterableImpls#fromIterator().(it)2%
+ "scala/package.Iterator#2J
+# $<dotty/collections/immutable/IterableImpls#fromIterator().[T]2<
+( *.dotty/collections/immutable/IterableImpls#[CC]2J
++ ,<dotty/collections/immutable/IterableImpls#fromIterator().[T]2E
+ 7dotty/collections/immutable/IterableImpls#toIterator().2H
+ :dotty/collections/immutable/IterableImpls#toIterator().[T]2I
+ ;dotty/collections/immutable/IterableImpls#toIterator().(xs)2<
+ .dotty/collections/immutable/IterableImpls#[CC]2H
+ :dotty/collections/immutable/IterableImpls#toIterator().[T]2%
+  (scala/package.Iterator#2H
+) *:dotty/collections/immutable/IterableImpls#toIterator().[T]2>
+ 	0dotty/collections/immutable/IterableImpls#map().2A
+
+ 3dotty/collections/immutable/IterableImpls#map().[T]2A
+ 3dotty/collections/immutable/IterableImpls#map().[U]2B
+ 4dotty/collections/immutable/IterableImpls#map().(xs)2<
+ .dotty/collections/immutable/IterableImpls#[CC]2A
+ 3dotty/collections/immutable/IterableImpls#map().[T]2A
+ 3dotty/collections/immutable/IterableImpls#map().(f)2A
+ 3dotty/collections/immutable/IterableImpls#map().[T]2A
+# $3dotty/collections/immutable/IterableImpls#map().[U]2<
+' ).dotty/collections/immutable/IterableImpls#[CC]2A
+* +3dotty/collections/immutable/IterableImpls#map().[U]2G
+ 9dotty/collections/immutable/IterableImpls#fromIterator().2.
+  # scala/collection/Iterator#map().2E
+ 7dotty/collections/immutable/IterableImpls#toIterator().2B
+ 4dotty/collections/immutable/IterableImpls#map().(xs)2A
+$ %3dotty/collections/immutable/IterableImpls#map().(f)2A
+ 3dotty/collections/immutable/IterableImpls#filter().2D
+ 6dotty/collections/immutable/IterableImpls#filter().[T]2E
+ 7dotty/collections/immutable/IterableImpls#filter().(xs)2<
+ .dotty/collections/immutable/IterableImpls#[CC]2D
+ 6dotty/collections/immutable/IterableImpls#filter().[T]2D
+ 6dotty/collections/immutable/IterableImpls#filter().(p)2D
+ 6dotty/collections/immutable/IterableImpls#filter().[T]2
+# *scala/Boolean#2<
+- /.dotty/collections/immutable/IterableImpls#[CC]2D
+0 16dotty/collections/immutable/IterableImpls#filter().[T]2G
+ 9dotty/collections/immutable/IterableImpls#fromIterator().21
+  &#scala/collection/Iterator#filter().2E
+ 7dotty/collections/immutable/IterableImpls#toIterator().2E
+ 7dotty/collections/immutable/IterableImpls#filter().(xs)2D
+' (6dotty/collections/immutable/IterableImpls#filter().(p)2B
+ 4dotty/collections/immutable/IterableImpls#flatMap().2E
+ 7dotty/collections/immutable/IterableImpls#flatMap().[T]2E
+ 7dotty/collections/immutable/IterableImpls#flatMap().[U]2F
+ 8dotty/collections/immutable/IterableImpls#flatMap().(xs)2<
+ .dotty/collections/immutable/IterableImpls#[CC]2E
+ 7dotty/collections/immutable/IterableImpls#flatMap().[T]2E
+  7dotty/collections/immutable/IterableImpls#flatMap().(f)2E
+" #7dotty/collections/immutable/IterableImpls#flatMap().[T]2,
+' 6scala/package.TraversableOnce#2E
+7 87dotty/collections/immutable/IterableImpls#flatMap().[U]2<
+< >.dotty/collections/immutable/IterableImpls#[CC]2E
+? @7dotty/collections/immutable/IterableImpls#flatMap().[U]2G
+ 9dotty/collections/immutable/IterableImpls#fromIterator().22
+  '$scala/collection/Iterator#flatMap().2E
+ 7dotty/collections/immutable/IterableImpls#toIterator().2F
+ 8dotty/collections/immutable/IterableImpls#flatMap().(xs)2E
+( )7dotty/collections/immutable/IterableImpls#flatMap().(f)2<
+    .dotty/collections/immutable/IterableCompanion#2G
+     9dotty/collections/immutable/IterableCompanion#`<init>`().2I
+!! ;dotty/collections/immutable/CollectionCompanion#`<init>`().2>
+!! 0dotty/collections/immutable/CollectionCompanion#2@
+!! 2dotty/collections/immutable/IterableCompanion#[CC]28
+!%! 2*dotty/collections/immutable/IterableImpls#2@
+!3! 52dotty/collections/immutable/IterableCompanion#[CC]2;
+!8! I-scala/annotation/unchecked/uncheckedVariance#2@
+ "  $2dotty/collections/immutable/IterableCompanion#[CC]2I
+"" ;dotty/collections/immutable/IterableCompanion#toIterator().2L
+"" >dotty/collections/immutable/IterableCompanion#toIterator().[T]2M
+"" ?dotty/collections/immutable/IterableCompanion#toIterator().(xs)2@
+"" 2dotty/collections/immutable/IterableCompanion#[CC]2L
+"" >dotty/collections/immutable/IterableCompanion#toIterator().[T]2;
+"" 0-scala/annotation/unchecked/uncheckedVariance#2>
+"7" ?0dotty/collections/immutable/Iterable#iterator().2M
+"4" 6?dotty/collections/immutable/IterableCompanion#toIterator().(xs)2K
+## =dotty/collections/immutable/IterableCompanion#transformOps().2N
+## @dotty/collections/immutable/IterableCompanion#transformOps().[T]2O
+## !Adotty/collections/immutable/IterableCompanion#transformOps().(xs)2@
+### %2dotty/collections/immutable/IterableCompanion#[CC]2N
+#&# '@dotty/collections/immutable/IterableCompanion#transformOps().[T]2;
+#*# ;-scala/annotation/unchecked/uncheckedVariance#27
+#># J)dotty/collections/immutable/TransformOps#2@
+#K# M2dotty/collections/immutable/IterableCompanion#[CC]2N
+#O# P@dotty/collections/immutable/IterableCompanion#transformOps().[T]2B
+#k# k4dotty/collections/immutable/TransformOps#`<init>`().27
+#X# d)dotty/collections/immutable/TransformOps#2@
+#e# g2dotty/collections/immutable/IterableCompanion#[CC]2N
+#i# j@dotty/collections/immutable/IterableCompanion#transformOps().[T]2O
+#l# nAdotty/collections/immutable/IterableCompanion#transformOps().(xs)27
+&& )dotty/collections/immutable/TransformOps#2B
+&& 4dotty/collections/immutable/TransformOps#`<init>`().2;
+&M& O-dotty/collections/immutable/TransformOps#[CC]2:
+&P& Q,dotty/collections/immutable/TransformOps#[T]2&
+&b& bscala/AnyVal#`<init>`().2
+&\& bscala/AnyVal#2;
+&& -dotty/collections/immutable/TransformOps#[CC]2:
+&A& B,dotty/collections/immutable/TransformOps#[T]2:
+&I& K,dotty/collections/immutable/TransformOps#xs.2C
+'' 5dotty/collections/immutable/TransformOps#companion().2F
+'' 8dotty/collections/immutable/TransformOps#companion().[T]2G
+'' 9dotty/collections/immutable/TransformOps#companion().(xs)2;
+'' -dotty/collections/immutable/TransformOps#[CC]2F
+'' 8dotty/collections/immutable/TransformOps#companion().[T]2;
+'' /-scala/annotation/unchecked/uncheckedVariance#2<
+'2' C.dotty/collections/immutable/IterableCompanion#2;
+'D' F-dotty/collections/immutable/TransformOps#[CC]2'
+'W' cscala/Any#asInstanceOf().2?
+'M' V1dotty/collections/immutable/Iterable#companion().2G
+'J' L9dotty/collections/immutable/TransformOps#companion().(xs)2=
+(( 	/dotty/collections/immutable/TransformOps#map().2@
+(
+( 2dotty/collections/immutable/TransformOps#map().[U]2@
+(( 2dotty/collections/immutable/TransformOps#map().(f)2:
+(( ,dotty/collections/immutable/TransformOps#[T]2@
+(( 2dotty/collections/immutable/TransformOps#map().[U]2;
+(( -dotty/collections/immutable/TransformOps#[CC]2@
+(( 2dotty/collections/immutable/TransformOps#map().[U]2>
+(/( 20dotty/collections/immutable/IterableImpls#map().2C
+(!( *5dotty/collections/immutable/TransformOps#companion().2:
+(+( -,dotty/collections/immutable/TransformOps#xs.2:
+(3( 5,dotty/collections/immutable/TransformOps#xs.2@
+(7( 82dotty/collections/immutable/TransformOps#map().(f)2@
+)) 2dotty/collections/immutable/TransformOps#filter().2C
+)) 5dotty/collections/immutable/TransformOps#filter().(p)2:
+)) ,dotty/collections/immutable/TransformOps#[T]2
+)) scala/Boolean#2;
+)) !-dotty/collections/immutable/TransformOps#[CC]2:
+)") #,dotty/collections/immutable/TransformOps#[T]2A
+)5) ;3dotty/collections/immutable/IterableImpls#filter().2C
+)') 05dotty/collections/immutable/TransformOps#companion().2:
+)1) 3,dotty/collections/immutable/TransformOps#xs.2:
+)<) >,dotty/collections/immutable/TransformOps#xs.2C
+)@) A5dotty/collections/immutable/TransformOps#filter().(p)2A
+** 3dotty/collections/immutable/TransformOps#flatMap().2D
+** 6dotty/collections/immutable/TransformOps#flatMap().[U]2D
+** 6dotty/collections/immutable/TransformOps#flatMap().(f)2:
+** ,dotty/collections/immutable/TransformOps#[T]2,
+** (scala/package.TraversableOnce#2D
+*)* *6dotty/collections/immutable/TransformOps#flatMap().[U]2;
+*.* 0-dotty/collections/immutable/TransformOps#[CC]2D
+*1* 26dotty/collections/immutable/TransformOps#flatMap().[U]2B
+*D* K4dotty/collections/immutable/IterableImpls#flatMap().2C
+*6* ?5dotty/collections/immutable/TransformOps#companion().2:
+*@* B,dotty/collections/immutable/TransformOps#xs.2:
+*L* N,dotty/collections/immutable/TransformOps#xs.2D
+*P* Q6dotty/collections/immutable/TransformOps#flatMap().(f)27
+&& )dotty/collections/immutable/TransformOps.23
+-- %dotty/collections/immutable/Iterable.2G
+-3- 39dotty/collections/immutable/IterableCompanion#`<init>`().2<
+-- ).dotty/collections/immutable/IterableCompanion#2B
+.. 4dotty/collections/immutable/Iterable.fromIterator().2E
+.. 7dotty/collections/immutable/Iterable.fromIterator().[T]2F
+.. 8dotty/collections/immutable/Iterable.fromIterator().(it)2%
+.. "scala/package.Iterator#2E
+.#. $7dotty/collections/immutable/Iterable.fromIterator().[T]23
+.(. 0%dotty/collections/immutable/Iterable#2E
+.1. 27dotty/collections/immutable/Iterable.fromIterator().[T]2#
+.6. 9scala/Predef.`???`().2.
+00 
+ dotty/collections/immutable/Seq.2G
+0)0 )9dotty/collections/immutable/IterableCompanion#`<init>`().2<
+00 $.dotty/collections/immutable/IterableCompanion#2=
+11 /dotty/collections/immutable/Seq.fromIterator().2@
+11 2dotty/collections/immutable/Seq.fromIterator().[T]2A
+11 3dotty/collections/immutable/Seq.fromIterator().(it)2%
+11 "scala/package.Iterator#2@
+1#1 $2dotty/collections/immutable/Seq.fromIterator().[T]2.
+1(1 + dotty/collections/immutable/Seq#2@
+1,1 -2dotty/collections/immutable/Seq.fromIterator().[T]2#
+111 4scala/Predef.`???`().PZ F65520B0D1CB022E3BC28C8021578AD6

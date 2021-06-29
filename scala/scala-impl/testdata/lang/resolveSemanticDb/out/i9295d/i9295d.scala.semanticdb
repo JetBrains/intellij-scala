@@ -1,0 +1,57 @@
+
+êtests/pos/i9295d.scala*
+_empty_/Foo#*FooÄ*)
+_empty_/Foo#`<init>`(). Ä@*<init>Ä*0
+_empty_/Foo#applyDynamic().*applyDynamicÄ*.
+!_empty_/Foo#applyDynamic().(name)*nameÄ*
+_empty_/Bar#*BarÄ*)
+_empty_/Bar#`<init>`(). Ä@*<init>Ä*0
+_empty_/Bar#applyDynamic().*applyDynamicÄ*.
+!_empty_/Bar#applyDynamic().(name)*nameÄ*(
+_empty_/Bar#applyDynamic().(x)*xÄ*)
+_empty_/i9295d$package. *_empty_Ä**
+_empty_/i9295d$package.foo. Ä*fooÄ*)
+_empty_/i9295d$package.baz().*bazÄ2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ scala/Dynamic#2)
+ _empty_/Foo#applyDynamic().2/
+ !_empty_/Foo#applyDynamic().(name)2"
+ scala/Predef.String#2"
+$ 1scala/DummyImplicit#2"
+6 Cscala/DummyImplicit#2
+H K_empty_/Bar#2#
+N Qscala/Predef.`???`().2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2
+ scala/Dynamic#2)
+ _empty_/Bar#applyDynamic().2/
+ !_empty_/Bar#applyDynamic().(name)2"
+ scala/Predef.String#2,
+! "_empty_/Bar#applyDynamic().(x)2
+$ '
+scala/Int#2#
++ .scala/Predef.`???`().2!
+
+
+_empty_/i9295d$package.2)
+
+
+ _empty_/i9295d$package.foo.2%
+
+
+ _empty_/Foo#`<init>`().2
+
+
+ _empty_/Foo#2+
+ _empty_/i9295d$package.baz().2)
+ _empty_/Bar#applyDynamic().2-
+ scala/ContextFunction1#apply().2-
+ scala/ContextFunction1#apply().2)
+ _empty_/Foo#applyDynamic().2)
+
+ _empty_/i9295d$package.foo.20
+ "scala/DummyImplicit.dummyImplicit.PZ 2B6334F486DDE1A8A5F4303910863089

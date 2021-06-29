@@ -1,0 +1,47 @@
+
+útests/pos/i6373.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Test#*Test€*/
+_empty_/Test.Test#`<init>`(). €@*<init>€**
+_empty_/Test.Test#Context#*Context€*7
+%_empty_/Test.Test#Context#`<init>`(). €@*<init>€*5
+(_empty_/Test.Test#Context#`<init>`().(t) €*t€*)
+_empty_/Test.Test#Context#t. €*t€*0
+_empty_/Test.Test#Contextual#*
+Contextual€**
+ _empty_/Test.Test#Contextual#[T]	*T€* 
+_empty_/Test.Test#f().*f€*%
+_empty_/Test.Test#ctx. è*ctx€2
+ _empty_/Test.2 
+ _empty_/Test.Test#2+
+ _empty_/Test.Test#`<init>`().2(
+
+ _empty_/Test.Test#Context#23
+ %_empty_/Test.Test#Context#`<init>`().2
+  scala/Boolean#2*
+ _empty_/Test.Test#Context#t.2+
+	 _empty_/Test.Test#Contextual#2.
+  _empty_/Test.Test#Contextual#[T]2(
+  _empty_/Test.Test#Context#2.
+% & _empty_/Test.Test#Contextual#[T]2$
+ _empty_/Test.Test#f().2+
+ _empty_/Test.Test#Contextual#2
+ &scala/Boolean#2*
+: ;_empty_/Test.Test#Context#t.2$
+* 0scala/Predef.summon().2(
+1 8_empty_/Test.Test#Context#2$
+
+ _empty_/Test.Test#ctx.2(
+ _empty_/Test.Test#Context#23
+$ $%_empty_/Test.Test#Context#`<init>`().2(
+ $_empty_/Test.Test#Context#2-
+
+
+ scala/ContextFunction1#apply().2$
+
+
+ _empty_/Test.Test#f().2$
+
+
+ _empty_/Test.Test#ctx.PZ 8152B44E479AC7496FF1EEA21A5AD539

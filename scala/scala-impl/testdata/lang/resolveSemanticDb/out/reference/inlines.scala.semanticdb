@@ -1,0 +1,134 @@
+
+Ö&!tests/pos/reference/inlines.scala* 
+inlines/Config.
+ *Config€**
+inlines/Config.logging. €*logging€*
+inlines/Logger#*Logger€*,
+inlines/Logger#`<init>`(). €@*<init>€* 
+inlines/Logger#a(). €*a€*&
+inlines/Logger#`a_=`(). €*a_=€*(
+inlines/Logger#`a_=`().(x$1)*x$1€* 
+inlines/Logger#b(). €*b€*&
+inlines/Logger#`b_=`(). €*b_=€*(
+inlines/Logger#`b_=`().(x$1)*x$1€* 
+inlines/Logger#c(). €*c€*&
+inlines/Logger#`c_=`(). €*c_=€*(
+inlines/Logger#`c_=`().(x$1)*x$1€* 
+inlines/Logger.
+ *Logger€**
+inlines/Logger.indent(). €*indent€* 
+inlines/Logger.a(). €*a€* 
+inlines/Logger.b(). €*b€*&
+inlines/Logger.`b_=`(). €*b_=€*(
+inlines/Logger.`b_=`().(x$1)*x$1€*!
+inlines/Logger.log().*log€*"
+inlines/Logger.log().[T]	*T€*&
+inlines/Logger.log().(msg)*msg€*8
+#inlines/Logger.log().(indentMargin)*indentMargin€*$
+inlines/Logger.log().(op)*op€*
+local0 €*result€*5
+inlines/Logger.inline$indent().*inline$indent€*;
+#inlines/Logger.`inline$indent_=`().*inline$indent_=€*4
+(inlines/Logger.`inline$indent_=`().(x$0)*x$0€*
+inlines/Test.
+ *Test€*6
+inlines/Test.indentSetting(). €*indentSetting€*<
+!inlines/Test.`indentSetting_=`(). €*indentSetting_=€*2
+&inlines/Test.`indentSetting_=`().(x$1)*x$1€*+
+inlines/Test.factorial().*	factorial€*&
+inlines/Test.factorial().(n)*n€*!
+inlines/Test.main().*main€*'
+inlines/Test.main().(args)*args€2
+ inlines/2
+ inlines/Config.2%
+ inlines/Config.logging.2
+ inlines/Logger#2(
+ inlines/Logger#`<init>`().2!
+ inlines/Logger#a().2%
+ inlines/Logger#`a_=`().2!
+ inlines/Logger#b().2
+ inlines/Logger#2%
+ inlines/Logger#`b_=`().2!
+		 inlines/Logger#c().2%
+		 inlines/Logger#`c_=`().2
+ inlines/Logger.2&
+ inlines/Logger.indent().2!
+ inlines/Logger.a().2!
+ inlines/Logger.b().2
+
+ inlines/Logger.2%
+ inlines/Logger.`b_=`().2#
+ inlines/Logger.log().2&
+ inlines/Logger.log().[T]2(
+ inlines/Logger.log().(msg)2"
+ scala/Predef.String#21
+! -#inlines/Logger.log().(indentMargin)2
+2 5
+scala/Int#2'
+7 9inlines/Logger.log().(op)2&
+> ?inlines/Logger.log().[T]2&
+B Cinlines/Logger.log().[T]2%
+ inlines/Config.logging.2
+ inlines/Config.2'
+ scala/Predef.println(+1).2&
+* +scala/StringContext#s().2*
+ scala/StringContext.apply().2/
+ !scala/collection/StringOps#`*`().2+
+ scala/Predef.augmentString().2-
+ inlines/Logger.inline$indent().2(
+' *inlines/Logger.log().(msg)21
+ #inlines/Logger.`inline$indent_=`().2 
+ scala/Int#`+`(+4).2-
+ inlines/Logger.inline$indent().21
+ #inlines/Logger.log().(indentMargin)2
+
+ local02'
+ inlines/Logger.log().(op)21
+ #inlines/Logger.`inline$indent_=`().2 
+ scala/Int#`-`(+3).2-
+ inlines/Logger.inline$indent().21
+ #inlines/Logger.log().(indentMargin)2'
+ scala/Predef.println(+1).2&
+. /scala/StringContext#s().2*
+ scala/StringContext.apply().2/
+ !scala/collection/StringOps#`*`().2+
+ scala/Predef.augmentString().2-
+ inlines/Logger.inline$indent().2(
+! $inlines/Logger.log().(msg)2
+( .local02
+ local02'
+	 inlines/Logger.log().(op)2
+ inlines/Test.2
+ 	  inlines/Logger.2+
+"" inlines/Test.indentSetting().2/
+"" !inlines/Test.`indentSetting_=`().2'
+$$ inlines/Test.factorial().2*
+$$ inlines/Test.factorial().(n)2#
+$$ scala/package.BigInt#2#
+$$ "scala/package.BigInt#2#
+%% inlines/Logger.log().2&
+%% scala/StringContext#s().2*
+%
+% 
+scala/StringContext.apply().2*
+%% inlines/Test.factorial().(n)2+
+%% 'inlines/Test.indentSetting().2
+&& scala/Any#`==`().2*
+&
+& inlines/Test.factorial().(n)2-
+&& scala/math/BigInt.int2bigInt().2&
+'' scala/math/BigInt#`*`().2*
+'' inlines/Test.factorial().(n)2'
+'' inlines/Test.factorial().2&
+'' scala/math/BigInt#`-`().2*
+'' inlines/Test.factorial().(n)2-
+'' scala/math/BigInt.int2bigInt().2"
+++ 
+inlines/Test.main().2(
+++ inlines/Test.main().(args)2
+++ scala/Array#2"
+++ scala/Predef.String#2
++!+ %scala/Unit#2'
+,, scala/Predef.println(+1).2'
+,, inlines/Test.factorial().2-
+,, scala/math/BigInt.int2bigInt().PZ 557E27529BE18D03ECAAFCDBD0336084

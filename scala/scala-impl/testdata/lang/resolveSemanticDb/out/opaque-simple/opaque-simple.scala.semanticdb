@@ -1,0 +1,17 @@
+
+»tests/pos/opaque-simple.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.First#*First€*
+_empty_/O.First#[A1]	*A1€*
+_empty_/O.Last#*Last€*
+_empty_/O.Last#[A]	*A€2
+ 
+_empty_/O.2
+ _empty_/O.First#2"
+ _empty_/O.First#[A1]2"
+ _empty_/O.First#[A1]2
+ _empty_/O.Last#2 
+ _empty_/O.Last#[A]2 
+ _empty_/O.Last#[A]PZ A8122DBBD24638015014D86EB4D1C916

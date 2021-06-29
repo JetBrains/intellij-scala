@@ -1,0 +1,47 @@
+
+Ëtests/pos/givenIn.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.Context#*Context€*2
+ _empty_/Test.Context#`<init>`(). €@*<init>€*/
+_empty_/Test.Context#givenIn().*givenIn€*,
+"_empty_/Test.Context#givenIn().[T]	*T€*.
+#_empty_/Test.Context#givenIn().(op)*op€*
+local0 è*given_Context€*
+_empty_/Test.ctx().*ctx€*
+_empty_/Test.g().*g€*$
+_empty_/Test.g().(x$1)  *x$1€2
+ _empty_/Test.2=
+ %/scala/compiletime/package$package.constValue().2 
+ scala/compiletime/2
+	 scala/2#
+ _empty_/Test.Context#2.
+  _empty_/Test.Context#`<init>`().2-
+ _empty_/Test.Context#givenIn().20
+ "_empty_/Test.Context#givenIn().[T]21
+ #_empty_/Test.Context#givenIn().(op)2#
+! (_empty_/Test.Context#20
+- ."_empty_/Test.Context#givenIn().[T]2
+ local02#
+ _empty_/Test.Context#2-
+ scala/ContextFunction1#apply().21
+ #_empty_/Test.Context#givenIn().(op)2
+ local02!
+
+
+ 	_empty_/Test.ctx().2#
+
+
+ _empty_/Test.Context#2.
+
+ 
+   _empty_/Test.Context#`<init>`().2#
+
+
+  _empty_/Test.Context#2
+ _empty_/Test.g().2$
+ _empty_/Test.g().(x$1)2#
+ _empty_/Test.Context#2-
+ _empty_/Test.Context#givenIn().2!
+ _empty_/Test.ctx().2
+ _empty_/Test.g().PZ DF545BA20A1A8606F878812AEA931274

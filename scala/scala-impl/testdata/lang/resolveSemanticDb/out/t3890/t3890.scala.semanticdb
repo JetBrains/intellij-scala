@@ -1,0 +1,22 @@
+
+“tests/pos/t3890.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.g().*g€*
+_empty_/Test.g().[S]	*S€*
+_empty_/Test.g().[T]	*T€*
+_empty_/Test.g().(s)*s€*
+_empty_/Test.g().(t)*t€2
+ _empty_/Test.2
+ _empty_/Test.g().2"
+ _empty_/Test.g().[S]2"
+
+ _empty_/Test.g().[T]2"
+ _empty_/Test.g().[S]2"
+ _empty_/Test.g().(s)2"
+ _empty_/Test.g().[S]2"
+ _empty_/Test.g().(t)2"
+ _empty_/Test.g().[T]2
+ #scala/Unit#2'
+& -scala/Predef.println(+1).2
+ _empty_/Test.g().PZ B6B11F147B7EF283EAB63FC0E7F84D0A

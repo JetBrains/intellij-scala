@@ -1,0 +1,35 @@
+
+Õtests/pos/i7217.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*&
+_empty_/Foo#`<init>`().(p1)*p1€*&
+_empty_/Foo#`<init>`().(p2)*p2€*
+_empty_/Foo#p1. €*p1€*
+_empty_/Foo#p2. €*p2€*(
+_empty_/Foo#`<init>`(+1).*<init>€*(
+_empty_/Foo#`<init>`(+1).(p1)*p1€*(
+_empty_/i7217$package. *_empty_€*%
+_empty_/i7217$package.x. €*x€*%
+_empty_/i7217$package.y. €*y€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ scala/Predef.String#2
+  scala/Predef.String#2
+
+ _empty_/Foo#p1.2
+ _empty_/Foo#p2.2'
+ 
+_empty_/Foo#`<init>`(+1).2+
+ _empty_/Foo#`<init>`(+1).(p1)2"
+ scala/Predef.String#2%
+ _empty_/Foo#`<init>`().2+
+  _empty_/Foo#`<init>`(+1).(p1)2 
+_empty_/i7217$package.2&
+ _empty_/i7217$package.x.2%
+ _empty_/Foo#`<init>`().2
+
+ _empty_/Foo#2&
+ _empty_/i7217$package.y.2'
+ _empty_/Foo#`<init>`(+1).2
+
+ _empty_/Foo#PZ AFB1DF0DBCE19568A502B9E6C8DD67F8

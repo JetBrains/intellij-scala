@@ -1,0 +1,43 @@
+
+àtests/pos/i8748.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*"
+_empty_/A#`<init>`().(a)*a€*
+local0 *$anon€*
+local1*get€*
+_empty_/A#a. €*a€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*"
+_empty_/B#`<init>`().(c)*c€*
+_empty_/B#c. €*c€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#get(). *get€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ scala/Predef.String#2
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ local02
+! "
+_empty_/C#2
+ local12"
+ scala/Predef.String#2
+  _empty_/A#a.2
+ 	_empty_/A#a.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/C#2
+ 	_empty_/B#c.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 	_empty_/C#get().2"
+ scala/Predef.String#PZ 058CFCDBF7725BD50586E6BB7BBDA1B1

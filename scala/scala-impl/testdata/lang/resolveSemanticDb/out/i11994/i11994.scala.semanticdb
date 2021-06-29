@@ -1,0 +1,35 @@
+
+œ
+tests/pos/i11994.scala*(
+_empty_/WeirdNumber#*WeirdNumber€*1
+_empty_/WeirdNumber#`<init>`(). €@*<init>€*,
+"_empty_/WeirdNumber#`<init>`().(v)*v€*#
+_empty_/WeirdNumber#v. €*v€*6
+"_empty_/WeirdNumber#doubleValue().*doubleValue€*0
+_empty_/WeirdNumber#intValue().*intValue€*2
+ _empty_/WeirdNumber#longValue().*	longValue€*4
+!_empty_/WeirdNumber#floatValue().*
+floatValue€2
+ _empty_/WeirdNumber#2)
+ _empty_/WeirdNumber#`<init>`().2
+ scala/Double#2&
+5 5java/lang/Number#`<init>`().2
+/ 5java/lang/Number#2
+* .
+java/lang/2
+% )java/2 
+ _empty_/WeirdNumber#v.20
+ "_empty_/WeirdNumber#doubleValue().2$
+ _empty_/WeirdNumber#v.2-
+ _empty_/WeirdNumber#intValue().2*
+ 'java/lang/Double#intValue().2+
+ scala/Predef.double2Double().2$
+ _empty_/WeirdNumber#v.2.
+  _empty_/WeirdNumber#longValue().2+
+ (java/lang/Double#longValue().2+
+ scala/Predef.double2Double().2$
+ _empty_/WeirdNumber#v.2/
+ !_empty_/WeirdNumber#floatValue().2,
+ )java/lang/Double#floatValue().2+
+ scala/Predef.double2Double().2$
+ _empty_/WeirdNumber#v.PZ 229F54FAEBED8BC4612AAE7958A581F7

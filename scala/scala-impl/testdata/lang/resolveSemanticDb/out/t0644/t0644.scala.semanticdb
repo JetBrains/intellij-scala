@@ -1,0 +1,34 @@
+
+ tests/pos/t0644.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€* 
+_empty_/A#apply().*apply€*"
+_empty_/A#update().*update€* 
+_empty_/A#update().(n)*n€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2 
+ _empty_/A#apply().2
+ 
+scala/Int#2!
+ _empty_/A#update().2$
+ _empty_/A#update().(n)2
+ 
+scala/Int#2
+ scala/Unit#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2 
+ _empty_/A#apply().2!
+ _empty_/A#update().2 
+		 _empty_/A#apply().2!
+
+
+ _empty_/A#update().PZ 20560CD26FA1417FE5475EEC38C2F78F

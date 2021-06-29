@@ -1,0 +1,26 @@
+
+‘tests/pos/thistypes.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#I#*I€*)
+_empty_/B#I#`<init>`(). €@*<init>€*
+_empty_/B#foo(). *foo€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#foo(). *foo€2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 	_empty_/B#I#2%
+ _empty_/B#I#`<init>`().2
+ 	_empty_/B#foo().2
+ _empty_/B#I#2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/B#2
+ 	_empty_/C#foo().2
+ _empty_/B#I#PZ 25BA9AD043C70B943FBA586CE261FC4B

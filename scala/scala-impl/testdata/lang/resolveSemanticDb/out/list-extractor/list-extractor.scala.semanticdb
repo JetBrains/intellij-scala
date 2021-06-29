@@ -1,0 +1,17 @@
+
+ãtests/pos/list-extractor.scala*"
+_empty_/HasArgs.
+ *HasArgs€*$
+_empty_/HasArgs.boop().*boop€*.
+_empty_/HasArgs.boop().(params)*params€2
+ _empty_/HasArgs.2%
+ 
+_empty_/HasArgs.boop().2-
+ _empty_/HasArgs.boop().(params)2!
+ scala/package.List#2!
+ scala/package.List#2-
+$ *_empty_/HasArgs.boop().(params)27
+ )scala/collection/SeqFactory#unapplySeq().2!
+	 scala/package.List.27
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.PZ CBF863FBFE995149B457FA1EEFBB458F

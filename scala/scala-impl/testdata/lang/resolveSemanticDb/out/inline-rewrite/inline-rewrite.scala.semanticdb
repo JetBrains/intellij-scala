@@ -1,0 +1,56 @@
+
+õ
+tests/pos/inline-rewrite.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(x)*x€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€*
+_empty_/Test.yc. €*yc€*
+local0 €*x€*
+local1 €*x€*
+_empty_/Test.g().*g€*
+_empty_/Test.g().(x)*x€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€2
+ _empty_/Test.2"
+, -_empty_/Test.f().(x)2
+ _empty_/Test.f().2"
+ _empty_/Test.f().(x)2
+ !
+scala/Int#2
+ _empty_/Test.x.2"
+	 scala/Predef.String#2
+ _empty_/Test.f().2
+ _empty_/Test.y.2
+
+ _empty_/Test.f().2
+		 _empty_/Test.yc.2
+	
+	 
+scala/Int#2
+		 _empty_/Test.y.2"
+, -_empty_/Test.g().(x)2
+	 
+local02"
+ scala/Predef.String#2#
+ scala/Tuple2.apply().2
+ local02
+ local02
+	 
+local12
+ scala/Double#2
+ local12
+ _empty_/Test.g().2"
+ _empty_/Test.g().(x)2
+ !
+scala/Any#2
+ _empty_/Test.a.2"
+
+ scala/Predef.String#2"
+ scala/Predef.String#2
+ _empty_/Test.g().2
+ _empty_/Test.b.2
+	 scala/Double#2
+ _empty_/Test.g().PZ FE69679CED1B8A3A4A204D88D63B19BC

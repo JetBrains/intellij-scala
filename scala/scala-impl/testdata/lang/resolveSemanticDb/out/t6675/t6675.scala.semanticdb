@@ -1,0 +1,97 @@
+
+çtests/pos/t6675.scala**
+_empty_/LeftOrRight.
+ *LeftOrRight€*.
+_empty_/LeftOrRight.unapply().*unapply€*+
+!_empty_/LeftOrRight.unapply().[A]	*A€*3
+%_empty_/LeftOrRight.unapply().(value)*value€*
+local0 €*x€*
+local1 €*x€*
+_empty_/Test.
+ *Test€*
+local2 €*pair€*
+local3 €*a€*
+local4 €*b€*
+local5 €*a€*
+local6 €*b€*
+local7 €*a€*
+local8 €*b€2
+ _empty_/LeftOrRight.2,
+ _empty_/LeftOrRight.unapply().2/
+ !_empty_/LeftOrRight.unapply().[A]23
+ %_empty_/LeftOrRight.unapply().(value)2#
+ scala/package.Either#2/
+  !_empty_/LeftOrRight.unapply().[A]2/
+" #!_empty_/LeftOrRight.unapply().[A]2
+' -scala/Option#2/
+. /!_empty_/LeftOrRight.unapply().[A]23
+3 8%_empty_/LeftOrRight.unapply().(value)2(
+ scala/util/Left.unapply().2!
+ scala/package.Left.2
+	 scala/2
+ local02!
+ scala/Some.apply().2
+ scala/Some.2
+  local02)
+ scala/util/Right.unapply().2"
+ scala/package.Right.2
+	 scala/2
+ local12!
+ scala/Some.apply().2
+ scala/Some.2
+  !local12
+ _empty_/Test.2&
+ scala/util/Left.apply().2!
+ scala/package.Left.2#
+	 	scala/Tuple2.apply().2#
+ scala/package.Either#2
+ 
+scala/Int#2
+ !
+scala/Int#2
+% (
+scala/Int#2
+* -
+scala/Int#2,
+		 _empty_/LeftOrRight.unapply().2"
+			 _empty_/LeftOrRight.2
+		 local22%
+		 scala/Tuple2.unapply().2
+		 local32
+	 	 !local42
+	'	 (local32&
+ scala/util/Left.apply().2!
+ scala/package.Left.2#
+	 	scala/Tuple2.apply().2#
+ scala/package.Either#2
+ 
+scala/Int#2
+ !
+scala/Int#2
+% (
+scala/Int#2
+* -
+scala/Int#2,
+ _empty_/LeftOrRight.unapply().2"
+	 _empty_/LeftOrRight.2%
+ scala/Tuple2.unapply().2
+ local52
+ local62
+  !local52&
+ scala/util/Left.apply().2!
+ scala/package.Left.2#
+	 	scala/Tuple2.apply().2#
+ scala/package.Either#2
+ 
+scala/Int#2
+ !
+scala/Int#2
+% (
+scala/Int#2
+* -
+scala/Int#2,
+ _empty_/LeftOrRight.unapply().2"
+	 _empty_/LeftOrRight.2
+ local72
+ local82
+ local7PZ EAB2F1AA56763363D03DBFEC0D712EBE

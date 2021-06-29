@@ -1,0 +1,43 @@
+
+ætests/pos/i11743.scala*)
+_empty_/i11743$package. *_empty_€*-
+_empty_/i11743$package.UnivEq#*UnivEq€*+
+!_empty_/i11743$package.UnivEq#[A]	*A€*/
+_empty_/i11743$package.UnivEq.
+ *UnivEq€*4
+&_empty_/i11743$package.UnivEq.force().*force€*3
+)_empty_/i11743$package.UnivEq.force().[A]	*A€*6
+'_empty_/i11743$package.UnivEq.univEq().*univEq€*4
+*_empty_/i11743$package.UnivEq.univEq().[A]	*A€*<
+._empty_/i11743$package.UnivEq.univEq().(proof)*proof€*4
+*_empty_/i11743$package.UnivEq.univEq().(a)*a€*4
+*_empty_/i11743$package.UnivEq.univEq().(b)*b€28
+ ..scala/language.experimental.erasedDefinitions.2&
+ scala/language.experimental.2
+ scala/language.2>
+ $0scala/compiletime/package$package.erasedValue().2 
+ scala/compiletime/2
+ scala/2!
+_empty_/i11743$package.2,
+ _empty_/i11743$package.UnivEq#2/
+ !_empty_/i11743$package.UnivEq#[A]2,
+ _empty_/i11743$package.UnivEq.24
+ &_empty_/i11743$package.UnivEq.force().27
+ )_empty_/i11743$package.UnivEq.force().[A]2,
+ _empty_/i11743$package.UnivEq#27
+ )_empty_/i11743$package.UnivEq.force().[A]2>
+# .0scala/compiletime/package$package.erasedValue().25
+ '_empty_/i11743$package.UnivEq.univEq().28
+ *_empty_/i11743$package.UnivEq.univEq().[A]2<
+ ._empty_/i11743$package.UnivEq.univEq().(proof)2,
+ $_empty_/i11743$package.UnivEq#28
+% &*_empty_/i11743$package.UnivEq.univEq().[A]28
+ *_empty_/i11743$package.UnivEq.univEq().(a)28
+ *_empty_/i11743$package.UnivEq.univEq().[A]28
+ *_empty_/i11743$package.UnivEq.univEq().(b)28
+  *_empty_/i11743$package.UnivEq.univEq().[A]2
+# *scala/Boolean#2
+ 
+scala/Any#`==`().28
+ *_empty_/i11743$package.UnivEq.univEq().(a)28
+ *_empty_/i11743$package.UnivEq.univEq().(b)PZ C81C3F359F1E99B921DCB876F62AD6C2

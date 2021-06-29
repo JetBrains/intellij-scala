@@ -1,0 +1,32 @@
+
+Ý	tests/pos/SI-7060.scala*
+_empty_/Test.
+ *Test€*E
+%_empty_/Test.mbarray_apply_minibox(). *mbarray_apply_minibox€*:
+,_empty_/Test.mbarray_apply_minibox().(array)*array€*6
+*_empty_/Test.mbarray_apply_minibox().(tag)*tag€*1
+_empty_/Test.crash_method().*crash_method€2
+ _empty_/Test.23
+ (%_empty_/Test.mbarray_apply_minibox().2:
+) .,_empty_/Test.mbarray_apply_minibox().(array)2
+0 3
+scala/Any#28
+5 8*_empty_/Test.mbarray_apply_minibox().(tag)2
+: >scala/Byte#2
+A Escala/Long#2"
+ scala/Byte#`==`(+3).28
+ *_empty_/Test.mbarray_apply_minibox().(tag)2"
+% %scala/Array#apply().2'
+ scala/Any#asInstanceOf().2:
+ ,_empty_/Test.mbarray_apply_minibox().(array)2
+ scala/Array#2
+ #scala/Long#2"
+) /scala/Byte#toLong().2"
+% %scala/Array#apply().2'
+ scala/Any#asInstanceOf().2:
+ ,_empty_/Test.mbarray_apply_minibox().(array)2
+ scala/Array#2
+ #scala/Byte#2*
+ _empty_/Test.crash_method().2
+ scala/Unit#23
+		 %_empty_/Test.mbarray_apply_minibox().PZ 7E7136A452B17B78333E9E0863F74DA6

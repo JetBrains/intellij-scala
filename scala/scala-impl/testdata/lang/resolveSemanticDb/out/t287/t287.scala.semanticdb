@@ -1,0 +1,35 @@
+
+¨	tests/pos/t287.scala*"
+_empty_/testBuf.
+ *testBuf€**
+_empty_/testBuf.mystream#*mystream€*6
+$_empty_/testBuf.mystream#`<init>`(). €@*<init>€*'
+_empty_/testBuf.mystream#w().*w€**
+ _empty_/testBuf.mystream#w().(x)*x€*
+local0 €*foo€2
+ _empty_/testBuf.2'
+ _empty_/testBuf.mystream#22
+ $_empty_/testBuf.mystream#`<init>`().26
+5 5(java/io/BufferedOutputStream#`<init>`().2+
+! 5java/io/BufferedOutputStream#2
+  java/io/2
+ java/22
+R R$java/io/FileOutputStream#`<init>`().2'
+B Rjava/io/FileOutputStream#2
+? Ajava/io/2
+: >java/2+
+ 	_empty_/testBuf.mystream#w().2.
+  _empty_/testBuf.mystream#w().(x)2"
+ scala/Predef.String#2
+ scala/Unit#2
+
+ local02%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ scala/Byte#23
+ %java/io/FilterOutputStream#write(+1).2
+ local025
+ 'java/io/BufferedOutputStream#write(+1).2
+ local02#
+ %scala/Array#length().2
+ local0PZ E918CDE9288E3A5C97ECBCFF8878BD18

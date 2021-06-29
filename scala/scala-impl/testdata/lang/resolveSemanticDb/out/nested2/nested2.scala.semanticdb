@@ -1,0 +1,40 @@
+
+¯tests/pos/nested2.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[A]	*A€*
+_empty_/C#D#*D€*)
+_empty_/C#D#`<init>`(). €@*<init>€*
+_empty_/C#D#[B]	*B€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[A]2
+ 	_empty_/C#D#2%
+	 	_empty_/C#D#`<init>`().2
+
+ _empty_/C#D#[B]2
+ _empty_/Test.2
+ _empty_/Test.x.2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2"
+ scala/Predef.String#2
+ _empty_/Test.y.2
+ _empty_/C#D#2
+	 
+
+_empty_/C#2"
+ scala/Predef.String#2
+ 
+scala/Int#2%
+( (_empty_/C#D#`<init>`().2
+" #_empty_/C#D#2
+  !_empty_/Test.x.2
+$ '
+scala/Int#PZ 4326358B035DD5713FADB0F097851DD3

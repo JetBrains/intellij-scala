@@ -1,0 +1,87 @@
+
+ tests/pos/i536.scala*
+_empty_/Comp#*Comp€**
+_empty_/Comp#`<init>`(). €@*<init>€*
+_empty_/Comp#[T]	*T€*
+_empty_/Coll#*Coll€**
+_empty_/Coll#`<init>`(). €@*<init>€*
+_empty_/Coll#[T]	*T€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/Max.
+ *Max€*
+_empty_/Max.max().*max€*
+_empty_/Max.max().[M]	*M€*
+_empty_/Max.max().(x)*x€* 
+_empty_/Max.max(+1).*max€*!
+_empty_/Max.max(+1).[M]	*M€*!
+_empty_/Max.max(+1).(x)*x€*%
+_empty_/Max.max(+1).(cmp)*cmp€*
+_empty_/Max.xs. €*xs€*
+_empty_/Max.m1. €*m1€*
+_empty_/Max.m2. €*m2€2
+ 
+_empty_/Comp#2"
+
+ 
+_empty_/Comp#`<init>`().2
+ _empty_/Comp#[T]2
+ 
+_empty_/Coll#2&
+
+ 
+_empty_/Coll#`<init>`().2
+ _empty_/Coll#[T]2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/Comp#2
+ 
+_empty_/C#2
+ 
+_empty_/Max.2 
+ 	_empty_/Max.max().2#
+
+ _empty_/Max.max().[M]2
+ _empty_/Comp#2#
+ _empty_/Max.max().[M]2#
+ _empty_/Max.max().(x)2
+  $_empty_/Coll#2#
+* +_empty_/Max.max().[M]2#
+/ 0_empty_/Max.max().[M]2#
+3 6scala/Predef.`???`().2"
+ 	_empty_/Max.max(+1).2%
+
+ _empty_/Max.max(+1).[M]2%
+ _empty_/Max.max(+1).(x)2
+ _empty_/Coll#2%
+ _empty_/Max.max(+1).[M]2'
+ !_empty_/Max.max(+1).(cmp)2
+# )java/lang/Object#2%
+, -_empty_/Max.max(+1).[M]2#
+0 3scala/Predef.`???`().2
+ _empty_/Max.xs.2
+
+ _empty_/Coll#2
+ 
+_empty_/C#2#
+ scala/Predef.`???`().2
+ _empty_/Max.m1.2 
+ _empty_/Max.max().2
+ _empty_/Max.xs.2
+ _empty_/Max.m2.2 
+ _empty_/Max.max().2*
+
+
+ java/util/Collections#max().2$
+
+
+ java/util/Collections#2
+
+
+ 
+java/util/2
+
+
+ java/PZ CB495840C7989C209401BE0755C74940

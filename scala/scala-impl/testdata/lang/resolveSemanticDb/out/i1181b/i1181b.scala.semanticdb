@@ -1,0 +1,50 @@
+
+³
+tests/pos/i1181b.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[M]	*M€* 
+_empty_/Test.foo().(x)*x€*!
+_empty_/Test.Alias#*Alias€* 
+_empty_/Test.Alias#[X]	*X€* 
+_empty_/Test.Alias#[Y]	*Y€*
+_empty_/Test.x. €*x€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A]2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[M]2$
+ _empty_/Test.foo().(x)2$
+ _empty_/Test.foo().[M]2
+ 
+scala/Int#2
+ 
+scala/Int#2$
+# $_empty_/Test.foo().(x)2!
+ _empty_/Test.Alias#2$
+ _empty_/Test.Alias#[X]2$
+ _empty_/Test.Alias#[Y]2
+ _empty_/Foo#2$
+ _empty_/Test.Alias#[X]2
+ _empty_/Test.x.2!
+	 _empty_/Test.Alias#2
+ 
+scala/Int#2
+ 
+scala/Int#2%
+& &_empty_/Foo#`<init>`().2
+ !_empty_/Foo#2
+" %
+scala/Int#2!
+ _empty_/Test.foo().2!
+ _empty_/Test.Alias#2
+ _empty_/Test.x.2!
+		 _empty_/Test.foo().2
+		 _empty_/Test.x.PZ 0A6AA6FD7B2F180D54D519A83841D28C

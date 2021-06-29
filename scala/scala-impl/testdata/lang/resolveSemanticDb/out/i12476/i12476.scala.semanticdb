@@ -1,0 +1,19 @@
+
+Ïtests/pos/i12476.scala*
+_empty_/test.
+ *test€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().[A]	*A€* 
+_empty_/test.foo().[B]	*B€* 
+_empty_/test.foo().(m)*m€2
+ _empty_/test.2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().[A]2$
+ _empty_/test.foo().[B]2$
+ _empty_/test.foo().(m)2$
+ _empty_/test.foo().[B]2$
+ _empty_/test.foo().(m)2$
+ _empty_/test.foo().[A]2$
+ 	_empty_/test.foo().(m)2$
+ _empty_/test.foo().[B]PZ 6B112EE4E409EB9DBEB973506A8E1853

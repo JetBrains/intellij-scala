@@ -1,0 +1,41 @@
+
+Ütests/pos/i2367.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(x)*x€* 
+_empty_/Test.foo().(y)*y€*!
+_empty_/Test.foo(+1).*foo€*"
+_empty_/Test.foo(+1).(x)*x€*"
+_empty_/Test.foo(+1).(y)*y€*
+local0*x€2
+ _empty_/Test.2,
+ java/lang/Thread#`<init>`(+2).2
+ java/lang/Thread#2'
+ scala/Predef.println(+1).2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2$
+ _empty_/Test.foo().(y)2
+ 
+scala/Int#2
+" %
+scala/Int#2#
+ 	_empty_/Test.foo(+1).2&
+
+ _empty_/Test.foo(+1).(x)2
+ 
+scala/Int#2&
+ _empty_/Test.foo(+1).(y)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+ _empty_/Test.foo(+1).2!
+ _empty_/Test.foo().2
+ local02
+ local0PZ 79D571A365814D3E360A61B54C124505

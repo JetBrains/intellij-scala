@@ -1,0 +1,24 @@
+
+ùtests/pos/t3836.scala*
+foo/bar/package. *bar€*0
+foo/bar/package.IOException#*IOException€*
+foo/baz/Test.
+ *Test€*
+foo/baz/Test.f().*f€2
+ foo/2
+ foo/bar/package.2*
+ foo/bar/package.IOException#2"
+ (java/io/IOException#2
+ java/io/2
+ java/2
+ foo/baz/2
+ java/io/2
+	 java/2
+ foo/bar/2
+	 foo/2
+
+	
+ foo/baz/Test.2
+ 	foo/baz/Test.f().2-
+ java/io/IOException#`<init>`().2"
+ java/io/IOException#PZ 1343A46155DC357BEC7B3ECE9861D000

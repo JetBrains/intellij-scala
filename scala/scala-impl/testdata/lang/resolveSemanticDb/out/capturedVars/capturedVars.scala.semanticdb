@@ -1,0 +1,80 @@
+
+ùtests/pos/capturedVars.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*&
+_empty_/Test#field(). €*field€*,
+_empty_/Test#`field_=`(). €*field_=€**
+_empty_/Test#`field_=`().(x$1)*x$1€*
+_empty_/Test#foo().*foo€*
+local0 €*x€*
+local1 €*y€*
+local2 €*vx€*
+local3 €*vo€*
+local4 €*xs€*
+local5 €*xs1€*
+local6*inner€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2#
+ _empty_/Test#field().2
+ 
+scala/Int#2@
+ ,2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2'
+ _empty_/Test#`field_=`().2!
+ 	_empty_/Test#foo().2
+ 	local02
+ 
+scala/Int#2
+ 	local12"
+ scala/Predef.String#2
+ scala/volatile#2
+ local22
+ scala/Double#2
+		 scala/volatile#2
+		 local32&
+		 scala/package.Exception#2
+
+
+ 
+local42
+
+
+ scala/Array#2
+
+
+ 
+scala/Int#2$
+
+
+ scala/Array.apply(+5).2
+
+
+ scala/Array.2
+ local52
+ java/lang/Object#2
+ local42
+ local62'
+ _empty_/Test#`field_=`().2
+ local02
+ local02 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2
+
+ local02#
+ _empty_/Test#field().2
+ local12%
+ java/lang/String#`+`().2
+ local22%
+ scala/Int.int2double().2 
+ scala/Int#`*`(+3).2
+ local02
+ local32
+ local32#
+ scala/Array#update().2
+ local42"
+ scala/Array#apply().2
+ local42
+ local42"
+ scala/Array#clone().2
+ local4PZ 72140D7BA7F5FC612484E166587DCFB8

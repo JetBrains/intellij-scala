@@ -1,0 +1,53 @@
+
+»tests/pos/i6716.scala*
+_empty_/Monad#*Monad€*+
+_empty_/Monad#`<init>`(). €@*<init>€*
+_empty_/Monad#[T]	*T€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo.
+ *Foo€*6
+_empty_/Foo.given_Monad_Foo.
+ (*given_Monad_Foo€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.mf. €*mf€*
+_empty_/Test.mb. €*mb€*(
+_empty_/i6716$package. *_empty_€*&
+_empty_/i6716$package.Bar#*Bar€*(
+_empty_/i6716$package.Bar.
+ *Bar€*E
+*_empty_/i6716$package.Bar.given_Monad_Bar. è*given_Monad_Bar€2
+ _empty_/Monad#2#
+ _empty_/Monad#`<init>`().2
+ _empty_/Monad#[T]2
+ 	_empty_/Foo#2!
+_empty_/Foo#`<init>`().2
+ 
+_empty_/Foo.2*
+ _empty_/Foo.given_Monad_Foo.2
+ _empty_/Monad#2
+ _empty_/Foo#2
+ _empty_/Test.2
+ _empty_/Test.mf.2$
+ scala/Predef.summon().2
+ _empty_/Monad#2
+ _empty_/Foo#2*
+ _empty_/Foo.given_Monad_Foo.2
+ _empty_/Test.mb.2$
+ scala/Predef.summon().2
+ _empty_/Monad#2(
+ _empty_/i6716$package.Bar#28
+ *_empty_/i6716$package.Bar.given_Monad_Bar.2 
+_empty_/i6716$package.2(
+ _empty_/i6716$package.Bar#2
+ _empty_/Foo#2(
+ 
+_empty_/i6716$package.Bar.28
+ *_empty_/i6716$package.Bar.given_Monad_Bar.2
+ _empty_/Monad#2(
+ _empty_/i6716$package.Bar#2$
+ scala/Predef.summon().2
+ !_empty_/Monad#2
+" %_empty_/Foo#28
+' '*_empty_/i6716$package.Bar.given_Monad_Bar.PZ 59D8F3637D30D9FEB7F53ECC398F124E

@@ -1,0 +1,26 @@
+
+âtests/pos/t4840.scala*
+_empty_/Crashy#*Crashy€*,
+_empty_/Crashy#`<init>`(). €@*<init>€*
+_empty_/Crashy#g().*g€*'
+_empty_/Crashy#crashy().*crashy€*
+local0*x$1€2
+ _empty_/Crashy#2(
+ _empty_/Crashy#`<init>`().2!
+ _empty_/Crashy#g().2
+ scala/Option#2
+ 
+scala/Any#2
+ scala/None.2&
+ _empty_/Crashy#crashy().2%
+ scala/Option#foreach().2!
+ _empty_/Crashy#g().2
+	 	local02
+ 
+scala/Any#2#
+ scala/Some.unapply().2
+ scala/Some.2
+ scala/None.2(
+ !scala/sys/package.error().2
+ 
+scala/sys/PZ B76E04C912364B02EE32EA63EBA06E04

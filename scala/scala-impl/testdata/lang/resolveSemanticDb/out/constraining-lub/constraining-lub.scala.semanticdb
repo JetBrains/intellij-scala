@@ -1,0 +1,107 @@
+
+‰ tests/pos/constraining-lub.scala*
+_empty_/Inv#*Inv€*)
+_empty_/Inv#`<init>`(). €@*<init>€*$
+_empty_/Inv#`<init>`().(x)*x€*
+_empty_/Inv#[A]	*A€*
+_empty_/Inv#x. €*x€*
+_empty_/Inv.
+ *Inv€*"
+_empty_/Inv.empty().*empty€*!
+_empty_/Inv.empty().[A]	*A€*
+_empty_/Inv2#*Inv2€**
+_empty_/Inv2#`<init>`(). €@*<init>€*%
+_empty_/Inv2#`<init>`().(x)*x€*
+_empty_/Inv2#[A]	*A€*
+_empty_/Inv2#x. €*x€*
+_empty_/Inv2.
+ *Inv2€*#
+_empty_/Inv2.empty().*empty€*"
+_empty_/Inv2.empty().[A]	*A€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.inv().*inv€*&
+_empty_/Test.inv().(cond)*cond€*
+_empty_/Test.x. €*x€*!
+_empty_/Test.inv2().*inv2€*'
+_empty_/Test.inv2().(cond)*cond€*
+_empty_/Test.y. €*y€2
+ 	_empty_/Inv#2!
+	 	_empty_/Inv#`<init>`().2
+ _empty_/Inv#[A]2
+
+ _empty_/Inv#[A]2
+ _empty_/Inv#x.2
+ 
+_empty_/Inv.2"
+ _empty_/Inv.empty().2%
+ _empty_/Inv.empty().[A]2
+ _empty_/Inv#2%
+ _empty_/Inv.empty().[A]2%
+   _empty_/Inv#`<init>`().2#
+! $scala/Predef.`???`().2
+ 
+_empty_/Inv2#2&
+
+ 
+_empty_/Inv2#`<init>`().2
+ _empty_/Inv2#[A]2
+ _empty_/Inv2#[A]2
+ _empty_/Inv2#x.2
+ _empty_/Inv2.2#
+ _empty_/Inv2.empty().2&
+ _empty_/Inv2.empty().[A]2
+ _empty_/Inv2#2&
+ _empty_/Inv2.empty().[A]2&
+" "_empty_/Inv2#`<init>`().2#
+# &scala/Predef.`???`().2
+
+
+ _empty_/Test.2!
+ 	_empty_/Test.inv().2'
+
+ _empty_/Test.inv().(cond)2
+ scala/Boolean#2'
+ _empty_/Test.inv().(cond)2%
+ _empty_/Inv#`<init>`().2"
+
+ _empty_/Inv.empty().2
+ 	_empty_/Inv.2
+ _empty_/Test.x.2
+	 _empty_/Inv#2
+ 
+scala/Int#2!
+ _empty_/Test.inv().2"
+ 
+_empty_/Test.inv2().2(
+ _empty_/Test.inv2().(cond)2
+ scala/Boolean#2
+$ %
+scala/`|`#2
+ _empty_/Inv#2
+ "
+scala/Int#2
+& *_empty_/Inv2#2
++ .
+scala/Int#2(
+ _empty_/Test.inv2().(cond)2(
+
+ _empty_/Test.inv2().(cond)2%
+ _empty_/Inv#`<init>`().2"
+ _empty_/Inv.empty().2
+ _empty_/Inv.2(
+
+ _empty_/Test.inv2().(cond)2&
+ _empty_/Inv2#`<init>`().2#
+ _empty_/Inv2.empty().2
+ _empty_/Inv2.2
+   _empty_/Test.y.2
+   
+scala/`|`#2
+ 	  _empty_/Inv#2
+   
+scala/Int#2
+   _empty_/Inv2#2
+   
+scala/Int#2"
+    $_empty_/Test.inv2().PZ 381ED3A386392BF1A02AEB656AF3D82D

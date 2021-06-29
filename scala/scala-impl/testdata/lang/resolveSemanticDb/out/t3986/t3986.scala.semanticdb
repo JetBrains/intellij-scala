@@ -1,0 +1,19 @@
+
+‹tests/pos/t3986.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 *$anon€*
+local1 €*x€2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ local1PZ 058EC4FC982691A6DC9E135A485D8772

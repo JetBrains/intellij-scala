@@ -1,0 +1,111 @@
+
+õtests/pos/i7477.scala*
+_empty_/Test1#*Test1€*+
+_empty_/Test1#`<init>`(). €@*<init>€*$
+_empty_/Test1#spawn().*spawn€*#
+_empty_/Test1#spawn().(f)*f€*-
+_empty_/Test1#spawn().(naming)*naming€*8
+ _empty_/Test1#spawn$default$2().*spawn$default$2€*-
+#_empty_/Test1#spawn$default$2().(f)*f€*"
+_empty_/Test1#test().*test€*
+local0*f$1€*
+X/Test1#*Test1€*%
+X/Test1#`<init>`(). €@*<init>€*
+X/Test1#spawn().*spawn€*
+X/Test1#spawn().[T]	*T€*
+X/Test1#spawn().(f)*f€*!
+X/Test1#spawn().(ec)  *ec€*)
+X/Test1#spawn().(naming)  *naming€*2
+X/Test1#spawn$default$3().*spawn$default$3€*'
+X/Test1#spawn$default$3().[T]	*T€*'
+X/Test1#spawn$default$3().(f)*f€*
+X/Test1#await().*await€*
+X/Test1#await().[T]	*T€*
+X/Test1#await().(f)*f€*'
+X/Test1#await().(atMost)*atMost€*!
+X/Test1#await().(ec)  *ec€*2
+X/Test1#await$default$2().*await$default$2€*'
+X/Test1#await$default$2().[T]	*T€*
+X/Test1#test().*test€*
+local1 €*promiseToWait€*
+local2 €*future1€*
+local3*f$2€2
+ _empty_/Test1#2'
+ _empty_/Test1#`<init>`().2$
+ _empty_/Test1#spawn().2'
+ _empty_/Test1#spawn().(f)2
+ scala/Unit#2,
+ _empty_/Test1#spawn().(naming)2
+  #
+scala/Int#2
+* .scala/Unit#2#
+1 4scala/Predef.`???`().21
+ #_empty_/Test1#spawn$default$2().(f)2#
+ 
+_empty_/Test1#test().2
+ scala/Unit#2
+ local02$
+ _empty_/Test1#spawn().2
+ local02
+ 	X/2
+		 scala/concurrent/2
+			 scala/2(
+
+
+ "scala/concurrent/duration/2
+
+
+ scala/concurrent/2
+
+	
+ scala/2:
++ 4,scala/concurrent/ExecutionContext.Implicits.20
+ *"scala/concurrent/ExecutionContext.2
+ scala/concurrent/2
+	 scala/2
+ X/Test1#2!
+ X/Test1#`<init>`().2
+ X/Test1#spawn().2!
+ X/Test1#spawn().[T]2!
+ X/Test1#spawn().(f)2!
+ X/Test1#spawn().[T]2"
+  "X/Test1#spawn().(ec)20
+# 3"scala/concurrent/ExecutionContext#2&
+6 <X/Test1#spawn().(naming)2
+> A
+scala/Int#2&
+H Nscala/concurrent/Future#2!
+O PX/Test1#spawn().[T]2#
+T Wscala/Predef.`???`().2+
+ X/Test1#spawn$default$3().[T]2+
+ X/Test1#spawn$default$3().(f)2+
+ X/Test1#spawn$default$3().[T]2
+ X/Test1#await().2!
+ X/Test1#await().[T]2!
+ X/Test1#await().(f)2&
+ scala/concurrent/Future#2!
+ X/Test1#await().[T]2&
+ $X/Test1#await().(atMost)21
+& .#scala/concurrent/duration/Duration#2"
+E GX/Test1#await().(ec)20
+I Y"scala/concurrent/ExecutionContext#2!
+[ \X/Test1#await().[T]2#
+_ bscala/Predef.`???`().2+
+ X/Test1#await$default$2().[T]25
+: ='scala/concurrent/duration/Duration.Inf.21
+1 9#scala/concurrent/duration/Duration.2
+ X/Test1#test().2
+ scala/Unit#2
+
+ local12/
+! !!scala/concurrent/Promise.apply().2'
+ !scala/concurrent/Promise.2
+" %
+scala/Int#2
+
+ local22
+ local32
+ X/Test1#spawn().2
+ local32"
+ X/Test1#spawn().(ec)2C
+ 5scala/concurrent/ExecutionContext.Implicits.global().PZ BABCE0B86EC8C89528B08A9E6C4EE37B

@@ -1,0 +1,58 @@
+
+àtests/pos/t2018.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#b. €*b€*,
+_empty_/A#getChildren().*getChildren€*
+_empty_/A#B#*B€*)
+_empty_/A#B#`<init>`(). €@*<init>€*"
+_empty_/A#B#check().*check€*.
+_empty_/A#B#getAncestor().*getAncestor€*'
+_empty_/A#B#getAncestor().(p)*p€*
+local0 €*c€*
+local1 €*d€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#b.2%
+ _empty_/A#B#`<init>`().2
+ _empty_/A#B#2&
+ _empty_/A#getChildren().2F
+  (8scala/collection/StrictOptimizedLinearSeqOps#iterator().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ 	_empty_/A#B#2%
+ _empty_/A#B#`<init>`().2"
+ _empty_/A#B#check().2(
+ _empty_/A#B#getAncestor().2+
+ _empty_/A#B#getAncestor().(p)2
+  
+_empty_/A#2
+# $
+_empty_/A#2
+	
+	 local026
+		 !(scala/collection/IterableOnceOps#find().2&
+		 _empty_/A#getChildren().2+
+		 _empty_/A#B#getAncestor().(p)2"
+	&	 +_empty_/A#B#check().2
+	$	 %_empty_/A#b.2#
+	>	 >scala/Some.unapply().2
+	:	 >scala/Some.2
+	?	 @local12
+	E	 Flocal12
+	L	 Pscala/None.2+
+	T	 U_empty_/A#B#getAncestor().(p)2
+ scala/Any#`==`().2
+
+ local02+
+ _empty_/A#B#getAncestor().(p)2+
+ _empty_/A#B#getAncestor().(p)2(
+ (_empty_/A#B#getAncestor().2
+ _empty_/A#b.2
+ local02
+) *local0PZ DF3826B75CEC26475A0A000BA1B202FF

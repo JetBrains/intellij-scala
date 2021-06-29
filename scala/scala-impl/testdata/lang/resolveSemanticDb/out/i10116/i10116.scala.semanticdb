@@ -1,0 +1,57 @@
+
+Ätests/pos/i10116.scala*8
+_empty_/OverloadedWithLong.
+ *OverloadedWithLong€*;
+(_empty_/OverloadedWithLong.overloaded().*
+overloaded€*5
++_empty_/OverloadedWithLong.overloaded().(x)*x€*=
+*_empty_/OverloadedWithLong.overloaded(+1).*
+overloaded€*7
+-_empty_/OverloadedWithLong.overloaded(+1).(x)*x€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*l€*
+local1 €*r€*
+local2 €*x€*
+local3 €*xs€2%
+ _empty_/OverloadedWithLong.26
+ (_empty_/OverloadedWithLong.overloaded().29
+ +_empty_/OverloadedWithLong.overloaded().(x)2
+ scala/Long#2
+ 
+scala/Any#29
+ +_empty_/OverloadedWithLong.overloaded().(x)28
+ *_empty_/OverloadedWithLong.overloaded(+1).2;
+ -_empty_/OverloadedWithLong.overloaded(+1).(x)2
+ 
+scala/Any#2
+ scala/Unit#2#
+ scala/Predef.`???`().2
+ _empty_/Test.2"
+		 
+_empty_/Test.main().2(
+		 _empty_/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	!	 %scala/Unit#2)
+
+
+ _empty_/OverloadedWithLong.2
+ 	local02
+ 
+scala/Any#25
+ 'scala/collection/immutable/List#`::`().2 
+ scala/package.Nil.2
+ 	local126
+ (_empty_/OverloadedWithLong.overloaded().2
+ local028
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local22
+ local32&
+ 
+scala/Predef.assert(+1).2
+ scala/Any#`==`().2
+ local1PZ 5774D291745077FDB34D8E0FEAA1FA00

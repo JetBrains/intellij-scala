@@ -1,0 +1,17 @@
+
+¥tests/pos/i4526-2.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€*$
+_empty_/Foo#`<init>`().(y)*y€*
+_empty_/Foo#x. €*x€*
+_empty_/Foo#y. €*y€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2
+
+ _empty_/Foo#x.2
+ _empty_/Foo#y.PZ EB97DC516D012B0DAB8E7E6F0F945527

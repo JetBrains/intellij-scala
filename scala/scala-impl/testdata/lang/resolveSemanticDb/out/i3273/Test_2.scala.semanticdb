@@ -1,0 +1,18 @@
+
+†tests/pos/i3273/Test_2.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*&
+_empty_/Test#foo().(list)*list€2
+ 
+_empty_/Test#2"
+ _empty_/Test#`<init>`().2
+ _empty_/Foo_1#2!
+ _empty_/Test#foo().2'
+ _empty_/Test#foo().(list)2
+# 'java/util/List#2
+ "
+java/util/2
+ java/2
+- 1scala/Unit#2#
+4 7scala/Predef.`???`().PZ E53940F6B619972D4078855B73FF059A

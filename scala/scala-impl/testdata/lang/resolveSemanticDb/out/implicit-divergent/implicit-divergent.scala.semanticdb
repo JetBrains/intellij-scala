@@ -1,0 +1,43 @@
+
+Ç	"tests/pos/implicit-divergent.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo.
+ *Foo€*&
+_empty_/Foo.intFoo().  *intFoo€*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.genFoo().  *genFoo€*#
+_empty_/Test.genFoo().[T]	*T€*%
+_empty_/Test.genFoo().(f)  *f€*!
+_empty_/Test.test().*test€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ 
+_empty_/Foo.2#
+ _empty_/Foo.intFoo().2
+ _empty_/Foo#2
+ 
+scala/Int#2#
+" %scala/Predef.`???`().2
+ _empty_/Test.2$
+ _empty_/Test.genFoo().2'
+ _empty_/Test.genFoo().[T]2'
+" #_empty_/Test.genFoo().(f)2
+% (_empty_/Foo#2'
+) *_empty_/Test.genFoo().[T]2'
+. /_empty_/Test.genFoo().[T]2
+3 6_empty_/Foo#2'
+7 8_empty_/Test.genFoo().[T]2#
+< ?scala/Predef.`???`().2"
+ 
+_empty_/Test.test().2
+ scala/Unit#2(
+		 scala/Predef.implicitly().2
+		 _empty_/Foo#2
+		 
+scala/Int#2#
+		 _empty_/Foo.intFoo().PZ 1A682F885EBD9641AD7C440E9B54179E

@@ -1,0 +1,54 @@
+
+Štests/pos/i11993.scala*
+_empty_/test1.
+ *test1€*
+_empty_/test1.Foo#*Foo€*/
+_empty_/test1.Foo#`<init>`(). €@*<init>€*-
+ _empty_/test1.Foo#`<init>`().(x) €*x€*-
+ _empty_/test1.Foo#`<init>`().(y) €*y€*!
+_empty_/test1.Foo#x. €*x€*!
+_empty_/test1.Foo#y. €*y€*
+_empty_/test1.Bar#*Bar€*/
+_empty_/test1.Bar#`<init>`(). €@*<init>€*
+_empty_/test2.
+ *test2€*
+_empty_/test2.Foo#*Foo€*/
+_empty_/test2.Foo#`<init>`(). €@*<init>€*-
+ _empty_/test2.Foo#`<init>`().(x) €*x€*-
+ _empty_/test2.Foo#`<init>`().(y) €*y€*!
+_empty_/test2.Foo#x. €*x€*!
+_empty_/test2.Foo#y. €*y€*
+_empty_/test2.Bar#*Bar€*/
+_empty_/test2.Bar#`<init>`(). €@*<init>€2
+ _empty_/test1.2 
+ _empty_/test1.Foo#2+
+ _empty_/test1.Foo#`<init>`().2"
+ scala/Predef.String#2
+ scala/Option#2.
+  _empty_/test1.Foo#`<init>`().(x)2"
+ 	_empty_/test1.Foo#x.2"
+ 	_empty_/test1.Foo#y.2 
+ _empty_/test1.Bar#2+
+ _empty_/test1.Bar#`<init>`().2+
+ _empty_/test1.Foo#`<init>`().2 
+ _empty_/test1.Foo#2!
+# #scala/Some.apply().2
+ #scala/Some.2
+ _empty_/test2.2 
+		 _empty_/test2.Foo#2+
+		 _empty_/test2.Foo#`<init>`().2"
+
+
+ scala/Predef.String#2
+ scala/Option#2.
+  _empty_/test2.Foo#`<init>`().(x)2"
+
+
+ 	_empty_/test2.Foo#x.2"
+ 	_empty_/test2.Foo#y.2 
+ _empty_/test2.Bar#2+
+ _empty_/test2.Bar#`<init>`().2+
+ _empty_/test2.Foo#`<init>`().2 
+ _empty_/test2.Foo#2!
+# #scala/Some.apply().2
+ #scala/Some.PZ C1A91490F57C6E4FD2A5163AC6A1D711

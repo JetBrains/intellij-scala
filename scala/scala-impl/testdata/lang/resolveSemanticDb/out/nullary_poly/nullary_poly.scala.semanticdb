@@ -1,0 +1,21 @@
+
+²tests/pos/nullary_poly.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#x. €*x€*,
+_empty_/A#polyNullary().*polyNullary€*%
+_empty_/A#polyNullary().[T]	*T€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2.
+  java/lang/Object#synchronized().2
+ _empty_/A#x.2"
+	 scala/Predef.String#2'
+ "scala/Any#asInstanceOf().2"
+# )scala/Predef.String#2&
+ _empty_/A#polyNullary().2)
+ _empty_/A#polyNullary().[T]2!
+ scala/package.List#2)
+ _empty_/A#polyNullary().[T]2 
+  #scala/package.Nil.PZ 4BF97E8561DB2C37731C6AC9D2187F4D

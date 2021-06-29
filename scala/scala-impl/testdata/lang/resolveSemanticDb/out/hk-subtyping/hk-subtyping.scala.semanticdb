@@ -1,0 +1,35 @@
+
+ïtests/pos/hk-subtyping.scala*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.compare().*compare€*$
+_empty_/Test.compare().[S]	*S€*$
+_empty_/Test.compare().[T]	*T€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[C]	*C€2
+ _empty_/Test.2%
+ _empty_/Test.compare().2(
+ _empty_/Test.compare().[S]2(
+ _empty_/Test.compare().[T]2(
+ _empty_/Test.compare().[T]2%
+ 	_empty_/Test.compare().2
+
+ 
+scala/Int#2
+ 
+scala/Int#2%
+ 	_empty_/Test.compare().2
+
+ 
+scala/Int#2
+ 
+scala/Any#2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[C]2%
+ _empty_/Test.compare().2"
+ _empty_/Test.f().[C]2
+ 
+scala/Int#2!
+ scala/package.List#2
+ 
+scala/Int#PZ 10FB9665CB83A27CEDA00524ADA40060

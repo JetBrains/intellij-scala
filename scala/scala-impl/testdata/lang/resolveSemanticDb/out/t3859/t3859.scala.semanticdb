@@ -1,0 +1,22 @@
+
+§tests/pos/t3859.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*
+_empty_/Test#bar().*bar€**
+_empty_/Test#bar().(values)*values€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2
+ scala/Unit#2!
+ _empty_/Test#bar().2"
+ scala/Array.apply().2
+ scala/Array.2
+ "scala/AnyRef#2-
+% %scala/reflect/ClassTag.apply().2!
+ 	_empty_/Test#bar().2)
+
+ _empty_/Test#bar().(values)2
+ scala/AnyRef#2
+  scala/Unit#PZ 9E84BF8DA4718C3213F507736BA5038F

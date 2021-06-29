@@ -1,0 +1,57 @@
+
+Ô	tests/pos/depfun.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.F#*F€*
+_empty_/Test.F#[S]	*S€*
+_empty_/Test.F#[T]	*T€*
+local0 *apply€*
+local1*x€*)
+_empty_/Test.identity().*identity€*%
+_empty_/Test.identity().[T]	*T€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€*
+_empty_/Test.z. €*z€2
+ _empty_/Test.2
+ _empty_/Test.F#2 
+	 
+_empty_/Test.F#[S]2 
+ _empty_/Test.F#[T]2 
+ _empty_/Test.F#[S]2
+ local02
+ local12
+ !scala/Option#2
+) *
+scala/`&`#2
+" #local12 
++ ,_empty_/Test.F#[T]2&
+
+
+ _empty_/Test.identity().2)
+
+
+ _empty_/Test.identity().[T]2
+
+
+ _empty_/Test.F#2)
+
+
+ _empty_/Test.identity().[T]2)
+
+
+ _empty_/Test.identity().[T]2!
+
+!
+ !scala/Some.apply().2
+
+
+ !scala/Some.2
+ _empty_/Test.x.2
+ _empty_/Test.y.2&
+ scala/Function1#apply().2&
+
+ _empty_/Test.identity().2
+ _empty_/Test.x.2
+ _empty_/Test.z.2
+	 scala/Option#2
+ _empty_/Test.y.PZ DB0F72C714087B4E75E58059C9E1A7CA

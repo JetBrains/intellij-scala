@@ -1,0 +1,16 @@
+
+–tests/pos/i7876.scala*
+_empty_/foo.
+ *foo€*
+_empty_/bar.
+ *bar€*
+_empty_/eq.
+ *eq€2
+ 
+_empty_/foo.2
+ 
+_empty_/bar.2
+ 
+_empty_/foo.2
+ _empty_/bar.2
+ 	_empty_/eq.PZ E608EB2CCD488D7DCA75D1D9A0813BFB

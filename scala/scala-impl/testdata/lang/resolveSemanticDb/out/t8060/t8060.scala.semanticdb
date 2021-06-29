@@ -1,0 +1,55 @@
+
+í
+tests/pos/t8060.scala*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#[F]	*F€*
+
+_empty_/P#*P€*'
+_empty_/P#`<init>`(). €@*<init>€*
+_empty_/P#[A]	*A€*
+_empty_/P#CC#*CC€*
+_empty_/P#CC#[X]	*X€*
+_empty_/P#f(). *f€*
+_empty_/P#f().(p)*p€*
+_empty_/Other#*Other€*+
+_empty_/Other#`<init>`(). €@*<init>€*
+_empty_/Other#g().*g€*
+_empty_/Other#g().[A]	*A€*
+_empty_/Other#g().(p)*p€2
+ 
+_empty_/M#2
+ _empty_/M#`<init>`().2
+ 	_empty_/M#[F]2
+ 
+_empty_/P#2#
+ _empty_/P#`<init>`().2
+ 	_empty_/P#[A]2
+ 	_empty_/P#CC#2
+
+ _empty_/P#CC#[X]2
+ 
+_empty_/P#2
+ _empty_/P#CC#[X]2
+ _empty_/P#f().2
+ 	_empty_/P#f().(p)2
+ _empty_/P#[A]2
+ scala/Boolean#2
+ 
+_empty_/M#2
+ _empty_/P#CC#2
+ _empty_/Other#2'
+		 _empty_/Other#`<init>`().2 
+		 _empty_/Other#g().2#
+		 	_empty_/Other#g().[A]2#
+		 _empty_/Other#g().(p)2#
+		 _empty_/Other#g().[A]2
+		 scala/Boolean#2
+		 
+_empty_/P#2#
+		  _empty_/Other#g().[A]2
+	%	 &
+_empty_/M#2
+	.	 /_empty_/P#f().2#
+	0	 1_empty_/Other#g().(p)PZ A3C6813632FBFD043A643F6E1B989BD0

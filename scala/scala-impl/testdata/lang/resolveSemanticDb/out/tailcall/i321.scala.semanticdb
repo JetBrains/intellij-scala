@@ -1,0 +1,56 @@
+
+‡tests/pos/tailcall/i321.scala*
+_empty_/i321#*i321€**
+_empty_/i321#`<init>`(). €@*<init>€*
+_empty_/i321#[T]	*T€*
+_empty_/i321#go1().*go1€* 
+_empty_/i321#go1().(f)*f€*
+local0*loop€*
+local1*pending€*
+local2 €*head1€*!
+_empty_/i321#go2(). *go2€* 
+_empty_/i321#go2().[U]	*U€* 
+_empty_/i321#go2().(t)*t€2#
+ scala/annotation/tailrec#2
+ scala/annotation/2
+ scala/2
+ 
+_empty_/i321#2&
+
+ 
+_empty_/i321#`<init>`().2
+ _empty_/i321#[T]2!
+ 	_empty_/i321#go1().2$
+
+ _empty_/i321#go1().(f)2
+ _empty_/i321#[T]2
+ 
+scala/Int#2
+ 
+scala/Int#2'
+ scala/annotation/tailrec#2
+ local02
+ local12
+  _empty_/i321#[T]2
+# &
+scala/Int#2
+
+ local22&
+ scala/Function1#apply().2$
+ _empty_/i321#go1().(f)2
+ local12
+ 
+local02
+ local12
+ local02!
+ _empty_/i321#go2().2$
+ _empty_/i321#go2().[U]2
+ scala/Null#2
+ #scala/AnyRef#2$
+% &_empty_/i321#go2().(t)2
+( ,_empty_/i321#2$
+- ._empty_/i321#go2().[U]2
+2 5
+scala/Int#2!
+: =_empty_/i321#go2().2$
+8 9_empty_/i321#go2().(t)PZ E842F6C7D289B0D6C84FFA877F9BAB65

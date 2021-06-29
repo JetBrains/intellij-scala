@@ -1,0 +1,54 @@
+
+Ò"tests/pos/byname-implicits-3.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.int.  *int€*!
+_empty_/Foo.bool.  *bool€*"
+_empty_/Foo.pair().  *pair€* 
+_empty_/Foo.pair().[T]	*T€* 
+_empty_/Foo.pair().[U]	*U€*(
+_empty_/Foo.pair().(ftu0)  *ftu0€*(
+_empty_/Foo.pair().(ftu1)  *ftu1€*
+_empty_/Test.
+ *Test€*#
+local0 *$_lazy_implicit_$2€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ 
+_empty_/Foo.2
+ _empty_/Foo.int.2
+ _empty_/Foo#2
+ 
+scala/Int#2#
+ "scala/Predef.`???`().2
+ _empty_/Foo.bool.2
+ _empty_/Foo#2
+  scala/Boolean#2#
+$ 'scala/Predef.`???`().2!
+ _empty_/Foo.pair().2$
+ _empty_/Foo.pair().[T]2$
+ _empty_/Foo.pair().[U]2'
+# '_empty_/Foo.pair().(ftu0)2
+, /_empty_/Foo#2$
+1 2_empty_/Foo.pair().[T]2$
+4 5_empty_/Foo.pair().[U]2'
+9 =_empty_/Foo.pair().(ftu1)2
+B E_empty_/Foo#2$
+G H_empty_/Foo.pair().[T]2$
+J K_empty_/Foo.pair().[U]2
+P S_empty_/Foo#2$
+U V_empty_/Foo.pair().[T]2$
+X Y_empty_/Foo.pair().[U]2#
+^ ascala/Predef.`???`().2
+ _empty_/Test.2(
+		 scala/Predef.implicitly().2
+		 _empty_/Foo#2
+		 
+scala/Int#2
+		 scala/Boolean#2!
+	!	 !_empty_/Foo.pair().PZ 86F80F56FE787E18650B5DF65C93A4DC

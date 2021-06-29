@@ -1,0 +1,14 @@
+
+Åtests/pos/t5639/Bar.scala*
+pack/age/Quux.
+ *QuuxÄ* 
+pack/age/Quux.baz().*bazÄ2
+ 	pack/age/2
+ pack/2!
+ pack/age/Implicits.2
+ 	pack/age/2
+ pack/2
+ pack/age/Quux.2"
+ 	pack/age/Quux.baz().2
+ pack/age/Baz#2'
+ pack/age/Implicits.Baz().PZ C4FD222EA27CEAB17B6601E004E5A248

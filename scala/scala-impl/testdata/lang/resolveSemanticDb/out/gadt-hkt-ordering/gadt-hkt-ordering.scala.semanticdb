@@ -1,0 +1,39 @@
+
+Ã	!tests/pos/gadt-hkt-ordering.scala*
+_empty_/test.
+ *test€*%
+_empty_/test.HKTVar# *HKTVar€*1
+_empty_/test.HKTVar#`<init>`(). €@*<init>€*$
+_empty_/test.HKTVar#[T]	 €*T€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().[F]	*F€* 
+_empty_/test.foo().[G]	*G€* 
+_empty_/test.foo().[X]	*X€* 
+_empty_/test.foo().(m)*m€*
+local0 €*fx€*
+local1 €*gx€2
+ _empty_/test.2"
+ _empty_/test.HKTVar#2-
+ _empty_/test.HKTVar#`<init>`().2%
+ _empty_/test.HKTVar#[T]2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().[F]2$
+ _empty_/test.foo().[G]2$
+ _empty_/test.foo().[X]2$
+ _empty_/test.foo().(m)2"
+ #_empty_/test.HKTVar#2$
+$ %_empty_/test.foo().[G]2$
+* +_empty_/test.foo().(m)2"
+ _empty_/test.HKTVar#2$
+ _empty_/test.foo().[F]2
+
+ local02$
+ _empty_/test.foo().[F]2$
+ _empty_/test.foo().[X]2#
+ scala/Predef.`???`().2
+
+ local12$
+ _empty_/test.foo().[G]2$
+ _empty_/test.foo().[X]2
+ local0PZ 6CF623D1EB0B02DB9C60698BAE8514FE

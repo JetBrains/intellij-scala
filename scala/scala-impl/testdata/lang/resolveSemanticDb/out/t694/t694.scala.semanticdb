@@ -1,0 +1,35 @@
+
+¿tests/pos/t694.scala*
+_empty_/test3.
+ *test3€* 
+_empty_/test3.Type#*Type€*0
+_empty_/test3.Type#`<init>`(). €@*<init>€* 
+_empty_/test3.Type#[T]	*T€*)
+_empty_/test3.IntType.
+ ˆ*IntType€*/
+_empty_/test3.StringType.
+ ˆ*
+StringType€*
+_empty_/test3.f().*f€*
+_empty_/test3.f().[T]	*T€*
+_empty_/test3.f().(t)*t€2
+ _empty_/test3.2!
+ _empty_/test3.Type#2,
+ _empty_/test3.Type#`<init>`().2$
+ _empty_/test3.Type#[T]2$
+ _empty_/test3.IntType.2!
+ "_empty_/test3.Type#2
+# &
+scala/Int#2'
+ _empty_/test3.StringType.2!
+! %_empty_/test3.Type#2"
+& ,scala/Predef.String#2 
+ _empty_/test3.f().2#
+ 	_empty_/test3.f().[T]2#
+ _empty_/test3.f().(t)2!
+ _empty_/test3.Type#2#
+ _empty_/test3.f().[T]2#
+ _empty_/test3.f().[T]2#
+ _empty_/test3.f().(t)2$
+	 _empty_/test3.IntType.2'
+	 _empty_/test3.StringType.PZ D886BF6F4CFDD558FF7AFC8A5625590B

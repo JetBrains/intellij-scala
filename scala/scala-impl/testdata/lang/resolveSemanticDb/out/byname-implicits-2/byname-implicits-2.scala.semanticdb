@@ -1,0 +1,139 @@
+
+Å"tests/pos/byname-implicits-2.scala*
+_empty_/Foo#*FooÄ*)
+_empty_/Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo#[T]	*TÄ*
+_empty_/Foo.
+ *FooÄ*%
+_empty_/Foo.fooInt. †*fooIntÄ*(
+_empty_/Foo.fooPair().  *fooPairÄ*#
+_empty_/Foo.fooPair().[H]	*HÄ*#
+_empty_/Foo.fooPair().[T]	*TÄ*%
+_empty_/Foo.fooPair().(h)  *hÄ*%
+_empty_/Foo.fooPair().(t)  *tÄ*
+_empty_/Bar#*BarÄ*)
+_empty_/Bar#`<init>`(). Ä@*<init>Ä*
+_empty_/Bar.
+ *BarÄ*&
+_empty_/Bar.fooBar().  *fooBarÄ**
+_empty_/Bar.fooBar().(repr)  *reprÄ*
+_empty_/Baz#*BazÄ*)
+_empty_/Baz#`<init>`(). Ä@*<init>Ä*
+_empty_/Baz.
+ *BazÄ*&
+_empty_/Baz.fooBaz().  *fooBazÄ*$
+_empty_/Baz.fooBaz().(i)  *iÄ*(
+_empty_/Baz.fooBaz().(rec)  *recÄ*
+_empty_/Test.
+ *TestÄ*#
+local0 *$_lazy_implicit_$2Ä2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ 
+_empty_/Foo.2!
+ _empty_/Foo.fooInt.2
+ _empty_/Foo#2
+ 
+scala/Int#2#
+" %scala/Predef.`???`().2$
+ _empty_/Foo.fooPair().2'
+ _empty_/Foo.fooPair().[H]2'
+ _empty_/Foo.fooPair().[T]2'
+& '_empty_/Foo.fooPair().(h)2
+) ,_empty_/Foo#2'
+- ._empty_/Foo.fooPair().[H]2'
+1 2_empty_/Foo.fooPair().(t)2
+4 7_empty_/Foo#2'
+8 9_empty_/Foo.fooPair().[T]2
+= @_empty_/Foo#2'
+B C_empty_/Foo.fooPair().[H]2'
+E F_empty_/Foo.fooPair().[T]2#
+K Nscala/Predef.`???`().2
+ 	_empty_/Bar#2!
+_empty_/Bar#`<init>`().2
+ 
+_empty_/Bar.2#
+ _empty_/Bar.fooBar().2)
+ #_empty_/Bar.fooBar().(repr)2
+( +_empty_/Foo#2
+- 0
+scala/Int#2
+3 6
+scala/Int#2
+8 ;
+scala/Int#2
+A D_empty_/Foo#2
+E H_empty_/Bar#2#
+L Oscala/Predef.`???`().2
+ 	_empty_/Baz#2!
+_empty_/Baz#`<init>`().2
+ 
+_empty_/Baz.2#
+ _empty_/Baz.fooBaz().2&
+  _empty_/Baz.fooBaz().(i)2
+" %_empty_/Foo#2
+& )
+scala/Int#2(
+, /_empty_/Baz.fooBaz().(rec)2
+4 7_empty_/Foo#2
+8 ;_empty_/Baz#2
+? B_empty_/Foo#2
+C F_empty_/Baz#2#
+J Mscala/Predef.`???`().2
+ _empty_/Test.2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ 
+scala/Int#2!
+ _empty_/Foo.fooInt.2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+ 
+scala/Int#2$
+ _empty_/Foo.fooPair().2!
+ _empty_/Foo.fooInt.2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  
+scala/Int#2$
+$ $_empty_/Foo.fooPair().2!
+$ $_empty_/Foo.fooInt.2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ !
+scala/Int#2
+# &
+scala/Int#2$
++ +_empty_/Foo.fooPair().2!
++ +_empty_/Foo.fooInt.2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ _empty_/Bar#2#
+ _empty_/Bar.fooBar().2$
+ _empty_/Foo.fooPair().2!
+ _empty_/Foo.fooInt.2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+ _empty_/Bar#2$
+ _empty_/Foo.fooPair().2!
+ _empty_/Foo.fooInt.2#
+ _empty_/Bar.fooBar().2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ _empty_/Baz#2#
+ _empty_/Baz.fooBaz().2!
+ _empty_/Foo.fooInt.PZ CF12C7AED7A3B364D2819646B32834FB

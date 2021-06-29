@@ -1,0 +1,40 @@
+
+µ	tests/pos/t2261.scala*
+_empty_/Bob#*Bob€*)
+_empty_/Bob#`<init>`(). €@*<init>€*
+_empty_/Bob#[T]	*T€*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.foo2bar().  *foo2bar€*$
+_empty_/Test.foo2bar().[T]	*T€*&
+_empty_/Test.foo2bar().(xs)*xs€*
+_empty_/Test.x(). €*x€*$
+_empty_/Test.`x_=`(). €*x_=€*&
+_empty_/Test.`x_=`().(x$1)*x$1€2
+ 	_empty_/Bob#2!
+	 	_empty_/Bob#`<init>`().2
+
+ _empty_/Bob#[T]2
+ _empty_/Test.2%
+ _empty_/Test.foo2bar().2(
+ _empty_/Test.foo2bar().[T]2)
+ _empty_/Test.foo2bar().(xs)2!
+ "scala/package.List#2(
+# $_empty_/Test.foo2bar().[T]2
+( +_empty_/Bob#2(
+, -_empty_/Test.foo2bar().[T]2%
+; ;_empty_/Bob#`<init>`().2
+5 8_empty_/Bob#2(
+9 :_empty_/Test.foo2bar().[T]2
+ _empty_/Test.x().2
+	 _empty_/Bob#2
+ 
+scala/Int#2#
+ 	_empty_/Test.`x_=`().2#
+ _empty_/Test.`x_=`().2%
+ _empty_/Test.foo2bar().27
+
+ 
+)scala/collection/IterableFactory#apply().2!
+ 
+scala/package.List.PZ 45A3679DCA4C19E4B60B6A85C7E39D60

@@ -1,0 +1,25 @@
+
+©tests/pos/spec-polymeth.scala* 
+_empty_/AbsFun# *AbsFun€*,
+_empty_/AbsFun#`<init>`(). €@*<init>€*
+_empty_/AbsFun#[R]	*R€*)
+_empty_/AbsFun#compose().*compose€*&
+_empty_/AbsFun#compose().[A]	*A€*&
+_empty_/AbsFun#compose().(x)*x€*&
+_empty_/AbsFun#compose().(y)*y€*
+local0 €*y€2
+ _empty_/AbsFun#2$
+ _empty_/AbsFun#`<init>`().2
+ "scala/specialized#2
+# $_empty_/AbsFun#[R]2'
+ _empty_/AbsFun#compose().2*
+ _empty_/AbsFun#compose().[A]2*
+ _empty_/AbsFun#compose().(x)2*
+ _empty_/AbsFun#compose().[A]2*
+ _empty_/AbsFun#compose().(y)2 
+ _empty_/AbsFun#[R]2*
+ _empty_/AbsFun#compose().[A]2
+ 	local02*
+ _empty_/AbsFun#compose().[A]2*
+ _empty_/AbsFun#compose().(x)2*
+ _empty_/AbsFun#compose().(x)PZ C44D9703624C9FF346889B322B14E770

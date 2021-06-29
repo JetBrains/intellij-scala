@@ -1,0 +1,62 @@
+
+ètests/pos/t4243.scala*
+_empty_/wrap.
+ *wrap€*+
+_empty_/wrap.DomainLike#*
+DomainLike€*5
+#_empty_/wrap.DomainLike#`<init>`(). €@*<init>€*%
+_empty_/wrap.DomainLike#[A]	*A€*.
+_empty_/wrap.DomainLike#[This]	 €*This€*#
+_empty_/wrap.Domain#*Domain€*1
+_empty_/wrap.Domain#`<init>`(). €@*<init>€*!
+_empty_/wrap.Domain#[B]	*B€*;
+ _empty_/wrap.IterableDomainLike#*IterableDomainLike€*=
++_empty_/wrap.IterableDomainLike#`<init>`(). €@*<init>€*-
+#_empty_/wrap.IterableDomainLike#[C]	*C€*6
+&_empty_/wrap.IterableDomainLike#[This]	 €*This€*3
+_empty_/wrap.IterableDomain#*IterableDomain€*9
+'_empty_/wrap.IterableDomain#`<init>`(). €@*<init>€*)
+_empty_/wrap.IterableDomain#[D]	*D€2
+ _empty_/wrap.2&
+ _empty_/wrap.DomainLike#21
+ #_empty_/wrap.DomainLike#`<init>`().2 
+ scala/specialized#2
+  #
+scala/Int.2)
+% &_empty_/wrap.DomainLike#[A]2,
+) -_empty_/wrap.DomainLike#[This]2"
+ _empty_/wrap.Domain#2-
+ _empty_/wrap.Domain#`<init>`().2&
+	
+	 _empty_/wrap.DomainLike#2%
+		 _empty_/wrap.Domain#[B]2"
+		 _empty_/wrap.Domain#2%
+		  _empty_/wrap.Domain#[B]2 
+ scala/specialized#2
+ 
+scala/Int.2%
+! "_empty_/wrap.Domain#[B]2.
+  _empty_/wrap.IterableDomainLike#29
+ +_empty_/wrap.IterableDomainLike#`<init>`().2&
+
+ _empty_/wrap.DomainLike#21
+ #_empty_/wrap.IterableDomainLike#[C]24
+ &_empty_/wrap.IterableDomainLike#[This]2 
+ 'scala/specialized#2
+( +
+scala/Int.21
+- .#_empty_/wrap.IterableDomainLike#[C]24
+1 5&_empty_/wrap.IterableDomainLike#[This]2*
+ _empty_/wrap.IterableDomain#25
+ '_empty_/wrap.IterableDomain#`<init>`().2"
+
+ _empty_/wrap.Domain#2-
+ _empty_/wrap.IterableDomain#[D]2.
+ + _empty_/wrap.IterableDomainLike#2-
+, -_empty_/wrap.IterableDomain#[D]2*
+/ =_empty_/wrap.IterableDomain#2-
+> ?_empty_/wrap.IterableDomain#[D]2 
+ #scala/specialized#2
+$ '
+scala/Int.2-
+) *_empty_/wrap.IterableDomain#[D]PZ 36D00B748B65ACAE92C897DCDA40CE1D

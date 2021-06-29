@@ -1,0 +1,30 @@
+
+Ûtests/pos/spec-tailcall.scala*"
+_empty_/TailCall#*TailCall€*.
+_empty_/TailCall#`<init>`(). €@*<init>€*
+_empty_/TailCall#[T]	*T€*/
+_empty_/TailCall#dropLeft(). *dropLeft€*)
+_empty_/TailCall#dropLeft().(n)*n€*+
+ _empty_/TailCall#dropLeft().(xs)*xs€2
+ _empty_/TailCall#2&
+ _empty_/TailCall#`<init>`().2
+ scala/specialized#2
+ _empty_/TailCall#[T]2*
+ _empty_/TailCall#dropLeft().2-
+ _empty_/TailCall#dropLeft().(n)2
+ 
+scala/Int#2.
+  _empty_/TailCall#dropLeft().(xs)2!
+! %scala/package.List#2"
+& '_empty_/TailCall#[T]2!
++ /scala/package.List#2"
+0 1_empty_/TailCall#[T]2!
+
+ scala/Int#`==`(+3).2-
+ 	_empty_/TailCall#dropLeft().(n)2.
+  _empty_/TailCall#dropLeft().(xs)2*
+	 _empty_/TailCall#dropLeft().2 
+ scala/Int#`-`(+3).2-
+ _empty_/TailCall#dropLeft().(n)22
+  $scala/collection/IterableOps#tail().2.
+  _empty_/TailCall#dropLeft().(xs)PZ 2F149E0B5A7A2A5D93C0918B120ECA3D

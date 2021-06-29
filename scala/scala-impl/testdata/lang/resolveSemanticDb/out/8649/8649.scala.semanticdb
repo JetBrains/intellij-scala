@@ -1,0 +1,177 @@
+
+ó2tests/pos/8649.scala*)
+_empty_/HandlerAlt# €*
+HandlerAlt€*0
+_empty_/HandlerAlt#`<init>`(). €@*<init>€*6
+%_empty_/HandlerAlt#`<init>`().(value) €*value€* 
+_empty_/HandlerAlt#[A]	*A€**
+_empty_/HandlerAlt#value. €*value€*'
+_empty_/HandlerAlt#copy().*copy€*'
+_empty_/HandlerAlt#copy().[A]	*A€*/
+!_empty_/HandlerAlt#copy().(value)*value€*;
+$_empty_/HandlerAlt#copy$default$1().*copy$default$1€*1
+'_empty_/HandlerAlt#copy$default$1().[A]	*A€*#
+_empty_/HandlerAlt#_1().*_1€*(
+_empty_/HandlerAlt.
+ *
+HandlerAlt€*)
+_empty_/HandlerAlt.apply().*apply€*(
+_empty_/HandlerAlt.apply().[A]	*A€*0
+"_empty_/HandlerAlt.apply().(value)*value€*-
+_empty_/HandlerAlt.unapply().*unapply€**
+ _empty_/HandlerAlt.unapply().[A]	*A€*.
+"_empty_/HandlerAlt.unapply().(x$1)*x$1€*/
+_empty_/HandlerAlt.toString().*toString€*
+_empty_/IO# €*IO€*(
+_empty_/IO#`<init>`(). €@*<init>€*
+_empty_/IO#[A]	*A€*
+_empty_/IO#copy().*copy€*
+_empty_/IO#copy().[A]	*A€*
+_empty_/IO.
+ *IO€*!
+_empty_/IO.apply().*apply€* 
+_empty_/IO.apply().[A]	*A€*%
+_empty_/IO.unapply().*unapply€*"
+_empty_/IO.unapply().[A]	*A€*&
+_empty_/IO.unapply().(x$1)*x$1€*'
+_empty_/IO.toString().*toString€*
+_empty_/OK# €*OK€*(
+_empty_/OK#`<init>`(). €@*<init>€*
+_empty_/OK#[A]	*A€*
+_empty_/OK#[B]	*B€*
+_empty_/OK#copy().*copy€*
+_empty_/OK#copy().[A]	*A€*
+_empty_/OK#copy().[B]	*B€*
+_empty_/OK.
+ *OK€*!
+_empty_/OK.apply().*apply€* 
+_empty_/OK.apply().[A]	*A€* 
+_empty_/OK.apply().[B]	*B€*%
+_empty_/OK.unapply().*unapply€*"
+_empty_/OK.unapply().[A]	*A€*"
+_empty_/OK.unapply().[B]	*B€*&
+_empty_/OK.unapply().(x$1)*x$1€*'
+_empty_/OK.toString().*toString€*"
+_empty_/handler.
+ *handler€*
+_empty_/handler.Go#*Go€*$
+_empty_/handler.Go#[API]	*API€*4
+_empty_/handler.HandlerSingle#*HandlerSingle€*+
+!_empty_/handler.HandlerSingle#[X]	*X€*
+local0 €	*response€*&
+_empty_/Minimized.
+ *	Minimized€*3
+_empty_/Minimized.HandlerAlt# €*
+HandlerAlt€*:
+(_empty_/Minimized.HandlerAlt#`<init>`(). €@*<init>€*@
+/_empty_/Minimized.HandlerAlt#`<init>`().(value) €*value€**
+ _empty_/Minimized.HandlerAlt#[A]	*A€*4
+#_empty_/Minimized.HandlerAlt#value. €*value€*1
+$_empty_/Minimized.HandlerAlt#copy().*copy€*1
+'_empty_/Minimized.HandlerAlt#copy().[A]	*A€*9
++_empty_/Minimized.HandlerAlt#copy().(value)*value€*E
+._empty_/Minimized.HandlerAlt#copy$default$1().*copy$default$1€*;
+1_empty_/Minimized.HandlerAlt#copy$default$1().[A]	*A€*-
+"_empty_/Minimized.HandlerAlt#_1().*_1€*2
+_empty_/Minimized.HandlerAlt.
+ *
+HandlerAlt€*3
+%_empty_/Minimized.HandlerAlt.apply().*apply€*2
+(_empty_/Minimized.HandlerAlt.apply().[A]	*A€*:
+,_empty_/Minimized.HandlerAlt.apply().(value)*value€*7
+'_empty_/Minimized.HandlerAlt.unapply().*unapply€*4
+*_empty_/Minimized.HandlerAlt.unapply().[A]	*A€*8
+,_empty_/Minimized.HandlerAlt.unapply().(x$1)*x$1€*9
+(_empty_/Minimized.HandlerAlt.toString().*toString€* 
+_empty_/Minimized.M1#*M1€*"
+_empty_/Minimized.M1#[X]	*X€* 
+_empty_/Minimized.M2#*M2€*"
+_empty_/Minimized.M2#[X]	*X€*)
+_empty_/`8649$package`. *_empty_€*)
+_empty_/`8649$package`.Get0#*Get0€*+
+_empty_/`8649$package`.get0().*get0€*/
+_empty_/`8649$package`.Handler#*Handler€*0
+$_empty_/`8649$package`.Handler#[API]	*API€2!
+ _empty_/HandlerAlt#2,
+ _empty_/HandlerAlt#`<init>`().2-
+  '_empty_/`8649$package`.Handler#2$
+( )_empty_/HandlerAlt#[A]2$
+ _empty_/HandlerAlt#[A]2'
+ _empty_/HandlerAlt#value.2$
+_empty_/HandlerAlt#copy().2&
+   _empty_/HandlerAlt#_1().2!
+ _empty_/HandlerAlt.2%
+_empty_/HandlerAlt.apply().2'
+_empty_/HandlerAlt.unapply().2
+ _empty_/IO#2$
+ _empty_/IO#`<init>`().2
+ _empty_/IO#[A]2
+_empty_/IO#copy().2
+ _empty_/IO.2
+_empty_/IO.apply().2
+_empty_/IO.unapply().2
+		 _empty_/OK#2$
+		 _empty_/OK#`<init>`().2
+		 _empty_/OK#[A]2
+		 _empty_/OK#[B]2
+		_empty_/OK#copy().2
+		 _empty_/OK.2
+		_empty_/OK.apply().2
+		_empty_/OK.unapply().2
+ _empty_/handler.2!
+ 	_empty_/handler.Go#2&
+
+ _empty_/handler.Go#[API]2&
+ _empty_/handler.Go#[API]2,
+ _empty_/handler.HandlerSingle#2&
+ _empty_/handler.Go#[API]2,
+ _empty_/handler.HandlerSingle#2/
+ !_empty_/handler.HandlerSingle#[X]2/
+ !_empty_/handler.HandlerSingle#[X]2
+	 _empty_/OK#2
+ local02
+ _empty_/IO#2
+	 local02 
+ _empty_/Minimized.2+
+ _empty_/Minimized.HandlerAlt#26
+ (_empty_/Minimized.HandlerAlt#`<init>`().2#
+" $_empty_/Minimized.M2#2.
+% & _empty_/Minimized.HandlerAlt#[A]2.
+  _empty_/Minimized.HandlerAlt#[A]21
+  #_empty_/Minimized.HandlerAlt#value.22
+ $_empty_/Minimized.HandlerAlt#copy().20
+" ""_empty_/Minimized.HandlerAlt#_1().2+
+ _empty_/Minimized.HandlerAlt.23
+ %_empty_/Minimized.HandlerAlt.apply().25
+ '_empty_/Minimized.HandlerAlt.unapply().2#
+ 	_empty_/Minimized.M1#2&
+
+ _empty_/Minimized.M1#[X]2&
+ _empty_/Minimized.M1#[X]2#
+ _empty_/Minimized.M2#2&
+ _empty_/Minimized.M1#[X]2#
+ 	_empty_/Minimized.M2#2&
+
+ _empty_/Minimized.M2#[X]2&
+ _empty_/Minimized.M2#[X]2
+	 
+scala/Int#2"
+ scala/Predef.String#2!
+_empty_/`8649$package`.2*
+ 	_empty_/`8649$package`.Get0#2
+ _empty_/OK#2
+ 
+scala/Int#2
+ scala/Unit#2,
+ _empty_/`8649$package`.get0().2-
+
+ _empty_/`8649$package`.Handler#2*
+ _empty_/`8649$package`.Get0#2!
+ _empty_/IO.apply().2
+ _empty_/IO.2
+ !scala/Unit#2-
+ _empty_/`8649$package`.Handler#22
+ $_empty_/`8649$package`.Handler#[API]2!
+ _empty_/handler.Go#2
+ _empty_/handler.22
+ "$_empty_/`8649$package`.Handler#[API]PZ 410A54A4AA2A25BFA5C83DF048841880

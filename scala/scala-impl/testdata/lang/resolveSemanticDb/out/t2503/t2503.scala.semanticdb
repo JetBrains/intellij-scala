@@ -1,0 +1,58 @@
+
+žtests/pos/t2503.scala*
+_empty_/SB#*SB€*(
+_empty_/SB#`<init>`(). €@*<init>€*
+_empty_/SB#[A]	*A€*)
+_empty_/SB#insertAll().*	insertAll€*$
+_empty_/SB#insertAll().(n)*n€**
+_empty_/SB#insertAll().(iter)*iter€*#
+_empty_/SB#update().*update€*!
+_empty_/SB#update().(n)*n€*-
+_empty_/SB#update().(newelem)*newelem€*
+_empty_/Test.
+ *Test€*
+local0 *$anon€2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ _empty_/SB#2$
+ _empty_/SB#`<init>`().2.
+  scala/collection/mutable/Buffer#2
+ _empty_/SB#[A]2
+	 
+_empty_/SB#[A]2%
+ !_empty_/SB#insertAll().2(
+" #_empty_/SB#insertAll().(n)2
+% (
+scala/Int#2+
+* ._empty_/SB#insertAll().(iter)2)
+0 <scala/package.IterableOnce#2
+= >_empty_/SB#[A]2
+B Fscala/Unit#2.
+I U java/lang/Object#synchronized().2:
+ ,scala/collection/mutable/Buffer#insertAll().2(
+ _empty_/SB#insertAll().(n)2+
+ _empty_/SB#insertAll().(iter)2"
+ _empty_/SB#update().2%
+  _empty_/SB#update().(n)2
+" %
+scala/Int#2+
+' ._empty_/SB#update().(newelem)2
+0 1_empty_/SB#[A]2
+4 8scala/Unit#2.
+; G java/lang/Object#synchronized().27
+
+ )scala/collection/mutable/SeqOps#update().2%
+ _empty_/SB#update().(n)2+
+ _empty_/SB#update().(newelem)2
+ _empty_/Test.2
+ 
+scala/App#2
+ local02@
+ 2scala/collection/mutable/ArrayBuffer#`<init>`(+1).23
+ %scala/collection/mutable/ArrayBuffer#2
+ 
+scala/Int#2
+ _empty_/SB#2
+ "
+scala/Int#PZ 98E28224DA0F3C46910E0BCCE478F4DC

@@ -1,0 +1,27 @@
+
+ßtests/pos/t6552.scala* 
+_empty_/Repros.
+ *Repros€*
+_empty_/Repros.Bar#*Bar€*0
+_empty_/Repros.Bar#`<init>`(). €@*<init>€*
+_empty_/Repros.Baz#*Baz€*0
+_empty_/Repros.Baz#`<init>`(). €@*<init>€*6
+%_empty_/Repros.Baz#`<init>`().(myFoo) €*myFoo€**
+_empty_/Repros.Baz#myFoo. €*myFoo€*
+_empty_/Repros.Foo#*Foo€*0
+_empty_/Repros.Foo#`<init>`(). €@*<init>€**
+_empty_/Repros.Foo#thing. €*thing€2
+ _empty_/Repros.2!
+ _empty_/Repros.Bar#2,
+ _empty_/Repros.Bar#`<init>`().2!
+ _empty_/Repros.Baz#2,
+ _empty_/Repros.Baz#`<init>`().2!
+ _empty_/Repros.Foo#2'
+ _empty_/Repros.Baz#myFoo.2!
+ _empty_/Repros.Foo#2,
+ _empty_/Repros.Foo#`<init>`().2!
+
+ _empty_/Repros.Bar#2'
+ _empty_/Repros.Foo#thing.2,
+ _empty_/Repros.Baz#`<init>`().2!
+ _empty_/Repros.Baz#PZ B8BD27B87977FD684C30A06BACB0881F

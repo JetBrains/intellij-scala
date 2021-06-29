@@ -1,0 +1,25 @@
+
+ùtests/pos/t6994.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.NF.
+ *NF€**
+_empty_/Test.NF.unapply().*unapply€*'
+_empty_/Test.NF.unapply().(t)*t€*
+_empty_/Test.x. €*x€*
+local0 €*ex€2
+ _empty_/Test.2
+	 _empty_/Test.NF.2(
+ _empty_/Test.NF.unapply().2+
+ _empty_/Test.NF.unapply().(t)2&
+ scala/package.Throwable#2
+ %scala/Option#2&
+& /scala/package.Throwable#2
+3 7scala/None.2
+ _empty_/Test.x.2'
+7 @scala/Option#getOrElse().2
+ scala/None.2(
+' '_empty_/Test.NF.unapply().2
+% '_empty_/Test.NF.2
+( *local02
+/ 3scala/None.PZ ACFC00646608E04EF42D08D71E15D110

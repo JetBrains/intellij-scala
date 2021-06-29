@@ -1,0 +1,45 @@
+
+à	tests/pos/t7668.scala*
+_empty_/Space#*Space€*+
+_empty_/Space#`<init>`(). €@*<init>€*
+_empty_/Space#T#*T€*
+_empty_/Space#x. „*x€*$
+_empty_/Extractor#*	Extractor€*/
+_empty_/Extractor#`<init>`(). €@*<init>€*.
+_empty_/Extractor#extract(). *extract€*)
+_empty_/Extractor#extract().(s)*s€*
+_empty_/Sub#*Sub€*)
+_empty_/Sub#`<init>`(). €@*<init>€*&
+_empty_/Sub#extract().*extract€*%
+_empty_/Sub#extract().(ss)*ss€2
+ _empty_/Space#2'
+ _empty_/Space#`<init>`().2
+ _empty_/Space#T#2
+ _empty_/Space#x.2
+	 
+_empty_/Space#T#2 
+ _empty_/Extractor#2+
+ _empty_/Extractor#`<init>`().2*
+ _empty_/Extractor#extract().2-
+ _empty_/Extractor#extract().(s)2
+ _empty_/Space#2
+ _empty_/Space#T#2-
+ _empty_/Extractor#extract().(s)2
+		 	_empty_/Sub#2%
+		 _empty_/Sub#`<init>`().2 
+		 _empty_/Extractor#2$
+
+
+ _empty_/Sub#extract().2(
+
+
+ _empty_/Sub#extract().(ss)2
+
+
+ _empty_/Space#2
+
+
+ _empty_/Space#x.2(
+
+
+ _empty_/Sub#extract().(ss)PZ B4C34FEBB92A5C0DD6B77158C08F61C9

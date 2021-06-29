@@ -1,0 +1,122 @@
+
+”tests/pos/flow.scala* 
+_empty_/FlowOps#*FlowOps€*-
+_empty_/FlowOps#`<init>`(). €@*<init>€*$
+_empty_/FlowOps#[Out]	 €*Out€*"
+_empty_/FlowOps#Repr#*Repr€*%
+_empty_/FlowOps#Repr#[O]	 €*O€*
+_empty_/Flow#*Flow€**
+_empty_/Flow#`<init>`(). €@*<init>€*
+_empty_/Flow#[In]	 €*In€*!
+_empty_/Flow#[Out]	 €*Out€*
+_empty_/Flow#Repr#*Repr€*"
+_empty_/Flow#Repr#[O]	 €*O€*!
+_empty_/Flow#map(). *map€* 
+_empty_/Flow#map().[T]	*T€* 
+_empty_/Flow#map().(f)*f€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*)
+_empty_/Test#slowFlow().*slowFlow€*
+local0*b€*
+local1*b€*
+local2*b€*
+local3*b€*
+local4*b€*
+local5*b€*
+local6*b€*
+local7*b€*
+local8*b€*
+local9*b€*
+local10*b€*
+local11*b€2
+ _empty_/FlowOps#2%
+ _empty_/FlowOps#`<init>`().2
+ _empty_/FlowOps#[Out]2#
+ _empty_/FlowOps#Repr#2&
+ _empty_/FlowOps#Repr#[O]2
+ _empty_/FlowOps#2&
+ _empty_/FlowOps#Repr#[O]2
+ 
+_empty_/Flow#2&
+
+ 
+_empty_/Flow#`<init>`().2
+ %_empty_/FlowOps#2 
+& )_empty_/Flow#[Out]2
+ _empty_/Flow#[In]2 
+ _empty_/Flow#[Out]2 
+ _empty_/Flow#Repr#2#
+ _empty_/Flow#Repr#[O]2
+  _empty_/Flow#2
+! #_empty_/Flow#[In]2#
+% &_empty_/Flow#Repr#[O]2!
+ 	_empty_/Flow#map().2$
+
+ _empty_/Flow#map().[T]2$
+ _empty_/Flow#map().(f)2 
+ _empty_/Flow#[Out]2$
+ _empty_/Flow#map().[T]2 
+ _empty_/Flow#Repr#2$
+  !_empty_/Flow#map().[T]2
+		 
+_empty_/Test#2&
+
+
+ _empty_/Test#`<init>`().2&
+
+
+ _empty_/Test#slowFlow().2
+
+
+ scala/Unit#2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2!
+ 
+_empty_/Flow#map().2
+ _empty_/Flow#2"
+ scala/Predef.String#2"
+ scala/Predef.String#2
+ local02
+ local02
+ local12
+ local12
+ local22
+ local22
+ local32
+ local32
+ local42
+ local42
+ local52
+ local52
+ local62
+ local62
+ local72
+ local72
+ local82
+ local82
+ local92
+ local92
+ local102
+ local102
+ local112
+ local11PZ C0F97D7D59BFECF7CBD56CD36C33B3DA

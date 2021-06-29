@@ -1,0 +1,49 @@
+
+ 
+tests/pos/t1786-cycle.scala*6
+_empty_/GenTraversableLike#*GenTraversableLike€*8
+&_empty_/GenTraversableLike#`<init>`(). €@*<init>€*+
+_empty_/GenTraversableLike#[A]	 €*A€*1
+!_empty_/GenTraversableLike#[Repr]	 €*Repr€*
+
+_empty_/O.
+ *O€*0
+_empty_/LongTraversable#*LongTraversable€*5
+#_empty_/LongTraversable#`<init>`(). €@*<init>€*8
+_empty_/LongTraversableLike#*LongTraversableLike€*9
+'_empty_/LongTraversableLike#`<init>`(). €@*<init>€*2
+"_empty_/LongTraversableLike#[Repr]	 €*Repr€2%
+ _empty_/GenTraversableLike#20
+ &_empty_/GenTraversableLike#`<init>`().2
+, /
+scala/Any#2(
+ _empty_/GenTraversableLike#[A]2+
+ "!_empty_/GenTraversableLike#[Repr]2
+ 
+_empty_/O.2
+	 
+scala/Any#2*
+ _empty_/LongTraversableLike#2&
+ _empty_/LongTraversable#21
+ #_empty_/LongTraversable#`<init>`().2*
+ 1_empty_/LongTraversableLike#2&
+2 A_empty_/LongTraversable#2*
+
+
+ _empty_/LongTraversableLike#25
+
+
+ '_empty_/LongTraversableLike#`<init>`().2)
+
+F
+ X_empty_/GenTraversableLike#2
+
+Y
+ \
+scala/Any#20
+
+^
+ b"_empty_/LongTraversableLike#[Repr]20
+
+
+ "_empty_/LongTraversableLike#[Repr]PZ 367ABD9A694A4E37321E0E6D55341A37

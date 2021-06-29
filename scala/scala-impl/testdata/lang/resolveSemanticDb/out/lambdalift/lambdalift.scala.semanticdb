@@ -1,0 +1,67 @@
+
+Ôtests/pos/lambdalift.scala*
+_empty_/test.
+ *test€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().(x)*x€*
+local0*bar€*
+local1*y€*
+local2*baz€*
+local3*z€*!
+_empty_/test.foo2().*foo2€*!
+_empty_/test.foo2().(x)*x€*
+local4*C€*
+local5*bam€*
+local6*y€*
+local7*baz€*
+local8*z€*
+local9 €*fun€2
+ _empty_/test.2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().(x)2
+ 
+scala/Int#2
+ local02
+ local12
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2$
+ _empty_/test.foo().(x)2
+ local12
+ local22
+ local32
+ 
+scala/Int#2
+ local02
+ local32
+ local22"
+ 
+_empty_/test.foo2().2%
+ _empty_/test.foo2().(x)2
+ 
+scala/Int#2
+
+ local42
+
+ local52
+ local62
+ 
+scala/Int#2"
+ scala/Predef.String#2
+! $
+scala/Int#2
+ local72 
+ scala/Int#`+`(+4).2%
+ _empty_/test.foo2().(x)2
+ local62
+ 	local82 
+ scala/Int#`*`(+3).2
+ local72(
+ java/lang/String#length().2
+ local82
+ local92
+ local52
+ local42&
+ scala/Function1#apply().2
+ local9PZ 4D61966B514018115063D7FBE75E7614

@@ -1,0 +1,33 @@
+
+‚tests/pos/t4831.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.a. €*a€*
+_empty_/test.
+ *test€*
+_empty_/test.O1. €*O1€*
+_empty_/test.O2. €*O2€2
+ 
+_empty_/O.2
+ _empty_/O.a.2
+ _empty_/test.2
+ _empty_/test.O1.2
+
+ 
+_empty_/O.2
+ 
+_empty_/O.2
+ _empty_/test.O2.2
+
+ 
+_empty_/O.2
+ 
+_empty_/O.2
+ _empty_/O.a.2
+	 _empty_/test.O1.2
+ _empty_/O.a.2
+ _empty_/test.O2.2'
+		 	scala/Predef.println(+1).2
+	
+	 _empty_/O.a.PZ 25F5CD81D27EB361834A44F39F6A1648

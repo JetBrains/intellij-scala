@@ -1,0 +1,49 @@
+
+ætests/pos/t577.scala**
+_empty_/PriorityTree#*PriorityTree€*2
+ _empty_/PriorityTree#`<init>`(). €@*<init>€*'
+_empty_/PriorityTree#Node#*Node€*(
+_empty_/PriorityTree#top. €*top€*3
+ _empty_/PriorityTree#initTree(). *initTree€*9
+#_empty_/PriorityTree#BasicTreeNode#*BasicTreeNode€*@
+._empty_/PriorityTree#BasicTreeNode#`<init>`(). €@*<init>€*:
+*_empty_/PriorityTree#BasicTreeNode#next(). €*next€*@
+._empty_/PriorityTree#BasicTreeNode#`next_=`(). €*next_=€*?
+3_empty_/PriorityTree#BasicTreeNode#`next_=`().(x$1)*x$1€*:
+*_empty_/PriorityTree#BasicTreeNode#prev(). €*prev€*@
+._empty_/PriorityTree#BasicTreeNode#`prev_=`(). €*prev_=€*?
+3_empty_/PriorityTree#BasicTreeNode#`prev_=`().(x$1)*x$1€*:
+*_empty_/PriorityTree#BasicTreeNode#chld(). €*chld€*@
+._empty_/PriorityTree#BasicTreeNode#`chld_=`(). €*chld_=€*?
+3_empty_/PriorityTree#BasicTreeNode#`chld_=`().(x$1)*x$1€2
+ _empty_/PriorityTree#2.
+  _empty_/PriorityTree#`<init>`().2(
+ _empty_/PriorityTree#Node#21
+ #_empty_/PriorityTree#BasicTreeNode#2'
+ 	_empty_/PriorityTree#top.2.
+  _empty_/PriorityTree#initTree().2<
+ 
+._empty_/PriorityTree#BasicTreeNode#`next_=`().2'
+ _empty_/PriorityTree#top.2.
+  _empty_/PriorityTree#initTree().2<
+ ._empty_/PriorityTree#BasicTreeNode#`prev_=`().28
+ 
+*_empty_/PriorityTree#BasicTreeNode#next().2'
+ _empty_/PriorityTree#top.2'
+ _empty_/PriorityTree#top.2.
+  _empty_/PriorityTree#initTree().2(
+ _empty_/PriorityTree#Node#21
+ #_empty_/PriorityTree#BasicTreeNode#2<
+ ._empty_/PriorityTree#BasicTreeNode#`<init>`().28
+ "*_empty_/PriorityTree#BasicTreeNode#next().2#
+ _empty_/PriorityTree#2(
+& *_empty_/PriorityTree#Node#2<
+ $._empty_/PriorityTree#BasicTreeNode#`next_=`().28
+ "*_empty_/PriorityTree#BasicTreeNode#prev().2#
+ _empty_/PriorityTree#2(
+& *_empty_/PriorityTree#Node#2<
+ $._empty_/PriorityTree#BasicTreeNode#`prev_=`().28
+ "*_empty_/PriorityTree#BasicTreeNode#chld().2#
+ _empty_/PriorityTree#2(
+% )_empty_/PriorityTree#Node#2<
+ $._empty_/PriorityTree#BasicTreeNode#`chld_=`().PZ 695E7D7CE39F8743A495FEACD5221872

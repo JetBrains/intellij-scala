@@ -1,0 +1,28 @@
+
+€tests/pos/t1226.scala*
+graphs/Graph# *Graph€**
+graphs/Graph#`<init>`(). €@*<init>€*6
+"graphs/Graph#`<init>`().(mappings) €*mappings€**
+graphs/Graph#mappings. €*mappings€*
+graphs/Nodes#*Nodes€**
+graphs/Nodes#`<init>`(). €@*<init>€*3
+"graphs/Nodes#`<init>`().(mappings)*mappings€**
+graphs/Nodes#mappings. €*mappings€2
+ graphs/2
+ graphs/Graph#2&
+ graphs/Graph#`<init>`().2
+5 8
+scala/Any#2$
+* 2graphs/Graph#mappings.2
+ $graphs/2
+ graphs/Nodes#2&
+ graphs/Nodes#`<init>`().2
+ 
+scala/Any#2&
++ +graphs/Graph#`<init>`().2
+& +graphs/Graph#2$
+, 4graphs/Nodes#mappings.2$
+ graphs/Nodes#mappings.2#
+ scala/Any#toString().2$
+ 
+graphs/Nodes#mappings.PZ 08065AB2B4DEC9ED71E492F45B5A1E19

@@ -1,0 +1,54 @@
+
+¶tests/pos/i8491.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.qux1().*qux1€*!
+_empty_/Test.qux1().[A]	*A€*#
+_empty_/Test.qux1().(A)  *A€*#
+_empty_/Test.qux1().(B)  *B€*5
+_empty_/Test.qux1$default$2().*qux1$default$2€*+
+!_empty_/Test.qux1$default$2().[A]	*A€*
+local0 *$anon€*!
+_empty_/Test.qux2().*qux2€*!
+_empty_/Test.qux2().[A]	*A€*#
+_empty_/Test.qux2().(B)  *B€*5
+_empty_/Test.qux2$default$2().*qux2$default$2€*+
+!_empty_/Test.qux2$default$2().[A]	*A€*
+local1 *$anon€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A]2
+ _empty_/Bar#2!
+ _empty_/Bar#`<init>`().2
+ _empty_/Test.2"
+ 
+_empty_/Test.qux1().2%
+ _empty_/Test.qux1().[A]2%
+ _empty_/Test.qux1().(A)2
+ _empty_/Foo#2%
+ _empty_/Test.qux1().[A]2%
+" #_empty_/Test.qux1().(B)2
+% (_empty_/Bar#2
+8 ;_empty_/Bar#2%
+> ?_empty_/Test.qux1().(B)2/
+ !_empty_/Test.qux1$default$2().[A]2
++ +local02
+/ 2_empty_/Bar#2"
+ 
+_empty_/Test.qux2().2%
+ _empty_/Test.qux2().[A]2
+ _empty_/Foo#2%
+ _empty_/Test.qux2().[A]2%
+ _empty_/Test.qux2().(B)2
+ "_empty_/Bar#2
+2 5_empty_/Bar#2%
+8 9_empty_/Test.qux2().(B)2/
+ !_empty_/Test.qux2$default$2().[A]2
+% %local12
+) ,_empty_/Bar#PZ 00A058E157559C933877444389FFC94D

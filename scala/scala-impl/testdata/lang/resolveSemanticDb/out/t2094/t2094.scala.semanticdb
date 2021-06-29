@@ -1,0 +1,87 @@
+
+Òtests/pos/t2094.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Value# *Value€*+
+_empty_/Value#`<init>`(). €@*<init>€**
+_empty_/Value#getType(). *getType€*-
+_empty_/UnknownValue# €*UnknownValue€*2
+ _empty_/UnknownValue#`<init>`(). €@*<init>€*/
+_empty_/UnknownValue#getType().*getType€*)
+_empty_/UnknownValue#copy().*copy€*,
+_empty_/UnknownValue.
+ *UnknownValue€*+
+_empty_/UnknownValue.apply().*apply€*/
+_empty_/UnknownValue.unapply().*unapply€*0
+$_empty_/UnknownValue.unapply().(x$1)*x$1€*1
+ _empty_/UnknownValue.toString().*toString€*'
+_empty_/KnownType# €*	KnownType€*/
+_empty_/KnownType#`<init>`(). €@*<init>€*1
+"_empty_/KnownType#`<init>`().(typ) €*typ€*%
+_empty_/KnownType#typ. €*typ€*,
+_empty_/KnownType#getType().*getType€*&
+_empty_/KnownType#copy().*copy€**
+_empty_/KnownType#copy().(typ)*typ€*:
+#_empty_/KnownType#copy$default$1().*copy$default$1€*"
+_empty_/KnownType#_1().*_1€*&
+_empty_/KnownType.
+ *	KnownType€*(
+_empty_/KnownType.apply().*apply€*+
+_empty_/KnownType.apply().(typ)*typ€*,
+_empty_/KnownType.unapply().*unapply€*-
+!_empty_/KnownType.unapply().(x$1)*x$1€*.
+_empty_/KnownType.toString().*toString€2
+ _empty_/Test.2
+ 
+scala/App#22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 	
+scala/Int#2
+ _empty_/Value#2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2(
+ _empty_/KnownType.apply().2 
+	 _empty_/KnownType.2%
+ scala/Predef.classOf().2
+ !java/lang/Object#2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2+
+ _empty_/UnknownValue.apply().2#
+	 _empty_/UnknownValue.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2(
+ _empty_/KnownType.apply().2 
+	 _empty_/KnownType.2%
+ scala/Predef.classOf().2
+ !java/lang/Object#2-
+		 scala/Predef.ArrowAssoc#`->`().2(
+		 scala/Predef.ArrowAssoc().2+
+		 _empty_/UnknownValue.apply().2#
+			 _empty_/UnknownValue.2
+ _empty_/Value#2'
+ _empty_/Value#`<init>`().2&
+ _empty_/Value#getType().2
+ scala/Option#2!
+ scala/Predef.Class#2#
+ _empty_/UnknownValue#2.
+  _empty_/UnknownValue#`<init>`().2
+" '_empty_/Value#2-
+ _empty_/UnknownValue#getType().2
+ scala/None.2#
+ _empty_/UnknownValue.2 
+ _empty_/KnownType#2+
+ _empty_/KnownType#`<init>`().2!
+ scala/Predef.Class#2
+, 1_empty_/Value#2$
+ _empty_/KnownType#typ.2*
+ _empty_/KnownType#getType().2!
+ scala/Some.apply().2
+ scala/Some.2$
+ _empty_/KnownType#typ.2#
+_empty_/KnownType#copy().2%
+ _empty_/KnownType#_1().2 
+ _empty_/KnownType.2$
+_empty_/KnownType.apply().PZ 9752BFCC0B214A2790C016C8DEE0B37F

@@ -1,0 +1,30 @@
+
+Ðtests/pos/Arrays.scala* 
+_empty_/Arrays.
+ *Arrays€*#
+_empty_/Arrays.main().*main€*#
+_empty_/Arrays.main().(a)*a€*
+local0 €*	stringArr€*
+local1 €*intArr€2
+ _empty_/Arrays.2$
+ 
+_empty_/Arrays.main().2'
+ _empty_/Arrays.main().(a)2
+ scala/Array#2"
+ scala/Predef.String#2
+ local02%
+$ $scala/Array#`<init>`().2
+ scala/Array#2"
+ #scala/Predef.String#2#
+ scala/Array#update().2
+ local02
+ local12%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ 
+scala/Int#2#
+ scala/Array#update().2
+ local02#
+ $scala/Any#toString().2"
+ scala/Array#apply().2
+ local1PZ C421C68E4F018E7F38F724E722971310

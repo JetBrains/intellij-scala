@@ -1,0 +1,14 @@
+
+Øtests/pos/ilya2/A.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#foo().*foo€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#foo().2
+ _empty_/B#bar().2%
+ _empty_/B#`<init>`(+1).2
+ 
+_empty_/B#PZ 6255DEC56916C8603F7B46D631D4EEFE

@@ -1,0 +1,150 @@
+
+‘$tests/pos/t2712-5.scala*
+test/Functor#*Functor€**
+test/Functor#`<init>`(). €@*<init>€*
+test/Functor#[F]	*F€*!
+test/Functor#map(). *map€* 
+test/Functor#map().[A]	*A€* 
+test/Functor#map().[B]	*B€* 
+test/Functor#map().(f)*f€*"
+test/Functor#map().(fa)*fa€*
+test/Functor.
+ *Functor€*+
+test/Functor.function().  *function€*%
+test/Functor.function().[A]	*A€*
+local0*l€*
+local1	*B€*
+local2 *$anon€*
+local3*l€*
+local4	*B€*
+local5*map€*
+local6	*C€*
+local7	*B€*
+local8*cb€*
+local9*ac€*+
+test/FunctorSyntax.
+ *FunctorSyntax€*1
+test/FunctorSyntax.FunctorOps#*
+FunctorOps€*;
+)test/FunctorSyntax.FunctorOps#`<init>`(). €@*<init>€*8
+-test/FunctorSyntax.FunctorOps#`<init>`().(fa)*fa€*8
+,test/FunctorSyntax.FunctorOps#`<init>`().(F)  *F€*+
+!test/FunctorSyntax.FunctorOps#[F]	*F€*+
+!test/FunctorSyntax.FunctorOps#[A]	*A€*/
+!test/FunctorSyntax.FunctorOps#fa. €*fa€*-
+ test/FunctorSyntax.FunctorOps#F.  *F€*0
+$test/FunctorSyntax.FunctorOps#map().*map€*1
+'test/FunctorSyntax.FunctorOps#map().[B]	*B€*1
+'test/FunctorSyntax.FunctorOps#map().(f)*f€*5
+ test/FunctorSyntax.FunctorOps(). (*
+FunctorOps€*-
+#test/FunctorSyntax.FunctorOps().[F]	*F€*-
+#test/FunctorSyntax.FunctorOps().[A]	*A€*/
+$test/FunctorSyntax.FunctorOps().(fa)*fa€*/
+#test/FunctorSyntax.FunctorOps().(F)  *F€*
+
+test/Test.
+ *Test€*
+test/Test.f. €*f€*
+local10*s€2
+ test/2)
+ !scala/language.higherKinds.2
+ scala/language.2
+ scala/2
+ test/Functor#2&
+ test/Functor#`<init>`().2
+ test/Functor#[F]2!
+ 	test/Functor#map().2$
+
+ test/Functor#map().[A]2$
+ test/Functor#map().[B]2$
+ test/Functor#map().(f)2$
+ test/Functor#map().[A]2$
+ test/Functor#map().[B]2%
+ test/Functor#map().(fa)2
+  test/Functor#[F]2$
+! "test/Functor#map().[A]2
+& 'test/Functor#[F]2$
+( )test/Functor#map().[B]2
+ test/Functor.2&
+		 test/Functor.function().2)
+		 test/Functor.function().[A]2
+		 #test/Functor#2
+	,	 -local02
+	.	 /local12)
+	3	 4test/Functor.function().[A]2
+	8	 9local12
+
+
+ local22
+
+
+ test/Functor#2
+
+
+ local32
+
+
+ local42)
+
+
+  test/Functor.function().[A]2
+
+$
+ %local42
+
+ local52
+ local62
+ local72
+ local82
+ local62
+ local72
+  "local92)
+$ %test/Functor.function().[A]2
+) *local62)
+- .test/Functor.function().[A]2
+2 3local72(
+9 @scala/Function1#compose().2
+6 8local82
+A Clocal92!
+ test/FunctorSyntax.2,
+ test/FunctorSyntax.FunctorOps#27
+ )test/FunctorSyntax.FunctorOps#`<init>`().2/
+) *!test/FunctorSyntax.FunctorOps#[F]2/
++ ,!test/FunctorSyntax.FunctorOps#[A]2
+; Btest/Functor#2/
+C D!test/FunctorSyntax.FunctorOps#[F]2/
+ !test/FunctorSyntax.FunctorOps#[F]2/
+" #!test/FunctorSyntax.FunctorOps#[A]2/
+% '!test/FunctorSyntax.FunctorOps#fa.2.
+8 9 test/FunctorSyntax.FunctorOps#F.22
+ $test/FunctorSyntax.FunctorOps#map().25
+ 'test/FunctorSyntax.FunctorOps#map().[B]25
+ 'test/FunctorSyntax.FunctorOps#map().(f)2/
+ !test/FunctorSyntax.FunctorOps#[A]25
+ 'test/FunctorSyntax.FunctorOps#map().[B]2/
+ !test/FunctorSyntax.FunctorOps#[F]25
+ 'test/FunctorSyntax.FunctorOps#map().[B]2!
+$ 'test/Functor#map().2.
+" # test/FunctorSyntax.FunctorOps#F.25
+( )'test/FunctorSyntax.FunctorOps#map().(f)2/
++ -!test/FunctorSyntax.FunctorOps#fa.2.
+  test/FunctorSyntax.FunctorOps().2
+ 
+test/Test.2
+ test/Test.f.2
+	 
+scala/Int#2"
+ scala/Predef.String#2#
+ #scala/Any#toString().2!
+	 test/FunctorSyntax.22
+ $test/FunctorSyntax.FunctorOps#map().2.
+  test/FunctorSyntax.FunctorOps().2
+ test/Test.f.2&
+ test/Functor.function().2
+	 
+local102"
+ scala/Predef.String#23
+  %scala/collection/StringOps#reverse().2+
+ scala/Predef.augmentString().2
+ local10PZ 597716F1D14AEF194BF788CD1ED4A5CC

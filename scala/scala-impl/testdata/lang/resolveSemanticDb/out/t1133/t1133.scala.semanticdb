@@ -1,0 +1,148 @@
+
+í$tests/pos/t1133.scala*
+_empty_/Match.
+ *Match€*"
+_empty_/Match.main().*main€*(
+_empty_/Match.main().(args)*args€*
+local0 €*x2€*
+local1 €*x3€*
+local2 €*b€*
+local3 €*c€*
+local4 €*f€*
+local5 €*e€*
+local6 €*e€*
+local7 €*y€*
+local8 €*z€*
+local9 €*x€*
+local10 €*y€*
+local11 €*z€*.
+_empty_/Match.Extractor1.
+ *
+Extractor1€*3
+#_empty_/Match.Extractor1.unapply().*unapply€*0
+&_empty_/Match.Extractor1.unapply().(x)*x€*
+local12 €*x€*.
+_empty_/Match.Extractor2.
+ *
+Extractor2€*3
+#_empty_/Match.Extractor2.unapply().*unapply€*0
+&_empty_/Match.Extractor2.unapply().(x)*x€*
+local13 €*x€*.
+_empty_/Match.Extractor3.
+ *
+Extractor3€*3
+#_empty_/Match.Extractor3.unapply().*unapply€*0
+&_empty_/Match.Extractor3.unapply().(x)*x€*
+local14 €*x€2
+ _empty_/Match.2#
+ 
+_empty_/Match.main().2)
+ _empty_/Match.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2"
+ scala/Array#apply().2)
+ _empty_/Match.main().(args)21
+ #_empty_/Match.Extractor1.unapply().2'
+ _empty_/Match.Extractor1.21
+" "#_empty_/Match.Extractor2.unapply().2'
+ "_empty_/Match.Extractor2.21
+- -#_empty_/Match.Extractor3.unapply().2'
+# -_empty_/Match.Extractor3.2
+D Flocal02
+H Jlocal12
+M Nlocal22
+P Qlocal321
+] ]#_empty_/Match.Extractor3.unapply().2'
+S ]_empty_/Match.Extractor3.2
+h ilocal42
+l mlocal52'
+r yscala/Predef.println(+1).2
+z {local521
+ #_empty_/Match.Extractor3.unapply().2'
+ _empty_/Match.Extractor3.21
+" "#_empty_/Match.Extractor2.unapply().2'
+ "_empty_/Match.Extractor2.21
+- -#_empty_/Match.Extractor1.unapply().2'
+# -_empty_/Match.Extractor1.21
+V V#_empty_/Match.Extractor2.unapply().2'
+L V_empty_/Match.Extractor2.2
+j klocal62
+n olocal72
+q rlocal82'
+w ~scala/Predef.println(+1).2
+	 €local621
+ #_empty_/Match.Extractor2.unapply().2'
+ _empty_/Match.Extractor2.21
+" "#_empty_/Match.Extractor3.unapply().2'
+ "_empty_/Match.Extractor3.2
+- .local921
+; ;#_empty_/Match.Extractor3.unapply().2'
+1 ;_empty_/Match.Extractor3.2
+F Glocal1021
+T T#_empty_/Match.Extractor3.unapply().2'
+J T_empty_/Match.Extractor3.2
+_ `local112'
+f mscala/Predef.println(+1).2
+n olocal112'
+ scala/Predef.println(+1).2'
+	 _empty_/Match.Extractor1.21
+ #_empty_/Match.Extractor1.unapply().24
+ &_empty_/Match.Extractor1.unapply().(x)2
+ 
+scala/Any#24
+ &_empty_/Match.Extractor1.unapply().(x)2
+ local122"
+ scala/Predef.String#2!
+ scala/Some.apply().2
+ scala/Some.2#
+ scala/Tuple5.apply().2
+  local122%
+$ %java/lang/String#`+`().2
+" #local122
+& 'local122%
+. /java/lang/String#`+`().2%
++ ,java/lang/String#`+`().2
+) *local122
+- .local122
+/ 0local122%
+3 4java/lang/String#`+`().2
+2 3local122
+4 5local122
+7 8local122
+ scala/None.2'
+	 _empty_/Match.Extractor2.21
+ #_empty_/Match.Extractor2.unapply().24
+ &_empty_/Match.Extractor2.unapply().(x)2
+ 
+scala/Any#24
+ &_empty_/Match.Extractor2.unapply().(x)2
+ local132"
+ scala/Predef.String#2!
+ scala/Some.apply().2
+ scala/Some.2#
+ scala/Tuple3.apply().2
+  local132%
+$ %java/lang/String#`+`().2
+" #local132
+& 'local132%
+. /java/lang/String#`+`().2%
++ ,java/lang/String#`+`().2
+) *local132
+- .local132
+/ 0local132
+ scala/None.2'
+	 _empty_/Match.Extractor3.21
+ #_empty_/Match.Extractor3.unapply().24
+ &_empty_/Match.Extractor3.unapply().(x)2
+ 
+scala/Any#24
+ &_empty_/Match.Extractor3.unapply().(x)2
+ local142"
+ scala/Predef.String#2!
+ scala/Some.apply().2
+ scala/Some.2#
+ scala/Tuple3.apply().2
+  local142
+" #local142
+% &local142
+ scala/None.PZ B9D99635122831C14D9D32B4E537F410

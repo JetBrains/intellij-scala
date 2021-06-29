@@ -1,0 +1,54 @@
+
+àtests/pos/t2797.scala*"
+_empty_/MyVector#*MyVector€*.
+_empty_/MyVector#`<init>`(). €@*<init>€*
+_empty_/MyVector#[A]	*A€*#
+_empty_/MyVector#map().*map€*$
+_empty_/MyVector#map().[B]	*B€*$
+_empty_/MyVector#map().(f)*f€*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.unzip().*unzip€*"
+_empty_/Test.unzip().[B]	*B€*"
+_empty_/Test.unzip().[C]	*C€**
+_empty_/Test.unzip().(_this)*_this€*
+local0*bc€*
+local1*bc€2
+ _empty_/MyVector#2&
+ _empty_/MyVector#`<init>`().2
+ _empty_/MyVector#[A]2%
+ 	_empty_/MyVector#map().2(
+
+ _empty_/MyVector#map().[B]2(
+ _empty_/MyVector#map().(f)2"
+ _empty_/MyVector#[A]2(
+ _empty_/MyVector#map().[B]2
+ !_empty_/MyVector#2(
+" #_empty_/MyVector#map().[B]2(
++ 0scala/sys/package.error().2
+' *
+scala/sys/2
+ _empty_/Test.2#
+ _empty_/Test.unzip().2&
+ _empty_/Test.unzip().[B]2&
+ _empty_/Test.unzip().[C]2*
+ _empty_/Test.unzip().(_this)2
+ !_empty_/MyVector#2&
+# $_empty_/Test.unzip().[B]2&
+& '_empty_/Test.unzip().[C]2
+- 5_empty_/MyVector#2&
+6 7_empty_/Test.unzip().[B]2
+: B_empty_/MyVector#2&
+C D_empty_/Test.unzip().[C]2#
+ scala/Tuple2.apply().2%
+ _empty_/MyVector#map().2*
+ 
+_empty_/Test.unzip().(_this)2
+ local02
+ scala/Tuple2#_1.2
+ local02%
+% (_empty_/MyVector#map().2*
+ $_empty_/Test.unzip().(_this)2
+* ,local12
+3 5scala/Tuple2#_2.2
+0 2local1PZ 5F2FCC1C48CE50E7D132CD3F8FD23560

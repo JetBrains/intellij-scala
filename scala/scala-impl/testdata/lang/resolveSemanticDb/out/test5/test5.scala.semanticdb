@@ -1,0 +1,233 @@
+
+è7tests/pos/test5.scala*
+_empty_/test.
+ *testÄ*
+_empty_/test.F#*FÄ*,
+_empty_/test.F#`<init>`(). Ä@*<init>Ä*
+_empty_/test.F#[If]	*IfÄ*
+_empty_/test.f().*fÄ* 
+_empty_/test.f().[Jf]	*JfÄ*
+_empty_/test.f().(h)*hÄ*
+_empty_/test.G#*GÄ*,
+_empty_/test.G#`<init>`(). Ä@*<init>Ä*
+_empty_/test.G#[Ig]	*IgÄ*
+_empty_/test.g().*gÄ* 
+_empty_/test.g().[Jg]	*JgÄ*
+_empty_/test.g().(h)*hÄ*
+_empty_/test.M#*MÄ*,
+_empty_/test.M#`<init>`(). Ä@*<init>Ä*
+_empty_/test.M#[P]	*PÄ*
+_empty_/test.M#I# *IÄ*.
+_empty_/test.M#I#`<init>`(). Ä@*<init>Ä*
+_empty_/test.M#I#[X]	*XÄ*)
+_empty_/test.M#I#chk_ix().*chk_ixÄ*'
+_empty_/test.M#I#chk_ix().(x)*xÄ*+
+_empty_/test.M#I#chk_ip(). *chk_ipÄ*'
+_empty_/test.M#I#chk_ip().(p)*pÄ*)
+_empty_/test.M#I#val_ix().*val_ixÄ*
+_empty_/test.M#i. Ä*iÄ*'
+_empty_/test.M#val_mp().*val_mpÄ*)
+_empty_/test.M#val_mix().*val_mixÄ*
+_empty_/test.N#*NÄ*,
+_empty_/test.N#`<init>`(). Ä@*<init>Ä*
+_empty_/test.N#[Q]	*QÄ*
+_empty_/test.N#j. Ä*jÄ*
+_empty_/test.N#J# *JÄ*.
+_empty_/test.N#J#`<init>`(). Ä@*<init>Ä*
+_empty_/test.N#J#[Y]	*YÄ*)
+_empty_/test.N#J#val_jy().*val_jyÄ*)
+_empty_/test.N#J#val_jx().*val_jxÄ*'
+_empty_/test.N#val_nq().*val_nqÄ*'
+_empty_/test.N#val_np().*val_npÄ*)
+_empty_/test.N#val_nix().*val_nixÄ*)
+_empty_/test.N#val_njy().*val_njyÄ*)
+_empty_/test.N#val_njx().*val_njxÄ2
+ scala/2
+ _empty_/test.2
+ 	_empty_/test.F#2(
+	 	_empty_/test.F#`<init>`().2!
+
+ _empty_/test.F#[If]2
+ _empty_/test.f().2#
+ 
+_empty_/test.f().[Jf]2"
+ _empty_/test.f().(h)2#
+ _empty_/test.f().[Jf]2
+ _empty_/test.F#2#
+ _empty_/test.f().[Jf]2
+ _empty_/test.f().2#
+ _empty_/test.f().[Jf]2"
+! "_empty_/test.f().(h)2
+ 	_empty_/test.G#2(
+	 	_empty_/test.G#`<init>`().2!
+
+ _empty_/test.G#[Ig]2
+
+
+ _empty_/test.g().2#
+
+
+ 
+_empty_/test.g().[Jg]2"
+
+
+ _empty_/test.g().(h)2#
+
+
+ _empty_/test.g().[Jg]2
+
+
+ _empty_/test.G#2#
+
+
+ _empty_/test.g().[Jg]2
+
+
+ _empty_/test.g().2#
+
+
+ _empty_/test.g().[Jg]2"
+
+!
+ "_empty_/test.g().(h)2
+ 	_empty_/test.M#2(
+	 	_empty_/test.M#`<init>`().2 
+
+ _empty_/test.M#[P]2
+ _empty_/test.M#I#2*
+ _empty_/test.M#I#`<init>`().2"
+ _empty_/test.M#I#[X]2(
+
+ _empty_/test.M#I#chk_ix().2+
+ _empty_/test.M#I#chk_ix().(x)2"
+ _empty_/test.M#I#[X]2
+ scala/Unit#2(
+
+ _empty_/test.M#I#chk_ip().2+
+ _empty_/test.M#I#chk_ip().(p)2 
+ _empty_/test.M#[P]2
+ scala/Unit#2(
+
+ _empty_/test.M#I#val_ix().2"
+ _empty_/test.M#I#[X]2(
+ _empty_/test.M#I#val_ix().2
+
+ _empty_/test.M#i.2
+ _empty_/test.M#I#2
+ _empty_/test.G#2 
+ _empty_/test.M#[P]2&
+
+ _empty_/test.M#val_mp().2 
+ _empty_/test.M#[P]2&
+ _empty_/test.M#val_mp().2'
+
+ _empty_/test.M#val_mix().2
+ _empty_/test.G#2 
+ _empty_/test.M#[P]2
+ _empty_/test.g().2 
+ _empty_/test.M#[P]2&
+ %_empty_/test.M#val_mp().2
+ 	_empty_/test.N#2(
+	 	_empty_/test.N#`<init>`().2(
+ _empty_/test.M#`<init>`().2
+ _empty_/test.M#2
+ _empty_/test.F#2 
+ _empty_/test.N#[Q]2 
+
+ _empty_/test.N#[Q]2
+
+ _empty_/test.N#j.2
+ _empty_/test.N#J#2
+ _empty_/test.G#2 
+ _empty_/test.N#[Q]2
+   _empty_/test.N#J#2*
+   _empty_/test.N#J#`<init>`().2*
+ +  +_empty_/test.M#I#`<init>`().2
+ $  %_empty_/test.M#I#2
+ &  '_empty_/test.G#2"
+ (  )_empty_/test.N#J#[Y]2"
+   _empty_/test.N#J#[Y]2(
+"
+" _empty_/test.N#J#val_jy().2"
+"" _empty_/test.N#J#[Y]2(
+"" _empty_/test.N#J#val_jy().2(
+#
+# _empty_/test.N#J#val_jx().2
+## _empty_/test.G#2"
+## _empty_/test.N#J#[Y]2
+## _empty_/test.g().2"
+## _empty_/test.N#J#[Y]2(
+## $_empty_/test.N#J#val_jy().2(
+&& _empty_/test.M#I#chk_ip().2&
+&& _empty_/test.M#val_mp().2(
+'' _empty_/test.M#I#chk_ip().2&
+'' _empty_/test.N#val_np().2&
++
++ _empty_/test.N#val_nq().2 
+++ _empty_/test.N#[Q]2&
+++ _empty_/test.N#val_nq().2&
+,
+, _empty_/test.N#val_np().2
+,, _empty_/test.F#2 
+,, _empty_/test.N#[Q]2
+,, _empty_/test.f().2 
+,, _empty_/test.N#[Q]2&
+,, $_empty_/test.N#val_nq().2'
+-
+- _empty_/test.N#val_nix().2
+-- _empty_/test.G#2
+-- _empty_/test.F#2 
+-- _empty_/test.N#[Q]2
+-- _empty_/test.g().2
+--  _empty_/test.F#2 
+-!- "_empty_/test.N#[Q]2&
+-%- +_empty_/test.N#val_np().2'
+.
+. _empty_/test.N#val_njy().2
+.. _empty_/test.G#2 
+.. _empty_/test.N#[Q]2
+.. _empty_/test.g().2 
+.. _empty_/test.N#[Q]2&
+.. %_empty_/test.N#val_nq().2'
+/
+/ _empty_/test.N#val_njx().2
+// _empty_/test.G#2
+// _empty_/test.G#2 
+// _empty_/test.N#[Q]2
+// _empty_/test.g().2
+//  _empty_/test.G#2 
+/!/ "_empty_/test.N#[Q]2'
+/%/ ,_empty_/test.N#val_njy().2(
+22 _empty_/test.M#I#chk_ip().2
+22 _empty_/test.M#i.2&
+22 _empty_/test.M#val_mp().2(
+33 _empty_/test.M#I#chk_ip().2
+33 _empty_/test.M#i.2&
+33 _empty_/test.N#val_np().2(
+66 _empty_/test.M#I#chk_ip().2
+66 _empty_/test.N#j.2&
+66 _empty_/test.M#val_mp().2(
+77 _empty_/test.M#I#chk_ip().2
+77 _empty_/test.N#j.2&
+77 _empty_/test.N#val_np().2(
+:: _empty_/test.M#I#chk_ix().2
+:: _empty_/test.M#i.2(
+:: _empty_/test.M#I#val_ix().2
+:: _empty_/test.M#i.2(
+;; _empty_/test.M#I#chk_ix().2
+;; _empty_/test.M#i.2'
+;; _empty_/test.M#val_mix().2(
+<< _empty_/test.M#I#chk_ix().2
+<< _empty_/test.M#i.2'
+<< _empty_/test.N#val_nix().2(
+?? _empty_/test.M#I#chk_ix().2
+?? _empty_/test.N#j.2(
+?? _empty_/test.M#I#val_ix().2
+?? _empty_/test.N#j.2(
+@@ _empty_/test.M#I#chk_ix().2
+@@ _empty_/test.N#j.2(
+@@ _empty_/test.N#J#val_jx().2
+@@ _empty_/test.N#j.2(
+AA _empty_/test.M#I#chk_ix().2
+AA _empty_/test.N#j.2'
+AA _empty_/test.N#val_njx().PZ 91E1653E40CFCDF0164ED8FD50329796

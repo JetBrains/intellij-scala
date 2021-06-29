@@ -1,0 +1,40 @@
+
+ôtests/pos/t651.scala*
+test/Test3#*Test3€*(
+test/Test3#`<init>`(). €@*<init>€*/
+test/Test3#MatchableImpl#*MatchableImpl€*6
+$test/Test3#MatchableImpl#`<init>`(). €@*<init>€*5
+#test/Test3#MatchableImpl#MatchImpl#*	MatchImpl€*@
+.test/Test3#MatchableImpl#MatchImpl#`<init>`(). €@*<init>€*/
+test/Test3#BracePairImpl#*BracePairImpl€*6
+$test/Test3#BracePairImpl#`<init>`(). €@*<init>€*5
+#test/Test3#BracePairImpl#BraceImpl#*	BraceImpl€*@
+.test/Test3#BracePairImpl#BraceImpl#`<init>`(). €@*<init>€*?
+,test/Test3#BracePairImpl#BraceImpl#MyMatch1.
+ *MyMatch1€*;
+,test/Test3#BracePairImpl#BraceImpl#match0().*match0€2
+ test/2
+ test/Test3#2$
+ test/Test3#`<init>`().2'
+ test/Test3#MatchableImpl#22
+ $test/Test3#MatchableImpl#`<init>`().21
+
+ #test/Test3#MatchableImpl#MatchImpl#2<
+ .test/Test3#MatchableImpl#MatchImpl#`<init>`().2'
+ test/Test3#BracePairImpl#22
+ $test/Test3#BracePairImpl#`<init>`().21
+
+ #test/Test3#BracePairImpl#BraceImpl#2<
+ .test/Test3#BracePairImpl#BraceImpl#`<init>`().2'
+ )test/Test3#MatchableImpl#2:
+		 ,test/Test3#BracePairImpl#BraceImpl#MyMatch1.21
+	&	 /#test/Test3#MatchableImpl#MatchImpl#2:
+
+
+ ,test/Test3#BracePairImpl#BraceImpl#match0().21
+
+
+ &#test/Test3#MatchableImpl#MatchImpl#2:
+
+)
+ 1,test/Test3#BracePairImpl#BraceImpl#MyMatch1.PZ D47BBF0A50DC7A75A6687A616390B83D

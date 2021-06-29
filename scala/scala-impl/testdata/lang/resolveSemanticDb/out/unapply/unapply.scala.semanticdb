@@ -1,0 +1,45 @@
+
+Étests/pos/unapply.scala*
+_empty_/test.
+ *test€*
+_empty_/test.Foo#*Foo€*.
+_empty_/test.Foo#`<init>`(). €@*<init>€*0
+!_empty_/test.Foo#`<init>`().(arg) €*arg€*
+_empty_/test.Foo#[T]	*T€*$
+_empty_/test.Foo#arg. €*arg€*
+_empty_/test.Foo.
+ *Foo€*+
+_empty_/test.Foo.unapply().*unapply€*(
+_empty_/test.Foo.unapply().[a]	*a€*(
+_empty_/test.Foo.unapply().(m)*m€*C
+%_empty_/test.matchAndGetArgFromFoo().*matchAndGetArgFromFoo€*2
+(_empty_/test.matchAndGetArgFromFoo().[b]	*b€*2
+(_empty_/test.matchAndGetArgFromFoo().(e)*e€*
+local0 €*x€2
+ _empty_/test.2
+ _empty_/test.Foo#2*
+ _empty_/test.Foo#`<init>`().2"
+ _empty_/test.Foo#[T]2"
+ _empty_/test.Foo#[T]2#
+ _empty_/test.Foo#arg.2
+	 _empty_/test.Foo.2)
+ _empty_/test.Foo.unapply().2,
+ _empty_/test.Foo.unapply().[a]2,
+ _empty_/test.Foo.unapply().(m)2
+ _empty_/test.Foo#2,
+ _empty_/test.Foo.unapply().[a]2!
+& &scala/Some.apply().2
+" &scala/Some.2#
+* -_empty_/test.Foo#arg.2,
+( )_empty_/test.Foo.unapply().(m)23
+ %_empty_/test.matchAndGetArgFromFoo().26
+ (_empty_/test.matchAndGetArgFromFoo().[b]26
+  !(_empty_/test.matchAndGetArgFromFoo().(e)2
+" %_empty_/test.Foo#26
+& '(_empty_/test.matchAndGetArgFromFoo().[b]26
+* +(_empty_/test.matchAndGetArgFromFoo().[b]26
+/ 0(_empty_/test.matchAndGetArgFromFoo().(e)2)
+A A_empty_/test.Foo.unapply().2
+> A_empty_/test.Foo.2
+B Clocal02
+H Ilocal0PZ 0DDC94EC50107DCD9F428B2E356482D1

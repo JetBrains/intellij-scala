@@ -1,0 +1,61 @@
+
+¾tests/pos/i8801.scala*
+_empty_/Foo.
+ *Foo€*
+local0 €*Baz€*
+local1*copy€*
+local2
+ *Baz€*
+local3*apply€*
+local4*unapply€*
+local5*x$1€*
+local6*toString€*
+_empty_/Foo2#*Foo2€**
+_empty_/Foo2#`<init>`(). €@*<init>€*
+_empty_/Foo2#foo().*foo€* 
+_empty_/Foo2#foo().(x)*x€* 
+_empty_/Foo2#foo().(y)*y€*3
+_empty_/Foo2#foo$default$1().*foo$default$1€*3
+_empty_/Foo2#foo$default$2().*foo$default$2€*
+_empty_/Foo2#a. €*a€*
+local7 €*Bar€*
+local8 €*x€*
+local9*copy€*
+local10*copy$default$1€*
+local11*_1€*
+local12
+ *Bar€*
+local13*apply€*
+local14*unapply€*
+local15*x$1€*
+local16*toString€2
+ 
+_empty_/Foo.2%
+ scala/Predef.locally().2
+ local02
+ local22
+ 
+_empty_/Foo2#2&
+ _empty_/Foo2#`<init>`().2!
+ 	_empty_/Foo2#foo().2$
+
+ _empty_/Foo2#foo().(x)2
+ 
+scala/Any#2$
+ _empty_/Foo2#foo().(y)2
+ 
+scala/Any#2
+# &
+scala/Any#2$
+) *_empty_/Foo2#foo().(x)2
+ _empty_/Foo2#a.2!
+
+ _empty_/Foo2#foo().2$
+. /_empty_/Foo2#foo().(x)2$
+ _empty_/Foo2#foo().(y)2
+ "local72
+# $local82
+ local92
+& &local112
+ local122
+ local13PZ 00F2ABE0A8C552D2D1141FA2F15535EA

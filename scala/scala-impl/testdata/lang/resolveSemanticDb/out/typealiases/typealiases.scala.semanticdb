@@ -1,0 +1,121 @@
+
+Ÿtests/pos/typealiases.scala*
+	foo/Test#*Test€*&
+foo/Test#`<init>`(). €@*<init>€*
+foo/Test#[T]	*T€*
+foo/Test#Check#*Check€*
+foo/Test#Check#[T]	*T€*
+foo/Test#MyPair#*MyPair€*
+foo/Test#MyPair#[S]	*S€* 
+foo/Test#pair1. „*pair1€*
+foo/Test#pair. €*pair€*
+foo/Test#check().*check€* 
+foo/Test#check().(xs)*xs€*
+foo/Test#check().(c)*c€*!
+foo/Test#check2().*check2€*
+foo/Test#check2().[S]	*S€*!
+foo/Test#check2().(xs)*xs€*
+foo/Test#check2().(c)*c€*
+
+foo/_main.
+ *_main€*!
+foo/_main.pair1. €*pair1€*$
+foo/_main.topair().  *topair€* 
+foo/_main.topair().(x)*x€*!
+foo/_main.pair2. €*pair2€*
+foo/_main.x. €*x€2
+ foo/2
+ 
+	foo/Test#2"
+
+ 
+foo/Test#`<init>`().2
+ foo/Test#[T]2
+ foo/Test#Check#2 
+ foo/Test#Check#[T]2
+ scala/Array#2 
+ foo/Test#Check#[T]2
+ "scala/Unit#2
+ foo/Test#MyPair#2!
+ foo/Test#MyPair#[S]2
+ foo/Test#[T]2!
+ foo/Test#MyPair#[S]2
+ foo/Test#pair1.2
+ foo/Test#[T]2
+ 
+scala/Int#2
+ 
+foo/Test#pair.2
+ foo/Test#MyPair#2
+ 
+scala/Int#2
+ foo/Test#pair1.2
+		 foo/Test#check().2#
+		 foo/Test#check().(xs)2
+		 scala/Array#2
+		 foo/Test#[T]2"
+		 foo/Test#check().(c)2
+		 "foo/Test#Check#2
+	#	 $foo/Test#[T]2&
+	*	 *scala/Function1#apply().2"
+	)	 *foo/Test#check().(c)2#
+	+	 -foo/Test#check().(xs)2 
+
+
+ foo/Test#check2().2#
+
+
+ foo/Test#check2().[S]2$
+
+
+ foo/Test#check2().(xs)2
+
+
+ scala/Array#2#
+
+
+ foo/Test#check2().[S]2#
+
+
+ foo/Test#check2().(c)2
+
+!
+ &foo/Test#Check#2#
+
+'
+ (foo/Test#check2().[S]2&
+
+.
+ .scala/Function1#apply().2#
+
+-
+ .foo/Test#check2().(c)2$
+
+/
+ 1foo/Test#check2().(xs)2
+ 
+foo/_main.2
+ 	foo/Test#2
+ 
+scala/Int#2
+ foo/_main.pair1.2#
+ scala/Tuple2.apply().2!
+ foo/_main.topair().2$
+ foo/_main.topair().(x)2
+ 
+scala/Int#2
+ %scala/Tuple2#2
+& )
+scala/Int#2
++ .
+scala/Int#2#
+3 3scala/Tuple2.apply().2$
+3 4foo/_main.topair().(x)2$
+5 6foo/_main.topair().(x)2
+ foo/_main.pair2.2
+ foo/Test#MyPair#2
+ 
+scala/Int#2!
+ foo/_main.topair().2
+ foo/_main.x.2
+	 scala/Short#PZ FA5987AC19DC066FE903D58A3445F014

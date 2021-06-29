@@ -1,0 +1,132 @@
+
+ætests/pos/nested.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*$
+_empty_/A#`<init>`().(pa)*pa€*
+_empty_/A#pa. €*pa€*
+_empty_/A#a1().*a1€*
+_empty_/A#B#*B€*)
+_empty_/A#B#`<init>`(). €@*<init>€*&
+_empty_/A#B#`<init>`().(pb)*pb€*
+_empty_/A#B#pb. €*pb€*
+_empty_/A#B#b1().*b1€*
+_empty_/A#B#C#*C€*+
+_empty_/A#B#C#`<init>`(). €@*<init>€*(
+_empty_/A#B#C#`<init>`().(pc)*pc€*
+_empty_/A#B#C#pc. €*pc€*
+_empty_/A#B#C#c1().*c1€*
+_empty_/A#B#c1. €*c1€*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#x. „*x€*
+_empty_/M#m1().*m1€*
+_empty_/A1#*A1€*(
+_empty_/A1#`<init>`(). €@*<init>€*%
+_empty_/A1#`<init>`().(x0)*x0€*
+_empty_/A1#x0. €*x0€*
+_empty_/A1#x. €*x€*
+_empty_/A1#D#*D€**
+_empty_/A1#D#`<init>`(). €@*<init>€*
+_empty_/A1#D#c2. €*c2€*
+_empty_/A1#D#E#*E€*,
+_empty_/A1#D#E#`<init>`(). €@*<init>€*
+_empty_/A1#D#E#e1().*e1€*
+_empty_/A1#D#E#e2().*e2€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+scala/Int#2
+ 
+_empty_/A#pa.2
+ _empty_/A#a1().2
+ _empty_/A#pa.2
+ 	_empty_/A#B#2%
+	 	_empty_/A#B#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/A#B#pb.2
+ 
+_empty_/A#B#b1().2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2
+ _empty_/A#pa.2
+ _empty_/A#B#pb.2
+ _empty_/A#a1().2
+
+ _empty_/A#B#C#2'
+ _empty_/A#B#C#`<init>`().2
+ 
+scala/Int#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+  "_empty_/A#B#b1().2
+ _empty_/A#B#C#pc.2!
+
+ _empty_/A#B#C#c1().2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2
+ _empty_/A#B#C#pc.2
+ _empty_/A#B#pb.2
+ _empty_/A#pa.2
+
+
+ 
+_empty_/A#B#c1.2'
+
+
+ _empty_/A#B#C#`<init>`().2
+
+
+ _empty_/A#B#C#2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ _empty_/M#x.2
+
+ 
+scala/Int#2
+ _empty_/M#m1().2
+ _empty_/M#x.2
+ _empty_/A1#2$
+ _empty_/A1#`<init>`().2
+ 
+scala/Int#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/A1#x0.2
+& '
+_empty_/M#2
+	 _empty_/A1#x0.2
+ _empty_/A1#x.2
+
+ _empty_/A1#x0.2
+ 	_empty_/A1#D#2&
+	 	_empty_/A1#D#`<init>`().2%
+ _empty_/A#B#`<init>`().2
+ _empty_/A#B#2
+ 
+_empty_/A1#D#c2.2'
+ _empty_/A#B#C#`<init>`().2
+ _empty_/A#B#C#2
+
+ _empty_/A1#D#E#2(
+ _empty_/A1#D#E#`<init>`().2'
+ _empty_/A#B#C#`<init>`().2
+ _empty_/A#B#C#2"
+
+ _empty_/A1#D#E#e1().2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2!
+ _empty_/A#B#C#c1().2
+ _empty_/A#B#b1().2
+ _empty_/A#a1().2"
+
+ _empty_/A1#D#E#e2().2&
+ _empty_/A1#D#`<init>`().2
+ _empty_/A1#D#PZ 55C3871A5595A20A44F4E0BB92650B12

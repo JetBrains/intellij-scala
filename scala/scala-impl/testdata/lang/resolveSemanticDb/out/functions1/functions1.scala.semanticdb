@@ -1,0 +1,189 @@
+
+Ë.tests/pos/functions1.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*+
+_empty_/X#`<init>`().(elem) €*elem€*
+_empty_/X#elem. €*elem€*
+_empty_/X#foo().*foo€*
+_empty_/X#foo().(y)*y€*&
+_empty_/Functions.
+ *	Functions€**
+_empty_/Functions.simple.
+ *simple€*(
+_empty_/Functions.simple.x. €*x€**
+_empty_/Functions.simple.xe. €*xe€**
+_empty_/Functions.simple.xf. €*xf€*,
+_empty_/Functions.simple.xf2. €*xf2€**
+_empty_/Functions.simple.x2. €*x2€*
+local0*y€**
+_empty_/Functions.simple.x3. €*x3€*
+local1*y€*&
+_empty_/Functions.sams.
+ *sams€*-
+_empty_/Functions.sams.Spore# *Spore€*:
+(_empty_/Functions.sams.Spore#`<init>`(). €@*<init>€**
+ _empty_/Functions.sams.Spore#[T]	*T€**
+ _empty_/Functions.sams.Spore#[U]	*U€*1
+#_empty_/Functions.sams.Spore#run(). *run€*0
+&_empty_/Functions.sams.Spore#run().(x)*x€*-
+_empty_/Functions.sams.Spore2#*Spore2€*;
+)_empty_/Functions.sams.Spore2#`<init>`(). €@*<init>€*
+local2*self€*+
+!_empty_/Functions.sams.Spore2#[T]	*T€*+
+!_empty_/Functions.sams.Spore2#[U]	*U€*2
+$_empty_/Functions.sams.Spore2#run(). *run€*1
+'_empty_/Functions.sams.Spore2#run().(x)*x€**
+_empty_/Functions.sams.x33. €*x33€*
+local3*x22€*
+local4 €*x34€*&
+_empty_/Functions.sams.y. €*y€*
+local5*x€*&
+_empty_/Functions.sams.z. €*z€*
+local6*x€*(
+_empty_/Functions.sams.z2. €*z2€*
+local7*x€*,
+_empty_/Functions.retType.
+ *retType€*)
+_empty_/Functions.retType.a. €*a€**
+_empty_/Functions.retType.Inv#*Inv€*;
+)_empty_/Functions.retType.Inv#`<init>`(). €@*<init>€*+
+!_empty_/Functions.retType.Inv#[T]	*T€*)
+_empty_/Functions.retType.b. €*b€2
+ 
+_empty_/X#2
+ _empty_/X#`<init>`().2
+ 
+scala/Int#2&
+% %java/lang/Object#`<init>`().2
+ %java/lang/Object#2
+ _empty_/X#elem.2
+ 	_empty_/X#foo().2!
+
+ _empty_/X#foo().(y)2"
+ scala/Predef.String#2
+ 
+scala/Int#2 
+% &scala/Int#`+`(+4).2(
+ $java/lang/String#length().2!
+ _empty_/X#foo().(y)2
+' +_empty_/X#elem.2 
+ _empty_/Functions.2'
+	 _empty_/Functions.simple.2)
+ 	_empty_/Functions.simple.x.2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2*
+ 
+_empty_/Functions.simple.xe.2
+ _empty_/X#elem.2)
+ _empty_/Functions.simple.x.2*
+		 
+_empty_/Functions.simple.xf.2"
+		 scala/Predef.String#2
+		 
+scala/Int#2
+		 !_empty_/X#foo().2)
+		 _empty_/Functions.simple.x.2"
+	%	 +scala/Predef.String#2+
+
+
+ _empty_/Functions.simple.xf2.2"
+
+
+ scala/Predef.String#2
+
+
+ 
+scala/Int#2
+
+
+ "_empty_/X#foo().2)
+
+
+ _empty_/Functions.simple.x.2*
+ 
+_empty_/Functions.simple.x2.2"
+ scala/Predef.String#2
+ 
+scala/Int#2
+ !_empty_/X#foo().2)
+ _empty_/Functions.simple.x.2
+ local02*
+ 
+_empty_/Functions.simple.x3.2
+ _empty_/X#foo().2)
+ _empty_/Functions.simple.x.2
+ local12%
+	 _empty_/Functions.sams.2+
+ _empty_/Functions.sams.Spore#26
+ (_empty_/Functions.sams.Spore#`<init>`().2.
+  _empty_/Functions.sams.Spore#[T]2.
+  _empty_/Functions.sams.Spore#[U]21
+
+ #_empty_/Functions.sams.Spore#run().24
+ &_empty_/Functions.sams.Spore#run().(x)2.
+  _empty_/Functions.sams.Spore#[T]2.
+  _empty_/Functions.sams.Spore#[U]2,
+
+ _empty_/Functions.sams.Spore2#27
+ )_empty_/Functions.sams.Spore2#`<init>`().2
+ local22,
+ %_empty_/Functions.sams.Spore2#2/
+& '!_empty_/Functions.sams.Spore2#[T]2/
+) *!_empty_/Functions.sams.Spore2#[U]2/
+ !_empty_/Functions.sams.Spore2#[T]2/
+ !_empty_/Functions.sams.Spore2#[U]22
+
+ $_empty_/Functions.sams.Spore2#run().25
+ '_empty_/Functions.sams.Spore2#run().(x)2/
+ !_empty_/Functions.sams.Spore2#[T]2/
+ !_empty_/Functions.sams.Spore2#[U]2)
+ _empty_/Functions.sams.x33.2"
+ scala/Predef.String#2"
+ scala/Predef.String#2
+  #local32
+' *local32
+ local42
+ local42'
+ 	_empty_/Functions.sams.y.2$
+ scala/PartialFunction#2"
+ !scala/Predef.String#2"
+# )scala/Predef.String#2
+- .local52
+2 3local52
+ local52'
+   	_empty_/Functions.sams.z.2+
+   _empty_/Functions.sams.Spore#2"
+   scala/Predef.String#2"
+   scala/Predef.String#2
+ #  $local62%
+ *  +java/lang/String#`+`().2
+ (  )local62
+ ,  -local62(
+!! 
+_empty_/Functions.sams.z2.2,
+!! _empty_/Functions.sams.Spore2#2"
+!! scala/Predef.String#2"
+!! !scala/Predef.String#2
+!%! &local72%
+!,! -java/lang/String#`+`().2
+!*! +local72
+!.! /local72(
+$	$ _empty_/Functions.retType.2*
+%% 	_empty_/Functions.retType.a.2!
+%% scala/package.List#27
+%% )scala/collection/IterableFactory#apply().2!
+%% scala/package.List.2,
+'
+' _empty_/Functions.retType.Inv#27
+'' )_empty_/Functions.retType.Inv#`<init>`().2/
+'' !_empty_/Functions.retType.Inv#[T]2*
+(( 	_empty_/Functions.retType.b.2!
+(( scala/package.List#2,
+(( _empty_/Functions.retType.Inv#2
+(( 
+scala/Int#27
+(&( &)scala/collection/IterableFactory#apply().2!
+("( &scala/package.List.27
+(4( 4)_empty_/Functions.retType.Inv#`<init>`().PZ 4D9968108552FFC0C148C96F1BC408EF

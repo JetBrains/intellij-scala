@@ -1,0 +1,27 @@
+
+çtests/pos/i4180.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(s)*s€* 
+_empty_/Test.foo().(j)*j€*
+local0 €*a€*
+local1 €*b€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(s)2
+ scala/Boolean#2$
+ _empty_/Test.foo().(j)2 
+# *java/lang/Boolean#2
+ "
+java/lang/2
+ java/2
+ 	local02
+ scala/Any#`==`().2$
+ _empty_/Test.foo().(s)2$
+ _empty_/Test.foo().(j)2
+ 	local12
+ scala/Any#`==`().2$
+ _empty_/Test.foo().(j)2$
+ _empty_/Test.foo().(s)PZ 6C1B778E3419957A91229F5FE54A23D1

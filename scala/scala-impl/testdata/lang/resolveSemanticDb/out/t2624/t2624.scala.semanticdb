@@ -1,0 +1,17 @@
+
+êtests/pos/t2624.scala*
+_empty_/Test.
+ *TestÄ*
+local0*xÄ2
+ _empty_/Test.24
+
+ &scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2&
+ scala/Predef.identity().24
+
+ &scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2&
+ scala/Predef.identity().2
+ local0PZ 90DD901D9ADEA44B0D7C35FF6EDA904F

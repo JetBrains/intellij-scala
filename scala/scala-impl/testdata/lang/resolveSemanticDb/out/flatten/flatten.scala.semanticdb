@@ -1,0 +1,35 @@
+
+ítests/pos/flatten.scala*
+_empty_/A1.
+ *A1€*
+_empty_/A1.B#*B€**
+_empty_/A1.B#`<init>`(). €@*<init>€*
+_empty_/A1.C#*C€**
+_empty_/A1.C#`<init>`(). €@*<init>€*!
+_empty_/A1.C#cons().*cons€*
+_empty_/A2#*A2€*(
+_empty_/A2#`<init>`(). €@*<init>€*
+_empty_/A2#B#*B€**
+_empty_/A2#B#`<init>`(). €@*<init>€*
+_empty_/A2#C#*C€**
+_empty_/A2#C#`<init>`(). €@*<init>€*!
+_empty_/A2#C#cons().*cons€2
+ 	_empty_/A1.2
+ _empty_/A1.B#2&
+ _empty_/A1.B#`<init>`().2
+ _empty_/A1.C#2&
+ _empty_/A1.C#`<init>`().2"
+ _empty_/A1.C#cons().2
+ _empty_/A1.B#2&
+ _empty_/A1.B#`<init>`().2
+ _empty_/A1.B#2
+ _empty_/A2#2$
+		 _empty_/A2#`<init>`().2
+		 _empty_/A2#B#2&
+		 _empty_/A2#B#`<init>`().2
+ _empty_/A2#C#2&
+ _empty_/A2#C#`<init>`().2"
+ _empty_/A2#C#cons().2
+ _empty_/A2#B#2&
+ _empty_/A2#B#`<init>`().2
+ _empty_/A2#B#PZ 6C27AC173CAF49BB5BD3939B3F64E83B

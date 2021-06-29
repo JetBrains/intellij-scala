@@ -1,0 +1,67 @@
+
+„>tests/pos/scala-days-2019-slides/metaprogramming-2-tuple.scala*,
+_empty_/TupleExample.
+ *TupleExample€*!
+_empty_/TupleExample.A#*A€*!
+_empty_/TupleExample.B#*B€*!
+_empty_/TupleExample.C#*C€2
+ _empty_/TupleExample.2
+	 scala/Tuple.2%
+ _empty_/TupleExample.A#2%
+ _empty_/TupleExample.B#2%
+ _empty_/TupleExample.C#2$
+ scala/Predef.summon().2
+: =scala/`=:=`#2!
+	 scala/Tuple.Concat#2
+ scala/`*:`#2%
+ _empty_/TupleExample.A#2
+ scala/`*:`#2%
+ _empty_/TupleExample.B#2-
+ $scala/Tuple$package.EmptyTuple#2
+( *scala/`*:`#2%
+& '_empty_/TupleExample.C#2-
++ 5scala/Tuple$package.EmptyTuple#2
+C Escala/`*:`#2%
+A B_empty_/TupleExample.A#2
+H Jscala/`*:`#2%
+F G_empty_/TupleExample.B#2
+M Oscala/`*:`#2%
+K L_empty_/TupleExample.C#2-
+P Zscala/Tuple$package.EmptyTuple#2!
+[ [scala/`<:<`.refl().2$
+		 scala/Predef.summon().2
+	4	 7scala/`=:=`#2!
+			 scala/Tuple.Concat#2
+		 scala/`*:`#2%
+		 _empty_/TupleExample.A#2
+		 scala/`*:`#2%
+		 _empty_/TupleExample.B#2-
+		 $scala/Tuple$package.EmptyTuple#2
+	(	 *scala/`*:`#2%
+	&	 '_empty_/TupleExample.C#2
+	+	 0scala/Tuple#2
+	=	 ?scala/`*:`#2%
+	;	 <_empty_/TupleExample.A#2
+	B	 Dscala/`*:`#2%
+	@	 A_empty_/TupleExample.B#2
+	G	 Iscala/`*:`#2%
+	E	 F_empty_/TupleExample.C#2
+	J	 Oscala/Tuple#2!
+	P	 Pscala/`<:<`.refl().2$
+ scala/Predef.summon().2
+4 7scala/`<:<`#2!
+	 scala/Tuple.Concat#2
+ scala/`*:`#2%
+ _empty_/TupleExample.A#2
+ scala/`*:`#2%
+ _empty_/TupleExample.B#2
+ scala/Tuple#2
+# %scala/`*:`#2%
+! "_empty_/TupleExample.C#2-
+& 0scala/Tuple$package.EmptyTuple#2
+= ?scala/`*:`#2%
+; <_empty_/TupleExample.A#2
+B Dscala/`*:`#2%
+@ A_empty_/TupleExample.B#2
+E Jscala/Tuple#2!
+K Kscala/`<:<`.refl().PZ FFC74F715A56D6FD5F545B69419C26D5

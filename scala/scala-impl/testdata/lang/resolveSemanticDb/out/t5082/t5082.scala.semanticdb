@@ -1,0 +1,114 @@
+
+£tests/pos/t5082.scala*$
+_empty_/Something#*	Something€*/
+_empty_/Something#`<init>`(). €@*<init>€*
+_empty_/Something#[T]	*T€*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.apply().*apply€*'
+_empty_/Test.unapply().*unapply€*(
+_empty_/Test.unapply().(x$1)*x$1€*)
+_empty_/Test.toString().*toString€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test# €*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#copy().*copy€*
+_empty_/User.
+ *User€*
+_empty_/Wrap.
+ *Wrap€*)
+_empty_/Wrap.Something#*	Something€*4
+"_empty_/Wrap.Something#`<init>`(). €@*<init>€*$
+_empty_/Wrap.Something#[T]	*T€*!
+_empty_/Wrap.Test.
+ *Test€*(
+_empty_/Wrap.Test.apply().*apply€*'
+_empty_/Wrap.Test.apply().(a)*a€*'
+_empty_/Wrap.Test.apply().(b)*b€*'
+_empty_/Wrap.Test.apply().(c)*c€*,
+_empty_/Wrap.Test.unapply().*unapply€*-
+!_empty_/Wrap.Test.unapply().(x$1)*x$1€*.
+_empty_/Wrap.Test.toString().*toString€*
+_empty_/Wrap.Test.A#*A€*1
+_empty_/Wrap.Test.A#`<init>`(). €@*<init>€*"
+_empty_/Wrap.Test# €*Test€*/
+_empty_/Wrap.Test#`<init>`(). €@*<init>€*-
+ _empty_/Wrap.Test#`<init>`().(a) €*a€*-
+ _empty_/Wrap.Test#`<init>`().(b) €*b€**
+ _empty_/Wrap.Test#`<init>`().(c)*c€*!
+_empty_/Wrap.Test#a. €*a€*!
+_empty_/Wrap.Test#b. €*b€*!
+_empty_/Wrap.Test#c. €*c€*&
+_empty_/Wrap.Test#copy().*copy€*&
+_empty_/Wrap.Test#copy().(a)*a€*&
+_empty_/Wrap.Test#copy().(b)*b€*&
+_empty_/Wrap.Test#copy().(c)*c€*:
+#_empty_/Wrap.Test#copy$default$1().*copy$default$1€*:
+#_empty_/Wrap.Test#copy$default$2().*copy$default$2€*"
+_empty_/Wrap.Test#_1().*_1€*"
+_empty_/Wrap.Test#_2().*_2€*
+_empty_/Wrap.x. €*x€*
+_empty_/Wrap.y. €*y€2
+ _empty_/Something#2'
+ _empty_/Something#`<init>`().2
+ _empty_/Something#[T]2
+ _empty_/Test.2
+ _empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+ _empty_/Test#2&
+ _empty_/Test#`<init>`().2 
+ #_empty_/Something#2
+) *_empty_/Test.A#2
+$ (_empty_/Test.2
+ _empty_/User.2#
+ _empty_/Test.apply().2
+ _empty_/Test.2%
+
+ 
+_empty_/Test.unapply().2
+ 
+_empty_/Test.2
+ _empty_/Wrap.2%
+		 _empty_/Wrap.Something#20
+		 "_empty_/Wrap.Something#`<init>`().2(
+		 _empty_/Wrap.Something#[T]2 
+
+	
+ _empty_/Wrap.Test.2(
+ _empty_/Wrap.Test.apply().2"
+
+
+ _empty_/Wrap.Test.A#2-
+
+
+ _empty_/Wrap.Test.A#`<init>`().2 
+ _empty_/Wrap.Test#2+
+ _empty_/Wrap.Test#`<init>`().2
+ 
+scala/Int#2
+  
+scala/Int#2"
+% +scala/Predef.String#2%
+5 >_empty_/Wrap.Something#2"
+D E_empty_/Wrap.Test.A#2 
+? C_empty_/Wrap.Test.2"
+ _empty_/Wrap.Test#a.2"
+ _empty_/Wrap.Test#b.2"
+" #_empty_/Wrap.Test#c.2'
+ _empty_/Wrap.Test#copy().2%
+ _empty_/Wrap.Test#_1().2%
+ _empty_/Wrap.Test#_2().2(
+ _empty_/Wrap.Test.apply().2 
+ _empty_/Wrap.Test.2*
+
+ 
+_empty_/Wrap.Test.unapply().2 
+ 
+_empty_/Wrap.Test.2
+ _empty_/Wrap.x.2
+ _empty_/Wrap.y.2#
++ 3scala/Any#toString().2 
+& 'scala/Int#`+`(+4).2
+$ %_empty_/Wrap.x.2
+( )_empty_/Wrap.y.PZ 1291DAAA2D9E198CC01FDE5848938C70

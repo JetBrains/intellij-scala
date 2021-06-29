@@ -1,0 +1,30 @@
+
+ˆtests/pos/summonInline.scala*/
+_empty_/summonInline$package. *_empty_€*)
+_empty_/summonInline$package.A#*A€*8
+%_empty_/summonInline$package.given_A. è*given_A€*7
+'_empty_/summonInline$package.summon1().*summon1€*7
+'_empty_/summonInline$package.summon2().*summon2€*3
+%_empty_/summonInline$package.test1().*test1€*3
+%_empty_/summonInline$package.test2().*test2€2;
+ %1scala/compiletime/package$package.summonInline().2
+ scala/compiletime/2
+ scala/2'
+_empty_/summonInline$package.2-
+ _empty_/summonInline$package.A#23
+ %_empty_/summonInline$package.given_A.2-
+ _empty_/summonInline$package.A#2#
+
+ scala/Predef.`???`().25
+ '_empty_/summonInline$package.summon1().2-
+ _empty_/summonInline$package.A#2?
+ $1scala/compiletime/package$package.summonInline().2-
+% &_empty_/summonInline$package.A#2?
+$ 01scala/compiletime/package$package.summonInline().2-
+1 2_empty_/summonInline$package.A#25
+ '_empty_/summonInline$package.summon2().2-
+  !_empty_/summonInline$package.A#23
+ 	%_empty_/summonInline$package.test1().25
+ '_empty_/summonInline$package.summon1().23
+		 	%_empty_/summonInline$package.test2().25
+		 '_empty_/summonInline$package.summon2().PZ 766867F8408964C2721B9BA3ED34A8BF

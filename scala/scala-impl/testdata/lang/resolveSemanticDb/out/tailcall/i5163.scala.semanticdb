@@ -1,0 +1,36 @@
+
+ˆtests/pos/tailcall/i5163.scala*.
+_empty_/UnrolledBuffer#*UnrolledBuffer€*4
+"_empty_/UnrolledBuffer#`<init>`(). €@*<init>€*/
+ _empty_/UnrolledBuffer#remove().*remove€*1
+%_empty_/UnrolledBuffer#remove().(idx)*idx€*3
+"_empty_/UnrolledBuffer#remove(+1). *remove€*3
+'_empty_/UnrolledBuffer#remove(+1).(idx)*idx€*7
+)_empty_/UnrolledBuffer#remove(+1).(count)*count€2#
+ scala/annotation/tailrec#2
+ scala/annotation/2%
+ _empty_/UnrolledBuffer#20
+ "_empty_/UnrolledBuffer#`<init>`().2.
+  _empty_/UnrolledBuffer#remove().23
+ %_empty_/UnrolledBuffer#remove().(idx)2
+ 
+scala/Int#2
+ scala/Unit#2'
+ 
+scala/annotation/tailrec#20
+ "_empty_/UnrolledBuffer#remove(+1).25
+ '_empty_/UnrolledBuffer#remove(+1).(idx)2
+! $
+scala/Int#27
+& +)_empty_/UnrolledBuffer#remove(+1).(count)2
+- 0
+scala/Int#2
+3 7scala/Unit#2 
+ scala/Int#`>`(+3).27
+ )_empty_/UnrolledBuffer#remove(+1).(count)2.
+  _empty_/UnrolledBuffer#remove().25
+ '_empty_/UnrolledBuffer#remove(+1).(idx)20
+ "_empty_/UnrolledBuffer#remove(+1).25
+ '_empty_/UnrolledBuffer#remove(+1).(idx)2 
+ scala/Int#`-`(+3).27
+ )_empty_/UnrolledBuffer#remove(+1).(count)PZ 1CD56E445145A4A909B15F15871FDEFE

@@ -1,0 +1,285 @@
+
+ßBtests/pos/t2619.scala*
+
+_empty_/F# *F€*'
+_empty_/F#`<init>`(). €@*<init>€*"
+_empty_/F#apply(). *apply€*
+_empty_/F#apply().(x)*x€*0
+_empty_/AbstractModule# *AbstractModule€*4
+"_empty_/AbstractModule#`<init>`(). €@*<init>€*)
+_empty_/AbstractModule#as(). *as€*)
+_empty_/AbstractModule#ms(). *ms€*'
+_empty_/AbstractModule#fs().*fs€*'
+_empty_/AbstractModule#rs().*rs€*)
+_empty_/AbstractModule#rs().(x)*x€**
+_empty_/ModuleType1# *ModuleType1€*1
+_empty_/ModuleType1#`<init>`(). €@*<init>€**
+_empty_/ModuleType2# *ModuleType2€*1
+_empty_/ModuleType2#`<init>`(). €@*<init>€*$
+_empty_/ModuleAE.
+ *ModuleAE€*!
+_empty_/ModuleAE.as().*as€*!
+_empty_/ModuleAE.ms().*ms€*$
+_empty_/ModuleAF.
+ *ModuleAF€*!
+_empty_/ModuleAF.as().*as€*!
+_empty_/ModuleAF.ms().*ms€*$
+_empty_/ModuleAG.
+ *ModuleAG€*!
+_empty_/ModuleAG.as().*as€*!
+_empty_/ModuleAG.ms().*ms€*$
+_empty_/ModuleAI.
+ *ModuleAI€*!
+_empty_/ModuleAI.as().*as€*!
+_empty_/ModuleAI.ms().*ms€*$
+_empty_/ModuleAK.
+ *ModuleAK€*!
+_empty_/ModuleAK.as().*as€*!
+_empty_/ModuleAK.ms().*ms€*$
+_empty_/ModuleAL.
+ *ModuleAL€*!
+_empty_/ModuleAL.as().*as€*!
+_empty_/ModuleAL.ms().*ms€*$
+_empty_/ModuleAM.
+ *ModuleAM€*!
+_empty_/ModuleAM.as().*as€*!
+_empty_/ModuleAM.ms().*ms€*
+local0 €*prefix$1€*$
+_empty_/ModuleBE.
+ *ModuleBE€*!
+_empty_/ModuleBE.as().*as€*!
+_empty_/ModuleBE.ms().*ms€*$
+_empty_/ModuleBF.
+ *ModuleBF€*!
+_empty_/ModuleBF.as().*as€*!
+_empty_/ModuleBF.ms().*ms€*$
+_empty_/ModuleBG.
+ *ModuleBG€*!
+_empty_/ModuleBG.as().*as€*!
+_empty_/ModuleBG.ms().*ms€*$
+_empty_/ModuleBI.
+ *ModuleBI€*!
+_empty_/ModuleBI.as().*as€*!
+_empty_/ModuleBI.ms().*ms€*$
+_empty_/ModuleBK.
+ *ModuleBK€*!
+_empty_/ModuleBK.as().*as€*!
+_empty_/ModuleBK.ms().*ms€*$
+_empty_/ModuleBL.
+ *ModuleBL€*!
+_empty_/ModuleBL.as().*as€*!
+_empty_/ModuleBL.ms().*ms€*$
+_empty_/ModuleBM.
+ *ModuleBM€*!
+_empty_/ModuleBM.as().*as€*!
+_empty_/ModuleBM.ms().*ms€*
+local1 €*prefix$2€2
+ 
+_empty_/F#2#
+ _empty_/F#`<init>`().2 
+ _empty_/F#apply().2#
+ _empty_/F#apply().(x)2
+ 
+scala/Int#2
+ #scala/AnyRef#2%
+ _empty_/AbstractModule#20
+ "_empty_/AbstractModule#`<init>`().2*
+ 
+_empty_/AbstractModule#as().2!
+ scala/package.List#2
+ scala/AnyRef#2*
+ 
+_empty_/AbstractModule#ms().2!
+ scala/package.List#2%
+ _empty_/AbstractModule#2*
+ 
+_empty_/AbstractModule#fs().2!
+ scala/package.List#2
+ 
+_empty_/F#2 
+ scala/package.Nil.2*
+ 
+_empty_/AbstractModule#rs().2-
+ _empty_/AbstractModule#rs().(x)2
+ 
+scala/Int#2!
+ scala/package.List#2
+ scala/AnyRef#24
+& )&scala/collection/immutable/List#map().2*
+# %_empty_/AbstractModule#fs().2 
++ +_empty_/F#apply().2-
+, -_empty_/AbstractModule#rs().(x)2"
+		 _empty_/ModuleType1#2-
+	#	 #_empty_/ModuleType1#`<init>`().20
+	1	 1"_empty_/AbstractModule#`<init>`().2%
+	#	 1_empty_/AbstractModule#2"
+
+
+ _empty_/ModuleType2#2-
+
+#
+ #_empty_/ModuleType2#`<init>`().20
+
+1
+ 1"_empty_/AbstractModule#`<init>`().2%
+
+#
+ 1_empty_/AbstractModule#2
+ _empty_/ModuleAE.2-
+# #_empty_/ModuleType1#`<init>`().2"
+ #_empty_/ModuleType1#2$
+ 
+_empty_/ModuleAE.as().2 
+ scala/package.Nil.2$
+ 
+_empty_/ModuleAE.ms().2 
+ scala/package.Nil.2
+ _empty_/ModuleAF.2-
+# #_empty_/ModuleType2#`<init>`().2"
+ #_empty_/ModuleType2#2$
+ 
+_empty_/ModuleAF.as().2 
+ scala/package.Nil.2$
+ 
+_empty_/ModuleAF.ms().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/ModuleAE.2
+ _empty_/ModuleAG.2-
+# #_empty_/ModuleType1#`<init>`().2"
+ #_empty_/ModuleType1#2$
+ 
+_empty_/ModuleAG.as().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2$
+ 
+_empty_/ModuleAG.ms().2 
+ scala/package.Nil.2
+ _empty_/ModuleAI.2-
+# #_empty_/ModuleType1#`<init>`().2"
+ #_empty_/ModuleType1#2$
+ 
+_empty_/ModuleAI.as().2 
+ scala/package.Nil.2$
+ 
+_empty_/ModuleAI.ms().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/ModuleAE.2
+ _empty_/ModuleAK.2-
+# #_empty_/ModuleType2#`<init>`().2"
+ #_empty_/ModuleType2#2$
+ 
+_empty_/ModuleAK.as().2 
+ scala/package.Nil.2$
+ 
+_empty_/ModuleAK.ms().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/ModuleAF.2
+   _empty_/ModuleAL.2-
+ #  #_empty_/ModuleType1#`<init>`().2"
+   #_empty_/ModuleType1#2$
+!! 
+_empty_/ModuleAL.as().2 
+!! scala/package.Nil.2$
+"" 
+_empty_/ModuleAL.ms().27
+"" )scala/collection/IterableFactory#apply().2!
+"" scala/package.List.2
+## _empty_/ModuleAG.2
+$$ _empty_/ModuleAI.2
+'' _empty_/ModuleAM.2-
+'#' #_empty_/ModuleType1#`<init>`().2"
+'' #_empty_/ModuleType1#2$
+(( 
+_empty_/ModuleAM.as().2 
+(( scala/package.Nil.2$
+)) 
+_empty_/ModuleAM.ms().2
+)* local026
+,, (scala/collection/immutable/List#`:::`().27
+,, )scala/collection/IterableFactory#apply().2!
+,
+, scala/package.List.2
+,, _empty_/ModuleAK.2
+)) local02
+.. _empty_/ModuleBE.2-
+.#. #_empty_/ModuleType1#`<init>`().2"
+.. #_empty_/ModuleType1#2$
+// 
+_empty_/ModuleBE.as().2 
+// scala/package.Nil.2$
+00 
+_empty_/ModuleBE.ms().2 
+00 scala/package.Nil.2
+22 _empty_/ModuleBF.2-
+2#2 #_empty_/ModuleType2#`<init>`().2"
+22 #_empty_/ModuleType2#2$
+33 
+_empty_/ModuleBF.as().2 
+33 scala/package.Nil.2$
+44 
+_empty_/ModuleBF.ms().27
+44 )scala/collection/IterableFactory#apply().2!
+44 scala/package.List.2
+44 _empty_/ModuleBE.2
+66 _empty_/ModuleBG.2-
+6#6 #_empty_/ModuleType1#`<init>`().2"
+66 #_empty_/ModuleType1#2$
+77 
+_empty_/ModuleBG.as().27
+77 )scala/collection/IterableFactory#apply().2!
+77 scala/package.List.2$
+88 
+_empty_/ModuleBG.ms().2 
+88 scala/package.Nil.2
+:: _empty_/ModuleBI.2-
+:#: #_empty_/ModuleType1#`<init>`().2"
+:: #_empty_/ModuleType1#2$
+;; 
+_empty_/ModuleBI.as().2 
+;; scala/package.Nil.2$
+<< 
+_empty_/ModuleBI.ms().27
+<< )scala/collection/IterableFactory#apply().2!
+<< scala/package.List.2
+<< _empty_/ModuleBE.2
+>> _empty_/ModuleBK.2-
+>#> #_empty_/ModuleType2#`<init>`().2"
+>> #_empty_/ModuleType2#2$
+?? 
+_empty_/ModuleBK.as().2 
+?? scala/package.Nil.2$
+@@ 
+_empty_/ModuleBK.ms().27
+@@ )scala/collection/IterableFactory#apply().2!
+@@ scala/package.List.2
+@@ _empty_/ModuleBF.2
+BB _empty_/ModuleBL.2-
+B#B #_empty_/ModuleType1#`<init>`().2"
+BB #_empty_/ModuleType1#2$
+CC 
+_empty_/ModuleBL.as().2 
+CC scala/package.Nil.2$
+DD 
+_empty_/ModuleBL.ms().27
+DD )scala/collection/IterableFactory#apply().2!
+DD scala/package.List.2
+EE _empty_/ModuleBG.2
+FF _empty_/ModuleBI.2
+II _empty_/ModuleBM.2-
+I#I #_empty_/ModuleType1#`<init>`().2"
+II #_empty_/ModuleType1#2$
+JJ 
+_empty_/ModuleBM.as().2 
+JJ scala/package.Nil.2$
+KK 
+_empty_/ModuleBM.ms().2
+KL local126
+NN (scala/collection/immutable/List#`:::`().27
+NN )scala/collection/IterableFactory#apply().2!
+N
+N scala/package.List.2
+NN _empty_/ModuleBK.2
+KK local1PZ D8B1023E231426E211DF061CA2647CCB

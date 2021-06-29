@@ -1,0 +1,376 @@
+
+‹‚tests/pos/Transactions.scala*8
+!scala/concurrent1/AbortException#*AbortException€*>
+,scala/concurrent1/AbortException#`<init>`(). €@*<init>€*4
+scala/concurrent1/Transaction.
+ *Transaction€*3
+$scala/concurrent1/Transaction.cnt(). €*cnt€*6
+'scala/concurrent1/Transaction.nextId().*nextId€*9
+&scala/concurrent1/Transaction.Running. €*Running€*=
+(scala/concurrent1/Transaction.Committed. €*	Committed€*=
+(scala/concurrent1/Transaction.Abortable. €*	Abortable€*9
+&scala/concurrent1/Transaction.Aborted. €*Aborted€*;
+'scala/concurrent1/Transaction.Compound. €*Compound€*6
+'scala/concurrent1/Transaction.atomic().*atomic€*4
+*scala/concurrent1/Transaction.atomic().[T]	*T€*4
+*scala/concurrent1/Transaction.atomic().(b)*b€*2
+scala/concurrent1/Transaction#*Transaction€*;
+)scala/concurrent1/Transaction#`<init>`(). €@*<init>€*9
+'scala/concurrent1/Transaction#status(). €*status€*?
++scala/concurrent1/Transaction#`status_=`(). €*status_=€*<
+0scala/concurrent1/Transaction#`status_=`().(x$1)*x$1€*1
+#scala/concurrent1/Transaction#id(). €*id€*7
+'scala/concurrent1/Transaction#`id_=`(). €*id_=€*8
+,scala/concurrent1/Transaction#`id_=`().(x$1)*x$1€*5
+%scala/concurrent1/Transaction#head(). €*head€*;
+)scala/concurrent1/Transaction#`head_=`(). €*head_=€*:
+.scala/concurrent1/Transaction#`head_=`().(x$1)*x$1€*5
+%scala/concurrent1/Transaction#next(). €*next€*;
+)scala/concurrent1/Transaction#`next_=`(). €*next_=€*:
+.scala/concurrent1/Transaction#`next_=`().(x$1)*x$1€*:
++scala/concurrent1/Transaction#`<init>`(+1).*<init>€*:
+/scala/concurrent1/Transaction#`<init>`(+1).(hd)*hd€*:
+/scala/concurrent1/Transaction#`<init>`(+1).(tl)*tl€*<
+*scala/concurrent1/Transaction#makeAbort().*	makeAbort€*4
+&scala/concurrent1/Transaction#abort().*abort€*6
+'scala/concurrent1/Transaction#commit().*commit€*0
+$scala/concurrent1/Transaction#run().*run€*1
+'scala/concurrent1/Transaction#run().[T]	*T€*1
+'scala/concurrent1/Transaction#run().(b)*b€*
+local0 €*result€*
+local1 €*ex€*
+local2 €*ex€*6
+ scala/concurrent1/Transactional#*Transactional€*=
++scala/concurrent1/Transactional#`<init>`(). €@*<init>€*B
+-scala/concurrent1/Transactional#checkPoint(). *
+checkPoint€*>
++scala/concurrent1/Transactional#rollBack(). *rollBack€*=
+*scala/concurrent1/Transactional#readers(). „*readers€*C
+.scala/concurrent1/Transactional#`readers_=`(). €*	readers_=€*?
+3scala/concurrent1/Transactional#`readers_=`().(x$1)*x$1€*;
+)scala/concurrent1/Transactional#writer(). „*writer€*A
+-scala/concurrent1/Transactional#`writer_=`(). €*writer_=€*>
+2scala/concurrent1/Transactional#`writer_=`().(x$1)*x$1€*F
+0scala/concurrent1/Transactional#currentWriter().*currentWriter€*8
+)scala/concurrent1/Transactional#getter().*getter€*F
+4scala/concurrent1/Transactional#getter().(thisTrans)*	thisTrans€*
+local3 €*r€*
+local4 €*last€*
+local5 €*w€*8
+)scala/concurrent1/Transactional#setter().*setter€*F
+4scala/concurrent1/Transactional#setter().(thisTrans)*	thisTrans€*
+local6 €*w€*
+local7 €*r€*
+local8 €*last€2
+ scala/concurrent1/2
+ scala/2/
+ !scala/concurrent1/AbortException#2:
+ ,scala/concurrent1/AbortException#`<init>`().24
+- -&java/lang/RuntimeException#`<init>`().2-
+ -scala/package.RuntimeException#2,
+ scala/concurrent1/Transaction.22
+ $scala/concurrent1/Transaction.cnt().25
+ 'scala/concurrent1/Transaction.nextId().2
+ scala/Long#2.
+ ! java/lang/Object#synchronized().22
+ $scala/concurrent1/Transaction.cnt().2!
+ scala/Long#`+`(+4).22
+ $scala/concurrent1/Transaction.cnt().24
+ &scala/concurrent1/Transaction.Running.26
+ (scala/concurrent1/Transaction.Committed.26
+ (scala/concurrent1/Transaction.Abortable.24
+ &scala/concurrent1/Transaction.Aborted.25
+ 'scala/concurrent1/Transaction.Compound.25
+ 'scala/concurrent1/Transaction.atomic().28
+ *scala/concurrent1/Transaction.atomic().[T]28
+ *scala/concurrent1/Transaction.atomic().(b)2,
+ scala/concurrent1/Transaction#28
+" #*scala/concurrent1/Transaction.atomic().[T]2
+& ,scala/Option#28
+- .*scala/concurrent1/Transaction.atomic().[T]22
+ $scala/concurrent1/Transaction#run().27
+ )scala/concurrent1/Transaction#`<init>`().2,
+	 scala/concurrent1/Transaction#28
+ *scala/concurrent1/Transaction.atomic().(b)2,
+ scala/concurrent1/Transaction#27
+ )scala/concurrent1/Transaction#`<init>`().25
+ 'scala/concurrent1/Transaction#status().2
+ 
+scala/Int#2@
+  -2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/29
+ +scala/concurrent1/Transaction#`status_=`().21
+ #scala/concurrent1/Transaction#id().2
+
+ scala/Long#25
+ 
+'scala/concurrent1/Transaction#`id_=`().23
+ 
+%scala/concurrent1/Transaction#head().2,
+ scala/concurrent1/Transaction#27
+ )scala/concurrent1/Transaction#`head_=`().23
+ 
+%scala/concurrent1/Transaction#next().2,
+ scala/concurrent1/Transaction#27
+ )scala/concurrent1/Transaction#`next_=`().29
+ 
++scala/concurrent1/Transaction#`<init>`(+1).2=
+ /scala/concurrent1/Transaction#`<init>`(+1).(hd)2,
+ scala/concurrent1/Transaction#2=
+ /scala/concurrent1/Transaction#`<init>`(+1).(tl)2,
+  +scala/concurrent1/Transaction#27
+1 1)scala/concurrent1/Transaction#`<init>`().27
+> B)scala/concurrent1/Transaction#`head_=`().23
+E I%scala/concurrent1/Transaction#head().27
+P T)scala/concurrent1/Transaction#`next_=`().23
+W [%scala/concurrent1/Transaction#next().28
+ *scala/concurrent1/Transaction#makeAbort().2.
+   java/lang/Object#synchronized().2#
+ )  +scala/Boolean#`&&`().2!
+   scala/Int#`!=`(+3).25
+   'scala/concurrent1/Transaction#status().24
+ !  (&scala/concurrent1/Transaction.Aborted.2,
+    scala/concurrent1/Transaction.2!
+ 3  5scala/Int#`!=`(+3).25
+ ,  2'scala/concurrent1/Transaction#status().26
+ B  K(scala/concurrent1/Transaction.Committed.2,
+ 6  Ascala/concurrent1/Transaction.29
+!! +scala/concurrent1/Transaction#`status_=`().26
+!! $(scala/concurrent1/Transaction.Abortable.2,
+!! scala/concurrent1/Transaction.2&
+"" 
+java/lang/Object#wait().24
+%% &scala/concurrent1/Transaction#abort().2.
+%% $ java/lang/Object#synchronized().29
+%'% -+scala/concurrent1/Transaction#`status_=`().24
+%<% C&scala/concurrent1/Transaction.Aborted.2,
+%0% ;scala/concurrent1/Transaction.2+
+%E% Njava/lang/Object#notifyAll().25
+&& 'scala/concurrent1/Transaction#commit().2.
+&& % java/lang/Object#synchronized().29
+&(& .+scala/concurrent1/Transaction#`status_=`().26
+&=& F(scala/concurrent1/Transaction.Committed.2,
+&1& <scala/concurrent1/Transaction.2+
+&H& Qjava/lang/Object#notifyAll().22
+'' 	$scala/concurrent1/Transaction#run().25
+'
+' 'scala/concurrent1/Transaction#run().[T]25
+'' 'scala/concurrent1/Transaction#run().(b)2,
+'' scala/concurrent1/Transaction#25
+''  'scala/concurrent1/Transaction#run().[T]2
+'#' )scala/Option#25
+'*' +'scala/concurrent1/Transaction#run().[T]29
+)) +scala/concurrent1/Transaction#`status_=`().24
+)) "&scala/concurrent1/Transaction.Running.2,
+)) scala/concurrent1/Transaction.25
+** 'scala/concurrent1/Transaction#`id_=`().25
+** 'scala/concurrent1/Transaction.nextId().2,
+** scala/concurrent1/Transaction.2
++
++ local02!
+++ scala/Some.apply().2
+++ scala/Some.2&
+++ scala/Function1#apply().25
+++ 'scala/concurrent1/Transaction#run().(b)25
+,, 'scala/concurrent1/Transaction#commit().2
+-- local02
+// local12/
+// !scala/concurrent1/AbortException#24
+/!/ &&scala/concurrent1/Transaction#abort().2
+/*/ .scala/None.2
+00 local22&
+00 scala/package.Throwable#24
+00 !&scala/concurrent1/Transaction#abort().2
+0+0 -local22.
+55  scala/concurrent1/Transactional#29
+88 +scala/concurrent1/Transactional#`<init>`().2;
+88 -scala/concurrent1/Transactional#checkPoint().2
+88 scala/Unit#29
+;; +scala/concurrent1/Transactional#rollBack().2
+;; scala/Unit#28
+== *scala/concurrent1/Transactional#readers().2,
+== scala/concurrent1/Transaction#2<
+== .scala/concurrent1/Transactional#`readers_=`().27
+>> )scala/concurrent1/Transactional#writer().2,
+>> scala/concurrent1/Transaction#2;
+>> -scala/concurrent1/Transactional#`writer_=`().2>
+@@ 0scala/concurrent1/Transactional#currentWriter().2,
+@@ "scala/concurrent1/Transaction#2
+AA scala/Any#`==`().27
+AA )scala/concurrent1/Transactional#writer().2!
+BB scala/Int#`==`(+3).25
+BB 'scala/concurrent1/Transaction#status().27
+BB )scala/concurrent1/Transactional#writer().24
+B*B 1&scala/concurrent1/Transaction.Running.2,
+BB )scala/concurrent1/Transaction.27
+B3B 9)scala/concurrent1/Transactional#writer().2!
+DD scala/Int#`!=`(+3).25
+DD 'scala/concurrent1/Transaction#status().27
+D
+D )scala/concurrent1/Transactional#writer().26
+D'D 0(scala/concurrent1/Transaction.Committed.2,
+DD &scala/concurrent1/Transaction.29
+D2D :+scala/concurrent1/Transactional#rollBack().2;
+EE -scala/concurrent1/Transactional#`writer_=`().27
+II )scala/concurrent1/Transactional#getter().2B
+II 4scala/concurrent1/Transactional#getter().(thisTrans)2,
+II #scala/concurrent1/Transaction#2
+I&I *scala/Unit#2
+JJ scala/Any#`==`().27
+JJ )scala/concurrent1/Transactional#writer().2B
+JJ 4scala/concurrent1/Transactional#getter().(thisTrans)27
+J#J #)scala/concurrent1/Transactional#getter().2
+KK 	local328
+KK *scala/concurrent1/Transactional#readers().2#
+LL scala/Boolean#`&&`().2
+LL scala/Any#`!=`().2
+LL local32!
+L&L (scala/Int#`!=`(+3).25
+LL %'scala/concurrent1/Transaction#status().23
+LL %scala/concurrent1/Transaction#head().2
+LL local324
+L5L <&scala/concurrent1/Transaction.Running.2,
+L)L 4scala/concurrent1/Transaction.2
+L@L Alocal323
+LFL J%scala/concurrent1/Transaction#next().2
+LDL Elocal32<
+LLL S.scala/concurrent1/Transactional#`readers_=`().2
+LVL Wlocal32
+MM scala/Any#`!=`().2
+MM local32
+NN scala/Any#`==`().23
+NN %scala/concurrent1/Transaction#head().2
+N
+N local32B
+NN 4scala/concurrent1/Transactional#getter().(thisTrans)27
+N%N %)scala/concurrent1/Transactional#getter().2
+O
+O local42
+OO local32
+PP local323
+PP %scala/concurrent1/Transaction#next().2
+P
+P local32#
+QQ scala/Boolean#`&&`().2
+QQ scala/Any#`!=`().2
+QQ local32!
+Q(Q *scala/Int#`!=`(+3).25
+Q!Q ''scala/concurrent1/Transaction#status().23
+QQ  %scala/concurrent1/Transaction#head().2
+QQ local324
+Q7Q >&scala/concurrent1/Transaction.Running.2,
+Q+Q 6scala/concurrent1/Transaction.2
+QBQ Clocal323
+QHQ L%scala/concurrent1/Transaction#next().2
+QFQ Glocal327
+QSQ W)scala/concurrent1/Transaction#`next_=`().2
+QNQ Rlocal42
+QZQ [local32.
+SS  java/lang/Object#synchronized().2!
+TT scala/Int#`==`(+3).25
+TT 'scala/concurrent1/Transaction#status().2B
+T
+T 4scala/concurrent1/Transactional#getter().(thisTrans)26
+T*T 3(scala/concurrent1/Transaction.Abortable.2,
+TT )scala/concurrent1/Transaction.2:
+TMT M,scala/concurrent1/AbortException#`<init>`().2/
+T?T M!scala/concurrent1/AbortException#2
+U
+U local52>
+UU 0scala/concurrent1/Transactional#currentWriter().2
+VV scala/Any#`!=`().2
+V
+V local52!
+WW scala/Long#`<`(+4).21
+WW #scala/concurrent1/Transaction#id().2B
+WW 4scala/concurrent1/Transactional#getter().(thisTrans)21
+WW #scala/concurrent1/Transaction#id().2
+WW local528
+W%W .*scala/concurrent1/Transaction#makeAbort().2
+W#W $local529
+W2W :+scala/concurrent1/Transactional#rollBack().2;
+W>W D-scala/concurrent1/Transactional#`writer_=`().2:
+X%X %,scala/concurrent1/AbortException#`<init>`().2/
+XX %!scala/concurrent1/AbortException#2<
+YY .scala/concurrent1/Transactional#`readers_=`().2
+YY scala/Any#`==`().28
+YY *scala/concurrent1/Transactional#readers().2B
+Y%Y .4scala/concurrent1/Transactional#getter().(thisTrans)29
+YCY C+scala/concurrent1/Transaction#`<init>`(+1).2,
+Y8Y Cscala/concurrent1/Transaction#2B
+YDY M4scala/concurrent1/Transactional#getter().(thisTrans)28
+YOY V*scala/concurrent1/Transactional#readers().27
+]] )scala/concurrent1/Transactional#setter().2B
+]] 4scala/concurrent1/Transactional#setter().(thisTrans)2,
+]] #scala/concurrent1/Transaction#2
+]&] *scala/Unit#2
+^^ scala/Any#`==`().27
+^^ )scala/concurrent1/Transactional#writer().2B
+^^ 4scala/concurrent1/Transactional#setter().(thisTrans)27
+^#^ #)scala/concurrent1/Transactional#setter().2.
+__  java/lang/Object#synchronized().2
+`
+` local62>
+`` 0scala/concurrent1/Transactional#currentWriter().2
+aa scala/Any#`!=`().2
+a
+a local62!
+bb scala/Long#`<`(+4).21
+bb #scala/concurrent1/Transaction#id().2B
+bb 4scala/concurrent1/Transactional#setter().(thisTrans)21
+bb #scala/concurrent1/Transaction#id().2
+bb local628
+b%b .*scala/concurrent1/Transaction#makeAbort().2
+b#b $local629
+b2b :+scala/concurrent1/Transactional#rollBack().2:
+c%c %,scala/concurrent1/AbortException#`<init>`().2/
+cc %!scala/concurrent1/AbortException#2
+d
+d local728
+dd *scala/concurrent1/Transactional#readers().2#
+ee scala/Boolean#`&&`().2
+ee scala/Any#`!=`().2
+ee local72!
+e(e *scala/Int#`!=`(+3).25
+e!e ''scala/concurrent1/Transaction#status().23
+ee  %scala/concurrent1/Transaction#head().2
+ee local724
+e7e >&scala/concurrent1/Transaction.Running.2,
+e+e 6scala/concurrent1/Transaction.2
+eBe Clocal723
+eHe L%scala/concurrent1/Transaction#next().2
+eFe Glocal72<
+eNe U.scala/concurrent1/Transactional#`readers_=`().2
+eXe Ylocal72
+ff scala/Any#`!=`().2
+ff local72!
+gg scala/Long#`<`(+4).21
+gg #scala/concurrent1/Transaction#id().2
+gg local721
+gg #scala/concurrent1/Transaction#id().2B
+gg 4scala/concurrent1/Transactional#setter().(thisTrans)2:
+g9g 9,scala/concurrent1/AbortException#`<init>`().2/
+g+g 9!scala/concurrent1/AbortException#28
+hh *scala/concurrent1/Transaction#makeAbort().2
+hh local62
+ii local82
+ii local72
+jj 	local723
+jj %scala/concurrent1/Transaction#next().2
+jj local72#
+kk scala/Boolean#`&&`().2
+kk scala/Any#`!=`().2
+kk local72!
+k*k ,scala/Int#`!=`(+3).25
+k#k )'scala/concurrent1/Transaction#status().23
+kk "%scala/concurrent1/Transaction#head().2
+kk local724
+k9k @&scala/concurrent1/Transaction.Running.2,
+k-k 8scala/concurrent1/Transaction.2
+kDk Elocal723
+kJk N%scala/concurrent1/Transaction#next().2
+kHk Ilocal727
+kUk Y)scala/concurrent1/Transaction#`next_=`().2
+kPk Tlocal82
+k\k ]local72;
+mm -scala/concurrent1/Transactional#checkPoint().PZ 71252A5471AA593ED923CC2364335A2F

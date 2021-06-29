@@ -1,0 +1,54 @@
+
+¥tests/pos/thistype.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Ctl#*Ctl€*.
+_empty_/Test.Ctl#`<init>`(). €@*<init>€*)
+_empty_/Test.Ctl#enable().*enable€*'
+_empty_/Test.MouseCtl#*MouseCtl€*3
+!_empty_/Test.MouseCtl#`<init>`(). €@*<init>€*4
+"_empty_/Test.MouseCtl#mouseDown().*	mouseDown€*/
+%_empty_/Test.MouseCtl#mouseDown().(x)*x€*/
+%_empty_/Test.MouseCtl#mouseDown().(y)*y€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2
+ _empty_/Test.Ctl#2*
+ _empty_/Test.Ctl#`<init>`().2(
+ _empty_/Test.Ctl#enable().2(
+& -scala/Console.println(+1).2
+ %scala/Console.2$
+ _empty_/Test.MouseCtl#2/
+ !_empty_/Test.MouseCtl#`<init>`().2*
+ _empty_/Test.Ctl#`<init>`().2
+ _empty_/Test.Ctl#20
+ "_empty_/Test.MouseCtl#mouseDown().23
+ %_empty_/Test.MouseCtl#mouseDown().(x)2
+ 
+scala/Int#23
+ %_empty_/Test.MouseCtl#mouseDown().(y)2
+  
+scala/Int#2
+# 'scala/Unit#2(
+4 ;scala/Console.println(+1).2
+, 3scala/Console.2"
+
+
+ 
+_empty_/Test.main().2(
+
+
+ _empty_/Test.main().(args)2
+
+
+ scala/Array#2"
+
+
+ scala/Predef.String#2
+
+!
+ %scala/Unit#20
+ #"_empty_/Test.MouseCtl#mouseDown().2(
+ _empty_/Test.Ctl#enable().2/
+ !_empty_/Test.MouseCtl#`<init>`().2$
+ _empty_/Test.MouseCtl#PZ A978449234CF946B4BA2BD0F80B280B1

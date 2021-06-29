@@ -1,0 +1,16 @@
+
+ótests/pos/private-leak.scala*
+private_leak/Test#*Test€*/
+private_leak/Test#`<init>`(). €@*<init>€*"
+private_leak/Test#Foo#*Foo€*!
+private_leak/Test#x. €*x€2
+ private_leak/2 
+ 
+private_leak/Test#2+
+ private_leak/Test#`<init>`().2$
+ private_leak/Test#Foo#2
+ 
+scala/Int#2"
+ private_leak/Test#x.2$
+	 private_leak/Test#Foo#2"
+ private_leak/Test#x.PZ 6C42E297C2E68227082163CF3C2794B5

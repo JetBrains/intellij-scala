@@ -1,0 +1,49 @@
+
+åtests/pos/selectinalways.scala*
+_empty_/Buf#*Buf€*)
+_empty_/Buf#`<init>`(). €@*<init>€*
+_empty_/Buf#[A]	*A€*$
+_empty_/Buf#append().*append€*"
+_empty_/Buf#append().(a)*a€*&
+_empty_/Buf#append(+1).*append€*$
+_empty_/Buf#append(+1).(a)*a€*1
+_empty_/selectinalways$package. *_empty_€*3
+&_empty_/selectinalways$package.Test().*Test€*
+local0 €*foo€*
+local1 €*bar€*
+_empty_/Test# *Test€**
+_empty_/Test#`<init>`(). €@*<init>€*$
+_empty_/Test#main(). € *main€*'
+_empty_/Test#main().(args)*args€*
+local2 €*error€2
+ 	_empty_/Buf#2!
+	 	_empty_/Buf#`<init>`().2
+
+ _empty_/Buf#[A]2#
+ _empty_/Buf#append().2&
+ _empty_/Buf#append().(a)2
+ _empty_/Buf#[A]2%
+ _empty_/Buf#append(+1).2(
+ _empty_/Buf#append(+1).(a)2
+ _empty_/Buf#[A]2)
+_empty_/selectinalways$package.2
+ scala/main#24
+
+ &_empty_/selectinalways$package.Test().2
+ 	local02%
+   _empty_/Buf#`<init>`().2
+ _empty_/Buf#2 
+ scala/package.Seq#2
+ scala/Double#2
+ 	local12;
+ -scala/collection/SeqFactory.Delegate#empty().2 
+ scala/package.Seq.2
+ scala/Double#2#
+ _empty_/Buf#append().2
+ local02
+ local12
+_empty_/Test#2"
+_empty_/Test#`<init>`().20
+&_empty_/selectinalways$package.Test().23
+)scala/util/CommandLineParser.showError().2
+local2PZ D983AE5AC0D8052192C5B34DBC55487E

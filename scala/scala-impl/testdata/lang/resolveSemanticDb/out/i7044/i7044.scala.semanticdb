@@ -1,0 +1,155 @@
+
+ž)tests/pos/i7044.scala*
+_empty_/i7044.
+ *i7044€*!
+_empty_/i7044.Seg# €*Seg€*/
+_empty_/i7044.Seg#`<init>`(). €@*<init>€*1
+"_empty_/i7044.Seg#`<init>`().(pat) €*pat€*3
+#_empty_/i7044.Seg#`<init>`().(body) €*body€*
+_empty_/i7044.Seg#[T]	*T€*%
+_empty_/i7044.Seg#pat. €*pat€*'
+_empty_/i7044.Seg#body. €*body€*&
+_empty_/i7044.Seg#copy().*copy€*&
+_empty_/i7044.Seg#copy().[T]	*T€**
+_empty_/i7044.Seg#copy().(pat)*pat€*,
+_empty_/i7044.Seg#copy().(body)*body€*:
+#_empty_/i7044.Seg#copy$default$1().*copy$default$1€*0
+&_empty_/i7044.Seg#copy$default$1().[T]	*T€*:
+#_empty_/i7044.Seg#copy$default$2().*copy$default$2€*0
+&_empty_/i7044.Seg#copy$default$2().[T]	*T€*"
+_empty_/i7044.Seg#_1().*_1€*"
+_empty_/i7044.Seg#_2().*_2€* 
+_empty_/i7044.Seg.
+ *Seg€*(
+_empty_/i7044.Seg.apply().*apply€*'
+_empty_/i7044.Seg.apply().[T]	*T€*+
+_empty_/i7044.Seg.apply().(pat)*pat€*-
+ _empty_/i7044.Seg.apply().(body)*body€*,
+_empty_/i7044.Seg.unapply().*unapply€*)
+_empty_/i7044.Seg.unapply().[T]	*T€*-
+!_empty_/i7044.Seg.unapply().(x$1)*x$1€*.
+_empty_/i7044.Seg.toString().*toString€*
+_empty_/i7044.Pat#*Pat€*/
+_empty_/i7044.Pat#`<init>`(). €@*<init>€*
+_empty_/i7044.Pat#[T]	*T€* 
+_empty_/i7044.Pat.
+ *Pat€*'
+_empty_/i7044.Pat.Expr# €*Expr€*4
+"_empty_/i7044.Pat.Expr#`<init>`(). €@*<init>€*+
+_empty_/i7044.Pat.Expr#copy().*copy€*&
+_empty_/i7044.Pat.Expr.
+ *Expr€*-
+_empty_/i7044.Pat.Expr.apply().*apply€*1
+!_empty_/i7044.Pat.Expr.unapply().*unapply€*2
+&_empty_/i7044.Pat.Expr.unapply().(x$1)*x$1€*3
+"_empty_/i7044.Pat.Expr.toString().*toString€*%
+_empty_/i7044.Pat.Opt# €*Opt€*3
+!_empty_/i7044.Pat.Opt#`<init>`(). €@*<init>€*3
+%_empty_/i7044.Pat.Opt#`<init>`().(el) €*el€*#
+_empty_/i7044.Pat.Opt#[S]	*S€*'
+_empty_/i7044.Pat.Opt#el. €*el€**
+_empty_/i7044.Pat.Opt#copy().*copy€**
+ _empty_/i7044.Pat.Opt#copy().[S]	*S€*,
+!_empty_/i7044.Pat.Opt#copy().(el)*el€*>
+'_empty_/i7044.Pat.Opt#copy$default$1().*copy$default$1€*4
+*_empty_/i7044.Pat.Opt#copy$default$1().[S]	*S€*&
+_empty_/i7044.Pat.Opt#_1().*_1€*$
+_empty_/i7044.Pat.Opt.
+ *Opt€*,
+_empty_/i7044.Pat.Opt.apply().*apply€*+
+!_empty_/i7044.Pat.Opt.apply().[S]	*S€*-
+"_empty_/i7044.Pat.Opt.apply().(el)*el€*0
+ _empty_/i7044.Pat.Opt.unapply().*unapply€*-
+#_empty_/i7044.Pat.Opt.unapply().[S]	*S€*1
+%_empty_/i7044.Pat.Opt.unapply().(x$1)*x$1€*2
+!_empty_/i7044.Pat.Opt.toString().*toString€*"
+_empty_/i7044.test().*test€*"
+_empty_/i7044.test().[T]	*T€*"
+_empty_/i7044.test().(s)*s€*
+local0 €*body€*
+local1 €	*S$1€*
+local2 €*body€2
+ _empty_/i7044.2 
+ _empty_/i7044.Seg#2+
+ _empty_/i7044.Seg#`<init>`().2 
+ _empty_/i7044.Pat#2#
+ _empty_/i7044.Seg#[T]2#
+% &_empty_/i7044.Seg#[T]2#
+ _empty_/i7044.Seg#[T]2$
+ _empty_/i7044.Seg#pat.2%
+  $_empty_/i7044.Seg#body.2'
+ _empty_/i7044.Seg#copy().2%
+ _empty_/i7044.Seg#_1().2%
+% %_empty_/i7044.Seg#_2().2 
+ _empty_/i7044.Seg.2(
+ _empty_/i7044.Seg.apply().2*
+ _empty_/i7044.Seg.unapply().2 
+ _empty_/i7044.Pat#2+
+ _empty_/i7044.Pat#`<init>`().2#
+ _empty_/i7044.Pat#[T]2 
+	 _empty_/i7044.Pat.2%
+ _empty_/i7044.Pat.Expr#20
+ "_empty_/i7044.Pat.Expr#`<init>`().2 
+) ,_empty_/i7044.Pat#2
+- 0
+scala/Int#2%
+ _empty_/i7044.Pat.Expr.2$
+ _empty_/i7044.Pat.Opt#2/
+ !_empty_/i7044.Pat.Opt#`<init>`().2 
+ _empty_/i7044.Pat#2'
+ _empty_/i7044.Pat.Opt#[S]2 
+) ,_empty_/i7044.Pat#2
+- 3scala/Option#2'
+4 5_empty_/i7044.Pat.Opt#[S]2'
+ _empty_/i7044.Pat.Opt#[S]2'
+ _empty_/i7044.Pat.Opt#el.2+
+ _empty_/i7044.Pat.Opt#copy().2)
+ _empty_/i7044.Pat.Opt#_1().2$
+ _empty_/i7044.Pat.Opt.2,
+ _empty_/i7044.Pat.Opt.apply().2.
+  _empty_/i7044.Pat.Opt.unapply().2#
+		 
+_empty_/i7044.test().2&
+		 _empty_/i7044.test().[T]2&
+		 _empty_/i7044.test().(s)2 
+		 _empty_/i7044.Seg#2&
+		 _empty_/i7044.test().[T]2
+		 
+scala/Int#2&
+		 _empty_/i7044.test().(s)2*
+
+
+ _empty_/i7044.Seg.unapply().2 
+
+	
+ _empty_/i7044.Seg.2/
+
+
+ !_empty_/i7044.Pat.Expr.unapply().2%
+
+
+ _empty_/i7044.Pat.Expr.2 
+
+
+ _empty_/i7044.Pat.2
+
+
+ local02 
+
+/
+ 0scala/Int#`+`(+4).2
+
+*
+ .local02*
+ _empty_/i7044.Seg.unapply().2 
+	 _empty_/i7044.Seg.2.
+  _empty_/i7044.Pat.Opt.unapply().2$
+ _empty_/i7044.Pat.Opt.2 
+ _empty_/i7044.Pat.2
+ local12/
+ !_empty_/i7044.Pat.Expr.unapply().2%
+ _empty_/i7044.Pat.Expr.2 
+ _empty_/i7044.Pat.2
+! %local22!
+/ 2scala/Option#get().2
+* .local2PZ 92F6D7EF9F1CEE79D0D285FC93144F6C

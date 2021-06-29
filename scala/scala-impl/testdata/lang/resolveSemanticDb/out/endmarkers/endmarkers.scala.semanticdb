@@ -1,0 +1,112 @@
+
+étests/pos/endmarkers.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#O.
+ *O€*
+_empty_/T#O.foo().*foo€*
+_empty_/T#O.bar().*bar€*
+
+_empty_/T.
+ *T€*
+p1/p2/C# *C€*%
+p1/p2/C#`<init>`(). €@*<init>€*$
+p1/p2/C#`<init>`(+1).*<init>€*"
+p1/p2/C#`<init>`(+1).(x)*x€*
+local0 €*a€*
+local1 €*b€*
+local2 €*y€*
+p1/p2/C#f(). *f€*
+p1/p2/C.
+ *C€*#
+p1/p2/C.given_C. è*given_C€*
+local3 *$anon€*
+local4*f€*&
+p1/p2/endmarkers$package. *p2€*)
+p1/p2/endmarkers$package.ff().*ff€*+
+!p1/p2/endmarkers$package.ff().(x)*x€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+	 
+_empty_/T#O.2 
+ _empty_/T#O.foo().2 
+ _empty_/T#O.foo().2 
+ _empty_/T#O.bar().2 
+ _empty_/T#O.bar().2
+ _empty_/T#O.2
+ 
+_empty_/T#2
+
+
+ 
+_empty_/T.2
+ 
+_empty_/T.2
+ p1/p2/2
+ 
+p1/2
+ p1/p2/C#2!
+ p1/p2/C#`<init>`().2#
+ p1/p2/C#`<init>`(+1).2&
+ p1/p2/C#`<init>`(+1).(x)2
+ 
+scala/Int#2!
+ p1/p2/C#`<init>`().2 
+ scala/Int#`>`(+3).2&
+	 
+p1/p2/C#`<init>`(+1).(x)25
+ 'scala/collection/immutable/List#`::`().2 
+ scala/package.Nil.2&
+
+ p1/p2/C#`<init>`(+1).(x)28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local02
+ local12
+ local22&
+
+ p1/p2/C#`<init>`(+1).(x)2
+ local22 
+ scala/Int#`>`(+3).2
+ local22'
+
+ scala/Predef.println(+1).2
+ local22
+
+ local22 
+ scala/Int#`-`(+3).2&
+
+ p1/p2/C#`<init>`(+1).(x)2'
+   scala/Predef.println(+1).2'
+$
+$ scala/Predef.println(+1).2#
+'' p1/p2/C#`<init>`(+1).2
+)) 	p1/p2/C#f().2"
+)) scala/Predef.String#2
+** p1/p2/C#2
+,	, 
+p1/p2/C.2
+-
+- 
+p1/p2/C.given_C.2
+-
+- p1/p2/C#2
+.. local32!
+.. p1/p2/C#`<init>`().2
+.
+. p1/p2/C#2
+// local42
+00 local42
+22 p1/p2/C.given_C.2
+33 p1/p2/C.2'
+55 p1/p2/endmarkers$package.2,
+66 
+p1/p2/endmarkers$package.ff().2/
+55 !p1/p2/endmarkers$package.ff().(x)2
+55 p1/p2/C#2"
+66 scala/Predef.String#2
+66 p1/p2/C#f().2/
+66 !p1/p2/endmarkers$package.ff().(x)2
+99 p1/p2/PZ 02E3614A83FA538021279C7897D65376

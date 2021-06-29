@@ -1,0 +1,44 @@
+
+Æ
+tests/pos/t927.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.sum().*sum€**
+_empty_/Test.sum().(stream)*stream€*
+local0 €*hd€*
+local1 €*tl€* 
+_empty_/Test.str. €*str€2
+ _empty_/Test.2!
+ 	_empty_/Test.sum().2)
+
+ _empty_/Test.sum().(stream)2#
+ scala/package.Stream#2
+ 
+scala/Int#2
+  #
+scala/Int#2)
+ 
+_empty_/Test.sum().(stream)26
+ (scala/collection/immutable/Stream.Empty.2#
+ scala/package.Stream.2?
+ 1scala/collection/immutable/Stream.cons.unapply().25
+ 'scala/collection/immutable/Stream.cons.2#
+ scala/package.Stream.2
+ local02
+ local12 
+% &scala/Int#`+`(+4).2
+" $local02!
+' *_empty_/Test.sum().2
++ -local12
+ 	_empty_/Test.str.2#
+ scala/package.Stream#2
+ 
+scala/Int#2:
+. 6,scala/collection/IterableOnceOps#toStream().2F
+% -8scala/collection/StrictOptimizedLinearSeqOps#iterator().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2&
+ scala/Predef.assert(+1).2!
+ scala/Int#`==`(+3).2!
+	 _empty_/Test.sum().2
+ _empty_/Test.str.PZ 445F0B75D68366EF63C9BA2C61DFCBF0

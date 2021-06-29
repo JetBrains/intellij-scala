@@ -1,0 +1,25 @@
+
+ù	tests/pos/t3862.scala*<
+_empty_/OverloadingShapeType.
+ *OverloadingShapeTypeÄ*3
+%_empty_/OverloadingShapeType.blerg().*blergÄ*2
+(_empty_/OverloadingShapeType.blerg().(f)*fÄ*5
+'_empty_/OverloadingShapeType.blerg(+1).*blergÄ*4
+*_empty_/OverloadingShapeType.blerg(+1).[M]	*MÄ*4
+*_empty_/OverloadingShapeType.blerg(+1).[T]	*TÄ*4
+*_empty_/OverloadingShapeType.blerg(+1).(l)*lÄ2+
+ _empty_/OverloadingShapeType.23
+ %_empty_/OverloadingShapeType.blerg().26
+ (_empty_/OverloadingShapeType.blerg().(f)2"
+ scala/Predef.String#2
+ scala/Unit#25
+ '_empty_/OverloadingShapeType.blerg(+1).28
+ *_empty_/OverloadingShapeType.blerg(+1).[M]28
+ *_empty_/OverloadingShapeType.blerg(+1).[T]28
+ *_empty_/OverloadingShapeType.blerg(+1).(l)28
+ *_empty_/OverloadingShapeType.blerg(+1).[M]28
+ *_empty_/OverloadingShapeType.blerg(+1).[T]2
+ #scala/Unit#25
+ '_empty_/OverloadingShapeType.blerg(+1).27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.PZ D2889A074890AC78E19A6E249DBD601D

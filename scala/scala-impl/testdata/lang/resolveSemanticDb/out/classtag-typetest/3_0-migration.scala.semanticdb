@@ -1,0 +1,24 @@
+
+·/tests/pos/classtag-typetest/3_0-migration.scala*2
+ _empty_/`3_0-migration$package`. *_empty_€*6
+(_empty_/`3_0-migration$package`.f3_0m().*f3_0m€*5
++_empty_/`3_0-migration$package`.f3_0m().[T]	*T€*5
++_empty_/`3_0-migration$package`.f3_0m().(x)*x€2)
+ %scala/language.`3.0-migration`.2
+ scala/language.2
+ scala/2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2*
+ _empty_/`3_0-migration$package`.26
+ 	(_empty_/`3_0-migration$package`.f3_0m().29
+
+ +_empty_/`3_0-migration$package`.f3_0m().[T]29
+ +_empty_/`3_0-migration$package`.f3_0m().(x)2
+ 
+scala/Any#2%
+ scala/reflect/ClassTag#29
+ +_empty_/`3_0-migration$package`.f3_0m().[T]2
+  $scala/Unit#29
+ +_empty_/`3_0-migration$package`.f3_0m().(x)PZ 5CF96359AF26242FE7F77D39E9303BF2

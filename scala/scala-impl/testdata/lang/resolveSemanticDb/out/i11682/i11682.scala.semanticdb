@@ -1,0 +1,37 @@
+
+åtests/pos/i11682.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Tag# *Tag€*.
+_empty_/Test.Tag#`<init>`(). €@*<init>€*
+_empty_/Test.Tag#[T]	*T€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[Z]	*Z€* 
+_empty_/Test.foo().[Y]	*Y€* 
+_empty_/Test.foo().[X]	*X€* 
+_empty_/Test.foo().[T]	*T€*
+local0*x$1€2
+ _empty_/Test.2
+ _empty_/Test.Tag#2*
+ _empty_/Test.Tag#`<init>`().2"
+ _empty_/Test.Tag#[T]2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[Z]2
+ 
+scala/Int#2
+ 
+scala/Int#2$
+ _empty_/Test.foo().[Y]2$
+  !_empty_/Test.foo().[Z]2$
+% &_empty_/Test.foo().[Z]2$
+( )_empty_/Test.foo().[X]2$
+- ._empty_/Test.foo().[Y]2$
+2 3_empty_/Test.foo().[Y]2$
+5 6_empty_/Test.foo().[T]2
+9 <_empty_/Test.Tag#2$
+= >_empty_/Test.foo().[T]2$
+C D_empty_/Test.foo().[T]2
+ local02
+ _empty_/Test.Tag#2$
+ _empty_/Test.foo().[X]PZ 48A34C52745AF453C811CB9DA8F75CC6

@@ -1,0 +1,21 @@
+
+ütests/pos/t0029.scala*
+_empty_/Main.
+ *Main€*
+_empty_/Main.f().*f€*
+_empty_/Main.f().[a]	*a€*
+local0*l1€*
+local1*l2€2
+ _empty_/Main.2
+ _empty_/Main.f().2"
+ 	_empty_/Main.f().[a]2!
+ scala/package.List#2!
+ scala/package.List#2"
+ _empty_/Main.f().[a]28
+* **scala/collection/immutable/List#flatMap().2 
+' *scala/package.Nil.2
+! #local024
+5 5&scala/collection/immutable/List#map().2 
+2 5scala/package.Nil.2
+, .local12
+= ?local0PZ 3D9321151E31067BA1C752D202B48258

@@ -1,0 +1,31 @@
+
+¨!tests/pos/override-via-self.scala* 
+_empty_/TCommon#*TCommon€*-
+_empty_/TCommon#`<init>`(). €@*<init>€* 
+_empty_/TCommon#f(). *f€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*
+_empty_/C1#f().*f€*&
+_empty_/TOverrider#*
+TOverrider€*0
+_empty_/TOverrider#`<init>`(). €@*<init>€*!
+_empty_/TOverrider#f().*f€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€2
+ _empty_/TCommon#2)
+ _empty_/TCommon#`<init>`().2"
+ _empty_/TCommon#f().2"
+	 scala/Predef.String#2
+ _empty_/C1#2$
+ _empty_/C1#`<init>`().2
+ _empty_/TCommon#2
+		 _empty_/C1#f().2!
+ _empty_/TOverrider#2,
+ _empty_/TOverrider#`<init>`().2
+  _empty_/TCommon#2%
+ _empty_/TOverrider#f().2
+ _empty_/C2#2$
+ _empty_/C2#`<init>`().2$
+ _empty_/C1#`<init>`().2
+ _empty_/C1#2!
+ #_empty_/TOverrider#PZ A16C33E0E344602F3753E77020136335

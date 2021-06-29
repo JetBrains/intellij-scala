@@ -1,0 +1,19 @@
+
+¸tests/pos/SI-5788.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€* 
+_empty_/Foo#bar(). *bar€*
+_empty_/Foo#bar().(a)*a€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ scala/specialized#2
+ 
+scala/Int.2
+ _empty_/Foo#[A]2 
+ _empty_/Foo#bar().2#
+ _empty_/Foo#bar().(a)2
+ _empty_/Foo#[A]2
+ _empty_/Foo#[A]2 
+ _empty_/Foo#bar().2#
+ _empty_/Foo#bar().(a)PZ 0D1E8616861BB3931B53CC2444BD0BF2

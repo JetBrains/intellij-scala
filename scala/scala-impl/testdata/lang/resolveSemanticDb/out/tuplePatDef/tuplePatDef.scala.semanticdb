@@ -1,0 +1,14 @@
+
+Ýtests/pos/tuplePatDef.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€2
+ _empty_/Test.2%
+ scala/Tuple2.unapply().2"
+ scala/Predef.String#2
+ 
+scala/Int#2
+ _empty_/Test.x.2
+	 
+_empty_/Test.y.PZ 01E905ACF5D744B1F3DDFA88182FA3D7

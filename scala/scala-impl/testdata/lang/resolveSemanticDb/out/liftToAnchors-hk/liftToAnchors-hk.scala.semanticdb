@@ -1,0 +1,26 @@
+
+’ tests/pos/liftToAnchors-hk.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[F]	*F€*
+_empty_/Foo#[F2]	*F2€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().[A]	*A€*%
+_empty_/Foo#foo().(x$1)  *x$1€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[F]2
+ _empty_/Foo#[F2]2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().[A]2%
+ _empty_/Foo#foo().(x$1)2
+ scala/`<:<`#2
+ _empty_/Foo#[F]2#
+ _empty_/Foo#foo().[A]2
+ _empty_/Foo#[F2]2#
+  _empty_/Foo#foo().[A]2
+$ (scala/Unit#2 
+ _empty_/Foo#foo().2!
+ scala/`<:<`.refl().PZ 302C87DC44F2E5420216383B458794D6

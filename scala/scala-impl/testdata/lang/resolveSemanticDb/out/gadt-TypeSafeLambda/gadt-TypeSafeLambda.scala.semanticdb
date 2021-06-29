@@ -1,0 +1,960 @@
+
+éÏ#tests/pos/gadt-TypeSafeLambda.scala*0
+_empty_/TypeSafeLambda.
+ *TypeSafeLambda€*1
+ _empty_/TypeSafeLambda.Category#*Category€*=
++_empty_/TypeSafeLambda.Category#`<init>`(). €@*<init>€*1
+%_empty_/TypeSafeLambda.Category#[Arr]	*Arr€*2
+%_empty_/TypeSafeLambda.Category#id(). *id€*2
+(_empty_/TypeSafeLambda.Category#id().[A]	*A€*6
+'_empty_/TypeSafeLambda.Category#comp(). *comp€*4
+*_empty_/TypeSafeLambda.Category#comp().[A]	*A€*4
+*_empty_/TypeSafeLambda.Category#comp().[B]	*B€*4
+*_empty_/TypeSafeLambda.Category#comp().[C]	*C€*6
++_empty_/TypeSafeLambda.Category#comp().(ab)*ab€*6
++_empty_/TypeSafeLambda.Category#comp().(bc)*bc€*1
+ _empty_/TypeSafeLambda.Terminal#*Terminal€*=
++_empty_/TypeSafeLambda.Terminal#`<init>`(). €@*<init>€*3
+&_empty_/TypeSafeLambda.Terminal#[Term]	*Term€*1
+%_empty_/TypeSafeLambda.Terminal#[Arr]	*Arr€*>
++_empty_/TypeSafeLambda.Terminal#terminal(). *terminal€*8
+._empty_/TypeSafeLambda.Terminal#terminal().[A]	*A€*?
+'_empty_/TypeSafeLambda.ProductCategory#*ProductCategory€*D
+2_empty_/TypeSafeLambda.ProductCategory#`<init>`(). €@*<init>€*:
+-_empty_/TypeSafeLambda.ProductCategory#[Prod]	*Prod€*8
+,_empty_/TypeSafeLambda.ProductCategory#[Arr]	*Arr€*?
+/_empty_/TypeSafeLambda.ProductCategory#first(). *first€*<
+2_empty_/TypeSafeLambda.ProductCategory#first().[A]	*A€*<
+2_empty_/TypeSafeLambda.ProductCategory#first().[B]	*B€*A
+0_empty_/TypeSafeLambda.ProductCategory#second(). *second€*=
+3_empty_/TypeSafeLambda.ProductCategory#second().[A]	*A€*=
+3_empty_/TypeSafeLambda.ProductCategory#second().[B]	*B€*=
+._empty_/TypeSafeLambda.ProductCategory#pair(). *pair€*;
+1_empty_/TypeSafeLambda.ProductCategory#pair().[A]	*A€*;
+1_empty_/TypeSafeLambda.ProductCategory#pair().[B]	*B€*;
+1_empty_/TypeSafeLambda.ProductCategory#pair().[C]	*C€*=
+2_empty_/TypeSafeLambda.ProductCategory#pair().(ab)*ab€*=
+2_empty_/TypeSafeLambda.ProductCategory#pair().(ac)*ac€*7
+#_empty_/TypeSafeLambda.Exponential#*Exponential€*@
+._empty_/TypeSafeLambda.Exponential#`<init>`(). €@*<init>€*4
+(_empty_/TypeSafeLambda.Exponential#[Exp]	*Exp€*6
+)_empty_/TypeSafeLambda.Exponential#[Prod]	*Prod€*4
+(_empty_/TypeSafeLambda.Exponential#[Arr]	*Arr€*9
+*_empty_/TypeSafeLambda.Exponential#eval(). *eval€*7
+-_empty_/TypeSafeLambda.Exponential#eval().[A]	*A€*7
+-_empty_/TypeSafeLambda.Exponential#eval().[B]	*B€*;
++_empty_/TypeSafeLambda.Exponential#curry(). *curry€*8
+._empty_/TypeSafeLambda.Exponential#curry().[A]	*A€*8
+._empty_/TypeSafeLambda.Exponential#curry().[B]	*B€*8
+._empty_/TypeSafeLambda.Exponential#curry().[C]	*C€*8
+._empty_/TypeSafeLambda.Exponential#curry().(a)*a€*?
+'_empty_/TypeSafeLambda.CartesianClosed#*CartesianClosed€*D
+2_empty_/TypeSafeLambda.CartesianClosed#`<init>`(). €@*<init>€*:
+-_empty_/TypeSafeLambda.CartesianClosed#[Term]	*Term€*8
+,_empty_/TypeSafeLambda.CartesianClosed#[Exp]	*Exp€*:
+-_empty_/TypeSafeLambda.CartesianClosed#[Prod]	*Prod€*8
+,_empty_/TypeSafeLambda.CartesianClosed#[Arr]	*Arr€*%
+_empty_/TypeSafeLambda.V# *V€*6
+$_empty_/TypeSafeLambda.V#`<init>`(). €@*<init>€*,
+_empty_/TypeSafeLambda.V#[Prod]	*Prod€**
+_empty_/TypeSafeLambda.V#[Env]	*Env€*&
+_empty_/TypeSafeLambda.V#[R]	*R€*,
+_empty_/TypeSafeLambda.Zero# €*Zero€*9
+'_empty_/TypeSafeLambda.Zero#`<init>`(). €@*<init>€*/
+"_empty_/TypeSafeLambda.Zero#[Prod]	*Prod€*-
+!_empty_/TypeSafeLambda.Zero#[Env]	*Env€*)
+_empty_/TypeSafeLambda.Zero#[R]	*R€*0
+#_empty_/TypeSafeLambda.Zero#copy().*copy€*6
+)_empty_/TypeSafeLambda.Zero#copy().[Prod]	*Prod€*4
+(_empty_/TypeSafeLambda.Zero#copy().[Env]	*Env€*0
+&_empty_/TypeSafeLambda.Zero#copy().[R]	*R€*+
+_empty_/TypeSafeLambda.Zero.
+ *Zero€*2
+$_empty_/TypeSafeLambda.Zero.apply().*apply€*7
+*_empty_/TypeSafeLambda.Zero.apply().[Prod]	*Prod€*5
+)_empty_/TypeSafeLambda.Zero.apply().[Env]	*Env€*1
+'_empty_/TypeSafeLambda.Zero.apply().[R]	*R€*6
+&_empty_/TypeSafeLambda.Zero.unapply().*unapply€*9
+,_empty_/TypeSafeLambda.Zero.unapply().[Prod]	*Prod€*7
++_empty_/TypeSafeLambda.Zero.unapply().[Env]	*Env€*3
+)_empty_/TypeSafeLambda.Zero.unapply().[R]	*R€*7
++_empty_/TypeSafeLambda.Zero.unapply().(x$1)*x$1€*8
+'_empty_/TypeSafeLambda.Zero.toString().*toString€*,
+_empty_/TypeSafeLambda.Succ# €*Succ€*9
+'_empty_/TypeSafeLambda.Succ#`<init>`(). €@*<init>€*7
+*_empty_/TypeSafeLambda.Succ#`<init>`().(v) €*v€*/
+"_empty_/TypeSafeLambda.Succ#[Prod]	*Prod€*-
+!_empty_/TypeSafeLambda.Succ#[Env]	*Env€*)
+_empty_/TypeSafeLambda.Succ#[R]	*R€*)
+_empty_/TypeSafeLambda.Succ#[X]	*X€*+
+_empty_/TypeSafeLambda.Succ#v. €*v€*0
+#_empty_/TypeSafeLambda.Succ#copy().*copy€*6
+)_empty_/TypeSafeLambda.Succ#copy().[Prod]	*Prod€*4
+(_empty_/TypeSafeLambda.Succ#copy().[Env]	*Env€*0
+&_empty_/TypeSafeLambda.Succ#copy().[R]	*R€*0
+&_empty_/TypeSafeLambda.Succ#copy().[X]	*X€*0
+&_empty_/TypeSafeLambda.Succ#copy().(v)*v€*D
+-_empty_/TypeSafeLambda.Succ#copy$default$1().*copy$default$1€*@
+3_empty_/TypeSafeLambda.Succ#copy$default$1().[Prod]	*Prod€*>
+2_empty_/TypeSafeLambda.Succ#copy$default$1().[Env]	*Env€*:
+0_empty_/TypeSafeLambda.Succ#copy$default$1().[R]	*R€*:
+0_empty_/TypeSafeLambda.Succ#copy$default$1().[X]	*X€*,
+!_empty_/TypeSafeLambda.Succ#_1().*_1€*+
+_empty_/TypeSafeLambda.Succ.
+ *Succ€*2
+$_empty_/TypeSafeLambda.Succ.apply().*apply€*7
+*_empty_/TypeSafeLambda.Succ.apply().[Prod]	*Prod€*5
+)_empty_/TypeSafeLambda.Succ.apply().[Env]	*Env€*1
+'_empty_/TypeSafeLambda.Succ.apply().[R]	*R€*1
+'_empty_/TypeSafeLambda.Succ.apply().[X]	*X€*1
+'_empty_/TypeSafeLambda.Succ.apply().(v)*v€*6
+&_empty_/TypeSafeLambda.Succ.unapply().*unapply€*9
+,_empty_/TypeSafeLambda.Succ.unapply().[Prod]	*Prod€*7
++_empty_/TypeSafeLambda.Succ.unapply().[Env]	*Env€*3
+)_empty_/TypeSafeLambda.Succ.unapply().[R]	*R€*3
+)_empty_/TypeSafeLambda.Succ.unapply().[X]	*X€*7
++_empty_/TypeSafeLambda.Succ.unapply().(x$1)*x$1€*8
+'_empty_/TypeSafeLambda.Succ.toString().*toString€*/
+_empty_/TypeSafeLambda.Lambda# *Lambda€*;
+)_empty_/TypeSafeLambda.Lambda#`<init>`(). €@*<init>€*9
+(_empty_/TypeSafeLambda.Lambda#[Terminal]	*Terminal€*/
+#_empty_/TypeSafeLambda.Lambda#[Exp]	*Exp€*1
+$_empty_/TypeSafeLambda.Lambda#[Prod]	*Prod€*/
+#_empty_/TypeSafeLambda.Lambda#[Env]	*Env€*+
+!_empty_/TypeSafeLambda.Lambda#[R]	*R€*.
+_empty_/TypeSafeLambda.LUnit# €*LUnit€*:
+(_empty_/TypeSafeLambda.LUnit#`<init>`(). €@*<init>€*8
+'_empty_/TypeSafeLambda.LUnit#[Terminal]	*Terminal€*.
+"_empty_/TypeSafeLambda.LUnit#[Exp]	*Exp€*0
+#_empty_/TypeSafeLambda.LUnit#[Prod]	*Prod€*.
+"_empty_/TypeSafeLambda.LUnit#[Env]	*Env€*1
+$_empty_/TypeSafeLambda.LUnit#copy().*copy€*?
+._empty_/TypeSafeLambda.LUnit#copy().[Terminal]	*Terminal€*5
+)_empty_/TypeSafeLambda.LUnit#copy().[Exp]	*Exp€*7
+*_empty_/TypeSafeLambda.LUnit#copy().[Prod]	*Prod€*5
+)_empty_/TypeSafeLambda.LUnit#copy().[Env]	*Env€*-
+_empty_/TypeSafeLambda.LUnit.
+ *LUnit€*3
+%_empty_/TypeSafeLambda.LUnit.apply().*apply€*@
+/_empty_/TypeSafeLambda.LUnit.apply().[Terminal]	*Terminal€*6
+*_empty_/TypeSafeLambda.LUnit.apply().[Exp]	*Exp€*8
++_empty_/TypeSafeLambda.LUnit.apply().[Prod]	*Prod€*6
+*_empty_/TypeSafeLambda.LUnit.apply().[Env]	*Env€*7
+'_empty_/TypeSafeLambda.LUnit.unapply().*unapply€*B
+1_empty_/TypeSafeLambda.LUnit.unapply().[Terminal]	*Terminal€*8
+,_empty_/TypeSafeLambda.LUnit.unapply().[Exp]	*Exp€*:
+-_empty_/TypeSafeLambda.LUnit.unapply().[Prod]	*Prod€*8
+,_empty_/TypeSafeLambda.LUnit.unapply().[Env]	*Env€*8
+,_empty_/TypeSafeLambda.LUnit.unapply().(x$1)*x$1€*9
+(_empty_/TypeSafeLambda.LUnit.toString().*toString€**
+_empty_/TypeSafeLambda.Var# €*Var€*8
+&_empty_/TypeSafeLambda.Var#`<init>`(). €@*<init>€*6
+)_empty_/TypeSafeLambda.Var#`<init>`().(v) €*v€*6
+%_empty_/TypeSafeLambda.Var#[Terminal]	*Terminal€*,
+ _empty_/TypeSafeLambda.Var#[Exp]	*Exp€*.
+!_empty_/TypeSafeLambda.Var#[Prod]	*Prod€*,
+ _empty_/TypeSafeLambda.Var#[Env]	*Env€*(
+_empty_/TypeSafeLambda.Var#[R]	*R€**
+_empty_/TypeSafeLambda.Var#v. €*v€*/
+"_empty_/TypeSafeLambda.Var#copy().*copy€*=
+,_empty_/TypeSafeLambda.Var#copy().[Terminal]	*Terminal€*3
+'_empty_/TypeSafeLambda.Var#copy().[Exp]	*Exp€*5
+(_empty_/TypeSafeLambda.Var#copy().[Prod]	*Prod€*3
+'_empty_/TypeSafeLambda.Var#copy().[Env]	*Env€*/
+%_empty_/TypeSafeLambda.Var#copy().[R]	*R€*/
+%_empty_/TypeSafeLambda.Var#copy().(v)*v€*C
+,_empty_/TypeSafeLambda.Var#copy$default$1().*copy$default$1€*G
+6_empty_/TypeSafeLambda.Var#copy$default$1().[Terminal]	*Terminal€*=
+1_empty_/TypeSafeLambda.Var#copy$default$1().[Exp]	*Exp€*?
+2_empty_/TypeSafeLambda.Var#copy$default$1().[Prod]	*Prod€*=
+1_empty_/TypeSafeLambda.Var#copy$default$1().[Env]	*Env€*9
+/_empty_/TypeSafeLambda.Var#copy$default$1().[R]	*R€*+
+ _empty_/TypeSafeLambda.Var#_1().*_1€*)
+_empty_/TypeSafeLambda.Var.
+ *Var€*1
+#_empty_/TypeSafeLambda.Var.apply().*apply€*>
+-_empty_/TypeSafeLambda.Var.apply().[Terminal]	*Terminal€*4
+(_empty_/TypeSafeLambda.Var.apply().[Exp]	*Exp€*6
+)_empty_/TypeSafeLambda.Var.apply().[Prod]	*Prod€*4
+(_empty_/TypeSafeLambda.Var.apply().[Env]	*Env€*0
+&_empty_/TypeSafeLambda.Var.apply().[R]	*R€*0
+&_empty_/TypeSafeLambda.Var.apply().(v)*v€*5
+%_empty_/TypeSafeLambda.Var.unapply().*unapply€*@
+/_empty_/TypeSafeLambda.Var.unapply().[Terminal]	*Terminal€*6
+*_empty_/TypeSafeLambda.Var.unapply().[Exp]	*Exp€*8
++_empty_/TypeSafeLambda.Var.unapply().[Prod]	*Prod€*6
+*_empty_/TypeSafeLambda.Var.unapply().[Env]	*Env€*2
+(_empty_/TypeSafeLambda.Var.unapply().[R]	*R€*6
+*_empty_/TypeSafeLambda.Var.unapply().(x$1)*x$1€*7
+&_empty_/TypeSafeLambda.Var.toString().*toString€**
+_empty_/TypeSafeLambda.Lam# €*Lam€*8
+&_empty_/TypeSafeLambda.Lam#`<init>`(). €@*<init>€*:
++_empty_/TypeSafeLambda.Lam#`<init>`().(lam) €*lam€*6
+%_empty_/TypeSafeLambda.Lam#[Terminal]	*Terminal€*,
+ _empty_/TypeSafeLambda.Lam#[Exp]	*Exp€*.
+!_empty_/TypeSafeLambda.Lam#[Prod]	*Prod€*,
+ _empty_/TypeSafeLambda.Lam#[Env]	*Env€*(
+_empty_/TypeSafeLambda.Lam#[R]	*R€*(
+_empty_/TypeSafeLambda.Lam#[A]	*A€*.
+_empty_/TypeSafeLambda.Lam#lam. €*lam€*/
+"_empty_/TypeSafeLambda.Lam#copy().*copy€*=
+,_empty_/TypeSafeLambda.Lam#copy().[Terminal]	*Terminal€*3
+'_empty_/TypeSafeLambda.Lam#copy().[Exp]	*Exp€*5
+(_empty_/TypeSafeLambda.Lam#copy().[Prod]	*Prod€*3
+'_empty_/TypeSafeLambda.Lam#copy().[Env]	*Env€*/
+%_empty_/TypeSafeLambda.Lam#copy().[R]	*R€*/
+%_empty_/TypeSafeLambda.Lam#copy().[A]	*A€*3
+'_empty_/TypeSafeLambda.Lam#copy().(lam)*lam€*C
+,_empty_/TypeSafeLambda.Lam#copy$default$1().*copy$default$1€*G
+6_empty_/TypeSafeLambda.Lam#copy$default$1().[Terminal]	*Terminal€*=
+1_empty_/TypeSafeLambda.Lam#copy$default$1().[Exp]	*Exp€*?
+2_empty_/TypeSafeLambda.Lam#copy$default$1().[Prod]	*Prod€*=
+1_empty_/TypeSafeLambda.Lam#copy$default$1().[Env]	*Env€*9
+/_empty_/TypeSafeLambda.Lam#copy$default$1().[R]	*R€*9
+/_empty_/TypeSafeLambda.Lam#copy$default$1().[A]	*A€*+
+ _empty_/TypeSafeLambda.Lam#_1().*_1€*)
+_empty_/TypeSafeLambda.Lam.
+ *Lam€*1
+#_empty_/TypeSafeLambda.Lam.apply().*apply€*>
+-_empty_/TypeSafeLambda.Lam.apply().[Terminal]	*Terminal€*4
+(_empty_/TypeSafeLambda.Lam.apply().[Exp]	*Exp€*6
+)_empty_/TypeSafeLambda.Lam.apply().[Prod]	*Prod€*4
+(_empty_/TypeSafeLambda.Lam.apply().[Env]	*Env€*0
+&_empty_/TypeSafeLambda.Lam.apply().[R]	*R€*0
+&_empty_/TypeSafeLambda.Lam.apply().[A]	*A€*4
+(_empty_/TypeSafeLambda.Lam.apply().(lam)*lam€*5
+%_empty_/TypeSafeLambda.Lam.unapply().*unapply€*@
+/_empty_/TypeSafeLambda.Lam.unapply().[Terminal]	*Terminal€*6
+*_empty_/TypeSafeLambda.Lam.unapply().[Exp]	*Exp€*8
++_empty_/TypeSafeLambda.Lam.unapply().[Prod]	*Prod€*6
+*_empty_/TypeSafeLambda.Lam.unapply().[Env]	*Env€*2
+(_empty_/TypeSafeLambda.Lam.unapply().[R]	*R€*2
+(_empty_/TypeSafeLambda.Lam.unapply().[A]	*A€*6
+*_empty_/TypeSafeLambda.Lam.unapply().(x$1)*x$1€*7
+&_empty_/TypeSafeLambda.Lam.toString().*toString€**
+_empty_/TypeSafeLambda.App# €*App€*8
+&_empty_/TypeSafeLambda.App#`<init>`(). €@*<init>€*6
+)_empty_/TypeSafeLambda.App#`<init>`().(f) €*f€*6
+)_empty_/TypeSafeLambda.App#`<init>`().(a) €*a€*6
+%_empty_/TypeSafeLambda.App#[Terminal]	*Terminal€*,
+ _empty_/TypeSafeLambda.App#[Exp]	*Exp€*.
+!_empty_/TypeSafeLambda.App#[Prod]	*Prod€*,
+ _empty_/TypeSafeLambda.App#[Env]	*Env€*(
+_empty_/TypeSafeLambda.App#[R]	*R€**
+_empty_/TypeSafeLambda.App#[R_]	*R_€**
+_empty_/TypeSafeLambda.App#f. €*f€**
+_empty_/TypeSafeLambda.App#a. €*a€*/
+"_empty_/TypeSafeLambda.App#copy().*copy€*=
+,_empty_/TypeSafeLambda.App#copy().[Terminal]	*Terminal€*3
+'_empty_/TypeSafeLambda.App#copy().[Exp]	*Exp€*5
+(_empty_/TypeSafeLambda.App#copy().[Prod]	*Prod€*3
+'_empty_/TypeSafeLambda.App#copy().[Env]	*Env€*/
+%_empty_/TypeSafeLambda.App#copy().[R]	*R€*1
+&_empty_/TypeSafeLambda.App#copy().[R_]	*R_€*/
+%_empty_/TypeSafeLambda.App#copy().(f)*f€*/
+%_empty_/TypeSafeLambda.App#copy().(a)*a€*C
+,_empty_/TypeSafeLambda.App#copy$default$1().*copy$default$1€*G
+6_empty_/TypeSafeLambda.App#copy$default$1().[Terminal]	*Terminal€*=
+1_empty_/TypeSafeLambda.App#copy$default$1().[Exp]	*Exp€*?
+2_empty_/TypeSafeLambda.App#copy$default$1().[Prod]	*Prod€*=
+1_empty_/TypeSafeLambda.App#copy$default$1().[Env]	*Env€*9
+/_empty_/TypeSafeLambda.App#copy$default$1().[R]	*R€*;
+0_empty_/TypeSafeLambda.App#copy$default$1().[R_]	*R_€*C
+,_empty_/TypeSafeLambda.App#copy$default$2().*copy$default$2€*G
+6_empty_/TypeSafeLambda.App#copy$default$2().[Terminal]	*Terminal€*=
+1_empty_/TypeSafeLambda.App#copy$default$2().[Exp]	*Exp€*?
+2_empty_/TypeSafeLambda.App#copy$default$2().[Prod]	*Prod€*=
+1_empty_/TypeSafeLambda.App#copy$default$2().[Env]	*Env€*9
+/_empty_/TypeSafeLambda.App#copy$default$2().[R]	*R€*;
+0_empty_/TypeSafeLambda.App#copy$default$2().[R_]	*R_€*+
+ _empty_/TypeSafeLambda.App#_1().*_1€*+
+ _empty_/TypeSafeLambda.App#_2().*_2€*)
+_empty_/TypeSafeLambda.App.
+ *App€*1
+#_empty_/TypeSafeLambda.App.apply().*apply€*>
+-_empty_/TypeSafeLambda.App.apply().[Terminal]	*Terminal€*4
+(_empty_/TypeSafeLambda.App.apply().[Exp]	*Exp€*6
+)_empty_/TypeSafeLambda.App.apply().[Prod]	*Prod€*4
+(_empty_/TypeSafeLambda.App.apply().[Env]	*Env€*0
+&_empty_/TypeSafeLambda.App.apply().[R]	*R€*2
+'_empty_/TypeSafeLambda.App.apply().[R_]	*R_€*0
+&_empty_/TypeSafeLambda.App.apply().(f)*f€*0
+&_empty_/TypeSafeLambda.App.apply().(a)*a€*5
+%_empty_/TypeSafeLambda.App.unapply().*unapply€*@
+/_empty_/TypeSafeLambda.App.unapply().[Terminal]	*Terminal€*6
+*_empty_/TypeSafeLambda.App.unapply().[Exp]	*Exp€*8
++_empty_/TypeSafeLambda.App.unapply().[Prod]	*Prod€*6
+*_empty_/TypeSafeLambda.App.unapply().[Env]	*Env€*2
+(_empty_/TypeSafeLambda.App.unapply().[R]	*R€*4
+)_empty_/TypeSafeLambda.App.unapply().[R_]	*R_€*6
+*_empty_/TypeSafeLambda.App.unapply().(x$1)*x$1€*7
+&_empty_/TypeSafeLambda.App.toString().*toString€*/
+ _empty_/TypeSafeLambda.interp().*interp€*3
+&_empty_/TypeSafeLambda.interp().[Term]	*Term€*1
+%_empty_/TypeSafeLambda.interp().[Exp]	*Exp€*3
+&_empty_/TypeSafeLambda.interp().[Prod]	*Prod€*1
+%_empty_/TypeSafeLambda.interp().[Arr]	*Arr€*-
+#_empty_/TypeSafeLambda.interp().[S]	*S€*-
+#_empty_/TypeSafeLambda.interp().[T]	*T€*-
+#_empty_/TypeSafeLambda.interp().(c)*c€*1
+%_empty_/TypeSafeLambda.interp().(exp)*exp€*
+local0 €*v€*
+local1 €	*t€*
+local2 €	*e€*
+local3 €	*var_p€*
+local4 €	*env€*
+local5 €	*r€*
+local6 €	*z_p€*
+local7 €	*z_env€*
+local8 €	*z_r€*
+local9 €*s€*
+local10 €	*s_prod€*
+local11 €	*s_env€*
+local12 €	*s_r€*
+local13 €	*x€*
+local14 €	*R$1€*
+local15 €	*A$1€*
+local16 €*lam€*
+local17 €*app€*
+local18 €	*t€*
+local19 €	*e€*
+local20 €	*p€*
+local21 €	*env€*
+local22 €	*r€*
+local23 €	*r_€*1
+_empty_/TypeSafeLambda.example.
+ *example€*1
+$_empty_/TypeSafeLambda.example.Term#*Term€*1
+$_empty_/TypeSafeLambda.example.Prod#*Prod€*1
+'_empty_/TypeSafeLambda.example.Prod#[A]	*A€*1
+'_empty_/TypeSafeLambda.example.Prod#[B]	*B€*/
+#_empty_/TypeSafeLambda.example.Exp#*Exp€*0
+&_empty_/TypeSafeLambda.example.Exp#[A]	*A€*0
+&_empty_/TypeSafeLambda.example.Exp#[B]	*B€*/
+#_empty_/TypeSafeLambda.example.Arr#*Arr€*0
+&_empty_/TypeSafeLambda.example.Arr#[A]	*A€*0
+&_empty_/TypeSafeLambda.example.Arr#[B]	*B€*.
+!_empty_/TypeSafeLambda.example.c. €*c€*
+local24 *$anon€*
+local25*id€*
+local26	*A€*
+local27*a€*
+local28*comp€*
+local29	*A€*
+local30	*B€*
+local31	*C€*
+local32*f€*
+local33*g€*
+local34*terminal€*
+local35	*A€*
+local36*a€*
+local37*first€*
+local38	*A€*
+local39	*B€*
+local40*x$1€*
+local41 €*a€*
+local42*second€*
+local43	*A€*
+local44	*B€*
+local45*x$1€*
+local46 €*b€*
+local47*pair€*
+local48	*A€*
+local49	*B€*
+local50	*C€*
+local51*f€*
+local52*g€*
+local53*a€*
+local54*eval€*
+local55	*A€*
+local56	*B€*
+local57*x$1€*
+local58 €*f€*
+local59 €*a€*
+local60*curry€*
+local61	*A€*
+local62	*B€*
+local63	*C€*
+local64*f€*
+local65*c€*
+local66*a€*/
+#_empty_/TypeSafeLambda.example.Env#*Env€*2
+#_empty_/TypeSafeLambda.example.exp. €*exp€*<
+(_empty_/TypeSafeLambda.example.interped. €*interped€*
+local67*i€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2%
+ _empty_/TypeSafeLambda.2.
+  _empty_/TypeSafeLambda.Category#29
+ +_empty_/TypeSafeLambda.Category#`<init>`().23
+ %_empty_/TypeSafeLambda.Category#[Arr]23
+ 
+%_empty_/TypeSafeLambda.Category#id().26
+ (_empty_/TypeSafeLambda.Category#id().[A]23
+ %_empty_/TypeSafeLambda.Category#[Arr]26
+ (_empty_/TypeSafeLambda.Category#id().[A]26
+ (_empty_/TypeSafeLambda.Category#id().[A]25
+ '_empty_/TypeSafeLambda.Category#comp().28
+ *_empty_/TypeSafeLambda.Category#comp().[A]28
+ *_empty_/TypeSafeLambda.Category#comp().[B]28
+ *_empty_/TypeSafeLambda.Category#comp().[C]29
+ +_empty_/TypeSafeLambda.Category#comp().(ab)23
+ %_empty_/TypeSafeLambda.Category#[Arr]28
+ *_empty_/TypeSafeLambda.Category#comp().[A]28
+! "*_empty_/TypeSafeLambda.Category#comp().[B]29
+% '+_empty_/TypeSafeLambda.Category#comp().(bc)23
+) ,%_empty_/TypeSafeLambda.Category#[Arr]28
+- .*_empty_/TypeSafeLambda.Category#comp().[B]28
+0 1*_empty_/TypeSafeLambda.Category#comp().[C]23
+5 8%_empty_/TypeSafeLambda.Category#[Arr]28
+9 :*_empty_/TypeSafeLambda.Category#comp().[A]28
+< =*_empty_/TypeSafeLambda.Category#comp().[C]2.
+  _empty_/TypeSafeLambda.Terminal#29
+ +_empty_/TypeSafeLambda.Terminal#`<init>`().2.
+* 2 _empty_/TypeSafeLambda.Category#23
+3 6%_empty_/TypeSafeLambda.Terminal#[Arr]24
+ &_empty_/TypeSafeLambda.Terminal#[Term]23
+ %_empty_/TypeSafeLambda.Terminal#[Arr]29
+		 +_empty_/TypeSafeLambda.Terminal#terminal().2<
+		 ._empty_/TypeSafeLambda.Terminal#terminal().[A]23
+		 %_empty_/TypeSafeLambda.Terminal#[Arr]2<
+		 ._empty_/TypeSafeLambda.Terminal#terminal().[A]24
+		  &_empty_/TypeSafeLambda.Terminal#[Term]25
+ '_empty_/TypeSafeLambda.ProductCategory#2@
+ 2_empty_/TypeSafeLambda.ProductCategory#`<init>`().2.
+7 ? _empty_/TypeSafeLambda.Category#2:
+@ C,_empty_/TypeSafeLambda.ProductCategory#[Arr]2;
+ -_empty_/TypeSafeLambda.ProductCategory#[Prod]2:
+$ ',_empty_/TypeSafeLambda.ProductCategory#[Arr]2=
+ /_empty_/TypeSafeLambda.ProductCategory#first().2@
+ 2_empty_/TypeSafeLambda.ProductCategory#first().[A]2@
+ 2_empty_/TypeSafeLambda.ProductCategory#first().[B]2:
+ ,_empty_/TypeSafeLambda.ProductCategory#[Arr]2;
+ -_empty_/TypeSafeLambda.ProductCategory#[Prod]2@
+ 2_empty_/TypeSafeLambda.ProductCategory#first().[A]2@
+! "2_empty_/TypeSafeLambda.ProductCategory#first().[B]2@
+% &2_empty_/TypeSafeLambda.ProductCategory#first().[A]2>
+ 0_empty_/TypeSafeLambda.ProductCategory#second().2A
+ 3_empty_/TypeSafeLambda.ProductCategory#second().[A]2A
+ 3_empty_/TypeSafeLambda.ProductCategory#second().[B]2:
+ ,_empty_/TypeSafeLambda.ProductCategory#[Arr]2;
+ -_empty_/TypeSafeLambda.ProductCategory#[Prod]2A
+  3_empty_/TypeSafeLambda.ProductCategory#second().[A]2A
+" #3_empty_/TypeSafeLambda.ProductCategory#second().[B]2A
+& '3_empty_/TypeSafeLambda.ProductCategory#second().[B]2<
+ ._empty_/TypeSafeLambda.ProductCategory#pair().2?
+ 1_empty_/TypeSafeLambda.ProductCategory#pair().[A]2?
+ 1_empty_/TypeSafeLambda.ProductCategory#pair().[B]2?
+ 1_empty_/TypeSafeLambda.ProductCategory#pair().[C]2@
+ 2_empty_/TypeSafeLambda.ProductCategory#pair().(ab)2:
+ ,_empty_/TypeSafeLambda.ProductCategory#[Arr]2?
+ 1_empty_/TypeSafeLambda.ProductCategory#pair().[A]2?
+! "1_empty_/TypeSafeLambda.ProductCategory#pair().[B]2@
+% '2_empty_/TypeSafeLambda.ProductCategory#pair().(ac)2:
+) ,,_empty_/TypeSafeLambda.ProductCategory#[Arr]2?
+- .1_empty_/TypeSafeLambda.ProductCategory#pair().[A]2?
+0 11_empty_/TypeSafeLambda.ProductCategory#pair().[C]2:
+5 8,_empty_/TypeSafeLambda.ProductCategory#[Arr]2?
+9 :1_empty_/TypeSafeLambda.ProductCategory#pair().[A]2;
+< @-_empty_/TypeSafeLambda.ProductCategory#[Prod]2?
+A B1_empty_/TypeSafeLambda.ProductCategory#pair().[B]2?
+D E1_empty_/TypeSafeLambda.ProductCategory#pair().[C]21
+ #_empty_/TypeSafeLambda.Exponential#2<
+ ._empty_/TypeSafeLambda.Exponential#`<init>`().25
+ '_empty_/TypeSafeLambda.ProductCategory#27
+  )_empty_/TypeSafeLambda.Exponential#[Prod]26
+" %(_empty_/TypeSafeLambda.Exponential#[Arr]26
+ (_empty_/TypeSafeLambda.Exponential#[Exp]27
+ #)_empty_/TypeSafeLambda.Exponential#[Prod]26
++ .(_empty_/TypeSafeLambda.Exponential#[Arr]28
+ *_empty_/TypeSafeLambda.Exponential#eval().2;
+ -_empty_/TypeSafeLambda.Exponential#eval().[A]2;
+ -_empty_/TypeSafeLambda.Exponential#eval().[B]26
+ (_empty_/TypeSafeLambda.Exponential#[Arr]27
+ )_empty_/TypeSafeLambda.Exponential#[Prod]26
+  (_empty_/TypeSafeLambda.Exponential#[Exp]2;
+! "-_empty_/TypeSafeLambda.Exponential#eval().[A]2;
+$ %-_empty_/TypeSafeLambda.Exponential#eval().[B]2;
+( )-_empty_/TypeSafeLambda.Exponential#eval().[A]2;
+, --_empty_/TypeSafeLambda.Exponential#eval().[B]29
+ +_empty_/TypeSafeLambda.Exponential#curry().2<
+ ._empty_/TypeSafeLambda.Exponential#curry().[A]2<
+ ._empty_/TypeSafeLambda.Exponential#curry().[B]2<
+ ._empty_/TypeSafeLambda.Exponential#curry().[C]2<
+ ._empty_/TypeSafeLambda.Exponential#curry().(a)26
+ (_empty_/TypeSafeLambda.Exponential#[Arr]27
+ ")_empty_/TypeSafeLambda.Exponential#[Prod]2<
+# $._empty_/TypeSafeLambda.Exponential#curry().[C]2<
+& '._empty_/TypeSafeLambda.Exponential#curry().[A]2<
+* +._empty_/TypeSafeLambda.Exponential#curry().[B]26
+/ 2(_empty_/TypeSafeLambda.Exponential#[Arr]2<
+3 4._empty_/TypeSafeLambda.Exponential#curry().[C]26
+6 9(_empty_/TypeSafeLambda.Exponential#[Exp]2<
+: ;._empty_/TypeSafeLambda.Exponential#curry().[A]2<
+= >._empty_/TypeSafeLambda.Exponential#curry().[B]25
+ '_empty_/TypeSafeLambda.CartesianClosed#2@
+ 2_empty_/TypeSafeLambda.CartesianClosed#`<init>`().21
+ #_empty_/TypeSafeLambda.Exponential#2:
+ ,_empty_/TypeSafeLambda.CartesianClosed#[Exp]2;
+ !-_empty_/TypeSafeLambda.CartesianClosed#[Prod]2:
+# &,_empty_/TypeSafeLambda.CartesianClosed#[Arr]2.
+- 5 _empty_/TypeSafeLambda.Terminal#2;
+6 :-_empty_/TypeSafeLambda.CartesianClosed#[Term]2:
+< ?,_empty_/TypeSafeLambda.CartesianClosed#[Arr]2;
+ -_empty_/TypeSafeLambda.CartesianClosed#[Term]2:
+ !,_empty_/TypeSafeLambda.CartesianClosed#[Exp]2;
+) --_empty_/TypeSafeLambda.CartesianClosed#[Prod]2:
+5 8,_empty_/TypeSafeLambda.CartesianClosed#[Arr]2'
+ _empty_/TypeSafeLambda.V#22
+ $_empty_/TypeSafeLambda.V#`<init>`().2-
+ _empty_/TypeSafeLambda.V#[Prod]2,
+  _empty_/TypeSafeLambda.V#[Env]2*
+" #_empty_/TypeSafeLambda.V#[R]2*
+ _empty_/TypeSafeLambda.Zero#25
+ '_empty_/TypeSafeLambda.Zero#`<init>`().2'
+0 1_empty_/TypeSafeLambda.V#20
+2 6"_empty_/TypeSafeLambda.Zero#[Prod]20
+8 <"_empty_/TypeSafeLambda.Zero#[Prod]2/
+= @!_empty_/TypeSafeLambda.Zero#[Env]2-
+B C_empty_/TypeSafeLambda.Zero#[R]2-
+F G_empty_/TypeSafeLambda.Zero#[R]20
+ "_empty_/TypeSafeLambda.Zero#[Prod]2/
+ !!_empty_/TypeSafeLambda.Zero#[Env]2-
+# $_empty_/TypeSafeLambda.Zero#[R]21
+ #_empty_/TypeSafeLambda.Zero#copy().2*
+ _empty_/TypeSafeLambda.Zero.22
+ $_empty_/TypeSafeLambda.Zero.apply().24
+ &_empty_/TypeSafeLambda.Zero.unapply().2*
+ _empty_/TypeSafeLambda.Succ#25
+ '_empty_/TypeSafeLambda.Succ#`<init>`().2'
+ _empty_/TypeSafeLambda.V#20
+	 "_empty_/TypeSafeLambda.Succ#[Prod]2/
+ !_empty_/TypeSafeLambda.Succ#[Env]2-
+ _empty_/TypeSafeLambda.Succ#[R]2'
+ _empty_/TypeSafeLambda.V#20
+ "_empty_/TypeSafeLambda.Succ#[Prod]20
+ "_empty_/TypeSafeLambda.Succ#[Prod]2/
+ !_empty_/TypeSafeLambda.Succ#[Env]2-
+ _empty_/TypeSafeLambda.Succ#[X]2-
+" #_empty_/TypeSafeLambda.Succ#[R]20
+ "_empty_/TypeSafeLambda.Succ#[Prod]2/
+ !!_empty_/TypeSafeLambda.Succ#[Env]2-
+# $_empty_/TypeSafeLambda.Succ#[R]2-
+& '_empty_/TypeSafeLambda.Succ#[X]2,
+ _empty_/TypeSafeLambda.Succ#v.21
+ #_empty_/TypeSafeLambda.Succ#copy().2/
+ !_empty_/TypeSafeLambda.Succ#_1().2*
+ _empty_/TypeSafeLambda.Succ.22
+ $_empty_/TypeSafeLambda.Succ.apply().24
+ &_empty_/TypeSafeLambda.Succ.unapply().2,
+!! _empty_/TypeSafeLambda.Lambda#27
+!! )_empty_/TypeSafeLambda.Lambda#`<init>`().26
+!! (_empty_/TypeSafeLambda.Lambda#[Terminal]21
+! ! ##_empty_/TypeSafeLambda.Lambda#[Exp]22
+!+! /$_empty_/TypeSafeLambda.Lambda#[Prod]21
+!7! :#_empty_/TypeSafeLambda.Lambda#[Env]2/
+!<! =!_empty_/TypeSafeLambda.Lambda#[R]2+
+## _empty_/TypeSafeLambda.LUnit#26
+## (_empty_/TypeSafeLambda.LUnit#`<init>`().2,
+$$ _empty_/TypeSafeLambda.Lambda#25
+$$ '_empty_/TypeSafeLambda.LUnit#[Terminal]20
+$$  "_empty_/TypeSafeLambda.LUnit#[Exp]21
+$"$ &#_empty_/TypeSafeLambda.LUnit#[Prod]20
+$($ +"_empty_/TypeSafeLambda.LUnit#[Env]25
+$-$ 5'_empty_/TypeSafeLambda.LUnit#[Terminal]25
+## '_empty_/TypeSafeLambda.LUnit#[Terminal]20
+##  "_empty_/TypeSafeLambda.LUnit#[Exp]21
+#(# ,#_empty_/TypeSafeLambda.LUnit#[Prod]20
+#4# 7"_empty_/TypeSafeLambda.LUnit#[Env]22
+## $_empty_/TypeSafeLambda.LUnit#copy().2+
+## _empty_/TypeSafeLambda.LUnit.23
+## %_empty_/TypeSafeLambda.LUnit.apply().25
+## '_empty_/TypeSafeLambda.LUnit.unapply().2)
+&& _empty_/TypeSafeLambda.Var#24
+&& &_empty_/TypeSafeLambda.Var#`<init>`().2'
+'' _empty_/TypeSafeLambda.V#2/
+'	' !_empty_/TypeSafeLambda.Var#[Prod]2.
+''  _empty_/TypeSafeLambda.Var#[Env]2,
+'' _empty_/TypeSafeLambda.Var#[R]2,
+(( _empty_/TypeSafeLambda.Lambda#23
+(( %_empty_/TypeSafeLambda.Var#[Terminal]2.
+((   _empty_/TypeSafeLambda.Var#[Exp]2/
+("( &!_empty_/TypeSafeLambda.Var#[Prod]2.
+((( + _empty_/TypeSafeLambda.Var#[Env]2,
+(-( ._empty_/TypeSafeLambda.Var#[R]23
+&& %_empty_/TypeSafeLambda.Var#[Terminal]2.
+&&  _empty_/TypeSafeLambda.Var#[Exp]2/
+&&& *!_empty_/TypeSafeLambda.Var#[Prod]2.
+&2& 5 _empty_/TypeSafeLambda.Var#[Env]2,
+&7& 8_empty_/TypeSafeLambda.Var#[R]2+
+'' _empty_/TypeSafeLambda.Var#v.20
+&& "_empty_/TypeSafeLambda.Var#copy().2.
+''  _empty_/TypeSafeLambda.Var#_1().2)
+&& _empty_/TypeSafeLambda.Var.21
+&& #_empty_/TypeSafeLambda.Var.apply().23
+&& %_empty_/TypeSafeLambda.Var.unapply().2)
+** _empty_/TypeSafeLambda.Lam#24
+** &_empty_/TypeSafeLambda.Lam#`<init>`().2,
++	+ _empty_/TypeSafeLambda.Lambda#23
+++ %_empty_/TypeSafeLambda.Lam#[Terminal]2.
+++  _empty_/TypeSafeLambda.Lam#[Exp]2/
+++ #!_empty_/TypeSafeLambda.Lam#[Prod]2/
++%+ )!_empty_/TypeSafeLambda.Lam#[Prod]2.
++*+ - _empty_/TypeSafeLambda.Lam#[Env]2,
++/+ 0_empty_/TypeSafeLambda.Lam#[A]2,
++3+ 4_empty_/TypeSafeLambda.Lam#[R]2,
+,, _empty_/TypeSafeLambda.Lambda#23
+,, %_empty_/TypeSafeLambda.Lam#[Terminal]2.
+,,   _empty_/TypeSafeLambda.Lam#[Exp]2/
+,", &!_empty_/TypeSafeLambda.Lam#[Prod]2.
+,(, + _empty_/TypeSafeLambda.Lam#[Env]2.
+,-, 0 _empty_/TypeSafeLambda.Lam#[Exp]2,
+,1, 2_empty_/TypeSafeLambda.Lam#[A]2,
+,4, 5_empty_/TypeSafeLambda.Lam#[R]23
+** %_empty_/TypeSafeLambda.Lam#[Terminal]2.
+**  _empty_/TypeSafeLambda.Lam#[Exp]2/
+*&* *!_empty_/TypeSafeLambda.Lam#[Prod]2.
+*2* 5 _empty_/TypeSafeLambda.Lam#[Env]2,
+*7* 8_empty_/TypeSafeLambda.Lam#[R]2,
+*:* ;_empty_/TypeSafeLambda.Lam#[A]2-
+++ _empty_/TypeSafeLambda.Lam#lam.20
+** "_empty_/TypeSafeLambda.Lam#copy().2.
++	+ 	 _empty_/TypeSafeLambda.Lam#_1().2)
+** _empty_/TypeSafeLambda.Lam.21
+** #_empty_/TypeSafeLambda.Lam.apply().23
+** %_empty_/TypeSafeLambda.Lam.unapply().2)
+.. _empty_/TypeSafeLambda.App#24
+.. &_empty_/TypeSafeLambda.App#`<init>`().2,
+// _empty_/TypeSafeLambda.Lambda#23
+// %_empty_/TypeSafeLambda.App#[Terminal]2.
+//  _empty_/TypeSafeLambda.App#[Exp]2/
+// !!_empty_/TypeSafeLambda.App#[Prod]2.
+/#/ & _empty_/TypeSafeLambda.App#[Env]2.
+/(/ + _empty_/TypeSafeLambda.App#[Exp]2,
+/,/ -_empty_/TypeSafeLambda.App#[R]2-
+/// 1_empty_/TypeSafeLambda.App#[R_]2,
+00 _empty_/TypeSafeLambda.Lambda#23
+00 %_empty_/TypeSafeLambda.App#[Terminal]2.
+00  _empty_/TypeSafeLambda.App#[Exp]2/
+00 !!_empty_/TypeSafeLambda.App#[Prod]2.
+0#0 & _empty_/TypeSafeLambda.App#[Env]2,
+0(0 )_empty_/TypeSafeLambda.App#[R]2,
+11 _empty_/TypeSafeLambda.Lambda#23
+11 %_empty_/TypeSafeLambda.App#[Terminal]2.
+11   _empty_/TypeSafeLambda.App#[Exp]2/
+1"1 &!_empty_/TypeSafeLambda.App#[Prod]2.
+1(1 + _empty_/TypeSafeLambda.App#[Env]2-
+1-1 /_empty_/TypeSafeLambda.App#[R_]23
+.. %_empty_/TypeSafeLambda.App#[Terminal]2.
+..  _empty_/TypeSafeLambda.App#[Exp]2/
+.&. *!_empty_/TypeSafeLambda.App#[Prod]2.
+.2. 5 _empty_/TypeSafeLambda.App#[Env]2,
+.7. 8_empty_/TypeSafeLambda.App#[R]2-
+.:. <_empty_/TypeSafeLambda.App#[R_]2+
+// _empty_/TypeSafeLambda.App#f.2+
+00 _empty_/TypeSafeLambda.App#a.20
+.. "_empty_/TypeSafeLambda.App#copy().2.
+//  _empty_/TypeSafeLambda.App#_1().2.
+00  _empty_/TypeSafeLambda.App#_2().2)
+.. _empty_/TypeSafeLambda.App.21
+.. #_empty_/TypeSafeLambda.App.apply().23
+.. %_empty_/TypeSafeLambda.App.unapply().2.
+33  _empty_/TypeSafeLambda.interp().24
+33 &_empty_/TypeSafeLambda.interp().[Term]23
+33 %_empty_/TypeSafeLambda.interp().[Exp]24
+33 "&_empty_/TypeSafeLambda.interp().[Prod]23
+3*3 -%_empty_/TypeSafeLambda.interp().[Arr]21
+353 6#_empty_/TypeSafeLambda.interp().[S]21
+383 9#_empty_/TypeSafeLambda.interp().[T]21
+44 #_empty_/TypeSafeLambda.interp().(c)25
+44 '_empty_/TypeSafeLambda.CartesianClosed#24
+44 &_empty_/TypeSafeLambda.interp().[Term]23
+44  %_empty_/TypeSafeLambda.interp().[Exp]24
+4"4 &&_empty_/TypeSafeLambda.interp().[Prod]23
+4(4 +%_empty_/TypeSafeLambda.interp().[Arr]23
+55 %_empty_/TypeSafeLambda.interp().(exp)2,
+5	5 _empty_/TypeSafeLambda.Lambda#24
+55 &_empty_/TypeSafeLambda.interp().[Term]23
+55 %_empty_/TypeSafeLambda.interp().[Exp]24
+55 &_empty_/TypeSafeLambda.interp().[Prod]21
+5!5 "#_empty_/TypeSafeLambda.interp().[S]21
+5$5 %#_empty_/TypeSafeLambda.interp().[T]23
+66 %_empty_/TypeSafeLambda.interp().[Arr]21
+6	6 
+#_empty_/TypeSafeLambda.interp().[S]21
+66 #_empty_/TypeSafeLambda.interp().[T]23
+66 %_empty_/TypeSafeLambda.interp().(exp)25
+77 '_empty_/TypeSafeLambda.LUnit.unapply().2+
+7	7 _empty_/TypeSafeLambda.LUnit.29
+77 +_empty_/TypeSafeLambda.Terminal#terminal().21
+77 #_empty_/TypeSafeLambda.interp().(c)2
+8	8 
+local02)
+88 _empty_/TypeSafeLambda.Var#2
+88 local12
+88 local22
+88 local32
+88  local42
+8"8 #local52+
+8*8 +_empty_/TypeSafeLambda.Var#v.2
+8(8 )local02*
+99 _empty_/TypeSafeLambda.Zero#2
+99 local62
+99 local72
+99 "local82>
+9)9 /0_empty_/TypeSafeLambda.ProductCategory#second().21
+9'9 (#_empty_/TypeSafeLambda.interp().(c)2
+909 5local72
+979 :local82
+:: local92*
+:: _empty_/TypeSafeLambda.Succ#2
+:: local102
+::  local112
+:": %local122
+:': (local1325
+;
+; '_empty_/TypeSafeLambda.Category#comp().21
+;; 	#_empty_/TypeSafeLambda.interp().(c)2
+;; local102
+;; local112
+;!; "local132
+;); ,local122=
+<< /_empty_/TypeSafeLambda.ProductCategory#first().21
+<
+< #_empty_/TypeSafeLambda.interp().(c)2.
+=
+=  _empty_/TypeSafeLambda.interp().21
+== #_empty_/TypeSafeLambda.interp().(c)21
+== #_empty_/TypeSafeLambda.Var.apply().2)
+== _empty_/TypeSafeLambda.Var.24
+== &_empty_/TypeSafeLambda.interp().[Term]23
+== !%_empty_/TypeSafeLambda.interp().[Exp]24
+=#= '&_empty_/TypeSafeLambda.interp().[Prod]2
+=)= .local112
+=0= 3local122,
+=7= 8_empty_/TypeSafeLambda.Succ#v.2
+=5= 6local923
+@@ %_empty_/TypeSafeLambda.Lam.unapply().2)
+@	@ _empty_/TypeSafeLambda.Lam.2
+@@ local142
+@@ local152
+@@ local1629
+@@ +_empty_/TypeSafeLambda.Exponential#curry().21
+@@ #_empty_/TypeSafeLambda.interp().(c)2.
+@@ # _empty_/TypeSafeLambda.interp().21
+@$@ %#_empty_/TypeSafeLambda.interp().(c)2
+@'@ *local162
+A	A local172)
+AA _empty_/TypeSafeLambda.App#2
+AA local182
+AA local192
+AA local202
+AA local212
+A A !local222
+A#A %local2325
+BB '_empty_/TypeSafeLambda.Category#comp().21
+BB #_empty_/TypeSafeLambda.interp().(c)2<
+C
+C ._empty_/TypeSafeLambda.ProductCategory#pair().21
+CC 	#_empty_/TypeSafeLambda.interp().(c)2.
+D
+D  _empty_/TypeSafeLambda.interp().21
+DD #_empty_/TypeSafeLambda.interp().(c)2+
+DD _empty_/TypeSafeLambda.App#f.2
+DD local172.
+E
+E  _empty_/TypeSafeLambda.interp().21
+EE #_empty_/TypeSafeLambda.interp().(c)2+
+EE _empty_/TypeSafeLambda.App#a.2
+EE local1728
+F
+F *_empty_/TypeSafeLambda.Exponential#eval().21
+FF 	#_empty_/TypeSafeLambda.interp().(c)2
+FF local222
+FF local232-
+J	J _empty_/TypeSafeLambda.example.22
+K	K $_empty_/TypeSafeLambda.example.Term#2
+KK scala/Unit#22
+L	L $_empty_/TypeSafeLambda.example.Prod#25
+LL '_empty_/TypeSafeLambda.example.Prod#[A]25
+LL '_empty_/TypeSafeLambda.example.Prod#[B]25
+LL '_empty_/TypeSafeLambda.example.Prod#[A]25
+LL '_empty_/TypeSafeLambda.example.Prod#[B]21
+M	M #_empty_/TypeSafeLambda.example.Exp#24
+MM &_empty_/TypeSafeLambda.example.Exp#[A]24
+MM &_empty_/TypeSafeLambda.example.Exp#[B]24
+MM &_empty_/TypeSafeLambda.example.Exp#[A]24
+MM &_empty_/TypeSafeLambda.example.Exp#[B]21
+N	N #_empty_/TypeSafeLambda.example.Arr#24
+NN &_empty_/TypeSafeLambda.example.Arr#[A]24
+NN &_empty_/TypeSafeLambda.example.Arr#[B]24
+NN &_empty_/TypeSafeLambda.example.Arr#[A]24
+NN &_empty_/TypeSafeLambda.example.Arr#[B]2/
+PP 	!_empty_/TypeSafeLambda.example.c.2
+PP local2425
+PP '_empty_/TypeSafeLambda.CartesianClosed#22
+P P $$_empty_/TypeSafeLambda.example.Term#21
+P&P )#_empty_/TypeSafeLambda.example.Exp#22
+P+P /$_empty_/TypeSafeLambda.example.Prod#21
+P1P 4#_empty_/TypeSafeLambda.example.Arr#2
+Q
+Q local252
+QQ local262
+QQ local262
+QQ local262
+QQ local272
+QQ  local272
+R
+R local282
+RR local292
+RR local302
+RR local312
+RR local322
+RR local292
+R R !local302
+R#R $local332
+R&R 'local302
+R+R ,local312
+R/R 0local292
+R4R 5local312(
+R:R Ascala/Function1#andThen().2
+R8R 9local322
+RBR Clocal332
+T
+T local342
+TT local352
+TT local352
+TT  scala/Unit#2
+T#T $local362
+V
+V local372
+VV local382
+VV local392
+VV local382
+VV local392
+V#V $local382
+V)V )local402%
+V/V /scala/Tuple2.unapply().2
+V/V 0local412
+V8V 9local412
+W
+W local422
+WW local432
+WW local442
+WW local432
+WW local442
+W$W %local442
+W*W *local452%
+W0W 0scala/Tuple2.unapply().2
+W3W 4local462
+W9W :local462
+X
+X local472
+XX local482
+XX local492
+XX local502
+XX local512
+XX local482
+X X !local492
+X#X $local522
+X&X 'local482
+X+X ,local502
+X/X 0local482
+X5X 6local492
+X8X 9local502
+YY 	local532#
+YY scala/Tuple2.apply().2&
+YY scala/Function1#apply().2
+YY local512
+YY local532&
+YY scala/Function1#apply().2
+YY local522
+YY local532
+[
+[ local542
+[[ local552
+[[ local562
+[[ local552
+[[ local562
+[ [ !local552
+['[ (local562
+[-[ -local572%
+[3[ 3scala/Tuple2.unapply().2
+[3[ 4local582
+[6[ 7local592&
+[=[ =scala/Function1#apply().2
+[<[ =local582
+[>[ ?local592
+\
+\ local602
+\\ local612
+\\ local622
+\\ local632
+\\ local642
+\\ local632
+\!\ "local612
+\(\ )local622
+\,\ -local632
+\1\ 2local612
+\6\ 7local622
+]] 	local652
+]] local662&
+]] scala/Function1#apply().2
+]] local642#
+]] scala/Tuple2.apply().2
+]] local652
+]] local6621
+`	` #_empty_/TypeSafeLambda.example.Env#22
+`` !$_empty_/TypeSafeLambda.example.Prod#22
+`` $_empty_/TypeSafeLambda.example.Prod#2
+`` scala/Unit#2
+`` 
+scala/Int#2
+`#` &
+scala/Int#2"
+`*` 0scala/Predef.String#21
+aa #_empty_/TypeSafeLambda.example.exp.21
+aa #_empty_/TypeSafeLambda.App.apply().2)
+aa _empty_/TypeSafeLambda.App.22
+aa $_empty_/TypeSafeLambda.example.Term#21
+aa #_empty_/TypeSafeLambda.example.Exp#22
+aa !$_empty_/TypeSafeLambda.example.Prod#21
+a#a &#_empty_/TypeSafeLambda.example.Env#2
+a(a +
+scala/Int#2"
+a-a 3scala/Predef.String#21
+c	c 	#_empty_/TypeSafeLambda.Var.apply().2)
+cc 	_empty_/TypeSafeLambda.Var.22
+cc $_empty_/TypeSafeLambda.Zero.apply().2*
+c
+c _empty_/TypeSafeLambda.Zero.21
+d	d 	#_empty_/TypeSafeLambda.Var.apply().2)
+dd 	_empty_/TypeSafeLambda.Var.22
+dd $_empty_/TypeSafeLambda.Succ.apply().2*
+d
+d _empty_/TypeSafeLambda.Succ.22
+dd $_empty_/TypeSafeLambda.Zero.apply().2*
+dd _empty_/TypeSafeLambda.Zero.26
+gg (_empty_/TypeSafeLambda.example.interped.21
+gg #_empty_/TypeSafeLambda.example.Env#2"
+gg !scala/Predef.String#2.
+hh  _empty_/TypeSafeLambda.interp().22
+hh $_empty_/TypeSafeLambda.example.Term#21
+hh #_empty_/TypeSafeLambda.example.Exp#22
+hh $_empty_/TypeSafeLambda.example.Prod#21
+hh !#_empty_/TypeSafeLambda.example.Arr#21
+h#h &#_empty_/TypeSafeLambda.example.Env#2"
+h(h .scala/Predef.String#2/
+h1h 2!_empty_/TypeSafeLambda.example.c.21
+h4h 7#_empty_/TypeSafeLambda.example.exp.2&
+jj scala/Function1#apply().26
+jj (_empty_/TypeSafeLambda.example.interped.2#
+jj scala/Tuple2.apply().2#
+jj scala/Tuple2.apply().2
+jj local672
+jj  
+scala/Int#2#
+j'j /scala/Any#toString().2
+j%j &local672"
+j6j <scala/Predef.String#PZ 6EF0FCDCFEB26E2D156FCFE682E512E4

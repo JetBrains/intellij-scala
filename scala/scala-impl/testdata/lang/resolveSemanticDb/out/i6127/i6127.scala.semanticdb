@@ -1,0 +1,119 @@
+
+¨tests/pos/i6127.scala*
+_empty_/Co#*Co€*(
+_empty_/Co#`<init>`(). €@*<init>€*
+_empty_/Co#[S]	 €*S€*
+_empty_/Co.
+ *Co€*!
+_empty_/Co.empty().*empty€* 
+_empty_/Co.empty().[X]	*X€*
+_empty_/Contra#*Contra€*,
+_empty_/Contra#`<init>`(). €@*<init>€*
+_empty_/Contra#[S]	 €*S€* 
+_empty_/Contra.
+ *Contra€*%
+_empty_/Contra.empty().*empty€*$
+_empty_/Contra.empty().[X]	*X€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€*
+_empty_/Foo#[FT]	 €*FT€*
+_empty_/Foo#x. €*x€*(
+_empty_/Foo#fooArray().*fooArray€*
+_empty_/Foo#y1. €*y1€*"
+_empty_/Foo#fooCo().*fooCo€*
+_empty_/Foo#y2. €*y2€**
+_empty_/Foo#fooContra().*	fooContra€*
+_empty_/Foo#y3. €*y3€2!
+ scala/reflect/ClassTag.2!
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ _empty_/Co#2$
+ _empty_/Co#`<init>`().2
+
+ _empty_/Co#[S]2
+ 	_empty_/Co.2!
+ _empty_/Co.empty().2$
+ _empty_/Co.empty().[X]2%
+ scala/reflect/ClassTag#2$
+ _empty_/Co.empty().[X]2
+ _empty_/Co#2$
+ _empty_/Co.empty().[X]2#
+" %scala/Predef.`???`().2
+ _empty_/Contra#2(
+ _empty_/Contra#`<init>`().2 
+ _empty_/Contra#[S]2
+ _empty_/Contra.2%
+ _empty_/Contra.empty().2(
+ _empty_/Contra.empty().[X]2%
+ scala/reflect/ClassTag#2(
+ _empty_/Contra.empty().[X]2
+  _empty_/Contra#2(
+! "_empty_/Contra.empty().[X]2#
+& )scala/Predef.`???`().2
+		 	_empty_/Foo#2%
+			 	_empty_/Foo#`<init>`().2
+		 _empty_/Foo#[FT]2
+		 _empty_/Foo#[FT]2
+		 _empty_/Foo#x.2%
+
+
+ _empty_/Foo#fooArray().2
+
+
+ _empty_/Foo#2
+
+
+ scala/Array#2"
+
+
+  scala/Predef.String#2%
+
+,
+ ,_empty_/Foo#`<init>`().2"
+
+3
+ 8scala/Array.empty().2
+
+-
+ 2scala/Array.2-
+
+8
+ 8scala/reflect/ClassTag.apply().2
+ _empty_/Foo#y1.2
+
+ scala/Array#2"
+ scala/Predef.String#2"
+  %scala/Array.empty().2
+ scala/Array.2-
+% %scala/reflect/ClassTag.apply().2"
+ _empty_/Foo#fooCo().2
+ _empty_/Foo#2
+ _empty_/Co#2"
+ scala/Predef.String#2%
+& &_empty_/Foo#`<init>`().2!
+* /_empty_/Co.empty().2
+' )_empty_/Co.2-
+/ /scala/reflect/ClassTag.apply().2
+ _empty_/Foo#y2.2
+
+ _empty_/Co#2"
+ scala/Predef.String#2!
+ _empty_/Co.empty().2
+ _empty_/Co.2-
+ scala/reflect/ClassTag.apply().2&
+ _empty_/Foo#fooContra().2
+ _empty_/Foo#2
+ _empty_/Contra#2"
+ "scala/Predef.String#2%
+. ._empty_/Foo#`<init>`().2%
+6 ;_empty_/Contra.empty().2
+/ 5_empty_/Contra.2-
+; ;scala/reflect/ClassTag.apply().2
+ _empty_/Foo#y3.2
+
+ _empty_/Contra#2"
+ scala/Predef.String#2%
+" '_empty_/Contra.empty().2
+ !_empty_/Contra.2-
+' 'scala/reflect/ClassTag.apply().PZ 0E81A4D5DBE8DA694A5837F5BD3C6EAB

@@ -1,0 +1,140 @@
+
+×tests/pos/i8083.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#B#*B€*)
+_empty_/A#B#`<init>`(). €@*<init>€*
+_empty_/Test2# *Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€*
+_empty_/Test2#a. „*a€*
+_empty_/Test2#b. „*b€*
+_empty_/Test2.
+ *Test2€*(
+_empty_/Test2.unapply().*unapply€*+
+_empty_/Test2.unapply().(that)*that€*
+_empty_/anA.
+ *anA€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.t. €*t€*
+local0 „*a€*
+local1 „*b€*
+local2 *$anon€*
+local3 €*a€*
+local4 €*b€*
+local5 €*u€*
+local6 €*v€*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.t.
+ *t€*
+_empty_/Test1.t.a. €*a€*
+_empty_/Test1.t.b. €*b€*
+local7 €*u€*
+local8 €*v€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#B#2%
+ _empty_/A#B#`<init>`().2
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2
+ _empty_/Test2#a.2
+ 
+_empty_/A#2
+% &_empty_/Test2#b.2
+* +_empty_/A#B#2
+( )_empty_/Test2#a.2
+ _empty_/Test2.2&
+ _empty_/Test2.unapply().2,
+ _empty_/Test2.unapply().(that)2
+ _empty_/Test2#2
+ "scala/Option#2
+) *_empty_/Test2#a.2,
+$ (_empty_/Test2.unapply().(that)2
+8 9_empty_/A#B#2
+6 7_empty_/Test2#a.2,
+1 5_empty_/Test2.unapply().(that)2!
+B Bscala/Some.apply().2
+> Bscala/Some.2#
+D Dscala/Tuple2.apply().2
+I J_empty_/Test2#a.2,
+D H_empty_/Test2.unapply().(that)2
+Q R_empty_/Test2#b.2,
+L P_empty_/Test2.unapply().(that)2
+ 
+_empty_/anA.2
+ 
+_empty_/A#2
+ _empty_/Test.2
+ 
+scala/App#2
+		 _empty_/Test.t.2
+			 _empty_/Test2#2
+		 local02
+		 _empty_/anA.2
+	&	 'local12
+	-	 ._empty_/A#B#2
+	)	 ,_empty_/anA.2
+	3	 3local22'
+	<	 <_empty_/Test2#`<init>`().2
+	7	 <_empty_/Test2#2
+	C	 Dlocal32
+	F	 I_empty_/anA.2
+	Q	 T_empty_/anA.2
+	Z	 [local42%
+	e	 e_empty_/A#B#`<init>`().2
+	d	 e_empty_/A#B#2
+	b	 clocal32
+
+
+ _empty_/Test.t.2&
+ _empty_/Test2.unapply().2
+	 _empty_/Test2.2
+ local52
+ local62
+ local52
+	 
+
+_empty_/A#2
+ local52
+ _empty_/Test2#a.2
+	 
+_empty_/Test.t.2
+ local62
+ _empty_/A#B#2
+ _empty_/Test2#a.2
+	 
+_empty_/Test.t.2
+ _empty_/Test1.2
+ 
+scala/App#2
+	 
+_empty_/Test1.t.2'
+ _empty_/Test2#`<init>`().2
+ _empty_/Test2#2 
+  _empty_/Test1.t.a.2
+# &_empty_/anA.2 
+, -_empty_/Test1.t.b.2%
+7 7_empty_/A#B#`<init>`().2
+6 7_empty_/A#B#2 
+4 5_empty_/Test1.t.a.2
+ _empty_/Test1.t.2&
+ _empty_/Test2.unapply().2
+	 _empty_/Test2.2
+ local72
+ local82
+ local72
+	 
+
+_empty_/A#2
+ local72 
+ _empty_/Test1.t.a.2
+	 
+_empty_/Test1.t.2
+ local82
+ _empty_/A#B#2 
+ _empty_/Test1.t.a.2
+	 
+_empty_/Test1.t.PZ 41E5730E11B9E91B1587FA232967F633

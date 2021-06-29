@@ -1,0 +1,153 @@
+
+é'&tests/pos/tcpoly_infer_ticket716.scala* 
+_empty_/Functor#*Functor€*-
+_empty_/Functor#`<init>`(). €@*<init>€*
+_empty_/Functor#[F]	*F€*&
+_empty_/Functor#fmap(). *fmap€*$
+_empty_/Functor#fmap().[A]	*A€*$
+_empty_/Functor#fmap().[B]	*B€*(
+_empty_/Functor#fmap().(fun)*fun€*(
+_empty_/Functor#fmap().(arg)*arg€*"
+_empty_/Functor.
+ *Functor€*3
+_empty_/Functor.ListFunctor.  *ListFunctor€*
+local0 *$anon€*
+local1*fmap€*
+local2	*A€*
+local3	*B€*
+local4*f€*
+local5*arg€*.
+_empty_/Functor.OOFunctor# *	OOFunctor€*7
+%_empty_/Functor.OOFunctor#`<init>`(). €@*<init>€*6
+*_empty_/Functor.OOFunctor#`<init>`().(arg)*arg€*8
+*_empty_/Functor.OOFunctor#`<init>`().(ftr)  *ftr€*'
+_empty_/Functor.OOFunctor#[F]	*F€*'
+_empty_/Functor.OOFunctor#[A]	*A€*-
+_empty_/Functor.OOFunctor#arg. €*arg€*-
+_empty_/Functor.OOFunctor#ftr.  *ftr€*.
+!_empty_/Functor.OOFunctor#fmap().*fmap€*.
+$_empty_/Functor.OOFunctor#fmap().[B]	*B€*2
+&_empty_/Functor.OOFunctor#fmap().(fun)*fun€*.
+_empty_/Functor.lifttoOO().  *lifttoOO€*(
+_empty_/Functor.lifttoOO().[F]	*F€*(
+_empty_/Functor.lifttoOO().[A]	*A€*,
+ _empty_/Functor.lifttoOO().(arg)*arg€*.
+ _empty_/Functor.lifttoOO().(ftr)  *ftr€*8
+_empty_/GeneralLiftingDemo.
+ *GeneralLiftingDemo€**
+_empty_/GeneralLiftingDemo.l. €*l€*.
+_empty_/GeneralLiftingDemo.res. €*res€2
+ _empty_/Functor#2)
+ _empty_/Functor#`<init>`().2!
+ _empty_/Functor#[F]2%
+ 
+_empty_/Functor#fmap().2(
+ _empty_/Functor#fmap().[A]2(
+ _empty_/Functor#fmap().[B]2*
+ _empty_/Functor#fmap().(fun)2(
+ _empty_/Functor#fmap().[A]2(
+ _empty_/Functor#fmap().[B]2*
+ _empty_/Functor#fmap().(arg)2!
+  _empty_/Functor#[F]2(
+! "_empty_/Functor#fmap().[A]2!
+& '_empty_/Functor#[F]2(
+( )_empty_/Functor#fmap().[B]2
+ _empty_/Functor.2*
+ _empty_/Functor.ListFunctor.2
+ #_empty_/Functor#2!
+$ (scala/package.List#2
+, ,local02
+0 7_empty_/Functor#2!
+8 <scala/package.List#2
+ local12
+ local22
+ local32
+ local42
+ local22
+ local32
+ !local52!
+# 'scala/package.List#2
+( )local22!
+, 0scala/package.List#2
+1 2local324
+: =&scala/collection/immutable/List#map().2
+6 9local52
+> ?local42(
+		 _empty_/Functor.OOFunctor#23
+		 %_empty_/Functor.OOFunctor#`<init>`().2+
+	$	 %_empty_/Functor.OOFunctor#[F]2+
+	&	 '_empty_/Functor.OOFunctor#[A]2
+	8	 ?_empty_/Functor#2+
+	@	 A_empty_/Functor.OOFunctor#[F]2+
+		 _empty_/Functor.OOFunctor#[F]2+
+		 _empty_/Functor.OOFunctor#[A]2,
+	 	 #_empty_/Functor.OOFunctor#arg.2,
+	3	 6_empty_/Functor.OOFunctor#ftr.2/
+
+
+ !_empty_/Functor.OOFunctor#fmap().22
+
+
+ $_empty_/Functor.OOFunctor#fmap().[B]24
+
+
+ &_empty_/Functor.OOFunctor#fmap().(fun)2+
+
+
+ _empty_/Functor.OOFunctor#[A]22
+
+
+ $_empty_/Functor.OOFunctor#fmap().[B]2+
+
+
+ _empty_/Functor.OOFunctor#[F]22
+
+
+ $_empty_/Functor.OOFunctor#fmap().[B]2%
+
+&
+ *_empty_/Functor#fmap().2,
+
+"
+ %_empty_/Functor.OOFunctor#ftr.24
+
++
+ .&_empty_/Functor.OOFunctor#fmap().(fun)2,
+
+/
+ 2_empty_/Functor.OOFunctor#arg.2)
+ _empty_/Functor.lifttoOO().2,
+ _empty_/Functor.lifttoOO().[F]2,
+ _empty_/Functor.lifttoOO().[A]2.
+  # _empty_/Functor.lifttoOO().(arg)2,
+$ %_empty_/Functor.lifttoOO().[F]2,
+& '_empty_/Functor.lifttoOO().[A]2.
+3 6 _empty_/Functor.lifttoOO().(ftr)2
+8 ?_empty_/Functor#2,
+@ A_empty_/Functor.lifttoOO().[F]2(
+E N_empty_/Functor.OOFunctor#2,
+O P_empty_/Functor.lifttoOO().[F]2,
+Q R_empty_/Functor.lifttoOO().[A]23
+h h%_empty_/Functor.OOFunctor#`<init>`().2(
+Z c_empty_/Functor.OOFunctor#2,
+d e_empty_/Functor.lifttoOO().[F]2,
+f g_empty_/Functor.lifttoOO().[A]2.
+i l _empty_/Functor.lifttoOO().(arg)2.
+n q _empty_/Functor.lifttoOO().(ftr)2)
+ _empty_/GeneralLiftingDemo.2
+" %
+scala/App#2
+	 _empty_/Functor.2+
+ _empty_/GeneralLiftingDemo.l.27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2-
+ 	_empty_/GeneralLiftingDemo.res.2/
+ !_empty_/Functor.OOFunctor#fmap().2)
+ _empty_/Functor.lifttoOO().2+
+ _empty_/GeneralLiftingDemo.l.2*
+ _empty_/Functor.ListFunctor.2 
+ scala/Int#`+`(+4).2'
+ 	scala/Predef.println(+1).2%
+ java/lang/String#`+`().2-
+ _empty_/GeneralLiftingDemo.res.PZ 4DA46823DAFFE233F901819932AB1B30

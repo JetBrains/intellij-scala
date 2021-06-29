@@ -1,0 +1,36 @@
+
+Îtests/pos/t7475d.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#TT#*TT€*
+_empty_/T#priv. €*priv€*
+
+_empty_/U#*U€*'
+_empty_/U#`<init>`(). €@*<init>€*
+_empty_/U#UU#*UU€*
+_empty_/U#priv. €*priv€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ 	_empty_/T#TT#2
+ 
+_empty_/T#2
+ 
+scala/Any#2
+ _empty_/T#priv.2
+ _empty_/T#priv.2#
+ scala/Predef.`???`().2
+	 _empty_/T#TT#2
+ 
+_empty_/U#2#
+ _empty_/U#`<init>`().2
+ 	_empty_/U#UU#2
+ 
+scala/Any#2
+ 
+_empty_/U#2
+ _empty_/U#priv.2
+		 _empty_/U#priv.2#
+		 scala/Predef.`???`().2
+			 _empty_/U#UU#PZ B4EB56ADA2FAE52B04FF5ED72E031091

@@ -1,0 +1,19 @@
+
+Ïtests/pos/curried.scala**
+_empty_/UnCurryTest.
+ *UnCurryTest€*"
+_empty_/UnCurryTest.f().*f€*%
+_empty_/UnCurryTest.f().(x)*x€*%
+_empty_/UnCurryTest.f().(y)*y€2
+ _empty_/UnCurryTest.2&
+ _empty_/UnCurryTest.f().2)
+ 	_empty_/UnCurryTest.f().(x)2
+ 
+scala/Int#2)
+ _empty_/UnCurryTest.f().(y)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2)
+ _empty_/UnCurryTest.f().(x)2)
+ _empty_/UnCurryTest.f().(y)2&
+ _empty_/UnCurryTest.f().PZ F30D270F3AA0A424359C779F8E0B696B

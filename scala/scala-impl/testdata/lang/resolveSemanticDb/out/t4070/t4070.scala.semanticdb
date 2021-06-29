@@ -1,0 +1,76 @@
+
+ëtests/pos/t4070.scala*
+a/Foo#*Foo€*#
+a/Foo#`<init>`(). €@*<init>€*
+a/Foo#crash().*crash€*
+a/Foo#crash().(x)*x€*
+local0 €*m€*
+local1 €	*tv€*
+a/Foo#Dingus#*Dingus€**
+a/Foo#Dingus#`<init>`(). €@*<init>€*
+a/Foo#Dingus#[T]	*T€*
+a/Foo#Bippy#*Bippy€*)
+a/Foo#Bippy#`<init>`(). €@*<init>€*
+a/Foo#Bippy#[CC]	*CC€*
+b/Foo#*Foo€*#
+b/Foo#`<init>`(). €@*<init>€*
+b/Foo#Dingus#*Dingus€**
+b/Foo#Dingus#`<init>`(). €@*<init>€*
+b/Foo#Dingus#[T]	*T€*
+b/Foo#Bippy#*Bippy€*)
+b/Foo#Bippy#`<init>`(). €@*<init>€*
+b/Foo#Bippy#[CC]	*CC€*
+b/Foo#crash().*crash€*
+b/Foo#crash().(x)*x€*
+local2 €*m€*
+local3 €	*tv€2
+ 	a/2
+ a/Foo#2
+ a/Foo#`<init>`().2
+ a/Foo#crash().2
+ a/Foo#crash().(x)2
+ a/Foo#Dingus#2
+ !scala/Unit#2
+$ %a/Foo#crash().(x)2
+3 4local02
+6 ;a/Foo#Bippy#2
+< >local12
+
+ a/Foo#Dingus#2&
+ a/Foo#Dingus#`<init>`().2
+ a/Foo#Dingus#[T]2
+
+ a/Foo#Bippy#2%
+ a/Foo#Bippy#`<init>`().2&
+: :a/Foo#Dingus#`<init>`().2
++ 1a/Foo#Dingus#2
+2 4a/Foo#Bippy#[CC]2
+5 8
+scala/Int#2
+ a/Foo#Bippy#[CC]2
+
+
+ 	b/2
+ b/Foo#2
+ b/Foo#`<init>`().2
+
+ b/Foo#Dingus#2&
+ b/Foo#Dingus#`<init>`().2
+ b/Foo#Dingus#[T]2
+
+ b/Foo#Bippy#2%
+ b/Foo#Bippy#`<init>`().2&
+: :b/Foo#Dingus#`<init>`().2
++ 1b/Foo#Dingus#2
+2 4b/Foo#Bippy#[CC]2
+5 8
+scala/Int#2
+ b/Foo#Bippy#[CC]2
+ b/Foo#crash().2
+ b/Foo#crash().(x)2
+ b/Foo#Dingus#2
+ !scala/Unit#2
+$ %b/Foo#crash().(x)2
+3 4local22
+6 ;b/Foo#Bippy#2
+< >local3PZ 1826F80C004C22663F02C9780711B072

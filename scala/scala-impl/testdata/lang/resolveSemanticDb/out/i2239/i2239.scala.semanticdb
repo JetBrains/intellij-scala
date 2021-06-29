@@ -1,0 +1,104 @@
+
+Õtests/pos/i2239.scala*
+_empty_/Rule#*Rule€**
+_empty_/Rule#`<init>`(). €@*<init>€*
+_empty_/Rule#[In]	 €*In€*
+_empty_/Rule#[A]	 €*A€*'
+_empty_/Rule#flatMap().*flatMap€*(
+_empty_/Rule#flatMap().[In2]	*In2€*$
+_empty_/Rule#flatMap().[B]	*B€*2
+!_empty_/Rule#flatMap().(fa2ruleb)*fa2ruleb€*
+_empty_/Rule#map().*map€* 
+_empty_/Rule#map().[B]	*B€*&
+_empty_/Rule#map().(fa2b)*fa2b€*!
+_empty_/Rule#`~++`().*~++€*&
+_empty_/Rule#`~++`().[In2]	*In2€*"
+_empty_/Rule#`~++`().[B]	*B€*(
+_empty_/Rule#`~++`().(next)*next€*
+local0*a€*
+local1*b€* 
+_empty_/SeqRule#*SeqRule€*-
+_empty_/SeqRule#`<init>`(). €@*<init>€*
+_empty_/SeqRule#S#*S€*
+_empty_/SeqRule#A#*A€* 
+_empty_/SeqRule#`*`().**€* 
+_empty_/SeqRule#`+`().*+€*)
+_empty_/SeqRule#`+`().(rule)*rule€2
+ 
+_empty_/Rule#2"
+
+ 
+_empty_/Rule#`<init>`().2
+ _empty_/Rule#[In]2
+# $_empty_/Rule#[A]2
+ _empty_/Rule#[In]2
+ _empty_/Rule#[A]2%
+ _empty_/Rule#flatMap().2*
+ _empty_/Rule#flatMap().[In2]2
+ _empty_/Rule#[In]2(
+ _empty_/Rule#flatMap().[B]2/
+ $!_empty_/Rule#flatMap().(fa2ruleb)2
+& '_empty_/Rule#[A]2
++ /_empty_/Rule#2*
+0 3_empty_/Rule#flatMap().[In2]2 
+5 8scala/package.Seq#2(
+9 :_empty_/Rule#flatMap().[B]2
+? C_empty_/Rule#2
+D F_empty_/Rule#[In]2 
+H Kscala/package.Seq#2(
+L M_empty_/Rule#flatMap().[B]2#
+R Uscala/Predef.`???`().2!
+ 	_empty_/Rule#map().2$
+
+ _empty_/Rule#map().[B]2'
+ _empty_/Rule#map().(fa2b)2
+ _empty_/Rule#[A]2$
+ _empty_/Rule#map().[B]2
+  _empty_/Rule#2
+! #_empty_/Rule#[In]2$
+% &_empty_/Rule#map().[B]2#
+* -scala/Predef.`???`().2#
+ 	_empty_/Rule#`~++`().2(
+
+ _empty_/Rule#`~++`().[In2]2&
+ _empty_/Rule#`~++`().[B]2
+ _empty_/Rule#[A]2)
+ _empty_/Rule#`~++`().(next)2
+  $_empty_/Rule#2(
+% (_empty_/Rule#`~++`().[In2]2 
+* -scala/package.Seq#2&
+. /_empty_/Rule#`~++`().[B]2%
+C C_empty_/Rule#flatMap().2
+: ;local02!
+N N_empty_/Rule#map().2)
+J N_empty_/Rule#`~++`().(next)2
+E Flocal125
+c c'scala/collection/immutable/List#`::`().28
+] c*scala/collection/IterableOnceOps#toList().2
+[ \local12
+V Wlocal02
+ _empty_/SeqRule#2)
+		 _empty_/SeqRule#`<init>`().2 
+		 _empty_/SeqRule#S#2 
+
+
+ _empty_/SeqRule#A#2$
+ _empty_/SeqRule#`*`().2
+
+ _empty_/Rule#2 
+ _empty_/SeqRule#S#2!
+ scala/package.List#2 
+ _empty_/SeqRule#A#2#
+  scala/Predef.`???`().2$
+ _empty_/SeqRule#`+`().2*
+ _empty_/SeqRule#`+`().(rule)2
+ _empty_/Rule#2 
+ _empty_/SeqRule#S#2 
+ _empty_/SeqRule#A#2
+  _empty_/Rule#2 
+! "_empty_/SeqRule#S#2 
+$ 'scala/package.Seq#2 
+( )_empty_/SeqRule#A#2#
+3 6_empty_/Rule#`~++`().2*
+. 2_empty_/SeqRule#`+`().(rule)2$
+7 8_empty_/SeqRule#`*`().PZ F992AD3DFBB53F240AA3C4695324AF6C

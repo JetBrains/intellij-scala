@@ -1,0 +1,95 @@
+
+Ùtests/pos/t7369.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.X. €*X€*
+_empty_/Test.Y. €*Y€*
+
+_empty_/B# *B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/True.
+ ˆ*True€*
+_empty_/False.
+ ˆ*False€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.X. €*X€*
+_empty_/Test2.Y. €*Y€*
+_empty_/Test3.
+ *Test3€*
+_empty_/Test3.X. €*X€*
+_empty_/Test3.O. €*O€**
+_empty_/Test3.classify().*classify€*>
+(_empty_/Test3.classify().(neighbourhood)*neighbourhood€2
+ _empty_/Test.2
+ _empty_/Test.X.2
+	 
+_empty_/Test.Y.2
+	 scala/Tuple1#2
+ scala/Boolean#2%
+ scala/Tuple1.unapply().2
+	 scala/Tuple1.2
+ _empty_/Test.X.2%
+ scala/Tuple1.unapply().2
+	 scala/Tuple1.2
+ _empty_/Test.Y.2
+
+
+ 
+_empty_/B#2
+
+
+_empty_/B#`<init>`().2
+ _empty_/True.2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ _empty_/False.2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ _empty_/Test2.2
+ _empty_/Test2.X.2
+	 
+
+_empty_/B#2
+ _empty_/True.2
+ _empty_/Test2.Y.2
+	 
+
+_empty_/B#2
+ _empty_/False.2
+	 scala/Tuple1#2
+ 
+_empty_/B#2%
+ scala/Tuple1.unapply().2
+	 scala/Tuple1.2
+ _empty_/Test2.X.2%
+ scala/Tuple1.unapply().2
+	 scala/Tuple1.2
+ _empty_/Test2.Y.2
+ _empty_/Test3.2
+ _empty_/Test3.X.2
+	 
+_empty_/Test3.O.2'
+ _empty_/Test3.classify().26
+ (_empty_/Test3.classify().(neighbourhood)2
+ &scala/Boolean#2
+( /scala/Boolean#2
+1 8scala/Boolean#2"
+< Bscala/Predef.String#26
+ (_empty_/Test3.classify().(neighbourhood)2%
+ scala/Tuple3.unapply().2
+ _empty_/Test3.X.2
+ _empty_/Test3.X.2
+ _empty_/Test3.X.2%
+ scala/Tuple3.unapply().2
+ _empty_/Test3.X.2
+ _empty_/Test3.X.2
+ _empty_/Test3.O.2%
+   scala/Tuple3.unapply().2
+   _empty_/Test3.O.2
+   _empty_/Test3.X.2
+   _empty_/Test3.X.2>
+!2! 20java/lang/IllegalArgumentException#`<init>`(+1).25
+!! 2'scala/package.IllegalArgumentException#PZ 2EC4FA61D62E9B4852D51A18AB37224B

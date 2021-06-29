@@ -1,0 +1,15 @@
+
+âtests/pos/i12396.scala*
+_empty_/`+`.
+ *+€*
+_empty_/`+`.x. €*x€*
+_empty_/Check.
+ *Check€*
+_empty_/Check.y. €*y€2
+ _empty_/`+`.2
+ _empty_/`+`.x.2
+ _empty_/Check.2
+ _empty_/Check.y.2
+ _empty_/`+`.x.2
+
+ _empty_/`+`.PZ B1B904D19C9764FB5FAFACD84F9B98C0

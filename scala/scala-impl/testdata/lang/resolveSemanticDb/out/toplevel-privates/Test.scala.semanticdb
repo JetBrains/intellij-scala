@@ -1,0 +1,31 @@
+
+˜&tests/pos/toplevel-privates/Test.scala*
+p/Test$package. *p€* 
+p/Test$package.x1. €*x1€* 
+p/Test$package.y1. €*y1€*"
+p/Test$package.xx1. €*xx1€*"
+p/Test$package.yy1. €*yy1€*
+p/Test$package.c. €*c€2
+ 	p/2
+p/Test$package.2 
+ p/Test$package.x1.2
+	 
+p/A$package.x.2 
+ p/Test$package.y1.2
+	 
+p/A$package.y.2!
+ p/Test$package.xx1.2
+
+ p/A$package.xx.2!
+ p/Test$package.yy1.2
+
+ p/A$package.yy.2
+
+
+ p/Test$package.c.2
+
+
+ p/C#`<init>`().2
+
+
+ p/C#PZ E7B5ED752EA826D4747B303E4BB148AE

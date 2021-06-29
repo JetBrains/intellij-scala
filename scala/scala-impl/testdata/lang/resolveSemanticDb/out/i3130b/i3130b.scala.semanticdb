@@ -1,0 +1,45 @@
+
+¢	tests/pos/i3130b.scala*
+_empty_/Outer#*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*
+_empty_/Outer#F#*F€*-
+_empty_/Outer#F#`<init>`(). €@*<init>€* 
+_empty_/Outer#F#f(). *f€*$
+_empty_/Outer#inner().*inner€*
+local0*
+InnerClass€*
+local1 €*x€*
+local2*<init>€*
+local3*f€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.o. €*o€2
+ _empty_/Outer#2'
+ _empty_/Outer#`<init>`().2
+ 	_empty_/Outer#F#2)
+ _empty_/Outer#F#`<init>`().2"
+ _empty_/Outer#F#f().2
+ 
+scala/Int#2$
+ _empty_/Outer#inner().2
+ _empty_/Outer#F#2
+
+ local02
+% &_empty_/Outer#F#2
+ local12
+
+ local32
+ local12
+ local02
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.o.2'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer#2&
+ scala/Predef.assert(+1).2!
+ scala/Int#`==`(+3).2"
+ _empty_/Outer#F#f().2$
+ _empty_/Outer#inner().2
+	 
+_empty_/Test.o.PZ 068D8B83515C13E968C0F53544B7CFBD

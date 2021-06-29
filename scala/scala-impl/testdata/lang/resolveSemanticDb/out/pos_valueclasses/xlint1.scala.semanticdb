@@ -1,0 +1,49 @@
+
+ž'tests/pos/pos_valueclasses/xlint1.scala*!
+xlint1/foo/package. *foo€*%
+xlint1/foo/package.Bar# *Bar€*4
+"xlint1/foo/package.Bar#`<init>`(). €@*<init>€*2
+%xlint1/foo/package.Bar#`<init>`().(x) €*x€*$
+xlint1/foo/package.Bar#[T]	*T€*&
+xlint1/foo/package.Bar#x. €*x€*-
+xlint1/foo/package.Bar#bippy().*bippy€*%
+xlint1/foo/package.Bar.
+ *Bar€*'
+xlint1/foo/package.Bar(). (*Bar€*&
+xlint1/foo/package.Bar().[T]	*T€*&
+xlint1/foo/package.Bar().(x)*x€*
+xlint1/foo/Baz.
+ *Baz€*#
+xlint1/foo/Baz.main().*main€*)
+xlint1/foo/Baz.main().(args)*args€2
+ xlint1/2!
+ xlint1/foo/package.2%
+ xlint1/foo/package.Bar#20
+ "xlint1/foo/package.Bar#`<init>`().2(
+  xlint1/foo/package.Bar#[T]2&
+0 0scala/AnyVal#`<init>`().2
+* 0scala/AnyVal#2(
+ xlint1/foo/package.Bar#[T]2'
+ xlint1/foo/package.Bar#x.2-
+ xlint1/foo/package.Bar#bippy().2%
+ xlint1/foo/package.Bar.2'
+ xlint1/foo/package.Bar().2
+ xlint1/foo/2
+			 xlint1/foo/Baz.2$
+
+
+ xlint1/foo/Baz.main().2*
+
+
+ xlint1/foo/Baz.main().(args)2
+
+
+ scala/Array#2"
+
+
+ scala/Predef.String#2
+
+#
+ 'scala/Unit#2-
+ xlint1/foo/package.Bar#bippy().2'
+ xlint1/foo/package.Bar().PZ F3299C6A80EE6A3786FEF004321E2767

@@ -1,0 +1,23 @@
+
+±tests/pos/switchUnbox.scala*
+_empty_/Foo.
+ *Foo€*!
+_empty_/Foo.xyz(). €*xyz€*'
+_empty_/Foo.`xyz_=`(). €*xyz_=€*'
+_empty_/Foo.`xyz_=`().(x$1)*x$1€2
+ 
+_empty_/Foo.2 
+ 	_empty_/Foo.xyz().2
+ 
+scala/Int#2"
+ scala/Predef.String#2#
+ scala/Tuple2.apply().2$
+ _empty_/Foo.`xyz_=`().2
+ scala/Tuple2#_1.2 
+ _empty_/Foo.xyz().2(
+ scala/Console.println(+1).2
+ scala/Console.2(
+ scala/Console.println(+1).2
+ scala/Console.2(
+ scala/Console.println(+1).2
+ scala/Console.PZ 29E51556465B0F70DBDF902D4C0C2590

@@ -1,0 +1,125 @@
+
+Àtests/pos/i8319.scala*
+example/Tree# *Tree€**
+example/Tree#`<init>`(). €@*<init>€*
+example/Tree#[T]	*T€*
+example/Lam# €*Lam€*)
+example/Lam#`<init>`(). €@*<init>€*
+example/Lam#[T]	*T€*
+example/Lam#[U]	*U€* 
+example/Lam#copy().*copy€* 
+example/Lam#copy().[T]	*T€* 
+example/Lam#copy().[U]	*U€*
+example/Lam.
+ *Lam€*"
+example/Lam.apply().*apply€*!
+example/Lam.apply().[T]	*T€*!
+example/Lam.apply().[U]	*U€*&
+example/Lam.unapply().*unapply€*#
+example/Lam.unapply().[T]	*T€*#
+example/Lam.unapply().[U]	*U€*'
+example/Lam.unapply().(x$1)*x$1€*(
+example/Lam.toString().*toString€*
+example/App# €*App€*)
+example/App#`<init>`(). €@*<init>€*
+example/App#[T]	*T€*
+example/App#[U]	*U€* 
+example/App#copy().*copy€* 
+example/App#copy().[T]	*T€* 
+example/App#copy().[U]	*U€*
+example/App.
+ *App€*"
+example/App.apply().*apply€*!
+example/App.apply().[T]	*T€*!
+example/App.apply().[U]	*U€*&
+example/App.unapply().*unapply€*#
+example/App.unapply().[T]	*T€*#
+example/App.unapply().[U]	*U€*'
+example/App.unapply().(x$1)*x$1€*(
+example/App.toString().*toString€*
+example/Var# €*Var€*)
+example/Var#`<init>`(). €@*<init>€* 
+example/Var#copy().*copy€*
+example/Var.
+ *Var€*"
+example/Var.apply().*apply€*&
+example/Var.unapply().*unapply€*'
+example/Var.unapply().(x$1)*x$1€*(
+example/Var.toString().*toString€* 
+example/Branch.
+ *Branch€*)
+example/Branch.unapply().*unapply€*0
+!example/Branch.unapply().(branch)*branch€*(
+example/i8319$package. *example€*(
+example/i8319$package.foo().*foo€*)
+example/i8319$package.foo().(s)*s€2
+ example/2
+ example/Tree#2&
+ example/Tree#`<init>`().2
+ example/Tree#[T]2
+ example/Lam#2%
+ example/Lam#`<init>`().2&
+' 'example/Tree#`<init>`().2
+ "example/Tree#2
+# &
+scala/Any#2
+ example/Lam#[T]2
+ example/Lam#[U]2
+example/Lam#copy().2
+ example/Lam.2
+example/Lam.apply().2 
+example/Lam.unapply().2
+ example/App#2%
+ example/App#`<init>`().2&
+' 'example/Tree#`<init>`().2
+ "example/Tree#2
+# &
+scala/Any#2
+ example/App#[T]2
+ example/App#[U]2
+example/App#copy().2
+ example/App.2
+example/App.apply().2 
+example/App.unapply().2
+ example/Var#2%
+ example/Var#`<init>`().2&
+' 'example/Tree#`<init>`().2
+ "example/Tree#2
+# &
+scala/Any#2
+ example/Var.2
+ example/Branch.2'
+ example/Branch.unapply().2/
+ !example/Branch.unapply().(branch)2
+  
+scala/`|`#2
+ example/Lam#2
+! $example/App#2 
+
+
+example/i8319$package.2*
+
+
+ example/i8319$package.foo().2
+
+
+ example/2-
+
+
+ example/i8319$package.foo().(s)2
+
+
+ scala/Option#2
+
+
+ example/Tree#2-
+
+&
+ 'example/i8319$package.foo().(s)2#
+ scala/Some.unapply().2
+ scala/Some.2
+ example/Var#2#
+ scala/Some.unapply().2
+ scala/Some.2'
+ example/Branch.unapply().2
+ example/Branch.PZ C6E92214D8D0647BC7D5C78EB8002D41

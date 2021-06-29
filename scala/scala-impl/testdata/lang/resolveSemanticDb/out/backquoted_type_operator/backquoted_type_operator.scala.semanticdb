@@ -1,0 +1,18 @@
+
+ç(tests/pos/backquoted_type_operator.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.`&`#*&Ä*
+_empty_/Test.`&`#[L]	*LÄ*
+_empty_/Test.`&`#[R]	*RÄ*
+_empty_/Test.x. Ä*xÄ2
+ _empty_/Test.2
+ 	_empty_/Test.`&`#2"
+ _empty_/Test.`&`#[L]2"
+ _empty_/Test.`&`#[R]2"
+ _empty_/Test.`&`#[L]2
+ _empty_/Test.x.2
+ _empty_/Test.`&`#2
+	 
+scala/Int#2"
+ scala/Predef.String#PZ AB68A20B4A2CD7D0ABA6144F79D793F2

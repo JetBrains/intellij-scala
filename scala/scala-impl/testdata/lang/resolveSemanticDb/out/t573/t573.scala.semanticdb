@@ -1,0 +1,130 @@
+
+ó/tests/pos/t573.scala*(
+lampion/collections/DirX.
+ *DirX€*+
+lampion/collections/DirX.Dir# *Dir€*:
+(lampion/collections/DirX.Dir#`<init>`(). €@*<init>€*9
+'lampion/collections/DirX.Dir#reverse(). *reverse€*1
+ lampion/collections/DirX.BEFORE.
+ *BEFORE€*:
+*lampion/collections/DirX.BEFORE.reverse().*reverse€*/
+lampion/collections/DirX.AFTER.
+ *AFTER€*9
+)lampion/collections/DirX.AFTER.reverse().*reverse€*,
+lampion/collections/Linked# *Linked€*8
+&lampion/collections/Linked#`<init>`(). €@*<init>€*-
+ lampion/collections/Linked#Node#*Node€*1
+!lampion/collections/Linked#Node0# *Node0€*>
+,lampion/collections/Linked#Node0#`<init>`(). €@*<init>€*
+local0*self€*8
+(lampion/collections/Linked#Node0#next(). €*next€*>
+,lampion/collections/Linked#Node0#`next_=`(). €*next_=€*=
+1lampion/collections/Linked#Node0#`next_=`().(x$1)*x$1€*8
+(lampion/collections/Linked#Node0#prev(). €*prev€*>
+,lampion/collections/Linked#Node0#`prev_=`(). €*prev_=€*=
+1lampion/collections/Linked#Node0#`prev_=`().(x$1)*x$1€*3
+'lampion/collections/Linked#Node0#get().*get€*8
+,lampion/collections/Linked#Node0#get().(dir)*dir€*3
+'lampion/collections/Linked#Node0#set().*set€*8
+,lampion/collections/Linked#Node0#set().(dir)*dir€*:
+-lampion/collections/Linked#Node0#set().(node)*node€*5
+(lampion/collections/Linked#Node0#link().*link€*9
+-lampion/collections/Linked#Node0#link().(dir)*dir€*;
+.lampion/collections/Linked#Node0#link().(node)*node€*3
+'lampion/collections/Linked#Node0#end().*end€*8
+,lampion/collections/Linked#Node0#end().(dir)*dir€2
+ lampion/collections/2
+ lampion/2'
+ lampion/collections/DirX.2+
+ lampion/collections/DirX.Dir#26
+ (lampion/collections/DirX.Dir#`<init>`().25
+ 'lampion/collections/DirX.Dir#reverse().2+
+ lampion/collections/DirX.Dir#2.
+	  lampion/collections/DirX.BEFORE.26
+ (lampion/collections/DirX.Dir#`<init>`().2+
+ lampion/collections/DirX.Dir#28
+ *lampion/collections/DirX.BEFORE.reverse().2-
+ lampion/collections/DirX.AFTER.2-
+			 lampion/collections/DirX.AFTER.26
+		 (lampion/collections/DirX.Dir#`<init>`().2+
+		 lampion/collections/DirX.Dir#27
+
+
+ )lampion/collections/DirX.AFTER.reverse().2.
+
+
+  lampion/collections/DirX.BEFORE.2'
+ lampion/collections/DirX.2)
+ lampion/collections/Linked#24
+ &lampion/collections/Linked#`<init>`().2.
+  lampion/collections/Linked#Node#2/
+ !lampion/collections/Linked#Node0#2/
+ !lampion/collections/Linked#Node0#2:
+ ,lampion/collections/Linked#Node0#`<init>`().2
+ local02.
+
+  lampion/collections/Linked#Node#26
+ (lampion/collections/Linked#Node0#next().2.
+  lampion/collections/Linked#Node#2:
+ ,lampion/collections/Linked#Node0#`next_=`().26
+ (lampion/collections/Linked#Node0#prev().2.
+  lampion/collections/Linked#Node#2:
+ ,lampion/collections/Linked#Node0#`prev_=`().25
+ 'lampion/collections/Linked#Node0#get().2:
+ ,lampion/collections/Linked#Node0#get().(dir)2+
+ lampion/collections/DirX.Dir#2
+! #scala/Any#`==`().2:
+  ,lampion/collections/Linked#Node0#get().(dir)2.
+$ * lampion/collections/DirX.BEFORE.26
+- 1(lampion/collections/Linked#Node0#prev().26
+7 ;(lampion/collections/Linked#Node0#next().25
+ 'lampion/collections/Linked#Node0#set().2:
+ ,lampion/collections/Linked#Node0#set().(dir)2+
+ lampion/collections/DirX.Dir#2;
+ #-lampion/collections/Linked#Node0#set().(node)2.
+& * lampion/collections/Linked#Node#2
+ scala/Any#`==`().2:
+
+ ,lampion/collections/Linked#Node0#set().(dir)2.
+  lampion/collections/DirX.BEFORE.2:
+ ,lampion/collections/Linked#Node0#`prev_=`().2;
+  %-lampion/collections/Linked#Node0#set().(node)2:
++ /,lampion/collections/Linked#Node0#`next_=`().2;
+2 6-lampion/collections/Linked#Node0#set().(node)26
+ (lampion/collections/Linked#Node0#link().2;
+ -lampion/collections/Linked#Node0#link().(dir)2+
+ lampion/collections/DirX.Dir#2<
+ .lampion/collections/Linked#Node0#link().(node)2.
+ # lampion/collections/Linked#Node#2&
+ scala/Predef.assert(+1).2
+ scala/Any#`==`().25
+ 'lampion/collections/Linked#Node0#get().2;
+ -lampion/collections/Linked#Node0#link().(dir)2&
+ scala/Predef.assert(+1).2
+# %scala/Any#`==`().25
+ 'lampion/collections/Linked#Node0#get().2<
+ .lampion/collections/Linked#Node0#link().(node)25
+ !'lampion/collections/DirX.Dir#reverse().2;
+ -lampion/collections/Linked#Node0#link().(dir)25
+   	'lampion/collections/Linked#Node0#set().2;
+ 
+  -lampion/collections/Linked#Node0#link().(dir)2<
+   .lampion/collections/Linked#Node0#link().(node)25
+!! 'lampion/collections/Linked#Node0#set().2<
+!! 
+.lampion/collections/Linked#Node0#link().(node)25
+!! 'lampion/collections/DirX.Dir#reverse().2;
+!! -lampion/collections/Linked#Node0#link().(dir)2/
+!!  !lampion/collections/Linked#Node0#25
+%% 'lampion/collections/Linked#Node0#end().2:
+%% ,lampion/collections/Linked#Node0#end().(dir)2+
+%% lampion/collections/DirX.Dir#2.
+%%  lampion/collections/Linked#Node#2
+&& scala/Any#`==`().25
+&
+& 'lampion/collections/Linked#Node0#get().2:
+&& ,lampion/collections/Linked#Node0#end().(dir)25
+'' 'lampion/collections/Linked#Node0#end().25
+'' 'lampion/collections/Linked#Node0#get().2:
+'' ,lampion/collections/Linked#Node0#end().(dir)2:
+'' ,lampion/collections/Linked#Node0#end().(dir)PZ 64C31D570D3E8A1DFC5C54ED915CE456

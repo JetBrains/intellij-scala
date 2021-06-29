@@ -1,0 +1,26 @@
+
+«tests/pos/SI-4012-b.scala*
+_empty_/Super#*Super€*+
+_empty_/Super#`<init>`(). €@*<init>€*
+_empty_/Super#[A]	*A€*&
+_empty_/Super#superb().*superb€*
+_empty_/Sub.
+ *Sub€*$
+_empty_/Sub.superb().*superb€2
+ _empty_/Super#2#
+ _empty_/Super#`<init>`().2
+ scala/specialized#2
+ 
+scala/Int.2
+ _empty_/Super#[A]2%
+ _empty_/Super#superb().2
+ 
+_empty_/Sub.2
+ _empty_/Super#2
+ 
+scala/Int#2%
+ _empty_/Super#superb().2#
+ _empty_/Sub.superb().2
+ 
+scala/Int#2%
+# )_empty_/Super#superb().PZ C01D3484F924A0F1ECD8B8B822B81DE4

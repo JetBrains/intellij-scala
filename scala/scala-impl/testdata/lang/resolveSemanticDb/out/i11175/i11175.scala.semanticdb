@@ -1,0 +1,90 @@
+
+Þtests/pos/i11175.scala*
+
+x/Printer#*Printer€*'
+x/Printer#`<init>`(). €@*<init>€*
+x/Printer#[T]	*T€*"
+x/Printer#print(). *print€*
+x/Printer#print().(t)*t€*
+x/A.
+ *A€*
+x/B.
+ *B€*
+x/Main.
+ *Main€*
+x/Main.main().*main€*!
+x/Main.main().(args)*args€*
+x/i11175$package. *x€*'
+x/i11175$package.print().*print€*&
+x/i11175$package.print().[T]	*T€*&
+x/i11175$package.print().(t)*t€*,
+x/i11175$package.print().(x$2)  *x$2€*E
+&x/i11175$package.given_Printer_A_type.
+ (*given_Printer_A_type€*<
+.x/i11175$package.given_Printer_A_type.print().*print€*;
+1x/i11175$package.given_Printer_A_type.print().(a)*a€*E
+&x/i11175$package.given_Printer_B_type.
+ (*given_Printer_B_type€*<
+.x/i11175$package.given_Printer_B_type.print().*print€*;
+1x/i11175$package.given_Printer_B_type.print().(b)*b€2
+ 	x/2
+ 
+x/Printer#2#
+ x/Printer#`<init>`().2
+ x/Printer#[T]2 
+ x/Printer#print().2#
+ x/Printer#print().(t)2
+ x/Printer#[T]2"
+ scala/Predef.String#2
+ x/A.2
+
+
+ x/B.2
+ x/Main.2
+ 
+x/Main.main().2"
+ x/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+ #scala/Unit#2.
+  java/io/PrintStream#println(+8).2#
+ java/lang/System#out.2
+ 
+java/lang/System#2'
+ x/i11175$package.print().2
+ x/B.24
+ &x/i11175$package.given_Printer_B_type.2
+x/i11175$package.2'
+ x/i11175$package.print().2*
+
+ x/i11175$package.print().[T]2*
+ x/i11175$package.print().(t)2*
+ x/i11175$package.print().[T]2,
+ x/i11175$package.print().(x$2)2
+ 
+x/Printer#2*
+  !x/i11175$package.print().[T]2"
+ scala/Predef.String#2 
+* /x/Printer#print().2$
+ scala/Predef.summon().2
+ %
+x/Printer#2*
+& 'x/i11175$package.print().[T]2,
+) )x/i11175$package.print().(x$2)2*
+0 1x/i11175$package.print().(t)24
+ &x/i11175$package.given_Printer_A_type.2
+ 
+x/Printer#2
+ x/A.2<
+ .x/i11175$package.given_Printer_A_type.print().2?
+ 1x/i11175$package.given_Printer_A_type.print().(a)2
+ x/A.2"
+ scala/Predef.String#24
+ &x/i11175$package.given_Printer_B_type.2
+ 
+x/Printer#2
+ x/B.2<
+ .x/i11175$package.given_Printer_B_type.print().2?
+ 1x/i11175$package.given_Printer_B_type.print().(b)2
+ x/B.2"
+ scala/Predef.String#PZ 6509BA874AFF89C7E9760B7DF7DB930B

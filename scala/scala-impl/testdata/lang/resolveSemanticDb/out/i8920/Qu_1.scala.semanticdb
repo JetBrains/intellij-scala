@@ -1,0 +1,76 @@
+
+àtests/pos/i8920/Qu_1.scala*'
+scala/collection/mutable/Qu#*Qu€*9
+'scala/collection/mutable/Qu#`<init>`(). €@*<init>€*<
+.scala/collection/mutable/Qu#`<init>`().(array)*array€*<
+.scala/collection/mutable/Qu#`<init>`().(start)*start€*8
+,scala/collection/mutable/Qu#`<init>`().(end)*end€*)
+scala/collection/mutable/Qu#[A]	*A€*3
+"scala/collection/mutable/Qu#array. €*array€*3
+"scala/collection/mutable/Qu#start. €*start€*/
+ scala/collection/mutable/Qu#end. €*end€*8
+)scala/collection/mutable/Qu#`<init>`(+1).*<init>€*J
+6scala/collection/mutable/Qu#`<init>`(+1).(initialSize)*initialSize€*)
+scala/collection/mutable/Qu.
+ *Qu€*^
+:scala/collection/mutable/Qu.$lessinit$greater$default$1().*$lessinit$greater$default$1€*G
+=scala/collection/mutable/Qu.$lessinit$greater$default$1().[A]	*A€**
+ scala/collection/mutable/Qu.f().*f€*-
+#scala/collection/mutable/Qu.f().[A]	*A€*5
+'scala/collection/mutable/Qu.f().(array)*array€*5
+'scala/collection/mutable/Qu.f().(start)*start€*1
+%scala/collection/mutable/Qu.f().(end)*end€*,
+"scala/collection/mutable/Qu.f(+1).*f€*/
+%scala/collection/mutable/Qu.f(+1).[A]	*A€*C
+/scala/collection/mutable/Qu.f(+1).(initialSize)*initialSize€*>
+*scala/collection/mutable/Qu.f$default$1().*f$default$1€*7
+-scala/collection/mutable/Qu.f$default$1().[A]	*A€2#
+  scala/collection/mutable/2
+ scala/collection/2
+ scala/2*
+ scala/collection/mutable/Qu#25
+ 'scala/collection/mutable/Qu#`<init>`().2
+ #scala/Array#2
+$ *scala/AnyRef#2
+4 7
+scala/Int#2
+> A
+scala/Int#2-
+	 
+scala/collection/mutable/Qu#[A]20
+ "scala/collection/mutable/Qu#array.20
+- 2"scala/collection/mutable/Qu#start.2.
+9 < scala/collection/mutable/Qu#end.27
+ 
+)scala/collection/mutable/Qu#`<init>`(+1).2D
+ 6scala/collection/mutable/Qu#`<init>`(+1).(initialSize)2
+ 
+scala/Int#25
+	 	'scala/collection/mutable/Qu#`<init>`().2:
+ ,scala/collection/mutable/ArrayDeque.alloc().22
+	 $scala/collection/mutable/ArrayDeque.2D
+ %6scala/collection/mutable/Qu#`<init>`(+1).(initialSize)2<
+( -.scala/collection/mutable/Qu#`<init>`().(start)2:
+3 6,scala/collection/mutable/Qu#`<init>`().(end)2*
+ 	scala/collection/mutable/Qu.2K
+	 
+=scala/collection/mutable/Qu.$lessinit$greater$default$1().[A]2E
+) ;7scala/collection/mutable/ArrayDeque.DefaultInitialSize.22
+ ($scala/collection/mutable/ArrayDeque.2.
+  scala/collection/mutable/Qu.f().21
+ 	#scala/collection/mutable/Qu.f().[A]25
+ 'scala/collection/mutable/Qu.f().(array)2
+ scala/Array#2
+ scala/AnyRef#25
+! &'scala/collection/mutable/Qu.f().(start)2
+( +
+scala/Int#23
+- 0%scala/collection/mutable/Qu.f().(end)2
+2 5
+scala/Int#20
+ "scala/collection/mutable/Qu.f(+1).23
+ 	%scala/collection/mutable/Qu.f(+1).[A]2=
+ /scala/collection/mutable/Qu.f(+1).(initialSize)2
+ 
+scala/Int#2;
+ 	-scala/collection/mutable/Qu.f$default$1().[A]PZ 2777C6B996E02AA4DB3AD354A7BCC0F4

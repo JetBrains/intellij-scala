@@ -1,0 +1,46 @@
+
+¼	tests/pos/i11371.scala*(
+_empty_/HelloWorld.
+ *
+HelloWorld€*1
+_empty_/HelloWorld.whileLoop().*	whileLoop€*
+local0 €*i€*
+local1 €*acc€*
+local2 €*i'€*'
+_empty_/HelloWorld.main().*main€*-
+ _empty_/HelloWorld.main().(args)*args€2
+ _empty_/HelloWorld.2-
+ _empty_/HelloWorld.whileLoop().2
+ 
+scala/Int#2
+ 	local02
+ local12 
+ scala/Int#`<`(+3).2
+ local02
+ local22 
+ scala/Int#`<`(+3).2
+ local22
+ local12 
+ scala/Int#`+`(+4).2 
+ scala/Int#`*`(+3).2
+ local02
+ local22
+ local22 
+ scala/Int#`+`(+4).2
+
+
+ local02 
+
+
+ scala/Int#`+`(+4).2
+ local12(
+ 
+_empty_/HelloWorld.main().2.
+  _empty_/HelloWorld.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2&
+' (scala/StringContext#s().2*
+ scala/StringContext.apply().2-
+ &_empty_/HelloWorld.whileLoop().PZ 9E5260FB37ED53017A49CA84FF25FBD5

@@ -1,0 +1,501 @@
+
+èŽtests/pos/i2973.scala*"
+_empty_/InvClass#*InvClass€*.
+_empty_/InvClass#`<init>`(). €@*<init>€*
+_empty_/InvClass#[U]	*U€*"
+_empty_/InvTrait#*InvTrait€*.
+_empty_/InvTrait#`<init>`(). €@*<init>€*
+_empty_/InvTrait#[U]	*U€*(
+_empty_/ContraClass#*ContraClass€*1
+_empty_/ContraClass#`<init>`(). €@*<init>€*$
+_empty_/ContraClass#[T]	 €*T€*(
+_empty_/ContraTrait#*ContraTrait€*1
+_empty_/ContraTrait#`<init>`(). €@*<init>€*$
+_empty_/ContraTrait#[T]	 €*T€* 
+_empty_/CoClass#*CoClass€*-
+_empty_/CoClass#`<init>`(). €@*<init>€* 
+_empty_/CoClass#[T]	 €*T€* 
+_empty_/CoTrait#*CoTrait€*-
+_empty_/CoTrait#`<init>`(). €@*<init>€* 
+_empty_/CoTrait#[T]	 €*T€* 
+_empty_/Prefix1#*Prefix1€*-
+_empty_/Prefix1#`<init>`(). €@*<init>€*(
+_empty_/Prefix1#Prefix2#*Prefix2€*5
+#_empty_/Prefix1#Prefix2#`<init>`(). €@*<init>€*2
+!_empty_/Prefix1#Prefix2#InvClass#*InvClass€*>
+,_empty_/Prefix1#Prefix2#InvClass#`<init>`(). €@*<init>€*.
+$_empty_/Prefix1#Prefix2#InvClass#[U]	*U€*2
+!_empty_/Prefix1#Prefix2#InvTrait#*InvTrait€*>
+,_empty_/Prefix1#Prefix2#InvTrait#`<init>`(). €@*<init>€*.
+$_empty_/Prefix1#Prefix2#InvTrait#[U]	*U€*8
+$_empty_/Prefix1#Prefix2#ContraClass#*ContraClass€*A
+/_empty_/Prefix1#Prefix2#ContraClass#`<init>`(). €@*<init>€*4
+'_empty_/Prefix1#Prefix2#ContraClass#[T]	 €*T€*8
+$_empty_/Prefix1#Prefix2#ContraTrait#*ContraTrait€*A
+/_empty_/Prefix1#Prefix2#ContraTrait#`<init>`(). €@*<init>€*4
+'_empty_/Prefix1#Prefix2#ContraTrait#[T]	 €*T€*0
+ _empty_/Prefix1#Prefix2#CoClass#*CoClass€*=
++_empty_/Prefix1#Prefix2#CoClass#`<init>`(). €@*<init>€*0
+#_empty_/Prefix1#Prefix2#CoClass#[T]	 €*T€*0
+ _empty_/Prefix1#Prefix2#CoTrait#*CoTrait€*=
++_empty_/Prefix1#Prefix2#CoTrait#`<init>`(). €@*<init>€*0
+#_empty_/Prefix1#Prefix2#CoTrait#[T]	 €*T€*
+_empty_/Contra#*Contra€*,
+_empty_/Contra#`<init>`(). €@*<init>€*
+_empty_/Contra#[T]	 €*T€*
+_empty_/Co#*Co€*(
+_empty_/Co#`<init>`(). €@*<init>€*
+_empty_/Co#[T]	 €*T€*&
+_empty_/ContraInvT#*
+ContraInvT€*0
+_empty_/ContraInvT#`<init>`(). €@*<init>€*#
+_empty_/ContraInvT#[T]	 €*T€*$
+_empty_/ContraCoT#*	ContraCoT€*/
+_empty_/ContraCoT#`<init>`(). €@*<init>€*"
+_empty_/ContraCoT#[T]	 €*T€*
+_empty_/CoInvT#*CoInvT€*,
+_empty_/CoInvT#`<init>`(). €@*<init>€*
+_empty_/CoInvT#[T]	 €*T€*$
+_empty_/CoContraT#*	CoContraT€*/
+_empty_/CoContraT#`<init>`(). €@*<init>€*"
+_empty_/CoContraT#[T]	 €*T€*"
+_empty_/CoInvCoT#*CoInvCoT€*.
+_empty_/CoInvCoT#`<init>`(). €@*<init>€*!
+_empty_/CoInvCoT#[T]	 €*T€*(
+_empty_/CoContraCoT#*CoContraCoT€*1
+_empty_/CoContraCoT#`<init>`(). €@*<init>€*$
+_empty_/CoContraCoT#[T]	 €*T€*0
+_empty_/ContraContraInv#*ContraContraInv€*5
+#_empty_/ContraContraInv#`<init>`(). €@*<init>€*(
+_empty_/ContraContraInv#[T]	 €*T€*(
+_empty_/ContraCoInv#*ContraCoInv€*1
+_empty_/ContraCoInv#`<init>`(). €@*<init>€*$
+_empty_/ContraCoInv#[T]	 €*T€* 
+_empty_/CoCoInv#*CoCoInv€*-
+_empty_/CoCoInv#`<init>`(). €@*<init>€* 
+_empty_/CoCoInv#[T]	 €*T€*0
+_empty_/ContraInvContra#*ContraInvContra€*5
+#_empty_/ContraInvContra#`<init>`(). €@*<init>€*(
+_empty_/ContraInvContra#[T]	 €*T€*(
+_empty_/CoInvContra#*CoInvContra€*1
+_empty_/CoInvContra#`<init>`(). €@*<init>€*$
+_empty_/CoInvContra#[T]	 €*T€*(
+_empty_/ContraInvCo#*ContraInvCo€*1
+_empty_/ContraInvCo#`<init>`(). €@*<init>€*$
+_empty_/ContraInvCo#[T]	 €*T€* 
+_empty_/CoInvCo#*CoInvCo€*-
+_empty_/CoInvCo#`<init>`(). €@*<init>€* 
+_empty_/CoInvCo#[T]	 €*T€*$
+_empty_/CoInvCoT2#*	CoInvCoT2€*/
+_empty_/CoInvCoT2#`<init>`(). €@*<init>€*"
+_empty_/CoInvCoT2#[T]	 €*T€*2
+_empty_/ContraContraInv2#*ContraContraInv2€*6
+$_empty_/ContraContraInv2#`<init>`(). €@*<init>€*)
+_empty_/ContraContraInv2#[T]	 €*T€**
+_empty_/ContraCoInv2#*ContraCoInv2€*2
+ _empty_/ContraCoInv2#`<init>`(). €@*<init>€*%
+_empty_/ContraCoInv2#[T]	 €*T€* 
+_empty_/Prefix3#*Prefix3€*-
+_empty_/Prefix3#`<init>`(). €@*<init>€*
+_empty_/Prefix3#f().*f€*#
+_empty_/Prefix3#f().(v1)*v1€*#
+_empty_/Prefix3#f().(v2)*v2€*
+local0*Contra€*
+local1	 €*T€*
+local2*Co€*
+local3	 €*T€*
+local4*
+ContraInvT€*
+local5	 €*T€*
+local6*	ContraCoT€*
+local7	 €*T€*
+local8*CoInvT€*
+local9	 €*T€*
+local10*	CoContraT€*
+local11	 €*T€*
+local12*CoInvCoT€*
+local13	 €*T€*
+local14*CoContraCoT€*
+local15	 €*T€*
+local16*ContraContraInv€*
+local17	 €*T€*
+local18*ContraCoInv€*
+local19	 €*T€*
+local20*CoCoInv€*
+local21	 €*T€*
+local22*ContraInvContra€*
+local23	 €*T€*
+local24*CoInvContra€*
+local25	 €*T€*
+local26*ContraInvCo€*
+local27	 €*T€*
+local28*CoInvCo€*
+local29	 €*T€*
+local30*	CoInvCoT2€*
+local31	 €*T€* 
+local32*ContraContraInv2€*
+local33	 €*T€*
+local34*ContraCoInv2€*
+local35	 €*T€27
+ --scala/annotation/unchecked/uncheckedVariance#2%
+ scala/annotation/unchecked/2
+ scala/annotation/2
+ _empty_/InvClass#2*
+ _empty_/InvClass#`<init>`().2"
+ _empty_/InvClass#[U]2
+ _empty_/InvTrait#2*
+ _empty_/InvTrait#`<init>`().2"
+ _empty_/InvTrait#[U]2"
+ _empty_/ContraClass#2-
+ _empty_/ContraClass#`<init>`().2%
+ _empty_/ContraClass#[T]2"
+ _empty_/ContraTrait#2-
+ _empty_/ContraTrait#`<init>`().2%
+ _empty_/ContraTrait#[T]2
+ _empty_/CoClass#2)
+ _empty_/CoClass#`<init>`().2!
+ _empty_/CoClass#[T]2
+ _empty_/CoTrait#2)
+ _empty_/CoTrait#`<init>`().2!
+ _empty_/CoTrait#[T]2
+		 _empty_/Prefix1#2)
+
+
+ _empty_/Prefix1#`<init>`().2&
+
+
+ _empty_/Prefix1#Prefix2#21
+ #_empty_/Prefix1#Prefix2#`<init>`().2/
+
+ !_empty_/Prefix1#Prefix2#InvClass#2:
+ ,_empty_/Prefix1#Prefix2#InvClass#`<init>`().22
+ $_empty_/Prefix1#Prefix2#InvClass#[U]2/
+
+ !_empty_/Prefix1#Prefix2#InvTrait#2:
+ ,_empty_/Prefix1#Prefix2#InvTrait#`<init>`().22
+ $_empty_/Prefix1#Prefix2#InvTrait#[U]22
+
+ $_empty_/Prefix1#Prefix2#ContraClass#2=
+ /_empty_/Prefix1#Prefix2#ContraClass#`<init>`().25
+ '_empty_/Prefix1#Prefix2#ContraClass#[T]22
+
+ $_empty_/Prefix1#Prefix2#ContraTrait#2=
+ /_empty_/Prefix1#Prefix2#ContraTrait#`<init>`().25
+ '_empty_/Prefix1#Prefix2#ContraTrait#[T]2.
+
+  _empty_/Prefix1#Prefix2#CoClass#29
+ +_empty_/Prefix1#Prefix2#CoClass#`<init>`().21
+ #_empty_/Prefix1#Prefix2#CoClass#[T]2.
+
+  _empty_/Prefix1#Prefix2#CoTrait#29
+ +_empty_/Prefix1#Prefix2#CoTrait#`<init>`().21
+ #_empty_/Prefix1#Prefix2#CoTrait#[T]2
+ _empty_/Contra#2(
+ _empty_/Contra#`<init>`().2*
+7 7_empty_/InvClass#`<init>`().2
+ !_empty_/InvClass#2 
+" #_empty_/Contra#[T]2;
+& 7-scala/annotation/unchecked/uncheckedVariance#2 
+ _empty_/Contra#[T]2
+ _empty_/Co#2$
+ _empty_/Co#`<init>`().2*
+3 3_empty_/InvClass#`<init>`().2
+ _empty_/InvClass#2
+ _empty_/Co#[T]2;
+" 3-scala/annotation/unchecked/uncheckedVariance#2
+
+ _empty_/Co#[T]2!
+ _empty_/ContraInvT#2,
+ _empty_/ContraInvT#`<init>`().2
+ %_empty_/InvTrait#2$
+& '_empty_/ContraInvT#[T]2;
+* ;-scala/annotation/unchecked/uncheckedVariance#2$
+ _empty_/ContraInvT#[T]2 
+ _empty_/ContraCoT#2+
+ _empty_/ContraCoT#`<init>`().2
+ #_empty_/CoTrait#2#
+$ %_empty_/ContraCoT#[T]2;
+( 9-scala/annotation/unchecked/uncheckedVariance#2#
+ _empty_/ContraCoT#[T]2
+ _empty_/CoInvT#2(
+ _empty_/CoInvT#`<init>`().2
+ !_empty_/InvTrait#2 
+" #_empty_/CoInvT#[T]2;
+& 7-scala/annotation/unchecked/uncheckedVariance#2 
+ _empty_/CoInvT#[T]2 
+ _empty_/CoContraT#2+
+ _empty_/CoContraT#`<init>`().2"
+ '_empty_/ContraTrait#2#
+( )_empty_/CoContraT#[T]2;
+, =-scala/annotation/unchecked/uncheckedVariance#2#
+ _empty_/CoContraT#[T]2
+ _empty_/CoInvCoT#2*
+ _empty_/CoInvCoT#`<init>`().2
+ #_empty_/InvTrait#2"
+$ %_empty_/CoInvCoT#[T]2;
+( 9-scala/annotation/unchecked/uncheckedVariance#2
+? F_empty_/CoTrait#2"
+G H_empty_/CoInvCoT#[T]2"
+ _empty_/CoInvCoT#[T]2"
+ _empty_/CoContraCoT#2-
+ _empty_/CoContraCoT#`<init>`().2"
+ )_empty_/ContraTrait#2%
+* +_empty_/CoContraCoT#[T]2;
+. ?-scala/annotation/unchecked/uncheckedVariance#2
+E L_empty_/CoTrait#2%
+M N_empty_/CoContraCoT#[T]2%
+ _empty_/CoContraCoT#[T]2&
+ _empty_/ContraContraInv#21
+ #_empty_/ContraContraInv#`<init>`().2-
+0 0_empty_/ContraClass#`<init>`().2"
+" -_empty_/ContraClass#2)
+. /_empty_/ContraContraInv#[T]2
+6 >_empty_/InvTrait#2)
+? @_empty_/ContraContraInv#[T]2;
+C T-scala/annotation/unchecked/uncheckedVariance#2)
+ _empty_/ContraContraInv#[T]2"
+ _empty_/ContraCoInv#2-
+ _empty_/ContraCoInv#`<init>`().2)
+; ;_empty_/CoClass#`<init>`().2
+ %_empty_/CoClass#2%
+& '_empty_/ContraCoInv#[T]2;
+* ;-scala/annotation/unchecked/uncheckedVariance#2
+A I_empty_/InvTrait#2%
+J K_empty_/ContraCoInv#[T]2;
+N _-scala/annotation/unchecked/uncheckedVariance#2%
+ _empty_/ContraCoInv#[T]2
+   _empty_/CoCoInv#2)
+   _empty_/CoCoInv#`<init>`().2)
+ $  $_empty_/CoClass#`<init>`().2
+   !_empty_/CoClass#2!
+ "  #_empty_/CoCoInv#[T]2
+ *  2_empty_/InvTrait#2!
+ 3  4_empty_/CoCoInv#[T]2;
+ 7  H-scala/annotation/unchecked/uncheckedVariance#2!
+   _empty_/CoCoInv#[T]2&
+"" _empty_/ContraInvContra#21
+"" #_empty_/ContraInvContra#`<init>`().2*
+"@" @_empty_/InvClass#`<init>`().2
+""" *_empty_/InvClass#2)
+"+" ,_empty_/ContraInvContra#[T]2;
+"/" @-scala/annotation/unchecked/uncheckedVariance#2"
+"F" Q_empty_/ContraTrait#2)
+"R" S_empty_/ContraInvContra#[T]2)
+"" _empty_/ContraInvContra#[T]2"
+## _empty_/CoInvContra#2-
+## _empty_/CoInvContra#`<init>`().2*
+#<# <_empty_/InvClass#`<init>`().2
+## &_empty_/InvClass#2%
+#'# (_empty_/CoInvContra#[T]2;
+#+# <-scala/annotation/unchecked/uncheckedVariance#2"
+#B# M_empty_/ContraTrait#2%
+#N# O_empty_/CoInvContra#[T]2;
+#R# c-scala/annotation/unchecked/uncheckedVariance#2%
+## _empty_/CoInvContra#[T]2"
+$$ _empty_/ContraInvCo#2-
+$$ _empty_/ContraInvCo#`<init>`().2*
+$<$ <_empty_/InvClass#`<init>`().2
+$$ &_empty_/InvClass#2%
+$'$ (_empty_/ContraInvCo#[T]2;
+$+$ <-scala/annotation/unchecked/uncheckedVariance#2
+$B$ I_empty_/CoTrait#2%
+$J$ K_empty_/ContraInvCo#[T]2;
+$N$ _-scala/annotation/unchecked/uncheckedVariance#2%
+$$ _empty_/ContraInvCo#[T]2
+%% _empty_/CoInvCo#2)
+%% _empty_/CoInvCo#`<init>`().2*
+%8% 8_empty_/InvClass#`<init>`().2
+%% "_empty_/InvClass#2!
+%#% $_empty_/CoInvCo#[T]2;
+%'% 8-scala/annotation/unchecked/uncheckedVariance#2
+%>% E_empty_/CoTrait#2!
+%F% G_empty_/CoInvCo#[T]2!
+%% _empty_/CoInvCo#[T]2 
+(( _empty_/CoInvCoT2#2+
+(( _empty_/CoInvCoT2#`<init>`().2
+(( $_empty_/InvTrait#2#
+(%( &_empty_/CoInvCoT2#[T]2;
+()( :-scala/annotation/unchecked/uncheckedVariance#2
+(@( G_empty_/CoTrait#2#
+(H( I_empty_/CoInvCoT2#[T]2;
+(L( ]-scala/annotation/unchecked/uncheckedVariance#2#
+(( _empty_/CoInvCoT2#[T]2'
+)) _empty_/ContraContraInv2#22
+)) $_empty_/ContraContraInv2#`<init>`().2-
+)D) D_empty_/ContraClass#`<init>`().2"
+)#) ._empty_/ContraClass#2*
+)/) 0_empty_/ContraContraInv2#[T]2;
+)3) D-scala/annotation/unchecked/uncheckedVariance#2
+)J) R_empty_/InvTrait#2*
+)S) T_empty_/ContraContraInv2#[T]2;
+)W) h-scala/annotation/unchecked/uncheckedVariance#2*
+)) _empty_/ContraContraInv2#[T]2#
+** _empty_/ContraCoInv2#2.
+**  _empty_/ContraCoInv2#`<init>`().2)
+*<* <_empty_/CoClass#`<init>`().2
+** &_empty_/CoClass#2&
+*'* (_empty_/ContraCoInv2#[T]2;
+*+* <-scala/annotation/unchecked/uncheckedVariance#2
+*B* J_empty_/InvTrait#2&
+*K* L_empty_/ContraCoInv2#[T]2;
+*O* `-scala/annotation/unchecked/uncheckedVariance#2&
+** _empty_/ContraCoInv2#[T]2
+,, _empty_/Prefix3#2)
+-- _empty_/Prefix3#`<init>`().2"
+-- _empty_/Prefix3#f().2&
+-- 
+_empty_/Prefix3#f().(v1)2
+-- _empty_/Prefix1#2&
+-- _empty_/Prefix3#f().(v2)2&
+-- #_empty_/Prefix1#Prefix2#2&
+-- _empty_/Prefix3#f().(v1)2
+-&- *scala/Unit#2
+.
+. local02*
+.;. ;_empty_/InvClass#`<init>`().2
+.. %_empty_/InvClass#2
+.&. 'local12;
+.*. ;-scala/annotation/unchecked/uncheckedVariance#2
+.. local12
+/
+/ local22*
+/7/ 7_empty_/InvClass#`<init>`().2
+// !_empty_/InvClass#2
+/"/ #local32;
+/&/ 7-scala/annotation/unchecked/uncheckedVariance#2
+// local32
+1
+1 local42
+1!1 )_empty_/InvTrait#2
+1*1 +local52;
+1.1 ?-scala/annotation/unchecked/uncheckedVariance#2
+11 local52
+2
+2 local62
+2 2 '_empty_/CoTrait#2
+2(2 )local72;
+2,2 =-scala/annotation/unchecked/uncheckedVariance#2
+22 local72
+3
+3 local82
+33 %_empty_/InvTrait#2
+3&3 'local92;
+3*3 ;-scala/annotation/unchecked/uncheckedVariance#2
+33 local92
+4
+4 local102"
+4 4 +_empty_/ContraTrait#2
+4,4 -local112;
+404 A-scala/annotation/unchecked/uncheckedVariance#2
+44 local112
+5
+5 local122
+55 '_empty_/InvTrait#2
+5(5 )local132;
+5,5 =-scala/annotation/unchecked/uncheckedVariance#2
+5C5 J_empty_/CoTrait#2
+5K5 Llocal132
+55 local132
+6
+6 local142"
+6"6 -_empty_/ContraTrait#2
+6.6 /local152;
+626 C-scala/annotation/unchecked/uncheckedVariance#2
+6I6 P_empty_/CoTrait#2
+6Q6 Rlocal152
+66 local152
+8
+8 local162-
+848 4_empty_/ContraClass#`<init>`().2"
+8&8 1_empty_/ContraClass#2
+828 3local172
+8:8 B_empty_/InvTrait#2
+8C8 Dlocal172;
+8G8 X-scala/annotation/unchecked/uncheckedVariance#2
+88 local172
+9
+9 local182)
+9?9 ?_empty_/CoClass#`<init>`().2
+9"9 )_empty_/CoClass#2
+9*9 +local192;
+9.9 ?-scala/annotation/unchecked/uncheckedVariance#2
+9E9 M_empty_/InvTrait#2
+9N9 Olocal192;
+9R9 c-scala/annotation/unchecked/uncheckedVariance#2
+99 local192
+:
+: local202)
+:(: (_empty_/CoClass#`<init>`().2
+:: %_empty_/CoClass#2
+:&: 'local212
+:.: 6_empty_/InvTrait#2
+:7: 8local212;
+:;: L-scala/annotation/unchecked/uncheckedVariance#2
+:: local212
+<
+< local222*
+<D< D_empty_/InvClass#`<init>`().2
+<&< ._empty_/InvClass#2
+</< 0local232;
+<3< D-scala/annotation/unchecked/uncheckedVariance#2"
+<J< U_empty_/ContraTrait#2
+<V< Wlocal232
+<< local232
+=
+= local242*
+=@= @_empty_/InvClass#`<init>`().2
+="= *_empty_/InvClass#2
+=+= ,local252;
+=/= @-scala/annotation/unchecked/uncheckedVariance#2"
+=F= Q_empty_/ContraTrait#2
+=R= Slocal252;
+=V= g-scala/annotation/unchecked/uncheckedVariance#2
+== local252
+>
+> local262*
+>@> @_empty_/InvClass#`<init>`().2
+>"> *_empty_/InvClass#2
+>+> ,local272;
+>/> @-scala/annotation/unchecked/uncheckedVariance#2
+>F> M_empty_/CoTrait#2
+>N> Olocal272;
+>R> c-scala/annotation/unchecked/uncheckedVariance#2
+>> local272
+?
+? local282*
+?<? <_empty_/InvClass#`<init>`().2
+?? &_empty_/InvClass#2
+?'? (local292;
+?+? <-scala/annotation/unchecked/uncheckedVariance#2
+?B? I_empty_/CoTrait#2
+?J? Klocal292
+?? local292
+B
+B local302
+B B (_empty_/InvTrait#2
+B)B *local312;
+B-B >-scala/annotation/unchecked/uncheckedVariance#2
+BDB K_empty_/CoTrait#2
+BLB Mlocal312;
+BPB a-scala/annotation/unchecked/uncheckedVariance#2
+BB local312
+C
+C local322-
+CHC H_empty_/ContraClass#`<init>`().2"
+C'C 2_empty_/ContraClass#2
+C3C 4local332;
+C7C H-scala/annotation/unchecked/uncheckedVariance#2
+CNC V_empty_/InvTrait#2
+CWC Xlocal332;
+C[C l-scala/annotation/unchecked/uncheckedVariance#2
+CC local332
+D
+D local342)
+D@D @_empty_/CoClass#`<init>`().2
+D#D *_empty_/CoClass#2
+D+D ,local352;
+D/D @-scala/annotation/unchecked/uncheckedVariance#2
+DFD N_empty_/InvTrait#2
+DOD Plocal352;
+DSD d-scala/annotation/unchecked/uncheckedVariance#2
+DD local35PZ E3A3FB0C6F78AF871B935D2371AEAE15

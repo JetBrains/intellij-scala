@@ -1,0 +1,29 @@
+
+½tests/pos/i2797a/Fork.scala*
+_empty_/Fork#*Fork€**
+_empty_/Fork#`<init>`(). €@*<init>€*-
+_empty_/Fork#`<init>`().(value)*value€*1
+!_empty_/Fork#`<init>`().(jvmArgs)*jvmArgs€*$
+_empty_/Fork#value. €*value€*(
+_empty_/Fork#jvmArgs. €*jvmArgs€*
+_empty_/Fork.
+ *Fork€*O
++_empty_/Fork.$lessinit$greater$default$1().*$lessinit$greater$default$1€*O
++_empty_/Fork.$lessinit$greater$default$2().*$lessinit$greater$default$2€2
+ 
+_empty_/Fork#2&
+
+ 
+_empty_/Fork#`<init>`().2
+ 
+scala/Int#2
+% *scala/Array#2"
++ 1scala/Predef.String#2*
+ scala/annotation/Annotation#2
+ scala/annotation/2!
+ _empty_/Fork#value.2#
+ #_empty_/Fork#jvmArgs.2
+ _empty_/Fork.2"
+: :scala/Array.apply().2
+5 :scala/Array.2-
+B Bscala/reflect/ClassTag.apply().PZ 4B7DDC7BBF180A43C071E522FF2C242D

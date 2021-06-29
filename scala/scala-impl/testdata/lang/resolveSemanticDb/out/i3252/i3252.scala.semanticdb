@@ -1,0 +1,13 @@
+
+µtests/pos/i3252.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.i. €*i€2
+ _empty_/Test.2
+ _empty_/Test.i.2
+	 scala/Long#2#
+ scala/Int.int2long().25
+ !'scala/collection/IterableOnceOps#sum().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2/
+! !!scala/math/Numeric.IntIsIntegral.PZ 87D5CEE5E7E4FEF948D488D92F973789

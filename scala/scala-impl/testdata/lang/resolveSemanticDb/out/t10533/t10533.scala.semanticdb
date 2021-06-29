@@ -1,0 +1,49 @@
+
+è
+tests/pos/t10533.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.b. €*b€*
+_empty_/Bar# €*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*'
+_empty_/Bar#`<init>`().(a) €*a€*$
+_empty_/Bar#`<init>`().(b)*b€*$
+_empty_/Bar#`<init>`().(c)*c€*
+_empty_/Bar#a. €*a€*
+_empty_/Bar#b. €*b€*
+_empty_/Bar#c. €*c€* 
+_empty_/Bar#copy().*copy€* 
+_empty_/Bar#copy().(a)*a€* 
+_empty_/Bar#copy().(b)*b€* 
+_empty_/Bar#copy().(c)*c€*4
+_empty_/Bar#copy$default$1().*copy$default$1€*
+_empty_/Bar#_1().*_1€*
+_empty_/Bar.
+ *Bar€*"
+_empty_/Bar.apply().*apply€*!
+_empty_/Bar.apply().(a)*a€*!
+_empty_/Bar.apply().(b)*b€*!
+_empty_/Bar.apply().(c)*c€*&
+_empty_/Bar.unapply().*unapply€*'
+_empty_/Bar.unapply().(x$1)*x$1€*(
+_empty_/Bar.toString().*toString€2
+ 
+_empty_/Foo.2
+ _empty_/Foo.b.2"
+ _empty_/Bar.apply().2
+ _empty_/Bar.2
+ _empty_/Bar#2%
+ _empty_/Bar#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2
+" %
+scala/Int#2
+ _empty_/Bar#a.2
+ _empty_/Bar#b.2
+  _empty_/Bar#c.2
+_empty_/Bar#copy().2
+ _empty_/Bar#_1().2
+ _empty_/Bar.2
+_empty_/Bar.apply().PZ E1B44E5CF5116CDF0724444FD6101A5E

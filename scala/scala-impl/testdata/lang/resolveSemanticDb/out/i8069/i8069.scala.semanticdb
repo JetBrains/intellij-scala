@@ -1,0 +1,82 @@
+
+åtests/pos/i8069.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#B#*B€*)
+_empty_/A#B#`<init>`(). €@*<init>€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*%
+_empty_/C#`<init>`().(a) €*a€*%
+_empty_/C#`<init>`().(b) €*b€*
+_empty_/C#a. €*a€*
+_empty_/C#b. €*b€*(
+_empty_/i8069$package. *_empty_€**
+_empty_/i8069$package.Test().*Test€*
+local0 €*a€*
+local1 €*b€*
+local2 €*c€*
+local3 €*d€*
+local4 €*d1€*
+_empty_/Test# *Test€**
+_empty_/Test#`<init>`(). €@*<init>€*$
+_empty_/Test#main(). € *main€*'
+_empty_/Test#main().(args)*args€*
+local5 €*error€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#B#2%
+ _empty_/A#B#`<init>`().2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/A#B#2&
+ _empty_/C#`<init>`().(a)2
+ _empty_/C#a.2
+ _empty_/C#b.2 
+_empty_/i8069$package.2
+ scala/main#2+
+
+ _empty_/i8069$package.Test().2
+ local02#
+ _empty_/A#`<init>`().2
+
+ 
+_empty_/A#2
+ local12%
+ _empty_/A#B#`<init>`().2
+ _empty_/A#B#2
+
+ local02
+		 local22#
+		 _empty_/C#`<init>`().2
+	
+	 
+_empty_/C#2
+		 local02
+		 local12
+
+
+ local32
+
+
+ _empty_/C#b.2
+
+
+
+ local22
+ local42
+ _empty_/A#B#2
+ _empty_/C#a.2
+
+ local22
+ local32
+_empty_/Test#2"
+_empty_/Test#`<init>`().2'
+_empty_/i8069$package.Test().23
+)scala/util/CommandLineParser.showError().2
+local5PZ 15BC45B5DF0EC703AC506BD9776A8238

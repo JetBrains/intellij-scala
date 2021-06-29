@@ -1,0 +1,71 @@
+
+¥!tests/pos/class-gadt/member.scala* 
+_empty_/member.
+ *memberÄ*#
+_empty_/member.SUB# îÄ*SUBÄ*0
+_empty_/member.SUB#`<init>`(). Ä@*<init>Ä*#
+_empty_/member.SUB#[A]	 Ä*AÄ*#
+_empty_/member.SUB#[B]	 Ä*BÄ*!
+_empty_/member.SUB.
+ *SUBÄ*)
+_empty_/member.SUB.Refl# àÅ*ReflÄ*5
+#_empty_/member.SUB.Refl#`<init>`(). Ä@*<init>Ä*%
+_empty_/member.SUB.Refl#[S]	*SÄ*,
+_empty_/member.SUB.Refl#copy().*copyÄ*,
+"_empty_/member.SUB.Refl#copy().[S]	*SÄ*2
+"_empty_/member.SUB.Refl#ordinal().*ordinalÄ*'
+_empty_/member.SUB.Refl.
+ *ReflÄ*.
+ _empty_/member.SUB.Refl.apply().*applyÄ*-
+#_empty_/member.SUB.Refl.apply().[S]	*SÄ*2
+"_empty_/member.SUB.Refl.unapply().*unapplyÄ*/
+%_empty_/member.SUB.Refl.unapply().[S]	*SÄ*3
+'_empty_/member.SUB.Refl.unapply().(x$1)*x$1Ä*4
+#_empty_/member.SUB.Refl.toString().*toStringÄ*5
+!_empty_/member.SUB.fromOrdinal().*fromOrdinalÄ*:
+*_empty_/member.SUB.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/member.C#*CÄ*.
+_empty_/member.C#`<init>`(). Ä@*<init>Ä*
+_empty_/member.C#[T]	*TÄ*'
+_empty_/member.C#eval1().*eval1Ä*&
+_empty_/member.C#eval1().(t)*tÄ*&
+_empty_/member.C#eval1().(e)*eÄ2
+ _empty_/member.2!
+ _empty_/member.SUB#2,
+ _empty_/member.SUB#`<init>`().2$
+
+ _empty_/member.SUB#[A]2$
+ _empty_/member.SUB#[B]2!
+ _empty_/member.SUB.2&
+ 	_empty_/member.SUB.Refl#21
+	 	#_empty_/member.SUB.Refl#`<init>`().2,
+   _empty_/member.SUB#`<init>`().2!
+ _empty_/member.SUB#2)
+ _empty_/member.SUB.Refl#[S]2)
+ _empty_/member.SUB.Refl#[S]2)
+
+ _empty_/member.SUB.Refl#[S]2)
+_empty_/member.SUB.Refl#copy().2&
+ _empty_/member.SUB.Refl.2*
+ _empty_/member.SUB.Refl.apply().2,
+"_empty_/member.SUB.Refl.unapply().2
+ _empty_/member.C#2*
+ _empty_/member.C#`<init>`().2"
+ 	_empty_/member.C#[T]2'
+ 	_empty_/member.C#eval1().2*
+
+ _empty_/member.C#eval1().(t)2"
+ _empty_/member.C#[T]2*
+ _empty_/member.C#eval1().(e)2!
+ _empty_/member.SUB#2"
+ _empty_/member.C#[T]2
+ 
+scala/Int#2
+! $
+scala/Int#2(
+ _empty_/member.C#eval1().(e)20
+ "_empty_/member.SUB.Refl.unapply().2&
+	 _empty_/member.SUB.Refl.2!
+ _empty_/member.SUB.2 
+ scala/Int#`+`(+4).2*
+ _empty_/member.C#eval1().(t)PZ 5E81FA47FC2AC135A940595DE620C2C3

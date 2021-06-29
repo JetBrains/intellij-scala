@@ -1,0 +1,80 @@
+
+ùtests/pos/i2749.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.f. Ä*fÄ*
+_empty_/Test.n. †*nÄ*
+_empty_/Test.g. †*gÄ*
+_empty_/Test2.
+ *Test2Ä*
+_empty_/Test2.f. Ä*fÄ*
+_empty_/Test2.s. †*sÄ*
+_empty_/Test2.g. †*gÄ*
+_empty_/Test3.
+ *Test3Ä*
+_empty_/Test3.f. Ä*fÄ*
+_empty_/Test3.n. †*nÄ*
+_empty_/Test3.g. †*gÄ2
+ _empty_/Test.2
+ _empty_/Test.f.2
+
+ 
+scala/Int#2
+ scala/Char#2
+ #scala/Boolean#2#
+& )scala/Predef.`???`().2
+ _empty_/Test.n.2
+ 
+scala/Int#2
+ _empty_/Test.g.2
+ 
+scala/Int#2
+ scala/Char#2#
+! $scala/Predef.`???`().2-
+ scala/ContextFunction1#apply().2
+ _empty_/Test.f.2
+ scala/Boolean#2
+ _empty_/Test2.2
+		 _empty_/Test2.f.2
+	
+	 
+scala/Int#2
+		 scala/Char#2
+		 #scala/Boolean#2#
+	&	 )scala/Predef.`???`().2
+
+
+ _empty_/Test2.s.2"
+
+
+ scala/Predef.String#2
+ _empty_/Test2.g.2
+ 
+scala/Int#2"
+  scala/Predef.String#2
+% )scala/Char#2#
+, /scala/Predef.`???`().2-
+ scala/ContextFunction1#apply().2
+ _empty_/Test2.f.2
+ _empty_/Test2.s.2
+ scala/Boolean#2
+ _empty_/Test3.2
+ _empty_/Test3.f.2
+
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ !scala/Char#2
+' .scala/Boolean#2#
+1 4scala/Predef.`???`().2
+ _empty_/Test3.n.2
+ 
+scala/Int#2
+ _empty_/Test3.g.2
+ 
+scala/Int#2
+ scala/Char#2#
+! $scala/Predef.`???`().2-
+ scala/ContextFunction1#apply().2
+ _empty_/Test3.f.2
+ scala/Boolean#PZ 36BE6D011E909F00804C4DDDD639E583

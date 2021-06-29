@@ -1,0 +1,23 @@
+
+Ýtests/pos/i3433.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Const#*Const€* 
+_empty_/Test.Const#[t]	*t€*
+local0*L€*
+local1	*x€*
+_empty_/Test.Bar#*Bar€*
+_empty_/Test.Bar#[a]	*a€2
+ _empty_/Test.2!
+ _empty_/Test.Const#2$
+ _empty_/Test.Const#[t]2
+ local02
+ local12$
+  !_empty_/Test.Const#[t]2
+ 
+_empty_/Test.Bar#2"
+ _empty_/Test.Bar#[a]2!
+ _empty_/Test.Const#2
+ 
+scala/Int#2"
+ _empty_/Test.Bar#[a]PZ A2136B8B0D5FF9A85390083F8FDCDC99

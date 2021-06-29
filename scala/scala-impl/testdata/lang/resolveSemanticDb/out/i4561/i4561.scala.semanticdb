@@ -1,0 +1,102 @@
+
+štests/pos/i4561.scala*
+_empty_/abc.
+ *abc€* 
+_empty_/abc.Test0#*Test0€*/
+_empty_/abc.Test0#`<init>`(). €@*<init>€* 
+_empty_/abc.Test1#*Test1€*/
+_empty_/abc.Test1#`<init>`(). €@*<init>€*
+_empty_/abc.Test1#[T]	*T€**
+_empty_/abc.Test1#apply(). *apply€*'
+_empty_/abc.Test1#apply().(f)*f€*,
+_empty_/abc.Test1#apply(+1). *apply€*)
+_empty_/abc.Test1#apply(+1).(s)*s€*
+_empty_/abc.v().*v€*
+_empty_/abc.v(+1).*v€*
+_empty_/abc.v(+1).[T]	*T€*
+_empty_/abc.w().*w€*
+_empty_/abc.w(+1).*w€*
+_empty_/abc.w(+1).[T]	*T€*
+_empty_/abc.w(+2).*w€*
+_empty_/abc.w(+2).[T]	*T€*
+_empty_/abc.w(+2).(x)*x€*
+local0*x€*
+_empty_/abc.v1. €*v1€*
+local1*x€2
+ 
+_empty_/abc.2 
+ _empty_/abc.Test0#2+
+ _empty_/abc.Test0#`<init>`().2 
+ _empty_/abc.Test1#2+
+ _empty_/abc.Test1#`<init>`().2#
+ _empty_/abc.Test1#[T]2(
+ _empty_/abc.Test1#apply().2+
+ _empty_/abc.Test1#apply().(f)2#
+ _empty_/abc.Test1#[T]2#
+ _empty_/abc.Test1#[T]2
+ scala/Unit#2*
+ _empty_/abc.Test1#apply(+1).2-
+ _empty_/abc.Test1#apply(+1).(s)2"
+ scala/Predef.String#2
+ scala/Unit#2
+ _empty_/abc.v().2 
+	 _empty_/abc.Test0#2#
+ scala/Predef.`???`().2 
+ _empty_/abc.v(+1).2#
+ 	_empty_/abc.v(+1).[T]2 
+ _empty_/abc.Test1#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+		 _empty_/abc.w().2 
+			 _empty_/abc.Test0#2#
+		 scala/Predef.`???`().2 
+
+
+ _empty_/abc.w(+1).2#
+
+
+ 	_empty_/abc.w(+1).[T]2 
+
+
+ _empty_/abc.Test1#2#
+
+
+ _empty_/abc.w(+1).[T]2#
+
+
+ scala/Predef.`???`().2 
+ _empty_/abc.w(+2).2#
+ 	_empty_/abc.w(+2).[T]2#
+ _empty_/abc.w(+2).(x)2"
+ scala/Predef.String#2 
+ _empty_/abc.Test1#2#
+ _empty_/abc.w(+2).[T]2#
+" %scala/Predef.`???`().2(
+ _empty_/abc.Test1#apply().2 
+ _empty_/abc.v(+1).2
+ 
+scala/Any#2
+	 
+local02
+ local02
+ _empty_/abc.v1.2 
+
+ _empty_/abc.Test0#2
+ _empty_/abc.v().2(
+ _empty_/abc.Test1#apply().2 
+ _empty_/abc.v(+1).2
+ local12 
+ scala/Int#`+`(+4).2
+	 
+local12(
+ _empty_/abc.Test1#apply().2 
+ _empty_/abc.w(+1).2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2(
+ _empty_/abc.Test1#apply().2 
+ _empty_/abc.w(+2).2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).PZ 369315351FF0F5D2846BEB650DCC6EF3

@@ -1,0 +1,54 @@
+
+•tests/pos/nullary.scala**
+_empty_/NullaryTest# *NullaryTest€*1
+_empty_/NullaryTest#`<init>`(). €@*<init>€*!
+_empty_/NullaryTest#[T]	*T€*!
+_empty_/NullaryTest#[m]	*m€*.
+_empty_/NullaryTest#nullary().*nullary€*#
+_empty_/NullaryTest#x. €*x€*2
+_empty_/NullaryTest#nullary2(). *nullary2€*%
+_empty_/NullaryTest#x2. €*x2€*2
+_empty_/NullaryTest#nullary3(). *nullary3€*%
+_empty_/NullaryTest#x3. €*x3€*"
+_empty_/Concrete#*Concrete€*.
+_empty_/Concrete#`<init>`(). €@*<init>€*-
+_empty_/Concrete#nullary2().*nullary2€*-
+_empty_/Concrete#nullary3().*nullary3€*
+_empty_/test.
+ *test€2
+ _empty_/NullaryTest#2)
+ _empty_/NullaryTest#`<init>`().2!
+ _empty_/NullaryTest#[T]2!
+ _empty_/NullaryTest#[m]2,
+ _empty_/NullaryTest#nullary().2"
+ scala/Predef.String#2$
+ _empty_/NullaryTest#x.2,
+
+ _empty_/NullaryTest#nullary().2-
+ _empty_/NullaryTest#nullary2().2%
+ _empty_/NullaryTest#[T]2%
+ _empty_/NullaryTest#x2.2-
+ _empty_/NullaryTest#nullary2().2-
+ _empty_/NullaryTest#nullary3().2%
+ _empty_/NullaryTest#[m]2%
+ _empty_/NullaryTest#[T]2%
+ _empty_/NullaryTest#x3.2-
+ _empty_/NullaryTest#nullary3().2
+ _empty_/Concrete#2*
+ _empty_/Concrete#`<init>`().2-
+- -_empty_/NullaryTest#`<init>`().2"
+ "_empty_/NullaryTest#2
+# &
+scala/Int#2!
+( ,scala/package.List#2*
+ _empty_/Concrete#nullary2().2*
+ _empty_/Concrete#nullary3().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/test.2*
+ _empty_/Concrete#nullary2().2*
+ _empty_/Concrete#`<init>`().2
+ _empty_/Concrete#2*
+ _empty_/Concrete#nullary3().2*
+ _empty_/Concrete#`<init>`().2
+ _empty_/Concrete#PZ 179FCF1CF5B3F9DAE1FC684FD28E3776

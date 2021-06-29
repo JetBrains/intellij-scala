@@ -1,0 +1,13 @@
+
+átests/pos/t0093.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.f().*f€*#
+_empty_/Bug.f().(cond)*cond€2
+ 
+_empty_/Bug.2
+ _empty_/Bug.f().2$
+ _empty_/Bug.f().(cond)2
+ scala/Boolean#2#
+( *scala/Boolean#`==`().2$
+# '_empty_/Bug.f().(cond)PZ 35E16C5CF7374A0C7C83E8A285C03CDA

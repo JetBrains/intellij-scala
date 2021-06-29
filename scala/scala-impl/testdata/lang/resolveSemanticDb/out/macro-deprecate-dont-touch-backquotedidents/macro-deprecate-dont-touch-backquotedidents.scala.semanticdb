@@ -1,0 +1,74 @@
+
+ú;tests/pos/macro-deprecate-dont-touch-backquotedidents.scala*
+_empty_/Test1.
+ *Test1€*%
+_empty_/Test1.macro. €*macro€*
+_empty_/Test2.
+ *Test2€*'
+_empty_/Test2.macro(). €*macro€*-
+_empty_/Test2.`macro_=`(). €*macro_=€*+
+_empty_/Test2.`macro_=`().(x$1)*x$1€*
+_empty_/Test3.
+ *Test3€*"
+_empty_/Test3.macro#*macro€*
+test4/macro#*macro€*)
+test4/macro#`<init>`(). €@*<init>€*
+_empty_/Test5.
+ *Test5€*"
+_empty_/Test5.macro#*macro€*1
+_empty_/Test5.macro#`<init>`(). €@*<init>€*
+test6/macro.
+ *macro€*
+_empty_/Test7.
+ *Test7€*$
+_empty_/Test7.macro.
+ *macro€*
+test8/macro#*macro€*)
+test8/macro#`<init>`(). €@*<init>€*
+_empty_/Test9.
+ *Test9€*"
+_empty_/Test9.macro#*macro€*1
+_empty_/Test9.macro#`<init>`(). €@*<init>€* 
+_empty_/Test13.
+ *Test13€*%
+_empty_/Test13.macro().*macro€2
+ _empty_/Test1.2"
+ _empty_/Test1.macro.2#
+ scala/Predef.`???`().2
+ _empty_/Test2.2$
+ _empty_/Test2.macro().2#
+ scala/Predef.`???`().2(
+ _empty_/Test2.`macro_=`().2
+ _empty_/Test3.2"
+		 _empty_/Test3.macro#2
+		 
+scala/Int#2
+ test4/2
+	 test4/macro#2%
+ test4/macro#`<init>`().2
+ _empty_/Test5.2"
+	 _empty_/Test5.macro#2-
+ _empty_/Test5.macro#`<init>`().2
+ test6/2
+
+ test6/macro.2
+ _empty_/Test7.2"
+
+ _empty_/Test7.macro.2
+ test8/2
+	 test8/macro#2%
+ test8/macro#`<init>`().2
+   _empty_/Test9.2"
+!	! _empty_/Test9.macro#2-
+!! _empty_/Test9.macro#`<init>`().2
+$$ macro/2
+%% macro/macro/bar/2
+%
+% macro/macro/2
+)) foo/2
+** foo/macro/foo/2
+*
+* 
+foo/macro/2
+55 _empty_/Test13.2%
+66 _empty_/Test13.macro().PZ 777B3927EB4430388CC25289DEBBED31

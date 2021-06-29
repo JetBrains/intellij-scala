@@ -1,0 +1,136 @@
+
+ž1tests/pos/i7375.scala*
+_empty_/Entity#*Entity€*,
+_empty_/Entity#`<init>`(). €@*<init>€*
+_empty_/Entity#[M]	*M€*
+_empty_/Entity#[T]	*T€*
+_empty_/Entity#[P]	*P€*+
+_empty_/Entity#receive(). *receive€*(
+_empty_/Entity#receive().(me)*me€*0
+!_empty_/Entity#receive().(sender)*sender€**
+_empty_/Entity#receive().(msg)*msg€*,
+_empty_/Entity#receive().(x$4)  *x$4€*%
+_empty_/Entity#name(). *name€*%
+_empty_/Entity#name().(me)*me€*.
+_empty_/GreetingPerson#*GreetingPerson€*4
+"_empty_/GreetingPerson#`<init>`(). €@*<init>€*5
+(_empty_/GreetingPerson#`<init>`().(name)*name€*,
+_empty_/GreetingPerson#name. €*name€*0
+_empty_/GreetingPerson.
+ *GreetingPerson€*K
+,_empty_/GreetingPerson.GreetingPersonEntity.
+ (*GreetingPersonEntity€*F
+6_empty_/GreetingPerson.GreetingPersonEntity.receive().*receive€*E
+:_empty_/GreetingPerson.GreetingPersonEntity.receive().(me)*me€*M
+>_empty_/GreetingPerson.GreetingPersonEntity.receive().(sender)*sender€*G
+;_empty_/GreetingPerson.GreetingPersonEntity.receive().(msg)*msg€*I
+;_empty_/GreetingPerson.GreetingPersonEntity.receive().(x$4)  *x$4€*@
+3_empty_/GreetingPerson.GreetingPersonEntity.name().*name€*B
+7_empty_/GreetingPerson.GreetingPersonEntity.name().(me)*me€*,
+_empty_/GreetedPerson#*GreetedPerson€*3
+!_empty_/GreetedPerson#`<init>`(). €@*<init>€*4
+'_empty_/GreetedPerson#`<init>`().(name)*name€*+
+_empty_/GreetedPerson#name. €*name€*.
+_empty_/GreetedPerson.
+ *GreetedPerson€*H
+*_empty_/GreetedPerson.GreetedPersonEntity.
+ (*GreetedPersonEntity€*D
+4_empty_/GreetedPerson.GreetedPersonEntity.receive().*receive€*C
+8_empty_/GreetedPerson.GreetedPersonEntity.receive().(me)*me€*K
+<_empty_/GreetedPerson.GreetedPersonEntity.receive().(sender)*sender€*E
+9_empty_/GreetedPerson.GreetedPersonEntity.receive().(msg)*msg€*G
+9_empty_/GreetedPerson.GreetedPersonEntity.receive().(x$4)  *x$4€*>
+1_empty_/GreetedPerson.GreetedPersonEntity.name().*name€*@
+5_empty_/GreetedPerson.GreetedPersonEntity.name().(me)*me€2
+ _empty_/Entity#2$
+ _empty_/Entity#`<init>`().2
+ _empty_/Entity#[M]2
+ _empty_/Entity#[T]2
+ _empty_/Entity#[P]2'
+ _empty_/Entity#receive().2+
+ _empty_/Entity#receive().(me)2 
+ _empty_/Entity#[M]2/
+  &!_empty_/Entity#receive().(sender)2 
+( )_empty_/Entity#[T]2,
++ ._empty_/Entity#receive().(msg)2 
+0 1_empty_/Entity#[P]2,
+9 9_empty_/Entity#receive().(x$4)2
+9 ?_empty_/Entity#2 
+@ A_empty_/Entity#[T]2 
+C D_empty_/Entity#[M]2 
+F G_empty_/Entity#[P]2
+K Oscala/Unit#2$
+ _empty_/Entity#name().2(
+ _empty_/Entity#name().(me)2 
+ _empty_/Entity#[M]2"
+  &scala/Predef.String#2%
+ _empty_/GreetingPerson#20
+ "_empty_/GreetingPerson#`<init>`().2"
+' -scala/Predef.String#2*
+! %_empty_/GreetingPerson#name.2%
+ _empty_/GreetingPerson.2:
+ ,_empty_/GreetingPerson.GreetingPersonEntity.2
+ $_empty_/Entity#2%
+% 3_empty_/GreetingPerson#2$
+5 B_empty_/GreetedPerson#2"
+D Jscala/Predef.String#2D
+' .6_empty_/GreetingPerson.GreetingPersonEntity.receive().2H
+ :_empty_/GreetingPerson.GreetingPersonEntity.receive().(me)2%
+ !_empty_/GreetingPerson#2L
+/ 5>_empty_/GreetingPerson.GreetingPersonEntity.receive().(sender)2$
+7 D_empty_/GreetedPerson#2I
+F I;_empty_/GreetingPerson.GreetingPersonEntity.receive().(msg)2"
+K Qscala/Predef.String#2I
+Y Y;_empty_/GreetingPerson.GreetingPersonEntity.receive().(x$4)2
+Y __empty_/Entity#2$
+` m_empty_/GreetedPerson#2%
+o }_empty_/GreetingPerson#2#
+	 …scala/Predef.String#2
+
+‰ scala/Unit#2'
+		 scala/Predef.println(+1).2&
+	9	 :scala/StringContext#f().2*
+		 scala/StringContext.apply().2I
+	$	 ';_empty_/GreetingPerson.GreetingPersonEntity.receive().(msg)2$
+	+	 +_empty_/Entity#name().2L
+	+	 1>_empty_/GreetingPerson.GreetingPersonEntity.receive().(sender)2A
+' +3_empty_/GreetingPerson.GreetingPersonEntity.name().2E
+ 7_empty_/GreetingPerson.GreetingPersonEntity.name().(me)2%
+ !_empty_/GreetingPerson#2*
+	 _empty_/GreetingPerson#name.2E
+ 7_empty_/GreetingPerson.GreetingPersonEntity.name().(me)2$
+ _empty_/GreetedPerson#2/
+ !_empty_/GreetedPerson#`<init>`().2"
+& ,scala/Predef.String#2)
+  $_empty_/GreetedPerson#name.2$
+ _empty_/GreetedPerson.28
+ *_empty_/GreetedPerson.GreetedPersonEntity.2
+ #_empty_/Entity#2$
+$ 1_empty_/GreetedPerson#2%
+3 A_empty_/GreetingPerson#2"
+C Iscala/Predef.String#2B
+& -4_empty_/GreetedPerson.GreetedPersonEntity.receive().2F
+ 8_empty_/GreetedPerson.GreetedPersonEntity.receive().(me)2$
+  _empty_/GreetedPerson#2J
+. 4<_empty_/GreetedPerson.GreetedPersonEntity.receive().(sender)2%
+6 D_empty_/GreetingPerson#2G
+F I9_empty_/GreetedPerson.GreetedPersonEntity.receive().(msg)2"
+K Qscala/Predef.String#2G
+Y Y9_empty_/GreetedPerson.GreetedPersonEntity.receive().(x$4)2
+Y __empty_/Entity#2%
+` n_empty_/GreetingPerson#2$
+p }_empty_/GreetedPerson#2#
+	 …scala/Predef.String#2
+
+‰ scala/Unit#2'
+ scala/Predef.println(+1).2&
+8 9scala/StringContext#f().2*
+ scala/StringContext.apply().2G
+# &9_empty_/GreetedPerson.GreetedPersonEntity.receive().(msg)2$
+* *_empty_/Entity#name().2J
+* 0<_empty_/GreetedPerson.GreetedPersonEntity.receive().(sender)2?
+& *1_empty_/GreetedPerson.GreetedPersonEntity.name().2C
+ 5_empty_/GreetedPerson.GreetedPersonEntity.name().(me)2$
+  _empty_/GreetedPerson#2)
+	 _empty_/GreetedPerson#name.2C
+ 5_empty_/GreetedPerson.GreetedPersonEntity.name().(me)PZ CD59404EC789D0809F43614DC3735823

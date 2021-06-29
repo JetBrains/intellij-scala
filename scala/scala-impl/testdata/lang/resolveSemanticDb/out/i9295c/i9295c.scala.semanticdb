@@ -1,0 +1,56 @@
+
+ötests/pos/i9295c.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*2
+_empty_/Foo#selectDynamic().*selectDynamic€*/
+"_empty_/Foo#selectDynamic().(name)*name€*/
+!_empty_/Foo#selectDynamic().(x$2)  *x$2€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*0
+_empty_/Bar#applyDynamic().*applyDynamic€*.
+!_empty_/Bar#applyDynamic().(name)*name€*(
+_empty_/Bar#applyDynamic().(x)*x€*)
+_empty_/i9295c$package. *_empty_€**
+_empty_/i9295c$package.foo. €*foo€*)
+_empty_/i9295c$package.baz().*baz€2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ scala/Dynamic#2*
+ _empty_/Foo#selectDynamic().20
+ "_empty_/Foo#selectDynamic().(name)2"
+  scala/Predef.String#2/
+( (!_empty_/Foo#selectDynamic().(x$2)2"
+( 5scala/DummyImplicit#2
+8 ;_empty_/Bar#2#
+> Ascala/Predef.`???`().2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2
+ scala/Dynamic#2)
+ _empty_/Bar#applyDynamic().2/
+ !_empty_/Bar#applyDynamic().(name)2"
+ scala/Predef.String#2,
+! "_empty_/Bar#applyDynamic().(x)2
+$ '
+scala/Int#2#
++ .scala/Predef.`???`().2!
+
+
+_empty_/i9295c$package.2)
+
+
+ _empty_/i9295c$package.foo.2%
+
+
+ _empty_/Foo#`<init>`().2
+
+
+ _empty_/Foo#2+
+ _empty_/i9295c$package.baz().2)
+ _empty_/Bar#applyDynamic().2*
+ _empty_/Foo#selectDynamic().2)
+
+ _empty_/i9295c$package.foo.20
+ "scala/DummyImplicit.dummyImplicit.PZ 73649C15E0003162E23CE5779E48A443

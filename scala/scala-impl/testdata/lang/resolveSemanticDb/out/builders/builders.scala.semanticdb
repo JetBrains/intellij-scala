@@ -1,0 +1,277 @@
+
+ÏJtests/pos/builders.scala*$
+_empty_/builders.
+ *builders€*)
+_empty_/builders.Builder#*Builder€*6
+$_empty_/builders.Builder#`<init>`(). €@*<init>€*/
+_empty_/builders.Builder#[From]	 €*From€*+
+_empty_/builders.Builder#[To]	 €*To€*/
+_empty_/builders.Builder#[Elem]	 €*Elem€*-
+ _empty_/builders.Builder#`+=`(). *+=€*3
+&_empty_/builders.Builder#`+=`().(elem)*elem€*3
+"_empty_/builders.Builder#result(). *result€*=
+#_empty_/builders.iterableBuilder().  *iterableBuilder€*0
+&_empty_/builders.iterableBuilder().[A]	*A€*0
+&_empty_/builders.iterableBuilder().[B]	*B€*
+local0 *$anon€*
+local1 €*buf€*
+local2*+=€*
+local3*elem€*
+local4*result€*5
+_empty_/builders.listBuilder().  *listBuilder€*,
+"_empty_/builders.listBuilder().[A]	*A€*,
+"_empty_/builders.listBuilder().[B]	*B€*
+local5 *$anon€*
+local6 €*buf€*
+local7*+=€*
+local8*elem€*
+local9*result€*#
+_empty_/builders.Iter#*Iter€*3
+!_empty_/builders.Iter#`<init>`(). €@*<init>€*6
+(_empty_/builders.Iter#`<init>`().(elems)*elems€*#
+_empty_/builders.Iter#[A]	*A€*#
+_empty_/builders.Iter#[C]	*C€*-
+_empty_/builders.Iter#elems. €*elems€*(
+_empty_/builders.Iter#`++`().*++€**
+ _empty_/builders.Iter#`++`().[B]	*B€**
+ _empty_/builders.Iter#`++`().[D]	*D€*,
+!_empty_/builders.Iter#`++`().(xs)*xs€*,
+ _empty_/builders.Iter#`++`().(b)  *b€*
+local10*x€*
+local11*x€*(
+_empty_/builders.Iter#map().*map€*)
+_empty_/builders.Iter#map().[B]	*B€*)
+_empty_/builders.Iter#map().[D]	*D€*)
+_empty_/builders.Iter#map().(f)*f€*+
+_empty_/builders.Iter#map().(b)  *b€*
+local12*x€*%
+_empty_/builders.main().*main€*+
+_empty_/builders.main().(args)*args€*
+local13 €*x1€*
+local14 €*x3€*
+local15 €*y1€*
+local16 €*y3€*
+local17 €*z1€*
+local18 €*z3€2
+ _empty_/builders.2'
+ _empty_/builders.Builder#22
+ $_empty_/builders.Builder#`<init>`().2-
+ _empty_/builders.Builder#[From]2+
+ _empty_/builders.Builder#[To]2-
+ !_empty_/builders.Builder#[Elem]2.
+ 
+ _empty_/builders.Builder#`+=`().24
+ &_empty_/builders.Builder#`+=`().(elem)2-
+ _empty_/builders.Builder#[Elem]2
+ scala/Unit#20
+ "_empty_/builders.Builder#result().2+
+ _empty_/builders.Builder#[To]21
+ #_empty_/builders.iterableBuilder().24
+  &_empty_/builders.iterableBuilder().[A]24
+" #&_empty_/builders.iterableBuilder().[B]2'
+/ 6_empty_/builders.Builder#2
+& ._empty_/builders.2%
+7 ?scala/package.Iterable#24
+@ A&_empty_/builders.iterableBuilder().[A]2%
+C Kscala/package.Iterable#24
+L M&_empty_/builders.iterableBuilder().[B]24
+O P&_empty_/builders.iterableBuilder().[B]2
+T Tlocal02'
+X __empty_/builders.Builder#2%
+` hscala/package.Iterable#24
+i j&_empty_/builders.iterableBuilder().[A]2%
+m uscala/package.Iterable#24
+v w&_empty_/builders.iterableBuilder().[B]24
+z {&_empty_/builders.iterableBuilder().[B]2'
+ scala/Predef.println(+1).2
+		 local12=
+	@	 @/scala/collection/mutable/ListBuffer#`<init>`().22
+	3	 =$scala/collection/mutable/ListBuffer#2'
+	+	 2scala/collection/mutable/2
+	 	 *scala/collection/2
+		 scala/24
+	>	 ?&_empty_/builders.iterableBuilder().[B]2
+
+
+ 
+local22
+
+
+ local324
+
+
+ &_empty_/builders.iterableBuilder().[B]2
+
+
+ scala/Unit#27
+
+#
+ %)scala/collection/mutable/Growable#`+=`().2
+
+
+ "local12
+
+&
+ *local32
+ local42%
+ scala/package.Iterable#24
+ &_empty_/builders.iterableBuilder().[B]2;
+" (-scala/collection/mutable/ListBuffer#toList().2
+ !local12-
+ _empty_/builders.listBuilder().20
+ "_empty_/builders.listBuilder().[A]20
+ "_empty_/builders.listBuilder().[B]2'
++ 2_empty_/builders.Builder#2
+" *_empty_/builders.2!
+3 7scala/package.List#20
+8 9"_empty_/builders.listBuilder().[A]2!
+; ?scala/package.List#20
+@ A"_empty_/builders.listBuilder().[B]20
+C D"_empty_/builders.listBuilder().[B]2
+H Hlocal52'
+L S_empty_/builders.Builder#2!
+T Xscala/package.List#20
+Y Z"_empty_/builders.listBuilder().[A]2!
+] ascala/package.List#20
+b c"_empty_/builders.listBuilder().[B]20
+f g"_empty_/builders.listBuilder().[B]2'
+ scala/Predef.println(+1).2
+ local62=
+@ @/scala/collection/mutable/ListBuffer#`<init>`().22
+3 =$scala/collection/mutable/ListBuffer#2'
++ 2scala/collection/mutable/2
+  *scala/collection/2
+ scala/20
+> ?"_empty_/builders.listBuilder().[B]2
+ 
+local72
+ local820
+ "_empty_/builders.listBuilder().[B]2
+ scala/Unit#27
+# %)scala/collection/mutable/Growable#`+=`().2
+ "local62
+& *local82
+ local92!
+ scala/package.List#20
+ "_empty_/builders.listBuilder().[B]2;
+ $-scala/collection/mutable/ListBuffer#toList().2
+ local62$
+'' _empty_/builders.Iter#2/
+'' !_empty_/builders.Iter#`<init>`().2!
+'' scala/package.List#2'
+''  _empty_/builders.Iter#[A]2'
+'' _empty_/builders.Iter#[A]2'
+'' _empty_/builders.Iter#[C]2*
+'' _empty_/builders.Iter#elems.2+
+(( 
+_empty_/builders.Iter#`++`().2.
+((  _empty_/builders.Iter#`++`().[B]2'
+(( _empty_/builders.Iter#[A]2.
+((  _empty_/builders.Iter#`++`().[D]2/
+(( !_empty_/builders.Iter#`++`().(xs)2%
+(( $scala/package.Iterable#2.
+(%( & _empty_/builders.Iter#`++`().[B]2.
+(2( 3 _empty_/builders.Iter#`++`().(b)2'
+(5( <_empty_/builders.Builder#2'
+(=( >_empty_/builders.Iter#[C]2.
+(@( A _empty_/builders.Iter#`++`().[D]2.
+(C( D _empty_/builders.Iter#`++`().[B]2.
+(H( I _empty_/builders.Iter#`++`().[D]28
+)) *scala/collection/immutable/List#foreach().2*
+)) _empty_/builders.Iter#elems.2
+)) local102.
+))  _empty_/builders.Builder#`+=`().2.
+))  _empty_/builders.Iter#`++`().(b)2
+)) local1029
+** +scala/collection/IterableOnceOps#foreach().2/
+** !_empty_/builders.Iter#`++`().(xs)2
+** local112.
+**  _empty_/builders.Builder#`+=`().2.
+**  _empty_/builders.Iter#`++`().(b)2
+** local1120
+++ "_empty_/builders.Builder#result().2.
+++  _empty_/builders.Iter#`++`().(b)2*
+-- _empty_/builders.Iter#map().2-
+-- _empty_/builders.Iter#map().[B]2-
+-- _empty_/builders.Iter#map().[D]2-
+-- _empty_/builders.Iter#map().(f)2'
+-- _empty_/builders.Iter#[A]2-
+-- _empty_/builders.Iter#map().[B]2-
+-&- '_empty_/builders.Iter#map().(b)2'
+-)- 0_empty_/builders.Builder#2'
+-1- 2_empty_/builders.Iter#[C]2-
+-4- 5_empty_/builders.Iter#map().[D]2-
+-7- 8_empty_/builders.Iter#map().[B]2-
+-<- =_empty_/builders.Iter#map().[D]28
+.. *scala/collection/immutable/List#foreach().2*
+.. _empty_/builders.Iter#elems.2
+.. local122.
+..  _empty_/builders.Builder#`+=`().2-
+.. _empty_/builders.Iter#map().(b)2&
+.. scala/Function1#apply().2-
+.. _empty_/builders.Iter#map().(f)2
+.. local1220
+// "_empty_/builders.Builder#result().2-
+// _empty_/builders.Iter#map().(b)2&
+33 
+_empty_/builders.main().2,
+33 _empty_/builders.main().(args)2
+33 scala/Array#2"
+33 scala/Predef.String#2
+3#3 'scala/Unit#2
+44 
+local132/
+4%4 %!_empty_/builders.Iter#`<init>`().2$
+44 _empty_/builders.Iter#2
+44 
+scala/Int#2!
+44 scala/package.List#2
+4 4 #
+scala/Int#27
+4*4 *)scala/collection/IterableFactory#apply().2!
+4&4 *scala/package.List.2
+66 
+local142/
+6)6 )!_empty_/builders.Iter#`<init>`().2$
+66 _empty_/builders.Iter#2
+66 
+scala/Int#2%
+66 #scala/package.Iterable#2
+6$6 '
+scala/Int#27
+6.6 .)scala/collection/IterableFactory#apply().2!
+6*6 .scala/package.List.2
+77 
+local152!
+77 scala/package.List#2
+77 
+scala/Int#2*
+77 _empty_/builders.Iter#map().2
+77 local132 
+7"7 #scala/Int#`+`(+4).2-
+7&7 &_empty_/builders.listBuilder().2
+99 
+local162%
+99 scala/package.Iterable#2
+99 
+scala/Int#2*
+99 "_empty_/builders.Iter#map().2
+99 local142 
+9&9 'scala/Int#`+`(+4).21
+9*9 *#_empty_/builders.iterableBuilder().2
+:: 
+local172!
+:: scala/package.List#2
+:: 
+scala/Int#2
+:: local152
+<< 
+local182%
+<< scala/package.Iterable#2
+<< 
+scala/Int#2
+<< local162'
+== scala/Predef.println(+1).2
+== local172'
+?? scala/Predef.println(+1).2
+?? local18PZ 769D2D8C8BD1586B6B4C8555930F374D

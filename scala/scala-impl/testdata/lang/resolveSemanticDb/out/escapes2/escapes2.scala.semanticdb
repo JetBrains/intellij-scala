@@ -1,0 +1,51 @@
+
+ætests/pos/escapes2.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C3#*C3€*-
+_empty_/Test.C3#`<init>`(). €@*<init>€*1
+!_empty_/Test.C3#`<init>`().(elem) €*elem€*
+_empty_/Test.C3#[T]	*T€*%
+_empty_/Test.C3#elem. €*elem€*
+_empty_/Test.D3#*D3€*-
+_empty_/Test.D3#`<init>`(). €@*<init>€*3
+"_empty_/Test.D3#`<init>`().(elemD) €*elemD€*
+_empty_/Test.D3#[T]	*T€*'
+_empty_/Test.D3#elemD. €*elemD€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€*
+_empty_/Test.f().(x)*x€*
+local0 €*d€*
+local1 €	*t€2
+ _empty_/Test.2
+ 
+_empty_/Test.C3#2)
+
+ 
+_empty_/Test.C3#`<init>`().2!
+ _empty_/Test.C3#[T]2!
+ _empty_/Test.C3#[T]2#
+ _empty_/Test.C3#elem.2
+ 
+_empty_/Test.D3#2)
+
+ 
+_empty_/Test.D3#`<init>`().2!
+ _empty_/Test.D3#[T]2)
+) )_empty_/Test.C3#`<init>`().2
+$ &_empty_/Test.C3#2!
+' (_empty_/Test.D3#[T]2$
+* /_empty_/Test.D3#elemD.2!
+ _empty_/Test.D3#[T]2$
+ _empty_/Test.D3#elemD.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2"
+ _empty_/Test.f().(x)2
+ _empty_/Test.C3#2"
+ _empty_/Test.f().[T]2"
+ _empty_/Test.f().(x)2
+& 'local02
+) +_empty_/Test.D3#2
+, -local12$
+4 9_empty_/Test.D3#elemD.2
+2 3local0PZ 0BBD0D97E043109887A69D94B05D935A

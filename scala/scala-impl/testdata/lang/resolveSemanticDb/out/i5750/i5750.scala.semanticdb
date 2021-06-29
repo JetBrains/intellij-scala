@@ -1,0 +1,42 @@
+
+Š
+tests/pos/i5750.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*!
+_empty_/Test#test().*test€*'
+_empty_/Test#test().(cond)*cond€*#
+_empty_/Test#test2().*test2€*(
+_empty_/Test#test2().(cond)*cond€*
+local0 €*x€*#
+_empty_/Test#test3().*test3€*(
+_empty_/Test#test3().(cond)*cond€*
+local1 €*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2"
+ scala/Predef.String#2"
+ 
+_empty_/Test#test().2(
+ _empty_/Test#test().(cond)2
+ scala/Boolean#2
+ 
+scala/Int#2(
+ _empty_/Test#test().(cond)2!
+ _empty_/Test#foo().2#
+ _empty_/Test#test2().2)
+ _empty_/Test#test2().(cond)2
+ scala/Boolean#2
+  scala/Unit#2
+ 	local02)
+ _empty_/Test#test2().(cond)2!
+ _empty_/Test#foo().2#
+ _empty_/Test#test3().2)
+ _empty_/Test#test3().(cond)2
+ scala/Boolean#2
+  scala/Unit#2
+ 	local12
+ scala/Unit#2)
+ _empty_/Test#test3().(cond)2!
+ _empty_/Test#foo().PZ F2CBA0B32E33053A0613C0389B4A9ED2

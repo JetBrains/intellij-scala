@@ -1,0 +1,97 @@
+
+êtests/pos/i3542-2.scala*
+_empty_/`::`#*::€**
+_empty_/`::`#`<init>`(). €@*<init>€*
+_empty_/`::`#[H]	*H€*
+_empty_/`::`#[T]	*T€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€*
+_empty_/Foo#[R]	*R€*&
+_empty_/FooLowPrio#*
+FooLowPrio€*0
+_empty_/FooLowPrio#`<init>`(). €@*<init>€*3
+_empty_/FooLowPrio#caseOther().  *	caseOther€*,
+"_empty_/FooLowPrio#caseOther().[A]	*A€*
+_empty_/Foo.
+ *Foo€**
+_empty_/Foo.caseCons().  *caseCons€*$
+_empty_/Foo.caseCons().[H]	*H€*&
+_empty_/Foo.caseCons().[HR]	*HR€*$
+_empty_/Foo.caseCons().[T]	*T€*&
+_empty_/Foo.caseCons().[TR]	*TR€*&
+_empty_/Foo.caseCons().(t)  *t€*&
+_empty_/Foo.caseCons().(h)  *h€*(
+_empty_/Foo.caseAny().  *caseAny€*
+_empty_/Test.
+ *Test€*0
+_empty_/Test.implicitFoo. €*implicitFoo€2
+ _empty_/`::`#2"
+ _empty_/`::`#`<init>`().2
+	 
+_empty_/`::`#[H]2
+ _empty_/`::`#[T]2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A]2
+ _empty_/Foo#[R]2!
+ _empty_/FooLowPrio#2,
+ _empty_/FooLowPrio#`<init>`().2-
+ _empty_/FooLowPrio#caseOther().20
+ "_empty_/FooLowPrio#caseOther().[A]2
+  _empty_/Foo#20
+! ""_empty_/FooLowPrio#caseOther().[A]2
+& (_empty_/`::`#20
+$ %"_empty_/FooLowPrio#caseOther().[A]2
+) ,
+scala/Any#2
+ 
+_empty_/Foo.2!
+ _empty_/FooLowPrio#2%
+ _empty_/Foo.caseCons().2(
+ _empty_/Foo.caseCons().[H]2)
+ _empty_/Foo.caseCons().[HR]2(
+  _empty_/Foo.caseCons().[T]2)
+" $_empty_/Foo.caseCons().[TR]2(
+
+
+ _empty_/Foo.caseCons().(t)2
+
+
+ _empty_/Foo#2(
+
+
+ _empty_/Foo.caseCons().[T]2)
+
+
+ _empty_/Foo.caseCons().[TR]2(
+ _empty_/Foo.caseCons().(h)2
+ _empty_/Foo#2(
+ _empty_/Foo.caseCons().[H]2)
+ _empty_/Foo.caseCons().[HR]2
+ 
+_empty_/Foo#2
+ _empty_/`::`#2(
+ _empty_/Foo.caseCons().[H]2(
+ _empty_/Foo.caseCons().[T]2)
+ _empty_/Foo.caseCons().[TR]2$
+ _empty_/Foo.caseAny().2
+ _empty_/Foo#2
+ 
+scala/Any#2
+! $
+scala/Any#2
+ _empty_/Test.2'
+ _empty_/Test.implicitFoo.2(
+ scala/Predef.implicitly().2
+ "_empty_/Foo#2
+( *_empty_/`::`#2
+# 'scala/Long#2
++ .
+scala/Any#2
+0 3
+scala/Any#2%
+5 5_empty_/Foo.caseCons().2$
+5 5_empty_/Foo.caseAny().2-
+5 5_empty_/FooLowPrio#caseOther().PZ 9641663EB247B6819F0FE5A53C5D1E6C

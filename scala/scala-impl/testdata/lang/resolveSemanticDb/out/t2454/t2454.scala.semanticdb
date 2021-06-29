@@ -1,0 +1,78 @@
+
+è	tests/pos/t2454.scala*
+am/One#*One€*$
+am/One#`<init>`(). €@*<init>€*
+
+am/One#[M]	*M€*
+	am/One#x. „*x€*
+am/Two#*Two€*$
+am/Two#`<init>`(). €@*<init>€*
+
+am/Two#[M]	*M€*
+	am/Two#x. „*x€*
+am/Test.
+ *Test€*
+
+am/Test.x. €*x€*
+local0 *$anon€*
+local1 €*x€*
+
+am/Test.o. €*o€*
+local2 *$anon€*
+local3 €*x€*
+
+am/Test.y. €*y€*
+local4 *$anon€*
+local5 €*x€2
+ 
+am/2
+ 	am/One#2 
+	 	am/One#`<init>`().2
+
+ 
+am/One#[M]2
+ 	am/One#x.2
+
+ 
+scala/Int#2
+ 	am/Two#2 
+	 	am/Two#`<init>`().2
+
+ 
+am/Two#[M]2
+ 	am/Two#x.2
+
+ 
+scala/Int#2
+
+
+ am/Test.2
+ 
+am/Test.x.2
+
+ 
+local02
+ am/Two#2
+ scala/Predef.Map#2
+ 	local12
+ 
+am/Test.o.2
+
+ 
+local22
+ am/One#2
+ 
+java/util/2
+ java/2
+ 	local32
+ 
+am/Test.y.2
+
+ 
+local42
+ am/Two#2#
+ &java/util/concurrent/2
+ 
+java/util/2
+ java/2
+ 	local5PZ 0E24D66B81EFC7C4B6CDEB5799579CDB

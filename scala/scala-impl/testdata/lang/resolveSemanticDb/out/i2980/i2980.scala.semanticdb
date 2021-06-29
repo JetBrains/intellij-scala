@@ -1,0 +1,78 @@
+
+£tests/pos/i2980.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#apply(). *apply€*%
+_empty_/Foo#apply().[`~>`]	*~>€*!
+_empty_/Foo#apply().(x)*x€*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.foo().*foo€*
+local0 *$anon€*
+local1*apply€*
+local2	*~>€*
+local3*x€* 
+_empty_/Foo.main().*main€*&
+_empty_/Foo.main().(args)*args€*
+local4 €*x€*
+local5*x€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2"
+ _empty_/Foo#apply().2(
+ _empty_/Foo#apply().[`~>`]2%
+ _empty_/Foo#apply().(x)2(
+ _empty_/Foo#apply().[`~>`]2
+ 
+scala/Int#2
+ "
+scala/Int#2(
+) +_empty_/Foo#apply().[`~>`]2
+% (
+scala/Int#2
+, /
+scala/Int#2
+ 
+_empty_/Foo.2 
+ _empty_/Foo.foo().2
+ _empty_/Foo#2
+ local02
+ _empty_/Foo#2
+ local12
+ local22
+ local32
+  local22
+ 
+scala/Int#2
+! $
+scala/Int#2
++ -local22
+' *
+scala/Int#2
+. 1
+scala/Int#2
+4 5local32!
+		 
+_empty_/Foo.main().2'
+		 _empty_/Foo.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	!	 %scala/Unit#2
+
+
+ 	local42"
+
+
+ _empty_/Foo#apply().2 
+
+
+ _empty_/Foo.foo().2
+
+
+ local52
+
+
+ 
+scala/Int#2
+
+
+ local5PZ 79ABADE0ECE104FBF56FE93CDC0491B6

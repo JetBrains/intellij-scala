@@ -1,0 +1,243 @@
+
+…O&tests/pos/class-gadt/nestedClass.scala**
+_empty_/nestedClass.
+ *nestedClass€**
+_empty_/nestedClass.Expr# ”€*Expr€*6
+$_empty_/nestedClass.Expr#`<init>`(). €@*<init>€*&
+_empty_/nestedClass.Expr#[A]	*A€*(
+_empty_/nestedClass.Expr.
+ *Expr€*5
+!_empty_/nestedClass.Expr.IntExpr# ˆ*IntExpr€*>
+,_empty_/nestedClass.Expr.IntExpr#`<init>`(). €@*<init>€*D
+3_empty_/nestedClass.Expr.IntExpr#`<init>`().(value) €*value€*8
+'_empty_/nestedClass.Expr.IntExpr#value. €*value€*5
+(_empty_/nestedClass.Expr.IntExpr#copy().*copy€*=
+/_empty_/nestedClass.Expr.IntExpr#copy().(value)*value€*I
+2_empty_/nestedClass.Expr.IntExpr#copy$default$1().*copy$default$1€*;
++_empty_/nestedClass.Expr.IntExpr#ordinal().*ordinal€*1
+&_empty_/nestedClass.Expr.IntExpr#_1().*_1€*3
+!_empty_/nestedClass.Expr.IntExpr.
+ *IntExpr€*7
+)_empty_/nestedClass.Expr.IntExpr.apply().*apply€*>
+0_empty_/nestedClass.Expr.IntExpr.apply().(value)*value€*;
++_empty_/nestedClass.Expr.IntExpr.unapply().*unapply€*<
+0_empty_/nestedClass.Expr.IntExpr.unapply().(x$1)*x$1€*=
+,_empty_/nestedClass.Expr.IntExpr.toString().*toString€*1
+_empty_/nestedClass.Expr.Other# ˆ*Other€*<
+*_empty_/nestedClass.Expr.Other#`<init>`(). €@*<init>€*B
+1_empty_/nestedClass.Expr.Other#`<init>`().(value) €*value€*,
+"_empty_/nestedClass.Expr.Other#[T]	*T€*6
+%_empty_/nestedClass.Expr.Other#value. €*value€*3
+&_empty_/nestedClass.Expr.Other#copy().*copy€*3
+)_empty_/nestedClass.Expr.Other#copy().[T]	*T€*;
+-_empty_/nestedClass.Expr.Other#copy().(value)*value€*G
+0_empty_/nestedClass.Expr.Other#copy$default$1().*copy$default$1€*=
+3_empty_/nestedClass.Expr.Other#copy$default$1().[T]	*T€*9
+)_empty_/nestedClass.Expr.Other#ordinal().*ordinal€*/
+$_empty_/nestedClass.Expr.Other#_1().*_1€*/
+_empty_/nestedClass.Expr.Other.
+ *Other€*5
+'_empty_/nestedClass.Expr.Other.apply().*apply€*4
+*_empty_/nestedClass.Expr.Other.apply().[T]	*T€*<
+._empty_/nestedClass.Expr.Other.apply().(value)*value€*9
+)_empty_/nestedClass.Expr.Other.unapply().*unapply€*6
+,_empty_/nestedClass.Expr.Other.unapply().[T]	*T€*:
+._empty_/nestedClass.Expr.Other.unapply().(x$1)*x$1€*;
+*_empty_/nestedClass.Expr.Other.toString().*toString€*;
+'_empty_/nestedClass.Expr.fromOrdinal().*fromOrdinal€*@
+0_empty_/nestedClass.Expr.fromOrdinal().(ordinal)*ordinal€**
+_empty_/nestedClass.Outer1#*Outer1€*8
+&_empty_/nestedClass.Outer1#`<init>`(). €@*<init>€*(
+_empty_/nestedClass.Outer1#[C]	*C€*1
+"_empty_/nestedClass.Outer1#Inner1#*Inner1€*?
+-_empty_/nestedClass.Outer1#Inner1#`<init>`(). €@*<init>€*6
+)_empty_/nestedClass.Outer1#Inner1#eval().*eval€*6
+,_empty_/nestedClass.Outer1#Inner1#eval().(e)*e€*
+local0 €*i€*
+local1 €*v€*(
+_empty_/nestedClass.foo2().*foo2€*(
+_empty_/nestedClass.foo2().[C]	*C€*
+local2*Outer2€*
+local3*Inner2€*
+local4*eval€*
+local5*e€*
+local6 €*i€*
+local7 €*v€**
+_empty_/nestedClass.Outer3#*Outer3€*8
+&_empty_/nestedClass.Outer3#`<init>`(). €@*<init>€*(
+_empty_/nestedClass.Outer3#[C]	*C€*/
+"_empty_/nestedClass.Outer3#foo3().*foo3€*
+local8*Inner3€*
+local9*eval€*
+local10*e€*
+local11 €*i€*
+local12 €*v€**
+_empty_/nestedClass.Outer4#*Outer4€*8
+&_empty_/nestedClass.Outer4#`<init>`(). €@*<init>€*(
+_empty_/nestedClass.Outer4#[C]	*C€*1
+"_empty_/nestedClass.Outer4#Inner4#*Inner4€*?
+-_empty_/nestedClass.Outer4#Inner4#`<init>`(). €@*<init>€*6
+)_empty_/nestedClass.Outer4#Inner4#eval().*eval€*6
+,_empty_/nestedClass.Outer4#Inner4#eval().(e)*e€*
+local13 €*i€*
+local14 €*v€**
+_empty_/nestedClass.Outer5#*Outer5€*8
+&_empty_/nestedClass.Outer5#`<init>`(). €@*<init>€*(
+_empty_/nestedClass.Outer5#[C]	*C€*3
+"_empty_/nestedClass.Outer5#Inner5.
+ *Inner5€*6
+)_empty_/nestedClass.Outer5#Inner5.eval().*eval€*6
+,_empty_/nestedClass.Outer5#Inner5.eval().(e)*e€*
+local15 €*i€*
+local16 €*v€2"
+ _empty_/nestedClass.2'
+ _empty_/nestedClass.Expr#22
+ $_empty_/nestedClass.Expr#`<init>`().2*
+ _empty_/nestedClass.Expr#[A]2'
+ _empty_/nestedClass.Expr.2/
+	 !_empty_/nestedClass.Expr.IntExpr#2:
+ ,_empty_/nestedClass.Expr.IntExpr#`<init>`().2
+ 
+scala/Int#22
+. .$_empty_/nestedClass.Expr#`<init>`().2'
+% )_empty_/nestedClass.Expr#2
+* -
+scala/Int#25
+ '_empty_/nestedClass.Expr.IntExpr#value.26
+ (_empty_/nestedClass.Expr.IntExpr#copy().24
+ &_empty_/nestedClass.Expr.IntExpr#_1().2/
+	 	!_empty_/nestedClass.Expr.IntExpr.27
+ )_empty_/nestedClass.Expr.IntExpr.apply().2-
+	 _empty_/nestedClass.Expr.Other#28
+ *_empty_/nestedClass.Expr.Other#`<init>`().20
+ "_empty_/nestedClass.Expr.Other#[T]22
++ +$_empty_/nestedClass.Expr#`<init>`().2'
+$ (_empty_/nestedClass.Expr#20
+) *"_empty_/nestedClass.Expr.Other#[T]20
+ "_empty_/nestedClass.Expr.Other#[T]23
+ %_empty_/nestedClass.Expr.Other#value.24
+ &_empty_/nestedClass.Expr.Other#copy().22
+ $_empty_/nestedClass.Expr.Other#_1().2-
+	 	_empty_/nestedClass.Expr.Other.25
+ '_empty_/nestedClass.Expr.Other.apply().27
+ )_empty_/nestedClass.Expr.Other.unapply().2)
+ _empty_/nestedClass.Outer1#24
+ &_empty_/nestedClass.Outer1#`<init>`().2,
+ _empty_/nestedClass.Outer1#[C]20
+
+ "_empty_/nestedClass.Outer1#Inner1#2;
+		 -_empty_/nestedClass.Outer1#Inner1#`<init>`().27
+	
+	 )_empty_/nestedClass.Outer1#Inner1#eval().2:
+		 ,_empty_/nestedClass.Outer1#Inner1#eval().(e)2'
+		 _empty_/nestedClass.Expr#2,
+		 _empty_/nestedClass.Outer1#[C]2,
+		 _empty_/nestedClass.Outer1#[C]2:
+
+
+ 	,_empty_/nestedClass.Outer1#Inner1#eval().(e)29
+ +_empty_/nestedClass.Expr.IntExpr.unapply().2/
+ !_empty_/nestedClass.Expr.IntExpr.2'
+ _empty_/nestedClass.Expr.2
+ local02 
+$ %scala/Int#`+`(+4).2
+" #local027
+ )_empty_/nestedClass.Expr.Other.unapply().2-
+ _empty_/nestedClass.Expr.Other.2'
+ _empty_/nestedClass.Expr.2
+ local12
+  !local12)
+ 
+_empty_/nestedClass.foo2().2,
+ _empty_/nestedClass.foo2().[C]2
+ scala/Unit#2
+
+ local22
+ local32
+ local42
+ local52'
+ _empty_/nestedClass.Expr#2,
+ _empty_/nestedClass.foo2().[C]2,
+ _empty_/nestedClass.foo2().[C]2
+
+ local529
+ +_empty_/nestedClass.Expr.IntExpr.unapply().2/
+ !_empty_/nestedClass.Expr.IntExpr.2'
+ _empty_/nestedClass.Expr.2
+ local62 
+& 'scala/Int#`+`(+4).2
+$ %local627
+ )_empty_/nestedClass.Expr.Other.unapply().2-
+ _empty_/nestedClass.Expr.Other.2'
+ _empty_/nestedClass.Expr.2
+ local72
+" #local72)
+ _empty_/nestedClass.Outer3#24
+ &_empty_/nestedClass.Outer3#`<init>`().2,
+ _empty_/nestedClass.Outer3#[C]20
+ "_empty_/nestedClass.Outer3#foo3().2
+ scala/Unit#2
+ local82
+ local92
+ local102'
+ _empty_/nestedClass.Expr#2,
+ _empty_/nestedClass.Outer3#[C]2,
+  !_empty_/nestedClass.Outer3#[C]2
+   local1029
+!! +_empty_/nestedClass.Expr.IntExpr.unapply().2/
+!! !_empty_/nestedClass.Expr.IntExpr.2'
+!! _empty_/nestedClass.Expr.2
+! ! !local112 
+!(! )scala/Int#`+`(+4).2
+!&! 'local1127
+"" )_empty_/nestedClass.Expr.Other.unapply().2-
+"" _empty_/nestedClass.Expr.Other.2'
+"" _empty_/nestedClass.Expr.2
+"" local122
+"$" %local122)
+'' _empty_/nestedClass.Outer4#24
+'' &_empty_/nestedClass.Outer4#`<init>`().2,
+'' _empty_/nestedClass.Outer4#[C]20
+(
+( "_empty_/nestedClass.Outer4#Inner4#2;
+)) -_empty_/nestedClass.Outer4#Inner4#`<init>`().27
+)
+) )_empty_/nestedClass.Outer4#Inner4#eval().2:
+)) ,_empty_/nestedClass.Outer4#Inner4#eval().(e)2'
+)) _empty_/nestedClass.Expr#2,
+)) _empty_/nestedClass.Outer4#[C]2,
+)) _empty_/nestedClass.Outer4#[C]2:
+** 	,_empty_/nestedClass.Outer4#Inner4#eval().(e)29
+++ +_empty_/nestedClass.Expr.IntExpr.unapply().2/
+++ !_empty_/nestedClass.Expr.IntExpr.2'
+++ _empty_/nestedClass.Expr.2
+++ local132 
++$+ %scala/Int#`+`(+4).2
++"+ #local1327
+,, )_empty_/nestedClass.Expr.Other.unapply().2-
+,, _empty_/nestedClass.Expr.Other.2'
+,, _empty_/nestedClass.Expr.2
+,, local142
+, , !local142)
+11 _empty_/nestedClass.Outer5#24
+11 &_empty_/nestedClass.Outer5#`<init>`().2,
+11 _empty_/nestedClass.Outer5#[C]20
+22 "_empty_/nestedClass.Outer5#Inner5.27
+3
+3 )_empty_/nestedClass.Outer5#Inner5.eval().2:
+33 ,_empty_/nestedClass.Outer5#Inner5.eval().(e)2'
+33 _empty_/nestedClass.Expr#2,
+33 _empty_/nestedClass.Outer5#[C]2,
+33 _empty_/nestedClass.Outer5#[C]2:
+44 	,_empty_/nestedClass.Outer5#Inner5.eval().(e)29
+55 +_empty_/nestedClass.Expr.IntExpr.unapply().2/
+55 !_empty_/nestedClass.Expr.IntExpr.2'
+55 _empty_/nestedClass.Expr.2
+55 local152 
+5$5 %scala/Int#`+`(+4).2
+5"5 #local1527
+66 )_empty_/nestedClass.Expr.Other.unapply().2-
+66 _empty_/nestedClass.Expr.Other.2'
+66 _empty_/nestedClass.Expr.2
+66 local162
+6 6 !local16PZ 436BE543E40CF85DF26963D11AC13222

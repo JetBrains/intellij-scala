@@ -1,0 +1,26 @@
+
+´tests/pos/i2192.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(x)*x€*
+local0*x€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2$
+ _empty_/Test.foo().(x)2!
+ scala/Some.apply().2
+ scala/Some.2!
+ 
+_empty_/Test.foo().2
+ local02
+ scala/Option#2
+ 
+scala/Int#2
+ 
+scala/Int#PZ 3A65C2E8334C2461DFE54CA9D7F12B66

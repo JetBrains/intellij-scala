@@ -1,0 +1,13 @@
+
+ètests/pos/t7011.scala*
+_empty_/bar.
+ *barÄ*
+_empty_/bar.foo().*fooÄ*
+local0 ¿*xÄ2
+ 
+_empty_/bar.2 
+ _empty_/bar.foo().2
+ scala/Unit#2
+ local02
+	 
+local0PZ 4EA9763C07F9FE149B290B307D76AE27

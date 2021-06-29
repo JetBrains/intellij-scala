@@ -1,0 +1,235 @@
+
+ñ<tests/pos/i12211.scala*
+_empty_/AA#*AA€*(
+_empty_/AA#`<init>`(). €@*<init>€*
+_empty_/BB#*BB€*(
+_empty_/BB#`<init>`(). €@*<init>€*
+_empty_/BB#[T]	*T€*4
+_empty_/RelaxedSelectable#*RelaxedSelectable€*7
+%_empty_/RelaxedSelectable#`<init>`(). €@*<init>€*>
+)_empty_/RelaxedSelectable#applyDynamic().*applyDynamic€*<
+/_empty_/RelaxedSelectable#applyDynamic().(name)*name€*H
+5_empty_/RelaxedSelectable#applyDynamic().(paramTypes)*
+paramTypes€*<
+/_empty_/RelaxedSelectable#applyDynamic().(args)*args€*
+_empty_/Sink#*Sink€**
+_empty_/Sink#`<init>`(). €@*<init>€*
+_empty_/Sink#[A]	*A€*
+_empty_/Sink#put().*put€* 
+_empty_/Sink#put().(x)*x€*)
+_empty_/i12211$package. *_empty_€*+
+_empty_/i12211$package.fst0().*fst0€*+
+!_empty_/i12211$package.fst0().[A]	*A€*+
+!_empty_/i12211$package.fst0().[B]	*B€*+
+!_empty_/i12211$package.fst0().(a)*a€*+
+!_empty_/i12211$package.fst0().(b)*b€*)
+_empty_/i12211$package.fst().*fst€**
+ _empty_/i12211$package.fst().[A]	*A€**
+ _empty_/i12211$package.fst().[B]	*B€*
+local0 *apply€*
+local1*a€*
+local2 *apply€*
+local3*b€*
+local4*a€*
+local5*b€*)
+_empty_/i12211$package.snd().*snd€**
+ _empty_/i12211$package.snd().[A]	*A€**
+ _empty_/i12211$package.snd().[B]	*B€*
+local6 *apply€*
+local7*a€*
+local8 *apply€*
+local9*b€*
+local10*a€*
+local11*b€*+
+_empty_/i12211$package.fst1().*fst1€*+
+!_empty_/i12211$package.fst1().[A]	*A€*+
+!_empty_/i12211$package.fst1().[B]	*B€*
+local12 *apply€*
+local13*a€*
+local14 *apply€*
+local15*b€*
+local16*a€*
+local17*b€*-
+_empty_/i12211$package.test1().*test1€*,
+"_empty_/i12211$package.test1().[A]	*A€*,
+"_empty_/i12211$package.test1().[B]	*B€*
+local18 *apply€*
+local19*a€*
+local20 *apply€*
+local21*b€*-
+_empty_/i12211$package.test2().*test2€*,
+"_empty_/i12211$package.test2().[A]	*A€*,
+"_empty_/i12211$package.test2().[B]	*B€*
+local22 *apply€*
+local23*a€*
+local24 *apply€*
+local25*b€*-
+_empty_/i12211$package.test3().*test3€*
+local26 *apply€*
+local27*a€*
+local28 *apply€*
+local29*b€*
+local30*a€*
+local31*b€*&
+_empty_/i12211$package.a. €*a€*&
+_empty_/i12211$package.b. €*b€*
+local32 *put€*
+local33*x€2
+ _empty_/AA#2 
+_empty_/AA#`<init>`().2
+ _empty_/BB#2$
+ _empty_/BB#`<init>`().2
+	 
+_empty_/BB#[T]2,
+ scala/annotation/experimental#2
+ scala/annotation/2(
+ _empty_/RelaxedSelectable#23
+   %_empty_/RelaxedSelectable#`<init>`().2<
++ G.scala/Selectable.WithoutPreciseParameterTypes#2
+  *scala/Selectable.27
+ )_empty_/RelaxedSelectable#applyDynamic().2=
+ /_empty_/RelaxedSelectable#applyDynamic().(name)2"
+ scala/Predef.String#2C
+! +5_empty_/RelaxedSelectable#applyDynamic().(paramTypes)2!
+- 2scala/Predef.Class#2=
+8 </_empty_/RelaxedSelectable#applyDynamic().(args)2
+> A
+scala/Any#2
+E H
+scala/Any#2#
+K Nscala/Predef.`???`().2,
+ scala/annotation/experimental#2
+ scala/annotation/2
+ 
+_empty_/Sink#2&
+
+ 
+_empty_/Sink#`<init>`().2(
+ '_empty_/RelaxedSelectable#2
+ _empty_/Sink#[A]2!
+ 	_empty_/Sink#put().2$
+
+ _empty_/Sink#put().(x)2
+ _empty_/Sink#[A]2
+ scala/Unit#2!
+_empty_/i12211$package.2,
+ _empty_/i12211$package.fst0().2/
+	 
+!_empty_/i12211$package.fst0().[A]2/
+ !_empty_/i12211$package.fst0().[B]2/
+ !_empty_/i12211$package.fst0().(a)2/
+ !_empty_/i12211$package.fst0().[A]2/
+ !_empty_/i12211$package.fst0().(b)2/
+ !_empty_/i12211$package.fst0().[B]2/
+ !_empty_/i12211$package.fst0().(a)2/
+' (!_empty_/i12211$package.fst0().(a)2/
+0 1!_empty_/i12211$package.fst0().(a)2+
+ _empty_/i12211$package.fst().2.
+ 	 _empty_/i12211$package.fst().[A]2.
+  _empty_/i12211$package.fst().[B]2.
+  _empty_/i12211$package.fst().[A]2
+ local02
+ local12.
+  ! _empty_/i12211$package.fst().[B]2
+" #local12
++ 0local22
+ local32
+. /local12
+ local42.
+  _empty_/i12211$package.fst().[A]2
+ local52.
+  _empty_/i12211$package.fst().[B]2
+ local42
+ local42+
+ _empty_/i12211$package.snd().2.
+ 	 _empty_/i12211$package.snd().[A]2.
+  _empty_/i12211$package.snd().[B]2.
+  _empty_/i12211$package.snd().[A]2
+ local62
+ local72.
+& ' _empty_/i12211$package.snd().[B]2
+( )local72
+1 6local82
+# $local92
+4 5local92
+ local102.
+  _empty_/i12211$package.snd().[A]2
+ local112.
+  _empty_/i12211$package.snd().[B]2
+ local102
+$ %local112,
+		 _empty_/i12211$package.fst1().2/
+			 
+!_empty_/i12211$package.fst1().[A]2/
+		 !_empty_/i12211$package.fst1().[B]2/
+		 !_empty_/i12211$package.fst1().[A]2
+		 local122
+		 local132/
+	!	 "!_empty_/i12211$package.fst1().[B]2
+	#	 $local132
+	,	 1local142
+		 local152
+	/	 0local132,
+	8	 <_empty_/i12211$package.fst0().2
+	8	 8local162
+	8	 8local172-
+ 	_empty_/i12211$package.test1().20
+
+ "_empty_/i12211$package.test1().[A]20
+ "_empty_/i12211$package.test1().[B]20
+ "_empty_/i12211$package.test1().[A]2
+  local182
+ local1920
+( )"_empty_/i12211$package.test1().[B]2
+* +local192
+3 8local202
+% &local212
+6 9
+scala/Any#2+
+ _empty_/i12211$package.snd().20
+ "_empty_/i12211$package.test1().[A]20
+	 
+"_empty_/i12211$package.test1().[B]2-
+ 	_empty_/i12211$package.test2().20
+
+ "_empty_/i12211$package.test2().[A]20
+ "_empty_/i12211$package.test2().[B]20
+ "_empty_/i12211$package.test2().[A]2
+  local222
+ local2320
+" #"_empty_/i12211$package.test2().[B]2
+$ %local232
+- 2local242
+  local2520
+0 1"_empty_/i12211$package.test2().[A]2+
+4 7_empty_/i12211$package.fst().20
+8 9"_empty_/i12211$package.test2().[A]20
+; <"_empty_/i12211$package.test2().[B]2-
+ 	_empty_/i12211$package.test3().2
+ _empty_/AA#2
+ local262
+ local272
+ _empty_/BB#2
+ local272
+& +local282
+ local292
+) +_empty_/BB#2
+ local302
+ _empty_/AA#2
+ local312
+ _empty_/BB#2
+ local302
+  !local312'
+ _empty_/i12211$package.a.2&
+ _empty_/Sink#`<init>`().2
+ _empty_/Sink#2"
+ scala/Predef.String#2'
+ _empty_/i12211$package.b.2(
+ _empty_/RelaxedSelectable#2
+ "local322
+# $local332"
+& ,scala/Predef.String#2
+/ 3scala/Unit#2'
+8 9_empty_/i12211$package.a.27
+	 	)_empty_/RelaxedSelectable#applyDynamic().2'
+ 	_empty_/i12211$package.b.PZ F78A57ABB8437984BD9807B216048C6B

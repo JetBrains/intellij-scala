@@ -1,0 +1,363 @@
+
+…stests/pos/i4176-gadt.scala*
+_empty_/i4176.
+ *i4176€*"
+_empty_/i4176.TNat# *TNat€*0
+_empty_/i4176.TNat#`<init>`(). €@*<init>€*%
+_empty_/i4176.TZero# €*TZero€*1
+_empty_/i4176.TZero#`<init>`(). €@*<init>€*(
+_empty_/i4176.TZero#copy().*copy€*$
+_empty_/i4176.TZero.
+ *TZero€**
+_empty_/i4176.TZero.apply().*apply€*.
+_empty_/i4176.TZero.unapply().*unapply€*/
+#_empty_/i4176.TZero.unapply().(x$1)*x$1€*0
+_empty_/i4176.TZero.toString().*toString€*%
+_empty_/i4176.TSucc# €*TSucc€*1
+_empty_/i4176.TSucc#`<init>`(). €@*<init>€*!
+_empty_/i4176.TSucc#[N]	*N€*(
+_empty_/i4176.TSucc#copy().*copy€*(
+_empty_/i4176.TSucc#copy().[N]	*N€*$
+_empty_/i4176.TSucc.
+ *TSucc€**
+_empty_/i4176.TSucc.apply().*apply€*)
+_empty_/i4176.TSucc.apply().[N]	*N€*.
+_empty_/i4176.TSucc.unapply().*unapply€*+
+!_empty_/i4176.TSucc.unapply().[N]	*N€*/
+#_empty_/i4176.TSucc.unapply().(x$1)*x$1€*0
+_empty_/i4176.TSucc.toString().*toString€*(
+_empty_/i4176.TNatSum.
+ *TNatSum€**
+_empty_/i4176.TNatSum.TSum# *TSum€*8
+&_empty_/i4176.TNatSum.TSum#`<init>`(). €@*<init>€*(
+_empty_/i4176.TNatSum.TSum#[M]	*M€*(
+_empty_/i4176.TNatSum.TSum#[N]	*N€*(
+_empty_/i4176.TNatSum.TSum#[R]	*R€*3
+_empty_/i4176.TNatSum.TSumZero# €*TSumZero€*<
+*_empty_/i4176.TNatSum.TSumZero#`<init>`(). €@*<init>€*,
+"_empty_/i4176.TNatSum.TSumZero#[N]	*N€*3
+&_empty_/i4176.TNatSum.TSumZero#copy().*copy€*3
+)_empty_/i4176.TNatSum.TSumZero#copy().[N]	*N€*2
+_empty_/i4176.TNatSum.TSumZero.
+ *TSumZero€*5
+'_empty_/i4176.TNatSum.TSumZero.apply().*apply€*4
+*_empty_/i4176.TNatSum.TSumZero.apply().[N]	*N€*9
+)_empty_/i4176.TNatSum.TSumZero.unapply().*unapply€*6
+,_empty_/i4176.TNatSum.TSumZero.unapply().[N]	*N€*:
+._empty_/i4176.TNatSum.TSumZero.unapply().(x$1)*x$1€*;
+*_empty_/i4176.TNatSum.TSumZero.toString().*toString€*-
+_empty_/i4176.TNatSum.TSumM# €*TSumM€*9
+'_empty_/i4176.TNatSum.TSumM#`<init>`(). €@*<init>€*;
+,_empty_/i4176.TNatSum.TSumM#`<init>`().(sum) €*sum€*)
+_empty_/i4176.TNatSum.TSumM#[M]	*M€*)
+_empty_/i4176.TNatSum.TSumM#[N]	*N€*)
+_empty_/i4176.TNatSum.TSumM#[R]	*R€*/
+ _empty_/i4176.TNatSum.TSumM#sum. €*sum€*0
+#_empty_/i4176.TNatSum.TSumM#copy().*copy€*0
+&_empty_/i4176.TNatSum.TSumM#copy().[M]	*M€*0
+&_empty_/i4176.TNatSum.TSumM#copy().[N]	*N€*0
+&_empty_/i4176.TNatSum.TSumM#copy().[R]	*R€*4
+(_empty_/i4176.TNatSum.TSumM#copy().(sum)*sum€*D
+-_empty_/i4176.TNatSum.TSumM#copy$default$1().*copy$default$1€*:
+0_empty_/i4176.TNatSum.TSumM#copy$default$1().[M]	*M€*:
+0_empty_/i4176.TNatSum.TSumM#copy$default$1().[N]	*N€*:
+0_empty_/i4176.TNatSum.TSumM#copy$default$1().[R]	*R€*,
+!_empty_/i4176.TNatSum.TSumM#_1().*_1€*,
+_empty_/i4176.TNatSum.TSumM.
+ *TSumM€*2
+$_empty_/i4176.TNatSum.TSumM.apply().*apply€*1
+'_empty_/i4176.TNatSum.TSumM.apply().[M]	*M€*1
+'_empty_/i4176.TNatSum.TSumM.apply().[N]	*N€*1
+'_empty_/i4176.TNatSum.TSumM.apply().[R]	*R€*5
+)_empty_/i4176.TNatSum.TSumM.apply().(sum)*sum€*6
+&_empty_/i4176.TNatSum.TSumM.unapply().*unapply€*3
+)_empty_/i4176.TNatSum.TSumM.unapply().[M]	*M€*3
+)_empty_/i4176.TNatSum.TSumM.unapply().[N]	*N€*3
+)_empty_/i4176.TNatSum.TSumM.unapply().[R]	*R€*7
++_empty_/i4176.TNatSum.TSumM.unapply().(x$1)*x$1€*8
+'_empty_/i4176.TNatSum.TSumM.toString().*toString€*,
+_empty_/i4176.tSumZero().  *tSumZero€*&
+_empty_/i4176.tSumZero().[N]	*N€*&
+_empty_/i4176.tSumM().  *tSumM€*#
+_empty_/i4176.tSumM().[M]	*M€*#
+_empty_/i4176.tSumM().[N]	*N€*#
+_empty_/i4176.tSumM().[R]	*R€*)
+_empty_/i4176.tSumM().(sum)  *sum€* 
+_empty_/i4176.Vec# *Vec€*/
+_empty_/i4176.Vec#`<init>`(). €@*<init>€*
+_empty_/i4176.Vec#[T]	*T€*
+_empty_/i4176.Vec#[N]	*N€*#
+_empty_/i4176.VNil.
+ ˆ*VNil€*%
+_empty_/i4176.VCons# €*VCons€*1
+_empty_/i4176.VCons#`<init>`(). €@*<init>€*/
+"_empty_/i4176.VCons#`<init>`().(x) €*x€*1
+#_empty_/i4176.VCons#`<init>`().(xs) €*xs€*!
+_empty_/i4176.VCons#[T]	*T€*!
+_empty_/i4176.VCons#[N]	*N€*#
+_empty_/i4176.VCons#x. €*x€*%
+_empty_/i4176.VCons#xs. €*xs€*(
+_empty_/i4176.VCons#copy().*copy€*(
+_empty_/i4176.VCons#copy().[T]	*T€*(
+_empty_/i4176.VCons#copy().[N]	*N€*(
+_empty_/i4176.VCons#copy().(x)*x€**
+_empty_/i4176.VCons#copy().(xs)*xs€*<
+%_empty_/i4176.VCons#copy$default$1().*copy$default$1€*2
+(_empty_/i4176.VCons#copy$default$1().[T]	*T€*2
+(_empty_/i4176.VCons#copy$default$1().[N]	*N€*<
+%_empty_/i4176.VCons#copy$default$2().*copy$default$2€*2
+(_empty_/i4176.VCons#copy$default$2().[T]	*T€*2
+(_empty_/i4176.VCons#copy$default$2().[N]	*N€*$
+_empty_/i4176.VCons#_1().*_1€*$
+_empty_/i4176.VCons#_2().*_2€*$
+_empty_/i4176.VCons.
+ *VCons€**
+_empty_/i4176.VCons.apply().*apply€*)
+_empty_/i4176.VCons.apply().[T]	*T€*)
+_empty_/i4176.VCons.apply().[N]	*N€*)
+_empty_/i4176.VCons.apply().(x)*x€*+
+ _empty_/i4176.VCons.apply().(xs)*xs€*.
+_empty_/i4176.VCons.unapply().*unapply€*+
+!_empty_/i4176.VCons.unapply().[T]	*T€*+
+!_empty_/i4176.VCons.unapply().[N]	*N€*/
+#_empty_/i4176.VCons.unapply().(x$1)*x$1€*0
+_empty_/i4176.VCons.toString().*toString€*(
+_empty_/i4176.append0().*append0€*%
+_empty_/i4176.append0().[T]	*T€*%
+_empty_/i4176.append0().[M]	*M€*%
+_empty_/i4176.append0().[N]	*N€*%
+_empty_/i4176.append0().[R]	*R€*-
+_empty_/i4176.append0().($this)*$this€*+
+_empty_/i4176.append0().(that)*that€*-
+_empty_/i4176.append0().(tsum)  *tsum€*
+local0 €	*N$1€*
+local1 €*x€*
+local2 €*xs€*
+local3 €	*R$1€*
+local4 €*sum€*&
+_empty_/i4176.append().*append€*$
+_empty_/i4176.append().[T]	*T€*$
+_empty_/i4176.append().[M]	*M€*$
+_empty_/i4176.append().[N]	*N€*$
+_empty_/i4176.append().[R]	*R€*,
+_empty_/i4176.append().($this)*$this€**
+_empty_/i4176.append().(that)*that€*,
+_empty_/i4176.append().(tsum)  *tsum€*
+local5 €	*M$1€*
+local6 €	*R$2€*
+local7 €*sum€*
+local8 €*x€*
+local9 €*xs€2
+ _empty_/i4176.2!
+ _empty_/i4176.TNat#2,
+ _empty_/i4176.TNat#`<init>`().2"
+ _empty_/i4176.TZero#2-
+ _empty_/i4176.TZero#`<init>`().2!
+ !_empty_/i4176.TNat#2"
+ _empty_/i4176.TZero.2"
+ _empty_/i4176.TSucc#2-
+ _empty_/i4176.TSucc#`<init>`().2!
+( ,_empty_/i4176.TNat#2%
+ _empty_/i4176.TSucc#[N]2)
+ _empty_/i4176.TSucc#copy().2"
+ _empty_/i4176.TSucc.2*
+ _empty_/i4176.TSucc.apply().2,
+ _empty_/i4176.TSucc.unapply().2$
+	 _empty_/i4176.TNatSum.2)
+ _empty_/i4176.TNatSum.TSum#24
+ &_empty_/i4176.TNatSum.TSum#`<init>`().2,
+ _empty_/i4176.TNatSum.TSum#[M]2,
+ _empty_/i4176.TNatSum.TSum#[N]2,
+ _empty_/i4176.TNatSum.TSum#[R]2-
+ _empty_/i4176.TNatSum.TSumZero#28
+ *_empty_/i4176.TNatSum.TSumZero#`<init>`().2)
+% )_empty_/i4176.TNatSum.TSum#2"
+* /_empty_/i4176.TZero#20
+1 2"_empty_/i4176.TNatSum.TSumZero#[N]20
+4 5"_empty_/i4176.TNatSum.TSumZero#[N]20
+ "_empty_/i4176.TNatSum.TSumZero#[N]24
+ &_empty_/i4176.TNatSum.TSumZero#copy().2-
+ _empty_/i4176.TNatSum.TSumZero.25
+ '_empty_/i4176.TNatSum.TSumZero.apply().27
+ )_empty_/i4176.TNatSum.TSumZero.unapply().2*
+ _empty_/i4176.TNatSum.TSumM#25
+ '_empty_/i4176.TNatSum.TSumM#`<init>`().2)
+3 7_empty_/i4176.TNatSum.TSum#2-
+8 9_empty_/i4176.TNatSum.TSumM#[M]2-
+; <_empty_/i4176.TNatSum.TSumM#[N]2-
+> ?_empty_/i4176.TNatSum.TSumM#[R]2)
+J N_empty_/i4176.TNatSum.TSum#2"
+O T_empty_/i4176.TSucc#2-
+U V_empty_/i4176.TNatSum.TSumM#[M]2-
+Y Z_empty_/i4176.TNatSum.TSumM#[N]2"
+\ a_empty_/i4176.TSucc#2-
+b c_empty_/i4176.TNatSum.TSumM#[R]2-
+ _empty_/i4176.TNatSum.TSumM#[M]2-
+  !_empty_/i4176.TNatSum.TSumM#[N]2-
+# $_empty_/i4176.TNatSum.TSumM#[R]2.
+. 1 _empty_/i4176.TNatSum.TSumM#sum.21
+ #_empty_/i4176.TNatSum.TSumM#copy().2/
+3 3!_empty_/i4176.TNatSum.TSumM#_1().2*
+ _empty_/i4176.TNatSum.TSumM.22
+ $_empty_/i4176.TNatSum.TSumM.apply().24
+ &_empty_/i4176.TNatSum.TSumM.unapply().2$
+
+	
+ _empty_/i4176.TNatSum.2'
+ _empty_/i4176.tSumZero().2*
+ _empty_/i4176.tSumZero().[N]2)
+  _empty_/i4176.TNatSum.TSum#2"
+! &_empty_/i4176.TZero#2*
+( )_empty_/i4176.tSumZero().[N]2*
++ ,_empty_/i4176.tSumZero().[N]25
+ '_empty_/i4176.TNatSum.TSumZero.apply().2-
+ _empty_/i4176.TNatSum.TSumZero.2$
+ _empty_/i4176.tSumM().2'
+ _empty_/i4176.tSumM().[M]2!
+ _empty_/i4176.TNat#2'
+  !_empty_/i4176.tSumM().[N]2'
+# $_empty_/i4176.tSumM().[R]2!
+( ,_empty_/i4176.TNat#2)
+7 :_empty_/i4176.tSumM().(sum)2)
+< @_empty_/i4176.TNatSum.TSum#2'
+A B_empty_/i4176.tSumM().[M]2'
+D E_empty_/i4176.tSumM().[N]2'
+G H_empty_/i4176.tSumM().[R]2)
+L P_empty_/i4176.TNatSum.TSum#2"
+Q V_empty_/i4176.TSucc#2'
+W X_empty_/i4176.tSumM().[M]2'
+[ \_empty_/i4176.tSumM().[N]2"
+^ c_empty_/i4176.TSucc#2'
+d e_empty_/i4176.tSumM().[R]22
+	 	$_empty_/i4176.TNatSum.TSumM.apply().2*
+ 	_empty_/i4176.TNatSum.TSumM.2)
+
+ _empty_/i4176.tSumM().(sum)2 
+ _empty_/i4176.Vec#2+
+ _empty_/i4176.Vec#`<init>`().2#
+ _empty_/i4176.Vec#[T]2#
+ _empty_/i4176.Vec#[N]2!
+ _empty_/i4176.VNil.2 
+ _empty_/i4176.Vec#2
+ &scala/Nothing#2"
+( -_empty_/i4176.TZero#2"
+ _empty_/i4176.VCons#2-
+ _empty_/i4176.VCons#`<init>`().2%
+$ %_empty_/i4176.VCons#[T]2 
++ ._empty_/i4176.Vec#2%
+/ 0_empty_/i4176.VCons#[T]2%
+2 3_empty_/i4176.VCons#[N]2 
+> A_empty_/i4176.Vec#2%
+B C_empty_/i4176.VCons#[T]2"
+E J_empty_/i4176.TSucc#2%
+K L_empty_/i4176.VCons#[N]2%
+ _empty_/i4176.VCons#[T]2%
+ _empty_/i4176.VCons#[N]2$
+! "_empty_/i4176.VCons#x.2%
+' )_empty_/i4176.VCons#xs.2)
+ _empty_/i4176.VCons#copy().2'
+$ $_empty_/i4176.VCons#_1().2'
++ +_empty_/i4176.VCons#_2().2"
+ _empty_/i4176.VCons.2*
+ _empty_/i4176.VCons.apply().2,
+ _empty_/i4176.VCons.unapply().2&
+ _empty_/i4176.append0().2)
+ _empty_/i4176.append0().[T]2)
+ _empty_/i4176.append0().[M]2!
+ _empty_/i4176.TNat#2)
+ _empty_/i4176.append0().[N]2!
+! %_empty_/i4176.TNat#2)
+' (_empty_/i4176.append0().[R]2!
+, 0_empty_/i4176.TNat#2-
+2 7_empty_/i4176.append0().($this)2 
+9 <_empty_/i4176.Vec#2)
+= >_empty_/i4176.append0().[T]2)
+@ A_empty_/i4176.append0().[M]2,
+D H_empty_/i4176.append0().(that)2 
+J M_empty_/i4176.Vec#2)
+N O_empty_/i4176.append0().[T]2)
+Q R_empty_/i4176.append0().[N]2,
+^ b_empty_/i4176.append0().(tsum)2)
+d h_empty_/i4176.TNatSum.TSum#2)
+i j_empty_/i4176.append0().[M]2)
+l m_empty_/i4176.append0().[N]2)
+o p_empty_/i4176.append0().[R]2 
+t w_empty_/i4176.Vec#2)
+x y_empty_/i4176.append0().[T]2)
+{ |_empty_/i4176.append0().[R]2#
+ scala/Tuple2.apply().2-
+ 
+_empty_/i4176.append0().($this)2,
+ _empty_/i4176.append0().(tsum)2%
+ scala/Tuple2.unapply().2!
+ _empty_/i4176.VNil.27
+ )_empty_/i4176.TNatSum.TSumZero.unapply().2-
+ _empty_/i4176.TNatSum.TSumZero.2,
+! %_empty_/i4176.append0().(that)2%
+ scala/Tuple2.unapply().2,
+ _empty_/i4176.VCons.unapply().2"
+ _empty_/i4176.VCons.2
+ local02
+ local12
+ local224
+ &_empty_/i4176.TNatSum.TSumM.unapply().2*
+ _empty_/i4176.TNatSum.TSumM.2
+ local32
+  #local42*
+. ._empty_/i4176.VCons.apply().2"
+) ._empty_/i4176.VCons.2
+/ 0local12&
+2 9_empty_/i4176.append0().2
+: <local22,
+> B_empty_/i4176.append0().(that)2
+D Glocal42%
+ _empty_/i4176.append().2(
+ _empty_/i4176.append().[T]2(
+ _empty_/i4176.append().[M]2!
+ _empty_/i4176.TNat#2(
+ _empty_/i4176.append().[N]2!
+  $_empty_/i4176.TNat#2(
+& '_empty_/i4176.append().[R]2!
++ /_empty_/i4176.TNat#2,
+1 6_empty_/i4176.append().($this)2 
+8 ;_empty_/i4176.Vec#2(
+< =_empty_/i4176.append().[T]2(
+? @_empty_/i4176.append().[M]2+
+C G_empty_/i4176.append().(that)2 
+I L_empty_/i4176.Vec#2(
+M N_empty_/i4176.append().[T]2(
+P Q_empty_/i4176.append().[N]2+
+] a_empty_/i4176.append().(tsum)2)
+c g_empty_/i4176.TNatSum.TSum#2(
+h i_empty_/i4176.append().[M]2(
+k l_empty_/i4176.append().[N]2(
+n o_empty_/i4176.append().[R]2 
+s v_empty_/i4176.Vec#2(
+w x_empty_/i4176.append().[T]2(
+z {_empty_/i4176.append().[R]2+
+ 
+_empty_/i4176.append().(tsum)27
+ )_empty_/i4176.TNatSum.TSumZero.unapply().2-
+ _empty_/i4176.TNatSum.TSumZero.2,
+
+ _empty_/i4176.append().($this)2!
+ !_empty_/i4176.VNil.2+
+% )_empty_/i4176.append().(that)24
+ &_empty_/i4176.TNatSum.TSumM.unapply().2*
+ _empty_/i4176.TNatSum.TSumM.2
+ local52
+ local62
+ local72,
+ 
+  _empty_/i4176.append().($this)2,
+ "  "_empty_/i4176.VCons.unapply().2"
+   "_empty_/i4176.VCons.2
+ #  $local82
+ &  (local92*
+ 2  2_empty_/i4176.VCons.apply().2"
+ -  2_empty_/i4176.VCons.2
+ 3  4local82%
+ 6  <_empty_/i4176.append().2
+ =  ?local92+
+ A  E_empty_/i4176.append().(that)2
+ G  Jlocal7PZ 39B5431D5A08EDA165B0EF468E30DD6A

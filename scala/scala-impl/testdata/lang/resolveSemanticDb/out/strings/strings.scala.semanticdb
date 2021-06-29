@@ -1,0 +1,14 @@
+
+½tests/pos/strings.scala*
+_empty_/test.
+ *test€*
+_empty_/test.f().*f€*
+
+_empty_/A.
+ *A€2
+ _empty_/test.2
+ _empty_/test.f().2(
+ java/lang/String#concat().2
+ 
+_empty_/A.2'
+ 	scala/Predef.println(+1).PZ 607DF64287B1A550BCFD03F005124DCD

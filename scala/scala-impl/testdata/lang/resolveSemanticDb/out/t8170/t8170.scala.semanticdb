@@ -1,0 +1,57 @@
+
+’tests/pos/t8170.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.X#*X€*)
+_empty_/O.X#`<init>`(). €@*<init>€*
+_empty_/O.B#*B€*)
+_empty_/O.B#`<init>`(). €@*<init>€*
+_empty_/O.B#T#*T€*
+_empty_/O.B#T#[F1]	*F1€*
+_empty_/O.A#*A€*)
+_empty_/O.A#`<init>`(). €@*<init>€*
+_empty_/O.A#T#*T€*
+_empty_/O.A#T#[F]	*F€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€*
+local0*x€2
+ 
+_empty_/O.2
+ 	_empty_/O.X#2%
+ _empty_/O.X#`<init>`().2
+ 	_empty_/O.B#2%
+ _empty_/O.B#`<init>`().2
+ _empty_/O.A#2
+ _empty_/O.B#T#2 
+ _empty_/O.B#T#[F1]2
+ _empty_/O.X#2 
+ !_empty_/O.B#T#[F1]2
+ 	_empty_/O.A#2%
+ _empty_/O.A#`<init>`().2
+	 
+_empty_/O.A#T#2
+ _empty_/O.A#T#[F]2
+ _empty_/O.X#2
+
+
+ _empty_/Test.2
+	 
+
+_empty_/O.2
+ _empty_/Test.a.2
+	 
+_empty_/O.B#2#
+ scala/Predef.`???`().2
+ _empty_/Test.b.2
+ _empty_/O.B#T#2
+	 
+_empty_/Test.a.2
+ _empty_/O.X#2#
+ scala/Predef.`???`().21
+ #scala/Predef.Ensuring#ensuring(+2).2&
+ scala/Predef.Ensuring().2
+ _empty_/Test.b.2
+ local0PZ 0BCCEAD79D347B49281FD46D348A4F21

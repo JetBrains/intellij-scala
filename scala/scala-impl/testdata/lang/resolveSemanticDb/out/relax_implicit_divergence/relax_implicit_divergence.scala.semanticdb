@@ -1,0 +1,43 @@
+
+ð	)tests/pos/relax_implicit_divergence.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*1
+_empty_/A#`<init>`().(options) €*options€*%
+_empty_/A#options. €*options€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.ss().  *ss€*'
+_empty_/Test.equivA().  *equivA€*-
+_empty_/Test.equivA().(seqEq)  *seqEq€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ scala/package.Seq#2
+ scala/Predef.String#2
+ _empty_/A#options.2
+ _empty_/Test.2 
+ _empty_/Test.ss().2"
+ scala/package.Equiv#2 
+ scala/package.Seq#2"
+ #scala/Predef.String#2(
+, 1scala/sys/package.error().2
+( +
+scala/sys/2$
+ _empty_/Test.equivA().2+
+ $_empty_/Test.equivA().(seqEq)2"
+& +scala/package.Equiv#2 
+, /scala/package.Seq#2"
+0 6scala/Predef.String#2"
+; @scala/package.Equiv#2
+A B
+_empty_/A#2(
+J Oscala/sys/package.error().2
+F I
+scala/sys/2(
+ scala/Predef.implicitly().2"
+ scala/package.Equiv#2
+ 
+_empty_/A#2$
+ _empty_/Test.equivA().2 
+ _empty_/Test.ss().PZ 78923170C5AB1C10D2CE486C39870D0A

@@ -1,0 +1,20 @@
+
+‡"tests/pos/protected-static/S.scala*
+bippy/Test.
+ *Test€*
+bippy/Test.main().*main€*%
+bippy/Test.main().(args)*args€2
+ bippy/2
+ bippy/Test.2#
+ bippy/J#`<init>`(+1).2
+ bippy/J#2 
+ 
+bippy/Test.main().2&
+ bippy/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ bippy/J#f().2
+
+ bippy/J#2
+ 	bippy/PZ 637528C2E6E9452FD8FFD9F92F38D533

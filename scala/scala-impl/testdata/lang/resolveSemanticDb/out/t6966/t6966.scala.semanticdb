@@ -1,0 +1,142 @@
+
+š&tests/pos/t6966.scala*
+_empty_/Format#*Format€*,
+_empty_/Format#`<init>`(). €@*<init>€*
+_empty_/Format#[T]	*T€*&
+_empty_/InputCache#*
+InputCache€*0
+_empty_/InputCache#`<init>`(). €@*<init>€* 
+_empty_/InputCache#[T]	*T€*$
+_empty_/CacheIvy.
+ *CacheIvy€*=
+#_empty_/CacheIvy.basicInputCache().  *basicInputCache€*0
+&_empty_/CacheIvy.basicInputCache().[I]	*I€*6
+(_empty_/CacheIvy.basicInputCache().(fmt)  *fmt€*6
+(_empty_/CacheIvy.basicInputCache().(eqv)  *eqv€*/
+_empty_/CacheIvy.arrEquiv().  *arrEquiv€*)
+_empty_/CacheIvy.arrEquiv().[T]	*T€*+
+_empty_/CacheIvy.arrEquiv().(t)  *t€*1
+_empty_/CacheIvy.hNilCache().  *	hNilCache€*=
+#_empty_/CacheIvy.ByteArrayFormat().  *ByteArrayFormat€*#
+_empty_/CacheIvy.`:+:`#*:+:€*$
+_empty_/CacheIvy.`:+:`#[H]	*H€*$
+_empty_/CacheIvy.`:+:`#[T]	*T€*3
+_empty_/CacheIvy.hConsCache().  *
+hConsCache€*+
+!_empty_/CacheIvy.hConsCache().[H]	*H€*+
+!_empty_/CacheIvy.hConsCache().[T]	*T€*3
+$_empty_/CacheIvy.hConsCache().(head)  *head€*3
+$_empty_/CacheIvy.hConsCache().(tail)  *tail€*
+_empty_/HList# *HList€*+
+_empty_/HList#`<init>`(). €@*<init>€*
+_empty_/HNil# *HNil€**
+_empty_/HNil#`<init>`(). €@*<init>€*
+_empty_/HNil.
+ *HNil€*
+_empty_/HCons# *HCons€*+
+_empty_/HCons#`<init>`(). €@*<init>€*,
+_empty_/HCons#`<init>`().(head)*head€*,
+_empty_/HCons#`<init>`().(tail)*tail€*
+_empty_/HCons#[H]	*H€*
+_empty_/HCons#[T]	*T€*#
+_empty_/HCons#head. €*head€*#
+_empty_/HCons#tail. €*tail€2#
+ scala/math/Ordering.Byte.2I
+ +?scala/math/LowPriorityOrderingImplicits#comparatorToOrdering().2!
+ scala/package.Ordering.2
+ _empty_/Format#2(
+ _empty_/Format#`<init>`().2 
+ _empty_/Format#[T]2!
+ _empty_/InputCache#2,
+ _empty_/InputCache#`<init>`().2$
+ _empty_/InputCache#[T]2
+ _empty_/CacheIvy.21
+  #_empty_/CacheIvy.basicInputCache().24
+! "&_empty_/CacheIvy.basicInputCache().[I]26
+- 0(_empty_/CacheIvy.basicInputCache().(fmt)2
+2 8_empty_/Format#24
+9 :&_empty_/CacheIvy.basicInputCache().[I]26
+= @(_empty_/CacheIvy.basicInputCache().(eqv)2"
+B Gscala/package.Equiv#24
+H I&_empty_/CacheIvy.basicInputCache().[I]2!
+M W_empty_/InputCache#24
+X Y&_empty_/CacheIvy.basicInputCache().[I]2*
+ _empty_/CacheIvy.arrEquiv().2-
+ _empty_/CacheIvy.arrEquiv().[T]2-
+& '_empty_/CacheIvy.arrEquiv().(t)2"
+) .scala/package.Equiv#2-
+/ 0_empty_/CacheIvy.arrEquiv().[T]2"
+4 9scala/package.Equiv#2
+: ?scala/Array#2-
+@ A_empty_/CacheIvy.arrEquiv().[T]2+
+ _empty_/CacheIvy.hNilCache().2!
+ &_empty_/InputCache#2
+' +_empty_/HNil#21
+  #_empty_/CacheIvy.ByteArrayFormat().2
+" (_empty_/Format#2
+) .scala/Array#2
+/ 3scala/Byte#2%
+	 _empty_/CacheIvy.`:+:`#2(
+ _empty_/CacheIvy.`:+:`#[H]2(
+ _empty_/CacheIvy.`:+:`#[T]2
+ _empty_/HList#2
+ #_empty_/HCons#2(
+$ %_empty_/CacheIvy.`:+:`#[H]2(
+& '_empty_/CacheIvy.`:+:`#[T]2,
+		 _empty_/CacheIvy.hConsCache().2/
+		 !_empty_/CacheIvy.hConsCache().[H]2/
+		  !_empty_/CacheIvy.hConsCache().[T]2
+	$	 )_empty_/HList#22
+	4	 8$_empty_/CacheIvy.hConsCache().(head)2!
+	:	 D_empty_/InputCache#2/
+	E	 F!_empty_/CacheIvy.hConsCache().[H]22
+	I	 M$_empty_/CacheIvy.hConsCache().(tail)2!
+	O	 Y_empty_/InputCache#2/
+	Z	 [!_empty_/CacheIvy.hConsCache().[T]2!
+	_	 i_empty_/InputCache#2%
+	l	 o_empty_/CacheIvy.`:+:`#2/
+	j	 k!_empty_/CacheIvy.hConsCache().[H]2/
+	p	 q!_empty_/CacheIvy.hConsCache().[T]2,
+
+
+ _empty_/CacheIvy.hConsCache().2
+
+
+ scala/Array#2
+
+
+ scala/Byte#2
+
+
+  _empty_/HNil#21
+
+!
+ !#_empty_/CacheIvy.basicInputCache().21
+
+!
+ !#_empty_/CacheIvy.ByteArrayFormat().2*
+
+!
+ !_empty_/CacheIvy.arrEquiv().2'
+
+!
+ !scala/math/Ordering.Byte.2+
+
+!
+ !_empty_/CacheIvy.hNilCache().2
+ _empty_/HList#2#
+_empty_/HList#`<init>`().2
+ _empty_/HNil#2&
+ _empty_/HNil#`<init>`().2
+ _empty_/HList#2
+ _empty_/HNil.2
+ _empty_/HNil#2
+ _empty_/HCons#2'
+ _empty_/HCons#`<init>`().2
+( )_empty_/HCons#[H]2
+2 3_empty_/HCons#[T]2
+= B_empty_/HList#2
+ _empty_/HCons#[H]2
+ _empty_/HCons#[T]2!
+! %_empty_/HCons#head.2!
++ /_empty_/HCons#tail.PZ 7DA6972418B09DB0E1168EFF36926103

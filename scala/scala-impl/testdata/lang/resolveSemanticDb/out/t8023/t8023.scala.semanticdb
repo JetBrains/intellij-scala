@@ -1,0 +1,36 @@
+
+ütests/pos/t8023.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[K]	*K€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#[K]	*K€*
+_empty_/Test3.
+ *Test3€* 
+_empty_/Test3.foo().*foo€*
+local0 €*a€*
+local1 €	*k€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[K]2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 	_empty_/D#[K]2
+ _empty_/Test3.2"
+ 	_empty_/Test3.foo().2
+ 
+scala/Any#2
+	 
+local02
+ 
+_empty_/C#2
+ local12#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ local1PZ 18DEE14048A48D25B43D622577490946

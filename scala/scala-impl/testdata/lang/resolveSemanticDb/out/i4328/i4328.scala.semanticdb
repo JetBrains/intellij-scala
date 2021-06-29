@@ -1,0 +1,19 @@
+
+±tests/pos/i4328.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*4
+_empty_/MakeMeAnInterface#*MakeMeAnInterface€*7
+%_empty_/MakeMeAnInterface#`<init>`(). €@*<init>€*)
+_empty_/MakeMeAnInterface#a. À*a€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2(
+ _empty_/MakeMeAnInterface#23
+ %_empty_/MakeMeAnInterface#`<init>`().2*
+ _empty_/MakeMeAnInterface#a.2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#PZ 0ED4F2BD38440DCE89F601E7EC9E0EF4

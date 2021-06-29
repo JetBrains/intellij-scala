@@ -1,0 +1,107 @@
+
+®&tests/pos/tcpoly_infer_ticket474.scala* 
+_empty_/Builder#*Builder€*-
+_empty_/Builder#`<init>`(). €@*<init>€*
+_empty_/Builder#[C]	*C€*
+_empty_/Builder#[T]	*T€*$
+_empty_/Builder#`+=`(). *+=€*$
+_empty_/Builder#`+=`().(x)*x€*.
+_empty_/Builder#finalise(). *finalise€*$
+_empty_/Buildable#*	Buildable€*/
+_empty_/Buildable#`<init>`(). €@*<init>€*
+_empty_/Buildable#[C]	*C€*.
+_empty_/Buildable#builder(). *builder€*)
+_empty_/Buildable#builder().[T]	*T€*
+_empty_/Test.
+ *Test€*3
+_empty_/Test.buildableList.
+ (*buildableList€*5
+%_empty_/Test.buildableList.builder().*builder€*2
+(_empty_/Test.buildableList.builder().[T]	*T€*
+local0 *$anon€*
+local1 €*buf€*
+local2*+=€*
+local3*x€*
+local4*finalise€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[C]	*C€* 
+_empty_/Test.foo().[T]	*T€* 
+_empty_/Test.foo().(x)*x€*"
+_empty_/Test.foo().(b)  *b€*
+local5 €*builder€*
+_empty_/Test.l. €*l€2
+ _empty_/Builder#2%
+ _empty_/Builder#`<init>`().2
+ _empty_/Builder#[C]2
+ _empty_/Builder#[T]2%
+ _empty_/Builder#`+=`().2(
+	 
+_empty_/Builder#`+=`().(x)2!
+ _empty_/Builder#[T]2
+ scala/Unit#2)
+ _empty_/Builder#finalise().2!
+ _empty_/Builder#[C]2!
+ _empty_/Builder#[T]2 
+ _empty_/Buildable#2+
+ _empty_/Buildable#`<init>`().2#
+ _empty_/Buildable#[C]2*
+ _empty_/Buildable#builder().2-
+ _empty_/Buildable#builder().[T]2
+ _empty_/Builder#2#
+ _empty_/Buildable#[C]2-
+ _empty_/Buildable#builder().[T]2
+		 _empty_/Test.2)
+ _empty_/Test.buildableList.2 
+( 1_empty_/Buildable#2!
+2 6scala/package.List#23
+ %_empty_/Test.buildableList.builder().26
+ (_empty_/Test.buildableList.builder().[T]2
+ local02
+  _empty_/Builder#2!
+! %scala/package.List#26
+& '(_empty_/Test.buildableList.builder().[T]2
+
+ local12=
+: :/scala/collection/mutable/ListBuffer#`<init>`().22
+- 7$scala/collection/mutable/ListBuffer#2'
+% ,scala/collection/mutable/2
+ $scala/collection/2
+ scala/26
+8 9(_empty_/Test.buildableList.builder().[T]2
+
+ local22
+ local326
+ (_empty_/Test.buildableList.builder().[T]27
+ )scala/collection/mutable/Growable#`+=`().2
+ local12
+ local32
+
+ local42;
+ -scala/collection/mutable/ListBuffer#toList().2
+ local12!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[C]2$
+ _empty_/Test.foo().[T]2$
+ _empty_/Test.foo().(x)2$
+ _empty_/Test.foo().[T]2$
+! "_empty_/Test.foo().(b)2 
+$ -_empty_/Buildable#2$
+. /_empty_/Test.foo().[C]2$
+3 4_empty_/Test.foo().[C]2$
+5 6_empty_/Test.foo().[T]2
+ local52*
+ _empty_/Buildable#builder().2$
+ _empty_/Test.foo().(b)2$
+ _empty_/Test.foo().[T]2%
+ _empty_/Builder#`+=`().2
+ local52$
+ _empty_/Test.foo().(x)2)
+ _empty_/Builder#finalise().2
+ local52
+ _empty_/Test.l.2!
+	 scala/package.List#2
+ 
+scala/Int#2!
+ _empty_/Test.foo().2)
+ _empty_/Test.buildableList.PZ 2B9EDEA3B1D5B6C1E48F9F2E93AFD84B

@@ -1,0 +1,44 @@
+
+ê
+tests/pos/blockescapes.scala*,
+_empty_/blockescapes.
+ *blockescapesÄ*
+local0 Ä*xÄ*&
+_empty_/blockescapes.x0. Ä*x0Ä*
+local1*FooÄ*&
+_empty_/blockescapes.x1. Ä*x1Ä*(
+_empty_/blockescapes.x2(). Ä*x2Ä*
+local2 Ä*zÄ*.
+_empty_/blockescapes.`x2_=`(). Ä*x2_=Ä*/
+#_empty_/blockescapes.`x2_=`().(x$1)*x$1Ä*&
+_empty_/blockescapes.m1. Ä*m1Ä*
+local3 Ä*xÄ*!
+_empty_/blockescapes.T#*TÄ*4
+"_empty_/blockescapes.T#`<init>`(). Ä@*<init>Ä*%
+_empty_/blockescapes.m0().*m0Ä*
+local4
+ *FooÄ*
+local5*BarÄ2
+ _empty_/blockescapes.2
+ 	local02&
+ _empty_/blockescapes.x0.2
+ local12
+ local12&
+ _empty_/blockescapes.x1.2(
+ _empty_/blockescapes.x2().2
+ local22,
+ 
+_empty_/blockescapes.`x2_=`().2&
+ _empty_/blockescapes.m1.2
+ local32
+ local32%
+ 	_empty_/blockescapes.T#20
+ "_empty_/blockescapes.T#`<init>`().2(
+		 _empty_/blockescapes.m0().2%
+	
+	 _empty_/blockescapes.T#2
+		 local42
+	#	 &local52%
+	/	 0_empty_/blockescapes.T#2
+	=	 @local52
+	9	 <local6PZ 2B1139409772AD431E466DFA1AF001DB

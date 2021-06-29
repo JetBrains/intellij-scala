@@ -1,0 +1,133 @@
+
+‹)3tests/pos/pos_valueclasses/nullAsInstanceOfVC.scala*+
+nullAsInstanceOfVC/VCNull.
+ *VCNull€*-
+nullAsInstanceOfVC/VCNull.Foo# ˆ*Foo€*;
+)nullAsInstanceOfVC/VCNull.Foo#`<init>`(). €@*<init>€*9
+,nullAsInstanceOfVC/VCNull.Foo#`<init>`().(d) €*d€*-
+ nullAsInstanceOfVC/VCNull.Foo#d. €*d€*:
+)nullAsInstanceOfVC/VCNull.Foo#toString().*toString€*2
+%nullAsInstanceOfVC/VCNull.Foo#copy().*copy€*2
+(nullAsInstanceOfVC/VCNull.Foo#copy().(d)*d€*F
+/nullAsInstanceOfVC/VCNull.Foo#copy$default$1().*copy$default$1€*.
+#nullAsInstanceOfVC/VCNull.Foo#_1().*_1€*,
+nullAsInstanceOfVC/VCNull.Foo.
+ *Foo€*4
+&nullAsInstanceOfVC/VCNull.Foo.apply().*apply€*3
+)nullAsInstanceOfVC/VCNull.Foo.apply().(d)*d€*8
+(nullAsInstanceOfVC/VCNull.Foo.unapply().*unapply€*9
+-nullAsInstanceOfVC/VCNull.Foo.unapply().(x$1)*x$1€*:
+)nullAsInstanceOfVC/VCNull.Foo.toString().*toString€*-
+nullAsInstanceOfVC/VCNull.Bar# ˆ*Bar€*;
+)nullAsInstanceOfVC/VCNull.Bar#`<init>`(). €@*<init>€*9
+,nullAsInstanceOfVC/VCNull.Bar#`<init>`().(s) €*s€*-
+ nullAsInstanceOfVC/VCNull.Bar#s. €*s€*:
+)nullAsInstanceOfVC/VCNull.Bar#toString().*toString€*2
+%nullAsInstanceOfVC/VCNull.Bar#copy().*copy€*2
+(nullAsInstanceOfVC/VCNull.Bar#copy().(s)*s€*F
+/nullAsInstanceOfVC/VCNull.Bar#copy$default$1().*copy$default$1€*.
+#nullAsInstanceOfVC/VCNull.Bar#_1().*_1€*,
+nullAsInstanceOfVC/VCNull.Bar.
+ *Bar€*4
+&nullAsInstanceOfVC/VCNull.Bar.apply().*apply€*3
+)nullAsInstanceOfVC/VCNull.Bar.apply().(s)*s€*8
+(nullAsInstanceOfVC/VCNull.Bar.unapply().*unapply€*9
+-nullAsInstanceOfVC/VCNull.Bar.unapply().(x$1)*x$1€*:
+)nullAsInstanceOfVC/VCNull.Bar.toString().*toString€*:
+'nullAsInstanceOfVC/VCNull.testDirect().*
+testDirect€*
+local0 €*	fooDirect€*
+local1 €*	barDirect€*>
+)nullAsInstanceOfVC/VCNull.testIndirect().*testIndirect€*
+local2 €*fooIndirect€*
+local3 €*n€*
+local4 €*barIndirect€*
+local5 €*n€*2
+#nullAsInstanceOfVC/VCNull.nullOf().*nullOf€*0
+&nullAsInstanceOfVC/VCNull.nullOf().[T]	*T€*<
+(nullAsInstanceOfVC/VCNull.testGeneric().*testGeneric€*
+local6 €*
+fooGeneric€*
+local7 €*
+barGeneric€2
+ nullAsInstanceOfVC/2(
+ nullAsInstanceOfVC/VCNull.2,
+ nullAsInstanceOfVC/VCNull.Foo#27
+ )nullAsInstanceOfVC/VCNull.Foo#`<init>`().2
+ scala/Double#2&
+* *scala/AnyVal#`<init>`().2
+$ *scala/AnyVal#2.
+  nullAsInstanceOfVC/VCNull.Foo#d.27
+ )nullAsInstanceOfVC/VCNull.Foo#toString().2&
+% &scala/StringContext#s().2*
+ scala/StringContext.apply().2.
+# $ nullAsInstanceOfVC/VCNull.Foo#d.23
+ %nullAsInstanceOfVC/VCNull.Foo#copy().21
+ #nullAsInstanceOfVC/VCNull.Foo#_1().2,
+ nullAsInstanceOfVC/VCNull.Foo.24
+ &nullAsInstanceOfVC/VCNull.Foo.apply().2,
+		 nullAsInstanceOfVC/VCNull.Bar#27
+		 )nullAsInstanceOfVC/VCNull.Bar#`<init>`().2"
+		 scala/Predef.String#2&
+	*	 *scala/AnyVal#`<init>`().2
+	$	 *scala/AnyVal#2.
+		  nullAsInstanceOfVC/VCNull.Bar#s.27
+
+
+ )nullAsInstanceOfVC/VCNull.Bar#toString().2&
+
+%
+ &scala/StringContext#s().2*
+
+
+ scala/StringContext.apply().2.
+
+#
+ $ nullAsInstanceOfVC/VCNull.Bar#s.23
+		 %nullAsInstanceOfVC/VCNull.Bar#copy().21
+		 #nullAsInstanceOfVC/VCNull.Bar#_1().2,
+		 nullAsInstanceOfVC/VCNull.Bar.24
+		 &nullAsInstanceOfVC/VCNull.Bar.apply().25
+ 'nullAsInstanceOfVC/VCNull.testDirect().2
+ scala/Unit#2
+ local02,
+ nullAsInstanceOfVC/VCNull.Foo#2'
+ *scala/Any#asInstanceOf().2,
++ .nullAsInstanceOfVC/VCNull.Foo#2
+ local12,
+ nullAsInstanceOfVC/VCNull.Bar#2'
+ *scala/Any#asInstanceOf().2,
++ .nullAsInstanceOfVC/VCNull.Bar#27
+ )nullAsInstanceOfVC/VCNull.testIndirect().2
+ scala/Unit#2
+ local22,
+ nullAsInstanceOfVC/VCNull.Foo#2
+! "local32
+$ '
+scala/Any#2'
+2 >scala/Any#asInstanceOf().2
+0 1local32,
+? BnullAsInstanceOfVC/VCNull.Foo#2
+ local42,
+ nullAsInstanceOfVC/VCNull.Bar#2
+! "local52
+$ '
+scala/Any#2'
+2 >scala/Any#asInstanceOf().2
+0 1local52,
+? BnullAsInstanceOfVC/VCNull.Bar#21
+ #nullAsInstanceOfVC/VCNull.nullOf().24
+ &nullAsInstanceOfVC/VCNull.nullOf().[T]24
+ &nullAsInstanceOfVC/VCNull.nullOf().[T]2'
+ &scala/Any#asInstanceOf().24
+' (&nullAsInstanceOfVC/VCNull.nullOf().[T]26
+ (nullAsInstanceOfVC/VCNull.testGeneric().2
+ scala/Unit#2
+ local62,
+ nullAsInstanceOfVC/VCNull.Foo#21
+  #nullAsInstanceOfVC/VCNull.nullOf().2,
+! $nullAsInstanceOfVC/VCNull.Foo#2
+ local72,
+ nullAsInstanceOfVC/VCNull.Bar#21
+  #nullAsInstanceOfVC/VCNull.nullOf().2,
+! $nullAsInstanceOfVC/VCNull.Bar#PZ E240661C1519219DBF6311282012EC88

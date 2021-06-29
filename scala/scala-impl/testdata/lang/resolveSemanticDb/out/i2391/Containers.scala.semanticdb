@@ -1,0 +1,21 @@
+
+£ tests/pos/i2391/Containers.scala*,
+foo/ParentContainer#*ParentContainer€*1
+foo/ParentContainer#`<init>`(). €@*<init>€**
+foo/ParentContainer#Entry# *Entry€*7
+%foo/ParentContainer#Entry#`<init>`(). €@*<init>€**
+foo/ChildContainer#*ChildContainer€*0
+foo/ChildContainer#`<init>`(). €@*<init>€*/
+foo/ChildContainer#LazyEntry#*	LazyEntry€*:
+(foo/ChildContainer#LazyEntry#`<init>`(). €@*<init>€2
+ foo/2"
+ foo/ParentContainer#2-
+ foo/ParentContainer#`<init>`().2(
+ foo/ParentContainer#Entry#23
+ %foo/ParentContainer#Entry#`<init>`().2!
+ foo/ChildContainer#2,
+ foo/ChildContainer#`<init>`().2"
+ ,foo/ParentContainer#2+
+ foo/ChildContainer#LazyEntry#26
+ (foo/ChildContainer#LazyEntry#`<init>`().2(
+ foo/ParentContainer#Entry#PZ 8AFBFBD853948DA8AFE2C660FA48F4D5

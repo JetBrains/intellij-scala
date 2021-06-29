@@ -1,0 +1,30 @@
+
+Ç	tests/pos/t6921.scala* 
+_empty_/Message#*Message€*-
+_empty_/Message#`<init>`(). €@*<init>€*<
+(_empty_/Message#`<init>`().(messageType)*messageType€*2
+#_empty_/Message#`<init>`().(reason)*reason€*3
+_empty_/Message#messageType. €*messageType€*)
+_empty_/Message#reason. €*reason€*.
+_empty_/ReproForSI6921#*ReproForSI6921€*4
+"_empty_/ReproForSI6921#`<init>`(). €@*<init>€*2
+ _empty_/ReproForSI6921#reason(). €*reason€*?
+(_empty_/ReproForSI6921#decideElection().*decideElection€*
+local0 €*explanation€2
+ _empty_/Message#2%
+ _empty_/Message#`<init>`().2
+ !scala/Predef.String#2
++ 1scala/Option#2
+2 8scala/Predef.String#2&
+ _empty_/Message#messageType.2!
+# )_empty_/Message#reason.2%
+ _empty_/ReproForSI6921#20
+ "_empty_/ReproForSI6921#`<init>`().2.
+  _empty_/ReproForSI6921#reason().26
+ (_empty_/ReproForSI6921#decideElection().2
+ local02
+ scala/None.2)
+ _empty_/Message#`<init>`().2
+ _empty_/Message#21
+ #_empty_/Message#`<init>`().(reason)2
+ (local0PZ 90F5618D09116ACEB200A8334119F4B6

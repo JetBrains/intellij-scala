@@ -1,0 +1,27 @@
+
+Êtests/pos/t615.scala*
+_empty_/test.
+ *test€*
+_empty_/test.Bar# *Bar€*.
+_empty_/test.Bar#`<init>`(). €@*<init>€*
+_empty_/test.Bar#T#*T€*%
+_empty_/test.Bar#bar(). *bar€*
+local0 *$anon€*
+local1*T€*
+local2*bar€2
+ _empty_/test.2
+ _empty_/test.Bar#2*
+ _empty_/test.Bar#`<init>`().2!
+	 
+_empty_/test.Bar#T#2%
+ _empty_/test.Bar#bar().2
+ scala/Unit#2%
+ _empty_/test.Bar#bar().2
+ local02*
+	 	_empty_/test.Bar#`<init>`().2
+ 	_empty_/test.Bar#2
+	 
+local12
+ 
+scala/Int#2
+ local2PZ DA47E08E374ED45B8359895A498EDAD5

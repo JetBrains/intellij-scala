@@ -1,0 +1,30 @@
+
+£tests/pos/t2945.scala*
+_empty_/Foo.
+ *Foo€* 
+_empty_/Foo.test().*test€* 
+_empty_/Foo.test().(s)*s€*
+local0 €*rest1€*
+local1 €*rest2€2
+ 
+_empty_/Foo.2!
+ 
+_empty_/Foo.test().2$
+ _empty_/Foo.test().(s)2"
+ scala/Predef.String#26
+ (scala/LowPriorityImplicits#wrapString().2$
+ _empty_/Foo.test().(s)2 
+ scala/package.Seq#2
+ scala/Char#27
+ )scala/collection/SeqFactory#unapplySeq().2 
+ scala/package.Seq.2
+% *local02
+
+ local027
+ )scala/collection/SeqFactory#unapplySeq().2 
+ scala/package.Seq.2
+* /local12
+
+ local12$
+
+ _empty_/Foo.test().(s)PZ A2362F8E05E7CD840294279AA78D3AF6

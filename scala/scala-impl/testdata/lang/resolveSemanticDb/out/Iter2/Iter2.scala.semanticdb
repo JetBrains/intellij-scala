@@ -1,0 +1,1448 @@
+
+ƒŸtests/pos/Iter2.scala*3
+#dotty1/collections/immutable/Iter2.
+ *Iter2Ä*=
+,dotty1/collections/immutable/Iter2.Iterator#*IteratorÄ*I
+7dotty1/collections/immutable/Iter2.Iterator#`<init>`(). Ä@*<init>Ä*<
+/dotty1/collections/immutable/Iter2.Iterator#[A]	 Ä*AÄ*H
+6dotty1/collections/immutable/Iter2.Iterator#hasNext(). *hasNextÄ*B
+3dotty1/collections/immutable/Iter2.Iterator#next(). *nextÄ*H
+7dotty1/collections/immutable/Iter2.Iterator#iterator().*iteratorÄ*F
+6dotty1/collections/immutable/Iter2.Iterator#foreach().*foreachÄ*C
+9dotty1/collections/immutable/Iter2.Iterator#foreach().(f)*fÄ*>
+2dotty1/collections/immutable/Iter2.Iterator#map().*mapÄ*?
+5dotty1/collections/immutable/Iter2.Iterator#map().[B]	*BÄ*?
+5dotty1/collections/immutable/Iter2.Iterator#map().(f)*fÄ*F
+6dotty1/collections/immutable/Iter2.Iterator#flatMap().*flatMapÄ*C
+9dotty1/collections/immutable/Iter2.Iterator#flatMap().[B]	*BÄ*C
+9dotty1/collections/immutable/Iter2.Iterator#flatMap().(f)*fÄ*>
+3dotty1/collections/immutable/Iter2.Iterator#`++`().*++Ä*@
+6dotty1/collections/immutable/Iter2.Iterator#`++`().[B]	*BÄ*B
+7dotty1/collections/immutable/Iter2.Iterator#`++`().(xs)*xsÄ*@
+3dotty1/collections/immutable/Iter2.Iterator#drop().*dropÄ*@
+6dotty1/collections/immutable/Iter2.Iterator#drop().(n)*nÄ*L
+9dotty1/collections/immutable/Iter2.Iterator#indexWhere().*
+indexWhereÄ*F
+<dotty1/collections/immutable/Iter2.Iterator#indexWhere().(p)*pÄ*
+local0 Ä*iÄ*>
+2dotty1/collections/immutable/Iter2.Iterator#zip().*zipÄ*?
+5dotty1/collections/immutable/Iter2.Iterator#zip().[B]	*BÄ*E
+8dotty1/collections/immutable/Iter2.Iterator#zip().(that)*thatÄ*@
+3dotty1/collections/immutable/Iter2.Iterator#copy().*copyÄ*E
+0dotty1/collections/immutable/Iter2.IterableOnce#*IterableOnceÄ*M
+;dotty1/collections/immutable/Iter2.IterableOnce#`<init>`(). Ä@*<init>Ä*@
+3dotty1/collections/immutable/Iter2.IterableOnce#[A]	 Ä*AÄ*N
+;dotty1/collections/immutable/Iter2.IterableOnce#iterator(). *iteratorÄ*V
+@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().*buildIteratorÄ*E
+0dotty1/collections/immutable/Iter2.FromIterator#*FromIteratorÄ*M
+;dotty1/collections/immutable/Iter2.FromIterator#`<init>`(). Ä@*<init>Ä*@
+3dotty1/collections/immutable/Iter2.FromIterator#[C]	 Ä*CÄ*V
+?dotty1/collections/immutable/Iter2.FromIterator#fromIterator(). *fromIteratorÄ*L
+Bdotty1/collections/immutable/Iter2.FromIterator#fromIterator().[B]	*BÄ*N
+Cdotty1/collections/immutable/Iter2.FromIterator#fromIterator().(it)*itÄ*=
+,dotty1/collections/immutable/Iter2.Iterable#*IterableÄ*I
+7dotty1/collections/immutable/Iter2.Iterable#`<init>`(). Ä@*<init>Ä*>
+0dotty1/collections/immutable/Iter2.Iterable#[IA]	 Ä*IAÄ*@
+3dotty1/collections/immutable/Iter2.Iterable#view().*viewÄ*3
+'dotty1/collections/immutable/Iter2.Seq#*SeqÄ*D
+2dotty1/collections/immutable/Iter2.Seq#`<init>`(). Ä@*<init>Ä*9
++dotty1/collections/immutable/Iter2.Seq#[AA]	 Ä*AAÄ*?
+/dotty1/collections/immutable/Iter2.Seq#apply(). *applyÄ*<
+2dotty1/collections/immutable/Iter2.Seq#apply().(i)*iÄ*A
+0dotty1/collections/immutable/Iter2.Seq#length(). *lengthÄ*7
+(dotty1/collections/immutable/Iter2.List# *ListÄ*E
+3dotty1/collections/immutable/Iter2.List#`<init>`(). Ä@*<init>Ä*8
++dotty1/collections/immutable/Iter2.List#[A]	 Ä*AÄ*D
+2dotty1/collections/immutable/Iter2.List#isEmpty(). *isEmptyÄ*>
+/dotty1/collections/immutable/Iter2.List#head(). *headÄ*>
+/dotty1/collections/immutable/Iter2.List#tail(). *tailÄ*D
+3dotty1/collections/immutable/Iter2.List#iterator().*iteratorÄ*L
+7dotty1/collections/immutable/Iter2.List#fromIterator().*fromIteratorÄ*D
+:dotty1/collections/immutable/Iter2.List#fromIterator().[B]	*BÄ*F
+;dotty1/collections/immutable/Iter2.List#fromIterator().(it)*itÄ*
+local1 Ä*xsÄ*>
+0dotty1/collections/immutable/Iter2.List#apply().*applyÄ*=
+3dotty1/collections/immutable/Iter2.List#apply().(i)*iÄ*@
+1dotty1/collections/immutable/Iter2.List#length().*lengthÄ*5
+(dotty1/collections/immutable/Iter2.View#*ViewÄ*E
+3dotty1/collections/immutable/Iter2.View#`<init>`(). Ä@*<init>Ä*B
+7dotty1/collections/immutable/Iter2.View#`<init>`().(it)*itÄ*8
++dotty1/collections/immutable/Iter2.View#[A]	 Ä*AÄ*9
++dotty1/collections/immutable/Iter2.View#it. Ä*itÄ*D
+3dotty1/collections/immutable/Iter2.View#iterator().*iteratorÄ*L
+7dotty1/collections/immutable/Iter2.View#fromIterator().*fromIteratorÄ*D
+:dotty1/collections/immutable/Iter2.View#fromIterator().[B]	*BÄ*F
+;dotty1/collections/immutable/Iter2.View#fromIterator().(it)*itÄ*8
+(dotty1/collections/immutable/Iter2.Cons# Ä*ConsÄ*E
+3dotty1/collections/immutable/Iter2.Cons#`<init>`(). Ä@*<init>Ä*C
+6dotty1/collections/immutable/Iter2.Cons#`<init>`().(x) Ä*xÄ*E
+7dotty1/collections/immutable/Iter2.Cons#`<init>`().(xs) Ä*xsÄ*8
++dotty1/collections/immutable/Iter2.Cons#[A]	 Ä*AÄ*7
+*dotty1/collections/immutable/Iter2.Cons#x. Ä*xÄ*9
++dotty1/collections/immutable/Iter2.Cons#xs. Ä*xsÄ*B
+2dotty1/collections/immutable/Iter2.Cons#isEmpty().*isEmptyÄ*<
+/dotty1/collections/immutable/Iter2.Cons#head().*headÄ*<
+/dotty1/collections/immutable/Iter2.Cons#tail().*tailÄ*<
+/dotty1/collections/immutable/Iter2.Cons#copy().*copyÄ*<
+2dotty1/collections/immutable/Iter2.Cons#copy().[A]	*AÄ*<
+2dotty1/collections/immutable/Iter2.Cons#copy().(x)*xÄ*>
+3dotty1/collections/immutable/Iter2.Cons#copy().(xs)*xsÄ*P
+9dotty1/collections/immutable/Iter2.Cons#copy$default$1().*copy$default$1Ä*F
+<dotty1/collections/immutable/Iter2.Cons#copy$default$1().[A]	*AÄ*P
+9dotty1/collections/immutable/Iter2.Cons#copy$default$2().*copy$default$2Ä*F
+<dotty1/collections/immutable/Iter2.Cons#copy$default$2().[A]	*AÄ*8
+-dotty1/collections/immutable/Iter2.Cons#_1().*_1Ä*8
+-dotty1/collections/immutable/Iter2.Cons#_2().*_2Ä*7
+(dotty1/collections/immutable/Iter2.Cons.
+ *ConsÄ*>
+0dotty1/collections/immutable/Iter2.Cons.apply().*applyÄ*=
+3dotty1/collections/immutable/Iter2.Cons.apply().[A]	*AÄ*=
+3dotty1/collections/immutable/Iter2.Cons.apply().(x)*xÄ*?
+4dotty1/collections/immutable/Iter2.Cons.apply().(xs)*xsÄ*B
+2dotty1/collections/immutable/Iter2.Cons.unapply().*unapplyÄ*?
+5dotty1/collections/immutable/Iter2.Cons.unapply().[A]	*AÄ*C
+7dotty1/collections/immutable/Iter2.Cons.unapply().(x$1)*x$1Ä*D
+3dotty1/collections/immutable/Iter2.Cons.toString().*toStringÄ*6
+'dotty1/collections/immutable/Iter2.Nil.
+ à*NilÄ*A
+1dotty1/collections/immutable/Iter2.Nil.isEmpty().*isEmptyÄ*;
+.dotty1/collections/immutable/Iter2.Nil.head().*headÄ*;
+.dotty1/collections/immutable/Iter2.Nil.tail().*tailÄ*C
+/dotty1/collections/immutable/Iter2.ArrayBuffer#*ArrayBufferÄ*L
+:dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(). Ä@*<init>Ä*W
+Edotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`().(initElems)*	initElemsÄ*S
+Cdotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`().(initLen)*initLenÄ*<
+2dotty1/collections/immutable/Iter2.ArrayBuffer#[A]	*AÄ*N
+9dotty1/collections/immutable/Iter2.ArrayBuffer#initElems. Ä*	initElemsÄ*J
+7dotty1/collections/immutable/Iter2.ArrayBuffer#initLen. Ä*initLenÄ*K
+<dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+1).*<init>Ä*K
+<dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).*<init>Ä*K
+@dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).(it)*itÄ*H
+7dotty1/collections/immutable/Iter2.ArrayBuffer#elems(). Ä*elemsÄ*D
+5dotty1/collections/immutable/Iter2.ArrayBuffer#len(). Ä*lenÄ*K
+:dotty1/collections/immutable/Iter2.ArrayBuffer#iterator().*iteratorÄ*U
+?dotty1/collections/immutable/Iter2.ArrayBuffer#buildIterator().*buildIteratorÄ*S
+>dotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().*fromIteratorÄ*K
+Adotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().[B]	*BÄ*M
+Bdotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().(it)*itÄ*E
+7dotty1/collections/immutable/Iter2.ArrayBuffer#apply().*applyÄ*D
+:dotty1/collections/immutable/Iter2.ArrayBuffer#apply().(i)*iÄ*G
+8dotty1/collections/immutable/Iter2.ArrayBuffer#length().*lengthÄ*S
+6dotty1/collections/immutable/Iter2.IterableTransforms# *IterableTransformsÄ*S
+Adotty1/collections/immutable/Iter2.IterableTransforms#`<init>`(). Ä@*<init>Ä*Q
+Ddotty1/collections/immutable/Iter2.IterableTransforms#`<init>`().(c) Ä*cÄ*C
+9dotty1/collections/immutable/Iter2.IterableTransforms#[A]	*AÄ*C
+9dotty1/collections/immutable/Iter2.IterableTransforms#[C]	*CÄ*E
+8dotty1/collections/immutable/Iter2.IterableTransforms#c. Ä*cÄ*H
+<dotty1/collections/immutable/Iter2.IterableTransforms#map().*mapÄ*I
+?dotty1/collections/immutable/Iter2.IterableTransforms#map().[B]	*BÄ*I
+?dotty1/collections/immutable/Iter2.IterableTransforms#map().(f)*fÄ*P
+@dotty1/collections/immutable/Iter2.IterableTransforms#flatMap().*flatMapÄ*M
+Cdotty1/collections/immutable/Iter2.IterableTransforms#flatMap().[B]	*BÄ*M
+Cdotty1/collections/immutable/Iter2.IterableTransforms#flatMap().(f)*fÄ*H
+=dotty1/collections/immutable/Iter2.IterableTransforms#`++`().*++Ä*J
+@dotty1/collections/immutable/Iter2.IterableTransforms#`++`().[B]	*BÄ*L
+Adotty1/collections/immutable/Iter2.IterableTransforms#`++`().(xs)*xsÄ*J
+=dotty1/collections/immutable/Iter2.IterableTransforms#drop().*dropÄ*J
+@dotty1/collections/immutable/Iter2.IterableTransforms#drop().(n)*nÄ*J
+=dotty1/collections/immutable/Iter2.IterableTransforms#head().*headÄ*H
+<dotty1/collections/immutable/Iter2.IterableTransforms#zip().*zipÄ*I
+?dotty1/collections/immutable/Iter2.IterableTransforms#zip().[B]	*BÄ*K
+@dotty1/collections/immutable/Iter2.IterableTransforms#zip().(xs)*xsÄ*S
+6dotty1/collections/immutable/Iter2.IterableTransforms.
+ *IterableTransformsÄ*U
+8dotty1/collections/immutable/Iter2.IterableTransforms(). (*IterableTransformsÄ*E
+;dotty1/collections/immutable/Iter2.IterableTransforms().[A]	*AÄ*E
+;dotty1/collections/immutable/Iter2.IterableTransforms().[C]	*CÄ*E
+;dotty1/collections/immutable/Iter2.IterableTransforms().(c)*cÄ*I
+1dotty1/collections/immutable/Iter2.SeqTransforms# *SeqTransformsÄ*N
+<dotty1/collections/immutable/Iter2.SeqTransforms#`<init>`(). Ä@*<init>Ä*L
+?dotty1/collections/immutable/Iter2.SeqTransforms#`<init>`().(c) Ä*cÄ*@
+5dotty1/collections/immutable/Iter2.SeqTransforms#[SA]	*SAÄ*>
+4dotty1/collections/immutable/Iter2.SeqTransforms#[C]	*CÄ*@
+3dotty1/collections/immutable/Iter2.SeqTransforms#c. Ä*cÄ*K
+;dotty1/collections/immutable/Iter2.SeqTransforms#reverse().*reverseÄ*
+local2 Ä*elemsÄ*
+local3 Ä*iÄ*
+local4 Ä*itÄ*
+local5 Ä*xzzÄ*Q
+>dotty1/collections/immutable/Iter2.SeqTransforms#indexWhere().*
+indexWhereÄ*K
+Adotty1/collections/immutable/Iter2.SeqTransforms#indexWhere().(p)*pÄ*I
+1dotty1/collections/immutable/Iter2.SeqTransforms.
+ *SeqTransformsÄ*K
+3dotty1/collections/immutable/Iter2.SeqTransforms(). (*SeqTransformsÄ*B
+7dotty1/collections/immutable/Iter2.SeqTransforms().[SA]	*SAÄ*@
+6dotty1/collections/immutable/Iter2.SeqTransforms().[C]	*CÄ*@
+6dotty1/collections/immutable/Iter2.SeqTransforms().(c)*cÄ*H
+0dotty1/collections/immutable/Iter2.ListIterator# Ä*ListIteratorÄ*M
+;dotty1/collections/immutable/Iter2.ListIterator#`<init>`(). Ä@*<init>Ä*M
+?dotty1/collections/immutable/Iter2.ListIterator#`<init>`().(xs) Ä*xsÄ*@
+3dotty1/collections/immutable/Iter2.ListIterator#[A]	 Ä*AÄ*A
+3dotty1/collections/immutable/Iter2.ListIterator#xs. Ä*xsÄ*M
+:dotty1/collections/immutable/Iter2.ListIterator#current(). Ä*currentÄ*J
+:dotty1/collections/immutable/Iter2.ListIterator#hasNext().*hasNextÄ*D
+7dotty1/collections/immutable/Iter2.ListIterator#next().*nextÄ*
+local6 Ä*resÄ*D
+7dotty1/collections/immutable/Iter2.ListIterator#copy().*copyÄ*D
+:dotty1/collections/immutable/Iter2.ListIterator#copy().[A]	*AÄ*F
+;dotty1/collections/immutable/Iter2.ListIterator#copy().(xs)*xsÄ*X
+Adotty1/collections/immutable/Iter2.ListIterator#copy$default$1().*copy$default$1Ä*N
+Ddotty1/collections/immutable/Iter2.ListIterator#copy$default$1().[A]	*AÄ*@
+5dotty1/collections/immutable/Iter2.ListIterator#_1().*_1Ä*G
+0dotty1/collections/immutable/Iter2.ListIterator.
+ *ListIteratorÄ*F
+8dotty1/collections/immutable/Iter2.ListIterator.apply().*applyÄ*E
+;dotty1/collections/immutable/Iter2.ListIterator.apply().[A]	*AÄ*G
+<dotty1/collections/immutable/Iter2.ListIterator.apply().(xs)*xsÄ*J
+:dotty1/collections/immutable/Iter2.ListIterator.unapply().*unapplyÄ*G
+=dotty1/collections/immutable/Iter2.ListIterator.unapply().[A]	*AÄ*K
+?dotty1/collections/immutable/Iter2.ListIterator.unapply().(x$1)*x$1Ä*L
+;dotty1/collections/immutable/Iter2.ListIterator.toString().*toStringÄ*J
+1dotty1/collections/immutable/Iter2.ArrayIterator# Ä*ArrayIteratorÄ*N
+<dotty1/collections/immutable/Iter2.ArrayIterator#`<init>`(). Ä@*<init>Ä*T
+Cdotty1/collections/immutable/Iter2.ArrayIterator#`<init>`().(elems) Ä*elemsÄ*P
+Adotty1/collections/immutable/Iter2.ArrayIterator#`<init>`().(len) Ä*lenÄ*A
+4dotty1/collections/immutable/Iter2.ArrayIterator#[A]	 Ä*AÄ*H
+7dotty1/collections/immutable/Iter2.ArrayIterator#elems. Ä*elemsÄ*D
+5dotty1/collections/immutable/Iter2.ArrayIterator#len. Ä*lenÄ*E
+8dotty1/collections/immutable/Iter2.ArrayIterator#elem().*elemÄ*E
+;dotty1/collections/immutable/Iter2.ArrayIterator#elem().(i)*iÄ*F
+7dotty1/collections/immutable/Iter2.ArrayIterator#cur(). Ä*curÄ*K
+;dotty1/collections/immutable/Iter2.ArrayIterator#hasNext().*hasNextÄ*E
+8dotty1/collections/immutable/Iter2.ArrayIterator#next().*nextÄ*
+local7 Ä*resÄ*K
+;dotty1/collections/immutable/Iter2.ArrayIterator#foreach().*foreachÄ*H
+>dotty1/collections/immutable/Iter2.ArrayIterator#foreach().(f)*fÄ*
+local8*iÄ*C
+7dotty1/collections/immutable/Iter2.ArrayIterator#map().*mapÄ*D
+:dotty1/collections/immutable/Iter2.ArrayIterator#map().[B]	*BÄ*D
+:dotty1/collections/immutable/Iter2.ArrayIterator#map().(f)*fÄ*
+local9 Ä*mappedÄ*
+local10*iÄ*
+local11 Ä*xÄ*
+local12 Ä*yÄ*K
+;dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().*flatMapÄ*H
+>dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().[B]	*BÄ*H
+>dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().(f)*fÄ*C
+8dotty1/collections/immutable/Iter2.ArrayIterator#`++`().*++Ä*E
+;dotty1/collections/immutable/Iter2.ArrayIterator#`++`().[B]	*BÄ*K
+>dotty1/collections/immutable/Iter2.ArrayIterator#`++`().(that)*thatÄ*
+local13 Ä*thatIteratorÄ*
+local14 Ä*elems2Ä*
+local15 Ä*len2Ä*
+local16 Ä*resLenÄ*
+local17 Ä*resElemsÄ*E
+8dotty1/collections/immutable/Iter2.ArrayIterator#copy().*copyÄ*E
+;dotty1/collections/immutable/Iter2.ArrayIterator#copy().[A]	*AÄ*M
+?dotty1/collections/immutable/Iter2.ArrayIterator#copy().(elems)*elemsÄ*I
+=dotty1/collections/immutable/Iter2.ArrayIterator#copy().(len)*lenÄ*Y
+Bdotty1/collections/immutable/Iter2.ArrayIterator#copy$default$1().*copy$default$1Ä*O
+Edotty1/collections/immutable/Iter2.ArrayIterator#copy$default$1().[A]	*AÄ*Y
+Bdotty1/collections/immutable/Iter2.ArrayIterator#copy$default$2().*copy$default$2Ä*O
+Edotty1/collections/immutable/Iter2.ArrayIterator#copy$default$2().[A]	*AÄ*A
+6dotty1/collections/immutable/Iter2.ArrayIterator#_1().*_1Ä*A
+6dotty1/collections/immutable/Iter2.ArrayIterator#_2().*_2Ä*I
+1dotty1/collections/immutable/Iter2.ArrayIterator.
+ *ArrayIteratorÄ*G
+9dotty1/collections/immutable/Iter2.ArrayIterator.apply().*applyÄ*F
+<dotty1/collections/immutable/Iter2.ArrayIterator.apply().[A]	*AÄ*N
+@dotty1/collections/immutable/Iter2.ArrayIterator.apply().(elems)*elemsÄ*J
+>dotty1/collections/immutable/Iter2.ArrayIterator.apply().(len)*lenÄ*K
+;dotty1/collections/immutable/Iter2.ArrayIterator.unapply().*unapplyÄ*H
+>dotty1/collections/immutable/Iter2.ArrayIterator.unapply().[A]	*AÄ*L
+@dotty1/collections/immutable/Iter2.ArrayIterator.unapply().(x$1)*x$1Ä*M
+<dotty1/collections/immutable/Iter2.ArrayIterator.toString().*toStringÄ*G
+9dotty1/collections/immutable/Iter2.ArrayIterator.widen().*widenÄ*F
+<dotty1/collections/immutable/Iter2.ArrayIterator.widen().(x)*xÄ*U
+@dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().*fromIteratorÄ*M
+Cdotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A]	*AÄ*O
+Ddotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it)*itÄ*
+local18 Ä*itÄ*
+local19 Ä*elemsÄ*
+local20 Ä*lenÄ*
+local21*ensureCapacityÄ*
+local22 Ä*newElemsÄ*K
+;dotty1/collections/immutable/Iter2.ArrayIterator.flatten().*flattenÄ*H
+>dotty1/collections/immutable/Iter2.ArrayIterator.flatten().[A]	*AÄ*L
+@dotty1/collections/immutable/Iter2.ArrayIterator.flatten().(its)*itsÄ*
+local23 Ä*arrayItsÄ*
+local24*itÄ*
+local25 Ä*totalLenÄ*
+local26 Ä*allElemsÄ*
+local27 Ä*jÄ*
+local28*itÄ2
+ dotty1/collections/2
+ dotty1/2+
+ dotty1/collections/immutable/2;
+ --scala/annotation/unchecked/uncheckedVariance#2)
+ scala/annotation/unchecked/2
+ scala/annotation/21
+ #dotty1/collections/immutable/Iter2.2:
+ ,dotty1/collections/immutable/Iter2.Iterator#2E
+ 7dotty1/collections/immutable/Iter2.Iterator#`<init>`().2>
+ )0dotty1/collections/immutable/Iter2.IterableOnce#2=
+* +/dotty1/collections/immutable/Iter2.Iterator#[A]2=
+ /dotty1/collections/immutable/Iter2.Iterator#[A]2D
+ 6dotty1/collections/immutable/Iter2.Iterator#hasNext().2
+ scala/Boolean#2A
+		 3dotty1/collections/immutable/Iter2.Iterator#next().2=
+		 /dotty1/collections/immutable/Iter2.Iterator#[A]2E
+
+
+ 7dotty1/collections/immutable/Iter2.Iterator#iterator().2D
+ 6dotty1/collections/immutable/Iter2.Iterator#foreach().2G
+ 9dotty1/collections/immutable/Iter2.Iterator#foreach().(f)2=
+ /dotty1/collections/immutable/Iter2.Iterator#[A]2
+ scala/Unit#2
+ #scala/Unit#2#
+& )scala/Predef.`???`().2@
+ 2dotty1/collections/immutable/Iter2.Iterator#map().2C
+ 5dotty1/collections/immutable/Iter2.Iterator#map().[B]2C
+ 5dotty1/collections/immutable/Iter2.Iterator#map().(f)2=
+ /dotty1/collections/immutable/Iter2.Iterator#[A]2C
+ 5dotty1/collections/immutable/Iter2.Iterator#map().[B]2:
+ #,dotty1/collections/immutable/Iter2.Iterator#2C
+$ %5dotty1/collections/immutable/Iter2.Iterator#map().[B]2#
+) ,scala/Predef.`???`().2D
+ 6dotty1/collections/immutable/Iter2.Iterator#flatMap().2G
+ 9dotty1/collections/immutable/Iter2.Iterator#flatMap().[B]2G
+ 9dotty1/collections/immutable/Iter2.Iterator#flatMap().(f)2=
+ /dotty1/collections/immutable/Iter2.Iterator#[A]2>
+ '0dotty1/collections/immutable/Iter2.IterableOnce#2G
+( )9dotty1/collections/immutable/Iter2.Iterator#flatMap().[B]2:
+- 5,dotty1/collections/immutable/Iter2.Iterator#2G
+6 79dotty1/collections/immutable/Iter2.Iterator#flatMap().[B]2#
+; >scala/Predef.`???`().2A
+ 
+3dotty1/collections/immutable/Iter2.Iterator#`++`().2D
+ 6dotty1/collections/immutable/Iter2.Iterator#`++`().[B]2=
+ /dotty1/collections/immutable/Iter2.Iterator#[A]2E
+ 7dotty1/collections/immutable/Iter2.Iterator#`++`().(xs)2>
+ #0dotty1/collections/immutable/Iter2.IterableOnce#2D
+$ %6dotty1/collections/immutable/Iter2.Iterator#`++`().[B]2:
+) 1,dotty1/collections/immutable/Iter2.Iterator#2D
+2 36dotty1/collections/immutable/Iter2.Iterator#`++`().[B]2#
+7 :scala/Predef.`???`().2A
+ 3dotty1/collections/immutable/Iter2.Iterator#drop().2D
+ 6dotty1/collections/immutable/Iter2.Iterator#drop().(n)2
+ 
+scala/Int#2:
+ ,dotty1/collections/immutable/Iter2.Iterator#2=
+  /dotty1/collections/immutable/Iter2.Iterator#[A]2#
+$ 'scala/Predef.`???`().2G
+ 9dotty1/collections/immutable/Iter2.Iterator#indexWhere().2J
+ <dotty1/collections/immutable/Iter2.Iterator#indexWhere().(p)2=
+ /dotty1/collections/immutable/Iter2.Iterator#[A]2
+ "scala/Boolean#2
+% (
+scala/Int#2
+
+ local02D
+ 6dotty1/collections/immutable/Iter2.Iterator#hasNext().2&
+ scala/Function1#apply().2J
+ <dotty1/collections/immutable/Iter2.Iterator#indexWhere().(p)2A
+ 3dotty1/collections/immutable/Iter2.Iterator#next().2
+ local02G
+ 9dotty1/collections/immutable/Iter2.Iterator#indexWhere().2
+ 	local02 
+	 	scala/Int#`+`(+4).2@
+ 2dotty1/collections/immutable/Iter2.Iterator#zip().2C
+ 5dotty1/collections/immutable/Iter2.Iterator#zip().[B]2F
+ 8dotty1/collections/immutable/Iter2.Iterator#zip().(that)2:
+ ,dotty1/collections/immutable/Iter2.Iterator#2C
+ 5dotty1/collections/immutable/Iter2.Iterator#zip().[B]2:
+# +,dotty1/collections/immutable/Iter2.Iterator#2=
+- ./dotty1/collections/immutable/Iter2.Iterator#[A]2C
+0 15dotty1/collections/immutable/Iter2.Iterator#zip().[B]2#
+6 9scala/Predef.`???`().2A
+ 3dotty1/collections/immutable/Iter2.Iterator#copy().2:
+ ,dotty1/collections/immutable/Iter2.Iterator#2=
+ /dotty1/collections/immutable/Iter2.Iterator#[A]2#
+ scala/Predef.`???`().2>
+33 0dotty1/collections/immutable/Iter2.IterableOnce#2I
+33 ;dotty1/collections/immutable/Iter2.IterableOnce#`<init>`().2A
+33 3dotty1/collections/immutable/Iter2.IterableOnce#[A]2I
+44 ;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2:
+44 ,dotty1/collections/immutable/Iter2.Iterator#2A
+44 3dotty1/collections/immutable/Iter2.IterableOnce#[A]2N
+55 @dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2:
+55 ,dotty1/collections/immutable/Iter2.Iterator#2A
+5 5 !3dotty1/collections/immutable/Iter2.IterableOnce#[A]2I
+5%5 -;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2>
+88 0dotty1/collections/immutable/Iter2.FromIterator#2I
+88 ;dotty1/collections/immutable/Iter2.FromIterator#`<init>`().2A
+88 3dotty1/collections/immutable/Iter2.FromIterator#[C]2M
+99 ?dotty1/collections/immutable/Iter2.FromIterator#fromIterator().2P
+99 Bdotty1/collections/immutable/Iter2.FromIterator#fromIterator().[B]2Q
+99 Cdotty1/collections/immutable/Iter2.FromIterator#fromIterator().(it)2:
+99 $,dotty1/collections/immutable/Iter2.Iterator#2P
+9%9 &Bdotty1/collections/immutable/Iter2.FromIterator#fromIterator().[B]2A
+9*9 +3dotty1/collections/immutable/Iter2.FromIterator#[C]2P
+9,9 -Bdotty1/collections/immutable/Iter2.FromIterator#fromIterator().[B]2:
+<< ,dotty1/collections/immutable/Iter2.Iterable#2E
+<< 7dotty1/collections/immutable/Iter2.Iterable#`<init>`().2>
+<< *0dotty1/collections/immutable/Iter2.IterableOnce#2>
+<+< -0dotty1/collections/immutable/Iter2.Iterable#[IA]2>
+<0< <0dotty1/collections/immutable/Iter2.FromIterator#2>
+<< 0dotty1/collections/immutable/Iter2.Iterable#[IA]2A
+== 3dotty1/collections/immutable/Iter2.Iterable#view().26
+== (dotty1/collections/immutable/Iter2.View#2>
+== 0dotty1/collections/immutable/Iter2.Iterable#[IA]2A
+=!= !3dotty1/collections/immutable/Iter2.View#`<init>`().2I
+="= *;dotty1/collections/immutable/Iter2.IterableOnce#iterator().25
+@@ 'dotty1/collections/immutable/Iter2.Seq#2@
+@@ 2dotty1/collections/immutable/Iter2.Seq#`<init>`().2:
+@@ !,dotty1/collections/immutable/Iter2.Iterable#29
+@"@ $+dotty1/collections/immutable/Iter2.Seq#[AA]2>
+@'@ 30dotty1/collections/immutable/Iter2.FromIterator#29
+@@ +dotty1/collections/immutable/Iter2.Seq#[AA]2=
+AA /dotty1/collections/immutable/Iter2.Seq#apply().2@
+AA 2dotty1/collections/immutable/Iter2.Seq#apply().(i)2
+AA 
+scala/Int#29
+AA +dotty1/collections/immutable/Iter2.Seq#[AA]2>
+BB 0dotty1/collections/immutable/Iter2.Seq#length().2
+BB 
+scala/Int#26
+EE (dotty1/collections/immutable/Iter2.List#2A
+EE 3dotty1/collections/immutable/Iter2.List#`<init>`().25
+E E #'dotty1/collections/immutable/Iter2.Seq#29
+E$E %+dotty1/collections/immutable/Iter2.List#[A]2>
+E(E 40dotty1/collections/immutable/Iter2.FromIterator#29
+EE +dotty1/collections/immutable/Iter2.List#[A]2@
+FF 2dotty1/collections/immutable/Iter2.List#isEmpty().2
+FF scala/Boolean#2=
+GG /dotty1/collections/immutable/Iter2.List#head().29
+GG +dotty1/collections/immutable/Iter2.List#[A]2=
+HH /dotty1/collections/immutable/Iter2.List#tail().26
+HH (dotty1/collections/immutable/Iter2.List#29
+HH +dotty1/collections/immutable/Iter2.List#[A]2A
+II 3dotty1/collections/immutable/Iter2.List#iterator().2I
+I&I &;dotty1/collections/immutable/Iter2.ListIterator#`<init>`().2>
+II #0dotty1/collections/immutable/Iter2.ListIterator#29
+I$I %+dotty1/collections/immutable/Iter2.List#[A]2E
+JJ 7dotty1/collections/immutable/Iter2.List#fromIterator().2H
+JJ :dotty1/collections/immutable/Iter2.List#fromIterator().[B]2I
+JJ ;dotty1/collections/immutable/Iter2.List#fromIterator().(it)2:
+JJ $,dotty1/collections/immutable/Iter2.Iterator#2H
+J%J &:dotty1/collections/immutable/Iter2.List#fromIterator().[B]26
+J*J .(dotty1/collections/immutable/Iter2.List#2H
+J/J 0:dotty1/collections/immutable/Iter2.List#fromIterator().[B]2I
+J4J 6;dotty1/collections/immutable/Iter2.List#fromIterator().(it)2H
+KK :dotty1/collections/immutable/Iter2.ListIterator.unapply().2>
+KK 0dotty1/collections/immutable/Iter2.ListIterator.2
+KK local12
+KK !local12D
+LL 6dotty1/collections/immutable/Iter2.Iterator#hasNext().2I
+LL ;dotty1/collections/immutable/Iter2.List#fromIterator().(it)2>
+L$L $0dotty1/collections/immutable/Iter2.Cons.apply().26
+L L $(dotty1/collections/immutable/Iter2.Cons.2A
+L(L ,3dotty1/collections/immutable/Iter2.Iterator#next().2I
+L%L ';dotty1/collections/immutable/Iter2.List#fromIterator().(it)2E
+L.L :7dotty1/collections/immutable/Iter2.List#fromIterator().2I
+L;L =;dotty1/collections/immutable/Iter2.List#fromIterator().(it)25
+LEL H'dotty1/collections/immutable/Iter2.Nil.2>
+NN 0dotty1/collections/immutable/Iter2.List#apply().2A
+NN 3dotty1/collections/immutable/Iter2.List#apply().(i)2
+NN 
+scala/Int#29
+NN +dotty1/collections/immutable/Iter2.List#[A]2%
+OO scala/Predef.require().2(
+OO scala/Boolean#`unary_!`().2@
+OO 2dotty1/collections/immutable/Iter2.List#isEmpty().2!
+PP scala/Int#`==`(+3).2A
+P
+P 3dotty1/collections/immutable/Iter2.List#apply().(i)2=
+PP /dotty1/collections/immutable/Iter2.List#head().2>
+P!P &0dotty1/collections/immutable/Iter2.List#apply().2=
+PP  /dotty1/collections/immutable/Iter2.List#tail().2 
+P)P *scala/Int#`-`(+3).2A
+P'P (3dotty1/collections/immutable/Iter2.List#apply().(i)2?
+RR 1dotty1/collections/immutable/Iter2.List#length().2
+RR 
+scala/Int#2@
+S
+S 2dotty1/collections/immutable/Iter2.List#isEmpty().2 
+SS scala/Int#`+`(+4).2?
+S#S )1dotty1/collections/immutable/Iter2.List#length().2=
+SS "/dotty1/collections/immutable/Iter2.List#tail().26
+VV (dotty1/collections/immutable/Iter2.View#2A
+VV 3dotty1/collections/immutable/Iter2.View#`<init>`().2:
+VV ,dotty1/collections/immutable/Iter2.Iterator#29
+VV +dotty1/collections/immutable/Iter2.View#[A]2:
+V*V 2,dotty1/collections/immutable/Iter2.Iterable#29
+V3V 4+dotty1/collections/immutable/Iter2.View#[A]2>
+V7V C0dotty1/collections/immutable/Iter2.FromIterator#29
+VV +dotty1/collections/immutable/Iter2.View#[A]29
+VV +dotty1/collections/immutable/Iter2.View#it.2A
+WW 3dotty1/collections/immutable/Iter2.View#iterator().2:
+WW ,dotty1/collections/immutable/Iter2.Iterator#29
+WW +dotty1/collections/immutable/Iter2.View#[A]2A
+W#W '3dotty1/collections/immutable/Iter2.Iterator#copy().29
+W W "+dotty1/collections/immutable/Iter2.View#it.2E
+XX 7dotty1/collections/immutable/Iter2.View#fromIterator().2H
+XX :dotty1/collections/immutable/Iter2.View#fromIterator().[B]2I
+XX ;dotty1/collections/immutable/Iter2.View#fromIterator().(it)2:
+XX $,dotty1/collections/immutable/Iter2.Iterator#2H
+X%X &:dotty1/collections/immutable/Iter2.View#fromIterator().[B]26
+X*X .(dotty1/collections/immutable/Iter2.View#2H
+X/X 0:dotty1/collections/immutable/Iter2.View#fromIterator().[B]2A
+X<X <3dotty1/collections/immutable/Iter2.View#`<init>`().2I
+X=X ?;dotty1/collections/immutable/Iter2.View#fromIterator().(it)26
+[[ (dotty1/collections/immutable/Iter2.Cons#2A
+[[ 3dotty1/collections/immutable/Iter2.Cons#`<init>`().29
+[[ +dotty1/collections/immutable/Iter2.Cons#[A]26
+[ [ $(dotty1/collections/immutable/Iter2.List#29
+[%[ &+dotty1/collections/immutable/Iter2.Cons#[A]26
+[1[ 5(dotty1/collections/immutable/Iter2.List#29
+[6[ 7+dotty1/collections/immutable/Iter2.Cons#[A]29
+[[ +dotty1/collections/immutable/Iter2.Cons#[A]28
+[[ *dotty1/collections/immutable/Iter2.Cons#x.29
+[[ +dotty1/collections/immutable/Iter2.Cons#xs.2@
+\\ 2dotty1/collections/immutable/Iter2.Cons#isEmpty().2=
+]] /dotty1/collections/immutable/Iter2.Cons#head().28
+]] *dotty1/collections/immutable/Iter2.Cons#x.2=
+^^ /dotty1/collections/immutable/Iter2.Cons#tail().29
+^^ +dotty1/collections/immutable/Iter2.Cons#xs.2=
+[[ /dotty1/collections/immutable/Iter2.Cons#copy().2;
+[[ -dotty1/collections/immutable/Iter2.Cons#_1().2;
+[ [  -dotty1/collections/immutable/Iter2.Cons#_2().26
+[[ (dotty1/collections/immutable/Iter2.Cons.2>
+[[ 0dotty1/collections/immutable/Iter2.Cons.apply().2@
+[[ 2dotty1/collections/immutable/Iter2.Cons.unapply().25
+aa 'dotty1/collections/immutable/Iter2.Nil.26
+aa (dotty1/collections/immutable/Iter2.List#2
+aa &scala/Nothing#2?
+bb 1dotty1/collections/immutable/Iter2.Nil.isEmpty().2<
+cc .dotty1/collections/immutable/Iter2.Nil.head().2#
+cc scala/Predef.`???`().2<
+dd .dotty1/collections/immutable/Iter2.Nil.tail().2#
+dd scala/Predef.`???`().2=
+gg /dotty1/collections/immutable/Iter2.ArrayBuffer#2H
+gg :dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`().2
+g+g 0scala/Array#2
+g1g 7scala/AnyRef#2
+gCg F
+scala/Int#25
+gPg S'dotty1/collections/immutable/Iter2.Seq#2@
+gTg U2dotty1/collections/immutable/Iter2.ArrayBuffer#[A]2>
+gXg d0dotty1/collections/immutable/Iter2.FromIterator#2@
+gg 2dotty1/collections/immutable/Iter2.ArrayBuffer#[A]2G
+g g )9dotty1/collections/immutable/Iter2.ArrayBuffer#initElems.2E
+g:g A7dotty1/collections/immutable/Iter2.ArrayBuffer#initLen.2J
+hh <dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+1).2H
+hh :dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`().2%
+h'h 'scala/Array#`<init>`().2
+hh scala/Array#2
+h h &scala/AnyRef#2J
+ii <dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).2N
+ii @dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).(it)2?
+ii 1dotty1/collections/immutable/Iter2.ArrayIterator#2@
+ii  2dotty1/collections/immutable/Iter2.ArrayBuffer#[A]2H
+i*i *:dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`().2E
+i-i 27dotty1/collections/immutable/Iter2.ArrayIterator#elems.2N
+i*i ,@dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).(it)2C
+i7i :5dotty1/collections/immutable/Iter2.ArrayIterator#len.2N
+i4i 6@dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).(it)2E
+jj 7dotty1/collections/immutable/Iter2.ArrayBuffer#elems().2
+jj scala/Array#2
+jj #scala/AnyRef#2G
+j'j 09dotty1/collections/immutable/Iter2.ArrayBuffer#initElems.2C
+kk 5dotty1/collections/immutable/Iter2.ArrayBuffer#len().2H
+ll :dotty1/collections/immutable/Iter2.ArrayBuffer#iterator().2'
+mm +scala/Any#asInstanceOf().2/
+mm !scala/collection/Iterator#take().23
+mm %scala/collection/ArrayOps#iterator().2)
+mm scala/Predef.refArrayOps().2E
+mm 7dotty1/collections/immutable/Iter2.ArrayBuffer#elems().2C
+mm 5dotty1/collections/immutable/Iter2.ArrayBuffer#len().2:
+m,m 4,dotty1/collections/immutable/Iter2.Iterator#2@
+m5m 62dotty1/collections/immutable/Iter2.ArrayBuffer#[A]2M
+nn ?dotty1/collections/immutable/Iter2.ArrayBuffer#buildIterator().2'
+o$o 0scala/Any#asInstanceOf().2J
+oo <dotty1/collections/immutable/Iter2.ArrayIterator#`<init>`().2E
+oo 7dotty1/collections/immutable/Iter2.ArrayBuffer#elems().2C
+oo "5dotty1/collections/immutable/Iter2.ArrayBuffer#len().2:
+o1o 9,dotty1/collections/immutable/Iter2.Iterator#2@
+o:o ;2dotty1/collections/immutable/Iter2.ArrayBuffer#[A]2L
+pp >dotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().2O
+pp Adotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().[B]2P
+pp Bdotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().(it)2:
+pp $,dotty1/collections/immutable/Iter2.Iterator#2O
+p%p &Adotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().[B]2=
+p*p 5/dotty1/collections/immutable/Iter2.ArrayBuffer#2O
+p6p 7Adotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().[B]2J
+qq <dotty1/collections/immutable/Iter2.ArrayBuffer#`<init>`(+2).2N
+q$q 0@dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().2?
+qq #1dotty1/collections/immutable/Iter2.ArrayIterator.2P
+q1q 3Bdotty1/collections/immutable/Iter2.ArrayBuffer#fromIterator().(it)2E
+rr 7dotty1/collections/immutable/Iter2.ArrayBuffer#apply().2H
+rr :dotty1/collections/immutable/Iter2.ArrayBuffer#apply().(i)2
+rr 
+scala/Int#2'
+r!r -scala/Any#asInstanceOf().2"
+rr scala/Array#apply().2E
+rr 7dotty1/collections/immutable/Iter2.ArrayBuffer#elems().2H
+rr :dotty1/collections/immutable/Iter2.ArrayBuffer#apply().(i)2@
+r.r /2dotty1/collections/immutable/Iter2.ArrayBuffer#[A]2F
+ss 8dotty1/collections/immutable/Iter2.ArrayBuffer#length().2C
+ss 5dotty1/collections/immutable/Iter2.ArrayBuffer#len().2D
+~~ #6dotty1/collections/immutable/Iter2.IterableTransforms#2O
+~#~ #Adotty1/collections/immutable/Iter2.IterableTransforms#`<init>`().2:
+~C~ K,dotty1/collections/immutable/Iter2.Iterable#2G
+~L~ M9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2>
+~T~ `0dotty1/collections/immutable/Iter2.FromIterator#2G
+~a~ b9dotty1/collections/immutable/Iter2.IterableTransforms#[C]2&
+~s~ sscala/AnyVal#`<init>`().2
+~m~ sscala/AnyVal#2G
+~$~ %9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2G
+~'~ (9dotty1/collections/immutable/Iter2.IterableTransforms#[C]2F
+~@~ A8dotty1/collections/immutable/Iter2.IterableTransforms#c.2J
+ <dotty1/collections/immutable/Iter2.IterableTransforms#map().2M
+ ?dotty1/collections/immutable/Iter2.IterableTransforms#map().[B]2M
+ ?dotty1/collections/immutable/Iter2.IterableTransforms#map().(f)2G
+ 9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2M
+ ?dotty1/collections/immutable/Iter2.IterableTransforms#map().[B]2G
+ 9dotty1/collections/immutable/Iter2.IterableTransforms#[C]2M
+ ?dotty1/collections/immutable/Iter2.IterableTransforms#map().[B]2M
+$ 0?dotty1/collections/immutable/Iter2.FromIterator#fromIterator().2F
+" #8dotty1/collections/immutable/Iter2.IterableTransforms#c.2@
+A D2dotty1/collections/immutable/Iter2.Iterator#map().2N
+3 @@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2F
+1 28dotty1/collections/immutable/Iter2.IterableTransforms#c.2M
+E F?dotty1/collections/immutable/Iter2.IterableTransforms#map().(f)2P
+
+ÄÄ @dotty1/collections/immutable/Iter2.IterableTransforms#flatMap().2S
+
+ÄÄ Cdotty1/collections/immutable/Iter2.IterableTransforms#flatMap().[B]2S
+
+ÄÄ Cdotty1/collections/immutable/Iter2.IterableTransforms#flatMap().(f)2I
+
+ÄÄ 9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2@
+
+ÄÄ '0dotty1/collections/immutable/Iter2.IterableOnce#2S
+
+Ä(Ä )Cdotty1/collections/immutable/Iter2.IterableTransforms#flatMap().[B]2I
+
+Ä-Ä .9dotty1/collections/immutable/Iter2.IterableTransforms#[C]2S
+
+Ä/Ä 0Cdotty1/collections/immutable/Iter2.IterableTransforms#flatMap().[B]2O
+
+Ä6Ä B?dotty1/collections/immutable/Iter2.FromIterator#fromIterator().2H
+
+Ä4Ä 58dotty1/collections/immutable/Iter2.IterableTransforms#c.2F
+
+ÄSÄ Z6dotty1/collections/immutable/Iter2.Iterator#flatMap().2P
+
+ÄEÄ R@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2H
+
+ÄCÄ D8dotty1/collections/immutable/Iter2.IterableTransforms#c.2P
+
+Ä`Ä m@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2(
+
+Ä\Ä \scala/Function1#apply().2S
+
+Ä[Ä \Cdotty1/collections/immutable/Iter2.IterableTransforms#flatMap().(f)2M
+
+ÅÅ 
+=dotty1/collections/immutable/Iter2.IterableTransforms#`++`().2P
+
+ÅÅ @dotty1/collections/immutable/Iter2.IterableTransforms#`++`().[B]2I
+
+ÅÅ 9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2Q
+
+ÅÅ Adotty1/collections/immutable/Iter2.IterableTransforms#`++`().(xs)2@
+
+ÅÅ #0dotty1/collections/immutable/Iter2.IterableOnce#2P
+
+Å$Å %@dotty1/collections/immutable/Iter2.IterableTransforms#`++`().[B]2I
+
+Å)Å *9dotty1/collections/immutable/Iter2.IterableTransforms#[C]2P
+
+Å+Å ,@dotty1/collections/immutable/Iter2.IterableTransforms#`++`().[B]2O
+
+Å2Å >?dotty1/collections/immutable/Iter2.FromIterator#fromIterator().2H
+
+Å0Å 18dotty1/collections/immutable/Iter2.IterableTransforms#c.2C
+
+ÅOÅ Q3dotty1/collections/immutable/Iter2.Iterator#`++`().2P
+
+ÅAÅ N@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2H
+
+Å?Å @8dotty1/collections/immutable/Iter2.IterableTransforms#c.2P
+
+ÅUÅ b@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2Q
+
+ÅRÅ TAdotty1/collections/immutable/Iter2.IterableTransforms#`++`().(xs)2M
+
+ÇÇ =dotty1/collections/immutable/Iter2.IterableTransforms#drop().2P
+
+ÇÇ @dotty1/collections/immutable/Iter2.IterableTransforms#drop().(n)2
+
+ÇÇ 
+scala/Int#2I
+
+ÇÇ 9dotty1/collections/immutable/Iter2.IterableTransforms#[C]2I
+
+ÇÇ 9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2O
+
+ÇÇ +?dotty1/collections/immutable/Iter2.FromIterator#fromIterator().2H
+
+ÇÇ 8dotty1/collections/immutable/Iter2.IterableTransforms#c.2C
+
+Ç<Ç @3dotty1/collections/immutable/Iter2.Iterator#drop().2P
+
+Ç.Ç ;@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2H
+
+Ç,Ç -8dotty1/collections/immutable/Iter2.IterableTransforms#c.2P
+
+ÇAÇ B@dotty1/collections/immutable/Iter2.IterableTransforms#drop().(n)2M
+
+ÉÉ =dotty1/collections/immutable/Iter2.IterableTransforms#head().2I
+
+ÉÉ 9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2C
+
+ÉÉ !3dotty1/collections/immutable/Iter2.Iterator#next().2K
+
+ÉÉ ;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2H
+
+ÉÉ 8dotty1/collections/immutable/Iter2.IterableTransforms#c.2L
+
+ÑÑ <dotty1/collections/immutable/Iter2.IterableTransforms#zip().2O
+
+ÑÑ ?dotty1/collections/immutable/Iter2.IterableTransforms#zip().[B]2P
+
+ÑÑ @dotty1/collections/immutable/Iter2.IterableTransforms#zip().(xs)2@
+
+ÑÑ 0dotty1/collections/immutable/Iter2.IterableOnce#2O
+
+Ñ Ñ !?dotty1/collections/immutable/Iter2.IterableTransforms#zip().[B]2I
+
+Ñ%Ñ &9dotty1/collections/immutable/Iter2.IterableTransforms#[C]2I
+
+Ñ(Ñ )9dotty1/collections/immutable/Iter2.IterableTransforms#[A]2O
+
+Ñ+Ñ ,?dotty1/collections/immutable/Iter2.IterableTransforms#zip().[B]2O
+
+Ñ3Ñ ??dotty1/collections/immutable/Iter2.FromIterator#fromIterator().2H
+
+Ñ1Ñ 28dotty1/collections/immutable/Iter2.IterableTransforms#c.2B
+
+ÑKÑ N2dotty1/collections/immutable/Iter2.Iterator#zip().2K
+
+ÑBÑ J;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2H
+
+Ñ@Ñ A8dotty1/collections/immutable/Iter2.IterableTransforms#c.2K
+
+ÑRÑ Z;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2P
+
+ÑOÑ Q@dotty1/collections/immutable/Iter2.IterableTransforms#zip().(xs)2D
+~~ 6dotty1/collections/immutable/Iter2.IterableTransforms.2F
+~~ 8dotty1/collections/immutable/Iter2.IterableTransforms().2A
+
+áá 1dotty1/collections/immutable/Iter2.SeqTransforms#2L
+
+áá <dotty1/collections/immutable/Iter2.SeqTransforms#`<init>`().27
+
+á:á ='dotty1/collections/immutable/Iter2.Seq#2E
+
+á>á @5dotty1/collections/immutable/Iter2.SeqTransforms#[SA]2@
+
+áGá S0dotty1/collections/immutable/Iter2.FromIterator#2D
+
+áTá U4dotty1/collections/immutable/Iter2.SeqTransforms#[C]2(
+
+áfá fscala/AnyVal#`<init>`().2
+
+á`á fscala/AnyVal#2E
+
+áá !5dotty1/collections/immutable/Iter2.SeqTransforms#[SA]2D
+
+á#á $4dotty1/collections/immutable/Iter2.SeqTransforms#[C]2C
+
+á7á 83dotty1/collections/immutable/Iter2.SeqTransforms#c.2K
+
+àà ;dotty1/collections/immutable/Iter2.SeqTransforms#reverse().2D
+
+àà 4dotty1/collections/immutable/Iter2.SeqTransforms#[C]2E
+
+àà 5dotty1/collections/immutable/Iter2.SeqTransforms#[SA]2
+
+â
+â local22'
+
+â#â #scala/Array#`<init>`().2
+
+ââ scala/Array#2
+
+ââ "scala/AnyRef#2@
+
+â&â ,0dotty1/collections/immutable/Iter2.Seq#length().2C
+
+â$â %3dotty1/collections/immutable/Iter2.SeqTransforms#c.2
+
+ä
+ä local32%
+
+ää scala/Array#length().2
+
+ää local22
+
+ã
+ã local42K
+
+ãã ;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2C
+
+ãã 3dotty1/collections/immutable/Iter2.SeqTransforms#c.2F
+
+åå 6dotty1/collections/immutable/Iter2.Iterator#hasNext().2
+
+åå local42
+
+çç 	local32"
+
+ç	ç 	scala/Int#`-`(+3).2%
+
+éé scala/Array#update().2
+
+éé local22
+
+éé local32)
+
+éé 'scala/Any#asInstanceOf().2C
+
+éé 3dotty1/collections/immutable/Iter2.Iterator#next().2
+
+éé local42
+
+é(é .scala/AnyRef#2
+
+ê
+ê local52O
+
+êê ?dotty1/collections/immutable/Iter2.FromIterator#fromIterator().2C
+
+êê 3dotty1/collections/immutable/Iter2.SeqTransforms#c.2I
+
+ê,ê ,9dotty1/collections/immutable/Iter2.ArrayIterator.apply().2A
+
+êê ,1dotty1/collections/immutable/Iter2.ArrayIterator.2E
+
+ê-ê /5dotty1/collections/immutable/Iter2.SeqTransforms#[SA]2
+
+ê1ê 6local22@
+
+ê:ê @0dotty1/collections/immutable/Iter2.Seq#length().2C
+
+ê8ê 93dotty1/collections/immutable/Iter2.SeqTransforms#c.2
+
+ëë 	local52N
+
+ìì >dotty1/collections/immutable/Iter2.SeqTransforms#indexWhere().2Q
+
+ìì Adotty1/collections/immutable/Iter2.SeqTransforms#indexWhere().(p)2E
+
+ìì 5dotty1/collections/immutable/Iter2.SeqTransforms#[SA]2
+
+ìì #scala/Boolean#2
+
+ì&ì )
+scala/Int#2I
+
+ì7ì A9dotty1/collections/immutable/Iter2.Iterator#indexWhere().2K
+
+ì.ì 6;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2C
+
+ì,ì -3dotty1/collections/immutable/Iter2.SeqTransforms#c.2Q
+
+ìBì CAdotty1/collections/immutable/Iter2.SeqTransforms#indexWhere().(p)2A
+
+áá 1dotty1/collections/immutable/Iter2.SeqTransforms.2C
+
+áá 3dotty1/collections/immutable/Iter2.SeqTransforms().2@
+
+ûû 0dotty1/collections/immutable/Iter2.ListIterator#2K
+
+ûû ;dotty1/collections/immutable/Iter2.ListIterator#`<init>`().28
+
+û"û &(dotty1/collections/immutable/Iter2.List#2C
+
+û'û (3dotty1/collections/immutable/Iter2.ListIterator#[A]2<
+
+û3û ;,dotty1/collections/immutable/Iter2.Iterator#2C
+
+û<û =3dotty1/collections/immutable/Iter2.ListIterator#[A]2C
+
+ûû 3dotty1/collections/immutable/Iter2.ListIterator#[A]2C
+
+ûû  3dotty1/collections/immutable/Iter2.ListIterator#xs.2J
+
+üü :dotty1/collections/immutable/Iter2.ListIterator#current().28
+
+üü #(dotty1/collections/immutable/Iter2.List#2C
+
+ü$ü %3dotty1/collections/immutable/Iter2.ListIterator#[A]2C
+
+ü)ü +3dotty1/collections/immutable/Iter2.ListIterator#xs.2J
+
+†† :dotty1/collections/immutable/Iter2.ListIterator#hasNext().2*
+
+†"† "scala/Boolean#`unary_!`().2B
+
+†† "2dotty1/collections/immutable/Iter2.List#isEmpty().2J
+
+†† :dotty1/collections/immutable/Iter2.ListIterator#current().2G
+
+°° 7dotty1/collections/immutable/Iter2.ListIterator#next().2
+
+°° local62?
+
+°#° '/dotty1/collections/immutable/Iter2.List#head().2J
+
+°° ":dotty1/collections/immutable/Iter2.ListIterator#current().2J
+
+°)° 0:dotty1/collections/immutable/Iter2.ListIterator#current().2?
+
+°;° ?/dotty1/collections/immutable/Iter2.List#tail().2J
+
+°3° ::dotty1/collections/immutable/Iter2.ListIterator#current().2
+
+°A° Dlocal62G
+
+ûû 7dotty1/collections/immutable/Iter2.ListIterator#copy().2E
+
+û"û "5dotty1/collections/immutable/Iter2.ListIterator#_1().2@
+
+ûû 0dotty1/collections/immutable/Iter2.ListIterator.2H
+
+ûû 8dotty1/collections/immutable/Iter2.ListIterator.apply().2J
+
+ûû :dotty1/collections/immutable/Iter2.ListIterator.unapply().2A
+
+§§ 1dotty1/collections/immutable/Iter2.ArrayIterator#2L
+
+§§ <dotty1/collections/immutable/Iter2.ArrayIterator#`<init>`().2
+
+§&§ +scala/Array#2
+
+§,§ 2scala/AnyRef#2
+
+§:§ =
+scala/Int#2<
+
+§G§ O,dotty1/collections/immutable/Iter2.Iterator#2D
+
+§P§ Q4dotty1/collections/immutable/Iter2.ArrayIterator#[A]2D
+
+§§ 4dotty1/collections/immutable/Iter2.ArrayIterator#[A]2G
+
+§§ $7dotty1/collections/immutable/Iter2.ArrayIterator#elems.2E
+
+§5§ 85dotty1/collections/immutable/Iter2.ArrayIterator#len.2A
+
+•• 1dotty1/collections/immutable/Iter2.ArrayIterator.2H
+
+ßß 8dotty1/collections/immutable/Iter2.ArrayIterator#elem().2K
+
+ßß ;dotty1/collections/immutable/Iter2.ArrayIterator#elem().(i)2
+
+ßß 
+scala/Int#2)
+
+ß(ß 4scala/Any#asInstanceOf().2$
+
+ß$ß $scala/Array#apply().2G
+
+ßß $7dotty1/collections/immutable/Iter2.ArrayIterator#elems.2K
+
+ß%ß &;dotty1/collections/immutable/Iter2.ArrayIterator#elem().(i)2D
+
+ß5ß 64dotty1/collections/immutable/Iter2.ArrayIterator#[A]2G
+
+©© 7dotty1/collections/immutable/Iter2.ArrayIterator#cur().2K
+
+´´ ;dotty1/collections/immutable/Iter2.ArrayIterator#hasNext().2"
+
+´´ scala/Int#`<`(+3).2G
+
+´´ 7dotty1/collections/immutable/Iter2.ArrayIterator#cur().2E
+
+´´ 5dotty1/collections/immutable/Iter2.ArrayIterator#len.2H
+
+¨¨ 8dotty1/collections/immutable/Iter2.ArrayIterator#next().2
+
+¨¨ local72H
+
+¨¨ 8dotty1/collections/immutable/Iter2.ArrayIterator#elem().2G
+
+¨ ¨ #7dotty1/collections/immutable/Iter2.ArrayIterator#cur().2G
+
+¨&¨ )7dotty1/collections/immutable/Iter2.ArrayIterator#cur().2"
+
+¨)¨ )scala/Int#`+`(+4).2
+
+¨0¨ 3local72K
+
+ÆÆ ;dotty1/collections/immutable/Iter2.ArrayIterator#foreach().2N
+
+ÆÆ >dotty1/collections/immutable/Iter2.ArrayIterator#foreach().(f)2D
+
+ÆÆ 4dotty1/collections/immutable/Iter2.ArrayIterator#[A]2
+
+Æ!Æ %scala/Unit#2
+
+Æ(Æ ,scala/Unit#2;
+
+ØØ +scala/collection/immutable/Range#foreach().2.
+
+ØØ scala/runtime/RichInt#until().28
+
+ØØ (scala/LowPriorityImplicits#intWrapper().2E
+
+ØØ 5dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+ØØ local82(
+
+ØØ scala/Function1#apply().2N
+
+ØØ >dotty1/collections/immutable/Iter2.ArrayIterator#foreach().(f)2H
+
+ØØ #8dotty1/collections/immutable/Iter2.ArrayIterator#elem().2
+
+Ø$Ø %local82G
+
+±± 7dotty1/collections/immutable/Iter2.ArrayIterator#map().2J
+
+±± :dotty1/collections/immutable/Iter2.ArrayIterator#map().[B]2J
+
+±± :dotty1/collections/immutable/Iter2.ArrayIterator#map().(f)2D
+
+±± 4dotty1/collections/immutable/Iter2.ArrayIterator#[A]2J
+
+± ± !:dotty1/collections/immutable/Iter2.ArrayIterator#map().[B]2A
+
+±$± 11dotty1/collections/immutable/Iter2.ArrayIterator#2J
+
+±2± 3:dotty1/collections/immutable/Iter2.ArrayIterator#map().[B]2
+
+≤
+≤ local92G
+
+≤≤ 7dotty1/collections/immutable/Iter2.ArrayIterator#elems.2;
+
+≥≥ +scala/collection/immutable/Range#foreach().2.
+
+≥≥ scala/runtime/RichInt#until().28
+
+≥≥ (scala/LowPriorityImplicits#intWrapper().2E
+
+≥≥ 5dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+≥≥ local102
+
+¥¥ local112H
+
+¥¥ 8dotty1/collections/immutable/Iter2.ArrayIterator#elem().2
+
+¥¥ local102
+
+µµ local122I
+
+µµ 9dotty1/collections/immutable/Iter2.ArrayIterator.widen().2(
+
+µµ scala/Function1#apply().2J
+
+µµ :dotty1/collections/immutable/Iter2.ArrayIterator#map().(f)2
+
+µµ local112&
+
+∂∂ java/lang/Object#ne().2I
+
+∂∂ 9dotty1/collections/immutable/Iter2.ArrayIterator.widen().2
+
+∂∂ local112
+
+∂∂ local122&
+
+∑∑ java/lang/Object#eq().2
+
+∑∑ local92G
+
+∑∑ 7dotty1/collections/immutable/Iter2.ArrayIterator#elems.2
+
+∑∑ %local92'
+
+∑9∑ 9scala/Array#`<init>`().2
+
+∑,∑ 1scala/Array#2
+
+∑2∑ 8scala/AnyRef#2E
+
+∑:∑ =5dotty1/collections/immutable/Iter2.ArrayIterator#len.2%
+
+∏∏ scala/Array#update().2
+
+∏
+∏ local92
+
+∏∏ local102
+
+∏∏ local122&
+
+ªª java/lang/Object#eq().2
+
+ª
+ª local92G
+
+ªª 7dotty1/collections/immutable/Iter2.ArrayIterator#elems.2)
+
+ª ª ,scala/Any#asInstanceOf().2A
+
+ª-ª :1dotty1/collections/immutable/Iter2.ArrayIterator#2J
+
+ª;ª <:dotty1/collections/immutable/Iter2.ArrayIterator#map().[B]2L
+
+ºº <dotty1/collections/immutable/Iter2.ArrayIterator#`<init>`().2
+
+ºº #local92E
+
+º%º (5dotty1/collections/immutable/Iter2.ArrayIterator#len.2K
+
+øø ;dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().2N
+
+øø >dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().[B]2N
+
+øø >dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().(f)2D
+
+øø  4dotty1/collections/immutable/Iter2.ArrayIterator#[A]2@
+
+ø$ø 00dotty1/collections/immutable/Iter2.IterableOnce#2N
+
+ø1ø 2>dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().[B]2A
+
+ø6ø C1dotty1/collections/immutable/Iter2.ArrayIterator#2N
+
+øDø E>dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().[B]2K
+
+¿¿ ;dotty1/collections/immutable/Iter2.ArrayIterator.flatten().2G
+
+¿¿ 7dotty1/collections/immutable/Iter2.ArrayIterator#map().2P
+
+¿¿ $@dotty1/collections/immutable/Iter2.IterableOnce#buildIterator().2(
+
+¿¿ scala/Function1#apply().2N
+
+¿¿ >dotty1/collections/immutable/Iter2.ArrayIterator#flatMap().(f)2H
+
+¬¬ 8dotty1/collections/immutable/Iter2.ArrayIterator#`++`().2K
+
+¬¬ ;dotty1/collections/immutable/Iter2.ArrayIterator#`++`().[B]2D
+
+¬¬ 4dotty1/collections/immutable/Iter2.ArrayIterator#[A]2N
+
+¬¬  >dotty1/collections/immutable/Iter2.ArrayIterator#`++`().(that)2@
+
+¬"¬ .0dotty1/collections/immutable/Iter2.IterableOnce#2K
+
+¬/¬ 0;dotty1/collections/immutable/Iter2.ArrayIterator#`++`().[B]2A
+
+¬4¬ A1dotty1/collections/immutable/Iter2.ArrayIterator#2K
+
+¬B¬ C;dotty1/collections/immutable/Iter2.ArrayIterator#`++`().[B]2P
+
+√7√ C@dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().2K
+
+√I√ Q;dotty1/collections/immutable/Iter2.IterableOnce#iterator().2N
+
+√D√ H>dotty1/collections/immutable/Iter2.ArrayIterator#`++`().(that)2
+
+√
+√ local132
+
+√'√ -local142
+
+√/√ 3local152#
+
+ƒƒ scala/Int#`==`(+3).2E
+
+ƒ
+ƒ 5dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+ƒƒ  local132#
+
+≈≈ scala/Int#`==`(+3).2
+
+≈≈ local152
+
+«« local162"
+
+«« scala/Int#`+`(+4).2E
+
+«« 5dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+«« local152
+
+»» local172'
+
+»(» (scala/Array#`<init>`().2
+
+»»  scala/Array#2
+
+»!» 'scala/AnyRef#2
+
+»)» /local162#
+
+…… scala/Array.copy().2
+
+…… scala/Array.2G
+
+…… 7dotty1/collections/immutable/Iter2.ArrayIterator#elems.2
+
+…… %local172E
+
+…*… -5dotty1/collections/immutable/Iter2.ArrayIterator#len.2#
+
+   scala/Array.copy().2
+
+   scala/Array.2
+
+   local142
+
+   &local172E
+
+ (  +5dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+ -  1local152L
+
+ÀÀ <dotty1/collections/immutable/Iter2.ArrayIterator#`<init>`().2
+
+ÀÀ "local172
+
+À$À *local162H
+
+§§ 8dotty1/collections/immutable/Iter2.ArrayIterator#copy().2F
+
+§&§ &6dotty1/collections/immutable/Iter2.ArrayIterator#_1().2F
+
+§:§ :6dotty1/collections/immutable/Iter2.ArrayIterator#_2().2A
+
+–	– 1dotty1/collections/immutable/Iter2.ArrayIterator.2I
+
+§§ 9dotty1/collections/immutable/Iter2.ArrayIterator.apply().2K
+
+§§ ;dotty1/collections/immutable/Iter2.ArrayIterator.unapply().2I
+
+—— 9dotty1/collections/immutable/Iter2.ArrayIterator.widen().2L
+
+—— <dotty1/collections/immutable/Iter2.ArrayIterator.widen().(x)2
+
+—— 
+scala/Any#2
+
+—— %scala/AnyRef#2)
+
+—*— 6scala/Any#asInstanceOf().2L
+
+—(— )<dotty1/collections/immutable/Iter2.ArrayIterator.widen().(x)2
+
+—7— =scala/AnyRef#2P
+
+”” @dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().2S
+
+”” Cdotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A]2T
+
+”” Ddotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it)2<
+
+”” $,dotty1/collections/immutable/Iter2.Iterator#2S
+
+”%” &Cdotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A]2A
+
+”*” 71dotty1/collections/immutable/Iter2.ArrayIterator#2S
+
+”8” 9Cdotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A]2T
+
+”=” ?Ddotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it)2
+
+‘‘ local182A
+
+‘‘ 1dotty1/collections/immutable/Iter2.ArrayIterator#2S
+
+‘‘ Cdotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().[A]2
+
+‘#‘ %local182
+
+÷÷ local192'
+
+÷%÷ %scala/Array#`<init>`().2
+
+÷÷ scala/Array#2
+
+÷÷ $scala/AnyRef#2
+
+◊◊ local202
+
+ÿÿ local212"
+
+ŸŸ scala/Int#`>`(+3).2
+
+ŸŸ local202%
+
+ŸŸ #scala/Array#length().2
+
+ŸŸ local192
+
+⁄⁄ local222'
+
+⁄,⁄ ,scala/Array#`<init>`().2
+
+⁄⁄ $scala/Array#2
+
+⁄%⁄ +scala/AnyRef#2"
+
+⁄:⁄ ;scala/Int#`*`(+3).2%
+
+⁄3⁄ 9scala/Array#length().2
+
+⁄-⁄ 2local192#
+
+€€ scala/Array.copy().2
+
+€€ scala/Array.2
+
+€€ local192
+
+€!€ )local222%
+
+€4€ :scala/Array#length().2
+
+€.€ 3local192
+
+‹‹ local192
+
+‹‹ local222F
+
+ﬂﬂ 6dotty1/collections/immutable/Iter2.Iterator#hasNext().2T
+
+ﬂﬂ Ddotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it)2
+
+‡
+‡ local202"
+
+‡‡ scala/Int#`+`(+4).2
+
+·
+· local212%
+
+‚‚ scala/Array#update().2
+
+‚
+‚ local192"
+
+‚‚ scala/Int#`-`(+3).2
+
+‚‚ local202I
+
+‚‚  9dotty1/collections/immutable/Iter2.ArrayIterator.widen().2C
+
+‚$‚ (3dotty1/collections/immutable/Iter2.Iterator#next().2T
+
+‚!‚ #Ddotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().(it)2I
+
+‰‰ 9dotty1/collections/immutable/Iter2.ArrayIterator.apply().2A
+
+‰‰ 1dotty1/collections/immutable/Iter2.ArrayIterator.2
+
+‰‰ local192
+
+‰‰  local202K
+
+ÁÁ ;dotty1/collections/immutable/Iter2.ArrayIterator.flatten().2N
+
+ÁÁ >dotty1/collections/immutable/Iter2.ArrayIterator.flatten().[A]2P
+
+ÁÁ @dotty1/collections/immutable/Iter2.ArrayIterator.flatten().(its)2A
+
+ÁÁ %1dotty1/collections/immutable/Iter2.ArrayIterator#2<
+
+Á&Á .,dotty1/collections/immutable/Iter2.Iterator#2N
+
+Á/Á 0>dotty1/collections/immutable/Iter2.ArrayIterator.flatten().[A]2A
+
+Á5Á B1dotty1/collections/immutable/Iter2.ArrayIterator#2N
+
+ÁCÁ D>dotty1/collections/immutable/Iter2.ArrayIterator.flatten().[A]2
+
+Ë
+Ë local232G
+
+ËË 7dotty1/collections/immutable/Iter2.ArrayIterator#map().2P
+
+ËË @dotty1/collections/immutable/Iter2.ArrayIterator.flatten().(its)2P
+
+ËË )@dotty1/collections/immutable/Iter2.ArrayIterator.fromIterator().2
+
+ËË local242
+
+È
+È local252K
+
+ÍÍ ;dotty1/collections/immutable/Iter2.ArrayIterator#foreach().2
+
+ÍÍ local232
+
+ÍÍ local252"
+
+ÍÍ scala/Int#`+`(+4).2E
+
+Í%Í (5dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+Î
+Î local262'
+
+Î&Î &scala/Array#`<init>`().2
+
+ÎÎ scala/Array#2
+
+ÎÎ %scala/AnyRef#2
+
+Î'Î /local252
+
+Ï
+Ï local272K
+
+ÌÌ ;dotty1/collections/immutable/Iter2.ArrayIterator#foreach().2
+
+ÌÌ local232
+
+ÌÌ local282#
+
+ÓÓ scala/Array.copy().2
+
+ÓÓ scala/Array.2G
+
+ÓÓ 7dotty1/collections/immutable/Iter2.ArrayIterator#elems.2
+
+ÓÓ local282
+
+Ó Ó (local262
+
+Ó*Ó +local272E
+
+Ó0Ó 35dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+Ó-Ó /local282
+
+ÔÔ 	local272"
+
+Ô	Ô 	scala/Int#`+`(+4).2E
+
+ÔÔ 5dotty1/collections/immutable/Iter2.ArrayIterator#len.2
+
+ÔÔ local282L
+
+ÒÒ <dotty1/collections/immutable/Iter2.ArrayIterator#`<init>`().2
+
+ÒÒ  local262
+
+Ò"Ò *local25PZ 546C953E3CE1FD71855BAB2D93CD7F70

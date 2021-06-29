@@ -1,0 +1,95 @@
+
+€"tests/pos/implicit-shadowing.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*#
+_empty_/Test.outer().*outer€*$
+_empty_/Test.outer().(c)  *c€*
+local0*f€*
+local1*c€*
+local2*g€*
+local3*c€*
+_empty_/Test.C1#*C1€*-
+_empty_/Test.C1#`<init>`(). €@*<init>€*
+_empty_/Test.C1#[X]	*X€*
+_empty_/Test.C2#*C2€*-
+_empty_/Test.C2#`<init>`(). €@*<init>€*
+_empty_/Test.C2#[X]	*X€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€*
+local4*g€*
+local5	*U€*
+_empty_/Test.h().*h€*
+_empty_/Test.h().[T]	*T€*
+local6*g€*
+local7	*U€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2#
+ _empty_/Test.outer().2&
+ _empty_/Test.outer().(c)2
+ _empty_/Test.C#2
+ 	local02
+
+ local12
+ _empty_/Test.C#2(
+ scala/Predef.implicitly().2
+ _empty_/Test.C#2&
+ _empty_/Test.outer().(c)2
+ 	local22
+
+ local32
+ 
+scala/Int#2(
+ scala/Predef.implicitly().2
+  _empty_/Test.C#2&
+! !_empty_/Test.outer().(c)2
+		 local02(
+		 _empty_/Test.C#`<init>`().2
+	
+	 _empty_/Test.C#2
+ 
+_empty_/Test.C1#2)
+
+ 
+_empty_/Test.C1#`<init>`().2!
+ _empty_/Test.C1#[X]2
+ 
+_empty_/Test.C2#2)
+
+ 
+_empty_/Test.C2#`<init>`().2!
+ _empty_/Test.C2#[X]2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2
+ _empty_/Test.C1#2"
+ _empty_/Test.f().[T]2
+ 	local42
+
+ local52
+ _empty_/Test.C2#2
+ local52(
+ scala/Predef.implicitly().2
+ _empty_/Test.C1#2"
+ _empty_/Test.f().[T]2(
+ scala/Predef.implicitly().2
+ _empty_/Test.C2#2
+ local52
+ _empty_/Test.h().2"
+ 	_empty_/Test.h().[T]2
+ _empty_/Test.C1#2"
+ _empty_/Test.h().[T]2
+ scala/Unit#2
+ 	local62
+
+ local72
+ _empty_/Test.C2#2
+ local72
+ scala/Unit#2(
+ scala/Predef.implicitly().2
+ _empty_/Test.C1#2"
+ _empty_/Test.h().[T]2(
+ scala/Predef.implicitly().2
+ _empty_/Test.C2#2
+ local7PZ 3E5E6ED87A9D0EEC6861175BE879B795

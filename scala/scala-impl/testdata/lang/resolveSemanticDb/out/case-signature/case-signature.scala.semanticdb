@@ -1,0 +1,66 @@
+
+êtests/pos/case-signature.scala*'
+_empty_/Benchmark# Ä*	BenchmarkÄ*/
+_empty_/Benchmark#`<init>`(). Ä@*<init>Ä*7
+%_empty_/Benchmark#`<init>`().(params) Ä*paramsÄ*=
+(_empty_/Benchmark#`<init>`().(sqlInsert) Ä*	sqlInsertÄ*
+local0 *applyÄ*
+local1*benchIdÄ*
+local2*paramsÄ*
+local3*sessionÄ*1
+"_empty_/Benchmark#`<init>`().(fun) Ä*funÄ*
+_empty_/Benchmark#[A]	*AÄ*+
+_empty_/Benchmark#params. Ä*paramsÄ*1
+_empty_/Benchmark#sqlInsert. Ä*	sqlInsertÄ*%
+_empty_/Benchmark#fun. Ä*funÄ*&
+_empty_/Benchmark#copy().*copyÄ*&
+_empty_/Benchmark#copy().[A]	*AÄ*0
+!_empty_/Benchmark#copy().(params)*paramsÄ*6
+$_empty_/Benchmark#copy().(sqlInsert)*	sqlInsertÄ**
+_empty_/Benchmark#copy().(fun)*funÄ*:
+#_empty_/Benchmark#copy$default$1().*copy$default$1Ä*0
+&_empty_/Benchmark#copy$default$1().[A]	*AÄ*:
+#_empty_/Benchmark#copy$default$2().*copy$default$2Ä*0
+&_empty_/Benchmark#copy$default$2().[A]	*AÄ*:
+#_empty_/Benchmark#copy$default$3().*copy$default$3Ä*0
+&_empty_/Benchmark#copy$default$3().[A]	*AÄ*"
+_empty_/Benchmark#_1().*_1Ä*"
+_empty_/Benchmark#_2().*_2Ä*"
+_empty_/Benchmark#_3().*_3Ä*&
+_empty_/Benchmark.
+ *	BenchmarkÄ*(
+_empty_/Benchmark.apply().*applyÄ*'
+_empty_/Benchmark.apply().[A]	*AÄ*1
+"_empty_/Benchmark.apply().(params)*paramsÄ*7
+%_empty_/Benchmark.apply().(sqlInsert)*	sqlInsertÄ*+
+_empty_/Benchmark.apply().(fun)*funÄ*,
+_empty_/Benchmark.unapply().*unapplyÄ*)
+_empty_/Benchmark.unapply().[A]	*AÄ*-
+!_empty_/Benchmark.unapply().(x$1)*x$1Ä*.
+_empty_/Benchmark.toString().*toStringÄ2 
+ _empty_/Benchmark#2+
+ _empty_/Benchmark#`<init>`().2!
+  $scala/package.List#2#
+% &_empty_/Benchmark#[A]2
+ scala/Long#2#
+% &_empty_/Benchmark#[A]2
+1 4
+scala/Int#2
+6 ;local02
+ local12
+ #local22
+( /local32
+9 =scala/Unit#2!
+ scala/package.List#2#
+ _empty_/Benchmark#[A]2#
+ _empty_/Benchmark#[A]2'
+ _empty_/Benchmark#params.2*
+ _empty_/Benchmark#sqlInsert.2$
+ _empty_/Benchmark#fun.2#
+_empty_/Benchmark#copy().2%
+   _empty_/Benchmark#_1().2%
+ _empty_/Benchmark#_2().2%
+ _empty_/Benchmark#_3().2 
+ _empty_/Benchmark.2$
+_empty_/Benchmark.apply().2&
+_empty_/Benchmark.unapply().PZ 80D640A2671C493297B78E7A148A393D

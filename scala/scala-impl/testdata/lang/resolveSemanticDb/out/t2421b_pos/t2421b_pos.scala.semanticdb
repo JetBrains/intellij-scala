@@ -1,0 +1,52 @@
+
+¬tests/pos/t2421b_pos.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.F#*F€*,
+_empty_/Test.F#`<init>`(). €@*<init>€*
+_empty_/Test.F#[X]	*X€*
+_empty_/Test.f().*f€*"
+_empty_/Test.f().(aa)  *aa€*
+_empty_/Test.a().  *a€*
+_empty_/Test.b().  *b€*
+_empty_/Test.b().[X]	*X€2
+ _empty_/Test.2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ 	_empty_/Test.F#2(
+	 	_empty_/Test.F#`<init>`().2 
+
+ _empty_/Test.F#[X]2
+ _empty_/Test.f().2#
+ _empty_/Test.f().(aa)2
+ _empty_/Test.F#2
+ _empty_/Test.A#2'
+ $scala/Predef.println(+1).2#
+% '_empty_/Test.f().(aa)2
+ _empty_/Test.a().2
+ _empty_/Test.F#2
+ _empty_/Test.A#2(
+" "_empty_/Test.F#`<init>`().2
+ _empty_/Test.F#2
+  !_empty_/Test.A#2
+		 _empty_/Test.b().2"
+		 _empty_/Test.b().[X]2
+		 _empty_/Test.B#2
+		  _empty_/Test.F#2
+		 _empty_/Test.2"
+	!	 "_empty_/Test.b().[X]2(
+	.	 ._empty_/Test.F#`<init>`().2
+	*	 +_empty_/Test.F#2"
+	,	 -_empty_/Test.b().[X]2
+ _empty_/Test.f().2
+ _empty_/Test.a().PZ 49F091B194BE54D9DA2C8F759E031769

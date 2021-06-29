@@ -1,0 +1,53 @@
+
+àtests/pos/i11977.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.add0().*add0€*!
+_empty_/Test.add0().(a)*a€*!
+_empty_/Test.add0().(b)*b€*
+local0 €*x€*
+_empty_/Test.add().*add€* 
+_empty_/Test.add().(a)*a€* 
+_empty_/Test.add().(b)*b€2
+ _empty_/Test.2"
+ 
+_empty_/Test.add0().2%
+ _empty_/Test.add0().(a)2
+ 
+scala/Int#2"
+ scala/Predef.String#2%
+ _empty_/Test.add0().(b)2
+# &
+scala/Int#2"
+( .scala/Predef.String#2
+2 5
+scala/Int#2
+ 	local02 
+ scala/Int#`+`(+4).2
+ local02*
+	 	scala/NonEmptyTuple#apply().2%
+ 	_empty_/Test.add0().(b)2!
+ 	_empty_/Test.add().2$
+
+ _empty_/Test.add().(a)2
+ 
+scala/Int#2"
+ scala/Predef.String#2$
+ _empty_/Test.add().(b)2
+" %
+scala/Int#2"
+' -scala/Predef.String#2
+3 6
+scala/Int#2"
+8 >scala/Predef.String#2#
+C Cscala/Tuple2.apply().2 
+H Iscala/Int#`+`(+4).2*
+D Dscala/NonEmptyTuple#apply().2$
+C D_empty_/Test.add().(a)2*
+K Kscala/NonEmptyTuple#apply().2$
+J K_empty_/Test.add().(b)2%
+U Vjava/lang/String#`+`().2*
+Q Qscala/NonEmptyTuple#apply().2$
+P Q_empty_/Test.add().(a)2*
+X Xscala/NonEmptyTuple#apply().2$
+W X_empty_/Test.add().(b)PZ 28CE24127592474A030C0539D8EB1BAF

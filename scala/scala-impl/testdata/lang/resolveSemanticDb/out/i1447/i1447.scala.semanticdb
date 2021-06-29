@@ -1,0 +1,28 @@
+
+çtests/pos/i1447.scala*
+
+_empty_/X.
+ ˆ*X€*
+_empty_/Test.
+ *Test€*$
+_empty_/Test.Alias. €*Alias€*
+_empty_/Test.x. €*x€*!
+_empty_/Test.Alias#*Alias€*
+_empty_/Test.a. €*a€2
+ 
+_empty_/X.2
+ _empty_/Test.2!
+ _empty_/Test.Alias.2
+ 
+_empty_/X.2
+ _empty_/Test.x.2
+	 
+
+_empty_/X.2!
+ _empty_/Test.Alias.2!
+ _empty_/Test.Alias#2
+ 
+_empty_/X.2
+ _empty_/Test.a.2!
+	 _empty_/Test.Alias#2!
+ _empty_/Test.Alias.PZ 034FD57D87BDE453752C204701B1CBD5

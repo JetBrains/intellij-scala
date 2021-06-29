@@ -1,0 +1,125 @@
+
+ª!tests/pos/i11725.scala*
+_empty_/Expr# *Expr€**
+_empty_/Expr#`<init>`(). €@*<init>€*
+_empty_/Expr#[A]	 €*A€*
+_empty_/Lit# €*Lit€*)
+_empty_/Lit#`<init>`(). €@*<init>€*/
+_empty_/Lit#`<init>`().(value) €*value€*
+_empty_/Lit#[A]	*A€*#
+_empty_/Lit#value. €*value€* 
+_empty_/Lit#copy().*copy€* 
+_empty_/Lit#copy().[A]	*A€*(
+_empty_/Lit#copy().(value)*value€*4
+_empty_/Lit#copy$default$1().*copy$default$1€**
+ _empty_/Lit#copy$default$1().[A]	*A€*
+_empty_/Lit#_1().*_1€*
+_empty_/Lit.
+ *Lit€*"
+_empty_/Lit.apply().*apply€*!
+_empty_/Lit.apply().[A]	*A€*)
+_empty_/Lit.apply().(value)*value€*&
+_empty_/Lit.unapply().*unapply€*#
+_empty_/Lit.unapply().[A]	*A€*'
+_empty_/Lit.unapply().(x$1)*x$1€*(
+_empty_/Lit.toString().*toString€*$
+_empty_/ExprTuple#*	ExprTuple€*/
+_empty_/ExprTuple#`<init>`(). €@*<init>€*"
+_empty_/ExprTuple#[A]	 €*A€*"
+_empty_/ExprTuple#_1().*_1€*(
+_empty_/ExprTuple#_1().(ev)  *ev€*"
+_empty_/ExprTuple#_2().*_2€*(
+_empty_/ExprTuple#_2().(ev)  *ev€*&
+_empty_/ExprTuple.
+ *	ExprTuple€*$
+_empty_/ExprTuple.Has2#*Has2€*4
+"_empty_/ExprTuple.Has2#`<init>`(). €@*<init>€*'
+_empty_/ExprTuple.Has2#[A]	 €*A€*%
+_empty_/ExprTuple.Has2#_1#*_1€*%
+_empty_/ExprTuple.Has2#_2#*_2€*&
+_empty_/ExprTuple.Has2.
+ *Has2€*'
+_empty_/ExprTuple.Has2.Aux#*Aux€*+
+_empty_/ExprTuple.Has2.Aux#[A]	 €*A€**
+_empty_/ExprTuple.Has2.Aux#[A1]	*A1€**
+_empty_/ExprTuple.Has2.Aux#[A2]	*A2€*
+local0*_1€*
+local1*_2€*,
+_empty_/ExprTuple.tuple2().  *tuple2€*(
+_empty_/ExprTuple.tuple2().[A]	*A€*(
+_empty_/ExprTuple.tuple2().[B]	*B€2
+ _empty_/Expr#2"
+ _empty_/Expr#`<init>`().2
+ '_empty_/ExprTuple#2
+( )_empty_/Expr#[A]2
+ _empty_/Expr#[A]2
+ _empty_/Lit#2%
+ _empty_/Lit#`<init>`().2
+ _empty_/Lit#[A]2
+$ (_empty_/Expr#2
+) *_empty_/Lit#[A]2
+ _empty_/Lit#[A]2 
+ _empty_/Lit#value.2
+_empty_/Lit#copy().2
+ _empty_/Lit#_1().2
+ _empty_/Lit.2
+_empty_/Lit.apply().2 
+_empty_/Lit.unapply().2 
+ _empty_/ExprTuple#2+
+ _empty_/ExprTuple#`<init>`().2#
+ _empty_/ExprTuple#[A]2%
+ _empty_/ExprTuple#_1().2)
+ _empty_/ExprTuple#_1().(ev)2%
+  $_empty_/ExprTuple.Has2#2 
+ _empty_/ExprTuple.2#
+% &_empty_/ExprTuple#[A]2
+* ._empty_/Expr#2(
+2 4_empty_/ExprTuple.Has2#_1#2)
+/ 1_empty_/ExprTuple#_1().(ev)2#
+8 ;scala/Predef.`???`().2%
+ _empty_/ExprTuple#_2().2)
+ _empty_/ExprTuple#_2().(ev)2%
+  $_empty_/ExprTuple.Has2#2 
+ _empty_/ExprTuple.2#
+% &_empty_/ExprTuple#[A]2
+* ._empty_/Expr#2(
+2 4_empty_/ExprTuple.Has2#_2#2)
+/ 1_empty_/ExprTuple#_2().(ev)2#
+8 ;scala/Predef.`???`().2 
+		 _empty_/ExprTuple.2%
+
+
+ _empty_/ExprTuple.Has2#20
+
+
+ "_empty_/ExprTuple.Has2#`<init>`().2(
+
+
+ _empty_/ExprTuple.Has2#[A]2(
+
+
+ _empty_/ExprTuple.Has2#_1#2(
+
+!
+ #_empty_/ExprTuple.Has2#_2#2%
+	 _empty_/ExprTuple.Has2.2)
+	 _empty_/ExprTuple.Has2.Aux#2,
+ _empty_/ExprTuple.Has2.Aux#[A]2-
+ _empty_/ExprTuple.Has2.Aux#[A1]2-
+ _empty_/ExprTuple.Has2.Aux#[A2]2%
+ _empty_/ExprTuple.Has2#2,
+  !_empty_/ExprTuple.Has2.Aux#[A]2
+* ,local02-
+/ 1_empty_/ExprTuple.Has2.Aux#[A1]2
+8 :local12-
+= ?_empty_/ExprTuple.Has2.Aux#[A2]2)
+ _empty_/ExprTuple.tuple2().2,
+ _empty_/ExprTuple.tuple2().[A]2,
+ _empty_/ExprTuple.tuple2().[B]2)
+" %_empty_/ExprTuple.Has2.Aux#2%
+ !_empty_/ExprTuple.Has2.2,
+' (_empty_/ExprTuple.tuple2().[A]2,
+* +_empty_/ExprTuple.tuple2().[B]2,
+. /_empty_/ExprTuple.tuple2().[A]2,
+1 2_empty_/ExprTuple.tuple2().[B]2#
+6 9scala/Predef.`???`().PZ 8D6938C57D068DC50AAC1B104DFF5D17

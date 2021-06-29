@@ -1,0 +1,39 @@
+
+ötests/pos/lexical.scala* 
+_empty_/RichInt#*RichInt€*-
+_empty_/RichInt#`<init>`(). €@*<init>€*(
+_empty_/RichInt#`<init>`().(n)*n€*
+_empty_/RichInt#n. €*n€*$
+_empty_/RichInt#days().*days€*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.RichInt().  *RichInt€*$
+_empty_/Test.RichInt().(n)*n€2
+ _empty_/RichInt#2)
+ _empty_/RichInt#`<init>`().2
+ 
+scala/Int#2 
+ _empty_/RichInt#n.2%
+ 
+_empty_/RichInt#days().2 
+ scala/Int#`*`(+3).2 
+ scala/Int#`*`(+3).2 
+ scala/Int#`*`(+3).2 
+ scala/Int#`*`(+3).2 
+ _empty_/RichInt#n.2
+ _empty_/Test.2
+ 
+scala/App#2%
+ _empty_/Test.RichInt().2(
+ _empty_/Test.RichInt().(n)2
+ 
+scala/Int#2
+  '_empty_/RichInt#2)
+5 5_empty_/RichInt#`<init>`().2
+. 5_empty_/RichInt#2(
+6 7_empty_/Test.RichInt().(n)2'
+ 	scala/Predef.println(+1).2%
+ _empty_/RichInt#days().2%
+
+ 
+_empty_/Test.RichInt().PZ 6B2A62BB7A7C155AB94DDE45FF6EFF3D

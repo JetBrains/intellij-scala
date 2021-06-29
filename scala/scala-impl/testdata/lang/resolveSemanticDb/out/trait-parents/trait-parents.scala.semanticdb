@@ -1,0 +1,79 @@
+
+œtests/pos/trait-parents.scala*
+_empty_/Bip#*Bip€*)
+_empty_/Bip#`<init>`(). €@*<init>€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*
+_empty_/Quux#*Quux€**
+_empty_/Quux#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(x)*x€*
+_empty_/Test.g1().*g1€*
+_empty_/Test.g1().(x)*x€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 *$anon€*
+local1 *$anon€*
+local2 *$anon€*
+local3 *$anon€2
+ 	_empty_/Bip#2!
+ _empty_/Bip#`<init>`().2
+ 
+scala/Any#2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ 
+scala/Any#2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2
+ scala/AnyRef#2
+ 
+_empty_/Quux#2"
+_empty_/Quux#`<init>`().2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(x)2
+ _empty_/Bip#2 
+ _empty_/Test.g1().2#
+	 
+_empty_/Test.g1().(x)2
+ _empty_/Foo#2
+ _empty_/Bip#2
+ _empty_/Test.f().2#
+ _empty_/Test.g1().(x)2"
+		 
+_empty_/Test.main().2(
+		 _empty_/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	!	 %scala/Unit#2
+
+
+ _empty_/Test.f().2
+
+
+ local02
+
+
+
+ _empty_/Bip#2
+
+
+ _empty_/Foo#2
+ _empty_/Test.f().2
+ local12
+
+ _empty_/Foo#2
+ _empty_/Bip#2 
+ _empty_/Test.g1().2
+ local22
+ _empty_/Bip#2
+ _empty_/Foo#2 
+ _empty_/Test.g1().2
+ local32
+ _empty_/Foo#2
+ _empty_/Bip#PZ 156443B59AF3D30C34E42ADAEF48F9A8

@@ -1,0 +1,99 @@
+
+¾+tests/pos/scala2traits/dotty-subclass.scala*
+_empty_/Sub#*Sub€*)
+_empty_/Sub#`<init>`(). €@*<init>€*
+_empty_/DT#*DT€*(
+_empty_/DT#`<init>`(). €@*<init>€*
+_empty_/DT#dx. À*dx€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#a. €*a€*
+_empty_/A#b(). €*b€*!
+_empty_/A#`b_=`(). €*b_=€*#
+_empty_/A#`b_=`().(x$1)*x$1€*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local0 €*sub€*
+local1 €*a€2
+ 	_empty_/Sub#2%
+ _empty_/Sub#`<init>`().2
+ 
+_empty_/T#2
+ _empty_/DT#2$
+ _empty_/DT#`<init>`().2
+ _empty_/DT#dx.2
+		 
+_empty_/A#2#
+		 _empty_/A#`<init>`().2
+		 _empty_/S2T#2!
+		 #_empty_/S2Tprivate#2
+	)	 +_empty_/DT#2
+
+
+ _empty_/A#a.2
+
+	
+ 
+scala/Int#2
+ _empty_/A#b().2 
+ 	_empty_/A#`b_=`().2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02%
+ _empty_/Sub#`<init>`().2
+ _empty_/Sub#2'
+ scala/Predef.println(+1).2
+ _empty_/T#d().2
+ local02'
+ scala/Predef.println(+1).2
+ _empty_/T#v.2
+ local02'
+ scala/Predef.println(+1).2
+ _empty_/T#O.2
+ local02'
+ scala/Predef.println(+1).2
+ _empty_/T#w.2
+ local02
+ 	local12#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2"
+ _empty_/S2T#`x_=`().2
+ local12 
+ scala/Int#`+`(+4).2
+ _empty_/S2T#x().2
+ _empty_/S2T#y.2
+ local12'
+ scala/Predef.println(+1).2
+ _empty_/S2T#x().2
+ local12'
+ scala/Predef.println(+1).2
+ _empty_/S2T#f().2
+ local12 
+ scala/Int#`+`(+4).2
+ _empty_/A#a.2
+ local12
+ _empty_/A#b().2
+ local12*
+ _empty_/S2Tprivate#`xx_=`().2
+ local12 
+ scala/Int#`+`(+4).2&
+ _empty_/S2Tprivate#xx().2&
+ _empty_/S2Tprivate#yy().2
+ local12'
+ scala/Predef.println(+1).2
+ _empty_/S2T#x().2
+ local12'
+ scala/Predef.println(+1).2&
+ _empty_/S2Tprivate#ff().2
+ local12&
+ _empty_/S2Tprivate#xx().2
+ local1PZ B0E783F24975198820D971E7BF981735

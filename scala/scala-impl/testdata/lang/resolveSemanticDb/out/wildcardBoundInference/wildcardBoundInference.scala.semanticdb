@@ -1,0 +1,143 @@
+
+«-&tests/pos/wildcardBoundInference.scala*
+_empty_/Exist#*Exist€*+
+_empty_/Exist#`<init>`(). €@*<init>€*
+_empty_/Exist#[T]	*T€* 
+_empty_/Exist#foo().*foo€*
+_empty_/ExistF#*ExistF€*,
+_empty_/ExistF#`<init>`(). €@*<init>€*
+_empty_/ExistF#[T]	*T€*!
+_empty_/ExistF#foo().*foo€*&
+_empty_/ExistIndir#*
+ExistIndir€*0
+_empty_/ExistIndir#`<init>`(). €@*<init>€* 
+_empty_/ExistIndir#[T]	*T€* 
+_empty_/ExistIndir#[U]	*U€*%
+_empty_/ExistIndir#foo().*foo€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*%
+_empty_/Test#MyExist#*MyExist€*2
+ _empty_/Test#MyExist#`<init>`(). €@*<init>€*'
+_empty_/Test#stringy().*stringy€*#
+_empty_/Test#indir().*indir€*
+_empty_/OP#*OP€*(
+_empty_/OP#`<init>`(). €@*<init>€*
+_empty_/OP#[T]	*T€*
+_empty_/Skin#*Skin€**
+_empty_/Skin#`<init>`(). €@*<init>€*
+_empty_/Skin#[C]	*C€*$
+_empty_/Skinnable#*	Skinnable€*/
+_empty_/Skinnable#`<init>`(). €@*<init>€*8
+!_empty_/Skinnable#skinProperty(). *skinProperty€*0
+_empty_/ObjectProperty.
+ *ObjectProperty€*O
+/_empty_/ObjectProperty.jfxObjectProperty2sfx().  *jfxObjectProperty2sfx€*<
+2_empty_/ObjectProperty.jfxObjectProperty2sfx().[T]	*T€*<
+2_empty_/ObjectProperty.jfxObjectProperty2sfx().(p)*p€*.
+_empty_/ObjectProperty#*ObjectProperty€*4
+"_empty_/ObjectProperty#`<init>`(). €@*<init>€*:
+)_empty_/ObjectProperty#`<init>`().(deleg) €*deleg€*$
+_empty_/ObjectProperty#[T]	*T€*.
+_empty_/ObjectProperty#deleg. €*deleg€*F
+#_empty_/TestWildcardBoundInference#*TestWildcardBoundInference€*@
+._empty_/TestWildcardBoundInference#`<init>`(). €@*<init>€*;
++_empty_/TestWildcardBoundInference#deleg(). *deleg€*7
+*_empty_/TestWildcardBoundInference#skin().*skin€*S
+8_empty_/TestWildcardBoundInference#skinCheckInference().*skinCheckInference€2
+ _empty_/Exist#2'
+ _empty_/Exist#`<init>`().2
+ _empty_/Exist#[T]2"
+		 	_empty_/Exist#foo().2
+		 _empty_/Exist#2
+ _empty_/ExistF#2(
+ _empty_/ExistF#`<init>`().2 
+ _empty_/ExistF#[T]2#
+ 	_empty_/ExistF#foo().2
+ _empty_/ExistF#2!
+ _empty_/ExistIndir#2,
+ _empty_/ExistIndir#`<init>`().2$
+ _empty_/ExistIndir#[T]2$
+ _empty_/ExistIndir#[U]2'
+ 	_empty_/ExistIndir#foo().2!
+ _empty_/ExistIndir#2
+"" 
+_empty_/Test#2&
+## _empty_/Test#`<init>`().2#
+## _empty_/Test#MyExist#2.
+##  _empty_/Test#MyExist#`<init>`().2(
+#'# '_empty_/ExistF#`<init>`().2
+## _empty_/ExistF#2#
+## &_empty_/Test#MyExist#2%
+%% _empty_/Test#stringy().2
+%% _empty_/Exist#2"
+%%  scala/Predef.String#2"
+%8% ;_empty_/Exist#foo().2'
+%6% 6_empty_/Exist#`<init>`().2
+%)% ._empty_/Exist#2"
+%/% 5scala/Predef.String#2#
+'' _empty_/Test#indir().2!
+'' _empty_/ExistIndir#2"
+'' #scala/Predef.String#2"
+'*' 0scala/Predef.String#2'
+'U' X_empty_/ExistIndir#foo().2,
+'S' S_empty_/ExistIndir#`<init>`().2!
+'9' C_empty_/ExistIndir#2"
+'D' Jscala/Predef.String#2"
+'L' Rscala/Predef.String#2
+22 _empty_/OP#2$
+22 _empty_/OP#`<init>`().2
+2	2 
+_empty_/OP#[T]2
+33 
+_empty_/Skin#2&
+3
+3 
+_empty_/Skin#`<init>`().2
+33 _empty_/Skin#[C]2 
+44 _empty_/Skinnable#2+
+55 _empty_/Skinnable#`<init>`().2/
+55 !_empty_/Skinnable#skinProperty().2
+55 _empty_/OP#2
+55 _empty_/Skin#2%
+77 _empty_/ObjectProperty.2=
+88 $/_empty_/ObjectProperty.jfxObjectProperty2sfx().2@
+8%8 &2_empty_/ObjectProperty.jfxObjectProperty2sfx().[T]2@
+8(8 )2_empty_/ObjectProperty.jfxObjectProperty2sfx().(p)2
+8+8 -_empty_/OP#2@
+8.8 /2_empty_/ObjectProperty.jfxObjectProperty2sfx().[T]2%
+838 A_empty_/ObjectProperty#2@
+8B8 C2_empty_/ObjectProperty.jfxObjectProperty2sfx().[T]20
+8\8 \"_empty_/ObjectProperty#`<init>`().2%
+8K8 Y_empty_/ObjectProperty#2@
+8Z8 [2_empty_/ObjectProperty.jfxObjectProperty2sfx().[T]2@
+8]8 ^2_empty_/ObjectProperty.jfxObjectProperty2sfx().(p)2%
+;; _empty_/ObjectProperty#20
+;; "_empty_/ObjectProperty#`<init>`().2
+;#; %_empty_/OP#2(
+;&; '_empty_/ObjectProperty#[T]2(
+;; _empty_/ObjectProperty#[T]2+
+;; !_empty_/ObjectProperty#deleg.21
+==  #_empty_/TestWildcardBoundInference#2<
+>> ._empty_/TestWildcardBoundInference#`<init>`().29
+>> +_empty_/TestWildcardBoundInference#deleg().2 
+>> _empty_/Skinnable#28
+?? 
+*_empty_/TestWildcardBoundInference#skin().2%
+?? _empty_/ObjectProperty#2
+?? _empty_/Skin#2=
+?R? g/_empty_/ObjectProperty.jfxObjectProperty2sfx().2%
+?C? Q_empty_/ObjectProperty.2/
+?n? z!_empty_/Skinnable#skinProperty().29
+?h? m+_empty_/TestWildcardBoundInference#deleg().28
+@@ *_empty_/TestWildcardBoundInference#skin().2%
+@@ _empty_/ObjectProperty#2
+@@ _empty_/Skin#2 
+@"@ +_empty_/Skinnable#2F
+BB 8_empty_/TestWildcardBoundInference#skinCheckInference().2/
+B!B -!_empty_/Skinnable#skinProperty().29
+BB  +_empty_/TestWildcardBoundInference#deleg().2=
+CC /_empty_/ObjectProperty.jfxObjectProperty2sfx().2F
+CC 8_empty_/TestWildcardBoundInference#skinCheckInference().2%
+CC $_empty_/ObjectProperty#2
+C%C )_empty_/Skin#2 
+C0C 9_empty_/Skinnable#PZ D98BE9B10E725E18FAEEFE16BA3F624E

@@ -1,0 +1,67 @@
+
+÷tests/pos/i3585.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.pair().  *pair€* 
+_empty_/Foo.pair().[T]	*T€* 
+_empty_/Foo.pair().[U]	*U€*(
+_empty_/Foo.pair().(fooT)  *fooT€*(
+_empty_/Foo.pair().(fooU)  *fooU€* 
+_empty_/Foo.int().  *int€*&
+_empty_/Foo.string().  *string€*
+_empty_/Test.
+ *Test€*#
+local0 *$_lazy_implicit_$3€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ 
+_empty_/Foo.2!
+ _empty_/Foo.pair().2$
+ _empty_/Foo.pair().[T]2$
+ _empty_/Foo.pair().[U]2'
+ 
+_empty_/Foo.pair().(fooT)2
+ _empty_/Foo#2$
+ _empty_/Foo.pair().[T]2$
+ _empty_/Foo.pair().[U]2'
+ 
+_empty_/Foo.pair().(fooU)2
+ _empty_/Foo#2$
+ _empty_/Foo.pair().[U]2$
+ _empty_/Foo.pair().[T]2
+ 
+_empty_/Foo#2$
+ _empty_/Foo.pair().[T]2$
+ _empty_/Foo.pair().[U]2#
+ scala/Predef.`???`().2 
+		 _empty_/Foo.int().2
+		 _empty_/Foo#2
+		 
+scala/Int#2#
+		 "scala/Predef.`???`().2#
+
+
+ _empty_/Foo.string().2
+
+
+ _empty_/Foo#2"
+
+
+ !scala/Predef.String#2#
+
+%
+ (scala/Predef.`???`().2
+ _empty_/Test.2
+ 
+scala/App#2(
+ scala/Predef.implicitly().2
+ _empty_/Foo#2
+ 
+scala/Int#2"
+ scala/Predef.String#2!
+   _empty_/Foo.pair().PZ 74F706BDCE6FF20011310EB5A2351685

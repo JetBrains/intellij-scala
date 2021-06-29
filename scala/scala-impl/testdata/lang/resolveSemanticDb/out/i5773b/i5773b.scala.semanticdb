@@ -1,0 +1,109 @@
+
+±tests/pos/i5773b.scala*$
+_empty_/Semigroup#*	Semigroup€*/
+_empty_/Semigroup#`<init>`(). €@*<init>€*
+_empty_/Semigroup#[T]	*T€*,
+_empty_/Semigroup#append(). *append€*,
+ _empty_/Semigroup#append().(lhs)*lhs€*,
+ _empty_/Semigroup#append().(rhs)*rhs€*,
+_empty_/Semigroup#appendS().*appendS€*-
+!_empty_/Semigroup#appendS().(lhs)*lhs€*-
+!_empty_/Semigroup#appendS().(rhs)*rhs€*&
+_empty_/Semigroup.
+ *	Semigroup€*6
+_empty_/Semigroup.stringAppend.
+ (*stringAppend€*7
+(_empty_/Semigroup.stringAppend.append().*append€*9
+-_empty_/Semigroup.stringAppend.append().(lhs)*lhs€*9
+-_empty_/Semigroup.stringAppend.append().(rhs)*rhs€*8
+!_empty_/Semigroup.sumSemigroup().  *sumSemigroup€*.
+$_empty_/Semigroup.sumSemigroup().[N]	*N€*0
+$_empty_/Semigroup.sumSemigroup().(N)  *N€*
+local0 *$anon€*
+local1*append€*
+local2*lhs€*
+local3*rhs€*
+local4*appendS€*
+local5*lhs€*
+local6*rhs€*
+_empty_/Main.
+ *Main€*
+_empty_/Main.f1().*f1€2
+ _empty_/Semigroup#2'
+ _empty_/Semigroup#`<init>`().2
+ _empty_/Semigroup#[T]2)
+ _empty_/Semigroup#append().2.
+  _empty_/Semigroup#append().(lhs)2#
+ _empty_/Semigroup#[T]2.
+  # _empty_/Semigroup#append().(rhs)2#
+% &_empty_/Semigroup#[T]2#
+) *_empty_/Semigroup#[T]2*
+ "_empty_/Semigroup#appendS().2/
+ !_empty_/Semigroup#appendS().(lhs)2
+ 
+scala/Int#2/
+# &!_empty_/Semigroup#appendS().(rhs)2#
+( )_empty_/Semigroup#[T]2#
+, -_empty_/Semigroup#[T]2#
+0 3scala/Predef.`???`().2 
+ _empty_/Semigroup.2-
+ _empty_/Semigroup.stringAppend.2 
+' 0_empty_/Semigroup#2"
+1 7scala/Predef.String#26
+) /(_empty_/Semigroup.stringAppend.append().2;
+ -_empty_/Semigroup.stringAppend.append().(lhs)2"
+ scala/Predef.String#2;
+0 3-_empty_/Semigroup.stringAppend.append().(rhs)2"
+5 ;scala/Predef.String#2"
+> Dscala/Predef.String#2%
+K Ljava/lang/String#`+`().2;
+G J-_empty_/Semigroup.stringAppend.append().(lhs)2;
+M P-_empty_/Semigroup.stringAppend.append().(rhs)2/
+
+
+ !_empty_/Semigroup.sumSemigroup().22
+
+
+ $_empty_/Semigroup.sumSemigroup().[N]22
+
+(
+ )$_empty_/Semigroup.sumSemigroup().(N)2$
+
++
+ 2scala/package.Numeric#22
+
+3
+ 4$_empty_/Semigroup.sumSemigroup().[N]2 
+
+8
+ A_empty_/Semigroup#22
+
+B
+ C$_empty_/Semigroup.sumSemigroup().[N]2
+
+G
+ Glocal02
+$ *local12
+ local222
+ $_empty_/Semigroup.sumSemigroup().[N]2
++ .local322
+0 1$_empty_/Semigroup.sumSemigroup().[N]22
+4 5$_empty_/Semigroup.sumSemigroup().[N]2(
+: >scala/math/Numeric#plus().22
+8 9$_empty_/Semigroup.sumSemigroup().(N)2
+? Blocal22
+D Glocal32
+& -local42
+ local52
+ 
+scala/Int#2
+. 1local622
+3 4$_empty_/Semigroup.sumSemigroup().[N]22
+7 8$_empty_/Semigroup.sumSemigroup().[N]2#
+; >scala/Predef.`???`().2
+ _empty_/Main.2/
+ !_empty_/Semigroup.sumSemigroup().2 
+	 _empty_/Semigroup.2 
+ _empty_/Main.f1().2'
+ scala/Predef.println(+1).2*
+ _empty_/Semigroup#appendS().PZ 23D442FA4597B4F9DD262EF63C7C0F4C

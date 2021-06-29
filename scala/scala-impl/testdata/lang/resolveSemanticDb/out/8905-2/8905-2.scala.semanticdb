@@ -1,0 +1,37 @@
+
+Štests/pos/8905-2.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#[T1]	*T1€*
+_empty_/Test#[T2]	*T2€*#
+_empty_/Test#test6().*test6€*"
+_empty_/Test#test6().[Y]	*Y€*"
+_empty_/Test#test6().[X]	*X€*"
+_empty_/Test#test6().(x)*x€2
+ 
+_empty_/Test#2"
+
+ 
+_empty_/Test#`<init>`().2
+ _empty_/Test#[T1]2
+ _empty_/Test#[T2]2#
+ _empty_/Test#test6().2&
+ _empty_/Test#test6().[Y]2
+ 
+scala/Int#2&
+ _empty_/Test#test6().[X]2
+ $scala/Function1#2!
++ 1scala/Tuple.Concat#2
+% *scala/Tuple.2
+2 4_empty_/Test#[T1]2
+6 8_empty_/Test#[T2]2
+; ?scala/Unit#2&
+B C_empty_/Test#test6().(x)2&
+E F_empty_/Test#test6().[X]2'
+L Xscala/Any#isInstanceOf().2&
+J K_empty_/Test#test6().(x)2
+Y bscala/Function1#2
+c f
+scala/Int#2
+h k
+scala/Any#PZ A763F4D775086E20E92BA54B72C5A03F

@@ -1,0 +1,33 @@
+
+’tests/pos/i10897.scala*
+_empty_/Foo.
+ *Foo€*)
+_empty_/i10897$package. *_empty_€*&
+_empty_/i10897$package.x. €*x€*&
+_empty_/i10897$package.y. €*y€2
+ scala/Tuple.2
+ 
+_empty_/Foo.2!
+_empty_/i10897$package.2'
+ _empty_/i10897$package.x.2$
+ scala/Predef.summon().2
+$ 'scala/`=:=`#2 
+ scala/Tuple.Union#2
+ _empty_/Foo.2
+2 3
+scala/`|`#2
+) ,_empty_/Foo.2!
+7 7scala/`<:<`.refl().2'
+ _empty_/i10897$package.y.2$
+ scala/Predef.summon().2
+, /scala/`=:=`#2 
+ scala/Tuple.Union#2
+ _empty_/Foo.2"
+# )scala/Predef.String#2
+> ?
+scala/`|`#2
+: ;
+scala/`|`#2
+1 4_empty_/Foo.2"
+@ Fscala/Predef.String#2!
+H Hscala/`<:<`.refl().PZ DC6E0C7AEC57545AF1B500E73D2DFFAA

@@ -1,0 +1,15 @@
+
+ñtests/pos/tailcall/return.scala* 
+_empty_/Return.
+ *Return€*!
+_empty_/Return.foo().*foo€*"
+_empty_/Return.foo().(x)*x€2
+ _empty_/Return.2#
+ 	_empty_/Return.foo().2&
+
+ _empty_/Return.foo().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+! !_empty_/Return.foo().PZ BB60481D5571ECF9534EF6BE398E1F88

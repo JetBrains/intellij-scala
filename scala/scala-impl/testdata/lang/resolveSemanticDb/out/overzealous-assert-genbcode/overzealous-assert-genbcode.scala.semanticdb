@@ -1,0 +1,20 @@
+
+Ó+tests/pos/overzealous-assert-genbcode.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*a€2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2"
+ scala/Array#apply().2(
+ _empty_/Test.main().(args)2
+ local02"
+ scala/Predef.String#2
+  "scala/Any#`==`().2
+ local0PZ 9968EE68EFFCBDF014FEE7045F55EA06

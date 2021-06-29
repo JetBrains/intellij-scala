@@ -1,0 +1,49 @@
+
+‚tests/pos/i8067.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Tc#*Tc€*-
+_empty_/Test.Tc#`<init>`(). €@*<init>€*
+_empty_/Test.Tc#[F]	*F€*'
+_empty_/Test.OfString#*OfString€*#
+_empty_/Test.OfString#[G]	*G€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[A]	*A€*"
+_empty_/Test.foo().(fs)*fs€*"
+_empty_/Test.foo().(f)  *f€*
+_empty_/Test.bar().*bar€* 
+_empty_/Test.bar().[B]	*B€*"
+_empty_/Test.bar().(fs)*fs€*
+local0 *$anon€2
+ _empty_/Test.2
+ _empty_/Test.Tc#2)
+ _empty_/Test.Tc#`<init>`().2!
+	 
+_empty_/Test.Tc#[F]2$
+ _empty_/Test.OfString#2'
+ _empty_/Test.OfString#[G]2'
+ _empty_/Test.OfString#[G]2"
+ scala/Predef.String#2!
+ _empty_/Test.foo().2$
+ 	_empty_/Test.foo().[A]2%
+ _empty_/Test.foo().(fs)2$
+ _empty_/Test.foo().[A]2"
+ scala/Predef.String#2$
+& '_empty_/Test.foo().(f)2
+) +_empty_/Test.Tc#2$
+, -_empty_/Test.foo().[A]2$
+1 2_empty_/Test.foo().[A]2"
+3 9scala/Predef.String#2#
+= @scala/Predef.`???`().2!
+ _empty_/Test.bar().2$
+ 	_empty_/Test.bar().[B]2%
+ _empty_/Test.bar().(fs)2$
+ _empty_/Test.OfString#2$
+ _empty_/Test.bar().[B]2$
+  !_empty_/Test.bar().[B]2"
+" (scala/Predef.String#2!
+, /_empty_/Test.foo().2%
+0 2_empty_/Test.bar().(fs)2
+4 4local02
+8 :_empty_/Test.Tc#2$
+; <_empty_/Test.bar().[B]PZ 6B17C656C3E7A478296BD6F259B5888E

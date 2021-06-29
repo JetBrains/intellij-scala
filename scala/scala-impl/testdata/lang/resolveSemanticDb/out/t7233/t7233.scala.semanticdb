@@ -1,0 +1,65 @@
+
+°tests/pos/t7233.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.bar().*bar€*
+_empty_/Foo.bar().(i)*i€*
+_empty_/Foo.ol().*ol€*
+_empty_/Foo.ol().(i)*i€*
+_empty_/Foo.ol(+1).*ol€* 
+_empty_/Foo.ol(+1).(i)*i€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f1. €*f1€*
+local0*i€*(
+_empty_/Test.f1Typed. €*f1Typed€*
+_empty_/Test.f2. €*f2€*
+local1*i€2
+ 
+_empty_/Foo.2 
+ 	_empty_/Foo.bar().2#
+
+ _empty_/Foo.bar().(i)2
+ 
+scala/Int#2#
+ _empty_/Foo.bar().(i)2
+ _empty_/Foo.ol().2"
+	 
+_empty_/Foo.ol().(i)2
+ 
+scala/Int#2"
+ _empty_/Foo.ol().(i)2!
+ _empty_/Foo.ol(+1).2$
+	 
+_empty_/Foo.ol(+1).(i)2"
+ scala/Predef.String#2$
+ _empty_/Foo.ol(+1).(i)2
+ _empty_/Test.2 
+ _empty_/Foo.bar().2#
+ $scala/Any#toString().2!
+- /_empty_/Foo.ol(+1).2
+- /_empty_/Foo.ol().2
+	 _empty_/Foo.2
+		 _empty_/Test.f1.2 
+		 _empty_/Foo.bar().2
+		 local02#
+
+
+ _empty_/Test.f1Typed.2
+
+
+ 
+scala/Int#2
+
+
+ 
+scala/Int#2
+
+
+  _empty_/Test.f1.2
+ _empty_/Test.f2.2"
+
+ scala/Predef.String#2"
+ scala/Predef.String#2!
+ &_empty_/Foo.ol(+1).2
+ local1PZ C4952EC2160EA91D5505E04A36201BB6

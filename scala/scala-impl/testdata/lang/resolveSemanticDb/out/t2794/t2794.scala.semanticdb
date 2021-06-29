@@ -1,0 +1,41 @@
+
+º
+tests/pos/t2794.scala*
+_empty_/Key#*Key€*)
+_empty_/Key#`<init>`(). €@*<init>€*
+_empty_/Key#[T]	*T€*
+_empty_/Entry#*Entry€*+
+_empty_/Entry#`<init>`(). €@*<init>€*)
+_empty_/Entry#`<init>`().(k) €*k€*)
+_empty_/Entry#`<init>`().(v) €*v€*
+_empty_/Entry#[T]	*T€*
+_empty_/Entry#k. €*k€*
+_empty_/Entry#v. €*v€*
+_empty_/Entry.
+ *Entry€*0
+_empty_/Entry.makeDefault().*makeDefault€*)
+_empty_/Entry.makeDefault().[T]	*T€2
+ 	_empty_/Key#2!
+	 	_empty_/Key#`<init>`().2
+
+ _empty_/Key#[T]2
+ _empty_/Entry#2'
+ _empty_/Entry#`<init>`().2
+ _empty_/Key#2
+ _empty_/Entry#[T]2
+% &_empty_/Entry#[T]2
+ _empty_/Entry#[T]2
+ _empty_/Entry#k.2
+" #_empty_/Entry#v.2
+ _empty_/Entry.2*
+ _empty_/Entry.makeDefault().2-
+ _empty_/Entry.makeDefault().[T]2
+ scala/Null#2
+! 'scala/AnyRef#2'
+7 7_empty_/Entry#`<init>`().2
+/ 4_empty_/Entry#2-
+5 6_empty_/Entry.makeDefault().[T]2%
+B B_empty_/Key#`<init>`().2
+< ?_empty_/Key#2-
+@ A_empty_/Entry.makeDefault().[T]2-
+J K_empty_/Entry.makeDefault().[T]PZ DE9D17C7352ACB9A283E39D29881FCC2

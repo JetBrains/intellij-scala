@@ -1,0 +1,44 @@
+
+¿	tests/pos/t3960.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#C#*C€*)
+_empty_/A#C#`<init>`(). €@*<init>€*
+_empty_/A#C#[x]	*x€*
+_empty_/A#cs. €*cs€*
+_empty_/A#c().*c€*
+_empty_/A#eval. €*eval€*
+local0 €*key$1€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#C#2%
+	 	_empty_/A#C#`<init>`().2
+
+ _empty_/A#C#[x]2
+ _empty_/A#cs.2<
+: :.scala/collection/mutable/HashMap#`<init>`(+1).2/
+( /!scala/collection/mutable/HashMap#2'
+  'scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+0 1_empty_/A#C#2
+6 9
+scala/Int#2
+ _empty_/A#c().2
+	 
+_empty_/A#C#2(
+ scala/sys/package.error().2
+ 
+scala/sys/2
+ 
+_empty_/A#eval.2
+ _empty_/A#C#2
+ _empty_/A#c().2
+ local028
+ *scala/collection/mutable/HashMap#update().2
+ _empty_/A#cs.2
+ local02 
+ scala/Int#`+`(+4).27
+ )scala/collection/mutable/HashMap#apply().PZ 89227BE6FA48451246B53D9F7CF01CB6

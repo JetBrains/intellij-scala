@@ -1,0 +1,85 @@
+
+Àtests/pos/i9782.scala*
+_empty_/Txn#*Txn€*)
+_empty_/Txn#`<init>`(). €@*<init>€*
+_empty_/Txn#[T]	*T€*
+_empty_/Elem#*Elem€**
+_empty_/Elem#`<init>`(). €@*<init>€*
+_empty_/Elem#[T]	*T€*
+_empty_/Obj#*Obj€*)
+_empty_/Obj#`<init>`(). €@*<init>€*
+_empty_/Obj#[T]	*T€*
+_empty_/Copy#*Copy€**
+_empty_/Copy#`<init>`(). €@*<init>€*
+_empty_/Copy#[In]	*In€*
+_empty_/Copy#[Out]	*Out€*+
+_empty_/Copy#copyImpl(). *copyImpl€*+
+_empty_/Copy#copyImpl().[Repr]	*Repr€*'
+_empty_/Copy#copyImpl().(in)*in€*#
+_empty_/Copy#apply().*apply€*(
+_empty_/Copy#apply().[Repr]	*Repr€*$
+_empty_/Copy#apply().(in)*in€*
+local0 €*out€*
+local1 €*inObj€*
+local2 €*outObj€2
+ 	_empty_/Txn#2!
+	 	_empty_/Txn#`<init>`().2
+
+ _empty_/Txn#[T]2
+ 
+_empty_/Elem#2&
+
+ 
+_empty_/Elem#`<init>`().2
+ _empty_/Elem#[T]2
+ 	_empty_/Obj#2%
+	 	_empty_/Obj#`<init>`().2
+ #_empty_/Elem#2
+$ %_empty_/Obj#[T]2
+
+ _empty_/Obj#[T]2
+ 
+_empty_/Copy#2&
+
+ 
+_empty_/Copy#`<init>`().2
+ _empty_/Copy#[In]2 
+ _empty_/Copy#[Out]2&
+ _empty_/Copy#copyImpl().2,
+ _empty_/Copy#copyImpl().[Repr]2*
+- /_empty_/Copy#copyImpl().(in)2,
+1 5_empty_/Copy#copyImpl().[Repr]2
+6 8_empty_/Copy#[In]2,
+< @_empty_/Copy#copyImpl().[Repr]2 
+A D_empty_/Copy#[Out]2#
+		 _empty_/Copy#apply().2)
+		 _empty_/Copy#apply().[Repr]2'
+	*	 ,_empty_/Copy#apply().(in)2)
+	.	 2_empty_/Copy#apply().[Repr]2
+	3	 5_empty_/Copy#[In]2)
+	9	 =_empty_/Copy#apply().[Repr]2 
+	>	 A_empty_/Copy#[Out]2
+
+
+ local02&
+
+
+ _empty_/Copy#copyImpl().2)
+
+
+ _empty_/Copy#apply().[Repr]2'
+
+
+ _empty_/Copy#apply().(in)2#
+ scala/Tuple2.apply().2'
+ _empty_/Copy#apply().(in)2
+	 local02%
+ scala/Tuple2.unapply().2
+ local12
+ _empty_/Obj#2
+ _empty_/Copy#[In]2
+ "local22
+$ '_empty_/Obj#2 
+( +_empty_/Copy#[Out]2'
+ scala/Predef.println(+1).2
+ local0PZ DFE8F91A20D3038A0E2F30784796B34E

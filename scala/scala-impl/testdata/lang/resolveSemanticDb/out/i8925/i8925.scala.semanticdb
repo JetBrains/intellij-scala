@@ -1,0 +1,49 @@
+
+ætests/pos/i8925.scala*
+_empty_/Parent#*Parent€*,
+_empty_/Parent#`<init>`(). €@*<init>€*#
+_empty_/Parent#Child#*Child€*
+_empty_/Demo.
+ *Demo€*%
+_empty_/Demo.params().*params€*'
+_empty_/Demo.params().(arr)*arr€*1
+_empty_/Demo.parametersOf().*parametersOf€*3
+$_empty_/Demo.parametersOf().[Parent]	*Parent€*)
+_empty_/Demo.parametersOf().[T]	*T€*+
+_empty_/Demo.parametersOf().(m)  *m€*7
+_empty_/Demo.combineInternal().*combineInternal€*.
+"_empty_/Demo.combineInternal().(p)  *p€*
+local0  *s€2
+ _empty_/Parent#2(
+ _empty_/Parent#`<init>`().2#
+ _empty_/Parent#Child#2
+ _empty_/Demo.2$
+ _empty_/Demo.params().2)
+ _empty_/Demo.params().(arr)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+ !scala/Predef.`???`().2*
+ _empty_/Demo.parametersOf().22
+ $_empty_/Demo.parametersOf().[Parent]2-
+ _empty_/Demo.parametersOf().[T]2-
+& '_empty_/Demo.parametersOf().(m)2"
+) /scala/Predef.String#2
+2 5
+scala/Int#2-
+		 _empty_/Demo.combineInternal().20
+		 "_empty_/Demo.combineInternal().(p)2
+		 %_empty_/Parent#2
+	(	 +
+scala/Int#2
+ local02"
+ scala/Predef.String#2$
+ 
+_empty_/Demo.params().2)
+ _empty_/Demo.params().(arr)2*
+ _empty_/Demo.parametersOf().2
+ $_empty_/Parent#2#
+( -_empty_/Parent#Child#20
+& '"_empty_/Demo.combineInternal().(p)2
+0 0local0PZ 60D2C6FD072C72312096BA0F8CC8DAF2

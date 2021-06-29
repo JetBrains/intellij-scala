@@ -1,0 +1,60 @@
+
+ê
+tests/pos/t7200b.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#t().*t€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*,
+_empty_/Foo#coflatMap(). *	coflatMap€*%
+_empty_/Foo#coflatMap().[A]	*A€*%
+_empty_/Foo#coflatMap().(f)*f€*
+
+_empty_/O.
+ *O€*(
+_empty_/O.coflatMap().*	coflatMap€*#
+_empty_/O.coflatMap().[A]	*A€*#
+_empty_/O.coflatMap().(f)*f€*
+local0 €*f2€2%
+ scala/language.higherKinds.2
+ scala/language.2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ _empty_/T#t().2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2&
+ _empty_/Foo#coflatMap().2)
+ _empty_/Foo#coflatMap().[A]2
+ 
+_empty_/T#2)
+ _empty_/Foo#coflatMap().(f)2)
+ _empty_/Foo#coflatMap().[A]2)
+  _empty_/Foo#coflatMap().[A]2
+		 
+_empty_/O.2
+		 _empty_/Foo#2$
+
+
+ _empty_/O.coflatMap().2'
+
+
+ _empty_/O.coflatMap().[A]2
+
+
+ 
+_empty_/T#2'
+
+
+ _empty_/O.coflatMap().(f)2'
+
+
+ _empty_/O.coflatMap().[A]2
+ 
+local02$
+ _empty_/O.coflatMap().2'
+ _empty_/O.coflatMap().(f)2
+ _empty_/T#t().2
+ local02
+ local0PZ EDF37C2DAB6C4DDDA66D0D0FC0339D44

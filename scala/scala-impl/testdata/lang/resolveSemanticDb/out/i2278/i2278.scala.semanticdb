@@ -1,0 +1,44 @@
+
+¤tests/pos/i2278.scala* 
+_empty_/Fluent.
+ *Fluent€*
+_empty_/Fluent.Foo#*Foo€*0
+_empty_/Fluent.Foo#`<init>`(). €@*<init>€* 
+_empty_/Fluent.Foo#[C]	*C€*+
+_empty_/Fluent.Foo#meth1(). *meth1€*(
+_empty_/Fluent.Foo#meth1().[T]	*T€*
+_empty_/Fluent.CC#*CC€*/
+_empty_/Fluent.CC#`<init>`(). €@*<init>€*
+_empty_/Fluent.CC#[T]	*T€*'
+_empty_/Fluent.Context#*Context€*(
+_empty_/Fluent.Context#[Alg]	*Alg€*$
+_empty_/Fluent.Context#[E]	*E€*%
+_empty_/Fluent.meth1().*meth1€*$
+_empty_/Fluent.meth1().[T]	*T€2
+ _empty_/Fluent.2!
+ _empty_/Fluent.Foo#2,
+ _empty_/Fluent.Foo#`<init>`().2$
+ _empty_/Fluent.Foo#[C]2)
+ _empty_/Fluent.Foo#meth1().2,
+ _empty_/Fluent.Foo#meth1().[T]2$
+ _empty_/Fluent.Foo#[C]2,
+ _empty_/Fluent.Foo#meth1().[T]2 
+ 
+_empty_/Fluent.CC#2+
+
+ 
+_empty_/Fluent.CC#`<init>`().2#
+ _empty_/Fluent.CC#[T]2%
+ _empty_/Fluent.Context#2*
+ _empty_/Fluent.Context#[Alg]2(
+$ %_empty_/Fluent.Context#[E]2*
+) ,_empty_/Fluent.Context#[Alg]2 
+5 7_empty_/Fluent.CC#2(
+8 9_empty_/Fluent.Context#[E]2%
+ _empty_/Fluent.meth1().2(
+ _empty_/Fluent.meth1().[T]2%
+ _empty_/Fluent.Context#2(
+  !_empty_/Fluent.meth1().[T]2)
+		 _empty_/Fluent.Foo#meth1().2(
+		 scala/Predef.implicitly().2!
+		 _empty_/Fluent.Foo#PZ 5C46EE8B65F9AF067B5D18FF6324F6EC

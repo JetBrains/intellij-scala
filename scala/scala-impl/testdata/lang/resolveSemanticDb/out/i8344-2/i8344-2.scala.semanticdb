@@ -1,0 +1,57 @@
+
+ôtests/pos/i8344-2.scala*$
+_empty_/Datatype# *Datatype€*.
+_empty_/Datatype#`<init>`(). €@*<init>€*
+_empty_/Datatype#[T]	*T€*
+_empty_/Foo# €*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*/
+_empty_/Foo#`<init>`().(elems) €*elems€*
+_empty_/Foo#[T]	*T€*#
+_empty_/Foo#elems. €*elems€* 
+_empty_/Foo#copy().*copy€* 
+_empty_/Foo#copy().[T]	*T€*(
+_empty_/Foo#copy().(elems)*elems€*4
+_empty_/Foo#copy$default$1().*copy$default$1€**
+ _empty_/Foo#copy$default$1().[T]	*T€*
+_empty_/Foo#_1().*_1€*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.apply().*apply€*!
+_empty_/Foo.apply().[T]	*T€*)
+_empty_/Foo.apply().(elems)*elems€*&
+_empty_/Foo.unapply().*unapply€*#
+_empty_/Foo.unapply().[T]	*T€*'
+_empty_/Foo.unapply().(x$1)*x$1€*(
+_empty_/Foo.toString().*toString€*,
+_empty_/`i8344-2$package`. *_empty_€*(
+_empty_/`i8344-2$package`.g().*g€*
+local0 €*tt€*
+local1 €	*T$1€2
+ _empty_/Datatype#2&
+ _empty_/Datatype#`<init>`().2
+ _empty_/Datatype#[T]2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+( +scala/Tuple.Map#2
+" 'scala/Tuple.2
+, -_empty_/Foo#[T]2
+B J_empty_/Datatype#2
+K L_empty_/Foo#[T]2
+ _empty_/Foo#[T]2 
+  _empty_/Foo#elems.2
+_empty_/Foo#copy().2
+" "_empty_/Foo#_1().2
+ _empty_/Foo.2
+_empty_/Foo.apply().2 
+_empty_/Foo.unapply().2$
+_empty_/`i8344-2$package`.2,
+ _empty_/`i8344-2$package`.g().2
+ local02
+
+ _empty_/Datatype#2#
+ scala/Predef.`???`().2
+ local02$
+ _empty_/Foo.unapply().2
+	 _empty_/Foo.2
+ local12#
+ scala/Predef.`???`().PZ FE50CEA3CB6E22AA3EDC4FB895B3C729

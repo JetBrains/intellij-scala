@@ -1,0 +1,481 @@
+
+à‘!tests/pos/kindPolySemiGroup.scala*
+_empty_/HList# *HList€*+
+_empty_/HList#`<init>`(). €@*<init>€*
+_empty_/HCons# €*HCons€*+
+_empty_/HCons#`<init>`(). €@*<init>€*+
+_empty_/HCons#`<init>`().(hd) €*hd€*+
+_empty_/HCons#`<init>`().(tl) €*tl€* 
+_empty_/HCons#[HD]	 €*HD€* 
+_empty_/HCons#[TL]	 €*TL€*
+_empty_/HCons#hd. €*hd€*
+_empty_/HCons#tl. €*tl€*"
+_empty_/HCons#copy().*copy€*$
+_empty_/HCons#copy().[HD]	*HD€*$
+_empty_/HCons#copy().[TL]	*TL€*$
+_empty_/HCons#copy().(hd)*hd€*$
+_empty_/HCons#copy().(tl)*tl€*6
+_empty_/HCons#copy$default$1().*copy$default$1€*.
+#_empty_/HCons#copy$default$1().[HD]	*HD€*.
+#_empty_/HCons#copy$default$1().[TL]	*TL€*6
+_empty_/HCons#copy$default$2().*copy$default$2€*.
+#_empty_/HCons#copy$default$2().[HD]	*HD€*.
+#_empty_/HCons#copy$default$2().[TL]	*TL€*
+_empty_/HCons#_1().*_1€*
+_empty_/HCons#_2().*_2€*
+_empty_/HCons.
+ *HCons€*$
+_empty_/HCons.apply().*apply€*%
+_empty_/HCons.apply().[HD]	*HD€*%
+_empty_/HCons.apply().[TL]	*TL€*%
+_empty_/HCons.apply().(hd)*hd€*%
+_empty_/HCons.apply().(tl)*tl€*(
+_empty_/HCons.unapply().*unapply€*'
+_empty_/HCons.unapply().[HD]	*HD€*'
+_empty_/HCons.unapply().[TL]	*TL€*)
+_empty_/HCons.unapply().(x$1)*x$1€**
+_empty_/HCons.toString().*toString€*
+_empty_/HNil.
+ ˆ*HNil€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.HNil#*HNil€*#
+_empty_/Test.Kinder#*Kinder€*1
+_empty_/Test.Kinder#`<init>`(). €@*<init>€*#
+_empty_/Test.Kinder#[MA]	*MA€* 
+_empty_/Test.Kinder#M#*M€*%
+_empty_/Test.Kinder.
+ *Kinder€*$
+_empty_/Test.Kinder.Aux#*Aux€*'
+_empty_/Test.Kinder.Aux#[MA]	*MA€*'
+_empty_/Test.Kinder.Aux#[M0]	*M0€*
+local0*M€*0
+_empty_/Test.Kinder.kinder1().  *kinder1€*-
+"_empty_/Test.Kinder.kinder1().[M0]	*M0€*-
+"_empty_/Test.Kinder.kinder1().[A0]	*A0€*
+local1 *$anon€*
+local2*M€*
+local3	*t€*0
+_empty_/Test.Kinder.kinder2().  *kinder2€*-
+"_empty_/Test.Kinder.kinder2().[M0]	*M0€*-
+"_empty_/Test.Kinder.kinder2().[A0]	*A0€*-
+"_empty_/Test.Kinder.kinder2().[B0]	*B0€*
+local4 *$anon€*
+local5*M€*
+local6	*t€*
+local7	*u€*
+local8*Args€*?
+"_empty_/Test.KinderLowerImplicits#*KinderLowerImplicits€*?
+-_empty_/Test.KinderLowerImplicits#`<init>`(). €@*<init>€*>
+,_empty_/Test.KinderLowerImplicits#kinder0().  *kinder0€*9
+/_empty_/Test.KinderLowerImplicits#kinder0().[A]	*A€*
+local9 *$anon€*
+local10*M€*
+local11*Args€*)
+_empty_/Test.SemiGroup#*	SemiGroup€*4
+"_empty_/Test.SemiGroup#`<init>`(). €@*<init>€*$
+_empty_/Test.SemiGroup#[M]	*M€*)
+_empty_/Test.SemiGroup#Self#*Self€*/
+ _empty_/Test.SemiGroup#append().*append€*/
+$_empty_/Test.SemiGroup#append().[MA]	*MA€*/
+$_empty_/Test.SemiGroup#append().(m1)*m1€*/
+$_empty_/Test.SemiGroup#append().(m2)*m2€*=
+*_empty_/Test.SemiGroup#append().(appender)  *appender€*+
+_empty_/Test.SemiGroup.
+ *	SemiGroup€*'
+_empty_/Test.SemiGroup.Aux#*Aux€*(
+_empty_/Test.SemiGroup.Aux#[M]	*M€*0
+"_empty_/Test.SemiGroup.Aux#[Self0]	*Self0€*
+local12*Self€*=
+&_empty_/Test.SemiGroup.AppendFunction#*AppendFunction€*C
+1_empty_/Test.SemiGroup.AppendFunction#`<init>`(). €@*<init>€*3
+)_empty_/Test.SemiGroup.AppendFunction#[P]	*P€*5
+*_empty_/Test.SemiGroup.AppendFunction#[FA]	*FA€*3
+)_empty_/Test.SemiGroup.AppendFunction#[F]	*F€*>
+._empty_/Test.SemiGroup.AppendFunction#apply(). *apply€*=
+2_empty_/Test.SemiGroup.AppendFunction#apply().(m1)*m1€*=
+2_empty_/Test.SemiGroup.AppendFunction#apply().(m2)*m2€*1
+_empty_/Test.SemiGroupInt.
+ (*SemiGroupInt€*,
+_empty_/Test.SemiGroupInt.Self#*Self€*7
+#_empty_/Test.SemiGroupInt.appender.  *appender€*
+local13 *$anon€*
+local14*apply€*
+local15*m1€*
+local16*m2€*3
+_empty_/Test.SemiGroupList.
+ (*SemiGroupList€*-
+ _empty_/Test.SemiGroupList.Self#*Self€*9
+&_empty_/Test.SemiGroupList.appender().  *appender€*3
+)_empty_/Test.SemiGroupList.appender().[A]	*A€*
+local17 *$anon€*
+local18*apply€*
+local19*m1€*
+local20*m2€*1
+_empty_/Test.SemiGroupMap.
+ (*SemiGroupMap€*,
+_empty_/Test.SemiGroupMap.Self#*Self€*8
+%_empty_/Test.SemiGroupMap.appender().  *appender€*2
+(_empty_/Test.SemiGroupMap.appender().[A]	*A€*2
+(_empty_/Test.SemiGroupMap.appender().[B]	*B€*
+local21 *$anon€*
+local22*apply€*
+local23*m1€*
+local24*m2€*+
+_empty_/Test.semiGroup().*	semiGroup€*&
+_empty_/Test.semiGroup().[M]	*M€**
+_empty_/Test.semiGroup().(sg)  *sg€*%
+_empty_/Test.append().*append€*%
+_empty_/Test.append().[MA]	*MA€*#
+_empty_/Test.append().[M]	*M€*)
+_empty_/Test.append().[Self]	*Self€*%
+_empty_/Test.append().(m1)*m1€*%
+_empty_/Test.append().(m2)*m2€*/
+_empty_/Test.append().(kinder)  *kinder€*5
+!_empty_/Test.append().(semiGroup)  *	semiGroup€*3
+ _empty_/Test.append().(appender)  *appender€*
+_empty_/Test.r1. €*r1€*
+_empty_/Test.r2. €*r2€*
+_empty_/Test.r3. €*r3€2=
+ //scala/language.experimental.namedTypeArguments.2*
+ scala/language.experimental.2
+ scala/language.2
+ _empty_/HList#2#
+_empty_/HList#`<init>`().2
+ _empty_/HCons#2'
+ _empty_/HCons#`<init>`().2 
+ !_empty_/HCons#[HD]2 
+' )_empty_/HCons#[TL]2
+3 8_empty_/HList#2 
+ _empty_/HCons#[HD]2 
+ _empty_/HCons#[TL]2
+ _empty_/HCons#hd.2
+# %_empty_/HCons#tl.2
+_empty_/HCons#copy().2!
+ _empty_/HCons#_1().2!
+' '_empty_/HCons#_2().2
+ _empty_/HCons.2 
+_empty_/HCons.apply().2"
+_empty_/HCons.unapply().2
+ _empty_/HNil.2
+ _empty_/HList#2
+ _empty_/Test.2 
+ _empty_/Test.HNil#2
+ _empty_/HNil.2"
+ _empty_/Test.Kinder#2-
+ _empty_/Test.Kinder#`<init>`().2&
+ _empty_/Test.Kinder#[MA]2$
+ _empty_/Test.Kinder#M#2
+ &scala/AnyKind#2"
+	 _empty_/Test.Kinder.20
+ ,"_empty_/Test.KinderLowerImplicits#2&
+	 _empty_/Test.Kinder.Aux#2*
+ _empty_/Test.Kinder.Aux#[MA]2*
+ _empty_/Test.Kinder.Aux#[M0]2
+ scala/AnyKind#2"
+" (_empty_/Test.Kinder#2*
+) +_empty_/Test.Kinder.Aux#[MA]2
+4 5local02*
+8 :_empty_/Test.Kinder.Aux#[M0]2,
+ _empty_/Test.Kinder.kinder1().20
+ "_empty_/Test.Kinder.kinder1().[M0]20
+  ""_empty_/Test.Kinder.kinder1().[A0]2&
+, /_empty_/Test.Kinder.Aux#2"
+% +_empty_/Test.Kinder.20
+0 2"_empty_/Test.Kinder.kinder1().[M0]20
+3 5"_empty_/Test.Kinder.kinder1().[A0]20
+8 :"_empty_/Test.Kinder.kinder1().[M0]2
+ local12"
+
+ _empty_/Test.Kinder#20
+ "_empty_/Test.Kinder.kinder1().[M0]20
+ "_empty_/Test.Kinder.kinder1().[A0]2
+  !local22
+" #local320
+' )"_empty_/Test.Kinder.kinder1().[M0]2
+* +local32,
+ _empty_/Test.Kinder.kinder2().20
+ "_empty_/Test.Kinder.kinder2().[M0]20
+# %"_empty_/Test.Kinder.kinder2().[A0]20
+' )"_empty_/Test.Kinder.kinder2().[B0]2&
+3 6_empty_/Test.Kinder.Aux#2"
+, 2_empty_/Test.Kinder.20
+7 9"_empty_/Test.Kinder.kinder2().[M0]20
+: <"_empty_/Test.Kinder.kinder2().[A0]20
+> @"_empty_/Test.Kinder.kinder2().[B0]20
+C E"_empty_/Test.Kinder.kinder2().[M0]2
+ local42"
+
+ _empty_/Test.Kinder#20
+ "_empty_/Test.Kinder.kinder2().[M0]20
+ "_empty_/Test.Kinder.kinder2().[A0]20
+ "_empty_/Test.Kinder.kinder2().[B0]2
+$ %local52
+& 'local62
+) *local720
+. 0"_empty_/Test.Kinder.kinder2().[M0]2
+1 2local62
+4 5local72
+= Alocal82
+D I_empty_/HCons#20
+J L"_empty_/Test.Kinder.kinder2().[A0]2
+N S_empty_/HCons#20
+T V"_empty_/Test.Kinder.kinder2().[B0]2 
+X \_empty_/Test.HNil#20
+ "_empty_/Test.KinderLowerImplicits#2;
+ -_empty_/Test.KinderLowerImplicits#`<init>`().2:
+ ,_empty_/Test.KinderLowerImplicits#kinder0().2=
+ /_empty_/Test.KinderLowerImplicits#kinder0().[A]2&
+$ '_empty_/Test.Kinder.Aux#2"
+ #_empty_/Test.Kinder.2=
+( )/_empty_/Test.KinderLowerImplicits#kinder0().[A]2=
++ ,/_empty_/Test.KinderLowerImplicits#kinder0().[A]2
+0 0local92"
+4 :_empty_/Test.Kinder#2=
+; </_empty_/Test.KinderLowerImplicits#kinder0().[A]2
+E Flocal102=
+I J/_empty_/Test.KinderLowerImplicits#kinder0().[A]2
+Q Ulocal112 
+X \_empty_/Test.HNil#2%
+ _empty_/Test.SemiGroup#20
+ "_empty_/Test.SemiGroup#`<init>`().2(
+ _empty_/Test.SemiGroup#[M]2*
+	 _empty_/Test.SemiGroup#Self#2.
+  _empty_/Test.SemiGroup#append().22
+ $_empty_/Test.SemiGroup#append().[MA]22
+ $_empty_/Test.SemiGroup#append().(m1)22
+ $_empty_/Test.SemiGroup#append().[MA]22
+ $_empty_/Test.SemiGroup#append().(m2)22
+ !$_empty_/Test.SemiGroup#append().[MA]28
+, 4*_empty_/Test.SemiGroup#append().(appender)24
+@ N&_empty_/Test.SemiGroup.AppendFunction#2%
+6 ?_empty_/Test.SemiGroup.2*
+O S_empty_/Test.SemiGroup#Self#22
+U W$_empty_/Test.SemiGroup#append().[MA]2(
+Y Z_empty_/Test.SemiGroup#[M]2<
+g g._empty_/Test.SemiGroup.AppendFunction#apply().28
+_ g*_empty_/Test.SemiGroup#append().(appender)22
+h j$_empty_/Test.SemiGroup#append().(m1)22
+l n$_empty_/Test.SemiGroup#append().(m2)2%
+ 	  _empty_/Test.SemiGroup.2)
+!	! _empty_/Test.SemiGroup.Aux#2,
+!! _empty_/Test.SemiGroup.Aux#[M]2
+!! scala/AnyKind#20
+!!  "_empty_/Test.SemiGroup.Aux#[Self0]2%
+!$! -_empty_/Test.SemiGroup#2,
+!.! /_empty_/Test.SemiGroup.Aux#[M]2
+!8! <local1220
+!?! D"_empty_/Test.SemiGroup.Aux#[Self0]24
+$
+$ &_empty_/Test.SemiGroup.AppendFunction#2?
+$$ 1_empty_/Test.SemiGroup.AppendFunction#`<init>`().27
+$$ )_empty_/Test.SemiGroup.AppendFunction#[P]28
+$$ *_empty_/Test.SemiGroup.AppendFunction#[FA]27
+$ $ !)_empty_/Test.SemiGroup.AppendFunction#[F]2<
+%
+% ._empty_/Test.SemiGroup.AppendFunction#apply().2@
+%% 2_empty_/Test.SemiGroup.AppendFunction#apply().(m1)28
+%% *_empty_/Test.SemiGroup.AppendFunction#[FA]2@
+%% 2_empty_/Test.SemiGroup.AppendFunction#apply().(m2)28
+%% *_empty_/Test.SemiGroup.AppendFunction#[FA]28
+%!% #*_empty_/Test.SemiGroup.AppendFunction#[FA]2(
+** _empty_/Test.SemiGroupInt.2%
+*'* 0_empty_/Test.SemiGroup#2
+*1* 4
+scala/Int#2-
++	+ _empty_/Test.SemiGroupInt.Self#21
+,, #_empty_/Test.SemiGroupInt.appender.24
+,%, 3&_empty_/Test.SemiGroup.AppendFunction#2%
+,, $_empty_/Test.SemiGroup.2-
+,4, 8_empty_/Test.SemiGroupInt.Self#2
+,:, =
+scala/Int#2
+,?, B
+scala/Int#2
+,E, Elocal1324
+,S, a&_empty_/Test.SemiGroup.AppendFunction#2%
+,I, R_empty_/Test.SemiGroup.2-
+,b, f_empty_/Test.SemiGroupInt.Self#2
+,h, k
+scala/Int#2
+,m, p
+scala/Int#2
+-
+- local142
+-- local152
+-- 
+scala/Int#2
+-- local162
+--  
+scala/Int#2 
+-'- (scala/Int#`+`(+4).2
+-$- &local152
+-)- +local162)
+22 _empty_/Test.SemiGroupList.2%
+2(2 1_empty_/Test.SemiGroup#2!
+222 6scala/package.List#2.
+3	3  _empty_/Test.SemiGroupList.Self#24
+44 &_empty_/Test.SemiGroupList.appender().27
+44 )_empty_/Test.SemiGroupList.appender().[A]24
+4(4 6&_empty_/Test.SemiGroup.AppendFunction#2%
+44 '_empty_/Test.SemiGroup.2.
+474 ; _empty_/Test.SemiGroupList.Self#2!
+4=4 Ascala/package.List#27
+4B4 C)_empty_/Test.SemiGroupList.appender().[A]2!
+4F4 Jscala/package.List#2
+4N4 Nlocal172
+5
+5 local182
+55 local192!
+55 scala/package.List#27
+55 )_empty_/Test.SemiGroupList.appender().[A]2
+55 local202!
+5!5 %scala/package.List#27
+5&5 ')_empty_/Test.SemiGroupList.appender().[A]22
+5/5 1$scala/collection/IterableOps#`++`().2
+5,5 .local192
+525 4local202(
+:: _empty_/Test.SemiGroupMap.2%
+:': 0_empty_/Test.SemiGroup#2
+:1: 4scala/Predef.Map#2-
+;	; _empty_/Test.SemiGroupMap.Self#23
+<< %_empty_/Test.SemiGroupMap.appender().26
+<< (_empty_/Test.SemiGroupMap.appender().[A]26
+<< (_empty_/Test.SemiGroupMap.appender().[B]24
+<+< 9&_empty_/Test.SemiGroup.AppendFunction#2%
+<!< *_empty_/Test.SemiGroup.2-
+<:< >_empty_/Test.SemiGroupMap.Self#2
+<@< Cscala/Predef.Map#26
+<D< E(_empty_/Test.SemiGroupMap.appender().[A]26
+<G< H(_empty_/Test.SemiGroupMap.appender().[B]2
+<K< Nscala/Predef.Map#2
+<R< Rlocal212
+=
+= local222
+== local232
+== scala/Predef.Map#26
+== (_empty_/Test.SemiGroupMap.appender().[A]26
+== (_empty_/Test.SemiGroupMap.appender().[B]2
+== !local242
+=#= &scala/Predef.Map#26
+='= ((_empty_/Test.SemiGroupMap.appender().[A]26
+=*= +(_empty_/Test.SemiGroupMap.appender().[B]2-
+=3= 5scala/collection/MapOps#`++`().2
+=0= 2local232
+=6= 8local242'
+BB _empty_/Test.semiGroup().2*
+BB _empty_/Test.semiGroup().[M]2
+BB scala/AnyKind#2+
+B'B )_empty_/Test.semiGroup().(sg)2%
+B+B 4_empty_/Test.SemiGroup#2*
+B5B 6_empty_/Test.semiGroup().[M]2)
+BDB G_empty_/Test.SemiGroup.Aux#2%
+B:B C_empty_/Test.SemiGroup.2*
+BHB I_empty_/Test.semiGroup().[M]2*
+BNB R_empty_/Test.SemiGroup#Self#2+
+BKB M_empty_/Test.semiGroup().(sg)2+
+BVB X_empty_/Test.semiGroup().(sg)2.
+DD  _empty_/Test.SemiGroup#append().2'
+DD _empty_/Test.semiGroup().2
+DD 
+scala/Int#2(
+DD _empty_/Test.SemiGroupInt.21
+DD #_empty_/Test.SemiGroupInt.appender.2.
+EE  _empty_/Test.SemiGroup#append().2'
+EE _empty_/Test.semiGroup().2!
+EE scala/package.List#2)
+EE _empty_/Test.SemiGroupList.27
+EE )scala/collection/IterableFactory#apply().2!
+EE scala/package.List.27
+E&E &)scala/collection/IterableFactory#apply().2!
+E"E &scala/package.List.24
+E*E *&_empty_/Test.SemiGroupList.appender().2.
+FF  _empty_/Test.SemiGroup#append().2'
+FF _empty_/Test.semiGroup().2
+FF scala/Predef.Map#2(
+FF _empty_/Test.SemiGroupMap.22
+FF $scala/collection/MapFactory#apply().2
+FF scala/Predef.Map.2-
+F#F %scala/Predef.ArrowAssoc#`->`().2(
+FF scala/Predef.ArrowAssoc().22
+F.F .$scala/collection/MapFactory#apply().2
+F+F .scala/Predef.Map.2-
+F6F 8scala/Predef.ArrowAssoc#`->`().2(
+F/F /scala/Predef.ArrowAssoc().23
+F=F =%_empty_/Test.SemiGroupMap.appender().2$
+II _empty_/Test.append().2(
+II _empty_/Test.append().[MA]2'
+II _empty_/Test.append().[M]2
+II scala/AnyKind#2*
+II #_empty_/Test.append().[Self]2(
+I%I '_empty_/Test.append().(m1)2(
+I)I +_empty_/Test.append().[MA]2(
+I-I /_empty_/Test.append().(m2)2(
+I1I 3_empty_/Test.append().[MA]2,
+JJ _empty_/Test.append().(kinder)2&
+JJ _empty_/Test.Kinder.Aux#2"
+JJ _empty_/Test.Kinder.2(
+J J "_empty_/Test.append().[MA]2'
+J$J %_empty_/Test.append().[M]2/
+J(J 1!_empty_/Test.append().(semiGroup)2)
+J=J @_empty_/Test.SemiGroup.Aux#2%
+J3J <_empty_/Test.SemiGroup.2'
+JAJ B_empty_/Test.append().[M]2*
+JDJ H_empty_/Test.append().[Self]2.
+JKJ S _empty_/Test.append().(appender)24
+J_J m&_empty_/Test.SemiGroup.AppendFunction#2%
+JUJ ^_empty_/Test.SemiGroup.2*
+JnJ r_empty_/Test.append().[Self]2(
+JtJ v_empty_/Test.append().[MA]2'
+JxJ y_empty_/Test.append().[M]2(
+KK _empty_/Test.append().[MA]2.
+KK  _empty_/Test.SemiGroup#append().2/
+K
+K !_empty_/Test.append().(semiGroup)2(
+KK _empty_/Test.append().(m1)2(
+KK !_empty_/Test.append().(m2)2.
+K"K " _empty_/Test.append().(appender)24
+MM &_empty_/Test.SemiGroupList.appender().2)
+M	M _empty_/Test.SemiGroupList.23
+NN %_empty_/Test.SemiGroupMap.appender().2(
+N	N _empty_/Test.SemiGroupMap.2
+PP _empty_/Test.r1.2
+P
+P 
+scala/Int#2$
+PP _empty_/Test.append().2:
+PP ,_empty_/Test.KinderLowerImplicits#kinder0().2(
+PP _empty_/Test.SemiGroupInt.21
+PP #_empty_/Test.SemiGroupInt.appender.2
+SS _empty_/Test.r2.2!
+S
+S scala/package.List#2
+SS 
+scala/Int#2$
+SS _empty_/Test.append().2!
+S!S %scala/package.List#27
+S+S +)scala/collection/IterableFactory#apply().2!
+S'S +scala/package.List.27
+S4S 4)scala/collection/IterableFactory#apply().2!
+S0S 4scala/package.List.2,
+S8S 8_empty_/Test.Kinder.kinder1().2)
+S8S 8_empty_/Test.SemiGroupList.24
+S8S 8&_empty_/Test.SemiGroupList.appender().2
+TT _empty_/Test.r3.2
+T
+T scala/Predef.Map#2"
+TT scala/Predef.String#2
+TT scala/Long#2$
+TT $_empty_/Test.append().2
+T)T ,scala/Predef.Map#22
+T1T 1$scala/collection/MapFactory#apply().2
+T.T 1scala/Predef.Map.2-
+T9T ;scala/Predef.ArrowAssoc#`->`().2(
+T2T 2scala/Predef.ArrowAssoc().22
+TDT D$scala/collection/MapFactory#apply().2
+TAT Dscala/Predef.Map.2-
+TLT Nscala/Predef.ArrowAssoc#`->`().2(
+TET Escala/Predef.ArrowAssoc().2,
+TST S_empty_/Test.Kinder.kinder2().2(
+TST S_empty_/Test.SemiGroupMap.23
+TST S%_empty_/Test.SemiGroupMap.appender().PZ 911FD2BB5B23F9048715D21651F2D4BF

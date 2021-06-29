@@ -1,0 +1,59 @@
+
+Ìtests/pos/kinds.scala*"
+_empty_/IllKind1#*IllKind1€*.
+_empty_/IllKind1#`<init>`(). €@*<init>€*
+_empty_/IllKind1#g().*g€*"
+_empty_/IllKind1#g().(s)*s€*
+_empty_/IllKind1#f().*f€*!
+_empty_/IllKind1#f(+1).*f€*$
+_empty_/IllKind1#f(+1).[C]	*C€*$
+_empty_/IllKind1#f(+1).(c)*c€*"
+_empty_/IllKind2#*IllKind2€*.
+_empty_/IllKind2#`<init>`(). €@*<init>€*!
+_empty_/IllKind2#b1().*b1€*!
+_empty_/IllKind2#b2().*b2€*!
+_empty_/IllKind2#f1().*f1€*!
+_empty_/IllKind2#f2().*f2€2
+ _empty_/IllKind1#2*
+ _empty_/IllKind1#`<init>`().2#
+ _empty_/IllKind1#g().2&
+ 	_empty_/IllKind1#g().(s)2"
+ scala/Predef.String#2"
+ scala/Predef.String#2&
+ _empty_/IllKind1#g().(s)2#
+ _empty_/IllKind1#f().2"
+	 scala/Predef.String#2#
+ scala/Predef.`???`().2%
+ _empty_/IllKind1#f(+1).2(
+ 	_empty_/IllKind1#f(+1).[C]2(
+ _empty_/IllKind1#f(+1).(c)2(
+ _empty_/IllKind1#f(+1).[C]2"
+ scala/Predef.String#2#
+ _empty_/IllKind1#g().2#
+ _empty_/IllKind1#f().2
+ _empty_/IllKind2#2*
+ _empty_/IllKind2#`<init>`().2$
+ _empty_/IllKind2#b1().2
+
+ scala/Char#2#
+ scala/Predef.`???`().2$
+ _empty_/IllKind2#b2().2
+
+ scala/Byte#2#
+ scala/Predef.`???`().2$
+
+
+ _empty_/IllKind2#f1().24
+
+
+ &scala/collection/StringOps#contains().2+
+
+
+ scala/Predef.augmentString().2$
+
+
+ _empty_/IllKind2#b1().2$
+ _empty_/IllKind2#f2().21
+ #scala/collection/SeqOps#contains().26
+ (scala/LowPriorityImplicits#wrapString().2$
+ _empty_/IllKind2#b2().PZ F818DE8C6994DD8AB9E855DBAB1B0955

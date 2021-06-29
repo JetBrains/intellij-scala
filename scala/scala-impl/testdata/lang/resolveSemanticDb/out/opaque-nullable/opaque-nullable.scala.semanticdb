@@ -1,0 +1,171 @@
+
+ç:tests/pos/opaque-nullable.scala*$
+_empty_/nullable.
+ *nullable€*+
+_empty_/nullable.Nullable#*Nullable€*'
+_empty_/nullable.Nullable#[A]	*A€*-
+_empty_/nullable.Nullable.
+ *Nullable€*0
+"_empty_/nullable.Nullable.apply().*apply€*/
+%_empty_/nullable.Nullable.apply().[A]	*A€*/
+%_empty_/nullable.Nullable.apply().(a)*a€*:
+&_empty_/nullable.Nullable.NullableOps#*NullableOps€*C
+1_empty_/nullable.Nullable.NullableOps#`<init>`(). €@*<init>€*@
+5_empty_/nullable.Nullable.NullableOps#`<init>`().(na)*na€*3
+)_empty_/nullable.Nullable.NullableOps#[A]	*A€*7
+)_empty_/nullable.Nullable.NullableOps#na. €*na€*>
+/_empty_/nullable.Nullable.NullableOps#exists().*exists€*<
+2_empty_/nullable.Nullable.NullableOps#exists().(p)*p€*>
+/_empty_/nullable.Nullable.NullableOps#filter().*filter€*<
+2_empty_/nullable.Nullable.NullableOps#filter().(p)*p€*@
+0_empty_/nullable.Nullable.NullableOps#flatMap().*flatMap€*=
+3_empty_/nullable.Nullable.NullableOps#flatMap().[B]	*B€*=
+3_empty_/nullable.Nullable.NullableOps#flatMap().(f)*f€*>
+/_empty_/nullable.Nullable.NullableOps#forall().*forall€*<
+2_empty_/nullable.Nullable.NullableOps#forall().(p)*p€*D
+2_empty_/nullable.Nullable.NullableOps#getOrElse().*	getOrElse€*?
+5_empty_/nullable.Nullable.NullableOps#getOrElse().(a)*a€*8
+,_empty_/nullable.Nullable.NullableOps#map().*map€*9
+/_empty_/nullable.Nullable.NullableOps#map().[B]	*B€*9
+/_empty_/nullable.Nullable.NullableOps#map().(f)*f€*>
+/_empty_/nullable.Nullable.NullableOps#orElse().*orElse€*@
+4_empty_/nullable.Nullable.NullableOps#orElse().(na2)*na2€*B
+1_empty_/nullable.Nullable.NullableOps#toOption().*toOption€*>
+(_empty_/nullable.Nullable.NullableOps(). (*NullableOps€*5
++_empty_/nullable.Nullable.NullableOps().[A]	*A€*7
+,_empty_/nullable.Nullable.NullableOps().(na)*na€2
+ _empty_/nullable.2(
+ _empty_/nullable.Nullable#2+
+ _empty_/nullable.Nullable#[A]2
+  scala/Null#2
+$ *scala/AnyRef#2+
+. /_empty_/nullable.Nullable#[A]2(
+	 _empty_/nullable.Nullable.20
+ "_empty_/nullable.Nullable.apply().23
+ %_empty_/nullable.Nullable.apply().[A]2
+ scala/Null#2
+ !scala/AnyRef#23
+# $%_empty_/nullable.Nullable.apply().(a)23
+& '%_empty_/nullable.Nullable.apply().[A]2(
+* 2_empty_/nullable.Nullable#23
+3 4%_empty_/nullable.Nullable.apply().[A]23
+8 9%_empty_/nullable.Nullable.apply().(a)24
+ &_empty_/nullable.Nullable.NullableOps#2?
+ 1_empty_/nullable.Nullable.NullableOps#`<init>`().2(
+8 @_empty_/nullable.Nullable#27
+A B)_empty_/nullable.Nullable.NullableOps#[A]27
+  )_empty_/nullable.Nullable.NullableOps#[A]27
+4 6)_empty_/nullable.Nullable.NullableOps#na.2=
+
+ /_empty_/nullable.Nullable.NullableOps#exists().2@
+ 2_empty_/nullable.Nullable.NullableOps#exists().(p)27
+ )_empty_/nullable.Nullable.NullableOps#[A]2
+  scala/Boolean#2
+# *scala/Boolean#2#
+ scala/Boolean#`&&`().2
+ scala/Any#`!=`().27
+ 
+)_empty_/nullable.Nullable.NullableOps#na.2&
+ scala/Function1#apply().2@
+ 2_empty_/nullable.Nullable.NullableOps#exists().(p)27
+ )_empty_/nullable.Nullable.NullableOps#na.2=
+	
+	 /_empty_/nullable.Nullable.NullableOps#filter().2@
+		 2_empty_/nullable.Nullable.NullableOps#filter().(p)27
+		 )_empty_/nullable.Nullable.NullableOps#[A]2
+		  scala/Boolean#2(
+	#	 +_empty_/nullable.Nullable#27
+	,	 -)_empty_/nullable.Nullable.NullableOps#[A]2#
+
+
+ scala/Boolean#`&&`().2
+
+
+ scala/Any#`!=`().27
+
+
+ )_empty_/nullable.Nullable.NullableOps#na.2&
+
+
+ scala/Function1#apply().2@
+
+
+ 2_empty_/nullable.Nullable.NullableOps#filter().(p)27
+
+
+ )_empty_/nullable.Nullable.NullableOps#na.27
+
+!
+ #)_empty_/nullable.Nullable.NullableOps#na.2>
+
+ 0_empty_/nullable.Nullable.NullableOps#flatMap().2A
+ 3_empty_/nullable.Nullable.NullableOps#flatMap().[B]2
+ scala/Null#2
+ %scala/AnyRef#2A
+' (3_empty_/nullable.Nullable.NullableOps#flatMap().(f)27
+* +)_empty_/nullable.Nullable.NullableOps#[A]2(
+/ 7_empty_/nullable.Nullable#2A
+8 93_empty_/nullable.Nullable.NullableOps#flatMap().[B]2(
+= E_empty_/nullable.Nullable#2A
+F G3_empty_/nullable.Nullable.NullableOps#flatMap().[B]2
+ scala/Any#`==`().27
+ )_empty_/nullable.Nullable.NullableOps#na.2&
+# #scala/Function1#apply().2A
+" #3_empty_/nullable.Nullable.NullableOps#flatMap().(f)27
+$ &)_empty_/nullable.Nullable.NullableOps#na.2=
+
+ /_empty_/nullable.Nullable.NullableOps#forall().2@
+ 2_empty_/nullable.Nullable.NullableOps#forall().(p)27
+ )_empty_/nullable.Nullable.NullableOps#[A]2
+  scala/Boolean#2
+# *scala/Boolean#2#
+ scala/Boolean#`||`().2
+ scala/Any#`==`().27
+ 
+)_empty_/nullable.Nullable.NullableOps#na.2&
+ scala/Function1#apply().2@
+ 2_empty_/nullable.Nullable.NullableOps#forall().(p)27
+ )_empty_/nullable.Nullable.NullableOps#na.2@
+
+ 2_empty_/nullable.Nullable.NullableOps#getOrElse().2C
+ 5_empty_/nullable.Nullable.NullableOps#getOrElse().(a)27
+ )_empty_/nullable.Nullable.NullableOps#[A]27
+ )_empty_/nullable.Nullable.NullableOps#[A]2
+ scala/Any#`==`().27
+ )_empty_/nullable.Nullable.NullableOps#na.2C
+ 5_empty_/nullable.Nullable.NullableOps#getOrElse().(a)27
+ !)_empty_/nullable.Nullable.NullableOps#na.2:
+
+ ,_empty_/nullable.Nullable.NullableOps#map().2=
+ /_empty_/nullable.Nullable.NullableOps#map().[B]2
+ scala/Null#2
+ !scala/AnyRef#2=
+# $/_empty_/nullable.Nullable.NullableOps#map().(f)27
+& ')_empty_/nullable.Nullable.NullableOps#[A]2=
++ ,/_empty_/nullable.Nullable.NullableOps#map().[B]2(
+/ 7_empty_/nullable.Nullable#2=
+8 9/_empty_/nullable.Nullable.NullableOps#map().[B]2
+ scala/Any#`==`().27
+ )_empty_/nullable.Nullable.NullableOps#na.2&
+# #scala/Function1#apply().2=
+" #/_empty_/nullable.Nullable.NullableOps#map().(f)27
+$ &)_empty_/nullable.Nullable.NullableOps#na.2=
+
+ /_empty_/nullable.Nullable.NullableOps#orElse().2B
+ 4_empty_/nullable.Nullable.NullableOps#orElse().(na2)2(
+ !_empty_/nullable.Nullable#27
+" #)_empty_/nullable.Nullable.NullableOps#[A]2(
+' /_empty_/nullable.Nullable#27
+0 1)_empty_/nullable.Nullable.NullableOps#[A]2
+ scala/Any#`==`().27
+ )_empty_/nullable.Nullable.NullableOps#na.2B
+ 4_empty_/nullable.Nullable.NullableOps#orElse().(na2)27
+! #)_empty_/nullable.Nullable.NullableOps#na.2?
+
+ 1_empty_/nullable.Nullable.NullableOps#toOption().2
+ scala/Option#27
+ )_empty_/nullable.Nullable.NullableOps#[A]2#
+ scala/Option.apply().2
+ scala/Option.27
+ )_empty_/nullable.Nullable.NullableOps#na.26
+ (_empty_/nullable.Nullable.NullableOps().PZ FC6A9937927A67F9158384F275DBE4A4

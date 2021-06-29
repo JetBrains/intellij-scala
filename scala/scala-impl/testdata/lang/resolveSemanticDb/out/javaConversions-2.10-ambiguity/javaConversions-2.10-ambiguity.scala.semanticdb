@@ -1,0 +1,44 @@
+
+¼.tests/pos/javaConversions-2.10-ambiguity.scala*
+_empty_/Bar.
+ *Bar€*,
+_empty_/Bar.assertType().*
+assertType€*&
+_empty_/Bar.assertType().[T]	*T€*&
+_empty_/Bar.assertType().(t)*t€*
+_empty_/Bar.a. €*a€2#
+ scala/collection/mutable/2&
+ &scala/collection/concurrent/2
+ scala/collection/2.
+   scala/collection/JavaConverters.2
+ scala/collection/25
+ -'java/util/concurrent/ConcurrentHashMap.25
+ -'java/util/concurrent/ConcurrentHashMap#2#
+ java/util/concurrent/2
+ 
+java/util/2
+ java/2
+ 
+_empty_/Bar.2'
+ _empty_/Bar.assertType().2*
+ _empty_/Bar.assertType().[T]2*
+ _empty_/Bar.assertType().(t)2*
+ _empty_/Bar.assertType().[T]2*
+ _empty_/Bar.assertType().(t)2
+ _empty_/Bar.a.27
+, .)scala/collection/mutable/Growable#`+=`().2@
+$ +2scala/collection/JavaConverters.AsScala#asScala().2Q
+
+ 
+Cscala/collection/JavaConverters.mapAsScalaConcurrentMapConverter().2@
+! !2java/util/concurrent/ConcurrentHashMap#`<init>`().25
+ 'java/util/concurrent/ConcurrentHashMap#2"
+ scala/Predef.String#2"
+  scala/Predef.String#2#
+1 1scala/Tuple2.apply().2'
+ _empty_/Bar.assertType().2.
+  scala/collection/concurrent/Map#2*
+ scala/collection/concurrent/2"
+ "scala/Predef.String#2"
+$ *scala/Predef.String#2
+- ._empty_/Bar.a.PZ 58B1D18C9ED857AC4A315FDC88CEBD31

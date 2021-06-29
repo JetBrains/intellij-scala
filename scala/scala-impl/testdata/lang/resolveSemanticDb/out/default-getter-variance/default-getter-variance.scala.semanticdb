@@ -1,0 +1,94 @@
+
+•'tests/pos/default-getter-variance.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	 €*A€*"
+_empty_/Foo#count().*count€*!
+_empty_/Foo#count().(f)*f€*6
+_empty_/Foo#count$default$1().*count$default$1€*$
+_empty_/Foo#count2().*count2€*"
+_empty_/Foo#count2().(f)*f€*&
+_empty_/Foo#count2(+1).*count2€*
+_empty_/Bar1#*Bar1€**
+_empty_/Bar1#`<init>`(). €@*<init>€*
+_empty_/Bar1#[A]	 €*A€*#
+_empty_/Bar1#count().*count€*"
+_empty_/Bar1#count().(f)*f€*%
+_empty_/Bar1#count2().*count2€*#
+_empty_/Bar1#count2().(f)*f€*
+_empty_/Bar2#*Bar2€**
+_empty_/Bar2#`<init>`(). €@*<init>€*
+_empty_/Bar2#[A]	 €*A€*#
+_empty_/Bar2#count().*count€*"
+_empty_/Bar2#count().(f)*f€*7
+_empty_/Bar2#count$default$1().*count$default$1€*%
+_empty_/Bar2#count2().*count2€*#
+_empty_/Bar2#count2().(f)*f€*'
+_empty_/Bar2#count2(+1).*count2€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ _empty_/Foo#[A]2"
+ _empty_/Foo#count().2%
+ _empty_/Foo#count().(f)2
+ _empty_/Foo#[A]2
+ scala/Boolean#2
+* .scala/Unit#2#
+ _empty_/Foo#count2().2&
+ _empty_/Foo#count2().(f)2
+ _empty_/Foo#[A]2
+ scala/Boolean#2
+ #scala/Unit#2%
+ _empty_/Foo#count2(+1).2
+ scala/Unit#2"
+ _empty_/Foo#count().2
+		 
+_empty_/Bar1#2&
+	
+	 
+_empty_/Bar1#`<init>`().2%
+		 _empty_/Foo#`<init>`().2
+		 _empty_/Foo#2
+		 _empty_/Bar1#[A]2
+		 _empty_/Bar1#[A]2#
+
+
+ _empty_/Bar1#count().2&
+
+
+ _empty_/Bar1#count().(f)2
+
+
+ _empty_/Bar1#[A]2
+
+
+ $scala/Boolean#2
+
+'
+ +scala/Unit#2$
+ _empty_/Bar1#count2().2'
+ _empty_/Bar1#count2().(f)2
+ _empty_/Bar1#[A]2
+ %scala/Boolean#2
+( ,scala/Unit#2
+ 
+_empty_/Bar2#2&
+
+ 
+_empty_/Bar2#`<init>`().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Bar2#[A]2
+ _empty_/Bar2#[A]2#
+ _empty_/Bar2#count().2&
+ _empty_/Bar2#count().(f)2
+ _empty_/Bar2#[A]2
+ $scala/Boolean#2
+3 7scala/Unit#2$
+ _empty_/Bar2#count2().2'
+ _empty_/Bar2#count2().(f)2
+ _empty_/Bar2#[A]2
+ %scala/Boolean#2
+( ,scala/Unit#2&
+ _empty_/Bar2#count2(+1).2
+ scala/Unit#2#
+  %_empty_/Bar2#count().PZ 15819185334D25637104E715B2EB6B26

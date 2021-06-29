@@ -1,0 +1,51 @@
+
+µtests/pos/t397.scala*
+_empty_/Root# *Root€**
+_empty_/Root#`<init>`(). €@*<init>€*!
+_empty_/Root#Edge# *Edge€*/
+_empty_/Root#Edge#`<init>`(). €@*<init>€*
+_empty_/Root#Edge#V#*V€*,
+_empty_/Root#Edge#source(). *source€*#
+_empty_/Root#Graph# *Graph€*0
+_empty_/Root#Graph#`<init>`(). €@*<init>€*
+_empty_/Root#Graph#W#*W€*
+_empty_/Root#Graph#E#*E€*
+local0*V€*)
+_empty_/Root#Graph#edge(). *edge€*
+_empty_/Root#g. „*g€*
+local1*W€*
+_empty_/Root#x. €*x€2
+ _empty_/Root#2&
+ _empty_/Root#`<init>`().2 
+ _empty_/Root#Edge#2+
+ _empty_/Root#Edge#`<init>`().2"
+	 
+_empty_/Root#Edge#V#2)
+ _empty_/Root#Edge#source().2"
+ _empty_/Root#Edge#V#2!
+ _empty_/Root#Graph#2,
+ _empty_/Root#Graph#`<init>`().2#
+	 
+_empty_/Root#Graph#W#2#
+			 
+_empty_/Root#Graph#E#2 
+		 _empty_/Root#Edge#2
+		 local02#
+		 _empty_/Root#Graph#W#2(
+
+
+ _empty_/Root#Graph#edge().2#
+
+
+ _empty_/Root#Graph#E#2
+ _empty_/Root#g.2!
+	 _empty_/Root#Graph#2
+ local12
+ 
+scala/Int#2
+ _empty_/Root#x.2
+	 
+scala/Int#2)
+ _empty_/Root#Edge#source().2(
+ _empty_/Root#Graph#edge().2
+ _empty_/Root#g.PZ 5593572E3E43CAD2BE3BCCA6340567BC

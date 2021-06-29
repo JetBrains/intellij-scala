@@ -1,0 +1,61 @@
+
+Ž.tests/pos/tasty-reflect-opaque-api-proto.scala*4
+_empty_/CompilerInterface#*CompilerInterface€*7
+%_empty_/CompilerInterface#`<init>`(). €@*<init>€*,
+_empty_/CompilerInterface#Tree#*Tree€*,
+_empty_/CompilerInterface#Term#*Term€* 
+_empty_/Reflect#*Reflect€*-
+_empty_/Reflect#`<init>`(). €@*<init>€*9
+%_empty_/Reflect#`<init>`().(internal) €*internal€*-
+_empty_/Reflect#internal. €*internal€*"
+_empty_/Reflect#Tree#*Tree€*"
+_empty_/Reflect#Term#*Term€*$
+_empty_/Reflect#Tree.
+ *Tree€*)
+_empty_/Reflect#Tree.show().*show€*/
+"_empty_/Reflect#Tree.show().(tree)*tree€*
+_empty_/App.
+ *App€*!
+_empty_/App.refl. €*refl€*!
+_empty_/App.tree. €*tree€*!
+_empty_/App.term. €*term€2(
+ _empty_/CompilerInterface#23
+ %_empty_/CompilerInterface#`<init>`().2-
+ _empty_/CompilerInterface#Tree#2-
+ _empty_/CompilerInterface#Term#2-
+ _empty_/CompilerInterface#Tree#2
+ _empty_/Reflect#2)
+ _empty_/Reflect#`<init>`().2(
+ -_empty_/CompilerInterface#2'
+ _empty_/Reflect#internal.2#
+ _empty_/Reflect#Tree#2-
+ "_empty_/CompilerInterface#Tree#2'
+ _empty_/Reflect#internal.2#
+		 _empty_/Reflect#Term#2#
+		 _empty_/Reflect#Tree#2-
+	&	 *_empty_/CompilerInterface#Term#2'
+		 %_empty_/Reflect#internal.2#
+	 _empty_/Reflect#Tree.2*
+
+ _empty_/Reflect#Tree.show().20
+ "_empty_/Reflect#Tree.show().(tree)2#
+ _empty_/Reflect#Tree#2"
+ scala/Predef.String#2#
+ scala/Predef.`???`().2
+ 
+_empty_/App.2
+ 
+_empty_/App.refl.2
+ _empty_/Reflect#2#
+ scala/Predef.`???`().2
+	 _empty_/App.refl.2
+ 
+_empty_/App.tree.2#
+ scala/Predef.`???`().2*
+ _empty_/Reflect#Tree.show().2
+ _empty_/App.tree.2
+ 
+_empty_/App.term.2#
+ scala/Predef.`???`().2*
+ _empty_/Reflect#Tree.show().2
+ _empty_/App.tree.PZ FCC18FB2A8BDDA92576CC9D79F14D79F

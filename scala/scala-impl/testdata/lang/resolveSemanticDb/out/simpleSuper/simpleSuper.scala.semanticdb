@@ -1,0 +1,43 @@
+
+´tests/pos/simpleSuper.scala*
+foo/A#*A€*#
+foo/A#`<init>`(). €@*<init>€*
+foo/A#foo().*foo€*
+foo/B#*B€*#
+foo/B#`<init>`(). €@*<init>€*
+foo/B#foo().*foo€*
+foo/C#*C€*#
+foo/C#`<init>`(). €@*<init>€*
+foo/C#foo().*foo€2
+ foo/2
+ foo/A#2
+ foo/A#`<init>`().2
+ 	foo/A#foo().2
+ 
+scala/Int#2
+ foo/B#2
+ foo/B#`<init>`().2
+ 	foo/B#foo().2
+ 
+scala/Int#2
+
+
+ foo/C#2
+
+
+ foo/C#`<init>`().2
+
+
+ foo/A#`<init>`().2
+
+
+ foo/A#2
+
+
+ foo/B#2
+ foo/C#foo().2
+ 
+scala/Int#2 
+$ %scala/Int#`+`(+4).2
+  #foo/B#foo().2
+/ 2foo/B#foo().PZ C41D96B7FA8A82E5400FE067650CE734

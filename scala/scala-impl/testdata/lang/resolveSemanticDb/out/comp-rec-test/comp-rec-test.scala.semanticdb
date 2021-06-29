@@ -1,0 +1,61 @@
+
+žtests/pos/comp-rec-test.scala*
+_empty_/Comp.
+ *Comp€*#
+_empty_/Comp.Family#*Family€*1
+_empty_/Comp.Family#`<init>`(). €@*<init>€* 
+_empty_/Comp.Family#T#*T€*'
+_empty_/Comp.Trivial.
+ *Trivial€*!
+_empty_/Comp.Trivial.T#*T€*
+_empty_/Comp.Wrap#*Wrap€*/
+_empty_/Comp.Wrap#`<init>`(). €@*<init>€*!
+_empty_/Comp.Wrap#v. „*v€*
+_empty_/Comp.Wrap#T#*T€*/
+_empty_/Comp.WrapTrivial.
+ *WrapTrivial€*(
+_empty_/Comp.WrapTrivial.v. €*v€*7
+_empty_/Comp.WrapWrapTrivial.
+ *WrapWrapTrivial€*,
+_empty_/Comp.WrapWrapTrivial.v. €*v€2
+ _empty_/Comp.2
+ 
+scala/App#2"
+	 _empty_/Comp.Family#2-
+ _empty_/Comp.Family#`<init>`().2$
+
+ _empty_/Comp.Family#T#2#
+
+ _empty_/Comp.Trivial.2"
+  _empty_/Comp.Family#2%
+
+ _empty_/Comp.Trivial.T#2
+ scala/Unit#2 
+
+	
+ _empty_/Comp.Wrap#2+
+
+
+ _empty_/Comp.Wrap#`<init>`().2"
+
+
+ _empty_/Comp.Family#2"
+	 
+_empty_/Comp.Wrap#v.2"
+ _empty_/Comp.Family#2"
+
+ _empty_/Comp.Wrap#T#2$
+ _empty_/Comp.Family#T#2"
+ _empty_/Comp.Wrap#v.2'
+
+ _empty_/Comp.WrapTrivial.2 
+ "_empty_/Comp.Wrap#2)
+	 
+_empty_/Comp.WrapTrivial.v.2#
+ _empty_/Comp.Trivial.2+
+
+ _empty_/Comp.WrapWrapTrivial.2 
+" &_empty_/Comp.Wrap#2-
+	 
+_empty_/Comp.WrapWrapTrivial.v.2'
+ _empty_/Comp.WrapTrivial.PZ 4C00951412AB7A05F5BE48CC94BA14EB

@@ -1,0 +1,12 @@
+
+Étests/pos/single-case.scala*
+_empty_/test.
+ *test€*
+local0 €*ex€2
+ _empty_/test.2'
+ scala/Predef.println(+1).2
+ local02"
+ $java/io/IOException#2
+ java/io/2
+ java/2'
+( /scala/Predef.println(+1).PZ 63EC82C3F60EC11DD9BBBCF7DDA5F314

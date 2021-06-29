@@ -1,0 +1,89 @@
+
+“tests/pos/opaque-inline.scala*"
+_empty_/refined.
+ *refined€**
+_empty_/refined.Positive#*Positive€*,
+_empty_/refined.Positive.
+ *Positive€*8
+ _empty_/refined.PositiveFactory#*PositiveFactory€*=
++_empty_/refined.PositiveFactory#`<init>`(). €@*<init>€*6
+(_empty_/refined.PositiveFactory#apply().*apply€*=
+/_empty_/refined.PositiveFactory#apply().(value)*value€*.
+$_empty_/refined.PositiveFactory#f().*f€*1
+'_empty_/refined.PositiveFactory#f().(x)*x€*8
+)_empty_/refined.PositiveFactory#fapply().*fapply€*>
+0_empty_/refined.PositiveFactory#fapply().(value)*value€*
+local0 €*vv€*2
+ _empty_/`opaque-inline$package`. *_empty_€*2
+&_empty_/`opaque-inline$package`.run().*run€*
+local1 €*x€*
+local2 €*nine€*
+local3 €*nine1€*
+_empty_/run# *run€*)
+_empty_/run#`<init>`(). €@*<init>€*#
+_empty_/run#main(). € *main€*&
+_empty_/run#main().(args)*args€*
+local4 €*error€2
+ _empty_/refined.2'
+ _empty_/refined.Positive#2
+ 
+scala/Int#2'
+	 _empty_/refined.Positive.2.
+ ) _empty_/refined.PositiveFactory#2.
+  _empty_/refined.PositiveFactory#29
+ +_empty_/refined.PositiveFactory#`<init>`().26
+ (_empty_/refined.PositiveFactory#apply().2=
+ /_empty_/refined.PositiveFactory#apply().(value)2
+ 
+scala/Int#2'
+" *_empty_/refined.Positive#2=
+- 2/_empty_/refined.PositiveFactory#apply().(value)22
+		 	$_empty_/refined.PositiveFactory#f().25
+	
+	 '_empty_/refined.PositiveFactory#f().(x)2'
+		 _empty_/refined.Positive#2'
+		  _empty_/refined.Positive#25
+	#	 $'_empty_/refined.PositiveFactory#f().(x)27
+
+
+ )_empty_/refined.PositiveFactory#fapply().2>
+
+
+ 0_empty_/refined.PositiveFactory#fapply().(value)2
+
+
+  
+scala/Int#2'
+
+#
+ +_empty_/refined.Positive#2
+
+ local02#
+ scala/Tuple2.apply().2>
+ 0_empty_/refined.PositiveFactory#fapply().(value)2>
+ 0_empty_/refined.PositiveFactory#fapply().(value)22
+ $_empty_/refined.PositiveFactory#f().2
+ scala/Tuple2#_1.2
+ 
+local02*
+ _empty_/`opaque-inline$package`.2
+ scala/main#24
+
+ &_empty_/`opaque-inline$package`.run().2
+ scala/Unit#2
+	 _empty_/refined.2
+ local12
+ 
+local226
+ (_empty_/refined.PositiveFactory#apply().2'
+ _empty_/refined.Positive.2
+ local12
+ local327
+ )_empty_/refined.PositiveFactory#fapply().2'
+ _empty_/refined.Positive.2
+ local12
+_empty_/run#2!
+_empty_/run#`<init>`().20
+&_empty_/`opaque-inline$package`.run().23
+)scala/util/CommandLineParser.showError().2
+local4PZ 94F9D6932C4BB63A1C9040FD95E824C5

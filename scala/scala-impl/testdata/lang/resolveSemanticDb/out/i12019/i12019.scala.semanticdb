@@ -1,0 +1,118 @@
+
+ýtests/pos/i12019.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#X#*X€*
+_empty_/Eg2.
+ *Eg2€*
+_empty_/Eg2.ok().*ok€*
+_empty_/Eg2.ok().(f)*f€*
+local0 *apply€*
+local1  *q€* 
+_empty_/Eg2.ko_1().*ko_1€* 
+_empty_/Eg2.ko_1().(f)*f€*
+local2 *apply€*
+local3  *q€*4
+_empty_/Eg2.ko_1$default$1().*ko_1$default$1€* 
+_empty_/Eg2.ko_2().*ko_2€* 
+_empty_/Eg2.ko_2().(f)*f€*
+local4 *apply€*
+local5  *q€*4
+_empty_/Eg2.ko_2$default$1().*ko_2$default$1€*)
+_empty_/i12019$package. *_empty_€*)
+_empty_/i12019$package.ko1().*ko1€**
+ _empty_/i12019$package.ko1().(f)*f€*
+local6 *apply€*
+local7  *q€*=
+'_empty_/i12019$package.ko1$default$1().*ko1$default$1€*)
+_empty_/i12019$package.ko2().*ko2€**
+ _empty_/i12019$package.ko2().(f)*f€*
+local8 *apply€*
+local9  *q€*=
+'_empty_/i12019$package.ko2$default$1().*ko2$default$1€*)
+_empty_/i12019$package.ko3().*ko3€**
+ _empty_/i12019$package.ko3().(f)*f€*
+local10 *apply€*
+local11*q€*=
+'_empty_/i12019$package.ko3$default$1().*ko3$default$1€*
+local12*q€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#X#2
+ scala/Null#2
+ scala/quoted/2
+ scala/2
+
+
+ 
+_empty_/Eg2.2
+ _empty_/Eg2.ok().2"
+ _empty_/Eg2.ok().(f)2"
+ scala/quoted/Quotes#2
+ local02
+ local127
+( .)scala/quoted/Quotes#reflectModule#ValDef#2*
+  'scala/quoted/Quotes#reflect.2
+ local125
+< @'scala/quoted/Quotes#reflectModule#Term#2*
+4 ;scala/quoted/Quotes#reflect.2
+2 3local12!
+ 
+_empty_/Eg2.ko_1().2$
+ _empty_/Eg2.ko_1().(f)2"
+ scala/quoted/Quotes#2
+ local22
+ local327
+( .)scala/quoted/Quotes#reflectModule#ValDef#2*
+  'scala/quoted/Quotes#reflect.2
+ local325
+< @'scala/quoted/Quotes#reflectModule#Term#2*
+4 ;scala/quoted/Quotes#reflect.2
+2 3local32!
+ 
+_empty_/Eg2.ko_2().2$
+ _empty_/Eg2.ko_2().(f)2"
+ scala/quoted/Quotes#2
+ local42
+ local527
+( .)scala/quoted/Quotes#reflectModule#ValDef#2*
+  'scala/quoted/Quotes#reflect.2
+ local525
+< @'scala/quoted/Quotes#reflectModule#Term#2*
+4 ;scala/quoted/Quotes#reflect.2
+2 3local52"
+G Mscala/quoted/Quotes#2!
+_empty_/i12019$package.2+
+ _empty_/i12019$package.ko1().2.
+ 	 _empty_/i12019$package.ko1().(f)2
+ 
+_empty_/A#2
+ local62
+ local72
+ 
+scala/Int#2
+  _empty_/A#X#2
+ local72+
+ _empty_/i12019$package.ko2().2.
+ 	 _empty_/i12019$package.ko2().(f)2
+ 
+_empty_/A#2
+ local82
+ local92
+ 
+scala/Int#2
+  _empty_/A#X#2
+ local92
+' (
+_empty_/A#2+
+ _empty_/i12019$package.ko3().2.
+ 	 _empty_/i12019$package.ko3().(f)2
+ 
+_empty_/A#2
+ local102
+ local112
+ _empty_/A#X#2
+ local112
+ local12PZ E8415E5CA34F4F1046D95596B9002F37

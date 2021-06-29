@@ -1,0 +1,41 @@
+
+‰tests/pos/i2671.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.map().*map€*
+_empty_/Foo.map().[E]	*E€*
+_empty_/Foo.map().(f)*f€*
+_empty_/Foo.i().  *i€*
+_empty_/Foo.f().*f€*
+_empty_/Foo.a. €*a€2
+ 
+_empty_/Foo.2 
+ 	_empty_/Foo.map().2#
+
+ _empty_/Foo.map().[E]2#
+ _empty_/Foo.map().(f)2#
+ _empty_/Foo.map().[E]2
+ 
+scala/Int#2#
+ _empty_/Foo.map().[E]2
+# &
+scala/Int#2#
+* -scala/Predef.`???`().2
+ _empty_/Foo.i().2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Foo.f().2
+	 
+scala/Int#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Foo.a.2
+	 
+scala/Int#2-
+ scala/ContextFunction1#apply().2 
+ _empty_/Foo.map().2-
+ scala/ContextFunction1#apply().2
+ _empty_/Foo.f().2
+ _empty_/Foo.i().PZ 9830D136CED27EAC6B73A6A7D11BAFF4

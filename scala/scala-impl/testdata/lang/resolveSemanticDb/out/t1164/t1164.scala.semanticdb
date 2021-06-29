@@ -1,0 +1,125 @@
+
+˜&tests/pos/t1164.scala*
+_empty_/test.
+ *test€*
+_empty_/test.Foo#*Foo€*.
+_empty_/test.Foo#`<init>`(). €@*<init>€*0
+!_empty_/test.Foo#`<init>`().(arg) €*arg€*
+_empty_/test.Foo#[a]	*a€*$
+_empty_/test.Foo#arg. €*arg€*
+_empty_/test.Foo.
+ *Foo€*'
+_empty_/test.Foo.apply().*apply€*&
+_empty_/test.Foo.apply().[a]	*a€**
+_empty_/test.Foo.apply().(arg)*arg€*.
+ _empty_/test.Foo.apply().(right)*right€*+
+_empty_/test.Foo.unapply().*unapply€*(
+_empty_/test.Foo.unapply().[a]	*a€*(
+_empty_/test.Foo.unapply().(m)*m€*C
+%_empty_/test.matchAndGetArgFromFoo().*matchAndGetArgFromFoo€*2
+(_empty_/test.matchAndGetArgFromFoo().[a]	*a€*2
+(_empty_/test.matchAndGetArgFromFoo().(e)*e€*
+local0 €*x€*)
+_empty_/test.FunIntToA#*	FunIntToA€*$
+_empty_/test.FunIntToA#[a]	*a€*
+_empty_/test.Bar#*Bar€*.
+_empty_/test.Bar#`<init>`(). €@*<init>€*,
+_empty_/test.Bar#`<init>`().(f) €*f€*
+_empty_/test.Bar#[a]	*a€*"
+_empty_/test.Bar#f(). €*f€*(
+_empty_/test.Bar#`f_=`(). €*f_=€**
+_empty_/test.Bar#`f_=`().(x$1)*x$1€*
+_empty_/test.Bar.
+ *Bar€*'
+_empty_/test.Bar.apply().*apply€*&
+_empty_/test.Bar.apply().[a]	*a€*&
+_empty_/test.Bar.apply().(f)*f€*+
+_empty_/test.Bar.unapply().*unapply€*(
+_empty_/test.Bar.unapply().[a]	*a€*(
+_empty_/test.Bar.unapply().(m)*m€*C
+%_empty_/test.matchAndGetFunFromBar().*matchAndGetFunFromBar€*2
+(_empty_/test.matchAndGetFunFromBar().[a]	*a€*2
+(_empty_/test.matchAndGetFunFromBar().(b)*b€*
+local1 €*x€2
+ _empty_/test.2
+
+ _empty_/test.Foo#2*
+ _empty_/test.Foo#`<init>`().2"
+ _empty_/test.Foo#[a]2"
+ _empty_/test.Foo#[a]2#
+ _empty_/test.Foo#arg.2
+ _empty_/test.Foo.2'
+ _empty_/test.Foo.apply().2*
+ _empty_/test.Foo.apply().[a]2,
+ _empty_/test.Foo.apply().(arg)2*
+ _empty_/test.Foo.apply().[a]2.
+ $ _empty_/test.Foo.apply().(right)2*
+& '_empty_/test.Foo.apply().[a]2*
+5 5_empty_/test.Foo#`<init>`().2
+/ 2_empty_/test.Foo#2*
+3 4_empty_/test.Foo.apply().[a]2,
+6 9_empty_/test.Foo.apply().(arg)2)
+ _empty_/test.Foo.unapply().2,
+ _empty_/test.Foo.unapply().[a]2,
+ _empty_/test.Foo.unapply().(m)2
+ _empty_/test.Foo#2,
+  !_empty_/test.Foo.unapply().[a]2!
+* *scala/Some.apply().2
+& *scala/Some.2#
+. 1_empty_/test.Foo#arg.2,
+, -_empty_/test.Foo.unapply().(m)23
+		 %_empty_/test.matchAndGetArgFromFoo().26
+		 (_empty_/test.matchAndGetArgFromFoo().[a]26
+	"	 #(_empty_/test.matchAndGetArgFromFoo().(e)2
+	$	 '_empty_/test.Foo#26
+	(	 )(_empty_/test.matchAndGetArgFromFoo().[a]26
+	,	 -(_empty_/test.matchAndGetArgFromFoo().[a]26
+	1	 2(_empty_/test.matchAndGetArgFromFoo().(e)2)
+	C	 C_empty_/test.Foo.unapply().2
+	@	 C_empty_/test.Foo.2
+	D	 Elocal02
+	J	 Klocal02%
+	 _empty_/test.FunIntToA#2(
+ _empty_/test.FunIntToA#[a]2
+ 
+scala/Int#2(
+" #_empty_/test.FunIntToA#[a]2
+
+ _empty_/test.Bar#2*
+ _empty_/test.Bar#`<init>`().2%
+ "_empty_/test.FunIntToA#2"
+# $_empty_/test.Bar#[a]2"
+ _empty_/test.Bar#[a]2#
+ _empty_/test.Bar#f().2'
+ _empty_/test.Bar#`f_=`().2
+ _empty_/test.Bar.2'
+ _empty_/test.Bar.apply().2*
+ _empty_/test.Bar.apply().[a]2*
+ _empty_/test.Bar.apply().(f)2%
+ !_empty_/test.FunIntToA#2*
+" #_empty_/test.Bar.apply().[a]2*
+2 2_empty_/test.Bar#`<init>`().2
+, /_empty_/test.Bar#2*
+0 1_empty_/test.Bar.apply().[a]2*
+3 4_empty_/test.Bar.apply().(f)2)
+ _empty_/test.Bar.unapply().2,
+ _empty_/test.Bar.unapply().[a]2,
+ _empty_/test.Bar.unapply().(m)2
+ _empty_/test.Bar#2,
+ _empty_/test.Bar.unapply().[a]2!
+( (scala/Some.apply().2
+$ (scala/Some.2#
+, -_empty_/test.Bar#f().2,
+* +_empty_/test.Bar.unapply().(m)23
+ %_empty_/test.matchAndGetFunFromBar().26
+ (_empty_/test.matchAndGetFunFromBar().[a]26
+! "(_empty_/test.matchAndGetFunFromBar().(b)2
+# &_empty_/test.Bar#26
+' ((_empty_/test.matchAndGetFunFromBar().[a]2%
+- 6_empty_/test.FunIntToA#26
+7 8(_empty_/test.matchAndGetFunFromBar().[a]26
+> ?(_empty_/test.matchAndGetFunFromBar().(b)2)
+P P_empty_/test.Bar.unapply().2
+M P_empty_/test.Bar.2
+Q Rlocal12
+W Xlocal1PZ 8A3C98784DB03B21C2E3663FD45A2A1F

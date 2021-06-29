@@ -1,0 +1,31 @@
+
+ötests/pos/i7778b.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*(
+_empty_/Foo#`<init>`().(run)*run€*
+_empty_/Foo#[A]	*A€*
+_empty_/Foo#run. €*run€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().[T]	*T€*
+_empty_/Foo#foo().(f)*f€*2
+_empty_/Foo#foo$default$1().*foo$default$1€*)
+_empty_/Foo#foo$default$1().[T]	*T€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ _empty_/Foo#[A]2
+ 
+scala/Int#2
+
+ _empty_/Foo#[A]2
+ _empty_/Foo#run.2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().[T]2#
+ _empty_/Foo#foo().(f)2#
+ _empty_/Foo#foo().[T]2
+ 
+scala/Int#2-
+
+ _empty_/Foo#foo$default$1().[T]2-
+ scala/ContextFunction1#apply().2
+ _empty_/Foo#run.PZ 747F1C851D99A351F1E513C306F24189

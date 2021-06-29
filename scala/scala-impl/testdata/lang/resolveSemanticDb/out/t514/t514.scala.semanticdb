@@ -1,0 +1,23 @@
+
+Ìtests/pos/t514.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Truc.
+ *Truc€*.
+_empty_/Test.Truc.toString().*toString€*0
+_empty_/Test.Truc.toString(+1).*toString€*2
+%_empty_/Test.Truc.toString(+1).(bool)*bool€*"
+_empty_/Test.tata. €*tata€2
+ _empty_/Test.2
+ 
+scala/App#2 
+	 _empty_/Test.Truc.2+
+ _empty_/Test.Truc.toString().2-
+ _empty_/Test.Truc.toString(+1).23
+ %_empty_/Test.Truc.toString(+1).(bool)2
+ scala/Boolean#2 
+ 
+_empty_/Test.tata.2"
+ scala/Predef.String#2+
+ "_empty_/Test.Truc.toString().2 
+ _empty_/Test.Truc.PZ E3E816D634F250F61D011D42873D8539

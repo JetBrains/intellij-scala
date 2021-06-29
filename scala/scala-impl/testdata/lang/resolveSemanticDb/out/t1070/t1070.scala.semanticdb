@@ -1,0 +1,17 @@
+
+Òtests/pos/t1070.scala*4
+_empty_/beanpropertytrait#*beanpropertytrait€*7
+%_empty_/beanpropertytrait#`<init>`(). €@*<init>€*=
+'_empty_/beanpropertytrait#myVariable(). €*
+myVariable€*C
++_empty_/beanpropertytrait#`myVariable_=`(). €*myVariable_=€*<
+0_empty_/beanpropertytrait#`myVariable_=`().(x$1)*x$1€2#
+ scala/beans/BeanProperty#2
+ scala/beans/2
+ scala/2(
+ _empty_/beanpropertytrait#23
+ %_empty_/beanpropertytrait#`<init>`().2'
+ scala/beans/BeanProperty#25
+ '_empty_/beanpropertytrait#myVariable().2
+  $scala/Long#29
+  +_empty_/beanpropertytrait#`myVariable_=`().PZ 99C5D202590553F3B963028E81B8D6E4

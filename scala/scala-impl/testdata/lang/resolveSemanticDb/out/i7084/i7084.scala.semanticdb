@@ -1,0 +1,50 @@
+
+Ä	tests/pos/i7084.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*
+_empty_/Test.g().*g€*
+_empty_/Test.g().(y)*y€*$
+_empty_/Test.g().(x$2)  *x$2€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(x)*x€*$
+_empty_/Test.f().(x$2)  *x$2€*
+local0 €*y€2
+ _empty_/Test.2
+ 
+_empty_/Test.Foo#2
+ 	_empty_/Test.g().2"
+ _empty_/Test.g().(y)2
+ 
+scala/Any#2$
+ _empty_/Test.g().(x$2)2
+ _empty_/Test.Foo#2
+ 
+scala/Any#2#
+ scala/Predef.`???`().2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(x)2
+ 
+scala/Any#2$
+ _empty_/Test.f().(x$2)2
+ _empty_/Test.Foo#2
+ 
+scala/Any#2
+		 	local02
+		 _empty_/Test.g().2"
+		 _empty_/Test.f().(x)2$
+		 _empty_/Test.f().(x$2)2
+
+
+ _empty_/Test.g().2
+
+
+ local02$
+
+
+ _empty_/Test.f().(x$2)2
+ 	_empty_/Test.g().2
+ _empty_/Test.g().2"
+ _empty_/Test.f().(x)2$
+ _empty_/Test.f().(x$2)2$
+	 	_empty_/Test.f().(x$2)PZ B10FA568918D4F22654308D43FF3F7E1

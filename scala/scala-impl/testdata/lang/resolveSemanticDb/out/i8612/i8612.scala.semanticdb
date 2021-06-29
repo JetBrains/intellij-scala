@@ -1,0 +1,86 @@
+
+Átests/pos/i8612.scala*
+_empty_/Foo1.
+ *Foo1€*'
+_empty_/Foo1.assert1().*assert1€*$
+_empty_/Foo1.assert1().(x)*x€*'
+_empty_/Foo1.assert2().*assert2€*$
+_empty_/Foo1.assert2().(x)*x€*'
+_empty_/Foo1.assert3().*assert3€*$
+_empty_/Foo1.assert3().(x)*x€*
+_empty_/Foo2.
+ *Foo2€*'
+_empty_/Foo2.assert1().*assert1€*$
+_empty_/Foo2.assert1().(x)*x€*'
+_empty_/Foo2.assert2().*assert2€*$
+_empty_/Foo2.assert2().(x)*x€*'
+_empty_/Foo2.assert3().*assert3€*$
+_empty_/Foo2.assert3().(x)*x€2
+ _empty_/Foo1.2%
+ _empty_/Foo1.assert1().2(
+ _empty_/Foo1.assert1().(x)2
+ scala/Boolean#2(
+! !scala/Boolean#`unary_!`().2(
+  !_empty_/Foo1.assert1().(x)2#
+' *scala/Predef.`???`().2%
+ _empty_/Foo1.assert2().2(
+ _empty_/Foo1.assert2().(x)2
+ scala/Boolean#2(
+( (scala/Boolean#`unary_!`().2(
+' (_empty_/Foo1.assert2().(x)2#
+. 1scala/Predef.`???`().2%
+ _empty_/Foo1.assert3().2(
+ _empty_/Foo1.assert3().(x)2
+ &scala/Boolean#2(
+/ /scala/Boolean#`unary_!`().2(
+. /_empty_/Foo1.assert3().(x)2#
+5 8scala/Predef.`???`().2%
+ 	_empty_/Foo1.assert1().2#
+
+ scala/Predef.`???`().2%
+ 	_empty_/Foo1.assert2().2#
+
+ scala/Predef.`???`().2%
+ 	_empty_/Foo1.assert3().2#
+
+ scala/Predef.`???`().2
+		 _empty_/Foo2.2%
+
+
+ _empty_/Foo2.assert1().2(
+
+
+ _empty_/Foo2.assert1().(x)2
+
+
+ scala/Boolean#2(
+
+!
+ !scala/Boolean#`unary_!`().2(
+
+ 
+ !_empty_/Foo2.assert1().(x)2#
+
+'
+ *scala/Predef.`???`().2(
+4 4scala/Boolean#`unary_!`().2(
+3 4_empty_/Foo2.assert2().(x)2#
+: =scala/Predef.`???`().2%
+  _empty_/Foo2.assert2().2(
+! "_empty_/Foo2.assert2().(x)2
+$ +scala/Boolean#2(
+; ;scala/Boolean#`unary_!`().2(
+: ;_empty_/Foo2.assert3().(x)2#
+A Dscala/Predef.`???`().2%
+  _empty_/Foo2.assert3().2(
+( )_empty_/Foo2.assert3().(x)2
++ 2scala/Boolean#2%
+ 	_empty_/Foo2.assert1().2#
+
+ scala/Predef.`???`().2%
+ 	_empty_/Foo2.assert2().2#
+
+ scala/Predef.`???`().2%
+ 	_empty_/Foo2.assert3().2#
+
+ scala/Predef.`???`().PZ C8626AAB5B76E3A8D54B3488720AC6C4

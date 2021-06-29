@@ -1,0 +1,335 @@
+
+¿btests/pos/gadt-TailCalls.scala*&
+_empty_/TailCalls.
+ *	TailCalls€*,
+_empty_/TailCalls.TailRec# *TailRec€*7
+%_empty_/TailCalls.TailRec#`<init>`(). €@*<init>€**
+_empty_/TailCalls.TailRec#[A]	 €*A€*6
+$_empty_/TailCalls.TailRec#flatMap(). *flatMap€*1
+'_empty_/TailCalls.TailRec#flatMap().[B]	*B€*1
+'_empty_/TailCalls.TailRec#flatMap().(f)*f€*
+local0 €	*A$1€*
+local1 €*a€*
+local2 €*c€*
+local3 €	*A$2€*
+local4 €*c€*
+local5 €	*a1€*
+local6 €	*b1€*
+local7*x€*4
+#_empty_/TailCalls.TailRec#resume(). *resume€*
+local8 €	*A$3€*
+local9 €*a€*
+local10 €	*A$4€*
+local11 €*k€*
+local12 €	*A$5€*
+local13 €	*B$1€*
+local14 €*a€*
+local15 €*f€*
+local16 €	*A$6€*
+local17 €*v€*
+local18 €	*A$7€*
+local19 €*k€*
+local20 €	*A$8€*
+local21 €	*B$2€*
+local22 €*b€*
+local23 €*g€*
+local24*x€*4
+#_empty_/TailCalls.TailRec#result(). *result€*
+local25 €	*A$9€*
+local26 €*a€*
+local27 €	*A$10€*
+local28 €*t€*
+local29 €	*A$11€*
+local30 €	*B$3€*
+local31 €*a€*
+local32 €*f€*
+local33 €	*A$12€*
+local34 €*v€*
+local35 €	*A$13€*
+local36 €*t€*
+local37 €	*A$14€*
+local38 €	*B$4€*
+local39 €*b€*
+local40 €*g€*
+local41*x€*'
+_empty_/TailCalls.Call# €*Call€*4
+"_empty_/TailCalls.Call#`<init>`(). €@*<init>€*8
+(_empty_/TailCalls.Call#`<init>`().(rest) €*rest€*$
+_empty_/TailCalls.Call#[A]	*A€*,
+_empty_/TailCalls.Call#rest. €*rest€*+
+_empty_/TailCalls.Call#copy().*copy€*+
+!_empty_/TailCalls.Call#copy().[A]	*A€*1
+$_empty_/TailCalls.Call#copy().(rest)*rest€*?
+(_empty_/TailCalls.Call#copy$default$1().*copy$default$1€*5
++_empty_/TailCalls.Call#copy$default$1().[A]	*A€*'
+_empty_/TailCalls.Call#_1().*_1€*&
+_empty_/TailCalls.Call.
+ *Call€*-
+_empty_/TailCalls.Call.apply().*apply€*,
+"_empty_/TailCalls.Call.apply().[A]	*A€*2
+%_empty_/TailCalls.Call.apply().(rest)*rest€*1
+!_empty_/TailCalls.Call.unapply().*unapply€*.
+$_empty_/TailCalls.Call.unapply().[A]	*A€*2
+&_empty_/TailCalls.Call.unapply().(x$1)*x$1€*3
+"_empty_/TailCalls.Call.toString().*toString€*'
+_empty_/TailCalls.Done# €*Done€*4
+"_empty_/TailCalls.Done#`<init>`(). €@*<init>€*:
+)_empty_/TailCalls.Done#`<init>`().(value) €*value€*$
+_empty_/TailCalls.Done#[A]	*A€*.
+_empty_/TailCalls.Done#value. €*value€*+
+_empty_/TailCalls.Done#copy().*copy€*+
+!_empty_/TailCalls.Done#copy().[A]	*A€*3
+%_empty_/TailCalls.Done#copy().(value)*value€*?
+(_empty_/TailCalls.Done#copy$default$1().*copy$default$1€*5
++_empty_/TailCalls.Done#copy$default$1().[A]	*A€*'
+_empty_/TailCalls.Done#_1().*_1€*&
+_empty_/TailCalls.Done.
+ *Done€*-
+_empty_/TailCalls.Done.apply().*apply€*,
+"_empty_/TailCalls.Done.apply().[A]	*A€*4
+&_empty_/TailCalls.Done.apply().(value)*value€*1
+!_empty_/TailCalls.Done.unapply().*unapply€*.
+$_empty_/TailCalls.Done.unapply().[A]	*A€*2
+&_empty_/TailCalls.Done.unapply().(x$1)*x$1€*3
+"_empty_/TailCalls.Done.toString().*toString€*'
+_empty_/TailCalls.Cont# €*Cont€*4
+"_empty_/TailCalls.Cont#`<init>`(). €@*<init>€*2
+%_empty_/TailCalls.Cont#`<init>`().(a) €*a€*2
+%_empty_/TailCalls.Cont#`<init>`().(f) €*f€*$
+_empty_/TailCalls.Cont#[A]	*A€*$
+_empty_/TailCalls.Cont#[B]	*B€*&
+_empty_/TailCalls.Cont#a. €*a€*&
+_empty_/TailCalls.Cont#f. €*f€*+
+_empty_/TailCalls.Cont#copy().*copy€*+
+!_empty_/TailCalls.Cont#copy().[A]	*A€*+
+!_empty_/TailCalls.Cont#copy().[B]	*B€*+
+!_empty_/TailCalls.Cont#copy().(a)*a€*+
+!_empty_/TailCalls.Cont#copy().(f)*f€*?
+(_empty_/TailCalls.Cont#copy$default$1().*copy$default$1€*5
++_empty_/TailCalls.Cont#copy$default$1().[A]	*A€*5
++_empty_/TailCalls.Cont#copy$default$1().[B]	*B€*?
+(_empty_/TailCalls.Cont#copy$default$2().*copy$default$2€*5
++_empty_/TailCalls.Cont#copy$default$2().[A]	*A€*5
++_empty_/TailCalls.Cont#copy$default$2().[B]	*B€*'
+_empty_/TailCalls.Cont#_1().*_1€*'
+_empty_/TailCalls.Cont#_2().*_2€*&
+_empty_/TailCalls.Cont.
+ *Cont€*-
+_empty_/TailCalls.Cont.apply().*apply€*,
+"_empty_/TailCalls.Cont.apply().[A]	*A€*,
+"_empty_/TailCalls.Cont.apply().[B]	*B€*,
+"_empty_/TailCalls.Cont.apply().(a)*a€*,
+"_empty_/TailCalls.Cont.apply().(f)*f€*1
+!_empty_/TailCalls.Cont.unapply().*unapply€*.
+$_empty_/TailCalls.Cont.unapply().[A]	*A€*.
+$_empty_/TailCalls.Cont.unapply().[B]	*B€*2
+&_empty_/TailCalls.Cont.unapply().(x$1)*x$1€*3
+"_empty_/TailCalls.Cont.toString().*toString€2 
+ _empty_/TailCalls.2(
+ _empty_/TailCalls.TailRec#23
+ %_empty_/TailCalls.TailRec#`<init>`().2+
+ _empty_/TailCalls.TailRec#[A]22
+ $_empty_/TailCalls.TailRec#flatMap().25
+ '_empty_/TailCalls.TailRec#flatMap().[B]25
+ '_empty_/TailCalls.TailRec#flatMap().(f)2+
+ _empty_/TailCalls.TailRec#[A]2(
+! (_empty_/TailCalls.TailRec#25
+) *'_empty_/TailCalls.TailRec#flatMap().[B]2(
+. 5_empty_/TailCalls.TailRec#25
+6 7'_empty_/TailCalls.TailRec#flatMap().[B]2/
+ !_empty_/TailCalls.Done.unapply().2%
+ _empty_/TailCalls.Done.2
+ local02
+ local12-
+ _empty_/TailCalls.Call.apply().2%
+ _empty_/TailCalls.Call.2&
+$ $scala/Function1#apply().25
+# $'_empty_/TailCalls.TailRec#flatMap().(f)2
+% &local12
+ local22/
+ !_empty_/TailCalls.Call.unapply().2%
+ _empty_/TailCalls.Call.2
+ local32-
+ _empty_/TailCalls.Cont.apply().2%
+ _empty_/TailCalls.Cont.2
+  local225
+" #'_empty_/TailCalls.TailRec#flatMap().(f)2
+		 local42%
+		 _empty_/TailCalls.Cont#2
+		 local52
+		 local62-
+	$	 $_empty_/TailCalls.Cont.apply().2%
+	 	 $_empty_/TailCalls.Cont.2'
+	'	 (_empty_/TailCalls.Cont#a.2
+	%	 &local42
+	+	 ,local72
+	.	 0local522
+	<	 C$_empty_/TailCalls.TailRec#flatMap().2&
+	8	 8scala/Function1#apply().2'
+	7	 8_empty_/TailCalls.Cont#f.2
+	5	 6local42
+	9	 :local725
+	D	 E'_empty_/TailCalls.TailRec#flatMap().(f)2'
+ scala/annotation/tailrec#2
+ scala/annotation/21
+" (#_empty_/TailCalls.TailRec#resume().2#
+* 0scala/package.Either#2(
+7 >_empty_/TailCalls.TailRec#2+
+? @_empty_/TailCalls.TailRec#[A]2+
+C D_empty_/TailCalls.TailRec#[A]2/
+ !_empty_/TailCalls.Done.unapply().2%
+ _empty_/TailCalls.Done.2
+ local82
+ local92'
+ scala/util/Right.apply().2"
+ scala/package.Right.2
+ local92/
+ !_empty_/TailCalls.Call.unapply().2%
+ _empty_/TailCalls.Call.2
+ local102
+ local112&
+ scala/util/Left.apply().2!
+ scala/package.Left.2
+ local112/
+ !_empty_/TailCalls.Cont.unapply().2%
+ _empty_/TailCalls.Cont.2
+ local122
+ local132
+ local142
+ local152
+ local142/
+ !_empty_/TailCalls.Done.unapply().2%
+ _empty_/TailCalls.Done.2
+ local162
+ local1721
+ ##_empty_/TailCalls.TailRec#resume().2&
+ scala/Function1#apply().2
+ local152
+ local172/
+ !_empty_/TailCalls.Call.unapply().2%
+ _empty_/TailCalls.Call.2
+ local182
+ local192&
+ scala/util/Left.apply().2!
+ scala/package.Left.22
+' .$_empty_/TailCalls.TailRec#flatMap().2&
+$ $scala/Function0#apply().2
+# $local192
+/ 0local152/
+ !_empty_/TailCalls.Cont.unapply().2%
+ _empty_/TailCalls.Cont.2
+ local202
+ local212
+ local222
+ local2321
+: @#_empty_/TailCalls.TailRec#resume().22
+ $$_empty_/TailCalls.TailRec#flatMap().2
+ local222
+% &local2422
+/ 6$_empty_/TailCalls.TailRec#flatMap().2&
++ +scala/Function1#apply().2
+* +local232
+, -local242
+7 8local152'
+ scala/annotation/tailrec#2
+ scala/annotation/21
+" (#_empty_/TailCalls.TailRec#result().2+
+* +_empty_/TailCalls.TailRec#[A]2/
+ !_empty_/TailCalls.Done.unapply().2%
+ _empty_/TailCalls.Done.2
+ local252
+ local262
+ local262/
+ !_empty_/TailCalls.Call.unapply().2%
+ _empty_/TailCalls.Call.2
+ local272
+ local2821
+  #_empty_/TailCalls.TailRec#result().2&
+ scala/Function0#apply().2
+ local282/
+ !_empty_/TailCalls.Cont.unapply().2%
+ _empty_/TailCalls.Cont.2
+ local292
+ local302
+ local312
+ local322
+ local312/
+ !_empty_/TailCalls.Done.unapply().2%
+ _empty_/TailCalls.Done.2
+ local332
+ local3421
+ ##_empty_/TailCalls.TailRec#result().2&
+ scala/Function1#apply().2
+ local322
+ local342/
+ !_empty_/TailCalls.Call.unapply().2%
+ _empty_/TailCalls.Call.2
+ local352
+ local3621
+' -#_empty_/TailCalls.TailRec#result().22
+ #$_empty_/TailCalls.TailRec#flatMap().2&
+ scala/Function0#apply().2
+ local362
+$ %local322/
+ !_empty_/TailCalls.Cont.unapply().2%
+ _empty_/TailCalls.Cont.2
+ local372
+ local382
+ local392
+ local4021
+: @#_empty_/TailCalls.TailRec#result().22
+ $$_empty_/TailCalls.TailRec#flatMap().2
+ local392
+% &local4122
+/ 6$_empty_/TailCalls.TailRec#flatMap().2&
++ +scala/Function1#apply().2
+* +local402
+, -local412
+7 8local322%
+!! _empty_/TailCalls.Call#20
+!! "_empty_/TailCalls.Call#`<init>`().2(
+!+! 2_empty_/TailCalls.TailRec#2(
+!3! 4_empty_/TailCalls.Call#[A]23
+!I! I%_empty_/TailCalls.TailRec#`<init>`().2(
+!?! F_empty_/TailCalls.TailRec#2(
+!G! H_empty_/TailCalls.Call#[A]2(
+!! _empty_/TailCalls.Call#[A]2*
+!! #_empty_/TailCalls.Call#rest.2,
+!! _empty_/TailCalls.Call#copy().2*
+!%! %_empty_/TailCalls.Call#_1().2%
+!! _empty_/TailCalls.Call.2-
+!! _empty_/TailCalls.Call.apply().2/
+!! !_empty_/TailCalls.Call.unapply().2%
+## _empty_/TailCalls.Done#20
+## "_empty_/TailCalls.Done#`<init>`().2(
+#&# '_empty_/TailCalls.Done#[A]23
+#;# ;%_empty_/TailCalls.TailRec#`<init>`().2(
+#1# 8_empty_/TailCalls.TailRec#2(
+#9# :_empty_/TailCalls.Done#[A]2(
+## _empty_/TailCalls.Done#[A]2+
+## $_empty_/TailCalls.Done#value.2,
+## _empty_/TailCalls.Done#copy().2*
+#&# &_empty_/TailCalls.Done#_1().2%
+## _empty_/TailCalls.Done.2-
+## _empty_/TailCalls.Done.apply().2/
+## !_empty_/TailCalls.Done.unapply().2%
+%% _empty_/TailCalls.Cont#20
+%% "_empty_/TailCalls.Cont#`<init>`().2(
+%%% ,_empty_/TailCalls.TailRec#2(
+%-% ._empty_/TailCalls.Cont#[A]2(
+%4% 5_empty_/TailCalls.Cont#[A]2(
+%9% @_empty_/TailCalls.TailRec#2(
+%A% B_empty_/TailCalls.Cont#[B]23
+%W% W%_empty_/TailCalls.TailRec#`<init>`().2(
+%M% T_empty_/TailCalls.TailRec#2(
+%U% V_empty_/TailCalls.Cont#[B]2(
+%% _empty_/TailCalls.Cont#[A]2(
+%%  _empty_/TailCalls.Cont#[B]2'
+%"% #_empty_/TailCalls.Cont#a.2'
+%1% 2_empty_/TailCalls.Cont#f.2,
+%% _empty_/TailCalls.Cont#copy().2*
+%%% %_empty_/TailCalls.Cont#_1().2*
+%4% 4_empty_/TailCalls.Cont#_2().2%
+%% _empty_/TailCalls.Cont.2-
+%% _empty_/TailCalls.Cont.apply().2/
+%% !_empty_/TailCalls.Cont.unapply().PZ 53E22BA40A8488847EE3906E54DF477B

@@ -1,0 +1,147 @@
+
+ƒtests/pos/polyalias.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.S#*S€*
+_empty_/Test.S#[X]	*X€*
+_empty_/Test.z. €*z€*
+_empty_/Test.Pair#*Pair€*
+_empty_/Test.Pair#[T]	*T€*
+_empty_/Test.x. €*x€*
+_empty_/Test.xx. €*xx€* 
+_empty_/Test.xxx. €*xxx€*#
+_empty_/Test.Config#*Config€*!
+_empty_/Test.Config#[T]	*T€*
+_empty_/Test.y. €*y€*
+local0*x€*
+_empty_/Test.yy. €*yy€* 
+_empty_/Test.yyy. €*yyy€*
+_empty_/Test.RMap#*RMap€*
+_empty_/Test.RMap#[K]	*K€*
+_empty_/Test.RMap#[V]	*V€*!
+_empty_/Test.RRMap#*RRMap€*"
+_empty_/Test.RRMap#[KK]	*KK€*"
+_empty_/Test.RRMap#[VV]	*VV€*
+_empty_/Test.rm. €*rm€* 
+_empty_/Test.rrm. €*rrm€*
+_empty_/Test.zz. €*zz€*
+_empty_/Test.m. €*m€*
+_empty_/Test.ts. €*ts€*
+_empty_/Test.us. €*us€*
+_empty_/Test.vs. €*vs€2
+ _empty_/Test.2
+ _empty_/Test.S#2 
+	 
+_empty_/Test.S#[X]2
+ scala/Predef.Set#2
+ scala/Predef.2
+ scala/2 
+  _empty_/Test.S#[X]2
+ _empty_/Test.z.2
+	 
+_empty_/Test.S#2#
+ scala/Predef.`???`().2 
+ _empty_/Test.Pair#2#
+ _empty_/Test.Pair#[T]2#
+ _empty_/Test.Pair#[T]2#
+ _empty_/Test.Pair#[T]2
+		 _empty_/Test.x.2#
+		 scala/Tuple2.apply().2
+
+
+ _empty_/Test.xx.2 
+
+
+
+ _empty_/Test.Pair#2
+
+
+ 
+scala/Int#2
+
+
+ _empty_/Test.x.2
+ 	_empty_/Test.xxx.2
+ _empty_/Test.xx.2"
+ _empty_/Test.Config#2%
+ _empty_/Test.Config#[T]2%
+ _empty_/Test.Config#[T]2%
+ _empty_/Test.Config#[T]2"
+ "scala/Predef.String#2
+ _empty_/Test.y.2#
+ scala/Tuple2.apply().2
+ local02"
+ scala/Predef.String#2
+ local02
+ _empty_/Test.yy.2"
+
+ _empty_/Test.Config#2"
+ scala/Predef.String#2
+ _empty_/Test.y.2
+ 	_empty_/Test.yyy.2
+ _empty_/Test.yy.2 
+ _empty_/Test.RMap#2#
+ _empty_/Test.RMap#[K]2#
+ _empty_/Test.RMap#[V]2
+ scala/Predef.Map#2#
+ _empty_/Test.RMap#[V]2#
+ _empty_/Test.RMap#[K]2!
+ _empty_/Test.RRMap#2%
+ _empty_/Test.RRMap#[KK]2%
+ _empty_/Test.RRMap#[VV]2 
+ _empty_/Test.RMap#2%
+ _empty_/Test.RRMap#[VV]2%
+  "_empty_/Test.RRMap#[KK]2
+ _empty_/Test.rm.2 
+
+ _empty_/Test.RMap#2
+ 
+scala/Int#2"
+ scala/Predef.String#22
+! !$scala/collection/MapFactory#apply().2
+ !scala/Predef.Map.2"
+" (scala/Predef.String#2
+* -
+scala/Int#2
+ 	_empty_/Test.rrm.2!
+ _empty_/Test.RRMap#2
+ 
+scala/Int#2"
+ scala/Predef.String#22
+# #$scala/collection/MapFactory#apply().2
+  #scala/Predef.Map.2
+$ '
+scala/Int#2"
+) /scala/Predef.String#2
+ _empty_/Test.zz.2 
+
+ _empty_/Test.RMap#2
+ 
+scala/Int#22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+  
+scala/Int#2"
+" (scala/Predef.String#2
+ _empty_/Test.m.22
+ $scala/collection/MapFactory#apply().2
+
+ scala/Predef.Map.2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ _empty_/Test.ts.2 
+
+ _empty_/Test.RMap#2
+ 
+scala/Int#2
+ _empty_/Test.m.2
+ _empty_/Test.us.2 
+
+ _empty_/Test.RMap#2"
+ scala/Predef.String#2
+ _empty_/Test.m.2
+ _empty_/Test.vs.2 
+
+ _empty_/Test.RMap#2
+ _empty_/Test.m.PZ BDE90E87C9D43610A6BA136092DF83D3

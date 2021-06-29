@@ -1,0 +1,45 @@
+
+ëtests/pos/export-proxies.scala* 
+_empty_/Session#*Session€*-
+_empty_/Session#`<init>`(). €@*<init>€*(
+_empty_/Session#call1(). *call1€*(
+_empty_/Session#call2(). *call2€*(
+_empty_/Session#call3(). *call3€*
+_empty_/Session#T#*T€**
+_empty_/SessionProxy#*SessionProxy€*2
+ _empty_/SessionProxy#`<init>`(). €@*<init>€*<
+)_empty_/SessionProxy#`<init>`().(session) €*session€*0
+_empty_/SessionProxy#session. €*session€*-
+_empty_/SessionProxy#call2(). *call2€*-
+_empty_/SessionProxy#call3(). *call3€*#
+_empty_/SessionProxy#T# *T€*+
+_empty_/SessionProxy#call1().*call1€2
+ _empty_/Session#2)
+ _empty_/Session#`<init>`().2&
+ _empty_/Session#call1().2
+ scala/Unit#2&
+ _empty_/Session#call2().2
+ scala/Unit#2&
+ _empty_/Session#call3().2
+ scala/Unit#2 
+ _empty_/Session#T#2#
+ _empty_/SessionProxy#2.
+  _empty_/SessionProxy#`<init>`().2
+ &_empty_/Session#2
+0 7_empty_/Session#2+
+ _empty_/SessionProxy#session.2+
+	 _empty_/SessionProxy#session.2+
+ _empty_/SessionProxy#call2().2&
+ _empty_/Session#call2().2+
+ _empty_/SessionProxy#call3().2&
+ _empty_/Session#call3().2%
+  !_empty_/SessionProxy#T#2+
+
+
+ _empty_/SessionProxy#call1().2
+
+
+ scala/Unit#2'
+ scala/Predef.println(+1).2&
+ _empty_/Session#call1().2+
+ _empty_/SessionProxy#session.PZ 5088618851F7879C25BB6FAC153C8F0B

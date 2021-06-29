@@ -1,0 +1,24 @@
+
+º/tests/pos/classtag-typetest/3_1-migration.scala*2
+ _empty_/`3_1-migration$package`. *_empty_€*6
+(_empty_/`3_1-migration$package`.f3_1m().*f3_1m€*5
++_empty_/`3_1-migration$package`.f3_1m().[T]	*T€*5
++_empty_/`3_1-migration$package`.f3_1m().(x)*x€2,
+ ("scala/language.`future-migration`.2
+ scala/language.2
+ scala/2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2*
+ _empty_/`3_1-migration$package`.26
+ 	(_empty_/`3_1-migration$package`.f3_1m().29
+
+ +_empty_/`3_1-migration$package`.f3_1m().[T]29
+ +_empty_/`3_1-migration$package`.f3_1m().(x)2
+ 
+scala/Any#2%
+ scala/reflect/ClassTag#29
+ +_empty_/`3_1-migration$package`.f3_1m().[T]2
+  $scala/Unit#29
+ +_empty_/`3_1-migration$package`.f3_1m().(x)PZ C89DC9DCEF55797FA452B21776050178

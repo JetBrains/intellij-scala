@@ -1,0 +1,77 @@
+
+±tests/pos/closure-args.scala*1
+_empty_/`closure-args$package`. *_empty_€*0
+"_empty_/`closure-args$package`.xs. €*xs€*0
+"_empty_/`closure-args$package`.ys. €*ys€*
+local0*x€*.
+!_empty_/`closure-args$package`.x. €*x€*
+local1*x€*
+local2*y€*.
+!_empty_/`closure-args$package`.y. €*y€*
+local3*x€*
+local4*y€*
+local5 €*z€*0
+"_empty_/`closure-args$package`.as. €*as€*
+local6*x€*
+local7*y€22
+ ((scala/language.experimental.fewerBraces.2&
+ scala/language.experimental.2
+ scala/language.2)
+_empty_/`closure-args$package`.20
+ "_empty_/`closure-args$package`.xs.27
+ )scala/collection/IterableFactory#apply().2!
+	 scala/package.List.20
+ "_empty_/`closure-args$package`.ys.24
+ &scala/collection/immutable/List#map().20
+	 "_empty_/`closure-args$package`.xs.2
+ local02 
+ scala/Int#`+`(+4).2
+ local02/
+ !_empty_/`closure-args$package`.x.27
+ )scala/collection/LinearSeqOps#foldLeft().20
+ 
+"_empty_/`closure-args$package`.ys.2
+ local12
+ local22 
+ scala/Int#`+`(+4).2
+ local12
+ local22/
+ !_empty_/`closure-args$package`.y.27
+ )scala/collection/LinearSeqOps#foldLeft().20
+ 
+"_empty_/`closure-args$package`.ys.2
+ local32
+ 
+scala/Int#2
+  !local42
+# &
+scala/Int#2
+ local52 
+ scala/Int#`+`(+4).2
+
+ local32
+ local42 
+		 scala/Int#`*`(+3).2
+		 local52
+		 local520
+
+
+ "_empty_/`closure-args$package`.as.2
+
+
+ 
+scala/Int#24
+	 	&scala/collection/LinearSeqOps#apply().27
+ 	)scala/collection/immutable/List#filter().24
+ &scala/collection/immutable/List#map().20
+
+
+ "_empty_/`closure-args$package`.xs.2
+ local62 
+ scala/Int#`*`(+3).2
+ local62
+ 	local62
+
+ local72 
+ scala/Int#`>`(+3).2
+ local7PZ 97BB62A3219FBA8C2D1F2E88D64BC161

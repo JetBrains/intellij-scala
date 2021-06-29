@@ -1,0 +1,28 @@
+
+×tests/pos/i9050.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.foo. €*foo€*
+_empty_/Foo.bar. €*bar€2
+ 
+_empty_/Foo.2
+ 	_empty_/Foo.foo.2;
+1 6-scala/collection/mutable/ArrayBuffer.empty().23
+% 0%scala/collection/mutable/ArrayBuffer.2'
+ $scala/collection/mutable/2
+ scala/collection/2
+ scala/2 
+7 :scala/package.Seq#2
+; Ascala/Double#2
+ 	_empty_/Foo.bar.2;
+ -scala/collection/SeqFactory.Delegate#empty().2 
+ scala/package.Seq.2
+ scala/Double#27
+ )scala/collection/mutable/Buffer#append().2
+ _empty_/Foo.foo.2
+ _empty_/Foo.bar.29
+ +scala/collection/mutable/Buffer#append(+1).2
+ _empty_/Foo.foo.2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+ scala/package.Seq.2
+ _empty_/Foo.bar.PZ 9D0C57D91FB08E8C08BF5544C424E290

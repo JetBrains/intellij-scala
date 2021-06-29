@@ -1,0 +1,30 @@
+
+œtests/pos/t0036.scala*
+
+_empty_/m.
+ *m€*
+_empty_/m.xs. €*xs€*
+_empty_/m.f().*f€*
+_empty_/m.f().(i)*i€*
+_empty_/m.v. €*v€*
+local0*i€*
+_empty_/m.m().*m€2
+ 
+_empty_/m.2
+ _empty_/m.xs.2!
+
+ scala/package.List#2
+ 
+scala/Int#2 
+ scala/package.Nil.2
+ _empty_/m.f().2
+ 	_empty_/m.f().(i)2
+ 
+scala/Int#2
+ _empty_/m.v.24
+ &scala/collection/immutable/List#map().2
+
+ _empty_/m.xs.2
+ _empty_/m.f().2
+ local02
+ _empty_/m.m().PZ 1B260445A3927D3C14ADCD5C7E9C2057

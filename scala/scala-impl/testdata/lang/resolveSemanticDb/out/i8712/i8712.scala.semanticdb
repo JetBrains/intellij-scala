@@ -1,0 +1,117 @@
+
+Ätests/pos/i8712.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	 €*A€*
+_empty_/Bar# €*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*'
+_empty_/Bar#`<init>`().(f) €*f€*
+_empty_/Bar#[A]	*A€*
+_empty_/Bar#f. €*f€* 
+_empty_/Bar#copy().*copy€* 
+_empty_/Bar#copy().[A]	*A€* 
+_empty_/Bar#copy().(f)*f€*4
+_empty_/Bar#copy$default$1().*copy$default$1€**
+ _empty_/Bar#copy$default$1().[A]	*A€*
+_empty_/Bar#_1().*_1€*
+_empty_/Bar.
+ *Bar€*"
+_empty_/Bar.apply().*apply€*!
+_empty_/Bar.apply().[A]	*A€*!
+_empty_/Bar.apply().(f)*f€*&
+_empty_/Bar.unapply().*unapply€*#
+_empty_/Bar.unapply().[A]	*A€*'
+_empty_/Bar.unapply().(x$1)*x$1€*(
+_empty_/Bar.toString().*toString€*
+_empty_/Done# €*Done€**
+_empty_/Done#`<init>`(). €@*<init>€*(
+_empty_/Done#`<init>`().(a) €*a€*
+_empty_/Done#[A]	*A€*
+_empty_/Done#a. €*a€*!
+_empty_/Done#copy().*copy€*!
+_empty_/Done#copy().[A]	*A€*!
+_empty_/Done#copy().(a)*a€*5
+_empty_/Done#copy$default$1().*copy$default$1€*+
+!_empty_/Done#copy$default$1().[A]	*A€*
+_empty_/Done#_1().*_1€*
+_empty_/Done.
+ *Done€*#
+_empty_/Done.apply().*apply€*"
+_empty_/Done.apply().[A]	*A€*"
+_empty_/Done.apply().(a)*a€*'
+_empty_/Done.unapply().*unapply€*$
+_empty_/Done.unapply().[A]	*A€*(
+_empty_/Done.unapply().(x$1)*x$1€*)
+_empty_/Done.toString().*toString€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.runT().*runT€*!
+_empty_/Test.runT().[A]	*A€*!
+_empty_/Test.runT().(c)*c€*
+local0 €	*A$1€*
+local1 €*f€*
+local2 €	*A$2€*
+local3 €*a€2#
+ scala/annotation/tailrec#2
+ scala/annotation/2
+ scala/2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#[A]2
+ _empty_/Bar#2%
+ _empty_/Bar#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Bar#[A]2
+% (_empty_/Foo#2
+) *_empty_/Bar#[A]2
+ _empty_/Bar#[A]2
+ _empty_/Bar#f.2
+_empty_/Bar#copy().2
+ _empty_/Bar#_1().2
+ _empty_/Bar.2
+_empty_/Bar.apply().2 
+_empty_/Bar.unapply().2
+ _empty_/Done#2&
+ _empty_/Done#`<init>`().2
+ _empty_/Done#[A]2
+! $_empty_/Foo#2
+% &_empty_/Done#[A]2
+ _empty_/Done#[A]2
+ _empty_/Done#a.2
+_empty_/Done#copy().2 
+ _empty_/Done#_1().2
+ _empty_/Done.2
+_empty_/Done.apply().2!
+_empty_/Done.unapply().2
+ _empty_/Test.2'
+ 
+scala/annotation/tailrec#2"
+ 
+_empty_/Test.runT().2%
+ _empty_/Test.runT().[A]2%
+ _empty_/Test.runT().(c)2
+ _empty_/Foo#2%
+ _empty_/Test.runT().[A]2%
+ _empty_/Test.runT().[A]2%
+ _empty_/Test.runT().(c)2$
+		 _empty_/Bar.unapply().2
+			 _empty_/Bar.2
+		 local02
+		 local12"
+		 _empty_/Test.runT().2
+		 local12%
+
+
+ _empty_/Done.unapply().2
+
+	
+ _empty_/Done.2
+
+
+ local22
+
+
+ local32
+
+
+ local3PZ 8A591040EF79E129116B13DBC9D22F68

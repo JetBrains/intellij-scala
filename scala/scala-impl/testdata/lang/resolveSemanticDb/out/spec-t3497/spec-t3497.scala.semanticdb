@@ -1,0 +1,53 @@
+
+·
+tests/pos/spec-t3497.scala*
+
+_empty_/A# *A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[T]	*T€*
+_empty_/A#[U]	*U€*"
+_empty_/A#score(). *score€*'
+_empty_/A#score().(state)*state€*
+
+_empty_/B.
+ *B€* 
+_empty_/B.score().*score€*'
+_empty_/B.score().(state)*state€*
+local0 €*index€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ _empty_/A#[T]2
+  scala/specialized#2
+! "_empty_/A#[U]2 
+ _empty_/A#score().2'
+ _empty_/A#score().(state)2
+ _empty_/A#[T]2
+ _empty_/A#[U]2
+ 
+_empty_/B.2#
+& &_empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ scala/Array#2
+ scala/Byte#2
+! $
+scala/Int#2 
+ _empty_/B.score().2'
+ _empty_/B.score().(state)2
+ scala/Array#2
+ scala/Byte#2
+! $
+scala/Int#2
+ local02 
+ scala/Int#`<`(+3).2
+ local02#
+ scala/Array#length().2'
+ _empty_/B.score().(state)2"
+ scala/Byte#`==`(+3).2"
+ scala/Array#apply().2'
+
+ _empty_/B.score().(state)2
+ local02 
+		 _empty_/B.score().2 
+ _empty_/B.score().PZ 02EC4576F32AF2AA222FE3312DF3ABF8

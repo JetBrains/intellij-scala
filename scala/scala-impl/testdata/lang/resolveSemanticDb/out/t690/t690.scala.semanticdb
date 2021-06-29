@@ -1,0 +1,48 @@
+
+¨
+tests/pos/t690.scala*
+
+test/test#*test€*'
+test/test#`<init>`(). €@*<init>€*
+test/test#T#*T€*"
+test/test#Manager#*Manager€*/
+test/test#Manager#`<init>`(). €@*<init>€*
+test/test#Manager#T#*T€*$
+test/test#Manager#foo().*foo€*%
+test/test#Manager#foo().(t)*t€*
+test/test#M0.
+ *M0€*
+test/test#M0.T#*T€*
+test/test#M0.foo().*foo€* 
+test/test#M0.foo().(t)*t€*
+test/test#t(). *t€2
+ test/2
+ 
+
+test/test#2#
+ test/test#`<init>`().2
+ test/test#T#2 
+ test/test#Manager#2+
+ test/test#Manager#`<init>`().2"
+	 
+test/test#Manager#T#2
+ test/test#T#2&
+ test/test#Manager#foo().2)
+ test/test#Manager#foo().(t)2"
+ test/test#Manager#T#2
+	 test/test#M0.2 
+ test/test#Manager#2
+ test/test#M0.T#2
+  !test/test#T#2!
+		 test/test#M0.foo().2$
+		 test/test#M0.foo().(t)2
+		 test/test#M0.T#2&
+	$	 'test/test#Manager#foo().2$
+	(	 )test/test#M0.foo().(t)2
+ test/test#t().2
+
+ test/test#T#2!
+ test/test#M0.foo().2
+ test/test#M0.2
+	 
+test/test#t().PZ 005051CEBCE669CC9491FF6197D56369

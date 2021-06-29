@@ -1,0 +1,24 @@
+
+êtests/pos/vcblock.scala*$
+_empty_/Position# *Position€*.
+_empty_/Position#`<init>`(). €@*<init>€*0
+!_empty_/Position#`<init>`().(foo) €*foo€*$
+_empty_/Position#foo. €*foo€*'
+_empty_/Position#thing().*thing€*
+local0 €*y€*$
+_empty_/Position.
+ *Position€2
+ _empty_/Position#2&
+ _empty_/Position#`<init>`().2
+ 
+scala/Int#2"
++ +scala/AnyVal#`<init>`().2
+% +scala/AnyVal#2
+ _empty_/Position#foo.2'
+ _empty_/Position#thing().2
+ _empty_/Position#2
+ 	local02*
+ _empty_/Position#`<init>`().2
+ _empty_/Position#2
+ local02
+ _empty_/Position.PZ 2A1A6358E1A7D0B1EF9306FBAC7F227C

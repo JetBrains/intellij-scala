@@ -1,0 +1,25 @@
+
+ˆtests/pos/t6797.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.Matcher#*Matcher€*2
+ _empty_/Test.Matcher#`<init>`(). €@*<init>€*7
+(_empty_/Test.Matcher#`<init>`().(aParam)*aParam€*.
+_empty_/Test.Matcher#aParam. €*aParam€*'
+_empty_/Test.Matcher.
+ *Matcher€*W
+3_empty_/Test.Matcher.$lessinit$greater$default$1().*$lessinit$greater$default$1€*4
+_empty_/Test.stringMatcher. €*stringMatcher€2
+ _empty_/Test.2
+ 
+scala/App#2#
+ _empty_/Test.Matcher#2.
+  _empty_/Test.Matcher#`<init>`().2
+  &scala/Option#2"
+' -scala/Predef.String#2*
+ _empty_/Test.Matcher#aParam.2#
+ _empty_/Test.Matcher.2
+1 5scala/None.2)
+ _empty_/Test.stringMatcher.2.
+) ) _empty_/Test.Matcher#`<init>`().2#
+" )_empty_/Test.Matcher#PZ FB023EA8E2090B2CDC80362BA57C5E5E

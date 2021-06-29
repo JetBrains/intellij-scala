@@ -1,0 +1,28 @@
+
+ítests/pos/i1044.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[X]	*X€*
+_empty_/Test.f().(x)*x€2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[X]2"
+ _empty_/Test.f().(x)2"
+ _empty_/Test.f().[X]2<
+3 ;.scala/collection/IterableOnceOps#mkString(+1).28
+ *scala/LowPriorityImplicits#wrapRefArray().2;
+! 2-java/lang/reflect/Method#getParameterTypes().2/
+  !scala/collection/ArrayOps#head().2)
+ scala/Predef.refArrayOps().2+
+ java/lang/Class#getMethods().2#
+ scala/Any#getClass().2#
+ scala/Predef.`???`().2<
+1 9.scala/collection/IterableOnceOps#mkString(+1).28
+ *scala/LowPriorityImplicits#wrapRefArray().2;
+ 0-java/lang/reflect/Method#getParameterTypes().2/
+ !scala/collection/ArrayOps#head().2)
+ scala/Predef.refArrayOps().2+
+ java/lang/Class#getMethods().2#
+ scala/Any#getClass().2"
+ _empty_/Test.f().(x)PZ 90AEB105728C41A4E3583C8DCB020FAE

@@ -1,0 +1,41 @@
+
+Þtests/pos/t616.scala*,
+_empty_/testImplicit.
+ *testImplicit€*1
+_empty_/testImplicit.foo2bar().  *foo2bar€*0
+$_empty_/testImplicit.foo2bar().(foo)*foo€*%
+_empty_/testImplicit.Foo#*Foo€*6
+$_empty_/testImplicit.Foo#`<init>`(). €@*<init>€*8
+)_empty_/testImplicit.Foo#`<init>`().(bar) €*bar€*,
+_empty_/testImplicit.Foo#bar. €*bar€*=
+(_empty_/testImplicit.Foo#testCoercion().*testCoercion€*
+local0 €*a€*U
+4_empty_/testImplicit.Foo#testCoercionThisExplicit().*testCoercionThisExplicit€*%
+_empty_/testImplicit.Bar#*Bar€*6
+$_empty_/testImplicit.Bar#`<init>`(). €@*<init>€*-
+_empty_/testImplicit.Bar#baz(). *baz€2
+ _empty_/testImplicit.2-
+ _empty_/testImplicit.foo2bar().22
+ $_empty_/testImplicit.foo2bar().(foo)2'
+ _empty_/testImplicit.Foo#2'
+" %_empty_/testImplicit.Bar#2+
+, /_empty_/testImplicit.Foo#bar.22
+( +$_empty_/testImplicit.foo2bar().(foo)2'
+ _empty_/testImplicit.Foo#22
+ $_empty_/testImplicit.Foo#`<init>`().2'
+ _empty_/testImplicit.Bar#2+
+ _empty_/testImplicit.Foo#bar.26
+ (_empty_/testImplicit.Foo#testCoercion().2
+ local02-
+( +_empty_/testImplicit.Bar#baz().2-
+& &_empty_/testImplicit.foo2bar().2
+& 'local02B
+  4_empty_/testImplicit.Foo#testCoercionThisExplicit().2
+" %
+scala/Any#2-
+- 0_empty_/testImplicit.Bar#baz().2-
+( (_empty_/testImplicit.foo2bar().2'
+ _empty_/testImplicit.Bar#22
+ $_empty_/testImplicit.Bar#`<init>`().2-
+ _empty_/testImplicit.Bar#baz().2
+ scala/Unit#PZ 4A84DA6E361F87BDC61F8E654B84F8C2

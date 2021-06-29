@@ -1,0 +1,17 @@
+
+øtests/pos/t296.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.foo().*foo€*
+_empty_/Bug.foo().(l)*l€*!
+_empty_/Bug.foo().(l1)*l1€2
+ 
+_empty_/Bug.2 
+ 	_empty_/Bug.foo().2#
+ _empty_/Bug.foo().(l)2"
+ scala/Predef.String#2$
+ _empty_/Bug.foo().(l1)2"
+  &scala/Predef.String#2"
+* 0scala/Predef.String#2$
+ _empty_/Bug.foo().(l1)2#
+ _empty_/Bug.foo().(l)PZ F651723DB344D5CEF9CC44AC849C8557

@@ -1,0 +1,76 @@
+
+Ätests/pos/t6275.scala*
+
+_empty_/A# *A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[T]	*T€*
+
+_empty_/B# *B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#[T]	*T€*(
+_empty_/ParsedAxis.
+ *
+ParsedAxis€*!
+_empty_/ParsedAxis.BI#*BI€*#
+_empty_/ParsedAxis.f1().*f1€*%
+_empty_/ParsedAxis.f1().(a)*a€*
+local0 €*b€*#
+_empty_/ParsedAxis.f2().*f2€*%
+_empty_/ParsedAxis.f2().(a)*a€*
+local1 €*b€*#
+_empty_/ParsedAxis.f3().*f3€*%
+_empty_/ParsedAxis.f3().(a)*a€*
+local2 €*b€*
+local3 €	*t€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#[T]2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#[T]2
+ _empty_/B#[T]2!
+ _empty_/ParsedAxis.2$
+ 	_empty_/ParsedAxis.BI#2
+ 
+_empty_/B#2
+ 
+scala/Int#2&
+ _empty_/ParsedAxis.f1().2)
+	 
+_empty_/ParsedAxis.f1().(a)2
+ 
+_empty_/A#2
+ 
+scala/Int#2)
+ _empty_/ParsedAxis.f1().(a)2
+% &local02
+( )
+_empty_/B#2
+* -
+scala/Int#2&
+ _empty_/ParsedAxis.f2().2)
+	 
+_empty_/ParsedAxis.f2().(a)2
+ 
+_empty_/A#2
+ 
+scala/Int#2)
+ _empty_/ParsedAxis.f2().(a)2
+% &local12$
+( *_empty_/ParsedAxis.BI#2&
+		 _empty_/ParsedAxis.f3().2)
+			 
+_empty_/ParsedAxis.f3().(a)2
+		 
+_empty_/A#2
+		 
+scala/Int#2)
+		 _empty_/ParsedAxis.f3().(a)2
+	%	 &local22
+	(	 )
+_empty_/B#2
+	*	 +local3PZ 20BB2F4A6EDC7DCA2FC12BDF4347D2F7

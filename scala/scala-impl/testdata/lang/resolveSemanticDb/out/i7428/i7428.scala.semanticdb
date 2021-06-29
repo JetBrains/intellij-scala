@@ -1,0 +1,37 @@
+
+²
+tests/pos/i7428.scala*
+_empty_/ABug#*ABug€**
+_empty_/ABug#`<init>`(). €@*<init>€*!
+_empty_/ABug#Tag# ”€*Tag€*.
+_empty_/ABug#Tag#`<init>`(). €@*<init>€*
+_empty_/ABug#Tag.
+ *Tag€*)
+_empty_/ABug#Tag.first. €‰*first€*,
+_empty_/ABug#Tag.$values. €*$values€*)
+_empty_/ABug#Tag.values().*values€*+
+_empty_/ABug#Tag.valueOf().*valueOf€*0
+"_empty_/ABug#Tag.valueOf().($name)*$name€*%
+_empty_/ABug#Tag.$new().*$new€*5
+#_empty_/ABug#Tag.$new().(_$ordinal)*	_$ordinal€*-
+_empty_/ABug#Tag.$new().($name)*$name€*3
+_empty_/ABug#Tag.fromOrdinal().*fromOrdinal€*8
+(_empty_/ABug#Tag.fromOrdinal().(ordinal)*ordinal€*
+_empty_/ABug#xx. €*xx€2
+ 
+_empty_/ABug#2&
+ _empty_/ABug#`<init>`().2
+ 
+_empty_/ABug#Tag#2*
+ _empty_/ABug#Tag#`<init>`().2
+ _empty_/ABug#Tag.2%
+	 _empty_/ABug#Tag.first.2'
+	 	_empty_/ABug#Tag.$values.2(
+	 	_empty_/ABug#Tag.values().2)
+	 	_empty_/ABug#Tag.valueOf().2&
+	 	_empty_/ABug#Tag.$new().2-
+	 	_empty_/ABug#Tag.fromOrdinal().2%
+ _empty_/ABug#Tag.first.2
+	 _empty_/ABug#Tag.2
+ _empty_/ABug#xx.2%
+ _empty_/ABug#Tag.first.PZ 534128DDE58CAB3B193A0603C2045698

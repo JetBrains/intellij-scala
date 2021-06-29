@@ -1,0 +1,55 @@
+
+ètests/pos/singletons.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.x. Ä*xÄ*
+_empty_/Test.y. à*yÄ*
+_empty_/Test.z. Ä*zÄ*
+_empty_/Test.O.
+ *OÄ*
+_empty_/Test.O.x. à*xÄ*,
+_empty_/Test.fourtyTwo. Ä*	fourtyTwoÄ*
+_empty_/Test.a. à*aÄ*
+_empty_/Test.b. Ä*bÄ*
+_empty_/Test.f().*fÄ*
+_empty_/Test.c. à*cÄ*
+_empty_/Test.dc. Ä*dcÄ* 
+_empty_/Test.dc1. à*dc1Ä*
+_empty_/Test.fc. Ä*fcÄ* 
+_empty_/Test.fc1. à*fc1Ä*
+_empty_/Test.t. Ä*tÄ* 
+_empty_/Test.str. Ä*strÄ*"
+_empty_/Test.str2. à*str2Ä2
+ _empty_/Test.2
+ _empty_/Test.x.2
+ _empty_/Test.y.2
+ _empty_/Test.x.2
+ _empty_/Test.z.2
+ _empty_/Test.y.2
+	 
+_empty_/Test.O.2
+ _empty_/Test.O.x.2%
+ _empty_/Test.fourtyTwo.2
+ _empty_/Test.O.x.2
+ _empty_/Test.O.2
+
+
+ _empty_/Test.a.2'
+
+
+ scala/Predef.println(+1).2
+ _empty_/Test.b.2
+ _empty_/Test.a.2
+ _empty_/Test.f().2
+ _empty_/Test.c.2
+ _empty_/Test.f().2
+ _empty_/Test.dc.2
+ _empty_/Test.dc1.2
+ _empty_/Test.dc.2
+ _empty_/Test.fc.2
+ _empty_/Test.fc1.2
+ _empty_/Test.fc.2
+ _empty_/Test.t.2
+ 	_empty_/Test.str.2 
+ _empty_/Test.str2.2
+ _empty_/Test.str.PZ 0288BF51ACCE8366FD5B607A326AA94A

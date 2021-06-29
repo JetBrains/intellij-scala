@@ -1,0 +1,62 @@
+
+Žtests/pos/i5145.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().(x)*x€*
+local0 €*inline€*
+local1*opaque€*
+local2*x€*
+_empty_/Test#bar().*bar€**
+_empty_/Test#bar().(inline)*inline€*
+_empty_/Test#baz().*baz€* 
+_empty_/Test#baz().(x)*x€*
+local3*x€*
+local4*inline€*
+local5  *inline€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ local02
+ local12
+ local22
+ 
+scala/Int#2
+ scala/Unit#2
+ 
+local12
+ 
+local02!
+ 	_empty_/Test#bar().2)
+
+ _empty_/Test#bar().(inline)2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+ _empty_/Test#baz().2$
+ _empty_/Test#baz().(x)2
+ 
+scala/Int#2
+" %
+scala/Int#2%
+
+
+ 	scala/Predef.locally().2!
+ _empty_/Test#bar().2)
+ _empty_/Test#bar().(inline)2&
+ scala/Predef.identity().2
+ local32!
+ _empty_/Test#bar().2
+ local42
+ local42!
+ _empty_/Test#bar().2
+ local52
+ !local5PZ 26BA7796107B0A37DC9EEE836E664531

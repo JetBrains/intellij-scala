@@ -1,0 +1,60 @@
+
+‰tests/pos/i5309.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.foo().*foo€*
+_empty_/A.foo().[T]	*T€*
+_empty_/A.foo().(x)*x€*
+_empty_/A.foo().(y)*y€*
+_empty_/A.bar().*bar€*
+_empty_/A.bar().[T]	*T€*
+_empty_/A.bar().(x)*x€*
+_empty_/A.bar().(y)*y€*
+_empty_/A.x. €*x€*
+_empty_/A.y. €*y€*
+_empty_/A.z. €*z€*
+_empty_/A.x2. €*x2€*
+_empty_/A.y2. €*y2€*
+_empty_/A.z2. €*z2€2
+ 
+_empty_/A.2
+ 	_empty_/A.foo().2!
+
+ _empty_/A.foo().[T]2!
+ _empty_/A.foo().(x)2!
+ _empty_/A.foo().[T]2!
+ _empty_/A.foo().(y)2!
+ _empty_/A.foo().[T]2
+ 
+scala/Int#2
+ 	_empty_/A.bar().2!
+
+ _empty_/A.bar().[T]2!
+ _empty_/A.bar().(x)2!
+ _empty_/A.bar().[T]2!
+ _empty_/A.bar().(y)2!
+ _empty_/A.bar().[T]2!
+ scala/package.List#2!
+  _empty_/A.bar().[T]25
+1 1'scala/collection/immutable/List#`::`().2 
+. 1scala/package.Nil.2!
+) *_empty_/A.bar().(y)2!
+$ %_empty_/A.bar().(x)2
+ _empty_/A.x.2
+
+ _empty_/A.foo().2
+ _empty_/A.y.2
+
+ _empty_/A.bar().2
+ _empty_/A.z.27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2
+ _empty_/A.x2.2
+ _empty_/A.foo().2
+ _empty_/A.y2.2
+ _empty_/A.bar().2
+ _empty_/A.z2.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.PZ 22747A7F0198366B32CA85ECCE2ADD56

@@ -1,0 +1,47 @@
+
+§tests/pos/i7159.scala*4
+_empty_/CompilerInterface#*CompilerInterface€*7
+%_empty_/CompilerInterface#`<init>`(). €@*<init>€*0
+!_empty_/CompilerInterface#Tree22#*Tree22€* 
+_empty_/Reflect#*Reflect€*-
+_empty_/Reflect#`<init>`(). €@*<init>€*9
+%_empty_/Reflect#`<init>`().(internal) €*internal€*-
+_empty_/Reflect#internal. €*internal€*&
+_empty_/Reflect#Tree22#*Tree22€*$
+_empty_/Reflect#show().*show€*$
+_empty_/Reflect#show().(t)*t€*
+_empty_/App.
+ *App€*!
+_empty_/App.refl. €*refl€2$
+ _empty_/CompilerInterface#23
+ %_empty_/CompilerInterface#`<init>`().2/
+ !_empty_/CompilerInterface#Tree22#2
+ _empty_/Reflect#2)
+ _empty_/Reflect#`<init>`().2(
+ -_empty_/CompilerInterface#2'
+ _empty_/Reflect#internal.2%
+ _empty_/Reflect#Tree22#2/
+  &!_empty_/CompilerInterface#Tree22#2'
+ _empty_/Reflect#internal.2%
+ 
+_empty_/Reflect#show().2(
+ _empty_/Reflect#show().(t)2%
+ _empty_/Reflect#Tree22#2"
+ scala/Predef.String#2#
+  #scala/Predef.`???`().2
+		 
+_empty_/App.2
+
+
+ 
+_empty_/App.refl.2
+
+
+ _empty_/Reflect#2#
+
+
+ scala/Predef.`???`().2
+	 _empty_/App.refl.2%
+ _empty_/Reflect#show().2#
+ 
+scala/Predef.`???`().PZ 8A2893895F0E568C816199B860F21E59

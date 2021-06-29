@@ -1,0 +1,18 @@
+
+à)tests/pos/tcpoly_late_method_params.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*(
+_empty_/Foo#flatMap(). *flatMap€*%
+_empty_/Foo#flatMap().[RT]	*RT€*-
+_empty_/Foo#flatMap().[RBound]	*RBound€*-
+_empty_/Foo#flatMap().[Result]	*Result€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2$
+ _empty_/Foo#flatMap().2(
+ _empty_/Foo#flatMap().[RT]2,
+ _empty_/Foo#flatMap().[RBound]2(
+ _empty_/Foo#flatMap().[RT]2,
+  &_empty_/Foo#flatMap().[RBound]2,
++ 1_empty_/Foo#flatMap().[Result]2,
+D J_empty_/Foo#flatMap().[Result]2(
+K M_empty_/Foo#flatMap().[RT]PZ 05FEA3D0B229D6D85DB389FE6BEEB29E

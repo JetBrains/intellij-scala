@@ -1,0 +1,97 @@
+
+êtests/pos/simplelists.scala*
+_empty_/List# *ListÄ**
+_empty_/List#`<init>`(). Ä@*<init>Ä*
+_empty_/List#[a]	 Ä*aÄ*#
+_empty_/List#head(). *headÄ*#
+_empty_/List#tail(). *tailÄ*!
+_empty_/List#cons().*consÄ*!
+_empty_/List#cons().[b]	*bÄ*!
+_empty_/List#cons().(x)*xÄ*
+_empty_/Nil.
+ *NilÄ*"
+_empty_/Nil.error().*errorÄ*%
+_empty_/Nil.error().(msg)*msgÄ* 
+_empty_/Nil.head().*headÄ* 
+_empty_/Nil.tail().*tailÄ*
+_empty_/Cons#*ConsÄ**
+_empty_/Cons#`<init>`(). Ä@*<init>Ä*%
+_empty_/Cons#`<init>`().(x)*xÄ*'
+_empty_/Cons#`<init>`().(xs)*xsÄ*
+_empty_/Cons#[c]	*cÄ*
+_empty_/Cons#[d]	*dÄ*
+_empty_/Cons#x. Ä*xÄ*
+_empty_/Cons#xs. Ä*xsÄ*!
+_empty_/Cons#head().*headÄ*!
+_empty_/Cons#tail().*tailÄ2
+ _empty_/List#2"
+ _empty_/List#`<init>`().2
+ _empty_/List#[a]2"
+ 
+_empty_/List#head().2
+ _empty_/List#[a]2"
+ 
+_empty_/List#tail().2
+ _empty_/List#2
+ _empty_/List#[a]2"
+ 
+_empty_/List#cons().2%
+ _empty_/List#cons().[b]2
+ _empty_/List#[a]2%
+ _empty_/List#cons().(x)2%
+ _empty_/List#cons().[b]2
+ _empty_/List#2%
+  _empty_/List#cons().[b]2&
+2 2_empty_/Cons#`<init>`().2
+( ,_empty_/Cons#2%
+- ._empty_/List#cons().[b]2
+0 1_empty_/List#[a]2%
+3 4_empty_/List#cons().(x)2
+ 
+_empty_/Nil.2&
+   _empty_/List#`<init>`().2
+ _empty_/List#2
+ scala/Nothing#2"
+ _empty_/Nil.error().2'
+ _empty_/Nil.error().(msg)2"
+ scala/Predef.String#2
+ !scala/Nothing#2+
+= =java/lang/Error#`<init>`(+1).2
+8 =java/lang/Error#2
+3 7
+java/lang/2
+. 2java/2'
+> A_empty_/Nil.error().(msg)2!
+ 
+_empty_/Nil.head().2
+ scala/Nothing#2"
+ _empty_/Nil.error().2!
+		 
+_empty_/Nil.tail().2
+		 _empty_/List#2
+		 scala/Nothing#2"
+		 !_empty_/Nil.error().2
+ 
+_empty_/Cons#2&
+
+ 
+_empty_/Cons#`<init>`().2
+ _empty_/Cons#[c]2
+  $_empty_/List#2
+% &_empty_/Cons#[d]2&
+8 8_empty_/List#`<init>`().2
+1 5_empty_/List#2
+6 7_empty_/Cons#[c]2
+ _empty_/Cons#[c]2
+ _empty_/Cons#[d]2
+ _empty_/Cons#x.2
+ _empty_/Cons#xs.2"
+ 
+_empty_/Cons#head().2
+ _empty_/Cons#[c]2
+ _empty_/Cons#x.2"
+ 
+_empty_/Cons#tail().2
+ _empty_/List#2
+ _empty_/Cons#[c]2
+ _empty_/Cons#xs.PZ F65E015BB705404B8FA20763DA2E1BEE

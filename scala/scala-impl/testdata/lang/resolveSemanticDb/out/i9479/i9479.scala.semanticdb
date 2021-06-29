@@ -1,0 +1,57 @@
+
+¶tests/pos/i9479.scala*(
+_empty_/Applicative#*Applicative€*1
+_empty_/Applicative#`<init>`(). €@*<init>€*!
+_empty_/Applicative#[F]	*F€*
+_empty_/Test.
+ *Test€*=
+!_empty_/Test.eitherApplicative().  *eitherApplicative€*.
+$_empty_/Test.eitherApplicative().[A]	*A€*.
+$_empty_/Test.eitherApplicative().[X]	*X€*
+local0*i€*(
+_empty_/i9479$package. *_empty_€*2
+!_empty_/i9479$package.traverse().*traverse€*.
+$_empty_/i9479$package.traverse().[F]	*F€*.
+$_empty_/i9479$package.traverse().[A]	*A€*.
+$_empty_/i9479$package.traverse().[B]	*B€*0
+%_empty_/i9479$package.traverse().(as)*as€*.
+$_empty_/i9479$package.traverse().(f)*f€2
+ _empty_/Applicative#2)
+ _empty_/Applicative#`<init>`().2!
+ _empty_/Applicative#[F]2
+ _empty_/Test.2/
+  !_empty_/Test.eitherApplicative().22
+! "$_empty_/Test.eitherApplicative().[A]2"
+% 0_empty_/Applicative#22
+2 3$_empty_/Test.eitherApplicative().[X]2#
+9 ?scala/package.Either#22
+@ A$_empty_/Test.eitherApplicative().[A]22
+C D$_empty_/Test.eitherApplicative().[X]2#
+I Lscala/Predef.`???`().2/
+ 
+!_empty_/i9479$package.traverse().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local02'
++ +scala/util/Right.apply().2"
+& +scala/package.Right.2
+, -local02&
+8 8scala/util/Left.apply().2!
+4 8scala/package.Left.2
+9 :local02/
+< <!_empty_/Test.eitherApplicative().2 
+_empty_/i9479$package.2/
+ !_empty_/i9479$package.traverse().22
+ $_empty_/i9479$package.traverse().[F]22
+  !$_empty_/i9479$package.traverse().[A]22
+# $$_empty_/i9479$package.traverse().[B]23
+& (%_empty_/i9479$package.traverse().(as)2!
+* .scala/package.List#22
+/ 0$_empty_/i9479$package.traverse().[A]22
+3 4$_empty_/i9479$package.traverse().(f)22
+6 7$_empty_/i9479$package.traverse().[A]22
+; <$_empty_/i9479$package.traverse().[F]22
+= >$_empty_/i9479$package.traverse().[B]2"
+ _empty_/Applicative#22
+ $_empty_/i9479$package.traverse().[F]2#
+C Fscala/Predef.`???`().PZ 7A684C15717DD07041154912F6850968

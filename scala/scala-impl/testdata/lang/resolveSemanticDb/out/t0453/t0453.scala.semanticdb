@@ -1,0 +1,18 @@
+
+‘tests/pos/t0453.scala*
+_empty_/Test.
+ *Test€* 
+_empty_/Test.foo. €*foo€*
+local0 *$anon€*
+local1*Bar€*
+local2*l€*
+local3 *$anon€2
+ _empty_/Test.2
+ 	_empty_/Test.foo.2
+ local02
+
+ local12
+ 	local22
+ local12
+ local32
+ local1PZ 794F9526F27C80C69DC9C48AA348EC58

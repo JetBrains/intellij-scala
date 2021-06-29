@@ -1,0 +1,31 @@
+
+¿tests/pos/t1560.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#[T]	*T€*
+_empty_/Test.C#t(). *t€*
+_empty_/Test.b().*b€*
+_empty_/Test.c().*c€*
+local0 €*b€2
+ _empty_/Test.2
+ 
+scala/App#2
+ 	_empty_/Test.C#2(
+	 	_empty_/Test.C#`<init>`().2 
+
+ _empty_/Test.C#[T]2!
+ 	_empty_/Test.C#t().2 
+ _empty_/Test.C#[T]2
+ _empty_/Test.b().2
+	 scala/Option#2
+ _empty_/Test.C#2
+ _empty_/Test.c().2
+
+ _empty_/Test.b().2#
+		 scala/Some.unapply().2
+			 scala/Some.2
+		 local02!
+		 _empty_/Test.C#t().2
+		 local0PZ B149D51B57DAF417A6983CB2DAB19096

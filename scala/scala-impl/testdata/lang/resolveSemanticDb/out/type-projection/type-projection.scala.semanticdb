@@ -1,0 +1,156 @@
+
+¸tests/pos/type-projection.scala*
+p/q/Txn#*Txn€*%
+p/q/Txn#`<init>`(). €@*<init>€*
+p/q/Txn#[S]	*S€*"
+p/q/Txn#system(). *system€* 
+p/q/Txn#newId(). *newId€*"
+p/q/Txn#newVar(). *newVar€*
+p/q/Txn#newVar().[A]	*A€* 
+p/q/Txn#newVar().(id)*id€*$
+p/q/Txn#newVar().(init)*init€*
+p/q/Var#*Var€*%
+p/q/Var#`<init>`(). €@*<init>€*
+p/q/Var#[Tx]	*Tx€*
+p/q/Var#[A]	*A€* 
+p/q/Var#apply(). *apply€*!
+p/q/Var#apply().(tx)  *tx€*"
+p/q/Var#update(). *update€*
+p/q/Var#update().(x)*x€*"
+p/q/Var#update().(tx)  *tx€*
+p/q/Sys#*Sys€*%
+p/q/Sys#`<init>`(). €@*<init>€*
+p/q/Sys#[S]	*S€*
+p/q/Sys#Tx#*Tx€*
+p/q/Sys#Id#*Id€*
+p/q/Sys#Vr#*Vr€*
+p/q/Sys#Vr#[A]	*A€*
+p/q/UseCase# *UseCase€*)
+p/q/UseCase#`<init>`(). €@*<init>€*&
+p/q/UseCase#`<init>`().(id)*id€*
+p/q/UseCase#[S]	*S€*
+p/q/UseCase#id. €*id€*
+p/q/UseCase#mk().*mk€*
+p/q/UseCase#mk().(x)*x€*"
+p/q/UseCase#mk().(tx)  *tx€*
+local0 €*vr€*
+p/q/UseCase#rd().*rd€* 
+p/q/UseCase#rd().(vr)*vr€*"
+p/q/UseCase#rd().(tx)  *tx€2
+ 	p/2
+ 	p/q/2
+ 
+java/lang/2
+ java/2-
+ scala/language.`3.0-migration`.2
+ scala/language.2
+ 	p/q/Txn#2!
+	 	p/q/Txn#`<init>`().2
+
+ p/q/Txn#[S]2
+ p/q/Txn#system().2
+ p/q/Txn#[S]2
+ p/q/Txn#newId().2
+ p/q/Sys#Id#2
+ p/q/Txn#[S]2
+
+
+ p/q/Txn#newVar().2"
+
+
+ p/q/Txn#newVar().[A]2#
+
+
+ p/q/Txn#newVar().(id)2
+
+
+ p/q/Sys#Id#2
+
+
+ p/q/Txn#[S]2%
+
+
+ p/q/Txn#newVar().(init)2"
+
+ 
+ !p/q/Txn#newVar().[A]2
+
+&
+ (p/q/Sys#Vr#2
+
+$
+ %p/q/Txn#[S]2"
+
+)
+ *p/q/Txn#newVar().[A]2
+ 	p/q/Var#2!
+	 	p/q/Var#`<init>`().2
+
+ p/q/Var#[Tx]2
+ p/q/Var#[A]2
+ p/q/Var#apply().2"
+ p/q/Var#apply().(tx)2
+ p/q/Var#[Tx]2
+  !p/q/Var#[A]2
+ p/q/Var#update().2"
+ p/q/Var#update().(x)2
+ p/q/Var#[A]2#
+ p/q/Var#update().(tx)2
+  "p/q/Var#[Tx]2
+% )scala/Unit#2
+ 	p/q/Sys#2!
+	 	p/q/Sys#`<init>`().2
+
+ p/q/Sys#[S]2
+ 	p/q/Sys#Tx#2
+ p/q/Txn#2
+ p/q/Sys#[S]2
+ 	p/q/Sys#Id#2
+ 	p/q/Sys#Vr#2
+
+ p/q/Sys#Vr#[A]2
+ p/q/Var#2
+ p/q/Sys#Tx#2
+ p/q/Sys#[S]2
+ p/q/Sys#Vr#[A]2
+ p/q/UseCase#2%
+ p/q/UseCase#`<init>`().2
+* ,p/q/Sys#Id#2
+( )p/q/UseCase#[S]2
+ p/q/UseCase#[S]2
+$ &p/q/UseCase#id.2
+ p/q/UseCase#mk().2"
+	 
+p/q/UseCase#mk().(x)2
+ 
+scala/Int#2#
+ p/q/UseCase#mk().(tx)2
+  "p/q/Sys#Tx#2
+ p/q/UseCase#[S]2
+' )p/q/Sys#Vr#2
+% &p/q/UseCase#[S]2
+* -
+scala/Int#2
+ 
+local02
+ p/q/Txn#newVar().2#
+ p/q/UseCase#mk().(tx)2
+ 
+scala/Int#2
+ p/q/UseCase#id.2"
+  !p/q/UseCase#mk().(x)2
+ local02
+ p/q/UseCase#rd().2#
+	 p/q/UseCase#rd().(vr)2
+ p/q/Sys#Vr#2
+ p/q/UseCase#[S]2
+ 
+scala/Int#2#
+! #p/q/UseCase#rd().(tx)2
+' )p/q/Sys#Tx#2
+% &p/q/UseCase#[S]2
+, /
+scala/Int#2
+4 4p/q/Var#apply().2#
+2 4p/q/UseCase#rd().(vr)2#
+6 6p/q/UseCase#rd().(tx)PZ F0A902539D991724E5C27073F30F3FFF

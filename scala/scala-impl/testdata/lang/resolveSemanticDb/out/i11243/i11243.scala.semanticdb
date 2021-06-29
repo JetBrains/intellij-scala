@@ -1,0 +1,591 @@
+
+’Ñtests/pos/i11243.scala*(
+_empty_/WriterTest.
+ *
+WriterTest€*-
+_empty_/WriterTest.Functor.
+ *Functor€*1
+#_empty_/WriterTest.Functor.apply().*apply€*0
+&_empty_/WriterTest.Functor.apply().[F]	*F€*2
+&_empty_/WriterTest.Functor.apply().(f)  *f€*+
+_empty_/WriterTest.Functor#*Functor€*8
+&_empty_/WriterTest.Functor#`<init>`(). €@*<init>€*(
+_empty_/WriterTest.Functor#[F]	*F€*/
+!_empty_/WriterTest.Functor#map(). *map€*.
+$_empty_/WriterTest.Functor#map().[A]	*A€*.
+$_empty_/WriterTest.Functor#map().[B]	*B€*.
+$_empty_/WriterTest.Functor#map().(x)*x€*.
+$_empty_/WriterTest.Functor#map().(f)*f€*5
+_empty_/WriterTest.Applicative.
+ *Applicative€*5
+'_empty_/WriterTest.Applicative.apply().*apply€*4
+*_empty_/WriterTest.Applicative.apply().[F]	*F€*6
+*_empty_/WriterTest.Applicative.apply().(a)  *a€*3
+_empty_/WriterTest.Applicative#*Applicative€*<
+*_empty_/WriterTest.Applicative#`<init>`(). €@*<init>€*,
+"_empty_/WriterTest.Applicative#[F]	*F€*5
+&_empty_/WriterTest.Applicative#pure(). *pure€*3
+)_empty_/WriterTest.Applicative#pure().[A]	*A€*3
+)_empty_/WriterTest.Applicative#pure().(x)*x€*1
+$_empty_/WriterTest.Applicative#ap(). *ap€*1
+'_empty_/WriterTest.Applicative#ap().[A]	*A€*1
+'_empty_/WriterTest.Applicative#ap().[B]	*B€*1
+'_empty_/WriterTest.Applicative#ap().(x)*x€*1
+'_empty_/WriterTest.Applicative#ap().(f)*f€*1
+%_empty_/WriterTest.Applicative#map().*map€*2
+(_empty_/WriterTest.Applicative#map().[A]	*A€*2
+(_empty_/WriterTest.Applicative#map().[B]	*B€*2
+(_empty_/WriterTest.Applicative#map().(x)*x€*2
+(_empty_/WriterTest.Applicative#map().(f)*f€*3
+&_empty_/WriterTest.Applicative#map2().*map2€*3
+)_empty_/WriterTest.Applicative#map2().[A]	*A€*3
+)_empty_/WriterTest.Applicative#map2().[B]	*B€*3
+)_empty_/WriterTest.Applicative#map2().[C]	*C€*5
+*_empty_/WriterTest.Applicative#map2().(fa)*fa€*5
+*_empty_/WriterTest.Applicative#map2().(fb)*fb€*3
+)_empty_/WriterTest.Applicative#map2().(f)*f€*
+local0 €*fab€*
+local1*a€*
+local2*b€*)
+_empty_/WriterTest.Monad.
+ *Monad€*/
+!_empty_/WriterTest.Monad.apply().*apply€*.
+$_empty_/WriterTest.Monad.apply().[F]	*F€*0
+$_empty_/WriterTest.Monad.apply().(m)  *m€*'
+_empty_/WriterTest.Monad#*Monad€*6
+$_empty_/WriterTest.Monad#`<init>`(). €@*<init>€*&
+_empty_/WriterTest.Monad#[F]	*F€*/
+ _empty_/WriterTest.Monad#pure(). *pure€*-
+#_empty_/WriterTest.Monad#pure().[A]	*A€*-
+#_empty_/WriterTest.Monad#pure().(x)*x€*5
+#_empty_/WriterTest.Monad#flatMap(). *flatMap€*0
+&_empty_/WriterTest.Monad#flatMap().[A]	*A€*0
+&_empty_/WriterTest.Monad#flatMap().[B]	*B€*2
+'_empty_/WriterTest.Monad#flatMap().(fa)*fa€*0
+&_empty_/WriterTest.Monad#flatMap().(f)*f€*)
+_empty_/WriterTest.Monad#ap().*ap€*+
+!_empty_/WriterTest.Monad#ap().[A]	*A€*+
+!_empty_/WriterTest.Monad#ap().[B]	*B€*-
+"_empty_/WriterTest.Monad#ap().(fa)*fa€*/
+#_empty_/WriterTest.Monad#ap().(fab)*fab€*
+local3*f€*
+local4*a€*3
+_empty_/WriterTest.eitherMonad#*eitherMonad€*<
+*_empty_/WriterTest.eitherMonad#`<init>`(). €@*<init>€*7
+-_empty_/WriterTest.eitherMonad#`<init>`().[X]	*X€*0
+$_empty_/WriterTest.eitherMonad#[Err]	*Err€*3
+&_empty_/WriterTest.eitherMonad#pure().*pure€*3
+)_empty_/WriterTest.eitherMonad#pure().[A]	*A€*3
+)_empty_/WriterTest.eitherMonad#pure().(a)*a€*9
+)_empty_/WriterTest.eitherMonad#flatMap().*flatMap€*6
+,_empty_/WriterTest.eitherMonad#flatMap().[A]	*A€*6
+,_empty_/WriterTest.eitherMonad#flatMap().[B]	*B€*6
+,_empty_/WriterTest.eitherMonad#flatMap().(x)*x€*6
+,_empty_/WriterTest.eitherMonad#flatMap().(f)*f€*
+local5 €*a€*
+local6 €*err€*7
+!_empty_/WriterTest.eitherMonad(). (*eitherMonad€*2
+&_empty_/WriterTest.eitherMonad().[Err]	*Err€*5
+_empty_/WriterTest.optionMonad.
+ (*optionMonad€*3
+&_empty_/WriterTest.optionMonad.pure().*pure€*3
+)_empty_/WriterTest.optionMonad.pure().[A]	*A€*3
+)_empty_/WriterTest.optionMonad.pure().(a)*a€*9
+)_empty_/WriterTest.optionMonad.flatMap().*flatMap€*6
+,_empty_/WriterTest.optionMonad.flatMap().[A]	*A€*6
+,_empty_/WriterTest.optionMonad.flatMap().[B]	*B€*8
+-_empty_/WriterTest.optionMonad.flatMap().(fa)*fa€*6
+,_empty_/WriterTest.optionMonad.flatMap().(f)*f€*
+local7 €*a€*1
+_empty_/WriterTest.listMonad.
+ (*	listMonad€*1
+$_empty_/WriterTest.listMonad.pure().*pure€*1
+'_empty_/WriterTest.listMonad.pure().[A]	*A€*1
+'_empty_/WriterTest.listMonad.pure().(a)*a€*7
+'_empty_/WriterTest.listMonad.flatMap().*flatMap€*4
+*_empty_/WriterTest.listMonad.flatMap().[A]	*A€*4
+*_empty_/WriterTest.listMonad.flatMap().[B]	*B€*4
+*_empty_/WriterTest.listMonad.flatMap().(x)*x€*4
+*_empty_/WriterTest.listMonad.flatMap().(f)*f€*
+local8 €*hd€*
+local9 €*tl€*6
+_empty_/WriterTest.Transformer# €*Transformer€*<
+*_empty_/WriterTest.Transformer#`<init>`(). €@*<init>€*F
+3_empty_/WriterTest.Transformer#`<init>`().(wrapped) €*wrapped€*,
+"_empty_/WriterTest.Transformer#[F]	*F€*,
+"_empty_/WriterTest.Transformer#[A]	*A€*:
+'_empty_/WriterTest.Transformer#wrapped. €*wrapped€*3
+&_empty_/WriterTest.Transformer#copy().*copy€*3
+)_empty_/WriterTest.Transformer#copy().[F]	*F€*3
+)_empty_/WriterTest.Transformer#copy().[A]	*A€*?
+/_empty_/WriterTest.Transformer#copy().(wrapped)*wrapped€*G
+2_empty_/WriterTest.Transformer#copy().(evidence$1)  *
+evidence$1€*G
+0_empty_/WriterTest.Transformer#copy$default$1().*copy$default$1€*=
+3_empty_/WriterTest.Transformer#copy$default$1().[F]	*F€*=
+3_empty_/WriterTest.Transformer#copy$default$1().[A]	*A€*/
+$_empty_/WriterTest.Transformer#_1().*_1€*5
+_empty_/WriterTest.Transformer.
+ *Transformer€*5
+'_empty_/WriterTest.Transformer.apply().*apply€*4
+*_empty_/WriterTest.Transformer.apply().[F]	*F€*4
+*_empty_/WriterTest.Transformer.apply().[A]	*A€*@
+0_empty_/WriterTest.Transformer.apply().(wrapped)*wrapped€*H
+3_empty_/WriterTest.Transformer.apply().(evidence$1)  *
+evidence$1€*9
+)_empty_/WriterTest.Transformer.unapply().*unapply€*6
+,_empty_/WriterTest.Transformer.unapply().[F]	*F€*6
+,_empty_/WriterTest.Transformer.unapply().[A]	*A€*:
+._empty_/WriterTest.Transformer.unapply().(x$1)*x$1€*;
+*_empty_/WriterTest.Transformer.toString().*toString€*=
+$_empty_/WriterTest.transformerMonad#*transformerMonad€*A
+/_empty_/WriterTest.transformerMonad#`<init>`(). €@*<init>€*<
+2_empty_/WriterTest.transformerMonad#`<init>`().[X]	*X€*1
+'_empty_/WriterTest.transformerMonad#[F]	*F€*8
++_empty_/WriterTest.transformerMonad#pure().*pure€*8
+._empty_/WriterTest.transformerMonad#pure().[A]	*A€*8
+._empty_/WriterTest.transformerMonad#pure().(a)*a€*>
+._empty_/WriterTest.transformerMonad#flatMap().*flatMap€*;
+1_empty_/WriterTest.transformerMonad#flatMap().[A]	*A€*;
+1_empty_/WriterTest.transformerMonad#flatMap().[B]	*B€*=
+2_empty_/WriterTest.transformerMonad#flatMap().(fa)*fa€*;
+1_empty_/WriterTest.transformerMonad#flatMap().(f)*f€*
+local10 €*ffa€*
+local11*x$1€*
+local12 €*a€*
+local13*x$1€*
+local14 €*b€*A
+&_empty_/WriterTest.transformerMonad(). (*transformerMonad€*3
+)_empty_/WriterTest.transformerMonad().[F]	*F€*G
+2_empty_/WriterTest.transformerMonad().(evidence$2)  *
+evidence$2€*+
+_empty_/WriterTest.EString#*EString€*(
+_empty_/WriterTest.EString#[A]	*A€*9
+#_empty_/WriterTest.incrementEven().*incrementEven€*0
+&_empty_/WriterTest.incrementEven().(a)*a€*1
+_empty_/WriterTest.doubleOdd().*	doubleOdd€*,
+"_empty_/WriterTest.doubleOdd().(a)*a€*:
+!_empty_/WriterTest.writerExample. €*writerExample€*.
+_empty_/WriterTest.example. €*example€*
+local15*a€2
+ _empty_/WriterTest.2
+ 
+scala/App#2)
+	 _empty_/WriterTest.Functor.21
+ #_empty_/WriterTest.Functor.apply().24
+ &_empty_/WriterTest.Functor.apply().[F]24
+ &_empty_/WriterTest.Functor.apply().(f)2)
+ $_empty_/WriterTest.Functor#24
+% &&_empty_/WriterTest.Functor.apply().[F]24
++ ,&_empty_/WriterTest.Functor.apply().(f)2)
+ _empty_/WriterTest.Functor#24
+ &_empty_/WriterTest.Functor#`<init>`().2,
+ _empty_/WriterTest.Functor#[F]2/
+
+ !_empty_/WriterTest.Functor#map().22
+ $_empty_/WriterTest.Functor#map().[A]22
+ $_empty_/WriterTest.Functor#map().[B]22
+ $_empty_/WriterTest.Functor#map().(x)2,
+ _empty_/WriterTest.Functor#[F]22
+ $_empty_/WriterTest.Functor#map().[A]22
+ $_empty_/WriterTest.Functor#map().(f)22
+ $_empty_/WriterTest.Functor#map().[A]22
+ $_empty_/WriterTest.Functor#map().[B]2,
+ _empty_/WriterTest.Functor#[F]22
+ $_empty_/WriterTest.Functor#map().[B]2-
+			 _empty_/WriterTest.Applicative.25
+
+
+ '_empty_/WriterTest.Applicative.apply().28
+
+
+ *_empty_/WriterTest.Applicative.apply().[F]28
+
+
+ *_empty_/WriterTest.Applicative.apply().(a)2-
+
+
+ (_empty_/WriterTest.Applicative#28
+
+)
+ **_empty_/WriterTest.Applicative.apply().[F]28
+
+/
+ 0*_empty_/WriterTest.Applicative.apply().(a)2-
+ _empty_/WriterTest.Applicative#28
+ *_empty_/WriterTest.Applicative#`<init>`().2)
+" )_empty_/WriterTest.Functor#20
+* +"_empty_/WriterTest.Applicative#[F]20
+ "_empty_/WriterTest.Applicative#[F]24
+ &_empty_/WriterTest.Applicative#pure().27
+ )_empty_/WriterTest.Applicative#pure().[A]27
+ )_empty_/WriterTest.Applicative#pure().(x)27
+ )_empty_/WriterTest.Applicative#pure().[A]20
+ "_empty_/WriterTest.Applicative#[F]27
+ )_empty_/WriterTest.Applicative#pure().[A]22
+
+ $_empty_/WriterTest.Applicative#ap().25
+ '_empty_/WriterTest.Applicative#ap().[A]25
+ '_empty_/WriterTest.Applicative#ap().[B]25
+ '_empty_/WriterTest.Applicative#ap().(x)20
+ "_empty_/WriterTest.Applicative#[F]25
+ '_empty_/WriterTest.Applicative#ap().[A]25
+ '_empty_/WriterTest.Applicative#ap().(f)20
+ "_empty_/WriterTest.Applicative#[F]25
+ '_empty_/WriterTest.Applicative#ap().[A]25
+ '_empty_/WriterTest.Applicative#ap().[B]20
+ "_empty_/WriterTest.Applicative#[F]25
+ '_empty_/WriterTest.Applicative#ap().[B]23
+
+ %_empty_/WriterTest.Applicative#map().26
+ (_empty_/WriterTest.Applicative#map().[A]26
+ (_empty_/WriterTest.Applicative#map().[B]26
+ (_empty_/WriterTest.Applicative#map().(x)26
+ (_empty_/WriterTest.Applicative#map().[A]26
+ (_empty_/WriterTest.Applicative#map().(f)26
+ (_empty_/WriterTest.Applicative#map().[A]26
+ (_empty_/WriterTest.Applicative#map().[B]20
+ "_empty_/WriterTest.Applicative#[F]26
+ (_empty_/WriterTest.Applicative#map().[B]22
+
+ $_empty_/WriterTest.Applicative#ap().26
+ 	(_empty_/WriterTest.Applicative#map().(x)24
+ &_empty_/WriterTest.Applicative#pure().26
+ (_empty_/WriterTest.Applicative#map().(f)24
+$ (&_empty_/WriterTest.Applicative#map2().27
+ )_empty_/WriterTest.Applicative#map2().[A]27
+ )_empty_/WriterTest.Applicative#map2().[B]27
+ )_empty_/WriterTest.Applicative#map2().[C]28
+ *_empty_/WriterTest.Applicative#map2().(fa)20
+ "_empty_/WriterTest.Applicative#[F]27
+ )_empty_/WriterTest.Applicative#map2().[A]28
+) +*_empty_/WriterTest.Applicative#map2().(fb)20
+- ."_empty_/WriterTest.Applicative#[F]27
+/ 0)_empty_/WriterTest.Applicative#map2().[B]27
+3 4)_empty_/WriterTest.Applicative#map2().(f)27
+7 8)_empty_/WriterTest.Applicative#map2().[A]27
+9 :)_empty_/WriterTest.Applicative#map2().[B]27
+? @)_empty_/WriterTest.Applicative#map2().[C]20
+C D"_empty_/WriterTest.Applicative#[F]27
+E F)_empty_/WriterTest.Applicative#map2().[C]2
+
+ local020
+ "_empty_/WriterTest.Applicative#[F]27
+ )_empty_/WriterTest.Applicative#map2().[B]27
+ )_empty_/WriterTest.Applicative#map2().[C]23
+ !%_empty_/WriterTest.Applicative#map().28
+ *_empty_/WriterTest.Applicative#map2().(fa)2
+# $local127
+& ')_empty_/WriterTest.Applicative#map2().[A]2
+- .local227
+0 1)_empty_/WriterTest.Applicative#map2().[B]2&
+7 7scala/Function2#apply().27
+6 7)_empty_/WriterTest.Applicative#map2().(f)2
+8 9local12
+: ;local222
+	 $_empty_/WriterTest.Applicative#ap().28
+ *_empty_/WriterTest.Applicative#map2().(fb)2
+ local02-
+ _empty_/WriterTest.Applicative#2'
+	 _empty_/WriterTest.Monad.2/
+ !_empty_/WriterTest.Monad.apply().22
+ $_empty_/WriterTest.Monad.apply().[F]22
+ $_empty_/WriterTest.Monad.apply().(m)2'
+ "_empty_/WriterTest.Monad#22
+# $$_empty_/WriterTest.Monad.apply().[F]22
+) *$_empty_/WriterTest.Monad.apply().(m)2'
+!! _empty_/WriterTest.Monad#22
+!! $_empty_/WriterTest.Monad#`<init>`().2-
+!! '_empty_/WriterTest.Applicative#2*
+!(! )_empty_/WriterTest.Monad#[F]2*
+!! _empty_/WriterTest.Monad#[F]2.
+$$  _empty_/WriterTest.Monad#pure().21
+$$ #_empty_/WriterTest.Monad#pure().[A]21
+$$ #_empty_/WriterTest.Monad#pure().(x)21
+$$ #_empty_/WriterTest.Monad#pure().[A]2*
+$$ _empty_/WriterTest.Monad#[F]21
+$$ #_empty_/WriterTest.Monad#pure().[A]21
+(( #_empty_/WriterTest.Monad#flatMap().24
+&& &_empty_/WriterTest.Monad#flatMap().[A]24
+&& &_empty_/WriterTest.Monad#flatMap().[B]25
+&& '_empty_/WriterTest.Monad#flatMap().(fa)2*
+&& _empty_/WriterTest.Monad#[F]24
+&& &_empty_/WriterTest.Monad#flatMap().[A]24
+(( &_empty_/WriterTest.Monad#flatMap().(f)24
+(( &_empty_/WriterTest.Monad#flatMap().[A]2*
+(( _empty_/WriterTest.Monad#[F]24
+(( &_empty_/WriterTest.Monad#flatMap().[B]2*
+( ( !_empty_/WriterTest.Monad#[F]24
+("( #&_empty_/WriterTest.Monad#flatMap().[B]2,
+++ _empty_/WriterTest.Monad#ap().2/
+&& !_empty_/WriterTest.Monad#ap().[A]2/
+&& !_empty_/WriterTest.Monad#ap().[B]20
+&& "_empty_/WriterTest.Monad#ap().(fa)2/
+&& !_empty_/WriterTest.Monad#ap().[A]21
+++ #_empty_/WriterTest.Monad#ap().(fab)2*
+++ _empty_/WriterTest.Monad#[F]2/
+++ !_empty_/WriterTest.Monad#ap().[A]2/
+++ !_empty_/WriterTest.Monad#ap().[B]2*
++ + !_empty_/WriterTest.Monad#[F]2/
++"+ #!_empty_/WriterTest.Monad#ap().[B]21
+,, #_empty_/WriterTest.Monad#flatMap().21
+,
+, #_empty_/WriterTest.Monad#ap().(fab)2
+-- local321
+.. #_empty_/WriterTest.Monad#flatMap().20
+.. "_empty_/WriterTest.Monad#ap().(fa)2
+// local42.
+00  _empty_/WriterTest.Monad#pure().2&
+00 scala/Function1#apply().2
+00 local32
+00 local42'
+66 _empty_/WriterTest.Monad#2-
+88 _empty_/WriterTest.eitherMonad#28
+88 *_empty_/WriterTest.eitherMonad#`<init>`().2'
+88 _empty_/WriterTest.Monad#2;
+8!8 "-_empty_/WriterTest.eitherMonad#`<init>`().[X]2#
+8(8 .scala/package.Either#22
+8/8 2$_empty_/WriterTest.eitherMonad#[Err]22
+88 $_empty_/WriterTest.eitherMonad#[Err]24
+99 &_empty_/WriterTest.eitherMonad#pure().27
+99 )_empty_/WriterTest.eitherMonad#pure().[A]27
+99 )_empty_/WriterTest.eitherMonad#pure().(a)27
+99 )_empty_/WriterTest.eitherMonad#pure().[A]2#
+99 scala/package.Either#22
+99 !$_empty_/WriterTest.eitherMonad#[Err]27
+9#9 $)_empty_/WriterTest.eitherMonad#pure().[A]2'
+9-9 -scala/util/Right.apply().2"
+9(9 -scala/package.Right.27
+9.9 /)_empty_/WriterTest.eitherMonad#pure().(a)27
+:*: 1)_empty_/WriterTest.eitherMonad#flatMap().2:
+:: ,_empty_/WriterTest.eitherMonad#flatMap().[A]2:
+:: ,_empty_/WriterTest.eitherMonad#flatMap().[B]2:
+:: ,_empty_/WriterTest.eitherMonad#flatMap().(x)2#
+:: scala/package.Either#22
+:: !$_empty_/WriterTest.eitherMonad#[Err]2:
+:": #,_empty_/WriterTest.eitherMonad#flatMap().[A]2:
+:2: 3,_empty_/WriterTest.eitherMonad#flatMap().(f)2:
+:5: 6,_empty_/WriterTest.eitherMonad#flatMap().[A]2#
+::: @scala/package.Either#22
+:A: D$_empty_/WriterTest.eitherMonad#[Err]2:
+:F: G,_empty_/WriterTest.eitherMonad#flatMap().[B]2:
+;; ,_empty_/WriterTest.eitherMonad#flatMap().(x)2)
+<< scala/util/Right.unapply().2"
+<< scala/package.Right.2
+<< local52&
+<< scala/Function1#apply().2:
+<< ,_empty_/WriterTest.eitherMonad#flatMap().(f)2
+<< local52(
+== scala/util/Left.unapply().2!
+== scala/package.Left.2
+== local62&
+== scala/util/Left.apply().2!
+== scala/package.Left.2
+== "local62/
+88 !_empty_/WriterTest.eitherMonad().2-
+AA _empty_/WriterTest.optionMonad.2'
+AA _empty_/WriterTest.Monad#24
+BB &_empty_/WriterTest.optionMonad.pure().27
+BB )_empty_/WriterTest.optionMonad.pure().[A]27
+BB )_empty_/WriterTest.optionMonad.pure().(a)27
+BB )_empty_/WriterTest.optionMonad.pure().[A]2!
+BB scala/Some.apply().2
+BB scala/Some.27
+BB )_empty_/WriterTest.optionMonad.pure().(a)27
+D
+D )_empty_/WriterTest.optionMonad.flatMap().2:
+CC ,_empty_/WriterTest.optionMonad.flatMap().[A]2:
+CC ,_empty_/WriterTest.optionMonad.flatMap().[B]2;
+CC -_empty_/WriterTest.optionMonad.flatMap().(fa)2
+CC scala/Option#2:
+CC ,_empty_/WriterTest.optionMonad.flatMap().[A]2:
+DD ,_empty_/WriterTest.optionMonad.flatMap().(f)2:
+DD ,_empty_/WriterTest.optionMonad.flatMap().[A]2
+DD  scala/Option#2:
+D!D ",_empty_/WriterTest.optionMonad.flatMap().[B]2;
+EE 
+-_empty_/WriterTest.optionMonad.flatMap().(fa)2#
+FF scala/Some.unapply().2
+FF scala/Some.2
+FF local72&
+GG scala/Function1#apply().2:
+GG ,_empty_/WriterTest.optionMonad.flatMap().(f)2
+GG local72
+HH scala/None.2
+II scala/None.2+
+MM _empty_/WriterTest.listMonad.2'
+MM _empty_/WriterTest.Monad#2!
+MM scala/package.List#22
+NN $_empty_/WriterTest.listMonad.pure().25
+NN '_empty_/WriterTest.listMonad.pure().[A]25
+NN '_empty_/WriterTest.listMonad.pure().(a)25
+NN '_empty_/WriterTest.listMonad.pure().[A]2!
+NN scala/package.List#25
+NN '_empty_/WriterTest.listMonad.pure().[A]27
+N%N %)scala/collection/IterableFactory#apply().2!
+N!N %scala/package.List.25
+N&N ''_empty_/WriterTest.listMonad.pure().(a)25
+Q
+Q '_empty_/WriterTest.listMonad.flatMap().28
+PP *_empty_/WriterTest.listMonad.flatMap().[A]28
+PP *_empty_/WriterTest.listMonad.flatMap().[B]28
+PP *_empty_/WriterTest.listMonad.flatMap().(x)2!
+PP scala/package.List#28
+PP *_empty_/WriterTest.listMonad.flatMap().[A]28
+QQ *_empty_/WriterTest.listMonad.flatMap().(f)28
+QQ *_empty_/WriterTest.listMonad.flatMap().[A]2!
+QQ scala/package.List#28
+QQ  *_empty_/WriterTest.listMonad.flatMap().[B]2!
+Q$Q (scala/package.List#28
+Q)Q **_empty_/WriterTest.listMonad.flatMap().[B]28
+RR 	*_empty_/WriterTest.listMonad.flatMap().(x)28
+SS *scala/collection/immutable/`::`.unapply().2!
+SS scala/package.`::`.2
+SS local82
+SS local922
+S!S #$scala/collection/IterableOps#`++`().2&
+SS scala/Function1#apply().28
+SS *_empty_/WriterTest.listMonad.flatMap().(f)2
+SS local828
+S'S .*scala/collection/immutable/List#flatMap().2
+S$S &local928
+S/S 0*_empty_/WriterTest.listMonad.flatMap().(f)2 
+TT scala/package.Nil.2 
+TT scala/package.Nil.2-
+XX _empty_/WriterTest.Transformer#28
+XX *_empty_/WriterTest.Transformer#`<init>`().20
+X5X 6"_empty_/WriterTest.Transformer#[F]20
+X7X 8"_empty_/WriterTest.Transformer#[A]2'
+XX $_empty_/WriterTest.Monad#20
+X$X $"_empty_/WriterTest.Transformer#[F]20
+XX "_empty_/WriterTest.Transformer#[F]20
+X%X &"_empty_/WriterTest.Transformer#[A]25
+X,X 3'_empty_/WriterTest.Transformer#wrapped.24
+XX &_empty_/WriterTest.Transformer#copy().22
+X5X 5$_empty_/WriterTest.Transformer#_1().2-
+XX _empty_/WriterTest.Transformer.25
+XX '_empty_/WriterTest.Transformer.apply().27
+XX )_empty_/WriterTest.Transformer.unapply().22
+ZZ $_empty_/WriterTest.transformerMonad#2=
+ZZ /_empty_/WriterTest.transformerMonad#`<init>`().2'
+ZZ $_empty_/WriterTest.Monad#25
+Z$Z $'_empty_/WriterTest.transformerMonad#[F]2'
+Z'Z ,_empty_/WriterTest.Monad#2@
+Z.Z /2_empty_/WriterTest.transformerMonad#`<init>`().[X]2-
+Z5Z @_empty_/WriterTest.Transformer#25
+ZAZ B'_empty_/WriterTest.transformerMonad#[F]25
+ZZ '_empty_/WriterTest.transformerMonad#[F]29
+\\ +_empty_/WriterTest.transformerMonad#pure().2<
+\\ ._empty_/WriterTest.transformerMonad#pure().[A]2<
+\\ ._empty_/WriterTest.transformerMonad#pure().(a)2<
+\\ ._empty_/WriterTest.transformerMonad#pure().[A]2-
+\\ "_empty_/WriterTest.Transformer#25
+\#\ $'_empty_/WriterTest.transformerMonad#[F]2<
+\%\ &._empty_/WriterTest.transformerMonad#pure().[A]25
+\5\ 5'_empty_/WriterTest.Transformer.apply().2-
+\*\ 5_empty_/WriterTest.Transformer.2.
+\G\ K _empty_/WriterTest.Monad#pure().2$
+\6\ <scala/Predef.summon().2'
+\=\ B_empty_/WriterTest.Monad#25
+\C\ D'_empty_/WriterTest.transformerMonad#[F]2<
+\L\ M._empty_/WriterTest.transformerMonad#pure().(a)2<
+_
+_ ._empty_/WriterTest.transformerMonad#flatMap().2?
+^^ 1_empty_/WriterTest.transformerMonad#flatMap().[A]2?
+^^ 1_empty_/WriterTest.transformerMonad#flatMap().[B]2@
+^^ 2_empty_/WriterTest.transformerMonad#flatMap().(fa)2-
+^^ #_empty_/WriterTest.Transformer#25
+^$^ %'_empty_/WriterTest.transformerMonad#[F]2?
+^&^ '1_empty_/WriterTest.transformerMonad#flatMap().[A]2?
+__ 1_empty_/WriterTest.transformerMonad#flatMap().(f)2?
+__ 1_empty_/WriterTest.transformerMonad#flatMap().[A]2-
+__ %_empty_/WriterTest.Transformer#25
+_&_ ''_empty_/WriterTest.transformerMonad#[F]2?
+_(_ )1_empty_/WriterTest.transformerMonad#flatMap().[B]2
+`` local1025
+`` '_empty_/WriterTest.transformerMonad#[F]2?
+`` 1_empty_/WriterTest.transformerMonad#flatMap().[B]21
+`!` (#_empty_/WriterTest.Monad#flatMap().2/
+`` !_empty_/WriterTest.Monad.apply().2'
+`` _empty_/WriterTest.Monad.25
+`` '_empty_/WriterTest.transformerMonad#[F]25
+`,` 3'_empty_/WriterTest.Transformer#wrapped.2@
+`)` +2_empty_/WriterTest.transformerMonad#flatMap().(fa)2
+a
+a 
+local112
+aa local1225
+bb '_empty_/WriterTest.Transformer#wrapped.2&
+bb scala/Function1#apply().2?
+bb 1_empty_/WriterTest.transformerMonad#flatMap().(f)2
+bb local122
+cc local132
+cc local142
+dd local1425
+hh '_empty_/WriterTest.Transformer.apply().2-
+hh _empty_/WriterTest.Transformer.2
+hh local1024
+ZZ &_empty_/WriterTest.transformerMonad().2)
+ll _empty_/WriterTest.EString#2,
+ll _empty_/WriterTest.EString#[A]2#
+ll scala/package.Either#2"
+ll !scala/Predef.String#2,
+l"l #_empty_/WriterTest.EString#[A]21
+nn #_empty_/WriterTest.incrementEven().24
+nn &_empty_/WriterTest.incrementEven().(a)2
+nn 
+scala/Int#2-
+nn (_empty_/WriterTest.Transformer#2)
+n)n 0_empty_/WriterTest.EString#2
+n1n 4
+scala/Int#2!
+oo scala/Int#`==`(+3).2 
+o	o 
+scala/Int#`%`(+3).24
+oo &_empty_/WriterTest.incrementEven().(a)25
+oo '_empty_/WriterTest.Transformer.apply().2-
+oo _empty_/WriterTest.Transformer.2&
+o#o #scala/util/Left.apply().2!
+oo #scala/package.Left.2/
+o;o ;!_empty_/WriterTest.eitherMonad().25
+pp '_empty_/WriterTest.Transformer.apply().2-
+p	p _empty_/WriterTest.Transformer.2'
+pp scala/util/Right.apply().2"
+pp scala/package.Right.2 
+pp scala/Int#`+`(+4).24
+pp &_empty_/WriterTest.incrementEven().(a)2/
+p"p "!_empty_/WriterTest.eitherMonad().2-
+ss _empty_/WriterTest.doubleOdd().20
+ss "_empty_/WriterTest.doubleOdd().(a)2
+ss 
+scala/Int#2-
+ss $_empty_/WriterTest.Transformer#2)
+s%s ,_empty_/WriterTest.EString#2
+s.s 1
+scala/Int#2!
+tt scala/Int#`==`(+3).2 
+t	t 
+scala/Int#`%`(+3).20
+tt "_empty_/WriterTest.doubleOdd().(a)25
+tt '_empty_/WriterTest.Transformer.apply().2-
+tt _empty_/WriterTest.Transformer.2&
+t#t #scala/util/Left.apply().2!
+tt #scala/package.Left.2/
+t<t <!_empty_/WriterTest.eitherMonad().25
+uu '_empty_/WriterTest.Transformer.apply().2-
+u	u _empty_/WriterTest.Transformer.2'
+uu scala/util/Right.apply().2"
+uu scala/package.Right.2 
+uu scala/Int#`*`(+3).20
+uu "_empty_/WriterTest.doubleOdd().(a)2/
+u"u "!_empty_/WriterTest.eitherMonad().2/
+xx !_empty_/WriterTest.writerExample.21
+xx ##_empty_/WriterTest.incrementEven().2)
+yy _empty_/WriterTest.example.2<
+z z '._empty_/WriterTest.transformerMonad#flatMap().24
+zz &_empty_/WriterTest.transformerMonad().2!
+zz _empty_/WriterTest.2/
+zz !_empty_/WriterTest.eitherMonad().2/
+z(z 5!_empty_/WriterTest.writerExample.2-
+z7z @_empty_/WriterTest.doubleOdd().2
+z7z 7local15PZ CF4ABFEA18137ECCBFB0471CCE3CF75B

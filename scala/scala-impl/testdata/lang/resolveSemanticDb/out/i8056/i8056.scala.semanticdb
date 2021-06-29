@@ -1,0 +1,42 @@
+
+Ýtests/pos/i8056.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.m().*m€*
+_empty_/O.m().(x)*x€*
+_empty_/O.n().*n€*
+_empty_/O.n().(l)*l€*
+_empty_/O.n2().*n2€*
+_empty_/O.n2().(l)*l€2
+ 
+_empty_/O.2
+ _empty_/O.m().2
+ 	_empty_/O.m().(x)2
+ 
+scala/Any#2
+ _empty_/O.n().2
+ 	_empty_/O.n().(l)2
+ 
+scala/`|`#2!
+ scala/package.List#2
+ 
+scala/Int#2!
+ scala/package.List#2"
+ "scala/Predef.String#2
+& *scala/Unit#2
+- ._empty_/O.m().2
+/ 0_empty_/O.n().(l)2
+ _empty_/O.n2().2 
+	 
+_empty_/O.n2().(l)2
+ 
+scala/`&`#2!
+ scala/package.List#2
+ 
+scala/Int#2!
+ scala/package.List#2"
+ #scala/Predef.String#2
+' +scala/Unit#2
+. /_empty_/O.m().2 
+0 1_empty_/O.n2().(l)PZ C67A65C97040C27068DE26E4DF260DE1

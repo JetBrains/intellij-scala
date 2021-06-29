@@ -1,0 +1,167 @@
+
+¶#tests/pos/type-test-syntesize.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().[S]	*S€*!
+_empty_/Test.test().[T]	*T€*'
+_empty_/Test.test().(x$1)  *x$1€*
+_empty_/Test.a. €*a€*
+local0*s€*
+local1*s€*
+local2*s€*
+local3*s€*
+local4*s€*
+local5*s€*
+local6*s€*
+local7*s€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#X#*X€*
+_empty_/A#Y#*Y€2!
+ scala/reflect/TypeTest.2!
+ scala/reflect/TypeTest#2
+ scala/reflect/2
+ scala/2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2%
+ _empty_/Test.test().[S]2%
+ _empty_/Test.test().[T]2'
+ _empty_/Test.test().(x$1)2%
+ scala/reflect/TypeTest#2%
+  !_empty_/Test.test().[S]2%
+# $_empty_/Test.test().[T]2
+( ,scala/Unit#2
+ _empty_/Test.a.2
+	 
+
+_empty_/A#2#
+ scala/Predef.`???`().2"
+ _empty_/Test.test().2
+ 
+
+scala/Any#2
+ 
+scala/Any#20
+ "scala/reflect/TypeTest.identity().2"
+ _empty_/Test.test().2
+ 
+
+scala/Int#2
+ 
+scala/Int#20
+ "scala/reflect/TypeTest.identity().2"
+		 _empty_/Test.test().2
+		 
+
+scala/Int#2
+		 
+scala/Any#20
+		 "scala/reflect/TypeTest.identity().2"
+
+
+ _empty_/Test.test().2"
+
+
+ scala/Predef.String#2
+
+
+ 
+scala/Any#20
+
+
+ "scala/reflect/TypeTest.identity().2"
+ _empty_/Test.test().2"
+ scala/Predef.String#2
+ scala/AnyRef#20
+ "scala/reflect/TypeTest.identity().2"
+ _empty_/Test.test().2
+ 
+
+scala/Any#2
+ 
+scala/Int#2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2"
+ _empty_/Test.test().2
+ 
+
+scala/Any#2"
+ scala/Predef.String#2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2"
+ _empty_/Test.test().2
+ 
+
+scala/Any#2
+ scala/Some#2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2"
+ _empty_/Test.test().2
+ 
+
+scala/Any#2
+ scala/Array#2
+ 
+scala/Int#2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2"
+ _empty_/Test.test().2 
+ 
+scala/package.Seq#2
+ 
+scala/Int#2!
+ scala/package.List#2
+ 
+scala/Int#2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2"
+ _empty_/Test.test().2
+ 
+
+scala/Any#2
+ scala/Some#2
+ 
+scala/Int#2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2"
+ _empty_/Test.test().2
+ 
+
+scala/Any#2
+ _empty_/A#X#2
+ _empty_/Test.a.2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2"
+ _empty_/Test.test().2
+	 
+_empty_/A#X#2
+ _empty_/Test.a.2
+ _empty_/A#Y#2
+ _empty_/Test.a.2'
+ scala/Any#isInstanceOf().2!
+ scala/Some.apply().2'
+ scala/Any#asInstanceOf().2
+ scala/None.2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#X#2
+ _empty_/A#Y#2
+ _empty_/A#X#PZ C02AA808F7653E699AF8330E18C9C680

@@ -1,0 +1,40 @@
+
+õtests/pos/t684.scala*
+
+test/Test#*Test€*'
+test/Test#`<init>`(). €@*<init>€*
+test/Test#Ti#*Ti€**
+test/Test#Ti#`<init>`(). €@*<init>€*
+test/Test#Foo#*Foo€*+
+test/Test#Foo#`<init>`(). €@*<init>€*
+test/Test#foo().*foo€*
+test/Test#foo().(t)*t€*
+local0 €*t€*
+test/Test#Bar#*Bar€*+
+test/Test#Bar#`<init>`(). €@*<init>€2
+ test/2
+ 
+
+test/Test#2#
+ test/Test#`<init>`().2
+ 
+test/Test#Ti#2&
+ test/Test#Ti#`<init>`().2
+ test/Test#Foo#2'
+ test/Test#Foo#`<init>`().2
+ 	test/Test#foo().2!
+
+ test/Test#foo().(t)2
+ test/Test#Ti#2!
+ test/Test#foo().(t)2
+ local02
+ test/Test#Foo#2
+ test/Test#Bar#2'
+ test/Test#Bar#`<init>`().2'
+ test/Test#Foo#`<init>`().2
+ test/Test#Foo#2
+ test/Test#Ti#2&
+		 scala/Predef.assert(+1).2
+			 test/Test#foo().2'
+		 test/Test#Bar#`<init>`().2
+		 test/Test#Bar#PZ 3608CAEA8B5EEF99524635AFF7CA6B9A

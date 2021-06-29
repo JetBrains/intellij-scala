@@ -1,0 +1,24 @@
+
+¶%tests/pos/classtag-typetest/3_0.scala*(
+_empty_/`3_0$package`. *_empty_€**
+_empty_/`3_0$package`.f3_0().*f3_0€**
+ _empty_/`3_0$package`.f3_0().[T]	*T€**
+ _empty_/`3_0$package`.f3_0().(x)*x€2
+ scala/language.`3.0`.2
+ scala/language.2
+ scala/2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2 
+_empty_/`3_0$package`.2+
+ _empty_/`3_0$package`.f3_0().2.
+	 
+ _empty_/`3_0$package`.f3_0().[T]2.
+  _empty_/`3_0$package`.f3_0().(x)2
+ 
+scala/Any#2%
+ scala/reflect/ClassTag#2.
+  _empty_/`3_0$package`.f3_0().[T]2
+ #scala/Unit#2.
+  _empty_/`3_0$package`.f3_0().(x)PZ 5D8DAFD825D6AB75E5BBBC3EBA068C4A

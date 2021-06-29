@@ -1,0 +1,18 @@
+
+´tests/pos/i1137-2/A_1.scala*
+_empty_/ATest.
+ *ATest€*
+_empty_/ATest.A# *A€*-
+_empty_/ATest.A#`<init>`(). €@*<init>€*1
+!_empty_/ATest.A#`<init>`().(self) €*self€*%
+_empty_/ATest.A#self. €*self€*
+_empty_/ATest.A.
+ *A€2
+ _empty_/ATest.2
+ 	_empty_/ATest.A#2)
+	 	_empty_/ATest.A#`<init>`().2
+ scala/Double#2&
+* *scala/AnyVal#`<init>`().2
+$ *scala/AnyVal#2#
+ _empty_/ATest.A#self.2
+ _empty_/ATest.A.PZ AE71A4FBC20AD52F7502687B7A9764F2

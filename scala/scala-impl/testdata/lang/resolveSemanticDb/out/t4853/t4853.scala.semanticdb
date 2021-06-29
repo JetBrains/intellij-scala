@@ -1,0 +1,65 @@
+
+­tests/pos/t4853.scala* 
+_empty_/Animal.
+ *Animal€*#
+_empty_/Animal.main().*main€*)
+_empty_/Animal.main().(args)*args€*
+_empty_/Animal#*Animal€*,
+_empty_/Animal#`<init>`(). €@*<init>€*
+_empty_/Animal#[A]	*A€*-
+_empty_/Animal#goToSleep().*	goToSleep€*(
+_empty_/Animal#goToSleep().[B]	*B€*'
+_empty_/Animal#wakeUp().*wakeUp€*%
+_empty_/Animal#wakeUp().[B]	*B€*.
+_empty_/AwakeOrAsleep# *AwakeOrAsleep€*3
+!_empty_/AwakeOrAsleep#`<init>`(). €@*<init>€*
+_empty_/Awake#*Awake€*+
+_empty_/Awake#`<init>`(). €@*<init>€*
+_empty_/Asleep#*Asleep€*,
+_empty_/Asleep#`<init>`(). €@*<init>€2
+ _empty_/Animal.2$
+ 
+_empty_/Animal.main().2*
+ _empty_/Animal.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2)
+< E_empty_/Animal#goToSleep().2(
+; ;_empty_/Animal#`<init>`().2
+. 4_empty_/Animal#2
+5 :_empty_/Awake#2
+ _empty_/Animal#2(
+ _empty_/Animal#`<init>`().2 
+ _empty_/Animal#[A]2)
+ _empty_/Animal#goToSleep().2,
+ _empty_/Animal#goToSleep().[B]2 
+ _empty_/Animal#[A]2
+ _empty_/Awake#2
+" (_empty_/Animal#2
+) /_empty_/Asleep#2(
+E E_empty_/Animal#`<init>`().2
+7 =_empty_/Animal#2
+> D_empty_/Asleep#2&
+ _empty_/Animal#wakeUp().2)
+ _empty_/Animal#wakeUp().[B]2 
+ _empty_/Animal#[A]2
+ _empty_/Asleep#2
+  &_empty_/Animal#2
+' ,_empty_/Awake#2(
+A A_empty_/Animal#`<init>`().2
+4 :_empty_/Animal#2
+; @_empty_/Awake#2$
+		 _empty_/AwakeOrAsleep#2+
+		!_empty_/AwakeOrAsleep#`<init>`().2
+
+
+ _empty_/Awake#2'
+
+
+ _empty_/Awake#`<init>`().2$
+
+
+ !_empty_/AwakeOrAsleep#2
+ _empty_/Asleep#2(
+ _empty_/Asleep#`<init>`().2$
+ "_empty_/AwakeOrAsleep#PZ 874501F27558FFC984D91CC3412B4142

@@ -1,0 +1,105 @@
+
+Ð!tests/pos/extractors.scala*
+_empty_/test.
+ *test€*
+_empty_/test.Tree#*Tree€*/
+_empty_/test.Tree#`<init>`(). €@*<init>€*!
+_empty_/test.Apply#*Apply€*0
+_empty_/test.Apply#`<init>`(). €@*<init>€*2
+#_empty_/test.Apply#`<init>`().(fun) €*fun€*4
+$_empty_/test.Apply#`<init>`().(args) €*args€*&
+_empty_/test.Apply#fun. €*fun€*(
+_empty_/test.Apply#args. €*args€*=
+!_empty_/test.DeconstructorCommon#*DeconstructorCommon€*>
+,_empty_/test.DeconstructorCommon#`<init>`(). €@*<init>€*.
+$_empty_/test.DeconstructorCommon#[T]	*T€*:
+)_empty_/test.DeconstructorCommon#field(). €*field€*@
+-_empty_/test.DeconstructorCommon#`field_=`(). €*field_=€*>
+2_empty_/test.DeconstructorCommon#`field_=`().(x$1)*x$1€*3
+'_empty_/test.DeconstructorCommon#get().*get€*;
++_empty_/test.DeconstructorCommon#isEmpty().*isEmpty€*?
+-_empty_/test.DeconstructorCommon#isDefined().*	isDefined€*;
++_empty_/test.DeconstructorCommon#unapply().*unapply€*8
+._empty_/test.DeconstructorCommon#unapply().(s)*s€*;
+ _empty_/test.ApplyDeconstructor#*ApplyDeconstructor€*=
++_empty_/test.ApplyDeconstructor#`<init>`(). €@*<init>€*2
+%_empty_/test.ApplyDeconstructor#_1(). *_1€*2
+%_empty_/test.ApplyDeconstructor#_2(). *_2€*#
+_empty_/test.Apply.
+ *Apply€*#
+_empty_/test.Apply._1().*_1€*#
+_empty_/test.Apply._2().*_2€*7
+_empty_/test.assocsFromApply().*assocsFromApply€*2
+%_empty_/test.assocsFromApply().(tree)*tree€*
+local0 €*fun€*
+local1 €*args€2
+ _empty_/test.2 
+ _empty_/test.Tree#2+
+ _empty_/test.Tree#`<init>`().2!
+ _empty_/test.Apply#2,
+ _empty_/test.Apply#`<init>`().2 
+ _empty_/test.Tree#2!
+' +scala/package.List#2 
+, 0_empty_/test.Tree#2+
+? ?_empty_/test.Tree#`<init>`().2 
+; ?_empty_/test.Tree#2%
+ _empty_/test.Apply#fun.2&
+! %_empty_/test.Apply#args.2/
+ !_empty_/test.DeconstructorCommon#2:
+ ,_empty_/test.DeconstructorCommon#`<init>`().22
+ $_empty_/test.DeconstructorCommon#[T]27
+ )_empty_/test.DeconstructorCommon#field().22
+ $_empty_/test.DeconstructorCommon#[T]2;
+ -_empty_/test.DeconstructorCommon#`field_=`().25
+ '_empty_/test.DeconstructorCommon#get().29
+ +_empty_/test.DeconstructorCommon#isEmpty().2
+ scala/Boolean#2$
+! #java/lang/Object#eq().27
+  )_empty_/test.DeconstructorCommon#field().2;
+		 -_empty_/test.DeconstructorCommon#isDefined().2(
+		 scala/Boolean#`unary_!`().29
+		 +_empty_/test.DeconstructorCommon#isEmpty().29
+
+
+ +_empty_/test.DeconstructorCommon#unapply().2<
+
+
+ ._empty_/test.DeconstructorCommon#unapply().(s)22
+
+
+ $_empty_/test.DeconstructorCommon#[T]2;
+ -_empty_/test.DeconstructorCommon#`field_=`().2<
+ ._empty_/test.DeconstructorCommon#unapply().(s)2.
+  _empty_/test.ApplyDeconstructor#29
+# #+_empty_/test.ApplyDeconstructor#`<init>`().2/
+# 6!_empty_/test.DeconstructorCommon#2!
+7 <_empty_/test.Apply#23
+ 
+%_empty_/test.ApplyDeconstructor#_1().2 
+ _empty_/test.Tree#23
+ 
+%_empty_/test.ApplyDeconstructor#_2().2!
+ scala/package.List#2 
+ _empty_/test.Tree#2!
+	 _empty_/test.Apply.2.
+ ) _empty_/test.ApplyDeconstructor#2&
+ 
+_empty_/test.Apply._1().2 
+ _empty_/test.Tree#2%
+ _empty_/test.Apply#fun.27
+ )_empty_/test.DeconstructorCommon#field().2&
+ 
+_empty_/test.Apply._2().2!
+ scala/package.List#2 
+ _empty_/test.Tree#2&
+ #_empty_/test.Apply#args.27
+ )_empty_/test.DeconstructorCommon#field().2-
+ _empty_/test.assocsFromApply().23
+ %_empty_/test.assocsFromApply().(tree)2 
+  _empty_/test.Tree#23
+ %_empty_/test.assocsFromApply().(tree)29
+ +_empty_/test.DeconstructorCommon#unapply().2!
+ _empty_/test.Apply.2
+ local02
+ local12#
+ "scala/Predef.`???`().PZ A526C15C7DD4A249B44255A8E9940284

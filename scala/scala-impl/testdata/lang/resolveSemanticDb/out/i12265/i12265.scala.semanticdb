@@ -1,0 +1,50 @@
+
+­	tests/pos/i12265.scala*
+_empty_/OK.
+ *OK€*!
+_empty_/OK.apply().*apply€* 
+_empty_/OK.apply().(n)*n€*#
+_empty_/OK.apply(+1).*apply€*"
+_empty_/OK.apply(+1).(n)*n€*
+_empty_/KO.
+ *KO€*
+_empty_/KO.Key#*Key€*!
+_empty_/KO.apply().*apply€* 
+_empty_/KO.apply().(n)*n€*#
+_empty_/KO.apply(+1).*apply€*"
+_empty_/KO.apply(+1).(n)*n€2
+ 	_empty_/OK.2!
+ _empty_/OK.apply().2$
+ _empty_/OK.apply().(n)2
+ 
+scala/Int#2
+ scala/Unit#2#
+ _empty_/OK.apply(+1).2&
+ _empty_/OK.apply(+1).(n)2
+ scala/Long#2
+ scala/Unit#2!
+ _empty_/OK.apply().2#
+ _empty_/OK.apply(+1).2
+ 	_empty_/KO.2
+ 
+_empty_/KO.Key#2
+ 
+scala/Int#2!
+		 _empty_/KO.apply().2$
+		 _empty_/KO.apply().(n)2
+		 _empty_/KO.Key#2
+		 scala/Unit#2#
+
+
+ _empty_/KO.apply(+1).2&
+
+
+ _empty_/KO.apply(+1).(n)2
+
+
+ scala/Long#2
+
+
+ scala/Unit#2!
+ _empty_/KO.apply().2#
+ _empty_/KO.apply(+1).PZ 01DB4678400D1059A74A42EDAACC6A68

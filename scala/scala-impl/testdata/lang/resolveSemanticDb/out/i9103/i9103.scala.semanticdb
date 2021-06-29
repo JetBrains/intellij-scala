@@ -1,0 +1,119 @@
+
+‘tests/pos/i9103.scala*
+
+_empty_/a.
+ *a€*
+_empty_/a.Foo#*Foo€*+
+_empty_/a.Foo#`<init>`(). €@*<init>€*
+_empty_/a.Foo#[T]	*T€*3
+_empty_/a.given_Foo_Unit. è*given_Foo_Unit€*
+_empty_/Show#*Show€**
+_empty_/Show#`<init>`(). €@*<init>€*
+_empty_/Show#[T]	*T€*#
+_empty_/Show#show(). *show€*!
+_empty_/Show#show().(a)*a€*
+
+_empty_/S.
+ *S€**
+_empty_/S.Permissions#*Permissions€*3
+!_empty_/S.Permissions#`<init>`(). €@*<init>€*<
+_empty_/LowPriorityInstances# *LowPriorityInstances€*:
+(_empty_/LowPriorityInstances#`<init>`(). €@*<init>€*<
+_empty_/LowPriorityInstances.
+ *LowPriorityInstances€*L
+/_empty_/LowPriorityInstances.given_Permissions. è*given_Permissions€*V
+4_empty_/LowPriorityInstances.given_Show_Permissions. è*given_Show_Permissions€*(
+_empty_/i9103$package. *_empty_€*%
+_empty_/i9103$package.b. €*b€*,
+_empty_/i9103$package.test1().*test1€*%
+_empty_/i9103$package.n. €*n€*-
+_empty_/i9103$package.total. €*total€*5
+ _empty_/i9103$package.remainder. €*	remainder€**
+_empty_/i9103$package.test().*test€2
+ 
+_empty_/a.2
+ _empty_/a.Foo#2'
+ _empty_/a.Foo#`<init>`().2
+ _empty_/a.Foo#[T]2'
+ _empty_/a.given_Foo_Unit.2
+ _empty_/a.Foo#2
+ scala/Unit#2#
+ scala/Predef.`???`().2
+ 
+_empty_/Show#2&
+
+ 
+_empty_/Show#`<init>`().2
+ _empty_/Show#[T]2"
+ _empty_/Show#show().2%
+ _empty_/Show#show().(a)2
+ _empty_/Show#[T]2"
+ %scala/Predef.String#2
+ 
+_empty_/S.2+
+ %_empty_/LowPriorityInstances#2$
+ _empty_/S.Permissions#2/
+ !_empty_/S.Permissions#`<init>`().2+
+ !_empty_/LowPriorityInstances#22
+(_empty_/LowPriorityInstances#`<init>`().2+
+ _empty_/LowPriorityInstances.2=
+ /_empty_/LowPriorityInstances.given_Permissions.2$
+
+ _empty_/S.Permissions#2
+ 	
+_empty_/S.2#
+ scala/Predef.`???`().2B
+ 4_empty_/LowPriorityInstances.given_Show_Permissions.2
+ _empty_/Show#2$
+ _empty_/S.Permissions#2
+ 
+_empty_/S.2 
+_empty_/i9103$package.2&
+ _empty_/i9103$package.b.2
+ 	
+_empty_/a.2,
+ 	_empty_/i9103$package.test1().2$
+ scala/Predef.summon().2
+ _empty_/a.Foo#2&
+ _empty_/i9103$package.b.2
+ scala/Unit#2'
+ _empty_/a.given_Foo_Unit.2&
+ _empty_/i9103$package.n.2
+ scala/Long#2*
+		 	_empty_/i9103$package.total.2#
+		 scala/package.BigInt#2-
+		 scala/math/BigInt.int2bigInt().2.
+
+
+  _empty_/i9103$package.remainder.2&
+
+
+ scala/math/BigInt#`%`().2.
+
+
+  scala/math/BigInt.long2bigInt().2&
+
+
+ _empty_/i9103$package.n.2&
+
+
+ scala/Predef.identity().2*
+
+
+ "_empty_/i9103$package.total.2+
+ _empty_/i9103$package.test().2'
+ 	scala/Predef.println(+1).2(
+
+ scala/Predef.implicitly().2$
+ "_empty_/S.Permissions#2
+ 
+_empty_/S.2=
+# #/_empty_/LowPriorityInstances.given_Permissions.2'
+ 	scala/Predef.println(+1).2(
+
+ scala/Predef.implicitly().2
+ _empty_/Show#2$
+ '_empty_/S.Permissions#2
+ 
+_empty_/S.2B
+) )4_empty_/LowPriorityInstances.given_Show_Permissions.PZ 8B4734155DA45040A9CF06B173B5BF1D

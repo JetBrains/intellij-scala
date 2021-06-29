@@ -1,0 +1,315 @@
+
+üQtests/pos/i7965.scala*
+_empty_/Has#*HasÄ*)
+_empty_/Has#`<init>`(). Ä@*<init>Ä*
+_empty_/Has#[A]	*AÄ*
+
+_empty_/X#*XÄ*'
+_empty_/X#`<init>`(). Ä@*<init>Ä*
+
+_empty_/Y#*YÄ*'
+_empty_/Y#`<init>`(). Ä@*<init>Ä*
+
+_empty_/Z#*ZÄ*'
+_empty_/Z#`<init>`(). Ä@*<init>Ä*
+_empty_/Test# *TestÄ**
+_empty_/Test#`<init>`(). Ä@*<init>Ä*
+_empty_/Test#x(). *xÄ*
+_empty_/Test#y. Ä*yÄ*
+_empty_/Test#foo().*fooÄ* 
+_empty_/Test#foo().[T]	*TÄ*$
+_empty_/Test#foo().(has)*hasÄ*
+_empty_/ZLayer#*ZLayerÄ*,
+_empty_/ZLayer#`<init>`(). Ä@*<init>Ä*#
+_empty_/ZLayer#[RIn]	 Ä*RInÄ*
+_empty_/ZLayer#[E]	 Ä*EÄ*%
+_empty_/ZLayer#[ROut]	 Ä*ROutÄ*%
+_empty_/ZLayer#`>>>`(). *>>>Ä*&
+_empty_/ZLayer#`>>>`().[E1]	*E1Ä*,
+_empty_/ZLayer#`>>>`().[ROut2]	*ROut2Ä**
+_empty_/ZLayer#`>>>`().(that)*thatÄ*#
+_empty_/ZLayer#`++`(). *++Ä*%
+_empty_/ZLayer#`++`().[E1]	*E1Ä*)
+_empty_/ZLayer#`++`().[RIn2]	*RIn2Ä*+
+_empty_/ZLayer#`++`().[ROut1]	*ROut1Ä*+
+_empty_/ZLayer#`++`().[ROut2]	*ROut2Ä*)
+_empty_/ZLayer#`++`().(that)*thatÄ* 
+_empty_/ZLayer.
+ *ZLayerÄ*%
+_empty_/ZLayer.NoDeps#*NoDepsÄ*&
+_empty_/ZLayer.NoDeps#[E]	 Ä*EÄ*&
+_empty_/ZLayer.NoDeps#[B]	 Ä*BÄ*
+_empty_/Outer#*OuterÄ*+
+_empty_/Outer#`<init>`(). Ä@*<init>Ä* 
+_empty_/Outer#Elem#*ElemÄ*0
+_empty_/Outer#Elem#`<init>`(). Ä@*<init>Ä*
+_empty_/Test2# *Test2Ä*+
+_empty_/Test2#`<init>`(). Ä@*<init>Ä*
+_empty_/Test2#o1. Ä*o1Ä*
+_empty_/Test2#o2. Ä*o2Ä*
+_empty_/Test2#o3. Ä*o3Ä*
+_empty_/Test2#x. Ñ*xÄ* 
+_empty_/Test2#foo().*fooÄ*!
+_empty_/Test2#foo().[T]	*TÄ*%
+_empty_/Test2#foo().(has)*hasÄ*(
+_empty_/i7965$package. *_empty_Ä*0
+_empty_/i7965$package.ServiceA#*ServiceAÄ*2
+_empty_/i7965$package.ServiceA.
+ *ServiceAÄ*7
+'_empty_/i7965$package.ServiceA.Service#*ServiceÄ*D
+2_empty_/i7965$package.ServiceA.Service#`<init>`(). Ä@*<init>Ä*4
+$_empty_/i7965$package.ServiceA.live. Ä*liveÄ*0
+_empty_/i7965$package.ServiceB#*ServiceBÄ*2
+_empty_/i7965$package.ServiceB.
+ *ServiceBÄ*7
+'_empty_/i7965$package.ServiceB.Service#*ServiceÄ*D
+2_empty_/i7965$package.ServiceB.Service#`<init>`(). Ä@*<init>Ä*4
+$_empty_/i7965$package.ServiceB.live. Ä*liveÄ*0
+_empty_/i7965$package.ServiceC#*ServiceCÄ*2
+_empty_/i7965$package.ServiceC.
+ *ServiceCÄ*7
+'_empty_/i7965$package.ServiceC.Service#*ServiceÄ*D
+2_empty_/i7965$package.ServiceC.Service#`<init>`(). Ä@*<init>Ä*4
+$_empty_/i7965$package.ServiceC.live. Ä*liveÄ*0
+_empty_/i7965$package.ServiceD#*ServiceDÄ*2
+_empty_/i7965$package.ServiceD.
+ *ServiceDÄ*7
+'_empty_/i7965$package.ServiceD.Service#*ServiceÄ*D
+2_empty_/i7965$package.ServiceD.Service#`<init>`(). Ä@*<init>Ä*4
+$_empty_/i7965$package.ServiceD.live. Ä*liveÄ*3
+_empty_/i7965$package.combined. Ä*combinedÄ2
+ 	_empty_/Has#2!
+	 	_empty_/Has#`<init>`().2
+
+ _empty_/Has#[A]2
+ 
+_empty_/X#2
+_empty_/X#`<init>`().2
+ 
+_empty_/Y#2
+_empty_/Y#`<init>`().2
+ 
+_empty_/Z#2
+_empty_/Z#`<init>`().2
+ _empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#x().2
+ 
+scala/`|`#2
+	 _empty_/Has#2
+ 
+_empty_/X#2
+ 
+scala/`&`#2
+ _empty_/Has#2
+ 
+_empty_/Y#2
+ _empty_/Has#2
+  !
+_empty_/Z#2
+ _empty_/Test#y.2
+	 _empty_/Has#2
+ 
+scala/`|`#2
+ 
+scala/`&`#2
+ 
+_empty_/X#2
+ 
+_empty_/Y#2
+  
+scala/`&`#2
+ 
+_empty_/X#2
+! "
+_empty_/Z#2
+/ 0
+scala/`&`#2
+* +
+scala/`|`#2
+( )
+_empty_/X#2
+, -
+_empty_/Y#2
+4 5
+scala/`|`#2
+2 3
+_empty_/X#2
+6 7
+_empty_/Z#2
+< =_empty_/Test#x().2!
+		 	_empty_/Test#foo().2$
+	
+	 _empty_/Test#foo().[T]2
+		 _empty_/Has#2&
+		 _empty_/Test#foo().(has)2$
+		 _empty_/Test#foo().[T]2$
+	 	 !_empty_/Test#foo().[T]2&
+	$	 '_empty_/Test#foo().(has)2!
+
+
+ _empty_/Test#foo().2
+
+
+ _empty_/Test#x().2
+ _empty_/ZLayer#2(
+ _empty_/ZLayer#`<init>`().2"
+ _empty_/ZLayer#[RIn]2 
+ _empty_/ZLayer#[E]2#
+ _empty_/ZLayer#[ROut]2%
+ 	_empty_/ZLayer#`>>>`().2)
+
+ _empty_/ZLayer#`>>>`().[E1]2 
+ _empty_/ZLayer#[E]2,
+ _empty_/ZLayer#`>>>`().[ROut2]2
+ _empty_/Has#2+
+$ (_empty_/ZLayer#`>>>`().(that)2
+* 0_empty_/ZLayer#2#
+1 5_empty_/ZLayer#[ROut]2)
+7 9_empty_/ZLayer#`>>>`().[E1]2,
+; @_empty_/ZLayer#`>>>`().[ROut2]2
+D J_empty_/ZLayer#2"
+K N_empty_/ZLayer#[RIn]2)
+P R_empty_/ZLayer#`>>>`().[E1]2,
+T Y_empty_/ZLayer#`>>>`().[ROut2]2$
+ _empty_/ZLayer#`++`().2(
+	 _empty_/ZLayer#`++`().[E1]2 
+ _empty_/ZLayer#[E]2*
+ _empty_/ZLayer#`++`().[RIn2]2+
+ _empty_/ZLayer#`++`().[ROut1]2#
+! %_empty_/ZLayer#[ROut]2
+) ,_empty_/Has#2+
+1 6_empty_/ZLayer#`++`().[ROut2]2
+: =_empty_/Has#2*
+B F_empty_/ZLayer#`++`().(that)2
+H N_empty_/ZLayer#2*
+O S_empty_/ZLayer#`++`().[RIn2]2(
+U W_empty_/ZLayer#`++`().[E1]2+
+Y ^_empty_/ZLayer#`++`().[ROut2]2
+b h_empty_/ZLayer#2"
+i l_empty_/ZLayer#[RIn]2*
+r v_empty_/ZLayer#`++`().[RIn2]2(
+x z_empty_/ZLayer#`++`().[E1]2,
+	| Å_empty_/ZLayer#`++`().[ROut1]2-
+
+á å_empty_/ZLayer#`++`().[ROut2]2
+ _empty_/ZLayer.2$
+ _empty_/ZLayer.NoDeps#2'
+ _empty_/ZLayer.NoDeps#[E]2'
+ _empty_/ZLayer.NoDeps#[B]2
+ _empty_/Has#2
+" (_empty_/ZLayer#2
+) ,
+scala/Any#2'
+. /_empty_/ZLayer.NoDeps#[E]2'
+1 2_empty_/ZLayer.NoDeps#[B]2
+55 _empty_/Outer#2'
+66 _empty_/Outer#`<init>`().2!
+66 _empty_/Outer#Elem#2,
+66 _empty_/Outer#Elem#`<init>`().2
+99 _empty_/Test2#2'
+:: _empty_/Test2#`<init>`().2
+:: _empty_/Test2#o1.2
+:
+: _empty_/Outer#2#
+:: scala/Predef.`???`().2
+;; _empty_/Test2#o2.2
+;
+; _empty_/Outer#2#
+;; scala/Predef.`???`().2
+<< _empty_/Test2#o3.2
+<
+< _empty_/Outer#2#
+<< scala/Predef.`???`().2
+>> _empty_/Test2#x.2
+>> 
+scala/`|`#2!
+>> _empty_/Outer#Elem#2
+>	> _empty_/Test2#o1.2
+>> 
+scala/`&`#2!
+>> _empty_/Outer#Elem#2
+>> _empty_/Test2#o2.2!
+>!> %_empty_/Outer#Elem#2
+>>  _empty_/Test2#o3.2"
+?? 	_empty_/Test2#foo().2%
+?
+? _empty_/Test2#foo().[T]2!
+?? _empty_/Outer#Elem#2
+?? _empty_/Outer#2'
+?? _empty_/Test2#foo().(has)2%
+? ? !_empty_/Test2#foo().[T]2%
+?$? %_empty_/Test2#foo().[T]2#
+?(? +scala/Predef.`???`().2"
+@@ _empty_/Test2#foo().2
+@@ _empty_/Test2#x.2 
+_empty_/i7965$package.2-
+ _empty_/i7965$package.ServiceA#2
+ _empty_/Has#25
+ $'_empty_/i7965$package.ServiceA.Service#2-
+ _empty_/i7965$package.ServiceA.2-
+ _empty_/i7965$package.ServiceA.25
+ '_empty_/i7965$package.ServiceA.Service#2@
+ 2_empty_/i7965$package.ServiceA.Service#`<init>`().22
+ 
+$_empty_/i7965$package.ServiceA.live.2$
+ _empty_/ZLayer.NoDeps#2
+ _empty_/ZLayer.2
+ !scala/Nothing#2-
+# +_empty_/i7965$package.ServiceA#2#
+/ 2scala/Predef.`???`().2-
+ _empty_/i7965$package.ServiceB#2
+ _empty_/Has#25
+ $'_empty_/i7965$package.ServiceB.Service#2-
+ _empty_/i7965$package.ServiceB.2-
+ _empty_/i7965$package.ServiceB.25
+ '_empty_/i7965$package.ServiceB.Service#2@
+ 2_empty_/i7965$package.ServiceB.Service#`<init>`().22
+   
+$_empty_/i7965$package.ServiceB.live.2$
+   _empty_/ZLayer.NoDeps#2
+   _empty_/ZLayer.2
+   !scala/Nothing#2-
+ #  +_empty_/i7965$package.ServiceB#2#
+ /  2scala/Predef.`???`().2-
+## _empty_/i7965$package.ServiceC#2
+## _empty_/Has#25
+## $'_empty_/i7965$package.ServiceC.Service#2-
+## _empty_/i7965$package.ServiceC.2-
+$$ _empty_/i7965$package.ServiceC.25
+%% '_empty_/i7965$package.ServiceC.Service#2@
+%% 2_empty_/i7965$package.ServiceC.Service#`<init>`().22
+&& 
+$_empty_/i7965$package.ServiceC.live.2$
+&& _empty_/ZLayer.NoDeps#2
+&& _empty_/ZLayer.2
+&& !scala/Nothing#2-
+&#& +_empty_/i7965$package.ServiceC#2#
+&/& 2scala/Predef.`???`().2-
+)) _empty_/i7965$package.ServiceD#2
+)) _empty_/Has#25
+)) $'_empty_/i7965$package.ServiceD.Service#2-
+)) _empty_/i7965$package.ServiceD.2-
+** _empty_/i7965$package.ServiceD.25
+++ '_empty_/i7965$package.ServiceD.Service#2@
+++ 2_empty_/i7965$package.ServiceD.Service#`<init>`().22
+,, 
+$_empty_/i7965$package.ServiceD.live.2$
+,, _empty_/ZLayer.NoDeps#2
+,, _empty_/ZLayer.2-
+,, "_empty_/i7965$package.ServiceC#2-
+,$, ,_empty_/i7965$package.ServiceD#2-
+,2, :_empty_/i7965$package.ServiceC#2#
+,>, Ascala/Predef.`???`().2-
+// _empty_/i7965$package.combined.2%
+00 _empty_/ZLayer#`>>>`().22
+00 $_empty_/i7965$package.ServiceA.live.2-
+00 _empty_/i7965$package.ServiceA.2$
+11 _empty_/ZLayer#`++`().22
+11 $_empty_/i7965$package.ServiceB.live.2-
+11 _empty_/i7965$package.ServiceB.2%
+1'1 *_empty_/ZLayer#`>>>`().22
+1"1 &$_empty_/i7965$package.ServiceC.live.2-
+11 !_empty_/i7965$package.ServiceC.22
+141 8$_empty_/i7965$package.ServiceD.live.2-
+1+1 3_empty_/i7965$package.ServiceD.PZ 7191EB29E13583A668AD4ED50DAB7F2B

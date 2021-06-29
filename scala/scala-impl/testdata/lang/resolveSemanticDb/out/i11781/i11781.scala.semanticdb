@@ -1,0 +1,164 @@
+
+è%tests/pos/i11781.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.C1#*C1Ä*-
+_empty_/Test.C1#`<init>`(). Ä@*<init>Ä*(
+_empty_/Test.C1#`<init>`().(a)*aÄ*
+_empty_/Test.C1#[A]	*AÄ*
+_empty_/Test.C1#a. Ä*aÄ*
+_empty_/Test.D1#*D1Ä*
+_empty_/Test.D1#[A]	*AÄ*
+_empty_/Test.C2#*C2Ä*-
+_empty_/Test.C2#`<init>`(). Ä@*<init>Ä*(
+_empty_/Test.C2#`<init>`().(a)*aÄ*
+_empty_/Test.C2#[B]	*BÄ*
+_empty_/Test.C2#[A]	*AÄ*
+_empty_/Test.C2#a. Ä*aÄ*
+_empty_/Test.D2#*D2Ä*
+_empty_/Test.D2#[A]	*AÄ*
+_empty_/Test.E#*EÄ*,
+_empty_/Test.E#`<init>`(). Ä@*<init>Ä*'
+_empty_/Test.E#`<init>`().(x)*xÄ*
+_empty_/Test.E#x. Ä*xÄ*
+_empty_/Test.F#*FÄ*,
+_empty_/Test.F#`<init>`(). Ä@*<init>Ä*'
+_empty_/Test.F#`<init>`().(x)*xÄ*
+_empty_/Test.F#x. Ä*xÄ*
+_empty_/Ah.
+ *AhÄ*$
+_empty_/Ah.Values# à*ValuesÄ*/
+_empty_/Ah.Values#`<init>`(). Ä@*<init>Ä*-
+ _empty_/Ah.Values#`<init>`().(a) Ä*aÄ*
+_empty_/Ah.Values#[B]	*BÄ*"
+_empty_/Ah.Values#[A]	 Ä*AÄ*!
+_empty_/Ah.Values#a. Ä*aÄ*&
+_empty_/Ah.Values#copy().*copyÄ*&
+_empty_/Ah.Values#copy().[B]	*BÄ*&
+_empty_/Ah.Values#copy().[A]	*AÄ*&
+_empty_/Ah.Values#copy().(a)*aÄ*:
+#_empty_/Ah.Values#copy$default$1().*copy$default$1Ä*0
+&_empty_/Ah.Values#copy$default$1().[B]	*BÄ*0
+&_empty_/Ah.Values#copy$default$1().[A]	*AÄ*"
+_empty_/Ah.Values#_1().*_1Ä*#
+_empty_/Ah.Values.
+ *ValuesÄ*(
+_empty_/Ah.Values.apply().*applyÄ*'
+_empty_/Ah.Values.apply().[B]	*BÄ*'
+_empty_/Ah.Values.apply().[A]	*AÄ*'
+_empty_/Ah.Values.apply().(a)*aÄ*,
+_empty_/Ah.Values.unapply().*unapplyÄ*)
+_empty_/Ah.Values.unapply().[B]	*BÄ*)
+_empty_/Ah.Values.unapply().[A]	*AÄ*-
+!_empty_/Ah.Values.unapply().(x$1)*x$1Ä*.
+_empty_/Ah.Values.toString().*toStringÄ*!
+_empty_/Ah.Object#*ObjectÄ*/
+_empty_/Ah.Object#`<init>`(). Ä@*<init>Ä*
+_empty_/Ah.Object#[B]	*BÄ**
+_empty_/Ah.Object#Values# *ValuesÄ*)
+_empty_/Ah.Object#Values#[A]	 Ä*AÄ**
+_empty_/Ah.Object#Values.
+ *ValuesÄ*-
+ _empty_/Ah.Object#Values.blah().*blahÄ2
+ _empty_/Test.2
+ 
+_empty_/Test.C1#2)
+
+ 
+_empty_/Test.C1#`<init>`().2!
+ _empty_/Test.C1#[A]2!
+ _empty_/Test.C1#[A]2 
+ _empty_/Test.C1#a.2
+ 	_empty_/Test.D1#2!
+
+ _empty_/Test.D1#[A]2
+ _empty_/Test.C1#2!
+ _empty_/Test.D1#[A]2)
+ _empty_/Test.C1#`<init>`().2
+ _empty_/Test.D1#2
+ 
+_empty_/Test.C2#2)
+
+ 
+_empty_/Test.C2#`<init>`().2!
+ _empty_/Test.C2#[A]2!
+ _empty_/Test.C2#[B]2!
+ _empty_/Test.C2#[A]2 
+ _empty_/Test.C2#a.2
+ 	_empty_/Test.D2#2!
+
+ _empty_/Test.D2#[A]2
+ _empty_/Test.C2#2
+ 
+scala/Int#2!
+ _empty_/Test.D2#[A]2)
+ _empty_/Test.C2#`<init>`().2
+ _empty_/Test.D2#2)
+ _empty_/Test.C2#`<init>`().2
+ _empty_/Test.D2#2
+	 
+scala/Int#2
+
+
+ 	_empty_/Test.E#2(
+
+	
+ 	_empty_/Test.E#`<init>`().2
+
+
+ 
+scala/Int#2)
+
+!
+ !_empty_/Test.C2#`<init>`().2
+
+
+ _empty_/Test.D2#2
+
+
+  
+scala/Int#2
+
+"
+ #_empty_/Test.E#x.2
+
+
+
+ _empty_/Test.E#x.2
+ 	_empty_/Test.F#2(
+	 	_empty_/Test.F#`<init>`().2
+ 
+scala/Int#2)
+ _empty_/Test.C2#`<init>`().2
+ _empty_/Test.D2#2
+ _empty_/Test.F#x.2
+
+ _empty_/Test.F#x.2
+ 	_empty_/Ah.2 
+ _empty_/Ah.Values#2+
+ _empty_/Ah.Values#`<init>`().2#
+$ %_empty_/Ah.Values#[A]2#
+ _empty_/Ah.Values#[B]2#
+ _empty_/Ah.Values#[A]2"
+! "_empty_/Ah.Values#a.2'
+ _empty_/Ah.Values#copy().2%
+$ $_empty_/Ah.Values#_1().2 
+ _empty_/Ah.Values.2(
+ _empty_/Ah.Values.apply().2*
+ _empty_/Ah.Values.unapply().2 
+ _empty_/Ah.Object#2+
+ _empty_/Ah.Object#`<init>`().2#
+ _empty_/Ah.Object#[B]2'
+ _empty_/Ah.Object#Values#2*
+ _empty_/Ah.Object#Values#[A]2 
+ %_empty_/Ah.Values#2
+ _empty_/Ah.2#
+& '_empty_/Ah.Object#[B]2*
+) *_empty_/Ah.Object#Values#[A]2'
+ _empty_/Ah.Object#Values.2.
+
+  _empty_/Ah.Object#Values.blah().2'
+ _empty_/Ah.Object#Values#2
+ scala/Unit#2+
+ _empty_/Ah.Values#`<init>`().2'
+ _empty_/Ah.Object#Values#PZ A1C0C97C8AC2292413938DDFEB93BBC8

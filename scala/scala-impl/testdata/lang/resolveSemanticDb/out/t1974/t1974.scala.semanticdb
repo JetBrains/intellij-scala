@@ -1,0 +1,115 @@
+
+Útests/pos/t1974.scala* 
+_empty_/Broken.
+ *Broken€*$
+_empty_/Broken.map(). €*map€*+
+_empty_/Broken.addToMap().*addToMap€*'
+_empty_/Broken.addToMap().(c)*c€*'
+_empty_/Broken.addToMap().(s)*s€*%
+_empty_/Broken.fetch().*fetch€*$
+_empty_/Broken.fetch().(c)*c€*
+_empty_/Works.
+ *Works€*#
+_empty_/Works.map(). €*map€**
+_empty_/Works.addToMap().*addToMap€*&
+_empty_/Works.addToMap().(c)*c€*&
+_empty_/Works.addToMap().(s)*s€*$
+_empty_/Works.fetch().*fetch€*#
+_empty_/Works.fetch().(c)*c€* 
+_empty_/Works2.
+ *Works2€*$
+_empty_/Works2.map(). €*map€*+
+_empty_/Works2.addToMap().*addToMap€*'
+_empty_/Works2.addToMap().(c)*c€*'
+_empty_/Works2.addToMap().(s)*s€*%
+_empty_/Works2.fetch().*fetch€*$
+_empty_/Works2.fetch().(c)*c€2
+ _empty_/Broken.2#
+ _empty_/Broken.map().22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2!
+ scala/Predef.Class#2"
+" (scala/Predef.String#2(
+ _empty_/Broken.addToMap().2+
+ _empty_/Broken.addToMap().(c)2!
+ scala/Predef.Class#2+
+ _empty_/Broken.addToMap().(s)2"
+! 'scala/Predef.String#2#
++ ._empty_/Broken.map().26
+. .(scala/collection/immutable/MapOps#`+`().2-
+5 7scala/Predef.ArrowAssoc#`->`().2(
+3 3scala/Predef.ArrowAssoc().2+
+3 4_empty_/Broken.addToMap().(c)2+
+8 9_empty_/Broken.addToMap().(s)2%
+ _empty_/Broken.fetch().2(
+ _empty_/Broken.fetch().(c)2!
+ scala/Predef.Class#2.
+  scala/collection/MapOps#apply().2#
+ _empty_/Broken.map().2(
+  !_empty_/Broken.fetch().(c)2
+ _empty_/Works.2"
+ _empty_/Works.map().22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2!
+ scala/Predef.Class#2"
+" (scala/Predef.String#2'
+
+
+ _empty_/Works.addToMap().2*
+
+
+ _empty_/Works.addToMap().(c)2!
+
+
+ scala/Predef.Class#2*
+
+
+ _empty_/Works.addToMap().(s)2"
+
+!
+ 'scala/Predef.String#2"
+
++
+ ._empty_/Works.map().26
+
+.
+ .(scala/collection/immutable/MapOps#`+`().2#
+
+4
+ 4scala/Tuple2.apply().2*
+
+4
+ 5_empty_/Works.addToMap().(c)2*
+
+7
+ 8_empty_/Works.addToMap().(s)2$
+ _empty_/Works.fetch().2'
+ _empty_/Works.fetch().(c)2!
+ scala/Predef.Class#2.
+  scala/collection/MapOps#apply().2"
+ _empty_/Works.map().2'
+  !_empty_/Works.fetch().(c)2
+ _empty_/Works2.2#
+ _empty_/Works2.map().22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2!
+ scala/Predef.Class#2"
+" (scala/Predef.String#2(
+ _empty_/Works2.addToMap().2+
+ _empty_/Works2.addToMap().(c)2!
+ scala/Predef.Class#2+
+ _empty_/Works2.addToMap().(s)2"
+! 'scala/Predef.String#2#
++ ._empty_/Works2.map().26
+. .(scala/collection/immutable/MapOps#`+`().2-
+B Dscala/Predef.ArrowAssoc#`->`().2(
+4 4scala/Predef.ArrowAssoc().2+
+4 5_empty_/Works2.addToMap().(c)2!
+8 =scala/Predef.Class#2+
+E F_empty_/Works2.addToMap().(s)2%
+ _empty_/Works2.fetch().2(
+ _empty_/Works2.fetch().(c)2!
+ scala/Predef.Class#2.
+  scala/collection/MapOps#apply().2#
+ _empty_/Works2.map().2(
+  !_empty_/Works2.fetch().(c)PZ 36771B345969DB0A4B368D605A76D32F

@@ -1,0 +1,49 @@
+
+á	tests/pos/t1942/A_1.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#foo().*foo€*
+_empty_/A#foo().(x)*x€*
+_empty_/A#foo(+1).*foo€*
+_empty_/A#foo(+1).(x)*x€*
+_empty_/ann#*ann€*)
+_empty_/ann#`<init>`(). €@*<init>€*$
+_empty_/ann#`<init>`().(x)*x€*
+_empty_/ann#x. €*x€*
+
+_empty_/t#*t€*'
+_empty_/t#`<init>`(). €@*<init>€*
+_empty_/t#a. €*a€*
+_empty_/t#bar().*bar€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#foo().2!
+
+ _empty_/A#foo().(x)2
+ 
+scala/Int#2 
+ 	_empty_/A#foo(+1).2#
+
+ _empty_/A#foo(+1).(x)2"
+ scala/Predef.String#2
+ 	_empty_/ann#2%
+	 	_empty_/ann#`<init>`().2
+ 
+scala/Int#20
+% 5"scala/annotation/StaticAnnotation#2
+ $scala/annotation/2
+
+ _empty_/ann#x.2
+ 
+_empty_/t#2#
+ _empty_/t#`<init>`().2
+ _empty_/t#a.2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+		 _empty_/ann#2
+			 _empty_/A#foo().2
+		 _empty_/t#a.2
+		 _empty_/t#bar().PZ D06FD5890A08728246247A000FA4B7B8

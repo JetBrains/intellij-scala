@@ -1,0 +1,91 @@
+
+‰ tests/pos/injectivity-gadt.scala**
+_empty_/injectivity.
+ *injectivity€*$
+_empty_/injectivity.EQ# *EQ€*4
+"_empty_/injectivity.EQ#`<init>`(). €@*<init>€*$
+_empty_/injectivity.EQ#[A]	*A€*$
+_empty_/injectivity.EQ#[B]	*B€*)
+_empty_/injectivity.Refl# ˆ*Refl€*6
+$_empty_/injectivity.Refl#`<init>`(). €@*<init>€*&
+_empty_/injectivity.Refl#[A]	*A€*-
+ _empty_/injectivity.Refl#copy().*copy€*-
+#_empty_/injectivity.Refl#copy().[A]	*A€*(
+_empty_/injectivity.Refl.
+ *Refl€*/
+!_empty_/injectivity.Refl.apply().*apply€*.
+$_empty_/injectivity.Refl.apply().[A]	*A€*3
+#_empty_/injectivity.Refl.unapply().*unapply€*0
+&_empty_/injectivity.Refl.unapply().[A]	*A€*4
+(_empty_/injectivity.Refl.unapply().(x$1)*x$1€*5
+$_empty_/injectivity.Refl.toString().*toString€*.
+_empty_/injectivity.conform().*conform€*+
+!_empty_/injectivity.conform().[A]	*A€*+
+!_empty_/injectivity.conform().[B]	*B€*+
+!_empty_/injectivity.conform().[C]	*C€*+
+!_empty_/injectivity.conform().[D]	*D€*+
+!_empty_/injectivity.conform().(a)*a€*+
+!_empty_/injectivity.conform().(b)*b€*-
+"_empty_/injectivity.conform().(eq)*eq€*
+local0 €	*a€*
+local1 €*ab€*
+local2 €*cd€*
+local3 €*rab€*
+local4 €*rcd€2
+ _empty_/injectivity.2%
+ _empty_/injectivity.EQ#20
+ "_empty_/injectivity.EQ#`<init>`().2(
+ _empty_/injectivity.EQ#[A]2(
+ _empty_/injectivity.EQ#[B]2'
+ _empty_/injectivity.Refl#22
+ $_empty_/injectivity.Refl#`<init>`().2%
+% '_empty_/injectivity.EQ#2*
+( )_empty_/injectivity.Refl#[A]2*
++ ,_empty_/injectivity.Refl#[A]2*
+ _empty_/injectivity.Refl#[A]2.
+  _empty_/injectivity.Refl#copy().2'
+ _empty_/injectivity.Refl.2/
+ !_empty_/injectivity.Refl.apply().21
+ #_empty_/injectivity.Refl.unapply().2,
+ _empty_/injectivity.conform().2/
+ !_empty_/injectivity.conform().[A]2/
+ !_empty_/injectivity.conform().[B]2/
+ !_empty_/injectivity.conform().[C]2/
+ !_empty_/injectivity.conform().[D]2/
+ !_empty_/injectivity.conform().(a)2/
+ !_empty_/injectivity.conform().[A]2/
+  !!_empty_/injectivity.conform().(b)2/
+# $!_empty_/injectivity.conform().[B]20
+& ("_empty_/injectivity.conform().(eq)2%
+* ,_empty_/injectivity.EQ#2/
+. /!_empty_/injectivity.conform().[A]2/
+1 2!_empty_/injectivity.conform().[B]2/
+6 7!_empty_/injectivity.conform().[C]2/
+9 :!_empty_/injectivity.conform().[D]2/
+? @!_empty_/injectivity.conform().[C]20
+ "_empty_/injectivity.conform().(eq)2'
+ _empty_/injectivity.Refl#2
+ local02
+ local12/
+ !_empty_/injectivity.conform().[A]2/
+ !_empty_/injectivity.conform().[B]2#
+ scala/Tuple2.apply().2/
+ !_empty_/injectivity.conform().(a)2/
+ !_empty_/injectivity.conform().(b)2
+ local22/
+ !_empty_/injectivity.conform().[C]2/
+ !_empty_/injectivity.conform().[D]2
+ local12
+		 local32
+		 local02
+		 local12
+
+
+ local42
+
+
+ local02
+
+
+ local22/
+ 	!_empty_/injectivity.conform().(a)PZ EF7D1CE2F066F29A85394656CD90F812

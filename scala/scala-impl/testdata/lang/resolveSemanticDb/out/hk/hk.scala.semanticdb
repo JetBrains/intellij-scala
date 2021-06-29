@@ -1,0 +1,183 @@
+
+“6tests/pos/hk.scala*
+_empty_/hk0.
+ *hk0€* 
+_empty_/hk0.Base# *Base€*.
+_empty_/hk0.Base#`<init>`(). €@*<init>€*!
+_empty_/hk0.Base#Rep#*Rep€*"
+_empty_/hk0.Base#Rep#[T]	*T€**
+_empty_/hk0.Base#strRep. „*strRep€*
+_empty_/hk0.Sub#*Sub€*-
+_empty_/hk0.Sub#`<init>`(). €@*<init>€* 
+_empty_/hk0.Sub#Rep#*Rep€*!
+_empty_/hk0.Sub#Rep#[T]	*T€*)
+_empty_/hk0.Sub#strRep. €*strRep€*!
+_empty_/hk0.Sub#sr. €*sr€*&
+_empty_/hk0.Functor# *Functor€*1
+_empty_/hk0.Functor#`<init>`(). €@*<init>€*!
+_empty_/hk0.Functor#[F]	*F€*(
+_empty_/hk0.Functor#map(). *map€*'
+_empty_/hk0.Functor#map().[A]	*A€*'
+_empty_/hk0.Functor#map().[B]	*B€*'
+_empty_/hk0.Functor#map().(f)*f€*
+_empty_/hk0.ml. €*ml€*
+_empty_/hk0.mx. €*mx€*
+_empty_/hk0.mm. €*mm€*
+local0*f€*,
+_empty_/higherKinded.
+ *higherKinded€*-
+_empty_/higherKinded.Untyped#*Untyped€*'
+_empty_/higherKinded.Tree#*Tree€*7
+%_empty_/higherKinded.Tree#`<init>`(). €@*<init>€**
+_empty_/higherKinded.Tree#[T]	 €*T€*4
+#_empty_/higherKinded.Tree#ThisType#*ThisType€*3
+&_empty_/higherKinded.Tree#ThisType#[U]	 €*U€*:
+'_empty_/higherKinded.Tree#withString().*
+withString€*4
+*_empty_/higherKinded.Tree#withString().(s)*s€*)
+_empty_/higherKinded.Ident#*Ident€*8
+&_empty_/higherKinded.Ident#`<init>`(). €@*<init>€*+
+_empty_/higherKinded.Ident#[T]	 €*T€*5
+$_empty_/higherKinded.Ident#ThisType#*ThisType€*4
+'_empty_/higherKinded.Ident#ThisType#[U]	 €*U€*&
+_empty_/higherKinded.id. €*id€*$
+_empty_/higherKinded.y. €*y€*$
+_empty_/higherKinded.z. €*z€*&
+_empty_/higherKinded.zz. €*zz€*1
+_empty_/higherKinded.Instance# *Instance€*;
+)_empty_/higherKinded.Instance#`<init>`(). €@*<init>€*+
+!_empty_/higherKinded.Instance#[T]	*T€*0
+#_empty_/higherKinded.Instance#Tree#*Tree€*'
+_empty_/higherKinded.tpd.
+ *tpd€*3
+!_empty_/higherKinded.transform().*	transform€*4
+'_empty_/higherKinded.transform().(tree)*tree€*
+local1 €*tree1€2%
+ scala/language.higherKinds.2
+ scala/language.2
+ 
+_empty_/hk0.2
+ _empty_/hk0.Base#2*
+ _empty_/hk0.Base#`<init>`().2#
+	 _empty_/hk0.Base#Rep#2&
+ _empty_/hk0.Base#Rep#[T]2&
+ _empty_/hk0.Base#strRep.2#
+ _empty_/hk0.Base#Rep#2"
+ scala/Predef.String#2
+		 _empty_/hk0.Sub#2)
+		 _empty_/hk0.Sub#`<init>`().2*
+		 _empty_/hk0.Base#`<init>`().2
+		 _empty_/hk0.Base#2"
+
+	
+ _empty_/hk0.Sub#Rep#2%
+
+
+ _empty_/hk0.Sub#Rep#[T]2%
+
+
+ _empty_/hk0.Sub#Rep#[T]2%
+ _empty_/hk0.Sub#strRep.2!
+ 
+_empty_/hk0.Sub#sr.2"
+ _empty_/hk0.Sub#Rep#2"
+ scala/Predef.String#2"
+ _empty_/hk0.Functor#2-
+ _empty_/hk0.Functor#`<init>`().2%
+ _empty_/hk0.Functor#[F]2(
+ _empty_/hk0.Functor#map().2+
+ _empty_/hk0.Functor#map().[A]2+
+ _empty_/hk0.Functor#map().[B]2+
+ _empty_/hk0.Functor#map().(f)2+
+ _empty_/hk0.Functor#map().[A]2+
+ _empty_/hk0.Functor#map().[B]2%
+ _empty_/hk0.Functor#[F]2+
+  !_empty_/hk0.Functor#map().[A]2%
+& '_empty_/hk0.Functor#[F]2+
+( )_empty_/hk0.Functor#map().[B]2
+ _empty_/hk0.ml.2"
+
+ _empty_/hk0.Functor#2!
+ scala/package.List#2#
+ scala/Predef.`???`().2
+ _empty_/hk0.mx.2
+ _empty_/hk0.ml.2
+ _empty_/hk0.mm.2
+ 
+scala/Int#2
+ scala/Boolean#2!
+ "scala/package.List#2
+# &
+scala/Int#2!
++ /scala/package.List#2
+0 7scala/Boolean#2(
+> A_empty_/hk0.Functor#map().2
+; =_empty_/hk0.mx.2
+; ;local02#
+ _empty_/higherKinded.2+
+ _empty_/higherKinded.Untyped#2
+ scala/Null#2(
+ _empty_/higherKinded.Tree#23
+ %_empty_/higherKinded.Tree#`<init>`().2+
+ _empty_/higherKinded.Tree#[T]21
+	 #_empty_/higherKinded.Tree#ThisType#24
+ &_empty_/higherKinded.Tree#ThisType#[U]2+
+ _empty_/higherKinded.Untyped#2(
+$ (_empty_/higherKinded.Tree#24
+) *&_empty_/higherKinded.Tree#ThisType#[U]25
+ '_empty_/higherKinded.Tree#withString().28
+ *_empty_/higherKinded.Tree#withString().(s)2"
+ scala/Predef.String#21
+ '#_empty_/higherKinded.Tree#ThisType#2"
+( .scala/Predef.String#25
+2 <'_empty_/higherKinded.Tree#withString().28
+= >*_empty_/higherKinded.Tree#withString().(s)2)
+   _empty_/higherKinded.Ident#24
+   &_empty_/higherKinded.Ident#`<init>`().23
+ ,  ,%_empty_/higherKinded.Tree#`<init>`().2(
+ %  )_empty_/higherKinded.Tree#2,
+ *  +_empty_/higherKinded.Ident#[T]2,
+   _empty_/higherKinded.Ident#[T]22
+!	! $_empty_/higherKinded.Ident#ThisType#25
+!! '_empty_/higherKinded.Ident#ThisType#[U]2+
+!! _empty_/higherKinded.Untyped#2)
+!#! (_empty_/higherKinded.Ident#25
+!)! *'_empty_/higherKinded.Ident#ThisType#[U]2&
+$$ _empty_/higherKinded.id.24
+$$ &_empty_/higherKinded.Ident#`<init>`().2)
+$$ _empty_/higherKinded.Ident#2 
+$$ java/lang/Integer#2%
+&& _empty_/higherKinded.y.25
+&& '_empty_/higherKinded.Tree#withString().2&
+&
+& _empty_/higherKinded.id.2%
+(( _empty_/higherKinded.z.2)
+(	( _empty_/higherKinded.Ident#2"
+(( scala/Predef.String#2%
+(( _empty_/higherKinded.y.2&
+** _empty_/higherKinded.zz.21
+** #_empty_/higherKinded.Instance#Tree#2'
+*
+* _empty_/higherKinded.tpd.2%
+** _empty_/higherKinded.y.2,
+,, _empty_/higherKinded.Instance#27
+,, )_empty_/higherKinded.Instance#`<init>`().2/
+,, !_empty_/higherKinded.Instance#[T]21
+-	- #_empty_/higherKinded.Instance#Tree#2(
+-- !_empty_/higherKinded.Tree#2#
+-- _empty_/higherKinded.2/
+-"- #!_empty_/higherKinded.Instance#[T]2'
+0	0 _empty_/higherKinded.tpd.27
+0%0 %)_empty_/higherKinded.Instance#`<init>`().2,
+00 _empty_/higherKinded.Instance#2"
+00 $scala/Predef.String#2/
+22 !_empty_/higherKinded.transform().25
+22 '_empty_/higherKinded.transform().(tree)2(
+22 _empty_/higherKinded.Tree#2"
+22 !scala/Predef.String#2
+33 local125
+33 '_empty_/higherKinded.Tree#withString().25
+33 '_empty_/higherKinded.transform().(tree)2
+44 	local12(
+44 _empty_/higherKinded.Tree#2"
+44 scala/Predef.String#PZ 83190F7EA24A9A5C607EE899DCA7BA48

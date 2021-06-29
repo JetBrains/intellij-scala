@@ -1,0 +1,62 @@
+
+ö	,tests/pos/reference/auto-param-tupling.scala*!
+autoParamTupling/t1.
+ *t1€*%
+autoParamTupling/t1.xs. €*xs€*
+local0*x$1€*
+local1 €*x€*
+local2 €*y€*
+local3*x$1€*
+local4*x€*
+local5*y€*
+local6*x$1€2
+ autoParamTupling/2"
+ 	autoParamTupling/t1.2%
+ autoParamTupling/t1.xs.2!
+
+ scala/package.List#2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+  scala/Predef.`???`().24
+ &scala/collection/immutable/List#map().2%
+ autoParamTupling/t1.xs.2
+ local02%
+
+ 
+scala/Tuple2.unapply().2
+
+ local12
+ local22 
+ scala/Int#`+`(+4).2
+ local12
+ local224
+		 &scala/collection/immutable/List#map().2%
+		 autoParamTupling/t1.xs.2
+
+
+ local42
+
+
+ scala/Tuple2#_1.2
+
+
+ 	local52
+
+
+ scala/Tuple2#_2.2 
+
+
+ scala/Int#`+`(+4).2
+
+
+ local42
+
+
+ local524
+ &scala/collection/immutable/List#map().2%
+ autoParamTupling/t1.xs.2
+	 	scala/Tuple2#_1.2
+ scala/Tuple2#_2.2 
+ scala/Int#`+`(+4).PZ 8ECDFADD032A326E802D38B573BB9A8F

@@ -1,0 +1,40 @@
+
+¶tests/pos/simpleSingleton.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().(x)*x€*
+local0 €*a€*
+local1 €*b€*
+local2 €*c€*
+local3 €*d€*
+local4 €*e€*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.Bar.
+ *Bar€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().(x)2
+ 
+scala/Int#2
+ 	local02#
+ _empty_/Foo#foo().(x)2#
+ _empty_/Foo#foo().(x)2
+ 	local12
+ _empty_/Foo.2
+ _empty_/Foo.2
+ 	local22
+ _empty_/Foo.Bar.2
+ _empty_/Foo.2
+ !_empty_/Foo.Bar.2
+ _empty_/Foo.2
+ 	local32
+ 	local42
+
+
+ 
+_empty_/Foo.2
+	 _empty_/Foo.Bar.PZ 54AC58F9D2D5A4B8FF4890657E309C13

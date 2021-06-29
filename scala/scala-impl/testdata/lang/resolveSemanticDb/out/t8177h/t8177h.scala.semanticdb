@@ -1,0 +1,27 @@
+
+‚tests/pos/t8177h.scala*
+_empty_/Module#*Module€*,
+_empty_/Module#`<init>`(). €@*<init>€*
+local0*self€*1
+_empty_/Module#settingsType#*settingsType€*;
+ _empty_/Module#commonModuleType# *commonModuleType€*
+local1*settingsType€*!
+_empty_/Module#foo().*foo€*"
+_empty_/Module#foo().(s)*s€2
+ _empty_/Module#2$
+ _empty_/Module#`<init>`().2
+ local02*
+ _empty_/Module#settingsType#2
+ 
+scala/Any#2.
+  _empty_/Module#commonModuleType#2
+  &_empty_/Module#2
+- 9local12*
+A M_empty_/Module#settingsType#2
+< @_empty_/Module#2#
+ 	_empty_/Module#foo().2&
+
+ _empty_/Module#foo().(s)2
+ _empty_/Module#2.
+ ) _empty_/Module#commonModuleType#2&
+, -_empty_/Module#foo().(s)PZ A57CF1CADCF9E76E23E089C1580DBAD3

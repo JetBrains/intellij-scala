@@ -1,0 +1,53 @@
+
+„tests/pos/andtypes.scala*
+_empty_/Outer#*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*
+_empty_/Outer#Foo#*Foo€*
+_empty_/Outer#Foo#[X]	*X€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[T]	*T€* 
+_empty_/Test.foo().(x)*x€*
+_empty_/Test.bla().*bla€* 
+_empty_/Test.bla().[A]	*A€* 
+_empty_/Test.bla().[B]	*B€* 
+_empty_/Test.bla().(a)*a€* 
+_empty_/Test.bla().(b)*b€*
+local0 €*x€2
+ _empty_/Outer#2'
+ _empty_/Outer#`<init>`().2 
+ 
+_empty_/Outer#Foo#2#
+ _empty_/Outer#Foo#[X]2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[T]2$
+ _empty_/Test.foo().(x)2$
+ _empty_/Test.foo().[T]2$
+ _empty_/Test.foo().(x)2!
+ 	_empty_/Test.bla().2$
+
+ _empty_/Test.bla().[A]2
+ _empty_/Outer#2$
+ _empty_/Test.bla().[B]2
+  _empty_/Outer#2$
+" #_empty_/Test.bla().(a)2$
+% &_empty_/Test.bla().[A]2$
+( )_empty_/Test.bla().(b)2$
++ ,_empty_/Test.bla().[B]2
+ 	local02
+ 
+scala/`&`#2 
+ _empty_/Outer#Foo#2$
+ _empty_/Test.bla().(a)2
+ 
+scala/Int#2 
+ _empty_/Outer#Foo#2$
+ _empty_/Test.bla().(b)2
+ !
+scala/Int#2#
+% (scala/Predef.`???`().2!
+		 _empty_/Test.foo().2
+		 	local0PZ D9EC1692F02D5E3D0187857AB6FA5EF0

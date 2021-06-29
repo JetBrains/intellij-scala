@@ -1,0 +1,65 @@
+
+útests/pos/i3540.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*)
+_empty_/Test.Foo#`<init>`().(x)*x€*+
+_empty_/Test.Foo#`<init>`().(y)  *y€* 
+_empty_/Test.Foo#x. €*x€* 
+_empty_/Test.Foo#y.  *y€*!
+_empty_/Test.Foo(). (*Foo€* 
+_empty_/Test.Foo().(x)*x€*"
+_empty_/Test.Foo().(y)  *y€*
+_empty_/Test.Foo0#*Foo0€*/
+_empty_/Test.Foo0#`<init>`(). €@*<init>€**
+ _empty_/Test.Foo0#`<init>`().(x)*x€**
+ _empty_/Test.Foo0#`<init>`().(y)*y€*,
+ _empty_/Test.Foo0#`<init>`().(z)  *z€*!
+_empty_/Test.Foo0#x. €*x€*!
+_empty_/Test.Foo0#y. €*y€*!
+_empty_/Test.Foo0#z.  *z€*#
+_empty_/Test.Foo0(). (*Foo0€*!
+_empty_/Test.Foo0().(x)*x€*!
+_empty_/Test.Foo0().(y)*y€*#
+_empty_/Test.Foo0().(z)  *z€*
+_empty_/Test.Foo1#*Foo1€*/
+_empty_/Test.Foo1#`<init>`(). €@*<init>€**
+ _empty_/Test.Foo1#`<init>`().(x)*x€**
+ _empty_/Test.Foo1#`<init>`().(y)*y€*!
+_empty_/Test.Foo1#x. €*x€*!
+_empty_/Test.Foo1#y. €*y€*#
+_empty_/Test.Foo1(). (*Foo1€*!
+_empty_/Test.Foo1().(x)*x€*!
+_empty_/Test.Foo1().(y)*y€2
+ _empty_/Test.2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2
+ 
+scala/Int#2
+) ,
+scala/Int#2!
+ _empty_/Test.Foo#x.2!
+& '_empty_/Test.Foo#y.2!
+ _empty_/Test.Foo().2 
+ _empty_/Test.Foo0#2+
+ _empty_/Test.Foo0#`<init>`().2
+ 
+scala/Int#2
+! $
+scala/Int#2
+2 5
+scala/Int#2"
+ _empty_/Test.Foo0#x.2"
+ _empty_/Test.Foo0#y.2"
+/ 0_empty_/Test.Foo0#z.2"
+ _empty_/Test.Foo0().2 
+ _empty_/Test.Foo1#2+
+ _empty_/Test.Foo1#`<init>`().2
+ 
+scala/Int#2
+! $
+scala/Int#2"
+ _empty_/Test.Foo1#x.2"
+ _empty_/Test.Foo1#y.2"
+ _empty_/Test.Foo1().PZ ED9CB9F30C419AE62A60360EC0E97ED1

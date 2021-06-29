@@ -1,0 +1,11 @@
+
+ªtests/pos/constants.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€2
+ _empty_/Test.2
+ _empty_/Test.x.2
+	 scala/Double#2
+ _empty_/Test.y.2
+	 scala/Byte#PZ 1755857EFF3398750048613898A6267D

@@ -1,0 +1,79 @@
+
+ëtests/pos/i3647.scala*
+_empty_/App.
+ *App€* 
+_empty_/App.main().*main€*&
+_empty_/App.main().(args)*args€*
+local0*FooT€*
+local1*T€*
+local2*Bar€*
+local3	*A€*
+local4 *get€*
+local5*k€*
+local6 €*test€*
+local7 *$anon€*
+local8*T€*
+local9*Bar€*
+local10	*A€*
+local11 *J€*
+local12	*A€*
+local13
+ ˆ*JName€*
+local14
+ ˆ*JInt€*
+local15*get€*
+local16*k€2
+ 
+_empty_/App.2!
+ 
+_empty_/App.main().2'
+ _empty_/App.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+
+ local02
+ local12
+ local22
+ local32
+
+ local42
+ local52
+ local22
+ local12"
+  scala/Predef.String#2
+ local62
+ local02
+ local72
+ local02
+		 local82"
+		 scala/Predef.String#2
+
+
+ local92
+
+
+ local102
+
+
+ local112
+
+
+ local102
+ local112
+ local122
+ local132
+  !local112
+" #local82
+ local142
+  local112
+! $
+scala/Int#2
+
+ local152
+ local162
+ local112
+ local82"
+ scala/Predef.String#2
+! "local162
+ local17PZ 6560097A8323FA50AB1325952ED1B70B

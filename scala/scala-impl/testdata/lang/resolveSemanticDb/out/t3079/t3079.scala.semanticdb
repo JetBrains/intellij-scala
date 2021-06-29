@@ -1,0 +1,40 @@
+
+ï
+tests/pos/t3079.scala*$
+_empty_/Identity# *Identity€*.
+_empty_/Identity#`<init>`(). €@*<init>€*
+_empty_/Identity#[A]	*A€*(
+_empty_/Identity#value. „*value€*
+_empty_/Coerce#*Coerce€*,
+_empty_/Coerce#`<init>`(). €@*<init>€*
+_empty_/Coerce#[A]	*A€*
+_empty_/Coerce#[B]	*B€*)
+_empty_/Coerce#unwrap(). *unwrap€* 
+_empty_/Coerce.
+ *Coerce€*7
+ _empty_/Coerce.IdentityCoerce().*IdentityCoerce€*-
+#_empty_/Coerce.IdentityCoerce().[B]	*B€*
+local0 *$anon€*
+local1*unwrap€2
+ _empty_/Identity#2&
+ _empty_/Identity#`<init>`().2
+ _empty_/Identity#[A]2%
+ _empty_/Identity#value.2"
+ _empty_/Identity#[A]2
+ _empty_/Coerce#2(
+ _empty_/Coerce#`<init>`().2 
+ _empty_/Coerce#[A]2 
+ _empty_/Coerce#[B]2&
+ _empty_/Coerce#unwrap().2 
+ _empty_/Coerce#[A]2 
+ _empty_/Coerce#[B]2
+ _empty_/Coerce.2.
+		  _empty_/Coerce.IdentityCoerce().21
+		 #_empty_/Coerce.IdentityCoerce().[B]2
+		 local02
+		 $_empty_/Coerce#2
+	%	 -_empty_/Identity#21
+	.	 /#_empty_/Coerce.IdentityCoerce().[B]21
+	2	 3#_empty_/Coerce.IdentityCoerce().[B]2
+	 local12%
+ _empty_/Identity#value.PZ C14A627F0319D08EDDD7D3B731484577

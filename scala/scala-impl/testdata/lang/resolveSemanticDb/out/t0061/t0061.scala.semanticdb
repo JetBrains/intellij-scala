@@ -1,0 +1,34 @@
+
+«tests/pos/t0061.scala*
+
+_empty_/O.
+ *O€*&
+_empty_/O.testClass#*	testClass€*1
+_empty_/O.testClass#`<init>`(). €@*<init>€*!
+_empty_/O.testA# €*testA€*-
+_empty_/O.testA#`<init>`(). €@*<init>€*$
+_empty_/O.testA#copy().*copy€* 
+_empty_/O.testA.
+ *testA€*&
+_empty_/O.testA.apply().*apply€**
+_empty_/O.testA.unapply().*unapply€*+
+_empty_/O.testA.unapply().(x$1)*x$1€*,
+_empty_/O.testA.toString().*toString€*
+_empty_/O.ga().*ga€*
+_empty_/O.ga().(x)*x€2
+ 
+_empty_/O.2"
+ _empty_/O.testClass#2-
+ _empty_/O.testClass#`<init>`().2
+ _empty_/O.testA#2)
+ _empty_/O.testA#`<init>`().2-
+& &_empty_/O.testClass#`<init>`().2"
+ &_empty_/O.testClass#2
+ _empty_/O.testA.2
+ _empty_/O.ga().2 
+
+ _empty_/O.ga().(x)2"
+ _empty_/O.testClass#2 
+ _empty_/O.ga().(x)2(
+ _empty_/O.testA.unapply().2
+ _empty_/O.testA.PZ 808FBF7B4FB3C99FB2BCACD6BE7BDBAA

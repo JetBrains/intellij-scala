@@ -1,0 +1,271 @@
+
+é=tests/pos/test5refine.scala*
+_empty_/test.
+ *test€*
+_empty_/test.F# *F€*,
+_empty_/test.F#`<init>`(). €@*<init>€*
+_empty_/test.F#If#*If€*
+_empty_/test.f().*f€* 
+_empty_/test.f().[Jf]	*Jf€*
+_empty_/test.f().(h)*h€*
+local0*If€*
+_empty_/test.G# *G€*,
+_empty_/test.G#`<init>`(). €@*<init>€*
+_empty_/test.G#Ig#*Ig€*
+_empty_/test.g().*g€* 
+_empty_/test.g().[Jg]	*Jg€*
+_empty_/test.g().(h)*h€*
+local1*Ig€*
+_empty_/test.M# *M€*,
+_empty_/test.M#`<init>`(). €@*<init>€*
+_empty_/test.M#P#*P€*
+_empty_/test.M#I# *I€*.
+_empty_/test.M#I#`<init>`(). €@*<init>€*
+_empty_/test.M#I#X#*X€*)
+_empty_/test.M#I#chk_ix().*chk_ix€*'
+_empty_/test.M#I#chk_ix().(x)*x€*)
+_empty_/test.M#I#chk_ip().*chk_ip€*'
+_empty_/test.M#I#chk_ip().(p)*p€*)
+_empty_/test.M#I#val_ix().*val_ix€*
+_empty_/test.M#i. €*i€*
+local2*X€*
+local3*Ig€*'
+_empty_/test.M#val_mp().*val_mp€*)
+_empty_/test.M#val_mix().*val_mix€*
+local4*Ig€*
+_empty_/test.N# *N€*,
+_empty_/test.N#`<init>`(). €@*<init>€*
+_empty_/test.N#Q#*Q€*
+_empty_/test.N#P#*P€*
+local5*If€*
+_empty_/test.N#j. €*j€*
+local6*Y€*
+local7*Ig€*
+_empty_/test.N#J# *J€*.
+_empty_/test.N#J#`<init>`(). €@*<init>€*
+_empty_/test.N#J#Y#*Y€*
+_empty_/test.N#J#X#*X€*
+local8*Ig€*)
+_empty_/test.N#J#val_jy().*val_jy€*)
+_empty_/test.N#J#val_jx().*val_jx€*
+local9*Ig€*'
+_empty_/test.N#val_nq().*val_nq€*'
+_empty_/test.N#val_np().*val_np€*
+local10*If€*)
+_empty_/test.N#val_nix().*val_nix€*
+local11*Ig€*
+local12*If€*
+local13*If€*)
+_empty_/test.N#val_njy().*val_njy€*
+local14*Ig€*)
+_empty_/test.N#val_njx().*val_njx€*
+local15*Ig€*
+local16*Ig€*
+local17*Ig€2
+ scala/2
+ _empty_/test.2
+ _empty_/test.F#2(
+ _empty_/test.F#`<init>`().2 
+ _empty_/test.F#If#2
+ _empty_/test.f().2#
+ 
+_empty_/test.f().[Jf]2"
+ _empty_/test.f().(h)2#
+ _empty_/test.f().[Jf]2
+ _empty_/test.F#2
+ local02#
+! #_empty_/test.f().[Jf]2
+( )_empty_/test.f().2#
+* ,_empty_/test.f().[Jf]2"
+. /_empty_/test.f().(h)2
+ _empty_/test.G#2(
+ _empty_/test.G#`<init>`().2 
+ _empty_/test.G#Ig#2
+
+
+ _empty_/test.g().2#
+
+
+ 
+_empty_/test.g().[Jg]2"
+
+
+ _empty_/test.g().(h)2#
+
+
+ _empty_/test.g().[Jg]2
+
+
+ _empty_/test.G#2
+
+
+ local12#
+
+!
+ #_empty_/test.g().[Jg]2
+
+(
+ )_empty_/test.g().2#
+
+*
+ ,_empty_/test.g().[Jg]2"
+
+.
+ /_empty_/test.g().(h)2
+ _empty_/test.M#2(
+ _empty_/test.M#`<init>`().2
+ _empty_/test.M#P#2
+ _empty_/test.M#I#2*
+ _empty_/test.M#I#`<init>`().2!
+ _empty_/test.M#I#X#2(
+
+ _empty_/test.M#I#chk_ix().2+
+ _empty_/test.M#I#chk_ix().(x)2!
+ _empty_/test.M#I#X#2
+ scala/Unit#2(
+
+ _empty_/test.M#I#chk_ip().2+
+ _empty_/test.M#I#chk_ip().(p)2
+ _empty_/test.M#P#2
+ scala/Unit#2(
+
+ _empty_/test.M#I#val_ix().2!
+ _empty_/test.M#I#X#2(
+ _empty_/test.M#I#val_ix().2
+
+ _empty_/test.M#i.2
+ _empty_/test.M#I#2
+ local22
+ _empty_/test.G#2
+# %local32
+( )_empty_/test.M#P#2&
+
+ _empty_/test.M#val_mp().2
+ _empty_/test.M#P#2&
+ _empty_/test.M#val_mp().2'
+
+ _empty_/test.M#val_mix().2
+ _empty_/test.G#2
+ local42
+! "_empty_/test.M#P#2
+' (_empty_/test.g().2
+) *_empty_/test.M#P#2&
+, 2_empty_/test.M#val_mp().2
+   _empty_/test.N#2(
+   _empty_/test.N#`<init>`().2(
+   _empty_/test.M#`<init>`().2
+   _empty_/test.M#2
+!! _empty_/test.N#Q#2
+"" _empty_/test.N#P#2
+"" _empty_/test.F#2
+"" local52
+"" _empty_/test.N#Q#2
+#
+# _empty_/test.N#j.2
+## _empty_/test.N#J#2
+## local62
+## _empty_/test.G#2
+#"# $local72
+#'# (_empty_/test.N#Q#2
+%% _empty_/test.N#J#2*
+%% _empty_/test.N#J#`<init>`().2*
+%"% "_empty_/test.M#I#`<init>`().2
+%!% "_empty_/test.M#I#2!
+&& _empty_/test.N#J#Y#2!
+'' _empty_/test.N#J#X#2
+'' _empty_/test.G#2
+'' local82!
+'' _empty_/test.N#J#Y#2(
+)
+) _empty_/test.N#J#val_jy().2!
+)) _empty_/test.N#J#Y#2(
+)) _empty_/test.N#J#val_jy().2(
+*
+* _empty_/test.N#J#val_jx().2
+** _empty_/test.G#2
+** local92!
+* * !_empty_/test.N#J#Y#2
+*'* (_empty_/test.g().2!
+*)* *_empty_/test.N#J#Y#2(
+*,* 2_empty_/test.N#J#val_jy().2(
+-- _empty_/test.M#I#chk_ip().2&
+-- _empty_/test.M#val_mp().2(
+.. _empty_/test.M#I#chk_ip().2&
+.. _empty_/test.N#val_np().2&
+2
+2 _empty_/test.N#val_nq().2
+22 _empty_/test.N#Q#2&
+22 _empty_/test.N#val_nq().2&
+3
+3 _empty_/test.N#val_np().2
+33 _empty_/test.F#2
+33 local102
+3 3 !_empty_/test.N#Q#2
+3&3 '_empty_/test.f().2
+3(3 )_empty_/test.N#Q#2&
+3+3 1_empty_/test.N#val_nq().2'
+4
+4 _empty_/test.N#val_nix().2
+44 _empty_/test.G#2
+44 local112
+4!4 "_empty_/test.F#2
+4*4 ,local122
+4/4 0_empty_/test.N#Q#2
+474 8_empty_/test.g().2
+494 :_empty_/test.F#2
+4B4 Dlocal132
+4G4 H_empty_/test.N#Q#2&
+4L4 R_empty_/test.N#val_np().2'
+5
+5 _empty_/test.N#val_njy().2
+55 _empty_/test.G#2
+55 local142
+5!5 "_empty_/test.N#Q#2
+5(5 )_empty_/test.g().2
+5*5 +_empty_/test.N#Q#2&
+5-5 3_empty_/test.N#val_nq().2'
+6
+6 _empty_/test.N#val_njx().2
+66 _empty_/test.G#2
+66 local152
+6!6 "_empty_/test.G#2
+6*6 ,local162
+6/6 0_empty_/test.N#Q#2
+666 7_empty_/test.g().2
+686 9_empty_/test.G#2
+6A6 Clocal172
+6F6 G_empty_/test.N#Q#2'
+6L6 S_empty_/test.N#val_njy().2(
+99 _empty_/test.M#I#chk_ip().2
+99 _empty_/test.M#i.2&
+99 _empty_/test.M#val_mp().2(
+:: _empty_/test.M#I#chk_ip().2
+:: _empty_/test.M#i.2&
+:: _empty_/test.N#val_np().2(
+== _empty_/test.M#I#chk_ip().2
+== _empty_/test.N#j.2&
+== _empty_/test.M#val_mp().2(
+>> _empty_/test.M#I#chk_ip().2
+>> _empty_/test.N#j.2&
+>> _empty_/test.N#val_np().2(
+AA _empty_/test.M#I#chk_ix().2
+AA _empty_/test.M#i.2(
+AA _empty_/test.M#I#val_ix().2
+AA _empty_/test.M#i.2(
+BB _empty_/test.M#I#chk_ix().2
+BB _empty_/test.M#i.2'
+BB _empty_/test.M#val_mix().2(
+CC _empty_/test.M#I#chk_ix().2
+CC _empty_/test.M#i.2'
+CC _empty_/test.N#val_nix().2(
+FF _empty_/test.M#I#chk_ix().2
+FF _empty_/test.N#j.2(
+FF _empty_/test.M#I#val_ix().2
+FF _empty_/test.N#j.2(
+GG _empty_/test.M#I#chk_ix().2
+GG _empty_/test.N#j.2(
+GG _empty_/test.N#J#val_jx().2
+GG _empty_/test.N#j.2(
+HH _empty_/test.M#I#chk_ix().2
+HH _empty_/test.N#j.2'
+HH _empty_/test.N#val_njx().PZ 267E9209878627EC6712921D7C8053E1

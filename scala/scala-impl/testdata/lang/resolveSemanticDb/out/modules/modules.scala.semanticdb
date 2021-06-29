@@ -1,0 +1,36 @@
+
+µtests/pos/modules.scala*
+scala/a.
+ *a€*
+
+scala/a.b.
+ *b€*
+scala/a.b.c#*c€*)
+scala/a.b.c#`<init>`(). €@*<init>€*
+scala/a.b.foo().*foo€*
+scala/a.b.foo().(x)*x€*
+scala/a.bar().*bar€*
+scala/a.bar().(x)*x€2
+ scala/2
+	 
+scala/a.2
+ 
+scala/a.b.2
+ scala/a.b.c#2%
+ scala/a.b.c#`<init>`().2
+
+ scala/a.b.foo().2!
+ scala/a.b.foo().(x)2
+ scala/a.b.c#2
+ scala/a.b.c#2
+ scala/a.bar().2!
+ scala/a.b.foo().(x)2
+ scala/a.bar().2
+ scala/a.bar().(x)2
+ scala/a.b.c#2
+ 
+scala/a.b.2
+ scala/a.b.c#2
+ 
+scala/a.b.2
+ scala/a.bar().(x)PZ D0A8583B36E582CCBB27A94CEEBD9497

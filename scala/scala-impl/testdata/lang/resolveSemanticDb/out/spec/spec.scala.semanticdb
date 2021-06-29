@@ -1,0 +1,235 @@
+
+¤8tests/pos/spec.scala*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*$
+_empty_/Bar#`<init>`().(a)*a€*
+_empty_/Bar#[A]	*A€*
+_empty_/Bar#a. €*a€*!
+_empty_/Bar#memb. €*memb€*$
+_empty_/WithInner#*	WithInner€*/
+_empty_/WithInner#`<init>`(). €@*<init>€**
+ _empty_/WithInner#`<init>`().(a)*a€*
+_empty_/WithInner#[A]	*A€*!
+_empty_/WithInner#a. €*a€*&
+_empty_/WithInner#Inner#*Inner€*5
+#_empty_/WithInner#Inner#`<init>`(). €@*<init>€*,
+_empty_/WithInner#Inner#meth().*meth€*
+_empty_/Baz#*Baz€*)
+_empty_/Baz#`<init>`(). €@*<init>€*
+_empty_/Baz#[A]	*A€*
+_empty_/Baz#[B]	*B€*
+_empty_/Baz#ab().*ab€*
+_empty_/Baz#ab().(a)*a€*
+_empty_/Baz#ab().(b)*b€*
+_empty_/Base#*Base€**
+_empty_/Base#`<init>`(). €@*<init>€*
+_empty_/Base#[A]	*A€*"
+_empty_/Concrete#*Concrete€*.
+_empty_/Concrete#`<init>`(). €@*<init>€*
+_empty_/Concrete#[A]	*A€*"
+_empty_/WithAnon#*WithAnon€*.
+_empty_/WithAnon#`<init>`(). €@*<init>€*)
+_empty_/WithAnon#`<init>`().(a)*a€*
+_empty_/WithAnon#[A]	*A€* 
+_empty_/WithAnon#a. €*a€*
+local0 *$anon€*
+local1*foo€*
+_empty_/Norm#*Norm€**
+_empty_/Norm#`<init>`(). €@*<init>€*
+_empty_/Norm#id().*id€*
+_empty_/Norm#id().[A]	*A€*
+_empty_/Norm#id().(a)*a€*
+_empty_/Qux#*Qux€*)
+_empty_/Qux#`<init>`(). €@*<init>€*
+_empty_/Qux#[A]	*A€* 
+_empty_/Qux#memb().*memb€* 
+_empty_/Qux#memb().[B]	*B€* 
+_empty_/Qux#memb().(a)*a€* 
+_empty_/Qux#memb().(b)*b€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*'
+_empty_/Foo#`<init>`().(a) €*a€*
+_empty_/Foo#[A]	*A€*
+_empty_/Foo#a. €*a€*
+_empty_/Foo#id().*id€*$
+_empty_/Foo#id().(elem)*elem€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*%
+_empty_/Test.main().(arg)*arg€*
+local2 €*f€*
+local3 €*z€*)
+_empty_/Test.testspec().*testspec€*%
+_empty_/Test.testspec().[T]	*T€*)
+_empty_/Test.testspec().(arr)*arr€2
+ 	_empty_/Bar#2%
+	 	_empty_/Bar#`<init>`().2
+* +_empty_/Bar#[A]2 
+ scala/specialized#2
+ 
+scala/Int.2#
+ "scala/package.AnyRef.2
+$ %_empty_/Bar#[A]2
+' (_empty_/Bar#a.2
+ 
+_empty_/Bar#memb.2
+ _empty_/Bar#a.2 
+		 _empty_/WithInner#2+
+		 _empty_/WithInner#`<init>`().2#
+	0	 1_empty_/WithInner#[A]2 
+		 scala/specialized#2
+		  
+scala/Int.2#
+	"	 (scala/package.AnyRef.2#
+	*	 +_empty_/WithInner#[A]2"
+	-	 ._empty_/WithInner#a.2&
+
+
+ _empty_/WithInner#Inner#21
+ #_empty_/WithInner#Inner#`<init>`().2-
+ _empty_/WithInner#Inner#meth().2"
+ _empty_/WithInner#a.2
+ 	_empty_/Baz#2%
+	 	_empty_/Baz#`<init>`().2 
+ scala/specialized#2
+ 
+scala/Int.2#
+ "scala/package.AnyRef.2
+$ %_empty_/Baz#[A]2 
+( 3scala/specialized#2
+4 7
+scala/Int.2#
+9 ?scala/package.AnyRef.2
+A B_empty_/Baz#[B]2
+ _empty_/Baz#ab().2"
+	 
+_empty_/Baz#ab().(a)2
+ _empty_/Baz#[A]2"
+ _empty_/Baz#ab().(b)2
+ _empty_/Baz#[B]2#
+ scala/Tuple2.apply().2"
+ _empty_/Baz#ab().(a)2"
+ _empty_/Baz#ab().(b)2
+ 
+_empty_/Base#2&
+
+ 
+_empty_/Base#`<init>`().2 
+ scala/specialized#2
+ 
+scala/Int.2#
+ #scala/package.AnyRef.2
+% &_empty_/Base#[A]2
+ _empty_/Concrete#2*
+ _empty_/Concrete#`<init>`().2
+4 8_empty_/Base#2"
+9 :_empty_/Concrete#[A]2 
+ scala/specialized#2
+ 
+scala/Int.2#
+! 'scala/package.AnyRef.2"
+) *_empty_/Concrete#[A]2
+ _empty_/WithAnon#2*
+ _empty_/WithAnon#`<init>`().2"
+/ 0_empty_/WithAnon#[A]2 
+ scala/specialized#2
+ 
+scala/Int.2#
+! 'scala/package.AnyRef.2"
+) *_empty_/WithAnon#[A]2!
+, -_empty_/WithAnon#a.2
+ local02*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ local12!
+ _empty_/WithAnon#a.2
+   
+_empty_/Norm#2&
+!! _empty_/Norm#`<init>`().2 
+!! _empty_/Norm#id().2 
+!
+! scala/specialized#2
+!! 
+scala/Int.2#
+!! !scala/package.AnyRef.2#
+!#! $_empty_/Norm#id().[A]2#
+!&! '_empty_/Norm#id().(a)2#
+!)! *_empty_/Norm#id().[A]2#
+!.! /_empty_/Norm#id().(a)2
+%% 	_empty_/Qux#2%
+%	% 	_empty_/Qux#`<init>`().2 
+%% scala/specialized#2#
+%% scala/package.AnyRef.2
+%%  _empty_/Qux#[A]2!
+&& 
+_empty_/Qux#memb().2 
+&& scala/specialized#2#
+&& scala/package.AnyRef.2$
+& & !_empty_/Qux#memb().[B]2$
+&#& $_empty_/Qux#memb().(a)2
+&&& '_empty_/Qux#[A]2$
+&)& *_empty_/Qux#memb().(b)2$
+&,& -_empty_/Qux#memb().[B]2#
+&2& 2scala/Tuple2.apply().2$
+&2& 3_empty_/Qux#memb().(a)2$
+&5& 6_empty_/Qux#memb().(b)2
+** 	_empty_/Foo#2%
+*	* 	_empty_/Foo#`<init>`().2
+*.* 3scala/Array#2
+*4* 5_empty_/Foo#[A]2 
+** scala/specialized#2
+** 
+scala/Int.2#
+** "scala/package.AnyRef.2
+*$* %_empty_/Foo#[A]2
+*+* ,_empty_/Foo#a.2"
+++ scala/Array#apply().2
+++ _empty_/Foo#a.2
+-- _empty_/Foo#id().2%
+-	- _empty_/Foo#id().(elem)2
+-- _empty_/Foo#[A]2#
+-- scala/Array#update().2
+-- _empty_/Foo#a.2%
+-- _empty_/Foo#id().(elem)2
+22 _empty_/Test.2"
+33 
+_empty_/Test.main().2'
+33 _empty_/Test.main().(arg)2
+33 scala/Array#2"
+33 scala/Predef.String#2
+3 3 $scala/Unit#2
+44 	local22%
+44 _empty_/Foo#`<init>`().2%
+4%4 %scala/Array#`<init>`().2
+44 scala/Array#2"
+44 $scala/Predef.String#2
+55 _empty_/Foo#id().2
+55 local22
+77 	local32%
+7 7  _empty_/Baz#`<init>`().2
+77 _empty_/Baz#2
+77 
+scala/Int#2
+77 scala/Double#2
+88 _empty_/Baz#ab().2
+88 local32&
+:: _empty_/Test.testspec().2%
+:: scala/Array#`<init>`().2
+:: scala/Array#2"
+:: scala/Predef.String#2&
+;; _empty_/Test.testspec().2%
+;; scala/Array#`<init>`().2
+;; scala/Array#2
+;; 
+scala/Int#2&
+>> _empty_/Test.testspec().2 
+>> scala/specialized#2
+>> 
+scala/Int.2#
+>!> 'scala/package.AnyRef.2)
+>)> *_empty_/Test.testspec().[T]2+
+>,> /_empty_/Test.testspec().(arr)2
+>1> 6scala/Array#2)
+>7> 8_empty_/Test.testspec().[T]2"
+>@> @scala/Array#apply().2+
+>=> @_empty_/Test.testspec().(arr)PZ BB6387587ECE7E1121C27A62279A1EA0

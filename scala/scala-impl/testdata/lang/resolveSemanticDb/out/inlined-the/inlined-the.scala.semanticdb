@@ -1,0 +1,126 @@
+
+›tests/pos/inlined-the.scala*&
+_empty_/Instances.
+ *	Instances€*
+_empty_/Instances.D#*D€*1
+_empty_/Instances.D#`<init>`(). €@*<init>€*!
+_empty_/Instances.D#[T]	*T€*
+_empty_/Instances.C#*C€*1
+_empty_/Instances.C#`<init>`(). €@*<init>€*"
+_empty_/Instances.C#f().*f€*
+local0*d€*
+local1	*T€*
+local2 (*d€*
+local3  *s€*
+local4 €*a€*
+local5 €*b€*
+local6*d€*
+local7	*T€*
+local8 (*d€*
+local9  *s€*
+local10 €*a€*
+local11 €*b€*
+local12  *s€*
+local13 €*a€*
+local14  *sl€*
+local15 €*b€*&
+_empty_/Instances.the2().*the2€*&
+_empty_/Instances.the2().[T]	*T€*(
+_empty_/Instances.the2().(x)  *x€*,
+_empty_/Instances.theList().*theList€*)
+_empty_/Instances.theList().[T]	*T€*+
+_empty_/Instances.theList().(x)  *x€2
+ _empty_/Instances.2"
+ 	_empty_/Instances.D#2-
+	 	_empty_/Instances.D#`<init>`().2%
+
+ _empty_/Instances.D#[T]2"
+ 	_empty_/Instances.C#2-
+ _empty_/Instances.C#`<init>`().2&
+ 	_empty_/Instances.C#f().2%
+ scala/Predef.locally().2
+ local02-
+ _empty_/Instances.D#`<init>`().2"
+ _empty_/Instances.D#2
+ local12
+ local12
+ local22$
+ scala/Predef.summon().2"
+ _empty_/Instances.D#2
+ 
+scala/Int#2
+ local22
+		 local32#
+		 scala/Predef.`???`().2
+
+
+ local42$
+
+
+ scala/Predef.summon().2
+
+
+ local32
+ local52
+ local32$
+ scala/Predef.summon().2
+  local32
+& &local32%
+ scala/Predef.locally().2
+ local62-
+ _empty_/Instances.D#`<init>`().2"
+ _empty_/Instances.D#2
+ local72
+ local72
+ local82'
+ _empty_/Instances.the2().2"
+ _empty_/Instances.D#2
+ 
+scala/Int#2
+ local82
+ local92#
+ scala/Predef.`???`().2
+ local102'
+ _empty_/Instances.the2().2
+ local92
+ local112
+ local92'
+ _empty_/Instances.the2().2
+ local92
+$ $local92%
+ scala/Predef.locally().2
+ local122!
+ scala/package.List#2#
+" %scala/Predef.`???`().2
+ local132!
+ scala/package.List#2'
+ _empty_/Instances.the2().2!
+ "scala/package.List#2
+& &local122
+ local142!
+ scala/package.List#2
+ local122#
+( +scala/Predef.`???`().2
+ local152!
+ scala/package.List#2
+ local122'
+ "_empty_/Instances.the2().2!
+# 'scala/package.List#2
+( )local122
+0 0local142'
+## _empty_/Instances.the2().2*
+## _empty_/Instances.the2().[T]2*
+## _empty_/Instances.the2().(x)2*
+#!# "_empty_/Instances.the2().[T]2*
+#%# &_empty_/Instances.the2().(x)2*
+#.# /_empty_/Instances.the2().(x)2*
+%% _empty_/Instances.theList().2-
+%% _empty_/Instances.theList().[T]2-
+%!% "_empty_/Instances.theList().(x)2-
+%$% %_empty_/Instances.theList().[T]2!
+%(% ,scala/package.List#2-
+%-% ._empty_/Instances.theList().(x)27
+%;% ;)scala/collection/IterableFactory#apply().2!
+%7% ;scala/package.List.2-
+%<% =_empty_/Instances.theList().(x)2-
+%D% E_empty_/Instances.theList().(x)PZ 47B45E4581275A293D387E00C8BFEC26

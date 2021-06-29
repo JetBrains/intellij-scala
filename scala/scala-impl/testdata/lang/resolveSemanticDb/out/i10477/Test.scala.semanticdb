@@ -1,0 +1,55 @@
+
+ùtests/pos/i10477/Test.scala*!
+gopher/OChannel#*OChannelÄ*-
+gopher/OChannel#`<init>`(). Ä@*<init>Ä*
+gopher/OChannel#[F]	*FÄ*
+gopher/OChannel#[A]	*AÄ*(
+gopher/OChannel#awrite().*awriteÄ*&
+gopher/OChannel#awrite().(a)*aÄ*
+local0*fÄ*&
+gopher/OChannel#write().*writeÄ*%
+gopher/OChannel#write().(a)*aÄ*0
+gopher/OChannel#addWriter(). *	addWriterÄ*)
+gopher/OChannel#addWriter().(a)*aÄ*)
+gopher/OChannel#addWriter().(f)*fÄ*`
+5gopher/OChannel#gopher$OChannel$$inline$evidence$1().*"gopher$OChannel$$inline$evidence$1Ä2
+ gopher/2
+ scala/util/Try.2
+ scala/util/Try#2
+ scala/util/2
+ scala/2
+ gopher/OChannel#2)
+ gopher/OChannel#`<init>`().2#
+ !gopher/CpsAsyncMonad#2!
+! !gopher/OChannel#[F]2!
+ gopher/OChannel#[F]2!
+# $gopher/OChannel#[A]2'
+ gopher/OChannel#awrite().2*
+ gopher/OChannel#awrite().(a)2!
+ gopher/OChannel#[A]2!
+ gopher/OChannel#[F]2
+ scala/Unit#28
+ 0*gopher/CpsAsyncMonad#adoptCallbackStyle().2$
+ scala/Predef.summon().2#
+ gopher/CpsAsyncMonad#2!
+ gopher/OChannel#[F]2
+1 2local02*
+	 gopher/OChannel#addWriter().2*
+ gopher/OChannel#awrite().(a)2
+ local02&
+ gopher/OChannel#write().2)
+ gopher/OChannel#write().(a)2!
+ gopher/OChannel#[A]2
+ scala/Unit#2'
+! &gopher/A$package.await().2'
+' -gopher/OChannel#awrite().2)
+. /gopher/OChannel#write().(a)2C
+1 15gopher/OChannel#gopher$OChannel$$inline$evidence$1().2*
+ gopher/OChannel#addWriter().2-
+ gopher/OChannel#addWriter().(a)2!
+ gopher/OChannel#[A]2-
+ gopher/OChannel#addWriter().(f)2
+ scala/util/Try#2
+ !scala/Unit#2
+$ (scala/Unit#2
++ /scala/Unit#PZ 43941EAFF986891C930E3882703C3255

@@ -1,0 +1,34 @@
+
+Îtests/pos/i5711.scala*
+_empty_/trace.
+ *trace€*$
+_empty_/trace.apply().*apply€*#
+_empty_/trace.apply().[T]	*T€*#
+_empty_/trace.apply().(a)*a€*-
+_empty_/trace.apply().(showOp)*showOp€*&
+_empty_/trace.apply(+1).*apply€*%
+_empty_/trace.apply(+1).[T]	*T€*%
+_empty_/trace.apply(+1).(a)*a€*)
+_empty_/trace.apply(+1).(log)*log€*
+local0*res€2
+ _empty_/trace.2$
+ _empty_/trace.apply().2'
+ _empty_/trace.apply().[T]2'
+ _empty_/trace.apply().(a)2"
+ scala/Predef.String#2,
+  _empty_/trace.apply().(showOp)2
+" %
+scala/Any#2"
+) /scala/Predef.String#2&
+ _empty_/trace.apply(+1).2)
+ _empty_/trace.apply(+1).[T]2)
+ _empty_/trace.apply(+1).(a)2
+ 
+scala/Int#2+
+ _empty_/trace.apply(+1).(log)2"
+ "scala/Predef.String#2
+& *scala/Unit#2$
+ _empty_/trace.apply().2
+ local02#
+ scala/Any#toString().2
+ local0PZ EDE4FB978C0588217E1329731A43BF7A

@@ -1,0 +1,177 @@
+
+ˆ#tests/pos/t430-feb09.scala*
+a/A# €*A€*!
+a/A#`<init>`(). €@*<init>€*
+a/A#[T]	*T€*
+a/A#copy().*copy€*
+a/A#copy().[T]	*T€*
+a/A.
+ *A€*
+a/A.apply().*apply€*
+a/A.apply().[T]	*T€*
+a/A.unapply().*unapply€*
+a/A.unapply().[T]	*T€*
+a/A.unapply().(x$1)*x$1€* 
+a/A.toString().*toString€*
+
+b/scala/B#*B€*'
+b/scala/B#`<init>`(). €@*<init>€*
+b/scala/B#[T]	*T€*
+
+c/scala/C# €*C€*'
+c/scala/C#`<init>`(). €@*<init>€*
+c/scala/C#[T]	*T€*
+c/scala/C#copy().*copy€*
+c/scala/C#copy().[T]	*T€*
+
+c/scala/C.
+ *C€* 
+c/scala/C.apply().*apply€*
+c/scala/C.apply().[T]	*T€*$
+c/scala/C.unapply().*unapply€*!
+c/scala/C.unapply().[T]	*T€*%
+c/scala/C.unapply().(x$1)*x$1€*&
+c/scala/C.toString().*toString€*
+d/scala/d/D# €*D€*)
+d/scala/d/D#`<init>`(). €@*<init>€*
+d/scala/d/D#[T]	*T€* 
+d/scala/d/D#copy().*copy€* 
+d/scala/d/D#copy().[T]	*T€*
+d/scala/d/D.
+ *D€*"
+d/scala/d/D.apply().*apply€*!
+d/scala/d/D.apply().[T]	*T€*&
+d/scala/d/D.unapply().*unapply€*#
+d/scala/d/D.unapply().[T]	*T€*'
+d/scala/d/D.unapply().(x$1)*x$1€*(
+d/scala/d/D.toString().*toString€*
+
+e/scala/E# €*E€*'
+e/scala/E#`<init>`(). €@*<init>€*
+e/scala/E#[T]	*T€*
+e/scala/E#copy().*copy€*
+e/scala/E#copy().[T]	*T€*
+
+e/scala/E.
+ *E€* 
+e/scala/E.apply().*apply€*
+e/scala/E.apply().[T]	*T€*$
+e/scala/E.unapply().*unapply€*!
+e/scala/E.unapply().[T]	*T€*%
+e/scala/E.unapply().(x$1)*x$1€*&
+e/scala/E.toString().*toString€*
+
+f/scala/F# €*F€*'
+f/scala/F#`<init>`(). €@*<init>€*
+f/scala/F#[T]	*T€*
+f/scala/F#copy().*copy€*
+f/scala/F#copy().[T]	*T€*
+
+f/scala/F.
+ *F€* 
+f/scala/F.apply().*apply€*
+f/scala/F.apply().[T]	*T€*$
+f/scala/F.unapply().*unapply€*!
+f/scala/F.unapply().[T]	*T€*%
+f/scala/F.unapply().(x$1)*x$1€*&
+f/scala/F.toString().*toString€*
+
+h/scala/H# €*H€*'
+h/scala/H#`<init>`(). €@*<init>€*%
+h/scala/H#`<init>`().(s) €*s€*"
+h/scala/H#`<init>`().(t)*t€*
+h/scala/H#s. €*s€*
+h/scala/H#t. €*t€*
+h/scala/H#copy().*copy€*
+h/scala/H#copy().(s)*s€*
+h/scala/H#copy().(t)*t€*2
+h/scala/H#copy$default$1().*copy$default$1€*
+h/scala/H#_1().*_1€*
+
+h/scala/H.
+ *H€* 
+h/scala/H.apply().*apply€*
+h/scala/H.apply().(s)*s€*
+h/scala/H.apply().(t)*t€*$
+h/scala/H.unapply().*unapply€*%
+h/scala/H.unapply().(x$1)*x$1€*&
+h/scala/H.toString().*toString€2
+ 	a/2
+ a/A#2
+ a/A#`<init>`().2
+ a/A#[T]2
+ a/A#copy().2
+ a/A.2
+ a/A.apply().2
+ a/A.unapply().2
+
+ b/scala/2
+ 	b/2
+ 	
+b/scala/B#2#
+	 	b/scala/B#`<init>`().2
+
+ b/scala/B#[T]2
+
+ c/scala/2
+ 	c/2
+ 
+c/scala/C#2#
+ c/scala/C#`<init>`().2
+ c/scala/C#[T]2
+ c/scala/C#copy().2
+ 
+c/scala/C.2 
+ c/scala/C.apply().2"
+ c/scala/C.unapply().2
+ 
+d/scala/d/2
+
+ d/scala/2
+ 	d/2
+ d/scala/d/D#2%
+ d/scala/d/D#`<init>`().2
+ d/scala/d/D#[T]2!
+ d/scala/d/D#copy().2
+ d/scala/d/D.2"
+ d/scala/d/D.apply().2$
+ d/scala/d/D.unapply().2
+
+ e/scala/2
+ 	e/2
+ 
+e/scala/E#2#
+ e/scala/E#`<init>`().2
+ e/scala/E#[T]2
+ e/scala/E#copy().2
+ 
+e/scala/E.2 
+ e/scala/E.apply().2"
+ e/scala/E.unapply().2
+
+ f/scala/2
+ 	f/2
+ 
+f/scala/F#2#
+ f/scala/F#`<init>`().2
+ f/scala/F#[T]2
+ f/scala/F#copy().2
+ 
+f/scala/F.2 
+ f/scala/F.apply().2"
+ f/scala/F.unapply().2
+
+ h/scala/2
+ 	h/2
+   
+h/scala/H#2#
+   h/scala/H#`<init>`().2"
+   scala/Predef.String#2"
+   %scala/Predef.String#2
+   h/scala/H#s.2
+   h/scala/H#t.2
+   h/scala/H#copy().2
+   h/scala/H#_1().2
+   
+h/scala/H.2 
+   h/scala/H.apply().PZ E5FBB41C29A81622EEC33AAC7D470B68

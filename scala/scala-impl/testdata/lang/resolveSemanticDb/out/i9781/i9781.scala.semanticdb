@@ -1,0 +1,102 @@
+
+ätests/pos/i9781.scala*
+_empty_/Txn#*Txn€*)
+_empty_/Txn#`<init>`(). €@*<init>€*
+_empty_/Txn#[T]	*T€*
+_empty_/Elem#*Elem€**
+_empty_/Elem#`<init>`(). €@*<init>€*
+_empty_/Elem#[T]	*T€*
+_empty_/State# *State€*+
+_empty_/State#`<init>`(). €@*<init>€*
+_empty_/State#[T]	 €*T€*
+_empty_/Done# ˆ*Done€**
+_empty_/Done#`<init>`(). €@*<init>€*.
+_empty_/Done#`<init>`().(elem) €*elem€*
+_empty_/Done#[T]	*T€*"
+_empty_/Done#elem. €*elem€*!
+_empty_/Done#copy().*copy€*!
+_empty_/Done#copy().[T]	*T€*'
+_empty_/Done#copy().(elem)*elem€*5
+_empty_/Done#copy$default$1().*copy$default$1€*+
+!_empty_/Done#copy$default$1().[T]	*T€*
+_empty_/Done#_1().*_1€*
+_empty_/Done.
+ *Done€*#
+_empty_/Done.apply().*apply€*"
+_empty_/Done.apply().[T]	*T€*(
+_empty_/Done.apply().(elem)*elem€*'
+_empty_/Done.unapply().*unapply€*$
+_empty_/Done.unapply().[T]	*T€*(
+_empty_/Done.unapply().(x$1)*x$1€*)
+_empty_/Done.toString().*toString€*
+_empty_/Busy.
+ ˆ*Busy€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#[Out]	*Out€*#
+_empty_/Test#apply().*apply€*&
+_empty_/Test#apply().(opt)*opt€*
+local0 €*state€*
+local1 €	*T$1€*
+local2 €*out€2
+ 	_empty_/Txn#2!
+	 	_empty_/Txn#`<init>`().2
+
+ _empty_/Txn#[T]2
+ 
+_empty_/Elem#2&
+
+ 
+_empty_/Elem#`<init>`().2
+ _empty_/Elem#[T]2
+ _empty_/State#2'
+ _empty_/State#`<init>`().2
+ _empty_/State#[T]2
+ _empty_/Done#2&
+ _empty_/Done#`<init>`().2
+) -_empty_/Elem#2
+. /_empty_/Done#[T]2
+: ?_empty_/State#2
+@ A_empty_/Done#[T]2
+ _empty_/Done#[T]2 
+# '_empty_/Done#elem.2
+_empty_/Done#copy().2 
+) )_empty_/Done#_1().2
+ _empty_/Done.2
+_empty_/Done.apply().2!
+_empty_/Done.unapply().2
+ _empty_/Busy.2
+ _empty_/State#2
+ &scala/Nothing#2
+ 
+_empty_/Test#2&
+
+ 
+_empty_/Test#`<init>`().2 
+ _empty_/Test#[Out]2#
+		 _empty_/Test#apply().2(
+		 _empty_/Test#apply().(opt)2
+		 scala/Option#2
+		 _empty_/State#2 
+		 !_empty_/Test#[Out]2
+	&	 )
+scala/Any#2(
+	,	 /_empty_/Test#apply().(opt)2#
+
+
+ scala/Some.unapply().2
+
+	
+ scala/Some.2
+
+
+ local02
+ local02%
+ _empty_/Done.unapply().2
+ _empty_/Done.2
+ local12
+ local22
+ _empty_/Busy.2;
+: :-java/lang/IllegalStateException#`<init>`(+1).2.
+% : java/lang/IllegalStateException#2
+	 scala/None.PZ 1882ED7A00771E370D4657C5BB327391

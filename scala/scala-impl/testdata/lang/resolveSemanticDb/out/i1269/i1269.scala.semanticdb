@@ -1,0 +1,72 @@
+
+¨tests/pos/i1269.scala*
+_empty_/Module#*Module€*,
+_empty_/Module#`<init>`(). €@*<init>€*#
+_empty_/Module#Tree# *Tree€*1
+_empty_/Module#Tree#`<init>`(). €@*<init>€*$
+_empty_/Module#LetL# €*LetL€*1
+_empty_/Module#LetL#`<init>`(). €@*<init>€*(
+_empty_/Module#LetL#copy().*copy€*#
+_empty_/Module#LetL.
+ *LetL€**
+_empty_/Module#LetL.apply().*apply€*.
+_empty_/Module#LetL.unapply().*unapply€*/
+#_empty_/Module#LetL.unapply().(x$1)*x$1€*0
+_empty_/Module#LetL.toString().*toString€*
+_empty_/Module#O.
+ *O€*&
+_empty_/Module#O.LetR# €*LetR€*3
+!_empty_/Module#O.LetR#`<init>`(). €@*<init>€**
+_empty_/Module#O.LetR#copy().*copy€*%
+_empty_/Module#O.LetR.
+ *LetR€*,
+_empty_/Module#O.LetR.apply().*apply€*0
+ _empty_/Module#O.LetR.unapply().*unapply€*1
+%_empty_/Module#O.LetR.unapply().(x$1)*x$1€*2
+!_empty_/Module#O.LetR.toString().*toString€*
+_empty_/Patmat#*Patmat€*,
+_empty_/Patmat#`<init>`(). €@*<init>€*4
+"_empty_/Patmat#`<init>`().(module) €*module€*(
+_empty_/Patmat#module. €*module€*'
+_empty_/Patmat#patmat().*patmat€*+
+_empty_/Patmat#patmat().(tree)*tree€2
+ _empty_/Module#2(
+ _empty_/Module#`<init>`().2"
+ _empty_/Module#Tree#2-
+ _empty_/Module#Tree#`<init>`().2"
+ _empty_/Module#LetL#2-
+ _empty_/Module#LetL#`<init>`().2-
+   _empty_/Module#Tree#`<init>`().2"
+  _empty_/Module#Tree#2"
+ _empty_/Module#LetL.2
+	 
+_empty_/Module#O.2$
+ _empty_/Module#O.LetR#2/
+ !_empty_/Module#O.LetR#`<init>`().2-
+" "_empty_/Module#Tree#`<init>`().2"
+ "_empty_/Module#Tree#2$
+ _empty_/Module#O.LetR.2
+
+
+ _empty_/Patmat#2(
+
+
+ _empty_/Patmat#`<init>`().2
+
+
+ _empty_/Module#2$
+
+
+ _empty_/Patmat#module.2&
+ _empty_/Patmat#patmat().2,
+ _empty_/Patmat#patmat().(tree)2"
+ _empty_/Module#Tree#2$
+ _empty_/Patmat#module.2,
+" &_empty_/Patmat#patmat().(tree)2,
+ _empty_/Module#LetL.unapply().2"
+ _empty_/Module#LetL.2$
+	 _empty_/Patmat#module.2.
+  _empty_/Module#O.LetR.unapply().2$
+ _empty_/Module#O.LetR.2
+ _empty_/Module#O.2$
+	 _empty_/Patmat#module.PZ 463283787B1C82D3DD6268A78FE51BB5

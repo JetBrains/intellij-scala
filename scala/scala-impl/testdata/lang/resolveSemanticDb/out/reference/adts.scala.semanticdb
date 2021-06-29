@@ -1,0 +1,269 @@
+
+µDtests/pos/reference/adts.scala*
+adts/t1.
+ *t1Ä*"
+adts/t1.Option# îÄ*OptionÄ*,
+adts/t1.Option#`<init>`(). Ä@*<init>Ä*
+adts/t1.Option#[T]	 Ä*TÄ* 
+adts/t1.Option.
+ *OptionÄ*%
+adts/t1.Option.Some# àÅ*SomeÄ*1
+adts/t1.Option.Some#`<init>`(). Ä@*<init>Ä*/
+"adts/t1.Option.Some#`<init>`().(x) Ä*xÄ*!
+adts/t1.Option.Some#[T]	*TÄ*#
+adts/t1.Option.Some#x. Ä*xÄ*(
+adts/t1.Option.Some#copy().*copyÄ*(
+adts/t1.Option.Some#copy().[T]	*TÄ*(
+adts/t1.Option.Some#copy().(x)*xÄ*<
+%adts/t1.Option.Some#copy$default$1().*copy$default$1Ä*2
+(adts/t1.Option.Some#copy$default$1().[T]	*TÄ*.
+adts/t1.Option.Some#ordinal().*ordinalÄ*$
+adts/t1.Option.Some#_1().*_1Ä*#
+adts/t1.Option.Some.
+ *SomeÄ**
+adts/t1.Option.Some.apply().*applyÄ*)
+adts/t1.Option.Some.apply().[T]	*TÄ*)
+adts/t1.Option.Some.apply().(x)*xÄ*.
+adts/t1.Option.Some.unapply().*unapplyÄ*+
+!adts/t1.Option.Some.unapply().[T]	*TÄ*/
+#adts/t1.Option.Some.unapply().(x$1)*x$1Ä*0
+adts/t1.Option.Some.toString().*toStringÄ*%
+adts/t1.Option.None. Ä©*NoneÄ*1
+adts/t1.Option.fromOrdinal().*fromOrdinalÄ*6
+&adts/t1.Option.fromOrdinal().(ordinal)*ordinalÄ*
+adts/t2.
+ *t2Ä*"
+adts/t2.Option# îÄ*OptionÄ*,
+adts/t2.Option#`<init>`(). Ä@*<init>Ä*
+adts/t2.Option#[T]	 Ä*TÄ* 
+adts/t2.Option.
+ *OptionÄ*%
+adts/t2.Option.Some# àÅ*SomeÄ*1
+adts/t2.Option.Some#`<init>`(). Ä@*<init>Ä*/
+"adts/t2.Option.Some#`<init>`().(x) Ä*xÄ*!
+adts/t2.Option.Some#[T]	*TÄ*#
+adts/t2.Option.Some#x. Ä*xÄ*(
+adts/t2.Option.Some#copy().*copyÄ*(
+adts/t2.Option.Some#copy().[T]	*TÄ*(
+adts/t2.Option.Some#copy().(x)*xÄ*<
+%adts/t2.Option.Some#copy$default$1().*copy$default$1Ä*2
+(adts/t2.Option.Some#copy$default$1().[T]	*TÄ*.
+adts/t2.Option.Some#ordinal().*ordinalÄ*$
+adts/t2.Option.Some#_1().*_1Ä*#
+adts/t2.Option.Some.
+ *SomeÄ**
+adts/t2.Option.Some.apply().*applyÄ*)
+adts/t2.Option.Some.apply().[T]	*TÄ*)
+adts/t2.Option.Some.apply().(x)*xÄ*.
+adts/t2.Option.Some.unapply().*unapplyÄ*+
+!adts/t2.Option.Some.unapply().[T]	*TÄ*/
+#adts/t2.Option.Some.unapply().(x$1)*x$1Ä*0
+adts/t2.Option.Some.toString().*toStringÄ*%
+adts/t2.Option.None. Ä©*NoneÄ*1
+adts/t2.Option.fromOrdinal().*fromOrdinalÄ*6
+&adts/t2.Option.fromOrdinal().(ordinal)*ordinalÄ*
+adts/Color# îÄ*ColorÄ*(
+adts/Color#`<init>`(). Ä@*<init>Ä**
+adts/Color#`<init>`().(rgb) Ä*rgbÄ*
+adts/Color#rgb. Ä*rgbÄ*
+adts/Color.
+ *ColorÄ*
+adts/Color.Red. Ä©*RedÄ*#
+adts/Color.Green. Ä©*GreenÄ*!
+adts/Color.Blue. Ä©*BlueÄ*
+adts/Color.Mix# àÅ*MixÄ*,
+adts/Color.Mix#`<init>`(). Ä@*<init>Ä*.
+adts/Color.Mix#`<init>`().(mix) Ä*mixÄ*"
+adts/Color.Mix#mix. Ä*mixÄ*#
+adts/Color.Mix#copy().*copyÄ*'
+adts/Color.Mix#copy().(mix)*mixÄ*7
+ adts/Color.Mix#copy$default$1().*copy$default$1Ä*)
+adts/Color.Mix#ordinal().*ordinalÄ*
+adts/Color.Mix#_1().*_1Ä*
+adts/Color.Mix.
+ *MixÄ*%
+adts/Color.Mix.apply().*applyÄ*(
+adts/Color.Mix.apply().(mix)*mixÄ*)
+adts/Color.Mix.unapply().*unapplyÄ**
+adts/Color.Mix.unapply().(x$1)*x$1Ä*+
+adts/Color.Mix.toString().*toStringÄ*-
+adts/Color.fromOrdinal().*fromOrdinalÄ*2
+"adts/Color.fromOrdinal().(ordinal)*ordinalÄ*
+adts/t3.
+ *t3Ä*"
+adts/t3.Option# îÄ*OptionÄ*,
+adts/t3.Option#`<init>`(). Ä@*<init>Ä*
+adts/t3.Option#[T]	 Ä*TÄ*-
+adts/t3.Option#isDefined().*	isDefinedÄ*
+local0 Ä*someÄ* 
+adts/t3.Option.
+ *OptionÄ*%
+adts/t3.Option.Some# àÅ*SomeÄ*1
+adts/t3.Option.Some#`<init>`(). Ä@*<init>Ä*/
+"adts/t3.Option.Some#`<init>`().(x) Ä*xÄ*!
+adts/t3.Option.Some#[T]	*TÄ*#
+adts/t3.Option.Some#x. Ä*xÄ*(
+adts/t3.Option.Some#copy().*copyÄ*(
+adts/t3.Option.Some#copy().[T]	*TÄ*(
+adts/t3.Option.Some#copy().(x)*xÄ*<
+%adts/t3.Option.Some#copy$default$1().*copy$default$1Ä*2
+(adts/t3.Option.Some#copy$default$1().[T]	*TÄ*.
+adts/t3.Option.Some#ordinal().*ordinalÄ*$
+adts/t3.Option.Some#_1().*_1Ä*#
+adts/t3.Option.Some.
+ *SomeÄ**
+adts/t3.Option.Some.apply().*applyÄ*)
+adts/t3.Option.Some.apply().[T]	*TÄ*)
+adts/t3.Option.Some.apply().(x)*xÄ*.
+adts/t3.Option.Some.unapply().*unapplyÄ*+
+!adts/t3.Option.Some.unapply().[T]	*TÄ*/
+#adts/t3.Option.Some.unapply().(x$1)*x$1Ä*0
+adts/t3.Option.Some.toString().*toStringÄ*%
+adts/t3.Option.None. Ä©*NoneÄ*1
+adts/t3.Option.fromOrdinal().*fromOrdinalÄ*6
+&adts/t3.Option.fromOrdinal().(ordinal)*ordinalÄ*%
+adts/t3.Option.apply().*applyÄ*$
+adts/t3.Option.apply().[T]	*TÄ*$
+adts/t3.Option.apply().(x)*xÄ2
+ adts/2
+ 	adts/t1.2
+ adts/t1.Option#2(
+ adts/t1.Option#`<init>`().2 
+ adts/t1.Option#[T]2
+ adts/t1.Option.2"
+	 adts/t1.Option.Some#2-
+ adts/t1.Option.Some#`<init>`().2%
+ adts/t1.Option.Some#[T]2(
+( (adts/t1.Option#`<init>`().2
+ %adts/t1.Option#2%
+& 'adts/t1.Option.Some#[T]2%
+ adts/t1.Option.Some#[T]2$
+ adts/t1.Option.Some#x.2)
+ adts/t1.Option.Some#copy().2'
+ adts/t1.Option.Some#_1().2"
+	 	adts/t1.Option.Some.2*
+ adts/t1.Option.Some.apply().2,
+ adts/t1.Option.Some.unapply().2"
+	 adts/t1.Option.None.2+
+	 	adts/t1.Option.fromOrdinal().2
+ 	adts/t2.2
+		 adts/t2.Option#2(
+		 adts/t2.Option#`<init>`().2 
+		 adts/t2.Option#[T]2
+		 adts/t2.Option.2"
+
+	
+ adts/t2.Option.Some#2-
+
+
+ adts/t2.Option.Some#`<init>`().2%
+
+
+ adts/t2.Option.Some#[T]2(
+
+(
+ (adts/t2.Option#`<init>`().2
+
+
+ %adts/t2.Option#2%
+
+&
+ 'adts/t2.Option.Some#[T]2%
+
+
+ adts/t2.Option.Some#[T]2$
+
+
+ adts/t2.Option.Some#x.2)
+
+
+ adts/t2.Option.Some#copy().2'
+
+
+ adts/t2.Option.Some#_1().2"
+
+	
+ 	adts/t2.Option.Some.2*
+
+
+ adts/t2.Option.Some.apply().2,
+
+
+ adts/t2.Option.Some.unapply().2"
+	 adts/t2.Option.None.2(
+. .adts/t2.Option#`<init>`().2
+ %adts/t2.Option#2
+& -scala/Nothing#2+
+	 	adts/t2.Option.fromOrdinal().2
+ 
+adts/Color#2$
+
+ 
+adts/Color#`<init>`().2
+ 
+scala/Int#2
+ adts/Color#rgb.2
+ adts/Color.2
+ 
+adts/Color.Red.2$
+ adts/Color#`<init>`().2
+ adts/Color#2
+ adts/Color.Green.2$
+ adts/Color#`<init>`().2
+ adts/Color#2
+ adts/Color.Blue.2$
+ adts/Color#`<init>`().2
+ adts/Color#2
+ 
+adts/Color.Mix#2(
+
+ 
+adts/Color.Mix#`<init>`().2
+ 
+scala/Int#2$
+" "adts/Color#`<init>`().2
+ "adts/Color#2!
+# &adts/Color.Mix#mix.2!
+ adts/Color.Mix#mix.2$
+ adts/Color.Mix#copy().2"
+ adts/Color.Mix#_1().2
+ adts/Color.Mix.2%
+ adts/Color.Mix.apply().2
+ 	adts/t3.2
+ adts/t3.Option#2(
+ adts/t3.Option#`<init>`().2 
+ adts/t3.Option#[T]2)
+ adts/t3.Option#isDefined().2
+ scala/Boolean#2"
+ adts/t3.Option.None.2
+ local02
+	 adts/t3.Option.2"
+	 adts/t3.Option.Some#2-
+ adts/t3.Option.Some#`<init>`().2%
+ adts/t3.Option.Some#[T]2(
+( (adts/t3.Option#`<init>`().2
+ %adts/t3.Option#2%
+& 'adts/t3.Option.Some#[T]2%
+ adts/t3.Option.Some#[T]2$
+ adts/t3.Option.Some#x.2)
+ adts/t3.Option.Some#copy().2'
+ adts/t3.Option.Some#_1().2"
+	 	adts/t3.Option.Some.2*
+ adts/t3.Option.Some.apply().2,
+ adts/t3.Option.Some.unapply().2"
+	 adts/t3.Option.None.2+
+	 	adts/t3.Option.fromOrdinal().2%
+ adts/t3.Option.apply().2(
+ adts/t3.Option.apply().[T]2
+ scala/Null#2(
+ adts/t3.Option.apply().(x)2(
+ adts/t3.Option.apply().[T]2
+  &adts/t3.Option#2(
+' (adts/t3.Option.apply().[T]2
+ scala/Any#`==`().2(
+
+ adts/t3.Option.apply().(x)2"
+ adts/t3.Option.None.2*
+# #adts/t3.Option.Some.apply().2"
+ #adts/t3.Option.Some.2(
+$ %adts/t3.Option.apply().(x)PZ 970F1DD1EEED2A3CA39F78502AF0A2E8

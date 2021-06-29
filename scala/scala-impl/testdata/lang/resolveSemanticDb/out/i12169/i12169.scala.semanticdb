@@ -1,0 +1,46 @@
+
+ç
+tests/pos/i12169.scala*"
+_empty_/Property#*PropertyÄ*.
+_empty_/Property#`<init>`(). Ä@*<init>Ä*
+_empty_/Property#[T]	*TÄ* 
+_empty_/VObject#*VObjectÄ*-
+_empty_/VObject#`<init>`(). Ä@*<init>Ä*0
+_empty_/VObject#properties().*
+propertiesÄ*
+local0*x$1Ä*
+local1 Ä*pÄ*
+_empty_/Event#*EventÄ*+
+_empty_/Event#`<init>`(). Ä@*<init>Ä*.
+_empty_/Event#properties().*
+propertiesÄ2
+ _empty_/Property#2&
+ _empty_/Property#`<init>`().2
+ _empty_/Property#[T]2
+ _empty_/VObject#2)
+ _empty_/VObject#`<init>`().2+
+ _empty_/VObject#properties().28
+ #*scala/collection/immutable/List#collect().26
+	 (scala/collection/immutable/List.empty().2!
+ scala/package.List.2
+ _empty_/Property#2
+ local02
+ local12
+ _empty_/Property#27
+! !)scala/collection/IterableFactory#apply().2!
+ !scala/package.List.2
+" #local12
+
+
+ _empty_/Event#2'
+
+
+ _empty_/Event#`<init>`().2)
+
+
+ _empty_/VObject#`<init>`().2
+
+
+ _empty_/VObject#2)
+ _empty_/Event#properties().2#
+ !scala/Predef.`???`().PZ E195B02B69CB8D97D4B08DC5E82CCA4F

@@ -1,0 +1,143 @@
+
+Ş+tests/pos/pos_valueclasses/paramlists.scala*!
+paramlists/Meter# *Meter€*.
+paramlists/Meter#`<init>`(). €@*<init>€*,
+paramlists/Meter#`<init>`().(x) €*x€*
+paramlists/Meter#[T]	*T€* 
+paramlists/Meter#x. €*x€*%
+paramlists/Meter#zero().*zero€*'
+paramlists/Meter#zero2().*zero2€*&
+paramlists/Meter#zero2().[M]	*M€*#
+paramlists/Meter#one().*one€*%
+paramlists/Meter#one2().*one2€*%
+paramlists/Meter#one2().[M]	*M€*%
+paramlists/Meter#one3().*one3€*%
+paramlists/Meter#one3().(x)*x€*%
+paramlists/Meter#one4().*one4€*%
+paramlists/Meter#one4().[M]	*M€*%
+paramlists/Meter#one4().(x)*x€*#
+paramlists/Meter#two().*two€*$
+paramlists/Meter#two().(x)*x€*$
+paramlists/Meter#two().(y)*y€*%
+paramlists/Meter#two2().*two2€*%
+paramlists/Meter#two2().[M]	*M€*%
+paramlists/Meter#two2().(x)*x€*%
+paramlists/Meter#two2().(y)*y€*!
+paramlists/Meter.
+ *Meter€*
+paramlists/Test.
+ *Test€*$
+paramlists/Test.test().*test€*
+local0 €*m1€2
+ paramlists/2
+ paramlists/Meter#2*
+ paramlists/Meter#`<init>`().2"
+ paramlists/Meter#[T]2&
+' 'scala/AnyVal#`<init>`().2
+! 'scala/AnyVal#2"
+ paramlists/Meter#[T]2!
+ paramlists/Meter#x.2&
+ 
+paramlists/Meter#zero().2"
+ paramlists/Meter#[T]2!
+ paramlists/Meter#x.2'
+ paramlists/Meter#zero2().2*
+ paramlists/Meter#zero2().[M]2"
+ paramlists/Meter#[T]2*
+ paramlists/Meter#zero2().[M]2!
+ paramlists/Meter#x.2%
+ 	paramlists/Meter#one().2"
+ paramlists/Meter#[T]2!
+ paramlists/Meter#x.2&
+ 
+paramlists/Meter#one2().2)
+ paramlists/Meter#one2().[M]2"
+ paramlists/Meter#[T]2)
+ paramlists/Meter#one2().[M]2!
+ paramlists/Meter#x.2&
+ 
+paramlists/Meter#one3().2)
+ paramlists/Meter#one3().(x)2"
+ paramlists/Meter#[T]2"
+ paramlists/Meter#[T]2)
+ paramlists/Meter#one3().(x)2&
+ 
+paramlists/Meter#one4().2)
+ paramlists/Meter#one4().[M]2"
+ paramlists/Meter#[T]2)
+ paramlists/Meter#one4().(x)2)
+ paramlists/Meter#one4().[M]2)
+ paramlists/Meter#one4().[M]2)
+ paramlists/Meter#one4().(x)2%
+		 	paramlists/Meter#two().2(
+	
+	 paramlists/Meter#two().(x)2"
+		 paramlists/Meter#[T]2(
+		 paramlists/Meter#two().(y)2"
+		 paramlists/Meter#[T]2"
+		 paramlists/Meter#[T]2(
+		 paramlists/Meter#two().(y)2&
+
+
+ 
+paramlists/Meter#two2().2)
+
+
+ paramlists/Meter#two2().[M]2"
+
+
+ paramlists/Meter#[T]2)
+
+
+ paramlists/Meter#two2().(x)2"
+
+
+ paramlists/Meter#[T]2)
+
+
+ paramlists/Meter#two2().(y)2)
+
+
+ paramlists/Meter#two2().[M]2)
+
+ 
+ !paramlists/Meter#two2().[M]2)
+
+$
+ %paramlists/Meter#two2().(y)2
+ paramlists/Meter.2
+ paramlists/Test.2%
+ 
+paramlists/Test.test().2
+ scala/Unit#2
+ 
+local02*
+ paramlists/Meter#`<init>`().2&
+ paramlists/Meter#zero().2
+ local02'
+ paramlists/Meter#zero2().2
+ local02%
+ 
+paramlists/Meter#one().2
+ local02&
+ paramlists/Meter#one2().2
+ local02&
+ paramlists/Meter#one3().2
+ local02%
+ 
+paramlists/Meter#two().2
+ local02&
+ paramlists/Meter#two2().2
+ local02
+ local02&
+ 
+paramlists/Meter#zero().2'
+ paramlists/Meter#zero2().2%
+ 	paramlists/Meter#one().2&
+ 
+paramlists/Meter#one2().2&
+ 
+paramlists/Meter#one3().2%
+   	paramlists/Meter#two().2&
+!! 
+paramlists/Meter#two2().PZ 33DDC9FE90CED9F96C3239A597E51AD9

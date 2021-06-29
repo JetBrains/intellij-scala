@@ -1,0 +1,35 @@
+
+¯tests/pos/i8143.scala*&
+_empty_/Reflection#*
+Reflection€*0
+_empty_/Reflection#`<init>`(). €@*<init>€*<
+(_empty_/Reflection#`<init>`().(internal) €*internal€*
+local0*self€*0
+_empty_/Reflection#internal. €*internal€*'
+_empty_/Reflection#Flags#*Flags€*)
+_empty_/Reflection#Flags.
+ *Flags€*9
+&_empty_/Reflection#Flags.EmptyFlags().*
+EmptyFlags€*4
+_empty_/CompilerInterface#*CompilerInterface€*7
+%_empty_/CompilerInterface#`<init>`(). €@*<init>€*.
+ _empty_/CompilerInterface#Flags#*Flags€*H
+-_empty_/CompilerInterface#Flags_EmptyFlags(). *Flags_EmptyFlags€2
+ _empty_/Reflection#2(
+ _empty_/Reflection#`<init>`().2$
+ 0_empty_/CompilerInterface#2
+4 8local02&
+ _empty_/Reflection#internal.2'
+ _empty_/Reflection#Flags#2.
+ $ _empty_/CompilerInterface#Flags#2*
+ _empty_/Reflection#internal.2'
+	 _empty_/Reflection#Flags.24
+ &_empty_/Reflection#Flags.EmptyFlags().2'
+ _empty_/Reflection#Flags#2;
+% 5-_empty_/CompilerInterface#Flags_EmptyFlags().2*
+ $_empty_/Reflection#internal.2(
+ _empty_/CompilerInterface#23
+ %_empty_/CompilerInterface#`<init>`().2.
+  _empty_/CompilerInterface#Flags#2;
+		 -_empty_/CompilerInterface#Flags_EmptyFlags().2.
+		  _empty_/CompilerInterface#Flags#PZ B211AFC36A1D20A8237BFAE2329DA737

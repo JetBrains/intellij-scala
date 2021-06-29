@@ -1,0 +1,58 @@
+
+œtests/pos/i8933.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[F]	*F€*
+_empty_/Top#*Top€*)
+_empty_/Top#`<init>`(). €@*<init>€*
+_empty_/Top#F#*F€*
+_empty_/Top#F#[X]	*X€* 
+_empty_/Top#foo(). *foo€*
+_empty_/Left#*Left€**
+_empty_/Left#`<init>`(). €@*<init>€*
+_empty_/Right#*Right€*+
+_empty_/Right#`<init>`(). €@*<init>€*
+_empty_/Right#F#*F€*-
+_empty_/Right#F#`<init>`(). €@*<init>€*
+_empty_/Right#F#[X]	*X€* 
+_empty_/Right#foo().*foo€*
+local0 *$anon€*
+_empty_/Bottom#*Bottom€*,
+_empty_/Bottom#`<init>`(). €@*<init>€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[F]2
+ 	_empty_/Top#2%
+ _empty_/Top#`<init>`().2
+ _empty_/Top#F#2
+	 
+_empty_/Top#F#[X]2 
+ 	_empty_/Top#foo().2
+ _empty_/Foo#2
+ _empty_/Top#F#2
+ 
+_empty_/Left#2&
+ _empty_/Left#`<init>`().2
+ _empty_/Top#2
+		 _empty_/Right#2'
+		 _empty_/Right#`<init>`().2
+		 _empty_/Top#2
+
+
+ 	_empty_/Right#F#2)
+
+	
+ 	_empty_/Right#F#`<init>`().2!
+
+
+
+ _empty_/Right#F#[X]2"
+ 	_empty_/Right#foo().2
+ _empty_/Foo#2
+ local02
+ _empty_/Foo#2
+ _empty_/Bottom#2(
+ _empty_/Bottom#`<init>`().2
+ _empty_/Left#2
+ $_empty_/Right#PZ 3D974C395CA29AE1CC18479EB1EB8CD3

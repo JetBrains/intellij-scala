@@ -1,0 +1,57 @@
+
+õtests/pos/t6201.scala*
+_empty_/Elem#*Elem€**
+_empty_/Elem#`<init>`(). €@*<init>€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#elem().*elem€*
+_empty_/Test#Foo1#*Foo1€*/
+_empty_/Test#Foo1#`<init>`(). €@*<init>€*&
+_empty_/Test#Foo1#must().*must€*&
+_empty_/Test#Foo1#must().(x)*x€*
+_empty_/Test#Foo2#*Foo2€*/
+_empty_/Test#Foo2#`<init>`(). €@*<init>€*&
+_empty_/Test#Foo2#must().*must€*&
+_empty_/Test#Foo2#must().(x)*x€*'
+_empty_/Test#toFoo1().  *toFoo1€*#
+_empty_/Test#toFoo1().(s)*s€*'
+_empty_/Test#toFoo2().  *toFoo2€*#
+_empty_/Test#toFoo2().(s)*s€*
+_empty_/Test#is().*is€2
+ 
+_empty_/Elem#2"
+_empty_/Elem#`<init>`().2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ 
+_empty_/Test#elem().2
+ _empty_/Elem#2#
+ scala/Predef.`???`().2 
+ _empty_/Test#Foo1#2+
+ _empty_/Test#Foo1#`<init>`().2'
+ _empty_/Test#Foo1#must().2*
+ _empty_/Test#Foo1#must().(x)2
+ _empty_/Elem#2 
+ _empty_/Test#Foo2#2+
+ _empty_/Test#Foo2#`<init>`().2'
+ _empty_/Test#Foo2#must().2*
+ _empty_/Test#Foo2#must().(x)2
+ 
+scala/Int#2$
+ _empty_/Test#toFoo1().2'
+ _empty_/Test#toFoo1().(s)2
+ _empty_/Elem#2 
+* ._empty_/Test#Foo1#2+
+9 9_empty_/Test#Foo1#`<init>`().2 
+5 9_empty_/Test#Foo1#2$
+ _empty_/Test#toFoo2().2'
+ _empty_/Test#toFoo2().(s)2
+ _empty_/Elem#2 
+* ._empty_/Test#Foo2#2+
+9 9_empty_/Test#Foo2#`<init>`().2 
+5 9_empty_/Test#Foo2#2 
+ _empty_/Test#is().2
+
+ scala/Unit#2"
+ _empty_/Test#elem().PZ A99B35834C5B1F77ECF57EADC770FBEF

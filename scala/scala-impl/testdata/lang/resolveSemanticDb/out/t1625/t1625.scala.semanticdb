@@ -1,0 +1,28 @@
+
+†tests/pos/t1625.scala*
+_empty_/T2#*T2€*(
+_empty_/T2#`<init>`(). €@*<init>€*
+_empty_/T2#foo(). *foo€*
+_empty_/T2#foo().(x)*x€*
+_empty_/T2#foo().(y)*y€*
+_empty_/T2#foo().(z)*z€*
+_empty_/T2#foo().(u)*u€*
+_empty_/T2#foo().(l)*l€2
+ _empty_/T2#2$
+ _empty_/T2#`<init>`().2
+ 	_empty_/T2#foo().2"
+
+ _empty_/T2#foo().(x)2"
+ scala/Predef.String#2"
+ _empty_/T2#foo().(y)2"
+ scala/Predef.String#2"
+! "_empty_/T2#foo().(z)2
+$ +scala/Boolean#2"
+. /_empty_/T2#foo().(u)2
+1 4
+scala/Int#2"
+6 7_empty_/T2#foo().(l)2
+9 <
+scala/Int#2
+@ C
+scala/Int#PZ 8C08B02829EBA63CCA10854E6AA8B532

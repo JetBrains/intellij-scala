@@ -1,0 +1,44 @@
+
+ð
+tests/pos/t1272.scala*,
+_empty_/ImplicitTest.
+ *ImplicitTest€*$
+_empty_/ImplicitTest.i.  *i€*%
+_empty_/ImplicitTest.a().  *a€*(
+_empty_/ImplicitTest.a().(i)  *i€*%
+_empty_/ImplicitTest.b().  *b€*&
+_empty_/ImplicitTest.b().[T]	*T€*(
+_empty_/ImplicitTest.b().(i)  *i€*%
+_empty_/ImplicitTest.fn().*fn€*'
+_empty_/ImplicitTest.fn().[T]	*T€*)
+_empty_/ImplicitTest.fn().(x)  *x€*$
+_empty_/ImplicitTest.x. €*x€2
+ _empty_/ImplicitTest.2%
+ _empty_/ImplicitTest.i.2
+ 
+scala/Int#2'
+ _empty_/ImplicitTest.a().2*
+ _empty_/ImplicitTest.a().(i)2
+ !
+scala/Int#2
+% *scala/Array#2
++ /scala/Byte#2'
+ _empty_/ImplicitTest.b().2*
+ _empty_/ImplicitTest.b().[T]2*
+ _empty_/ImplicitTest.b().(i)2
+! $
+scala/Int#2
+( -scala/Array#2*
+. /_empty_/ImplicitTest.b().[T]2(
+ _empty_/ImplicitTest.fn().2+
+	 
+_empty_/ImplicitTest.fn().[T]2+
+ _empty_/ImplicitTest.fn().(x)2+
+ _empty_/ImplicitTest.fn().[T]2%
+ _empty_/ImplicitTest.x.2(
+
+ _empty_/ImplicitTest.fn().2
+ scala/Array#2
+ scala/Byte#2'
+ _empty_/ImplicitTest.a().2%
+ _empty_/ImplicitTest.i.PZ B7179264F8E16A3CE7CE40F3D48679FE

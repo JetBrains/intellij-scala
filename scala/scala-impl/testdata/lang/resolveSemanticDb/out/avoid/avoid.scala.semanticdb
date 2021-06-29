@@ -1,0 +1,91 @@
+
+Štests/pos/avoid.scala*
+
+_empty_/C# *C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#y(). *y€*
+_empty_/test.
+ *test€*
+_empty_/test.x. €*x€*
+local0 *$anon€*
+local1*y€*
+_empty_/test.z. €*z€*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.NK#*NK€*.
+_empty_/Test2.NK#`<init>`(). €@*<init>€*
+_empty_/Test2.NK#I#*I€*0
+_empty_/Test2.NK#I#`<init>`(). €@*<init>€*
+_empty_/Test2.NK#T#*T€*
+_empty_/Test2.x. €*x€*
+local2 *$anon€*
+local3*T€*
+_empty_/Test2.y. €*y€*
+local4*C€*
+local5*T€*
+_empty_/Test2.z. €*z€*
+local6*C€*
+local7*T€*
+local8 *$anon€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#y().2
+	 
+scala/Any#2
+ _empty_/test.2
+ _empty_/test.x.2
+
+ 
+local02#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 	local12"
+ scala/Predef.String#2
+ _empty_/test.z.2"
+	 scala/Predef.String#2
+ _empty_/C#y().2
+ _empty_/test.x.2
+ 
+_empty_/M#2
+_empty_/M#`<init>`().2
+ _empty_/Test2.2
+ 
+_empty_/Test2.NK#2*
+ _empty_/Test2.NK#`<init>`().2!
+
+ _empty_/Test2.NK#I#2,
+ _empty_/Test2.NK#I#`<init>`().2!
+	 
+_empty_/Test2.NK#T#2
+ _empty_/Test2.x.2
+
+ 
+local22*
+ _empty_/Test2.NK#`<init>`().2
+ _empty_/Test2.NK#2
+ local32!
+ _empty_/Test2.NK#I#2
+ _empty_/Test2.y.2
+
+ local42*
+ _empty_/Test2.NK#`<init>`().2
+ _empty_/Test2.NK#2
+ local52!
+" #_empty_/Test2.NK#I#2
+ 	local42
+ _empty_/Test2.z.2
+
+ local62*
+ _empty_/Test2.NK#`<init>`().2
+ _empty_/Test2.NK#2
+ local72!
+" #_empty_/Test2.NK#I#2
+ local82
+ 	local62
+ 
+_empty_/M#PZ 1C0B2FE895179347F17746E6D59D6761

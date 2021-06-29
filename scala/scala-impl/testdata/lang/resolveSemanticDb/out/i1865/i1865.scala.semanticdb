@@ -1,0 +1,70 @@
+
+ëtests/pos/i1865.scala* 
+_empty_/AbsCell#*AbsCell€*-
+_empty_/AbsCell#`<init>`(). €@*<init>€*
+_empty_/AbsCell#T#*T€*"
+_empty_/AbsCell#Node#*Node€*2
+ _empty_/AbsCell#Node#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*
+local0 €*cell€*"
+_empty_/AbsCell2#*AbsCell2€*.
+_empty_/AbsCell2#`<init>`(). €@*<init>€*
+_empty_/AbsCell2#T#*T€*(
+_empty_/AbsCell2#value. €*value€*#
+_empty_/AbsCell2#set().*set€*$
+_empty_/AbsCell2#set().(x)*x€*#
+_empty_/AbsCell2#Node#*Node€*3
+!_empty_/AbsCell2#Node#`<init>`(). €@*<init>€*
+_empty_/init.
+ *init€*!
+_empty_/init.main().*main€*
+local1 €*cell€*
+local2 *$anon€*
+local3 €*init€2
+ _empty_/AbsCell#2)
+ _empty_/AbsCell#`<init>`().2 
+ _empty_/AbsCell#T#2#
+ _empty_/AbsCell#Node#2#
+ _empty_/AbsCell#Node#2.
+  _empty_/AbsCell#Node#`<init>`().2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ scala/Unit#2
+ local02)
+ _empty_/AbsCell#`<init>`().2
+ _empty_/AbsCell#2.
+  _empty_/AbsCell#Node#`<init>`().2 
+ _empty_/AbsCell#T#2
+ local02
+ _empty_/AbsCell2#2*
+ _empty_/AbsCell2#`<init>`().2!
+ _empty_/AbsCell2#T#2$
+ _empty_/AbsCell2#Node#2%
+ _empty_/AbsCell2#value.2!
+ _empty_/AbsCell2#T#2%
+ _empty_/AbsCell2#value.2%
+ 	_empty_/AbsCell2#set().2(
+
+ _empty_/AbsCell2#set().(x)2!
+ _empty_/AbsCell2#T#2
+ scala/Unit#2$
+ _empty_/AbsCell2#Node#2/
+ !_empty_/AbsCell2#Node#`<init>`().2
+ _empty_/init.2"
+ 
+_empty_/init.main().2
+ local12
+ local22*
+ _empty_/AbsCell2#`<init>`().2
+ _empty_/AbsCell2#2
+" &local32/
+1 1!_empty_/AbsCell2#Node#`<init>`().2$
+- 1_empty_/AbsCell2#Node#2%
+	 _empty_/AbsCell2#set().2
+ local12/
+ !_empty_/AbsCell2#Node#`<init>`().2!
+ _empty_/AbsCell2#T#2
+ local1PZ 0A406EC79561FB55C4FE652DE3197B9F

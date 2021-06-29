@@ -1,0 +1,100 @@
+
+îtests/pos/sammy_poly.scala*
+_empty_/F1#*F1€*(
+_empty_/F1#`<init>`(). €@*<init>€*
+_empty_/F1#[T]	*T€*
+_empty_/F1#[U]	*U€*#
+_empty_/F1#apply(). *apply€* 
+_empty_/F1#apply().(x)*x€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#app1().*app1€*
+_empty_/T#app1().[T]	*T€*
+_empty_/T#app1().[U]	*U€*
+_empty_/T#app1().(x)*x€*
+_empty_/T#app1().(f)*f€*
+_empty_/T#app2().*app2€*
+_empty_/T#app2().[T]	*T€*
+_empty_/T#app2().[U]	*U€*
+_empty_/T#app2().(x)*x€*
+_empty_/T#app2().(f)*f€*
+local0*x€*
+local1*x€*
+
+_empty_/T.
+ *T€*
+_empty_/T.F2#*F2€**
+_empty_/T.F2#`<init>`(). €@*<init>€*
+_empty_/T.F2#[T]	*T€*
+_empty_/T.F2#[U]	*U€*%
+_empty_/T.F2#apply(). *apply€*"
+_empty_/T.F2#apply().(x)*x€2
+ _empty_/F1#2$
+ _empty_/F1#`<init>`().2
+	 
+_empty_/F1#[T]2
+ _empty_/F1#[U]2!
+ _empty_/F1#apply().2$
+ _empty_/F1#apply().(x)2
+ _empty_/F1#[T]2
+" #_empty_/F1#[U]2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+	 
+
+_empty_/T.2
+ 
+_empty_/T#app1().2"
+ _empty_/T#app1().[T]2"
+ _empty_/T#app1().[U]2"
+ _empty_/T#app1().(x)2"
+ _empty_/T#app1().[T]2"
+ _empty_/T#app1().(f)2
+ _empty_/F1#2"
+ _empty_/T#app1().[T]2"
+  !_empty_/T#app1().[U]2"
+% &_empty_/T#app1().[U]2!
+* *_empty_/F1#apply().2"
+) *_empty_/T#app1().(f)2"
++ ,_empty_/T#app1().(x)2
+ 
+_empty_/T#app2().2"
+ _empty_/T#app2().[T]2"
+ _empty_/T#app2().[U]2"
+ _empty_/T#app2().(x)2"
+ _empty_/T#app2().[T]2"
+ _empty_/T#app2().(f)2
+ _empty_/T.F2#2"
+ _empty_/T#app2().[T]2"
+  !_empty_/T#app2().[U]2"
+% &_empty_/T#app2().[U]2#
+* *_empty_/T.F2#apply().2"
+) *_empty_/T#app2().(f)2"
++ ,_empty_/T#app2().(x)2
+ _empty_/T#app1().2
+
+ local027
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local02
+		 _empty_/T#app2().2
+	
+	 local127
+		 )scala/collection/IterableFactory#apply().2!
+		 scala/package.List.2
+		 local12
+ 
+_empty_/T.2
+ 
+_empty_/T.F2#2&
+
+ 
+_empty_/T.F2#`<init>`().2
+ _empty_/T.F2#[T]2
+ _empty_/T.F2#[U]2#
+ _empty_/T.F2#apply().2&
+ _empty_/T.F2#apply().(x)2
+  !_empty_/T.F2#[T]2
+$ %_empty_/T.F2#[U]PZ FA6F3F012ECC16010BD27C37E9FA452A

@@ -1,0 +1,143 @@
+
+¶"tests/pos/i3590.scala*
+_empty_/Tagged#*Tagged€*,
+_empty_/Tagged#`<init>`(). €@*<init>€*
+_empty_/Tagged#[T]	*T€* 
+_empty_/Tagged.
+ *Tagged€*
+_empty_/Tagged.Aux#*Aux€* 
+_empty_/Tagged.Aux#[T]	*T€**
+_empty_/Tagged.Aux#[UNUSED]	*UNUSED€*
+_empty_/Fun#*Fun€*)
+_empty_/Fun#`<init>`(). €@*<init>€*
+_empty_/Fun#[R]	*R€*
+_empty_/Fun#Out#*Out€*
+_empty_/Fun.
+ *Fun€*&
+_empty_/Fun.tagged().  *tagged€*"
+_empty_/Fun.tagged().[T]	*T€*$
+_empty_/Fun.tagged().(t)  *t€*
+local0*Out€*
+_empty_/Fun0#*Fun0€**
+_empty_/Fun0#`<init>`(). €@*<init>€*)
+_empty_/Fun0#default().  *default€*$
+_empty_/Fun0#default().[T]	*T€*
+local1*Out€*"
+_empty_/FunDemo.
+ *FunDemo€*
+_empty_/FunDemo.A# €*A€*/
+_empty_/FunDemo.A#`<init>`(). €@*<init>€*-
+ _empty_/FunDemo.A#`<init>`().(x) €*x€*-
+ _empty_/FunDemo.A#`<init>`().(y) €*y€*!
+_empty_/FunDemo.A#x. €*x€*!
+_empty_/FunDemo.A#y. €*y€*&
+_empty_/FunDemo.A#copy().*copy€*&
+_empty_/FunDemo.A#copy().(x)*x€*&
+_empty_/FunDemo.A#copy().(y)*y€*:
+#_empty_/FunDemo.A#copy$default$1().*copy$default$1€*:
+#_empty_/FunDemo.A#copy$default$2().*copy$default$2€*"
+_empty_/FunDemo.A#_1().*_1€*"
+_empty_/FunDemo.A#_2().*_2€*
+_empty_/FunDemo.A.
+ *A€*(
+_empty_/FunDemo.A.apply().*apply€*'
+_empty_/FunDemo.A.apply().(x)*x€*'
+_empty_/FunDemo.A.apply().(y)*y€*,
+_empty_/FunDemo.A.unapply().*unapply€*-
+!_empty_/FunDemo.A.unapply().(x$1)*x$1€*.
+_empty_/FunDemo.A.toString().*toString€*%
+_empty_/FunDemo.A.tag.  *tag€*(
+_empty_/FunDemo.summon().*summon€*&
+_empty_/FunDemo.summon().[T]	*T€**
+_empty_/FunDemo.summon().(ev)  *ev€*%
+_empty_/FunDemo.adhl. €*adhl€*
+local2*Out€2
+ _empty_/Tagged#2$
+ _empty_/Tagged#`<init>`().2
+ _empty_/Tagged#[T]2
+ _empty_/Tagged.2!
+ 
+_empty_/Tagged.Aux#2$
+ _empty_/Tagged.Aux#[T]2)
+ _empty_/Tagged.Aux#[UNUSED]2
+ _empty_/Tagged#2$
+  _empty_/Tagged.Aux#[T]2
+ 	_empty_/Fun#2%
+	 	_empty_/Fun#`<init>`().2
+
+ _empty_/Fun#[R]2
+ 
+_empty_/Fun#Out#2
+
+
+ 
+_empty_/Fun.2
+
+
+ _empty_/Fun0#2#
+ _empty_/Fun.tagged().2&
+ _empty_/Fun.tagged().[T]2&
+" #_empty_/Fun.tagged().(t)2!
+, /_empty_/Tagged.Aux#2
+% +_empty_/Tagged.2&
+0 1_empty_/Fun.tagged().[T]2
+3 6
+scala/Int#2
+: =_empty_/Fun#2&
+> ?_empty_/Fun.tagged().[T]2
+H Klocal02
+N Q
+scala/Int#2#
+V Yscala/Predef.`???`().2
+ 
+_empty_/Fun0#2&
+ _empty_/Fun0#`<init>`().2%
+ _empty_/Fun0#default().2(
+ _empty_/Fun0#default().[T]2
+ _empty_/Fun#2(
+  _empty_/Fun0#default().[T]2
+) ,local12"
+/ 5scala/Predef.String#2#
+: =scala/Predef.`???`().2
+ _empty_/FunDemo.2
+ 
+scala/App#2 
+ _empty_/FunDemo.A#2+
+ _empty_/FunDemo.A#`<init>`().2
+ 
+scala/Int#2"
+  scala/Predef.String#2"
+ _empty_/FunDemo.A#x.2"
+ _empty_/FunDemo.A#y.2'
+ _empty_/FunDemo.A#copy().2%
+ _empty_/FunDemo.A#_1().2%
+ _empty_/FunDemo.A#_2().2 
+	 
+_empty_/FunDemo.A.2(
+ _empty_/FunDemo.A.apply().2$
+ _empty_/FunDemo.A.tag.2
+ _empty_/Tagged#2 
+ _empty_/FunDemo.A#2#
+" %scala/Predef.`???`().2'
+ _empty_/FunDemo.summon().2*
+ _empty_/FunDemo.summon().[T]2
+ scala/AnyRef#2+
+# %_empty_/FunDemo.summon().(ev)2*
+' (_empty_/FunDemo.summon().[T]2+
++ -_empty_/FunDemo.summon().(ev)2+
+5 7_empty_/FunDemo.summon().(ev)2#
+ 
+_empty_/FunDemo.adhl.2'
+ _empty_/FunDemo.summon().2
+ _empty_/Fun#2 
+ _empty_/FunDemo.A#2#
+ _empty_/Fun.tagged().2$
+ _empty_/FunDemo.A.tag.2&
+%% 
+scala/Predef.identity().2
+%% _empty_/Fun#2 
+%% _empty_/FunDemo.A#2
+%% local22
+%% "
+scala/Int#2#
+%&% *_empty_/FunDemo.adhl.PZ DA99E0A847BBDE9903EB7814B9F02751

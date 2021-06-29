@@ -1,0 +1,20 @@
+
+ôtests/pos/homonym.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€*
+_empty_/Foo#x. €*x€*(
+_empty_/Foo#`<init>`(+1).*<init>€*
+_empty_/Foo.
+ *Foo€2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/Foo#x.2'
+ 
+_empty_/Foo#`<init>`(+1).2%
+ _empty_/Foo#`<init>`().2
+ 
+_empty_/Foo.PZ 56A277045619D02DDD144CB749702D04

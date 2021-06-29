@@ -1,0 +1,83 @@
+
+Ítests/pos/i2774.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.T#*T€*,
+_empty_/Test.T#`<init>`(). €@*<init>€*
+_empty_/Test.Q#*Q€*,
+_empty_/Test.Q#`<init>`(). €@*<init>€*
+_empty_/Test.a. €*a€*(
+_empty_/Test.given_Q. è*given_Q€*
+local0 *$anon€*
+_empty_/Test.i1. €*i1€*
+local1 *$anon€*(
+_empty_/Test.given_T. è*given_T€*
+local2 *$anon€*
+_empty_/Test.i2. €*i2€*
+_empty_/Test.i3. €*i3€*
+_empty_/Test.a2().*a2€*!
+_empty_/Test.a2().(t)  *t€*!
+_empty_/Test.a2().(q)  *q€2
+ _empty_/Test.2
+ 	_empty_/Test.T#2(
+ _empty_/Test.T#`<init>`().2
+ _empty_/Test.Q#2(
+ _empty_/Test.Q#`<init>`().2
+ _empty_/Test.a.2
+	 
+_empty_/Test.T#2
+ _empty_/Test.Q#2
+ 
+scala/Int#2#
+ _empty_/Test.given_Q.2
+ 	_empty_/Test.Q#2
+ local02
+ _empty_/Test.Q#2
+ _empty_/Test.i1.2
+
+ 
+scala/Int#2-
+   scala/ContextFunction1#apply().2-
+ scala/ContextFunction1#apply().2
+ _empty_/Test.a.2
+ local12
+ _empty_/Test.T#2#
+   _empty_/Test.given_Q.2#
+ _empty_/Test.given_T.2
+ 	_empty_/Test.T#2
+ local22
+ _empty_/Test.T#2
+ _empty_/Test.i2.2
+
+ 
+scala/Int#2-
+ scala/ContextFunction1#apply().2
+ _empty_/Test.a.2#
+ _empty_/Test.given_T.2#
+ _empty_/Test.given_Q.2
+ _empty_/Test.i3.2
+
+ 
+scala/Int#2 
+ _empty_/Test.a2().2#
+ _empty_/Test.given_T.2#
+ _empty_/Test.given_Q.2 
+
+
+ _empty_/Test.a2().2#
+
+
+ _empty_/Test.a2().(t)2
+
+
+ _empty_/Test.T#2#
+
+
+ _empty_/Test.a2().(q)2
+
+
+ _empty_/Test.Q#2
+
+"
+ %
+scala/Int#PZ 52D1BD0CF8C76AA39B1EC9F5301B0D9D

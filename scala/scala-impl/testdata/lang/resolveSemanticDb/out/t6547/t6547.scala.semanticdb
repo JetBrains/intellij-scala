@@ -1,0 +1,35 @@
+
+ò	tests/pos/t6547.scala*8
+_empty_/ConfigurableDefault#*ConfigurableDefault€*9
+'_empty_/ConfigurableDefault#`<init>`(). €@*<init>€*)
+_empty_/ConfigurableDefault#[V]	*V€*:
+(_empty_/ConfigurableDefault#fillArray().*	fillArray€*9
+-_empty_/ConfigurableDefault#fillArray().(arr)*arr€*5
++_empty_/ConfigurableDefault#fillArray().(v)*v€*
+local0 €*x€*
+local1 €*x€2&
+ _empty_/ConfigurableDefault#21
+ '_empty_/ConfigurableDefault#`<init>`().2
+ &scala/specialized#2)
+' (_empty_/ConfigurableDefault#[V]26
+ (_empty_/ConfigurableDefault#fillArray().2;
+ -_empty_/ConfigurableDefault#fillArray().(arr)2
+ scala/Array#2-
+ _empty_/ConfigurableDefault#[V]29
+  +_empty_/ConfigurableDefault#fillArray().(v)2-
+" #_empty_/ConfigurableDefault#[V]2;
+( +-_empty_/ConfigurableDefault#fillArray().(arr)2
+- 0
+scala/Any#2
+	 
+local02
+ scala/Array#2
+ 
+scala/Int#2
+	 
+local12
+ scala/Array#2
+ scala/Long#2'
+ )scala/Any#asInstanceOf().29
+ +_empty_/ConfigurableDefault#fillArray().(v)2
+* .scala/Long#PZ DAFCBC1C291A4C32AC035F4EF674711F

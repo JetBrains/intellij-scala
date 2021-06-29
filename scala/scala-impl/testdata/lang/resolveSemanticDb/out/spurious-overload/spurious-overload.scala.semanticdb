@@ -1,0 +1,103 @@
+
+Â!tests/pos/spurious-overload.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*$
+_empty_/Test.foo().(bar)*bar€*"
+_empty_/Test.code. €*code€*
+local0
+ *lazyLib€*
+local1*delay€*
+local2	*A€*
+local3*value€*
+local6  *force€*
+local7	*A€*
+local8*s€*
+local4 *Susp€*
+local9	 €*A€*
+local5*SuspImpl€*
+local10	*A€*
+local11 €*	lazyValue€*
+local12 €*
+maybeValue€*
+local13*apply€*
+local14 €*value€*
+local15 €*value€*
+local17 €*s€2
+ _empty_/Test.2
+ 
+scala/App#2!
+ 	_empty_/Test.foo().2&
+
+ _empty_/Test.foo().(bar)2
+ 
+scala/Any#2&
+ _empty_/Test.foo().(bar)2 
+ 
+_empty_/Test.code.2!
+ _empty_/Test.foo().2
+ local02
+
+ local12
+ local22
+ local32
+ local22
+! %local42
+& 'local22
+/ 7local52
+8 9local22
+; @local32
+ local62
+ local72
+ local82
+ #local42
+$ %local72
+) *local72&
+. .scala/Function0#apply().2
+- .local82
+
+
+ local42
+
+&
+ /scala/Function0#2
+
+0
+ 1local92
+
+
+ local92
+ local52
+1 5local42
+6 7local102
+ local102
+ !local112
+ local122
+  &scala/Option#2
+' (local102
+, 0scala/None.2
+ local132
+ )local122
+ scala/None.2
+ local142
+ !local112
+ local122!
+ scala/Some.apply().2
+ scala/Some.2
+ #local142
+ local142#
+ scala/Some.unapply().2
+ scala/Some.2
+ local152
+ local152
+ local162
+ 	local172
+ 
+scala/Int#2
+ local12'
+ &scala/Predef.println(+1).2'
+ scala/Predef.println(+1).2%
+ java/lang/String#`+`().2 
+ scala/Int#`+`(+4).2
+ local62
+ local17PZ D4428454FB46F980CD165E3C5D1D3851

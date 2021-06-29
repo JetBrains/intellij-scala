@@ -1,0 +1,94 @@
+
+©$tests/pos/t3236/AnnotationTest.scala*.
+_empty_/AnnotationTest#*AnnotationTest€*4
+"_empty_/AnnotationTest#`<init>`(). €@*<init>€*/
+_empty_/AnnotationTest#test1(). *test1€*/
+_empty_/AnnotationTest#test2(). *test2€*/
+_empty_/AnnotationTest#test3(). *test3€*/
+_empty_/AnnotationTest#test4(). *test4€2!
+ _empty_/AnnotationTest#20
+ "_empty_/AnnotationTest#`<init>`().2'
+		 _empty_/StringAnnotation#2'
+		 $_empty_/Constants#String.2 
+		 _empty_/Constants#2'
+ _empty_/DoubleAnnotation#2'
+ $_empty_/Constants#Double.2 
+ _empty_/Constants#2&
+ _empty_/FloatAnnotation#2&
+ "_empty_/Constants#Float.2 
+ _empty_/Constants#2%
+ _empty_/LongAnnotation#2%
+  _empty_/Constants#Long.2 
+ _empty_/Constants#2$
+ _empty_/IntAnnotation#2$
+ _empty_/Constants#Int.2 
+ _empty_/Constants#2&
+ _empty_/ShortAnnotation#2&
+ "_empty_/Constants#Short.2 
+ _empty_/Constants#2%
+ _empty_/CharAnnotation#2%
+  _empty_/Constants#Char.2 
+ _empty_/Constants#2%
+ _empty_/ByteAnnotation#2%
+  _empty_/Constants#Byte.2 
+ _empty_/Constants#2(
+ _empty_/BooleanAnnotation#2,
+ *_empty_/Constants#BooleanTrue.2 
+ _empty_/Constants#2-
+
+
+ _empty_/AnnotationTest#test1().2
+
+
+ scala/Unit#2'
+ _empty_/StringAnnotation#2/
+ ,!_empty_/Constants#NegativeString.2 
+ _empty_/Constants#2'
+ _empty_/DoubleAnnotation#2/
+ ,!_empty_/Constants#NegativeDouble.2 
+ _empty_/Constants#2&
+ _empty_/FloatAnnotation#2.
+ * _empty_/Constants#NegativeFloat.2 
+ _empty_/Constants#2%
+ _empty_/LongAnnotation#2-
+ (_empty_/Constants#NegativeLong.2 
+ _empty_/Constants#2$
+ _empty_/IntAnnotation#2,
+ &_empty_/Constants#NegativeInt.2 
+ _empty_/Constants#2&
+ _empty_/ShortAnnotation#2.
+ * _empty_/Constants#NegativeShort.2 
+ _empty_/Constants#2%
+ _empty_/ByteAnnotation#2-
+ (_empty_/Constants#NegativeByte.2 
+ _empty_/Constants#2(
+ _empty_/BooleanAnnotation#20
+ ."_empty_/Constants#InvertedBoolean.2 
+ _empty_/Constants#2-
+ _empty_/AnnotationTest#test2().2
+ scala/Unit#2%
+ _empty_/LongAnnotation#22
+ -$_empty_/Constants#LiteralCharAsLong.2 
+ _empty_/Constants#2$
+ _empty_/IntAnnotation#21
+ +#_empty_/Constants#LiteralCharAsInt.2 
+ _empty_/Constants#2&
+ _empty_/ShortAnnotation#23
+ /%_empty_/Constants#LiteralCharAsShort.2 
+ _empty_/Constants#2%
+ _empty_/CharAnnotation#2,
+ '_empty_/Constants#LiteralChar.2 
+ _empty_/Constants#2%
+ _empty_/ByteAnnotation#22
+ -$_empty_/Constants#LiteralCharAsByte.2 
+ _empty_/Constants#2(
+ _empty_/BooleanAnnotation#2-
+ +_empty_/Constants#BooleanFalse.2 
+ _empty_/Constants#2-
+ _empty_/AnnotationTest#test3().2
+ scala/Unit#2%
+ _empty_/LongAnnotation#21
+ ,#_empty_/Constants#LiteralIntAsLong.2 
+ _empty_/Constants#2-
+ _empty_/AnnotationTest#test4().2
+ scala/Unit#PZ 05BD5316B45A76FAD5699A73A4344456

@@ -1,0 +1,33 @@
+
+»
+?tests/pos/scala-days-2019-slides/metaprogramming-1-forset.scala*.
+_empty_/ForSetExample.
+ *ForSetExample€*.
+_empty_/ForSetExample.setFor().*setFor€*,
+"_empty_/ForSetExample.setFor().[T]	*T€*
+local0  *ord€2 
+ _empty_/ForSetExample.2)
+ #scala/collection/immutable/2
+ scala/collection/2
+	 scala/2=
+ %/scala/compiletime/package$package.summonFrom().2 
+ scala/compiletime/2
+	 scala/2-
+ _empty_/ForSetExample.setFor().20
+ "_empty_/ForSetExample.setFor().[T]2-
+ scala/collection/immutable/Set#20
+ "_empty_/ForSetExample.setFor().[T]2
+ local02%
+ scala/package.Ordering#20
+ "_empty_/ForSetExample.setFor().[T]2>
+- -0scala/collection/immutable/TreeSet#`<init>`(+1).21
+# *#scala/collection/immutable/TreeSet#20
++ ,"_empty_/ForSetExample.setFor().[T]2
+- -local02>
+- -0scala/collection/immutable/HashSet#`<init>`(+1).21
+# *#scala/collection/immutable/HashSet#20
++ ,"_empty_/ForSetExample.setFor().[T]2-
+ _empty_/ForSetExample.setFor().2"
+	 scala/Predef.String#2-
+ _empty_/ForSetExample.setFor().2
+	 java/lang/Object#PZ 7E5CC2A67305994F24C87FCC74F32862

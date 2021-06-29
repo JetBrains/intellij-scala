@@ -1,0 +1,25 @@
+
+ùtests/pos/tailcall/t1672.scala*$
+_empty_/Test1672.
+ *Test1672Ä*#
+_empty_/Test1672.bar().*barÄ*$
+_empty_/Test1672.bar().(x)*xÄ*$
+_empty_/Test1672.bar().(y)*yÄ2
+ _empty_/Test1672.2'
+ scala/annotation/tailrec#2
+ scala/annotation/2%
+ 	_empty_/Test1672.bar().2(
+
+ _empty_/Test1672.bar().(x)2
+ 
+scala/Int#2(
+ _empty_/Test1672.bar().(y)2
+ 
+scala/Int#2
+ #scala/Nothing#24
+   &java/lang/RuntimeException#`<init>`().2-
+  scala/package.RuntimeException#2&
+   scala/package.Throwable#2%
+   _empty_/Test1672.bar().2(
+    _empty_/Test1672.bar().(x)2(
+ "  #_empty_/Test1672.bar().(y)PZ CEA87A8ECCD0C77C6C8DAE0C3CE5DC8A

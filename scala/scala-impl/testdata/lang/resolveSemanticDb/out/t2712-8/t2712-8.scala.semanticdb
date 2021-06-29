@@ -1,0 +1,46 @@
+
+×	tests/pos/t2712-8.scala*
+_empty_/Two#*Two€*)
+_empty_/Two#`<init>`(). €@*<init>€*
+_empty_/Two#[A]	*A€*
+_empty_/Two#[B]	*B€*
+_empty_/One#*One€*)
+_empty_/One#`<init>`(). €@*<init>€*
+_empty_/One#[A]	*A€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[F]	*F€* 
+_empty_/Test.foo().(x)*x€*
+_empty_/Test.t. €*t€2
+ 	_empty_/Two#2!
+	 	_empty_/Two#`<init>`().2
+
+ _empty_/Two#[A]2
+ _empty_/Two#[B]2
+ 	_empty_/One#2%
+	 	_empty_/One#`<init>`().2%
+ _empty_/Two#`<init>`().2
+ _empty_/Two#2
+ _empty_/One#[A]2
+ _empty_/One#[A]2
+
+ _empty_/One#[A]2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[F]2$
+ _empty_/Test.foo().(x)2$
+ _empty_/Test.foo().[F]2
+ 
+scala/Int#2
+  
+scala/Int#2$
+% &_empty_/Test.foo().(x)2
+ _empty_/Test.t.2
+	 _empty_/One#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2!
+ _empty_/Test.foo().2
+ _empty_/Test.t.PZ 48D8EF0068CC08FD833E782BEBBCD8C6

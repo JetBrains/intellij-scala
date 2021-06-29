@@ -1,0 +1,154 @@
+
+°*tests/pos/i6914.scala*
+_empty_/Expr#*Expr€**
+_empty_/Expr#`<init>`(). €@*<init>€*
+_empty_/Expr#[T]	*T€*"
+_empty_/Liftable#*Liftable€*.
+_empty_/Liftable#`<init>`(). €@*<init>€*
+_empty_/Liftable#[T]	*T€*
+_empty_/test1.
+ *test1€*$
+_empty_/test1.ToExpr#*ToExpr€*2
+ _empty_/test1.ToExpr#`<init>`(). €@*<init>€*3
+%_empty_/test1.ToExpr#`<init>`().(x$1)  *x$1€*"
+_empty_/test1.ToExpr#[T]	*T€*(
+_empty_/test1.ToExpr#x$1.  *x$1€*+
+_empty_/test1.ToExpr#apply().*apply€**
+ _empty_/test1.ToExpr#apply().(x)*x€*$
+_empty_/test1.toExpr#*toExpr€*2
+ _empty_/test1.toExpr#`<init>`(). €@*<init>€*4
+%_empty_/test1.toExpr#`<init>`().(x$1)  *x$1€*"
+_empty_/test1.toExpr#[T]	*T€*(
+_empty_/test1.toExpr#x$1.  *x$1€*(
+_empty_/test1.toExpr(). (*toExpr€*$
+_empty_/test1.toExpr().[T]	*T€**
+_empty_/test1.toExpr().(x$1)  *x$1€*?
+!_empty_/test1.given_Liftable_Int. è*given_Liftable_Int€*E
+$_empty_/test1.given_Liftable_String. è*given_Liftable_String€*
+_empty_/test1.x().*x€*
+_empty_/test1.y().*y€*
+_empty_/test1.a().*a€*
+_empty_/test2.
+ *test2€*,
+_empty_/test2.autoToExpr#*
+autoToExpr€*6
+$_empty_/test2.autoToExpr#`<init>`(). €@*<init>€*8
+)_empty_/test2.autoToExpr#`<init>`().(x$1)  *x$1€*&
+_empty_/test2.autoToExpr#[T]	*T€*,
+_empty_/test2.autoToExpr#x$1.  *x$1€*/
+!_empty_/test2.autoToExpr#apply().*apply€*.
+$_empty_/test2.autoToExpr#apply().(x)*x€*0
+_empty_/test2.autoToExpr(). (*
+autoToExpr€*(
+_empty_/test2.autoToExpr().[T]	*T€*.
+ _empty_/test2.autoToExpr().(x$1)  *x$1€*?
+!_empty_/test2.given_Liftable_Int. è*given_Liftable_Int€*E
+$_empty_/test2.given_Liftable_String. è*given_Liftable_String€*
+_empty_/test2.a().*a€2
+ 
+_empty_/Expr#2"
+
+ 
+_empty_/Expr#`<init>`().2
+ _empty_/Expr#[T]2
+ _empty_/Liftable#2*
+ _empty_/Liftable#`<init>`().2"
+ _empty_/Liftable#[T]2
+ _empty_/test1.2#
+ _empty_/test1.ToExpr#2.
+  _empty_/test1.ToExpr#`<init>`().2
+  _empty_/Liftable#2&
+! "_empty_/test1.ToExpr#[T]2*
+C Cscala/Conversion#`<init>`().2
+- 7scala/Conversion#2&
+8 9_empty_/test1.ToExpr#[T]2
+; ?_empty_/Expr#2&
+@ A_empty_/test1.ToExpr#[T]2&
+ _empty_/test1.ToExpr#[T]2'
+ _empty_/test1.ToExpr#x$1.2+
+ _empty_/test1.ToExpr#apply().2.
+  _empty_/test1.ToExpr#apply().(x)2&
+ _empty_/test1.ToExpr#[T]2
+ _empty_/Expr#2&
+ _empty_/test1.ToExpr#[T]2#
+ "scala/Predef.`???`().2#
+ _empty_/test1.toExpr#2.
+  _empty_/test1.toExpr#`<init>`().2
+  _empty_/Liftable#2&
+! "_empty_/test1.toExpr#[T]2.
+/ / _empty_/test1.ToExpr#`<init>`().2#
+& ,_empty_/test1.ToExpr#2&
+- ._empty_/test1.toExpr#[T]2'
+/ /_empty_/test1.toExpr#x$1.2&
+ _empty_/test1.toExpr#[T]2'
+ _empty_/test1.toExpr#x$1.2%
+ _empty_/test1.toExpr().2/
+		 !_empty_/test1.given_Liftable_Int.2
+		 _empty_/Liftable#2
+		 
+scala/Int#2#
+		 scala/Predef.`???`().22
+
+
+ $_empty_/test1.given_Liftable_String.2
+
+
+ _empty_/Liftable#2"
+
+
+ scala/Predef.String#2#
+
+
+ scala/Predef.`???`().2 
+ _empty_/test1.x().2$
+
+ scala/Predef.summon().2#
+ _empty_/test1.ToExpr#2"
+ scala/Predef.String#2%
+   _empty_/test1.toExpr().22
+   $_empty_/test1.given_Liftable_String.2 
+ _empty_/test1.y().2$
+
+ scala/Predef.summon().2
+ scala/Conversion#2"
+ "scala/Predef.String#2
+$ (_empty_/Expr#2"
+) /scala/Predef.String#2%
+2 2_empty_/test1.toExpr().22
+2 2$_empty_/test1.given_Liftable_String.2 
+ _empty_/test1.a().2
+	 _empty_/Expr#2"
+ scala/Predef.String#2+
+ _empty_/test1.ToExpr#apply().2
+ _empty_/test2.2'
+ _empty_/test2.autoToExpr#22
+ $_empty_/test2.autoToExpr#`<init>`().2
+ $_empty_/Liftable#2*
+% &_empty_/test2.autoToExpr#[T]2*
+@ @scala/Conversion#`<init>`().2
+* 4scala/Conversion#2*
+5 6_empty_/test2.autoToExpr#[T]2
+8 <_empty_/Expr#2*
+= >_empty_/test2.autoToExpr#[T]2*
+ _empty_/test2.autoToExpr#[T]2+
+ _empty_/test2.autoToExpr#x$1.2/
+ !_empty_/test2.autoToExpr#apply().22
+ $_empty_/test2.autoToExpr#apply().(x)2*
+ _empty_/test2.autoToExpr#[T]2
+ _empty_/Expr#2*
+ _empty_/test2.autoToExpr#[T]2#
+ "scala/Predef.`???`().2)
+ _empty_/test2.autoToExpr().2/
+ !_empty_/test2.given_Liftable_Int.2
+ _empty_/Liftable#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().22
+ $_empty_/test2.given_Liftable_String.2
+ _empty_/Liftable#2"
+ scala/Predef.String#2#
+ scala/Predef.`???`().2 
+ _empty_/test2.a().2
+	 _empty_/Expr#2"
+ scala/Predef.String#2/
+ !_empty_/test2.autoToExpr#apply().PZ ADC380C133DF8F10929028E67721EE9B

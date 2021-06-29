@@ -1,0 +1,227 @@
+
+ˆDtests/pos/t3636.scala*$
+_empty_/CTxnLocal#*	CTxnLocal€*/
+_empty_/CTxnLocal#`<init>`(). €@*<init>€*
+_empty_/CTxnLocal#[T]	*T€*$
+_empty_/CTxnLocal#set().*set€*%
+_empty_/CTxnLocal#set().(x)*x€*'
+_empty_/CTxnLocal#set().(t)  *t€*$
+_empty_/CTxnLocal#get().*get€*'
+_empty_/CTxnLocal#get().(t)  *t€*6
+!_empty_/CTxnLocal#initialValue().*initialValue€*.
+$_empty_/CTxnLocal#initialValue().(t)*t€*
+_empty_/Txn#*Txn€*)
+_empty_/Txn#`<init>`(). €@*<init>€* 
+_empty_/ProcTxn#*ProcTxn€*-
+_empty_/ProcTxn#`<init>`(). €@*<init>€*(
+_empty_/ProcTxn#ccstm(). *ccstm€*"
+_empty_/TxnLocal#*TxnLocal€*.
+_empty_/TxnLocal#`<init>`(). €@*<init>€*
+_empty_/TxnLocal#[T]	*T€*)
+_empty_/TxnLocal#apply(). *apply€**
+_empty_/TxnLocal#apply().(tx)  *tx€*%
+_empty_/TxnLocal#set(). *set€*$
+_empty_/TxnLocal#set().(v)*v€*(
+_empty_/TxnLocal#set().(tx)  *tx€*'
+_empty_/TxnLocal#swap(). *swap€*%
+_empty_/TxnLocal#swap().(v)*v€*)
+_empty_/TxnLocal#swap().(tx)  *tx€*1
+_empty_/TxnLocal#transform(). *	transform€**
+ _empty_/TxnLocal#transform().(f)*f€*.
+!_empty_/TxnLocal#transform().(tx)  *tx€*$
+_empty_/TxnLocal.
+ *TxnLocal€*'
+_empty_/TxnLocal.apply().*apply€*&
+_empty_/TxnLocal.apply().[T]	*T€*)
+_empty_/TxnLocal.apply(+1).*apply€*(
+_empty_/TxnLocal.apply(+1).[T]	*T€*8
+&_empty_/TxnLocal.apply(+1).(initValue)*	initValue€*
+local0 *$anon€*
+local1*initialValue€*
+local2*tx€*#
+_empty_/TxnLocal.Impl#*Impl€*3
+!_empty_/TxnLocal.Impl#`<init>`(). €@*<init>€*.
+$_empty_/TxnLocal.Impl#`<init>`().(c)*c€*#
+_empty_/TxnLocal.Impl#[T]	*T€*%
+_empty_/TxnLocal.Impl#c. €*c€*,
+_empty_/TxnLocal.Impl#apply().*apply€*/
+"_empty_/TxnLocal.Impl#apply().(tx)  *tx€*(
+_empty_/TxnLocal.Impl#set().*set€*)
+_empty_/TxnLocal.Impl#set().(v)*v€*-
+ _empty_/TxnLocal.Impl#set().(tx)  *tx€**
+_empty_/TxnLocal.Impl#swap().*swap€**
+ _empty_/TxnLocal.Impl#swap().(v)*v€*.
+!_empty_/TxnLocal.Impl#swap().(tx)  *tx€*
+local3 €*oldV€*4
+"_empty_/TxnLocal.Impl#transform().*	transform€*/
+%_empty_/TxnLocal.Impl#transform().(f)*f€*3
+&_empty_/TxnLocal.Impl#transform().(tx)  *tx€*(
+_empty_/Transition.
+ *
+Transition€*4
+_empty_/Transition.currentRef. €*
+currentRef€*-
+_empty_/Transition.current().*current€*.
+!_empty_/Transition.current().(tx)  *tx€*(
+_empty_/Transition# *
+Transition€*0
+_empty_/Transition#`<init>`(). €@*<init>€*#
+_empty_/Instant.
+ ˆ*Instant€2
+ _empty_/CTxnLocal#2'
+ _empty_/CTxnLocal#`<init>`().2
+ _empty_/CTxnLocal#[T]2&
+ _empty_/CTxnLocal#set().2)
+ _empty_/CTxnLocal#set().(x)2#
+ _empty_/CTxnLocal#[T]2)
+ _empty_/CTxnLocal#set().(t)2
+! $_empty_/Txn#2
+( ,scala/Unit#2&
+ _empty_/CTxnLocal#get().2)
+ _empty_/CTxnLocal#get().(t)2
+ _empty_/Txn#2#
+! "_empty_/CTxnLocal#[T]2'
+* 6scala/Any#asInstanceOf().2#
+8 9_empty_/CTxnLocal#[T]2/
+ !_empty_/CTxnLocal#initialValue().22
+ $_empty_/CTxnLocal#initialValue().(t)2
+ _empty_/Txn#2#
+! "_empty_/CTxnLocal#[T]2'
+* 6scala/Any#asInstanceOf().2#
+8 9_empty_/CTxnLocal#[T]2
+ 	_empty_/Txn#2!
+_empty_/Txn#`<init>`().2
+ _empty_/ProcTxn#2)
+		 _empty_/ProcTxn#`<init>`().2&
+		 _empty_/ProcTxn#ccstm().2
+		 _empty_/Txn#2
+ _empty_/TxnLocal#2*
+ _empty_/TxnLocal#`<init>`().2 
+ scala/specialized#2"
+ _empty_/TxnLocal#[T]2'
+ _empty_/TxnLocal#apply().2+
+ _empty_/TxnLocal#apply().(tx)2
+ $_empty_/ProcTxn#2"
+) *_empty_/TxnLocal#[T]2%
+ 
+_empty_/TxnLocal#set().2(
+ _empty_/TxnLocal#set().(v)2"
+ _empty_/TxnLocal#[T]2)
+ _empty_/TxnLocal#set().(tx)2
+! (_empty_/ProcTxn#2
+- 1scala/Unit#2&
+ _empty_/TxnLocal#swap().2)
+ _empty_/TxnLocal#swap().(v)2"
+ _empty_/TxnLocal#[T]2*
+  _empty_/TxnLocal#swap().(tx)2
+" )_empty_/ProcTxn#2"
+. /_empty_/TxnLocal#[T]2+
+ _empty_/TxnLocal#transform().2.
+  _empty_/TxnLocal#transform().(f)2"
+ _empty_/TxnLocal#[T]2"
+ _empty_/TxnLocal#[T]2/
+( *!_empty_/TxnLocal#transform().(tx)2
+, 3_empty_/ProcTxn#2
+8 <scala/Unit#2
+ _empty_/TxnLocal.2'
+ _empty_/TxnLocal.apply().2 
+ scala/specialized#2*
+ _empty_/TxnLocal.apply().[T]2
+! )_empty_/TxnLocal#2*
++ ,_empty_/TxnLocal.apply().[T]2/
+9 9!_empty_/TxnLocal.Impl#`<init>`().2+
+M M_empty_/CTxnLocal#`<init>`().2 
+? H_empty_/CTxnLocal#2*
+J K_empty_/TxnLocal.apply().[T]2)
+ _empty_/TxnLocal.apply(+1).2 
+ scala/specialized#2,
+ _empty_/TxnLocal.apply(+1).[T]24
+  )&_empty_/TxnLocal.apply(+1).(initValue)2,
+. /_empty_/TxnLocal.apply(+1).[T]2
+4 <_empty_/TxnLocal#2,
+> ?_empty_/TxnLocal.apply(+1).[T]2/
+L L!_empty_/TxnLocal.Impl#`<init>`().2
+N Nlocal02+
+` `_empty_/CTxnLocal#`<init>`().2 
+R [_empty_/CTxnLocal#2,
+] ^_empty_/TxnLocal.apply(+1).[T]2
+ local12
+! #local22
+% (_empty_/Txn#2,
+, -_empty_/TxnLocal.apply(+1).[T]24
+0 9&_empty_/TxnLocal.apply(+1).(initValue)2$
+ _empty_/TxnLocal.Impl#2/
+ !_empty_/TxnLocal.Impl#`<init>`().2 
+ (_empty_/CTxnLocal#2'
+* +_empty_/TxnLocal.Impl#[T]2
+7 ?_empty_/TxnLocal#2'
+A B_empty_/TxnLocal.Impl#[T]2'
+ _empty_/TxnLocal.Impl#[T]2&
+ _empty_/TxnLocal.Impl#c.2,
+
+ _empty_/TxnLocal.Impl#apply().20
+ "_empty_/TxnLocal.Impl#apply().(tx)2
+  '_empty_/ProcTxn#2'
+, -_empty_/TxnLocal.Impl#[T]2&
+2 5_empty_/CTxnLocal#get().2&
+0 1_empty_/TxnLocal.Impl#c.2&
+: ?_empty_/ProcTxn#ccstm().20
+7 9"_empty_/TxnLocal.Impl#apply().(tx)2*
+
+ _empty_/TxnLocal.Impl#set().2-
+ _empty_/TxnLocal.Impl#set().(v)2'
+ _empty_/TxnLocal.Impl#[T]2.
+  " _empty_/TxnLocal.Impl#set().(tx)2
+$ +_empty_/ProcTxn#2
+0 4scala/Unit#2&
+9 <_empty_/CTxnLocal#set().2&
+7 8_empty_/TxnLocal.Impl#c.2-
+> ?_empty_/TxnLocal.Impl#set().(v)2&
+F K_empty_/ProcTxn#ccstm().2.
+C E _empty_/TxnLocal.Impl#set().(tx)2+
+
+ _empty_/TxnLocal.Impl#swap().2.
+  _empty_/TxnLocal.Impl#swap().(v)2'
+ _empty_/TxnLocal.Impl#[T]2/
+! #!_empty_/TxnLocal.Impl#swap().(tx)2
+% ,_empty_/ProcTxn#2'
+1 2_empty_/TxnLocal.Impl#[T]2
+ local32,
+ _empty_/TxnLocal.Impl#apply().2/
+ !_empty_/TxnLocal.Impl#swap().(tx)2*
+	 _empty_/TxnLocal.Impl#set().2.
+  _empty_/TxnLocal.Impl#swap().(v)2/
+ !_empty_/TxnLocal.Impl#swap().(tx)2
+ 	  local320
+"
+" "_empty_/TxnLocal.Impl#transform().23
+"" %_empty_/TxnLocal.Impl#transform().(f)2'
+"" _empty_/TxnLocal.Impl#[T]2'
+"" _empty_/TxnLocal.Impl#[T]24
+"+" -&_empty_/TxnLocal.Impl#transform().(tx)2
+"/" 6_empty_/ProcTxn#2
+":" >scala/Unit#2*
+#	# _empty_/TxnLocal.Impl#set().2&
+## scala/Function1#apply().23
+## %_empty_/TxnLocal.Impl#transform().(f)2,
+## _empty_/TxnLocal.Impl#apply().24
+## &_empty_/TxnLocal.Impl#transform().(tx)24
+## &_empty_/TxnLocal.Impl#transform().(tx)2!
+)) _empty_/Transition.2,
+** _empty_/Transition.currentRef.2)
+*$* $_empty_/TxnLocal.apply(+1).2
+** $_empty_/TxnLocal.2!
+*&* 0_empty_/Transition#2
+*4* ;_empty_/Instant.2+
+++ _empty_/Transition.current().2/
+++ !_empty_/Transition.current().(tx)2
+++ $_empty_/ProcTxn#2!
++)+ 3_empty_/Transition#2'
++@+ @_empty_/TxnLocal#apply().2,
++6+ @_empty_/Transition.currentRef.2/
++B+ B!_empty_/Transition.current().(tx)2!
+..  _empty_/Transition#2(
+.._empty_/Transition#`<init>`().2
+// _empty_/Instant.2,
+/&/ &_empty_/Transition#`<init>`().2!
+// &_empty_/Transition#PZ 9ECAB67C4D9C35E0B3914F1FE386AE92

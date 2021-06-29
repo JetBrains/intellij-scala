@@ -1,0 +1,63 @@
+
+ÿtests/pos/t374.scala* 
+_empty_/tokens.
+ *tokens€*#
+_empty_/tokens.Token#*Token€*"
+_empty_/tokens.BAD. €*BAD€*&
+_empty_/tokens.IDENT. €*IDENT€*$
+_empty_/tokens.NAME. €*NAME€*
+_empty_/test.
+ *test€**
+_empty_/test.reserved. €*reserved€*
+local0 €*tk€2
+ _empty_/tokens.2)
+! !scala/Enumeration#`<init>`(+1).2
+ !scala/Enumeration#2#
+ _empty_/tokens.Token#2&
+ scala/Enumeration#Value#2!
+ 	_empty_/tokens.BAD.2*
+ scala/Enumeration#Value(+2).2#
+ _empty_/tokens.IDENT.2*
+ scala/Enumeration#Value(+2).2"
+ 
+_empty_/tokens.NAME.2*
+ scala/Enumeration#Value(+2).2
+ _empty_/test.2*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+  #
+scala/App#2
+	 _empty_/tokens.2$
+
+
+ _empty_/test.reserved.2<
+
+D
+ D.scala/collection/mutable/HashMap#`<init>`(+1).2/
+
+.
+ 5!scala/collection/mutable/HashMap#2'
+
+&
+ -scala/collection/mutable/2
+
+
+ %scala/collection/2
+
+
+ scala/2"
+
+6
+ <scala/Predef.String#2#
+
+>
+ C_empty_/tokens.Token#25
+ 'scala/collection/mutable/HashMap#get().2$
+ _empty_/test.reserved.2
+ scala/None.2#
+ _empty_/tokens.IDENT.2#
+ scala/Some.unapply().2
+ scala/Some.2
+ local02
+ local02!
+ _empty_/tokens.BAD.PZ FC7BDA51A223AFEE89327598148A5451

@@ -1,0 +1,58 @@
+
+þtests/pos/i3130c.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*#
+_empty_/Test#Global#*Global€*1
+_empty_/Test#Global#`<init>`(). €@*<init>€*&
+_empty_/Test#Global#Tree#*Tree€*(
+_empty_/Test#Global#get(). *get€*-
+_empty_/Test#TreeBuilder#*TreeBuilder€*6
+$_empty_/Test#TreeBuilder#`<init>`(). €@*<init>€*2
+ _empty_/Test#TreeBuilder#global. „*global€*+
+_empty_/Test#TreeBuilder#set().*set€*2
+%_empty_/Test#TreeBuilder#set().(tree)*tree€* 
+_empty_/Test#nsc. „*nsc€*'
+_empty_/Test#FileImpl#*FileImpl€*3
+!_empty_/Test#FileImpl#`<init>`(). €@*<init>€*8
+"_empty_/Test#FileImpl#treeBuilder.
+ *treeBuilder€*;
+)_empty_/Test#FileImpl#treeBuilder.global. €*global€*#
+_empty_/Test#file(). *file€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ _empty_/Test#Global#2-
+ _empty_/Test#Global#`<init>`().2'
+	 _empty_/Test#Global#Tree#2(
+ _empty_/Test#Global#get().2'
+ _empty_/Test#Global#Tree#2'
+ _empty_/Test#TreeBuilder#22
+ $_empty_/Test#TreeBuilder#`<init>`().2.
+  _empty_/Test#TreeBuilder#global.2"
+ _empty_/Test#Global#2-
+ _empty_/Test#TreeBuilder#set().23
+ %_empty_/Test#TreeBuilder#set().(tree)2'
+  $_empty_/Test#Global#Tree#2.
+  _empty_/Test#TreeBuilder#global.2
+ 	_empty_/Test#nsc.2"
+ _empty_/Test#Global#2$
+ _empty_/Test#FileImpl#2/
+ !_empty_/Test#FileImpl#`<init>`().20
+ "_empty_/Test#FileImpl#treeBuilder.2'
+ *_empty_/Test#TreeBuilder#27
+
+ )_empty_/Test#FileImpl#treeBuilder.global.2
+ _empty_/Test#nsc.2
+  _empty_/Test#nsc.2-
+ _empty_/Test#TreeBuilder#set().20
+ "_empty_/Test#FileImpl#treeBuilder.2(
+ _empty_/Test#Global#get().2
+ _empty_/Test#nsc.2"
+ 
+_empty_/Test#file().2$
+ _empty_/Test#FileImpl#2-
+ _empty_/Test#TreeBuilder#set().20
+ "_empty_/Test#FileImpl#treeBuilder.2"
+ _empty_/Test#file().2(
+ _empty_/Test#Global#get().2
+ _empty_/Test#nsc.PZ 5BC8EE3952A93F75376212CCAB43B3CA

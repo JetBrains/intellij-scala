@@ -1,0 +1,17 @@
+
+Ètests/pos/t5504/s_2.scala*
+	foo/Test.
+ *Test€*
+foo/Test.main().*main€*#
+foo/Test.main().(args)*args€2
+ foo/2
+ 	foo/Test.2
+ 
+foo/Test.main().2$
+ foo/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2
+ foo/package.m.2
+ foo/PZ F7B3B956246A4D2EEFC458A90111291B

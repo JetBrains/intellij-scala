@@ -1,0 +1,25 @@
+
+ùtests/pos/inine-unnapply.scala*
+_empty_/Foo.
+ *FooÄ*&
+_empty_/Foo.unapply().*unapplyÄ*#
+_empty_/Foo.unapply().(x)*xÄ*,
+_empty_/Foo.unapplySeq().*
+unapplySeqÄ*&
+_empty_/Foo.unapplySeq().(x)*xÄ2
+ 
+_empty_/Foo.2$
+ _empty_/Foo.unapply().2'
+ _empty_/Foo.unapply().(x)2
+ 
+scala/Any#2
+ %scala/Boolean#2#
+( +scala/Predef.`???`().2'
+ _empty_/Foo.unapplySeq().2*
+ _empty_/Foo.unapplySeq().(x)2
+ 
+scala/Any#2 
+! $scala/package.Seq#2
+% (
+scala/Any#2#
+, /scala/Predef.`???`().PZ C66F359F1BC480EF0AF910D5C1DCD56D

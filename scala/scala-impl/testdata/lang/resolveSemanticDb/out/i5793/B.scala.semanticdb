@@ -1,0 +1,20 @@
+
+Ètests/pos/i5793/B.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ _empty_/exec.2(
+ _empty_/exec.Runner.run().2"
+ 
+_empty_/exec.Runner.2!
+ scala/Some.apply().2
+ scala/Some.22
+ $_empty_/exec.Runner.runImplicitly().PZ 11891E7100DD52EBD2D01139442A160B

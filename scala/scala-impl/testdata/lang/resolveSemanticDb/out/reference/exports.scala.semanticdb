@@ -1,0 +1,111 @@
+
+÷!tests/pos/reference/exports.scala*
+_empty_/BitMap#*BitMap€*,
+_empty_/BitMap#`<init>`(). €@*<init>€*
+_empty_/InkJet#*InkJet€*,
+_empty_/InkJet#`<init>`(). €@*<init>€* 
+_empty_/Printer#*Printer€*-
+_empty_/Printer#`<init>`(). €@*<init>€*0
+_empty_/Printer#PrinterType#*PrinterType€*&
+_empty_/Printer#print().*print€*+
+_empty_/Printer#print().(bits)*bits€*(
+_empty_/Printer#status().*status€* 
+_empty_/Scanner#*Scanner€*-
+_empty_/Scanner#`<init>`(). €@*<init>€*$
+_empty_/Scanner#scan().*scan€*(
+_empty_/Scanner#status().*status€*
+_empty_/Copier#*Copier€*,
+_empty_/Copier#`<init>`(). €@*<init>€*.
+_empty_/Copier#printUnit. €*	printUnit€*
+local0 *$anon€*
+local1*PrinterType€*,
+_empty_/Copier#scanUnit. €*scanUnit€*%
+_empty_/Copier#scan(). *scan€*1
+_empty_/Copier#PrinterType# *PrinterType€*'
+_empty_/Copier#print(). *print€**
+_empty_/Copier#print().(bits)*bits€*'
+_empty_/Copier#status().*status€*
+_empty_/C22#*C22€*)
+_empty_/C22#`<init>`(). €@*<init>€*
+_empty_/C22#T#*T€*
+_empty_/O22.
+ *O22€*
+_empty_/O22.c. €*c€**
+_empty_/exports$package. *_empty_€*&
+_empty_/exports$package.c. *c€**
+_empty_/exports$package.f22().*f22€2
+ _empty_/BitMap#2$
+ _empty_/BitMap#`<init>`().2
+ _empty_/InkJet#2(
+ _empty_/InkJet#`<init>`().2
+ _empty_/Printer#2)
+ _empty_/Printer#`<init>`().2*
+	 _empty_/Printer#PrinterType#2&
+ _empty_/Printer#print().2,
+ _empty_/Printer#print().(bits)2
+ _empty_/BitMap#2
+ !scala/Unit#2#
+$ 'scala/Predef.`???`().2'
+ _empty_/Printer#status().2!
+ scala/package.List#2"
+ scala/Predef.String#2#
+ "scala/Predef.`???`().2
+		 _empty_/Scanner#2)
+
+
+ _empty_/Scanner#`<init>`().2%
+
+
+ _empty_/Scanner#scan().2
+
+
+ _empty_/BitMap#2#
+
+
+ scala/Predef.`???`().2'
+ _empty_/Scanner#status().2!
+ scala/package.List#2"
+ scala/Predef.String#2#
+ "scala/Predef.`???`().2
+ _empty_/Copier#2(
+ _empty_/Copier#`<init>`().2'
+ _empty_/Copier#printUnit.2
+ local02)
+' '_empty_/Printer#`<init>`().2
+  '_empty_/Printer#2
+/ :local12
+= C_empty_/InkJet#2&
+ _empty_/Copier#scanUnit.2)
+& &_empty_/Scanner#`<init>`().2
+ &_empty_/Scanner#2&
+ _empty_/Copier#scanUnit.2$
+ _empty_/Copier#scan().2%
+ _empty_/Scanner#scan().2'
+ _empty_/Copier#printUnit.2)
+# _empty_/Copier#PrinterType#2%
+# _empty_/Copier#print().2&
+ _empty_/Printer#print().2+
+ _empty_/Copier#print().(bits)2&
+ _empty_/Copier#status().2!
+ scala/package.List#2"
+ scala/Predef.String#22
+0 2$scala/collection/IterableOps#`++`().2'
+) /_empty_/Printer#status().2'
+ (_empty_/Copier#printUnit.2'
+< B_empty_/Scanner#status().2&
+3 ;_empty_/Copier#scanUnit.2
+ _empty_/C22#2%
+ _empty_/C22#`<init>`().2
+ _empty_/C22#T#2
+	 _empty_/O22.2
+ _empty_/O22.c.2
+ _empty_/C22#2#
+ scala/Predef.`???`().2&
+ _empty_/exports$package.2
+	 _empty_/O22.2(
+ _empty_/exports$package.c.2
+ _empty_/O22.c.2,
+ 	_empty_/exports$package.f22().2
+ _empty_/C22#T#2(
+ _empty_/exports$package.c.2#
+ scala/Predef.`???`().PZ 5918276328DD4239E33D5217FE4514A5

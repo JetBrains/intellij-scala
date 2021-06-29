@@ -1,0 +1,35 @@
+
+ètests/pos/variances_pos.scala*
+
+_empty_/P# *P€*'
+_empty_/P#`<init>`(). €@*<init>€*
+_empty_/P#[a]	 €*a€*
+_empty_/P#[b]	 €*b€*
+_empty_/P#fst(). *fst€*
+_empty_/P#snd(). *snd€*
+_empty_/Vector#*Vector€*,
+_empty_/Vector#`<init>`(). €@*<init>€*
+_empty_/Vector#[a]	 €*a€*)
+_empty_/Vector#append(). *append€*%
+_empty_/Vector#append().[b]	*b€*%
+_empty_/Vector#append().(x)*x€2
+ 
+_empty_/P#2
+ _empty_/P#`<init>`().2
+ _empty_/P#[a]2
+ _empty_/P#[b]2
+ 	_empty_/P#fst().2
+ _empty_/P#[a]2
+ 	_empty_/P#snd().2
+ _empty_/P#[b]2
+ _empty_/Vector#2(
+ _empty_/Vector#`<init>`().2 
+ _empty_/Vector#[a]2&
+ _empty_/Vector#append().2)
+ _empty_/Vector#append().[b]2 
+ _empty_/Vector#[a]2)
+ _empty_/Vector#append().(x)2
+ _empty_/Vector#2)
+  _empty_/Vector#append().[b]2
+$ *_empty_/Vector#2)
++ ,_empty_/Vector#append().[b]PZ 76F7FB8AE26092C8E2CFCF270BE1C3DB

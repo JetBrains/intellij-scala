@@ -1,0 +1,71 @@
+
+ätests/pos/t3866.scala*4
+_empty_/ImplicitRepeated# *ImplicitRepeated€*6
+$_empty_/ImplicitRepeated#`<init>`(). €@*<init>€*%
+_empty_/ImplicitRepeated#T#*T€*8
+&_empty_/ImplicitRepeated#T#`<init>`(). €@*<init>€*+
+_empty_/ImplicitRepeated#T#[A]	 €*A€*+
+_empty_/ImplicitRepeated#T#[B]	 €*B€*%
+_empty_/ImplicitRepeated#X#*X€*8
+&_empty_/ImplicitRepeated#X#`<init>`(). €@*<init>€*)
+_empty_/ImplicitRepeated#f(). *f€**
+ _empty_/ImplicitRepeated#f().[N]	*N€**
+ _empty_/ImplicitRepeated#f().[R]	*R€*2
+$_empty_/ImplicitRepeated#f().(elems)*elems€*+
+_empty_/ImplicitRepeated#f(+1). *f€*,
+"_empty_/ImplicitRepeated#f(+1).[N]	*N€*,
+"_empty_/ImplicitRepeated#f(+1).[R]	*R€*4
+&_empty_/ImplicitRepeated#f(+1).(props)*props€*4
+&_empty_/ImplicitRepeated#f(+1).(elems)*elems€*7
+$_empty_/ImplicitRepeated#xToRight().  *xToRight€*1
+'_empty_/ImplicitRepeated#xToRight().(r)*r€*3
+"_empty_/ImplicitRepeated#anyToN().  *anyToN€*/
+%_empty_/ImplicitRepeated#anyToN().[N]	*N€*/
+%_empty_/ImplicitRepeated#anyToN().(x)*x€2#
+ _empty_/ImplicitRepeated#22
+ $_empty_/ImplicitRepeated#`<init>`().2)
+ 	_empty_/ImplicitRepeated#T#24
+	 	&_empty_/ImplicitRepeated#T#`<init>`().2,
+ _empty_/ImplicitRepeated#T#[A]2,
+ _empty_/ImplicitRepeated#T#[B]2)
+ 	_empty_/ImplicitRepeated#X#24
+ &_empty_/ImplicitRepeated#X#`<init>`().2+
+ _empty_/ImplicitRepeated#f().2.
+ 	 _empty_/ImplicitRepeated#f().[N]2.
+  _empty_/ImplicitRepeated#f().[R]2!
+ scala/package.List#22
+ $_empty_/ImplicitRepeated#f().(elems)2)
+  !_empty_/ImplicitRepeated#T#2.
+" # _empty_/ImplicitRepeated#f().[N]2.
+% & _empty_/ImplicitRepeated#f().[R]2
++ /scala/Unit#2-
+ _empty_/ImplicitRepeated#f(+1).20
+ 	"_empty_/ImplicitRepeated#f(+1).[N]20
+ "_empty_/ImplicitRepeated#f(+1).[R]2!
+ scala/package.List#24
+ &_empty_/ImplicitRepeated#f(+1).(props)2"
+  &scala/Predef.String#24
+( -&_empty_/ImplicitRepeated#f(+1).(elems)2)
+/ 0_empty_/ImplicitRepeated#T#20
+1 2"_empty_/ImplicitRepeated#f(+1).[N]20
+4 5"_empty_/ImplicitRepeated#f(+1).[R]2
+: >scala/Unit#22
+ $_empty_/ImplicitRepeated#xToRight().25
+ '_empty_/ImplicitRepeated#xToRight().(r)2)
+ _empty_/ImplicitRepeated#X#2)
+  _empty_/ImplicitRepeated#T#2
+! (scala/Nothing#2)
+* +_empty_/ImplicitRepeated#X#20
+		 "_empty_/ImplicitRepeated#anyToN().23
+		 %_empty_/ImplicitRepeated#anyToN().[N]23
+		 %_empty_/ImplicitRepeated#anyToN().(x)23
+		 %_empty_/ImplicitRepeated#anyToN().[N]2)
+	 	 !_empty_/ImplicitRepeated#T#23
+	"	 #%_empty_/ImplicitRepeated#anyToN().[N]2
+	%	 ,scala/Nothing#2-
+ _empty_/ImplicitRepeated#f(+1).20
+	 	"_empty_/ImplicitRepeated#anyToN().20
+ "_empty_/ImplicitRepeated#anyToN().2+
+ _empty_/ImplicitRepeated#f().20
+ "_empty_/ImplicitRepeated#anyToN().20
+ "_empty_/ImplicitRepeated#anyToN().PZ 87C5C2C73E2C1151CCABA7036334FDD2

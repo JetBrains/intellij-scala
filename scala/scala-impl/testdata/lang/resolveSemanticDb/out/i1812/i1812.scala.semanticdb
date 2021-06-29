@@ -1,0 +1,45 @@
+
+îtests/pos/i1812.scala*
+_empty_/FF#*FF€*(
+_empty_/FF#`<init>`(). €@*<init>€*
+_empty_/FF#[R]	*R€*%
+_empty_/FF#compose().*compose€*
+_empty_/Test# *Test€**
+_empty_/Test#`<init>`(). €@*<init>€*%
+_empty_/Test#`<init>`().(x)*x€*
+_empty_/Test#x. €*x€*%
+_empty_/Test#method().*method€*
+local0*Bla€*
+local1*Foo€*
+local2*compose€*
+_empty_/Test.
+ *Test€2
+ _empty_/FF#2 
+ _empty_/FF#`<init>`().2
+	 
+_empty_/FF#[R]2#
+ _empty_/FF#compose().2
+ _empty_/FF#[R]2#
+ scala/Predef.`???`().2
+ 
+_empty_/Test#2&
+
+ 
+_empty_/Test#`<init>`().2
+ 
+scala/Int#2&
+! !scala/AnyVal#`<init>`().2
+ !scala/AnyVal#2
+ _empty_/Test#x.2$
+ _empty_/Test#method().2
+ scala/Unit#2
+
+ local02
+
+ local12$
+ _empty_/FF#`<init>`().2
+ _empty_/FF#2
+ local02
+ local22#
+) 0_empty_/FF#compose().2
+ _empty_/Test.PZ 4B084A4787F0951C821A0433570DBB5A

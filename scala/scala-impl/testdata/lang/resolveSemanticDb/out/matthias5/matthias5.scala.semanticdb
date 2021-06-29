@@ -1,0 +1,47 @@
+
+•tests/pos/matthias5.scala*
+
+_empty_/A# *A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#y. „*y€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#x. €*x€*
+_empty_/B#y. €*y€*
+
+_empty_/C# *C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#b. €*b€*
+_empty_/C#a. „*a€*
+local0 „*y€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 	_empty_/A#y.2
+ 
+_empty_/A#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ 	_empty_/B#x.2
+ 	_empty_/B#y.2
+ _empty_/B#x.2
+ _empty_/B#x.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 	_empty_/C#b.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+		 	_empty_/C#a.2
+		 
+_empty_/A#2
+		 local02
+		 _empty_/C#b.PZ 22038288253E6AA7FA2B23FA24D890F6

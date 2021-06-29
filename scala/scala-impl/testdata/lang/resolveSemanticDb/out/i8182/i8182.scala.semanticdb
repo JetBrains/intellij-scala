@@ -1,0 +1,46 @@
+
+Étests/pos/i8182.scala*
+example/Show#*Show€**
+example/Show#`<init>`(). €@*<init>€*
+example/Show#[A]	 €*A€*#
+example/Show#show(). *show€*!
+example/Show#show().(a)*a€*(
+example/i8182$package. *example€*F
+*example/i8182$package.given_Show_String(). (*given_Show_String€*=
+/example/i8182$package.given_Show_String().(rec)  *rec€*F
+*example/i8182$package.given_Show_Option(). (*given_Show_Option€*=
+/example/i8182$package.given_Show_Option().(rec)  *rec€**
+example/i8182$package.test().*test€*#
+local0 *$_lazy_implicit_$5€2
+ example/2
+ 
+example/Show#2&
+
+ 
+example/Show#`<init>`().2
+ example/Show#[A]2"
+ example/Show#show().2%
+ example/Show#show().(a)2
+ example/Show#[A]2"
+ #scala/Predef.String#2 
+example/i8182$package.28
+ *example/i8182$package.given_Show_String().2=
+ /example/i8182$package.given_Show_String().(rec)2
+ example/Show#2"
+ scala/Predef.String#2
+! %example/Show#2"
+& ,scala/Predef.String#2#
+0 3scala/Predef.`???`().28
+ *example/i8182$package.given_Show_Option().2=
+ /example/i8182$package.given_Show_Option().(rec)2
+ example/Show#2"
+  scala/Predef.String#2
+$ (example/Show#2
+) /scala/Option#2"
+0 6scala/Predef.String#2#
+; >scala/Predef.`???`().2+
+		 example/i8182$package.test().28
+		 *example/i8182$package.given_Show_String().2"
+		 example/Show#show().2#
+		 scala/Option.apply().2
+		 scala/Option.PZ 215EB7CC3F8FEC85C3F66F316989E0C8

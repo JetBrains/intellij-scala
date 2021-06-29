@@ -1,0 +1,12 @@
+
+–tests/pos/t8062/B_2.scala*
+_empty_/Test.
+ *Test€*
+local0*x€2
+ _empty_/Test.2%
+ warmup/Warmup.filter().2
+	 warmup/Warmup.2
+ warmup/2
+ 
+scala/Any#2
+ local0PZ 1D83352B373A9BD7EF6B1FFB828C2464

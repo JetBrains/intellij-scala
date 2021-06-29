@@ -1,0 +1,67 @@
+
+ótests/pos/t5816-noclash.scala*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.apply().*apply€*!
+_empty_/Foo.apply().[A]	*A€*!
+_empty_/Foo.apply().(x)*x€*&
+_empty_/Foo.unapply().*unapply€*#
+_empty_/Foo.unapply().[A]	*A€*'
+_empty_/Foo.unapply().(x$1)*x$1€*(
+_empty_/Foo.toString().*toString€*L
+)_empty_/Foo.referToPolyOverloadedApply().*referToPolyOverloadedApply€*6
+,_empty_/Foo.referToPolyOverloadedApply().[A]	*A€*$
+_empty_/Foo.apply(+1).*apply€*#
+_empty_/Foo.apply(+1).[A]	*A€*#
+_empty_/Foo.apply(+1).(x)*x€*
+_empty_/Foo# €*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*'
+_empty_/Foo#`<init>`().(x) €*x€*
+_empty_/Foo#[A]	*A€*
+_empty_/Foo#x. €*x€* 
+_empty_/Foo#copy().*copy€* 
+_empty_/Foo#copy().[A]	*A€* 
+_empty_/Foo#copy().(x)*x€*4
+_empty_/Foo#copy$default$1().*copy$default$1€**
+ _empty_/Foo#copy$default$1().[A]	*A€*
+_empty_/Foo#_1().*_1€2
+ 
+_empty_/Foo.2
+_empty_/Foo.apply().2 
+_empty_/Foo.unapply().27
+  )_empty_/Foo.referToPolyOverloadedApply().2:
+! ",_empty_/Foo.referToPolyOverloadedApply().[A]2
+% (_empty_/Foo#2:
+) *,_empty_/Foo.referToPolyOverloadedApply().[A]2"
+2 7_empty_/Foo.apply().2
+. 1_empty_/Foo.2:
+8 9,_empty_/Foo.referToPolyOverloadedApply().[A]2$
+
+
+ _empty_/Foo.apply(+1).2'
+
+
+ _empty_/Foo.apply(+1).[A]2'
+
+
+ _empty_/Foo.apply(+1).(x)2
+
+
+ 
+scala/Int#2
+
+
+ _empty_/Foo#2'
+
+
+ _empty_/Foo.apply(+1).[A]2#
+
+!
+ $scala/Predef.`???`().2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2"
+ scala/Predef.String#2
+ _empty_/Foo#[A]2
+ _empty_/Foo#x.2
+_empty_/Foo#copy().2
+ _empty_/Foo#_1().PZ 61EBC620028B3CA815AC0D173AA5A8AD

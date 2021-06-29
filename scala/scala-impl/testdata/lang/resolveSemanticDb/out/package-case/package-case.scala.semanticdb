@@ -1,0 +1,18 @@
+
+ùtests/pos/package-case.scala*
+io/package. *io€*,
+io/package.TextReader# €*
+TextReader€*3
+!io/package.TextReader#`<init>`(). €@*<init>€**
+io/package.TextReader#copy().*copy€*+
+io/package.TextReader.
+ *
+TextReader€*,
+io/package.TextReader.apply().*apply€*0
+ io/package.TextReader.unapply().*unapply€*1
+%io/package.TextReader.unapply().(x$1)*x$1€*2
+!io/package.TextReader.toString().*toString€2
+ io/package.2$
+ )io/package.TextReader#2/
+) )!io/package.TextReader#`<init>`().2$
+ io/package.TextReader.PZ 5316CA427E2C801056832CDDE5D951B8

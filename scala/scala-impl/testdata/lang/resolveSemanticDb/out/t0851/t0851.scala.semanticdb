@@ -1,0 +1,118 @@
+
+Étests/pos/t0851.scala*
+test/test1.
+ *test1€*
+test/test1.Foo# €*Foo€*,
+test/test1.Foo#`<init>`(). €@*<init>€**
+test/test1.Foo#`<init>`().(f) €*f€*
+test/test1.Foo#[T]	*T€*
+test/test1.Foo#[T2]	*T2€*
+test/test1.Foo#f. €*f€*%
+test/test1.Foo#apply().*apply€*$
+test/test1.Foo#apply().(t)*t€*
+local0*s€*'
+test/test1.Foo#apply(+1).*apply€*&
+test/test1.Foo#apply(+1).(p)*p€*#
+test/test1.Foo#copy().*copy€*#
+test/test1.Foo#copy().[T]	*T€*%
+test/test1.Foo#copy().[T2]	*T2€*#
+test/test1.Foo#copy().(f)*f€*7
+ test/test1.Foo#copy$default$1().*copy$default$1€*-
+#test/test1.Foo#copy$default$1().[T]	*T€*/
+$test/test1.Foo#copy$default$1().[T2]	*T2€*
+test/test1.Foo#_1().*_1€*
+test/test1.Foo.
+ *Foo€*%
+test/test1.Foo.apply().*apply€*$
+test/test1.Foo.apply().[T]	*T€*&
+test/test1.Foo.apply().[T2]	*T2€*$
+test/test1.Foo.apply().(f)*f€*)
+test/test1.Foo.unapply().*unapply€*&
+test/test1.Foo.unapply().[T]	*T€*(
+test/test1.Foo.unapply().[T2]	*T2€**
+test/test1.Foo.unapply().(x$1)*x$1€*+
+test/test1.Foo.toString().*toString€*
+test/test1.g().  *g€*
+test/test1.g().[T]	*T€*
+test/test1.g().(f)*f€*
+test/test1.main().*main€*%
+test/test1.main().(args)*args€*
+local1 €*f€*
+local2*x€*
+local3*s€2
+ test/2
+ test/test1.2
+ test/test1.Foo#2(
+ test/test1.Foo#`<init>`().2 
+ test/test1.Foo#[T]2!
+  test/test1.Foo#[T2]2"
+% +scala/Predef.String#2 
+8 9test/test1.Foo#[T]2!
+: <test/test1.Foo#[T2]2"
+B Hscala/Predef.String#2 
+ test/test1.Foo#[T]2!
+ test/test1.Foo#[T2]2
+ test/test1.Foo#f.2%
+ test/test1.Foo#apply().2(
+ test/test1.Foo#apply().(t)2 
+ test/test1.Foo#[T]2
+ local02!
+ test/test1.Foo#[T2]2&
+" "scala/Function2#apply().2
+! "test/test1.Foo#f.2(
+# $test/test1.Foo#apply().(t)2
+% &local02'
+ test/test1.Foo#apply(+1).2*
+ test/test1.Foo#apply(+1).(p)2 
+ test/test1.Foo#[T]2!
+ test/test1.Foo#[T2]2&
+ scala/Function2#apply().2
+ test/test1.Foo#f.2
+  "scala/Tuple2#_1.2*
+ test/test1.Foo#apply(+1).(p)2
+% 'scala/Tuple2#_2.2*
+# $test/test1.Foo#apply(+1).(p)2$
+ test/test1.Foo#copy().2"
+ test/test1.Foo#_1().2
+ test/test1.Foo.2%
+ test/test1.Foo.apply().2'
+ test/test1.Foo.unapply().2
+ test/test1.g().2 
+ test/test1.g().[T]2 
+ test/test1.g().(f)2 
+ test/test1.g().[T]2"
+ !scala/Predef.String#2"
+& ,scala/Predef.String#2
+/ 2test/test1.Foo#2 
+3 4test/test1.g().[T]2"
+6 <scala/Predef.String#2%
+C Ctest/test1.Foo.apply().2
+@ Ctest/test1.Foo.2 
+D Etest/test1.g().(f)2 
+ 
+test/test1.main().2&
+ test/test1.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+# 'scala/Unit#2
+		 	local12
+		 local22
+		 
+scala/Int#2
+		 local32"
+		 scala/Predef.String#2%
+	"	 #java/lang/String#`+`().2
+	 	 !local32
+	$	 %local22'
+
+
+ scala/Predef.println(+1).2%
+
+
+ test/test1.Foo#apply().2
+
+
+ test/test1.g().2
+
+
+ local1PZ 94BD57729810619909EF638D07C263AF

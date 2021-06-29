@@ -1,0 +1,135 @@
+
+æ*tests/pos/i12910.scala*
+_empty_/Type#*Type€**
+_empty_/Type#`<init>`(). €@*<init>€*
+_empty_/Type#[T]	*T€*
+_empty_/Type#Out#*Out€*(
+_empty_/Placeholder#*Placeholder€*1
+_empty_/Placeholder#`<init>`(). €@*<init>€*!
+_empty_/Placeholder#[T]	*T€*!
+_empty_/Placeholder#[U]	*U€**
+_empty_/Placeholder.
+ *Placeholder€**
+_empty_/Placeholder.apply().*apply€*)
+_empty_/Placeholder.apply().[T]	*T€*+
+_empty_/Placeholder.apply().(t)  *t€* 
+_empty_/Encoder#*Encoder€*-
+_empty_/Encoder#`<init>`(). €@*<init>€*
+_empty_/Encoder#[P]	*P€*
+_empty_/Encoder#[X]	*X€**
+_empty_/Encoder#encode(). *encode€*&
+_empty_/Encoder#encode().(x)*x€*"
+_empty_/Encoder.
+ *Encoder€*&
+_empty_/Encoder.apply().*apply€*%
+_empty_/Encoder.apply().[P]	*P€*%
+_empty_/Encoder.apply().[X]	*X€*9
+%_empty_/Encoder.apply().(placeholder)*placeholder€*'
+_empty_/Encoder.apply().(e)  *e€*
+local0*x€*P
+,_empty_/Encoder.given_Encoder_Placeholder_X#*given_Encoder_Placeholder_X€*I
+7_empty_/Encoder.given_Encoder_Placeholder_X#`<init>`(). €@*<init>€*9
+/_empty_/Encoder.given_Encoder_Placeholder_X#[T]	*T€*9
+/_empty_/Encoder.given_Encoder_Placeholder_X#[X]	*X€*D
+5_empty_/Encoder.given_Encoder_Placeholder_X#encode().*encode€*B
+8_empty_/Encoder.given_Encoder_Placeholder_X#encode().(x)*x€*T
+._empty_/Encoder.given_Encoder_Placeholder_X(). (*given_Encoder_Placeholder_X€*;
+1_empty_/Encoder.given_Encoder_Placeholder_X().[T]	*T€*;
+1_empty_/Encoder.given_Encoder_Placeholder_X().[X]	*X€*)
+_empty_/i12910$package. *_empty_€*/
+_empty_/i12910$package.varchar#*varchar€*G
+*_empty_/i12910$package.given_Type_varchar.
+ (*given_Type_varchar€*:
+._empty_/i12910$package.given_Type_varchar.Out#*Out€*+
+_empty_/i12910$package.Test().*Test€2
+ 
+_empty_/Type#2"
+
+ 
+_empty_/Type#`<init>`().2
+ _empty_/Type#[T]2
+ 
+_empty_/Type#Out#2"
+ _empty_/Placeholder#2-
+ _empty_/Placeholder#`<init>`().2%
+ _empty_/Placeholder#[T]2%
+ _empty_/Placeholder#[U]2"
+
+
+ _empty_/Placeholder.2*
+ _empty_/Placeholder.apply().2-
+ _empty_/Placeholder.apply().[T]2-
+ _empty_/Placeholder.apply().(t)2
+ _empty_/Type#2-
+ _empty_/Placeholder.apply().[T]2"
+" -_empty_/Placeholder#2-
+. /_empty_/Placeholder.apply().[T]2
+3 6_empty_/Type#Out#2-
+1 2_empty_/Placeholder.apply().(t)2-
+I I_empty_/Placeholder#`<init>`().2
+ _empty_/Encoder#2)
+ _empty_/Encoder#`<init>`().2!
+ _empty_/Encoder#[P]2!
+ _empty_/Encoder#[X]2'
+ _empty_/Encoder#encode().2*
+ _empty_/Encoder#encode().(x)2!
+ _empty_/Encoder#[X]2"
+ scala/Predef.String#2
+ _empty_/Encoder.2&
+ _empty_/Encoder.apply().2)
+ _empty_/Encoder.apply().[P]2)
+ _empty_/Encoder.apply().[X]23
+ %_empty_/Encoder.apply().(placeholder)2)
+  _empty_/Encoder.apply().[P]2)
+( )_empty_/Encoder.apply().(e)2
++ 2_empty_/Encoder#2)
+3 4_empty_/Encoder.apply().[P]2)
+6 7_empty_/Encoder.apply().[X]2)
+; <_empty_/Encoder.apply().[X]2"
+@ Fscala/Predef.String#2'
+K Q_empty_/Encoder#encode().2)
+I J_empty_/Encoder.apply().(e)2
+I Ilocal02:
+ ,_empty_/Encoder.given_Encoder_Placeholder_X#2E
+	 	7_empty_/Encoder.given_Encoder_Placeholder_X#`<init>`().2
+ _empty_/Encoder#2"
+ #_empty_/Placeholder#2=
+$ %/_empty_/Encoder.given_Encoder_Placeholder_X#[T]2=
+' (/_empty_/Encoder.given_Encoder_Placeholder_X#[X]2=
++ ,/_empty_/Encoder.given_Encoder_Placeholder_X#[X]2=
+	 
+/_empty_/Encoder.given_Encoder_Placeholder_X#[T]2=
+ /_empty_/Encoder.given_Encoder_Placeholder_X#[X]2C
+ 5_empty_/Encoder.given_Encoder_Placeholder_X#encode().2F
+ 8_empty_/Encoder.given_Encoder_Placeholder_X#encode().(x)2=
+ /_empty_/Encoder.given_Encoder_Placeholder_X#[X]2"
+ scala/Predef.String#2#
+ "scala/Predef.`???`().2<
+ ._empty_/Encoder.given_Encoder_Placeholder_X().2!
+_empty_/i12910$package.2-
+ _empty_/i12910$package.varchar#28
+ *_empty_/i12910$package.given_Type_varchar.2
+ 
+_empty_/Type#2-
+ _empty_/i12910$package.varchar#2<
+ 
+._empty_/i12910$package.given_Type_varchar.Out#2"
+ scala/Predef.String#2,
+ _empty_/i12910$package.Test().2&
++ +scala/Function1#apply().2&
+	 	_empty_/Encoder.apply().2
+ 	_empty_/Encoder.2-
+* *_empty_/Placeholder#`<init>`().2"
+ _empty_/Placeholder#2-
+ !_empty_/i12910$package.varchar#2"
+# )scala/Predef.String#2<
++ +._empty_/Encoder.given_Encoder_Placeholder_X().2&
+ scala/Function1#apply().2&
+	 	_empty_/Encoder.apply().2
+ 	_empty_/Encoder.2*
+ _empty_/Placeholder.apply().2"
+
+ _empty_/Placeholder.2-
+ _empty_/i12910$package.varchar#28
+ *_empty_/i12910$package.given_Type_varchar.2<
+ ._empty_/Encoder.given_Encoder_Placeholder_X().PZ 4FDEFAB4E9E990BEF493B6BC1AB9F65B

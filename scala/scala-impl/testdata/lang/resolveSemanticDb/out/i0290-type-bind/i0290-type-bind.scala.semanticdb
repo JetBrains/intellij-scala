@@ -1,0 +1,55 @@
+
+Å
+tests/pos/i0290-type-bind.scala*
+_empty_/foo.
+ *fooÄ*
+_empty_/foo.x. Ä*xÄ*
+local0 Ä*tÄ*
+local1 Ä	*ttÄ*
+_empty_/bar.
+ *barÄ*
+_empty_/bar.C#*CÄ*+
+_empty_/bar.C#`<init>`(). Ä@*<init>Ä*
+_empty_/bar.C#[T]	*TÄ*
+_empty_/bar.x. Ä*xÄ*
+local2 Ä*xÄ*
+local3 Ä	*uÄ*
+local4*xÄ*
+local5 Ä*sÄ2
+ 
+_empty_/foo.2
+ _empty_/foo.x.27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2
+ _empty_/foo.x.2
+	 
+local02!
+ scala/package.List#2
+ local12'
+ +scala/Any#asInstanceOf().22
+ $scala/collection/IterableOps#head().2
+ local02
+, .local12
+ 
+_empty_/bar.2
+		 	_empty_/bar.C#2'
+			 	_empty_/bar.C#`<init>`().2
+	
+	 _empty_/bar.C#[T]2
+ _empty_/bar.x.2
+	 scala/AnyRef#2'
+ _empty_/bar.C#`<init>`().2
+ _empty_/bar.x.2
+	 
+local22
+ _empty_/bar.C#2
+ local32
+
+ local42
+ local32
+ local42
+
+ local52 
+ scala/package.Seq#2
+ local4PZ CA3F10318AC72E3502521BC125440B14

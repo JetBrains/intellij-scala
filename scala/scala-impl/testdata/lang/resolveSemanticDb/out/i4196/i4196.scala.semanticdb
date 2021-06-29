@@ -1,0 +1,28 @@
+
+õtests/pos/i4196.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(i)*i€2
+ _empty_/Test.2'
+ scala/annotation/tailrec#2
+ scala/annotation/2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(i)2
+ scala/Unit#2
+ 
+scala/Int#2
+  scala/Unit#2
+% (
+scala/Int#2!
+
+ scala/Int#`==`(+3).2-
+	 	scala/ContextFunction1#apply().2$
+ 	_empty_/Test.foo().(i)2-
+ scala/ContextFunction1#apply().2!
+ 	_empty_/Test.foo().2 
+ scala/Int#`-`(+3).2-
+ scala/ContextFunction1#apply().2$
+
+ _empty_/Test.foo().(i)PZ F9632A7A4EE55604191C920E9B47CA79

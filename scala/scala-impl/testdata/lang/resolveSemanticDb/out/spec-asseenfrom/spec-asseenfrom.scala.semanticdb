@@ -1,0 +1,69 @@
+
+¯tests/pos/spec-asseenfrom.scala*$
+_empty_/Automaton#*	Automaton€*/
+_empty_/Automaton#`<init>`(). €@*<init>€*
+_empty_/Automaton#[W]	*W€*'
+_empty_/Automaton#[State]	*State€*4
+ _empty_/Automaton#finalWeight().*finalWeight€*-
+#_empty_/Automaton#finalWeight().(s)*s€*0
+_empty_/Automaton#allStates().*	allStates€*@
+&_empty_/Automaton#finalStateWeights().*finalStateWeights€*
+local0*s€*(
+_empty_/Automaton2# *
+Automaton2€*0
+_empty_/Automaton2#`<init>`(). €@*<init>€*"
+_empty_/Automaton2#[T1]	*T1€*"
+_empty_/Automaton2#[T2]	*T2€*7
+!_empty_/Automaton2#finalWeight(). *finalWeight€*.
+$_empty_/Automaton2#finalWeight().(s)*s€*3
+_empty_/Automaton2#allStates(). *	allStates€*!
+_empty_/Automaton2#f().*f€*
+local1*s€2
+ _empty_/Automaton#2'
+ _empty_/Automaton#`<init>`().2
+ scala/specialized#2
+ #scala/Double.2
+% &_empty_/Automaton#[W]2#
+' ,_empty_/Automaton#[State]2.
+  _empty_/Automaton#finalWeight().21
+ #_empty_/Automaton#finalWeight().(s)2'
+ _empty_/Automaton#[State]2#
+ _empty_/Automaton#[W]2(
+% *scala/sys/package.error().2
+! $
+scala/sys/2,
+ _empty_/Automaton#allStates().2
+ scala/Predef.Set#2'
+ _empty_/Automaton#[State]2(
+" 'scala/sys/package.error().2
+ !
+scala/sys/24
+		 &_empty_/Automaton#finalStateWeights().2-
+	$	 &scala/collection/MapOps#`++`().25
+		 #'scala/collection/immutable/Map.empty().2
+		 scala/Predef.Map.21
+	1	 4#scala/collection/IterableOps#map().2,
+	'	 0_empty_/Automaton#allStates().2
+	7	 8local02#
+	=	 =scala/Tuple2.apply().2
+	=	 >local02.
+	?	 J _empty_/Automaton#finalWeight().2
+	K	 Llocal02!
+ _empty_/Automaton2#2,
+ _empty_/Automaton2#`<init>`().2 
+ &scala/specialized#2%
+' )_empty_/Automaton2#[T1]2%
++ -_empty_/Automaton2#[T2]2/
+ !_empty_/Automaton2#finalWeight().22
+ $_empty_/Automaton2#finalWeight().(s)2%
+ _empty_/Automaton2#[T2]2%
+ _empty_/Automaton2#[T1]2-
+ _empty_/Automaton2#allStates().2
+ scala/Predef.Set#2%
+ _empty_/Automaton2#[T2]2%
+ _empty_/Automaton2#f().21
+ #scala/collection/IterableOps#map().2-
+
+ _empty_/Automaton2#allStates().2/
+ #!_empty_/Automaton2#finalWeight().2
+ local1PZ 91A7738E9B62C20B4FAF39D5B740A4F8

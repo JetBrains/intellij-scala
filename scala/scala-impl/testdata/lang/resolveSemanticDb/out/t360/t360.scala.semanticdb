@@ -1,0 +1,33 @@
+
+›tests/pos/t360.scala*"
+_empty_/Bug360A# *Bug360A€*-
+_empty_/Bug360A#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/Bug360A#f().*f€* 
+_empty_/Bug360B#*Bug360B€*-
+_empty_/Bug360B#`<init>`(). €@*<init>€*
+local1*self€*
+_empty_/Bug360B#d.
+ *d€*"
+_empty_/Bug360C# *Bug360C€*-
+_empty_/Bug360C#`<init>`(). €@*<init>€2
+ _empty_/Bug360A#2%
+ _empty_/Bug360A#`<init>`().2
+ local02
+ &_empty_/Bug360C#2"
+ _empty_/Bug360A#f().2"
+	 scala/Predef.String#2
+ _empty_/Bug360B#2)
+ _empty_/Bug360B#`<init>`().2
+ local12
+ _empty_/Bug360C#2 
+	 
+_empty_/Bug360B#d.2(
+ scala/Console.println(+1).2
+ scala/Console.2"
+ _empty_/Bug360A#f().2
+ _empty_/Bug360C#2)
+ _empty_/Bug360C#`<init>`().2)
+& &_empty_/Bug360A#`<init>`().2
+ &_empty_/Bug360A#2
+, 3_empty_/Bug360B#PZ DFC58B8E135AA74F02D83CC6FE7301CE

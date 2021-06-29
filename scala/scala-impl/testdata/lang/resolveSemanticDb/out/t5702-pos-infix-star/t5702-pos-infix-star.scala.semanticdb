@@ -1,0 +1,129 @@
+
+Ú$tests/pos/t5702-pos-infix-star.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.`*`# €**€*.
+_empty_/Test.`*`#`<init>`(). €@*<init>€*,
+_empty_/Test.`*`#`<init>`().(a) €*a€*,
+_empty_/Test.`*`#`<init>`().(b) €*b€* 
+_empty_/Test.`*`#a. €*a€* 
+_empty_/Test.`*`#b. €*b€*%
+_empty_/Test.`*`#copy().*copy€*%
+_empty_/Test.`*`#copy().(a)*a€*%
+_empty_/Test.`*`#copy().(b)*b€*9
+"_empty_/Test.`*`#copy$default$1().*copy$default$1€*9
+"_empty_/Test.`*`#copy$default$2().*copy$default$2€*!
+_empty_/Test.`*`#_1().*_1€*!
+_empty_/Test.`*`#_2().*_2€*
+_empty_/Test.`*`.
+ **€*'
+_empty_/Test.`*`.apply().*apply€*&
+_empty_/Test.`*`.apply().(a)*a€*&
+_empty_/Test.`*`.apply().(b)*b€*+
+_empty_/Test.`*`.unapply().*unapply€*,
+ _empty_/Test.`*`.unapply().(x$1)*x$1€*-
+_empty_/Test.`*`.toString().*toString€*
+_empty_/Test.Star#*Star€*
+_empty_/Test.P# €*P€*,
+_empty_/Test.P#`<init>`(). €@*<init>€**
+_empty_/Test.P#`<init>`().(a) €*a€**
+_empty_/Test.P#`<init>`().(b) €*b€*
+_empty_/Test.P#a. €*a€*
+_empty_/Test.P#b. €*b€*#
+_empty_/Test.P#copy().*copy€*#
+_empty_/Test.P#copy().(a)*a€*#
+_empty_/Test.P#copy().(b)*b€*7
+ _empty_/Test.P#copy$default$1().*copy$default$1€*7
+ _empty_/Test.P#copy$default$2().*copy$default$2€*
+_empty_/Test.P#_1().*_1€*
+_empty_/Test.P#_2().*_2€*
+_empty_/Test.P.
+ *P€*%
+_empty_/Test.P.apply().*apply€*$
+_empty_/Test.P.apply().(a)*a€*$
+_empty_/Test.P.apply().(b)*b€*)
+_empty_/Test.P.unapply().*unapply€**
+_empty_/Test.P.unapply().(x$1)*x$1€*+
+_empty_/Test.P.toString().*toString€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*v€*
+local1 €*x€*
+local2 €*y€*
+local3 €*p€*
+local4 €*a€*
+local5 €*b€*
+local6 €*c€2
+ _empty_/Test.2
+ _empty_/Test.`*`#2*
+ _empty_/Test.`*`#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+ _empty_/Test.`*`#a.2!
+ _empty_/Test.`*`#b.2&
+ _empty_/Test.`*`#copy().2$
+ _empty_/Test.`*`#_1().2$
+ _empty_/Test.`*`#_2().2
+ _empty_/Test.`*`.2'
+ _empty_/Test.`*`.apply().2 
+ _empty_/Test.Star#2
+ _empty_/Test.`*`#2
+ _empty_/Test.P#2(
+ _empty_/Test.P#`<init>`().2
+ 
+scala/Int#2 
+ _empty_/Test.Star#2
+ _empty_/Test.P#a.2
+ _empty_/Test.P#b.2$
+ _empty_/Test.P#copy().2"
+ _empty_/Test.P#_1().2"
+ _empty_/Test.P#_2().2
+ _empty_/Test.P.2%
+ _empty_/Test.P.apply().2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02*
+ _empty_/Test.`*`#`<init>`().2
+ _empty_/Test.`*`#2
+ local02)
+ _empty_/Test.`*`.unapply().2
+
+ _empty_/Test.`*`.2
+ 	local12
+ local22$
+		 
+scala/Predef.printf().2
+		 local12
+		 local22
+
+
+ 	local32%
+
+
+ _empty_/Test.P.apply().2
+
+
+ _empty_/Test.P.2
+
+
+ local02
+ local32)
+ _empty_/Test.`*`.unapply().2
+ _empty_/Test.`*`.2'
+	 	_empty_/Test.P.unapply().2
+ 	_empty_/Test.P.2
+
+ local42
+ local52
+ local62$
+ 
+scala/Predef.printf().2
+ local42
+ local52
+ local6PZ 2785CD1808204EDA78DCB25781493C6A

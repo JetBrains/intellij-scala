@@ -1,0 +1,77 @@
+
+¥tests/pos/i6146.scala*
+_empty_/BS#*BS€*(
+_empty_/BS#`<init>`(). €@*<init>€*
+_empty_/BS#[T]	*T€*
+_empty_/BS#[S]	*S€*
+_empty_/IS#*IS€*(
+_empty_/IS#`<init>`(). €@*<init>€* 
+_empty_/BSElem# *BSElem€*,
+_empty_/BSElem#`<init>`(). €@*<init>€*
+_empty_/BSElem#[T]	*T€*
+_empty_/BSElem#[S]	*S€* 
+_empty_/BSElem.
+ *BSElem€*8
+_empty_/BSElem.intStreamShape.  *intStreamShape€*
+_empty_/Ops#*Ops€*)
+_empty_/Ops#`<init>`(). €@*<init>€*
+_empty_/Ops#[A]	*A€*6
+_empty_/Ops#asJavaSeqStream().*asJavaSeqStream€*+
+!_empty_/Ops#asJavaSeqStream().[S]	*S€*-
+!_empty_/Ops#asJavaSeqStream().(s)  *s€2
+ _empty_/BS#2 
+ _empty_/BS#`<init>`().2
+	 
+_empty_/BS#[T]2
+ _empty_/BS#[S]2
+ _empty_/IS#2$
+ _empty_/IS#`<init>`().2
+ _empty_/BS#2
+ 
+scala/Int#2
+ _empty_/IS#2
+ _empty_/BSElem#2(
+ _empty_/BSElem#`<init>`().2 
+ _empty_/BSElem#[T]2 
+ _empty_/BSElem#[S]2
+ _empty_/BSElem.2,
+ _empty_/BSElem.intStreamShape.2
+ %_empty_/BSElem#2
+& )
+scala/Int#2
++ -_empty_/IS#2#
+1 4scala/Predef.`???`().2
+		 	_empty_/Ops#2%
+			 	_empty_/Ops#`<init>`().2
+	
+	 _empty_/Ops#[A]2,
+
+
+ _empty_/Ops#asJavaSeqStream().2/
+
+
+ !_empty_/Ops#asJavaSeqStream().[S]2
+
+
+ _empty_/BS#2/
+
+!
+ "!_empty_/Ops#asJavaSeqStream().[S]2/
+
+.
+ /!_empty_/Ops#asJavaSeqStream().(s)2
+
+1
+ 7_empty_/BSElem#2
+
+8
+ 9_empty_/Ops#[A]2/
+
+;
+ <!_empty_/Ops#asJavaSeqStream().[S]2/
+
+@
+ A!_empty_/Ops#asJavaSeqStream().[S]2#
+
+D
+ Gscala/Predef.`???`().PZ 927E770E74D6005769EC14A973DD01A3

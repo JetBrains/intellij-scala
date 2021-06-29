@@ -1,0 +1,42 @@
+
+³tests/pos/t2693.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#Tr#*Tr€**
+_empty_/A#Tr#`<init>`(). €@*<init>€*
+_empty_/A#Tr#[A]	*A€*"
+_empty_/A#usetHk().*usetHk€* 
+_empty_/A#usetHk().[T]	*T€* 
+_empty_/A#usetHk().[A]	*A€*"
+_empty_/A#usetHk().(ta)*ta€*
+local0 *$anon€*
+local1 *$anon€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#Tr#2&
+
+ 
+_empty_/A#Tr#`<init>`().2
+ _empty_/A#Tr#[A]2!
+ _empty_/A#usetHk().2$
+ _empty_/A#usetHk().[T]2$
+ _empty_/A#usetHk().[A]2%
+ _empty_/A#usetHk().(ta)2$
+ _empty_/A#usetHk().[T]2$
+ _empty_/A#usetHk().[A]2!
+ _empty_/A#usetHk().2
+	 	local02
+ _empty_/A#Tr#2
+ 
+scala/Int#2
+ _empty_/A#Tr#2
+ 
+scala/Int#2!
+ _empty_/A#usetHk().2
+	 	local12
+ _empty_/A#Tr#2
+ 
+scala/Int#PZ C3521105451AA7E8E4376289ED378D07

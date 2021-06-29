@@ -1,0 +1,44 @@
+
+—tests/pos/t7928.scala*&
+_empty_/OuterTrait#*
+OuterTrait€*0
+_empty_/OuterTrait#`<init>`(). €@*<init>€*1
+_empty_/OuterTrait#InnerTrait#*
+InnerTrait€*;
+)_empty_/OuterTrait#InnerTrait#`<init>`(). €@*<init>€*6
+&_empty_/OuterTrait#InnerTrait#Element#*Element€*<
+)_empty_/OuterTrait#InnerTrait#Collection#*
+Collection€**
+_empty_/OuterTrait#Inner. „*Inner€**
+_empty_/OuterObject.
+ *OuterObject€**
+_empty_/OuterObject.Inner.
+ *Inner€*2
+"_empty_/OuterObject.Inner.Element#*Element€*8
+%_empty_/OuterObject.Inner.Collection#*
+Collection€2
+ _empty_/OuterTrait#2,
+ _empty_/OuterTrait#`<init>`().2,
+ _empty_/OuterTrait#InnerTrait#27
+ )_empty_/OuterTrait#InnerTrait#`<init>`().24
+	 &_empty_/OuterTrait#InnerTrait#Element#27
+	 )_empty_/OuterTrait#InnerTrait#Collection#2%
+ scala/package.Iterable#24
+& -&_empty_/OuterTrait#InnerTrait#Element#2'
+  %_empty_/OuterTrait#Inner.2'
+ _empty_/OuterTrait#Inner.2,
+ _empty_/OuterTrait#InnerTrait#2"
+
+
+ _empty_/OuterObject.2!
+
+
+ %_empty_/OuterTrait#2(
+	 _empty_/OuterObject.Inner.2,
+ !_empty_/OuterTrait#InnerTrait#20
+	 "_empty_/OuterObject.Inner.Element#2"
+ scala/Predef.String#23
+ %_empty_/OuterObject.Inner.Collection#2 
+ "scala/package.Seq#20
+) 0"_empty_/OuterObject.Inner.Element#2(
+# (_empty_/OuterObject.Inner.PZ E82F67F7DFB43F54B6854EC7DD96BEEC

@@ -1,0 +1,103 @@
+
+«tests/pos/t1513b.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€* 
+_empty_/Test.f().[T1]	*T1€* 
+_empty_/Test.f().[T2]	*T2€* 
+_empty_/Test.f().[T3]	*T3€* 
+_empty_/Test.f().(a1)*a1€* 
+_empty_/Test.f().(a2)*a2€* 
+_empty_/Test.f().(a3)*a3€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ _empty_/Test.2
+ _empty_/Test.f().2#
+ _empty_/Test.f().[T1]2"
+
+ scala/Predef.String#2#
+ _empty_/Test.f().[T2]2
+
+ 
+scala/Int#2#
+ _empty_/Test.f().[T3]2
+
+ scala/Boolean#2#
+ _empty_/Test.f().(a1)2#
+ 
+_empty_/Test.f().[T1]2#
+ _empty_/Test.f().(a2)2#
+ _empty_/Test.f().[T2]2#
+ _empty_/Test.f().(a3)2#
+ _empty_/Test.f().[T3]2
+ _empty_/Test.f().2
+		 _empty_/Test.f().2"
+			 scala/Predef.String#2
+
+
+ _empty_/Test.f().2
+
+	
+ 
+scala/Int#2
+ _empty_/Test.f().2
+	 scala/Boolean#2
+ _empty_/Test.f().2"
+	 scala/Predef.String#2
+ 
+scala/Int#2
+ _empty_/Test.f().2"
+	 scala/Predef.String#2
+ scala/Boolean#2
+ _empty_/Test.f().2
+	 
+scala/Int#2"
+ scala/Predef.String#2
+ _empty_/Test.f().2
+	 
+scala/Int#2
+ scala/Boolean#2
+ _empty_/Test.f().2
+	 scala/Boolean#2
+ 
+scala/Int#2
+ _empty_/Test.f().2
+	 scala/Boolean#2"
+ scala/Predef.String#2
+ _empty_/Test.f().2"
+	 scala/Predef.String#2
+ 
+scala/Int#2
+% ,scala/Boolean#2
+ _empty_/Test.f().2"
+	 scala/Predef.String#2
+ scala/Boolean#2
+% (
+scala/Int#2
+ _empty_/Test.f().2
+	 
+scala/Int#2"
+ scala/Predef.String#2
+% ,scala/Boolean#2
+ _empty_/Test.f().2
+	 
+scala/Int#2
+ scala/Boolean#2"
+% +scala/Predef.String#2
+ _empty_/Test.f().2
+	 scala/Boolean#2"
+ scala/Predef.String#2
+% (
+scala/Int#2
+ _empty_/Test.f().2
+	 scala/Boolean#2
+ 
+scala/Int#2"
+% +scala/Predef.String#2
+ _empty_/Test.f().2"
+ 
+scala/Predef.String#2
+ 
+scala/Int#2
+  'scala/Boolean#PZ CC1F94661EB26495E8D48124FD7ED670

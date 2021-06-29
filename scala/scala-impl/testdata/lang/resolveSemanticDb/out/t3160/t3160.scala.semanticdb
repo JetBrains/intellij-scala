@@ -1,0 +1,23 @@
+
+ítests/pos/t3160.scala*
+_empty_/Node#*Node€**
+_empty_/Node#`<init>`(). €@*<init>€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f().*f€*
+_empty_/A#f().(x)*x€2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ 
+_empty_/Node#2"
+_empty_/Node#`<init>`().2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2
+ 	_empty_/A#f().(x)2
+ _empty_/Node#2
+ _empty_/Node#2#
+ scala/Predef.`???`().PZ 31C6409E5A4C3CBCB427C7215F65BDDA

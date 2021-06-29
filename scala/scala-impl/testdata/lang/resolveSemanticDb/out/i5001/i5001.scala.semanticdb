@@ -1,0 +1,16 @@
+
+étests/pos/i5001.scala*
+_empty_/i1# €*i1€*(
+_empty_/i1#`<init>`(). €@*<init>€*
+_empty_/i1#copy().*copy€*
+_empty_/i1.
+ *i1€*!
+_empty_/i1.apply().*apply€*%
+_empty_/i1.unapply().*unapply€*&
+_empty_/i1.unapply().(x$1)*x$1€*'
+_empty_/i1.toString().*toString€2
+ _empty_/i1#2 
+ _empty_/i1#`<init>`().2&
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ _empty_/i1.PZ 3AB32724D45EA55BADBA7558F74B3503

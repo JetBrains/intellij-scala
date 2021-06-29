@@ -1,0 +1,40 @@
+
+étests/pos/t6537.scala*-
+tester/PatMatWarning.
+ *PatMatWarning€*#
+tester/PatMatWarning.X# *X€*4
+"tester/PatMatWarning.X#`<init>`(). €@*<init>€*#
+tester/PatMatWarning.Y# *Y€*4
+"tester/PatMatWarning.Y#`<init>`(). €@*<init>€*#
+tester/PatMatWarning.f().*f€*&
+tester/PatMatWarning.f().(x)*x€*#
+tester/PatMatWarning.X1#*X1€*5
+#tester/PatMatWarning.X1#`<init>`(). €@*<init>€*#
+tester/PatMatWarning.Y1#*Y1€*5
+#tester/PatMatWarning.Y1#`<init>`(). €@*<init>€*#
+tester/PatMatWarning.Z1#*Z1€*5
+#tester/PatMatWarning.Z1#`<init>`(). €@*<init>€2
+ tester/2#
+ tester/PatMatWarning.2%
+ tester/PatMatWarning.X#20
+ "tester/PatMatWarning.X#`<init>`().2%
+ tester/PatMatWarning.Y#20
+ "tester/PatMatWarning.Y#`<init>`().2'
+ tester/PatMatWarning.f().2*
+ 	tester/PatMatWarning.f().(x)2%
+ tester/PatMatWarning.X#2*
+ tester/PatMatWarning.f().(x)2%
+ tester/PatMatWarning.Y#2&
+ 
+tester/PatMatWarning.X1#21
+ #tester/PatMatWarning.X1#`<init>`().2%
+ tester/PatMatWarning.X#2&
+ 
+tester/PatMatWarning.Y1#21
+ #tester/PatMatWarning.Y1#`<init>`().2%
+ tester/PatMatWarning.Y#2&
+ 
+tester/PatMatWarning.Z1#21
+ #tester/PatMatWarning.Z1#`<init>`().2%
+ tester/PatMatWarning.X#2%
+ tester/PatMatWarning.Y#PZ CEAF039509ED68B63EB6E7E2B7BCD8D3

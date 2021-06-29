@@ -1,0 +1,134 @@
+
+Š tests/pos/i12677.scala*
+
+_empty_/F#*F€*'
+_empty_/F#`<init>`(). €@*<init>€*
+_empty_/F#[A]	*A€*
+
+_empty_/F.
+ *F€* 
+_empty_/F.apply().*apply€*
+_empty_/F.apply().[A]	*A€*
+_empty_/F.apply().(a)*a€*
+_empty_/TC#*TC€*(
+_empty_/TC#`<init>`(). €@*<init>€*
+_empty_/TC#[A]	*A€*
+_empty_/TC#Out#*Out€*
+_empty_/TC.
+ *TC€*
+_empty_/TC.tc().  *tc€*
+_empty_/TC.tc().[A]	*A€*
+local0*Out€*
+_empty_/Bug.
+ *Bug€*,
+_empty_/Bug.CustomHook# *
+CustomHook€*4
+"_empty_/Bug.CustomHook#`<init>`(). €@*<init>€*$
+_empty_/Bug.CustomHook#[A]	*A€*+
+_empty_/Bug.CustomHook#blah().*blah€*/
+"_empty_/Bug.CustomHook#blah().(tc)  *tc€*
+_empty_/Bug.i().*i€*
+_empty_/Bug.f. €*f€*(
+_empty_/Workaround.
+ *
+Workaround€*3
+_empty_/Workaround.CustomHook# *
+CustomHook€*;
+)_empty_/Workaround.CustomHook#`<init>`(). €@*<init>€*+
+!_empty_/Workaround.CustomHook#[A]	*A€*2
+%_empty_/Workaround.CustomHook#blah().*blah€*2
+(_empty_/Workaround.CustomHook#blah().[B]	*B€*6
+)_empty_/Workaround.CustomHook#blah().(tc)  *tc€*
+local1*Out€*!
+_empty_/Workaround.i().*i€*"
+_empty_/Workaround.f. €*f€2
+ 
+_empty_/F#2
+ _empty_/F#`<init>`().2
+ 	_empty_/F#[A]2
+ 
+_empty_/F.2 
+ _empty_/F.apply().2#
+ _empty_/F.apply().[A]2#
+ _empty_/F.apply().(a)2#
+ _empty_/F.apply().[A]2#
+" "_empty_/F#`<init>`().2
+ 
+_empty_/F#2#
+  !_empty_/F.apply().[A]2
+ _empty_/TC#2$
+ _empty_/TC#`<init>`().2
+	 
+_empty_/TC#[A]2
+ _empty_/TC#Out#2
+ 	_empty_/TC.2
+ _empty_/TC.tc().2!
+ _empty_/TC.tc().[A]2
+ _empty_/TC#2!
+ _empty_/TC.tc().[A]2
+# &local02"
+) /scala/Predef.String#2#
+4 7scala/Predef.`???`().2
+ 
+_empty_/Bug.2%
+ _empty_/Bug.CustomHook#20
+ "_empty_/Bug.CustomHook#`<init>`().2(
+ _empty_/Bug.CustomHook#[A]2,
+ _empty_/Bug.CustomHook#blah().20
+ "_empty_/Bug.CustomHook#blah().(tc)2
+ _empty_/TC#2(
+ _empty_/Bug.CustomHook#[A]2%
+" ,_empty_/Bug.CustomHook#2
+0 3_empty_/TC#Out#20
+- /"_empty_/Bug.CustomHook#blah().(tc)2#
+7 :scala/Predef.`???`().2
+ _empty_/Bug.i().2%
+	 _empty_/Bug.CustomHook#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Bug.f.2 
+ _empty_/F.apply().2
+
+ 
+_empty_/F.2,
+ _empty_/Bug.CustomHook#blah().2
+ _empty_/Bug.i().2
+ _empty_/TC.tc().2
+ _empty_/Bug.f.2
+ 
+_empty_/F#2%
+ _empty_/Bug.CustomHook#2"
+ scala/Predef.String#2!
+ _empty_/Workaround.2,
+ _empty_/Workaround.CustomHook#27
+ )_empty_/Workaround.CustomHook#`<init>`().2/
+ !_empty_/Workaround.CustomHook#[A]23
+ %_empty_/Workaround.CustomHook#blah().26
+ (_empty_/Workaround.CustomHook#blah().[B]27
+ )_empty_/Workaround.CustomHook#blah().(tc)2
+ _empty_/TC#2/
+  !!_empty_/Workaround.CustomHook#[A]2
+* -local126
+0 1(_empty_/Workaround.CustomHook#blah().[B]2,
+6 @_empty_/Workaround.CustomHook#26
+A B(_empty_/Workaround.CustomHook#blah().[B]2#
+F Iscala/Predef.`???`().2%
+ _empty_/Workaround.i().2,
+	 _empty_/Workaround.CustomHook#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2#
+ _empty_/Workaround.f.2 
+ _empty_/F.apply().2
+
+ 
+_empty_/F.23
+ %_empty_/Workaround.CustomHook#blah().2%
+ _empty_/Workaround.i().2
+ _empty_/TC.tc().2#
+ _empty_/Workaround.f.2
+ 
+_empty_/F#2,
+ _empty_/Workaround.CustomHook#2"
+ scala/Predef.String#PZ 1B4049A3107BC5E91D5AC3C42928C13C

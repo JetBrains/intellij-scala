@@ -1,0 +1,33 @@
+
+è	tests/pos/tcpoly_method.scala*"
+_empty_/Iterable#*Iterable€*.
+_empty_/Iterable#`<init>`(). €@*<init>€*
+_empty_/Iterable#[m]	*m€*!
+_empty_/Iterable#[t]	 €*t€*-
+_empty_/Iterable#flatMap(). *flatMap€*4
+$_empty_/Iterable#flatMap().[resColl]	*resColl€*(
+_empty_/Iterable#flatMap().[s]	*s€*(
+_empty_/Iterable#flatMap().(f)*f€*#
+_empty_/Iterable#foo().*foo€*$
+_empty_/Iterable#foo().[a]	*a€* 
+_empty_/Iterable#x. €*x€2
+ _empty_/Iterable#2&
+ _empty_/Iterable#`<init>`().2
+ _empty_/Iterable#[m]2
+ _empty_/Iterable#[t]2)
+ _empty_/Iterable#flatMap().22
+ $_empty_/Iterable#flatMap().[resColl]2,
+3 4_empty_/Iterable#flatMap().[s]2,
+6 7_empty_/Iterable#flatMap().(f)2"
+9 :_empty_/Iterable#[t]22
+> E$_empty_/Iterable#flatMap().[resColl]2,
+F G_empty_/Iterable#flatMap().[s]22
+K R$_empty_/Iterable#flatMap().[resColl]2,
+S T_empty_/Iterable#flatMap().[s]2%
+ 	_empty_/Iterable#foo().2(
+
+ _empty_/Iterable#foo().[a]2!
+ _empty_/Iterable#x.2%
+
+ _empty_/Iterable#foo().2!
+ scala/package.List#PZ A36ECB8CDF6987DC8D5A90A4447C409A

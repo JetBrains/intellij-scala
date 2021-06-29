@@ -1,0 +1,44 @@
+
+ì
+tests/pos/t0165.scala*
+test3/Main#*Main€*(
+test3/Main#`<init>`(). €@*<init>€*#
+test3/Main#asMany().*asMany€*
+local0
+ *result€*
+local1*current€*+
+test3/Main#ArrayResult#*ArrayResult€*4
+"test3/Main#ArrayResult#`<init>`(). €@*<init>€*3
+!test3/Main#ArrayResult#current(). *current€2
+ test3/25
+  -'scala/collection/mutable/LinkedHashMap.25
+  -'scala/collection/mutable/LinkedHashMap#2'
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ 
+test3/Main#2$
+ test3/Main#`<init>`().2"
+ test3/Main#asMany().2%
+ test3/Main#ArrayResult#2
+ local02@
+6 62scala/collection/mutable/LinkedHashMap#`<init>`().25
+ ''scala/collection/mutable/LinkedHashMap#2"
+( .scala/Predef.String#2"
+/ 5scala/Predef.String#2%
+< Gtest3/Main#ArrayResult#2
+
+ local127
+ )scala/collection/mutable/MapOps#result().2
+ 
+local22%
+
+
+ test3/Main#ArrayResult#20
+ "test3/Main#ArrayResult#`<init>`().2/
+ !test3/Main#ArrayResult#current().2#
+# &scala/collection/Map#2
+ "scala/collection/2
+ scala/2"
+' -scala/Predef.String#2"
+. 4scala/Predef.String#PZ F093670016F2E399A2515A73EBF7D36D

@@ -1,0 +1,33 @@
+
+²'tests/pos/infinite-loop-potential.scala*T
+)_empty_/InfiniteSubtypingLoopPossibility.
+ * InfiniteSubtypingLoopPossibility€*5
++_empty_/InfiniteSubtypingLoopPossibility.A#*A€*H
+6_empty_/InfiniteSubtypingLoopPossibility.A#`<init>`(). €@*<init>€*8
+._empty_/InfiniteSubtypingLoopPossibility.A#[X]	*X€*5
++_empty_/InfiniteSubtypingLoopPossibility.B#*B€*H
+6_empty_/InfiniteSubtypingLoopPossibility.B#`<init>`(). €@*<init>€*9
+-_empty_/InfiniteSubtypingLoopPossibility.Min#*Min€*J
+8_empty_/InfiniteSubtypingLoopPossibility.Min#`<init>`(). €@*<init>€*=
+0_empty_/InfiniteSubtypingLoopPossibility.Min#[S]	 €*S€*7
+-_empty_/InfiniteSubtypingLoopPossibility.c().*c€*
+local0 €*pc€23
+ ')_empty_/InfiniteSubtypingLoopPossibility.29
+ 	+_empty_/InfiniteSubtypingLoopPossibility.A#2D
+	 	6_empty_/InfiniteSubtypingLoopPossibility.A#`<init>`().2<
+
+ ._empty_/InfiniteSubtypingLoopPossibility.A#[X]29
+ 	+_empty_/InfiniteSubtypingLoopPossibility.B#2D
+ 6_empty_/InfiniteSubtypingLoopPossibility.B#`<init>`().29
+ +_empty_/InfiniteSubtypingLoopPossibility.A#29
+ +_empty_/InfiniteSubtypingLoopPossibility.B#2;
+ -_empty_/InfiniteSubtypingLoopPossibility.Min#2F
+ 8_empty_/InfiniteSubtypingLoopPossibility.Min#`<init>`().2>
+ 0_empty_/InfiniteSubtypingLoopPossibility.Min#[S]2;
+ -_empty_/InfiniteSubtypingLoopPossibility.c().2
+	 
+scala/Any#2#
+ scala/Predef.`???`().2;
+ -_empty_/InfiniteSubtypingLoopPossibility.c().2
+	 local02;
+ -_empty_/InfiniteSubtypingLoopPossibility.Min#PZ 85EA63C21F792984B3B6F4AD7A6FFE39

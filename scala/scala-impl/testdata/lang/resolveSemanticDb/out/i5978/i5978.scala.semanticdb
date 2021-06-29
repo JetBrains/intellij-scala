@@ -1,0 +1,314 @@
+
+¬Mtests/pos/i5978.scala*(
+_empty_/TokenParser#*TokenParser€*1
+_empty_/TokenParser#`<init>`(). €@*<init>€*)
+_empty_/TokenParser#[Token]	*Token€*!
+_empty_/TokenParser#[R]	*R€*#
+p1/TextParser.
+ *
+TextParser€*
+p1/TextParser.TP.
+ (*TP€*
+p1/TextParser.f().*f€*%
+p1/TextParser.f().(x$1)  *x$1€*6
+p1/TextParser.FromCharToken(). (*FromCharToken€*-
+!p1/TextParser.FromCharToken().(T)  *T€*
+p1/Testcase.
+ *Testcase€* 
+p1/Testcase.main().*main€*&
+p1/Testcase.main().(args)*args€*
+local0 €*tp_v€*
+local1 €*tp_i€*
+local2 €*co_i€*
+local3 €*co_x€*
+local4 è*XXX€*
+local5 €*co_y€*#
+p2/TextParser.
+ *
+TextParser€*
+p2/TextParser.TP.
+ (*TP€*6
+p2/TextParser.FromCharToken().  *FromCharToken€*+
+!p2/TextParser.FromCharToken().(c)*c€*-
+!p2/TextParser.FromCharToken().(T)  *T€*
+p2/Testcase.
+ *Testcase€* 
+p2/Testcase.main().*main€*&
+p2/Testcase.main().(args)*args€*
+local6 €*tp_v€*
+local7 €*tp_i€*
+local8 €*co_x€*#
+p3/TextParser.
+ *
+TextParser€*
+p3/TextParser.TP.
+ (*TP€*6
+p3/TextParser.FromCharToken().  *FromCharToken€*-
+!p3/TextParser.FromCharToken().(T)  *T€*
+p3/Testcase.
+ *Testcase€* 
+p3/Testcase.main().*main€*&
+p3/Testcase.main().(args)*args€*
+local9 €*co_i€*
+local10 €*tp_v€*
+local11 €*tp_i€*1
+local12 è*given_Conversion_Char_Position€*
+local13 €*co_x€*
+local14 è*XXX€*
+local15 €*co_y€*
+p4/TC#*TC€*#
+p4/TC#`<init>`(). €@*<init>€*
+p4/i5978$package. *p4€*
+p4/i5978$package.A.
+ (*A€*
+p4/i5978$package.B#*B€*0
+p4/i5978$package.B#`<init>`(). €@*<init>€* 
+p4/i5978$package.B#[X]	*X€* 
+p4/i5978$package.B#[Y]	*Y€*!
+p4/i5978$package.B(). (*B€*"
+p4/i5978$package.B().[X]	*X€*"
+p4/i5978$package.B().[Y]	*Y€*
+p4/i5978$package.C#*C€*0
+p4/i5978$package.C#`<init>`(). €@*<init>€*2
+#p4/i5978$package.C#`<init>`().(x$1)  *x$1€*&
+p4/i5978$package.C#x$1.  *x$1€*!
+p4/i5978$package.C(). (*C€*(
+p4/i5978$package.C().(x$1)  *x$1€*(
+_empty_/i5978$package. *_empty_€*0
+_empty_/i5978$package.Position#*Position€*6
+'_empty_/i5978$package.Position#[Buffer]	*Buffer€2-
+ )#scala/language.implicitConversions.2
+ scala/language.2
+ scala/2"
+ _empty_/TokenParser#2-
+ _empty_/TokenParser#`<init>`().2)
+ _empty_/TokenParser#[Token]2%
+ _empty_/TokenParser#[R]2
+ 
+p1/2
+	 p1/TextParser.2
+	
+	 p1/TextParser.TP.2"
+		 _empty_/TokenParser#2
+		 scala/Char#2-
+	 	 (_empty_/i5978$package.Position#2%
+	)	 5java/lang/CharSequence#2 
+ 	p1/TextParser.f().2%
+ p1/TextParser.f().(x$1)2"
+ _empty_/TokenParser#2
+ scala/Char#2-
+ '_empty_/i5978$package.Position#2%
+( 4java/lang/CharSequence#2#
+: =scala/Predef.`???`().2,
+
+ p1/TextParser.FromCharToken().2/
+ !p1/TextParser.FromCharToken().(T)2"
+! ,_empty_/TokenParser#2
+- 1scala/Char#2-
+3 ;_empty_/i5978$package.Position#2%
+< Hjava/lang/CharSequence#2
+ scala/Conversion#2
+ scala/Char#2-
+ !_empty_/i5978$package.Position#2%
+" .java/lang/CharSequence#2#
+3 6scala/Predef.`???`().2
+	 p1/Testcase.2!
+ p1/Testcase.main().2'
+ p1/Testcase.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+# 'scala/Unit#2
+ p1/TextParser.2
+
+ local02"
+ _empty_/TokenParser#2
+  scala/Char#2-
+" *_empty_/i5978$package.Position#2%
++ 7java/lang/CharSequence#2
+G Ip1/TextParser.TP.2
+< Fp1/TextParser.2
+
+ local12$
+ scala/Predef.summon().2"
+ #_empty_/TokenParser#2
+$ (scala/Char#2-
+* 2_empty_/i5978$package.Position#2%
+3 ?java/lang/CharSequence#2
+B Bp1/TextParser.TP.2
+
+ local22$
+ scala/Predef.summon().2
+ "scala/Conversion#2
+# 'scala/Char#2-
+) 1_empty_/i5978$package.Position#2%
+2 >java/lang/CharSequence#2,
+A Ap1/TextParser.FromCharToken().2
+A Ap1/TextParser.TP.2
+
+ local32-
+ _empty_/i5978$package.Position#2%
+ &java/lang/CharSequence#2'
+* *scala/Conversion#apply().2
+ local42
+ scala/Conversion#2
+ "scala/Char#2-
+$ ,_empty_/i5978$package.Position#2%
+- 9java/lang/CharSequence#2
+> Blocal22
+   local52-
+   _empty_/i5978$package.Position#2%
+   (java/lang/CharSequence#2'
+ ,  ,scala/Conversion#apply().2
+%% 
+p2/2
+'	' p2/TextParser.2
+(( p2/TextParser.TP.2"
+(( *_empty_/TokenParser#2
+(+( /scala/Char#2-
+(1( 9_empty_/i5978$package.Position#2%
+(:( Fjava/lang/CharSequence#2,
+** p2/TextParser.FromCharToken().2/
+**  !p2/TextParser.FromCharToken().(c)2
+*"* &scala/Char#2/
+*1* 2!p2/TextParser.FromCharToken().(T)2"
+*4* ?_empty_/TokenParser#2
+*@* Dscala/Char#2-
+*F* N_empty_/i5978$package.Position#2%
+*O* [java/lang/CharSequence#2-
+*`* h_empty_/i5978$package.Position#2%
+*i* ujava/lang/CharSequence#2#
+*y* |scala/Predef.`???`().2
+-	- p2/Testcase.2!
+.. p2/Testcase.main().2'
+.. p2/Testcase.main().(args)2
+.. scala/Array#2"
+.. scala/Predef.String#2
+.#. 'scala/Unit#2
+// p2/TextParser.2
+1
+1 local62"
+11 _empty_/TokenParser#2
+11  scala/Char#2-
+1"1 *_empty_/i5978$package.Position#2%
+1+1 7java/lang/CharSequence#2
+1G1 Ip2/TextParser.TP.2
+1<1 Fp2/TextParser.2
+2
+2 local72$
+22 scala/Predef.summon().2"
+22 #_empty_/TokenParser#2
+2$2 (scala/Char#2-
+2*2 2_empty_/i5978$package.Position#2%
+232 ?java/lang/CharSequence#2
+2B2 Bp2/TextParser.TP.2
+3
+3 local82-
+33 _empty_/i5978$package.Position#2%
+33 &java/lang/CharSequence#2,
+3*3 *p2/TextParser.FromCharToken().2
+3-3 -p2/TextParser.TP.2
+77 
+p3/2
+9	9 p3/TextParser.2
+:: p3/TextParser.TP.2"
+:: *_empty_/TokenParser#2
+:+: /scala/Char#2-
+:1: 9_empty_/i5978$package.Position#2%
+::: Fjava/lang/CharSequence#2,
+<< p3/TextParser.FromCharToken().2/
+<(< )!p3/TextParser.FromCharToken().(T)2"
+<+< 6_empty_/TokenParser#2
+<7< ;scala/Char#2-
+<=< E_empty_/i5978$package.Position#2%
+<F< Rjava/lang/CharSequence#2
+<W< ascala/Conversion#2
+<b< fscala/Char#2-
+<h< p_empty_/i5978$package.Position#2%
+<q< }java/lang/CharSequence#2%
+
+<‚< …scala/Predef.`???`().2
+?	? p3/Testcase.2!
+@@ p3/Testcase.main().2'
+@@ p3/Testcase.main().(args)2
+@@ scala/Array#2"
+@@ scala/Predef.String#2
+@#@ 'scala/Unit#2
+AA p3/TextParser.2
+C
+C local92
+CC scala/Conversion#2
+CC scala/Char#2-
+C!C )_empty_/i5978$package.Position#2%
+C*C 6java/lang/CharSequence#2$
+C;C Ascala/Predef.summon().2
+CBC Lscala/Conversion#2
+CMC Qscala/Char#2-
+CSC [_empty_/i5978$package.Position#2%
+C\C hjava/lang/CharSequence#2,
+CkC kp3/TextParser.FromCharToken().2
+CkC kp3/TextParser.TP.2
+FF local102"
+FF _empty_/TokenParser#2
+FF "scala/Char#2-
+F$F ,_empty_/i5978$package.Position#2%
+F-F 9java/lang/CharSequence#2
+FIF Kp3/TextParser.TP.2
+F>F Hp3/TextParser.2
+GG local112$
+GG scala/Predef.summon().2"
+GG %_empty_/TokenParser#2
+G&G *scala/Char#2-
+G,G 4_empty_/i5978$package.Position#2%
+G5G Ajava/lang/CharSequence#2
+GDG Dp3/TextParser.TP.2
+HH local122
+HH scala/Conversion#2
+HH scala/Char#2-
+HH '_empty_/i5978$package.Position#2%
+H(H 4java/lang/CharSequence#2
+H9H =local92
+II local132-
+II _empty_/i5978$package.Position#2%
+II (java/lang/CharSequence#2'
+I,I ,scala/Conversion#apply().2
+LL local142
+LL scala/Conversion#2
+L L $scala/Char#2-
+L&L ._empty_/i5978$package.Position#2%
+L/L ;java/lang/CharSequence#2
+L@L Dlocal92
+MM local152-
+MM _empty_/i5978$package.Position#2%
+MM *java/lang/CharSequence#2'
+M.M .scala/Conversion#apply().2
+SS 
+p4/2
+TT 
+p4/TC#2
+TT p4/TC#`<init>`().2
+VV p4/i5978$package.2!
+VV 	p4/i5978$package.A.2
+VV p4/TC#`<init>`().2
+VV p4/TC#2!
+XX p4/i5978$package.B#2,
+X
+X 
+p4/i5978$package.B#`<init>`().2
+XX p4/TC#`<init>`().2
+XX p4/TC#2$
+X
+X p4/i5978$package.B#[X]2$
+XX p4/i5978$package.B#[Y]2#
+XX p4/i5978$package.B().2!
+ZZ p4/i5978$package.C#2,
+ZZ p4/i5978$package.C#`<init>`().2
+ZZ p4/TC#2
+ZZ p4/TC#`<init>`().2
+ZZ p4/TC#2%
+ZZ p4/i5978$package.C#x$1.2#
+ZZ p4/i5978$package.C().2 
+_empty_/i5978$package.2-
+ _empty_/i5978$package.Position#25
+ '_empty_/i5978$package.Position#[Buffer]2
+ "
+scala/Int#PZ CE268F8BD63B19812B57AFA46F929891

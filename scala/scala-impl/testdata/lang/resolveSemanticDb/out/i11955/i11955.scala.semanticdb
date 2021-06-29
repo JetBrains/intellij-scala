@@ -1,0 +1,159 @@
+
+Ó.tests/pos/i11955.scala*
+_empty_/Hello.
+ *Hello€*
+_empty_/Hello.X# *X€*-
+_empty_/Hello.X#`<init>`(). €@*<init>€* 
+_empty_/Hello.X#[A]	 €*A€*"
+_empty_/Hello.X#This#*This€*%
+_empty_/Hello.X#This#[A]	 €*A€**
+_empty_/Hello.X#asThis(). *asThis€*
+_empty_/Hello.Y#*Y€*-
+_empty_/Hello.Y#`<init>`(). €@*<init>€* 
+_empty_/Hello.Y#[A]	 €*A€*"
+_empty_/Hello.Y#This#*This€*'
+_empty_/Hello.Y#This#[AA]	 €*AA€*(
+_empty_/Hello.Y#asThis().*asThis€*6
+_empty_/Hello.hackBackToSelf().*hackBackToSelf€*,
+"_empty_/Hello.hackBackToSelf().[F]	*F€*,
+"_empty_/Hello.hackBackToSelf().[A]	*A€*,
+"_empty_/Hello.hackBackToSelf().(f)*f€*.
+#_empty_/Hello.hackBackToSelf().(f2)*f2€*
+_empty_/Hello.G# €*G€*-
+_empty_/Hello.G#`<init>`(). €@*<init>€*7
+$_empty_/Hello.G#`<init>`().(wrapped) €*wrapped€*
+_empty_/Hello.G#[F]	*F€*
+_empty_/Hello.G#[A]	*A€*+
+_empty_/Hello.G#wrapped. €*wrapped€*$
+_empty_/Hello.G#mapF().*mapF€*&
+_empty_/Hello.G#mapF().[F2]	*F2€*$
+_empty_/Hello.G#mapF().(f)*f€*.
+_empty_/Hello.G#test_ko_1().*	test_ko_1€*
+local0*ct€*.
+_empty_/Hello.G#test_ko_2().*	test_ko_2€*
+local1*ct€**
+_empty_/Hello.G#test_ok().*test_ok€*
+local2*ct€*$
+_empty_/Hello.G#copy().*copy€*$
+_empty_/Hello.G#copy().[F]	*F€*$
+_empty_/Hello.G#copy().[A]	*A€*0
+ _empty_/Hello.G#copy().(wrapped)*wrapped€*8
+!_empty_/Hello.G#copy$default$1().*copy$default$1€*.
+$_empty_/Hello.G#copy$default$1().[F]	*F€*.
+$_empty_/Hello.G#copy$default$1().[A]	*A€* 
+_empty_/Hello.G#_1().*_1€*
+_empty_/Hello.G.
+ *G€*&
+_empty_/Hello.G.apply().*apply€*%
+_empty_/Hello.G.apply().[F]	*F€*%
+_empty_/Hello.G.apply().[A]	*A€*1
+!_empty_/Hello.G.apply().(wrapped)*wrapped€**
+_empty_/Hello.G.unapply().*unapply€*'
+_empty_/Hello.G.unapply().[F]	*F€*'
+_empty_/Hello.G.unapply().[A]	*A€*+
+_empty_/Hello.G.unapply().(x$1)*x$1€*,
+_empty_/Hello.G.toString().*toString€2
+ _empty_/Hello.2
+ _empty_/Hello.X#2)
+ _empty_/Hello.X#`<init>`().2!
+ _empty_/Hello.X#[A]2#
+	 _empty_/Hello.X#This#2&
+ _empty_/Hello.X#This#[A]2
+ _empty_/Hello.X#2&
+ _empty_/Hello.X#This#[A]2'
+ _empty_/Hello.X#asThis().2#
+ _empty_/Hello.X#This#2!
+ _empty_/Hello.X#[A]2
+ 	_empty_/Hello.Y#2)
+	 	_empty_/Hello.Y#`<init>`().2)
+ _empty_/Hello.X#`<init>`().2
+ _empty_/Hello.X#2!
+ _empty_/Hello.Y#[A]2!
+ _empty_/Hello.Y#[A]2#
+ _empty_/Hello.Y#This#2'
+ _empty_/Hello.Y#This#[AA]2
+ _empty_/Hello.Y#2'
+  "_empty_/Hello.Y#This#[AA]2'
+		 _empty_/Hello.Y#asThis().2#
+		 _empty_/Hello.Y#This#2!
+		 _empty_/Hello.Y#[A]2-
+ _empty_/Hello.hackBackToSelf().20
+ "_empty_/Hello.hackBackToSelf().[F]20
+$ %"_empty_/Hello.hackBackToSelf().[A]20
+' ("_empty_/Hello.hackBackToSelf().(f)20
+* +"_empty_/Hello.hackBackToSelf().[F]2
+, /
+scala/Any#21
+2 4#_empty_/Hello.hackBackToSelf().(f2)2#
+8 <_empty_/Hello.X#This#20
+6 7"_empty_/Hello.hackBackToSelf().(f)20
+= >"_empty_/Hello.hackBackToSelf().[A]20
+B C"_empty_/Hello.hackBackToSelf().[F]20
+D E"_empty_/Hello.hackBackToSelf().[A]2'
+ scala/Any#asInstanceOf().21
+ #_empty_/Hello.hackBackToSelf().(f2)20
+ "_empty_/Hello.hackBackToSelf().[F]20
+ "_empty_/Hello.hackBackToSelf().[A]2
+ _empty_/Hello.G#2)
+ _empty_/Hello.G#`<init>`().2!
+* +_empty_/Hello.G#[F]2!
+, -_empty_/Hello.G#[A]2!
+ _empty_/Hello.G#[F]2!
+ _empty_/Hello.G#[A]2&
+! (_empty_/Hello.G#wrapped.2%
+ _empty_/Hello.G#mapF().2)
+ _empty_/Hello.G#mapF().[F2]2(
+ _empty_/Hello.G#mapF().(f)2!
+  !_empty_/Hello.G#[F]2!
+" #_empty_/Hello.G#[A]2)
+( *_empty_/Hello.G#mapF().[F2]2!
++ ,_empty_/Hello.G#[A]2
+0 1_empty_/Hello.G#2)
+2 4_empty_/Hello.G#mapF().[F2]2!
+6 7_empty_/Hello.G#[A]2&
+ _empty_/Hello.G.apply().2
+ _empty_/Hello.G.2)
+ 
+_empty_/Hello.G#mapF().[F2]2!
+ _empty_/Hello.G#[A]2&
+ scala/Function1#apply().2(
+ _empty_/Hello.G#mapF().(f)2&
+ _empty_/Hello.G#wrapped.2*
+ _empty_/Hello.G#test_ko_1().2
+ _empty_/Hello.G#2!
+ _empty_/Hello.G#[F]2!
+ _empty_/Hello.G#[A]2%
+ !_empty_/Hello.G#mapF().2
+" $local02-
+( 6_empty_/Hello.hackBackToSelf().2
+7 9local02'
+> D_empty_/Hello.X#asThis().2
+; =local02*
+ _empty_/Hello.G#test_ko_2().2
+ _empty_/Hello.G#2!
+ _empty_/Hello.G#[F]2!
+ _empty_/Hello.G#[A]2%
+ !_empty_/Hello.G#mapF().2!
+" #_empty_/Hello.G#[F]2
+% 'local12-
++ 9_empty_/Hello.hackBackToSelf().2
+: <local12'
+A G_empty_/Hello.X#asThis().2
+> @local12(
+ _empty_/Hello.G#test_ok().2
+ _empty_/Hello.G#2!
+ _empty_/Hello.G#[F]2!
+ _empty_/Hello.G#[A]2%
+ !_empty_/Hello.G#mapF().2
+" $local22-
+( 6_empty_/Hello.hackBackToSelf().2!
+7 8_empty_/Hello.G#[F]2!
+: ;_empty_/Hello.G#[A]2
+= ?local22'
+D J_empty_/Hello.X#asThis().2
+A Clocal22%
+ _empty_/Hello.G#copy().2#
+* *_empty_/Hello.G#_1().2
+ _empty_/Hello.G.2&
+ _empty_/Hello.G.apply().2(
+ _empty_/Hello.G.unapply().PZ 489817BC92B358B380B04BBD4E833CE2

@@ -1,0 +1,57 @@
+
+©tests/pos/syntax-rewrite.scala*
+_empty_/test.
+ *test€*
+local0*x€*
+local1*x€*
+local2*x€*
+_empty_/test.foo().*foo€*
+_empty_/test.o.
+ *o€*!
+_empty_/test.loop().*loop€*!
+_empty_/test.loop().[T]	*T€*!
+_empty_/test.loop().(x)*x€*
+_empty_/test.g().*g€*
+_empty_/test.bar().*bar€2
+ _empty_/test.28
+ *scala/collection/immutable/List#foreach().27
+ )scala/collection/IterableFactory#apply().2!
+	 scala/package.List.2
+ local02'
+
+
+ scala/Predef.println(+1).2
+
+
+ local024
+ &scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 	local12
+# $local124
+ &scala/collection/WithFilter#foreach().28
+ *scala/collection/IterableOps#withFilter().27
+ )scala/collection/IterableFactory#apply().2!
+	 scala/package.List.2
+ local22!
+	 scala/Int#`==`(+3).2
+ local22'
+ 	scala/Predef.println(+1).2
+
+ local22!
+ 	_empty_/test.foo().2'
+ scala/Predef.println(+1).2'
+ scala/Predef.println(+1).2
+	 
+_empty_/test.o.2"
+ 
+_empty_/test.loop().2%
+ _empty_/test.loop().[T]2%
+ _empty_/test.loop().(x)2%
+ _empty_/test.loop().[T]2%
+ _empty_/test.loop().[T]2%
+ _empty_/test.loop().(x)2
+   _empty_/test.g().2"
+   _empty_/test.loop().2%
+!! scala/Predef.println().2!
+%% 	_empty_/test.bar().PZ 92D12AC874426E238AE2379C638FD829

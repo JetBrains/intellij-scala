@@ -1,0 +1,20 @@
+
+ÿtests/pos/t3076/C2.scala*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+_empty_/C2#m1().*m1€*
+local0 *$anon€*
+_empty_/C2#m2().*m2€*
+local1 *$anon€2
+ _empty_/C2#2$
+ _empty_/C2#`<init>`().2
+ _empty_/C2#m1().2
+ scala/Unit#2
+ local02
+ 
+_empty_/T#2
+ _empty_/C2#m2().2
+ scala/Unit#2
+ local12
+ 
+_empty_/T#PZ A376FC1D92715E8EA44CB48249865FBA

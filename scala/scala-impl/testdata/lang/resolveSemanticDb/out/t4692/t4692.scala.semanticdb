@@ -1,0 +1,86 @@
+
+æ!tests/pos/t4692.scala*@
+ _empty_/TypeAliasVsImplicitTest#*TypeAliasVsImplicitTest€*=
++_empty_/TypeAliasVsImplicitTest#`<init>`(). €@*<init>€*0
+$_empty_/TypeAliasVsImplicitTest#For#*For€*A
+/_empty_/TypeAliasVsImplicitTest#For#`<init>`(). €@*<init>€*<
+2_empty_/TypeAliasVsImplicitTest#For#`<init>`().(x)*x€*1
+'_empty_/TypeAliasVsImplicitTest#For#[m]	*m€*1
+'_empty_/TypeAliasVsImplicitTest#For#[a]	*a€*3
+&_empty_/TypeAliasVsImplicitTest#For#x. €*x€*6
+*_empty_/TypeAliasVsImplicitTest#For#map().*map€*7
+-_empty_/TypeAliasVsImplicitTest#For#map().[b]	*b€*7
+-_empty_/TypeAliasVsImplicitTest#For#map().(y)*y€*8
+(_empty_/TypeAliasVsImplicitTest#toFor().  *toFor€*5
++_empty_/TypeAliasVsImplicitTest#toFor().[m]	*m€*5
++_empty_/TypeAliasVsImplicitTest#toFor().[a]	*a€*5
++_empty_/TypeAliasVsImplicitTest#toFor().(x)*x€*6
+'_empty_/TypeAliasVsImplicitTest#MyList#*MyList€*D
+2_empty_/TypeAliasVsImplicitTest#MyList#`<init>`(). €@*<init>€*4
+*_empty_/TypeAliasVsImplicitTest#MyList#[A]	*A€*2
+&_empty_/TypeAliasVsImplicitTest#foo().*foo€*5
+*_empty_/TypeAliasVsImplicitTest#foo().(xs)*xs€*
+local0*x€*@
+,_empty_/TypeAliasVsImplicitTest#MyListOfInt#*MyListOfInt€*2
+&_empty_/TypeAliasVsImplicitTest#bar().*bar€*5
+*_empty_/TypeAliasVsImplicitTest#bar().(xs)*xs€*
+local1*x€2*
+  _empty_/TypeAliasVsImplicitTest#29
+ +_empty_/TypeAliasVsImplicitTest#`<init>`().22
+
+ $_empty_/TypeAliasVsImplicitTest#For#2=
+ /_empty_/TypeAliasVsImplicitTest#For#`<init>`().25
+ '_empty_/TypeAliasVsImplicitTest#For#[m]25
+ '_empty_/TypeAliasVsImplicitTest#For#[a]25
+ '_empty_/TypeAliasVsImplicitTest#For#[m]25
+ '_empty_/TypeAliasVsImplicitTest#For#[a]24
+ &_empty_/TypeAliasVsImplicitTest#For#x.28
+ *_empty_/TypeAliasVsImplicitTest#For#map().2;
+ -_empty_/TypeAliasVsImplicitTest#For#map().[b]2;
+ -_empty_/TypeAliasVsImplicitTest#For#map().(y)25
+ '_empty_/TypeAliasVsImplicitTest#For#[a]2;
+ -_empty_/TypeAliasVsImplicitTest#For#map().[b]25
+ '_empty_/TypeAliasVsImplicitTest#For#[m]2;
+  !-_empty_/TypeAliasVsImplicitTest#For#map().[b]2)
+4 4java/lang/Error#`<init>`().2"
+/ 4scala/package.Error#26
+ (_empty_/TypeAliasVsImplicitTest#toFor().29
+ +_empty_/TypeAliasVsImplicitTest#toFor().[m]29
+ +_empty_/TypeAliasVsImplicitTest#toFor().[a]29
+  !+_empty_/TypeAliasVsImplicitTest#toFor().(x)29
+# $+_empty_/TypeAliasVsImplicitTest#toFor().[m]29
+% &+_empty_/TypeAliasVsImplicitTest#toFor().[a]22
+* -$_empty_/TypeAliasVsImplicitTest#For#29
+. /+_empty_/TypeAliasVsImplicitTest#toFor().[m]29
+1 2+_empty_/TypeAliasVsImplicitTest#toFor().[a]2=
+C C/_empty_/TypeAliasVsImplicitTest#For#`<init>`().22
+: =$_empty_/TypeAliasVsImplicitTest#For#29
+> ?+_empty_/TypeAliasVsImplicitTest#toFor().[m]29
+A B+_empty_/TypeAliasVsImplicitTest#toFor().[a]29
+D E+_empty_/TypeAliasVsImplicitTest#toFor().(x)25
+
+ '_empty_/TypeAliasVsImplicitTest#MyList#2@
+ 2_empty_/TypeAliasVsImplicitTest#MyList#`<init>`().28
+ *_empty_/TypeAliasVsImplicitTest#MyList#[A]24
+		 &_empty_/TypeAliasVsImplicitTest#foo().28
+		 *_empty_/TypeAliasVsImplicitTest#foo().(xs)25
+		 '_empty_/TypeAliasVsImplicitTest#MyList#2
+		 
+scala/Int#28
+	"	 %*_empty_/TypeAliasVsImplicitTest#For#map().26
+		 (_empty_/TypeAliasVsImplicitTest#toFor().28
+		 !*_empty_/TypeAliasVsImplicitTest#foo().(xs)2
+	&	 'local02
+	+	 ,local02:
+	 ,_empty_/TypeAliasVsImplicitTest#MyListOfInt#25
+ '_empty_/TypeAliasVsImplicitTest#MyList#2
+ !
+scala/Int#24
+ &_empty_/TypeAliasVsImplicitTest#bar().28
+ *_empty_/TypeAliasVsImplicitTest#bar().(xs)2:
+ ,_empty_/TypeAliasVsImplicitTest#MyListOfInt#28
+" %*_empty_/TypeAliasVsImplicitTest#For#map().26
+ (_empty_/TypeAliasVsImplicitTest#toFor().28
+ !*_empty_/TypeAliasVsImplicitTest#bar().(xs)2
+& 'local12
++ ,local1PZ 9791913E1A4502FBA60B85919FBBE093

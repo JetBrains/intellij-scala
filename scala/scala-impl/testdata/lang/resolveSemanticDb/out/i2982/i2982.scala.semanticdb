@@ -1,0 +1,34 @@
+
+¹tests/pos/i2982.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.fun().*fun€*
+_empty_/A.fun().[E]	*E€*
+_empty_/A.fun().(a)*a€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[X]	 €*X€2
+ 
+_empty_/A.2
+ 	_empty_/A.fun().2!
+
+ _empty_/A.fun().[E]2!
+ _empty_/A.fun().(a)2
+ 
+_empty_/A#2!
+ _empty_/A.fun().[E]2
+ scala/Unit#2
+ _empty_/A.fun().2#
+ _empty_/A#`<init>`().2
+
+ 
+_empty_/A#2
+ 
+scala/Int#2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+	 
+_empty_/A#[X]PZ 05400830EBDFF5D9D889F777A70F0C33

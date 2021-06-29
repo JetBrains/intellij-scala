@@ -1,0 +1,25 @@
+
+ºtests/pos/t3924.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Hoe#*Hoe€*.
+_empty_/Test.Hoe#`<init>`(). €@*<init>€*#
+_empty_/Test.Hoe#add().*add€*$
+_empty_/Test.Hoe#add().(a)*a€*1
+_empty_/Test.Hoe#someMethod().*
+someMethod€2
+ _empty_/Test.2
+ _empty_/Test.Hoe#2*
+ _empty_/Test.Hoe#`<init>`().2)
+  scala/package.Serializable#2%
+ _empty_/Test.Hoe#add().2(
+ _empty_/Test.Hoe#add().(a)2#
+ #java/io/Serializable#2
+ java/io/2
+ java/2
+& *scala/Unit#2'
+- 4scala/Predef.println(+1).2(
+5 6_empty_/Test.Hoe#add().(a)2,
+ _empty_/Test.Hoe#someMethod().2
+ scala/Unit#2%
+ "_empty_/Test.Hoe#add().PZ 98080A7F7DC60A5226B2CA3BD7F1F648

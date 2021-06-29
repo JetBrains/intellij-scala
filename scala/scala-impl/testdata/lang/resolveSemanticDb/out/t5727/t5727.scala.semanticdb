@@ -1,0 +1,110 @@
+
+¶tests/pos/t5727.scala*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.SomeInfo#*SomeInfo€*3
+!_empty_/Test.SomeInfo#`<init>`(). €@*<init>€*&
+_empty_/Test.NoInfo.
+ ˆ*NoInfo€*
+_empty_/Test.Res# *Res€*.
+_empty_/Test.Res#`<init>`(). €@*<init>€*!
+_empty_/Test.Res#[T]	 €*T€*&
+_empty_/Test.NotRes.
+ ˆ*NotRes€*!
+_empty_/Test.Base# *Base€*/
+_empty_/Test.Base#`<init>`(). €@*<init>€*"
+_empty_/Test.Base#[T]	 €*T€**
+_empty_/Test.Base#apply(). *apply€*'
+_empty_/Test.Base#apply().(f)*f€*$
+_empty_/Test.Base#bar().*bar€*%
+_empty_/Test.Base#bar().[U]	*U€*%
+_empty_/Test.Base#bar().(a)*a€*%
+_empty_/Test.Base#bar().(i)*i€*8
+"_empty_/Test.Base#bar$default$2().*bar$default$2€*/
+%_empty_/Test.Base#bar$default$2().[U]	*U€*;
+ _empty_/Test.fromStringToBase().  *fromStringToBase€*-
+#_empty_/Test.fromStringToBase().(a)*a€*
+local0 *$anon€*
+local1*apply€*
+local2*in€*%
+_empty_/Test.Sample().*Sample€*
+_empty_/Test.rep().*rep€* 
+_empty_/Test.rep().[T]	*T€* 
+_empty_/Test.rep().(p)*p€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2$
+ _empty_/Test.SomeInfo#2/
+ !_empty_/Test.SomeInfo#`<init>`().2"
+ _empty_/Test.NoInfo.2$
+ %_empty_/Test.SomeInfo#2
+		 _empty_/Test.Res#2*
+		 _empty_/Test.Res#`<init>`().2"
+		 _empty_/Test.Res#[T]2"
+
+
+ _empty_/Test.NotRes.2*
+
+)
+ )_empty_/Test.Res#`<init>`().2
+
+
+  _empty_/Test.Res#2
+
+!
+ (scala/Nothing#2 
+ _empty_/Test.Base#2+
+ _empty_/Test.Base#`<init>`().2#
+ _empty_/Test.Base#[T]2(
+ _empty_/Test.Base#apply().2+
+ _empty_/Test.Base#apply().(f)2"
+ scala/Predef.String#2
+ _empty_/Test.Res#2#
+ _empty_/Test.Base#[T]2&
+ _empty_/Test.Base#bar().2)
+ _empty_/Test.Base#bar().[U]2#
+ _empty_/Test.Base#[T]2)
+ _empty_/Test.Base#bar().(a)2 
+ _empty_/Test.Base#2)
+  _empty_/Test.Base#bar().[U]2)
+# $_empty_/Test.Base#bar().(i)2$
+& ._empty_/Test.SomeInfo#2 
+: >_empty_/Test.Base#2)
+? @_empty_/Test.Base#bar().[U]23
+ %_empty_/Test.Base#bar$default$2().[U]2"
+1 7_empty_/Test.NoInfo.2.
+  _empty_/Test.fromStringToBase().21
+  !#_empty_/Test.fromStringToBase().(a)2"
+# )scala/Predef.String#2 
+, 0_empty_/Test.Base#2"
+1 7scala/Predef.String#2
+; ;local02+
+K K_empty_/Test.Base#`<init>`().2 
+? C_empty_/Test.Base#2"
+D Jscala/Predef.String#2
+R Wlocal12
+X Zlocal22"
+\ bscala/Predef.String#2"
+f l_empty_/Test.NotRes.2$
+ _empty_/Test.Sample().2 
+ _empty_/Test.Base#2
+ 
+scala/Any#2!
+ _empty_/Test.rep().2.
+    _empty_/Test.fromStringToBase().2.
+* * _empty_/Test.fromStringToBase().2.
+5 5 _empty_/Test.fromStringToBase().2!
+ 	_empty_/Test.rep().2$
+
+ _empty_/Test.rep().[T]2$
+ _empty_/Test.rep().(p)2 
+ _empty_/Test.Base#2$
+ _empty_/Test.rep().[T]2 
+ !_empty_/Test.Base#2$
+" #_empty_/Test.rep().[T]2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#PZ 76A4E3030BBB748BA2D7DBFC39E2D736

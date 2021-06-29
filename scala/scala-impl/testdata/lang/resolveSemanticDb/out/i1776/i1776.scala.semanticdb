@@ -1,0 +1,40 @@
+
+Ýtests/pos/i1776.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*%
+_empty_/X#`<init>`().(y) €*y€*
+_empty_/X#y. €*y€*
+
+_empty_/Y#*Y€*'
+_empty_/Y#`<init>`(). €@*<init>€*"
+_empty_/Y#`<init>`().(y)*y€*
+_empty_/Y#y. €*y€*
+
+_empty_/Z#*Z€*'
+_empty_/Z#`<init>`(). €@*<init>€*"
+_empty_/Z#`<init>`().(z)*z€*
+_empty_/Z#z. €*z€2
+ 
+_empty_/X#2
+ _empty_/X#`<init>`().2
+ scala/Predef.String#2
+ _empty_/X#y.2
+ 
+_empty_/Y#2#
+ _empty_/Y#`<init>`().2"
+ scala/Predef.String#2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2
+  !_empty_/Y#y.2
+ 	_empty_/Y#y.2
+ 
+_empty_/Z#2#
+ _empty_/Z#`<init>`().2"
+ scala/Predef.String#2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2
+  !_empty_/Z#z.2
+ 	_empty_/Z#z.PZ 8EBB7995886B2E91D53C06714C6CA838

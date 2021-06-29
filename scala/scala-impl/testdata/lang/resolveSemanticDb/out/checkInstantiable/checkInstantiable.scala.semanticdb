@@ -1,0 +1,20 @@
+
+þ!tests/pos/checkInstantiable.scala*
+_empty_/LS#*LS€*(
+_empty_/LS#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/LS#[T]	*T€*
+_empty_/Test.
+ *Test€2
+ _empty_/LS#2$
+ _empty_/LS#`<init>`().2
+ local02
+ _empty_/LS#2
+ _empty_/LS#[T]2
+	 
+_empty_/LS#[T]2
+ _empty_/Test.2$
+ _empty_/LS#`<init>`().2
+ _empty_/LS#2
+	 
+scala/Int#PZ 4984799430D41B64191AE43A55179821

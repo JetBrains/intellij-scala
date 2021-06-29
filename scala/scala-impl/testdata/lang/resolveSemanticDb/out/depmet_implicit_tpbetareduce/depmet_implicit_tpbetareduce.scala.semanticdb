@@ -1,0 +1,65 @@
+
+í,tests/pos/depmet_implicit_tpbetareduce.scala*
+_empty_/HOSeq#*HOSeq€*+
+_empty_/HOSeq#`<init>`(). €@*<init>€*.
+_empty_/HOSeq#Accumulator#*Accumulator€*7
+%_empty_/HOSeq#Accumulator#`<init>`(). €@*<init>€*0
+ _empty_/HOSeq#Accumulator#[coll]	 €*coll€*+
+_empty_/HOSeq#Accumulator#[elT]	*elT€*(
+_empty_/HOSeq#Iterable#*Iterable€*4
+"_empty_/HOSeq#Iterable#`<init>`(). €@*<init>€*'
+_empty_/HOSeq#Iterable#[t]	 €*t€*#
+_empty_/HOSeq#Iterable#m#*m€*)
+_empty_/HOSeq#Iterable#m#[x]	 €*x€*;
+%_empty_/HOSeq#Iterable#accumulator(). *accumulator€*2
+(_empty_/HOSeq#Iterable#accumulator().[t]	*t€*:
+ _empty_/HOSeq#listAccumulator().  *listAccumulator€*1
+%_empty_/HOSeq#listAccumulator().[elT]	*elT€*
+local0 *$anon€* 
+_empty_/HOSeq#List#*List€*0
+_empty_/HOSeq#List#`<init>`(). €@*<init>€*#
+_empty_/HOSeq#List#[t]	 €*t€*
+_empty_/HOSeq#List#m#*m€*%
+_empty_/HOSeq#List#m#[x]	 €*x€*5
+!_empty_/HOSeq#List#accumulator().*accumulator€*.
+$_empty_/HOSeq#List#accumulator().[t]	*t€2
+ _empty_/HOSeq#2'
+ _empty_/HOSeq#`<init>`().2(
+ _empty_/HOSeq#Accumulator#23
+ %_empty_/HOSeq#Accumulator#`<init>`().2.
+  _empty_/HOSeq#Accumulator#[coll]2-
+ !_empty_/HOSeq#Accumulator#[elT]2%
+ _empty_/HOSeq#Iterable#20
+ "_empty_/HOSeq#Iterable#`<init>`().2(
+ _empty_/HOSeq#Iterable#[t]2'
+	 
+_empty_/HOSeq#Iterable#m#2*
+ _empty_/HOSeq#Iterable#m#[x]23
+ %_empty_/HOSeq#Iterable#accumulator().26
+ (_empty_/HOSeq#Iterable#accumulator().[t]2(
+ #_empty_/HOSeq#Accumulator#2'
+$ %_empty_/HOSeq#Iterable#m#26
+' ((_empty_/HOSeq#Iterable#accumulator().[t]2.
+  _empty_/HOSeq#listAccumulator().23
+ "%_empty_/HOSeq#listAccumulator().[elT]2(
+% 0_empty_/HOSeq#Accumulator#23
+7 :%_empty_/HOSeq#listAccumulator().[elT]2
+> >local02(
+B M_empty_/HOSeq#Accumulator#23
+T W%_empty_/HOSeq#listAccumulator().[elT]2!
+ _empty_/HOSeq#List#2,
+ _empty_/HOSeq#List#`<init>`().2%
+ !_empty_/HOSeq#Iterable#2$
+" #_empty_/HOSeq#List#[t]2$
+ _empty_/HOSeq#List#[t]2#
+	 
+_empty_/HOSeq#List#m#2&
+ _empty_/HOSeq#List#m#[x]2!
+ _empty_/HOSeq#List#2&
+ _empty_/HOSeq#List#m#[x]2/
+		 !_empty_/HOSeq#List#accumulator().22
+		 $_empty_/HOSeq#List#accumulator().[t]2(
+		 #_empty_/HOSeq#Accumulator#22
+	*	 +$_empty_/HOSeq#List#accumulator().[t]2.
+	/	 > _empty_/HOSeq#listAccumulator().22
+	?	 @$_empty_/HOSeq#List#accumulator().[t]PZ 613E4D1B26A87BFD6E62DA741E468240

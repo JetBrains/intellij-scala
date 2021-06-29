@@ -1,0 +1,31 @@
+
+ítests/pos/t4716.scala*
+_empty_/Bug2#*Bug2€**
+_empty_/Bug2#`<init>`(). €@*<init>€*
+_empty_/Bug2#[A]	 €*A€*
+_empty_/Bug2#`++`().*++€*!
+_empty_/Bug2#`++`().[B]	*B€*'
+_empty_/Bug2#`++`().(that)*that€*
+local0 À*it€2
+ 
+_empty_/Bug2#2"
+
+ 
+_empty_/Bug2#`<init>`().2%
+) 5scala/package.IterableOnce#2
+6 7_empty_/Bug2#[A]2
+ scala/specialized#2
+ 
+scala/Int.2
+ _empty_/Bug2#[A]2"
+ _empty_/Bug2#`++`().2%
+	 
+_empty_/Bug2#`++`().[B]2
+ _empty_/Bug2#[A]2(
+ _empty_/Bug2#`++`().(that)2)
+ #scala/package.IterableOnce#2%
+$ %_empty_/Bug2#`++`().[B]2
+ local027
+ )scala/collection/IterableOnce#iterator().2(
+ _empty_/Bug2#`++`().(that)2
+ local0PZ A2BE7429B2CFA3D961D2A8DBB2B0F27D

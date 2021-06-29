@@ -1,0 +1,37 @@
+
+ßtests/pos/alias-new.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.B#*B€*)
+_empty_/O.B#`<init>`(). €@*<init>€*
+_empty_/O.B#[T]	*T€*
+_empty_/O2.
+ *O2€*
+_empty_/O2.B#*B€*
+_empty_/O2.B#[T]	*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€2
+ 
+_empty_/O.2
+ 	_empty_/O.B#2%
+	 	_empty_/O.B#`<init>`().2
+
+ _empty_/O.B#[T]2
+ 	_empty_/O2.2
+ _empty_/O2.B#2
+	 
+_empty_/O2.B#[T]2
+ _empty_/O.B#2
+ 
+_empty_/O.2
+ _empty_/O2.B#[T]2
+ _empty_/Test.2
+ _empty_/Test.x.2
+ _empty_/O2.B#2
+	 _empty_/O2.2"
+ scala/Predef.String#2%
+   _empty_/O.B#`<init>`().2
+  _empty_/O2.B#2
+ _empty_/O2.PZ 59C1DB5994E77F04485AFE8EF4174204

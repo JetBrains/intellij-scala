@@ -1,0 +1,32 @@
+
+±!tests/pos/tcpoly_infer_easy.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*#
+_empty_/Test.test().[CC]	*CC€*!
+_empty_/Test.test().[A]	*A€*#
+_empty_/Test.test().(xs)*xs€*
+_empty_/Test.xs. €*xs€* 
+_empty_/Test.xs2. €*xs2€2
+ _empty_/Test.2"
+ _empty_/Test.test().2&
+ _empty_/Test.test().[CC]2%
+$ %_empty_/Test.test().[A]2&
+' )_empty_/Test.test().(xs)2&
++ -_empty_/Test.test().[CC]2%
+. /_empty_/Test.test().[A]2&
+3 5_empty_/Test.test().[CC]2%
+6 7_empty_/Test.test().[A]2&
+; =_empty_/Test.test().(xs)2
+ 
+_empty_/Test.xs.2"
+ _empty_/Test.test().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.xs2.2!
+ scala/package.List#2
+ 
+scala/Int#2"
+ _empty_/Test.test().27
+" ")scala/collection/IterableFactory#apply().2!
+ "scala/package.List.PZ 1FB8C8F49EF15AF9EB04A693A8F5AAFF

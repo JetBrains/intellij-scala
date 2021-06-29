@@ -1,0 +1,45 @@
+
+¨tests/pos/i2201a.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Fix#*Fix€*)
+_empty_/Fix#`<init>`(). €@*<init>€*,
+_empty_/Fix#`<init>`().(unfix)*unfix€*
+_empty_/Fix#[F]	*F€*#
+_empty_/Fix#unfix. €*unfix€*"
+_empty_/DocTree.
+ *DocTree€*$
+_empty_/DocTree.Const#*Const€*#
+_empty_/DocTree.Const#[T]	*T€**
+_empty_/DocTree.FixConst#*FixConst€**
+_empty_/DocTree.docTree().*docTree€*'
+_empty_/DocTree.docTree().(s)*s€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ 	_empty_/Fix#2%
+	 	_empty_/Fix#`<init>`().2
+ _empty_/Fix#[F]2
+ _empty_/Fix#2
+ _empty_/Fix#[F]2
+
+ _empty_/Fix#[F]2 
+ _empty_/Fix#unfix.2
+ _empty_/DocTree.2$
+ _empty_/DocTree.Const#2'
+ _empty_/DocTree.Const#[T]2
+ _empty_/Foo#2
+ 
+scala/Int#2'
+ _empty_/DocTree.FixConst#2
+ _empty_/Fix#2$
+ _empty_/DocTree.Const#2(
+ _empty_/DocTree.docTree().2+
+ _empty_/DocTree.docTree().(s)2$
+ _empty_/DocTree.Const#2'
+ _empty_/DocTree.FixConst#2'
+# +_empty_/DocTree.FixConst#2%
+5 5_empty_/Fix#`<init>`().2+
+6 7_empty_/DocTree.docTree().(s)PZ 950C404D1515DBE6CD769ED150737E0A

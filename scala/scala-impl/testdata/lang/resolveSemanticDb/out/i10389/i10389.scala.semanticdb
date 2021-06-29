@@ -1,0 +1,25 @@
+
+ýtests/pos/i10389.scala* 
+_empty_/FooBar.
+ *FooBar€*!
+_empty_/FooBar.foo().*foo€*
+local0*x€*
+local1 €*int€2
+ scala/util/2
+ scala/2
+ _empty_/FooBar.2#
+ 	_empty_/FooBar.foo().28
+  '*scala/collection/immutable/List#collect().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+) *local02%
+ scala/util/Try.apply().2
+ scala/util/Try.21
+
+ #scala/collection/StringOps#toInt().2+
+ scala/Predef.augmentString().2
+ 	local02+
+ scala/util/Success.unapply().2!
+ scala/util/Success.2
+ local12
+ local1PZ 3E9C6381A4014F814175D7E3D5F2D841

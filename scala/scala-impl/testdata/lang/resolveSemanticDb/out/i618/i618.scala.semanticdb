@@ -1,0 +1,27 @@
+
+÷tests/pos/i618.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*%
+_empty_/C#`<init>`().(f) €*f€*
+_empty_/C#f. €*f€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*%
+_empty_/D#`<init>`().(f) €*f€*
+_empty_/D#f. €*f€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 
+scala/Any#2
+ _empty_/C#f.2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ scala/Nothing#2#
+* *_empty_/C#`<init>`().2
+) *
+_empty_/C#2
++ ,_empty_/D#f.2
+ _empty_/D#f.PZ 3E76ABA9C337042F697B8E0A7B1F8A06

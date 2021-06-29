@@ -1,0 +1,21 @@
+
+´tests/pos/t596.scala*
+_empty_/T1#*T1€*(
+_empty_/T1#`<init>`(). €@*<init>€*
+_empty_/T1#C# *C€**
+_empty_/T1#C#`<init>`(). €@*<init>€*
+_empty_/T2#*T2€*(
+_empty_/T2#`<init>`(). €@*<init>€*
+_empty_/T2#D#*D€**
+_empty_/T2#D#`<init>`(). €@*<init>€2
+ _empty_/T1#2$
+ _empty_/T1#`<init>`().2
+ _empty_/T1#C#2&
+ _empty_/T1#C#`<init>`().2
+ _empty_/T2#2$
+ _empty_/T2#`<init>`().2
+ _empty_/T1#2
+ 	_empty_/T2#D#2&
+ _empty_/T2#D#`<init>`().2&
+ _empty_/T1#C#`<init>`().2
+ _empty_/T1#C#PZ 21549B1DD5E49E283286C663B6E9799E

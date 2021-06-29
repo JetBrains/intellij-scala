@@ -1,0 +1,39 @@
+
+”tests/pos/i8152.scala* 
+_empty_/opaque.
+ *opaque€*
+_empty_/opaque.Foo#*Foo€* 
+_empty_/opaque.Foo#[X]	*X€*
+_empty_/test.
+ *test€*
+_empty_/test.s. €*s€*"
+_empty_/opaque2.
+ *opaque2€*"
+_empty_/opaque2.Foo2#*Foo2€*
+_empty_/test2.
+ *test2€*
+_empty_/test2.s. €*s€2
+ _empty_/opaque.2!
+ _empty_/opaque.Foo#2$
+ _empty_/opaque.Foo#[X]2"
+ scala/Predef.String#2"
+! 'scala/Predef.String#2
+ _empty_/test.2
+ _empty_/test.s.2"
+	 scala/Predef.String#2'
+ "scala/Any#asInstanceOf().2#
+ scala/Predef.`???`().2!
+* -_empty_/opaque.Foo#2
+# )_empty_/opaque.2"
+. 4scala/Predef.String#2
+ _empty_/opaque2.2#
+ _empty_/opaque2.Foo2#2"
+ scala/Predef.String#2"
+ %scala/Predef.String#2
+		 _empty_/test2.2
+
+
+ _empty_/test2.s.2"
+
+	
+ scala/Predef.String#PZ 80FCB7A5190D151172230C60D039EA29

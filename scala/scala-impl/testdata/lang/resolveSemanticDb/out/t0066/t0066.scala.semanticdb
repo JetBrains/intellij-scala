@@ -1,0 +1,124 @@
+
+‚)tests/pos/t0066.scala*
+_empty_/GBTree#*GBTree€*,
+_empty_/GBTree#`<init>`(). €@*<init>€*
+_empty_/GBTree#[A]	*A€*
+_empty_/GBTree#[B]	*B€*#
+_empty_/GBTree#Tree# *Tree€*1
+_empty_/GBTree#Tree#`<init>`(). €@*<init>€*!
+_empty_/GBTree#Tree#[A]	*A€*!
+_empty_/GBTree#Tree#[B]	*B€*$
+_empty_/GBTree#Node# €*Node€*1
+_empty_/GBTree#Node#`<init>`(). €@*<init>€*3
+$_empty_/GBTree#Node#`<init>`().(key) €*key€*7
+&_empty_/GBTree#Node#`<init>`().(value) €*value€*;
+(_empty_/GBTree#Node#`<init>`().(smaller) €*smaller€*9
+'_empty_/GBTree#Node#`<init>`().(bigger) €*bigger€*!
+_empty_/GBTree#Node#[A]	*A€*!
+_empty_/GBTree#Node#[B]	*B€*'
+_empty_/GBTree#Node#key. €*key€*+
+_empty_/GBTree#Node#value. €*value€*/
+_empty_/GBTree#Node#smaller. €*smaller€*-
+_empty_/GBTree#Node#bigger. €*bigger€*(
+_empty_/GBTree#Node#copy().*copy€*(
+_empty_/GBTree#Node#copy().[A]	*A€*(
+_empty_/GBTree#Node#copy().[B]	*B€*,
+ _empty_/GBTree#Node#copy().(key)*key€*0
+"_empty_/GBTree#Node#copy().(value)*value€*4
+$_empty_/GBTree#Node#copy().(smaller)*smaller€*2
+#_empty_/GBTree#Node#copy().(bigger)*bigger€*<
+%_empty_/GBTree#Node#copy$default$1().*copy$default$1€*2
+(_empty_/GBTree#Node#copy$default$1().[A]	*A€*2
+(_empty_/GBTree#Node#copy$default$1().[B]	*B€*<
+%_empty_/GBTree#Node#copy$default$2().*copy$default$2€*2
+(_empty_/GBTree#Node#copy$default$2().[A]	*A€*2
+(_empty_/GBTree#Node#copy$default$2().[B]	*B€*<
+%_empty_/GBTree#Node#copy$default$3().*copy$default$3€*2
+(_empty_/GBTree#Node#copy$default$3().[A]	*A€*2
+(_empty_/GBTree#Node#copy$default$3().[B]	*B€*<
+%_empty_/GBTree#Node#copy$default$4().*copy$default$4€*2
+(_empty_/GBTree#Node#copy$default$4().[A]	*A€*2
+(_empty_/GBTree#Node#copy$default$4().[B]	*B€*$
+_empty_/GBTree#Node#_1().*_1€*$
+_empty_/GBTree#Node#_2().*_2€*$
+_empty_/GBTree#Node#_3().*_3€*$
+_empty_/GBTree#Node#_4().*_4€*#
+_empty_/GBTree#Node.
+ *Node€**
+_empty_/GBTree#Node.apply().*apply€*)
+_empty_/GBTree#Node.apply().[A]	*A€*)
+_empty_/GBTree#Node.apply().[B]	*B€*-
+!_empty_/GBTree#Node.apply().(key)*key€*1
+#_empty_/GBTree#Node.apply().(value)*value€*5
+%_empty_/GBTree#Node.apply().(smaller)*smaller€*3
+$_empty_/GBTree#Node.apply().(bigger)*bigger€*.
+_empty_/GBTree#Node.unapply().*unapply€*+
+!_empty_/GBTree#Node.unapply().[A]	*A€*+
+!_empty_/GBTree#Node.unapply().[B]	*B€*/
+#_empty_/GBTree#Node.unapply().(x$1)*x$1€*0
+_empty_/GBTree#Node.toString().*toString€*"
+_empty_/GBTree#Nil# €*Nil€*0
+_empty_/GBTree#Nil#`<init>`(). €@*<init>€* 
+_empty_/GBTree#Nil#[A]	*A€* 
+_empty_/GBTree#Nil#[B]	*B€*'
+_empty_/GBTree#Nil#copy().*copy€*'
+_empty_/GBTree#Nil#copy().[A]	*A€*'
+_empty_/GBTree#Nil#copy().[B]	*B€*!
+_empty_/GBTree#Nil.
+ *Nil€*)
+_empty_/GBTree#Nil.apply().*apply€*(
+_empty_/GBTree#Nil.apply().[A]	*A€*(
+_empty_/GBTree#Nil.apply().[B]	*B€*-
+_empty_/GBTree#Nil.unapply().*unapply€**
+ _empty_/GBTree#Nil.unapply().[A]	*A€**
+ _empty_/GBTree#Nil.unapply().[B]	*B€*.
+"_empty_/GBTree#Nil.unapply().(x$1)*x$1€*/
+_empty_/GBTree#Nil.toString().*toString€2
+ _empty_/GBTree#2$
+ _empty_/GBTree#`<init>`().2
+ _empty_/GBTree#[A]2
+ _empty_/GBTree#[B]2"
+ _empty_/GBTree#Tree#2-
+ _empty_/GBTree#Tree#`<init>`().2%
+ _empty_/GBTree#Tree#[A]2%
+ _empty_/GBTree#Tree#[B]2"
+ _empty_/GBTree#Node#2-
+ _empty_/GBTree#Node#`<init>`().2%
+ _empty_/GBTree#Node#[A]2%
+% &_empty_/GBTree#Node#[B]2"
+/ 3_empty_/GBTree#Node#2%
+4 5_empty_/GBTree#Node#[A]2%
+6 7_empty_/GBTree#Node#[B]2"
+@ D_empty_/GBTree#Node#2%
+E F_empty_/GBTree#Node#[A]2%
+G H_empty_/GBTree#Node#[B]2-
+ _empty_/GBTree#Tree#`<init>`().2"
+ _empty_/GBTree#Tree#2%
+ _empty_/GBTree#Node#[A]2%
+ _empty_/GBTree#Node#[B]2%
+ _empty_/GBTree#Node#[A]2%
+ _empty_/GBTree#Node#[B]2&
+ _empty_/GBTree#Node#key.2(
+ $_empty_/GBTree#Node#value.2*
+' ._empty_/GBTree#Node#smaller.2)
+9 ?_empty_/GBTree#Node#bigger.2)
+ _empty_/GBTree#Node#copy().2'
+ _empty_/GBTree#Node#_1().2'
+% %_empty_/GBTree#Node#_2().2'
+/ /_empty_/GBTree#Node#_3().2'
+@ @_empty_/GBTree#Node#_4().2"
+ _empty_/GBTree#Node.2*
+ _empty_/GBTree#Node.apply().2,
+ _empty_/GBTree#Node.unapply().2!
+ _empty_/GBTree#Nil#2,
+ _empty_/GBTree#Nil#`<init>`().2-
++ +_empty_/GBTree#Tree#`<init>`().2"
+" &_empty_/GBTree#Tree#2$
+' (_empty_/GBTree#Nil#[A]2$
+) *_empty_/GBTree#Nil#[B]2$
+ _empty_/GBTree#Nil#[A]2$
+ _empty_/GBTree#Nil#[B]2(
+ _empty_/GBTree#Nil#copy().2!
+ _empty_/GBTree#Nil.2)
+ _empty_/GBTree#Nil.apply().2+
+ _empty_/GBTree#Nil.unapply().PZ 6AA298EEDC6A6C0CF6FBA6A1E34EDEBD

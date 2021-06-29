@@ -1,0 +1,185 @@
+
+ü. tests/pos/gadt-variant-hkt.scala*
+_empty_/test.
+ *testÄ*#
+_empty_/test.KSUB# îÄ*KSUBÄ*/
+_empty_/test.KSUB#`<init>`(). Ä@*<init>Ä*"
+_empty_/test.KSUB#[F]	 Ä*FÄ*"
+_empty_/test.KSUB#[G]	 Ä*GÄ*!
+_empty_/test.KSUB.
+ *KSUBÄ*(
+_empty_/test.KSUB.Refl# àÅ*ReflÄ*4
+"_empty_/test.KSUB.Refl#`<init>`(). Ä@*<init>Ä*$
+_empty_/test.KSUB.Refl#[S]	*SÄ*+
+_empty_/test.KSUB.Refl#copy().*copyÄ*+
+!_empty_/test.KSUB.Refl#copy().[S]	*SÄ*1
+!_empty_/test.KSUB.Refl#ordinal().*ordinalÄ*&
+_empty_/test.KSUB.Refl.
+ *ReflÄ*-
+_empty_/test.KSUB.Refl.apply().*applyÄ*,
+"_empty_/test.KSUB.Refl.apply().[S]	*SÄ*1
+!_empty_/test.KSUB.Refl.unapply().*unapplyÄ*.
+$_empty_/test.KSUB.Refl.unapply().[S]	*SÄ*2
+&_empty_/test.KSUB.Refl.unapply().(x$1)*x$1Ä*3
+"_empty_/test.KSUB.Refl.toString().*toStringÄ*4
+ _empty_/test.KSUB.fromOrdinal().*fromOrdinalÄ*9
+)_empty_/test.KSUB.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/test.Mkr#*MkrÄ*.
+_empty_/test.Mkr#`<init>`(). Ä@*<init>Ä*
+_empty_/test.Mkr#[F]	*FÄ*#
+_empty_/test.Mkr#mk(). *mkÄ*#
+_empty_/test.Mkr#mk().[T]	*TÄ*#
+_empty_/test.Mkr#mk().(t)*tÄ*
+_empty_/test.foo().*fooÄ* 
+_empty_/test.foo().[F]	*FÄ*$
+_empty_/test.foo().(mkr)*mkrÄ*$
+_empty_/test.foo().(sub)*subÄ*
+local0 Ä	*S$1Ä*!
+_empty_/test.SUB# îÄ*SUBÄ*.
+_empty_/test.SUB#`<init>`(). Ä@*<init>Ä*
+_empty_/test.SUB#[T]	*TÄ*
+_empty_/test.SUB#[U]	*UÄ*
+_empty_/test.SUB.
+ *SUBÄ*'
+_empty_/test.SUB.Refl# àÅ*ReflÄ*3
+!_empty_/test.SUB.Refl#`<init>`(). Ä@*<init>Ä*#
+_empty_/test.SUB.Refl#[S]	*SÄ**
+_empty_/test.SUB.Refl#copy().*copyÄ**
+ _empty_/test.SUB.Refl#copy().[S]	*SÄ*0
+ _empty_/test.SUB.Refl#ordinal().*ordinalÄ*%
+_empty_/test.SUB.Refl.
+ *ReflÄ*,
+_empty_/test.SUB.Refl.apply().*applyÄ*+
+!_empty_/test.SUB.Refl.apply().[S]	*SÄ*0
+ _empty_/test.SUB.Refl.unapply().*unapplyÄ*-
+#_empty_/test.SUB.Refl.unapply().[S]	*SÄ*1
+%_empty_/test.SUB.Refl.unapply().(x$1)*x$1Ä*2
+!_empty_/test.SUB.Refl.toString().*toStringÄ*3
+_empty_/test.SUB.fromOrdinal().*fromOrdinalÄ*8
+(_empty_/test.SUB.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/test.bar().*barÄ* 
+_empty_/test.bar().[F]	*FÄ* 
+_empty_/test.bar().[G]	*GÄ* 
+_empty_/test.bar().[X]	*XÄ*"
+_empty_/test.bar().(fx)*fxÄ*&
+_empty_/test.bar().(ksub)*ksubÄ*$
+_empty_/test.bar().(sub)*subÄ*
+local1 Ä	*sÄ*
+local2 Ä*giÄ2
+ _empty_/test.2 
+ _empty_/test.KSUB#2+
+ _empty_/test.KSUB#`<init>`().2#
+ _empty_/test.KSUB#[F]2#
+ _empty_/test.KSUB#[G]2 
+ _empty_/test.KSUB.2%
+	 _empty_/test.KSUB.Refl#20
+ "_empty_/test.KSUB.Refl#`<init>`().2+
+( (_empty_/test.KSUB#`<init>`().2 
+ "_empty_/test.KSUB#2(
+# $_empty_/test.KSUB.Refl#[S]2(
+& '_empty_/test.KSUB.Refl#[S]2(
+ _empty_/test.KSUB.Refl#[S]2,
+ _empty_/test.KSUB.Refl#copy().2%
+	 	_empty_/test.KSUB.Refl.2-
+ _empty_/test.KSUB.Refl.apply().2/
+ !_empty_/test.KSUB.Refl.unapply().2
+ _empty_/test.Mkr#2*
+ _empty_/test.Mkr#`<init>`().2"
+ _empty_/test.Mkr#[F]2$
+ 
+_empty_/test.Mkr#mk().2'
+ _empty_/test.Mkr#mk().[T]2'
+ _empty_/test.Mkr#mk().(t)2'
+ _empty_/test.Mkr#mk().[T]2"
+ _empty_/test.Mkr#[F]2'
+ _empty_/test.Mkr#mk().[T]2!
+
+
+ 	_empty_/test.foo().2$
+
+
+
+ _empty_/test.foo().[F]2&
+
+
+ _empty_/test.foo().(mkr)2
+
+
+ _empty_/test.Mkr#2$
+
+
+ _empty_/test.foo().[F]2&
+
+
+  _empty_/test.foo().(sub)2 
+
+$
+ (_empty_/test.KSUB#2$
+
+"
+ #_empty_/test.foo().[F]2
+
+2
+ 8scala/Option#2
+
+9
+ <
+scala/Int#2&
+ _empty_/test.foo().(sub)2/
+ !_empty_/test.KSUB.Refl.unapply().2%
+ _empty_/test.KSUB.Refl.2 
+ _empty_/test.KSUB.2
+ local02$
+ _empty_/test.Mkr#mk().2&
+ _empty_/test.foo().(mkr)2
+ 
+_empty_/test.SUB#2*
+
+ 
+_empty_/test.SUB#`<init>`().2"
+ _empty_/test.SUB#[T]2"
+ _empty_/test.SUB#[U]2
+ _empty_/test.SUB.2$
+	 _empty_/test.SUB.Refl#2/
+ !_empty_/test.SUB.Refl#`<init>`().2*
+$ $_empty_/test.SUB#`<init>`().2
+ _empty_/test.SUB#2'
+  _empty_/test.SUB.Refl#[S]2'
+" #_empty_/test.SUB.Refl#[S]2'
+ _empty_/test.SUB.Refl#[S]2+
+ _empty_/test.SUB.Refl#copy().2$
+	 	_empty_/test.SUB.Refl.2,
+ _empty_/test.SUB.Refl.apply().2.
+  _empty_/test.SUB.Refl.unapply().2!
+ 	_empty_/test.bar().2$
+
+ _empty_/test.bar().[F]2$
+ _empty_/test.bar().[G]2$
+ _empty_/test.bar().[X]2%
+ _empty_/test.bar().(fx)2$
+ _empty_/test.bar().[F]2$
+  _empty_/test.bar().[X]2'
+# '_empty_/test.bar().(ksub)2 
++ /_empty_/test.KSUB#2$
+) *_empty_/test.bar().[F]2$
+0 1_empty_/test.bar().[G]2&
+3 6_empty_/test.bar().(sub)2
+: =_empty_/test.SUB#2$
+8 9_empty_/test.bar().[X]2
+> A
+scala/Int#2'
+ _empty_/test.bar().(ksub)2%
+ _empty_/test.KSUB.Refl#2 
+ _empty_/test.KSUB.2
+ local12&
+ _empty_/test.bar().(sub)2.
+  _empty_/test.SUB.Refl.unapply().2$
+ _empty_/test.SUB.Refl.2
+ _empty_/test.SUB.2
+ local22$
+ _empty_/test.bar().[G]2
+ 
+scala/Int#2%
+ _empty_/test.bar().(fx)2
+" #local12$
+$ %_empty_/test.bar().[X]PZ 00F4A4053D31CC4788A84DF90DBEC7AA

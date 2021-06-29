@@ -1,0 +1,22 @@
+
+îtests/pos/t5809.scala*
+foo/package. *foo€*,
+foo/package.EnrichedInt#*EnrichedInt€*5
+#foo/package.EnrichedInt#`<init>`(). €@*<init>€*4
+(foo/package.EnrichedInt#`<init>`().(foo)*foo€*+
+foo/package.EnrichedInt#foo. €*foo€**
+foo/package.EnrichedInt#bar().*bar€*.
+ foo/package.EnrichedInt#bippy().*bippy€*0
+foo/package.EnrichedInt(). (*EnrichedInt€*+
+foo/package.EnrichedInt().(foo)*foo€2
+ foo/package.2&
+ foo/package.EnrichedInt#21
+ #foo/package.EnrichedInt#`<init>`().2
+" %
+scala/Int#2*
+  foo/package.EnrichedInt#foo.2,
+ foo/package.EnrichedInt#bar().2#
+ scala/Predef.`???`().2.
+  foo/package.EnrichedInt#bippy().2*
+ foo/package.EnrichedInt#foo.2(
+ foo/package.EnrichedInt().PZ 6FD942D32A0A02571BCAE49792FE7596

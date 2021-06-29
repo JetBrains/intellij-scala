@@ -1,0 +1,40 @@
+
+Ÿ	 tests/pos/inline-constfold.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.not().*not€* 
+_empty_/Test.not().(x)*x€*
+_empty_/Test.a. ˆ*a€*
+_empty_/Test.b. €*b€*
+_empty_/Test.add().*add€* 
+_empty_/Test.add().(x)*x€* 
+_empty_/Test.add().(y)*y€*
+_empty_/Test.c. ˆ*c€*
+_empty_/Test.d. €*d€2
+ _empty_/Test.2(
+ scala/Boolean#`unary_!`().2$
+ _empty_/Test.not().(x)2!
+ _empty_/Test.not().2$
+ _empty_/Test.not().(x)2
+  'scala/Boolean#2
+* 1scala/Boolean#2
+ _empty_/Test.a.2!
+ _empty_/Test.not().2
+ _empty_/Test.b.2
+ _empty_/Test.a.2 
+		 scala/Int#`+`(+4).2$
+		 _empty_/Test.add().(x)2$
+		 	_empty_/Test.add().(y)2!
+ _empty_/Test.add().2$
+ _empty_/Test.add().(x)2
+  #
+scala/Int#2$
+% &_empty_/Test.add().(y)2
+( +
+scala/Int#2
+. 1
+scala/Int#2
+ _empty_/Test.c.2!
+ _empty_/Test.add().2
+ _empty_/Test.d.2
+ _empty_/Test.c.PZ 9A4B937C56ED6383D980C7560D4D400A

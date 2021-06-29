@@ -1,0 +1,12 @@
+
+ê=tests/pos/inline-match-separate/inline-match-separate_2.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a. €*a€2
+ _empty_/Utils.2
+ _empty_/Test.2
+ _empty_/Test.a.2"
+
+ _empty_/Utils.foo().2+
+ _empty_/Utils.Box#`<init>`().2 
+ _empty_/Utils.Box#PZ 40A0BB1A414C468118E4FF646BA91A6A

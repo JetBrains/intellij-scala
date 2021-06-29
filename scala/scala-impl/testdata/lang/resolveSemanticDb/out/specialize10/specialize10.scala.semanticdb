@@ -1,0 +1,49 @@
+
+»
+tests/pos/specialize10.scala*
+_empty_/Bippy#*Bippy€*+
+_empty_/Bippy#`<init>`(). €@*<init>€*
+_empty_/Bippy#[T]	*T€*
+_empty_/Bippy2#*Bippy2€*,
+_empty_/Bippy2#`<init>`(). €@*<init>€*
+_empty_/Bippy2#[T]	*T€2
+ _empty_/Bippy#2#
+ _empty_/Bippy#`<init>`().2
+ scala/specialized#2
+ scala/Char.2
+ scala/2
+ scala/Boolean.2
+ scala/2
+# 'scala/Byte.2
+ "scala/2
+ scala/Short.2
+ scala/2
+ 
+scala/Int.2
+ scala/2
+  $scala/Long.2
+ scala/2
+ scala/Float.2
+ scala/2
+ scala/Double.2
+ scala/2
+# 'scala/Unit.2
+ "scala/2#
+ scala/package.AnyRef.2
+ scala/2
+ _empty_/Bippy#[T]2
+ _empty_/Bippy2#2(
+ _empty_/Bippy2#`<init>`().2 
+ scala/specialized#2
+ scala/Char.2
+  'scala/Boolean.2
+) -scala/Byte.2
+/ 4scala/Short.2
+6 9
+scala/Int.2
+; ?scala/Long.2
+A Fscala/Float.2
+H Nscala/Double.2
+P Tscala/Unit.2#
+V \scala/package.AnyRef.2 
+^ __empty_/Bippy2#[T]PZ F3482032F5AE55D987325631F5016833

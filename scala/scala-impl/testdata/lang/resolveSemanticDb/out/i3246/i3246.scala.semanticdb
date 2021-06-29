@@ -1,0 +1,38 @@
+
+Ítests/pos/i3246.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#A#*A€*,
+_empty_/Test#A#`<init>`(). €@*<init>€*
+_empty_/Test#A#T#*T€*
+_empty_/Test#A#f().*f€* 
+_empty_/Test#A#f().(x)*x€*
+_empty_/Test#a().*a€*
+_empty_/Test#f. €*f€*
+local0*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ 	_empty_/Test#A#2(
+ _empty_/Test#A#`<init>`().2
+	 
+_empty_/Test#A#T#2
+ 
+scala/Int#2!
+ 	_empty_/Test#A#f().2$
+
+ _empty_/Test#A#f().(x)2
+ _empty_/Test#A#T#2
+ _empty_/Test#A#T#2#
+ scala/Predef.`???`().2
+ _empty_/Test#a().2
+	 
+_empty_/Test#A#2(
+ _empty_/Test#A#`<init>`().2
+ _empty_/Test#A#2
+ _empty_/Test#f.2
+
+ _empty_/Test#a().2
+
+ 
+local0PZ 3266DF9BD0AD38F299915C3D807FB45A

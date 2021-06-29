@@ -1,0 +1,75 @@
+
+çtests/pos/i3248.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*2
+"_empty_/Test.Foo#`<init>`().(name) €*name€*:
+&_empty_/Test.Foo#`<init>`().(children) €*children€*&
+_empty_/Test.Foo#name. €*name€*.
+_empty_/Test.Foo#children. €*children€*
+_empty_/Test.Foo.
+ *Foo€*+
+_empty_/Test.Foo.unapply().*unapply€*(
+_empty_/Test.Foo.unapply().(f)*f€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(f)*f€*
+local0 €*name€*
+local1 €*cs€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2"
+ scala/Predef.String#2
+, /
+scala/Int#2$
+ _empty_/Test.Foo#name.2(
+" *_empty_/Test.Foo#children.2
+	 _empty_/Test.Foo.2)
+ _empty_/Test.Foo.unapply().2,
+ _empty_/Test.Foo.unapply().(f)2
+ _empty_/Test.Foo#2!
+ scala/Some.apply().2
+ scala/Some.2#
+   scala/Tuple2.apply().2$
+" &_empty_/Test.Foo#name.2,
+  !_empty_/Test.Foo.unapply().(f)2(
+* 2_empty_/Test.Foo#children.2,
+( )_empty_/Test.Foo.unapply().(f)2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(f)2
+ _empty_/Test.Foo#2$
+ _empty_/Test.foo().(f)2)
+ _empty_/Test.Foo.unapply().2
+	 _empty_/Test.Foo.2
+ local02
+ local125
+E E'scala/collection/immutable/List#`::`().24
+6 9&scala/collection/immutable/List#map().28
+/ 5*scala/collection/IterableOnceOps#toList().20
+' ."scala/collection/SeqOps#reverse().2
+$ &local12.
+< D scala/collection/Seq#toString().2
+  local02"
+		 
+_empty_/Test.main().2(
+		 _empty_/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2'
+
+
+ scala/Predef.println(+1).2<
+
+(
+ 0.scala/collection/IterableOnceOps#mkString(+1).2!
+
+
+ _empty_/Test.foo().2*
+
+
+ _empty_/Test.Foo#`<init>`().2
+
+
+ _empty_/Test.Foo#PZ 245C9A99D736F5B41B34DEF6DBF5AEAC

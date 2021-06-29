@@ -1,0 +1,9 @@
+
+”tests/pos/t1385.scala*
+_empty_/Test.
+ *Test€*/
+_empty_/Test.readResolve().*readResolve€2
+ _empty_/Test.2%
+  scala/package.Serializable#2)
+ _empty_/Test.readResolve().2
+ !scala/AnyRef#PZ E485136C32A91AC11E64E3E5FA54AC30

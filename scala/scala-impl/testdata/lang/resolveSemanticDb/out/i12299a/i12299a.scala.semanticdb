@@ -1,0 +1,20 @@
+
+ètests/pos/i12299a.scala*
+_empty_/Outer.
+ *OuterÄ*"
+_empty_/Outer.Wrap.
+ *WrapÄ*%
+_empty_/Outer.Wrap.Bar# *BarÄ*
+_empty_/Outer.Bar#*BarÄ*/
+_empty_/Outer.Bar#`<init>`(). Ä@*<init>Ä*)
+_empty_/Outer.wrapBar. Ä*wrapBarÄ2
+ _empty_/Outer.2!
+	 _empty_/Outer.Wrap.2
+ _empty_/Outer.2%
+ _empty_/Outer.Wrap.Bar#2 
+ _empty_/Outer.Bar#2+
+ _empty_/Outer.Bar#`<init>`().2$
+ _empty_/Outer.wrapBar.2+
+ _empty_/Outer.Bar#`<init>`().2 
+ _empty_/Outer.Bar#2!
+ _empty_/Outer.Wrap.PZ AA16D232283410A46950812D22E6E507

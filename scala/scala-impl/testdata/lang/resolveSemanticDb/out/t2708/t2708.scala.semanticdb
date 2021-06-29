@@ -1,0 +1,15 @@
+
+¾tests/pos/t2708.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*'
+_empty_/Foo#`<init>`().(v) €*v€*
+_empty_/Foo#v(). €*v€*#
+_empty_/Foo#`v_=`(). €*v_=€*%
+_empty_/Foo#`v_=`().(x$1)*x$1€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ scala/volatile#2
+ 
+scala/Int#2
+ _empty_/Foo#v().2
+ _empty_/Foo#`v_=`().PZ 97733EE70242F51AA6AB174816A6CADD

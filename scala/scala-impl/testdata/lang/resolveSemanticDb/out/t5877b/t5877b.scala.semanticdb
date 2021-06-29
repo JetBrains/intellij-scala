@@ -1,0 +1,31 @@
+
+´tests/pos/t5877b.scala*
+foo/Foo#*Foo€*%
+foo/Foo#`<init>`(). €@*<init>€*
+	foo/Test.
+ *Test€*
+foo/package. *foo€*.
+foo/package.EnrichedFoo2#*EnrichedFoo2€*6
+$foo/package.EnrichedFoo2#`<init>`(). €@*<init>€*9
++foo/package.EnrichedFoo2#`<init>`().(value)*value€*0
+foo/package.EnrichedFoo2#value. €*value€*1
+"foo/package.EnrichedFoo2#huzzah().*huzzah€*2
+foo/package.EnrichedFoo2(). (*EnrichedFoo2€*0
+"foo/package.EnrichedFoo2().(value)*value€2
+ foo/2
+ 	foo/Foo#2
+foo/Foo#`<init>`().2
+ 	foo/Test.20
+ "foo/package.EnrichedFoo2#huzzah().2)
+ foo/package.EnrichedFoo2().2!
+	 	foo/Foo#`<init>`().2
+ 	foo/Foo#2
+ foo/package.2'
+		 foo/package.EnrichedFoo2#22
+		 $foo/package.EnrichedFoo2#`<init>`().2
+	%	 (foo/Foo#2-
+		 #foo/package.EnrichedFoo2#value.20
+
+
+ "foo/package.EnrichedFoo2#huzzah().2)
+		 foo/package.EnrichedFoo2().PZ C2E1C42D567A469E9978BD3926499EC3

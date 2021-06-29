@@ -1,0 +1,26 @@
+
+Étests/pos/tcpoly_subst.scala*
+_empty_/test.
+ *test€*!
+_empty_/test.make().*make€*!
+_empty_/test.make().[m]	*m€*!
+_empty_/test.make().[b]	*b€* 
+_empty_/test.lst. €*lst€2
+ _empty_/test.2"
+ 
+_empty_/test.make().2%
+ _empty_/test.make().[m]2%
+ _empty_/test.make().[b]2%
+ _empty_/test.make().[m]2%
+ _empty_/test.make().[b]2(
+  %scala/sys/package.error().2
+ 
+scala/sys/2
+ 	_empty_/test.lst.2!
+ scala/package.List#2
+ 
+scala/Int#2"
+ _empty_/test.make().2!
+  scala/package.List#2
+" %
+scala/Int#PZ D521FE31E73132219A0430EF5ACACE81

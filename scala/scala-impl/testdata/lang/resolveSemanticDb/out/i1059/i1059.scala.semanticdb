@@ -1,0 +1,18 @@
+
+†tests/pos/i1059.scala*$
+_empty_/Repeated.
+ *Repeated€*&
+_empty_/Repeated.list. €*list€2
+ _empty_/Repeated.2$
+ 
+_empty_/Repeated.list.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2$
+ _empty_/Repeated.list.27
+ )scala/collection/SeqFactory#unapplySeq().2!
+	 scala/package.List.27
+ )scala/collection/SeqFactory#unapplySeq().2!
+	 scala/package.List.27
+ )scala/collection/SeqFactory#unapplySeq().2!
+	 scala/package.List.2 
+	 scala/package.Nil.PZ BCDF48E33DB1BE06325047895A4DBD1C

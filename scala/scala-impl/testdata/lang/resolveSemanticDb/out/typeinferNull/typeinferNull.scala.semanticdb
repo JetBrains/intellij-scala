@@ -1,0 +1,25 @@
+
+—tests/pos/typeinferNull.scala*.
+_empty_/typeinferNull.
+ *typeinferNull€*'
+_empty_/typeinferNull.x1. €*x1€*'
+_empty_/typeinferNull.x2. €*x2€*)
+_empty_/typeinferNull.y1(). €*y1€*/
+_empty_/typeinferNull.`y1_=`(). €*y1_=€*0
+$_empty_/typeinferNull.`y1_=`().(x$1)*x$1€2 
+ _empty_/typeinferNull.2'
+ _empty_/typeinferNull.x1.25
+ 'scala/collection/immutable/List#`::`().2 
+ scala/package.Nil.2'
+ _empty_/typeinferNull.x2.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2)
+ _empty_/typeinferNull.y1().2!
+
+ scala/package.List#2
+ scala/Null#2'
+ _empty_/typeinferNull.x1.2-
+ 
+_empty_/typeinferNull.`y1_=`().2-
+ _empty_/typeinferNull.`y1_=`().2'
+ 	_empty_/typeinferNull.x2.PZ ED89ACE7A78B441E1FC154138619BA22

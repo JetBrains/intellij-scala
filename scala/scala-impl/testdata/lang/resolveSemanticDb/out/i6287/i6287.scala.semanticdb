@@ -1,0 +1,15 @@
+
+–tests/pos/i6287.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.T#*T€*
+_empty_/A.T.
+ *T€2
+ 
+_empty_/A.2
+ _empty_/A.T#2
+ 
+scala/Int#2
+ _empty_/A.T.2%
+ scala/Predef.println().PZ F427731D650112F6D7A8FD20F4FA709B

@@ -1,0 +1,33 @@
+
+Ütests/pos/erasure-array.scala*
+hello/world.
+ *world€*&
+hello/world.mkArray().*mkArray€*+
+hello/world.mkArray().(atype)*atype€* 
+hello/world.main().*main€*&
+hello/world.main().(args)*args€2
+ hello/2
+ hello/world.2$
+ hello/world.mkArray().2+
+ hello/world.mkArray().(atype)2
+ 
+scala/Int#2
+  scala/Array#2
+& ,scala/AnyVal#2!
+ scala/Int#`==`(+3).2+
+	 hello/world.mkArray().(atype)2%
+# #scala/Array#`<init>`().2
+ scala/Array#2
+ "
+scala/Int#2%
+= =scala/Array#`<init>`().2
+1 6scala/Array#2
+7 <scala/Float#2!
+ 
+hello/world.main().2'
+ hello/world.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+		 scala/Predef.println(+1).2$
+		 hello/world.mkArray().PZ B3BAF09DBB805E632C3FE482D121904F

@@ -1,0 +1,97 @@
+
+í&tests/pos/pos_valueclasses/t6651.scala*.
+t6651/YouAreYourself# *YouAreYourself€*2
+ t6651/YouAreYourself#`<init>`(). €@*<init>€*4
+%t6651/YouAreYourself#`<init>`().(you) €*you€*"
+t6651/YouAreYourself#[A]	*A€*(
+t6651/YouAreYourself#you. €*you€*1
+ t6651/YouAreYourself#yourself().*yourself€*.
+t6651/YouAreYourself.
+ *YouAreYourself€*
+t6651/Test.
+ *Test€*
+t6651/Test.s. €*s€*
+t6651/Test.s1. €*s1€*
+t6651/Path#*Path€*(
+t6651/Path#`<init>`(). €@*<init>€*
+t6651/Path#Dep#*Dep€*&
+t6651/ValueClass# *
+ValueClass€*.
+t6651/ValueClass#`<init>`(). €@*<init>€*2
+"t6651/ValueClass#`<init>`().(path) €*path€*
+t6651/ValueClass#[P]	*P€*&
+t6651/ValueClass#path. €*path€*'
+t6651/ValueClass#apply().*apply€**
+t6651/ValueClass#apply().(dep)*dep€*(
+t6651/ValueClass#apply().(d2)*d2€**
+t6651/ValueClass#apply().(foo)*foo€*)
+t6651/ValueClass#bounds().*bounds€*'
+t6651/ValueClass#bounds().[D]	*D€*+
+t6651/ValueClass#bounds().(dep)*dep€*)
+t6651/ValueClass#bounds().(d2)*d2€*+
+t6651/ValueClass#bounds().(foo)*foo€*&
+t6651/ValueClass.
+ *
+ValueClass€2
+ t6651/2#
+ t6651/YouAreYourself#2.
+  t6651/YouAreYourself#`<init>`().2&
++ ,t6651/YouAreYourself#[A]2&
+< <scala/AnyVal#`<init>`().2
+6 <scala/AnyVal#2&
+ t6651/YouAreYourself#[A]2'
+& )t6651/YouAreYourself#you.2.
+  t6651/YouAreYourself#yourself().2'
+ t6651/YouAreYourself#you.2'
+ t6651/YouAreYourself#you.2#
+ t6651/YouAreYourself.2
+ t6651/Test.2
+ t6651/Test.s.2
+ t6651/Test.s1.2
+
+ t6651/Test.s.2.
+1 9 t6651/YouAreYourself#yourself().2.
+- - t6651/YouAreYourself#`<init>`().2#
+ %t6651/YouAreYourself#2
+& 't6651/Test.s.2
+. /t6651/Test.s.2
+ 
+t6651/Path#2$
+ t6651/Path#`<init>`().2
+ 
+t6651/Path#Dep#2
+ scala/AnyRef#2
+ t6651/ValueClass#2*
+ t6651/ValueClass#`<init>`().2"
+, -t6651/ValueClass#[P]2&
+= =scala/AnyVal#`<init>`().2
+7 =scala/AnyVal#2"
+ t6651/ValueClass#[P]2$
+& *t6651/ValueClass#path.2$
+	 t6651/ValueClass#path.2'
+ t6651/ValueClass#apply().2,
+ t6651/ValueClass#apply().(dep)2+
+ t6651/ValueClass#apply().(d2)2,
+ t6651/ValueClass#apply().(dep)2,
+$ 't6651/ValueClass#apply().(foo)2
+) ,
+scala/Int#2+
+5 7t6651/ValueClass#apply().(d2)2#
+A Ascala/Tuple2.apply().2+
+A Ct6651/ValueClass#apply().(d2)2+
+E Gt6651/ValueClass#apply().(d2)2(
+   t6651/ValueClass#bounds().2+
+   t6651/ValueClass#bounds().[D]2-
+   t6651/ValueClass#bounds().(dep)2+
+   t6651/ValueClass#bounds().[D]2,
+   !t6651/ValueClass#bounds().(d2)2-
+ #  &t6651/ValueClass#bounds().(dep)2-
+ -  0t6651/ValueClass#bounds().(foo)2
+ 2  5
+scala/Int#2+
+ 9  :t6651/ValueClass#bounds().[D]2,
+ <  >t6651/ValueClass#bounds().(d2)2#
+ H  Hscala/Tuple2.apply().2,
+ H  Jt6651/ValueClass#bounds().(d2)2,
+ L  Nt6651/ValueClass#bounds().(d2)2
+ t6651/ValueClass.PZ DA5C41125E704D364495F267CC6436EC

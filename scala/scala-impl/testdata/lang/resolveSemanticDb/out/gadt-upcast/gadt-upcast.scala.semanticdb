@@ -1,0 +1,103 @@
+
+Ítests/pos/gadt-upcast.scala*
+_empty_/TagA#*TagA€**
+_empty_/TagA#`<init>`(). €@*<init>€*
+_empty_/TagA#[A]	*A€*
+_empty_/TagB#*TagB€**
+_empty_/TagB#`<init>`(). €@*<init>€*
+_empty_/TagB#[B]	*B€*
+_empty_/TagC#*TagC€**
+_empty_/TagC#`<init>`(). €@*<init>€*
+_empty_/TagC#[C]	*C€*
+_empty_/TriTag#*TriTag€*,
+_empty_/TriTag#`<init>`(). €@*<init>€*
+_empty_/TriTag#[A]	*A€*
+_empty_/TriTag#[B]	*B€*
+_empty_/TriTag#[C]	*C€*,
+_empty_/IntStrCharTag#*IntStrCharTag€*3
+!_empty_/IntStrCharTag#`<init>`(). €@*<init>€*(
+_empty_/GadtUpcast.
+ *
+GadtUpcast€*&
+_empty_/GadtUpcast.ret. €*ret€*
+local0 *$anon€*0
+_empty_/`gadt-upcast$package`. *_empty_€*0
+$_empty_/`gadt-upcast$package`.get().*get€*1
+'_empty_/`gadt-upcast$package`.get().[A]	*A€*1
+'_empty_/`gadt-upcast$package`.get().[B]	*B€*1
+'_empty_/`gadt-upcast$package`.get().[C]	*C€*
+local1*x$1€2
+ 
+_empty_/TagA#2"
+
+ 
+_empty_/TagA#`<init>`().2
+ _empty_/TagA#[A]2
+ 
+_empty_/TagB#2&
+
+ 
+_empty_/TagB#`<init>`().2
+ _empty_/TagB#[B]2
+ 
+_empty_/TagC#2&
+
+ 
+_empty_/TagC#`<init>`().2
+ _empty_/TagC#[C]2
+ _empty_/TriTag#2(
+ _empty_/TriTag#`<init>`().2
+ "_empty_/TagA#2 
+# $_empty_/TriTag#[A]2
++ /_empty_/TagB#2 
+0 1_empty_/TriTag#[B]2
+8 <_empty_/TagC#2 
+= >_empty_/TriTag#[C]2 
+ _empty_/TriTag#[A]2 
+ _empty_/TriTag#[B]2 
+ _empty_/TriTag#[C]2$
+ _empty_/IntStrCharTag#2/
+ !_empty_/IntStrCharTag#`<init>`().2
+  _empty_/TagA#2
+! $
+scala/Int#2
++ /_empty_/TagB#2"
+0 6scala/Predef.String#2
+= A_empty_/TagC#2
+B Fscala/Char#2!
+
+
+ _empty_/GadtUpcast.2
+
+
+ 
+scala/App#2%
+ 	_empty_/GadtUpcast.ret.2&
+ scala/Function1#apply().22
+ $_empty_/`gadt-upcast$package`.get().2
+ local02/
+! !!_empty_/IntStrCharTag#`<init>`().2$
+ !_empty_/IntStrCharTag#2
+' -_empty_/TriTag#2
+. 1
+scala/Int#2"
+3 9scala/Predef.String#2
+; ?scala/Char#2'
+ 	scala/Predef.println(+1).2%
+
+ _empty_/GadtUpcast.ret.2(
+_empty_/`gadt-upcast$package`.22
+ $_empty_/`gadt-upcast$package`.get().25
+ 	'_empty_/`gadt-upcast$package`.get().[A]25
+ '_empty_/`gadt-upcast$package`.get().[B]25
+ '_empty_/`gadt-upcast$package`.get().[C]2
+ _empty_/TriTag#25
+ '_empty_/`gadt-upcast$package`.get().[A]25
+ '_empty_/`gadt-upcast$package`.get().[B]25
+  '_empty_/`gadt-upcast$package`.get().[C]25
+& ''_empty_/`gadt-upcast$package`.get().[A]25
+) *'_empty_/`gadt-upcast$package`.get().[B]25
+, -'_empty_/`gadt-upcast$package`.get().[C]2
+ local12$
+	 _empty_/IntStrCharTag#2#
+ scala/Tuple3.apply().PZ 3ADAF63DE55DD8614D090B88D6CE0487

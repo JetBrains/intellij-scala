@@ -1,0 +1,39 @@
+
+¹tests/pos/i3637.scala*
+_empty_/Demo.
+ *Demo€*%
+_empty_/Demo.summon().*summon€*#
+_empty_/Demo.summon().[T]	*T€*'
+_empty_/Demo.summon().(ev)  *ev€*
+local0 €*B€*
+local1 €*i€*
+local2*copy€*
+local3*copy$default$1€*
+local4*_1€*
+local5
+ *B€*
+local6*apply€*
+local7*unapply€*
+local8*x$1€*
+local9*toString€2!
+ scala/reflect/ClassTag.2!
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ _empty_/Demo.2$
+ _empty_/Demo.summon().2'
+ _empty_/Demo.summon().[T]2(
+ _empty_/Demo.summon().(ev)2'
+ _empty_/Demo.summon().[T]2(
+! #_empty_/Demo.summon().(ev)2(
++ -_empty_/Demo.summon().(ev)2
+ local02
+ local12
+ local22
+ local42
+ local52
+ local62$
+ 
+_empty_/Demo.summon().2%
+ scala/reflect/ClassTag#2
+ local02-
+ scala/reflect/ClassTag.apply().PZ DA1ED66EF003B163E419F1C1D81DD991

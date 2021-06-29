@@ -1,0 +1,316 @@
+
+ŸEtests/pos/inferOverloaded.scala*
+_empty_/MySeq#*MySeq€*+
+_empty_/MySeq#`<init>`(). €@*<init>€*
+_empty_/MySeq#[T]	*T€*"
+_empty_/MySeq#map1().*map1€*"
+_empty_/MySeq#map1().[U]	*U€*"
+_empty_/MySeq#map1().(f)*f€*"
+_empty_/MySeq#map2().*map2€*"
+_empty_/MySeq#map2().[U]	*U€*"
+_empty_/MySeq#map2().(f)*f€*
+_empty_/MyMap#*MyMap€*+
+_empty_/MyMap#`<init>`(). €@*<init>€*
+_empty_/MyMap#[A]	*A€*
+_empty_/MyMap#[B]	*B€*"
+_empty_/MyMap#map1().*map1€*"
+_empty_/MyMap#map1().[C]	*C€*"
+_empty_/MyMap#map1().(f)*f€*$
+_empty_/MyMap#map1(+1).*map1€*$
+_empty_/MyMap#map1(+1).[C]	*C€*$
+_empty_/MyMap#map1(+1).[D]	*D€*$
+_empty_/MyMap#map1(+1).(f)*f€*$
+_empty_/MyMap#map1(+2).*map1€*$
+_empty_/MyMap#map1(+2).[C]	*C€*$
+_empty_/MyMap#map1(+2).[D]	*D€*$
+_empty_/MyMap#map1(+2).(f)*f€* 
+_empty_/MyMap#foo().*foo€*!
+_empty_/MyMap#foo().(f)*f€*"
+_empty_/MyMap#foo(+1).*foo€*#
+_empty_/MyMap#foo(+1).[R]	*R€*%
+_empty_/MyMap#foo(+1).(pf)*pf€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.m. €*m€*
+local0*x$1€*
+local1 €*k€*
+local2 €*v€*
+local3*t€*
+local4*kInFunction€*
+local5*vInFunction€*
+_empty_/Test.r1. €*r1€*
+local6*t€* 
+_empty_/Test.r1t. €*r1t€*
+local7*x$1€*
+local8 €*k€*
+local9 €*v€*
+local10*x$1€*
+local11 €*k€*
+local12 €*v€*
+local13*x$1€*
+local14 €*k€*
+local15 €*v€*
+_empty_/Test.r. €*r€*
+local16*x$1€*
+local17 €*k€*
+local18 €*v€*
+_empty_/Test.rt. €*rt€*
+local19*x$1€*
+local20 €*k€*
+local21 €*v€*
+_empty_/Test.h().*h€*
+_empty_/Test.h().[R]	*R€* 
+_empty_/Test.h().(pf)*pf€*
+_empty_/Test.h(+1).*h€* 
+_empty_/Test.h(+1).[R]	*R€*"
+_empty_/Test.h(+1).(pf)*pf€*
+local22*x$1€*
+local23 €*a€*
+local24 €*b€2
+ _empty_/MySeq#2#
+ _empty_/MySeq#`<init>`().2
+ _empty_/MySeq#[T]2#
+ 
+_empty_/MySeq#map1().2&
+ _empty_/MySeq#map1().[U]2&
+ _empty_/MySeq#map1().(f)2
+ _empty_/MySeq#[T]2&
+ _empty_/MySeq#map1().[U]2
+ _empty_/MySeq#2&
+  !_empty_/MySeq#map1().[U]2'
+1 1_empty_/MySeq#`<init>`().2
+) ._empty_/MySeq#2&
+/ 0_empty_/MySeq#map1().[U]2#
+ 
+_empty_/MySeq#map2().2&
+ _empty_/MySeq#map2().[U]2&
+ _empty_/MySeq#map2().(f)2
+ _empty_/MySeq#[T]2&
+ _empty_/MySeq#map2().[U]2
+ _empty_/MySeq#2&
+  !_empty_/MySeq#map2().[U]2'
+1 1_empty_/MySeq#`<init>`().2
+) ._empty_/MySeq#2&
+/ 0_empty_/MySeq#map2().[U]2
+ _empty_/MyMap#2'
+ _empty_/MyMap#`<init>`().2'
+' '_empty_/MySeq#`<init>`().2
+ _empty_/MySeq#2
+! "_empty_/MyMap#[A]2
+$ %_empty_/MyMap#[B]2
+ _empty_/MyMap#[A]2
+ _empty_/MyMap#[B]2#
+ 
+_empty_/MyMap#map1().2&
+ _empty_/MyMap#map1().[C]2&
+ _empty_/MyMap#map1().(f)2
+ _empty_/MyMap#[A]2
+ _empty_/MyMap#[B]2&
+ _empty_/MyMap#map1().[C]2
+ $_empty_/MySeq#2&
+% &_empty_/MyMap#map1().[C]2'
+6 6_empty_/MySeq#`<init>`().2
+. 3_empty_/MySeq#2&
+4 5_empty_/MyMap#map1().[C]2%
+ 
+_empty_/MyMap#map1(+1).2(
+ _empty_/MyMap#map1(+1).[C]2(
+ _empty_/MyMap#map1(+1).[D]2(
+ _empty_/MyMap#map1(+1).(f)2
+ _empty_/MyMap#[A]2
+ _empty_/MyMap#[B]2(
+  _empty_/MyMap#map1(+1).[C]2(
+" #_empty_/MyMap#map1(+1).[D]2
+' ,_empty_/MyMap#2(
+- ._empty_/MyMap#map1(+1).[C]2(
+0 1_empty_/MyMap#map1(+1).[D]2'
+D D_empty_/MyMap#`<init>`().2
+9 >_empty_/MyMap#2(
+? @_empty_/MyMap#map1(+1).[C]2(
+B C_empty_/MyMap#map1(+1).[D]2%
+ 
+_empty_/MyMap#map1(+2).2(
+ _empty_/MyMap#map1(+2).[C]2(
+ _empty_/MyMap#map1(+2).[D]2(
+ _empty_/MyMap#map1(+2).(f)2
+ _empty_/MyMap#[A]2
+ _empty_/MyMap#[B]2(
+! "_empty_/MyMap#map1(+2).[C]2(
+$ %_empty_/MyMap#map1(+2).[D]2
+) ._empty_/MyMap#2(
+/ 0_empty_/MyMap#map1(+2).[C]2(
+2 3_empty_/MyMap#map1(+2).[D]2'
+F F_empty_/MyMap#`<init>`().2
+; @_empty_/MyMap#2(
+A B_empty_/MyMap#map1(+2).[C]2(
+D E_empty_/MyMap#map1(+2).[D]2"
+
+
+ 	_empty_/MyMap#foo().2%
+
+
+
+ _empty_/MyMap#foo().(f)2
+
+
+ scala/Function2#2
+
+
+ 
+scala/Int#2
+
+
+ 
+scala/Int#2
+
+!
+ $
+scala/Int#2
+
+(
+ ,scala/Unit#2$
+ 	_empty_/MyMap#foo(+1).2'
+
+ _empty_/MyMap#foo(+1).[R]2(
+ _empty_/MyMap#foo(+1).(pf)2$
+  scala/PartialFunction#2
+" #_empty_/MyMap#[A]2
+% &_empty_/MyMap#[B]2'
+) *_empty_/MyMap#foo(+1).[R]2
+. 3_empty_/MySeq#2'
+4 5_empty_/MyMap#foo(+1).[R]2'
+E E_empty_/MySeq#`<init>`().2
+= B_empty_/MySeq#2'
+C D_empty_/MyMap#foo(+1).[R]2
+ _empty_/Test.2
+ _empty_/Test.m.2'
+   _empty_/MyMap#`<init>`().2
+ _empty_/MyMap#2
+ 
+scala/Int#2"
+ scala/Predef.String#2#
+ _empty_/MySeq#map2().2
+ _empty_/Test.m.2
+ local02%
+ scala/Tuple2.unapply().2
+ local12
+ local22 
+ scala/Int#`-`(+3).2
+ local12#
+ _empty_/MySeq#map1().2
+ _empty_/Test.m.2
+	 
+local32
+ scala/Tuple2#_1.2
+ local32#
+ _empty_/MyMap#map1().2
+ _empty_/Test.m.2
+
+ local42
+ "local52 
+3 4scala/Int#`-`(+3).2
+' 2local42
+ _empty_/Test.r1.2%
+ _empty_/MyMap#map1(+2).2
+ _empty_/Test.m.2
+ local62#
+ scala/Tuple2.apply().2
+ scala/Tuple2#_1.2
+ local62
+ 	_empty_/Test.r1t.2
+ _empty_/MyMap#2
+ 
+scala/Int#2
+ scala/Double#2
+  "_empty_/Test.r1.2#
+ _empty_/MySeq#map1().2
+ _empty_/Test.m.2
+ local72%
+ scala/Tuple2.unapply().2
+ local82
+ local92 
+ scala/Int#`-`(+3).2
+ local82$
+# 2scala/PartialFunction#2
+4 7
+scala/Int#2"
+9 ?scala/Predef.String#2
+B E
+scala/Int#2#
+ _empty_/MySeq#map2().2
+ _empty_/Test.m.2
+ local102%
+ scala/Tuple2.unapply().2
+ local112
+ local122 
+ scala/Int#`-`(+3).2
+ local112$
+# 2scala/PartialFunction#2
+4 7
+scala/Int#2"
+9 ?scala/Predef.String#2
+B E
+scala/Int#2#
+ _empty_/MySeq#map1().2
+ _empty_/Test.m.2
+ local132%
+ scala/Tuple2.unapply().2
+ local142
+ local152
+ local142
+   _empty_/Test.r.2%
+   _empty_/MyMap#map1(+2).2
+ 
+  _empty_/Test.m.2
+   local162%
+   scala/Tuple2.unapply().2
+   local172
+   local182#
+ #  #scala/Tuple2.apply().2
+ #  $local172 
+ '  (scala/Int#`*`(+3).2
+ &  'local172
+!! _empty_/Test.rt.2
+!
+! _empty_/MyMap#2
+!! 
+scala/Int#2
+!! 
+scala/Int#2
+!! _empty_/Test.r.2$
+"" _empty_/MyMap#foo(+1).2
+"" _empty_/Test.m.2
+"
+" 
+local192%
+"" scala/Tuple2.unapply().2
+"" local202
+"" local212 
+"" scala/Int#`-`(+3).2
+"" local202
+%% _empty_/Test.h().2"
+%% 	_empty_/Test.h().[R]2#
+%% _empty_/Test.h().(pf)2
+%% scala/Function2#2
+%% 
+scala/Int#2"
+%% $scala/Predef.String#2"
+%&% '_empty_/Test.h().[R]2
+%+% /scala/Unit#2!
+&& _empty_/Test.h(+1).2$
+&& 	_empty_/Test.h(+1).[R]2%
+&& _empty_/Test.h(+1).(pf)2$
+&& scala/PartialFunction#2
+& & &scala/Double#2
+&(& .scala/Double#2$
+&1& 2_empty_/Test.h(+1).[R]2
+&6& :scala/Unit#2!
+'' _empty_/Test.h(+1).2
+'' local222%
+'' scala/Tuple2.unapply().2
+'' local232
+'' scala/Double#2
+'' local242
+''  scala/Double#2
+')' ,
+scala/Int#PZ C179701BF891324070A81CB89FC8F4D1

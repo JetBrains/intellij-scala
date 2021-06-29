@@ -1,0 +1,35 @@
+
+æ	(tests/pos/virtpatmat_exist_uncurry.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Leaf#*Leaf€*/
+_empty_/Test.Leaf#`<init>`(). €@*<init>€*
+_empty_/Test.Leaf#[T]	*T€*.
+_empty_/Test.Leaf#collect(). *collect€*)
+_empty_/Test.Leaf#collect().[U]	*U€*)
+_empty_/Test.Leaf#collect().(f)*f€**
+_empty_/Test.Leaf#leaves().*leaves€*
+local0*x$1€*
+local1 €*l€2
+ _empty_/Test.2 
+ _empty_/Test.Leaf#2+
+ _empty_/Test.Leaf#`<init>`().2#
+ _empty_/Test.Leaf#[T]2*
+ _empty_/Test.Leaf#collect().2-
+ _empty_/Test.Leaf#collect().[U]2-
+ _empty_/Test.Leaf#collect().(f)2$
+ %scala/PartialFunction#2 
+& *_empty_/Test.Leaf#2-
+/ 0_empty_/Test.Leaf#collect().[U]2!
+4 8scala/package.List#2-
+9 :_empty_/Test.Leaf#collect().[U]2)
+ _empty_/Test.Leaf#leaves().2!
+ scala/package.List#2 
+ _empty_/Test.Leaf#2#
+ _empty_/Test.Leaf#[T]2*
+  '_empty_/Test.Leaf#collect().2
+* *local02
+/ 0local12 
+2 6_empty_/Test.Leaf#2#
+7 8_empty_/Test.Leaf#[T]2
+= >local1PZ E73F966171B75396927708A5A3A754C9

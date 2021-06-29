@@ -1,0 +1,355 @@
+
+µ[tests/pos/eff-compose.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.Effect#*Effect€*1
+_empty_/Test.Effect#`<init>`(). €@*<init>€*
+_empty_/Test.Fun# *Fun€*.
+_empty_/Test.Fun#`<init>`(). €@*<init>€*!
+_empty_/Test.Fun#[X]	 €*X€*
+_empty_/Test.Fun#[Y]	*Y€*!
+_empty_/Test.Fun#Eff#*Eff€*)
+_empty_/Test.Fun#apply(). *apply€*&
+_empty_/Test.Fun#apply().(x)*x€*%
+_empty_/Test.PureFun#*PureFun€*%
+_empty_/Test.PureFun#[X]	 €*X€*"
+_empty_/Test.PureFun#[Y]	*Y€*
+local0*Eff€*
+_empty_/Test.map().*map€* 
+_empty_/Test.map().[A]	*A€* 
+_empty_/Test.map().[B]	*B€* 
+_empty_/Test.map().[E]	*E€* 
+_empty_/Test.map().(f)*f€*
+local1*Eff€*"
+_empty_/Test.map().(xs)*xs€*
+local2*x€*#
+_empty_/Test.mapFn().*mapFn€*"
+_empty_/Test.mapFn().[A]	*A€*"
+_empty_/Test.mapFn().[B]	*B€*"
+_empty_/Test.mapFn().[E]	*E€*
+local3*Eff€*
+local4*Eff€*
+local5 *$anon€*
+local6*Eff€*
+local7*Eff€*
+local8*Eff€*
+local9*apply€*
+local10*f€*
+local11*Eff€*
+local12 *$anon€*
+local13*Eff€*
+local14*apply€*
+local15*xs€*)
+_empty_/Test.combine().  *combine€*&
+_empty_/Test.combine().[E1]	*E1€*&
+_empty_/Test.combine().[E2]	*E2€*&
+_empty_/Test.combine().(x)  *x€*&
+_empty_/Test.combine().(y)  *y€*'
+_empty_/Test.compose().*compose€*$
+_empty_/Test.compose().[A]	*A€*$
+_empty_/Test.compose().[B]	*B€*$
+_empty_/Test.compose().[C]	*C€*&
+_empty_/Test.compose().[E1]	*E1€*&
+_empty_/Test.compose().[E2]	*E2€*$
+_empty_/Test.compose().(f)*f€*
+local16*Eff€*$
+_empty_/Test.compose().(g)*g€*
+local17*Eff€*$
+_empty_/Test.compose().(x)*x€*+
+_empty_/Test.composeFn().*	composeFn€*&
+_empty_/Test.composeFn().[A]	*A€*&
+_empty_/Test.composeFn().[B]	*B€*&
+_empty_/Test.composeFn().[C]	*C€*(
+_empty_/Test.composeFn().[E1]	*E1€*(
+_empty_/Test.composeFn().[E2]	*E2€*
+local18*Eff€*
+local19*Eff€*
+local20*Eff€*
+local21 *$anon€*
+local22*Eff€*
+local23*Eff€*
+local24*Eff€*
+local25*Eff€*
+local26*apply€*
+local27*f€*
+local28*Eff€*
+local29 *$anon€*
+local30*Eff€*
+local31*Eff€*
+local32*Eff€*
+local33*apply€*
+local34*g€*
+local35*Eff€*
+local36 *$anon€*
+local37*Eff€*
+local38*apply€*
+local39*x€2
+ _empty_/Test.2"
+ _empty_/Test.Effect#2-
+ _empty_/Test.Effect#`<init>`().2
+ _empty_/Test.Fun#2*
+ _empty_/Test.Fun#`<init>`().2"
+ _empty_/Test.Fun#[X]2"
+ _empty_/Test.Fun#[Y]2#
+	 _empty_/Test.Fun#Eff#2"
+ _empty_/Test.Effect#2'
+ _empty_/Test.Fun#apply().2*
+ _empty_/Test.Fun#apply().(x)2"
+ _empty_/Test.Fun#[X]2#
+ _empty_/Test.Fun#Eff#2"
+ _empty_/Test.Fun#[Y]2#
+ _empty_/Test.PureFun#2&
+ _empty_/Test.PureFun#[X]2&
+ _empty_/Test.PureFun#[Y]2
+ _empty_/Test.Fun#2&
+ _empty_/Test.PureFun#[X]2&
+  _empty_/Test.PureFun#[Y]2
+) ,local02"
+/ 5_empty_/Test.Effect#2!
+ 	_empty_/Test.map().2$
+
+ _empty_/Test.map().[A]2$
+ _empty_/Test.map().[B]2$
+ _empty_/Test.map().[E]2"
+ _empty_/Test.Effect#2$
+ _empty_/Test.map().(f)2
+  #_empty_/Test.Fun#2$
+$ %_empty_/Test.map().[A]2$
+' (_empty_/Test.map().[B]2
+1 4local12$
+7 8_empty_/Test.map().[E]2%
+; =_empty_/Test.map().(xs)2!
+? Cscala/package.List#2$
+D E_empty_/Test.map().[A]2$
+ _empty_/Test.map().[E]2!
+ scala/package.List#2$
+ _empty_/Test.map().[B]24
+ 
+&scala/collection/immutable/List#map().2%
+ _empty_/Test.map().(xs)2-
+ scala/ContextFunction1#apply().2'
+ _empty_/Test.Fun#apply().2$
+ _empty_/Test.map().(f)2
+ local22#
+ _empty_/Test.mapFn().2&
+ _empty_/Test.mapFn().[A]2&
+ _empty_/Test.mapFn().[B]2&
+ _empty_/Test.mapFn().[E]2"
+ _empty_/Test.Effect#2#
+ _empty_/Test.PureFun#2
+ 	_empty_/Test.Fun#2&
+
+ _empty_/Test.mapFn().[A]2&
+ _empty_/Test.mapFn().[B]2
+ local32&
+ _empty_/Test.mapFn().[E]2
+ 	_empty_/Test.Fun#2!
+
+ scala/package.List#2&
+ _empty_/Test.mapFn().[A]2!
+ scala/package.List#2&
+ _empty_/Test.mapFn().[B]2
+# &local42&
+) *_empty_/Test.mapFn().[E]2
+ local52*
+ _empty_/Test.Fun#`<init>`().2
+ _empty_/Test.Fun#2
+ 	_empty_/Test.Fun#2&
+
+ _empty_/Test.mapFn().[A]2&
+ _empty_/Test.mapFn().[B]2
+ local62&
+ _empty_/Test.mapFn().[E]2
+ 	_empty_/Test.Fun#2!
+
+ scala/package.List#2&
+ _empty_/Test.mapFn().[A]2!
+ scala/package.List#2&
+ _empty_/Test.mapFn().[B]2
+# &local72&
+) *_empty_/Test.mapFn().[E]2
+ local82"
+ _empty_/Test.Effect#2
+
+ local92
+ local102
+ _empty_/Test.Fun#2&
+ _empty_/Test.mapFn().[A]2&
+ _empty_/Test.mapFn().[B]2
+$ 'local112&
+* +_empty_/Test.mapFn().[E]2
+ local122*
+! !_empty_/Test.Fun#`<init>`().2
+ _empty_/Test.Fun#2!
+ scala/package.List#2&
+ _empty_/Test.mapFn().[A]2!
+ scala/package.List#2&
+ _empty_/Test.mapFn().[B]2
+   local132&
+   _empty_/Test.mapFn().[E]2
+!! local142
+!! local152!
+!! scala/package.List#2&
+!! _empty_/Test.mapFn().[A]2
+!"! %local132!
+!*! .scala/package.List#2&
+!/! 0_empty_/Test.mapFn().[B]2-
+"" scala/ContextFunction1#apply().2!
+"" _empty_/Test.map().2
+"" local102
+"" local152%
+&& _empty_/Test.combine().2)
+&& _empty_/Test.combine().[E1]2"
+&& #_empty_/Test.Effect#2)
+&%& '_empty_/Test.combine().[E2]2"
+&+& 1_empty_/Test.Effect#2(
+&9& :_empty_/Test.combine().(x)2)
+&<& >_empty_/Test.combine().[E1]2(
+&@& A_empty_/Test.combine().(y)2)
+&C& E_empty_/Test.combine().[E2]2
+&K& L
+scala/`&`#2)
+&H& J_empty_/Test.combine().[E1]2)
+&M& O_empty_/Test.combine().[E2]2#
+&R& Uscala/Predef.`???`().2%
+)) _empty_/Test.compose().2(
+)) _empty_/Test.compose().[A]2(
+)) _empty_/Test.compose().[B]2(
+)) _empty_/Test.compose().[C]2)
+)) _empty_/Test.compose().[E1]2"
+)) #_empty_/Test.Effect#2)
+)%) '_empty_/Test.compose().[E2]2"
+)+) 1_empty_/Test.Effect#2(
+** _empty_/Test.compose().(f)2
+** _empty_/Test.Fun#2(
+** _empty_/Test.compose().[A]2(
+** _empty_/Test.compose().[B]2
+** local162)
+** !_empty_/Test.compose().[E1]2(
+++ _empty_/Test.compose().(g)2
+++ _empty_/Test.Fun#2(
+++ _empty_/Test.compose().[B]2(
+++ _empty_/Test.compose().[C]2
+++ local172)
+++ !_empty_/Test.compose().[E2]2(
+,, _empty_/Test.compose().(x)2(
+,, 	_empty_/Test.compose().[A]2
+,, 
+scala/`&`#2)
+,, _empty_/Test.compose().[E1]2)
+,, _empty_/Test.compose().[E2]2(
+,, _empty_/Test.compose().[C]2-
+,%, %scala/ContextFunction1#apply().2'
+,, _empty_/Test.Fun#apply().2(
+,, _empty_/Test.compose().(g)2-
+,$, $scala/ContextFunction1#apply().2'
+,!, !_empty_/Test.Fun#apply().2(
+, , !_empty_/Test.compose().(f)2(
+,", #_empty_/Test.compose().(x)2'
+// _empty_/Test.composeFn().2*
+// _empty_/Test.composeFn().[A]2*
+// _empty_/Test.composeFn().[B]2*
+// _empty_/Test.composeFn().[C]2+
+// _empty_/Test.composeFn().[E1]2"
+// %_empty_/Test.Effect#2+
+/'/ )_empty_/Test.composeFn().[E2]2"
+/-/ 3_empty_/Test.Effect#2#
+00 _empty_/Test.PureFun#2
+11 	_empty_/Test.Fun#2*
+1
+1 _empty_/Test.composeFn().[A]2*
+11 _empty_/Test.composeFn().[B]2
+11 local182+
+11 _empty_/Test.composeFn().[E1]2#
+22 _empty_/Test.PureFun#2
+33 _empty_/Test.Fun#2*
+33 _empty_/Test.composeFn().[B]2*
+33 _empty_/Test.composeFn().[C]2
+33 local192+
+33 !_empty_/Test.composeFn().[E2]2
+44 _empty_/Test.Fun#2*
+44 _empty_/Test.composeFn().[A]2*
+44 _empty_/Test.composeFn().[C]2
+44 local202
+4"4 #
+scala/`&`#2+
+44 !_empty_/Test.composeFn().[E1]2+
+4$4 &_empty_/Test.composeFn().[E2]2
+77 local212*
+== _empty_/Test.Fun#`<init>`().2
+77 _empty_/Test.Fun#2
+88 	_empty_/Test.Fun#2*
+8
+8 _empty_/Test.composeFn().[A]2*
+88 _empty_/Test.composeFn().[B]2
+88 local222+
+88 _empty_/Test.composeFn().[E1]2#
+99 _empty_/Test.PureFun#2
+:: _empty_/Test.Fun#2*
+:: _empty_/Test.composeFn().[B]2*
+:: _empty_/Test.composeFn().[C]2
+:: local232+
+:: !_empty_/Test.composeFn().[E2]2
+;; _empty_/Test.Fun#2*
+;; _empty_/Test.composeFn().[A]2*
+;; _empty_/Test.composeFn().[C]2
+;; local242
+;"; #
+scala/`&`#2+
+;; !_empty_/Test.composeFn().[E1]2+
+;$; &_empty_/Test.composeFn().[E2]2
+>> local252"
+>> _empty_/Test.Effect#2
+?
+? local262
+?? local272
+?? _empty_/Test.Fun#2*
+?? _empty_/Test.composeFn().[A]2*
+?? _empty_/Test.composeFn().[B]2
+?$? 'local282+
+?*? ,_empty_/Test.composeFn().[E1]2
+@@ local292*
+C	C 	_empty_/Test.Fun#`<init>`().2
+@@ _empty_/Test.Fun#2
+A
+A _empty_/Test.Fun#2*
+AA _empty_/Test.composeFn().[B]2*
+AA _empty_/Test.composeFn().[C]2
+AA local302+
+A!A #_empty_/Test.composeFn().[E2]2
+B
+B _empty_/Test.Fun#2*
+BB _empty_/Test.composeFn().[A]2*
+BB _empty_/Test.composeFn().[C]2
+BB local312
+B$B %
+scala/`&`#2+
+B!B #_empty_/Test.composeFn().[E1]2+
+B&B (_empty_/Test.composeFn().[E2]2
+DD local322"
+DD _empty_/Test.Effect#2
+EE local332
+EE local342
+EE _empty_/Test.Fun#2*
+EE _empty_/Test.composeFn().[B]2*
+EE _empty_/Test.composeFn().[C]2
+E(E +local352+
+E.E 0_empty_/Test.composeFn().[E2]2
+FF local362*
+FF _empty_/Test.Fun#`<init>`().2
+FF _empty_/Test.Fun#2*
+FF _empty_/Test.composeFn().[A]2*
+FF _empty_/Test.composeFn().[C]2
+GG local372
+GG 
+scala/`&`#2+
+GG _empty_/Test.composeFn().[E1]2+
+GG  _empty_/Test.composeFn().[E2]2
+HH local382
+HH local392*
+HH _empty_/Test.composeFn().[A]2-
+H0H 0scala/ContextFunction1#apply().2%
+H H '_empty_/Test.compose().2
+H(H )local272
+H+H ,local342
+H.H /local39PZ 3B578BAFCA849FA8B493F35C2D4979EA

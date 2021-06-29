@@ -1,0 +1,80 @@
+
+®tests/pos/t1569a.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.C#*C€*+
+_empty_/Bug.C#`<init>`(). €@*<init>€*
+_empty_/Bug.C#[T]	*T€*
+_empty_/Bug.C#TT#*TT€*
+_empty_/Bug.foo().*foo€*
+_empty_/Bug.foo().[U]	*U€*
+_empty_/Bug.foo().(x)*x€*
+_empty_/Bug.foo().(y)*y€*
+_empty_/Bug.foo().(z)*z€*
+_empty_/Bug2.
+ *Bug2€*
+_empty_/Bug2.C#*C€*,
+_empty_/Bug2.C#`<init>`(). €@*<init>€*
+_empty_/Bug2.C#T#*T€*
+_empty_/Bug2.D#*D€*,
+_empty_/Bug2.D#`<init>`(). €@*<init>€*
+_empty_/Bug2.D#T#*T€*
+_empty_/Bug2.foo().*foo€* 
+_empty_/Bug2.foo().(x)*x€* 
+_empty_/Bug2.foo().(y)*y€* 
+_empty_/Bug2.foo().(z)*z€2
+ 
+_empty_/Bug.2
+ 	_empty_/Bug.C#2'
+	 	_empty_/Bug.C#`<init>`().2
+
+ _empty_/Bug.C#[T]2
+ _empty_/Bug.C#TT#2
+ _empty_/Bug.C#[T]2 
+ 	_empty_/Bug.foo().2#
+
+ _empty_/Bug.foo().[U]2#
+ _empty_/Bug.foo().(x)2
+ 
+scala/Int#2#
+ _empty_/Bug.foo().(y)2
+ _empty_/Bug.C#2#
+ _empty_/Bug.foo().[U]2#
+ _empty_/Bug.foo().(z)2
+# %_empty_/Bug.C#TT#2#
+! "_empty_/Bug.foo().(y)2
+( ,scala/Unit#2 
+ _empty_/Bug.foo().2'
+ _empty_/Bug.C#`<init>`().2
+ _empty_/Bug.C#2"
+ scala/Predef.String#2
+ _empty_/Bug2.2
+ 	_empty_/Bug2.C#2(
+ _empty_/Bug2.C#`<init>`().2
+ _empty_/Bug2.C#T#2
+ 	_empty_/Bug2.D#2(
+ _empty_/Bug2.D#`<init>`().2(
+ _empty_/Bug2.C#`<init>`().2
+ _empty_/Bug2.C#2
+ _empty_/Bug2.D#T#2"
+ %scala/Predef.String#2!
+		 	_empty_/Bug2.foo().2$
+	
+	 _empty_/Bug2.foo().(x)2
+		 
+scala/Int#2$
+		 _empty_/Bug2.foo().(y)2
+		 _empty_/Bug2.C#2$
+		 _empty_/Bug2.foo().(z)2
+		 _empty_/Bug2.C#T#2$
+		 _empty_/Bug2.foo().(y)2
+	!	 %scala/Unit#2!
+
+
+ _empty_/Bug2.foo().2(
+
+
+ _empty_/Bug2.D#`<init>`().2
+
+
+ _empty_/Bug2.D#PZ 6AD870EF75B11DA18B2E03B7F98789EA

@@ -1,0 +1,77 @@
+
+Štests/pos/i6384.scala*
+_empty_/Tc1#*Tc1€*)
+_empty_/Tc1#`<init>`(). €@*<init>€*
+_empty_/Tc1#[A]	*A€*
+_empty_/Tc2#*Tc2€*)
+_empty_/Tc2#`<init>`(). €@*<init>€*
+_empty_/Tc2#[A]	*A€*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*
+
+_empty_/X.
+ *X€*(
+_empty_/X.catchAll().  *catchAll€*"
+_empty_/X.catchAll().[F]	*F€*
+_empty_/app.
+ *app€*(
+_empty_/i6384$package. *_empty_€*8
+#_empty_/i6384$package.ManualLambda#*ManualLambda€*0
+&_empty_/i6384$package.ManualLambda#[a]	*a€2
+ 	_empty_/Tc1#2!
+	 	_empty_/Tc1#`<init>`().2
+
+ _empty_/Tc1#[A]2
+ 	_empty_/Tc2#2%
+	 	_empty_/Tc2#`<init>`().2
+
+ _empty_/Tc2#[A]2
+ 
+_empty_/X#2
+_empty_/X#`<init>`().2
+ 
+_empty_/X.2#
+ _empty_/X.catchAll().2&
+ _empty_/X.catchAll().[F]2&
+  _empty_/X.catchAll().[F]2
+! "
+_empty_/X#2#
+& )scala/Predef.`???`().2
+
+
+ 
+_empty_/app.2
+
+
+ 
+scala/App#2(
+ scala/Predef.implicitly().2
+ _empty_/Tc1#2
+ 
+_empty_/X#2#
+ _empty_/X.catchAll().2(
+ scala/Predef.implicitly().21
+ #_empty_/i6384$package.ManualLambda#2
+ 
+_empty_/X#2#
+ _empty_/X.catchAll().2(
+ scala/Predef.implicitly().2
+ 
+scala/`&`#2
+ _empty_/Tc1#2
+ 
+_empty_/X#2
+ _empty_/Tc2#2
+ 
+_empty_/X#2#
+ _empty_/X.catchAll().2 
+_empty_/i6384$package.21
+ #_empty_/i6384$package.ManualLambda#24
+ &_empty_/i6384$package.ManualLambda#[a]2
+ 
+scala/`&`#2
+ _empty_/Tc1#24
+ &_empty_/i6384$package.ManualLambda#[a]2
+  #_empty_/Tc2#24
+$ %&_empty_/i6384$package.ManualLambda#[a]PZ 38D8BA356D456FB0BAF5CA286A74F909

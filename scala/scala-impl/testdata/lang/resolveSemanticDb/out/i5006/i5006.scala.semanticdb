@@ -1,0 +1,37 @@
+
+Ÿtests/pos/i5006.scala*
+_empty_/i0.
+ *i0€*
+_empty_/i0.f().*f€*
+_empty_/i2#*i2€*(
+_empty_/i2#`<init>`(). €@*<init>€*
+_empty_/i2#f().*f€*
+_empty_/i3#*i3€*(
+_empty_/i3#`<init>`(). €@*<init>€*
+_empty_/i3#f().*f€2
+ 	_empty_/i0.2
+ _empty_/i0.f().2
+	 
+scala/Int#2 
+! &scala/Int#toInt().2'
+ scala/Any#asInstanceOf().2
+ 
+scala/Int#2
+ _empty_/i2#2$
+ _empty_/i2#`<init>`().2
+ _empty_/i2#f().2
+	 
+scala/Int#2 
+! &scala/Int#toInt().2'
+ scala/Any#asInstanceOf().2
+ 
+scala/Int#2
+ _empty_/i3#2$
+		 _empty_/i3#`<init>`().2
+		 _empty_/i3#f().2
+			 
+scala/Int#2 
+	!	 &scala/Int#toInt().2'
+		 scala/Any#asInstanceOf().2
+		 
+scala/Int#PZ 0F45FE2CBEA68E1B3FB3E65A12D4D4DF

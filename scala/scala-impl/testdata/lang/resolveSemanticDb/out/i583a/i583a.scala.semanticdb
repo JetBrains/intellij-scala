@@ -1,0 +1,92 @@
+
+ítests/pos/i583a.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#T#*T€*
+_empty_/Test.C#f. €*f€*!
+_empty_/Test.C#foo().*foo€*"
+_empty_/Test.C#foo().(x)*x€*
+_empty_/Test.x(). €*x€*$
+_empty_/Test.`x_=`(). €*x_=€*&
+_empty_/Test.`x_=`().(x$1)*x$1€*
+_empty_/Test.y. €*y€*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.Box#*Box€*/
+_empty_/Test1.Box#`<init>`(). €@*<init>€**
+ _empty_/Test1.Box#`<init>`().(x)*x€*
+_empty_/Test1.Box#[B]	*B€*!
+_empty_/Test1.Box#x. €*x€*
+_empty_/Test1.C#*C€*-
+_empty_/Test1.C#`<init>`(). €@*<init>€*
+_empty_/Test1.C#T#*T€*#
+_empty_/Test1.C#box. €*box€*
+_empty_/Test1.C#f().*f€*!
+_empty_/Test1.C#f().(x)*x€*
+_empty_/Test1.C#x().*x€*
+_empty_/Test1.c().*c€*
+_empty_/Test1.b. €*b€*
+_empty_/Test1.f. €*f€*
+local0*x€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+	 
+_empty_/Test.C#T#2
+ 	_empty_/Test.C#f.2
+ _empty_/Test.C#T#2#
+ scala/Predef.`???`().2#
+ _empty_/Test.C#foo().2&
+ _empty_/Test.C#foo().(x)2
+ _empty_/Test.C#T#2
+ _empty_/Test.C#T#2&
+ _empty_/Test.C#foo().(x)2
+ _empty_/Test.x().2(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.C#2#
+ 	_empty_/Test.`x_=`().2
+		 _empty_/Test.y.2#
+		 _empty_/Test.C#foo().2
+	
+	 _empty_/Test.x().2#
+		 scala/Predef.`???`().2
+ _empty_/Test1.2 
+ _empty_/Test1.Box#2+
+ _empty_/Test1.Box#`<init>`().2#
+ _empty_/Test1.Box#[B]2#
+ _empty_/Test1.Box#[B]2"
+ _empty_/Test1.Box#x.2
+ 	_empty_/Test1.C#2)
+ _empty_/Test1.C#`<init>`().2 
+	 
+_empty_/Test1.C#T#2"
+ _empty_/Test1.C#box.2 
+ _empty_/Test1.Box#2 
+ _empty_/Test1.C#T#2#
+ scala/Predef.`???`().2"
+ 	_empty_/Test1.C#f().2%
+
+ _empty_/Test1.C#f().(x)2 
+ _empty_/Test1.C#T#2 
+ _empty_/Test1.C#T#2#
+ scala/Predef.`???`().2"
+ 	_empty_/Test1.C#x().2 
+ _empty_/Test1.C#T#2#
+ scala/Predef.`???`().2 
+ _empty_/Test1.c().2
+	 
+_empty_/Test1.C#2)
+ _empty_/Test1.C#`<init>`().2
+ _empty_/Test1.C#2
+ _empty_/Test1.b.2"
+ _empty_/Test1.C#box.2 
+
+ _empty_/Test1.c().2
+ _empty_/Test1.f.2 
+
+ _empty_/Test1.c().2
+
+ 
+local0PZ BFB7054E22A9D9CCB46AE53C7902488F

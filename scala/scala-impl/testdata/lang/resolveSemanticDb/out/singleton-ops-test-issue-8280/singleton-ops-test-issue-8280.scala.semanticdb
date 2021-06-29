@@ -1,0 +1,83 @@
+
+«-tests/pos/singleton-ops-test-issue-8280.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€* 
+_empty_/Foo#incP().*incP€* 
+_empty_/Foo#incS().*incS€*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.apply().*apply€*!
+_empty_/Foo.apply().[T]	*T€*)
+_empty_/Foo.apply().(value)*value€*B
+0_empty_/`singleton-ops-test-issue-8280$package`. *_empty_€*G
+6_empty_/`singleton-ops-test-issue-8280$package`.fincS. €*fincS€*I
+7_empty_/`singleton-ops-test-issue-8280$package`.fincP1. €*fincP1€*K
+8_empty_/`singleton-ops-test-issue-8280$package`.fincP2a. €*fincP2a€*K
+8_empty_/`singleton-ops-test-issue-8280$package`.fincP2b. €*fincP2b€*I
+7_empty_/`singleton-ops-test-issue-8280$package`.fincP3. €*fincP3€2$
+  scala/compiletime/ops/int.2 
+ scala/compiletime/ops/2
+ scala/compiletime/2
+ scala/2(
+  scala/compiletime/ops/int.2$
+ scala/compiletime/ops/2 
+ scala/compiletime/2
+ scala/2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2!
+ 
+_empty_/Foo#incP().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2,
+ scala/compiletime/ops/int.`+`#2
+ _empty_/Foo#[T]2!
+ 
+_empty_/Foo#incS().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2*
+ scala/compiletime/ops/int.S#2
+ _empty_/Foo#[T]2
+ 
+_empty_/Foo.2"
+ _empty_/Foo.apply().2%
+ _empty_/Foo.apply().[T]2
+ 
+scala/`&`#2
+ 
+scala/Int#2
+  scala/Singleton#2)
+" '_empty_/Foo.apply().(value)2%
+* +_empty_/Foo.apply().[T]2
+/ 2_empty_/Foo#2%
+3 4_empty_/Foo.apply().[T]2%
+B B_empty_/Foo#`<init>`().2
+< ?_empty_/Foo#2%
+@ A_empty_/Foo.apply().[T]2:
+0_empty_/`singleton-ops-test-issue-8280$package`.2D
+ 	6_empty_/`singleton-ops-test-issue-8280$package`.fincS.2
+ _empty_/Foo#2!
+ "_empty_/Foo#incS().2"
+ _empty_/Foo.apply().2
+ _empty_/Foo.2E
+ 
+7_empty_/`singleton-ops-test-issue-8280$package`.fincP1.2
+ _empty_/Foo#2!
+ "_empty_/Foo#incP().2"
+ _empty_/Foo.apply().2
+ _empty_/Foo.2F
+ 8_empty_/`singleton-ops-test-issue-8280$package`.fincP2a.2!
+ _empty_/Foo#incP().2"
+ _empty_/Foo.apply().2
+ _empty_/Foo.2F
+ 8_empty_/`singleton-ops-test-issue-8280$package`.fincP2b.2
+ _empty_/Foo#2F
+ 8_empty_/`singleton-ops-test-issue-8280$package`.fincP2a.2E
+ 
+7_empty_/`singleton-ops-test-issue-8280$package`.fincP3.2
+ _empty_/Foo#2!
+$ (_empty_/Foo#incP().2%
+" "_empty_/Foo#`<init>`().2
+ _empty_/Foo#PZ 0873BE4E873C919E48CCD12940D4FC78

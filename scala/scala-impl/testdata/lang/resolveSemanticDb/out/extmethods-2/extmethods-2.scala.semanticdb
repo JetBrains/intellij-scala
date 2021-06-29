@@ -1,0 +1,46 @@
+
+æ
+tests/pos/extmethods-2.scala*
+extMethods/That1#*That1€*.
+extMethods/That1#`<init>`(). €@*<init>€*
+extMethods/That1#[A]	*A€*
+extMethods/T# *T€**
+extMethods/T#`<init>`(). €@*<init>€*(
+extMethods/T#`<init>`().(x) €*x€*
+local0*self€*
+extMethods/T#[A]	*A€* 
+extMethods/T#[This]	*This€*
+extMethods/T#x. €*x€*#
+extMethods/T#loop(). *loop€*!
+extMethods/T#loop().(x)*x€*%
+extMethods/T#loop().(cnt)*cnt€*
+extMethods/T.
+ *T€2
+ extMethods/2
+ extMethods/That1#2*
+ extMethods/That1#`<init>`().2"
+ extMethods/That1#[A]2
+ extMethods/T#2&
+ extMethods/T#`<init>`().2
+$ '
+scala/Int#2&
+7 7scala/AnyVal#`<init>`().2
+1 7scala/AnyVal#2
+ local02!
+ extMethods/T#[This]2
+ 	extMethods/T#[A]2!
+ extMethods/T#[This]2
+! "extMethods/T#x.2"
+ extMethods/T#loop().2%
+ extMethods/T#loop().(x)2!
+ extMethods/T#[This]2'
+ extMethods/T#loop().(cnt)2
+ "
+scala/Int#2
+% (
+scala/Int#2"
++ /extMethods/T#loop().2%
+0 1extMethods/T#loop().(x)2 
+7 8scala/Int#`+`(+4).2'
+3 6extMethods/T#loop().(cnt)2
+ extMethods/T.PZ A65C24A4A438FD9B0F39C4DDE873B58A

@@ -1,0 +1,26 @@
+
+ûtests/pos/t3676.scala* 
+_empty_/SeqLike#*SeqLike€*-
+_empty_/SeqLike#`<init>`(). €@*<init>€*&
+_empty_/SeqLike#[Repr]	 €*Repr€*
+_empty_/Seq#*Seq€*)
+_empty_/Seq#`<init>`(). €@*<init>€*
+_empty_/MySeq#*MySeq€*+
+_empty_/MySeq#`<init>`(). €@*<init>€*
+_empty_/MySub#*MySub€*+
+_empty_/MySub#`<init>`(). €@*<init>€2
+ _empty_/SeqLike#2%
+ _empty_/SeqLike#`<init>`().2 
+ _empty_/SeqLike#[Repr]2
+ 	_empty_/Seq#2%
+ _empty_/Seq#`<init>`().2
+ _empty_/SeqLike#2
+ _empty_/Seq#2
+ _empty_/MySeq#2'
+ _empty_/MySeq#`<init>`().2
+ _empty_/Seq#2
+ $_empty_/SeqLike#2
+% *_empty_/MySub#2
+ _empty_/MySub#2'
+ _empty_/MySub#`<init>`().2
+ _empty_/MySeq#PZ F280CE4453BD9EA03D6D78FF72B30514

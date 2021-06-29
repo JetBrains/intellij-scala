@@ -1,0 +1,30 @@
+
+…tests/pos/t2194.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+local0
+ *o€*
+_empty_/Test.y. €*y€*
+_empty_/Test.x. €*x€2
+ 
+_empty_/C#2
+_empty_/C#`<init>`().2
+ _empty_/Test.2
+ _empty_/Test.f().2
+ local02#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+  !local12
+ _empty_/Test.y.2
+	 
+
+_empty_/C#2
+ _empty_/Test.f().2
+ _empty_/Test.x.2
+
+ _empty_/Test.f().PZ F12A0BE89A02A94DA986823D6D9AFA22

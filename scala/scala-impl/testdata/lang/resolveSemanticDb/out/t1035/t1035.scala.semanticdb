@@ -1,0 +1,99 @@
+
+Ütests/pos/t1035.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*!
+_empty_/A#name(). €*name€*'
+_empty_/A#`name_=`(). €*name_=€*&
+_empty_/A#`name_=`().(x$1)*x$1€*$
+_empty_/A#getName().*getName€*&
+_empty_/A#`<init>`(+1).*<init>€**
+_empty_/A#`<init>`(+1).(name)*name€*(
+_empty_/A#`<init>`(+1).(age)*age€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*(
+_empty_/B#`<init>`().(name)*name€*
+_empty_/B#name. €*name€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#A.
+ *A€*&
+_empty_/D#A.unapply().*unapply€*#
+_empty_/D#A.unapply().(p)*p€*
+_empty_/D#B.
+ *B€*&
+_empty_/D#B.unapply().*unapply€*#
+_empty_/D#B.unapply().(p)*p€*
+_empty_/D#foo().*foo€*
+_empty_/D#foo().(p)*p€*
+local0 €*n€*
+local1 €*n€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#name().2"
+ scala/Predef.String#2@
+  -2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2#
+ _empty_/A#`name_=`().2"
+ _empty_/A#getName().2
+ _empty_/A#name().2%
+ 
+_empty_/A#`<init>`(+1).2+
+ _empty_/A#`<init>`(+1).(name)2"
+ scala/Predef.String#2*
+ _empty_/A#`<init>`(+1).(age)2
+ 
+scala/Int#2#
+$ $_empty_/A#`<init>`().2#
+1 5_empty_/A#`name_=`().2+
+8 <_empty_/A#`<init>`(+1).(name)2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2"
+ scala/Predef.String#2%
+ _empty_/A#`<init>`(+1).2
+ 
+_empty_/A#2
+ #_empty_/B#name.2
+ _empty_/B#name.2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+
+ _empty_/D#A.2$
+	 _empty_/D#A.unapply().2'
+ _empty_/D#A.unapply().(p)2
+ 
+_empty_/A#2!
+ scala/Some.apply().2
+ scala/Some.2"
+ &_empty_/A#getName().2'
+ _empty_/D#A.unapply().(p)2
+
+ _empty_/D#B.2$
+	 _empty_/D#B.unapply().2'
+ _empty_/D#B.unapply().(p)2
+ 
+_empty_/B#2!
+ scala/Some.apply().2
+ scala/Some.2"
+ &_empty_/A#getName().2'
+ _empty_/D#B.unapply().(p)2
+ 
+_empty_/D#foo().2!
+ _empty_/D#foo().(p)2
+ 
+scala/Any#2!
+ _empty_/D#foo().(p)2$
+ _empty_/D#B.unapply().2
+ _empty_/D#B.2
+ local02'
+ scala/Predef.println(+1).2$
+ _empty_/D#A.unapply().2
+ _empty_/D#A.2
+ local12'
+ scala/Predef.println(+1).PZ 68184BB72DA631645460285C4E6EDE69

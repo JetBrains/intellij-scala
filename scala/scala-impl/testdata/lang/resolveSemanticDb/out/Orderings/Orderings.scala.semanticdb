@@ -1,0 +1,120 @@
+
+¬tests/pos/Orderings.scala*&
+_empty_/Orderings.
+ *	Orderings€*"
+_empty_/Orderings.Ord#*Ord€*3
+!_empty_/Orderings.Ord#`<init>`(). €@*<init>€*#
+_empty_/Orderings.Ord#[T]	*T€*,
+_empty_/Orderings.Ord#less(). *less€**
+ _empty_/Orderings.Ord#less().(x)*x€**
+ _empty_/Orderings.Ord#less().(y)*y€*+
+_empty_/Orderings.intOrd.  *intOrd€*
+local0 *$anon€*
+local1*less€*
+local2*x€*
+local3*y€*.
+_empty_/Orderings.listOrd().  *listOrd€*)
+_empty_/Orderings.listOrd().[T]	*T€*-
+ _empty_/Orderings.listOrd().(ev)  *ev€*
+local4 *$anon€*
+local5*less€*
+local6*xs€*
+local7*ys€**
+_empty_/Orderings.isLess().*isLess€*(
+_empty_/Orderings.isLess().[T]	*T€*
+local8*x€*
+local9*y€2
+ _empty_/Orderings.2$
+ _empty_/Orderings.Ord#2/
+ !_empty_/Orderings.Ord#`<init>`().2'
+ _empty_/Orderings.Ord#[T]2+
+ _empty_/Orderings.Ord#less().2.
+  _empty_/Orderings.Ord#less().(x)2'
+ _empty_/Orderings.Ord#[T]2.
+  ! _empty_/Orderings.Ord#less().(y)2'
+# $_empty_/Orderings.Ord#[T]2
+' .scala/Boolean#2'
+ _empty_/Orderings.intOrd.2$
+ _empty_/Orderings.Ord#2
+ 
+scala/Int#2
+" "local02
+ local12
+ local22
+ 
+scala/Int#2
+ local32
+ 
+scala/Int#2 
+! "scala/Int#`<`(+3).2
+  local22
+# $local32*
+		 _empty_/Orderings.listOrd().2-
+		 _empty_/Orderings.listOrd().[T]2.
+	#	 % _empty_/Orderings.listOrd().(ev)2$
+	'	 *_empty_/Orderings.Ord#2-
+	+	 ,_empty_/Orderings.listOrd().[T]2$
+	0	 3_empty_/Orderings.Ord#2!
+	4	 8scala/package.List#2-
+	9	 :_empty_/Orderings.listOrd().[T]2
+	?	 ?local42
+
+
+ local52
+
+
+ local62!
+
+
+ scala/package.List#2-
+
+
+ _empty_/Orderings.listOrd().[T]2
+
+
+ local72!
+
+
+ "scala/package.List#2-
+
+#
+ $_empty_/Orderings.listOrd().[T]2
+
+(
+ /scala/Boolean#28
+ *scala/collection/immutable/List#isEmpty().2
+	 local728
+ *scala/collection/immutable/List#isEmpty().2
+ local62
+ scala/Any#`==`().22
+ $scala/collection/IterableOps#head().2
+ local622
+  $scala/collection/IterableOps#head().2
+ local72
+& *local522
+. 2$scala/collection/IterableOps#tail().2
++ -local622
+7 ;$scala/collection/IterableOps#tail().2
+4 6local72+
+ _empty_/Orderings.Ord#less().2.
+  _empty_/Orderings.listOrd().(ev)22
+ $scala/collection/IterableOps#head().2
+ local622
+ #$scala/collection/IterableOps#head().2
+ local72)
+ _empty_/Orderings.isLess().2,
+ _empty_/Orderings.isLess().[T]2,
+ _empty_/Orderings.isLess().[T]2,
+ _empty_/Orderings.isLess().[T]2$
+ _empty_/Orderings.Ord#2,
+  _empty_/Orderings.isLess().[T]2
+& -scala/Boolean#2
+ local82
+	 
+local92+
+! %_empty_/Orderings.Ord#less().2(
+ scala/Predef.implicitly().2$
+ _empty_/Orderings.Ord#2,
+ _empty_/Orderings.isLess().[T]2
+& 'local82
+) *local9PZ BEAD6EAFEA59611C91FE566FF36EABC2

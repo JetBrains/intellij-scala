@@ -1,0 +1,30 @@
+
+’tests/pos/i2945.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*
+local0
+ *Hi€*
+local1*A€*
+local2 €*x€*
+_empty_/Test.hi. €*hi€2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ local02
+ local12
+ 
+scala/Int#2
+ 	local22
+ local12
+ local327
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+	 
+local22
+ _empty_/Test.hi.2!
+
+ scala/package.List#2
+ 
+scala/Int#2"
+ _empty_/Test.test().PZ BF24F268E19BDB3EE1DF29CC0AE16455

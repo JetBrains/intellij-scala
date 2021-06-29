@@ -1,0 +1,20 @@
+
+«tests/pos/i3462.scala*
+foo/Foo# *Foo€*%
+foo/Foo#`<init>`(). €@*<init>€* 
+foo/Foo#`<init>`().(a)*a€*
+
+foo/Foo#a. €*a€*
+foo/Foo.
+ *Foo€2
+ foo/2
+ 	foo/Foo#2!
+	 	foo/Foo#`<init>`().2
+ 
+scala/Int#2&
+   scala/AnyVal#`<init>`().2
+  scala/AnyVal#2
+
+ 
+foo/Foo#a.2
+ foo/Foo.PZ C064FF3504CE3420B3A16D921ECE5684

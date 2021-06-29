@@ -1,0 +1,53 @@
+
+Útests/pos/t5137.scala*
+_empty_/Test.
+ *Test€*
+local0*x0€*
+local1 €*x€*
+local2*x$1€*
+local3 €*x€*
+local4*x$1€*
+local5 €*x€2
+ _empty_/Test.2&
+ scala/math/BigInt#`*`().2-
+ scala/math/BigInt.int2bigInt().25
+ 	'scala/collection/IterableOnceOps#sum().24
+ &scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ scala/package.BigInt#2
+ local02
+$ &local02
+	 
+local12
+ local122
+	 	$scala/math/Numeric.BigIntIsIntegral.2&
+ scala/math/BigInt#`*`().2-
+ scala/math/BigInt.int2bigInt().2#
+ scala/package.BigInt#25
+
+
+ 'scala/collection/IterableOnceOps#sum().24
+! $&scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ scala/package.BigInt#2
+		 local22
+			 
+local32
+		 local322
+
+
+ $scala/math/Numeric.BigIntIsIntegral.2&
+ scala/math/BigInt#`*`().2-
+ scala/math/BigInt.int2bigInt().25
+ 'scala/collection/IterableOnceOps#sum().24
+ &scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ scala/package.BigInt#2
+ local42
+	 
+local52
+ local522
+ $scala/math/Numeric.BigIntIsIntegral.PZ 5BEE20F78CAF467325BEDAC177B1D4A2

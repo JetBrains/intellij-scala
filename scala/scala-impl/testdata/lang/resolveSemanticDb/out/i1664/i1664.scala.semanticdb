@@ -1,0 +1,28 @@
+
+êtests/pos/i1664.scala*
+_empty_/test.
+ *testÄ*
+_empty_/test.f().*fÄ*
+_empty_/test.f().[a]	*aÄ*
+_empty_/test.f().(x)*xÄ*
+local0*printÄ*
+local1*AÄ*
+local2*fÄ*
+local3*BÄ*
+local4*hÄ2
+ _empty_/test.2
+ _empty_/test.f().2"
+ 	_empty_/test.f().[a]2"
+ _empty_/test.f().(x)2"
+ _empty_/test.f().[a]2
+ local02"
+ _empty_/test.f().(x)2
+
+ local12
+
+ local22
+ local32
+ local42
+ local02
+ local32
+ local2PZ 779FDF7B6EBBD66AD8B9A8101C459243

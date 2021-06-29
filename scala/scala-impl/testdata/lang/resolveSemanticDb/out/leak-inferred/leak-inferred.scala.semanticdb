@@ -1,0 +1,31 @@
+
+ètests/pos/leak-inferred.scala*
+
+_empty_/A#*AÄ*'
+_empty_/A#`<init>`(). Ä@*<init>Ä*
+_empty_/A#x. Ä*xÄ*
+_empty_/A#elem. Ä*elemÄ*
+
+_empty_/B#*BÄ*'
+_empty_/B#`<init>`(). Ä@*<init>Ä*
+_empty_/B#a. Ä*aÄ2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#x.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 
+_empty_/A#elem.22
+ $scala/collection/IterableOps#head().2
+ _empty_/A#x.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#a.2
+	 
+scala/Int#2
+ _empty_/A#elem.PZ 410E00027B71E3C190CCD7923296F7AA

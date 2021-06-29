@@ -1,0 +1,26 @@
+
+§tests/pos/indent2.scala*(
+_empty_/testindent.
+ *
+testindent€*
+_empty_/testindent.C#*C€*2
+ _empty_/testindent.C#`<init>`(). €@*<init>€*$
+_empty_/testindent.C#x. €*x€*"
+_empty_/testindent.c. €*c€2
+ _empty_/testindent.2#
+ 	_empty_/testindent.C#2.
+  _empty_/testindent.C#`<init>`().2%
+ 	_empty_/testindent.C#x.2#
+ _empty_/testindent.c.2.
+  _empty_/testindent.C#`<init>`().2#
+ _empty_/testindent.C#2 
+ scala/Int#`>`(+3).2%
+ _empty_/testindent.C#x.2#
+	 
+_empty_/testindent.c.2%
+ scala/Predef.println().2%
+ scala/Predef.println().2%
+
+
+ scala/Predef.println().2%
+ scala/Predef.println().PZ 411B8D1C4320146B3DCB23BE35C3C7CF

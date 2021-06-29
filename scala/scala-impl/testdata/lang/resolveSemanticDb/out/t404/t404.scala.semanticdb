@@ -1,0 +1,41 @@
+
+Ñtests/pos/t404.scala*(
+_empty_/AbsIterator#*AbsIterator€*1
+_empty_/AbsIterator#`<init>`(). €@*<init>€* 
+_empty_/AbsIterator#T#*T€**
+_empty_/AbsIterator#next(). *next€*.
+_empty_/StringIterator#*StringIterator€*4
+"_empty_/StringIterator#`<init>`(). €@*<init>€*#
+_empty_/StringIterator#T#*T€*+
+_empty_/StringIterator#next().*next€**
+_empty_/SyncIterator#*SyncIterator€*2
+ _empty_/SyncIterator#`<init>`(). €@*<init>€*)
+_empty_/SyncIterator#next().*next€*
+
+_empty_/I#*I€*'
+_empty_/I#`<init>`(). €@*<init>€2
+ _empty_/AbsIterator#2-
+ _empty_/AbsIterator#`<init>`().2$
+ _empty_/AbsIterator#T#2)
+ 
+_empty_/AbsIterator#next().2$
+ _empty_/AbsIterator#T#2%
+ _empty_/StringIterator#20
+ "_empty_/StringIterator#`<init>`().2"
+ (_empty_/AbsIterator#2'
+ _empty_/StringIterator#T#2
+ scala/Char#2,
+ 
+_empty_/StringIterator#next().2#
+ _empty_/SyncIterator#2.
+  _empty_/SyncIterator#`<init>`().2"
+ &_empty_/AbsIterator#2*
+		 _empty_/SyncIterator#next().2$
+		 _empty_/AbsIterator#T#2)
+	(	 ,_empty_/AbsIterator#next().2
+ 
+_empty_/I#2#
+ _empty_/I#`<init>`().20
+ "_empty_/StringIterator#`<init>`().2%
+ _empty_/StringIterator#2#
+$ 0_empty_/SyncIterator#PZ BEAC9111323356B445B84994CFB045BF

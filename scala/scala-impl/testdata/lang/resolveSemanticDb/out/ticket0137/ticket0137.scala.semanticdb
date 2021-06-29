@@ -1,0 +1,26 @@
+
+«tests/pos/ticket0137.scala*
+_empty_/AbsM#*AbsM€**
+_empty_/AbsM#`<init>`(). €@*<init>€*5
+_empty_/AbsM#MonadCompanion# *MonadCompanion€*9
+'_empty_/AbsM#MonadCompanion#`<init>`(). €@*<init>€*)
+_empty_/AbsM#MonadCompanion#[M]	*M€*;
+_empty_/AbsM#AbsMonadCompanion# *AbsMonadCompanion€*<
+*_empty_/AbsM#AbsMonadCompanion#`<init>`(). €@*<init>€*9
+(_empty_/AbsM#AbsMonadCompanion#newTag(). *newTag€*
+_empty_/AbsM#AM#*AM€2
+ 
+_empty_/AbsM#2&
+ _empty_/AbsM#`<init>`().2*
+ _empty_/AbsM#MonadCompanion#25
+ '_empty_/AbsM#MonadCompanion#`<init>`().2-
+  !_empty_/AbsM#MonadCompanion#[M]2-
+ "_empty_/AbsM#AbsMonadCompanion#28
++ +*_empty_/AbsM#AbsMonadCompanion#`<init>`().25
+= ='_empty_/AbsM#MonadCompanion#`<init>`().2*
++ 9_empty_/AbsM#MonadCompanion#2
+: <_empty_/AbsM#AM#26
+ (_empty_/AbsM#AbsMonadCompanion#newTag().2
+ 
+scala/Int#2
+ 	_empty_/AbsM#AM#PZ 5534E872C8D01BA6019D23350128856D

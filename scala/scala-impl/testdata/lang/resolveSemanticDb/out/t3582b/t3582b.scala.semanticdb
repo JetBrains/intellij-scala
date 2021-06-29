@@ -1,0 +1,16 @@
+
+Œtests/pos/t3582b.scala*,
+_empty_/ParamScoping.
+ *ParamScoping€*C
+)_empty_/ParamScoping.noOverlapFOwithHO().*noOverlapFOwithHO€*6
+,_empty_/ParamScoping.noOverlapFOwithHO().[T]	*T€*6
+,_empty_/ParamScoping.noOverlapFOwithHO().[G]	*G€2
+ _empty_/ParamScoping.27
+ )_empty_/ParamScoping.noOverlapFOwithHO().2:
+ ,_empty_/ParamScoping.noOverlapFOwithHO().[T]2:
+ ,_empty_/ParamScoping.noOverlapFOwithHO().[G]2:
+" #,_empty_/ParamScoping.noOverlapFOwithHO().[G]2:
+$ %,_empty_/ParamScoping.noOverlapFOwithHO().[T]2'
+/ ;scala/Any#asInstanceOf().2:
+< =,_empty_/ParamScoping.noOverlapFOwithHO().[G]2:
+> ?,_empty_/ParamScoping.noOverlapFOwithHO().[T]PZ BDB62450D155C59807090A712EE09EFA

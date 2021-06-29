@@ -1,0 +1,32 @@
+
+’tests/pos/news.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C# *C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#[T]	*T€*
+_empty_/Test.C#f(). *f€*
+_empty_/Test.x. €*x€*
+local0 *$anon€*
+local1*f€*
+_empty_/Test.y. €*y€*
+local2 *$anon€*
+local3 €*name€2
+ _empty_/Test.2
+ _empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2 
+ _empty_/Test.C#[T]2!
+ _empty_/Test.C#f().2 
+  _empty_/Test.C#[T]2
+ _empty_/Test.x.2
+	 
+_empty_/Test.C#2
+ 
+scala/Int#2
+ local02
+ local12
+ _empty_/Test.y.2
+
+ 
+local22
+ local3PZ 64A914BECB01548C7FF9EBAA56ABD4C4

@@ -1,0 +1,71 @@
+
+Ètests/pos/t359.scala* 
+_empty_/Bug359.
+ *Bug359€*
+_empty_/Bug359.C#*C€*.
+_empty_/Bug359.C#`<init>`(). €@*<init>€*
+_empty_/Bug359.f1().*f1€*#
+_empty_/Bug359.f1().(xs)*xs€*
+local0*xs€*
+local1 €*a€*
+local2 €*b€*
+_empty_/Bug359.f2().*f2€*#
+_empty_/Bug359.f2().(xs)*xs€*
+local3*xs€*
+local4 €*a€*
+local5 €*b€*
+_empty_/Bug359.g().*g€*"
+_empty_/Bug359.g().(op)*op€2
+ _empty_/Bug359.2
+ 	_empty_/Bug359.C#2*
+ _empty_/Bug359.C#`<init>`().2"
+ _empty_/Bug359.f1().2&
+	 _empty_/Bug359.f1().(xs)2!
+ scala/package.List#2
+ _empty_/Bug359.C#2
+ _empty_/Bug359.C#2!
+ _empty_/Bug359.g().2
+ local02"
+
+ _empty_/Bug359.f1().2
+ local02
+ local12
+ _empty_/Bug359.C#2
+		 local22
+		 _empty_/Bug359.C#28
+
+
+ *scala/collection/immutable/List#isEmpty().2
+
+
+ local02
+
+
+ local12
+
+!
+ "local22"
+ _empty_/Bug359.f2().2&
+	 _empty_/Bug359.f2().(xs)2!
+ scala/package.List#2
+ _empty_/Bug359.C#2
+ _empty_/Bug359.C#2!
+ _empty_/Bug359.g().2
+ local32
+ local42
+ _empty_/Bug359.C#2
+ local52
+ _empty_/Bug359.C#28
+ *scala/collection/immutable/List#isEmpty().2
+ local32
+ local42
+! "local52"
+
+ _empty_/Bug359.f2().2
+ local32!
+ _empty_/Bug359.g().2%
+ _empty_/Bug359.g().(op)2!
+ scala/package.List#2
+ _empty_/Bug359.C#2
+  _empty_/Bug359.C#2
+# $_empty_/Bug359.C#PZ 4960EFE091D5390D8DE4535FB1864911

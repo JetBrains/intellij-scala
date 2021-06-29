@@ -1,0 +1,187 @@
+
+ï*tests/pos/i7219.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#MyEnum.
+ *MyEnum€*%
+_empty_/Foo#MyEnum.Blue#*Blue€*5
+#_empty_/Foo#MyEnum.Blue#`<init>`(). €@*<init>€* 
+_empty_/Foo#Blue# *Blue€*
+_empty_/Foo#a. €*a€*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.Types.
+ *Types€*
+_empty_/Test.Types.T#*T€*
+_empty_/Test.Types.U#*U€*!
+_empty_/Test.Types.TC#*TC€*#
+_empty_/Test.Types.TC#[X]	*X€*!
+_empty_/Test.Types.UC#*UC€*#
+_empty_/Test.Types.UC#[X]	*X€*
+_empty_/Test.Types.C#*C€*2
+ _empty_/Test.Types.C#`<init>`(). €@*<init>€*
+_empty_/Test.Types.D#*D€*2
+ _empty_/Test.Types.D#`<init>`(). €@*<init>€*"
+_empty_/Test.Types.D#[X]	*X€*#
+_empty_/Test.Types.x1().*x1€*#
+_empty_/Test.Types.x2().*x2€*#
+_empty_/Test.Types.x3().*x3€*#
+_empty_/Test.Types.x4().*x4€*#
+_empty_/Test.Types.x5().*x5€*#
+_empty_/Test.Types.x6().*x6€*
+_empty_/Test.x4(). *x4€*
+_empty_/Test.x1(). *x1€*
+_empty_/Test.T# *T€*
+_empty_/Test.x2(). *x2€*
+_empty_/Test.D# *D€*
+_empty_/Test.C# *C€*
+_empty_/Test.x5(). *x5€*
+_empty_/Test.x3(). *x3€*
+_empty_/Test.U# *U€*
+_empty_/Test.TC# *TC€*
+_empty_/Test.UC# *UC€*
+_empty_/Test.x6(). *x6€*
+_empty_/Test.D1#*D1€*
+_empty_/Test.D1#[X]	*X€*
+_empty_/Test.U1#*U1€*
+_empty_/Test.U1#[X]	*X€*
+_empty_/Test.y1. €*y1€*
+_empty_/Test.y2. €*y2€*
+_empty_/Test.y3. €*y3€*
+_empty_/Test.y4. €*y4€*
+_empty_/Test.y5. €*y5€*
+_empty_/Test.y6. €*y6€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2!
+	 _empty_/Foo#MyEnum.2&
+
+ _empty_/Foo#MyEnum.Blue#21
+ #_empty_/Foo#MyEnum.Blue#`<init>`().2!
+	 _empty_/Foo#MyEnum.2
+ _empty_/Foo#Blue#2
+ _empty_/Foo#a.2&
+ _empty_/Foo#MyEnum.Blue#2!
+	 _empty_/Foo#MyEnum.2#
+ scala/Predef.`???`().2
+ _empty_/Foo#a.2
+ 
+_empty_/Foo#Blue#2
+
+
+ _empty_/Test.2!
+	 _empty_/Test.Types.2#
+	 
+_empty_/Test.Types.T#2
+ scala/AnyRef#2#
+	 
+_empty_/Test.Types.U#2#
+ _empty_/Test.Types.T#2$
+	 _empty_/Test.Types.TC#2'
+ _empty_/Test.Types.TC#[X]2
+ scala/AnyRef#2$
+	 _empty_/Test.Types.UC#2'
+ _empty_/Test.Types.UC#[X]2$
+ _empty_/Test.Types.TC#2'
+ _empty_/Test.Types.UC#[X]2'
+ _empty_/Test.Types.UC#[X]2#
+
+ _empty_/Test.Types.C#2.
+  _empty_/Test.Types.C#`<init>`().2#
+
+ _empty_/Test.Types.D#2.
+  _empty_/Test.Types.D#`<init>`().2.
+  _empty_/Test.Types.C#`<init>`().2#
+ _empty_/Test.Types.C#2&
+ _empty_/Test.Types.D#[X]2&
+ 
+_empty_/Test.Types.x1().2#
+ _empty_/Test.Types.T#2#
+ scala/Predef.`???`().2&
+ 
+_empty_/Test.Types.x2().2#
+ _empty_/Test.Types.U#2#
+ scala/Predef.`???`().2&
+ 
+_empty_/Test.Types.x3().2$
+ _empty_/Test.Types.TC#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2&
+ 
+_empty_/Test.Types.x4().2$
+ _empty_/Test.Types.UC#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2&
+ 
+_empty_/Test.Types.x5().2#
+ _empty_/Test.Types.C#2.
+  _empty_/Test.Types.C#`<init>`().2#
+ _empty_/Test.Types.C#2&
+ 
+_empty_/Test.Types.x6().2#
+ _empty_/Test.Types.D#2
+ 
+scala/Int#2.
+  _empty_/Test.Types.D#`<init>`().2!
+	 _empty_/Test.Types.2 
+ _empty_/Test.x4().2&
+ _empty_/Test.Types.x4().2 
+ _empty_/Test.x1().2&
+ _empty_/Test.Types.x1().2
+ _empty_/Test.T#2 
+ _empty_/Test.x2().2&
+ _empty_/Test.Types.x2().2
+ _empty_/Test.D#2
+ _empty_/Test.C#2 
+ _empty_/Test.x5().2&
+ _empty_/Test.Types.x5().2 
+ _empty_/Test.x3().2&
+ _empty_/Test.Types.x3().2
+ _empty_/Test.U#2
+ _empty_/Test.TC#2
+ _empty_/Test.UC#2 
+ _empty_/Test.x6().2&
+ _empty_/Test.Types.x6().2
+ 	_empty_/Test.D1#2!
+
+ _empty_/Test.D1#[X]2#
+ _empty_/Test.Types.D#2!
+ _empty_/Test.Types.2!
+ _empty_/Test.D1#[X]2
+ 	_empty_/Test.U1#2!
+
+ _empty_/Test.U1#[X]2$
+ _empty_/Test.Types.UC#2!
+ _empty_/Test.Types.2!
+ _empty_/Test.U1#[X]2
+ _empty_/Test.y1.2
+
+ _empty_/Test.T#2 
+ _empty_/Test.x1().2
+ _empty_/Test.y2.2
+
+ _empty_/Test.U#2 
+ _empty_/Test.x2().2
+ _empty_/Test.y3.2
+
+ _empty_/Test.TC#2
+ 
+scala/Int#2 
+ _empty_/Test.x3().2
+   _empty_/Test.y4.2
+ 
+  _empty_/Test.UC#2
+   
+scala/Int#2 
+   _empty_/Test.x4().2
+!! _empty_/Test.y5.2
+!
+! _empty_/Test.C#2 
+!! _empty_/Test.x5().2
+"" _empty_/Test.y6.2
+"
+" _empty_/Test.D#2
+"" 
+scala/Int#2 
+"" _empty_/Test.x6().PZ 6CBD55B33182D7D4989465E2FF2D9294

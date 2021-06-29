@@ -1,0 +1,24 @@
+
+ïtests/pos/implicit-dep.scala*
+_empty_/HasT#*HasT€**
+_empty_/HasT#`<init>`(). €@*<init>€*
+_empty_/HasT#T#*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*
+local0 *apply€*
+local1  *g€2
+ 
+_empty_/HasT#2&
+ _empty_/HasT#`<init>`().2
+ _empty_/HasT#T#2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2
+ 
+scala/Int#2
+ _empty_/HasT#2
+ "local02
+ local12
+# $_empty_/HasT#T#2
+! "local12#
+' *scala/Predef.`???`().PZ A5DE046525F747FCA33006CEAFB06713

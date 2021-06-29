@@ -1,0 +1,61 @@
+
+«tests/pos/export-enum.scala*&
+_empty_/Signature.
+ *	Signature€*6
+_empty_/Signature.MatchDegree# ”€*MatchDegree€*;
+)_empty_/Signature.MatchDegree#`<init>`(). €@*<init>€*4
+_empty_/Signature.MatchDegree.
+ *MatchDegree€*:
+&_empty_/Signature.MatchDegree.NoMatch. €©*NoMatch€*@
+)_empty_/Signature.MatchDegree.ParamMatch. €©*
+ParamMatch€*>
+(_empty_/Signature.MatchDegree.FullMatch. €©*	FullMatch€*9
+&_empty_/Signature.MatchDegree.$values. €*$values€*6
+'_empty_/Signature.MatchDegree.values().*values€*8
+(_empty_/Signature.MatchDegree.valueOf().*valueOf€*=
+/_empty_/Signature.MatchDegree.valueOf().($name)*$name€*2
+%_empty_/Signature.MatchDegree.$new().*$new€*B
+0_empty_/Signature.MatchDegree.$new().(_$ordinal)*	_$ordinal€*:
+,_empty_/Signature.MatchDegree.$new().($name)*$name€*@
+,_empty_/Signature.MatchDegree.fromOrdinal().*fromOrdinal€*E
+5_empty_/Signature.MatchDegree.fromOrdinal().(ordinal)*ordinal€*,
+_empty_/Signature.NoMatch. *NoMatch€*0
+_empty_/Signature.FullMatch. *	FullMatch€*2
+_empty_/Signature.ParamMatch. *
+ParamMatch€*!
+_empty_/Signature.x. €*x€**
+_empty_/Signature.values().*values€*,
+_empty_/Signature.valueOf().*valueOf€*1
+#_empty_/Signature.valueOf().($name)*$name€2
+ _empty_/Signature.2,
+ _empty_/Signature.MatchDegree#27
+ )_empty_/Signature.MatchDegree#`<init>`().2,
+ _empty_/Signature.MatchDegree.24
+	 &_empty_/Signature.MatchDegree.NoMatch.27
+ )_empty_/Signature.MatchDegree.ParamMatch.26
+ '(_empty_/Signature.MatchDegree.FullMatch.24
+ &_empty_/Signature.MatchDegree.$values.25
+ '_empty_/Signature.MatchDegree.values().26
+ (_empty_/Signature.MatchDegree.valueOf().23
+ %_empty_/Signature.MatchDegree.$new().2:
+ ,_empty_/Signature.MatchDegree.fromOrdinal().2,
+	 _empty_/Signature.MatchDegree.2(
+ _empty_/Signature.NoMatch.24
+ &_empty_/Signature.MatchDegree.NoMatch.2*
+ _empty_/Signature.FullMatch.26
+ (_empty_/Signature.MatchDegree.FullMatch.2+
+ _empty_/Signature.ParamMatch.27
+ )_empty_/Signature.MatchDegree.ParamMatch.2"
+ _empty_/Signature.x.24
+ &_empty_/Signature.MatchDegree.NoMatch.2,
+	 _empty_/Signature.MatchDegree.2(
+$ +_empty_/Signature.NoMatch.2)
+ _empty_/Signature.values().2
+ scala/Array#2,
+ _empty_/Signature.MatchDegree#2#
+# &scala/Predef.`???`().2*
+ _empty_/Signature.valueOf().21
+ #_empty_/Signature.valueOf().($name)2"
+ scala/Predef.String#2,
+ )_empty_/Signature.MatchDegree#2#
+, /scala/Predef.`???`().PZ 5E65DCC77539F794E0F893BF9DD79185

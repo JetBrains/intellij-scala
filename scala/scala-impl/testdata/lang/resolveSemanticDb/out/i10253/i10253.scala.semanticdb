@@ -1,0 +1,41 @@
+
+¥
+tests/pos/i10253.scala*
+_empty_/test.
+ *test€*
+_empty_/test.foo().*foo€*"
+_empty_/test.foo().(qc)*qc€*
+local0
+ *treeMap€*
+_empty_/QC#*QC€*(
+_empty_/QC#`<init>`(). €@*<init>€*&
+_empty_/QC#reflect. „*reflect€*)
+_empty_/QC#Reflection#*
+Reflection€*3
+!_empty_/QC#Reflection#`<init>`(). €@*<init>€*.
+_empty_/QC#Reflection#TreeMap#*TreeMap€*;
+)_empty_/QC#Reflection#TreeMap#`<init>`(). €@*<init>€*D
+._empty_/QC#Reflection#TreeMap#transformTree().*transformTree€2
+ _empty_/test.2!
+ 	_empty_/test.foo().2%
+
+ _empty_/test.foo().(qc)2
+ _empty_/QC#2
+ scala/Unit#2
+ local02,
+& -_empty_/QC#Reflection#TreeMap#2!
+ %_empty_/QC#reflect.2%
+ _empty_/test.foo().(qc)2
+ _empty_/QC#2$
+ _empty_/QC#`<init>`().2!
+ _empty_/QC#reflect.2$
+ _empty_/QC#Reflection#2$
+ _empty_/QC#Reflection#2/
+ !_empty_/QC#Reflection#`<init>`().2,
+
+ _empty_/QC#Reflection#TreeMap#27
+ )_empty_/QC#Reflection#TreeMap#`<init>`().2<
+
+ ._empty_/QC#Reflection#TreeMap#transformTree().2
+ scala/Unit#2#
+  #scala/Predef.`???`().PZ F4A1B96022EE924BEE642BD7333967B8

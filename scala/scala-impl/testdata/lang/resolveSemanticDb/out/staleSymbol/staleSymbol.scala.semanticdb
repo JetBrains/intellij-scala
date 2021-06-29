@@ -1,0 +1,19 @@
+
+ªtests/pos/staleSymbol.scala*,
+_empty_/intersection.
+ *intersection€*!
+_empty_/intersection.A#*A€*4
+"_empty_/intersection.A#`<init>`(). €@*<init>€*!
+_empty_/intersection.B#*B€*4
+"_empty_/intersection.B#`<init>`(). €@*<init>€*$
+_empty_/intersection.x. €*x€2
+ _empty_/intersection.2%
+ 	_empty_/intersection.A#20
+ "_empty_/intersection.A#`<init>`().2%
+ 	_empty_/intersection.B#20
+ "_empty_/intersection.B#`<init>`().2%
+ _empty_/intersection.x.2%
+	 
+_empty_/intersection.A#2
+ scala/Unit#2#
+ scala/Predef.`???`().PZ 0C3E4004F0706226E03810E7BE26DB62

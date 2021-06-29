@@ -1,0 +1,10 @@
+
+ðtests/pos/i1287/Test.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a. €*a€2
+ _empty_/Test.2
+ _empty_/Test.a.2
+ _empty_/Foo.x.2
+
+ _empty_/Foo.PZ 2BCFA47CAC7B9825A7B7FFB399D391FE

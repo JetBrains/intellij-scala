@@ -1,0 +1,31 @@
+
+‘tests/pos/t6231c.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.bar().*bar€*!
+_empty_/Bug.bar().(ev)*ev€*
+local0*X€*
+local1 €*x€*
+local2*qux€*
+local3 *$anon€2
+ 
+_empty_/Bug.2 
+ 	_empty_/Bug.bar().2$
+
+ _empty_/Bug.bar().(ev)2
+ 
+scala/Any#2
+
+ local02
+ local12
+
+ local22
+ local12'
+& -scala/Predef.println(+1).2$
+. 0_empty_/Bug.bar().(ev)2
+3 4local12&
+ scala/Function0#apply().2
+ local22
+ local32
+	 
+local0PZ 7EF523F164485F230DF21842E4737C15

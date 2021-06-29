@@ -1,0 +1,160 @@
+
+£)tests/pos/i5766.scala*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.Foo#*Foo€*/
+_empty_/Test1.Foo#`<init>`(). €@*<init>€*(
+_empty_/Test1.Foo#next(). *next€*"
+_empty_/Test1.foo().  *foo€*)
+_empty_/Test1.foo().(loop)  *loop€*
+local0 *$anon€*
+local1*next€*&
+_empty_/Test1.summon().*summon€*&
+_empty_/Test1.summon().(f)  *f€*#
+local2 *$_lazy_implicit_$2€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.Foo#*Foo€*/
+_empty_/Test2.Foo#`<init>`(). €@*<init>€*(
+_empty_/Test2.Foo#next(). *next€*
+_empty_/Test2.Bar#*Bar€*/
+_empty_/Test2.Bar#`<init>`(). €@*<init>€*(
+_empty_/Test2.Bar#next(). *next€*"
+_empty_/Test2.foo().  *foo€*)
+_empty_/Test2.foo().(loop)  *loop€*
+local3 *$anon€*
+local4*next€*"
+_empty_/Test2.bar().  *bar€*)
+_empty_/Test2.bar().(loop)  *loop€*
+local5 *$anon€*
+local6*next€*&
+_empty_/Test2.summon().*summon€*&
+_empty_/Test2.summon().(f)  *f€*#
+local7 *$_lazy_implicit_$5€*
+_empty_/Test3.
+ *Test3€*
+_empty_/Test3.Foo#*Foo€*/
+_empty_/Test3.Foo#`<init>`(). €@*<init>€*(
+_empty_/Test3.Foo#next(). *next€*
+_empty_/Test3.Bar#*Bar€*/
+_empty_/Test3.Bar#`<init>`(). €@*<init>€*(
+_empty_/Test3.Bar#next(). *next€*
+_empty_/Test3.Baz#*Baz€*/
+_empty_/Test3.Baz#`<init>`(). €@*<init>€*(
+_empty_/Test3.Baz#next(). *next€*"
+_empty_/Test3.foo().  *foo€*)
+_empty_/Test3.foo().(loop)  *loop€*
+local8 *$anon€*
+local9*next€*"
+_empty_/Test3.bar().  *bar€*)
+_empty_/Test3.bar().(loop)  *loop€*
+local10 *$anon€*
+local11*next€*"
+_empty_/Test3.baz().  *baz€*)
+_empty_/Test3.baz().(loop)  *loop€*
+local12 *$anon€*
+local13*next€*&
+_empty_/Test3.summon().*summon€*&
+_empty_/Test3.summon().(f)  *f€*$
+local14 *$_lazy_implicit_$8€2
+ _empty_/Test1.2 
+ _empty_/Test1.Foo#2+
+ _empty_/Test1.Foo#`<init>`().2'
+ _empty_/Test1.Foo#next().2 
+ _empty_/Test1.Foo#2"
+ _empty_/Test1.foo().2(
+# '_empty_/Test1.foo().(loop)2 
+, /_empty_/Test1.Foo#2 
+2 5_empty_/Test1.Foo#2
+8 8local02 
+< ?_empty_/Test1.Foo#2
+F Jlocal12(
+M Q_empty_/Test1.foo().(loop)2%
+ _empty_/Test1.summon().2(
+ _empty_/Test1.summon().(f)2 
+ _empty_/Test1.Foo#2%
+ _empty_/Test1.summon().2"
+ _empty_/Test1.foo().2
+		 _empty_/Test2.2 
+
+
+ _empty_/Test2.Foo#2+
+
+
+ _empty_/Test2.Foo#`<init>`().2'
+
+
+ _empty_/Test2.Foo#next().2 
+
+
+ _empty_/Test2.Bar#2 
+ _empty_/Test2.Bar#2+
+ _empty_/Test2.Bar#`<init>`().2'
+ _empty_/Test2.Bar#next().2 
+ _empty_/Test2.Foo#2"
+ _empty_/Test2.foo().2(
+  _empty_/Test2.foo().(loop)2 
+% (_empty_/Test2.Bar#2 
++ ._empty_/Test2.Foo#2
+1 1local32 
+5 8_empty_/Test2.Foo#2
+? Clocal42(
+F J_empty_/Test2.foo().(loop)2"
+ _empty_/Test2.bar().2(
+# '_empty_/Test2.bar().(loop)2 
+) ,_empty_/Test2.Foo#2 
+/ 2_empty_/Test2.Bar#2
+5 5local52 
+9 <_empty_/Test2.Bar#2
+C Glocal62(
+J N_empty_/Test2.bar().(loop)2%
+ _empty_/Test2.summon().2(
+ _empty_/Test2.summon().(f)2 
+ _empty_/Test2.Foo#2%
+ _empty_/Test2.summon().2"
+ _empty_/Test2.foo().2"
+ _empty_/Test2.bar().2
+ _empty_/Test3.2 
+ _empty_/Test3.Foo#2+
+ _empty_/Test3.Foo#`<init>`().2'
+ _empty_/Test3.Foo#next().2 
+ _empty_/Test3.Bar#2 
+ _empty_/Test3.Bar#2+
+ _empty_/Test3.Bar#`<init>`().2'
+ _empty_/Test3.Bar#next().2 
+ _empty_/Test3.Baz#2 
+ _empty_/Test3.Baz#2+
+ _empty_/Test3.Baz#`<init>`().2'
+ _empty_/Test3.Baz#next().2 
+ _empty_/Test3.Foo#2"
+ _empty_/Test3.foo().2(
+  _empty_/Test3.foo().(loop)2 
+" %_empty_/Test3.Bar#2 
+( +_empty_/Test3.Foo#2
+. .local82 
+2 5_empty_/Test3.Foo#2
+< @local92(
+C G_empty_/Test3.foo().(loop)2"
+ _empty_/Test3.bar().2(
+# '_empty_/Test3.bar().(loop)2 
+) ,_empty_/Test3.Baz#2 
+/ 2_empty_/Test3.Bar#2
+5 5local102 
+9 <_empty_/Test3.Bar#2
+C Glocal112(
+J N_empty_/Test3.bar().(loop)2"
+ _empty_/Test3.baz().2(
+# '_empty_/Test3.baz().(loop)2 
+, /_empty_/Test3.Foo#2 
+2 5_empty_/Test3.Baz#2
+8 8local122 
+< ?_empty_/Test3.Baz#2
+F Jlocal132(
+M Q_empty_/Test3.baz().(loop)2%
+ _empty_/Test3.summon().2(
+ _empty_/Test3.summon().(f)2 
+ _empty_/Test3.Foo#2%
+ _empty_/Test3.summon().2"
+ _empty_/Test3.foo().2"
+ _empty_/Test3.bar().2"
+ _empty_/Test3.baz().PZ 644DBE59529D5B4C66588C295C2B5A85

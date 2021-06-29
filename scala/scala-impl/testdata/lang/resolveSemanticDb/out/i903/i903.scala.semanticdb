@@ -1,0 +1,54 @@
+
+ÿ
+tests/pos/i903.scala*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.contains().*contains€*%
+_empty_/Test.contains().(s)*s€*%
+_empty_/Test.contains().(i)*i€*#
+_empty_/Test.test1().*test1€*
+local0 €*f€*
+local1 €*ff€*
+local2 €*g€*
+local3 €*gg€*#
+_empty_/Test.test2().*test2€*
+local4 €*f€2
+ _empty_/Test.2&
+ _empty_/Test.contains().2)
+ _empty_/Test.contains().(s)2"
+ scala/Predef.String#2)
+ _empty_/Test.contains().(i)2
+  
+scala/Int#2#
+ _empty_/Test.test1().2
+ 	local02&
+ _empty_/Test.contains().2
+  
+scala/Int#2
+ 
+local12&
+ _empty_/Test.contains().2
+ "
+scala/Int#2
+ 	local22
+ 
+scala/Int#2
+ scala/Boolean#2&
+ $_empty_/Test.contains().2
+ 
+local32
+ 
+scala/Int#2
+ scala/Boolean#2&
+ %_empty_/Test.contains().2&
+ scala/Function1#apply().2
+ local02#
+ _empty_/Test.test2().2
+ 	local421
+ #scala/collection/SeqOps#contains().26
+ (scala/LowPriorityImplicits#wrapString().2#
+ scala/Tuple2.apply().2
+  #
+scala/Int#2&
+ scala/Function1#apply().2
+ local4PZ EC522AF3403E2DF8161FA0ECEFA0C7EA

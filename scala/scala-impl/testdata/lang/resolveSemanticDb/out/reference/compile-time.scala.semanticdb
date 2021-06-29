@@ -1,0 +1,182 @@
+
+Ô/&tests/pos/reference/compile-time.scala*
+compiletime/Test#*Test€*.
+compiletime/Test#`<init>`(). €@*<init>€*!
+compiletime/Test#Nat#*Nat€*2
+ compiletime/Test#Nat#`<init>`(). €@*<init>€*&
+compiletime/Test#Zero.
+ ˆ*Zero€*&
+compiletime/Test#Succ# €*Succ€*3
+!compiletime/Test#Succ#`<init>`(). €@*<init>€*1
+$compiletime/Test#Succ#`<init>`().(n) €*n€*#
+compiletime/Test#Succ#[N]	*N€*%
+compiletime/Test#Succ#n. €*n€**
+compiletime/Test#Succ#copy().*copy€**
+ compiletime/Test#Succ#copy().[N]	*N€**
+ compiletime/Test#Succ#copy().(n)*n€*>
+'compiletime/Test#Succ#copy$default$1().*copy$default$1€*4
+*compiletime/Test#Succ#copy$default$1().[N]	*N€*&
+compiletime/Test#Succ#_1().*_1€*%
+compiletime/Test#Succ.
+ *Succ€*,
+compiletime/Test#Succ.apply().*apply€*+
+!compiletime/Test#Succ.apply().[N]	*N€*+
+!compiletime/Test#Succ.apply().(n)*n€*0
+ compiletime/Test#Succ.unapply().*unapply€*-
+#compiletime/Test#Succ.unapply().[N]	*N€*1
+%compiletime/Test#Succ.unapply().(x$1)*x$1€*2
+!compiletime/Test#Succ.toString().*toString€*
+local0 €	*n1€*)
+compiletime/Test#toIntC().*toIntC€*'
+compiletime/Test#toIntC().[N]	*N€*&
+compiletime/Test#ctwo. ˆ*ctwo€*5
+ compiletime/Test#defaultValue().*defaultValue€*-
+#compiletime/Test#defaultValue().[T]	*T€*&
+compiletime/Test#dInt. €*dInt€*,
+compiletime/Test#dDouble. €*dDouble€*.
+compiletime/Test#dBoolean. €*dBoolean€*&
+compiletime/Test#dAny. €*dAny€*
+local1 €	*n€*)
+compiletime/Test#toIntT().*toIntT€*'
+compiletime/Test#toIntT().[N]	*N€*1
+compiletime/Test#summonFrom().*
+summonFrom€*+
+!compiletime/Test#summonFrom().(f)*f€*$
+compiletime/Test#two. ˆ*two€2
+ compiletime/2
+ 
+compiletime/Test#2*
+ compiletime/Test#`<init>`().2=
+ &/scala/compiletime/package$package.constValue().2>
+( 30scala/compiletime/package$package.erasedValue().2 
+ scala/compiletime/2
+	 scala/2(
+ "scala/compiletime/ops/int.2$
+ scala/compiletime/ops/2 
+ scala/compiletime/2
+	 scala/2#
+ compiletime/Test#Nat#2.
+  compiletime/Test#Nat#`<init>`().2$
+ compiletime/Test#Zero.2#
+ compiletime/Test#Nat#2$
+ compiletime/Test#Succ#2/
+ !compiletime/Test#Succ#`<init>`().2'
+  compiletime/Test#Succ#[N]2#
+* -compiletime/Test#Nat#2'
+ compiletime/Test#Succ#[N]2&
+ compiletime/Test#Succ#n.2+
+ compiletime/Test#Succ#copy().2)
+ compiletime/Test#Succ#_1().2$
+ compiletime/Test#Succ.2,
+ compiletime/Test#Succ.apply().2.
+  compiletime/Test#Succ.unapply().2=
+ /scala/compiletime/package$package.constValue().2+
+ compiletime/Test#toIntC().[N]2*
+ scala/compiletime/ops/int.S#2
+ local02 
+ scala/Int#`+`(+4).2(
+ !compiletime/Test#toIntC().2
+" $local02(
+
+
+ compiletime/Test#toIntC().2+
+
+ 
+ !compiletime/Test#toIntC().[N]2
+
+$
+ '
+scala/Int#2$
+ compiletime/Test#ctwo.2(
+ compiletime/Test#toIntC().2>
+? J0scala/compiletime/package$package.erasedValue().21
+K L#compiletime/Test#defaultValue().[T]2
+ scala/Byte#2!
+ scala/Some.apply().2
+ scala/Some.2
+  scala/Byte#2
+ scala/Char#2!
+ scala/Some.apply().2
+ scala/Some.2
+  scala/Char#2
+ scala/Short#2!
+ scala/Some.apply().2
+ scala/Some.2
+ "scala/Short#2
+ 
+scala/Int#2!
+ scala/Some.apply().2
+ scala/Some.2
+ scala/Long#2!
+ scala/Some.apply().2
+ scala/Some.2
+ scala/Float#2!
+ scala/Some.apply().2
+ scala/Some.2
+ scala/Double#2!
+ scala/Some.apply().2
+ scala/Some.2
+ scala/Boolean#2!
+ scala/Some.apply().2
+ scala/Some.2
+ scala/Unit#2!
+ scala/Some.apply().2
+ scala/Some.2
+ scala/None.2.
+ % compiletime/Test#defaultValue().21
+& '#compiletime/Test#defaultValue().[T]2
+* 0scala/Option#2
+1 4
+scala/Any#2$
+ 
+compiletime/Test#dInt.2
+ scala/Some#2
+ 
+scala/Int#2.
+ $ compiletime/Test#defaultValue().2
+% (
+scala/Int#2'
+ compiletime/Test#dDouble.2
+ scala/Some#2
+ scala/Double#2.
+ * compiletime/Test#defaultValue().2
++ 1scala/Double#2(
+ compiletime/Test#dBoolean.2
+ scala/Some#2
+ scala/Boolean#2.
+  , compiletime/Test#defaultValue().2
+- 4scala/Boolean#2$
+   
+compiletime/Test#dAny.2
+   scala/None.2.
+   $ compiletime/Test#defaultValue().2
+ %  (
+scala/Any#2>
+"J" U0scala/compiletime/package$package.erasedValue().2 
+">" Iscala/compiletime/2
+"8" =scala/2+
+"V" Wcompiletime/Test#toIntT().[N]2$
+## compiletime/Test#Zero.2$
+$$ compiletime/Test#Succ#2
+$$ local12 
+$!$ "scala/Int#`+`(+4).2(
+$$ compiletime/Test#toIntT().2
+$$ local12(
+"" compiletime/Test#toIntT().2+
+" " !compiletime/Test#toIntT().[N]2#
+"%" (compiletime/Test#Nat#2
+"+" .
+scala/Int#2#
+&>& Ascala/Predef.`???`().2,
+&& #compiletime/Test#summonFrom().2/
+&$& %!compiletime/Test#summonFrom().(f)2
+&'& .scala/Nothing#2
+&2& 5
+scala/Any#2
+&8& ;
+scala/Any#2#
+(( compiletime/Test#two.2(
+(( compiletime/Test#toIntT().2$
+(( compiletime/Test#Succ#2$
+(( "compiletime/Test#Succ#2$
+(#( 'compiletime/Test#Zero.PZ 62EF5374A8B09D068E314968DAE009B6

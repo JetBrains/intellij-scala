@@ -1,0 +1,62 @@
+
+¢tests/pos/i7655.scala*
+_empty_/bug2.
+ *bug2€*
+_empty_/bug2.id. €*id€*
+local0 *apply€*
+local1	*U€*
+local2*x$1€*
+local3 *$anon€*
+local4*apply€*
+local5	*U€*
+local6*none€* 
+_empty_/bug2.id1. €*id1€*
+local7 *apply€*
+local8	*U€*
+local9*x$1€*
+local10 *$anon€*
+local11*apply€*
+local12	*U€*
+local13*none€* 
+_empty_/bug2.id2. €*id2€*
+local14 *apply€*
+local15	*U€*
+local16*x$1€*
+local17 *$anon€*
+local18*apply€*
+local19	*U€*
+local20*none€2
+ _empty_/bug2.2
+ _empty_/bug2.id.2
+ local02
+ local12
+ local22
+ local12
+ local32
+ local42
+ local52
+" &local62
+( )local52
+. 2local62
+ 	_empty_/bug2.id1.2
+ local72
+ local82
+ local92
+ local82
+ local102
+ local112
+ local122
+% )local132
++ ,local122
+1 5local132
+ 	_empty_/bug2.id2.2
+ local142
+ local152
+ local162
+ local152
+ local172
+ local182
+ local192
+ local202
+ local192
+ local20PZ 1B4C14C33296FC5174F816513E301539

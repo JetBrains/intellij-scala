@@ -1,0 +1,26 @@
+
+Ïtests/pos/i1866.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(g)*g€*
+local0 „*update€*!
+_empty_/Test.main().*main€*+
+_empty_/Test.main().(update)*update€2:
+  40scala/reflect/Selectable.reflectiveSelectable().2#
+ scala/reflect/Selectable.2
+ scala/reflect/2
+ scala/2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(g)2
+ local02
+ scala/Unit#27
+$ $)scala/reflect/Selectable#selectDynamic().2>
+# #0scala/reflect/Selectable.reflectiveSelectable().2"
+# $_empty_/Test.f().(g)2"
+ 
+_empty_/Test.main().2*
+ _empty_/Test.main().(update)2
+ scala/Array#2"
+ scala/Predef.String#PZ 979D655E395FED695220F49854CA3E61

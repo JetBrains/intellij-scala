@@ -1,0 +1,121 @@
+
+ü(tests/pos/scala2traits/scala-trait.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#d().*d€*
+_empty_/T#v. €*v€*
+_empty_/T#O.
+ *O€*
+_empty_/T#w. ˆ*w€*
+_empty_/S2T#*S2T€*)
+_empty_/S2T#`<init>`(). €@*<init>€*
+_empty_/S2T#x(). €*x€*#
+_empty_/S2T#`x_=`(). €*x_=€*%
+_empty_/S2T#`x_=`().(x$1)*x$1€*
+_empty_/S2T#y. À*y€*
+_empty_/S2T#z. €*z€*
+_empty_/S2T#a. „*a€*
+_empty_/S2T#b(). „*b€*#
+_empty_/S2T#`b_=`(). €*b_=€*%
+_empty_/S2T#`b_=`().(x$1)*x$1€*
+_empty_/S2T#f().*f€*
+_empty_/S2T#f().(x)*x€*&
+_empty_/S2Tprivate#*
+S2Tprivate€*0
+_empty_/S2Tprivate#`<init>`(). €@*<init>€*$
+_empty_/S2Tprivate#x(). €*x€**
+_empty_/S2Tprivate#`x_=`(). €*x_=€*,
+ _empty_/S2Tprivate#`x_=`().(x$1)*x$1€*"
+_empty_/S2Tprivate#y. À*y€*"
+_empty_/S2Tprivate#z. €*z€*!
+_empty_/S2Tprivate#f().*f€*$
+_empty_/S2Tprivate#f().(x)*x€*#
+_empty_/S2Tprivate#xx().*xx€*)
+_empty_/S2Tprivate#`xx_=`().*xx_=€*)
+_empty_/S2Tprivate#`xx_=`().(x)*x€*#
+_empty_/S2Tprivate#yy().*yy€*#
+_empty_/S2Tprivate#zz().*zz€*#
+_empty_/S2Tprivate#ff().*ff€*%
+_empty_/S2Tprivate#ff().(x)*x€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ _empty_/T#d().2
+ _empty_/T#v.2
+	 
+_empty_/T#O.2
+ _empty_/T#w.2
+ 	_empty_/S2T#2%
+		 _empty_/S2T#`<init>`().2
+		 _empty_/S2T#x().2
+			 
+scala/Int#2"
+		 	_empty_/S2T#`x_=`().2
+
+
+ _empty_/S2T#y.2
+
+
+ 
+scala/Int#2
+ _empty_/S2T#z.2
+	 
+scala/Int#2
+ _empty_/S2T#a.2
+	 
+scala/Int#2
+ _empty_/S2T#b().2
+	 
+scala/Int#2"
+ 	_empty_/S2T#`b_=`().2
+ _empty_/S2T#f().2!
+ 	_empty_/S2T#f().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2!
+ _empty_/S2T#f().(x)2
+ _empty_/S2T#y.2!
+ _empty_/S2Tprivate#2,
+ _empty_/S2Tprivate#`<init>`().2%
+ _empty_/S2Tprivate#x().2
+ 
+scala/Int#2)
+ _empty_/S2Tprivate#`x_=`().2#
+ _empty_/S2Tprivate#y.2
+ 
+scala/Int#2#
+ _empty_/S2Tprivate#z.2
+ 
+scala/Int#2%
+ _empty_/S2Tprivate#f().2(
+ _empty_/S2Tprivate#f().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+! "scala/Int#`+`(+4).2(
+  _empty_/S2Tprivate#f().(x)2#
+# $_empty_/S2Tprivate#y.2&
+ _empty_/S2Tprivate#xx().2%
+ _empty_/S2Tprivate#x().2*
+ 
+_empty_/S2Tprivate#`xx_=`().2-
+ _empty_/S2Tprivate#`xx_=`().(x)2
+ 
+scala/Int#2)
+ _empty_/S2Tprivate#`x_=`().2-
+ _empty_/S2Tprivate#`xx_=`().(x)2&
+ _empty_/S2Tprivate#yy().2#
+ _empty_/S2Tprivate#y.2&
+ _empty_/S2Tprivate#zz().2#
+ _empty_/S2Tprivate#z.2&
+ _empty_/S2Tprivate#ff().2)
+	 
+_empty_/S2Tprivate#ff().(x)2
+ 
+scala/Int#2%
+ _empty_/S2Tprivate#f().2)
+ _empty_/S2Tprivate#ff().(x)PZ 873B961CD1277F2D34D1B50F4F79DA5D

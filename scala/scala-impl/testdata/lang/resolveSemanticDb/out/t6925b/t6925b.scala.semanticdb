@@ -1,0 +1,95 @@
+
+Ètests/pos/t6925b.scala*
+_empty_/Base# *Base€**
+_empty_/Base#`<init>`(). €@*<init>€*
+_empty_/Base#[M]	*M€*!
+_empty_/Base#foo(). *foo€* 
+_empty_/Base#foo().[A]	*A€* 
+_empty_/Base#foo().[B]	*B€* 
+_empty_/Derived#*Derived€*-
+_empty_/Derived#`<init>`(). €@*<init>€*"
+_empty_/Derived#foo().*foo€*%
+_empty_/Derived#foo().[AA]	*AA€*%
+_empty_/Derived#foo().[BB]	*BB€*
+local0*x$1€*
+local1 €*a€*
+local2 €*b€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.lx. À*lx€*#
+_empty_/Test.test1().*test1€*"
+_empty_/Test.test1().(x)*x€*7
+_empty_/Test.test1$default$1().*test1$default$1€*#
+_empty_/Test.test2().*test2€*"
+_empty_/Test.test2().(x)*x€*7
+_empty_/Test.test2$default$1().*test2$default$1€2)
+ scala/language.higherKinds.2
+ scala/language.2
+ _empty_/Base#2&
+ _empty_/Base#`<init>`().2
+ _empty_/Base#[M]2!
+ 	_empty_/Base#foo().2$
+
+ _empty_/Base#foo().[A]2$
+ _empty_/Base#foo().[B]2
+ _empty_/Base#[M]2$
+ _empty_/Base#foo().[A]2$
+ _empty_/Base#foo().[B]2
+ 
+scala/Any#2
+		 _empty_/Derived#2)
+		 _empty_/Derived#`<init>`().2&
+	+	 +_empty_/Base#`<init>`().2
+		 _empty_/Base#2$
+
+
+ 	_empty_/Derived#foo().2(
+
+
+
+ _empty_/Derived#foo().[AA]2(
+
+
+ _empty_/Derived#foo().[BB]2
+
+;
+ ;local02%
+
+A
+ Ascala/Tuple2.unapply().2
+
+A
+ Blocal12
+
+D
+ Elocal22#
+
+K
+ Kscala/Tuple2.apply().2
+
+K
+ Llocal12(
+
+N
+ P_empty_/Derived#foo().[AA]2
+
+R
+ Slocal22(
+
+U
+ W_empty_/Derived#foo().[BB]2
+ _empty_/Test.2
+ _empty_/Test.lx.2'
+ scala/Predef.println(+1).2#
+ _empty_/Test.test1().2&
+ _empty_/Test.test1().(x)2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Test.lx.2#
+ _empty_/Test.test2().2&
+ _empty_/Test.test2().(x)2
+ 
+scala/Int#2#
+> Ascala/Predef.`???`().2
+ _empty_/Test.lx.PZ 1BE2C3EE6A0352C7193F60AC7F837EE4

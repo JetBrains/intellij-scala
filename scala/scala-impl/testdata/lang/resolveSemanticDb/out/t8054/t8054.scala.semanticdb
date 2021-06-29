@@ -1,0 +1,76 @@
+
+×tests/pos/t8054.scala*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*$
+_empty_/D#Manifest#*Manifest€*0
+_empty_/D#Manifest#`<init>`(). €@*<init>€*'
+_empty_/D#Manifest#Entry#*Entry€*6
+$_empty_/D#Manifest#Entry#`<init>`(). €@*<init>€*
+_empty_/D#M. „*M€*
+_empty_/D#m().*m€*
+_empty_/D1.
+ *D1€*
+_empty_/D1.M.
+ *M€*
+_empty_/D2.
+ *D2€*
+_empty_/D2.M. €*M€*
+_empty_/Hello.
+ *Hello€*"
+_empty_/Hello.main().*main€*(
+_empty_/Hello.main().(args)*args€*
+local0 €*t1€*
+local1 €*t2€2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2!
+ _empty_/D#Manifest#2,
+ _empty_/D#Manifest#`<init>`().2'
+
+ _empty_/D#Manifest#Entry#22
+ $_empty_/D#Manifest#Entry#`<init>`().2
+ _empty_/D#M.2!
+	 _empty_/D#Manifest#2
+ _empty_/D#m().2'
+ _empty_/D#Manifest#Entry#2
+	 
+_empty_/D#M.2#
+ scala/Predef.`???`().2
+
+
+ 	_empty_/D1.2
+
+
+ 
+_empty_/D#2
+	 
+_empty_/D1.M.2!
+ _empty_/D#Manifest#2
+ 	_empty_/D2.2
+ 
+_empty_/D#2
+ _empty_/D2.M.2!
+	 _empty_/D#Manifest#2#
+ scala/Predef.`???`().2
+ _empty_/Hello.2#
+ 
+_empty_/Hello.main().2)
+ _empty_/Hello.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 
+local02'
+ _empty_/D#Manifest#Entry#2
+ _empty_/D1.M.2
+ _empty_/D1.2
+ _empty_/D#m().2
+ _empty_/D1.2
+ 
+local12'
+ _empty_/D#Manifest#Entry#2
+ _empty_/D2.M.2
+ _empty_/D2.2
+ _empty_/D#m().2
+ _empty_/D2.PZ EF0C4E532B878D2244BBC408C6029C5F

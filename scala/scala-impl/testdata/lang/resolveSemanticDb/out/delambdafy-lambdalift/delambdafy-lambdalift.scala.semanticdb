@@ -1,0 +1,33 @@
+
+È%tests/pos/delambdafy-lambdalift.scala*&
+_empty_/LambdaLift#*
+LambdaLift€*0
+_empty_/LambdaLift#`<init>`(). €@*<init>€*=
+%_empty_/LambdaLift#enclosingMethod().*enclosingMethod€*F
+2_empty_/LambdaLift#enclosingMethod().(capturedArg)*capturedArg€*
+local0*innerMethod€*
+local1*x€*
+local2 €*f€*
+local3*y€2
+ _empty_/LambdaLift#2,
+ _empty_/LambdaLift#`<init>`().23
+ %_empty_/LambdaLift#enclosingMethod().2@
+ !2_empty_/LambdaLift#enclosingMethod().(capturedArg)2
+# &
+scala/Int#2
+) -scala/Unit#2
+ local02
+ local12
+ 
+scala/Int#2
+  
+scala/Int#2 
+% &scala/Int#`+`(+4).2
+# $local12@
+' 22_empty_/LambdaLift#enclosingMethod().(capturedArg)2
+ 	local22
+ local32
+ 
+scala/Int#2
+ #local02
+$ %local3PZ 65DC7CA37D736E987EFFED7B556B055C

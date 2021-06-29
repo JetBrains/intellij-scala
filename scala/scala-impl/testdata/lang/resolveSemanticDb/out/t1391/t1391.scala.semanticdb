@@ -1,0 +1,84 @@
+
+„tests/pos/t1391.scala*.
+sandbox/hierarOverload#*hierarOverload€*4
+"sandbox/hierarOverload#`<init>`(). €@*<init>€*%
+sandbox/hierarOverload#AB#*AB€*7
+%sandbox/hierarOverload#AB#`<init>`(). €@*<init>€*(
+sandbox/hierarOverload#AB#TA#*TA€*(
+sandbox/hierarOverload#AB#TB#*TB€*&
+sandbox/hierarOverload#AB#A#*A€*9
+'sandbox/hierarOverload#AB#A#`<init>`(). €@*<init>€*9
+%sandbox/hierarOverload#AB#A#entities. „*entities€*&
+sandbox/hierarOverload#AB#B#*B€*9
+'sandbox/hierarOverload#AB#B#`<init>`(). €@*<init>€*5
+$sandbox/hierarOverload#AB#B#group(). „*group€*;
+(sandbox/hierarOverload#AB#B#`group_=`(). €*group_=€*9
+-sandbox/hierarOverload#AB#B#`group_=`().(x$1)*x$1€*+
+sandbox/hierarOverload#NAnB.
+ *NAnB€**
+sandbox/hierarOverload#NAnB.TB#*TB€**
+sandbox/hierarOverload#NAnB.TA#*TA€**
+sandbox/hierarOverload#NAnB.nA#*nA€*<
+*sandbox/hierarOverload#NAnB.nA#`<init>`(). €@*<init>€*<
+(sandbox/hierarOverload#NAnB.nA#entities. €*entities€**
+sandbox/hierarOverload#NAnB.nB#*nB€*<
+*sandbox/hierarOverload#NAnB.nB#`<init>`(). €@*<init>€*8
+'sandbox/hierarOverload#NAnB.nB#group(). €*group€*>
++sandbox/hierarOverload#NAnB.nB#`group_=`(). €*group_=€*<
+0sandbox/hierarOverload#NAnB.nB#`group_=`().(x$1)*x$1€*)
+sandbox/hierarOverload#foo().*foo€*
+local0 €*t€2
+ sandbox/2%
+ sandbox/hierarOverload#20
+ "sandbox/hierarOverload#`<init>`().2(
+	 sandbox/hierarOverload#AB#23
+ %sandbox/hierarOverload#AB#`<init>`().2+
+
+ sandbox/hierarOverload#AB#TA#2*
+ sandbox/hierarOverload#AB#A#2+
+	
+	 sandbox/hierarOverload#AB#TB#2*
+		 sandbox/hierarOverload#AB#B#2*
+ sandbox/hierarOverload#AB#A#25
+ 'sandbox/hierarOverload#AB#A#`<init>`().23
+ %sandbox/hierarOverload#AB#A#entities.2!
+ scala/package.List#2+
+ sandbox/hierarOverload#AB#TB#2*
+ sandbox/hierarOverload#AB#B#25
+ 'sandbox/hierarOverload#AB#B#`<init>`().22
+ $sandbox/hierarOverload#AB#B#group().2+
+ sandbox/hierarOverload#AB#TA#26
+ (sandbox/hierarOverload#AB#B#`group_=`().2*
+
+ sandbox/hierarOverload#NAnB.2(
+ sandbox/hierarOverload#AB#2-
+
+ sandbox/hierarOverload#NAnB.TB#2-
+ sandbox/hierarOverload#NAnB.nB#2-
+
+ sandbox/hierarOverload#NAnB.TA#2-
+ sandbox/hierarOverload#NAnB.nA#2-
+ sandbox/hierarOverload#NAnB.nA#28
+ *sandbox/hierarOverload#NAnB.nA#`<init>`().2*
+ sandbox/hierarOverload#AB#A#26
+ (sandbox/hierarOverload#NAnB.nA#entities.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2-
+ sandbox/hierarOverload#NAnB.nB#2-
+   sandbox/hierarOverload#NAnB.nB#28
+   *sandbox/hierarOverload#NAnB.nB#`<init>`().2*
+   sandbox/hierarOverload#AB#B#25
+!! 'sandbox/hierarOverload#NAnB.nB#group().28
+!! *sandbox/hierarOverload#NAnB.nA#`<init>`().2-
+!! sandbox/hierarOverload#NAnB.nA#29
+!! +sandbox/hierarOverload#NAnB.nB#`group_=`().2+
+%% 
+sandbox/hierarOverload#foo().2
+%% scala/Unit#2
+&	& 
+local028
+&& *sandbox/hierarOverload#NAnB.nA#`<init>`().2-
+&& sandbox/hierarOverload#NAnB.nA#2*
+&& sandbox/hierarOverload#NAnB.2'
+'' scala/Predef.println(+1).2
+'' local0PZ D20FDEBFD1331BA1871A1755505B2C48

@@ -1,0 +1,32 @@
+
+§tests/pos/i9457.scala**
+_empty_/inlinetuple.
+ *inlinetuple€*(
+_empty_/inlinetuple.test().*test€*"
+_empty_/inlinetuple.f().*f€*%
+_empty_/inlinetuple.f().(p)*p€*
+local0 €*a€*
+local1 €*b€2
+ _empty_/inlinetuple.2)
+ 
+_empty_/inlinetuple.test().2
+ 
+scala/Int#2&
+ _empty_/inlinetuple.f().2#
+ scala/Tuple2.apply().2&
+ _empty_/inlinetuple.f().2)
+ _empty_/inlinetuple.f().(p)2
+ 
+scala/Int#2
+ "
+scala/Int#2
+& )
+scala/Int#2)
+ _empty_/inlinetuple.f().(p)2%
+	 	scala/Tuple2.unapply().2
+	 
+local02
+ local12 
+ scala/Int#`+`(+4).2
+ local02
+ 	local1PZ BABA60EFF22A8F373E6375191F584AF2

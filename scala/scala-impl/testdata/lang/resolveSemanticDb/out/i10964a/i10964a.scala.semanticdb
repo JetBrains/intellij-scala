@@ -1,0 +1,473 @@
+
+†•tests/pos/i10964a.scala*
+_empty_/Monoid#*Monoid€*,
+_empty_/Monoid#`<init>`(). €@*<init>€*
+_empty_/Monoid#[A]	*A€*$
+_empty_/Semigroup#*	Semigroup€*/
+_empty_/Semigroup#`<init>`(). €@*<init>€*
+_empty_/Semigroup#[A]	*A€*(
+_empty_/Applicative#*Applicative€*1
+_empty_/Applicative#`<init>`(). €@*<init>€*!
+_empty_/Applicative#[F]	*F€* 
+_empty_/OptionT#*OptionT€*-
+_empty_/OptionT#`<init>`(). €@*<init>€*
+_empty_/OptionT#[F]	*F€*
+_empty_/OptionT#[A]	*A€* 
+_empty_/EitherT#*EitherT€*-
+_empty_/EitherT#`<init>`(). €@*<init>€*
+_empty_/EitherT#[F]	*F€*
+_empty_/EitherT#[A]	*A€*
+_empty_/EitherT#[B]	*B€*
+_empty_/IorT#*IorT€**
+_empty_/IorT#`<init>`(). €@*<init>€*
+_empty_/IorT#[F]	*F€*
+_empty_/IorT#[A]	*A€*
+_empty_/IorT#[B]	*B€* 
+_empty_/WriterT#*WriterT€*-
+_empty_/WriterT#`<init>`(). €@*<init>€*
+_empty_/WriterT#[F]	*F€*
+_empty_/WriterT#[L]	*L€*
+_empty_/WriterT#[V]	*V€* 
+_empty_/Kleisli#*Kleisli€*-
+_empty_/Kleisli#`<init>`(). €@*<init>€*
+_empty_/Kleisli#[F]	*F€*
+_empty_/Kleisli#[A]	*A€*
+_empty_/Kleisli#[B]	*B€*4
+_empty_/ApplicativeIdOps# *ApplicativeIdOps€*6
+$_empty_/ApplicativeIdOps#`<init>`(). €@*<init>€*1
+'_empty_/ApplicativeIdOps#`<init>`().(a)*a€*&
+_empty_/ApplicativeIdOps#[A]	*A€*(
+_empty_/ApplicativeIdOps#a. €*a€*-
+ _empty_/ApplicativeIdOps#pure().*pure€*-
+#_empty_/ApplicativeIdOps#pure().[F]	*F€*/
+#_empty_/ApplicativeIdOps#pure().(F)  *F€*4
+_empty_/ApplicativeIdOps.
+ *ApplicativeIdOps€*6
+_empty_/ApplicativeSyntax.
+ *ApplicativeSyntax€*N
+0_empty_/ApplicativeSyntax.syntaxApplicativeId(). (*syntaxApplicativeId€*=
+3_empty_/ApplicativeSyntax.syntaxApplicativeId().[A]	*A€*=
+3_empty_/ApplicativeSyntax.syntaxApplicativeId().(a)*a€*
+_empty_/Sync#*Sync€**
+_empty_/Sync#`<init>`(). €@*<init>€*
+_empty_/Sync#[F]	*F€*
+_empty_/Sync.
+ *Sync€*7
+_empty_/Sync.syncForOptionT().  *syncForOptionT€*+
+!_empty_/Sync.syncForOptionT().[F]	*F€*/
+"_empty_/Sync.syncForOptionT().(F0)  *F0€*+
+!_empty_/Sync.syncForOptionT().[X]	*X€*7
+_empty_/Sync.syncForEitherT().  *syncForEitherT€*+
+!_empty_/Sync.syncForEitherT().[F]	*F€*+
+!_empty_/Sync.syncForEitherT().[E]	*E€*/
+"_empty_/Sync.syncForEitherT().(F0)  *F0€*+
+!_empty_/Sync.syncForEitherT().[X]	*X€*1
+_empty_/Sync.syncForIorT().  *syncForIorT€*(
+_empty_/Sync.syncForIorT().[F]	*F€*(
+_empty_/Sync.syncForIorT().[L]	*L€*,
+_empty_/Sync.syncForIorT().(F0)  *F0€*,
+_empty_/Sync.syncForIorT().(L0)  *L0€*(
+_empty_/Sync.syncForIorT().[X]	*X€*7
+_empty_/Sync.syncForWriterT().  *syncForWriterT€*+
+!_empty_/Sync.syncForWriterT().[F]	*F€*+
+!_empty_/Sync.syncForWriterT().[L]	*L€*/
+"_empty_/Sync.syncForWriterT().(F0)  *F0€*/
+"_empty_/Sync.syncForWriterT().(L0)  *L0€*+
+!_empty_/Sync.syncForWriterT().[X]	*X€*7
+_empty_/Sync.syncForKleisli().  *syncForKleisli€*+
+!_empty_/Sync.syncForKleisli().[F]	*F€*+
+!_empty_/Sync.syncForKleisli().[R]	*R€*/
+"_empty_/Sync.syncForKleisli().(F0)  *F0€*+
+!_empty_/Sync.syncForKleisli().[X]	*X€*
+_empty_/Async#*Async€*+
+_empty_/Async#`<init>`(). €@*<init>€*
+_empty_/Async#[F]	*F€*
+_empty_/Async.
+ *Async€*:
+ _empty_/Async.asyncForOptionT().  *asyncForOptionT€*-
+#_empty_/Async.asyncForOptionT().[F]	*F€*1
+$_empty_/Async.asyncForOptionT().(F0)  *F0€*-
+#_empty_/Async.asyncForOptionT().[X]	*X€*:
+ _empty_/Async.asyncForEitherT().  *asyncForEitherT€*-
+#_empty_/Async.asyncForEitherT().[F]	*F€*-
+#_empty_/Async.asyncForEitherT().[E]	*E€*1
+$_empty_/Async.asyncForEitherT().(F0)  *F0€*-
+#_empty_/Async.asyncForEitherT().[X]	*X€*4
+_empty_/Async.asyncForIorT().  *asyncForIorT€**
+ _empty_/Async.asyncForIorT().[F]	*F€**
+ _empty_/Async.asyncForIorT().[L]	*L€*.
+!_empty_/Async.asyncForIorT().(F0)  *F0€*.
+!_empty_/Async.asyncForIorT().(L0)  *L0€**
+ _empty_/Async.asyncForIorT().[X]	*X€*:
+ _empty_/Async.asyncForWriterT().  *asyncForWriterT€*-
+#_empty_/Async.asyncForWriterT().[F]	*F€*-
+#_empty_/Async.asyncForWriterT().[L]	*L€*1
+$_empty_/Async.asyncForWriterT().(F0)  *F0€*1
+$_empty_/Async.asyncForWriterT().(L0)  *L0€*-
+#_empty_/Async.asyncForWriterT().[X]	*X€*:
+ _empty_/Async.asyncForKleisli().  *asyncForKleisli€*-
+#_empty_/Async.asyncForKleisli().[F]	*F€*-
+#_empty_/Async.asyncForKleisli().[R]	*R€*1
+$_empty_/Async.asyncForKleisli().(F0)  *F0€*-
+#_empty_/Async.asyncForKleisli().[X]	*X€*&
+_empty_/Concurrent#*
+Concurrent€*0
+_empty_/Concurrent#`<init>`(). €@*<init>€* 
+_empty_/Concurrent#[F]	*F€* 
+_empty_/Concurrent#[E]	*E€*
+_empty_/Ref#*Ref€*)
+_empty_/Ref#`<init>`(). €@*<init>€*
+_empty_/Ref#[F]	*F€*
+_empty_/Ref#[A]	*A€*
+_empty_/Ref.
+ *Ref€*
+_empty_/Ref.Make#*Make€*.
+_empty_/Ref.Make#`<init>`(). €@*<init>€*
+_empty_/Ref.Make#[F]	*F€* 
+_empty_/Ref.Make.
+ *Make€*0
+_empty_/Ref.MakeInstances#*MakeInstances€*7
+%_empty_/Ref.MakeInstances#`<init>`(). €@*<init>€*L
+/_empty_/Ref.MakeInstances#concurrentInstance().  *concurrentInstance€*<
+2_empty_/Ref.MakeInstances#concurrentInstance().[F]	*F€*>
+2_empty_/Ref.MakeInstances#concurrentInstance().(F)  *F€*F
+%_empty_/Ref.MakeLowPriorityInstances#*MakeLowPriorityInstances€*B
+0_empty_/Ref.MakeLowPriorityInstances#`<init>`(). €@*<init>€*K
+4_empty_/Ref.MakeLowPriorityInstances#syncInstance().  *syncInstance€*A
+7_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]	*F€*C
+7_empty_/Ref.MakeLowPriorityInstances#syncInstance().(F)  *F€*
+_empty_/Ref.of().*of€*
+_empty_/Ref.of().[F]	*F€*
+_empty_/Ref.of().[A]	*A€*
+_empty_/Ref.of().(a)*a€*"
+_empty_/Ref.of().(mk)  *mk€*"
+_empty_/Resource#*Resource€*.
+_empty_/Resource#`<init>`(). €@*<init>€*
+_empty_/Resource#[F]	*F€*
+_empty_/Resource#[A]	*A€*?
+$_empty_/Resource#asyncForResource().  *asyncForResource€*1
+'_empty_/Resource#asyncForResource().[F]	*F€*5
+(_empty_/Resource#asyncForResource().(F0)  *F0€*1
+'_empty_/Resource#asyncForResource().[X]	*X€*)
+_empty_/Resource#parZip().*parZip€*)
+_empty_/Resource#parZip().(F)  *F€2
+ _empty_/Monoid#2$
+ _empty_/Monoid#`<init>`().2
+ _empty_/Monoid#[A]2 
+ _empty_/Semigroup#2+
+ _empty_/Semigroup#`<init>`().2#
+ _empty_/Semigroup#[A]2"
+ _empty_/Applicative#2-
+ _empty_/Applicative#`<init>`().2%
+ _empty_/Applicative#[F]2
+ _empty_/OptionT#2)
+ _empty_/OptionT#`<init>`().2!
+ _empty_/OptionT#[F]2!
+ _empty_/OptionT#[A]2
+ _empty_/EitherT#2)
+ _empty_/EitherT#`<init>`().2!
+ _empty_/EitherT#[F]2!
+ _empty_/EitherT#[A]2!
+ _empty_/EitherT#[B]2
+ 
+_empty_/IorT#2&
+
+ 
+_empty_/IorT#`<init>`().2
+ _empty_/IorT#[F]2
+ _empty_/IorT#[A]2
+ _empty_/IorT#[B]2
+ _empty_/WriterT#2)
+ _empty_/WriterT#`<init>`().2!
+ _empty_/WriterT#[F]2!
+ _empty_/WriterT#[L]2!
+ _empty_/WriterT#[V]2
+ _empty_/Kleisli#2)
+ _empty_/Kleisli#`<init>`().2!
+ _empty_/Kleisli#[F]2!
+ _empty_/Kleisli#[A]2!
+ _empty_/Kleisli#[B]2'
+
+
+ _empty_/ApplicativeIdOps#22
+
+
+ $_empty_/ApplicativeIdOps#`<init>`().2*
+
+/
+ 0_empty_/ApplicativeIdOps#[A]2&
+
+@
+ @scala/AnyVal#`<init>`().2
+
+:
+ @scala/AnyVal#2*
+
+
+ _empty_/ApplicativeIdOps#[A]2)
+
+,
+ -_empty_/ApplicativeIdOps#a.2.
+ 
+ _empty_/ApplicativeIdOps#pure().21
+ #_empty_/ApplicativeIdOps#pure().[F]21
+ #_empty_/ApplicativeIdOps#pure().(F)2"
+ (_empty_/Applicative#21
+) *#_empty_/ApplicativeIdOps#pure().[F]21
+. /#_empty_/ApplicativeIdOps#pure().[F]2*
+0 1_empty_/ApplicativeIdOps#[A]2#
+5 8scala/Predef.`???`().2'
+
+
+ _empty_/ApplicativeIdOps.2(
+ _empty_/ApplicativeSyntax.2>
+ (0_empty_/ApplicativeSyntax.syntaxApplicativeId().2A
+) *3_empty_/ApplicativeSyntax.syntaxApplicativeId().[A]2A
+, -3_empty_/ApplicativeSyntax.syntaxApplicativeId().(a)2A
+/ 03_empty_/ApplicativeSyntax.syntaxApplicativeId().[A]2'
+3 C_empty_/ApplicativeIdOps#2A
+D E3_empty_/ApplicativeSyntax.syntaxApplicativeId().[A]22
+` `$_empty_/ApplicativeIdOps#`<init>`().2'
+M ]_empty_/ApplicativeIdOps#2A
+^ _3_empty_/ApplicativeSyntax.syntaxApplicativeId().[A]2A
+a b3_empty_/ApplicativeSyntax.syntaxApplicativeId().(a)2
+ 
+_empty_/Sync#2&
+
+ 
+_empty_/Sync#`<init>`().2
+ _empty_/Sync#[F]2
+ _empty_/Sync.2,
+ _empty_/Sync.syncForOptionT().2/
+ !_empty_/Sync.syncForOptionT().[F]20
+- /"_empty_/Sync.syncForOptionT().(F0)2
+1 5_empty_/Sync#2/
+6 7!_empty_/Sync.syncForOptionT().[F]2
+; ?_empty_/Sync#2/
+A B!_empty_/Sync.syncForOptionT().[X]2
+H O_empty_/OptionT#2/
+P Q!_empty_/Sync.syncForOptionT().[F]2/
+S T!_empty_/Sync.syncForOptionT().[X]2#
+Y \scala/Predef.`???`().2,
+ _empty_/Sync.syncForEitherT().2/
+ !_empty_/Sync.syncForEitherT().[F]2/
+$ %!_empty_/Sync.syncForEitherT().[E]20
+0 2"_empty_/Sync.syncForEitherT().(F0)2
+4 8_empty_/Sync#2/
+9 :!_empty_/Sync.syncForEitherT().[F]2
+> B_empty_/Sync#2/
+D E!_empty_/Sync.syncForEitherT().[X]2
+K R_empty_/EitherT#2/
+S T!_empty_/Sync.syncForEitherT().[F]2/
+V W!_empty_/Sync.syncForEitherT().[E]2/
+Y Z!_empty_/Sync.syncForEitherT().[X]2#
+_ bscala/Predef.`???`().2)
+ _empty_/Sync.syncForIorT().2,
+ _empty_/Sync.syncForIorT().[F]2,
+! "_empty_/Sync.syncForIorT().[L]2-
+- /_empty_/Sync.syncForIorT().(F0)2
+1 5_empty_/Sync#2,
+6 7_empty_/Sync.syncForIorT().[F]2-
+: <_empty_/Sync.syncForIorT().(L0)2 
+> G_empty_/Semigroup#2,
+H I_empty_/Sync.syncForIorT().[L]2
+M Q_empty_/Sync#2,
+S T_empty_/Sync.syncForIorT().[X]2
+Z ^_empty_/IorT#2,
+_ `_empty_/Sync.syncForIorT().[F]2,
+b c_empty_/Sync.syncForIorT().[L]2,
+e f_empty_/Sync.syncForIorT().[X]2#
+k nscala/Predef.`???`().2,
+ _empty_/Sync.syncForWriterT().2/
+ !_empty_/Sync.syncForWriterT().[F]2/
+$ %!_empty_/Sync.syncForWriterT().[L]20
+0 2"_empty_/Sync.syncForWriterT().(F0)2
+4 8_empty_/Sync#2/
+9 :!_empty_/Sync.syncForWriterT().[F]20
+= ?"_empty_/Sync.syncForWriterT().(L0)2
+A G_empty_/Monoid#2/
+H I!_empty_/Sync.syncForWriterT().[L]2
+M Q_empty_/Sync#2/
+S T!_empty_/Sync.syncForWriterT().[X]2
+Z a_empty_/WriterT#2/
+b c!_empty_/Sync.syncForWriterT().[F]2/
+e f!_empty_/Sync.syncForWriterT().[L]2/
+h i!_empty_/Sync.syncForWriterT().[X]2#
+n qscala/Predef.`???`().2,
+ _empty_/Sync.syncForKleisli().2/
+ !_empty_/Sync.syncForKleisli().[F]2/
+$ %!_empty_/Sync.syncForKleisli().[R]20
+0 2"_empty_/Sync.syncForKleisli().(F0)2
+4 8_empty_/Sync#2/
+9 :!_empty_/Sync.syncForKleisli().[F]2
+> B_empty_/Sync#2/
+D E!_empty_/Sync.syncForKleisli().[X]2
+K R_empty_/Kleisli#2/
+S T!_empty_/Sync.syncForKleisli().[F]2/
+V W!_empty_/Sync.syncForKleisli().[R]2/
+Y Z!_empty_/Sync.syncForKleisli().[X]2#
+_ bscala/Predef.`???`().2
+ _empty_/Async#2'
+ _empty_/Async#`<init>`().2
+ _empty_/Sync#2
+  _empty_/Async#[F]2
+ _empty_/Async#[F]2
+ _empty_/Async.2.
+  _empty_/Async.asyncForOptionT().21
+  #_empty_/Async.asyncForOptionT().[F]22
+. 0$_empty_/Async.asyncForOptionT().(F0)2
+2 7_empty_/Async#21
+8 9#_empty_/Async.asyncForOptionT().[F]2
+= B_empty_/Async#21
+D E#_empty_/Async.asyncForOptionT().[X]2
+K R_empty_/OptionT#21
+S T#_empty_/Async.asyncForOptionT().[F]21
+V W#_empty_/Async.asyncForOptionT().[X]2#
+\ _scala/Predef.`???`().2.
+    _empty_/Async.asyncForEitherT().21
+    #_empty_/Async.asyncForEitherT().[F]21
+ %  &#_empty_/Async.asyncForEitherT().[E]22
+ 1  3$_empty_/Async.asyncForEitherT().(F0)2
+ 5  :_empty_/Async#21
+ ;  <#_empty_/Async.asyncForEitherT().[F]2
+ @  E_empty_/Async#21
+ G  H#_empty_/Async.asyncForEitherT().[X]2
+ N  U_empty_/EitherT#21
+ V  W#_empty_/Async.asyncForEitherT().[F]21
+ Y  Z#_empty_/Async.asyncForEitherT().[E]21
+ \  ]#_empty_/Async.asyncForEitherT().[X]2#
+ b  escala/Predef.`???`().2+
+!! _empty_/Async.asyncForIorT().2.
+!!  _empty_/Async.asyncForIorT().[F]2.
+!"! # _empty_/Async.asyncForIorT().[L]2/
+!.! 0!_empty_/Async.asyncForIorT().(F0)2
+!2! 7_empty_/Async#2.
+!8! 9 _empty_/Async.asyncForIorT().[F]2/
+!<! >!_empty_/Async.asyncForIorT().(L0)2 
+!@! I_empty_/Semigroup#2.
+!J! K _empty_/Async.asyncForIorT().[L]2
+!O! T_empty_/Async#2.
+!V! W _empty_/Async.asyncForIorT().[X]2
+!]! a_empty_/IorT#2.
+!b! c _empty_/Async.asyncForIorT().[F]2.
+!e! f _empty_/Async.asyncForIorT().[L]2.
+!h! i _empty_/Async.asyncForIorT().[X]2#
+!n! qscala/Predef.`???`().2.
+""  _empty_/Async.asyncForWriterT().21
+""  #_empty_/Async.asyncForWriterT().[F]21
+"%" &#_empty_/Async.asyncForWriterT().[L]22
+"1" 3$_empty_/Async.asyncForWriterT().(F0)2
+"5" :_empty_/Async#21
+";" <#_empty_/Async.asyncForWriterT().[F]22
+"?" A$_empty_/Async.asyncForWriterT().(L0)2
+"C" I_empty_/Monoid#21
+"J" K#_empty_/Async.asyncForWriterT().[L]2
+"O" T_empty_/Async#21
+"V" W#_empty_/Async.asyncForWriterT().[X]2
+"]" d_empty_/WriterT#21
+"e" f#_empty_/Async.asyncForWriterT().[F]21
+"h" i#_empty_/Async.asyncForWriterT().[L]21
+"k" l#_empty_/Async.asyncForWriterT().[X]2#
+"q" tscala/Predef.`???`().2.
+##  _empty_/Async.asyncForKleisli().21
+##  #_empty_/Async.asyncForKleisli().[F]21
+#%# &#_empty_/Async.asyncForKleisli().[R]22
+#1# 3$_empty_/Async.asyncForKleisli().(F0)2
+#5# :_empty_/Async#21
+#;# <#_empty_/Async.asyncForKleisli().[F]2
+#@# E_empty_/Async#21
+#G# H#_empty_/Async.asyncForKleisli().[X]2
+#N# U_empty_/Kleisli#21
+#V# W#_empty_/Async.asyncForKleisli().[F]21
+#Y# Z#_empty_/Async.asyncForKleisli().[R]21
+#\# ]#_empty_/Async.asyncForKleisli().[X]2#
+#b# escala/Predef.`???`().2!
+&& _empty_/Concurrent#2,
+&& _empty_/Concurrent#`<init>`().2"
+&"& -_empty_/Applicative#2$
+&.& /_empty_/Concurrent#[F]2$
+&& _empty_/Concurrent#[F]2$
+&& _empty_/Concurrent#[E]2
+(( 	_empty_/Ref#2%
+(	( 	_empty_/Ref#`<init>`().2
+(
+( _empty_/Ref#[F]2
+(( _empty_/Ref#[A]2
+** 
+_empty_/Ref.2
+++ _empty_/Ref.Make#2*
+++ _empty_/Ref.Make#`<init>`().2"
+++ _empty_/Ref.Make#[F]2
+,	, _empty_/Ref.Make.2(
+,, #_empty_/Ref.MakeInstances#2(
+.. _empty_/Ref.MakeInstances#23
+.. %_empty_/Ref.MakeInstances#`<init>`().23
+.. 6%_empty_/Ref.MakeLowPriorityInstances#2=
+// #/_empty_/Ref.MakeInstances#concurrentInstance().2@
+/$/ %2_empty_/Ref.MakeInstances#concurrentInstance().[F]2@
+/3/ 42_empty_/Ref.MakeInstances#concurrentInstance().(F)2!
+/6/ @_empty_/Concurrent#2@
+/A/ B2_empty_/Ref.MakeInstances#concurrentInstance().[F]2
+/I/ M_empty_/Ref.Make#2@
+/N/ O2_empty_/Ref.MakeInstances#concurrentInstance().[F]2#
+/S/ Vscala/Predef.`???`().23
+22  %_empty_/Ref.MakeLowPriorityInstances#2>
+33 0_empty_/Ref.MakeLowPriorityInstances#`<init>`().2B
+33 4_empty_/Ref.MakeLowPriorityInstances#syncInstance().2E
+33 7_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]2E
+3-3 .7_empty_/Ref.MakeLowPriorityInstances#syncInstance().(F)2
+303 4_empty_/Sync#2E
+353 67_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]2
+3:3 >_empty_/Ref.Make#2E
+3?3 @7_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]2#
+3D3 Gscala/Predef.`???`().2
+66 _empty_/Ref.of().2"
+6	6 
+_empty_/Ref.of().[F]2"
+66 _empty_/Ref.of().[A]2"
+66 _empty_/Ref.of().(a)2"
+66 _empty_/Ref.of().[A]2#
+6!6 #_empty_/Ref.of().(mk)2
+6%6 )_empty_/Ref.Make#2"
+6*6 +_empty_/Ref.of().[F]2"
+6/6 0_empty_/Ref.of().[F]2
+616 4_empty_/Ref#2"
+656 6_empty_/Ref.of().[F]2"
+686 9_empty_/Ref.of().[A]2#
+6>6 Ascala/Predef.`???`().2
+:: _empty_/Resource#2*
+:: _empty_/Resource#`<init>`().2"
+:: _empty_/Resource#[F]2"
+:: _empty_/Resource#[A]2(
+;	; _empty_/ApplicativeSyntax.22
+== $_empty_/Resource#asyncForResource().25
+= = !'_empty_/Resource#asyncForResource().[F]26
+=/= 1(_empty_/Resource#asyncForResource().(F0)2
+=3= 8_empty_/Async#25
+=9= :'_empty_/Resource#asyncForResource().[F]2
+=>= C_empty_/Async#25
+=E= F'_empty_/Resource#asyncForResource().[X]2
+=L= T_empty_/Resource#25
+=U= V'_empty_/Resource#asyncForResource().[F]25
+=X= Y'_empty_/Resource#asyncForResource().[X]2#
+=^= ascala/Predef.`???`().2(
+?? _empty_/Resource#parZip().2+
+?? _empty_/Resource#parZip().(F)2!
+?? #_empty_/Concurrent#2"
+?$? %_empty_/Resource#[F]2&
+?'? 0scala/package.Throwable#2
+@@ 
+_empty_/Ref.of().2
+@@ _empty_/Ref.2-
+@3@ 5scala/Predef.ArrowAssoc#`->`().2(
+@(@ (scala/Predef.ArrowAssoc().2.
+@+@ / _empty_/ApplicativeIdOps#pure().2>
+@(@ (0_empty_/ApplicativeSyntax.syntaxApplicativeId().2"
+@0@ 1_empty_/Resource#[F]2+
+@2@ 2_empty_/Resource#parZip().(F)2.
+@9@ = _empty_/ApplicativeIdOps#pure().2>
+@6@ 60_empty_/ApplicativeSyntax.syntaxApplicativeId().2"
+@>@ ?_empty_/Resource#[F]2+
+@@@ @_empty_/Resource#parZip().(F)2=
+@A@ A/_empty_/Ref.MakeInstances#concurrentInstance().2+
+@A@ A_empty_/Resource#parZip().(F)PZ 204CE1064A0858D87FE85F98D36A9892

@@ -1,0 +1,28 @@
+
+tests/pos/i6507b.scala*
+_empty_/Test.
+ *Test€*
+local0 €	*a€*
+local1 €	*b€*
+local2 €*x$1€*1
+_empty_/Test.summonValues().*summonValues€*)
+_empty_/Test.summonValues().[T]	*T€2
+ scala/compiletime/2
+ scala/2
+ _empty_/Test.2>
+9 D0scala/compiletime/package$package.erasedValue().2-
+E F_empty_/Test.summonValues().[T]2-
+ scala/Tuple$package.EmptyTuple#2-
+ $scala/Tuple$package.EmptyTuple.2
+ scala/`*:`#2
+ local02
+ local12
+" #local22!
+8 8scala/Tuple#`*:`().2*
+) 5_empty_/Test.summonValues().2
+6 7local12
+" "local22*
+ %_empty_/Test.summonValues().2-
+& '_empty_/Test.summonValues().[T]2
+* /scala/Tuple#2*
+ _empty_/Test.summonValues().PZ 112F38A9DFA5DC18106A9A9106597A69

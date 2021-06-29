@@ -1,0 +1,141 @@
+
+œtests/pos/inf.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€*
+_empty_/Test.f().(x)*x€*
+_empty_/Test.f().(y)*y€*
+_empty_/Test.g().*g€*
+_empty_/Test.g().[T]	*T€*
+_empty_/Test.g().(x)*x€*
+_empty_/Test.g().(y)*y€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€*
+_empty_/Test.xs. €*xs€*
+_empty_/Test.ys. €*ys€*
+_empty_/Test.r1. €*r1€*
+_empty_/Test.s1. €*s1€*
+_empty_/Test.r2. €*r2€*
+_empty_/Test.s2. €*s2€*
+_empty_/Test.r3. €*r3€*
+_empty_/Test.s3. €*s3€*
+_empty_/Test.r4. €*r4€*
+_empty_/Test.s4. €*s4€*
+_empty_/Test.r5. €*r5€*
+_empty_/Test.s5. €*s5€*
+_empty_/Test.r6. €*r6€*
+_empty_/Test.s6. €*s6€*
+_empty_/Test.r7. €*r7€*
+_empty_/Test.s7. €*s7€*
+_empty_/Test.r8. €*r8€*
+_empty_/Test.s8. €*s8€2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2"
+ _empty_/Test.f().(x)2"
+ _empty_/Test.f().[T]2"
+ _empty_/Test.f().(y)2"
+ _empty_/Test.f().[T]2"
+ _empty_/Test.f().[T]2"
+ _empty_/Test.f().(x)2
+ _empty_/Test.g().2"
+ 	_empty_/Test.g().[T]2"
+ _empty_/Test.g().(x)2"
+ _empty_/Test.g().[T]2"
+ _empty_/Test.g().(y)2"
+ _empty_/Test.g().[T]2"
+ _empty_/Test.g().[T]2"
+ _empty_/Test.g().(x)2
+ _empty_/Test.x.2
+	 
+scala/Int#2
+ _empty_/Test.y.2
+	 scala/Long#2#
+ scala/Int.int2long().2
+ _empty_/Test.x.2
+ _empty_/Test.xs.2 
+
+ scala/package.Seq#2
+ 
+scala/Int#2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+ scala/package.Seq.2
+		 _empty_/Test.ys.2(
+	
+	 scala/package.Traversable#2
+		 
+scala/Int#2
+		 _empty_/Test.xs.2
+ _empty_/Test.r1.2
+ _empty_/Test.f().2
+ _empty_/Test.x.2
+ _empty_/Test.y.2
+ _empty_/Test.s1.2
+
+ scala/AnyVal#2
+ _empty_/Test.r1.2
+ _empty_/Test.r2.2
+ _empty_/Test.f().2
+ _empty_/Test.y.2
+ _empty_/Test.x.2
+ _empty_/Test.s2.2
+
+ scala/AnyVal#2
+ _empty_/Test.r2.2
+ _empty_/Test.r3.2
+ _empty_/Test.f().2
+ _empty_/Test.xs.2
+ _empty_/Test.ys.2
+ _empty_/Test.s3.2(
+
+ scala/package.Traversable#2
+ 
+scala/Int#2
+ _empty_/Test.r3.2
+ _empty_/Test.r4.2
+ _empty_/Test.f().2
+ _empty_/Test.ys.2
+ _empty_/Test.xs.2
+ _empty_/Test.s4.2(
+
+ scala/package.Traversable#2
+ 
+scala/Int#2
+ _empty_/Test.r4.2
+ _empty_/Test.r5.2
+ _empty_/Test.g().2
+ _empty_/Test.x.2
+ _empty_/Test.y.2
+ _empty_/Test.s5.2
+
+ scala/AnyVal#2
+ _empty_/Test.r5.2
+ _empty_/Test.r6.2
+ _empty_/Test.g().2
+ _empty_/Test.y.2
+ _empty_/Test.x.2
+ _empty_/Test.s6.2
+
+ scala/AnyVal#2
+ _empty_/Test.r6.2
+ _empty_/Test.r7.2
+ _empty_/Test.g().2
+ _empty_/Test.xs.2
+ _empty_/Test.ys.2
+ _empty_/Test.s7.2(
+
+ scala/package.Traversable#2
+ 
+scala/Int#2
+ _empty_/Test.r7.2
+ _empty_/Test.r8.2
+ _empty_/Test.g().2
+ _empty_/Test.ys.2
+ _empty_/Test.xs.2
+ _empty_/Test.s8.2(
+
+ scala/package.Traversable#2
+ 
+scala/Int#2
+ _empty_/Test.r8.PZ B6D8770249E021F5EE2DF0C018BBE092

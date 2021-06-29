@@ -1,0 +1,195 @@
+
+Ð-tests/pos/single-unions.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.x1. €*x1€*
+_empty_/A.x2. €*x2€*
+_empty_/A.x3. €*x3€*
+_empty_/Test1.
+ *Test1€*$
+_empty_/Test1.Fence# *Fence€*1
+_empty_/Test1.Fence#`<init>`(). €@*<init>€*$
+_empty_/Test1.Fence#[T]	 €*T€*$
+_empty_/Test1.Fence#[S]	 €*S€*!
+_empty_/Test1.End.
+ ˆ*End€*#
+_empty_/Test1.Post# €*Post€*0
+_empty_/Test1.Post#`<init>`(). €@*<init>€*6
+%_empty_/Test1.Post#`<init>`().(value) €*value€*4
+$_empty_/Test1.Post#`<init>`().(next) €*next€*#
+_empty_/Test1.Post#[T]	 €*T€*#
+_empty_/Test1.Post#[S]	 €*S€**
+_empty_/Test1.Post#value. €*value€*(
+_empty_/Test1.Post#next. €*next€*'
+_empty_/Test1.Post#copy().*copy€*'
+_empty_/Test1.Post#copy().[T]	*T€*'
+_empty_/Test1.Post#copy().[S]	*S€*/
+!_empty_/Test1.Post#copy().(value)*value€*-
+ _empty_/Test1.Post#copy().(next)*next€*;
+$_empty_/Test1.Post#copy$default$1().*copy$default$1€*1
+'_empty_/Test1.Post#copy$default$1().[T]	*T€*1
+'_empty_/Test1.Post#copy$default$1().[S]	*S€*;
+$_empty_/Test1.Post#copy$default$2().*copy$default$2€*1
+'_empty_/Test1.Post#copy$default$2().[T]	*T€*1
+'_empty_/Test1.Post#copy$default$2().[S]	*S€*#
+_empty_/Test1.Post#_1().*_1€*#
+_empty_/Test1.Post#_2().*_2€*"
+_empty_/Test1.Post.
+ *Post€*)
+_empty_/Test1.Post.apply().*apply€*(
+_empty_/Test1.Post.apply().[T]	*T€*(
+_empty_/Test1.Post.apply().[S]	*S€*0
+"_empty_/Test1.Post.apply().(value)*value€*.
+!_empty_/Test1.Post.apply().(next)*next€*-
+_empty_/Test1.Post.unapply().*unapply€**
+ _empty_/Test1.Post.unapply().[T]	*T€**
+ _empty_/Test1.Post.unapply().[S]	*S€*.
+"_empty_/Test1.Post.unapply().(x$1)*x$1€*/
+_empty_/Test1.Post.toString().*toString€*%
+_empty_/Test1.Panel# €*Panel€*1
+_empty_/Test1.Panel#`<init>`(). €@*<init>€*7
+&_empty_/Test1.Panel#`<init>`().(value) €*value€*5
+%_empty_/Test1.Panel#`<init>`().(next) €*next€*$
+_empty_/Test1.Panel#[T]	 €*T€*$
+_empty_/Test1.Panel#[S]	 €*S€*+
+_empty_/Test1.Panel#value. €*value€*)
+_empty_/Test1.Panel#next. €*next€*(
+_empty_/Test1.Panel#copy().*copy€*(
+_empty_/Test1.Panel#copy().[T]	*T€*(
+_empty_/Test1.Panel#copy().[S]	*S€*0
+"_empty_/Test1.Panel#copy().(value)*value€*.
+!_empty_/Test1.Panel#copy().(next)*next€*<
+%_empty_/Test1.Panel#copy$default$1().*copy$default$1€*2
+(_empty_/Test1.Panel#copy$default$1().[T]	*T€*2
+(_empty_/Test1.Panel#copy$default$1().[S]	*S€*<
+%_empty_/Test1.Panel#copy$default$2().*copy$default$2€*2
+(_empty_/Test1.Panel#copy$default$2().[T]	*T€*2
+(_empty_/Test1.Panel#copy$default$2().[S]	*S€*$
+_empty_/Test1.Panel#_1().*_1€*$
+_empty_/Test1.Panel#_2().*_2€*$
+_empty_/Test1.Panel.
+ *Panel€**
+_empty_/Test1.Panel.apply().*apply€*)
+_empty_/Test1.Panel.apply().[T]	*T€*)
+_empty_/Test1.Panel.apply().[S]	*S€*1
+#_empty_/Test1.Panel.apply().(value)*value€*/
+"_empty_/Test1.Panel.apply().(next)*next€*.
+_empty_/Test1.Panel.unapply().*unapply€*+
+!_empty_/Test1.Panel.unapply().[T]	*T€*+
+!_empty_/Test1.Panel.unapply().[S]	*S€*/
+#_empty_/Test1.Panel.unapply().(x$1)*x$1€*0
+_empty_/Test1.Panel.toString().*toString€*%
+_empty_/Test1.fence. €*fence€2
+ 
+_empty_/A.2
+ _empty_/A.x1.2
+ 
+scala/`|`#2
+ _empty_/A.x2.2
+ 
+scala/`|`#2
+ _empty_/A.x3.2
+ 
+scala/`|`#2#
+ scala/Predef.`???`().2
+ _empty_/Test1.2"
+ _empty_/Test1.Fence#2-
+ _empty_/Test1.Fence#`<init>`().2%
+ _empty_/Test1.Fence#[T]2%
+ _empty_/Test1.Fence#[S]2 
+		 _empty_/Test1.End.2"
+		 _empty_/Test1.Fence#2
+	 	 'scala/Nothing#2
+	)	 0scala/Nothing#2!
+
+
+ _empty_/Test1.Post#2,
+
+
+ _empty_/Test1.Post#`<init>`().2$
+
+!
+ "_empty_/Test1.Post#[T]2
+
+6
+ 7
+scala/`|`#2"
+
+*
+ /_empty_/Test1.Panel#2$
+
+0
+ 1_empty_/Test1.Post#[T]2$
+
+3
+ 4_empty_/Test1.Post#[S]2 
+
+8
+ ;_empty_/Test1.End.2"
+
+J
+ O_empty_/Test1.Fence#2$
+
+P
+ Q_empty_/Test1.Post#[T]2$
+
+S
+ T_empty_/Test1.Post#[S]2$
+
+
+ _empty_/Test1.Post#[T]2$
+
+
+ _empty_/Test1.Post#[S]2'
+
+
+ _empty_/Test1.Post#value.2&
+
+$
+ (_empty_/Test1.Post#next.2(
+
+
+ _empty_/Test1.Post#copy().2&
+
+!
+ !_empty_/Test1.Post#_1().2&
+
+*
+ *_empty_/Test1.Post#_2().2!
+
+
+ _empty_/Test1.Post.2)
+
+
+ _empty_/Test1.Post.apply().2+
+
+
+ _empty_/Test1.Post.unapply().2"
+ _empty_/Test1.Panel#2-
+ _empty_/Test1.Panel#`<init>`().2%
+" #_empty_/Test1.Panel#[S]2!
++ /_empty_/Test1.Post#2%
+0 1_empty_/Test1.Panel#[T]2%
+3 4_empty_/Test1.Panel#[S]2"
+? D_empty_/Test1.Fence#2%
+E F_empty_/Test1.Panel#[T]2%
+H I_empty_/Test1.Panel#[S]2%
+ _empty_/Test1.Panel#[T]2%
+ _empty_/Test1.Panel#[S]2(
+  _empty_/Test1.Panel#value.2'
+% )_empty_/Test1.Panel#next.2)
+ _empty_/Test1.Panel#copy().2'
+" "_empty_/Test1.Panel#_1().2'
++ +_empty_/Test1.Panel#_2().2"
+ _empty_/Test1.Panel.2*
+ _empty_/Test1.Panel.apply().2,
+ _empty_/Test1.Panel.unapply().2"
+ _empty_/Test1.fence.2)
+ _empty_/Test1.Post.apply().2!
+ _empty_/Test1.Post.2*
+ _empty_/Test1.Panel.apply().2"
+ _empty_/Test1.Panel.2)
+' '_empty_/Test1.Post.apply().2!
+# '_empty_/Test1.Post.2 
++ ._empty_/Test1.End.PZ B438497721299C12FE2E35E0664BFE4F

@@ -1,0 +1,31 @@
+
+åtests/pos/t122.scala*
+
+_empty_/L#*L€*'
+_empty_/L#`<init>`(). €@*<init>€*
+_empty_/L#v. €*v€*
+_empty_/L#a. €*a€*
+_empty_/L#b. €*b€2
+ 
+_empty_/L#2#
+ _empty_/L#`<init>`().2
+ _empty_/L#v.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+  _empty_/L#v.2
+! $
+scala/Int#27
+
+ 
+)scala/collection/SeqFactory#unapplySeq().2!
+ 
+scala/package.List.2#
+ scala/Tuple2.apply().2
+ _empty_/L#a.2%
+ scala/Tuple2.unapply().2
+ _empty_/L#a.2
+	 
+scala/Int#2
+ _empty_/L#b.2
+ 
+scala/Int#PZ 5D277886122F836D488FB91A620DEF92

@@ -1,0 +1,92 @@
+
+Útests/pos/i5773a.scala*$
+_empty_/Semigroup#*	Semigroup€*/
+_empty_/Semigroup#`<init>`(). €@*<init>€*
+_empty_/Semigroup#[T]	*T€*.
+_empty_/Semigroup#combine(). *combine€*)
+_empty_/Semigroup#combine().(x)*x€*)
+_empty_/Semigroup#combine().(y)*y€*
+_empty_/Test.
+ *Test€*2
+_empty_/Test.IntSemigroup.  *IntSemigroup€*
+local0 *$anon€*
+local1*combine€*
+local2*x€*
+local3*y€*9
+_empty_/Test.OptionSemigroup().  *OptionSemigroup€*,
+"_empty_/Test.OptionSemigroup().[T]	*T€*
+local4 *$anon€*
+local5*combine€*
+local6*x€*
+local7*y€*
+local8*x0€*
+local9*y0€2
+ _empty_/Semigroup#2'
+ _empty_/Semigroup#`<init>`().2
+ _empty_/Semigroup#[T]2*
+ _empty_/Semigroup#combine().2-
+ _empty_/Semigroup#combine().(x)2#
+ _empty_/Semigroup#[T]2-
+  _empty_/Semigroup#combine().(y)2#
+" #_empty_/Semigroup#[T]2#
+& '_empty_/Semigroup#[T]2
+ _empty_/Test.2(
+ _empty_/Test.IntSemigroup.2 
+ &_empty_/Semigroup#2
+' *
+scala/Int#2
+. .local02
+ "local12
+ local22
+ 
+scala/Int#2
+# $local32
+& )
+scala/Int#2
+, /
+scala/Int#2 
+4 5scala/Int#`+`(+4).2
+2 3local22
+6 7local32-
+ _empty_/Test.OptionSemigroup().20
+  "_empty_/Test.OptionSemigroup().[T]2 
+" +_empty_/Semigroup#20
++ +"_empty_/Test.OptionSemigroup().[T]2 
+. 7_empty_/Semigroup#2
+8 >scala/Option#20
+? @"_empty_/Test.OptionSemigroup().[T]2
+E Elocal42
+! (local52
+ local62
+ scala/Option#20
+ "_empty_/Test.OptionSemigroup().[T]2
+) *local72
+, 2scala/Option#20
+3 4"_empty_/Test.OptionSemigroup().[T]2
+8 >scala/Option#20
+? @"_empty_/Test.OptionSemigroup().[T]2%
+		 scala/Option#flatMap().2
+		 local62
+		 local82!
+
+
+ scala/Option#map().2
+
+
+ local72
+
+
+ local92
+ local82
+ local92*
+ _empty_/Semigroup#combine().2*
+ _empty_/Semigroup#combine().2!
+ scala/Some.apply().2
+ scala/Some.2!
+ scala/Some.apply().2
+ scala/Some.2*
+ _empty_/Semigroup#combine().2#
+ scala/Option.apply().2
+ scala/Option.2#
+ scala/Option.apply().2
+ scala/Option.PZ 24D62DAAE08ABBE59DEF12688D808CB5

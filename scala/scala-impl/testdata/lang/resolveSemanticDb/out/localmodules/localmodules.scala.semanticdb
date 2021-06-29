@@ -1,0 +1,65 @@
+
+¡tests/pos/localmodules.scala*
+test/_main.
+ *_main€*
+test/_main.a#*a€**
+test/_main.a#`<init>`(). €@*<init>€*
+test/_main.a#b.
+ *b€*
+test/_main.a#b.c#*c€*.
+test/_main.a#b.c#`<init>`(). €@*<init>€*!
+test/_main.a#b.foo().*foo€*"
+test/_main.a#b.foo().(x)*x€*
+test/_main.a#bar().*bar€* 
+test/_main.a#bar().(x)*x€*
+test/_main.main().*main€*%
+test/_main.main().(args)*args€*
+local0 €*aa€*
+local1 €*xx€2
+ test/2
+ test/_main.2
+ 	test/_main.a#2&
+ test/_main.a#`<init>`().2
+ test/_main.a#b.2
+ test/_main.a#b.c#2*
+ test/_main.a#b.c#`<init>`().2#
+	
+	 test/_main.a#b.foo().2&
+		 test/_main.a#b.foo().(x)2
+		 test/_main.a#b.c#2
+		 test/_main.a#b.c#2(
+	#	 *scala/Console.println(+1).2
+		 "scala/Console.2%
+	6	 7java/lang/String#`+`().2%
+	2	 3java/lang/String#`+`().2&
+	4	 5test/_main.a#b.foo().(x)2&
+	>	 ?test/_main.a#b.foo().(x)2!
+ test/_main.a#bar().2$
+ test/_main.a#bar().(x)2
+ test/_main.a#b.c#2
+ test/_main.a#b.2
+ test/_main.a#b.c#2
+ test/_main.a#b.2#
+& )test/_main.a#b.foo().2
+$ %test/_main.a#b.2$
+* +test/_main.a#bar().(x)2$
+. /test/_main.a#bar().(x)2 
+ 
+test/_main.main().2&
+ test/_main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+ 
+local02&
+ test/_main.a#`<init>`().2
+ test/_main.a#2
+ 
+local12
+ test/_main.a#b.c#2
+ test/_main.a#b.2
+ local02(
+ scala/Console.println(+1).2
+ scala/Console.2!
+ test/_main.a#bar().2
+ local02
+ local1PZ 8FA71EC74FF014B1C101D07610A07B22

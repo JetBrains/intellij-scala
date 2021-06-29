@@ -1,0 +1,33 @@
+
+átests/pos/local-signature.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#bn().*bn€*
+_empty_/A#bn().(x)*x€*
+_empty_/A#foo().*foo€*
+local0*A€*
+local1*foo€*
+local2*x€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#bn().2 
+	 
+_empty_/A#bn().(x)2
+ 
+scala/Any#2
+ 
+scala/Any#2 
+ _empty_/A#bn().(x)2
+ 	_empty_/A#foo().2
+ scala/Unit#2
+ _empty_/A#bn().2
+ local02
+
+ local12
+ local22
+ local02
+ scala/Unit#2
+ 	local12
+ local0PZ A97765838BCA5BCD68473348E868DBE4

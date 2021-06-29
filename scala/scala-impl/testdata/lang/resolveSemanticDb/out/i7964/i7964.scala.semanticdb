@@ -1,0 +1,53 @@
+
+¿tests/pos/i7964.scala*
+_empty_/Nums# ”€*Nums€**
+_empty_/Nums#`<init>`(). €@*<init>€*
+_empty_/Nums.
+ *Nums€*!
+_empty_/Nums.One. €©*One€*!
+_empty_/Nums.Two. €©*Two€*(
+_empty_/Nums.$values. €*$values€*%
+_empty_/Nums.values().*values€*'
+_empty_/Nums.valueOf().*valueOf€*,
+_empty_/Nums.valueOf().($name)*$name€*!
+_empty_/Nums.$new().*$new€*1
+_empty_/Nums.$new().(_$ordinal)*	_$ordinal€*)
+_empty_/Nums.$new().($name)*$name€*/
+_empty_/Nums.fromOrdinal().*fromOrdinal€*4
+$_empty_/Nums.fromOrdinal().(ordinal)*ordinal€*(
+_empty_/i7964$package. *_empty_€*(
+_empty_/i7964$package.fok().*fok€*/
+"_empty_/i7964$package.fok().(that)*that€*'
+_empty_/i7964$package.ok. €*ok€*(
+_empty_/i7964$package.fko().*fko€*/
+"_empty_/i7964$package.fko().(that)*that€*'
+_empty_/i7964$package.ko. €*ko€2
+ 	_empty_/Nums#2"
+ _empty_/Nums#`<init>`().2
+ _empty_/Nums.2
+ _empty_/Nums.One.2
+ _empty_/Nums.Two.2
+ _empty_/Nums.$values.2 
+ _empty_/Nums.values().2!
+ _empty_/Nums.valueOf().2
+ _empty_/Nums.$new().2%
+ _empty_/Nums.fromOrdinal().2 
+_empty_/i7964$package.2*
+ _empty_/i7964$package.fok().20
+ "_empty_/i7964$package.fok().(that)2
+ _empty_/Nums#2#
+ scala/Predef.`???`().2'
+ _empty_/i7964$package.ok.2*
+	 _empty_/i7964$package.fok().2
+ _empty_/Nums.One.2
+ _empty_/Nums.2*
+ _empty_/i7964$package.fko().20
+ "_empty_/i7964$package.fko().(that)2
+  _empty_/Nums#20
++ /"_empty_/i7964$package.fko().(that)2
+ _empty_/Nums.One.2
+ _empty_/Nums.2'
+ _empty_/i7964$package.ko.2*
+	 _empty_/i7964$package.fko().2
+ _empty_/Nums.One.2
+ _empty_/Nums.PZ 4AA99AB6946D6487857556E086171FF9

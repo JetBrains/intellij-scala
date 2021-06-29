@@ -1,0 +1,298 @@
+
+¢Ztests/pos/i6635.scala*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.ExprBase# *ExprBase€*3
+!_empty_/Test.ExprBase#`<init>`(). €@*<init>€*
+local0*s€*"
+_empty_/Test.ExprBase#A#*A€*
+_empty_/Test.Lit# *Lit€*.
+_empty_/Test.Lit#`<init>`(). €@*<init>€*
+local1*s€*
+_empty_/Test.Lit#A#*A€* 
+_empty_/Test.Lit#n. „*n€*!
+_empty_/Test.LitU# *LitU€*/
+_empty_/Test.LitU#`<init>`(). €@*<init>€*
+local2*s€*
+_empty_/Test.LitU#A#*A€*!
+_empty_/Test.LitU#n. „*n€*!
+_empty_/Test.LitL# *LitL€*/
+_empty_/Test.LitL#`<init>`(). €@*<init>€*
+local3*s€*
+_empty_/Test.LitL#A#*A€*!
+_empty_/Test.LitL#n. „*n€*+
+_empty_/Test.castTest1().*	castTest1€*(
+_empty_/Test.castTest1().(e1)*e1€*(
+_empty_/Test.castTest1().(e2)*e2€*&
+_empty_/Test.castTest1().(x)*x€*+
+_empty_/Test.castTest2().*	castTest2€*(
+_empty_/Test.castTest2().(e1)*e1€*
+local4*A€*(
+_empty_/Test.castTest2().(e2)*e2€*&
+_empty_/Test.castTest2().(x)*x€*+
+_empty_/Test.castTest3().*	castTest3€*(
+_empty_/Test.castTest3().(e1)*e1€*(
+_empty_/Test.castTest3().(e2)*e2€*&
+_empty_/Test.castTest3().(x)*x€*+
+_empty_/Test.castTest4().*	castTest4€*(
+_empty_/Test.castTest4().(e1)*e1€*
+local5*A€*(
+_empty_/Test.castTest4().(e2)*e2€*&
+_empty_/Test.castTest4().(x)*x€*-
+_empty_/Test.castTest5a().*
+castTest5a€*)
+_empty_/Test.castTest5a().(e1)*e1€*)
+_empty_/Test.castTest5a().(e2)*e2€*'
+_empty_/Test.castTest5a().(x)*x€*-
+_empty_/Test.castTest5b().*
+castTest5b€*)
+_empty_/Test.castTest5b().(e1)*e1€*)
+_empty_/Test.castTest5b().(e2)*e2€*'
+_empty_/Test.castTest5b().(x)*x€*3
+_empty_/Test.castTestFail1().*castTestFail1€*,
+!_empty_/Test.castTestFail1().(e1)*e1€*,
+!_empty_/Test.castTestFail1().(e2)*e2€**
+ _empty_/Test.castTestFail1().(x)*x€*5
+_empty_/Test.castTestFail2a().*castTestFail2a€*-
+"_empty_/Test.castTestFail2a().(e1)*e1€*-
+"_empty_/Test.castTestFail2a().(e2)*e2€*+
+!_empty_/Test.castTestFail2a().(x)*x€*5
+_empty_/Test.castTestFail2b().*castTestFail2b€*-
+"_empty_/Test.castTestFail2b().(e1)*e1€*-
+"_empty_/Test.castTestFail2b().(e2)*e2€*+
+!_empty_/Test.castTestFail2b().(x)*x€*5
+_empty_/Test.castTestFail2c().*castTestFail2c€*-
+"_empty_/Test.castTestFail2c().(e1)*e1€*-
+"_empty_/Test.castTestFail2c().(e2)*e2€*+
+!_empty_/Test.castTestFail2c().(x)*x€*=
+"_empty_/Test.castTestFail2bFlip().*castTestFail2bFlip€*1
+&_empty_/Test.castTestFail2bFlip().(e1)*e1€*1
+&_empty_/Test.castTestFail2bFlip().(e2)*e2€*/
+%_empty_/Test.castTestFail2bFlip().(x)*x€*=
+"_empty_/Test.castTestFail2cFlip().*castTestFail2cFlip€*1
+&_empty_/Test.castTestFail2cFlip().(e1)*e1€*1
+&_empty_/Test.castTestFail2cFlip().(e2)*e2€*/
+%_empty_/Test.castTestFail2cFlip().(x)*x€*3
+_empty_/Test.castTestFail3().*castTestFail3€*,
+!_empty_/Test.castTestFail3().(e1)*e1€*,
+!_empty_/Test.castTestFail3().(e2)*e2€**
+ _empty_/Test.castTestFail3().(x)*x€*
+local6 €*y€*
+local7 €*z€2
+ _empty_/Test.2$
+ _empty_/Test.ExprBase#2/
+ !_empty_/Test.ExprBase#`<init>`().2
+ local02&
+	 
+_empty_/Test.ExprBase#A#2
+ _empty_/Test.Lit#2*
+ _empty_/Test.Lit#`<init>`().2/
+% %!_empty_/Test.ExprBase#`<init>`().2$
+ %_empty_/Test.ExprBase#2
+( )local12!
+	 
+_empty_/Test.Lit#A#2
+ 
+scala/Int#2!
+ 	_empty_/Test.Lit#n.2!
+ _empty_/Test.Lit#A#2 
+
+
+ _empty_/Test.LitU#2+
+
+
+ _empty_/Test.LitU#`<init>`().2/
+
+&
+ &!_empty_/Test.ExprBase#`<init>`().2$
+
+
+ &_empty_/Test.ExprBase#2
+
+)
+ *local22"
+	 
+_empty_/Test.LitU#A#2
+ 
+scala/Int#2"
+ 	_empty_/Test.LitU#n.2"
+ _empty_/Test.LitU#A#2 
+ _empty_/Test.LitL#2+
+ _empty_/Test.LitL#`<init>`().2/
+& &!_empty_/Test.ExprBase#`<init>`().2$
+ &_empty_/Test.ExprBase#2
+) *local32"
+	 
+_empty_/Test.LitL#A#2
+ 
+scala/Int#2"
+ 	_empty_/Test.LitL#n.2"
+ _empty_/Test.LitL#A#2'
+ _empty_/Test.castTest1().2+
+ _empty_/Test.castTest1().(e1)2$
+ _empty_/Test.ExprBase#2+
+  _empty_/Test.castTest1().(e2)2+
+" $_empty_/Test.castTest1().(e1)2*
++ ,_empty_/Test.castTest1().(x)2&
+1 2_empty_/Test.ExprBase#A#2+
+. 0_empty_/Test.castTest1().(e1)2&
+8 9_empty_/Test.ExprBase#A#2+
+5 7_empty_/Test.castTest1().(e2)2*
+< =_empty_/Test.castTest1().(x)2'
+ _empty_/Test.castTest2().2+
+ _empty_/Test.castTest2().(e1)2$
+ _empty_/Test.ExprBase#2
+$ %local42
+( +
+scala/Int#2+
+/ 1_empty_/Test.castTest2().(e2)2+
+3 5_empty_/Test.castTest2().(e1)2*
+< =_empty_/Test.castTest2().(x)2&
+B C_empty_/Test.ExprBase#A#2+
+? A_empty_/Test.castTest2().(e1)2&
+I J_empty_/Test.ExprBase#A#2+
+F H_empty_/Test.castTest2().(e2)2*
+M N_empty_/Test.castTest2().(x)2'
+ _empty_/Test.castTest3().2+
+ _empty_/Test.castTest3().(e1)2$
+ _empty_/Test.ExprBase#2+
+  _empty_/Test.castTest3().(e2)2$
+" *_empty_/Test.ExprBase#2+
+0 2_empty_/Test.castTest3().(e1)2*
+9 :_empty_/Test.castTest3().(x)2&
+? @_empty_/Test.ExprBase#A#2+
+< >_empty_/Test.castTest3().(e2)2&
+F G_empty_/Test.ExprBase#A#2+
+C E_empty_/Test.castTest3().(e1)2*
+J K_empty_/Test.castTest3().(x)2'
+ _empty_/Test.castTest4().2+
+ _empty_/Test.castTest4().(e1)2$
+ _empty_/Test.ExprBase#2
+$ %local52
+( +
+scala/Int#2+
+/ 1_empty_/Test.castTest4().(e2)2$
+3 ;_empty_/Test.ExprBase#2+
+A C_empty_/Test.castTest4().(e1)2*
+J K_empty_/Test.castTest4().(x)2&
+P Q_empty_/Test.ExprBase#A#2+
+M O_empty_/Test.castTest4().(e2)2&
+W X_empty_/Test.ExprBase#A#2+
+T V_empty_/Test.castTest4().(e1)2*
+[ \_empty_/Test.castTest4().(x)2(
+ _empty_/Test.castTest5a().2,
+ _empty_/Test.castTest5a().(e1)2$
+ _empty_/Test.ExprBase#2,
+ !_empty_/Test.castTest5a().(e2)2 
+# '_empty_/Test.LitU#2,
+- /_empty_/Test.castTest5a().(e1)2+
+6 7_empty_/Test.castTest5a().(x)2"
+< =_empty_/Test.LitU#A#2,
+9 ;_empty_/Test.castTest5a().(e2)2&
+C D_empty_/Test.ExprBase#A#2,
+@ B_empty_/Test.castTest5a().(e1)2+
+G H_empty_/Test.castTest5a().(x)2(
+ _empty_/Test.castTest5b().2,
+ _empty_/Test.castTest5b().(e1)2$
+ _empty_/Test.ExprBase#2,
+ !_empty_/Test.castTest5b().(e2)2 
+# '_empty_/Test.LitL#2,
+- /_empty_/Test.castTest5b().(e1)2+
+6 7_empty_/Test.castTest5b().(x)2"
+< =_empty_/Test.LitL#A#2,
+9 ;_empty_/Test.castTest5b().(e2)2&
+C D_empty_/Test.ExprBase#A#2,
+@ B_empty_/Test.castTest5b().(e1)2+
+G H_empty_/Test.castTest5b().(x)2+
+ _empty_/Test.castTestFail1().2/
+ !_empty_/Test.castTestFail1().(e1)2$
+  _empty_/Test.ExprBase#2/
+" $!_empty_/Test.castTestFail1().(e2)2
+& )_empty_/Test.Lit#2/
+/ 1!_empty_/Test.castTestFail1().(e1)2.
+8 9 _empty_/Test.castTestFail1().(x)2!
+> ?_empty_/Test.Lit#A#2/
+; =!_empty_/Test.castTestFail1().(e2)2&
+E F_empty_/Test.ExprBase#A#2/
+B D!_empty_/Test.castTestFail1().(e1)2.
+I J _empty_/Test.castTestFail1().(x)2,
+   _empty_/Test.castTestFail2a().20
+   "_empty_/Test.castTestFail2a().(e1)2$
+   !_empty_/Test.ExprBase#20
+ #  %"_empty_/Test.castTestFail2a().(e2)2
+ '  *_empty_/Test.Lit#20
+ 0  2"_empty_/Test.castTestFail2a().(e1)2/
+ 9  :!_empty_/Test.castTestFail2a().(x)2&
+ ?  @_empty_/Test.ExprBase#A#20
+ <  >"_empty_/Test.castTestFail2a().(e1)2!
+ F  G_empty_/Test.Lit#A#20
+ C  E"_empty_/Test.castTestFail2a().(e2)2/
+ J  K!_empty_/Test.castTestFail2a().(x)2,
+!! _empty_/Test.castTestFail2b().20
+!! "_empty_/Test.castTestFail2b().(e1)2$
+!! !_empty_/Test.ExprBase#20
+!#! %"_empty_/Test.castTestFail2b().(e2)2 
+!'! +_empty_/Test.LitL#20
+!1! 3"_empty_/Test.castTestFail2b().(e1)2/
+!:! ;!_empty_/Test.castTestFail2b().(x)2&
+!@! A_empty_/Test.ExprBase#A#20
+!=! ?"_empty_/Test.castTestFail2b().(e1)2"
+!G! H_empty_/Test.LitL#A#20
+!D! F"_empty_/Test.castTestFail2b().(e2)2/
+!K! L!_empty_/Test.castTestFail2b().(x)2,
+"" _empty_/Test.castTestFail2c().20
+"" "_empty_/Test.castTestFail2c().(e1)2$
+"" !_empty_/Test.ExprBase#20
+"#" %"_empty_/Test.castTestFail2c().(e2)2 
+"'" +_empty_/Test.LitU#20
+"1" 3"_empty_/Test.castTestFail2c().(e1)2/
+":" ;!_empty_/Test.castTestFail2c().(x)2&
+"@" A_empty_/Test.ExprBase#A#20
+"=" ?"_empty_/Test.castTestFail2c().(e1)2"
+"G" H_empty_/Test.LitU#A#20
+"D" F"_empty_/Test.castTestFail2c().(e2)2/
+"K" L!_empty_/Test.castTestFail2c().(x)20
+%% "_empty_/Test.castTestFail2bFlip().24
+%% &_empty_/Test.castTestFail2bFlip().(e1)2$
+%% %_empty_/Test.ExprBase#24
+%'% )&_empty_/Test.castTestFail2bFlip().(e2)24
+%+% -&_empty_/Test.castTestFail2bFlip().(e1)2 
+%8% <_empty_/Test.LitL#23
+%>% ?%_empty_/Test.castTestFail2bFlip().(x)2&
+%D% E_empty_/Test.ExprBase#A#24
+%A% C&_empty_/Test.castTestFail2bFlip().(e1)2"
+%K% L_empty_/Test.LitL#A#24
+%H% J&_empty_/Test.castTestFail2bFlip().(e2)23
+%O% P%_empty_/Test.castTestFail2bFlip().(x)20
+&& "_empty_/Test.castTestFail2cFlip().24
+&& &_empty_/Test.castTestFail2cFlip().(e1)2$
+&& %_empty_/Test.ExprBase#24
+&'& )&_empty_/Test.castTestFail2cFlip().(e2)24
+&+& -&_empty_/Test.castTestFail2cFlip().(e1)2 
+&8& <_empty_/Test.LitU#23
+&>& ?%_empty_/Test.castTestFail2cFlip().(x)2&
+&D& E_empty_/Test.ExprBase#A#24
+&A& C&_empty_/Test.castTestFail2cFlip().(e1)2"
+&K& L_empty_/Test.LitU#A#24
+&H& J&_empty_/Test.castTestFail2cFlip().(e2)23
+&O& P%_empty_/Test.castTestFail2cFlip().(x)2+
+(( _empty_/Test.castTestFail3().2/
+(( !_empty_/Test.castTestFail3().(e1)2$
+((  _empty_/Test.ExprBase#2/
+("( $!_empty_/Test.castTestFail3().(e2)2
+(&( )_empty_/Test.Lit#2/
+(/( 1!_empty_/Test.castTestFail3().(e1)2.
+(8( 9 _empty_/Test.castTestFail3().(x)2&
+(>( ?_empty_/Test.ExprBase#A#2/
+(;( =!_empty_/Test.castTestFail3().(e1)2!
+(E( F_empty_/Test.Lit#A#2/
+(B( D!_empty_/Test.castTestFail3().(e2)2
+)) 	local62/
+)) !_empty_/Test.castTestFail3().(e1)2/
+)) !_empty_/Test.castTestFail3().(e2)2/
+)") $!_empty_/Test.castTestFail3().(e2)2
+** 	local72.
+**  _empty_/Test.castTestFail3().(x)2!
+** _empty_/Test.Lit#A#2
+** local62
+++ local7PZ D8C77653E5AD77059970641C5A9FB2C0

@@ -1,0 +1,67 @@
+
+ätests/pos/spec-simple.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo#v(). €*v€*#
+_empty_/Foo#`v_=`(). €*v_=€*%
+_empty_/Foo#`v_=`().(x$1)*x$1€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().(x)*x€*
+_empty_/Foo#Bar#*Bar€*-
+_empty_/Foo#Bar#`<init>`(). €@*<init>€*
+_empty_/Foo#Bar#[U]	*U€*"
+_empty_/Foo#Bar#bar().*bar€*#
+_empty_/Foo#Bar#bar().(x)*x€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#test().*test€*
+local0 €*a€*
+local1 €*b€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ scala/specialized#2
+ _empty_/Foo#[T]2
+ _empty_/Foo#v().2
+	 
+_empty_/Foo#[T]2@
+ &2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2"
+ 	_empty_/Foo#`v_=`().2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().(x)2
+ _empty_/Foo#[T]2
+ _empty_/Foo#[T]2#
+ _empty_/Foo#foo().(x)2'
+ 	scala/Predef.println(+1).2
+ _empty_/Foo#Bar#2)
+ _empty_/Foo#Bar#`<init>`().2 
+ scala/specialized#2!
+ _empty_/Foo#Bar#[U]2$
+ _empty_/Foo#Bar#bar().2'
+ _empty_/Foo#Bar#bar().(x)2!
+ _empty_/Foo#Bar#[U]2
+ _empty_/Foo#[T]2
+ _empty_/Foo#v().2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ 
+_empty_/Test#test().2
+ scala/Unit#2
+ 	local02%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+ 	local12)
+ _empty_/Foo#Bar#`<init>`().2
+ _empty_/Foo#Bar#2
+ local02
+ 
+scala/Int#2 
+ 	_empty_/Foo#foo().2
+ local02$
+ 	_empty_/Foo#Bar#bar().2
+ local1PZ CCF879E3D4802A65064CC787435D4A2C

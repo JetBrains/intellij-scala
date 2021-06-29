@@ -1,0 +1,13 @@
+
+ätests/pos/simpleClass-2.scala*
+foo/B#*B€*#
+foo/B#`<init>`(). €@*<init>€*
+foo/A#*A€*#
+foo/A#`<init>`(). €@*<init>€2
+ foo/2
+ foo/B#2
+foo/B#`<init>`().2
+ foo/A#2
+ foo/A#`<init>`().2
+ foo/B#`<init>`().2
+ foo/B#PZ 428BBBD1BECC214C80FCC474284DF243

@@ -1,0 +1,144 @@
+
+âtests/pos/i11003.scala*
+_empty_/Foo.
+ *Foo€*)
+_empty_/i11003$package. *_empty_€*&
+_empty_/i11003$package.x. €*x€*&
+_empty_/i11003$package.y. €*y€*&
+_empty_/i11003$package.z. €*z€*&
+_empty_/i11003$package.a. €*a€*&
+_empty_/i11003$package.b. €*b€*4
+ _empty_/i11003$package.intSuper. €*intSuper€*0
+_empty_/i11003$package.intSub. €*intSub€*.
+_empty_/i11003$package.intEq. €*intEq€*4
+ _empty_/i11003$package.fooSuper. €*fooSuper€*0
+_empty_/i11003$package.fooSub. €*fooSub€*.
+_empty_/i11003$package.fooEq. €*fooEq€*4
+ _empty_/i11003$package.oneSuper. €*oneSuper€*0
+_empty_/i11003$package.oneSub. €*oneSub€*.
+_empty_/i11003$package.oneEq. €*oneEq€2
+ 
+_empty_/Foo.2!
+_empty_/i11003$package.2'
+ _empty_/i11003$package.x.2
+ 
+_empty_/Foo.2
+ _empty_/Foo.2'
+ _empty_/i11003$package.y.2
+ 
+scala/`|`#2
+ 
+_empty_/Foo.2
+ scala/Nothing#2'
+ _empty_/i11003$package.x.2'
+ _empty_/i11003$package.z.2
+ 
+_empty_/Foo.2'
+ _empty_/i11003$package.y.2'
+ _empty_/i11003$package.a.2
+	 
+
+scala/`|`#2
+ scala/Nothing#2'
+ _empty_/i11003$package.b.2'
+ _empty_/i11003$package.a.2.
+  _empty_/i11003$package.intSuper.2$
+ scala/Predef.summon().2
+& )scala/`<:<`#2
+ 
+scala/`|`#2
+ 
+scala/Int#2
+ $scala/Nothing#2
+* -
+scala/Int#2!
+. .scala/`<:<`.refl().2,
+		 
+_empty_/i11003$package.intSub.2$
+		 scala/Predef.summon().2
+		 scala/`<:<`#2
+		 
+scala/Int#2
+	!	 "
+scala/`|`#2
+		  
+scala/Int#2
+	#	 *scala/Nothing#2!
+	,	 ,scala/`<:<`.refl().2+
+
+
+ 	_empty_/i11003$package.intEq.2$
+
+
+ scala/Predef.summon().2
+
+
+ scala/`=:=`#2
+
+
+ 
+scala/Int#2
+
+ 
+ !
+scala/`|`#2
+
+
+ 
+scala/Int#2
+
+"
+ )scala/Nothing#2!
+
++
+ +scala/`<:<`.refl().2.
+  _empty_/i11003$package.fooSuper.2$
+ scala/Predef.summon().2
++ .scala/`<:<`#2
+  !
+scala/`|`#2
+ _empty_/Foo.2
+" )scala/Nothing#2
+/ 2_empty_/Foo.2!
+8 8scala/`<:<`.refl().2,
+ 
+_empty_/i11003$package.fooSub.2$
+ scala/Predef.summon().2
+  scala/`<:<`#2
+ _empty_/Foo.2
++ ,
+scala/`|`#2
+" %_empty_/Foo.2
+- 4scala/Nothing#2!
+6 6scala/`<:<`.refl().2+
+ 	_empty_/i11003$package.fooEq.2$
+ scala/Predef.summon().2
+ scala/`=:=`#2
+ _empty_/Foo.2
+* +
+scala/`|`#2
+! $_empty_/Foo.2
+, 3scala/Nothing#2!
+5 5scala/`<:<`.refl().2.
+  _empty_/i11003$package.oneSuper.2$
+ scala/Predef.summon().2
+$ 'scala/`<:<`#2
+ 
+scala/`|`#2
+ "scala/Nothing#2!
+* *scala/`<:<`.refl().2,
+ 
+_empty_/i11003$package.oneSub.2$
+ scala/Predef.summon().2
+ scala/`<:<`#2
+ 
+scala/`|`#2
+ &scala/Nothing#2!
+( (scala/`<:<`.refl().2+
+ 	_empty_/i11003$package.oneEq.2$
+ scala/Predef.summon().2
+ scala/`=:=`#2
+ 
+scala/`|`#2
+ %scala/Nothing#2!
+' 'scala/`<:<`.refl().PZ 37D7B7319FC50AC42B34D8768398CE30

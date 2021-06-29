@@ -1,0 +1,14 @@
+
+‘ tests/pos/covariant-opaque.scala*5
+#_empty_/`covariant-opaque$package`. *_empty_€*/
+%_empty_/`covariant-opaque$package`.O#*O€*5
+(_empty_/`covariant-opaque$package`.O#[T]	 €*T€27
+ --scala/annotation/unchecked/uncheckedVariance#2%
+ scala/annotation/unchecked/2
+ scala/annotation/2-
+#_empty_/`covariant-opaque$package`.23
+ %_empty_/`covariant-opaque$package`.O#26
+ (_empty_/`covariant-opaque$package`.O#[T]2
+ scala/Array#26
+ (_empty_/`covariant-opaque$package`.O#[T]2;
+ .-scala/annotation/unchecked/uncheckedVariance#PZ 1981C682370210C9E8E007073BC6EE2C

@@ -1,0 +1,82 @@
+
+Ütests/pos/i11081.scala* 
+_empty_/Outer# ”€*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*
+_empty_/Outer.
+ *Outer€*"
+_empty_/Outer.Foo. €©*Foo€*)
+_empty_/Outer.$values. €*$values€*&
+_empty_/Outer.values().*values€*(
+_empty_/Outer.valueOf().*valueOf€*-
+_empty_/Outer.valueOf().($name)*$name€*"
+_empty_/Outer.$new().*$new€*2
+ _empty_/Outer.$new().(_$ordinal)*	_$ordinal€**
+_empty_/Outer.$new().($name)*$name€*0
+_empty_/Outer.fromOrdinal().*fromOrdinal€*5
+%_empty_/Outer.fromOrdinal().(ordinal)*ordinal€*
+_empty_/Outer.Bar#*Bar€*/
+_empty_/Outer.Bar#`<init>`(). €@*<init>€*!
+_empty_/Outer.Baz# €*Baz€*/
+_empty_/Outer.Baz#`<init>`(). €@*<init>€*1
+"_empty_/Outer.Baz#`<init>`().(bar) €*bar€*%
+_empty_/Outer.Baz#bar. €*bar€*&
+_empty_/Outer.Baz#copy().*copy€**
+_empty_/Outer.Baz#copy().(bar)*bar€*:
+#_empty_/Outer.Baz#copy$default$1().*copy$default$1€*"
+_empty_/Outer.Baz#_1().*_1€* 
+_empty_/Outer.Baz.
+ *Baz€*(
+_empty_/Outer.Baz.apply().*apply€*+
+_empty_/Outer.Baz.apply().(bar)*bar€*,
+_empty_/Outer.Baz.unapply().*unapply€*-
+!_empty_/Outer.Baz.unapply().(x$1)*x$1€*.
+_empty_/Outer.Baz.toString().*toString€*!
+_empty_/Outer.Bam# €*Bam€*/
+_empty_/Outer.Bam#`<init>`(). €@*<init>€*1
+"_empty_/Outer.Bam#`<init>`().(bar) €*bar€*%
+_empty_/Outer.Bam#bar. €*bar€*&
+_empty_/Outer.Bam#copy().*copy€**
+_empty_/Outer.Bam#copy().(bar)*bar€*:
+#_empty_/Outer.Bam#copy$default$1().*copy$default$1€*"
+_empty_/Outer.Bam#_1().*_1€* 
+_empty_/Outer.Bam.
+ *Bam€*(
+_empty_/Outer.Bam.apply().*apply€*+
+_empty_/Outer.Bam.apply().(bar)*bar€*,
+_empty_/Outer.Bam.unapply().*unapply€*-
+!_empty_/Outer.Bam.unapply().(x$1)*x$1€*.
+_empty_/Outer.Bam.toString().*toString€*T
+0_empty_/Outer.Bam.$lessinit$greater$default$1().*$lessinit$greater$default$1€*
+local0 *$anon€2
+ 
+_empty_/Outer#2'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer.2 
+ 
+_empty_/Outer.Foo.2$
+ _empty_/Outer.$values.2%
+ _empty_/Outer.values().2&
+ _empty_/Outer.valueOf().2#
+ _empty_/Outer.$new().2*
+ _empty_/Outer.fromOrdinal().2 
+ _empty_/Outer.Bar#2+
+ _empty_/Outer.Bar#`<init>`().2 
+ _empty_/Outer.Baz#2+
+ _empty_/Outer.Baz#`<init>`().2 
+ _empty_/Outer.Bar#2$
+ _empty_/Outer.Baz#bar.2'
+ _empty_/Outer.Baz#copy().2%
+ _empty_/Outer.Baz#_1().2 
+ _empty_/Outer.Baz.2(
+ _empty_/Outer.Baz.apply().2 
+ _empty_/Outer.Bam#2+
+ _empty_/Outer.Bam#`<init>`().2 
+ _empty_/Outer.Bar#2$
+ _empty_/Outer.Bam#bar.2'
+ _empty_/Outer.Bam#copy().2%
+ _empty_/Outer.Bam#_1().2 
+ _empty_/Outer.Bam.2(
+ _empty_/Outer.Bam.apply().2
+ local02+
+# #_empty_/Outer.Bar#`<init>`().2 
+  #_empty_/Outer.Bar#PZ FA2F78B7A677B17977578A8F60A28655

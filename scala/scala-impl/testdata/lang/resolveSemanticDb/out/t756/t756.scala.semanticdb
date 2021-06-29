@@ -1,0 +1,17 @@
+
+¡tests/pos/t756.scala*
+_empty_/test.
+ *test€*
+local0*n€*
+local1*x$1€2
+ _empty_/test.2%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local02!
+ scala/Option#map().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local12
+
+ local0PZ 1535310F47CC1870E25379714F1048D1

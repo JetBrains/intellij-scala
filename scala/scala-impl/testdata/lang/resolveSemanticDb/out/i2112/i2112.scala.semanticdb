@@ -1,0 +1,25 @@
+
+ütests/pos/i2112.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().(x)*x€2*
+ & scala/collection/JavaConverters.2
+ scala/collection/2
+ scala/2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2%
+ _empty_/Test.test().(x)2
+ 
+scala/Any#2
+ scala/Unit#28
+. 4*scala/collection/IterableOnceOps#toList().2@
+& -2scala/collection/JavaConverters.AsScala#asScala().2G
+ 9scala/collection/JavaConverters.asScalaBufferConverter().2'
+ scala/Any#asInstanceOf().2%
+ _empty_/Test.test().(x)2
+ !java/util/List#2
+ 
+java/util/2
+ java/PZ A1D31E22358535F871FA5E28CC8EDA92

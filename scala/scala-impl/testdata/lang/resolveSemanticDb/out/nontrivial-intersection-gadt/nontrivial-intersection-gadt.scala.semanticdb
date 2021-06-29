@@ -1,0 +1,104 @@
+
+ò,tests/pos/nontrivial-intersection-gadt.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Expr#*Expr€*/
+_empty_/Test.Expr#`<init>`(). €@*<init>€*
+_empty_/Test.Expr#[T]	*T€*%
+_empty_/Test.IntExpr#*IntExpr€*2
+ _empty_/Test.IntExpr#`<init>`(). €@*<init>€*!
+_empty_/Test.Const#*Const€*0
+_empty_/Test.Const#`<init>`(). €@*<init>€* 
+_empty_/Test.Const#[T]	*T€*
+_empty_/Test.Fin# *Fin€*.
+_empty_/Test.Fin#`<init>`(). €@*<init>€*!
+_empty_/Test.foo1().*foo1€*!
+_empty_/Test.foo1().[T]	*T€*!
+_empty_/Test.foo1().(x)*x€*!
+_empty_/Test.bar1().*bar1€*!
+_empty_/Test.bar1().[T]	*T€*!
+_empty_/Test.bar1().(x)*x€*!
+_empty_/Test.foo2().*foo2€*!
+_empty_/Test.foo2().[T]	*T€*!
+_empty_/Test.foo2().(x)*x€*!
+_empty_/Test.bar2().*bar2€*!
+_empty_/Test.bar2().[T]	*T€*!
+_empty_/Test.bar2().(x)*x€2
+ _empty_/Test.2 
+ _empty_/Test.Expr#2+
+ _empty_/Test.Expr#`<init>`().2#
+ _empty_/Test.Expr#[T]2#
+ _empty_/Test.IntExpr#2.
+  _empty_/Test.IntExpr#`<init>`().2 
+ _empty_/Test.Expr#2
+  
+scala/Int#2!
+ _empty_/Test.Const#2,
+ _empty_/Test.Const#`<init>`().2 
+ _empty_/Test.Expr#2$
+ _empty_/Test.Const#[T]2$
+ _empty_/Test.Const#[T]2
+ _empty_/Test.Fin#2*
+ _empty_/Test.Fin#`<init>`().2"
+ 
+_empty_/Test.foo1().2%
+ _empty_/Test.foo1().[T]2%
+ _empty_/Test.foo1().(x)2
+ 
+scala/`|`#2
+ scala/Unit#2!
+ _empty_/Test.Const#2%
+ _empty_/Test.foo1().[T]2%
+# $_empty_/Test.foo1().[T]2%
+' (_empty_/Test.foo1().(x)2#
+ _empty_/Test.IntExpr#2"
+
+
+ 
+_empty_/Test.bar1().2%
+
+
+ _empty_/Test.bar1().[T]2%
+
+
+ _empty_/Test.bar1().(x)2!
+
+
+ _empty_/Test.Const#2%
+
+
+ _empty_/Test.bar1().[T]2%
+
+
+ _empty_/Test.bar1().[T]2%
+
+ 
+ !_empty_/Test.bar1().(x)2
+ 
+scala/`|`#2
+ scala/Unit#2#
+ _empty_/Test.IntExpr#2"
+ 
+_empty_/Test.foo2().2%
+ _empty_/Test.foo2().[T]2%
+ _empty_/Test.foo2().(x)2
+ 
+scala/`|`#2
+ _empty_/Test.Fin#2!
+ _empty_/Test.Const#2%
+ _empty_/Test.foo2().[T]2%
+" #_empty_/Test.foo2().[T]2%
+& '_empty_/Test.foo2().(x)2#
+ _empty_/Test.IntExpr#2"
+ 
+_empty_/Test.bar2().2%
+ _empty_/Test.bar2().[T]2%
+ _empty_/Test.bar2().(x)2!
+ _empty_/Test.Const#2%
+ _empty_/Test.bar2().[T]2%
+ _empty_/Test.bar2().[T]2%
+  !_empty_/Test.bar2().(x)2
+ 
+scala/`|`#2
+ _empty_/Test.Fin#2#
+ _empty_/Test.IntExpr#PZ ED7F7FD70DEB034CB3EB50237B3D0740

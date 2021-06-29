@@ -1,0 +1,51 @@
+
+ÙItests/pos/scala-days-2019-slides/metaprogramming-2-addEventListener.scala*
+_empty_/JS.
+ *JS€*
+_empty_/JS.dom.
+ *dom€*#
+_empty_/JS.dom.Event#*Event€*-
+_empty_/JS.dom.MouseEvent#*
+MouseEvent€*+
+_empty_/JS.EventTypeOf#*EventTypeOf€*&
+_empty_/JS.EventTypeOf#[Tp]	*Tp€*7
+_empty_/JS.addEventListener().*addEventListener€*-
+"_empty_/JS.addEventListener().[Tp]	*Tp€*-
+"_empty_/JS.addEventListener().[Ev]	*Ev€*/
+#_empty_/JS.addEventListener().(tpe)*tpe€*+
+!_empty_/JS.addEventListener().(e)*e€*
+local0*e€2
+ 	_empty_/JS.2
+	 _empty_/JS.dom.2#
+	 _empty_/JS.dom.Event#2(
+	 _empty_/JS.dom.MouseEvent#2#
+ _empty_/JS.dom.Event#2%
+ _empty_/JS.EventTypeOf#2)
+ _empty_/JS.EventTypeOf#[Tp]2"
+ scala/Predef.String#2#
+( -_empty_/JS.dom.Event#2
+$ '_empty_/JS.dom.2)
+0 2_empty_/JS.EventTypeOf#[Tp]2(
+ "_empty_/JS.dom.MouseEvent#2
+ _empty_/JS.dom.2#
+		 _empty_/JS.dom.Event#2
+		 _empty_/JS.dom.2,
+ _empty_/JS.addEventListener().20
+ "_empty_/JS.addEventListener().[Tp]2"
+ #scala/Predef.String#20
+% '"_empty_/JS.addEventListener().[Ev]2%
++ 6_empty_/JS.EventTypeOf#20
+7 9"_empty_/JS.addEventListener().[Tp]21
+< ?#_empty_/JS.addEventListener().(tpe)20
+A C"_empty_/JS.addEventListener().[Tp]2/
+E F!_empty_/JS.addEventListener().(e)20
+H J"_empty_/JS.addEventListener().[Ev]2
+N Q
+scala/Any#2
+T Xscala/Unit#2#
+[ ^scala/Predef.`???`().2,
+ _empty_/JS.addEventListener().2
+  local02(
+& 0_empty_/JS.dom.MouseEvent#2
+" %_empty_/JS.dom.2#
+5 8scala/Predef.`???`().PZ A4FE8E789A12F5A67B1A2BD2576C1762

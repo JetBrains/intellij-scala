@@ -1,0 +1,20 @@
+
+Ýtests/pos/t289.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#B.
+ *B€*
+
+_empty_/C.
+ *C€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+	 
+_empty_/A#B.2
+ 
+_empty_/C.2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#PZ 6E05115BEA3F2A908D90B265D6278952

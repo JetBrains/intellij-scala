@@ -1,0 +1,15 @@
+
+Átests/pos/HelloWorld.scala*(
+_empty_/HelloWorld.
+ *
+HelloWorld€*'
+_empty_/HelloWorld.main().*main€*-
+ _empty_/HelloWorld.main().(args)*args€2
+ _empty_/HelloWorld.2(
+ 
+_empty_/HelloWorld.main().2.
+  _empty_/HelloWorld.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+( /scala/Predef.println(+1).PZ 16D087D28272B0337418B70AAFC76CBF

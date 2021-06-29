@@ -1,0 +1,230 @@
+
+¦;tests/pos/CoderTrait.scala*&
+_empty_/CoderTrait#*
+CoderTrait€*0
+_empty_/CoderTrait#`<init>`(). €@*<init>€**
+_empty_/CoderTrait#words. „*words€*2
+_empty_/CoderTrait#mnemonics. €*	mnemonics€*
+local0 €*digit€*
+local1 €*str€*2
+_empty_/CoderTrait#charCode0. €*	charCode0€*
+local2*x$1€*
+local3 €*digit€*
+local4 €*str€*
+local5*x$1€*
+local6 €*digit€*
+local7 €*str€*
+local8*ltr€*0
+_empty_/CoderTrait#charCode. €*charCode€*
+local9*x$1€*
+local10 €*digit€*
+local11 €*str€*
+local12*ltr€*/
+_empty_/CoderTrait#wordCode().*wordCode€*1
+$_empty_/CoderTrait#wordCode().(word)*word€*6
+_empty_/CoderTrait#wordsForNum. €*wordsForNum€*
+local13*word€*+
+_empty_/CoderTrait#encode().*encode€*3
+$_empty_/CoderTrait#encode().(number)*number€*
+local14*
+splitPoint€*
+local15*word€*
+local16*rest€*1
+_empty_/CoderTrait#translate().*	translate€*6
+'_empty_/CoderTrait#translate().(number)*number€*
+_empty_/Coder.
+ *Coder€*"
+_empty_/Coder.main().*main€*(
+_empty_/Coder.main().(args)*args€*
+local17 €*coder€*
+local18 *$anon€*
+local19 €*words€2+
+ !!scala/collection/mutable/HashMap.2+
+ !!scala/collection/mutable/HashMap#2#
+ scala/collection/mutable/2
+ scala/collection/2!
+ _empty_/CoderTrait#2,
+ _empty_/CoderTrait#`<init>`().2'
+ _empty_/CoderTrait#words.2!
+ scala/package.List#2"
+ scala/Predef.String#2#
+ scala/Tuple2.apply().2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2-
+$ &scala/Predef.ArrowAssoc#`->`().21
+ #scala/Predef.ArrowAssoc#`<init>`().2+
+ _empty_/CoderTrait#mnemonics.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2-
+	
+	 scala/Predef.ArrowAssoc#`->`().2(
+		 scala/Predef.ArrowAssoc().2-
+		 scala/Predef.ArrowAssoc#`->`().2(
+		 scala/Predef.ArrowAssoc().2-
+	&	 (scala/Predef.ArrowAssoc#`->`().2(
+	"	 "scala/Predef.ArrowAssoc().2-
+	4	 6scala/Predef.ArrowAssoc#`->`().2(
+	0	 0scala/Predef.ArrowAssoc().2-
+
+
+
+ scala/Predef.ArrowAssoc#`->`().2(
+
+
+ scala/Predef.ArrowAssoc().2-
+
+
+ scala/Predef.ArrowAssoc#`->`().2(
+
+
+ scala/Predef.ArrowAssoc().2-
+
+'
+ )scala/Predef.ArrowAssoc#`->`().2(
+
+#
+ #scala/Predef.ArrowAssoc().2-
+
+5
+ 7scala/Predef.ArrowAssoc#`->`().2(
+
+1
+ 1scala/Predef.ArrowAssoc().2#
+ scala/Tuple2.apply().2%
+
+ 
+scala/Tuple2.unapply().2
+
+ local02
+ local12+
+ _empty_/CoderTrait#charCode0.2
+ scala/Predef.Map#2
+ !scala/Char#2
+# 'scala/Char#2;
+ -scala/collection/MapOps.WithFilter#flatMap().2?
+5 ?1scala/collection/MapFactoryDefaults#withFilter().2+
++ 4_empty_/CoderTrait#mnemonics.2
+ local22%
+
+ 
+scala/Tuple2.unapply().2
+
+ local32
+ local42
+ local52
+ local52%
+ scala/Tuple2.unapply().2
+ local62
+ local72/
+ "!scala/collection/StringOps#map().2+
+ scala/Predef.augmentString().2
+ local72
+$ 'local82-
+/ 1scala/Predef.ArrowAssoc#`->`().2(
++ +scala/Predef.ArrowAssoc().2
++ .local82
+2 7local62*
+ _empty_/CoderTrait#charCode.2
+ scala/Predef.Map#2
+  scala/Char#2
+" &scala/Char#2;
+" "-scala/collection/MapOps.WithFilter#flatMap().2?
+" "1scala/collection/MapFactoryDefaults#withFilter().2+
+ "_empty_/CoderTrait#mnemonics.2
+	 	local92%
+
+ 
+scala/Tuple2.unapply().2
+
+ local102
+ local112/
+. .!scala/collection/StringOps#map().2+
++ +scala/Predef.augmentString().2
++ .local112
+$ 'local122-
+: <scala/Predef.ArrowAssoc#`->`().2(
+6 6scala/Predef.ArrowAssoc().2
+6 9local122
+= Blocal102,
+   _empty_/CoderTrait#wordCode().22
+   $_empty_/CoderTrait#wordCode().(word)2"
+   #scala/Predef.String#2"
+ &  ,scala/Predef.String#21
+ 4  7#scala/collection/StringOps#map(+1).2+
+ /  /scala/Predef.augmentString().22
+ /  3$_empty_/CoderTrait#wordCode().(word)2*
+ 8  @_empty_/CoderTrait#charCode.2-
+## _empty_/CoderTrait#wordsForNum.2
+## scala/Predef.Map#2"
+## %scala/Predef.String#2!
+#'# +scala/package.List#2"
+#,# 2scala/Predef.String#2@
+$$ +2scala/collection/immutable/Map#withDefaultValue().25
+$
+$ 'scala/collection/IterableOps#groupBy().2'
+$$ 	_empty_/CoderTrait#words.2,
+$$ _empty_/CoderTrait#wordCode().2
+$$ local132 
+$,$ /scala/package.Nil.2*
+'' _empty_/CoderTrait#encode().22
+'' $_empty_/CoderTrait#encode().(number)2"
+'' scala/Predef.String#2
+'' !scala/Predef.Set#2!
+'"' &scala/package.List#2"
+''' -scala/Predef.String#2)
+(( java/lang/String#isEmpty().22
+(( $_empty_/CoderTrait#encode().(number)27
+(( )scala/collection/IterableFactory#apply().2
+(( scala/Predef.Set.2 
+(( scala/package.Nil.27
+// )scala/collection/IterableOnceOps#toSet().2D
++(+ (6scala/collection/StrictOptimizedIterableOps#flatMap().2)
+++ scala/runtime/RichInt#to().26
+++ (scala/LowPriorityImplicits#intWrapper().2(
++"+ (java/lang/String#length().22
+++ !$_empty_/CoderTrait#encode().(number)2
+++ local1428
+,3, 3*scala/collection/immutable/List#flatMap().2.
+,,  scala/collection/MapOps#apply().2-
+,, _empty_/CoderTrait#wordsForNum.20
+,#, '"scala/collection/StringOps#take().2+
+,, scala/Predef.augmentString().22
+,, "$_empty_/CoderTrait#encode().(number)2
+,(, 2local142
+,, local1521
+-.- .#scala/collection/IterableOps#map().2*
+-- _empty_/CoderTrait#encode().20
+-- ""scala/collection/StringOps#drop().2+
+-- scala/Predef.augmentString().22
+-- $_empty_/CoderTrait#encode().(number)2
+-#- -local142
+-- local1625
+.. 'scala/collection/immutable/List#`::`().2
+.. local162
+.. local152-
+22 _empty_/CoderTrait#translate().25
+22 '_empty_/CoderTrait#translate().(number)2"
+22 scala/Predef.String#2
+2!2 $scala/Predef.Set#2"
+2%2 +scala/Predef.String#21
+2>2 A#scala/collection/IterableOps#map().2*
+2/2 5_empty_/CoderTrait#encode().25
+262 <'_empty_/CoderTrait#translate().(number)2<
+2E2 M.scala/collection/IterableOnceOps#mkString(+1).2
+66 _empty_/Coder.2#
+77 
+_empty_/Coder.main().2)
+77 _empty_/Coder.main().(args)2
+77 scala/Array#2"
+77 scala/Predef.String#2
+7#7 'scala/Unit#2
+88 local172
+88 local182!
+88 _empty_/CoderTrait#2
+9
+9 local1927
+99 )scala/collection/IterableFactory#apply().2!
+99 scala/package.List.2'
+<< scala/Predef.println(+1).2-
+<< _empty_/CoderTrait#translate().2
+<< local17PZ 8DE028CF2BD9B2B0FEA9F02D4B83AA32

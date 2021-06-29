@@ -1,0 +1,133 @@
+
+»,tests/pos/i8357.scala*$
+_empty_/FieldInfo#*	FieldInfo€*/
+_empty_/FieldInfo#`<init>`(). €@*<init>€*1
+_empty_/FieldInfo#fieldType. „*	fieldType€**
+_empty_/ConcreteType#*ConcreteType€*2
+ _empty_/ConcreteType#`<init>`(). €@*<init>€**
+_empty_/ConcreteType#name. „*name€*>
+$_empty_/ConcreteType#typeParameters. „*typeParameters€*0
+_empty_/ConcreteType#isUnion. €*isUnion€*.
+_empty_/UnionContainer#*UnionContainer€*4
+"_empty_/UnionContainer#`<init>`(). €@*<init>€*4
+ _empty_/UnionContainer#hasUnion. „*hasUnion€*3
+_empty_/StaticUnionInfo# €*StaticUnionInfo€*5
+#_empty_/StaticUnionInfo#`<init>`(). €@*<init>€*9
+)_empty_/StaticUnionInfo#`<init>`().(name) €*name€*M
+3_empty_/StaticUnionInfo#`<init>`().(typeParameters) €*typeParameters€*-
+_empty_/StaticUnionInfo#name. €*name€*A
+'_empty_/StaticUnionInfo#typeParameters. €*typeParameters€*,
+_empty_/StaticUnionInfo#copy().*copy€*2
+%_empty_/StaticUnionInfo#copy().(name)*name€*F
+/_empty_/StaticUnionInfo#copy().(typeParameters)*typeParameters€*@
+)_empty_/StaticUnionInfo#copy$default$1().*copy$default$1€*@
+)_empty_/StaticUnionInfo#copy$default$2().*copy$default$2€*(
+_empty_/StaticUnionInfo#_1().*_1€*(
+_empty_/StaticUnionInfo#_2().*_2€*2
+_empty_/StaticUnionInfo.
+ *StaticUnionInfo€*.
+ _empty_/StaticUnionInfo.apply().*apply€*3
+&_empty_/StaticUnionInfo.apply().(name)*name€*G
+0_empty_/StaticUnionInfo.apply().(typeParameters)*typeParameters€*2
+"_empty_/StaticUnionInfo.unapply().*unapply€*3
+'_empty_/StaticUnionInfo.unapply().(x$1)*x$1€*4
+#_empty_/StaticUnionInfo.toString().*toString€*'
+_empty_/AliasInfo# €*	AliasInfo€*/
+_empty_/AliasInfo#`<init>`(). €@*<init>€*3
+#_empty_/AliasInfo#`<init>`().(name) €*name€*G
+-_empty_/AliasInfo#`<init>`().(typeParameters) €*typeParameters€*'
+_empty_/AliasInfo#name. €*name€*;
+!_empty_/AliasInfo#typeParameters. €*typeParameters€*&
+_empty_/AliasInfo#copy().*copy€*,
+_empty_/AliasInfo#copy().(name)*name€*@
+)_empty_/AliasInfo#copy().(typeParameters)*typeParameters€*:
+#_empty_/AliasInfo#copy$default$1().*copy$default$1€*:
+#_empty_/AliasInfo#copy$default$2().*copy$default$2€*"
+_empty_/AliasInfo#_1().*_1€*"
+_empty_/AliasInfo#_2().*_2€*&
+_empty_/AliasInfo.
+ *	AliasInfo€*(
+_empty_/AliasInfo.apply().*apply€*-
+ _empty_/AliasInfo.apply().(name)*name€*A
+*_empty_/AliasInfo.apply().(typeParameters)*typeParameters€*,
+_empty_/AliasInfo.unapply().*unapply€*-
+!_empty_/AliasInfo.unapply().(x$1)*x$1€*.
+_empty_/AliasInfo.toString().*toString€*&
+_empty_/UnionKind.
+ *	UnionKind€*,
+_empty_/UnionKind.unapply().*unapply€*)
+_empty_/UnionKind.unapply().(f)*f€*
+local0 €*t€*
+local1 €*t€*(
+_empty_/i8357$package. *_empty_€*4
+!_empty_/i8357$package.TypeSymbol#*
+TypeSymbol€*0
+_empty_/i8357$package.ALL_TYPE#*ALL_TYPE€2
+ _empty_/FieldInfo#2+
+ _empty_/FieldInfo#`<init>`().2*
+ _empty_/FieldInfo#fieldType.2-
+ _empty_/i8357$package.ALL_TYPE#2#
+ _empty_/ConcreteType#2.
+  _empty_/ConcreteType#`<init>`().2(
+ 
+_empty_/ConcreteType#name.2"
+ scala/Predef.String#22
+ $_empty_/ConcreteType#typeParameters.2!
+ scala/package.List#2/
+ %!_empty_/i8357$package.TypeSymbol#2+
+		 _empty_/ConcreteType#isUnion.2
+		 scala/Boolean#2%
+ _empty_/UnionContainer#20
+ "_empty_/UnionContainer#`<init>`().2.
+  _empty_/UnionContainer#hasUnion.2
+ scala/Boolean#2&
+ _empty_/StaticUnionInfo#21
+ #_empty_/StaticUnionInfo#`<init>`().2"
+! 'scala/Predef.String#2!
+9 =scala/package.List#2/
+> H!_empty_/i8357$package.TypeSymbol#2#
+S __empty_/ConcreteType#2+
+ _empty_/StaticUnionInfo#name.25
+) 7'_empty_/StaticUnionInfo#typeParameters.2)
+_empty_/StaticUnionInfo#copy().2+
+! !_empty_/StaticUnionInfo#_1().2+
+9 9_empty_/StaticUnionInfo#_2().2&
+ _empty_/StaticUnionInfo.2*
+ _empty_/StaticUnionInfo.apply().2 
+ _empty_/AliasInfo#2+
+ _empty_/AliasInfo#`<init>`().2"
+ !scala/Predef.String#2!
+3 7scala/package.List#2/
+8 B!_empty_/i8357$package.TypeSymbol#2#
+M Y_empty_/ConcreteType#2%
+ _empty_/AliasInfo#name.2/
+# 1!_empty_/AliasInfo#typeParameters.2#
+_empty_/AliasInfo#copy().2%
+ _empty_/AliasInfo#_1().2%
+3 3_empty_/AliasInfo#_2().2 
+ _empty_/AliasInfo.2$
+_empty_/AliasInfo.apply().2 
+ _empty_/UnionKind.2*
+ _empty_/UnionKind.unapply().2-
+ _empty_/UnionKind.unapply().(f)2 
+ _empty_/FieldInfo#2
+ $scala/Boolean#2*
+ _empty_/FieldInfo#fieldType.2-
+ _empty_/UnionKind.unapply().(f)2&
+ _empty_/StaticUnionInfo#2
+ local02 
+ _empty_/AliasInfo#2+
+ $_empty_/ConcreteType#isUnion.2
+ local02
+ local12%
+ _empty_/UnionContainer#2.
+" * _empty_/UnionContainer#hasUnion.2
+  !local12 
+_empty_/i8357$package.2/
+ !_empty_/i8357$package.TypeSymbol#2"
+ scala/Predef.String#2-
+ _empty_/i8357$package.ALL_TYPE#2
+ 
+scala/`|`#2#
+ _empty_/ConcreteType#2/
+ )!_empty_/i8357$package.TypeSymbol#PZ CDA8D82E76CF271D677705E5B3B729FF

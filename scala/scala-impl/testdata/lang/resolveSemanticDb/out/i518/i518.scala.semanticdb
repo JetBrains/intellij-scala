@@ -1,0 +1,30 @@
+
+¸tests/pos/i518.scala*
+_empty_/Meter# *Meter€*+
+_empty_/Meter#`<init>`(). €@*<init>€*;
+%_empty_/Meter#`<init>`().(underlying) €*
+underlying€*/
+_empty_/Meter#underlying. €*
+underlying€*
+_empty_/Meter.
+ *Meter€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#x. €*x€2
+ _empty_/Meter#2#
+ _empty_/Meter#`<init>`().2
+ 
+scala/Int#2"
+/ /scala/AnyVal#`<init>`().2
+) /scala/AnyVal#2#
+ _empty_/Meter#underlying.2
+ _empty_/Meter.2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#x.2
+	 
+scala/Int#2#
+ $scala/Any#hashCode().2'
+ _empty_/Meter#`<init>`().2
+ _empty_/Meter#PZ 0BCDBAF0C44E341D15AC3F6CED8D0AB7

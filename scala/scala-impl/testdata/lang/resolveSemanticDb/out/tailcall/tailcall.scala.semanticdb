@@ -1,0 +1,67 @@
+
+ù!tests/pos/tailcall/tailcall.scala*"
+_empty_/tailcall#*tailcallÄ*.
+_empty_/tailcall#`<init>`(). Ä@*<init>Ä*(
+_empty_/tailcall#shift. Ä*shiftÄ*'
+_empty_/tailcall#fact(). *factÄ*%
+_empty_/tailcall#fact().(x)*xÄ*)
+_empty_/tailcall#fact().(acc)*accÄ*9
+"_empty_/tailcall#fact$default$2().*fact$default$2Ä*!
+_empty_/tailcall#id().*idÄ*#
+_empty_/tailcall#id().[T]	*TÄ*#
+_empty_/tailcall#id().(x)*xÄ*&
+_empty_/TypedApply#*
+TypedApplyÄ*0
+_empty_/TypedApply#`<init>`(). Ä@*<init>Ä*"
+_empty_/TypedApply#[T2]	*T2Ä*1
+_empty_/TypedApply#firstDiff().*	firstDiffÄ*,
+"_empty_/TypedApply#firstDiff().[T]	*TÄ*.
+#_empty_/TypedApply#firstDiff().(xs)*xsÄ2
+ _empty_/tailcall#2*
+ _empty_/tailcall#`<init>`().2%
+ _empty_/tailcall#shift.2&
+ _empty_/tailcall#fact().2)
+ _empty_/tailcall#fact().(x)2
+ 
+scala/Int#2+
+ _empty_/tailcall#fact().(acc)2
+ !
+scala/Int#2
+( +
+scala/Int#2!
+4 6scala/Int#`==`(+3).2)
+2 3_empty_/tailcall#fact().(x)2+
+: =_empty_/tailcall#fact().(acc)2&
+C G_empty_/tailcall#fact().2 
+J Kscala/Int#`-`(+3).2)
+H I_empty_/tailcall#fact().(x)2%
+L Q_empty_/tailcall#shift.2 
+W Xscala/Int#`*`(+3).2+
+S V_empty_/tailcall#fact().(acc)2)
+Y Z_empty_/tailcall#fact().(x)2$
+ _empty_/tailcall#id().2'
+	 
+_empty_/tailcall#id().[T]2
+ scala/AnyRef#2'
+ _empty_/tailcall#id().(x)2'
+ _empty_/tailcall#id().[T]2'
+ _empty_/tailcall#id().[T]2$
+' )java/lang/Object#eq().2'
+% &_empty_/tailcall#id().(x)2'
+0 1_empty_/tailcall#id().(x)2$
+7 9_empty_/tailcall#id().2'
+: ;_empty_/tailcall#id().(x)2!
+ _empty_/TypedApply#2,
+ _empty_/TypedApply#`<init>`().2%
+ _empty_/TypedApply#[T2]2-
+ _empty_/TypedApply#firstDiff().20
+ "_empty_/TypedApply#firstDiff().[T]2!
+ '_empty_/TypedApply#2%
+( *_empty_/TypedApply#[T2]21
+- /#_empty_/TypedApply#firstDiff().(xs)2!
+1 5scala/package.List#20
+6 7"_empty_/TypedApply#firstDiff().[T]2
+; >
+scala/Int#2-
+A J_empty_/TypedApply#firstDiff().21
+K M#_empty_/TypedApply#firstDiff().(xs)PZ 01ED28FAA4C3988C99480EE845C6BFF4

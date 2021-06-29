@@ -1,0 +1,15 @@
+
+žtests/pos/rangepos-patmat.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€* 
+_empty_/Foo#test().*test€*
+local0*x$1€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2!
+ 
+_empty_/Foo#test().2$
+ scala/PartialFunction#2
+ 
+scala/Any#2"
+! 'scala/Predef.String#2
+- -local0PZ 8A4F15A9EB178EEA5CB775BFF0E4B213

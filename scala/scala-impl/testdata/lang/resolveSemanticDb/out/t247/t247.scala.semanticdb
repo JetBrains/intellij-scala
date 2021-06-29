@@ -1,0 +1,191 @@
+
+É5tests/pos/t247.scala*
+_empty_/Order#*OrderÄ*+
+_empty_/Order#`<init>`(). Ä@*<init>Ä*,
+_empty_/Order#`<init>`().(less)*lessÄ*.
+ _empty_/Order#`<init>`().(equal)*equalÄ*
+_empty_/Order#[t]	*tÄ*#
+_empty_/Order#less. Ä*lessÄ*%
+_empty_/Order#equal. Ä*equalÄ*
+_empty_/Map#*MapÄ*)
+_empty_/Map#`<init>`(). Ä@*<init>Ä*
+_empty_/Map#[A]	*AÄ*
+_empty_/Map#[B]	*BÄ*'
+_empty_/Map#factory. Ñ*factoryÄ*
+_empty_/Map#`-`().*-Ä*%
+_empty_/Map#`-`().(key1)*key1Ä*%
+_empty_/Map#`-`().(key2)*key2Ä*%
+_empty_/Map#`-`().(keys)*keysÄ*
+_empty_/Map#`-`(+1).*-Ä*%
+_empty_/Map#`-`(+1).(key)*keyÄ*(
+_empty_/MapFactory# *
+MapFactoryÄ*0
+_empty_/MapFactory#`<init>`(). Ä@*<init>Ä* 
+_empty_/MapFactory#[A]	*AÄ*+
+_empty_/MapFactory#Empty(). *EmptyÄ*(
+_empty_/MapFactory#Empty().[B]	*BÄ*.
+_empty_/TreeMapFactory#*TreeMapFactoryÄ*4
+"_empty_/TreeMapFactory#`<init>`(). Ä@*<init>Ä*=
+,_empty_/TreeMapFactory#`<init>`().(newOrder)*newOrderÄ*(
+_empty_/TreeMapFactory#[KEY]	*KEYÄ*4
+ _empty_/TreeMapFactory#newOrder. Ä*newOrderÄ*.
+_empty_/TreeMapFactory#order. Ä*orderÄ*-
+_empty_/TreeMapFactory#Empty().*EmptyÄ*,
+"_empty_/TreeMapFactory#Empty().[V]	*VÄ*
+_empty_/Tree#*TreeÄ**
+_empty_/Tree#`<init>`(). Ä@*<init>Ä*-
+_empty_/Tree#`<init>`().(order)*orderÄ*
+_empty_/Tree#[KEY]	*KEYÄ*"
+_empty_/Tree#[Entry]	*EntryÄ*$
+_empty_/Tree#order. Ä*orderÄ*!
+_empty_/Tree#size().*sizeÄ* 
+_empty_/TreeMap#*TreeMapÄ*-
+_empty_/TreeMap#`<init>`(). Ä@*<init>Ä*6
+%_empty_/TreeMap#`<init>`().(_factory)*_factoryÄ*!
+_empty_/TreeMap#[KEY]	*KEYÄ*%
+_empty_/TreeMap#[VALUE]	*VALUEÄ*-
+_empty_/TreeMap#_factory. Ä*_factoryÄ*+
+_empty_/TreeMap#factory. Ä*factoryÄ*'
+_empty_/TreeMap#order. Ä*orderÄ*,
+_empty_/TreeMap#`<init>`(+1).*<init>Ä*8
+'_empty_/TreeMap#`<init>`(+1).(newOrder)*newOrderÄ*"
+_empty_/TreeMap#get().*getÄ*'
+_empty_/TreeMap#get().(key)*keyÄ*,
+_empty_/TreeMap#iterator().*iteratorÄ*$
+_empty_/TreeMap#size().*sizeÄ2
+ _empty_/Order#2#
+ _empty_/Order#`<init>`().2
+ _empty_/Order#[t]2
+ _empty_/Order#[t]2
+ $scala/Boolean#2
+, -_empty_/Order#[t]2
+. /_empty_/Order#[t]2
+4 ;scala/Boolean#2
+ _empty_/Order#[t]2
+ _empty_/Order#less.2
+% *_empty_/Order#equal.2
+ 	_empty_/Map#2%
+	 	_empty_/Map#`<init>`().2#
+) ,scala/collection/Map#2
+ (scala/collection/2
+ scala/2
+- ._empty_/Map#[A]2
+0 1_empty_/Map#[B]2
+
+ _empty_/Map#[A]2
+ _empty_/Map#[B]2"
+ _empty_/Map#factory.2!
+ _empty_/MapFactory#2
+ _empty_/Map#[A]2 
+ _empty_/Map#`-`().2&
+ _empty_/Map#`-`().(key1)2
+ _empty_/Map#[A]2&
+ _empty_/Map#`-`().(key2)2
+ _empty_/Map#[A]2&
+ _empty_/Map#`-`().(keys)2
+  !_empty_/Map#[A]2
+% (_empty_/Map#2
+) *_empty_/Map#[A]2
+, -_empty_/Map#[B]2"
+ _empty_/Map#`-`(+1).2'
+ _empty_/Map#`-`(+1).(key)2
+ _empty_/Map#[A]2
+ _empty_/Map#2
+ _empty_/Map#[A]2
+ _empty_/Map#[B]2!
+ _empty_/MapFactory#2,
+ _empty_/MapFactory#`<init>`().2$
+ _empty_/MapFactory#[A]2)
+ _empty_/MapFactory#Empty().2,
+ _empty_/MapFactory#Empty().[B]2
+ _empty_/Map#2$
+ _empty_/MapFactory#[A]2,
+ _empty_/MapFactory#Empty().[B]2%
+ _empty_/TreeMapFactory#20
+ "_empty_/TreeMapFactory#`<init>`().2
+# (_empty_/Order#2*
+) ,_empty_/TreeMapFactory#[KEY]2,
+F F_empty_/MapFactory#`<init>`().2!
+7 A_empty_/MapFactory#2*
+B E_empty_/TreeMapFactory#[KEY]2*
+ _empty_/TreeMapFactory#[KEY]2.
+ " _empty_/TreeMapFactory#newOrder.2+
+ _empty_/TreeMapFactory#order.2.
+  _empty_/TreeMapFactory#newOrder.2-
+ _empty_/TreeMapFactory#Empty().20
+ "_empty_/TreeMapFactory#Empty().[V]2)
+# #_empty_/TreeMap#`<init>`().2
+ _empty_/TreeMap#2*
+  _empty_/TreeMapFactory#[KEY]20
+! ""_empty_/TreeMapFactory#Empty().[V]20
+; ;"_empty_/TreeMapFactory#`<init>`().2%
+( 6_empty_/TreeMapFactory#2*
+7 :_empty_/TreeMapFactory#[KEY]2+
+< A_empty_/TreeMapFactory#order.2
+ 
+_empty_/Tree#2&
+
+ 
+_empty_/Tree#`<init>`().2
+ !_empty_/Order#2 
+" %_empty_/Tree#[KEY]2 
+ _empty_/Tree#[KEY]2"
+ _empty_/Tree#[Entry]2!
+ _empty_/Tree#order.2"
+ 
+_empty_/Tree#size().2
+ _empty_/TreeMap#2)
+ _empty_/TreeMap#`<init>`().2%
+" 0_empty_/TreeMapFactory#2#
+1 4_empty_/TreeMap#[KEY]2&
+Z Z_empty_/Tree#`<init>`().2
+? C_empty_/Tree#2#
+D G_empty_/TreeMap#[KEY]2
+H Nscala/Tuple2#2#
+O R_empty_/TreeMap#[KEY]2%
+S X_empty_/TreeMap#[VALUE]2+
+d i_empty_/TreeMapFactory#order.2'
+[ c_empty_/TreeMap#_factory.2,
+
+Å ãscala/collection/DefaultMap#2 
+	v Äscala/collection/2
+p uscala/2%
+
+å è_empty_/TreeMap#[KEY]2'
+
+ë ñ_empty_/TreeMap#[VALUE]2
+
+ù †_empty_/Map#2%
+
+° §_empty_/TreeMap#[KEY]2'
+
+¶ ´_empty_/TreeMap#[VALUE]2#
+ _empty_/TreeMap#[KEY]2%
+ _empty_/TreeMap#[VALUE]2'
+ !_empty_/TreeMap#_factory.2&
+ _empty_/TreeMap#factory.2'
+ _empty_/TreeMap#_factory.2$
+ _empty_/TreeMap#order.2+
+ _empty_/TreeMapFactory#order.2'
+ _empty_/TreeMap#_factory.2+
+ 
+_empty_/TreeMap#`<init>`(+1).25
+ '_empty_/TreeMap#`<init>`(+1).(newOrder)2
+ _empty_/Order#2#
+ _empty_/TreeMap#[KEY]2)
+' '_empty_/TreeMap#`<init>`().20
+> >"_empty_/TreeMapFactory#`<init>`().2%
++ 9_empty_/TreeMapFactory#2#
+: =_empty_/TreeMap#[KEY]25
+? G'_empty_/TreeMap#`<init>`(+1).(newOrder)2$
+ 	_empty_/TreeMap#get().2)
+
+ _empty_/TreeMap#get().(key)2#
+ _empty_/TreeMap#[KEY]2)
+ _empty_/TreeMap#iterator().2%
+ scala/package.Iterator#2
+ scala/Tuple2#2#
+ "_empty_/TreeMap#[KEY]2%
+# (_empty_/TreeMap#[VALUE]2%
+ _empty_/TreeMap#size().2"
+" &_empty_/Tree#size().PZ DA62D7DD12641B3873A78B39DB450695

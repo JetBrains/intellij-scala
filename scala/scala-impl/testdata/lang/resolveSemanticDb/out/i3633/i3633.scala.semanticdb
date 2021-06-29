@@ -1,0 +1,14 @@
+
+štests/pos/i3633.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*!
+_empty_/Test#test().*test€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ _empty_/Test#foo().2"
+ 
+_empty_/Test#test().2$
+ scala/Int#`unary_-`().2!
+ _empty_/Test#foo().PZ 93975A921048E440011D8E78E9A33C12

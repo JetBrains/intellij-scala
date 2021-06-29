@@ -1,0 +1,204 @@
+
+à4tests/pos/i11057.scala*
+_empty_/data.
+ *data€*#
+_empty_/data.OfType#*OfType€*1
+_empty_/data.OfType#`<init>`(). €@*<init>€*!
+_empty_/data.OfType#[T]	*T€*"
+_empty_/data.IntT.
+ ˆ*IntT€*(
+_empty_/data.DoubleT.
+ ˆ*DoubleT€*&
+_empty_/data.FloatT.
+ ˆ*FloatT€*
+_empty_/data.DSeq#*DSeq€*
+_empty_/data.DSeq#[X]	*X€*.
+_empty_/data.ColumnName# €*
+ColumnName€*5
+#_empty_/data.ColumnName#`<init>`(). €@*<init>€*3
+&_empty_/data.ColumnName#`<init>`().(n) €*n€*3
+&_empty_/data.ColumnName#`<init>`().(t) €*t€*%
+_empty_/data.ColumnName#[T]	*T€*'
+_empty_/data.ColumnName#n. €*n€*'
+_empty_/data.ColumnName#t. €*t€*,
+_empty_/data.ColumnName#copy().*copy€*,
+"_empty_/data.ColumnName#copy().[T]	*T€*,
+"_empty_/data.ColumnName#copy().(n)*n€*,
+"_empty_/data.ColumnName#copy().(t)*t€*@
+)_empty_/data.ColumnName#copy$default$1().*copy$default$1€*6
+,_empty_/data.ColumnName#copy$default$1().[T]	*T€*@
+)_empty_/data.ColumnName#copy$default$2().*copy$default$2€*6
+,_empty_/data.ColumnName#copy$default$2().[T]	*T€*(
+_empty_/data.ColumnName#_1().*_1€*(
+_empty_/data.ColumnName#_2().*_2€*-
+_empty_/data.ColumnName.
+ *
+ColumnName€*.
+ _empty_/data.ColumnName.apply().*apply€*-
+#_empty_/data.ColumnName.apply().[T]	*T€*-
+#_empty_/data.ColumnName.apply().(n)*n€*-
+#_empty_/data.ColumnName.apply().(t)*t€*2
+"_empty_/data.ColumnName.unapply().*unapply€*/
+%_empty_/data.ColumnName.unapply().[T]	*T€*3
+'_empty_/data.ColumnName.unapply().(x$1)*x$1€*4
+#_empty_/data.ColumnName.toString().*toString€*&
+_empty_/data.Column# €*Column€*1
+_empty_/data.Column#`<init>`(). €@*<init>€*/
+"_empty_/data.Column#`<init>`().(n) €*n€*1
+#_empty_/data.Column#`<init>`().(of) €*of€*!
+_empty_/data.Column#[T]	*T€*!
+_empty_/data.Column#[F]	*F€*#
+_empty_/data.Column#n. €*n€*%
+_empty_/data.Column#of. €*of€*(
+_empty_/data.Column#copy().*copy€*(
+_empty_/data.Column#copy().[T]	*T€*(
+_empty_/data.Column#copy().[F]	*F€*(
+_empty_/data.Column#copy().(n)*n€**
+_empty_/data.Column#copy().(of)*of€*<
+%_empty_/data.Column#copy$default$1().*copy$default$1€*2
+(_empty_/data.Column#copy$default$1().[T]	*T€*2
+(_empty_/data.Column#copy$default$1().[F]	*F€*<
+%_empty_/data.Column#copy$default$2().*copy$default$2€*2
+(_empty_/data.Column#copy$default$2().[T]	*T€*2
+(_empty_/data.Column#copy$default$2().[F]	*F€*$
+_empty_/data.Column#_1().*_1€*$
+_empty_/data.Column#_2().*_2€*%
+_empty_/data.Column.
+ *Column€**
+_empty_/data.Column.apply().*apply€*)
+_empty_/data.Column.apply().[T]	*T€*)
+_empty_/data.Column.apply().[F]	*F€*)
+_empty_/data.Column.apply().(n)*n€*+
+ _empty_/data.Column.apply().(of)*of€*.
+_empty_/data.Column.unapply().*unapply€*+
+!_empty_/data.Column.unapply().[T]	*T€*+
+!_empty_/data.Column.unapply().[F]	*F€*/
+#_empty_/data.Column.unapply().(x$1)*x$1€*0
+_empty_/data.Column.toString().*toString€*)
+_empty_/i11057$package. *_empty_€*+
+_empty_/i11057$package.min4().*min4€*+
+!_empty_/i11057$package.min4().[T]	*T€*+
+!_empty_/i11057$package.min4().[F]	*F€*/
+#_empty_/i11057$package.min4().(col)*col€*1
+#_empty_/i11057$package.min4().(x$2)  *x$2€*
+local0 €*c€2
+ _empty_/data.2"
+
+ _empty_/data.OfType#2-
+ _empty_/data.OfType#`<init>`().2%
+ _empty_/data.OfType#[T]2 
+ _empty_/data.IntT.2"
+ #_empty_/data.OfType#2
+$ '
+scala/Int#2#
+ _empty_/data.DoubleT.2"
+  &_empty_/data.OfType#2
+' -scala/Double#2"
+ _empty_/data.FloatT.2"
+ %_empty_/data.OfType#2
+& +scala/Float#2 
+	 _empty_/data.DSeq#2#
+ _empty_/data.DSeq#[X]25
+. 9'scala/collection/immutable/AbstractSeq#2)
+$ -scala/collection/immutable/2
+ #scala/collection/2
+ scala/2#
+: ;_empty_/data.DSeq#[X]2&
+		 _empty_/data.ColumnName#21
+		 #_empty_/data.ColumnName#`<init>`().2"
+		 %scala/Predef.String#2"
+	*	 0_empty_/data.OfType#2)
+	1	 2_empty_/data.ColumnName#[T]2)
+		 _empty_/data.ColumnName#[T]2(
+		 _empty_/data.ColumnName#n.2(
+	'	 (_empty_/data.ColumnName#t.2-
+		 _empty_/data.ColumnName#copy().2+
+		 _empty_/data.ColumnName#_1().2+
+	*	 *_empty_/data.ColumnName#_2().2&
+		 _empty_/data.ColumnName.2.
+		  _empty_/data.ColumnName.apply().20
+		 "_empty_/data.ColumnName.unapply().2"
+
+
+ _empty_/data.Column#2-
+
+
+ _empty_/data.Column#`<init>`().2%
+
+)
+ *_empty_/data.Column#[F]2%
+
++
+ ,_empty_/data.Column#[T]2&
+
+3
+ =_empty_/data.ColumnName#2%
+
+>
+ ?_empty_/data.Column#[T]2%
+
+
+ _empty_/data.Column#[T]2%
+
+
+ _empty_/data.Column#[F]2$
+
+'
+ (_empty_/data.Column#n.2%
+
+/
+ 1_empty_/data.Column#of.2)
+
+
+ _empty_/data.Column#copy().2'
+
+)
+ )_empty_/data.Column#_1().2'
+
+3
+ 3_empty_/data.Column#_2().2"
+
+
+ _empty_/data.Column.2*
+
+
+ _empty_/data.Column.apply().2,
+
+
+ _empty_/data.Column.unapply().2%
+ _empty_/i11057$package.2,
+ 
+_empty_/i11057$package.min4().2/
+ !_empty_/i11057$package.min4().[T]2/
+ !_empty_/i11057$package.min4().[F]21
+! $#_empty_/i11057$package.min4().(col)2"
++ 1_empty_/data.Column#2
+& *_empty_/data.2/
+2 3!_empty_/i11057$package.min4().[T]2/
+4 5!_empty_/i11057$package.min4().[F]21
+> >#_empty_/i11057$package.min4().(x$2)2%
+> Fscala/package.Ordering#2/
+G H!_empty_/i11057$package.min4().[T]2/
+L M!_empty_/i11057$package.min4().[T]21
+ #_empty_/i11057$package.min4().(col)2
+ local02"
+ _empty_/data.Column#2
+ _empty_/data.2
+ 
+scala/Int#25
+' *'scala/collection/IterableOnceOps#min().2$
+% &_empty_/data.Column#n.2
+# $local02/
++ ,!_empty_/i11057$package.min4().[T]2*
+6 6scala/math/Ordering.apply().2%
+. 6scala/package.Ordering.2/
+7 8!_empty_/i11057$package.min4().[T]21
+9 9#_empty_/i11057$package.min4().(x$2)2"
+ _empty_/data.Column#2
+ _empty_/data.2
+ scala/Double#2#
+& )scala/Predef.`???`().2"
+ _empty_/data.Column#2
+ _empty_/data.2
+ scala/Float#2#
+% (scala/Predef.`???`().PZ 2054B659536C757065D77FDF7BBA9347

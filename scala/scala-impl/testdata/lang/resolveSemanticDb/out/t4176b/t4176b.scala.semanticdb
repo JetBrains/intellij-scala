@@ -1,0 +1,18 @@
+
+§tests/pos/t4176b.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*"
+_empty_/Test.foo().(a1)*a1€*
+local0*a1€2
+ _empty_/Test.2!
+	 _empty_/Test.foo().2%
+ _empty_/Test.foo().(a1)2"
+ scala/Predef.String#2%
+ _empty_/Test.foo().(a1)2!
+ 	_empty_/Test.foo().2
+ local02 
+ scala/package.Seq#2"
+ scala/Predef.String#2 
+ scala/package.Seq#2"
+ $scala/Predef.String#PZ 42AC39E5CC62BF1E7E1AA8A369159A12

@@ -1,0 +1,27 @@
+
+»tests/pos/i2948.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*%
+_empty_/Foo#zipped. €*zipped€*)
+_empty_/Foo#unzipped. €*unzipped€2.
+  *$scala/collection/mutable/ListBuffer.2.
+  *$scala/collection/mutable/ListBuffer#2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2!
+ _empty_/Foo#zipped.22
+ $scala/collection/mutable/ListBuffer#2"
+  scala/Predef.String#2
+" %
+scala/Int#2#
+ _empty_/Foo#unzipped.22
+ $scala/collection/mutable/ListBuffer#2"
+ #scala/Predef.String#22
+& 0$scala/collection/mutable/ListBuffer#2
+1 4
+scala/Int#2B
+@ E4scala/collection/StrictOptimizedIterableOps#unzip().2!
+9 ?_empty_/Foo#zipped.2'
+E Escala/Predef.$conforms().PZ D52350DB4D603D9F7BBC4BF2EF219D44

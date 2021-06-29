@@ -1,0 +1,181 @@
+
+Ä%tests/pos/gadt-EQK.scala*
+_empty_/EQK.
+ *EQK€*
+_empty_/EQK.EQ# *EQ€*,
+_empty_/EQK.EQ#`<init>`(). €@*<init>€*
+_empty_/EQK.EQ#[A]	*A€*
+_empty_/EQK.EQ#[B]	*B€*!
+_empty_/EQK.Refl# ˆ*Refl€*.
+_empty_/EQK.Refl#`<init>`(). €@*<init>€*
+_empty_/EQK.Refl#[A]	*A€*%
+_empty_/EQK.Refl#copy().*copy€*%
+_empty_/EQK.Refl#copy().[A]	*A€* 
+_empty_/EQK.Refl.
+ *Refl€*'
+_empty_/EQK.Refl.apply().*apply€*&
+_empty_/EQK.Refl.apply().[A]	*A€*+
+_empty_/EQK.Refl.unapply().*unapply€*(
+_empty_/EQK.Refl.unapply().[A]	*A€*,
+ _empty_/EQK.Refl.unapply().(x$1)*x$1€*-
+_empty_/EQK.Refl.toString().*toString€*
+_empty_/EQK.EQK# *EQK€*-
+_empty_/EQK.EQK#`<init>`(). €@*<init>€*
+_empty_/EQK.EQK#[F]	*F€*
+_empty_/EQK.EQK#[G]	*G€*#
+_empty_/EQK.ReflK# ˆ*ReflK€*/
+_empty_/EQK.ReflK#`<init>`(). €@*<init>€*
+_empty_/EQK.ReflK#[F]	*F€*&
+_empty_/EQK.ReflK#copy().*copy€*&
+_empty_/EQK.ReflK#copy().[F]	*F€*"
+_empty_/EQK.ReflK.
+ *ReflK€*(
+_empty_/EQK.ReflK.apply().*apply€*'
+_empty_/EQK.ReflK.apply().[F]	*F€*,
+_empty_/EQK.ReflK.unapply().*unapply€*)
+_empty_/EQK.ReflK.unapply().[F]	*F€*-
+!_empty_/EQK.ReflK.unapply().(x$1)*x$1€*.
+_empty_/EQK.ReflK.toString().*toString€*
+_empty_/EQK.m0().*m0€*
+_empty_/EQK.m0().[F]	*F€*
+_empty_/EQK.m0().[G]	*G€*
+_empty_/EQK.m0().[A]	*A€* 
+_empty_/EQK.m0().(fa)*fa€*"
+_empty_/EQK.m0().(eqk)*eqk€*
+_empty_/EQK.m1().*m1€*
+_empty_/EQK.m1().[F]	*F€*
+_empty_/EQK.m1().[G]	*G€*
+_empty_/EQK.m1().[A]	*A€* 
+_empty_/EQK.m1().(fa)*fa€* 
+_empty_/EQK.m1().(eq)*eq€*"
+_empty_/EQK.m1().(eqk)*eqk€*
+local0 €*r1€*
+local1 €*r2€*
+local2 €*r3€2
+ 
+_empty_/EQK.2
+ _empty_/EQK.EQ#2(
+ _empty_/EQK.EQ#`<init>`().2 
+ _empty_/EQK.EQ#[A]2 
+ _empty_/EQK.EQ#[B]2
+ _empty_/EQK.Refl#2*
+ _empty_/EQK.Refl#`<init>`().2
+% '_empty_/EQK.EQ#2"
+( )_empty_/EQK.Refl#[A]2"
++ ,_empty_/EQK.Refl#[A]2"
+ _empty_/EQK.Refl#[A]2&
+ _empty_/EQK.Refl#copy().2
+ _empty_/EQK.Refl.2'
+ _empty_/EQK.Refl.apply().2)
+ _empty_/EQK.Refl.unapply().2
+ _empty_/EQK.EQK#2)
+ _empty_/EQK.EQK#`<init>`().2!
+ _empty_/EQK.EQK#[F]2!
+ _empty_/EQK.EQK#[G]2 
+ _empty_/EQK.ReflK#2+
+ _empty_/EQK.ReflK#`<init>`().2
+) ,_empty_/EQK.EQK#2#
+- ._empty_/EQK.ReflK#[F]2#
+0 1_empty_/EQK.ReflK#[F]2#
+ _empty_/EQK.ReflK#[F]2'
+ _empty_/EQK.ReflK#copy().2 
+ _empty_/EQK.ReflK.2(
+ _empty_/EQK.ReflK.apply().2*
+ _empty_/EQK.ReflK.unapply().2
+ _empty_/EQK.m0().2"
+	 
+_empty_/EQK.m0().[F]2"
+ _empty_/EQK.m0().[G]2"
+ _empty_/EQK.m0().[A]2#
+ _empty_/EQK.m0().(fa)2"
+ _empty_/EQK.m0().[F]2"
+ _empty_/EQK.m0().[A]2$
+" %_empty_/EQK.m0().(eqk)2
+' *_empty_/EQK.EQK#2"
++ ,_empty_/EQK.m0().[F]2"
+. /_empty_/EQK.m0().[G]2"
+3 4_empty_/EQK.m0().[G]2"
+5 6_empty_/EQK.m0().[A]2$
+ _empty_/EQK.m0().(eqk)2*
+ _empty_/EQK.ReflK.unapply().2 
+ _empty_/EQK.ReflK.2#
+  "_empty_/EQK.m0().(fa)2
+
+
+ _empty_/EQK.m1().2"
+
+	
+ 
+_empty_/EQK.m1().[F]2"
+
+
+ _empty_/EQK.m1().[G]2"
+
+
+ _empty_/EQK.m1().[A]2#
+
+
+ _empty_/EQK.m1().(fa)2"
+
+
+ _empty_/EQK.m1().[F]2"
+
+
+ _empty_/EQK.m1().[A]2#
+
+"
+ $_empty_/EQK.m1().(eq)2
+
+&
+ (_empty_/EQK.EQ#2"
+
+)
+ *_empty_/EQK.m1().[A]2
+
+,
+ /
+scala/Int#2$
+
+2
+ 5_empty_/EQK.m1().(eqk)2
+
+7
+ :_empty_/EQK.EQK#2"
+
+;
+ <_empty_/EQK.m1().[F]2"
+
+>
+ ?_empty_/EQK.m1().[G]2"
+
+C
+ D_empty_/EQK.m1().[G]2
+
+E
+ H
+scala/Int#2$
+ _empty_/EQK.m1().(eqk)2*
+ _empty_/EQK.ReflK.unapply().2 
+ _empty_/EQK.ReflK.2#
+ _empty_/EQK.m1().(eq)2)
+ _empty_/EQK.Refl.unapply().2
+ _empty_/EQK.Refl.2
+ local02"
+ _empty_/EQK.m1().[F]2
+ 
+scala/Int#2#
+ _empty_/EQK.m1().(fa)2
+ local12"
+ _empty_/EQK.m1().[G]2"
+ _empty_/EQK.m1().[A]2#
+ _empty_/EQK.m1().(fa)2
+ local22"
+ _empty_/EQK.m1().[F]2
+ 
+scala/Int#2
+ local12#
+
+ _empty_/EQK.m1().(fa)2"
+ _empty_/EQK.m1().[G]2
+ 
+scala/Int#PZ 85DA428A727AA0B3234D9787D493CD85

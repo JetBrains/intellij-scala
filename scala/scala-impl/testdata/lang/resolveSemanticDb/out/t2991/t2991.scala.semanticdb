@@ -1,0 +1,81 @@
+
+âtests/pos/t2991.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*
+_empty_/X#f().*f€*
+_empty_/X#f().(x)*x€*
+_empty_/X#f(+1).*f€*
+_empty_/X#f(+1).(x)*x€*
+_empty_/X#f(+1).(y)*y€*
+
+_empty_/Y#*Y€*'
+_empty_/Y#`<init>`(). €@*<init>€*
+_empty_/Y#f().*f€*
+_empty_/Y#f().(x)*x€*
+_empty_/Y#f(+1).*f€*
+_empty_/Y#f(+1).(x)*x€*
+_empty_/Y#f(+1).(y)*y€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*"
+_empty_/Test.res0. €*res0€*"
+_empty_/Test.res1. €*res1€2
+ 
+_empty_/X#2#
+ _empty_/X#`<init>`().2
+ _empty_/X#f().2
+ 	_empty_/X#f().(x)2
+ scala/AnyRef#2#
+ scala/Any#toString().2
+ _empty_/X#f().(x)2
+ _empty_/X#f(+1).2!
+ 	_empty_/X#f(+1).(x)2
+ scala/AnyRef#2!
+ _empty_/X#f(+1).(y)2
+ scala/AnyRef#2<
+# +.scala/collection/IterableOnceOps#mkString(+1).2!
+! "_empty_/X#f(+1).(y)2#
+. 6scala/Any#toString().2!
+, -_empty_/X#f(+1).(x)2
+ 
+_empty_/Y#2#
+ _empty_/Y#`<init>`().2
+ _empty_/Y#f().2
+ 	_empty_/Y#f().(x)2
+ 
+scala/Int#2#
+ scala/Any#toString().2
+ _empty_/Y#f().(x)2
+ _empty_/Y#f(+1).2!
+ 	_empty_/Y#f(+1).(x)2
+ 
+scala/Int#2!
+ _empty_/Y#f(+1).(y)2
+ 
+scala/Int#2<
+ %.scala/collection/IterableOnceOps#mkString(+1).2!
+ _empty_/Y#f(+1).(y)2#
+( 0scala/Any#toString().2!
+& '_empty_/Y#f(+1).(x)2
+
+
+ _empty_/Test.2
+ _empty_/Test.x.2
+	 scala/AnyRef#2 
+ 
+_empty_/Test.res0.2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2
+ _empty_/X#f().2 
+ _empty_/Test.res0.2
+	 
+_empty_/Test.x.2 
+ 
+_empty_/Test.res1.2#
+ _empty_/Y#`<init>`().2
+ 
+_empty_/Y#2
+ _empty_/Y#f().2 
+ _empty_/Test.res1.PZ 7D99ECCA81B628D60C8DB55E76F05AED

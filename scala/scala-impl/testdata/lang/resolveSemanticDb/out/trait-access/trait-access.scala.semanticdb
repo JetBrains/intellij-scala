@@ -1,0 +1,46 @@
+
+çtests/pos/trait-access.scala*
+foo/A#*AÄ*#
+foo/A#`<init>`(). Ä@*<init>Ä*
+
+foo/A#a().*aÄ*
+foo/B#*BÄ*#
+foo/B#`<init>`(). Ä@*<init>Ä*
+
+_empty_/C#*CÄ*'
+_empty_/C#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.
+ *TestÄ*!
+_empty_/Test.test().*testÄ*
+local0 Ä*cÄ*
+local1 *$anonÄ2
+ foo/2
+ foo/A#2
+ foo/2
+ foo/A#`<init>`().2
+ 	
+foo/A#a().2
+ scala/Unit#2
+ 	foo/B#2
+ foo/B#`<init>`().2
+ foo/A#2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ foo/B#2
+ foo/2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ scala/Unit#2
+		 	local02
+		 local12
+		 
+_empty_/C#2
+
+
+ 
+foo/A#a().2
+
+
+ local0PZ 7872F75517E2E84DDB6560047D00C9A0

@@ -1,0 +1,176 @@
+
+î5#tests/pos/byname-implicits-15.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.Generic#*Generic€*2
+ _empty_/Test.Generic#`<init>`(). €@*<init>€*"
+_empty_/Test.Generic#[T]	*T€*'
+_empty_/Test.Generic#Repr#*Repr€*'
+_empty_/Test.Generic.
+ *Generic€*%
+_empty_/Test.Generic.Aux#*Aux€*&
+_empty_/Test.Generic.Aux#[T]	*T€*&
+_empty_/Test.Generic.Aux#[R]	*R€*
+local0*Repr€*5
+!_empty_/Test.Generic.genTuple3().  *	genTuple3€*.
+$_empty_/Test.Generic.genTuple3().[T]	*T€*.
+$_empty_/Test.Generic.genTuple3().[U]	*U€*.
+$_empty_/Test.Generic.genTuple3().[V]	*V€*5
+!_empty_/Test.Generic.genTuple5().  *	genTuple5€*.
+$_empty_/Test.Generic.genTuple5().[T]	*T€*.
+$_empty_/Test.Generic.genTuple5().[U]	*U€*.
+$_empty_/Test.Generic.genTuple5().[V]	*V€*.
+$_empty_/Test.Generic.genTuple5().[W]	*W€*.
+$_empty_/Test.Generic.genTuple5().[X]	*X€*
+_empty_/Test.Show#*Show€*/
+_empty_/Test.Show#`<init>`(). €@*<init>€*
+_empty_/Test.Show#[T]	*T€*!
+_empty_/Test.Show.
+ *Show€*/
+_empty_/Test.Show.showUnit.  *showUnit€*-
+_empty_/Test.Show.showInt.  *showInt€*0
+_empty_/Test.Show.showPair().  *showPair€**
+ _empty_/Test.Show.showPair().[T]	*T€**
+ _empty_/Test.Show.showPair().[U]	*U€*.
+!_empty_/Test.Show.showPair().(st)  *st€*.
+!_empty_/Test.Show.showPair().(su)  *su€*.
+_empty_/Test.Show.showGen().  *showGen€*)
+_empty_/Test.Show.showGen().[T]	*T€*)
+_empty_/Test.Show.showGen().[R]	*R€*/
+!_empty_/Test.Show.showGen().(gen)  *gen€*-
+ _empty_/Test.Show.showGen().(sr)  *sr€*
+_empty_/Test.I5#*I5€2
+ _empty_/Test.2#
+ _empty_/Test.Generic#2.
+  _empty_/Test.Generic#`<init>`().2&
+ _empty_/Test.Generic#[T]2(
+	 _empty_/Test.Generic#Repr#2#
+	 _empty_/Test.Generic.2'
+	 _empty_/Test.Generic.Aux#2*
+ _empty_/Test.Generic.Aux#[T]2*
+ _empty_/Test.Generic.Aux#[R]2#
+ _empty_/Test.Generic#2*
+ _empty_/Test.Generic.Aux#[T]2
+' +local02*
+. /_empty_/Test.Generic.Aux#[R]2/
+ !_empty_/Test.Generic.genTuple3().22
+ $_empty_/Test.Generic.genTuple3().[T]22
+ $_empty_/Test.Generic.genTuple3().[U]22
+! "$_empty_/Test.Generic.genTuple3().[V]2'
+% (_empty_/Test.Generic.Aux#22
+* +$_empty_/Test.Generic.genTuple3().[T]22
+- .$_empty_/Test.Generic.genTuple3().[U]22
+0 1$_empty_/Test.Generic.genTuple3().[V]22
+5 6$_empty_/Test.Generic.genTuple3().[T]22
+9 :$_empty_/Test.Generic.genTuple3().[U]22
+= >$_empty_/Test.Generic.genTuple3().[V]2
+@ Dscala/Unit#2#
+K Nscala/Predef.`???`().2/
+ !_empty_/Test.Generic.genTuple5().22
+ $_empty_/Test.Generic.genTuple5().[T]22
+ $_empty_/Test.Generic.genTuple5().[U]22
+! "$_empty_/Test.Generic.genTuple5().[V]22
+$ %$_empty_/Test.Generic.genTuple5().[W]22
+' ($_empty_/Test.Generic.genTuple5().[X]2'
++ ._empty_/Test.Generic.Aux#22
+0 1$_empty_/Test.Generic.genTuple5().[T]22
+3 4$_empty_/Test.Generic.genTuple5().[U]22
+6 7$_empty_/Test.Generic.genTuple5().[V]22
+9 :$_empty_/Test.Generic.genTuple5().[W]22
+< =$_empty_/Test.Generic.genTuple5().[X]22
+A B$_empty_/Test.Generic.genTuple5().[T]22
+E F$_empty_/Test.Generic.genTuple5().[U]22
+I J$_empty_/Test.Generic.genTuple5().[V]22
+M N$_empty_/Test.Generic.genTuple5().[W]22
+Q R$_empty_/Test.Generic.genTuple5().[X]2
+T Xscala/Unit#2#
+a dscala/Predef.`???`().2 
+ _empty_/Test.Show#2+
+ _empty_/Test.Show#`<init>`().2#
+ _empty_/Test.Show#[T]2 
+	 _empty_/Test.Show.2)
+ _empty_/Test.Show.showUnit.2 
+ _empty_/Test.Show#2
+  $scala/Unit#2#
+( +scala/Predef.`???`().2(
+ _empty_/Test.Show.showInt.2 
+ _empty_/Test.Show#2
+ "
+scala/Int#2#
+& )scala/Predef.`???`().2+
+ _empty_/Test.Show.showPair().2.
+  _empty_/Test.Show.showPair().[T]2.
+  _empty_/Test.Show.showPair().[U]2/
+) +!_empty_/Test.Show.showPair().(st)2 
+- 1_empty_/Test.Show#2.
+2 3 _empty_/Test.Show.showPair().[T]2/
+6 8!_empty_/Test.Show.showPair().(su)2 
+: >_empty_/Test.Show#2.
+? @ _empty_/Test.Show.showPair().[U]2 
+D H_empty_/Test.Show#2.
+J K _empty_/Test.Show.showPair().[T]2.
+M N _empty_/Test.Show.showPair().[U]2#
+S Vscala/Predef.`???`().2*
+ _empty_/Test.Show.showGen().2-
+ _empty_/Test.Show.showGen().[T]2-
+ _empty_/Test.Show.showGen().[R]2/
+( +!_empty_/Test.Show.showGen().(gen)2'
+5 8_empty_/Test.Generic.Aux#2#
+- 4_empty_/Test.Generic.2-
+9 :_empty_/Test.Show.showGen().[T]2-
+< =_empty_/Test.Show.showGen().[R]2.
+@ B _empty_/Test.Show.showGen().(sr)2 
+G K_empty_/Test.Show#2-
+L M_empty_/Test.Show.showGen().[R]2 
+Q U_empty_/Test.Show#2-
+V W_empty_/Test.Show.showGen().[T]2#
+[ ^scala/Predef.`???`().2
+ 	_empty_/Test.I5#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+! $
+scala/Int#2(
+ scala/Predef.implicitly().2 
+ _empty_/Test.Show#2
+ _empty_/Test.I5#2
+ _empty_/Test.I5#2
+ _empty_/Test.I5#2*
+   _empty_/Test.Show.showGen().2/
+   !_empty_/Test.Generic.genTuple3().2+
+   _empty_/Test.Show.showPair().2/
+   !_empty_/Test.Generic.genTuple5().2(
+   _empty_/Test.Show.showInt.2)
+   _empty_/Test.Show.showUnit.2(
+ scala/Predef.implicitly().2 
+ _empty_/Test.Show#2
+ 
+scala/Int#2
+ _empty_/Test.I5#2
+ 
+scala/Int#2*
+" "_empty_/Test.Show.showGen().2/
+" "!_empty_/Test.Generic.genTuple3().2+
+" "_empty_/Test.Show.showPair().2(
+" "_empty_/Test.Show.showInt.2/
+" "!_empty_/Test.Generic.genTuple5().2)
+" "_empty_/Test.Show.showUnit.2(
+ scala/Predef.implicitly().2 
+ _empty_/Test.Show#2
+ _empty_/Test.I5#2
+ _empty_/Test.I5#2
+ _empty_/Test.I5#2
+  "_empty_/Test.I5#2
+% (
+scala/Int#2*
++ +_empty_/Test.Show.showGen().2/
++ +!_empty_/Test.Generic.genTuple3().2+
++ +_empty_/Test.Show.showPair().2/
++ +!_empty_/Test.Generic.genTuple5().2(
++ +_empty_/Test.Show.showInt.2)
++ +_empty_/Test.Show.showUnit.PZ 3930E791AD66F008AB26B00D13550030

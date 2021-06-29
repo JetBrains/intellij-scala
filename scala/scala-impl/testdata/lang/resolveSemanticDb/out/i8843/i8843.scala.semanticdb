@@ -1,0 +1,68 @@
+
+À
+tests/pos/i8843.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#X#*X€*(
+_empty_/i8843$package. *_empty_€*$
+_empty_/i8843$package.f().*f€*'
+_empty_/i8843$package.f().(c)*c€*
+local0 €*size€*
+local1 €*n€*
+local2 €*m€**
+_empty_/i8843$package.test().*test€*
+local3*X€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#X#2
+ scala/Tuple#2 
+_empty_/i8843$package.2(
+ _empty_/i8843$package.f().2+
+ _empty_/i8843$package.f().(c)2
+ 
+_empty_/C#2
+ scala/Unit#2
+ local02=
+  */scala/compiletime/package$package.constValue().2 
+ scala/compiletime/2
+1 5scala/Tuple.Size#2
++ 0scala/Tuple.2
+8 9_empty_/C#X#2+
+6 7_empty_/i8843$package.f().(c)2
+ local12
+
+ local02
+ local22
+	 
+scala/Int#2
+ local12#
+ scala/Predef.`???`().2+
+
+
+ _empty_/i8843$package.test().2
+
+
+
+ scala/Unit#2(
+
+
+ _empty_/i8843$package.f().2#
+
+
+ scala/Predef.`???`().2
+
+
+ 
+_empty_/C#2
+
+"
+ #local32
+
+&
+ ,scala/Tuple1#2
+
+-
+ 0
+scala/Any#PZ 0C23D5B79EB1D007EB65313A64D42DB1

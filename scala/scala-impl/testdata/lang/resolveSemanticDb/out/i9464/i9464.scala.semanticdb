@@ -1,0 +1,39 @@
+
+›	tests/pos/i9464.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#X#*X€*
+_empty_/T#x(). *x€*(
+_empty_/i9464$package. *_empty_€*,
+_empty_/i9464$package.test1().*test1€*+
+!_empty_/i9464$package.test1().(t)*t€*,
+_empty_/i9464$package.test2().*test2€*+
+!_empty_/i9464$package.test2().(t)*t€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ _empty_/T#X#2
+ _empty_/T#x().2
+	 
+_empty_/T#X#2 
+_empty_/i9464$package.2,
+ 	_empty_/i9464$package.test1().2/
+
+ !_empty_/i9464$package.test1().(t)2
+ 
+_empty_/T#2
+ _empty_/T#X#2/
+ !_empty_/i9464$package.test1().(t)2
+ _empty_/T#x().2/
+ !_empty_/i9464$package.test1().(t)2,
+ 	_empty_/i9464$package.test2().2/
+
+ !_empty_/i9464$package.test2().(t)2
+ 
+_empty_/T#2
+ _empty_/T#X#2/
+ !_empty_/i9464$package.test2().(t)2
+  !_empty_/T#x().2/
+ !_empty_/i9464$package.test2().(t)2,
+! !_empty_/i9464$package.test2().PZ ACC2C2D579F6CBA12EA230BC6B32F67C

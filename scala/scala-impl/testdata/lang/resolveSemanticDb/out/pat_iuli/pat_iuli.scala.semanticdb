@@ -1,0 +1,86 @@
+
+ßtests/pos/pat_iuli.scala*
+_empty_/Ops#*Ops€*)
+_empty_/Ops#`<init>`(). €@*<init>€*
+local0*self€*$
+_empty_/Ops#Instru# *Instru€*0
+_empty_/Ops#Instru#`<init>`(). €@*<init>€*&
+_empty_/Ops#opcodes.
+ *opcodes€*-
+_empty_/Ops#opcodes.SWITCH# €*SWITCH€*8
+&_empty_/Ops#opcodes.SWITCH#`<init>`(). €@*<init>€*6
+)_empty_/Ops#opcodes.SWITCH#`<init>`().(i) €*i€**
+_empty_/Ops#opcodes.SWITCH#i. €*i€*/
+"_empty_/Ops#opcodes.SWITCH#copy().*copy€*/
+%_empty_/Ops#opcodes.SWITCH#copy().(i)*i€*C
+,_empty_/Ops#opcodes.SWITCH#copy$default$1().*copy$default$1€*+
+ _empty_/Ops#opcodes.SWITCH#_1().*_1€*,
+_empty_/Ops#opcodes.SWITCH.
+ *SWITCH€*1
+#_empty_/Ops#opcodes.SWITCH.apply().*apply€*0
+&_empty_/Ops#opcodes.SWITCH.apply().(i)*i€*5
+%_empty_/Ops#opcodes.SWITCH.unapply().*unapply€*6
+*_empty_/Ops#opcodes.SWITCH.unapply().(x$1)*x$1€*7
+&_empty_/Ops#opcodes.SWITCH.toString().*toString€*5
+_empty_/Ops#opcodes.EmptyInstr.
+ ˆ*
+EmptyInstr€*
+_empty_/Blox#*Blox€**
+_empty_/Blox#`<init>`(). €@*<init>€*
+local1*self€*#
+_empty_/Blox#Basick#*Basick€*1
+_empty_/Blox#Basick#`<init>`(). €@*<init>€*)
+_empty_/Blox#Basick#foo(). €*foo€*/
+_empty_/Blox#Basick#`foo_=`(). €*foo_=€*/
+#_empty_/Blox#Basick#`foo_=`().(x$1)*x$1€*&
+_empty_/Blox#Basick#bar().*bar€*
+local2 €*i€*"
+_empty_/MyCodes# *MyCodes€*-
+_empty_/MyCodes#`<init>`(). €@*<init>€2
+ 	_empty_/Ops#2!
+ _empty_/Ops#`<init>`().2
+ local02
+ _empty_/MyCodes#2!
+ _empty_/Ops#Instru#2,
+ _empty_/Ops#Instru#`<init>`().2"
+	 _empty_/Ops#opcodes.2)
+ _empty_/Ops#opcodes.SWITCH#24
+ &_empty_/Ops#opcodes.SWITCH#`<init>`().2
+ 
+scala/Int#2,
++ +_empty_/Ops#Instru#`<init>`().2!
+% +_empty_/Ops#Instru#2+
+ _empty_/Ops#opcodes.SWITCH#i.20
+ "_empty_/Ops#opcodes.SWITCH#copy().2.
+  _empty_/Ops#opcodes.SWITCH#_1().2)
+ _empty_/Ops#opcodes.SWITCH.21
+ #_empty_/Ops#opcodes.SWITCH.apply().2-
+ _empty_/Ops#opcodes.EmptyInstr.2,
+) )_empty_/Ops#Instru#`<init>`().2!
+# )_empty_/Ops#Instru#2
+ 
+_empty_/Blox#2&
+ _empty_/Blox#`<init>`().2
+ local12
+ _empty_/MyCodes#2"
+			 _empty_/Ops#opcodes.2"
+
+
+ _empty_/Blox#Basick#2-
+ _empty_/Blox#Basick#`<init>`().2(
+ _empty_/Blox#Basick#foo().2!
+ _empty_/Ops#Instru#2,
+ _empty_/Blox#Basick#`foo_=`().2(
+ _empty_/Blox#Basick#bar().2(
+ _empty_/Blox#Basick#foo().23
+ %_empty_/Ops#opcodes.SWITCH.unapply().2)
+ _empty_/Ops#opcodes.SWITCH.2
+ local22
+ local22-
+ _empty_/Ops#opcodes.EmptyInstr.2
+ _empty_/MyCodes#2)
+ _empty_/MyCodes#`<init>`().2*
+% %java/lang/Object#`<init>`().2
+ %scala/AnyRef#2
++ ._empty_/Ops#2
+4 8_empty_/Blox#PZ 6FE84C5A66B6BED80FC2E494952E70F9

@@ -1,0 +1,15 @@
+
+Ìtests/pos/t7689.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.x().*x€*
+_empty_/A.x().(f)*f€*,
+_empty_/A.x$default$1().*x$default$1€2
+ 
+_empty_/A.2
+ _empty_/A.x().2
+ 	_empty_/A.x().(f)2!
+ scala/package.List#2
+ 
+scala/Int#PZ 9D281B6CACAC377CD0B61069AF3A4925

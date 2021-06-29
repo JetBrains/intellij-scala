@@ -1,0 +1,157 @@
+
+À.tests/pos/t2082.scala*
+_empty_/Mapper#*Mapper€*,
+_empty_/Mapper#`<init>`(). €@*<init>€*
+_empty_/Mapper#[T]	*T€*(
+_empty_/KeyedMapper#*KeyedMapper€*1
+_empty_/KeyedMapper#`<init>`(). €@*<init>€*-
+_empty_/KeyedMapper#[KeyType]	*KeyType€*!
+_empty_/KeyedMapper#[T]	*T€*0
+_empty_/KeyedMetaMapper#*KeyedMetaMapper€*5
+#_empty_/KeyedMetaMapper#`<init>`(). €@*<init>€*1
+!_empty_/KeyedMetaMapper#[KeyType]	*KeyType€*%
+_empty_/KeyedMetaMapper#[T]	*T€*2
+_empty_/MappedForeignKey#*MappedForeignKey€*6
+$_empty_/MappedForeignKey#`<init>`(). €@*<init>€*2
+"_empty_/MappedForeignKey#[KeyType]	*KeyType€*.
+ _empty_/MappedForeignKey#[Owner]	*Owner€*.
+ _empty_/MappedForeignKey#[Other]	*Other€*
+_empty_/IdPK#*IdPK€**
+_empty_/IdPK#`<init>`(). €@*<init>€*(
+_empty_/TestSubject#*TestSubject€*1
+_empty_/TestSubject#`<init>`(). €@*<init>€* 
+_empty_/TestRun#*TestRun€*-
+_empty_/TestRun#`<init>`(). €@*<init>€*2
+_empty_/TestRun#testSubject.
+ *testSubject€*"
+_empty_/TestRun.
+ *TestRun€*0
+_empty_/MetaTestSubject#*MetaTestSubject€*5
+#_empty_/MetaTestSubject#`<init>`(). €@*<init>€**
+_empty_/TestSubject.
+ *TestSubject€*
+_empty_/Main.
+ *Main€*1
+_empty_/Main.oneToOneJoin().*oneToOneJoin€*1
+#_empty_/Main.oneToOneJoin().[PType]	*PType€*1
+#_empty_/Main.oneToOneJoin().[CType]	*CType€*9
+'_empty_/Main.oneToOneJoin().[CMetaType]	*	CMetaType€*3
+$_empty_/Main.oneToOneJoin().[FKType]	*FKType€*5
+%_empty_/Main.oneToOneJoin().(parents)*parents€*;
+(_empty_/Main.oneToOneJoin().(metaMapper)*
+metaMapper€*9
+'_empty_/Main.oneToOneJoin().(keyGetter)*	keyGetter€*%
+_empty_/Main.callIt().*callIt€*
+local0*tr€2
+ _empty_/Mapper#2(
+ _empty_/Mapper#`<init>`().2 
+ _empty_/Mapper#[T]2"
+ _empty_/KeyedMapper#2-
+ _empty_/KeyedMapper#`<init>`().2
+A G_empty_/Mapper#2%
+H I_empty_/KeyedMapper#[T]2+
+ _empty_/KeyedMapper#[KeyType]2%
+ _empty_/KeyedMapper#[T]2&
+ _empty_/KeyedMetaMapper#21
+ #_empty_/KeyedMetaMapper#`<init>`().2/
+ !_empty_/KeyedMetaMapper#[KeyType]2)
+  _empty_/KeyedMetaMapper#[T]2'
+ _empty_/MappedForeignKey#22
+ $_empty_/MappedForeignKey#`<init>`().20
+ "_empty_/MappedForeignKey#[KeyType]2.
+  % _empty_/MappedForeignKey#[Owner]2.
+8 = _empty_/MappedForeignKey#[Other]2
+
+
+ 
+_empty_/IdPK#2"
+
+
+_empty_/IdPK#`<init>`().2"
+ _empty_/TestSubject#2-
+ _empty_/TestSubject#`<init>`().2"
+ %_empty_/KeyedMapper#2
+& *scala/Long#2"
+, 7_empty_/TestSubject#2
+> B_empty_/IdPK#2
+ _empty_/TestRun#2)
+ _empty_/TestRun#`<init>`().2"
+ !_empty_/KeyedMapper#2
+" &scala/Long#2
+( /_empty_/TestRun#2
+6 :_empty_/IdPK#2*
+ _empty_/TestRun#testSubject.2'
+ /_empty_/MappedForeignKey#2
+0 4scala/Long#2
+6 =_empty_/TestRun#2"
+? J_empty_/TestSubject#2
+ _empty_/TestRun.2)
+ _empty_/TestRun#`<init>`().2
+ _empty_/TestRun#2&
+$ 3_empty_/KeyedMetaMapper#2
+4 8scala/Long#2
+: A_empty_/TestRun#2&
+ _empty_/MetaTestSubject#21
+ #_empty_/MetaTestSubject#`<init>`().2-
+) )_empty_/TestSubject#`<init>`().2"
+ )_empty_/TestSubject#2&
+/ >_empty_/KeyedMetaMapper#2
+? Cscala/Long#2"
+E P_empty_/TestSubject#2"
+ _empty_/TestSubject.21
+* *#_empty_/MetaTestSubject#`<init>`().2&
+ *_empty_/MetaTestSubject#2
+ _empty_/Main.2*
+ _empty_/Main.oneToOneJoin().21
+ #_empty_/Main.oneToOneJoin().[PType]2"
+ '_empty_/KeyedMapper#2
+( ,scala/Long#21
+. 3#_empty_/Main.oneToOneJoin().[PType]2
+: >_empty_/IdPK#21
+ #_empty_/Main.oneToOneJoin().[CType]2"
+ '_empty_/KeyedMapper#2
+( ,scala/Long#21
+. 3#_empty_/Main.oneToOneJoin().[CType]2
+: >_empty_/IdPK#25
+ '_empty_/Main.oneToOneJoin().[CMetaType]21
+  %#_empty_/Main.oneToOneJoin().[CType]2&
++ :_empty_/KeyedMetaMapper#2
+; ?scala/Long#21
+A F#_empty_/Main.oneToOneJoin().[CType]22
+ $_empty_/Main.oneToOneJoin().[FKType]2'
+ -_empty_/MappedForeignKey#2
+. 2scala/Long#21
+4 9#_empty_/Main.oneToOneJoin().[PType]21
+; @#_empty_/Main.oneToOneJoin().[CType]23
+ 
+%_empty_/Main.oneToOneJoin().(parents)2!
+ scala/package.List#21
+ #_empty_/Main.oneToOneJoin().[PType]26
+ #(_empty_/Main.oneToOneJoin().(metaMapper)25
+% .'_empty_/Main.oneToOneJoin().[CMetaType]25
+0 9'_empty_/Main.oneToOneJoin().(keyGetter)21
+< A#_empty_/Main.oneToOneJoin().[PType]22
+F L$_empty_/Main.oneToOneJoin().[FKType]2
+ scala/Predef.Map#2
+ 
+scala/Long#21
+ #_empty_/Main.oneToOneJoin().[CType]25
+ 'scala/collection/immutable/Map.empty().2
+ scala/Predef.Map.2$
+   _empty_/Main.callIt().2
+   scala/Unit#2*
+!! _empty_/Main.oneToOneJoin().2
+!! _empty_/TestRun#2"
+!! %_empty_/TestSubject#2&
+!'! 6_empty_/MetaTestSubject#2'
+"" !_empty_/MappedForeignKey#2
+""" &scala/Long#2
+"(" /_empty_/TestRun#2"
+"1" <_empty_/TestSubject#27
+## )scala/collection/IterableFactory#apply().2!
+## scala/package.List.2"
+## _empty_/TestSubject.2
+## local02
+## %_empty_/TestRun#2*
+#-# 8_empty_/TestRun#testSubject.2
+#*# ,local0PZ B77F057F1CAB4921CB5FCA51DDD4842F

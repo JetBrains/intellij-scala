@@ -1,0 +1,53 @@
+
+Ùtests/pos/i7822.scala*
+_empty_/Code#*Code€**
+_empty_/Code#`<init>`(). €@*<init>€*
+_empty_/Code#Ctx#*Ctx€*(
+_empty_/i7822$package. *_empty_€*(
+_empty_/i7822$package.foo().*foo€*+
+ _empty_/i7822$package.foo().(o0)*o0€*+
+ _empty_/i7822$package.foo().(o1)*o1€*
+local0 *$anon€*
+local1*Ctx€**
+_empty_/i7822$package.foo0().*foo0€*,
+!_empty_/i7822$package.foo0().(o0)*o0€*,
+!_empty_/i7822$package.foo0().(o1)*o1€*
+local2*Ctx€2
+ 
+_empty_/Code#2&
+ _empty_/Code#`<init>`().2
+ 
+_empty_/Code#Ctx#2 
+_empty_/i7822$package.2*
+ _empty_/i7822$package.foo().2.
+ 
+ _empty_/i7822$package.foo().(o0)2
+ _empty_/Code#2.
+  _empty_/i7822$package.foo().(o1)2
+ _empty_/Code#2
+ local02&
+# #_empty_/Code#`<init>`().2
+ #_empty_/Code#2
++ .local12
+8 9
+scala/`&`#2
+4 7_empty_/Code#Ctx#2.
+1 3 _empty_/i7822$package.foo().(o0)2
+= @_empty_/Code#Ctx#2.
+: < _empty_/i7822$package.foo().(o1)2+
+ _empty_/i7822$package.foo0().2/
+	 !_empty_/i7822$package.foo0().(o0)2
+ _empty_/Code#2/
+ !_empty_/i7822$package.foo0().(o1)2
+ _empty_/Code#2
+ _empty_/Code#2
+' *local22
+4 5
+scala/`&`#2
+0 3_empty_/Code#Ctx#2/
+- /!_empty_/i7822$package.foo0().(o0)2
+9 <_empty_/Code#Ctx#2/
+6 8!_empty_/i7822$package.foo0().(o1)2*
+A D_empty_/i7822$package.foo().2/
+E G!_empty_/i7822$package.foo0().(o0)2/
+H J!_empty_/i7822$package.foo0().(o1)PZ 2A5A1CA1B6C980884CC539052107F051

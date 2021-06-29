@@ -1,0 +1,75 @@
+
+Étests/pos/t599.scala*
+_empty_/FooA# *FooA€**
+_empty_/FooA#`<init>`(). €@*<init>€*
+_empty_/FooA#A#*A€*
+_empty_/FooA#AxA# *AxA€*.
+_empty_/FooA#AxA#`<init>`(). €@*<init>€*%
+_empty_/FooA#InnerA# *InnerA€*1
+_empty_/FooA#InnerA#`<init>`(). €@*<init>€* 
+_empty_/FooA#InnerA#B#*B€*(
+_empty_/FooA#InnerA#doB(). *doB€*
+_empty_/FooB#*FooB€**
+_empty_/FooB#`<init>`(). €@*<init>€*
+_empty_/FooB#A#*A€*
+_empty_/FooB#AxB#*AxB€*.
+_empty_/FooB#AxB#`<init>`(). €@*<init>€*%
+_empty_/FooB#AxB#xxx(). *xxx€*%
+_empty_/FooB#InnerB# *InnerB€*1
+_empty_/FooB#InnerB#`<init>`(). €@*<init>€*#
+_empty_/FooB#InnerB#a. €*a€*'
+_empty_/FooB#InnerB#aaa. €*aaa€2
+ _empty_/FooA#2&
+ _empty_/FooA#`<init>`().2
+	 
+_empty_/FooA#A#2
+ _empty_/FooA#AxA#2
+ _empty_/FooA#AxA#2*
+ _empty_/FooA#AxA#`<init>`().2"
+ _empty_/FooA#InnerA#2-
+ _empty_/FooA#InnerA#`<init>`().2$
+ _empty_/FooA#InnerA#B#2
+ _empty_/FooA#A#2(
+
+ _empty_/FooA#InnerA#doB().2$
+ _empty_/FooA#InnerA#B#2
+ _empty_/FooB#2&
+ _empty_/FooB#`<init>`().2
+ _empty_/FooA#2
+			 
+_empty_/FooB#A#2
+		 _empty_/FooB#AxB#2
+
+
+
+ _empty_/FooB#AxB#2*
+
+
+ _empty_/FooB#AxB#`<init>`().2
+
+
+ _empty_/FooA#AxA#2%
+
+ 
+ #_empty_/FooB#AxB#xxx().2
+
+&
+ )
+scala/Int#2"
+ _empty_/FooB#InnerB#2-
+" "_empty_/FooB#InnerB#`<init>`().2-
+( (_empty_/FooA#InnerA#`<init>`().2"
+" (_empty_/FooA#InnerA#2$
+
+ _empty_/FooB#InnerB#a.2
+ _empty_/FooB#A#2(
+ _empty_/FooA#InnerA#doB().2%
+ _empty_/FooB#AxB#xxx().2$
+ _empty_/FooB#InnerB#a.2&
+
+ _empty_/FooB#InnerB#aaa.2$
+ _empty_/FooA#InnerA#B#2(
+ "_empty_/FooA#InnerA#doB().2%
+
+ _empty_/FooB#AxB#xxx().2&
+ 	_empty_/FooB#InnerB#aaa.PZ 5954E343711493DBE6156450D7F832AB

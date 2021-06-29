@@ -1,0 +1,119 @@
+
+îtests/pos/bounds.scala*
+_empty_/Map#*Map€*)
+_empty_/Map#`<init>`(). €@*<init>€*
+_empty_/Map#[A]	*A€*
+_empty_/Map#[C]	 €*C€*
+_empty_/Map#`++`().*++€*"
+_empty_/Map#`++`().[B1]	*B1€*$
+_empty_/Map#`++`().(kvs)*kvs€* 
+_empty_/Map#`++`(+1).*++€*$
+_empty_/Map#`++`(+1).[B1]	*B1€*&
+_empty_/Map#`++`(+1).(kvs)*kvs€* 
+_empty_/ListMap#*ListMap€*-
+_empty_/ListMap#`<init>`(). €@*<init>€*
+_empty_/ListMap#[A]	*A€* 
+_empty_/ListMap#[B]	 €*B€*"
+_empty_/ListMap.
+ *ListMap€*&
+_empty_/ListMap.empty().*empty€*%
+_empty_/ListMap.empty().[X]	*X€*%
+_empty_/ListMap.empty().[Y]	*Y€*&
+_empty_/ListMap.apply().*apply€*'
+_empty_/ListMap.apply().[A1]	*A1€*'
+_empty_/ListMap.apply().[B2]	*B2€*-
+_empty_/ListMap.apply().(elems)*elems€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#[A]	*A€*
+_empty_/Test#f().*f€*
+_empty_/Test#f().[B]	*B€*
+_empty_/Test#f().(x)*x€*
+_empty_/Test#g().*g€*
+_empty_/Test#g().[B]	*B€*
+_empty_/Test#g().(x)*x€2
+ 	_empty_/Map#2!
+	 	_empty_/Map#`<init>`().2
+
+ _empty_/Map#[A]2
+ _empty_/Map#[C]2!
+ _empty_/Map#`++`().2%
+
+ _empty_/Map#`++`().[B1]2
+ _empty_/Map#[C]2&
+ _empty_/Map#`++`().(kvs)2%
+ !scala/package.Iterable#2
+" (scala/Tuple2#2
+) *_empty_/Map#[A]2%
+, ._empty_/Map#`++`().[B1]2
+3 6_empty_/Map#2
+7 8_empty_/Map#[A]2%
+: <_empty_/Map#`++`().[B1]2#
+ _empty_/Map#`++`(+1).2'
+
+ _empty_/Map#`++`(+1).[B1]2
+ _empty_/Map#[C]2(
+ _empty_/Map#`++`(+1).(kvs)2%
+ !scala/package.Iterator#2
+" (scala/Tuple2#2
+) *_empty_/Map#[A]2'
+, ._empty_/Map#`++`(+1).[B1]2
+3 6_empty_/Map#2
+7 8_empty_/Map#[A]2'
+: <_empty_/Map#`++`(+1).[B1]2
+ _empty_/ListMap#2)
+ _empty_/ListMap#`<init>`().2
+  _empty_/Map#2!
+! "_empty_/ListMap#[A]2!
+$ %_empty_/ListMap#[B]2!
+ _empty_/ListMap#[A]2!
+ _empty_/ListMap#[B]2
+ _empty_/ListMap.2&
+ _empty_/ListMap.empty().2)
+ _empty_/ListMap.empty().[X]2)
+ _empty_/ListMap.empty().[Y]2)
+% %_empty_/ListMap#`<init>`().2
+ _empty_/ListMap#2)
+  !_empty_/ListMap.empty().[X]2)
+# $_empty_/ListMap.empty().[Y]2&
+		 _empty_/ListMap.apply().2*
+		 _empty_/ListMap.apply().[A1]2*
+		 _empty_/ListMap.apply().[B2]2-
+		 _empty_/ListMap.apply().(elems)2
+		 !scala/Tuple2#2*
+	"	 $_empty_/ListMap.apply().[A1]2*
+	&	 (_empty_/ListMap.apply().[B2]2
+	-	 0_empty_/Map#2*
+	1	 3_empty_/ListMap.apply().[A1]2*
+	5	 7_empty_/ListMap.apply().[B2]2#
+	H	 J_empty_/Map#`++`(+1).2&
+	;	 @_empty_/ListMap.empty().2*
+	A	 C_empty_/ListMap.apply().[A1]2*
+	D	 F_empty_/ListMap.apply().[B2]27
+	Q	 Y)scala/collection/IterableOnce#iterator().2-
+	K	 P_empty_/ListMap.apply().(elems)2
+ 
+_empty_/Test#2&
+
+ 
+_empty_/Test#`<init>`().2
+ _empty_/Test#[A]2
+ _empty_/Test#f().2"
+ 	_empty_/Test#f().[B]2
+ _empty_/Test#[A]2
+ scala/AnyRef#2"
+ _empty_/Test#f().(x)2
+ _empty_/Test#[A]2
+! 'scala/AnyRef#2"
++ ,_empty_/Test#f().(x)2"
+. /_empty_/Test#f().[B]2
+ _empty_/Test#g().2"
+ 	_empty_/Test#g().[B]2"
+ scala/Predef.String#2
+ 
+scala/Int#2"
+ _empty_/Test#g().(x)2"
+  _empty_/Test#g().[B]2
+# &
+scala/Int#2"
+) *_empty_/Test#g().(x)PZ 2FEF01444AA90FB21DF6A63832550D76

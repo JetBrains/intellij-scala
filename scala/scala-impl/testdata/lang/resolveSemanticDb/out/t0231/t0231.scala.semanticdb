@@ -1,0 +1,31 @@
+
+Ótests/pos/t0231.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#aaa().*aaa€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*
+_empty_/Bar#b.
+ *b€*
+_empty_/bug.
+ *bug€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#aaa().2
+ scala/Unit#2'
+ scala/Predef.println(+1).2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+	 
+_empty_/Bar#b.2'
+		 scala/Predef.println(+1).2%
+		 java/lang/String#`+`().2 
+		 !_empty_/Foo#aaa().2
+ 
+_empty_/bug.2
+ 
+scala/App#2%
+	 	_empty_/Bar#`<init>`().2
+ 	_empty_/Bar#PZ EFAF40889DA8EA34C79E92E53E834ACA

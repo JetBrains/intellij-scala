@@ -1,0 +1,33 @@
+
+˜tests/pos/t1168.scala*
+_empty_/Test.
+ *Test€*7
+_empty_/Test.SpecialException#*SpecialException€*;
+)_empty_/Test.SpecialException#`<init>`(). €@*<init>€*
+local0 €*e€*
+local1 €*e€2
+ _empty_/Test.2
+ 
+scala/App#2,
+ _empty_/Test.SpecialException#27
+! !)_empty_/Test.SpecialException#`<init>`().2&
+! *scala/package.Throwable#2-
+ java/lang/Exception#`<init>`().2&
+ scala/package.Exception#2
+	 
+local02,
+ _empty_/Test.SpecialException#2'
+ scala/Predef.println(+1).2%
++ ,java/lang/String#`+`().2
+- .local02$
+		 scala/Predef.assume().2'
+		 scala/Any#isInstanceOf().2
+		 local02,
+		 ,_empty_/Test.SpecialException#2
+	 
+local12&
+ scala/package.Exception#2$
+ scala/Predef.assume().2'
+ scala/Any#isInstanceOf().2
+ local12&
+ %scala/package.Exception#PZ BD457376C83B809B113F4DE554C04E2F

@@ -1,0 +1,49 @@
+
+è	tests/pos/t0872.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local0 €*fn€*
+local1*a€*
+local2*str€*
+local3  *fx€*
+local4	*T€*
+local5*f€*
+local6*x€2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+" &scala/Unit#2
+ 
+local02
+ local12
+ 
+scala/Int#2
+ local22"
+ #scala/Predef.String#2%
+> ?java/lang/String#`+`().2%
+2 3java/lang/String#`+`().2%
+. /java/lang/String#`+`().2
+0 1local12
+@ Clocal22
+ local32
+ local42
+ local52
+ local42"
+ $scala/Predef.String#2"
+) /scala/Predef.String#2
+2 3local42"
+7 =scala/Predef.String#2
+A Blocal62
+C Dlocal42&
+J Jscala/Function2#apply().2
+I Jlocal52
+K Llocal62'
+ scala/Predef.println(+1).2&
+ scala/Function1#apply().2
+ local32
+ local0PZ 27786580172B14B8E0A38359B953187A

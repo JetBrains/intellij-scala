@@ -1,0 +1,13 @@
+
+êtests/pos/i6312.scala*
+_empty_/Foo#*FooÄ*)
+_empty_/Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo#foo().*fooÄ2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ _empty_/Foo#foo().2
+ scala/Unit#28
+ *scala/compiletime/package$package.error().2 
+
+ scala/compiletime/2
+ 	scala/PZ C6E8A4A1E4D6BA337057CC00AA8AC86F

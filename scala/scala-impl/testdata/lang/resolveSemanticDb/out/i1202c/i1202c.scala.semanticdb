@@ -1,0 +1,14 @@
+
+Ãtests/pos/i1202c.scala*
+_empty_/Fail7#*Fail7€*+
+_empty_/Fail7#`<init>`(). €@*<init>€*+
+_empty_/Fail7#`<init>`().(in) €*in€*!
+_empty_/Fail7#in(). €*in€*'
+_empty_/Fail7#`in_=`(). €*in_=€*(
+_empty_/Fail7#`in_=`().(x$1)*x$1€2
+ _empty_/Fail7#2#
+ _empty_/Fail7#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Fail7#in().2!
+ _empty_/Fail7#`in_=`().PZ D5006F07DAFB2F65D814C305040C7545

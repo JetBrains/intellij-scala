@@ -1,0 +1,181 @@
+
+˜3(tests/pos/depmet_implicit_norm_ret.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.`?`().*?€* 
+_empty_/Test.`?`().[S]	*S€*"
+_empty_/Test.`?`().(w)  *w€*3
+_empty_/Test.ZipWithDefault#*ZipWithDefault€*9
+'_empty_/Test.ZipWithDefault#`<init>`(). €@*<init>€*@
+*_empty_/Test.ZipWithDefault#ZeroZipWith().  *ZeroZipWith€*7
+-_empty_/Test.ZipWithDefault#ZeroZipWith().[S]	*S€*
+local0*T€*
+local1 *$anon€*
+local2*T€*'
+_empty_/Test.ZipWith.
+ *ZipWith€*+
+_empty_/Test.ZipWith.apply().*apply€**
+ _empty_/Test.ZipWith.apply().[S]	*S€**
+ _empty_/Test.ZipWith.apply().(s)*s€*.
+!_empty_/Test.ZipWith.apply().(zw)  *zw€*9
+#_empty_/Test.ZipWith.SuccZipWith().  *SuccZipWith€*0
+&_empty_/Test.ZipWith.SuccZipWith().[S]	*S€*0
+&_empty_/Test.ZipWith.SuccZipWith().[R]	*R€*:
+*_empty_/Test.ZipWith.SuccZipWith().(zWith)  *zWith€*
+local3*T€*
+local4 *$anon€*
+local5*T€*%
+_empty_/Test.ZipWith#*ZipWith€*2
+ _empty_/Test.ZipWith#`<init>`(). €@*<init>€*"
+_empty_/Test.ZipWith#[S]	*S€*!
+_empty_/Test.ZipWith#T#*T€*/
+_empty_/Test.ZipWith#zipWith().*zipWith€*!
+_empty_/Test.map1().*map1€*!
+_empty_/Test.map1().[A]	*A€*!
+_empty_/Test.map1().[B]	*B€*!
+_empty_/Test.map1().(f)*f€*"
+_empty_/Test.tst1. €*tst1€*
+local6*x€*!
+_empty_/Test.map2().*map2€*!
+_empty_/Test.map2().[A]	*A€*!
+_empty_/Test.map2().[B]	*B€*!
+_empty_/Test.map2().(f)*f€*"
+_empty_/Test.tst2. €*tst2€*
+local7*x€2
+ _empty_/Test.2!
+ _empty_/Test.`?`().2$
+ 	_empty_/Test.`?`().[S]2
+ scala/AnyRef#2$
+ _empty_/Test.`?`().(w)2$
+" #_empty_/Test.`?`().[S]2$
+' (_empty_/Test.`?`().(w)2$
+0 1_empty_/Test.`?`().(w)2*
+ _empty_/Test.ZipWithDefault#25
+ '_empty_/Test.ZipWithDefault#`<init>`().28
+ *_empty_/Test.ZipWithDefault#ZeroZipWith().2;
+ -_empty_/Test.ZipWithDefault#ZeroZipWith().[S]2#
+& -_empty_/Test.ZipWith#2
+! %_empty_/Test.2;
+. /-_empty_/Test.ZipWithDefault#ZeroZipWith().[S]2
+6 7local02#
+: @scala/package.Stream#2;
+A B-_empty_/Test.ZipWithDefault#ZeroZipWith().[S]2
+G Glocal12#
+K R_empty_/Test.ZipWith#2;
+S T-_empty_/Test.ZipWithDefault#ZeroZipWith().[S]2
+ local22#
+ scala/package.Stream#2;
+ -_empty_/Test.ZipWithDefault#ZeroZipWith().[S]2#
+
+	
+ _empty_/Test.ZipWith.25
+
+'
+ ''_empty_/Test.ZipWithDefault#`<init>`().2*
+
+
+ '_empty_/Test.ZipWithDefault#2+
+ _empty_/Test.ZipWith.apply().2.
+  _empty_/Test.ZipWith.apply().[S]2.
+  _empty_/Test.ZipWith.apply().(s)2.
+  _empty_/Test.ZipWith.apply().[S]2/
+! #!_empty_/Test.ZipWith.apply().(zw)2#
+% ,_empty_/Test.ZipWith#2.
+- . _empty_/Test.ZipWith.apply().[S]2%
+5 6_empty_/Test.ZipWith#T#2/
+2 4!_empty_/Test.ZipWith.apply().(zw)2&
+C Cscala/Function1#apply().2-
+< C_empty_/Test.ZipWith#zipWith().2/
+9 ;!_empty_/Test.ZipWith.apply().(zw)2.
+D E _empty_/Test.ZipWith.apply().(s)21
+ #_empty_/Test.ZipWith.SuccZipWith().24
+ &_empty_/Test.ZipWith.SuccZipWith().[S]24
+  &_empty_/Test.ZipWith.SuccZipWith().[R]28
++ 0*_empty_/Test.ZipWith.SuccZipWith().(zWith)2#
+3 :_empty_/Test.ZipWith#24
+; <&_empty_/Test.ZipWith.SuccZipWith().[R]2#
+E L_empty_/Test.ZipWith#2
+@ D_empty_/Test.24
+M N&_empty_/Test.ZipWith.SuccZipWith().[S]24
+R S&_empty_/Test.ZipWith.SuccZipWith().[R]2
+Z [local32#
+^ dscala/package.Stream#24
+e f&_empty_/Test.ZipWith.SuccZipWith().[S]2%
+q r_empty_/Test.ZipWith#T#28
+k p*_empty_/Test.ZipWith.SuccZipWith().(zWith)2
+v vlocal42$
+	z _empty_/Test.ZipWith#26
+
+‚ ƒ&_empty_/Test.ZipWith.SuccZipWith().[S]26
+
+‡ ˆ&_empty_/Test.ZipWith.SuccZipWith().[R]2
+ local52#
+ scala/package.Stream#24
+ &_empty_/Test.ZipWith.SuccZipWith().[S]2%
+" #_empty_/Test.ZipWith#T#28
+ !*_empty_/Test.ZipWith.SuccZipWith().(zWith)2#
+	 _empty_/Test.ZipWith.2#
+ _empty_/Test.ZipWith#2.
+  _empty_/Test.ZipWith#`<init>`().2&
+ _empty_/Test.ZipWith#[S]2%
+	 
+_empty_/Test.ZipWith#T#2-
+ _empty_/Test.ZipWith#zipWith().2&
+ _empty_/Test.ZipWith#[S]2%
+ _empty_/Test.ZipWith#T#2(
+ $scala/sys/package.error().2
+ 
+scala/sys/2"
+ 
+_empty_/Test.map1().2%
+ _empty_/Test.map1().[A]2%
+ _empty_/Test.map1().[B]2%
+ _empty_/Test.map1().(f)2%
+ _empty_/Test.map1().[A]2%
+ _empty_/Test.map1().[B]2+
+% %_empty_/Test.ZipWith.apply().2#
+ %_empty_/Test.ZipWith.2%
+& '_empty_/Test.map1().(f)21
+) 4#_empty_/Test.ZipWith.SuccZipWith().28
+4 4*_empty_/Test.ZipWithDefault#ZeroZipWith().2 
+ 
+_empty_/Test.tst1.2#
+ scala/package.Stream#2
+ 
+scala/Int#2&
+E Jscala/Function1#apply().2"
+ _empty_/Test.map1().2"
+ %scala/Predef.String#2
+' *
+scala/Int#2
+- .local62"
+0 6scala/Predef.String#2(
+= Cjava/lang/String#length().2
+; <local627
+Q Q)scala/collection/IterableFactory#apply().2#
+K Qscala/package.Stream.2"
+ 
+_empty_/Test.map2().2%
+ _empty_/Test.map2().[A]2%
+ _empty_/Test.map2().[B]2%
+ _empty_/Test.map2().(f)2%
+ _empty_/Test.map2().[A]2%
+ _empty_/Test.map2().[B]2+
+% %_empty_/Test.ZipWith.apply().2#
+ %_empty_/Test.ZipWith.2%
+& '_empty_/Test.map2().(f)21
+( (#_empty_/Test.ZipWith.SuccZipWith().28
+( (*_empty_/Test.ZipWithDefault#ZeroZipWith().2 
+   
+_empty_/Test.tst2.2#
+   scala/package.Stream#2
+   
+scala/Int#2&
+ 8  =scala/Function1#apply().2"
+   _empty_/Test.map2().2
+    !local72"
+ #  )scala/Predef.String#2(
+ 0  6java/lang/String#length().2
+ .  /local727
+ D  D)scala/collection/IterableFactory#apply().2#
+ >  Dscala/package.Stream.PZ C68855BDA59E7702902A42B2ABE60CAA

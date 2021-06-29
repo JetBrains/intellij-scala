@@ -1,0 +1,69 @@
+
+‰tests/pos/t5313.scala* 
+_empty_/DepBug.
+ *DepBug€*
+_empty_/DepBug.A#*A€*.
+_empty_/DepBug.A#`<init>`(). €@*<init>€*
+_empty_/DepBug.A#B#*B€*0
+_empty_/DepBug.A#B#`<init>`(). €@*<init>€*#
+_empty_/DepBug.A#mkB().*mkB€*
+_empty_/DepBug.A#m().*m€*"
+_empty_/DepBug.A#m().(b)*b€*
+_empty_/DepBug.Dep#*Dep€*0
+_empty_/DepBug.Dep#`<init>`(). €@*<init>€*"
+_empty_/DepBug.Dep#a. „*a€*"
+_empty_/DepBug.Dep#b. „*b€*"
+_empty_/DepBug.dep. €*dep€*
+local0 *$anon€*
+local1 €*a€*
+local2 €*b€*'
+_empty_/DepBug.useDep().*useDep€*%
+_empty_/DepBug.useDep().(d)*d€2
+ _empty_/DepBug.2
+ 	_empty_/DepBug.A#2*
+ _empty_/DepBug.A#`<init>`().2!
+
+ _empty_/DepBug.A#B#2,
+ _empty_/DepBug.A#B#`<init>`().2%
+ _empty_/DepBug.A#mkB().2,
+ _empty_/DepBug.A#B#`<init>`().2!
+ _empty_/DepBug.A#B#2#
+ 	_empty_/DepBug.A#m().2&
+
+ _empty_/DepBug.A#m().(b)2!
+ _empty_/DepBug.A#B#2&
+ _empty_/DepBug.A#m().(b)2!
+ _empty_/DepBug.Dep#2,
+ _empty_/DepBug.Dep#`<init>`().2#
+ 	_empty_/DepBug.Dep#a.2
+ _empty_/DepBug.A#2#
+		 	_empty_/DepBug.Dep#b.2!
+		 _empty_/DepBug.A#B#2#
+		 _empty_/DepBug.Dep#a.2!
+ 	_empty_/DepBug.dep.2
+ local02!
+ _empty_/DepBug.Dep#2
+ 	local12*
+ _empty_/DepBug.A#`<init>`().2
+ _empty_/DepBug.A#2
+ 	local22%
+ _empty_/DepBug.A#mkB().2
+ local12&
+ _empty_/DepBug.useDep().2)
+ _empty_/DepBug.useDep().(d)2!
+ _empty_/DepBug.Dep#2
+ scala/Unit#2)
+ _empty_/DepBug.useDep().(d)2#
+ _empty_/DepBug.A#m().2#
+ _empty_/DepBug.Dep#a.2#
+ 	_empty_/DepBug.Dep#b.2!
+ _empty_/DepBug.dep.2#
+ _empty_/DepBug.A#m().2#
+ _empty_/DepBug.Dep#a.2#
+ 	_empty_/DepBug.Dep#b.2#
+ 	_empty_/DepBug.A#m().2#
+ _empty_/DepBug.Dep#a.2!
+ _empty_/DepBug.dep.2#
+ _empty_/DepBug.Dep#b.2!
+
+ _empty_/DepBug.dep.PZ E94952B50030BF2C171BF6EE0EB811AF

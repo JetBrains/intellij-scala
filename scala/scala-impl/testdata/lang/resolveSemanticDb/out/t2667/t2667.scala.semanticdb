@@ -1,0 +1,34 @@
+
+€tests/pos/t2667.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.foo().*foo€*
+_empty_/A.foo().(x)*x€*
+_empty_/A.foo().(y)*y€*
+_empty_/A.foo(+1).*foo€*
+_empty_/A.foo(+1).[T]	*T€*
+_empty_/A.foo(+1).(x)*x€*
+_empty_/A.x. €*x€2
+ 
+_empty_/A.2
+ 	_empty_/A.foo().2!
+
+ _empty_/A.foo().(x)2
+ 
+scala/Int#2!
+ _empty_/A.foo().(y)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ 	_empty_/A.foo(+1).2#
+
+ _empty_/A.foo(+1).[T]2#
+ _empty_/A.foo(+1).(x)2#
+ _empty_/A.foo(+1).[T]2
+ 
+scala/Int#2
+ _empty_/A.x.2
+	 scala/Unit#2 
+ _empty_/A.foo(+1).PZ 83AC3B087B85B7C7E87193ADDF47C94F

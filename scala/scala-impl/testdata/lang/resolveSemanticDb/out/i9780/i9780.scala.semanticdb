@@ -1,0 +1,56 @@
+
+‡tests/pos/i9780.scala* 
+_empty_/Window# *Window€*,
+_empty_/Window#`<init>`(). €@*<init>€*%
+_empty_/Window#peer(). *peer€*5
+_empty_/Window#InterfaceMixin#*InterfaceMixin€*;
+)_empty_/Window#InterfaceMixin#`<init>`(). €@*<init>€*-
+_empty_/Window#SuperMixin#*
+SuperMixin€*7
+%_empty_/Window#SuperMixin#`<init>`(). €@*<init>€*J
+/_empty_/Window#SuperMixin#processWindowEvent().*processWindowEvent€*<
+2_empty_/Window#SuperMixin#processWindowEvent().(e)*e€*7
+ _empty_/Window#closeOperation().*closeOperation€2%
+ !java/awt/event/WindowEvent#2
+ java/awt/event/2
+ 	java/awt/2
+ java/2
+ java/awt/Window.2
+ java/awt/Window#2
+ 	java/awt/2
+ java/2
+ _empty_/Window#2(
+ _empty_/Window#`<init>`().2$
+ 
+_empty_/Window#peer().2
+ java/awt/Window#2,
+ )_empty_/Window#InterfaceMixin#2,
+  _empty_/Window#InterfaceMixin#27
+) ))_empty_/Window#InterfaceMixin#`<init>`().2,
+5 Fjavax/swing/RootPaneContainer#2
+/ 4javax/swing/2
+) .javax/2(
+ _empty_/Window#SuperMixin#23
+% %%_empty_/Window#SuperMixin#`<init>`().2
+. 4java/awt/Window#2
+* -	java/awt/2
+% )java/2=
+		 -/_empty_/Window#SuperMixin#processWindowEvent().2@
+	.	 /2_empty_/Window#SuperMixin#processWindowEvent().(e)2)
+	1	 <java/awt/event/WindowEvent#2
+	?	 Cscala/Unit#23
+
+
+ %java/awt/Window#processWindowEvent().2@
+
+
+  2_empty_/Window#SuperMixin#processWindowEvent().(e)2!
+ scala/Int#`==`(+3).2(
+ java/awt/AWTEvent#getID().2@
+
+ 2_empty_/Window#SuperMixin#processWindowEvent().(e)28
+! /*java/awt/event/WindowEvent#WINDOW_CLOSING.2)
+  java/awt/event/WindowEvent#2.
+  _empty_/Window#closeOperation().2.
+  _empty_/Window#closeOperation().2
+ scala/Unit#PZ 25F22117EE9F8555FE3A74EBC59656C8

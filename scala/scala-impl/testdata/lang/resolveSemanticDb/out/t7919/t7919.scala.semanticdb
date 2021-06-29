@@ -1,0 +1,12 @@
+
+…tests/pos/t7919.scala*
+
+_empty_/X.
+ *X€*
+_empty_/X.x. €*x€*
+_empty_/X.y. €*y€2
+ 
+_empty_/X.2
+ _empty_/X.x.2&
+ scala/StringContext#s().2
+ _empty_/X.y.PZ B56133EF64EF94D91E8AEFD0EEE513DD

@@ -1,0 +1,56 @@
+
+ýtests/pos/i5793/A.scala*
+_empty_/exec.
+ *exec€*#
+_empty_/exec.Runner#*Runner€*1
+_empty_/exec.Runner#`<init>`(). €@*<init>€*!
+_empty_/exec.Runner#[T]	*T€*(
+_empty_/exec.Runner#run(). *run€*'
+_empty_/exec.Runner#run().(t)*t€*%
+_empty_/exec.Runner.
+ *Runner€*&
+_empty_/exec.Runner.run().*run€*'
+_empty_/exec.Runner.run().[T]	*T€*'
+_empty_/exec.Runner.run().(t)*t€*<
+$_empty_/exec.Runner.runImplicitly().  *runImplicitly€*1
+'_empty_/exec.Runner.runImplicitly().[T]	*T€*
+local0 *$anon€*
+local1*run€*
+local2*t€*
+local3*x€2
+ _empty_/exec.2"
+ _empty_/exec.Runner#2-
+ _empty_/exec.Runner#`<init>`().2%
+ _empty_/exec.Runner#[T]2(
+ _empty_/exec.Runner#run().2+
+ _empty_/exec.Runner#run().(t)2%
+ _empty_/exec.Runner#[T]2
+ scala/Unit#2"
+	 _empty_/exec.Runner.2(
+ _empty_/exec.Runner.run().2+
+ _empty_/exec.Runner.run().[T]2+
+ _empty_/exec.Runner.run().(t)2+
+ _empty_/exec.Runner.run().[T]2"
+ _empty_/exec.Runner#2+
+ _empty_/exec.Runner.run().[T]2
+ "scala/Unit#2(
+; >_empty_/exec.Runner#run().2(
+% /scala/Predef.implicitly().2"
+0 6_empty_/exec.Runner#2+
+7 8_empty_/exec.Runner.run().[T]2+
+? @_empty_/exec.Runner.run().(t)22
+ %$_empty_/exec.Runner.runImplicitly().25
+& ''_empty_/exec.Runner.runImplicitly().[T]2"
+* 0_empty_/exec.Runner#25
+1 2'_empty_/exec.Runner.runImplicitly().[T]2
+6 6local02
+
+ local12
+ local225
+ '_empty_/exec.Runner.runImplicitly().[T]22
++ /$scala/collection/IterableOps#head().24
+ "&scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+# $local32
+( )local3PZ 5D27C5EF3D70B5865BB8F5AABF3BDDCF

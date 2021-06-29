@@ -1,0 +1,51 @@
+
+¶	tests/pos/lookuprefined.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#T#*T€*
+_empty_/C#U#*U€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#x1. „*x1€*
+local0*U€*
+local1*T€*
+_empty_/Test#x2. „*x2€*
+local2*U€*
+local3*T€*
+_empty_/Test#y1. €*y1€*
+_empty_/Test#y2. €*y2€2
+ 
+_empty_/C#2
+
+ 
+_empty_/C#`<init>`().2
+ _empty_/C#T#2
+ _empty_/C#U#2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#x1.2
+0 1_empty_/C#U#2
+ 
+_empty_/C#2
+ local02
+ local12
+  !local12"
+$ *scala/Predef.String#2
+ _empty_/Test#x2.2
+2 3_empty_/C#U#2
+ 
+_empty_/C#2
+ local22
+ _empty_/C#T#2
+" #local32"
+& ,scala/Predef.String#2
+ _empty_/Test#y1.2"
+
+ scala/Predef.String#2
+ _empty_/Test#x1.2
+ _empty_/Test#y2.2"
+
+ scala/Predef.String#2
+ _empty_/Test#x2.PZ C62218BF2D8395CC1F1DAD3DC7261B75

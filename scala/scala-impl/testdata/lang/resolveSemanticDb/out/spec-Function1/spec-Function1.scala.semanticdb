@@ -1,0 +1,58 @@
+
+‘tests/pos/spec-Function1.scala*%
+scalabip/Function1#*	Function1€*0
+scalabip/Function1#`<init>`(). €@*<init>€*
+local0*self€*%
+scalabip/Function1#[T1]	 €*T1€*#
+scalabip/Function1#[R]	 €*R€*+
+scalabip/Function1#apply(). *apply€**
+scalabip/Function1#apply().(v1)*v1€*/
+scalabip/Function1#toString().*toString€*-
+scalabip/Function1#compose().*compose€**
+ scalabip/Function1#compose().[A]	*A€**
+ scalabip/Function1#compose().(g)*g€*
+local1*x€*-
+scalabip/Function1#andThen().*andThen€**
+ scalabip/Function1#andThen().[A]	*A€**
+ scalabip/Function1#andThen().(g)*g€*
+local2*x€2
+
+
+ 	scalabip/2!
+"" scalabip/Function1#2,
+"" scalabip/Function1#`<init>`().2
+";" Ascala/AnyRef#2
+"D" Hlocal02 
+"" scala/specialized#2%
+""  scalabip/Function1#[T1]2 
+"#" .scala/specialized#2$
+"0" 1scalabip/Function1#[R]2)
+## scalabip/Function1#apply().2-
+## scalabip/Function1#apply().(v1)2%
+## scalabip/Function1#[T1]2$
+## scalabip/Function1#[R]2,
+$$ scalabip/Function1#toString().2+
+(( scalabip/Function1#compose().2.
+((  scalabip/Function1#compose().[A]2.
+((  scalabip/Function1#compose().(g)2.
+((  scalabip/Function1#compose().[A]2%
+(( scalabip/Function1#[T1]2.
+((  scalabip/Function1#compose().[A]2$
+(#( $scalabip/Function1#[R]2
+()( *local12)
+(.( 3scalabip/Function1#apply().2&
+(5( 5scala/Function1#apply().2.
+(4( 5 scalabip/Function1#compose().(g)2
+(6( 7local12+
+,, scalabip/Function1#andThen().2.
+,,  scalabip/Function1#andThen().[A]2.
+,,  scalabip/Function1#andThen().(g)2$
+,, scalabip/Function1#[R]2.
+,,  scalabip/Function1#andThen().[A]2%
+,, scalabip/Function1#[T1]2.
+,#, $ scalabip/Function1#andThen().[A]2
+,), *local22&
+,/, /scala/Function1#apply().2.
+,., / scalabip/Function1#andThen().(g)2)
+,0, 5scalabip/Function1#apply().2
+,6, 7local2PZ 06EE9D286AE04816CAD98558E963670D

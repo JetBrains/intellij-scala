@@ -1,0 +1,28 @@
+
+‹	tests/pos/i10366.scala*
+_empty_/Test.
+ *Test€*1
+_empty_/Test.ShouldWrapper#*ShouldWrapper€*8
+&_empty_/Test.ShouldWrapper#`<init>`(). €@*<init>€*7
++_empty_/Test.ShouldWrapper#`<init>`().(lhs)*lhs€*.
+_empty_/Test.ShouldWrapper#lhs. €*lhs€*7
+&_empty_/Test.ShouldWrapper#shouldBe().*shouldBe€*7
++_empty_/Test.ShouldWrapper#shouldBe().(rhs)*rhs€*5
+_empty_/Test.ShouldWrapper(). (*ShouldWrapper€*.
+"_empty_/Test.ShouldWrapper().(lhs)*lhs€2$
+  scala/compiletime/testing/2
+ scala/compiletime/2
+ scala/2
+ _empty_/Test.2)
+ _empty_/Test.ShouldWrapper#24
+ &_empty_/Test.ShouldWrapper#`<init>`().2
+$ +scala/Boolean#2-
+ "_empty_/Test.ShouldWrapper#lhs.24
+ &_empty_/Test.ShouldWrapper#shouldBe().29
+ +_empty_/Test.ShouldWrapper#shouldBe().(rhs)2
+ scala/Boolean#2
+  $scala/Unit#2#
+' *scala/Predef.`???`().2+
+ _empty_/Test.ShouldWrapper().24
+ "&_empty_/Test.ShouldWrapper#shouldBe().2+
+ _empty_/Test.ShouldWrapper().PZ E5B02BF309C899A124436CFFF8AB2923

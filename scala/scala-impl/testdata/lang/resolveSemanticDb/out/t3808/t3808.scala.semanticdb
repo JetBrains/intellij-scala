@@ -1,0 +1,32 @@
+
+­tests/pos/t3808.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.meh().*meh€*
+local0*TC€*
+local1	*I€*
+local2  *tci€*
+local3 *$anon€*
+local4*baz€*
+local5	*J€2
+ _empty_/Test.2!
+ 	_empty_/Test.meh().2
+ scala/Unit#2
+
+ local02
+ local12
+ local22
+ local02
+ 
+scala/Int#2
+   local32
+$ &local02
+' *
+scala/Int#2
+ local42
+ local52
+ local02
+ local52"
+ scala/Predef.String#2
+ local42
+ local2PZ 57B1303511561D9C28CC4E5CD88025FE

@@ -1,0 +1,36 @@
+
+·#tests/pos/import-rewrite/file.scala*
+
+file/File#*File€*'
+file/File#`<init>`(). €@*<init>€*)
+file/File#`<init>`().(str) €*str€*
+file/File#str. €*str€*
+file/File#name().*name€*
+
+file/File.
+ *File€* 
+file/File.apply().*apply€*#
+file/File.apply().(str)*str€2
+ file/2
+ 
+
+file/File#2#
+
+ 
+file/File#`<init>`().2"
+ #scala/Predef.String#2
+ file/File#str.2
+ 
+file/File#name().2"
+ scala/Predef.String#2
+ 
+file/File.2 
+ file/File.apply().2%
+ file/File.apply().(str)2"
+ scala/Predef.String#2
+ 
+file/File#2#
+) )file/File#`<init>`().2
+% )
+file/File#2%
+* -file/File.apply().(str)PZ EE4DEC2C99B8FF81C0686988ABEC58D2

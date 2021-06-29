@@ -1,0 +1,26 @@
+
+ütests/pos/i7944.scala*&
+hello/HelloWorld.
+ *
+HelloWorld€*%
+hello/HelloWorld.main().*main€*+
+hello/HelloWorld.main().(args)*args€*)
+hello/HelloWorld.erased().*erased€*'
+hello/HelloWorld.erased().(x)*x€2
+ hello/2
+ hello/HelloWorld.2&
+ 
+hello/HelloWorld.main().2,
+ hello/HelloWorld.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2(
+ hello/HelloWorld.erased().2(
+ hello/HelloWorld.erased().2+
+ hello/HelloWorld.erased().(x)2
+ 
+scala/Int#2
+ 
+scala/Any#2+
+ hello/HelloWorld.erased().(x)PZ 523C6FD3A49C5557DAD04DAC26A406B3

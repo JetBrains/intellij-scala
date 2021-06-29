@@ -1,0 +1,21 @@
+
+ñtests/pos/i743.scala*0
+_empty_/NonLocalReturn.
+ *NonLocalReturn€*)
+_empty_/NonLocalReturn.foo().*foo€**
+ _empty_/NonLocalReturn.foo().(a)*a€*
+local0*x€2!
+ _empty_/NonLocalReturn.2+
+ _empty_/NonLocalReturn.foo().2.
+	 
+ _empty_/NonLocalReturn.foo().(a)2!
+ scala/package.List#2
+ 
+scala/Int#2
+ 
+scala/Int#28
+ *scala/collection/immutable/List#foreach().2.
+  _empty_/NonLocalReturn.foo().(a)2
+ local02
+ local02+
+ _empty_/NonLocalReturn.foo().PZ 4B990311C9CC188E196E104FFC073F37

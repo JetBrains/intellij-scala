@@ -1,0 +1,28 @@
+
+¯0tests/pos/class-dependent-extension-method.scala*
+
+_empty_/C# *C€*'
+_empty_/C#`<init>`(). €@*<init>€*%
+_empty_/C#`<init>`().(a) €*a€*
+_empty_/C#a. €*a€*
+_empty_/C#foo().*foo€*
+_empty_/C#foo().[U]	*U€*
+
+_empty_/C.
+ *C€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ scala/Predef.String#2"
+% %scala/AnyVal#`<init>`().2
+ %scala/AnyVal#2
+ _empty_/C#a.2
+ 	_empty_/C#foo().2!
+
+ _empty_/C#foo().[U]2
+ _empty_/C#a.2
+ scala/Unit#2
+ "_empty_/C#foo().2!
+# $_empty_/C#foo().[U]2
+ 
+_empty_/C.PZ 73451F319C56A83C617058D3BF96339B

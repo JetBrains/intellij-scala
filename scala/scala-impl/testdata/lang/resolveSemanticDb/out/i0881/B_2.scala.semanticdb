@@ -1,0 +1,23 @@
+
+›tests/pos/i0881/B_2.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#getA().*getA€* 
+_empty_/B#getA().(a)  *a€*
+_empty_/B#test().*test€2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#getA().2"
+ _empty_/B#getA().(a)2
+ 
+_empty_/A#2
+ 
+_empty_/A#2"
+  _empty_/B#getA().(a)2
+ 
+_empty_/B#test().2
+ _empty_/B#getA().2
+ _empty_/A.theA.PZ 5DA68108939CEB84F7B300B0B9DCA69B

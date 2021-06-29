@@ -1,0 +1,85 @@
+
+Ôtests/pos/i1751.scala*
+_empty_/Break#*Break€*+
+_empty_/Break#`<init>`(). €@*<init>€*%
+_empty_/Break#break. „*break€*'
+_empty_/BreakImpl# €*	BreakImpl€*/
+_empty_/BreakImpl#`<init>`(). €@*<init>€*5
+$_empty_/BreakImpl#`<init>`().(break) €*break€*)
+_empty_/BreakImpl#break. €*break€*&
+_empty_/BreakImpl#copy().*copy€*.
+ _empty_/BreakImpl#copy().(break)*break€*:
+#_empty_/BreakImpl#copy$default$1().*copy$default$1€*"
+_empty_/BreakImpl#_1().*_1€*&
+_empty_/BreakImpl.
+ *	BreakImpl€*(
+_empty_/BreakImpl.apply().*apply€*/
+!_empty_/BreakImpl.apply().(break)*break€*,
+_empty_/BreakImpl.unapply().*unapply€*-
+!_empty_/BreakImpl.unapply().(x$1)*x$1€*.
+_empty_/BreakImpl.toString().*toString€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f2().*f2€*
+_empty_/Test.f2().(x)*x€*
+local0 €*x€*
+_empty_/Test.f4().*f4€*
+_empty_/Test.f4().(x)*x€*
+local1 €*x€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local2 €*break€2
+ _empty_/Break#2#
+ _empty_/Break#`<init>`().2
+ !_empty_/Break#break.2
+# &
+scala/Int#2 
+ _empty_/BreakImpl#2+
+ _empty_/BreakImpl#`<init>`().2
+* -
+scala/Int#2
+7 <_empty_/Break#2&
+# (_empty_/BreakImpl#break.2#
+_empty_/BreakImpl#copy().2%
+* *_empty_/BreakImpl#_1().2 
+ _empty_/BreakImpl.2$
+_empty_/BreakImpl.apply().2
+ _empty_/Test.2 
+ _empty_/Test.f2().2#
+	 
+_empty_/Test.f2().(x)2
+ _empty_/Break#2#
+ _empty_/Test.f2().(x)2*
+ _empty_/BreakImpl.unapply().2 
+	 _empty_/BreakImpl.2
+ local02 
+ "_empty_/BreakImpl.2 
+ _empty_/Test.f4().2#
+	 
+_empty_/Test.f4().(x)2
+ 
+scala/Any#2#
+ _empty_/Test.f4().(x)2*
+ _empty_/BreakImpl.unapply().2 
+	 _empty_/BreakImpl.2
+ local12
+ local12"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local22(
+ _empty_/BreakImpl.apply().2 
+ _empty_/BreakImpl.2&
+ 
+scala/Predef.assert(+1).2
+ scala/Any#`==`().2 
+ _empty_/Test.f2().2
+ local22&
+ 
+scala/Predef.assert(+1).2!
+ scala/Int#`==`(+3).2 
+ _empty_/Test.f4().2
+ local2PZ 0D3A54C1C153828F028CDF342B9A2293

@@ -1,0 +1,17 @@
+
+Štests/pos/java-override/B.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#o().*o€*
+_empty_/B#o().(o)*o€2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#o().2
+ _empty_/B#o().(o)2
+ 
+scala/Any#2
+ scala/Unit#PZ C6DE9B6231DD922F861FBDC544422328

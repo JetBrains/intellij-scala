@@ -1,0 +1,38 @@
+
+ètests/pos/t522.scala*
+imptwice/foo# *foo€**
+imptwice/foo#`<init>`(). €@*<init>€*%
+imptwice/foo#`<init>`().(s)*s€*
+imptwice/foo#s. €*s€*
+imptwice/Util.
+ *Util€* 
+imptwice/Util.foo().*foo€*!
+imptwice/Util.foo().(s)*s€*
+local0 *$anon€*
+imptwice/User.
+ *User€*"
+imptwice/User.main().*main€*(
+imptwice/User.main().(args)*args€2
+ 	imptwice/2
+ imptwice/foo#2&
+ imptwice/foo#`<init>`().2"
+ scala/Predef.String#2
+ imptwice/foo#s.2
+ imptwice/Util.2"
+ 	imptwice/Util.foo().2%
+
+ imptwice/Util.foo().(s)2"
+ scala/Predef.String#2
+ local02&
+ imptwice/foo#`<init>`().2
+ imptwice/foo#2%
+  imptwice/Util.foo().(s)2
+ imptwice/Util.2
+ 	imptwice/2
+ imptwice/User.2#
+ 
+imptwice/User.main().2)
+ imptwice/User.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2"
+ imptwice/Util.foo().PZ ECCAF5F9E57FB1C8971484CF2BECFA28

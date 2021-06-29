@@ -1,0 +1,79 @@
+
+‡tests/pos/i8128.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.id().*id€*
+local0 *apply€*
+local1*x€*
+local2*x€*
+_empty_/Test.id2().*id2€*
+local3 *apply€*
+local4*x€*
+_empty_/Test.id3().*id3€*
+local5 *apply€*
+local6*x€*
+_empty_/Test.x(). €*x€*$
+_empty_/Test.`x_=`(). €*x_=€*&
+_empty_/Test.`x_=`().(x$1)*x$1€*
+_empty_/Test.y(). €*y€*$
+_empty_/Test.`y_=`(). €*y_=€*&
+_empty_/Test.`y_=`().(x$1)*x$1€2
+ _empty_/Test.2 
+ _empty_/Test.id().2
+ 
+scala/`|`#2
+ local02
+ local12
+ local12
+! "local22
+& 'local22&
+ scala/Function1#apply().2 
+ _empty_/Test.id().2!
+ 	_empty_/Test.id2().2
+ scala/Function1#2
+ 
+scala/`|`#2
+ 
+scala/`|`#2
+ local32
+ local42
+ 
+scala/`|`#2
+ local42#
+ 	scala/Predef.`???`().2&
+ scala/Function1#apply().2!
+ _empty_/Test.id2().2!
+		 	_empty_/Test.id3().2
+		 scala/Function1#2
+		 
+scala/`|`#2
+		 
+scala/Int#2
+
+
+ local52
+
+
+ local62
+
+
+ 
+scala/`|`#2
+
+
+ local62#
+ 	scala/Predef.`???`().2&
+ scala/Function1#apply().2!
+ _empty_/Test.id3().2
+ _empty_/Test.x().2#
+ 	_empty_/Test.`x_=`().2
+ _empty_/Test.y().2
+ 
+scala/`|`#2
+ 
+scala/`&`#2#
+ 	_empty_/Test.`y_=`().2#
+ _empty_/Test.`x_=`().2
+ _empty_/Test.y().2#
+ _empty_/Test.`y_=`().2
+ _empty_/Test.x().PZ 968F1414AAE895F6A3555F94B156DA4C

@@ -1,0 +1,97 @@
+
+¹tests/pos/t5399a.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#Init#*Init€*.
+_empty_/Foo#Init#`<init>`(). €@*<init>€*
+_empty_/Foo#Init#[T]	*T€*(
+_empty_/Foo#ScopedKey#*	ScopedKey€*3
+!_empty_/Foo#ScopedKey#`<init>`(). €@*<init>€*#
+_empty_/Foo#ScopedKey#[T]	*T€*$
+_empty_/Foo#Setting#*Setting€*1
+_empty_/Foo#Setting#`<init>`(). €@*<init>€*!
+_empty_/Foo#Setting#[T]	*T€*'
+_empty_/Foo#Setting#key. „*key€*-
+_empty_/Foo#ScopedKey1# €*
+ScopedKey1€*4
+"_empty_/Foo#ScopedKey1#`<init>`(). €@*<init>€*6
+'_empty_/Foo#ScopedKey1#`<init>`().(foo) €*foo€*$
+_empty_/Foo#ScopedKey1#[T]	*T€**
+_empty_/Foo#ScopedKey1#foo. €*foo€*+
+_empty_/Foo#ScopedKey1#copy().*copy€*+
+!_empty_/Foo#ScopedKey1#copy().[T]	*T€*/
+#_empty_/Foo#ScopedKey1#copy().(foo)*foo€*?
+(_empty_/Foo#ScopedKey1#copy$default$1().*copy$default$1€*5
++_empty_/Foo#ScopedKey1#copy$default$1().[T]	*T€*'
+_empty_/Foo#ScopedKey1#_1().*_1€*,
+_empty_/Foo#ScopedKey1.
+ *
+ScopedKey1€*-
+_empty_/Foo#ScopedKey1.apply().*apply€*,
+"_empty_/Foo#ScopedKey1.apply().[T]	*T€*0
+$_empty_/Foo#ScopedKey1.apply().(foo)*foo€*1
+!_empty_/Foo#ScopedKey1.unapply().*unapply€*.
+$_empty_/Foo#ScopedKey1.unapply().[T]	*T€*2
+&_empty_/Foo#ScopedKey1.unapply().(x$1)*x$1€*3
+"_empty_/Foo#ScopedKey1.toString().*toString€*+
+_empty_/Foo#scalaHome. €*	scalaHome€*1
+_empty_/Foo#scalaVersion. €*scalaVersion€*8
+_empty_/Foo#testPatternMatch().*testPatternMatch€*,
+"_empty_/Foo#testPatternMatch().(s)*s€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#Init#2*
+ _empty_/Foo#Init#`<init>`().2"
+ _empty_/Foo#Init#[T]2$
+ _empty_/Foo#ScopedKey#2/
+ !_empty_/Foo#ScopedKey#`<init>`().2
+ !_empty_/Foo#Init#2'
+" #_empty_/Foo#ScopedKey#[T]2'
+ _empty_/Foo#ScopedKey#[T]2"
+ _empty_/Foo#Setting#2-
+ _empty_/Foo#Setting#`<init>`().2%
+ _empty_/Foo#Setting#[T]2&
+ _empty_/Foo#Setting#key.2$
+ _empty_/Foo#ScopedKey#2%
+ _empty_/Foo#Setting#[T]2%
+ _empty_/Foo#ScopedKey1#20
+ "_empty_/Foo#ScopedKey1#`<init>`().2
+$ (_empty_/Foo#Init#2(
+) *_empty_/Foo#ScopedKey1#[T]2/
+A A!_empty_/Foo#ScopedKey#`<init>`().2$
+5 >_empty_/Foo#ScopedKey#2(
+? @_empty_/Foo#ScopedKey1#[T]2(
+ _empty_/Foo#ScopedKey1#[T]2)
+ "_empty_/Foo#ScopedKey1#foo.2,
+ _empty_/Foo#ScopedKey1#copy().2*
+$ $_empty_/Foo#ScopedKey1#_1().2%
+ _empty_/Foo#ScopedKey1.2-
+ _empty_/Foo#ScopedKey1.apply().2/
+ !_empty_/Foo#ScopedKey1.unapply().2$
+
+
+ _empty_/Foo#scalaHome.2"
+
+
+ _empty_/Foo#Setting#2
+
+
+ scala/Option#2"
+
+ 
+ &scala/Predef.String#2'
+ _empty_/Foo#scalaVersion.2"
+ _empty_/Foo#Setting#2"
+ "scala/Predef.String#2-
+ _empty_/Foo#testPatternMatch().20
+ "_empty_/Foo#testPatternMatch().(s)2"
+ !_empty_/Foo#Setting#2
+' +scala/Unit#2&
+ 	_empty_/Foo#Setting#key.20
+ "_empty_/Foo#testPatternMatch().(s)2/
+ !_empty_/Foo#ScopedKey1.unapply().2%
+ _empty_/Foo#ScopedKey1.2&
+  #_empty_/Foo#Setting#key.2$
+ _empty_/Foo#scalaHome.2&
+3 6_empty_/Foo#Setting#key.2'
+& 2_empty_/Foo#scalaVersion.PZ 012754319A496E937A442F9701B6C450

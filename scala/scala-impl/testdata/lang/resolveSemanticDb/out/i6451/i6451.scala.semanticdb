@@ -1,0 +1,50 @@
+
+­
+tests/pos/i6451.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.YZ#*YZ€*
+_empty_/Test.YZ#[Y]	*Y€*
+_empty_/Test.YZ#[Z]	*Z€*
+_empty_/Test.YZ#[T]	*T€*
+_empty_/Test.r1. €*r1€*
+_empty_/Test.r2().*r2€*
+_empty_/Test.l1. €*l1€*
+_empty_/Test.l2. €*l2€2
+ _empty_/Test.2
+ 	_empty_/Test.YZ#2!
+ _empty_/Test.YZ#[Y]2!
+ _empty_/Test.YZ#[Z]2!
+# $_empty_/Test.YZ#[T]2!
+* +_empty_/Test.YZ#[Y]2!
+, -_empty_/Test.YZ#[Z]2!
+. /_empty_/Test.YZ#[T]2
+ _empty_/Test.r1.2!
+
+ scala/package.List#2!
+ scala/package.List#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2 
+ _empty_/Test.r2().2!
+ scala/package.List#2!
+ scala/package.List#2
+ 
+scala/Int#2#
+ !scala/Predef.`???`().2
+ _empty_/Test.l1.2
+
+ _empty_/Test.YZ#2!
+ scala/package.List#2!
+ scala/package.List#2
+ 
+scala/Int#2
+  "_empty_/Test.r1.2
+ _empty_/Test.l2.2
+
+ _empty_/Test.YZ#2!
+ scala/package.List#2!
+ scala/package.List#2
+ 
+scala/Int#2 
+  "_empty_/Test.r2().PZ 3A9BFE585B4DAC20B759D8BF304915D0

@@ -1,0 +1,28 @@
+
+•tests/pos/export-opaque.scala*
+
+_empty_/A.
+ *A€*$
+_empty_/A.opaques.
+ *opaques€**
+_empty_/A.opaques.FlagSet#*FlagSet€*,
+_empty_/A.opaques.FlagSet().*FlagSet€*/
+"_empty_/A.opaques.FlagSet().(bits)*bits€*&
+_empty_/A.FlagSet(). *FlagSet€*'
+_empty_/A.FlagSet().(bits)*bits€*$
+_empty_/A.FlagSet# *FlagSet€2
+ 
+_empty_/A.2 
+	 _empty_/A.opaques.2(
+ _empty_/A.opaques.FlagSet#2
+ scala/Long#2*
+ _empty_/A.opaques.FlagSet().20
+ "_empty_/A.opaques.FlagSet().(bits)2
+ scala/Long#2(
+ $_empty_/A.opaques.FlagSet#20
+' +"_empty_/A.opaques.FlagSet().(bits)2 
+	 _empty_/A.opaques.2"
+ _empty_/A.FlagSet().2*
+ _empty_/A.opaques.FlagSet().2(
+ _empty_/A.FlagSet().(bits)2 
+ _empty_/A.FlagSet#PZ 7B665C16D228C7FC3B7C1DA1C6F56446

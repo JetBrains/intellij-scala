@@ -1,0 +1,40 @@
+
+Àtests/pos/inferbroadtype.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Base# *Base€*/
+_empty_/Test.Base#`<init>`(). €@*<init>€*C
+%_empty_/Test.Base#changesBaseClasses. „*changesBaseClasses€*'
+_empty_/Test.Concrete#*Concrete€*3
+!_empty_/Test.Concrete#`<init>`(). €@*<init>€*G
+)_empty_/Test.Concrete#changesBaseClasses. €*changesBaseClasses€*'
+_empty_/Test.getBase().*getBase€*
+_empty_/Test.c(). €*c€*
+local0 *$anon€*$
+local1 €*changesBaseClasses€*$
+_empty_/Test.`c_=`(). €*c_=€*&
+_empty_/Test.`c_=`().(x$1)*x$1€2
+ _empty_/Test.2 
+ _empty_/Test.Base#2+
+ _empty_/Test.Base#`<init>`().23
+ .%_empty_/Test.Base#changesBaseClasses.2
+0 7scala/Boolean#2$
+ _empty_/Test.Concrete#2/
+ !_empty_/Test.Concrete#`<init>`().2+
+ _empty_/Test.Base#`<init>`().2 
+ _empty_/Test.Base#27
+$ 6)_empty_/Test.Concrete#changesBaseClasses.2%
+ _empty_/Test.getBase().2 
+ _empty_/Test.Base#2/
+# #!_empty_/Test.Concrete#`<init>`().2$
+ #_empty_/Test.Concrete#2
+ _empty_/Test.c().2
+
+ 
+local02+
+ _empty_/Test.Base#`<init>`().2 
+ _empty_/Test.Base#2
+ +local12#
+ 	_empty_/Test.`c_=`().2#
+ _empty_/Test.`c_=`().2%
+ _empty_/Test.getBase().PZ 0B1F3954D5BC27B428DA71FB1E26E23D

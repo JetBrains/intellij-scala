@@ -1,0 +1,22 @@
+
+êtests/pos/i9769.scala*
+_empty_/Main.
+ *Main€**
+_empty_/Main.lifeOfPi. €*lifeOfPi€*4
+_empty_/Main.fInterpolator. €*fInterpolator€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€2
+ _empty_/Main.2$
+ _empty_/Main.lifeOfPi.2)
+ _empty_/Main.fInterpolator.2&
+E Fscala/StringContext#f().2*
+ scala/StringContext.apply().2$
+8 @_empty_/Main.lifeOfPi.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2)
+ _empty_/Main.fInterpolator.PZ FF5C2389985B73AF7133D5223BCD920C

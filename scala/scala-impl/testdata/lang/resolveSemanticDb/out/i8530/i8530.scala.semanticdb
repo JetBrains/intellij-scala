@@ -1,0 +1,190 @@
+
+â'tests/pos/i8530.scala*6
+_empty_/MyBoooleanUnapply.
+ *MyBoooleanUnapply€*4
+$_empty_/MyBoooleanUnapply.unapply().*unapply€*1
+'_empty_/MyBoooleanUnapply.unapply().(x)*x€*2
+_empty_/MyOptionUnapply.
+ *MyOptionUnapply€*2
+"_empty_/MyOptionUnapply.unapply().*unapply€*/
+%_empty_/MyOptionUnapply.unapply().(x)*x€*8
+_empty_/MyUnapplyImplicits.
+ *MyUnapplyImplicits€*5
+%_empty_/MyUnapplyImplicits.unapply().*unapply€*2
+(_empty_/MyUnapplyImplicits.unapply().(x)*x€*8
+*_empty_/MyUnapplyImplicits.unapply().(x$2)  *x$2€*.
+_empty_/MyPolyUnapply.
+ *MyPolyUnapply€*0
+ _empty_/MyPolyUnapply.unapply().*unapply€*-
+#_empty_/MyPolyUnapply.unapply().[T]	*T€*-
+#_empty_/MyPolyUnapply.unapply().(x)*x€*,
+_empty_/MySeqUnapply.
+ *MySeqUnapply€*5
+"_empty_/MySeqUnapply.unapplySeq().*
+unapplySeq€*/
+%_empty_/MySeqUnapply.unapplySeq().(x)*x€*6
+_empty_/MyWhiteboxUnapply.
+ *MyWhiteboxUnapply€*4
+$_empty_/MyWhiteboxUnapply.unapply().*unapply€*1
+'_empty_/MyWhiteboxUnapply.unapply().(x)*x€*(
+_empty_/i8530$package. *_empty_€**
+_empty_/i8530$package.test().*test€*
+local0 €*x€*
+local2 *$anon€*
+local1*unapply€*
+local3*x€*
+local5 *$anon€*
+local4*unapply€*
+local6*x€*
+local7 €*y€*
+local9 *$anon€*
+local8*unapply€*
+local10*x€*
+local11  *x$2€*
+local12 €*y€*
+local14 *$anon€*
+local13*unapply€*
+local15*x€*
+local16 €*a€*
+local18 *$anon€*
+local17*
+unapplySeq€*
+local19*x€*
+local20 €*a€*
+local21 €*b€*
+local23 *$anon€*
+local22*unapply€*
+local24*x€*
+local25 €*x€2$
+ _empty_/MyBoooleanUnapply.22
+ $_empty_/MyBoooleanUnapply.unapply().25
+ '_empty_/MyBoooleanUnapply.unapply().(x)2
+ 
+scala/Int#2
+ %scala/Boolean#2&
+ _empty_/MyOptionUnapply.20
+ "_empty_/MyOptionUnapply.unapply().23
+ %_empty_/MyOptionUnapply.unapply().(x)2
+ 
+scala/Int#2
+ $scala/Option#2
+% )scala/Long#2!
+1 1scala/Some.apply().2
+- 1scala/Some.2#
+2 2scala/Int.int2long().23
+2 3%_empty_/MyOptionUnapply.unapply().(x)2)
+ _empty_/MyUnapplyImplicits.23
+ %_empty_/MyUnapplyImplicits.unapply().26
+ (_empty_/MyUnapplyImplicits.unapply().(x)2
+ 
+scala/Int#28
+# #*_empty_/MyUnapplyImplicits.unapply().(x$2)2"
+# 0scala/DummyImplicit#2
+3 9scala/Option#2
+: >scala/Long#2!
+F Fscala/Some.apply().2
+B Fscala/Some.2#
+G Gscala/Int.int2long().26
+G H(_empty_/MyUnapplyImplicits.unapply().(x)2$
+		 _empty_/MyPolyUnapply.2.
+
+
+  _empty_/MyPolyUnapply.unapply().21
+
+
+ #_empty_/MyPolyUnapply.unapply().[T]21
+
+
+ #_empty_/MyPolyUnapply.unapply().(x)21
+
+
+ #_empty_/MyPolyUnapply.unapply().[T]2
+
+
+ %scala/Option#21
+
+&
+ '#_empty_/MyPolyUnapply.unapply().[T]2!
+
+/
+ /scala/Some.apply().2
+
++
+ /scala/Some.21
+
+0
+ 1#_empty_/MyPolyUnapply.unapply().(x)2#
+ _empty_/MySeqUnapply.20
+ "_empty_/MySeqUnapply.unapplySeq().23
+ %_empty_/MySeqUnapply.unapplySeq().(x)2
+ 
+scala/Int#2 
+! $scala/package.Seq#2
+% (
+scala/Int#2;
+/ /-scala/collection/SeqFactory.Delegate#apply().2 
+, /scala/package.Seq.23
+0 1%_empty_/MySeqUnapply.unapplySeq().(x)23
+3 4%_empty_/MySeqUnapply.unapplySeq().(x)2(
+ _empty_/MyWhiteboxUnapply.2!
+< <scala/Some.apply().2
+8 <scala/Some.25
+= >'_empty_/MyWhiteboxUnapply.unapply().(x)22
+  $_empty_/MyWhiteboxUnapply.unapply().25
+! "'_empty_/MyWhiteboxUnapply.unapply().(x)2
+$ '
+scala/Int#2
+* 0scala/Option#2
+1 4
+scala/Any#2 
+_empty_/i8530$package.2+
+ _empty_/i8530$package.test().2
+
+ scala/Unit#2
+ local02
+ local12
+ local22
+ local12
+ local42
+ local52
+ local42
+ local72
+  local72
+" &scala/Long#2
+ local82
+ local92
+ local820
+ "scala/DummyImplicit.dummyImplicit.2
+ local122
+" #local122
+% )scala/Long#2
+ local132
+
+
+ local142
+
+
+ local132
+ local162
+ local162
+  #
+scala/Int#2
+ local172
+ local182
+ local172
+ local202
+ local212#
+   scala/Tuple2.apply().2
+  !local202
+# &
+scala/Int#2
+( )local212
++ .
+scala/Int#2
+ local222
+ local232
+ local222
+ local252
+! "local252
+$ '
+scala/Int#PZ 4911218D380E6E3E0097D741A7FEB0EA

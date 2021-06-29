@@ -1,0 +1,62 @@
+
+“tests/pos/t8128.scala*
+
+_empty_/G.
+ *G€*$
+_empty_/G.unapply().*unapply€*!
+_empty_/G.unapply().(m)*m€*
+
+_empty_/H.
+ *H€**
+_empty_/H.unapplySeq().*
+unapplySeq€*$
+_empty_/H.unapplySeq().(m)*m€*
+_empty_/Test.
+ *Test€*
+local0 €*v€*
+local1 €*v€2
+ 
+_empty_/G.2"
+ _empty_/G.unapply().2%
+ _empty_/G.unapply().(m)2
+ 
+scala/Any#2
+ scala/Option#2!
+' 'scala/Some.apply().2
+# 'scala/Some.2
+ 
+_empty_/H.2%
+ _empty_/H.unapplySeq().2(
+ _empty_/H.unapplySeq().(m)2
+ 
+scala/Any#2
+  scala/Option#2 
+! $scala/package.Seq#2
++ /scala/None.2
+ _empty_/Test.2
+		 	
+scala/Any#2"
+
+
+
+ 
+_empty_/G.unapply().2
+
+	
+ 
+
+_empty_/G.2
+
+
+ local02
+
+
+ local02%
+
+ 
+_empty_/H.unapplySeq().2
+	 
+
+_empty_/H.2
+ local12
+ local1PZ DBCD9F4C57481F091CED9DCCD96CC8D6

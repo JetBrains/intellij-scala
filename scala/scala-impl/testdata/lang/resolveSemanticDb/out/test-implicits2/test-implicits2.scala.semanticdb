@@ -1,0 +1,38 @@
+
+ð	tests/pos/test-implicits2.scala*(
+_empty_/implicits2.
+ *
+implicits2€*"
+_empty_/implicits2.x. €*x€*$
+_empty_/implicits2.xx.  *xx€*"
+_empty_/implicits2.y.  *y€*'
+_empty_/implicits2.main().*main€*-
+ _empty_/implicits2.main().(args)*args€2!
+ _empty_/implicits2.2#
+ _empty_/implicits2.x.27
+$ 1)scala/collection/immutable/WrappedString#2)
+ #scala/collection/immutable/2
+ scala/collection/2
+	 scala/26
+4 4(scala/LowPriorityImplicits#wrapString().2#
+' 'scala/Tuple2.apply().2%
+ scala/Tuple2.unapply().2$
+ _empty_/implicits2.xx.2"
+ scala/Predef.String#2#
+ _empty_/implicits2.y.2
+ "
+scala/Int#2(
+ 
+_empty_/implicits2.main().2.
+  _empty_/implicits2.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2'
+ scala/Predef.println(+1).2(
+ scala/Predef.implicitly().2"
+ scala/Predef.String#2$
+ _empty_/implicits2.xx.2'
+ scala/Predef.println(+1).2(
+ scala/Predef.implicitly().2
+ 
+scala/Int#2#
+ _empty_/implicits2.y.PZ A217A612A080ADAACA86E2BE8CCA20A3

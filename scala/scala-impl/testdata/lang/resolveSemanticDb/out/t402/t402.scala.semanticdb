@@ -1,0 +1,32 @@
+
+µtests/pos/t402.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local0 €*x€2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02
+ 
+scala/Any#2.
+  java/io/PrintStream#println(+1).2#
+ java/lang/System#out.2
+ 
+java/lang/System#2'
+ )scala/Any#isInstanceOf().2
+* -
+scala/Int#2.
+  java/io/PrintStream#println(+1).2#
+ java/lang/System#out.2
+ 
+java/lang/System#2'
+ %scala/Any#isInstanceOf().2
+ local02
+& )
+scala/Int#PZ B0E2CEC4F3FEFB6AA1F1C135F6BB6D10

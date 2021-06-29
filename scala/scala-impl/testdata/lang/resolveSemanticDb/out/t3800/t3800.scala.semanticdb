@@ -1,0 +1,26 @@
+
+‡tests/pos/t3800.scala*
+_empty_/meh#*meh€*)
+_empty_/meh#`<init>`(). €@*<init>€*
+_empty_/ALike#*ALike€*+
+_empty_/ALike#`<init>`(). €@*<init>€*
+_empty_/ALike#[C]	*C€*$
+_empty_/AFactory# *AFactory€*.
+_empty_/AFactory#`<init>`(). €@*<init>€* 
+_empty_/AFactory#[CC]	*CC€*3
+_empty_/AFactory#aCompanion(). *
+aCompanion€2
+ 	_empty_/meh#2!
+ _empty_/meh#`<init>`().2,
+ -"scala/annotation/StaticAnnotation#2
+ scala/annotation/2
+ _empty_/ALike#2'
+ _empty_/ALike#`<init>`().2
+ _empty_/ALike#[C]2
+ _empty_/AFactory#2*
+ _empty_/AFactory#`<init>`().2#
+ _empty_/AFactory#[CC]2,
+ _empty_/AFactory#aCompanion().2
+ _empty_/AFactory#2#
+ _empty_/AFactory#[CC]2
+  #_empty_/meh#PZ 3EF45015FAFAAEEC916E46DFA5EF3609

@@ -1,0 +1,25 @@
+
+Åtests/pos/t4173.scala*
+_empty_/t4173.
+ *t4173€* 
+_empty_/t4173.bar().*bar€*!
+_empty_/t4173.bar().(a)*a€*!
+_empty_/t4173.bar().(b)*b€*#
+_empty_/t4173.bar().(cs)*cs€*4
+_empty_/t4173.bar$default$1().*bar$default$1€*4
+_empty_/t4173.bar$default$2().*bar$default$2€2
+ _empty_/t4173.2"
+ 	_empty_/t4173.bar().2%
+
+ _empty_/t4173.bar().(a)2
+ 
+scala/Int#2%
+ _empty_/t4173.bar().(b)2
+ 
+scala/Int#2&
+" $_empty_/t4173.bar().(cs)2
+& )
+scala/Any#2"
+ _empty_/t4173.bar().2%
+ _empty_/t4173.bar().(b)2 
+ scala/package.Nil.PZ 05AB6ECCF41BD99480E5F7B83FCA036D

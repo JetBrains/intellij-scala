@@ -1,0 +1,42 @@
+
+–	tests/pos/i5572.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#Id#*Id€*
+_empty_/Foo#Id#[t]	*t€*
+local0 €*i€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().[T]	*T€*
+_empty_/Foo#foo().(t)*t€*
+_empty_/Bar.
+ *Bar€*
+_empty_/Test.
+ *Test€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ 	_empty_/Foo#Id#2 
+
+ _empty_/Foo#Id#[t]2 
+ _empty_/Foo#Id#[t]2#
+ _empty_/Foo#foo().(t)2
+ local02
+ 
+scala/Int#2'
+ 'scala/Any#asInstanceOf().2 
+ scala/Int#`+`(+4).2
+ local02
+( *_empty_/Foo#Id#2#
++ ,_empty_/Foo#foo().[T]2#
+ _empty_/Foo#foo().(t)2 
+ _empty_/Foo#foo().2#
+ _empty_/Foo#foo().[T]2#
+  !_empty_/Foo#foo().(t)2#
+# $_empty_/Foo#foo().[T]2
+' )_empty_/Foo#Id#2#
+* +_empty_/Foo#foo().[T]2
+		 
+_empty_/Bar.2
+		 _empty_/Foo#2
+ _empty_/Test.2 
+ 	_empty_/Foo#foo().2
+ _empty_/Bar.PZ B57C50772C0A0910ED7361BBF17A67A3

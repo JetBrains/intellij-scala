@@ -1,0 +1,114 @@
+
+Ç%tests/pos/scala2-macro-compat-2.scala* 
+_empty_/Context#*Context€*-
+_empty_/Context#`<init>`(). €@*<init>€*"
+_empty_/Context#Expr#*Expr€*"
+_empty_/Context#Expr#[T]	*T€* 
+_empty_/Macros.
+ *Macros€*#
+_empty_/Macros.foo1().*foo1€*#
+_empty_/Macros.foo1().(x)*x€*#
+_empty_/Macros.foo1().*foo1€*#
+_empty_/Macros.foo1().(x)*x€*#
+_empty_/Macros.foo2().*foo2€*#
+_empty_/Macros.foo2().(x)*x€*#
+_empty_/Macros.foo2().(y)*y€*#
+_empty_/Macros.foo2().*foo2€*#
+_empty_/Macros.foo2().(x)*x€*#
+_empty_/Macros.foo2().(y)*y€*+
+_empty_/Macros.foo1Impl().*foo1Impl€*3
+#_empty_/Macros.foo1Impl().(context)*context€*'
+_empty_/Macros.foo1Impl().(x)*x€*+
+_empty_/Macros.foo2Impl().*foo2Impl€*3
+#_empty_/Macros.foo2Impl().(context)*context€*'
+_empty_/Macros.foo2Impl().(x)*x€*'
+_empty_/Macros.foo2Impl().(y)*y€2-
+# )#scala/language.experimental.macros.2&
+ "scala/language.experimental.2
+ scala/language.2
+ scala/2
+ _empty_/Context#2)
+ _empty_/Context#`<init>`().2#
+ _empty_/Context#Expr#2&
+ _empty_/Context#Expr#[T]2
+ _empty_/Macros.2$
+ 
+_empty_/Macros.foo1().2'
+ _empty_/Macros.foo1().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2(
+  (_empty_/Macros.foo1Impl().2$
+ 
+_empty_/Macros.foo1().2'
+ _empty_/Macros.foo1().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2$
+
+
+ 
+_empty_/Macros.foo2().2'
+
+
+ _empty_/Macros.foo2().(x)2
+
+
+ 
+scala/Int#2'
+
+
+ _empty_/Macros.foo2().(y)2"
+
+
+ scala/Predef.String#2
+
+
+ "
+scala/Int#2(
+
++
+ 3_empty_/Macros.foo2Impl().2$
+ 
+_empty_/Macros.foo2().2'
+ _empty_/Macros.foo2().(x)2
+ 
+scala/Int#2'
+ _empty_/Macros.foo2().(y)2"
+ scala/Predef.String#2
+ "
+scala/Int#2#
+% (scala/Predef.`???`().2(
+ _empty_/Macros.foo1Impl().21
+ #_empty_/Macros.foo1Impl().(context)2
+ _empty_/Context#2+
+! "_empty_/Macros.foo1Impl().(x)2#
+, 0_empty_/Context#Expr#21
+$ +#_empty_/Macros.foo1Impl().(context)2
+1 4
+scala/Int#2#
+@ D_empty_/Context#Expr#21
+8 ?#_empty_/Macros.foo1Impl().(context)2
+E H
+scala/Int#2#
+L Oscala/Predef.`???`().2(
+ _empty_/Macros.foo2Impl().21
+ #_empty_/Macros.foo2Impl().(context)2
+ _empty_/Context#2+
+! "_empty_/Macros.foo2Impl().(x)2#
+, 0_empty_/Context#Expr#21
+$ +#_empty_/Macros.foo2Impl().(context)2
+1 4
+scala/Int#2+
+7 8_empty_/Macros.foo2Impl().(y)2#
+B F_empty_/Context#Expr#21
+: A#_empty_/Macros.foo2Impl().(context)2"
+G Mscala/Predef.String#2#
+Y ]_empty_/Context#Expr#21
+Q X#_empty_/Macros.foo2Impl().(context)2
+^ a
+scala/Int#2#
+e hscala/Predef.`???`().PZ E2C007C73A01863B76607F65687BEB20

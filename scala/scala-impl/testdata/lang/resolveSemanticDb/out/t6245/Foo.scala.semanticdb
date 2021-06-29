@@ -1,0 +1,20 @@
+
+õtests/pos/t6245/Foo.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*"
+_empty_/Foo#Nested#*Nested€*0
+_empty_/Foo#Nested#`<init>`(). €@*<init>€*)
+_empty_/Foo#Nested#crash().*crash€2
+
+ t1/Vis#2
+ 	t1/2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2#
+" "t1/Base#`<init>`(+1).2
+ "t1/Base#2
+ t1/2!
+ _empty_/Foo#Nested#2,
+ _empty_/Foo#Nested#`<init>`().2)
+ _empty_/Foo#Nested#crash().2
+ scala/Unit#2
+ t1/Base#inner().PZ BAB6F2699ACA3E713062878645DBA999

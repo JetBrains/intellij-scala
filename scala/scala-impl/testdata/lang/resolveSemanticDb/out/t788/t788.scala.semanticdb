@@ -1,0 +1,61 @@
+
+Ûtests/pos/t788.scala*
+
+test/Test#*Test€*'
+test/Test#`<init>`(). €@*<init>€*
+test/Test#Node#*Node€*$
+test/Test#NodeImpl#*NodeImpl€*0
+test/Test#NodeImpl#`<init>`(). €@*<init>€*(
+test/Test#Expression#*
+Expression€*0
+test/Test#ExpressionImpl#*ExpressionImpl€*6
+$test/Test#ExpressionImpl#`<init>`(). €@*<init>€*/
+ test/Test#ExpressionImpl#self(). *self€*
+test/Test#Named#*Named€*&
+test/Test#NamedImpl#*	NamedImpl€*1
+test/Test#NamedImpl#`<init>`(). €@*<init>€**
+test/Test#NamedImpl#self(). *self€*.
+test/Test#asExpression().*asExpression€*&
+test/Test#asExpression().(e)*e€*
+local0 €*f€2
+ test/2
+ 
+
+test/Test#2#
+ test/Test#`<init>`().2
+ test/Test#Node#2!
+ test/Test#NodeImpl#2!
+ test/Test#NodeImpl#2,
+ test/Test#NodeImpl#`<init>`().2#
+ test/Test#Expression#2
+ test/Test#Node#2'
+ -test/Test#ExpressionImpl#2'
+ test/Test#ExpressionImpl#22
+ $test/Test#ExpressionImpl#`<init>`().2!
+ 'test/Test#NodeImpl#2.
+  test/Test#ExpressionImpl#self().2#
+ test/Test#Expression#2
+		 test/Test#Named#2
+		 test/Test#Node#2"
+		 #test/Test#NamedImpl#2"
+
+
+ test/Test#NamedImpl#2-
+
+
+ test/Test#NamedImpl#`<init>`().2!
+
+
+ "test/Test#NodeImpl#2)
+ test/Test#NamedImpl#self().2
+ test/Test#Named#2'
+ test/Test#asExpression().2*
+ test/Test#asExpression().(e)2'
+ %test/Test#ExpressionImpl#2
+) .test/Test#Named#2*
+ test/Test#asExpression().(e)2
+	 
+local02"
+ test/Test#NamedImpl#2)
+  test/Test#NamedImpl#self().2
+ local0PZ 3E418DD0F7116A7DCA13A54D7508E565

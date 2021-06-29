@@ -1,0 +1,170 @@
+
+Å3'tests/pos/targetName-infer-result.scala*
+_empty_/Tree# îÄ*TreeÄ**
+_empty_/Tree#`<init>`(). Ä@*<init>Ä*
+_empty_/Tree.
+ *TreeÄ*#
+_empty_/Tree.Bind# àÅ*BindÄ*/
+_empty_/Tree.Bind#`<init>`(). Ä@*<init>Ä*1
+"_empty_/Tree.Bind#`<init>`().(sym) Ä*symÄ*3
+#_empty_/Tree.Bind#`<init>`().(body) Ä*bodyÄ*%
+_empty_/Tree.Bind#sym. Ä*symÄ*'
+_empty_/Tree.Bind#body. Ä*bodyÄ*&
+_empty_/Tree.Bind#copy().*copyÄ**
+_empty_/Tree.Bind#copy().(sym)*symÄ*,
+_empty_/Tree.Bind#copy().(body)*bodyÄ*:
+#_empty_/Tree.Bind#copy$default$1().*copy$default$1Ä*:
+#_empty_/Tree.Bind#copy$default$2().*copy$default$2Ä*,
+_empty_/Tree.Bind#ordinal().*ordinalÄ*"
+_empty_/Tree.Bind#_1().*_1Ä*"
+_empty_/Tree.Bind#_2().*_2Ä*!
+_empty_/Tree.Bind.
+ *BindÄ*(
+_empty_/Tree.Bind.apply().*applyÄ*+
+_empty_/Tree.Bind.apply().(sym)*symÄ*-
+ _empty_/Tree.Bind.apply().(body)*bodyÄ*,
+_empty_/Tree.Bind.unapply().*unapplyÄ*-
+!_empty_/Tree.Bind.unapply().(x$1)*x$1Ä*.
+_empty_/Tree.Bind.toString().*toStringÄ*/
+_empty_/Tree.fromOrdinal().*fromOrdinalÄ*4
+$_empty_/Tree.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/Symbol#*SymbolÄ*,
+_empty_/Symbol#`<init>`(). Ä@*<init>Ä*
+_empty_/Test1.
+ *Test1Ä*8
+_empty_/Test1.TreeAccumulator# *TreeAccumulatorÄ*;
+)_empty_/Test1.TreeAccumulator#`<init>`(). Ä@*<init>Ä*+
+!_empty_/Test1.TreeAccumulator#[X]	*XÄ*2
+$_empty_/Test1.TreeAccumulator#app(). *appÄ*1
+'_empty_/Test1.TreeAccumulator#app().(x)*xÄ*7
+*_empty_/Test1.TreeAccumulator#app().(tree)*treeÄ*2
+&_empty_/Test1.TreeAccumulator#app(+1).*appÄ*3
+)_empty_/Test1.TreeAccumulator#app(+1).(x)*xÄ*;
+-_empty_/Test1.TreeAccumulator#app(+1).(trees)*treesÄ*!
+_empty_/Test1.acc. Ä*accÄ*
+local0 *$anonÄ*
+local1*appÄ*
+local2*symsÄ*
+local3*treeÄ*
+local4 Ä*symÄ*
+local5 Ä*bodyÄ*
+_empty_/Test2.
+ *Test2Ä*8
+_empty_/Test2.TreeAccumulator# *TreeAccumulatorÄ*;
+)_empty_/Test2.TreeAccumulator#`<init>`(). Ä@*<init>Ä*+
+!_empty_/Test2.TreeAccumulator#[X]	*XÄ*2
+$_empty_/Test2.TreeAccumulator#app(). *appÄ*1
+'_empty_/Test2.TreeAccumulator#app().(x)*xÄ*7
+*_empty_/Test2.TreeAccumulator#app().(tree)*treeÄ*2
+&_empty_/Test2.TreeAccumulator#app(+1).*appÄ*3
+)_empty_/Test2.TreeAccumulator#app(+1).(x)*xÄ*;
+-_empty_/Test2.TreeAccumulator#app(+1).(trees)*treesÄ*!
+_empty_/Test2.acc. Ä*accÄ*
+local6 *$anonÄ*
+local7*appÄ*
+local8*symsÄ*
+local9*treeÄ*
+local10 Ä*symÄ*
+local11 Ä*bodyÄ2&
+ scala/annotation/targetName#2
+ scala/annotation/2
+ 	_empty_/Tree#2&
+ _empty_/Tree#`<init>`().2
+ _empty_/Tree.2 
+ _empty_/Tree.Bind#2+
+ _empty_/Tree.Bind#`<init>`().2
+ _empty_/Symbol#2
+ #_empty_/Tree#2$
+ _empty_/Tree.Bind#sym.2%
+ _empty_/Tree.Bind#body.2'
+ _empty_/Tree.Bind#copy().2%
+ _empty_/Tree.Bind#_1().2%
+ _empty_/Tree.Bind#_2().2 
+ _empty_/Tree.Bind.2(
+ _empty_/Tree.Bind.apply().2
+ _empty_/Symbol#2$
+_empty_/Symbol#`<init>`().2
+ _empty_/Test1.2,
+  _empty_/Test1.TreeAccumulator#27
+   )_empty_/Test1.TreeAccumulator#`<init>`().2/
+! "!_empty_/Test1.TreeAccumulator#[X]22
+ $_empty_/Test1.TreeAccumulator#app().25
+ '_empty_/Test1.TreeAccumulator#app().(x)2/
+ !_empty_/Test1.TreeAccumulator#[X]28
+ *_empty_/Test1.TreeAccumulator#app().(tree)2
+ _empty_/Tree#2/
+  !_empty_/Test1.TreeAccumulator#[X]24
+		 &_empty_/Test1.TreeAccumulator#app(+1).27
+		 )_empty_/Test1.TreeAccumulator#app(+1).(x)2/
+		 !_empty_/Test1.TreeAccumulator#[X]2;
+		 -_empty_/Test1.TreeAccumulator#app(+1).(trees)2!
+		 scala/package.List#2
+		 "_empty_/Tree#2/
+	&	 '!_empty_/Test1.TreeAccumulator#[X]2#
+	*	 -scala/Predef.`???`().2 
+ 	_empty_/Test1.acc.2
+ local027
+- -)_empty_/Test1.TreeAccumulator#`<init>`().2,
+ _empty_/Test1.TreeAccumulator#2!
+  $scala/package.List#2
+% +_empty_/Symbol#2
+ local12
+ local22!
+ scala/package.List#2
+ _empty_/Symbol#2
+  $local32
+& *_empty_/Tree#2
+. 2local32*
+ _empty_/Tree.Bind.unapply().2 
+ _empty_/Tree.Bind.2
+ _empty_/Tree.2
+ local42
+ local52
+# &local125
+2 2'scala/collection/immutable/List#`::`().2
+. 2local22
+' *local42
+4 8local52
+ _empty_/Test2.2,
+  _empty_/Test2.TreeAccumulator#27
+   )_empty_/Test2.TreeAccumulator#`<init>`().2/
+! "!_empty_/Test2.TreeAccumulator#[X]2*
+ scala/annotation/targetName#22
+  $_empty_/Test2.TreeAccumulator#app().25
+! "'_empty_/Test2.TreeAccumulator#app().(x)2/
+$ %!_empty_/Test2.TreeAccumulator#[X]28
+' +*_empty_/Test2.TreeAccumulator#app().(tree)2
+- 1_empty_/Tree#2/
+4 5!_empty_/Test2.TreeAccumulator#[X]24
+ &_empty_/Test2.TreeAccumulator#app(+1).27
+ )_empty_/Test2.TreeAccumulator#app(+1).(x)2/
+ !_empty_/Test2.TreeAccumulator#[X]2;
+ -_empty_/Test2.TreeAccumulator#app(+1).(trees)2!
+ scala/package.List#2
+ "_empty_/Tree#2/
+& '!_empty_/Test2.TreeAccumulator#[X]2#
+* -scala/Predef.`???`().2 
+ 	_empty_/Test2.acc.2
+ local627
+- -)_empty_/Test2.TreeAccumulator#`<init>`().2,
+ _empty_/Test2.TreeAccumulator#2!
+  $scala/package.List#2
+% +_empty_/Symbol#2*
+ scala/annotation/targetName#2
+  local72
+! %local82!
+' +scala/package.List#2
+, 2_empty_/Symbol#2
+5 9local92
+; ?_empty_/Tree#2
+C Glocal92*
+ _empty_/Tree.Bind.unapply().2 
+ _empty_/Tree.Bind.2
+ _empty_/Tree.2
+ local102
+ local112
+# &local725
+2 2'scala/collection/immutable/List#`::`().2
+. 2local82
+' *local102
+4 8local11PZ 9A56F48DAB410BEEAF6FC9ED88CC57F2

@@ -1,0 +1,67 @@
+
+‡tests/pos/capture.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*)
+_empty_/Test#Liftable# *Liftable€*3
+!_empty_/Test#Liftable#`<init>`(). €@*<init>€*#
+_empty_/Test#Liftable#[T]	*T€*9
+_empty_/Test#ClassIsLiftable().  *ClassIsLiftable€*,
+"_empty_/Test#ClassIsLiftable().[T]	*T€*
+local0 *$anon€*
+_empty_/Test#Expr#*Expr€*/
+_empty_/Test#Expr#`<init>`(). €@*<init>€*"
+_empty_/Test#Expr#[T]	 €*T€*-
+_empty_/Test#LiftExprOps#*LiftExprOps€*6
+$_empty_/Test#LiftExprOps#`<init>`(). €@*<init>€*4
+'_empty_/Test#LiftExprOps#`<init>`().(x) €*x€*&
+_empty_/Test#LiftExprOps#[T]	*T€*(
+_empty_/Test#LiftExprOps#x. €*x€*1
+"_empty_/Test#LiftExprOps#toExpr().*toExpr€*3
+&_empty_/Test#LiftExprOps#toExpr().(ev)  *ev€*1
+_empty_/Test#LiftExprOps(). (*LiftExprOps€*(
+_empty_/Test#LiftExprOps().[T]	*T€*(
+_empty_/Test#LiftExprOps().(x)*x€*1
+_empty_/Test#runtimeClass().*runtimeClass€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2$
+ _empty_/Test#Liftable#2/
+ !_empty_/Test#Liftable#`<init>`().2'
+ _empty_/Test#Liftable#[T]2-
+ _empty_/Test#ClassIsLiftable().20
+  "_empty_/Test#ClassIsLiftable().[T]2$
+# +_empty_/Test#Liftable#2!
+, 1scala/Predef.Class#20
+2 3"_empty_/Test#ClassIsLiftable().[T]2
+8 8local02/
+N N!_empty_/Test#Liftable#`<init>`().2$
+< D_empty_/Test#Liftable#2!
+E Jscala/Predef.Class#20
+K L"_empty_/Test#ClassIsLiftable().[T]2 
+ _empty_/Test#Expr#2+
+ _empty_/Test#Expr#`<init>`().2#
+ _empty_/Test#Expr#[T]2'
+ _empty_/Test#LiftExprOps#22
+ $_empty_/Test#LiftExprOps#`<init>`().2*
+' (_empty_/Test#LiftExprOps#[T]2*
+ _empty_/Test#LiftExprOps#[T]2)
+$ %_empty_/Test#LiftExprOps#x.20
+ "_empty_/Test#LiftExprOps#toExpr().24
+ &_empty_/Test#LiftExprOps#toExpr().(ev)2$
+ $_empty_/Test#Liftable#2*
+% &_empty_/Test#LiftExprOps#[T]2 
+* ._empty_/Test#Expr#2*
+/ 0_empty_/Test#LiftExprOps#[T]2#
+4 7scala/Predef.`???`().2)
+ _empty_/Test#LiftExprOps().2*
+ _empty_/Test#runtimeClass().2!
+ scala/Predef.Class#2#
+ "scala/Predef.`???`().20
+!! "_empty_/Test#LiftExprOps#toExpr().2)
+!! _empty_/Test#LiftExprOps().2*
+!! _empty_/Test#runtimeClass().2-
+!! %_empty_/Test#ClassIsLiftable().20
+## "_empty_/Test#LiftExprOps#toExpr().2)
+## _empty_/Test#LiftExprOps().2*
+## _empty_/Test#runtimeClass().2-
+## _empty_/Test#ClassIsLiftable().PZ 0F7D9A608F9930EC7CC99EACFA2EEC4B

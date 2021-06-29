@@ -1,0 +1,125 @@
+
+–"!tests/pos/enum-List-control.scala*
+_empty_/List# *List€**
+_empty_/List#`<init>`(). €@*<init>€*
+_empty_/List#[T]	*T€*
+_empty_/List.
+ *List€*!
+_empty_/List.Cons# *Cons€*/
+_empty_/List.Cons#`<init>`(). €@*<init>€**
+ _empty_/List.Cons#`<init>`().(x)*x€*,
+!_empty_/List.Cons#`<init>`().(xs)*xs€*
+_empty_/List.Cons#[T]	*T€*!
+_empty_/List.Cons#x. €*x€*#
+_empty_/List.Cons#xs. €*xs€*,
+_empty_/List.Cons#ordinal().*ordinal€*.
+_empty_/List.Cons#canEqual().*canEqual€*0
+#_empty_/List.Cons#canEqual().(that)*that€*6
+!_empty_/List.Cons#productArity().*productArity€*:
+#_empty_/List.Cons#productElement().*productElement€*0
+&_empty_/List.Cons#productElement().(n)*n€*!
+_empty_/List.Cons.
+ *Cons€*(
+_empty_/List.Cons.apply().*apply€*'
+_empty_/List.Cons.apply().[T]	*T€*'
+_empty_/List.Cons.apply().(x)*x€*)
+_empty_/List.Cons.apply().(xs)*xs€*
+_empty_/List.Nil# *Nil€*.
+_empty_/List.Nil#`<init>`(). €@*<init>€*
+_empty_/List.Nil#[T]	*T€*+
+_empty_/List.Nil#ordinal().*ordinal€*
+_empty_/List.Nil.
+ *Nil€*'
+_empty_/List.Nil.apply().*apply€*&
+_empty_/List.Nil.apply().[T]	*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/List#2"
+ _empty_/List#`<init>`().2
+. 2scala/reflect/Enum#2
+& -scala/reflect/2
+ _empty_/List#[T]2
+ _empty_/List.2 
+ _empty_/List.Cons#2+
+ _empty_/List.Cons#`<init>`().2#
+ _empty_/List.Cons#[T]2
+  $_empty_/List#2#
+% &_empty_/List.Cons#[T]2&
+8 8_empty_/List#`<init>`().2
+1 5_empty_/List#2#
+6 7_empty_/List.Cons#[T]2#
+ _empty_/List.Cons#[T]2"
+ _empty_/List.Cons#x.2#
+ _empty_/List.Cons#xs.2*
+ _empty_/List.Cons#ordinal().2+
+ _empty_/List.Cons#canEqual().21
+ #_empty_/List.Cons#canEqual().(that)2
+ 
+scala/Any#2
+ $scala/Boolean#2'
+, 8scala/Any#isInstanceOf().21
+' +#_empty_/List.Cons#canEqual().(that)2 
+9 =_empty_/List.Cons#2/
+ !_empty_/List.Cons#productArity().2
+ 
+scala/Int#21
+ #_empty_/List.Cons#productElement().24
+ &_empty_/List.Cons#productElement().(n)2
+ 
+scala/Int#2
+  #
+scala/Any#24
+& '&_empty_/List.Cons#productElement().(n)2"
+ _empty_/List.Cons#x.2#
+ _empty_/List.Cons#xs.2 
+
+	
+ _empty_/List.Cons.2(
+ _empty_/List.Cons.apply().2+
+ _empty_/List.Cons.apply().[T]2+
+ _empty_/List.Cons.apply().(x)2+
+ _empty_/List.Cons.apply().[T]2,
+ _empty_/List.Cons.apply().(xs)2
+ _empty_/List#2+
+  !_empty_/List.Cons.apply().[T]2
+% )_empty_/List#2+
+* +_empty_/List.Cons.apply().[T]2+
+7 7_empty_/List.Cons#`<init>`().2+
+8 9_empty_/List.Cons.apply().(x)2,
+; =_empty_/List.Cons.apply().(xs)2
+ _empty_/List.Nil#2*
+ _empty_/List.Nil#`<init>`().2&
+& &_empty_/List#`<init>`().2
+ #_empty_/List#2"
+$ %_empty_/List.Nil#[T]2&
+0 9scala/runtime/EnumValue#2
+( /scala/runtime/2"
+ _empty_/List.Nil#[T]2)
+ _empty_/List.Nil#ordinal().2
+	 _empty_/List.Nil.2'
+ _empty_/List.Nil.apply().2*
+ _empty_/List.Nil.apply().[T]2
+ _empty_/List#2*
+ _empty_/List.Nil.apply().[T]2*
+% %_empty_/List.Nil#`<init>`().2
+ _empty_/Test.2
+	 _empty_/List.2
+ _empty_/Test.xs.2(
+ _empty_/List.Cons.apply().2 
+ _empty_/List.Cons.2(
+ _empty_/List.Cons.apply().2 
+ _empty_/List.Cons.2(
+ _empty_/List.Cons.apply().2 
+ _empty_/List.Cons.2'
+& &_empty_/List.Nil.apply().2
+# &_empty_/List.Nil.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2'
+" )scala/Predef.println(+1).2
+* ,_empty_/Test.xs.PZ 825757CB01FDC8EC2AEE4BC170EFB623

@@ -1,0 +1,43 @@
+
+ªtests/pos/t5829.scala*"
+_empty_/Universe#*Universe€*.
+_empty_/Universe#`<init>`(). €@*<init>€*#
+_empty_/Universe#Tree#*Tree€*)
+_empty_/Universe#SymTree#*SymTree€*+
+_empty_/Universe#NameTree#*NameTree€*)
+_empty_/Universe#RefTree#*RefTree€*%
+_empty_/Universe#Ident#*Ident€*'
+_empty_/Universe#Select#*Select€*
+_empty_/Test.
+ *Test€**
+_empty_/Test.universe. €*universe€*%
+_empty_/Test.select().*select€*#
+_empty_/Test.ident().*ident€2
+ _empty_/Universe#2*
+ _empty_/Universe#`<init>`().2$
+ _empty_/Universe#Tree#2'
+ _empty_/Universe#SymTree#2$
+ _empty_/Universe#Tree#2(
+ _empty_/Universe#NameTree#2$
+ _empty_/Universe#Tree#2'
+ _empty_/Universe#RefTree#2'
+ _empty_/Universe#SymTree#2(
+ '_empty_/Universe#NameTree#2%
+ _empty_/Universe#Ident#2'
+ _empty_/Universe#RefTree#2&
+ _empty_/Universe#Select#2'
+ _empty_/Universe#RefTree#2
+ _empty_/Test.2
+ 
+scala/App#2$
+ _empty_/Test.universe.2
+ _empty_/Universe#2$
+	 _empty_/Test.universe.2$
+ _empty_/Test.select().2#
+ scala/Predef.`???`().2#
+ _empty_/Test.ident().2#
+ scala/Predef.`???`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2$
+ _empty_/Test.select().2#
+ _empty_/Test.ident().PZ 87D1BD410F899E2D4535A623A8AEDAEF

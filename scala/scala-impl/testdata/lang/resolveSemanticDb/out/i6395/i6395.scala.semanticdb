@@ -1,0 +1,29 @@
+
+Ðtests/pos/i6395.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.foo().*foo€*%
+_empty_/Foo.foo().(self)*self€*%
+_empty_/Foo.foo().(that)*that€*
+_empty_/Foo.bar().*bar€*%
+_empty_/Foo.bar().(self)*self€2
+ 
+_empty_/Foo.2 
+# &_empty_/Foo.foo().2&
+ _empty_/Foo.foo().(self)2
+ 
+scala/Int#2&
+' +_empty_/Foo.foo().(that)2
+- 0
+scala/Int#2
+3 6
+scala/Int#2 
+ _empty_/Foo.bar().2&
+ _empty_/Foo.bar().(self)2
+ 
+scala/Int#2
+! $
+scala/Int#2&
+' +_empty_/Foo.bar().(self)2 
+ _empty_/Foo.bar().2 
+ _empty_/Foo.foo().PZ B17070E6C8B8C9AD2DE92B6F6791A4B3

@@ -1,0 +1,74 @@
+
+’tests/pos/i4987.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.Expr#*Expr€*.
+_empty_/Foo.Expr#`<init>`(). €@*<init>€*
+_empty_/Foo.Expr#[T]	*T€*(
+_empty_/Foo.Liftable# *Liftable€*2
+ _empty_/Foo.Liftable#`<init>`(). €@*<init>€*"
+_empty_/Foo.Liftable#[T]	*T€*/
+_empty_/Foo.Liftable#toExpr(). *toExpr€*+
+!_empty_/Foo.Liftable#toExpr().(x)*x€*.
+_empty_/Foo.LiftExprOps# *LiftExprOps€*5
+#_empty_/Foo.LiftExprOps#`<init>`(). €@*<init>€*3
+&_empty_/Foo.LiftExprOps#`<init>`().(x) €*x€*%
+_empty_/Foo.LiftExprOps#[T]	*T€*'
+_empty_/Foo.LiftExprOps#x. €*x€*0
+!_empty_/Foo.LiftExprOps#toExpr().*toExpr€*2
+%_empty_/Foo.LiftExprOps#toExpr().(ev)  *ev€*.
+_empty_/Foo.LiftExprOps.
+ *LiftExprOps€*0
+_empty_/Foo.LiftExprOps(). (*LiftExprOps€*'
+_empty_/Foo.LiftExprOps().[T]	*T€*'
+_empty_/Foo.LiftExprOps().(x)*x€*4
+_empty_/Foo.NilIsLiftable().  *NilIsLiftable€2
+ 
+_empty_/Foo.2
+ _empty_/Foo.Expr#2*
+ _empty_/Foo.Expr#`<init>`().2"
+ _empty_/Foo.Expr#[T]2#
+ _empty_/Foo.Liftable#2.
+  _empty_/Foo.Liftable#`<init>`().2&
+ _empty_/Foo.Liftable#[T]2,
+ _empty_/Foo.Liftable#toExpr().2/
+ !_empty_/Foo.Liftable#toExpr().(x)2&
+ _empty_/Foo.Liftable#[T]2
+ _empty_/Foo.Expr#2&
+ _empty_/Foo.Liftable#[T]2&
+ _empty_/Foo.LiftExprOps#21
+ #_empty_/Foo.LiftExprOps#`<init>`().2)
+' (_empty_/Foo.LiftExprOps#[T]2&
+8 8scala/AnyVal#`<init>`().2
+2 8scala/AnyVal#2)
+ _empty_/Foo.LiftExprOps#[T]2(
+$ %_empty_/Foo.LiftExprOps#x.2/
+		 !_empty_/Foo.LiftExprOps#toExpr().23
+		 %_empty_/Foo.LiftExprOps#toExpr().(ev)2#
+		 $_empty_/Foo.Liftable#2)
+	%	 &_empty_/Foo.LiftExprOps#[T]2
+	*	 ._empty_/Foo.Expr#2)
+	/	 0_empty_/Foo.LiftExprOps#[T]2,
+	7	 =_empty_/Foo.Liftable#toExpr().23
+	4	 6%_empty_/Foo.LiftExprOps#toExpr().(ev)2(
+	>	 ?_empty_/Foo.LiftExprOps#x.2&
+ _empty_/Foo.LiftExprOps.2(
+ _empty_/Foo.LiftExprOps().2*
+ _empty_/Foo.NilIsLiftable().2#
+ &_empty_/Foo.Liftable#2 
+' *scala/package.Nil.2#
+3 6scala/Predef.`???`().2/
+ !_empty_/Foo.LiftExprOps#toExpr().2(
+ _empty_/Foo.LiftExprOps().2 
+ scala/package.Nil.2*
+ _empty_/Foo.NilIsLiftable().2/
+ !_empty_/Foo.LiftExprOps#toExpr().2(
+ _empty_/Foo.LiftExprOps().2 
+ scala/package.Nil.2*
+ _empty_/Foo.NilIsLiftable().2
+ _empty_/Foo.Expr#2 
+ scala/package.Nil.2/
+ !_empty_/Foo.LiftExprOps#toExpr().2(
+ _empty_/Foo.LiftExprOps().2 
+ scala/package.Nil.2*
+ _empty_/Foo.NilIsLiftable().PZ 1E51330D61F981C42222AB7CA7647DF8

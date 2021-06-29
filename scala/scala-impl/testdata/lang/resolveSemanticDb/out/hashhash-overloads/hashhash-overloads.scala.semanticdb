@@ -1,0 +1,28 @@
+
+õ"tests/pos/hashhash-overloads.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.g().*g€*
+_empty_/Test.h().*h€*
+_empty_/Test.f2().*f2€*
+_empty_/Test.l().*l€*
+_empty_/Test.b().*b€*"
+_empty_/Test.b().(arg)*arg€2
+ _empty_/Test.2
+ _empty_/Test.f().2
+ scala/Any#`##`().2
+ _empty_/Test.g().2
+ scala/Any#`##`().2
+ _empty_/Test.h().2
+# %scala/Any#`##`().2'
+ scala/Predef.println(+1).2 
+ _empty_/Test.f2().2
+ scala/Any#`##`().2
+ _empty_/Test.l().2
+ scala/Any#`##`().2
+ _empty_/Test.b().2$
+ _empty_/Test.b().(arg)2
+ scala/Boolean#2
+ scala/Any#`##`().2$
+ _empty_/Test.b().(arg)PZ 7F5B4F10C2D84EE92F38BAF79C28D2E8

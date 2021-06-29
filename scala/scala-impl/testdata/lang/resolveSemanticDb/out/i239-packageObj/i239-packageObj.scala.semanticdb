@@ -1,0 +1,33 @@
+
+¤tests/pos/i239-packageObj.scala*
+p/C#*C€*!
+p/C#`<init>`(). €@*<init>€*
+p/C#[A]	*A€*
+
+p/C#foo().*foo€*
+
+p/package. *p€*
+_empty_/test.
+ *test€*
+_empty_/test.x. €*x€2
+ 	p/2
+ 	p/C#2
+	 	p/C#`<init>`().2
+
+ p/C#[A]2
+ 
+p/C#foo().2
+ p/C#[A]2#
+ scala/Predef.`???`().2
+
+ 
+p/package.2
+$ $p/C#`<init>`().2
+ p/C#2"
+ #scala/Predef.String#2
+ _empty_/test.2
+ _empty_/test.x.2"
+	 scala/Predef.String#2
+ 
+p/C#foo().2
+ p/PZ DD6C4C1CD3F87A41DA08759245E7897E

@@ -1,0 +1,19 @@
+
+žtests/pos/t0068.scala*
+
+_empty_/E#*E€*'
+_empty_/E#`<init>`(). €@*<init>€*
+_empty_/E#f().*f€*
+local0 €*l1€2
+ 
+_empty_/E#2#
+ _empty_/E#`<init>`().2
+ _empty_/E#f().2
+ local027
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.28
+ *scala/collection/immutable/`::`.unapply().2!
+
+ scala/package.`::`.22
+ $scala/collection/IterableOps#tail().2
+ local0PZ 935176108412976CC86856A28F987D5C

@@ -1,0 +1,32 @@
+
+§tests/pos/philippe2.scala*
+_empty_/m1#*m1€*(
+_empty_/m1#`<init>`(). €@*<init>€*
+_empty_/m1#n().*n€*
+_empty_/m1#foo().*foo€*
+_empty_/m1#foo().(i)*i€*
+_empty_/m1#foo().(j)*j€*
+_empty_/m1#bar. €*bar€*
+local0 €*i$1€*
+local1*j€2
+ scala/2
+ _empty_/m1#2$
+ _empty_/m1#`<init>`().2
+ _empty_/m1#n().2
+ 	_empty_/m1#foo().2"
+
+ _empty_/m1#foo().(i)2
+ 
+scala/Int#2"
+ _empty_/m1#foo().(j)2
+ 
+scala/Int#2
+ scala/Unit#2
+ 	_empty_/m1#bar.2
+ 
+scala/Int#2
+ scala/Unit#2
+ local02
+ _empty_/m1#foo().2
+ local02
+ local1PZ 48BD60AF1B3FFDD15EE0C505F66D7EBE

@@ -1,0 +1,48 @@
+
+Ótests/pos/t3371.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*1
+!_empty_/Test#`<init>`().(myValue)*myValue€*(
+_empty_/Test#myValue. €*myValue€*
+_empty_/Other#*Other€*+
+_empty_/Other#`<init>`(). €@*<init>€*/
+_empty_/Other#otherValue. €*
+otherValue€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€*2
+"_empty_/Test2#`<init>`().(myValue)*myValue€*
+local0*self€*)
+_empty_/Test2#myValue. €*myValue€*
+_empty_/Test3#*Test3€*+
+_empty_/Test3#`<init>`(). €@*<init>€*2
+"_empty_/Test3#`<init>`().(myValue)*myValue€*
+local1*self€*)
+_empty_/Test3#myValue. €*myValue€2
+ 
+_empty_/Test#2&
+
+ 
+_empty_/Test#`<init>`().2"
+ scala/Predef.String#2#
+ _empty_/Test#myValue.2'
+ $scala/Predef.println(+1).2#
+% ,_empty_/Test#myValue.2
+ _empty_/Other#2'
+ _empty_/Other#`<init>`().2'
+ _empty_/Other#otherValue.2
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2"
+ scala/Predef.String#2
+ "local02
+# (_empty_/Other#2$
+ _empty_/Test2#myValue.2'
+, 3scala/Predef.println(+1).2'
+4 >_empty_/Other#otherValue.2
+ _empty_/Test3#2'
+ _empty_/Test3#`<init>`().2"
+ scala/Predef.String#2
+ "local12
+# (_empty_/Other#2$
+ _empty_/Test3#myValue.2'
+, 3scala/Predef.println(+1).2$
+4 ;_empty_/Test3#myValue.PZ B25A5038D0C0A953FEBEEA12997F44F6

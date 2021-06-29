@@ -1,0 +1,70 @@
+
+ƒtests/pos/t2669.scala*$
+_empty_/Test2669.
+ *Test2669€*%
+_empty_/Test2669.test().*test€*%
+_empty_/Test2669.test().[T]	*T€*%
+_empty_/Test2669.test().(l)*l€*$
+_empty_/Test2629.
+ *Test2629€*%
+_empty_/Test2629.main().*main€*+
+_empty_/Test2629.main().(args)*args€*
+local0 €*l€*
+local1 €*m€*(
+_empty_/TVector2639#*TVector2639€*1
+_empty_/TVector2639#`<init>`(). €@*<init>€*#
+_empty_/TVector2639#b. €*b€*#
+_empty_/TVector2639#a. €*a€2
+ _empty_/Test2669.2&
+ 
+_empty_/Test2669.test().2)
+ _empty_/Test2669.test().[T]2)
+ _empty_/Test2669.test().(l)2"
+ $java/util/ArrayList#2
+ 
+java/util/2
+ java/2)
+* +_empty_/Test2669.test().[T]2&
+ _empty_/Test2669.test().2/
+& &!java/util/ArrayList#`<init>`(+1).2"
+ java/util/ArrayList#2
+ 
+java/util/2
+ java/2"
+ %scala/Predef.String#2"
+		 java/util/ArrayList.2"
+		 java/util/ArrayList#2
+		 
+java/util/2
+		 java/2
+ _empty_/Test2629.2&
+ 
+_empty_/Test2629.main().2,
+ _empty_/Test2629.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02-
+! !java/util/ArrayList#`<init>`().2"
+ java/util/ArrayList#2"
+  scala/Predef.String#2
+ 	local12/
+ !java/util/ArrayList#`<init>`(+2).2
+ local02'
+ scala/Predef.println(+1).2)
+ java/util/ArrayList#size().2
+ local02'
+ scala/Predef.println(+1).2)
+ java/util/ArrayList#size().2
+ local12
+ java/util/Vector.2
+ java/util/Vector#2
+ 
+java/util/2
+ java/2"
+ _empty_/TVector2639#2-
+ _empty_/TVector2639#`<init>`().2$
+ _empty_/TVector2639#b.2,
+ java/util/Vector#`<init>`(+2).2$
+ _empty_/TVector2639#a.2,
+ java/util/Vector#`<init>`(+1).PZ 301697F132DBCE408DE587CE230A3312

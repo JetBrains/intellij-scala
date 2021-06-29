@@ -1,0 +1,29 @@
+
+Ñtests/pos/t7322.scala*
+t7322/package. *t7322€*
+t7322/package.X#*X€*-
+t7322/package.X#`<init>`(). €@*<init>€**
+t7322/package.X#`<init>`().(sc)*sc€*!
+t7322/package.X#sc. €*sc€*$
+t7322/package.X#`x_?`().*x_?€*+
+t7322/package.X#`x_?`().(args)*args€*
+t7322/package.X(). (*X€*!
+t7322/package.X().(sc)*sc€*
+t7322/Y#*Y€*%
+t7322/Y#`<init>`(). €@*<init>€2
+ t7322/package.2
+ t7322/package.X#2)
+ t7322/package.X#`<init>`().2"
+ $scala/StringContext#2!
+ t7322/package.X#sc.2&
+ t7322/package.X#`x_?`().2,
+ t7322/package.X#`x_?`().(args)2
+ 
+scala/Any#2 
+ t7322/package.X().2
+ t7322/2
+ 	t7322/Y#2!
+ t7322/Y#`<init>`().2&
+ t7322/package.X#`x_?`().2 
+ t7322/package.X().2*
+ scala/StringContext.apply().PZ 4F9AE549E8E61B494253F62704DED2B7

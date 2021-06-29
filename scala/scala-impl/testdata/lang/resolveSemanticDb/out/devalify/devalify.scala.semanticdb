@@ -1,0 +1,82 @@
+
+ñtests/pos/devalify.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.test0().*test0€*
+local0*I€*
+local1*foo€*
+local2 €*s€*#
+_empty_/Test.test1().*test1€*
+local3 €*s1€*
+local4 €*s2€*
+local5 €*t€*#
+_empty_/Test.test2().*test2€*
+local6*Foo€*
+local7*Bar€*
+local8 €*foo€*
+local9 €*subFoo€*
+local10 €*	subFooBar€*#
+_empty_/Test.test3().*test3€*
+local11*NumericRange€*
+local12*mapRange€*
+local13 €*self€*
+local14 *$anon€*
+local15*underlyingRange€2
+ _empty_/Test.2#
+ _empty_/Test.test0().2
+ scala/Unit#2
+
+ local02
+
+ local12
+ 
+scala/Any#2
+ 	local22
+ local02
+ 	local12
+ local22#
+		 _empty_/Test.test1().2
+		 scala/Unit#2
+ 
+local32"
+ scala/Predef.String#2
+ 
+local42
+ local32
+ local32
+ 	local52
+ scala/Option#2
+ local32
+ !scala/None.2'
+ scala/Predef.println(+1).2
+ local52'
+ scala/Predef.println(+1).2
+ local42
+ local32#
+ _empty_/Test.test2().2
+ scala/Unit#2
+
+ local62
+ local72
+ local82
+ local62
+ local92
+ local82
+ local102
+ "local72
+ local92'
+ scala/Predef.println(+1).2
+ local102#
+"" _empty_/Test.test3().2
+"" scala/Unit#2
+#
+# local112
+$
+$ local122
+$$  local112
+%% local132
+&& local142
+&& local112
+'' local152
+'' +local112
+'.' 2local13PZ BBF2C91895EB4591411105D4E9B9A7B7

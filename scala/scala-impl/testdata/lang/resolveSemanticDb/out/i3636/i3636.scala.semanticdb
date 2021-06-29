@@ -1,0 +1,83 @@
+
+àtests/pos/i3636.scala*"
+_empty_/Iterable#*Iterable€*.
+_empty_/Iterable#`<init>`(). €@*<init>€*
+_empty_/Iterable#[A]	*A€*)
+_empty_/Iterable#concat().*concat€*'
+_empty_/Iterable#concat().[B]	*B€*-
+ _empty_/Iterable#concat().(that)*that€*%
+_empty_/Iterable#`++`(). *++€*%
+_empty_/Iterable#`++`().[B]	*B€*+
+_empty_/Iterable#`++`().(that)*that€*
+_empty_/BitSet#*BitSet€*,
+_empty_/BitSet#`<init>`(). €@*<init>€*'
+_empty_/BitSet#concat().*concat€*+
+_empty_/BitSet#concat().(that)*that€*#
+_empty_/BitSet#`++`(). *++€*)
+_empty_/BitSet#`++`().(that)*that€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#test().*test€*!
+_empty_/Test#test().(x)*x€*!
+_empty_/Test#test().(y)*y€*
+local0 €*foo€2
+ _empty_/Iterable#2&
+ _empty_/Iterable#`<init>`().2
+ _empty_/Iterable#[A]2(
+ _empty_/Iterable#concat().2+
+ _empty_/Iterable#concat().[B]2"
+ _empty_/Iterable#[A]2.
+  _empty_/Iterable#concat().(that)2
+ #_empty_/Iterable#2+
+$ %_empty_/Iterable#concat().[B]2
+) 1_empty_/Iterable#2+
+2 3_empty_/Iterable#concat().[B]2#
+7 :scala/Predef.`???`().2&
+ _empty_/Iterable#`++`().2)
+ _empty_/Iterable#`++`().[B]2"
+ _empty_/Iterable#[A]2,
+ #_empty_/Iterable#`++`().(that)2
+% -_empty_/Iterable#2)
+. /_empty_/Iterable#`++`().[B]2
+3 ;_empty_/Iterable#2)
+< =_empty_/Iterable#`++`().[B]2(
+A G_empty_/Iterable#concat().2,
+H L_empty_/Iterable#`++`().(that)2
+ _empty_/BitSet#2(
+ _empty_/BitSet#`<init>`().2
+ _empty_/Iterable#2
+ !
+scala/Int#2&
+ _empty_/BitSet#concat().2,
+ _empty_/BitSet#concat().(that)2
+ _empty_/Iterable#2
+ 
+scala/Int#2
+# )_empty_/BitSet#2#
+, /scala/Predef.`???`().2$
+ _empty_/BitSet#`++`().2*
+ _empty_/BitSet#`++`().(that)2
+ %_empty_/Iterable#2
+& )
+scala/Int#2
+- 3_empty_/BitSet#2&
+6 <_empty_/BitSet#concat().2*
+= A_empty_/BitSet#`++`().(that)2
+
+
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ 
+_empty_/Test#test().2%
+ _empty_/Test#test().(x)2
+ _empty_/BitSet#2%
+ _empty_/Test#test().(y)2
+ !_empty_/Iterable#2
+" %
+scala/Int#2
+) -scala/Unit#2
+ local02$
+ _empty_/BitSet#`++`().2%
+ _empty_/Test#test().(x)2%
+ _empty_/Test#test().(y)PZ D35B0D74D11520B6BE3EC61549A69730

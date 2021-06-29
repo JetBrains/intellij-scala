@@ -1,0 +1,35 @@
+
+› tests/pos/unapplyContexts2.scala*"
+_empty_/Analyzer#*Analyzer€*.
+_empty_/Analyzer#`<init>`(). €@*<init>€*.
+_empty_/Analyzer#WILDCARD. €*WILDCARD€*$
+_empty_/Contexts2#*	Contexts2€*/
+_empty_/Contexts2#`<init>`(). €@*<init>€*
+local0*self€**
+_empty_/Contexts2#Context#*Context€*7
+%_empty_/Contexts2#Context#`<init>`(). €@*<init>€*4
+$_empty_/Contexts2#Context#collect().*collect€*7
+*_empty_/Contexts2#Context#collect().(sels)*sels€*
+local1 €*dummy€2
+ _empty_/Analyzer#2*
+ _empty_/Analyzer#`<init>`().2(
+ _empty_/Analyzer#WILDCARD.2 
+ _empty_/Contexts2#2+
+ _empty_/Contexts2#`<init>`().2
+ local02
+  _empty_/Analyzer#2(
+ _empty_/Contexts2#Context#23
+ %_empty_/Contexts2#Context#`<init>`().22
+ $_empty_/Contexts2#Context#collect().28
+ *_empty_/Contexts2#Context#collect().(sels)2!
+ scala/package.List#2"
+ !scala/Predef.String#2!
+% )scala/package.List#2"
+* 0scala/Predef.String#28
+4 8*_empty_/Contexts2#Context#collect().(sels)27
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.2(
+ _empty_/Analyzer#WILDCARD.2
+! &local12(
+) 1_empty_/Analyzer#WILDCARD.2 
+3 6scala/package.Nil.PZ A3AF8B4E12136CD7DA6C652874DA0A51

@@ -1,0 +1,202 @@
+
+Õ=tests/pos/gadt-inference.scala*2
+_empty_/`gadt-inference`.
+ *gadt-inferenceÄ*/
+_empty_/`gadt-inference`.Expr# îÄ*ExprÄ*;
+)_empty_/`gadt-inference`.Expr#`<init>`(). Ä@*<init>Ä*+
+!_empty_/`gadt-inference`.Expr#[T]	*TÄ*-
+_empty_/`gadt-inference`.Expr.
+ *ExprÄ*8
+%_empty_/`gadt-inference`.Expr.StrLit# àÅ*StrLitÄ*B
+0_empty_/`gadt-inference`.Expr.StrLit#`<init>`(). Ä@*<init>Ä*@
+3_empty_/`gadt-inference`.Expr.StrLit#`<init>`().(s) Ä*sÄ*4
+'_empty_/`gadt-inference`.Expr.StrLit#s. Ä*sÄ*9
+,_empty_/`gadt-inference`.Expr.StrLit#copy().*copyÄ*9
+/_empty_/`gadt-inference`.Expr.StrLit#copy().(s)*sÄ*M
+6_empty_/`gadt-inference`.Expr.StrLit#copy$default$1().*copy$default$1Ä*?
+/_empty_/`gadt-inference`.Expr.StrLit#ordinal().*ordinalÄ*5
+*_empty_/`gadt-inference`.Expr.StrLit#_1().*_1Ä*6
+%_empty_/`gadt-inference`.Expr.StrLit.
+ *StrLitÄ*;
+-_empty_/`gadt-inference`.Expr.StrLit.apply().*applyÄ*:
+0_empty_/`gadt-inference`.Expr.StrLit.apply().(s)*sÄ*?
+/_empty_/`gadt-inference`.Expr.StrLit.unapply().*unapplyÄ*@
+4_empty_/`gadt-inference`.Expr.StrLit.unapply().(x$1)*x$1Ä*A
+0_empty_/`gadt-inference`.Expr.StrLit.toString().*toStringÄ*8
+%_empty_/`gadt-inference`.Expr.IntLit# àÅ*IntLitÄ*B
+0_empty_/`gadt-inference`.Expr.IntLit#`<init>`(). Ä@*<init>Ä*@
+3_empty_/`gadt-inference`.Expr.IntLit#`<init>`().(i) Ä*iÄ*4
+'_empty_/`gadt-inference`.Expr.IntLit#i. Ä*iÄ*9
+,_empty_/`gadt-inference`.Expr.IntLit#copy().*copyÄ*9
+/_empty_/`gadt-inference`.Expr.IntLit#copy().(i)*iÄ*M
+6_empty_/`gadt-inference`.Expr.IntLit#copy$default$1().*copy$default$1Ä*?
+/_empty_/`gadt-inference`.Expr.IntLit#ordinal().*ordinalÄ*5
+*_empty_/`gadt-inference`.Expr.IntLit#_1().*_1Ä*6
+%_empty_/`gadt-inference`.Expr.IntLit.
+ *IntLitÄ*;
+-_empty_/`gadt-inference`.Expr.IntLit.apply().*applyÄ*:
+0_empty_/`gadt-inference`.Expr.IntLit.apply().(i)*iÄ*?
+/_empty_/`gadt-inference`.Expr.IntLit.unapply().*unapplyÄ*@
+4_empty_/`gadt-inference`.Expr.IntLit.unapply().(x$1)*x$1Ä*A
+0_empty_/`gadt-inference`.Expr.IntLit.toString().*toStringÄ*@
+,_empty_/`gadt-inference`.Expr.fromOrdinal().*fromOrdinalÄ*E
+5_empty_/`gadt-inference`.Expr.fromOrdinal().(ordinal)*ordinalÄ*-
+ _empty_/`gadt-inference`.eval().*evalÄ*-
+#_empty_/`gadt-inference`.eval().[T]	*TÄ*-
+#_empty_/`gadt-inference`.eval().(e)*eÄ*
+local0 Ä*sÄ*
+local1 Ä*aÄ*
+local2 Ä*iÄ*
+local3 Ä*aÄ*1
+"_empty_/`gadt-inference`.nested().*nestedÄ*/
+%_empty_/`gadt-inference`.nested().[T]	*TÄ*/
+%_empty_/`gadt-inference`.nested().(o)*oÄ*
+local4 Ä*eÄ*
+local5 Ä*sÄ*
+local6 Ä*aÄ*
+local7 Ä*iÄ*
+local8 Ä*aÄ*/
+!_empty_/`gadt-inference`.local().*localÄ*.
+$_empty_/`gadt-inference`.local().[T]	*TÄ*.
+$_empty_/`gadt-inference`.local().(e)*eÄ*
+local9*evalÄ*
+local10	*TÄ*
+local11*eÄ*
+local12 Ä*sÄ*
+local13 Ä*aÄ*
+local14 Ä*iÄ*
+local15 Ä*aÄ2#
+ _empty_/`gadt-inference`.2,
+ _empty_/`gadt-inference`.Expr#27
+ )_empty_/`gadt-inference`.Expr#`<init>`().2/
+ !_empty_/`gadt-inference`.Expr#[T]2,
+ _empty_/`gadt-inference`.Expr.23
+	 %_empty_/`gadt-inference`.Expr.StrLit#2>
+ 0_empty_/`gadt-inference`.Expr.StrLit#`<init>`().2"
+ scala/Predef.String#27
+/ /)_empty_/`gadt-inference`.Expr#`<init>`().2,
+# '_empty_/`gadt-inference`.Expr#2"
+( .scala/Predef.String#25
+ '_empty_/`gadt-inference`.Expr.StrLit#s.2:
+ ,_empty_/`gadt-inference`.Expr.StrLit#copy().28
+ *_empty_/`gadt-inference`.Expr.StrLit#_1().23
+	 	%_empty_/`gadt-inference`.Expr.StrLit.2;
+ -_empty_/`gadt-inference`.Expr.StrLit.apply().23
+	 %_empty_/`gadt-inference`.Expr.IntLit#2>
+ 0_empty_/`gadt-inference`.Expr.IntLit#`<init>`().2
+ 
+scala/Int#27
+) ))_empty_/`gadt-inference`.Expr#`<init>`().2,
+  $_empty_/`gadt-inference`.Expr#2
+% (
+scala/Int#25
+ '_empty_/`gadt-inference`.Expr.IntLit#i.2:
+ ,_empty_/`gadt-inference`.Expr.IntLit#copy().28
+ *_empty_/`gadt-inference`.Expr.IntLit#_1().23
+	 	%_empty_/`gadt-inference`.Expr.IntLit.2;
+ -_empty_/`gadt-inference`.Expr.IntLit.apply().2,
+	 _empty_/`gadt-inference`.Expr.2.
+ 
+ _empty_/`gadt-inference`.eval().21
+ #_empty_/`gadt-inference`.eval().[T]21
+ #_empty_/`gadt-inference`.eval().(e)2,
+ _empty_/`gadt-inference`.Expr#21
+ #_empty_/`gadt-inference`.eval().[T]21
+ #_empty_/`gadt-inference`.eval().(e)2=
+		 /_empty_/`gadt-inference`.Expr.StrLit.unapply().23
+		 %_empty_/`gadt-inference`.Expr.StrLit.2
+		 local02
+
+
+ local12#
+
+
+ scala/Predef.`???`().21
+
+
+ #_empty_/`gadt-inference`.eval().[T]2"
+
+
+ "scala/Predef.String#2
+ 	local021
+ #_empty_/`gadt-inference`.eval().[T]2=
+ /_empty_/`gadt-inference`.Expr.IntLit.unapply().23
+ %_empty_/`gadt-inference`.Expr.IntLit.2
+ local22
+ local32#
+ scala/Predef.`???`().21
+ #_empty_/`gadt-inference`.eval().[T]2
+ 
+scala/Int#2
+ 	local221
+ #_empty_/`gadt-inference`.eval().[T]20
+ "_empty_/`gadt-inference`.nested().23
+ %_empty_/`gadt-inference`.nested().[T]23
+ %_empty_/`gadt-inference`.nested().(o)2
+ scala/Option#2,
+ _empty_/`gadt-inference`.Expr#23
+  %_empty_/`gadt-inference`.nested().[T]23
+ %_empty_/`gadt-inference`.nested().(o)2#
+ scala/Some.unapply().2
+ scala/Some.2
+ local42
+ local42=
+ /_empty_/`gadt-inference`.Expr.StrLit.unapply().23
+ %_empty_/`gadt-inference`.Expr.StrLit.2
+ local52
+ local62#
+ scala/Predef.`???`().23
+ %_empty_/`gadt-inference`.nested().[T]2"
+ $scala/Predef.String#2
+
+ local523
+ %_empty_/`gadt-inference`.nested().[T]2=
+ /_empty_/`gadt-inference`.Expr.IntLit.unapply().23
+ %_empty_/`gadt-inference`.Expr.IntLit.2
+ local72
+ local82#
+ scala/Predef.`???`().23
+ %_empty_/`gadt-inference`.nested().[T]2
+ !
+scala/Int#2
+
+ local723
+ %_empty_/`gadt-inference`.nested().[T]2
+ scala/None.2#
+ scala/Predef.`???`().2/
+ !_empty_/`gadt-inference`.local().22
+ $_empty_/`gadt-inference`.local().[T]22
+ $_empty_/`gadt-inference`.local().(e)2,
+ _empty_/`gadt-inference`.Expr#22
+ $_empty_/`gadt-inference`.local().[T]2
+ local92
+ local102
+ local112,
+ _empty_/`gadt-inference`.Expr#2
+ local102
+   local112=
+!! /_empty_/`gadt-inference`.Expr.StrLit.unapply().23
+!! %_empty_/`gadt-inference`.Expr.StrLit.2
+!! local122
+"" local132#
+"" scala/Predef.`???`().2
+"" local102"
+"" $scala/Predef.String#2
+#
+# local122
+## local102=
+$$ /_empty_/`gadt-inference`.Expr.IntLit.unapply().23
+$$ %_empty_/`gadt-inference`.Expr.IntLit.2
+$$ local142
+%% local152#
+%% scala/Predef.`???`().2
+%% local102
+%% !
+scala/Int#2
+&
+& local142
+&& local102
+)) local922
+)	) 
+$_empty_/`gadt-inference`.local().(e)22
+)) $_empty_/`gadt-inference`.local().[T]PZ 199177F4AED928106B9A3C4CC343A6DD

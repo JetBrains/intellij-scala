@@ -1,0 +1,25 @@
+
+Ãtests/pos/i7421.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2 
+ scala/Int#`>`(+3).2#
+ scala/Array#length().2(
+ _empty_/Main.main().(args)2'
+ scala/Predef.println(+1).2(
+ _empty_/Main.main().(args)2'
+ scala/Predef.println(+1).2 
+		 scala/Int#`>`(+3).2#
+		 scala/Array#length().2(
+		 _empty_/Main.main().(args)2'
+ scala/Predef.println(+1).2(
+ _empty_/Main.main().(args)2'
+ scala/Predef.println(+1).PZ 577A40E04FF180290BB176768E92F7C6

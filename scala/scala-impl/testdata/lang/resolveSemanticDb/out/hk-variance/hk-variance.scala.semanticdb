@@ -1,0 +1,71 @@
+
+÷tests/pos/hk-variance.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[F]	*F€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#[F]	*F€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.S#*S€*-
+_empty_/Test2.S#`<init>`(). €@*<init>€*
+_empty_/Test2.S#F#*F€*"
+_empty_/Test2.S#F#[X]	 €*X€*
+_empty_/Test2.T#*T€*-
+_empty_/Test2.T#`<init>`(). €@*<init>€*
+_empty_/Test2.T#F#*F€*"
+_empty_/Test2.T#F#[X]	 €*X€*
+_empty_/Test2.O.
+ *O€*
+_empty_/Test2.O.F#*F€*
+_empty_/Test2.O.F#[X]	*X€*0
+_empty_/`hk-variance$package`. *_empty_€*,
+!_empty_/`hk-variance$package`.Id#*Id€*.
+$_empty_/`hk-variance$package`.Id#[X]	*X€*2
+%_empty_/`hk-variance$package`.test().*test€*
+local0 €*x€*
+local1 €*y€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[F]2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 	_empty_/D#[F]2
+		 _empty_/Test2.2
+
+
+ 	_empty_/Test2.S#2)
+ _empty_/Test2.S#`<init>`().2 
+	 
+_empty_/Test2.S#F#2#
+ _empty_/Test2.S#F#[X]2
+ 	_empty_/Test2.T#2)
+ _empty_/Test2.T#`<init>`().2 
+	 
+_empty_/Test2.T#F#2#
+ _empty_/Test2.T#F#[X]2
+	 
+_empty_/Test2.O.2
+ _empty_/Test2.S#2
+ _empty_/Test2.T#2 
+	 
+_empty_/Test2.O.F#2#
+ _empty_/Test2.O.F#[X]2
+ 
+scala/Int#2(
+_empty_/`hk-variance$package`.2/
+ !_empty_/`hk-variance$package`.Id#22
+ 	$_empty_/`hk-variance$package`.Id#[X]22
+ $_empty_/`hk-variance$package`.Id#[X]23
+ %_empty_/`hk-variance$package`.test().2
+ local02#
+ _empty_/C#`<init>`().2/
+ !_empty_/`hk-variance$package`.Id#2
+ local12#
+ _empty_/D#`<init>`().2/
+ !_empty_/`hk-variance$package`.Id#PZ 787BA8C17810969A89186806CCED3750

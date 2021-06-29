@@ -1,0 +1,49 @@
+
+’tests/pos/t6925.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#f().*f€*
+_empty_/Test#f().[T]	*T€* 
+_empty_/Test#f().(xs)*xs€*
+local0*x$1€*
+local1 €*x€*
+_empty_/Test#g().*g€*
+_empty_/Test#g().[T]	*T€* 
+_empty_/Test#g().(xs)*xs€*
+local2*n€*
+local3*x$1€*
+local4 €*w€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#f().2"
+ 	_empty_/Test#f().[T]2#
+ _empty_/Test#f().(xs)2
+ scala/Predef.Set#2"
+ _empty_/Test#f().[T]25
+ 'scala/collection/IterableOps#collect().2#
+ _empty_/Test#f().(xs)2
+ local02
+ local12
+ local12
+ _empty_/Test#g().2"
+ 	_empty_/Test#g().[T]2#
+ _empty_/Test#g().(xs)2
+ scala/Predef.Set#2"
+ _empty_/Test#g().[T]2
+ scala/Predef.Set#2"
+ _empty_/Test#g().[T]2
+! "_empty_/Test#f().2"
+# $_empty_/Test#g().[T]2#
+& (_empty_/Test#g().(xs)28
+
+ *scala/collection/immutable/List#flatMap().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local225
+ %'scala/collection/IterableOps#collect().27
+ )scala/collection/IterableFactory#apply().2
+ scala/Predef.Set.2
+( (local32
+- .local42
+2 3local4PZ 3F6FFCAA32028298E40562FBF0D7BDB9

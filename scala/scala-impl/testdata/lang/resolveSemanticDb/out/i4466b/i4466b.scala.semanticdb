@@ -1,0 +1,46 @@
+
+¹tests/pos/i4466b.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.Bar# €*Bar€*-
+_empty_/Foo.Bar#`<init>`(). €@*<init>€*/
+ _empty_/Foo.Bar#`<init>`().(map) €*map€*#
+_empty_/Foo.Bar#map. €*map€*$
+_empty_/Foo.Bar#copy().*copy€*(
+_empty_/Foo.Bar#copy().(map)*map€*8
+!_empty_/Foo.Bar#copy$default$1().*copy$default$1€* 
+_empty_/Foo.Bar#_1().*_1€*
+_empty_/Foo.Bar.
+ *Bar€*&
+_empty_/Foo.Bar.apply().*apply€*)
+_empty_/Foo.Bar.apply().(map)*map€**
+_empty_/Foo.Bar.unapply().*unapply€*+
+_empty_/Foo.Bar.unapply().(x$1)*x$1€*,
+_empty_/Foo.Bar.toString().*toString€*(
+_empty_/Foo.Bar.apply(+1).*apply€*+
+_empty_/Foo.Bar.apply(+1).(str)*str€2
+ 
+_empty_/Foo.2
+ _empty_/Foo.Bar#2)
+ _empty_/Foo.Bar#`<init>`().2
+ scala/Predef.Map#2"
+  scala/Predef.String#2"
+" (scala/Predef.String#2"
+ _empty_/Foo.Bar#map.2%
+ _empty_/Foo.Bar#copy().2#
+ _empty_/Foo.Bar#_1().2
+	 _empty_/Foo.Bar.2&
+ _empty_/Foo.Bar.apply().2(
+ _empty_/Foo.Bar.apply(+1).2-
+ _empty_/Foo.Bar.apply(+1).(str)2"
+ scala/Predef.String#2
+ _empty_/Foo.Bar#2#
+" %scala/Predef.`???`().2&
+ _empty_/Foo.Bar.apply().2
+ _empty_/Foo.Bar.22
+	 	$scala/collection/MapFactory#apply().2
+ 	scala/Predef.Map.2-
+ scala/Predef.ArrowAssoc#`->`().2(
+
+ 
+scala/Predef.ArrowAssoc().PZ 8364124BBD2F6CA1C8C955BF3DFE10CE

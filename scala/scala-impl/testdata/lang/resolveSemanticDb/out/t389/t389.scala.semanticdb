@@ -1,0 +1,25 @@
+
+ótests/pos/t389.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a().*a€*
+_empty_/Test.b().*b€*
+_empty_/Test.c().*c€*
+_empty_/Test.e().*e€2
+ _empty_/Test.2
+ _empty_/Test.a().2#
+ scala/Symbol.apply().2
+
+ scala/Symbol.2
+ _empty_/Test.b().2#
+ scala/Symbol.apply().2
+
+ scala/Symbol.2
+ _empty_/Test.c().2#
+ scala/Symbol.apply().2
+
+ scala/Symbol.2
+ _empty_/Test.e().2#
+ scala/Symbol.apply().2
+
+ scala/Symbol.PZ EA907FA93B0DD365142D22CF894CD362

@@ -1,0 +1,30 @@
+
+Õtests/pos/i3955.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.f().*f€*
+_empty_/Foo.f().[S]	*S€*
+_empty_/Foo.f().[T]	*T€*
+_empty_/Foo.f().(x)*x€*
+_empty_/Foo.g().*g€*
+_empty_/Foo.g().(x)*x€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ 
+_empty_/Foo.2
+ _empty_/Foo.f().2!
+ _empty_/Foo.f().[S]2!
+ _empty_/Foo.f().[T]2!
+ _empty_/Foo.f().(x)2!
+ _empty_/Foo.f().[S]2!
+ _empty_/Foo.f().[T]2#
+  #scala/Predef.`???`().2
+ _empty_/Foo.g().2!
+ 	_empty_/Foo.g().(x)2
+ 
+scala/Int#2
+ _empty_/Foo.f().2
+ 
+scala/Any#2!
+ _empty_/Foo.g().(x)PZ 7AC162A6FA0993EFF5500BA15DDF07C8

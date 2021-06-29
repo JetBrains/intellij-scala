@@ -1,0 +1,58 @@
+
+©tests/pos/CanThrow.scala*+
+canThrowStrawman/CanThrow#*CanThrow€*7
+%canThrowStrawman/CanThrow#`<init>`(). €@*<init>€*'
+canThrowStrawman/CanThrow#[E]	*E€*#
+canThrowStrawman/Fail#*Fail€*3
+!canThrowStrawman/Fail#`<init>`(). €@*<init>€*=
+"canThrowStrawman/CanThrow$package. *canThrowStrawman€*8
+)canThrowStrawman/CanThrow$package.throws#*throws€*6
+,canThrowStrawman/CanThrow$package.throws#[R]	*R€*6
+,canThrowStrawman/CanThrow$package.throws#[E]	*E€*8
+*canThrowStrawman/CanThrow$package.raise().*raise€*7
+-canThrowStrawman/CanThrow$package.raise().[E]	*E€*7
+-canThrowStrawman/CanThrow$package.raise().(e)*e€*4
+(canThrowStrawman/CanThrow$package.foo().*foo€*5
++canThrowStrawman/CanThrow$package.foo().(x)*x€2
+ canThrowStrawman/2<
+ ..scala/language.experimental.erasedDefinitions.2*
+ scala/language.experimental.2
+ scala/language.2(
+ canThrowStrawman/CanThrow#23
+ %canThrowStrawman/CanThrow#`<init>`().2+
+ canThrowStrawman/CanThrow#[E]2$
+ 
+canThrowStrawman/Fail#2/
+ !canThrowStrawman/Fail#`<init>`().2-
+ java/lang/Exception#`<init>`().2&
+ scala/package.Exception#2,
+"canThrowStrawman/CanThrow$package.27
+ )canThrowStrawman/CanThrow$package.throws#2:
+ ,canThrowStrawman/CanThrow$package.throws#[R]2:
+ ,canThrowStrawman/CanThrow$package.throws#[E]2&
+ #scala/package.Exception#2(
+/ 7canThrowStrawman/CanThrow#2:
+8 9,canThrowStrawman/CanThrow$package.throws#[E]2:
+@ A,canThrowStrawman/CanThrow$package.throws#[R]28
+		 	*canThrowStrawman/CanThrow$package.raise().2;
+	
+	 -canThrowStrawman/CanThrow$package.raise().[E]2&
+		 scala/package.Exception#2;
+		 -canThrowStrawman/CanThrow$package.raise().(e)2;
+		 -canThrowStrawman/CanThrow$package.raise().[E]27
+	)	 /)canThrowStrawman/CanThrow$package.throws#2
+	!	 (scala/Nothing#2;
+	0	 1-canThrowStrawman/CanThrow$package.raise().[E]2;
+	:	 ;-canThrowStrawman/CanThrow$package.raise().(e)26
+ (canThrowStrawman/CanThrow$package.foo().29
+ 	+canThrowStrawman/CanThrow$package.foo().(x)2
+ scala/Boolean#27
+ )canThrowStrawman/CanThrow$package.throws#2
+ 
+scala/Int#2$
+  $canThrowStrawman/Fail#29
+ +canThrowStrawman/CanThrow$package.foo().(x)23
+   %scala/ErasedContextFunction1#apply().28
+ *canThrowStrawman/CanThrow$package.raise().2/
+ !canThrowStrawman/Fail#`<init>`().2$
+ canThrowStrawman/Fail#PZ E36FA2AC359091A824C79C4D61258E33

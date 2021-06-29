@@ -1,0 +1,154 @@
+
+¤/tests/pos/i1857.scala*/
+commandeer/CommandeerDSL#*CommandeerDSL€*6
+$commandeer/CommandeerDSL#`<init>`(). €@*<init>€*,
+commandeer/CommandeerDSL#[Host]	*Host€*5
+#commandeer/CommandeerDSL#Operation#*	Operation€*@
+.commandeer/CommandeerDSL#Operation#`<init>`(). €@*<init>€*0
+&commandeer/CommandeerDSL#Operation#[T]	*T€*'
+commandeer/CommandeerDSL#Op#*Op€*)
+commandeer/CommandeerDSL#Op#[T]	*T€*1
+commandeer/CommandeerDSL.
+ *CommandeerDSL€*/
+!commandeer/CommandeerDSL.apply().*apply€*4
+'commandeer/CommandeerDSL.apply().[Host]	*Host€*2
+&commandeer/CommandeerDSL.apply().[DSL]	*DSL€*4
+'commandeer/CommandeerDSL.apply().(host)*host€*4
+&commandeer/CommandeerDSL.apply().(dsl)  *dsl€*
+commandeer/Foo#*Foo€*,
+commandeer/Foo#`<init>`(). €@*<init>€*#
+commandeer/Foo#bar(). *bar€*"
+commandeer/Foo#bar().(a)*a€*"
+commandeer/Foo#bar().(b)*b€*
+commandeer/Foo.
+ *Foo€*(
+commandeer/Foo.fooDSL.  *fooDSL€*
+local0 *$anon€*!
+commandeer/FooDSL#*FooDSL€*/
+commandeer/FooDSL#`<init>`(). €@*<init>€*6
+commandeer/FooDSL#FooOperation# *FooOperation€*<
+*commandeer/FooDSL#FooOperation#`<init>`(). €@*<init>€*,
+"commandeer/FooDSL#FooOperation#[T]	*T€* 
+commandeer/FooDSL#Op#*Op€*"
+commandeer/FooDSL#Op#[T]	*T€*%
+commandeer/FooDSL#Bar# €*Bar€*3
+!commandeer/FooDSL#Bar#`<init>`(). €@*<init>€*1
+$commandeer/FooDSL#Bar#`<init>`().(a) €*a€*1
+$commandeer/FooDSL#Bar#`<init>`().(b) €*b€*%
+commandeer/FooDSL#Bar#a. €*a€*%
+commandeer/FooDSL#Bar#b. €*b€**
+commandeer/FooDSL#Bar#copy().*copy€**
+ commandeer/FooDSL#Bar#copy().(a)*a€**
+ commandeer/FooDSL#Bar#copy().(b)*b€*>
+'commandeer/FooDSL#Bar#copy$default$1().*copy$default$1€*>
+'commandeer/FooDSL#Bar#copy$default$2().*copy$default$2€*&
+commandeer/FooDSL#Bar#_1().*_1€*&
+commandeer/FooDSL#Bar#_2().*_2€*$
+commandeer/FooDSL#Bar.
+ *Bar€*,
+commandeer/FooDSL#Bar.apply().*apply€*+
+!commandeer/FooDSL#Bar.apply().(a)*a€*+
+!commandeer/FooDSL#Bar.apply().(b)*b€*0
+ commandeer/FooDSL#Bar.unapply().*unapply€*1
+%commandeer/FooDSL#Bar.unapply().(x$1)*x$1€*2
+!commandeer/FooDSL#Bar.toString().*toString€*!
+commandeer/RunMe.
+ *RunMe€*%
+commandeer/RunMe.main().*main€*+
+commandeer/RunMe.main().(args)*args€*
+local1 €*kevin€*
+local2 €*bar€2
+ commandeer/2'
+ commandeer/CommandeerDSL#22
+ $commandeer/CommandeerDSL#`<init>`().2-
+ commandeer/CommandeerDSL#[Host]21
+ #commandeer/CommandeerDSL#Operation#2<
+ .commandeer/CommandeerDSL#Operation#`<init>`().24
+ &commandeer/CommandeerDSL#Operation#[T]2*
+ 	commandeer/CommandeerDSL#Op#2-
+
+ commandeer/CommandeerDSL#Op#[T]21
+ #commandeer/CommandeerDSL#Operation#2-
+ commandeer/CommandeerDSL#Op#[T]2'
+ commandeer/CommandeerDSL.2/
+		 !commandeer/CommandeerDSL.apply().25
+		 'commandeer/CommandeerDSL.apply().[Host]24
+		 &commandeer/CommandeerDSL.apply().[DSL]2'
+		 &commandeer/CommandeerDSL#25
+	'	 +'commandeer/CommandeerDSL.apply().[Host]25
+	.	 2'commandeer/CommandeerDSL.apply().(host)25
+	4	 8'commandeer/CommandeerDSL.apply().[Host]24
+	C	 F&commandeer/CommandeerDSL.apply().(dsl)24
+	H	 K&commandeer/CommandeerDSL.apply().[DSL]24
+	N	 Q&commandeer/CommandeerDSL.apply().[DSL]24
+	T	 W&commandeer/CommandeerDSL.apply().(dsl)2
+ 	commandeer/Foo#2(
+ commandeer/Foo#`<init>`().2#
+ 	commandeer/Foo#bar().2&
+
+ commandeer/Foo#bar().(a)2"
+ scala/Predef.String#2&
+ commandeer/Foo#bar().(b)2
+ 
+scala/Int#2
+ $scala/Double#2
+ 
+commandeer/Foo.2$
+ commandeer/Foo.fooDSL.2 
+ commandeer/FooDSL#2
+   local02 
+$ *commandeer/FooDSL#2 
+ commandeer/FooDSL#2+
+ commandeer/FooDSL#`<init>`().2'
+ "commandeer/CommandeerDSL#2
+# &commandeer/Foo#2-
+ commandeer/FooDSL#FooOperation#28
+ *commandeer/FooDSL#FooOperation#`<init>`().21
+' 0#commandeer/CommandeerDSL#Operation#20
+1 2"commandeer/FooDSL#FooOperation#[T]20
+ "commandeer/FooDSL#FooOperation#[T]2#
+ 	commandeer/FooDSL#Op#2&
+
+ commandeer/FooDSL#Op#[T]2-
+ commandeer/FooDSL#FooOperation#2&
+ commandeer/FooDSL#Op#[T]2$
+ commandeer/FooDSL#Bar#2/
+ !commandeer/FooDSL#Bar#`<init>`().2"
+ scala/Predef.String#2
+ "
+scala/Int#2-
+, 8commandeer/FooDSL#FooOperation#2
+9 ?scala/Double#2&
+ commandeer/FooDSL#Bar#a.2&
+ commandeer/FooDSL#Bar#b.2+
+ commandeer/FooDSL#Bar#copy().2)
+ commandeer/FooDSL#Bar#_1().2)
+ commandeer/FooDSL#Bar#_2().2$
+ commandeer/FooDSL#Bar.2,
+ commandeer/FooDSL#Bar.apply().2
+ commandeer/RunMe.2&
+ 
+commandeer/RunMe.main().2,
+ commandeer/RunMe.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2
+   local12/
+   !commandeer/CommandeerDSL.apply().2'
+   commandeer/CommandeerDSL.2'
+ #  /scala/Any#asInstanceOf().2
+ 0  3commandeer/Foo#2$
+ 5  5commandeer/Foo.fooDSL.2'
+!! scala/Predef.println(+1).2&
+!'! (scala/StringContext#s().2*
+!! scala/StringContext.apply().2
+!"! 'local12
+"" local22,
+"" commandeer/FooDSL#Bar.apply().2$
+"" commandeer/FooDSL#Bar.2
+"" local12'
+## scala/Predef.println(+1).2&
+## scala/StringContext#s().2*
+## scala/StringContext.apply().2
+## local2PZ ABF5E32CE44FC7E29247EC8AFE7D05EF

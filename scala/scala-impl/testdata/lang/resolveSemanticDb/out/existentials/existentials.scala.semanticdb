@@ -1,0 +1,33 @@
+
+åtests/pos/existentials.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f().*f€*
+local0 €*Bob€*
+local1*copy€*
+local2
+ *Bob€*
+local3*apply€*
+local4*unapply€*
+local5*x$1€*
+local6*toString€*!
+_empty_/A#quux0. €*quux0€* 
+_empty_/A#quux1().*quux1€*#
+_empty_/A#bippy0. €*bippy0€*"
+_empty_/A#bippy1().*bippy1€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2
+ local02
+ local22
+  #local72
+ _empty_/A#quux0.2
+ _empty_/A#f().2 
+ _empty_/A#quux1().2
+ _empty_/A#f().2
+ _empty_/A#bippy0.2
+ _empty_/A#f().2!
+ _empty_/A#bippy1().2
+ _empty_/A#f().PZ 01F38CA9A43BBCC591CE327C24DA605B

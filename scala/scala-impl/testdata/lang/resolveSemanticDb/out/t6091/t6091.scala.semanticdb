@@ -1,0 +1,45 @@
+
+ tests/pos/t6091.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.eq().*eq€*
+_empty_/Foo.eq().(x)*x€*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*
+_empty_/X#`==`().*==€*&
+_empty_/X#`==`().(other)*other€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ 
+_empty_/Foo.2
+ _empty_/Foo.eq().2
+ _empty_/Foo.eq().(x)2
+ 
+scala/Int#2
+ _empty_/Foo.eq().(x)2
+ 
+_empty_/X#2#
+
+ 
+_empty_/X#`<init>`().2
+ _empty_/X#`==`().2&
+ _empty_/X#`==`().(other)2"
+ scala/Predef.String#2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 
+_empty_/Foo.eq().2
+ _empty_/Foo.2
+
+ _empty_/X#`==`().2#
+	 	_empty_/X#`<init>`().2
+ 	
+_empty_/X#PZ 25AF775E4A5E9C0F8821F5DD8ED0A600

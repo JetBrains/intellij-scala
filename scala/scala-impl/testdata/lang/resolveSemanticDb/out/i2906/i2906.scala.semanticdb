@@ -1,0 +1,33 @@
+
+îtests/pos/i2906.scala*
+_empty_/Foo# ”€*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.A. €©*A€*
+_empty_/Foo.B. €©*B€*
+_empty_/Foo.C. €©*C€*
+_empty_/Foo.D. €©*D€*'
+_empty_/Foo.$values. €*$values€*$
+_empty_/Foo.values().*values€*&
+_empty_/Foo.valueOf().*valueOf€*+
+_empty_/Foo.valueOf().($name)*$name€* 
+_empty_/Foo.$new().*$new€*0
+_empty_/Foo.$new().(_$ordinal)*	_$ordinal€*(
+_empty_/Foo.$new().($name)*$name€*.
+_empty_/Foo.fromOrdinal().*fromOrdinal€*3
+#_empty_/Foo.fromOrdinal().(ordinal)*ordinal€2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo.2
+ _empty_/Foo.A.2
+ _empty_/Foo.B.2
+ scala/deprecated#2
+& '_empty_/Foo.C.2
+ scala/deprecated#2
+. /_empty_/Foo.D.2"
+. ._empty_/Foo.$values.2#
+. ._empty_/Foo.values().2$
+. ._empty_/Foo.valueOf().2!
+. ._empty_/Foo.$new().2(
+. ._empty_/Foo.fromOrdinal().PZ 6382B9CA490B1D93CBC78A3E9B947A97

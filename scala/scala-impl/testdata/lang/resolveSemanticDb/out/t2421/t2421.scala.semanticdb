@@ -1,0 +1,65 @@
+
+ótests/pos/t2421.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.`<~<`# *<~<€*0
+_empty_/Test.`<~<`#`<init>`(). €@*<init>€*)
+_empty_/Test.`<~<`#[From]	 €*From€*%
+_empty_/Test.`<~<`#[To]	 €*To€*)
+_empty_/Test.trivial().  *trivial€*$
+_empty_/Test.trivial().[A]	*A€*'
+_empty_/Test.Forcible#*Forcible€*3
+!_empty_/Test.Forcible#`<init>`(). €@*<init>€*#
+_empty_/Test.Forcible#[T]	*T€*0
+_empty_/Test.forcibleInt.  *forcibleInt€*+
+_empty_/Test.headProxy().*	headProxy€*&
+_empty_/Test.headProxy().[P]	*P€*(
+_empty_/Test.headProxy().(w)  *w€2
+ _empty_/Test.2!
+ _empty_/Test.`<~<`#2,
+ _empty_/Test.`<~<`#`<init>`().2'
+* ._empty_/Test.`<~<`#[From]2%
+2 4_empty_/Test.`<~<`#[To]2'
+ _empty_/Test.`<~<`#[From]2%
+ _empty_/Test.`<~<`#[To]2%
+ _empty_/Test.trivial().2(
+ _empty_/Test.trivial().[A]2!
+  _empty_/Test.`<~<`#2(
+ _empty_/Test.trivial().[A]2(
+! "_empty_/Test.trivial().[A]2(
+) .scala/sys/package.error().2
+% (
+scala/sys/2$
+ _empty_/Test.Forcible#2/
+ !_empty_/Test.Forcible#`<init>`().2'
+ _empty_/Test.Forcible#[T]2'
+ _empty_/Test.forcibleInt.2!
+! $_empty_/Test.`<~<`#2
+  
+scala/Int#2$
+% -_empty_/Test.Forcible#2
+. 1
+scala/Int#2(
+: ?scala/sys/package.error().2
+6 9
+scala/sys/2'
+ _empty_/Test.headProxy().2*
+ _empty_/Test.headProxy().[P]2$
+ _empty_/Test.Forcible#2
+ !
+scala/Int#2*
+- ._empty_/Test.headProxy().(w)2!
+4 7_empty_/Test.`<~<`#2
+0 3
+scala/Int#2*
+8 9_empty_/Test.headProxy().[P]2*
+< =_empty_/Test.headProxy().[P]2(
+D Iscala/sys/package.error().2
+@ C
+scala/sys/2'
+
+
+ _empty_/Test.headProxy().2'
+
+
+ _empty_/Test.forcibleInt.PZ C56F42E30E84B5963503F281717AC384

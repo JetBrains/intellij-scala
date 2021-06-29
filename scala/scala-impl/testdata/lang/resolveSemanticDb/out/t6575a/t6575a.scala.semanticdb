@@ -1,0 +1,77 @@
+
+Ètests/pos/t6575a.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*
+_empty_/X#foo(). *foo€*
+
+_empty_/Y#*Y€*'
+_empty_/Y#`<init>`(). €@*<init>€*
+_empty_/Y#foo().*foo€*
+local0*x$1€*
+local1 €*i€*
+
+_empty_/Z#*Z€*'
+_empty_/Z#`<init>`(). €@*<init>€*
+_empty_/Z#foo().*foo€*
+local2*x$1€*
+local3 €*i€*
+_empty_/Comb#*Comb€**
+_empty_/Comb#`<init>`(). €@*<init>€*
+_empty_/Comb#foo().*foo€*
+local4*x$1€*
+local5 €*i€2
+ 
+_empty_/X#2
+
+ 
+_empty_/X#`<init>`().2
+ _empty_/X#foo().2 
+ "scala/PartialFunction#2
+# &
+scala/Int#2
+( +
+scala/Int#2
+ 
+_empty_/Y#2#
+ _empty_/Y#`<init>`().2
+ 
+_empty_/X#2
+ _empty_/Y#foo().2
+   local02
+% &local12 
+7 8scala/Int#`*`(+3).2&
+3 3scala/Function1#apply().2
+0 3_empty_/X#foo().2
+4 5local12
+ 
+_empty_/Z#2#
+ _empty_/Z#`<init>`().2
+ 
+_empty_/X#2
+ _empty_/Z#foo().2
+   local22
+% &local32 
+7 8scala/Int#`+`(+4).2&
+3 3scala/Function1#apply().2
+0 3_empty_/X#foo().2
+4 5local32
+ 
+_empty_/Comb#2&
+ _empty_/Comb#`<init>`().2
+ 
+_empty_/Y#2
+ 
+_empty_/Z#2!
+ _empty_/Comb#foo().2$
+ ,scala/PartialFunction#2
+- 0
+scala/Int#2
+2 5
+scala/Int#2
+; ;local42
+@ Alocal52 
+R Sscala/Int#`-`(+3).2&
+N Nscala/Function1#apply().2
+K N_empty_/Z#foo().2
+O Plocal5PZ CE734CB219D6B34E77443F38EE41FFE2

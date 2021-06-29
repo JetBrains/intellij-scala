@@ -1,0 +1,25 @@
+
+®tests/pos/t0091.scala*
+_empty_/Bug#*Bug€*)
+_empty_/Bug#`<init>`(). €@*<init>€* 
+_empty_/Bug#main().*main€*&
+_empty_/Bug#main().(args)*args€*
+local0 €*msg€*
+local1 €*f€*
+local2*x$1€2
+ 	_empty_/Bug#2%
+ _empty_/Bug#`<init>`().2!
+ 
+_empty_/Bug#main().2'
+ _empty_/Bug#main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+ local02"
+ scala/Predef.String#2
+ 	local12$
+ scala/PartialFunction#2
+ 
+scala/Any#2
+! %scala/Unit#2
++ +local22
+6 9local0PZ C125504FEEEF822C8E685118C8C382A9

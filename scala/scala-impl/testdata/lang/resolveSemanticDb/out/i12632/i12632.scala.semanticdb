@@ -1,0 +1,35 @@
+
+þtests/pos/i12632.scala*
+_empty_/CCC#*CCC€*)
+_empty_/CCC#`<init>`(). €@*<init>€*'
+_empty_/CCC#`<init>`().(i) €*i€*
+_empty_/CCC#[S]	*S€*
+_empty_/CCC#i. €*i€*(
+_empty_/CCC#`<init>`(+1).*<init>€*
+local0 €*z€*
+local1 *$anon€*
+local2*compare€*
+local3*x€*
+local4*y€2
+ 	_empty_/CCC#2!
+	 	_empty_/CCC#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/CCC#[S]2
+ _empty_/CCC#i.2'
+ 
+_empty_/CCC#`<init>`(+1).2%
+ _empty_/CCC#`<init>`().2
+ local02
+ local12%
+ scala/package.Ordering#2
+ _empty_/CCC#[S]2
+ local22
+  local32
+" #_empty_/CCC#[S]2
+% &local42
+( )_empty_/CCC#[S]2
+, /
+scala/Int#2#
+2 5scala/Predef.`???`().PZ 6D5F405D1993A42BAF503ED0654B4E26

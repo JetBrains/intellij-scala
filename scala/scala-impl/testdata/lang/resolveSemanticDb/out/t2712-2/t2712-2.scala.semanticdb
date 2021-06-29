@@ -1,0 +1,144 @@
+
+åtests/pos/t2712-2.scala*
+
+test/Test.
+ *Test€*
+test/Test.A#*A€*)
+test/Test.A#`<init>`(). €@*<init>€*
+test/Test.A#[T1]	*T1€*
+test/Test.A#[T2]	*T2€*
+test/Test.B#*B€*)
+test/Test.B#`<init>`(). €@*<init>€*
+test/Test.B#[T1]	*T1€*
+test/Test.B#[T2]	*T2€*
+test/Test.C#*C€*)
+test/Test.C#`<init>`(). €@*<init>€*
+test/Test.C#[T]	*T€*
+test/Test.CB#*CB€**
+test/Test.CB#`<init>`(). €@*<init>€*
+test/Test.A2#*A2€**
+test/Test.A2#`<init>`(). €@*<init>€*
+test/Test.A2#[T]	*T€*
+test/Test.B2#*B2€**
+test/Test.B2#`<init>`(). €@*<init>€*
+test/Test.B2#[T]	*T€*
+test/Test.C2#*C2€**
+test/Test.C2#`<init>`(). €@*<init>€*
+test/Test.C2#[T]	*T€*
+test/Test.CB2#*CB2€*+
+test/Test.CB2#`<init>`(). €@*<init>€*
+test/Test.meh().*meh€*
+test/Test.meh().[M]	*M€*
+test/Test.meh().[A]	*A€*
+test/Test.meh().(x)*x€*
+test/Test.m0. €*m0€*
+test/Test.m1. €*m1€*
+test/Test.m2. €*m2€*
+test/Test.m3. €*m3€2
+ test/2
+ 
+test/Test.2
+ 	test/Test.A#2%
+	 	test/Test.A#`<init>`().2
+
+ test/Test.A#[T1]2
+ test/Test.A#[T2]2
+ 	test/Test.B#2%
+	 	test/Test.B#`<init>`().2
+
+ test/Test.B#[T1]2
+ test/Test.B#[T2]2
+ 	test/Test.C#2%
+	 	test/Test.C#`<init>`().2
+ test/Test.A#2
+ test/Test.C#[T]2
+ scala/Long#2
+% &test/Test.B#2
+' (test/Test.C#[T]2
+* 0scala/Double#2
+
+ test/Test.C#[T]2
+ 
+test/Test.CB#2&
+ test/Test.CB#`<init>`().2
+ test/Test.A#2
+ scala/Boolean#2
+ "scala/Long#2
+) *test/Test.B#2
++ 2scala/Boolean#2
+4 :scala/Double#2
+		 
+test/Test.A2#2&
+	
+	 
+test/Test.A2#`<init>`().2
+		 test/Test.A2#[T]2
+
+
+ 
+test/Test.B2#2&
+
+
+
+ 
+test/Test.B2#`<init>`().2
+
+
+ test/Test.B2#[T]2
+ 
+test/Test.C2#2&
+
+ 
+test/Test.C2#`<init>`().2
+ test/Test.A2#2
+ test/Test.C2#[T]2
+! #test/Test.B2#2
+$ %test/Test.C2#[T]2
+ test/Test.C2#[T]2
+ test/Test.CB2#2'
+ test/Test.CB2#`<init>`().2
+ test/Test.A2#2
+ scala/Boolean#2
+% 'test/Test.B2#2
+( /scala/Boolean#2
+ 	test/Test.meh().2!
+
+ test/Test.meh().[M]2!
+ test/Test.meh().[A]2!
+ test/Test.meh().(x)2!
+ test/Test.meh().[M]2!
+ test/Test.meh().[A]2!
+ test/Test.meh().[M]2!
+  test/Test.meh().[A]2!
+$ %test/Test.meh().(x)2
+ test/Test.m0.2
+ test/Test.meh().2%
+ test/Test.C#`<init>`().2
+ test/Test.C#2
+ scala/Boolean#2
+ test/Test.m0.2
+ test/Test.C#2
+ scala/Boolean#2
+ test/Test.m1.2
+ test/Test.meh().2&
+ test/Test.CB#`<init>`().2
+ test/Test.CB#2
+ test/Test.m1.2
+ test/Test.B#2
+ scala/Boolean#2
+ scala/Double#2
+ test/Test.m2.2
+ test/Test.meh().2&
+ test/Test.C2#`<init>`().2
+ test/Test.C2#2
+ scala/Boolean#2
+ test/Test.m2.2
+ test/Test.C2#2
+	 scala/Boolean#2
+ test/Test.m3.2
+ test/Test.meh().2'
+ test/Test.CB2#`<init>`().2
+ test/Test.CB2#2
+ test/Test.m3.2
+ test/Test.B2#2
+	 scala/Boolean#PZ 7CEB371ACCED920AC70E3575C38C2DE5

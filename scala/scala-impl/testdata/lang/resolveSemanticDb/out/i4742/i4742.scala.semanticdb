@@ -1,0 +1,35 @@
+
+ƒtests/pos/i4742.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().[T]	*T€* 
+_empty_/Test#foo().(f)*f€*
+_empty_/Test#bar().*bar€* 
+_empty_/Test#bar().(f)*f€2!
+ scala/reflect/ClassTag.2!
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().[T]2"
+ scala/Predef.String#2$
+! "_empty_/Test#foo().(f)2$
+$ %_empty_/Test#foo().[T]2
+) ,
+scala/Int#2%
+ scala/reflect/ClassTag#2$
+ _empty_/Test#foo().[T]2!
+ 	_empty_/Test#bar().2$
+
+ _empty_/Test#bar().(f)2"
+ scala/Predef.String#2
+ 
+scala/Int#2!
+ !_empty_/Test#foo().2$
+" #_empty_/Test#bar().(f)2-
+$ $scala/reflect/ClassTag.apply().PZ C48513B8BB5896D8A3BD099196DFB302

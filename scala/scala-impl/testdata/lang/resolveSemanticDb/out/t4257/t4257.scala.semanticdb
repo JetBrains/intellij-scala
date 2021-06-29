@@ -1,0 +1,80 @@
+
+´tests/pos/t4257.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.SA#*SA€*-
+_empty_/Test.SA#`<init>`(). €@*<init>€*
+_empty_/Test.SA#[A]	*A€*
+_empty_/Test.SA#o().*o€*!
+_empty_/Test.SA#o().[U]	*U€*!
+_empty_/Test.SA#o().(f)*f€* 
+_empty_/Test.SA#o(+1).*o€*#
+_empty_/Test.SA#o(+1).[U]	*U€*#
+_empty_/Test.SA#o(+1).(f)*f€*
+_empty_/Test.X#*X€*,
+_empty_/Test.X#`<init>`(). €@*<init>€*
+_empty_/Test.X#[B]	*B€*
+_empty_/Test.X#x().*x€* 
+_empty_/Test.X#x().(b)*b€*
+local0*x€2
+ _empty_/Test.2
+ 
+_empty_/Test.SA#2)
+
+ 
+_empty_/Test.SA#`<init>`().2 
+ scala/specialized#2
+ 
+scala/Int.2!
+ _empty_/Test.SA#[A]2"
+ 	_empty_/Test.SA#o().2%
+
+ _empty_/Test.SA#o().[U]2%
+ _empty_/Test.SA#o().(f)2
+ 
+scala/Int#2!
+ _empty_/Test.SA#[A]2
+  
+scala/Any#2
+$ (scala/Unit#2$
+ 	_empty_/Test.SA#o(+1).2'
+
+ _empty_/Test.SA#o(+1).[U]2'
+ _empty_/Test.SA#o(+1).(f)2!
+ _empty_/Test.SA#[A]2
+ 
+scala/Any#2
+ scala/Unit#2
+ 	_empty_/Test.X#2(
+	 	_empty_/Test.X#`<init>`().2 
+ scala/specialized#2
+ 
+scala/Int.2 
+ _empty_/Test.X#[B]2!
+		 	_empty_/Test.X#x().2$
+	
+	 _empty_/Test.X#x().(b)2 
+		 _empty_/Test.X#[B]2$
+
+
+ _empty_/Test.SA#o(+1).2)
+
+
+ _empty_/Test.SA#`<init>`().2
+
+
+
+ _empty_/Test.SA#2 
+
+
+ _empty_/Test.X#[B]2
+
+
+ local02
+
+
+ 
+scala/Any#2
+
+ 
+ !local0PZ BD00FE776C7D31AB59F232E4B023F2E6

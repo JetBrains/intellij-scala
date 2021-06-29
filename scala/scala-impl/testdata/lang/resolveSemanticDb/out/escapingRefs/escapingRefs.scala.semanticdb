@@ -1,0 +1,115 @@
+
+Ètests/pos/escapingRefs.scala*
+_empty_/Outer#*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*"
+_empty_/Outer#Inner#*Inner€*1
+_empty_/Outer#Inner#`<init>`(). €@*<init>€**
+_empty_/Outer#Inner#Inner2#*Inner2€*8
+&_empty_/Outer#Inner#Inner2#`<init>`(). €@*<init>€*
+_empty_/HasA#*HasA€**
+_empty_/HasA#`<init>`(). €@*<init>€*
+_empty_/HasA#A#*A€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*
+local0 €*a€*
+local1 €*o€*
+local2 €*b€*
+local3 €*o€*
+local4 €*i€*
+local5 €*c€*
+local6*A€*
+local7 €*h€*
+local8 *$anon€*
+local9*A€*
+local10 €*x€*
+local11*A€*
+local12 €*e€*
+local13*Bar€*
+local14	*B11€2
+ _empty_/Outer#2'
+ _empty_/Outer#`<init>`().2"
+ _empty_/Outer#Inner#2-
+ _empty_/Outer#Inner#`<init>`().2)
+
+ _empty_/Outer#Inner#Inner2#24
+ &_empty_/Outer#Inner#Inner2#`<init>`().2
+ 
+_empty_/HasA#2&
+ _empty_/HasA#`<init>`().2
+ _empty_/HasA#A#2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A]2
+
+
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ 	local02"
+ _empty_/Outer#Inner#2
+ _empty_/Outer#2
+
+ local12'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer#2-
+ _empty_/Outer#Inner#`<init>`().2"
+ _empty_/Outer#Inner#2
+
+ local12
+ 	local22)
+ _empty_/Outer#Inner#Inner2#2"
+ _empty_/Outer#Inner#2
+ _empty_/Outer#2
+
+ local32'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer#2
+
+ local42-
+ _empty_/Outer#Inner#`<init>`().2"
+ _empty_/Outer#Inner#2
+ local324
+ &_empty_/Outer#Inner#Inner2#`<init>`().2)
+ _empty_/Outer#Inner#Inner2#2
+
+ local42
+ 	local52
+ _empty_/HasA#2
+ local62
+ 
+scala/Int#2
+
+ local72
+ local82&
+ _empty_/HasA#`<init>`().2
+ _empty_/HasA#2
+ local92
+ 
+scala/Int#2
+
+ local102
+ _empty_/HasA#2
+ local112
+  _empty_/HasA#A#2
+ local72
+% &local72
+ local102
+$$ 	local122
+$$ _empty_/Foo#2
+%% local132%
+%%% %_empty_/Foo#`<init>`().2
+%%  _empty_/Foo#2
+%!% $local142
+%% local142
+&
+& local132
+&& 
+scala/Int#2
+&& local132
+&&  
+scala/Int#PZ 2EAF26FA898BCE9FF1E324606C379ADA

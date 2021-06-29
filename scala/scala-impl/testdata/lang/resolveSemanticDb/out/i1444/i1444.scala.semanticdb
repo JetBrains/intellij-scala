@@ -1,0 +1,58 @@
+
+Ätests/pos/i1444.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Cls#*Cls€*.
+_empty_/Test.Cls#`<init>`(). €@*<init>€*+
+_empty_/Test.Cls#`<init>`().(x)  *x€* 
+_empty_/Test.Cls#x.  *x€*%
+_empty_/Test.ClsImpl#*ClsImpl€*2
+ _empty_/Test.ClsImpl#`<init>`(). €@*<init>€*
+_empty_/Test.Tr1#*Tr1€*.
+_empty_/Test.Tr1#`<init>`(). €@*<init>€*+
+_empty_/Test.Tr1#`<init>`().(x)  *x€* 
+_empty_/Test.Tr1#x.  *x€*%
+_empty_/Test.TrtImpl#*TrtImpl€*2
+ _empty_/Test.TrtImpl#`<init>`(). €@*<init>€*
+_empty_/Test.Tr2#*Tr2€*.
+_empty_/Test.Tr2#`<init>`(). €@*<init>€*+
+_empty_/Test.Tr2#`<init>`().(x)  *x€* 
+_empty_/Test.Tr2#x.  *x€*%
+_empty_/Test.Tr2Impl#*Tr2Impl€*2
+ _empty_/Test.Tr2Impl#`<init>`(). €@*<init>€*
+_empty_/Test.X#*X€*,
+_empty_/Test.X#`<init>`(). €@*<init>€*
+_empty_/Test.AnX.
+ (*AnX€2
+ _empty_/Test.2
+ 	_empty_/Test.Cls#2*
+	 	_empty_/Test.Cls#`<init>`().2
+ _empty_/Test.X#2!
+ _empty_/Test.Cls#x.2#
+ _empty_/Test.ClsImpl#2.
+  _empty_/Test.ClsImpl#`<init>`().2*
+ _empty_/Test.Cls#`<init>`().2
+ _empty_/Test.Cls#2
+ _empty_/Test.AnX.2
+ 	_empty_/Test.Tr1#2*
+	 	_empty_/Test.Tr1#`<init>`().2
+ _empty_/Test.X#2!
+ _empty_/Test.Tr1#x.2#
+ _empty_/Test.TrtImpl#2.
+  _empty_/Test.TrtImpl#`<init>`().2*
+ _empty_/Test.Tr1#`<init>`().2
+ _empty_/Test.Tr1#2
+ _empty_/Test.AnX.2
+ 	_empty_/Test.Tr2#2*
+	 	_empty_/Test.Tr2#`<init>`().2
+ _empty_/Test.X#2!
+ _empty_/Test.Tr2#x.2#
+		 _empty_/Test.Tr2Impl#2.
+		  _empty_/Test.Tr2Impl#`<init>`().2*
+		 _empty_/Test.Tr2#`<init>`().2
+		 _empty_/Test.Tr2#2
+		 _empty_/Test.AnX.2
+ _empty_/Test.X#2$
+_empty_/Test.X#`<init>`().2
+ _empty_/Test.AnX.2
+ _empty_/Test.X#PZ AA15CC1F8C81C4C693CC9EB9A3A3A753

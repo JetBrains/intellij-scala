@@ -1,0 +1,563 @@
+
+‘„.tests/pos/main-method-scheme-class-based.scala*.
+_empty_/MainAnnotation#*MainAnnotation€*4
+"_empty_/MainAnnotation#`<init>`(). €@*<init>€*=
+&_empty_/MainAnnotation#ArgumentParser#*ArgumentParser€*3
+)_empty_/MainAnnotation#ArgumentParser#[T]	*T€*=
+&_empty_/MainAnnotation#MainResultType#*MainResultType€*3
+!_empty_/MainAnnotation#command(). *command€*4
+'_empty_/MainAnnotation#command().(args)*args€*1
+_empty_/MainAnnotation#Command# *Command€*<
+*_empty_/MainAnnotation#Command#`<init>`(). €@*<init>€*?
++_empty_/MainAnnotation#Command#argGetter(). *	argGetter€*8
+._empty_/MainAnnotation#Command#argGetter().[T]	*T€*D
+4_empty_/MainAnnotation#Command#argGetter().(argName)*argName€*J
+7_empty_/MainAnnotation#Command#argGetter().(fromString)*
+fromString€*N
+9_empty_/MainAnnotation#Command#argGetter().(defaultValue)*defaultValue€*Q
+5_empty_/MainAnnotation#Command#argGetter$default$3().*argGetter$default$3€*B
+8_empty_/MainAnnotation#Command#argGetter$default$3().[T]	*T€*A
+,_empty_/MainAnnotation#Command#argsGetter(). *
+argsGetter€*9
+/_empty_/MainAnnotation#Command#argsGetter().[T]	*T€*E
+5_empty_/MainAnnotation#Command#argsGetter().(argName)*argName€*K
+8_empty_/MainAnnotation#Command#argsGetter().(fromString)*
+fromString€*3
+%_empty_/MainAnnotation#Command#run(). *run€*>
+._empty_/MainAnnotation#Command#run().(program)*program€*@
+/_empty_/MainAnnotation#Command#run().(progName)*progName€*D
+1_empty_/MainAnnotation#Command#run().(docComment)*
+docComment€*
+_empty_/main#*main€**
+_empty_/main#`<init>`(). €@*<init>€*3
+_empty_/main#ArgumentParser#*ArgumentParser€*)
+_empty_/main#ArgumentParser#[T]	*T€*3
+_empty_/main#MainResultType#*MainResultType€*'
+_empty_/main#command().*command€**
+_empty_/main#command().(args)*args€*
+local0 *$anon€*
+local1 €*argInfos€*
+local2 €*errors€*
+local3*error€*
+local4*msg€*
+local5 €*argIdx€*
+local6*argAt€*
+local7*idx€* 
+local8*nextPositionalArg€*
+local9 €*result€*
+local10*convert€*
+local11	*T€*
+local12*argName€*
+local13*arg€*
+local14*p€*
+local15 €*t€*
+local16*	argGetter€*
+local17	*T€*
+local18*argName€*
+local19*p€*
+local20*defaultValue€*
+local21 €*idx€*
+local22 €*argOpt€*
+local23 €*arg€*
+local24 €*t€*#
+local25*argGetter$default$3€*
+local26*
+argsGetter€*
+local27	*T€*
+local28*argName€*
+local29*p€*#
+local30*remainingArgGetters€*
+local31 €*arg€*
+local32 €*elem$1€*
+local33 €*getters€*
+local34*run€*
+local35*f€*
+local36*progName€*
+local37*
+docComment€*
+local38*usage€*
+local39*x$1€*
+local40*explain€*
+local41*
+flagUnused€*
+local42 €*arg€*
+local43*arg€*
+local44*msg€*
+local45 €*n€*&
+_empty_/myProgram.
+ *	myProgram€*$
+_empty_/myProgram.add().*add€*)
+_empty_/myProgram.add().(num)*num€*)
+_empty_/myProgram.add().(inc)*inc€*8
+"_empty_/myProgram.add$default$2().*add$default$2€*
+_empty_/add.
+ *add€* 
+_empty_/add.main().*main€*&
+_empty_/add.main().(args)*args€*
+local46 €*cmd€*
+local47 €*arg1€*
+local48 €*arg2€2,
+ ""scala/annotation/StaticAnnotation.2
+ scala/annotation/2'
+ scala/collection/mutable/2
+ scala/collection/2%
+ _empty_/MainAnnotation#20
+ "_empty_/MainAnnotation#`<init>`().20
+ -"scala/annotation/StaticAnnotation#24
+ &_empty_/MainAnnotation#ArgumentParser#27
+ )_empty_/MainAnnotation#ArgumentParser#[T]24
+ &_empty_/MainAnnotation#MainResultType#2/
+ !_empty_/MainAnnotation#command().25
+ '_empty_/MainAnnotation#command().(args)2
+ scala/Array#2"
+  scala/Predef.String#2-
+$ +_empty_/MainAnnotation#Command#2-
+ _empty_/MainAnnotation#Command#28
+ *_empty_/MainAnnotation#Command#`<init>`().29
+ +_empty_/MainAnnotation#Command#argGetter().2<
+ ._empty_/MainAnnotation#Command#argGetter().[T]2B
+ 4_empty_/MainAnnotation#Command#argGetter().(argName)2"
+ $scala/Predef.String#2E
+& 07_empty_/MainAnnotation#Command#argGetter().(fromString)24
+2 @&_empty_/MainAnnotation#ArgumentParser#2<
+A B._empty_/MainAnnotation#Command#argGetter().[T]2G
+E Q9_empty_/MainAnnotation#Command#argGetter().(defaultValue)2
+S Yscala/Option#2<
+Z [._empty_/MainAnnotation#Command#argGetter().[T]2<
+l m._empty_/MainAnnotation#Command#argGetter().[T]2F
+ 8_empty_/MainAnnotation#Command#argGetter$default$3().[T]2
+_ cscala/None.2:
+!! ,_empty_/MainAnnotation#Command#argsGetter().2=
+!! /_empty_/MainAnnotation#Command#argsGetter().[T]2C
+!! 5_empty_/MainAnnotation#Command#argsGetter().(argName)2"
+!! %scala/Predef.String#2F
+!'! 18_empty_/MainAnnotation#Command#argsGetter().(fromString)24
+!3! A&_empty_/MainAnnotation#ArgumentParser#2=
+!B! C/_empty_/MainAnnotation#Command#argsGetter().[T]2 
+!M! Pscala/package.Seq#2=
+!Q! R/_empty_/MainAnnotation#Command#argsGetter().[T]23
+&& %_empty_/MainAnnotation#Command#run().2<
+&& ._empty_/MainAnnotation#Command#run().(program)24
+&& &&_empty_/MainAnnotation#MainResultType#2=
+&(& 0/_empty_/MainAnnotation#Command#run().(progName)2"
+&2& 8scala/Predef.String#2?
+&:& D1_empty_/MainAnnotation#Command#run().(docComment)2"
+&F& Lscala/Predef.String#2
+&O& Sscala/Unit#2-
+'' _empty_/MainAnnotation#Command#2%
+(( _empty_/MainAnnotation#2
+,, 
+_empty_/main#2&
+,, _empty_/main#`<init>`().2%
+,, !_empty_/MainAnnotation#2*
+.. _empty_/main#ArgumentParser#2-
+.. _empty_/main#ArgumentParser#[T]26
+.2. <(scala/util/CommandLineParser.FromString#2+
+. . 1scala/util/CommandLineParser.2
+.. scala/util/2-
+.=. >_empty_/main#ArgumentParser#[T]2*
+// _empty_/main#MainResultType#2
+// 
+scala/Any#2%
+11 _empty_/main#command().2+
+11 _empty_/main#command().(args)2
+11 scala/Array#2"
+11  scala/Predef.String#2-
+1$1 +_empty_/MainAnnotation#Command#2
+1.1 .local028
+191 9*_empty_/MainAnnotation#Command#`<init>`().2-
+121 9_empty_/MainAnnotation#Command#2
+88 local12=
+8C8 C/scala/collection/mutable/ListBuffer#`<init>`().22
+8'8 1$scala/collection/mutable/ListBuffer#2'
+88 &scala/collection/mutable/2"
+838 9scala/Predef.String#2"
+8;8 Ascala/Predef.String#2
+;; local22=
+;7; 7/scala/collection/mutable/ListBuffer#`<init>`().22
+;%; /$scala/collection/mutable/ListBuffer#2'
+;; $scala/collection/mutable/2"
+;0; 6scala/Predef.String#2
+>> local32
+>> local42"
+>> !scala/Predef.String#2
+>*> 1scala/Nothing#27
+?? )scala/collection/mutable/Growable#`+=`().2
+?? local22
+?? local424
+@$@ $&java/lang/AssertionError#`<init>`(+2).2'
+@@ $java/lang/AssertionError#2
+CC local52
+CC 
+scala/Int#2
+EE local62
+EE local72
+EE 
+scala/Int#2
+E!E 'scala/Option#2"
+E(E .scala/Predef.String#2 
+FF scala/Int#`<`(+3).2
+F	F local72#
+FF scala/Array#length().2+
+FF _empty_/main#command().(args)2!
+F$F $scala/Some.apply().2
+F F $scala/Some.2"
+F)F )scala/Array#apply().2+
+F%F )_empty_/main#command().(args)2
+F*F -local72
+F5F 9scala/None.2
+HH !local82
+H%H +scala/Option#2"
+H,H 2scala/Predef.String#2#
+I!I #scala/Boolean#`&&`().2 
+II scala/Int#`<`(+3).2
+II local52#
+II  scala/Array#length().2+
+II _empty_/main#command().(args)2.
+I1I ; java/lang/String#startsWith(+1).2"
+I(I (scala/Array#apply().2+
+I$I (_empty_/main#command().(args)2
+I)I /local52
+IEI Klocal52 
+IKI Kscala/Int#`+`(+4).2
+J
+J local92
+JJ local62
+JJ local52
+KK local52 
+KK scala/Int#`+`(+4).2
+LL local92
+NN local102
+NN local112
+NN "local122"
+N$N *scala/Predef.String#2
+N,N /local132"
+N1N 7scala/Predef.String#2
+N9N :local142*
+N<N J_empty_/main#ArgumentParser#2
+NKN Llocal112
+NVN Wlocal112I
+OO ;scala/util/CommandLineParser.FromString#fromStringOption().2
+OO local142
+OO local132#
+PP scala/Some.unapply().2
+PP scala/Some.2
+PP local152
+PP local152
+QQ scala/None.2
+QQ local32&
+Q@Q Ascala/StringContext#s().2*
+QQ scala/StringContext.apply().2
+Q3Q :local122
+Q=Q @local132
+SS local162
+SS local172
+SS local182"
+SS $scala/Predef.String#2
+S&S 'local192*
+S)S 7_empty_/main#ArgumentParser#2
+S8S 9local172
+S<S Hlocal202
+SJS Pscala/Option#2
+SQS Rlocal172
+ScS dlocal1727
+TT )scala/collection/mutable/Growable#`+=`().2
+TT local12#
+TT scala/Tuple2.apply().2
+TT local182'
+T-T 6scala/Option#isDefined().2
+T T ,local202
+U
+U local212)
+UU scala/Predef.refArrayOps().2+
+UU _empty_/main#command().(args)2&
+U)U *scala/StringContext#s().2*
+UU scala/StringContext.apply().2
+U"U )local182
+V
+V local222!
+VV scala/Int#`>=`(+3).2
+VV local212
+V$V )local62 
+V.V /scala/Int#`+`(+4).2
+V*V -local212
+V8V Ilocal82
+WW local222#
+XX scala/Some.unapply().2
+XX scala/Some.2
+XX local232
+XX !local102
+X"X )local182
+X+X .local232
+X0X 1local192
+YY scala/None.2
+YY !local202#
+ZZ scala/Some.unapply().2
+ZZ scala/Some.2
+ZZ local242
+Z Z !local242
+[[ scala/None.2
+[[ local32&
+[<[ =scala/StringContext#s().2*
+[[ scala/StringContext.apply().2
+[5[ <local182
+SVS Zscala/None.2
+]] local262
+]] local272
+]] local282"
+]] %scala/Predef.String#2
+]'] (local292*
+]*] 8_empty_/main#ArgumentParser#2
+]9] :local272 
+]D] Gscala/package.Seq#2
+]H] Ilocal2727
+^^ )scala/collection/mutable/Growable#`+=`().2
+^^ local12#
+^^ scala/Tuple2.apply().2
+^^ local282
+_
+_ local302!
+_!_ %scala/package.List#2
+_,_ -local272
+_1_ Blocal82#
+`` scala/Some.unapply().2
+`` scala/Some.2
+`` local312
+`!` %local3225
+`K` K'scala/collection/immutable/List#`::`().2
+`6` Ilocal302
+`!` !local322
+aa scala/None.2 
+aa scala/package.Nil.2
+b
+b local332
+bb 'local3024
+cc &scala/collection/immutable/List#map().2
+cc local332&
+cc scala/Function0#apply().2
+ee local342
+ee local352*
+ee  _empty_/main#MainResultType#2
+e"e *local362"
+e,e 2scala/Predef.String#2
+e4e >local372"
+e@e Fscala/Predef.String#2
+eIe Mscala/Unit#2
+f
+f local382
+ff scala/Unit#2'
+gg scala/Predef.println(+1).2&
+gGg Hscala/StringContext#s().2*
+gg scala/StringContext.apply().2
+gg "local362<
+g9g A.scala/collection/IterableOnceOps#mkString(+1).2@
+g.g 12scala/collection/StrictOptimizedIterableOps#map().2
+g%g -local12
+g2g 2scala/Tuple2#_1.2
+g6g 6scala/Tuple2#_2.2%
+g4g 5java/lang/String#`+`().2
+i
+i local402
+ii scala/Unit#24
+jj &scala/collection/StringOps#nonEmpty().2+
+jj scala/Predef.augmentString().2
+jj local372'
+j$j +scala/Predef.println(+1).2
+j,j 6local372
+l
+l local412
+ll scala/Unit#2
+ll 0local82#
+mm scala/Some.unapply().2
+mm scala/Some.2
+mm local422
+n
+n local32&
+n'n (scala/StringContext#s().2*
+nn scala/StringContext.apply().2
+n$n 'local422
+o
+o local412
+pp scala/None.2=
+sPs P/scala/collection/ArrayOps.WithFilter#foreach().25
+rr 'scala/collection/ArrayOps#withFilter().2)
+rr scala/Predef.refArrayOps().2+
+rr _empty_/main#command().(args)2
+rr local432#
+s$s &scala/Boolean#`&&`().2.
+ss  java/lang/String#startsWith(+1).2
+ss local432(
+sPs Pscala/Boolean#`unary_!`().21
+s;s C#scala/collection/SeqOps#contains().2@
+s1s 42scala/collection/StrictOptimizedIterableOps#map().2
+s(s 0local12
+s7s 9scala/Tuple2#_1.20
+sHs L"scala/collection/StringOps#drop().2+
+sDs Dscala/Predef.augmentString().2
+sDs Glocal432
+uu local32&
+u/u 0scala/StringContext#s().2*
+uu scala/StringContext.apply().2
+u,u /local432
+v
+v local412#
+xx scala/Boolean#`||`().22
+xx $scala/collection/ArrayOps#isEmpty().2)
+x	x 	scala/Predef.refArrayOps().2+
+x	x _empty_/main#command().(args)23
+xx &%scala/collection/ArrayOps#contains().2)
+xx scala/Predef.refArrayOps().2+
+xx _empty_/main#command().(args)2
+yy local382
+zz local402
+|| local412:
+}} ,scala/collection/IterableOnceOps#nonEmpty().2
+}} local229
+~~ +scala/collection/IterableOnceOps#foreach().2
+~~ local22
+~~ local442'
+~~ &scala/Predef.println(+1).2&
+~4~ 5scala/StringContext#s().2*
+~)~ )scala/StringContext.apply().2
+~1~ 4local442
+
+ local382
+
+€€ local352
+
+ local452
+
+ 
+scala/Int#2"
+
+ scala/Int#`<`(+3).2
+
+ local452(
+
+) -java/lang/System#exit().2!
+
+" (java/lang/System#2&
+
+0 0scala/Int#`unary_-`().2
+
+/ 0local452
+
+ƒƒ local342'
+
+„„ _empty_/main#command().2
+
+…… _empty_/main#2"
+
+‰‰ _empty_/myProgram.2
+
+ŒŒ _empty_/main#2(
+
+ŒŒ _empty_/myProgram.add().2-
+
+ŒŒ _empty_/myProgram.add().(num)2
+
+ŒŒ 
+scala/Int#2-
+
+ŒŒ _empty_/myProgram.add().(inc)2
+
+ŒŒ "
+scala/Int#2
+
+Œ)Œ -scala/Unit#2)
+
+ scala/Predef.println(+1).2(
+
+( )scala/StringContext#s().2,
+
+ scala/StringContext.apply().2-
+
+ _empty_/myProgram.add().(num)2-
+
+ _empty_/myProgram.add().(inc)2"
+
+" #scala/Int#`+`(+4).2-
+
+ !_empty_/myProgram.add().(num)2-
+
+$ '_empty_/myProgram.add().(inc)2"
+
+ _empty_/myProgram.2
+
+““ 
+_empty_/add.2
+
+““ _empty_/main#2#
+
+”” 
+_empty_/add.main().2)
+
+”” _empty_/add.main().(args)2
+
+”” scala/Array#2$
+
+”” scala/Predef.String#2
+
+•• local462'
+
+•• _empty_/main#command().2)
+
+•• _empty_/add.main().(args)2
+
+–– local472;
+
+–– +_empty_/MainAnnotation#Command#argGetter().2
+
+–– local462
+
+––  
+scala/Int#2&
+
+–)– /scala/Predef.summon().2,
+
+–0– >_empty_/main#ArgumentParser#2
+
+–?– B
+scala/Int#2M
+
+–D– D=scala/util/CommandLineParser.FromString.given_FromString_Int.2
+
+—— local482;
+
+—— +_empty_/MainAnnotation#Command#argGetter().2
+
+—— local462
+
+——  
+scala/Int#2&
+
+—)— /scala/Predef.summon().2,
+
+—0— >_empty_/main#ArgumentParser#2
+
+—?— B
+scala/Int#2M
+
+—D— D=scala/util/CommandLineParser.FromString.given_FromString_Int.2#
+
+—J— Jscala/Some.apply().2
+
+—F— Jscala/Some.25
+
+˜˜ %_empty_/MainAnnotation#Command#run().2
+
+˜˜ local462(
+
+˜˜ _empty_/myProgram.add().2"
+
+˜˜ _empty_/myProgram.2(
+
+˜˜ scala/Function0#apply().2
+
+˜˜ local472(
+
+˜&˜ &scala/Function0#apply().2
+
+˜"˜ &local482
+
+™™ _empty_/add.PZ A85A96E10DD2D8D14B3F9E9C31E1DAD1

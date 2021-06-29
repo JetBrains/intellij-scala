@@ -1,0 +1,39 @@
+
+â
+tests/pos/t0591.scala*
+_empty_/Test.
+ *Test€*-
+_empty_/Test.implicitly().*
+implicitly€*'
+_empty_/Test.implicitly().[T]	*T€*)
+_empty_/Test.implicitly().(t)  *t€*)
+_empty_/Test.perhaps().  *perhaps€*$
+_empty_/Test.perhaps().[T]	*T€*&
+_empty_/Test.perhaps().(t)  *t€*$
+_empty_/Test.hello.  *hello€2
+ _empty_/Test.2(
+ _empty_/Test.implicitly().2+
+ _empty_/Test.implicitly().[T]2+
+ _empty_/Test.implicitly().(t)2+
+! "_empty_/Test.implicitly().[T]2+
+% &_empty_/Test.implicitly().[T]2+
+) *_empty_/Test.implicitly().(t)2%
+ _empty_/Test.perhaps().2(
+ _empty_/Test.perhaps().[T]2(
+# $_empty_/Test.perhaps().(t)2(
+' (_empty_/Test.perhaps().[T]2
+, 2scala/Option#2(
+3 4_empty_/Test.perhaps().[T]2!
+< <scala/Some.apply().2
+8 <scala/Some.2(
+= >_empty_/Test.perhaps().(t)2!
+ _empty_/Test.hello.2"
+ scala/Predef.String#2(
+ _empty_/Test.implicitly().2"
+ scala/Predef.String#2!
+ _empty_/Test.hello.2(
+ _empty_/Test.implicitly().2
+ scala/Option#2"
+ scala/Predef.String#2%
+ _empty_/Test.perhaps().2!
+ _empty_/Test.hello.PZ 18F727A656D4E7FE902D3C9EE3F25FDB

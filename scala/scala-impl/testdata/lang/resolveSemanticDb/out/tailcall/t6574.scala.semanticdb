@@ -1,0 +1,120 @@
+
+²tests/pos/tailcall/t6574.scala*
+_empty_/Bad# *Bad€*)
+_empty_/Bad#`<init>`(). €@*<init>€*'
+_empty_/Bad#`<init>`().(v) €*v€*
+_empty_/Bad#[X]	*X€*
+_empty_/Bad#[Y]	*Y€*
+_empty_/Bad#v. €*v€*
+_empty_/Bad#vv().*vv€* 
+_empty_/Bad#foo(). *foo€*
+_empty_/Bad#foo().[Z]	*Z€*
+_empty_/Bad#foo().(a)*a€*
+_empty_/Bad#foo().(b)*b€*<
+ _empty_/Bad#differentReceiver(). *differentReceiver€*>
+!_empty_/Bad#differentReceiver2(). *differentReceiver2€*,
+_empty_/Bad#dependent(). *	dependent€*%
+_empty_/Bad#dependent().[Z]	*Z€*%
+_empty_/Bad#dependent().(a)*a€*%
+_empty_/Bad#dependent().(b)*b€*
+_empty_/Bad.
+ *Bad€*
+_empty_/HK# *HK€*(
+_empty_/HK#`<init>`(). €@*<init>€*&
+_empty_/HK#`<init>`().(v) €*v€*
+_empty_/HK#[M]	*M€*
+_empty_/HK#v. €*v€*
+_empty_/HK#hk().*hk€*
+_empty_/HK#hk().[N]	*N€*
+_empty_/HK.
+ *HK€2
+ 	_empty_/Bad#2!
+	 	_empty_/Bad#`<init>`().2
+ 
+scala/Int#2"
+* *scala/AnyVal#`<init>`().2
+$ *scala/AnyVal#2
+
+ _empty_/Bad#[X]2
+ _empty_/Bad#[Y]2
+ _empty_/Bad#v.2
+ _empty_/Bad#vv().2
+ _empty_/Bad#v.2'
+ scala/annotation/tailrec#2
+ scala/annotation/2 
+  #_empty_/Bad#foo().2#
+$ %_empty_/Bad#foo().[Z]2#
+' (_empty_/Bad#foo().(a)2
+* -
+scala/Int#2#
+/ 0_empty_/Bad#foo().(b)2"
+2 8scala/Predef.String#2
+; ?scala/Unit#2 
+	 _empty_/Bad#foo().2#
+ _empty_/Bad#foo().[Z]2#
+ _empty_/Bad#foo().(a)2#
+ _empty_/Bad#foo().(b)2'
+ scala/annotation/tailrec#2
+ scala/annotation/2.
+  1 _empty_/Bad#differentReceiver().2
+4 8scala/Unit#2.
+ + _empty_/Bad#differentReceiver().2%
+ _empty_/Bad#`<init>`().2
+ _empty_/Bad#2
+ _empty_/Bad#[X]2
+ _empty_/Bad#[Y]2'
+		 scala/annotation/tailrec#2
+		 scala/annotation/2/
+	 	 2!_empty_/Bad#differentReceiver2().2
+	5	 9scala/Unit#2/
+
+%
+ 7!_empty_/Bad#differentReceiver2().2%
+
+ 
+  _empty_/Bad#`<init>`().2
+
+
+ _empty_/Bad#2
+
+
+ _empty_/Bad#[X]2
+
+
+ _empty_/Bad#[Y]2/
+  2!_empty_/Bad#differentReceiver2().2%
+ _empty_/Bad#`<init>`().2
+ _empty_/Bad#2
+ _empty_/Bad#[X]2
+ _empty_/Bad#[Y]2'
+ scala/annotation/tailrec#2
+ scala/annotation/2&
+  )_empty_/Bad#dependent().2)
+* +_empty_/Bad#dependent().[Z]2)
+- ._empty_/Bad#dependent().(a)2
+0 3
+scala/Int#2)
+5 6_empty_/Bad#dependent().(b)2"
+8 >scala/Predef.String#2)
+A B_empty_/Bad#dependent().(b)2&
+	 _empty_/Bad#dependent().2)
+ _empty_/Bad#dependent().[Z]2)
+ _empty_/Bad#dependent().(a)2)
+ _empty_/Bad#dependent().(b)2
+ _empty_/Bad.2
+ _empty_/HK#2$
+ _empty_/HK#`<init>`().2
+ 
+scala/Int#2&
+) )scala/AnyVal#`<init>`().2
+# )scala/AnyVal#2
+	 
+_empty_/HK#[M]2
+ _empty_/HK#v.2
+ _empty_/HK#hk().2!
+	 
+_empty_/HK#hk().[N]2
+ scala/Unit#2
+" $_empty_/HK#hk().2
+% &_empty_/HK#[M]2
+ _empty_/HK.PZ DA0554669B513E7FE1B6D1190C52F961

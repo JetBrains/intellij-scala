@@ -1,0 +1,105 @@
+
+‡#.tests/pos/toplevel-opaque-xm/Logarithm_1.scala*(
+logs/Logarithm_1$package. *logs€*5
+#logs/Logarithm_1$package.Logarithm#*	Logarithm€*7
+#logs/Logarithm_1$package.Logarithm.
+ *	Logarithm€*9
++logs/Logarithm_1$package.Logarithm.apply().*apply€*8
+.logs/Logarithm_1$package.Logarithm.apply().(d)*d€*7
+*logs/Logarithm_1$package.Logarithm.safe().*safe€*7
+-logs/Logarithm_1$package.Logarithm.safe().(d)*d€*?
+.logs/Logarithm_1$package.Logarithm.exponent().*exponent€*;
+1logs/Logarithm_1$package.Logarithm.exponent().(l)*l€*G
+0logs/Logarithm_1$package.Logarithm.given_AnyRef.
+ (*given_AnyRef€*L
+;logs/Logarithm_1$package.Logarithm.given_AnyRef.toDouble().*toDouble€*H
+>logs/Logarithm_1$package.Logarithm.given_AnyRef.toDouble().(x)*x€*@
+6logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().*+€*C
+9logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().(x)*x€*C
+9logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().(y)*y€*@
+6logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().**€*C
+9logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().(x)*x€*C
+9logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().(y)*y€2
+ logs/2#
+logs/Logarithm_1$package.21
+ #logs/Logarithm_1$package.Logarithm#2
+ scala/Double#21
+ #logs/Logarithm_1$package.Logarithm.29
+ +logs/Logarithm_1$package.Logarithm.apply().2<
+ .logs/Logarithm_1$package.Logarithm.apply().(d)2
+ scala/Double#21
+ !#logs/Logarithm_1$package.Logarithm#2'
+) ,scala/math/package.log().2
+$ (scala/math/2<
+- ..logs/Logarithm_1$package.Logarithm.apply().(d)28
+		 
+*logs/Logarithm_1$package.Logarithm.safe().2;
+		 -logs/Logarithm_1$package.Logarithm.safe().(d)2
+		 scala/Double#2
+		 scala/Option#21
+		 '#logs/Logarithm_1$package.Logarithm#2#
+
+
+
+ scala/Double#`>`(+6).2;
+
+
+ 	-logs/Logarithm_1$package.Logarithm.safe().(d)2!
+
+
+ scala/Some.apply().2
+
+
+ scala/Some.2'
+
+
+ scala/math/package.log().2
+
+
+ scala/math/2;
+
+
+  -logs/Logarithm_1$package.Logarithm.safe().(d)2
+
+(
+ ,scala/None.2<
+ .logs/Logarithm_1$package.Logarithm.exponent().2?
+ 1logs/Logarithm_1$package.Logarithm.exponent().(l)21
+ #logs/Logarithm_1$package.Logarithm#2
+ $scala/Double#2?
+' (1logs/Logarithm_1$package.Logarithm.exponent().(l)2>
+ 0logs/Logarithm_1$package.Logarithm.given_AnyRef.2*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2I
+! );logs/Logarithm_1$package.Logarithm.given_AnyRef.toDouble().2L
+ >logs/Logarithm_1$package.Logarithm.given_AnyRef.toDouble().(x)21
+ #logs/Logarithm_1$package.Logarithm#2
++ 1scala/Double#2'
+9 <scala/math/package.exp().2
+4 8scala/math/2L
+= >>logs/Logarithm_1$package.Logarithm.given_AnyRef.toDouble().(x)2D
+! "6logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().2G
+ 9logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().(x)21
+ #logs/Logarithm_1$package.Logarithm#2G
+$ %9logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().(y)21
+' 0#logs/Logarithm_1$package.Logarithm#29
+= =+logs/Logarithm_1$package.Logarithm.apply().21
+4 =#logs/Logarithm_1$package.Logarithm.2#
+J Kscala/Double#`+`(+7).2'
+C Fscala/math/package.exp().2
+> Bscala/math/2G
+G H9logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().(x)2'
+Q Tscala/math/package.exp().2
+L Pscala/math/2G
+U V9logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().(y)2D
+! "6logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().2G
+ 9logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().(x)21
+ #logs/Logarithm_1$package.Logarithm#2G
+$ %9logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().(y)21
+' 0#logs/Logarithm_1$package.Logarithm#21
+3 <#logs/Logarithm_1$package.Logarithm#29
+H H+logs/Logarithm_1$package.Logarithm.apply().21
+? H#logs/Logarithm_1$package.Logarithm.2#
+K Lscala/Double#`+`(+7).2G
+I J9logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().(x)2G
+M N9logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().(y)PZ 048E3A76030563CC78CAFF16829FFB2F

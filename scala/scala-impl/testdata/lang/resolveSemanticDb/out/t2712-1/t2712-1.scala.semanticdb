@@ -1,0 +1,29 @@
+
+°tests/pos/t2712-1.scala*
+
+test/Test.
+ *Test€*
+test/Test.meh().*meh€*
+test/Test.meh().[M]	*M€*
+test/Test.meh().[A]	*A€*
+test/Test.meh().(x)*x€*
+local0*x€2
+ test/2
+ 
+test/Test.2
+ 	test/Test.meh().2!
+
+ test/Test.meh().[M]2!
+ test/Test.meh().[A]2!
+ test/Test.meh().(x)2!
+ test/Test.meh().[M]2!
+ test/Test.meh().[A]2!
+ test/Test.meh().[M]2!
+  test/Test.meh().[A]2!
+$ %test/Test.meh().(x)2
+ test/Test.meh().2
+ local02
+
+ 
+scala/Int#2
+ local0PZ C59A2C9D411210BCA578A50C331C1773

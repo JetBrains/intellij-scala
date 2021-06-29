@@ -1,0 +1,97 @@
+
+ªtests/pos/assignments.scala**
+_empty_/assignments.
+ *assignments€*%
+_empty_/assignments.a(). €*a€*+
+_empty_/assignments.`a_=`(). €*a_=€*-
+!_empty_/assignments.`a_=`().(x$1)*x$1€*%
+_empty_/assignments.i(). €*i€*+
+_empty_/assignments.`i_=`(). €*i_=€*-
+!_empty_/assignments.`i_=`().(x$1)*x$1€*
+local0 €*i$1€* 
+_empty_/assignments.C#*C€*3
+!_empty_/assignments.C#`<init>`(). €@*<init>€*+
+_empty_/assignments.C#myX(). €*myX€*1
+ _empty_/assignments.C#`myX_=`(). €*myX_=€*1
+%_empty_/assignments.C#`myX_=`().(x$1)*x$1€*$
+_empty_/assignments.C#x().*x€**
+_empty_/assignments.C#`x_=`().*x_=€*+
+!_empty_/assignments.C#`x_=`().(x)*x€*%
+_empty_/assignments.c(). €*c€*+
+_empty_/assignments.`c_=`(). €*c_=€*-
+!_empty_/assignments.`c_=`().(x$1)*x$1€*%
+_empty_/assignments.cc. €*cc€2
+ _empty_/assignments.2&
+ _empty_/assignments.a().2$
+ scala/Array.apply(+5).2
+
+ scala/Array.2*
+ 	_empty_/assignments.`a_=`().2&
+ _empty_/assignments.i().2*
+ 	_empty_/assignments.`i_=`().2#
+ scala/Array#update().2&
+ _empty_/assignments.a().2&
+ _empty_/assignments.i().2 
+ scala/Int#`*`(+3).2"
+
+ 
+scala/Array#apply().2&
+	 
+_empty_/assignments.a().2&
+ _empty_/assignments.i().2&
+ _empty_/assignments.a().2
+ local02
+ local02 
+
+ 
+scala/Int#`+`(+4).2$
+ 	_empty_/assignments.C#2/
+ !_empty_/assignments.C#`<init>`().2*
+ _empty_/assignments.C#myX().2.
+  _empty_/assignments.C#`myX_=`().2(
+		 	_empty_/assignments.C#x().2*
+		 _empty_/assignments.C#myX().2,
+
+
+ _empty_/assignments.C#`x_=`().2/
+
+
+ !_empty_/assignments.C#`x_=`().(x)2
+
+
+ 
+scala/Int#2.
+
+
+  _empty_/assignments.C#`myX_=`().2/
+
+
+ !_empty_/assignments.C#`x_=`().(x)2,
+ _empty_/assignments.C#`x_=`().2 
+
+ scala/Int#`+`(+4).2(
+ 	_empty_/assignments.C#x().2,
+ _empty_/assignments.C#`x_=`().2 
+ scala/Int#`*`(+3).2(
+ _empty_/assignments.C#x().2&
+ _empty_/assignments.c().2/
+ !_empty_/assignments.C#`<init>`().2$
+ _empty_/assignments.C#2*
+ 	_empty_/assignments.`c_=`().2,
+ _empty_/assignments.C#`x_=`().2&
+ _empty_/assignments.c().2 
+ scala/Int#`+`(+4).2(
+	 
+_empty_/assignments.C#x().2&
+ _empty_/assignments.c().2&
+ _empty_/assignments.c().2 
+ scala/Int#`*`(+3).2%
+ _empty_/assignments.cc.2&
+ _empty_/assignments.c().2%
+	 _empty_/assignments.cc.2,
+ _empty_/assignments.C#`x_=`().2 
+ 	scala/Int#`+`(+4).2(
+ _empty_/assignments.C#x().2,
+ _empty_/assignments.C#`x_=`().2 
+ scala/Int#`*`(+3).2(
+ _empty_/assignments.C#x().PZ 3652E961D52E0E7C80BF1F05A0DF7A54

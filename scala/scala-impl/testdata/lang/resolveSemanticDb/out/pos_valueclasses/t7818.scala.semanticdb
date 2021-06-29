@@ -1,0 +1,58 @@
+
+å&tests/pos/pos_valueclasses/t7818.scala*(
+t7818/Observable1# *Observable1€*/
+t7818/Observable1#`<init>`(). €@*<init>€*7
+%t7818/Observable1#`<init>`().(asJava) €*asJava€*"
+t7818/Observable1#[T]	 €*T€*+
+t7818/Observable1#asJava. €*asJava€*$
+t7818/Observable1#foo().*foo€*%
+t7818/Observable1#foo().[X]	*X€*%
+t7818/Observable1#foo().(a)*a€*4
+ t7818/Observable1#synchronize().*synchronize€*"
+t7818/Observable1#id().*id€*$
+t7818/Observable1#id().(x)*x€*6
+!t7818/Observable1#synchronize2().*synchronize2€*(
+t7818/Observable1.
+ *Observable1€*&
+t7818/JObservable#*JObservable€*/
+t7818/JObservable#`<init>`(). €@*<init>€*
+t7818/JObservable#[T]	*T€2
+ t7818/2 
+ t7818/Observable1#2+
+ t7818/Observable1#`<init>`().2 
+" -t7818/JObservable#2#
+3 4t7818/Observable1#[T]2&
+E Escala/AnyVal#`<init>`().2
+? Escala/AnyVal#2#
+ t7818/Observable1#[T]2'
+  t7818/Observable1#asJava.2&
+ t7818/Observable1#foo().2)
+ t7818/Observable1#foo().[X]2)
+ t7818/Observable1#foo().(a)2 
+ #t7818/JObservable#2)
+$ %t7818/Observable1#foo().[X]2 
+) 4t7818/JObservable#2)
+5 6t7818/Observable1#foo().[X]2#
+: =scala/Predef.`???`().2.
+  t7818/Observable1#synchronize().2 
+ t7818/Observable1#2#
+  t7818/Observable1#[T]2+
+3 3t7818/Observable1#`<init>`().2&
+4 7t7818/Observable1#foo().2'
+8 >t7818/Observable1#asJava.2%
+ t7818/Observable1#id().2(
+ t7818/Observable1#id().(x)2 
+ %t7818/JObservable#2#
++ ,t7818/Observable1#[T]2(
+1 2t7818/Observable1#id().(x)2/
+ !t7818/Observable1#synchronize2().2 
+ t7818/Observable1#2#
+  !t7818/Observable1#[T]2+
+4 4t7818/Observable1#`<init>`().2&
+5 8t7818/Observable1#foo().2%
+9 ;t7818/Observable1#id().2'
+< Bt7818/Observable1#asJava.2 
+ t7818/Observable1.2 
+ t7818/JObservable#2+
+ t7818/JObservable#`<init>`().2#
+ t7818/JObservable#[T]PZ 64D7DE4854DA99D65BBEC73E3B5AC2B9

@@ -1,0 +1,61 @@
+
+¬tests/pos/t7782b.scala*
+
+pack/Test.
+ *Test€*
+pack/O.
+ *O€*
+pack/O.empty().*empty€*
+pack/O.empty().(a)  *a€*
+pack/O.empty(+1).*empty€*
+pack/O.empty(+1).[E]	*E€*
+pack/C# *C€*$
+pack/C#`<init>`(). €@*<init>€*
+
+pack/C#[E]	*E€*
+pack/C#foo(). *foo€*
+pack/C#foo().[BB]	*BB€*
+pack/C#foo().(f)*f€*
+pack/C#test().*test€*
+pack/C#test().[B]	*B€*
+pack/C#test().(f)*f€2
+ pack/2
+ 
+pack/Test.2
+ pack/O.empty(+1).2
+ pack/O.empty().2
+	 
+pack/O.2
+ pack/O.empty(+1).2
+ pack/O.2
+ pack/O.empty().2 
+ pack/O.empty().(a)2
+ 
+scala/Any#2
+ !
+scala/Any#2#
+$ 'scala/Predef.`???`().2
+ pack/O.empty(+1).2"
+ pack/O.empty(+1).[E]2
+ pack/C#2"
+ pack/O.empty(+1).[E]2#
+ scala/Predef.`???`().2
+ pack/C#2 
+ pack/C#`<init>`().2
+ 
+pack/C#[E]2
+ 	pack/C#foo().2
+
+ pack/C#foo().[BB]2
+ pack/C#foo().(f)2
+ pack/C#foo().[BB]2
+ scala/Unit#2
+ 
+pack/C#test().2
+ pack/C#test().[B]2
+ pack/C#test().(f)2
+ pack/C#test().[B]2
+ 
+scala/Any#2
+ pack/C#foo().2
+  pack/C#test().(f)PZ 5ED7A28C3C2FBFA963F02498F26F2B4E

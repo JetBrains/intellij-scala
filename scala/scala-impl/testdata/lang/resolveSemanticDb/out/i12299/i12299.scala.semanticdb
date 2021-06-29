@@ -1,0 +1,134 @@
+
+¶"tests/pos/i12299.scala* 
+_empty_/Outer0.
+ *Outer0€*%
+_empty_/Outer0.Inner.
+ *Inner€*%
+_empty_/Outer0.Inner.Bar#*Bar€*6
+$_empty_/Outer0.Inner.Bar#`<init>`(). €@*<init>€*1
+'_empty_/Outer0.Inner.Bar#`<init>`().(x)*x€*(
+_empty_/Outer0.Inner.Bar#x. €*x€*5
+&_empty_/Outer0.Inner.Bar#`<init>`(+1).*<init>€*!
+_empty_/Outer0.Bar# *Bar€* 
+_empty_/Outer2.
+ *Outer2€*%
+_empty_/Outer2.Inner.
+ *Inner€*%
+_empty_/Outer2.Inner.Bar#*Bar€*6
+$_empty_/Outer2.Inner.Bar#`<init>`(). €@*<init>€*1
+'_empty_/Outer2.Inner.Bar#`<init>`().(x)*x€*(
+_empty_/Outer2.Inner.Bar#x. €*x€*5
+&_empty_/Outer2.Inner.Bar#`<init>`(+1).*<init>€*%
+_empty_/Outer2.test2.
+ *test2€*'
+_empty_/Outer2.test2.Bar# *Bar€*$
+_empty_/Outer2.test2.x. €*x€*$
+_empty_/Outer2.test2.y. €*y€*%
+_empty_/Outer2.test3.
+ *test3€*'
+_empty_/Outer2.test3.Bar# *Bar€*'
+_empty_/Outer2.test3.Bar().*Bar€*$
+_empty_/Outer2.test3.x. €*x€* 
+_empty_/Outer3.
+ *Outer3€*%
+_empty_/Outer3.Inner. *Inner€*!
+_empty_/Outer3.Bar# *Bar€*
+_empty_/Outer3.x. €*x€*
+_empty_/Outer3.y. €*y€* 
+_empty_/Outer4.
+ *Outer4€*%
+_empty_/Outer4.Inner.
+ *Inner€*%
+_empty_/Outer4.Inner.Bar#*Bar€*6
+$_empty_/Outer4.Inner.Bar#`<init>`(). €@*<init>€*1
+'_empty_/Outer4.Inner.Bar#`<init>`().(x)*x€*(
+_empty_/Outer4.Inner.Bar#x. €*x€*5
+&_empty_/Outer4.Inner.Bar#`<init>`(+1).*<init>€*'
+_empty_/Outer4.Inner.Bar.
+ *Bar€*!
+_empty_/Outer4.Bar. *Bar€*!
+_empty_/Outer4.Bar# *Bar€2
+ _empty_/Outer0.2#
+	 _empty_/Outer0.Inner.2'
+
+ _empty_/Outer0.Inner.Bar#22
+ $_empty_/Outer0.Inner.Bar#`<init>`().2
+ 
+scala/Int#2)
+ _empty_/Outer0.Inner.Bar#x.24
+
+ &_empty_/Outer0.Inner.Bar#`<init>`(+1).22
+ $_empty_/Outer0.Inner.Bar#`<init>`().2#
+	 _empty_/Outer0.Inner.2!
+ _empty_/Outer0.Bar#24
+		 &_empty_/Outer0.Inner.Bar#`<init>`(+1).2'
+	
+	 _empty_/Outer0.Inner.Bar#22
+
+
+ $_empty_/Outer0.Inner.Bar#`<init>`().2'
+
+
+
+ _empty_/Outer0.Inner.Bar#2
+ _empty_/Outer2.2#
+	 _empty_/Outer2.Inner.2'
+
+ _empty_/Outer2.Inner.Bar#22
+ $_empty_/Outer2.Inner.Bar#`<init>`().2
+ 
+scala/Int#2)
+ _empty_/Outer2.Inner.Bar#x.24
+
+ &_empty_/Outer2.Inner.Bar#`<init>`(+1).22
+ $_empty_/Outer2.Inner.Bar#`<init>`().2#
+	 _empty_/Outer2.test2.2#
+ _empty_/Outer2.Inner.2'
+ _empty_/Outer2.test2.Bar#2%
+ 	_empty_/Outer2.test2.x.24
+ &_empty_/Outer2.Inner.Bar#`<init>`(+1).2'
+ _empty_/Outer2.Inner.Bar#2%
+ 	_empty_/Outer2.test2.y.22
+ $_empty_/Outer2.Inner.Bar#`<init>`().2'
+ _empty_/Outer2.Inner.Bar#2#
+	 _empty_/Outer2.test3.2#
+ _empty_/Outer2.Inner.2'
+ _empty_/Outer2.test3.Bar#2)
+ _empty_/Outer2.test3.Bar().2"
+ scala/Predef.String#2%
+ 	_empty_/Outer2.test3.x.2&
+ scala/Function0#apply().2)
+ _empty_/Outer2.test3.Bar().2
+!! _empty_/Outer3.2
+"	" _empty_/Outer0.2#
+"" _empty_/Outer3.Inner.2#
+"" _empty_/Outer0.Inner.2!
+"" _empty_/Outer3.Bar#2
+$$ _empty_/Outer3.x.24
+$$ &_empty_/Outer0.Inner.Bar#`<init>`(+1).2'
+$$ _empty_/Outer0.Inner.Bar#2
+%% _empty_/Outer3.y.22
+%% $_empty_/Outer0.Inner.Bar#`<init>`().2'
+%% _empty_/Outer0.Inner.Bar#2
+(( _empty_/Outer4.2#
+*	* _empty_/Outer4.Inner.2'
++
++ _empty_/Outer4.Inner.Bar#22
+++ $_empty_/Outer4.Inner.Bar#`<init>`().2
+++ 
+scala/Int#2)
+++ _empty_/Outer4.Inner.Bar#x.24
+,
+, &_empty_/Outer4.Inner.Bar#`<init>`(+1).22
+,, $_empty_/Outer4.Inner.Bar#`<init>`().2'
+-- _empty_/Outer4.Inner.Bar.2#
+0	0 _empty_/Outer4.Inner.2!
+00 _empty_/Outer4.Bar.2'
+00 _empty_/Outer4.Inner.Bar.2!
+00 _empty_/Outer4.Bar#24
+22 &_empty_/Outer4.Inner.Bar#`<init>`(+1).2'
+2
+2 _empty_/Outer4.Inner.Bar#22
+33 $_empty_/Outer4.Inner.Bar#`<init>`().2'
+3
+3 _empty_/Outer4.Inner.Bar#PZ F79BBA889FC1DC1A69BD04ABF650A32E

@@ -1,0 +1,42 @@
+
+©tests/pos/i8972.scala*
+_empty_/Num#*Num€*)
+_empty_/Num#`<init>`(). €@*<init>€*
+_empty_/Num#Nat#*Nat€*
+_empty_/IsInt.
+ *IsInt€*(
+_empty_/IsInt.unapply().*unapply€*+
+_empty_/IsInt.unapply().(num)  *num€*'
+_empty_/IsInt.unapply().(sc)*sc€*(
+_empty_/i8972$package. *_empty_€**
+_empty_/i8972$package.test().*test€*0
+"_empty_/i8972$package.test().(num)  *num€**
+ _empty_/i8972$package.test().(x)*x€*
+local0 €*i€2
+ 	_empty_/Num#2%
+ _empty_/Num#`<init>`().2
+ 
+_empty_/Num#Nat#2
+ _empty_/IsInt.2&
+ _empty_/IsInt.unapply().2+
+ _empty_/IsInt.unapply().(num)2
+ _empty_/Num#2*
+  _empty_/IsInt.unapply().(sc)2
+& )_empty_/Num#Nat#2+
+" %_empty_/IsInt.unapply().(num)2
+, 2scala/Option#2
+3 6
+scala/Int#2#
+: =scala/Predef.`???`().2 
+_empty_/i8972$package.2+
+ _empty_/i8972$package.test().20
+ "_empty_/i8972$package.test().(num)2
+ _empty_/Num#2.
+  _empty_/i8972$package.test().(x)2
+  #_empty_/Num#Nat#20
+ "_empty_/i8972$package.test().(num)2.
+  _empty_/i8972$package.test().(x)2&
+ _empty_/IsInt.unapply().2
+	 _empty_/IsInt.20
+ "_empty_/i8972$package.test().(num)2
+ local0PZ 3651842B83A2BADFB4D8A280A417AB52

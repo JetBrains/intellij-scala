@@ -1,0 +1,32 @@
+
+Œtests/pos/i3208.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#E#*E€*,
+_empty_/Test#E#`<init>`(). €@*<init>€*#
+_empty_/Test#Marker#*Marker€*1
+_empty_/Test#Marker#`<init>`(). €@*<init>€*!
+_empty_/Test#test().*test€*#
+_empty_/Test#test().(es)*es€*
+local0*x$1€*
+local1 €*e€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ 	_empty_/Test#E#2(
+ _empty_/Test#E#`<init>`().2"
+ _empty_/Test#Marker#2-
+ _empty_/Test#Marker#`<init>`().2"
+ 
+_empty_/Test#test().2&
+ _empty_/Test#test().(es)2!
+ scala/package.List#2
+ _empty_/Test#E#2!
+ scala/package.List#2
+ _empty_/Test#E#28
+& -*scala/collection/immutable/List#collect().2&
+# %_empty_/Test#test().(es)2
+0 0local02
+5 6local12"
+8 >_empty_/Test#Marker#2
+B Clocal1PZ 7CC5D03A0112CE8D388434889F3528EE

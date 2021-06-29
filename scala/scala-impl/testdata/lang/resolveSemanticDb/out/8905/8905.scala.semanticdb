@@ -1,0 +1,24 @@
+
+¨tests/pos/8905.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€* 
+_empty_/Test.f().[T1]	*T1€*
+_empty_/Test.f().(o)*o€*
+local0 €*x€2
+ _empty_/Test.2
+ _empty_/Test.f().2#
+ 
+_empty_/Test.f().[T1]2
+ scala/Tuple#2"
+ _empty_/Test.f().(o)2
+ scala/Option#2!
+% +scala/Tuple.Concat#2
+ $scala/Tuple.2#
+, ._empty_/Test.f().[T1]2#
+0 2_empty_/Test.f().[T1]2
+7 ;scala/Unit#2"
+ _empty_/Test.f().(o)2#
+ scala/Some.unapply().2
+ scala/Some.2
+ local0PZ 4B551979F03EEB85BFC984D8DAF1B33B

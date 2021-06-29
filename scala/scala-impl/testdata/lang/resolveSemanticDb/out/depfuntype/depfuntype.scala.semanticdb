@@ -1,0 +1,154 @@
+
+ãtests/pos/depfuntype.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#M#*M€*
+_empty_/Test.C#m. „*m€*
+_empty_/Test.DF#*DF€*
+local0 *apply€*
+local1*x€*(
+_empty_/Test.depfun1. €*depfun1€*
+local2*x€*
+_empty_/Test.c. €*c€*
+local3 *$anon€*
+local4*M€*
+local5 €*m€*
+_empty_/Test.y. €*y€*
+_empty_/Test.y1. €*y1€*'
+_empty_/Test.depmeth().*depmeth€*$
+_empty_/Test.depmeth().(x)*x€*(
+_empty_/Test.depfun2. €*depfun2€*
+local6*x€*(
+_empty_/Test.depfun3. €*depfun3€*
+_empty_/Test.d. €*d€*
+_empty_/Test.z. €*z€*
+_empty_/Test.z1. €*z1€*/
+_empty_/Test.implicitly(). *
+implicitly€*'
+_empty_/Test.implicitly().[T]	*T€*+
+_empty_/Test.implicitly().(ev)  *ev€*
+_empty_/Test.IDF#*IDF€*
+local7 *apply€*
+local8  *x€*
+_empty_/Test.ic.  *ic€*"
+_empty_/Test.ifun. €*ifun€*
+_empty_/Test.u. €*u€*
+_empty_/Test.u1. €*u1€*
+_empty_/Test.v. €*v€*
+_empty_/Test.v1. €*v1€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.C#M#2
+ _empty_/Test.C#m.2
+ _empty_/Test.C#M#2
+ 	_empty_/Test.DF#2
+ _empty_/Test.C#2
+ local02
+ local12
+ _empty_/Test.C#M#2
+ local12#
+ _empty_/Test.depfun1.2
+ _empty_/Test.DF#2
+ local22
+ _empty_/Test.C#2
+  !_empty_/Test.C#m.2
+ local22
+ _empty_/Test.c.2
+
+ 
+local32
+ _empty_/Test.C#2
+ local42
+ 
+scala/Int#2
+$ %local52
+ _empty_/Test.y.2&
+ scala/Function1#apply().2#
+
+ _empty_/Test.depfun1.2
+ _empty_/Test.c.2
+ _empty_/Test.y1.2
+
+ 
+scala/Int#2
+ _empty_/Test.y.2%
+
+
+ _empty_/Test.depmeth().2(
+
+
+ _empty_/Test.depmeth().(x)2
+
+
+ _empty_/Test.C#2
+
+
+ _empty_/Test.C#m.2(
+
+
+ _empty_/Test.depmeth().(x)2#
+ _empty_/Test.depfun2.2%
+ _empty_/Test.depmeth().2
+ local62#
+ _empty_/Test.depfun3.2
+ _empty_/Test.DF#2#
+ _empty_/Test.depfun2.2
+ _empty_/Test.d.2
+	 
+_empty_/Test.C#2
+ _empty_/Test.c.2
+ _empty_/Test.z.2&
+ scala/Function1#apply().2#
+
+ _empty_/Test.depfun3.2
+ _empty_/Test.d.2
+ _empty_/Test.z1.2
+ _empty_/Test.C#M#2
+
+ _empty_/Test.d.2
+ _empty_/Test.z.2(
+ _empty_/Test.implicitly().2+
+ _empty_/Test.implicitly().[T]2,
+* ,_empty_/Test.implicitly().(ev)2+
+. /_empty_/Test.implicitly().[T]2,
+2 4_empty_/Test.implicitly().(ev)2,
+< >_empty_/Test.implicitly().(ev)2
+ 
+_empty_/Test.IDF#2
+ _empty_/Test.C#2
+ local72
+ local82
+ _empty_/Test.C#M#2
+ local82
+ _empty_/Test.ic.2
+ _empty_/Test.C#2#
+ scala/Predef.`???`().2 
+ 
+_empty_/Test.ifun.2
+ _empty_/Test.IDF#2
+  !_empty_/Test.C#m.2(
+ _empty_/Test.implicitly().2
+ _empty_/Test.C#2
+ _empty_/Test.u.2-
+ scala/ContextFunction1#apply().2 
+
+ _empty_/Test.ifun.2
+ _empty_/Test.c.2
+ _empty_/Test.u1.2
+
+ 
+scala/Int#2
+ _empty_/Test.u.2
+ _empty_/Test.v.2-
+ scala/ContextFunction1#apply().2 
+
+ _empty_/Test.ifun.2
+ _empty_/Test.d.2
+ _empty_/Test.v1.2
+ _empty_/Test.C#M#2
+
+ _empty_/Test.d.2
+ _empty_/Test.v.PZ C4C57E5E8F7D3AEDC14A853BF223B29D

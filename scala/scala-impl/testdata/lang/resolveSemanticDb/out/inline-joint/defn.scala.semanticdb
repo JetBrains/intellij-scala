@@ -1,0 +1,19 @@
+
+Ì!tests/pos/inline-joint/defn.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.foo().*foo€*
+local0 *$anon€*
+_empty_/Foo.bar().*bar€*
+_empty_/Foo.bar().(i)*i€2
+ 
+_empty_/Foo.2 
+ _empty_/Foo.foo().2
+ local02 
+ _empty_/Foo.bar().2 
+ 	_empty_/Foo.bar().2#
+
+ _empty_/Foo.bar().(i)2
+ 
+scala/Int#2
+ scala/Unit#PZ 75E19019DBC68F2BE309D3743DA810D7

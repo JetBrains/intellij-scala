@@ -1,0 +1,79 @@
+
+âtests/pos/i10311.scala* 
+_empty_/Module.
+ *Module€*#
+_empty_/Module.MyInt#*MyInt€*2
+ _empty_/Module.MyInt#`<init>`(). €@*<init>€*-
+#_empty_/Module.MyInt#`<init>`().(x)*x€*-
+#_empty_/Module.MyInt#`<init>`().(y)*y€*$
+_empty_/Module.MyInt#x. €*x€*$
+_empty_/Module.MyInt#y. €*y€*%
+_empty_/Module.MyInt.
+ *MyInt€*'
+_empty_/Module.MyInt.Ops# *Ops€*6
+$_empty_/Module.MyInt.Ops#`<init>`(). €@*<init>€*7
+*_empty_/Module.MyInt.Ops#`<init>`().(self)*self€*.
+_empty_/Module.MyInt.Ops#self. €*self€*'
+_empty_/Module.MyInt.Ops#x().*x€*'
+_empty_/Module.MyInt.Ops.
+ *Ops€*)
+_empty_/Module.MyInt.Ops(). (*Ops€*.
+!_empty_/Module.MyInt.Ops().(self)*self€*#
+_empty_/Module.MyInt.y().*y€*,
+_empty_/Module.MyInt.y().(self)*self€*
+_empty_/test.
+ *test€*
+_empty_/test.a. €*a€*
+_empty_/test.b. €*b€*
+_empty_/test.c. €*c€2
+ _empty_/Module.2#
+ _empty_/Module.MyInt#2.
+  _empty_/Module.MyInt#`<init>`().2
+  
+scala/Int#2
+1 4
+scala/Int#2%
+ _empty_/Module.MyInt#x.2%
+. /_empty_/Module.MyInt#y.2#
+	 _empty_/Module.MyInt.2'
+ _empty_/Module.MyInt.Ops#22
+ $_empty_/Module.MyInt.Ops#`<init>`().2#
+ "_empty_/Module.MyInt#2&
+2 2scala/AnyVal#`<init>`().2
+, 2scala/AnyVal#2,
+ _empty_/Module.MyInt.Ops#self.2+
+
+ _empty_/Module.MyInt.Ops#x().2
+ 
+scala/Int#2%
+ _empty_/Module.MyInt#x.2,
+ _empty_/Module.MyInt.Ops#self.2'
+ _empty_/Module.MyInt.Ops.2)
+ _empty_/Module.MyInt.Ops().2'
+  !_empty_/Module.MyInt.y().2-
+ _empty_/Module.MyInt.y().(self)2#
+ _empty_/Module.MyInt#2
+# &
+scala/Int#2%
+. /_empty_/Module.MyInt#y.2-
+) -_empty_/Module.MyInt.y().(self)2
+		 _empty_/test.2
+
+	
+ _empty_/Module.2
+ _empty_/test.a.2.
+  _empty_/Module.MyInt#`<init>`().2#
+ _empty_/Module.MyInt#2
+ _empty_/test.b.2+
+ _empty_/Module.MyInt.Ops#x().2)
+
+ 
+_empty_/Module.MyInt.Ops().2
+
+ _empty_/test.a.2
+ _empty_/test.c.2'
+
+ 
+_empty_/Module.MyInt.y().2
+
+ _empty_/test.a.PZ 63C79CDD94F9C1F842FCA8498AC03E50

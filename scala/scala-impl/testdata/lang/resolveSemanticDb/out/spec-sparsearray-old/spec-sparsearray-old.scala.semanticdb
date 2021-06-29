@@ -1,0 +1,120 @@
+
+ž$tests/pos/spec-sparsearray-old.scala*(
+_empty_/SparseArray#*SparseArray€*1
+_empty_/SparseArray#`<init>`(). €@*<init>€*!
+_empty_/SparseArray#[T]	*T€*&
+_empty_/SparseArray#get().*get€*'
+_empty_/SparseArray#get().(x)*x€*
+local0 €*ind€*4
+!_empty_/SparseArray#findOffset().*
+findOffset€*.
+$_empty_/SparseArray#findOffset().(i)*i€*,
+_empty_/SparseArray#addOne().*addOne€*0
+#_empty_/SparseArray#addOne().(elem)*elem€*0
+_empty_/SparseArray#iterator().*iterator€*6
+"_empty_/SparseArray#subtractOne().*subtractOne€*5
+(_empty_/SparseArray#subtractOne().(elem)*elem€*8
+#_empty_/SparseArray#fromSpecific().*fromSpecific€*6
+)_empty_/SparseArray#fromSpecific().(coll)*coll€*D
+)_empty_/SparseArray#newSpecificBuilder().*newSpecificBuilder€**
+_empty_/SparseArray#empty().*empty€2.
+ "$scala/reflect/package.ClassManifest.2
+ scala/reflect/2
+ scala/2*
+ #scala/collection/MapFactory.2*
+ #scala/collection/MapFactory#2'
+% ,scala/collection/mutable/2
+ scala/collection/2
+ scala/2"
+ _empty_/SparseArray#2-
+ _empty_/SparseArray#`<init>`().22
+& 3$scala/reflect/package.ClassManifest#2%
+3 3_empty_/SparseArray#[T]2+
+P Sscala/collection/mutable/Map#2'
+H Oscala/collection/mutable/2
+= Gscala/collection/2
+T W
+scala/Int#2%
+X Y_empty_/SparseArray#[T]2.
+s y scala/collection/mutable/MapOps#2'
+k rscala/collection/mutable/2
+` jscala/collection/2
+z }
+scala/Int#2%
+~ _empty_/SparseArray#[T]2)
+
+‹ ’scala/collection/mutable/2!
+
+€ Šscala/collection/2$
+
+— ¢_empty_/SparseArray#2'
+
+£ ¤_empty_/SparseArray#[T]2 
+ scala/specialized#2
+ "
+scala/Int.2%
+$ %_empty_/SparseArray#[T]2(
+ _empty_/SparseArray#get().2+
+ _empty_/SparseArray#get().(x)2
+ 
+scala/Int#2
+ local02/
+ !_empty_/SparseArray#findOffset().2+
+ _empty_/SparseArray#get().(x)2 
+ scala/Int#`<`(+3).2
+ 
+local02
+ scala/None.2!
+ scala/Some.apply().2
+ scala/Some.2(
+# (scala/sys/package.error().2
+ "
+scala/sys/2/
+ !_empty_/SparseArray#findOffset().22
+ $_empty_/SparseArray#findOffset().(i)2
+  
+scala/Int#2
+$ '
+scala/Int#2(
+ scala/sys/package.error().2
+ 
+scala/sys/2+
+ _empty_/SparseArray#addOne().21
+ #_empty_/SparseArray#addOne().(elem)2
+ 
+scala/Int#2%
+ _empty_/SparseArray#[T]2#
+6 9scala/Predef.`???`().2-
+ _empty_/SparseArray#iterator().2%
+ scala/package.Iterator#2
+ 
+scala/Int#2%
+  _empty_/SparseArray#[T]2#
+% (scala/Predef.`???`().20
+ "_empty_/SparseArray#subtractOne().26
+ (_empty_/SparseArray#subtractOne().(elem)2
+ 
+scala/Int#2#
+6 9scala/Predef.`???`().21
+ +#_empty_/SparseArray#fromSpecific().27
+, 0)_empty_/SparseArray#fromSpecific().(coll)2)
+2 >scala/package.IterableOnce#2
+@ C
+scala/Int#2%
+E F_empty_/SparseArray#[T]2"
+K V_empty_/SparseArray#2%
+W X_empty_/SparseArray#[T]2#
+\ _scala/Predef.`???`().27
+ 1)_empty_/SparseArray#newSpecificBuilder().2/
+; B!scala/collection/mutable/Builder#2'
+3 :scala/collection/mutable/2
+D G
+scala/Int#2%
+I J_empty_/SparseArray#[T]2"
+M X_empty_/SparseArray#2%
+Y Z_empty_/SparseArray#[T]2#
+_ bscala/Predef.`???`().2*
+ _empty_/SparseArray#empty().2"
+ !_empty_/SparseArray#2%
+" #_empty_/SparseArray#[T]2#
+' *scala/Predef.`???`().PZ 9417A85AC20F1D4DB4C9A5D7E804F564

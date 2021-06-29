@@ -1,0 +1,60 @@
+
+¨tests/pos/i9342b.scala*
+_empty_/Label#*Label€*+
+_empty_/Label#`<init>`(). €@*<init>€*
+_empty_/Label#[A]	*A€*&
+_empty_/Label#apply(). *apply€*#
+_empty_/Label#apply().(v)*v€*)
+_empty_/i9342b$package. *_empty_€*?
+'_empty_/i9342b$package.given_Label_A(). (*given_Label_A€*4
+*_empty_/i9342b$package.given_Label_A().[A]	*A€*-
+_empty_/i9342b$package.label().*label€*,
+"_empty_/i9342b$package.label().[A]	*A€*,
+"_empty_/i9342b$package.label().(x)*x€*.
+"_empty_/i9342b$package.label().(l)  *l€*/
+ _empty_/i9342b$package.label1().*label1€*-
+#_empty_/i9342b$package.label1().[A]	*A€*-
+#_empty_/i9342b$package.label1().(v)*v€*/
+ _empty_/i9342b$package.label2().*label2€*-
+#_empty_/i9342b$package.label2().[A]	*A€*-
+#_empty_/i9342b$package.label2().(l)*l€2
+ _empty_/Label#2#
+ _empty_/Label#`<init>`().2
+ _empty_/Label#[A]2$
+ _empty_/Label#apply().2'
+ _empty_/Label#apply().(v)2
+ _empty_/Label#[A]2"
+ scala/Predef.String#2!
+_empty_/i9342b$package.25
+ '_empty_/i9342b$package.given_Label_A().28
+ *_empty_/i9342b$package.given_Label_A().[A]2
+ _empty_/Label#28
+ *_empty_/i9342b$package.given_Label_A().[A]2#
+  scala/Any#toString().2-
+ $_empty_/i9342b$package.label().20
+ "_empty_/i9342b$package.label().[A]20
+ "_empty_/i9342b$package.label().(x)20
+ "_empty_/i9342b$package.label().[A]20
+2 3"_empty_/i9342b$package.label().(l)2
+5 :_empty_/Label#20
+; <"_empty_/i9342b$package.label().[A]2"
+@ Fscala/Predef.String#2$
+J J_empty_/Label#apply().20
+I J"_empty_/i9342b$package.label().(l)20
+K L"_empty_/i9342b$package.label().(x)2.
+ 
+ _empty_/i9342b$package.label1().21
+ #_empty_/i9342b$package.label1().[A]21
+ #_empty_/i9342b$package.label1().(v)21
+ #_empty_/i9342b$package.label1().[A]2-
+ _empty_/i9342b$package.label().21
+ #_empty_/i9342b$package.label1().(v)25
+ '_empty_/i9342b$package.given_Label_A().2.
+		 
+ _empty_/i9342b$package.label2().21
+		 #_empty_/i9342b$package.label2().[A]21
+		 #_empty_/i9342b$package.label2().(l)21
+		 #_empty_/i9342b$package.label2().[A]2-
+		 _empty_/i9342b$package.label().21
+		 #_empty_/i9342b$package.label2().(l)25
+		 '_empty_/i9342b$package.given_Label_A().PZ CD05DDD66441FAFB188891DDC29DB39D

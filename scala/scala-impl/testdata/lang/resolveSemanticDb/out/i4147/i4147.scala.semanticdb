@@ -1,0 +1,47 @@
+
+Ÿtests/pos/i4147.scala*
+_empty_/Higher#*Higher€*,
+_empty_/Higher#`<init>`(). €@*<init>€*
+_empty_/Higher#[F]	*F€*
+_empty_/Super#*Super€*+
+_empty_/Super#`<init>`(). €@*<init>€*
+_empty_/Super#[A]	*A€*
+_empty_/Sub#*Sub€*)
+_empty_/Sub#`<init>`(). €@*<init>€*
+_empty_/Sub#[A]	*A€*
+_empty_/Test.
+ *Test€*-
+_empty_/Test.higherSub().  *	higherSub€*%
+_empty_/Test.deriv().  *deriv€*"
+_empty_/Test.deriv().[F]	*F€*(
+_empty_/Test.deriv().(bla)  *bla€*
+_empty_/Test.x. €*x€2
+ _empty_/Higher#2$
+ _empty_/Higher#`<init>`().2
+ _empty_/Higher#[F]2
+ _empty_/Super#2'
+ _empty_/Super#`<init>`().2
+ _empty_/Super#[A]2
+ 	_empty_/Sub#2%
+	 	_empty_/Sub#`<init>`().2
+ _empty_/Super#2
+ _empty_/Sub#[A]2
+
+ _empty_/Sub#[A]2
+ _empty_/Test.2'
+ _empty_/Test.higherSub().2
+  _empty_/Higher#2#
+( +scala/Predef.`???`().2#
+ _empty_/Test.deriv().2&
+ _empty_/Test.deriv().[F]2(
+$ '_empty_/Test.deriv().(bla)2
+) /_empty_/Higher#2&
+0 1_empty_/Test.deriv().[F]2&
+5 6_empty_/Test.deriv().[F]2"
+7 =scala/Predef.String#2#
+A Dscala/Predef.`???`().2
+ _empty_/Test.x.2
+	 _empty_/Super#2"
+ scala/Predef.String#2#
+ _empty_/Test.deriv().2'
+ _empty_/Test.higherSub().PZ 5C0B2F8542B97F9B1E93502883C0FE76

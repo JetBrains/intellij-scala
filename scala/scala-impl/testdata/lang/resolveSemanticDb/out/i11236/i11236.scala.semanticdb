@@ -1,0 +1,97 @@
+
+útests/pos/i11236.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€* 
+_empty_/Test#tup. €*tup€*
+_empty_/Test#x. €*x€*
+_empty_/Test#a. €*a€*
+_empty_/Test#b. €*b€*
+_empty_/Test#y. €*y€*
+_empty_/Test#z. €*z€*
+_empty_/TupleK#*TupleK€*,
+_empty_/TupleK#`<init>`(). €@*<init>€* 
+_empty_/TupleK.
+ *TupleK€*!
+_empty_/TupleK.Tail#*Tail€*!
+_empty_/TupleK.Tail#[X]	*X€*
+local0 €	*xs€*.
+_empty_/NonEmptyTupleK#*NonEmptyTupleK€*4
+"_empty_/NonEmptyTupleK#`<init>`(). €@*<init>€*+
+_empty_/NonEmptyTupleK#tail().*tail€*1
+$_empty_/NonEmptyTupleK#tail().[This]	*This€*
+_empty_/`#:`# *#:€**
+_empty_/`#:`#`<init>`(). €@*<init>€*
+_empty_/`#:`#[H]	 €*H€*
+_empty_/`#:`#[T]	 €*T€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ 	_empty_/Test#tup.2
+ _empty_/`#:`#2
+ scala/Char#2
+ _empty_/`#:`#2
+ 
+scala/Int#2
+! #_empty_/`#:`#2"
+  scala/Predef.String#2
+$ *_empty_/TupleK#2#
+- 0scala/Predef.`???`().2
+ _empty_/Test#x.2
+ _empty_/`#:`#2"
+	 scala/Predef.String#2
+ _empty_/TupleK#2,
+@ D_empty_/NonEmptyTupleK#tail().2,
+! %_empty_/NonEmptyTupleK#tail().2
+  _empty_/Test#tup.2
++ -_empty_/`#:`#2
+' *
+scala/Int#2
+5 7_empty_/`#:`#2"
+. 4scala/Predef.String#2
+8 >_empty_/TupleK#2
+ _empty_/Test#a.2,
+ _empty_/NonEmptyTupleK#tail().2
+
+ _empty_/Test#tup.2
+ _empty_/Test#b.2,
+ _empty_/NonEmptyTupleK#tail().2
+
+ _empty_/Test#a.2
+ _empty_/Test#y.2
+ _empty_/`#:`#2"
+	 scala/Predef.String#2
+ _empty_/TupleK#2,
+% )_empty_/NonEmptyTupleK#tail().2,
+  $_empty_/NonEmptyTupleK#tail().2
+ _empty_/Test#tup.2
+ _empty_/Test#z.2
+	 scala/Unit#2,
+ _empty_/NonEmptyTupleK#tail().2,
+ _empty_/NonEmptyTupleK#tail().2
+ _empty_/Test#tup.2
+		 _empty_/TupleK#2$
+		_empty_/TupleK#`<init>`().2
+ _empty_/TupleK.2"
+ _empty_/TupleK.Tail#2%
+ _empty_/TupleK.Tail#[X]2%
+ _empty_/NonEmptyTupleK#2
+$ *_empty_/TupleK#2%
+- ._empty_/TupleK.Tail#[X]2
+ _empty_/`#:`#2
+ local02
+ local02%
+ _empty_/NonEmptyTupleK#20
+ "_empty_/NonEmptyTupleK#`<init>`().2
+ #_empty_/TupleK#2,
+ _empty_/NonEmptyTupleK#tail().22
+ $_empty_/NonEmptyTupleK#tail().[This]2%
++ 9_empty_/NonEmptyTupleK#2"
+C G_empty_/TupleK.Tail#2
+< B_empty_/TupleK.22
+H L$_empty_/NonEmptyTupleK#tail().[This]2#
+P Sscala/Predef.`???`().2
+ _empty_/`#:`#2&
+ _empty_/`#:`#`<init>`().2%
+, :_empty_/NonEmptyTupleK#2
+ _empty_/`#:`#[H]2
+ _empty_/`#:`#[T]PZ 753E473C5AA65B07720F425B0A19C60E

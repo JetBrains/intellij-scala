@@ -1,0 +1,58 @@
+
+É#tests/pos/targetName-override.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f().*f€*
+_empty_/A#f().(x)*x€*
+_empty_/A#f().*f€*
+_empty_/A#f().(x)*x€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#f().*f€*
+_empty_/B#f().(x)*x€*
+_empty_/B#f().*f€*
+_empty_/B#f().(x)*x€2&
+ "scala/annotation/targetName#2
+ scala/annotation/2
+ scala/2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2*
+ scala/annotation/targetName#2
+ _empty_/A#f().2
+ _empty_/A#f().(x)2
+  #
+scala/Int#2
+& )
+scala/Int#2
+, -_empty_/A#f().(x)2
+ _empty_/A#f().2
+ 	_empty_/A#f().(x)2"
+ scala/Predef.String#2
+ 
+scala/Int#2(
+ %java/lang/String#length().2
+ _empty_/A#f().(x)2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2*
+ scala/annotation/targetName#2
+! "_empty_/B#f().2
+# $_empty_/B#f().(x)2
+) ,
+scala/Int#2
+/ 2
+scala/Int#2
+5 6_empty_/B#f().(x)2
+		 _empty_/B#f().2
+		 _empty_/B#f().(x)2"
+		 scala/Predef.String#2
+	 	 #
+scala/Int#2(
+	(	 .java/lang/String#length().2
+	&	 '_empty_/B#f().(x)PZ 171FB5A6D5CD4F08DBB141107FFF0FDA

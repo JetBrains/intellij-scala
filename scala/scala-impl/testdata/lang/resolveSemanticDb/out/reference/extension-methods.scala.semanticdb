@@ -1,0 +1,647 @@
+
+ŠË+tests/pos/reference/extension-methods.scala*(
+_empty_/ExtMethods.
+ *
+ExtMethods€*,
+_empty_/ExtMethods.Circle# €*Circle€*7
+%_empty_/ExtMethods.Circle#`<init>`(). €@*<init>€*5
+(_empty_/ExtMethods.Circle#`<init>`().(x) €*x€*5
+(_empty_/ExtMethods.Circle#`<init>`().(y) €*y€*?
+-_empty_/ExtMethods.Circle#`<init>`().(radius) €*radius€*)
+_empty_/ExtMethods.Circle#x. €*x€*)
+_empty_/ExtMethods.Circle#y. €*y€*3
+!_empty_/ExtMethods.Circle#radius. €*radius€*.
+!_empty_/ExtMethods.Circle#copy().*copy€*.
+$_empty_/ExtMethods.Circle#copy().(x)*x€*.
+$_empty_/ExtMethods.Circle#copy().(y)*y€*8
+)_empty_/ExtMethods.Circle#copy().(radius)*radius€*B
++_empty_/ExtMethods.Circle#copy$default$1().*copy$default$1€*B
++_empty_/ExtMethods.Circle#copy$default$2().*copy$default$2€*B
++_empty_/ExtMethods.Circle#copy$default$3().*copy$default$3€**
+_empty_/ExtMethods.Circle#_1().*_1€**
+_empty_/ExtMethods.Circle#_2().*_2€**
+_empty_/ExtMethods.Circle#_3().*_3€*+
+_empty_/ExtMethods.Circle.
+ *Circle€*0
+"_empty_/ExtMethods.Circle.apply().*apply€*/
+%_empty_/ExtMethods.Circle.apply().(x)*x€*/
+%_empty_/ExtMethods.Circle.apply().(y)*y€*9
+*_empty_/ExtMethods.Circle.apply().(radius)*radius€*4
+$_empty_/ExtMethods.Circle.unapply().*unapply€*5
+)_empty_/ExtMethods.Circle.unapply().(x$1)*x$1€*6
+%_empty_/ExtMethods.Circle.toString().*toString€*9
+#_empty_/ExtMethods.circumference().*circumference€*0
+&_empty_/ExtMethods.circumference().(c)*c€*,
+_empty_/ExtMethods.circle. €*circle€*#
+_empty_/ExtMethods.`<`().*<€*&
+_empty_/ExtMethods.`<`().(x)*x€*&
+_empty_/ExtMethods.`<`().(y)*y€*%
+_empty_/ExtMethods.`#:`().*#:€*-
+ _empty_/ExtMethods.`#:`().[Elem]	*Elem€*)
+_empty_/ExtMethods.`#:`().(xs)*xs€*'
+_empty_/ExtMethods.`#:`().(x)*x€*%
+_empty_/ExtMethods.min().*min€*&
+_empty_/ExtMethods.min().(x)*x€*&
+_empty_/ExtMethods.min().(y)*y€*$
+_empty_/ExtMethods.xs. €*xs€*"
+_empty_/ExtMethods.n. €*n€*+
+_empty_/ExtMethods.second().*second€*)
+_empty_/ExtMethods.second().[T]	*T€*+
+ _empty_/ExtMethods.second().(xs)*xs€*#
+_empty_/ExtMethods.`+`().*+€*&
+_empty_/ExtMethods.`+`().[T]	*T€*&
+_empty_/ExtMethods.`+`().(x)*x€*&
+_empty_/ExtMethods.`+`().(y)*y€*#
+_empty_/ExtMethods.`-`().*-€*&
+_empty_/ExtMethods.`-`().[T]	*T€*&
+_empty_/ExtMethods.`-`().(x)*x€*(
+_empty_/ExtMethods.`-`().(n)  *n€*&
+_empty_/ExtMethods.`-`().(y)*y€*;
+$_empty_/ExtMethods.longestStrings().*longestStrings€*3
+(_empty_/ExtMethods.longestStrings().(ss)*ss€*
+local0 €*	maxLength€*9
+#_empty_/ExtMethods.longestString().*longestString€*2
+'_empty_/ExtMethods.longestString().(ss)*ss€*/
+_empty_/ExtMethods.smallest().*smallest€*+
+!_empty_/ExtMethods.smallest().[T]	*T€*-
+"_empty_/ExtMethods.smallest().(xs)*xs€*1
+#_empty_/ExtMethods.smallest().(x$2)  *x$2€*+
+!_empty_/ExtMethods.smallest().(n)*n€*=
+%_empty_/ExtMethods.smallestIndices().*smallestIndices€*2
+(_empty_/ExtMethods.smallestIndices().[T]	*T€*4
+)_empty_/ExtMethods.smallestIndices().(xs)*xs€*8
+*_empty_/ExtMethods.smallestIndices().(x$2)  *x$2€*2
+(_empty_/ExtMethods.smallestIndices().(n)*n€*
+local1 €*limit€*
+local2*x$1€*
+local3 €*x€*
+local4 €*i€*)
+_empty_/ExtMethods.IntOps#*IntOps€*7
+%_empty_/ExtMethods.IntOps#`<init>`(). €@*<init>€*2
+#_empty_/ExtMethods.IntOps#isZero().*isZero€*0
+&_empty_/ExtMethods.IntOps#isZero().(i)*i€*4
+$_empty_/ExtMethods.IntOps#safeMod().*safeMod€*1
+'_empty_/ExtMethods.IntOps#safeMod().(i)*i€*1
+'_empty_/ExtMethods.IntOps#safeMod().(x)*x€*/
+_empty_/ExtMethods.IntOpsEx.
+ *IntOpsEx€*6
+&_empty_/ExtMethods.IntOpsEx.safeDiv().*safeDiv€*3
+)_empty_/ExtMethods.IntOpsEx.safeDiv().(i)*i€*3
+)_empty_/ExtMethods.IntOpsEx.safeDiv().(x)*x€*+
+_empty_/ExtMethods.SafeDiv#*SafeDiv€*8
+&_empty_/ExtMethods.SafeDiv#`<init>`(). €@*<init>€*3
+$_empty_/ExtMethods.SafeDiv#divide().*divide€*1
+'_empty_/ExtMethods.SafeDiv#divide().(i)*i€*1
+'_empty_/ExtMethods.SafeDiv#divide().(d)*d€*
+local5 €*d€*
+local6 €*r€*)
+_empty_/ExtMethods.test1().*test1€*
+local7
+ (*ops1€*#
+_empty_/ExtMethods.Lst#*Lst€*4
+"_empty_/ExtMethods.Lst#`<init>`(). €@*<init>€*1
+&_empty_/ExtMethods.Lst#`<init>`().(xs)*xs€*$
+_empty_/ExtMethods.Lst#[T]	*T€*(
+_empty_/ExtMethods.Lst#xs. €*xs€*.
+_empty_/ExtMethods.Lst#elems. €*elems€*3
+"_empty_/ExtMethods.Lst#foldLeft().*foldLeft€*/
+%_empty_/ExtMethods.Lst#foldLeft().[U]	*U€*/
+%_empty_/ExtMethods.Lst#foldLeft().(x)*x€*1
+&_empty_/ExtMethods.Lst#foldLeft().(op)*op€*)
+_empty_/ExtMethods.Lst#`++`().*++€*3
+%_empty_/ExtMethods.Lst#`++`().(other)*other€*#
+_empty_/ExtMethods.Ord#*Ord€*4
+"_empty_/ExtMethods.Ord#`<init>`(). €@*<init>€*$
+_empty_/ExtMethods.Ord#[T]	*T€*-
+_empty_/ExtMethods.Ord#less(). *less€*+
+!_empty_/ExtMethods.Ord#less().(x)*x€*+
+!_empty_/ExtMethods.Ord#less().(y)*y€*%
+_empty_/ExtMethods.Ord.
+ *Ord€*=
+%_empty_/ExtMethods.Ord.given_Ord_Int.
+ (*given_Ord_Int€*9
+,_empty_/ExtMethods.Ord.given_Ord_Int.less().*less€*9
+/_empty_/ExtMethods.Ord.given_Ord_Int.less().(x)*x€*9
+/_empty_/ExtMethods.Ord.given_Ord_Int.less().(y)*y€*%
+_empty_/ExtMethods.Lst.
+ *Lst€*1
+!_empty_/ExtMethods.Lst.flatten().*flatten€*.
+$_empty_/ExtMethods.Lst.flatten().[T]	*T€*0
+%_empty_/ExtMethods.Lst.flatten().(xs)*xs€*'
+_empty_/ExtMethods.Lst.ord#*ord€*8
+&_empty_/ExtMethods.Lst.ord#`<init>`(). €@*<init>€*(
+_empty_/ExtMethods.Lst.ord#[T]	*T€*/
+"_empty_/ExtMethods.Lst.ord#less().*less€*1
+&_empty_/ExtMethods.Lst.ord#less().(xs)*xs€*1
+&_empty_/ExtMethods.Lst.ord#less().(ys)*ys€*+
+_empty_/ExtMethods.Lst.ord(). (*ord€**
+ _empty_/ExtMethods.Lst.ord().[T]	*T€*>
+)_empty_/ExtMethods.Lst.ord().(evidence$2)  *
+evidence$2€*)
+_empty_/ExtMethods.test2().*test2€*
+local8 €*xss€*
+local9 €*xs€*/
+_empty_/ExtMethods.position().*position€*+
+!_empty_/ExtMethods.position().(s)*s€*-
+"_empty_/ExtMethods.position().(ch)*ch€*+
+!_empty_/ExtMethods.position().(n)*n€*1
+_empty_/ExtMethods.DoubleOps.
+ *	DoubleOps€*/
+$_empty_/ExtMethods.DoubleOps.`**`().***€*1
+'_empty_/ExtMethods.DoubleOps.`**`().(x)*x€*?
+._empty_/ExtMethods.DoubleOps.`**`().(exponent)*exponent€2
+ _empty_/ExtMethods.2(
+ _empty_/ExtMethods.Circle#23
+ %_empty_/ExtMethods.Circle#`<init>`().2
+ scala/Double#2
+" (scala/Double#2
+2 8scala/Double#2*
+ _empty_/ExtMethods.Circle#x.2*
+  _empty_/ExtMethods.Circle#y.2/
+* 0!_empty_/ExtMethods.Circle#radius.2/
+ !_empty_/ExtMethods.Circle#copy().2-
+ _empty_/ExtMethods.Circle#_1().2-
+" "_empty_/ExtMethods.Circle#_2().2-
+2 2_empty_/ExtMethods.Circle#_3().2(
+ _empty_/ExtMethods.Circle.20
+ "_empty_/ExtMethods.Circle.apply().21
+ #_empty_/ExtMethods.circumference().24
+ &_empty_/ExtMethods.circumference().(c)2(
+ _empty_/ExtMethods.Circle#2
+ scala/Double#2#
+3 4scala/Double#`*`(+3).2#
+) *scala/Double#`*`(+6).2/
+" (!_empty_/ExtMethods.Circle#radius.24
+  !&_empty_/ExtMethods.circumference().(c)2$
+0 2scala/math/package.Pi.2
++ /scala/math/2(
+ _empty_/ExtMethods.circle.20
+ "_empty_/ExtMethods.Circle.apply().2(
+ _empty_/ExtMethods.Circle.21
+	 #_empty_/ExtMethods.circumference().2(
+ _empty_/ExtMethods.circle.2&
+		 scala/Predef.assert(+1).2$
+		  scala/Double#`==`(+6).21
+		 #_empty_/ExtMethods.circumference().2(
+			 _empty_/ExtMethods.circle.21
+	!	 .#_empty_/ExtMethods.circumference().2(
+	/	 5_empty_/ExtMethods.circle.2'
+ _empty_/ExtMethods.`<`().2*
+ _empty_/ExtMethods.`<`().(x)2"
+ scala/Predef.String#2*
+  _empty_/ExtMethods.`<`().(y)2"
+" (scala/Predef.String#2 
+; <scala/Int#`<`(+3).2+
+. 7java/lang/String#compareTo().2*
+, -_empty_/ExtMethods.`<`().(x)2*
+8 9_empty_/ExtMethods.`<`().(y)2(
+  "_empty_/ExtMethods.`#:`().2.
+  _empty_/ExtMethods.`#:`().[Elem]2,
+$ &_empty_/ExtMethods.`#:`().(xs)2 
+( +scala/package.Seq#2.
+, 0 _empty_/ExtMethods.`#:`().[Elem]2+
+ _empty_/ExtMethods.`#:`().(x)2.
+  _empty_/ExtMethods.`#:`().[Elem]2-
+< <scala/collection/SeqOps#`+:`().2,
+: <_empty_/ExtMethods.`#:`().(xs)2+
+5 6_empty_/ExtMethods.`#:`().(x)2'
+" %_empty_/ExtMethods.min().2*
+ _empty_/ExtMethods.min().(x)2
+ java/lang/Number#2*
+' (_empty_/ExtMethods.min().(y)2
+* 0java/lang/Number#2*
+4 5_empty_/ExtMethods.min().(x)2&
+ scala/Predef.assert(+1).2'
+ _empty_/ExtMethods.`<`().2$
+ _empty_/ExtMethods.xs.2(
+ _empty_/ExtMethods.`#:`().27
+ )scala/collection/IterableFactory#apply().2#
+ scala/package.Vector.2#
+ _empty_/ExtMethods.n.2'
+ "_empty_/ExtMethods.min().2+
+ java/lang/Integer#`<init>`().2 
+ java/lang/Integer#2
+ 
+java/lang/2
+
+ java/2*
+3 3java/lang/Double#`<init>`().2
+- 3java/lang/Double#2
+( ,
+java/lang/2
+# 'java/2*
+ _empty_/ExtMethods.second().2-
+ _empty_/ExtMethods.second().[T]2.
+  _empty_/ExtMethods.second().(xs)2!
+ scala/package.List#2-
+ _empty_/ExtMethods.second().[T]22
+ $scala/collection/IterableOps#head().22
+ $scala/collection/IterableOps#tail().2.
+  _empty_/ExtMethods.second().(xs)2&
+ scala/Predef.assert(+1).2!
+$ &scala/Int#`==`(+3).2*
+	 _empty_/ExtMethods.second().2
+ 
+scala/Int#27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2*
+5 ;_empty_/ExtMethods.second().27
++ +)scala/collection/IterableFactory#apply().2!
+' +scala/package.List.2'
+ 	_empty_/ExtMethods.`+`().2*
+ _empty_/ExtMethods.`+`().[T]2*
+ _empty_/ExtMethods.`+`().(x)2*
+ _empty_/ExtMethods.`+`().[T]2*
+ _empty_/ExtMethods.`+`().(y)2*
+ _empty_/ExtMethods.`+`().[T]2$
+ scala/package.Numeric#2*
+ _empty_/ExtMethods.`+`().[T]2*
+ _empty_/ExtMethods.`+`().[T]2(
+) -scala/math/Numeric#plus().2$
+ scala/Predef.summon().2$
+ $scala/package.Numeric#2*
+% &_empty_/ExtMethods.`+`().[T]2*
+. /_empty_/ExtMethods.`+`().(x)2*
+1 2_empty_/ExtMethods.`+`().(y)2'
+ 	_empty_/ExtMethods.`-`().2*
+ _empty_/ExtMethods.`-`().[T]2*
+ _empty_/ExtMethods.`-`().(x)2*
+ _empty_/ExtMethods.`-`().[T]2*
+ _empty_/ExtMethods.`-`().(n)2$
+ &scala/package.Numeric#2*
+' (_empty_/ExtMethods.`-`().[T]2*
+ _empty_/ExtMethods.`-`().(y)2*
+ _empty_/ExtMethods.`-`().[T]2*
+ _empty_/ExtMethods.`-`().[T]2)
+ scala/math/Numeric#minus().2*
+ _empty_/ExtMethods.`-`().(n)2*
+ _empty_/ExtMethods.`-`().(x)2*
+! "_empty_/ExtMethods.`-`().(y)22
+   $_empty_/ExtMethods.longestStrings().26
+ (_empty_/ExtMethods.longestStrings().(ss)2 
+ scala/package.Seq#2"
+ scala/Predef.String#2 
+   scala/package.Seq#2"
+   "scala/Predef.String#2
+!
+! local025
+!'! *'scala/collection/IterableOnceOps#max().21
+!! #scala/collection/IterableOps#map().26
+!! (_empty_/ExtMethods.longestStrings().(ss)2(
+!! %java/lang/String#length().2&
+!*! *scala/math/Ordering.Int.24
+"	" &scala/collection/IterableOps#filter().26
+"" (_empty_/ExtMethods.longestStrings().(ss)2!
+"" scala/Int#`==`(+3).2(
+"" java/lang/String#length().2
+"" %local021
+$$ #_empty_/ExtMethods.longestString().25
+ '_empty_/ExtMethods.longestString().(ss)2"
+$$ scala/Predef.String#22
+$/$ 3$scala/collection/IterableOps#head().22
+$ $ .$_empty_/ExtMethods.longestStrings().25
+$ $  '_empty_/ExtMethods.longestString().(ss)25
+&& ''scala/math/Ordered.orderingToOrdered().2!
+&& scala/math/Ordered.2
+&	& scala/math/2,
+)) _empty_/ExtMethods.smallest().2/
+(( !_empty_/ExtMethods.smallest().[T]20
+(( "_empty_/ExtMethods.smallest().(xs)2!
+(( scala/package.List#2/
+(( !_empty_/ExtMethods.smallest().[T]21
+(#( ##_empty_/ExtMethods.smallest().(x$2)2%
+(#( +scala/package.Ordering#2/
+(,( -!_empty_/ExtMethods.smallest().[T]2/
+)) !_empty_/ExtMethods.smallest().(n)2
+)) 
+scala/Int#2!
+)) scala/package.List#2/
+))  !_empty_/ExtMethods.smallest().[T]25
+).) 2'scala/collection/immutable/List#take().2H
+)') -:scala/collection/immutable/StrictOptimizedSeqOps#sorted().20
+)$) &"_empty_/ExtMethods.smallest().(xs)21
+)-) -#_empty_/ExtMethods.smallest().(x$2)2/
+)3) 4!_empty_/ExtMethods.smallest().(n)23
+** %_empty_/ExtMethods.smallestIndices().26
+(( (_empty_/ExtMethods.smallestIndices().[T]27
+(( )_empty_/ExtMethods.smallestIndices().(xs)26
+(( (_empty_/ExtMethods.smallestIndices().[T]28
+(#( #*_empty_/ExtMethods.smallestIndices().(x$2)26
+(,( -(_empty_/ExtMethods.smallestIndices().[T]26
+** (_empty_/ExtMethods.smallestIndices().(n)2
+** 
+scala/Int#2!
+*!* %scala/package.List#2
+*&* )
+scala/Int#2
++
++ local125
+++ !'scala/collection/IterableOnceOps#max().2,
+++ _empty_/ExtMethods.smallest().27
+++ )_empty_/ExtMethods.smallestIndices().(xs)28
+++ *_empty_/ExtMethods.smallestIndices().(x$2)26
+++ (_empty_/ExtMethods.smallestIndices().(n)28
++!+ !*_empty_/ExtMethods.smallestIndices().(x$2)28
+,, *scala/collection/immutable/List#collect().2I
+,	, ;scala/collection/StrictOptimizedIterableOps#zipWithIndex().27
+,, )_empty_/ExtMethods.smallestIndices().(xs)2
+, ,  local22%
+,&, &scala/Tuple2.unapply().2
+,&, 'local32
+,), *local42(
+,1, 3scala/math/Ordered#`<=`().25
+,/, /'scala/math/Ordered.orderingToOrdered().2
+,/, 0local328
+,0, 0*_empty_/ExtMethods.smallestIndices().(x$2)2
+,4, 9local12
+,=, >local42(
+.. _empty_/ExtMethods.IntOps#23
+// %_empty_/ExtMethods.IntOps#`<init>`().21
+// !#_empty_/ExtMethods.IntOps#isZero().24
+// &_empty_/ExtMethods.IntOps#isZero().(i)2
+// 
+scala/Int#2
+/#/ *scala/Boolean#2!
+/// 1scala/Int#`==`(+3).24
+/-/ .&_empty_/ExtMethods.IntOps#isZero().(i)22
+11 "$_empty_/ExtMethods.IntOps#safeMod().25
+11 '_empty_/ExtMethods.IntOps#safeMod().(i)2
+11 
+scala/Int#25
+1#1 $'_empty_/ExtMethods.IntOps#safeMod().(x)2
+1&1 )
+scala/Int#2
+1,1 2scala/Option#2
+131 6
+scala/Int#21
+33 #_empty_/ExtMethods.IntOps#isZero().25
+3	3 
+'_empty_/ExtMethods.IntOps#safeMod().(x)2
+33 scala/None.2!
+44 scala/Some.apply().2
+44 scala/Some.2 
+44 scala/Int#`%`(+3).25
+44 '_empty_/ExtMethods.IntOps#safeMod().(i)25
+44 '_empty_/ExtMethods.IntOps#safeMod().(x)2(
+55 _empty_/ExtMethods.IntOps#2*
+7	7 _empty_/ExtMethods.IntOpsEx.2(
+77  _empty_/ExtMethods.IntOps#24
+88 "&_empty_/ExtMethods.IntOpsEx.safeDiv().27
+88 )_empty_/ExtMethods.IntOpsEx.safeDiv().(i)2
+88 
+scala/Int#27
+8#8 $)_empty_/ExtMethods.IntOpsEx.safeDiv().(x)2
+8&8 )
+scala/Int#2
+8,8 2scala/Option#2
+838 6
+scala/Int#21
+:: #_empty_/ExtMethods.IntOps#isZero().27
+:	: 
+)_empty_/ExtMethods.IntOpsEx.safeDiv().(x)2
+:: scala/None.2!
+;; scala/Some.apply().2
+;; scala/Some.2 
+;; scala/Int#`/`(+3).27
+;; )_empty_/ExtMethods.IntOpsEx.safeDiv().(i)27
+;; )_empty_/ExtMethods.IntOpsEx.safeDiv().(x)2)
+== _empty_/ExtMethods.SafeDiv#24
+>> &_empty_/ExtMethods.SafeDiv#`<init>`().2*
+>> _empty_/ExtMethods.IntOpsEx.22
+@@ !$_empty_/ExtMethods.SafeDiv#divide().25
+@@ '_empty_/ExtMethods.SafeDiv#divide().(i)2
+@@ 
+scala/Int#25
+@"@ #'_empty_/ExtMethods.SafeDiv#divide().(d)2
+@%@ (
+scala/Int#2
+@,@ 2scala/Option#2
+@4@ 7
+scala/Int#2
+@9@ <
+scala/Int#2#
+BB scala/Tuple2.apply().24
+B	B &_empty_/ExtMethods.IntOpsEx.safeDiv().25
+BB '_empty_/ExtMethods.SafeDiv#divide().(i)25
+BB '_empty_/ExtMethods.SafeDiv#divide().(d)22
+BB $_empty_/ExtMethods.IntOps#safeMod().25
+BB '_empty_/ExtMethods.SafeDiv#divide().(i)25
+BB  '_empty_/ExtMethods.SafeDiv#divide().(d)2%
+CC scala/Tuple2.unapply().2#
+CC scala/Some.unapply().2
+CC scala/Some.2
+CC local52#
+CC scala/Some.unapply().2
+CC scala/Some.2
+CC local62!
+C'C 'scala/Some.apply().2
+C#C 'scala/Some.2#
+C)C )scala/Tuple2.apply().2
+C)C *local52
+C,C -local62
+DD scala/None.2)
+EE _empty_/ExtMethods.SafeDiv#2)
+GG _empty_/ExtMethods.test1().2
+H
+H local723
+HH %_empty_/ExtMethods.IntOps#`<init>`().2(
+HH _empty_/ExtMethods.IntOps#22
+II $_empty_/ExtMethods.IntOps#safeMod().2%
+KK _empty_/ExtMethods.Lst#20
+KK "_empty_/ExtMethods.Lst#`<init>`().2(
+KK _empty_/ExtMethods.Lst#[T]2(
+KK _empty_/ExtMethods.Lst#[T]2(
+KK _empty_/ExtMethods.Lst#xs.2+
+LL _empty_/ExtMethods.Lst#elems.28
+LL !*scala/collection/IterableOnceOps#toList().2(
+LL _empty_/ExtMethods.Lst#xs.20
+MM "_empty_/ExtMethods.Lst#foldLeft().23
+MM %_empty_/ExtMethods.Lst#foldLeft().[U]23
+MM %_empty_/ExtMethods.Lst#foldLeft().(x)23
+MM %_empty_/ExtMethods.Lst#foldLeft().[U]24
+MM &_empty_/ExtMethods.Lst#foldLeft().(op)23
+MM  %_empty_/ExtMethods.Lst#foldLeft().[U]2(
+M"M #_empty_/ExtMethods.Lst#[T]23
+M(M )%_empty_/ExtMethods.Lst#foldLeft().[U]23
+M,M -%_empty_/ExtMethods.Lst#foldLeft().[U]27
+M6M >)scala/collection/LinearSeqOps#foldLeft().2+
+M0M 5_empty_/ExtMethods.Lst#elems.23
+M?M @%_empty_/ExtMethods.Lst#foldLeft().(x)24
+MBM D&_empty_/ExtMethods.Lst#foldLeft().(op)2,
+NN 
+_empty_/ExtMethods.Lst#`++`().23
+NN %_empty_/ExtMethods.Lst#`++`().(other)2%
+NN _empty_/ExtMethods.Lst#2(
+NN _empty_/ExtMethods.Lst#[T]2%
+NN _empty_/ExtMethods.Lst#2(
+N N !_empty_/ExtMethods.Lst#[T]20
+N(N ("_empty_/ExtMethods.Lst#`<init>`().22
+N0N 2$scala/collection/IterableOps#`++`().2+
+N*N /_empty_/ExtMethods.Lst#elems.2+
+N9N >_empty_/ExtMethods.Lst#elems.23
+N3N 8%_empty_/ExtMethods.Lst#`++`().(other)2%
+PP _empty_/ExtMethods.Ord#20
+PP "_empty_/ExtMethods.Ord#`<init>`().2(
+PP _empty_/ExtMethods.Ord#[T]2,
+QQ _empty_/ExtMethods.Ord#less().2/
+QQ !_empty_/ExtMethods.Ord#less().(x)2(
+QQ _empty_/ExtMethods.Ord#[T]2/
+QQ  !_empty_/ExtMethods.Ord#less().(y)2(
+Q"Q #_empty_/ExtMethods.Ord#[T]2
+Q&Q -scala/Boolean#2%
+R	R _empty_/ExtMethods.Ord.23
+S
+S %_empty_/ExtMethods.Ord.given_Ord_Int.2%
+S
+S _empty_/ExtMethods.Ord#2
+SS 
+scala/Int#2:
+TT !,_empty_/ExtMethods.Ord.given_Ord_Int.less().2=
+TT /_empty_/ExtMethods.Ord.given_Ord_Int.less().(x)2
+TT 
+scala/Int#2=
+T#T $/_empty_/ExtMethods.Ord.given_Ord_Int.less().(y)2
+T&T )
+scala/Int#2
+T,T 3scala/Boolean#2 
+T8T 9scala/Int#`<`(+3).2=
+T6T 7/_empty_/ExtMethods.Ord.given_Ord_Int.less().(x)2=
+T:T ;/_empty_/ExtMethods.Ord.given_Ord_Int.less().(y)2%
+UU 	_empty_/ExtMethods.Ord.2%
+W	W _empty_/ExtMethods.Lst.2/
+Z
+Z !_empty_/ExtMethods.Lst.flatten().22
+YY $_empty_/ExtMethods.Lst.flatten().[T]23
+YY %_empty_/ExtMethods.Lst.flatten().(xs)2%
+YY _empty_/ExtMethods.Lst#2%
+YY _empty_/ExtMethods.Lst#22
+YY $_empty_/ExtMethods.Lst.flatten().[T]2%
+ZZ _empty_/ExtMethods.Lst#22
+ZZ $_empty_/ExtMethods.Lst.flatten().[T]20
+ZZ '"_empty_/ExtMethods.Lst#foldLeft().23
+ZZ %_empty_/ExtMethods.Lst.flatten().(xs)20
+Z+Z +"_empty_/ExtMethods.Lst#`<init>`().2,
+Z1Z 3_empty_/ExtMethods.Lst#`++`().2)
+\
+\ 
+_empty_/ExtMethods.Lst.ord#24
+\\ &_empty_/ExtMethods.Lst.ord#`<init>`().2%
+\\ _empty_/ExtMethods.Ord#2,
+\\ _empty_/ExtMethods.Lst.ord#[T]2%
+\\ _empty_/ExtMethods.Ord#2%
+\\ _empty_/ExtMethods.Lst#2,
+\\  _empty_/ExtMethods.Lst.ord#[T]2,
+\\ _empty_/ExtMethods.Lst.ord#[T]20
+^^ "_empty_/ExtMethods.Lst.ord#less().24
+]] &_empty_/ExtMethods.Lst.ord#less().(xs)2%
+]] _empty_/ExtMethods.Lst#2,
+]] _empty_/ExtMethods.Lst.ord#[T]24
+^^ &_empty_/ExtMethods.Lst.ord#less().(ys)2%
+^^ _empty_/ExtMethods.Lst#2,
+^^ _empty_/ExtMethods.Lst.ord#[T]2
+^^ &scala/Boolean#2#
+^)^ ,scala/Predef.`???`().2+
+\
+\ 
+_empty_/ExtMethods.Lst.ord().2%
+__ 	_empty_/ExtMethods.Lst.2)
+aa _empty_/ExtMethods.test2().2
+bb local820
+bb "_empty_/ExtMethods.Lst#`<init>`().20
+bb "_empty_/ExtMethods.Lst#`<init>`().20
+b b  "_empty_/ExtMethods.Lst#`<init>`().2
+cc 
+local92%
+cc _empty_/ExtMethods.Lst#2
+cc 
+scala/Int#2/
+cc !_empty_/ExtMethods.Lst.flatten().2
+cc local82$
+ee 
+scala/Predef.summon().2%
+ee _empty_/ExtMethods.Ord#2%
+ee _empty_/ExtMethods.Lst#2%
+ee _empty_/ExtMethods.Lst#2
+ee 
+scala/Int#2+
+ee _empty_/ExtMethods.Lst.ord().23
+ee %_empty_/ExtMethods.Ord.given_Ord_Int.2&
+gg 
+scala/Predef.assert(+1).20
+gg !"_empty_/ExtMethods.Lst.ord#less().2+
+gg _empty_/ExtMethods.Lst.ord().2%
+gg _empty_/ExtMethods.Lst.2%
+gg _empty_/ExtMethods.Lst#2
+gg 
+scala/Int#2+
+gg _empty_/ExtMethods.Lst.ord().23
+gg %_empty_/ExtMethods.Ord.given_Ord_Int.2
+g"g %local820
+g*g *"_empty_/ExtMethods.Lst#`<init>`().20
+g.g ."_empty_/ExtMethods.Lst#`<init>`().2&
+hh 
+scala/Predef.assert(+1).20
+hh "_empty_/ExtMethods.Lst.ord#less().2
+hh local820
+hh "_empty_/ExtMethods.Lst#`<init>`().20
+hh "_empty_/ExtMethods.Lst#`<init>`().2&
+ii 
+scala/Predef.assert(+1).20
+ii "_empty_/ExtMethods.Lst.ord#less().2/
+ii !_empty_/ExtMethods.Lst.flatten().2
+ii local820
+i!i !"_empty_/ExtMethods.Lst#`<init>`().2,
+ll _empty_/ExtMethods.position().2/
+kk !_empty_/ExtMethods.position().(s)2"
+kk scala/Predef.String#20
+ll "_empty_/ExtMethods.position().(ch)2
+ll scala/Char#2/
+ll !_empty_/ExtMethods.position().(n)2
+ll !
+scala/Int#2
+l$l '
+scala/Int#2#
+mm scala/Boolean#`&&`().2 
+mm scala/Int#`<`(+3).2/
+m	m 
+!_empty_/ExtMethods.position().(n)2(
+mm java/lang/String#length().2/
+mm !_empty_/ExtMethods.position().(s)2"
+mm  scala/Char#`!=`(+2).21
+mm #scala/collection/StringOps#apply().2+
+mm scala/Predef.augmentString().2/
+mm !_empty_/ExtMethods.position().(s)2/
+mm !_empty_/ExtMethods.position().(n)20
+m!m #"_empty_/ExtMethods.position().(ch)2,
+m)m 1_empty_/ExtMethods.position().2/
+m)m )!_empty_/ExtMethods.position().(s)20
+m2m 4"_empty_/ExtMethods.position().(ch)2 
+m8m 9scala/Int#`+`(+4).2/
+m6m 7!_empty_/ExtMethods.position().(n)2/
+nn !_empty_/ExtMethods.position().(n)2+
+p	p _empty_/ExtMethods.DoubleOps.22
+qq  $_empty_/ExtMethods.DoubleOps.`**`().25
+qq '_empty_/ExtMethods.DoubleOps.`**`().(x)2
+qq scala/Double#2<
+q"q *._empty_/ExtMethods.DoubleOps.`**`().(exponent)2
+q,q /
+scala/Int#2
+q2q 8scala/Double#2%
+rr scala/Predef.require().2 
+rr scala/Int#`>`(+3).2<
+rr ._empty_/ExtMethods.DoubleOps.`**`().(exponent)2!
+ss scala/Int#`==`(+3).2<
+s	s ._empty_/ExtMethods.DoubleOps.`**`().(exponent)2#
+s%s &scala/Double#`*`(+6).25
+s#s $'_empty_/ExtMethods.DoubleOps.`**`().(x)22
+s*s ,$_empty_/ExtMethods.DoubleOps.`**`().25
+s(s )'_empty_/ExtMethods.DoubleOps.`**`().(x)2 
+s7s 8scala/Int#`-`(+3).2<
+s.s 6._empty_/ExtMethods.DoubleOps.`**`().(exponent)22
+uu $_empty_/ExtMethods.DoubleOps.`**`().2+
+u	u _empty_/ExtMethods.DoubleOps.2&
+vv scala/Predef.assert(+1).2$
+vv scala/Double#`==`(+6).22
+vv $_empty_/ExtMethods.DoubleOps.`**`().22
+vv $_empty_/ExtMethods.DoubleOps.`**`().2!
+xx _empty_/ExtMethods.PZ 11E43CDAF6BDF7B384F00C819173CAE1

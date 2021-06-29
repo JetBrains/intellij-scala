@@ -1,0 +1,31 @@
+
+ôtests/pos/pickleinf.scala*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*
+_empty_/Bar#[N]	*N€*
+_empty_/Bar#bar().*bar€*%
+_empty_/Bar#bar().(name)*name€*'
+_empty_/Bar#bar().(dummy)*dummy€*2
+_empty_/Bar#bar$default$2().*bar$default$2€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€2
+ 	_empty_/Bar#2!
+	 	_empty_/Bar#`<init>`().2
+
+ _empty_/Bar#[N]2 
+ 	_empty_/Bar#bar().2&
+
+ _empty_/Bar#bar().(name)2
+ _empty_/Bar#[N]2'
+ _empty_/Bar#bar().(dummy)2
+ 
+scala/Int#2
+% &_empty_/Bar#[N]2&
+) -_empty_/Bar#bar().(name)2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ scala/Unit#2 
+ _empty_/Bar#bar().2%
+ _empty_/Bar#`<init>`().PZ 8419C53527E72AB2EF3A3674AE91774B

@@ -1,0 +1,162 @@
+
+Á/tests/pos/i9841b.scala*
+_empty_/Exec#*Exec€**
+_empty_/Exec#`<init>`(). €@*<init>€*
+_empty_/Exec#[T]	*T€*
+_empty_/Tree.
+ *Tree€*!
+_empty_/Tree.Next# *Next€*/
+_empty_/Tree.Next#`<init>`(). €@*<init>€*"
+_empty_/Tree.Next#[T]	 €*T€*$
+_empty_/Tree.Next#[PL]	 €*PL€*"
+_empty_/Tree.Next#[P]	 €*P€*"
+_empty_/Tree.Next#[H]	 €*H€*"
+_empty_/Tree.Next#[A]	 €*A€*#
+_empty_/Tree.Child# *Child€*0
+_empty_/Tree.Child#`<init>`(). €@*<init>€*#
+_empty_/Tree.Child#[T]	 €*T€*%
+_empty_/Tree.Child#[PL]	 €*PL€*#
+_empty_/Tree.Child#[P]	 €*P€*#
+_empty_/Tree.Child#[H]	 €*H€*#
+_empty_/Tree.Child#[A]	 €*A€*%
+_empty_/Tree.Branch# *Branch€*1
+_empty_/Tree.Branch#`<init>`(). €@*<init>€*!
+_empty_/Tree.Branch#[T]	*T€*#
+_empty_/Tree.Branch#[PL]	*PL€*!
+_empty_/Tree.Branch#[P]	*P€*!
+_empty_/Tree.Branch#[H]	*H€*!
+_empty_/Tree.Branch#[A]	*A€*)
+_empty_/Tree.NonEmpty# *NonEmpty€*3
+!_empty_/Tree.NonEmpty#`<init>`(). €@*<init>€*#
+_empty_/Tree.NonEmpty#[T]	*T€*%
+_empty_/Tree.NonEmpty#[PL]	*PL€*#
+_empty_/Tree.NonEmpty#[P]	*P€*#
+_empty_/Tree.NonEmpty#[H]	*H€*$
+_empty_/Tree.Empty.
+ ˆ*Empty€*/
+_empty_/Tree.RightBranch# *RightBranch€*6
+$_empty_/Tree.RightBranch#`<init>`(). €@*<init>€*&
+_empty_/Tree.RightBranch#[T]	*T€*(
+_empty_/Tree.RightBranch#[PL]	*PL€*&
+_empty_/Tree.RightBranch#[P]	*P€*&
+_empty_/Tree.RightBranch#[H]	*H€*&
+_empty_/Tree.RightBranch#[A]	*A€*+
+_empty_/Tree.BranchImpl#*
+BranchImpl€*5
+#_empty_/Tree.BranchImpl#`<init>`(). €@*<init>€*%
+_empty_/Tree.BranchImpl#[T]	*T€*'
+_empty_/Tree.BranchImpl#[PL]	*PL€*%
+_empty_/Tree.BranchImpl#[P]	*P€*%
+_empty_/Tree.BranchImpl#[H]	*H€*%
+_empty_/Tree.BranchImpl#[A]	*A€*.
+_empty_/Tree.BranchImpl#next(). *next€*8
+%_empty_/Tree.BranchImpl#nextOption().*
+nextOption€*
+local0 €*b€2
+ 
+_empty_/Exec#2"
+
+ 
+_empty_/Exec#`<init>`().2
+ _empty_/Exec#[T]2
+ _empty_/Tree.2 
+ _empty_/Tree.Next#2+
+ _empty_/Tree.Next#`<init>`().2#
+ _empty_/Tree.Next#[T]2$
+ _empty_/Tree.Next#[PL]2#
+ _empty_/Tree.Next#[P]2#
+" #_empty_/Tree.Next#[H]2#
+& '_empty_/Tree.Next#[A]2!
+ _empty_/Tree.Child#2,
+ _empty_/Tree.Child#`<init>`().2$
+ _empty_/Tree.Child#[T]2%
+ _empty_/Tree.Child#[PL]2$
+  _empty_/Tree.Child#[P]2$
+# $_empty_/Tree.Child#[H]2$
+' (_empty_/Tree.Child#[A]2"
+ _empty_/Tree.Branch#2-
+ _empty_/Tree.Branch#`<init>`().2!
+9 >_empty_/Tree.Child#2%
+? @_empty_/Tree.Branch#[T]2&
+B D_empty_/Tree.Branch#[PL]2%
+F G_empty_/Tree.Branch#[P]2%
+I J_empty_/Tree.Branch#[H]2%
+L M_empty_/Tree.Branch#[A]2$
+T \_empty_/Tree.NonEmpty#2%
+] ^_empty_/Tree.Branch#[T]2&
+` b_empty_/Tree.Branch#[PL]2%
+d e_empty_/Tree.Branch#[P]2%
+g h_empty_/Tree.Branch#[H]2%
+ _empty_/Tree.Branch#[T]2&
+$ &_empty_/Tree.Branch#[PL]2%
+( )_empty_/Tree.Branch#[P]2%
++ ,_empty_/Tree.Branch#[H]2%
+. /_empty_/Tree.Branch#[A]2$
+		 _empty_/Tree.NonEmpty#2/
+		 !_empty_/Tree.NonEmpty#`<init>`().2'
+		 _empty_/Tree.NonEmpty#[T]2(
+	&	 (_empty_/Tree.NonEmpty#[PL]2'
+	*	 +_empty_/Tree.NonEmpty#[P]2'
+	-	 ._empty_/Tree.NonEmpty#[H]2!
+ _empty_/Tree.Empty.2 
+  _empty_/Tree.Next#2
+! (scala/Nothing#2
+* 1scala/Nothing#2
+3 :scala/Nothing#2
+< Cscala/Nothing#2
+E Lscala/Nothing#2'
+ _empty_/Tree.RightBranch#22
+ $_empty_/Tree.RightBranch#`<init>`().2 
+> B_empty_/Tree.Next#2*
+C D_empty_/Tree.RightBranch#[T]2+
+F H_empty_/Tree.RightBranch#[PL]2*
+J K_empty_/Tree.RightBranch#[P]2*
+M N_empty_/Tree.RightBranch#[H]2*
+P Q_empty_/Tree.RightBranch#[A]2"
+X ^_empty_/Tree.Branch#2*
+_ `_empty_/Tree.RightBranch#[T]2+
+b d_empty_/Tree.RightBranch#[PL]2*
+f g_empty_/Tree.RightBranch#[P]2*
+i j_empty_/Tree.RightBranch#[H]2*
+l m_empty_/Tree.RightBranch#[A]2*
+ _empty_/Tree.RightBranch#[T]2+
+) +_empty_/Tree.RightBranch#[PL]2*
+- ._empty_/Tree.RightBranch#[P]2*
+0 1_empty_/Tree.RightBranch#[H]2*
+3 4_empty_/Tree.RightBranch#[A]2&
+ _empty_/Tree.BranchImpl#21
+ #_empty_/Tree.BranchImpl#`<init>`().2)
+ _empty_/Tree.BranchImpl#[T]2*
+! #_empty_/Tree.BranchImpl#[PL]2)
+% &_empty_/Tree.BranchImpl#[P]2)
+( )_empty_/Tree.BranchImpl#[H]2)
++ ,_empty_/Tree.BranchImpl#[A]2-
+ _empty_/Tree.BranchImpl#next().2 
+ _empty_/Tree.Next#2)
+ _empty_/Tree.BranchImpl#[T]2*
+ _empty_/Tree.BranchImpl#[PL]2)
+ _empty_/Tree.BranchImpl#[P]2)
+ _empty_/Tree.BranchImpl#[H]2)
+  !_empty_/Tree.BranchImpl#[A]23
+ %_empty_/Tree.BranchImpl#nextOption().2
+ scala/Option#2"
+ !_empty_/Tree.Branch#2)
+" #_empty_/Tree.BranchImpl#[T]2*
+% '_empty_/Tree.BranchImpl#[PL]2)
+) *_empty_/Tree.BranchImpl#[P]2)
+, -_empty_/Tree.BranchImpl#[H]2)
+/ 0_empty_/Tree.BranchImpl#[A]2-
+ 
+_empty_/Tree.BranchImpl#next().2
+ local02'
+ _empty_/Tree.RightBranch#2)
+ _empty_/Tree.BranchImpl#[T]2*
+ !_empty_/Tree.BranchImpl#[PL]2)
+# $_empty_/Tree.BranchImpl#[P]2)
+& '_empty_/Tree.BranchImpl#[H]2)
+) *_empty_/Tree.BranchImpl#[A]2!
+3 3scala/Some.apply().2
+/ 3scala/Some.2
+4 5local02!
+ _empty_/Tree.Empty.2
+/ 3scala/None.PZ D1178816A36A1C278B07942DFE2A194C

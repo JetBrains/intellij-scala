@@ -1,0 +1,69 @@
+
+ÿ#tests/pos/t8300-conversions-b.scala*"
+_empty_/Universe#*Universe€*.
+_empty_/Universe#`<init>`(). €@*<init>€*'
+_empty_/Universe#Symbol#*Symbol€*-
+_empty_/Universe#SymbolApi#*	SymbolApi€*8
+&_empty_/Universe#SymbolApi#`<init>`(). €@*<init>€*/
+_empty_/Universe#TypeSymbol#*
+TypeSymbol€*5
+_empty_/Universe#TypeSymbolApi#*TypeSymbolApi€*<
+*_empty_/Universe#TypeSymbolApi#`<init>`(). €@*<init>€*7
+ _empty_/Universe#FreeTypeSymbol#*FreeTypeSymbol€*=
+#_empty_/Universe#FreeTypeSymbolApi#*FreeTypeSymbolApi€*@
+._empty_/Universe#FreeTypeSymbolApi#`<init>`(). €@*<init>€*;
+"_empty_/Universe#CompatibleSymbol#*CompatibleSymbol€*?
+-_empty_/Universe#CompatibleSymbol#`<init>`(). €@*<init>€*>
+2_empty_/Universe#CompatibleSymbol#`<init>`().(sym)*sym€*5
+&_empty_/Universe#CompatibleSymbol#sym. €*sym€*B
+/_empty_/Universe#CompatibleSymbol#asFreeType().*
+asFreeType€*?
+$_empty_/Universe#CompatibleSymbol(). (*CompatibleSymbol€*5
+)_empty_/Universe#CompatibleSymbol().(sym)*sym€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.u. €*u€* 
+_empty_/Test.sym. €*sym€2
+ _empty_/Universe#2*
+ _empty_/Universe#`<init>`().2&
+ _empty_/Universe#Symbol#2
+ scala/Null#2
+ scala/AnyRef#2)
+% ._empty_/Universe#SymbolApi#2)
+ _empty_/Universe#SymbolApi#24
+ &_empty_/Universe#SymbolApi#`<init>`().2*
+ _empty_/Universe#TypeSymbol#2
+ scala/Null#2-
+ *_empty_/Universe#TypeSymbolApi#2&
+0 6_empty_/Universe#Symbol#2-
+ _empty_/Universe#TypeSymbolApi#28
+ *_empty_/Universe#TypeSymbolApi#`<init>`().2)
+ '_empty_/Universe#SymbolApi#2.
+  _empty_/Universe#FreeTypeSymbol#2
+ scala/Null#21
+! 2#_empty_/Universe#FreeTypeSymbolApi#2*
+8 B_empty_/Universe#TypeSymbol#21
+		 #_empty_/Universe#FreeTypeSymbolApi#2<
+	"	 "._empty_/Universe#FreeTypeSymbolApi#`<init>`().2-
+	"	 /_empty_/Universe#TypeSymbolApi#20
+ !"_empty_/Universe#CompatibleSymbol#2;
+! !-_empty_/Universe#CompatibleSymbol#`<init>`().2&
+' -_empty_/Universe#Symbol#24
+" %&_empty_/Universe#CompatibleSymbol#sym.2=
+ /_empty_/Universe#CompatibleSymbol#asFreeType().2.
+ " _empty_/Universe#FreeTypeSymbol#2#
+% (scala/Predef.`???`().22
+ $_empty_/Universe#CompatibleSymbol().2
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.u.2
+	 _empty_/Universe#2#
+ scala/Predef.`???`().2
+	 
+_empty_/Test.u.2
+ 	_empty_/Test.sym.2#
+ scala/Predef.`???`().2=
+ /_empty_/Universe#CompatibleSymbol#asFreeType().22
+ $_empty_/Universe#CompatibleSymbol().2
+ _empty_/Test.sym.PZ D9609D374B2E34AC5DCB27E6B4AE9C4B

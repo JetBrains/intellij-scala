@@ -1,0 +1,12 @@
+
+’tests/pos/i4184.scala*
+_empty_/Bar.
+ *Bar€2
+ 
+_empty_/Bar.2
+ 	scala/Any#`==`().2-
+ scala/Predef.boolean2Boolean().2 
+ "java/lang/Boolean#2
+ 
+java/lang/2
+ java/PZ C7859CBBDE73470892CC0EEFE7512569

@@ -1,0 +1,90 @@
+
+¬tests/pos/i6781.scala*
+_empty_/Nat# îÄ*NatÄ*)
+_empty_/Nat#`<init>`(). Ä@*<init>Ä*
+_empty_/Nat.
+ *NatÄ*"
+_empty_/Nat.Zero. Ä©*ZeroÄ*"
+_empty_/Nat.Succ# àÅ*SuccÄ*.
+_empty_/Nat.Succ#`<init>`(). Ä@*<init>Ä*,
+_empty_/Nat.Succ#`<init>`().(n) Ä*nÄ*
+_empty_/Nat.Succ#[N]	*NÄ* 
+_empty_/Nat.Succ#n. Ä*nÄ*%
+_empty_/Nat.Succ#copy().*copyÄ*%
+_empty_/Nat.Succ#copy().[N]	*NÄ*%
+_empty_/Nat.Succ#copy().(n)*nÄ*9
+"_empty_/Nat.Succ#copy$default$1().*copy$default$1Ä*/
+%_empty_/Nat.Succ#copy$default$1().[N]	*NÄ*+
+_empty_/Nat.Succ#ordinal().*ordinalÄ*!
+_empty_/Nat.Succ#_1().*_1Ä* 
+_empty_/Nat.Succ.
+ *SuccÄ*'
+_empty_/Nat.Succ.apply().*applyÄ*&
+_empty_/Nat.Succ.apply().[N]	*NÄ*&
+_empty_/Nat.Succ.apply().(n)*nÄ*+
+_empty_/Nat.Succ.unapply().*unapplyÄ*(
+_empty_/Nat.Succ.unapply().[N]	*NÄ*,
+ _empty_/Nat.Succ.unapply().(x$1)*x$1Ä*-
+_empty_/Nat.Succ.toString().*toStringÄ* 
+_empty_/Nat.$new().*$newÄ*0
+_empty_/Nat.$new().(_$ordinal)*	_$ordinalÄ*(
+_empty_/Nat.$new().($name)*$nameÄ*.
+_empty_/Nat.fromOrdinal().*fromOrdinalÄ*3
+#_empty_/Nat.fromOrdinal().(ordinal)*ordinalÄ*(
+_empty_/i6781$package. *_empty_Ä*,
+_empty_/i6781$package.toInt().*toIntÄ*+
+!_empty_/i6781$package.toInt().(n)*nÄ*
+local0 Ä	*N$1Ä*
+local1 Ä*n1Ä*1
+_empty_/i6781$package.natTwoA. Ä*natTwoAÄ*1
+_empty_/i6781$package.natTwoB. Ä*natTwoBÄ2
+ _empty_/Nat#2%
+ _empty_/Nat#`<init>`().2
+ _empty_/Nat.2
+ _empty_/Nat.Zero.2
+ _empty_/Nat.Succ#2*
+ _empty_/Nat.Succ#`<init>`().2"
+ _empty_/Nat.Succ#[N]2"
+ _empty_/Nat.Succ#[N]2!
+ _empty_/Nat.Succ#n.2&
+ _empty_/Nat.Succ#copy().2$
+ _empty_/Nat.Succ#_1().2
+ _empty_/Nat.Succ.2'
+ _empty_/Nat.Succ.apply().2)
+ _empty_/Nat.Succ.unapply().2
+ 
+_empty_/Nat.2 
+_empty_/i6781$package.2,
+ _empty_/i6781$package.toInt().2/
+ !_empty_/i6781$package.toInt().(n)2
+ _empty_/Nat#2
+! $
+scala/Int#2/
+. /!_empty_/i6781$package.toInt().(n)2
+ _empty_/Nat.Zero.2)
+ _empty_/Nat.Succ.unapply().2
+ _empty_/Nat.Succ.2
+ local02
+ local12 
+ scala/Int#`+`(+4).2,
+ _empty_/i6781$package.toInt().2
+ local12,
+ _empty_/i6781$package.natTwoA.2,
+ _empty_/i6781$package.toInt().2'
+ _empty_/Nat.Succ.apply().2
+ _empty_/Nat.Succ.2
+ _empty_/Nat.Succ#2
+ "_empty_/Nat.Zero.2'
+. ._empty_/Nat.Succ.apply().2
+* ._empty_/Nat.Succ.2
+/ 3_empty_/Nat.Zero.2,
+ _empty_/i6781$package.natTwoB.2,
+ _empty_/i6781$package.toInt().2'
+ _empty_/Nat.Succ.apply().2
+ _empty_/Nat.Succ.2'
+ _empty_/Nat.Succ.apply().2
+ _empty_/Nat.Succ.2
+ "_empty_/Nat.Zero.2
+& *_empty_/Nat.Succ#2
++ /_empty_/Nat.Succ#2
+0 4_empty_/Nat.Zero.PZ 833888F9A97914C2CCAA82D004DE8926

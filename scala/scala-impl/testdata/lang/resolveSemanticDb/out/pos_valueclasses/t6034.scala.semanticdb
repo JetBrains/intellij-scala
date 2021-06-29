@@ -1,0 +1,18 @@
+
+Ç&tests/pos/pos_valueclasses/t6034.scala* 
+t6034/OptPlus# *OptPlus€*+
+t6034/OptPlus#`<init>`(). €@*<init>€*)
+t6034/OptPlus#`<init>`().(x) €*x€*
+t6034/OptPlus#[A]	 €*A€*
+t6034/OptPlus#x. €*x€* 
+t6034/OptPlus.
+ *OptPlus€2
+ t6034/2
+ t6034/OptPlus#2'
+ t6034/OptPlus#`<init>`().2
+  t6034/OptPlus#[A]2&
+0 0scala/AnyVal#`<init>`().2
+* 0scala/AnyVal#2
+ t6034/OptPlus#[A]2
+ t6034/OptPlus#x.2
+ t6034/OptPlus.PZ 6A1B52CBCB3FFD98EE0A8C28F0E145B1

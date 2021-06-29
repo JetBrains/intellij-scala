@@ -1,0 +1,74 @@
+
+ïtests/pos/gadt-foo.scala*
+_empty_/foo.
+ *foo€*
+_empty_/foo.Exp# *Exp€*-
+_empty_/foo.Exp#`<init>`(). €@*<init>€*
+_empty_/foo.Exp#[T]	*T€*
+_empty_/foo.Var# €*Var€*-
+_empty_/foo.Var#`<init>`(). €@*<init>€*1
+!_empty_/foo.Var#`<init>`().(name) €*name€*
+_empty_/foo.Var#[T]	*T€*%
+_empty_/foo.Var#name. €*name€*$
+_empty_/foo.Var#copy().*copy€*$
+_empty_/foo.Var#copy().[T]	*T€**
+_empty_/foo.Var#copy().(name)*name€*8
+!_empty_/foo.Var#copy$default$1().*copy$default$1€*.
+$_empty_/foo.Var#copy$default$1().[T]	*T€* 
+_empty_/foo.Var#_1().*_1€*
+_empty_/foo.Var.
+ *Var€*&
+_empty_/foo.Var.apply().*apply€*%
+_empty_/foo.Var.apply().[T]	*T€*+
+_empty_/foo.Var.apply().(name)*name€**
+_empty_/foo.Var.unapply().*unapply€*'
+_empty_/foo.Var.unapply().[T]	*T€*+
+_empty_/foo.Var.unapply().(x$1)*x$1€*,
+_empty_/foo.Var.toString().*toString€*
+_empty_/foo.env().*env€*
+_empty_/foo.env().[T]	*T€*
+_empty_/foo.env().(x)*x€* 
+_empty_/foo.eval().*eval€* 
+_empty_/foo.eval().[S]	*S€* 
+_empty_/foo.eval().(e)*e€*
+local0 €*v€*
+local1 €	*foo€2
+ 
+_empty_/foo.2
+ _empty_/foo.Exp#2)
+ _empty_/foo.Exp#`<init>`().2!
+ _empty_/foo.Exp#[T]2
+ _empty_/foo.Var#2)
+ _empty_/foo.Var#`<init>`().2"
+  scala/Predef.String#2
+* -_empty_/foo.Exp#2!
+. /_empty_/foo.Var#[T]2!
+ _empty_/foo.Var#[T]2#
+ _empty_/foo.Var#name.2%
+ _empty_/foo.Var#copy().2#
+ _empty_/foo.Var#_1().2
+ _empty_/foo.Var.2&
+ _empty_/foo.Var.apply().2(
+ _empty_/foo.Var.unapply().2 
+ 	_empty_/foo.env().2#
+
+ _empty_/foo.env().[T]2#
+ _empty_/foo.env().(x)2
+ _empty_/foo.Var#2#
+ _empty_/foo.env().[T]2#
+ _empty_/foo.env().[T]2#
+  scala/Predef.`???`().2!
+ 
+_empty_/foo.eval().2$
+ _empty_/foo.eval().[S]2$
+ _empty_/foo.eval().(e)2
+ _empty_/foo.Exp#2$
+ _empty_/foo.eval().[S]2$
+ _empty_/foo.eval().(e)2
+	 
+local02
+ _empty_/foo.Var#2
+ local12 
+ 	_empty_/foo.env().2
+
+ local0PZ 63E4DDB6F78AB54C4DE95A5852806882

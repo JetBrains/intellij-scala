@@ -1,0 +1,35 @@
+
+±tests/pos/i10161.scala*&
+_empty_/Incompat2.
+ *	Incompat2€**
+_empty_/Incompat2.Context#*Context€*7
+%_empty_/Incompat2.Context#`<init>`(). €@*<init>€**
+_empty_/Incompat2.Context#Out#*Out€*,
+_empty_/Incompat2.Context.
+ *Context€*,
+ _empty_/Incompat2.Context.foo().*foo€*3
+%_empty_/Incompat2.Context.foo().(ctx)  *ctx€*,
+ _empty_/Incompat2.Context.bar().*bar€*3
+%_empty_/Incompat2.Context.bar().(ctx)  *ctx€2
+ _empty_/Incompat2.2(
+ _empty_/Incompat2.Context#23
+ %_empty_/Incompat2.Context#`<init>`().2,
+ _empty_/Incompat2.Context#Out#2(
+	 _empty_/Incompat2.Context.2.
+  _empty_/Incompat2.Context.foo().23
+ %_empty_/Incompat2.Context.foo().(ctx)2(
+ !_empty_/Incompat2.Context#2
+$ *scala/Option#2,
+/ 2_empty_/Incompat2.Context#Out#23
++ .%_empty_/Incompat2.Context.foo().(ctx)2#
+6 9scala/Predef.`???`().2.
+  _empty_/Incompat2.Context.bar().23
+ %_empty_/Incompat2.Context.bar().(ctx)2(
+ !_empty_/Incompat2.Context#2
+% +scala/Option#2,
+0 3_empty_/Incompat2.Context#Out#23
+, /%_empty_/Incompat2.Context.bar().(ctx)2"
+6 <scala/Predef.String#2#
+A Ascala/Tuple2.apply().2.
+A D _empty_/Incompat2.Context.foo().23
+D D%_empty_/Incompat2.Context.bar().(ctx)PZ 951E0A9FD2E55CFCA3ED1B4D6D502C71

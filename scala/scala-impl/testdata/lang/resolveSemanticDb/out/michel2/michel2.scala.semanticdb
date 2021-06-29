@@ -1,0 +1,46 @@
+
+ˆ	tests/pos/michel2.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test.A#f().*f€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.B#f().*f€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+ scala/AnyRef#2!
+ 	_empty_/Test.A#f().2
+ 
+scala/Int#2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ _empty_/Test.A#2!
+ _empty_/Test.B#f().2
+ 
+scala/Int#2!
+$ %_empty_/Test.A#f().2"
+
+
+ 
+_empty_/Test.main().2(
+
+
+ _empty_/Test.main().(args)2
+
+
+ scala/Array#2"
+
+
+ scala/Predef.String#2(
+ scala/Console.println(+1).2
+ scala/Console.2!
+ _empty_/Test.B#f().2(
+ _empty_/Test.B#`<init>`().2
+ _empty_/Test.B#PZ AA8A6C55BD6C92E03C80B92776E1FF75

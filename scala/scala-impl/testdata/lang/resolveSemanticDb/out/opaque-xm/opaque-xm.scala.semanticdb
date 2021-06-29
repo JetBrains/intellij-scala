@@ -1,0 +1,138 @@
+
+ä'tests/pos/opaque-xm.scala**
+_empty_/opaquetypes.
+ *opaquetypes€*0
+_empty_/opaquetypes.Logarithm#*	Logarithm€*2
+_empty_/opaquetypes.Logarithm.
+ (*	Logarithm€*4
+&_empty_/opaquetypes.Logarithm.apply().*apply€*3
+)_empty_/opaquetypes.Logarithm.apply().(d)*d€*2
+%_empty_/opaquetypes.Logarithm.safe().*safe€*2
+(_empty_/opaquetypes.Logarithm.safe().(d)*d€*:
+)_empty_/opaquetypes.Logarithm.exponent().*exponent€*6
+,_empty_/opaquetypes.Logarithm.exponent().(l)*l€*:
+)_empty_/opaquetypes.Logarithm.toDouble().*toDouble€*6
+,_empty_/opaquetypes.Logarithm.toDouble().(x)*x€*.
+$_empty_/opaquetypes.Logarithm.`+`().*+€*1
+'_empty_/opaquetypes.Logarithm.`+`().(x)*x€*1
+'_empty_/opaquetypes.Logarithm.`+`().(y)*y€*.
+$_empty_/opaquetypes.Logarithm.`*`().**€*1
+'_empty_/opaquetypes.Logarithm.`*`().(x)*x€*1
+'_empty_/opaquetypes.Logarithm.`*`().(y)*y€*$
+_empty_/usesites.
+ *usesites€* 
+_empty_/usesites.l. €*l€*"
+_empty_/usesites.l2. €*l2€*"
+_empty_/usesites.l3. €*l3€*"
+_empty_/usesites.l4. €*l4€* 
+_empty_/usesites.d. €*d€*"
+_empty_/usesites.l5. €*l5€2'
+ scala/Predef.any2stringadd().2%
+ scala/Predef.any2stringadd.2%
+ scala/Predef.any2stringadd#2
+ scala/Predef.2"
+ _empty_/opaquetypes.2,
+ _empty_/opaquetypes.Logarithm#2
+  scala/Double#2,
+ _empty_/opaquetypes.Logarithm.24
+ &_empty_/opaquetypes.Logarithm.apply().27
+ )_empty_/opaquetypes.Logarithm.apply().(d)2
+ scala/Double#2,
+ #_empty_/opaquetypes.Logarithm#2'
++ .scala/math/package.log().2
+& *scala/math/27
+/ 0)_empty_/opaquetypes.Logarithm.apply().(d)23
+		 %_empty_/opaquetypes.Logarithm.safe().26
+		 (_empty_/opaquetypes.Logarithm.safe().(d)2
+		 scala/Double#2
+		 scala/Option#2,
+	 	 )_empty_/opaquetypes.Logarithm#2#
+
+
+ scala/Double#`>`(+6).26
+
+
+
+ (_empty_/opaquetypes.Logarithm.safe().(d)2!
+
+
+ scala/Some.apply().2
+
+
+ scala/Some.2'
+
+
+  scala/math/package.log().2
+
+
+ scala/math/26
+
+!
+ "(_empty_/opaquetypes.Logarithm.safe().(d)2
+
+*
+ .scala/None.27
+ )_empty_/opaquetypes.Logarithm.exponent().2:
+ ,_empty_/opaquetypes.Logarithm.exponent().(l)2,
+ _empty_/opaquetypes.Logarithm#2
+  &scala/Double#2:
+) *,_empty_/opaquetypes.Logarithm.exponent().(l)27
+! ))_empty_/opaquetypes.Logarithm.toDouble().2:
+ ,_empty_/opaquetypes.Logarithm.toDouble().(x)2,
+ _empty_/opaquetypes.Logarithm#2
++ 1scala/Double#2'
+9 <scala/math/package.exp().2
+4 8scala/math/2:
+= >,_empty_/opaquetypes.Logarithm.toDouble().(x)22
+! "$_empty_/opaquetypes.Logarithm.`+`().25
+ '_empty_/opaquetypes.Logarithm.`+`().(x)2,
+ _empty_/opaquetypes.Logarithm#25
+$ %'_empty_/opaquetypes.Logarithm.`+`().(y)2,
+' 0_empty_/opaquetypes.Logarithm#24
+= =&_empty_/opaquetypes.Logarithm.apply().2,
+4 =_empty_/opaquetypes.Logarithm.2#
+J Kscala/Double#`+`(+7).2'
+C Fscala/math/package.exp().2
+> Bscala/math/25
+G H'_empty_/opaquetypes.Logarithm.`+`().(x)2'
+Q Tscala/math/package.exp().2
+L Pscala/math/25
+U V'_empty_/opaquetypes.Logarithm.`+`().(y)22
+! "$_empty_/opaquetypes.Logarithm.`*`().25
+ '_empty_/opaquetypes.Logarithm.`*`().(x)2,
+ _empty_/opaquetypes.Logarithm#25
+$ %'_empty_/opaquetypes.Logarithm.`*`().(y)2,
+' 0_empty_/opaquetypes.Logarithm#2,
+3 <_empty_/opaquetypes.Logarithm#24
+H H&_empty_/opaquetypes.Logarithm.apply().2,
+? H_empty_/opaquetypes.Logarithm.2#
+K Lscala/Double#`+`(+7).25
+I J'_empty_/opaquetypes.Logarithm.`*`().(x)25
+M N'_empty_/opaquetypes.Logarithm.`*`().(y)2
+ _empty_/usesites.2"
+	 _empty_/opaquetypes.2!
+ _empty_/usesites.l.24
+ &_empty_/opaquetypes.Logarithm.apply().2,
+
+ _empty_/opaquetypes.Logarithm.2"
+ _empty_/usesites.l2.24
+ &_empty_/opaquetypes.Logarithm.apply().2,
+ _empty_/opaquetypes.Logarithm.2"
+ _empty_/usesites.l3.22
+ $_empty_/opaquetypes.Logarithm.`*`().2!
+ _empty_/usesites.l.2"
+ _empty_/usesites.l2.2"
+ _empty_/usesites.l4.22
+ $_empty_/opaquetypes.Logarithm.`+`().2!
+ _empty_/usesites.l.2"
+ _empty_/usesites.l2.2!
+   _empty_/usesites.d.27
+   )_empty_/opaquetypes.Logarithm.toDouble().2,
+ 
+  _empty_/opaquetypes.Logarithm.2"
+   _empty_/usesites.l3.2"
+!! _empty_/usesites.l5.2,
+!
+! _empty_/opaquetypes.Logarithm#2'
+!! (scala/Any#asInstanceOf().2,
+!)! 2_empty_/opaquetypes.Logarithm#PZ 4D3A16677F9628B6843D1DA1D41FAD92

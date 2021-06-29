@@ -1,0 +1,14 @@
+
+•tests/pos/t7264/B_2.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(f)*f€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(f)2
+ _empty_/Foo#2 
+ _empty_/Foo#bar().2$
+ _empty_/Test.foo().(f)2+
+ _empty_/Foo.Values.fromInt().PZ 3B190D8280BD18266E6DBAEFC756E4F5

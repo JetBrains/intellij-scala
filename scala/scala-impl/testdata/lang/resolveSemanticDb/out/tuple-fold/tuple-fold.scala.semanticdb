@@ -1,0 +1,68 @@
+
+²tests/pos/tuple-fold.scala*/
+_empty_/`tuple-fold$package`. *_empty_€*1
+#_empty_/`tuple-fold$package`.Empty#*Empty€*0
+&_empty_/`tuple-fold$package`.Empty#[X]	*X€*1
+#_empty_/`tuple-fold$package`.Twice#*Twice€*0
+&_empty_/`tuple-fold$package`.Twice#[X]	*X€*1
+$_empty_/`tuple-fold$package`.test().*test€*
+local0 €*a1€*
+local1 €*a2€*
+local2 €*a3€*
+local3	*X€*
+local4	*Y€2'
+_empty_/`tuple-fold$package`.21
+ 
+#_empty_/`tuple-fold$package`.Empty#24
+ &_empty_/`tuple-fold$package`.Empty#[X]2-
+ scala/Tuple$package.EmptyTuple#21
+ 
+#_empty_/`tuple-fold$package`.Twice#24
+ &_empty_/`tuple-fold$package`.Twice#[X]24
+ &_empty_/`tuple-fold$package`.Twice#[X]24
+ &_empty_/`tuple-fold$package`.Twice#[X]22
+ $_empty_/`tuple-fold$package`.test().2
+ local02-
+
+ scala/Tuple$package.EmptyTuple#2#
+ scala/Predef.`???`().2
+# 'scala/Tuple.Fold#2
+ "scala/Tuple.2-
+( 2scala/Tuple$package.EmptyTuple#2
+4 ;scala/Nothing#2
+ local12
+ 
+scala/Int#2"
+ scala/Predef.String#2
+  scala/Nothing#2#
+% (scala/Predef.`???`().2
+1 5scala/Tuple.Fold#2
++ 0scala/Tuple.2
+7 :
+scala/Int#2"
+< Bscala/Predef.String#2
+E Lscala/Nothing#2
+ local22
+ 
+scala/`|`#2
+ 
+scala/`|`#2
+
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ scala/Char#2#
+  #scala/Predef.`???`().2
+, 0scala/Tuple.Fold#2
+& +scala/Tuple.2
+2 5
+scala/Int#2"
+7 =scala/Predef.String#2
+? Cscala/Char#2
+F Mscala/Nothing#2
+P Qlocal32
+S Tlocal42
+\ ]
+scala/`|`#2
+Z [local32
+^ _local4PZ 892771E0DDE905B98FC11D9790948691

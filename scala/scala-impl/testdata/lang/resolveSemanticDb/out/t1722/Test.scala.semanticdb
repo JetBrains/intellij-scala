@@ -1,0 +1,15 @@
+
+Ótests/pos/t1722/Test.scala*
+t1722/Test.
+ *Test€*
+t1722/Test.x. €*x€*
+local0 *$anon€2
+ t1722/2
+ t1722/Test.2
+ t1722/Test.x.2
+
+ 
+local02*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ t1722/C#PZ C59CC205671D1F58C4F3E4EDA6014840

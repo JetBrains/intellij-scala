@@ -1,0 +1,105 @@
+
+…%,tests/pos/t6123-explaintypes-implicits.scala*6
+_empty_/ImplicitBugReport.
+ *ImplicitBugReportÄ**
+_empty_/ImplicitBugReport.Exp#*ExpÄ*;
+)_empty_/ImplicitBugReport.Exp#`<init>`(). Ä@*<init>Ä*.
+!_empty_/ImplicitBugReport.Exp#[T]	 Ä*TÄ*:
+&_empty_/ImplicitBugReport.CanBuildExp#*CanBuildExpÄ*C
+1_empty_/ImplicitBugReport.CanBuildExp#`<init>`(). Ä@*<init>Ä*<
+,_empty_/ImplicitBugReport.CanBuildExp#[Elem]	 Ä*ElemÄ*8
+*_empty_/ImplicitBugReport.CanBuildExp#[To]	 Ä*ToÄ*@
+)_empty_/ImplicitBugReport.TraversableExp#*TraversableExpÄ*F
+4_empty_/ImplicitBugReport.TraversableExp#`<init>`(). Ä@*<init>Ä*6
+,_empty_/ImplicitBugReport.TraversableExp#[T]	*TÄ*<
+/_empty_/ImplicitBugReport.TraversableExp#[ExpT]	*ExpTÄ*>
+(_empty_/ImplicitBugReport.canBuildExp().  *canBuildExpÄ*5
++_empty_/ImplicitBugReport.canBuildExp().[T]	*TÄ*F
+,_empty_/ImplicitBugReport.canBuildExpTrav().  *canBuildExpTravÄ*9
+/_empty_/ImplicitBugReport.canBuildExpTrav().[T]	*TÄ*?
+2_empty_/ImplicitBugReport.canBuildExpTrav().[ExpT]	*ExpTÄ*;
+/_empty_/ImplicitBugReport.canBuildExpTrav().(c)  *cÄ*:
+'_empty_/ImplicitBugReport.toExpTempl().*
+toExpTemplÄ*4
+*_empty_/ImplicitBugReport.toExpTempl().[T]	*TÄ*:
+-_empty_/ImplicitBugReport.toExpTempl().[That]	*ThatÄ*4
+*_empty_/ImplicitBugReport.toExpTempl().(t)*tÄ*6
+*_empty_/ImplicitBugReport.toExpTempl().(c)  *cÄ*4
+$_empty_/ImplicitBugReport.testBug().*testBugÄ*
+local0 Ä*a1Ä2$
+ _empty_/ImplicitBugReport.2,
+ _empty_/ImplicitBugReport.Exp#27
+ )_empty_/ImplicitBugReport.Exp#`<init>`().2/
+ !_empty_/ImplicitBugReport.Exp#[T]24
+ &_empty_/ImplicitBugReport.CanBuildExp#2?
+ 1_empty_/ImplicitBugReport.CanBuildExp#`<init>`().2,
+) ,_empty_/ImplicitBugReport.Exp#2:
+- 1,_empty_/ImplicitBugReport.CanBuildExp#[Elem]28
+6 8*_empty_/ImplicitBugReport.CanBuildExp#[To]2:
+ ,_empty_/ImplicitBugReport.CanBuildExp#[Elem]28
+ *_empty_/ImplicitBugReport.CanBuildExp#[To]27
+ )_empty_/ImplicitBugReport.TraversableExp#2B
+ 4_empty_/ImplicitBugReport.TraversableExp#`<init>`().2,
+2 5_empty_/ImplicitBugReport.Exp#2(
+6 Ascala/package.Traversable#2:
+B C,_empty_/ImplicitBugReport.TraversableExp#[T]2:
+ ,_empty_/ImplicitBugReport.TraversableExp#[T]2=
+ /_empty_/ImplicitBugReport.TraversableExp#[ExpT]26
+ (_empty_/ImplicitBugReport.canBuildExp().29
+ +_empty_/ImplicitBugReport.canBuildExp().[T]24
+ *&_empty_/ImplicitBugReport.CanBuildExp#29
++ ,+_empty_/ImplicitBugReport.canBuildExp().[T]2,
+. 1_empty_/ImplicitBugReport.Exp#29
+2 3+_empty_/ImplicitBugReport.canBuildExp().[T]2#
+8 ;scala/Predef.`???`().2:
+ ,_empty_/ImplicitBugReport.canBuildExpTrav().2=
+  /_empty_/ImplicitBugReport.canBuildExpTrav().[T]2@
+" &2_empty_/ImplicitBugReport.canBuildExpTrav().[ExpT]2,
+* -_empty_/ImplicitBugReport.Exp#2=
+. //_empty_/ImplicitBugReport.canBuildExpTrav().[T]2=
+; </_empty_/ImplicitBugReport.canBuildExpTrav().(c)24
+> I&_empty_/ImplicitBugReport.CanBuildExp#2=
+J K/_empty_/ImplicitBugReport.canBuildExpTrav().[T]2@
+M Q2_empty_/ImplicitBugReport.canBuildExpTrav().[ExpT]24
+U `&_empty_/ImplicitBugReport.CanBuildExp#2(
+a lscala/package.Traversable#2=
+m n/_empty_/ImplicitBugReport.canBuildExpTrav().[T]27
+q )_empty_/ImplicitBugReport.TraversableExp#2?
+
+Ä Å/_empty_/ImplicitBugReport.canBuildExpTrav().[T]2B
+
+É á2_empty_/ImplicitBugReport.canBuildExpTrav().[ExpT]2%
+
+å èscala/Predef.`???`().25
+ '_empty_/ImplicitBugReport.toExpTempl().28
+ *_empty_/ImplicitBugReport.toExpTempl().[T]2;
+ -_empty_/ImplicitBugReport.toExpTempl().[That]28
+ *_empty_/ImplicitBugReport.toExpTempl().(t)28
+ *_empty_/ImplicitBugReport.toExpTempl().[T]28
+) **_empty_/ImplicitBugReport.toExpTempl().(c)24
+, 7&_empty_/ImplicitBugReport.CanBuildExp#28
+8 9*_empty_/ImplicitBugReport.toExpTempl().[T]2;
+; ?-_empty_/ImplicitBugReport.toExpTempl().[That]2;
+C G-_empty_/ImplicitBugReport.toExpTempl().[That]2#
+J Mscala/Predef.`???`().22
+		 $_empty_/ImplicitBugReport.testBug().2
+		 scala/Unit#2
+
+
+ 
+local025
+
+
+ '_empty_/ImplicitBugReport.toExpTempl().2;
+
+
+ -scala/collection/SeqFactory.Delegate#apply().2 
+
+
+ scala/package.Seq.2:
+
+(
+ (,_empty_/ImplicitBugReport.canBuildExpTrav().26
+
+(
+ ((_empty_/ImplicitBugReport.canBuildExp().PZ 6DB428F804254626DE100AA9A6391BF5

@@ -1,0 +1,35 @@
+
+Átests/pos/abstract.scala*
+
+_empty_/C# *C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#t#*t€*
+_empty_/C#copy().*copy€*
+_empty_/C#copy().(x)*x€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#t#*t€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ _empty_/C#t#2
+ 
+_empty_/C#copy().2"
+ _empty_/C#copy().(x)2
+ _empty_/C#t#2
+ _empty_/C#t#2"
+ _empty_/C#copy().(x)2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/D#t#2
+ 
+scala/Int#2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2
+ _empty_/C#copy().PZ ABC5B7228E4C3AFA07B67C61D6C4B465

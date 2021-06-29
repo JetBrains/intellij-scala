@@ -1,0 +1,78 @@
+
+ÿtests/pos/implicitNums.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.Number#*Number€*1
+_empty_/Test.Number#`<init>`(). €@*<init>€*
+_empty_/Test.Zero#*Zero€*/
+_empty_/Test.Zero#`<init>`(). €@*<init>€*
+_empty_/Test.Succ#*Succ€*/
+_empty_/Test.Succ#`<init>`(). €@*<init>€**
+ _empty_/Test.Succ#`<init>`().(n)*n€*
+_empty_/Test.Succ#[N]	*N€*!
+_empty_/Test.Succ#n. €*n€*#
+_empty_/Test.succ().  *succ€*!
+_empty_/Test.succ().[N]	*N€*#
+_empty_/Test.succ().(n)  *n€*
+local0 *$anon€*#
+_empty_/Test.zero().  *zero€*
+local1 *$anon€2
+ _empty_/Test.2"
+ _empty_/Test.Number#2-
+ _empty_/Test.Number#`<init>`().2 
+ _empty_/Test.Zero#2+
+ _empty_/Test.Zero#`<init>`().2"
+ _empty_/Test.Number#2 
+ _empty_/Test.Succ#2+
+ _empty_/Test.Succ#`<init>`().2#
+ _empty_/Test.Succ#[N]2"
+( ._empty_/Test.Number#2#
+ _empty_/Test.Succ#[N]2"
+ _empty_/Test.Succ#n.2"
+ _empty_/Test.succ().2%
+ _empty_/Test.succ().[N]2"
+ _empty_/Test.Number#2%
+* +_empty_/Test.succ().(n)2%
+- ._empty_/Test.succ().[N]2 
+1 5_empty_/Test.Succ#2%
+6 7_empty_/Test.succ().[N]2
+; ;local02+
+F F_empty_/Test.Succ#`<init>`().2 
+? C_empty_/Test.Succ#2%
+D E_empty_/Test.succ().[N]2%
+G H_empty_/Test.succ().(n)2"
+ _empty_/Test.zero().2 
+ _empty_/Test.Zero#2
+ local12 
+  $_empty_/Test.Zero#2(
+		 scala/Predef.implicitly().2 
+		 _empty_/Test.Zero#2"
+		 _empty_/Test.zero().2(
+
+
+ scala/Predef.implicitly().2 
+
+
+ _empty_/Test.Succ#2 
+
+
+ _empty_/Test.Zero#2"
+
+
+ _empty_/Test.succ().2"
+
+
+ _empty_/Test.zero().2(
+ scala/Predef.implicitly().2 
+ _empty_/Test.Succ#2 
+ _empty_/Test.Succ#2 
+ _empty_/Test.Zero#2"
+ _empty_/Test.succ().2"
+ _empty_/Test.zero().2(
+ scala/Predef.implicitly().2 
+ _empty_/Test.Succ#2 
+ _empty_/Test.Succ#2 
+ _empty_/Test.Succ#2 
+  _empty_/Test.Zero#2"
+$ $_empty_/Test.succ().2"
+$ $_empty_/Test.zero().PZ EF686F192F747BAD64F669C0B1485057

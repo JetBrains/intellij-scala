@@ -1,0 +1,113 @@
+
+…&tests/pos/reference/inline-match.scala*
+inlinematch/Test#*Test€*.
+inlinematch/Test#`<init>`(). €@*<init>€*
+local0 €*x€*
+local1 €*x€*
+inlinematch/Test#g().*g€*"
+inlinematch/Test#g().(x)*x€*"
+inlinematch/Test#t1. €*t1€*"
+inlinematch/Test#t2. €*t2€*!
+inlinematch/Test#Nat#*Nat€*2
+ inlinematch/Test#Nat#`<init>`(). €@*<init>€*&
+inlinematch/Test#Zero.
+ ˆ*Zero€*&
+inlinematch/Test#Succ# €*Succ€*3
+!inlinematch/Test#Succ#`<init>`(). €@*<init>€*1
+$inlinematch/Test#Succ#`<init>`().(n) €*n€*#
+inlinematch/Test#Succ#[N]	*N€*%
+inlinematch/Test#Succ#n. €*n€**
+inlinematch/Test#Succ#copy().*copy€**
+ inlinematch/Test#Succ#copy().[N]	*N€**
+ inlinematch/Test#Succ#copy().(n)*n€*>
+'inlinematch/Test#Succ#copy$default$1().*copy$default$1€*4
+*inlinematch/Test#Succ#copy$default$1().[N]	*N€*&
+inlinematch/Test#Succ#_1().*_1€*%
+inlinematch/Test#Succ.
+ *Succ€*,
+inlinematch/Test#Succ.apply().*apply€*+
+!inlinematch/Test#Succ.apply().[N]	*N€*+
+!inlinematch/Test#Succ.apply().(n)*n€*0
+ inlinematch/Test#Succ.unapply().*unapply€*-
+#inlinematch/Test#Succ.unapply().[N]	*N€*1
+%inlinematch/Test#Succ.unapply().(x$1)*x$1€*2
+!inlinematch/Test#Succ.toString().*toString€*
+local2 €	*N$1€*
+local3 €*n1€*'
+inlinematch/Test#toInt().*toInt€*&
+inlinematch/Test#toInt().(n)*n€**
+inlinematch/Test#natTwo. ˆ*natTwo€**
+inlinematch/Test#intTwo. €*intTwo€2
+ inlinematch/2
+ 
+inlinematch/Test#2*
+ inlinematch/Test#`<init>`().2&
+1 2inlinematch/Test#g().(x)2
+	 
+local02"
+ scala/Predef.String#2#
+ scala/Tuple2.apply().2
+ local02
+ local02
+	 
+local12
+ scala/Double#2
+ local12#
+ inlinematch/Test#g().2&
+ inlinematch/Test#g().(x)2
+ !
+scala/Any#2
+$ '
+scala/Any#2"
+		 inlinematch/Test#t1.2#
+		 inlinematch/Test#g().2"
+
+
+ inlinematch/Test#t2.2"
+
+
+ scala/Predef.String#2"
+
+
+ scala/Predef.String#2#
+
+
+ inlinematch/Test#g().2#
+ inlinematch/Test#Nat#2.
+  inlinematch/Test#Nat#`<init>`().2$
+ inlinematch/Test#Zero.2#
+ inlinematch/Test#Nat#2$
+ inlinematch/Test#Succ#2/
+ !inlinematch/Test#Succ#`<init>`().2'
+  inlinematch/Test#Succ#[N]2#
+* -inlinematch/Test#Nat#2'
+ inlinematch/Test#Succ#[N]2&
+ inlinematch/Test#Succ#n.2+
+ inlinematch/Test#Succ#copy().2)
+ inlinematch/Test#Succ#_1().2$
+ inlinematch/Test#Succ.2,
+ inlinematch/Test#Succ.apply().2.
+  inlinematch/Test#Succ.unapply().2*
+5 6inlinematch/Test#toInt().(n)2$
+	 inlinematch/Test#Zero.2.
+  inlinematch/Test#Succ.unapply().2$
+	 inlinematch/Test#Succ.2
+ local22
+ local32 
+  scala/Int#`+`(+4).2'
+ inlinematch/Test#toInt().2
+ local32'
+ inlinematch/Test#toInt().2*
+  inlinematch/Test#toInt().(n)2#
+" %inlinematch/Test#Nat#2
+( +
+scala/Int#2&
+ inlinematch/Test#natTwo.2'
+ inlinematch/Test#toInt().2,
+ inlinematch/Test#Succ.apply().2$
+ inlinematch/Test#Succ.2,
+$ $inlinematch/Test#Succ.apply().2$
+  $inlinematch/Test#Succ.2$
+% )inlinematch/Test#Zero.2&
+ inlinematch/Test#intTwo.2&
+ inlinematch/Test#natTwo.PZ A3CAE3D8621A5E1050DCAA28AC787C97

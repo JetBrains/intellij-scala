@@ -1,0 +1,43 @@
+
+ätests/pos/i0400.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*
+local0*a€*
+_empty_/Test.bar().*bar€* 
+_empty_/Test.bar().(a)*a€*
+_empty_/Test.baz().*baz€* 
+_empty_/Test.baz().(a)*a€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2
+ scala/Unit#2
+ 	local02!
+ _empty_/Test.bar().2&
+ scala/Function0#apply().2#
+	 scala/Predef.`???`().2
+ local02!
+ 	_empty_/Test.bar().2$
+
+ _empty_/Test.bar().(a)2
+ 
+scala/Any#2
+ scala/Unit#2!
+ _empty_/Test.baz().2$
+ 	_empty_/Test.bar().(a)2!
+ 	_empty_/Test.baz().2$
+
+ _empty_/Test.baz().(a)2
+ 
+scala/Any#2
+ scala/Unit#2"
+		 
+_empty_/Test.main().2(
+		 _empty_/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	!	 %scala/Unit#2!
+
+
+ _empty_/Test.foo().PZ 57B1AB712D60962DEDF9BA6C51A2A391

@@ -1,0 +1,102 @@
+
+µtests/pos/t4717.scala*
+_empty_/Bug1#*Bug1€**
+_empty_/Bug1#`<init>`(). €@*<init>€*
+_empty_/Bug1#[A]	*A€*
+_empty_/Bug1#`++`().*++€*!
+_empty_/Bug1#`++`().[B]	*B€*'
+_empty_/Bug1#`++`().(that)*that€*
+local0 *$anon€*
+local1 À*it€*
+local2*hasNext€*
+local3*next€*$
+_empty_/WorksFine#*	WorksFine€*/
+_empty_/WorksFine#`<init>`(). €@*<init>€*
+_empty_/WorksFine#[A]	*A€*.
+_empty_/WorksFine#SubBounds#*	SubBounds€*9
+'_empty_/WorksFine#SubBounds#`<init>`(). €@*<init>€*)
+_empty_/WorksFine#SubBounds#[B]	*B€*-
+_empty_/WorksFine#SubBounds#it. À*it€* 
+_empty_/WorksFine#x().*x€*#
+_empty_/WorksFine#x().[B]	*B€*
+_empty_/Bounds#*Bounds€*,
+_empty_/Bounds#`<init>`(). €@*<init>€*
+_empty_/Bounds#[A]	*A€*
+_empty_/Bounds#x().*x€* 
+_empty_/Bounds#x().[B]	*B€*
+local4 *$anon€*
+local5 À*it€2
+ 
+_empty_/Bug1#2"
+
+ 
+_empty_/Bug1#`<init>`().2%
+, 8scala/package.IterableOnce#2
+9 :_empty_/Bug1#[A]2
+ scala/specialized#2
+ scala/Boolean.2
+! "_empty_/Bug1#[A]2"
+ _empty_/Bug1#`++`().2%
+	 
+_empty_/Bug1#`++`().[B]2
+ _empty_/Bug1#[A]2(
+ _empty_/Bug1#`++`().(that)2)
+ #scala/package.IterableOnce#2%
+$ %_empty_/Bug1#`++`().[B]2%
+) 1scala/package.Iterator#2%
+2 3_empty_/Bug1#`++`().[B]2
+7 7local02%
+; Cscala/package.Iterator#2%
+D E_empty_/Bug1#`++`().[B]2
+ local127
+ )scala/collection/IterableOnce#iterator().2(
+ _empty_/Bug1#`++`().(that)2
+ local222
+ $scala/collection/Iterator#hasNext().2
+ local12
+ local32/
+ !scala/collection/Iterator#next().2
+ local12 
+
+
+ _empty_/WorksFine#2+
+
+
+ _empty_/WorksFine#`<init>`().2 
+
+
+ scala/specialized#2
+
+
+ $scala/Boolean.2#
+
+&
+ '_empty_/WorksFine#[A]2*
+ _empty_/WorksFine#SubBounds#25
+ '_empty_/WorksFine#SubBounds#`<init>`().2
+" (_empty_/Bounds#2-
+) *_empty_/WorksFine#SubBounds#[B]2-
+ _empty_/WorksFine#SubBounds#[B]2-
+ _empty_/WorksFine#SubBounds#it.2#
+ scala/Predef.`???`().2$
+ _empty_/WorksFine#x().2'
+ 	_empty_/WorksFine#x().[B]2#
+ _empty_/WorksFine#[A]2
+ scala/Unit#25
+( ('_empty_/WorksFine#SubBounds#`<init>`().2*
+ %_empty_/WorksFine#SubBounds#2'
+& '_empty_/WorksFine#x().[B]2
+ _empty_/Bounds#2(
+ _empty_/Bounds#`<init>`().2 
+ scala/specialized#2
+ !scala/Boolean.2 
+# $_empty_/Bounds#[A]2!
+ _empty_/Bounds#x().2$
+ 	_empty_/Bounds#x().[B]2 
+ _empty_/Bounds#[A]2
+ scala/Unit#2
+ local42
+ "_empty_/Bounds#2$
+# $_empty_/Bounds#x().[B]2
+ local52#
+ scala/Predef.`???`().PZ 2801C0CC803B514F74E0769F238A2F68

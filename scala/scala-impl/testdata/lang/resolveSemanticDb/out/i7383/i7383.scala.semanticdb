@@ -1,0 +1,62 @@
+
+ô
+tests/pos/i7383.scala*
+_empty_/ZSink#*ZSink€*+
+_empty_/ZSink#`<init>`(). €@*<init>€*"
+_empty_/ZSink#State#*State€* 
+_empty_/ZSink#foo().*foo€*
+local0*Anon€*
+local1 €*State€*
+local2 €*x€*
+local3*copy€*
+local4*copy$default$1€*
+local5*_1€*
+local6
+ *State€*
+local7*apply€*
+local8*unapply€*
+local9*x$1€*
+local10*toString€*"
+_empty_/ZSink#foo2().*foo2€*
+local11 *$anon€*
+local12 €*State€*
+local13 €*x€*
+local14*copy€*
+local15*copy$default$1€*
+local16*_1€*
+local17
+ *State€*
+local18*apply€*
+local19*unapply€*
+local20*x$1€*
+local21*toString€2
+ _empty_/ZSink#2'
+ _empty_/ZSink#`<init>`().2"
+ _empty_/ZSink#State#2"
+ 	_empty_/ZSink#foo().2
+ _empty_/ZSink#2
+
+ local02
+ _empty_/ZSink#2
+ local12
+ local22
+ local32
+ local52
+ local62
+ local72
+ local02#
+
+
+ 
+_empty_/ZSink#foo2().2
+
+
+ _empty_/ZSink#2
+ local112
+ _empty_/ZSink#2
+ local122
+ local132
+ local142
+ local162
+ local172
+ local18PZ 68FB442CE0F76BC69BFF5C1521631D49

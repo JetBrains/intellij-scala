@@ -1,0 +1,402 @@
+
+Ähtests/pos/test-typers.scala*
+test/typers.
+ *typersÄ*#
+test/typers.names. Ä*namesÄ*!
+test/typers.ints. Ä*intsÄ**
+test/typers.Inference.
+ *	InferenceÄ*
+local0*x$1Ä*
+local1 Ä*nameÄ*
+local2 Ä*nÄ*.
+test/typers.Inference.double().*doubleÄ*,
+"test/typers.Inference.double().(x)*xÄ*
+local3*xÄ*
+test/typers.Eta.
+ *EtaÄ*"
+test/typers.Eta.fun().*funÄ*#
+test/typers.Eta.fun().(x)*xÄ*#
+test/typers.Eta.foo. Ä*fooÄ*3
+test/typers.DefaultParams# Ä*DefaultParamsÄ*7
+%test/typers.DefaultParams#`<init>`(). Ä@*<init>Ä*;
++test/typers.DefaultParams#`<init>`().(init) Ä*initÄ*/
+test/typers.DefaultParams#init. Ä*initÄ*.
+!test/typers.DefaultParams#copy().*copyÄ*4
+'test/typers.DefaultParams#copy().(init)*initÄ*B
++test/typers.DefaultParams#copy$default$1().*copy$default$1Ä**
+test/typers.DefaultParams#_1().*_1Ä*2
+test/typers.DefaultParams.
+ *DefaultParamsÄ*0
+"test/typers.DefaultParams.apply().*applyÄ*5
+(test/typers.DefaultParams.apply().(init)*initÄ*4
+$test/typers.DefaultParams.unapply().*unapplyÄ*5
+)test/typers.DefaultParams.unapply().(x$1)*x$1Ä*6
+%test/typers.DefaultParams.toString().*toStringÄ*\
+8test/typers.DefaultParams.$lessinit$greater$default$1().*$lessinit$greater$default$1Ä*
+local4*xÄ*,
+ test/typers.DefaultParams.foo().*fooÄ*-
+#test/typers.DefaultParams.foo().(x)*xÄ*@
+*test/typers.DefaultParams.foo$default$1().*foo$default$1Ä*
+local5*xÄ*
+test/typers.len().*lenÄ*
+test/typers.len().[U]	*UÄ*!
+test/typers.len().(xs)*xsÄ*
+local6 Ä*xÄ*
+local7 Ä*xs1Ä*&
+test/typers.returns.
+ *returnsÄ*&
+test/typers.returns.foo().*fooÄ*'
+test/typers.returns.foo().(x)*xÄ*"
+test/typers.tries.
+ *triesÄ*!
+test/typers.tries.x. Ä*xÄ*
+local8 Ä*exÄ*!
+test/typers.tries.y. Ä*yÄ*
+local9 Ä*exÄ*
+local10*xÄ*!
+test/typers.tries.z. Ä*zÄ*
+test/typers.C#*CÄ*+
+test/typers.C#`<init>`(). Ä@*<init>Ä*.
+test/typers.C#factorial(). *	factorialÄ*+
+test/typers.C#factorial().(acc)*accÄ*'
+test/typers.C#factorial().(n)*nÄ*,
+test/typers.Refinements#*RefinementsÄ*5
+#test/typers.Refinements#`<init>`(). Ä@*<init>Ä*$
+test/typers.Refinements#C#*CÄ*7
+%test/typers.Refinements#C#`<init>`(). Ä@*<init>Ä*&
+test/typers.Refinements#C#T#*TÄ*6
+$test/typers.Refinements#C#process(). *processÄ*1
+'test/typers.Refinements#C#process().(x)*xÄ*'
+test/typers.Refinements#y. Ä*yÄ*
+local11*TÄ*
+local12 Ñ*keyÄ*
+local13 *processÄ*
+local14*xÄ*2
+test/typers.Accessibility.
+ *AccessibilityÄ*&
+test/typers.Accessibility.A#*AÄ*9
+'test/typers.Accessibility.A#`<init>`(). Ä@*<init>Ä*+
+test/typers.Accessibility.A#x. Ä*xÄ*&
+test/typers.Accessibility.B#*BÄ*9
+'test/typers.Accessibility.B#`<init>`(). Ä@*<init>Ä*+
+test/typers.Accessibility.B#x. Ä*xÄ*)
+test/typers.Accessibility.b. Ä*bÄ*)
+test/typers.Accessibility.y. Ä*yÄ*)
+test/typers.Accessibility.z. Ä*zÄ* 
+test/typers.Self.
+ *SelfÄ*
+test/typers.Self.A#*AÄ*0
+test/typers.Self.A#`<init>`(). Ä@*<init>Ä*3
+%test/typers.Self.A#`<init>`().(self1)*self1Ä*
+local15*selfÄ**
+test/typers.Self.A#self1. Ä*self1Ä*)
+test/typers.Self.A#self1().*self1Ä*(
+test/typers.Self.A#self1().(x)*xÄ*
+test/typers.Self.A#B#*BÄ*2
+ test/typers.Self.A#B#`<init>`(). Ä@*<init>Ä*$
+test/typers.Self.A#B#b. Ä*bÄ*$
+test/typers.Self.A#B#c. Ä*cÄ*"
+test/typers.Self.A#a. Ä*aÄ*"
+test/typers.Self.A#c. Ä*cÄ*$
+test/typers.Arrays.
+ *ArraysÄ*&
+test/typers.Arrays.arr. Ä*arrÄ*"
+test/typers.Arrays.i. Ä*iÄ*"
+test/typers.Arrays.x. Ä*xÄ*.
+test/typers.Arrays.entries. Ä*entriesÄ*
+local16*x$1Ä*
+local17 Ä*xÄ*
+local18 Ä*iÄ*2
+test/typers.SeqExtractors.
+ *SeqExtractorsÄ*)
+test/typers.SeqExtractors.y. Ä*yÄ*
+local19 Ä*xÄ*
+local20 Ä*zÄ*
+local21 Ä*xÄ*+
+test/typers.SeqExtractors.yy. Ä*yyÄ2
+ test/2'
+ scala/annotation/tailrec#2&
+ "scala/annotation/switch#2
+ scala/annotation/2'
+ scala/collection/mutable/2
+ scala/collection/2
+ test/typers.2 
+ test/typers.names.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 
+test/typers.ints.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2$
+
+	
+ test/typers.Inference.24
+) )&scala/collection/WithFilter#foreach().28
+) )*scala/collection/IterableOps#withFilter().2=
+ /scala/collection/LazyZip2.lazyZip2ToIterable().22
+ #$scala/collection/Iterable#lazyZip().2 
+ test/typers.names.2
+$ (test/typers.ints.2
+	 	local02%
+
+ 
+scala/Tuple2.unapply().2
+
+ local12
+ local22'
+ scala/Predef.println(+1).2 
+ scala/Int#`+`(+4).2(
+ java/lang/String#length().2
+ local12
+ local22-
+ test/typers.Inference.double().20
+ "test/typers.Inference.double().(x)2
+ scala/Char#2"
+ scala/Predef.String#2&
+( )scala/StringContext#s().2*
+$ $scala/StringContext.apply().20
+% &"test/typers.Inference.double().(x)20
+' ("test/typers.Inference.double().(x)25
+
+ 'scala/collection/StringOps#flatMap(+1).2+
+ scala/Predef.augmentString().2-
+ test/typers.Inference.double().2
+ local32
+	 test/typers.Eta.2$
+ test/typers.Eta.fun().2'
+ test/typers.Eta.fun().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2'
+ test/typers.Eta.fun().(x)2"
+ test/typers.Eta.foo.2$
+ test/typers.Eta.fun().2(
+ test/typers.DefaultParams#23
+ %test/typers.DefaultParams#`<init>`().2"
+! 'scala/Predef.String#2"
++ 1scala/Predef.String#2-
+ test/typers.DefaultParams#init.2/
+ !test/typers.DefaultParams#copy().2-
+! !test/typers.DefaultParams#_1().2(
+	 test/typers.DefaultParams.20
+ "test/typers.DefaultParams.apply().2&
+4 <scala/Predef.identity().2
+4 4local42.
+  test/typers.DefaultParams.foo().21
+ #test/typers.DefaultParams.foo().(x)2"
+ scala/Predef.String#2"
+ scala/Predef.String#2&
+/ /scala/Function1#apply().21
+. /#test/typers.DefaultParams.foo().(x)2&
+" *scala/Predef.identity().2
+" "local52.
+  test/typers.DefaultParams.foo().2 
+!! 	test/typers.len().2#
+!
+! test/typers.len().[U]2$
+!! test/typers.len().(xs)2!
+!! scala/package.List#2#
+!! test/typers.len().[U]2
+!! 
+scala/Int#2$
+!!! #test/typers.len().(xs)28
+"" *scala/collection/immutable/`::`.unapply().2!
+"" scala/package.`::`.2
+"	" 
+local62
+"" local72 
+"" scala/Int#`+`(+4).2 
+"" test/typers.len().2
+""  local72 
+#	# scala/package.Nil.2"
+&	& test/typers.returns.2(
+(( test/typers.returns.foo().2+
+(( test/typers.returns.foo().(x)2
+(( 
+scala/Int#2
+(( 
+scala/Int#2(
+)) test/typers.returns.foo().2 
+-	- test/typers.tries.2"
+// 	test/typers.tries.x.2
+22 local82"
+22 "java/io/IOException#2
+22 java/io/2
+22 java/2'
+55 scala/Predef.println(+1).2"
+88 	test/typers.tries.y.2&
+8'8 'scala/Function1#apply().2&
+88 'scala/Predef.identity().2
+88 scala/Predef.2
+88 local102
+8'8 'local92"
+:: 	test/typers.tries.z.2'
+<< scala/Predef.println(+1).2*
+<< java/lang/String#toString().2
+@@ 	test/typers.C#2'
+BB test/typers.C#`<init>`().2'
+BB scala/annotation/tailrec#2(
+BB  test/typers.C#factorial().2-
+B!B $test/typers.C#factorial().(acc)2
+B&B )
+scala/Int#2+
+B+B ,test/typers.C#factorial().(n)2
+B.B 1
+scala/Int#2
+B4B 7
+scala/Int#2+
+B:B ;test/typers.C#factorial().(n)2-
+CC test/typers.C#factorial().(acc)2(
+DD test/typers.C#factorial().2 
+DD scala/Int#`*`(+3).2-
+DD test/typers.C#factorial().(acc)2+
+D D !test/typers.C#factorial().(n)2 
+D%D &scala/Int#`-`(+3).2+
+D#D $test/typers.C#factorial().(n)2'
+GG scala/Predef.println(+1).2(
+GG test/typers.C#factorial().2&
+LL test/typers.Refinements#21
+MM #test/typers.Refinements#`<init>`().2(
+M
+M test/typers.Refinements#C#23
+MM %test/typers.Refinements#C#`<init>`().2*
+MM test/typers.Refinements#C#T#22
+MM !$test/typers.Refinements#C#process().25
+M"M #'test/typers.Refinements#C#process().(x)2*
+M%M &test/typers.Refinements#C#T#2
+M)M ,
+scala/Int#2(
+NN 	test/typers.Refinements#y.2(
+NN test/typers.Refinements#C#2
+NN local112
+NN local122
+N N !local112
+N'N .local132
+N/N 0local142
+N2N 3local112
+N6N 9
+scala/Int#2#
+N>N Ascala/Predef.`???`().2(
+Q	Q test/typers.Accessibility.2*
+S
+S test/typers.Accessibility.A#25
+TT 'test/typers.Accessibility.A#`<init>`().2,
+T
+T test/typers.Accessibility.A#x.2"
+TT scala/Predef.String#2*
+W
+W test/typers.Accessibility.B#25
+WW 'test/typers.Accessibility.B#`<init>`().25
+WW 'test/typers.Accessibility.A#`<init>`().2*
+WW test/typers.Accessibility.A#2,
+XX test/typers.Accessibility.B#x.2
+XX 
+scala/Int#2*
+[[ 	test/typers.Accessibility.b.2*
+[[ test/typers.Accessibility.B#25
+[[ 'test/typers.Accessibility.B#`<init>`().2*
+[[ test/typers.Accessibility.B#2*
+\\ 	test/typers.Accessibility.y.2,
+\\ test/typers.Accessibility.A#x.2*
+\\ test/typers.Accessibility.b.2*
+]] 	test/typers.Accessibility.z.2"
+]] scala/Predef.String#2*
+]] test/typers.Accessibility.y.2
+a	a test/typers.Self.2!
+c
+c test/typers.Self.A#2,
+cc test/typers.Self.A#`<init>`().2
+cc 
+scala/Int#2
+cc local152'
+cc test/typers.Self.A#self1.2)
+e
+e test/typers.Self.A#self1().2,
+ee test/typers.Self.A#self1().(x)2
+ee 
+scala/Int#2,
+ee test/typers.Self.A#self1().(x)2#
+gg test/typers.Self.A#B#2.
+hh  test/typers.Self.A#B#`<init>`().2%
+hh test/typers.Self.A#B#b.2!
+hh test/typers.Self.A#2%
+ii test/typers.Self.A#B#c.2!
+ii test/typers.Self.A#2%
+ii test/typers.Self.A#B#b.2#
+l
+l test/typers.Self.A#a.2!
+ll test/typers.Self.A#2#
+m
+m test/typers.Self.A#c.2!
+mm test/typers.Self.A#2#
+mm test/typers.Self.A#a.2!
+s	s test/typers.Arrays.2%
+uu test/typers.Arrays.arr.29
+u"u )+scala/collection/IterableOnceOps#toArray().27
+uu )scala/collection/IterableFactory#apply().2!
+uu scala/package.List.2-
+u)u )scala/reflect/ClassTag.apply().2#
+vv 	test/typers.Arrays.i.2(
+ww java/lang/String#charAt().2"
+ww scala/Array#apply().2%
+ww test/typers.Arrays.arr.2#
+ww 	test/typers.Arrays.i.2#
+yy 	test/typers.Arrays.x.2@
+y#y #2scala/collection/mutable/ArrayBuffer#`<init>`(+1).23
+yy %scala/collection/mutable/ArrayBuffer#2"
+yy "scala/Predef.String#2)
+{{ test/typers.Arrays.entries.2"
+{{ scala/Array.apply().2
+{{ scala/Array.2-
+{%{ %scala/reflect/ClassTag.apply().2=
+}'} '/scala/collection/ArrayOps.WithFilter#foreach().25
+}'} ''scala/collection/ArrayOps#withFilter().2)
+}} scala/Predef.refArrayOps().27
+}} ')scala/collection/ArrayOps#zipWithIndex().2)
+}} test/typers.Arrays.entries.2
+}	} 	local162%
+}
+} 
+scala/Tuple2.unapply().2
+}
+} local172
+}} local182'
+~~ scala/Predef.println(+1).2
+~~ local172*
+
+Å	Å test/typers.SeqExtractors.2,
+
+ÇÇ 	test/typers.SeqExtractors.y.2"
+
+ÇÇ test/typers.names.29
+
+ÉÉ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÉÉ scala/package.List.2
+
+ÉÉ local192
+
+ÉÉ local202
+
+ÉÉ local1929
+
+ÑÑ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÑÑ scala/package.List.2
+
+ÑÑ local212
+
+ÑÑ local2129
+
+ÖÖ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÖÖ scala/package.List.2-
+
+áá 
+test/typers.SeqExtractors.yy.2$
+
+áá scala/Predef.String#2,
+
+áá test/typers.SeqExtractors.y.PZ 3C47F6D806067783696330450D0CCD14

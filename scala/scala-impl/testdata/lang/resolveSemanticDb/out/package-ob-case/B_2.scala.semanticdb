@@ -1,0 +1,29 @@
+
+˜#tests/pos/package-ob-case/B_2.scala*
+foo/foo/package. *foo€*
+foo/foo/package.X# €*X€*/
+foo/foo/package.X#`<init>`(). €@*<init>€*-
+ foo/foo/package.X#`<init>`().(z) €*z€*!
+foo/foo/package.X#z. €*z€*&
+foo/foo/package.X#copy().*copy€*&
+foo/foo/package.X#copy().(z)*z€*:
+#foo/foo/package.X#copy$default$1().*copy$default$1€*"
+foo/foo/package.X#_1().*_1€*
+foo/foo/package.X.
+ *X€*(
+foo/foo/package.X.apply().*apply€*'
+foo/foo/package.X.apply().(z)*z€*,
+foo/foo/package.X.unapply().*unapply€*-
+!foo/foo/package.X.unapply().(x$1)*x$1€*.
+foo/foo/package.X.toString().*toString€2
+ foo/2
+ foo/foo/package.2 
+ foo/foo/package.X#2+
+ foo/foo/package.X#`<init>`().2
+ 
+scala/Int#2"
+ foo/foo/package.X#z.2'
+ foo/foo/package.X#copy().2%
+ foo/foo/package.X#_1().2 
+ foo/foo/package.X.2(
+ foo/foo/package.X.apply().PZ CFF3BEBCE7C66209E78D661B0BE09E0C

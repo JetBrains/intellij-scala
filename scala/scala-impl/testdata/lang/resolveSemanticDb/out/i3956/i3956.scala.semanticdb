@@ -1,0 +1,25 @@
+
+¸tests/pos/i3956.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.RInt#*RInt€*
+local0 „*x€*
+_empty_/Foo.f().*f€*
+_empty_/Foo.f().(xs)*xs€2
+ 
+_empty_/Foo.2
+ _empty_/Foo.RInt#2
+ 
+scala/Int#2
+ local02
+ 
+scala/Int#2
+ _empty_/Foo.f().2"
+ 
+_empty_/Foo.f().(xs)2!
+ scala/package.List#2
+ 
+scala/Int#2!
+ scala/package.List#2
+ !_empty_/Foo.RInt#2#
+% (scala/Predef.`???`().PZ 4C5C4097090C3EACB3965AF12997A652

@@ -1,0 +1,87 @@
+
+Œtests/pos/t2712-4.scala*
+test/Test1.
+ *Test1€*
+test/Test1.X#*X€**
+test/Test1.X#`<init>`(). €@*<init>€*
+test/Test1.Y#*Y€**
+test/Test1.Y#`<init>`(). €@*<init>€*
+test/Test1.Foo#*Foo€*,
+test/Test1.Foo#`<init>`(). €@*<init>€*
+test/Test1.Foo#[T]	*T€*
+test/Test1.Foo#[U]	*U€*
+test/Test1.meh().*meh€*
+test/Test1.meh().[M]	*M€*
+test/Test1.meh().[A]	*A€*
+test/Test1.meh().(x)*x€*
+test/Test2.
+ *Test2€*
+test/Test2.X#*X€**
+test/Test2.X#`<init>`(). €@*<init>€*
+test/Test2.Y#*Y€**
+test/Test2.Y#`<init>`(). €@*<init>€*
+test/Test2.Foo#*Foo€*,
+test/Test2.Foo#`<init>`(). €@*<init>€*
+test/Test2.Foo#[T]	*T€*
+test/Test2.Foo#[U]	*U€*
+test/Test2.meh().*meh€*
+test/Test2.meh().[M]	*M€*
+test/Test2.meh().[A]	*A€*
+test/Test2.meh().(x)*x€2
+ test/2
+ test/Test1.2
+ 	test/Test1.X#2&
+ test/Test1.X#`<init>`().2
+ 	test/Test1.Y#2&
+ test/Test1.Y#`<init>`().2
+ test/Test1.X#2
+ test/Test1.Foo#2(
+ test/Test1.Foo#`<init>`().2 
+ test/Test1.Foo#[T]2 
+ test/Test1.Foo#[U]2
+ 	test/Test1.meh().2"
+
+ test/Test1.meh().[M]2"
+ test/Test1.meh().[A]2"
+ test/Test1.meh().(x)2"
+ test/Test1.meh().[M]2"
+ test/Test1.meh().[A]2"
+" #test/Test1.meh().[M]2"
+$ %test/Test1.meh().[A]2"
+) *test/Test1.meh().(x)2
+ test/Test1.meh().2(
+ test/Test1.Foo#`<init>`().2
+
+ test/Test1.Foo#2
+ 
+scala/Int#2
+ test/Test1.Y#2
+
+
+ test/Test2.2
+ 	test/Test2.X#2&
+ test/Test2.X#`<init>`().2
+ 	test/Test2.Y#2&
+ test/Test2.Y#`<init>`().2
+ test/Test2.X#2
+ test/Test2.Foo#2(
+ test/Test2.Foo#`<init>`().2 
+ test/Test2.Foo#[T]2 
+ test/Test2.Foo#[U]2
+ 	test/Test2.meh().2"
+
+ test/Test2.meh().[M]2"
+ test/Test2.meh().[A]2"
+ test/Test2.meh().(x)2"
+ test/Test2.meh().[M]2"
+ test/Test2.meh().[A]2"
+" #test/Test2.meh().[M]2"
+$ %test/Test2.meh().[A]2"
+) *test/Test2.meh().(x)2
+ test/Test2.meh().2(
+ test/Test2.Foo#`<init>`().2
+
+ test/Test2.Foo#2
+ 
+scala/Int#2
+ test/Test2.X#PZ 9399E75BE0BF83AF46146402D8E479D9

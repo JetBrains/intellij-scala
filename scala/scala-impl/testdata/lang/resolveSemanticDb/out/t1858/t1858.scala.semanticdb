@@ -1,0 +1,31 @@
+
+Ïtests/pos/t1858.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*
+local0 €*s€2)
+  %scala/collection/mutable/Stack.2)
+  %scala/collection/mutable/Stack#2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ 	local02:
+ ,scala/collection/mutable/Stack#`<init>`(+1).2-
+ scala/collection/mutable/Stack#2
+ 
+scala/Int#24
+ 
+&scala/collection/mutable/Stack#push().2
+ local026
+ 
+(scala/collection/mutable/Stack#push(+1).2
+ local026
+ 
+(scala/collection/mutable/Stack#push(+1).2
+ local026
+		 
+(scala/collection/mutable/Stack#push(+1).2
+		 local0PZ 7E62C32A46943DEA360286AF14917527

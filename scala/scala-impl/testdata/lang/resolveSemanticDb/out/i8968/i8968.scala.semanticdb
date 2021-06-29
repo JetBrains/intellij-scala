@@ -1,0 +1,22 @@
+
+Ætests/pos/i8968.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.get().*get€*
+_empty_/Bar.
+ *Bar€* 
+_empty_/Bar.get(). *get€*(
+_empty_/i8968$package. *_empty_€*%
+_empty_/i8968$package.v. €*v€2
+ 
+_empty_/Foo.2 
+ _empty_/Foo.get().2
+ 
+_empty_/Bar.2
+	 _empty_/Foo.2 
+ _empty_/Bar.get().2 
+ _empty_/Foo.get().2 
+_empty_/i8968$package.2&
+ _empty_/i8968$package.v.2 
+ _empty_/Bar.get().2
+ _empty_/Bar.PZ BFB2454DE23F5406CF7A3E8A3084095D

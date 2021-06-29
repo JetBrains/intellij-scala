@@ -1,0 +1,201 @@
+
+’3 tests/pos/poly-inheritance.scala*
+_empty_/It#*It€*(
+_empty_/It#`<init>`(). €@*<init>€*
+_empty_/It#[A]	 €*A€*
+_empty_/Ops#*Ops€*)
+_empty_/Ops#`<init>`(). €@*<init>€*
+_empty_/Ops#[A]	 €*A€*
+_empty_/Ops#[CC]	 €*CC€*
+_empty_/Ops#[C]	 €*C€*$
+_empty_/Ops#filter().*filter€*"
+_empty_/Ops#filter().(f)*f€*
+_empty_/Ops#map().*map€*
+_empty_/Ops#map().[B]	*B€*
+_empty_/Ops#map().(f)*f€*"
+_empty_/Ops#toSeq().*toSeq€*"
+_empty_/ArraySeq#*ArraySeq€*.
+_empty_/ArraySeq#`<init>`(). €@*<init>€*
+_empty_/ArraySeq#[A]	*A€*
+_empty_/LP#*LP€*(
+_empty_/LP#`<init>`(). €@*<init>€*-
+_empty_/LP#arrayToSeq().  *
+arrayToSeq€*%
+_empty_/LP#arrayToSeq().[A]	*A€*'
+_empty_/LP#arrayToSeq().(xs)*xs€*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.ArrOps# *ArrOps€*1
+_empty_/Test.ArrOps#`<init>`(). €@*<init>€*1
+#_empty_/Test.ArrOps#`<init>`().(xs) €*xs€*!
+_empty_/Test.ArrOps#[A]	*A€*%
+_empty_/Test.ArrOps#xs. €*xs€*&
+_empty_/Test.ArrOps#map().*map€*'
+_empty_/Test.ArrOps#map().[B]	*B€*'
+_empty_/Test.ArrOps#map().(f)*f€**
+_empty_/Test.ArrOps#toSeq().*toSeq€*%
+_empty_/Test.ArrOps.
+ *ArrOps€*'
+_empty_/Test.ArrOps(). (*ArrOps€*#
+_empty_/Test.ArrOps().[A]	*A€*%
+_empty_/Test.ArrOps().(xs)*xs€* 
+_empty_/Test.xs1. €*xs1€* 
+_empty_/Test.xs2. €*xs2€*"
+_empty_/Test.xs2a. €*xs2a€* 
+_empty_/Test.xs3. €*xs3€*"
+_empty_/Test.xs3a. €*xs3a€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€*
+_empty_/Test.f().(f)*f€*
+local0 €*xs1€*
+local1 €*xs2€*
+local2 €*xs2a€*
+local3 €*xs3€*
+local4 €*xs3a€2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2#
+ scala/Predef.`???`().2
+ scala/Predef.2
+ _empty_/It#2$
+ _empty_/It#`<init>`().2
+ _empty_/Ops#2
+ _empty_/It#[A]2
+  "_empty_/It#2
+# $_empty_/It#[A]2
+
+ _empty_/It#[A]2
+ 	_empty_/Ops#2%
+	 	_empty_/Ops#`<init>`().2
+" %
+scala/Any#2
+ _empty_/Ops#[A]2
+ _empty_/Ops#[CC]2
+ _empty_/Ops#[C]2#
+ _empty_/Ops#filter().2&
+ _empty_/Ops#filter().(f)2
+ _empty_/Ops#[A]2
+ scala/Boolean#2
+  _empty_/Ops#[C]2#
+# &scala/Predef.`???`().2 
+ 	_empty_/Ops#map().2#
+
+ _empty_/Ops#map().[B]2#
+ _empty_/Ops#map().(f)2
+ _empty_/Ops#[A]2#
+ _empty_/Ops#map().[B]2
+ _empty_/Ops#[CC]2#
+ _empty_/Ops#map().[B]2#
+! $scala/Predef.`???`().2"
+		 _empty_/Ops#toSeq().2
+		 _empty_/It#2
+		 _empty_/Ops#[A]2#
+		 scala/Predef.`???`().2
+ _empty_/ArraySeq#2*
+ _empty_/ArraySeq#`<init>`().2$
+ _empty_/It#`<init>`().2
+ _empty_/It#2"
+ _empty_/ArraySeq#[A]2
+% (_empty_/Ops#2"
+) *_empty_/ArraySeq#[A]2
+6 >_empty_/ArraySeq#2"
+? @_empty_/ArraySeq#[A]2"
+ _empty_/ArraySeq#[A]2
+ _empty_/LP#2$
+ _empty_/LP#`<init>`().2&
+ _empty_/LP#arrayToSeq().2)
+ _empty_/LP#arrayToSeq().[A]2*
+ _empty_/LP#arrayToSeq().(xs)2
+! &scala/Array#2)
+' (_empty_/LP#arrayToSeq().[A]2
+, 4_empty_/ArraySeq#2)
+5 6_empty_/LP#arrayToSeq().[A]2#
+: =scala/Predef.`???`().2
+ _empty_/Test.2$
+ _empty_/LP#`<init>`().2
+ _empty_/LP#2"
+ _empty_/Test.ArrOps#2-
+ _empty_/Test.ArrOps#`<init>`().2
+# (scala/Array#2%
+) *_empty_/Test.ArrOps#[A]2&
+; ;scala/AnyVal#`<init>`().2
+5 ;scala/AnyVal#2
+A D_empty_/Ops#2%
+E F_empty_/Test.ArrOps#[A]2
+R Wscala/Array#2%
+X Y_empty_/Test.ArrOps#[A]2%
+ _empty_/Test.ArrOps#[A]2%
+ !_empty_/Test.ArrOps#xs.2(
+ _empty_/Test.ArrOps#map().2+
+ _empty_/Test.ArrOps#map().[B]2+
+ _empty_/Test.ArrOps#map().(f)2%
+ _empty_/Test.ArrOps#[A]2+
+! "_empty_/Test.ArrOps#map().[B]2%
+ scala/reflect/ClassTag#2+
+ _empty_/Test.ArrOps#map().[B]2
+% *scala/Array#2+
++ ,_empty_/Test.ArrOps#map().[B]2#
+0 3scala/Predef.`???`().2*
+ _empty_/Test.ArrOps#toSeq().2
+  _empty_/ArraySeq#2%
+! "_empty_/Test.ArrOps#[A]2&
+& 0_empty_/LP#arrayToSeq().2%
+1 3_empty_/Test.ArrOps#xs.2"
+ _empty_/Test.ArrOps.2$
+ _empty_/Test.ArrOps().2
+ 	_empty_/Test.xs1.2$
+ scala/Array.apply(+5).2
+ scala/Array.2
+ 	_empty_/Test.xs2.2#
+ _empty_/Ops#filter().2$
+ _empty_/Test.ArrOps().2
+ _empty_/Test.xs1.2!
+ scala/Int#`==`(+3).2 
+ scala/Int#`%`(+3).2 
+ 
+_empty_/Test.xs2a.2
+ scala/Array#2
+ 
+scala/Int#2
+ _empty_/Test.xs2.2
+ 	_empty_/Test.xs3.2(
+ _empty_/Test.ArrOps#map().2$
+ _empty_/Test.ArrOps().2
+ _empty_/Test.xs1.2
+ scala/Int#`+`().2-
+ scala/reflect/ClassTag.apply().2 
+ 
+_empty_/Test.xs3a.2
+ scala/Array#2
+ java/lang/String#2
+ _empty_/Test.xs3.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2"
+ _empty_/Test.f().(f)2
+ 
+scala/Int#2"
+ _empty_/Test.f().[T]2
+   local02$
+   scala/Array.apply(+5).2
+   scala/Array.2
+!! local12#
+!! _empty_/Ops#filter().2$
+!! _empty_/Test.ArrOps().2
+!! local02!
+!! !scala/Int#`==`(+3).2 
+!! scala/Int#`%`(+3).2
+"" local22
+"" scala/Array#2
+"" 
+scala/Int#2
+"" local12
+## local32 
+## _empty_/Ops#map().2*
+## _empty_/Test.ArrOps#toSeq().2$
+## _empty_/Test.ArrOps().2
+## local02"
+## _empty_/Test.f().(f)2
+$$ local42
+$$ _empty_/ArraySeq#2"
+$$ _empty_/Test.f().[T]2
+$$ local3PZ BE73B545D778319494DBA9639F449A5B

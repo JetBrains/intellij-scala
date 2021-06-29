@@ -1,0 +1,53 @@
+
+„
+tests/pos/t262.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.A# *A€*)
+_empty_/O.A#`<init>`(). €@*<init>€*
+_empty_/O.A#f(). *f€*
+_empty_/O.B#*B€*)
+_empty_/O.B#`<init>`(). €@*<init>€*
+_empty_/O.B#f().*f€*
+_empty_/O.C#*C€*)
+_empty_/O.C#`<init>`(). €@*<init>€*
+_empty_/O.C#f().*f€*
+_empty_/O.D#*D€*)
+_empty_/O.D#`<init>`(). €@*<init>€*
+_empty_/O.D#f().*f€2
+ 
+_empty_/O.2
+ _empty_/O.A#2%
+ _empty_/O.A#`<init>`().2
+ 	_empty_/O.A#f().2
+
+ _empty_/O.A#2
+ 	_empty_/O.B#2%
+ _empty_/O.B#`<init>`().2%
+ _empty_/O.A#`<init>`().2
+ _empty_/O.A#2
+ 	_empty_/O.B#f().2!
+ scala/Int#`==`(+3).2%
+ _empty_/O.C#`<init>`().2
+ _empty_/O.C#2%
+( (_empty_/O.D#`<init>`().2
+' (_empty_/O.D#2
+ 	_empty_/O.C#2%
+ _empty_/O.C#`<init>`().2%
+ _empty_/O.A#`<init>`().2
+ _empty_/O.A#2
+ 	_empty_/O.C#f().2
+
+
+ 	_empty_/O.D#2%
+
+
+ _empty_/O.D#`<init>`().2%
+
+
+ _empty_/O.A#`<init>`().2
+
+
+ _empty_/O.A#2
+ 	_empty_/O.D#f().PZ F2E3A94A4FF5AD21F1D308E634879022

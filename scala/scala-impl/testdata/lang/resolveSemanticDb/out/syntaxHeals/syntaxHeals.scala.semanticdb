@@ -1,0 +1,59 @@
+
+ºtests/pos/syntaxHeals.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*
+local0*x€*
+local1*x€*
+local2*x€*
+local3*y€*
+local4*x€*
+local5*y€2
+ _empty_/Test.2
+ _empty_/Test.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.24
+ &scala/collection/immutable/List#map().2
+ _empty_/Test.xs.2
+ local02 
+ scala/Int#`*`(+3).2
+ local024
+		 &scala/collection/immutable/List#map().2
+		 _empty_/Test.xs.2
+		 local12 
+
+
+
+ scala/Int#`*`(+3).2
+
+
+ 	local128
+ *scala/collection/immutable/List#flatMap().2
+ _empty_/Test.xs.2
+ local224
+ &scala/collection/immutable/List#map().2
+ _empty_/Test.xs.2
+ local32 
+! "scala/Int#`*`(+3).2
+  local22
+# $local328
+ *scala/collection/immutable/List#flatMap().2
+	 _empty_/Test.xs.2
+ local424
+ &scala/collection/immutable/List#map().2
+	 _empty_/Test.xs.2
+ local52 
+ scala/Int#`*`(+3).2
+	 
+local42
+ local52
+ 
+scala/Any#`==`().2
+ _empty_/Test.xs.2 
+ scala/package.Nil.2'
+ scala/Predef.println(+1).2
+ 
+scala/Any#`==`().2
+ _empty_/Test.xs.2 
+ scala/package.Nil.2'
+ scala/Predef.println(+1).PZ FB9D233A583F82834B4F5B299E1521C4

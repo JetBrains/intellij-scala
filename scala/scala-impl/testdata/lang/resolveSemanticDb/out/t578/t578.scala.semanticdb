@@ -1,0 +1,26 @@
+
+ítests/pos/t578.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*
+_empty_/Test.x2. €*x2€*
+_empty_/Test.y. €*y€*
+_empty_/Test.y2. €*y2€2
+ _empty_/Test.2
+ _empty_/Test.x.2 
+
+ scala/package.Nil.2
+ _empty_/Test.x2.2 
+
+ scala/package.Nil.2
+ _empty_/Test.x.2
+ _empty_/Test.y.2
+
+ scala/None.2
+ _empty_/Test.y2.2
+
+ scala/None.2
+ _empty_/Test.y.2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.PZ 0901DD88A9181C63032CEF3155A169CD

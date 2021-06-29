@@ -1,0 +1,29 @@
+
+¼tests/pos/i11421.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#`::`().*::€*"
+_empty_/Foo#`::`().(hd)*hd€* 
+_empty_/Foo#`::`(+1).*::€*$
+_empty_/Foo#`::`(+1).(hd)*hd€*
+local0 €*x€*
+local1 €*tail€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2!
+ _empty_/Foo#`::`().2%
+	 _empty_/Foo#`::`().(hd)2"
+ scala/Predef.String#2
+ _empty_/Foo#2#
+ scala/Predef.`???`().2#
+ _empty_/Foo#`::`(+1).2'
+	 _empty_/Foo#`::`(+1).(hd)2
+ scala/Boolean#2
+ _empty_/Foo#2#
+ !scala/Predef.`???`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+	 
+local02
+ local1PZ FC7434BF2DEACF87E5B5CF5C7E6ACC31

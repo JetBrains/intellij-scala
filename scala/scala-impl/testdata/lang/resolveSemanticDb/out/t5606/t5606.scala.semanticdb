@@ -1,0 +1,33 @@
+
+÷
+tests/pos/t5606.scala*%
+_empty_/CaseTest# €*CaseTest€*.
+_empty_/CaseTest#`<init>`(). €@*<init>€*:
+&_empty_/CaseTest#`<init>`().(someData) €*someData€*2
+_empty_/CaseTest#[X_271044897]	*X_271044897€*.
+_empty_/CaseTest#someData. €*someData€*%
+_empty_/CaseTest#copy().*copy€*9
+%_empty_/CaseTest#copy().[X_271044897]	*X_271044897€*3
+"_empty_/CaseTest#copy().(someData)*someData€*9
+"_empty_/CaseTest#copy$default$1().*copy$default$1€*C
+/_empty_/CaseTest#copy$default$1().[X_271044897]	*X_271044897€*!
+_empty_/CaseTest#_1().*_1€*$
+_empty_/CaseTest.
+ *CaseTest€*'
+_empty_/CaseTest.apply().*apply€*:
+&_empty_/CaseTest.apply().[X_271044897]	*X_271044897€*4
+#_empty_/CaseTest.apply().(someData)*someData€*+
+_empty_/CaseTest.unapply().*unapply€*<
+(_empty_/CaseTest.unapply().[X_271044897]	*X_271044897€*,
+ _empty_/CaseTest.unapply().(x$1)*x$1€*-
+_empty_/CaseTest.toString().*toString€2
+ _empty_/CaseTest#2*
+ _empty_/CaseTest#`<init>`().2"
+* 0scala/Predef.String#2,
+ _empty_/CaseTest#[X_271044897]2(
+! )_empty_/CaseTest#someData.2"
+_empty_/CaseTest#copy().2$
+* *_empty_/CaseTest#_1().2
+ _empty_/CaseTest.2#
+_empty_/CaseTest.apply().2%
+_empty_/CaseTest.unapply().PZ D93BF6D475F3F0AC825E57E547BCBD43

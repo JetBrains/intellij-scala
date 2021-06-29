@@ -1,0 +1,85 @@
+
+« tests/pos/variances-constr.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[A]	 €*A€*
+_empty_/C#y(). €*y€*
+_empty_/C#getY().*getY€*
+_empty_/C#Inner#*Inner€*-
+_empty_/C#Inner#`<init>`(). €@*<init>€*(
+_empty_/C#Inner#`<init>`().(x)*x€*
+_empty_/C#Inner#x. €*x€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*x€*
+local1 €*y€*
+local2 €*i€*
+local3 €*s€*
+_empty_/CC#*CC€*(
+_empty_/CC#`<init>`(). €@*<init>€*
+_empty_/CC#[A]	 €*A€*
+_empty_/CC#Inner#*Inner€*.
+_empty_/CC#Inner#`<init>`(). €@*<init>€*-
+_empty_/CC#Inner#`<init>`(+1).*<init>€*+
+!_empty_/CC#Inner#`<init>`(+1).(a)*a€2)
+ scala/language.`3.0-migration`.2
+ scala/language.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+	 
+_empty_/C#[A]2
+ _empty_/C#y().2
+ _empty_/C#[A]2@
+' 42scala/compiletime/package$package.uninitialized().2 
+ &scala/compiletime/2
+ 
+_empty_/C#getY().2
+ _empty_/C#[A]2
+ _empty_/C#y().2
+ _empty_/C#Inner#2)
+ _empty_/C#Inner#`<init>`().2
+ _empty_/C#[A]2 
+ _empty_/C#Inner#x.2
+ _empty_/C#y().2 
+ 	_empty_/C#Inner#x.2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+ 	local02#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2"
+ scala/Predef.String#2
+ 	local12
+ 
+_empty_/C#2
+ 
+scala/Any#2
+ local02
+ 	local22)
+ _empty_/C#Inner#`<init>`().2
+ _empty_/C#Inner#2
+ local12
+ 	local32"
+ scala/Predef.String#2
+ _empty_/C#getY().2
+ local02'
+ scala/Predef.println(+1).2
+ local32
+ _empty_/CC#2$
+ _empty_/CC#`<init>`().2
+
+ _empty_/CC#[A]2
+ _empty_/CC#Inner#2*
+ _empty_/CC#Inner#`<init>`().2,
+ _empty_/CC#Inner#`<init>`(+1).2/
+ !_empty_/CC#Inner#`<init>`(+1).(a)2
+ _empty_/CC#[A]2*
+ _empty_/CC#Inner#`<init>`().PZ 2D1C56808A5810C801A14BE0237CC37D

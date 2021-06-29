@@ -1,0 +1,56 @@
+
+·tests/pos/i9676.scala*$
+_empty_/SubtypeOf#*	SubtypeOf€*/
+_empty_/SubtypeOf#`<init>`(). €@*<init>€*
+_empty_/SubtypeOf#[A]	*A€*
+_empty_/SubtypeOf#[B]	*B€*
+_empty_/Test1.
+ *Test1€**
+_empty_/Test1.instance().*instance€*&
+_empty_/Test1.instance().[F]	*F€*&
+_empty_/Test1.instance().[G]	*G€*
+local0 *$anon€*
+_empty_/Test1.x. €*x€*
+_empty_/Test2.
+ *Test2€**
+_empty_/Test2.instance().*instance€*&
+_empty_/Test2.instance().[G]	*G€*&
+_empty_/Test2.instance().[F]	*F€*
+local1 *$anon€*
+_empty_/Test2.x. €*x€2
+ _empty_/SubtypeOf#2'
+ _empty_/SubtypeOf#`<init>`().2
+ _empty_/SubtypeOf#[A]2
+ _empty_/SubtypeOf#[B]2
+ _empty_/Test1.2'
+ _empty_/Test1.instance().2*
+ _empty_/Test1.instance().[F]2*
+ _empty_/Test1.instance().[G]2 
+$ -_empty_/SubtypeOf#2*
+. /_empty_/Test1.instance().[F]2*
+1 2_empty_/Test1.instance().[G]2
+6 6local02 
+: C_empty_/SubtypeOf#2*
+D E_empty_/Test1.instance().[F]2*
+G H_empty_/Test1.instance().[G]2
+ _empty_/Test1.x.2 
+	 _empty_/SubtypeOf#2!
+ scala/package.List#2 
+ scala/package.Seq#2'
+  (_empty_/Test1.instance().2
+ _empty_/Test2.2'
+		 _empty_/Test2.instance().2*
+		 _empty_/Test2.instance().[G]2*
+		 _empty_/Test2.instance().[F]2 
+	$	 -_empty_/SubtypeOf#2*
+	.	 /_empty_/Test2.instance().[F]2*
+	1	 2_empty_/Test2.instance().[G]2
+	6	 6local12 
+	:	 C_empty_/SubtypeOf#2*
+	D	 E_empty_/Test2.instance().[F]2*
+	G	 H_empty_/Test2.instance().[G]2
+ _empty_/Test2.x.2 
+	 _empty_/SubtypeOf#2!
+ scala/package.List#2 
+ scala/package.Seq#2'
+  (_empty_/Test2.instance().PZ 2BCF216E9E0A2C4AD7569A4D3497F665

@@ -1,0 +1,476 @@
+
+žO8tests/pos/automatic-tupling-of-function-parameters.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f2. €*f2€*
+local0*x$1€*
+local1*x€*
+local2*y€*
+_empty_/Test.g2. €*g2€*
+local3*x$1€*
+_empty_/Test.T2#*T2€*
+_empty_/Test.h2. €*h2€*
+local4*x$1€*
+local5*x1€*
+local6*x2€*
+_empty_/Test.f3. €*f3€*
+local7*x$1€*
+local8*x1€*
+local9*x2€*
+local10*x3€*
+_empty_/Test.g3. €*g3€*
+local11*x$1€*
+_empty_/Test.f5. €*f5€*
+local12*x$1€*
+local13*x1€*
+local14*x2€*
+local15*x3€*
+local16*x4€*
+local17*x5€*
+_empty_/Test.g5. €*g5€*
+local18*x$1€* 
+_empty_/Test.f10. €*f10€*
+local19*x$1€*
+local20*x1€*
+local21*x2€*
+local22*x3€*
+local23*x4€*
+local24*x5€*
+local25*x6€*
+local26*x7€*
+local27*x8€*
+local28*x9€*
+local29*x10€* 
+_empty_/Test.g10. €*g10€*
+local30*x$1€* 
+_empty_/Test.f22. €*f22€*
+local31*x$1€*
+local32*x1€*
+local33*x2€*
+local34*x3€*
+local35*x4€*
+local36*x5€*
+local37*x6€*
+local38*x7€*
+local39*x8€*
+local40*x9€*
+local41*x10€*
+local42*x11€*
+local43*x12€*
+local44*x13€*
+local45*x14€*
+local46*x15€*
+local47*x16€*
+local48*x17€*
+local49*x18€*
+local50*x19€*
+local51*x20€*
+local52*x21€*
+local53*x22€* 
+_empty_/Test.g22. €*g22€*
+local54*x$1€2
+ _empty_/Test.2
+ _empty_/Test.f2.2
+
+ scala/Tuple2#2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+! $
+scala/Int#2
+( )local12
+( (scala/Tuple2#_1.2
++ ,local22
++ +scala/Tuple2#_2.2
+1 2local12
+ _empty_/Test.g2.2
+
+ scala/Tuple2#2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+! $
+scala/Int#2
+' 'scala/Tuple2#_1.2
++ +scala/Tuple2#_2.2 
+) *scala/Int#`+`(+4).2(
+- 3java/lang/String#length().2
+
+
+ 	_empty_/Test.T2#2
+
+
+ scala/Tuple2#2
+
+
+ 
+scala/Int#2
+
+
+ 
+scala/Int#2
+ _empty_/Test.h2.2
+
+ _empty_/Test.T2#2
+ 
+scala/Int#2
+ local52*
+ scala/NonEmptyTuple#apply().2
+ local62*
+ scala/NonEmptyTuple#apply().2
+ _empty_/Test.f3.2
+
+ scala/Tuple3#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+# &
+scala/Int#2
+* ,local82
+* *scala/Tuple3#_1.2
+. 0local92
+. .scala/Tuple3#_2.2
+2 4local102
+2 2scala/Tuple3#_3.2
+ _empty_/Test.g3.2
+
+ scala/Tuple3#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+# &
+scala/Int#2
+) )scala/Tuple3#_1.2
+- -scala/Tuple3#_2.2
+1 1scala/Tuple3#_3.2 
+/ 0scala/Int#`+`(+4).2 
++ ,scala/Int#`+`(+4).2
+ _empty_/Test.f5.2
+
+ scala/Tuple5#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  #
+scala/Int#2
+% (
+scala/Int#2
+- 0
+scala/Int#2
+4 6local132
+4 4scala/Tuple5#_1.2
+8 :local142
+8 8scala/Tuple5#_2.2
+< >local152
+< <scala/Tuple5#_3.2
+@ Blocal162
+@ @scala/Tuple5#_4.2
+D Flocal172
+D Dscala/Tuple5#_5.2
+ _empty_/Test.g5.2
+
+ scala/Tuple5#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  #
+scala/Int#2
+% (
+scala/Int#2
+- 0
+scala/Int#2
+3 3scala/Tuple5#_1.2
+7 7scala/Tuple5#_2.2
+; ;scala/Tuple5#_3.2
+? ?scala/Tuple5#_4.2
+C Cscala/Tuple5#_5.2 
+A Bscala/Int#`+`(+4).2 
+= >scala/Int#`+`(+4).2 
+9 :scala/Int#`+`(+4).2 
+5 6scala/Int#`+`(+4).2
+ 	_empty_/Test.f10.2
+ scala/Tuple10#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  
+scala/Int#2
+" %
+scala/Int#2
+' *
+scala/Int#2
+, /
+scala/Int#2
+1 4
+scala/Int#2
+6 9
+scala/Int#2
+; >
+scala/Int#2
+@ C
+scala/Int#2
+H K
+scala/Int#2
+ local202
+ scala/Tuple10#_1.2
+	 local212
+	 	scala/Tuple10#_2.2
+ local222
+ scala/Tuple10#_3.2
+ local232
+ scala/Tuple10#_4.2
+ local242
+ scala/Tuple10#_5.2
+ local252
+ scala/Tuple10#_6.2
+ local262
+ scala/Tuple10#_7.2
+! #local272
+! !scala/Tuple10#_8.2
+% 'local282
+% %scala/Tuple10#_9.2
+) ,local292 
+) )scala/Tuple10#_10.2
+ 	_empty_/Test.g10.2
+ scala/Tuple10#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  
+scala/Int#2
+" %
+scala/Int#2
+' *
+scala/Int#2
+, /
+scala/Int#2
+1 4
+scala/Int#2
+6 9
+scala/Int#2
+; >
+scala/Int#2
+@ C
+scala/Int#2
+H K
+scala/Int#2
+ scala/Tuple10#_1.2
+ scala/Tuple10#_2.2
+ scala/Tuple10#_3.2
+ scala/Tuple10#_4.2
+ scala/Tuple10#_5.2
+ scala/Tuple10#_6.2
+ scala/Tuple10#_7.2
+   scala/Tuple10#_8.2
+$ $scala/Tuple10#_9.2 
+( (scala/Tuple10#_10.2 
+& 'scala/Int#`+`(+4).2 
+" #scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2
+ 	_empty_/Test.f22.2
+ scala/Tuple22#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  
+scala/Int#2
+" %
+scala/Int#2
+' *
+scala/Int#2
+, /
+scala/Int#2
+1 4
+scala/Int#2
+6 9
+scala/Int#2
+; >
+scala/Int#2
+@ C
+scala/Int#2
+E H
+scala/Int#2
+J M
+scala/Int#2
+O R
+scala/Int#2
+T W
+scala/Int#2
+Y \
+scala/Int#2
+^ a
+scala/Int#2
+c f
+scala/Int#2
+h k
+scala/Int#2
+m p
+scala/Int#2
+r u
+scala/Int#2
+w z
+scala/Int#2
+| 
+scala/Int#2
+
+„ ‡
+scala/Int#2
+ local322
+ scala/Tuple22#_1.2
+	 local332
+	 	scala/Tuple22#_2.2
+ local342
+ scala/Tuple22#_3.2
+ local352
+ scala/Tuple22#_4.2
+ local362
+ scala/Tuple22#_5.2
+ local372
+ scala/Tuple22#_6.2
+ local382
+ scala/Tuple22#_7.2
+! #local392
+! !scala/Tuple22#_8.2
+% 'local402
+% %scala/Tuple22#_9.2
+) ,local412 
+) )scala/Tuple22#_10.2
+. 1local422 
+. .scala/Tuple22#_11.2
+3 6local432 
+3 3scala/Tuple22#_12.2
+8 ;local442 
+8 8scala/Tuple22#_13.2
+= @local452 
+= =scala/Tuple22#_14.2
+B Elocal462 
+B Bscala/Tuple22#_15.2
+G Jlocal472 
+G Gscala/Tuple22#_16.2
+L Olocal482 
+L Lscala/Tuple22#_17.2
+Q Tlocal492 
+Q Qscala/Tuple22#_18.2
+V Ylocal502 
+V Vscala/Tuple22#_19.2
+[ ^local512 
+[ [scala/Tuple22#_20.2
+` clocal522 
+` `scala/Tuple22#_21.2
+e hlocal532 
+e escala/Tuple22#_22.2
+ 	_empty_/Test.g22.2
+ scala/Tuple22#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  
+scala/Int#2
+" %
+scala/Int#2
+' *
+scala/Int#2
+, /
+scala/Int#2
+1 4
+scala/Int#2
+6 9
+scala/Int#2
+; >
+scala/Int#2
+@ C
+scala/Int#2
+E H
+scala/Int#2
+J M
+scala/Int#2
+O R
+scala/Int#2
+T W
+scala/Int#2
+Y \
+scala/Int#2
+^ a
+scala/Int#2
+c f
+scala/Int#2
+h k
+scala/Int#2
+m p
+scala/Int#2
+r u
+scala/Int#2
+w z
+scala/Int#2
+| 
+scala/Int#2
+
+„ ‡
+scala/Int#2
+ scala/Tuple22#_1.2
+ scala/Tuple22#_2.2
+ scala/Tuple22#_3.2
+ scala/Tuple22#_4.2
+ scala/Tuple22#_5.2
+ scala/Tuple22#_6.2
+ scala/Tuple22#_7.2
+   scala/Tuple22#_8.2
+$ $scala/Tuple22#_9.2 
+( (scala/Tuple22#_10.2 
+, ,scala/Tuple22#_11.2 
+0 0scala/Tuple22#_12.2 
+4 4scala/Tuple22#_13.2 
+8 8scala/Tuple22#_14.2 
+< <scala/Tuple22#_15.2 
+@ @scala/Tuple22#_16.2 
+D Dscala/Tuple22#_17.2 
+H Hscala/Tuple22#_18.2 
+L Lscala/Tuple22#_19.2 
+P Pscala/Tuple22#_20.2 
+T Tscala/Tuple22#_21.2 
+X Xscala/Tuple22#_22.2 
+V Wscala/Int#`+`(+4).2 
+R Sscala/Int#`+`(+4).2 
+N Oscala/Int#`+`(+4).2 
+J Kscala/Int#`+`(+4).2 
+F Gscala/Int#`+`(+4).2 
+B Cscala/Int#`+`(+4).2 
+> ?scala/Int#`+`(+4).2 
+: ;scala/Int#`+`(+4).2 
+6 7scala/Int#`+`(+4).2 
+2 3scala/Int#`+`(+4).2 
+. /scala/Int#`+`(+4).2 
+* +scala/Int#`+`(+4).2 
+& 'scala/Int#`+`(+4).2 
+" #scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2 
+
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).PZ B74C035D178E6F61C8A4FED8121488CB

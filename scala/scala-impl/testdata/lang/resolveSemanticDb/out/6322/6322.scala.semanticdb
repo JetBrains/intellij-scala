@@ -1,0 +1,83 @@
+
+ètests/pos/6322.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A# *A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test.B# *B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.C# *C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.F1#*F1€*-
+_empty_/Test.F1#`<init>`(). €@*<init>€*
+_empty_/Test.F1#[T1]	*T1€*(
+_empty_/Test.F1#apply(). *apply€*%
+_empty_/Test.F1#apply().(x)*x€*
+_empty_/Test.F#*F€*
+_empty_/Test.F#[N]	*N€*
+_empty_/Test.s1. €*s1€*
+_empty_/Test.s2. €*s2€*
+_empty_/Test.s3. €*s3€2
+ _empty_/Test.2
+ _empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+ _empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+ _empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ 
+_empty_/Test.F1#2)
+
+ 
+_empty_/Test.F1#`<init>`().2"
+ _empty_/Test.F1#[T1]2&
+ _empty_/Test.F1#apply().2)
+ _empty_/Test.F1#apply().(x)2"
+ _empty_/Test.F1#[T1]2
+ scala/Unit#2
+		 _empty_/Test.F#2 
+			 
+_empty_/Test.F#[N]2 
+		 _empty_/Test.F#[N]2
+
+	
+ 
+_empty_/Test.A#2
+
+
+ _empty_/Test.F1#2"
+
+
+ scala/Predef.String#2
+	 
+_empty_/Test.B#2
+ _empty_/Test.F#2
+ _empty_/Test.A#2
+	 
+_empty_/Test.C#2
+ _empty_/Test.F#2
+ _empty_/Test.B#2
+ _empty_/Test.s1.2
+
+ _empty_/Test.F#2
+ _empty_/Test.A#2#
+ scala/Predef.`???`().2&
+ 
+_empty_/Test.F1#apply().2
+ _empty_/Test.s1.2
+ _empty_/Test.s2.2
+
+ _empty_/Test.F#2
+ _empty_/Test.B#2#
+ scala/Predef.`???`().2&
+ 
+_empty_/Test.F1#apply().2
+ _empty_/Test.s2.2
+ _empty_/Test.s3.2
+
+ _empty_/Test.F#2
+ _empty_/Test.C#2#
+ scala/Predef.`???`().2&
+ 
+_empty_/Test.F1#apply().2
+ _empty_/Test.s3.PZ 0A6E50349728615142EE65229BF44452

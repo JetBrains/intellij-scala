@@ -1,0 +1,19 @@
+
+°tests/pos/t8306.scala*
+_empty_/Si8306#*Si8306€*,
+_empty_/Si8306#`<init>`(). €@*<init>€*!
+_empty_/Si8306#foo().*foo€*.
+_empty_/Si8306#extension. À*	extension€*
+local0 €*idx€2
+ _empty_/Si8306#2(
+ _empty_/Si8306#`<init>`().2#
+ 	_empty_/Si8306#foo().2
+ 
+scala/Int#2'
+ _empty_/Si8306#extension.2
+ 
+scala/Int#2#
+ 	_empty_/Si8306#foo().2
+ local02!
+ scala/Int#`!=`(+3).2
+ local0PZ E7B5B8A9ABDB1851DDA176FB8B8710DA

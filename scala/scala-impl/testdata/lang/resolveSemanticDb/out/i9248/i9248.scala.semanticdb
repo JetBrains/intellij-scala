@@ -1,0 +1,109 @@
+
+Ðtests/pos/i9248.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*%
+_empty_/C#`<init>`().(a) €*a€*
+_empty_/C#a(). €*a€*!
+_empty_/C#`a_=`(). €*a_=€*#
+_empty_/C#`a_=`().(x$1)*x$1€*(
+_empty_/i9248$package. *_empty_€*(
+_empty_/i9248$package.foo().*foo€*)
+_empty_/i9248$package.foo().(c)*c€*.
+ _empty_/i9248$package.`foo_=`().*foo_=€*-
+#_empty_/i9248$package.`foo_=`().(c)*c€*-
+#_empty_/i9248$package.`foo_=`().(a)*a€*%
+_empty_/i9248$package.c. €*c€*'
+_empty_/i9248$package.c1. €*c1€*1
+_empty_/i9248$package.given_C. è*given_C€**
+_empty_/i9248$package.test().*test€*
+local0*D€*
+local1	*T€*
+local2 €*a€*
+local3 €*a_=€*
+local4*x$1€*
+local5*foo€*
+local6	*T€*
+local7*d€*
+local8  *x$2€*
+local9*foo_=€*
+local10*a€*
+local11 €*c€*
+local12 €*d€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 
+scala/Int#2
+ _empty_/C#a().2
+ _empty_/C#`a_=`().2 
+_empty_/i9248$package.2*
+ 	_empty_/i9248$package.foo().2-
+ _empty_/i9248$package.foo().(c)2
+ 
+_empty_/C#2
+ 
+scala/Int#2
+ _empty_/C#a().2-
+ _empty_/i9248$package.foo().(c)2.
+  _empty_/i9248$package.`foo_=`().21
+ #_empty_/i9248$package.`foo_=`().(c)21
+ #_empty_/i9248$package.`foo_=`().(a)2
+ 
+scala/Int#2
+ scala/Unit#2 
+ _empty_/C#`a_=`().21
+ #_empty_/i9248$package.`foo_=`().(c)21
+" ##_empty_/i9248$package.`foo_=`().(a)2&
+ _empty_/i9248$package.c.2#
+	 	_empty_/C#`<init>`().2
+ 	
+_empty_/C#2'
+ _empty_/i9248$package.c1.2.
+  _empty_/i9248$package.`foo_=`().2&
+	 
+_empty_/i9248$package.c.2,
+		 _empty_/i9248$package.given_C.2
+		 
+_empty_/C#2#
+		 _empty_/C#`<init>`().2
+	
+	 
+_empty_/C#2+
+ _empty_/i9248$package.test().2
+ 	local02
+
+ local12
+ local22
+ local32
+ local52
+ local62
+ local72
+ local02
+ local62
+ local82
+  
+_empty_/C#2
+ local62
+ local22
+ local72
+ local92
+ local102
+ local62
+ scala/Unit#2
+
+ local112$
+ scala/Predef.summon().2
+ 
+_empty_/C#2
+ local82
+ 	local32
+ local72
+ local102
+ local122
+ local52
+ local122,
+ _empty_/i9248$package.given_C.2
+ local92
+ local122,
+ _empty_/i9248$package.given_C.PZ 3DB2C72E2DBF43BF17B619BA0163C5F5

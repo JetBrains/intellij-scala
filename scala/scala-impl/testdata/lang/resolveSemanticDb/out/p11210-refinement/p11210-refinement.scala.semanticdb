@@ -1,0 +1,46 @@
+
+º!tests/pos/p11210-refinement.scala*
+_empty_/Poly#*Poly€**
+_empty_/Poly#`<init>`(). €@*<init>€*
+_empty_/Poly#f(). *f€*
+_empty_/Poly#f().[T]	*T€*
+_empty_/Box#*Box€*)
+_empty_/Box#`<init>`(). €@*<init>€*
+_empty_/Box#x. „*x€*6
+$_empty_/`p11210-refinement$package`. *_empty_€*3
+&_empty_/`p11210-refinement$package`.p. €*p€*
+local0 *f€*
+local1	*T€*3
+&_empty_/`p11210-refinement$package`.q. €*q€*3
+&_empty_/`p11210-refinement$package`.b. €*b€*
+local2 „*x€*3
+&_empty_/`p11210-refinement$package`.c. €*c€2
+ 
+_empty_/Poly#2&
+ _empty_/Poly#`<init>`().2
+ _empty_/Poly#f().2"
+ 	_empty_/Poly#f().[T]2"
+ scala/Predef.String#2
+ 	_empty_/Box#2%
+ _empty_/Box#`<init>`().2
+ _empty_/Box#x.2"
+	 scala/Predef.String#2.
+$_empty_/`p11210-refinement$package`.24
+ &_empty_/`p11210-refinement$package`.p.2
+ _empty_/Poly#2
+ local02
+ local12#
+$ 'scala/Predef.`???`().24
+ &_empty_/`p11210-refinement$package`.q.2
+ _empty_/Poly#f().24
+ &_empty_/`p11210-refinement$package`.p.2
+ 
+scala/Int#24
+ &_empty_/`p11210-refinement$package`.b.2
+ 
+_empty_/Box#2
+ local22#
+" %scala/Predef.`???`().24
+ &_empty_/`p11210-refinement$package`.c.2
+ _empty_/Box#x.24
+ &_empty_/`p11210-refinement$package`.b.PZ 298E1C4EC6FCD0BF427945172B32EA39

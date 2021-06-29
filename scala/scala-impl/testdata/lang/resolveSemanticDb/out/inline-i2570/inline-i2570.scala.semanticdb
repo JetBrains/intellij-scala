@@ -1,0 +1,26 @@
+
+Ètests/pos/inline-i2570.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.sum2().*sum2€*#
+_empty_/Test.sum2().(ys)*ys€*
+_empty_/Test.h1. €*h1€*
+local0*xs€2
+ _empty_/Test.2"
+ _empty_/Test.sum2().2&
+ _empty_/Test.sum2().(ys)2!
+ scala/package.List#2
+ 
+scala/Int#2
+" %
+scala/Int#26
+0 0(scala/collection/IterableOnceOps#`/:`().2&
+. 0_empty_/Test.sum2().(ys)2 
+4 5scala/Int#`+`(+4).2
+ _empty_/Test.h1.2
+ local02!
+ scala/package.List#2
+ 
+scala/Int#2"
+ #_empty_/Test.sum2().2
+$ &local0PZ B438CBD95D76F084FBBBBF8969EFE546

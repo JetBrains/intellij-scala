@@ -1,0 +1,33 @@
+
+–tests/pos/1567/PosZInt_1.scala*"
+_empty_/PosZInt# *PosZInt€*-
+_empty_/PosZInt#`<init>`(). €@*<init>€*3
+"_empty_/PosZInt#`<init>`().(value) €*value€*'
+_empty_/PosZInt#value. €*value€*"
+_empty_/PosZInt.
+ *PosZInt€*$
+_empty_/PosZInt.from().*from€*,
+_empty_/PosZInt.from().(value)*value€2
+ _empty_/PosZInt#2%
+ _empty_/PosZInt#`<init>`().2
+( +
+scala/Int#2"
+; ;scala/AnyVal#`<init>`().2
+5 ;scala/AnyVal#2 
+! &_empty_/PosZInt#value.2
+ _empty_/PosZInt.2%
+ 
+_empty_/PosZInt.from().2,
+ _empty_/PosZInt.from().(value)2
+ 
+scala/Int#2
+ scala/Option#2
+ &_empty_/PosZInt#2!
+ scala/Int#`>=`(+3).2,
+ _empty_/PosZInt.from().(value)2!
+ scala/Some.apply().2
+ scala/Some.2)
+$ $_empty_/PosZInt#`<init>`().2
+ $_empty_/PosZInt#2,
+% *_empty_/PosZInt.from().(value)2
+2 6scala/None.PZ 30F04793E9EF025976B14D3A6F4FF138

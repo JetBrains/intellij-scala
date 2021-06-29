@@ -1,0 +1,17 @@
+
+Žtests/pos/i1704.scala*
+_empty_/AnyRef#*AnyRef€*,
+_empty_/AnyRef#`<init>`(). €@*<init>€*2
+_empty_/AnyRef#StringMatch. €*StringMatch€*
+local0 *$anon€*+
+_empty_/AnyRef#Something#*	Something€*6
+$_empty_/AnyRef#Something#`<init>`(). €@*<init>€2
+ _empty_/AnyRef#2(
+ _empty_/AnyRef#`<init>`().2)
+ _empty_/AnyRef#StringMatch.2
+ local02
+ _empty_/AnyRef#2'
+ _empty_/AnyRef#Something#22
+ $_empty_/AnyRef#Something#`<init>`().2#
+ scala/package.AnyRef.2)
++ 6_empty_/AnyRef#StringMatch.PZ F8034EFF4128B1442D20FF45F4BC0397

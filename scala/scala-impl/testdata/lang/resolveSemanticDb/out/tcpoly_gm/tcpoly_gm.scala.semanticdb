@@ -1,0 +1,84 @@
+
+µtests/pos/tcpoly_gm.scala*
+_empty_/Rep#*Rep€*)
+_empty_/Rep#`<init>`(). €@*<init>€*
+_empty_/Rep#[a]	*a€* 
+_empty_/Rep#rep(). *rep€*
+_empty_/Rep#rep().[m]	*m€*#
+_empty_/ShowBin# €*ShowBin€*-
+_empty_/ShowBin#`<init>`(). €@*<init>€*/
+ _empty_/ShowBin#`<init>`().(app) €*app€*
+_empty_/ShowBin#[b]	*b€*#
+_empty_/ShowBin#app. €*app€*$
+_empty_/ShowBin#copy().*copy€*$
+_empty_/ShowBin#copy().[b]	*b€*(
+_empty_/ShowBin#copy().(app)*app€*8
+!_empty_/ShowBin#copy$default$1().*copy$default$1€*.
+$_empty_/ShowBin#copy$default$1().[b]	*b€* 
+_empty_/ShowBin#_1().*_1€*"
+_empty_/ShowBin.
+ *ShowBin€*&
+_empty_/ShowBin.apply().*apply€*%
+_empty_/ShowBin.apply().[b]	*b€*)
+_empty_/ShowBin.apply().(app)*app€**
+_empty_/ShowBin.unapply().*unapply€*'
+_empty_/ShowBin.unapply().[b]	*b€*+
+_empty_/ShowBin.unapply().(x$1)*x$1€*,
+_empty_/ShowBin.toString().*toString€*
+_empty_/foo.
+ *foo€*&
+_empty_/foo.showBin().*showBin€*#
+_empty_/foo.showBin().[t]	*t€*#
+_empty_/foo.showBin().(x)*x€*#
+_empty_/foo.showBin().(y)*y€*
+local0 €*r€2
+ 	_empty_/Rep#2!
+	 	_empty_/Rep#`<init>`().2
+
+ _empty_/Rep#[a]2 
+ 	_empty_/Rep#rep().2#
+
+ _empty_/Rep#rep().[m]2#
+ _empty_/Rep#rep().[m]2
+ _empty_/Rep#[a]2
+ _empty_/ShowBin#2)
+ _empty_/ShowBin#`<init>`().2!
+ _empty_/ShowBin#[b]2"
+  &scala/Predef.String#2!
+ _empty_/ShowBin#[b]2"
+ _empty_/ShowBin#app.2!
+_empty_/ShowBin#copy().2#
+ _empty_/ShowBin#_1().2
+ _empty_/ShowBin.2"
+_empty_/ShowBin.apply().2$
+_empty_/ShowBin.unapply().2
+ 
+_empty_/foo.2$
+		 _empty_/foo.showBin().2'
+		 _empty_/foo.showBin().[t]2'
+		 _empty_/foo.showBin().(x)2
+		 _empty_/Rep#2'
+		 _empty_/foo.showBin().[t]2'
+		 _empty_/foo.showBin().(y)2'
+		  _empty_/foo.showBin().[t]2"
+	#	 )scala/Predef.String#2
+
+
+ 	local02
+
+
+ _empty_/ShowBin#2'
+
+
+ _empty_/foo.showBin().[t]2 
+
+
+ _empty_/Rep#rep().2'
+
+
+ _empty_/foo.showBin().(x)2&
+	 	scala/Function1#apply().2"
+ 	_empty_/ShowBin#app.2
+ local02'
+
+ _empty_/foo.showBin().(y)PZ 300C2A7FEA8E01C4CE715BDE9789121B

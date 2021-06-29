@@ -1,0 +1,31 @@
+
+Žtests/pos/i9999a.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.T#*T€*
+_empty_/Test.T#[X]	*X€*
+_empty_/Test.y(). €*y€*
+local0 €*x€*$
+_empty_/Test.`y_=`(). €*y_=€*&
+_empty_/Test.`y_=`().(x$1)*x$1€2
+ _empty_/Test.2
+ _empty_/Test.T#2 
+	 
+_empty_/Test.T#[X]2!
+ scala/package.List#2!
+ scala/package.List#2 
+ _empty_/Test.T#[X]2
+ _empty_/Test.y().2
+ 	local02
+ 
+scala/Any#2#
+ scala/Predef.`???`().2
+
+ _empty_/Test.T#2
+ local02#
+ 	_empty_/Test.`y_=`().2#
+ _empty_/Test.`y_=`().2#
+ 
+scala/Predef.`???`().2
+ 
+scala/Any#PZ 1A1DDB44E8AADF0A6D9B1471BF5FC2E4

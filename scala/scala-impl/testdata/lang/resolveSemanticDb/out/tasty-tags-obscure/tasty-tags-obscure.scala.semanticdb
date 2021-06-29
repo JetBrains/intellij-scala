@@ -1,0 +1,99 @@
+
+ê"tests/pos/tasty-tags-obscure.scala*,
+_empty_/ObscureTasty.
+ *ObscureTasty€*'
+_empty_/ObscureTasty.foo().*foo€*(
+_empty_/ObscureTasty.foo().(f)*f€*
+local0 *apply€*
+local1	*t€*
+local2  *x$1€*+
+_empty_/ObscureTasty.test1().*test1€*
+local3 *$anon€*
+local4*apply€*
+local5	*t€*
+local6  *a€*'
+_empty_/ObscureTasty.bar().*bar€*(
+_empty_/ObscureTasty.bar().(f)*f€*
+local7 *apply€*
+local8	*t€*
+local9*x$1€*+
+_empty_/ObscureTasty.test2().*test2€*
+local10 *$anon€*
+local11*apply€*
+local12	*t€*
+local13*a€*%
+_empty_/ObscureTasty.Bar#*Bar€*6
+$_empty_/ObscureTasty.Bar#`<init>`(). €@*<init>€*,
+_empty_/ObscureTasty.Bar#bar. ˆ*bar€*%
+_empty_/ObscureTasty.Foo#*Foo€*6
+$_empty_/ObscureTasty.Foo#`<init>`(). €@*<init>€*'
+_empty_/ObscureTasty.Foo#A.
+ *A€*5
+%_empty_/ObscureTasty.Foo#A.unapply().*unapply€*2
+(_empty_/ObscureTasty.Foo#A.unapply().(a)*a€*+
+_empty_/ObscureTasty.Foo#foo().*foo€*
+local14 €*x€2
+ _empty_/ObscureTasty.2)
+ 	_empty_/ObscureTasty.foo().2,
+
+ _empty_/ObscureTasty.foo().(f)2
+ local02
+ local12
+ local22!
+ scala/package.List#2
+ local12
+  $scala/Unit#2#
+( +scala/Predef.`???`().2+
+ _empty_/ObscureTasty.test1().2)
+ _empty_/ObscureTasty.foo().2
+ local32
+ local42
+ local52
+ local62!
+ !scala/package.List#2
+" #local52)
+ 	_empty_/ObscureTasty.bar().2,
+
+ _empty_/ObscureTasty.bar().(f)2
+ local72
+ local82
+ local92
+ #scala/Unit#2#
+' *scala/Predef.`???`().2+
+ _empty_/ObscureTasty.test2().2)
+ _empty_/ObscureTasty.bar().2
+ local102
+ local112
+ local122
+ local132!
+ !scala/package.List#2
+" #local122'
+ _empty_/ObscureTasty.Bar#22
+ $_empty_/ObscureTasty.Bar#`<init>`().2+
+ _empty_/ObscureTasty.Bar#bar.2'
+
+
+ _empty_/ObscureTasty.Foo#22
+
+
+ $_empty_/ObscureTasty.Foo#`<init>`().22
+
+
+ $_empty_/ObscureTasty.Bar#`<init>`().2'
+
+
+ _empty_/ObscureTasty.Bar#2)
+ _empty_/ObscureTasty.Foo#A.23
+
+ %_empty_/ObscureTasty.Foo#A.unapply().26
+ (_empty_/ObscureTasty.Foo#A.unapply().(a)2
+ 
+scala/Any#2
+ scala/Some#2+
+* -_empty_/ObscureTasty.Bar#bar.2#
+6 9scala/Predef.`???`().2-
+ _empty_/ObscureTasty.Foo#foo().23
+ %_empty_/ObscureTasty.Foo#A.unapply().2)
+ _empty_/ObscureTasty.Foo#A.2
+ local142
+ local14PZ 1944938E11AABE03AC98E563F15333A0

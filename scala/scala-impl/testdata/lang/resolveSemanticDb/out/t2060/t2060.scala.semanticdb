@@ -1,0 +1,106 @@
+
+Ôtests/pos/t2060.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Op#*Op€*-
+_empty_/Test.Op#`<init>`(). €@*<init>€*
+_empty_/Test.Op#[I]	*I€*!
+_empty_/Test.IntOp#*IntOp€*0
+_empty_/Test.IntOp#`<init>`(). €@*<init>€*
+_empty_/Test.Rich#*Rich€*/
+_empty_/Test.Rich#`<init>`(). €@*<init>€**
+ _empty_/Test.Rich#`<init>`().(x)*x€*!
+_empty_/Test.Rich#x. €*x€*"
+_empty_/Test.Rich#`+`().*+€*'
+_empty_/Test.Rich#`+`().(op)*op€*$
+_empty_/Test.Rich#`+`(+1).*+€*'
+_empty_/Test.Rich#`+`(+1).[I]	*I€*)
+_empty_/Test.Rich#`+`(+1).(op)*op€*&
+_empty_/Test.Rich#plus().*plus€*&
+_empty_/Test.Rich#plus().[I]	*I€*(
+_empty_/Test.Rich#plus().(op)*op€*)
+_empty_/Test.iToRich().  *iToRich€*$
+_empty_/Test.iToRich().(x)*x€*
+_empty_/Test.x. €*x€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€*
+_empty_/Test.c. €*c€2
+ _empty_/Test.2
+ 
+_empty_/Test.Op#2)
+
+ 
+_empty_/Test.Op#`<init>`().2!
+ _empty_/Test.Op#[I]2!
+ _empty_/Test.IntOp#2,
+ _empty_/Test.IntOp#`<init>`().2)
+ _empty_/Test.Op#`<init>`().2
+ _empty_/Test.Op#2
+ 
+scala/Int#2 
+ _empty_/Test.Rich#2+
+ _empty_/Test.Rich#`<init>`().2
+ scala/Double#2"
+ _empty_/Test.Rich#x.2&
+ 	_empty_/Test.Rich#`+`().2*
+ _empty_/Test.Rich#`+`().(op)2!
+ _empty_/Test.IntOp#2!
+ #_empty_/Test.IntOp#2*
+& (_empty_/Test.Rich#`+`().(op)2(
+ 	_empty_/Test.Rich#`+`(+1).2+
+ _empty_/Test.Rich#`+`(+1).[I]2,
+ _empty_/Test.Rich#`+`(+1).(op)2
+ _empty_/Test.Op#2+
+ _empty_/Test.Rich#`+`(+1).[I]2
+  _empty_/Test.Op#2+
+! "_empty_/Test.Rich#`+`(+1).[I]2,
+& (_empty_/Test.Rich#`+`(+1).(op)2'
+ _empty_/Test.Rich#plus().2*
+ _empty_/Test.Rich#plus().[I]2+
+ _empty_/Test.Rich#plus().(op)2
+ _empty_/Test.Op#2*
+ _empty_/Test.Rich#plus().[I]2
+  _empty_/Test.Op#2*
+! "_empty_/Test.Rich#plus().[I]2+
+& (_empty_/Test.Rich#plus().(op)2%
+ _empty_/Test.iToRich().2(
+ _empty_/Test.iToRich().(x)2
+ !scala/Double#2 
+) -_empty_/Test.Rich#2
+$ (_empty_/Test.2+
+ _empty_/Test.Rich#`<init>`().2 
+ _empty_/Test.Rich#2(
+ _empty_/Test.iToRich().(x)2
+ _empty_/Test.x.2(
+ _empty_/Test.Rich#`+`(+1).2%
+
+ 
+_empty_/Test.iToRich().2)
+ _empty_/Test.Op#`<init>`().2
+ _empty_/Test.Op#2
+ 
+scala/Int#2
+"" _empty_/Test.a.2&
+"" _empty_/Test.Rich#`+`().2%
+"
+" 
+_empty_/Test.iToRich().2,
+"" _empty_/Test.IntOp#`<init>`().2!
+"" _empty_/Test.IntOp#2
+&& _empty_/Test.b.2'
+&& _empty_/Test.Rich#plus().2%
+&
+& 
+_empty_/Test.iToRich().2)
+&& _empty_/Test.Op#`<init>`().2
+&& _empty_/Test.Op#2
+&& 
+scala/Int#2
+** _empty_/Test.c.2(
+** _empty_/Test.Rich#`+`(+1).2%
+*
+* _empty_/Test.iToRich().2)
+*$* $_empty_/Test.Op#`<init>`().2
+** _empty_/Test.Op#2
+* * #
+scala/Int#PZ 4CFB99F42DB7E23016F1313A8950FCF1

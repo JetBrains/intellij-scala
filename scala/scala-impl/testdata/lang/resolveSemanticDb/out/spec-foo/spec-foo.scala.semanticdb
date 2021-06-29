@@ -1,0 +1,12 @@
+
+´tests/pos/spec-foo.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#xs. €*xs€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.25
+	 	'scala/collection/immutable/List#`::`().2
+ 	_empty_/Foo#xs.PZ CE474F0ECAF0C600A4FC78B2DBC6ED92

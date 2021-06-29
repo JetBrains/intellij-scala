@@ -1,0 +1,28 @@
+
+Âtests/pos/i3702.scala*
+_empty_/test.
+ *test€*!
+_empty_/test.annot#*annot€*0
+_empty_/test.annot#`<init>`(). €@*<init>€*
+_empty_/test.foo().*foo€*
+local0*bar€*
+local1*i€*
+local2*Silly€2
+ _empty_/test.2!
+ _empty_/test.annot#2,
+ _empty_/test.annot#`<init>`().2*
+' 1scala/annotation/Annotation#2
+ &scala/annotation/2
+ scala/2!
+ 	_empty_/test.foo().2
+ local02
+ local12
+ 
+scala/Int#2
+ 
+scala/Int#2
+ local12!
+ 
+_empty_/test.annot#2
+ local22
+ local0PZ 5AB123F3EB6494CA2C42FEC50BB94327

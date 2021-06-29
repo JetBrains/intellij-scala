@@ -1,0 +1,25 @@
+
+Ýtests/pos/sets.scala*
+_empty_/Test.
+ *Test€*4
+_empty_/Test.subPatBinders. €*subPatBinders€*=
+"_empty_/Test.extraStoredBinders().*extraStoredBinders€*4
+_empty_/Test.storedBinders. €*storedBinders€2
+ _empty_/Test.2)
+ _empty_/Test.subPatBinders.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ !scala/Symbol#20
+ "_empty_/Test.extraStoredBinders().2
+ scala/Predef.Set#2
+ $scala/Symbol#2#
+( +scala/Predef.`???`().2)
+ _empty_/Test.storedBinders.2
+ scala/Predef.Set#2
+ scala/Symbol#2-
+3 5scala/collection/SetOps#`++`().27
+ ")scala/collection/IterableOnceOps#toSet().2)
+ _empty_/Test.subPatBinders.25
+, 1'scala/collection/immutable/Set.empty().2
+( +scala/Predef.Set.20
+6 H"_empty_/Test.extraStoredBinders().PZ 262DC0A5A1F80378C63AECDFFAA0FAFB

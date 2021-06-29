@@ -1,0 +1,24 @@
+
+ªtests/pos/i2723.scala*
+_empty_/App#*App€*)
+_empty_/App#`<init>`(). €@*<init>€**
+_empty_/App#`<init>`().(init)*init€*!
+_empty_/App#init. €*init€* 
+_empty_/App#main().*main€*&
+_empty_/App#main().(args)*args€*8
+_empty_/App#App$$inline$init().*App$$inline$init€2
+ 	_empty_/App#2!
+	 	_empty_/App#`<init>`().2
+ scala/Array#2
+ scala/Predef.String#2
+" &scala/Unit#2
+
+ _empty_/App#init.2!
+ _empty_/App#main().2'
+ _empty_/App#main().(args)2
+ scala/Array#2"
+ $scala/Predef.String#2
+( ,scala/Unit#2-
+3 3scala/ContextFunction1#apply().2-
+/ 3_empty_/App#App$$inline$init().2'
+: >_empty_/App#main().(args)PZ B6612676B7F88F4A8F29A3EC56AD3257

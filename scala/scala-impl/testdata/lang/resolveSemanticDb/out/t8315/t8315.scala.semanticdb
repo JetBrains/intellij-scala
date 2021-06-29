@@ -1,0 +1,51 @@
+
+Ú	tests/pos/t8315.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.crash().*crash€*$
+_empty_/Test.crash().(as)*as€*!
+_empty_/Test.map(). *map€* 
+_empty_/Test.map().(x)*x€* 
+_empty_/Test.map().(f)*f€*
+_empty_/Nill.
+ *Nill€*
+_empty_/Listt#*Listt€*+
+_empty_/Listt#`<init>`(). €@*<init>€2
+ _empty_/Test.2#
+ _empty_/Test.crash().2'
+ _empty_/Test.crash().(as)2
+ _empty_/Listt#2
+ scala/Unit#2!
+ _empty_/Test.map().2'
+ 
+_empty_/Test.crash().(as)2
+ 
+scala/Any#2#
+ _empty_/Test.crash().2!
+ _empty_/Test.map().2$
+ _empty_/Test.map().(x)2
+ _empty_/Listt#2$
+ _empty_/Test.map().(f)2
+  
+scala/Any#2
+$ '
+scala/Any#2
+* -
+scala/Any#2$
+
+ java/lang/Object#eq().2$
+ 	_empty_/Test.map().(x)2
+ _empty_/Nill.2&
+ scala/Function1#apply().2$
+ _empty_/Test.map().(f)2
+
+
+ _empty_/Nill.2'
+
+
+ _empty_/Listt#`<init>`().2
+
+
+ _empty_/Listt#2
+ _empty_/Listt#2#
+_empty_/Listt#`<init>`().PZ 331085158E9CCC140383CC1EA5D0F0CE

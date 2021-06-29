@@ -1,0 +1,59 @@
+
+ætests/pos/varargs.scala*"
+_empty_/varargs.
+ *varargs€*
+_empty_/varargs.g().*g€*!
+_empty_/varargs.g().(x)*x€*
+_empty_/varargs.x. €*x€*"
+_empty_/varargs.foo().*foo€*#
+_empty_/varargs.foo().[T]	*T€*#
+_empty_/varargs.foo().(x)*x€*#
+_empty_/varargs.foo().(y)*y€*!
+_empty_/varargs.xs. €*xs€*
+_empty_/varargs.f().*f€*!
+_empty_/varargs.f().(x)*x€* 
+_empty_/varargs.f(+1).*f€*#
+_empty_/varargs.f(+1).(x)*x€2
+ _empty_/varargs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2"
+ _empty_/varargs.g().2%
+ 	_empty_/varargs.g().(x)2
+ 
+scala/Int#2/
+ !scala/collection/SeqOps#length().2%
+ _empty_/varargs.g().(x)2"
+ _empty_/varargs.g().2 
+ _empty_/varargs.x.2$
+ 	_empty_/varargs.foo().2'
+
+ _empty_/varargs.foo().[T]2'
+ _empty_/varargs.foo().(x)2'
+ _empty_/varargs.foo().[T]2'
+ _empty_/varargs.foo().(y)2'
+ _empty_/varargs.foo().[T]2'
+ _empty_/varargs.foo().[T]2'
+ _empty_/varargs.foo().(x)2$
+ _empty_/varargs.foo().2!
+ _empty_/varargs.xs.25
+ 'scala/collection/immutable/List#`::`().2 
+ scala/package.Nil.2"
+ _empty_/varargs.g().2!
+ _empty_/varargs.xs.2"
+		 _empty_/varargs.g().2 
+		 scala/package.Nil.2"
+
+
+ _empty_/varargs.g().2"
+ _empty_/varargs.g().2"
+ _empty_/varargs.f().2%
+ 	_empty_/varargs.f().(x)2
+ 
+scala/Int#2
+ scala/Unit#2$
+ _empty_/varargs.f(+1).2'
+ 	_empty_/varargs.f(+1).(x)2
+ 
+scala/Int#2
+ scala/Unit#2"
+ _empty_/varargs.f().PZ 8F325926C8FCB139B2FE2FDD66627E26

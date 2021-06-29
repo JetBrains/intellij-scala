@@ -1,0 +1,157 @@
+
+« tests/pos/i7149.scala*
+_empty_/ZIO#*ZIO€*)
+_empty_/ZIO#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/ZIO#[R]	 €*R€*
+_empty_/ZIO#[E]	 €*E€*
+_empty_/ZIO#[A]	 €*A€*"
+_empty_/ZIO#`+++`(). *+++€*#
+_empty_/ZIO#`+++`().[R1]	*R1€*!
+_empty_/ZIO#`+++`().[B]	*B€*#
+_empty_/ZIO#`+++`().[E1]	*E1€*'
+_empty_/ZIO#`+++`().(that)*that€*
+local1*e€*
+local2*r€*&
+_empty_/ZIO#flatMap().*flatMap€*%
+_empty_/ZIO#flatMap().[R1]	*R1€*%
+_empty_/ZIO#flatMap().[E1]	*E1€*#
+_empty_/ZIO#flatMap().[B]	*B€*#
+_empty_/ZIO#flatMap().(f)*f€*
+_empty_/ZIO#map().*map€*
+_empty_/ZIO#map().[B]	*B€*
+_empty_/ZIO#map().(f)*f€*&
+_empty_/ZIO#provide().*provide€*#
+_empty_/ZIO#provide().[R]	*R€*#
+_empty_/ZIO#provide().(R)*R€*
+_empty_/ZIO.
+ *ZIO€*.
+_empty_/ZIO.environment().*environment€*'
+_empty_/ZIO.environment().[R]	*R€2
+ 	_empty_/ZIO#2!
+	 	_empty_/ZIO#`<init>`().2
+ local02
+ _empty_/ZIO#[R]2
+ _empty_/ZIO#[E]2
+ _empty_/ZIO#[A]2"
+ _empty_/ZIO#`+++`().2&
+ _empty_/ZIO#`+++`().[R1]2%
+ _empty_/ZIO#`+++`().[B]2&
+ _empty_/ZIO#`+++`().[E1]2
+ _empty_/ZIO#[E]2(
+  $_empty_/ZIO#`+++`().(that)2
+& )_empty_/ZIO#2&
+* ,_empty_/ZIO#`+++`().[R1]2&
+. 0_empty_/ZIO#`+++`().[E1]2%
+2 3_empty_/ZIO#`+++`().[B]2
+7 :_empty_/ZIO#2#
+; Ascala/package.Either#2
+B C_empty_/ZIO#[R]2&
+E G_empty_/ZIO#`+++`().[R1]2&
+J L_empty_/ZIO#`+++`().[E1]2#
+N Tscala/package.Either#2
+U V_empty_/ZIO#[A]2%
+X Y_empty_/ZIO#`+++`().[B]2$
+) )_empty_/ZIO#flatMap().2(
+ _empty_/ZIO.environment().2
+ _empty_/ZIO.2#
+ !scala/package.Either#2
+" #_empty_/ZIO#[R]2&
+% '_empty_/ZIO#`+++`().[R1]2
+ local12 
+L L_empty_/ZIO#map().2'
+ scala/util/Either#fold().2
+ local12$
+$ +_empty_/ZIO#provide().2 
+ _empty_/ZIO#map().2
+ _empty_/ZIO#2&
+ scala/util/Left.apply().2!
+ scala/package.Left.2$
+B I_empty_/ZIO#provide().2 
+4 7_empty_/ZIO#map().2(
+/ 3_empty_/ZIO#`+++`().(that)2'
+= =scala/util/Right.apply().2"
+8 =scala/package.Right.2
+ local22
+ local22$
+
+
+ _empty_/ZIO#flatMap().2(
+
+
+ _empty_/ZIO#flatMap().[R1]2
+
+
+ _empty_/ZIO#[R]2(
+
+
+ _empty_/ZIO#flatMap().[E1]2
+
+
+ _empty_/ZIO#[E]2'
+
+ 
+ !_empty_/ZIO#flatMap().[B]2'
+
+#
+ $_empty_/ZIO#flatMap().(f)2
+
+&
+ '_empty_/ZIO#[A]2
+
++
+ ._empty_/ZIO#2(
+
+/
+ 1_empty_/ZIO#flatMap().[R1]2(
+
+3
+ 5_empty_/ZIO#flatMap().[E1]2'
+
+7
+ 8_empty_/ZIO#flatMap().[B]2
+
+<
+ ?_empty_/ZIO#2(
+
+@
+ B_empty_/ZIO#flatMap().[R1]2(
+
+D
+ F_empty_/ZIO#flatMap().[E1]2'
+
+H
+ I_empty_/ZIO#flatMap().[B]2#
+
+M
+ Pscala/Predef.`???`().2 
+ 	_empty_/ZIO#map().2#
+
+ _empty_/ZIO#map().[B]2#
+ _empty_/ZIO#map().(f)2
+ _empty_/ZIO#[A]2#
+ _empty_/ZIO#map().[B]2
+ _empty_/ZIO#2
+ _empty_/ZIO#[R]2
+  !_empty_/ZIO#[E]2#
+# $_empty_/ZIO#map().[B]2#
+( +scala/Predef.`???`().2$
+ _empty_/ZIO#provide().2'
+ _empty_/ZIO#provide().[R]2'
+ _empty_/ZIO#provide().(R)2'
+ _empty_/ZIO#provide().[R]2
+ _empty_/ZIO#2
+ 
+scala/Any#2
+! "_empty_/ZIO#[E]2
+$ %_empty_/ZIO#[A]2#
+) ,scala/Predef.`???`().2
+ 
+_empty_/ZIO.2(
+ _empty_/ZIO.environment().2+
+ _empty_/ZIO.environment().[R]2
+ _empty_/ZIO#2+
+ _empty_/ZIO.environment().[R]2
+ $scala/Nothing#2+
+& '_empty_/ZIO.environment().[R]2#
++ .scala/Predef.`???`().PZ C65069C653EC659367989EE993376DD0

@@ -1,0 +1,64 @@
+
+âtests/pos/printTest.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*"
+_empty_/C#`<init>`().(x)*x€*%
+_empty_/C#`<init>`().(y) €*y€*
+_empty_/C#[X]	*X€*
+_empty_/C#x. €*x€*
+_empty_/C#y. €*y€*
+_empty_/test.
+ *test€*
+local0 *$anon€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().(x)*x€*
+local1 *$anon€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 
+scala/Int#2"
+  scala/Predef.String#2
+ 	_empty_/C#[X]2
+ _empty_/C#x.2
+ _empty_/C#y.2
+ _empty_/test.2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2"
+ scala/Predef.String#2
+ local02#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 
+scala/Int#2!
+
+
+ 	_empty_/test.foo().2$
+
+
+
+ _empty_/test.foo().(x)2
+
+
+ 
+_empty_/C#2
+
+
+ 
+scala/Int#2
+
+
+ local12#
+
+$
+ $_empty_/C#`<init>`().2
+
+
+ 
+_empty_/C#2"
+
+
+ #scala/Predef.String#PZ 9990B79A88F88C801C32885B8A4E8929

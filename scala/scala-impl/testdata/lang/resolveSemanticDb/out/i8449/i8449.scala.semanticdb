@@ -1,0 +1,58 @@
+
+Átests/pos/i8449.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Fib#*Fib€*
+_empty_/Test.Fib#[N]	*N€*"
+_empty_/Test.fib0. €*fib0€*"
+_empty_/Test.fib1. €*fib1€*"
+_empty_/Test.fib2. €*fib2€*"
+_empty_/Test.fib3. €*fib3€*"
+_empty_/Test.fib4. €*fib4€*"
+_empty_/Test.fib5. €*fib5€*"
+_empty_/Test.fib6. €*fib6€2(
+  scala/compiletime/ops/int.2$
+ scala/compiletime/ops/2 
+ scala/compiletime/2
+ scala/2
+ _empty_/Test.2
+ 
+_empty_/Test.Fib#2"
+ _empty_/Test.Fib#[N]2
+ 
+scala/Int#2
+ 
+scala/Int#2"
+ _empty_/Test.Fib#[N]2,
+ scala/compiletime/ops/int.`+`#2
+ _empty_/Test.Fib#2,
+ scala/compiletime/ops/int.`-`#2"
+ _empty_/Test.Fib#[N]2
+ _empty_/Test.Fib#2,
+! "scala/compiletime/ops/int.`-`#2"
+  _empty_/Test.Fib#[N]2 
+		 
+_empty_/Test.fib0.2
+		 _empty_/Test.Fib#2 
+
+
+ 
+_empty_/Test.fib1.2
+
+
+ _empty_/Test.Fib#2 
+ 
+_empty_/Test.fib2.2
+ _empty_/Test.Fib#2 
+ 
+_empty_/Test.fib3.2
+ _empty_/Test.Fib#2 
+ 
+_empty_/Test.fib4.2
+ _empty_/Test.Fib#2 
+ 
+_empty_/Test.fib5.2
+ _empty_/Test.Fib#2 
+ 
+_empty_/Test.fib6.2
+ _empty_/Test.Fib#PZ B4064455CB3905C2468B687D683204F1

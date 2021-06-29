@@ -1,0 +1,20 @@
+
+°tests/pos/t911.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*
+local0 €*Foo€*
+local1*copy€*
+local2
+ *Foo€*
+local3*apply€*
+local4*unapply€*
+local5*x$1€*
+local6*toString€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2
+ 
+scala/Any#2
+ local02
+ local22
+ local7PZ EC100A0458A8C4AAF60BC23365FB93C8

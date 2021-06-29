@@ -1,0 +1,19 @@
+
+†tests/pos/t4938.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#xs. €*xs€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2'
+ !scala/collection/mutable/2
+ scala/collection/2
+	 scala/2
+ _empty_/A#xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2@
+ 2scala/collection/IterableFactory.Delegate#apply().2+
+ scala/collection/mutable/Set.2;
+ -scala/collection/SeqFactory.Delegate#apply().2+
+ scala/collection/mutable/Seq.PZ FC6F8B81F97032C145CF2843CD4B4D3B

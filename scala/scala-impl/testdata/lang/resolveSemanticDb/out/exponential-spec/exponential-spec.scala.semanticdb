@@ -1,0 +1,121 @@
+
+‡ tests/pos/exponential-spec.scala*
+_empty_/Exp#*Exp€*)
+_empty_/Exp#`<init>`(). €@*<init>€*
+_empty_/Exp#[T]	*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€*"
+_empty_/Test.f().(exp)*exp€*
+local0*exp€*
+local1*exp€*
+local2*exp€*
+local3*exp€*
+local4*exp€*
+local5*exp€*
+local6*exp€*
+local7*exp€*
+local8*exp€*
+local9*exp€*
+local10*exp€*
+local11*exp€*
+local12*exp€*
+local13*exp€*
+local14*exp€*
+local15*exp€*
+local16*exp€*
+local17*exp€2
+ 	_empty_/Exp#2%
+	 	_empty_/Exp#`<init>`().2
+
+ _empty_/Exp#[T]2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2$
+ _empty_/Test.f().(exp)2
+ _empty_/Exp#2"
+ _empty_/Test.f().[T]2
+ _empty_/Exp#2"
+ _empty_/Test.f().[T]2&
+ scala/Function1#apply().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+ scala/Function1#compose().2(
+
+
+ scala/Function1#compose().2(
+		 scala/Function1#compose().2(
+ scala/Function1#compose().2
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local02
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local12
+		 _empty_/Test.f().2"
+		 _empty_/Test.f().[T]2
+		 local22
+
+
+ _empty_/Test.f().2"
+
+
+ _empty_/Test.f().[T]2
+
+
+ local32
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local42
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local52
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local62
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local72
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local82
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local92
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local102
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local112
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local122
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local132
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local142
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local152
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local162
+ _empty_/Test.f().2"
+ _empty_/Test.f().[T]2
+ local172$
+-- 	_empty_/Test.f().(exp)PZ 683BD294464685228A83FB904F5E8A41

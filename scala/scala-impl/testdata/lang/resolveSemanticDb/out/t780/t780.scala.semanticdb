@@ -1,0 +1,26 @@
+
+Útests/pos/t780.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#x. €*x€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+local0*self€2
+ 
+_empty_/B#2
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+" #_empty_/B#x.2
+ 
+_empty_/A#2#
+
+ 
+_empty_/A#`<init>`().2
+
+ local02
+ 
+_empty_/B#2
+ _empty_/B#x.PZ 1211CEC958000C69F3F67E6F95F671A1

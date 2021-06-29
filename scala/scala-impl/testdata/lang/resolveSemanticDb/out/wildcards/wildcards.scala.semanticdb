@@ -1,0 +1,19 @@
+
+¥tests/pos/wildcards.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*
+_empty_/Test.ys. €*ys€2
+ _empty_/Test.2
+ _empty_/Test.xs.2!
+
+ scala/package.List#27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.ys.2
+
+ scala/Predef.Map#2
+ scala/AnyRef#2
+  $scala/Null#22
++ +$scala/collection/MapFactory#apply().2
+( +scala/Predef.Map.PZ B6CEA710FFAED283160E94BDC6189704

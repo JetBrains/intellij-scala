@@ -1,0 +1,51 @@
+
+Ótests/pos/selftypes.scala*&
+_empty_/selftypes.
+ *	selftypes€*
+_empty_/selftypes.A#*A€*1
+_empty_/selftypes.A#`<init>`(). €@*<init>€*
+local0*self€*"
+_empty_/selftypes.A#AA#*AA€*"
+_empty_/selftypes.A#AX#*AX€*4
+"_empty_/selftypes.A#AX#`<init>`(). €@*<init>€*
+_empty_/selftypes.B#*B€*1
+_empty_/selftypes.B#`<init>`(). €@*<init>€*
+local1*self€*"
+_empty_/selftypes.B#BB#*BB€*"
+_empty_/selftypes.B#BX#*BX€*4
+"_empty_/selftypes.B#BX#`<init>`(). €@*<init>€* 
+_empty_/selftypes.AB#*AB€*2
+ _empty_/selftypes.AB#`<init>`(). €@*<init>€2
+ _empty_/selftypes.2"
+ 	_empty_/selftypes.A#2-
+ _empty_/selftypes.A#`<init>`().2
+ local02#
+ _empty_/selftypes.AB#2%
+	 _empty_/selftypes.A#AA#2!
+ scala/package.List#2%
+ _empty_/selftypes.B#BX#2%
+
+ _empty_/selftypes.A#AX#20
+ "_empty_/selftypes.A#AX#`<init>`().2"
+
+
+ 	_empty_/selftypes.B#2-
+
+
+ _empty_/selftypes.B#`<init>`().2
+
+
+ local12#
+
+
+ _empty_/selftypes.AB#2%
+	 _empty_/selftypes.B#BB#2%
+ _empty_/selftypes.A#AA#2%
+
+ _empty_/selftypes.B#BX#20
+ "_empty_/selftypes.B#BX#`<init>`().2#
+ 
+_empty_/selftypes.AB#2.
+  _empty_/selftypes.AB#`<init>`().2"
+ _empty_/selftypes.A#2"
+ _empty_/selftypes.B#PZ 4902ECC9B19BBBC14D8D749F60194C44

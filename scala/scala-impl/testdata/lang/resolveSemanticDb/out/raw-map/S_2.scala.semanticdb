@@ -1,0 +1,18 @@
+
+ˆtests/pos/raw-map/S_2.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#foo().*foo€*
+local0 €*x€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#foo().2
+ scala/Unit#2
+ 	local02
+ _empty_/J_1#2'
+ _empty_/J_1#setRawType().2
+ local02-
+& &java/util/HashMap#`<init>`(+2).2
+ 
+java/util/2
+ java/PZ 4FC0F1231CDA35CB16FCAB234C83D6CB

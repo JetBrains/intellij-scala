@@ -1,0 +1,26 @@
+
+ïtests/pos/i1803.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[T]	*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(x)*x€*
+local0 *$anon€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[T]2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(x)2
+ 
+_empty_/C#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Test.f().2
+ local02#
+	 	_empty_/C#`<init>`().PZ 58606B003A4DE908AEE6CDDCAA21A651

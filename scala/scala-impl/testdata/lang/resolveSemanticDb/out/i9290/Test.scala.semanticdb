@@ -1,0 +1,50 @@
+
+øtests/pos/i9290/Test.scala**
+sudoku/SudokuField# ˆ*SudokuField€*0
+sudoku/SudokuField#`<init>`(). €@*<init>€*8
+&sudoku/SudokuField#`<init>`().(sudoku) €*sudoku€*,
+sudoku/SudokuField#sudoku. €*sudoku€*'
+sudoku/SudokuField#copy().*copy€*1
+"sudoku/SudokuField#copy().(sudoku)*sudoku€*;
+$sudoku/SudokuField#copy$default$1().*copy$default$1€*#
+sudoku/SudokuField#_1().*_1€*)
+sudoku/SudokuField.
+ *SudokuField€*)
+sudoku/SudokuField.apply().*apply€*2
+#sudoku/SudokuField.apply().(sudoku)*sudoku€*-
+sudoku/SudokuField.unapply().*unapply€*.
+"sudoku/SudokuField.unapply().(x$1)*x$1€*/
+sudoku/SudokuField.toString().*toString€*%
+sudoku/Test$package. *sudoku€*<
+#sudoku/Test$package.SudokuFieldOps# *SudokuFieldOps€*@
+.sudoku/Test$package.SudokuFieldOps#`<init>`(). €@*<init>€*R
+;sudoku/Test$package.SudokuFieldOps#`<init>`().(sudokuField) €*sudokuField€*F
+/sudoku/Test$package.SudokuFieldOps#sudokuField. €*sudokuField€*5
+)sudoku/Test$package.SudokuFieldOps#foo().*foo€*<
+#sudoku/Test$package.SudokuFieldOps.
+ *SudokuFieldOps€*>
+%sudoku/Test$package.SudokuFieldOps(). (*SudokuFieldOps€*F
+2sudoku/Test$package.SudokuFieldOps().(sudokuField)*sudokuField€2
+ sudoku/2!
+ sudoku/SudokuField#2,
+ sudoku/SudokuField#`<init>`().2
+% (
+scala/Int#2(
+ #sudoku/SudokuField#sudoku.2$
+sudoku/SudokuField#copy().2&
+% %sudoku/SudokuField#_1().2!
+ sudoku/SudokuField.2%
+sudoku/SudokuField.apply().2
+sudoku/Test$package.21
+ #sudoku/Test$package.SudokuFieldOps#2<
+ .sudoku/Test$package.SudokuFieldOps#`<init>`().2!
+/ :sudoku/SudokuField#2&
+J Jscala/AnyVal#`<init>`().2
+D Jscala/AnyVal#2=
+" -/sudoku/Test$package.SudokuFieldOps#sudokuField.27
+ 	)sudoku/Test$package.SudokuFieldOps#foo().2
+ 
+scala/Int#2#
+ scala/Predef.`???`().21
+ #sudoku/Test$package.SudokuFieldOps.23
+ %sudoku/Test$package.SudokuFieldOps().PZ 9C23A663F04B22CC8DD4C45F9E930BF8

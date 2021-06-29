@@ -1,0 +1,38 @@
+
+çtests/pos/lambdalift_1.scala*
+_empty_/test.
+ *test€*
+_empty_/test.f().*f€*
+_empty_/test.f().(x)*x€*
+local0*g€*
+local1*h€*
+local2*inner€*
+local3*g€*
+local4*h€2
+ scala/2
+ _empty_/test.2
+ _empty_/test.f().2"
+ 	_empty_/test.f().(x)2
+ 
+scala/Int#2
+ 	local02
+ local12
+ 	local12"
+ _empty_/test.f().(x)2
+ local02
+
+ local22
+	
+	 local32
+		 local42
+
+
+
+ local42"
+
+
+ _empty_/test.f().(x)2 
+ 	scala/Int#`+`(+4).2
+ local02
+ local32
+ local2PZ 0B13820A445D923FD367BBE7608039FB

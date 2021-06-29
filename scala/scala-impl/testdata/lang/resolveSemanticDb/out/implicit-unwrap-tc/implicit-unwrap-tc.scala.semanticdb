@@ -1,0 +1,43 @@
+
+ã
+"tests/pos/implicit-unwrap-tc.scala* 
+_empty_/NewType#*NewType€*-
+_empty_/NewType#`<init>`(). €@*<init>€*
+_empty_/NewType#[X]	*X€*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.Unwrap().  *Unwrap€*#
+_empty_/Test.Unwrap().[X]	*X€*#
+_empty_/Test.Unwrap().(n)*n€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*,
+_empty_/Test.Foo#`<init>`().(a) €*a€* 
+_empty_/Test.Foo#a. €*a€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().(f)*f€2
+ _empty_/NewType#2%
+ _empty_/NewType#`<init>`().2
+ _empty_/NewType#[X]2
+ _empty_/Test.2$
+ _empty_/Test.Unwrap().2'
+ _empty_/Test.Unwrap().[X]2'
+ _empty_/Test.Unwrap().(n)2
+ #_empty_/NewType#2'
+$ %_empty_/Test.Unwrap().[X]2'
+) *_empty_/Test.Unwrap().[X]2(
+1 6scala/sys/package.error().2
+- 0
+scala/sys/2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2
+ 
+scala/Int#2!
+ _empty_/Test.Foo#a.2"
+ 
+_empty_/Test.test().2%
+ _empty_/Test.test().(f)2
+ _empty_/NewType#2
+ _empty_/Test.Foo#2!
+  !_empty_/Test.Foo#a.2$
+ _empty_/Test.Unwrap().2%
+ _empty_/Test.test().(f)PZ E0DAEC29DBF3D8A3CF227F46E764F0CE

@@ -1,0 +1,22 @@
+
+Ôtests/pos/i2056.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.crash().*crash€*
+local0 €*e€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2#
+ _empty_/Test.crash().2'
+ scala/Predef.println(+1).2
+ local02&
+ scala/package.Exception#2"
+		 
+_empty_/Test.main().2(
+		 _empty_/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	!	 %scala/Unit#2#
+
+
+ 	_empty_/Test.crash().PZ 840D71D10C253160630224F694FD3679

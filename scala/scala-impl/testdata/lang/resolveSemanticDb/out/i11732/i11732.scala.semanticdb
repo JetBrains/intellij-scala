@@ -1,0 +1,142 @@
+
+Ø$tests/pos/i11732.scala*0
+_empty_/TupleConversion#*TupleConversion€*5
+#_empty_/TupleConversion#`<init>`(). €@*<init>€*%
+_empty_/TupleConversion#[A]	*A€*%
+_empty_/TupleConversion#[B]	*B€**
+_empty_/TupleConversion#to(). *to€**
+ _empty_/TupleConversion#to().(a)*a€*.
+_empty_/TupleConversion#from(). *from€*,
+"_empty_/TupleConversion#from().(b)*b€*2
+_empty_/TupleConversion.
+ *TupleConversion€*L
+._empty_/TupleConversion.autoTupleConversion(). (*autoTupleConversion€*A
+4_empty_/TupleConversion.autoTupleConversion().[Prod]	*Prod€*=
+1_empty_/TupleConversion.autoTupleConversion().(m)  *m€*
+local0 *$anon€*
+local1*to€*
+local2*a€*
+local3*from€*
+local4*b€*
+_empty_/Data# ˆ*Data€**
+_empty_/Data#`<init>`(). €@*<init>€**
+_empty_/Data#`<init>`().(s0) €*s0€**
+_empty_/Data#`<init>`().(s1) €*s1€*
+_empty_/Data#s0. €*s0€*
+_empty_/Data#s1. €*s1€*!
+_empty_/Data#copy().*copy€*#
+_empty_/Data#copy().(s0)*s0€*#
+_empty_/Data#copy().(s1)*s1€*5
+_empty_/Data#copy$default$1().*copy$default$1€*5
+_empty_/Data#copy$default$2().*copy$default$2€*
+_empty_/Data#_1().*_1€*
+_empty_/Data#_2().*_2€*
+_empty_/Data.
+ *Data€*#
+_empty_/Data.apply().*apply€*$
+_empty_/Data.apply().(s0)*s0€*$
+_empty_/Data.apply().(s1)*s1€*'
+_empty_/Data.unapply().*unapply€*(
+_empty_/Data.unapply().(x$1)*x$1€*)
+_empty_/Data.toString().*toString€*$
+_empty_/BaseSpec# *BaseSpec€*.
+_empty_/BaseSpec#`<init>`(). €@*<init>€*)
+_empty_/BaseSpec#`<init>`().(f)*f€* 
+_empty_/BaseSpec#f. €*f€*8
+_empty_/ProductBuilderTest.
+ *ProductBuilderTest€*
+local5 €*conv€2
+ scala/deriving/2
+ scala/2&
+ _empty_/TupleConversion#21
+ #_empty_/TupleConversion#`<init>`().2)
+ _empty_/TupleConversion#[A]2)
+ _empty_/TupleConversion#[B]2+
+ _empty_/TupleConversion#to().2.
+	 
+ _empty_/TupleConversion#to().(a)2)
+ _empty_/TupleConversion#[A]2)
+ _empty_/TupleConversion#[B]2-
+ 
+_empty_/TupleConversion#from().20
+ "_empty_/TupleConversion#from().(b)2)
+ _empty_/TupleConversion#[B]2)
+ _empty_/TupleConversion#[A]2&
+ _empty_/TupleConversion.2<
+ "._empty_/TupleConversion.autoTupleConversion().2B
+# '4_empty_/TupleConversion.autoTupleConversion().[Prod]2
++ 2scala/Product#2?
+: ;1_empty_/TupleConversion.autoTupleConversion().(m)2.
+D M scala/deriving/Mirror.ProductOf#2$
+= Cscala/deriving/Mirror.2B
+N R4_empty_/TupleConversion.autoTupleConversion().[Prod]2&
+V e_empty_/TupleConversion#2B
+f j4_empty_/TupleConversion.autoTupleConversion().[Prod]2?
+l m1_empty_/TupleConversion.autoTupleConversion().(m)2
+		 local02&
+		 _empty_/TupleConversion#2B
+		 4_empty_/TupleConversion.autoTupleConversion().[Prod]2?
+		 1_empty_/TupleConversion.autoTupleConversion().(m)2
+
+
+
+ local12
+
+
+ local22B
+
+
+ 4_empty_/TupleConversion.autoTupleConversion().[Prod]2?
+
+
+ 1_empty_/TupleConversion.autoTupleConversion().(m)2-
+
+3
+ Cscala/Tuple.fromProductTyped().2
+
+-
+ 2scala/Tuple.2
+
+D
+ Elocal22?
+
+F
+ F1_empty_/TupleConversion.autoTupleConversion().(m)2
+
+ local32
+ local42?
+ 1_empty_/TupleConversion.autoTupleConversion().(m)2B
+( ,4_empty_/TupleConversion.autoTupleConversion().[Prod]2:
+1 <,scala/deriving/Mirror.Product#fromProduct().2?
+/ 01_empty_/TupleConversion.autoTupleConversion().(m)2
+= >local42
+ _empty_/Data#2&
+ _empty_/Data#`<init>`().2
+ 
+scala/Int#2
+# &
+scala/Int#2
+ _empty_/Data#s0.2
+ !_empty_/Data#s1.2
+_empty_/Data#copy().2 
+ _empty_/Data#_1().2 
+# #_empty_/Data#_2().2
+ _empty_/Data.2
+_empty_/Data.apply().2
+ _empty_/BaseSpec#2*
+ _empty_/BaseSpec#`<init>`().2
+! %scala/Unit#2!
+ _empty_/BaseSpec#f.2)
+ _empty_/ProductBuilderTest.2*
+ _empty_/BaseSpec#`<init>`().2
+
+ _empty_/BaseSpec#2
+ local52(
+ scala/Predef.implicitly().2&
+ )_empty_/TupleConversion#2
+* ._empty_/Data#2
+1 4
+scala/Int#2
+6 9
+scala/Int#2<
+< <._empty_/TupleConversion.autoTupleConversion().PZ A732F478B00A3FA59CA307E320810D23

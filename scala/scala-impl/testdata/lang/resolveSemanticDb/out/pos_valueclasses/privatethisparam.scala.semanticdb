@@ -1,0 +1,63 @@
+
+»1tests/pos/pos_valueclasses/privatethisparam.scala*'
+privatethisparam/Meter# *Meter€*4
+"privatethisparam/Meter#`<init>`(). €@*<init>€*/
+%privatethisparam/Meter#`<init>`().(x)*x€*$
+privatethisparam/Meter#[T]	*T€*&
+privatethisparam/Meter#x. €*x€*+
+privatethisparam/Meter#zero().*zero€*'
+privatethisparam/Meter.
+ *Meter€*)
+privatethisparam/Meter2# *Meter2€*5
+#privatethisparam/Meter2#`<init>`(). €@*<init>€*0
+&privatethisparam/Meter2#`<init>`().(x)*x€*'
+privatethisparam/Meter2#x. €*x€**
+privatethisparam/Meter2#foo().*foo€*)
+privatethisparam/Meter2.
+ *Meter2€*%
+privatethisparam/Test.
+ *Test€*(
+privatethisparam/Test.bar().*bar€*0
+ privatethisparam/Test.useZero().*useZero€**
+privatethisparam/Test.test().*test€*
+local0 €*m1€2
+ privatethisparam/2%
+ privatethisparam/Meter#20
+ "privatethisparam/Meter#`<init>`().2(
+ privatethisparam/Meter#[T]2&
+# #scala/AnyVal#`<init>`().2
+ #scala/AnyVal#2(
+ privatethisparam/Meter#[T]2'
+ privatethisparam/Meter#x.2,
+ 
+privatethisparam/Meter#zero().2(
+ privatethisparam/Meter#[T]2'
+ privatethisparam/Meter#x.2%
+ privatethisparam/Meter.2&
+ privatethisparam/Meter2#21
+ #privatethisparam/Meter2#`<init>`().2
+" %
+scala/Int#2&
+5 5scala/AnyVal#`<init>`().2
+/ 5scala/AnyVal#2(
+  privatethisparam/Meter2#x.2,
+ 	privatethisparam/Meter2#foo().2(
+ privatethisparam/Meter2#x.2&
+ privatethisparam/Meter2.2$
+
+
+ privatethisparam/Test.2*
+ 	privatethisparam/Test.bar().21
+ #privatethisparam/Meter2#`<init>`().2&
+ privatethisparam/Meter2#2.
+  privatethisparam/Test.useZero().2,
+ !privatethisparam/Meter#zero().20
+ "privatethisparam/Meter#`<init>`().2+
+ 
+privatethisparam/Test.test().2
+ scala/Unit#2
+ 
+local020
+ "privatethisparam/Meter#`<init>`().2,
+ privatethisparam/Meter#zero().2
+ local0PZ AAF361533F1C6CFAE95C0708812CF608

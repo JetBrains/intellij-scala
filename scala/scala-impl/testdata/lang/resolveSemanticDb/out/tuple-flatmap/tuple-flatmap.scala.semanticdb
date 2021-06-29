@@ -1,0 +1,103 @@
+
+êtests/pos/tuple-flatmap.scala*2
+ _empty_/`tuple-flatmap$package`. *_empty_€*4
+&_empty_/`tuple-flatmap$package`.Empty#*Empty€*3
+)_empty_/`tuple-flatmap$package`.Empty#[X]	*X€*4
+&_empty_/`tuple-flatmap$package`.Twice#*Twice€*3
+)_empty_/`tuple-flatmap$package`.Twice#[X]	*X€*4
+'_empty_/`tuple-flatmap$package`.test().*test€*
+local0 €*a1€*
+local1 €*a2€*
+local2 €*b1€*
+local3 €*b2€*
+local4 €*c1€*
+local5 €*c2€*
+local6 €*c3€*
+local7	*X€2*
+ _empty_/`tuple-flatmap$package`.24
+ 
+&_empty_/`tuple-flatmap$package`.Empty#27
+ )_empty_/`tuple-flatmap$package`.Empty#[X]2-
+ scala/Tuple$package.EmptyTuple#24
+ 
+&_empty_/`tuple-flatmap$package`.Twice#27
+ )_empty_/`tuple-flatmap$package`.Twice#[X]27
+ )_empty_/`tuple-flatmap$package`.Twice#[X]27
+ )_empty_/`tuple-flatmap$package`.Twice#[X]25
+ '_empty_/`tuple-flatmap$package`.test().2
+ local02-
+
+ scala/Tuple$package.EmptyTuple#2#
+ scala/Predef.`???`().2"
+# *scala/Tuple.FlatMap#2
+ "scala/Tuple.2-
++ 5scala/Tuple$package.EmptyTuple#24
+7 <&_empty_/`tuple-flatmap$package`.Empty#2
+ local12-
+
+ scala/Tuple$package.EmptyTuple#2#
+ scala/Predef.`???`().2"
+# *scala/Tuple.FlatMap#2
+ "scala/Tuple.2
+, /
+scala/Int#2"
+1 7scala/Predef.String#24
+: ?&_empty_/`tuple-flatmap$package`.Empty#2
+ local22-
+
+ scala/Tuple$package.EmptyTuple#2#
+ scala/Predef.`???`().2"
+# *scala/Tuple.FlatMap#2
+ "scala/Tuple.2-
++ 5scala/Tuple$package.EmptyTuple#2
+		 local32
+		 
+scala/Int#2"
+		 scala/Predef.String#2#
+		 scala/Predef.`???`().2"
+	&	 -scala/Tuple.FlatMap#2
+	 	 %scala/Tuple.2
+	/	 2
+scala/Int#2"
+	4	 :scala/Predef.String#2
+ local42-
+
+ scala/Tuple$package.EmptyTuple#2#
+ scala/Predef.`???`().2"
+# *scala/Tuple.FlatMap#2
+ "scala/Tuple.2-
++ 5scala/Tuple$package.EmptyTuple#24
+7 <&_empty_/`tuple-flatmap$package`.Twice#2
+ local52
+ 
+scala/Int#2
+ 
+scala/Int#2"
+ scala/Predef.String#2"
+ #scala/Predef.String#2#
+' *scala/Predef.`???`().2"
+3 :scala/Tuple.FlatMap#2
+- 2scala/Tuple.2
+< ?
+scala/Int#2"
+A Gscala/Predef.String#24
+J O&_empty_/`tuple-flatmap$package`.Twice#2
+ local62
+ 
+scala/Int#2!
+ scala/package.List#2
+ 
+scala/Int#2"
+ !scala/Predef.String#2!
+# 'scala/package.List#2"
+( .scala/Predef.String#2#
+3 6scala/Predef.`???`().2"
+? Fscala/Tuple.FlatMap#2
+9 >scala/Tuple.2
+H K
+scala/Int#2"
+M Sscala/Predef.String#2
+W Xlocal72
+_ `local72!
+b fscala/package.List#2
+g hlocal7PZ 3C5F313F5D75F0DFA7F15D3B94018944

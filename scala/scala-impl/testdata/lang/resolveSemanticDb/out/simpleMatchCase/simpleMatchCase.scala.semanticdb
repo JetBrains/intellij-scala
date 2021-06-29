@@ -1,0 +1,13 @@
+
+©tests/pos/simpleMatchCase.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#foo().*foo€*
+local0 €*x€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#foo().2
+ scala/Unit#2
+ local02'
+ scala/Predef.println(+1).2'
+ scala/Predef.println(+1).PZ F304D804C35C16428F4B35CA3EF5CD8B

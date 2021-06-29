@@ -1,0 +1,95 @@
+
+åtests/pos/i11995.scala*
+_empty_/MyBase#*MyBase€*,
+_empty_/MyBase#`<init>`(). €@*<init>€*
+_empty_/MyBase#[A]	*A€*#
+_empty_/MyBase#foo(). *foo€*'
+_empty_/BothThing# €*	BothThing€*/
+_empty_/BothThing#`<init>`(). €@*<init>€*
+_empty_/BothThing#[L]	*L€*
+_empty_/BothThing#[R]	*R€*$
+_empty_/BothThing#foo().*foo€*&
+_empty_/BothThing#copy().*copy€*&
+_empty_/BothThing#copy().[L]	*L€*&
+_empty_/BothThing#copy().[R]	*R€*&
+_empty_/BothThing.
+ *	BothThing€*(
+_empty_/BothThing.apply().*apply€*'
+_empty_/BothThing.apply().[L]	*L€*'
+_empty_/BothThing.apply().[R]	*R€*,
+_empty_/BothThing.unapply().*unapply€*)
+_empty_/BothThing.unapply().[L]	*L€*)
+_empty_/BothThing.unapply().[R]	*R€*-
+!_empty_/BothThing.unapply().(x$1)*x$1€*.
+_empty_/BothThing.toString().*toString€*
+_empty_/Has#*Has€*)
+_empty_/Has#`<init>`(). €@*<init>€*
+_empty_/Has#[A]	*A€* 
+_empty_/Console#*Console€*-
+_empty_/Console#`<init>`(). €@*<init>€*
+_empty_/Clock#*Clock€*+
+_empty_/Clock#`<init>`(). €@*<init>€*
+_empty_/Spec#*Spec€**
+_empty_/Spec#`<init>`(). €@*<init>€*
+_empty_/Spec#[R]	*R€*"
+_empty_/MySpec1.
+ *MySpec1€*"
+_empty_/MySpec2.
+ *MySpec2€*)
+_empty_/i11995$package. *_empty_€*A
+(_empty_/i11995$package.ConsoleWithClock#*ConsoleWithClock€2
+ _empty_/MyBase#2$
+ _empty_/MyBase#`<init>`().2
+ _empty_/MyBase#[A]2#
+ 	_empty_/MyBase#foo().2"
+ scala/Predef.String#2 
+ _empty_/BothThing#2+
+ _empty_/BothThing#`<init>`().2
+% +_empty_/MyBase#2
+. /
+scala/`&`#2#
+, -_empty_/BothThing#[L]2#
+0 1_empty_/BothThing#[R]2#
+ _empty_/BothThing#[L]2#
+ _empty_/BothThing#[R]2&
+ 	_empty_/BothThing#foo().2"
+ scala/Predef.String#2#
+_empty_/BothThing#copy().2 
+ _empty_/BothThing.2$
+_empty_/BothThing.apply().2&
+_empty_/BothThing.unapply().2
+ 	_empty_/Has#2%
+	 	_empty_/Has#`<init>`().2
+
+ _empty_/Has#[A]2
+		 _empty_/Console#2%
+		_empty_/Console#`<init>`().2
+
+
+ _empty_/Clock#2#
+
+
+_empty_/Clock#`<init>`().2
+ 
+_empty_/Spec#2&
+
+ 
+_empty_/Spec#`<init>`().2
+ _empty_/Spec#[R]2
+ _empty_/MySpec1.2&
+9 9_empty_/Spec#`<init>`().2
+ _empty_/Spec#2
+ _empty_/Has#2
+  '_empty_/Console#2
+. 1_empty_/Has#2
+2 7_empty_/Clock#2
+ _empty_/MySpec2.2&
+- -_empty_/Spec#`<init>`().2
+ _empty_/Spec#26
+ ,(_empty_/i11995$package.ConsoleWithClock#2!
+_empty_/i11995$package.26
+ (_empty_/i11995$package.ConsoleWithClock#2
+ _empty_/Has#2
+ #_empty_/Console#2
+* -_empty_/Has#2
+. 3_empty_/Clock#PZ D3D0350FF1D53D73DD79E068753A8319

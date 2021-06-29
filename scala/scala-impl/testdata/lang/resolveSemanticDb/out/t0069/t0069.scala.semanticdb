@@ -1,0 +1,38 @@
+
+Ðtests/pos/t0069.scala* 
+_empty_/testCQ.
+ *testCQ€*&
+_empty_/testCQ.Thing# €*Thing€*2
+ _empty_/testCQ.Thing#`<init>`(). €@*<init>€*6
+&_empty_/testCQ.Thing#`<init>`().(name) €*name€*>
+*_empty_/testCQ.Thing#`<init>`().(contains) €*contains€**
+_empty_/testCQ.Thing#name. €*name€*2
+_empty_/testCQ.Thing#contains. €*contains€*)
+_empty_/testCQ.Thing#copy().*copy€*/
+"_empty_/testCQ.Thing#copy().(name)*name€*7
+&_empty_/testCQ.Thing#copy().(contains)*contains€*=
+&_empty_/testCQ.Thing#copy$default$1().*copy$default$1€*=
+&_empty_/testCQ.Thing#copy$default$2().*copy$default$2€*%
+_empty_/testCQ.Thing#_1().*_1€*%
+_empty_/testCQ.Thing#_2().*_2€*%
+_empty_/testCQ.Thing.
+ *Thing€*+
+_empty_/testCQ.Thing.apply().*apply€*0
+#_empty_/testCQ.Thing.apply().(name)*name€*8
+'_empty_/testCQ.Thing.apply().(contains)*contains€*/
+_empty_/testCQ.Thing.unapply().*unapply€*0
+$_empty_/testCQ.Thing.unapply().(x$1)*x$1€*1
+ _empty_/testCQ.Thing.toString().*toString€2
+ _empty_/testCQ.2#
+ _empty_/testCQ.Thing#2.
+  _empty_/testCQ.Thing#`<init>`().2"
+ scala/Predef.String#2!
+* .scala/package.List#2#
+0 5_empty_/testCQ.Thing#2(
+ _empty_/testCQ.Thing#name.2,
+! )_empty_/testCQ.Thing#contains.2*
+ _empty_/testCQ.Thing#copy().2(
+ _empty_/testCQ.Thing#_1().2(
+* *_empty_/testCQ.Thing#_2().2#
+ _empty_/testCQ.Thing.2+
+ _empty_/testCQ.Thing.apply().PZ 8BE48B1558A6672D9CB337AB7C291D3E

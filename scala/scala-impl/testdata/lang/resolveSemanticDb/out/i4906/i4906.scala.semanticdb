@@ -1,0 +1,222 @@
+
+Ù7tests/pos/i4906.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*7
+_empty_/Test.TestConstructor1#*TestConstructor1€*;
+)_empty_/Test.TestConstructor1#`<init>`(). €@*<init>€**
+ _empty_/Test.TestConstructor1#F#*F€*7
+_empty_/Test.TestConstructor2#*TestConstructor2€*;
+)_empty_/Test.TestConstructor2#`<init>`(). €@*<init>€*+
+!_empty_/Test.TestConstructor2#[D]	*D€**
+ _empty_/Test.TestConstructor2#F#*F€**
+ _empty_/Test.TestConstructor2#G#*G€*=
++_empty_/Test.TestConstructor2#G#`<init>`(). €@*<init>€*-
+#_empty_/Test.TestConstructor2#G#[X]	*X€*H
+/_empty_/Test.TestConstructor2#TestConstructor3#*TestConstructor3€*L
+:_empty_/Test.TestConstructor2#TestConstructor3#`<init>`(). €@*<init>€*<
+2_empty_/Test.TestConstructor2#TestConstructor3#[E]	*E€*;
+1_empty_/Test.TestConstructor2#TestConstructor3#G#*G€*;
+1_empty_/Test.TestConstructor2#TestConstructor3#H#*H€*N
+<_empty_/Test.TestConstructor2#TestConstructor3#H#`<init>`(). €@*<init>€*>
+4_empty_/Test.TestConstructor2#TestConstructor3#H#[X]	*X€*
+_empty_/Test.v1. €*v1€*
+local0*f€*
+local1*P€*
+local2	*a€*
+_empty_/Test.v2. €*v2€*
+local3*f€*
+local4*P€*
+local5	*a€*
+_empty_/Test.f2().*f2€*
+_empty_/Test.f2().(f)*f€*
+local6*P€*
+local7	*a€*
+_empty_/Test.v3. €*v3€*
+local8 *apply€*
+local9*f€*
+local10 *apply€*
+local11*g€*
+_empty_/Test.v4. €*v4€*
+local12 *apply€*
+local13*f€*
+local14 *apply€*
+local15*g€*
+local16*f€*
+_empty_/Test.v5. €*v5€*
+local17 *apply€*
+local18*f€*
+local19 *apply€*
+local20*g€*
+local21*f€*
+_empty_/Test.f3().*f3€*
+_empty_/Test.f3().(f)*f€*
+_empty_/Test.f3().(g)*g€*
+local22*P€*
+local23	*a€*
+local24*Q€*
+local25	*a€*
+local26*R€*
+local27	*a€*
+local28	*X€*
+local29*S€*
+local30	*a€2
+ _empty_/Test.2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2,
+ _empty_/Test.TestConstructor1#27
+ )_empty_/Test.TestConstructor1#`<init>`().2.
+  ! _empty_/Test.TestConstructor1#F#2
+' (_empty_/Test.A#2,
+ _empty_/Test.TestConstructor2#27
+ )_empty_/Test.TestConstructor2#`<init>`().2/
+ !_empty_/Test.TestConstructor2#[D]2.
+	 
+ _empty_/Test.TestConstructor2#F#2/
+ !_empty_/Test.TestConstructor2#[D]2.
+
+  _empty_/Test.TestConstructor2#G#29
+ +_empty_/Test.TestConstructor2#G#`<init>`().21
+ #_empty_/Test.TestConstructor2#G#[X]2=
+
+ /_empty_/Test.TestConstructor2#TestConstructor3#2H
+ :_empty_/Test.TestConstructor2#TestConstructor3#`<init>`().2@
+ 2_empty_/Test.TestConstructor2#TestConstructor3#[E]2?
+ 1_empty_/Test.TestConstructor2#TestConstructor3#G#2
+ 
+scala/`&`#2/
+ !_empty_/Test.TestConstructor2#[D]2@
+ 2_empty_/Test.TestConstructor2#TestConstructor3#[E]2?
+ 1_empty_/Test.TestConstructor2#TestConstructor3#H#2J
+ <_empty_/Test.TestConstructor2#TestConstructor3#H#`<init>`().2B
+ 4_empty_/Test.TestConstructor2#TestConstructor3#H#[X]2
+ _empty_/Test.v1.2,
+
+ _empty_/Test.TestConstructor1#2
+ "scala/Unit#2
+' (local02
+	 
+local12
+ local22
+ _empty_/Test.A#2.
+  _empty_/Test.TestConstructor1#F#2
+ local02
+ local22
+ _empty_/Test.v2.2,
+
+ _empty_/Test.TestConstructor2#2
+ _empty_/Test.A#2
+! %scala/Unit#2
+* +local32
+	 
+local42
+ local52
+ _empty_/Test.A#2.
+  _empty_/Test.TestConstructor2#F#2
+ local32
+ local52 
+ _empty_/Test.f2().2#
+	 
+_empty_/Test.f2().(f)2,
+ _empty_/Test.TestConstructor2#2
+ _empty_/Test.A#2
+" &scala/Unit#2
+	 
+local62
+ local72
+ _empty_/Test.A#2.
+  _empty_/Test.TestConstructor2#F#2#
+ _empty_/Test.f2().(f)2
+ local72
+ _empty_/Test.v3.2,
+ _empty_/Test.TestConstructor2#2
+  _empty_/Test.A#2
+# (local82
+ local92=
+, </_empty_/Test.TestConstructor2#TestConstructor3#2
+* +local92
+= >_empty_/Test.A#2
+A Flocal102
+' (local112
+D Hscala/Unit#2#
+K Nscala/Predef.`???`().2
+ _empty_/Test.v4.2,
+ _empty_/Test.TestConstructor2#2
+  _empty_/Test.A#2
+# (local122
+ local132=
+, </_empty_/Test.TestConstructor2#TestConstructor3#2
+* +local132
+= >_empty_/Test.A#2
+A Flocal142
+' (local152
+D Hscala/Unit#2
+L Mlocal162#
+Q Tscala/Predef.`???`().2
+ _empty_/Test.v5.2,
+ _empty_/Test.TestConstructor2#2
+  _empty_/Test.A#2
+# (local172
+ local182=
+, </_empty_/Test.TestConstructor2#TestConstructor3#2
+* +local182
+= >_empty_/Test.A#2
+A Flocal192
+' (local202
+D Hscala/Unit#2
+M Nlocal212,
+P `_empty_/Test.TestConstructor2#2
+a b_empty_/Test.A#2#
+h kscala/Predef.`???`().2 
+ _empty_/Test.f3().2#
+	 
+_empty_/Test.f3().(f)2,
+ _empty_/Test.TestConstructor2#2
+ _empty_/Test.A#2#
+! "_empty_/Test.f3().(g)2=
+& 6/_empty_/Test.TestConstructor2#TestConstructor3#2#
+$ %_empty_/Test.f3().(f)2
+7 8_empty_/Test.A#2
+< @scala/Unit#2
+	 
+local222
+ local232
+ _empty_/Test.A#2.
+  _empty_/Test.TestConstructor2#F#2#
+ _empty_/Test.f3().(f)2
+ local232
+	 
+local242
+ local252
+ _empty_/Test.A#2?
+ 1_empty_/Test.TestConstructor2#TestConstructor3#G#2#
+ _empty_/Test.f3().(g)2
+ local252
+ 	  
+local262
+   local272
+   _empty_/Test.A#2
+   local282
+   _empty_/Test.A#2
+ *  +
+scala/`&`#2.
+ %  & _empty_/Test.TestConstructor2#F#2#
+ #  $_empty_/Test.f3().(f)2
+ '  (local282?
+ .  /1_empty_/Test.TestConstructor2#TestConstructor3#G#2#
+ ,  -_empty_/Test.f3().(g)2
+ 0  1local282
+ 4  5local272
+!	! 
+local292
+!! local302
+!! _empty_/Test.A#2
+!! 
+scala/`&`#2.
+!!  _empty_/Test.TestConstructor2#G#2#
+!! _empty_/Test.f3().(f)2
+!! local302?
+! ! !1_empty_/Test.TestConstructor2#TestConstructor3#H#2#
+!! _empty_/Test.f3().(g)2
+!"! #local30PZ E30BF5000A7CCF73AD0F598C1C2E1AF2

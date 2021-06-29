@@ -1,0 +1,126 @@
+
+™"tests/pos/t5720-ownerous.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#M# €*M€*)
+_empty_/C#M#`<init>`(). €@*<init>€*;
+$_empty_/C#M#`<init>`().(currentUser) €*currentUser€*3
+ _empty_/C#M#`<init>`().(message) €*message€*/
+_empty_/C#M#currentUser. €*currentUser€*'
+_empty_/C#M#message. €*message€* 
+_empty_/C#M#copy().*copy€*4
+ _empty_/C#M#copy().(currentUser)*currentUser€*,
+_empty_/C#M#copy().(message)*message€*4
+_empty_/C#M#copy$default$1().*copy$default$1€*
+_empty_/C#M#_1().*_1€*
+_empty_/C#M.
+ *M€*"
+_empty_/C#M.apply().*apply€*5
+!_empty_/C#M.apply().(currentUser)*currentUser€*-
+_empty_/C#M.apply().(message)*message€*&
+_empty_/C#M.unapply().*unapply€*'
+_empty_/C#M.unapply().(x$1)*x$1€*(
+_empty_/C#M.toString().*toString€*N
+*_empty_/C#M.$lessinit$greater$default$1().*$lessinit$greater$default$1€*N
+*_empty_/C#M.$lessinit$greater$default$2().*$lessinit$greater$default$2€*K
+7_empty_/C#M.$lessinit$greater$default$2().(currentUser)*currentUser€*
+_empty_/C#m. €*m€* 
+_empty_/C#model().*model€*"
+_empty_/C#modish().*modish€*
+local0 €*currentUser$1€*
+_empty_/C#N# €*N€*)
+_empty_/C#N#`<init>`(). €@*<init>€*;
+$_empty_/C#N#`<init>`().(currentUser) €*currentUser€*/
+_empty_/C#N#currentUser. €*currentUser€* 
+_empty_/C#N#copy().*copy€*4
+ _empty_/C#N#copy().(currentUser)*currentUser€*4
+_empty_/C#N#copy$default$1().*copy$default$1€*
+_empty_/C#N#_1().*_1€*
+_empty_/C#N.
+ *N€*"
+_empty_/C#N.apply().*apply€*5
+!_empty_/C#N.apply().(currentUser)*currentUser€*&
+_empty_/C#N.unapply().*unapply€*'
+_empty_/C#N.unapply().(x$1)*x$1€*(
+_empty_/C#N.toString().*toString€*N
+*_empty_/C#N.$lessinit$greater$default$1().*$lessinit$greater$default$1€*
+_empty_/C#n. €*n€* 
+_empty_/C#nudel().*nudel€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local1 €*c€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#M#2%
+ _empty_/C#M#`<init>`().2"
+ "scala/Predef.String#2"
+: @scala/Predef.String#2&
+ _empty_/C#M#currentUser.2"
+1 8_empty_/C#M#message.2!
+ _empty_/C#M#copy().2
+ _empty_/C#M#_1().2
+ _empty_/C#M.2"
+ _empty_/C#M.apply().2E
+ 7_empty_/C#M.$lessinit$greater$default$2().(currentUser)2
+ _empty_/C#m.2"
+ _empty_/C#M.apply().2
+
+ _empty_/C#M.2 
+ _empty_/C#model().2!
+. 2_empty_/C#M#copy().2'
+ !scala/Option#getOrElse().2#
+ scala/Option.apply().2
+ scala/Option.2
+ _empty_/C#m.2"
+# #_empty_/C#M.apply().2
+" #_empty_/C#M.2!
+!! _empty_/C#modish().2'
+!"! +scala/Option#getOrElse().2
+!! scala/Option#2
+!! _empty_/C#M#2
+!0! 0local02%
+!1! 1_empty_/C#M#`<init>`().2
+!0! 1_empty_/C#M#2
+!0! 0local02
+$$ _empty_/C#N#2%
+$$ _empty_/C#N#`<init>`().2"
+$$ "scala/Predef.String#2&
+$$ _empty_/C#N#currentUser.2!
+$$ _empty_/C#N#copy().2
+$$ _empty_/C#N#_1().2
+$$ _empty_/C#N.2"
+$$ _empty_/C#N.apply().2
+%% _empty_/C#n.2"
+%% _empty_/C#N.apply().2
+%
+% _empty_/C#N.2 
+&& _empty_/C#nudel().2'
+&& !scala/Option#getOrElse().2#
+&& scala/Option.apply().2
+&& scala/Option.2
+&& _empty_/C#n.2"
+&#& #_empty_/C#N.apply().2
+&"& #_empty_/C#N.2
+)) _empty_/Test.2"
+** 
+_empty_/Test.main().2(
+** _empty_/Test.main().(args)2
+** scala/Array#2"
+** scala/Predef.String#2
+*!* %scala/Unit#2
+++ 	local12#
+++ _empty_/C#`<init>`().2
+++ 
+_empty_/C#2'
+,, scala/Predef.println(+1).2&
+,, _empty_/C#M#currentUser.2 
+,, _empty_/C#model().2
+,, local12'
+-- scala/Predef.println(+1).2"
+-- _empty_/C#M#message.2 
+-- _empty_/C#model().2
+-- local1PZ 360188E6F328FA66A356A6D493FE9C64

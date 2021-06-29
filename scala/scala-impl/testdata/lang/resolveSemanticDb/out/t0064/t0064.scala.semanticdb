@@ -1,0 +1,19 @@
+
+Átests/pos/t0064.scala*
+
+_empty_/B.
+ *B€*
+_empty_/B.main().*main€*$
+_empty_/B.main().(Args)*Args€*
+local0 €*x€2
+ 
+_empty_/B.2
+ 
+_empty_/B.main().2%
+ _empty_/B.main().(Args)2
+ scala/Array#2"
+ scala/Predef.String#2#
+ scala/Tuple2.apply().2
+ local02 
+ scala/Int#`+`(+4).2
+ local0PZ 2A9024CA211C4E620C8D534530F715BE

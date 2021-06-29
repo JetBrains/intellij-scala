@@ -1,0 +1,27 @@
+
+Îtests/pos/i3561.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€**
+_empty_/Test#Constant. €*Constant€*'
+_empty_/Test#tokenMe().*tokenMe€*&
+_empty_/Test#tokenMe().(ch)*ch€*#
+_empty_/Test#test2().*test2€*"
+_empty_/Test#test2().(x)*x€*
+local0 €*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2$
+ _empty_/Test#Constant.2%
+ _empty_/Test#tokenMe().2)
+ _empty_/Test#tokenMe().(ch)2
+ scala/Char#2)
+ _empty_/Test#tokenMe().(ch)2$
+ _empty_/Test#Constant.2#
+ _empty_/Test#test2().2&
+ _empty_/Test#test2().(x)2
+ 
+scala/Any#2&
+ _empty_/Test#test2().(x)2
+	 
+local02"
+ scala/Predef.String#PZ AFD3D8AF1E07603ABA3F6B391FE85198

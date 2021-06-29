@@ -1,0 +1,119 @@
+
+Ó!!tests/pos/virtpatmat_exist4.scala*
+_empty_/Global#*Global€*,
+_empty_/Global#`<init>`(). €@*<init>€*!
+_empty_/Global#Tree#*Tree€*1
+_empty_/Global#Tree#`<init>`(). €@*<init>€*%
+_empty_/Global#Symbol#*Symbol€*3
+!_empty_/Global#Symbol#`<init>`(). €@*<init>€**
+_empty_/Global#Symbol#foo(). *foo€*
+_empty_/IMain#*IMain€*+
+_empty_/IMain#`<init>`(). €@*<init>€*
+local0*self€*'
+_empty_/IMain#global. „*global€*,
+_empty_/IMain#handlers(). *handlers€*.
+_empty_/MemberHandlers#*MemberHandlers€*4
+"_empty_/MemberHandlers#`<init>`(). €@*<init>€*,
+_empty_/MemberHandlers#intp. „*intp€*=
+%_empty_/MemberHandlers#MemberHandler# *MemberHandler€*B
+0_empty_/MemberHandlers#MemberHandler#`<init>`(). €@*<init>€*J
+8_empty_/MemberHandlers#MemberHandler#`<init>`().(member) €*member€*>
+,_empty_/MemberHandlers#MemberHandler#member. €*member€*Q
+7_empty_/MemberHandlers#MemberHandler#importedSymbols(). *importedSymbols€*
+_empty_/Test.
+ *Test€*$
+_empty_/Test.intp(). €*intp€**
+_empty_/Test.`intp_=`(). €*intp_=€*)
+_empty_/Test.`intp_=`().(x$1)*x$1€**
+_empty_/Test.handlers. €*handlers€*
+local1*x$1€*
+local2 €*handler€*
+local3 €*idx€*
+local4 €*types€*
+local5 €*terms€*
+_empty_/Test2.
+ *Test2€*$
+_empty_/Test2.JClass#*JClass€*.
+_empty_/Test2.tvarString().*
+tvarString€*2
+#_empty_/Test2.tvarString().(bounds)*bounds€*
+local6*x$1€*
+local7 €*x€2
+ _empty_/Global#2(
+ _empty_/Global#`<init>`().2"
+ _empty_/Global#Tree#2-
+ _empty_/Global#Tree#`<init>`().2$
+ _empty_/Global#Symbol#2/
+ !_empty_/Global#Symbol#`<init>`().2*
+ _empty_/Global#Symbol#foo().2
+ !scala/Boolean#2
+ _empty_/IMain#2'
+ _empty_/IMain#`<init>`().2
+ local02%
+ #_empty_/MemberHandlers#2#
+ _empty_/IMain#global.2
+ _empty_/Global#2'
+ _empty_/IMain#handlers().2!
+ scala/package.List#23
+ "%_empty_/MemberHandlers#MemberHandler#2%
+
+
+ _empty_/MemberHandlers#20
+ "_empty_/MemberHandlers#`<init>`().2*
+ 
+_empty_/MemberHandlers#intp.2
+ _empty_/IMain#2#
+ _empty_/IMain#global.2*
+	 _empty_/MemberHandlers#intp.23
+ %%_empty_/MemberHandlers#MemberHandler#2>
+% %0_empty_/MemberHandlers#MemberHandler#`<init>`().2:
+* 0,_empty_/MemberHandlers#MemberHandler#member.2E
+ 7_empty_/MemberHandlers#MemberHandler#importedSymbols().2!
+ scala/package.List#2
+ _empty_/Test.2"
+ 
+_empty_/Test.intp().2
+ _empty_/IMain#2%
+ %_empty_/MemberHandlers#2&
+ _empty_/Test.`intp_=`().2$
+ _empty_/Test.handlers.2'
+ _empty_/IMain#handlers().2"
+ _empty_/Test.intp().28
+= D*scala/collection/immutable/List#foreach().2I
+0 <;scala/collection/StrictOptimizedIterableOps#zipWithIndex().2:
+ ,scala/collection/immutable/List#filterNot().2$
+ 
+_empty_/Test.handlers.28
+' .*scala/collection/immutable/List#isEmpty().2E
+ &7_empty_/MemberHandlers#MemberHandler#importedSymbols().2
+ local12%
+
+ 
+scala/Tuple2.unapply().2
+
+ local22
+ local32:
+3 <,scala/collection/immutable/List#partition().2E
+# 27_empty_/MemberHandlers#MemberHandler#importedSymbols().2
+ "local22*
+@ C_empty_/Global#Symbol#foo().2%
+ scala/Tuple2.unapply().2
+ local42
+ local52
+ _empty_/Test2.2#
+ _empty_/Test2.JClass#2
+ java/lang/Class#2
+ 
+java/lang/2
+ java/2)
+ _empty_/Test2.tvarString().21
+ #_empty_/Test2.tvarString().(bounds)2!
+ scala/package.List#2
+ $scala/AnyRef#28
+   *scala/collection/immutable/List#collect().21
+   
+#_empty_/Test2.tvarString().(bounds)2
+   local62
+   local72#
+   #_empty_/Test2.JClass#2
+ '  (local7PZ 1F9FEC262FE06C8B7DF1C2D39AFCE27D

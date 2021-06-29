@@ -1,0 +1,124 @@
+
+Étests/pos/t5330.scala*
+_empty_/FM#*FM€*(
+_empty_/FM#`<init>`(). €@*<init>€*
+_empty_/FM#[A]	*A€*
+_empty_/FM#map(). *map€*
+_empty_/FM#map().(f)*f€*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#[A]	*A€*
+_empty_/M#map(). *map€*
+_empty_/M#map().(f)*f€*
+
+_empty_/N#*N€*'
+_empty_/N#`<init>`(). €@*<init>€*
+_empty_/N#[A]	*A€*
+_empty_/test.
+ *test€*%
+_empty_/test.kaboom().*kaboom€*%
+_empty_/test.kaboom().(xs)*xs€*
+local0*x€*#
+_empty_/test.okay1().*okay1€*"
+_empty_/test.okay1().[A]	*A€*$
+_empty_/test.okay1().(xs)*xs€*
+local1*x€*#
+_empty_/test.okay2().*okay2€*$
+_empty_/test.okay2().(xs)*xs€*
+local2*x€*#
+_empty_/test.okay3().*okay3€*$
+_empty_/test.okay3().(xs)*xs€*
+local3*x€*
+_empty_/CC2#*CC2€*)
+_empty_/CC2#`<init>`(). €@*<init>€*&
+_empty_/CC2#`<init>`().(xs)*xs€*
+_empty_/CC2#xs. €*xs€*
+_empty_/CC2#f().*f€*
+_empty_/CC2#f().(x1)*x1€*
+_empty_/CC2#f().(x2)*x2€*
+_empty_/CC2#g().*g€*
+local4*x€2
+ _empty_/FM#2 
+ _empty_/FM#`<init>`().2
+	 
+_empty_/FM#[A]2
+ 	_empty_/FM#map().2"
+
+ _empty_/FM#map().(f)2
+ _empty_/FM#[A]2
+ 
+scala/Any#2
+ scala/Unit#2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ _empty_/FM#2
+ _empty_/M#[A]2
+ 	_empty_/M#[A]2
+ 	_empty_/M#map().2!
+
+ _empty_/M#map().(f)2
+ _empty_/M#[A]2
+ 
+scala/Any#2
+ scala/Unit#2
+ 
+_empty_/N#2#
+ _empty_/N#`<init>`().2
+ _empty_/FM#2
+ _empty_/N#[A]2
+ 	_empty_/N#[A]2
+
+
+ _empty_/test.2$
+ _empty_/test.kaboom().2(
+ _empty_/test.kaboom().(xs)2
+ 
+_empty_/M#2
+ _empty_/M#map().2(
+ _empty_/test.kaboom().(xs)2
+! "local02#
+ _empty_/test.okay1().2&
+ _empty_/test.okay1().[A]2'
+ _empty_/test.okay1().(xs)2
+ 
+_empty_/M#2&
+ _empty_/test.okay1().[A]2
+ !_empty_/M#map().2'
+ _empty_/test.okay1().(xs)2
+# $local12#
+ _empty_/test.okay2().2'
+ _empty_/test.okay2().(xs)2
+ _empty_/FM#2
+ _empty_/FM#map().2'
+ _empty_/test.okay2().(xs)2
+! "local22#
+ _empty_/test.okay3().2'
+ _empty_/test.okay3().(xs)2
+ 
+_empty_/N#2
+ _empty_/FM#map().2'
+ _empty_/test.okay3().(xs)2
+  !local32
+ 	_empty_/CC2#2%
+	 	_empty_/CC2#`<init>`().2!
+ scala/package.List#2
+
+ _empty_/CC2#xs.2
+ _empty_/CC2#f().2"
+ 
+_empty_/CC2#f().(x1)2
+ 
+scala/Any#2"
+ _empty_/CC2#f().(x2)2
+ 
+scala/Any#2
+ _empty_/CC2#g().24
+ &scala/collection/immutable/List#map().2
+
+ _empty_/CC2#xs.2
+ local42
+ _empty_/CC2#f().2
+ local42
+ local4PZ 702AD212DD883AC60CACD2C5E3690D62

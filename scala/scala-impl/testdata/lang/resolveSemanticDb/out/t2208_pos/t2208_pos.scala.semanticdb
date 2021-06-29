@@ -1,0 +1,31 @@
+
+»tests/pos/t2208_pos.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.B#[X]	*X€*!
+_empty_/Test.Alias#*Alias€* 
+_empty_/Test.Alias#[X]	*X€* 
+_empty_/Test.foo. €*foo€2
+ _empty_/Test.2
+
+ _empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+
+ _empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2 
+ _empty_/Test.B#[X]2!
+	 _empty_/Test.Alias#2$
+ _empty_/Test.Alias#[X]2
+ _empty_/Test.A#2
+ _empty_/Test.B#2$
+ _empty_/Test.Alias#[X]2
+ _empty_/Test.foo.2
+ _empty_/Test.B#2
+ _empty_/Test.A#2(
+   _empty_/Test.B#`<init>`().2!
+ _empty_/Test.Alias#2
+ _empty_/Test.A#PZ EA30B13218EBE78BE5EC0170482B477A

@@ -1,0 +1,326 @@
+
+–W tests/pos/reference/opaque.scala*(
+_empty_/Logarithms.
+ *
+Logarithms€*/
+_empty_/Logarithms.Logarithm#*	Logarithm€*1
+_empty_/Logarithms.Logarithm.
+ *	Logarithm€*3
+%_empty_/Logarithms.Logarithm.apply().*apply€*2
+(_empty_/Logarithms.Logarithm.apply().(d)*d€*1
+$_empty_/Logarithms.Logarithm.safe().*safe€*1
+'_empty_/Logarithms.Logarithm.safe().(d)*d€*/
+_empty_/Logarithms.toDouble().*toDouble€*+
+!_empty_/Logarithms.toDouble().(x)*x€*#
+_empty_/Logarithms.`+`().*+€*&
+_empty_/Logarithms.`+`().(x)*x€*&
+_empty_/Logarithms.`+`().(y)*y€*#
+_empty_/Logarithms.`*`().**€*&
+_empty_/Logarithms.`*`().(x)*x€*&
+_empty_/Logarithms.`*`().(y)*y€*"
+_empty_/LogTest.
+ *LogTest€*
+_empty_/LogTest.l. €*l€*!
+_empty_/LogTest.l2. €*l2€*!
+_empty_/LogTest.l3. €*l3€*!
+_empty_/LogTest.l4. €*l4€* 
+_empty_/Access.
+ *Access€*/
+_empty_/Access.Permissions#*Permissions€*9
+ _empty_/Access.PermissionChoice#*PermissionChoice€*-
+_empty_/Access.Permission#*
+Permission€*
+_empty_/Access.`&`().*&€*"
+_empty_/Access.`&`().(x)*x€*"
+_empty_/Access.`&`().(y)*y€*
+_empty_/Access.`|`().*|€*"
+_empty_/Access.`|`().(x)*x€*"
+_empty_/Access.`|`().(y)*y€*
+_empty_/Access.is().*is€*-
+_empty_/Access.is().(granted)*granted€*/
+_empty_/Access.is().(required)*required€*)
+_empty_/Access.isOneOf().*isOneOf€*2
+"_empty_/Access.isOneOf().(granted)*granted€*4
+#_empty_/Access.isOneOf().(required)*required€*4
+_empty_/Access.NoPermission. €*NoPermission€*$
+_empty_/Access.Read. €*Read€*&
+_empty_/Access.Write. €*Write€*.
+_empty_/Access.ReadWrite. €*	ReadWrite€*2
+_empty_/Access.ReadOrWrite. €*ReadOrWrite€*
+_empty_/User.
+ *User€*"
+_empty_/User.Item# €*Item€*/
+_empty_/User.Item#`<init>`(). €@*<init>€*7
+%_empty_/User.Item#`<init>`().(rights) €*rights€*+
+_empty_/User.Item#rights. €*rights€*&
+_empty_/User.Item#copy().*copy€*0
+!_empty_/User.Item#copy().(rights)*rights€*:
+#_empty_/User.Item#copy$default$1().*copy$default$1€*"
+_empty_/User.Item#_1().*_1€*!
+_empty_/User.Item.
+ *Item€*(
+_empty_/User.Item.apply().*apply€*1
+"_empty_/User.Item.apply().(rights)*rights€*,
+_empty_/User.Item.unapply().*unapply€*-
+!_empty_/User.Item.unapply().(x$1)*x$1€*.
+_empty_/User.Item.toString().*toString€*&
+_empty_/User.roItem. €*roItem€*&
+_empty_/User.rwItem. €*rwItem€*&
+_empty_/User.noItem. €*noItem€*
+
+_empty_/o.
+ *o€*
+_empty_/o.T#*T€*
+_empty_/o.x. €*x€*
+_empty_/o.y. €*y€*)
+_empty_/opaque$package. *_empty_€*'
+_empty_/opaque$package.id().*id€*)
+_empty_/opaque$package.id().(x)*x€2
+ _empty_/Logarithms.2+
+ _empty_/Logarithms.Logarithm#2
+  scala/Double#2+
+	 _empty_/Logarithms.Logarithm.23
+ %_empty_/Logarithms.Logarithm.apply().26
+ (_empty_/Logarithms.Logarithm.apply().(d)2
+ scala/Double#2+
+ #_empty_/Logarithms.Logarithm#2'
++ .scala/math/package.log().2
+& *scala/math/26
+/ 0(_empty_/Logarithms.Logarithm.apply().(d)22
+		 $_empty_/Logarithms.Logarithm.safe().25
+		 '_empty_/Logarithms.Logarithm.safe().(d)2
+		 scala/Double#2
+		 scala/Option#2+
+	 	 )_empty_/Logarithms.Logarithm#2#
+
+
+ scala/Double#`>`(+6).25
+
+
+
+ '_empty_/Logarithms.Logarithm.safe().(d)2!
+
+
+ scala/Some.apply().2
+
+
+ scala/Some.2'
+
+
+  scala/math/package.log().2
+
+
+ scala/math/25
+
+!
+ "'_empty_/Logarithms.Logarithm.safe().(d)2
+
+*
+ .scala/None.2,
+ _empty_/Logarithms.toDouble().2/
+ !_empty_/Logarithms.toDouble().(x)2+
+ _empty_/Logarithms.Logarithm#2
+ scala/Double#2'
+  #scala/math/package.exp().2
+ scala/math/2/
+$ %!_empty_/Logarithms.toDouble().(x)2'
+ 	_empty_/Logarithms.`+`().2*
+ _empty_/Logarithms.`+`().(x)2*
+ _empty_/Logarithms.`+`().(y)2+
+ _empty_/Logarithms.Logarithm#2+
+ #_empty_/Logarithms.Logarithm#23
+/ /%_empty_/Logarithms.Logarithm.apply().2+
+& /_empty_/Logarithms.Logarithm.2#
+< =scala/Double#`+`(+7).2'
+5 8scala/math/package.exp().2
+0 4scala/math/2*
+9 :_empty_/Logarithms.`+`().(x)2'
+C Fscala/math/package.exp().2
+> Bscala/math/2*
+G H_empty_/Logarithms.`+`().(y)2'
+ 	_empty_/Logarithms.`*`().2*
+ _empty_/Logarithms.`*`().(x)2*
+ _empty_/Logarithms.`*`().(y)2+
+ _empty_/Logarithms.Logarithm#2+
+ #_empty_/Logarithms.Logarithm#2#
+( )scala/Double#`+`(+7).2*
+& '_empty_/Logarithms.`*`().(x)2*
+* +_empty_/Logarithms.`*`().(y)2
+ _empty_/LogTest.2!
+	 _empty_/Logarithms.2+
+ scala/Predef.any2stringadd().2)
+ scala/Predef.any2stringadd.2)
+ scala/Predef.any2stringadd#2
+	 scala/Predef.2 
+ _empty_/LogTest.l.23
+ %_empty_/Logarithms.Logarithm.apply().2+
+
+ _empty_/Logarithms.Logarithm.2!
+ _empty_/LogTest.l2.23
+ %_empty_/Logarithms.Logarithm.apply().2+
+ _empty_/Logarithms.Logarithm.2!
+ _empty_/LogTest.l3.2'
+ _empty_/Logarithms.`*`().2 
+ _empty_/LogTest.l.2!
+ _empty_/LogTest.l2.2!
+ _empty_/LogTest.l4.2'
+ _empty_/Logarithms.`+`().2 
+ _empty_/LogTest.l.2!
+ _empty_/LogTest.l2.2
+ _empty_/Access.2)
+!! _empty_/Access.Permissions#2
+!! 
+scala/Int#2.
+""  _empty_/Access.PermissionChoice#2
+"!" $
+scala/Int#2(
+## _empty_/Access.Permission#2
+#(# )
+scala/`&`#2)
+## '_empty_/Access.Permissions#2.
+#*# : _empty_/Access.PermissionChoice#2
+#=# @
+scala/Int#2#
+&& 	_empty_/Access.`&`().2&
+%% _empty_/Access.`&`().(x)2)
+%% _empty_/Access.Permissions#2&
+&& _empty_/Access.`&`().(y)2)
+&& _empty_/Access.Permissions#2)
+&& '_empty_/Access.Permissions#2 
+&,& -scala/Int#`|`(+3).2&
+&*& +_empty_/Access.`&`().(x)2&
+&.& /_empty_/Access.`&`().(y)2#
+(( 	_empty_/Access.`|`().2&
+'' _empty_/Access.`|`().(x)2.
+''   _empty_/Access.PermissionChoice#2&
+(( _empty_/Access.`|`().(y)2.
+((  _empty_/Access.PermissionChoice#2.
+(!( 1 _empty_/Access.PermissionChoice#2 
+(6( 7scala/Int#`|`(+3).2&
+(4( 5_empty_/Access.`|`().(x)2&
+(8( 9_empty_/Access.`|`().(y)2"
+** 
+_empty_/Access.is().2+
+)) _empty_/Access.is().(granted)2)
+)) !_empty_/Access.Permissions#2,
+** _empty_/Access.is().(required)2)
+**  _empty_/Access.Permissions#2!
+*9* ;scala/Int#`==`(+3).2 
+*-* .scala/Int#`&`(+3).2+
+*%* ,_empty_/Access.is().(granted)2,
+*/* 7_empty_/Access.is().(required)2,
+*<* D_empty_/Access.is().(required)2'
+,, _empty_/Access.isOneOf().20
+++ "_empty_/Access.isOneOf().(granted)2)
+++ !_empty_/Access.Permissions#21
+,, #_empty_/Access.isOneOf().(required)2.
+,, * _empty_/Access.PermissionChoice#2!
+,C, Escala/Int#`!=`(+3).2 
+,7, 8scala/Int#`&`(+3).20
+,/, 6"_empty_/Access.isOneOf().(granted)21
+,9, A#_empty_/Access.isOneOf().(required)2*
+.. _empty_/Access.NoPermission.2(
+.. _empty_/Access.Permission#2"
+// 
+_empty_/Access.Read.2(
+// _empty_/Access.Permission#2#
+00 _empty_/Access.Write.2(
+00 _empty_/Access.Permission#2'
+11 _empty_/Access.ReadWrite.2)
+11 _empty_/Access.Permissions#2 
+1$1 %scala/Int#`|`(+3).2"
+11 #_empty_/Access.Read.2#
+1&1 +_empty_/Access.Write.2)
+22 _empty_/Access.ReadOrWrite.2.
+22 # _empty_/Access.PermissionChoice#2 
+2+2 ,scala/Int#`|`(+3).2"
+2&2 *_empty_/Access.Read.2#
+2-2 2_empty_/Access.Write.2
+55 _empty_/User.2
+6	6 _empty_/Access.2 
+88 _empty_/User.Item#2+
+88 _empty_/User.Item#`<init>`().2)
+88 %_empty_/Access.Permissions#2'
+88 _empty_/User.Item#rights.2'
+88 _empty_/User.Item#copy().2%
+88 _empty_/User.Item#_1().2 
+88 _empty_/User.Item.2(
+88 _empty_/User.Item.apply().2"
+:: _empty_/User.roItem.2(
+:: _empty_/User.Item.apply().2 
+:: _empty_/User.Item.2"
+:: _empty_/Access.Read.2"
+;; _empty_/User.rwItem.2(
+;; _empty_/User.Item.apply().2 
+;; _empty_/User.Item.2'
+;; _empty_/Access.ReadWrite.2"
+<< _empty_/User.noItem.2(
+<< _empty_/User.Item.apply().2 
+<< _empty_/User.Item.2*
+<<  _empty_/Access.NoPermission.2&
+>> scala/Predef.assert(+1).2#
+>&> (scala/Boolean#`==`().2"
+>> _empty_/Access.is().2'
+>> _empty_/User.Item#rights.2"
+>
+> _empty_/User.roItem.2'
+>> $_empty_/Access.ReadWrite.2&
+?? scala/Predef.assert(+1).2#
+?-? /scala/Boolean#`==`().2'
+?? _empty_/Access.isOneOf().2'
+?? _empty_/User.Item#rights.2"
+?
+? _empty_/User.roItem.2)
+? ? +_empty_/Access.ReadOrWrite.2&
+AA scala/Predef.assert(+1).2#
+A&A (scala/Boolean#`==`().2"
+AA _empty_/Access.is().2'
+AA _empty_/User.Item#rights.2"
+A
+A _empty_/User.rwItem.2'
+AA $_empty_/Access.ReadWrite.2&
+BB scala/Predef.assert(+1).2#
+B-B /scala/Boolean#`==`().2'
+BB _empty_/Access.isOneOf().2'
+BB _empty_/User.Item#rights.2"
+B
+B _empty_/User.rwItem.2)
+B B +_empty_/Access.ReadOrWrite.2&
+DD scala/Predef.assert(+1).2#
+D&D (scala/Boolean#`==`().2"
+DD _empty_/Access.is().2'
+DD _empty_/User.Item#rights.2"
+D
+D _empty_/User.noItem.2'
+DD $_empty_/Access.ReadWrite.2&
+EE scala/Predef.assert(+1).2#
+E-E /scala/Boolean#`==`().2'
+EE _empty_/Access.isOneOf().2'
+EE _empty_/User.Item#rights.2"
+E
+E _empty_/User.noItem.2)
+E E +_empty_/Access.ReadOrWrite.2
+KK 
+_empty_/o.2
+LL _empty_/o.T#2
+LL 
+scala/Int#2
+MM _empty_/o.x.2
+M	M 
+scala/Int#2*
+MM _empty_/opaque$package.id().2
+NN _empty_/o.y.2
+N	N 
+scala/Int#2&
+NN scala/Predef.identity().2!
+PP_empty_/opaque$package.2*
+PP _empty_/opaque$package.id().2-
+PP _empty_/opaque$package.id().(x)2
+PP _empty_/o.T#2
+P
+P 
+_empty_/o.2
+PP _empty_/o.T#2
+PP 
+_empty_/o.2-
+PP _empty_/opaque$package.id().(x)PZ 5E75FC82A1AC4CF64AE108924654E099

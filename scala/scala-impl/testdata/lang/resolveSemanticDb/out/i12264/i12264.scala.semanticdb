@@ -1,0 +1,133 @@
+
+ÿ$tests/pos/i12264.scala*
+_empty_/test1.
+ *test1€*"
+_empty_/test1.Html.
+ *Html€*%
+_empty_/test1.Html.Tag# *Tag€*'
+_empty_/test1.Html.Tag#[N]	 €*N€*)
+_empty_/test1.Html.apply().*apply€*(
+_empty_/test1.Html.apply().[N]	*N€*.
+!_empty_/test1.Html.apply().(name)*name€**
+_empty_/test1.HtmlTags.
+ *HtmlTags€*)
+_empty_/test1.HtmlTags.br(). *br€*'
+_empty_/test1.HtmlTags.p(). *p€*"
+_empty_/test1.Test.
+ *Test€*)
+_empty_/test1.Test.Expect#*Expect€*"
+_empty_/test1.Test.x. €*x€*"
+_empty_/test1.Test.y. €*y€*
+_empty_/test2#*test2€*+
+_empty_/test2#`<init>`(). €@*<init>€*
+_empty_/test2#Tag#*Tag€*"
+_empty_/test2#Tag#[N]	 €*N€*"
+_empty_/test2#Html.
+ *Html€*)
+_empty_/test2#Html.apply().*apply€*(
+_empty_/test2#Html.apply().[N]	*N€*.
+!_empty_/test2#Html.apply().(name)*name€**
+_empty_/test2#HtmlTags.
+ *HtmlTags€*)
+_empty_/test2#HtmlTags.br(). *br€*'
+_empty_/test2#HtmlTags.p(). *p€*"
+_empty_/test2#Test.
+ *Test€*)
+_empty_/test2#Test.Expect#*Expect€*"
+_empty_/test2#Test.x. €*x€*"
+_empty_/test2#Test.y. €*y€2
+ _empty_/test1.2!
+	 _empty_/test1.Html.2%
+ _empty_/test1.Html.Tag#2(
+ _empty_/test1.Html.Tag#[N]2"
+  &scala/Predef.String#2)
+ _empty_/test1.Html.apply().2,
+ _empty_/test1.Html.apply().[N]2/
+ !_empty_/test1.Html.apply().(name)2"
+ scala/Predef.String#2%
+  #_empty_/test1.Html.Tag#2,
+$ %_empty_/test1.Html.apply().[N]2#
+) ,scala/Predef.`???`().2%
+	 _empty_/test1.HtmlTags.2*
+ _empty_/test1.HtmlTags.br().2%
+ _empty_/test1.Html.Tag#2!
+ _empty_/test1.Html.2
+ 
+scala/Int#2)
+& &_empty_/test1.Html.apply().2!
+" &_empty_/test1.Html.2)
+		 _empty_/test1.HtmlTags.p().2)
+		 _empty_/test1.Html.apply().2!
+		 _empty_/test1.Html.2
+		 scala/Long#2!
+	 _empty_/test1.Test.2(
+	 _empty_/test1.Test.Expect#2%
+ _empty_/test1.Html.Tag#2!
+ _empty_/test1.Html.2
+ 
+scala/Any#2#
+ 	_empty_/test1.Test.x.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2(
+ _empty_/test1.Test.Expect#2*
+" $_empty_/test1.HtmlTags.br().2%
+ !_empty_/test1.HtmlTags.2)
+/ 0_empty_/test1.HtmlTags.p().2%
+& ._empty_/test1.HtmlTags.2#
+ 	_empty_/test1.Test.y.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2*
+ _empty_/test1.HtmlTags.br().2%
+ _empty_/test1.HtmlTags.2)
+' (_empty_/test1.HtmlTags.p().2%
+ &_empty_/test1.HtmlTags.2#
+ _empty_/test1.Test.y.2!
+ scala/package.List#2(
+ _empty_/test1.Test.Expect#2
+ _empty_/test2#2'
+ _empty_/test2#`<init>`().2 
+ 
+_empty_/test2#Tag#2#
+ _empty_/test2#Tag#[N]2!
+	 _empty_/test2#Html.2)
+ _empty_/test2#Html.apply().2,
+ _empty_/test2#Html.apply().[N]2/
+ !_empty_/test2#Html.apply().(name)2"
+ scala/Predef.String#2 
+  #_empty_/test2#Tag#2,
+$ %_empty_/test2#Html.apply().[N]2#
+) ,scala/Predef.`???`().2%
+	 _empty_/test2#HtmlTags.2*
+ _empty_/test2#HtmlTags.br().2 
+ _empty_/test2#Tag#2
+ 
+scala/Int#2)
+! !_empty_/test2#Html.apply().2!
+ !_empty_/test2#Html.2)
+ _empty_/test2#HtmlTags.p().2)
+ _empty_/test2#Html.apply().2!
+ _empty_/test2#Html.2
+ scala/Long#2!
+	 _empty_/test2#Test.2(
+ 	  _empty_/test2#Test.Expect#2 
+   _empty_/test2#Tag#2
+   
+scala/Any#2#
+"" 	_empty_/test2#Test.x.27
+"" )scala/collection/IterableFactory#apply().2!
+"" scala/package.List.2(
+"" _empty_/test2#Test.Expect#2*
+""" $_empty_/test2#HtmlTags.br().2%
+"" !_empty_/test2#HtmlTags.2)
+"/" 0_empty_/test2#HtmlTags.p().2%
+"&" ._empty_/test2#HtmlTags.2#
+$$ 	_empty_/test2#Test.y.27
+$$ )scala/collection/IterableFactory#apply().2!
+$$ scala/package.List.2*
+$$ _empty_/test2#HtmlTags.br().2%
+$$ _empty_/test2#HtmlTags.2)
+$'$ (_empty_/test2#HtmlTags.p().2%
+$$ &_empty_/test2#HtmlTags.2#
+%% _empty_/test2#Test.y.2!
+%% scala/package.List#2(
+%% _empty_/test2#Test.Expect#PZ B237E500CFCE5A68DD14E4CFD0AE54B2

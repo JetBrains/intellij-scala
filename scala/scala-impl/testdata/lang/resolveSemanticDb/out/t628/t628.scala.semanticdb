@@ -1,0 +1,97 @@
+
+Štests/pos/t628.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Unit# *Unit€*/
+_empty_/Test.Unit#`<init>`(). €@*<init>€*%
+_empty_/Test.NoUnit.
+ *NoUnit€*!
+_empty_/Test.Hour.
+ *Hour€*(
+_empty_/Test.Measure# €*Measure€*2
+ _empty_/Test.Measure#`<init>`(). €@*<init>€*:
+(_empty_/Test.Measure#`<init>`().(scalar) €*scalar€*6
+&_empty_/Test.Measure#`<init>`().(unit) €*unit€*.
+_empty_/Test.Measure#scalar. €*scalar€**
+_empty_/Test.Measure#unit. €*unit€*%
+_empty_/Test.Measure#`*`().**€*4
+$_empty_/Test.Measure#`*`().(newUnit)*newUnit€*)
+_empty_/Test.Measure#copy().*copy€*3
+$_empty_/Test.Measure#copy().(scalar)*scalar€*/
+"_empty_/Test.Measure#copy().(unit)*unit€*=
+&_empty_/Test.Measure#copy$default$1().*copy$default$1€*=
+&_empty_/Test.Measure#copy$default$2().*copy$default$2€*%
+_empty_/Test.Measure#_1().*_1€*%
+_empty_/Test.Measure#_2().*_2€*'
+_empty_/Test.Measure.
+ *Measure€*+
+_empty_/Test.Measure.apply().*apply€*4
+%_empty_/Test.Measure.apply().(scalar)*scalar€*0
+#_empty_/Test.Measure.apply().(unit)*unit€*/
+_empty_/Test.Measure.unapply().*unapply€*0
+$_empty_/Test.Measure.unapply().(x$1)*x$1€*1
+ _empty_/Test.Measure.toString().*toString€*7
+_empty_/Test.double2Measure().  *double2Measure€*5
+&_empty_/Test.double2Measure().(scalar)*scalar€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2 
+ _empty_/Test.Unit#2+
+ _empty_/Test.Unit#`<init>`().2"
+	 _empty_/Test.NoUnit.2+
+ _empty_/Test.Unit#`<init>`().2 
+ _empty_/Test.Unit#2 
+	 _empty_/Test.Hour.2+
+ _empty_/Test.Unit#`<init>`().2 
+ _empty_/Test.Unit#2#
+ _empty_/Test.Measure#2.
+  _empty_/Test.Measure#`<init>`().2
+ #scala/Double#2 
++ /_empty_/Test.Unit#2*
+ _empty_/Test.Measure#scalar.2(
+% )_empty_/Test.Measure#unit.2)
+ 	_empty_/Test.Measure#`*`().22
+
+ $_empty_/Test.Measure#`*`().(newUnit)2 
+ _empty_/Test.Unit#2#
+ !_empty_/Test.Measure#2+
++ +_empty_/Test.Measure.apply().2#
+$ +_empty_/Test.Measure.2*
+, 2_empty_/Test.Measure#scalar.22
+4 ;$_empty_/Test.Measure#`*`().(newUnit)2*
+ _empty_/Test.Measure#copy().2(
+ _empty_/Test.Measure#_1().2(
++ +_empty_/Test.Measure#_2().2#
+ _empty_/Test.Measure.2+
+ _empty_/Test.Measure.apply().2,
+		 _empty_/Test.double2Measure().24
+		 $&_empty_/Test.double2Measure().(scalar)2
+	&	 ,scala/Double#2#
+	4	 ;_empty_/Test.Measure#2
+	/	 3_empty_/Test.2+
+
+
+ _empty_/Test.Measure.apply().2#
+
+
+ _empty_/Test.Measure.24
+
+
+ &_empty_/Test.double2Measure().(scalar)2"
+
+
+ _empty_/Test.NoUnit.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+' +scala/Unit#2
+! &scala/2(
+ scala/Console.println(+1).2
+ scala/Console.2%
+$ %java/lang/String#`+`().2)
++ ,_empty_/Test.Measure#`*`().2,
+' '_empty_/Test.double2Measure().2 
+. 2_empty_/Test.Hour.2 
+4 8_empty_/Test.Unit#PZ 140CD092C055D2A3D6DEF23F3FA25B7B

@@ -1,0 +1,47 @@
+
+ç	tests/pos/i2637.scala*
+_empty_/Hello.
+ *HelloÄ*"
+_empty_/Hello.main().*mainÄ*(
+_empty_/Hello.main().(args)*argsÄ*
+local0 *WatÄ*
+local1	*TÄ*
+local2  *intWatÄ*
+local3  *listWatÄ*
+local4	*TÄ*
+local5  *tWatÄ*
+local6 *$anonÄ*
+local7*stuffÄ*
+local8	*TÄ*
+local9  *implicitWatÄ2
+ _empty_/Hello.2#
+ 
+_empty_/Hello.main().2)
+ _empty_/Hello.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02
+ local12
+ local22
+ local02
+  
+scala/Int#2#
+$ 'scala/Predef.`???`().2
+ local32
+ local42
+% )local52
++ .local02
+/ 0local42
+4 7local02!
+8 <scala/package.List#2
+= >local42
+C Clocal62
+ local72
+ local82
+ %local92
+* -local02!
+. 2scala/package.List#2
+3 4local82
+9 =scala/Unit#2#
+@ Cscala/Predef.`???`().PZ 5E4259DFF1A29F1FD2D5EBB4F08D3942

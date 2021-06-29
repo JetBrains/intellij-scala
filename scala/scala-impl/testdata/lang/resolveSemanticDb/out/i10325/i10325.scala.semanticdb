@@ -1,0 +1,98 @@
+
+Ïtests/pos/i10325.scala*
+_empty_/Test.
+ *Test€*-
+_empty_/Test.nullToNone().*
+nullToNone€*'
+_empty_/Test.nullToNone().[K]	*K€*'
+_empty_/Test.nullToNone().[V]	*V€*/
+!_empty_/Test.nullToNone().(tuple)*tuple€*
+local0 €*k€*
+local1 €*v€*!
+_empty_/Test.test().*test€*
+local2 €*scalaMap€*
+local3 €*a€*
+local4*tuple€*
+local5 €*a1€*
+local6 €*b€*
+local7 €*b1€*
+local8 €*c€*
+local9*x€*
+local10 €*c1€2
+ _empty_/Test.2(
+ _empty_/Test.nullToNone().2+
+ _empty_/Test.nullToNone().[K]2+
+ _empty_/Test.nullToNone().[V]2/
+ !_empty_/Test.nullToNone().(tuple)2+
+  _empty_/Test.nullToNone().[K]2+
+" #_empty_/Test.nullToNone().[V]2+
+( )_empty_/Test.nullToNone().[K]2
++ 1scala/Option#2+
+2 3_empty_/Test.nullToNone().[V]2/
+ !_empty_/Test.nullToNone().(tuple)2%
+	 	scala/Tuple2.unapply().2
+	 
+local02
+ local12#
+ scala/Tuple2.apply().2
+ local02#
+ scala/Option.apply().2
+ scala/Option.2
+ local12"
+ 
+_empty_/Test.test().2
+ scala/Unit#2
+ local22
+ scala/Predef.Map#2"
+ scala/Predef.String#2"
+ $scala/Predef.String#22
++ +$scala/collection/MapFactory#apply().2
+( +scala/Predef.Map.2
+		 	local32,
+		 scala/collection/MapOps#map().2
+		 local22(
+		 #_empty_/Test.nullToNone().2
+		 local42
+
+
+ 
+local52
+
+
+ scala/Predef.Map#2"
+
+
+ scala/Predef.String#2
+
+
+ scala/Option#2"
+
+
+ %scala/Predef.String#2
+
+*
+ +local32
+ 	local62,
+ scala/collection/MapOps#map().2
+ local22(
+ #_empty_/Test.nullToNone().2
+ 
+local72
+ scala/Predef.Map#2"
+ scala/Predef.String#2
+ scala/Option#2"
+ %scala/Predef.String#2
+* +local62
+ 	local82,
+ scala/collection/MapOps#map().2
+ local22
+ local92(
+ (_empty_/Test.nullToNone().2
+) *local92
+ 
+local102
+ scala/Predef.Map#2"
+ scala/Predef.String#2
+ scala/Option#2"
+ %scala/Predef.String#2
+* +local8PZ 15D61108F43538534BD4DF950D3C1914

@@ -1,0 +1,196 @@
+
+‰/tests/pos/i5592.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Obj#*Obj€*#
+_empty_/Test.Forall#*Forall€*!
+_empty_/Test.Forall#[F]	*F€*
+local0 *apply€*
+local1*x€*
+_empty_/Test.EQ#*EQ€*-
+_empty_/Test.EQ#`<init>`(). €@*<init>€*
+_empty_/Test.EQ#[A]	*A€*
+_empty_/Test.EQ#[B]	*B€*$
+_empty_/Test.EQ#sub(). *sub€*#
+_empty_/Test.EQ#sub().[F]	*F€**
+_empty_/Test.EQ#commute().*commute€*'
+_empty_/Test.EQ#commute().[b]	*b€*'
+_empty_/Test.typeEq().  *typeEq€*#
+_empty_/Test.typeEq().[A]	*A€*
+local2 *$anon€*
+local3*sub€*
+local4	*F€*
+local5*x€*2
+_empty_/Test.eqReflexive1. €*eqReflexive1€*
+local6 *apply€*
+local7*x€*
+local8*x€*2
+_empty_/Test.eqReflexive2. €*eqReflexive2€*'
+_empty_/Test.eqReflexive2.[x]	*x€*
+local9*x€*2
+_empty_/Test.eqSymmetric1. €*eqSymmetric1€*
+local10 *apply€*
+local11*x€*
+local12 *apply€*
+local13*y€*
+local14*x€*
+local15*y€*
+local16*xEqy€*2
+_empty_/Test.eqSymmetric2. €*eqSymmetric2€*'
+_empty_/Test.eqSymmetric2.[x]	*x€*
+local17 *apply€*
+local18*y€*
+local19*x€*
+local20*y€*
+local21*xEqy€*2
+_empty_/Test.eqSymmetric3. €*eqSymmetric3€*'
+_empty_/Test.eqSymmetric3.[x]	*x€*'
+_empty_/Test.eqSymmetric3.[y]	*y€*
+local22*x€*
+local23*y€*
+local24*xEqy€2
+ _empty_/Test.2
+ 
+_empty_/Test.Obj#2"
+ _empty_/Test.Forall#2%
+ _empty_/Test.Forall#[F]2
+ _empty_/Test.Obj#2
+ $local02
+ local12%
+" #_empty_/Test.Forall#[F]2
+$ %local12
+ 
+_empty_/Test.EQ#2)
+
+ 
+_empty_/Test.EQ#`<init>`().2!
+ _empty_/Test.EQ#[A]2!
+ _empty_/Test.EQ#[B]2$
+ _empty_/Test.EQ#sub().2'
+ _empty_/Test.EQ#sub().[F]2'
+ _empty_/Test.EQ#sub().[F]2!
+ _empty_/Test.EQ#[A]2'
+ _empty_/Test.EQ#sub().[F]2!
+ _empty_/Test.EQ#[B]2(
+ _empty_/Test.EQ#commute().2
+ _empty_/Test.EQ#2!
+ _empty_/Test.EQ#[B]2!
+ _empty_/Test.EQ#[A]2&
+6 6scala/Function1#apply().2$
+! $_empty_/Test.EQ#sub().2+
+& '_empty_/Test.EQ#commute().[b]2
+- /_empty_/Test.EQ#2+
+0 1_empty_/Test.EQ#commute().[b]2!
+3 4_empty_/Test.EQ#[A]2(
+7 Ascala/Predef.implicitly().2
+B D_empty_/Test.EQ#2!
+E F_empty_/Test.EQ#[A]2!
+H I_empty_/Test.EQ#[A]2$
+K K_empty_/Test.typeEq().2$
+ _empty_/Test.typeEq().2'
+ _empty_/Test.typeEq().[A]2
+ _empty_/Test.EQ#2'
+ _empty_/Test.typeEq().[A]2'
+  !_empty_/Test.typeEq().[A]2
+% %local22
+) +_empty_/Test.EQ#2'
+, -_empty_/Test.typeEq().[A]2'
+/ 0_empty_/Test.typeEq().[A]2
+		 local32
+		 local42
+		 local42'
+		 _empty_/Test.typeEq().[A]2
+		 local42'
+		 _empty_/Test.typeEq().[A]2&
+	"	 *scala/Predef.identity().2
+	"	 "local52(
+ _empty_/Test.eqReflexive1.2
+ _empty_/Test.Obj#2
+ "local62
+ local72
+! #_empty_/Test.EQ#2
+$ %local72
+, -local72
+: ;local82
+= @_empty_/Test.Obj#2(
+E Oscala/Predef.implicitly().2$
+O O_empty_/Test.typeEq().2(
+ _empty_/Test.eqReflexive2.2"
+ _empty_/Test.Forall#2+
+ _empty_/Test.eqReflexive2.[x]2
+# %_empty_/Test.EQ#2+
+& '_empty_/Test.eqReflexive2.[x]2+
+) *_empty_/Test.eqReflexive2.[x]2
+2 3local92
+5 8_empty_/Test.Obj#2(
+= Gscala/Predef.implicitly().2$
+G G_empty_/Test.typeEq().2(
+ _empty_/Test.eqSymmetric1.2
+ _empty_/Test.Obj#2
+ "local102
+ local112
+$ '_empty_/Test.Obj#2
+) .local122
+! "local132
+, ._empty_/Test.EQ#2
+/ 0local112
+7 8local132
+B D_empty_/Test.EQ#2
+E Flocal132
+M Nlocal112
+ local142
+
+ _empty_/Test.Obj#2
+ local152
+ _empty_/Test.Obj#2
+# 'local162
+) +_empty_/Test.EQ#2
+, -local142
+4 5local152(
+E L_empty_/Test.EQ#commute().2
+@ Dlocal162(
+ _empty_/Test.eqSymmetric2.2"
+ _empty_/Test.Forall#2+
+ _empty_/Test.eqSymmetric2.[x]2
+' *_empty_/Test.Obj#2
+, 1local172
+$ %local182
+0 2_empty_/Test.EQ#2+
+3 4_empty_/Test.eqSymmetric2.[x]2
+6 7local182
+C E_empty_/Test.EQ#2
+F Glocal182+
+N O_empty_/Test.eqSymmetric2.[x]2
+ local192
+
+ _empty_/Test.Obj#2
+ local202
+ _empty_/Test.Obj#2
+# 'local212
+) +_empty_/Test.EQ#2
+, -local192
+4 5local202(
+E L_empty_/Test.EQ#commute().2
+@ Dlocal212(
+ _empty_/Test.eqSymmetric3.2"
+ _empty_/Test.Forall#2+
+ _empty_/Test.eqSymmetric3.[x]2"
+# )_empty_/Test.Forall#2+
++ ,_empty_/Test.eqSymmetric3.[y]2
+2 4_empty_/Test.EQ#2+
+5 6_empty_/Test.eqSymmetric3.[x]2+
+8 9_empty_/Test.eqSymmetric3.[y]2
+> @_empty_/Test.EQ#2+
+A B_empty_/Test.eqSymmetric3.[y]2+
+D E_empty_/Test.eqSymmetric3.[x]2
+ local222
+
+ _empty_/Test.Obj#2
+ local232
+ _empty_/Test.Obj#2
+# 'local242
+) +_empty_/Test.EQ#2
+, -local222
+4 5local232(
+E L_empty_/Test.EQ#commute().2
+@ Dlocal24PZ B40C25D182BFC0DE6729AB57B57527B0

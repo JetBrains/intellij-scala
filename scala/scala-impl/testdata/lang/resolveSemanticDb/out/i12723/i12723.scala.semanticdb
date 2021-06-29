@@ -1,0 +1,78 @@
+
+îtests/pos/i12723.scala*
+_empty_/Fun#*Fun€*)
+_empty_/Fun#`<init>`(). €@*<init>€*
+_empty_/Fun#[`|*|`]	*|*|€* 
+_empty_/Fun#`->`# ”€*->€*.
+_empty_/Fun#`->`#`<init>`(). €@*<init>€*
+_empty_/Fun#`->`#[A]	*A€*
+_empty_/Fun#`->`#[B]	*B€*
+_empty_/Fun#`->`.
+ *->€*'
+_empty_/Fun#`->`.BiId# ˆ*BiId€*3
+!_empty_/Fun#`->`.BiId#`<init>`(). €@*<init>€*#
+_empty_/Fun#`->`.BiId#[X]	*X€*#
+_empty_/Fun#`->`.BiId#[Y]	*Y€**
+_empty_/Fun#`->`.BiId#copy().*copy€**
+ _empty_/Fun#`->`.BiId#copy().[X]	*X€**
+ _empty_/Fun#`->`.BiId#copy().[Y]	*Y€*0
+ _empty_/Fun#`->`.BiId#ordinal().*ordinal€*%
+_empty_/Fun#`->`.BiId.
+ *BiId€*,
+_empty_/Fun#`->`.BiId.apply().*apply€*+
+!_empty_/Fun#`->`.BiId.apply().[X]	*X€*+
+!_empty_/Fun#`->`.BiId.apply().[Y]	*Y€*0
+ _empty_/Fun#`->`.BiId.unapply().*unapply€*-
+#_empty_/Fun#`->`.BiId.unapply().[X]	*X€*-
+#_empty_/Fun#`->`.BiId.unapply().[Y]	*Y€*1
+%_empty_/Fun#`->`.BiId.unapply().(x$1)*x$1€*2
+!_empty_/Fun#`->`.BiId.toString().*toString€*3
+_empty_/Fun#`->`.fromOrdinal().*fromOrdinal€*8
+(_empty_/Fun#`->`.fromOrdinal().(ordinal)*ordinal€*
+_empty_/Fun#go().*go€*
+_empty_/Fun#go().[A]	*A€*
+_empty_/Fun#go().[B]	*B€*
+_empty_/Fun#go().(f)*f€*
+local0 €	*X$1€*
+local1 €	*Y$1€2
+ 	_empty_/Fun#2!
+	 	_empty_/Fun#`<init>`().2
+
+ _empty_/Fun#[`|*|`]2
+ 	_empty_/Fun#`->`#2*
+	 	_empty_/Fun#`->`#`<init>`().2"
+
+ _empty_/Fun#`->`#[A]2"
+ _empty_/Fun#`->`#[B]2
+ _empty_/Fun#`->`.2$
+	 _empty_/Fun#`->`.BiId#2/
+ !_empty_/Fun#`->`.BiId#`<init>`().2*
+5 5_empty_/Fun#`->`#`<init>`().2
+) +_empty_/Fun#`->`#2!
+" %_empty_/Fun#[`|*|`]2'
+  !_empty_/Fun#`->`.BiId#[X]2'
+& '_empty_/Fun#`->`.BiId#[Y]2!
+/ 2_empty_/Fun#[`|*|`]2'
+- ._empty_/Fun#`->`.BiId#[X]2'
+3 4_empty_/Fun#`->`.BiId#[Y]2'
+ _empty_/Fun#`->`.BiId#[X]2'
+ _empty_/Fun#`->`.BiId#[Y]2+
+ _empty_/Fun#`->`.BiId#copy().2$
+	 	_empty_/Fun#`->`.BiId.2,
+ _empty_/Fun#`->`.BiId.apply().2.
+  _empty_/Fun#`->`.BiId.unapply().2
+ _empty_/Fun#go().2"
+	 
+_empty_/Fun#go().[A]2"
+ _empty_/Fun#go().[B]2"
+ _empty_/Fun#go().(f)2
+ _empty_/Fun#`->`#2"
+ _empty_/Fun#go().[A]2"
+ _empty_/Fun#go().[B]2
+ scala/Unit#2"
+ _empty_/Fun#go().(f)2.
+  _empty_/Fun#`->`.BiId.unapply().2$
+ _empty_/Fun#`->`.BiId.2
+ _empty_/Fun#`->`.2
+ local02
+ local1PZ 138D6886663E18BA13E7A3C505AB738A

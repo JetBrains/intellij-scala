@@ -1,0 +1,67 @@
+
+Ëtests/pos/t4018.scala*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#[V]	*V€*
+_empty_/Cls#*Cls€*)
+_empty_/Cls#`<init>`(). €@*<init>€*$
+_empty_/Cls#`<init>`().(c)*c€*
+_empty_/Cls#[V]	*V€*
+_empty_/Cls#c. €*c€*
+_empty_/Cls.
+ *Cls€*"
+_empty_/Cls.apply().*apply€*!
+_empty_/Cls.apply().[V]	*V€*!
+_empty_/Cls.apply().(c)*c€*
+_empty_/test.
+ *test€*
+_empty_/test.c. €*c€*
+local0 *$anon€2
+ 
+_empty_/M#2
+ _empty_/M#`<init>`().2
+ 	_empty_/M#[V]2
+ 	_empty_/Cls#2%
+	 	_empty_/Cls#`<init>`().2
+ 
+_empty_/M#2
+ _empty_/Cls#[V]2
+
+ _empty_/Cls#[V]2
+ _empty_/Cls#c.2
+ 
+_empty_/Cls.2"
+ _empty_/Cls.apply().2%
+ _empty_/Cls.apply().[V]2%
+ _empty_/Cls.apply().(c)2
+ 
+_empty_/M#2%
+ _empty_/Cls.apply().[V]2
+ _empty_/Cls#2%
+  !_empty_/Cls.apply().[V]2%
+/ /_empty_/Cls#`<init>`().2
+) ,_empty_/Cls#2%
+- ._empty_/Cls.apply().[V]2%
+0 1_empty_/Cls.apply().(c)2
+ _empty_/test.2
+		 _empty_/test.c.2
+			 
+
+_empty_/M#2
+		 local02
+		 
+_empty_/M#2%
+
+	
+ 	_empty_/Cls#`<init>`().2
+
+
+
+ _empty_/test.c.2%
+ _empty_/Cls#`<init>`().2
+ 	_empty_/Cls#2
+ _empty_/test.c.2"
+ _empty_/Cls.apply().2
+ _empty_/Cls.2
+ _empty_/test.c.PZ 3A94EF829247A53AB7CD3E080E5EF4F8

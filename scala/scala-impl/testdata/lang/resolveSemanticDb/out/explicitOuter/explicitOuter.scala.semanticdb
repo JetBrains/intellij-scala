@@ -1,0 +1,164 @@
+
+‚%tests/pos/explicitOuter.scala*
+_empty_/Outer#*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*,
+_empty_/Outer#`<init>`().(elem)*elem€*/
+_empty_/Outer#`<init>`().(next) €*next€*#
+_empty_/Outer#elem. €*elem€*#
+_empty_/Outer#next. €*next€*,
+_empty_/Outer#InnerTrait#*
+InnerTrait€*6
+$_empty_/Outer#InnerTrait#`<init>`(). €@*<init>€*+
+_empty_/Outer#InnerTrait#foo().*foo€*,
+_empty_/Outer#InnerClass#*
+InnerClass€*6
+$_empty_/Outer#InnerClass#`<init>`(). €@*<init>€*1
+'_empty_/Outer#InnerClass#`<init>`().(x)*x€*(
+_empty_/Outer#InnerClass#x. €*x€*5
+&_empty_/Outer#InnerClass#`<init>`(+1).*<init>€*+
+_empty_/Outer#InnerClass#bar().*bar€*6
+_empty_/Outer#EmptyInnerClass#*EmptyInnerClass€*;
+)_empty_/Outer#EmptyInnerClass#`<init>`(). €@*<init>€*0
+$_empty_/Outer#EmptyInnerClass#foo().*foo€*$
+_empty_/Outer#inner().*inner€*
+local0*
+InnerTrait€*
+local1*foo€*
+local2*
+InnerClass€*
+local3 €*x€*
+local4*<init>€*
+local5*bar€*
+local6*EmptyInnerClass€*
+local7*foo€*
+local8 €*ic€*
+local9 €*it€*
+local10 *$anon€*
+local11 €*ec€*&
+_empty_/Outer#inner2().*inner2€*
+local12*C€*
+local13 €*x€*
+local14*D€*
+local15*E€*
+local16*f€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.o. €*o€*
+_empty_/Test.ic. €*ic€*
+_empty_/Test.it. €*it€*
+local17 *$anon€*
+_empty_/Test.ec. €*ec€2
+ _empty_/Outer#2#
+ _empty_/Outer#`<init>`().2
+ 
+scala/Int#2
+! &_empty_/Outer#2
+ _empty_/Outer#elem.2
+ _empty_/Outer#next.2'
+ _empty_/Outer#InnerTrait#22
+ $_empty_/Outer#InnerTrait#`<init>`().2-
+ _empty_/Outer#InnerTrait#foo().2!
+ _empty_/Outer#elem.2'
+ _empty_/Outer#InnerClass#22
+ $_empty_/Outer#InnerClass#`<init>`().2
+ 
+scala/Int#2'
+( 2_empty_/Outer#InnerTrait#2!
+# '_empty_/Outer#next.2)
+ _empty_/Outer#InnerClass#x.24
+ &_empty_/Outer#InnerClass#`<init>`(+1).22
+ $_empty_/Outer#InnerClass#`<init>`().2-
+ _empty_/Outer#InnerClass#bar().2 
+ scala/Int#`+`(+4).2!
+ _empty_/Outer#elem.2)
+ _empty_/Outer#InnerClass#x.2,
+ _empty_/Outer#EmptyInnerClass#27
+ )_empty_/Outer#EmptyInnerClass#`<init>`().22
+ $_empty_/Outer#EmptyInnerClass#foo().2$
+ _empty_/Outer#inner().2
+
+ local02
+
+ local12!
+ _empty_/Outer#elem.2
+
+ local22'
+* 4_empty_/Outer#InnerTrait#2!
+% )_empty_/Outer#next.2
+ local32
+
+ local52 
+ scala/Int#`+`(+4).2!
+ _empty_/Outer#elem.2
+ local32
+
+ local62
+
+ local72
+ 
+local82
+ local22'
+ scala/Predef.println(+1).2
+ local52
+ local82'
+ scala/Predef.println(+1).2-
+ _empty_/Outer#InnerTrait#foo().2
+ local82
+   
+local92
+   local102
+   local02'
+!! scala/Predef.println(+1).2
+!! local12
+!! local92
+"" 
+local112
+""  local62%
+%% _empty_/Outer#inner2().2
+&
+& local122
+'
+' local132!
+'' _empty_/Outer#elem.2
+)
+) local142
+*
+* local122
+,
+, local152
+-- local162
+// 	local162
+33 _empty_/Test.2
+33 
+scala/App#2
+55 _empty_/Test.o.2'
+55 _empty_/Outer#`<init>`().2
+55 _empty_/Outer#2'
+5 5  _empty_/Outer#`<init>`().2
+55  _empty_/Outer#2
+66 _empty_/Test.ic.22
+66 $_empty_/Outer#InnerClass#`<init>`().2'
+66 _empty_/Outer#InnerClass#2
+66 _empty_/Test.o.2'
+77 	scala/Predef.println(+1).2-
+77 _empty_/Outer#InnerClass#bar().2
+7
+7 _empty_/Test.ic.2'
+88 	scala/Predef.println(+1).2-
+88 _empty_/Outer#InnerTrait#foo().2
+8
+8 _empty_/Test.ic.2
+99 _empty_/Test.it.2
+99 local172'
+99 _empty_/Outer#InnerTrait#2
+99 _empty_/Test.o.2'
+:: 	scala/Predef.println(+1).2-
+:: _empty_/Outer#InnerTrait#foo().2
+:
+: _empty_/Test.it.2
+;; _empty_/Test.ec.27
+; ;  )_empty_/Outer#EmptyInnerClass#`<init>`().2,
+;;  _empty_/Outer#EmptyInnerClass#2
+;; _empty_/Test.o.2$
+<< 	_empty_/Outer#inner().2
+<< _empty_/Test.o.PZ 0D0070DE2B7F693B572EC8C113FA1AB7

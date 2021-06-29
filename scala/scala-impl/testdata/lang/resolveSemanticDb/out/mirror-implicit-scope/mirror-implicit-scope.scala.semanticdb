@@ -1,0 +1,190 @@
+
+Ž4%tests/pos/mirror-implicit-scope.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.K0.
+ *K0€*(
+_empty_/Test.K0.Generic#*Generic€*%
+_empty_/Test.K0.Generic#[T]	*T€*
+local0*Scope€*
+local1*MirroredType€* 
+local2*MirroredElemTypes€*(
+_empty_/Test.K0.toRepr().*toRepr€*&
+_empty_/Test.K0.toRepr().[T]	*T€**
+_empty_/Test.K0.toRepr().(gen)*gen€*&
+_empty_/Test.K0.toRepr().(t)*t€*
+_empty_/Test.K1.
+ *K1€*(
+_empty_/Test.K1.Generic#*Generic€*%
+_empty_/Test.K1.Generic#[F]	*F€*
+local3*Scope€*
+local4*MirroredType€*
+local5	*X€* 
+local6*MirroredElemTypes€*(
+_empty_/Test.K1.toRepr().*toRepr€*&
+_empty_/Test.K1.toRepr().[F]	*F€*&
+_empty_/Test.K1.toRepr().[T]	*T€**
+_empty_/Test.K1.toRepr().(gen)*gen€*&
+_empty_/Test.K1.toRepr().(t)*t€* 
+_empty_/Test.ISB# €*ISB€*.
+_empty_/Test.ISB#`<init>`(). €@*<init>€*,
+_empty_/Test.ISB#`<init>`().(i) €*i€*,
+_empty_/Test.ISB#`<init>`().(s) €*s€*,
+_empty_/Test.ISB#`<init>`().(b) €*b€* 
+_empty_/Test.ISB#i. €*i€* 
+_empty_/Test.ISB#s. €*s€* 
+_empty_/Test.ISB#b. €*b€*%
+_empty_/Test.ISB#copy().*copy€*%
+_empty_/Test.ISB#copy().(i)*i€*%
+_empty_/Test.ISB#copy().(s)*s€*%
+_empty_/Test.ISB#copy().(b)*b€*9
+"_empty_/Test.ISB#copy$default$1().*copy$default$1€*9
+"_empty_/Test.ISB#copy$default$2().*copy$default$2€*9
+"_empty_/Test.ISB#copy$default$3().*copy$default$3€*!
+_empty_/Test.ISB#_1().*_1€*!
+_empty_/Test.ISB#_2().*_2€*!
+_empty_/Test.ISB#_3().*_3€*
+_empty_/Test.ISB.
+ *ISB€*'
+_empty_/Test.ISB.apply().*apply€*&
+_empty_/Test.ISB.apply().(i)*i€*&
+_empty_/Test.ISB.apply().(s)*s€*&
+_empty_/Test.ISB.apply().(b)*b€*+
+_empty_/Test.ISB.unapply().*unapply€*,
+ _empty_/Test.ISB.unapply().(x$1)*x$1€*-
+_empty_/Test.ISB.toString().*toString€*
+_empty_/Test.v0. €*v0€*
+_empty_/Test.v1. €*v1€*
+_empty_/Test.v2. €*v2€* 
+_empty_/Test.Box# €*Box€*.
+_empty_/Test.Box#`<init>`(). €@*<init>€*,
+_empty_/Test.Box#`<init>`().(t) €*t€*
+_empty_/Test.Box#[T]	*T€* 
+_empty_/Test.Box#t. €*t€*%
+_empty_/Test.Box#copy().*copy€*%
+_empty_/Test.Box#copy().[T]	*T€*%
+_empty_/Test.Box#copy().(t)*t€*9
+"_empty_/Test.Box#copy$default$1().*copy$default$1€*/
+%_empty_/Test.Box#copy$default$1().[T]	*T€*!
+_empty_/Test.Box#_1().*_1€*
+_empty_/Test.Box.
+ *Box€*'
+_empty_/Test.Box.apply().*apply€*&
+_empty_/Test.Box.apply().[T]	*T€*&
+_empty_/Test.Box.apply().(t)*t€*+
+_empty_/Test.Box.unapply().*unapply€*(
+_empty_/Test.Box.unapply().[T]	*T€*,
+ _empty_/Test.Box.unapply().(x$1)*x$1€*-
+_empty_/Test.Box.toString().*toString€*
+_empty_/Test.v3. €*v3€*
+_empty_/Test.v4. €*v4€*
+_empty_/Test.v5. €*v5€2
+ scala/deriving/2
+ scala/2
+ _empty_/Test.2
+	 _empty_/Test.K0.2&
+	 _empty_/Test.K0.Generic#2)
+ _empty_/Test.K0.Generic#[T]2$
+ scala/deriving/Mirror#2
+$ )local02
+, ._empty_/Test.K0.2
+; Glocal12)
+J K_empty_/Test.K0.Generic#[T]2
+S dlocal22'
+ _empty_/Test.K0.toRepr().2*
+ _empty_/Test.K0.toRepr().[T]2
+ scala/Product#2,
+  _empty_/Test.K0.toRepr().(gen)2&
+" )_empty_/Test.K0.Generic#2*
+* +_empty_/Test.K0.toRepr().[T]2*
+ _empty_/Test.K0.toRepr().(t)2*
+ _empty_/Test.K0.toRepr().[T]2,
+  #_empty_/Test.K0.toRepr().(gen)2'
+M Yscala/Any#asInstanceOf().2(
+> Iscala/Tuple.fromProduct().2
+8 =scala/Tuple.2*
+J K_empty_/Test.K0.toRepr().(t)2
+
+	
+ _empty_/Test.K1.2&
+	 _empty_/Test.K1.Generic#2)
+ _empty_/Test.K1.Generic#[F]2$
+ scala/deriving/Mirror#2
+' ,local32
+/ 1_empty_/Test.K1.2
+> Jlocal42
+N Olocal52)
+U V_empty_/Test.K1.Generic#[F]2
+W Xlocal52
+a rlocal62'
+ _empty_/Test.K1.toRepr().2*
+ _empty_/Test.K1.toRepr().[F]2*
+  !_empty_/Test.K1.toRepr().[T]2,
+# &_empty_/Test.K1.toRepr().(gen)2&
+( /_empty_/Test.K1.Generic#2*
+0 1_empty_/Test.K1.toRepr().[F]2*
+ _empty_/Test.K1.toRepr().(t)2*
+ _empty_/Test.K1.toRepr().[F]2*
+ _empty_/Test.K1.toRepr().[T]2,
+# &_empty_/Test.K1.toRepr().(gen)2*
+9 :_empty_/Test.K1.toRepr().[T]2'
+S _scala/Any#asInstanceOf().2(
+D Oscala/Tuple.fromProduct().2
+> Cscala/Tuple.2*
+P Q_empty_/Test.K1.toRepr().(t)2
+ _empty_/Test.ISB#2*
+ _empty_/Test.ISB#`<init>`().2
+ 
+scala/Int#2"
+ "scala/Predef.String#2
+' .scala/Boolean#2!
+ _empty_/Test.ISB#i.2!
+ _empty_/Test.ISB#s.2!
+$ %_empty_/Test.ISB#b.2&
+ _empty_/Test.ISB#copy().2$
+ _empty_/Test.ISB#_1().2$
+ _empty_/Test.ISB#_2().2$
+' '_empty_/Test.ISB#_3().2
+ _empty_/Test.ISB.2'
+ _empty_/Test.ISB.apply().2
+ _empty_/Test.v0.2$
+ scala/Predef.summon().2&
+ _empty_/Test.K0.Generic#2
+ _empty_/Test.K0.2
+  _empty_/Test.ISB#2
+ _empty_/Test.v1.2'
+ _empty_/Test.K0.toRepr().2
+ _empty_/Test.v0.2'
+ _empty_/Test.ISB.apply().2
+ _empty_/Test.ISB.2
+ _empty_/Test.v2.2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ scala/Boolean#2
+# %_empty_/Test.v1.2
+ _empty_/Test.Box#2*
+ _empty_/Test.Box#`<init>`().2"
+ _empty_/Test.Box#[T]2"
+ _empty_/Test.Box#[T]2!
+ _empty_/Test.Box#t.2&
+ _empty_/Test.Box#copy().2$
+ _empty_/Test.Box#_1().2
+ _empty_/Test.Box.2'
+ _empty_/Test.Box.apply().2)
+ _empty_/Test.Box.unapply().2
+ _empty_/Test.v3.2$
+ scala/Predef.summon().2&
+ _empty_/Test.K1.Generic#2
+ _empty_/Test.K1.2
+ _empty_/Test.v4.2'
+ _empty_/Test.K1.toRepr().2
+ _empty_/Test.v3.2'
+ _empty_/Test.Box.apply().2
+ _empty_/Test.Box.2
+ _empty_/Test.v5.2
+
+ scala/Tuple1#2
+ 
+scala/Int#2
+ _empty_/Test.v4.PZ 2302E84771DEB2F018949C3D183F2656

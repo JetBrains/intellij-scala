@@ -1,0 +1,95 @@
+
+ìtests/pos/t0031.scala*
+_empty_/Main.
+ *Main€*#
+_empty_/Main.Ensure#*Ensure€*1
+_empty_/Main.Ensure#`<init>`(). €@*<init>€*!
+_empty_/Main.Ensure#[a]	*a€*.
+_empty_/Main.Ensure#ensure(). *ensure€*B
+,_empty_/Main.Ensure#ensure().(postcondition)*postcondition€*'
+_empty_/Main.require().*require€*$
+_empty_/Main.require().[a]	*a€*:
+%_empty_/Main.require().(precondition)*precondition€*0
+ _empty_/Main.require().(command)*command€*
+local0 *$anon€*
+local1*ensure€*
+local2*postcondition€*
+local3 €*result€*
+_empty_/Main.arb().*arb€* 
+_empty_/Main.arb().[a]	*a€* 
+_empty_/Main.arb().(s)*s€*
+local4*result€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local5 €*s€2
+ _empty_/Main.2"
+
+ _empty_/Main.Ensure#2-
+ _empty_/Main.Ensure#`<init>`().2%
+ _empty_/Main.Ensure#[a]2+
+ _empty_/Main.Ensure#ensure().2:
+  ,_empty_/Main.Ensure#ensure().(postcondition)2%
+" #_empty_/Main.Ensure#[a]2
+' .scala/Boolean#2%
+1 2_empty_/Main.Ensure#[a]2%
+ _empty_/Main.require().2(
+ _empty_/Main.require().[a]23
+ %_empty_/Main.require().(precondition)2
+$ +scala/Boolean#2.
+- 4 _empty_/Main.require().(command)2(
+9 :_empty_/Main.require().[a]2"
+= C_empty_/Main.Ensure#2(
+D E_empty_/Main.require().[a]23
+ %_empty_/Main.require().(precondition)2
+ local02"
+ _empty_/Main.Ensure#2(
+ _empty_/Main.require().[a]2
+		 local12
+		 $local22(
+	&	 '_empty_/Main.require().[a]2
+	+	 2scala/Boolean#2(
+	5	 6_empty_/Main.require().[a]2
+
+
+ local32.
+
+
+ $ _empty_/Main.require().(command)2&
+! !scala/Function1#apply().2
+ !local22
+" (local32
++ 1local32(
+ scala/sys/package.error().2
+ 
+scala/sys/2(
+ scala/sys/package.error().2
+ 
+scala/sys/2!
+ _empty_/Main.arb().2$
+ _empty_/Main.arb().[a]2$
+ _empty_/Main.arb().(s)2!
+ scala/package.List#2$
+ _empty_/Main.arb().[a]2+
+
+ _empty_/Main.Ensure#ensure().2%
+ _empty_/Main.require().2(
+ scala/Boolean#`unary_!`().28
+ *scala/collection/immutable/List#isEmpty().2$
+ _empty_/Main.arb().(s)22
+ $scala/collection/IterableOps#head().2$
+ _empty_/Main.arb().(s)2
+ local429
+ &+scala/collection/immutable/List#contains().2$
+ _empty_/Main.arb().(s)2
+' -local42"
+ _empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+ local527
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2(
+ scala/Console.println(+1).2
+ scala/Console.2!
+ _empty_/Main.arb().2
+ local5PZ 9F57EEF45DEF232F7B90C0DB0E57C58E

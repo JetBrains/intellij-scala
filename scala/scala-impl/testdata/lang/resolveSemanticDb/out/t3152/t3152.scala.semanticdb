@@ -1,0 +1,87 @@
+
+Þtests/pos/t3152.scala*(
+_empty_/Applicative#*Applicative€*1
+_empty_/Applicative#`<init>`(). €@*<init>€*!
+_empty_/Applicative#[M]	*M€*
+_empty_/MA# *MA€*(
+_empty_/MA#`<init>`(). €@*<init>€*
+_empty_/MA#[M]	*M€*
+_empty_/MA#[A]	*A€*'
+_empty_/MA#sequence().*sequence€*#
+_empty_/MA#sequence().[N]	*N€*#
+_empty_/MA#sequence().[B]	*B€*%
+_empty_/MA#sequence().(a)  *a€*%
+_empty_/MA#sequence().(n)  *n€*
+_empty_/test.
+ *test€*'
+_empty_/test.ListMA().  *ListMA€*#
+_empty_/test.ListMA().[A]	*A€*#
+_empty_/test.ListMA().(l)*l€*
+_empty_/test.ao.  *ao€2
+ _empty_/Applicative#2)
+ _empty_/Applicative#`<init>`().2!
+ _empty_/Applicative#[M]2
+ _empty_/MA#2$
+ _empty_/MA#`<init>`().2
+ _empty_/MA#[M]2
+ _empty_/MA#[A]2$
+ _empty_/MA#sequence().2'
+ _empty_/MA#sequence().[N]2'
+ _empty_/MA#sequence().[B]2'
+! "_empty_/MA#sequence().(a)2
+& )scala/`<:<`#2
+$ %_empty_/MA#[A]2'
+* +_empty_/MA#sequence().[N]2'
+, -_empty_/MA#sequence().[B]2'
+0 1_empty_/MA#sequence().(n)2"
+3 >_empty_/Applicative#2'
+? @_empty_/MA#sequence().[N]2'
+D E_empty_/MA#sequence().[N]2
+F G_empty_/MA#[M]2'
+H I_empty_/MA#sequence().[B]2(
+R Wscala/sys/package.error().2
+N Q
+scala/sys/2
+ _empty_/test.2$
+ _empty_/test.ListMA().2'
+ _empty_/test.ListMA().[A]2'
+ _empty_/test.ListMA().(l)2!
+  scala/package.List#2'
+! "_empty_/test.ListMA().[A]2
+& (_empty_/MA#2!
+) -scala/package.List#2'
+/ 0_empty_/test.ListMA().[A]2(
+8 =scala/sys/package.error().2
+4 7
+scala/sys/2
+		 _empty_/test.ao.2"
+		 _empty_/Applicative#2(
+	-	 2scala/sys/package.error().2
+	)	 ,
+scala/sys/2$
+ #_empty_/MA#sequence().2$
+ _empty_/test.ListMA().2 
+ scala/package.Nil.2!
+ scala/package.List#2
+ scala/Option#2
+ 
+scala/Int#2!
+# #scala/`<:<`.refl().2
+# #_empty_/test.ao.2
+% +scala/Option#2!
+, 0scala/package.List#2
+1 4
+scala/Int#2$
+  _empty_/MA#sequence().2$
+ _empty_/test.ListMA().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ scala/Option#2
+ 
+scala/Int#2!
+   scala/`<:<`.refl().2
+   _empty_/test.ao.2
+" (scala/Option#2!
+) -scala/package.List#2
+. 1
+scala/Int#PZ 91B8B47324A6776E0CB7E5ED37FFB26E

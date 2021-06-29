@@ -1,0 +1,23 @@
+
+Ùtests/pos/t121.scala*"
+_empty_/Bug121_B#*Bug121_B€*.
+_empty_/Bug121_B#`<init>`(). €@*<init>€*)
+_empty_/Bug121_B#`<init>`().(b)*b€* 
+_empty_/Bug121_B#b. €*b€*#
+_empty_/Bug121_B#get().*get€*$
+_empty_/Bug121_B#get().(x)*x€2
+ _empty_/Bug121_B#2&
+ _empty_/Bug121_B#`<init>`().2
+ scala/Array#2
+ scala/Byte#2
+ _empty_/Bug121_B#b.2%
+ 	_empty_/Bug121_B#get().2(
+
+ _empty_/Bug121_B#get().(x)2
+ 
+scala/Int#2
+ scala/Byte#2"
+" "scala/Array#apply().2!
+! "_empty_/Bug121_B#b.2(
+# $_empty_/Bug121_B#get().(x)2%
+% %_empty_/Bug121_B#get().PZ C785FEF5975C89D2B8A55E6A80AACFEA

@@ -1,0 +1,60 @@
+
+âtests/pos/11973.scala*
+
+_empty_/E# ”€*E€*'
+_empty_/E#`<init>`(). €@*<init>€*
+
+_empty_/E.
+ *E€*
+_empty_/E.C. €©*C€*%
+_empty_/E.$values. €*$values€*"
+_empty_/E.values().*values€*$
+_empty_/E.valueOf().*valueOf€*)
+_empty_/E.valueOf().($name)*$name€*
+_empty_/E.$new().*$new€*.
+_empty_/E.$new().(_$ordinal)*	_$ordinal€*&
+_empty_/E.$new().($name)*$name€*,
+_empty_/E.fromOrdinal().*fromOrdinal€*1
+!_empty_/E.fromOrdinal().(ordinal)*ordinal€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€**
+_empty_/`11973$package`. *_empty_€*&
+_empty_/`11973$package`.f().*f€*)
+_empty_/`11973$package`.f().(x)*x€*
+local0 €*e€*
+local1 €*t€2
+ 
+_empty_/E#2#
+ _empty_/E#`<init>`().2
+ 
+_empty_/E.2
+ _empty_/E.C.2 
+ _empty_/E.$values.2!
+ _empty_/E.values().2"
+ _empty_/E.valueOf().2
+ _empty_/E.$new().2&
+ _empty_/E.fromOrdinal().2
+ 
+_empty_/T#2
+_empty_/T#`<init>`().2"
+_empty_/`11973$package`.2*
+ _empty_/`11973$package`.f().2-
+ _empty_/`11973$package`.f().(x)2
+ 
+scala/`|`#2
+	 
+
+_empty_/E#2
+ 
+_empty_/T#2
+ scala/Unit#2-
+ _empty_/`11973$package`.f().(x)2
+ local02
+
+ 
+_empty_/E#2
+ local12
+
+ 
+_empty_/T#PZ 590846EC442FDAA4D67D7FEAAFC452AB

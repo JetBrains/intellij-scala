@@ -1,0 +1,107 @@
+
+¦tests/pos/sigs.scala*
+_empty_/sigs.
+ *sigs€*
+_empty_/sigs.Lst#*Lst€*
+_empty_/sigs.Lst#[A]	*A€*
+_empty_/sigs.Twin#*Twin€*
+_empty_/sigs.Twin#[B]	*B€*
+_empty_/sigs.x(). €*x€*$
+_empty_/sigs.`x_=`(). €*x_=€*&
+_empty_/sigs.`x_=`().(x$1)*x$1€*
+_empty_/sigs.Base#*Base€*/
+_empty_/sigs.Base#`<init>`(). €@*<init>€*$
+_empty_/sigs.Base#foo().*foo€*%
+_empty_/sigs.Base#foo().(x)*x€*&
+_empty_/sigs.Base#foo(+1).*foo€*
+_empty_/sigs.Sub#*Sub€*.
+_empty_/sigs.Sub#`<init>`(). €@*<init>€*#
+_empty_/sigs.Sub#foo().*foo€*%
+_empty_/sigs.Sub#foo(+1).*foo€*&
+_empty_/sigs.Sub#foo(+1).(x)*x€*
+_empty_/sigs.A#*A€*,
+_empty_/sigs.A#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/sigs.A#AA#*AA€*
+_empty_/sigs.A#a. „*a€*
+_empty_/sigs.B#*B€*,
+_empty_/sigs.B#`<init>`(). €@*<init>€*
+_empty_/sigs.B#BB#*BB€*
+_empty_/sigs.B#b. „*b€*
+_empty_/sigs.C#*C€*,
+_empty_/sigs.C#`<init>`(). €@*<init>€*
+_empty_/sigs.C#AA#*AA€*
+_empty_/sigs.C#BB#*BB€*
+_empty_/sigs.C#a. €*a€*
+_empty_/sigs.C#b. €*b€2
+ _empty_/sigs.2
+ 
+_empty_/sigs.Lst#2"
+ _empty_/sigs.Lst#[A]2!
+ scala/package.List#2"
+ _empty_/sigs.Lst#[A]2 
+ _empty_/sigs.Twin#2#
+ _empty_/sigs.Twin#[B]2#
+ _empty_/sigs.Twin#[B]2#
+ _empty_/sigs.Twin#[B]2
+ _empty_/sigs.x().2 
+ scala/Int#`*`(+3).2#
+ 	_empty_/sigs.`x_=`().2 
+ _empty_/sigs.Base#2+
+
+
+ _empty_/sigs.Base#`<init>`().2&
+
+
+ _empty_/sigs.Base#foo().2)
+
+
+ _empty_/sigs.Base#foo().(x)2
+
+
+ 
+scala/Int#2
+
+
+ 
+scala/Any#2(
+ _empty_/sigs.Base#foo(+1).2
+ java/lang/Object#2
+ _empty_/sigs.Sub#2*
+ _empty_/sigs.Sub#`<init>`().2+
+ _empty_/sigs.Base#`<init>`().2 
+ _empty_/sigs.Base#2%
+ _empty_/sigs.Sub#foo().2'
+ _empty_/sigs.Sub#foo(+1).2*
+ _empty_/sigs.Sub#foo(+1).(x)2
+ 
+scala/Int#2
+ 	_empty_/sigs.A#2(
+ _empty_/sigs.A#`<init>`().2
+ local02
+ _empty_/sigs.B#2 
+	 _empty_/sigs.A#AA#2
+ 	_empty_/sigs.A#a.2
+ 
+scala/`&`#2 
+ _empty_/sigs.A#AA#2 
+ _empty_/sigs.B#BB#2
+ 	_empty_/sigs.B#2(
+ _empty_/sigs.B#`<init>`().2
+ _empty_/sigs.A#2 
+	 _empty_/sigs.B#BB#2
+ 	_empty_/sigs.B#b.2
+ 
+scala/`&`#2 
+ _empty_/sigs.A#AA#2 
+ _empty_/sigs.B#BB#2
+!! 	_empty_/sigs.C#2(
+!! _empty_/sigs.C#`<init>`().2
+!! _empty_/sigs.A#2
+!! _empty_/sigs.B#2 
+"	" _empty_/sigs.C#AA#2"
+"" scala/Predef.String#2 
+#	# _empty_/sigs.C#BB#2
+## scala/AnyRef#2
+$$ 	_empty_/sigs.C#a.2
+%% 	_empty_/sigs.C#b.PZ 985345D7358C79C5D3365FEC9EE6144A

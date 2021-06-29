@@ -1,0 +1,45 @@
+
+útests/pos/i6126.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#Foo#*Foo€*.
+_empty_/Test#Foo#`<init>`(). €@*<init>€*,
+_empty_/Test#Foo#`<init>`().(x) €*x€*!
+_empty_/Test#Foo#[T]	 €*T€* 
+_empty_/Test#Foo#x. €*x€*#
+_empty_/Test#unfoo().*unfoo€*"
+_empty_/Test#unfoo().[T]	*T€*&
+_empty_/Test#unfoo().(foo)*foo€*)
+_empty_/Test#fooArray().*fooArray€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#Foo#2*
+ _empty_/Test#Foo#`<init>`().2"
+ _empty_/Test#Foo#[T]2"
+ _empty_/Test#Foo#[T]2!
+ _empty_/Test#Foo#x.2#
+ _empty_/Test#unfoo().2&
+ _empty_/Test#unfoo().[T]2(
+ _empty_/Test#unfoo().(foo)2
+ _empty_/Test#Foo#2&
+ _empty_/Test#unfoo().[T]2&
+ _empty_/Test#unfoo().[T]2!
+% &_empty_/Test#Foo#x.2(
+! $_empty_/Test#unfoo().(foo)2&
+ _empty_/Test#fooArray().2
+ _empty_/Test#Foo#2
+ scala/Array#2
+  java/lang/Object#2*
+, ,_empty_/Test#Foo#`<init>`().2"
+3 8scala/Array.empty().2
+- 2scala/Array.2
+9 ?java/lang/Object#2-
+@ @scala/reflect/ClassTag.apply().21
+ #scala/collection/ArrayOps#`++`(+1).2)
+ scala/Predef.refArrayOps().2#
+ _empty_/Test#unfoo().2&
+ _empty_/Test#fooArray().2#
+ _empty_/Test#unfoo().2&
+ #_empty_/Test#fooArray().2-
+$ $scala/reflect/ClassTag.apply().PZ 1B2D4D2C5A93E26644FEEF8DDA15B03C

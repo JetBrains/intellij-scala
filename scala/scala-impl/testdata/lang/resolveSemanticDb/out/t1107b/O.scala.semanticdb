@@ -1,0 +1,54 @@
+
+ñtests/pos/t1107b/O.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.d().*d€*
+_empty_/O.d().(t)*t€*
+local0 €*s€*
+_empty_/O.main().*main€*$
+_empty_/O.main().(args)*args€*
+local1 €*c€*
+local2 *$anon€2
+ 
+_empty_/O.2
+ _empty_/O.d().2
+ 	_empty_/O.d().(t)2
+ _empty_/Top#2
+ _empty_/O.d().(t)2
+	 
+local02
+ _empty_/Sub#2
+ 
+_empty_/O.main().2%
+ _empty_/O.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local12
+ local22*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ 
+_empty_/C#2%
+
+
+ java/lang/String#`+`().2)
+
+
+ java/lang/Class#toString().2
+
+
+ 	_empty_/C#bob().2
+
+
+ local12#
+
+ 
+ (scala/Any#toString().2
+
+
+ _empty_/C#bob2().2
+
+
+ local1PZ D2F604E276AE0C373E84A72BB937D51B

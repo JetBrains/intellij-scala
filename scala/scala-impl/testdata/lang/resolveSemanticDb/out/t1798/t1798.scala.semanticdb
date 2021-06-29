@@ -1,0 +1,25 @@
+
+€tests/pos/t1798.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.bar().*bar€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€*
+_empty_/Foo#x. €*x€*(
+_empty_/Foo#`<init>`(+1).*<init>€2
+ 
+_empty_/Foo.2
+ _empty_/Foo.bar().2
+  #
+scala/Int#2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/Foo#x.2'
+ _empty_/Foo#`<init>`(+1).2%
+& &_empty_/Foo#`<init>`().2 
+* -_empty_/Foo.bar().2
+& )_empty_/Foo.PZ E9A67F69337F17531AF94DBB8ABB14E0

@@ -1,0 +1,249 @@
+
+çAtests/pos/t2913.scala*
+
+_empty_/A#*AÄ*'
+_empty_/A#`<init>`(). Ä@*<init>Ä*
+_empty_/A#foo().*fooÄ*
+_empty_/A#foo().(a)*aÄ*
+_empty_/RichA#*RichAÄ*+
+_empty_/RichA#`<init>`(). Ä@*<init>Ä* 
+_empty_/RichA#foo().*fooÄ*!
+_empty_/RichA#foo().(a)*aÄ*"
+_empty_/RichA#foo(+1).*fooÄ*#
+_empty_/RichA#foo(+1).(a)*aÄ*#
+_empty_/RichA#foo(+1).(b)*bÄ*"
+_empty_/RichA#foo(+2).*fooÄ*6
+_empty_/TestNoAutoTupling.
+ *TestNoAutoTuplingÄ*8
+%_empty_/TestNoAutoTupling.AToRichA().  *AToRichAÄ*2
+(_empty_/TestNoAutoTupling.AToRichA().(a)*aÄ*)
+_empty_/TestNoAutoTupling.a. Ä*aÄ*
+_empty_/test1.
+ *test1Ä*!
+_empty_/test1.Foo# Ä*FooÄ*/
+_empty_/test1.Foo#`<init>`(). Ä@*<init>Ä*-
+ _empty_/test1.Foo#`<init>`().(f) Ä*fÄ*
+_empty_/test1.Foo#[T]	*TÄ*!
+_empty_/test1.Foo#[T2]	*T2Ä*!
+_empty_/test1.Foo#f. Ä*fÄ*(
+_empty_/test1.Foo#apply().*applyÄ*'
+_empty_/test1.Foo#apply().(t)*tÄ*
+local0*sÄ**
+_empty_/test1.Foo#apply(+1).*applyÄ*)
+_empty_/test1.Foo#apply(+1).(p)*pÄ*&
+_empty_/test1.Foo#copy().*copyÄ*&
+_empty_/test1.Foo#copy().[T]	*TÄ*(
+_empty_/test1.Foo#copy().[T2]	*T2Ä*&
+_empty_/test1.Foo#copy().(f)*fÄ*:
+#_empty_/test1.Foo#copy$default$1().*copy$default$1Ä*0
+&_empty_/test1.Foo#copy$default$1().[T]	*TÄ*2
+'_empty_/test1.Foo#copy$default$1().[T2]	*T2Ä*"
+_empty_/test1.Foo#_1().*_1Ä* 
+_empty_/test1.Foo.
+ *FooÄ*(
+_empty_/test1.Foo.apply().*applyÄ*'
+_empty_/test1.Foo.apply().[T]	*TÄ*)
+_empty_/test1.Foo.apply().[T2]	*T2Ä*'
+_empty_/test1.Foo.apply().(f)*fÄ*,
+_empty_/test1.Foo.unapply().*unapplyÄ*)
+_empty_/test1.Foo.unapply().[T]	*TÄ*+
+ _empty_/test1.Foo.unapply().[T2]	*T2Ä*-
+!_empty_/test1.Foo.unapply().(x$1)*x$1Ä*.
+_empty_/test1.Foo.toString().*toStringÄ*
+_empty_/test1.g().  *gÄ*
+_empty_/test1.g().[T]	*TÄ*
+_empty_/test1.g().(f)*fÄ*"
+_empty_/test1.main().*mainÄ*(
+_empty_/test1.main().(args)*argsÄ*
+local1 Ä*fÄ*
+local2*xÄ*
+local3*sÄ*
+_empty_/Main.
+ *MainÄ*!
+_empty_/Main.main().*mainÄ*'
+_empty_/Main.main().(args)*argsÄ*
+local4 Ä*fnÄ*
+local5*aÄ*
+local6*strÄ*
+local7  *fxÄ*
+local8	*TÄ*
+local9*fÄ*
+local10*xÄ*:
+_empty_/TestWithAutoTupling.
+ *TestWithAutoTuplingÄ*:
+'_empty_/TestWithAutoTupling.AToRichA().  *AToRichAÄ*4
+*_empty_/TestWithAutoTupling.AToRichA().(a)*aÄ*+
+_empty_/TestWithAutoTupling.a. Ä*aÄ2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#foo().2!
+
+ _empty_/A#foo().(a)2
+ 
+scala/Int#2
+ _empty_/RichA#2'
+ _empty_/RichA#`<init>`().2"
+ 	_empty_/RichA#foo().2%
+
+ _empty_/RichA#foo().(a)2"
+ scala/Predef.String#2$
+ 	_empty_/RichA#foo(+1).2'
+
+ _empty_/RichA#foo(+1).(a)2"
+ scala/Predef.String#2'
+ _empty_/RichA#foo(+1).(b)2"
+ scala/Predef.String#2$
+ 	_empty_/RichA#foo(+2).2(
+ _empty_/TestNoAutoTupling.2+
+ scala/language.noAutoTupling.2
+	 scala/language.23
+ %_empty_/TestNoAutoTupling.AToRichA().26
+ (_empty_/TestNoAutoTupling.AToRichA().(a)2
+ 
+_empty_/A#2
+ $_empty_/RichA#2'
+0 0_empty_/RichA#`<init>`().2
++ 0_empty_/RichA#2*
+ _empty_/TestNoAutoTupling.a.2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2$
+ _empty_/RichA#foo(+2).23
+ %_empty_/TestNoAutoTupling.AToRichA().2*
+ _empty_/TestNoAutoTupling.a.2
+ _empty_/A#foo().2*
+ _empty_/TestNoAutoTupling.a.2"
+ _empty_/RichA#foo().23
+ %_empty_/TestNoAutoTupling.AToRichA().2*
+ _empty_/TestNoAutoTupling.a.2$
+ _empty_/RichA#foo(+1).23
+ %_empty_/TestNoAutoTupling.AToRichA().2*
+ _empty_/TestNoAutoTupling.a.2
+"" _empty_/test1.2 
+## _empty_/test1.Foo#2+
+## _empty_/test1.Foo#`<init>`().2#
+## _empty_/test1.Foo#[T]2$
+##  _empty_/test1.Foo#[T2]2"
+#%# +scala/Predef.String#2#
+#8# 9_empty_/test1.Foo#[T]2$
+#:# <_empty_/test1.Foo#[T2]2"
+#B# Hscala/Predef.String#2#
+## _empty_/test1.Foo#[T]2$
+## _empty_/test1.Foo#[T2]2"
+## _empty_/test1.Foo#f.2(
+$$ _empty_/test1.Foo#apply().2+
+$$ _empty_/test1.Foo#apply().(t)2#
+$$ _empty_/test1.Foo#[T]2
+$$ local02$
+$$ _empty_/test1.Foo#[T2]2&
+$"$ "scala/Function2#apply().2"
+$!$ "_empty_/test1.Foo#f.2+
+$#$ $_empty_/test1.Foo#apply().(t)2
+$%$ &local02*
+%% _empty_/test1.Foo#apply(+1).2-
+%% _empty_/test1.Foo#apply(+1).(p)2#
+%% _empty_/test1.Foo#[T]2$
+%% _empty_/test1.Foo#[T2]2&
+%% scala/Function2#apply().2"
+%% _empty_/test1.Foo#f.2
+% % "scala/Tuple2#_1.2-
+%% _empty_/test1.Foo#apply(+1).(p)2
+%%% 'scala/Tuple2#_2.2-
+%#% $_empty_/test1.Foo#apply(+1).(p)2'
+## _empty_/test1.Foo#copy().2%
+## _empty_/test1.Foo#_1().2 
+## _empty_/test1.Foo.2(
+## _empty_/test1.Foo.apply().2*
+## _empty_/test1.Foo.unapply().2 
+'' _empty_/test1.g().2#
+'' _empty_/test1.g().[T]2#
+'' _empty_/test1.g().(f)2#
+'' _empty_/test1.g().[T]2"
+'' !scala/Predef.String#2"
+'&' ,scala/Predef.String#2 
+'5' 8_empty_/test1.Foo#2
+'/' 4_empty_/test1.2#
+'9' :_empty_/test1.g().[T]2"
+';' Ascala/Predef.String#2(
+'H' H_empty_/test1.Foo.apply().2 
+'E' H_empty_/test1.Foo.2#
+'I' J_empty_/test1.g().(f)2#
+(( 
+_empty_/test1.main().2)
+(( _empty_/test1.main().(args)2
+(( scala/Array#2"
+(( scala/Predef.String#2
+(#( 'scala/Unit#2
+)) 	local12
+)) local22
+)) 
+scala/Int#2
+)) local32"
+)) scala/Predef.String#2%
+)") #java/lang/String#`+`().2
+) ) !local32
+)$) %local22'
+** scala/Predef.println(+1).2(
+** _empty_/test1.Foo#apply().2 
+** _empty_/test1.g().2
+** local12
+.. _empty_/Main.2"
+// 
+_empty_/Main.main().2(
+// _empty_/Main.main().(args)2
+// scala/Array#2"
+// scala/Predef.String#2
+/"/ &scala/Unit#2
+00 
+local42
+00 local52
+00 
+scala/Int#2
+00 local62"
+00 #scala/Predef.String#2%
+0>0 ?java/lang/String#`+`().2%
+020 3java/lang/String#`+`().2%
+0.0 /java/lang/String#`+`().2
+000 1local52
+0@0 Clocal62
+11 local72
+11 local82
+11 local92
+11 local82"
+11 $scala/Predef.String#2"
+1)1 /scala/Predef.String#2
+121 3local82"
+171 =scala/Predef.String#2
+1A1 Blocal102
+1C1 Dlocal82&
+1J1 Jscala/Function2#apply().2
+1I1 Jlocal92
+1K1 Llocal102'
+22 scala/Predef.println(+1).2&
+22 scala/Function1#apply().2
+22 local72
+22 local42*
+77 _empty_/TestWithAutoTupling.25
+99 '_empty_/TestWithAutoTupling.AToRichA().28
+99 *_empty_/TestWithAutoTupling.AToRichA().(a)2
+99 
+_empty_/A#2
+99 $_empty_/RichA#2'
+909 0_empty_/RichA#`<init>`().2
+9+9 0_empty_/RichA#2,
+;; _empty_/TestWithAutoTupling.a.2#
+;; _empty_/A#`<init>`().2
+;; 
+_empty_/A#2$
+<< _empty_/RichA#foo(+2).25
+<< '_empty_/TestWithAutoTupling.AToRichA().2,
+<< _empty_/TestWithAutoTupling.a.2
+== _empty_/A#foo().2,
+== _empty_/TestWithAutoTupling.a.2"
+?? _empty_/RichA#foo().25
+?? '_empty_/TestWithAutoTupling.AToRichA().2,
+?? _empty_/TestWithAutoTupling.a.2$
+HH _empty_/RichA#foo(+1).25
+HH '_empty_/TestWithAutoTupling.AToRichA().2,
+HH _empty_/TestWithAutoTupling.a.PZ 62CB7CEC89369F6829D1AE57D3C2BCB7

@@ -1,0 +1,144 @@
+
+ùtests/pos/t6205.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[T]	*T€*
+_empty_/Test1#*Test1€*+
+_empty_/Test1#`<init>`(). €@*<init>€*
+_empty_/Test1#x().*x€*+
+_empty_/Test1#x().(backing)*backing€*
+local0*x$1€*
+local1 €*k€*
+local2 €	*kt€*
+local3 €*v€*!
+_empty_/Holder# €*Holder€*,
+_empty_/Holder#`<init>`(). €@*<init>€**
+_empty_/Holder#`<init>`().(a) €*a€*
+_empty_/Holder#[A]	*A€*
+_empty_/Holder#a. €*a€*#
+_empty_/Holder#copy().*copy€*#
+_empty_/Holder#copy().[A]	*A€*#
+_empty_/Holder#copy().(a)*a€*7
+ _empty_/Holder#copy$default$1().*copy$default$1€*-
+#_empty_/Holder#copy$default$1().[A]	*A€*
+_empty_/Holder#_1().*_1€* 
+_empty_/Holder.
+ *Holder€*%
+_empty_/Holder.apply().*apply€*$
+_empty_/Holder.apply().[A]	*A€*$
+_empty_/Holder.apply().(a)*a€*)
+_empty_/Holder.unapply().*unapply€*&
+_empty_/Holder.unapply().[A]	*A€**
+_empty_/Holder.unapply().(x$1)*x$1€*+
+_empty_/Holder.toString().*toString€*
+_empty_/Mapped#*Mapped€*,
+_empty_/Mapped#`<init>`(). €@*<init>€*
+_empty_/Mapped#[A]	*A€*!
+_empty_/Mapped#map().*map€*"
+_empty_/Mapped#map().[T]	*T€*"
+_empty_/Mapped#map().(f)*f€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€*$
+_empty_/Test2#works().*works€*/
+_empty_/Test2#works().(backing)*backing€*
+local4*x€*
+local5 €*k€*
+local6 €	*kt€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#[T]2
+ _empty_/Test1#2'
+ _empty_/Test1#`<init>`().2 
+ _empty_/Test1#x().2)
+ _empty_/Test1#x().(backing)2
+ scala/Predef.Map#2
+ 
+_empty_/A#2
+ 
+scala/Any#2<
+! !.scala/collection/IterableOps.WithFilter#map().2?
+! !1scala/collection/MapFactoryDefaults#withFilter().2)
+ !_empty_/Test1#x().(backing)2
+	 	local02%
+
+ 
+scala/Tuple2.unapply().2
+
+ local12
+ 
+_empty_/A#2
+ local22
+ local32
+ local12
+ 
+_empty_/A#2
+ local22
+
+
+ _empty_/Holder#2(
+
+
+ _empty_/Holder#`<init>`().2 
+
+
+ _empty_/Holder#[A]2 
+
+
+ _empty_/Holder#[A]2
+
+
+ _empty_/Holder#a.2 
+
+
+_empty_/Holder#copy().2"
+
+
+ _empty_/Holder#_1().2
+
+
+ _empty_/Holder.2!
+
+
+_empty_/Holder.apply().2#
+
+
+_empty_/Holder.unapply().2
+ _empty_/Mapped#2(
+ _empty_/Mapped#`<init>`().2 
+ _empty_/Mapped#[A]2#
+ _empty_/Mapped#map().2&
+ _empty_/Mapped#map().[T]2&
+ _empty_/Mapped#map().(f)2
+  &_empty_/Holder#2 
+' (_empty_/Mapped#[A]2&
+- ._empty_/Mapped#map().[T]2%
+1 9scala/package.Iterable#2&
+: ;_empty_/Mapped#map().[T]2#
+? Bscala/Predef.`???`().2
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2$
+ _empty_/Test2#works().2-
+ _empty_/Test2#works().(backing)2
+ _empty_/Mapped#2
+ 
+_empty_/A#2%
+$ ,scala/package.Iterable#2
+- .
+_empty_/A#2#
+ _empty_/Mapped#map().2-
+ _empty_/Test2#works().(backing)2
+ local42
+	 
+local42'
+ _empty_/Holder.unapply().2
+ _empty_/Holder.2
+ local52
+! "
+_empty_/A#2
+# %local62
+, -local52
+/ 0
+_empty_/A#2
+1 3local6PZ A3C668DC0FCAEC25714542E77F8E7BB8

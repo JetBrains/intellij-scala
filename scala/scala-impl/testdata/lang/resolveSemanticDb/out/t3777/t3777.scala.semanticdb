@@ -1,0 +1,27 @@
+
+îtests/pos/t3777.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Point#*Point€*#
+_empty_/Test.Points#*Points€*/
+_empty_/Test.makePoints2().*makePoints2€**
+_empty_/Test.spoints2. €*spoints2€2
+ _empty_/Test.2!
+ _empty_/Test.Point#2
+ scala/Predef.Map#2
+ scala/Symbol#2"
+ !scala/Predef.String#2"
+ _empty_/Test.Points#2'
+ scala/package.IndexedSeq#2!
+  _empty_/Test.Point#2)
+ _empty_/Test.makePoints2().2"
+ _empty_/Test.Points#2;
+& &-scala/collection/SeqFactory.Delegate#apply().2'
+ &scala/package.IndexedSeq.2!
+' ,_empty_/Test.Point#2$
+ _empty_/Test.spoints2.2*
+ $scala/util/Random#shuffle().2 
+ scala/util/Random.2
+ scala/util/2)
+% 0_empty_/Test.makePoints2().2L
+1 1>scala/collection/BuildFromLowPriority2#buildFromIterableOps().PZ BC0147C601D1825DA1C1BB4EB026B9BD

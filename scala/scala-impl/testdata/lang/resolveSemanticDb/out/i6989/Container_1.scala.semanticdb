@@ -1,0 +1,57 @@
+
+ý!tests/pos/i6989/Container_1.scala*$
+mypkg/Container.
+ *	Container€*4
+mypkg/Container.StringExtras# *StringExtras€*:
+(mypkg/Container.StringExtras#`<init>`(). €@*<init>€*8
++mypkg/Container.StringExtras#`<init>`().(s) €*s€*,
+mypkg/Container.StringExtras#s. €*s€*-
+"mypkg/Container.StringExtras#op().*op€*5
+(mypkg/Container.StringExtras#op().(item)*item€*4
+mypkg/Container.StringExtras.
+ *StringExtras€*"
+mypkg/Container#*	Container€*-
+mypkg/Container#`<init>`(). €@*<init>€*:
+!mypkg/Container#mkStringExtras().  *mkStringExtras€*.
+$mypkg/Container#mkStringExtras().(s)*s€2
+ mypkg/2
+ mypkg/Container.2+
+ mypkg/Container.StringExtras#26
+ (mypkg/Container.StringExtras#`<init>`().2"
+ "scala/Predef.String#2&
+2 2scala/AnyVal#`<init>`().2
+, 2scala/AnyVal#2-
+ mypkg/Container.StringExtras#s.20
+ 
+"mypkg/Container.StringExtras#op().26
+ (mypkg/Container.StringExtras#op().(item)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+  scala/Predef.`???`().2+
+ mypkg/Container.StringExtras.2
+ mypkg/Container#2)
+		 mypkg/Container#`<init>`().2
+			 mypkg/Container.2/
+
+
+ !mypkg/Container#mkStringExtras().22
+
+
+ $mypkg/Container#mkStringExtras().(s)2"
+
+!
+ 'scala/Predef.String#2+
+
+*
+ 6mypkg/Container.StringExtras#26
+
+I
+ I(mypkg/Container.StringExtras#`<init>`().2+
+
+=
+ Imypkg/Container.StringExtras#22
+
+J
+ K$mypkg/Container#mkStringExtras().(s)PZ 350C815E7CF00BC29FDB3522BADE2F11

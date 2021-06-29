@@ -1,0 +1,33 @@
+
+Ütests/pos/t6600.scala*"
+_empty_/Natural# *Natural€*-
+_empty_/Natural#`<init>`(). €@*<init>€*,
+_empty_/Natural#intValue().*intValue€*.
+_empty_/Natural#longValue().*	longValue€*0
+_empty_/Natural#floatValue().*
+floatValue€*2
+_empty_/Natural#doubleValue().*doubleValue€**
+_empty_/Natural#isWhole().*isWhole€*0
+_empty_/Natural#underlying().*
+underlying€2
+ _empty_/Natural#2%
+ _empty_/Natural#`<init>`().2,
+2 2"scala/math/ScalaNumber#`<init>`().2!
+' 2scala/math/ScalaNumber#2
+" &scala/math/2
+ !scala/2-
+C Z#scala/math/ScalaNumericConversions#2
+> Bscala/math/2
+8 =scala/2)
+ _empty_/Natural#intValue().2
+ 
+scala/Int#2*
+ _empty_/Natural#longValue().2
+ scala/Long#2+
+ _empty_/Natural#floatValue().2
+ scala/Float#2,
+ _empty_/Natural#doubleValue().2
+ scala/Double#2(
+ _empty_/Natural#isWhole().2
+ scala/Boolean#2+
+ _empty_/Natural#underlying().PZ 8E29921D745F16FD96FFBE8480A04E5A

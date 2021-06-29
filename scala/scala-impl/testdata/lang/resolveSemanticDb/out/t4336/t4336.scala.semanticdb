@@ -1,0 +1,62 @@
+
+âtests/pos/t4336.scala*
+_empty_/Main.
+ *Main€*+
+_empty_/Main.NonGeneric#*
+NonGeneric€*5
+#_empty_/Main.NonGeneric#`<init>`(). €@*<init>€*%
+_empty_/Main.Generic#*Generic€*2
+ _empty_/Main.Generic#`<init>`(). €@*<init>€*"
+_empty_/Main.Generic#[T]	*T€*)
+_empty_/Main.Composite#*	Composite€*4
+"_empty_/Main.Composite#`<init>`(). €@*<init>€*3
+"_empty_/Main.Composite#contains().*contains€*7
+)_empty_/Main.Composite#contains().(setup)*setup€*'
+_empty_/Main.generic().*generic€*$
+_empty_/Main.generic().[T]	*T€*.
+_empty_/Main.generic().(parent)*parent€*-
+_empty_/Main.nonGeneric().*
+nonGeneric€*1
+"_empty_/Main.nonGeneric().(parent)*parent€*
+local0*parent€*
+local1*parent€2
+ _empty_/Main.2&
+ _empty_/Main.NonGeneric#21
+ #_empty_/Main.NonGeneric#`<init>`().2#
+ _empty_/Main.Generic#2.
+  _empty_/Main.Generic#`<init>`().2&
+ _empty_/Main.Generic#[T]2%
+ _empty_/Main.Composite#20
+ "_empty_/Main.Composite#`<init>`().20
+ "_empty_/Main.Composite#contains().27
+ )_empty_/Main.Composite#contains().(setup)2%
+ "_empty_/Main.Composite#2
+& *scala/Unit#2%
+. 7_empty_/Main.Composite#2%
+ _empty_/Main.generic().2(
+ _empty_/Main.generic().[T]2-
+ _empty_/Main.generic().(parent)2%
+ "_empty_/Main.Composite#2#
+% ,_empty_/Main.Generic#2(
+- ._empty_/Main.generic().[T]2.
+@ @ _empty_/Main.Generic#`<init>`().2#
+6 =_empty_/Main.Generic#2(
+> ?_empty_/Main.generic().[T]2(
+		 _empty_/Main.nonGeneric().20
+		 "_empty_/Main.nonGeneric().(parent)2%
+		 "_empty_/Main.Composite#2&
+	%	 /_empty_/Main.NonGeneric#21
+	@	 @#_empty_/Main.NonGeneric#`<init>`().2&
+	6	 @_empty_/Main.NonGeneric#20
+ "_empty_/Main.Composite#contains().20
+ "_empty_/Main.Composite#`<init>`().2%
+ _empty_/Main.Composite#2(
+ _empty_/Main.nonGeneric().2
+ local020
+ "_empty_/Main.Composite#contains().20
+ "_empty_/Main.Composite#`<init>`().2%
+ _empty_/Main.Composite#2%
+ _empty_/Main.generic().2
+ 
+scala/Int#2
+ local1PZ 1DE5825612543DC51D04441E6DE88135

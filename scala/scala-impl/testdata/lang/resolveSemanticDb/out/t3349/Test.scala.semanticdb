@@ -1,0 +1,18 @@
+
+¥tests/pos/t3349/Test.scala*
+_empty_/Test.
+ *Test€*$
+_empty_/Test.label. €*label€*$
+_empty_/Test.table. €*table€2
+ _empty_/Test.2!
+ _empty_/Test.label.2!
+ _empty_/Test.table.2
+ _empty_/Table#2(
+ scala/sys/package.error().2
+ 
+scala/sys/2(
+ _empty_/Table#addColumn().2!
+ _empty_/Test.table.2!
+ _empty_/Test.label.2#
+  (scala/Any#getClass().2!
+ _empty_/Test.label.PZ 80A8630043A84DCF3D04D068E1F8604D

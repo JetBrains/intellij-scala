@@ -1,0 +1,22 @@
+
+Âtests/pos/t159.scala*
+_empty_/foo.
+ *foo€*$
+_empty_/foo.cooked().*cooked€*&
+_empty_/foo.cooked().(ckd)*ckd€*
+_empty_/foo1.
+ *foo1€*
+_empty_/foo1.f().*f€2
+ 
+_empty_/foo.2#
+ _empty_/foo.cooked().2(
+ _empty_/foo.cooked().(ckd)2*
+ scala/package.StringBuilder#2
+" &scala/Unit#2A
+ 3scala/collection/mutable/StringBuilder#append(+11).2(
+ _empty_/foo.cooked().(ckd)2A
+ 3scala/collection/mutable/StringBuilder#append(+11).2(
+ _empty_/foo.cooked().(ckd)2
+ _empty_/foo1.2
+ _empty_/foo1.f().2
+ scala/Unit#PZ 16BB908DB8B76B3CC65130CC46654A1B

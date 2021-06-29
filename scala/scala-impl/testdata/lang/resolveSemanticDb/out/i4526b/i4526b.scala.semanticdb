@@ -1,0 +1,27 @@
+
+×tests/pos/i4526b.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*(
+_empty_/Foo#justdoit().*justdoit€*$
+_empty_/Foo#justdoit().(f)*f€*
+local0 €*i€*
+local1 €*s€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2%
+ _empty_/Foo#justdoit().2(
+ _empty_/Foo#justdoit().(f)2#
+ scala/package.Either#2
+ 
+scala/Int#2"
+ %scala/Predef.String#2"
+* 0scala/Predef.String#2(
+ _empty_/Foo#justdoit().(f)2(
+ scala/util/Left.unapply().2!
+ scala/package.Left.2
+ local02#
+  scala/Any#toString().2
+ local02)
+ scala/util/Right.unapply().2"
+ scala/package.Right.2
+ local12
+ local1PZ AE5C4FE3BCCDF8E48CB73E7F6463D605

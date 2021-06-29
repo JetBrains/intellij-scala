@@ -1,0 +1,39 @@
+
+ètests/pos/i2888.scala*
+_empty_/Foo#*FooÄ*)
+_empty_/Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo#[A]	*AÄ*
+_empty_/Foo#[CC]	*CCÄ*
+_empty_/Foo#[C]	*CÄ*
+_empty_/Foo#cc(). *ccÄ*
+_empty_/Foo#foo().*fooÄ*
+_empty_/Foo#bar().*barÄ*
+_empty_/Main.
+ *MainÄ*!
+_empty_/Main.main().*mainÄ*'
+_empty_/Main.main().(args)*argsÄ2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[A]2
+ _empty_/Foo#[CC]2
+) *_empty_/Foo#[C]2
+ _empty_/Foo#cc().2
+
+ _empty_/Foo#[CC]2
+ _empty_/Foo#[A]2 
+ 	_empty_/Foo#foo().2
+ scala/Unit#2 
+ 	_empty_/Foo#bar().2
+ scala/Unit#2 
+ _empty_/Foo#foo().2
+ _empty_/Foo#cc().2
+
+
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#PZ 690C3425BEDBA11E2DC551F9E9B57A5E

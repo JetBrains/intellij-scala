@@ -1,0 +1,17 @@
+
+âtests/pos/unicode-decode.scala*
+_empty_/Test.
+ *Test€*"
+_empty_/Test.`â†‘`. €*â†‘€*%
+_empty_/Test.xâ‚¢. €*x$u20A2€*"
+_empty_/Test.y$ub. €*y$ub€*$
+_empty_/Test.y$u0A. €*y$u0A€*"
+_empty_/Test.z$up. €*z$up€2
+ _empty_/Test.2!
+ _empty_/Test.`â†‘`.2 
+ _empty_/Test.xâ‚¢.2 
+ 
+_empty_/Test.y$ub.2!
+ _empty_/Test.y$u0A.2 
+ 
+_empty_/Test.z$up.PZ D5E6B06FEE6EDEC57BEB8A40D6D1ACF3

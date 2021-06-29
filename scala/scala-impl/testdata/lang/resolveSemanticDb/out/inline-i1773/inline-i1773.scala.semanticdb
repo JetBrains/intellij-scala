@@ -1,0 +1,70 @@
+
+£tests/pos/inline-i1773.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*+
+ _empty_/Test.Foo#`<init>`().(sc)*sc€*"
+_empty_/Test.Foo#sc. €*sc€*
+_empty_/Test.Foo#q.
+ *q€*-
+_empty_/Test.Foo#q.unapply().*unapply€*.
+"_empty_/Test.Foo#q.unapply().(arg)*arg€*!
+_empty_/Test.Foo(). (*Foo€*"
+_empty_/Test.Foo().(sc)*sc€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*name€*
+local1 €*parent€2
+ _empty_/Test.2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2"
+ &scala/StringContext#2"
+ _empty_/Test.Foo#sc.2!
+ _empty_/Test.Foo#q.2+
+
+ _empty_/Test.Foo#q.unapply().20
+ "_empty_/Test.Foo#q.unapply().(arg)2
+ 
+scala/Any#2
+ #scala/Option#2
+% (
+scala/Any#2
+* -
+scala/Any#2!
+ scala/Some.apply().2
+ scala/Some.2#
+ scala/Tuple2.apply().2.
+  scala/collection/SeqOps#apply().2(
+ scala/StringContext#parts.2"
+ _empty_/Test.Foo#sc.2.
+# # scala/collection/SeqOps#apply().2(
+ #scala/StringContext#parts.2"
+ _empty_/Test.Foo#sc.2!
+ _empty_/Test.Foo().2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2*
+	3	 3java/lang/Object#`<init>`().2
+	-	 3java/lang/Object#2+
+	&	 &_empty_/Test.Foo#q.unapply().2!
+	%	 &_empty_/Test.Foo#q.2!
+	
+	 
+_empty_/Test.Foo().2*
+	
+	 
+scala/StringContext.apply().2
+		 local02
+		 %local12'
+
+
+ scala/Predef.println(+1).2
+
+
+ local02'
+ scala/Predef.println(+1).2
+ local1PZ 8FF5C8690BF5201DBBA0DB2367D06599

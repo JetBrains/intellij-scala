@@ -1,0 +1,20 @@
+
+¹tests/pos/i11128.scala*
+	foo/Wrap.
+ *Wrap€*
+foo/Wrap.Bar# *Bar€*
+foo/Bar#*Bar€*%
+foo/Bar#`<init>`(). €@*<init>€*!
+foo/i11128$package. *foo€*.
+foo/i11128$package.wrapBar. €*wrapBar€2
+ foo/2
+ 	foo/Wrap.2
+	 foo/2
+ foo/Wrap.Bar#2
+ 	foo/Bar#2
+foo/Bar#`<init>`().2
+foo/i11128$package.2)
+ foo/i11128$package.wrapBar.2!
+ foo/Bar#`<init>`().2
+ foo/Wrap.Bar#2
+ 	foo/Wrap.PZ 86F420D0B58ABFF0D04E43F18FB9B5B5

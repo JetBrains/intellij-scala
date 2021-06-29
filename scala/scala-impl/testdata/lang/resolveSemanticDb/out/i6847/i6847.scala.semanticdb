@@ -1,0 +1,63 @@
+
+õtests/pos/i6847.scala*
+_empty_/Syntax#*Syntax€*,
+_empty_/Syntax#`<init>`(). €@*<init>€*
+_empty_/Syntax#[F]	*F€*#
+_empty_/Syntax#ret(). *ret€*"
+_empty_/Syntax#ret().[A]	*A€*"
+_empty_/Syntax#ret().(a)*a€*"
+_empty_/Instance#*Instance€*.
+_empty_/Instance#`<init>`(). €@*<init>€*
+_empty_/Instance#[A]	*A€*$
+_empty_/Instance.
+ *Instance€*'
+_empty_/Instance.defer().*defer€*&
+_empty_/Instance.defer().[A]	*A€*&
+_empty_/Instance.defer().(a)*a€*
+local0 *$anon€*(
+_empty_/i6847$package. *_empty_€*?
+%_empty_/i6847$package.instanceSyntax.  *instanceSyntax€*
+local1 *$anon€*
+local2*ret€*
+local3	*A€*
+local4*a€*
+local5 *$anon€2
+ _empty_/Syntax#2$
+ _empty_/Syntax#`<init>`().2
+ _empty_/Syntax#[F]2#
+ _empty_/Syntax#ret().2&
+ _empty_/Syntax#ret().[A]2&
+ _empty_/Syntax#ret().(a)2&
+ _empty_/Syntax#ret().[A]2 
+  _empty_/Syntax#[F]2&
+! "_empty_/Syntax#ret().[A]2
+ _empty_/Instance#2*
+ _empty_/Instance#`<init>`().2"
+ _empty_/Instance#[A]2
+
+
+ _empty_/Instance.2'
+ _empty_/Instance.defer().2*
+ _empty_/Instance.defer().[A]2*
+ _empty_/Instance.defer().(a)2*
+ _empty_/Instance.defer().[A]2
+ !_empty_/Instance#2*
+" #_empty_/Instance.defer().[A]2#
+ _empty_/Syntax#ret().2
+ local02
+ _empty_/Instance#2*
+ _empty_/Instance.defer().[A]2 
+_empty_/i6847$package.23
+ %_empty_/i6847$package.instanceSyntax.2
+ #_empty_/Syntax#2
+0 0local12
+4 :_empty_/Syntax#2
+ local22
+ local32
+ local42
+ local32
+ '_empty_/Instance#2
+( )local32
+- -local52
+1 9_empty_/Instance#2
+: ;local3PZ F4239EC157014B656A223258A7B799DB

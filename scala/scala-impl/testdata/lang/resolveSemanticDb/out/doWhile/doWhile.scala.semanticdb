@@ -1,0 +1,38 @@
+
+ƒtests/pos/doWhile.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+local0 €*x€*
+local1 €*x€*
+local2 €*x€*
+local3 €*x€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€*
+_empty_/Test2#x. €*x€*
+local4 €*x€*
+local5 €*x€2)
+ scala/language.`3.0-migration`.2
+ scala/language.2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ 	local02'
+ scala/Predef.println(+1).2
+ local02
+ 	local12'
+ scala/Predef.println(+1).2
+ local12
+ 	local22
+ 	local32
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2
+ _empty_/Test2#x.2
+	 
+scala/Int#2
+ 	local42!
+ scala/Int#`==`(+3).2
+ _empty_/Test2#x.2!
+ 
+scala/Int#`==`(+3).2
+ _empty_/Test2#x.2
+ 	local5PZ 933B9A25F487048EEBC4125121676C57

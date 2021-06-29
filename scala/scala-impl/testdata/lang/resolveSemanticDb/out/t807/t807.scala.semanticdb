@@ -1,0 +1,139 @@
+
+Ñ2tests/pos/t807.scala* 
+_empty_/Matcher#*Matcher€*-
+_empty_/Matcher#`<init>`(). €@*<init>€*"
+_empty_/Matcher#Link#*Link€*2
+ _empty_/Matcher#Link#`<init>`(). €@*<init>€*'
+_empty_/Matcher#Link#Self#*Self€*)
+_empty_/Matcher#Link#Match#*Match€*
+local0*Match€**
+_empty_/Matcher#HasLinks#*HasLinks€*6
+$_empty_/Matcher#HasLinks#`<init>`(). €@*<init>€*-
+ _empty_/Matcher#HasLinks#link().*link€*-
+#_empty_/Matcher#HasLinks#link().(b)*b€**
+_empty_/BraceMatcher#*BraceMatcher€*2
+ _empty_/BraceMatcher#`<init>`(). €@*<init>€*1
+_empty_/BraceMatcher#BracePair#*	BracePair€*<
+*_empty_/BraceMatcher#BracePair#`<init>`(). €@*<init>€*;
+)_empty_/BraceMatcher#BracePair#BraceLink#*	BraceLink€*F
+4_empty_/BraceMatcher#BracePair#BraceLink#`<init>`(). €@*<init>€*9
+(_empty_/BraceMatcher#BracePair#OpenLink#*OpenLink€*E
+3_empty_/BraceMatcher#BracePair#OpenLink#`<init>`(). €@*<init>€*:
+-_empty_/BraceMatcher#BracePair#OpenLink#Self#*Self€*<
+._empty_/BraceMatcher#BracePair#OpenLink#Match#*Match€*;
+)_empty_/BraceMatcher#BracePair#CloseLink#*	CloseLink€*F
+4_empty_/BraceMatcher#BracePair#CloseLink#`<init>`(). €@*<init>€*;
+._empty_/BraceMatcher#BracePair#CloseLink#Self#*Self€*=
+/_empty_/BraceMatcher#BracePair#CloseLink#Match#*Match€*,
+_empty_/IfElseMatcher#*IfElseMatcher€*3
+!_empty_/IfElseMatcher#`<init>`(). €@*<init>€*4
+!_empty_/IfElseMatcher#IfElseLink#*
+IfElseLink€*>
+,_empty_/IfElseMatcher#IfElseLink#`<init>`(). €@*<init>€*,
+_empty_/IfElseMatcher#IfLink#*IfLink€*:
+(_empty_/IfElseMatcher#IfLink#`<init>`(). €@*<init>€*/
+"_empty_/IfElseMatcher#IfLink#Self#*Self€*1
+#_empty_/IfElseMatcher#IfLink#Match#*Match€*0
+_empty_/IfElseMatcher#ElseImpl#*ElseImpl€*<
+*_empty_/IfElseMatcher#ElseImpl#`<init>`(). €@*<init>€*1
+$_empty_/IfElseMatcher#ElseImpl#Self#*Self€*3
+%_empty_/IfElseMatcher#ElseImpl#Match#*Match€*3
+&_empty_/IfElseMatcher#ElseImpl#link().*link€*3
+)_empty_/IfElseMatcher#ElseImpl#link().(b)*b€*5
+ _empty_/IfElseMatcher#parenPair. „*	parenPair€*>
+&_empty_/IfElseMatcher#IfWithParenImpl#*IfWithParenImpl€*C
+1_empty_/IfElseMatcher#IfWithParenImpl#`<init>`(). €@*<init>€*>
+-_empty_/IfElseMatcher#IfWithParenImpl#ifLink.
+ *ifLink€*D
+0_empty_/IfElseMatcher#IfWithParenImpl#openParen.
+ *	openParen€*:
+-_empty_/IfElseMatcher#IfWithParenImpl#link().*link€*:
+0_empty_/IfElseMatcher#IfWithParenImpl#link().(b)*b€2
+ _empty_/Matcher#2)
+ _empty_/Matcher#`<init>`().2#
+ _empty_/Matcher#Link#2.
+  _empty_/Matcher#Link#`<init>`().2(
+	 _empty_/Matcher#Link#Self#2#
+ _empty_/Matcher#Link#2)
+	 _empty_/Matcher#Link#Match#2#
+ _empty_/Matcher#Link#2
+ #local02(
+0 4_empty_/Matcher#Link#Self#2'
+ _empty_/Matcher#HasLinks#22
+ $_empty_/Matcher#HasLinks#`<init>`().2.
+  _empty_/Matcher#HasLinks#link().21
+ #_empty_/Matcher#HasLinks#link().(b)2
+ scala/Boolean#2#
+  _empty_/Matcher#Link#2#
+
+
+ _empty_/BraceMatcher#2.
+
+
+  _empty_/BraceMatcher#`<init>`().2
+
+
+ "_empty_/Matcher#2-
+ _empty_/BraceMatcher#BracePair#28
+ *_empty_/BraceMatcher#BracePair#`<init>`().27
+
+ )_empty_/BraceMatcher#BracePair#BraceLink#2B
+ 4_empty_/BraceMatcher#BracePair#BraceLink#`<init>`().2#
+  _empty_/Matcher#Link#26
+
+ (_empty_/BraceMatcher#BracePair#OpenLink#2A
+ 3_empty_/BraceMatcher#BracePair#OpenLink#`<init>`().27
+ $)_empty_/BraceMatcher#BracePair#BraceLink#2;
+ -_empty_/BraceMatcher#BracePair#OpenLink#Self#26
+ (_empty_/BraceMatcher#BracePair#OpenLink#2<
+ ._empty_/BraceMatcher#BracePair#OpenLink#Match#27
+ )_empty_/BraceMatcher#BracePair#CloseLink#27
+
+ )_empty_/BraceMatcher#BracePair#CloseLink#2B
+ 4_empty_/BraceMatcher#BracePair#CloseLink#`<init>`().27
+ %)_empty_/BraceMatcher#BracePair#BraceLink#2<
+ ._empty_/BraceMatcher#BracePair#CloseLink#Self#27
+ )_empty_/BraceMatcher#BracePair#CloseLink#2=
+ /_empty_/BraceMatcher#BracePair#CloseLink#Match#26
+ (_empty_/BraceMatcher#BracePair#OpenLink#2$
+ _empty_/IfElseMatcher#2/
+ !_empty_/IfElseMatcher#`<init>`().2#
+ (_empty_/BraceMatcher#2/
+ !_empty_/IfElseMatcher#IfElseLink#2:
+ ,_empty_/IfElseMatcher#IfElseLink#`<init>`().2#
+ _empty_/Matcher#Link#2+
+ _empty_/IfElseMatcher#IfLink#26
+ (_empty_/IfElseMatcher#IfLink#`<init>`().2/
+ !!_empty_/IfElseMatcher#IfElseLink#20
+	 "_empty_/IfElseMatcher#IfLink#Self#2+
+ _empty_/IfElseMatcher#IfLink#21
+	 #_empty_/IfElseMatcher#IfLink#Match#2-
+ _empty_/IfElseMatcher#ElseImpl#2-
+ _empty_/IfElseMatcher#ElseImpl#28
+ *_empty_/IfElseMatcher#ElseImpl#`<init>`().2/
+ #!_empty_/IfElseMatcher#IfElseLink#2'
+) 1_empty_/Matcher#HasLinks#22
+	 $_empty_/IfElseMatcher#ElseImpl#Self#2-
+ _empty_/IfElseMatcher#ElseImpl#23
+	 %_empty_/IfElseMatcher#ElseImpl#Match#2+
+ _empty_/IfElseMatcher#IfLink#24
+   &_empty_/IfElseMatcher#ElseImpl#link().27
+   )_empty_/IfElseMatcher#ElseImpl#link().(b)2
+   !scala/Boolean#2.
+""  _empty_/IfElseMatcher#parenPair.2-
+"" _empty_/BraceMatcher#BracePair#24
+## &_empty_/IfElseMatcher#IfWithParenImpl#2?
+# #  1_empty_/IfElseMatcher#IfWithParenImpl#`<init>`().2'
+# # (_empty_/Matcher#HasLinks#2;
+$$ -_empty_/IfElseMatcher#IfWithParenImpl#ifLink.2+
+$$  _empty_/IfElseMatcher#IfLink#2>
+%% 0_empty_/IfElseMatcher#IfWithParenImpl#openParen.26
+%'% /(_empty_/BraceMatcher#BracePair#OpenLink#2.
+%% & _empty_/IfElseMatcher#parenPair.2;
+&& -_empty_/IfElseMatcher#IfWithParenImpl#link().2>
+&& 0_empty_/IfElseMatcher#IfWithParenImpl#link().(b)2
+&& !scala/Boolean#2#
+&$& (_empty_/Matcher#Link#2>
+&+& ,0_empty_/IfElseMatcher#IfWithParenImpl#link().(b)2;
+'' -_empty_/IfElseMatcher#IfWithParenImpl#ifLink.2>
+(( 0_empty_/IfElseMatcher#IfWithParenImpl#openParen.PZ 67AE56C752A1D72DB2BD8BBFB2C36CA8

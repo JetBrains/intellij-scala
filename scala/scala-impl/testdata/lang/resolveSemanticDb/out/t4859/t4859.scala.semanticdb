@@ -1,0 +1,75 @@
+
+›tests/pos/t4859.scala*
+
+_empty_/O.
+ *O€*
+
+_empty_/C# €*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#CC# €*CC€**
+_empty_/C#CC#`<init>`(). €@*<init>€*!
+_empty_/C#CC#copy().*copy€*
+_empty_/C#CC.
+ *CC€*#
+_empty_/C#CC.apply().*apply€*'
+_empty_/C#CC.unapply().*unapply€*(
+_empty_/C#CC.unapply().(x$1)*x$1€*)
+_empty_/C#CC.toString().*toString€*
+_empty_/C#copy().*copy€*
+
+_empty_/C.
+ *C€* 
+_empty_/C.apply().*apply€*$
+_empty_/C.unapply().*unapply€*%
+_empty_/C.unapply().(x$1)*x$1€*&
+_empty_/C.toString().*toString€*
+
+_empty_/D# €*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#DD#*DD€**
+_empty_/D#DD#`<init>`(). €@*<init>€*
+_empty_/D#DD.
+ *DD€*#
+_empty_/D#DD.apply().*apply€*
+_empty_/D#copy().*copy€*
+
+_empty_/D.
+ *D€* 
+_empty_/D.apply().*apply€*$
+_empty_/D.unapply().*unapply€*%
+_empty_/D.unapply().(x$1)*x$1€*&
+_empty_/D.toString().*toString€2
+ 
+_empty_/O.2#
+ _empty_/C#CC.apply().2
+ _empty_/C#CC.2 
+ _empty_/C.apply().2
+ 
+_empty_/C.2#
+ _empty_/D#DD.apply().2
+ _empty_/D#DD.2 
+ _empty_/D.apply().2
+ 
+_empty_/D.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#CC#2&
+ _empty_/C#CC#`<init>`().2
+ _empty_/C#CC.2
+ 
+_empty_/C.2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 
+_empty_/D#DD#2&
+
+ 
+_empty_/D#DD#`<init>`().2
+	 _empty_/D#DD.2#
+ _empty_/D#DD.apply().2&
+ _empty_/D#DD#`<init>`().2
+ _empty_/D#DD#2
+ 
+_empty_/D.PZ 4E6F436072F1A09A53E30F5F1AF48C71

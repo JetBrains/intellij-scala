@@ -1,0 +1,159 @@
+
+ì6-tests/pos/conversion-function-prototype.scala*
+scala/Test.
+ *Test€*3
+local0 è*!given_ConversionFunction_Function€*
+local1 €*a€*
+scala/Test.X#*X€**
+scala/Test.X#`<init>`(). €@*<init>€*
+scala/Test.X#T#*T€*
+scala/Test.X#t(). *t€*
+scala/Test.x. €*x€*3
+local2 è*!given_ConversionFunction_Function€*
+local3 *apply€*
+local4*x€*
+local5*x€*
+local6 €*a€*
+local7 *apply€*
+local8*x€*3
+local9 è*!given_ConversionFunction_Function€*
+local10 *apply€*
+local11*x€*
+local12 €*a€*
+local13 *apply€*
+local14*x€*>
+.scala/`conversion-function-prototype$package`. *scala€*^
+Ascala/`conversion-function-prototype$package`.ConversionFunction.
+ *ConversionFunction€*o
+Tscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#*ConversionFunction€*d
+Wscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#[F]	 €*F€*W
+Iscala/`conversion-function-prototype$package`.ConversionFunction.apply().*apply€*V
+Lscala/`conversion-function-prototype$package`.ConversionFunction.apply().[F]	*F€*V
+Lscala/`conversion-function-prototype$package`.ConversionFunction.apply().(f)*f€*S
+Gscala/`conversion-function-prototype$package`.ConversionFunction.get().*get€*T
+Jscala/`conversion-function-prototype$package`.ConversionFunction.get().[F]	*F€*V
+Jscala/`conversion-function-prototype$package`.ConversionFunction.get().(f)  *f€*\
+Ascala/`conversion-function-prototype$package`.ConversionFunction#*ConversionFunction€*Q
+Dscala/`conversion-function-prototype$package`.ConversionFunction#[F]	 €*F€2
+ scala/2
+ scala/Test.2
+
+ 
+local02O
+
+ Ascala/`conversion-function-prototype$package`.ConversionFunction#2
+  
+scala/Int#2"
+$ *scala/Predef.String#2W
+@ @Iscala/`conversion-function-prototype$package`.ConversionFunction.apply().2O
+. @Ascala/`conversion-function-prototype$package`.ConversionFunction.2#
+C Kscala/Any#toString().2
+ 	local12"
+ scala/Predef.String#2&
+8 =scala/Function1#apply().2U
+' *Gscala/`conversion-function-prototype$package`.ConversionFunction.get().2O
+ &Ascala/`conversion-function-prototype$package`.ConversionFunction.2"
+0 6scala/Predef.String#2
+7 7local02
+ 	scala/Test.X#2&
+ scala/Test.X#`<init>`().2
+	 
+scala/Test.X#T#2
+ 	scala/Test.X#t().2
+ scala/Test.X#T#2
+ scala/Test.x.2
+	 
+scala/Test.X#2#
+ scala/Predef.`???`().2
+
+ 
+local22O
+
+ Ascala/`conversion-function-prototype$package`.ConversionFunction#2
+! "scala/Test.X#2
+$ )local32
+ local42
+) *scala/Test.X#T#2
+' (local42W
+@ @Iscala/`conversion-function-prototype$package`.ConversionFunction.apply().2O
+. @Ascala/`conversion-function-prototype$package`.ConversionFunction.2
+B Clocal52
+E Fscala/Test.X#2
+M Nscala/Test.X#t().2
+K Llocal52
+   	local62
+   scala/Test.X#T#2
+   scala/Test.x.2&
+ 7  <scala/Function1#apply().2U
+ $  'Gscala/`conversion-function-prototype$package`.ConversionFunction.get().2O
+   #Ascala/`conversion-function-prototype$package`.ConversionFunction.2
+ ,  -scala/Test.X#2
+ /  4local72
+ )  *local82
+ 4  5scala/Test.X#T#2
+ 2  3local82
+ 6  6local22
+ =  >scala/Test.x.2
+$
+$ 
+local92O
+$
+$ Ascala/`conversion-function-prototype$package`.ConversionFunction#2
+$!$ "scala/Test.X#2
+$$$ )local102
+$$ local112
+$)$ *scala/Test.X#T#2
+$'$ (local112W
+$@$ @Iscala/`conversion-function-prototype$package`.ConversionFunction.apply().2O
+$.$ @Ascala/`conversion-function-prototype$package`.ConversionFunction.2
+$C$ Dscala/Test.X#t().2
+&& 	local122
+&& scala/Test.X#T#2
+&& scala/Test.x.2&
+&7& <scala/Function1#apply().2U
+&$& 'Gscala/`conversion-function-prototype$package`.ConversionFunction.get().2O
+&& #Ascala/`conversion-function-prototype$package`.ConversionFunction.2
+&,& -scala/Test.X#2
+&/& 4local132
+&)& *local142
+&4& 5scala/Test.X#T#2
+&2& 3local142
+&6& 6local92
+&=& >scala/Test.x.28
+.scala/`conversion-function-prototype$package`.2O
+ Ascala/`conversion-function-prototype$package`.ConversionFunction.2b
+  Tscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#2e
+" #Wscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#[F]2
+' .scala/Nothing#2
+2 5
+scala/Any#2e
+9 :Wscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#[F]2W
+ Iscala/`conversion-function-prototype$package`.ConversionFunction.apply().2Z
+ Lscala/`conversion-function-prototype$package`.ConversionFunction.apply().[F]2
+ scala/Nothing#2
+ 
+scala/Any#2Z
+! "Lscala/`conversion-function-prototype$package`.ConversionFunction.apply().(f)2Z
+$ %Lscala/`conversion-function-prototype$package`.ConversionFunction.apply().[F]2b
+( :Tscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#2Z
+; <Lscala/`conversion-function-prototype$package`.ConversionFunction.apply().[F]2Z
+@ ALscala/`conversion-function-prototype$package`.ConversionFunction.apply().(f)2U
+ 	Gscala/`conversion-function-prototype$package`.ConversionFunction.get().2X
+
+ Jscala/`conversion-function-prototype$package`.ConversionFunction.get().[F]2
+ scala/Nothing#2
+ 
+scala/Any#2X
+% &Jscala/`conversion-function-prototype$package`.ConversionFunction.get().(f)2b
+( :Tscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#2X
+; <Jscala/`conversion-function-prototype$package`.ConversionFunction.get().[F]2X
+@ AJscala/`conversion-function-prototype$package`.ConversionFunction.get().[F]2X
+D EJscala/`conversion-function-prototype$package`.ConversionFunction.get().(f)2O
+ Ascala/`conversion-function-prototype$package`.ConversionFunction#2R
+ Dscala/`conversion-function-prototype$package`.ConversionFunction#[F]2
+ %scala/Nothing#2
+) ,
+scala/Any#2b
+ 'Tscala/`conversion-function-prototype$package`.ConversionFunction.ConversionFunction#2O
+ Ascala/`conversion-function-prototype$package`.ConversionFunction.2R
+( )Dscala/`conversion-function-prototype$package`.ConversionFunction#[F]PZ CCE2A98CF136B54CB8BAAEAFEEDD0EFD

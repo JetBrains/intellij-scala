@@ -1,0 +1,29 @@
+
+îtests/pos/t3534.scala*
+_empty_/Test.
+ *Test€*
+local0 €*bb€*
+local1 €*cc€*
+local2 €*x€2
+ _empty_/Test.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ scala/Option#2
+ 
+scala/Int#28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+
+ scala/None.28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local02
+ local12
+
+ local22/
+" "!java/lang/Exception#`<init>`(+1).2&
+ "scala/package.Exception#2<
+9 A.scala/collection/IterableOnceOps#mkString(+2).27
+% +)scala/collection/immutable/List#filter().2
+# $local22'
+. 7scala/Option#isDefined().PZ 60C7101FC6F752DEC35E904FAAD07744

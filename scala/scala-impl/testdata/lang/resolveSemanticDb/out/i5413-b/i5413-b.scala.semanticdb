@@ -1,0 +1,35 @@
+
+¦tests/pos/i5413-b.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.Or#*Or€*
+_empty_/Foo.Or#[A]	*A€*
+_empty_/Foo.foo().*foo€*
+_empty_/Foo.foo().[A]	*A€*%
+_empty_/Foo.foo().(from)*from€*
+_empty_/Foo.id().*id€*
+_empty_/Foo.id().[A]	*A€*
+local0*x€2
+ 
+_empty_/Foo.2
+ 	_empty_/Foo.Or#2 
+
+ _empty_/Foo.Or#[A]2 
+ 	_empty_/Foo.foo().2#
+
+ _empty_/Foo.foo().[A]2&
+ _empty_/Foo.foo().(from)2#
+ _empty_/Foo.foo().[A]2
+ _empty_/Foo.Or#2#
+ _empty_/Foo.foo().[A]2
+  #
+scala/Any#2
+ _empty_/Foo.id().2"
+	 
+_empty_/Foo.id().[A]2"
+ _empty_/Foo.id().[A]2"
+ _empty_/Foo.id().[A]2&
+ scala/Predef.identity().2
+ local02 
+ _empty_/Foo.foo().2
+ _empty_/Foo.id().PZ DB7DB36B192214EEC66DA451D4C461F4

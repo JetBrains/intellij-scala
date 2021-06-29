@@ -1,0 +1,22 @@
+
+Ö$tests/pos/i530-import-symbolic.scala*
+
+_empty_/P.
+ *P€*
+_empty_/P.`!#@`().*!#@€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€2
+ 
+_empty_/P.2 
+ 	_empty_/P.`!#@`().2
+ scala/Nothing#2#
+ scala/Predef.`???`().2
+ _empty_/Test.2 
+ _empty_/P.`!#@`().2
+	 
+
+_empty_/P.2
+ _empty_/Test.f().2 
+
+ _empty_/P.`!#@`().PZ 7B400D0551F6551BF76BE45684F1DC0B

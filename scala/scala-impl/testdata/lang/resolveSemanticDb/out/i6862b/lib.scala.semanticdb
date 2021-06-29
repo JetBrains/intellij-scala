@@ -1,0 +1,44 @@
+
+–tests/pos/i6862b/lib.scala*
+_empty_/Expr#*Expr€**
+_empty_/Expr#`<init>`(). €@*<init>€*
+_empty_/Expr#[T]	 €*T€*
+_empty_/Ctx#*Ctx€*)
+_empty_/Ctx#`<init>`(). €@*<init>€*&
+_empty_/lib$package. *_empty_€*&
+_empty_/lib$package.foo().*foo€*&
+_empty_/lib$package.bar().*bar€*-
+_empty_/lib$package.bar().(x$1)  *x$1€*,
+_empty_/lib$package.splice().*splice€**
+ _empty_/lib$package.splice().[T]	*T€**
+ _empty_/lib$package.splice().(f)*f€2
+ 
+_empty_/Expr#2&
+
+ 
+_empty_/Expr#`<init>`().2
+ _empty_/Expr#[T]2
+ 	_empty_/Ctx#2!
+_empty_/Ctx#`<init>`().2
+_empty_/lib$package.2(
+ _empty_/lib$package.foo().2
+ 
+scala/Int#2+
+ _empty_/lib$package.splice().2(
+  #_empty_/lib$package.bar().2(
+ _empty_/lib$package.bar().2-
+ _empty_/lib$package.bar().(x$1)2
+ _empty_/Ctx#2
+ _empty_/Expr#2
+ 
+scala/Int#2#
+" %scala/Predef.`???`().2+
+ 
+_empty_/lib$package.splice().2.
+  _empty_/lib$package.splice().[T]2.
+  _empty_/lib$package.splice().(f)2
+ _empty_/Ctx#2
+ _empty_/Expr#2.
+  _empty_/lib$package.splice().[T]2.
+# $ _empty_/lib$package.splice().[T]2#
+' *scala/Predef.`???`().PZ 20D0F7F7514EDE9BF914F1CCF5F72D96

@@ -1,0 +1,27 @@
+
+ùtests/pos/sammy_single.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.s. €*s€*
+_empty_/Test.T#*T€*,
+_empty_/Test.T#`<init>`(). €@*<init>€*'
+_empty_/Test.T#apply(). *apply€*$
+_empty_/Test.T#apply().(x)*x€*8
+_empty_/Test.preservedResult. €*preservedResult€*
+local0*x€2
+ _empty_/Test.2
+ _empty_/Test.s.2"
+	 scala/Predef.String#2
+ 	_empty_/Test.T#2(
+ _empty_/Test.T#`<init>`().2%
+ _empty_/Test.T#apply().2(
+ _empty_/Test.T#apply().(x)2
+ _empty_/Test.s.2
+" #_empty_/Test.s.2+
+ _empty_/Test.preservedResult.2
+ _empty_/Test.s.2%
+, ,_empty_/Test.T#apply().2
+" #local02
+' (local02
++ ,_empty_/Test.T#2
+. /_empty_/Test.s.PZ 5260376DD47AECD1A8F55AE983FDC175

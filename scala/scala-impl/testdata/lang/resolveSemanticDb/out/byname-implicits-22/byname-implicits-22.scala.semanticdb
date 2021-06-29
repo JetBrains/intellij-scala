@@ -1,0 +1,339 @@
+
+Ñe#tests/pos/byname-implicits-22.scala*
+_empty_/repro.
+ *repro€*
+_empty_/repro.`+`#*+€*/
+_empty_/repro.`+`#`<init>`(). €@*<init>€*
+_empty_/repro.`+`#[L]	*L€*
+_empty_/repro.`+`#[R]	*R€*'
+_empty_/repro.Atomic# €*Atomic€*2
+ _empty_/repro.Atomic#`<init>`(). €@*<init>€*6
+&_empty_/repro.Atomic#`<init>`().(name) €*name€*"
+_empty_/repro.Atomic#[V]	*V€**
+_empty_/repro.Atomic#name. €*name€*)
+_empty_/repro.Atomic#copy().*copy€*)
+_empty_/repro.Atomic#copy().[V]	*V€*/
+"_empty_/repro.Atomic#copy().(name)*name€*=
+&_empty_/repro.Atomic#copy$default$1().*copy$default$1€*3
+)_empty_/repro.Atomic#copy$default$1().[V]	*V€*%
+_empty_/repro.Atomic#_1().*_1€*&
+_empty_/repro.Atomic.
+ *Atomic€*+
+_empty_/repro.Atomic.apply().*apply€**
+ _empty_/repro.Atomic.apply().[V]	*V€*0
+#_empty_/repro.Atomic.apply().(name)*name€*/
+_empty_/repro.Atomic.unapply().*unapply€*,
+"_empty_/repro.Atomic.unapply().[V]	*V€*0
+$_empty_/repro.Atomic.unapply().(x$1)*x$1€*1
+ _empty_/repro.Atomic.toString().*toString€*-
+_empty_/repro.Atomic.apply(+1).*apply€*,
+"_empty_/repro.Atomic.apply(+1).[V]	*V€*2
+$_empty_/repro.Atomic.apply(+1).(vtt)  *vtt€*'
+_empty_/repro.Assign# €*Assign€*2
+ _empty_/repro.Assign#`<init>`(). €@*<init>€*6
+&_empty_/repro.Assign#`<init>`().(name) €*name€*"
+_empty_/repro.Assign#[V]	*V€*"
+_empty_/repro.Assign#[X]	*X€**
+_empty_/repro.Assign#name. €*name€*)
+_empty_/repro.Assign#copy().*copy€*)
+_empty_/repro.Assign#copy().[V]	*V€*)
+_empty_/repro.Assign#copy().[X]	*X€*/
+"_empty_/repro.Assign#copy().(name)*name€*=
+&_empty_/repro.Assign#copy$default$1().*copy$default$1€*3
+)_empty_/repro.Assign#copy$default$1().[V]	*V€*3
+)_empty_/repro.Assign#copy$default$1().[X]	*X€*%
+_empty_/repro.Assign#_1().*_1€*&
+_empty_/repro.Assign.
+ *Assign€*+
+_empty_/repro.Assign.apply().*apply€**
+ _empty_/repro.Assign.apply().[V]	*V€**
+ _empty_/repro.Assign.apply().[X]	*X€*0
+#_empty_/repro.Assign.apply().(name)*name€*/
+_empty_/repro.Assign.unapply().*unapply€*,
+"_empty_/repro.Assign.unapply().[V]	*V€*,
+"_empty_/repro.Assign.unapply().[X]	*X€*0
+$_empty_/repro.Assign.unapply().(x$1)*x$1€*1
+ _empty_/repro.Assign.toString().*toString€*-
+_empty_/repro.Assign.apply(+1).*apply€*,
+"_empty_/repro.Assign.apply(+1).[V]	*V€*,
+"_empty_/repro.Assign.apply(+1).[X]	*X€*2
+$_empty_/repro.Assign.apply(+1).(vtt)  *vtt€*(
+_empty_/repro.AsString#*AsString€*4
+"_empty_/repro.AsString#`<init>`(). €@*<init>€*$
+_empty_/repro.AsString#[X]	*X€*+
+_empty_/repro.AsString#str(). *str€**
+_empty_/repro.AsString.
+ *AsString€*1
+ _empty_/repro.AsString.atomic().  *atomic€*-
+#_empty_/repro.AsString.atomic().[V]	*V€*/
+#_empty_/repro.AsString.atomic().(a)  *a€*
+local0 *$anon€*
+local1 €*str€*1
+ _empty_/repro.AsString.assign().  *assign€*-
+#_empty_/repro.AsString.assign().[V]	*V€*-
+#_empty_/repro.AsString.assign().[X]	*X€*/
+#_empty_/repro.AsString.assign().(a)  *a€*3
+%_empty_/repro.AsString.assign().(asx)  *asx€*
+local2 *$anon€*
+local3 €*str€*-
+_empty_/repro.AsString.plus().  *plus€*+
+!_empty_/repro.AsString.plus().[L]	*L€*+
+!_empty_/repro.AsString.plus().[R]	*R€*1
+#_empty_/repro.AsString.plus().(asl)  *asl€*1
+#_empty_/repro.AsString.plus().(asr)  *asr€*
+local4 *$anon€*
+local5 €*str€*
+_empty_/repro.X#*X€*-
+_empty_/repro.X#`<init>`(). €@*<init>€*+
+_empty_/repro.declareX.  *declareX€*
+_empty_/repro.Y#*Y€*-
+_empty_/repro.Y#`<init>`(). €@*<init>€*+
+_empty_/repro.declareY.  *declareY€*
+_empty_/repro.Z#*Z€*-
+_empty_/repro.Z#`<init>`(). €@*<init>€*+
+_empty_/repro.declareZ.  *declareZ€*
+_empty_/repro.Q#*Q€*-
+_empty_/repro.Q#`<init>`(). €@*<init>€*+
+_empty_/repro.declareQ.  *declareQ€*
+_empty_/repro.R#*R€*-
+_empty_/repro.R#`<init>`(). €@*<init>€*+
+_empty_/repro.declareR.  *declareR€2
+ _empty_/repro.2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+	 scala/2 
+ 	_empty_/repro.`+`#2+
+	 	_empty_/repro.`+`#`<init>`().2#
+
+ _empty_/repro.`+`#[L]2#
+ _empty_/repro.`+`#[R]2#
+ _empty_/repro.Atomic#2.
+  _empty_/repro.Atomic#`<init>`().2"
+! 'scala/Predef.String#2&
+ _empty_/repro.Atomic#[V]2(
+ _empty_/repro.Atomic#name.2*
+ _empty_/repro.Atomic#copy().2(
+! !_empty_/repro.Atomic#_1().2#
+	 _empty_/repro.Atomic.2+
+ _empty_/repro.Atomic.apply().2-
+ _empty_/repro.Atomic.unapply().2-
+ _empty_/repro.Atomic.apply(+1).20
+ "_empty_/repro.Atomic.apply(+1).[V]22
+ $_empty_/repro.Atomic.apply(+1).(vtt)2%
+ 'scala/reflect/ClassTag#20
+( )"_empty_/repro.Atomic.apply(+1).[V]2#
+- 3_empty_/repro.Atomic#20
+4 5"_empty_/repro.Atomic.apply(+1).[V]2+
+? ?_empty_/repro.Atomic.apply().2#
+9 ?_empty_/repro.Atomic.20
+@ A"_empty_/repro.Atomic.apply(+1).[V]20
+G O"scala/reflect/ClassTag#toString().22
+C F$_empty_/repro.Atomic.apply(+1).(vtt)2#
+
+
+ _empty_/repro.Assign#2.
+
+
+  _empty_/repro.Assign#`<init>`().2"
+
+$
+ *scala/Predef.String#2&
+
+
+ _empty_/repro.Assign#[V]2&
+
+
+ _empty_/repro.Assign#[X]2(
+
+
+ "_empty_/repro.Assign#name.2*
+
+
+ _empty_/repro.Assign#copy().2(
+
+$
+ $_empty_/repro.Assign#_1().2#
+	 _empty_/repro.Assign.2+
+
+
+ _empty_/repro.Assign.apply().2-
+
+
+ _empty_/repro.Assign.unapply().2-
+ _empty_/repro.Assign.apply(+1).20
+ "_empty_/repro.Assign.apply(+1).[V]20
+ "_empty_/repro.Assign.apply(+1).[X]22
+  $_empty_/repro.Assign.apply(+1).(vtt)2%
+" *scala/reflect/ClassTag#20
++ ,"_empty_/repro.Assign.apply(+1).[V]2#
+0 6_empty_/repro.Assign#20
+7 8"_empty_/repro.Assign.apply(+1).[V]20
+: ;"_empty_/repro.Assign.apply(+1).[X]2+
+E E_empty_/repro.Assign.apply().2#
+? E_empty_/repro.Assign.20
+F G"_empty_/repro.Assign.apply(+1).[V]20
+I J"_empty_/repro.Assign.apply(+1).[X]20
+P X"scala/reflect/ClassTag#toString().22
+L O$_empty_/repro.Assign.apply(+1).(vtt)2%
+ _empty_/repro.AsString#20
+ "_empty_/repro.AsString#`<init>`().2(
+ _empty_/repro.AsString#[X]2+
+ _empty_/repro.AsString#str().2"
+ scala/Predef.String#2%
+	 _empty_/repro.AsString.2.
+  _empty_/repro.AsString.atomic().21
+ #_empty_/repro.AsString.atomic().[V]21
+$ %#_empty_/repro.AsString.atomic().(a)2#
+' -_empty_/repro.Atomic#21
+. /#_empty_/repro.AsString.atomic().[V]2%
+3 ;_empty_/repro.AsString#21
+< =#_empty_/repro.AsString.atomic().[V]2
+ local02%
+
+ _empty_/repro.AsString#21
+ #_empty_/repro.AsString.atomic().[V]2
+ local12(
+$ (_empty_/repro.Atomic#name.21
+" ##_empty_/repro.AsString.atomic().(a)2.
+  _empty_/repro.AsString.assign().21
+ #_empty_/repro.AsString.assign().[V]21
+ #_empty_/repro.AsString.assign().[X]21
+' (#_empty_/repro.AsString.assign().(a)2#
+* 0_empty_/repro.Assign#21
+1 2#_empty_/repro.AsString.assign().[V]21
+4 5#_empty_/repro.AsString.assign().[X]23
+8 ;%_empty_/repro.AsString.assign().(asx)2%
+= E_empty_/repro.AsString#21
+F G#_empty_/repro.AsString.assign().[X]2%
+K S_empty_/repro.AsString#21
+T U#_empty_/repro.AsString.assign().[V]2
+ local22%
+
+ _empty_/repro.AsString#21
+ #_empty_/repro.AsString.assign().[V]2
+ local32+
+& )_empty_/repro.AsString#str().23
+" %%_empty_/repro.AsString.assign().(asx)2,
+ _empty_/repro.AsString.plus().2/
+ !_empty_/repro.AsString.plus().[L]2/
+ !_empty_/repro.AsString.plus().[R]21
+% (#_empty_/repro.AsString.plus().(asl)2%
+* 2_empty_/repro.AsString#2/
+3 4!_empty_/repro.AsString.plus().[L]21
+7 :#_empty_/repro.AsString.plus().(asr)2%
+< D_empty_/repro.AsString#2/
+E F!_empty_/repro.AsString.plus().[R]2%
+J R_empty_/repro.AsString#2 
+S T_empty_/repro.`+`#2/
+U V!_empty_/repro.AsString.plus().[L]2/
+X Y!_empty_/repro.AsString.plus().[R]2
+ local42%
+
+ _empty_/repro.AsString#2 
+ _empty_/repro.`+`#2/
+ !_empty_/repro.AsString.plus().[L]2/
+ !_empty_/repro.AsString.plus().[R]2
+" %local52&
+E Fscala/StringContext#s().2*
+* *scala/StringContext.apply().2+
+1 4_empty_/repro.AsString#str().21
+- 0#_empty_/repro.AsString.plus().(asl)2+
+@ C_empty_/repro.AsString#str().21
+< ?#_empty_/repro.AsString.plus().(asr)2
+ 	_empty_/repro.X#2)
+ _empty_/repro.X#`<init>`().2%
+ _empty_/repro.declareX.2#
+ _empty_/repro.Atomic#2
+  !_empty_/repro.X#2-
++ +_empty_/repro.Atomic.apply(+1).2#
+% +_empty_/repro.Atomic.2
+, -_empty_/repro.X#2-
+. .scala/reflect/ClassTag.apply().2
+ 	_empty_/repro.Y#2)
+ _empty_/repro.Y#`<init>`().2%
+ _empty_/repro.declareY.2#
+ _empty_/repro.Atomic#2
+  !_empty_/repro.Y#2-
++ +_empty_/repro.Atomic.apply(+1).2#
+% +_empty_/repro.Atomic.2
+, -_empty_/repro.Y#2-
+. .scala/reflect/ClassTag.apply().2
+ 	_empty_/repro.Z#2)
+ _empty_/repro.Z#`<init>`().2%
+   _empty_/repro.declareZ.2#
+   _empty_/repro.Atomic#2
+    !_empty_/repro.Z#2-
+ +  +_empty_/repro.Atomic.apply(+1).2#
+ %  +_empty_/repro.Atomic.2
+ ,  -_empty_/repro.Z#2-
+ .  .scala/reflect/ClassTag.apply().2
+"" 	_empty_/repro.Q#2)
+"" _empty_/repro.Q#`<init>`().2%
+## _empty_/repro.declareQ.2#
+## _empty_/repro.Assign#2
+# # !_empty_/repro.Q#2 
+#+# ,_empty_/repro.`+`#2 
+#&# '_empty_/repro.`+`#2
+#$# %_empty_/repro.X#2
+#(# )_empty_/repro.Y#2
+#-# ._empty_/repro.Z#2-
+#8# 8_empty_/repro.Assign.apply(+1).2#
+#2# 8_empty_/repro.Assign.2
+#9# :_empty_/repro.Q#2 
+#D# E_empty_/repro.`+`#2 
+#?# @_empty_/repro.`+`#2
+#=# >_empty_/repro.X#2
+#A# B_empty_/repro.Y#2
+#F# G_empty_/repro.Z#2-
+#H# Hscala/reflect/ClassTag.apply().2
+$$ 	_empty_/repro.R#2)
+$$ _empty_/repro.R#`<init>`().2%
+%% _empty_/repro.declareR.2#
+%% _empty_/repro.Assign#2
+% % !_empty_/repro.R#2 
+%%% &_empty_/repro.`+`#2
+%#% $_empty_/repro.Q#2
+%'% (_empty_/repro.Z#2-
+%2% 2_empty_/repro.Assign.apply(+1).2#
+%,% 2_empty_/repro.Assign.2
+%3% 4_empty_/repro.R#2 
+%8% 9_empty_/repro.`+`#2
+%6% 7_empty_/repro.Q#2
+%:% ;_empty_/repro.Z#2-
+%<% <scala/reflect/ClassTag.apply().2(
+'' scala/Predef.implicitly().2%
+'' _empty_/repro.AsString#2
+'' _empty_/repro.X#2.
+''  _empty_/repro.AsString.atomic().2%
+'' _empty_/repro.declareX.2(
+(( scala/Predef.implicitly().2%
+(( _empty_/repro.AsString#2 
+(( _empty_/repro.`+`#2
+(( _empty_/repro.X#2
+(( _empty_/repro.Y#2,
+(( _empty_/repro.AsString.plus().2.
+((  _empty_/repro.AsString.atomic().2%
+(( _empty_/repro.declareX.2%
+(( _empty_/repro.declareY.2(
+)) scala/Predef.implicitly().2%
+)) _empty_/repro.AsString#2
+)) _empty_/repro.Q#2.
+))  _empty_/repro.AsString.assign().2%
+)) _empty_/repro.declareQ.2,
+)) _empty_/repro.AsString.plus().2.
+))  _empty_/repro.AsString.atomic().2%
+)) _empty_/repro.declareX.2%
+)) _empty_/repro.declareY.2%
+)) _empty_/repro.declareZ.2(
+** scala/Predef.implicitly().2%
+** _empty_/repro.AsString#2
+** _empty_/repro.R#2.
+**  _empty_/repro.AsString.assign().2%
+** _empty_/repro.declareR.2,
+** _empty_/repro.AsString.plus().2%
+** _empty_/repro.declareQ.2.
+**  _empty_/repro.AsString.atomic().2%
+** _empty_/repro.declareX.2%
+** _empty_/repro.declareY.2%
+** _empty_/repro.declareZ.PZ E2387E381EAB22F50ABD237EDEC042D8

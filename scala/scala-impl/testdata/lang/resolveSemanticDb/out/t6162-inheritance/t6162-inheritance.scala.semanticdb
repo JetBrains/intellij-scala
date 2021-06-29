@@ -1,0 +1,39 @@
+
+ø!tests/pos/t6162-inheritance.scala*
+scala/t6126/Foo#*Foo€*-
+scala/t6126/Foo#`<init>`(). €@*<init>€*"
+scala/t6126/SubFoo#*SubFoo€*0
+scala/t6126/SubFoo#`<init>`(). €@*<init>€*
+scala/t6126/T#*T€*+
+scala/t6126/T#`<init>`(). €@*<init>€* 
+scala/t6126/SubT.
+ *SubT€*
+scala/t6126/S#*S€*+
+scala/t6126/S#`<init>`(). €@*<init>€*
+scala/t6126/O.
+ *O€*
+local0 *$anon€2
+ scala/t6126/2
+ scala/2*
+ scala/deprecatedInheritance#2
+ 	scala/t6126/Foo#2%
+scala/t6126/Foo#`<init>`().2!
+ scala/t6126/SubFoo#2,
+ scala/t6126/SubFoo#`<init>`().2)
+ scala/t6126/Foo#`<init>`().2
+ scala/t6126/Foo#2*
+
+
+ scala/deprecatedInheritance#2
+ scala/t6126/T#2#
+
+
+scala/t6126/T#`<init>`().2
+ scala/t6126/SubT.2
+ scala/t6126/T#2*
+ scala/deprecatedInheritance#2
+ scala/t6126/S#2#
+scala/t6126/S#`<init>`().2
+ scala/t6126/O.2
+ local02
+ scala/t6126/S#PZ DB09E1A074852946422D71F82C4233B0

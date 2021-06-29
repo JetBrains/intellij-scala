@@ -1,0 +1,35 @@
+
+Ætests/pos/i7401.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(a)*a€* 
+_empty_/Test.foo().(i)*i€*!
+_empty_/Test.foo(+1).*foo€*"
+_empty_/Test.foo(+1).(a)*a€*
+_empty_/Test.x. €*x€2
+ _empty_/Test.2!
+ _empty_/Test.foo().2$
+ _empty_/Test.foo().(a)2
+ 
+scala/Int#2$
+ _empty_/Test.foo().(i)2
+ 
+scala/Int#2
+ scala/Unit#2#
+ _empty_/Test.foo(+1).2&
+ _empty_/Test.foo(+1).(a)2
+ scala/Unit#2
+ _empty_/Test.x.2
+	 
+scala/Int#2!
+ _empty_/Test.foo().2
+ _empty_/Test.x.2#
+ _empty_/Test.foo(+1).2
+ _empty_/Test.x.2!
+ 
+_empty_/Test.foo().2
+ _empty_/Test.2
+ _empty_/Test.x.2#
+		 _empty_/Test.foo(+1).2
+		 _empty_/Test.x.PZ 6501FFC025AECD8836066C6A7BBBEFB9

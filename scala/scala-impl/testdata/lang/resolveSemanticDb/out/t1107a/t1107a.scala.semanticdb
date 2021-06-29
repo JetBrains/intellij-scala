@@ -1,0 +1,32 @@
+
+™tests/pos/t1107a.scala*
+
+_empty_/F.
+ *F€*$
+_empty_/F.AnyClass#*AnyClass€*
+_empty_/F.tryf().*tryf€*
+_empty_/F.tryf().[T]	*T€*(
+_empty_/F.tryf().(ignore)*ignore€*
+_empty_/F.tryf().(f)*f€*
+local0 €*e€2
+ 
+_empty_/F.2!
+ _empty_/F.AnyClass#2!
+ scala/Predef.Class#2
+ 
+_empty_/F.tryf().2"
+ _empty_/F.tryf().[T]2'
+ _empty_/F.tryf().(ignore)2!
+ scala/package.List#2!
+ #_empty_/F.AnyClass#2"
+& '_empty_/F.tryf().(f)2"
+, -_empty_/F.tryf().[T]2
+0 3
+scala/Any#2"
+ _empty_/F.tryf().(f)2
+ local02#
+ !scala/Boolean#`||`().2
+ scala/Any#`==`().2'
+ _empty_/F.tryf().(ignore)28
+) 0*scala/collection/immutable/List#isEmpty().2'
+" (_empty_/F.tryf().(ignore)PZ 020817898BA7FF17F3CEB8ED996899CA

@@ -1,0 +1,114 @@
+
+Åtests/pos/sip23-aliasing.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo0#*Foo0€*/
+_empty_/Test.Foo0#`<init>`(). €@*<init>€* 
+_empty_/Test.Foo0#T0#*T0€*!
+_empty_/Test.Foo0.
+ *Foo0€*"
+_empty_/Test.Foo0.Aux#*Aux€*#
+_empty_/Test.Foo0.Aux#[T]	*T€*
+local0*T0€**
+_empty_/Test.Foo0.apply().  *apply€*'
+_empty_/Test.Foo0.apply().[T]	*T€*)
+_empty_/Test.Foo0.apply().(v)  *v€*
+local1 *$anon€*
+local2*T0€*
+_empty_/Test.Foo#*Foo€*
+_empty_/Test.Foo#[T]	*T€*
+local3*T0€* 
+_empty_/Test.Foo. €*Foo€*$
+_empty_/Test.three. €*three€*!
+_empty_/Test.Three#*Three€*
+_empty_/Test.bar.
+ *bar€*
+_empty_/Test.Bar#*Bar€2
+ _empty_/Test.2 
+ _empty_/Test.Foo0#2+
+ _empty_/Test.Foo0#`<init>`().2#
+	 _empty_/Test.Foo0#T0#2 
+	 _empty_/Test.Foo0.2$
+	 _empty_/Test.Foo0.Aux#2'
+ _empty_/Test.Foo0.Aux#[T]2 
+ _empty_/Test.Foo0#2
+ local02'
+" #_empty_/Test.Foo0.Aux#[T]2(
+ _empty_/Test.Foo0.apply().2+
+ _empty_/Test.Foo0.apply().[T]2+
+# $_empty_/Test.Foo0.apply().(v)2
+& -scala/ValueOf#2+
+. /_empty_/Test.Foo0.apply().[T]2$
+3 6_empty_/Test.Foo0.Aux#2+
+7 8_empty_/Test.Foo0.apply().[T]2
+< <local12 
+@ D_empty_/Test.Foo0#2
+ local22+
+ _empty_/Test.Foo0.apply().[T]2
+ 
+_empty_/Test.Foo#2"
+ _empty_/Test.Foo#[T]2 
+ _empty_/Test.Foo0#2
+ local32"
+! "_empty_/Test.Foo#[T]2
+ 	_empty_/Test.Foo.2 
+ _empty_/Test.Foo0.2(
+ _empty_/Test.Foo0.apply().2
+ _empty_/Test.Foo.2'
+ scala/ValueOf#`<init>`().2(
+ scala/Predef.implicitly().2$
+ _empty_/Test.Foo0.Aux#2
+ _empty_/Test.Foo.2(
+ _empty_/Test.Foo0.apply().2'
+ scala/ValueOf#`<init>`().2(
+ scala/Predef.implicitly().2
+ _empty_/Test.Foo#2(
+ _empty_/Test.Foo0.apply().2'
+ scala/ValueOf#`<init>`().2!
+ _empty_/Test.three.2!
+ _empty_/Test.Three#2!
+ _empty_/Test.three.2(
+ _empty_/Test.Foo0.apply().2
+ _empty_/Test.Foo.2!
+ _empty_/Test.Three#2'
+ scala/ValueOf#`<init>`().2!
+ _empty_/Test.three.2(
+ scala/Predef.implicitly().2$
+ _empty_/Test.Foo0.Aux#2
+ _empty_/Test.Foo.2!
+ _empty_/Test.Three#2(
+ _empty_/Test.Foo0.apply().2'
+ scala/ValueOf#`<init>`().2!
+ _empty_/Test.three.2(
+ scala/Predef.implicitly().2
+ _empty_/Test.Foo#2!
+ _empty_/Test.Three#2(
+ _empty_/Test.Foo0.apply().2'
+ scala/ValueOf#`<init>`().2!
+ _empty_/Test.three.2
+ _empty_/Test.bar.2
+ 
+_empty_/Test.Bar#2
+ _empty_/Test.bar.2(
+ _empty_/Test.Foo0.apply().2
+ _empty_/Test.Foo.2
+ 	_empty_/Test.Bar#2'
+
+ 
+scala/ValueOf#`<init>`().2
+
+ 
+_empty_/Test.bar.2(
+ scala/Predef.implicitly().2$
+ _empty_/Test.Foo0.Aux#2
+ _empty_/Test.Foo.2
+ _empty_/Test.Bar#2(
+ _empty_/Test.Foo0.apply().2'
+ scala/ValueOf#`<init>`().2
+ _empty_/Test.bar.2(
+ scala/Predef.implicitly().2
+ _empty_/Test.Foo#2
+ _empty_/Test.Bar#2(
+ _empty_/Test.Foo0.apply().2'
+ scala/ValueOf#`<init>`().2
+ _empty_/Test.bar.PZ D5437E02AF74E8B07A30406B4908B8CD

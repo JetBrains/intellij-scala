@@ -1,0 +1,21 @@
+
+¶tests/pos/t5330b.scala*
+_empty_/Base# *Base€**
+_empty_/Base#`<init>`(). €@*<init>€*!
+_empty_/Base#foo(). *foo€* 
+_empty_/Derived#*Derived€*-
+_empty_/Derived#`<init>`(). €@*<init>€*
+_empty_/Derived#[T]	*T€*"
+_empty_/Derived#foo().*foo€2
+ _empty_/Base#2&
+ _empty_/Base#`<init>`().2!
+ 	_empty_/Base#foo().2
+ _empty_/Derived#2)
+ _empty_/Derived#`<init>`().2
+ _empty_/Base#2!
+ _empty_/Derived#[T]2$
+ 	_empty_/Derived#foo().2
+ scala/Nothing#2(
+ scala/sys/package.error().2
+ 
+scala/sys/PZ BD42470113C37CC608E2BB7FA9AEEAAD

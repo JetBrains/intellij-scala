@@ -1,0 +1,26 @@
+
+Êtests/pos/i3873.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.sum2().*sum2€*#
+_empty_/Test.sum2().(ys)*ys€*
+local0*op€*
+_empty_/Test.h1. €*h1€*
+local1*xs€2
+ _empty_/Test.2"
+ _empty_/Test.sum2().2&
+ _empty_/Test.sum2().(ys)2!
+ scala/package.List#2
+ 
+scala/Int#2
+" &scala/Unit#27
+ )scala/collection/LinearSeqOps#foldLeft().2&
+ _empty_/Test.sum2().(ys)2
+ local02
+ _empty_/Test.h1.2
+ local12!
+ scala/package.List#2
+ 
+scala/Int#2"
+ "_empty_/Test.sum2().2
+# %local1PZ 431A3BD89E67D06840774CA21A3A2432

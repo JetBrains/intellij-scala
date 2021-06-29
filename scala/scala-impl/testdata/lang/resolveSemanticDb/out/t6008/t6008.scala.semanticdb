@@ -1,0 +1,72 @@
+
+¬
+tests/pos/t6008.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#x().*x€* 
+_empty_/Test#x().(in)*in€*
+local0 €*i€*
+local1 €*b€*
+_empty_/Test#y().*y€* 
+_empty_/Test#y().(in)*in€*
+local2 €*b€*
+_empty_/Test#z().*z€* 
+_empty_/Test#z().(in)*in€*
+local3 €*i€*
+local4 €*b€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#x().2#
+ 
+_empty_/Test#x().(in)2
+ 
+scala/Int#2
+ scala/Boolean#2#
+  _empty_/Test#x().(in)2%
+/ /scala/Tuple2.unapply().2
+/ 0local02
+2 5
+scala/Int#2
+7 8local12
+: Ascala/Boolean#2
+ _empty_/Test#y().2#
+ 
+_empty_/Test#y().(in)2
+ 
+scala/Int#2
+ scala/Boolean#2#
+  _empty_/Test#y().(in)2%
+/ /scala/Tuple2.unapply().2
+2 3local22
+5 <scala/Boolean#2
+
+
+ _empty_/Test#z().2#
+
+
+ 
+_empty_/Test#z().(in)2
+
+
+ 
+scala/Int#2
+
+
+ scala/Boolean#2#
+
+
+  _empty_/Test#z().(in)2%
+
+/
+ /scala/Tuple2.unapply().2
+
+/
+ 0local32
+
+2
+ 5
+scala/Int#2
+
+7
+ 8local4PZ E3AB68388AAB206CBBDE222FE80BE332

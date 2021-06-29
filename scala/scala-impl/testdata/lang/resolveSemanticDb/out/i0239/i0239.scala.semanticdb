@@ -1,0 +1,94 @@
+
+øtests/pos/i0239.scala*
+p/C#*C€*!
+p/C#`<init>`(). €@*<init>€*
+p/C#[A]	*A€*
+
+p/C#foo().  *foo€*
+
+p/package. *p€*
+p/test0.
+ *test0€*"
+p/test0.compute().*compute€*
+p/test0.compute().[A]	*A€*!
+p/test0.compute().(m)  *m€*
+
+p/test0.v. €*v€*
+p/test0.v1. €*v1€*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#[A]	*A€*
+_empty_/test1.
+ *test1€*(
+_empty_/test1.compute().*compute€*%
+_empty_/test1.compute().[A]	*A€*'
+_empty_/test1.compute().(m)  *m€*
+_empty_/test1.v. €*v€*
+_empty_/test1.v1. €*v1€2
+ 	p/2
+ 	p/C#2
+	 	p/C#`<init>`().2
+
+ p/C#[A]2
+ 
+p/C#foo().2
+ 
+_empty_/M#2
+ p/C#[A]2#
+  scala/Predef.`???`().2
+
+ 
+p/package.2
+$ $p/C#`<init>`().2
+ p/C#2"
+ #scala/Predef.String#2
+	 p/test0.2 
+ p/test0.compute().2#
+ p/test0.compute().[A]2#
+ p/test0.compute().(m)2
+  
+_empty_/M#2#
+! "p/test0.compute().[A]2#
+& 'p/test0.compute().[A]2#
+* -scala/Predef.`???`().2
+		 	
+p/test0.v.2 
+		 p/test0.compute().2
+		 
+p/C#foo().2
+
+
+ 
+p/test0.v1.2"
+
+
+ scala/Predef.String#2
+
+
+ 
+p/test0.v.2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ 	_empty_/M#[A]2
+ _empty_/test1.2&
+ _empty_/test1.compute().2)
+ _empty_/test1.compute().[A]2)
+ _empty_/test1.compute().(m)2
+ 
+_empty_/M#2)
+  _empty_/test1.compute().[A]2)
+$ %_empty_/test1.compute().[A]2#
+( +scala/Predef.`???`().2
+	 
+p/2
+ _empty_/test1.v.2&
+
+ _empty_/test1.compute().2
+ 
+p/C#foo().2
+ _empty_/test1.v1.2"
+
+ scala/Predef.String#2
+ _empty_/test1.v.PZ E96C2667D6EA5849B8633977216598C8

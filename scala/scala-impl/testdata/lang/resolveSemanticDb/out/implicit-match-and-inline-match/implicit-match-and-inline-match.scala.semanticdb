@@ -1,0 +1,73 @@
+
+ç/tests/pos/implicit-match-and-inline-match.scala*T
+*_empty_/`implicit-match-and-inline-match`.
+ *implicit-match-and-inline-match€*=
+._empty_/`implicit-match-and-inline-match`.Box# €*Box€*K
+9_empty_/`implicit-match-and-inline-match`.Box#`<init>`(). €@*<init>€*Q
+@_empty_/`implicit-match-and-inline-match`.Box#`<init>`().(value) €*value€*;
+1_empty_/`implicit-match-and-inline-match`.Box#[T]	*T€*E
+4_empty_/`implicit-match-and-inline-match`.Box#value. €*value€*B
+5_empty_/`implicit-match-and-inline-match`.Box#copy().*copy€*B
+8_empty_/`implicit-match-and-inline-match`.Box#copy().[T]	*T€*J
+<_empty_/`implicit-match-and-inline-match`.Box#copy().(value)*value€*V
+?_empty_/`implicit-match-and-inline-match`.Box#copy$default$1().*copy$default$1€*L
+B_empty_/`implicit-match-and-inline-match`.Box#copy$default$1().[T]	*T€*>
+3_empty_/`implicit-match-and-inline-match`.Box#_1().*_1€*<
+._empty_/`implicit-match-and-inline-match`.Box.
+ *Box€*D
+6_empty_/`implicit-match-and-inline-match`.Box.apply().*apply€*C
+9_empty_/`implicit-match-and-inline-match`.Box.apply().[T]	*T€*K
+=_empty_/`implicit-match-and-inline-match`.Box.apply().(value)*value€*H
+8_empty_/`implicit-match-and-inline-match`.Box.unapply().*unapply€*E
+;_empty_/`implicit-match-and-inline-match`.Box.unapply().[T]	*T€*I
+=_empty_/`implicit-match-and-inline-match`.Box.unapply().(x$1)*x$1€*J
+9_empty_/`implicit-match-and-inline-match`.Box.toString().*toString€*?
+/_empty_/`implicit-match-and-inline-match`.ibox.  *ibox€*8
+,_empty_/`implicit-match-and-inline-match`.a.
+ *a€*`
+C_empty_/`implicit-match-and-inline-match`.a.isTheBoxInScopeAnInt().*isTheBoxInScopeAnInt€*
+local0 €	*t€*I
+5_empty_/`implicit-match-and-inline-match`.a.wellIsIt. €*wellIsIt€*8
+,_empty_/`implicit-match-and-inline-match`.b.
+ *b€*`
+C_empty_/`implicit-match-and-inline-match`.b.isTheBoxInScopeAnInt().*isTheBoxInScopeAnInt€*
+local1 €	*t€*I
+5_empty_/`implicit-match-and-inline-match`.b.wellIsIt. €*wellIsIt€24
+ '*_empty_/`implicit-match-and-inline-match`.2 
+ scala/compiletime/2
+	 scala/2<
+ ._empty_/`implicit-match-and-inline-match`.Box#2G
+ 9_empty_/`implicit-match-and-inline-match`.Box#`<init>`().2?
+ 1_empty_/`implicit-match-and-inline-match`.Box#[T]2?
+ 1_empty_/`implicit-match-and-inline-match`.Box#[T]2B
+ 4_empty_/`implicit-match-and-inline-match`.Box#value.2C
+ 5_empty_/`implicit-match-and-inline-match`.Box#copy().2A
+ 3_empty_/`implicit-match-and-inline-match`.Box#_1().2<
+ ._empty_/`implicit-match-and-inline-match`.Box.2D
+ 6_empty_/`implicit-match-and-inline-match`.Box.apply().2F
+ 8_empty_/`implicit-match-and-inline-match`.Box.unapply().2=
+ /_empty_/`implicit-match-and-inline-match`.ibox.2<
+ ._empty_/`implicit-match-and-inline-match`.Box#2
+ 
+scala/Int#2D
+# #6_empty_/`implicit-match-and-inline-match`.Box.apply().2<
+  #._empty_/`implicit-match-and-inline-match`.Box.2:
+	 
+,_empty_/`implicit-match-and-inline-match`.a.2Q
+ #C_empty_/`implicit-match-and-inline-match`.a.isTheBoxInScopeAnInt().2<
+ ._empty_/`implicit-match-and-inline-match`.Box#2
+ local02>
+ *0scala/compiletime/package$package.erasedValue().2
++ ,local02
+		 
+scala/Int#2C
+ 5_empty_/`implicit-match-and-inline-match`.a.wellIsIt.2Q
+ 'C_empty_/`implicit-match-and-inline-match`.a.isTheBoxInScopeAnInt().2:
+	 
+,_empty_/`implicit-match-and-inline-match`.b.2Q
+ #C_empty_/`implicit-match-and-inline-match`.b.isTheBoxInScopeAnInt().2<
+ ._empty_/`implicit-match-and-inline-match`.Box#2
+ local12
+ local12C
+ 5_empty_/`implicit-match-and-inline-match`.b.wellIsIt.2Q
+ 'C_empty_/`implicit-match-and-inline-match`.b.isTheBoxInScopeAnInt().PZ 36DB169171BF1A854490DB6C424FA0AD

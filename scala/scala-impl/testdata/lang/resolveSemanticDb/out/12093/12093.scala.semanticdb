@@ -1,0 +1,271 @@
+
+ÚMtests/pos/12093.scala*
+_empty_/Shape# *Shape€*+
+_empty_/Shape#`<init>`(). €@*<init>€*
+_empty_/`#:`# ˆ*#:€**
+_empty_/`#:`#`<init>`(). €@*<init>€*.
+_empty_/`#:`#`<init>`().(head) €*head€*.
+_empty_/`#:`#`<init>`().(tail) €*tail€*
+_empty_/`#:`#[H]	*H€*
+_empty_/`#:`#[T]	*T€*"
+_empty_/`#:`#head. €*head€*"
+_empty_/`#:`#tail. €*tail€*!
+_empty_/`#:`#copy().*copy€*!
+_empty_/`#:`#copy().[H]	*H€*!
+_empty_/`#:`#copy().[T]	*T€*'
+_empty_/`#:`#copy().(head)*head€*'
+_empty_/`#:`#copy().(tail)*tail€*5
+_empty_/`#:`#copy$default$1().*copy$default$1€*+
+!_empty_/`#:`#copy$default$1().[H]	*H€*+
+!_empty_/`#:`#copy$default$1().[T]	*T€*5
+_empty_/`#:`#copy$default$2().*copy$default$2€*+
+!_empty_/`#:`#copy$default$2().[H]	*H€*+
+!_empty_/`#:`#copy$default$2().[T]	*T€*
+_empty_/`#:`#_1().*_1€*
+_empty_/`#:`#_2().*_2€*
+_empty_/`#:`.
+ *#:€*#
+_empty_/`#:`.apply().*apply€*"
+_empty_/`#:`.apply().[H]	*H€*"
+_empty_/`#:`.apply().[T]	*T€*(
+_empty_/`#:`.apply().(head)*head€*(
+_empty_/`#:`.apply().(tail)*tail€*'
+_empty_/`#:`.unapply().*unapply€*$
+_empty_/`#:`.unapply().[H]	*H€*$
+_empty_/`#:`.unapply().[T]	*T€*(
+_empty_/`#:`.unapply().(x$1)*x$1€*)
+_empty_/`#:`.toString().*toString€**
+_empty_/`12093$package`. *_empty_€*)
+_empty_/`12093$package`.Ã˜.
+ ˆ*Ã˜€*&
+_empty_/`12093$package`.Ã˜#*Ã˜€*0
+!_empty_/`12093$package`.reduce().*reduce€*.
+$_empty_/`12093$package`.reduce().[T]	*T€*.
+$_empty_/`12093$package`.reduce().[S]	*S€*.
+$_empty_/`12093$package`.reduce().[A]	*A€*6
+(_empty_/`12093$package`.reduce().(shape)*shape€*4
+'_empty_/`12093$package`.reduce().(axes)*axes€*.
+_empty_/`12093$package`.Reduce#*Reduce€*,
+"_empty_/`12093$package`.Reduce#[S]	*S€*2
+%_empty_/`12093$package`.Reduce#[Axes]	*Axes€*,
+"_empty_/`12093$package`.Reduce#[I]	*I€*
+local0 €	*head€*
+local1 €	*tail€*2
+!_empty_/`12093$package`.Contains#*Contains€*<
++_empty_/`12093$package`.Contains#[Haystack]	*Haystack€*8
+)_empty_/`12093$package`.Contains#[Needle]	*Needle€*
+local2 €	*head€*
+local3 €	*tail€*.
+_empty_/`12093$package`.Remove#*Remove€*2
+%_empty_/`12093$package`.Remove#[From]	*From€*4
+&_empty_/`12093$package`.Remove#[Value]	*Value€*
+local4 €	*head€*
+local5 €	*tail€*2
+"_empty_/`12093$package`.reshape().*reshape€*5
+(_empty_/`12093$package`.reshape().[From]	*From€*1
+&_empty_/`12093$package`.reshape().[To]	*To€*5
+(_empty_/`12093$package`.reshape().(from)*from€*1
+&_empty_/`12093$package`.reshape().(to)*to€*3
+&_empty_/`12093$package`.reshape().(ev)  *ev€*8
+$_empty_/`12093$package`.NumElements#*NumElements€*1
+'_empty_/`12093$package`.NumElements#[X]	*X€*
+local6 €	*head€*
+local7 €	*tail€*/
+_empty_/`12093$package`.input. €*input€*3
+ _empty_/`12093$package`.reduced. €*reduced€*5
+!_empty_/`12093$package`.reshaped. €*reshaped€2$
+  scala/compiletime/ops/int.2 
+ scala/compiletime/ops/2
+ scala/compiletime/2
+ scala/2
+ _empty_/Shape#2#
+_empty_/Shape#`<init>`().2
+ _empty_/`#:`#2&
+ _empty_/`#:`#`<init>`().2
+< =_empty_/`#:`#[H]2
+E F_empty_/`#:`#[T]2
+P U_empty_/Shape#2
+ _empty_/`#:`#[H]2
+* +_empty_/`#:`#[T]2 
+6 :_empty_/`#:`#head.2 
+? C_empty_/`#:`#tail.2
+_empty_/`#:`#copy().2 
+< <_empty_/`#:`#_1().2 
+E E_empty_/`#:`#_2().2
+ _empty_/`#:`.2
+_empty_/`#:`.apply().2!
+_empty_/`#:`.unapply().2"
+_empty_/`12093$package`.2)
+ _empty_/`12093$package`.Ã˜.2
+ _empty_/Shape#2)
+ _empty_/`12093$package`.Ã˜#2)
+	 
+_empty_/`12093$package`.Ã˜.2/
+		 
+!_empty_/`12093$package`.reduce().22
+		 $_empty_/`12093$package`.reduce().[T]22
+		 $_empty_/`12093$package`.reduce().[S]2
+		 _empty_/Shape#22
+		 $_empty_/`12093$package`.reduce().[A]2
+		 $_empty_/Shape#26
+	&	 +(_empty_/`12093$package`.reduce().(shape)22
+	-	 .$_empty_/`12093$package`.reduce().[S]25
+	0	 4'_empty_/`12093$package`.reduce().(axes)22
+	6	 7$_empty_/`12093$package`.reduce().[A]2-
+	:	 @_empty_/`12093$package`.Reduce#22
+	A	 B$_empty_/`12093$package`.reduce().[S]22
+	D	 E$_empty_/`12093$package`.reduce().[A]2#
+	L	 Oscala/Predef.`???`().2-
+
+
+ _empty_/`12093$package`.Reduce#20
+
+
+ "_empty_/`12093$package`.Reduce#[S]23
+
+
+ %_empty_/`12093$package`.Reduce#[Axes]2
+
+
+ _empty_/Shape#20
+
+
+ "_empty_/`12093$package`.Reduce#[I]2
+
+#
+ &
+scala/Int#2
+
++
+ 0_empty_/Shape#20
+
+3
+ 4"_empty_/`12093$package`.Reduce#[S]2
+ _empty_/`#:`#2
+ local02
+ local12/
+ !_empty_/`12093$package`.Contains#23
+  $%_empty_/`12093$package`.Reduce#[Axes]20
+& '"_empty_/`12093$package`.Reduce#[I]2-
+ _empty_/`12093$package`.Reduce#2
+ local12-
+ $_empty_/`12093$package`.Remove#23
+% )%_empty_/`12093$package`.Reduce#[Axes]20
++ ,"_empty_/`12093$package`.Reduce#[I]2,
+1 2scala/compiletime/ops/int.`+`#20
+/ 0"_empty_/`12093$package`.Reduce#[I]2
+ _empty_/`#:`#2
+ local02-
+  _empty_/`12093$package`.Reduce#2
+! %local123
+' +%_empty_/`12093$package`.Reduce#[Axes]2,
+/ 0scala/compiletime/ops/int.`+`#20
+- ."_empty_/`12093$package`.Reduce#[I]2)
+ _empty_/`12093$package`.Ã˜#23
+ %_empty_/`12093$package`.Reduce#[Axes]2)
+	 
+_empty_/`12093$package`.Ã˜#2)
+ _empty_/`12093$package`.Ã˜#2/
+ !_empty_/`12093$package`.Contains#29
+ +_empty_/`12093$package`.Contains#[Haystack]2
+ _empty_/Shape#27
+! ')_empty_/`12093$package`.Contains#[Needle]2
++ .
+scala/Int#2
+3 :scala/Boolean#29
+= E+_empty_/`12093$package`.Contains#[Haystack]2)
+ _empty_/`12093$package`.Ã˜#2
+ _empty_/`#:`#2
+ local22
+ local32
+ local227
+	 )_empty_/`12093$package`.Contains#[Needle]2/
+ !_empty_/`12093$package`.Contains#2
+ local327
+ #)_empty_/`12093$package`.Contains#[Needle]2-
+ _empty_/`12093$package`.Remove#23
+ %_empty_/`12093$package`.Remove#[From]2
+ _empty_/Shape#24
+  &_empty_/`12093$package`.Remove#[Value]2
+$ '
+scala/Int#2
+, 1_empty_/Shape#23
+4 8%_empty_/`12093$package`.Remove#[From]2)
+ _empty_/`12093$package`.Ã˜#2)
+ _empty_/`12093$package`.Ã˜#2
+ _empty_/`#:`#2
+ local42
+ local52
+ local424
+	 &_empty_/`12093$package`.Remove#[Value]2-
+ _empty_/`12093$package`.Remove#2
+ local524
+ $&_empty_/`12093$package`.Remove#[Value]2
+ _empty_/`#:`#2
+ local42-
+ _empty_/`12093$package`.Remove#2
+ !local524
+# (&_empty_/`12093$package`.Remove#[Value]20
+$$ "_empty_/`12093$package`.reshape().26
+$$ (_empty_/`12093$package`.reshape().[From]2
+$$ _empty_/Shape#24
+$$ &_empty_/`12093$package`.reshape().[To]2
+$!$ &_empty_/Shape#26
+$($ ,(_empty_/`12093$package`.reshape().(from)26
+$.$ 2(_empty_/`12093$package`.reshape().[From]24
+$4$ 6&_empty_/`12093$package`.reshape().(to)24
+$8$ :&_empty_/`12093$package`.reshape().[To]24
+%	% &_empty_/`12093$package`.reshape().(ev)2
+%% "scala/`=:=`#22
+%% $_empty_/`12093$package`.NumElements#26
+%% (_empty_/`12093$package`.reshape().[From]22
+%#% .$_empty_/`12093$package`.NumElements#24
+%/% 1&_empty_/`12093$package`.reshape().[To]24
+%5% 7&_empty_/`12093$package`.reshape().[To]2#
+%:% =scala/Predef.`???`().22
+&& $_empty_/`12093$package`.NumElements#25
+&& '_empty_/`12093$package`.NumElements#[X]2
+&& _empty_/Shape#2
+& & #
+scala/Int#25
+&&& ''_empty_/`12093$package`.NumElements#[X]2)
+'' _empty_/`12093$package`.Ã˜#2
+(( _empty_/`#:`#2
+(( local62
+(( local72,
+(( scala/compiletime/ops/int.`*`#2
+(( local622
+(( )$_empty_/`12093$package`.NumElements#2
+(*( .local72,
+,, 	_empty_/`12093$package`.input.2#
+,, _empty_/`#:`.apply().2
+,, _empty_/`#:`.2#
+,, _empty_/`#:`.apply().2
+,, _empty_/`#:`.2#
+,, _empty_/`#:`.apply().2
+,, _empty_/`#:`.2#
+,%, %_empty_/`#:`.apply().2
+,#, %_empty_/`#:`.2)
+,), *_empty_/`12093$package`.Ã˜.2.
+--  _empty_/`12093$package`.reduced.2/
+-- !_empty_/`12093$package`.reduce().2,
+-- _empty_/`12093$package`.input.2#
+-- _empty_/`#:`.apply().2
+-- _empty_/`#:`.2#
+-$- $_empty_/`#:`.apply().2
+-"- $_empty_/`#:`.2#
+-*- *_empty_/`#:`.apply().2
+-(- *_empty_/`#:`.2)
+-.- /_empty_/`12093$package`.Ã˜.2/
+.. !_empty_/`12093$package`.reshaped.2
+.. _empty_/`#:`#2
+.. _empty_/`#:`#2)
+.. _empty_/`12093$package`.Ã˜#20
+.. #"_empty_/`12093$package`.reshape().2.
+.$. + _empty_/`12093$package`.reduced.2#
+./. /_empty_/`#:`.apply().2
+.-. /_empty_/`#:`.2#
+.5. 5_empty_/`#:`.apply().2
+.3. 5_empty_/`#:`.2)
+.9. :_empty_/`12093$package`.Ã˜.2!
+.=. =scala/`<:<`.refl().PZ BB2599B15A06C8A0C7C39E31E62ED4BC

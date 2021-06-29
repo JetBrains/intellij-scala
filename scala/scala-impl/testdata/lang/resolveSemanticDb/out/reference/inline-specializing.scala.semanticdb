@@ -1,0 +1,44 @@
+
+ú-tests/pos/reference/inline-specializing.scala*'
+inlinespecializing/Test.
+ *Test€*$
+inlinespecializing/Test.A#*A€*7
+%inlinespecializing/Test.A#`<init>`(). €@*<init>€*$
+inlinespecializing/Test.B#*B€*7
+%inlinespecializing/Test.B#`<init>`(). €@*<init>€*.
+!inlinespecializing/Test.B#meth().*meth€*0
+!inlinespecializing/Test.choose().*choose€*.
+$inlinespecializing/Test.choose().(b)*b€*-
+inlinespecializing/Test.obj1. €*obj1€*-
+inlinespecializing/Test.obj2. €*obj2€2
+ inlinespecializing/2&
+ inlinespecializing/Test.2(
+ 	inlinespecializing/Test.A#23
+ %inlinespecializing/Test.A#`<init>`().2(
+ 	inlinespecializing/Test.B#23
+ %inlinespecializing/Test.B#`<init>`().23
+ %inlinespecializing/Test.A#`<init>`().2(
+ inlinespecializing/Test.A#2/
+ 
+!inlinespecializing/Test.B#meth().22
+		 $inlinespecializing/Test.choose().(b)23
+		 %inlinespecializing/Test.A#`<init>`().2(
+		 inlinespecializing/Test.A#23
+
+
+ %inlinespecializing/Test.B#`<init>`().2(
+
+
+ inlinespecializing/Test.B#2/
+ !inlinespecializing/Test.choose().22
+  !$inlinespecializing/Test.choose().(b)2
+# *scala/Boolean#2(
+- .inlinespecializing/Test.A#2+
+ 
+inlinespecializing/Test.obj1.2/
+ !inlinespecializing/Test.choose().2+
+ 
+inlinespecializing/Test.obj2.2/
+ !inlinespecializing/Test.choose().2/
+ !inlinespecializing/Test.B#meth().2+
+ inlinespecializing/Test.obj2.PZ 5B08AD92518B0D5A8997F7CAB28C5F08

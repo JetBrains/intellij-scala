@@ -1,0 +1,17 @@
+
+¼"tests/pos/nonlocal-unchecked.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f().*f€*
+local0 €*xs€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2
+	 scala/Boolean#2
+ 
+local024
+ &scala/collection/immutable/List#map().2 
+ scala/package.Nil.2
+' '_empty_/A#f().PZ 97B55BFB4585C780EE68D23198391923

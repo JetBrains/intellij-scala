@@ -1,0 +1,47 @@
+
+‰%tests/pos/virtpatmat_gadt_array.scala*
+_empty_/Test.
+ *Test€*7
+_empty_/Test.genericArrayOps().*genericArrayOps€*,
+"_empty_/Test.genericArrayOps().[T]	*T€*.
+#_empty_/Test.genericArrayOps().(xs)*xs€*
+local0 €*x€*/
+_empty_/Test.refArrayOps().*refArrayOps€*(
+_empty_/Test.refArrayOps().[T]	*T€**
+_empty_/Test.refArrayOps().(xs)*xs€2$
+  scala/collection/ArrayOps.2$
+  scala/collection/ArrayOps#2
+ scala/collection/2
+ scala/2
+ _empty_/Test.2-
+ _empty_/Test.genericArrayOps().20
+ "_empty_/Test.genericArrayOps().[T]21
+ #_empty_/Test.genericArrayOps().(xs)2
+ "scala/Array#20
+# $"_empty_/Test.genericArrayOps().[T]2(
+( 0scala/collection/ArrayOps#20
+1 2"_empty_/Test.genericArrayOps().[T]21
+6 8#_empty_/Test.genericArrayOps().(xs)2
+	 
+local02
+ scala/Array#2
+ scala/AnyRef#2'
+5 Ascala/Any#asInstanceOf().2)
+ )_empty_/Test.refArrayOps().2
+* 0scala/AnyRef#2
+2 3local02(
+B Jscala/collection/ArrayOps#20
+K L"_empty_/Test.genericArrayOps().[T]2'
+# /scala/Any#asInstanceOf().2(
+0 8scala/collection/ArrayOps#20
+9 :"_empty_/Test.genericArrayOps().[T]2)
+ _empty_/Test.refArrayOps().2,
+ _empty_/Test.refArrayOps().[T]2
+ scala/AnyRef#2-
+ !_empty_/Test.refArrayOps().(xs)2
+# (scala/Array#2,
+) *_empty_/Test.refArrayOps().[T]2(
+. 6scala/collection/ArrayOps#2,
+7 8_empty_/Test.refArrayOps().[T]23
+H H%scala/collection/ArrayOps#`<init>`().2-
+I K_empty_/Test.refArrayOps().(xs)PZ 2DC53297B72C44F2EF520EA465F16191

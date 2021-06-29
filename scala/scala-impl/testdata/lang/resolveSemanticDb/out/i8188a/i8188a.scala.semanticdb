@@ -1,0 +1,49 @@
+
+›tests/pos/i8188a.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.show().*show€*'
+_empty_/Test.show().(tree)*tree€*'
+_empty_/Test.show().(x$2)  *x$2€*#
+_empty_/Test.show(+1).*show€*)
+_empty_/Test.show(+1).(tree)*tree€*+
+_empty_/Test.show(+1).(color)*color€*)
+_empty_/Test.show(+1).(x$3)  *x$3€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€*
+_empty_/Test.c. €*c€*
+_empty_/Test.d. €*d€2
+ _empty_/Test.2"
+ _empty_/Test.show().2(
+ _empty_/Test.show().(tree)2"
+ scala/Predef.String#2'
+ _empty_/Test.show().(x$2)2"
+  scala/DummyImplicit#2"
+# )scala/Predef.String#2#
+, /scala/Predef.`???`().2$
+ _empty_/Test.show(+1).2*
+ _empty_/Test.show(+1).(tree)2+
+ _empty_/Test.show(+1).(color)2
+ scala/Boolean#2)
+# #_empty_/Test.show(+1).(x$3)2"
+# 0scala/DummyImplicit#2"
+3 9scala/Predef.String#2#
+< ?scala/Predef.`???`().2
+ _empty_/Test.a.2"
+	 scala/Predef.String#2"
+ _empty_/Test.show().20
+ "scala/DummyImplicit.dummyImplicit.2
+ _empty_/Test.b.2"
+	 scala/Predef.String#2$
+ _empty_/Test.show(+1).20
+" ""scala/DummyImplicit.dummyImplicit.2
+ _empty_/Test.c.2
+	 
+scala/Any#2"
+ _empty_/Test.show().20
+ "scala/DummyImplicit.dummyImplicit.2
+		 _empty_/Test.d.2
+			 
+scala/Any#2$
+		 _empty_/Test.show(+1).20
+		 "scala/DummyImplicit.dummyImplicit.PZ 11E7F8326FAC60654C642B8A5B26F02C

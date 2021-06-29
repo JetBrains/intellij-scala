@@ -1,0 +1,36 @@
+
+º	tests/pos/t3452f.scala*
+_empty_/Base#*Base€**
+_empty_/Base#`<init>`(). €@*<init>€* 
+_empty_/Base#[Coll]	*Coll€*-
+_empty_/Base#Transformed#*Transformed€*6
+$_empty_/Base#Transformed#`<init>`(). €@*<init>€*&
+_empty_/Base#Transformed#[S]	*S€*:
+$_empty_/Base#Transformed#underlying. À*
+underlying€* 
+_empty_/Derived#*Derived€*-
+_empty_/Derived#`<init>`(). €@*<init>€*
+_empty_/Derived#C#*C€*/
+_empty_/Derived#C#`<init>`(). €@*<init>€2
+ 
+_empty_/Base#2"
+
+ 
+_empty_/Base#`<init>`().2
+ _empty_/Base#[Coll]2'
+ _empty_/Base#Transformed#22
+ $_empty_/Base#Transformed#`<init>`().2*
+ _empty_/Base#Transformed#[S]22
+ $_empty_/Base#Transformed#underlying.2!
+ _empty_/Base#[Coll]2#
+  #scala/Predef.`???`().2
+ _empty_/Derived#2)
+ _empty_/Derived#`<init>`().2&
+" "_empty_/Base#`<init>`().2
+ _empty_/Base#2"
+ !scala/Predef.String#2 
+ 	_empty_/Derived#C#2+
+ _empty_/Derived#C#`<init>`().2'
+ _empty_/Base#Transformed#2
+ !
+scala/Any#PZ D75981216582211AE8357F63AE694361

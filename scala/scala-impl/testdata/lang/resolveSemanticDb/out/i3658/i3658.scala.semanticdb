@@ -1,0 +1,61 @@
+
+¸
+tests/pos/i3658.scala*
+_empty_/App.
+ *App€* 
+_empty_/App.main().*main€*&
+_empty_/App.main().(args)*args€*
+local0*	ModuleSig€*
+local1*F€*
+local2*Type€*
+local3	*X€*
+local4 *subst€*
+local5	*F€*
+local6*fa€*
+local7 €*Module€*
+local8 *$anon€*
+local9*F€*
+local10	 €*A€*
+local11*subst€*
+local12	*FF€*
+local13*fa€2
+ 
+_empty_/App.2!
+ 
+_empty_/App.main().2'
+ _empty_/App.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+
+ local02
+ local12
+ local22
+ local32
+ local12
+ local32
+
+ local42
+ local52
+ local62
+ local52!
+ #scala/package.List#2
+' (local52
+) -local22
+ local72
+ local02
+ local82
+  )local02
+		 local92
+		 local102!
+		 scala/package.List#2
+		 local102
+
+ local112
+ local122
+ local132
+  local122!
+! %scala/package.List#2
+) +local122
+, 0local22
+4 6local13PZ 2C771EB04FD929811CF2CC87A39E0C54

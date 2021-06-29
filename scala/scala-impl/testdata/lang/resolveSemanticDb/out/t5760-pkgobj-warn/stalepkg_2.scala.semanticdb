@@ -1,0 +1,19 @@
+
+ö,tests/pos/t5760-pkgobj-warn/stalepkg_2.scala*$
+stalepkg/package. *stalepkg€*
+stalepkg/Foo#*Foo€**
+stalepkg/Foo#`<init>`(). €@*<init>€*
+stalepkg/Test.
+ *Test€*"
+stalepkg/Test.main().*main€*(
+stalepkg/Test.main().(args)*args€2
+ stalepkg/package.2
+ 	stalepkg/2
+ stalepkg/Foo#2&
+ stalepkg/Foo#`<init>`().2
+	 stalepkg/Test.2#
+ stalepkg/Test.main().2)
+ stalepkg/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+# 'scala/Unit#PZ A986BD56F950561A8ABC82526E9854F0

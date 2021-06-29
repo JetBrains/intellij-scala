@@ -1,0 +1,31 @@
+
+´tests/pos/t8363.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*"
+_empty_/C#`<init>`().(a)*a€*
+_empty_/C#a. €*a€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*
+local0*form€*
+local1*C1€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 
+scala/Any#2
+ 	_empty_/C#a.2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2
+ 
+scala/Any#2
+ local02
+
+ local12#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ !local0PZ 4C805641D4CE81CCBF09B06E7360A81A

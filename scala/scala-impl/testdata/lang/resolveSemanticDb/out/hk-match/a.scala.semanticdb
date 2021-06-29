@@ -1,0 +1,21 @@
+
+«tests/pos/hk-match/a.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*"
+_empty_/A#HKAlias#*HKAlias€*
+_empty_/A#HKAlias#[X]	*X€*
+local0 €*f€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2 
+ _empty_/A#HKAlias#2#
+ _empty_/A#HKAlias#[X]2!
+ scala/package.List#2#
+ _empty_/A#HKAlias#[X]2
+	 
+scala/Any#2
+ local02
+ #_empty_/Bippy#2 
+$ +_empty_/A#HKAlias#2
+0 1local0PZ 6EFB14D2930A962178A5E0749C60D6FC

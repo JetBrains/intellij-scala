@@ -1,0 +1,187 @@
+
+ÑAtests/pos/exhaust_2.scala*T
+)_empty_/ExhaustivityWarnBugReportMinimal.
+ * ExhaustivityWarnBugReportMinimal€*G
+3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode# *	FoundNode€*P
+>_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#`<init>`(). €@*<init>€*@
+6_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#[T]	*T€*L
+5_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter# €*FoundFilter€*R
+@_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#`<init>`(). €@*<init>€*B
+8_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#[T]	*T€*I
+<_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#copy().*copy€*I
+?_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#copy().[T]	*T€*K
+5_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.
+ *FoundFilter€*K
+=_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.apply().*apply€*J
+@_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.apply().[T]	*T€*O
+?_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.unapply().*unapply€*L
+B_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.unapply().[T]	*T€*P
+D_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.unapply().(x$1)*x$1€*Q
+@_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.toString().*toString€*P
+7_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase# €*FoundTypeCase€*T
+B_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#`<init>`(). €@*<init>€*D
+:_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#[T]	*T€*K
+>_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#copy().*copy€*K
+A_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#copy().[T]	*T€*O
+7_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.
+ *FoundTypeCase€*M
+?_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.apply().*apply€*L
+B_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.apply().[T]	*T€*Q
+A_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.unapply().*unapply€*N
+D_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.unapply().[T]	*T€*R
+F_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.unapply().(x$1)*x$1€*S
+B_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.toString().*toString€*8
++_empty_/ExhaustivityWarnBugReportMinimal.f. €*f€*
+local0 €*x€*
+local1 €	*t€*8
++_empty_/ExhaustivityWarnBugReportMinimal.v. €*v€*
+local2 €*x€*
+local3 €	*t€*
+local4 €*x€*
+local5 €	*t€*
+local6 €*x€*<
+-_empty_/ExhaustivityWarnBugReportMinimal.Foo# €*Foo€*J
+8_empty_/ExhaustivityWarnBugReportMinimal.Foo#`<init>`(). €@*<init>€*:
+0_empty_/ExhaustivityWarnBugReportMinimal.Foo#[T]	*T€*A
+4_empty_/ExhaustivityWarnBugReportMinimal.Foo#copy().*copy€*A
+7_empty_/ExhaustivityWarnBugReportMinimal.Foo#copy().[T]	*T€*;
+-_empty_/ExhaustivityWarnBugReportMinimal.Foo.
+ *Foo€*C
+5_empty_/ExhaustivityWarnBugReportMinimal.Foo.apply().*apply€*B
+8_empty_/ExhaustivityWarnBugReportMinimal.Foo.apply().[T]	*T€*G
+7_empty_/ExhaustivityWarnBugReportMinimal.Foo.unapply().*unapply€*D
+:_empty_/ExhaustivityWarnBugReportMinimal.Foo.unapply().[T]	*T€*H
+<_empty_/ExhaustivityWarnBugReportMinimal.Foo.unapply().(x$1)*x$1€*I
+8_empty_/ExhaustivityWarnBugReportMinimal.Foo.toString().*toString€*:
+,_empty_/ExhaustivityWarnBugReportMinimal.vp. €*vp€*
+local7 €*x€*
+local8 €*y€*
+local9 €*x€*:
+,_empty_/ExhaustivityWarnBugReportMinimal.v2. €*v2€*
+local10 €*x€*
+local11 €	*t€*:
+,_empty_/ExhaustivityWarnBugReportMinimal.v3. €*v3€*
+local12 €*x€23
+ ')_empty_/ExhaustivityWarnBugReportMinimal.2A
+ 3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#2L
+ >_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#`<init>`().2D
+ 6_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#[T]2C
+ 5_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#2N
+ @_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#`<init>`().2A
+N W3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#2F
+X Y8_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#[T]2F
+ 8_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#[T]2J
+ <_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter#copy().2C
+ 5_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.2K
+ =_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.apply().2M
+ ?_empty_/ExhaustivityWarnBugReportMinimal.FoundFilter.unapply().2E
+ 7_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#2P
+ B_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#`<init>`().2A
+P Y3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#2H
+Z [:_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#[T]2H
+ :_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#[T]2L
+ >_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase#copy().2E
+ 7_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.2M
+ ?_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.apply().2O
+ A_empty_/ExhaustivityWarnBugReportMinimal.FoundTypeCase.unapply().29
+ +_empty_/ExhaustivityWarnBugReportMinimal.f.2
+	 scala/Some#2#
+ scala/Predef.`???`().29
+ +_empty_/ExhaustivityWarnBugReportMinimal.f.2
+			 
+local02
+		 scala/Some#2
+		 local129
+ +_empty_/ExhaustivityWarnBugReportMinimal.v.2
+
+ scala/Some#2A
+ 3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#2#
+$ $scala/Tuple2.apply().2#
+$ 'scala/Predef.`???`().2#
+) ,scala/Predef.`???`().29
+ +_empty_/ExhaustivityWarnBugReportMinimal.v.2%
+
+ 
+scala/Tuple2.unapply().2
+
+ local22
+ scala/Some#2
+ local32A
+ "3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#29
+ +_empty_/ExhaustivityWarnBugReportMinimal.v.2%
+
+ 
+scala/Tuple2.unapply().2
+
+ local42
+ scala/Some#2
+ local529
+ +_empty_/ExhaustivityWarnBugReportMinimal.v.2%
+
+ 
+scala/Tuple2.unapply().2
+
+ local62
+ scala/Some#2;
+ -_empty_/ExhaustivityWarnBugReportMinimal.Foo#2F
+ 8_empty_/ExhaustivityWarnBugReportMinimal.Foo#`<init>`().2>
+ 0_empty_/ExhaustivityWarnBugReportMinimal.Foo#[T]2B
+ 4_empty_/ExhaustivityWarnBugReportMinimal.Foo#copy().2;
+ -_empty_/ExhaustivityWarnBugReportMinimal.Foo.2C
+ 5_empty_/ExhaustivityWarnBugReportMinimal.Foo.apply().2E
+ 7_empty_/ExhaustivityWarnBugReportMinimal.Foo.unapply().2:
+ ,_empty_/ExhaustivityWarnBugReportMinimal.vp.2;
+ -_empty_/ExhaustivityWarnBugReportMinimal.Foo#2A
+ 3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#2#
+$ $scala/Tuple2.apply().2#
+$ 'scala/Predef.`???`().2#
+) ,scala/Predef.`???`().2:
+ ,_empty_/ExhaustivityWarnBugReportMinimal.vp.2%
+ 
+  
+scala/Tuple2.unapply().2
+ 
+  local72;
+   -_empty_/ExhaustivityWarnBugReportMinimal.Foo#29
+$$ +_empty_/ExhaustivityWarnBugReportMinimal.v.2%
+%
+% 
+scala/Tuple2.unapply().2#
+%% scala/Some.unapply().2
+%
+% scala/Some.2
+%% local829
+(( +_empty_/ExhaustivityWarnBugReportMinimal.v.2%
+)
+) 
+scala/Tuple2.unapply().2
+)
+) local92:
+,, ,_empty_/ExhaustivityWarnBugReportMinimal.v2.2
+,, scala/Some#2
+,, 
+scala/Int#2#
+,, scala/Tuple2.apply().2#
+,, scala/Predef.`???`().2#
+,!, $scala/Predef.`???`().2:
+-- ,_empty_/ExhaustivityWarnBugReportMinimal.v2.2%
+.
+. 
+scala/Tuple2.unapply().2
+.
+. local102
+.. scala/Some#2
+.. local112:
+11 ,_empty_/ExhaustivityWarnBugReportMinimal.v3.2
+11 scala/Option#2A
+11 3_empty_/ExhaustivityWarnBugReportMinimal.FoundNode#2#
+1'1 'scala/Tuple2.apply().2#
+1'1 *scala/Predef.`???`().2#
+1,1 /scala/Predef.`???`().29
+22 +_empty_/ExhaustivityWarnBugReportMinimal.v.2%
+3
+3 
+scala/Tuple2.unapply().2
+3
+3 local122
+33 scala/Option#PZ 8C06590CCCAD5A3AABA2579049983848

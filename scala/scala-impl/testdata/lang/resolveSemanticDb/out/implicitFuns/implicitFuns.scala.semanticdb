@@ -1,0 +1,421 @@
+
+ÿltests/pos/implicitFuns.scala*
+cm2/Person# €*Person€*(
+cm2/Person#`<init>`(). €@*<init>€*,
+cm2/Person#`<init>`().(name) €*name€* 
+cm2/Person#name. €*name€*
+cm2/Person#copy().*copy€*%
+cm2/Person#copy().(name)*name€*3
+cm2/Person#copy$default$1().*copy$default$1€*
+cm2/Person#_1().*_1€*
+cm2/Person.
+ *Person€*!
+cm2/Person.apply().*apply€*&
+cm2/Person.apply().(name)*name€*%
+cm2/Person.unapply().*unapply€*&
+cm2/Person.unapply().(x$1)*x$1€*'
+cm2/Person.toString().*toString€*
+
+cm2/Paper# €*Paper€*'
+cm2/Paper#`<init>`(). €@*<init>€*-
+cm2/Paper#`<init>`().(title) €*title€*1
+cm2/Paper#`<init>`().(authors) €*authors€*+
+cm2/Paper#`<init>`().(body) €*body€*!
+cm2/Paper#title. €*title€*%
+cm2/Paper#authors. €*authors€*
+cm2/Paper#body. €*body€*
+cm2/Paper#copy().*copy€*&
+cm2/Paper#copy().(title)*title€**
+cm2/Paper#copy().(authors)*authors€*$
+cm2/Paper#copy().(body)*body€*2
+cm2/Paper#copy$default$1().*copy$default$1€*2
+cm2/Paper#copy$default$2().*copy$default$2€*2
+cm2/Paper#copy$default$3().*copy$default$3€*
+cm2/Paper#_1().*_1€*
+cm2/Paper#_2().*_2€*
+cm2/Paper#_3().*_3€*
+
+cm2/Paper.
+ *Paper€* 
+cm2/Paper.apply().*apply€*'
+cm2/Paper.apply().(title)*title€*+
+cm2/Paper.apply().(authors)*authors€*%
+cm2/Paper.apply().(body)*body€*$
+cm2/Paper.unapply().*unapply€*%
+cm2/Paper.unapply().(x$1)*x$1€*&
+cm2/Paper.toString().*toString€*
+cm2/Viewers#*Viewers€*)
+cm2/Viewers#`<init>`(). €@*<init>€*3
+ cm2/Viewers#`<init>`().(persons) €*persons€*'
+cm2/Viewers#persons. €*persons€**
+cm2/ConfManagement#*ConfManagement€*0
+cm2/ConfManagement#`<init>`(). €@*<init>€*5
+&cm2/ConfManagement#`<init>`().(papers)*papers€*;
+)cm2/ConfManagement#`<init>`().(realScore)*	realScore€*,
+cm2/ConfManagement#papers. €*papers€*2
+cm2/ConfManagement#realScore. €*	realScore€*5
+!cm2/ConfManagement#hasConflict().*hasConflict€*2
+&cm2/ConfManagement#hasConflict().(ps1)*ps1€*2
+&cm2/ConfManagement#hasConflict().(ps2)*ps2€*-
+cm2/ConfManagement#Viewable#*Viewable€*)
+cm2/ConfManagement#Viewable#[T]	*T€*#
+cm2/ConfManagement#vs().*vs€*-
+cm2/ConfManagement#viewers().*viewers€*)
+cm2/ConfManagement#score().*score€*
+local0*paper€*7
+"cm2/ConfManagement#viewRankings().*viewRankings€*
+local1*p€*3
+ cm2/ConfManagement#delegateTo().*
+delegateTo€*-
+#cm2/ConfManagement#delegateTo().[T]	*T€*
+local2*query€*
+local3*p€*
+	cm2/Test.
+ *Test€*
+cm2/Test.bob().*bob€*
+cm2/Test.peter().*peter€*
+cm2/Test.p1().*p1€*
+cm2/Test.p2().*p2€*
+cm2/Test.__1().  *__1€*
+cm2/Test.cm. €*cm€*"
+cm2/Orderings.
+ *	Orderings€*
+cm2/Orderings.Ord#*Ord€*/
+cm2/Orderings.Ord#`<init>`(). €@*<init>€*
+cm2/Orderings.Ord#[T]	*T€*(
+cm2/Orderings.Ord#less(). *less€*"
+cm2/Orderings.__1().  *__1€*
+local4 *$anon€*
+local5*less€*
+local6*x€*
+local7*y€*"
+cm2/Orderings.__2().  *__2€*!
+cm2/Orderings.__2().[T]	*T€*
+local8 *$anon€*
+local9*less€*
+local10*xs€*
+local11*ys€*&
+cm2/Orderings.isLess().*isLess€*$
+cm2/Orderings.isLess().[T]	*T€*
+local12*x€*
+local13*y€2
+ cm2/2
+ cm2/Person#2$
+ cm2/Person#`<init>`().2"
+ scala/Predef.String#2
+ cm2/Person#name.2
+cm2/Person#copy().2
+ cm2/Person#_1().2
+ cm2/Person.2
+cm2/Person.apply().2
+ 
+cm2/Paper#2#
+ cm2/Paper#`<init>`().2"
+ scala/Predef.String#2!
+) -scala/package.List#2
+. 4cm2/Person#2"
+= Cscala/Predef.String#2
+ cm2/Paper#title.2 
+  'cm2/Paper#authors.2
+7 ;cm2/Paper#body.2
+cm2/Paper#copy().2
+ cm2/Paper#_1().2
+) )cm2/Paper#_2().2
+= =cm2/Paper#_3().2
+ 
+cm2/Paper.2
+cm2/Paper.apply().2
+ cm2/Viewers#2%
+ cm2/Viewers#`<init>`().2
+ scala/Predef.Set#2
+ %cm2/Person#2"
+ cm2/Viewers#persons.2!
+ cm2/ConfManagement#2,
+ cm2/ConfManagement#`<init>`().2!
+ !scala/package.List#2
+" '
+cm2/Paper#2
+5 8scala/Predef.Map#2
+9 >
+cm2/Paper#2
+@ C
+scala/Int#2
+N Q
+scala/App#2(
+ cm2/ConfManagement#papers.2+
+* 3cm2/ConfManagement#realScore.2/
+		 !cm2/ConfManagement#hasConflict().24
+		 &cm2/ConfManagement#hasConflict().(ps1)2
+		 "scala/Predef.Set#2
+	#	 )cm2/Person#24
+	,	 /&cm2/ConfManagement#hasConflict().(ps2)2%
+	1	 9scala/package.Iterable#2
+	:	 @cm2/Person#28
+
+
+ *scala/collection/IterableOnceOps#exists().24
+
+
+ &cm2/ConfManagement#hasConflict().(ps2)21
+
+
+ #scala/collection/SetOps#contains().24
+
+
+ &cm2/ConfManagement#hasConflict().(ps1)2*
+ cm2/ConfManagement#Viewable#2-
+ cm2/ConfManagement#Viewable#[T]2
+ cm2/Viewers#2-
+! "cm2/ConfManagement#Viewable#[T]2&
+ cm2/ConfManagement#vs().2*
+
+ cm2/ConfManagement#Viewable#2
+ cm2/Viewers#2(
+ (scala/Predef.implicitly().2+
+ cm2/ConfManagement#viewers().2*
+ cm2/ConfManagement#Viewable#2
+ scala/Predef.Set#2
+ "cm2/Person#2"
+* 1cm2/Viewers#persons.2-
+) )scala/ContextFunction1#apply().2&
+' )cm2/ConfManagement#vs().2)
+ cm2/ConfManagement#score().2
+ 
+cm2/Paper#2*
+ cm2/ConfManagement#Viewable#2
+ "
+scala/Int#2
+ 	local02/
+	 !cm2/ConfManagement#hasConflict().2-
+ scala/ContextFunction1#apply().2+
+ cm2/ConfManagement#viewers().2 
+$ +cm2/Paper#authors.2
+ #local02.
+  scala/collection/MapOps#apply().2+
+ cm2/ConfManagement#realScore.2
+ local020
+ "cm2/ConfManagement#viewRankings().2*
+ cm2/ConfManagement#Viewable#2!
+ !scala/package.List#2"
+# )scala/Predef.String#2
++ .
+scala/Int#24
+  &scala/collection/immutable/List#map().2/
+ !scala/collection/SeqOps#sortBy().2(
+ 
+cm2/ConfManagement#papers.2$
+ scala/Int#`unary_-`().2-
+ scala/ContextFunction1#apply().2&
+ scala/Function1#apply().2)
+ cm2/ConfManagement#score().2&
+ scala/math/Ordering.Int.2
+! "local12#
+' 'scala/Tuple2.apply().2
+) .cm2/Paper#title.2
+' (local12-
+8 8scala/ContextFunction1#apply().2&
+5 5scala/Function1#apply().2)
+0 5cm2/ConfManagement#score().2
+6 7local12.
+  cm2/ConfManagement#delegateTo().21
+ #cm2/ConfManagement#delegateTo().[T]2
+ cm2/Viewers#21
+! "#cm2/ConfManagement#delegateTo().[T]2
+' -cm2/Person#2*
+1 9cm2/ConfManagement#Viewable#21
+: ;#cm2/ConfManagement#delegateTo().[T]2
+ 	local22
+ local32&
+ scala/Function1#apply().2
+ local22%
+# #cm2/Viewers#`<init>`().2
+ #cm2/Viewers#26
+, -(scala/collection/immutable/SetOps#`+`().2-
++ +scala/ContextFunction1#apply().2+
+$ +cm2/ConfManagement#viewers().2
+. /local32
+ 	cm2/Test.2
+ 
+scala/App#2
+ 	cm2/Test.bob().2!
+ cm2/Person.apply().2
+ cm2/Person.2
+   cm2/Test.peter().2!
+   cm2/Person.apply().2
+   cm2/Person.2
+!! cm2/Test.p1().2 
+!! cm2/Paper.apply().2
+!! 
+cm2/Paper.27
+!$! $)scala/collection/IterableFactory#apply().2!
+! ! $scala/package.List.2
+!%! (cm2/Test.bob().2
+"" cm2/Test.p2().2 
+"" cm2/Paper.apply().2
+"" 
+cm2/Paper.27
+"&" &)scala/collection/IterableFactory#apply().2!
+""" &scala/package.List.2
+"'" ,cm2/Test.peter().2
+$$ cm2/Test.__1().2
+$$ cm2/Viewers#2%
+$)$ )cm2/Viewers#`<init>`().2
+$"$ )cm2/Viewers#27
+$-$ -)scala/collection/IterableFactory#apply().2
+$*$ -scala/Predef.Set.2
+$.$ 1cm2/Test.bob().2
+&& cm2/Test.cm.2,
+&& cm2/ConfManagement#`<init>`().2!
+&& cm2/ConfManagement#27
+&"& ")scala/collection/IterableFactory#apply().2!
+&& "scala/package.List.2
+&#& %cm2/Test.p1().2
+&'& )cm2/Test.p2().22
+&/& /$scala/collection/MapFactory#apply().2
+&,& /scala/Predef.Map.2-
+&3& 5scala/Predef.ArrowAssoc#`->`().2(
+&0& 0scala/Predef.ArrowAssoc().2
+&0& 2cm2/Test.p1().2-
+&<& >scala/Predef.ArrowAssoc#`->`().2(
+&9& 9scala/Predef.ArrowAssoc().2
+&9& ;cm2/Test.p2().2'
+(( 	scala/Predef.println(+1).2-
+(( scala/ContextFunction1#apply().20
+(( "cm2/ConfManagement#viewRankings().2
+(
+( cm2/Test.cm.2
+(( cm2/Test.__1().2'
+)) 	scala/Predef.println(+1).2-
+)) scala/ContextFunction1#apply().2&
+)) scala/Function1#apply().2)
+)) cm2/ConfManagement#score().2
+)
+) cm2/Test.cm.2
+)) cm2/Test.p1().2
+)) cm2/Test.__1().2'
+** 	scala/Predef.println(+1).2-
+*.* .scala/ContextFunction1#apply().2&
+** scala/Function1#apply().2&
+** scala/Function1#apply().2%
+** cm2/Orderings.isLess().2
+*
+* cm2/Orderings.2 
+** scala/package.Nil.27
+*$* $)scala/collection/IterableFactory#apply().2!
+* * $scala/package.List.2"
+*.* .cm2/Orderings.__1().2
+-- cm2/Orderings.2
+-- 
+scala/App#2 
+// cm2/Orderings.Ord#2+
+// cm2/Orderings.Ord#`<init>`().2#
+// cm2/Orderings.Ord#[T]2'
+// cm2/Orderings.Ord#less().2#
+// cm2/Orderings.Ord#[T]2#
+/ / !cm2/Orderings.Ord#[T]2
+/%/ ,scala/Boolean#2"
+11 cm2/Orderings.__1().2 
+11 cm2/Orderings.Ord#2
+11 
+scala/Int#2
+11 local42 
+1#1 &cm2/Orderings.Ord#2
+1'1 *
+scala/Int#2
+22 local52
+22 
+scala/Int#2
+22 
+scala/Int#2
+22 #scala/Boolean#2
+33 local62
+33 local72 
+33 scala/Int#`<`(+3).2
+33 local62
+33 local72"
+66 cm2/Orderings.__2().2%
+66 cm2/Orderings.__2().[T]2 
+66 cm2/Orderings.Ord#2%
+66 cm2/Orderings.__2().[T]2 
+6"6 %cm2/Orderings.Ord#2!
+6&6 *scala/package.List#2%
+6+6 ,cm2/Orderings.__2().[T]2
+616 1local82 
+656 8cm2/Orderings.Ord#2!
+696 =scala/package.List#2%
+6>6 ?cm2/Orderings.__2().[T]2
+77 local92!
+77 scala/package.List#2%
+77 cm2/Orderings.__2().[T]2!
+77 scala/package.List#2%
+77 cm2/Orderings.__2().[T]2
+7$7 +scala/Boolean#2
+88 local102
+88 local1128
+99 *scala/collection/immutable/List#isEmpty().2
+99 local1128
+:: *scala/collection/immutable/List#isEmpty().2
+:: local102
+;; scala/Any#`==`().22
+;; $scala/collection/IterableOps#head().2
+;; local1022
+;; "$scala/collection/IterableOps#head().2
+;; local112&
+;5; 5scala/Function1#apply().2&
+;,; ,scala/Function1#apply().2
+;(; ,local922
+;0; 4$scala/collection/IterableOps#tail().2
+;-; /local1022
+;9; =$scala/collection/IterableOps#tail().2
+;6; 8local112-
+<%< %scala/ContextFunction1#apply().2&
+<< scala/Function1#apply().2&
+<< scala/Function1#apply().2%
+<< cm2/Orderings.isLess().22
+<< $scala/collection/IterableOps#head().2
+<< local1022
+< < $$scala/collection/IterableOps#head().2
+<< local112%
+?? cm2/Orderings.isLess().2(
+?? cm2/Orderings.isLess().[T]2(
+?? cm2/Orderings.isLess().[T]2(
+?? cm2/Orderings.isLess().[T]2 
+?? cm2/Orderings.Ord#2(
+??  cm2/Orderings.isLess().[T]2
+?&? -scala/Boolean#2
+@@ local122
+@	@ 
+local132&
+@(@ (scala/Function1#apply().2&
+@%@ %scala/Function1#apply().2'
+@!@ %cm2/Orderings.Ord#less().2(
+@@ scala/Predef.implicitly().2 
+@@ cm2/Orderings.Ord#2(
+@@ cm2/Orderings.isLess().[T]2
+@&@ 'local122
+@)@ *local132'
+BB 	scala/Predef.println(+1).2-
+B$B $scala/ContextFunction1#apply().2&
+BB scala/Function1#apply().2&
+BB scala/Function1#apply().2%
+B
+B cm2/Orderings.isLess().2 
+BB scala/package.Nil.27
+BB )scala/collection/IterableFactory#apply().2!
+BB scala/package.List.2"
+B$B $cm2/Orderings.__1().2'
+CC 	scala/Predef.println(+1).2-
+C.C .scala/ContextFunction1#apply().2&
+CC scala/Function1#apply().2&
+CC scala/Function1#apply().2%
+C
+C cm2/Orderings.isLess().27
+CC )scala/collection/IterableFactory#apply().2!
+CC scala/package.List.27
+CC )scala/collection/IterableFactory#apply().2!
+CC scala/package.List.27
+C$C $)scala/collection/IterableFactory#apply().2!
+C C $scala/package.List.27
+C)C ))scala/collection/IterableFactory#apply().2!
+C%C )scala/package.List.2"
+C.C .cm2/Orderings.__1().PZ D7D758A7D2E23F17ACDE6CD9E6F4C0CD

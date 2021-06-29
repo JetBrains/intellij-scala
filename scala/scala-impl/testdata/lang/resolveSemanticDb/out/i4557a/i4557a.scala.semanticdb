@@ -1,0 +1,45 @@
+
+ötests/pos/i4557a.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[X]	*X€*
+
+_empty_/O.
+ *O€*
+_empty_/O.T#*T€*
+_empty_/O.T#[X]	*X€*
+_empty_/O.T#[Y]	*Y€*
+_empty_/O.S#*S€*
+_empty_/O.S#[X]	*X€*
+_empty_/O.S#[Y]	*Y€*
+_empty_/O.B#*B€*)
+_empty_/O.B#`<init>`(). €@*<init>€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 	_empty_/A#[X]2
+ 
+_empty_/O.2
+ _empty_/O.T#2
+	 
+_empty_/O.T#[X]2
+ _empty_/O.T#[Y]2
+ 
+_empty_/A#2
+ _empty_/O.T#[X]2
+ _empty_/O.S#2
+	 
+_empty_/O.S#[X]2
+ _empty_/O.S#[Y]2
+ _empty_/O.T#2
+ _empty_/O.S#[X]2
+ _empty_/O.S#[Y]2
+ 	_empty_/O.B#2%
+ _empty_/O.B#`<init>`().2#
+ _empty_/A#`<init>`().2
+ _empty_/O.S#2
+ 
+scala/Int#2
+ 
+scala/Int#PZ D972D28F36919B180253BEB1CCB40103

@@ -1,0 +1,49 @@
+
+ètests/pos/i4322.scala*
+_empty_/Foo.
+ *FooÄ*
+_empty_/Foo.x(). Ä*xÄ*
+_empty_/Foo.x(+1).*xÄ*
+_empty_/Foo.x(+1).(n)*nÄ*
+_empty_/Foo.foo().*fooÄ*
+_empty_/Foo.bar().*barÄ*
+_empty_/Foo.baz().*bazÄ*(
+_empty_/Foo.inline$x().*inline$xÄ**
+_empty_/Foo.inline$x(+1).*inline$xÄ*&
+_empty_/Foo.inline$x(+1).(n)*nÄ*.
+_empty_/Foo.`inline$x_=`().*
+inline$x_=Ä*,
+ _empty_/Foo.`inline$x_=`().(x$0)*x$0Ä2
+ 
+_empty_/Foo.2
+ _empty_/Foo.x().2
+ 
+scala/Int#2 
+ _empty_/Foo.x(+1).2#
+ _empty_/Foo.x(+1).(n)2"
+ scala/Predef.String#2
+ 
+scala/Int#21
+$ )#scala/collection/StringOps#toInt().2+
+" "scala/Predef.augmentString().2#
+" #_empty_/Foo.x(+1).(n)2 
+ _empty_/Foo.foo().2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2 
+ scala/Int#`+`(+4).2%
+ _empty_/Foo.inline$x().2%
+ _empty_/Foo.inline$x().2'
+  !_empty_/Foo.inline$x(+1).2 
+ _empty_/Foo.bar().2)
+ _empty_/Foo.`inline$x_=`().2 
+ scala/Int#`+`(+4).2%
+ _empty_/Foo.inline$x().2)
+		 _empty_/Foo.`inline$x_=`().2 
+		 scala/Int#`+`(+4).2%
+		 _empty_/Foo.inline$x().2 
+ _empty_/Foo.baz().2)
+ _empty_/Foo.`inline$x_=`().2 
+ scala/Int#`+`(+4).2%
+ _empty_/Foo.inline$x().2'
+ _empty_/Foo.inline$x(+1).PZ 0384FF1B18133F7DC6EDA73A5472E518

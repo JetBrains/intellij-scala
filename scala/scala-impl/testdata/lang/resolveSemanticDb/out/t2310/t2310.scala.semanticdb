@@ -1,0 +1,44 @@
+
+ûtests/pos/t2310.scala*4
+_empty_/consistencyError.
+ *consistencyError€*/
+!_empty_/consistencyError.crash().*crash€*.
+$_empty_/consistencyError.crash().[A]	*A€*6
+(_empty_/consistencyError.crash().(lefts)*lefts€*8
+)_empty_/consistencyError.crash().(rights)*rights€*
+local0 €*l€*
+local1 €*ls€*
+local2 €*rs€2
+ scala/package.Stream.2
+ scala/2'
+ _empty_/consistencyError.2/
+ !_empty_/consistencyError.crash().22
+ $_empty_/consistencyError.crash().[A]26
+ (_empty_/consistencyError.crash().(lefts)2#
+ scala/package.Stream#22
+ $_empty_/consistencyError.crash().[A]27
+! ')_empty_/consistencyError.crash().(rights)2#
+) /scala/package.Stream#22
+0 1$_empty_/consistencyError.crash().[A]2#
+7 7scala/Tuple2.apply().26
+7 <(_empty_/consistencyError.crash().(lefts)27
+> D)_empty_/consistencyError.crash().(rights)2%
+
+ 
+scala/Tuple2.unapply().26
+ (scala/collection/immutable/Stream.Empty.2#
+
+ scala/package.Stream.26
+ $(scala/collection/immutable/Stream.Empty.2#
+ scala/package.Stream.2
+) -scala/None.2%
+
+ 
+scala/Tuple2.unapply().2@
+ 2scala/collection/immutable/Stream.`#::`.unapply().26
+ (scala/collection/immutable/Stream.`#::`.2
+
+ local02
+ local12
+ local22
+ scala/None.PZ 2FBF2EF8A8C9BD2465FDB312D493FB8C

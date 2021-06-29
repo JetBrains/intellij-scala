@@ -1,0 +1,47 @@
+
+ùtests/pos/i6705.scala*(
+_empty_/StringTempl#*StringTemplÄ*1
+_empty_/StringTempl#`<init>`(). Ä@*<init>Ä*2
+_empty_/StringTempl#mkString(). *mkStringÄ*4
+!_empty_/StringTempl#mkString(+1). *mkStringÄ*.
+$_empty_/StringTempl#mkString(+1).(x)*xÄ*
+_empty_/Test.
+ *TestÄ*)
+_empty_/Test.shouldBe().*shouldBeÄ*%
+_empty_/Test.shouldBe().(x)*xÄ*%
+_empty_/Test.shouldBe().(y)*yÄ*!
+_empty_/Test.test().*testÄ*'
+_empty_/Test.test().(tmpl)*tmplÄ2
+ _empty_/StringTempl#2-
+ _empty_/StringTempl#`<init>`().2-
+ _empty_/StringTempl#mkString().2"
+ scala/Predef.String#2/
+ !_empty_/StringTempl#mkString(+1).22
+ $_empty_/StringTempl#mkString(+1).(x)2"
+ scala/Predef.String#2"
+ !scala/Predef.String#2
+ _empty_/Test.2&
+ $_empty_/Test.shouldBe().2)
+ _empty_/Test.shouldBe().(x)2"
+ scala/Predef.String#2)
+% &_empty_/Test.shouldBe().(y)2"
+( .scala/Predef.String#2
+1 8scala/Boolean#2#
+; >scala/Predef.`???`().2"
+		 
+_empty_/Test.test().2(
+		 _empty_/Test.test().(tmpl)2"
+		 _empty_/StringTempl#2
+		 #scala/Unit#2&
+
+
+ _empty_/Test.shouldBe().2-
+
+	
+ _empty_/StringTempl#mkString().2(
+
+
+ _empty_/Test.test().(tmpl)2&
+ %_empty_/Test.shouldBe().2/
+	 !_empty_/StringTempl#mkString(+1).2(
+ _empty_/Test.test().(tmpl)PZ 595BD214255A51B572E493D47F662F50

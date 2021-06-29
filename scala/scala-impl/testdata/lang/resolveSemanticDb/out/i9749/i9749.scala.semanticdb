@@ -1,0 +1,29 @@
+
+Žtests/pos/i9749.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f().*f€*
+_empty_/A#f().(x)*x€*
+_empty_/A#f(+1).*f€*
+_empty_/A#f(+1).(x)*x€*
+_empty_/A#foo().*foo€*
+_empty_/A#foo().(x)*x€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2
+ 	_empty_/A#f().(x)2
+ 
+scala/Any#2
+ _empty_/A#f(+1).2!
+ 	_empty_/A#f(+1).(x)2"
+ scala/Predef.String#2
+ 	_empty_/A#foo().2!
+
+ _empty_/A#foo().(x)2!
+ scala/package.List#2"
+ scala/Predef.String#2
+  scala/Unit#2
+ _empty_/A#f(+1).2!
+ _empty_/A#foo().(x)PZ 01A85D0F4B67C72AA1C732EA63D7193B

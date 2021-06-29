@@ -1,0 +1,305 @@
+
+Ò`tests/pos/zipper.scala*
+_empty_/Tree# îÄ*TreeÄ**
+_empty_/Tree#`<init>`(). Ä@*<init>Ä*
+_empty_/Tree#[A]	 Ä*AÄ*
+_empty_/Tree.
+ *TreeÄ*'
+_empty_/Tree.Branch# àÅ*BranchÄ*1
+_empty_/Tree.Branch#`<init>`(). Ä@*<init>Ä*5
+%_empty_/Tree.Branch#`<init>`().(left) Ä*leftÄ*7
+&_empty_/Tree.Branch#`<init>`().(right) Ä*rightÄ*$
+_empty_/Tree.Branch#[A]	 Ä*AÄ*)
+_empty_/Tree.Branch#left. Ä*leftÄ*+
+_empty_/Tree.Branch#right. Ä*rightÄ*(
+_empty_/Tree.Branch#copy().*copyÄ*(
+_empty_/Tree.Branch#copy().[A]	*AÄ*.
+!_empty_/Tree.Branch#copy().(left)*leftÄ*0
+"_empty_/Tree.Branch#copy().(right)*rightÄ*<
+%_empty_/Tree.Branch#copy$default$1().*copy$default$1Ä*2
+(_empty_/Tree.Branch#copy$default$1().[A]	*AÄ*<
+%_empty_/Tree.Branch#copy$default$2().*copy$default$2Ä*2
+(_empty_/Tree.Branch#copy$default$2().[A]	*AÄ*.
+_empty_/Tree.Branch#ordinal().*ordinalÄ*$
+_empty_/Tree.Branch#_1().*_1Ä*$
+_empty_/Tree.Branch#_2().*_2Ä*%
+_empty_/Tree.Branch.
+ *BranchÄ**
+_empty_/Tree.Branch.apply().*applyÄ*)
+_empty_/Tree.Branch.apply().[A]	*AÄ*/
+"_empty_/Tree.Branch.apply().(left)*leftÄ*1
+#_empty_/Tree.Branch.apply().(right)*rightÄ*.
+_empty_/Tree.Branch.unapply().*unapplyÄ*+
+!_empty_/Tree.Branch.unapply().[A]	*AÄ*/
+#_empty_/Tree.Branch.unapply().(x$1)*x$1Ä*0
+_empty_/Tree.Branch.toString().*toStringÄ*#
+_empty_/Tree.Leaf# àÅ*LeafÄ*/
+_empty_/Tree.Leaf#`<init>`(). Ä@*<init>Ä*5
+$_empty_/Tree.Leaf#`<init>`().(value) Ä*valueÄ*"
+_empty_/Tree.Leaf#[A]	 Ä*AÄ*)
+_empty_/Tree.Leaf#value. Ä*valueÄ*&
+_empty_/Tree.Leaf#copy().*copyÄ*&
+_empty_/Tree.Leaf#copy().[A]	*AÄ*.
+ _empty_/Tree.Leaf#copy().(value)*valueÄ*:
+#_empty_/Tree.Leaf#copy$default$1().*copy$default$1Ä*0
+&_empty_/Tree.Leaf#copy$default$1().[A]	*AÄ*,
+_empty_/Tree.Leaf#ordinal().*ordinalÄ*"
+_empty_/Tree.Leaf#_1().*_1Ä*!
+_empty_/Tree.Leaf.
+ *LeafÄ*(
+_empty_/Tree.Leaf.apply().*applyÄ*'
+_empty_/Tree.Leaf.apply().[A]	*AÄ*/
+!_empty_/Tree.Leaf.apply().(value)*valueÄ*,
+_empty_/Tree.Leaf.unapply().*unapplyÄ*)
+_empty_/Tree.Leaf.unapply().[A]	*AÄ*-
+!_empty_/Tree.Leaf.unapply().(x$1)*x$1Ä*.
+_empty_/Tree.Leaf.toString().*toStringÄ*/
+_empty_/Tree.fromOrdinal().*fromOrdinalÄ*4
+$_empty_/Tree.fromOrdinal().(ordinal)*ordinalÄ*$
+_empty_/Context# îÄ*ContextÄ*-
+_empty_/Context#`<init>`(). Ä@*<init>Ä* 
+_empty_/Context#[A]	 Ä*AÄ*"
+_empty_/Context.
+ *ContextÄ*(
+_empty_/Context.Empty. Ä©*EmptyÄ**
+_empty_/Context.InLeft# àÅ*InLeftÄ*4
+"_empty_/Context.InLeft#`<init>`(). Ä@*<init>Ä*:
+)_empty_/Context.InLeft#`<init>`().(right) Ä*rightÄ*<
+*_empty_/Context.InLeft#`<init>`().(parent) Ä*parentÄ*'
+_empty_/Context.InLeft#[A]	 Ä*AÄ*.
+_empty_/Context.InLeft#right. Ä*rightÄ*0
+_empty_/Context.InLeft#parent. Ä*parentÄ*+
+_empty_/Context.InLeft#copy().*copyÄ*+
+!_empty_/Context.InLeft#copy().[A]	*AÄ*3
+%_empty_/Context.InLeft#copy().(right)*rightÄ*5
+&_empty_/Context.InLeft#copy().(parent)*parentÄ*?
+(_empty_/Context.InLeft#copy$default$1().*copy$default$1Ä*5
++_empty_/Context.InLeft#copy$default$1().[A]	*AÄ*?
+(_empty_/Context.InLeft#copy$default$2().*copy$default$2Ä*5
++_empty_/Context.InLeft#copy$default$2().[A]	*AÄ*1
+!_empty_/Context.InLeft#ordinal().*ordinalÄ*'
+_empty_/Context.InLeft#_1().*_1Ä*'
+_empty_/Context.InLeft#_2().*_2Ä*(
+_empty_/Context.InLeft.
+ *InLeftÄ*-
+_empty_/Context.InLeft.apply().*applyÄ*,
+"_empty_/Context.InLeft.apply().[A]	*AÄ*4
+&_empty_/Context.InLeft.apply().(right)*rightÄ*6
+'_empty_/Context.InLeft.apply().(parent)*parentÄ*1
+!_empty_/Context.InLeft.unapply().*unapplyÄ*.
+$_empty_/Context.InLeft.unapply().[A]	*AÄ*2
+&_empty_/Context.InLeft.unapply().(x$1)*x$1Ä*3
+"_empty_/Context.InLeft.toString().*toStringÄ*,
+_empty_/Context.InRight# àÅ*InRightÄ*5
+#_empty_/Context.InRight#`<init>`(). Ä@*<init>Ä*9
+)_empty_/Context.InRight#`<init>`().(left) Ä*leftÄ*=
++_empty_/Context.InRight#`<init>`().(parent) Ä*parentÄ*(
+_empty_/Context.InRight#[A]	 Ä*AÄ*-
+_empty_/Context.InRight#left. Ä*leftÄ*1
+_empty_/Context.InRight#parent. Ä*parentÄ*,
+_empty_/Context.InRight#copy().*copyÄ*,
+"_empty_/Context.InRight#copy().[A]	*AÄ*2
+%_empty_/Context.InRight#copy().(left)*leftÄ*6
+'_empty_/Context.InRight#copy().(parent)*parentÄ*@
+)_empty_/Context.InRight#copy$default$1().*copy$default$1Ä*6
+,_empty_/Context.InRight#copy$default$1().[A]	*AÄ*@
+)_empty_/Context.InRight#copy$default$2().*copy$default$2Ä*6
+,_empty_/Context.InRight#copy$default$2().[A]	*AÄ*2
+"_empty_/Context.InRight#ordinal().*ordinalÄ*(
+_empty_/Context.InRight#_1().*_1Ä*(
+_empty_/Context.InRight#_2().*_2Ä**
+_empty_/Context.InRight.
+ *InRightÄ*.
+ _empty_/Context.InRight.apply().*applyÄ*-
+#_empty_/Context.InRight.apply().[A]	*AÄ*3
+&_empty_/Context.InRight.apply().(left)*leftÄ*7
+(_empty_/Context.InRight.apply().(parent)*parentÄ*2
+"_empty_/Context.InRight.unapply().*unapplyÄ*/
+%_empty_/Context.InRight.unapply().[A]	*AÄ*3
+'_empty_/Context.InRight.unapply().(x$1)*x$1Ä*4
+#_empty_/Context.InRight.toString().*toStringÄ*2
+_empty_/Context.fromOrdinal().*fromOrdinalÄ*7
+'_empty_/Context.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/Zipper#*ZipperÄ*,
+_empty_/Zipper#`<init>`(). Ä@*<init>Ä*2
+!_empty_/Zipper#`<init>`().(focus) Ä*focusÄ*6
+#_empty_/Zipper#`<init>`().(context) Ä*contextÄ*
+_empty_/Zipper#[A]	 Ä*AÄ*&
+_empty_/Zipper#focus. Ä*focusÄ**
+_empty_/Zipper#context. Ä*contextÄ*)
+_empty_/Zipper#unfocus().*unfocusÄ*'
+_empty_/Zipper#moveUp().*moveUpÄ*
+local0 Ä*rightÄ*
+local1 Ä*parentÄ*
+local2 Ä*leftÄ*
+local3 Ä*parentÄ*+
+_empty_/Zipper#moveLeft().*moveLeftÄ*
+local4 Ä*leftÄ*
+local5 Ä*rightÄ*-
+_empty_/Zipper#moveRight().*	moveRightÄ*
+local6 Ä*leftÄ*
+local7 Ä*rightÄ*3
+_empty_/Zipper#replaceFocus().*replaceFocusÄ*+
+!_empty_/Zipper#replaceFocus().[B]	*BÄ*9
+(_empty_/Zipper#replaceFocus().(newFocus)*newFocusÄ*)
+_empty_/zipper$package. *_empty_Ä*-
+_empty_/zipper$package.focus().*focusÄ*,
+"_empty_/zipper$package.focus().[A]	*AÄ*2
+%_empty_/zipper$package.focus().(tree)*treeÄ2
+ 	_empty_/Tree#2"
+	 	_empty_/Tree#`<init>`().2
+ _empty_/Tree#[A]2
+ _empty_/Tree.2"
+ _empty_/Tree.Branch#2-
+ _empty_/Tree.Branch#`<init>`().2
+ _empty_/Tree#2%
+ _empty_/Tree.Branch#[A]2
+$ (_empty_/Tree#2%
+) *_empty_/Tree.Branch#[A]2'
+ _empty_/Tree.Branch#left.2(
+ "_empty_/Tree.Branch#right.2)
+ _empty_/Tree.Branch#copy().2'
+ _empty_/Tree.Branch#_1().2'
+$ $_empty_/Tree.Branch#_2().2"
+ _empty_/Tree.Branch.2*
+ _empty_/Tree.Branch.apply().2 
+ _empty_/Tree.Leaf#2+
+ _empty_/Tree.Leaf#`<init>`().2#
+ _empty_/Tree.Leaf#[A]2&
+ _empty_/Tree.Leaf#value.2'
+ _empty_/Tree.Leaf#copy().2%
+ _empty_/Tree.Leaf#_1().2 
+ _empty_/Tree.Leaf.2(
+ _empty_/Tree.Leaf.apply().2
+ _empty_/Context#2)
+ _empty_/Context#`<init>`().2!
+ _empty_/Context#[A]2
+ _empty_/Context.2$
+ _empty_/Context.Empty.2%
+ _empty_/Context.InLeft#20
+ "_empty_/Context.InLeft#`<init>`().2
+ _empty_/Tree#2(
+ _empty_/Context.InLeft#[A]2
+& -_empty_/Context#2(
+. /_empty_/Context.InLeft#[A]2+
+ _empty_/Context.InLeft#right.2,
+ $_empty_/Context.InLeft#parent.2,
+ _empty_/Context.InLeft#copy().2*
+ _empty_/Context.InLeft#_1().2*
+& &_empty_/Context.InLeft#_2().2%
+ _empty_/Context.InLeft.2-
+ _empty_/Context.InLeft.apply().2&
+ _empty_/Context.InRight#21
+ #_empty_/Context.InRight#`<init>`().2
+ _empty_/Tree#2)
+ _empty_/Context.InRight#[A]2
+& -_empty_/Context#2)
+. /_empty_/Context.InRight#[A]2+
+ _empty_/Context.InRight#left.2-
+ $_empty_/Context.InRight#parent.2-
+ _empty_/Context.InRight#copy().2+
+ _empty_/Context.InRight#_1().2+
+& &_empty_/Context.InRight#_2().2&
+ _empty_/Context.InRight.2.
+  _empty_/Context.InRight.apply().2
+		 _empty_/Tree.2
+		 _empty_/Context.2
+ _empty_/Zipper#2(
+ _empty_/Zipper#`<init>`().2
+  _empty_/Tree#2 
+! "_empty_/Zipper#[A]2
+2 9_empty_/Context#2 
+: ;_empty_/Zipper#[A]2 
+ _empty_/Zipper#[A]2#
+ _empty_/Zipper#focus.2%
+) 0_empty_/Zipper#context.2'
+ _empty_/Zipper#unfocus().2
+ _empty_/Tree#2 
+ _empty_/Zipper#[A]2%
+  _empty_/Zipper#context.2$
+	 _empty_/Context.Empty.2#
+ _empty_/Zipper#focus.2'
+ _empty_/Zipper#unfocus().2&
+ _empty_/Zipper#moveUp().2&
+ _empty_/Zipper#moveUp().2
+ _empty_/Zipper#2 
+ _empty_/Zipper#[A]2%
+ !_empty_/Zipper#context.2$
+	 _empty_/Context.Empty.2/
+ !_empty_/Context.InLeft.unapply().2%
+	 _empty_/Context.InLeft.2
+ local02
+ local12(
+( (_empty_/Zipper#`<init>`().2*
+/ /_empty_/Tree.Branch.apply().2"
+) /_empty_/Tree.Branch.2#
+0 5_empty_/Zipper#focus.2
+7 <local02
+? Elocal120
+ "_empty_/Context.InRight.unapply().2&
+	 _empty_/Context.InRight.2
+ local22
+ local32(
+( (_empty_/Zipper#`<init>`().2*
+/ /_empty_/Tree.Branch.apply().2"
+) /_empty_/Tree.Branch.2
+0 4local22#
+6 ;_empty_/Zipper#focus.2
+> Dlocal32(
+ _empty_/Zipper#moveLeft().2
+ _empty_/Zipper#2 
+ _empty_/Zipper#[A]2#
+ !_empty_/Zipper#focus.2*
+ _empty_/Tree.Leaf.unapply().2 
+	 _empty_/Tree.Leaf.2,
+ _empty_/Tree.Branch.unapply().2"
+	 _empty_/Tree.Branch.2
+ local42
+ local52(
+& &_empty_/Zipper#`<init>`().2
+' +local42-
+3 3_empty_/Context.InLeft.apply().2%
+- 3_empty_/Context.InLeft.2
+4 9local52%
+; B_empty_/Zipper#context.2)
+ _empty_/Zipper#moveRight().2
+ _empty_/Zipper#2 
+ _empty_/Zipper#[A]2#
+ "_empty_/Zipper#focus.2*
+ _empty_/Tree.Leaf.unapply().2 
+	 _empty_/Tree.Leaf.2,
+ _empty_/Tree.Branch.unapply().2"
+	 _empty_/Tree.Branch.2
+ local62
+ local72(
+& &_empty_/Zipper#`<init>`().2
+' ,local72.
+5 5 _empty_/Context.InRight.apply().2&
+. 5_empty_/Context.InRight.2
+6 :local62%
+< C_empty_/Zipper#context.2,
+ _empty_/Zipper#replaceFocus().2/
+ !_empty_/Zipper#replaceFocus().[B]2 
+ _empty_/Zipper#[A]26
+ #(_empty_/Zipper#replaceFocus().(newFocus)2
+% )_empty_/Tree#2/
+* +!_empty_/Zipper#replaceFocus().[B]2
+/ 5_empty_/Zipper#2/
+6 7!_empty_/Zipper#replaceFocus().[B]2(
+
+ 
+_empty_/Zipper#`<init>`().26
+ (_empty_/Zipper#replaceFocus().(newFocus)2%
+ _empty_/Zipper#context.2!
+_empty_/zipper$package.2-
+  %_empty_/zipper$package.focus().20
+
+ "_empty_/zipper$package.focus().[A]23
+ %_empty_/zipper$package.focus().(tree)2
+ _empty_/Tree#20
+ "_empty_/zipper$package.focus().[A]2
+' -_empty_/Zipper#20
+. /"_empty_/zipper$package.focus().[A]2(
+9 9_empty_/Zipper#`<init>`().23
+: >%_empty_/zipper$package.focus().(tree)2$
+@ E_empty_/Context.Empty.PZ 13E3CBA5344E2D835F67251293C40EA8

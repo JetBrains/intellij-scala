@@ -1,0 +1,100 @@
+
+§tests/pos/t1318.scala*
+
+_empty_/F# *F€*'
+_empty_/F#`<init>`(). €@*<init>€*
+_empty_/F#mType#*mType€*
+
+_empty_/M# *M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/M#mType#*mType€*
+_empty_/M#fType#*fType€*
+local1*mType€*
+_empty_/M#fs(). *fs€*
+_empty_/A0# *A0€*(
+_empty_/A0#`<init>`(). €@*<init>€*
+_empty_/A0#mType#*mType€*
+_empty_/A0#fs().*fs€*
+
+_empty_/A.
+ *A€*
+_empty_/B0# *B0€*(
+_empty_/B0#`<init>`(). €@*<init>€*
+_empty_/B0#mType#*mType€*
+_empty_/B0#fs().*fs€*
+
+_empty_/B.
+ *B€*
+
+_empty_/C.
+ *C€*
+_empty_/C.ab().*ab€*
+local2 €*prefix$1€2
+ 
+_empty_/F#2#
+ _empty_/F#`<init>`().2
+	 _empty_/F#mType#2
+ 
+_empty_/M#2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ local02
+	 _empty_/M#mType#2
+ 
+_empty_/M#2
+	 _empty_/M#fType#2
+ 
+_empty_/F#2
+ local12
+' ,_empty_/M#mType#2
+" &
+_empty_/M#2
+		 
+_empty_/M#fs().2!
+		 scala/package.List#2
+		 _empty_/M#fType#2
+ _empty_/A0#2$
+ _empty_/A0#`<init>`().2#
+ _empty_/M#`<init>`().2
+ 
+_empty_/M#2
+	 _empty_/A0#mType#2
+ _empty_/A0#2
+ 
+_empty_/A0#fs().2!
+ scala/package.List#2
+ _empty_/M#fType#2 
+ scala/package.Nil.2
+ 
+_empty_/A.2$
+ _empty_/A0#`<init>`().2
+ _empty_/A0#2
+ _empty_/B0#2$
+ _empty_/B0#`<init>`().2#
+ _empty_/M#`<init>`().2
+ 
+_empty_/M#2
+	 _empty_/B0#mType#2
+ _empty_/B0#2
+ 
+_empty_/B0#fs().2!
+ scala/package.List#2
+ _empty_/M#fType#2 
+ scala/package.Nil.2
+ 
+_empty_/B.2$
+ _empty_/B0#`<init>`().2
+ _empty_/B0#2
+ 
+_empty_/C.2
+ 
+_empty_/C.ab().2
+ local226
+   (scala/collection/immutable/List#`:::`().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 
+_empty_/B.2
+ local2PZ 2F9FAE0AA6F10D3C895CCB576AF0D1E9

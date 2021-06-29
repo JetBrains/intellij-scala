@@ -1,0 +1,64 @@
+
+ê
+tests/pos/testcast.scala*
+test/A#*A€*$
+test/A#`<init>`(). €@*<init>€*
+test/B#*B€*$
+test/B#`<init>`(). €@*<init>€*
+test/B#foo().*foo€*
+test/B.
+ *B€*
+test/B.view().*view€*
+test/B.view().(x)*x€*
+test/B1#*B1€*%
+test/B1#`<init>`(). €@*<init>€*
+test/B1#bar().*bar€*
+test/C.
+ *C€*
+test/C.view().  *view€*
+test/C.view().(x)*x€*
+
+test/Test.
+ *Test€*
+test/Test.b. €*b€2
+ test/2
+ test/A#2
+test/A#`<init>`().2
+ test/B#2 
+ test/B#`<init>`().2 
+ test/A#`<init>`().2
+ test/A#2
+ 	test/B#foo().2
+ 
+scala/Int#2
+ test/B.2
+		 
+test/B.view().2
+		 test/B.view().(x)2
+		 test/B#2
+		 test/B1#2
+ test/B1#2!
+ test/B1#`<init>`().2
+ 	test/B1#bar().2
+ 
+scala/Int#2
+ test/C.2
+ test/C.view().2
+ test/C.view().(x)2
+ test/A#2
+ test/B1#2
+ 
+test/Test.2
+ test/C.view().2
+	 
+test/C.2
+ test/Test.b.2
+	 
+test/B#2'
+ 	scala/Predef.println(+1).2
+ test/B1#bar().2
+
+ 
+test/C.view().2
+
+ test/Test.b.PZ 0AB35B6C728FC2D81AEA8116C0483D31

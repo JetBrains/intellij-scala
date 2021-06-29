@@ -1,0 +1,31 @@
+
+“tests/pos/i9202.scala*
+_empty_/i9202.
+ *i9202€*>
+"_empty_/i9202.SomeUnrelatedOpaque#*SomeUnrelatedOpaque€*
+_empty_/i9202.A#*A€*-
+_empty_/i9202.A#`<init>`(). €@*<init>€*+
+_empty_/i9202.A#`<init>`().(d) €*d€*
+_empty_/i9202.A#[T]	*T€*
+_empty_/i9202.A#d. €*d€*$
+_empty_/i9202.value().*value€*#
+_empty_/i9202.value().[T]	*T€*#
+_empty_/i9202.value().(x)*x€2
+ _empty_/i9202.20
+ !"_empty_/i9202.SomeUnrelatedOpaque#2
+$ '
+scala/Int#2
+ 	_empty_/i9202.A#2)
+	 	_empty_/i9202.A#`<init>`().2!
+ _empty_/i9202.A#[T]2!
+
+ _empty_/i9202.A#[T]2 
+ _empty_/i9202.A#d.2$
+  %_empty_/i9202.value().2'
+ _empty_/i9202.value().[T]2'
+ _empty_/i9202.value().(x)2
+ _empty_/i9202.A#2'
+ _empty_/i9202.value().[T]2'
+' (_empty_/i9202.value().[T]2 
+- ._empty_/i9202.A#d.2'
++ ,_empty_/i9202.value().(x)PZ 6D098948E00D396EC9403CC82C3836FE

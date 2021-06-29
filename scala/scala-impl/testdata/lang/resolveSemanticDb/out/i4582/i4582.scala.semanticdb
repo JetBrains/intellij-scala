@@ -1,0 +1,66 @@
+
+ tests/pos/i4582.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#[A]	*A€*
+_empty_/TX#*TX€*(
+_empty_/TX#`<init>`(). €@*<init>€*
+_empty_/TX#[A]	*A€*
+_empty_/TY#*TY€*(
+_empty_/TY#`<init>`(). €@*<init>€*
+_empty_/TY#[A]	*A€*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*"
+_empty_/S#`<init>`().(x)*x€*
+_empty_/S#[A]	*A€*
+_empty_/S#x. €*x€*
+_empty_/SX#*SX€*(
+_empty_/SX#`<init>`(). €@*<init>€*
+_empty_/SX#[A]	*A€2
+ 
+_empty_/T#2
+ _empty_/T#`<init>`().2 
+ scala/package.Numeric#2
+ _empty_/T#[A]2
+ 	_empty_/T#[A]2
+ _empty_/TX#2$
+ _empty_/TX#`<init>`().2$
+ scala/package.Numeric#2
+ _empty_/TX#[A]2#
+! !_empty_/T#`<init>`().2
+ 
+_empty_/T#2
+  _empty_/TX#[A]2
+	 
+_empty_/TX#[A]2
+ _empty_/TY#2$
+ _empty_/TY#`<init>`().2$
+ scala/package.Numeric#2
+ _empty_/TY#[A]2#
+! !_empty_/T#`<init>`().2
+ 
+_empty_/T#2
+  _empty_/TY#[A]2
+	 
+_empty_/TY#[A]2
+ 
+_empty_/S#2#
+ _empty_/S#`<init>`().2
+ 
+scala/Int#2$
+ scala/package.Numeric#2
+ _empty_/S#[A]2
+ 	_empty_/S#[A]2
+ _empty_/S#x.2
+ _empty_/SX#2$
+ _empty_/SX#`<init>`().2$
+ scala/package.Numeric#2
+ _empty_/SX#[A]2#
+! !_empty_/S#`<init>`().2
+ 
+_empty_/S#2
+  _empty_/SX#[A]2
+	 
+_empty_/SX#[A]PZ 4C09FD420A19BBF960D8A24727789CC9

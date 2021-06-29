@@ -1,0 +1,79 @@
+
+ëtests/pos/t8237.scala*,
+_empty_/TestExplicit.
+ *TestExplicit€*#
+_empty_/TestExplicit.TC#*TC€*5
+#_empty_/TestExplicit.TC#`<init>`(). €@*<init>€*%
+_empty_/TestExplicit.TC#[A]	*A€*'
+_empty_/TestExplicit.fTt().*fTt€*(
+_empty_/TestExplicit.fTt().[A]	*A€*(
+_empty_/TestExplicit.fTt().[E]	*E€*(
+_empty_/TestExplicit.fTt().(a)*a€*,
+_empty_/TestExplicit.fTt().(tt)  *tt€*'
+_empty_/TestExplicit.tc().  *tc€*'
+_empty_/TestExplicit.tc().[T]	*T€*,
+_empty_/TestImplicit.
+ *TestImplicit€*#
+_empty_/TestImplicit.TC#*TC€*5
+#_empty_/TestImplicit.TC#`<init>`(). €@*<init>€*%
+_empty_/TestImplicit.TC#[A]	*A€*'
+_empty_/TestImplicit.fTt().*fTt€*(
+_empty_/TestImplicit.fTt().[A]	*A€*(
+_empty_/TestImplicit.fTt().[E]	*E€*(
+_empty_/TestImplicit.fTt().(a)*a€*,
+_empty_/TestImplicit.fTt().(tt)  *tt€*'
+_empty_/TestImplicit.tc().  *tc€*'
+_empty_/TestImplicit.tc().[T]	*T€2%
+ !scala/language.higherKinds.2
+ scala/language.2
+ scala/2#
+ _empty_/TestExplicit.2&
+ 
+_empty_/TestExplicit.TC#21
+
+ 
+#_empty_/TestExplicit.TC#`<init>`().2)
+ _empty_/TestExplicit.TC#[A]2)
+ 	_empty_/TestExplicit.fTt().2,
+
+ _empty_/TestExplicit.fTt().[A]2,
+ _empty_/TestExplicit.fTt().[E]2,
+ _empty_/TestExplicit.fTt().(a)2,
+  !_empty_/TestExplicit.fTt().[A]2-
+, ._empty_/TestExplicit.fTt().(tt)2&
+0 2_empty_/TestExplicit.TC#2,
+3 4_empty_/TestExplicit.fTt().[E]2,
+5 6_empty_/TestExplicit.fTt().[A]2,
+< =_empty_/TestExplicit.fTt().(a)2(
+ _empty_/TestExplicit.tc().2+
+ _empty_/TestExplicit.tc().[T]2&
+ _empty_/TestExplicit.TC#2+
+ _empty_/TestExplicit.tc().[T]2#
+ !scala/Predef.`???`().2)
+ _empty_/TestExplicit.fTt().2(
+	 _empty_/TestExplicit.tc().2#
+ _empty_/TestImplicit.2&
+ 
+_empty_/TestImplicit.TC#21
+
+ 
+#_empty_/TestImplicit.TC#`<init>`().2)
+ _empty_/TestImplicit.TC#[A]2)
+ 	_empty_/TestImplicit.fTt().2,
+
+ _empty_/TestImplicit.fTt().[A]2,
+ _empty_/TestImplicit.fTt().[E]2,
+ _empty_/TestImplicit.fTt().(a)2,
+  !_empty_/TestImplicit.fTt().[A]2-
+, ._empty_/TestImplicit.fTt().(tt)2&
+0 2_empty_/TestImplicit.TC#2,
+3 4_empty_/TestImplicit.fTt().[E]2,
+5 6_empty_/TestImplicit.fTt().[A]2,
+< =_empty_/TestImplicit.fTt().(a)2(
+ _empty_/TestImplicit.tc().2+
+ _empty_/TestImplicit.tc().[T]2&
+ _empty_/TestImplicit.TC#2+
+ _empty_/TestImplicit.tc().[T]2#
+ !scala/Predef.`???`().2)
+ _empty_/TestImplicit.fTt().2(
+ _empty_/TestImplicit.tc().PZ 416C8644921D7684CB1DD6F27982818A

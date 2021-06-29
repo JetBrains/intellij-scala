@@ -1,0 +1,28 @@
+
+ñtests/pos/t0020.scala*(
+_empty_/Exceptions.
+ *
+Exceptions€*7
+!_empty_/Exceptions.CubeException#*CubeException€*>
+,_empty_/Exceptions.CubeException#`<init>`(). €@*<init>€*9
+/_empty_/Exceptions.CubeException#`<init>`().(s)*s€*0
+#_empty_/Exceptions.CubeException#s. €*s€*'
+_empty_/Exceptions.main().*main€*-
+ _empty_/Exceptions.main().(args)*args€2
+ _empty_/Exceptions.2/
+
+ !_empty_/Exceptions.CubeException#2:
+ ,_empty_/Exceptions.CubeException#`<init>`().2"
+ !scala/Predef.String#26
+; ;(java/lang/RuntimeException#`<init>`(+1).2-
++ ;scala/package.RuntimeException#21
+< =#_empty_/Exceptions.CubeException#s.21
+ #_empty_/Exceptions.CubeException#s.2(
+ _empty_/Exceptions.main().2.
+  _empty_/Exceptions.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2(
+ scala/Console.println(+1).2
+ scala/Console.2:
+) ),_empty_/Exceptions.CubeException#`<init>`().2/
+ )!_empty_/Exceptions.CubeException#PZ 9FA075BA94D35AD1D7760701A175FFD4

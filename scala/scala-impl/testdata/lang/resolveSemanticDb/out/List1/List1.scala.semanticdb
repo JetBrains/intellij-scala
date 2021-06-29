@@ -1,0 +1,187 @@
+
+´+tests/pos/List1.scala*
+_empty_/lists.
+ *lists€*"
+_empty_/lists.List# *List€*0
+_empty_/lists.List#`<init>`(). €@*<init>€* 
+_empty_/lists.List#[a]	*a€*/
+_empty_/lists.List#isEmpty(). *isEmpty€*)
+_empty_/lists.List#head(). *head€*)
+_empty_/lists.List#tail(). *tail€*-
+_empty_/lists.List#prepend().*prepend€**
+ _empty_/lists.List#prepend().(x)*x€* 
+_empty_/lists.Nil().*Nil€*!
+_empty_/lists.Nil().[b]	*b€*
+local0 *$anon€*
+local1*isEmpty€*
+local2*head€*
+local3*tail€*"
+_empty_/lists.Cons().*Cons€*"
+_empty_/lists.Cons().[c]	*c€*"
+_empty_/lists.Cons().(x)*x€*$
+_empty_/lists.Cons().(xs)*xs€*
+local4 *$anon€*
+local5*isEmpty€*
+local6*head€*
+local7*tail€* 
+_empty_/lists.foo().*foo€*
+local8 €*intnil€*
+local9 €*intlist€*
+local10 €*x€*
+local11 €*strnil€*
+local12 €*strlist€*
+local13 €*y€*&
+_empty_/lists.IntList#*IntList€*3
+!_empty_/lists.IntList#`<init>`(). €@*<init>€*0
+ _empty_/lists.IntList#isEmpty().*isEmpty€**
+_empty_/lists.IntList#head().*head€*(
+_empty_/lists.IntList#foo().*foo€*
+local14 *isEmpty€*
+local15 *head€*
+local16 *tail€*,
+_empty_/lists.IntList#tail0().*tail0€**
+_empty_/lists.IntList#tail().*tail€*"
+_empty_/lists.foo2().*foo2€*
+local17 €*il1€*
+local18 €*il2€2
+ _empty_/lists.2!
+ _empty_/lists.List#2,
+ _empty_/lists.List#`<init>`().2$
+ _empty_/lists.List#[a]2+
+
+ _empty_/lists.List#isEmpty().2
+ scala/Boolean#2(
+
+ _empty_/lists.List#head().2$
+ _empty_/lists.List#[a]2(
+
+ _empty_/lists.List#tail().2!
+ _empty_/lists.List#2$
+ _empty_/lists.List#[a]2+
+
+ _empty_/lists.List#prepend().2.
+  _empty_/lists.List#prepend().(x)2$
+ _empty_/lists.List#[a]2#
+ _empty_/lists.Cons().2$
+  _empty_/lists.List#[a]2.
+" # _empty_/lists.List#prepend().(x)2"
+		 	_empty_/lists.Nil().2%
+	
+	 _empty_/lists.Nil().[b]2
+		 local02,
+		 _empty_/lists.List#`<init>`().2!
+		 _empty_/lists.List#2%
+		 _empty_/lists.Nil().[b]2
+
+
+ local12
+
+
+ scala/Boolean#2
+ local22(
+ scala/sys/package.error().2
+ 
+scala/sys/2
+ local32(
+ scala/sys/package.error().2
+ 
+scala/sys/2#
+ 
+_empty_/lists.Cons().2&
+ _empty_/lists.Cons().[c]2&
+ _empty_/lists.Cons().(x)2&
+ _empty_/lists.Cons().[c]2'
+ _empty_/lists.Cons().(xs)2!
+ _empty_/lists.List#2&
+ _empty_/lists.Cons().[c]2!
+" &_empty_/lists.List#2&
+' (_empty_/lists.Cons().[c]2
+, ,local42,
+7 7_empty_/lists.List#`<init>`().2!
+0 4_empty_/lists.List#2&
+5 6_empty_/lists.Cons().[c]2
+ local52
+ local62&
+ _empty_/lists.Cons().(x)2
+ local72'
+ _empty_/lists.Cons().(xs)2"
+ 	_empty_/lists.foo().2
+ local82"
+ _empty_/lists.Nil().2
+ 
+scala/Int#2
+ local92+
+$ +_empty_/lists.List#prepend().2+
+  _empty_/lists.List#prepend().2
+ local82 
+. /scala/Int#`+`(+4).2
+ 	local102
+ 
+scala/Int#2(
+ _empty_/lists.List#head().2
+ local92
+ local112"
+ _empty_/lists.Nil().2"
+ scala/Predef.String#2
+ local122+
+& -_empty_/lists.List#prepend().2+
+  _empty_/lists.List#prepend().2
+ local112
+ 	local132"
+ scala/Predef.String#2(
+  _empty_/lists.List#head().2
+ local122$
+ _empty_/lists.IntList#2/
+ !_empty_/lists.IntList#`<init>`().2,
+# #_empty_/lists.List#`<init>`().2!
+ _empty_/lists.List#2
+ "
+scala/Int#2.
+    _empty_/lists.IntList#isEmpty().2
+   scala/Boolean#2+
+!! _empty_/lists.IntList#head().2
+!! 
+scala/Int#2*
+"" _empty_/lists.IntList#foo().2!
+"" _empty_/lists.List#2
+"" 
+scala/Int#2
+"" $local142
+"&" -scala/Boolean#2
+"3" 7local152
+"9" <
+scala/Int#2
+"B" Flocal162!
+"H" L_empty_/lists.List#2
+"M" P
+scala/Int#2"
+"V" Y_empty_/lists.Nil().2
+"Z" ]
+scala/Int#2,
+## _empty_/lists.IntList#tail0().2!
+## _empty_/lists.List#2
+## 
+scala/Int#2+
+#*# 1_empty_/lists.List#prepend().2+
+## &_empty_/lists.List#prepend().2*
+## _empty_/lists.IntList#foo().2 
+#4# 5scala/Int#`+`(+4).2+
+$$ _empty_/lists.IntList#tail().2!
+$$ _empty_/lists.List#2
+$$ 
+scala/Int#2+
+$.$ 5_empty_/lists.List#prepend().2+
+$#$ *_empty_/lists.List#prepend().2"
+$$ _empty_/lists.Nil().2
+$$ !
+scala/Int#2 
+$8$ 9scala/Int#`+`(+4).2#
+'' 
+_empty_/lists.foo2().2
+(( local172/
+(( !_empty_/lists.IntList#`<init>`().2$
+(( _empty_/lists.IntList#2
+)) local182+
+)) $_empty_/lists.List#prepend().2+
+)) _empty_/lists.List#prepend().2
+)) local17PZ D8CE61B7D90D2AD21EC4D16958B0D4B1

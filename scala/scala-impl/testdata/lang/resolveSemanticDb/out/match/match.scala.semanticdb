@@ -1,0 +1,19 @@
+
+Ãtests/pos/match.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.ss. €*ss€*
+local0 €*ss€2
+ _empty_/Test.2
+ _empty_/Test.ss.2 
+
+ scala/package.Seq#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Test.ss.2
+	 local02!
+ scala/package.List#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().PZ AFFEC90B83693F641E468B7652D72F36

@@ -1,0 +1,57 @@
+
+°
+tests/pos/t3071.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*%
+_empty_/A#`<init>`().(i) €*i€*
+_empty_/A#i. €*i€*
+_empty_/A#copy().*copy€*
+_empty_/A#copy().(i)*i€*2
+_empty_/A#copy$default$1().*copy$default$1€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*%
+_empty_/B#`<init>`().(j) €*j€*
+_empty_/B#j. €*j€*
+_empty_/B#copy().*copy€*
+_empty_/B#copy().(j)*j€*2
+_empty_/B#copy$default$1().*copy$default$1€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 
+scala/Int#2
+ _empty_/A#i.2
+ 
+_empty_/A#copy().2"
+ _empty_/A#copy().(i)2
+ 
+scala/Int#2
+ 
+_empty_/A#2#
+' '_empty_/A#`<init>`().2
+& '
+_empty_/A#2"
+( )_empty_/A#copy().(i)2
+ _empty_/A#i.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+scala/Int#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#j.2
+ _empty_/B#copy().2"
+ _empty_/B#copy().(j)2
+ 
+scala/Int#2
+' (
+_empty_/B#2#
+0 0_empty_/B#`<init>`().2
+/ 0
+_empty_/B#2"
+1 2_empty_/B#copy().(j)2
+# $_empty_/B#j.PZ D7D4D102BBFB181739DAFC1C7207DCE1

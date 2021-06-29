@@ -1,0 +1,123 @@
+
+«tests/pos/t6146.scala*,
+_empty_/AxisCompanion#*AxisCompanion€*3
+!_empty_/AxisCompanion#`<init>`(). €@*<init>€*.
+_empty_/AxisCompanion#Format# *Format€*:
+(_empty_/AxisCompanion#Format#`<init>`(). €@*<init>€*.
+_empty_/AxisCompanion#Format.
+ *Format€*8
+%_empty_/AxisCompanion#Format.Decimal.
+ ˆ*Decimal€*8
+%_empty_/AxisCompanion#Format.Integer.
+ ˆ*Integer€*
+_empty_/Axis.
+ *Axis€*
+_empty_/Axis#*Axis€**
+_empty_/Axis#`<init>`(). €@*<init>€*!
+_empty_/Axis#test().*test€*!
+_empty_/Axis#test().(f)*f€*
+_empty_/T1#*T1€*(
+_empty_/T1#`<init>`(). €@*<init>€*
+_empty_/T1#[X]	*X€*
+_empty_/T1#T2#*T2€*+
+_empty_/T1#T2#`<init>`(). €@*<init>€*
+_empty_/T1#T2#[Y]	*Y€*&
+_empty_/T1#T2#Format# *Format€*2
+ _empty_/T1#T2#Format#`<init>`(). €@*<init>€*&
+_empty_/T1#T2#Format.
+ *Format€*0
+_empty_/T1#T2#Format.Decimal.
+ ˆ*Decimal€*0
+_empty_/T1#T2#Format.Integer.
+ ˆ*Integer€*
+_empty_/O1.
+ *O1€*
+_empty_/O1.O2.
+ *O2€*!
+_empty_/Shorty.
+ ˆ*Shorty€*
+_empty_/Test1#*Test1€*+
+_empty_/Test1#`<init>`(). €@*<init>€*
+_empty_/Test1#FI. €*FI€*"
+_empty_/Test1#test().*test€*"
+_empty_/Test1#test().(f)*f€*
+local0 €*ff€2$
+ _empty_/AxisCompanion#2/
+ !_empty_/AxisCompanion#`<init>`().2+
+ _empty_/AxisCompanion#Format#26
+ (_empty_/AxisCompanion#Format#`<init>`().2+
+
+ _empty_/AxisCompanion#Format.23
+		 %_empty_/AxisCompanion#Format.Decimal.2+
+	"	 (_empty_/AxisCompanion#Format#23
+
+
+ %_empty_/AxisCompanion#Format.Integer.2+
+
+"
+ (_empty_/AxisCompanion#Format#2
+ _empty_/Axis.2$
+ !_empty_/AxisCompanion#2
+ 
+_empty_/Axis#2&
+ _empty_/Axis#`<init>`().2
+
+ _empty_/Axis.2"
+ _empty_/Axis#test().2%
+ _empty_/Axis#test().(f)2+
+ _empty_/AxisCompanion#Format#2%
+ _empty_/Axis#test().(f)23
+ %_empty_/AxisCompanion#Format.Integer.2+
+ _empty_/AxisCompanion#Format.23
+ %_empty_/AxisCompanion#Format.Decimal.2+
+ _empty_/AxisCompanion#Format.2
+ _empty_/T1#2$
+ _empty_/T1#`<init>`().2
+	 
+_empty_/T1#[X]2
+ 
+_empty_/T1#T2#2'
+
+ 
+_empty_/T1#T2#`<init>`().2
+ _empty_/T1#T2#[Y]2#
+   _empty_/T1#T2#Format#2.
+    _empty_/T1#T2#Format#`<init>`().2#
+!! _empty_/T1#T2#Format.2+
+"" _empty_/T1#T2#Format.Decimal.2#
+""" (_empty_/T1#T2#Format#2+
+## _empty_/T1#T2#Format.Integer.2#
+#"# (_empty_/T1#T2#Format#2
+(( 	_empty_/O1.2
+(( _empty_/T1#2
+(( 
+scala/Any#2
+)	) _empty_/O1.O2.2
+)) _empty_/T1#T2#2
+)) 
+scala/Any#2
+.. _empty_/Shorty.2#
+.!. '_empty_/T1#T2#Format#2
+..  _empty_/O1.O2.2
+.. _empty_/O1.2
+00 _empty_/Test1#2'
+11 _empty_/Test1#`<init>`().2
+11 _empty_/O1.O2.2
+1
+1 _empty_/O1.2
+22 	_empty_/Test1#FI.2+
+22 _empty_/T1#T2#Format.Integer.2#
+22 _empty_/T1#T2#Format.2+
+2(2 /_empty_/T1#T2#Format.Integer.2#
+2!2 '_empty_/T1#T2#Format.2#
+33 _empty_/Test1#test().2&
+33 _empty_/Test1#test().(f)2#
+33 _empty_/T1#T2#Format#2
+4	4 local02&
+44 _empty_/Test1#test().(f)2&
+44 _empty_/Test1#test().(f)2
+55 local02
+66 _empty_/Test1#FI.2+
+77 _empty_/T1#T2#Format.Decimal.2#
+77 _empty_/T1#T2#Format.2
+88 _empty_/Shorty.PZ F5F254792123FA2DEAFF4054A2D02145

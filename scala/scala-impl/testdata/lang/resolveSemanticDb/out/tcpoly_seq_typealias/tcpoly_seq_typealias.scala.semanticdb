@@ -1,0 +1,448 @@
+
+û§$tests/pos/tcpoly_seq_typealias.scala*/
+!examples/tcpoly/collection/HOSeq#*HOSeqÄ*>
+,examples/tcpoly/collection/HOSeq#`<init>`(). Ä@*<init>Ä*A
+-examples/tcpoly/collection/HOSeq#Accumulator#*AccumulatorÄ*J
+8examples/tcpoly/collection/HOSeq#Accumulator#`<init>`(). Ä@*<init>Ä*C
+3examples/tcpoly/collection/HOSeq#Accumulator#[coll]	 Ä*collÄ*>
+2examples/tcpoly/collection/HOSeq#Accumulator#[elT]	*elTÄ*A
+4examples/tcpoly/collection/HOSeq#Accumulator#`+=`(). *+=Ä*C
+8examples/tcpoly/collection/HOSeq#Accumulator#`+=`().(el)*elÄ*G
+6examples/tcpoly/collection/HOSeq#Accumulator#result(). *resultÄ*;
+*examples/tcpoly/collection/HOSeq#Iterable#*IterableÄ*G
+5examples/tcpoly/collection/HOSeq#Iterable#`<init>`(). Ä@*<init>Ä*:
+-examples/tcpoly/collection/HOSeq#Iterable#[t]	 Ä*tÄ*6
+,examples/tcpoly/collection/HOSeq#Iterable#m#*mÄ*<
+/examples/tcpoly/collection/HOSeq#Iterable#m#[x]	 Ä*xÄ*H
+5examples/tcpoly/collection/HOSeq#Iterable#iterator(). *iteratorÄ*N
+8examples/tcpoly/collection/HOSeq#Iterable#accumulator(). *accumulatorÄ*E
+;examples/tcpoly/collection/HOSeq#Iterable#accumulator().[t]	*tÄ*B
+3examples/tcpoly/collection/HOSeq#Iterable#filter().*filterÄ*@
+6examples/tcpoly/collection/HOSeq#Iterable#filter().(p)*pÄ*
+local0 Ä*bufÄ*
+local1 Ä*elemsÄ*
+local2 Ä*xÄ*<
+0examples/tcpoly/collection/HOSeq#Iterable#map().*mapÄ*=
+3examples/tcpoly/collection/HOSeq#Iterable#map().[s]	*sÄ*=
+3examples/tcpoly/collection/HOSeq#Iterable#map().(f)*fÄ*
+local3 Ä*bufÄ*
+local4 Ä*elemsÄ*D
+4examples/tcpoly/collection/HOSeq#Iterable#flatMap().*flatMapÄ*M
+=examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl]	*resCollÄ*A
+7examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s]	*sÄ*A
+7examples/tcpoly/collection/HOSeq#Iterable#flatMap().(f)*fÄ*G
+9examples/tcpoly/collection/HOSeq#Iterable#flatMap().(buf)  *bufÄ*
+local5 Ä*elemsÄ*
+local6 Ä*elemssÄ*A
+,examples/tcpoly/collection/HOSeq#ListBuffer# *
+ListBufferÄ*I
+7examples/tcpoly/collection/HOSeq#ListBuffer#`<init>`(). Ä@*<init>Ä*9
+/examples/tcpoly/collection/HOSeq#ListBuffer#[A]	*AÄ*E
+4examples/tcpoly/collection/HOSeq#ListBuffer#start(). Ä*startÄ*C
+3examples/tcpoly/collection/HOSeq#ListBuffer#last(). Ä*lastÄ*K
+7examples/tcpoly/collection/HOSeq#ListBuffer#exported(). Ä*exportedÄ*>
+3examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().*+=Ä*@
+6examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().(x)*xÄ*
+local7 Ä*last1Ä*D
+5examples/tcpoly/collection/HOSeq#ListBuffer#toList().*toListÄ*B
+4examples/tcpoly/collection/HOSeq#ListBuffer#clear().*clearÄ*@
+3examples/tcpoly/collection/HOSeq#ListBuffer#copy().*copyÄ*
+local8 Ä*cursorÄ*
+local9 Ä*limitÄ*M
+3examples/tcpoly/collection/HOSeq#listAccumulator().  *listAccumulatorÄ*D
+8examples/tcpoly/collection/HOSeq#listAccumulator().[elT]	*elTÄ*
+local10 *$anonÄ*
+local11 Ä*buffÄ*
+local12*+=Ä*
+local13*elÄ*
+local14*resultÄ*3
+&examples/tcpoly/collection/HOSeq#List#*ListÄ*C
+1examples/tcpoly/collection/HOSeq#List#`<init>`(). Ä@*<init>Ä*6
+)examples/tcpoly/collection/HOSeq#List#[t]	 Ä*tÄ*2
+(examples/tcpoly/collection/HOSeq#List#m#*mÄ*8
++examples/tcpoly/collection/HOSeq#List#m#[x]	 Ä*xÄ*<
+-examples/tcpoly/collection/HOSeq#List#head(). *headÄ*<
+-examples/tcpoly/collection/HOSeq#List#tail(). *tailÄ*B
+0examples/tcpoly/collection/HOSeq#List#isEmpty(). *isEmptyÄ*B
+1examples/tcpoly/collection/HOSeq#List#iterator().*iteratorÄ*
+local15 *$anonÄ*
+local16 Ä*theseÄ*
+local17 Ä*these_=Ä*
+local18*x$1Ä*
+local19*hasNextÄ*
+local20*nextÄ*
+local21 Ä*resultÄ*H
+4examples/tcpoly/collection/HOSeq#List#accumulator().*accumulatorÄ*A
+7examples/tcpoly/collection/HOSeq#List#accumulator().[t]	*tÄ*4
+&examples/tcpoly/collection/HOSeq#`::`# à*::Ä*C
+1examples/tcpoly/collection/HOSeq#`::`#`<init>`(). Ä@*<init>Ä*C
+5examples/tcpoly/collection/HOSeq#`::`#`<init>`().(hd) Ä*hdÄ*@
+5examples/tcpoly/collection/HOSeq#`::`#`<init>`().(tl)*tlÄ*6
+)examples/tcpoly/collection/HOSeq#`::`#[b]	 Ä*bÄ*7
+)examples/tcpoly/collection/HOSeq#`::`#hd. Ä*hdÄ*7
+)examples/tcpoly/collection/HOSeq#`::`#tl. Ä*tlÄ*:
+-examples/tcpoly/collection/HOSeq#`::`#head().*headÄ*:
+-examples/tcpoly/collection/HOSeq#`::`#tail().*tailÄ*@
+0examples/tcpoly/collection/HOSeq#`::`#isEmpty().*isEmptyÄ*:
+-examples/tcpoly/collection/HOSeq#`::`#copy().*copyÄ*:
+0examples/tcpoly/collection/HOSeq#`::`#copy().[b]	*bÄ*<
+1examples/tcpoly/collection/HOSeq#`::`#copy().(hd)*hdÄ*<
+1examples/tcpoly/collection/HOSeq#`::`#copy().(tl)*tlÄ*N
+7examples/tcpoly/collection/HOSeq#`::`#copy$default$1().*copy$default$1Ä*D
+:examples/tcpoly/collection/HOSeq#`::`#copy$default$1().[b]	*bÄ*N
+7examples/tcpoly/collection/HOSeq#`::`#copy$default$2().*copy$default$2Ä*D
+:examples/tcpoly/collection/HOSeq#`::`#copy$default$2().[b]	*bÄ*6
++examples/tcpoly/collection/HOSeq#`::`#_1().*_1Ä*6
++examples/tcpoly/collection/HOSeq#`::`#_2().*_2Ä*3
+&examples/tcpoly/collection/HOSeq#`::`.
+ *::Ä*<
+.examples/tcpoly/collection/HOSeq#`::`.apply().*applyÄ*;
+1examples/tcpoly/collection/HOSeq#`::`.apply().[b]	*bÄ*=
+2examples/tcpoly/collection/HOSeq#`::`.apply().(hd)*hdÄ*=
+2examples/tcpoly/collection/HOSeq#`::`.apply().(tl)*tlÄ*@
+0examples/tcpoly/collection/HOSeq#`::`.unapply().*unapplyÄ*=
+3examples/tcpoly/collection/HOSeq#`::`.unapply().[b]	*bÄ*A
+5examples/tcpoly/collection/HOSeq#`::`.unapply().(x$1)*x$1Ä*B
+1examples/tcpoly/collection/HOSeq#`::`.toString().*toStringÄ*4
+%examples/tcpoly/collection/HOSeq#Nil.
+ à*NilÄ*?
+/examples/tcpoly/collection/HOSeq#Nil.isEmpty().*isEmptyÄ*9
+,examples/tcpoly/collection/HOSeq#Nil.head().*headÄ*9
+,examples/tcpoly/collection/HOSeq#Nil.tail().*tailÄ2%
+ "examples/tcpoly/collection/2
+ examples/tcpoly/2
+ 	examples/2/
+ !examples/tcpoly/collection/HOSeq#2:
+ ,examples/tcpoly/collection/HOSeq#`<init>`().2;
+ -examples/tcpoly/collection/HOSeq#Accumulator#2F
+ 8examples/tcpoly/collection/HOSeq#Accumulator#`<init>`().2A
+ 3examples/tcpoly/collection/HOSeq#Accumulator#[coll]2@
+ !2examples/tcpoly/collection/HOSeq#Accumulator#[elT]2B
+ 
+4examples/tcpoly/collection/HOSeq#Accumulator#`+=`().2F
+ 8examples/tcpoly/collection/HOSeq#Accumulator#`+=`().(el)2@
+ 2examples/tcpoly/collection/HOSeq#Accumulator#[elT]2
+ scala/Unit#2D
+ 6examples/tcpoly/collection/HOSeq#Accumulator#result().2A
+ 3examples/tcpoly/collection/HOSeq#Accumulator#[coll]2@
+ 2examples/tcpoly/collection/HOSeq#Accumulator#[elT]28
+ *examples/tcpoly/collection/HOSeq#Iterable#2C
+ 5examples/tcpoly/collection/HOSeq#Iterable#`<init>`().2;
+ -examples/tcpoly/collection/HOSeq#Iterable#[t]2:
+	 
+,examples/tcpoly/collection/HOSeq#Iterable#m#2=
+ /examples/tcpoly/collection/HOSeq#Iterable#m#[x]2C
+ 5examples/tcpoly/collection/HOSeq#Iterable#iterator().2%
+ scala/package.Iterator#2;
+ -examples/tcpoly/collection/HOSeq#Iterable#[t]2F
+ 8examples/tcpoly/collection/HOSeq#Iterable#accumulator().2I
+ ;examples/tcpoly/collection/HOSeq#Iterable#accumulator().[t]2;
+ #-examples/tcpoly/collection/HOSeq#Accumulator#2:
+$ %,examples/tcpoly/collection/HOSeq#Iterable#m#2I
+' (;examples/tcpoly/collection/HOSeq#Iterable#accumulator().[t]2A
+ 3examples/tcpoly/collection/HOSeq#Iterable#filter().2D
+ 6examples/tcpoly/collection/HOSeq#Iterable#filter().(p)2;
+ -examples/tcpoly/collection/HOSeq#Iterable#[t]2
+ scala/Boolean#2:
+! ",examples/tcpoly/collection/HOSeq#Iterable#m#2;
+# $-examples/tcpoly/collection/HOSeq#Iterable#[t]2
+
+ local02F
+ 8examples/tcpoly/collection/HOSeq#Iterable#accumulator().2;
+ -examples/tcpoly/collection/HOSeq#Iterable#[t]2
+
+ local12C
+ 5examples/tcpoly/collection/HOSeq#Iterable#iterator().22
+ $scala/collection/Iterator#hasNext().2
+ local12
+" #local22/
+, 0!scala/collection/Iterator#next().2
+& +local12&
+9 9scala/Function1#apply().2D
+8 96examples/tcpoly/collection/HOSeq#Iterable#filter().(p)2
+: ;local22B
+B D4examples/tcpoly/collection/HOSeq#Accumulator#`+=`().2
+> Alocal02
+E Flocal22D
+
+ 6examples/tcpoly/collection/HOSeq#Accumulator#result().2
+ 	local02>
+   0examples/tcpoly/collection/HOSeq#Iterable#map().2A
+   3examples/tcpoly/collection/HOSeq#Iterable#map().[s]2A
+   3examples/tcpoly/collection/HOSeq#Iterable#map().(f)2;
+   -examples/tcpoly/collection/HOSeq#Iterable#[t]2A
+   3examples/tcpoly/collection/HOSeq#Iterable#map().[s]2:
+   ,examples/tcpoly/collection/HOSeq#Iterable#m#2A
+   3examples/tcpoly/collection/HOSeq#Iterable#map().[s]2
+!
+! local32F
+!! 8examples/tcpoly/collection/HOSeq#Iterable#accumulator().2A
+!! 3examples/tcpoly/collection/HOSeq#Iterable#map().[s]2
+"
+" local42C
+"" 5examples/tcpoly/collection/HOSeq#Iterable#iterator().22
+## $scala/collection/Iterator#hasNext().2
+## local42B
+# # "4examples/tcpoly/collection/HOSeq#Accumulator#`+=`().2
+## local32&
+#$# $scala/Function1#apply().2A
+### $3examples/tcpoly/collection/HOSeq#Iterable#map().(f)2/
+#+# /!scala/collection/Iterator#next().2
+#%# *local42D
+$
+$ 6examples/tcpoly/collection/HOSeq#Accumulator#result().2
+$$ 	local32B
+++ 4examples/tcpoly/collection/HOSeq#Iterable#flatMap().2K
+++ =examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl]2E
++,+ -7examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s]2E
++/+ 07examples/tcpoly/collection/HOSeq#Iterable#flatMap().(f)2;
++2+ 3-examples/tcpoly/collection/HOSeq#Iterable#[t]2K
++7+ >=examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl]2E
++?+ @7examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s]2G
++L+ O9examples/tcpoly/collection/HOSeq#Iterable#flatMap().(buf)2;
++Q+ \-examples/tcpoly/collection/HOSeq#Accumulator#2K
++]+ d=examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl]2E
++f+ g7examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s]2K
++k+ r=examples/tcpoly/collection/HOSeq#Iterable#flatMap().[resColl]2E
++s+ t7examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s]2
+.
+. local52C
+.. 5examples/tcpoly/collection/HOSeq#Iterable#iterator().22
+// $scala/collection/Iterator#hasNext().2
+// local52
+00 local62%
+00 scala/package.Iterator#2E
+00 7examples/tcpoly/collection/HOSeq#Iterable#flatMap().[s]2C
+020 :5examples/tcpoly/collection/HOSeq#Iterable#iterator().2&
+0#0 #scala/Function1#apply().2E
+0"0 #7examples/tcpoly/collection/HOSeq#Iterable#flatMap().(f)2/
+0*0 .!scala/collection/Iterator#next().2
+0$0 )local522
+11 $scala/collection/Iterator#hasNext().2
+11 local62B
+1#1 %4examples/tcpoly/collection/HOSeq#Accumulator#`+=`().2G
+11 "9examples/tcpoly/collection/HOSeq#Iterable#flatMap().(buf)2/
+1-1 1!scala/collection/Iterator#next().2
+1&1 ,local62D
+3
+3 6examples/tcpoly/collection/HOSeq#Accumulator#result().2G
+33 	9examples/tcpoly/collection/HOSeq#Iterable#flatMap().(buf)2:
+77 ,examples/tcpoly/collection/HOSeq#ListBuffer#2E
+77 7examples/tcpoly/collection/HOSeq#ListBuffer#`<init>`().2=
+77 /examples/tcpoly/collection/HOSeq#ListBuffer#[A]2B
+88 4examples/tcpoly/collection/HOSeq#ListBuffer#start().24
+88 &examples/tcpoly/collection/HOSeq#List#2=
+88 /examples/tcpoly/collection/HOSeq#ListBuffer#[A]23
+8!8 $%examples/tcpoly/collection/HOSeq#Nil.2A
+99 3examples/tcpoly/collection/HOSeq#ListBuffer#last().24
+99 &examples/tcpoly/collection/HOSeq#`::`#2=
+99 /examples/tcpoly/collection/HOSeq#ListBuffer#[A]2@
+9*9 72scala/compiletime/package$package.uninitialized().2 
+99 )scala/compiletime/2E
+:: 7examples/tcpoly/collection/HOSeq#ListBuffer#exported().2
+:: !scala/Boolean#2A
+@@ 
+3examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().2D
+@@ 6examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().(x)2=
+@@ /examples/tcpoly/collection/HOSeq#ListBuffer#[A]2
+@@ scala/Unit#2E
+A
+A 7examples/tcpoly/collection/HOSeq#ListBuffer#exported().2A
+AA 3examples/tcpoly/collection/HOSeq#ListBuffer#copy().2>
+BB 0examples/tcpoly/collection/HOSeq#List#isEmpty().2B
+B
+B 4examples/tcpoly/collection/HOSeq#ListBuffer#start().2A
+CC 3examples/tcpoly/collection/HOSeq#ListBuffer#last().2?
+C C  1examples/tcpoly/collection/HOSeq#`::`#`<init>`().2D
+C"C #6examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().(x)23
+C%C (%examples/tcpoly/collection/HOSeq#Nil.2B
+DD 4examples/tcpoly/collection/HOSeq#ListBuffer#start().2A
+DD 3examples/tcpoly/collection/HOSeq#ListBuffer#last().2
+FF local72A
+FF 3examples/tcpoly/collection/HOSeq#ListBuffer#last().2A
+GG 3examples/tcpoly/collection/HOSeq#ListBuffer#last().2?
+G G  1examples/tcpoly/collection/HOSeq#`::`#`<init>`().2D
+G"G #6examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().(x)2C
+NN 5examples/tcpoly/collection/HOSeq#ListBuffer#toList().24
+NN &examples/tcpoly/collection/HOSeq#List#2=
+NN /examples/tcpoly/collection/HOSeq#ListBuffer#[A]2E
+OO 7examples/tcpoly/collection/HOSeq#ListBuffer#exported().2(
+OO scala/Boolean#`unary_!`().2>
+OO 0examples/tcpoly/collection/HOSeq#List#isEmpty().2B
+OO 4examples/tcpoly/collection/HOSeq#ListBuffer#start().2B
+PP 4examples/tcpoly/collection/HOSeq#ListBuffer#start().2B
+UU 4examples/tcpoly/collection/HOSeq#ListBuffer#clear().2
+UU scala/Unit#2B
+VV 4examples/tcpoly/collection/HOSeq#ListBuffer#start().23
+VV %examples/tcpoly/collection/HOSeq#Nil.2E
+WW 7examples/tcpoly/collection/HOSeq#ListBuffer#exported().2A
+[[ 3examples/tcpoly/collection/HOSeq#ListBuffer#copy().2
+[[ scala/Unit#2
+\
+\ local82B
+\\ 4examples/tcpoly/collection/HOSeq#ListBuffer#start().2
+]
+] local92;
+]] -examples/tcpoly/collection/HOSeq#`::`#tail().2A
+]] 3examples/tcpoly/collection/HOSeq#ListBuffer#last().2B
+^^ 4examples/tcpoly/collection/HOSeq#ListBuffer#clear().2$
+__ java/lang/Object#ne().2
+__ local82
+__ local92A
+`` 3examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().2;
+`` -examples/tcpoly/collection/HOSeq#List#head().2
+`` local82
+aa local82;
+aa -examples/tcpoly/collection/HOSeq#List#tail().2
+aa local82A
+ff 3examples/tcpoly/collection/HOSeq#listAccumulator().2F
+ff "8examples/tcpoly/collection/HOSeq#listAccumulator().[elT]2;
+f%f 0-examples/tcpoly/collection/HOSeq#Accumulator#2F
+f7f :8examples/tcpoly/collection/HOSeq#listAccumulator().[elT]2
+f>f >local102;
+fBf M-examples/tcpoly/collection/HOSeq#Accumulator#2F
+fTf W8examples/tcpoly/collection/HOSeq#listAccumulator().[elT]2
+gg local112E
+g0g 07examples/tcpoly/collection/HOSeq#ListBuffer#`<init>`().2:
+g!g +,examples/tcpoly/collection/HOSeq#ListBuffer#2F
+g,g /8examples/tcpoly/collection/HOSeq#listAccumulator().[elT]2
+hh 
+local122
+hh local132F
+hh 8examples/tcpoly/collection/HOSeq#listAccumulator().[elT]2
+hh scala/Unit#2A
+h"h $3examples/tcpoly/collection/HOSeq#ListBuffer#`+=`().2
+hh !local112
+h%h 'local132
+ii local1424
+ii &examples/tcpoly/collection/HOSeq#List#2F
+ii 8examples/tcpoly/collection/HOSeq#listAccumulator().[elT]2C
+i!i '5examples/tcpoly/collection/HOSeq#ListBuffer#toList().2
+ii  local1124
+ll &examples/tcpoly/collection/HOSeq#List#2?
+ll 1examples/tcpoly/collection/HOSeq#List#`<init>`().28
+ll !*examples/tcpoly/collection/HOSeq#Iterable#27
+l"l #)examples/tcpoly/collection/HOSeq#List#[t]27
+ll )examples/tcpoly/collection/HOSeq#List#[t]26
+m	m 
+(examples/tcpoly/collection/HOSeq#List#m#29
+mm +examples/tcpoly/collection/HOSeq#List#m#[x]24
+mm &examples/tcpoly/collection/HOSeq#List#29
+mm +examples/tcpoly/collection/HOSeq#List#m#[x]2;
+oo -examples/tcpoly/collection/HOSeq#List#head().27
+oo )examples/tcpoly/collection/HOSeq#List#[t]2;
+pp -examples/tcpoly/collection/HOSeq#List#tail().24
+pp &examples/tcpoly/collection/HOSeq#List#27
+pp )examples/tcpoly/collection/HOSeq#List#[t]2>
+qq 0examples/tcpoly/collection/HOSeq#List#isEmpty().2
+qq scala/Boolean#2?
+rr 1examples/tcpoly/collection/HOSeq#List#iterator().2%
+rr scala/package.Iterator#27
+rr )examples/tcpoly/collection/HOSeq#List#[t]2
+r r  local152%
+r$r ,scala/package.Iterator#27
+r-r .)examples/tcpoly/collection/HOSeq#List#[t]2
+s
+s local162
+s
+s local172
+t
+t local192
+tt scala/Boolean#2(
+t+t +scala/Boolean#`unary_!`().2>
+t$t +0examples/tcpoly/collection/HOSeq#List#isEmpty().2
+tt #local162
+u
+u local2027
+uu )examples/tcpoly/collection/HOSeq#List#[t]2(
+vv scala/Boolean#`unary_!`().2
+vv local192<
+w*w *.java/util/NoSuchElementException#`<init>`(+1).23
+ww *%scala/package.NoSuchElementException#2
+yy local212;
+yy !-examples/tcpoly/collection/HOSeq#List#head().2
+yy local162
+y#y (local172;
+y1y 5-examples/tcpoly/collection/HOSeq#List#tail().2
+y+y 0local162
+y7y =local212B
+}} 4examples/tcpoly/collection/HOSeq#List#accumulator().2E
+}} 7examples/tcpoly/collection/HOSeq#List#accumulator().[t]2;
+}} #-examples/tcpoly/collection/HOSeq#Accumulator#2E
+}*} +7examples/tcpoly/collection/HOSeq#List#accumulator().[t]2A
+}/} >3examples/tcpoly/collection/HOSeq#listAccumulator().2E
+}?} @7examples/tcpoly/collection/HOSeq#List#accumulator().[t]26
+
+ÅÅ &examples/tcpoly/collection/HOSeq#`::`#2A
+
+ÅÅ 1examples/tcpoly/collection/HOSeq#`::`#`<init>`().29
+
+ÅÅ )examples/tcpoly/collection/HOSeq#`::`#[b]26
+
+Å1Å 5&examples/tcpoly/collection/HOSeq#List#29
+
+Å6Å 7)examples/tcpoly/collection/HOSeq#`::`#[b]26
+
+ÅBÅ F&examples/tcpoly/collection/HOSeq#List#29
+
+ÅGÅ H)examples/tcpoly/collection/HOSeq#`::`#[b]29
+
+ÅÅ )examples/tcpoly/collection/HOSeq#`::`#[b]29
+
+ÅÅ )examples/tcpoly/collection/HOSeq#`::`#hd.29
+
+Å-Å /)examples/tcpoly/collection/HOSeq#`::`#tl.2=
+
+ÇÇ -examples/tcpoly/collection/HOSeq#`::`#head().29
+
+ÇÇ )examples/tcpoly/collection/HOSeq#`::`#hd.2=
+
+ÉÉ -examples/tcpoly/collection/HOSeq#`::`#tail().2!
+
+ÉÉ scala/Any#`==`().29
+
+ÉÉ )examples/tcpoly/collection/HOSeq#`::`#tl.29
+
+É'É ))examples/tcpoly/collection/HOSeq#`::`#tl.2@
+
+ÑÑ 0examples/tcpoly/collection/HOSeq#`::`#isEmpty().2
+
+ÑÑ !scala/Boolean#2=
+
+ÅÅ -examples/tcpoly/collection/HOSeq#`::`#copy().2;
+
+ÅÅ +examples/tcpoly/collection/HOSeq#`::`#_1().2;
+
+Å1Å 1+examples/tcpoly/collection/HOSeq#`::`#_2().26
+
+ÅÅ &examples/tcpoly/collection/HOSeq#`::`.2>
+
+ÅÅ .examples/tcpoly/collection/HOSeq#`::`.apply().2@
+
+ÅÅ 0examples/tcpoly/collection/HOSeq#`::`.unapply().25
+
+áá %examples/tcpoly/collection/HOSeq#Nil.26
+
+áá &examples/tcpoly/collection/HOSeq#List#2
+
+áá &scala/Nothing#2?
+
+àà /examples/tcpoly/collection/HOSeq#Nil.isEmpty().2<
+
+ââ ,examples/tcpoly/collection/HOSeq#Nil.head().2
+
+ââ scala/Nothing#2>
+
+ä&ä &.java/util/NoSuchElementException#`<init>`(+1).25
+
+ää &%scala/package.NoSuchElementException#2<
+
+ãã ,examples/tcpoly/collection/HOSeq#Nil.tail().26
+
+ãã &examples/tcpoly/collection/HOSeq#List#2
+
+ãã scala/Nothing#2>
+
+å&å &.java/util/NoSuchElementException#`<init>`(+1).25
+
+åå &%scala/package.NoSuchElementException#PZ 164439766D26472A80191434AB09F7EC

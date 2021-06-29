@@ -1,0 +1,151 @@
+
+Étests/pos/zoo2.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Meat#*Meat€*
+local0*IsMeat€*!
+_empty_/Test.Grass#*Grass€*
+local1*IsGrass€*#
+_empty_/Test.Animal#*Animal€*
+local2*Food€*
+local3 *eats€*
+local4*food€*
+local5 *gets€*
+_empty_/Test.Cow#*Cow€*
+local6*IsMeat€*
+local7*Food€*
+local8 *eats€*
+local9*food€*
+local10 *gets€*
+_empty_/Test.Lion#*Lion€*
+local11*Food€*
+local12 *eats€*
+local13*food€*
+local14 *gets€*'
+_empty_/Test.newMeat().*newMeat€*
+local15 *$anon€*
+local16*IsMeat€*)
+_empty_/Test.newGrass().*newGrass€*
+local17 *$anon€*
+local18*IsGrass€*%
+_empty_/Test.newCow().*newCow€*
+local19 *$anon€*
+local20*IsMeat€*
+local21*Food€*
+local22*eats€*
+local23*food€*
+local24*gets€*'
+_empty_/Test.newLion().*newLion€*
+local25 *$anon€*
+local26*Food€*
+local27*eats€*
+local28*food€*
+local29*gets€*$
+_empty_/Test.milka. €*milka€* 
+_empty_/Test.leo. €*leo€2:
+  40scala/reflect/Selectable.reflectiveSelectable().2#
+ scala/reflect/Selectable.2
+ scala/reflect/2
+ scala/2
+ _empty_/Test.2 
+ 	_empty_/Test.Meat#2
+ local02
+ 
+scala/Any#2!
+ 
+_empty_/Test.Grass#2
+ local12
+ 
+scala/Any#2"
+ _empty_/Test.Animal#2
+		 local22
+
+
+ 
+local32
+
+
+ local42
+
+
+ local22
+
+
+ scala/Unit#2
+ 
+local52
+ local22
+ _empty_/Test.Cow#2
+ local62
+ 
+scala/Any#2
+ local72!
+ _empty_/Test.Grass#2
+ 
+local82
+ local92!
+ _empty_/Test.Grass#2
+ scala/Unit#2
+ 
+local102!
+ _empty_/Test.Grass#2 
+ 	_empty_/Test.Lion#2
+ local112 
+ _empty_/Test.Meat#2
+ 
+local122
+ local132 
+ _empty_/Test.Meat#2
+ scala/Unit#2
+ 
+local142 
+ _empty_/Test.Meat#2%
+ _empty_/Test.newMeat().2 
+ _empty_/Test.Meat#2
+ local152
+ local162
+ 
+scala/Any#2&
+ _empty_/Test.newGrass().2!
+ _empty_/Test.Grass#2
+ local172
+ local182
+ 
+scala/Any#2$
+ 
+_empty_/Test.newCow().2
+ _empty_/Test.Cow#2
+ local192
+ local202
+ 
+scala/Any#2
+   local212!
+   _empty_/Test.Grass#2
+!! 
+local222
+!! local232!
+!! _empty_/Test.Grass#2
+"" 
+local242&
+"" _empty_/Test.newGrass().2%
+$$ _empty_/Test.newLion().2 
+$$ _empty_/Test.Lion#2
+$$ local252
+%% local262 
+%% _empty_/Test.Meat#2
+&& 
+local272
+&& local282 
+&& _empty_/Test.Meat#2
+'' 
+local292%
+'' _empty_/Test.newMeat().2!
+)) 	_empty_/Test.milka.2$
+)) _empty_/Test.newCow().2
+** _empty_/Test.leo.2%
+*
+* _empty_/Test.newLion().26
+++ (scala/reflect/Selectable#applyDynamic().2:
+++0scala/reflect/Selectable.reflectiveSelectable().2
+++ _empty_/Test.leo.2!
++	+ _empty_/Test.milka.PZ 4C5DDC248B86B7FA2A71C889F97EC15E

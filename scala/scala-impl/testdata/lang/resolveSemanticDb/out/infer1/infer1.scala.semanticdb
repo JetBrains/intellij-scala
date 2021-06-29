@@ -1,0 +1,73 @@
+
+Ìtests/pos/infer1.scala*.
+_empty_/TestInferrence#*TestInferrence€*4
+"_empty_/TestInferrence#`<init>`(). €@*<init>€*$
+_empty_/TestInferrence#[T]	*T€*1
+ _empty_/TestInferrence#getInt(). *getInt€*-
+#_empty_/TestInferrence#getInt().(t)*t€*6
+_empty_/TestIntInferrence.
+ *TestIntInferrence€*2
+#_empty_/TestIntInferrence.getInt().*getInt€*0
+&_empty_/TestIntInferrence.getInt().(i)*i€*0
+_empty_/InferrenceTest.
+ *InferrenceTest€*I
+-_empty_/InferrenceTest.createNumberHandler().*createNumberHandler€*:
+0_empty_/InferrenceTest.createNumberHandler().[T]	*T€*J
+8_empty_/InferrenceTest.createNumberHandler().(testInfer)*	testInfer€*H
+7_empty_/InferrenceTest.createNumberHandler().(handlers)*handlers€*
+local0*t€*]
+7_empty_/InferrenceTest.createNumberHandler$default$1().*createNumberHandler$default$1€*D
+:_empty_/InferrenceTest.createNumberHandler$default$1().[T]	*T€*]
+7_empty_/InferrenceTest.createNumberHandler$default$2().*createNumberHandler$default$2€*D
+:_empty_/InferrenceTest.createNumberHandler$default$2().[T]	*T€*.
+_empty_/InferrenceTest#*InferrenceTest€*4
+"_empty_/InferrenceTest#`<init>`(). €@*<init>€*2
+_empty_/InferrenceTest#handler. €*handler€2!
+ _empty_/TestInferrence#2,
+ "_empty_/TestInferrence#`<init>`().2$
+ _empty_/TestInferrence#[T]2.
+  _empty_/TestInferrence#getInt().21
+ #_empty_/TestInferrence#getInt().(t)2(
+ _empty_/TestInferrence#[T]2
+ 
+scala/Int#2(
+ _empty_/TestIntInferrence.2%
+! /_empty_/TestInferrence#2
+0 3
+scala/Int#21
+ #_empty_/TestIntInferrence.getInt().24
+ &_empty_/TestIntInferrence.getInt().(i)2
+ 
+scala/Int#24
+  !&_empty_/TestIntInferrence.getInt().(i)2%
+
+
+ _empty_/InferrenceTest.2;
+ -_empty_/InferrenceTest.createNumberHandler().2>
+ 0_empty_/InferrenceTest.createNumberHandler().[T]2F
+ 8_empty_/InferrenceTest.createNumberHandler().(testInfer)2%
+ _empty_/TestInferrence#2>
+ 0_empty_/InferrenceTest.createNumberHandler().[T]2E
+ 7_empty_/InferrenceTest.createNumberHandler().(handlers)2
+ scala/Predef.Map#2"
+ scala/Predef.String#2>
+ 0_empty_/InferrenceTest.createNumberHandler().[T]2
+ #scala/Unit#2>
+ 0_empty_/InferrenceTest.createNumberHandler().[T]2
+
+ scala/Unit#2
+ local02>
+ 	0_empty_/InferrenceTest.createNumberHandler().[T]2.
+  _empty_/TestInferrence#getInt().2F
+ 8_empty_/InferrenceTest.createNumberHandler().(testInfer)2
+ local02H
+ :_empty_/InferrenceTest.createNumberHandler$default$1().[T]2(
+# 4_empty_/TestIntInferrence.2H
+ :_empty_/InferrenceTest.createNumberHandler$default$2().[T]25
+, 1'scala/collection/immutable/Map.empty().2
+' *scala/Predef.Map.2%
+ _empty_/InferrenceTest#20
+ "_empty_/InferrenceTest#`<init>`().2-
+ _empty_/InferrenceTest#handler.2;
+ 2-_empty_/InferrenceTest.createNumberHandler().2%
+ _empty_/InferrenceTest.PZ 7C5289C44CACB8F5782B6F3E2220E8F5

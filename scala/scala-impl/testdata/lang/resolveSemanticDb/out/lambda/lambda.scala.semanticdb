@@ -1,0 +1,22 @@
+
+Ëtests/pos/lambda.scala*
+foo/Foo#*Foo€*%
+foo/Foo#`<init>`(). €@*<init>€*
+local0*x€*
+
+foo/Foo#a. €*a€*
+local1*x€2
+ foo/2
+ 	foo/Foo#2!
+ foo/Foo#`<init>`().2
+ local02
+ 
+scala/Int#2
+ 
+foo/Foo#a.2
+ local12
+ 
+scala/Int#2 
+ scala/Int#`*`(+3).2
+ local12
+ local1PZ 4D8FAE0DE7EAF5C5A29E2A93BB2A14AB

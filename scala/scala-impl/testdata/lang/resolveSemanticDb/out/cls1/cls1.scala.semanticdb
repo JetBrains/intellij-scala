@@ -1,0 +1,18 @@
+
+Étests/pos/cls1.scala*
+test/A#*A€*$
+test/A#`<init>`(). €@*<init>€*
+	test/A#T#*T€*
+	test/A#B#*B€*&
+test/A#B#`<init>`(). €@*<init>€*
+test/A#B#T#*T€2
+ test/2
+ test/A#2 
+ test/A#`<init>`().2
+ 	test/A#T#2
+ 		test/A#B#2"
+ test/A#B#`<init>`().2
+ test/A#2
+	 
+test/A#B#T#2
+ 	test/A#T#PZ 811247C05C37D64A444445B899069985

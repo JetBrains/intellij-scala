@@ -1,0 +1,15 @@
+
+ótests/pos/lookupswitch.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f().*f€*
+_empty_/A#f().(x)*x€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2
+ 	_empty_/A#f().(x)2
+ 
+scala/Int#2
+ _empty_/A#f().(x)PZ C96AA3604F97E7991BF41AFC5F3A1F02

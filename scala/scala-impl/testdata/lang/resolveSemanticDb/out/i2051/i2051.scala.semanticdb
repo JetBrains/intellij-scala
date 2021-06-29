@@ -1,0 +1,157 @@
+
+Ïtests/pos/i2051.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*%
+_empty_/A#`<init>`().(x) €*x€*
+_empty_/A#[T]	*T€*
+_empty_/A#x. €*x€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*%
+_empty_/B#`<init>`().(x) €*x€*
+_empty_/B#[T]	*T€*
+_empty_/B#x. €*x€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*%
+_empty_/C#`<init>`().(x) €*x€*%
+_empty_/C#`<init>`().(y) €*y€*%
+_empty_/C#`<init>`().(z) €*z€*
+_empty_/C#[T]	*T€*
+_empty_/C#x. €*x€*
+_empty_/C#y. €*y€*
+_empty_/C#z. €*z€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*%
+_empty_/D#`<init>`().(x) €*x€*"
+_empty_/D#`<init>`().(y)*y€*"
+_empty_/D#`<init>`().(z)*z€*
+_empty_/D#[T]	*T€*
+_empty_/D#x. €*x€*
+_empty_/D#y. €*y€*
+_empty_/D#z. €*z€*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*%
+_empty_/X#`<init>`().(x) €*x€*"
+_empty_/X#`<init>`().(y)*y€*"
+_empty_/X#`<init>`().(z)*z€*
+_empty_/X#x. €*x€*
+_empty_/X#y. €*y€*
+_empty_/X#z. €*z€*
+
+_empty_/Y#*Y€*'
+_empty_/Y#`<init>`(). €@*<init>€*%
+_empty_/Y#`<init>`().(x) €*x€*"
+_empty_/Y#`<init>`().(y)*y€*"
+_empty_/Y#`<init>`().(z)*z€*
+_empty_/Y#x. €*x€*
+_empty_/Y#y. €*y€*
+_empty_/Y#z. €*z€*
+
+_empty_/Z#*Z€*'
+_empty_/Z#`<init>`(). €@*<init>€*%
+_empty_/Z#`<init>`().(x) €*x€*"
+_empty_/Z#`<init>`().(y)*y€*"
+_empty_/Z#`<init>`().(z)*z€*
+_empty_/Z#x. €*x€*
+_empty_/Z#y. €*y€*
+_empty_/Z#z. €*z€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ _empty_/A#[T]2
+ 	_empty_/A#[T]2
+ _empty_/A#x.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ _empty_/B#[T]2#
+) )_empty_/A#`<init>`().2
+% &
+_empty_/A#2
+' (_empty_/B#[T]2
+* +_empty_/B#x.2
+ 	_empty_/B#[T]2
+ _empty_/B#x.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#[T]2
+ 
+scala/Int#2
+' .scala/Boolean#2
+ 	_empty_/C#[T]2
+ _empty_/C#x.2
+ _empty_/C#y.2
+$ %_empty_/C#z.2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ _empty_/D#[T]2
+  #
+scala/Int#2
+( /scala/Boolean#2#
+= =_empty_/C#`<init>`().2
+9 :
+_empty_/C#2
+; <_empty_/D#[T]2
+> ?_empty_/D#x.2
+A B_empty_/D#y.2
+D E_empty_/D#z.2
+ 	_empty_/D#[T]2
+ _empty_/D#x.2
+ _empty_/D#y.2
+% &_empty_/D#z.2
+ 
+_empty_/X#2#
+ _empty_/X#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ "
+scala/Int#2
+ _empty_/X#x.2
+ _empty_/X#y.2
+ _empty_/X#z.2
+ 
+_empty_/Y#2#
+ _empty_/Y#`<init>`().2
+ 
+scala/Int#2
+  #
+scala/Int#2
+( +
+scala/Int#2
+5 6
+_empty_/X#2
+ _empty_/Y#x.2
+ _empty_/Y#y.2
+% &_empty_/Y#z.2
+ 
+_empty_/Z#2#
+ _empty_/Z#`<init>`().2
+ 
+scala/Int#2
+  #
+scala/Int#2
+( +
+scala/Int#2#
+6 6_empty_/Y#`<init>`().2
+5 6
+_empty_/Y#2
+7 8_empty_/Z#x.2
+: ;_empty_/Z#y.2
+= >_empty_/Z#z.2#
+F F_empty_/X#`<init>`().2
+E F
+_empty_/X#2
+G H_empty_/Z#x.2
+J K_empty_/Z#y.2
+M N_empty_/Z#z.2
+ _empty_/Z#x.2
+ _empty_/Z#y.2
+% &_empty_/Z#z.PZ 406B5C20BC6A2CE8EE4A11CEAEB31728

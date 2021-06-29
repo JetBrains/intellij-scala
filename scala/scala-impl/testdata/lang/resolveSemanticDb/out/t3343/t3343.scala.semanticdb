@@ -1,0 +1,102 @@
+
+ÿtests/pos/t3343.scala*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.Converter#*	Converter€*4
+"_empty_/Test.Converter#`<init>`(). €@*<init>€*$
+_empty_/Test.Converter#[T]	*T€*=
+ _empty_/Test.SimpleIntConverter.
+ *SimpleIntConverter€*?
+"_empty_/Test.TraversableConverter#*TraversableConverter€*?
+-_empty_/Test.TraversableConverter#`<init>`(). €@*<init>€*J
+8_empty_/Test.TraversableConverter#`<init>`().(converter)*	converter€*F
+6_empty_/Test.TraversableConverter#`<init>`().(builder)*builder€*/
+%_empty_/Test.TraversableConverter#[T]	*T€*5
+(_empty_/Test.TraversableConverter#[Coll]	*Coll€*A
+,_empty_/Test.TraversableConverter#converter. €*	converter€*=
+*_empty_/Test.TraversableConverter#builder. €*builder€*<
+,_empty_/Test.TraversableConverter#convert().*convert€*9
+/_empty_/Test.TraversableConverter#convert().(x)*x€*
+_empty_/Test.tc. €*tc€* 
+_empty_/Test.tc2. €*tc2€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2+
+" )!scala/collection/mutable/Builder.2.
++ 5$scala/collection/mutable/ListBuffer.2.
++ 5$scala/collection/mutable/ListBuffer#2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ _empty_/Test.2%
+ _empty_/Test.Converter#20
+ "_empty_/Test.Converter#`<init>`().2(
+ _empty_/Test.Converter#[T]2.
+	  _empty_/Test.SimpleIntConverter.20
+2 2"_empty_/Test.Converter#`<init>`().2%
+$ -_empty_/Test.Converter#2
+. 1
+scala/Int#20
+ "_empty_/Test.TraversableConverter#2;
+ -_empty_/Test.TraversableConverter#`<init>`().2%
+F O_empty_/Test.Converter#23
+P Q%_empty_/Test.TraversableConverter#[T]2/
+] d!scala/collection/mutable/Builder#23
+e f%_empty_/Test.TraversableConverter#[T]26
+h l(_empty_/Test.TraversableConverter#[Coll]23
+m n%_empty_/Test.TraversableConverter#[T]22
+
+Œ Œ"_empty_/Test.Converter#`<init>`().2&
+	z ƒ_empty_/Test.Converter#28
+
+„ ˆ(_empty_/Test.TraversableConverter#[Coll]25
+
+‰ Š%_empty_/Test.TraversableConverter#[T]23
+ %_empty_/Test.TraversableConverter#[T]26
+  $(_empty_/Test.TraversableConverter#[Coll]2:
+; D,_empty_/Test.TraversableConverter#converter.28
+T [*_empty_/Test.TraversableConverter#builder.2:
+ ,_empty_/Test.TraversableConverter#convert().2=
+ /_empty_/Test.TraversableConverter#convert().(x)23
+ %_empty_/Test.TraversableConverter#[T]2!
+ scala/package.List#23
+ %_empty_/Test.TraversableConverter#[T]27
+% %)scala/collection/IterableFactory#apply().2!
+! %scala/package.List.2=
+& '/_empty_/Test.TraversableConverter#convert().(x)2
+		 _empty_/Test.tc.2%
+	
+	 _empty_/Test.Converter#2!
+		 scala/package.List#2
+		 
+scala/Int#2;
+	9	 9-_empty_/Test.TraversableConverter#`<init>`().2.
+	:	 L _empty_/Test.SimpleIntConverter.2=
+	a	 a/scala/collection/mutable/ListBuffer#`<init>`().22
+	R	 \$scala/collection/mutable/ListBuffer#2
+	]	 `
+scala/Int#2
+
+
+ 	_empty_/Test.tc2.2;
+
+$
+ $-_empty_/Test.TraversableConverter#`<init>`().2.
+
+%
+ 7 _empty_/Test.SimpleIntConverter.2=
+
+L
+ L/scala/collection/mutable/ListBuffer#`<init>`().22
+
+=
+ G$scala/collection/mutable/ListBuffer#2
+
+H
+ K
+scala/Int#2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#PZ 2643B397D3372A1C0390880FD48CC44E

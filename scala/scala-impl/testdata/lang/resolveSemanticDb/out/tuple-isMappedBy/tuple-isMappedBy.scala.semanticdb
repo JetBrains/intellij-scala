@@ -1,0 +1,105 @@
+
+Ð tests/pos/tuple-isMappedBy.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().[F]	*F€*!
+_empty_/Test.test().[T]	*T€**
+ _empty_/Test.`<local Test$>`.[X]	*X€**
+ _empty_/Test.`<local Test$>`.[X]	*X€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test.A#[X]	 €*X€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.B#[X]	 €*X€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#[X]	*X€2
+ scala/Tuple.2
+ scala/2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2%
+ _empty_/Test.test().[F]2%
+ _empty_/Test.test().[T]2
+ scala/Tuple#2%
+ 'scala/Tuple.IsMappedBy#2%
+( )_empty_/Test.test().[F]2%
+* *_empty_/Test.test().[T]2
+- 1scala/Unit#2"
+ _empty_/Test.test().2.
+ 	 _empty_/Test.`<local Test$>`.[X]2.
+  _empty_/Test.`<local Test$>`.[X]2-
+ scala/Tuple$package.EmptyTuple#2!
+ scala/`<:<`.refl().2"
+ _empty_/Test.test().2.
+ 	 _empty_/Test.`<local Test$>`.[X]2.
+  _empty_/Test.`<local Test$>`.[X]2
+ 
+scala/Int#2
+ scala/Long#2!
+ scala/`<:<`.refl().2"
+
+
+ _empty_/Test.test().2!
+
+
+ scala/package.List#2-
+
+
+ scala/Tuple$package.EmptyTuple#2!
+
+
+ scala/`<:<`.refl().2"
+ _empty_/Test.test().2!
+ scala/package.List#2!
+ scala/package.List#2
+ 
+scala/Int#2!
+ scala/package.List#2
+ "scala/Long#2!
+% %scala/`<:<`.refl().2
+ 	_empty_/Test.A#2(
+	 	_empty_/Test.A#`<init>`().2 
+ _empty_/Test.A#[X]2
+ 	_empty_/Test.B#2(
+	 	_empty_/Test.B#`<init>`().2 
+ _empty_/Test.B#[X]2
+ 	_empty_/Test.C#2(
+	 	_empty_/Test.C#`<init>`().2 
+
+ _empty_/Test.C#[X]2"
+ _empty_/Test.test().2-
+
+ scala/Tuple$package.EmptyTuple#2!
+ scala/`<:<`.refl().2"
+ _empty_/Test.test().2
+ _empty_/Test.A#2
+ 
+scala/Int#2
+ _empty_/Test.A#2
+ scala/Long#2!
+ scala/`<:<`.refl().2"
+ _empty_/Test.test().2-
+
+ scala/Tuple$package.EmptyTuple#2!
+ scala/`<:<`.refl().2"
+ _empty_/Test.test().2
+ _empty_/Test.B#2
+ 
+scala/Int#2
+ _empty_/Test.B#2
+ scala/Long#2!
+ scala/`<:<`.refl().2"
+ _empty_/Test.test().2-
+
+ scala/Tuple$package.EmptyTuple#2!
+ scala/`<:<`.refl().2"
+ _empty_/Test.test().2
+ _empty_/Test.C#2
+ 
+scala/Int#2
+ _empty_/Test.C#2
+ scala/Long#2!
+ scala/`<:<`.refl().PZ C3361164286A320C24F3F294CEEC4F27

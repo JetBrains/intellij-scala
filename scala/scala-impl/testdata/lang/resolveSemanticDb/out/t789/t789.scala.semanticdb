@@ -1,0 +1,121 @@
+
+Ïtests/pos/t789.scala*
+_empty_/_main.
+ *_main€* 
+_empty_/_main.Impl#*Impl€*0
+_empty_/_main.Impl#`<init>`(). €@*<init>€*(
+_empty_/_main.SizeImpl#*SizeImpl€*4
+"_empty_/_main.SizeImpl#`<init>`(). €@*<init>€*+
+_empty_/_main.SizeImpl#size().*size€**
+_empty_/_main.ColorImpl#*	ColorImpl€*5
+#_empty_/_main.ColorImpl#`<init>`(). €@*<init>€*.
+ _empty_/_main.ColorImpl#color().*color€* 
+_empty_/_main.Both#*Both€*"
+_empty_/_main.info().*info€*"
+_empty_/_main.info().(x)*x€*
+local0 €*x€*
+local1 €*x€*
+local2 €*x€*$
+_empty_/_main.info2().*info2€*#
+_empty_/_main.info2().(x)*x€*
+local3 €*x€*
+local4 €*x€*
+local5 €*x€*"
+_empty_/_main.main().*main€*(
+_empty_/_main.main().(args)*args€*
+local6*MyNode€2
+ _empty_/_main.2!
+ _empty_/_main.Impl#2,
+ _empty_/_main.Impl#`<init>`().2%
+ _empty_/_main.SizeImpl#20
+ "_empty_/_main.SizeImpl#`<init>`().2!
+ _empty_/_main.Impl#2,
+$ (_empty_/_main.SizeImpl#size().2&
+ _empty_/_main.ColorImpl#21
+ #_empty_/_main.ColorImpl#`<init>`().2!
+ _empty_/_main.Impl#2.
+% * _empty_/_main.ColorImpl#color().2!
+ _empty_/_main.Both#2%
+ _empty_/_main.SizeImpl#2&
+ %_empty_/_main.ColorImpl#2#
+
+
+ 
+_empty_/_main.info().2&
+
+
+ _empty_/_main.info().(x)2!
+
+
+ _empty_/_main.Impl#2&
+
+
+ _empty_/_main.info().(x)2
+	 
+local02!
+ _empty_/_main.Both#2%
+4 5java/lang/String#`+`().2%
+* +java/lang/String#`+`().2%
+! "java/lang/String#`+`().2,
+% )_empty_/_main.SizeImpl#size().2
+# $local02.
+8 = _empty_/_main.ColorImpl#color().2
+6 7local02
+	 
+local12%
+ _empty_/_main.SizeImpl#2%
+! "java/lang/String#`+`().2,
+% )_empty_/_main.SizeImpl#size().2
+# $local12
+	 
+local22&
+ _empty_/_main.ColorImpl#2%
+! "java/lang/String#`+`().2.
+% * _empty_/_main.ColorImpl#color().2
+# $local22$
+ _empty_/_main.info2().2'
+ _empty_/_main.info2().(x)2!
+ _empty_/_main.Impl#2'
+ _empty_/_main.info2().(x)2
+	 
+local32%
+ _empty_/_main.SizeImpl#2&
+ "_empty_/_main.ColorImpl#2%
+C Djava/lang/String#`+`().2%
+9 :java/lang/String#`+`().2%
+0 1java/lang/String#`+`().2,
+4 8_empty_/_main.SizeImpl#size().2
+2 3local32.
+G L _empty_/_main.ColorImpl#color().2
+E Flocal32
+	 
+local42%
+ _empty_/_main.SizeImpl#2%
+! "java/lang/String#`+`().2,
+% )_empty_/_main.SizeImpl#size().2
+# $local42
+	 
+local52&
+ _empty_/_main.ColorImpl#2%
+! "java/lang/String#`+`().2.
+% * _empty_/_main.ColorImpl#color().2
+# $local52#
+ 
+_empty_/_main.main().2)
+ _empty_/_main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+  $scala/Unit#2
+
+ local62%
+ !_empty_/_main.SizeImpl#2(
+ scala/Console.println(+1).2
+ scala/Console.2%
+ java/lang/String#`+`().2#
+ #_empty_/_main.info().2
+( .local62(
+ scala/Console.println(+1).2
+ scala/Console.2%
+ java/lang/String#`+`().2$
+ $_empty_/_main.info2().2
+) /local6PZ 52320BBD142357C8199051B45F019063

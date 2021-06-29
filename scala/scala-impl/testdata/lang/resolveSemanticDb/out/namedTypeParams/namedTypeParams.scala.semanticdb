@@ -1,0 +1,36 @@
+
+“tests/pos/namedTypeParams.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[X]	*X€*
+_empty_/Test.f().[Y]	*Y€*
+_empty_/Test.f().(x)*x€*
+_empty_/Test.f().(y)*y€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[X]2"
+ _empty_/Test.f().[Y]2"
+ _empty_/Test.f().(x)2"
+ _empty_/Test.f().[X]2"
+ _empty_/Test.f().(y)2"
+ _empty_/Test.f().[Y]2
+ 
+scala/Int#2#
+! $scala/Predef.`???`().2
+ _empty_/Test.f().2
+ 
+scala/Int#2"
+	 scala/Predef.String#2
+ _empty_/Test.f().2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ _empty_/Test.f().2
+ 
+scala/Int#2
+ _empty_/Test.f().2"
+ scala/Predef.String#PZ 9A1C9BFB2417952A6549C411B05C5D3B

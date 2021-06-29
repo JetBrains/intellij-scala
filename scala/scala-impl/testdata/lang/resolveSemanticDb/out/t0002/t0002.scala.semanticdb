@@ -1,0 +1,16 @@
+
+»tests/pos/t0002.scala*
+_empty_/_main.
+ *_main€*"
+_empty_/_main.main().*main€*(
+_empty_/_main.main().(args)*args€*
+local0 €*b€2
+ _empty_/_main.2#
+ 
+_empty_/_main.main().2)
+ _empty_/_main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+ 	local02#
+ scala/Boolean#`==`().2
+ local0PZ 093B23DCC937C3D1EE76F0DBDC618870

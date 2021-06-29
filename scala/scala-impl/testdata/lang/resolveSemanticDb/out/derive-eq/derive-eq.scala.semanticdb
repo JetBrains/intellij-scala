@@ -1,0 +1,184 @@
+
+†4tests/pos/derive-eq.scala*
+_empty_/One# Ä*OneÄ*)
+_empty_/One#`<init>`(). Ä@*<init>Ä* 
+_empty_/One#copy().*copyÄ*
+_empty_/One.
+ *OneÄ*"
+_empty_/One.apply().*applyÄ*&
+_empty_/One.unapply().*unapplyÄ*'
+_empty_/One.unapply().(x$1)*x$1Ä*(
+_empty_/One.toString().*toStringÄ*9
+_empty_/One.derived$CanEqual. ‡*derived$CanEqualÄ*
+_empty_/Two# Ä*TwoÄ*)
+_empty_/Two#`<init>`(). Ä@*<init>Ä* 
+_empty_/Two#copy().*copyÄ*
+_empty_/Two.
+ *TwoÄ*"
+_empty_/Two.apply().*applyÄ*&
+_empty_/Two.unapply().*unapplyÄ*'
+_empty_/Two.unapply().(x$1)*x$1Ä*(
+_empty_/Two.toString().*toStringÄ*9
+_empty_/Two.derived$CanEqual. ‡*derived$CanEqualÄ*
+_empty_/Lst# îÄ*LstÄ*)
+_empty_/Lst#`<init>`(). Ä@*<init>Ä*
+_empty_/Lst#[T]	*TÄ*
+_empty_/Lst.
+ *LstÄ*"
+_empty_/Lst.Cons# àÅ*ConsÄ*.
+_empty_/Lst.Cons#`<init>`(). Ä@*<init>Ä*,
+_empty_/Lst.Cons#`<init>`().(x) Ä*xÄ*.
+ _empty_/Lst.Cons#`<init>`().(xs) Ä*xsÄ*
+_empty_/Lst.Cons#[T]	*TÄ* 
+_empty_/Lst.Cons#x. Ä*xÄ*"
+_empty_/Lst.Cons#xs. Ä*xsÄ*%
+_empty_/Lst.Cons#copy().*copyÄ*%
+_empty_/Lst.Cons#copy().[T]	*TÄ*%
+_empty_/Lst.Cons#copy().(x)*xÄ*'
+_empty_/Lst.Cons#copy().(xs)*xsÄ*9
+"_empty_/Lst.Cons#copy$default$1().*copy$default$1Ä*/
+%_empty_/Lst.Cons#copy$default$1().[T]	*TÄ*9
+"_empty_/Lst.Cons#copy$default$2().*copy$default$2Ä*/
+%_empty_/Lst.Cons#copy$default$2().[T]	*TÄ*+
+_empty_/Lst.Cons#ordinal().*ordinalÄ*!
+_empty_/Lst.Cons#_1().*_1Ä*!
+_empty_/Lst.Cons#_2().*_2Ä* 
+_empty_/Lst.Cons.
+ *ConsÄ*'
+_empty_/Lst.Cons.apply().*applyÄ*&
+_empty_/Lst.Cons.apply().[T]	*TÄ*&
+_empty_/Lst.Cons.apply().(x)*xÄ*(
+_empty_/Lst.Cons.apply().(xs)*xsÄ*+
+_empty_/Lst.Cons.unapply().*unapplyÄ*(
+_empty_/Lst.Cons.unapply().[T]	*TÄ*,
+ _empty_/Lst.Cons.unapply().(x$1)*x$1Ä*-
+_empty_/Lst.Cons.toString().*toStringÄ* 
+_empty_/Lst.Nil# àÅ*NilÄ*-
+_empty_/Lst.Nil#`<init>`(). Ä@*<init>Ä*
+_empty_/Lst.Nil#[T]	*TÄ*$
+_empty_/Lst.Nil#copy().*copyÄ*$
+_empty_/Lst.Nil#copy().[T]	*TÄ**
+_empty_/Lst.Nil#ordinal().*ordinalÄ*
+_empty_/Lst.Nil.
+ *NilÄ*&
+_empty_/Lst.Nil.apply().*applyÄ*%
+_empty_/Lst.Nil.apply().[T]	*TÄ**
+_empty_/Lst.Nil.unapply().*unapplyÄ*'
+_empty_/Lst.Nil.unapply().[T]	*TÄ*+
+_empty_/Lst.Nil.unapply().(x$1)*x$1Ä*,
+_empty_/Lst.Nil.toString().*toStringÄ*.
+_empty_/Lst.fromOrdinal().*fromOrdinalÄ*3
+#_empty_/Lst.fromOrdinal().(ordinal)*ordinalÄ*:
+_empty_/Lst.derived$CanEqual().  *derived$CanEqualÄ*4
+&_empty_/Lst.derived$CanEqual().[T_$_L]	*T_$_LÄ*4
+&_empty_/Lst.derived$CanEqual().[T_$_R]	*T_$_RÄ*2
+$_empty_/Lst.derived$CanEqual().(x$0)  *x$0Ä*
+_empty_/Triple#*TripleÄ*,
+_empty_/Triple#`<init>`(). Ä@*<init>Ä*
+_empty_/Triple#[S]	*SÄ*
+_empty_/Triple#[T]	*TÄ*
+_empty_/Triple#[U]	*UÄ* 
+_empty_/Triple.
+ *TripleÄ*=
+"_empty_/Triple.derived$CanEqual().  *derived$CanEqualÄ*7
+)_empty_/Triple.derived$CanEqual().[S_$_L]	*S_$_LÄ*7
+)_empty_/Triple.derived$CanEqual().[S_$_R]	*S_$_RÄ*7
+)_empty_/Triple.derived$CanEqual().[T_$_L]	*T_$_LÄ*7
+)_empty_/Triple.derived$CanEqual().[T_$_R]	*T_$_RÄ*7
+)_empty_/Triple.derived$CanEqual().[U_$_L]	*U_$_LÄ*7
+)_empty_/Triple.derived$CanEqual().[U_$_R]	*U_$_RÄ*5
+'_empty_/Triple.derived$CanEqual().(x$0)  *x$0Ä*5
+'_empty_/Triple.derived$CanEqual().(x$1)  *x$1Ä*5
+'_empty_/Triple.derived$CanEqual().(x$2)  *x$2Ä*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.x. Ä*xÄ*
+_empty_/Test.y. Ä*yÄ*.
+_empty_/`derive-eq$package`. *_empty_Ä*U
+3_empty_/`derive-eq$package`.given_CanEqual_One_Two. Ë*given_CanEqual_One_TwoÄ2
+ _empty_/One#2%
+ _empty_/One#`<init>`().2
+ _empty_/One.2%
+ scala/CanEqual.derived.2
+ _empty_/Two#2%
+ _empty_/Two#`<init>`().2
+ _empty_/Two.2%
+ scala/CanEqual.derived.2
+ _empty_/Lst#2%
+ _empty_/Lst#`<init>`().2
+	 
+_empty_/Lst#[T]2
+ _empty_/Lst.2
+ _empty_/Lst.Cons#2*
+ _empty_/Lst.Cons#`<init>`().2"
+ _empty_/Lst.Cons#[T]2
+ _empty_/Lst#2"
+ _empty_/Lst.Cons#[T]2!
+ _empty_/Lst.Cons#x.2"
+ _empty_/Lst.Cons#xs.2&
+ _empty_/Lst.Cons#copy().2$
+ _empty_/Lst.Cons#_1().2$
+ _empty_/Lst.Cons#_2().2
+ _empty_/Lst.Cons.2'
+ _empty_/Lst.Cons.apply().2
+ 
+_empty_/Lst.Nil#2)
+
+ 
+_empty_/Lst.Nil#`<init>`().2
+ _empty_/Lst.Nil.2%
+ scala/CanEqual.derived.2
+ _empty_/Triple#2(
+ _empty_/Triple#`<init>`().2 
+ _empty_/Triple#[S]2 
+ _empty_/Triple#[T]2 
+ _empty_/Triple#[U]2
+ _empty_/Triple.2%
+ scala/CanEqual.derived.2
+ _empty_/Test.2(
+ scala/Predef.implicitly().2
+ scala/CanEqual#2
+ _empty_/Lst#2
+ _empty_/Lst#2
+ !_empty_/One#2
+% (_empty_/Lst#2
+) ,_empty_/Lst#2
+- 0_empty_/Two#2-
+4 4_empty_/Lst.derived$CanEqual().2A
+4 43_empty_/`derive-eq$package`.given_CanEqual_One_Two.2(
+ scala/Predef.implicitly().2
+ scala/CanEqual#2
+ _empty_/Triple#2
+  _empty_/One#2
+" %_empty_/One#2
+' *_empty_/One#2
+ _empty_/Triple#2
+ _empty_/Two#2
+ _empty_/Two#2
+! $_empty_/Two#20
+' '"_empty_/Triple.derived$CanEqual().2A
+' '3_empty_/`derive-eq$package`.given_CanEqual_One_Two.2
+ _empty_/Test.x.2
+	 _empty_/Triple#2
+ _empty_/Lst#2
+ _empty_/One#2
+ _empty_/One#2
+ "_empty_/Two#2#
+& )scala/Predef.`???`().2
+ _empty_/Test.y.2
+	 _empty_/Triple#2
+ _empty_/Lst#2
+ _empty_/Two#2
+ _empty_/One#2
+ "_empty_/Two#2#
+& )scala/Predef.`???`().2
+ scala/Any#`==`().2
+ _empty_/Test.x.2
+ _empty_/Test.y.2&
+_empty_/`derive-eq$package`.2A
+ 3_empty_/`derive-eq$package`.given_CanEqual_One_Two.2
+ scala/CanEqual#2
+ _empty_/One#2
+ _empty_/Two#2%
+$ +scala/CanEqual.derived.2
+ #scala/CanEqual.PZ A8C91BED8A2ACECA94FFE4F67D63298F

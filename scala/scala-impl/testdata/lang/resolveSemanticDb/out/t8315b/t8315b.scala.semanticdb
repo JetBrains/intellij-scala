@@ -1,0 +1,50 @@
+
+Ä
+tests/pos/t8315b.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.crash().*crash€*
+local0 €*key€*!
+_empty_/Test.map(). *map€* 
+_empty_/Test.map().(f)*f€*
+
+_empty_/F# *F€*'
+_empty_/F#`<init>`(). €@*<init>€*&
+_empty_/F#`<init>`().(key)*key€*
+_empty_/F#key. €*key€*"
+_empty_/F#apply(). *apply€*
+_empty_/F#apply().(a)*a€2
+ _empty_/Test.2&
+ java/lang/Object#`<init>`().2
+ java/lang/Object#2#
+ _empty_/Test.crash().2
+ scala/Unit#2
+ local02!
+ _empty_/Test.map().2#
+ _empty_/F#`<init>`().2
+ 
+_empty_/F#2
+ local02&
+ scala/package.Throwable#2!
+ _empty_/Test.map().2$
+ _empty_/Test.map().(f)2
+ 
+_empty_/F#2
+ 
+scala/Any#2 
+ $_empty_/F#apply().2$
+ _empty_/Test.map().(f)2
+ 
+_empty_/F#2#
+ _empty_/F#`<init>`().2"
+ scala/Predef.String#2
+ _empty_/F#key.2 
+		 _empty_/F#apply().2#
+		 _empty_/F#apply().(a)2
+		 
+scala/Any#2
+		 
+scala/Any#26
+	;	 ;(java/lang/RuntimeException#`<init>`(+1).2-
+	+	 ;scala/package.RuntimeException#2
+	<	 ?_empty_/F#key.PZ 43F4CF5D14237AFC2934D51714968C33

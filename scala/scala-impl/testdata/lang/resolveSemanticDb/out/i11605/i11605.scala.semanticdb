@@ -1,0 +1,42 @@
+
+œ
+tests/pos/i11605.scala*&
+example/Extractor# *	Extractor€*/
+example/Extractor#`<init>`(). €@*<init>€*1
+"example/Extractor#`<init>`().(get) €*get€*
+example/Extractor#[A]	*A€*%
+example/Extractor#get. €*get€*,
+example/Extractor#isEmpty().*isEmpty€*&
+example/Extractor.
+ *	Extractor€*
+example/Foo.
+ *Foo€*&
+example/Foo.unapply().*unapply€*#
+example/Foo.unapply().(x)*x€*
+example/Main.
+ *Main€*
+example/Main.a. €*a€2
+ example/2 
+ example/Extractor#2+
+ example/Extractor#`<init>`().2#
+ example/Extractor#[A]2&
+- -scala/AnyVal#`<init>`().2
+' -scala/AnyVal#2#
+ example/Extractor#[A]2$
+ example/Extractor#get.2*
+ example/Extractor#isEmpty().2 
+ example/Extractor.2
+ 
+example/Foo.2$
+ example/Foo.unapply().2'
+ example/Foo.unapply().(x)2"
+ scala/Predef.String#2 
+ #example/Extractor#2"
+$ *scala/Predef.String#2+
+; ;example/Extractor#`<init>`().2'
+< =example/Foo.unapply().(x)2
+ example/Main.2
+
+ example/Main.a.2$
+	 	example/Foo.unapply().2
+ 	example/Foo.PZ 83E44F22F4DBEB0B57CE6E503B931369

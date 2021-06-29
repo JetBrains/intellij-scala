@@ -1,0 +1,445 @@
+
+¡†tests/pos/gui.scala*
+_empty_/Geom.
+ *Geom€*!
+_empty_/Geom.Shape#*Shape€*0
+_empty_/Geom.Shape#`<init>`(). €@*<init>€*$
+_empty_/Geom.Point# €*Point€*0
+_empty_/Geom.Point#`<init>`(). €@*<init>€*.
+!_empty_/Geom.Point#`<init>`().(x) €*x€*.
+!_empty_/Geom.Point#`<init>`().(y) €*y€*"
+_empty_/Geom.Point#x. €*x€*"
+_empty_/Geom.Point#y. €*y€*'
+_empty_/Geom.Point#copy().*copy€*'
+_empty_/Geom.Point#copy().(x)*x€*'
+_empty_/Geom.Point#copy().(y)*y€*;
+$_empty_/Geom.Point#copy$default$1().*copy$default$1€*;
+$_empty_/Geom.Point#copy$default$2().*copy$default$2€*#
+_empty_/Geom.Point#_1().*_1€*#
+_empty_/Geom.Point#_2().*_2€*#
+_empty_/Geom.Point.
+ *Point€*)
+_empty_/Geom.Point.apply().*apply€*(
+_empty_/Geom.Point.apply().(x)*x€*(
+_empty_/Geom.Point.apply().(y)*y€*-
+_empty_/Geom.Point.unapply().*unapply€*.
+"_empty_/Geom.Point.unapply().(x$1)*x$1€*/
+_empty_/Geom.Point.toString().*toString€*,
+_empty_/Geom.Rectangle# €*	Rectangle€*4
+"_empty_/Geom.Rectangle#`<init>`(). €@*<init>€*4
+&_empty_/Geom.Rectangle#`<init>`().(ll) €*ll€*4
+&_empty_/Geom.Rectangle#`<init>`().(ur) €*ur€*(
+_empty_/Geom.Rectangle#ll. €*ll€*(
+_empty_/Geom.Rectangle#ur. €*ur€*-
+_empty_/Geom.Rectangle#inset().*inset€*4
+&_empty_/Geom.Rectangle#inset().(delta)*delta€*+
+_empty_/Geom.Rectangle#copy().*copy€*-
+"_empty_/Geom.Rectangle#copy().(ll)*ll€*-
+"_empty_/Geom.Rectangle#copy().(ur)*ur€*?
+(_empty_/Geom.Rectangle#copy$default$1().*copy$default$1€*?
+(_empty_/Geom.Rectangle#copy$default$2().*copy$default$2€*'
+_empty_/Geom.Rectangle#_1().*_1€*'
+_empty_/Geom.Rectangle#_2().*_2€*+
+_empty_/Geom.Rectangle.
+ *	Rectangle€*-
+_empty_/Geom.Rectangle.apply().*apply€*.
+#_empty_/Geom.Rectangle.apply().(ll)*ll€*.
+#_empty_/Geom.Rectangle.apply().(ur)*ur€*1
+!_empty_/Geom.Rectangle.unapply().*unapply€*2
+&_empty_/Geom.Rectangle.unapply().(x$1)*x$1€*3
+"_empty_/Geom.Rectangle.toString().*toString€*
+_empty_/Color.
+ *Color€*"
+_empty_/Color.Color#*Color€*%
+_empty_/Color.black. €*black€*#
+_empty_/Color.grey. €*grey€*
+_empty_/Screen#*Screen€*,
+_empty_/Screen#`<init>`(). €@*<init>€*#
+_empty_/Screen#Color#*Color€*-
+_empty_/Screen#drawRect(). *drawRect€*'
+_empty_/Screen#drawRect().(r)*r€*'
+_empty_/Screen#drawRect().(c)*c€*-
+_empty_/Screen#fillRect(). *fillRect€*'
+_empty_/Screen#fillRect().(r)*r€*'
+_empty_/Screen#fillRect().(c)*c€**
+_empty_/DummyScreen.
+ *DummyScreen€*0
+_empty_/DummyScreen.drawRect().*drawRect€*,
+"_empty_/DummyScreen.drawRect().(r)*r€*,
+"_empty_/DummyScreen.drawRect().(c)*c€*0
+_empty_/DummyScreen.fillRect().*fillRect€*,
+"_empty_/DummyScreen.fillRect().(r)*r€*,
+"_empty_/DummyScreen.fillRect().(c)*c€*
+_empty_/GUI.
+ *GUI€*,
+_empty_/GUI.Controller.
+ *
+Controller€*9
+%_empty_/GUI.Controller.addMouseCtl().*addMouseCtl€*2
+(_empty_/GUI.Controller.addMouseCtl().(c)*c€* 
+_empty_/GUI.Glyph#*Glyph€*/
+_empty_/GUI.Glyph#`<init>`(). €@*<init>€*.
+_empty_/GUI.Glyph#getRect(). *getRect€*,
+_empty_/GUI.Glyph#setLoc(). *setLoc€*(
+_empty_/GUI.Glyph#setLoc().(p)*p€*&
+_empty_/GUI.Glyph#draw().*draw€* 
+_empty_/GUI.Label#*Label€*/
+_empty_/GUI.Label#`<init>`(). €@*<init>€*.
+"_empty_/GUI.Label#`<init>`().(scr)*scr€**
+ _empty_/GUI.Label#`<init>`().(p)*p€*0
+#_empty_/GUI.Label#`<init>`().(name)*name€*%
+_empty_/GUI.Label#scr. €*scr€*!
+_empty_/GUI.Label#p. €*p€*'
+_empty_/GUI.Label#name. €*name€*-
+_empty_/GUI.Label#origin(). €*origin€*,
+_empty_/GUI.Label#getRect().*getRect€**
+_empty_/GUI.Label#setLoc().*setLoc€*(
+_empty_/GUI.Label#setLoc().(p)*p€*
+_empty_/GUI.Ctl#*Ctl€*-
+_empty_/GUI.Ctl#`<init>`(). €@*<init>€*.
+_empty_/GUI.Ctl#getGlyph(). *getGlyph€**
+_empty_/GUI.Ctl#enable(). *enable€*&
+_empty_/GUI.Ctl#enable().(b)*b€*&
+_empty_/GUI.MouseCtl#*MouseCtl€*2
+ _empty_/GUI.MouseCtl#`<init>`(). €@*<init>€*5
+!_empty_/GUI.MouseCtl#mouseDown(). *	mouseDown€*.
+$_empty_/GUI.MouseCtl#mouseDown().(p)*p€*$
+_empty_/GUI.Button# *Button€*0
+_empty_/GUI.Button#`<init>`(). €@*<init>€*/
+#_empty_/GUI.Button#`<init>`().(scr)*scr€*+
+!_empty_/GUI.Button#`<init>`().(p)*p€*1
+$_empty_/GUI.Button#`<init>`().(name)*name€*&
+_empty_/GUI.Button#scr. €*scr€*"
+_empty_/GUI.Button#p. €*p€*(
+_empty_/GUI.Button#name. €*name€*0
+_empty_/GUI.Button#enabled(). €*enabled€*6
+!_empty_/GUI.Button#`enabled_=`(). €*	enabled_=€*2
+&_empty_/GUI.Button#`enabled_=`().(x$1)*x$1€**
+_empty_/GUI.Button#label. €*label€*'
+_empty_/GUI.Button#draw().*draw€*+
+_empty_/GUI.Button#setLoc().*setLoc€*)
+_empty_/GUI.Button#setLoc().(p)*p€*-
+_empty_/GUI.Button#getRect().*getRect€*+
+_empty_/GUI.Button#enable().*enable€*)
+_empty_/GUI.Button#enable().(b)*b€*/
+_empty_/GUI.Button#getGlyph().*getGlyph€*3
+_empty_/GUI.Button#mouseDown(). *	mouseDown€*,
+"_empty_/GUI.Button#mouseDown().(p)*p€*)
+_empty_/GUI.Button#doit(). *doit€*&
+_empty_/GUIClient.
+ *	GUIClient€*"
+_empty_/GUIClient.App#*App€*3
+!_empty_/GUIClient.App#`<init>`(). €@*<init>€**
+_empty_/GUIClient.App#quit().*quit€*0
+_empty_/GUIClient.QuitButton#*
+QuitButton€*:
+(_empty_/GUIClient.QuitButton#`<init>`(). €@*<init>€*9
+-_empty_/GUIClient.QuitButton#`<init>`().(scr)*scr€*5
++_empty_/GUIClient.QuitButton#`<init>`().(p)*p€*;
+._empty_/GUIClient.QuitButton#`<init>`().(name)*name€*5
++_empty_/GUIClient.QuitButton#`<init>`().(a)*a€*0
+!_empty_/GUIClient.QuitButton#scr. €*scr€*,
+_empty_/GUIClient.QuitButton#p. €*p€*2
+"_empty_/GUIClient.QuitButton#name. €*name€*,
+_empty_/GUIClient.QuitButton#a. €*a€*1
+$_empty_/GUIClient.QuitButton#doit().*doit€*&
+_empty_/GUIClient.main().*main€*,
+_empty_/GUIClient.main().(args)*args€*
+local0 €*b€2
+ _empty_/Geom.2!
+ _empty_/Geom.Shape#2,
+ _empty_/Geom.Shape#`<init>`().2!
+ _empty_/Geom.Point#2,
+ _empty_/Geom.Point#`<init>`().2
+ 
+scala/Int#2
+ !
+scala/Int#2!
++ 0_empty_/Geom.Shape#2#
+ _empty_/Geom.Point#x.2#
+ _empty_/Geom.Point#y.2(
+ _empty_/Geom.Point#copy().2&
+ _empty_/Geom.Point#_1().2&
+ _empty_/Geom.Point#_2().2!
+ _empty_/Geom.Point.2)
+ _empty_/Geom.Point.apply().2%
+ _empty_/Geom.Rectangle#20
+ "_empty_/Geom.Rectangle#`<init>`().2!
+  _empty_/Geom.Point#2!
+& +_empty_/Geom.Point#2!
+5 :_empty_/Geom.Shape#2(
+ _empty_/Geom.Rectangle#ll.2(
+" $_empty_/Geom.Rectangle#ur.2-
+ _empty_/Geom.Rectangle#inset().24
+ &_empty_/Geom.Rectangle#inset().(delta)2
+ 
+scala/Int#2-
+ _empty_/Geom.Rectangle.apply().2%
+ _empty_/Geom.Rectangle.2)
+ _empty_/Geom.Point.apply().2!
+ _empty_/Geom.Point.2 
+ scala/Int#`-`(+3).2#
+ _empty_/Geom.Point#x.2(
+ _empty_/Geom.Rectangle#ll.24
+ "&_empty_/Geom.Rectangle#inset().(delta)2 
+) *scala/Int#`-`(+3).2#
+' (_empty_/Geom.Point#y.2(
+$ &_empty_/Geom.Rectangle#ll.24
++ 0&_empty_/Geom.Rectangle#inset().(delta)2)
+8 8_empty_/Geom.Point.apply().2!
+3 8_empty_/Geom.Point.2 
+> ?scala/Int#`+`(+4).2#
+< =_empty_/Geom.Point#x.2(
+9 ;_empty_/Geom.Rectangle#ur.24
+@ E&_empty_/Geom.Rectangle#inset().(delta)2 
+L Mscala/Int#`+`(+4).2#
+J K_empty_/Geom.Point#y.2(
+G I_empty_/Geom.Rectangle#ur.24
+N S&_empty_/Geom.Rectangle#inset().(delta)2,
+ _empty_/Geom.Rectangle#copy().2*
+ _empty_/Geom.Rectangle#_1().2*
+& &_empty_/Geom.Rectangle#_2().2%
+ _empty_/Geom.Rectangle.2-
+ _empty_/Geom.Rectangle.apply().2
+		 _empty_/Color.2"
+
+
+ _empty_/Color.Color#2
+
+
+ 
+scala/Int#2"
+ _empty_/Color.black.2!
+ 
+_empty_/Color.grey.2
+ _empty_/Screen#2(
+ _empty_/Screen#`<init>`().2#
+ _empty_/Screen#Color#2
+ 
+scala/Int#2(
+ _empty_/Screen#drawRect().2+
+ _empty_/Screen#drawRect().(r)2%
+  _empty_/Geom.Rectangle#2
+ _empty_/Geom.2+
+" #_empty_/Screen#drawRect().(c)2#
+% *_empty_/Screen#Color#2
+- 1scala/Unit#2(
+ _empty_/Screen#fillRect().2+
+ _empty_/Screen#fillRect().(r)2%
+  _empty_/Geom.Rectangle#2
+ _empty_/Geom.2+
+" #_empty_/Screen#fillRect().(c)2#
+% *_empty_/Screen#Color#2
+- 1scala/Unit#2"
+ _empty_/DummyScreen.2
+ !_empty_/Screen#2-
+ _empty_/DummyScreen.drawRect().20
+ "_empty_/DummyScreen.drawRect().(r)2%
+  _empty_/Geom.Rectangle#2
+ _empty_/Geom.20
+" #"_empty_/DummyScreen.drawRect().(c)2#
+% *_empty_/Screen#Color#2
+- 1scala/Unit#2(
+ scala/Console.println(+1).2
+ scala/Console.2%
++ ,java/lang/String#`+`().2%
+  !java/lang/String#`+`().2%
+ java/lang/String#`+`().20
+ "_empty_/DummyScreen.drawRect().(r)20
+- ."_empty_/DummyScreen.drawRect().(c)2-
+ _empty_/DummyScreen.fillRect().20
+ "_empty_/DummyScreen.fillRect().(r)2%
+  _empty_/Geom.Rectangle#2
+ _empty_/Geom.20
+" #"_empty_/DummyScreen.fillRect().(c)2#
+% *_empty_/Screen#Color#2
+- 1scala/Unit#2(
+ scala/Console.println(+1).2
+ scala/Console.2%
++ ,java/lang/String#`+`().2%
+  !java/lang/String#`+`().2%
+ java/lang/String#`+`().20
+ "_empty_/DummyScreen.fillRect().(r)20
+- ."_empty_/DummyScreen.fillRect().(c)2
+ 
+_empty_/GUI.2%
+ 	  _empty_/GUI.Controller.23
+!! %_empty_/GUI.Controller.addMouseCtl().26
+!! (_empty_/GUI.Controller.addMouseCtl().(c)2#
+!! _empty_/GUI.MouseCtl#2 
+$$ _empty_/GUI.Glyph#2+
+%% _empty_/GUI.Glyph#`<init>`().2*
+%% _empty_/GUI.Glyph#getRect().2%
+%% _empty_/Geom.Rectangle#2
+%% _empty_/Geom.2)
+&& _empty_/GUI.Glyph#setLoc().2,
+&& _empty_/GUI.Glyph#setLoc().(p)2!
+&& _empty_/Geom.Point#2
+&& _empty_/Geom.2
+&& #scala/Unit#2'
+'' _empty_/GUI.Glyph#draw().2
+'' scala/Unit#2(
+'!' (scala/Console.println(+1).2
+''  scala/Console.2%
+'1' 2java/lang/String#`+`().2 
+** _empty_/GUI.Label#2+
+** _empty_/GUI.Label#`<init>`().2
+** _empty_/Screen#2!
+*#* (_empty_/Geom.Point#2
+** "_empty_/Geom.2"
+*0* 6scala/Predef.String#2 
+*@* E_empty_/GUI.Glyph#2$
+** _empty_/GUI.Label#scr.2"
+** _empty_/GUI.Label#p.2%
+*** ._empty_/GUI.Label#name.2)
+++ _empty_/GUI.Label#origin().2"
+++ _empty_/GUI.Label#p.2*
+,, _empty_/GUI.Label#getRect().2-
+,1, 6_empty_/Geom.Rectangle#inset().2-
+, ,  _empty_/Geom.Rectangle.apply().2%
+,,  _empty_/Geom.Rectangle.2
+,, _empty_/Geom.2)
+,!, '_empty_/GUI.Label#origin().2)
+,), /_empty_/GUI.Label#origin().2)
+-- _empty_/GUI.Label#setLoc().2,
+-- _empty_/GUI.Label#setLoc().(p)2!
+-- _empty_/Geom.Point#2
+-- _empty_/Geom.2)
+-"- (_empty_/GUI.Label#origin().2,
+-+- ,_empty_/GUI.Label#setLoc().(p)2
+00 _empty_/GUI.Ctl#2)
+11 _empty_/GUI.Ctl#`<init>`().2)
+11 _empty_/GUI.Ctl#getGlyph().2 
+11 _empty_/GUI.Glyph#2'
+22 _empty_/GUI.Ctl#enable().2*
+22 _empty_/GUI.Ctl#enable().(b)2
+22 scala/Boolean#2#
+55 _empty_/GUI.MouseCtl#2.
+55  _empty_/GUI.MouseCtl#`<init>`().2
+55 _empty_/GUI.Ctl#2/
+66 !_empty_/GUI.MouseCtl#mouseDown().22
+66 $_empty_/GUI.MouseCtl#mouseDown().(p)2!
+66 _empty_/Geom.Point#2
+66 _empty_/Geom.2
+6"6 &scala/Unit#2!
+99 _empty_/GUI.Button#2,
+99 _empty_/GUI.Button#`<init>`().2
+99 #_empty_/Screen#2!
+9-9 2_empty_/Geom.Point#2
+9(9 ,_empty_/Geom.2"
+9:9 @scala/Predef.String#2 
+:
+: _empty_/GUI.Glyph#2#
+:: _empty_/GUI.MouseCtl#2%
+99 _empty_/GUI.Button#scr.2#
+9%9 &_empty_/GUI.Button#p.2&
+949 8_empty_/GUI.Button#name.2+
+;; _empty_/GUI.Button#enabled().2
+;; scala/Boolean#2/
+;; !_empty_/GUI.Button#`enabled_=`().2'
+<< _empty_/GUI.Button#label.2+
+<< _empty_/GUI.Label#`<init>`().2 
+<< _empty_/GUI.Label#2%
+<< _empty_/GUI.Button#scr.2#
+<<  _empty_/GUI.Button#p.2&
+<"< &_empty_/GUI.Button#name.2(
+?? _empty_/GUI.Button#draw().2
+?? scala/Unit#2+
+@
+@ _empty_/GUI.Button#enabled().2(
+@@ _empty_/Screen#drawRect().2%
+@@ _empty_/GUI.Button#scr.2+
+@ @ '_empty_/GUI.Button#getRect().2"
+@/@ 4_empty_/Color.black.2
+@)@ ._empty_/Color.2(
+AA _empty_/Screen#fillRect().2%
+AA _empty_/GUI.Button#scr.2+
+AA _empty_/GUI.Button#getRect().2!
+A'A +_empty_/Color.grey.2
+A!A &_empty_/Color.2'
+BB _empty_/GUI.Glyph#draw().2'
+BB _empty_/GUI.Button#label.2*
+DD _empty_/GUI.Button#setLoc().2-
+DD _empty_/GUI.Button#setLoc().(p)2!
+DD _empty_/Geom.Point#2
+DD _empty_/Geom.2)
+D&D ,_empty_/GUI.Label#setLoc().2'
+D D %_empty_/GUI.Button#label.2-
+D-D ._empty_/GUI.Button#setLoc().(p)2+
+EE _empty_/GUI.Button#getRect().2-
+E E %_empty_/Geom.Rectangle#inset().2*
+EE _empty_/GUI.Label#getRect().2'
+EE _empty_/GUI.Button#label.2*
+HH _empty_/GUI.Button#enable().2-
+HH _empty_/GUI.Button#enable().(b)2
+HH scala/Boolean#2/
+H*H 1!_empty_/GUI.Button#`enabled_=`().2-
+H4H 5_empty_/GUI.Button#enable().(b)2(
+H7H ;_empty_/GUI.Button#draw().2,
+II _empty_/GUI.Button#getGlyph().2'
+II _empty_/GUI.Button#label.2-
+JJ _empty_/GUI.Button#mouseDown().20
+JJ "_empty_/GUI.Button#mouseDown().(p)2!
+J J %_empty_/Geom.Point#2
+JJ _empty_/Geom.2
+J(J ,scala/Unit#2+
+K
+K _empty_/GUI.Button#enabled().2(
+KK _empty_/GUI.Button#doit().2(
+K'K .scala/Console.println(+1).2
+KK &scala/Console.2(
+NN _empty_/GUI.Button#doit().2
+NN scala/Unit#2 
+RR _empty_/GUIClient.2$
+TT _empty_/GUIClient.App#2/
+UU !_empty_/GUIClient.App#`<init>`().2+
+UU _empty_/GUIClient.App#quit().2
+UU scala/Unit#2(
+U!U (scala/Console.println(+1).2
+UU  scala/Console.2+
+XX _empty_/GUIClient.QuitButton#26
+XX (_empty_/GUIClient.QuitButton#`<init>`().2
+XX _empty_/Screen#2!
+X)X ._empty_/Geom.Point#2
+X$X (_empty_/Geom.2"
+X6X <scala/Predef.String#2$
+XAX D_empty_/GUIClient.App#2,
+YY _empty_/GUI.Button#`<init>`().2!
+YY _empty_/GUI.Button#2
+Y
+Y _empty_/GUI.2/
+YY !_empty_/GUIClient.QuitButton#scr.2-
+YY _empty_/GUIClient.QuitButton#p.20
+YY !"_empty_/GUIClient.QuitButton#name.2/
+XX !_empty_/GUIClient.QuitButton#scr.2-
+X!X "_empty_/GUIClient.QuitButton#p.20
+X0X 4"_empty_/GUIClient.QuitButton#name.2-
+X>X ?_empty_/GUIClient.QuitButton#a.22
+ZZ $_empty_/GUIClient.QuitButton#doit().2
+ZZ scala/Unit#2+
+ZZ _empty_/GUIClient.App#quit().2-
+ZZ _empty_/GUIClient.QuitButton#a.2'
+]] 
+_empty_/GUIClient.main().2-
+]] _empty_/GUIClient.main().(args)2
+]] scala/Array#2"
+]] scala/Predef.String#2
+]!] %scala/Unit#2
+^^ 	local026
+^^ (_empty_/GUIClient.QuitButton#`<init>`().2+
+^^ _empty_/GUIClient.QuitButton#2"
+__ _empty_/DummyScreen.2)
+__ _empty_/Geom.Point.apply().2!
+__ _empty_/Geom.Point.2
+__ _empty_/Geom.2/
+_4_ 4!_empty_/GUIClient.App#`<init>`().2$
+_1_ 4_empty_/GUIClient.App#2(
+`` 
+_empty_/GUI.Button#draw().2
+`` local02-
+aa _empty_/GUI.Button#mouseDown().2*
+aa _empty_/GUI.Button#enable().2
+aa local02)
+a'a '_empty_/Geom.Point.apply().2!
+a"a '_empty_/Geom.Point.2
+aa !_empty_/Geom.PZ BD0E74D544C2D466038ECDAAECA0ABC7

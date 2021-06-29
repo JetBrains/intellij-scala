@@ -1,0 +1,22 @@
+
+ýtests/pos/t0049.scala*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*#
+_empty_/C1#`<init>`().(x)*x€*
+_empty_/C1#x. €*x€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+local0*A€2
+ _empty_/C1#2 
+ _empty_/C1#`<init>`().2
+ scala/AnyRef#2
+	 
+_empty_/C1#x.2
+ _empty_/C2#2$
+ _empty_/C2#`<init>`().2$
+ _empty_/C1#`<init>`().2
+ _empty_/C1#2
+ local02*
+, ,java/lang/Object#`<init>`().2
+& ,scala/AnyRef#2
+; Ascala/AnyRef#PZ 6F08839CEE5CF243AE85A702A13146A8

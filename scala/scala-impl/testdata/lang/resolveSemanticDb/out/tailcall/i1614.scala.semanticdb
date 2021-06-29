@@ -1,0 +1,39 @@
+
+Ñtests/pos/tailcall/i1614.scala* 
+_empty_/Foobar.
+ *Foobar€*%
+_empty_/Foobar.apply().*apply€*
+local0*foobar€*
+local1	*A€*
+local2*f€*
+local3 €*ls€*
+local4*a1€*
+local5*a2€2
+ _empty_/Foobar.2%
+ _empty_/Foobar.apply().2
+ scala/Option#2"
+ scala/Predef.String#2
+ local02
+ local12
+ local22"
+ scala/Predef.String#2"
+ $scala/Predef.String#2
+) *local12!
+- 1scala/package.List#2
+2 3local127
+; ;)scala/collection/IterableFactory#apply().2!
+7 ;scala/package.List.2"
+< Bscala/Predef.String#28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local32
+ local02
+ local229
+" ,+scala/collection/LinearSeqOps#headOption().2
+ 
+local02
+ local42
+ local52%
+ java/lang/String#`+`().2
+ local42
+ local5PZ 2A8A383C2734F7636ABCB87BD4E0F311

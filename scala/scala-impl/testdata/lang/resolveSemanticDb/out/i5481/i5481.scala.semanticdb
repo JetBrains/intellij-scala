@@ -1,0 +1,63 @@
+
+Ðtests/pos/i5481.scala*&
+_empty_/TypeAlias.
+ *	TypeAlias€*"
+_empty_/TypeAlias.Set#*Set€*#
+_empty_/TypeAlias.Set#[A]	*A€*$
+_empty_/TypeAlias.Set.
+ *Set€*4
+"_empty_/TypeAlias.Set.singleton().*	singleton€*/
+%_empty_/TypeAlias.Set.singleton().[A]	*A€*/
+%_empty_/TypeAlias.Set.singleton().(a)*a€*(
+_empty_/OpaqueType.
+ *
+OpaqueType€*#
+_empty_/OpaqueType.Set#*Set€*$
+_empty_/OpaqueType.Set#[A]	*A€*%
+_empty_/OpaqueType.Set.
+ *Set€*5
+#_empty_/OpaqueType.Set.singleton().*	singleton€*0
+&_empty_/OpaqueType.Set.singleton().[A]	*A€*0
+&_empty_/OpaqueType.Set.singleton().(a)*a€*7
+$_empty_/OpaqueType.Set.singleton0().*
+singleton0€*1
+'_empty_/OpaqueType.Set.singleton0().[A]	*A€*1
+'_empty_/OpaqueType.Set.singleton0().(a)*a€2
+ _empty_/TypeAlias.2$
+ 
+_empty_/TypeAlias.Set#2'
+ _empty_/TypeAlias.Set#[A]2'
+ _empty_/TypeAlias.Set#[A]2
+ scala/Boolean#2$
+	 _empty_/TypeAlias.Set.20
+ "_empty_/TypeAlias.Set.singleton().23
+ %_empty_/TypeAlias.Set.singleton().[A]23
+ %_empty_/TypeAlias.Set.singleton().(a)23
+ %_empty_/TypeAlias.Set.singleton().[A]2$
+ _empty_/TypeAlias.Set#23
+  !%_empty_/TypeAlias.Set.singleton().[A]2
+' )scala/Any#`==`().23
+* +%_empty_/TypeAlias.Set.singleton().(a)2!
+		 _empty_/OpaqueType.2%
+ _empty_/OpaqueType.Set#2(
+ _empty_/OpaqueType.Set#[A]2(
+ _empty_/OpaqueType.Set#[A]2
+ #scala/Boolean#2%
+	 _empty_/OpaqueType.Set.21
+ #_empty_/OpaqueType.Set.singleton().24
+ &_empty_/OpaqueType.Set.singleton().[A]24
+ &_empty_/OpaqueType.Set.singleton().(a)24
+ &_empty_/OpaqueType.Set.singleton().[A]2%
+ _empty_/OpaqueType.Set#24
+  !&_empty_/OpaqueType.Set.singleton().[A]2
+' )scala/Any#`==`().24
+* +&_empty_/OpaqueType.Set.singleton().(a)22
+ $_empty_/OpaqueType.Set.singleton0().25
+ '_empty_/OpaqueType.Set.singleton0().[A]25
+ '_empty_/OpaqueType.Set.singleton0().(a)25
+ '_empty_/OpaqueType.Set.singleton0().[A]2%
+  _empty_/OpaqueType.Set#25
+! "'_empty_/OpaqueType.Set.singleton0().[A]2
+- /scala/Any#`==`().25
+* +'_empty_/OpaqueType.Set.singleton0().[A]25
+0 1'_empty_/OpaqueType.Set.singleton0().(a)PZ BD547B80817945A83568ADA65C5AED13

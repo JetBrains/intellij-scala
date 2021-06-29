@@ -1,0 +1,61 @@
+
+¥
+tests/pos/i10347/A_1.scala*
+
+_empty_/L#*L€*'
+_empty_/L#`<init>`(). €@*<init>€*
+_empty_/L#[T]	 €*T€* 
+_empty_/L#head(). *head€*
+
+_empty_/K# *K€*'
+_empty_/K#`<init>`(). €@*<init>€*%
+_empty_/K#`<init>`().(s) €*s€*
+_empty_/K#s. €*s€*
+
+_empty_/K.
+ *K€*
+
+_empty_/A.
+ *A€*
+_empty_/A.foo().*foo€*
+_empty_/A.bar().*bar€*
+_empty_/A.baz().*baz€*
+_empty_/A.baz().(k)*k€2
+ 
+_empty_/L#2
+ _empty_/L#`<init>`().2
+	 
+_empty_/L#[T]2
+ _empty_/L#head().2
+ _empty_/L#[T]2
+ 
+_empty_/K#2#
+ _empty_/K#`<init>`().2"
+ scala/Predef.String#2&
+% %scala/AnyVal#`<init>`().2
+ %scala/AnyVal#2
+ _empty_/K#s.2
+ 
+_empty_/K.2
+ 
+_empty_/A.2
+ 	_empty_/A.foo().2
+ 
+_empty_/L#2"
+ scala/Predef.String#2#
+ scala/Predef.`???`().2
+ 	_empty_/A.bar().2
+ 
+_empty_/L#2
+ 
+_empty_/K#2#
+ scala/Predef.`???`().2
+ 	_empty_/A.baz().2!
+
+ _empty_/A.baz().(k)2
+ 
+_empty_/K#2
+ 
+_empty_/L#2"
+ scala/Predef.String#2#
+  scala/Predef.`???`().PZ 19542086C56F041EDBE15ADA60964B14

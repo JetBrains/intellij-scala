@@ -1,0 +1,99 @@
+
+Ûtests/pos/matrixOps.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.Matrix#*Matrix€*#
+_empty_/Test.Vector#*Vector€*#
+_empty_/Test.nRows().*nRows€*"
+_empty_/Test.nRows().(m)*m€*#
+_empty_/Test.nCols().*nCols€*"
+_empty_/Test.nCols().(m)*m€*
+_empty_/Test.row().*row€* 
+_empty_/Test.row().(m)*m€* 
+_empty_/Test.row().(i)*i€*
+_empty_/Test.col().*col€* 
+_empty_/Test.col().(m)*m€* 
+_empty_/Test.col().(j)*j€*
+local0*i€*)
+_empty_/Test.pairwise().*pairwise€*%
+_empty_/Test.pairwise().(m)*m€*
+local1*i€*
+local2*j€*
+local3*x$1€2
+ _empty_/Test.2"
+ _empty_/Test.Matrix#2
+ scala/Array#2
+ scala/Array#2
+ "scala/Double#2"
+ _empty_/Test.Vector#2
+ scala/Array#2
+ scala/Double#2#
+ _empty_/Test.nRows().2&
+ _empty_/Test.nRows().(m)2"
+ _empty_/Test.Matrix#2#
+ scala/Array#length().2&
+ _empty_/Test.nRows().(m)2#
+ _empty_/Test.nCols().2&
+ _empty_/Test.nCols().(m)2#
+ scala/Array#length().2"
+ scala/Array#apply().2&
+ _empty_/Test.nCols().(m)2!
+ _empty_/Test.row().2$
+ _empty_/Test.row().(m)2$
+ _empty_/Test.row().(i)2
+ 
+scala/Int#2"
+ _empty_/Test.Vector#2"
+ scala/Array#apply().2$
+ _empty_/Test.row().(m)2$
+  !_empty_/Test.row().(i)2!
+		 _empty_/Test.col().2$
+ _empty_/Test.col().(m)2$
+		 _empty_/Test.col().(j)2
+		 
+scala/Int#2"
+		 _empty_/Test.Vector#2%
+	$	 ,scala/Array.tabulate().2
+		 #scala/Array.2#
+	/	 5scala/Array#length().2$
+	-	 ._empty_/Test.col().(m)2
+	7	 8local02"
+	@	 @scala/Array#apply().2"
+	=	 =scala/Array#apply().2$
+	<	 =_empty_/Test.col().(m)2
+	>	 ?local02$
+	A	 B_empty_/Test.col().(j)2-
+	D	 Dscala/reflect/ClassTag.apply().2&
+ _empty_/Test.pairwise().2)
+ _empty_/Test.pairwise().(m)2"
+ _empty_/Test.Matrix#2D
+ 6scala/collection/StrictOptimizedIterableOps#flatMap().2,
+ scala/runtime/RichInt#until().26
+ (scala/LowPriorityImplicits#intWrapper().2#
+ _empty_/Test.nRows().2)
+ _empty_/Test.pairwise().(m)2
+ local125
+ 'scala/collection/immutable/Range#map().2,
+ scala/runtime/RichInt#until().26
+ (scala/LowPriorityImplicits#intWrapper().2#
+ _empty_/Test.nCols().2)
+ _empty_/Test.pairwise().(m)2
+ local225
+( +'scala/collection/IterableOnceOps#sum().2;
+ -scala/LowPriorityImplicits#wrapDoubleArray().2.
+   scala/collection/ArrayOps#map().2)
+ scala/Predef.refArrayOps().2.
+  scala/collection/ArrayOps#zip().2,
+ scala/Predef.doubleArrayOps().2!
+ _empty_/Test.row().2)
+ _empty_/Test.pairwise().(m)2
+ local12;
+ -scala/LowPriorityImplicits#wrapDoubleArray().2!
+ _empty_/Test.row().2)
+ _empty_/Test.pairwise().(m)2
+ local22
+! !scala/Tuple2#_1.2
+% %scala/Tuple2#_2.2#
+# $scala/Double#`-`(+6).2-
+' 'scala/reflect/ClassTag.apply().24
++ +&scala/math/Numeric.DoubleIsFractional.PZ E7FF6F344A86FB50BE4DBF656F47033F

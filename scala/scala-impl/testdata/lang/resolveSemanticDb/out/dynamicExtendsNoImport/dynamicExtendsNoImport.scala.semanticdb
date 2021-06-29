@@ -1,0 +1,19 @@
+
+Â&tests/pos/dynamicExtendsNoImport.scala*
+foo/Bar#*Bar€*%
+foo/Bar#`<init>`(). €@*<init>€*
+_empty_/Baz#*Baz€*)
+_empty_/Baz#`<init>`(). €@*<init>€2
+ foo/2&
+  scala/language.dynamics.2
+ scala/language.2
+	 scala/2
+ foo/Bar#2!
+ foo/Bar#`<init>`().2
+ !scala/Dynamic#2
+ scala/2
+ 	_empty_/Baz#2%
+ _empty_/Baz#`<init>`().2!
+ foo/Bar#`<init>`().2
+ foo/Bar#2
+ foo/PZ 834892014B704A4AE6BDD62DA7840468

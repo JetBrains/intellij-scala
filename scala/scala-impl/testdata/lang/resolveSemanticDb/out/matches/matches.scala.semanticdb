@@ -1,0 +1,21 @@
+
+ÿtests/pos/matches.scala*
+matches/Test.
+ *Test€*
+matches/Test.x. €*x€2
+ matches/2
+ matches/Test.2*
+ scala/runtime/RichInt#min().26
+ (scala/LowPriorityImplicits#intWrapper().22
+( ($java/lang/AssertionError#`<init>`().2'
+ (java/lang/AssertionError#2
+		 matches/Test.x.2#
+ scala/Boolean#`||`().2 
+
+
+ scala/Int#`<`(+3).2
+ 	matches/Test.x.2#
+ scala/Boolean#`||`().2 
+ scala/Int#`+`(+4).2'
+ scala/Predef.println(+1).2
+ matches/Test.PZ A0447F95A3F14ABAEB03FDA5666D3F12

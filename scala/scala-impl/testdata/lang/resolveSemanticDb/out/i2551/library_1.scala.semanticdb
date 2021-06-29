@@ -1,0 +1,40 @@
+
+çtests/pos/i2551/library_1.scala*-
+scala/meta/config/Version# Ä*VersionÄ*7
+%scala/meta/config/Version#`<init>`(). Ä@*<init>Ä*.
+!scala/meta/config/Version#copy().*copyÄ*,
+scala/meta/config/Version.
+ *VersionÄ*0
+"scala/meta/config/Version.apply().*applyÄ*4
+$scala/meta/config/Version.unapply().*unapplyÄ*5
+)scala/meta/config/Version.unapply().(x$1)*x$1Ä*6
+%scala/meta/config/Version.toString().*toStringÄ**
+scala/meta/config/Aliases#*AliasesÄ*7
+%scala/meta/config/Aliases#`<init>`(). Ä@*<init>Ä*2
+"scala/meta/config/Aliases#Version#*VersionÄ*5
+"scala/meta/config/Aliases#Version. Ä*VersionÄ*"
+scala/meta/package. *metaÄ2
+ scala/2
+
+ scala/meta/2 
+ scala/meta/config/2(
+ scala/meta/config/Version#23
+ %scala/meta/config/Version#`<init>`().2(
+ scala/meta/config/Version.2(
+ scala/meta/config/Aliases#23
+ %scala/meta/config/Aliases#`<init>`().20
+ "scala/meta/config/Aliases#Version#2(
+) 0scala/meta/config/Version#2 
+" (scala/meta/config/2
+ !scala/meta/2
+ scala/20
+ "scala/meta/config/Aliases#Version.2(
+( /scala/meta/config/Version.2 
+! 'scala/meta/config/2
+  scala/meta/2
+ scala/2!
+ scala/meta/package.2(
+0 7scala/meta/config/Aliases#2 
+) /scala/meta/config/2
+$ (scala/meta/2
+ #scala/PZ 5717C422A8640337599E59292D42870A

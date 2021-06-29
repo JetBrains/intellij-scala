@@ -1,0 +1,22 @@
+
+¹tests/pos/i6033.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#f().*f€*
+_empty_/Test#f().(a)*a€*
+local0 €*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#f().2"
+ 	_empty_/Test#f().(a)2
+ 
+scala/`|`#2
+ scala/Array#2
+ scala/Null#2
+ scala/Unit#2"
+# $_empty_/Test#f().(a)2
+ 	local02
+ scala/Array#2
+ 
+scala/Int#PZ A6E81ADF6CC80E940331278E80B95466

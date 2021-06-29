@@ -1,0 +1,35 @@
+
+É&tests/pos/pos_valueclasses/t5667.scala*
+t5667/Main.
+ *Main€*
+t5667/Main.C# *C€**
+t5667/Main.C#`<init>`(). €@*<init>€*(
+t5667/Main.C#`<init>`().(s) €*s€*
+t5667/Main.C#s. €*s€*
+t5667/Main.C.
+ *C€*
+t5667/Main.C(). (*C€*
+t5667/Main.C().(s)*s€*
+t5667/Main.C2#*C2€*+
+t5667/Main.C2#`<init>`(). €@*<init>€*)
+t5667/Main.C2#`<init>`().(s) €*s€*
+t5667/Main.C2#s. €*s€*
+t5667/Main.C2(). (*C2€*
+t5667/Main.C2().(s)*s€2
+ t5667/2
+ t5667/Main.2
+ t5667/Main.C#2&
+ t5667/Main.C#`<init>`().2"
+  scala/Predef.String#2&
+0 0scala/AnyVal#`<init>`().2
+* 0scala/AnyVal#2
+ t5667/Main.C#s.2
+ t5667/Main.C.2
+ t5667/Main.C().2
+ t5667/Main.C2#2'
+ t5667/Main.C2#`<init>`().2"
+ !scala/Predef.String#2*
+1 1java/lang/Object#`<init>`().2
++ 1scala/AnyRef#2
+ t5667/Main.C2#s.2
+ t5667/Main.C2().PZ 593EA9DB4265F964F715ADA01426F89B

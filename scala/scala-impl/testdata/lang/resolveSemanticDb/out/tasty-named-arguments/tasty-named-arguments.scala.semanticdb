@@ -1,0 +1,132 @@
+
+Ù%tests/pos/tasty-named-arguments.scala*
+_empty_/Fn#*Fn€*(
+_empty_/Fn#`<init>`(). €@*<init>€*
+_empty_/Fn#[T]	 €*T€*
+_empty_/Fn#[R]	*R€*#
+_empty_/Fn#apply(). *apply€* 
+_empty_/Fn#apply().(t)*t€**
+_empty_/KeyValuePair#*KeyValuePair€*2
+ _empty_/KeyValuePair#`<init>`(). €@*<init>€*)
+_empty_/KeyValuePair#Value#*Value€*-
+_empty_/KeyValuePair#value(). *value€*:
+(_empty_/`tasty-named-arguments$package`. *_empty_€*7
+*_empty_/`tasty-named-arguments$package`.f. €*f€*
+local0 *apply€*
+local1*arg€*
+local2*x€*7
+*_empty_/`tasty-named-arguments$package`.g. €*g€*7
+*_empty_/`tasty-named-arguments$package`.m. €*m€*
+local3 *apply€*
+local4	*T€*
+local5*arg€*
+local6 *$anon€*
+local7*apply€*
+local8	*T€*
+local9*arg€*7
+*_empty_/`tasty-named-arguments$package`.n. €*n€*7
+*_empty_/`tasty-named-arguments$package`.d. €*d€*
+local10 *apply€*
+local11*kvp€*7
+*_empty_/`tasty-named-arguments$package`.e. €*e€*
+local12 *$anon€*
+local13*Value€*
+local14 €*value€*7
+*_empty_/`tasty-named-arguments$package`.c. €*c€*
+local15 *apply€*
+local16  *i€*
+local17  *x€*7
+*_empty_/`tasty-named-arguments$package`.i. €*i€2
+ _empty_/Fn#2 
+ _empty_/Fn#`<init>`().2
+
+ _empty_/Fn#[T]2
+ _empty_/Fn#[R]2
+ _empty_/Fn#apply().2 
+ _empty_/Fn#apply().(t)2
+  _empty_/Fn#[T]2
+# $_empty_/Fn#[R]2#
+ _empty_/KeyValuePair#2.
+  _empty_/KeyValuePair#`<init>`().2)
+ _empty_/KeyValuePair#Value#2+
+% *_empty_/KeyValuePair#value().2)
+, 1_empty_/KeyValuePair#Value#22
+(_empty_/`tasty-named-arguments$package`.28
+ *_empty_/`tasty-named-arguments$package`.f.2
+ 	_empty_/Fn#2
+
+ 
+scala/Int#2
+ 
+scala/Int#2
+ local02
+  #local12
+% (
+scala/Int#2
++ .
+scala/Int#2
+3 4local22
+8 9local228
+ *_empty_/`tasty-named-arguments$package`.g.2!
+
+ _empty_/Fn#apply().28
+ 	*_empty_/`tasty-named-arguments$package`.f.2&
+ _empty_/Fn#apply().(arg)28
+ *_empty_/`tasty-named-arguments$package`.m.2
+ local32
+ 	local42
+ local52
+ local42
+ local42
+ local62
+ local72
+  local82
+& )local92
++ ,local82
+1 4local928
+ *_empty_/`tasty-named-arguments$package`.n.28
+ 	*_empty_/`tasty-named-arguments$package`.m.2
+ <?>28
+
+
+ *_empty_/`tasty-named-arguments$package`.d.2#
+
+
+ _empty_/KeyValuePair#2
+
+
+  local102
+
+
+ local112)
+
+"
+ '_empty_/KeyValuePair#Value#2
+
+
+ !local112+
+
+,
+ 1_empty_/KeyValuePair#value().28
+ *_empty_/`tasty-named-arguments$package`.e.2&
+
+ scala/Function1#apply().28
+ 	*_empty_/`tasty-named-arguments$package`.d.2+
+ scala/Function1#apply().(kvp)2
+ local122
+! &local132
+) ,
+scala/Int#2
+2 7local1428
+ *_empty_/`tasty-named-arguments$package`.c.2
+ 
+scala/Int#2
+ local152
+ 	local162
+ local162
+ local172
+# $local1728
+ *_empty_/`tasty-named-arguments$package`.i.2-
+
+ scala/ContextFunction1#apply().28
+ 	*_empty_/`tasty-named-arguments$package`.c.PZ 734CDA8F1889645E5D742147B3B38872

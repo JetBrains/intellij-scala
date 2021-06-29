@@ -1,0 +1,92 @@
+
+Ètests/pos/opassign.scala*$
+_empty_/opassign.
+ *opassign€**
+_empty_/opassign.count(). €*count€*0
+_empty_/opassign.`count_=`(). €*count_=€*.
+"_empty_/opassign.`count_=`().(x$1)*x$1€*%
+_empty_/opassign.next().*next€*"
+_empty_/opassign.x(). €*x€*(
+_empty_/opassign.`x_=`(). €*x_=€**
+_empty_/opassign.`x_=`().(x$1)*x$1€*
+local0 €*x€*!
+_empty_/opassign.Ref#*Ref€*2
+ _empty_/opassign.Ref#`<init>`(). €@*<init>€*&
+_empty_/opassign.Ref#x(). €*x€*,
+_empty_/opassign.Ref#`x_=`(). €*x_=€*.
+"_empty_/opassign.Ref#`x_=`().(x$1)*x$1€* 
+_empty_/opassign.r. €*r€*$
+_empty_/opassign.arr. €*arr€*
+_empty_/opassign.f().*f€*"
+_empty_/opassign.f().(x)*x€*$
+_empty_/opassign.buf. €*buf€2
+ _empty_/opassign.2'
+ _empty_/opassign.count().2
+ 
+scala/Int#2+
+ _empty_/opassign.`count_=`().2&
+ 
+_empty_/opassign.next().2+
+ _empty_/opassign.`count_=`().2 
+ scala/Int#`+`(+4).2'
+ _empty_/opassign.count().2'
+  _empty_/opassign.count().2#
+ _empty_/opassign.x().2
+	 
+scala/Int#2'
+ 	_empty_/opassign.`x_=`().2'
+ _empty_/opassign.`x_=`().2 
+ scala/Int#`+`(+4).2#
+ _empty_/opassign.x().2
+		 	local02
+		 
+scala/Int#2
+
+
+ local02 
+
+
+ scala/Int#`+`(+4).2#
+ _empty_/opassign.Ref#2.
+  _empty_/opassign.Ref#`<init>`().2'
+ 	_empty_/opassign.Ref#x().2
+ 
+scala/Int#2@
+ *2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2+
+ _empty_/opassign.Ref#`x_=`().2!
+ _empty_/opassign.r.2.
+  _empty_/opassign.Ref#`<init>`().2#
+ _empty_/opassign.Ref#2+
+ _empty_/opassign.Ref#`x_=`().2!
+ _empty_/opassign.r.2 
+ scala/Int#`+`(+4).2'
+ _empty_/opassign.Ref#x().2#
+ 	_empty_/opassign.arr.2%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ 
+scala/Int#2#
+ scala/Array#update().2#
+ _empty_/opassign.arr.2 
+ scala/Int#`+`(+4).2"
+ scala/Array#apply().2#
+ _empty_/opassign.f().2&
+ 	_empty_/opassign.f().(x)2
+ 
+scala/Int#2#
+ _empty_/opassign.Ref#2.
+  _empty_/opassign.Ref#`<init>`().2#
+ _empty_/opassign.Ref#2#
+ _empty_/opassign.f().2&
+ _empty_/opassign.next().2 
+ scala/Int#`+`(+4).2#
+ 	_empty_/opassign.buf.2=
+2 2/scala/collection/mutable/ListBuffer#`<init>`().22
+# -$scala/collection/mutable/ListBuffer#2'
+ "scala/collection/mutable/2
+ scala/collection/2
+. 1
+scala/Int#27
+ )scala/collection/mutable/Growable#`+=`().2#
+ _empty_/opassign.buf.PZ 423C1BC73575EB9213316030FCCBDF83

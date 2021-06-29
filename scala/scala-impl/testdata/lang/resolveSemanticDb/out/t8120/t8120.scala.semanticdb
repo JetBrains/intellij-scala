@@ -1,0 +1,57 @@
+
+ètests/pos/t8120.scala*
+
+_empty_/A.
+ *AÄ*
+_empty_/A.C#*CÄ*)
+_empty_/A.C#`<init>`(). Ä@*<init>Ä*
+_empty_/A.C#m().*mÄ*
+_empty_/A.C#m().(a)*aÄ*"
+_empty_/A.RichAny#*RichAnyÄ*/
+_empty_/A.RichAny#`<init>`(). Ä@*<init>Ä**
+ _empty_/A.RichAny#`<init>`().(a)*aÄ*!
+_empty_/A.RichAny#a. Ä*aÄ* 
+_empty_/A.RichAny#m().*mÄ*#
+_empty_/A.RichAny#m().(a)*aÄ*&
+_empty_/A.RichAny(). (*RichAnyÄ*!
+_empty_/A.RichAny().(a)*aÄ*
+local0*x$1Ä*
+local1 Ä*xÄ*
+local2 Ä*yÄ2
+ 
+_empty_/A.2
+ 	_empty_/A.C#2%
+ _empty_/A.C#`<init>`().2
+ 	_empty_/A.C#m().2!
+
+ _empty_/A.C#m().(a)2
+ scala/Nothing#2
+ 
+scala/Int#2 
+ _empty_/A.RichAny#2+
+ _empty_/A.RichAny#`<init>`().2
+ 
+scala/Any#2"
+ _empty_/A.RichAny#a.2$
+ 	_empty_/A.RichAny#m().2'
+
+ _empty_/A.RichAny#m().(a)2
+ 
+scala/Any#2
+ 
+scala/Int#2"
+ _empty_/A.RichAny().2$
+
+ _empty_/A.RichAny#m().2"
+ _empty_/A.RichAny().2%
+ _empty_/A.C#`<init>`().2
+ _empty_/A.C#2
+ local02%
+ scala/Tuple2.unapply().2
+ local12
+ local22
+ local12
+# &
+scala/Any#2
+* -
+scala/Any#PZ ACE6643AFF62ABE6CBFAA1C16F90E9B5

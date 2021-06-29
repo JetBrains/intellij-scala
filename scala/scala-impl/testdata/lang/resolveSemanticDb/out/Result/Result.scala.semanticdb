@@ -1,0 +1,139 @@
+
+€$tests/pos/Result.scala*
+
+_empty_/p.
+ *pÄ*$
+_empty_/p.Result# îÄ*ResultÄ*.
+_empty_/p.Result#`<init>`(). Ä@*<init>Ä*!
+_empty_/p.Result#[T]	 Ä*TÄ*!
+_empty_/p.Result#[E]	 Ä*EÄ*"
+_empty_/p.Result.
+ *ResultÄ*#
+_empty_/p.Result.OK# àÅ*OKÄ*1
+_empty_/p.Result.OK#`<init>`(). Ä@*<init>Ä*/
+"_empty_/p.Result.OK#`<init>`().(x) Ä*xÄ*!
+_empty_/p.Result.OK#[T]	*TÄ*#
+_empty_/p.Result.OK#x. Ä*xÄ*(
+_empty_/p.Result.OK#copy().*copyÄ*(
+_empty_/p.Result.OK#copy().[T]	*TÄ*(
+_empty_/p.Result.OK#copy().(x)*xÄ*<
+%_empty_/p.Result.OK#copy$default$1().*copy$default$1Ä*2
+(_empty_/p.Result.OK#copy$default$1().[T]	*TÄ*.
+_empty_/p.Result.OK#ordinal().*ordinalÄ*$
+_empty_/p.Result.OK#_1().*_1Ä*!
+_empty_/p.Result.OK.
+ *OKÄ**
+_empty_/p.Result.OK.apply().*applyÄ*)
+_empty_/p.Result.OK.apply().[T]	*TÄ*)
+_empty_/p.Result.OK.apply().(x)*xÄ*.
+_empty_/p.Result.OK.unapply().*unapplyÄ*+
+!_empty_/p.Result.OK.unapply().[T]	*TÄ*/
+#_empty_/p.Result.OK.unapply().(x$1)*x$1Ä*0
+_empty_/p.Result.OK.toString().*toStringÄ*%
+_empty_/p.Result.Err# àÅ*ErrÄ*2
+ _empty_/p.Result.Err#`<init>`(). Ä@*<init>Ä*0
+#_empty_/p.Result.Err#`<init>`().(e) Ä*eÄ*"
+_empty_/p.Result.Err#[E]	*EÄ*$
+_empty_/p.Result.Err#e. Ä*eÄ*)
+_empty_/p.Result.Err#copy().*copyÄ*)
+_empty_/p.Result.Err#copy().[E]	*EÄ*)
+_empty_/p.Result.Err#copy().(e)*eÄ*=
+&_empty_/p.Result.Err#copy$default$1().*copy$default$1Ä*3
+)_empty_/p.Result.Err#copy$default$1().[E]	*EÄ*/
+_empty_/p.Result.Err#ordinal().*ordinalÄ*%
+_empty_/p.Result.Err#_1().*_1Ä*#
+_empty_/p.Result.Err.
+ *ErrÄ*+
+_empty_/p.Result.Err.apply().*applyÄ**
+ _empty_/p.Result.Err.apply().[E]	*EÄ**
+ _empty_/p.Result.Err.apply().(e)*eÄ*/
+_empty_/p.Result.Err.unapply().*unapplyÄ*,
+"_empty_/p.Result.Err.unapply().[E]	*EÄ*0
+$_empty_/p.Result.Err.unapply().(x$1)*x$1Ä*1
+ _empty_/p.Result.Err.toString().*toStringÄ*3
+_empty_/p.Result.fromOrdinal().*fromOrdinalÄ*8
+(_empty_/p.Result.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/p.Try#*TryÄ*
+_empty_/p.Try#[T]	*TÄ*
+_empty_/p.Try.
+ *TryÄ*$
+_empty_/p.Try.apply().*applyÄ*#
+_empty_/p.Try.apply().[T]	*TÄ*#
+_empty_/p.Try.apply().(x)*xÄ*
+local0 Ä*exÄ2&
+ "scala/util/control/NonFatal.2
+ scala/util/control/2
+ scala/util/2
+ scala/2
+ 
+_empty_/p.2
+ _empty_/p.Result#2*
+ _empty_/p.Result#`<init>`().2"
+ _empty_/p.Result#[T]2"
+ _empty_/p.Result#[E]2
+ _empty_/p.Result.2"
+	 _empty_/p.Result.OK#2-
+ _empty_/p.Result.OK#`<init>`().2%
+ _empty_/p.Result.OK#[T]2*
+0 0_empty_/p.Result#`<init>`().2
+ $_empty_/p.Result#2%
+% &_empty_/p.Result.OK#[T]2
+( /scala/Nothing#2%
+ _empty_/p.Result.OK#[T]2$
+ _empty_/p.Result.OK#x.2)
+ _empty_/p.Result.OK#copy().2'
+ _empty_/p.Result.OK#_1().2"
+	 	_empty_/p.Result.OK.2*
+ _empty_/p.Result.OK.apply().2,
+ _empty_/p.Result.OK.unapply().2#
+	 _empty_/p.Result.Err#2.
+  _empty_/p.Result.Err#`<init>`().2&
+ _empty_/p.Result.Err#[E]2*
+0 0_empty_/p.Result#`<init>`().2
+ $_empty_/p.Result#2
+% ,scala/Nothing#2&
+. /_empty_/p.Result.Err#[E]2&
+ _empty_/p.Result.Err#[E]2%
+ _empty_/p.Result.Err#e.2*
+ _empty_/p.Result.Err#copy().2(
+ _empty_/p.Result.Err#_1().2#
+	 	_empty_/p.Result.Err.2+
+ _empty_/p.Result.Err.apply().2-
+ _empty_/p.Result.Err.unapply().2
+ 
+_empty_/p.Try#2
+ _empty_/p.Try#[T]2
+ _empty_/p.Result#2
+ _empty_/p.Try#[T]2&
+ #scala/package.Throwable#2
+			 _empty_/p.Try.2$
+
+
+ _empty_/p.Try.apply().2'
+
+
+ _empty_/p.Try.apply().[T]2'
+
+
+ _empty_/p.Try.apply().(x)2'
+
+
+ _empty_/p.Try.apply().[T]2
+
+
+ _empty_/p.Try#2'
+
+
+  _empty_/p.Try.apply().[T]2*
+ _empty_/p.Result.OK.apply().2"
+ _empty_/p.Result.OK.2
+
+ _empty_/p.Result.2'
+ _empty_/p.Try.apply().(x)24
+ &scala/util/control/NonFatal.unapply().2*
+ scala/util/control/NonFatal.2
+ local02+
+' '_empty_/p.Result.Err.apply().2#
+$ '_empty_/p.Result.Err.2
+ #_empty_/p.Result.2
+( *local0PZ 28B8CF546CB985D8EC422C0EE85E746F

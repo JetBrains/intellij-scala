@@ -1,0 +1,85 @@
+
+Ðtests/pos/t0082.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.min0().*min0€*!
+_empty_/Main.min0().[A]	*A€*'
+_empty_/Main.min0().(less)*less€*#
+_empty_/Main.min0().(xs)*xs€*
+local0 €*x€*
+local1 €*y€*
+local2 €*ys€*
+local3 €*m€*
+_empty_/Main.min().*min€*"
+_empty_/Main.min().(xs)*xs€*
+local4*x€*
+local5*y€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€2
+ _empty_/Main.2"
+ _empty_/Main.min0().2%
+ _empty_/Main.min0().[A]2(
+ _empty_/Main.min0().(less)2%
+ _empty_/Main.min0().[A]2%
+ _empty_/Main.min0().[A]2
+  'scala/Boolean#2&
+) +_empty_/Main.min0().(xs)2!
+- 1scala/package.List#2%
+2 3_empty_/Main.min0().[A]2
+7 =scala/Option#2%
+> ?_empty_/Main.min0().[A]2&
+C E_empty_/Main.min0().(xs)27
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.2
+ scala/None.27
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.2
+ local02!
+ scala/Some.apply().2
+ scala/Some.2
+ local028
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local12
+ local22"
+ _empty_/Main.min0().2(
+ "_empty_/Main.min0().(less)2
+$ &local22#
+ scala/Some.unapply().2
+ scala/Some.2
+ local32&
+$ $scala/Function2#apply().2(
+  $_empty_/Main.min0().(less)2
+% &local12
+( )local32!
+0 0scala/Some.apply().2
+, 0scala/Some.2
+1 2local12!
+= =scala/Some.apply().2
+9 =scala/Some.2
+> ?local32!
+ _empty_/Main.min().2%
+ _empty_/Main.min().(xs)2!
+ scala/package.List#2
+ 
+scala/Int#2"
+ !_empty_/Main.min0().2
+# $local42
+& )
+scala/Int#2
++ ,local52
+. 1
+scala/Int#2 
+8 9scala/Int#`<`(+3).2
+6 7local42
+: ;local52%
+= ?_empty_/Main.min().(xs)2"
+ _empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2(
+ scala/Console.println(+1).2
+ scala/Console.2!
+ _empty_/Main.min().27
+   )scala/collection/IterableFactory#apply().2!
+  scala/package.List.PZ BD6B1919BED4057F5A88FB6E18DC3040

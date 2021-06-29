@@ -1,0 +1,68 @@
+
+‰tests/pos/i12273.scala*!
+_empty_/Outlet# ˆ*Outlet€*,
+_empty_/Outlet#`<init>`(). €@*<init>€*.
+_empty_/Outlet#`<init>`().(out) €*out€*
+_empty_/Outlet#[T]	*T€*"
+_empty_/Outlet#out. €*out€*#
+_empty_/Outlet#copy().*copy€*#
+_empty_/Outlet#copy().[T]	*T€*'
+_empty_/Outlet#copy().(out)*out€*7
+ _empty_/Outlet#copy$default$1().*copy$default$1€*-
+#_empty_/Outlet#copy$default$1().[T]	*T€*
+_empty_/Outlet#_1().*_1€* 
+_empty_/Outlet.
+ *Outlet€*%
+_empty_/Outlet.apply().*apply€*$
+_empty_/Outlet.apply().[T]	*T€*(
+_empty_/Outlet.apply().(out)*out€*)
+_empty_/Outlet.unapply().*unapply€*&
+_empty_/Outlet.unapply().[T]	*T€**
+_empty_/Outlet.unapply().(x$1)*x$1€*+
+_empty_/Outlet.toString().*toString€*+
+_empty_/SourceShape# ˆ*SourceShape€*1
+_empty_/SourceShape#`<init>`(). €@*<init>€*3
+$_empty_/SourceShape#`<init>`().(out) €*out€*$
+_empty_/SourceShape#[T]	 €*T€*'
+_empty_/SourceShape#out. €*out€*(
+_empty_/SourceShape#copy().*copy€*(
+_empty_/SourceShape#copy().[T]	*T€*,
+ _empty_/SourceShape#copy().(out)*out€*<
+%_empty_/SourceShape#copy$default$1().*copy$default$1€*2
+(_empty_/SourceShape#copy$default$1().[T]	*T€*$
+_empty_/SourceShape#_1().*_1€**
+_empty_/SourceShape.
+ *SourceShape€**
+_empty_/SourceShape.apply().*apply€*)
+_empty_/SourceShape.apply().[T]	*T€*-
+!_empty_/SourceShape.apply().(out)*out€*.
+_empty_/SourceShape.unapply().*unapply€*+
+!_empty_/SourceShape.unapply().[T]	*T€*/
+#_empty_/SourceShape.unapply().(x$1)*x$1€*0
+_empty_/SourceShape.toString().*toString€27
+" 3-scala/annotation/unchecked/uncheckedVariance#2%
+ !scala/annotation/unchecked/2
+ scala/annotation/2
+ scala/2
+ _empty_/Outlet#2(
+ _empty_/Outlet#`<init>`().2 
+  !_empty_/Outlet#[T]2 
+ _empty_/Outlet#[T]2!
+ _empty_/Outlet#out.2 
+_empty_/Outlet#copy().2"
+   _empty_/Outlet#_1().2
+ _empty_/Outlet.2!
+_empty_/Outlet.apply().2#
+_empty_/Outlet.unapply().2"
+ _empty_/SourceShape#2-
+ _empty_/SourceShape#`<init>`().2
+* 0_empty_/Outlet#2%
+1 2_empty_/SourceShape#[T]2;
+4 E-scala/annotation/unchecked/uncheckedVariance#2%
+ _empty_/SourceShape#[T]2&
+% (_empty_/SourceShape#out.2%
+_empty_/SourceShape#copy().2'
+* *_empty_/SourceShape#_1().2"
+ _empty_/SourceShape.2&
+_empty_/SourceShape.apply().2(
+_empty_/SourceShape.unapply().PZ 3F0CE94764C15487DED2A48E1170ED18

@@ -1,0 +1,209 @@
+
+Ý2&tests/pos/pos_valueclasses/t5853.scala*
+t5853/C# *C€*%
+t5853/C#`<init>`(). €@*<init>€*#
+t5853/C#`<init>`().(x) €*x€*
+
+t5853/C#x. €*x€*
+t5853/C#ppp().*ppp€*
+t5853/C#ppp().[T]	*T€*
+t5853/C#ppp().(y)*y€*
+t5853/C.
+ *C€*
+
+t5853/Foo#*Foo€*'
+t5853/Foo#`<init>`(). €@*<init>€*
+t5853/Foo#f().*f€*
+t5853/Bippy.
+ *Bippy€*
+t5853/Bippy.C# *C€*+
+t5853/Bippy.C#`<init>`(). €@*<init>€*)
+t5853/Bippy.C#`<init>`().(x) €*x€*
+t5853/Bippy.C#x. €*x€*"
+t5853/Bippy.C#`+++`().*+++€*#
+t5853/Bippy.C#`+++`().[T]	*T€*#
+t5853/Bippy.C#`+++`().(y)*y€*
+t5853/Bippy.C.
+ *C€*
+t5853/Bippy.C(). (*C€*
+t5853/Bippy.C().(x)*x€*
+t5853/Bippy.f().*f€*
+	t5853/C2# *C2€*&
+t5853/C2#`<init>`(). €@*<init>€*$
+t5853/C2#`<init>`().(x) €*x€*
+t5853/C2#x. €*x€*
+t5853/C2#`+++`().*+++€*
+t5853/C2#`+++`().[T]	*T€*
+t5853/C2#`+++`().(y)*y€*
+	t5853/C2.
+ *C2€*
+t5853/Foo2#*Foo2€*(
+t5853/Foo2#`<init>`(). €@*<init>€*
+t5853/Foo2#f().*f€*
+t5853/Arrow.
+ *Arrow€*,
+t5853/Arrow.ArrowAssoc# *
+ArrowAssoc€*4
+"t5853/Arrow.ArrowAssoc#`<init>`(). €@*<init>€*J
+1t5853/Arrow.ArrowAssoc#`<init>`().(__leftOfArrow) €*__leftOfArrow€*$
+t5853/Arrow.ArrowAssoc#[A]	*A€*>
+%t5853/Arrow.ArrowAssoc#__leftOfArrow. €*__leftOfArrow€*+
+t5853/Arrow.ArrowAssoc#`->>`().*->>€*,
+"t5853/Arrow.ArrowAssoc#`->>`().[B]	*B€*,
+"t5853/Arrow.ArrowAssoc#`->>`().(y)*y€*,
+t5853/Arrow.ArrowAssoc.
+ *
+ArrowAssoc€*.
+t5853/Arrow.ArrowAssoc(). (*
+ArrowAssoc€*&
+t5853/Arrow.ArrowAssoc().[A]	*A€*>
+(t5853/Arrow.ArrowAssoc().(__leftOfArrow)*__leftOfArrow€*
+t5853/Arrow.foo().*foo€*$
+t5853/SpecArrow.
+ *	SpecArrow€*0
+t5853/SpecArrow.ArrowAssoc# *
+ArrowAssoc€*8
+&t5853/SpecArrow.ArrowAssoc#`<init>`(). €@*<init>€*N
+5t5853/SpecArrow.ArrowAssoc#`<init>`().(__leftOfArrow) €*__leftOfArrow€*(
+t5853/SpecArrow.ArrowAssoc#[A]	*A€*B
+)t5853/SpecArrow.ArrowAssoc#__leftOfArrow. €*__leftOfArrow€*/
+#t5853/SpecArrow.ArrowAssoc#`->>`().*->>€*0
+&t5853/SpecArrow.ArrowAssoc#`->>`().[B]	*B€*0
+&t5853/SpecArrow.ArrowAssoc#`->>`().(y)*y€*0
+t5853/SpecArrow.ArrowAssoc.
+ *
+ArrowAssoc€*2
+t5853/SpecArrow.ArrowAssoc(). (*
+ArrowAssoc€**
+ t5853/SpecArrow.ArrowAssoc().[A]	*A€*B
+,t5853/SpecArrow.ArrowAssoc().(__leftOfArrow)*__leftOfArrow€*"
+t5853/SpecArrow.foo().*foo€2
+ t5853/2
+		 t5853/C#2!
+		 t5853/C#`<init>`().2
+		 
+scala/Int#2&
+	(	 (scala/AnyVal#`<init>`().2
+	"	 (scala/AnyVal#2
+		 
+t5853/C#x.2
+
+
+ 	t5853/C#ppp().2 
+
+
+ scala/specialized#2
+
+
+ 
+scala/Int.2
+
+
+ t5853/C#ppp().[T]2
+
+
+  t5853/C#ppp().(y)2
+
+"
+ #t5853/C#ppp().[T]2
+		 t5853/C.2
+ 	
+t5853/Foo#2#
+ t5853/Foo#`<init>`().2
+ t5853/Foo#f().2
+ t5853/C#ppp().2!
+ t5853/C#`<init>`().2
+ t5853/C#2
+ t5853/Bippy.2
+ t5853/Bippy.C#2'
+ t5853/Bippy.C#`<init>`().2
+  #
+scala/Int#2&
+3 3scala/AnyVal#`<init>`().2
+- 3scala/AnyVal#2
+ t5853/Bippy.C#x.2$
+ t5853/Bippy.C#`+++`().2 
+ scala/specialized#2'
+ t5853/Bippy.C#`+++`().[T]2'
+ t5853/Bippy.C#`+++`().(y)2'
+  t5853/Bippy.C#`+++`().[T]2
+ t5853/Bippy.C.2
+ t5853/Bippy.C().2
+ t5853/Bippy.f().2$
+ t5853/Bippy.C#`+++`().2
+
+ 
+t5853/Bippy.C().2
+ 	t5853/C2#2"
+ t5853/C2#`<init>`().2
+ 
+scala/Int#2&
+) )scala/AnyVal#`<init>`().2
+# )scala/AnyVal#2
+ t5853/C2#x.2
+   	t5853/C2#`+++`().2 
+   scala/specialized#2
+   
+scala/Int.2"
+   t5853/C2#`+++`().[T]2"
+    t5853/C2#`+++`().(y)2"
+ "  #t5853/C2#`+++`().[T]2
+ 	t5853/C2.2
+$$ 
+t5853/Foo2#2$
+%% t5853/Foo2#`<init>`().2
+%% t5853/Foo2#f().2
+%% t5853/C2#`+++`().2"
+%% t5853/C2#`<init>`().2
+%% 	t5853/C2#2
+)) t5853/Arrow.2%
+** !t5853/Arrow.ArrowAssoc#20
+*!* !"t5853/Arrow.ArrowAssoc#`<init>`().2(
+*8* 9t5853/Arrow.ArrowAssoc#[A]2&
+*I* Iscala/AnyVal#`<init>`().2
+*C* Iscala/AnyVal#2(
+*"* #t5853/Arrow.ArrowAssoc#[A]23
+*)* 6%t5853/Arrow.ArrowAssoc#__leftOfArrow.2-
+++ t5853/Arrow.ArrowAssoc#`->>`().20
+++ "t5853/Arrow.ArrowAssoc#`->>`().[B]20
+++ "t5853/Arrow.ArrowAssoc#`->>`().(y)20
+++ "t5853/Arrow.ArrowAssoc#`->>`().[B]2
+++ #scala/Tuple2#2(
++$+ %t5853/Arrow.ArrowAssoc#[A]20
++'+ ("t5853/Arrow.ArrowAssoc#`->>`().[B]2#
++2+ 2scala/Tuple2.apply().2
++,+ 2scala/Tuple2.23
++3+ @%t5853/Arrow.ArrowAssoc#__leftOfArrow.20
++B+ C"t5853/Arrow.ArrowAssoc#`->>`().(y)2%
+** t5853/Arrow.ArrowAssoc.2'
+** t5853/Arrow.ArrowAssoc().2 
+.. 	t5853/Arrow.foo().2-
+.. t5853/Arrow.ArrowAssoc#`->>`().2'
+.. t5853/Arrow.ArrowAssoc().2
+22 t5853/SpecArrow.2)
+33 !t5853/SpecArrow.ArrowAssoc#24
+3!3 !&t5853/SpecArrow.ArrowAssoc#`<init>`().2,
+383 9t5853/SpecArrow.ArrowAssoc#[A]2&
+3I3 Iscala/AnyVal#`<init>`().2
+3C3 Iscala/AnyVal#2,
+3"3 #t5853/SpecArrow.ArrowAssoc#[A]27
+3)3 6)t5853/SpecArrow.ArrowAssoc#__leftOfArrow.21
+44 #t5853/SpecArrow.ArrowAssoc#`->>`().2 
+44  scala/specialized#2
+4!4 $
+scala/Int.24
+4&4 '&t5853/SpecArrow.ArrowAssoc#`->>`().[B]24
+4)4 *&t5853/SpecArrow.ArrowAssoc#`->>`().(y)24
+4,4 -&t5853/SpecArrow.ArrowAssoc#`->>`().[B]2
+404 6scala/Tuple2#2,
+474 8t5853/SpecArrow.ArrowAssoc#[A]24
+4:4 ;&t5853/SpecArrow.ArrowAssoc#`->>`().[B]2#
+4E4 Escala/Tuple2.apply().2
+4?4 Escala/Tuple2.27
+4F4 S)t5853/SpecArrow.ArrowAssoc#__leftOfArrow.24
+4U4 V&t5853/SpecArrow.ArrowAssoc#`->>`().(y)2)
+33 t5853/SpecArrow.ArrowAssoc.2+
+33 t5853/SpecArrow.ArrowAssoc().2$
+77 	t5853/SpecArrow.foo().21
+77 #t5853/SpecArrow.ArrowAssoc#`->>`().2+
+77 t5853/SpecArrow.ArrowAssoc().PZ 9274782A3E3D911EFDA9243B8574D3FA

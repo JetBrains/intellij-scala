@@ -1,0 +1,47 @@
+
+Ëtests/pos/t124.scala*
+
+_empty_/N#*N€*'
+_empty_/N#`<init>`(). €@*<init>€*
+_empty_/N#F. €*F€*
+local0*x€*
+_empty_/N#f. €*f€*
+local1*x€*
+_empty_/N#g. €*g€*
+local2*x€2
+ 
+_empty_/N#2#
+ _empty_/N#`<init>`().2
+ _empty_/N#F.2
+	 
+scala/Any#2
+ 
+scala/Any#2
+ local02
+ 
+scala/Any#2&
+# #scala/Function1#apply().2
+" #_empty_/N#F.2
+$ %local02
+ _empty_/N#f.2
+	 
+scala/Any#2
+ 
+scala/Any#2
+ local12
+ 
+scala/Any#2&
+# #scala/Function1#apply().2
+" #_empty_/N#f.2
+$ %local12
+ _empty_/N#g.2
+	 
+scala/Any#2
+ 
+scala/Any#2
+ local22
+ 
+scala/Any#2&
+# #scala/Function1#apply().2
+" #_empty_/N#g.2
+$ %local2PZ 487653BD0675D847868906CDC9594B9C

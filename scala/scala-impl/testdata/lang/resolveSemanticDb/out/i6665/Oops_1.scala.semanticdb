@@ -1,0 +1,27 @@
+
+›tests/pos/i6665/Oops_1.scala*
+
+foo/TOops#*TOops€*'
+foo/TOops#`<init>`(). €@*<init>€* 
+foo/TOops#oops(). *oops€*
+	foo/Oops#*Oops€*&
+foo/Oops#`<init>`(). €@*<init>€*
+foo/Oops#oops().*oops€*
+local0  *x€2
+ foo/2
+ 
+foo/TOops#2#
+ foo/TOops#`<init>`().2
+ foo/TOops#oops().2
+ scala/Unit#2
+ scala/Unit#2
+ 
+	foo/Oops#2"
+ foo/Oops#`<init>`().2
+ 
+foo/TOops#2
+		 foo/Oops#oops().2
+		 scala/Unit#2
+	 	 $scala/Unit#2
+	(	 )local02
+	/	 0local0PZ 4A1675B378A96380BDB7763D6631EF77

@@ -1,0 +1,70 @@
+
+ñtests/pos/poly-override.scala*
+_empty_/Super#*Super€*+
+_empty_/Super#`<init>`(). €@*<init>€*
+_empty_/Super#a().*a€*
+_empty_/Super#a().[T]	*T€*
+_empty_/Super#b().*b€*
+_empty_/Super#b().[T]	*T€*
+_empty_/Super#b().(x)*x€*
+_empty_/Super#c().*c€*
+_empty_/Super#c().[F]	*F€*
+_empty_/Super#d().*d€*
+_empty_/Super#d().[F]	*F€*
+_empty_/Sub1#*Sub1€**
+_empty_/Sub1#`<init>`(). €@*<init>€*
+_empty_/Sub1#a().*a€*
+_empty_/Sub1#a().[T]	*T€*
+_empty_/Sub1#b().*b€*
+_empty_/Sub1#b().[T]	*T€*
+_empty_/Sub1#b().(x)*x€*
+_empty_/Sub1#c().*c€*
+_empty_/Sub1#c().[F]	*F€*
+_empty_/Sub1#d().*d€*
+_empty_/Sub1#d().[F]	*F€*
+_empty_/Sub2#*Sub2€**
+_empty_/Sub2#`<init>`(). €@*<init>€*
+_empty_/Sub2#c().*c€*
+_empty_/Sub2#c().[F]	*F€2
+ _empty_/Super#2'
+ _empty_/Super#`<init>`().2 
+ _empty_/Super#a().2#
+ 	_empty_/Super#a().[T]2"
+ scala/Predef.String#2 
+ _empty_/Super#b().2#
+ 	_empty_/Super#b().[T]2"
+ scala/Predef.String#2#
+ _empty_/Super#b().(x)2"
+ scala/Predef.String#2 
+ _empty_/Super#c().2#
+ 	_empty_/Super#c().[F]2 
+ _empty_/Super#d().2#
+ 	_empty_/Super#d().[F]2
+ 
+_empty_/Sub1#2&
+ _empty_/Sub1#`<init>`().2'
+ _empty_/Super#`<init>`().2
+ _empty_/Super#2
+ _empty_/Sub1#a().2"
+ _empty_/Sub1#a().[T]2
+ scala/AnyRef#2
+ _empty_/Sub1#b().2"
+ _empty_/Sub1#b().[T]2
+ scala/AnyRef#2"
+ _empty_/Sub1#b().(x)2"
+! 'scala/Predef.String#2
+		 _empty_/Sub1#c().2"
+		 _empty_/Sub1#c().[F]2
+
+
+ _empty_/Sub1#d().2"
+
+
+ _empty_/Sub1#d().[F]2
+ 
+_empty_/Sub2#2&
+ _empty_/Sub2#`<init>`().2'
+ _empty_/Super#`<init>`().2
+ _empty_/Super#2
+ _empty_/Sub2#c().2"
+ _empty_/Sub2#c().[F]PZ AB9783EB7682C5BE473B1472F6A42B1B

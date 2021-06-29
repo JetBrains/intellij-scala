@@ -1,0 +1,35 @@
+
+Ýtests/pos/i8997.scala*
+_empty_/Foo.
+ *Foo€*&
+_empty_/Foo.unapply().*unapply€*#
+_empty_/Foo.unapply().(n)*n€*%
+_empty_/Foo.unapply().(x)  *x€*%
+_empty_/Foo.unapply().(y)  *y€*(
+_empty_/i8997$package. *_empty_€**
+_empty_/i8997$package.test().*test€*
+local0 è*	given_Int€2
+ 
+_empty_/Foo.2$
+ _empty_/Foo.unapply().2'
+ _empty_/Foo.unapply().(n)2
+ 
+scala/Int#2'
+ _empty_/Foo.unapply().(x)2"
+ ,scala/DummyImplicit#2'
+4 5_empty_/Foo.unapply().(y)2
+7 :
+scala/Int#2
+= Cscala/Option#2
+D G
+scala/Int#2#
+K Nscala/Predef.`???`().2 
+_empty_/i8997$package.2+
+ _empty_/i8997$package.test().2
+ local02
+ 
+scala/Int#2$
+ _empty_/Foo.unapply().2
+	 _empty_/Foo.20
+ "scala/DummyImplicit.dummyImplicit.2
+ local0PZ F152FC5AA7E5DEC60ADE3C868458C471

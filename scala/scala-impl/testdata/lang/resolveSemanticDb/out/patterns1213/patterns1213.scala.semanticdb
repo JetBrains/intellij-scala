@@ -1,0 +1,52 @@
+
+Îtests/pos/patterns1213.scala**
+_empty_/MapLocation# *MapLocation€*1
+_empty_/MapLocation#`<init>`(). €@*<init>€*.
+#_empty_/MapLocation#`<init>`().(ID)*ID€*%
+_empty_/MapLocation#ID. €*ID€*.
+_empty_/MapLocation#Message# *Message€*9
+'_empty_/MapLocation#Message#`<init>`(). €@*<init>€*;
+"_empty_/MapLocation#ReceivePlayer# €*ReceivePlayer€*?
+-_empty_/MapLocation#ReceivePlayer#`<init>`(). €@*<init>€*?
+1_empty_/MapLocation#ReceivePlayer#`<init>`().(id) €*id€*3
+%_empty_/MapLocation#ReceivePlayer#id. €*id€*6
+)_empty_/MapLocation#ReceivePlayer#copy().*copy€*8
+-_empty_/MapLocation#ReceivePlayer#copy().(id)*id€*J
+3_empty_/MapLocation#ReceivePlayer#copy$default$1().*copy$default$1€*2
+'_empty_/MapLocation#ReceivePlayer#_1().*_1€*:
+"_empty_/MapLocation#ReceivePlayer.
+ *ReceivePlayer€*8
+*_empty_/MapLocation#ReceivePlayer.apply().*apply€*9
+._empty_/MapLocation#ReceivePlayer.apply().(id)*id€*<
+,_empty_/MapLocation#ReceivePlayer.unapply().*unapply€*=
+1_empty_/MapLocation#ReceivePlayer.unapply().(x$1)*x$1€*>
+-_empty_/MapLocation#ReceivePlayer.toString().*toString€*&
+_empty_/MapLocation#foo().*foo€*'
+_empty_/MapLocation#foo().(p)*p€2
+ _empty_/MapLocation#2)
+ _empty_/MapLocation#`<init>`().2
+ "
+scala/Int#2!
+ _empty_/MapLocation#ID.2*
+ _empty_/MapLocation#Message#25
+ '_empty_/MapLocation#Message#`<init>`().20
+ "_empty_/MapLocation#ReceivePlayer#2;
+ -_empty_/MapLocation#ReceivePlayer#`<init>`().2
+ "
+scala/Int#25
+3 3'_empty_/MapLocation#Message#`<init>`().2*
+, 3_empty_/MapLocation#Message#23
+ %_empty_/MapLocation#ReceivePlayer#id.27
+ )_empty_/MapLocation#ReceivePlayer#copy().25
+ '_empty_/MapLocation#ReceivePlayer#_1().20
+ "_empty_/MapLocation#ReceivePlayer.28
+ *_empty_/MapLocation#ReceivePlayer.apply().2(
+ 	_empty_/MapLocation#foo().2+
+
+ _empty_/MapLocation#foo().(p)2*
+ _empty_/MapLocation#Message#2
+ scala/Unit#2+
+ _empty_/MapLocation#foo().(p)2:
+ ,_empty_/MapLocation#ReceivePlayer.unapply().20
+ "_empty_/MapLocation#ReceivePlayer.2%
+ _empty_/MapLocation#ID.PZ E241445B6B2F48393898EC58C8F827C4

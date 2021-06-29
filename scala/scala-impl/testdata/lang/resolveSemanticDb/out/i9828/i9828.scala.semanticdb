@@ -1,0 +1,42 @@
+
+ã
+tests/pos/i9828.scala*(
+_empty_/i9828$package. *_empty_€*$
+_empty_/i9828$package.g().*g€*'
+_empty_/i9828$package.g().(x)*x€*'
+_empty_/i9828$package.g().(y)*y€*$
+_empty_/i9828$package.f().*f€*'
+_empty_/i9828$package.f().[S]	*S€*'
+_empty_/i9828$package.f().(f)*f€*'
+_empty_/i9828$package.f().(s)*s€*%
+_empty_/i9828$package.z. €*z€*4
+"_empty_/i9828$package.testStuff().*	testStuff€*
+local0*s€2 
+_empty_/i9828$package.2(
+ _empty_/i9828$package.g().2+
+ _empty_/i9828$package.g().(x)2
+ 
+scala/Int#2+
+! "_empty_/i9828$package.g().(y)2
+$ '
+scala/Int#2
+* -
+scala/Int#2 
+2 3scala/Int#`+`(+4).2+
+0 1_empty_/i9828$package.g().(x)2+
+4 5_empty_/i9828$package.g().(y)2(
+& '_empty_/i9828$package.f().2+
+ _empty_/i9828$package.f().[S]2+
+ _empty_/i9828$package.f().(f)2+
+ _empty_/i9828$package.f().[S]2
+ 
+scala/Int#2+
+( )_empty_/i9828$package.f().(s)2"
++ 1scala/Predef.String#2&
+ _empty_/i9828$package.z.2(
+
+ _empty_/i9828$package.g().20
+ "_empty_/i9828$package.testStuff().2(
+ _empty_/i9828$package.f().2
+ local02"
+ scala/Predef.String#PZ AD19DE624B7E4647824F645CAA9593AB

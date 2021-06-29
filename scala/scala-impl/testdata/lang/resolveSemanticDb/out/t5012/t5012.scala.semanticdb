@@ -1,0 +1,28 @@
+
+´tests/pos/t5012.scala*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#p.
+ *p€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#m().*m€*
+local0
+ *p€2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+	 
+_empty_/D#p.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#m().2
+	 
+
+_empty_/D#2!
+ scala/Int#`==`(+3).2(
+ java/lang/String#length().2
+ local0PZ 8FED4CBDD309B544717CC3FA3C8FAB98

@@ -1,0 +1,81 @@
+
+¾tests/pos/i11464.scala*
+_empty_/Txn#*Txn€*)
+_empty_/Txn#`<init>`(). €@*<init>€*
+_empty_/Txn#[T]	*T€* 
+_empty_/Adjunct#*Adjunct€*-
+_empty_/Adjunct#`<init>`(). €@*<init>€*
+_empty_/Type0#*Type0€*+
+_empty_/Type0#`<init>`(). €@*<init>€*
+_empty_/Type#*Type€**
+_empty_/Type#`<init>`(). €@*<init>€*
+_empty_/Type#[A1]	*A1€* 
+_empty_/Type#[Repr]	*Repr€*
+_empty_/Expr.
+ *Expr€*!
+_empty_/Expr.test().*test€*'
+_empty_/Expr.test().(peer)*peer€*
+local0*R€*
+local1	*~€*
+_empty_/Expr#*Expr€**
+_empty_/Expr#`<init>`(). €@*<init>€*
+_empty_/Expr#[T]	*T€*
+_empty_/Expr#[A]	 €*A€*(
+_empty_/AdjunctImpl#*AdjunctImpl€*1
+_empty_/AdjunctImpl#`<init>`(). €@*<init>€*0
+$_empty_/AdjunctImpl#`<init>`().(tpe)*tpe€*!
+_empty_/AdjunctImpl#[A]	*A€*!
+_empty_/AdjunctImpl#[E]	*E€*'
+_empty_/AdjunctImpl#tpe. €*tpe€2
+ 	_empty_/Txn#2!
+	 	_empty_/Txn#`<init>`().2
+
+ _empty_/Txn#[T]2
+ _empty_/Adjunct#2%
+_empty_/Adjunct#`<init>`().2
+ _empty_/Type0#2#
+_empty_/Type0#`<init>`().2
+ 
+_empty_/Type#2&
+
+ 
+_empty_/Type#`<init>`().2
+9 >_empty_/Type0#2
+ _empty_/Type#[A1]2!
+ _empty_/Type#[Repr]2
+ _empty_/Expr.2"
+ 
+_empty_/Expr.test().2(
+ _empty_/Expr.test().(peer)2
+ _empty_/Type0#2
+  _empty_/Adjunct#2-
+		 _empty_/AdjunctImpl#`<init>`().2'
+		 %scala/Any#asInstanceOf().2(
+		 _empty_/Expr.test().(peer)2
+	&	 *_empty_/Type#2
+	+	 .
+scala/Any#2
+	8	 9local02
+	:	 ;local12
+	?	 B_empty_/Txn#2
+	C	 Dlocal12
+	J	 N_empty_/Expr#2
+	O	 Plocal12
+	R	 U
+scala/Any#2
+ 
+_empty_/Expr#2&
+
+ 
+_empty_/Expr#`<init>`().2
+ _empty_/Expr#[T]2
+ _empty_/Expr#[A]2"
+ _empty_/AdjunctImpl#2-
+ _empty_/AdjunctImpl#`<init>`().2
+8 <_empty_/Type#2%
+= >_empty_/AdjunctImpl#[A]2%
+@ A_empty_/AdjunctImpl#[E]2
+L S_empty_/Adjunct#2%
+ _empty_/AdjunctImpl#[A]2%
+ _empty_/AdjunctImpl#[E]2&
+3 6_empty_/AdjunctImpl#tpe.PZ 828549EAF9B7635EAD807FE60D875ABC

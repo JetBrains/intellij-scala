@@ -1,0 +1,86 @@
+
+ætests/pos/t8045.scala*
+_empty_/Test.
+ *Test€*&
+_empty_/Test.Number# €*Number€*1
+_empty_/Test.Number#`<init>`(). €@*<init>€*/
+"_empty_/Test.Number#`<init>`().(i) €*i€*#
+_empty_/Test.Number#i. €*i€*(
+_empty_/Test.Number#copy().*copy€*(
+_empty_/Test.Number#copy().(i)*i€*<
+%_empty_/Test.Number#copy$default$1().*copy$default$1€*$
+_empty_/Test.Number#_1().*_1€*%
+_empty_/Test.Number.
+ *Number€**
+_empty_/Test.Number.apply().*apply€*)
+_empty_/Test.Number.apply().(i)*i€*.
+_empty_/Test.Number.unapply().*unapply€*/
+#_empty_/Test.Number.unapply().(x$1)*x$1€*0
+_empty_/Test.Number.toString().*toString€*1
+_empty_/Test.UnliftNumber.
+ *UnliftNumber€*4
+$_empty_/Test.UnliftNumber.unapply().*unapply€*1
+'_empty_/Test.UnliftNumber.unapply().(t)*t€*
+local0 €*i€*!
+_empty_/Test.eval().*eval€*'
+_empty_/Test.eval().(expr)*expr€*
+local1 €*n€2
+ _empty_/Test.2
+ 
+scala/App#2"
+ _empty_/Test.Number#2-
+ _empty_/Test.Number#`<init>`().2
+ 
+scala/Int#2$
+ _empty_/Test.Number#i.2)
+ _empty_/Test.Number#copy().2'
+ _empty_/Test.Number#_1().2"
+ _empty_/Test.Number.2*
+ _empty_/Test.Number.apply().2(
+	 _empty_/Test.UnliftNumber.22
+ $_empty_/Test.UnliftNumber.unapply().25
+ '_empty_/Test.UnliftNumber.unapply().(t)2
+ 
+scala/Any#2
+ scala/Option#2"
+  &_empty_/Test.Number#25
+* +'_empty_/Test.UnliftNumber.unapply().(t)2
+ local02
+ 
+scala/Int#2!
+ scala/Some.apply().2
+ scala/Some.2*
+   _empty_/Test.Number.apply().2"
+  _empty_/Test.Number.2
+! "local02
+ scala/None.2"
+
+
+ 
+_empty_/Test.eval().2(
+
+
+ _empty_/Test.eval().(expr)2
+
+
+ 
+scala/Any#2
+
+
+ scala/Option#2"
+
+
+ $_empty_/Test.Number#2(
+
+(
+ ,_empty_/Test.eval().(expr)22
+ $_empty_/Test.UnliftNumber.unapply().2(
+	 _empty_/Test.UnliftNumber.2
+ local12!
+   scala/Some.apply().2
+  scala/Some.2
+! "local12
+ scala/None.2'
+ 	scala/Predef.println(+1).2"
+
+ _empty_/Test.eval().PZ E956EDE0F48D1D2EBCA840BE69A1FAB8

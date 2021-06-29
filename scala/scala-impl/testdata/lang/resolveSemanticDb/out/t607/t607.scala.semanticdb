@@ -1,0 +1,41 @@
+
+ 
+tests/pos/t607.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*
+_empty_/Test.Foo#T#*T€*!
+_empty_/Test.FooX.
+ *FooX€*
+_empty_/Test.FooX.T#*T€*
+_empty_/Test.FooX.X#*X€*1
+_empty_/Test.FooX.X#`<init>`(). €@*<init>€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().(x)*x€*
+local0*T€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(argv)*argv€2
+ _empty_/Test.2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2!
+ _empty_/Test.Foo#T#2 
+ _empty_/Test.FooX.2
+ _empty_/Test.Foo#2"
+' (_empty_/Test.FooX.T#2"
++ ,_empty_/Test.FooX.X#2"
+4 5_empty_/Test.FooX.X#2-
+. ._empty_/Test.FooX.X#`<init>`().2"
+ _empty_/Test.test().2%
+ _empty_/Test.test().(x)2
+ _empty_/Test.Foo#2
+  !local02"
+) *_empty_/Test.FooX.X#2 
+$ (_empty_/Test.FooX.2"
+ _empty_/Test.main().2(
+ _empty_/Test.main().(argv)2
+ scala/Array#2"
+ $scala/Predef.String#2
+) -scala/Unit#2"
+ _empty_/Test.test().2 
+ _empty_/Test.FooX.PZ B5D0EDFE47DD2261A0513C0B55797CD1

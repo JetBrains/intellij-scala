@@ -1,0 +1,34 @@
+
+ùtests/pos/t2331.scala*
+
+_empty_/C#*CÄ*'
+_empty_/C#`<init>`(). Ä@*<init>Ä*
+_empty_/C#m(). *mÄ*
+_empty_/C#m().[T]	*TÄ*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.o. Ä*oÄ*
+local0 *$anonÄ*
+local1*mÄ*
+local2	*TÄ2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#m().2
+ 	_empty_/C#m().[T]2
+ _empty_/C#m().[T]2
+ _empty_/Test.2
+ _empty_/Test.o.2
+ local02
+# $
+_empty_/C#2
+ 	local12
+
+ local22
+ scala/Nothing#2(
+1 6scala/sys/package.error().2
+- 0
+scala/sys/2
+		 _empty_/C#m().2
+		 _empty_/Test.o.2
+		 scala/Nothing#PZ 592E4CC790FAB3D32C4196A33F4BEA7C

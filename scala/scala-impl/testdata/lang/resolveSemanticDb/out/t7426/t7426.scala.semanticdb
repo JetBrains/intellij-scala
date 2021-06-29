@@ -1,0 +1,28 @@
+
+—tests/pos/t7426.scala*
+_empty_/foo#*foo€*)
+_empty_/foo#`<init>`(). €@*<init>€*$
+_empty_/foo#`<init>`().(x)*x€*
+_empty_/foo#x. €*x€*
+_empty_/$anon# *$anon€*+
+_empty_/$anon#`<init>`(). €@*<init>€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€2
+ 	_empty_/foo#2!
+	 	_empty_/foo#`<init>`().2
+ 
+scala/Any#2,
+% 5"scala/annotation/StaticAnnotation#2
+ $scala/annotation/2
+
+ _empty_/foo#x.2
+ _empty_/foo#2
+ _empty_/$anon#2'
+	 	_empty_/$anon#`<init>`().2*
+ java/lang/Object#`<init>`().2
+	 scala/AnyRef#2'
+ _empty_/$anon#`<init>`().2
+ 
+_empty_/A#2
+_empty_/A#`<init>`().PZ 01023214C8F93B93B4A214298FA3F60C

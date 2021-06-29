@@ -1,0 +1,35 @@
+
+·&tests/pos/virtpatmat_binding_opt.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*'
+_empty_/Test#combine().*combine€*
+local0 €*that€*
+local1 €*that€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2%
+ _empty_/Test#combine().2
+	 local02$
+ java/lang/Object#eq().2
+ local02
+	 local12
+ _empty_/Test2#2'
+ scala/Predef.println(+1).2
+ local12(
+ scala/sys/package.error().2
+ 
+scala/sys/2
+
+
+ _empty_/Test2#2'
+
+
+ _empty_/Test2#`<init>`().2&
+
+
+ _empty_/Test#`<init>`().2
+
+
+ _empty_/Test#PZ 0AFE5FA4683323232036FF8AED64F766

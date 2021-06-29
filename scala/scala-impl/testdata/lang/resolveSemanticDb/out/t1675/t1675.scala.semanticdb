@@ -1,0 +1,29 @@
+
+štests/pos/t1675.scala*
+a/Foo.
+ *Foo€*
+local0*i€*
+a/pack/Bar#*Bar€*(
+a/pack/Bar#`<init>`(). €@*<init>€*
+a/pack/Bar#test().*test€*
+a/pack/Bar#test().(s)*s€2
+ 	a/2
+ 
+a/Foo.2$
+ a/pack/Bar#`<init>`().2
+ a/pack/Bar#2
+ a/pack/29
+ +scala/collection/immutable/Range#foreach().2)
+ scala/runtime/RichInt#to().26
+
+ 
+(scala/LowPriorityImplicits#intWrapper().2
+ local02 
+ a/pack/Bar#test().2
+ a/pack/2
+ a/pack/Bar#2$
+ a/pack/Bar#`<init>`().2 
+ a/pack/Bar#test().2#
+ a/pack/Bar#test().(s)2"
+  scala/Predef.String#2
+$ (scala/Unit#PZ AAE3040415EEEA51D5839CAB6FF68E74

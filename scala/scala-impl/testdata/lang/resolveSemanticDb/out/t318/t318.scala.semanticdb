@@ -1,0 +1,24 @@
+
+½tests/pos/t318.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.fun().*fun€*
+local0
+ *o€*
+local1*a€*
+local2*C€*
+local3*b€2
+ _empty_/Test.2!
+ 	_empty_/Test.fun().2
+ 
+scala/Int#2
+ local02
+
+ local12
+ 
+scala/Int#2
+ local22
+ local32
+ 
+scala/Int#2
+ local1PZ 913A8D1C263A929AEEA597F84E38876B

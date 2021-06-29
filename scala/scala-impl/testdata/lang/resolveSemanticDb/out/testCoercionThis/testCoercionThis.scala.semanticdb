@@ -1,0 +1,47 @@
+
+ñ tests/pos/testCoercionThis.scala*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.foo2bar().  *foo2bar€*(
+_empty_/Test.foo2bar().(foo)*foo€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*0
+!_empty_/Test.Foo#`<init>`().(bar) €*bar€*$
+_empty_/Test.Foo#bar. €*bar€*5
+ _empty_/Test.Foo#testCoercion().*testCoercion€*
+local0 €*a€*?
+%_empty_/Test.Foo#testCoercionThis1().*testCoercionThis1€*?
+%_empty_/Test.Foo#testCoercionThis2().*testCoercionThis2€*
+_empty_/Test.Bar#*Bar€*.
+_empty_/Test.Bar#`<init>`(). €@*<init>€*#
+_empty_/Test.Bar#baz().*baz€2
+ _empty_/Test.2%
+ _empty_/Test.foo2bar().2*
+ _empty_/Test.foo2bar().(foo)2
+ _empty_/Test.Foo#2
+" %_empty_/Test.Bar#2#
+, /_empty_/Test.Foo#bar.2*
+( +_empty_/Test.foo2bar().(foo)2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2
+ _empty_/Test.Bar#2#
+ _empty_/Test.Foo#bar.2.
+  _empty_/Test.Foo#testCoercion().2
+
+ local02%
+ _empty_/Test.Bar#baz().2%
+ _empty_/Test.foo2bar().2
+ local023
+ %_empty_/Test.Foo#testCoercionThis1().2%
+! $_empty_/Test.Bar#baz().2%
+ _empty_/Test.foo2bar().23
+ %_empty_/Test.Foo#testCoercionThis2().2%
+( +_empty_/Test.Bar#baz().2%
+ _empty_/Test.foo2bar().2
+# &_empty_/Test.Foo#2
+ _empty_/Test.Bar#2*
+ _empty_/Test.Bar#`<init>`().2%
+ _empty_/Test.Bar#baz().2.
+# * java/io/PrintStream#println(+8).2#
+ "java/lang/System#out.2
+ java/lang/System#PZ B74494A32837F6824A91BA9C5063A8AE

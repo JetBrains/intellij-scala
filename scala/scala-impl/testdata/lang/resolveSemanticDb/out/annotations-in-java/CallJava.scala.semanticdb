@@ -1,0 +1,17 @@
+
+µ,tests/pos/annotations-in-java/CallJava.scala*"
+_empty_/CallJava#*CallJava€*.
+_empty_/CallJava#`<init>`(). €@*<init>€*!
+_empty_/CallJava#mm().*mm€*#
+_empty_/CallJava#mm().(i)*i€2
+ _empty_/CallJava#2*
+ _empty_/CallJava#`<init>`().2$
+ _empty_/CallJava#mm().2'
+	 
+_empty_/CallJava#mm().(i)2
+ 
+scala/Int#2"
+ scala/Predef.String#2#
+$ %_empty_/AnnoJava#m().2
+ #_empty_/AnnoJava#2'
+& '_empty_/CallJava#mm().(i)PZ 5F904FFB145FD2017C40326284F83E74

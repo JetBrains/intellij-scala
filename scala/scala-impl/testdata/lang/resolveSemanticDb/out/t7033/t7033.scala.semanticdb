@@ -1,0 +1,120 @@
+
+átests/pos/t7033.scala*
+_empty_/Wrap.
+ *Wrap€*
+_empty_/Wrap.X#*X€*,
+_empty_/Wrap.X#`<init>`(). €@*<init>€**
+_empty_/Wrap.X#`<init>`().(a) €*a€*
+_empty_/Wrap.X#[X]	*X€*
+_empty_/Wrap.X#a. €*a€*
+_empty_/Wrap.X(). (*X€*
+_empty_/Wrap.X().[X]	*X€*
+_empty_/Wrap.X().(a)*a€*
+_empty_/Wrap#*Wrap€**
+_empty_/Wrap#`<init>`(). €@*<init>€*
+_empty_/Wrap#Y#*Y€*,
+_empty_/Wrap#Y#`<init>`(). €@*<init>€**
+_empty_/Wrap#Y#`<init>`().(a) €*a€*
+_empty_/Wrap#Y#[Y]	*Y€*
+_empty_/Wrap#Y#a. €*a€*
+_empty_/Wrap#Y(). (*Y€*
+_empty_/Wrap#Y().[Y]	*Y€*
+_empty_/Wrap#Y().(a)*a€*
+_empty_/Wrap#Z#*Z€*,
+_empty_/Wrap#Z#`<init>`(). €@*<init>€**
+_empty_/Wrap#Z#`<init>`().(a) €*a€*
+_empty_/Wrap#Z#[Z]	*Z€*
+_empty_/Wrap#Z#a. €*a€*
+_empty_/Wrap#Z(). (*Z€*
+_empty_/Wrap#Z().[Z]	*Z€*
+_empty_/Wrap#Z().(a)*a€*
+
+_empty_/X# €*X€*'
+_empty_/X#`<init>`(). €@*<init>€*%
+_empty_/X#`<init>`().(a) €*a€*
+_empty_/X#[X]	*X€*
+_empty_/X#a. €*a€*
+_empty_/X#copy().*copy€*
+_empty_/X#copy().[X]	*X€*
+_empty_/X#copy().(a)*a€*2
+_empty_/X#copy$default$1().*copy$default$1€*(
+_empty_/X#copy$default$1().[X]	*X€*
+_empty_/X#_1().*_1€*
+
+_empty_/X.
+ *X€* 
+_empty_/X.apply().*apply€*
+_empty_/X.apply().[X]	*X€*
+_empty_/X.apply().(a)*a€*$
+_empty_/X.unapply().*unapply€*!
+_empty_/X.unapply().[X]	*X€*%
+_empty_/X.unapply().(x$1)*x$1€*&
+_empty_/X.toString().*toString€2%
+ scala/language.higherKinds.2
+ scala/language.2
+ _empty_/Wrap.2
+ _empty_/Wrap.X#2(
+ _empty_/Wrap.X#`<init>`().2 
+ _empty_/Wrap.X#[X]2 
+ _empty_/Wrap.X#[X]2
+ _empty_/Wrap.X#a.2
+ _empty_/Wrap.X().2
+ _empty_/Wrap.X().2
+ 
+scala/Int#2
+ 
+_empty_/Wrap#2&
+ _empty_/Wrap#`<init>`().2
+ _empty_/Wrap#Y#2(
+ _empty_/Wrap#Y#`<init>`().2 
+ _empty_/Wrap#Y#[Y]2 
+ _empty_/Wrap#Y#[Y]2
+ _empty_/Wrap#Y#a.2
+ _empty_/Wrap#Y().2
+		 _empty_/Wrap#Y().2
+		 
+scala/Int#2
+
+
+ _empty_/Wrap#Z#2(
+
+
+ _empty_/Wrap#Z#`<init>`().2 
+
+ 
+ !_empty_/Wrap#Z#[Z]2
+
+,
+ -_empty_/Wrap#Z#2 
+
+.
+ /_empty_/Wrap#Z#[Z]2 
+
+
+ _empty_/Wrap#Z#[Z]2
+
+
+ _empty_/Wrap#Z#a.2
+
+
+ _empty_/Wrap#Z().2
+ _empty_/Wrap#Z().2!
+ scala/package.List#27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2(
+ _empty_/Wrap#Z#`<init>`().2
+ _empty_/Wrap#Z#2!
+ scala/package.List#2
+ 
+_empty_/X#2#
+ _empty_/X#`<init>`().2
+ _empty_/X#[X]2
+ _empty_/X#[X]2
+ _empty_/X#a.2
+_empty_/X#copy().2
+ _empty_/X#_1().2
+ 
+_empty_/X.2
+_empty_/X.apply().2
+_empty_/X.unapply().PZ 703E7C6CAAF28236E0EDF47980FA304E

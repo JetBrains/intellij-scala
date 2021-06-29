@@ -1,0 +1,66 @@
+
+ìtests/pos/i7467.scala*\
+._empty_/DuplicateSymbolError_DirectSuperclass#*%DuplicateSymbolError_DirectSuperclassÄ*K
+9_empty_/DuplicateSymbolError_DirectSuperclass#`<init>`(). Ä@*<init>Ä*r
+M_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().*getListCellRendererComponentÄ*`
+S_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(list)*listÄ*b
+T_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(value)*valueÄ*b
+T_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(index)*indexÄ*l
+Y_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(isSelected)*
+isSelectedÄ*p
+[_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(cellHasFocus)*cellHasFocusÄ*^
+/_empty_/DuplicateSymbolError_IndirectInterface#*&DuplicateSymbolError_IndirectInterfaceÄ*L
+:_empty_/DuplicateSymbolError_IndirectInterface#`<init>`(). Ä@*<init>Ä*s
+N_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().*getListCellRendererComponentÄ*a
+T_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(list)*listÄ*c
+U_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(value)*valueÄ*c
+U_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(index)*indexÄ*m
+Z_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(isSelected)*
+isSelectedÄ*q
+\_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(cellHasFocus)*cellHasFocusÄ2
+ javax/swing/2
+ javax/2
+ 	java/awt/2
+ java/2<
+ +._empty_/DuplicateSymbolError_DirectSuperclass#2G
+4 49_empty_/DuplicateSymbolError_DirectSuperclass#`<init>`().2=
+K K/javax/swing/DefaultListCellRenderer#`<init>`().22
+4 K$javax/swing/DefaultListCellRenderer#2[
+ +M_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().2a
+, 0S_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(list)2 
+2 7javax/swing/JList#2
+= Cjava/lang/Object#2b
+F KT_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(value)2
+M Sjava/lang/Object#2b
+U ZT_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(index)2
+\ _
+scala/Int#2g
+a kY_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(isSelected)2
+m tscala/Boolean#2j
+	v Ç[_empty_/DuplicateSymbolError_DirectSuperclass#getListCellRendererComponent().(cellHasFocus)2
+
+Ñ ãscala/Boolean#2#
+
+é ójava/awt/Component#2%
+
+ö ùscala/Predef.`???`().2=
+ ,/_empty_/DuplicateSymbolError_IndirectInterface#2H
+5 5:_empty_/DuplicateSymbolError_IndirectInterface#`<init>`().2=
+L L/javax/swing/DefaultListCellRenderer#`<init>`().22
+5 L$javax/swing/DefaultListCellRenderer#2\
+ +N_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().2b
+, 0T_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(list)2 
+2 7javax/swing/JList#2c
+< AU_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(value)2
+C Ijava/lang/Object#2c
+K PU_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(index)2
+R U
+scala/Int#2h
+W aZ_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(isSelected)2
+c jscala/Boolean#2j
+l x\_empty_/DuplicateSymbolError_IndirectInterface#getListCellRendererComponent().(cellHasFocus)2
+	z Åscala/Boolean#2#
+
+Ñ çjava/awt/Component#2%
+
+ê ìscala/Predef.`???`().PZ 550BC900EFC1984607FEEE21A6AE8DBC

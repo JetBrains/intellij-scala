@@ -1,0 +1,71 @@
+
+ötests/pos/t6482.scala*2
+_empty_/IterableOnceOps# *IterableOnceOps€*5
+#_empty_/IterableOnceOps#`<init>`(). €@*<init>€*E
+/_empty_/IterableOnceOps#`<init>`().(collection) €*
+collection€*(
+_empty_/IterableOnceOps#[A]	 €*A€*9
+#_empty_/IterableOnceOps#collection. €*
+collection€*D
++_empty_/IterableOnceOps#reduceLeftOption().*reduceLeftOption€*8
+._empty_/IterableOnceOps#reduceLeftOption().[B]	*B€*:
+/_empty_/IterableOnceOps#reduceLeftOption().(op)*op€*2
+_empty_/IterableOnceOps.
+ *IterableOnceOps€*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*)
+_empty_/Foo#`<init>`().(xs) €*xs€*
+_empty_/Foo#[A]	 €*A€*
+_empty_/Foo#xs. €*xs€*
+_empty_/Foo#baz().*baz€*
+_empty_/Foo#baz().[B]	*B€*
+_empty_/Foo#baz().(x)*x€*
+_empty_/Foo.
+ *Foo€2"
+ _empty_/IterableOnceOps#2-
+ #_empty_/IterableOnceOps#`<init>`().2!
+0 8scala/package.Iterable#2%
+9 :_empty_/IterableOnceOps#[A]2"
+K Kscala/AnyVal#`<init>`().2
+E Kscala/AnyVal#2%
+ _empty_/IterableOnceOps#[A]2-
+$ .#_empty_/IterableOnceOps#collection.29
+ +_empty_/IterableOnceOps#reduceLeftOption().2<
+ ._empty_/IterableOnceOps#reduceLeftOption().[B]2)
+ _empty_/IterableOnceOps#[A]2=
+ !/_empty_/IterableOnceOps#reduceLeftOption().(op)2<
+$ %._empty_/IterableOnceOps#reduceLeftOption().[B]2)
+' (_empty_/IterableOnceOps#[A]2<
+- .._empty_/IterableOnceOps#reduceLeftOption().[B]2
+1 7scala/Option#2<
+8 9._empty_/IterableOnceOps#reduceLeftOption().[B]29
+ +scala/collection/IterableOnceOps#isEmpty().21
+ #_empty_/IterableOnceOps#collection.2
+  scala/None.2!
+* *scala/Some.apply().2
+& *scala/Some.2<
+6 @.scala/collection/IterableOnceOps#reduceLeft().21
++ 5#_empty_/IterableOnceOps#collection.2<
+A B._empty_/IterableOnceOps#reduceLeftOption().[B]2=
+D F/_empty_/IterableOnceOps#reduceLeftOption().(op)2"
+ _empty_/IterableOnceOps.2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2!
+  $scala/package.List#2
+% &_empty_/Foo#[A]2&
+7 7scala/AnyVal#`<init>`().2
+1 7scala/AnyVal#2
+ _empty_/Foo#[A]2
+ _empty_/Foo#xs.2 
+		 	_empty_/Foo#baz().2#
+	
+	 _empty_/Foo#baz().[B]2
+		 _empty_/Foo#[A]2#
+		 _empty_/Foo#baz().(x)2#
+		 _empty_/Foo#baz().[B]2!
+		 scala/package.List#2#
+		 _empty_/Foo#baz().[B]25
+	*	 *'scala/collection/immutable/List#`::`().2
+	(	 *_empty_/Foo#xs.2#
+	#	 $_empty_/Foo#baz().(x)2
+ _empty_/Foo.PZ 95F63688B65FF52D5174A8FC7B1F0973

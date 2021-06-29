@@ -1,0 +1,33 @@
+
+Ï tests/pos/array-interfaces.scala*
+
+_empty_/s.
+ *s€*
+_empty_/s.f().*f€*
+_empty_/s.f().(x)*x€*
+_empty_/s.g().*g€*
+_empty_/s.g().(x)*x€*
+_empty_/s.main().*main€*$
+_empty_/s.main().(args)*args€2
+ 
+_empty_/s.2
+ _empty_/s.f().2
+ 	_empty_/s.f().(x)2&
+ scala/package.Cloneable#2
+ _empty_/s.g().2
+ 	_empty_/s.g().(x)2#
+ java/io/Serializable#2
+ java/io/2
+ java/2
+ 
+_empty_/s.main().2%
+ _empty_/s.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ _empty_/s.f().2%
+ 
+_empty_/s.main().(args)2
+ _empty_/s.g().2%
+ 
+_empty_/s.main().(args)PZ B8CEB1FD3CA8EEC7A9D73B22C9CBCEF5

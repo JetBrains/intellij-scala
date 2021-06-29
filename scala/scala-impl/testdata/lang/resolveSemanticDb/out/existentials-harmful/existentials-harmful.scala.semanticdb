@@ -1,0 +1,172 @@
+
+èO$tests/pos/existentials-harmful.scala*N
+&_empty_/ExistentialsConsideredHarmful.
+ *ExistentialsConsideredHarmfulÄ*<
+-_empty_/ExistentialsConsideredHarmful.Animal#*AnimalÄ*J
+8_empty_/ExistentialsConsideredHarmful.Animal#`<init>`(). Ä@*<init>Ä*N
+>_empty_/ExistentialsConsideredHarmful.Animal#`<init>`().(name) Ä*nameÄ*B
+2_empty_/ExistentialsConsideredHarmful.Animal#name. Ä*nameÄ*8
+*_empty_/ExistentialsConsideredHarmful.Dog.
+ *DogÄ*<
+,_empty_/ExistentialsConsideredHarmful.Sheep.
+ *SheepÄ*:
+,_empty_/ExistentialsConsideredHarmful.Tools#*ToolsÄ*I
+7_empty_/ExistentialsConsideredHarmful.Tools#`<init>`(). Ä@*<init>Ä*9
+/_empty_/ExistentialsConsideredHarmful.Tools#[A]	*AÄ*D
+4_empty_/ExistentialsConsideredHarmful.Tools#shave(). *shaveÄ*A
+7_empty_/ExistentialsConsideredHarmful.Tools#shave().(a)*aÄ*<
+._empty_/ExistentialsConsideredHarmful.tools().*toolsÄ*;
+1_empty_/ExistentialsConsideredHarmful.tools().[A]	*AÄ*;
+1_empty_/ExistentialsConsideredHarmful.tools().(a)*aÄ*K
+3_empty_/ExistentialsConsideredHarmful.TransportBox# Ä*TransportBoxÄ*P
+>_empty_/ExistentialsConsideredHarmful.TransportBox#`<init>`(). Ä@*<init>Ä*X
+F_empty_/ExistentialsConsideredHarmful.TransportBox#`<init>`().(animal) Ä*animalÄ*V
+E_empty_/ExistentialsConsideredHarmful.TransportBox#`<init>`().(tools) Ä*toolsÄ*@
+6_empty_/ExistentialsConsideredHarmful.TransportBox#[A]	*AÄ*L
+:_empty_/ExistentialsConsideredHarmful.TransportBox#animal. Ä*animalÄ*J
+9_empty_/ExistentialsConsideredHarmful.TransportBox#tools. Ä*toolsÄ*I
+;_empty_/ExistentialsConsideredHarmful.TransportBox#label().*labelÄ*G
+:_empty_/ExistentialsConsideredHarmful.TransportBox#copy().*copyÄ*G
+=_empty_/ExistentialsConsideredHarmful.TransportBox#copy().[A]	*AÄ*Q
+B_empty_/ExistentialsConsideredHarmful.TransportBox#copy().(animal)*animalÄ*O
+A_empty_/ExistentialsConsideredHarmful.TransportBox#copy().(tools)*toolsÄ*[
+D_empty_/ExistentialsConsideredHarmful.TransportBox#copy$default$1().*copy$default$1Ä*Q
+G_empty_/ExistentialsConsideredHarmful.TransportBox#copy$default$1().[A]	*AÄ*[
+D_empty_/ExistentialsConsideredHarmful.TransportBox#copy$default$2().*copy$default$2Ä*Q
+G_empty_/ExistentialsConsideredHarmful.TransportBox#copy$default$2().[A]	*AÄ*C
+8_empty_/ExistentialsConsideredHarmful.TransportBox#_1().*_1Ä*C
+8_empty_/ExistentialsConsideredHarmful.TransportBox#_2().*_2Ä*J
+3_empty_/ExistentialsConsideredHarmful.TransportBox.
+ *TransportBoxÄ*I
+;_empty_/ExistentialsConsideredHarmful.TransportBox.apply().*applyÄ*H
+>_empty_/ExistentialsConsideredHarmful.TransportBox.apply().[A]	*AÄ*R
+C_empty_/ExistentialsConsideredHarmful.TransportBox.apply().(animal)*animalÄ*P
+B_empty_/ExistentialsConsideredHarmful.TransportBox.apply().(tools)*toolsÄ*M
+=_empty_/ExistentialsConsideredHarmful.TransportBox.unapply().*unapplyÄ*J
+@_empty_/ExistentialsConsideredHarmful.TransportBox.unapply().[A]	*AÄ*N
+B_empty_/ExistentialsConsideredHarmful.TransportBox.unapply().(x$1)*x$1Ä*O
+>_empty_/ExistentialsConsideredHarmful.TransportBox.toString().*toStringÄ*<
+._empty_/ExistentialsConsideredHarmful.carry().*carryÄ*;
+1_empty_/ExistentialsConsideredHarmful.carry().[A]	*AÄ*?
+3_empty_/ExistentialsConsideredHarmful.carry().(box)*boxÄ*;
++_empty_/ExistentialsConsideredHarmful.aBox. Ä*aBoxÄ*
+local0 Ä*animalÄ*
+local1 Ä*toolsÄ*F
+1_empty_/ExistentialsConsideredHarmful.BoxCarrier# *
+BoxCarrierÄ*N
+<_empty_/ExistentialsConsideredHarmful.BoxCarrier#`<init>`(). Ä@*<init>Ä*M
+A_empty_/ExistentialsConsideredHarmful.BoxCarrier#`<init>`().(box)*boxÄ*>
+4_empty_/ExistentialsConsideredHarmful.BoxCarrier#[R]	*RÄ*D
+5_empty_/ExistentialsConsideredHarmful.BoxCarrier#box. Ä*boxÄ*I
+9_empty_/ExistentialsConsideredHarmful.BoxCarrier#speed(). *speedÄ*U
+@_empty_/ExistentialsConsideredHarmful.BoxCarrier#talkToAnimal().*talkToAnimalÄ*7
+)_empty_/ExistentialsConsideredHarmful.bc. Ä*bcÄ*
+local2 Ä*tbÄ*
+local3 Ä	*aÄ*
+local4 *$anonÄ*
+local5*speedÄ24
+ $&_empty_/ExistentialsConsideredHarmful.2;
+ -_empty_/ExistentialsConsideredHarmful.Animal#2F
+ 8_empty_/ExistentialsConsideredHarmful.Animal#`<init>`().2"
+ scala/Predef.String#2@
+ 2_empty_/ExistentialsConsideredHarmful.Animal#name.28
+	 *_empty_/ExistentialsConsideredHarmful.Dog.2F
+ 8_empty_/ExistentialsConsideredHarmful.Animal#`<init>`().2;
+ -_empty_/ExistentialsConsideredHarmful.Animal#2:
+	 ,_empty_/ExistentialsConsideredHarmful.Sheep.2F
+ 8_empty_/ExistentialsConsideredHarmful.Animal#`<init>`().2;
+ -_empty_/ExistentialsConsideredHarmful.Animal#2:
+ ,_empty_/ExistentialsConsideredHarmful.Tools#2E
+ 7_empty_/ExistentialsConsideredHarmful.Tools#`<init>`().2=
+ /_empty_/ExistentialsConsideredHarmful.Tools#[A]2B
+		 4_empty_/ExistentialsConsideredHarmful.Tools#shave().2E
+		 7_empty_/ExistentialsConsideredHarmful.Tools#shave().(a)2=
+		 /_empty_/ExistentialsConsideredHarmful.Tools#[A]2=
+		 /_empty_/ExistentialsConsideredHarmful.Tools#[A]2<
+ ._empty_/ExistentialsConsideredHarmful.tools().2?
+ 1_empty_/ExistentialsConsideredHarmful.tools().[A]2?
+ 1_empty_/ExistentialsConsideredHarmful.tools().(a)2?
+ 1_empty_/ExistentialsConsideredHarmful.tools().[A]2:
+ ,_empty_/ExistentialsConsideredHarmful.Tools#2?
+ 1_empty_/ExistentialsConsideredHarmful.tools().[A]2A
+ 3_empty_/ExistentialsConsideredHarmful.TransportBox#2L
+ >_empty_/ExistentialsConsideredHarmful.TransportBox#`<init>`().2D
+/ 06_empty_/ExistentialsConsideredHarmful.TransportBox#[A]2:
+9 >,_empty_/ExistentialsConsideredHarmful.Tools#2D
+? @6_empty_/ExistentialsConsideredHarmful.TransportBox#[A]2D
+ 6_empty_/ExistentialsConsideredHarmful.TransportBox#[A]2H
+' -:_empty_/ExistentialsConsideredHarmful.TransportBox#animal.2G
+2 79_empty_/ExistentialsConsideredHarmful.TransportBox#tools.2I
+ ;_empty_/ExistentialsConsideredHarmful.TransportBox#label().2"
+ scala/Predef.String#2@
+ #2_empty_/ExistentialsConsideredHarmful.Animal#name.2H
+ :_empty_/ExistentialsConsideredHarmful.TransportBox#animal.2H
+ :_empty_/ExistentialsConsideredHarmful.TransportBox#copy().2F
+/ /8_empty_/ExistentialsConsideredHarmful.TransportBox#_1().2F
+9 98_empty_/ExistentialsConsideredHarmful.TransportBox#_2().2A
+ 3_empty_/ExistentialsConsideredHarmful.TransportBox.2I
+ ;_empty_/ExistentialsConsideredHarmful.TransportBox.apply().2K
+ =_empty_/ExistentialsConsideredHarmful.TransportBox.unapply().2<
+ ._empty_/ExistentialsConsideredHarmful.carry().2?
+ 1_empty_/ExistentialsConsideredHarmful.carry().[A]2;
+ -_empty_/ExistentialsConsideredHarmful.Animal#2A
+ 3_empty_/ExistentialsConsideredHarmful.carry().(box)2A
+ *3_empty_/ExistentialsConsideredHarmful.TransportBox#2?
++ ,1_empty_/ExistentialsConsideredHarmful.carry().[A]2
+0 4scala/Unit#2'
+ scala/Predef.println(+1).2%
+ java/lang/String#`+`().2@
+ 2_empty_/ExistentialsConsideredHarmful.Animal#name.2H
+ :_empty_/ExistentialsConsideredHarmful.TransportBox#animal.2A
+ 3_empty_/ExistentialsConsideredHarmful.carry().(box)29
+ 
++_empty_/ExistentialsConsideredHarmful.aBox.2#
+ scala/Double#`<`(+6).2*
+ scala/math/package.random().2
+ scala/math/2I
+ ;_empty_/ExistentialsConsideredHarmful.TransportBox.apply().2A
+ 3_empty_/ExistentialsConsideredHarmful.TransportBox.28
+ *_empty_/ExistentialsConsideredHarmful.Dog.2<
+ ._empty_/ExistentialsConsideredHarmful.tools().28
+ !*_empty_/ExistentialsConsideredHarmful.Dog.2I
+ ;_empty_/ExistentialsConsideredHarmful.TransportBox.apply().2A
+ 3_empty_/ExistentialsConsideredHarmful.TransportBox.2:
+ ,_empty_/ExistentialsConsideredHarmful.Sheep.2<
+ ._empty_/ExistentialsConsideredHarmful.tools().2:
+  %,_empty_/ExistentialsConsideredHarmful.Sheep.29
+   +_empty_/ExistentialsConsideredHarmful.aBox.2K
+!! =_empty_/ExistentialsConsideredHarmful.TransportBox.unapply().2A
+!	! 3_empty_/ExistentialsConsideredHarmful.TransportBox.2
+!! local02
+!! #local12B
+!.! 34_empty_/ExistentialsConsideredHarmful.Tools#shave().2
+!(! -local12
+!4! :local02?
+$$ 1_empty_/ExistentialsConsideredHarmful.BoxCarrier#2J
+$$ <_empty_/ExistentialsConsideredHarmful.BoxCarrier#`<init>`().2A
+$.$ :3_empty_/ExistentialsConsideredHarmful.TransportBox#2B
+$;$ <4_empty_/ExistentialsConsideredHarmful.BoxCarrier#[R]2B
+$$ 4_empty_/ExistentialsConsideredHarmful.BoxCarrier#[R]2C
+$)$ ,5_empty_/ExistentialsConsideredHarmful.BoxCarrier#box.2G
+%% 9_empty_/ExistentialsConsideredHarmful.BoxCarrier#speed().2
+%% 
+scala/Int#2N
+'' @_empty_/ExistentialsConsideredHarmful.BoxCarrier#talkToAnimal().2
+'' scala/Unit#2'
+'' $scala/Predef.println(+1).2%
+'A' Bjava/lang/String#`+`().2@
+'N' R2_empty_/ExistentialsConsideredHarmful.Animal#name.2H
+'G' M:_empty_/ExistentialsConsideredHarmful.TransportBox#animal.2C
+'C' F5_empty_/ExistentialsConsideredHarmful.BoxCarrier#box.27
+00 )_empty_/ExistentialsConsideredHarmful.bc.29
+00 +_empty_/ExistentialsConsideredHarmful.aBox.2
+1	1 local22A
+11 3_empty_/ExistentialsConsideredHarmful.TransportBox#2
+11 local32
+1!1 !local42J
+1/1 /<_empty_/ExistentialsConsideredHarmful.BoxCarrier#`<init>`().2
+101 2local22
+2
+2 local52
+22 
+scala/Int#PZ 5D65D952B2F3A6742E841AE283556170

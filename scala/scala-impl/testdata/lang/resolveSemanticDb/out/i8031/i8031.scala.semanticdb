@@ -1,0 +1,130 @@
+
+Ì*tests/pos/i8031.scala*"
+_empty_/Example.
+ *Example€* 
+_empty_/Example.Has#*Has€*1
+_empty_/Example.Has#`<init>`(). €@*<init>€*!
+_empty_/Example.Has#[A]	*A€* 
+_empty_/Example.ZIO#*ZIO€*1
+_empty_/Example.ZIO#`<init>`(). €@*<init>€*$
+_empty_/Example.ZIO#[R]	 €*R€*8
+#_empty_/Example.ZIO#provideLayer().*provideLayer€*2
+'_empty_/Example.ZIO#provideLayer().[R0]	*R0€*2
+'_empty_/Example.ZIO#provideLayer().[R1]	*R1€*8
+*_empty_/Example.ZIO#provideLayer().(layer)*layer€*4
+'_empty_/Example.ZIO#provideLayer().(ev)  *ev€*&
+_empty_/Example.ZLayer#*ZLayer€*4
+"_empty_/Example.ZLayer#`<init>`(). €@*<init>€*+
+_empty_/Example.ZLayer#[RIn]	 €*RIn€*-
+_empty_/Example.ZLayer#[ROut]	 €*ROut€*)
+_empty_/Example.ZLayer#`++`().*++€*1
+$_empty_/Example.ZLayer#`++`().[RIn2]	*RIn2€*3
+%_empty_/Example.ZLayer#`++`().[ROut1]	*ROut1€*3
+%_empty_/Example.ZLayer#`++`().[ROut2]	*ROut2€*1
+$_empty_/Example.ZLayer#`++`().(that)*that€*4
+_empty_/Example.RandomService#*RandomService€*;
+)_empty_/Example.RandomService#`<init>`(). €@*<init>€*2
+_empty_/Example.SizedService#*SizedService€*:
+(_empty_/Example.SizedService#`<init>`(). €@*<init>€*&
+_empty_/Example.Random#*Random€*$
+_empty_/Example.Sized#*Sized€*(
+_empty_/Example.random().*random€*&
+_empty_/Example.sized().*sized€*#
+_empty_/Example.zio. À*zio€*1
+_empty_/Example.eliminated. À*
+eliminated€*3
+_empty_/Example.eliminated2. À*eliminated2€2
+ _empty_/Example.2
+ 
+scala/App#2"
+ _empty_/Example.Has#2-
+ _empty_/Example.Has#`<init>`().2%
+ _empty_/Example.Has#[A]2"
+ _empty_/Example.ZIO#2-
+ _empty_/Example.ZIO#`<init>`().2%
+ _empty_/Example.ZIO#[R]21
+ #_empty_/Example.ZIO#provideLayer().25
+ '_empty_/Example.ZIO#provideLayer().[R0]25
+ '_empty_/Example.ZIO#provideLayer().[R1]2"
+ "_empty_/Example.Has#28
+ *_empty_/Example.ZIO#provideLayer().(layer)2%
+ _empty_/Example.ZLayer#25
+ '_empty_/Example.ZIO#provideLayer().[R0]25
+ '_empty_/Example.ZIO#provideLayer().[R1]25
+ '_empty_/Example.ZIO#provideLayer().(ev)2
+ scala/`<:<`#25
+ '_empty_/Example.ZIO#provideLayer().[R1]2%
+ _empty_/Example.ZIO#[R]2"
+ !_empty_/Example.ZIO#25
+" $'_empty_/Example.ZIO#provideLayer().[R0]2#
+ 	scala/Predef.`???`().2%
+ _empty_/Example.ZLayer#20
+ "_empty_/Example.ZLayer#`<init>`().2*
+ _empty_/Example.ZLayer#[RIn]2+
+ _empty_/Example.ZLayer#[ROut]2,
+ 
+_empty_/Example.ZLayer#`++`().22
+ $_empty_/Example.ZLayer#`++`().[RIn2]23
+ %_empty_/Example.ZLayer#`++`().[ROut1]2+
+ _empty_/Example.ZLayer#[ROut]2"
+" %_empty_/Example.Has#23
+* /%_empty_/Example.ZLayer#`++`().[ROut2]2"
+3 6_empty_/Example.Has#22
+ $_empty_/Example.ZLayer#`++`().(that)2%
+ _empty_/Example.ZLayer#22
+ $_empty_/Example.ZLayer#`++`().[RIn2]23
+  %_empty_/Example.ZLayer#`++`().[ROut2]2%
+ _empty_/Example.ZLayer#2*
+ _empty_/Example.ZLayer#[RIn]22
+ $_empty_/Example.ZLayer#`++`().[RIn2]23
+ "%_empty_/Example.ZLayer#`++`().[ROut1]23
+( -%_empty_/Example.ZLayer#`++`().[ROut2]2#
+1 4scala/Predef.`???`().2,
+ _empty_/Example.RandomService#27
+ )_empty_/Example.RandomService#`<init>`().2+
+ _empty_/Example.SizedService#26
+ (_empty_/Example.SizedService#`<init>`().2%
+ _empty_/Example.Random#2"
+ _empty_/Example.Has#2,
+ !_empty_/Example.RandomService#2$
+ _empty_/Example.Sized#2"
+ _empty_/Example.Has#2+
+ _empty_/Example.SizedService#2'
+ _empty_/Example.random().2%
+ _empty_/Example.ZLayer#2%
+ _empty_/Example.Random#2%
+ #_empty_/Example.Random#2#
+' *scala/Predef.`???`().2&
+ _empty_/Example.sized().2%
+ _empty_/Example.ZLayer#2
+ 
+scala/Any#2$
+ _empty_/Example.Sized#2#
+" %scala/Predef.`???`().2"
+ _empty_/Example.zio.2"
+ _empty_/Example.ZIO#2%
+ _empty_/Example.Random#2$
+  %_empty_/Example.Sized#2#
+) ,scala/Predef.`???`().2)
+ _empty_/Example.eliminated.2"
+ _empty_/Example.ZIO#2%
+ !_empty_/Example.Random#21
+ #_empty_/Example.ZIO#provideLayer().2"
+ _empty_/Example.zio.2,
+ _empty_/Example.ZLayer#`++`().2'
+ _empty_/Example.random().2&
+ $_empty_/Example.sized().2!
+% %scala/`<:<`.refl().2*
+!! _empty_/Example.eliminated2.2"
+!! _empty_/Example.ZIO#2%
+!! "_empty_/Example.Random#21
+"" #_empty_/Example.ZIO#provideLayer().2"
+"" _empty_/Example.zio.2%
+"" _empty_/Example.Random#2%
+"" #_empty_/Example.Random#2$
+")" ._empty_/Example.Sized#2,
+"7" 9_empty_/Example.ZLayer#`++`().2'
+"0" 6_empty_/Example.random().2&
+":" ?_empty_/Example.sized().2!
+"@" @scala/`<:<`.refl().2'
+$$ 	scala/Predef.println(+1).PZ 8A1434FF4C05165ADF10372AA4398491

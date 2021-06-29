@@ -1,0 +1,32 @@
+
+žtests/pos/philippe1.scala*
+_empty_/test.
+ *test€*
+_empty_/test.id().*id€*
+_empty_/test.id().[a]	*a€*!
+_empty_/test.id().(xs)*xs€*!
+_empty_/test.main().*main€*'
+_empty_/test.main().(args)*args€*
+local0 €*res€2
+ _empty_/test.2 
+ _empty_/test.id().2#
+	 
+_empty_/test.id().[a]2$
+ _empty_/test.id().(xs)2
+ scala/Array#2#
+ _empty_/test.id().[a]2
+  scala/Array#2#
+! "_empty_/test.id().[a]2$
+& (_empty_/test.id().(xs)2"
+ 
+_empty_/test.main().2(
+ _empty_/test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+
+ local02
+ scala/Array#2"
+ scala/Predef.String#2 
+ !_empty_/test.id().2(
+" &_empty_/test.main().(args)PZ 310145E5392F06029D2360DE5A83888E

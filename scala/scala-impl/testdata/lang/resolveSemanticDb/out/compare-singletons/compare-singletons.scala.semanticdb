@@ -1,0 +1,61 @@
+
+§
+"tests/pos/compare-singletons.scala*
+_empty_/Refl#*Refl€**
+_empty_/Refl#`<init>`(). €@*<init>€*
+_empty_/Refl#S#*S€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*%
+_empty_/A#`<init>`().(r) €*r€*
+_empty_/A#[R]	*R€*
+_empty_/A#r. €*r€*
+_empty_/A#s().*s€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*%
+_empty_/B#`<init>`().(r) €*r€*
+_empty_/B#[R]	*R€*
+_empty_/B#r. €*r€*
+_empty_/B#a. €*a€*
+_empty_/B#s. €*s€2
+ 
+_empty_/Refl#2&
+ _empty_/Refl#`<init>`().2
+ _empty_/Refl#S#2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+& '_empty_/A#[R]2
+ 	_empty_/A#[R]2
+# $_empty_/A#r.2
+ _empty_/A#s().2
+ _empty_/Refl#S#2
+	 
+_empty_/A#r.2#
+ scala/Predef.`???`().2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+& '_empty_/B#[R]2
+ 	_empty_/B#[R]2
+# $_empty_/B#r.2
+		 _empty_/B#a.2#
+		 _empty_/A#`<init>`().2
+		 _empty_/B#r.2
+
+
+ _empty_/B#s.2
+
+
+ _empty_/Refl#S#2
+
+	
+ 
+_empty_/B#r.2
+
+
+ _empty_/A#s().2
+
+
+ _empty_/B#a.PZ 03412B8385C26468CAE76D6B09209E15

@@ -1,0 +1,32 @@
+
+©tests/pos/t1987a.scala**
+overloading/package. *overloading€*&
+overloading/package.bar().*bar€*'
+overloading/package.bar().(f)*f€*(
+overloading/package.bar(+1).*bar€*)
+overloading/package.bar(+1).(f)*f€*J
+%_empty_/PackageObjectOverloadingTest#*PackageObjectOverloadingTest€*B
+0_empty_/PackageObjectOverloadingTest#`<init>`(). €@*<init>€*
+local0*i€2
+ overloading/package.2(
+ overloading/package.bar().2+
+ overloading/package.bar().(f)2
+ 
+scala/Int#2
+ scala/Unit#2
+ #scala/Unit#2*
+ overloading/package.bar(+1).2-
+ overloading/package.bar(+1).(f)2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ !scala/Unit#2
+$ (scala/Unit#23
+ "%_empty_/PackageObjectOverloadingTest#2>
+ 0_empty_/PackageObjectOverloadingTest#`<init>`().2(
+ overloading/package.bar().2
+ overloading/2
+ local02
+ 
+scala/Int#PZ D2F3E0EF8A4B682CC2870EAD22D83BC2

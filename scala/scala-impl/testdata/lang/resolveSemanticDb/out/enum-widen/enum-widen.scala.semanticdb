@@ -1,0 +1,156 @@
+
+∆+tests/pos/enum-widen.scala*
+_empty_/test.
+ *testÄ*'
+_empty_/test.Option# îÄ*OptionÄ*1
+_empty_/test.Option#`<init>`(). Ä@*<init>Ä*$
+_empty_/test.Option#[T]	 Ä*TÄ*%
+_empty_/test.Option.
+ *OptionÄ**
+_empty_/test.Option.Some# àÅ*SomeÄ*6
+$_empty_/test.Option.Some#`<init>`(). Ä@*<init>Ä*4
+'_empty_/test.Option.Some#`<init>`().(x) Ä*xÄ*&
+_empty_/test.Option.Some#[T]	*TÄ*(
+_empty_/test.Option.Some#x. Ä*xÄ*-
+ _empty_/test.Option.Some#copy().*copyÄ*-
+#_empty_/test.Option.Some#copy().[T]	*TÄ*-
+#_empty_/test.Option.Some#copy().(x)*xÄ*A
+*_empty_/test.Option.Some#copy$default$1().*copy$default$1Ä*7
+-_empty_/test.Option.Some#copy$default$1().[T]	*TÄ*3
+#_empty_/test.Option.Some#ordinal().*ordinalÄ*)
+_empty_/test.Option.Some#_1().*_1Ä*(
+_empty_/test.Option.Some.
+ *SomeÄ*/
+!_empty_/test.Option.Some.apply().*applyÄ*.
+$_empty_/test.Option.Some.apply().[T]	*TÄ*.
+$_empty_/test.Option.Some.apply().(x)*xÄ*3
+#_empty_/test.Option.Some.unapply().*unapplyÄ*0
+&_empty_/test.Option.Some.unapply().[T]	*TÄ*4
+(_empty_/test.Option.Some.unapply().(x$1)*x$1Ä*5
+$_empty_/test.Option.Some.toString().*toStringÄ**
+_empty_/test.Option.None. Ä©*NoneÄ*6
+"_empty_/test.Option.fromOrdinal().*fromOrdinalÄ*;
++_empty_/test.Option.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/test.x(). Ä*xÄ*$
+_empty_/test.`x_=`(). Ä*x_=Ä*&
+_empty_/test.`x_=`().(x$1)*x$1Ä*
+_empty_/test.y. Ä*yÄ* 
+_empty_/test.xc(). Ä*xcÄ*&
+_empty_/test.`xc_=`(). Ä*xc_=Ä*'
+_empty_/test.`xc_=`().(x$1)*x$1Ä*
+_empty_/test.yc. Ä*ycÄ*!
+_empty_/test.Nat# îÄ*NatÄ*.
+_empty_/test.Nat#`<init>`(). Ä@*<init>Ä*
+_empty_/test.Nat.
+ *NatÄ*!
+_empty_/test.Nat.Z. Ä©*ZÄ*!
+_empty_/test.Nat.S# àÅ*SÄ*0
+_empty_/test.Nat.S#`<init>`(). Ä@*<init>Ä*4
+$_empty_/test.Nat.S#`<init>`().(pred) Ä*predÄ* 
+_empty_/test.Nat.S#[N]	*NÄ*(
+_empty_/test.Nat.S#pred. Ä*predÄ*'
+_empty_/test.Nat.S#copy().*copyÄ*'
+_empty_/test.Nat.S#copy().[N]	*NÄ*-
+ _empty_/test.Nat.S#copy().(pred)*predÄ*;
+$_empty_/test.Nat.S#copy$default$1().*copy$default$1Ä*1
+'_empty_/test.Nat.S#copy$default$1().[N]	*NÄ*-
+_empty_/test.Nat.S#ordinal().*ordinalÄ*#
+_empty_/test.Nat.S#_1().*_1Ä*
+_empty_/test.Nat.S.
+ *SÄ*)
+_empty_/test.Nat.S.apply().*applyÄ*(
+_empty_/test.Nat.S.apply().[N]	*NÄ*.
+!_empty_/test.Nat.S.apply().(pred)*predÄ*-
+_empty_/test.Nat.S.unapply().*unapplyÄ**
+ _empty_/test.Nat.S.unapply().[N]	*NÄ*.
+"_empty_/test.Nat.S.unapply().(x$1)*x$1Ä*/
+_empty_/test.Nat.S.toString().*toStringÄ*%
+_empty_/test.Nat.$new().*$newÄ*5
+#_empty_/test.Nat.$new().(_$ordinal)*	_$ordinalÄ*-
+_empty_/test.Nat.$new().($name)*$nameÄ*3
+_empty_/test.Nat.fromOrdinal().*fromOrdinalÄ*8
+(_empty_/test.Nat.fromOrdinal().(ordinal)*ordinalÄ* 
+_empty_/test.two. Ä*twoÄ2
+ _empty_/test.2"
+ _empty_/test.Option#2-
+ _empty_/test.Option#`<init>`().2%
+ _empty_/test.Option#[T]2"
+ _empty_/test.Option.2'
+	 _empty_/test.Option.Some#22
+ $_empty_/test.Option.Some#`<init>`().2*
+ _empty_/test.Option.Some#[T]2-
+( (_empty_/test.Option#`<init>`().2"
+ %_empty_/test.Option#2*
+& '_empty_/test.Option.Some#[T]2*
+ _empty_/test.Option.Some#[T]2)
+ _empty_/test.Option.Some#x.2.
+  _empty_/test.Option.Some#copy().2,
+ _empty_/test.Option.Some#_1().2'
+	 	_empty_/test.Option.Some.2/
+ !_empty_/test.Option.Some.apply().21
+ #_empty_/test.Option.Some.unapply().2'
+	 _empty_/test.Option.None.20
+	 	"_empty_/test.Option.fromOrdinal().2"
+	 _empty_/test.Option.2
+ _empty_/test.x().2/
+ !_empty_/test.Option.Some.apply().2'
+
+ _empty_/test.Option.Some.2#
+ 	_empty_/test.`x_=`().2
+		 _empty_/test.y.2'
+			 _empty_/test.Option.Some#2
+		 
+scala/Int#2/
+		 !_empty_/test.Option.Some.apply().2'
+		 _empty_/test.Option.Some.2 
+
+
+ _empty_/test.xc().2.
+
+
+  _empty_/test.Option.Some#copy().2
+
+
+ _empty_/test.y.2$
+
+
+ 
+_empty_/test.`xc_=`().2
+ _empty_/test.yc.2'
+
+ _empty_/test.Option.Some#2
+ 
+scala/Int#2.
+  _empty_/test.Option.Some#copy().2
+ _empty_/test.y.2#
+ _empty_/test.`x_=`().2'
+ 
+_empty_/test.Option.None.2$
+ _empty_/test.`xc_=`().2'
+ _empty_/test.Option.None.2
+ 
+_empty_/test.Nat#2*
+ _empty_/test.Nat#`<init>`().2
+ _empty_/test.Nat.2!
+	 
+_empty_/test.Nat.Z.2!
+	 
+_empty_/test.Nat.S#2,
+
+ 
+_empty_/test.Nat.S#`<init>`().2$
+% &_empty_/test.Nat.S#[N]2$
+ _empty_/test.Nat.S#[N]2&
+ #_empty_/test.Nat.S#pred.2(
+ _empty_/test.Nat.S#copy().2&
+% %_empty_/test.Nat.S#_1().2!
+	 	_empty_/test.Nat.S.2)
+ _empty_/test.Nat.S.apply().2+
+ _empty_/test.Nat.S.unapply().2
+	 _empty_/test.Nat.2
+ 	_empty_/test.two.2)
+ _empty_/test.Nat.S.apply().2!
+ _empty_/test.Nat.S.2)
+ _empty_/test.Nat.S.apply().2!
+ _empty_/test.Nat.S.2!
+ _empty_/test.Nat.Z.PZ A8D08E184CAECFC5BDFC2B2E1D6F55AE

@@ -1,0 +1,201 @@
+
+«*tests/pos/zipped.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*
+local0*x€*
+local1 €*x€*
+local2 €*y€*
+local3 €*z€*
+local4*x€*
+local5 €*x€*
+local6 €*y€*
+local7 €*z€*
+local8*x€*
+local9 €*x€*
+local10 €*y€*
+local11 €*z€*
+local12*x$1€*
+local13*x€*
+local14*y€*
+local15*z€*
+local16*x€*
+local17*y€*
+local18*z€*
+local19*x€*
+local20 €*x€*
+local21 €*y€*
+local22 €*z€*
+local23*x€*
+local24 €*x€*
+local25 €*y€*
+local26 €*z€*
+local27*x$1€*
+local28 €*x€*
+local29 €*y€*
+local30 €*z€2
+ _empty_/Test.2
+ _empty_/Test.xs.2!
+
+ scala/package.List#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().20
+		 "scala/collection/WithFilter#map().28
+ *scala/collection/IterableOps#withFilter().2=
+ /scala/collection/LazyZip3.lazyZip3ToIterable().22
+ $scala/collection/LazyZip2#lazyZip().22
+ $scala/collection/Iterable#lazyZip().2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ local02
+ 
+scala/Int#2
+ 
+scala/Int#2
+  #
+scala/Int#2
+) *local02%
+9 9scala/Tuple3.unapply().2
+9 :local12
+< =local22
+? @local32
+		 local42
+		 
+scala/Int#2
+		 
+scala/Int#2
+		 
+scala/Int#2
+	"	 #local42%
+	2	 2scala/Tuple3.unapply().2
+	2	 3local52
+	5	 6local62
+	8	 9local72 
+	D	 Escala/Int#`+`(+4).2 
+	@	 Ascala/Int#`+`(+4).2
+	>	 ?local52
+	B	 Clocal62
+	F	 Glocal720
+ "scala/collection/WithFilter#map().28
+ *scala/collection/IterableOps#withFilter().2=
+ /scala/collection/LazyZip3.lazyZip3ToIterable().22
+ $scala/collection/LazyZip2#lazyZip().22
+ $scala/collection/Iterable#lazyZip().2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ local82
+ 
+scala/Int#2
+ 
+scala/Int#2
+ !
+scala/Int#2
+' (local82%
+7 7scala/Tuple3.unapply().2
+7 8local92
+: ;local102
+= >local112
+ local122
+	 
+local132
+ 
+scala/Int#2
+ scala/Tuple3#_1.2
+ local142
+ 
+scala/Int#2
+ scala/Tuple3#_2.2
+ local152
+ 
+scala/Int#2
+ scala/Tuple3#_3.2 
+* +scala/Int#`+`(+4).2 
+& 'scala/Int#`+`(+4).2
+$ %local132
+( )local142
+, -local152.
+  scala/collection/LazyZip3#map().22
+ $scala/collection/LazyZip2#lazyZip().22
+ $scala/collection/Iterable#lazyZip().2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ local162
+ 
+scala/Int#2
+ local172
+ 
+scala/Int#2
+ local182
+ !
+scala/Int#2 
+, -scala/Int#`+`(+4).2 
+( )scala/Int#`+`(+4).2
+& 'local162
+* +local172
+. /local182L
+1 1>scala/collection/BuildFromLowPriority2#buildFromIterableOps().21
+ #scala/collection/IterableOps#map().2=
+ /scala/collection/LazyZip3.lazyZip3ToIterable().22
+ $scala/collection/LazyZip2#lazyZip().22
+ $scala/collection/Iterable#lazyZip().2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ local192
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+" #local192%
+2 2scala/Tuple3.unapply().2
+2 3local202
+5 6local212
+8 9local222 
+D Escala/Int#`+`(+4).2 
+@ Ascala/Int#`+`(+4).2
+> ?local202
+B Clocal212
+F Glocal2221
+ #scala/collection/IterableOps#map().2=
+ /scala/collection/LazyZip3.lazyZip3ToIterable().22
+ $scala/collection/LazyZip2#lazyZip().22
+ $scala/collection/Iterable#lazyZip().2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2
+
+ local232
+ local232%
+ scala/Tuple3.unapply().2
+  local242
+" #local252
+% &local262 
+1 2scala/Int#`+`(+4).2 
+- .scala/Int#`+`(+4).2
++ ,local242
+/ 0local252
+3 4local2620
+!.! ."scala/collection/WithFilter#map().28
+!.! .*scala/collection/IterableOps#withFilter().2=
+!! /scala/collection/LazyZip3.lazyZip3ToIterable().22
+!#! *$scala/collection/LazyZip2#lazyZip().22
+!! $scala/collection/Iterable#lazyZip().2
+!! _empty_/Test.xs.2
+!! !_empty_/Test.xs.2
+!+! -_empty_/Test.xs.2
+!! local272%
+!! scala/Tuple3.unapply().2
+!! 	local282
+!! local292
+!! local302 
+!<! =scala/Int#`+`(+4).2 
+!8! 9scala/Int#`+`(+4).2
+!6! 7local282
+!:! ;local292
+!>! ?local30PZ AAE588DD5A6BCEE9D277414451DF27E5

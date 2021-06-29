@@ -1,0 +1,63 @@
+
+Ç#tests/pos/parents-cycle/Def_1.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[T]	*T€*
+_empty_/B1#*B1€*(
+_empty_/B1#`<init>`(). €@*<init>€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*
+_empty_/B2#*B2€*(
+_empty_/B2#`<init>`(). €@*<init>€*'
+_empty_/B2#`<init>`(+1).*<init>€*%
+_empty_/B2#`<init>`(+1).(x)*x€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+_empty_/B3#*B3€*(
+_empty_/B3#`<init>`(). €@*<init>€*
+_empty_/B3#Hi#*Hi€*
+_empty_/B3#Hi#[X]	*X€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 	_empty_/A#[T]2
+ _empty_/B1#2$
+ _empty_/B1#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/C1#2
+ _empty_/C1#2$
+ _empty_/C1#`<init>`().2$
+ _empty_/B1#`<init>`().2
+ _empty_/B1#2
+ _empty_/B2#2$
+ _empty_/B2#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/C2#2&
+ 
+_empty_/B2#`<init>`(+1).2)
+ _empty_/B2#`<init>`(+1).(x)2
+ 
+scala/Int#2$
+ _empty_/B2#`<init>`().2
+		 _empty_/C2#2$
+		 _empty_/C2#`<init>`().2&
+		 _empty_/B2#`<init>`(+1).2
+		 _empty_/B2#2
+ _empty_/B3#2$
+ _empty_/B3#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B3#Hi#2
+ _empty_/B3#2
+ 
+scala/Int#2
+ 	_empty_/B3#Hi#2
+
+ _empty_/B3#Hi#[X]2
+ _empty_/B3#Hi#[X]PZ 59C92E9ABFF11E5311EE4550FA5E14A7

@@ -1,0 +1,66 @@
+
+Þtests/pos/i4031.scala*
+_empty_/App.
+ *App€*
+_empty_/App.A#*A€*+
+_empty_/App.A#`<init>`(). €@*<init>€*
+_empty_/App.A#L#*L€*$
+_empty_/App.upcast().*upcast€*"
+_empty_/App.upcast().(a)*a€*"
+_empty_/App.upcast().(x)*x€*
+_empty_/App.p. À*p€*
+local0*L€*
+_empty_/App.q. €*q€*
+local1 *$anon€*
+local2*L€*&
+_empty_/App.coerce1().*coerce1€*#
+_empty_/App.coerce1().(x)*x€*&
+_empty_/App.coerce3().*coerce3€*#
+_empty_/App.coerce3().(x)*x€2
+ 
+_empty_/App.2
+ 	_empty_/App.A#2'
+ _empty_/App.A#`<init>`().2
+ _empty_/App.A#L#2
+ 
+scala/Any#2#
+ _empty_/App.upcast().2&
+ _empty_/App.upcast().(a)2
+ _empty_/App.A#2&
+ _empty_/App.upcast().(x)2
+ 
+scala/Any#2
+ _empty_/App.A#L#2&
+ _empty_/App.upcast().(a)2&
+" #_empty_/App.upcast().(x)2
+ _empty_/App.p.2
+ _empty_/App.A#2
+ local02
+ #scala/Nothing#2
+( )_empty_/App.p.2
+ _empty_/App.q.2
+
+ 
+local12
+ _empty_/App.A#2
+ local22
+ 
+scala/Any#2$
+ _empty_/App.coerce1().2'
+ _empty_/App.coerce1().(x)2
+ 
+scala/Any#2
+ 
+scala/Any#2#
+ #_empty_/App.upcast().2
+$ %_empty_/App.q.2'
+' (_empty_/App.coerce1().(x)2$
+ _empty_/App.coerce3().2'
+ _empty_/App.coerce3().(x)2
+ 
+scala/Any#2
+ 
+scala/Any#2#
+ #_empty_/App.upcast().2
+$ %_empty_/App.p.2'
+' (_empty_/App.coerce3().(x)PZ 5B63351DBCB6FF8B4663A7FAC5ED8729

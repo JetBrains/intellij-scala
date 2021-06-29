@@ -1,0 +1,19 @@
+
+¶tests/pos/t3076/T.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#z. €*z€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€2
+ 
+_empty_/T#2
+
+ 
+_empty_/T#`<init>`().2
+ _empty_/T#z.2 
+   _empty_/C1#`<init>`().2
+  _empty_/C1#2
+ _empty_/C1#2
+ _empty_/2 
+_empty_/C1#`<init>`().PZ 896DA1E653967A5362E1A7EAA9002FFC

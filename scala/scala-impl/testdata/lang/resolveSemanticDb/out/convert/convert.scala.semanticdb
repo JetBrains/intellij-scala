@@ -1,0 +1,59 @@
+
+ítests/pos/convert.scala**
+_empty_/convert$package. *_empty_€*[
+4_empty_/convert$package.given_Conversion_String_Int. è*given_Conversion_String_Int€*[
+4_empty_/convert$package.given_Conversion_Int_String. è*given_Conversion_Int_String€*W
+2_empty_/convert$package.given_Conversion_Int_Date. è*given_Conversion_Int_Date€*&
+_empty_/convert$package.f().*f€*)
+_empty_/convert$package.f().(x)*x€*&
+_empty_/convert$package.g().*g€*)
+_empty_/convert$package.g().(x)*x€*&
+_empty_/convert$package.h().*h€*)
+_empty_/convert$package.h().(x)*x€2
+ java/util/Date.2
+ java/util/Date#2
+ 
+java/util/2
+ java/2"
+_empty_/convert$package.2B
+ 4_empty_/convert$package.given_Conversion_String_Int.2
+ scala/Conversion#2"
+ scala/Predef.String#2
+ 
+scala/Int#2(
+" (java/lang/String#length().2B
+ 4_empty_/convert$package.given_Conversion_Int_String.2
+ scala/Conversion#2
+ 
+scala/Int#2"
+ scala/Predef.String#2#
+" *scala/Any#toString().2@
+ 2_empty_/convert$package.given_Conversion_Int_Date.2
+ scala/Conversion#2
+ 
+scala/Int#2
+ java/util/Date#2*
+& &java/util/Date#`<init>`(+1).2
+" &java/util/Date#2#
+' 'scala/Int.int2long().2*
+ _empty_/convert$package.f().2-
+ _empty_/convert$package.f().(x)2"
+	 scala/Predef.String#2
+ 
+scala/Int#2)
+ scala/Conversion#convert().2-
+ _empty_/convert$package.f().(x)2*
+ _empty_/convert$package.g().2-
+ _empty_/convert$package.g().(x)2
+	 
+scala/Int#2"
+ scala/Predef.String#2)
+ scala/Conversion#convert().2-
+ _empty_/convert$package.g().(x)2*
+ _empty_/convert$package.h().2-
+ _empty_/convert$package.h().(x)2
+	 
+scala/Int#2
+ java/util/Date#2)
+ scala/Conversion#convert().2-
+ _empty_/convert$package.h().(x)PZ C57E3E4534F7D23A455BD470219469BC

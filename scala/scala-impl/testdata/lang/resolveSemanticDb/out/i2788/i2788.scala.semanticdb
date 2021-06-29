@@ -1,0 +1,49 @@
+
+ë	tests/pos/i2788.scala*
+_empty_/Ord#*Ord€*)
+_empty_/Ord#`<init>`(). €@*<init>€*
+_empty_/Ord#[A]	*A€*"
+_empty_/Ord#less(). *less€* 
+_empty_/Ord#less().(x)*x€* 
+_empty_/Ord#less().(y)*y€*
+_empty_/Main.
+ *Main€*&
+_empty_/Main.intOrd.  *intOrd€*
+local0 *$anon€*
+local1*less€*
+local2*x€*
+local3*y€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€2
+ 	_empty_/Ord#2!
+	 	_empty_/Ord#`<init>`().2
+
+ _empty_/Ord#[A]2
+ _empty_/Ord#less().2 
+ _empty_/Ord#less().(x)2
+ _empty_/Ord#[A]2 
+ _empty_/Ord#less().(y)2
+! "_empty_/Ord#[A]2
+% ,scala/Boolean#2
+ _empty_/Main.2"
+ _empty_/Main.intOrd.2
+ _empty_/Ord#2
+ 
+scala/Int#2
+" "local02
+ local12
+ local22
+ 
+scala/Int#2
+ local32
+ 
+scala/Int#2 
+! "scala/Int#`<`(+3).2
+  local22
+# $local32"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#PZ 8677056812D3EF03C2E4C416DC05D874

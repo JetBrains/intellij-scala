@@ -1,0 +1,39 @@
+
+½	&tests/pos/reference/type-lambdas.scala* 
+typeLambdas/Test.
+ *Test€*
+typeLambdas/Test.T#*T€*#
+typeLambdas/Test.T#[X]	 €*X€* 
+typeLambdas/Test.T#[Y]	*Y€*!
+typeLambdas/Test.CTL#*CTL€*"
+typeLambdas/Test.CTL#[X]	*X€*"
+typeLambdas/Test.CTL#[Y]	*Y€*
+typeLambdas/Test.T3#*T3€*
+typeLambdas/Test.T2#*T2€*$
+typeLambdas/Test.T2#[X]	 €*X€2
+ typeLambdas/2
+ typeLambdas/Test.2!
+ typeLambdas/Test.T#2$
+
+ typeLambdas/Test.T#[X]2$
+ typeLambdas/Test.T#[Y]2
+ scala/Predef.Map#2$
+ typeLambdas/Test.T#[Y]2$
+ typeLambdas/Test.T#[X]2#
+ 
+typeLambdas/Test.CTL#2&
+ typeLambdas/Test.CTL#[X]2&
+ typeLambdas/Test.CTL#[Y]2&
+ typeLambdas/Test.CTL#[X]2&
+! "typeLambdas/Test.CTL#[Y]2"
+ 	typeLambdas/Test.T3#2#
+ typeLambdas/Test.CTL#2
+ 
+scala/Int#2"
+ scala/Predef.String#2"
+		 	typeLambdas/Test.T2#2%
+		 typeLambdas/Test.T2#[X]2%
+		 typeLambdas/Test.T2#[X]2%
+		 typeLambdas/Test.T2#[X]2
+		 
+scala/Any#PZ 1C56574EE5B2035C4B6E3EBEF64E0F6E

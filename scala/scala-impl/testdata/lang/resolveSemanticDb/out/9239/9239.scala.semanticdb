@@ -1,0 +1,121 @@
+
+ßtests/pos/9239.scala*
+_empty_/ABug.
+ *ABug€*
+_empty_/ABug.Bit# *Bit€*.
+_empty_/ABug.Bit#`<init>`(). €@*<init>€*
+_empty_/ABug.B0# *B0€*-
+_empty_/ABug.B0#`<init>`(). €@*<init>€*
+_empty_/ABug.B1# *B1€*-
+_empty_/ABug.B1#`<init>`(). €@*<init>€*
+_empty_/ABug.Bin# *Bin€*.
+_empty_/ABug.Bin#`<init>`(). €@*<init>€*
+_empty_/ABug.Nil# *Nil€*.
+_empty_/ABug.Nil#`<init>`(). €@*<init>€*
+_empty_/ABug.`::`# *::€*/
+_empty_/ABug.`::`#`<init>`(). €@*<init>€*
+_empty_/ABug.`::`#[U]	*U€*
+_empty_/ABug.`::`#[D]	*D€*
+_empty_/ABug.Zero#*Zero€*
+_empty_/ABug.One#*One€*
+_empty_/ABug.`--`#*--€*
+_empty_/ABug.`--`#[B]	*B€*
+local0 €	*d€*
+local1 €	*d€*
+_empty_/ABug.`Ã—`#*Ã—€*
+_empty_/ABug.`Ã—`#[N]	*N€*
+_empty_/ABug.`Ã—`#[M]	*M€*
+_empty_/ABug.`!`#*!€*
+_empty_/ABug.`!`#[N]	*N€2
+ _empty_/ABug.2
+ _empty_/ABug.Bit#2*
+ _empty_/ABug.Bit#`<init>`().2
+ _empty_/ABug.B0#2)
+ _empty_/ABug.B0#`<init>`().2
+ _empty_/ABug.Bit#2
+ _empty_/ABug.B1#2)
+ _empty_/ABug.B1#`<init>`().2
+ _empty_/ABug.Bit#2
+ _empty_/ABug.Bin#2*
+ _empty_/ABug.Bin#`<init>`().2
+ _empty_/ABug.Nil#2*
+ _empty_/ABug.Nil#`<init>`().2
+ _empty_/ABug.Bin#2 
+ _empty_/ABug.`::`#2+
+ _empty_/ABug.`::`#`<init>`().2
+. 1_empty_/ABug.Bin#2#
+ _empty_/ABug.`::`#[U]2#
+ _empty_/ABug.`::`#[D]2 
+		 _empty_/ABug.Zero#2 
+		 _empty_/ABug.`::`#2
+		 _empty_/ABug.B0#2
+		 _empty_/ABug.Nil#2
+
+
+ 
+_empty_/ABug.One#2 
+
+
+ _empty_/ABug.`::`#2
+
+
+ _empty_/ABug.B1#2
+
+
+ _empty_/ABug.Nil#2 
+ 	_empty_/ABug.`--`#2#
+
+ _empty_/ABug.`--`#[B]2
+ _empty_/ABug.Bin#2#
+ _empty_/ABug.`--`#[B]2 
+ _empty_/ABug.`::`#2
+ _empty_/ABug.B1#2
+ local02 
+ _empty_/ABug.`::`#2
+ _empty_/ABug.B0#2
+ local02 
+ _empty_/ABug.`::`#2
+ _empty_/ABug.B0#2 
+ _empty_/ABug.`::`#2
+ _empty_/ABug.B1#2
+ _empty_/ABug.Nil#2 
+! #_empty_/ABug.`::`#2
+  _empty_/ABug.B1#2
+$ '_empty_/ABug.Nil#2 
+ _empty_/ABug.`::`#2
+ _empty_/ABug.B0#2
+ local12 
+ _empty_/ABug.`::`#2
+ _empty_/ABug.B1#2 
+ _empty_/ABug.`--`#2
+  local12 
+ _empty_/ABug.`Ã—`#2#
+	 
+_empty_/ABug.`Ã—`#[N]2
+ _empty_/ABug.Bin#2#
+ _empty_/ABug.`Ã—`#[M]2
+ _empty_/ABug.Bin#2#
+ _empty_/ABug.`Ã—`#[N]2#
+ 	_empty_/ABug.`Ã—`#[M]2 
+ _empty_/ABug.Zero#2 
+ _empty_/ABug.Zero#2
+ _empty_/ABug.`!`#2"
+	 
+_empty_/ABug.`!`#[N]2
+ _empty_/ABug.Bin#2"
+ _empty_/ABug.`!`#[N]2 
+ _empty_/ABug.Zero#2
+ _empty_/ABug.One#2
+ _empty_/ABug.One#2
+ _empty_/ABug.One#2 
+ _empty_/ABug.`Ã—`#2
+ _empty_/ABug.`!`#2 
+ _empty_/ABug.`--`#2"
+ _empty_/ABug.`!`#[N]2"
+ _empty_/ABug.`!`#[N]2 
+ _empty_/ABug.`::`#2 
+ _empty_/ABug.`Ã—`#2
+ _empty_/ABug.`!`#2 
+ _empty_/ABug.`--`#2"
+ _empty_/ABug.`!`#[N]2"
+! "_empty_/ABug.`!`#[N]PZ A83CB15F92B0885E5245A8D88974E09A

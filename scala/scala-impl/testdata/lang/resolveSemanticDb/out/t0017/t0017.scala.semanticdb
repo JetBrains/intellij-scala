@@ -1,0 +1,77 @@
+
+ítests/pos/t0017.scala*"
+_empty_/Quantity#*Quantity€*.
+_empty_/Quantity#`<init>`(). €@*<init>€*-
+_empty_/Quantity#getValue().*getValue€*+
+_empty_/Quantity#connect().*connect€*(
+_empty_/Quantity#connect().(c)*c€*(
+_empty_/Constraint# *
+Constraint€*0
+_empty_/Constraint#`<init>`(). €@*<init>€*+
+!_empty_/Constraint#`<init>`().(q)*q€*"
+_empty_/Constraint#q. €*q€*1
+_empty_/Constraint#newValue(). *newValue€*
+_empty_/Adder#*Adder€*+
+_empty_/Adder#`<init>`(). €@*<init>€*&
+_empty_/Adder#`<init>`().(q)*q€*
+_empty_/Adder#q. €*q€**
+_empty_/Adder#newValue().*newValue€*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local0 €*x€2
+ _empty_/Quantity#2*
+ _empty_/Quantity#`<init>`().2*
+ _empty_/Quantity#getValue().2)
+ _empty_/Quantity#connect().2,
+ _empty_/Quantity#connect().(c)2!
+ _empty_/Constraint#2,
+# +_empty_/Constraint#newValue().2,
+! "_empty_/Quantity#connect().(c)2!
+ _empty_/Constraint#2,
+ _empty_/Constraint#`<init>`().2
+ %_empty_/Quantity#2#
+ _empty_/Constraint#q.2,
+ _empty_/Constraint#newValue().2
+ scala/Unit#2)
+ _empty_/Quantity#connect().2#
+ _empty_/Constraint#q.2
+
+
+ _empty_/Adder#2'
+
+
+ _empty_/Adder#`<init>`().2
+
+
+ _empty_/Quantity#2,
+
++
+ +_empty_/Constraint#`<init>`().2!
+
+!
+ +_empty_/Constraint#2
+
+,
+ -_empty_/Adder#q.2
+
+
+ _empty_/Adder#q.2'
+ _empty_/Adder#newValue().2(
+ "scala/Console.println(+1).2
+ scala/Console.2*
+% -_empty_/Quantity#getValue().2
+# $_empty_/Adder#q.2
+ _empty_/Main.2"
+ _empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+# 'scala/Unit#2
+ local02*
+ _empty_/Quantity#`<init>`().2
+ _empty_/Quantity#2'
+ _empty_/Adder#`<init>`().2
+ _empty_/Adder#2
+ local0PZ B370D740D9380D49EE0729A0750FD093

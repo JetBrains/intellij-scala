@@ -1,0 +1,50 @@
+
+á
+tests/pos/t8177g.scala*
+_empty_/HasA#*HasA€**
+_empty_/HasA#`<init>`(). €@*<init>€*
+_empty_/HasA#A#*A€*
+_empty_/AA#*AA€*(
+_empty_/AA#`<init>`(). €@*<init>€*
+_empty_/AA#[T]	*T€*
+_empty_/AA#HasAT#*HasAT€*
+_empty_/AA#HasAT#[T]	*T€*
+local0*A€*
+_empty_/AA#x. €*x€*
+_empty_/AA#foo().*foo€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#foo().*foo€2
+ 
+_empty_/HasA#2&
+ _empty_/HasA#`<init>`().2
+ _empty_/HasA#A#2
+ _empty_/AA#2$
+ _empty_/AA#`<init>`().2
+	 
+_empty_/AA#[T]2
+ _empty_/AA#HasAT#2"
+ _empty_/AA#HasAT#[T]2
+ _empty_/HasA#2
+ local02"
+! "_empty_/AA#HasAT#[T]2
+ _empty_/AA#x.2
+	 _empty_/AA#HasAT#2
+ _empty_/AA#[T]2#
+ scala/Predef.`???`().2
+ 	_empty_/AA#foo().2
+ _empty_/HasA#A#2
+ _empty_/AA#x.2#
+ scala/Predef.`???`().2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2$
+ _empty_/AA#`<init>`().2
+ _empty_/AA#2
+ 
+scala/Int#2
+		 _empty_/B#foo().2
+		 _empty_/HasA#A#2
+		 _empty_/AA#x.2
+	'	 *_empty_/AA#foo().PZ 7830965CF6680026AEE573A193CD2077

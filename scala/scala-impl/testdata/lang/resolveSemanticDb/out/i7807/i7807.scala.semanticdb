@@ -1,0 +1,39 @@
+
+ùtests/pos/i7807.scala*
+_empty_/Test.
+ *TestÄ*!
+_empty_/Test.flip().*flipÄ*
+local0 *applyÄ*
+local1*xÄ*
+_empty_/Test.n. Ä*nÄ*
+_empty_/Test.m. Ä*mÄ2
+ _empty_/Test.2"
+ 
+_empty_/Test.flip().2
+ 
+scala/`|`#2
+ local02
+ local12
+ local12#
+E Hscala/Predef.`???`().2&
+ scala/Function1#apply().2"
+ _empty_/Test.flip().2&
+ scala/Function1#apply().2"
+ _empty_/Test.flip().2&
+ scala/Function1#apply().2"
+ _empty_/Test.flip().2#
+
+ scala/Predef.`???`().2
+ _empty_/Test.n.2
+ 
+scala/`|`#2#
+ scala/Predef.`???`().2&
+		 scala/Function1#apply().2"
+		 _empty_/Test.flip().2
+		 _empty_/Test.n.2
+ _empty_/Test.m.2
+	 
+_empty_/Test.n.2&
+8 8scala/Function1#apply().2"
+4 8_empty_/Test.flip().2
+9 :_empty_/Test.n.PZ 6F8E810DF1B9691FABC3405142C2523E

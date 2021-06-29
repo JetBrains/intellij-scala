@@ -1,0 +1,39 @@
+
+Ë	tests/pos/t8369a.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.Sys#*Sys€*-
+_empty_/Bug.Sys#`<init>`(). €@*<init>€*
+_empty_/Bug.Sys#[S]	*S€* 
+_empty_/Bug.test().*test€* 
+_empty_/Bug.test().[S]	*S€* 
+_empty_/Bug.read().*read€* 
+_empty_/Bug.read().[S]	*S€*$
+_empty_/Bug.read().(baz)*baz€*4
+_empty_/Bug.read$default$1().*read$default$1€**
+ _empty_/Bug.read$default$1().[S]	*S€2
+ 
+_empty_/Bug.2
+ _empty_/Bug.Sys#2)
+ _empty_/Bug.Sys#`<init>`().2!
+ _empty_/Bug.Sys#[S]2!
+ 
+_empty_/Bug.test().2$
+ _empty_/Bug.test().[S]2
+ _empty_/Bug.Sys#2$
+ _empty_/Bug.test().[S]2!
+ _empty_/Bug.read().2$
+  _empty_/Bug.test().[S]2!
+ 
+_empty_/Bug.read().2$
+ _empty_/Bug.read().[S]2
+ _empty_/Bug.Sys#2$
+ _empty_/Bug.read().[S]2&
+ _empty_/Bug.read().(baz)2
+  
+scala/Any#2
+' +scala/Some#2$
+, -_empty_/Bug.read().[S]2#
+1 4scala/Predef.`???`().2.
+  _empty_/Bug.read$default$1().[S]2.
+  _empty_/Bug.read$default$1().[S]PZ 00C9E7420B446785B46BE3A113FA322B

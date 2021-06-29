@@ -1,0 +1,150 @@
+
+‹tests/pos/opaque-aliasing.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*
+_empty_/Test.AA#*AA€*
+_empty_/Test.a(). €*a€*$
+_empty_/Test.`a_=`(). €*a_=€*&
+_empty_/Test.`a_=`().(x$1)*x$1€* 
+_empty_/Test.aa(). €*aa€*&
+_empty_/Test.`aa_=`(). €*aa_=€*'
+_empty_/Test.`aa_=`().(x$1)*x$1€*
+_empty_/Test.A.
+ *A€*
+_empty_/Test.A.x. €*x€*
+_empty_/Test.A.y. €*y€*
+_empty_/Test.A.BB#*BB€* 
+_empty_/Test.A.z1. €*z1€* 
+_empty_/Test.A.z2. €*z2€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.A#*A€*
+_empty_/Test2.A#[X]	*X€*
+_empty_/Test2.AA#*AA€*
+_empty_/Test2.AA#[X]	*X€*
+_empty_/Test2.a(). €*a€*%
+_empty_/Test2.`a_=`(). €*a_=€*'
+_empty_/Test2.`a_=`().(x$1)*x$1€*!
+_empty_/Test2.aa(). €*aa€*'
+_empty_/Test2.`aa_=`(). €*aa_=€*(
+_empty_/Test2.`aa_=`().(x$1)*x$1€*
+_empty_/Test2.A.
+ *A€*
+_empty_/Test2.A.x. €*x€*
+_empty_/Test2.A.y. €*y€*
+_empty_/Test2.A.BB#*BB€* 
+_empty_/Test2.A.BB#[X]	*X€*!
+_empty_/Test2.A.z1. €*z1€*!
+_empty_/Test2.A.z2. €*z2€2
+ _empty_/Test.2
+ _empty_/Test.A#2
+ 
+scala/Int#2
+ 	_empty_/Test.AA#2
+ _empty_/Test.A#2
+ _empty_/Test.a().2
+	 
+_empty_/Test.A#2#
+ scala/Predef.`???`().2#
+ 	_empty_/Test.`a_=`().2 
+ _empty_/Test.aa().2
+
+ _empty_/Test.AA#2#
+ scala/Predef.`???`().2$
+ 
+_empty_/Test.`aa_=`().2
+	 
+_empty_/Test.A.2
+		 	_empty_/Test.A.x.2
+		 _empty_/Test.A#2
+		 _empty_/Test.a().2#
+
+
+ _empty_/Test.`a_=`().2
+
+
+ 	_empty_/Test.A.x.2
+ 	_empty_/Test.A.y.2
+ _empty_/Test.A#2 
+ _empty_/Test.aa().2$
+ _empty_/Test.`aa_=`().2
+	 
+_empty_/Test.A.y.2 
+	 _empty_/Test.A.BB#2
+ _empty_/Test.A#2 
+ 
+_empty_/Test.A.z1.2 
+ _empty_/Test.A.BB#2
+ _empty_/Test.a().2 
+ 
+_empty_/Test.A.z2.2 
+ _empty_/Test.A.BB#2 
+ _empty_/Test.aa().2#
+ _empty_/Test.`a_=`().2 
+ 
+_empty_/Test.A.z1.2$
+ _empty_/Test.`aa_=`().2 
+	 _empty_/Test.A.z2.2
+ _empty_/Test2.2
+ _empty_/Test2.A#2!
+ _empty_/Test2.A#[X]2!
+ _empty_/Test2.A#[X]2
+ 	_empty_/Test2.AA#2"
+
+ _empty_/Test2.AA#[X]2
+ _empty_/Test2.A#2"
+ _empty_/Test2.AA#[X]2 
+ _empty_/Test2.a().2
+	 
+_empty_/Test2.A#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2$
+ 	_empty_/Test2.`a_=`().2!
+ _empty_/Test2.aa().2
+
+ _empty_/Test2.AA#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2%
+ 
+_empty_/Test2.`aa_=`().2
+	 
+_empty_/Test2.A.2 
+ 	_empty_/Test2.A.x.2
+ _empty_/Test2.A#2
+ 
+scala/Int#2 
+ _empty_/Test2.a().2$
+ _empty_/Test2.`a_=`().2 
+ 	_empty_/Test2.A.x.2 
+   	_empty_/Test2.A.y.2
+   _empty_/Test2.A#2
+   
+scala/Int#2!
+   _empty_/Test2.aa().2%
+!! _empty_/Test2.`aa_=`().2 
+!	! 
+_empty_/Test2.A.y.2!
+#	# _empty_/Test2.A.BB#2$
+## _empty_/Test2.A.BB#[X]2
+## _empty_/Test2.A#2$
+## _empty_/Test2.A.BB#[X]2!
+$$ 
+_empty_/Test2.A.z1.2!
+$$ _empty_/Test2.A.BB#2
+$$ 
+scala/Int#2 
+$$ _empty_/Test2.a().2!
+%% 
+_empty_/Test2.A.z2.2!
+%% _empty_/Test2.A.BB#2
+%% 
+scala/Int#2!
+%% _empty_/Test2.aa().2$
+&& _empty_/Test2.`a_=`().2!
+&& 
+_empty_/Test2.A.z1.2%
+'' _empty_/Test2.`aa_=`().2!
+'	' _empty_/Test2.A.z2.PZ BD9F22E6C57D1FFE4E88B59C2DDBD984

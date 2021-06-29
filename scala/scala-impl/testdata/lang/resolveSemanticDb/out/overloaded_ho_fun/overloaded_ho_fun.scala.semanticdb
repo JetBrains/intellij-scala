@@ -1,0 +1,548 @@
+
+ÙÅ!tests/pos/overloaded_ho_fun.scala* 
+_empty_/MonoSam#*MonoSamÄ*-
+_empty_/MonoSam#`<init>`(). Ä@*<init>Ä*(
+_empty_/MonoSam#apply(). *applyÄ*%
+_empty_/MonoSam#apply().(x)*xÄ*
+_empty_/SamP#*SamPÄ**
+_empty_/SamP#`<init>`(). Ä@*<init>Ä*
+_empty_/SamP#[U]	*UÄ*%
+_empty_/SamP#apply(). *applyÄ*"
+_empty_/SamP#apply().(x)*xÄ*,
+_empty_/OverloadedFun#*OverloadedFunÄ*3
+!_empty_/OverloadedFun#`<init>`(). Ä@*<init>Ä*.
+$_empty_/OverloadedFun#`<init>`().(x)*xÄ*#
+_empty_/OverloadedFun#[T]	*TÄ*%
+_empty_/OverloadedFun#x. Ä*xÄ*(
+_empty_/OverloadedFun#foo().*fooÄ*)
+_empty_/OverloadedFun#foo().(f)*fÄ**
+_empty_/OverloadedFun#foo(+1).*fooÄ*+
+!_empty_/OverloadedFun#foo(+1).(f)*fÄ**
+_empty_/OverloadedFun#poly().*polyÄ**
+ _empty_/OverloadedFun#poly().[U]	*UÄ**
+ _empty_/OverloadedFun#poly().(f)*fÄ*,
+_empty_/OverloadedFun#poly(+1).*polyÄ*,
+"_empty_/OverloadedFun#poly(+1).[U]	*UÄ*,
+"_empty_/OverloadedFun#poly(+1).(f)*fÄ*8
+$_empty_/OverloadedFun#polyJavaSam().*polyJavaSamÄ*1
+'_empty_/OverloadedFun#polyJavaSam().(f)*fÄ*:
+&_empty_/OverloadedFun#polyJavaSam(+1).*polyJavaSamÄ*3
+)_empty_/OverloadedFun#polyJavaSam(+1).(f)*fÄ*&
+_empty_/StringLike#*
+StringLikeÄ*0
+_empty_/StringLike#`<init>`(). Ä@*<init>Ä*-
+"_empty_/StringLike#`<init>`().(xs)*xsÄ*$
+_empty_/StringLike#xs. Ä*xsÄ*%
+_empty_/StringLike#map().*mapÄ*&
+_empty_/StringLike#map().[A]	*AÄ*&
+_empty_/StringLike#map().(f)*fÄ*'
+_empty_/StringLike#map(+1).*mapÄ*(
+_empty_/StringLike#map(+1).(f)*fÄ*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.of. Ä*ofÄ*
+local0*xÄ*
+local1*xÄ*
+_empty_/Test.sl. Ä*slÄ*
+local2*xÄ*"
+_empty_/sorting.
+ *sortingÄ*0
+_empty_/sorting.stableSort().*
+stableSortÄ**
+ _empty_/sorting.stableSort().[K]	*KÄ**
+ _empty_/sorting.stableSort().(a)*aÄ**
+ _empty_/sorting.stableSort().(f)*fÄ*2
+_empty_/sorting.stableSort(+1).*
+stableSortÄ*,
+"_empty_/sorting.stableSort(+1).[L]	*LÄ*,
+"_empty_/sorting.stableSort(+1).(a)*aÄ*,
+"_empty_/sorting.stableSort(+1).(f)*fÄ*
+local3*xÄ*
+local4*yÄ*"
+_empty_/SI10194.
+ *SI10194Ä*
+_empty_/SI10194.X#*XÄ*/
+_empty_/SI10194.X#`<init>`(). Ä@*<init>Ä*
+_empty_/SI10194.X#[A]	*AÄ*&
+_empty_/SI10194.X#map(). *mapÄ*%
+_empty_/SI10194.X#map().[B]	*BÄ*%
+_empty_/SI10194.X#map().(f)*fÄ*
+_empty_/SI10194.Y#*YÄ*/
+_empty_/SI10194.Y#`<init>`(). Ä@*<init>Ä*
+_empty_/SI10194.Y#[A]	*AÄ*&
+_empty_/SI10194.Y#map(). *mapÄ*%
+_empty_/SI10194.Y#map().[B]	*BÄ*%
+_empty_/SI10194.Y#map().(f)*fÄ*5
+"_empty_/SI10194.Y#map().(ordering)  *orderingÄ*
+_empty_/SI10194.Z#*ZÄ*/
+_empty_/SI10194.Z#`<init>`(). Ä@*<init>Ä*
+_empty_/SI10194.Z#[A]	*AÄ*
+local5*xÄ*
+local6*xÄ*
+
+_empty_/A#*AÄ*'
+_empty_/A#`<init>`(). Ä@*<init>Ä*
+_empty_/A#map().*mapÄ*
+_empty_/A#map().[T]	*TÄ*
+_empty_/A#map().(f)*fÄ*
+
+_empty_/B.
+ *BÄ*"
+_empty_/B.noover().*nooverÄ* 
+_empty_/B.noover().(f)*fÄ*
+_empty_/B.map().*mapÄ*
+_empty_/B.map().[T]	*TÄ*
+_empty_/B.map().(f)*fÄ*
+_empty_/B.f().*fÄ*
+_empty_/B.f().(x)*xÄ*
+local7*xÄ*
+local8*xÄ*
+local9*xÄ*
+local10*xÄ*
+_empty_/B.t.
+ *tÄ*
+_empty_/B.t.f().*fÄ*
+_empty_/B.t.f().(x)*xÄ*
+_empty_/B.t.f(+1).*fÄ*
+_empty_/B.t.f(+1).(y)*yÄ*
+_empty_/B.fun().*funÄ*
+_empty_/B.fun().(x)*xÄ*
+_empty_/B.fun2().*fun2Ä*
+_empty_/B.fun2().[T]	*TÄ*
+local11*xÄ*
+local12*xÄ*
+_empty_/SAM#*SAMÄ*)
+_empty_/SAM#`<init>`(). Ä@*<init>Ä*
+_empty_/SAM#[T]	 Ä*TÄ*
+_empty_/SAM#[R]	 Ä*RÄ*$
+_empty_/SAM#apply(). *applyÄ*!
+_empty_/SAM#apply().(x)*xÄ*
+_empty_/A2#*A2Ä*(
+_empty_/A2#`<init>`(). Ä@*<init>Ä*
+_empty_/A2#map().*mapÄ*
+_empty_/A2#map().[T]	*TÄ*
+_empty_/A2#map().(f)*fÄ*
+_empty_/B2.
+ *B2Ä*#
+_empty_/B2.noover().*nooverÄ*!
+_empty_/B2.noover().(f)*fÄ*
+_empty_/B2.map().*mapÄ*
+_empty_/B2.map().[T]	*TÄ*
+_empty_/B2.map().(f)*fÄ*
+_empty_/B2.f().*fÄ*
+_empty_/B2.f().(x)*xÄ*
+local13*xÄ*
+local14*xÄ*
+local15*xÄ*
+_empty_/B2.t.
+ *tÄ*
+_empty_/B2.t.f().*fÄ*
+_empty_/B2.t.f().(x)*xÄ*
+_empty_/B2.t.f(+1).*fÄ* 
+_empty_/B2.t.f(+1).(y)*yÄ*
+_empty_/B2.fun().*funÄ*
+_empty_/B2.fun().(x)*xÄ*
+_empty_/B2.fun2().*fun2Ä*
+_empty_/B2.fun2().[T]	*TÄ*
+local16*xÄ*
+local17*xÄ2
+ scala/math/Ordering.2
+ scala/math/Ordering#2
+ scala/math/2
+ scala/2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2
+ _empty_/MonoSam#2)
+ _empty_/MonoSam#`<init>`().2&
+ _empty_/MonoSam#apply().2)
+ _empty_/MonoSam#apply().(x)2
+  
+scala/Int#2"
+# )scala/Predef.String#2
+ 
+_empty_/SamP#2&
+
+ 
+_empty_/SamP#`<init>`().2
+ _empty_/SamP#[U]2#
+ _empty_/SamP#apply().2&
+ _empty_/SamP#apply().(x)2
+  
+scala/Int#2
+# $_empty_/SamP#[U]2$
+ _empty_/OverloadedFun#2/
+ !_empty_/OverloadedFun#`<init>`().2'
+ _empty_/OverloadedFun#[T]2'
+ _empty_/OverloadedFun#[T]2&
+ _empty_/OverloadedFun#x.2*
+ 	_empty_/OverloadedFun#foo().2-
+
+ _empty_/OverloadedFun#foo().(f)2
+ 
+scala/Any#2"
+ scala/Predef.String#2"
+ #scala/Predef.String#2&
+' 'scala/Function1#apply().2-
+& '_empty_/OverloadedFun#foo().(f)2&
+( )_empty_/OverloadedFun#x.2,
+		 	_empty_/OverloadedFun#foo(+1).2/
+	
+	 !_empty_/OverloadedFun#foo(+1).(f)2
+		 
+scala/Any#2'
+		 _empty_/OverloadedFun#[T]2'
+		 _empty_/OverloadedFun#[T]2&
+		 scala/Function1#apply().2/
+		 !_empty_/OverloadedFun#foo(+1).(f)2+
+ 
+_empty_/OverloadedFun#poly().2.
+  _empty_/OverloadedFun#poly().[U]2.
+  _empty_/OverloadedFun#poly().(f)2
+ 
+scala/Int#2"
+ scala/Predef.String#2"
+! 'scala/Predef.String#2&
++ +scala/Function1#apply().2.
+* + _empty_/OverloadedFun#poly().(f)2-
+ 
+_empty_/OverloadedFun#poly(+1).20
+ "_empty_/OverloadedFun#poly(+1).[U]20
+ "_empty_/OverloadedFun#poly(+1).(f)2
+ 
+scala/Int#20
+ "_empty_/OverloadedFun#poly(+1).[U]20
+ "_empty_/OverloadedFun#poly(+1).[U]2&
+! !scala/Function1#apply().20
+  !"_empty_/OverloadedFun#poly(+1).(f)22
+ $_empty_/OverloadedFun#polyJavaSam().25
+ '_empty_/OverloadedFun#polyJavaSam().(f)2"
+ scala/Predef.String#2"
+ %scala/Predef.String#24
+ &_empty_/OverloadedFun#polyJavaSam(+1).27
+ )_empty_/OverloadedFun#polyJavaSam(+1).(f)2*
+( 0java/util/function/Function#2!
+ 'java/util/function/2
+ 
+java/util/2
+ java/2"
+1 7scala/Predef.String#2"
+9 ?scala/Predef.String#2!
+ _empty_/StringLike#2,
+ _empty_/StringLike#`<init>`().2"
+ scala/Predef.String#2$
+ _empty_/StringLike#xs.2'
+ 	_empty_/StringLike#map().2*
+
+ _empty_/StringLike#map().[A]2*
+ _empty_/StringLike#map().(f)2
+ scala/Char#2*
+ _empty_/StringLike#map().[A]2
+ !scala/Array#2*
+" #_empty_/StringLike#map().[A]2#
+' *scala/Predef.`???`().2)
+ 	_empty_/StringLike#map(+1).2,
+
+ _empty_/StringLike#map(+1).(f)2
+ scala/Char#2
+ scala/Char#2"
+ "scala/Predef.String#2#
+% (scala/Predef.`???`().2
+ _empty_/Test.2
+ _empty_/Test.of.2/
+! !!_empty_/OverloadedFun#`<init>`().2$
+ _empty_/OverloadedFun#2
+  
+scala/Int#2*
+ _empty_/OverloadedFun#foo().2
+ _empty_/Test.of.2#
+ scala/Any#toString().2-
+   	_empty_/OverloadedFun#poly(+1).2
+   _empty_/Test.of.2
+ 
+  local02 
+   scala/Int#`/`(+3).2
+   local022
+"" $_empty_/OverloadedFun#polyJavaSam().2
+"" _empty_/Test.of.2
+"" local12
+"" local12
+$$ _empty_/Test.sl.2,
+$$ _empty_/StringLike#`<init>`().2!
+$$ _empty_/StringLike#2'
+%% _empty_/StringLike#map().2
+%% _empty_/Test.sl.2"
+%% scala/Char#`==`(+2).2)
+&& _empty_/StringLike#map(+1).2
+&& _empty_/Test.sl.2
+&	& 
+local22
+)) _empty_/sorting.2+
+** _empty_/sorting.stableSort().2.
+**  _empty_/sorting.stableSort().[K]2.
+**  _empty_/sorting.stableSort().(a)2 
+*!* $scala/package.Seq#2.
+*%* & _empty_/sorting.stableSort().[K]2.
+*)* * _empty_/sorting.stableSort().(f)2.
+*-* . _empty_/sorting.stableSort().[K]2.
+*0* 1 _empty_/sorting.stableSort().[K]2
+*6* =scala/Boolean#2%
+** scala/reflect/ClassTag#2.
+**  _empty_/sorting.stableSort().[K]2
+*@* Escala/Array#2.
+*F* G _empty_/sorting.stableSort().[K]2#
+*K* Nscala/Predef.`???`().2-
+++ _empty_/sorting.stableSort(+1).20
+++ "_empty_/sorting.stableSort(+1).[L]20
+++ "_empty_/sorting.stableSort(+1).(a)2
++!+ &scala/Array#20
++'+ ("_empty_/sorting.stableSort(+1).[L]20
++++ ,"_empty_/sorting.stableSort(+1).(f)20
++/+ 0"_empty_/sorting.stableSort(+1).[L]20
++2+ 3"_empty_/sorting.stableSort(+1).[L]2
++8+ ?scala/Boolean#2%
+++ scala/reflect/ClassTag#20
+++ "_empty_/sorting.stableSort(+1).[L]2
++B+ Fscala/Unit#2#
++I+ Lscala/Predef.`???`().2+
+-- _empty_/sorting.stableSort().2#
+-- scala/Predef.`???`().2 
+-- scala/package.Seq#2
+-- scala/Boolean#2
+-"- #local32
+-%- ,scala/Boolean#2
+-.- /local42
+-1- 8scala/Boolean#2#
+-?- Ascala/Boolean#`&&`().2
+-=- >local32(
+-D- Dscala/Boolean#`unary_!`().2
+-C- Dlocal42-
+-E- Escala/reflect/ClassTag.apply().2
+55 _empty_/SI10194.2 
+66 	_empty_/SI10194.X#2+
+6	6 	_empty_/SI10194.X#`<init>`().2#
+6
+6 _empty_/SI10194.X#[A]2&
+77 _empty_/SI10194.X#map().2)
+77 _empty_/SI10194.X#map().[B]2)
+77 _empty_/SI10194.X#map().(f)2#
+77 _empty_/SI10194.X#[A]2)
+77 _empty_/SI10194.X#map().[B]2
+77 scala/Unit#2 
+:: 	_empty_/SI10194.Y#2+
+:	: 	_empty_/SI10194.Y#`<init>`().2 
+:: _empty_/SI10194.X#2#
+:: _empty_/SI10194.Y#[A]2#
+:
+: _empty_/SI10194.Y#[A]2&
+;; _empty_/SI10194.Y#map().2)
+;; _empty_/SI10194.Y#map().[B]2)
+;; _empty_/SI10194.Y#map().(f)2#
+;; _empty_/SI10194.Y#[A]2)
+;; _empty_/SI10194.Y#map().[B]20
+;#; +"_empty_/SI10194.Y#map().(ordering)2"
+;-; 5scala/math/Ordering#2)
+;6; 7_empty_/SI10194.Y#map().[B]2
+;;; ?scala/Unit#2 
+>> 	_empty_/SI10194.Z#2+
+>	> 	_empty_/SI10194.Z#`<init>`().2 
+>> _empty_/SI10194.Y#2#
+>> _empty_/SI10194.Z#[A]2#
+>
+> _empty_/SI10194.Z#[A]2&
+@@ _empty_/SI10194.Y#map().2 
+@	@ 
+_empty_/SI10194.Y#2
+@@ 
+scala/Int#2
+@@ local52#
+@@ $scala/Any#toString().2
+@@ local52)
+@%@ %scala/math/Ordering.String.2&
+AA _empty_/SI10194.Y#map().2 
+A	A 
+_empty_/SI10194.Z#2
+AA 
+scala/Int#2
+AA local62#
+AA $scala/Any#toString().2
+AA local62)
+A%A %scala/math/Ordering.String.2
+EE 
+_empty_/A#2#
+E
+E 
+_empty_/A#`<init>`().2
+EE _empty_/A#map().2!
+EE _empty_/A#map().[T]2!
+EE _empty_/A#map().(f)2
+EE 
+scala/Int#2!
+EE  _empty_/A#map().[T]2
+E#E 'scala/Unit#2
+FF 
+_empty_/B.2
+FF 
+_empty_/A#2!
+GG _empty_/B.noover().2$
+GG _empty_/B.noover().(f)2
+GG _empty_/SAM#2
+GG 
+scala/Int#2
+GG 
+scala/Any#2
+G G $scala/Unit#2
+HH 	_empty_/B.map().2!
+H
+H _empty_/B.map().[T]2!
+H%H &_empty_/B.map().(f)2
+H(H +
+scala/Int#2!
+H/H 0_empty_/B.map().[T]2%
+HH #scala/reflect/ClassTag#2
+HH scala/reflect/2
+HH scala/2!
+H#H #_empty_/B.map().[T]2
+H3H 7scala/Unit#2
+II _empty_/B.f().2
+II 	_empty_/B.f().(x)2
+II 
+scala/Int#2
+II _empty_/B.f().(x)2!
+JJ _empty_/B.noover().2
+J	J 
+_empty_/B.f().2
+J	J 	local72!
+KK _empty_/B.noover().2&
+K	K scala/Predef.identity().2
+K	K 	local82
+LL _empty_/B.map().2
+LL _empty_/B.f().2
+LL local92-
+LL scala/reflect/ClassTag.apply().2
+MM _empty_/B.map().2&
+MM scala/Predef.identity().2
+MM local102-
+MM scala/reflect/ClassTag.apply().2
+P	P 
+_empty_/B.t.2
+PP _empty_/B.t.f().2!
+PP _empty_/B.t.f().(x)2
+PP 
+scala/Int#2
+PP  
+scala/Int#2
+P#P &
+scala/Int#2 
+P0P 1_empty_/B.t.f(+1).2#
+P2P 3_empty_/B.t.f(+1).(y)2"
+P5P ;scala/Predef.String#2
+P?P B
+scala/Int#2"
+PEP Kscala/Predef.String#2
+QQ 	_empty_/B.fun().2!
+Q
+Q _empty_/B.fun().(x)2
+QQ 
+scala/Int#2!
+QQ _empty_/B.fun().(x)2
+RR 
+_empty_/B.fun2().2"
+RR _empty_/B.fun2().[T]2
+RR local112"
+RR _empty_/B.fun2().[T]2
+SS _empty_/B.t.f().2
+SS _empty_/B.t.2
+SS 	_empty_/B.fun().2
+SS local122
+XX 	_empty_/SAM#2%
+X	X 	_empty_/SAM#`<init>`().2
+XX _empty_/SAM#[T]2
+XX _empty_/SAM#[R]2"
+XX _empty_/SAM#apply().2%
+XX _empty_/SAM#apply().(x)2
+X!X "_empty_/SAM#[T]2
+X%X &_empty_/SAM#[R]2
+YY _empty_/A2#2$
+YY _empty_/A2#`<init>`().2
+YY _empty_/A2#map().2"
+YY _empty_/A2#map().[T]2"
+YY _empty_/A2#map().(f)2
+YY _empty_/SAM#2
+YY  
+scala/Int#2"
+Y"Y #_empty_/A2#map().[T]2
+Y'Y +scala/Unit#2
+ZZ 	_empty_/B2.2
+ZZ _empty_/A2#2"
+[[ _empty_/B2.noover().2%
+[[ _empty_/B2.noover().(f)2
+[[ _empty_/SAM#2
+[[ 
+scala/Int#2
+[[ 
+scala/Any#2
+[ [ $scala/Unit#2
+\\ 	_empty_/B2.map().2"
+\
+\ _empty_/B2.map().[T]2"
+\%\ &_empty_/B2.map().(f)2
+\(\ +_empty_/SAM#2
+\,\ /
+scala/Int#2"
+\1\ 2_empty_/B2.map().[T]2%
+\\ #scala/reflect/ClassTag#2
+\\ scala/reflect/2
+\\ scala/2"
+\#\ #_empty_/B2.map().[T]2
+\6\ :scala/Unit#2
+]] _empty_/B2.f().2 
+]] 	_empty_/B2.f().(x)2
+]] 
+scala/Int#2 
+]] _empty_/B2.f().(x)2"
+^^ _empty_/B2.noover().2
+^	^ 
+_empty_/B2.f().2
+^	^ 	local132"
+__ _empty_/B2.noover().2&
+_	_ scala/Predef.identity().2
+_	_ 	local142
+`` _empty_/B2.map().2
+`` _empty_/B2.f().2
+`` local152-
+`` scala/reflect/ClassTag.apply().2
+d	d 
+_empty_/B2.t.2
+dd _empty_/B2.t.f().2"
+dd _empty_/B2.t.f().(x)2
+dd _empty_/SAM#2
+dd 
+scala/Int#2
+dd "
+scala/Int#2
+d&d )
+scala/Int#2!
+d3d 4_empty_/B2.t.f(+1).2$
+d5d 6_empty_/B2.t.f(+1).(y)2
+d8d ;_empty_/SAM#2"
+d<d Bscala/Predef.String#2
+dDd G
+scala/Int#2"
+dKd Qscala/Predef.String#2
+ee 	_empty_/B2.fun().2"
+e
+e _empty_/B2.fun().(x)2
+ee 
+scala/Int#2"
+ee _empty_/B2.fun().(x)2 
+ff 
+_empty_/B2.fun2().2#
+ff _empty_/B2.fun2().[T]2
+ff local162#
+ff _empty_/B2.fun2().[T]2
+gg _empty_/B2.t.f().2
+gg _empty_/B2.t.2
+gg 	_empty_/B2.fun().2
+gg local17PZ 430F0D381AE8BD0700EB4EE8ABA42255

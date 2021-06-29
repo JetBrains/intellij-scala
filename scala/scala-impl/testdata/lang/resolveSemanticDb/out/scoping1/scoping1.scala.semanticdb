@@ -1,0 +1,47 @@
+
+¶	tests/pos/scoping1.scala*
+_empty_/This.
+ *This€*
+_empty_/This.A#*A€*,
+_empty_/This.A#`<init>`(). €@*<init>€*#
+_empty_/This.A#foo(). *foo€*
+_empty_/This.C# *C€*,
+_empty_/This.C#`<init>`(). €@*<init>€*
+local0*self€*!
+_empty_/This.C#bar().*bar€*
+_empty_/This.D#*D€*,
+_empty_/This.D#`<init>`(). €@*<init>€*!
+_empty_/This.D#foo().*foo€*
+_empty_/This.c. €*c€2
+ _empty_/This.2
+ 
+scala/App#2
+ 	_empty_/This.A#2(
+ _empty_/This.A#`<init>`().2#
+ _empty_/This.A#foo().2
+ scala/Unit#2
+ _empty_/This.C#2(
+ _empty_/This.C#`<init>`().2
+ local02
+ _empty_/This.A#2#
+ _empty_/This.C#bar().2#
+ _empty_/This.A#foo().2
+ 	_empty_/This.D#2(
+ _empty_/This.D#`<init>`().2(
+ _empty_/This.C#`<init>`().2
+ _empty_/This.C#2
+ _empty_/This.A#2#
+ _empty_/This.D#foo().2
+
+
+ _empty_/This.c.2
+
+	
+ 
+_empty_/This.C#2(
+
+
+ _empty_/This.D#`<init>`().2
+
+
+ _empty_/This.D#PZ B670D957239F094279F1E7C19AA81CEE

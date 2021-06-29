@@ -1,0 +1,40 @@
+
+ötests/pos/z1730.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*
+_empty_/X#[R]	*R€*
+_empty_/X#xx().*xx€*$
+_empty_/X#xx().(value)*value€**
+_empty_/X#xx().(addTweak)*addTweak€*.
+_empty_/X#xx$default$2().*xx$default$2€*
+_empty_/Boo#*Boo€*)
+_empty_/Boo#`<init>`(). €@*<init>€* 
+_empty_/Boo#toX().  *toX€*
+_empty_/Boo#toX().[R]	*R€*
+_empty_/Boo#toX().(v)*v€* 
+_empty_/Boo#goo2().*goo2€2
+ 
+_empty_/X#2#
+ _empty_/X#`<init>`().2
+ 	_empty_/X#[R]2
+ _empty_/X#xx().2$
+	 _empty_/X#xx().(value)2
+ _empty_/X#[R]2'
+ _empty_/X#xx().(addTweak)2
+  'scala/Boolean#2
+ 	_empty_/Boo#2%
+ _empty_/Boo#`<init>`().2 
+ _empty_/Boo#toX().2#
+ _empty_/Boo#toX().[R]2#
+ _empty_/Boo#toX().(v)2#
+ _empty_/Boo#toX().[R]2
+ 
+_empty_/X#2#
+  !_empty_/Boo#toX().[R]2!
+		 
+_empty_/Boo#goo2().2
+		 scala/Unit#2 
+
+
+ _empty_/Boo#toX().PZ 1CC12612FACF5F4CF19B6FFD8BE65A64

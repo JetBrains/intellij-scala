@@ -1,0 +1,95 @@
+
+Étests/pos/i6693.scala*,
+towers/computes/Computes# *Computes€*6
+$towers/computes/Computes#`<init>`(). €@*<init>€*&
+towers/computes/Computes#[T]	*T€*,
+towers/computes/Computes.
+ *Computes€*/
+ towers/computes/Computes.Opaque#*Opaque€*-
+#towers/computes/Computes.Opaque#[T]	*T€*K
+.towers/computes/Computes.ComputesApplication1#*ComputesApplication1€*K
+9towers/computes/Computes.ComputesApplication1#`<init>`(). €@*<init>€*H
+=towers/computes/Computes.ComputesApplication1#`<init>`().(fn)*fn€*;
+1towers/computes/Computes.ComputesApplication1#[T]	*T€*?
+1towers/computes/Computes.ComputesApplication1#fn. €*fn€*D
+6towers/computes/Computes.ComputesApplication1#apply().*apply€*C
+9towers/computes/Computes.ComputesApplication1#apply().[A]	*A€*I
+<towers/computes/Computes.ComputesApplication1#apply().(arg1)*arg1€*O
+0towers/computes/Computes.ComputesApplication1(). (*ComputesApplication1€*=
+3towers/computes/Computes.ComputesApplication1().[T]	*T€*?
+4towers/computes/Computes.ComputesApplication1().(fn)*fn€*Q
+<towers/computes/Computes.ComputesApplication1().(evidence$1)  *
+evidence$1€*+
+towers/computes/Computes.let().*let€*,
+"towers/computes/Computes.let().[V]	*V€*,
+"towers/computes/Computes.let().[T]	*T€*4
+&towers/computes/Computes.let().(value)*value€*2
+%towers/computes/Computes.let().(body)*body€2
+ towers/computes/2
+ towers/2
+ scala/quoted/2'
+ towers/computes/Computes#22
+ $towers/computes/Computes#`<init>`().2*
+  towers/computes/Computes#[T]2'
+ towers/computes/Computes.2.
+  towers/computes/Computes.Opaque#21
+ #towers/computes/Computes.Opaque#[T]2
+ 
+scala/Int#2<
+
+
+ %.towers/computes/Computes.ComputesApplication1#2G
+
+%
+ %9towers/computes/Computes.ComputesApplication1#`<init>`().2'
+
+5
+ =towers/computes/Computes#2.
+
+>
+ D towers/computes/Computes.Opaque#2?
+
+E
+ F1towers/computes/Computes.ComputesApplication1#[T]2 
+
+*
+ .scala/quoted/Type#2?
+
+.
+ .1towers/computes/Computes.ComputesApplication1#[T]2?
+
+&
+ '1towers/computes/Computes.ComputesApplication1#[T]2?
+
+0
+ 21towers/computes/Computes.ComputesApplication1#fn.2D
+ 6towers/computes/Computes.ComputesApplication1#apply().2G
+ 9towers/computes/Computes.ComputesApplication1#apply().[A]2J
+ <towers/computes/Computes.ComputesApplication1#apply().(arg1)2'
+  towers/computes/Computes#2G
+! "9towers/computes/Computes.ComputesApplication1#apply().[A]2'
+' /towers/computes/Computes#2?
+0 11towers/computes/Computes.ComputesApplication1#[T]2#
+5 8scala/Predef.`???`().2>
+
+
+ 0towers/computes/Computes.ComputesApplication1().2-
+ 	towers/computes/Computes.let().20
+
+ "towers/computes/Computes.let().[V]20
+ "towers/computes/Computes.let().[T]24
+ &towers/computes/Computes.let().(value)2'
+ 'towers/computes/Computes#20
+( )"towers/computes/Computes.let().[V]23
+, 0%towers/computes/Computes.let().(body)2'
+3 ;towers/computes/Computes#2.
+< B towers/computes/Computes.Opaque#20
+C D"towers/computes/Computes.let().[T]2 
+ scala/quoted/Type#20
+ "towers/computes/Computes.let().[T]2'
+J Rtowers/computes/Computes#20
+S T"towers/computes/Computes.let().[T]2D
+\ \6towers/computes/Computes.ComputesApplication1#apply().2>
+X X0towers/computes/Computes.ComputesApplication1().23
+X \%towers/computes/Computes.let().(body)24
+] b&towers/computes/Computes.let().(value)PZ 007DC4D9AD45289685621EB1080B3EC4

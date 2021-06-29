@@ -1,0 +1,196 @@
+
+´1tests/pos/i1047.scala*
+hello/world.
+ *world€*0
+hello/world.AnimalPackage#*AnimalPackage€*7
+%hello/world.AnimalPackage#`<init>`(). €@*<init>€*0
+!hello/world.AnimalPackage#Animal#*Animal€*2
+"hello/world.AnimalPackage#AnimalU#*AnimalU€*
+local0 „*age€*:
+&hello/world.AnimalPackage#newAnimal(). *	newAnimal€*3
+)hello/world.AnimalPackage#newAnimal().(a)*a€*@
+)hello/world.AnimalPackage#newSubAnimal(). *newSubAnimal€*6
+,hello/world.AnimalPackage#newSubAnimal().[T]	*T€*6
+,hello/world.AnimalPackage#newSubAnimal().(a)*a€*
+hello/world.p. €*p€*
+local1 *$anon€*
+local2*p€*
+local3*Animal€*
+local4*	newAnimal€*
+local5*a€*
+local6*newSubAnimal€*
+local7	*T€*
+local8*a€*%
+hello/world.lambda. €*lambda€*
+local9 *$anon€*
+local10 €*age€**
+hello/world.CatPackage#*
+CatPackage€*4
+"hello/world.CatPackage#`<init>`(). €@*<init>€*
+local11*pc€*'
+hello/world.CatPackage#Cat#*Cat€*1
+ hello/world.CatPackage#CatDelta#*CatDelta€*
+local12 „*meow€*)
+hello/world.CatPackage#CatU#*CatU€*1
+ hello/world.CatPackage#newCat(). *newCat€*-
+#hello/world.CatPackage#newCat().(c)*c€*7
+#hello/world.CatPackage#newSubCat(). *	newSubCat€*0
+&hello/world.CatPackage#newSubCat().[T]	*T€*0
+&hello/world.CatPackage#newSubCat().(c)*c€*
+hello/world.pc. €*pc€*
+local13 *$anon€*
+local14*pc€*
+local15*Cat€*
+local16*newCat€*
+local17*c€*
+local18*	newSubCat€*
+local19	*T€*
+local20*c€*#
+hello/world.felix. €*felix€*
+local21 *$anon€*
+local22 €*age€*
+local23 €*meow€2
+ hello/2
+ hello/world.2
+ 
+scala/App#2'
+ 	scala/Predef.println(+1).2(
+ hello/world.AnimalPackage#23
+ %hello/world.AnimalPackage#`<init>`().2/
+	 !hello/world.AnimalPackage#Animal#20
+ "hello/world.AnimalPackage#AnimalU#20
+	 "hello/world.AnimalPackage#AnimalU#2
+ local02
+ !
+scala/Int#24
+ &hello/world.AnimalPackage#newAnimal().27
+ )hello/world.AnimalPackage#newAnimal().(a)20
+ "hello/world.AnimalPackage#AnimalU#2/
+ %!hello/world.AnimalPackage#Animal#27
+		 )hello/world.AnimalPackage#newSubAnimal().2:
+		 ,hello/world.AnimalPackage#newSubAnimal().[T]2:
+		 ,hello/world.AnimalPackage#newSubAnimal().(a)2
+	#	 $
+scala/`&`#20
+		 ""hello/world.AnimalPackage#AnimalU#2:
+	%	 &,hello/world.AnimalPackage#newSubAnimal().[T]2
+	0	 1
+scala/`&`#2/
+	)	 /!hello/world.AnimalPackage#Animal#2:
+	2	 3,hello/world.AnimalPackage#newSubAnimal().[T]2
+ hello/world.p.2(
+	 hello/world.AnimalPackage#2
+ local12(
+ *hello/world.AnimalPackage#2
+- .local22
+	 local320
+ "hello/world.AnimalPackage#AnimalU#2
+ local42
+ local520
+ %"hello/world.AnimalPackage#AnimalU#2
+( .local32
+1 2local52
+ local62
+ local72
+! "local82
+, -
+scala/`&`#20
+$ +"hello/world.AnimalPackage#AnimalU#2
+. /local72
+9 :
+scala/`&`#2
+2 8local32
+; <local72
+? @local82!
+ hello/world.lambda.2/
+ !hello/world.AnimalPackage#Animal#2
+ hello/world.p.24
+ $&hello/world.AnimalPackage#newAnimal().2
+ hello/world.p.2
+% %local92
+/ 2local102%
+ hello/world.CatPackage#20
+ "hello/world.CatPackage#`<init>`().2
+ local112)
+	 hello/world.CatPackage#Cat#2
+ 
+scala/`&`#2/
+ !hello/world.AnimalPackage#Animal#2
+ hello/world.p.2.
+ & hello/world.CatPackage#CatDelta#2%
+ hello/world.CatPackage#2.
+	  hello/world.CatPackage#CatDelta#2
+ local122
+  #
+scala/Int#2*
+	 hello/world.CatPackage#CatU#2
+ 
+scala/`&`#20
+ "hello/world.AnimalPackage#AnimalU#2
+ hello/world.p.2.
+ ' hello/world.CatPackage#CatDelta#2%
+ hello/world.CatPackage#2.
+  hello/world.CatPackage#newCat().21
+ #hello/world.CatPackage#newCat().(c)2*
+ hello/world.CatPackage#CatU#2)
+ hello/world.CatPackage#Cat#21
+ #hello/world.CatPackage#newSubCat().24
+ &hello/world.CatPackage#newSubCat().[T]24
+ &hello/world.CatPackage#newSubCat().(c)2
+ 
+scala/`&`#2*
+ hello/world.CatPackage#CatU#24
+  &hello/world.CatPackage#newSubCat().[T]2
+' (
+scala/`&`#2)
+# &hello/world.CatPackage#Cat#24
+) *&hello/world.CatPackage#newSubCat().[T]2
+ hello/world.pc.2%
+
+ hello/world.CatPackage#2
+ local132%
+ %hello/world.CatPackage#2
+( *local142
+	 local152
+ 
+scala/`&`#2/
+ !hello/world.AnimalPackage#Animal#2
+ hello/world.p.2.
+ % hello/world.CatPackage#CatDelta#2
+ local132
+ local162
+ local172*
+ hello/world.CatPackage#CatU#2
+ local1527
+! -)hello/world.AnimalPackage#newSubAnimal().2
+  hello/world.p.2.
+1 9 hello/world.CatPackage#CatDelta#2
+. 0local132
+; <local172
+ local182
+ local192
+ local202
+ 
+scala/`&`#2*
+ hello/world.CatPackage#CatU#2
+  local192
+' (
+scala/`&`#2
+# &local152
+) *local1927
+/ ;)hello/world.AnimalPackage#newSubAnimal().2
+- .hello/world.p.2
+H I
+scala/`&`#2.
+? G hello/world.CatPackage#CatDelta#2
+< >local132
+J Klocal192
+M Nlocal202 
+ hello/world.felix.2)
+ hello/world.CatPackage#Cat#2
+ hello/world.pc.2.
+  hello/world.CatPackage#newCat().2
+ hello/world.pc.2
+   local212
+* -local222
+7 ;local23PZ 796433053757047978ECE2C80FBAE6CC

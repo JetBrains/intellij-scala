@@ -1,0 +1,26 @@
+
+¡#tests/pos/wildcardInInfixType.scala*:
+_empty_/wildcardInInfixType.
+ *wildcardInInfixType€*7
+$_empty_/wildcardInInfixType.useless. €*useless€*
+local0*x€*;
+&_empty_/wildcardInInfixType.pointless. €*	pointless€*
+local1*x€*5
+#_empty_/wildcardInInfixType.answer. €*answer€2&
+ _empty_/wildcardInInfixType.22
+ $_empty_/wildcardInInfixType.useless.2
+ local02
+ 
+scala/Int#24
+ &_empty_/wildcardInInfixType.pointless.2
+ 
+scala/Int#2
+$ %local12
+' *
+scala/Int#21
+ #_empty_/wildcardInInfixType.answer.2#
+ scala/package.Either#2
+ 
+scala/Int#2&
+! !scala/util/Left.apply().2!
+ !scala/package.Left.PZ D2CD18E77529A0335239CAA8837D0BEB

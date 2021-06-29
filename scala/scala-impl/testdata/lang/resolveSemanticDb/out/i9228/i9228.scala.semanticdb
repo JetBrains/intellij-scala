@@ -1,0 +1,75 @@
+
+†tests/pos/i9228.scala*
+_empty_/ABug.
+ *ABug€*!
+_empty_/ABug.Graph#*Graph€*0
+_empty_/ABug.Graph#`<init>`(). €@*<init>€*%
+_empty_/ABug.Graph#Node#*Node€*5
+#_empty_/ABug.Graph#Node#`<init>`(). €@*<init>€*!
+_empty_/ABug.ltol().*ltol€*!
+_empty_/ABug.ltol().[O]	*O€*#
+_empty_/ABug.ltol().(tb)*tb€*#
+_empty_/ABug.gtoll().*gtoll€*$
+_empty_/ABug.gtoll().(g)  *g€*#
+_empty_/ABug.graph.
+ *graph€*:
+_empty_/ABug.given_graph_type. è*given_graph_type€* 
+_empty_/ABug.osq. €*osq€*
+_empty_/ABug.r. €*r€*
+_empty_/ABug.q. €*q€2
+ _empty_/ABug.2!
+ _empty_/ABug.Graph#2,
+ _empty_/ABug.Graph#`<init>`().2&
+ _empty_/ABug.Graph#Node#21
+ #_empty_/ABug.Graph#Node#`<init>`().2"
+ 
+_empty_/ABug.ltol().2%
+ _empty_/ABug.ltol().[O]2&
+ _empty_/ABug.ltol().(tb)2!
+ scala/package.List#2%
+ _empty_/ABug.ltol().[O]2!
+  scala/package.List#2%
+! "_empty_/ABug.ltol().[O]2#
+& )scala/Predef.`???`().2#
+ _empty_/ABug.gtoll().2&
+ _empty_/ABug.gtoll().(g)2!
+ _empty_/ABug.Graph#2!
+ !scala/package.List#2!
+" &scala/package.List#2&
+) -_empty_/ABug.Graph#Node#2&
+' (_empty_/ABug.gtoll().(g)2#
+2 5scala/Predef.`???`().2!
+	 _empty_/ABug.graph.2,
+ _empty_/ABug.Graph#`<init>`().2!
+ _empty_/ABug.Graph#2!
+			 _empty_/ABug.graph.2,
+
+
+ _empty_/ABug.given_graph_type.2!
+
+
+ _empty_/ABug.graph.2!
+
+
+ _empty_/ABug.graph.2
+ 	_empty_/ABug.osq.2!
+ scala/package.List#2!
+ scala/package.List#2&
+ _empty_/ABug.Graph#Node#2#
+ #_empty_/ABug.gtoll().2,
+# #_empty_/ABug.given_graph_type.2
+ _empty_/ABug.r.2!
+	 scala/package.List#2!
+ scala/package.List#2
+ 
+scala/Any#2"
+  _empty_/ABug.ltol().2#
+! &_empty_/ABug.gtoll().2,
+& &_empty_/ABug.given_graph_type.2
+ _empty_/ABug.q.2!
+	 scala/package.List#2!
+ scala/package.List#2&
+ _empty_/ABug.Graph#Node#2"
+  _empty_/ABug.ltol().2#
+! &_empty_/ABug.gtoll().2,
+& &_empty_/ABug.given_graph_type.PZ 9E21A7F623467A91EE228B8CA5BB5692

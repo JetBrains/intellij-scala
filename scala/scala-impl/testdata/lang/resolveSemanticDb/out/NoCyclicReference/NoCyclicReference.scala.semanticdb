@@ -1,0 +1,25 @@
+
+Æ!tests/pos/NoCyclicReference.scala*
+test/Iterable#*Iterable€*+
+test/Iterable#`<init>`(). €@*<init>€*
+local0*self€*
+test/Iterable#[A]	 €*A€*
+test/Iterable#CC#*CC€*
+test/Iterable#CC#[B]	*B€*
+local1*CC€*
+local2	*C€2
+ test/2
+ test/Iterable#2'
+ test/Iterable#`<init>`().2
+ local02
+ test/Iterable#[A]2
+ 	test/Iterable#CC#2"
+
+ test/Iterable#CC#[B]2
+ test/Iterable#2"
+ test/Iterable#CC#[B]2
+# %local12
+& 'local22
+0 2test/Iterable#CC#2
++ /test/Iterable#2
+3 4local2PZ CEC51AD14A2B9714FAA65EC9B32C052B

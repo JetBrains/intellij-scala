@@ -1,0 +1,61 @@
+
+“tests/pos/i801.scala*
+_empty_/T1.
+ *T1€*
+_empty_/T2.
+ *T2€*
+_empty_/T2.f().*f€2
+ 	_empty_/T1.2"
+ java/util/ArrayList.2"
+ java/util/ArrayList#2
+ 
+java/util/2
+	 java/2&
+/ 5java/util/stream/Stream.2&
+/ 5java/util/stream/Stream#2
+( .java/util/stream/2
+# '
+java/util/2
+ "java/2,
+8 ;java/util/stream/Stream#map().2,
++ .java/util/stream/Stream#map().2,
+$ *java/util/Collection#stream().2/
+! !!java/util/ArrayList#`<init>`(+1).2"
+ java/util/ArrayList#2
+ 
+java/util/2
+ 
+java/2"
+  scala/Predef.String#21
+1 6#scala/collection/StringOps#toInt().2+
+/ /scala/Predef.augmentString().2#
+> Fscala/Any#toString().2&
+I Pjava/util/stream/Stream#2"
+Q Wscala/Predef.String#2
+ 	_empty_/T2.2
+ 
+java/util/2
+	 java/2&
+' -java/util/stream/Stream.2&
+' -java/util/stream/Stream#2
+  &java/util/stream/2
+ 
+java/util/2
+ java/2
+ _empty_/T2.f().2&
+	 java/util/stream/Stream#2"
+ scala/Predef.String#2,
+h kjava/util/stream/Stream#map().2,
+[ ^java/util/stream/Stream#map().2,
+T Zjava/util/Collection#stream().2/
+: :!java/util/ArrayList#`<init>`(+2).2"
+) 2java/util/ArrayList#2
+$ (
+java/util/2
+ #java/2"
+3 9scala/Predef.String#2(
+B Hjava/util/Arrays#asList().2
+; Ajava/util/Arrays#21
+a f#scala/collection/StringOps#toInt().2+
+_ _scala/Predef.augmentString().2#
+n vscala/Any#toString().PZ F5E4C3D0681B72492B6E130E288A86B6

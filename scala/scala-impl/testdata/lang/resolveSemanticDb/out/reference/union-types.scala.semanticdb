@@ -1,0 +1,181 @@
+
+ð8%tests/pos/reference/union-types.scala*
+unionTypes/t1.
+ *t1€* 
+unionTypes/t1.Hash#*Hash€*+
+unionTypes/t1.UserName# €*UserName€*4
+"unionTypes/t1.UserName#`<init>`(). €@*<init>€*8
+(unionTypes/t1.UserName#`<init>`().(name) €*name€*,
+unionTypes/t1.UserName#name. €*name€*+
+unionTypes/t1.UserName#copy().*copy€*1
+$unionTypes/t1.UserName#copy().(name)*name€*?
+(unionTypes/t1.UserName#copy$default$1().*copy$default$1€*'
+unionTypes/t1.UserName#_1().*_1€**
+unionTypes/t1.UserName.
+ *UserName€*-
+unionTypes/t1.UserName.apply().*apply€*2
+%unionTypes/t1.UserName.apply().(name)*name€*1
+!unionTypes/t1.UserName.unapply().*unapply€*2
+&unionTypes/t1.UserName.unapply().(x$1)*x$1€*3
+"unionTypes/t1.UserName.toString().*toString€*+
+unionTypes/t1.Password# €*Password€*4
+"unionTypes/t1.Password#`<init>`(). €@*<init>€*8
+(unionTypes/t1.Password#`<init>`().(hash) €*hash€*,
+unionTypes/t1.Password#hash. €*hash€*+
+unionTypes/t1.Password#copy().*copy€*1
+$unionTypes/t1.Password#copy().(hash)*hash€*?
+(unionTypes/t1.Password#copy$default$1().*copy$default$1€*'
+unionTypes/t1.Password#_1().*_1€**
+unionTypes/t1.Password.
+ *Password€*-
+unionTypes/t1.Password.apply().*apply€*2
+%unionTypes/t1.Password.apply().(hash)*hash€*1
+!unionTypes/t1.Password.unapply().*unapply€*2
+&unionTypes/t1.Password.unapply().(x$1)*x$1€*3
+"unionTypes/t1.Password.toString().*toString€*"
+unionTypes/t1.help().*help€*$
+unionTypes/t1.help().(id)*id€*
+local0 €*user€*
+local1 €*name€*
+local2 €*hash€*.
+unionTypes/t1.lookupName().*
+lookupName€*.
+!unionTypes/t1.lookupName().(name)*name€*6
+unionTypes/t1.lookupPassword().*lookupPassword€*2
+%unionTypes/t1.lookupPassword().(hash)*hash€*
+unionTypes/t2.
+ *t2€*"
+unionTypes/t2.Admin#*Admin€*1
+unionTypes/t2.Admin#`<init>`(). €@*<init>€*(
+unionTypes/t2.UserData#*UserData€*4
+"unionTypes/t2.UserData#`<init>`(). €@*<init>€*
+unionTypes/t2.L#*L€*-
+unionTypes/t2.L#`<init>`(). €@*<init>€**
+unionTypes/t2.L#lookup(). *lookup€*.
+ unionTypes/t2.L#lookup().(admin)*admin€*+
+unionTypes/t2.UserName# €*UserName€*4
+"unionTypes/t2.UserName#`<init>`(). €@*<init>€*8
+(unionTypes/t2.UserName#`<init>`().(name) €*name€*,
+unionTypes/t2.UserName#name. €*name€*/
+ unionTypes/t2.UserName#lookup().*lookup€*5
+'unionTypes/t2.UserName#lookup().(admin)*admin€*+
+unionTypes/t2.UserName#copy().*copy€*1
+$unionTypes/t2.UserName#copy().(name)*name€*?
+(unionTypes/t2.UserName#copy$default$1().*copy$default$1€*'
+unionTypes/t2.UserName#_1().*_1€**
+unionTypes/t2.UserName.
+ *UserName€*-
+unionTypes/t2.UserName.apply().*apply€*2
+%unionTypes/t2.UserName.apply().(name)*name€*1
+!unionTypes/t2.UserName.unapply().*unapply€*2
+&unionTypes/t2.UserName.unapply().(x$1)*x$1€*3
+"unionTypes/t2.UserName.toString().*toString€*+
+unionTypes/t2.Password# €*Password€*4
+"unionTypes/t2.Password#`<init>`(). €@*<init>€*8
+(unionTypes/t2.Password#`<init>`().(hash) €*hash€*,
+unionTypes/t2.Password#hash. €*hash€*/
+ unionTypes/t2.Password#lookup().*lookup€*5
+'unionTypes/t2.Password#lookup().(admin)*admin€*+
+unionTypes/t2.Password#copy().*copy€*1
+$unionTypes/t2.Password#copy().(hash)*hash€*?
+(unionTypes/t2.Password#copy$default$1().*copy$default$1€*'
+unionTypes/t2.Password#_1().*_1€**
+unionTypes/t2.Password.
+ *Password€*-
+unionTypes/t2.Password.apply().*apply€*2
+%unionTypes/t2.Password.apply().(hash)*hash€*1
+!unionTypes/t2.Password.unapply().*unapply€*2
+&unionTypes/t2.Password.unapply().(x$1)*x$1€*3
+"unionTypes/t2.Password.toString().*toString€2
+ unionTypes/2
+ 	unionTypes/t1.2!
+ unionTypes/t1.Hash#2
+ 
+scala/Int#2%
+ unionTypes/t1.UserName#20
+ "unionTypes/t1.UserName#`<init>`().2"
+ "scala/Predef.String#2*
+ unionTypes/t1.UserName#name.2,
+ unionTypes/t1.UserName#copy().2*
+ unionTypes/t1.UserName#_1().2%
+ unionTypes/t1.UserName.2-
+ unionTypes/t1.UserName.apply().2%
+ unionTypes/t1.Password#20
+ "unionTypes/t1.Password#`<init>`().2!
+  unionTypes/t1.Hash#2*
+ unionTypes/t1.Password#hash.2,
+ unionTypes/t1.Password#copy().2*
+ unionTypes/t1.Password#_1().2%
+ unionTypes/t1.Password.2-
+ unionTypes/t1.Password.apply().2#
+		 
+unionTypes/t1.help().2'
+		 unionTypes/t1.help().(id)2
+		 
+scala/`|`#2%
+		 unionTypes/t1.UserName#2%
+		 "unionTypes/t1.Password#2
+
+
+ local02'
+
+
+ unionTypes/t1.help().(id)2/
+ !unionTypes/t1.UserName.unapply().2%
+ unionTypes/t1.UserName.2
+ local12)
+ 'unionTypes/t1.lookupName().2
+( ,local12/
+ !unionTypes/t1.Password.unapply().2%
+ unionTypes/t1.Password.2
+ local22-
+ +unionTypes/t1.lookupPassword().2
+, 0local22)
+ unionTypes/t1.lookupName().2/
+ !unionTypes/t1.lookupName().(name)2"
+ scala/Predef.String#2#
+! $scala/Predef.`???`().2-
+ unionTypes/t1.lookupPassword().23
+ %unionTypes/t1.lookupPassword().(hash)2!
+ unionTypes/t1.Hash#2#
+# &scala/Predef.`???`().2
+ 	unionTypes/t2.2
+	 unionTypes/t1.2"
+ unionTypes/t2.Admin#2-
+ unionTypes/t2.Admin#`<init>`().2%
+ unionTypes/t2.UserData#20
+ "unionTypes/t2.UserData#`<init>`().2
+ 	unionTypes/t2.L#2)
+ unionTypes/t2.L#`<init>`().2'
+ unionTypes/t2.L#lookup().2.
+  unionTypes/t2.L#lookup().(admin)2"
+ #unionTypes/t2.Admin#2
+& ,java/lang/Object#2%
+ unionTypes/t2.UserName#20
+ "unionTypes/t2.UserName#`<init>`().2"
+ "scala/Predef.String#2
+, -unionTypes/t2.L#2*
+ unionTypes/t2.UserName#name.2.
+  unionTypes/t2.UserName#lookup().25
+ 'unionTypes/t2.UserName#lookup().(admin)2"
+ unionTypes/t2.Admin#2%
+ &unionTypes/t2.UserData#2#
+) ,scala/Predef.`???`().2,
+ unionTypes/t2.UserName#copy().2*
+ unionTypes/t2.UserName#_1().2%
+ unionTypes/t2.UserName.2-
+ unionTypes/t2.UserName.apply().2%
+   unionTypes/t2.Password#20
+   "unionTypes/t2.Password#`<init>`().2!
+    unionTypes/t1.Hash#2
+ *  +unionTypes/t2.L#2*
+   unionTypes/t2.Password#hash.2.
+!!  unionTypes/t2.Password#lookup().25
+!! 'unionTypes/t2.Password#lookup().(admin)2"
+!! unionTypes/t2.Admin#2%
+!! &unionTypes/t2.UserData#2#
+!)! ,scala/Predef.`???`().2,
+   unionTypes/t2.Password#copy().2*
+   unionTypes/t2.Password#_1().2%
+   unionTypes/t2.Password.2-
+   unionTypes/t2.Password.apply().PZ CDF4410E8D43E96E701A81B22B50C661

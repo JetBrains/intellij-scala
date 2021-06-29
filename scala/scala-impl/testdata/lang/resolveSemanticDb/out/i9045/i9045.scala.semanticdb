@@ -1,0 +1,33 @@
+
+ð	tests/pos/i9045.scala*
+_empty_/Test# *Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#[F]	*F€*
+_empty_/Test.
+ *Test€*,
+_empty_/Test.Completed# ˆ*	Completed€*4
+"_empty_/Test.Completed#`<init>`(). €@*<init>€*$
+_empty_/Test.Completed#[F]	*F€*+
+_empty_/Test.Completed#copy().*copy€*+
+!_empty_/Test.Completed#copy().[F]	*F€*+
+_empty_/Test.Completed.
+ *	Completed€*-
+_empty_/Test.Completed.apply().*apply€*,
+"_empty_/Test.Completed.apply().[F]	*F€*1
+!_empty_/Test.Completed.unapply().*unapply€*.
+$_empty_/Test.Completed.unapply().[F]	*F€*2
+&_empty_/Test.Completed.unapply().(x$1)*x$1€*3
+"_empty_/Test.Completed.toString().*toString€2
+ _empty_/Test#2"
+ _empty_/Test#`<init>`().2
+ _empty_/Test#[F]2
+ _empty_/Test.2%
+ _empty_/Test.Completed#20
+ "_empty_/Test.Completed#`<init>`().2
+- 1_empty_/Test#2(
+2 3_empty_/Test.Completed#[F]2(
+ _empty_/Test.Completed#[F]2,
+ _empty_/Test.Completed#copy().2%
+ _empty_/Test.Completed.2-
+ _empty_/Test.Completed.apply().2/
+ !_empty_/Test.Completed.unapply().PZ 5D9DDA0B5DEDF9EB43451B9991FB613C

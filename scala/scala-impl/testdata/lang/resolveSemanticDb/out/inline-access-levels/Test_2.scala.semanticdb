@@ -1,0 +1,19 @@
+
+Û+tests/pos/inline-access-levels/Test_2.scala*
+
+test/Test.
+ *Test€*
+test/Test.main().*main€*$
+test/Test.main().(args)*args€2
+ test/2
+ 
+test/Test.2
+ 
+test/Test.main().2%
+ test/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ test/A.actOnX().2
+ test/A.2 
+ scala/Int#`+`(+4).PZ 62B21DF500D3182F8B18F6FDEF2FEF49

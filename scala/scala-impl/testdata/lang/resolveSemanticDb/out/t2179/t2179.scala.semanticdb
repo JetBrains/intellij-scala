@@ -1,0 +1,17 @@
+
+ötests/pos/t2179.scala*
+_empty_/Test.
+ *Test€2
+ _empty_/Test.2<
+ %.scala/collection/IterableOnceOps#reduceLeft().2 
+ scala/package.Nil.2!
+ scala/package.List#2!
+ scala/package.List#2
+ scala/Double#2
+* -
+scala/Any#2
+2 5
+scala/Any#25
+F I'scala/collection/immutable/Range#map().20
+> E"scala/collection/SeqOps#indices().2 
+: =scala/package.Nil.PZ 91FB1FF6DF88C8D458BB07ACCA9A95F0

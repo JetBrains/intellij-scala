@@ -1,0 +1,75 @@
+
+œ tests/pos/renaming-imports.scala*
+
+_empty_/O.
+ *O€*"
+_empty_/O.OString#*OString€* 
+_empty_/O.foo22().*foo22€*
+_empty_/O.foo22().(x)*x€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#s. €*s€*5
+#_empty_/`renaming-imports$package`. *_empty_€*2
+%_empty_/`renaming-imports$package`.x. €*x€*2
+%_empty_/`renaming-imports$package`.y. €*y€*7
+*_empty_/`renaming-imports$package`.test().*test€2
+ java/2
+ scala/collection/2
+ scala/2'
+	 scala/collection/mutable/2
+ scala/collection/23
+ %scala/collection/mutable/ArrayBuffer.23
+ %scala/collection/mutable/ArrayBuffer#2'
+ 
+scala/collection/mutable/2
+
+
+ 
+_empty_/O.2 
+ _empty_/O.OString#2"
+ scala/Predef.String#2 
+ _empty_/O.foo22().2#
+ _empty_/O.foo22().(x)2
+ 
+scala/Int#2#
+ _empty_/O.foo22().(x)2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+	 
+
+_empty_/O.2 
+	 _empty_/O.foo22().2
+	 
+_empty_/O.2
+	 
+_empty_/O.2(
+ "scala/collection/Iterable.2(
+ "scala/collection/Iterable#2
+ scala/collection/2
+	 scala/2'
+ 	scala/Predef.println(+1).2 
+
+ _empty_/O.foo22().2
+ _empty_/C#s.2 
+	 _empty_/O.OString#2-
+#_empty_/`renaming-imports$package`.23
+ %_empty_/`renaming-imports$package`.x.2"
+ java/io/IOException#2
+	 java/io/2
+ java/2#
+ scala/Predef.`???`().23
+ %_empty_/`renaming-imports$package`.y.27
+ )scala/collection/IterableFactory#apply().23
+ %scala/collection/mutable/ArrayBuffer.28
+ *_empty_/`renaming-imports$package`.test().2
+	 
+
+_empty_/C#2'
+ 	scala/Predef.println(+1).2
+ _empty_/C#s.2#
+ _empty_/C#`<init>`().2
+
+ 
+_empty_/C#PZ 3CEB386DE300A2EB78958FA3CA1724CE

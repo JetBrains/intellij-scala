@@ -1,0 +1,129 @@
+
+è"tests/pos/i7840.scala*"
+_empty_/Example.
+ *Example€*$
+_empty_/Example.ZSink#*ZSink€*3
+!_empty_/Example.ZSink#`<init>`(). €@*<init>€*&
+_empty_/Example.ZSink#[R]	 €*R€*&
+_empty_/Example.ZSink#[E]	 €*E€*(
+_empty_/Example.ZSink#[A0]	 €*A0€*&
+_empty_/Example.ZSink#[A]	 €*A€*&
+_empty_/Example.ZSink#[B]	 €*B€*0
+ _empty_/Example.ZSink#flatMap().*flatMap€*/
+$_empty_/Example.ZSink#flatMap().[R1]	*R1€*/
+$_empty_/Example.ZSink#flatMap().[E1]	*E1€*1
+%_empty_/Example.ZSink#flatMap().[A00]	*A00€*/
+$_empty_/Example.ZSink#flatMap().[A1]	*A1€*-
+#_empty_/Example.ZSink#flatMap().[C]	*C€*-
+#_empty_/Example.ZSink#flatMap().(f)*f€*1
+$_empty_/Example.ZSink#flatMap().(ev)  *ev€*1
+$_empty_/Example.ZSink#flatMap().(e2)  *e2€*&
+_empty_/Example.ZSink.
+ *ZSink€*2
+!_empty_/Example.ZSink.identity().*identity€*.
+$_empty_/Example.ZSink.identity().[A]	*A€*0
+ _empty_/Example.ZSink.succeed().*succeed€*-
+#_empty_/Example.ZSink.succeed().[A]	*A€*-
+#_empty_/Example.ZSink.succeed().[B]	*B€*-
+#_empty_/Example.ZSink.succeed().(b)*b€*
+local0*n€2
+ _empty_/Example.2
+ 
+scala/App#2$
+ _empty_/Example.ZSink#2/
+ !_empty_/Example.ZSink#`<init>`().2'
+ _empty_/Example.ZSink#[R]2'
+ _empty_/Example.ZSink#[E]2(
+ _empty_/Example.ZSink#[A0]2'
+ _empty_/Example.ZSink#[A]2'
+  !_empty_/Example.ZSink#[B]2.
+  _empty_/Example.ZSink#flatMap().22
+ $_empty_/Example.ZSink#flatMap().[R1]2'
+ _empty_/Example.ZSink#[R]22
+ $_empty_/Example.ZSink#flatMap().[E1]2'
+  _empty_/Example.ZSink#[E]23
+" %%_empty_/Example.ZSink#flatMap().[A00]2(
+) +_empty_/Example.ZSink#[A0]22
+- /$_empty_/Example.ZSink#flatMap().[A1]2'
+3 4_empty_/Example.ZSink#[A]21
+6 7#_empty_/Example.ZSink#flatMap().[C]21
+ #_empty_/Example.ZSink#flatMap().(f)2'
+	 
+_empty_/Example.ZSink#[B]2$
+ _empty_/Example.ZSink#22
+ $_empty_/Example.ZSink#flatMap().[R1]22
+ $_empty_/Example.ZSink#flatMap().[E1]23
+ %_empty_/Example.ZSink#flatMap().[A00]22
+! #$_empty_/Example.ZSink#flatMap().[A1]21
+% &#_empty_/Example.ZSink#flatMap().[C]22
+ $_empty_/Example.ZSink#flatMap().(ev)2
+ scala/`=:=`#23
+ %_empty_/Example.ZSink#flatMap().[A00]22
+ $_empty_/Example.ZSink#flatMap().[A1]22
+ !$_empty_/Example.ZSink#flatMap().(e2)2
+& )scala/`=:=`#22
+# %$_empty_/Example.ZSink#flatMap().[A1]23
+* -%_empty_/Example.ZSink#flatMap().[A00]2$
+0 5_empty_/Example.ZSink#22
+6 8$_empty_/Example.ZSink#flatMap().[R1]22
+: <$_empty_/Example.ZSink#flatMap().[E1]23
+> A%_empty_/Example.ZSink#flatMap().[A00]22
+C E$_empty_/Example.ZSink#flatMap().[A1]21
+G H#_empty_/Example.ZSink#flatMap().[C]2#
+ 	scala/Predef.`???`().2$
+			 _empty_/Example.ZSink.2/
+
+
+ !_empty_/Example.ZSink.identity().22
+
+
+ $_empty_/Example.ZSink.identity().[A]2$
+
+
+ _empty_/Example.ZSink#2
+
+
+ 
+scala/Any#2
+
+ 
+ $scala/Unit#2
+
+&
+ -scala/Nothing#22
+
+/
+ 0$_empty_/Example.ZSink.identity().[A]22
+
+2
+ 3$_empty_/Example.ZSink.identity().[A]2#
+
+7
+ :scala/Predef.`???`().2.
+  _empty_/Example.ZSink.succeed().21
+ #_empty_/Example.ZSink.succeed().[A]21
+ #_empty_/Example.ZSink.succeed().[B]21
+ #_empty_/Example.ZSink.succeed().(b)21
+ #_empty_/Example.ZSink.succeed().[B]2$
+ "_empty_/Example.ZSink#2
+# &
+scala/Any#2
+( /scala/Nothing#21
+1 2#_empty_/Example.ZSink.succeed().[A]21
+4 5#_empty_/Example.ZSink.succeed().[A]21
+7 8#_empty_/Example.ZSink.succeed().[B]2#
+< ?scala/Predef.`???`().2.
+  _empty_/Example.ZSink#flatMap().2/
+ !_empty_/Example.ZSink.identity().2$
+ _empty_/Example.ZSink.2
+ 
+scala/Int#2
+ local02.
+) 0 _empty_/Example.ZSink.succeed().2$
+# (_empty_/Example.ZSink.2
+1 4
+scala/Int#2"
+6 <scala/Predef.String#2#
+@ Hscala/Any#toString().2
+> ?local02!
+J Jscala/`<:<`.refl().PZ 0F69B82EF04F24D28A587CEBDC5BA61D

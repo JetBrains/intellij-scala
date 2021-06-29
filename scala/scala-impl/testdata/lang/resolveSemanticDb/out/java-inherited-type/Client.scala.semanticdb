@@ -1,0 +1,66 @@
+
+¤*tests/pos/java-inherited-type/Client.scala* 
+_empty_/Client.
+ *Client€*#
+_empty_/Client.test().*test€*
+local0 €*o€*%
+_empty_/Client.test1().*test1€*
+local1 €*t€*
+local2 €*o€2
+ _empty_/Client.2$
+ 
+_empty_/Client.test().2.
+  _empty_/Test#Outer#Nested#sig().2(
+ _empty_/Test#Outer#Nested#2!
+	 _empty_/Test#Outer#2
+ _empty_/Test#2/
+ !_empty_/Test#Outer#Nested#sig1().2(
+ _empty_/Test#Outer#Nested#2!
+	 _empty_/Test#Outer#2
+ _empty_/Test#2/
+ !_empty_/Test#Outer#Nested#sig2().2(
+ _empty_/Test#Outer#Nested#2!
+	 _empty_/Test#Outer#2
+ _empty_/Test#2
+ 	local02.
+  _empty_/Test#Outer#`<init>`(+1).2!
+ _empty_/Test#Outer#2
+ _empty_/Test#2/
+ !_empty_/Test#Outer#Nested1#sig().26
+ (_empty_/Test#Outer#Nested1#`<init>`(+1).2)
+
+ _empty_/Test#Outer#Nested1#2
+ 	local020
+ "_empty_/Test#Outer#Nested1#sig1().26
+ (_empty_/Test#Outer#Nested1#`<init>`(+1).2)
+
+ _empty_/Test#Outer#Nested1#2
+ 	local020
+ "_empty_/Test#Outer#Nested1#sig2().26
+ (_empty_/Test#Outer#Nested1#`<init>`(+1).2)
+
+ _empty_/Test#Outer#Nested1#2
+ 	local02%
+ _empty_/Client.test1().2
+ 	local12(
+ _empty_/Test#`<init>`(+1).2
+ _empty_/Test#2
+ 	local22/
+ !_empty_/Test#Outer1#`<init>`(+1).2"
+ _empty_/Test#Outer1#2
+ local120
+ "_empty_/Test#Outer1#Nested1#sig().27
+ )_empty_/Test#Outer1#Nested1#`<init>`(+1).2*
+
+ _empty_/Test#Outer1#Nested1#2
+ 	local221
+ #_empty_/Test#Outer1#Nested1#sig1().27
+ )_empty_/Test#Outer1#Nested1#`<init>`(+1).2*
+
+ _empty_/Test#Outer1#Nested1#2
+ 	local221
+ #_empty_/Test#Outer1#Nested1#sig2().27
+ )_empty_/Test#Outer1#Nested1#`<init>`(+1).2*
+
+ _empty_/Test#Outer1#Nested1#2
+ 	local2PZ E6D9C4EB0186F14481EA6C9F1B64C94D

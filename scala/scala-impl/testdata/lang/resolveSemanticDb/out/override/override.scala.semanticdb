@@ -1,0 +1,53 @@
+
+êtests/pos/override.scala*
+
+_empty_/A#*AÄ*'
+_empty_/A#`<init>`(). Ä@*<init>Ä*
+_empty_/A#f().*fÄ*
+_empty_/A#x. Ñ*xÄ*
+
+_empty_/B#*BÄ*'
+_empty_/B#`<init>`(). Ä@*<init>Ä*
+_empty_/B#f().*fÄ*
+
+_empty_/C#*CÄ*'
+_empty_/C#`<init>`(). Ä@*<init>Ä*
+_empty_/C#f().*fÄ*
+_empty_/C#a. Ñ*aÄ*
+_empty_/C#x. Ä*xÄ2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ scala/AnyRef#2
+ _empty_/A#f().2
+ _empty_/A#x.2
+	 
+
+_empty_/A#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ scala/AnyRef#2
+ _empty_/B#f().2
+		 
+_empty_/C#2#
+		 _empty_/C#`<init>`().2
+		 scala/AnyRef#2
+		 
+_empty_/A#2
+	#	 $
+_empty_/B#2
+
+
+ _empty_/C#f().2
+
+
+ _empty_/B#f().2
+ _empty_/C#a.2
+	 
+
+_empty_/A#2
+ _empty_/C#x.2
+	 
+_empty_/C#a.2
+ _empty_/C#a.PZ 98B91CBA3DCC132B6A4C62B3F275A616

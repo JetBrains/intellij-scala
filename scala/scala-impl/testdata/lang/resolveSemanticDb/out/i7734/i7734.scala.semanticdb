@@ -1,0 +1,46 @@
+
+Åtests/pos/i7734.scala*
+
+_empty_/A# ”€*A€*'
+_empty_/A#`<init>`(). €@*<init>€*"
+_empty_/A#`<init>`().(a)*a€*"
+_empty_/A#`<init>`().(t)*t€*
+_empty_/A#a. €*a€*
+_empty_/A#t. €*t€*
+
+_empty_/A.
+ *A€*
+_empty_/A.B. €©*B€*%
+_empty_/A.$values. €*$values€*"
+_empty_/A.values().*values€*$
+_empty_/A.valueOf().*valueOf€*)
+_empty_/A.valueOf().($name)*$name€*,
+_empty_/A.fromOrdinal().*fromOrdinal€*1
+!_empty_/A.fromOrdinal().(ordinal)*ordinal€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+
+ scala/Double#2
+ 
+scala/Int#2$
+4 4java/lang/Enum#`<init>`().2
+- 1java/lang/Enum#2
+( ,
+java/lang/2
+# 'java/2
+2 3
+_empty_/A#2
+ _empty_/A#a.2
+ _empty_/A#t.2
+ 
+_empty_/A.2
+	 
+_empty_/A.B.2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2 
+	 	_empty_/A.$values.2!
+	 	_empty_/A.values().2"
+	 	_empty_/A.valueOf().2&
+	 	_empty_/A.fromOrdinal().PZ A9D0F56658FB480FEFCC25053134222B

@@ -1,0 +1,98 @@
+
+çtests/pos/t6335.scala*
+
+_empty_/E.
+ *EÄ*
+_empty_/E.X().*XÄ*
+_empty_/E.X#*XÄ*)
+_empty_/E.X#`<init>`(). Ä@*<init>Ä*'
+_empty_/E.X#`<init>`().(i) Ä*iÄ*
+_empty_/E.X#i. Ä*iÄ*
+_empty_/E.X#xx().*xxÄ*
+_empty_/E.X(+1). (*XÄ*
+_empty_/E.X(+1).(i)*iÄ*
+_empty_/E.Y().*YÄ*
+_empty_/E.Y().(a)*aÄ*
+_empty_/E.Y.
+ *YÄ*
+_empty_/E.Y#*YÄ*)
+_empty_/E.Y#`<init>`(). Ä@*<init>Ä*'
+_empty_/E.Y#`<init>`().(i) Ä*iÄ*
+_empty_/E.Y#i. Ä*iÄ*
+_empty_/E.Y#yy().*yyÄ*
+_empty_/E.Y(+1). (*YÄ*
+_empty_/E.Y(+1).(i)*iÄ*
+_empty_/E.Z#*ZÄ*)
+_empty_/E.Z#`<init>`(). Ä@*<init>Ä*'
+_empty_/E.Z#`<init>`().(i) Ä*iÄ*
+_empty_/E.Z#i. Ä*iÄ*
+_empty_/E.Z#zz().*zzÄ*
+_empty_/E.Z(). (*ZÄ*
+_empty_/E.Z().(i)*iÄ*
+
+_empty_/Z#*ZÄ*'
+_empty_/Z#`<init>`(). Ä@*<init>Ä*
+_empty_/Z#Z().*ZÄ*
+_empty_/Test.
+ *TestÄ2
+ 
+_empty_/E.2
+ 
+_empty_/Z#2
+ _empty_/E.X().2
+ _empty_/E.X#2%
+ _empty_/E.X#`<init>`().2
+ 
+scala/Int#2
+ _empty_/E.X#i.2
+ 
+_empty_/E.X#xx().2
+ _empty_/E.X#i.2
+ _empty_/E.X(+1).2
+ _empty_/E.Y().2
+ 	_empty_/E.Y().(a)2
+ 
+scala/Any#2
+	 
+_empty_/E.Y.2
+ _empty_/E.Y#2%
+ _empty_/E.Y#`<init>`().2"
+  scala/Predef.String#2
+ _empty_/E.Y#i.2
+( *_empty_/E.Y#yy().2
+- ._empty_/E.Y#i.2
+ _empty_/E.Y(+1).2
+
+
+ _empty_/E.Z#2%
+
+
+ _empty_/E.Z#`<init>`().2
+
+
+ !scala/Boolean#2
+
+
+ _empty_/E.Z#i.2
+
+)
+ +_empty_/E.Z#zz().2
+
+.
+ /_empty_/E.Z#i.2
+
+
+ _empty_/E.Z().2
+ 
+_empty_/Z#2#
+ _empty_/Z#`<init>`().2
+ 	_empty_/Z#Z().2
+ _empty_/Test.2
+ 
+_empty_/E.2
+ _empty_/E.X#xx().2
+ _empty_/E.X(+1).2
+ 	_empty_/E.Y#yy().2
+ _empty_/E.Y(+1).2
+	 _empty_/E.Z#zz().2
+ _empty_/E.Z().PZ F31F796A1553A2334F9A0F372A1B5066

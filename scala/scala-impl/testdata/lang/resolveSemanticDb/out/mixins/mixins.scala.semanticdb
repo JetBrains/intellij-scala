@@ -1,0 +1,76 @@
+
+ëtests/pos/mixins.scala*
+mixins/Super# *Super€**
+mixins/Super#`<init>`(). €@*<init>€*!
+mixins/Super#foo(). *foo€*
+mixins/Mixin#*Mixin€**
+mixins/Mixin#`<init>`(). €@*<init>€*
+mixins/Mixin#foo().*foo€*!
+mixins/MixinSub#*MixinSub€*-
+mixins/MixinSub#`<init>`(). €@*<init>€*"
+mixins/MixinSub#foo().*foo€*'
+mixins/MixinSubSub#*MixinSubSub€*0
+mixins/MixinSubSub#`<init>`(). €@*<init>€*%
+mixins/MixinSubSub#foo().*foo€*
+mixins/Sub#*Sub€*(
+mixins/Sub#`<init>`(). €@*<init>€*
+mixins/Sub#foo().*foo€*
+mixins/Base#*Base€*)
+mixins/Base#`<init>`(). €@*<init>€*
+mixins/Base#foo().*foo€*
+mixins/Mixin1#*Mixin1€*+
+mixins/Mixin1#`<init>`(). €@*<init>€*
+mixins/Base1#*Base1€**
+mixins/Base1#`<init>`(). €@*<init>€2
+ mixins/2
+ mixins/Super#2&
+ mixins/Super#`<init>`().2!
+ 	mixins/Super#foo().2
+ 
+scala/Int#2
+ mixins/Mixin#2&
+ mixins/Mixin#`<init>`().2
+ mixins/Super#2!
+ mixins/Mixin#foo().2!
+$ 'mixins/Super#foo().2
+ mixins/MixinSub#2)
+ mixins/MixinSub#`<init>`().2
+ mixins/Super#2
+" 'mixins/Mixin#2$
+ mixins/MixinSub#foo().2
+  
+scala/Int#2!
+) ,mixins/Mixin#foo().2!
+
+
+ mixins/MixinSubSub#2,
+
+
+ mixins/MixinSubSub#`<init>`().2
+
+
+ "mixins/MixinSub#2'
+ mixins/MixinSubSub#foo().2$
+$ 'mixins/MixinSub#foo().2
+ 	mixins/Sub#2$
+ mixins/Sub#`<init>`().2&
+ mixins/Super#`<init>`().2
+ mixins/Super#2
+ 	mixins/Sub#foo().2
+ 
+scala/Int#2
+ 
+mixins/Base#2%
+ mixins/Base#`<init>`().2$
+ mixins/Sub#`<init>`().2
+ mixins/Sub#2!
+ 'mixins/MixinSubSub#2 
+ mixins/Base#foo().2'
+ mixins/MixinSubSub#foo().2
+ mixins/Mixin1#2'
+ mixins/Mixin1#`<init>`().2
+ mixins/Sub#2!
+ )mixins/MixinSubSub#2
+ mixins/Base1#2&
+ mixins/Base1#`<init>`().2
+ mixins/Mixin1#PZ 87B5C632359C2A05A4FDB40B9F99A53D

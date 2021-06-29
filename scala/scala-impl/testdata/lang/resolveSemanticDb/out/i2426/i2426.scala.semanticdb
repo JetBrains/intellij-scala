@@ -1,0 +1,167 @@
+
+Þtests/pos/i2426.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€*
+_empty_/Foo#x. €*x€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*$
+_empty_/Bar#`<init>`().(x)*x€*
+_empty_/Bar#x. €*x€*
+_empty_/Baz1#*Baz1€**
+_empty_/Baz1#`<init>`(). €@*<init>€*'
+_empty_/Baz1#`<init>`().(c)  *c€*
+_empty_/Baz1#c.  *c€*
+_empty_/Baz2#*Baz2€**
+_empty_/Baz2#`<init>`(). €@*<init>€*'
+_empty_/Baz2#`<init>`().(c)  *c€*
+_empty_/Baz2#c.  *c€*
+_empty_/Baz3#*Baz3€**
+_empty_/Baz3#`<init>`(). €@*<init>€*'
+_empty_/Baz3#`<init>`().(c)  *c€*
+_empty_/Baz3#c.  *c€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.c.  *c€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*$
+_empty_/D#`<init>`().(x)  *x€*
+_empty_/D#x.  *x€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/obj.
+ *obj€*
+_empty_/ann#*ann€*)
+_empty_/ann#`<init>`(). €@*<init>€*$
+_empty_/ann#`<init>`().(x)*x€*$
+_empty_/ann#`<init>`().(y)*y€*$
+_empty_/ann#`<init>`().(s)*s€*
+_empty_/ann#x. €*x€*
+_empty_/ann#y. €*y€*
+_empty_/ann#s. €*s€*
+_empty_/Bam#*Bam€*)
+_empty_/Bam#`<init>`(). €@*<init>€*$
+_empty_/Bam#`<init>`().(n)*n€*
+_empty_/Bam#n. €*n€*
+_empty_/Foo2#*Foo2€**
+_empty_/Foo2#`<init>`(). €@*<init>€*'
+_empty_/Foo2#`<init>`().(id)*id€*
+_empty_/Foo2#id. €*id€2
+ 	_empty_/Foo#2
+ scala/deprecated#2!
+	 	_empty_/Foo#`<init>`().2
++ .
+scala/Int#2
+( )_empty_/Foo#x.2
+ 	_empty_/Bar#2
+ scala/deprecated#2%
+	 	_empty_/Bar#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Bar#x.2
+ 
+_empty_/Baz1#2
+ scala/deprecated#2&
+
+ 
+_empty_/Baz1#`<init>`().2
+# $
+_empty_/C#2
+  !_empty_/Baz1#c.2
+ 
+_empty_/Baz2#2
+ scala/deprecated#2&
+
+ 
+_empty_/Baz2#`<init>`().2
+% &
+_empty_/C#2
+" #_empty_/Baz2#c.2
+ 
+_empty_/Baz3#2
+ scala/deprecated#2&
+
+ 
+_empty_/Baz3#`<init>`().2
+' (
+_empty_/C#2
+$ %_empty_/Baz3#c.2
+ _empty_/Test.2
+		 _empty_/Test.c.2
+		 
+_empty_/C#2
+		 _empty_/obj.2&
+
+
+
+ 
+_empty_/Baz1#`<init>`().2
+
+
+ 
+_empty_/Baz1#2
+
+
+
+ 
+_empty_/Test.c.2&
+
+ 
+_empty_/Baz2#`<init>`().2
+ 
+_empty_/Baz2#2
+
+ 
+_empty_/Test.c.2&
+
+ 
+_empty_/Baz3#`<init>`().2
+ 
+_empty_/Baz3#2
+ _empty_/Test.c.2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/D#x.2
+ 
+_empty_/C#2
+_empty_/C#`<init>`().2
+ 
+_empty_/obj.2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 	_empty_/ann#2%
+	 	_empty_/ann#`<init>`().2
+ 
+_empty_/C#2
+ 
+_empty_/C#2"
+ scala/Predef.String#2*
+: Dscala/annotation/Annotation#2
+/ 9scala/annotation/2
+) .scala/2
+
+ _empty_/ann#x.2
+ _empty_/ann#y.2
+ _empty_/ann#s.2
+ 	_empty_/Bam#2
+ _empty_/ann#2
+ _empty_/obj.2
+ _empty_/obj.2%
+	 	_empty_/Bam#`<init>`().2"
+! 'scala/Predef.String#2
+ _empty_/Bam#n.2
+ 
+_empty_/Foo2#2
+ scala/deprecated#2&
+
+ 
+_empty_/Foo2#`<init>`().2
+ %scala/deprecated#2"
+, 2scala/Predef.String#2
+( *_empty_/Foo2#id.PZ 55C4631016CEA3990A1DEE4947B83FE2

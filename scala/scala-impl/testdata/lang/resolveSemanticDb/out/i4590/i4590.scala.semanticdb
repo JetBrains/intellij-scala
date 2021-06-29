@@ -1,0 +1,93 @@
+
+¨tests/pos/i4590.scala*#
+test/ArrayDeque#*
+ArrayDeque€*-
+test/ArrayDeque#`<init>`(). €@*<init>€*>
+$test/ArrayDeque#isResizeNecessary().*isResizeNecessary€*5
+)test/ArrayDeque#isResizeNecessary().(len)*len€*>
+$test/ArrayDeque#inline$StableSize().*inline$StableSize€*%
+test/ArrayDeque.
+ *
+ArrayDeque€*1
+test/ArrayDeque.StableSize. €*
+StableSize€*
+
+test/List#*List€*'
+test/List#`<init>`(). €@*<init>€*
+test/List#foo().*foo€*
+test/List#foo().(x)*x€*2
+test/List#inline$next$i1().*inline$next$i1€*,
+ test/List#inline$next$i1().(x$0)*x$0€*8
+test/List#`inline$next_=$i1`().*inline$next_=$i1€*0
+$test/List#`inline$next_=$i1`().(x$0)*x$0€*0
+$test/List#`inline$next_=$i1`().(x$0)*x$0€*
+
+test/List.
+ *List€*
+test/List.Cons# €*Cons€*,
+test/List.Cons#`<init>`(). €@*<init>€*0
+ test/List.Cons#`<init>`().(head) €*head€*0
+ test/List.Cons#`<init>`().(next) €*next€*$
+test/List.Cons#head. €*head€*&
+test/List.Cons#next(). €*next€*,
+test/List.Cons#`next_=`(). €*next_=€*+
+test/List.Cons#`next_=`().(x$1)*x$1€*#
+test/List.Cons#copy().*copy€*)
+test/List.Cons#copy().(head)*head€*)
+test/List.Cons#copy().(next)*next€*7
+ test/List.Cons#copy$default$1().*copy$default$1€*7
+ test/List.Cons#copy$default$2().*copy$default$2€*
+test/List.Cons#_1().*_1€*
+test/List.Cons#_2().*_2€*
+test/List.Cons.
+ *Cons€*%
+test/List.Cons.apply().*apply€**
+test/List.Cons.apply().(head)*head€**
+test/List.Cons.apply().(next)*next€*)
+test/List.Cons.unapply().*unapply€**
+test/List.Cons.unapply().(x$1)*x$1€*+
+test/List.Cons.toString().*toString€2
+ test/2
+ test/ArrayDeque#2)
+ test/ArrayDeque#`<init>`().22
+ $test/ArrayDeque#isResizeNecessary().27
+ ")test/ArrayDeque#isResizeNecessary().(len)2
+$ '
+scala/Int#2 
+/ 0scala/Int#`>`(+3).27
++ .)test/ArrayDeque#isResizeNecessary().(len)22
+5 F$test/ArrayDeque#inline$StableSize().2
+ test/ArrayDeque.2)
+ test/ArrayDeque.StableSize.2
+
+
+ 
+
+test/List#2#
+ test/List#`<init>`().2
+ test/List#foo().2!
+ test/List#foo().(x)2
+ test/List.Cons#2
+ 
+test/List.2
+  $scala/Unit#2-
+ test/List#`inline$next_=$i1`().2!
+ test/List#foo().(x)2
+ 
+test/List.2
+ test/List.Cons#2(
+ test/List.Cons#`<init>`().2
+ 
+scala/Int#2
+5 9
+test/List#2"
+ test/List.Cons#head.2$
+/ 3test/List.Cons#next().2
+% )
+test/List.2(
+/ 5test/List.Cons#`next_=`().2$
+ test/List.Cons#copy().2"
+ test/List.Cons#_1().2"
+5 5test/List.Cons#_2().2
+ test/List.Cons.2%
+ test/List.Cons.apply().PZ ACCFB8462156F09D02CB2F4AC5680B02

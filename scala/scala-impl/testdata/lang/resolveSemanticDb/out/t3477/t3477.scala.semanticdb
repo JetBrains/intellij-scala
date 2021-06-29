@@ -1,0 +1,38 @@
+
+Îtests/pos/t3477.scala*
+_empty_/J3#*J3€*(
+_empty_/J3#`<init>`(). €@*<init>€*
+_empty_/J3#f().*f€*
+_empty_/J3#f().[K]	*K€*
+_empty_/J3#f().[K1]	*K1€*
+_empty_/J3#f().[V]	*V€*
+_empty_/J3#f().(x)*x€*
+_empty_/Test.
+ *Test€2
+ _empty_/J3#2$
+ _empty_/J3#`<init>`().2
+ _empty_/J3#f().2 
+ 	_empty_/J3#f().[K]2!
+ _empty_/J3#f().[K1]2 
+ _empty_/J3#f().[K]2 
+ _empty_/J3#f().[V]2 
+ _empty_/J3#f().(x)2
+ scala/Predef.Map#2!
+  _empty_/J3#f().[K1]2 
+" #_empty_/J3#f().[V]2
+' *scala/Predef.Map#2 
++ ,_empty_/J3#f().[K]2 
+. /_empty_/J3#f().[V]2(
+7 <scala/sys/package.error().2
+3 6
+scala/sys/2
+ _empty_/Test.2
+ _empty_/J3#f().2$
+	 	_empty_/J3#`<init>`().2
+ 	_empty_/J3#22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 
+scala/Int#2
+ 
+scala/Int#PZ 992E0B33AF3EF44067845D9C5F3BE5B0

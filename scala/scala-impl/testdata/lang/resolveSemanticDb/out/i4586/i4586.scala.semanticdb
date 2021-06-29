@@ -1,0 +1,26 @@
+
+²tests/pos/i4586.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€* 
+_empty_/Foo#foo1().*foo1€* 
+_empty_/Foo#foo1().(f)*f€* 
+_empty_/Foo#bar1().*bar1€*
+local0*x€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2!
+ _empty_/Foo#foo1().2$
+ _empty_/Foo#foo1().(f)2
+ 
+scala/Int#2
+ "
+scala/Int#2
+% (
+scala/Int#2&
+, ,scala/Function1#apply().2$
++ ,_empty_/Foo#foo1().(f)2!
+ 
+_empty_/Foo#bar1().2!
+ _empty_/Foo#foo1().2
+ local02 
+ scala/Int#`+`(+4).2
+ local0PZ 9862280012ECF29BA1231B958CC1364F

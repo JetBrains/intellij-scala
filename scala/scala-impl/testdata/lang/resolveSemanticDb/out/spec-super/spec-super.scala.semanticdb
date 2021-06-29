@@ -1,0 +1,87 @@
+
+Ëtests/pos/spec-super.scala*
+_empty_/Base#*Base€**
+_empty_/Base#`<init>`(). €@*<init>€*
+_empty_/Base#[A]	 €*A€*
+_empty_/Base#add().*add€* 
+_empty_/Base#add().[B]	*B€*&
+_empty_/Base#add().[That]	*That€*&
+_empty_/Base#add().(that)*that€*$
+_empty_/Base#add().(bf)  *bf€*
+local0 €*b€*"
+_empty_/Derived# *Derived€*-
+_empty_/Derived#`<init>`(). €@*<init>€* 
+_empty_/Derived#[A]	 €*A€*"
+_empty_/Derived#add().*add€*#
+_empty_/Derived#add().[B]	*B€*)
+_empty_/Derived#add().[That]	*That€*)
+_empty_/Derived#add().(that)*that€*'
+_empty_/Derived#add().(bf)  *bf€*
+local1 €*b€2%
+ !scala/collection/BuildFrom.2%
+ !scala/collection/BuildFrom#2
+ scala/collection/2
+ scala/2
+ 
+_empty_/Base#2&
+
+ 
+_empty_/Base#`<init>`().2%
+ scala/package.Iterable#2
+  !_empty_/Base#[A]2
+ _empty_/Base#[A]2!
+ 	_empty_/Base#add().2$
+
+ _empty_/Base#add().[B]2
+ _empty_/Base#[A]2'
+ _empty_/Base#add().[That]2'
+ _empty_/Base#add().(that)2%
+ &scala/package.Iterable#2$
+' (_empty_/Base#add().[B]2%
+4 6_empty_/Base#add().(bf)2)
+8 Ascala/collection/BuildFrom#2
+B F_empty_/Base#2
+G H_empty_/Base#[A]2$
+K L_empty_/Base#add().[B]2'
+N R_empty_/Base#add().[That]2'
+V Z_empty_/Base#add().[That]2
+ 	local021
+ #scala/collection/BuildFrom#apply().2%
+ _empty_/Base#add().(bf)28
+ 	*scala/collection/mutable/Growable#`++=`().2
+ local028
+ 	*scala/collection/mutable/Growable#`++=`().2
+ local02'
+
+ _empty_/Base#add().(that)28
+ *scala/collection/mutable/Builder#result().2
+ local02
+ _empty_/Derived#2)
+ _empty_/Derived#`<init>`().2
+0 4_empty_/Base#2!
+5 6_empty_/Derived#[A]2 
+ #scala/specialized#2!
+% &_empty_/Derived#[A]2$
+ _empty_/Derived#add().2'
+ _empty_/Derived#add().[B]2!
+ _empty_/Derived#[A]2*
+ _empty_/Derived#add().[That]2*
+! %_empty_/Derived#add().(that)2%
+' /scala/package.Iterable#2'
+0 1_empty_/Derived#add().[B]2(
+= ?_empty_/Derived#add().(bf)2)
+A Jscala/collection/BuildFrom#2
+K O_empty_/Base#2!
+P Q_empty_/Derived#[A]2'
+T U_empty_/Derived#add().[B]2*
+W [_empty_/Derived#add().[That]2*
+_ c_empty_/Derived#add().[That]2
+ 	local121
+ #scala/collection/BuildFrom#apply().2(
+ _empty_/Derived#add().(bf)2!
+
+ _empty_/Base#add().2'
+ _empty_/Derived#add().[B]2*
+ _empty_/Derived#add().[That]2*
+ _empty_/Derived#add().(that)2(
+ _empty_/Derived#add().(bf)PZ E8FF9A6E3E94E958BB387037BC9C620C

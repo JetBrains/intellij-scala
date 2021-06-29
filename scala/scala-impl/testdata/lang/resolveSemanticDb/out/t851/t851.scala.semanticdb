@@ -1,0 +1,60 @@
+
+¿tests/pos/t851.scala*
+_empty_/test.
+ *test€*
+_empty_/test.ok1().*ok1€*
+local0 €*x€*
+_empty_/test.ok2().*ok2€*
+local1 €*x€*
+_empty_/test.ok3().*ok3€*
+local2 €*x€*
+_empty_/test.ok4().*ok4€*
+local3 €*x€*
+_empty_/test.bad().*bad€*
+local4 €*x€*!
+_empty_/test.main().*main€*'
+_empty_/test.main().(args)*args€2
+ _empty_/test.2!
+ 	_empty_/test.ok1().2"
+ scala/Predef.String#2
+ 	local02!
+ 	_empty_/test.ok2().2"
+ scala/Predef.String#2
+ 	local12(
+ java/lang/String#length().2!
+		 	_empty_/test.ok3().2"
+		 scala/Predef.String#2
+
+
+ 	local22(
+
+
+ java/lang/String#length().2!
+ 	_empty_/test.ok4().2"
+ scala/Predef.String#2
+ 	local32(
+ java/lang/String#length().2%
+ 	java/lang/String#`+`().2
+
+ local32!
+ 	_empty_/test.bad().2"
+ scala/Predef.String#2
+ 	local42(
+ java/lang/String#length().2"
+ 
+_empty_/test.main().2(
+ _empty_/test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2(
+ scala/Console.println(+1).2
+ scala/Console.2%
+* +java/lang/String#`+`().2%
+$ %java/lang/String#`+`().2%
+ java/lang/String#`+`().2%
+ java/lang/String#`+`().2!
+ _empty_/test.ok1().2!
+ _empty_/test.ok2().2!
+  #_empty_/test.ok3().2!
+& )_empty_/test.ok4().2!
+, /_empty_/test.bad().PZ D22C15150516A062BED755E7BE06275F

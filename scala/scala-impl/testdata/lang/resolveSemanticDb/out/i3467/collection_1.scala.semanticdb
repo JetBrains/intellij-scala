@@ -1,0 +1,110 @@
+
+ª!"tests/pos/i3467/collection_1.scala*+
+collection/WithFilter# *
+WithFilter€*3
+!collection/WithFilter#`<init>`(). €@*<init>€*&
+collection/WithFilter#[A]	 €*A€*(
+collection/WithFilter#[CC]	 €*CC€*)
+collection/IndexedSeq#*
+IndexedSeq€*3
+!collection/IndexedSeq#`<init>`(). €@*<init>€*&
+collection/IndexedSeq#[A]	 €*A€*/
+collection/IndexedSeqOps#*IndexedSeqOps€*6
+$collection/IndexedSeqOps#`<init>`(). €@*<init>€*)
+collection/IndexedSeqOps#[A]	 €*A€*+
+collection/IndexedSeqOps#[CC]	 €*CC€*)
+collection/IndexedSeqOps#[C]	 €*C€*9
+&collection/IndexedSeqOps#withFilter().*
+withFilter€*3
+)collection/IndexedSeqOps#withFilter().(p)*p€*3
+ collection/immutable/IndexedSeq#*
+IndexedSeq€*=
++collection/immutable/IndexedSeq#`<init>`(). €@*<init>€*0
+#collection/immutable/IndexedSeq#[A]	 €*A€*'
+collection/ArrayOps.
+ *ArrayOps€*4
+collection/ArrayOps.WithFilter# *
+WithFilter€*<
+*collection/ArrayOps.WithFilter#`<init>`(). €@*<init>€*,
+"collection/ArrayOps.WithFilter#[A]	*A€*'
+collection/ArrayOps# *ArrayOps€*1
+collection/ArrayOps#`<init>`(). €@*<init>€*1
+#collection/ArrayOps#`<init>`().(xs) €*xs€*!
+collection/ArrayOps#[A]	*A€*%
+collection/ArrayOps#xs. €*xs€*4
+!collection/ArrayOps#withFilter().*
+withFilter€*.
+$collection/ArrayOps#withFilter().(p)*p€2
+ collection/2$
+ collection/WithFilter#2/
+ !collection/WithFilter#`<init>`().2'
+ collection/WithFilter#[A]2(
+ !collection/WithFilter#[CC]2$
+ collection/IndexedSeq#2/
+ !collection/IndexedSeq#`<init>`().2
+  
+scala/Any#2'
+& 3collection/IndexedSeqOps#2'
+4 5collection/IndexedSeq#[A]2$
+C Mcollection/IndexedSeq#2'
+N Ocollection/IndexedSeq#[A]2'
+ collection/IndexedSeq#[A]2'
+ collection/IndexedSeqOps#22
+ $collection/IndexedSeqOps#`<init>`().2
+= @
+scala/Any#2*
+ collection/IndexedSeqOps#[A]2+
+ collection/IndexedSeqOps#[CC]2*
+2 3collection/IndexedSeqOps#[C]24
+ &collection/IndexedSeqOps#withFilter().27
+ )collection/IndexedSeqOps#withFilter().(p)2*
+ collection/IndexedSeqOps#[A]2
+  scala/Boolean#2$
+# -collection/WithFilter#2*
+. /collection/IndexedSeqOps#[A]2+
+1 3collection/IndexedSeqOps#[CC]2#
+7 :scala/Predef.`???`().2#
+
+
+ collection/immutable/2.
+  collection/immutable/IndexedSeq#29
+ +collection/immutable/IndexedSeq#`<init>`().2$
+* 4collection/IndexedSeq#2
+ )collection/21
+5 6#collection/immutable/IndexedSeq#[A]2'
+H Ucollection/IndexedSeqOps#2
+= Gcollection/21
+V W#collection/immutable/IndexedSeq#[A]2.
+e o collection/immutable/IndexedSeq#21
+p q#collection/immutable/IndexedSeq#[A]21
+ #collection/immutable/IndexedSeq#[A]2"
+ collection/ArrayOps.2-
+ collection/ArrayOps.WithFilter#28
+ *collection/ArrayOps.WithFilter#`<init>`().2/
+U U!collection/WithFilter#`<init>`().2$
+2 <collection/WithFilter#2
+' 1collection/20
+= >"collection/ArrayOps.WithFilter#[A]2#
+@ Icollection/immutable/20
+ "collection/ArrayOps.WithFilter#[A]2"
+ collection/ArrayOps#2-
+ collection/ArrayOps#`<init>`().2
+ scala/Array#2%
+  !collection/ArrayOps#[A]2&
+2 2scala/AnyVal#`<init>`().2
+, 2scala/AnyVal#2'
+8 Ecollection/IndexedSeqOps#2%
+F Gcollection/ArrayOps#[A]2#
+I Rcollection/immutable/2
+_ dscala/Array#2%
+e fcollection/ArrayOps#[A]2%
+ collection/ArrayOps#[A]2%
+ collection/ArrayOps#xs.2/
+ !collection/ArrayOps#withFilter().22
+ $collection/ArrayOps#withFilter().(p)2%
+ collection/ArrayOps#[A]2
+" )scala/Boolean#2-
+5 ?collection/ArrayOps.WithFilter#2"
+, 4collection/ArrayOps.2%
+@ Acollection/ArrayOps#[A]2#
+E Hscala/Predef.`???`().PZ DF5F9DE40508E85672257027EE0872BA

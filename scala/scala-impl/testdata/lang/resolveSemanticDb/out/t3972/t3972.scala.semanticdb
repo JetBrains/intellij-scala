@@ -1,0 +1,24 @@
+
+€tests/pos/t3972.scala*.
+_empty_/CompilerCrash.
+ *CompilerCrash€**
+_empty_/CompilerCrash.main().*main€*0
+#_empty_/CompilerCrash.main().(args)*args€*
+local0 €*a€*
+local1 €*c€2 
+ _empty_/CompilerCrash.2+
+ 
+_empty_/CompilerCrash.main().21
+ #_empty_/CompilerCrash.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#21
+ #_empty_/CompilerCrash.main().(args)2'
+ scala/Array.unapplySeq().2
+ scala/Array.2
+ local02'
+ scala/Array.unapplySeq().2
+ scala/Array.2'
+ scala/Array.unapplySeq().2
+ scala/Array.2
+ local1PZ 53EE05A5B81C27FDFCC31BAB2402D490

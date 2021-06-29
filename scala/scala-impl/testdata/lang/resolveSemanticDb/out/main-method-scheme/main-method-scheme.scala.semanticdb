@@ -1,0 +1,451 @@
+
+†€"tests/pos/main-method-scheme.scala*.
+_empty_/MainAnnotation#*MainAnnotation€*4
+"_empty_/MainAnnotation#`<init>`(). €@*<init>€*=
+&_empty_/MainAnnotation#ArgumentParser#*ArgumentParser€*3
+)_empty_/MainAnnotation#ArgumentParser#[T]	*T€*1
+ _empty_/MainAnnotation#getArg(). *getArg€*-
+#_empty_/MainAnnotation#getArg().[T]	*T€*9
+)_empty_/MainAnnotation#getArg().(argName)*argName€*?
+,_empty_/MainAnnotation#getArg().(fromString)*
+fromString€*C
+._empty_/MainAnnotation#getArg().(defaultValue)*defaultValue€*C
+*_empty_/MainAnnotation#getArg$default$3().*getArg$default$3€*7
+-_empty_/MainAnnotation#getArg$default$3().[T]	*T€*3
+!_empty_/MainAnnotation#getArgs(). *getArgs€*.
+$_empty_/MainAnnotation#getArgs().[T]	*T€*:
+*_empty_/MainAnnotation#getArgs().(argName)*argName€*@
+-_empty_/MainAnnotation#getArgs().(fromString)*
+fromString€*-
+_empty_/MainAnnotation#done(). *done€*
+_empty_/main#*main€**
+_empty_/main#`<init>`(). €@*<init>€*3
+"_empty_/main#`<init>`().(progName)*progName€*+
+_empty_/main#`<init>`().(args)*args€*7
+$_empty_/main#`<init>`().(docComment)*
+docComment€**
+_empty_/main#progName. €*progName€*"
+_empty_/main#args. €*args€*.
+_empty_/main#docComment. €*
+docComment€*)
+_empty_/main#`<init>`(+1).*<init>€*3
+_empty_/main#ArgumentParser#*ArgumentParser€*)
+_empty_/main#ArgumentParser#[T]	*T€*,
+_empty_/main#argInfos(). €*argInfos€*(
+_empty_/main#errors(). €*errors€*
+_empty_/main#n(). €*n€*#
+_empty_/main#error().*error€*&
+_empty_/main#error().(msg)*msg€*#
+_empty_/main#argAt().*argAt€*&
+_empty_/main#argAt().(idx)*idx€*;
+!_empty_/main#nextPositionalArg().*nextPositionalArg€*
+local0 €*result€*'
+_empty_/main#convert().*convert€*$
+_empty_/main#convert().[T]	*T€*0
+ _empty_/main#convert().(argName)*argName€*(
+_empty_/main#convert().(arg)*arg€*$
+_empty_/main#convert().(p)*p€*
+local1 €*t€*%
+_empty_/main#getArg().*getArg€*#
+_empty_/main#getArg().[T]	*T€*/
+_empty_/main#getArg().(argName)*argName€*#
+_empty_/main#getArg().(p)*p€*9
+$_empty_/main#getArg().(defaultValue)*defaultValue€*
+local2 €*idx€*
+local3 €*argOpt€*
+local4 €*arg€*
+local5 €*t€*9
+ _empty_/main#getArg$default$3().*getArg$default$3€*-
+#_empty_/main#getArg$default$3().[T]	*T€*'
+_empty_/main#getArgs().*getArgs€*$
+_empty_/main#getArgs().[T]	*T€*0
+ _empty_/main#getArgs().(argName)*argName€*6
+#_empty_/main#getArgs().(fromString)*
+fromString€*
+local6*recur€*
+local7 €*arg€*
+local8 €*elem$1€*
+local9 €*fns€*#
+_empty_/main#usage().*usage€*
+local10*x$1€*-
+_empty_/main#showUnused().*
+showUnused€*
+local11 €*arg€*
+local12*arg€*!
+_empty_/main#done().*done€*
+local13*msg€*&
+_empty_/myProgram.
+ *	myProgram€*$
+_empty_/myProgram.add().*add€*)
+_empty_/myProgram.add().(num)*num€*)
+_empty_/myProgram.add().(inc)*inc€*8
+"_empty_/myProgram.add$default$2().*add$default$2€*
+_empty_/add.
+ *add€* 
+_empty_/add.main().*main€*&
+_empty_/add.main().(args)*args€*
+local14 €*cmd€*
+local15 €*arg1€*
+local16 €*arg2€2,
+ ""scala/annotation/StaticAnnotation.2
+ scala/annotation/2'
+ scala/collection/mutable/2
+ scala/collection/2%
+ _empty_/MainAnnotation#20
+ "_empty_/MainAnnotation#`<init>`().20
+ -"scala/annotation/StaticAnnotation#24
+ &_empty_/MainAnnotation#ArgumentParser#27
+ )_empty_/MainAnnotation#ArgumentParser#[T]2.
+  _empty_/MainAnnotation#getArg().21
+ #_empty_/MainAnnotation#getArg().[T]27
+ )_empty_/MainAnnotation#getArg().(argName)2"
+ scala/Predef.String#2:
+! +,_empty_/MainAnnotation#getArg().(fromString)24
+- ;&_empty_/MainAnnotation#ArgumentParser#21
+< =#_empty_/MainAnnotation#getArg().[T]2<
+@ L._empty_/MainAnnotation#getArg().(defaultValue)2
+N Tscala/Option#21
+U V#_empty_/MainAnnotation#getArg().[T]21
+g h#_empty_/MainAnnotation#getArg().[T]2;
+ -_empty_/MainAnnotation#getArg$default$3().[T]2
+Z ^scala/None.2/
+ !_empty_/MainAnnotation#getArgs().22
+ $_empty_/MainAnnotation#getArgs().[T]28
+ *_empty_/MainAnnotation#getArgs().(argName)2"
+  scala/Predef.String#2;
+" ,-_empty_/MainAnnotation#getArgs().(fromString)24
+. <&_empty_/MainAnnotation#ArgumentParser#22
+= >$_empty_/MainAnnotation#getArgs().[T]2!
+H Lscala/package.List#22
+M N$_empty_/MainAnnotation#getArgs().[T]2,
+ 
+_empty_/MainAnnotation#done().2
+ scala/Boolean#2%
+ _empty_/MainAnnotation#2
+ 
+_empty_/main#2&
+
+ 
+_empty_/main#`<init>`().2"
+ scala/Predef.String#2
+# (scala/Array#2"
+) /scala/Predef.String#2"
+> Dscala/Predef.String#2%
+N \_empty_/MainAnnotation#2$
+ _empty_/main#progName.2 
+ !_empty_/main#args.2&
+2 <_empty_/main#docComment.2(
+ 
+_empty_/main#`<init>`(+1).2"
+ scala/Array.apply().2
+ scala/Array.2-
+ scala/reflect/ClassTag.apply().2*
+ _empty_/main#ArgumentParser#2-
+ _empty_/main#ArgumentParser#[T]26
+2 <(scala/util/CommandLineParser.FromString#2+
+  1scala/util/CommandLineParser.2
+ scala/util/2-
+= >_empty_/main#ArgumentParser#[T]2&
+ _empty_/main#argInfos().2=
+A A/scala/collection/mutable/ListBuffer#`<init>`().22
+% /$scala/collection/mutable/ListBuffer#2'
+ $scala/collection/mutable/2"
+1 7scala/Predef.String#2"
+9 ?scala/Predef.String#2$
+"" _empty_/main#errors().2=
+"5" 5/scala/collection/mutable/ListBuffer#`<init>`().22
+"#" -$scala/collection/mutable/ListBuffer#2'
+"" "scala/collection/mutable/2"
+"." 4scala/Predef.String#2
+%% _empty_/main#n().2
+%% 
+scala/Int#2#
+'' _empty_/main#error().2(
+'' _empty_/main#error().(msg)2"
+'' scala/Predef.String#2
+'(' /scala/Nothing#27
+(( )scala/collection/mutable/Growable#`+=`().2$
+(( 
+_empty_/main#errors().2(
+(( _empty_/main#error().(msg)2#
+)
+) scala/Predef.`???`().2#
+++ _empty_/main#argAt().2(
+++ _empty_/main#argAt().(idx)2
+++ 
+scala/Int#2
+++ %scala/Option#2"
++&+ ,scala/Predef.String#2 
+,, scala/Int#`<`(+3).2(
+,, 
+_empty_/main#argAt().(idx)2#
+,, scala/Array#length().2 
+,, _empty_/main#args.2!
+,", "scala/Some.apply().2
+,, "scala/Some.2"
+,', 'scala/Array#apply().2 
+,#, '_empty_/main#args.2(
+,(, +_empty_/main#argAt().(idx)2
+,3, 7scala/None.2/
+.. !_empty_/main#nextPositionalArg().2
+.#. )scala/Option#2"
+.*. 0scala/Predef.String#2#
+// scala/Boolean#`&&`().2 
+// scala/Int#`<`(+3).2
+/
+/ _empty_/main#n().2#
+// scala/Array#length().2 
+// _empty_/main#args.2.
+/%/ / java/lang/String#startsWith(+1).2"
+/!/ !scala/Array#apply().2 
+// !_empty_/main#args.2
+/"/ #_empty_/main#n().2
+/9/ :_empty_/main#n().2 
+/:/ :scala/Int#`+`(+4).2
+00 local02#
+00 _empty_/main#argAt().2
+00 _empty_/main#n().2
+11 _empty_/main#n().2 
+11 scala/Int#`+`(+4).2
+22 
+local02%
+44 _empty_/main#convert().2(
+44 _empty_/main#convert().[T]2.
+44   _empty_/main#convert().(argName)2"
+4"4 (scala/Predef.String#2*
+4*4 -_empty_/main#convert().(arg)2"
+4/4 5scala/Predef.String#2(
+474 8_empty_/main#convert().(p)2*
+4:4 H_empty_/main#ArgumentParser#2(
+4I4 J_empty_/main#convert().[T]2(
+4T4 U_empty_/main#convert().[T]2I
+55 ;scala/util/CommandLineParser.FromString#fromStringOption().2(
+55 _empty_/main#convert().(p)2*
+55 _empty_/main#convert().(arg)2#
+66 scala/Some.unapply().2
+66 scala/Some.2
+66 local12
+66 local12
+77 scala/None.2#
+77 _empty_/main#error().2&
+7>7 ?scala/StringContext#s().2*
+77 scala/StringContext.apply().2.
+717 8 _empty_/main#convert().(argName)2*
+7;7 >_empty_/main#convert().(arg)2$
+99 _empty_/main#getArg().2'
+99 _empty_/main#getArg().[T]2-
+99 _empty_/main#getArg().(argName)2"
+99 scala/Predef.String#2'
+9!9 "_empty_/main#getArg().(p)2*
+9$9 2_empty_/main#ArgumentParser#2'
+939 4_empty_/main#getArg().[T]22
+979 C$_empty_/main#getArg().(defaultValue)2
+9E9 Kscala/Option#2'
+9L9 M_empty_/main#getArg().[T]2'
+9^9 __empty_/main#getArg().[T]27
+:: )scala/collection/mutable/Growable#`+=`().2&
+:: _empty_/main#argInfos().2#
+:: scala/Tuple2.apply().2-
+:: _empty_/main#getArg().(argName)2'
+:+: 4scala/Option#isDefined().22
+:: *$_empty_/main#getArg().(defaultValue)2
+;; local22)
+;; scala/Predef.refArrayOps().2 
+;; _empty_/main#args.2&
+;'; (scala/StringContext#s().2*
+;; scala/StringContext.apply().2-
+; ; '_empty_/main#getArg().(argName)2
+<< local32!
+<< scala/Int#`>=`(+3).2
+<< local22#
+<"< '_empty_/main#argAt().2 
+<,< -scala/Int#`+`(+4).2
+<(< +local22/
+<6< G!_empty_/main#nextPositionalArg().2
+== 
+local32#
+>> scala/Some.unapply().2
+>> scala/Some.2
+>> local42%
+>> _empty_/main#convert().2-
+> > '_empty_/main#getArg().(argName)2
+>)> ,local42'
+>.> /_empty_/main#getArg().(p)2
+?? scala/None.22
+?? $_empty_/main#getArg().(defaultValue)2#
+@@ scala/Some.unapply().2
+@@ scala/Some.2
+@@ local52
+@@ local52
+AA scala/None.2#
+AA _empty_/main#error().2&
+A:A ;scala/StringContext#s().2*
+AA scala/StringContext.apply().2-
+A3A :_empty_/main#getArg().(argName)21
+99 #_empty_/main#getArg$default$3().[T]2
+9Q9 Uscala/None.2%
+CC _empty_/main#getArgs().2(
+CC _empty_/main#getArgs().[T]2.
+CC  _empty_/main#getArgs().(argName)2"
+CC  scala/Predef.String#21
+C"C ,#_empty_/main#getArgs().(fromString)2*
+C.C <_empty_/main#ArgumentParser#2(
+C=C >_empty_/main#getArgs().[T]2!
+CHC Lscala/package.List#2(
+CMC N_empty_/main#getArgs().[T]27
+DD )scala/collection/mutable/Growable#`+=`().2&
+DD _empty_/main#argInfos().2#
+DD scala/Tuple2.apply().2.
+DD  _empty_/main#getArgs().(argName)2
+EE local62!
+EE scala/package.List#2(
+EE _empty_/main#getArgs().[T]2/
+E!E 2!_empty_/main#nextPositionalArg().2#
+FF scala/Some.unapply().2
+FF scala/Some.2
+FF local72
+FF #local825
+FDF D'scala/collection/immutable/List#`::`().2
+F=F Blocal62
+FF local82
+GG scala/None.2 
+GG scala/package.Nil.2
+HH local92
+HH local624
+II &scala/collection/immutable/List#map().2
+I
+I local92&
+II scala/Function0#apply().2#
+KK _empty_/main#usage().2
+KK scala/Boolean#2'
+LL scala/Predef.println(+1).2&
+LCL Dscala/StringContext#s().2*
+LL scala/StringContext.apply().2$
+LL _empty_/main#progName.2<
+L5L =.scala/collection/IterableOnceOps#mkString(+1).2@
+L*L -2scala/collection/StrictOptimizedIterableOps#map().2&
+L!L )_empty_/main#argInfos().2
+L.L .scala/Tuple2#_1.2
+L2L 2scala/Tuple2#_2.2%
+L0L 1java/lang/String#`+`().24
+MM &scala/collection/StringOps#nonEmpty().2+
+MM scala/Predef.augmentString().2&
+MM _empty_/main#docComment.2'
+NN scala/Predef.println(+1).2&
+NN _empty_/main#docComment.2(
+QQ _empty_/main#showUnused().2
+QQ scala/Unit#2/
+QQ ,!_empty_/main#nextPositionalArg().2#
+RR scala/Some.unapply().2
+R	R scala/Some.2
+RR local112#
+SS _empty_/main#error().2&
+S#S $scala/StringContext#s().2*
+SS scala/StringContext.apply().2
+S S #local112(
+TT _empty_/main#showUnused().2
+U	U scala/None.2=
+XLX L/scala/collection/ArrayOps.WithFilter#foreach().25
+WW 'scala/collection/ArrayOps#withFilter().2)
+WW scala/Predef.refArrayOps().2 
+WW _empty_/main#args.2
+WW local122#
+X X "scala/Boolean#`&&`().2.
+XX  java/lang/String#startsWith(+1).2
+XX local122(
+XLX Lscala/Boolean#`unary_!`().21
+X7X ?#scala/collection/SeqOps#contains().2@
+X-X 02scala/collection/StrictOptimizedIterableOps#map().2&
+X$X ,_empty_/main#argInfos().2
+X3X 5scala/Tuple2#_1.20
+XDX H"scala/collection/StringOps#drop().2+
+X@X @scala/Predef.augmentString().2
+X@X Clocal122#
+ZZ _empty_/main#error().2&
+Z+Z ,scala/StringContext#s().2*
+ZZ scala/StringContext.apply().2
+Z(Z +local122(
+[[ _empty_/main#showUnused().2"
+]] 
+_empty_/main#done().2
+]] scala/Boolean#23
+^^ %scala/collection/ArrayOps#contains().2)
+^^ scala/Predef.refArrayOps().2 
+^^ _empty_/main#args.2#
+__ _empty_/main#usage().2(
+aa _empty_/main#showUnused().2:
+bb ,scala/collection/IterableOnceOps#nonEmpty().2$
+b	b _empty_/main#errors().29
+cc +scala/collection/IterableOnceOps#foreach().2$
+cc _empty_/main#errors().2
+cc local132'
+cc $scala/Predef.println(+1).2&
+c2c 3scala/StringContext#s().2*
+c'c 'scala/StringContext.apply().2
+c/c 2local132#
+dd _empty_/main#usage().2"
+gg 
+_empty_/main#done().2
+hh _empty_/main#2 
+ll _empty_/myProgram.2
+oo _empty_/main#2&
+oo _empty_/myProgram.add().2+
+oo _empty_/myProgram.add().(num)2
+oo 
+scala/Int#2+
+oo _empty_/myProgram.add().(inc)2
+oo "
+scala/Int#2'
+pp scala/Predef.println(+1).2&
+p(p )scala/StringContext#s().2*
+pp scala/StringContext.apply().2+
+pp _empty_/myProgram.add().(num)2+
+pp _empty_/myProgram.add().(inc)2 
+p"p #scala/Int#`+`(+4).2+
+pp !_empty_/myProgram.add().(num)2+
+p$p '_empty_/myProgram.add().(inc)2 
+rr _empty_/myProgram.2
+vv 
+_empty_/add.2!
+ww 
+_empty_/add.main().2'
+ww _empty_/add.main().(args)2
+ww scala/Array#2"
+ww scala/Predef.String#2
+xx local142
+xx _empty_/main#2'
+xx "_empty_/add.main().(args)2
+yy local152$
+yy _empty_/main#getArg().2
+yy local142
+yy 
+scala/Int#2$
+y&y ,scala/Predef.summon().2*
+y1y ?_empty_/main#ArgumentParser#2
+y-y 0local142
+y@y C
+scala/Int#2K
+yEy E=scala/util/CommandLineParser.FromString.given_FromString_Int.2
+zz local162$
+zz _empty_/main#getArg().2
+zz local142
+zz 
+scala/Int#2$
+z&z ,scala/Predef.summon().2*
+z1z ?_empty_/main#ArgumentParser#2
+z-z 0local142
+z@z C
+scala/Int#2K
+zEz E=scala/util/CommandLineParser.FromString.given_FromString_Int.2!
+zKz Kscala/Some.apply().2
+zGz Kscala/Some.2"
+{{ _empty_/main#done().2
+{{ 
+local142&
+{!{ $_empty_/myProgram.add().2 
+{{  _empty_/myProgram.2&
+{){ )scala/Function0#apply().2
+{%{ )local152&
+{1{ 1scala/Function0#apply().2
+{-{ 1local162
+|| _empty_/add.PZ CAFEB9F831E8431143295DA655BEE14B

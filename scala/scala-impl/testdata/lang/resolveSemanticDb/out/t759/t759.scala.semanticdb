@@ -1,0 +1,22 @@
+
+ætests/pos/t759.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[A]	*A€*
+_empty_/Test.f().(x)*x€2
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[A]2"
+ _empty_/Test.f().(x)2"
+ _empty_/Test.f().[A]2"
+ _empty_/Test.f().(x)2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2"
+ scala/Array#apply().2
+ _empty_/Test.f().2$
+ scala/Array.apply(+5).2
+ scala/Array.PZ 73D26A384119ED5A9864619733C4AECB

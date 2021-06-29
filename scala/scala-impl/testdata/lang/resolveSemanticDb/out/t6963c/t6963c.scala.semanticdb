@@ -1,0 +1,98 @@
+
+Åtests/pos/t6963c.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f1().*f1€*
+_empty_/Test.f1().(x)*x€*
+_empty_/Test.f2().*f2€*
+_empty_/Test.f2().(x)*x€*
+_empty_/Test.f3().*f3€*
+_empty_/Test.f3().(x)*x€*
+_empty_/Test.f4().*f4€*
+_empty_/Test.f4().(x)*x€*
+_empty_/Test.f5().*f5€*!
+_empty_/Test.f5().(x1)*x1€*!
+_empty_/Test.f5().(x2)*x2€*!
+_empty_/Test.f5().(x3)*x3€*
+_empty_/Test.f5(+1).*f5€2#
+ scala/collection/Seq.2#
+ scala/collection/Seq#2
+ scala/collection/2
+ _empty_/Test.2 
+ _empty_/Test.f1().2#
+	 
+_empty_/Test.f1().(x)2
+ 
+scala/Any#2'
+ !scala/Any#isInstanceOf().2#
+ _empty_/Test.f1().(x)2#
+" %scala/collection/Seq#2 
+ _empty_/Test.f2().2#
+	 
+_empty_/Test.f2().(x)2
+ 
+scala/Any#2#
+ _empty_/Test.f2().(x)2#
+ scala/collection/Seq#2 
+
+
+ _empty_/Test.f3().2#
+
+	
+ 
+_empty_/Test.f3().(x)2
+
+
+ 
+scala/Any#2#
+
+
+ _empty_/Test.f3().(x)2
+ scala/Array#2 
+ _empty_/Test.f4().2#
+	 
+_empty_/Test.f4().(x)2
+ 
+scala/Any#2'
+ !scala/Any#isInstanceOf().2#
+ _empty_/Test.f4().(x)2%
+" *scala/package.Iterable#2 
+ _empty_/Test.f5().2$
+	 _empty_/Test.f5().(x1)2
+ 
+scala/Any#2$
+ _empty_/Test.f5().(x2)2
+ 
+scala/Any#2$
+ _empty_/Test.f5().(x3)2
+ %scala/AnyRef#2#
+* *scala/Tuple3.apply().2$
+* ,_empty_/Test.f5().(x1)2$
+. 0_empty_/Test.f5().(x2)2$
+2 4_empty_/Test.f5().(x3)2%
+
+ 
+scala/Tuple3.unapply().2#
+ scala/Some.unapply().2
+
+ scala/Some.2#
+ scala/collection/Seq#2 
+ scala/package.Nil.2%
+
+ 
+scala/Tuple3.unapply().2
+
+ scala/None.27
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.2!
+ scala/package.List#2"
+ _empty_/Test.f5(+1).2
+
+ scala/Unit#2'
+ #scala/collection/mutable/2
+ scala/collection/2
+ scala/27
+ )scala/collection/IterableOps#scanRight().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2 
+" #scala/Int#`+`(+4).PZ D0CC48A51715DD23F8A75C0C6874070A

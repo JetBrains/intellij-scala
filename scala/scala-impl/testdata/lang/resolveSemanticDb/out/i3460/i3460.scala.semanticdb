@@ -1,0 +1,30 @@
+
+¤tests/pos/i3460.scala* 
+_empty_/Ducks# ”€*Ducks€*+
+_empty_/Ducks#`<init>`(). €@*<init>€*
+_empty_/Ducks.
+ *Ducks€*&
+_empty_/Ducks.Dewey. €©*Dewey€*)
+_empty_/Ducks.$values. €*$values€*&
+_empty_/Ducks.values().*values€*(
+_empty_/Ducks.valueOf().*valueOf€*-
+_empty_/Ducks.valueOf().($name)*$name€*"
+_empty_/Ducks.$new().*$new€*2
+ _empty_/Ducks.$new().(_$ordinal)*	_$ordinal€**
+_empty_/Ducks.$new().($name)*$name€*0
+_empty_/Ducks.fromOrdinal().*fromOrdinal€*5
+%_empty_/Ducks.fromOrdinal().(ordinal)*ordinal€*(
+_empty_/Ducks.wooohoo().*wooohoo€2
+ 
+_empty_/Ducks#2'
+ _empty_/Ducks#`<init>`().2
+ _empty_/Ducks.2"
+ _empty_/Ducks.Dewey.2$
+ _empty_/Ducks.$values.2%
+ _empty_/Ducks.values().2&
+ _empty_/Ducks.valueOf().2#
+ _empty_/Ducks.$new().2*
+ _empty_/Ducks.fromOrdinal().2&
+ _empty_/Ducks.wooohoo().2
+ 
+scala/Int#PZ 7C083DF45F715E577C5AE84B96499DB0

@@ -1,0 +1,55 @@
+
+­tests/pos/i3352.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#Foo#*Foo€*.
+_empty_/Test#Foo#`<init>`(). €@*<init>€*#
+_empty_/Test#Foo#bar().*bar€*$
+_empty_/Test#Foo#bar().(x)*x€*#
+_empty_/Test#FooOps#*FooOps€*1
+_empty_/Test#FooOps#`<init>`(). €@*<init>€*0
+$_empty_/Test#FooOps#`<init>`().(foo)*foo€*'
+_empty_/Test#FooOps#foo. €*foo€*&
+_empty_/Test#FooOps#bar().*bar€*'
+_empty_/Test#FooOps#bar().(x)*x€*'
+_empty_/Test#FooOps#bar().(y)*y€*:
+$_empty_/Test#FooOps#bar$default$2().*bar$default$2€*'
+_empty_/Test#FooOps(). (*FooOps€*'
+_empty_/Test#FooOps().(foo)*foo€*!
+_empty_/Test#test().*test€*%
+_empty_/Test#test().(foo)*foo€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#Foo#2*
+ _empty_/Test#Foo#`<init>`().2%
+ _empty_/Test#Foo#bar().2(
+ _empty_/Test#Foo#bar().(x)2"
+ scala/Predef.String#2
+ 
+scala/Int#2"
+ _empty_/Test#FooOps#2-
+ _empty_/Test#FooOps#`<init>`().2
+  _empty_/Test#Foo#2&
+ _empty_/Test#FooOps#foo.2(
+ _empty_/Test#FooOps#bar().2+
+ _empty_/Test#FooOps#bar().(x)2
+ 
+scala/Int#2+
+ _empty_/Test#FooOps#bar().(y)2
+ 
+scala/Int#2
+! $
+scala/Int#2$
+ _empty_/Test#FooOps().2"
+		 
+_empty_/Test#test().2'
+		 _empty_/Test#test().(foo)2
+		 _empty_/Test#Foo#2
+		 scala/Unit#2$
+
+
+ _empty_/Test#FooOps().2'
+
+
+ _empty_/Test#test().(foo)PZ A54FB45F53E1FF459FA576EC0EDAB827

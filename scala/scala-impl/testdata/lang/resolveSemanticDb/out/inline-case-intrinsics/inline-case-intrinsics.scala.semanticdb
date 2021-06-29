@@ -1,0 +1,39 @@
+
+‚&tests/pos/inline-case-intrinsics.scala*
+_empty_/Trait#*Trait€*+
+_empty_/Trait#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/Trait#CC# €*CC€*.
+_empty_/Trait#CC#`<init>`(). €@*<init>€*2
+"_empty_/Trait#CC#`<init>`().(name) €*name€*&
+_empty_/Trait#CC#name. €*name€*%
+_empty_/Trait#CC#copy().*copy€*+
+_empty_/Trait#CC#copy().(name)*name€*9
+"_empty_/Trait#CC#copy$default$1().*copy$default$1€*!
+_empty_/Trait#CC#_1().*_1€*
+_empty_/Trait#CC.
+ *CC€*'
+_empty_/Trait#CC.apply().*apply€*,
+_empty_/Trait#CC.apply().(name)*name€*+
+_empty_/Trait#CC.unapply().*unapply€*,
+ _empty_/Trait#CC.unapply().(x$1)*x$1€*-
+_empty_/Trait#CC.toString().*toString€*
+_empty_/Trait#m().*m€*
+local1 €*a€2
+ _empty_/Trait#2#
+ _empty_/Trait#`<init>`().2
+ local02
+ _empty_/Trait#CC#2*
+ _empty_/Trait#CC#`<init>`().2"
+ $scala/Predef.String#2$
+ _empty_/Trait#CC#name.2&
+ _empty_/Trait#CC#copy().2$
+ _empty_/Trait#CC#_1().2
+ _empty_/Trait#CC.2'
+ _empty_/Trait#CC.apply().2 
+ _empty_/Trait#m().2
+ 	local12'
+ _empty_/Trait#CC.apply().2
+ _empty_/Trait#CC.2'
+ scala/Predef.println(+1).2
+ local1PZ 6AAFEEBAA6B5412F2C0444CD74D66613

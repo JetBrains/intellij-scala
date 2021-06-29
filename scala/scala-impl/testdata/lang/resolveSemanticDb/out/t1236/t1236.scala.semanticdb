@@ -1,0 +1,64 @@
+
+Étests/pos/t1236.scala*
+_empty_/Empty#*Empty€*+
+_empty_/Empty#`<init>`(). €@*<init>€*
+_empty_/Empty#[E]	*E€*
+_empty_/Empty#e(). *e€*
+_empty_/Empty#e().[A]	*A€*
+
+_empty_/T.
+ *T€*)
+_empty_/T.ListEmpty. €*	ListEmpty€*
+local0 *$anon€*
+local1*e€*
+local2	*B€*
+_empty_/T.foo().*foo€*
+_empty_/T.foo().[F]	*F€*
+_empty_/T.foo().(q)*q€*
+_empty_/T.foo(+1).*foo€*
+_empty_/T.foo(+1).[F]	*F€*
+_empty_/T.foo(+1).(e)*e€*
+_empty_/T.x. €*x€2
+ _empty_/Empty#2#
+ _empty_/Empty#`<init>`().2
+ _empty_/Empty#[E]2 
+ _empty_/Empty#e().2#
+ 	_empty_/Empty#e().[A]2
+ _empty_/Empty#[E]2#
+ _empty_/Empty#e().[A]2
+ 
+_empty_/T.2"
+ _empty_/T.ListEmpty.2
+ local02
+ _empty_/Empty#2!
+  scala/package.List#2
+ 	local12
+
+ local22 
+ scala/package.Nil.2
+		 	_empty_/T.foo().2!
+	
+	 _empty_/T.foo().[F]2!
+		 _empty_/T.foo().(q)2"
+		 scala/Predef.String#2"
+		  scala/Predef.String#2 
+
+
+ 	_empty_/T.foo(+1).2#
+
+
+
+ _empty_/T.foo(+1).[F]2#
+
+
+ _empty_/T.foo(+1).(e)2
+
+
+ _empty_/Empty#2#
+
+
+ _empty_/T.foo(+1).[F]2
+ _empty_/T.x.2 
+
+ _empty_/T.foo(+1).2"
+ _empty_/T.ListEmpty.PZ C8A24FCF7B10CEC7C43D8446599591FB

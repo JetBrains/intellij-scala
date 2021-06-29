@@ -1,0 +1,29 @@
+
+øtests/pos/i5338.scala*
+_empty_/Test.
+ *Test€*.
+_empty_/Test.emptyTuple. €*
+emptyTuple€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€*
+_empty_/Test.f().[X]	*X€* 
+_empty_/Test.f().(xs)*xs€*
+_empty_/Test.f().(x)*x€2
+ _empty_/Test.2&
+ _empty_/Test.emptyTuple.2"
+ scala/Tuple.apply().2
+ scala/Tuple.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2
+ scala/Tuple#2"
+ _empty_/Test.f().[X]2#
+ _empty_/Test.f().(xs)2"
+ _empty_/Test.f().[T]2"
+ _empty_/Test.f().(x)2"
+! "_empty_/Test.f().[X]2!
+ 	scala/Tuple#`++`().2#
+ _empty_/Test.f().(xs)2!
+ scala/Tuple#`*:`().2&
+ _empty_/Test.emptyTuple.2"
+
+ _empty_/Test.f().(x)PZ CF974D22C6C69875F7DAB5D2243A1A8C

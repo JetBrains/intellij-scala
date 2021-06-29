@@ -1,0 +1,392 @@
+
+ˇMtests/pos/indent.scala*
+_empty_/Test.
+ *TestÄ*
+local0 Ä*xÄ*
+local1 Ä*fÄ*
+_empty_/Test.f().*fÄ*
+_empty_/Test.f().(x)*xÄ*
+local2 Ä*yÄ*
+local3 Ä*y1Ä*
+local4 Ä*y2Ä*
+local5*gtÄ*
+local6*xÄ*
+local7*yÄ*
+local8 Ä*y3Ä*
+local9 Ä*zÄ*
+_empty_/Test.g().*gÄ*
+_empty_/Test.xs. Ä*xsÄ*
+local10*xÄ*
+local11 Ä*yÄ*
+_empty_/Test.gg. Ä*ggÄ*
+local12  *xÄ*
+local13 Ä*yÄ*
+local14*xÄ*
+local15 Ä*yÄ*
+local16*xÄ*
+local17 Ä*yÄ*
+local18 Ä*zÄ*
+local19*xÄ*
+_empty_/Test.x(). Ä*xÄ*$
+_empty_/Test.`x_=`(). Ä*x_=Ä*&
+_empty_/Test.`x_=`().(x$1)*x$1Ä*
+local20 Ä*yÄ*
+_empty_/Test2#*Test2Ä*+
+_empty_/Test2#`<init>`(). Ä@*<init>Ä*
+local21*selfÄ* 
+_empty_/Test2#foo().*fooÄ*!
+_empty_/Test2#foo().(x)*xÄ*
+local22 Ä*exÄ*
+_empty_/Test2#x. Ä*xÄ*
+local23 *$anonÄ*
+local24*fooÄ*
+local25*xÄ*
+_empty_/Test3#*Test3Ä*+
+_empty_/Test3#`<init>`(). Ä@*<init>Ä*
+local26*selfÄ* 
+_empty_/Test3#foo().*fooÄ*
+_empty_/Coder#*CoderÄ*+
+_empty_/Coder#`<init>`(). Ä@*<init>Ä*.
+ _empty_/Coder#`<init>`().(words)*wordsÄ*%
+_empty_/Coder#words. Ä*wordsÄ*
+_empty_/Coder#Foo#*FooÄ*/
+_empty_/Coder#Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Coder#Bar#*BarÄ*/
+_empty_/Coder#Bar#`<init>`(). Ä@*<init>Ä*-
+_empty_/Coder#mnemonics. Ä*	mnemonicsÄ*
+local27 Ä*digitÄ*
+local28 Ä*strÄ*
+local29 Ä*digitÄ*
+local30 Ä*strÄ*
+local31 Ä*xÄ*
+local32 Ä*xsÄ*
+local33 Ä*exÄ*
+local34 Ä*exÄ*-
+_empty_/Coder#charCode0. Ä*	charCode0Ä*
+local35*x$1Ä*
+local36 Ä*digitÄ*
+local37 Ä*strÄ*
+local38*x$1Ä*
+local39 Ä*digitÄ*
+local40 Ä*strÄ*
+local41*ltrÄ* 
+_empty_/Test22.
+ *Test22Ä*!
+_empty_/Test22.foo().*fooÄ2
+ _empty_/Test.2%
+ 	scala/Predef.locally().2
+ 	local02 
+ scala/Int#`<`(+3).2
+
+ local02
+ local02 
+ scala/Int#`+`(+4).2
+ 	local12
+ local02 
+ scala/Int#`+`(+4).2 
+ 	scala/Int#`<`(+3).2
+ local02
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 	local22 
+ scala/Int#`>`(+3).2"
+	 
+_empty_/Test.f().(x)2'
+ scala/Predef.println(+1).2'
+ scala/Predef.println(+1).2
+ 
+local32 
+ scala/Int#`>`(+3).2"
+	 
+_empty_/Test.f().(x)2
+ 
+local42#
+ scala/Boolean#`&&`().2 
+ scala/Int#`>`(+3).2
+
+ local22 
+ scala/Int#`<`(+3).2
+ local22
+ local52
+ local62
+ 
+scala/Int#2
+ local72
+! $
+scala/Int#2 
+* +scala/Int#`>`(+3).2
+( )local62
+, -local72
+ 
+local82
+   local52*
+   scala/runtime/RichInt#max().26
+ 
+  
+(scala/LowPriorityImplicits#intWrapper().2'
+&& scala/Predef.println(+1).2
+'' 	local92 
+(
+( scala/Int#`+`(+4).2 
+(( scala/Int#`+`(+4).2"
+(( _empty_/Test.f().(x)2
+(( 	local22
+(( local92
+)) _empty_/Test.f().2
+++ _empty_/Test.g().2
+-- _empty_/Test.xs.27
+-- )scala/collection/IterableFactory#apply().2!
+-- scala/package.List.24
+// &scala/collection/immutable/List#map().2
+// _empty_/Test.xs.2
+00 local102
+1
+1 local112 
+11 scala/Int#`*`(+3).2
+11 local102
+11 local102 
+22 	scala/Int#`*`(+3).2
+22 local112
+2
+2 local112
+55 _empty_/Test.gg.2
+55 local122
+55 
+scala/Int#2
+66 	local132 
+66 scala/Int#`+`(+4).2
+66 local122
+77 local1324
+99 &scala/collection/immutable/List#map().2
+99 _empty_/Test.xs.2
+:: local142
+;; 	local152 
+;; scala/Int#`*`(+3).2
+;; local142
+;; local142 
+<< scala/Int#`+`(+4).2
+<< local152
+<< 	local1524
+?? &scala/collection/immutable/List#map().2
+?? _empty_/Test.xs.2
+?? local162
+@@ 	local172 
+@@ scala/Int#`*`(+3).2
+@@ local162
+@@ local162!
+A	A scala/Int#`>=`(+3).2
+AA local172
+B
+B local182 
+BB scala/Int#`+`(+4).2
+BB local172
+BB local172'
+CC scala/Predef.println(+1).2
+CC local182 
+DD scala/Int#`+`(+4).2
+DD local172'
+GG 	scala/Predef.println(+1).2
+GG scala/Int#`+`().2
+G
+G _empty_/Test.f().2
+GG _empty_/Test.g().2'
+II _empty_/Test2#`<init>`().2
+II _empty_/Test2#2
+II local192"
+JJ _empty_/Test3#foo().2'
+JJ _empty_/Test3#`<init>`().2
+JJ _empty_/Test3#2
+LL _empty_/Test.x().2#
+LL 	_empty_/Test.`x_=`().2#
+NN _empty_/Test.`x_=`().2 
+NN scala/Int#`+`(+4).2
+NN _empty_/Test.x().2
+OO 	local202
+OO _empty_/Test.x().2'
+PP scala/Predef.println(+1).2
+PP local202 
+QQ scala/Int#`<`(+3).2
+QQ _empty_/Test.x().2
+TT _empty_/Test2#2'
+UU _empty_/Test2#`<init>`().2
+UU local212"
+VV 	_empty_/Test2#foo().2%
+V
+V _empty_/Test2#foo().(x)2
+VV 
+scala/Int#2 
+W	W 
+scala/Int#`<`(+3).2%
+WW _empty_/Test2#foo().(x)2
+X
+X local2222
+X!X !$java/lang/AssertionError#`<init>`().2'
+XX !java/lang/AssertionError#2
+YY local222%
+ZZ _empty_/Test2#foo().(x)2
+\\ _empty_/Test2#x.2
+]] local232'
+]] _empty_/Test2#`<init>`().2
+]] _empty_/Test2#2
+^^ local242
+^^ local252
+^^ 
+scala/Int#2
+`` _empty_/Test2#x.2
+aa 	_empty_/Test2#2
+cc _empty_/Test3#2'
+dd _empty_/Test3#`<init>`().2
+dd local262"
+ee 	_empty_/Test3#foo().2/
+gg !!scala/collection/mutable/HashMap.2/
+gg !!scala/collection/mutable/HashMap#2'
+gg scala/collection/mutable/2
+gg scala/collection/2
+ii _empty_/Coder#2'
+ii _empty_/Coder#`<init>`().2!
+ii scala/package.List#2"
+ii scala/Predef.String#2"
+ii _empty_/Coder#words.2 
+kk _empty_/Coder#Foo#2+
+ll _empty_/Coder#Foo#`<init>`().2%
+ll scala/Predef.println().2 
+mm 	_empty_/Coder#Foo#2 
+oo _empty_/Coder#Bar#2+
+oo _empty_/Coder#Bar#`<init>`().2#
+qq scala/Tuple2.apply().2-
+qq scala/Predef.ArrowAssoc#`->`().2(
+qq scala/Predef.ArrowAssoc().2-
+q$q &scala/Predef.ArrowAssoc#`->`().21
+qq #scala/Predef.ArrowAssoc#`<init>`().2&
+ss _empty_/Coder#mnemonics.22
+ss $scala/collection/MapFactory#apply().2
+ss scala/Predef.Map.2-
+t
+t scala/Predef.ArrowAssoc#`->`().2(
+tt scala/Predef.ArrowAssoc().2-
+tt scala/Predef.ArrowAssoc#`->`().2(
+tt scala/Predef.ArrowAssoc().2-
+t&t (scala/Predef.ArrowAssoc#`->`().2(
+t"t "scala/Predef.ArrowAssoc().2-
+t4t 6scala/Predef.ArrowAssoc#`->`().2(
+t0t 0scala/Predef.ArrowAssoc().2-
+u
+u scala/Predef.ArrowAssoc#`->`().2(
+uu scala/Predef.ArrowAssoc().2-
+uu scala/Predef.ArrowAssoc#`->`().2(
+uu scala/Predef.ArrowAssoc().2-
+u'u )scala/Predef.ArrowAssoc#`->`().2(
+u#u #scala/Predef.ArrowAssoc().2-
+u5u 7scala/Predef.ArrowAssoc#`->`().2(
+u1u 1scala/Predef.ArrowAssoc().2#
+ww scala/Tuple2.apply().2%
+x
+x 
+scala/Tuple2.unapply().2
+x
+x local272
+xx local282#
+{{ scala/Tuple2.apply().2%
+|| scala/Tuple2.unapply().2
+|| local292
+|| local3027
+
+ 
+)scala/collection/IterableFactory#apply().2!
+ 
+scala/package.List.2:
+
+ÄÄ *scala/collection/immutable/`::`.unapply().2#
+
+Ä	Ä scala/package.`::`.2
+
+ÄÄ local312
+
+ÄÄ local322)
+
+ÄÄ scala/Predef.println(+1).2
+
+ÄÄ local312"
+
+ÅÅ 
+scala/package.Nil.2)
+
+ÅÅ scala/Predef.println(+1).2
+
+ÉÉ 	local332$
+
+ÉÉ java/io/IOException#2
+
+ÉÉ java/io/2
+
+ÉÉ java/2)
+
+É"É )scala/Predef.println(+1).2
+
+É*É ,local332
+
+ÑÑ 	local342(
+
+ÑÑ scala/package.Throwable#2
+
+Ö
+Ö local342(
+
+ââ _empty_/Coder#charCode0.2!
+
+ââ scala/Predef.Map#2
+
+ââ !scala/Char#2
+
+â#â 'scala/Char#2=
+
+èè -scala/collection/MapOps.WithFilter#flatMap().2A
+
+ãã 1scala/collection/MapFactoryDefaults#withFilter().2(
+
+ää _empty_/Coder#mnemonics.2
+
+åå local352'
+
+åå scala/Tuple2.unapply().2
+
+åå local362
+
+åå local372
+
+êê local382'
+
+êê scala/Tuple2.unapply().2
+
+êê local392
+
+êê local4021
+
+ê!ê $!scala/collection/StringOps#map().2-
+
+êê scala/Predef.augmentString().2
+
+êê  local402
+
+ê&ê )local412/
+
+ê1ê 3scala/Predef.ArrowAssoc#`->`().2*
+
+ê-ê -scala/Predef.ArrowAssoc().2
+
+ê-ê 0local412
+
+ê4ê 9local392
+
+íí 	_empty_/Coder#2
+
+îî _empty_/Test22.2%
+
+ïï 	_empty_/Test22.foo().2
+
+ïï 
+scala/Int#PZ 77741DB62BA64591481AF1FA1A85ADAF

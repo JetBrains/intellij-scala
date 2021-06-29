@@ -1,0 +1,13 @@
+
+ tests/pos/t3521/a.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#a(). €*a€*$
+_empty_/Test#`a_=`(). €*a_=€*&
+_empty_/Test#`a_=`().(x$1)*x$1€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ _empty_/DoubleValue#2
+ _empty_/Test#a().2#
+ 	_empty_/Test#`a_=`().PZ F2A5919D532A9A075D22D99B6BC7CB28

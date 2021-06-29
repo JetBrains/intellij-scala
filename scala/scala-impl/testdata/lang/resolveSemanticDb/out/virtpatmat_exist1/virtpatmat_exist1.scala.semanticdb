@@ -1,0 +1,174 @@
+
+è7!tests/pos/virtpatmat_exist1.scala*
+_empty_/HS#*HSÄ*(
+_empty_/HS#`<init>`(). Ä@*<init>Ä*
+_empty_/HS#[A]	*AÄ*5
+_empty_/HS#iterableFactory().*iterableFactoryÄ*
+_empty_/HS#get().*getÄ*$
+_empty_/HS#get().(elem)*elemÄ*'
+_empty_/HS#contains().*containsÄ*)
+_empty_/HS#contains().(elem)*elemÄ*#
+_empty_/HS#addOne().*addOneÄ*'
+_empty_/HS#addOne().(elem)*elemÄ*!
+_empty_/HS#clear().*clearÄ*'
+_empty_/HS#iterator().*iteratorÄ*-
+_empty_/HS#subtractOne().*subtractOneÄ*,
+_empty_/HS#subtractOne().(elem)*elemÄ*
+_empty_/Test.
+ *TestÄ*9
+_empty_/Test.HashMapCollision1#*HashMapCollision1Ä*<
+*_empty_/Test.HashMapCollision1#`<init>`(). Ä@*<init>Ä*@
+0_empty_/Test.HashMapCollision1#`<init>`().(hash) Ä*hashÄ*>
+/_empty_/Test.HashMapCollision1#`<init>`().(kvs) Ä*kvsÄ*,
+"_empty_/Test.HashMapCollision1#[A]	*AÄ*/
+"_empty_/Test.HashMapCollision1#[B]	 Ä*BÄ*6
+&_empty_/Test.HashMapCollision1#hash(). Ä*hashÄ*<
+*_empty_/Test.HashMapCollision1#`hash_=`(). Ä*hash_=Ä*;
+/_empty_/Test.HashMapCollision1#`hash_=`().(x$1)*x$1Ä*4
+%_empty_/Test.HashMapCollision1#kvs(). Ä*kvsÄ*:
+)_empty_/Test.HashMapCollision1#`kvs_=`(). Ä*kvs_=Ä*:
+._empty_/Test.HashMapCollision1#`kvs_=`().(x$1)*x$1Ä*9
+_empty_/Test.HashSetCollision1#*HashSetCollision1Ä*<
+*_empty_/Test.HashSetCollision1#`<init>`(). Ä@*<init>Ä*@
+0_empty_/Test.HashSetCollision1#`<init>`().(hash) Ä*hashÄ*<
+._empty_/Test.HashSetCollision1#`<init>`().(ks) Ä*ksÄ*,
+"_empty_/Test.HashSetCollision1#[A]	*AÄ*6
+&_empty_/Test.HashSetCollision1#hash(). Ä*hashÄ*<
+*_empty_/Test.HashSetCollision1#`hash_=`(). Ä*hash_=Ä*;
+/_empty_/Test.HashSetCollision1#`hash_=`().(x$1)*x$1Ä*2
+$_empty_/Test.HashSetCollision1#ks(). Ä*ksÄ*8
+(_empty_/Test.HashSetCollision1#`ks_=`(). Ä*ks_=Ä*9
+-_empty_/Test.HashSetCollision1#`ks_=`().(x$1)*x$1Ä*-
+_empty_/Test.splitArray().*
+splitArrayÄ*'
+_empty_/Test.splitArray().[T]	*TÄ*)
+_empty_/Test.splitArray().(ad)*adÄ27
+ --scala/annotation/unchecked/uncheckedVariance#2%
+ scala/annotation/unchecked/2
+ scala/annotation/2/
+ (!scala/collection/IterableFactory.2/
+ (!scala/collection/IterableFactory#2:
+* D,scala/collection/StrictOptimizedIterableOps.2'
+F Mscala/collection/mutable/2
+ scala/collection/2
+ scala/21
+# *#scala/collection/immutable/ListMap.21
+# *#scala/collection/immutable/ListMap#21
+, 3#scala/collection/immutable/ListSet.21
+, 3#scala/collection/immutable/ListSet#2)
+ !scala/collection/immutable/2
+ scala/collection/2
+ scala/23
+! ,%scala/collection/mutable/AbstractSet.2/
+. 5!scala/collection/mutable/HashMap.2/
+. 5!scala/collection/mutable/HashMap#2/
+7 >!scala/collection/mutable/HashSet.2/
+7 >!scala/collection/mutable/HashSet#2+
+@ Cscala/collection/mutable/Set.2+
+@ Cscala/collection/mutable/Set#2.
+E K scala/collection/mutable/SetOps.2'
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ _empty_/HS#2$
+ _empty_/HS#`<init>`().2>
+ 0scala/collection/mutable/AbstractSet#`<init>`().23
+
+ %scala/collection/mutable/AbstractSet#2
+ _empty_/HS#[A]2.
+	  scala/collection/mutable/SetOps#2
+ _empty_/HS#[A]2
+ _empty_/HS#2
+ _empty_/HS#[A]2:
+			 #,scala/collection/StrictOptimizedIterableOps#2
+	$	 %_empty_/HS#[A]2
+	+	 -_empty_/HS#2
+	.	 /_empty_/HS#[A]27
+
+
+ +)scala/collection/IterableFactoryDefaults#2
+
+	
+ scala/collection/2
+
+,
+ -_empty_/HS#[A]2)
+	 scala/package.Serializable#2
+	 
+_empty_/HS#[A]2+
+ _empty_/HS#iterableFactory().2/
+  /!scala/collection/IterableFactory#2#
+6 9scala/Predef.`???`().2
+ 	_empty_/HS#get().2%
+
+ _empty_/HS#get().(elem)2
+ _empty_/HS#[A]2
+ scala/Option#2
+ _empty_/HS#[A]2#
+  #scala/Predef.`???`().2$
+ _empty_/HS#contains().2*
+ _empty_/HS#contains().(elem)2
+ _empty_/HS#[A]2
+  scala/Boolean#2#
+# &scala/Predef.`???`().2"
+ _empty_/HS#addOne().2(
+ _empty_/HS#addOne().(elem)2
+ _empty_/HS#[A]2#
+& )scala/Predef.`???`().2!
+ _empty_/HS#clear().2
+ scala/Unit#2#
+ scala/Predef.`???`().2$
+ _empty_/HS#iterator().2%
+ scala/package.Iterator#2
+ _empty_/HS#[A]2#
+ !scala/Predef.`???`().2'
+ _empty_/HS#subtractOne().2-
+ _empty_/HS#subtractOne().(elem)2
+ _empty_/HS#[A]2#
++ .scala/Predef.`???`().2
+ _empty_/Test.2-
+ _empty_/Test.HashMapCollision1#28
+ *_empty_/Test.HashMapCollision1#`<init>`().2
++ .
+scala/Int#21
+9 @#scala/collection/immutable/ListMap#20
+A B"_empty_/Test.HashMapCollision1#[A]20
+D E"_empty_/Test.HashMapCollision1#[B]2;
+G I-scala/annotation/unchecked/uncheckedVariance#2<
+e e.scala/collection/mutable/HashMap#`<init>`(+1).2/
+T [!scala/collection/mutable/HashMap#20
+\ ]"_empty_/Test.HashMapCollision1#[A]20
+_ `"_empty_/Test.HashMapCollision1#[B]2;
+b d-scala/annotation/unchecked/uncheckedVariance#20
+ "_empty_/Test.HashMapCollision1#[A]20
+ "_empty_/Test.HashMapCollision1#[B]24
+% )&_empty_/Test.HashMapCollision1#hash().28
+% +*_empty_/Test.HashMapCollision1#`hash_=`().23
+4 7%_empty_/Test.HashMapCollision1#kvs().27
+4 9)_empty_/Test.HashMapCollision1#`kvs_=`().2-
+ _empty_/Test.HashSetCollision1#28
+ *_empty_/Test.HashSetCollision1#`<init>`().2
+' *
+scala/Int#21
+4 ;#scala/collection/immutable/ListSet#20
+< ="_empty_/Test.HashSetCollision1#[A]2$
+M M_empty_/HS#`<init>`().2
+H J_empty_/HS#20
+K L"_empty_/Test.HashSetCollision1#[A]20
+ "_empty_/Test.HashSetCollision1#[A]24
+! %&_empty_/Test.HashSetCollision1#hash().28
+! '*_empty_/Test.HashSetCollision1#`hash_=`().22
+0 2$_empty_/Test.HashSetCollision1#ks().26
+0 4(_empty_/Test.HashSetCollision1#`ks_=`().2(
+ _empty_/Test.splitArray().2+
+ _empty_/Test.splitArray().[T]2,
+ _empty_/Test.splitArray().(ad)2
+ scala/Array#2%
+ &scala/package.Iterable#2+
+' (_empty_/Test.splitArray().[T]2
+- 0
+scala/Any#2"
+ scala/Array#apply().2,
+ _empty_/Test.splitArray().(ad)2-
+ _empty_/Test.HashMapCollision1#2-
++ <_empty_/Test.HashSetCollision1#PZ 172F248F70E15B0D3DCC2740567C498B

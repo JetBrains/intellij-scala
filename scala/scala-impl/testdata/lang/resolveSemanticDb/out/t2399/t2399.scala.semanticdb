@@ -1,0 +1,98 @@
+
+®tests/pos/t2399.scala*
+_empty_/That1#*That1€*+
+_empty_/That1#`<init>`(). €@*<init>€*
+_empty_/That1#[A]	*A€*
+_empty_/That2#*That2€*+
+_empty_/That2#`<init>`(). €@*<init>€*
+_empty_/That2#[A]	*A€*
+_empty_/That2#[R]	*R€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/T#[A]	*A€*
+_empty_/T#[This]	*This€*!
+_empty_/T#next(). €*next€*'
+_empty_/T#`next_=`(). €*next_=€*&
+_empty_/T#`next_=`().(x$1)*x$1€*$
+_empty_/T#isEmpty().*isEmpty€*"
+_empty_/T#length().*length€*
+local1*loop€*
+local2*x€*
+local3*cnt€2
+ _empty_/That1#2#
+ _empty_/That1#`<init>`().2
+ _empty_/That1#[A]2
+ _empty_/That2#2'
+ _empty_/That2#`<init>`().2
+ _empty_/That2#[A]2
+ _empty_/That2#[R]2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+= B_empty_/That2#2
+C D_empty_/T#[A]2
+F J_empty_/T#[This]2
+ local02
+ _empty_/T#[This]2
+ 	_empty_/T#[A]2
+ _empty_/T#[This]2
+ _empty_/T#next().2
+ _empty_/T#[This]2@
+' 42scala/compiletime/package$package.uninitialized().2 
+ &scala/compiletime/2#
+ _empty_/T#`next_=`().2"
+ _empty_/T#isEmpty().2$
+ java/lang/Object#eq().2
+ _empty_/T#next().2!
+		 _empty_/T#length().2
+		 
+scala/Int#2
+
+
+ local12
+
+
+ local22
+
+
+ _empty_/T#[This]2
+
+
+ local32
+
+
+ 
+scala/Int#2
+
+!
+ $
+scala/Int#2"
+
+-
+ 4_empty_/T#isEmpty().2
+
++
+ ,local22
+
+6
+ 9local32
+
+?
+ Clocal12
+
+F
+ J_empty_/T#next().2
+
+D
+ Elocal22 
+
+P
+ Qscala/Int#`+`(+4).2
+
+L
+ Olocal32
+ local12
+	 
+_empty_/T#PZ 6EC955BEC94908F598DCAC5AE1587E64

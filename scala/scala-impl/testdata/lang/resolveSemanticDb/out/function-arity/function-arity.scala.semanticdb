@@ -1,0 +1,175 @@
+
+Î tests/pos/function-arity.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.call().*call€*!
+_empty_/Test.call().(k)*k€*!
+_empty_/Test.test().*test€*
+local0*x$1€*
+local1*x$2€*
+local2 €*x€*
+local3 €*y€*
+_empty_/Test.X#*X€*,
+_empty_/Test.X#`<init>`(). €@*<init>€*!
+_empty_/Test.f2x().  *f2x€* 
+_empty_/Test.f2x().(f)*f€*
+local4*x$1€*#
+_empty_/Test.unary().*unary€*"
+_empty_/Test.unary().[T]	*T€*"
+_empty_/Test.unary().(a)*a€*"
+_empty_/Test.unary().(b)*b€*"
+_empty_/Test.unary().(f)*f€*
+local5*x$1€*
+local6*x€*
+local7*y€*
+local8*x$1€*
+local9*x€*
+local10*y€*
+local11*x$1€*
+local12*x€*
+local13*y€*
+_empty_/Test.xs. €*xs€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(x)*x€*
+_empty_/Test.f().(y)*y€*
+local14*x$1€*
+local15*x$1€*
+local16*x€*
+local17*y€2
+ _empty_/Test.2"
+ 
+_empty_/Test.call().2%
+ _empty_/Test.call().(k)2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  scala/Unit#2
+# 'scala/Unit#2#
+* -scala/Predef.`???`().2"
+ 
+_empty_/Test.test().2"
+ _empty_/Test.call().2#
+ scala/Tuple2.apply().2
+ local02
+ local12%
+ scala/Tuple2.unapply().2
+ local22
+ local32
+ 	_empty_/Test.X#2(
+ _empty_/Test.X#`<init>`().2
+ scala/Function1#2
+ 
+scala/Int#2"
+! 'scala/Predef.String#2!
+ _empty_/Test.f2x().2$
+ _empty_/Test.f2x().(f)2
+ scala/Function1#2
+  #
+scala/Int#2"
+% +scala/Predef.String#2
+/ 0_empty_/Test.X#2#
+3 6scala/Predef.`???`().2
+ local42)
+ java/lang/String#isEmpty().2
+" #_empty_/Test.X#2#
+
+
+ _empty_/Test.unary().2&
+
+
+ _empty_/Test.unary().[T]2&
+
+
+ _empty_/Test.unary().(a)2&
+
+
+ _empty_/Test.unary().[T]2&
+
+
+ _empty_/Test.unary().(b)2&
+
+
+ _empty_/Test.unary().[T]2&
+
+
+ _empty_/Test.unary().(f)2&
+
+ 
+ !_empty_/Test.unary().[T]2&
+
+#
+ $_empty_/Test.unary().[T]2&
+
+*
+ +_empty_/Test.unary().[T]2&
+
+.
+ /_empty_/Test.unary().[T]2&
+
+3
+ 3scala/Function1#apply().2&
+
+2
+ 3_empty_/Test.unary().(f)2#
+
+5
+ 5scala/Tuple2.apply().2&
+
+5
+ 6_empty_/Test.unary().(a)2&
+
+8
+ 9_empty_/Test.unary().(b)2#
+ _empty_/Test.unary().2
+ local62
+ scala/Tuple2#_1.2
+ local72
+ scala/Tuple2#_2.2
+ local62#
+ _empty_/Test.unary().2
+ local92
+ 
+scala/Int#2
+ scala/Tuple2#_1.2
+ local102
+ scala/Tuple2#_2.2
+ local92#
+ _empty_/Test.unary().2
+ local112
+ local122
+ 
+scala/Int#2
+ scala/Tuple2#_1.2
+ local132
+ 
+scala/Int#2
+ scala/Tuple2#_2.2
+" #local122
+ _empty_/Test.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(x)2
+ 
+scala/Int#2"
+ _empty_/Test.f().(y)2
+ 
+scala/Int#2 
+ scala/Int#`*`(+3).2"
+ _empty_/Test.f().(x)2"
+ _empty_/Test.f().(y)24
+ &scala/collection/immutable/List#map().2I
+ ;scala/collection/StrictOptimizedIterableOps#zipWithIndex().2
+ _empty_/Test.xs.2
+ scala/Tuple2#_1.2
+ scala/Tuple2#_2.2 
+ scala/Int#`+`(+4).24
+ &scala/collection/immutable/List#map().2I
+ ;scala/collection/StrictOptimizedIterableOps#zipWithIndex().2
+ _empty_/Test.xs.2
+ scala/Tuple2#_1.2
+ scala/Tuple2#_2.2
+ _empty_/Test.f().2
+ local162
+ local17PZ 12B9ABC2E4324713B555EA1739004E65

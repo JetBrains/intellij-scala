@@ -1,0 +1,41 @@
+
+ªtests/pos/i0306.scala*
+_empty_/bar.
+ *bar€*
+_empty_/bar.C#*C€*+
+_empty_/bar.C#`<init>`(). €@*<init>€*
+_empty_/bar.C#[T]	*T€*
+_empty_/bar.x. €*x€*
+_empty_/bar.y. €*y€*
+local0 €*x€*
+local1 €	*u€*
+local2*xx€*
+_empty_/bar.z. €*z€*
+local3*xx€2
+ 
+_empty_/bar.2
+ 	_empty_/bar.C#2'
+	 	_empty_/bar.C#`<init>`().2
+
+ _empty_/bar.C#[T]2
+ _empty_/bar.x.2
+	 scala/AnyRef#2'
+ _empty_/bar.C#`<init>`().2
+ _empty_/bar.y.2
+
+ _empty_/bar.x.2
+	 
+local02
+ _empty_/bar.C#2
+ local12
+
+ local22
+ local12
+ local22
+		 local22
+ _empty_/bar.z.2
+ 
+local32"
+ scala/Predef.String#2
+ local32
+ local3PZ C5C4410020116E1AA7D5220B94D29281

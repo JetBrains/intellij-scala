@@ -1,0 +1,61 @@
+
+—tests/pos/t2305.scala*
+_empty_/Bind#*Bind€**
+_empty_/Bind#`<init>`(). €@*<init>€*
+_empty_/Bind#[Z]	*Z€*.
+_empty_/MySerializable#*MySerializable€*4
+"_empty_/MySerializable#`<init>`(). €@*<init>€*$
+_empty_/MySerializable#[X]	*X€*
+_empty_/Bind.
+ *Bind€*<
+_empty_/Bind.JavaArrayListBind.  *JavaArrayListBind€*
+local0 *$anon€*>
+ _empty_/Bind.MySerializableBind.  *MySerializableBind€*
+local1 *$anon€*
+_empty_/works.
+ *works€*(
+_empty_/works.runbind().*runbind€*-
+_empty_/works.runbind().(bind)  *bind€* 
+_empty_/breaks.
+ *breaks€*)
+_empty_/breaks.runbind().*runbind€*.
+_empty_/breaks.runbind().(bind)  *bind€2
+ java/util/ArrayList#2
+ 
+java/util/2
+ java/2
+ 
+_empty_/Bind#2&
+
+ 
+_empty_/Bind#`<init>`().2
+ _empty_/Bind#[Z]2%
+ _empty_/MySerializable#20
+ "_empty_/MySerializable#`<init>`().2#
+( 4java/io/Serializable#2
+% 'java/io/2
+  $java/2(
+ _empty_/MySerializable#[X]2
+ _empty_/Bind.2-
+ "_empty_/Bind.JavaArrayListBind.2
+$ (_empty_/Bind#2
+6 6local02
+: >_empty_/Bind#2.
+ # _empty_/Bind.MySerializableBind.2
+% )_empty_/Bind#2
+< <local12
+@ D_empty_/Bind#2
+ _empty_/works.2&
+ _empty_/works.runbind().2,
+ _empty_/works.runbind().(bind)2
+ #_empty_/Bind#2
+6 :scala/Unit#2&
+ _empty_/works.runbind().2.
+  _empty_/Bind.MySerializableBind.2
+ _empty_/breaks.2'
+ _empty_/breaks.runbind().2-
+ _empty_/breaks.runbind().(bind)2
+ #_empty_/Bind#2
+1 5scala/Unit#2'
+ _empty_/breaks.runbind().2-
+ _empty_/Bind.JavaArrayListBind.PZ 03D83654530D2A9173218383658530CE

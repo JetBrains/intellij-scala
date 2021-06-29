@@ -1,0 +1,75 @@
+
+Ê$tests/pos/dependent-extractors.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C# *C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#T#*T€*
+_empty_/Test.C#x. „*x€*
+_empty_/Test.c. €*c€*
+local0 *$anon€*
+local1*T€*
+local2 €*x€*
+_empty_/Test.X.
+ *X€*)
+_empty_/Test.X.unapply().*unapply€*&
+_empty_/Test.X.unapply().(x)*x€*
+_empty_/Test.y. €*y€*
+local3 €*y€*
+_empty_/Test.y1. €*y1€*
+_empty_/Test.z. €*z€*
+local4 €*y€*
+_empty_/Test.z1. €*z1€2
+ _empty_/Test.2
+ _empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.C#T#2
+! "_empty_/Test.C#x.2
+$ %_empty_/Test.C#T#2
+ _empty_/Test.c.2
+
+ 
+local02(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.C#2
+ local12
+ 
+scala/Int#2
+$ %local22
+	 
+_empty_/Test.X.2'
+ _empty_/Test.X.unapply().2*
+ _empty_/Test.X.unapply().(x)2
+ _empty_/Test.C#2
+  $scala/Some#2
+' (_empty_/Test.C#T#2*
+% &_empty_/Test.X.unapply().(x)2!
+0 0scala/Some.apply().2
+, 0scala/Some.2
+3 4_empty_/Test.C#x.2*
+1 2_empty_/Test.X.unapply().(x)2
+ _empty_/Test.y.2
+
+ _empty_/Test.c.2'
+ _empty_/Test.X.unapply().2
+ _empty_/Test.X.2
+ local32
+! "local32
+		 _empty_/Test.y1.2
+	
+	 
+scala/Int#2
+		 _empty_/Test.y.2
+ _empty_/Test.z.2
+ _empty_/Test.c.2
+ 
+scala/Any#2'
+" "_empty_/Test.X.unapply().2
+! "_empty_/Test.X.2
+# $local42
+) *local42
+ _empty_/Test.z1.2
+ _empty_/Test.C#T#2
+
+ _empty_/Test.C#2
+ _empty_/Test.z.PZ C5BBE69474A5C6442CF0B38A627409A3

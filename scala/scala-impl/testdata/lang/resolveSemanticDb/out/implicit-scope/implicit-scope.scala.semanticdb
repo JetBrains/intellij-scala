@@ -1,0 +1,114 @@
+
+Ãtests/pos/implicit-scope.scala*
+
+_empty_/A.
+ *A€*$
+_empty_/A.opaques.
+ *opaques€**
+_empty_/A.opaques.FlagSet#*FlagSet€*,
+_empty_/A.opaques.FlagSet().*FlagSet€*/
+"_empty_/A.opaques.FlagSet().(bits)*bits€**
+_empty_/A.opaques.toBits().*toBits€**
+_empty_/A.opaques.toBits().(fs)*fs€*'
+_empty_/A.someFlag. €*someFlag€*"
+_empty_/A.FlagSet#*FlagSet€*$
+_empty_/A.FlagSet().*FlagSet€*'
+_empty_/A.FlagSet().(bits)*bits€*
+_empty_/A.bits().*bits€* 
+_empty_/A.bits().(xs)*xs€*
+_empty_/A.`|`().*|€*
+_empty_/A.`|`().(xs)*xs€*
+_empty_/A.`|`().(ys)*ys€*
+
+_empty_/B.
+ *B€*$
+_empty_/B.Variance#*Variance€*
+_empty_/B.f. €*f€*
+_empty_/B.v. €*v€*
+_empty_/B.x(). €*x€*!
+_empty_/B.`x_=`(). €*x_=€*#
+_empty_/B.`x_=`().(x$1)*x$1€2
+ 
+_empty_/A.2 
+	 _empty_/A.opaques.2(
+ _empty_/A.opaques.FlagSet#2
+ scala/Long#2*
+ _empty_/A.opaques.FlagSet().20
+ "_empty_/A.opaques.FlagSet().(bits)2
+ scala/Long#2(
+ $_empty_/A.opaques.FlagSet#20
+' +"_empty_/A.opaques.FlagSet().(bits)2)
+ _empty_/A.opaques.toBits().2-
+ _empty_/A.opaques.toBits().(fs)2(
+ _empty_/A.opaques.FlagSet#2
+ !scala/Long#2-
+$ &_empty_/A.opaques.toBits().(fs)2!
+ _empty_/A.someFlag.2"
+ _empty_/A.FlagSet().2 
+ _empty_/A.FlagSet#2(
+  _empty_/A.opaques.FlagSet#2 
+ _empty_/A.opaques.2"
+		 _empty_/A.FlagSet().2(
+		 _empty_/A.FlagSet().(bits)2
+		 scala/Long#2 
+		 "_empty_/A.FlagSet#2*
+	-	 4_empty_/A.opaques.FlagSet().2 
+	%	 ,_empty_/A.opaques.2(
+	5	 9_empty_/A.FlagSet().(bits)2
+ _empty_/A.bits().2#
+ _empty_/A.bits().(xs)2 
+ _empty_/A.FlagSet#2
+ scala/Long#2)
+ #_empty_/A.opaques.toBits().2 
+ _empty_/A.opaques.2#
+$ &_empty_/A.bits().(xs)2
+ 	_empty_/A.`|`().2"
+ _empty_/A.`|`().(xs)2"
+ _empty_/A.`|`().(ys)2 
+ _empty_/A.FlagSet#2 
+  _empty_/A.FlagSet#2"
+# *_empty_/A.FlagSet().2!
+3 4scala/Long#`|`(+4).2
+. 2_empty_/A.bits().2"
++ -_empty_/A.`|`().(xs)2
+8 <_empty_/A.bits().2"
+5 7_empty_/A.`|`().(ys)2
+ 
+_empty_/B.2!
+ _empty_/B.Variance#2 
+ _empty_/A.FlagSet#2
+ 
+_empty_/A.2
+ _empty_/B.f.2 
+ _empty_/A.FlagSet#2
+	 
+
+_empty_/A.2!
+ _empty_/A.someFlag.2
+ 
+_empty_/A.2
+ _empty_/A.bits().2
+ _empty_/B.f.2
+ _empty_/B.v.2!
+	 _empty_/B.Variance#2!
+ _empty_/A.someFlag.2
+ 
+_empty_/A.2
+ _empty_/A.bits().2
+ _empty_/B.v.2
+ _empty_/A.bits().2!
+ _empty_/A.someFlag.2
+ 
+_empty_/A.2
+ _empty_/B.x().2 
+ 	_empty_/B.`x_=`().2
+ _empty_/A.bits().2 
+	 
+scala/Int#`>`(+3).2
+ _empty_/B.x().2!
+ _empty_/A.someFlag.2
+ 
+_empty_/A.2!
+  (_empty_/A.someFlag.2
+ 
+_empty_/A.PZ 6220F39906EE330F3557C58570E65842

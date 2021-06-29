@@ -1,0 +1,146 @@
+
+½tests/pos/8647.scala*
+_empty_/Two# *Two€*)
+_empty_/Two#`<init>`(). €@*<init>€*
+_empty_/Two#[A]	*A€*
+_empty_/Two#[B]	*B€*
+_empty_/Blaaa# *Blaaa€*+
+_empty_/Blaaa#`<init>`(). €@*<init>€*
+_empty_/Bla# *Bla€*)
+_empty_/Bla#`<init>`(). €@*<init>€*
+_empty_/Bla#[X]	*X€*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.Foo#*Foo€*
+_empty_/Test1.Foo#[X]	*X€*"
+_empty_/Test1.test().*test€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.Foo#*Foo€*
+_empty_/Test2.Foo#[X]	*X€*"
+_empty_/Test2.test().*test€*
+_empty_/Test3.
+ *Test3€*
+_empty_/Test3.Id#*Id€*
+_empty_/Test3.Id#[W]	*W€*
+_empty_/Test3.M#*M€*
+_empty_/Test3.M#[X]	*X€*
+_empty_/Test3.M#[Y]	*Y€*
+local0 €	*x€*
+local1 €	*a€*
+_empty_/Test3.x. €*x€*
+_empty_/Test4.
+ *Test4€*
+_empty_/Test4.Id#*Id€*
+_empty_/Test4.Id#[W]	*W€*
+_empty_/Test4.M#*M€*
+_empty_/Test4.M#[X]	*X€*
+_empty_/Test4.M#[Y]	*Y€*
+local2 €	*x€*
+_empty_/Test4.x. €*x€2
+ _empty_/Two#2!
+ _empty_/Two#`<init>`().2
+ _empty_/Two#[A]2
+ _empty_/Two#[B]2
+ _empty_/Blaaa#2#
+_empty_/Blaaa#`<init>`().2
+ _empty_/Bla#2%
+ _empty_/Bla#`<init>`().2
+ _empty_/Bla#[X]2
+ _empty_/Test1.2 
+ 
+_empty_/Test1.Foo#2#
+ _empty_/Test1.Foo#[X]2#
+ _empty_/Test1.Foo#[X]2
+			 _empty_/Two#2
+		 _empty_/Blaaa#2"
+
+
+ scala/Predef.String#2
+	 _empty_/Two#2"
+ scala/Predef.String#2
+ 	
+scala/Int#2#
+ 
+_empty_/Test1.test().2 
+ _empty_/Test1.Foo#2
+ _empty_/Two#2"
+ scala/Predef.String#2"
+ "scala/Predef.String#2
+ _empty_/Test2.2 
+ 
+_empty_/Test2.Foo#2#
+ _empty_/Test2.Foo#[X]2#
+ _empty_/Test2.Foo#[X]2
+	 _empty_/Two#2
+ _empty_/Bla#2"
+ scala/Predef.String#2
+	 _empty_/Two#2"
+ scala/Predef.String#2
+ 	
+scala/Int#2#
+ 
+_empty_/Test2.test().2 
+ _empty_/Test2.Foo#2
+ _empty_/Two#2"
+ scala/Predef.String#2"
+ "scala/Predef.String#2
+ _empty_/Test3.2
+ 	_empty_/Test3.Id#2"
+
+ _empty_/Test3.Id#[W]2"
+ _empty_/Test3.Id#[W]2
+ _empty_/Test3.M#2!
+	 
+_empty_/Test3.M#[X]2!
+ _empty_/Test3.M#[Y]2!
+ _empty_/Test3.M#[X]2
+ 	  
+scala/Int#2"
+   scala/Predef.String#2
+!	! _empty_/Test3.Id#2
+!! local02!
+!! _empty_/Test3.M#[Y]2
+"" _empty_/Two#2
+"" _empty_/Bla#2
+"" local12
+""  
+scala/Int#2"
+## scala/Predef.String#2
+&& _empty_/Test3.x.2
+&	& 
+_empty_/Test3.M#2
+&& scala/Boolean#2
+&& _empty_/Two#2
+&& scala/Boolean#2
+&!& (scala/Boolean#2
+)) _empty_/Test4.2
+** 	_empty_/Test4.Id#2"
+*
+* _empty_/Test4.Id#[W]2"
+** _empty_/Test4.Id#[W]2
+,, _empty_/Test4.M#2!
+,	, 
+_empty_/Test4.M#[X]2!
+,, _empty_/Test4.M#[Y]2!
+,, _empty_/Test4.M#[X]2
+-	- 
+scala/Int#2"
+-- scala/Predef.String#2
+.	. _empty_/Test4.Id#2
+.. local22!
+.. _empty_/Test4.M#[Y]2
+// _empty_/Two#2
+// _empty_/Bla#2
+// local22
+// "
+scala/Int#2"
+00 scala/Predef.String#2
+33 _empty_/Test4.x.2
+3	3 
+_empty_/Test4.M#2
+33 scala/Boolean#2
+33 _empty_/Two#2
+33 _empty_/Bla#2
+33 #scala/Boolean#2
+3&3 -scala/Boolean#PZ 3C2900810C16C290896528B5429E078E

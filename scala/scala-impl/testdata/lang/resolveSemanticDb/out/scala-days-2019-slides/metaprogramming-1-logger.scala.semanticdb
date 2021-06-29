@@ -1,0 +1,110 @@
+
+ñ?tests/pos/scala-days-2019-slides/metaprogramming-1-logger.scala* 
+_empty_/Logger.
+ *Logger€**
+_empty_/Logger.indent(). €*indent€*0
+_empty_/Logger.`indent_=`(). €*indent_=€*-
+!_empty_/Logger.`indent_=`().(x$1)*x$1€*!
+_empty_/Logger.log().*log€*"
+_empty_/Logger.log().[T]	*T€*&
+_empty_/Logger.log().(msg)*msg€*$
+_empty_/Logger.log().(op)*op€*
+local0 €*result€*"
+_empty_/Logger2.
+ *Logger2€*+
+_empty_/Logger2.indent(). €*indent€*"
+_empty_/Logger2.log().*log€*#
+_empty_/Logger2.log().[T]	*T€*'
+_empty_/Logger2.log().(msg)*msg€*%
+_empty_/Logger2.log().(op)*op€*
+local1 €*result€*6
+ _empty_/Logger2.inline$indent().*inline$indent€*<
+$_empty_/Logger2.`inline$indent_=`().*inline$indent_=€*5
+)_empty_/Logger2.`inline$indent_=`().(x$0)*x$0€2
+ _empty_/Logger.2&
+ _empty_/Logger.indent().2*
+ _empty_/Logger.`indent_=`().2#
+ _empty_/Logger.log().2&
+ _empty_/Logger.log().[T]2(
+ _empty_/Logger.log().(msg)2"
+ scala/Predef.String#2'
+! #_empty_/Logger.log().(op)2&
+( )_empty_/Logger.log().[T]2&
+, -_empty_/Logger.log().[T]2'
+ scala/Predef.println(+1).2&
+( )scala/StringContext#s().2*
+ scala/StringContext.apply().2/
+ !scala/collection/StringOps#`*`().2+
+ scala/Predef.augmentString().2&
+ _empty_/Logger.indent().2(
+% (_empty_/Logger.log().(msg)2*
+ 
+_empty_/Logger.`indent_=`().2 
+
+ 
+scala/Int#`+`(+4).2&
+ 
+_empty_/Logger.indent().2
+ local02'
+ _empty_/Logger.log().(op)2*
+ 
+_empty_/Logger.`indent_=`().2 
+
+ 
+scala/Int#`-`(+3).2&
+ 
+_empty_/Logger.indent().2'
+		 scala/Predef.println(+1).2&
+	,	 -scala/StringContext#s().2*
+		 scala/StringContext.apply().2/
+		 !scala/collection/StringOps#`*`().2+
+		 scala/Predef.augmentString().2&
+		 _empty_/Logger.indent().2(
+		 "_empty_/Logger.log().(msg)2
+	&	 ,local02
+
+
+ 
+local02
+ _empty_/Logger2.2'
+ _empty_/Logger2.indent().2$
+ _empty_/Logger2.log().2'
+ _empty_/Logger2.log().[T]2)
+ _empty_/Logger2.log().(msg)2"
+ scala/Predef.String#2(
+! #_empty_/Logger2.log().(op)2'
+( )_empty_/Logger2.log().[T]2'
+, -_empty_/Logger2.log().[T]2'
+ scala/Predef.println(+1).2&
+( )scala/StringContext#s().2*
+ scala/StringContext.apply().2/
+ !scala/collection/StringOps#`*`().2+
+ scala/Predef.augmentString().2.
+  _empty_/Logger2.inline$indent().2)
+% (_empty_/Logger2.log().(msg)22
+ 
+$_empty_/Logger2.`inline$indent_=`().2 
+
+ 
+scala/Int#`+`(+4).2.
+ 
+ _empty_/Logger2.inline$indent().2
+ local12(
+ _empty_/Logger2.log().(op)22
+ 
+$_empty_/Logger2.`inline$indent_=`().2 
+
+ 
+scala/Int#`-`(+3).2.
+ 
+ _empty_/Logger2.inline$indent().2'
+ scala/Predef.println(+1).2&
+, -scala/StringContext#s().2*
+ scala/StringContext.apply().2/
+ !scala/collection/StringOps#`*`().2+
+ scala/Predef.augmentString().2.
+  _empty_/Logger2.inline$indent().2)
+ "_empty_/Logger2.log().(msg)2
+& ,local12
+ 
+local1PZ B9FF38EACFB95A056B17F53A30DEE940

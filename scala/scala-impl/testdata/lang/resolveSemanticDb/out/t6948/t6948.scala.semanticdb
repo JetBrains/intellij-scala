@@ -1,0 +1,55 @@
+
+“tests/pos/t6948.scala*
+_empty_/t6948.
+ *t6948€*#
+_empty_/t6948.rand. €*rand€*
+_empty_/t6948.a1().*a1€*
+_empty_/t6948.a3().*a3€*
+_empty_/t6948.a4().*a4€*
+_empty_/t6948.a5().*a5€*
+_empty_/t6948.a6().*a6€2
+ _empty_/t6948.2!
+ 
+_empty_/t6948.rand.2-
+" "scala/util/Random#`<init>`(+3).2 
+ "scala/util/Random#2
+ scala/util/2
+ scala/2!
+ _empty_/t6948.a1().2*
+ scala/util/Random#shuffle().2!
+ _empty_/t6948.rand.2)
+ scala/runtime/RichInt#to().26
+ (scala/LowPriorityImplicits#intWrapper().2L
+ >scala/collection/BuildFromLowPriority2#buildFromIterableOps().2!
+ _empty_/t6948.a3().2*
+ scala/util/Random#shuffle().2!
+ _empty_/t6948.rand.27
+ )scala/collection/IterableFactory#apply().2#
+ scala/package.Vector.2L
+( (>scala/collection/BuildFromLowPriority2#buildFromIterableOps().2!
+ _empty_/t6948.a4().2*
+ scala/util/Random#shuffle().2!
+ _empty_/t6948.rand.2;
+, ,-scala/collection/SeqFactory.Delegate#apply().2#
+) ,scala/collection/Seq.2
+ (scala/collection/2
+ scala/2L
+6 6>scala/collection/BuildFromLowPriority2#buildFromIterableOps().2!
+ _empty_/t6948.a5().2*
+ scala/util/Random#shuffle().2!
+ _empty_/t6948.rand.2;
+6 6-scala/collection/SeqFactory.Delegate#apply().2-
+3 6scala/collection/immutable/Seq.2)
+) 2scala/collection/immutable/2
+ (scala/collection/2
+ scala/2L
+@ @>scala/collection/BuildFromLowPriority2#buildFromIterableOps().2!
+ _empty_/t6948.a6().2*
+ scala/util/Random#shuffle().2!
+ _empty_/t6948.rand.2;
+4 4-scala/collection/SeqFactory.Delegate#apply().2+
+1 4scala/collection/mutable/Seq.2'
+) 0scala/collection/mutable/2
+ (scala/collection/2
+ scala/2L
+> >>scala/collection/BuildFromLowPriority2#buildFromIterableOps().PZ 73CB2E6C0B7EA7D4DA7F360CA8FEC0B4

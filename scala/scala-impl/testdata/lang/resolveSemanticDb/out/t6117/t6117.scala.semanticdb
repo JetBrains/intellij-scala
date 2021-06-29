@@ -1,0 +1,38 @@
+
+ütests/pos/t6117.scala*
+test/ImportMe#*ImportMe€*+
+test/ImportMe#`<init>`(). €@*<init>€* 
+test/ImportMe#foo().*foo€*!
+test/ImportMe#foo().(i)*i€*"
+test/ImportMe#foo(+1).*foo€*#
+test/ImportMe#foo(+1).(s)*s€*
+
+test/Test#*Test€*'
+test/Test#`<init>`(). €@*<init>€*3
+test/Test#`<init>`().(importMe) €*importMe€*'
+test/Test#importMe. €*importMe€2
+ test/2
+ test/ImportMe#2'
+ test/ImportMe#`<init>`().2"
+ 	test/ImportMe#foo().2%
+
+ test/ImportMe#foo().(i)2
+ 
+scala/Int#2$
+ 	test/ImportMe#foo(+1).2'
+
+ test/ImportMe#foo(+1).(s)2"
+ scala/Predef.String#2
+ 
+
+test/Test#2#
+
+ 
+test/Test#`<init>`().2
+ !test/ImportMe#2!
+ test/Test#importMe.2!
+	 test/Test#importMe.2!
+			 test/Test#importMe.2'
+ 	scala/Predef.println(+1).2"
+
+ test/ImportMe#foo().PZ 086D0170461B8B20ECCAFB948F547748

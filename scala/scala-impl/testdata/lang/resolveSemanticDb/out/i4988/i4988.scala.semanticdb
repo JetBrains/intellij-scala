@@ -1,0 +1,52 @@
+
+Ùtests/pos/i4988.scala*
+_empty_/Trees.
+ *Trees€*,
+_empty_/Trees.PackageDef#*
+PackageDef€*6
+$_empty_/Trees.PackageDef#`<init>`(). €@*<init>€*$
+_empty_/Trees.ValDef#*ValDef€*2
+ _empty_/Trees.ValDef#`<init>`(). €@*<init>€**
+_empty_/ReplCompiler#*ReplCompiler€*2
+ _empty_/ReplCompiler#`<init>`(). €@*<init>€*3
+ _empty_/ReplCompiler#PackageDef#*
+PackageDef€*+
+_empty_/ReplCompiler#ValDef#*ValDef€*-
+_empty_/ReplCompiler#errors().*errors€*+
+!_empty_/ReplCompiler#errors().[A]	*A€*/
+_empty_/ReplCompiler#success().*success€*3
+!_empty_/ReplCompiler#typeCheck().*	typeCheck€*4
+'_empty_/ReplCompiler#typeCheck().(cond)*cond€2
+ _empty_/Trees.2'
+ _empty_/Trees.PackageDef#22
+ $_empty_/Trees.PackageDef#`<init>`().2#
+ _empty_/Trees.ValDef#2.
+  _empty_/Trees.ValDef#`<init>`().2#
+ _empty_/ReplCompiler#2.
+  _empty_/ReplCompiler#`<init>`().2.
+  _empty_/ReplCompiler#PackageDef#2'
+ $_empty_/Trees.PackageDef#2
+ _empty_/Trees.2*
+ _empty_/ReplCompiler#ValDef#2#
+ _empty_/Trees.ValDef#2
+ _empty_/Trees.2,
+		 _empty_/ReplCompiler#errors().2/
+		 !_empty_/ReplCompiler#errors().[A]2/
+		 !_empty_/ReplCompiler#errors().[A]2#
+		 scala/Predef.`???`().2-
+
+
+ _empty_/ReplCompiler#success().2*
+
+
+ _empty_/ReplCompiler#ValDef#2#
+
+
+ scala/Predef.`???`().2/
+ !_empty_/ReplCompiler#typeCheck().25
+ '_empty_/ReplCompiler#typeCheck().(cond)2
+ scala/Boolean#2*
+  &_empty_/ReplCompiler#ValDef#25
+ '_empty_/ReplCompiler#typeCheck().(cond)2-
+ _empty_/ReplCompiler#success().2,
+ !_empty_/ReplCompiler#errors().PZ C0D6C345C1601B9C7271A32EE08417A2

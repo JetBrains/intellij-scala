@@ -1,0 +1,125 @@
+
+è&,tests/pos/strip-tvars-for-lubbasetypes.scala*
+_empty_/Test.
+ *TestÄ*)
+_empty_/Test.EqualOps# *EqualOpsÄ*3
+!_empty_/Test.EqualOps#`<init>`(). Ä@*<init>Ä*1
+$_empty_/Test.EqualOps#`<init>`().(x) Ä*xÄ*#
+_empty_/Test.EqualOps#[T]	*TÄ*%
+_empty_/Test.EqualOps#x. Ä*xÄ**
+_empty_/Test.EqualOps#`===`().*===Ä*-
+"_empty_/Test.EqualOps#`===`().[T1]	*T1Ä*-
+"_empty_/Test.EqualOps#`===`().[Ph]	*PhÄ*/
+#_empty_/Test.EqualOps#`===`().[Ph2]	*Ph2Ä*3
+%_empty_/Test.EqualOps#`===`().(other)*otherÄ**
+_empty_/Test.EqualOps#`!!!`().*!!!Ä*-
+"_empty_/Test.EqualOps#`!!!`().[T1]	*T1Ä*/
+#_empty_/Test.EqualOps#`!!!`().[Ph2]	*Ph2Ä*-
+"_empty_/Test.EqualOps#`!!!`().[Ph]	*PhÄ*3
+%_empty_/Test.EqualOps#`!!!`().(other)*otherÄ*)
+_empty_/Test.EqualOps.
+ *EqualOpsÄ*+
+_empty_/Test.EqualOps(). (*EqualOpsÄ*%
+_empty_/Test.EqualOps().[T]	*TÄ*%
+_empty_/Test.EqualOps().(x)*xÄ*
+_empty_/Test.A#*AÄ*,
+_empty_/Test.A#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.B#*BÄ*,
+_empty_/Test.B#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.C#*CÄ*,
+_empty_/Test.C#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.a. Ä*aÄ*
+_empty_/Test.b. Ä*bÄ*
+_empty_/Test.c. Ä*cÄ*
+_empty_/Test.x1. Ä*x1Ä*
+_empty_/Test.x2. Ä*x2Ä*
+_empty_/Test.x3. Ä*x3Ä*
+_empty_/Test.x4. Ä*x4Ä*
+_empty_/Test.x5. Ä*x5Ä2
+ _empty_/Test.2$
+ _empty_/Test.EqualOps#2/
+ !_empty_/Test.EqualOps#`<init>`().2'
+* +_empty_/Test.EqualOps#[T]2&
+; ;scala/AnyVal#`<init>`().2
+5 ;scala/AnyVal#2'
+  !_empty_/Test.EqualOps#[T]2&
+' (_empty_/Test.EqualOps#x.2,
+ _empty_/Test.EqualOps#`===`().20
+ "_empty_/Test.EqualOps#`===`().[T1]2'
+ _empty_/Test.EqualOps#[T]20
+ "_empty_/Test.EqualOps#`===`().[Ph]2'
+ _empty_/Test.EqualOps#[T]20
+  ""_empty_/Test.EqualOps#`===`().[T1]21
+$ '#_empty_/Test.EqualOps#`===`().[Ph2]20
++ -"_empty_/Test.EqualOps#`===`().[Ph]20
+1 3"_empty_/Test.EqualOps#`===`().[T1]23
+5 :%_empty_/Test.EqualOps#`===`().(other)20
+< >"_empty_/Test.EqualOps#`===`().[T1]2
+A Hscala/Boolean#2
+M Oscala/Any#`==`().2&
+K L_empty_/Test.EqualOps#x.23
+P U%_empty_/Test.EqualOps#`===`().(other)2,
+ _empty_/Test.EqualOps#`!!!`().20
+ "_empty_/Test.EqualOps#`!!!`().[T1]2'
+ _empty_/Test.EqualOps#[T]21
+ #_empty_/Test.EqualOps#`!!!`().[Ph2]20
+ "_empty_/Test.EqualOps#`!!!`().[Ph]20
+" $"_empty_/Test.EqualOps#`!!!`().[T1]20
+& ("_empty_/Test.EqualOps#`!!!`().[Ph]2'
+, -_empty_/Test.EqualOps#[T]20
+1 3"_empty_/Test.EqualOps#`!!!`().[T1]23
+5 :%_empty_/Test.EqualOps#`!!!`().(other)20
+< >"_empty_/Test.EqualOps#`!!!`().[T1]2
+A Hscala/Boolean#2
+M Oscala/Any#`==`().2&
+K L_empty_/Test.EqualOps#x.23
+P U%_empty_/Test.EqualOps#`!!!`().(other)2$
+ _empty_/Test.EqualOps.2&
+ _empty_/Test.EqualOps().2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2(
+ _empty_/Test.A#`<init>`().2
+ _empty_/Test.A#2
+		 	_empty_/Test.C#2(
+		 _empty_/Test.C#`<init>`().2(
+		 _empty_/Test.A#`<init>`().2
+		 _empty_/Test.A#2
+ _empty_/Test.a.2(
+ _empty_/Test.A#`<init>`().2
+ _empty_/Test.A#2
+ _empty_/Test.b.2(
+ _empty_/Test.B#`<init>`().2
+ _empty_/Test.B#2
+ _empty_/Test.c.2(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.C#2
+ _empty_/Test.x1.2,
+ _empty_/Test.EqualOps#`===`().2&
+ _empty_/Test.EqualOps().2
+ _empty_/Test.a.2
+ _empty_/Test.b.2
+ _empty_/Test.x2.2,
+ _empty_/Test.EqualOps#`===`().2&
+ _empty_/Test.EqualOps().2
+ _empty_/Test.b.2
+ _empty_/Test.a.2
+ _empty_/Test.x3.2,
+ _empty_/Test.EqualOps#`===`().2&
+ _empty_/Test.EqualOps().2
+ _empty_/Test.b.2
+ _empty_/Test.c.2
+ _empty_/Test.x4.2,
+ _empty_/Test.EqualOps#`===`().2&
+ _empty_/Test.EqualOps().2
+ _empty_/Test.b.2
+ _empty_/Test.A#2
+ _empty_/Test.B#2
+ _empty_/Test.B#2
+ _empty_/Test.c.2
+ _empty_/Test.x5.2,
+ _empty_/Test.EqualOps#`!!!`().2&
+ _empty_/Test.EqualOps().2
+ _empty_/Test.b.2
+ _empty_/Test.c.PZ 6A36113672B344CD4620996A4ABDEC68

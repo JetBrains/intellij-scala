@@ -1,0 +1,65 @@
+
+“tests/pos/t5071.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/Foo#[A]	*A€*
+_empty_/Foo#[Repr]	*Repr€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*
+_empty_/Bar#[A]	*A€*
+_empty_/Baz#*Baz€*)
+_empty_/Baz#`<init>`(). €@*<init>€*
+_empty_/Bippy#*Bippy€*+
+_empty_/Bippy#`<init>`(). €@*<init>€*
+_empty_/Bippy#f().*f€*
+_empty_/Bippy#f().(x)*x€*
+_empty_/FooC#*FooC€**
+_empty_/FooC#`<init>`(). €@*<init>€*
+local1*self€*
+_empty_/FooC#[A]	*A€*
+_empty_/BazC#*BazC€**
+_empty_/BazC#`<init>`(). €@*<init>€2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+ local02 
+ _empty_/Foo#[Repr]2 
+ scala/specialized#2
+ _empty_/Foo#[A]2 
+ _empty_/Foo#[Repr]2
+ 	_empty_/Bar#2%
+	 	_empty_/Bar#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Bar#[A]2
+ "java/lang/Object#2
+
+ _empty_/Bar#[A]2
+ 	_empty_/Baz#2%
+ _empty_/Baz#`<init>`().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+ _empty_/Baz#2
+ _empty_/Bippy#2'
+		 _empty_/Bippy#`<init>`().2 
+		 _empty_/Bippy#f().2#
+		 	_empty_/Bippy#f().(x)2
+		 
+scala/Int#2
+ 
+_empty_/FooC#2&
+
+ 
+_empty_/FooC#`<init>`().2
+ local12
+ _empty_/Bippy#2 
+ scala/specialized#2
+ _empty_/FooC#[A]2 
+ _empty_/Bippy#f().2
+ 
+_empty_/BazC#2&
+ _empty_/BazC#`<init>`().2
+ _empty_/FooC#2
+ 
+scala/Int#2
+" '_empty_/Bippy#PZ 341A22DC80B0F7E6366A88794546C3D4

@@ -1,0 +1,186 @@
+
+€5"tests/pos/implicit-infix-ops.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f1().*f1€*
+_empty_/Test.f1().[T]	*T€*
+_empty_/Test.f1().(x)*x€*
+_empty_/Test.f1().(y)*y€*
+_empty_/Test.f1().(z)*z€*
+_empty_/Test.f2().*f2€*
+_empty_/Test.f2().[T]	*T€*
+_empty_/Test.f2().(x)*x€*
+_empty_/Test.f2().(y)*y€*
+_empty_/Test.f2().(z)*z€*
+_empty_/Int.
+ *Int€*
+_empty_/Int.f1().*f1€*
+_empty_/Int.f1().[T]	*T€*
+_empty_/Int.f1().(x)*x€*
+_empty_/Int.f1().(y)*y€*
+_empty_/Int.f1().(z)*z€*
+_empty_/Int.f2().*f2€*
+_empty_/Int.f2().[T]	*T€*
+_empty_/Int.f2().(x)*x€*
+_empty_/Int.f2().(y)*y€*
+_empty_/Int.f2().(z)*z€*
+_empty_/Frac.
+ *Frac€*
+_empty_/Frac.f1().*f1€*
+_empty_/Frac.f1().[T]	*T€*
+_empty_/Frac.f1().(x)*x€*
+_empty_/Frac.f1().(y)*y€*
+_empty_/Frac.f1().(z)*z€*
+_empty_/Frac.f2().*f2€*
+_empty_/Frac.f2().[T]	*T€*
+_empty_/Frac.f2().(x)*x€*
+_empty_/Frac.f2().(y)*y€*
+_empty_/Frac.f2().(z)*z€2
+ _empty_/Test.2,
+ scala/math/Ordering.Implicits.2%
+	 scala/package.Ordering.2+
+ scala/math/Numeric.Implicits.2$
+	 scala/package.Numeric.2 
+ _empty_/Test.f1().2#
+	 
+_empty_/Test.f1().[T]2#
+ _empty_/Test.f1().(x)2#
+ _empty_/Test.f1().[T]2#
+ _empty_/Test.f1().(y)2#
+ _empty_/Test.f1().[T]2#
+! "_empty_/Test.f1().(z)2#
+$ %_empty_/Test.f1().[T]2$
+ scala/package.Numeric#2#
+ _empty_/Test.f1().[T]22
+0 1$scala/math/Numeric#NumericOps#`+`().2B
+* *4scala/math/Numeric.ExtraImplicits#infixNumericOps().22
+, -$scala/math/Numeric#NumericOps#`+`().2#
+* +_empty_/Test.f1().(x)2#
+. /_empty_/Test.f1().(y)2#
+2 3_empty_/Test.f1().(z)2 
+ _empty_/Test.f2().2#
+	 
+_empty_/Test.f2().[T]2#
+ _empty_/Test.f2().(x)2#
+ _empty_/Test.f2().[T]2#
+ _empty_/Test.f2().(y)2#
+  _empty_/Test.f2().[T]2#
+" #_empty_/Test.f2().(z)2#
+% &_empty_/Test.f2().[T]2%
+ scala/package.Ordering#2#
+ _empty_/Test.f2().[T]24
+0 1&scala/math/Ordering#OrderingOps#`<`().2D
+. .6scala/math/Ordering.ExtraImplicits#infixOrderingOps().2#
+. /_empty_/Test.f2().(x)2#
+2 3_empty_/Test.f2().(y)24
+8 9&scala/math/Ordering#OrderingOps#`>`().2D
+6 66scala/math/Ordering.ExtraImplicits#infixOrderingOps().2#
+6 7_empty_/Test.f2().(z)2#
+: ;_empty_/Test.f2().(y)24
+E F&scala/math/Ordering#OrderingOps#`<`().2D
+C C6scala/math/Ordering.ExtraImplicits#infixOrderingOps().2#
+C D_empty_/Test.f2().(x)2#
+G H_empty_/Test.f2().(z)2
+ 
+_empty_/Int.2,
+		 scala/math/Ordering.Implicits.2%
+			 scala/package.Ordering.2,
+
+
+  scala/math/Integral.Implicits.2"
+
+
+ scala/math/Integral.2
+
+	
+ scala/math/2
+ _empty_/Int.f1().2"
+	 
+_empty_/Int.f1().[T]2"
+ _empty_/Int.f1().(x)2"
+ _empty_/Int.f1().[T]2"
+ _empty_/Int.f1().(y)2"
+  _empty_/Int.f1().[T]2"
+" #_empty_/Int.f1().(z)2"
+% &_empty_/Int.f1().[T]2%
+ scala/package.Integral#2"
+ _empty_/Int.f1().[T]24
+7 8&scala/math/Integral#IntegralOps#`/`().2D
+, ,6scala/math/Integral.ExtraImplicits#infixIntegralOps().22
+2 3$scala/math/Numeric#NumericOps#`+`().22
+. /$scala/math/Numeric#NumericOps#`+`().2"
+, -_empty_/Int.f1().(x)2"
+0 1_empty_/Int.f1().(y)2"
+4 5_empty_/Int.f1().(z)2"
+9 :_empty_/Int.f1().(z)2
+ _empty_/Int.f2().2"
+	 
+_empty_/Int.f2().[T]2"
+ _empty_/Int.f2().(x)2"
+ _empty_/Int.f2().[T]2"
+ _empty_/Int.f2().(y)2"
+  _empty_/Int.f2().[T]2"
+" #_empty_/Int.f2().(z)2"
+% &_empty_/Int.f2().[T]2%
+ scala/package.Ordering#2"
+ _empty_/Int.f2().[T]24
+0 1&scala/math/Ordering#OrderingOps#`<`().2D
+. .6scala/math/Ordering.ExtraImplicits#infixOrderingOps().2"
+. /_empty_/Int.f2().(x)2"
+2 3_empty_/Int.f2().(y)24
+8 9&scala/math/Ordering#OrderingOps#`>`().2D
+6 66scala/math/Ordering.ExtraImplicits#infixOrderingOps().2"
+6 7_empty_/Int.f2().(z)2"
+: ;_empty_/Int.f2().(y)24
+E F&scala/math/Ordering#OrderingOps#`<`().2D
+C C6scala/math/Ordering.ExtraImplicits#infixOrderingOps().2"
+C D_empty_/Int.f2().(x)2"
+G H_empty_/Int.f2().(z)2
+ _empty_/Frac.2,
+ scala/math/Ordering.Implicits.2%
+	 scala/package.Ordering.2.
+ " scala/math/Fractional.Implicits.2$
+ scala/math/Fractional.2
+	 scala/math/2 
+ _empty_/Frac.f1().2#
+	 
+_empty_/Frac.f1().[T]2#
+ _empty_/Frac.f1().(x)2#
+ _empty_/Frac.f1().[T]2#
+ _empty_/Frac.f1().(y)2#
+! "_empty_/Frac.f1().[T]2#
+$ %_empty_/Frac.f1().(z)2#
+' (_empty_/Frac.f1().[T]2'
+ scala/package.Fractional#2#
+ _empty_/Frac.f1().[T]28
+9 :*scala/math/Fractional#FractionalOps#`/`().2H
+. .:scala/math/Fractional.ExtraImplicits#infixFractionalOps().22
+4 5$scala/math/Numeric#NumericOps#`+`().22
+0 1$scala/math/Numeric#NumericOps#`+`().2#
+. /_empty_/Frac.f1().(x)2#
+2 3_empty_/Frac.f1().(y)2#
+6 7_empty_/Frac.f1().(z)2#
+; <_empty_/Frac.f1().(z)2 
+ _empty_/Frac.f2().2#
+	 
+_empty_/Frac.f2().[T]2#
+ _empty_/Frac.f2().(x)2#
+ _empty_/Frac.f2().[T]2#
+ _empty_/Frac.f2().(y)2#
+  _empty_/Frac.f2().[T]2#
+" #_empty_/Frac.f2().(z)2#
+% &_empty_/Frac.f2().[T]2%
+ scala/package.Ordering#2#
+ _empty_/Frac.f2().[T]24
+0 1&scala/math/Ordering#OrderingOps#`<`().2D
+. .6scala/math/Ordering.ExtraImplicits#infixOrderingOps().2#
+. /_empty_/Frac.f2().(x)2#
+2 3_empty_/Frac.f2().(y)24
+8 9&scala/math/Ordering#OrderingOps#`>`().2D
+6 66scala/math/Ordering.ExtraImplicits#infixOrderingOps().2#
+6 7_empty_/Frac.f2().(z)2#
+: ;_empty_/Frac.f2().(y)24
+E F&scala/math/Ordering#OrderingOps#`<`().2D
+C C6scala/math/Ordering.ExtraImplicits#infixOrderingOps().2#
+C D_empty_/Frac.f2().(x)2#
+G H_empty_/Frac.f2().(z)PZ 22149F438F3777ECAB9D2EB3E8C7B059

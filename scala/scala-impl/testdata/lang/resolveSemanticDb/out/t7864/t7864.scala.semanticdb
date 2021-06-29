@@ -1,0 +1,14 @@
+
+Ötests/pos/t7864.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f. €*f€*
+local0*x€2
+ _empty_/Test.2
+ _empty_/Test.f.2&
+ scala/Function1#apply().2#
+ scala/Any#toString().2
+ local02
+ 
+scala/Any#2
+ local0PZ 41BCF6A39CF2D00CB15B3EF17A813E04

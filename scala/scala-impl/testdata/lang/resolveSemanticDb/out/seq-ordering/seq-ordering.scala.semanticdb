@@ -1,0 +1,37 @@
+
+Û	tests/pos/seq-ordering.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€2(
+ scala/math/Ordering.Implicits.2!
+ scala/package.Ordering.2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2(
+ scala/Predef.implicitly().2
+	 scala/Predef.2(
+ scala/Predef.implicitly().2%
+ scala/package.Ordering#2!
+ scala/package.List#2
+ 
+scala/Int#2?
+ 1scala/math/Ordering.ExtraImplicits#seqOrdering().2&
+ scala/math/Ordering.Int.2(
+ scala/Predef.implicitly().2%
+ scala/package.Ordering#2'
+ scala/package.IndexedSeq#2
+ 
+scala/Int#2
+ $java/lang/String#2?
+( (1scala/math/Ordering.ExtraImplicits#seqOrdering().2+
+( (scala/math/Ordering.Tuple2().2&
+( (scala/math/Ordering.Int.2)
+( (scala/math/Ordering.String.2(
+ scala/Predef.implicitly().2%
+ scala/package.Ordering#2 
+ scala/package.Seq#2 
+ scala/package.Seq#2
+ 
+scala/Int#2?
+ 1scala/math/Ordering.ExtraImplicits#seqOrdering().2&
+ scala/math/Ordering.Int.PZ 6AA009C3D4772406BB166D4935BE910A

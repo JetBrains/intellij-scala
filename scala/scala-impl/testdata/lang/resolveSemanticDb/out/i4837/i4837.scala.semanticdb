@@ -1,0 +1,84 @@
+
+µtests/pos/i4837.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#[X]	*X€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#S#*S€*
+_empty_/C#S#[X]	*X€*
+_empty_/C#Foo#*Foo€*
+_empty_/C#Foo#[X]	*X€*
+_empty_/C#Foo#[Y]	*Y€*
+_empty_/C#Bar#*Bar€*
+_empty_/C#Bar#[X]	*X€*
+_empty_/C#Bar#[Y]	*Y€*
+_empty_/C#D#*D€*)
+_empty_/C#D#`<init>`(). €@*<init>€*
+_empty_/C#D#[X]	*X€*
+_empty_/C#E#*E€*)
+_empty_/C#E#`<init>`(). €@*<init>€*
+_empty_/C#E#[X]	*X€*
+_empty_/C#F#*F€*)
+_empty_/C#F#`<init>`(). €@*<init>€*
+_empty_/C#F#[X]	*X€2
+ 
+_empty_/T#2
+ _empty_/T#`<init>`().2 
+ scala/package.Numeric#2
+ _empty_/T#[X]2
+ 	_empty_/T#[X]2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#S#2
+	 
+_empty_/C#S#[X]2
+ 
+_empty_/T#2
+ _empty_/C#S#[X]2
+ 
+_empty_/C#Foo#2
+ _empty_/C#Foo#[X]2
+ _empty_/C#Foo#[Y]2
+ 
+_empty_/T#2
+ _empty_/C#Foo#[X]2
+ 
+_empty_/C#Bar#2
+ _empty_/C#Bar#[X]2
+ _empty_/C#Bar#[Y]2
+ _empty_/C#Foo#2
+ _empty_/C#Bar#[X]2
+ _empty_/C#Bar#[Y]2
+ 	_empty_/C#D#2%
+	 	_empty_/C#D#`<init>`().2$
+ scala/package.Numeric#2
+ _empty_/C#D#[X]2#
+" "_empty_/T#`<init>`().2
+ _empty_/C#S#2
+  !_empty_/C#D#[X]2
+
+ _empty_/C#D#[X]2
+ 	_empty_/C#E#2%
+	 	_empty_/C#E#`<init>`().2$
+ scala/package.Numeric#2
+ _empty_/C#E#[X]2#
+* *_empty_/T#`<init>`().2
+ !_empty_/C#Foo#2
+" #_empty_/C#E#[X]2
+% )scala/Unit#2
+
+ _empty_/C#E#[X]2
+		 	_empty_/C#F#2%
+			 	_empty_/C#F#`<init>`().2$
+		 scala/package.Numeric#2
+		 _empty_/C#F#[X]2#
+	*	 *_empty_/T#`<init>`().2
+		 !_empty_/C#Bar#2
+	"	 #_empty_/C#F#[X]2
+	%	 )scala/Unit#2
+	
+	 _empty_/C#F#[X]PZ 049BA201BD920B84E4A097B7B0F4D6CA

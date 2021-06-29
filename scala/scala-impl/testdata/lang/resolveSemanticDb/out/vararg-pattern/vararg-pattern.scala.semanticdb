@@ -1,0 +1,29 @@
+
+“tests/pos/vararg-pattern.scala*
+_empty_/Test.
+ *Test€*
+local0 €*xs€*
+local1 €*ys€*
+_empty_/Test.x. €*x€2
+ _empty_/Test.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+ )scala/collection/SeqFactory#unapplySeq().2!
+	 scala/package.List.2
+ local02
+
+ local12 
+ scala/package.Seq#2
+ 
+scala/Int#2
+ local02'
+ scala/Predef.println(+1).2
+ local12
+ _empty_/Test.x.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+
+ 
+)scala/collection/SeqFactory#unapplySeq().2!
+ 
+scala/package.List.PZ D3DC3811B77BEABD94C48F0A57C66062

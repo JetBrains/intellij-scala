@@ -1,0 +1,54 @@
+
+Štests/pos/i12390-gadt.scala*
+_empty_/Func# ”€*Func€**
+_empty_/Func#`<init>`(). €@*<init>€*
+_empty_/Func#[A]	 €*A€*
+_empty_/Func#[B]	 €*B€*
+_empty_/Func#run().*run€*
+local0*x€*
+local1*x€*
+_empty_/Func.
+ *Func€*'
+_empty_/Func.Double. €©*Double€*+
+_empty_/Func.ToString. €©*ToString€*(
+_empty_/Func.$values. €*$values€*%
+_empty_/Func.values().*values€*'
+_empty_/Func.valueOf().*valueOf€*,
+_empty_/Func.valueOf().($name)*$name€*/
+_empty_/Func.fromOrdinal().*fromOrdinal€*4
+$_empty_/Func.fromOrdinal().(ordinal)*ordinal€2
+ 	_empty_/Func#2"
+	 	_empty_/Func#`<init>`().2
+ _empty_/Func#[A]2
+ _empty_/Func#[B]2!
+ 	_empty_/Func#run().2
+ _empty_/Func#[A]2
+ _empty_/Func#[B]2"
+	 _empty_/Func.Double.2
+ local02
+ 
+scala/Int#2 
+! "scala/Int#`*`(+3).2
+  local02$
+	 _empty_/Func.ToString.2
+ local12
+ scala/Float#2#
+% -scala/Any#toString().2
+# $local12
+ _empty_/Func.2"
+ _empty_/Func.Double.2&
+$ $_empty_/Func#`<init>`().2
+ _empty_/Func#2
+ 
+scala/Int#2
+  #
+scala/Int#2$
+ _empty_/Func.ToString.2&
++ +_empty_/Func#`<init>`().2
+ _empty_/Func#2
+ "scala/Float#2"
+$ *scala/Predef.String#2#
+ _empty_/Func.$values.2$
+ _empty_/Func.values().2%
+ _empty_/Func.valueOf().2)
+ _empty_/Func.fromOrdinal().PZ B5365534A27ECB8E97130A20F449EE4E

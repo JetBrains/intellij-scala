@@ -1,0 +1,40 @@
+
+Ëtests/pos/t6231.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.bar().*bar€*!
+_empty_/Bug.bar().(ev)*ev€*
+local0*X€*
+local1*qux€*
+local2 *$anon€*
+local3*Y€*
+local4 €*ev2€*
+local5*qux€2
+ 
+_empty_/Bug.2 
+ 	_empty_/Bug.bar().2$
+
+ _empty_/Bug.bar().(ev)2
+ 
+scala/Any#2
+
+ local02
+
+ local12$
+ _empty_/Bug.bar().(ev)2&
+ scala/Function0#apply().2
+ local12
+ local22
+ 	local02
+
+ local32
+	
+	 local42$
+		 _empty_/Bug.bar().(ev)2
+
+
+
+ local52
+
+
+ local4PZ 05D73B533A02DEE428C603552B9D3790

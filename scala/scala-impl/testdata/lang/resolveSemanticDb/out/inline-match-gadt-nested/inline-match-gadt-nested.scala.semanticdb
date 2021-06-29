@@ -1,0 +1,93 @@
+
+Ñ((tests/pos/inline-match-gadt-nested.scala*F
+#_empty_/`inline-match-gadt-nested`.
+ *inline-match-gadt-nested€*9
+(_empty_/`inline-match-gadt-nested`.Gadt# ”€*Gadt€*E
+3_empty_/`inline-match-gadt-nested`.Gadt#`<init>`(). €@*<init>€*5
++_empty_/`inline-match-gadt-nested`.Gadt#[A]	*A€*5
++_empty_/`inline-match-gadt-nested`.Gadt#[B]	*B€*7
+(_empty_/`inline-match-gadt-nested`.Gadt.
+ *Gadt€*B
+/_empty_/`inline-match-gadt-nested`.Gadt.Nested# ˆ*Nested€*L
+:_empty_/`inline-match-gadt-nested`.Gadt.Nested#`<init>`(). €@*<init>€*P
+@_empty_/`inline-match-gadt-nested`.Gadt.Nested#`<init>`().(gadt) €*gadt€*<
+2_empty_/`inline-match-gadt-nested`.Gadt.Nested#[A]	*A€*<
+2_empty_/`inline-match-gadt-nested`.Gadt.Nested#[B]	*B€*D
+4_empty_/`inline-match-gadt-nested`.Gadt.Nested#gadt. €*gadt€*C
+6_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy().*copy€*C
+9_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy().[A]	*A€*C
+9_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy().[B]	*B€*I
+<_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy().(gadt)*gadt€*W
+@_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy$default$1().*copy$default$1€*M
+C_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy$default$1().[A]	*A€*M
+C_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy$default$1().[B]	*B€*I
+9_empty_/`inline-match-gadt-nested`.Gadt.Nested#ordinal().*ordinal€*?
+4_empty_/`inline-match-gadt-nested`.Gadt.Nested#_1().*_1€*@
+/_empty_/`inline-match-gadt-nested`.Gadt.Nested.
+ *Nested€*E
+7_empty_/`inline-match-gadt-nested`.Gadt.Nested.apply().*apply€*D
+:_empty_/`inline-match-gadt-nested`.Gadt.Nested.apply().[A]	*A€*D
+:_empty_/`inline-match-gadt-nested`.Gadt.Nested.apply().[B]	*B€*J
+=_empty_/`inline-match-gadt-nested`.Gadt.Nested.apply().(gadt)*gadt€*I
+9_empty_/`inline-match-gadt-nested`.Gadt.Nested.unapply().*unapply€*F
+<_empty_/`inline-match-gadt-nested`.Gadt.Nested.unapply().[A]	*A€*F
+<_empty_/`inline-match-gadt-nested`.Gadt.Nested.unapply().[B]	*B€*J
+>_empty_/`inline-match-gadt-nested`.Gadt.Nested.unapply().(x$1)*x$1€*K
+:_empty_/`inline-match-gadt-nested`.Gadt.Nested.toString().*toString€*B
+/_empty_/`inline-match-gadt-nested`.Gadt.Simple. €©*Simple€*J
+6_empty_/`inline-match-gadt-nested`.Gadt.fromOrdinal().*fromOrdinal€*O
+?_empty_/`inline-match-gadt-nested`.Gadt.fromOrdinal().(ordinal)*ordinal€*5
+)_empty_/`inline-match-gadt-nested`.foo().*foo€*6
+,_empty_/`inline-match-gadt-nested`.foo().[A]	*A€*6
+,_empty_/`inline-match-gadt-nested`.foo().[B]	*B€*6
+,_empty_/`inline-match-gadt-nested`.foo().(g)*g€*
+local0 €	*B$1€2-
+  #_empty_/`inline-match-gadt-nested`.2 
+ scala/compiletime/2
+	 scala/26
+ (_empty_/`inline-match-gadt-nested`.Gadt#2A
+ 3_empty_/`inline-match-gadt-nested`.Gadt#`<init>`().29
+ +_empty_/`inline-match-gadt-nested`.Gadt#[A]29
+ +_empty_/`inline-match-gadt-nested`.Gadt#[B]26
+ (_empty_/`inline-match-gadt-nested`.Gadt.2=
+	 /_empty_/`inline-match-gadt-nested`.Gadt.Nested#2H
+ :_empty_/`inline-match-gadt-nested`.Gadt.Nested#`<init>`().26
+ (_empty_/`inline-match-gadt-nested`.Gadt#2@
+ 2_empty_/`inline-match-gadt-nested`.Gadt.Nested#[A]2
+ !
+scala/Int#2A
+8 83_empty_/`inline-match-gadt-nested`.Gadt#`<init>`().26
+, 0(_empty_/`inline-match-gadt-nested`.Gadt#2@
+1 22_empty_/`inline-match-gadt-nested`.Gadt.Nested#[A]2
+4 7
+scala/Int#2B
+ 4_empty_/`inline-match-gadt-nested`.Gadt.Nested#gadt.2D
+ 6_empty_/`inline-match-gadt-nested`.Gadt.Nested#copy().2B
+ 4_empty_/`inline-match-gadt-nested`.Gadt.Nested#_1().2=
+	 	/_empty_/`inline-match-gadt-nested`.Gadt.Nested.2E
+ 7_empty_/`inline-match-gadt-nested`.Gadt.Nested.apply().2=
+	 /_empty_/`inline-match-gadt-nested`.Gadt.Simple.2A
+) )3_empty_/`inline-match-gadt-nested`.Gadt#`<init>`().26
+ (_empty_/`inline-match-gadt-nested`.Gadt#2"
+ #scala/Predef.String#2
+% (
+scala/Int#2D
+	 	6_empty_/`inline-match-gadt-nested`.Gadt.fromOrdinal().26
+	 (_empty_/`inline-match-gadt-nested`.Gadt.27
+		 )_empty_/`inline-match-gadt-nested`.foo().2:
+		 ,_empty_/`inline-match-gadt-nested`.foo().[A]2:
+		 ,_empty_/`inline-match-gadt-nested`.foo().[B]2:
+		 ,_empty_/`inline-match-gadt-nested`.foo().(g)26
+		 (_empty_/`inline-match-gadt-nested`.Gadt#2:
+		  ,_empty_/`inline-match-gadt-nested`.foo().[A]2:
+	"	 #,_empty_/`inline-match-gadt-nested`.foo().[B]2:
+	(	 ),_empty_/`inline-match-gadt-nested`.foo().[A]2:
+	+	 ,,_empty_/`inline-match-gadt-nested`.foo().[B]2:
+
+
+ ,_empty_/`inline-match-gadt-nested`.foo().(g)2G
+ 9_empty_/`inline-match-gadt-nested`.Gadt.Nested.unapply().2=
+ /_empty_/`inline-match-gadt-nested`.Gadt.Nested.2
+ local02=
+ /_empty_/`inline-match-gadt-nested`.Gadt.Simple.2#
+ scala/Tuple2.apply().PZ 6D21A94710A16EDCEDAF8FBAFBFE8F8F

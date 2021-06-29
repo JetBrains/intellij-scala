@@ -1,0 +1,43 @@
+
+‚	tests/pos/i1307.scala*
+_empty_/Term#*Term€**
+_empty_/Term#`<init>`(). €@*<init>€*
+_empty_/Term#[A]	*A€*
+_empty_/Number#*Number€*,
+_empty_/Number#`<init>`(). €@*<init>€**
+_empty_/Number#`<init>`().(n) €*n€*
+_empty_/Number#n. €*n€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[B]	*B€*
+_empty_/Test.f().(t)*t€*
+local0 €*y€2
+ 
+_empty_/Term#2"
+
+ 
+_empty_/Term#`<init>`().2
+ _empty_/Term#[A]2
+ _empty_/Number#2(
+ _empty_/Number#`<init>`().2
+ 
+scala/Int#2&
+* *_empty_/Term#`<init>`().2
+! %_empty_/Term#2
+& )
+scala/Int#2
+ _empty_/Number#n.2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[B]2"
+ _empty_/Test.f().(t)2
+ _empty_/Term#2"
+ _empty_/Test.f().[B]2"
+ _empty_/Test.f().[B]2"
+ _empty_/Test.f().(t)2
+	 
+local02
+ _empty_/Number#2
+ _empty_/Number#n.2
+ local0PZ F48DA1AB870401E9BA45D11DB7CABD80

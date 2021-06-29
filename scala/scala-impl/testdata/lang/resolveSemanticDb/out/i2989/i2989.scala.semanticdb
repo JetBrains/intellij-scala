@@ -1,0 +1,88 @@
+
+”tests/pos/i2989.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[X]	 €*X€* 
+_empty_/Foo#foo1().*foo1€* 
+_empty_/Foo#foo1().[Y]	*Y€*(
+_empty_/Foo#foo1().(right)*right€* 
+_empty_/Foo#foo2().*foo2€* 
+_empty_/Foo#foo2().[Y]	*Y€*(
+_empty_/Foo#foo2().(right)*right€*'
+_empty_/Foo#foo2().(right)[T]	*T€* 
+_empty_/Foo#foo3().*foo3€* 
+_empty_/Foo#foo3().[Y]	*Y€*(
+_empty_/Foo#foo3().(right)*right€*'
+_empty_/Foo#foo3().(right)[T]	*T€* 
+_empty_/Foo#foo3().[T]	*T€* 
+_empty_/Foo#foo4().*foo4€* 
+_empty_/Foo#foo4().[Y]	*Y€*(
+_empty_/Foo#foo4().(right)*right€* 
+_empty_/Foo#foo4().[T]	*T€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ _empty_/Foo#[X]2!
+ 
+_empty_/Foo#foo1().2$
+ _empty_/Foo#foo1().[Y]2(
+ _empty_/Foo#foo1().(right)2
+ _empty_/Foo#2$
+ _empty_/Foo#foo1().[Y]2
+! $_empty_/Foo#2$
+% &_empty_/Foo#foo1().[Y]2(
+* /_empty_/Foo#foo1().(right)2!
+ 
+_empty_/Foo#foo2().2$
+ _empty_/Foo#foo2().[Y]2(
+ _empty_/Foo#foo2().(right)2
+ _empty_/Foo#2+
+ _empty_/Foo#foo2().(right)[T]2$
+$ %_empty_/Foo#foo2().[Y]2+
+& '_empty_/Foo#foo2().(right)[T]2
+, /_empty_/Foo#2$
+0 1_empty_/Foo#foo2().[Y]2(
+5 :_empty_/Foo#foo2().(right)2!
+ 
+_empty_/Foo#foo3().2$
+ _empty_/Foo#foo3().[Y]2(
+ _empty_/Foo#foo3().(right)2
+ _empty_/Foo#2+
+ _empty_/Foo#foo3().(right)[T]2$
+$ %_empty_/Foo#foo3().[Y]2+
+& '_empty_/Foo#foo3().(right)[T]2
+, /_empty_/Foo#2$
+1 2_empty_/Foo#foo3().[T]2$
+8 9_empty_/Foo#foo3().[Y]2$
+: ;_empty_/Foo#foo3().[T]2(
+@ E_empty_/Foo#foo3().(right)2!
+
+
+ 
+_empty_/Foo#foo4().2$
+
+
+ _empty_/Foo#foo4().[Y]2(
+
+
+ _empty_/Foo#foo4().(right)2
+
+
+ _empty_/Foo#2$
+
+
+ _empty_/Foo#foo4().[Y]2
+
+!
+ $_empty_/Foo#2$
+
+&
+ '_empty_/Foo#foo4().[T]2$
+
+-
+ ._empty_/Foo#foo4().[Y]2$
+
+/
+ 0_empty_/Foo#foo4().[T]2(
+
+5
+ :_empty_/Foo#foo4().(right)PZ EF195524285E10747E05955A197607DE

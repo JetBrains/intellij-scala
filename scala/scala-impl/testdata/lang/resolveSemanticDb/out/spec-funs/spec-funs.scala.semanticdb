@@ -1,0 +1,208 @@
+
+Ã0tests/pos/spec-funs.scala**
+_empty_/AbsFunction1#*AbsFunction1€*2
+ _empty_/AbsFunction1#`<init>`(). €@*<init>€*%
+_empty_/AbsFunction1#[T]	 €*T€*%
+_empty_/AbsFunction1#[U]	 €*U€*-
+_empty_/AbsFunction1#apply(). *apply€**
+ _empty_/AbsFunction1#apply().(x)*x€*"
+_empty_/IntTest# *IntTest€*-
+_empty_/IntTest#`<init>`(). €@*<init>€*)
+_empty_/IntTest#niters. €*niters€*(
+_empty_/IntTest#transF().*transF€*(
+_empty_/IntTest#transF().(xs)*xs€*&
+_empty_/IntTest#transF().(f)*f€*
+local0 €*i€*
+local1 €*s€*"
+_empty_/IntTest#run().*run€*
+local2 €*xs€*
+local3 €*f€*
+local4 *$anon€*
+local5*apply€*
+local6*x€*
+local7*j€*
+local8 €*acc€*
+local9*i€**
+_empty_/ClosureTest# *ClosureTest€*1
+_empty_/ClosureTest#`<init>`(). €@*<init>€*-
+_empty_/ClosureTest#niters. €*niters€*,
+_empty_/ClosureTest#transF().*transF€*,
+!_empty_/ClosureTest#transF().(xs)*xs€**
+ _empty_/ClosureTest#transF().(f)*f€*
+local10 €*i€*
+local11 €*s€*&
+_empty_/ClosureTest#run().*run€*
+local12 €*xs€*
+local13*j€*
+local14*x€*
+local15 €*acc€*
+local16*i€*(
+_empty_/TestRunner.
+ *
+TestRunner€2
+ _empty_/AbsFunction1#2*
+  _empty_/AbsFunction1#`<init>`().2
+ scala/specialized#2"
+! "_empty_/AbsFunction1#[T]2
+% 0scala/specialized#2"
+2 3_empty_/AbsFunction1#[U]2+
+ _empty_/AbsFunction1#apply().2.
+  _empty_/AbsFunction1#apply().(x)2&
+ _empty_/AbsFunction1#[T]2&
+ _empty_/AbsFunction1#[U]2
+ _empty_/IntTest#2)
+ _empty_/IntTest#`<init>`().2%
+ _empty_/IntTest#niters.2'
+ _empty_/IntTest#transF().2+
+ _empty_/IntTest#transF().(xs)2
+ scala/Array#2
+ 
+scala/Int#2*
+ _empty_/IntTest#transF().(f)2#
+  ,_empty_/AbsFunction1#2
+- 0
+scala/Int#2
+2 5
+scala/Int#2
+		 	local02
+
+
+ 	local12 
+ scala/Int#`<`(+3).2
+ local02#
+ scala/Array#length().2+
+ _empty_/IntTest#transF().(xs)2#
+ scala/Array#update().2+
+ _empty_/IntTest#transF().(xs)2
+	 
+local02 
+ scala/Int#`+`(+4).2+
+ _empty_/AbsFunction1#apply().2*
+ _empty_/IntTest#transF().(f)2"
+ scala/Array#apply().2+
+ _empty_/IntTest#transF().(xs)2
+ local02
+ local02 
+ scala/Int#`+`(+4).2$
+ 	_empty_/IntTest#run().2
+ scala/Unit#2
+ 
+local22%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ 
+scala/Int#2
+ 	local32
+ local42#
+ _empty_/AbsFunction1#2
+  
+scala/Int#2
+" %
+scala/Int#2
+
+ local52
+ local62
+ 
+scala/Int#2
+ 
+scala/Int#2 
+! "scala/Int#`*`(+3).2
+  local62
+# $local629
+ +scala/collection/immutable/Range#foreach().2,
+ scala/runtime/RichInt#until().26
+ (scala/LowPriorityImplicits#intWrapper().2%
+ _empty_/IntTest#niters.2
+	 
+local72'
+ _empty_/IntTest#transF().2
+ local22
+ local32
+ local829
+ +scala/collection/immutable/Range#foreach().2,
+ scala/runtime/RichInt#until().26
+ (scala/LowPriorityImplicits#intWrapper().2#
+ scala/Array#length().2
+ local22
+	 
+local92
+! $local82 
+$ $scala/Int#`+`(+4).2"
+* *scala/Array#apply().2
+( *local22
++ ,local92'
+ scala/Predef.println(+1).2
+ local82"
+ _empty_/ClosureTest#2-
+!! _empty_/ClosureTest#`<init>`().2)
+!! _empty_/ClosureTest#niters.2+
+## _empty_/ClosureTest#transF().2/
+## !_empty_/ClosureTest#transF().(xs)2
+## scala/Array#2
+## 
+scala/Int#2.
+##  _empty_/ClosureTest#transF().(f)2
+# # #
+scala/Int#2
+#'# *
+scala/Int#2
+$$ 	local102
+%% 	local112 
+&& scala/Int#`<`(+3).2
+&& local102#
+&& scala/Array#length().2/
+&& !_empty_/ClosureTest#transF().(xs)2#
+'' scala/Array#update().2/
+'' !_empty_/ClosureTest#transF().(xs)2
+'	' 
+local102 
+'' scala/Int#`+`(+4).2&
+'' scala/Function1#apply().2.
+''  _empty_/ClosureTest#transF().(f)2"
+'' scala/Array#apply().2/
+'' !_empty_/ClosureTest#transF().(xs)2
+'' local102
+(( local102 
+(( scala/Int#`+`(+4).2(
+,, 	_empty_/ClosureTest#run().2
+,, scala/Unit#2
+-- 
+local122%
+-- scala/Array#`<init>`().2
+-- scala/Array#2
+-- 
+scala/Int#29
+// +scala/collection/immutable/Range#foreach().2,
+// scala/runtime/RichInt#until().26
+// (scala/LowPriorityImplicits#intWrapper().2)
+// _empty_/ClosureTest#niters.2
+/	/ 
+local132+
+00 _empty_/ClosureTest#transF().2
+00 local122
+00 local142 
+00 scala/Int#`*`(+3).2
+00 local142
+00 local142
+22 local1529
+33 +scala/collection/immutable/Range#foreach().2,
+33 scala/runtime/RichInt#until().26
+33 (scala/LowPriorityImplicits#intWrapper().2#
+33 scala/Array#length().2
+33 local122
+3	3 
+local162
+3!3 $local152 
+3$3 $scala/Int#`+`(+4).2"
+3*3 *scala/Array#apply().2
+3(3 *local122
+3+3 ,local162'
+44 scala/Predef.println(+1).2
+44 local152!
+88 _empty_/TestRunner.2$
+99 _empty_/IntTest#run().2)
+99 _empty_/IntTest#`<init>`().2
+99 _empty_/IntTest#2(
+:: _empty_/ClosureTest#run().2-
+:: _empty_/ClosureTest#`<init>`().2"
+:: _empty_/ClosureTest#PZ A52AF53DDD1D9A62B38446D5A4E4F236

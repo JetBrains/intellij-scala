@@ -1,0 +1,51 @@
+
+Žtests/pos/path-from-class.scala*
+_empty_/Outer#*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*
+_empty_/Outer#Bar#*Bar€*$
+_empty_/Outer#inner.
+ *inner€*$
+_empty_/Outer#inner.Foo#*Foo€*&
+_empty_/Outer#inner.foo().*foo€* 
+_empty_/Outer#bar().*bar€*
+_empty_/Main.
+ *Main€*
+_empty_/Main.a. €*a€*
+_empty_/Main.b. €*b€*
+_empty_/Main.all().*all€*!
+_empty_/Main.bars().*bars€2
+ _empty_/Outer#2'
+ _empty_/Outer#`<init>`().2 
+ 
+_empty_/Outer#Bar#2"
+	 _empty_/Outer#inner.2&
+	 _empty_/Outer#inner.Foo#2(
+ _empty_/Outer#inner.foo().2&
+ _empty_/Outer#inner.Foo#2#
+ scala/Predef.`???`().2"
+ 	_empty_/Outer#bar().2 
+ _empty_/Outer#Bar#2#
+ scala/Predef.`???`().2
+ _empty_/Main.2
+ _empty_/Main.a.2'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer#2
+ _empty_/Main.b.2'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer#2!
+ 	_empty_/Main.all().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2(
+ _empty_/Outer#inner.foo().2"
+ _empty_/Outer#inner.2
+ _empty_/Main.a.2(
+& )_empty_/Outer#inner.foo().2"
+  %_empty_/Outer#inner.2
+ _empty_/Main.a.2"
+ 
+_empty_/Main.bars().2 
+ _empty_/Outer#Bar#2
+ _empty_/Outer#2&
+ "scala/Predef.identity().2"
+% (_empty_/Outer#bar().2
+# $_empty_/Main.a.PZ 70A9F73DEE85E7BE5AB8CBF933052EA2

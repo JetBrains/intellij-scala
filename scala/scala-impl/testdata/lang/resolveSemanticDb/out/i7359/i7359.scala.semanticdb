@@ -1,0 +1,610 @@
+
+ú∑tests/pos/i7359.scala*-
+test/ObjectInterface#*ObjectInterfaceÄ*2
+ test/ObjectInterface#`<init>`(). Ä@*<init>Ä*/
+test/ObjectInterface#equals(). *equalsÄ*/
+#test/ObjectInterface#equals().(obj)*objÄ*3
+ test/ObjectInterface#hashCode(). *hashCodeÄ*3
+ test/ObjectInterface#toString(). *toStringÄ*
+test/SAMPlain#*SAMPlainÄ*+
+test/SAMPlain#`<init>`(). Ä@*<init>Ä*&
+test/SAMPlain#first(). *firstÄ*U
+)test/SAMPlainWithOverriddenObjectMethods#*#SAMPlainWithOverriddenObjectMethodsÄ*F
+4test/SAMPlainWithOverriddenObjectMethods#`<init>`(). Ä@*<init>Ä*A
+1test/SAMPlainWithOverriddenObjectMethods#first(). *firstÄ*C
+2test/SAMPlainWithOverriddenObjectMethods#equals(). *equalsÄ*C
+7test/SAMPlainWithOverriddenObjectMethods#equals().(obj)*objÄ*G
+4test/SAMPlainWithOverriddenObjectMethods#hashCode(). *hashCodeÄ*G
+4test/SAMPlainWithOverriddenObjectMethods#toString(). *toStringÄ*5
+test/SAMPlainWithExtends#*SAMPlainWithExtendsÄ*6
+$test/SAMPlainWithExtends#`<init>`(). Ä@*<init>Ä*1
+!test/SAMPlainWithExtends#first(). *firstÄ*K
+$test/SAMPlainWithExtendsAndOverride#*SAMPlainWithExtendsAndOverrideÄ*A
+/test/SAMPlainWithExtendsAndOverride#`<init>`(). Ä@*<init>Ä*<
+,test/SAMPlainWithExtendsAndOverride#first(). *firstÄ*>
+-test/SAMPlainWithExtendsAndOverride#equals(). *equalsÄ*>
+2test/SAMPlainWithExtendsAndOverride#equals().(obj)*objÄ*B
+/test/SAMPlainWithExtendsAndOverride#hashCode(). *hashCodeÄ*B
+/test/SAMPlainWithExtendsAndOverride#toString(). *toStringÄ*7
+test/SAMPlainCovariantOut#*SAMPlainCovariantOutÄ*7
+%test/SAMPlainCovariantOut#`<init>`(). Ä@*<init>Ä**
+test/SAMPlainCovariantOut#[O]	 Ä*OÄ*2
+"test/SAMPlainCovariantOut#first(). *firstÄ*-
+test/SAMCovariantOut#*SAMCovariantOutÄ*2
+ test/SAMCovariantOut#`<init>`(). Ä@*<init>Ä*%
+test/SAMCovariantOut#[O]	 Ä*OÄ*-
+test/SAMCovariantOut#first(). *firstÄ*/
+test/SAMCovariantOut#equals(). *equalsÄ*/
+#test/SAMCovariantOut#equals().(obj)*objÄ*3
+ test/SAMCovariantOut#hashCode(). *hashCodeÄ*3
+ test/SAMCovariantOut#toString(). *toStringÄ*;
+test/SAMCovariantOutExtends#*SAMCovariantOutExtendsÄ*9
+'test/SAMCovariantOutExtends#`<init>`(). Ä@*<init>Ä*,
+test/SAMCovariantOutExtends#[O]	 Ä*OÄ*4
+$test/SAMCovariantOutExtends#first(). *firstÄ*Q
+'test/SAMCovariantOutExtendsAndOverride#*!SAMCovariantOutExtendsAndOverrideÄ*D
+2test/SAMCovariantOutExtendsAndOverride#`<init>`(). Ä@*<init>Ä*7
+*test/SAMCovariantOutExtendsAndOverride#[O]	 Ä*OÄ*?
+/test/SAMCovariantOutExtendsAndOverride#first(). *firstÄ*A
+0test/SAMCovariantOutExtendsAndOverride#equals(). *equalsÄ*A
+5test/SAMCovariantOutExtendsAndOverride#equals().(obj)*objÄ*E
+2test/SAMCovariantOutExtendsAndOverride#hashCode(). *hashCodeÄ*E
+2test/SAMCovariantOutExtendsAndOverride#toString(). *toStringÄ*=
+test/SAMPlainContravariantIn#*SAMPlainContravariantInÄ*:
+(test/SAMPlainContravariantIn#`<init>`(). Ä@*<init>Ä*-
+ test/SAMPlainContravariantIn#[I]	 Ä*IÄ*5
+%test/SAMPlainContravariantIn#first(). *firstÄ*4
+)test/SAMPlainContravariantIn#first().(in)*inÄ*3
+test/SAMContravariantIn#*SAMContravariantInÄ*5
+#test/SAMContravariantIn#`<init>`(). Ä@*<init>Ä*(
+test/SAMContravariantIn#[I]	 Ä*IÄ*0
+ test/SAMContravariantIn#first(). *firstÄ*/
+$test/SAMContravariantIn#first().(in)*inÄ*2
+!test/SAMContravariantIn#equals(). *equalsÄ*2
+&test/SAMContravariantIn#equals().(obj)*objÄ*6
+#test/SAMContravariantIn#hashCode(). *hashCodeÄ*6
+#test/SAMContravariantIn#toString(). *toStringÄ*A
+test/SAMContravariantInExtends#*SAMContravariantInExtendsÄ*<
+*test/SAMContravariantInExtends#`<init>`(). Ä@*<init>Ä*/
+"test/SAMContravariantInExtends#[I]	 Ä*IÄ*7
+'test/SAMContravariantInExtends#first(). *firstÄ*6
++test/SAMContravariantInExtends#first().(in)*inÄ*W
+*test/SAMContravariantInExtendsAndOverride#*$SAMContravariantInExtendsAndOverrideÄ*G
+5test/SAMContravariantInExtendsAndOverride#`<init>`(). Ä@*<init>Ä*:
+-test/SAMContravariantInExtendsAndOverride#[I]	 Ä*IÄ*B
+2test/SAMContravariantInExtendsAndOverride#first(). *firstÄ*A
+6test/SAMContravariantInExtendsAndOverride#first().(in)*inÄ*D
+3test/SAMContravariantInExtendsAndOverride#equals(). *equalsÄ*D
+8test/SAMContravariantInExtendsAndOverride#equals().(obj)*objÄ*H
+5test/SAMContravariantInExtendsAndOverride#hashCode(). *hashCodeÄ*H
+5test/SAMContravariantInExtendsAndOverride#toString(). *toStringÄ*1
+test/SAMPlainInvariant#*SAMPlainInvariantÄ*4
+"test/SAMPlainInvariant#`<init>`(). Ä@*<init>Ä*$
+test/SAMPlainInvariant#[T]	*TÄ*/
+test/SAMPlainInvariant#first(). *firstÄ*.
+#test/SAMPlainInvariant#first().(in)*inÄ*'
+test/SAMInvariant#*SAMInvariantÄ*/
+test/SAMInvariant#`<init>`(). Ä@*<init>Ä*
+test/SAMInvariant#[T]	*TÄ**
+test/SAMInvariant#first(). *firstÄ*)
+test/SAMInvariant#first().(in)*inÄ*,
+test/SAMInvariant#equals(). *equalsÄ*,
+ test/SAMInvariant#equals().(obj)*objÄ*0
+test/SAMInvariant#hashCode(). *hashCodeÄ*0
+test/SAMInvariant#toString(). *toStringÄ*5
+test/SAMInvariantExtends#*SAMInvariantExtendsÄ*6
+$test/SAMInvariantExtends#`<init>`(). Ä@*<init>Ä*&
+test/SAMInvariantExtends#[T]	*TÄ*1
+!test/SAMInvariantExtends#first(). *firstÄ*0
+%test/SAMInvariantExtends#first().(in)*inÄ*K
+$test/SAMInvariantExtendsAndOverride#*SAMInvariantExtendsAndOverrideÄ*A
+/test/SAMInvariantExtendsAndOverride#`<init>`(). Ä@*<init>Ä*1
+'test/SAMInvariantExtendsAndOverride#[T]	*TÄ*<
+,test/SAMInvariantExtendsAndOverride#first(). *firstÄ*;
+0test/SAMInvariantExtendsAndOverride#first().(in)*inÄ*>
+-test/SAMInvariantExtendsAndOverride#equals(). *equalsÄ*>
+2test/SAMInvariantExtendsAndOverride#equals().(obj)*objÄ*B
+/test/SAMInvariantExtendsAndOverride#hashCode(). *hashCodeÄ*B
+/test/SAMInvariantExtendsAndOverride#toString(). *toStringÄ*)
+test/SAMPlainInOut#*SAMPlainInOutÄ*0
+test/SAMPlainInOut#`<init>`(). Ä@*<init>Ä*#
+test/SAMPlainInOut#[I]	 Ä*IÄ*#
+test/SAMPlainInOut#[O]	 Ä*OÄ*+
+test/SAMPlainInOut#first(). *firstÄ**
+test/SAMPlainInOut#first().(in)*inÄ*
+test/SAMInOut#*SAMInOutÄ*+
+test/SAMInOut#`<init>`(). Ä@*<init>Ä*
+test/SAMInOut#[I]	 Ä*IÄ*
+test/SAMInOut#[O]	 Ä*OÄ*&
+test/SAMInOut#first(). *firstÄ*%
+test/SAMInOut#first().(in)*inÄ*(
+test/SAMInOut#equals(). *equalsÄ*(
+test/SAMInOut#equals().(obj)*objÄ*,
+test/SAMInOut#hashCode(). *hashCodeÄ*,
+test/SAMInOut#toString(). *toStringÄ*-
+test/SAMInOutExtends#*SAMInOutExtendsÄ*2
+ test/SAMInOutExtends#`<init>`(). Ä@*<init>Ä*%
+test/SAMInOutExtends#[I]	 Ä*IÄ*%
+test/SAMInOutExtends#[O]	 Ä*OÄ*-
+test/SAMInOutExtends#first(). *firstÄ*,
+!test/SAMInOutExtends#first().(in)*inÄ*C
+ test/SAMInOutExtendsAndOverride#*SAMInOutExtendsAndOverrideÄ*=
++test/SAMInOutExtendsAndOverride#`<init>`(). Ä@*<init>Ä*0
+#test/SAMInOutExtendsAndOverride#[I]	 Ä*IÄ*0
+#test/SAMInOutExtendsAndOverride#[O]	 Ä*OÄ*8
+(test/SAMInOutExtendsAndOverride#first(). *firstÄ*7
+,test/SAMInOutExtendsAndOverride#first().(in)*inÄ*:
+)test/SAMInOutExtendsAndOverride#equals(). *equalsÄ*:
+.test/SAMInOutExtendsAndOverride#equals().(obj)*objÄ*>
++test/SAMInOutExtendsAndOverride#hashCode(). *hashCodeÄ*>
++test/SAMInOutExtendsAndOverride#toString(). *toStringÄ*7
+test/SAMWithCustomAliases#*SAMWithCustomAliasesÄ*7
+%test/SAMWithCustomAliases#`<init>`(). Ä@*<init>Ä*2
+"test/SAMWithCustomAliases#first(). *firstÄ*4
+#test/SAMWithCustomAliases#equals(). *equalsÄ*4
+(test/SAMWithCustomAliases#equals().(obj)*objÄ*8
+%test/SAMWithCustomAliases#hashCode(). *hashCodeÄ*8
+%test/SAMWithCustomAliases#toString(). *toStringÄ*
+
+test/Main.
+ *MainÄ*
+test/Main.main().*mainÄ*$
+test/Main.main().(args)*argsÄ*
+local0 Ä*samPlainÄ*5
+local1 Ä*#samPlainWithOverriddenObjectMethodsÄ*%
+local2 Ä*samPlainWithExtendsÄ*0
+local3 Ä*samPlainWithExtendsAndOverrideÄ*&
+local4 Ä*samPlainCovariantOutÄ*!
+local5 Ä*samCovariantOutÄ*(
+local6 Ä*samCovariantOutExtendsÄ*3
+local7 Ä*!samCovariantOutExtendsAndOverrideÄ*)
+local8 Ä*samPlainContravariantInÄ*
+local9*xÄ*%
+local10 Ä*samContravariantInÄ*
+local11*xÄ*,
+local12 Ä*samContravariantInExtendsÄ*
+local13*xÄ*7
+local14 Ä*$samContravariantInExtendsAndOverrideÄ*
+local15*xÄ*$
+local16 Ä*samPlainInvariantÄ*
+local17*xÄ*
+local18 Ä*samInvariantÄ*
+local19*xÄ*&
+local20 Ä*samInvariantExtendsÄ*
+local21*xÄ*1
+local22 Ä*samInvariantExtendsAndOverrideÄ*
+local23*xÄ* 
+local24 Ä*samPlainInOutÄ*
+local25*xÄ*
+local26 Ä*samInOutÄ*
+local27*xÄ*"
+local28 Ä*samInOutExtendsÄ*
+local29*xÄ*-
+local30 Ä*samInOutExtendsAndOverrideÄ*
+local31*xÄ*'
+local32 Ä*samWithCustomAliasesÄ*"
+test/i7359$package. *testÄ*5
+ test/i7359$package.CustomString#*CustomStringÄ*7
+!test/i7359$package.CustomBoolean#*CustomBooleanÄ*/
+test/i7359$package.CustomInt#*	CustomIntÄ2
+ test/2#
+ test/ObjectInterface#2.
+  test/ObjectInterface#`<init>`().2,
+ test/ObjectInterface#equals().21
+ #test/ObjectInterface#equals().(obj)2
+ 
+scala/Any#2
+ scala/Boolean#2.
+  test/ObjectInterface#hashCode().2
+ 
+scala/Int#2.
+  test/ObjectInterface#toString().2"
+ scala/Predef.String#2
+ test/SAMPlain#2'
+ test/SAMPlain#`<init>`().2$
+ test/SAMPlain#first().2"
+ scala/Predef.String#27
+
+
+ ))test/SAMPlainWithOverriddenObjectMethods#2B
+ 4test/SAMPlainWithOverriddenObjectMethods#`<init>`().2?
+ 1test/SAMPlainWithOverriddenObjectMethods#first().2"
+ scala/Predef.String#2@
+ 2test/SAMPlainWithOverriddenObjectMethods#equals().2E
+ 7test/SAMPlainWithOverriddenObjectMethods#equals().(obj)2
+ 
+scala/Any#2
+ scala/Boolean#2B
+ 4test/SAMPlainWithOverriddenObjectMethods#hashCode().2
+ 
+scala/Int#2B
+ 4test/SAMPlainWithOverriddenObjectMethods#toString().2"
+ scala/Predef.String#2'
+ test/SAMPlainWithExtends#22
+" "$test/SAMPlainWithExtends#`<init>`().2#
+" 1test/ObjectInterface#2/
+ !test/SAMPlainWithExtends#first().2"
+ scala/Predef.String#22
+ $$test/SAMPlainWithExtendsAndOverride#2=
+- -/test/SAMPlainWithExtendsAndOverride#`<init>`().2#
+- <test/ObjectInterface#2:
+ ,test/SAMPlainWithExtendsAndOverride#first().2"
+ scala/Predef.String#2;
+ -test/SAMPlainWithExtendsAndOverride#equals().2@
+ 2test/SAMPlainWithExtendsAndOverride#equals().(obj)2
+ 
+scala/Any#2
+! (scala/Boolean#2=
+ /test/SAMPlainWithExtendsAndOverride#hashCode().2
+ 
+scala/Int#2=
+ /test/SAMPlainWithExtendsAndOverride#toString().2"
+ !scala/Predef.String#2(
+ test/SAMPlainCovariantOut#23
+ %test/SAMPlainCovariantOut#`<init>`().2+
+ test/SAMPlainCovariantOut#[O]20
+ "test/SAMPlainCovariantOut#first().2+
+ test/SAMPlainCovariantOut#[O]2#
+ test/SAMCovariantOut#2.
+  test/SAMCovariantOut#`<init>`().2&
+ test/SAMCovariantOut#[O]2+
+ test/SAMCovariantOut#first().2&
+ test/SAMCovariantOut#[O]2,
+ test/SAMCovariantOut#equals().21
+ #test/SAMCovariantOut#equals().(obj)2
+ 
+scala/Any#2
+ scala/Boolean#2.
+  test/SAMCovariantOut#hashCode().2
+ 
+scala/Int#2.
+    test/SAMCovariantOut#toString().2"
+   scala/Predef.String#2*
+"" test/SAMCovariantOutExtends#25
+"" 'test/SAMCovariantOutExtends#`<init>`().2#
+")" 8test/ObjectInterface#2-
+"" test/SAMCovariantOutExtends#[O]22
+## $test/SAMCovariantOutExtends#first().2-
+## test/SAMCovariantOutExtends#[O]25
+%% ''test/SAMCovariantOutExtendsAndOverride#2@
+%'% '2test/SAMCovariantOutExtendsAndOverride#`<init>`().2#
+%4% Ctest/ObjectInterface#28
+%)% **test/SAMCovariantOutExtendsAndOverride#[O]2=
+&& /test/SAMCovariantOutExtendsAndOverride#first().28
+&& *test/SAMCovariantOutExtendsAndOverride#[O]2>
+'' 0test/SAMCovariantOutExtendsAndOverride#equals().2C
+'' 5test/SAMCovariantOutExtendsAndOverride#equals().(obj)2
+'' 
+scala/Any#2
+'!' (scala/Boolean#2@
+(( 2test/SAMCovariantOutExtendsAndOverride#hashCode().2
+(( 
+scala/Int#2@
+)) 2test/SAMCovariantOutExtendsAndOverride#toString().2"
+)) !scala/Predef.String#2+
+++ test/SAMPlainContravariantIn#26
+++ (test/SAMPlainContravariantIn#`<init>`().2.
+++   test/SAMPlainContravariantIn#[I]23
+,, %test/SAMPlainContravariantIn#first().27
+,, )test/SAMPlainContravariantIn#first().(in)2.
+,,  test/SAMPlainContravariantIn#[I]2
+,, scala/Unit#2&
+.. test/SAMContravariantIn#21
+.. #test/SAMContravariantIn#`<init>`().2)
+.. test/SAMContravariantIn#[I]2.
+//  test/SAMContravariantIn#first().22
+// $test/SAMContravariantIn#first().(in)2)
+// test/SAMContravariantIn#[I]2
+// scala/Unit#2/
+00 !test/SAMContravariantIn#equals().24
+00 &test/SAMContravariantIn#equals().(obj)2
+00 
+scala/Any#2
+00 scala/Boolean#21
+11 #test/SAMContravariantIn#hashCode().2
+11 
+scala/Int#21
+22 #test/SAMContravariantIn#toString().2"
+22 scala/Predef.String#2-
+44 test/SAMContravariantInExtends#28
+44 *test/SAMContravariantInExtends#`<init>`().2#
+4,4 ;test/ObjectInterface#20
+4!4 ""test/SAMContravariantInExtends#[I]25
+55 'test/SAMContravariantInExtends#first().29
+55 +test/SAMContravariantInExtends#first().(in)20
+55 "test/SAMContravariantInExtends#[I]2
+55 scala/Unit#28
+77 **test/SAMContravariantInExtendsAndOverride#2C
+7*7 *5test/SAMContravariantInExtendsAndOverride#`<init>`().2#
+777 Ftest/ObjectInterface#2;
+7,7 --test/SAMContravariantInExtendsAndOverride#[I]2@
+88 2test/SAMContravariantInExtendsAndOverride#first().2D
+88 6test/SAMContravariantInExtendsAndOverride#first().(in)2;
+88 -test/SAMContravariantInExtendsAndOverride#[I]2
+88 scala/Unit#2A
+99 3test/SAMContravariantInExtendsAndOverride#equals().2F
+99 8test/SAMContravariantInExtendsAndOverride#equals().(obj)2
+99 
+scala/Any#2
+9!9 (scala/Boolean#2C
+:: 5test/SAMContravariantInExtendsAndOverride#hashCode().2
+:: 
+scala/Int#2C
+;; 5test/SAMContravariantInExtendsAndOverride#toString().2"
+;; !scala/Predef.String#2%
+== test/SAMPlainInvariant#20
+== "test/SAMPlainInvariant#`<init>`().2(
+== test/SAMPlainInvariant#[T]2-
+>> test/SAMPlainInvariant#first().21
+>> #test/SAMPlainInvariant#first().(in)2(
+>> test/SAMPlainInvariant#[T]2(
+>> test/SAMPlainInvariant#[T]2 
+@@ test/SAMInvariant#2+
+@@ test/SAMInvariant#`<init>`().2#
+@@ test/SAMInvariant#[T]2(
+AA test/SAMInvariant#first().2,
+AA test/SAMInvariant#first().(in)2#
+AA test/SAMInvariant#[T]2#
+AA test/SAMInvariant#[T]2)
+BB test/SAMInvariant#equals().2.
+BB  test/SAMInvariant#equals().(obj)2
+BB 
+scala/Any#2
+BB scala/Boolean#2+
+CC test/SAMInvariant#hashCode().2
+CC 
+scala/Int#2+
+DD test/SAMInvariant#toString().2"
+DD scala/Predef.String#2'
+FF test/SAMInvariantExtends#22
+FF $test/SAMInvariantExtends#`<init>`().2#
+F%F 4test/ObjectInterface#2*
+FF test/SAMInvariantExtends#[T]2/
+GG !test/SAMInvariantExtends#first().23
+GG %test/SAMInvariantExtends#first().(in)2*
+GG test/SAMInvariantExtends#[T]2*
+GG test/SAMInvariantExtends#[T]22
+II $$test/SAMInvariantExtendsAndOverride#2=
+I$I $/test/SAMInvariantExtendsAndOverride#`<init>`().2#
+I0I ?test/ObjectInterface#25
+I%I &'test/SAMInvariantExtendsAndOverride#[T]2:
+JJ ,test/SAMInvariantExtendsAndOverride#first().2>
+JJ 0test/SAMInvariantExtendsAndOverride#first().(in)25
+JJ 'test/SAMInvariantExtendsAndOverride#[T]25
+JJ 'test/SAMInvariantExtendsAndOverride#[T]2;
+KK -test/SAMInvariantExtendsAndOverride#equals().2@
+KK 2test/SAMInvariantExtendsAndOverride#equals().(obj)2
+KK 
+scala/Any#2
+K!K (scala/Boolean#2=
+LL /test/SAMInvariantExtendsAndOverride#hashCode().2
+LL 
+scala/Int#2=
+MM /test/SAMInvariantExtendsAndOverride#toString().2"
+MM !scala/Predef.String#2!
+OO test/SAMPlainInOut#2,
+OO test/SAMPlainInOut#`<init>`().2$
+OO test/SAMPlainInOut#[I]2$
+OO test/SAMPlainInOut#[O]2)
+PP test/SAMPlainInOut#first().2-
+PP test/SAMPlainInOut#first().(in)2$
+PP test/SAMPlainInOut#[I]2$
+PP test/SAMPlainInOut#[O]2
+RR test/SAMInOut#2'
+RR test/SAMInOut#`<init>`().2
+RR test/SAMInOut#[I]2
+RR test/SAMInOut#[O]2$
+SS test/SAMInOut#first().2(
+SS test/SAMInOut#first().(in)2
+SS test/SAMInOut#[I]2
+SS test/SAMInOut#[O]2%
+TT test/SAMInOut#equals().2*
+TT test/SAMInOut#equals().(obj)2
+TT 
+scala/Any#2
+TT scala/Boolean#2'
+UU test/SAMInOut#hashCode().2
+UU 
+scala/Int#2'
+VV test/SAMInOut#toString().2"
+VV scala/Predef.String#2#
+XX test/SAMInOutExtends#2.
+XX  test/SAMInOutExtends#`<init>`().2#
+X&X 5test/ObjectInterface#2&
+XX test/SAMInOutExtends#[I]2&
+XX test/SAMInOutExtends#[O]2+
+YY test/SAMInOutExtends#first().2/
+YY !test/SAMInOutExtends#first().(in)2&
+YY test/SAMInOutExtends#[I]2&
+YY test/SAMInOutExtends#[O]2.
+[[   test/SAMInOutExtendsAndOverride#29
+[ [  +test/SAMInOutExtendsAndOverride#`<init>`().2#
+[1[ @test/ObjectInterface#21
+["[ ##test/SAMInOutExtendsAndOverride#[I]21
+[&[ '#test/SAMInOutExtendsAndOverride#[O]26
+\\ (test/SAMInOutExtendsAndOverride#first().2:
+\\ ,test/SAMInOutExtendsAndOverride#first().(in)21
+\\ #test/SAMInOutExtendsAndOverride#[I]21
+\\ #test/SAMInOutExtendsAndOverride#[O]27
+]] )test/SAMInOutExtendsAndOverride#equals().2<
+]] .test/SAMInOutExtendsAndOverride#equals().(obj)2
+]] 
+scala/Any#2
+]!] (scala/Boolean#29
+^^ +test/SAMInOutExtendsAndOverride#hashCode().2
+^^ 
+scala/Int#29
+__ +test/SAMInOutExtendsAndOverride#toString().2"
+__ !scala/Predef.String#2(
+ee test/SAMWithCustomAliases#23
+ff %test/SAMWithCustomAliases#`<init>`().20
+ff "test/SAMWithCustomAliases#first().2"
+ff scala/Predef.String#21
+gg #test/SAMWithCustomAliases#equals().26
+gg (test/SAMWithCustomAliases#equals().(obj)2
+gg 
+scala/Any#2/
+gg %!test/i7359$package.CustomBoolean#23
+hh %test/SAMWithCustomAliases#hashCode().2+
+hh test/i7359$package.CustomInt#23
+ii %test/SAMWithCustomAliases#toString().2.
+ii  test/i7359$package.CustomString#2
+kk 
+test/Main.2
+ll 
+test/Main.main().2%
+ll test/Main.main().(args)2
+ll scala/Array#2"
+ll scala/Predef.String#2
+mm local02
+mm test/SAMPlain#2
+nn +local127
+n-n P)test/SAMPlainWithOverriddenObjectMethods#2
+oo local22'
+oo 1test/SAMPlainWithExtends#2
+pp &local322
+p)p G$test/SAMPlainWithExtendsAndOverride#2
+rr local42(
+rr 3test/SAMPlainCovariantOut#2
+ss local52#
+ss )test/SAMCovariantOut#2
+tt local62*
+t!t 7test/SAMCovariantOutExtends#2
+uu )local725
+u,u M'test/SAMCovariantOutExtendsAndOverride#2
+ww local82+
+w"w 9test/SAMPlainContravariantIn#2
+w:w =
+scala/Int#2
+wBw Clocal92
+wEw H
+scala/Int#2
+xx local102&
+xx /test/SAMContravariantIn#2
+x0x 3
+scala/Int#2
+x8x 9local112
+x;x >
+scala/Int#2
+yy !local122-
+y$y =test/SAMContravariantInExtends#2
+y>y A
+scala/Int#2
+yFy Glocal132
+yIy L
+scala/Int#2
+zz ,local1428
+z/z S*test/SAMContravariantInExtendsAndOverride#2
+zTz W
+scala/Int#2
+z\z ]local152
+z_z b
+scala/Int#2
+|| local162%
+|| -test/SAMPlainInvariant#2"
+|.| 4scala/Predef.String#2
+|9| :local172"
+|<| Bscala/Predef.String#2
+|G| Hlocal172
+}} local182 
+}} #test/SAMInvariant#2"
+}$} *scala/Predef.String#2
+}/} 0local192"
+}2} 8scala/Predef.String#2
+}=} >local192
+~~ local202'
+~~ 1test/SAMInvariantExtends#2"
+~2~ 8scala/Predef.String#2
+~=~ >local212"
+~@~ Fscala/Predef.String#2
+~K~ Llocal212
+ &local2222
+) G$test/SAMInvariantExtendsAndOverride#2"
+H Nscala/Predef.String#2
+S Tlocal232"
+V \scala/Predef.String#2
+a blocal232
+
+ÅÅ local242#
+
+ÅÅ %test/SAMPlainInOut#2
+
+Å&Å )
+scala/Int#2$
+
+Å+Å 1scala/Predef.String#2
+
+Å6Å 7local252
+
+Å9Å <
+scala/Int#2%
+
+ÅCÅ Kscala/Any#toString().2
+
+ÅAÅ Blocal252
+
+ÇÇ local262
+
+ÇÇ test/SAMInOut#2
+
+ÇÇ 
+scala/Int#2$
+
+Ç!Ç 'scala/Predef.String#2
+
+Ç,Ç -local272
+
+Ç/Ç 2
+scala/Int#2%
+
+Ç9Ç Ascala/Any#toString().2
+
+Ç7Ç 8local272
+
+ÉÉ local282%
+
+ÉÉ )test/SAMInOutExtends#2
+
+É*É -
+scala/Int#2$
+
+É/É 5scala/Predef.String#2
+
+É:É ;local292
+
+É=É @
+scala/Int#2%
+
+ÉGÉ Oscala/Any#toString().2
+
+ÉEÉ Flocal292
+
+ÑÑ "local3020
+
+Ñ%Ñ ? test/SAMInOutExtendsAndOverride#2
+
+Ñ@Ñ C
+scala/Int#2$
+
+ÑEÑ Kscala/Predef.String#2
+
+ÑPÑ Qlocal312
+
+ÑSÑ V
+scala/Int#2%
+
+Ñ]Ñ escala/Any#toString().2
+
+Ñ[Ñ \local312
+
+ÜÜ local322*
+
+ÜÜ 3test/SAMWithCustomAliases#2
+aatest/i7359$package.2.
+aa  test/i7359$package.CustomString#2"
+aa scala/Predef.String#2/
+bb !test/i7359$package.CustomBoolean#2
+bb scala/Boolean#2+
+cc test/i7359$package.CustomInt#2
+cc 
+scala/Int#PZ DBAB41D8F8D32DE05849BC0623E0FBED

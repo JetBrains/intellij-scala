@@ -1,0 +1,95 @@
+
+Žtests/pos/t8046c.scala*
+_empty_/One#*One€*)
+_empty_/One#`<init>`(). €@*<init>€*
+_empty_/One#Op#*Op€*
+_empty_/One#Op#[A]	*A€* 
+_empty_/One#Alias#*Alias€*
+_empty_/One#Alias#[A]	*A€*
+_empty_/Three#*Three€*+
+_empty_/Three#`<init>`(). €@*<init>€*
+_empty_/Three#Op#*Op€*.
+_empty_/Three#Op#`<init>`(). €@*<init>€*
+_empty_/Three#Op#[A]	*A€*
+_empty_/Three#f1().*f1€* 
+_empty_/Three#f1().(f)*f€*
+_empty_/Three#f2().*f2€* 
+_empty_/Three#f2().(f)*f€*
+_empty_/Three#f3().*f3€* 
+_empty_/Three#f3().[T]	*T€* 
+_empty_/Three#f3().(f)*f€*
+_empty_/Three#f4().*f4€* 
+_empty_/Three#f4().[T]	*T€* 
+_empty_/Three#f4().(f)*f€2
+ 	_empty_/One#2%
+ _empty_/One#`<init>`().2
+ 	_empty_/One#Op#2 
+
+ _empty_/One#Op#[A]2 
+ _empty_/One#Alias#2#
+ _empty_/One#Alias#[A]2
+ _empty_/One#Op#2#
+ _empty_/One#Alias#[A]2
+ _empty_/Three#2'
+ _empty_/Three#`<init>`().2
+ _empty_/One#2
+ 
+_empty_/Three#Op#2*
+
+ 
+_empty_/Three#Op#`<init>`().2"
+ _empty_/Three#Op#[A]2"
+ _empty_/Three#Op#[A]2"
+ _empty_/Three#Op#[A]2!
+ _empty_/Three#f1().2$
+	 
+_empty_/Three#f1().(f)2
+ _empty_/Three#Op#2
+ 
+scala/Int#2&
+# #scala/Function1#apply().2$
+" #_empty_/Three#f1().(f)2!
+		 _empty_/Three#f2().2$
+			 
+_empty_/Three#f2().(f)2 
+		 _empty_/One#Alias#2
+		 
+scala/Int#2&
+	#	 #scala/Function1#apply().2$
+	"	 #_empty_/Three#f2().(f)2!
+
+
+ _empty_/Three#f3().2$
+
+	
+ 
+_empty_/Three#f3().[T]2
+
+
+ _empty_/Three#Op#2
+
+
+ 
+scala/Int#2$
+
+
+ _empty_/Three#f3().(f)2$
+
+
+ _empty_/Three#f3().[T]2&
+
+#
+ #scala/Function1#apply().2$
+
+"
+ #_empty_/Three#f3().(f)2!
+ _empty_/Three#f4().2$
+	 
+_empty_/Three#f4().[T]2 
+ _empty_/One#Alias#2
+ 
+scala/Int#2$
+ _empty_/Three#f4().(f)2$
+ _empty_/Three#f4().[T]2&
+# #scala/Function1#apply().2$
+" #_empty_/Three#f4().(f)PZ 75A3305FC00BE2CDED4692F0DFD9FF23

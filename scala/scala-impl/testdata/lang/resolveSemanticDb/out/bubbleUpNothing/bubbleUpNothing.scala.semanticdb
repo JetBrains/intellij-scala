@@ -1,0 +1,162 @@
+
+´'tests/pos/bubbleUpNothing.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€* 
+_empty_/T#apply().*apply€*!
+_empty_/T#apply().(a1)*a1€*!
+_empty_/T#apply().(a2)*a2€*!
+_empty_/T#apply().(a3)*a3€*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.test1().*test1€*#
+_empty_/Test.test2().*test2€*
+local0 *$anon€*#
+_empty_/Test.test3().*test3€*
+local1 *$anon€*#
+_empty_/Test.test4().*test4€*
+local2 *$anon€*#
+_empty_/Test.test5().*test5€*
+local3 *$anon€*#
+_empty_/Test.test6().*test6€*#
+_empty_/Test.test7().*test7€*#
+_empty_/Test.test8().*test8€*#
+_empty_/Test.test9().*test9€*%
+_empty_/Test.test10().*test10€*
+local4*fail€*%
+_empty_/Test.test11().*test11€*
+local5*Context€*
+local6*Type€*
+local7*Tree€*
+local8*withType€*
+local9*tpe€*
+local10  *ctx€*
+local11*readTree€*
+local12  *ctx€*
+local13 *$anon€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2 
+ _empty_/T#apply().2$
+ _empty_/T#apply().(a1)2"
+ scala/Predef.String#2$
+ _empty_/T#apply().(a2)2"
+ "scala/Predef.String#2$
+$ &_empty_/T#apply().(a3)2"
+( .scala/Predef.String#2"
+1 7scala/Predef.String#2$
+: <_empty_/T#apply().(a3)2
+ _empty_/Test.2#
+ _empty_/Test.test1().20
+= E"java/lang/CharSequence#toString().2-
++ 6java/lang/String#subSequence().20
+" *"java/lang/CharSequence#toString().2-
+ java/lang/String#subSequence().2#
+ scala/Any#toString().2#
+ scala/Predef.`???`().2#
+		 _empty_/Test.test2().20
+4 <"java/lang/CharSequence#toString().2-
+" -java/lang/String#subSequence().20
+ !"java/lang/CharSequence#toString().2-
+ java/lang/String#subSequence().2 
+ _empty_/T#apply().2
+
+
+ local02
+
+	
+ 
+
+_empty_/T#2#
+ scala/Predef.`???`().2#
+ _empty_/Test.test3().20
+4 <"java/lang/CharSequence#toString().2-
+" -java/lang/String#subSequence().20
+ !"java/lang/CharSequence#toString().2-
+ java/lang/String#subSequence().2 
+ _empty_/T#apply().2
+ local12
+	 
+
+_empty_/T#2#
+ scala/Predef.`???`().2#
+ _empty_/Test.test4().20
+4 <"java/lang/CharSequence#toString().2-
+" -java/lang/String#subSequence().20
+ !"java/lang/CharSequence#toString().2-
+ java/lang/String#subSequence().2 
+ _empty_/T#apply().2
+ local22
+	 
+
+_empty_/T#2#
+ scala/Predef.`???`().2#
+ _empty_/Test.test5().20
+4 <"java/lang/CharSequence#toString().2-
+" -java/lang/String#subSequence().20
+ !"java/lang/CharSequence#toString().2-
+ java/lang/String#subSequence().2 
+ _empty_/T#apply().2
+ local32
+	 
+
+_empty_/T#2#
+ scala/Predef.`???`().2#
+ _empty_/Test.test6().20
+4 <"java/lang/CharSequence#toString().2-
+" -java/lang/String#subSequence().20
+ !"java/lang/CharSequence#toString().2-
+ java/lang/String#subSequence().2#
+	 scala/Predef.`???`().2#
+!! _empty_/Test.test7().20
+#4# <"java/lang/CharSequence#toString().2-
+#"# -java/lang/String#subSequence().20
+## !"java/lang/CharSequence#toString().2-
+## java/lang/String#subSequence().2#
+"" 	scala/Predef.`???`().2#
+%% _empty_/Test.test8().20
+'4' <"java/lang/CharSequence#toString().2-
+'"' -java/lang/String#subSequence().20
+'' !"java/lang/CharSequence#toString().2-
+'' java/lang/String#subSequence().2#
+&& scala/Predef.`???`().2#
+)) _empty_/Test.test9().20
++=+ E"java/lang/CharSequence#toString().2-
++++ 6java/lang/String#subSequence().20
++"+ *"java/lang/CharSequence#toString().2-
+++ java/lang/String#subSequence().2#
+++ scala/Any#toString().2#
+** scala/Predef.`???`().2$
+-- _empty_/Test.test10().2
+-- scala/Unit#2
+.. local42>
+.1. 10java/lang/IllegalArgumentException#`<init>`(+1).25
+.. 1'scala/package.IllegalArgumentException#2$
+11 _empty_/Test.test11().2
+11 scala/Unit#2
+2
+2 local52
+3
+3 local62
+4
+4 local72
+5
+5 local82
+55 local92
+55 local62
+5'5 *local102
+5,5 3local52
+565 :local72
+88 local112
+88 local122
+8!8 (local52
+8+8 .
+scala/Any#2
+9'9 /local82
+99 local82
+99 local132
+99 local72#
+99  scala/Predef.`???`().2
+9"9 %local122#
+909 3scala/Predef.`???`().2
+949 4local12PZ 5E96D15A135676FD2DC463AB2E5B2986

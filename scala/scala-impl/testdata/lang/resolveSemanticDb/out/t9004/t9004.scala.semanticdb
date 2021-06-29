@@ -1,0 +1,43 @@
+
+â	tests/pos/t9004.scala*
+_empty_/Main.
+ *Main€*
+_empty_/Main.AA#*AA€*-
+_empty_/Main.AA#`<init>`(). €@*<init>€*
+_empty_/Main.AA#[RR]	*RR€*
+_empty_/Main.AA#R#*R€* 
+_empty_/Main.AA#r(). *r€*#
+_empty_/Main.test1().*test1€*"
+_empty_/Main.test1().(a)*a€*
+local0 €*f€*
+local1 €*g€*
+local2 €*g2€2
+ _empty_/Main.2
+ 
+_empty_/Main.AA#2)
+
+ 
+_empty_/Main.AA#`<init>`().2"
+ _empty_/Main.AA#[RR]2 
+ _empty_/Main.AA#R#2"
+ _empty_/Main.AA#[RR]2"
+" #_empty_/Main.AA#r().2 
+% &_empty_/Main.AA#R#2#
+ _empty_/Main.test1().2&
+ _empty_/Main.test1().(a)2
+ _empty_/Main.AA#2
+ 	local02"
+ _empty_/Main.AA#r().2&
+ _empty_/Main.test1().(a)2
+ local02 
+ _empty_/Main.AA#R#2&
+ _empty_/Main.test1().(a)2
+ 	local12 
+ _empty_/Main.AA#R#2&
+ _empty_/Main.test1().(a)2"
+! "_empty_/Main.AA#r().2&
+  _empty_/Main.test1().(a)2
+ 
+local22"
+ _empty_/Main.AA#r().2&
+ _empty_/Main.test1().(a)PZ BE4E2EAA3DA2A45CF03C1B941F0F1399

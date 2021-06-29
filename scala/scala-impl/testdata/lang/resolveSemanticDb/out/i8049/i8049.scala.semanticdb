@@ -1,0 +1,136 @@
+
+À!tests/pos/i8049.scala*
+_empty_/Ops#*Ops€*)
+_empty_/Ops#`<init>`(). €@*<init>€*$
+_empty_/Ops#`<init>`().(a)*a€*
+_empty_/Ops#[A]	*A€*
+_empty_/Ops#a. €*a€*
+_empty_/Ops#bar().*bar€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*/
+_empty_/Foo#`<init>`().(value) €*value€*
+_empty_/Foo#[A]	*A€*#
+_empty_/Foo#value. €*value€* 
+_empty_/Foo#same().*same€*
+_empty_/Foo#map().*map€*
+_empty_/Foo#map().[B]	*B€*
+_empty_/Foo#map().(f)*f€*(
+_empty_/i8049$package. *_empty_€*.
+_empty_/i8049$package.toOps().  *toOps€*+
+!_empty_/i8049$package.toOps().[A]	*A€*+
+!_empty_/i8049$package.toOps().(a)*a€*$
+_empty_/i8049$package.Id#*Id€*&
+_empty_/i8049$package.Id#[A]	*A€*%
+_empty_/i8049$package.x. €*x€*)
+_empty_/i8049$package.foo. €*foo€*+
+_empty_/i8049$package.res1. €*res1€*+
+_empty_/i8049$package.res2. €*res2€*+
+_empty_/i8049$package.res3. €*res3€*+
+_empty_/i8049$package.res4. €*res4€*+
+_empty_/i8049$package.res5. €*res5€2-
+ )#scala/language.implicitConversions.2
+ scala/language.2
+ scala/2
+ 	_empty_/Ops#2%
+	 	_empty_/Ops#`<init>`().2
+ _empty_/Ops#[A]2
+
+ _empty_/Ops#[A]2
+ _empty_/Ops#a.2 
+ 	_empty_/Ops#bar().2
+ scala/Unit#2
+
+
+ 	_empty_/Foo#2%
+
+	
+ 	_empty_/Foo#`<init>`().2'
+
+
+ _empty_/i8049$package.Id#2
+
+
+ _empty_/Foo#[A]2
+
+
+
+ _empty_/Foo#[A]2 
+
+
+ _empty_/Foo#value.2!
+ 
+_empty_/Foo#same().2
+ _empty_/Foo#2
+ _empty_/Foo#[A]2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Foo#[A]2 
+  %_empty_/Foo#value.2 
+ 	_empty_/Foo#map().2#
+
+ _empty_/Foo#map().[B]2#
+ _empty_/Foo#map().(f)2
+ _empty_/Foo#[A]2#
+ _empty_/Foo#map().[B]2
+ _empty_/Foo#2#
+ _empty_/Foo#map().[B]2%
+, ,_empty_/Foo#`<init>`().2
+& )_empty_/Foo#2#
+* +_empty_/Foo#map().[B]2&
+. .scala/Function1#apply().2#
+- ._empty_/Foo#map().(f)2 
+/ 4_empty_/Foo#value.2 
+_empty_/i8049$package.2,
+ _empty_/i8049$package.toOps().2/
+ !_empty_/i8049$package.toOps().[A]2/
+ !_empty_/i8049$package.toOps().(a)2/
+ !_empty_/i8049$package.toOps().[A]2
+  _empty_/Ops#2/
+! "!_empty_/i8049$package.toOps().[A]2%
+0 0_empty_/Ops#`<init>`().2
+* -_empty_/Ops#2/
+. /!_empty_/i8049$package.toOps().[A]2/
+1 2!_empty_/i8049$package.toOps().(a)2'
+ _empty_/i8049$package.Id#2*
+ 	_empty_/i8049$package.Id#[A]2*
+ _empty_/i8049$package.Id#[A]2&
+ _empty_/i8049$package.x.2
+ 
+
+scala/Int#2(
+ _empty_/i8049$package.foo.2
+	 _empty_/Foo#2
+ 
+scala/Int#2%
+ _empty_/Foo#`<init>`().2)
+ _empty_/i8049$package.res1.2 
+ _empty_/Ops#bar().2,
+ _empty_/i8049$package.toOps().2&
+ _empty_/i8049$package.x.2)
+ _empty_/i8049$package.res2.2 
+ _empty_/Ops#bar().2,
+ _empty_/i8049$package.toOps().2 
+ _empty_/Foo#value.2(
+ _empty_/i8049$package.foo.2)
+ _empty_/i8049$package.res3.2 
+ _empty_/Ops#bar().2,
+ _empty_/i8049$package.toOps().2 
+ _empty_/Foo#value.2!
+ _empty_/Foo#same().2(
+ _empty_/i8049$package.foo.2)
+ _empty_/i8049$package.res4.2 
+% (_empty_/Ops#bar().2,
+ _empty_/i8049$package.toOps().2 
+ $_empty_/Foo#value.2 
+ _empty_/Foo#map().2(
+ _empty_/i8049$package.foo.2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2)
+ _empty_/i8049$package.res5.2 
+  #_empty_/Ops#bar().2,
+ _empty_/i8049$package.toOps().2 
+ _empty_/Foo#value.2 
+ _empty_/Foo#map().2(
+ _empty_/i8049$package.foo.2 
+ scala/Int#`+`(+4).PZ 36F492271018360D438B4ECE65682C27

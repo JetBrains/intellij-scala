@@ -1,0 +1,144 @@
+
+Î%tests/pos/i12708.scala*4
+_empty_/AdditiveSemigroup#*AdditiveSemigroup€*7
+%_empty_/AdditiveSemigroup#`<init>`(). €@*<init>€*'
+_empty_/AdditiveSemigroup#[A]	*A€*<
+_empty_/AdditiveSemigroupOps# *AdditiveSemigroupOps€*:
+(_empty_/AdditiveSemigroupOps#`<init>`(). €@*<init>€*9
+-_empty_/AdditiveSemigroupOps#`<init>`().(lhs)*lhs€*9
+,_empty_/AdditiveSemigroupOps#`<init>`().(as)  *as€**
+ _empty_/AdditiveSemigroupOps#[A]	*A€*0
+!_empty_/AdditiveSemigroupOps#lhs. €*lhs€*.
+ _empty_/AdditiveSemigroupOps#as.  *as€*-
+#_empty_/AdditiveSemigroupOps#`+`().*+€*4
+(_empty_/AdditiveSemigroupOps#`+`().(rhs)*rhs€*-
+#_empty_/AdditiveSemigroupOps#`^`().*^€*4
+(_empty_/AdditiveSemigroupOps#`^`().(rhs)*rhs€*@
+ _empty_/AdditiveSemigroupSyntax#*AdditiveSemigroupSyntax€*=
++_empty_/AdditiveSemigroupSyntax#`<init>`(). €@*<init>€*V
+7_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().  *additiveSemigroupOps€*D
+:_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A]	*A€*D
+:_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().(a)*a€* 
+_empty_/syntax.
+ *syntax€*=
+!_empty_/syntax.additiveSemigroup.
+ *additiveSemigroup€*
+_empty_/App.
+ *App€* 
+_empty_/App.main().*main€*&
+_empty_/App.main().(args)*args€*
+local0  *
+IntAlgebra€*
+local1	*A€*
+local2*res€*
+local3	*A€*
+local4 €*a€*
+local5 €*b€2-
+ ##scala/language.implicitConversions.2
+ scala/language.2(
+ _empty_/AdditiveSemigroup#23
+ %_empty_/AdditiveSemigroup#`<init>`().2+
+ _empty_/AdditiveSemigroup#[A]2+
+  _empty_/AdditiveSemigroupOps#26
+   (_empty_/AdditiveSemigroupOps#`<init>`().2.
+) * _empty_/AdditiveSemigroupOps#[A]2(
+9 J_empty_/AdditiveSemigroup#2.
+K L _empty_/AdditiveSemigroupOps#[A]2.
+! " _empty_/AdditiveSemigroupOps#[A]2/
+$ '!_empty_/AdditiveSemigroupOps#lhs.2.
+5 7 _empty_/AdditiveSemigroupOps#as.21
+ #_empty_/AdditiveSemigroupOps#`+`().26
+ (_empty_/AdditiveSemigroupOps#`+`().(rhs)2.
+  _empty_/AdditiveSemigroupOps#[A]2.
+  _empty_/AdditiveSemigroupOps#[A]2#
+ scala/Predef.`???`().21
+ #_empty_/AdditiveSemigroupOps#`^`().26
+ (_empty_/AdditiveSemigroupOps#`^`().(rhs)2.
+  _empty_/AdditiveSemigroupOps#[A]2.
+  _empty_/AdditiveSemigroupOps#[A]2#
+ scala/Predef.`???`().2.
+		  _empty_/AdditiveSemigroupSyntax#29
+
+
+ +_empty_/AdditiveSemigroupSyntax#`<init>`().2E
+
+
+ #7_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().2H
+
+$
+ %:_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A]2H
+
+:
+ ;:_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().(a)2H
+
+=
+ >:_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A]2(
+
+'
+ 8_empty_/AdditiveSemigroup#2H
+
+8
+ 8:_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A]2+
+
+A
+ U_empty_/AdditiveSemigroupOps#2H
+
+V
+ W:_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().[A]26
+ (_empty_/AdditiveSemigroupOps#`<init>`().2H
+ :_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().(a)2
+ _empty_/syntax.2/
+	 !_empty_/syntax.additiveSemigroup.2.
+# : _empty_/AdditiveSemigroupSyntax#2
+ 
+_empty_/App.2!
+ 
+_empty_/App.main().2'
+ _empty_/App.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2/
+ #!_empty_/syntax.additiveSemigroup.2
+ _empty_/syntax.2
+ local02
+ local12(
+  1_empty_/AdditiveSemigroup#2
+2 5scala/Predef.Map#2
+6 9
+scala/Int#2
+; <local12#
+A Dscala/Predef.`???`().2
+ local22
+ local32
+ scala/Predef.Map#2
+ 
+scala/Int#2
+ local32
+
+ local42
+ scala/Predef.Map#2
+ 
+scala/Int#2
+ local325
+ $'scala/collection/immutable/Map.empty().2
+ scala/Predef.Map.2
+
+ local52
+ scala/Predef.Map#2
+ 
+scala/Int#2
+ local325
+ $'scala/collection/immutable/Map.empty().2
+ scala/Predef.Map.21
+ 	#_empty_/AdditiveSemigroupOps#`^`().2E
+ 7_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().2
+ local42
+ local02
+
+ local521
+   	#_empty_/AdditiveSemigroupOps#`+`().2E
+   7_empty_/AdditiveSemigroupSyntax#additiveSemigroupOps().2
+   local42
+   local02
+ 
+  local5PZ E45DFAF542235AFA8C4CBA47466CAD1C

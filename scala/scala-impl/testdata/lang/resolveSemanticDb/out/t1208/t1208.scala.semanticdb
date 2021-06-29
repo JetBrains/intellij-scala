@@ -1,0 +1,15 @@
+
+êtests/pos/t1208.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.Foo.
+ *FooÄ*
+_empty_/Test.f. Ä*fÄ2
+ _empty_/Test.2
+	 _empty_/Test.Foo.2
+ _empty_/Test.f.2
+	 scala/Option#2
+ _empty_/Test.Foo.2!
+   scala/Some.apply().2
+  scala/Some.2
+! $_empty_/Test.Foo.PZ 6B1F60AC1B2A417977E5084FD4A4C84F

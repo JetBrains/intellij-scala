@@ -1,0 +1,25 @@
+
+¬ tests/pos/elidable-tparams.scala*4
+_empty_/ElidableCrashTest#*ElidableCrashTest€*7
+%_empty_/ElidableCrashTest#`<init>`(). €@*<init>€*(
+_empty_/ElidableCrashTest#My#*My€*:
+(_empty_/ElidableCrashTest#My#`<init>`(). €@*<init>€*,
+ _empty_/ElidableCrashTest#foo().*foo€*-
+#_empty_/ElidableCrashTest#foo().[a]	*a€2
+ scala/annotation/2(
+ scala/annotation/elidable.2(
+ _empty_/ElidableCrashTest#23
+ %_empty_/ElidableCrashTest#`<init>`().2+
+ 
+_empty_/ElidableCrashTest#My#26
+ (_empty_/ElidableCrashTest#My#`<init>`().2(
+ scala/annotation/elidable#20
+ "scala/annotation/elidable.MINIMUM.2.
+  _empty_/ElidableCrashTest#foo().21
+ #_empty_/ElidableCrashTest#foo().[a]2+
+" $_empty_/ElidableCrashTest#My#2+
+( *_empty_/ElidableCrashTest#My#2
+3 7scala/Unit#2
+- 2scala/2.
+  _empty_/ElidableCrashTest#foo().2+
+ _empty_/ElidableCrashTest#My#PZ 6A90404C97CCBF011623FB17F4CC300E

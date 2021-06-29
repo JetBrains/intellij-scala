@@ -1,0 +1,56 @@
+
+Õtests/pos/i2941.scala* 
+_empty_/FooBase#*FooBase€*-
+_empty_/FooBase#`<init>`(). €@*<init>€* 
+_empty_/FooBase#Bar#*Bar€*
+local0*This€*"
+_empty_/FooBase#This#*This€*
+local1*This€**
+_empty_/FooBase#derived().*derived€*+
+_empty_/FooBase#derived().(bar)*bar€* 
+_empty_/BarBase#*BarBase€*-
+_empty_/BarBase#`<init>`(). €@*<init>€*"
+_empty_/BarBase#This#*This€*
+local2*This€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.bad().*bad€*$
+_empty_/Test.bad().(foo)*foo€*
+local3 €*foo€2
+ _empty_/FooBase#2)
+ _empty_/FooBase#`<init>`().2"
+ 
+_empty_/FooBase#Bar#2
+ scala/Null#2
+ _empty_/BarBase#2
+% )local02"
+: =_empty_/FooBase#Bar#2#
+ _empty_/FooBase#This#2
+ #_empty_/FooBase#2
++ /local12#
+@ D_empty_/FooBase#This#2(
+ _empty_/FooBase#derived().2-
+ _empty_/FooBase#derived().(bar)2"
+ _empty_/FooBase#Bar#2#
+ _empty_/FooBase#This#2#
+  #scala/Predef.`???`().2
+ _empty_/BarBase#2)
+ _empty_/BarBase#`<init>`().2#
+ _empty_/BarBase#This#2
+ scala/Null#2
+ _empty_/BarBase#2
+& *local22#
+; ?_empty_/BarBase#This#2
+ _empty_/Test.2!
+ 	_empty_/Test.bad().2&
+
+ _empty_/Test.bad().(foo)2
+ _empty_/FooBase#2
+  _empty_/FooBase#2&
+# &_empty_/Test.bad().(foo)2
+	 local32
+ _empty_/FooBase#2(
+
+ _empty_/FooBase#derived().2
+ 	local32#
+ scala/Predef.`???`().PZ 052A45EE677D133C264F96D3EC7B2BC7

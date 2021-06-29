@@ -1,0 +1,133 @@
+
+ª tests/pos/i3050.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.Option#*Option€*1
+_empty_/Test.Option#`<init>`(). €@*<init>€*$
+_empty_/Test.Option#[T]	 €*T€*"
+_empty_/Test.None.
+ ˆ*None€*"
+_empty_/Test.Some# €*Some€*/
+_empty_/Test.Some#`<init>`(). €@*<init>€*-
+ _empty_/Test.Some#`<init>`().(x) €*x€*"
+_empty_/Test.Some#[T]	 €*T€*!
+_empty_/Test.Some#x. €*x€*&
+_empty_/Test.Some#copy().*copy€*&
+_empty_/Test.Some#copy().[T]	*T€*&
+_empty_/Test.Some#copy().(x)*x€*:
+#_empty_/Test.Some#copy$default$1().*copy$default$1€*0
+&_empty_/Test.Some#copy$default$1().[T]	*T€*"
+_empty_/Test.Some#_1().*_1€*!
+_empty_/Test.Some.
+ *Some€*(
+_empty_/Test.Some.apply().*apply€*'
+_empty_/Test.Some.apply().[T]	*T€*'
+_empty_/Test.Some.apply().(x)*x€*,
+_empty_/Test.Some.unapply().*unapply€*)
+_empty_/Test.Some.unapply().[T]	*T€*-
+!_empty_/Test.Some.unapply().(x$1)*x$1€*.
+_empty_/Test.Some.toString().*toString€*)
+_empty_/Test.openImpl().*openImpl€*
+local0 €*i€*!
+_empty_/Test.open().*open€*+
+_empty_/Test.openImpl1().*	openImpl1€*
+local1 €*i€*#
+_empty_/Test.open1().*open1€*+
+_empty_/Test.openImpl2().*	openImpl2€*#
+_empty_/Test.open2().*open2€*
+_empty_/Test2.
+ *Test2€**
+_empty_/Test2.openImpl().*openImpl€*
+local2 €*i€*"
+_empty_/Test2.open().*open€*,
+_empty_/Test2.openImpl1().*	openImpl1€*
+local3 €*i€*$
+_empty_/Test2.open1().*open1€*,
+_empty_/Test2.openImpl2().*	openImpl2€*$
+_empty_/Test2.open2().*open2€2
+ _empty_/Test.2"
+ _empty_/Test.Option#2-
+ _empty_/Test.Option#`<init>`().2%
+ _empty_/Test.Option#[T]2 
+ _empty_/Test.None.2"
+ !_empty_/Test.Option#2
+" )scala/Nothing#2 
+ _empty_/Test.Some#2+
+ _empty_/Test.Some#`<init>`().2#
+ _empty_/Test.Some#[T]2"
+$ *_empty_/Test.Option#2#
++ ,_empty_/Test.Some#[T]2#
+ _empty_/Test.Some#[T]2"
+ _empty_/Test.Some#x.2'
+ _empty_/Test.Some#copy().2%
+ _empty_/Test.Some#_1().2 
+ _empty_/Test.Some.2(
+ _empty_/Test.Some.apply().2*
+ _empty_/Test.Some.unapply().2&
+ _empty_/Test.openImpl().2
+ 
+scala/Int#2(
+ _empty_/Test.Some.apply().2 
+ _empty_/Test.Some.2*
+ _empty_/Test.Some.unapply().2 
+ _empty_/Test.Some.2
+  local02
+% &local02"
+ 
+_empty_/Test.open().2&
+ _empty_/Test.openImpl().2'
+
+
+ _empty_/Test.openImpl1().2
+
+
+ 
+scala/Int#2+
+ _empty_/Test.Some#`<init>`().2*
+" "_empty_/Test.Some.unapply().2 
+ "_empty_/Test.Some.2
+# $local12
+) *local12#
+ _empty_/Test.open1().2'
+ _empty_/Test.openImpl1().2'
+ _empty_/Test.openImpl2().2
+ 
+scala/Int#2 
+ _empty_/Test.None.2 
+ _empty_/Test.None.2#
+ _empty_/Test.open2().2
+ 
+scala/Int#2'
+ _empty_/Test.openImpl2().2
+ _empty_/Test2.2'
+ _empty_/Test2.openImpl().2
+ 
+scala/Int#2!
+ scala/Some.apply().2
+ scala/Some.2#
+ scala/Some.unapply().2
+ scala/Some.2
+  local22
+% &local22#
+ 
+_empty_/Test2.open().2'
+ _empty_/Test2.openImpl().2(
+ _empty_/Test2.openImpl1().2
+ 
+scala/Int#2$
+ scala/Some#`<init>`().2#
+" "scala/Some.unapply().2
+ "scala/Some.2
+# $local32
+) *local32$
+ _empty_/Test2.open1().2(
+ _empty_/Test2.openImpl1().2(
+!! _empty_/Test2.openImpl2().2
+!! 
+scala/Int#2
+"" 	scala/None.2
+"" scala/None.2$
+$$ _empty_/Test2.open2().2
+$$ 
+scala/Int#2(
+$$ _empty_/Test2.openImpl2().PZ 577B638BDBB055D1CB40141FB0959DCB

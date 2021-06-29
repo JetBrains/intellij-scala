@@ -1,0 +1,144 @@
+
+ê%#tests/pos/byname-implicits-23.scala*
+_empty_/Test.
+ *TestÄ*%
+_empty_/Test.Generic#*GenericÄ*2
+ _empty_/Test.Generic#`<init>`(). Ä@*<init>Ä*"
+_empty_/Test.Generic#[T]	*TÄ*'
+_empty_/Test.Generic#Repr#*ReprÄ*'
+_empty_/Test.Generic.
+ *GenericÄ*%
+_empty_/Test.Generic.Aux#*AuxÄ*&
+_empty_/Test.Generic.Aux#[T]	*TÄ*&
+_empty_/Test.Generic.Aux#[R]	*RÄ*
+local0*ReprÄ*
+_empty_/Test.GNil#*GNilÄ*/
+_empty_/Test.GNil#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.Foo#*FooÄ*.
+_empty_/Test.Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.Foo#[T]	*TÄ*
+_empty_/Test.Foo.
+ *FooÄ*,
+_empty_/Test.Foo.fooUnit. †*fooUnitÄ**
+_empty_/Test.Foo.fooInt. †*fooIntÄ*-
+_empty_/Test.Foo.fooPair().  *fooPairÄ*(
+_empty_/Test.Foo.fooPair().[T]	*TÄ*(
+_empty_/Test.Foo.fooPair().[U]	*UÄ*0
+!_empty_/Test.Foo.fooPair().(fooT)  *fooTÄ*0
+!_empty_/Test.Foo.fooPair().(fooU)  *fooUÄ*+
+_empty_/Test.Foo.fooGen().  *fooGenÄ*'
+_empty_/Test.Foo.fooGen().[T]	*TÄ*'
+_empty_/Test.Foo.fooGen().[R]	*RÄ*-
+_empty_/Test.Foo.fooGen().(gen)  *genÄ*+
+_empty_/Test.Foo.fooGen().(fr)  *frÄ*
+_empty_/Test.A#*AÄ*,
+_empty_/Test.A#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.A.
+ *AÄ*$
+_empty_/Test.A.genA. †*genAÄ*
+local1*ReprÄ*
+_empty_/Test.B#*BÄ*,
+_empty_/Test.B#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.B.
+ *BÄ*$
+_empty_/Test.B.genB. †*genBÄ*
+local2*ReprÄ2
+ _empty_/Test.2#
+ _empty_/Test.Generic#2.
+  _empty_/Test.Generic#`<init>`().2&
+ _empty_/Test.Generic#[T]2(
+	 _empty_/Test.Generic#Repr#2#
+	 _empty_/Test.Generic.2'
+	 _empty_/Test.Generic.Aux#2*
+ _empty_/Test.Generic.Aux#[T]2*
+ _empty_/Test.Generic.Aux#[R]2#
+ _empty_/Test.Generic#2*
+ _empty_/Test.Generic.Aux#[T]2
+' +local02*
+. /_empty_/Test.Generic.Aux#[R]2 
+ _empty_/Test.GNil#2+
+ _empty_/Test.GNil#`<init>`().2
+
+
+ _empty_/Test.Foo#2*
+
+
+ _empty_/Test.Foo#`<init>`().2"
+
+
+ _empty_/Test.Foo#[T]2
+	 _empty_/Test.Foo.2'
+ _empty_/Test.Foo.fooUnit.2
+ _empty_/Test.Foo#2
+ "scala/Unit#2#
+& )scala/Predef.`???`().2&
+ _empty_/Test.Foo.fooInt.2
+ _empty_/Test.Foo#2
+  
+scala/Int#2#
+$ 'scala/Predef.`???`().2)
+ _empty_/Test.Foo.fooPair().2,
+ _empty_/Test.Foo.fooPair().[T]2,
+ _empty_/Test.Foo.fooPair().[U]2/
+( ,!_empty_/Test.Foo.fooPair().(fooT)2
+. 1_empty_/Test.Foo#2,
+2 3_empty_/Test.Foo.fooPair().[T]2/
+6 :!_empty_/Test.Foo.fooPair().(fooU)2
+< ?_empty_/Test.Foo#2,
+@ A_empty_/Test.Foo.fooPair().[U]2
+E H_empty_/Test.Foo#2,
+J K_empty_/Test.Foo.fooPair().[T]2,
+M N_empty_/Test.Foo.fooPair().[U]2#
+S Vscala/Predef.`???`().2(
+ _empty_/Test.Foo.fooGen().2+
+ _empty_/Test.Foo.fooGen().[T]2+
+ _empty_/Test.Foo.fooGen().[R]2-
+' *_empty_/Test.Foo.fooGen().(gen)2'
+4 7_empty_/Test.Generic.Aux#2#
+, 3_empty_/Test.Generic.2+
+8 9_empty_/Test.Foo.fooGen().[T]2+
+; <_empty_/Test.Foo.fooGen().[R]2,
+? A_empty_/Test.Foo.fooGen().(fr)2
+C F_empty_/Test.Foo#2+
+G H_empty_/Test.Foo.fooGen().[R]2
+L O_empty_/Test.Foo#2+
+P Q_empty_/Test.Foo.fooGen().[T]2#
+U Xscala/Predef.`???`().2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+	 
+_empty_/Test.A.2"
+ _empty_/Test.A.genA.2#
+ _empty_/Test.Generic#2
+  _empty_/Test.A#2
+) -local12
+1 2_empty_/Test.B#2
+5 8
+scala/Int#2
+: >scala/Unit#2#
+E Hscala/Predef.`???`().2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+	 
+_empty_/Test.B.2"
+ _empty_/Test.B.genB.2#
+ _empty_/Test.Generic#2
+  _empty_/Test.B#2
+) -local22
+1 4
+scala/Int#2
+7 :
+scala/Int#2
+= @
+scala/Int#2
+B Fscala/Unit#2#
+N Qscala/Predef.`???`().2(
+ scala/Predef.implicitly().2
+ _empty_/Test.Foo#2
+ _empty_/Test.A#2(
+ _empty_/Test.Foo.fooGen().2"
+ _empty_/Test.A.genA.2)
+ _empty_/Test.Foo.fooPair().2"
+ _empty_/Test.B.genB.2&
+ _empty_/Test.Foo.fooInt.2'
+ _empty_/Test.Foo.fooUnit.PZ E2B06EE1B692C4A52EB19751425D9F0C

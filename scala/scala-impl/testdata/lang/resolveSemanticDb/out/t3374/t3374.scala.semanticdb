@@ -1,0 +1,26 @@
+
+Ætests/pos/t3374.scala*
+_empty_/Parent#*Parent€*,
+_empty_/Parent#`<init>`(). €@*<init>€*!
+_empty_/Parent#Test#*Test€*!
+_empty_/Parent#Test#[A]	*A€*!
+_empty_/Parent#Test#[H]	*H€*
+_empty_/Sub#*Sub€*)
+_empty_/Sub#`<init>`(). €@*<init>€*
+_empty_/Sub#Test#*Test€* 
+_empty_/Sub#Test#[AS]	*AS€* 
+_empty_/Sub#Test#[HS]	*HS€2
+ _empty_/Parent#2(
+ _empty_/Parent#`<init>`().2"
+ 
+_empty_/Parent#Test#2%
+ _empty_/Parent#Test#[A]2%
+ _empty_/Parent#Test#[H]2
+ 	_empty_/Sub#2%
+ _empty_/Sub#`<init>`().2
+ _empty_/Parent#2
+ 
+_empty_/Sub#Test#2#
+ _empty_/Sub#Test#[AS]2#
+ _empty_/Sub#Test#[HS]2#
+  _empty_/Sub#Test#[AS]PZ 90ED6D8BD41D78CF8DC0808385B806A0

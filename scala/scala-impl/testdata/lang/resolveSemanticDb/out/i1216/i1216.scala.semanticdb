@@ -1,0 +1,49 @@
+
+çtests/pos/i1216.scala*
+_empty_/Main.
+ *MainÄ* 
+_empty_/Main.MAX. Ä*MAXÄ*
+_empty_/Main.s1. Ä*s1Ä*
+_empty_/Main.s2. Ä*s2Ä*&
+_empty_/Main.target. Ä*targetÄ*
+_empty_/Main.i(). Ä*iÄ*$
+_empty_/Main.`i_=`(). Ä*i_=Ä*&
+_empty_/Main.`i_=`().(x$1)*x$1Ä*
+_empty_/Main.j(). Ä*jÄ*$
+_empty_/Main.`j_=`(). Ä*j_=Ä*&
+_empty_/Main.`j_=`().(x$1)*x$1Ä2
+ _empty_/Main.2
+ 	_empty_/Main.MAX.2
+ _empty_/Main.s1.2%
+& &scala/Array#`<init>`().2
+  scala/Array#2
+! %scala/Long#2
+' *_empty_/Main.MAX.2
+
+ _empty_/Main.s2.2"
+ _empty_/Main.target.2
+ _empty_/Main.i().2#
+ 	_empty_/Main.`i_=`().2
+	 
+_empty_/Main.j().2#
+	 _empty_/Main.`j_=`().2 
+ scala/Int#`<`(+3).2
+	 
+_empty_/Main.i().2
+ _empty_/Main.MAX.2#
+
+ 
+scala/Array#update().2"
+ 
+_empty_/Main.target.2
+ _empty_/Main.i().2!
+ scala/Long#`+`(+5).2"
+ scala/Array#apply().2
+ _empty_/Main.s1.2
+ _empty_/Main.i().2"
+ scala/Array#apply().2
+ _empty_/Main.s2.2
+ _empty_/Main.i().2#
+ _empty_/Main.`i_=`().2 
+ scala/Int#`+`(+4).2
+ _empty_/Main.i().PZ 0C5451937BBC667D9A9C83AD39C90A19

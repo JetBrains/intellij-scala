@@ -1,0 +1,280 @@
+
+³E'tests/pos/tcpoly_infer_ticket1864.scala*&
+_empty_/RichBuffer#*
+RichBuffer€*0
+_empty_/RichBuffer#`<init>`(). €@*<init>€*5
+&_empty_/RichBuffer#`<init>`().(buffer)*buffer€* 
+_empty_/RichBuffer#[T]	*T€* 
+_empty_/RichBuffer#[B]	*B€*,
+_empty_/RichBuffer#buffer. €*buffer€*)
+_empty_/RichBuffer#mymap().*mymap€*(
+_empty_/RichBuffer#mymap().[S]	*S€*(
+_empty_/RichBuffer#mymap().(f)*f€*,
+_empty_/RichBuffer#mymap().(rv)  *rv€*
+local0*e€*
+_empty_/App.
+ *App€*$
+_empty_/App.mymap2().*mymap2€*"
+_empty_/App.mymap2().[T]	*T€*"
+_empty_/App.mymap2().[B]	*B€*"
+_empty_/App.mymap2().[S]	*S€*,
+_empty_/App.mymap2().(buffer)*buffer€*"
+_empty_/App.mymap2().(f)*f€*&
+_empty_/App.mymap2().(rv)  *rv€*
+local1*e€*$
+_empty_/App.mymap3().*mymap3€*"
+_empty_/App.mymap3().[T]	*T€*"
+_empty_/App.mymap3().[B]	*B€*"
+_empty_/App.mymap3().[S]	*S€*,
+_empty_/App.mymap3().(buffer)*buffer€*"
+_empty_/App.mymap3().(f)*f€*&
+_empty_/App.mymap3().(rv)  *rv€*
+local2*e€*$
+_empty_/App.mymap4().*mymap4€*"
+_empty_/App.mymap4().[T]	*T€*"
+_empty_/App.mymap4().[B]	*B€*"
+_empty_/App.mymap4().[S]	*S€*,
+_empty_/App.mymap4().(buffer)*buffer€*"
+_empty_/App.mymap4().(f)*f€*&
+_empty_/App.mymap4().(rv)  *rv€*
+local3*e€* 
+_empty_/App.main().*main€*&
+_empty_/App.main().(args)*args€*
+local4  *
+richBuffer€*
+local5	*T€*
+local6	*B€*
+local7*buffer€*
+local8  *rv€*
+local9 €*buf€*
+local10*x€*
+local11*x€*
+local12*x€*
+local13*x€*
+local14*x€*
+local15*x€*
+local16*x€2*
+! ' scala/collection/mutable/Buffer.2*
+! ' scala/collection/mutable/Buffer#2/
+) 4%scala/collection/mutable/ArrayBuffer.2/
+) 4%scala/collection/mutable/ArrayBuffer#2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2!
+ _empty_/RichBuffer#2,
+ _empty_/RichBuffer#`<init>`().2.
+/ 5 scala/collection/mutable/Buffer#2$
+6 7_empty_/RichBuffer#[T]2$
+ _empty_/RichBuffer#[T]2$
+ _empty_/RichBuffer#[B]2(
+' -_empty_/RichBuffer#buffer.2)
+ _empty_/RichBuffer#mymap().2,
+ _empty_/RichBuffer#mymap().[S]2,
+ _empty_/RichBuffer#mymap().(f)2$
+ _empty_/RichBuffer#[T]2,
+ _empty_/RichBuffer#mymap().[S]2-
+# %_empty_/RichBuffer#mymap().(rv)2$
+' (_empty_/RichBuffer#[B]2,
+) *_empty_/RichBuffer#mymap().[S]2$
+. /_empty_/RichBuffer#[B]2,
+0 1_empty_/RichBuffer#mymap().[S]29
+ +scala/collection/IterableOnceOps#foreach().2(
+ 
+_empty_/RichBuffer#buffer.2
+ local027
+	 )scala/collection/mutable/Growable#`+=`().2-
+ _empty_/RichBuffer#mymap().(rv)2&
+ scala/Function1#apply().2,
+ _empty_/RichBuffer#mymap().(f)2
+ local02-
+ _empty_/RichBuffer#mymap().(rv)2
+ 
+_empty_/App.2#
+ _empty_/App.mymap2().2&
+ _empty_/App.mymap2().[T]2&
+ _empty_/App.mymap2().[B]2&
+# $_empty_/App.mymap2().[S]2+
+& ,_empty_/App.mymap2().(buffer)2&
+. /_empty_/App.mymap2().[B]2&
+0 1_empty_/App.mymap2().[T]2&
+4 5_empty_/App.mymap2().(f)2&
+7 8_empty_/App.mymap2().[T]2&
+< =_empty_/App.mymap2().[S]2'
+H J_empty_/App.mymap2().(rv)2&
+L M_empty_/App.mymap2().[B]2&
+N O_empty_/App.mymap2().[S]2&
+S T_empty_/App.mymap2().[B]2&
+U V_empty_/App.mymap2().[S]29
+ +scala/collection/IterableOnceOps#foreach().2+
+ 
+_empty_/App.mymap2().(buffer)2
+ local127
+	 )scala/collection/mutable/Growable#`+=`().2'
+ _empty_/App.mymap2().(rv)2&
+ scala/Function1#apply().2&
+ _empty_/App.mymap2().(f)2
+ local12'
+ _empty_/App.mymap2().(rv)2#
+ _empty_/App.mymap3().2&
+ _empty_/App.mymap3().[T]2&
+ _empty_/App.mymap3().[B]2.
+  scala/collection/mutable/Buffer#2&
+ _empty_/App.mymap3().[T]2&
+  !_empty_/App.mymap3().[S]2+
+# )_empty_/App.mymap3().(buffer)2&
++ ,_empty_/App.mymap3().[B]2&
+. /_empty_/App.mymap3().(f)2&
+1 2_empty_/App.mymap3().[T]2&
+6 7_empty_/App.mymap3().[T]2'
+B D_empty_/App.mymap3().(rv)2&
+F G_empty_/App.mymap3().[B]2&
+J K_empty_/App.mymap3().[B]29
+ +scala/collection/IterableOnceOps#foreach().2+
+ 
+_empty_/App.mymap3().(buffer)2
+ local227
+	 )scala/collection/mutable/Growable#`+=`().2'
+ _empty_/App.mymap3().(rv)2&
+ scala/Function1#apply().2&
+ _empty_/App.mymap3().(f)2
+ local22'
+ _empty_/App.mymap3().(rv)2#
+ _empty_/App.mymap4().2&
+ _empty_/App.mymap4().[T]2&
+ _empty_/App.mymap4().[B]2&
+# $_empty_/App.mymap4().[S]2+
+& ,_empty_/App.mymap4().(buffer)2&
+. /_empty_/App.mymap4().[B]2&
+0 1_empty_/App.mymap4().[T]2&
+4 5_empty_/App.mymap4().(f)2&
+7 8_empty_/App.mymap4().[T]2&
+< =_empty_/App.mymap4().[S]2'
+I K_empty_/App.mymap4().(rv)2&
+M N_empty_/App.mymap4().[B]2&
+O P_empty_/App.mymap4().[S]2&
+T U_empty_/App.mymap4().[B]2&
+V W_empty_/App.mymap4().[S]29
+ +scala/collection/IterableOnceOps#foreach().2+
+ 
+_empty_/App.mymap4().(buffer)2
+ local327
+	 )scala/collection/mutable/Growable#`+=`().2'
+ _empty_/App.mymap4().(rv)2&
+ scala/Function1#apply().2&
+ _empty_/App.mymap4().(f)2
+ local32'
+ _empty_/App.mymap4().(rv)2!
+"" 
+_empty_/App.main().2'
+"" _empty_/App.main().(args)2
+"" scala/Array#2"
+"" scala/Predef.String#2
+"!" %scala/Unit#2
+## local42
+## local52
+##  local62
+#2# 8local72
+#:# ;local62
+#<# =local52!
+#A# K_empty_/RichBuffer#2
+#L# Mlocal52
+#O# Plocal62,
+$$ _empty_/RichBuffer#`<init>`().2!
+$
+$ _empty_/RichBuffer#2
+$$ local52
+$$ local62
+$$ !local72
+&& local823
+&.& 9%scala/collection/mutable/ArrayBuffer#2'
+&&& -scala/collection/mutable/2
+&& %scala/collection/2
+&& scala/2
+&:& =
+scala/Int#2@
+&U& U2scala/collection/mutable/ArrayBuffer#`<init>`(+1).23
+&E& P%scala/collection/mutable/ArrayBuffer#2
+&Q& T
+scala/Int#2
+'' local92@
+'"' "2scala/collection/mutable/ArrayBuffer#`<init>`(+1).23
+'' %scala/collection/mutable/ArrayBuffer#2
+'' !
+scala/Int#29
+(( +scala/collection/immutable/Range#foreach().2)
+(( 	scala/runtime/RichInt#to().26
+(( (scala/LowPriorityImplicits#intWrapper().27
+(( )scala/collection/mutable/Growable#`+=`().2
+(( local92)
+)) _empty_/RichBuffer#mymap().2
+)) local42
+)) local92
+)) local102 
+)) scala/Int#`*`(+3).2
+)) local102
+)) local102
+)) local82)
+** _empty_/RichBuffer#mymap().2
+** local42
+** local92
+** 
+scala/Int#2
+**  local112 
+*%* &scala/Int#`*`(+3).2
+*$* %local112
+*&* 'local112
+*(* (local82)
++&+ +_empty_/RichBuffer#mymap().2
+++ local42
+++ 
+scala/Int#2
++!+ $local92
++,+ /
+scala/Int#2
++1+ 2local122 
++7+ 8scala/Int#`*`(+3).2
++6+ 7local122
++8+ 9local122
++:+ :local82#
+,, 
+_empty_/App.mymap2().2
+,, local92
+,, local132
+,, 
+scala/Int#2 
+,, scala/Int#`*`(+3).2
+,, local132
+,, local132
+, ,  local82#
+-- 
+_empty_/App.mymap2().2
+-- 
+scala/Int#2
+--  
+scala/Int#2
+-"- %local92
+-(- )local142
+-+- .
+scala/Int#2 
+-4- 5scala/Int#`*`(+3).2
+-3- 4local142
+-5- 6local142
+-7- 7local82#
+// 
+_empty_/App.mymap3().2
+// local92
+// local152
+// 
+scala/Int#2 
+// scala/Int#`*`(+3).2
+// local152
+// local152
+/ /  local82#
+00 
+_empty_/App.mymap4().2
+00 local92
+00 local162 
+00 scala/Int#`*`(+3).2
+00 local162
+00 local162
+00 local8PZ 39D4E6247A61B30EA8F655C7EC06D2C9

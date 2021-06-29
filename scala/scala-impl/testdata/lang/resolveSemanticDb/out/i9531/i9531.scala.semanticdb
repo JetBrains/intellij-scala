@@ -1,0 +1,73 @@
+
+£tests/pos/i9531.scala*
+_empty_/Scope#*Scope€*+
+_empty_/Scope#`<init>`(). €@*<init>€* 
+_empty_/Scope#Expr#*Expr€*#
+_empty_/Scope#Expr#[T]	 €*T€*(
+_empty_/i9531$package. *_empty_€*4
+"_empty_/i9531$package.exprQuote().*	exprQuote€*/
+%_empty_/i9531$package.exprQuote().[T]	*T€*/
+%_empty_/i9531$package.exprQuote().(x)*x€*1
+%_empty_/i9531$package.exprQuote().(s)  *s€*9
+)_empty_/i9531$package.exprQuote().(dummy)  *dummy€*H
+,_empty_/i9531$package.exprQuote$default$3().*exprQuote$default$3€*9
+/_empty_/i9531$package.exprQuote$default$3().[T]	*T€*9
+/_empty_/i9531$package.exprQuote$default$3().(x)*x€*6
+$_empty_/i9531$package.exprQuote(+1).*	exprQuote€*1
+'_empty_/i9531$package.exprQuote(+1).[T]	*T€*1
+'_empty_/i9531$package.exprQuote(+1).(x)*x€*3
+'_empty_/i9531$package.exprQuote(+1).(s)  *s€**
+_empty_/i9531$package.test().*test€*,
+ _empty_/i9531$package.test().(s)  *s€*
+local0 €*t1€*
+local1 €*t2€*
+local2 €*t3€2
+ _empty_/Scope#2'
+ _empty_/Scope#`<init>`().2!
+ _empty_/Scope#Expr#2$
+ _empty_/Scope#Expr#[T]2 
+_empty_/i9531$package.20
+ "_empty_/i9531$package.exprQuote().23
+ %_empty_/i9531$package.exprQuote().[T]23
+ %_empty_/i9531$package.exprQuote().(x)23
+ %_empty_/i9531$package.exprQuote().[T]23
+ %_empty_/i9531$package.exprQuote().(s)2
+  %_empty_/Scope#27
+' ,)_empty_/i9531$package.exprQuote().(dummy)2
+. 2scala/Null#2!
+> B_empty_/Scope#Expr#23
+< =%_empty_/i9531$package.exprQuote().(s)23
+C D%_empty_/i9531$package.exprQuote().[T]2#
+H Kscala/Predef.`???`().2=
+ /_empty_/i9531$package.exprQuote$default$3().[T]2=
+ /_empty_/i9531$package.exprQuote$default$3().(x)2=
+ /_empty_/i9531$package.exprQuote$default$3().[T]22
+ $_empty_/i9531$package.exprQuote(+1).25
+ '_empty_/i9531$package.exprQuote(+1).[T]2
+ scala/Singleton#25
+ '_empty_/i9531$package.exprQuote(+1).(x)25
+! "'_empty_/i9531$package.exprQuote(+1).[T]25
+* +'_empty_/i9531$package.exprQuote(+1).(s)2
+- 2_empty_/Scope#2!
+7 ;_empty_/Scope#Expr#25
+5 6'_empty_/i9531$package.exprQuote(+1).(s)25
+< ='_empty_/i9531$package.exprQuote(+1).[T]2#
+A Dscala/Predef.`???`().2+
+ _empty_/i9531$package.test().2.
+  _empty_/i9531$package.test().(s)2
+ _empty_/Scope#2
+ scala/Unit#2
+ local02!
+ _empty_/Scope#Expr#2.
+
+  _empty_/i9531$package.test().(s)22
+ $_empty_/i9531$package.exprQuote(+1).2.
+" " _empty_/i9531$package.test().(s)2
+ local122
+ $_empty_/i9531$package.exprQuote(+1).2.
+  _empty_/i9531$package.test().(s)2
+		 local22!
+		 _empty_/Scope#Expr#2.
+	
+	  _empty_/i9531$package.test().(s)2
+		 local1PZ A60A45BBE3D59E795B3BAD9F4A9E77AC

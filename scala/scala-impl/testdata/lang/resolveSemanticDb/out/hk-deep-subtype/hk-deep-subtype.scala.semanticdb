@@ -1,0 +1,78 @@
+
+ºtests/pos/hk-deep-subtype.scala*
+_empty_/GT#*GT€*(
+_empty_/GT#`<init>`(). €@*<init>€*
+_empty_/GT#[A]	*A€*
+_empty_/HNB#*HNB€*)
+_empty_/HNB#`<init>`(). €@*<init>€*
+_empty_/HNB#[B]	*B€*
+_empty_/GTT#*GTT€*)
+_empty_/GTT#`<init>`(). €@*<init>€*
+_empty_/GTT#[C]	 €*C€*
+_empty_/GTT#[DD]	*DD€*
+_empty_/GTF#*GTF€*)
+_empty_/GTF#`<init>`(). €@*<init>€*
+_empty_/GTF#[EE]	*EE€*
+_empty_/GTF#foo().*foo€*
+_empty_/GTF#foo().[F]	*F€*
+_empty_/GTF#bar().*bar€*
+_empty_/GTF#bar().[G]	*G€*
+_empty_/GTF#bar().(f)*f€*(
+_empty_/GTF#tabulate().*tabulate€2;
+" 3-scala/annotation/unchecked/uncheckedVariance#2)
+ !scala/annotation/unchecked/2
+ scala/annotation/2
+ scala/2
+ _empty_/GT#2$
+ _empty_/GT#`<init>`().2
+ _empty_/GTT#2
+ _empty_/GT#[A]2
+	 
+_empty_/GT#[A]2
+ 	_empty_/HNB#2%
+	 	_empty_/HNB#`<init>`().2
+
+ _empty_/HNB#[B]2
+ 	_empty_/GTT#2%
+	 	_empty_/GTT#`<init>`().2
+& )_empty_/HNB#2
+* ,_empty_/GTT#[DD]2
+- ._empty_/GTT#[C]2;
+1 B-scala/annotation/unchecked/uncheckedVariance#2
+ _empty_/GTT#[C]2
+ _empty_/GTT#[DD]2
+ 	_empty_/GTF#2%
+	 	_empty_/GTF#`<init>`().2
+
+ _empty_/GTF#[EE]2 
+
+
+ 	_empty_/GTF#foo().2#
+
+
+
+ _empty_/GTF#foo().[F]2
+
+
+ _empty_/GTF#[EE]2#
+
+
+ _empty_/GTF#foo().[F]2#
+
+
+ scala/Predef.`???`().2 
+ 	_empty_/GTF#bar().2#
+
+ _empty_/GTF#bar().[G]2#
+ _empty_/GTF#bar().(f)2#
+ _empty_/GTF#bar().[G]2
+ _empty_/GTF#[EE]2#
+ _empty_/GTF#bar().[G]2#
+ scala/Predef.`???`().2%
+ _empty_/GTF#tabulate().2
+ _empty_/GTF#[EE]2
+ _empty_/GTF#[EE]2
+ 
+scala/Int#2 
+ !_empty_/GTF#bar().2 
+" %_empty_/GTF#foo().PZ 1A4220D496CB65533BD56EAB5DE1912A

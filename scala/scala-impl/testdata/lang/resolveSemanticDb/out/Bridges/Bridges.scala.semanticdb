@@ -1,0 +1,67 @@
+
+¹tests/pos/Bridges.scala*
+
+_empty_/X# *X€*'
+_empty_/X#`<init>`(). €@*<init>€*
+_empty_/X#[T]	*T€*
+_empty_/X#go2().*go2€*
+_empty_/X#go2().(x)*x€*
+_empty_/X#go2().(y)*y€*0
+_empty_/X#go2$default$2().*go2$default$2€*'
+_empty_/X#go2$default$2().(x)*x€*
+_empty_/X#go(). *go€*
+_empty_/X#go1().*go1€*
+_empty_/X#go1().(x)*x€*
+
+_empty_/Y#*Y€*'
+_empty_/Y#`<init>`(). €@*<init>€*
+_empty_/Y#go2().*go2€*
+_empty_/Y#go2().(x)*x€*
+_empty_/Y#go2().(z)*z€*
+_empty_/Y#go().*go€*
+_empty_/Y#go1().*go1€*
+_empty_/Y#go1().(x)*x€2
+ 
+_empty_/X#2
+ _empty_/X#`<init>`().2
+ _empty_/X#[T]2
+ 	_empty_/X#go2().2!
+
+ _empty_/X#go2().(x)2
+ _empty_/X#[T]2!
+ _empty_/X#go2().(y)2
+ _empty_/X#[T]2
+ _empty_/X#[T]2!
+ _empty_/X#go2().(y)2+
+
+ _empty_/X#go2$default$2().(x)2+
+ _empty_/X#go2$default$2().(x)2
+ _empty_/X#go().2
+
+ _empty_/X#[T]2
+ 	_empty_/X#go1().2!
+
+ _empty_/X#go1().(x)2
+ _empty_/X#[T]2!
+ _empty_/X#go1().(x)2
+ 
+_empty_/Y#2#
+ _empty_/Y#`<init>`().2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2
+ 
+scala/Int#2
+ _empty_/Y#go2().2!
+ _empty_/Y#go2().(x)2
+ 
+scala/Int#2!
+ _empty_/Y#go2().(z)2
+ !
+scala/Int#2
+ _empty_/Y#go().2
+		 _empty_/Y#go1().2!
+		 _empty_/Y#go1().(x)2
+		 
+scala/Int#2!
+		 _empty_/Y#go1().(x)PZ D62CB7DE788DB5C25F3A76AD56076DFC

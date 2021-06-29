@@ -1,0 +1,17 @@
+
+¶tests/pos/array-clone.scala*
+_empty_/test.
+ *test€*
+_empty_/test.xs. €*xs€*
+_empty_/test.ys. €*ys€2
+ _empty_/test.2
+ _empty_/test.xs.2$
+ scala/Array.apply(+5).2
+ scala/Array.2
+ _empty_/test.ys.2
+
+ scala/Array#2
+ 
+scala/Int#2"
+ scala/Array#clone().2
+ _empty_/test.xs.PZ 195B74EC6F9E694B733939A53058CDF2

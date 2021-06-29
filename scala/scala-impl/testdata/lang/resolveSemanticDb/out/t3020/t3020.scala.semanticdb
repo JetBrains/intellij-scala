@@ -1,0 +1,22 @@
+
+øtests/pos/t3020.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*x€2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02'
+* 6scala/Any#asInstanceOf().2
+ local02-
+$ $scala/util/Random#`<init>`(+3).2 
+ $scala/util/Random#2
+ scala/util/2
+ scala/2!
+7 ?java/lang/Runnable#PZ 51F3F5B8D1058739007B14F40C73C67E

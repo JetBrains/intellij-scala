@@ -1,0 +1,21 @@
+
+tests/pos/i9717/Test.scala* 
+_empty_/Object.
+ *Object€*'
+_empty_/Object.assign().*assign€*%
+_empty_/Object.assign().[T]	*T€*%
+_empty_/Object.assign().[U]	*U€*/
+ _empty_/Object.assign().(target)*target€*/
+ _empty_/Object.assign().(source)*source€2
+ _empty_/Object.2&
+ _empty_/Object.assign().2)
+ _empty_/Object.assign().[T]2)
+ _empty_/Object.assign().[U]2.
+  _empty_/Object.assign().(target)2)
+ _empty_/Object.assign().[T]2.
+ $ _empty_/Object.assign().(source)2)
+& '_empty_/Object.assign().[U]2)
+* +_empty_/Object.assign().[T]2)
+1 2_empty_/Object.assign().[U]2"
+8 >js/package.native().2
+5 7js/PZ 454FC176A05B3B7DA44AD266ACF35687

@@ -1,0 +1,321 @@
+
+ƒ[#tests/pos/class-gadt/variance.scala*$
+_empty_/variance.
+ *varianceÄ*%
+_empty_/variance.SUB# îÄ*SUBÄ*2
+ _empty_/variance.SUB#`<init>`(). Ä@*<init>Ä*%
+_empty_/variance.SUB#[A]	 Ä*AÄ*%
+_empty_/variance.SUB#[B]	 Ä*BÄ*#
+_empty_/variance.SUB.
+ *SUBÄ*+
+_empty_/variance.SUB.Refl# àÅ*ReflÄ*7
+%_empty_/variance.SUB.Refl#`<init>`(). Ä@*<init>Ä*'
+_empty_/variance.SUB.Refl#[S]	*SÄ*.
+!_empty_/variance.SUB.Refl#copy().*copyÄ*.
+$_empty_/variance.SUB.Refl#copy().[S]	*SÄ*4
+$_empty_/variance.SUB.Refl#ordinal().*ordinalÄ*)
+_empty_/variance.SUB.Refl.
+ *ReflÄ*0
+"_empty_/variance.SUB.Refl.apply().*applyÄ*/
+%_empty_/variance.SUB.Refl.apply().[S]	*SÄ*4
+$_empty_/variance.SUB.Refl.unapply().*unapplyÄ*1
+'_empty_/variance.SUB.Refl.unapply().[S]	*SÄ*5
+)_empty_/variance.SUB.Refl.unapply().(x$1)*x$1Ä*6
+%_empty_/variance.SUB.Refl.toString().*toStringÄ*7
+#_empty_/variance.SUB.fromOrdinal().*fromOrdinalÄ*<
+,_empty_/variance.SUB.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/variance.C1#*C1Ä*1
+_empty_/variance.C1#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.C1#`<init>`().(v)*vÄ*$
+_empty_/variance.C1#[T]	 Ä*TÄ*#
+_empty_/variance.C1#v. Ä*vÄ*&
+_empty_/variance.C1#foo().*fooÄ*)
+_empty_/variance.C1#foo().(ev)*evÄ*
+_empty_/variance.B2#*B2Ä*1
+_empty_/variance.B2#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.B2#`<init>`().(v)*vÄ*$
+_empty_/variance.B2#[T]	 Ä*TÄ*#
+_empty_/variance.B2#v. Ä*vÄ*
+_empty_/variance.C2#*C2Ä*1
+_empty_/variance.C2#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.C2#`<init>`().(v)*vÄ*$
+_empty_/variance.C2#[T]	 Ä*TÄ*#
+_empty_/variance.C2#v. Ä*vÄ*&
+_empty_/variance.C2#foo().*fooÄ*)
+_empty_/variance.C2#foo().(ev)*evÄ*
+local0 Ä	*S$1Ä*
+_empty_/variance.A3#*A3Ä*1
+_empty_/variance.A3#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.A3#`<init>`().(v)*vÄ*$
+_empty_/variance.A3#[T]	 Ä*TÄ*#
+_empty_/variance.A3#v. Ä*vÄ*+
+_empty_/variance.A3#value. Ä*valueÄ*
+_empty_/variance.C3#*C3Ä*1
+_empty_/variance.C3#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.C3#`<init>`().(v)*vÄ*$
+_empty_/variance.C3#[T]	 Ä*TÄ*#
+_empty_/variance.C3#v. Ä*vÄ*&
+_empty_/variance.C3#foo().*fooÄ*)
+_empty_/variance.C3#foo().(ev)*evÄ*
+_empty_/variance.A4#*A4Ä*1
+_empty_/variance.A4#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.A4#`<init>`().(v)*vÄ*$
+_empty_/variance.A4#[T]	 Ä*TÄ*#
+_empty_/variance.A4#v. Ä*vÄ*+
+_empty_/variance.A4#value. Ä*valueÄ*
+_empty_/variance.C4#*C4Ä*1
+_empty_/variance.C4#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.C4#`<init>`().(v)*vÄ*!
+_empty_/variance.C4#[T]	*TÄ*#
+_empty_/variance.C4#v. Ä*vÄ*&
+_empty_/variance.C4#foo().*fooÄ*)
+_empty_/variance.C4#foo().(ev)*evÄ*
+_empty_/variance.B5#*B5Ä*1
+_empty_/variance.B5#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.B5#`<init>`().(v)*vÄ*$
+_empty_/variance.B5#[T]	 Ä*TÄ*#
+_empty_/variance.B5#v. Ä*vÄ*
+_empty_/variance.A5#*A5Ä*1
+_empty_/variance.A5#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.A5#`<init>`().(v)*vÄ*$
+_empty_/variance.A5#[T]	 Ä*TÄ*#
+_empty_/variance.A5#v. Ä*vÄ*+
+_empty_/variance.A5#value. Ä*valueÄ*
+_empty_/variance.C5#*C5Ä*1
+_empty_/variance.C5#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.C5#`<init>`().(v)*vÄ*$
+_empty_/variance.C5#[T]	 Ä*TÄ*#
+_empty_/variance.C5#v. Ä*vÄ*&
+_empty_/variance.C5#foo().*fooÄ*)
+_empty_/variance.C5#foo().(ev)*evÄ*
+local1 Ä	*S$2Ä*
+_empty_/variance.B6#*B6Ä*1
+_empty_/variance.B6#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.B6#`<init>`().(v)*vÄ*$
+_empty_/variance.B6#[T]	 Ä*TÄ*#
+_empty_/variance.B6#v. Ä*vÄ*
+_empty_/variance.A6#*A6Ä*1
+_empty_/variance.A6#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.A6#`<init>`().(v)*vÄ*$
+_empty_/variance.A6#[T]	 Ä*TÄ*#
+_empty_/variance.A6#v. Ä*vÄ*+
+_empty_/variance.A6#value. Ä*valueÄ*
+_empty_/variance.C6#*C6Ä*1
+_empty_/variance.C6#`<init>`(). Ä@*<init>Ä*,
+"_empty_/variance.C6#`<init>`().(v)*vÄ*$
+_empty_/variance.C6#[T]	 Ä*TÄ*#
+_empty_/variance.C6#v. Ä*vÄ*&
+_empty_/variance.C6#foo().*fooÄ*)
+_empty_/variance.C6#foo().(ev)*evÄ*
+local2 Ä	*S$3Ä2
+ _empty_/variance.2#
+ _empty_/variance.SUB#2.
+  _empty_/variance.SUB#`<init>`().2&
+
+ _empty_/variance.SUB#[A]2&
+ _empty_/variance.SUB#[B]2#
+ _empty_/variance.SUB.2(
+ 	_empty_/variance.SUB.Refl#23
+	 	%_empty_/variance.SUB.Refl#`<init>`().2.
+    _empty_/variance.SUB#`<init>`().2#
+ _empty_/variance.SUB#2+
+ _empty_/variance.SUB.Refl#[S]2+
+ _empty_/variance.SUB.Refl#[S]2+
+
+ _empty_/variance.SUB.Refl#[S]2+
+!_empty_/variance.SUB.Refl#copy().2(
+ _empty_/variance.SUB.Refl.2,
+"_empty_/variance.SUB.Refl.apply().2.
+$_empty_/variance.SUB.Refl.unapply().2"
+ _empty_/variance.C1#2-
+ _empty_/variance.C1#`<init>`().2%
+ _empty_/variance.C1#[T]2%
+
+ _empty_/variance.C1#[T]2$
+ _empty_/variance.C1#v.2(
+ _empty_/variance.C1#foo().2,
+ 
+_empty_/variance.C1#foo().(ev)2#
+ _empty_/variance.SUB#2%
+ _empty_/variance.C1#[T]2
+ 
+scala/Int#2
+ 
+scala/Int#2*
+ _empty_/variance.C1#foo().(ev)22
+ $_empty_/variance.SUB.Refl.unapply().2(
+	 _empty_/variance.SUB.Refl.2#
+ _empty_/variance.SUB.2$
+ _empty_/variance.C1#v.2"
+ _empty_/variance.B2#2-
+ _empty_/variance.B2#`<init>`().2%
+ _empty_/variance.B2#[T]2%
+
+ _empty_/variance.B2#[T]2$
+ _empty_/variance.B2#v.2"
+ _empty_/variance.C2#2-
+ _empty_/variance.C2#`<init>`().2%
+ _empty_/variance.C2#[T]2%
+
+ _empty_/variance.C2#[T]2$
+ _empty_/variance.C2#v.2(
+ _empty_/variance.C2#foo().2,
+ 
+_empty_/variance.C2#foo().(ev)2#
+ _empty_/variance.SUB#2
+ 
+scala/Int#2%
+ _empty_/variance.C2#[T]2"
+ _empty_/variance.B2#2%
+ _empty_/variance.C2#[T]2*
+ _empty_/variance.C2#foo().(ev)22
+ $_empty_/variance.SUB.Refl.unapply().2(
+	 _empty_/variance.SUB.Refl.2#
+ _empty_/variance.SUB.2
+ local02-
+ _empty_/variance.B2#`<init>`().2$
+ _empty_/variance.C2#v.2"
+ _empty_/variance.A3#2-
+ _empty_/variance.A3#`<init>`().2%
+ _empty_/variance.A3#[T]2%
+
+ _empty_/variance.A3#[T]2$
+ _empty_/variance.A3#v.2(
+ 	_empty_/variance.A3#value.2$
+ _empty_/variance.A3#v.2"
+ _empty_/variance.C3#2-
+ _empty_/variance.C3#`<init>`().2%
+ _empty_/variance.C3#[T]2-
+   _empty_/variance.A3#`<init>`().2"
+ _empty_/variance.A3#2%
+ _empty_/variance.C3#[T]2$
+! "_empty_/variance.C3#v.2%
+
+ _empty_/variance.C3#[T]2$
+ _empty_/variance.C3#v.2(
+ _empty_/variance.C3#foo().2,
+ 
+_empty_/variance.C3#foo().(ev)2#
+ _empty_/variance.SUB#2%
+ _empty_/variance.C3#[T]2
+ 
+scala/Int#2
+ 
+scala/Int#2*
+ _empty_/variance.C3#foo().(ev)22
+   $_empty_/variance.SUB.Refl.unapply().2(
+ 	  _empty_/variance.SUB.Refl.2#
+   _empty_/variance.SUB.2(
+   _empty_/variance.A3#value.2"
+&& _empty_/variance.A4#2-
+&& _empty_/variance.A4#`<init>`().2%
+&& _empty_/variance.A4#[T]2%
+&
+& _empty_/variance.A4#[T]2$
+&& _empty_/variance.A4#v.2(
+'' 	_empty_/variance.A4#value.2$
+'' _empty_/variance.A4#v.2"
+** _empty_/variance.C4#2-
+** _empty_/variance.C4#`<init>`().2%
+** _empty_/variance.C4#[T]2-
+** _empty_/variance.A4#`<init>`().2"
+** _empty_/variance.A4#2%
+** _empty_/variance.C4#[T]2$
+* * !_empty_/variance.C4#v.2%
+*	* 
+_empty_/variance.C4#[T]2$
+** _empty_/variance.C4#v.2(
+++ _empty_/variance.C4#foo().2,
+++ 
+_empty_/variance.C4#foo().(ev)2#
+++ _empty_/variance.SUB#2%
+++ _empty_/variance.C4#[T]2
+++ 
+scala/Int#2
+++ 
+scala/Int#2*
+,, _empty_/variance.C4#foo().(ev)22
+-- $_empty_/variance.SUB.Refl.unapply().2(
+-	- _empty_/variance.SUB.Refl.2#
+-- _empty_/variance.SUB.2(
+-- _empty_/variance.A4#value.2"
+22 _empty_/variance.B5#2-
+22 _empty_/variance.B5#`<init>`().2%
+22 _empty_/variance.B5#[T]2%
+2
+2 _empty_/variance.B5#[T]2$
+22 _empty_/variance.B5#v.2"
+44 _empty_/variance.A5#2-
+44 _empty_/variance.A5#`<init>`().2%
+44 _empty_/variance.A5#[T]2%
+4
+4 _empty_/variance.A5#[T]2$
+44 _empty_/variance.A5#v.2(
+55 	_empty_/variance.A5#value.2-
+55 _empty_/variance.B5#`<init>`().2$
+55 _empty_/variance.A5#v.2"
+88 _empty_/variance.C5#2-
+88 _empty_/variance.C5#`<init>`().2%
+88 _empty_/variance.C5#[T]2-
+8 8  _empty_/variance.A5#`<init>`().2"
+88 _empty_/variance.A5#2%
+88 _empty_/variance.C5#[T]2$
+8!8 "_empty_/variance.C5#v.2%
+8
+8 _empty_/variance.C5#[T]2$
+88 _empty_/variance.C5#v.2(
+99 _empty_/variance.C5#foo().2,
+99 
+_empty_/variance.C5#foo().(ev)2#
+99 _empty_/variance.SUB#2
+99 
+scala/Int#2%
+99 _empty_/variance.C5#[T]2"
+99 _empty_/variance.B5#2%
+99 _empty_/variance.C5#[T]2*
+:: _empty_/variance.C5#foo().(ev)22
+;; $_empty_/variance.SUB.Refl.unapply().2(
+;	; _empty_/variance.SUB.Refl.2#
+;; _empty_/variance.SUB.2
+;; local12(
+;; _empty_/variance.A5#value.2"
+@@ _empty_/variance.B6#2-
+@@ _empty_/variance.B6#`<init>`().2%
+@@ _empty_/variance.B6#[T]2%
+@
+@ _empty_/variance.B6#[T]2$
+@@ _empty_/variance.B6#v.2"
+BB _empty_/variance.A6#2-
+BB _empty_/variance.A6#`<init>`().2%
+BB _empty_/variance.A6#[T]2%
+B
+B _empty_/variance.A6#[T]2$
+BB _empty_/variance.A6#v.2(
+CC 	_empty_/variance.A6#value.2-
+CC _empty_/variance.B6#`<init>`().2$
+CC _empty_/variance.A6#v.2"
+FF _empty_/variance.C6#2-
+FF _empty_/variance.C6#`<init>`().2%
+FF _empty_/variance.C6#[T]2-
+F F  _empty_/variance.A6#`<init>`().2"
+FF _empty_/variance.A6#2%
+FF _empty_/variance.C6#[T]2$
+F!F "_empty_/variance.C6#v.2%
+F
+F _empty_/variance.C6#[T]2$
+FF _empty_/variance.C6#v.2(
+GG _empty_/variance.C6#foo().2,
+GG 
+_empty_/variance.C6#foo().(ev)2#
+GG _empty_/variance.SUB#2
+GG 
+scala/Int#2%
+GG _empty_/variance.C6#[T]2"
+GG _empty_/variance.B6#2%
+GG _empty_/variance.C6#[T]2*
+HH _empty_/variance.C6#foo().(ev)22
+II $_empty_/variance.SUB.Refl.unapply().2(
+I	I _empty_/variance.SUB.Refl.2#
+II _empty_/variance.SUB.2
+II local22(
+II _empty_/variance.A6#value.PZ 19E6F01424A4D3E9686B905C30E51BC6

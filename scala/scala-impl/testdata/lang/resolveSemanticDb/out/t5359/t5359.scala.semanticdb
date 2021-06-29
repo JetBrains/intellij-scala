@@ -1,0 +1,57 @@
+
+¹
+tests/pos/t5359.scala*
+_empty_/test.
+ *test€*
+_empty_/test.Step#*Step€*/
+_empty_/test.Step#`<init>`(). €@*<init>€*
+_empty_/test.Step#[F]	*F€*
+_empty_/test.S1# €*S1€*-
+_empty_/test.S1#`<init>`(). €@*<init>€*
+_empty_/test.S1#[F]	*F€*$
+_empty_/test.S1#copy().*copy€*$
+_empty_/test.S1#copy().[F]	*F€*
+_empty_/test.S1.
+ *S1€*&
+_empty_/test.S1.apply().*apply€*%
+_empty_/test.S1.apply().[F]	*F€**
+_empty_/test.S1.unapply().*unapply€*'
+_empty_/test.S1.unapply().[F]	*F€*+
+_empty_/test.S1.unapply().(x$1)*x$1€*,
+_empty_/test.S1.toString().*toString€2
+ _empty_/test.2 
+ _empty_/test.Step#2+
+ _empty_/test.Step#`<init>`().2#
+ _empty_/test.Step#[F]2(
+ _empty_/test.S1.unapply().2
+ _empty_/test.S1.2
+
+
+ _empty_/test.S1#2)
+
+
+ _empty_/test.S1#`<init>`().2 
+
+ 
+ $_empty_/test.Step#2!
+
+%
+ &_empty_/test.S1#[F]2!
+
+
+ _empty_/test.S1#[F]2%
+
+
+ _empty_/test.S1#copy().2
+
+
+ _empty_/test.S1.2&
+
+
+ _empty_/test.S1.apply().2(
+
+
+ _empty_/test.S1.unapply().2 
+	 _empty_/test.Step#2(
+ _empty_/test.S1.unapply().2
+	 _empty_/test.S1.PZ FAA11E7B85F23292FC685A7D41113F04

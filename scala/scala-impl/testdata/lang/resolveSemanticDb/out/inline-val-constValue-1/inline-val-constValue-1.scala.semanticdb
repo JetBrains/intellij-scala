@@ -1,0 +1,67 @@
+
+Û'tests/pos/inline-val-constValue-1.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#X#*X€*<
+*_empty_/`inline-val-constValue-1$package`. *_empty_€*>
+1_empty_/`inline-val-constValue-1$package`.test().*test€*
+local0 €*a€*
+local1*X€*8
+._empty_/`inline-val-constValue-1$package`.f().*f€*;
+1_empty_/`inline-val-constValue-1$package`.f().(c)*c€*
+local2 €*size€*
+local3 €*n€*
+local4 €*m€2
+ scala/compiletime/2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#X#2
+ scala/Tuple#24
+*_empty_/`inline-val-constValue-1$package`.2?
+ 1_empty_/`inline-val-constValue-1$package`.test().2
+
+ scala/Unit#2
+ local02
+	 
+
+_empty_/C#2
+ local12
+ scala/Tuple1#2
+  
+scala/Any#2#
+& )scala/Predef.`???`().2<
+ ._empty_/`inline-val-constValue-1$package`.f().2
+ local02<
+		 ._empty_/`inline-val-constValue-1$package`.f().2?
+		 1_empty_/`inline-val-constValue-1$package`.f().(c)2
+		 
+_empty_/C#2
+		 scala/Unit#2
+
+
+ local22=
+
+
+ /scala/compiletime/package$package.constValue().2
+
+%
+ )scala/Tuple.Size#2
+
+
+ $scala/Tuple.2
+
+,
+ -_empty_/C#X#2?
+
+*
+ +1_empty_/`inline-val-constValue-1$package`.f().(c)2
+ local32
+
+ local22
+ local42
+	 
+scala/Int#2
+ local32#
+ scala/Predef.`???`().PZ 6136F2086A15CD22868D5C3662D47C3E

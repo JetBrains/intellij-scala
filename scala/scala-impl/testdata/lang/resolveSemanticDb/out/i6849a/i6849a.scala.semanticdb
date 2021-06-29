@@ -1,0 +1,55 @@
+
+û
+tests/pos/i6849a.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*/
+_empty_/Foo#`<init>`().(value) €*value€*#
+_empty_/Foo#value. €*value€*
+_empty_/Foo.
+ *Foo€*,
+_empty_/Foo.unapplySeq().*
+unapplySeq€**
+_empty_/Foo.unapplySeq().(foo)*foo€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*x€2
+ _empty_/Foo#2!
+ _empty_/Foo#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Foo#value.2
+ 
+_empty_/Foo.2'
+ _empty_/Foo.unapplySeq().2,
+ _empty_/Foo.unapplySeq().(foo)2
+ _empty_/Foo#2 
+ scala/package.Seq#2
+  #
+scala/Int#27
++ +)scala/collection/IterableFactory#apply().2!
+' +scala/package.List.2 
+0 5_empty_/Foo#value.2,
+, /_empty_/Foo.unapplySeq().(foo)2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2%
+ _empty_/Foo#`<init>`().2
+	 _empty_/Foo#2'
+		 _empty_/Foo.unapplySeq().2
+		 _empty_/Foo.2
+		 local02&
+
+
+ scala/Predef.assert(+1).2!
+
+
+ scala/Int#`==`(+3).2
+
+
+ local0PZ 09169E66303C3834E90023E55AE4514C

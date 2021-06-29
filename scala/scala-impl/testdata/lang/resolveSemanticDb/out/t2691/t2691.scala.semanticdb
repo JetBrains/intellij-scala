@@ -1,0 +1,45 @@
+
+êtests/pos/t2691.scala*&
+_empty_/Breakdown.
+ *	BreakdownÄ*2
+_empty_/Breakdown.unapplySeq().*
+unapplySeqÄ*,
+"_empty_/Breakdown.unapplySeq().(x)*xÄ*
+_empty_/Test.
+ *TestÄ*
+local0 Ä*whoÄ*
+_empty_/Test2.
+ *Test2Ä*
+local1 Ä*whoÄ2
+ _empty_/Breakdown.2-
+ _empty_/Breakdown.unapplySeq().20
+ "_empty_/Breakdown.unapplySeq().(x)2
+ 
+scala/Int#2
+ scala/Some#2!
+ #scala/package.List#2"
+$ *scala/Predef.String#2!
+3 3scala/Some.apply().2
+/ 3scala/Some.27
+8 8)scala/collection/IterableFactory#apply().2!
+4 8scala/package.List.2
+ _empty_/Test.2-
+ _empty_/Breakdown.unapplySeq().2 
+	 _empty_/Breakdown.2-
+ _empty_/Breakdown.unapplySeq().2 
+	 _empty_/Breakdown.2
+ local02'
+ &scala/Predef.println(+1).2%
+1 2java/lang/String#`+`().2
+3 6local02
+		 _empty_/Test2.2-
+ _empty_/Breakdown.unapplySeq().2 
+	 _empty_/Breakdown.2-
+ _empty_/Breakdown.unapplySeq().2 
+	 _empty_/Breakdown.2-
+ _empty_/Breakdown.unapplySeq().2 
+	 _empty_/Breakdown.2
+ local12'
+ &scala/Predef.println(+1).2%
+1 2java/lang/String#`+`().2
+3 6local1PZ 992EF04B622F4A7A2891DA30C13C42DE

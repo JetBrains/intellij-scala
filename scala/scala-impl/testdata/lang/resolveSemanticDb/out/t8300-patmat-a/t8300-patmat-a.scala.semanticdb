@@ -1,0 +1,49 @@
+
+ëtests/pos/t8300-patmat-a.scala*"
+_empty_/Universe#*Universe€*.
+_empty_/Universe#`<init>`(). €@*<init>€*#
+_empty_/Universe#Name#*Name€*)
+_empty_/Universe#NameApi#*NameApi€*6
+$_empty_/Universe#NameApi#`<init>`(). €@*<init>€*+
+_empty_/Universe#TermName#*TermName€*1
+_empty_/Universe#TermNameApi#*TermNameApi€*:
+(_empty_/Universe#TermNameApi#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.u. €*u€*
+local0 €*	ScalaName€2
+ _empty_/Universe#2*
+ _empty_/Universe#`<init>`().2$
+ _empty_/Universe#Name#2
+ scala/Null#2
+ scala/AnyRef#2'
+# *_empty_/Universe#NameApi#2'
+ _empty_/Universe#NameApi#22
+ $_empty_/Universe#NameApi#`<init>`().2(
+ _empty_/Universe#TermName#2
+ scala/Null#2$
+ _empty_/Universe#Name#2+
+% 0_empty_/Universe#TermNameApi#2+
+ _empty_/Universe#TermNameApi#26
+ (_empty_/Universe#TermNameApi#`<init>`().2'
+ #_empty_/Universe#NameApi#2
+		 _empty_/Test.2
+		 
+scala/App#2
+
+
+ _empty_/Test.u.2
+
+	
+ _empty_/Universe#2#
+
+
+ scala/Predef.`???`().2
+	 
+_empty_/Test.u.2%
+ 	scala/Predef.locally().2
+ local02#
+ !scala/Predef.`???`().2#
+ scala/Predef.`???`().2
+ local02#
+ scala/Predef.`???`().PZ CD364378DD68F4299A783A361D2CA9B6

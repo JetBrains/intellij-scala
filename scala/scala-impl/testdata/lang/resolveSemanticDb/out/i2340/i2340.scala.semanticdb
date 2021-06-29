@@ -1,0 +1,27 @@
+
+Ýtests/pos/i2340.scala*
+_empty_/Entry# *Entry€*+
+_empty_/Entry#`<init>`(). €@*<init>€*,
+_empty_/Entry#`<init>`().(path)*path€*#
+_empty_/Entry#path. €*path€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#test().*test€*
+local0*	FileEntry€*
+local1 €*f€2
+ _empty_/Entry#2#
+ _empty_/Entry#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Entry#path.2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ 
+_empty_/Test#test().2
+
+ local02'
+# #_empty_/Entry#`<init>`().2
+ #_empty_/Entry#2
+ 	local12
+ local0PZ 7ABFA2FA2662473E0AE0B9E83772DEC4

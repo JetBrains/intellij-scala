@@ -1,0 +1,70 @@
+
+Ÿtests/pos/i480a.scala*%
+test/Definitions#*Definitions€*.
+test/Definitions#`<init>`(). €@*<init>€*+
+test/Definitions#LazyType#*LazyType€*7
+%test/Definitions#LazyType#`<init>`(). €@*<init>€*8
+%test/Definitions#LazyType#complete(). *complete€*
+test/Definitions#f().*f€*&
+test/Definitions#f().(vcs)*vcs€*
+local0 €*	completer€*
+local1 *$anon€*
+local2*complete€*
+local3*i€2
+ test/2
+ test/Definitions#2*
+ test/Definitions#`<init>`().2(
+ test/Definitions#LazyType#23
+ %test/Definitions#LazyType#`<init>`().23
+ %test/Definitions#LazyType#complete().2
+# 'scala/Unit#2#
+ test/Definitions#f().2(
+ test/Definitions#f().(vcs)2!
+ scala/package.List#2
+ 
+scala/Int#2
+ scala/Unit#2
+ local02
+ local12(
+  test/Definitions#LazyType#2
+	
+	 local22
+		 scala/Unit#24
+
+3
+ 3&scala/collection/WithFilter#foreach().28
+
+$
+ $*scala/collection/IterableOps#withFilter().2,
+
+
+ scala/runtime/RichInt#until().26
+
+
+ (scala/LowPriorityImplicits#intWrapper().27
+
+
+ $)scala/collection/immutable/List#length().2(
+
+
+ test/Definitions#f().(vcs)2
+
+
+ local32!
+
+/
+ 1scala/Int#`!=`(+3).24
+
++
+ +&scala/collection/LinearSeqOps#apply().2(
+
+(
+ +test/Definitions#f().(vcs)2
+
+,
+ -local32#
+
+ test/Definitions#f().28
+ *scala/collection/immutable/List#updated().2(
+ test/Definitions#f().(vcs)2
+ local3PZ 602F0BAD3C61C8EAD731507609D961DA

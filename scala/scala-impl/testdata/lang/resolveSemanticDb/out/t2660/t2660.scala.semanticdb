@@ -1,0 +1,138 @@
+
+”tests/pos/t2660.scala*
+hoho/G#*G€*$
+hoho/G#`<init>`(). €@*<init>€*
+hoho/H#*H€*$
+hoho/H#`<init>`(). €@*<init>€*
+hoho/A#*A€*$
+hoho/A#`<init>`(). €@*<init>€*
+hoho/A#`<init>`().(x)*x€*
+
+hoho/A#[T]	*T€*
+	hoho/A#x. €*x€*#
+hoho/A#`<init>`(+1).*<init>€*!
+hoho/A#`<init>`(+1).(y)*y€*!
+hoho/A#`<init>`(+1).(z)*z€*#
+hoho/A#`<init>`(+2).*<init>€*!
+hoho/A#`<init>`(+2).(z)*z€*!
+hoho/A#`<init>`(+2).(h)*h€*
+hoho/T.
+ *T€*
+hoho/T.main().*main€*!
+hoho/T.main().(args)*args€*
+local0  *g2h€*
+local1*g€*
+hoho/X.
+ *X€*
+hoho/X.f().*f€*
+hoho/X.f().[T]	*T€*
+hoho/X.f().(x)*x€*
+hoho/X.f(+1).*f€*
+hoho/X.f(+1).[T]	*T€*
+hoho/X.f(+1).(y)*y€*
+hoho/X.f(+1).(z)*z€*
+hoho/X.f(+2).*f€*
+hoho/X.f(+2).[T]	*T€*
+hoho/X.f(+2).(z)*z€*
+hoho/X.f(+2).(h)*h€*
+hoho/T2.
+ *T2€*
+hoho/T2.main().*main€*"
+hoho/T2.main().(args)*args€*
+local2  *g2h€*
+local3*g€2
+ hoho/2
+ hoho/G#2
+hoho/G#`<init>`().2
+ hoho/H#2 
+ hoho/H#`<init>`().2 
+ hoho/G#`<init>`().2
+ hoho/G#2
+ hoho/A#2 
+ hoho/A#`<init>`().2
+ 
+hoho/A#[T]2
+ 	
+hoho/A#[T]2
+ 	hoho/A#x.2"
+ 
+hoho/A#`<init>`(+1).2%
+ hoho/A#`<init>`(+1).(y)2
+ hoho/G#2%
+ hoho/A#`<init>`(+1).(z)2
+ 
+hoho/A#[T]2 
+			 	hoho/A#`<init>`().2%
+			 
+hoho/A#`<init>`(+1).(z)2#
+
+
+ 	scala/Predef.print().2"
+ 
+hoho/A#`<init>`(+2).2%
+ hoho/A#`<init>`(+2).(z)2
+ hoho/H#2%
+ hoho/A#`<init>`(+2).(h)2
+ 
+hoho/A#[T]2 
+	 	hoho/A#`<init>`().2%
+	 
+hoho/A#`<init>`(+2).(h)2#
+ 	scala/Predef.print().2
+ hoho/T.2
+ 
+hoho/T.main().2"
+ hoho/T.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02
+ local12
+ hoho/G#2
+ hoho/H#2 
+% %hoho/H#`<init>`().2
+$ %hoho/H#2"
+ hoho/A#`<init>`(+2).2
+ 	hoho/A#2
+
+ 
+scala/Int#2 
+ hoho/H#`<init>`().2
+ hoho/H#2
+ hoho/X.2
+ hoho/X.f().2
+ 	hoho/X.f().[T]2
+ hoho/X.f().(x)2
+ hoho/X.f().[T]2#
+ scala/Predef.`???`().2
+ hoho/X.f(+1).2
+ 	hoho/X.f(+1).[T]2
+ hoho/X.f(+1).(y)2
+ hoho/G#2
+ hoho/X.f(+1).(z)2
+ hoho/X.f(+1).[T]2#
+ scala/Predef.`???`().2
+   hoho/X.f(+2).2
+   	hoho/X.f(+2).[T]2
+   hoho/X.f(+2).(z)2
+   hoho/H#2
+   hoho/X.f(+2).(h)2
+   hoho/X.f(+2).[T]2#
+   scala/Predef.`???`().2
+## 	hoho/T2.2
+$$ 
+hoho/T2.main().2#
+$$ hoho/T2.main().(args)2
+$$ scala/Array#2"
+$$ scala/Predef.String#2
+$!$ %scala/Unit#2
+%% local22
+%% local32
+%% hoho/G#2
+%% hoho/H#2 
+%%% %hoho/H#`<init>`().2
+%$% %hoho/H#2
+&& hoho/X.f(+2).2
+&& hoho/X.2 
+&& hoho/H#`<init>`().2
+&& hoho/H#PZ DF929757A52B2F9128D6272AC31B79B5

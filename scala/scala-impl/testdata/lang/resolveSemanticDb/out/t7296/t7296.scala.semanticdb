@@ -1,0 +1,280 @@
+
+ùOtests/pos/t7296.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.A#*AÄ* 
+_empty_/Test.Foo# Ä*FooÄ*.
+_empty_/Test.Foo#`<init>`(). Ä@*<init>Ä*,
+_empty_/Test.Foo#`<init>`().(a) Ä*aÄ*,
+_empty_/Test.Foo#`<init>`().(b) Ä*bÄ*,
+_empty_/Test.Foo#`<init>`().(c) Ä*cÄ*,
+_empty_/Test.Foo#`<init>`().(d) Ä*dÄ*,
+_empty_/Test.Foo#`<init>`().(e) Ä*eÄ*,
+_empty_/Test.Foo#`<init>`().(f) Ä*fÄ*,
+_empty_/Test.Foo#`<init>`().(g) Ä*gÄ*,
+_empty_/Test.Foo#`<init>`().(h) Ä*hÄ*,
+_empty_/Test.Foo#`<init>`().(i) Ä*iÄ*,
+_empty_/Test.Foo#`<init>`().(j) Ä*jÄ*,
+_empty_/Test.Foo#`<init>`().(k) Ä*kÄ*,
+_empty_/Test.Foo#`<init>`().(l) Ä*lÄ*,
+_empty_/Test.Foo#`<init>`().(m) Ä*mÄ*,
+_empty_/Test.Foo#`<init>`().(n) Ä*nÄ*,
+_empty_/Test.Foo#`<init>`().(o) Ä*oÄ*,
+_empty_/Test.Foo#`<init>`().(p) Ä*pÄ*,
+_empty_/Test.Foo#`<init>`().(q) Ä*qÄ*,
+_empty_/Test.Foo#`<init>`().(r) Ä*rÄ*,
+_empty_/Test.Foo#`<init>`().(s) Ä*sÄ*,
+_empty_/Test.Foo#`<init>`().(t) Ä*tÄ*,
+_empty_/Test.Foo#`<init>`().(u) Ä*uÄ*,
+_empty_/Test.Foo#`<init>`().(v) Ä*vÄ*,
+_empty_/Test.Foo#`<init>`().(w) Ä*wÄ*,
+_empty_/Test.Foo#`<init>`().(x) Ä*xÄ*,
+_empty_/Test.Foo#`<init>`().(y) Ä*yÄ*,
+_empty_/Test.Foo#`<init>`().(Z) Ä*ZÄ* 
+_empty_/Test.Foo#a. Ä*aÄ* 
+_empty_/Test.Foo#b. Ä*bÄ* 
+_empty_/Test.Foo#c. Ä*cÄ* 
+_empty_/Test.Foo#d. Ä*dÄ* 
+_empty_/Test.Foo#e. Ä*eÄ* 
+_empty_/Test.Foo#f. Ä*fÄ* 
+_empty_/Test.Foo#g. Ä*gÄ* 
+_empty_/Test.Foo#h. Ä*hÄ* 
+_empty_/Test.Foo#i. Ä*iÄ* 
+_empty_/Test.Foo#j. Ä*jÄ* 
+_empty_/Test.Foo#k. Ä*kÄ* 
+_empty_/Test.Foo#l. Ä*lÄ* 
+_empty_/Test.Foo#m. Ä*mÄ* 
+_empty_/Test.Foo#n. Ä*nÄ* 
+_empty_/Test.Foo#o. Ä*oÄ* 
+_empty_/Test.Foo#p. Ä*pÄ* 
+_empty_/Test.Foo#q. Ä*qÄ* 
+_empty_/Test.Foo#r. Ä*rÄ* 
+_empty_/Test.Foo#s. Ä*sÄ* 
+_empty_/Test.Foo#t. Ä*tÄ* 
+_empty_/Test.Foo#u. Ä*uÄ* 
+_empty_/Test.Foo#v. Ä*vÄ* 
+_empty_/Test.Foo#w. Ä*wÄ* 
+_empty_/Test.Foo#x. Ä*xÄ* 
+_empty_/Test.Foo#y. Ä*yÄ* 
+_empty_/Test.Foo#Z. Ä*ZÄ*%
+_empty_/Test.Foo#copy().*copyÄ*%
+_empty_/Test.Foo#copy().(a)*aÄ*%
+_empty_/Test.Foo#copy().(b)*bÄ*%
+_empty_/Test.Foo#copy().(c)*cÄ*%
+_empty_/Test.Foo#copy().(d)*dÄ*%
+_empty_/Test.Foo#copy().(e)*eÄ*%
+_empty_/Test.Foo#copy().(f)*fÄ*%
+_empty_/Test.Foo#copy().(g)*gÄ*%
+_empty_/Test.Foo#copy().(h)*hÄ*%
+_empty_/Test.Foo#copy().(i)*iÄ*%
+_empty_/Test.Foo#copy().(j)*jÄ*%
+_empty_/Test.Foo#copy().(k)*kÄ*%
+_empty_/Test.Foo#copy().(l)*lÄ*%
+_empty_/Test.Foo#copy().(m)*mÄ*%
+_empty_/Test.Foo#copy().(n)*nÄ*%
+_empty_/Test.Foo#copy().(o)*oÄ*%
+_empty_/Test.Foo#copy().(p)*pÄ*%
+_empty_/Test.Foo#copy().(q)*qÄ*%
+_empty_/Test.Foo#copy().(r)*rÄ*%
+_empty_/Test.Foo#copy().(s)*sÄ*%
+_empty_/Test.Foo#copy().(t)*tÄ*%
+_empty_/Test.Foo#copy().(u)*uÄ*%
+_empty_/Test.Foo#copy().(v)*vÄ*%
+_empty_/Test.Foo#copy().(w)*wÄ*%
+_empty_/Test.Foo#copy().(x)*xÄ*%
+_empty_/Test.Foo#copy().(y)*yÄ*%
+_empty_/Test.Foo#copy().(Z)*ZÄ*9
+"_empty_/Test.Foo#copy$default$1().*copy$default$1Ä*9
+"_empty_/Test.Foo#copy$default$2().*copy$default$2Ä*9
+"_empty_/Test.Foo#copy$default$3().*copy$default$3Ä*9
+"_empty_/Test.Foo#copy$default$4().*copy$default$4Ä*9
+"_empty_/Test.Foo#copy$default$5().*copy$default$5Ä*9
+"_empty_/Test.Foo#copy$default$6().*copy$default$6Ä*9
+"_empty_/Test.Foo#copy$default$7().*copy$default$7Ä*9
+"_empty_/Test.Foo#copy$default$8().*copy$default$8Ä*9
+"_empty_/Test.Foo#copy$default$9().*copy$default$9Ä*;
+#_empty_/Test.Foo#copy$default$10().*copy$default$10Ä*;
+#_empty_/Test.Foo#copy$default$11().*copy$default$11Ä*;
+#_empty_/Test.Foo#copy$default$12().*copy$default$12Ä*;
+#_empty_/Test.Foo#copy$default$13().*copy$default$13Ä*;
+#_empty_/Test.Foo#copy$default$14().*copy$default$14Ä*;
+#_empty_/Test.Foo#copy$default$15().*copy$default$15Ä*;
+#_empty_/Test.Foo#copy$default$16().*copy$default$16Ä*;
+#_empty_/Test.Foo#copy$default$17().*copy$default$17Ä*;
+#_empty_/Test.Foo#copy$default$18().*copy$default$18Ä*;
+#_empty_/Test.Foo#copy$default$19().*copy$default$19Ä*;
+#_empty_/Test.Foo#copy$default$20().*copy$default$20Ä*;
+#_empty_/Test.Foo#copy$default$21().*copy$default$21Ä*;
+#_empty_/Test.Foo#copy$default$22().*copy$default$22Ä*;
+#_empty_/Test.Foo#copy$default$23().*copy$default$23Ä*;
+#_empty_/Test.Foo#copy$default$24().*copy$default$24Ä*;
+#_empty_/Test.Foo#copy$default$25().*copy$default$25Ä*;
+#_empty_/Test.Foo#copy$default$26().*copy$default$26Ä*!
+_empty_/Test.Foo#_1().*_1Ä*!
+_empty_/Test.Foo#_2().*_2Ä*!
+_empty_/Test.Foo#_3().*_3Ä*!
+_empty_/Test.Foo#_4().*_4Ä*!
+_empty_/Test.Foo#_5().*_5Ä*!
+_empty_/Test.Foo#_6().*_6Ä*!
+_empty_/Test.Foo#_7().*_7Ä*!
+_empty_/Test.Foo#_8().*_8Ä*!
+_empty_/Test.Foo#_9().*_9Ä*#
+_empty_/Test.Foo#_10().*_10Ä*#
+_empty_/Test.Foo#_11().*_11Ä*#
+_empty_/Test.Foo#_12().*_12Ä*#
+_empty_/Test.Foo#_13().*_13Ä*#
+_empty_/Test.Foo#_14().*_14Ä*#
+_empty_/Test.Foo#_15().*_15Ä*#
+_empty_/Test.Foo#_16().*_16Ä*#
+_empty_/Test.Foo#_17().*_17Ä*#
+_empty_/Test.Foo#_18().*_18Ä*#
+_empty_/Test.Foo#_19().*_19Ä*#
+_empty_/Test.Foo#_20().*_20Ä*#
+_empty_/Test.Foo#_21().*_21Ä*#
+_empty_/Test.Foo#_22().*_22Ä*#
+_empty_/Test.Foo#_23().*_23Ä*#
+_empty_/Test.Foo#_24().*_24Ä*#
+_empty_/Test.Foo#_25().*_25Ä*#
+_empty_/Test.Foo#_26().*_26Ä*
+_empty_/Test.Foo.
+ *FooÄ*'
+_empty_/Test.Foo.apply().*applyÄ*&
+_empty_/Test.Foo.apply().(a)*aÄ*&
+_empty_/Test.Foo.apply().(b)*bÄ*&
+_empty_/Test.Foo.apply().(c)*cÄ*&
+_empty_/Test.Foo.apply().(d)*dÄ*&
+_empty_/Test.Foo.apply().(e)*eÄ*&
+_empty_/Test.Foo.apply().(f)*fÄ*&
+_empty_/Test.Foo.apply().(g)*gÄ*&
+_empty_/Test.Foo.apply().(h)*hÄ*&
+_empty_/Test.Foo.apply().(i)*iÄ*&
+_empty_/Test.Foo.apply().(j)*jÄ*&
+_empty_/Test.Foo.apply().(k)*kÄ*&
+_empty_/Test.Foo.apply().(l)*lÄ*&
+_empty_/Test.Foo.apply().(m)*mÄ*&
+_empty_/Test.Foo.apply().(n)*nÄ*&
+_empty_/Test.Foo.apply().(o)*oÄ*&
+_empty_/Test.Foo.apply().(p)*pÄ*&
+_empty_/Test.Foo.apply().(q)*qÄ*&
+_empty_/Test.Foo.apply().(r)*rÄ*&
+_empty_/Test.Foo.apply().(s)*sÄ*&
+_empty_/Test.Foo.apply().(t)*tÄ*&
+_empty_/Test.Foo.apply().(u)*uÄ*&
+_empty_/Test.Foo.apply().(v)*vÄ*&
+_empty_/Test.Foo.apply().(w)*wÄ*&
+_empty_/Test.Foo.apply().(x)*xÄ*&
+_empty_/Test.Foo.apply().(y)*yÄ*&
+_empty_/Test.Foo.apply().(Z)*ZÄ*+
+_empty_/Test.Foo.unapply().*unapplyÄ*,
+ _empty_/Test.Foo.unapply().(x$1)*x$1Ä*-
+_empty_/Test.Foo.toString().*toStringÄ2
+ _empty_/Test.2
+ _empty_/Test.A#2
+ 
+scala/Int#2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2
+ _empty_/Test.A#2
+ _empty_/Test.A#2
+  !_empty_/Test.A#2
+& '_empty_/Test.A#2
+, -_empty_/Test.A#2
+2 3_empty_/Test.A#2
+8 9_empty_/Test.A#2
+> ?_empty_/Test.A#2
+D E_empty_/Test.A#2
+J K_empty_/Test.A#2
+P Q_empty_/Test.A#2
+V W_empty_/Test.A#2
+\ ]_empty_/Test.A#2
+b c_empty_/Test.A#2
+h i_empty_/Test.A#2
+n o_empty_/Test.A#2
+t u_empty_/Test.A#2
+z {_empty_/Test.A#2
+
+Ä Å_empty_/Test.A#2
+
+Ü á_empty_/Test.A#2
+
+å ç_empty_/Test.A#2
+
+í ì_empty_/Test.A#2
+
+ò ô_empty_/Test.A#2
+
+û ü_empty_/Test.A#2
+
+§ •_empty_/Test.A#2
+
+™ ´_empty_/Test.A#2!
+ _empty_/Test.Foo#a.2!
+ _empty_/Test.Foo#b.2!
+ _empty_/Test.Foo#c.2!
+# $_empty_/Test.Foo#d.2!
+) *_empty_/Test.Foo#e.2!
+/ 0_empty_/Test.Foo#f.2!
+5 6_empty_/Test.Foo#g.2!
+; <_empty_/Test.Foo#h.2!
+A B_empty_/Test.Foo#i.2!
+G H_empty_/Test.Foo#j.2!
+M N_empty_/Test.Foo#k.2!
+S T_empty_/Test.Foo#l.2!
+Y Z_empty_/Test.Foo#m.2!
+_ `_empty_/Test.Foo#n.2!
+e f_empty_/Test.Foo#o.2!
+k l_empty_/Test.Foo#p.2!
+q r_empty_/Test.Foo#q.2!
+w x_empty_/Test.Foo#r.2!
+} ~_empty_/Test.Foo#s.2#
+
+É Ñ_empty_/Test.Foo#t.2#
+
+â ä_empty_/Test.Foo#u.2#
+
+è ê_empty_/Test.Foo#v.2#
+
+ï ñ_empty_/Test.Foo#w.2#
+
+õ ú_empty_/Test.Foo#x.2#
+
+° ¢_empty_/Test.Foo#y.2#
+
+ß ®_empty_/Test.Foo#Z.2&
+ _empty_/Test.Foo#copy().2$
+ _empty_/Test.Foo#_1().2$
+ _empty_/Test.Foo#_2().2$
+   _empty_/Test.Foo#_3().2$
+& &_empty_/Test.Foo#_4().2$
+, ,_empty_/Test.Foo#_5().2$
+2 2_empty_/Test.Foo#_6().2$
+8 8_empty_/Test.Foo#_7().2$
+> >_empty_/Test.Foo#_8().2$
+D D_empty_/Test.Foo#_9().2%
+J J_empty_/Test.Foo#_10().2%
+P P_empty_/Test.Foo#_11().2%
+V V_empty_/Test.Foo#_12().2%
+\ \_empty_/Test.Foo#_13().2%
+b b_empty_/Test.Foo#_14().2%
+h h_empty_/Test.Foo#_15().2%
+n n_empty_/Test.Foo#_16().2%
+t t_empty_/Test.Foo#_17().2%
+z z_empty_/Test.Foo#_18().2'
+
+Ä Ä_empty_/Test.Foo#_19().2'
+
+Ü Ü_empty_/Test.Foo#_20().2'
+
+å å_empty_/Test.Foo#_21().2'
+
+í í_empty_/Test.Foo#_22().2'
+
+ò ò_empty_/Test.Foo#_23().2'
+
+û û_empty_/Test.Foo#_24().2'
+
+§ §_empty_/Test.Foo#_25().2'
+
+™ ™_empty_/Test.Foo#_26().2
+ _empty_/Test.Foo.2'
+ _empty_/Test.Foo.apply().PZ CB94E5FBC29907CA87A5322FE164F1DE

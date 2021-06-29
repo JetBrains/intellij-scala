@@ -1,0 +1,17 @@
+
+‰tests/pos/i1975.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.X. €*X€*
+local0*X€2
+ _empty_/Test.2
+ _empty_/Test.X.2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+
+ scala/package.Seq.21
+ #scala/collection/IterableOps#map().2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+ scala/package.Seq.2
+ local02'
+ $scala/Predef.println(+1).2
+% &local0PZ F3F6F75DABF15807FB41AF97630C6FA2

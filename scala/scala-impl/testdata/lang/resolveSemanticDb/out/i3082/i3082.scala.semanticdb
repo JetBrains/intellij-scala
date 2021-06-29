@@ -1,0 +1,24 @@
+
+ôtests/pos/i3082.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*&
+_empty_/Test.foo().(arg1)*arg1€*
+local0*bar€2
+ _empty_/Test.2!
+ _empty_/Test.foo().2'
+ _empty_/Test.foo().(arg1)2
+ 
+scala/Int#2
+ !
+scala/Int#2
+ local02
+ 
+scala/Int#2!
+ _empty_/Test.foo().2!
+ scala/Int#`==`(+3).2'
+ _empty_/Test.foo().(arg1)2
+ local02&
+ scala/Predef.assert(+1).2!
+ scala/Int#`==`(+3).2!
+	 _empty_/Test.foo().PZ F660CE5AA2E5F7004582619642A93522

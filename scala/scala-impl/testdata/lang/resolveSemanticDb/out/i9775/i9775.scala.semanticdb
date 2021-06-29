@@ -1,0 +1,40 @@
+
+¶tests/pos/i9775.scala**
+_empty_/ThreadedImpl#*ThreadedImpl€*2
+ _empty_/ThreadedImpl#`<init>`(). €@*<init>€*6
+ _empty_/ThreadedImpl#threadSync. €*
+threadSync€*6
+!_empty_/ThreadedImpl#wasClosed(). €*	wasClosed€*<
+%_empty_/ThreadedImpl#`wasClosed_=`(). €*wasClosed_=€*6
+*_empty_/ThreadedImpl#`wasClosed_=`().(x$1)*x$1€*.
+_empty_/ThreadedImpl#thread. €*thread€*$
+_empty_/ThreadedImpl#x. €*x€*A
+'_empty_/ThreadedImpl#isThreadRunning(). *isThreadRunning€2
+ _empty_/ThreadedImpl#2.
+  _empty_/ThreadedImpl#`<init>`().2.
+  _empty_/ThreadedImpl#threadSync.2*
+% %java/lang/Object#`<init>`().2
+ %scala/AnyRef#2
+ scala/volatile#2/
+ !!_empty_/ThreadedImpl#wasClosed().23
+ #%_empty_/ThreadedImpl#`wasClosed_=`().2*
+ _empty_/ThreadedImpl#thread.2
+ java/lang/Thread#2#
+ "scala/Predef.`???`().2%
+ _empty_/ThreadedImpl#x.2
+	 scala/Array#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().25
+ %'_empty_/ThreadedImpl#isThreadRunning().2
+' .scala/Boolean#2"
+ scala/Array#apply().2%
+ _empty_/ThreadedImpl#x.2#
+ scala/Boolean#`&&`().2)
+ java/lang/Thread#isAlive().2*
+ 
+_empty_/ThreadedImpl#thread.2.
+! - java/lang/Object#synchronized().2.
+   _empty_/ThreadedImpl#threadSync.2(
+8 8scala/Boolean#`unary_!`().2/
+/ 8!_empty_/ThreadedImpl#wasClosed().PZ BB02C2DABA54638C1FA38B5316D3CDFF

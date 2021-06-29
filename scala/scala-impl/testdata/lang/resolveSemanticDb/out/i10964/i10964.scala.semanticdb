@@ -1,0 +1,343 @@
+
+ù`tests/pos/i10964.scala*(
+_empty_/Applicative#*Applicative€*1
+_empty_/Applicative#`<init>`(). €@*<init>€*!
+_empty_/Applicative#[F]	*F€*
+_empty_/FooT#*FooT€**
+_empty_/FooT#`<init>`(). €@*<init>€*
+_empty_/FooT#[F]	*F€*
+_empty_/FooT#[A]	*A€*
+_empty_/BarT#*BarT€**
+_empty_/BarT#`<init>`(). €@*<init>€*
+_empty_/BarT#[F]	*F€*
+_empty_/BarT#[A]	*A€*
+_empty_/QuxT#*QuxT€**
+_empty_/QuxT#`<init>`(). €@*<init>€*
+_empty_/QuxT#[F]	*F€*
+_empty_/QuxT#[A]	*A€*
+_empty_/BazT#*BazT€**
+_empty_/BazT#`<init>`(). €@*<init>€*
+_empty_/BazT#[F]	*F€*
+_empty_/BazT#[A]	*A€*
+_empty_/ZepT#*ZepT€**
+_empty_/ZepT#`<init>`(). €@*<init>€*
+_empty_/ZepT#[F]	*F€*
+_empty_/ZepT#[A]	*A€*
+_empty_/JazT#*JazT€**
+_empty_/JazT#`<init>`(). €@*<init>€*
+_empty_/JazT#[F]	*F€*
+_empty_/JazT#[A]	*A€*
+_empty_/LafT#*LafT€**
+_empty_/LafT#`<init>`(). €@*<init>€*
+_empty_/LafT#[F]	*F€*
+_empty_/LafT#[A]	*A€*
+_empty_/PogT#*PogT€**
+_empty_/PogT#`<init>`(). €@*<init>€*
+_empty_/PogT#[F]	*F€*
+_empty_/PogT#[A]	*A€*
+_empty_/Sync#*Sync€**
+_empty_/Sync#`<init>`(). €@*<init>€*
+_empty_/Sync#[F]	*F€*
+_empty_/Sync.
+ *Sync€*1
+_empty_/Sync.syncForFooT().  *syncForFooT€*(
+_empty_/Sync.syncForFooT().[F]	*F€*,
+_empty_/Sync.syncForFooT().(F0)  *F0€*(
+_empty_/Sync.syncForFooT().[X]	*X€*1
+_empty_/Sync.syncForBarT().  *syncForBarT€*(
+_empty_/Sync.syncForBarT().[F]	*F€*,
+_empty_/Sync.syncForBarT().(F0)  *F0€*(
+_empty_/Sync.syncForBarT().[X]	*X€*1
+_empty_/Sync.syncForQuxT().  *syncForQuxT€*(
+_empty_/Sync.syncForQuxT().[F]	*F€*,
+_empty_/Sync.syncForQuxT().(F0)  *F0€*(
+_empty_/Sync.syncForQuxT().[X]	*X€*1
+_empty_/Sync.syncForBazT().  *syncForBazT€*(
+_empty_/Sync.syncForBazT().[F]	*F€*,
+_empty_/Sync.syncForBazT().(F0)  *F0€*(
+_empty_/Sync.syncForBazT().[X]	*X€*1
+_empty_/Sync.syncForZepT().  *syncForZepT€*(
+_empty_/Sync.syncForZepT().[F]	*F€*,
+_empty_/Sync.syncForZepT().(F0)  *F0€*(
+_empty_/Sync.syncForZepT().[X]	*X€*1
+_empty_/Sync.syncForJazT().  *syncForJazT€*(
+_empty_/Sync.syncForJazT().[F]	*F€*,
+_empty_/Sync.syncForJazT().(F0)  *F0€*(
+_empty_/Sync.syncForJazT().[X]	*X€*1
+_empty_/Sync.syncForLafT().  *syncForLafT€*(
+_empty_/Sync.syncForLafT().[F]	*F€*,
+_empty_/Sync.syncForLafT().(F0)  *F0€*(
+_empty_/Sync.syncForLafT().[X]	*X€*1
+_empty_/Sync.syncForPogT().  *syncForPogT€*(
+_empty_/Sync.syncForPogT().[F]	*F€*,
+_empty_/Sync.syncForPogT().(F0)  *F0€*(
+_empty_/Sync.syncForPogT().[X]	*X€*
+_empty_/Ref#*Ref€*)
+_empty_/Ref#`<init>`(). €@*<init>€*
+_empty_/Ref#[F]	*F€*
+_empty_/Ref#[A]	*A€*
+_empty_/Ref.
+ *Ref€*
+_empty_/Ref.Make#*Make€*.
+_empty_/Ref.Make#`<init>`(). €@*<init>€*
+_empty_/Ref.Make#[F]	*F€* 
+_empty_/Ref.Make.
+ *Make€*0
+_empty_/Ref.MakeInstances#*MakeInstances€*7
+%_empty_/Ref.MakeInstances#`<init>`(). €@*<init>€*N
+0_empty_/Ref.MakeInstances#applicativeInstance().  *applicativeInstance€*=
+3_empty_/Ref.MakeInstances#applicativeInstance().[F]	*F€*?
+3_empty_/Ref.MakeInstances#applicativeInstance().(F)  *F€*F
+%_empty_/Ref.MakeLowPriorityInstances#*MakeLowPriorityInstances€*B
+0_empty_/Ref.MakeLowPriorityInstances#`<init>`(). €@*<init>€*K
+4_empty_/Ref.MakeLowPriorityInstances#syncInstance().  *syncInstance€*A
+7_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]	*F€*C
+7_empty_/Ref.MakeLowPriorityInstances#syncInstance().(F)  *F€*
+_empty_/Ref.of().*of€*
+_empty_/Ref.of().[F]	*F€*
+_empty_/Ref.of().[A]	*A€*
+_empty_/Ref.of().(a)*a€*"
+_empty_/Ref.of().(mk)  *mk€*"
+_empty_/Resource#*Resource€*.
+_empty_/Resource#`<init>`(). €@*<init>€*
+_empty_/Resource#[F]	*F€*
+_empty_/Resource#[A]	*A€*=
+#_empty_/Resource#syncForResource().  *syncForResource€*0
+&_empty_/Resource#syncForResource().[F]	*F€*4
+'_empty_/Resource#syncForResource().(F0)  *F0€*0
+&_empty_/Resource#syncForResource().[X]	*X€*#
+_empty_/Resource#foo().*foo€*$
+_empty_/Resource#foo().(x)*x€*&
+_empty_/Resource#foo().(F)  *F€2
+ _empty_/Applicative#2)
+ _empty_/Applicative#`<init>`().2!
+ _empty_/Applicative#[F]2
+ 
+_empty_/FooT#2&
+
+ 
+_empty_/FooT#`<init>`().2
+ _empty_/FooT#[F]2
+ _empty_/FooT#[A]2
+ 
+_empty_/BarT#2&
+
+ 
+_empty_/BarT#`<init>`().2
+ _empty_/BarT#[F]2
+ _empty_/BarT#[A]2
+ 
+_empty_/QuxT#2&
+
+ 
+_empty_/QuxT#`<init>`().2
+ _empty_/QuxT#[F]2
+ _empty_/QuxT#[A]2
+ 
+_empty_/BazT#2&
+
+ 
+_empty_/BazT#`<init>`().2
+ _empty_/BazT#[F]2
+ _empty_/BazT#[A]2
+ 
+_empty_/ZepT#2&
+
+ 
+_empty_/ZepT#`<init>`().2
+ _empty_/ZepT#[F]2
+ _empty_/ZepT#[A]2
+ 
+_empty_/JazT#2&
+
+ 
+_empty_/JazT#`<init>`().2
+ _empty_/JazT#[F]2
+ _empty_/JazT#[A]2
+ 
+_empty_/LafT#2&
+
+ 
+_empty_/LafT#`<init>`().2
+ _empty_/LafT#[F]2
+ _empty_/LafT#[A]2
+		 
+_empty_/PogT#2&
+	
+	 
+_empty_/PogT#`<init>`().2
+		 _empty_/PogT#[F]2
+		 _empty_/PogT#[A]2
+ 
+_empty_/Sync#2&
+
+ 
+_empty_/Sync#`<init>`().2
+ _empty_/Sync#[F]2
+ _empty_/Sync.2)
+ _empty_/Sync.syncForFooT().2,
+ _empty_/Sync.syncForFooT().[F]2-
+* ,_empty_/Sync.syncForFooT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForFooT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForFooT().[X]2
+E I_empty_/FooT#2,
+J K_empty_/Sync.syncForFooT().[F]2,
+M N_empty_/Sync.syncForFooT().[X]2#
+S Vscala/Predef.`???`().2)
+ _empty_/Sync.syncForBarT().2,
+ _empty_/Sync.syncForBarT().[F]2-
+* ,_empty_/Sync.syncForBarT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForBarT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForBarT().[X]2
+E I_empty_/BarT#2,
+J K_empty_/Sync.syncForBarT().[F]2,
+M N_empty_/Sync.syncForBarT().[X]2#
+S Vscala/Predef.`???`().2)
+ _empty_/Sync.syncForQuxT().2,
+ _empty_/Sync.syncForQuxT().[F]2-
+* ,_empty_/Sync.syncForQuxT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForQuxT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForQuxT().[X]2
+E I_empty_/QuxT#2,
+J K_empty_/Sync.syncForQuxT().[F]2,
+M N_empty_/Sync.syncForQuxT().[X]2#
+S Vscala/Predef.`???`().2)
+ _empty_/Sync.syncForBazT().2,
+ _empty_/Sync.syncForBazT().[F]2-
+* ,_empty_/Sync.syncForBazT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForBazT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForBazT().[X]2
+E I_empty_/BazT#2,
+J K_empty_/Sync.syncForBazT().[F]2,
+M N_empty_/Sync.syncForBazT().[X]2#
+S Vscala/Predef.`???`().2)
+ _empty_/Sync.syncForZepT().2,
+ _empty_/Sync.syncForZepT().[F]2-
+* ,_empty_/Sync.syncForZepT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForZepT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForZepT().[X]2
+E I_empty_/ZepT#2,
+J K_empty_/Sync.syncForZepT().[F]2,
+M N_empty_/Sync.syncForZepT().[X]2#
+S Vscala/Predef.`???`().2)
+ _empty_/Sync.syncForJazT().2,
+ _empty_/Sync.syncForJazT().[F]2-
+* ,_empty_/Sync.syncForJazT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForJazT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForJazT().[X]2
+E I_empty_/JazT#2,
+J K_empty_/Sync.syncForJazT().[F]2,
+M N_empty_/Sync.syncForJazT().[X]2#
+S Vscala/Predef.`???`().2)
+ _empty_/Sync.syncForLafT().2,
+ _empty_/Sync.syncForLafT().[F]2-
+* ,_empty_/Sync.syncForLafT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForLafT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForLafT().[X]2
+E I_empty_/LafT#2,
+J K_empty_/Sync.syncForLafT().[F]2,
+M N_empty_/Sync.syncForLafT().[X]2#
+S Vscala/Predef.`???`().2)
+ _empty_/Sync.syncForPogT().2,
+ _empty_/Sync.syncForPogT().[F]2-
+* ,_empty_/Sync.syncForPogT().(F0)2
+. 2_empty_/Sync#2,
+3 4_empty_/Sync.syncForPogT().[F]2
+8 <_empty_/Sync#2,
+> ?_empty_/Sync.syncForPogT().[X]2
+E I_empty_/PogT#2,
+J K_empty_/Sync.syncForPogT().[F]2,
+M N_empty_/Sync.syncForPogT().[X]2#
+S Vscala/Predef.`???`().2
+ 	_empty_/Ref#2%
+	 	_empty_/Ref#`<init>`().2
+
+ _empty_/Ref#[F]2
+ _empty_/Ref#[A]2
+ 
+_empty_/Ref.2
+ _empty_/Ref.Make#2*
+ _empty_/Ref.Make#`<init>`().2"
+ _empty_/Ref.Make#[F]2
+	 _empty_/Ref.Make.2(
+ #_empty_/Ref.MakeInstances#2(
+ _empty_/Ref.MakeInstances#23
+ %_empty_/Ref.MakeInstances#`<init>`().23
+ 6%_empty_/Ref.MakeLowPriorityInstances#2>
+ $0_empty_/Ref.MakeInstances#applicativeInstance().2A
+% &3_empty_/Ref.MakeInstances#applicativeInstance().[F]2A
+4 53_empty_/Ref.MakeInstances#applicativeInstance().(F)2"
+7 B_empty_/Applicative#2A
+C D3_empty_/Ref.MakeInstances#applicativeInstance().[F]2
+H L_empty_/Ref.Make#2A
+M N3_empty_/Ref.MakeInstances#applicativeInstance().[F]2#
+R Uscala/Predef.`???`().23
+!!  %_empty_/Ref.MakeLowPriorityInstances#2>
+"" 0_empty_/Ref.MakeLowPriorityInstances#`<init>`().2B
+"" 4_empty_/Ref.MakeLowPriorityInstances#syncInstance().2E
+"" 7_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]2E
+"-" .7_empty_/Ref.MakeLowPriorityInstances#syncInstance().(F)2
+"0" 4_empty_/Sync#2E
+"5" 67_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]2
+":" >_empty_/Ref.Make#2E
+"?" @7_empty_/Ref.MakeLowPriorityInstances#syncInstance().[F]2#
+"D" Gscala/Predef.`???`().2
+%% _empty_/Ref.of().2"
+%	% 
+_empty_/Ref.of().[F]2"
+%% _empty_/Ref.of().[A]2"
+%% _empty_/Ref.of().(a)2"
+%% _empty_/Ref.of().[A]2#
+%!% #_empty_/Ref.of().(mk)2
+%%% )_empty_/Ref.Make#2"
+%*% +_empty_/Ref.of().[F]2"
+%/% 0_empty_/Ref.of().[F]2
+%1% 4_empty_/Ref#2"
+%5% 6_empty_/Ref.of().[F]2"
+%8% 9_empty_/Ref.of().[A]2#
+%>% Ascala/Predef.`???`().2
+(( _empty_/Resource#2*
+(( _empty_/Resource#`<init>`().2"
+(( _empty_/Resource#[F]2"
+(( _empty_/Resource#[A]21
+)) #_empty_/Resource#syncForResource().24
+))  &_empty_/Resource#syncForResource().[F]25
+).) 0'_empty_/Resource#syncForResource().(F0)2
+)2) 6_empty_/Sync#24
+)7) 8&_empty_/Resource#syncForResource().[F]2
+)<) @_empty_/Sync#24
+)B) C&_empty_/Resource#syncForResource().[X]2
+)I) Q_empty_/Resource#24
+)R) S&_empty_/Resource#syncForResource().[F]24
+)U) V&_empty_/Resource#syncForResource().[X]2#
+)[) ^scala/Predef.`???`().2%
+++ 	_empty_/Resource#foo().2(
++
++ _empty_/Resource#foo().(x)2"
+++ _empty_/Resource#[F]2
+++ scala/Unit#2(
+++  _empty_/Resource#foo().(F)2"
++"+ -_empty_/Applicative#2"
++.+ /_empty_/Resource#[F]2
+,, 
+_empty_/Ref.of().2
+,, _empty_/Ref.2#
+,), )scala/Tuple2.apply().2(
+,), *_empty_/Resource#foo().(x)2(
+,,, -_empty_/Resource#foo().(x)2>
+,/, /0_empty_/Ref.MakeInstances#applicativeInstance().2(
+,/, /_empty_/Resource#foo().(F)PZ 0820CDD473A7C3F838A5C2464CC96879

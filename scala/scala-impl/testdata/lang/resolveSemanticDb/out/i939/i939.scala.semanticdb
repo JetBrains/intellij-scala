@@ -1,0 +1,17 @@
+
+ùtests/pos/i939.scala* 
+_empty_/IntMap.
+ *IntMapÄ*"
+_empty_/IntMap.Nil.
+ à*NilÄ*+
+_empty_/IntMap.Nil.equals().*equalsÄ*/
+"_empty_/IntMap.Nil.equals().(that)*thatÄ2
+ _empty_/IntMap.2!
+ _empty_/IntMap.Nil.2*
+ _empty_/IntMap.Nil.equals().20
+ "_empty_/IntMap.Nil.equals().(that)2
+ "
+scala/Any#20
+& *"_empty_/IntMap.Nil.equals().(that)2!
+! 'scala/Any#equals().20
+( ,"_empty_/IntMap.Nil.equals().(that)PZ 9A79E6282CF1B67B951919C61CAAF489

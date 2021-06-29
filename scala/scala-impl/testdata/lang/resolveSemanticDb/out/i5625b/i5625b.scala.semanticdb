@@ -1,0 +1,65 @@
+
+õtests/pos/i5625b.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.AV#*AV€*
+_empty_/Test.AV#[t]	*t€*'
+_empty_/Test.LeafElem#*LeafElem€*#
+_empty_/Test.LeafElem#[X]	*X€*
+local0 €	*t€*
+local1 €	*t€*
+local2 €	*t€2
+ _empty_/Test.2
+ 	_empty_/Test.AV#2!
+
+ _empty_/Test.AV#[t]2
+ scala/AnyVal#2!
+ _empty_/Test.AV#[t]2$
+ _empty_/Test.LeafElem#2'
+ _empty_/Test.LeafElem#[X]2'
+ _empty_/Test.LeafElem#[X]2"
+	 scala/Predef.String#2
+ scala/Char#2
+	 scala/Array#2
+ local02$
+ _empty_/Test.LeafElem#2
+ local02%
+	 scala/package.Iterable#2
+ local12$
+  _empty_/Test.LeafElem#2
+! "local12
+	 _empty_/Test.AV#2
+ local22
+ local22$
+ scala/Predef.summon().2
+ scala/`=:=`#2$
+	 _empty_/Test.LeafElem#2"
+ scala/Predef.String#2
+ "scala/Char#2!
+# #scala/`<:<`.refl().2$
+ scala/Predef.summon().2
+ !scala/`=:=`#2$
+	 _empty_/Test.LeafElem#2
+ scala/Array#2
+ 
+scala/Int#2
+" %
+scala/Int#2!
+& &scala/`<:<`.refl().2$
+ scala/Predef.summon().2
+! $scala/`=:=`#2$
+	 _empty_/Test.LeafElem#2%
+ scala/package.Iterable#2
+ 
+scala/Int#2
+% (
+scala/Int#2!
+) )scala/`<:<`.refl().2$
+ scala/Predef.summon().2
+ scala/`=:=`#2$
+	 _empty_/Test.LeafElem#2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+ scala/`<:<`.refl().PZ 8532BC9E4CBD28FF99DA320A24D861A4

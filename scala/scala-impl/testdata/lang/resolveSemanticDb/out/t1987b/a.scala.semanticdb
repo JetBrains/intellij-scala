@@ -1,0 +1,18 @@
+
+Çtests/pos/t1987b/a.scala*(
+bug/packageb/package. *packageb€*)
+bug/packageb/package.func().*func€*)
+bug/packageb/package.func().(a)*a€*+
+bug/packageb/package.func(+1).*func€*+
+!bug/packageb/package.func(+1).(a)*a€2
+ bug/2#
+ bug/packageb/package.2*
+ 
+bug/packageb/package.func().2-
+ bug/packageb/package.func().(a)2
+ 
+scala/Int#2,
+ 
+bug/packageb/package.func(+1).2/
+ !bug/packageb/package.func(+1).(a)2"
+ scala/Predef.String#PZ AA05446C8DC9BDDA033CAC21C43FE238

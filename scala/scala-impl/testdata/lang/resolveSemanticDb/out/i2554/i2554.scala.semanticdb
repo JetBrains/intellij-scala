@@ -1,0 +1,115 @@
+
+Ÿ'tests/pos/i2554.scala*
+_empty_/foo.
+ *foo€**
+_empty_/foo.ShapeLevel#*
+ShapeLevel€*4
+"_empty_/foo.ShapeLevel#`<init>`(). €@*<init>€*2
+_empty_/foo.FlatShapeLevel#*FlatShapeLevel€*8
+&_empty_/foo.FlatShapeLevel#`<init>`(). €@*<init>€*8
+_empty_/foo.ColumnsShapeLevel#*ColumnsShapeLevel€*;
+)_empty_/foo.ColumnsShapeLevel#`<init>`(). €@*<init>€*"
+_empty_/foo.Shape# *Shape€*/
+_empty_/foo.Shape#`<init>`(). €@*<init>€*'
+_empty_/foo.Shape#[Level]	*Level€**
+_empty_/foo.Shape#[Mixed]	 €*Mixed€*-
+_empty_/foo.Shape#[Unpacked]	*Unpacked€*)
+_empty_/foo.Shape#[Packed]	*Packed€*"
+_empty_/foo.Shape.
+ *Shape€*<
+ _empty_/foo.TupleShapeImplicits#*TupleShapeImplicits€*=
++_empty_/foo.TupleShapeImplicits#`<init>`(). €@*<init>€*D
+._empty_/foo.TupleShapeImplicits#tuple2Shape(). (*tuple2Shape€*C
+5_empty_/foo.TupleShapeImplicits#tuple2Shape().[Level]	*Level€*=
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M1]	*M1€*=
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M2]	*M2€*=
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U1]	*U1€*=
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U2]	*U2€*=
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P1]	*P1€*=
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P2]	*P2€*?
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().(u1)  *u1€*?
+2_empty_/foo.TupleShapeImplicits#tuple2Shape().(u2)  *u2€*
+_empty_/Test.
+ *Test€*$
+_empty_/Test.shape.  *shape€*!
+_empty_/Test.hint().*hint€*$
+_empty_/Test.hint2. €*hint2€2
+ 
+_empty_/foo.2%
+ _empty_/foo.ShapeLevel#20
+ "_empty_/foo.ShapeLevel#`<init>`().2)
+ _empty_/foo.FlatShapeLevel#24
+ &_empty_/foo.FlatShapeLevel#`<init>`().2%
+ )_empty_/foo.ShapeLevel#2,
+ _empty_/foo.ColumnsShapeLevel#27
+" ")_empty_/foo.ColumnsShapeLevel#`<init>`().2)
+" 0_empty_/foo.FlatShapeLevel#2 
+ _empty_/foo.Shape#2+
+ _empty_/foo.Shape#`<init>`().2'
+ _empty_/foo.Shape#[Level]2'
+- 2_empty_/foo.Shape#[Mixed]2*
+4 <_empty_/foo.Shape#[Unpacked]2(
+> D_empty_/foo.Shape#[Packed]2 
+	 _empty_/foo.Shape.2.
+ * _empty_/foo.TupleShapeImplicits#2.
+  _empty_/foo.TupleShapeImplicits#29
+ +_empty_/foo.TupleShapeImplicits#`<init>`().2<
+ "._empty_/foo.TupleShapeImplicits#tuple2Shape().2C
+# (5_empty_/foo.TupleShapeImplicits#tuple2Shape().[Level]2%
+, 6_empty_/foo.ShapeLevel#2@
+8 :2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M1]2@
+; =2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M2]2@
+? A2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U1]2@
+B D2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U2]2@
+F H2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P1]2@
+I K2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P2]2@
+ 2_empty_/foo.TupleShapeImplicits#tuple2Shape().(u1)2 
+ _empty_/foo.Shape#2C
+ #5_empty_/foo.TupleShapeImplicits#tuple2Shape().[Level]2@
+% '2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M1]2@
+) +2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U1]2@
+- /2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P1]2@
+2 42_empty_/foo.TupleShapeImplicits#tuple2Shape().(u2)2 
+6 ;_empty_/foo.Shape#2C
+A F5_empty_/foo.TupleShapeImplicits#tuple2Shape().[Level]2@
+H J2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M2]2@
+L N2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U2]2@
+P R2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P2]2 
+		 _empty_/foo.Shape#2C
+		 5_empty_/foo.TupleShapeImplicits#tuple2Shape().[Level]2@
+		 2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M1]2@
+		 2_empty_/foo.TupleShapeImplicits#tuple2Shape().[M2]2@
+		 !2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U1]2@
+	"	 $2_empty_/foo.TupleShapeImplicits#tuple2Shape().[U2]2@
+	(	 *2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P1]2@
+	+	 -2_empty_/foo.TupleShapeImplicits#tuple2Shape().[P2]2#
+	2	 5scala/Predef.`???`().2
+ _empty_/Test.2
+	 _empty_/foo.2!
+ _empty_/Test.shape.2 
+ _empty_/foo.Shape#2)
+! /_empty_/foo.FlatShapeLevel#2
+1 4
+scala/Int#2
+6 9
+scala/Int#2"
+ 
+_empty_/Test.hint().2<
+ ._empty_/foo.TupleShapeImplicits#tuple2Shape().2 
+ _empty_/foo.Shape.2!
+ $_empty_/Test.shape.2!
+& +_empty_/Test.shape.2!
+ _empty_/Test.hint2.2 
+ _empty_/foo.Shape#2
+ _empty_/foo.2)
+ )_empty_/foo.FlatShapeLevel#2
+ _empty_/foo.2
+, /
+scala/Int#2
+1 4
+scala/Int#2
+8 ;
+scala/Int#2
+= @
+scala/Int#2"
+H L_empty_/Test.hint().PZ 95DEDE2CBDBA8AF651A32AE849E36CD6

@@ -1,0 +1,169 @@
+
+Ç5tests/pos/t267.scala*"
+expAbstractData/Base#*Base€*2
+ expAbstractData/Base#`<init>`(). €@*<init>€*%
+expAbstractData/Base#exp#*exp€*%
+expAbstractData/Base#Exp#*Exp€*6
+$expAbstractData/Base#Exp#`<init>`(). €@*<init>€*/
+ expAbstractData/Base#Exp#eval(). *eval€*%
+expAbstractData/Base#Num#*Num€*6
+$expAbstractData/Base#Num#`<init>`(). €@*<init>€*1
+'expAbstractData/Base#Num#`<init>`().(v)*v€*
+local0*self€*(
+expAbstractData/Base#Num#v. €*v€*0
+expAbstractData/Base#Num#value. €*value€*-
+ expAbstractData/Base#Num#eval().*eval€*,
+expAbstractData/testBase.
+ *testBase€*)
+expAbstractData/testBase.exp#*exp€*.
+expAbstractData/testBase.term. €*term€**
+expAbstractData/BasePlus#*BasePlus€*6
+$expAbstractData/BasePlus#`<init>`(). €@*<init>€*+
+expAbstractData/BasePlus#Plus#*Plus€*;
+)expAbstractData/BasePlus#Plus#`<init>`(). €@*<init>€*6
+,expAbstractData/BasePlus#Plus#`<init>`().(l)*l€*6
+,expAbstractData/BasePlus#Plus#`<init>`().(r)*r€*
+local1*self€*-
+ expAbstractData/BasePlus#Plus#l. €*l€*-
+ expAbstractData/BasePlus#Plus#r. €*r€*3
+#expAbstractData/BasePlus#Plus#left. €*left€*5
+$expAbstractData/BasePlus#Plus#right. €*right€*2
+%expAbstractData/BasePlus#Plus#eval().*eval€*"
+expAbstractData/Show#*Show€*2
+ expAbstractData/Show#`<init>`(). €@*<init>€*%
+expAbstractData/Show#exp#*exp€*'
+expAbstractData/Show#Exp1#*Exp1€*7
+%expAbstractData/Show#Exp1#`<init>`(). €@*<init>€*0
+!expAbstractData/Show#Exp1#show(). *show€*'
+expAbstractData/Show#Num1#*Num1€*7
+%expAbstractData/Show#Num1#`<init>`(). €@*<init>€*2
+(expAbstractData/Show#Num1#`<init>`().(v)*v€*
+local2*self€*)
+expAbstractData/Show#Num1#v. €*v€*.
+!expAbstractData/Show#Num1#show().*show€**
+expAbstractData/ShowPlus#*ShowPlus€*6
+$expAbstractData/ShowPlus#`<init>`(). €@*<init>€*-
+expAbstractData/ShowPlus#Plus1#*Plus1€*<
+*expAbstractData/ShowPlus#Plus1#`<init>`(). €@*<init>€*7
+-expAbstractData/ShowPlus#Plus1#`<init>`().(l)*l€*7
+-expAbstractData/ShowPlus#Plus1#`<init>`().(r)*r€*
+local3*self€*.
+!expAbstractData/ShowPlus#Plus1#l. €*l€*.
+!expAbstractData/ShowPlus#Plus1#r. €*r€*3
+&expAbstractData/ShowPlus#Plus1#show().*show€2
+ expAbstractData/2#
+ 
+expAbstractData/Base#2.
+  expAbstractData/Base#`<init>`().2'
+ 
+expAbstractData/Base#exp#2'
+ expAbstractData/Base#Exp#2'
+
+
+ expAbstractData/Base#Exp#22
+ $expAbstractData/Base#Exp#`<init>`().2.
+  expAbstractData/Base#Exp#eval().2
+ 
+scala/Int#2'
+ expAbstractData/Base#Num#22
+ $expAbstractData/Base#Num#`<init>`().2
+ 
+scala/Int#2'
+ expAbstractData/Base#Exp#2
+" &local02'
+( +expAbstractData/Base#exp#2)
+ expAbstractData/Base#Num#v.2-
+ expAbstractData/Base#Num#value.2)
+ expAbstractData/Base#Num#v.2.
+  expAbstractData/Base#Num#eval().2-
+ expAbstractData/Base#Num#value.2'
+ expAbstractData/testBase.2
+ 
+scala/App#2#
+! %expAbstractData/Base#2+
+ 
+expAbstractData/testBase.exp#2'
+ expAbstractData/Base#Exp#2,
+ 
+expAbstractData/testBase.term.22
+ $expAbstractData/Base#Num#`<init>`().2'
+ expAbstractData/Base#Num#2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2.
+  expAbstractData/Base#Num#eval().2,
+ expAbstractData/testBase.term.2'
+ expAbstractData/BasePlus#22
+ $expAbstractData/BasePlus#`<init>`().2#
+ expAbstractData/Base#2,
+ expAbstractData/BasePlus#Plus#27
+ )expAbstractData/BasePlus#Plus#`<init>`().2'
+ expAbstractData/Base#exp#2'
+ expAbstractData/Base#exp#2'
+% (expAbstractData/Base#Exp#2
++ /local12'
+1 4expAbstractData/Base#exp#2.
+  expAbstractData/BasePlus#Plus#l.2.
+  expAbstractData/BasePlus#Plus#r.21
+ #expAbstractData/BasePlus#Plus#left.2.
+  expAbstractData/BasePlus#Plus#l.22
+ $expAbstractData/BasePlus#Plus#right.2.
+  expAbstractData/BasePlus#Plus#r.23
+ %expAbstractData/BasePlus#Plus#eval().2 
+ scala/Int#`+`(+4).2.
+  expAbstractData/Base#Exp#eval().21
+ #expAbstractData/BasePlus#Plus#left.2.
+! % expAbstractData/Base#Exp#eval().22
+  $expAbstractData/BasePlus#Plus#right.2#
+%% 
+expAbstractData/Show#2.
+%%  expAbstractData/Show#`<init>`().2#
+%% expAbstractData/Base#2'
+&& 
+expAbstractData/Show#exp#2(
+&& expAbstractData/Show#Exp1#2(
+(( expAbstractData/Show#Exp1#23
+(( %expAbstractData/Show#Exp1#`<init>`().2'
+(( expAbstractData/Base#Exp#2/
+)) !expAbstractData/Show#Exp1#show().2"
+)) scala/Predef.String#2(
+++ expAbstractData/Show#Num1#23
+++ %expAbstractData/Show#Num1#`<init>`().2
+++ 
+scala/Int#22
++ +  $expAbstractData/Base#Num#`<init>`().2'
+++  expAbstractData/Base#Num#2*
++!+ "expAbstractData/Show#Num1#v.2(
++)+ -expAbstractData/Show#Exp1#2
++0+ 4local22'
++6+ 9expAbstractData/Show#exp#2(
++?+ CexpAbstractData/Show#Num1#2*
+++ expAbstractData/Show#Num1#v.2/
+,, !expAbstractData/Show#Num1#show().2#
+,, scala/Any#toString().2-
+,, expAbstractData/Base#Num#value.2'
+22 expAbstractData/ShowPlus#22
+22 $expAbstractData/ShowPlus#`<init>`().2'
+22 expAbstractData/BasePlus#2#
+2%2 )expAbstractData/Show#2-
+33 expAbstractData/ShowPlus#Plus1#28
+33 *expAbstractData/ShowPlus#Plus1#`<init>`().2'
+33 expAbstractData/Show#exp#2'
+33 expAbstractData/Show#exp#27
+3*3 *)expAbstractData/BasePlus#Plus#`<init>`().2,
+3&3 *expAbstractData/BasePlus#Plus#2/
+3+3 ,!expAbstractData/ShowPlus#Plus1#l.2/
+3.3 /!expAbstractData/ShowPlus#Plus1#r.2(
+363 :expAbstractData/Show#Exp1#2
+3=3 Alocal32'
+3C3 FexpAbstractData/Show#exp#2-
+3L3 QexpAbstractData/ShowPlus#Plus1#2/
+33 !expAbstractData/ShowPlus#Plus1#l.2/
+33 !expAbstractData/ShowPlus#Plus1#r.24
+44 &expAbstractData/ShowPlus#Plus1#show().2%
+4!4 "java/lang/String#`+`().2%
+44 java/lang/String#`+`().2/
+44 !expAbstractData/Show#Exp1#show().21
+44 #expAbstractData/BasePlus#Plus#left.2/
+4)4 -!expAbstractData/Show#Exp1#show().22
+4#4 ($expAbstractData/BasePlus#Plus#right.PZ A51F8DF22AE9C2C3550FCC3F9C900B49

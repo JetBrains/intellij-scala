@@ -1,0 +1,20 @@
+
+¡tests/pos/ensuring.scala*
+_empty_/test.
+ *test€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().(x)*x€*
+local0*y€2
+ _empty_/test.2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().(x)2
+ 
+scala/Int#21
+ "#scala/Predef.Ensuring#ensuring(+2).2&
+ scala/Predef.Ensuring().2 
+ scala/Int#`+`(+4).2$
+ _empty_/test.foo().(x)2
+% &local02!
+, .scala/Int#`>=`(+3).2
+* +local0PZ 360E8241C58CDAE92572622418BF99CA

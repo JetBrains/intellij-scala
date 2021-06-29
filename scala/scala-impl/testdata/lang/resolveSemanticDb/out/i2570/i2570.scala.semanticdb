@@ -1,0 +1,207 @@
+
+ê+tests/pos/i2570.scala*
+_empty_/Test.
+ *TestÄ*%
+_empty_/Test.repeat().*repeatÄ*#
+_empty_/Test.repeat().(s)*sÄ*#
+_empty_/Test.repeat().(i)*iÄ*#
+_empty_/Test.repeat().(j)*jÄ*9
+ _empty_/Test.repeat$default$3().*repeat$default$3Ä*
+_empty_/Test.f1. Ä*f1Ä*
+_empty_/Test.f2. Ä*f2Ä*
+_empty_/Test.f3. Ä*f3Ä*
+_empty_/Test.f4. Ä*f4Ä*
+_empty_/Test.f5. Ä*f5Ä*
+_empty_/Test.f6. Ä*f6Ä*
+_empty_/Test.f7. Ä*f7Ä*
+_empty_/Test.f8. Ä*f8Ä*
+_empty_/Test.sum().*sumÄ* 
+_empty_/Test.sum().(x)*xÄ* 
+_empty_/Test.sum().(y)*yÄ*
+_empty_/Test.g1. Ä*g1Ä*
+_empty_/Test.g2. Ä*g2Ä*
+_empty_/Test.h0. Ä*h0Ä*
+local0*xÄ*
+local1*yÄ*!
+_empty_/Test.sum2().*sum2Ä*!
+_empty_/Test.sum2().(x)*xÄ*#
+_empty_/Test.sum2().(ys)*ysÄ*
+_empty_/Test.h1. Ä*h1Ä*
+local2*xÄ*
+local3*ysÄ*
+_empty_/Test.h3. Ä*h3Ä*
+local4*sÄ*
+local5*iÄ*
+local6*jÄ*
+_empty_/Test.h4. Ä*h4Ä*
+_empty_/Test.h5. Ä*h5Ä*
+local7*xÄ*
+local8*yÄ*
+_empty_/Test.h6. Ä*h6Ä*
+_empty_/Test.A#*AÄ*,
+_empty_/Test.A#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.B#*BÄ*,
+_empty_/Test.B#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.C#*CÄ*,
+_empty_/Test.C#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.b.
+ (*bÄ*
+_empty_/Test.foo().*fooÄ* 
+_empty_/Test.foo().(x)*xÄ*&
+_empty_/Test.foo().(bla)  *blaÄ*
+_empty_/Test.h7. Ä*h7Ä*
+local9*xÄ*
+_empty_/Test.h8. Ä*h8Ä2
+ _empty_/Test.2$
+ _empty_/Test.repeat().2'
+ _empty_/Test.repeat().(s)2"
+ scala/Predef.String#2'
+ _empty_/Test.repeat().(i)2
+ 
+scala/Int#2'
+  !_empty_/Test.repeat().(j)2
+# &
+scala/Int#2/
+1 2!scala/collection/StringOps#`*`().2+
+/ /scala/Predef.augmentString().2'
+/ 0_empty_/Test.repeat().(s)2'
+3 4_empty_/Test.repeat().(i)2
+ _empty_/Test.f1.2$
+ _empty_/Test.repeat().2
+ _empty_/Test.f2.2
+
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ _empty_/Test.f1.2
+ _empty_/Test.f3.2$
+ _empty_/Test.repeat().2
+ _empty_/Test.f4.2"
+
+ scala/Predef.String#2"
+ scala/Predef.String#2
+ _empty_/Test.f3.2
+ _empty_/Test.f5.2$
+ _empty_/Test.repeat().2
+		 _empty_/Test.f6.2
+		 
+scala/Int#2
+		 
+scala/Int#2"
+		 scala/Predef.String#2
+	!	 #_empty_/Test.f5.2
+
+
+ _empty_/Test.f7.2$
+
+
+ _empty_/Test.repeat().2
+ _empty_/Test.f8.2"
+ scala/Predef.String#2
+ 
+scala/Int#2"
+ !scala/Predef.String#2
+$ &_empty_/Test.f7.2!
+ 	_empty_/Test.sum().2$
+
+ _empty_/Test.sum().(x)2
+ 
+scala/Int#2$
+ _empty_/Test.sum().(y)2
+ 
+scala/Int#2 
+! "scala/Int#`+`(+4).2$
+  _empty_/Test.sum().(x)2$
+# $_empty_/Test.sum().(y)2
+ _empty_/Test.g1.2!
+ _empty_/Test.sum().2
+ _empty_/Test.g2.2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ _empty_/Test.g1.2
+ _empty_/Test.h0.2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+# &_empty_/Test.sum().2
+# #local02
+# #local12"
+ 
+_empty_/Test.sum2().2%
+ _empty_/Test.sum2().(x)2
+ 
+scala/Int#2&
+ _empty_/Test.sum2().(ys)2
+ 
+scala/Int#26
+' '(scala/collection/IterableOnceOps#`/:`().2&
+% '_empty_/Test.sum2().(ys)2%
+  !_empty_/Test.sum2().(x)2 
++ ,scala/Int#`+`(+4).2
+ _empty_/Test.h1.2
+ 
+scala/Int#2 
+ scala/package.Seq#2
+ 
+scala/Int#2
+ !
+scala/Int#2"
+% )_empty_/Test.sum2().2
+% %local22
+% %local32
+ _empty_/Test.h3.2$
+ _empty_/Test.repeat().2
+ local42
+ local52
+ local62
+ _empty_/Test.h4.2"
+ scala/Predef.String#2
+ 
+scala/Int#2
+ 
+scala/Int#2"
+! 'scala/Predef.String#2
++ -_empty_/Test.h3.2
+ _empty_/Test.h5.2!
+ _empty_/Test.sum().2
+ local72
+ local82
+ _empty_/Test.h6.2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+# %_empty_/Test.h5.2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.b.2(
+ _empty_/Test.B#`<init>`().2
+ _empty_/Test.B#2!
+!! 	_empty_/Test.foo().2$
+!
+! _empty_/Test.foo().(x)2
+!! _empty_/Test.A#2&
+!! _empty_/Test.foo().(bla)2
+!! _empty_/Test.B#2
+!"! #_empty_/Test.C#2#
+!&! )scala/Predef.`???`().2
+## _empty_/Test.h7.2!
+## _empty_/Test.foo().2
+## local92
+## _empty_/Test.b.2
+$$ _empty_/Test.h8.2
+$
+$ _empty_/Test.A#2
+$$ _empty_/Test.C#2
+$$ _empty_/Test.h7.PZ 0345A908D526422F4778247EAE107A5D

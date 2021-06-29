@@ -1,0 +1,13 @@
+
+€tests/pos/i6506.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.t. €*t€2
+ _empty_/Test.2
+ _empty_/Test.t.2
+	 scala/Tuple#2&
+  scala/Tuple.fromArray().2
+ scala/Tuple.2"
+& &scala/Array.apply().2
+! &scala/Array.2-
+5 5scala/reflect/ClassTag.apply().PZ 5D854C74881A13127B70895F88CBF25E

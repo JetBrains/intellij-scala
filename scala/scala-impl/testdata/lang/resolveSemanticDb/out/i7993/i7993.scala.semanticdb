@@ -1,0 +1,124 @@
+
+­tests/pos/i7993.scala*
+_empty_/TC#*TC€*(
+_empty_/TC#`<init>`(). €@*<init>€*
+_empty_/TC#[F]	*F€*
+_empty_/TC.
+ *TC€*!
+_empty_/TC.check().*check€* 
+_empty_/TC.check().[F]	*F€* 
+_empty_/TC.check().[A]	*A€* 
+_empty_/TC.check().(x)*x€*"
+_empty_/TC.check().(F)  *F€*
+_empty_/Foo# €*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*/
+_empty_/Foo#`<init>`().(value) €*value€*
+_empty_/Foo#[E]	 €*E€*
+_empty_/Foo#[A]	 €*A€*#
+_empty_/Foo#value. €*value€* 
+_empty_/Foo#copy().*copy€* 
+_empty_/Foo#copy().[E]	*E€* 
+_empty_/Foo#copy().[A]	*A€*(
+_empty_/Foo#copy().(value)*value€*4
+_empty_/Foo#copy$default$1().*copy$default$1€**
+ _empty_/Foo#copy$default$1().[E]	*E€**
+ _empty_/Foo#copy$default$1().[A]	*A€*
+_empty_/Foo#_1().*_1€*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.apply().*apply€*!
+_empty_/Foo.apply().[E]	*E€*!
+_empty_/Foo.apply().[A]	*A€*)
+_empty_/Foo.apply().(value)*value€*&
+_empty_/Foo.unapply().*unapply€*#
+_empty_/Foo.unapply().[E]	*E€*#
+_empty_/Foo.unapply().[A]	*A€*'
+_empty_/Foo.unapply().(x$1)*x$1€*(
+_empty_/Foo.toString().*toString€*&
+_empty_/Foo.WithList#*WithList€*%
+_empty_/Foo.WithList#[E]	 €*E€*%
+_empty_/Foo.WithList#[A]	 €*A€**
+_empty_/Foo.instance().  *instance€*$
+_empty_/Foo.instance().[E]	*E€*$
+_empty_/Foo.instance().[x]	*x€*
+local0 *$anon€*
+local1	*x€*(
+_empty_/i7993$package. *_empty_€*'
+_empty_/i7993$package.x1. €*x1€*'
+_empty_/i7993$package.x2. €*x2€**
+_empty_/i7993$package.test().*test€2
+ _empty_/TC#2 
+ _empty_/TC#`<init>`().2
+	 
+_empty_/TC#[F]2
+ 	_empty_/TC.2!
+ _empty_/TC.check().2$
+ _empty_/TC.check().[F]2$
+ _empty_/TC.check().[A]2$
+ _empty_/TC.check().(x)2$
+ _empty_/TC.check().[F]2$
+ _empty_/TC.check().[A]2$
+' (_empty_/TC.check().(F)2
+* ,_empty_/TC#2$
+- ._empty_/TC.check().[F]2
+2 6scala/Unit#2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#[A]2
+ _empty_/Foo#[E]2
+ _empty_/Foo#[A]2 
+ _empty_/Foo#value.2
+_empty_/Foo#copy().2
+ _empty_/Foo#_1().2
+ 
+_empty_/Foo.2
+_empty_/Foo.apply().2 
+_empty_/Foo.unapply().2#
+		 _empty_/Foo.WithList#2&
+		 _empty_/Foo.WithList#[E]2&
+		 _empty_/Foo.WithList#[A]2
+		 _empty_/Foo#2!
+		 "scala/package.List#2&
+	#	 $_empty_/Foo.WithList#[E]2&
+	'	 (_empty_/Foo.WithList#[A]2%
+ _empty_/Foo.instance().2(
+ _empty_/Foo.instance().[E]2
+ _empty_/TC#2(
+  !_empty_/Foo.instance().[x]2
+' *_empty_/Foo#2(
++ ,_empty_/Foo.instance().[E]2(
+. /_empty_/Foo.instance().[x]2
+ local02
+ 
+_empty_/TC#2
+ local12
+ _empty_/Foo#2(
+ _empty_/Foo.instance().[E]2 
+_empty_/i7993$package.2'
+ _empty_/i7993$package.x1.2
+ _empty_/Foo#2!
+ scala/package.List#2"
+ scala/Predef.String#2
+ 
+scala/Int#2"
+$ $_empty_/Foo.apply().2
+! $_empty_/Foo.2'
+ _empty_/i7993$package.x2.2#
+ _empty_/Foo.WithList#2
+ _empty_/Foo.2"
+ scala/Predef.String#2
+  
+scala/Int#2"
+' '_empty_/Foo.apply().2
+$ '_empty_/Foo.2+
+ _empty_/i7993$package.test().2!
+ 
+_empty_/TC.check().2
+ _empty_/TC.2'
+ _empty_/i7993$package.x1.2%
+ _empty_/Foo.instance().2!
+ 
+_empty_/TC.check().2
+ _empty_/TC.2'
+ _empty_/i7993$package.x2.2%
+ _empty_/Foo.instance().PZ 01D6B49D6340AB0832FB3FA18C6840C7

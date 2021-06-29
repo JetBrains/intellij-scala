@@ -1,0 +1,42 @@
+
+ëtests/pos/eta.scala*
+_empty_/test.
+ *test€*
+_empty_/test.sum().*sum€* 
+_empty_/test.sum().(f)*f€* 
+_empty_/test.sum().(x)*x€* 
+_empty_/test.sum().(y)*y€*
+_empty_/test.g().*g€*
+local0*f€*
+local1*x€*
+local2*y€2
+ _empty_/test.2!
+ _empty_/test.sum().2$
+ 	_empty_/test.sum().(f)2
+ 
+scala/Int#2
+ 
+scala/Int#2$
+ _empty_/test.sum().(x)2
+ 
+scala/Int#2$
+  _empty_/test.sum().(y)2
+" %
+scala/Int#2
+( +
+scala/Int#2
+ _empty_/test.g().2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  
+scala/Int#2
+% (
+scala/Int#2!
++ ._empty_/test.sum().2
++ +local02
++ +local12
++ +local2PZ 53710AA2EA8CF4EE01C1DD1111ED7D54

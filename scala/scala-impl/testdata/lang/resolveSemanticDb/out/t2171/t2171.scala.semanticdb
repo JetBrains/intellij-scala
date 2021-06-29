@@ -1,0 +1,23 @@
+
+¯tests/pos/t2171.scala*
+_empty_/test.
+ *test€*?
+#_empty_/test.logIgnoredException().*logIgnoredException€*4
+(_empty_/test.logIgnoredException().(msg)*msg€*
+local0 €*ex€*!
+_empty_/test.main().*main€*'
+_empty_/test.main().(args)*args€2
+ _empty_/test.21
+ #_empty_/test.logIgnoredException().26
+ (_empty_/test.logIgnoredException().(msg)2"
+" (scala/Predef.String#2
+ local02'
+ $scala/Predef.println(+1).26
+% ((_empty_/test.logIgnoredException().(msg)2"
+ 
+_empty_/test.main().2(
+ _empty_/test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+" &scala/Unit#21
+ $#_empty_/test.logIgnoredException().PZ 81A75D6656B1970B1BD1B329A97C53BA

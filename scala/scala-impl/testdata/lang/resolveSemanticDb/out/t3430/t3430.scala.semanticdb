@@ -1,0 +1,25 @@
+
+ßtests/pos/t3430.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.f1().*f1€*
+_empty_/A.f1().(f)*f€*
+_empty_/A.f2().*f2€*
+local0*s1€*
+local1*s2€2
+ 
+_empty_/A.2
+ _empty_/A.f1().2 
+	 
+_empty_/A.f1().(f)2"
+ scala/Predef.String#2
+ scala/Boolean#2&
+" "scala/Function1#apply().2 
+! "_empty_/A.f1().(f)2
+ _empty_/A.f2().2
+ scala/Boolean#2
+ _empty_/A.f1().2
+	 local02
+ _empty_/A.f1().2
+ local1PZ EEC9434482DF0CBF5FF227FA8F7DEFCB

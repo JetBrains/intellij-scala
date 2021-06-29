@@ -1,0 +1,14 @@
+
+Œ#tests/pos/bcode_throw_null/TN.scala*
+_empty_/TN.
+ *TN€*
+_empty_/TN.pre1().*pre1€*
+_empty_/TN.pre1().(b)*b€2
+ 	_empty_/TN.2 
+ 
+_empty_/TN.pre1().2#
+ _empty_/TN.pre1().(b)2
+ scala/Boolean#2
+ scala/Unit#2'
+ scala/Predef.println(+1).2#
+ _empty_/TN.pre1().(b)PZ 379F3895FF5D5A4163F899A09E7B8313

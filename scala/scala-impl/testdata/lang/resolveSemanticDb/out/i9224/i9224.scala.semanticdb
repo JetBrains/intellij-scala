@@ -1,0 +1,22 @@
+
+÷tests/pos/i9224.scala*
+_empty_/foo.
+ *foo€* 
+_empty_/foo.test().*test€*(
+_empty_/i9224$package. *_empty_€*(
+_empty_/i9224$package.bar().*bar€*)
+_empty_/i9224$package.bar().(x)*x€*
+local0 €*m€2
+ 
+_empty_/foo.2
+ _empty_/foo.test().2 
+_empty_/i9224$package.2*
+ _empty_/i9224$package.bar().2-
+ 	_empty_/i9224$package.bar().(x)2
+ 
+scala/Any#2-
+ _empty_/i9224$package.bar().(x)2
+! "local02
+$ '_empty_/foo.2!
+2 6_empty_/foo.test().2
+0 1local0PZ 2B1D7097154BB609CF7A8099605C69A4

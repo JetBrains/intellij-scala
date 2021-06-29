@@ -1,0 +1,36 @@
+
+ƒ
+tests/pos/t419.scala*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*"
+_empty_/Bar#Config#*Config€*0
+_empty_/Bar#Config#`<init>`(). €@*<init>€*'
+_empty_/Bar#config(). „*config€*-
+_empty_/Bar#`config_=`(). €*config_=€**
+_empty_/Bar#`config_=`().(x$1)*x$1€*
+_empty_/Foo.
+ *Foo€*(
+_empty_/Foo.FooConfig#*	FooConfig€*3
+!_empty_/Foo.FooConfig#`<init>`(). €@*<init>€*'
+_empty_/Foo.config(). €*config€*-
+_empty_/Foo.`config_=`(). €*config_=€**
+_empty_/Foo.`config_=`().(x$1)*x$1€2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2!
+ _empty_/Bar#Config#2,
+ _empty_/Bar#Config#`<init>`().2#
+ _empty_/Bar#config().2!
+ _empty_/Bar#Config#2'
+ _empty_/Bar#`config_=`().2
+ 
+_empty_/Foo.2
+ _empty_/Bar#2$
+ _empty_/Foo.FooConfig#2/
+ !_empty_/Foo.FooConfig#`<init>`().2,
+   _empty_/Bar#Config#`<init>`().2!
+  _empty_/Bar#Config#2#
+ _empty_/Foo.config().2!
+ _empty_/Bar#Config#2/
+$ $!_empty_/Foo.FooConfig#`<init>`().2$
+ $_empty_/Foo.FooConfig#2'
+ _empty_/Foo.`config_=`().PZ DC1753FAE37F15859E02841360EBD154

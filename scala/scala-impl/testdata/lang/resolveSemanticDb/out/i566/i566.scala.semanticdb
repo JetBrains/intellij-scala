@@ -1,0 +1,17 @@
+
+útests/pos/i566.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#T#*T€*
+_empty_/Test#U#*U€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#T#2"
+ scala/Predef.String#2
+ _empty_/Test#U#2/
+
+ !scala/reflect/package.classTag().2
+ 	scala/reflect/2
+ _empty_/Test#T#2-
+ scala/reflect/ClassTag.apply().PZ C95452CDFBC321627FF46A399C32636E

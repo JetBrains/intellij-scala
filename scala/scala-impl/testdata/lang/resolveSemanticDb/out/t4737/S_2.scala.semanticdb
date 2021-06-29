@@ -1,0 +1,20 @@
+
+³tests/pos/t4737/S_2.scala*&
+s/ScalaSubClass#*ScalaSubClass€*-
+s/ScalaSubClass#`<init>`(). €@*<init>€*(
+s/ScalaSubClass#method().*method€*@
+)s/ScalaSubClass#method().(javaInnerClass)*javaInnerClass€2
+ 	s/2
+	 j/J_1.2
+	 j/J_1#2
+ j/2
+ s/ScalaSubClass#2)
+ s/ScalaSubClass#`<init>`().2
+ j/J_1#`<init>`().2
+ j/J_1#2'
+ s/ScalaSubClass#method().27
+ $)s/ScalaSubClass#method().(javaInnerClass)2#
+* 8j/J_1#JavaInnerClass#2
+& )j/J_1#2
+; ?scala/Unit#2'
+ scala/Predef.println(+1).PZ ECDC9A73AFCAC9B974A9AF2484F89D9E

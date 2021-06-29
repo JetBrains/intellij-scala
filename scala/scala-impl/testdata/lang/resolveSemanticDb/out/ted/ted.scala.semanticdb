@@ -1,0 +1,49 @@
+
+ˆtests/pos/ted.scala*
+_empty_/App.
+ *App€*0
+_empty_/App.exponentiate().*exponentiate€*.
+!_empty_/App.exponentiate().(base)*base€*6
+%_empty_/App.exponentiate().(exponent)*exponent€*
+local0 €*b€*
+local1 €*b€*
+local2 €*b€*
+local3 €*e€* 
+_empty_/App.main().*main€*&
+_empty_/App.main().(args)*args€2
+ 
+_empty_/App.2)
+ _empty_/App.exponentiate().2/
+ !_empty_/App.exponentiate().(base)2
+  scala/Double#23
+" *%_empty_/App.exponentiate().(exponent)2
+- 3scala/Double#2
+7 =scala/Double#2#
+ scala/Tuple2.apply().2/
+ !_empty_/App.exponentiate().(base)23
+ %_empty_/App.exponentiate().(exponent)2%
+ scala/Tuple2.unapply().2%
+ scala/Tuple2.unapply().2
+ local02%
+ scala/Tuple2.unapply().2
+ local12
+ local12%
+ scala/Tuple2.unapply().2
+ local22
+ local32#
+ scala/Double#`*`(+6).2
+ local22)
+ '_empty_/App.exponentiate().2
+( )local22#
+- .scala/Double#`-`(+3).2
++ ,local32!
+ 
+_empty_/App.main().2'
+ _empty_/App.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2.
+  java/io/PrintStream#println(+6).2#
+ java/lang/System#out.2
+ 
+java/lang/System#2)
+ #_empty_/App.exponentiate().PZ E41258722BBBB5A014A3E00C271187B4

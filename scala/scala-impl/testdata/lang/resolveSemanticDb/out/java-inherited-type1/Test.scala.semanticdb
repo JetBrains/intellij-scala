@@ -1,0 +1,36 @@
+
+Ð)tests/pos/java-inherited-type1/Test.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.j. €*j€*(
+_empty_/Test.message. €*message€*(
+_empty_/Test.builder. €*builder€2
+ _empty_/Test.2
+ _empty_/Test.j.2%
+ _empty_/J#`<init>`(+1).2
+ 
+_empty_/J#2 
+ 	_empty_/J#ident().2
+ _empty_/Test.j.2!
+ 
+_empty_/J#ident1().2
+ _empty_/Test.j.2!
+ 
+_empty_/J#select().2
+ _empty_/Test.j.2"
+ _empty_/J#select1().2
+ _empty_/Test.j.2#
+ _empty_/Test.message.2"
+ _empty_/TestMessage#2#
+		 _empty_/Test.builder.2*
+		 !_empty_/TestMessage#Builder#2"
+		 _empty_/TestMessage#2.
+	,	 5 _empty_/TestMessage#toBuilder().2#
+	$	 +_empty_/Test.message.24
+
+
+
+ &_empty_/TestMessage#Builder#setName().2#
+
+
+ 	_empty_/Test.builder.PZ C65765CAD1089BCF3AEEAEA947238E70

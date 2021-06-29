@@ -1,0 +1,33 @@
+
+ötests/pos/t2545.scala*
+_empty_/Frog#*Frog€**
+_empty_/Frog#`<init>`(). €@*<init>€*
+_empty_/Frog#[T]	*T€*%
+_empty_/Frog#hello(). *hello€*#
+_empty_/Frog#size(). *size€*,
+_empty_/OnlyWithFrogs#*OnlyWithFrogs€*3
+!_empty_/OnlyWithFrogs#`<init>`(). €@*<init>€*
+local0*self€*0
+ _empty_/OnlyWithFrogs#sizeStr().*sizeStr€2
+ 
+_empty_/Frog#2"
+
+ 
+_empty_/Frog#`<init>`().2
+ _empty_/Frog#[T]2#
+
+ _empty_/Frog#hello().2
+ _empty_/Frog#[T]2"
+
+ _empty_/Frog#size().2
+ 
+scala/Int#2$
+
+ _empty_/OnlyWithFrogs#2/
+ !_empty_/OnlyWithFrogs#`<init>`().2
+ 
+local02
+ _empty_/Frog#2.
+  _empty_/OnlyWithFrogs#sizeStr().2#
+ #scala/Any#toString().2"
+ _empty_/Frog#size().PZ 928DE442725380374D8A505FFE25C3D1

@@ -1,0 +1,125 @@
+
+“%tests/pos/t5120.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*)
+_empty_/Test#ScopedKey#*	ScopedKey€*4
+"_empty_/Test#ScopedKey#`<init>`(). €@*<init>€*$
+_empty_/Test#ScopedKey#[T]	*T€*!
+_empty_/Test#Value#*Value€*0
+_empty_/Test#Value#`<init>`(). €@*<init>€* 
+_empty_/Test#Value#[T]	*T€*'
+_empty_/Test#Compiled#*Compiled€*3
+!_empty_/Test#Compiled#`<init>`(). €@*<init>€*?
++_empty_/Test#Compiled#`<init>`().(settings) €*settings€*#
+_empty_/Test#Compiled#[T]	*T€*3
+_empty_/Test#Compiled#settings. €*settings€*&
+_empty_/Test#Tuple2# €*Tuple2€*1
+_empty_/Test#Tuple2#`<init>`(). €@*<init>€*/
+"_empty_/Test#Tuple2#`<init>`().(k) €*k€*/
+"_empty_/Test#Tuple2#`<init>`().(v) €*v€*!
+_empty_/Test#Tuple2#[T]	*T€*#
+_empty_/Test#Tuple2#k. €*k€*#
+_empty_/Test#Tuple2#v. €*v€*(
+_empty_/Test#Tuple2#copy().*copy€*(
+_empty_/Test#Tuple2#copy().[T]	*T€*(
+_empty_/Test#Tuple2#copy().(k)*k€*(
+_empty_/Test#Tuple2#copy().(v)*v€*<
+%_empty_/Test#Tuple2#copy$default$1().*copy$default$1€*2
+(_empty_/Test#Tuple2#copy$default$1().[T]	*T€*<
+%_empty_/Test#Tuple2#copy$default$2().*copy$default$2€*2
+(_empty_/Test#Tuple2#copy$default$2().[T]	*T€*$
+_empty_/Test#Tuple2#_1().*_1€*$
+_empty_/Test#Tuple2#_2().*_2€*%
+_empty_/Test#Tuple2.
+ *Tuple2€**
+_empty_/Test#Tuple2.apply().*apply€*)
+_empty_/Test#Tuple2.apply().[T]	*T€*)
+_empty_/Test#Tuple2.apply().(k)*k€*)
+_empty_/Test#Tuple2.apply().(v)*v€*.
+_empty_/Test#Tuple2.unapply().*unapply€*+
+!_empty_/Test#Tuple2.unapply().[T]	*T€*/
+#_empty_/Test#Tuple2.unapply().(x$1)*x$1€*0
+_empty_/Test#Tuple2.toString().*toString€*+
+_empty_/Test#transform().*	transform€*&
+_empty_/Test#transform().[T]	*T€*&
+_empty_/Test#transform().(x)*x€*!
+_empty_/Test#test().*test€*?
+&_empty_/Test#test().(compiledSettings)*compiledSettings€*
+local0*cs€*
+local1*s€*
+local2 €*t€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().[T]	*T€* 
+_empty_/Test#foo().(x)*x€* 
+_empty_/Test#foo().(v)*v€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2%
+ _empty_/Test#ScopedKey#20
+ "_empty_/Test#ScopedKey#`<init>`().2(
+ _empty_/Test#ScopedKey#[T]2!
+ _empty_/Test#Value#2,
+ _empty_/Test#Value#`<init>`().2$
+ _empty_/Test#Value#[T]2$
+ _empty_/Test#Compiled#2/
+ !_empty_/Test#Compiled#`<init>`().2 
+" %scala/package.Seq#2"
+& ,_empty_/Test#Tuple2#2'
+- ._empty_/Test#Compiled#[T]2'
+ _empty_/Test#Compiled#[T]2-
+  _empty_/Test#Compiled#settings.2"
+		 _empty_/Test#Tuple2#2-
+		 _empty_/Test#Tuple2#`<init>`().2%
+		 #_empty_/Test#ScopedKey#2%
+	$	 %_empty_/Test#Tuple2#[T]2%
+	+	 4_empty_/Test#ScopedKey#2%
+	5	 6_empty_/Test#Tuple2#[T]2%
+		 _empty_/Test#Tuple2#[T]2$
+		 _empty_/Test#Tuple2#k.2$
+	(	 )_empty_/Test#Tuple2#v.2)
+		 _empty_/Test#Tuple2#copy().2'
+		 _empty_/Test#Tuple2#_1().2'
+	+	 +_empty_/Test#Tuple2#_2().2"
+		 _empty_/Test#Tuple2.2*
+		 _empty_/Test#Tuple2.apply().2,
+		 _empty_/Test#Tuple2.unapply().2'
+ _empty_/Test#transform().2*
+ _empty_/Test#transform().[T]2*
+ _empty_/Test#transform().(x)2*
+ _empty_/Test#transform().[T]2*
+ _empty_/Test#transform().(x)2"
+ 
+_empty_/Test#test().24
+ &_empty_/Test#test().(compiledSettings)2 
+  scala/package.Seq#2$
+! )_empty_/Test#Compiled#25
+ 'scala/collection/IterableOps#flatMap().24
+ &_empty_/Test#test().(compiledSettings)2
+ !local021
+ #scala/collection/IterableOps#map().2-
+
+ _empty_/Test#Compiled#settings.2
+ 	local02
+ local12
+ local22'
+ _empty_/Test#transform().2$
+ _empty_/Test#Tuple2#v.2
+ local12!
+ _empty_/Test#foo().2$
+ _empty_/Test#Tuple2#k.2
+ local12
+ local22
+ 	local22 
+
+ scala/package.Seq#2%
+ _empty_/Test#ScopedKey#2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().[T]2$
+ _empty_/Test#foo().(x)2%
+ _empty_/Test#ScopedKey#2$
+ _empty_/Test#foo().[T]2$
+ _empty_/Test#foo().(v)2%
+! *_empty_/Test#ScopedKey#2$
++ ,_empty_/Test#foo().[T]2
+0 4scala/Unit#PZ 9636D5F5FD98C08E39FCBA2EDF52864D

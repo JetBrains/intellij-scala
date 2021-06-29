@@ -1,0 +1,131 @@
+
+Ítests/pos/spec-sealed.scala* 
+_empty_/MyList# *MyList€*,
+_empty_/MyList#`<init>`(). €@*<init>€*
+_empty_/MyList#[A]	 €*A€*%
+_empty_/MyList#head(). *head€*%
+_empty_/MyList#tail(). *tail€*!
+_empty_/MyList#`::`().*::€*#
+_empty_/MyList#`::`().[B]	*B€*#
+_empty_/MyList#`::`().(x)*x€*
+_empty_/MyNil.
+ ˆ*MyNil€*"
+_empty_/MyNil.head().*head€*"
+_empty_/MyNil.tail().*tail€*
+_empty_/Cons# €*Cons€**
+_empty_/Cons#`<init>`(). €@*<init>€*'
+_empty_/Cons#`<init>`().(hd)*hd€**
+_empty_/Cons#`<init>`().(tl) €*tl€*
+_empty_/Cons#[a]	*a€*
+_empty_/Cons#hd. €*hd€*
+_empty_/Cons#tl. €*tl€*!
+_empty_/Cons#head().*head€*!
+_empty_/Cons#tail().*tail€*!
+_empty_/Cons#copy().*copy€*!
+_empty_/Cons#copy().[a]	*a€*#
+_empty_/Cons#copy().(hd)*hd€*#
+_empty_/Cons#copy().(tl)*tl€*5
+_empty_/Cons#copy$default$1().*copy$default$1€*+
+!_empty_/Cons#copy$default$1().[a]	*a€*5
+_empty_/Cons#copy$default$2().*copy$default$2€*+
+!_empty_/Cons#copy$default$2().[a]	*a€*
+_empty_/Cons#_1().*_1€*
+_empty_/Cons#_2().*_2€*
+_empty_/Cons.
+ *Cons€*#
+_empty_/Cons.apply().*apply€*"
+_empty_/Cons.apply().[a]	*a€*$
+_empty_/Cons.apply().(hd)*hd€*$
+_empty_/Cons.apply().(tl)*tl€*'
+_empty_/Cons.unapply().*unapply€*$
+_empty_/Cons.unapply().[a]	*a€*(
+_empty_/Cons.unapply().(x$1)*x$1€*)
+_empty_/Cons.toString().*toString€*"
+_empty_/IntList# *IntList€*-
+_empty_/IntList#`<init>`(). €@*<init>€*
+_empty_/Main.
+ *Main€*
+_empty_/Main.xs. €*xs€2
+ _empty_/MyList#2$
+ _empty_/MyList#`<init>`().2
+ )scala/specialized#2
++ ,_empty_/MyList#[A]2$
+ 
+_empty_/MyList#head().2 
+ _empty_/MyList#[A]2$
+ 
+_empty_/MyList#tail().2
+ _empty_/MyList#2 
+ _empty_/MyList#[A]2$
+ _empty_/MyList#`::`().2 
+
+ scala/specialized#2'
+ _empty_/MyList#`::`().[B]2 
+ _empty_/MyList#[A]2'
+ _empty_/MyList#`::`().(x)2'
+! "_empty_/MyList#`::`().[B]2
+% +_empty_/MyList#2'
+, -_empty_/MyList#`::`().[B]2&
+ _empty_/Cons#`<init>`().2
+ _empty_/Cons#2'
+ _empty_/MyList#`::`().[B]2'
+ _empty_/MyList#`::`().(x)2
+ _empty_/MyNil.2(
+) )_empty_/MyList#`<init>`().2
+  _empty_/MyList#2
+! (scala/Nothing#2#
+		 
+_empty_/MyNil.head().2(
+		 scala/sys/package.error().2
+		 
+scala/sys/2#
+
+
+ 
+_empty_/MyNil.tail().2(
+
+
+ scala/sys/package.error().2
+
+
+ 
+scala/sys/2
+ _empty_/Cons#2&
+ _empty_/Cons#`<init>`().2
+0 1_empty_/Cons#[a]2
+7 =_empty_/MyList#2
+> ?_empty_/Cons#[a]2(
+S S_empty_/MyList#`<init>`().2
+J P_empty_/MyList#2
+Q R_empty_/Cons#[a]2 
+ scala/specialized#2
+ _empty_/Cons#[a]2
+, ._empty_/Cons#hd.2
+3 5_empty_/Cons#tl.2"
+ 
+_empty_/Cons#head().2
+ _empty_/Cons#hd.2"
+ 
+_empty_/Cons#tail().2
+ _empty_/Cons#tl.2
+_empty_/Cons#copy().2 
+0 0_empty_/Cons#_1().2 
+7 7_empty_/Cons#_2().2
+ _empty_/Cons.2
+_empty_/Cons.apply().2!
+_empty_/Cons.unapply().2
+ _empty_/IntList#2)
+ _empty_/IntList#`<init>`().2(
+* *_empty_/MyList#`<init>`().2
+ %_empty_/MyList#2
+& )
+scala/Int#2
+ _empty_/Main.2
+ 
+scala/App#2
+ _empty_/Main.xs.2$
+ _empty_/MyList#`::`().2
+ _empty_/MyNil.2'
+ 	scala/Predef.println(+1).2
+
+ _empty_/Main.xs.PZ F09447EF4FCDF9EB71BEFCE61FEBC3AE

@@ -1,0 +1,57 @@
+
+ïtests/pos/givenFallback.scala*
+_empty_/TC#*TC€*(
+_empty_/TC#`<init>`(). €@*<init>€*
+_empty_/TC#[T]	*T€*
+_empty_/TC#x(). *x€*
+_empty_/TC#y().*y€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.z. €*z€*0
+_empty_/givenFallback$package. *_empty_€*<
+)_empty_/givenFallback$package.given_TC_T#*
+given_TC_T€*F
+4_empty_/givenFallback$package.given_TC_T#`<init>`(). €@*<init>€*6
+,_empty_/givenFallback$package.given_TC_T#[T]	*T€*8
++_empty_/givenFallback$package.given_TC_T#x. €*x€*@
++_empty_/givenFallback$package.given_TC_T(). (*
+given_TC_T€*8
+._empty_/givenFallback$package.given_TC_T().[T]	*T€*B
++_empty_/givenFallback$package.given_TC_Int.
+ (*given_TC_Int€*:
+-_empty_/givenFallback$package.given_TC_Int.x. €*x€*:
+-_empty_/givenFallback$package.given_TC_Int.y. €*y€2
+ _empty_/TC#2 
+ _empty_/TC#`<init>`().2
+	 
+_empty_/TC#[T]2
+ _empty_/TC#x().2
+ 
+scala/Int#2
+ _empty_/TC#y().2
+! $
+scala/Int#2
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.z.2;
+ -_empty_/givenFallback$package.given_TC_Int.x.2$
+ scala/Predef.summon().2
+ _empty_/TC#2
+ 
+scala/Int#29
+ +_empty_/givenFallback$package.given_TC_Int.2(
+_empty_/givenFallback$package.27
+ )_empty_/givenFallback$package.given_TC_T#2B
+ 4_empty_/givenFallback$package.given_TC_T#`<init>`().2
+ _empty_/TC#2:
+ ,_empty_/givenFallback$package.given_TC_T#[T]2:
+ ,_empty_/givenFallback$package.given_TC_T#[T]29
+ +_empty_/givenFallback$package.given_TC_T#x.29
+ +_empty_/givenFallback$package.given_TC_T().29
+ +_empty_/givenFallback$package.given_TC_Int.2
+ _empty_/TC#2
+	 
+scala/Int#2;
+ -_empty_/givenFallback$package.given_TC_Int.x.2;
+ -_empty_/givenFallback$package.given_TC_Int.y.PZ 9D20CE96397922F5B4F7ED72A6432442

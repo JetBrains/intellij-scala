@@ -1,0 +1,80 @@
+
+ètests/pos/tailcall/t6891.scala*
+_empty_/O6891.
+ *O6891€* 
+_empty_/O6891.Foo# *Foo€*/
+_empty_/O6891.Foo#`<init>`(). €@*<init>€*5
+$_empty_/O6891.Foo#`<init>`().(value) €*value€*
+_empty_/O6891.Foo#[A]	*A€*)
+_empty_/O6891.Foo#value. €*value€*(
+_empty_/O6891.Foo#bippy().*bippy€*
+local0*loop€*
+local1*x€*(
+_empty_/O6891.Foo#boppy().*boppy€*
+local2*loop€*
+local3*x€*(
+_empty_/O6891.Foo#beppy().*beppy€*'
+_empty_/O6891.Foo#beppy().[C]	*C€*'
+_empty_/O6891.Foo#beppy().(c)*c€*
+local4*loop€*
+local5*x€* 
+_empty_/O6891.Foo.
+ *Foo€*"
+_empty_/O6891.Foo(). (*Foo€*!
+_empty_/O6891.Foo().[A]	*A€*)
+_empty_/O6891.Foo().(value)*value€2#
+ scala/annotation/tailrec#2
+ scala/annotation/2
+ _empty_/O6891.2 
+ _empty_/O6891.Foo#2+
+ _empty_/O6891.Foo#`<init>`().2"
+# )scala/Predef.String#2&
+9 9scala/AnyVal#`<init>`().2
+3 9scala/AnyVal#2#
+ _empty_/O6891.Foo#[A]2&
+ !_empty_/O6891.Foo#value.2(
+ _empty_/O6891.Foo#bippy().2'
+ scala/annotation/tailrec#2
+ local02
+ local12#
+ _empty_/O6891.Foo#[A]2
+ #scala/Unit#2
+& *local02
++ ,local12(
+		 _empty_/O6891.Foo#boppy().2'
+
+
+ scala/annotation/tailrec#2
+
+
+ local22
+
+
+ local32&
+
+
+  _empty_/O6891.Foo#value.2
+
+(
+ ,scala/Unit#2
+
+/
+ 3local22
+
+4
+ 5local32(
+ _empty_/O6891.Foo#beppy().2+
+ _empty_/O6891.Foo#beppy().[C]2+
+ _empty_/O6891.Foo#beppy().(c)2+
+ _empty_/O6891.Foo#beppy().[C]2+
+ _empty_/O6891.Foo#beppy().(c)2'
+ scala/annotation/tailrec#2
+ local42
+ local52&
+  _empty_/O6891.Foo#value.2
+( ,scala/Unit#2
+/ 3local42
+4 5local52+
+ _empty_/O6891.Foo#beppy().(c)2 
+ _empty_/O6891.Foo.2"
+ _empty_/O6891.Foo().PZ 1ED81F1E62DFCCE678D5D47D87D6B48F

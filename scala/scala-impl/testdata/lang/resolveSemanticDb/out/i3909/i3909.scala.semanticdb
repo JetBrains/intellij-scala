@@ -1,0 +1,25 @@
+
+¹tests/pos/i3909.scala*
+_empty_/`~`#*~€*)
+_empty_/`~`#`<init>`(). €@*<init>€*$
+_empty_/`~`#`<init>`().(x)*x€*
+_empty_/`~`#x. €*x€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.`~`().*~€* 
+_empty_/Test.`~`().(x)*x€2
+ _empty_/`~`#2!
+ _empty_/`~`#`<init>`().2
+ 
+scala/Int#2
+ 	_empty_/`~`#x.2
+ _empty_/Test.2%
+ _empty_/`~`#`<init>`().2
+ _empty_/`~`#2%
+	 	_empty_/`~`#`<init>`().2
+ 	_empty_/`~`#2!
+ _empty_/Test.`~`().2$
+ 	_empty_/Test.`~`().(x)2
+ 
+scala/Int#2$
+ scala/Int#`unary_~`().PZ B72DEEFE8A191F2517B10DF8E49DD9BA

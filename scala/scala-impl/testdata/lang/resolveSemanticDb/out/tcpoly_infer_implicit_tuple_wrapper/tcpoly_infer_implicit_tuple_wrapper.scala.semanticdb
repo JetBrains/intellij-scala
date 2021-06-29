@@ -1,0 +1,72 @@
+
+ã3tests/pos/tcpoly_infer_implicit_tuple_wrapper.scala*(
+_empty_/IterableOps#*IterableOps€*1
+_empty_/IterableOps#`<init>`(). €@*<init>€*4
+&_empty_/IterableOps#`<init>`().(tuple)*tuple€*#
+_empty_/IterableOps#[CC]	*CC€*#
+_empty_/IterableOps#[A1]	*A1€*#
+_empty_/IterableOps#[A2]	*A2€*+
+_empty_/IterableOps#tuple. €*tuple€**
+_empty_/IterableOps#unzip().*unzip€*
+_empty_/Test.
+ *Test€*G
+&_empty_/Test.tupleOfIterableWrapper().  *tupleOfIterableWrapper€*5
+*_empty_/Test.tupleOfIterableWrapper().[CC]	*CC€*5
+*_empty_/Test.tupleOfIterableWrapper().[A1]	*A1€*5
+*_empty_/Test.tupleOfIterableWrapper().[A2]	*A2€*;
+-_empty_/Test.tupleOfIterableWrapper().(tuple)*tuple€*
+_empty_/Test.t. €*t€2$
+  scala/collection/Iterable.2$
+  scala/collection/Iterable#2
+ scala/collection/2
+ scala/2"
+ _empty_/IterableOps#2-
+ _empty_/IterableOps#`<init>`().2&
+9 ;_empty_/IterableOps#[CC]2&
+< >_empty_/IterableOps#[A1]2(
+A Iscala/collection/Iterable#2&
+J L_empty_/IterableOps#[A2]2&
+ _empty_/IterableOps#[CC]2&
+) +_empty_/IterableOps#[A1]2&
+- /_empty_/IterableOps#[A2]2(
+1 6_empty_/IterableOps#tuple.2*
+ _empty_/IterableOps#unzip().2&
+ _empty_/IterableOps#[CC]2&
+ _empty_/IterableOps#[A1]2&
+ _empty_/IterableOps#[CC]2&
+ _empty_/IterableOps#[A2]2(
+$ )scala/sys/package.error().2
+  #
+scala/sys/2
+ _empty_/Test.24
+ %&_empty_/Test.tupleOfIterableWrapper().28
+& (*_empty_/Test.tupleOfIterableWrapper().[CC]28
+= ?*_empty_/Test.tupleOfIterableWrapper().[A1]28
+A C*_empty_/Test.tupleOfIterableWrapper().[A2]2;
+E J-_empty_/Test.tupleOfIterableWrapper().(tuple)28
+M O*_empty_/Test.tupleOfIterableWrapper().[CC]28
+P R*_empty_/Test.tupleOfIterableWrapper().[A1]2(
+U ]scala/collection/Iterable#28
+^ `*_empty_/Test.tupleOfIterableWrapper().[A2]2"
+e p_empty_/IterableOps#28
+q s*_empty_/Test.tupleOfIterableWrapper().[CC]28
+u w*_empty_/Test.tupleOfIterableWrapper().[A1]28
+y {*_empty_/Test.tupleOfIterableWrapper().[A2]2-
+	#	 #_empty_/IterableOps#`<init>`().2"
+		 _empty_/IterableOps#28
+		 *_empty_/Test.tupleOfIterableWrapper().[CC]28
+		 *_empty_/Test.tupleOfIterableWrapper().[A1]28
+	 	 "*_empty_/Test.tupleOfIterableWrapper().[A2]2;
+	$	 )-_empty_/Test.tupleOfIterableWrapper().(tuple)2
+ _empty_/Test.t.2#
+ scala/Tuple2.apply().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2*
+ !_empty_/IterableOps#unzip().24
+ &_empty_/Test.tupleOfIterableWrapper().2
+ _empty_/Test.t.2*
+ 	_empty_/IterableOps#unzip().24
+ &_empty_/Test.tupleOfIterableWrapper().2
+ _empty_/Test.t.PZ 4B614A86CF5A22AC7958D0961835F83D

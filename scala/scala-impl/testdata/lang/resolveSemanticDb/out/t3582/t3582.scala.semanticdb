@@ -1,0 +1,30 @@
+
+Àtests/pos/t3582.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[A]	*A€*
+_empty_/Test.
+ *Test€*7
+_empty_/Test.ImplicitParamCA().*ImplicitParamCA€*.
+#_empty_/Test.ImplicitParamCA().[CC]	*CC€*,
+"_empty_/Test.ImplicitParamCA().[A]	*A€*0
+#_empty_/Test.ImplicitParamCA().(ev)  *ev€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[A]2
+ _empty_/Test.2-
+ _empty_/Test.ImplicitParamCA().21
+ #_empty_/Test.ImplicitParamCA().[CC]20
+ "_empty_/Test.ImplicitParamCA().[A]21
+) +#_empty_/Test.ImplicitParamCA().(ev)2
+- .
+_empty_/C#20
+/ 0"_empty_/Test.ImplicitParamCA().[A]2
+4 8scala/Unit#2(
+< Fscala/Predef.implicitly().2
+G H
+_empty_/C#20
+I J"_empty_/Test.ImplicitParamCA().[A]21
+L L#_empty_/Test.ImplicitParamCA().(ev)PZ 3C647135E6A870CF7E80AB7D8B28E4ED

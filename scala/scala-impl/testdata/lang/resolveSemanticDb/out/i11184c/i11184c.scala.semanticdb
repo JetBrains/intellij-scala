@@ -1,0 +1,21 @@
+
+°tests/pos/i11184c.scala*
+_empty_/Foo.
+ *Foo€*$
+_empty_/Foo.isTrue().*isTrue€**
+_empty_/i11184c$package. *_empty_€*.
+ _empty_/i11184c$package.oneOf().*oneOf€*.
+ _empty_/i11184c$package.test1().*test1€2
+ scala/quoted/2
+ scala/2
+ 
+_empty_/Foo.2#
+ _empty_/Foo.isTrue().2
+ scala/Boolean#2"
+_empty_/i11184c$package.2.
+  _empty_/i11184c$package.oneOf().2"
+ scala/Predef.String#2#
+) /_empty_/Foo.isTrue().2
+% (_empty_/Foo.2.
+ 	 _empty_/i11184c$package.test1().2.
+  _empty_/i11184c$package.oneOf().PZ 66140971F3327531057A8E151693BCEE

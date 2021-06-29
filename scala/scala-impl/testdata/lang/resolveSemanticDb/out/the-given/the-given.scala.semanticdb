@@ -1,0 +1,27 @@
+
+štests/pos/the-given.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.Encoder#*Encoder€*2
+ _empty_/Test.Encoder#`<init>`(). €@*<init>€*+
+_empty_/Test.Encoder#apply().*apply€**
+ _empty_/Test.Encoder#apply().(x)*x€*3
+_empty_/Test.given_Encoder.
+ (*given_Encoder€2
+ _empty_/Test.2#
+ _empty_/Test.Encoder#2.
+  _empty_/Test.Encoder#`<init>`().2+
+ _empty_/Test.Encoder#apply().2.
+  _empty_/Test.Encoder#apply().(x)2
+ "
+scala/Int#2
+% (
+scala/Int#2.
++ , _empty_/Test.Encoder#apply().(x)2)
+ _empty_/Test.given_Encoder.2.
+  _empty_/Test.Encoder#`<init>`().2#
+ _empty_/Test.Encoder#2+
+ _empty_/Test.Encoder#apply().2$
+ scala/Predef.summon().2#
+	 _empty_/Test.Encoder#2)
+ _empty_/Test.given_Encoder.PZ D765C4B3FE2980FCFDE66DB37BDB3C6F

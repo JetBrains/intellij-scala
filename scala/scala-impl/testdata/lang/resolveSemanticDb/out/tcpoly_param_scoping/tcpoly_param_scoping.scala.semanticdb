@@ -1,0 +1,43 @@
+
+Û$tests/pos/tcpoly_param_scoping.scala*
+_empty_/FOO#*FOO€*)
+_empty_/FOO#`<init>`(). €@*<init>€*
+_empty_/FOO#[B]	*B€*
+_empty_/FOO#[m]	*m€*
+_empty_/FOO2#*FOO2€**
+_empty_/FOO2#`<init>`(). €@*<init>€*
+_empty_/FOO2#[A]	*A€*
+_empty_/FOO2#[B]	*B€*
+_empty_/FOO3#*FOO3€**
+_empty_/FOO3#`<init>`(). €@*<init>€*
+_empty_/FOO3#[m]	*m€*
+_empty_/FOO3#[B]	*B€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().[a]	*a€2
+ 	_empty_/FOO#2!
+	 	_empty_/FOO#`<init>`().2
+
+ _empty_/FOO#[B]2
+ _empty_/FOO#[m]2
+ 
+_empty_/FOO2#2&
+
+ 
+_empty_/FOO2#`<init>`().2
+ _empty_/FOO2#[A]2
+ _empty_/FOO2#[B]2
+ 
+_empty_/FOO3#2&
+
+ 
+_empty_/FOO3#`<init>`().2
+ _empty_/FOO3#[m]2
+ _empty_/FOO3#[B]2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().[a]PZ 2C81DBE53AEE834673584CA2F7B7CFA9

@@ -1,0 +1,20 @@
+
+Ýtests/pos/t5639/Foo.scala*
+pack/age/Baz#*Baz€**
+pack/age/Baz#`<init>`(). €@*<init>€*'
+pack/age/Implicits.
+ *	Implicits€*'
+pack/age/Implicits.Baz().  *Baz€*&
+pack/age/Implicits.Baz().(n)*n€2
+ 	pack/age/2
+ pack/2
+ 	pack/age/Baz#2"
+pack/age/Baz#`<init>`().2!
+ pack/age/Implicits.2'
+ pack/age/Implicits.Baz().2*
+ pack/age/Implicits.Baz().(n)2
+ 
+scala/Int#2
+ pack/age/Baz#2&
+) )pack/age/Baz#`<init>`().2
+& )pack/age/Baz#PZ 758ED6494B751DA6833C9A5A91BD70B4

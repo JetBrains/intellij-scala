@@ -1,0 +1,23 @@
+
+étests/pos/t3927.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.x().*x€*
+local0 à*e€2
+ 
+_empty_/A.2
+ _empty_/A.x().2
+	 scala/Unit#2
+ local02"
+ scala/package.Equiv#2
+ "
+scala/Int#2(
+* /scala/sys/package.error().2
+& )
+scala/sys/2(
+ scala/Predef.implicitly().2"
+ scala/package.Equiv#2
+ 
+scala/Int#2
+ local0PZ 4361E61287B66CBA56FD6C7D7C7F186D

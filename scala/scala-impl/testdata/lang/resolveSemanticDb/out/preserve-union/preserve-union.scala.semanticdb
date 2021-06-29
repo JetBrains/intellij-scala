@@ -1,0 +1,34 @@
+
+Âtests/pos/preserve-union.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#a. €*a€*
+_empty_/A#b. €*b€*
+_empty_/A#c. €*c€*
+_empty_/A#c1. €*c1€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#a.2
+ 
+scala/`|`#2
+	 
+scala/Int#2"
+ scala/Predef.String#2
+ _empty_/A#b.2
+	 scala/AnyVal#2
+ _empty_/A#c.27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2
+ _empty_/A#a.2
+ _empty_/A#b.2
+ _empty_/A#c1.2!
+
+ scala/package.List#2
+ 
+scala/`|`#2
+ scala/AnyVal#2"
+ scala/Predef.String#2
+" #_empty_/A#c.PZ 76BB997695AA03E1255091C79AC07B06

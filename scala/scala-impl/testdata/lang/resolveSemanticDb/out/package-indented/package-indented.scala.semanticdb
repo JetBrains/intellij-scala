@@ -1,0 +1,21 @@
+
+Ù tests/pos/package-indented.scala*)
+p/`package-indented$package`. *p€*+
+!p/`package-indented$package`.f().*f€*)
+q/`package-indented$package`. *q€*+
+!q/`package-indented$package`.g().*g€*5
+#_empty_/`package-indented$package`. *_empty_€*7
+*_empty_/`package-indented$package`.Test().*Test€2
+ 	p/2+
+ p/`package-indented$package`.2/
+ !p/`package-indented$package`.f().2
+ 	q/2+
+ q/`package-indented$package`.2/
+ !q/`package-indented$package`.g().2-
+#_empty_/`package-indented$package`.28
+ *_empty_/`package-indented$package`.Test().2 
+ scala/Int#`+`(+4).2/
+ !p/`package-indented$package`.f().2
+ p/2/
+ !q/`package-indented$package`.g().2
+ q/PZ DB7F947CA8C2FFC923B758C962138861

@@ -1,0 +1,47 @@
+
+ètests/pos/t7716.scala*
+_empty_/Test.
+ *TestÄ*!
+_empty_/Test.test().*testÄ*
+local0 Ä*eÄ*
+local1 Ä*xÄ*
+local2*TAÄ*
+local3	*XÄ*
+local4 Ä*taÄ*
+local5 *$anonÄ*
+local6*fÄ*
+local7*taÄ2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ scala/Unit#2
+ 	local02
+ java/lang/Enum#24
+3 :&java/util/concurrent/TimeUnit#SECONDS.2,
+* 2java/util/concurrent/TimeUnit#2#
+ )java/util/concurrent/2
+ 
+java/util/2
+ java/2
+ local02
+ local12'
+ scala/Predef.println(+1).2
+  !local12
+
+ local22
+ local32
+ 
+local42
+ local22
+ local52
+ local22"
+ !scala/Predef.String#2
+		 local42'
+
+
+ scala/Predef.println(+1).2
+ 	local62
+
+ local72
+ local22
+ local7PZ 6BD9BE168AAC990A0D7FD518222D7965

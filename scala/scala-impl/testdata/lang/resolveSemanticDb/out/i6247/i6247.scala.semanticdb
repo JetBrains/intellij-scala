@@ -1,0 +1,49 @@
+
+¹tests/pos/i6247.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#NN#*NN€*,
+_empty_/Foo#NN#`<init>`(). €@*<init>€*'
+_empty_/Foo#NN#`<init>`().(x)*x€*
+_empty_/Foo#NN#[T]	*T€*
+_empty_/Foo#NN#x. €*x€*
+_empty_/Foo#NN#nn().*nn€*
+_empty_/Foo#NN(). (*NN€*
+_empty_/Foo#NN().[T]	*T€*
+_empty_/Foo#NN().(x)*x€*
+_empty_/Foo#x1. €*x1€*
+_empty_/Foo#x2. €*x2€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#NN#2(
+ _empty_/Foo#NN#`<init>`().2
+ 
+scala/`|`#2 
+ _empty_/Foo#NN#[T]2
+ scala/Null#2 
+ _empty_/Foo#NN#[T]2
+ _empty_/Foo#NN#x.2"
+ 
+_empty_/Foo#NN#nn().2 
+ _empty_/Foo#NN#[T]2'
+ scala/Any#asInstanceOf().2
+ _empty_/Foo#NN#x.2 
+  _empty_/Foo#NN#[T]2
+ _empty_/Foo#NN().2
+ _empty_/Foo#x1.2
+ 
+scala/`|`#2"
+
+ scala/Predef.String#2
+ scala/Null#2(
+ java/lang/String#length().2 
+ scala/Predef.nn().2
+ _empty_/Foo#x1.2
+ _empty_/Foo#x2.2"
+
+ scala/Predef.String#2 
+ scala/Predef.nn().2
+ _empty_/Foo#x1.2(
+ java/lang/String#length().2 
+ scala/Predef.nn().2
+ _empty_/Foo#x1.PZ 394EA01CAACB85F436E8AA50405014BA

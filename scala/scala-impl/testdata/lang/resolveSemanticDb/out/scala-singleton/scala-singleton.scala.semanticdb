@@ -1,0 +1,149 @@
+
+è'tests/pos/scala-singleton.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.f1().*f1Ä*
+_empty_/Test.f1().(x)*xÄ*
+_empty_/Test.f2().*f2Ä*
+_empty_/Test.f2().[T]	*TÄ*
+_empty_/Test.f2().(x)*xÄ*
+_empty_/Test.x1. Ä*x1Ä*
+_empty_/Test.x2. Ä*x2Ä*
+_empty_/Test.x3. à*x3Ä*
+_empty_/Test.x4. Ä*x4Ä*'
+_empty_/Test.narrow1().*narrow1Ä*$
+_empty_/Test.narrow1().(x)*xÄ*'
+_empty_/Test.narrow2().*narrow2Ä*$
+_empty_/Test.narrow2().(x)*xÄ*'
+_empty_/Test.narrow3().*narrow3Ä*$
+_empty_/Test.narrow3().(x)*xÄ*'
+_empty_/Test.narrow4().*narrow4Ä*$
+_empty_/Test.narrow4().[T]	*TÄ*$
+_empty_/Test.narrow4().(x)*xÄ*
+_empty_/Test.imp.
+ *impÄ*-
+_empty_/Test.imp.narrow4().  *narrow4Ä*(
+_empty_/Test.imp.narrow4().[T]	*TÄ*(
+_empty_/Test.imp.narrow4().(x)*xÄ*"
+_empty_/Test.imp.x5. Ä*x5Ä*%
+_empty_/Test.imp.imp1().*imp1Ä*%
+_empty_/Test.imp.imp2().*imp2Ä*!
+_empty_/Test.main().*mainÄ*'
+_empty_/Test.main().(args)*argsÄ2
+ _empty_/Test.2 
+ _empty_/Test.f1().2#
+	 
+_empty_/Test.f1().(x)2
+ scala/AnyRef#2
+ !scala/Singleton#2
+$ *scala/AnyRef#2
+0 9scala/Singleton#2#
+< =_empty_/Test.f1().(x)2 
+ _empty_/Test.f2().2#
+	 
+_empty_/Test.f2().[T]2
+ scala/AnyRef#2
+ #scala/Singleton#2#
+% &_empty_/Test.f2().(x)2#
+( )_empty_/Test.f2().[T]2#
+, -_empty_/Test.f2().[T]2#
+0 1_empty_/Test.f2().(x)2
+ _empty_/Test.x1.2
+
+ scala/AnyRef#2
+ scala/Singleton#2
+ _empty_/Test.x2.2
+ _empty_/Test.x3.2
+		 _empty_/Test.x4.2"
+	
+	 scala/Predef.String#2%
+ _empty_/Test.narrow1().2(
+ _empty_/Test.narrow1().(x)2
+ scala/AnyRef#2
+  scala/AnyRef#2
+& /scala/Singleton#2(
+2 3_empty_/Test.narrow1().(x)2%
+ _empty_/Test.narrow2().2(
+ _empty_/Test.narrow2().(x)2
+ scala/AnyRef#2
+  scala/AnyRef#2
+& /scala/Singleton#2'
+4 @scala/Any#asInstanceOf().2(
+2 3_empty_/Test.narrow2().(x)2(
+A B_empty_/Test.narrow2().(x)2%
+ _empty_/Test.narrow3().2(
+ _empty_/Test.narrow3().(x)2
+ scala/AnyRef#2
+  scala/AnyRef#2
+& /scala/Singleton#2'
+4 @scala/Any#asInstanceOf().2(
+2 3_empty_/Test.narrow3().(x)2
+A Gscala/AnyRef#2
+M Vscala/Singleton#2%
+ _empty_/Test.narrow4().2(
+ _empty_/Test.narrow4().[T]2
+ scala/AnyRef#2(
+ _empty_/Test.narrow4().(x)2(
+ _empty_/Test.narrow4().[T]2
+" (scala/AnyRef#2
+. 7scala/Singleton#2(
+: ;_empty_/Test.narrow4().(x)2
+	 _empty_/Test.imp.2)
+ _empty_/Test.imp.narrow4().2,
+ _empty_/Test.imp.narrow4().[T]2
+ $scala/AnyRef#2,
+& '_empty_/Test.imp.narrow4().(x)2,
+) *_empty_/Test.imp.narrow4().[T]2
+- 3scala/AnyRef#2
+9 Bscala/Singleton#2,
+E F_empty_/Test.imp.narrow4().(x)2"
+ 
+_empty_/Test.imp.x5.2"
+ scala/Predef.String#2&
+ _empty_/Test.imp.imp1().2 
+ _empty_/Test.f1().2"
+ _empty_/Test.imp.x5.2&
+ _empty_/Test.imp.imp2().2 
+ _empty_/Test.f2().2)
+ _empty_/Test.imp.narrow4().2"
+ _empty_/Test.imp.x5.2"
+   
+_empty_/Test.main().2(
+   _empty_/Test.main().(args)2
+   scala/Array#2"
+   scala/Predef.String#2
+ !  %scala/Unit#2 
+"" _empty_/Test.f1().2
+"" 	_empty_/Test.x1.2 
+## _empty_/Test.f1().2
+## 	_empty_/Test.x2.2 
+$$ _empty_/Test.f1().2
+$$ 	_empty_/Test.x3.2 
+%% _empty_/Test.f1().2
+%% 	_empty_/Test.x4.2 
+'' _empty_/Test.f2().2
+'' 	_empty_/Test.x1.2 
+,, _empty_/Test.f1().2%
+,, _empty_/Test.narrow1().2
+,, _empty_/Test.x4.2 
+-- _empty_/Test.f1().2%
+-- _empty_/Test.narrow2().2
+-- _empty_/Test.x4.2 
+.. _empty_/Test.f1().2%
+.. _empty_/Test.narrow3().2
+.. _empty_/Test.x4.2 
+// _empty_/Test.f1().2%
+// _empty_/Test.narrow4().2
+// _empty_/Test.x4.2 
+00 _empty_/Test.f2().2%
+00 _empty_/Test.narrow1().2
+00 _empty_/Test.x4.2 
+11 _empty_/Test.f2().2%
+11 _empty_/Test.narrow2().2
+11 _empty_/Test.x4.2 
+22 _empty_/Test.f2().2%
+22 _empty_/Test.narrow3().2
+22 _empty_/Test.x4.2 
+33 _empty_/Test.f2().2%
+33 _empty_/Test.narrow4().2
+33 _empty_/Test.x4.PZ 0F2FD5F199D0BE10F207BF8BCADF179D

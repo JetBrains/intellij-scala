@@ -1,0 +1,99 @@
+
+´#tests/pos/partialApplications.scala*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.Histogram#*	Histogram€*$
+_empty_/Test.Histogram#[X]	*X€*9
+_empty_/Test.StringlyHistogram#*StringlyHistogram€*,
+"_empty_/Test.StringlyHistogram#[X]	*X€*
+_empty_/Test.xs. €*xs€*
+_empty_/Test.ys. €*ys€*
+_empty_/Test.e().*e€*
+_empty_/Test.zs. €*zs€*#
+_empty_/Test.IntMap#*IntMap€*!
+_empty_/Test.IntMap#[Y]	*Y€*
+_empty_/Test.is. €*is€*
+_empty_/Test.js. €*js€*
+_empty_/Test.ks. €*ks€*
+_empty_/Test.RMap#*RMap€*
+_empty_/Test.RMap#[X]	*X€*
+_empty_/Test.RMap#[Y]	*Y€*
+_empty_/Test.rs. €*rs€*
+_empty_/Test.ss. €*ss€2
+ _empty_/Test.2%
+ _empty_/Test.Histogram#2(
+ _empty_/Test.Histogram#[X]2
+ scala/Predef.Map#2(
+ _empty_/Test.Histogram#[X]2
+  
+scala/Int#2-
+ _empty_/Test.StringlyHistogram#20
+ "_empty_/Test.StringlyHistogram#[X]2"
+ $scala/Predef.String#2%
+( 1_empty_/Test.Histogram#20
+2 3"_empty_/Test.StringlyHistogram#[X]2
+ _empty_/Test.xs.2%
+
+ _empty_/Test.Histogram#2"
+ scala/Predef.String#22
+! !$scala/collection/MapFactory#apply().2
+ !scala/Predef.Map.2"
+" (scala/Predef.String#2
+* -
+scala/Int#2
+ _empty_/Test.ys.2-
+
+ _empty_/Test.StringlyHistogram#2"
+ "scala/Predef.String#2
+& (_empty_/Test.xs.2
+
+
+ _empty_/Test.e().2
+
+
+
+ _empty_/Test.xs.2
+ _empty_/Test.zs.2-
+
+ _empty_/Test.StringlyHistogram#2
+! "_empty_/Test.e().2"
+ _empty_/Test.IntMap#2%
+ _empty_/Test.IntMap#[Y]2
+ scala/Predef.Map#2
+ 
+scala/Int#2%
+ _empty_/Test.IntMap#[Y]2
+ _empty_/Test.is.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 
+scala/Int#2
+ scala/Boolean#2
+ _empty_/Test.js.2"
+
+ _empty_/Test.IntMap#2
+ scala/Boolean#2
+ _empty_/Test.is.2
+ _empty_/Test.ks.2"
+
+ _empty_/Test.IntMap#2
+ _empty_/Test.is.2 
+ _empty_/Test.RMap#2#
+ _empty_/Test.RMap#[X]2#
+ _empty_/Test.RMap#[Y]2
+ scala/Predef.Map#2#
+ _empty_/Test.RMap#[Y]2#
+ _empty_/Test.RMap#[X]2
+ _empty_/Test.rs.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 
+scala/Int#2
+ scala/Float#2
+ _empty_/Test.ss.2 
+
+ _empty_/Test.RMap#2
+ scala/Float#2
+ 
+scala/Int#2
+ _empty_/Test.rs.PZ BF7EC3528155D60AD9603387DEFE4573

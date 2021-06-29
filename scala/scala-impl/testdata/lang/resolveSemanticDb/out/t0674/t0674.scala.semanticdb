@@ -1,0 +1,237 @@
+
+Ã2tests/pos/t0674.scala*
+_empty_/Test.
+ *Test€*
+local0*a€*
+local1*b€*
+local2*c€*
+local3*d€*
+local4*e€*
+local5*f€*
+local6*g€*
+local7*h€*
+local8*i€*
+local9*j€*
+local10*k€*
+local11*l€*
+local12*m€*
+local13*n€*
+local14*o€*
+local15*p€*
+local16*q€*
+local17*r€*
+local18*s€*
+local19*d€*
+local20*e€*
+local21*f€*
+local22*g€*
+local23*h€*
+local24*i€*
+local25*j€*
+local26*k€*
+local27*l€*
+local28*m€*
+local29*n€*
+local30*o€*
+local31*p€*
+local32*q€*
+local33*r€*
+local34*s€*
+local35*k€*
+local36*l€*
+local37*m€*
+local38*n€*
+local39*o€*
+local40*p€*
+local41*q€*
+local42*r€*
+local43*s€2
+ _empty_/Test.2
+ 
+scala/App#2%
+ scala/Predef.println(+1).2%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local02%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local12%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local22%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local32%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local42%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local52%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local62%
+		 scala/Option#flatMap().2!
+		 scala/Some.apply().2
+			 scala/Some.2
+		 local72%
+
+
+ scala/Option#flatMap().2!
+
+
+ scala/Some.apply().2
+
+	
+ scala/Some.2
+
+
+ local82%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local92%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local102%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local112%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local122%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local132%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local142%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local152%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local162%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local172%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local182%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local192%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local202%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local212%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local222%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local232%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local242%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local252%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local262%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local272%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local282%
+ scala/Option#flatMap().2!
+ scala/Some.apply().2
+	 scala/Some.2
+ local292%
+   scala/Option#flatMap().2!
+   scala/Some.apply().2
+ 	  scala/Some.2
+   local302%
+!! scala/Option#flatMap().2!
+!! scala/Some.apply().2
+!	! scala/Some.2
+!! local312%
+"" scala/Option#flatMap().2!
+"" scala/Some.apply().2
+"	" scala/Some.2
+"" local322%
+## scala/Option#flatMap().2!
+## scala/Some.apply().2
+#	# scala/Some.2
+## local332%
+$$ scala/Option#flatMap().2!
+$$ scala/Some.apply().2
+$	$ scala/Some.2
+$$ local342%
+%% scala/Option#flatMap().2!
+%% scala/Some.apply().2
+%	% scala/Some.2
+%% local352%
+&& scala/Option#flatMap().2!
+&& scala/Some.apply().2
+&	& scala/Some.2
+&& local362%
+'' scala/Option#flatMap().2!
+'' scala/Some.apply().2
+'	' scala/Some.2
+'' local372%
+(( scala/Option#flatMap().2!
+(( scala/Some.apply().2
+(	( scala/Some.2
+(( local382%
+)) scala/Option#flatMap().2!
+)) scala/Some.apply().2
+)	) scala/Some.2
+)) local392%
+** scala/Option#flatMap().2!
+** scala/Some.apply().2
+*	* scala/Some.2
+** local402%
+++ scala/Option#flatMap().2!
+++ scala/Some.apply().2
++	+ scala/Some.2
+++ local412%
+,, scala/Option#flatMap().2!
+,, scala/Some.apply().2
+,	, scala/Some.2
+,, local422!
+-- scala/Option#map().2!
+-- scala/Some.apply().2
+-	- scala/Some.2
+-- local432
+.. local0PZ 97E56AE96EFC9DED28F29CEA2468F521

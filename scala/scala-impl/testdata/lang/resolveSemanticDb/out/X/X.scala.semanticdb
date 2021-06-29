@@ -1,0 +1,74 @@
+
+ítests/pos/X.scala*"
+_empty_/FunctorK#*FunctorK€*.
+_empty_/FunctorK#`<init>`(). €@*<init>€*
+_empty_/FunctorK#[F]	*F€*$
+_empty_/FunctorK.
+ *FunctorK€*;
+"_empty_/FunctorK.given_FunctorK_C#*given_FunctorK_C€*?
+-_empty_/FunctorK.given_FunctorK_C#`<init>`(). €@*<init>€*:
+0_empty_/FunctorK.given_FunctorK_C#`<init>`().[F]	*F€*/
+%_empty_/FunctorK.given_FunctorK_C#[C]	*C€*?
+$_empty_/FunctorK.given_FunctorK_C(). (*given_FunctorK_C€*1
+'_empty_/FunctorK.given_FunctorK_C().[C]	*C€*E
+'_empty_/FunctorK.given_FunctorK_Tuple1#*given_FunctorK_Tuple1€*D
+2_empty_/FunctorK.given_FunctorK_Tuple1#`<init>`(). €@*<init>€*?
+5_empty_/FunctorK.given_FunctorK_Tuple1#`<init>`().[F]	*F€*4
+*_empty_/FunctorK.given_FunctorK_Tuple1#[T]	*T€*I
+)_empty_/FunctorK.given_FunctorK_Tuple1(). (*given_FunctorK_Tuple1€*6
+,_empty_/FunctorK.given_FunctorK_Tuple1().[T]	*T€*+
+_empty_/FunctorK.derived().*derived€*(
+_empty_/FunctorK.derived().[F]	*F€**
+_empty_/FunctorK.derived().(m)  *m€*
+local0*MirroredType€*
+local1	*X€* 
+local2*MirroredElemTypes€**
+_empty_/FunctorK.derived().(r)  *r€*
+local3 *$anon€2
+ scala/deriving/2
+ scala/2
+ _empty_/FunctorK#2*
+ _empty_/FunctorK#`<init>`().2"
+ _empty_/FunctorK#[F]2
+ _empty_/FunctorK.20
+ "_empty_/FunctorK.given_FunctorK_C#2;
+	 	-_empty_/FunctorK.given_FunctorK_C#`<init>`().2*
+# #_empty_/FunctorK#`<init>`().2
+ _empty_/FunctorK#2>
+ 0_empty_/FunctorK.given_FunctorK_C#`<init>`().[F]23
+! "%_empty_/FunctorK.given_FunctorK_C#[C]23
+	 
+%_empty_/FunctorK.given_FunctorK_C#[C]22
+ $_empty_/FunctorK.given_FunctorK_C().25
+ '_empty_/FunctorK.given_FunctorK_Tuple1#2@
+	 	2_empty_/FunctorK.given_FunctorK_Tuple1#`<init>`().2*
+. ._empty_/FunctorK#`<init>`().2
+ _empty_/FunctorK#2C
+ 5_empty_/FunctorK.given_FunctorK_Tuple1#`<init>`().[F]2
+! 'scala/Tuple1#28
+* +*_empty_/FunctorK.given_FunctorK_Tuple1#[T]28
+	 
+*_empty_/FunctorK.given_FunctorK_Tuple1#[T]27
+ )_empty_/FunctorK.given_FunctorK_Tuple1().2)
+ _empty_/FunctorK.derived().2,
+ _empty_/FunctorK.derived().[F]2,
+ _empty_/FunctorK.derived().(m)2$
+  &scala/deriving/Mirror#2
+. :local02
+; <local12,
+C D_empty_/FunctorK.derived().[F]2
+E Flocal12
+O `local22,
+j k_empty_/FunctorK.derived().(r)2
+m u_empty_/FunctorK#2,
+v w_empty_/FunctorK.derived().(m)2!
+
+ •_empty_/FunctorK#2.
+
+– —_empty_/FunctorK.derived().[F]2
+
+› ›local32!
+
+Ÿ §_empty_/FunctorK#2.
+
+¨ ©_empty_/FunctorK.derived().[F]PZ 1959581FFA5807E24A883C0D9D380B1A

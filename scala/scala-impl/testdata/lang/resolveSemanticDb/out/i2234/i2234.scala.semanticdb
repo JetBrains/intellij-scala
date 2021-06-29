@@ -1,0 +1,69 @@
+
+Ötests/pos/i2234.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Dummy#*Dummy€* 
+_empty_/Test.Dummy#[A]	*A€*
+_empty_/Test.a().*a€*
+_empty_/Test.a().(d)*d€*
+_empty_/Test.a(+1).*a€* 
+_empty_/Test.a(+1).(d)*d€*%
+_empty_/Test.dummy().  *dummy€*"
+_empty_/Test.dummy().[A]	*A€*
+_empty_/Test.m().*m€*
+_empty_/Test.m().(x)*x€* 
+_empty_/Test.m().(d)  *d€*
+_empty_/Test.m(+1).*m€* 
+_empty_/Test.m(+1).(x)*x€*"
+_empty_/Test.m(+1).(d)  *d€2
+ _empty_/Test.2!
+ _empty_/Test.Dummy#2$
+ _empty_/Test.Dummy#[A]2$
+ _empty_/Test.Dummy#[A]2
+ _empty_/Test.a().2"
+ 	_empty_/Test.a().(d)2!
+ _empty_/Test.Dummy#2"
+ scala/Predef.String#2!
+ _empty_/Test.a(+1).2$
+ 	_empty_/Test.a(+1).(d)2!
+ _empty_/Test.Dummy#2
+ 
+scala/Int#2#
+ _empty_/Test.dummy().2&
+ _empty_/Test.dummy().[A]2!
+ _empty_/Test.Dummy#2&
+  _empty_/Test.dummy().[A]2'
+) 5scala/Any#asInstanceOf().2&
+6 7_empty_/Test.dummy().[A]2
+ _empty_/Test.m().2"
+ 	_empty_/Test.m().(x)2!
+ scala/package.List#2"
+ scala/Predef.String#2"
+" #_empty_/Test.m().(d)2!
+% *_empty_/Test.Dummy#2"
++ 1scala/Predef.String#2!
+ _empty_/Test.m(+1).2$
+ 	_empty_/Test.m(+1).(x)2!
+ scala/package.List#2
+ 
+scala/Int#2$
+  _empty_/Test.m(+1).(d)2!
+" '_empty_/Test.Dummy#2
+( +
+scala/Int#2!
+
+
+ _empty_/Test.m(+1).27
+
+
+ )scala/collection/IterableFactory#apply().2!
+
+
+ scala/package.List.2#
+
+
+ _empty_/Test.dummy().2
+ _empty_/Test.m().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ _empty_/Test.dummy().PZ 5F58BD75B0881A296C217A0FD6B9375B

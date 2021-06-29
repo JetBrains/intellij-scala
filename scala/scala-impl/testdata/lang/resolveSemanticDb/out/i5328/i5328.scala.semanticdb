@@ -1,0 +1,70 @@
+
+¯tests/pos/i5328.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[X]	*X€*
+_empty_/C#[Y]	*Y€* 
+_empty_/C#apply().*apply€*
+_empty_/C#apply().[Z]	*Z€*
+_empty_/C#apply().(x)*x€*
+_empty_/C#apply().(y)*y€*
+_empty_/C#apply().(z)*z€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[X]	*X€*
+_empty_/Test.f().[Y]	*Y€*
+_empty_/Test.f().[Z]	*Z€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[X]2
+ _empty_/C#[Y]2 
+ _empty_/C#apply().2#
+ _empty_/C#apply().[Z]2#
+ _empty_/C#apply().(x)2
+  !_empty_/C#[X]2#
+# $_empty_/C#apply().(y)2
+& '_empty_/C#[Y]2#
+) *_empty_/C#apply().(z)2#
+, -_empty_/C#apply().[Z]2#
+2 2scala/Tuple3.apply().2#
+2 3_empty_/C#apply().(x)2#
+5 6_empty_/C#apply().(y)2#
+8 9_empty_/C#apply().(z)2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[X]2"
+ _empty_/Test.f().[Y]2"
+ _empty_/Test.f().[Z]2
+ 
+_empty_/C#2"
+ _empty_/Test.f().[X]2"
+ _empty_/Test.f().[Y]2#
+' '_empty_/C#`<init>`().2
+  !
+_empty_/C#2"
+" #_empty_/Test.f().[X]2"
+% &_empty_/Test.f().[Y]2 
+ _empty_/C#apply().2
+ _empty_/Test.f().2
+ 
+scala/Int#2
+	 scala/Boolean#2
+ 
+scala/Any#2"
+ scala/Predef.String#2 
+ _empty_/C#apply().2
+ _empty_/Test.f().2
+ 
+scala/Int#2 
+ _empty_/C#apply().2
+ _empty_/Test.f().2
+ 
+scala/Any#2
+ 
+scala/Int#PZ 5861042EEBFF405F0EBFFFA64B2AD998

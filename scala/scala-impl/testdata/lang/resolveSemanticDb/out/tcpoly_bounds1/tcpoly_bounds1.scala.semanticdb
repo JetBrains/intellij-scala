@@ -1,0 +1,45 @@
+
+µtests/pos/tcpoly_bounds1.scala*
+_empty_/Monad#*Monad€*+
+_empty_/Monad#`<init>`(). €@*<init>€*
+_empty_/Monad#[m]	*m€*#
+_empty_/Monad#[Bound]	*Bound€*
+_empty_/Monad#[a]	*a€*$
+_empty_/ListMonad#*	ListMonad€*/
+_empty_/ListMonad#`<init>`(). €@*<init>€**
+ _empty_/ListMonad#`<init>`().[X]	*X€*
+_empty_/ListMonad#[a]	*a€*$
+_empty_/MyOrdered#*	MyOrdered€*/
+_empty_/MyOrdered#`<init>`(). €@*<init>€*
+_empty_/MyOrdered#[a]	*a€*
+_empty_/MySet#*MySet€*+
+_empty_/MySet#`<init>`(). €@*<init>€*
+_empty_/MySet#[x]	*x€*"
+_empty_/SetMonad#*SetMonad€*.
+_empty_/SetMonad#`<init>`(). €@*<init>€*
+_empty_/SetMonad#[a]	*a€2
+ _empty_/Monad#2#
+ _empty_/Monad#`<init>`().2
+ _empty_/Monad#[m]2
+ #_empty_/Monad#[Bound]2
+( )_empty_/Monad#[a]2 
+ _empty_/ListMonad#2+
+ _empty_/ListMonad#`<init>`().2
+  _empty_/Monad#2!
+! %scala/package.List#2.
+( ) _empty_/ListMonad#`<init>`().[X]2
+/ 2
+scala/Any#2#
+4 5_empty_/ListMonad#[a]2#
+ _empty_/ListMonad#[a]2 
+ _empty_/MyOrdered#2+
+ _empty_/MyOrdered#`<init>`().2#
+ _empty_/MyOrdered#[a]2
+ _empty_/MySet#2'
+ _empty_/MySet#`<init>`().2
+ _empty_/MySet#[x]2
+ _empty_/SetMonad#2*
+ _empty_/SetMonad#`<init>`().2
+* /_empty_/Monad#2"
+B C_empty_/SetMonad#[a]2"
+ _empty_/SetMonad#[a]PZ DDF854F979C40327BF52F209B03E69E0

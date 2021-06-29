@@ -1,0 +1,32 @@
+
+ætests/pos/simpleMatchRef.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#X. €*X€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().(x)*x€*
+
+_empty_/Y.
+ *Y€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#X.2
+	 
+scala/Int#2#
+ scala/Predef.`???`().2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().(x)2
+ 
+scala/Any#2
+ scala/Unit#2#
+ _empty_/Foo#foo().(x)2
+	 
+_empty_/Foo#X.2'
+ scala/Predef.println(+1).2
+	 
+
+_empty_/Y.2'
+ scala/Predef.println(+1).2
+		 
+_empty_/Y.PZ 105EAE847A0E96F17E556EAC17AE9A55

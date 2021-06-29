@@ -1,0 +1,37 @@
+
+†#tests/pos/tcpoly_variance_pos.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[m]	*m€*
+_empty_/A#str().*str€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#[m]	*m€*
+_empty_/B#str().*str€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 	_empty_/A#[m]2
+ _empty_/A#str().2
+
+ _empty_/A#[m]2
+ java/lang/Object#2(
+ scala/sys/package.error().2
+ 
+scala/sys/2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#[m]2
+ 	_empty_/B#[m]2
+ _empty_/B#str().2
+ _empty_/B#[m]2"
+ scala/Predef.String#2(
+$ )scala/sys/package.error().2
+  #
+scala/sys/PZ F0EF747EA505542F7773A4F8FEB618C9

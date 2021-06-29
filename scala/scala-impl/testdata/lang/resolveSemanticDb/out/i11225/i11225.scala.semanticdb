@@ -1,0 +1,46 @@
+
+´
+tests/pos/i11225.scala*
+_empty_/Memo#*Memo€**
+_empty_/Memo#`<init>`(). €@*<init>€*%
+_empty_/Memo#`<init>`().(x)*x€*
+_empty_/Memo#[A]	*A€*
+_empty_/Memo#x. €*x€**
+_empty_/Memo#cached1(). €*cached1€*(
+_empty_/Memo#cached(). €*cached€*&
+_empty_/Memo#known(). €*known€*#
+_empty_/Memo#force().*force€*
+local0 €*y€2<
+  2scala/compiletime/package$package.uninitialized().2
+ scala/compiletime/2
+ 
+_empty_/Memo#2&
+
+ 
+_empty_/Memo#`<init>`().2
+ _empty_/Memo#[A]2
+ _empty_/Memo#[A]2
+ _empty_/Memo#x.2%
+ _empty_/Memo#cached1().2
+ _empty_/Memo#[A]2@
+ (2scala/compiletime/package$package.uninitialized().2$
+ _empty_/Memo#cached().2
+ _empty_/Memo#[A]2@
+ '2scala/compiletime/package$package.uninitialized().2#
+ _empty_/Memo#known().2
+ scala/Boolean#2#
+ _empty_/Memo#force().2(
+ scala/Boolean#`unary_!`().2#
+ _empty_/Memo#known().2#
+ _empty_/Memo#known().2$
+		 _empty_/Memo#cached().2
+		 _empty_/Memo#x.2
+
+
+
+ local02%
+
+
+ _empty_/Memo#cached1().2$
+ 
+_empty_/Memo#cached().PZ 9B4A10E29CFB70DB9AAD8E25FC58F3E0

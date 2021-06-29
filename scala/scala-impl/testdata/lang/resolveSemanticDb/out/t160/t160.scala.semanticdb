@@ -1,0 +1,15 @@
+
+³tests/pos/t160.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(s)*s€*
+_empty_/Foo#s. €*s€*(
+_empty_/Foo#`<init>`(+1).*<init>€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ scala/Predef.String#2
+
+ _empty_/Foo#s.2'
+ 
+_empty_/Foo#`<init>`(+1).2%
+ _empty_/Foo#`<init>`().PZ 770AC713FB4A2272B0025FD3FDD4ABB4

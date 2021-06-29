@@ -1,0 +1,24 @@
+
+“#tests/pos/singleton-fun-types.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€* 
+_empty_/D#apply().*apply€*
+_empty_/D#apply().(x)*x€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 
+scala/Int#2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 
+scala/Int#2 
+ _empty_/D#apply().2#
+ _empty_/D#apply().(x)2
+ 
+scala/Int#PZ F89B3BF010D828103ACAE959EA21EB95

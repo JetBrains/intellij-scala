@@ -1,0 +1,11 @@
+
+štests/pos/t4052.scala*
+test/package. *test€*/
+test/package.PackageError#*PackageError€*7
+%test/package.PackageError#`<init>`(). €@*<init>€*1
+test/package.PackageError.
+ *PackageError€2
+ test/package.2(
+ test/package.PackageError#23
+ %test/package.PackageError#`<init>`().2(
+	 test/package.PackageError.PZ 341E283B3C5AA3887884E9C612A9D603

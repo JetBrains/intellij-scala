@@ -1,0 +1,19 @@
+
+×tests/pos/B.scala*
+
+_empty_/B.
+ *B€*
+_empty_/B.main().*main€*$
+_empty_/B.main().(args)*args€*
+local0 €*s€2
+ 
+_empty_/B.2
+ 
+_empty_/B.main().2%
+ _empty_/B.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local027
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.PZ DA09D4CCEE88A87095D3C048B73DDFAB

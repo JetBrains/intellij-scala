@@ -1,0 +1,15 @@
+
+ßtests/pos/t1147.scala*
+_empty_/App#*App€*)
+_empty_/App#`<init>`(). €@*<init>€*(
+_empty_/App#`<init>`().(arg)*arg€*
+_empty_/App#arg. €*arg€*(
+_empty_/App#`<init>`(+1).*<init>€2
+ 	_empty_/App#2!
+	 	_empty_/App#`<init>`().2
+ scala/Predef.String#2
+
+ _empty_/App#arg.2
+ scala/deprecated#2'
+ _empty_/App#`<init>`(+1).2%
+	 	_empty_/App#`<init>`().PZ 84BD2AE14C1EDB48F7B54F919F69D474

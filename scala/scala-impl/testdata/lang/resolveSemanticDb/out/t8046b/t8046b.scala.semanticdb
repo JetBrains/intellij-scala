@@ -1,0 +1,54 @@
+
+Ïtests/pos/t8046b.scala*
+_empty_/One#*One€*)
+_empty_/One#`<init>`(). €@*<init>€*
+_empty_/One#Op#*Op€*
+_empty_/One#Op#[A]	*A€* 
+_empty_/One#Alias#*Alias€*
+_empty_/Two#*Two€*)
+_empty_/Two#`<init>`(). €@*<init>€*
+_empty_/Two#Op#*Op€*,
+_empty_/Two#Op#`<init>`(). €@*<init>€*
+_empty_/Two#Op#[A]	*A€* 
+_empty_/Two#View2#*View2€*/
+_empty_/Two#View2#`<init>`(). €@*<init>€*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#[A]	*A€* 
+_empty_/M#value().*value€2
+ 	_empty_/One#2%
+ _empty_/One#`<init>`().2
+ 	_empty_/One#Op#2 
+
+ _empty_/One#Op#[A]2 
+ _empty_/One#Alias#2
+ _empty_/One#Op#2
+ 
+scala/Int#2
+ 	_empty_/Two#2%
+ _empty_/Two#`<init>`().2
+ _empty_/One#2
+ 
+_empty_/Two#Op#2(
+
+ 
+_empty_/Two#Op#`<init>`().2
+ 
+_empty_/M#2 
+ _empty_/Two#Op#[A]2 
+ _empty_/Two#Op#[A]2 
+		 _empty_/Two#View2#2+
+		 _empty_/Two#View2#`<init>`().2 
+		 _empty_/One#Alias#2!
+	$	 *scala/Int#toChar().2 
+		 #_empty_/M#value().2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ 	_empty_/M#[A]2 
+ _empty_/M#value().2
+ _empty_/M#[A]2(
+  %scala/sys/package.error().2
+ 
+scala/sys/PZ 8E03AA441039FD129E8D118D37361467

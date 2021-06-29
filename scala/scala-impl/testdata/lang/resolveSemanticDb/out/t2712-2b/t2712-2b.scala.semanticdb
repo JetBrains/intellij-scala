@@ -1,0 +1,73 @@
+
+¬tests/pos/t2712-2b.scala*
+test/X1#*X1€*%
+test/X1#`<init>`(). €@*<init>€*
+test/X2#*X2€*%
+test/X2#`<init>`(). €@*<init>€*
+test/X3#*X3€*%
+test/X3#`<init>`(). €@*<init>€*
+	test/One#*One€*&
+test/One#`<init>`(). €@*<init>€*
+test/One#[A]	*A€*
+	test/Two#*Two€*&
+test/Two#`<init>`(). €@*<init>€*
+test/Two#[A]	*A€*
+test/Two#[B]	*B€*
+	test/Foo#*Foo€*&
+test/Foo#`<init>`(). €@*<init>€*
+
+test/Test.
+ *Test€* 
+test/Test.test1().*test1€*
+test/Test.test1().[M]	*M€*
+test/Test.test1().[A]	*A€*
+test/Test.test1().(x)*x€*
+test/Test.foo. €*foo€2
+ test/2
+ test/X1#2
+test/X1#`<init>`().2
+ test/X2#2
+test/X2#`<init>`().2
+ test/X3#2
+test/X3#`<init>`().2
+ 		test/One#2"
+	 	test/One#`<init>`().2
+
+ test/One#[A]2
+ 		test/Two#2"
+	 	test/Two#`<init>`().2
+
+ test/Two#[A]2
+ test/Two#[B]2
+		 		test/Foo#2"
+		 test/Foo#`<init>`().2
+		 	test/Two#2
+		 test/X1#2
+		 test/X2#2
+	#	 &	test/One#2
+	'	 )test/X3#2
+
+
+ 
+test/Test.2 
+ test/Test.test1().2#
+ test/Test.test1().[M]2#
+ test/Test.test1().[A]2#
+ test/Test.test1().(x)2#
+ test/Test.test1().[M]2#
+ test/Test.test1().[A]2#
+  test/Test.test1().[M]2#
+! "test/Test.test1().[A]2#
+& 'test/Test.test1().(x)2
+ 	test/Test.foo.2"
+ test/Foo#`<init>`().2
+ 	test/Foo#2 
+ test/Test.test1().2
+ test/Test.foo.2
+ 	test/One#2
+ test/X3#2 
+ test/Test.test1().2
+ test/Test.foo.2
+ 	test/Two#2
+ test/X1#2
+ test/X2#PZ 2EE3E63412FE8FDF7C88B233958197CF

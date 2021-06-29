@@ -1,0 +1,70 @@
+
+Ätests/pos/i941.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#[A]	*A€*+
+_empty_/Test.C#`<init>`(+1).*<init>€*)
+_empty_/Test.C#`<init>`(+1).(y)*y€*!
+_empty_/Test.C#foo().*foo€*"
+_empty_/Test.C#foo().(x)*x€*
+_empty_/Test.D#*D€*,
+_empty_/Test.D#`<init>`(). €@*<init>€*'
+_empty_/Test.D#`<init>`().(x)*x€*
+_empty_/Test.D#[A]	*A€*
+_empty_/Test.D#x. €*x€* 
+_empty_/Test.D#f(). €*f€*&
+_empty_/Test.D#`f_=`(). €*f_=€*(
+_empty_/Test.D#`f_=`().(x$1)*x$1€*+
+_empty_/Test.D#`<init>`(+1).*<init>€*+
+ _empty_/Test.D#`<init>`(+1).(y1)*y1€*+
+ _empty_/Test.D#`<init>`(+1).(y2)*y2€*
+local0 €*g€*!
+_empty_/Test.D#foo().*foo€*"
+_empty_/Test.D#foo().(x)*x€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+	 	_empty_/Test.C#`<init>`().2 
+
+ _empty_/Test.C#[A]2*
+ _empty_/Test.C#`<init>`(+1).2-
+ _empty_/Test.C#`<init>`(+1).(y)2 
+ _empty_/Test.C#[A]2(
+ _empty_/Test.C#`<init>`().2#
+ "_empty_/Test.C#foo().2-
+# $_empty_/Test.C#`<init>`(+1).(y)2#
+ _empty_/Test.C#foo().2&
+ _empty_/Test.C#foo().(x)2 
+ _empty_/Test.C#[A]2
+ scala/Unit#2
+		 	_empty_/Test.D#2(
+			 	_empty_/Test.D#`<init>`().2 
+		 _empty_/Test.D#[A]2 
+	
+	 _empty_/Test.D#[A]2
+		 _empty_/Test.D#x.2!
+ 	_empty_/Test.D#f().2
+ _empty_/Test.D#x.2%
+ _empty_/Test.D#`f_=`().2*
+ _empty_/Test.D#`<init>`(+1).2.
+  _empty_/Test.D#`<init>`(+1).(y1)2 
+ _empty_/Test.D#[A]2.
+  _empty_/Test.D#`<init>`(+1).(y2)2 
+ _empty_/Test.D#[A]2(
+ _empty_/Test.D#`<init>`().2.
+  _empty_/Test.D#`<init>`(+1).(y1)2%
+ _empty_/Test.D#`f_=`().2.
+
+  _empty_/Test.D#`<init>`(+1).(y2)2
+
+ local02 
+ _empty_/Test.D#[A]2!
+ _empty_/Test.D#f().2#
+ 	_empty_/Test.D#foo().2.
+
+  _empty_/Test.D#`<init>`(+1).(y2)2#
+ _empty_/Test.D#foo().2&
+ _empty_/Test.D#foo().(x)2 
+ _empty_/Test.D#[A]2
+ scala/Unit#PZ 97D9AB7C02BE77F2B3EEF1DA34E901A3

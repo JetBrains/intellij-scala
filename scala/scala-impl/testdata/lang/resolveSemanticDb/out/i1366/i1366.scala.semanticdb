@@ -1,0 +1,14 @@
+
+ätests/pos/i1366.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a. €*a€*
+_empty_/Test.c. €*c€2
+ _empty_/Test.2
+ _empty_/Test.a.2
+	 scala/Char#2
+ _empty_/Test.c.2
+
+ scala/Char#2
+ scala/Char#2#
+ scala/Tuple2.apply().PZ A9BD3BC28D74D7F5EAF6E07802BB9B42

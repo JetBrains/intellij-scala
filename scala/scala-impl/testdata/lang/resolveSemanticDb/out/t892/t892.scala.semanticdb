@@ -1,0 +1,75 @@
+
+´tests/pos/t892.scala*
+
+test/Test.
+ *Test€*
+test/Test.Core#*Core€*,
+test/Test.Core#`<init>`(). €@*<init>€*)
+test/Test.Core#Visitor# *Visitor€*4
+"test/Test.Core#Visitor#`<init>`(). €@*<init>€*$
+test/Test.Core#Visitor#[T]	*T€*-
+test/Test.Core#HasVisitor#*
+HasVisitor€*7
+%test/Test.Core#HasVisitor#`<init>`(). €@*<init>€*2
+"test/Test.Core#HasVisitor#visit(). *visit€*/
+%test/Test.Core#HasVisitor#visit().[T]	*T€*;
++test/Test.Core#HasVisitor#visit().(initial)*initial€*
+test/Test.Ext#*Ext€*+
+test/Test.Ext#`<init>`(). €@*<init>€*
+test/Test.Ext#Foo#*Foo€*/
+test/Test.Ext#Foo#`<init>`(). €@*<init>€*(
+test/Test.Ext#Foo#visit().*visit€*'
+test/Test.Ext#Foo#visit().[T]	*T€*3
+#test/Test.Ext#Foo#visit().(initial)*initial€2
+ test/2
+ 
+test/Test.2
+ test/Test.Core#2(
+ test/Test.Core#`<init>`().2%
+ test/Test.Core#Visitor#20
+ "test/Test.Core#Visitor#`<init>`().2(
+ test/Test.Core#Visitor#[T]2(
+
+ test/Test.Core#HasVisitor#23
+ %test/Test.Core#HasVisitor#`<init>`().20
+
+ "test/Test.Core#HasVisitor#visit().23
+ %test/Test.Core#HasVisitor#visit().[T]2%
+ test/Test.Core#Visitor#23
+ %test/Test.Core#HasVisitor#visit().[T]29
+! (+test/Test.Core#HasVisitor#visit().(initial)23
++ ,%test/Test.Core#HasVisitor#visit().[T]23
+0 1%test/Test.Core#HasVisitor#visit().[T]2
+ test/Test.Ext#2'
+ test/Test.Ext#`<init>`().2
+ test/Test.Core#2 
+	
+	 test/Test.Ext#Foo#2+
+
+
+ test/Test.Ext#Foo#`<init>`().2(
+
+
+
+ test/Test.Ext#Foo#visit().2+
+
+
+ test/Test.Ext#Foo#visit().[T]2%
+
+
+ test/Test.Core#Visitor#2+
+
+
+ test/Test.Ext#Foo#visit().[T]21
+
+!
+ (#test/Test.Ext#Foo#visit().(initial)2+
+
++
+ ,test/Test.Ext#Foo#visit().[T]2+
+
+0
+ 1test/Test.Ext#Foo#visit().[T]21
+
+4
+ ;#test/Test.Ext#Foo#visit().(initial)PZ FB100F73755B91313E11DD77FFBA11FC

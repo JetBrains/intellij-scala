@@ -1,0 +1,30 @@
+
+È"tests/pos/factory-conversion.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.to().*to€*#
+_empty_/Test.to().[Col]	*Col€*+
+_empty_/Test.to().(factory)*factory€*"
+_empty_/Test.test. €*test€27
+" 3-scala/annotation/unchecked/uncheckedVariance#2%
+ !scala/annotation/unchecked/2
+ scala/annotation/2
+ scala/2
+ _empty_/Test.2 
+ _empty_/Test.to().2%
+	 _empty_/Test.to().[Col]2)
+ _empty_/Test.to().(factory)2'
+% ,scala/collection/Factory#2
+ $scala/collection/2
+- 0
+scala/Int#2%
+2 5_empty_/Test.to().[Col]2
+6 9
+scala/Int#2;
+; L-scala/annotation/unchecked/uncheckedVariance#2#
+R Uscala/Predef.`???`().2 
+ 
+_empty_/Test.test.2 
+ _empty_/Test.to().2;
+ -scala/collection/IterableFactory.toFactory().2!
+ scala/package.List.PZ ABBB14673AB47E98CB21552C5780578B

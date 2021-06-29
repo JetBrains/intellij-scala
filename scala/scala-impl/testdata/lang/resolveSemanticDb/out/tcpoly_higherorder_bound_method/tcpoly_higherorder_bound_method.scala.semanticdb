@@ -1,0 +1,15 @@
+
+û/tests/pos/tcpoly_higherorder_bound_method.scala*`
+0_empty_/SkolemisationOfHigherOrderBoundInMethod#*'SkolemisationOfHigherOrderBoundInMethod€*M
+;_empty_/SkolemisationOfHigherOrderBoundInMethod#`<init>`(). €@*<init>€*J
+9_empty_/SkolemisationOfHigherOrderBoundInMethod#method(). *method€*F
+<_empty_/SkolemisationOfHigherOrderBoundInMethod#method().[A]	*A€*F
+<_empty_/SkolemisationOfHigherOrderBoundInMethod#method().[N]	*N€*F
+<_empty_/SkolemisationOfHigherOrderBoundInMethod#method().[M]	*M€2:
+ -0_empty_/SkolemisationOfHigherOrderBoundInMethod#2I
+ ;_empty_/SkolemisationOfHigherOrderBoundInMethod#`<init>`().2G
+ 9_empty_/SkolemisationOfHigherOrderBoundInMethod#method().2J
+ <_empty_/SkolemisationOfHigherOrderBoundInMethod#method().[A]2J
+ <_empty_/SkolemisationOfHigherOrderBoundInMethod#method().[N]2J
+ <_empty_/SkolemisationOfHigherOrderBoundInMethod#method().[M]2
+) -scala/Unit#PZ A9B2066024004849AE3B6B9DC3150C27

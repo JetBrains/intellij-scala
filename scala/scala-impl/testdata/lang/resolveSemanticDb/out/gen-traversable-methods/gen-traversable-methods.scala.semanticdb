@@ -1,0 +1,43 @@
+
+Ã'tests/pos/gen-traversable-methods.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*gen€2
+ scala/collection/2
+ _empty_/Test.2"
+		 
+_empty_/Test.main().2(
+		 _empty_/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	!	 %scala/Unit#2
+
+
+ local026
+
+
+ (scala/collection/package.GenTraversable#2
+
+
+ 
+scala/Int#27
+
+'
+ ')scala/collection/IterableFactory#apply().2!
+
+#
+ 'scala/package.List.22
+ $scala/collection/IterableOps#head().2
+ local028
+ *scala/collection/IterableOps#headOption().2
+ local022
+ $scala/collection/IterableOps#tail().2
+ local022
+ $scala/collection/IterableOps#last().2
+ local028
+ *scala/collection/IterableOps#lastOption().2
+ local022
+ $scala/collection/IterableOps#init().2
+ local0PZ 8F9563FF3F3734E46DEDC4C866319EFD

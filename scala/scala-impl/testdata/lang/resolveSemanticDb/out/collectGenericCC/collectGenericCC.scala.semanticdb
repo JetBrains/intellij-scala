@@ -1,0 +1,79 @@
+
+½ tests/pos/collectGenericCC.scala*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.collect().*collect€*$
+_empty_/Test.collect().[A]	*A€*(
+_empty_/Test.collect().[Res]	*Res€*$
+_empty_/Test.collect().(r)*r€*(
+_empty_/Test.collect().(bf)  *bf€*
+local0 €*b€*
+local1*a€2
+ scala/collection/2
+ scala/2
+ _empty_/Test.2%
+ _empty_/Test.collect().2(
+ _empty_/Test.collect().[A]2*
+ _empty_/Test.collect().[Res]2(
+ _empty_/Test.collect().(r)2(
+ !scala/collection/Iterable#2(
+" #_empty_/Test.collect().[A]2)
+/ 1_empty_/Test.collect().(bf)2'
+3 :scala/collection/Factory#2(
+; <_empty_/Test.collect().[A]2*
+> A_empty_/Test.collect().[Res]2
+ 	local02/
+ %!scala/collection/mutable/Builder#2'
+ scala/collection/mutable/2
+ scala/collection/2(
+& '_empty_/Test.collect().[A]2*
+) ,_empty_/Test.collect().[Res]24
+3 =&scala/collection/Factory#newBuilder().2)
+0 2_empty_/Test.collect().(bf)29
+ +scala/collection/IterableOnceOps#foreach().2(
+ _empty_/Test.collect().(r)2
+ local12(
+ _empty_/Test.collect().[A]27
+ )scala/collection/mutable/Growable#`+=`().2
+ local02
+ local128
+ *scala/collection/mutable/Builder#result().2
+ local02%
+		 	_empty_/Test.collect().2
+	
+	 
+scala/Int#2#
+		 scala/package.Vector#2
+		 
+scala/Int#27
+	 	  )scala/collection/IterableFactory#apply().2!
+		  scala/package.List.2A
+	*	 *3scala/collection/IterableFactory#iterableFactory().2%
+
+
+ 	_empty_/Test.collect().2
+
+
+
+ scala/Char#2"
+
+
+ scala/Predef.String#27
+
+
+ )scala/collection/IterableFactory#apply().2!
+
+
+ scala/package.List.25
+
+.
+ .'scala/collection/Factory.stringFactory.2%
+ 	_empty_/Test.collect().2
+
+ scala/Char#2
+ scala/Array#2
+ scala/Char#27
+! !)scala/collection/IterableFactory#apply().2!
+ !scala/package.List.26
+3 3(scala/collection/Factory.arrayFactory().2-
+3 3scala/reflect/ClassTag.apply().PZ 81480B5C24132469ED66AFE1AB835284

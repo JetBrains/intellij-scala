@@ -1,0 +1,64 @@
+
+Ñtests/pos/i11499.scala* 
+_empty_/Functor#*Functor€*-
+_empty_/Functor#`<init>`(). €@*<init>€*
+_empty_/Functor#[F]	*F€*
+_empty_/data.
+ *data€*%
+_empty_/data.OptionT#*OptionT€*"
+_empty_/data.OptionT#[F]	*F€*"
+_empty_/data.OptionT#[A]	*A€*!
+_empty_/data.fold().*fold€*!
+_empty_/data.fold().[F]	*F€*!
+_empty_/data.fold().[A]	*A€*!
+_empty_/data.fold().[B]	*B€*)
+_empty_/data.fold().(value)*value€*!
+_empty_/data.fold().(f)*f€*!
+_empty_/data.cata().*cata€*!
+_empty_/data.cata().[F]	*F€*!
+_empty_/data.cata().[A]	*A€*!
+_empty_/data.cata().[B]	*B€*)
+_empty_/data.cata().(value)*value€*!
+_empty_/data.cata().(f)*f€2
+ _empty_/Functor#2%
+ _empty_/Functor#`<init>`().2
+ _empty_/Functor#[F]2
+ _empty_/data.2#
+ _empty_/data.OptionT#2&
+ _empty_/data.OptionT#[F]2&
+ _empty_/data.OptionT#[A]2&
+ _empty_/data.OptionT#[F]2
+ "scala/Option#2&
+# $_empty_/data.OptionT#[A]2"
+ 
+_empty_/data.fold().2%
+ _empty_/data.fold().[F]2%
+ _empty_/data.fold().[A]2%
+ _empty_/data.fold().[B]2)
+ _empty_/data.fold().(value)2#
+ %_empty_/data.OptionT#2%
+& '_empty_/data.fold().[F]2%
+) *_empty_/data.fold().[A]2%
+- ._empty_/data.fold().(f)2
+0 7_empty_/Functor#2%
+8 9_empty_/data.fold().[F]2%
+= >_empty_/data.fold().[F]2%
+? @_empty_/data.fold().[B]2#
+D Gscala/Predef.`???`().2"
+ 
+_empty_/data.cata().2%
+ _empty_/data.cata().[F]2%
+ _empty_/data.cata().[A]2%
+ _empty_/data.cata().[B]2)
+ _empty_/data.cata().(value)2#
+ %_empty_/data.OptionT#2%
+& '_empty_/data.cata().[F]2%
+) *_empty_/data.cata().[A]2%
+- ._empty_/data.cata().(f)2
+0 7_empty_/Functor#2%
+8 9_empty_/data.cata().[F]2%
+= >_empty_/data.cata().[F]2%
+? @_empty_/data.cata().[B]2"
+		 _empty_/data.fold().2)
+			 _empty_/data.cata().(value)2%
+		 _empty_/data.cata().(f)PZ 21675C02D053690375F7F3436960F238

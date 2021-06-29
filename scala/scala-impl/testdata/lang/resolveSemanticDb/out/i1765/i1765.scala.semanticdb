@@ -1,0 +1,100 @@
+
+Ótests/pos/i1765.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#[X]	*X€*
+
+_empty_/U#*U€*'
+_empty_/U#`<init>`(). €@*<init>€*
+_empty_/U#[X]	*X€*
+_empty_/TC#*TC€*(
+_empty_/TC#`<init>`(). €@*<init>€*
+_empty_/TC#[M]	*M€*
+_empty_/TC#foo().*foo€*
+_empty_/TC#foo().[M]	*M€*
+_empty_/TC#foo().[A]	*A€* 
+_empty_/TC#foo().(ma)*ma€*"
+_empty_/TC#TCofT.  *TCofT€*
+local0 *$anon€*#
+_empty_/TC#any2T().  *any2T€* 
+_empty_/TC#any2T().[A]	*A€* 
+_empty_/TC#any2T().(a)*a€*
+local1 *$anon€*#
+_empty_/TC#any2U().  *any2U€* 
+_empty_/TC#any2U().[A]	*A€* 
+_empty_/TC#any2U().(a)*a€*
+local2 *$anon€*
+_empty_/TC#x. €*x€*
+_empty_/TC#y. €*y€*
+_empty_/TC2#*TC2€*)
+_empty_/TC2#`<init>`(). €@*<init>€*#
+_empty_/TC2#TCofT. €*TCofT€*
+local3*C€2
+ 
+_empty_/T#2
+ _empty_/T#`<init>`().2
+ 	_empty_/T#[X]2
+ 
+_empty_/U#2#
+ _empty_/U#`<init>`().2
+ 	_empty_/U#[X]2
+ _empty_/TC#2$
+ _empty_/TC#`<init>`().2
+	 
+_empty_/TC#[M]2
+ 	_empty_/TC#foo().2"
+
+ _empty_/TC#foo().[M]2"
+ _empty_/TC#foo().[A]2#
+ _empty_/TC#foo().(ma)2
+ 
+_empty_/U#2"
+ _empty_/TC#foo().[A]2
+ _empty_/TC#2"
+ _empty_/TC#foo().[M]2
+ _empty_/TC#TCofT.2
+ _empty_/TC#2
+ local02
+" $_empty_/TC#2!
+ _empty_/TC#any2T().2$
+ _empty_/TC#any2T().[A]2$
+ _empty_/TC#any2T().(a)2$
+ _empty_/TC#any2T().[A]2
+  
+_empty_/T#2$
+! "_empty_/TC#any2T().[A]2
+& &local12
+* +
+_empty_/T#2$
+, -_empty_/TC#any2T().[A]2!
+ _empty_/TC#any2U().2$
+ _empty_/TC#any2U().[A]2$
+ _empty_/TC#any2U().(a)2$
+ _empty_/TC#any2U().[A]2
+  
+_empty_/U#2$
+! "_empty_/TC#any2U().[A]2
+& &local22
+* +
+_empty_/U#2$
+, -_empty_/TC#any2U().[A]2
+		 _empty_/TC#x.2
+	
+	 _empty_/TC#foo().2
+		 
+scala/Int#2!
+		 _empty_/TC#any2U().2
+		 _empty_/TC#TCofT.2
+
+
+ _empty_/TC#y.2
+ 	_empty_/TC2#2%
+ _empty_/TC2#`<init>`().2 
+ _empty_/TC2#TCofT.2
+ java/lang/Object#2
+
+ local32
+ _empty_/TC2#2*
+ java/lang/Object#`<init>`().2
+ java/lang/Object#PZ A5DF58F51EC186894A3BE25737D342CA

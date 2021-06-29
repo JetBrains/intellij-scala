@@ -1,0 +1,37 @@
+
+™tests/pos/i11968.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#get().*get€*)
+_empty_/i11968$package. *_empty_€*%
+_empty_/i11968$package.g().*g€*
+local0 €*s€*
+local1 €*l€*
+local2 €*c€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#get().2
+ 
+scala/Int#2!
+_empty_/i11968$package.2)
+ _empty_/i11968$package.g().2
+ 	local02
+ 
+scala/`|`#2"
+ scala/Predef.String#2
+ scala/Null#2#
+ scala/Predef.`???`().2
+ 	local12(
+ java/lang/String#length().2
+ local02
+ 	local22
+ 
+scala/`|`#2
+ 
+_empty_/C#2
+ scala/Null#2#
+ scala/Predef.`???`().2
+ 	_empty_/C#get().2
+ local2PZ 20076434DA1D49C63A27A868160BA9F8

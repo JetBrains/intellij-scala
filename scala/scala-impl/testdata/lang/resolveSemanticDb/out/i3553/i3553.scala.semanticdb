@@ -1,0 +1,54 @@
+
+åtests/pos/i3553.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*,
+_empty_/Foo#`<init>`().(param)*param€*
+_empty_/Foo#[T]	*T€*#
+_empty_/Foo#param. €*param€*
+_empty_/Foo#foo().*foo€*!
+_empty_/Foo#foo().(in)*in€*
+_empty_/Foo#bar().*bar€*
+_empty_/Foo#bar().[U]	*U€*!
+_empty_/Foo#bar().(in)*in€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*,
+_empty_/Bar#`<init>`().(param)*param€*
+_empty_/Bar#[T]	*T€*#
+_empty_/Bar#param. €*param€*
+_empty_/Bar#foo().*foo€*!
+_empty_/Bar#foo().(in)*in€*
+_empty_/Bar#bar().*bar€*
+_empty_/Bar#bar().[U]	*U€*!
+_empty_/Bar#bar().(in)*in€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ #scala/package.List#2
+
+ _empty_/Foo#[T]2
+ _empty_/Foo#param.2 
+ 	_empty_/Foo#foo().2$
+
+ _empty_/Foo#foo().(in)2!
+ scala/package.List#2!
+ scala/package.List#2 
+% (scala/package.Nil.2 
+ 	_empty_/Foo#bar().2#
+
+ _empty_/Foo#bar().[U]2!
+ scala/package.List#2$
+ _empty_/Foo#bar().(in)2!
+  scala/package.List#2!
+( ,scala/package.List#2 
+6 9scala/package.Nil.2
+ 	_empty_/Bar#2%
+	 	_empty_/Bar#`<init>`().2
+
+ _empty_/Bar#[T]2 
+ _empty_/Bar#param.2 
+ 	_empty_/Bar#foo().2$
+
+ _empty_/Bar#foo().(in)2 
+ 	_empty_/Bar#bar().2#
+
+ _empty_/Bar#bar().[U]2$
+ _empty_/Bar#bar().(in)PZ D8D4A199C1BDED71B1AA835901EDD353

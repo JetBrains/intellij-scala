@@ -1,0 +1,46 @@
+
+Étests/pos/i1795.scala*
+_empty_/T1# *T1€*(
+_empty_/T1#`<init>`(). €@*<init>€*
+_empty_/T1#M1#*M1€*
+_empty_/o1.
+ ˆ*o1€*
+_empty_/T2# *T2€*(
+_empty_/T2#`<init>`(). €@*<init>€*
+_empty_/T2#M2#*M2€*
+_empty_/o2.
+ ˆ*o2€*
+_empty_/TestX#*TestX€*+
+_empty_/TestX#`<init>`(). €@*<init>€*$
+_empty_/TestX#TestT1#*TestT1€*
+local0*M1€*$
+_empty_/TestX#TestT2#*TestT2€*
+local1*M2€2
+ _empty_/T1#2 
+ _empty_/T1#`<init>`().2
+ _empty_/T1#M1#2
+ _empty_/o1.2
+ _empty_/T1#2
+ _empty_/T2#2$
+ _empty_/T2#`<init>`().2
+ _empty_/T2#M2#2
+ _empty_/o2.2
+ _empty_/T2#2
+ _empty_/TestX#2'
+		 _empty_/TestX#`<init>`().2#
+		 _empty_/TestX#TestT1#2
+		 _empty_/T1#2
+		 local02#
+		 %_empty_/TestX#TestT2#2#
+
+
+ _empty_/TestX#TestT2#2
+
+
+ _empty_/T2#2
+
+
+ local12#
+
+
+ %_empty_/TestX#TestT1#PZ 6A4C5ABD90557248D512E3594F4579FF

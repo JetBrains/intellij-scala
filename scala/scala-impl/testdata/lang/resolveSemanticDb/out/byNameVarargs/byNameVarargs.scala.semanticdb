@@ -1,0 +1,41 @@
+
+ãtests/pos/byNameVarargs.scala*
+test/O.
+ *O€*
+test/O.byname().*byname€*
+test/O.byname().(xs)*xs€*
+test/O.byval().*byval€*
+test/O.byval().(xs)*xs€*
+test/O.a().*a€*
+test/O.b().*b€2
+ test/2
+ test/O.2
+ test/O.byname().2"
+ test/O.byname().(xs)2
+ 
+scala/Int#25
+ "'scala/collection/IterableOnceOps#sum().2"
+ test/O.byname().(xs)2/
+" "!scala/math/Numeric.IntIsIntegral.2
+ test/O.byval().2!
+ test/O.byval().(xs)2
+ 
+scala/Int#25
+ 'scala/collection/IterableOnceOps#sum().2!
+ test/O.byval().(xs)2/
+ !scala/math/Numeric.IntIsIntegral.2
+ test/O.a().2
+ test/O.b().2
+
+
+ test/O.byval().2
+
+
+ 	test/O.a().2
+
+
+ test/O.b().2
+ test/O.byname().2
+	 
+test/O.a().2
+ test/O.b().PZ A1F9FCDE5C31C91C8326D147A28CED87

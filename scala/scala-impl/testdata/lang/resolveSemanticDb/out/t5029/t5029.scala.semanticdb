@@ -1,0 +1,11 @@
+
+òtests/pos/t5029.scala*
+_empty_/Test.
+ *Test€2
+ _empty_/Test.27
+ )scala/collection/IterableFactory#apply().2#
+ scala/package.Vector.2 
+ scala/package.Seq#27
+( ()scala/collection/SeqFactory#unapplySeq().2!
+$ (scala/package.List.2 
+9 <scala/package.Nil.PZ 8F4958E5703DAF163581BF67AC5560E0

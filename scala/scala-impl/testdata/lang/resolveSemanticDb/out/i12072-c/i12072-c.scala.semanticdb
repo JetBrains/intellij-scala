@@ -1,0 +1,155 @@
+
+´&tests/pos/i12072-c.scala*
+
+_empty_/T.
+ *T€*
+_empty_/T.f().*f€*
+_empty_/T.f().(s)*s€*
+_empty_/T.V. €*V€*
+_empty_/T.D().*D€*
+_empty_/T.Trait#*Trait€*-
+_empty_/T.Trait#`<init>`(). €@*<init>€* 
+_empty_/T.Trait#s(). *s€*
+_empty_/T.if_v().*if_v€*
+_empty_/T.if_d().*if_d€*$
+_empty_/T.match_v().*match_v€*$
+_empty_/T.match_d().*match_d€* 
+_empty_/T.if_fv().*if_fv€* 
+_empty_/T.if_fd().*if_fd€*&
+_empty_/T.match_fv().*match_fv€*&
+_empty_/T.match_fd().*match_fd€*
+_empty_/T.IfV.
+ *IfV€*
+_empty_/T.IfV.s().*s€*6
+_empty_/T.IfV.s$retainedBody().*s$retainedBody€*
+_empty_/T.IfD.
+ *IfD€*
+_empty_/T.IfD.s().*s€*6
+_empty_/T.IfD.s$retainedBody().*s$retainedBody€*"
+_empty_/T.MatchV.
+ *MatchV€*
+_empty_/T.MatchV.s().*s€*9
+"_empty_/T.MatchV.s$retainedBody().*s$retainedBody€*"
+_empty_/T.MatchD.
+ *MatchD€*
+_empty_/T.MatchD.s().*s€*9
+"_empty_/T.MatchD.s$retainedBody().*s$retainedBody€*
+_empty_/T.IfFV.
+ *IfFV€*
+_empty_/T.IfFV.s().*s€*7
+ _empty_/T.IfFV.s$retainedBody().*s$retainedBody€*
+_empty_/T.IfFD.
+ *IfFD€*
+_empty_/T.IfFD.s().*s€*7
+ _empty_/T.IfFD.s$retainedBody().*s$retainedBody€*$
+_empty_/T.MatchFV.
+ *MatchFV€* 
+_empty_/T.MatchFV.s().*s€*:
+#_empty_/T.MatchFV.s$retainedBody().*s$retainedBody€*$
+_empty_/T.MatchFD.
+ *MatchFD€* 
+_empty_/T.MatchFD.s().*s€*:
+#_empty_/T.MatchFD.s$retainedBody().*s$retainedBody€2
+ 
+_empty_/T.2
+ _empty_/T.f().2
+" #_empty_/T.f().(s)2"
+% +scala/Predef.String#2
+5 6
+scala/`|`#2"
+. 4scala/Predef.String#2
+7 ;scala/Null#2
+ _empty_/T.V.2
+ _empty_/T.D().2
+ _empty_/T.Trait#2)
+ _empty_/T.Trait#`<init>`().2"
+ _empty_/T.Trait#s().2"
+ scala/Predef.String#2
+ scala/Any#`==`().2
+ _empty_/T.V.2
+ _empty_/T.if_v().2"
+ %scala/Predef.String#2
+ scala/Any#`==`().2
+ _empty_/T.D().2
+ _empty_/T.if_d().2"
+ %scala/Predef.String#2
+ _empty_/T.V.2"
+  _empty_/T.match_v().2"
+" (scala/Predef.String#2
+ _empty_/T.D().2"
+  _empty_/T.match_d().2"
+" (scala/Predef.String#2
+ scala/Any#`==`().2
+ _empty_/T.f().2
+ _empty_/T.V.2 
+ _empty_/T.if_fv().2"
+  &scala/Predef.String#2
+   scala/Any#`==`().2
+   _empty_/T.f().2
+   _empty_/T.D().2 
+ _empty_/T.if_fd().2"
+  &scala/Predef.String#2
+## _empty_/T.f().2
+## _empty_/T.V.2#
+"" !_empty_/T.match_fv().2"
+"#" )scala/Predef.String#2
+&& _empty_/T.f().2
+&& _empty_/T.D().2#
+%% !_empty_/T.match_fd().2"
+%#% )scala/Predef.String#2
++	+ _empty_/T.IfV.2
+++ _empty_/T.Trait#2
+-- scala/Any#`==`().2
+-- _empty_/T.V.2 
+,$, %_empty_/T.IfV.s().2"
+,', -scala/Predef.String#2 
+-- _empty_/T.IfV.s().2
+0	0 _empty_/T.IfD.2
+00 _empty_/T.Trait#2
+22 scala/Any#`==`().2
+22 _empty_/T.D().2 
+1$1 %_empty_/T.IfD.s().2"
+1'1 -scala/Predef.String#2 
+22 _empty_/T.IfD.s().2
+5	5 _empty_/T.MatchV.2
+55 _empty_/T.Trait#2
+77 _empty_/T.V.2#
+6$6 %_empty_/T.MatchV.s().2"
+6'6 -scala/Predef.String#2#
+77 _empty_/T.MatchV.s().2
+:	: _empty_/T.MatchD.2
+:: _empty_/T.Trait#2
+<< _empty_/T.D().2#
+;$; %_empty_/T.MatchD.s().2"
+;'; -scala/Predef.String#2#
+<< _empty_/T.MatchD.s().2
+B	B _empty_/T.IfFV.2
+BB _empty_/T.Trait#2
+DD scala/Any#`==`().2
+DD _empty_/T.f().2
+DD _empty_/T.V.2!
+C$C %_empty_/T.IfFV.s().2"
+C'C -scala/Predef.String#2!
+DD _empty_/T.IfFV.s().2
+G	G _empty_/T.IfFD.2
+GG _empty_/T.Trait#2
+II scala/Any#`==`().2
+II _empty_/T.f().2
+II _empty_/T.D().2!
+H$H %_empty_/T.IfFD.s().2"
+H'H -scala/Predef.String#2!
+II _empty_/T.IfFD.s().2 
+L	L _empty_/T.MatchFV.2
+LL _empty_/T.Trait#2
+NN _empty_/T.f().2
+NN _empty_/T.V.2$
+M$M %_empty_/T.MatchFV.s().2"
+M'M -scala/Predef.String#2$
+NN _empty_/T.MatchFV.s().2 
+Q	Q _empty_/T.MatchFD.2
+QQ _empty_/T.Trait#2
+SS _empty_/T.f().2
+SS _empty_/T.D().2$
+R$R %_empty_/T.MatchFD.s().2"
+R'R -scala/Predef.String#2$
+SS _empty_/T.MatchFD.s().PZ DDA7F7F7BD1B2844EBFE2E996AB30CE1

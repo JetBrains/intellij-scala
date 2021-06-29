@@ -1,0 +1,54 @@
+
+ãtests/pos/i3479.scala*0
+_empty_/TermConstraint# *TermConstraint€*4
+"_empty_/TermConstraint#`<init>`(). €@*<init>€*+
+_empty_/TermConstraint#neg(). *neg€*
+local0 €*c€*
+local1 €*c€*
+_empty_/Neg# €*Neg€*)
+_empty_/Neg#`<init>`(). €@*<init>€*'
+_empty_/Neg#`<init>`().(c) €*c€*
+_empty_/Neg#c. €*c€* 
+_empty_/Neg#copy().*copy€* 
+_empty_/Neg#copy().(c)*c€*4
+_empty_/Neg#copy$default$1().*copy$default$1€*
+_empty_/Neg#_1().*_1€*
+_empty_/Neg.
+ *Neg€*"
+_empty_/Neg.apply().*apply€*!
+_empty_/Neg.apply().(c)*c€*&
+_empty_/Neg.unapply().*unapply€*'
+_empty_/Neg.unapply().(x$1)*x$1€*(
+_empty_/Neg.toString().*toString€*@
+_empty_/PositiveTermConstraint# *PositiveTermConstraint€*<
+*_empty_/PositiveTermConstraint#`<init>`(). €@*<init>€*
+_empty_/Dummy.
+ ˆ*Dummy€2!
+ _empty_/TermConstraint#20
+ "_empty_/TermConstraint#`<init>`().2+
+ _empty_/TermConstraint#neg().2%
+ _empty_/TermConstraint#2$
+ _empty_/Neg.unapply().2
+	 _empty_/Neg.2
+ local02
+ local02
+	 
+local12-
+ "_empty_/PositiveTermConstraint#2"
+) )_empty_/Neg.apply().2
+& )_empty_/Neg.2
+* +local12
+ _empty_/Neg#2%
+ _empty_/Neg#`<init>`().2-
+ (_empty_/PositiveTermConstraint#2%
+2 @_empty_/TermConstraint#2
+ _empty_/Neg#c.2
+_empty_/Neg#copy().2
+ _empty_/Neg#_1().2
+ _empty_/Neg.2
+_empty_/Neg.apply().2-
+ #_empty_/PositiveTermConstraint#28
+, ,*_empty_/PositiveTermConstraint#`<init>`().2%
+, :_empty_/TermConstraint#2
+		 _empty_/Dummy.2-
+		 0_empty_/PositiveTermConstraint#PZ 856621F05D4F0C134D737BD0CD65F028

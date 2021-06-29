@@ -1,0 +1,19 @@
+
+ñtests/pos/t5846.scala*
+_empty_/Test.
+ *Test€*$
+_empty_/Test.empty. €*empty€2
+ _empty_/Test.2
+ 
+scala/App#2!
+ _empty_/Test.empty.2)
+ !scala/collection/SortedMap#2
+ scala/collection/2"
+" (scala/Predef.String#2"
+* 0scala/Predef.String#2A
+I N3scala/collection/SortedMapFactory.Delegate#empty().2)
+? Hscala/collection/SortedMap.2
+4 >scala/collection/2"
+O Uscala/Predef.String#2"
+W ]scala/Predef.String#2)
+^ ^scala/math/Ordering.String.PZ 29C4EDC00A866122A4F3E7550EBEFAC0

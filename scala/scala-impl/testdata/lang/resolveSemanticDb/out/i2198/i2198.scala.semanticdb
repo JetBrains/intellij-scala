@@ -1,0 +1,24 @@
+
+·tests/pos/i2198.scala*
+_empty_/Test.
+ *Test€* 
+_empty_/Test.nil. €*nil€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(x)*x€2
+ _empty_/Test.2
+ 	_empty_/Test.nil.2-
+' *scala/collection/immutable/Nil.2)
+ &scala/collection/immutable/2
+ scala/collection/2
+ scala/2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(x)2
+ _empty_/Test.nil.2
+ 
+scala/Int#2
+ _empty_/Test.f().2-
+ "scala/collection/immutable/Nil.2)
+ scala/collection/immutable/2
+
+ scala/collection/2
+ 	scala/PZ 82B505C3B567D69FEE902AF284095C24

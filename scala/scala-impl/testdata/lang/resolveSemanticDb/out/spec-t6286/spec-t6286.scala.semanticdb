@@ -1,0 +1,67 @@
+
+®tests/pos/spec-t6286.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[A]	*A€* 
+_empty_/Foo#fun(). *fun€*
+_empty_/Foo#fun().[B]	*B€*%
+_empty_/Foo#fun().(init)*init€*
+_empty_/Foo#fun().(f)*f€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*.
+_empty_/Bar#`<init>`().(values)*values€*%
+_empty_/Bar#values. €*values€*
+_empty_/Bar#fun().*fun€*
+_empty_/Bar#fun().[C]	*C€*%
+_empty_/Bar#fun().(init)*init€*
+_empty_/Bar#fun().(f)*f€*
+local0 €*arr€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ scala/specialized#2
+ 
+scala/Int.2
+ _empty_/Foo#[A]2 
+ 	_empty_/Foo#fun().2 
+ scala/specialized#2
+ 
+scala/Int.2#
+ _empty_/Foo#fun().[B]2&
+ #_empty_/Foo#fun().(init)2#
+% &_empty_/Foo#fun().[B]2#
+( )_empty_/Foo#fun().(f)2#
+, -_empty_/Foo#fun().[B]2
+/ 0_empty_/Foo#[A]2#
+5 6_empty_/Foo#fun().[B]2#
+9 :_empty_/Foo#fun().[B]2
+ 	_empty_/Bar#2%
+	 	_empty_/Bar#`<init>`().2
+ scala/Array#2
+ 
+scala/Int#2
+& )_empty_/Foo#2
+* -
+scala/Int#2!
+
+ _empty_/Bar#values.2 
+ 	_empty_/Bar#fun().2 
+ scala/specialized#2
+ 
+scala/Int.2#
+ _empty_/Bar#fun().[C]2&
+ #_empty_/Bar#fun().(init)2#
+% &_empty_/Bar#fun().[C]2#
+( )_empty_/Bar#fun().(f)2#
+, -_empty_/Bar#fun().[C]2
+/ 2
+scala/Int#2#
+7 8_empty_/Bar#fun().[C]2#
+; <_empty_/Bar#fun().[C]2
+ local02!
+ _empty_/Bar#values.2&
+ scala/Function2#apply().2#
+ _empty_/Bar#fun().(f)2&
+ 
+_empty_/Bar#fun().(init)2"
+ scala/Array#apply().2
+ local0PZ 8BBDE0D57EC9B980AA9B5297471B5D56

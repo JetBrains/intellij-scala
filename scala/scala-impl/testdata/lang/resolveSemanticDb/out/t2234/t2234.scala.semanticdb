@@ -1,0 +1,20 @@
+
+étests/pos/t2234.scala*
+_empty_/Test.
+ *Test€*"
+_empty_/Test.res0. €*res0€*
+local0 €*xs€2
+ _empty_/Test.2
+ 
+scala/App#2 
+ 
+_empty_/Test.res0.2A
+ 3scala/collection/immutable/Stream.Deferrer#`#::`().2=
+ /scala/collection/immutable/Stream.toDeferrer().28
+ *scala/collection/immutable/Stream.empty().2#
+ scala/package.Stream.2 
+ _empty_/Test.res0.2.
+  scala/package.`#::`.unapply(+1).2"
+ scala/package.`#::`.2
+ local02
+  "local0PZ 90D9CB082CB4011A06D99B22C6DD25F2

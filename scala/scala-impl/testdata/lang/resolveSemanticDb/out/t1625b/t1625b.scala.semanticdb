@@ -1,0 +1,14 @@
+
+Åtests/pos/t1625b.scala*
+_empty_/T1#*T1Ä*(
+_empty_/T1#`<init>`(). Ä@*<init>Ä*
+_empty_/T1#foo(). *fooÄ*
+_empty_/T1#foo().(x)*xÄ2
+ _empty_/T1#2$
+ _empty_/T1#`<init>`().2
+ 	_empty_/T1#foo().2"
+
+ _empty_/T1#foo().(x)2"
+ scala/Predef.String#2
+ 
+scala/Int#PZ AEC97B6C31003FC1D6C311C692D41AF9

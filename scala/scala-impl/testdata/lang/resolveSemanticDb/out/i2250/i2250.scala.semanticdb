@@ -1,0 +1,20 @@
+
+Ãtests/pos/i2250.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#foo().*foo€*!
+_empty_/T#foo().(any)*any€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ 	_empty_/T#foo().2#
+
+ _empty_/T#foo().(any)2
+ scala/AnyRef#2
+ scala/Unit#23
+ '%scala/collection/ArrayOps#iterator().2-
+ scala/Predef.genericArrayOps().2'
+ scala/Any#asInstanceOf().2#
+ _empty_/T#foo().(any)2
+ scala/Array#PZ 6052B95072106C5039F25DD1D92D34C4

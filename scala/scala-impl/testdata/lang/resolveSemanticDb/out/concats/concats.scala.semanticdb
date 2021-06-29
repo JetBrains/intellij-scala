@@ -1,0 +1,45 @@
+
+›tests/pos/concats.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Name#*Name€*4
+_empty_/Test.CommonOpNames. €*CommonOpNames€*8
+_empty_/Test.ConversionNames. €*ConversionNames€*6
+_empty_/Test.BooleanOpNames. €*BooleanOpNames€*4
+_empty_/Test.NumberOpNames. €*NumberOpNames€2
+ _empty_/Test.2 
+ _empty_/Test.Name#2"
+ scala/Predef.String#2)
+ _empty_/Test.CommonOpNames.2
+ scala/Predef.Set#2 
+ _empty_/Test.Name#27
+& &)scala/collection/IterableFactory#apply().2
+# &scala/Predef.Set.2+
+ _empty_/Test.ConversionNames.2
+ scala/Predef.Set#2 
+ _empty_/Test.Name#27
+& &)scala/collection/IterableFactory#apply().2
+# &scala/Predef.Set.2*
+ _empty_/Test.BooleanOpNames.2
+ scala/Predef.Set#2 
+ _empty_/Test.Name#2-
+. 0scala/collection/SetOps#`++`().27
+& &)scala/collection/IterableFactory#apply().2
+# &scala/Predef.Set.2)
+1 >_empty_/Test.CommonOpNames.2)
+ _empty_/Test.NumberOpNames.2
+ scala/Predef.Set#2 
+ _empty_/Test.Name#2-
+ scala/collection/SetOps#`++`().2-
+ scala/collection/SetOps#`++`().27
+
+ 
+)scala/collection/IterableFactory#apply().2
+ 
+scala/Predef.Set.27
+
+ 
+)scala/collection/IterableFactory#apply().2
+ 
+scala/Predef.Set.2)
+ _empty_/Test.CommonOpNames.PZ 5ABD56641D32F06B0FD9393062407C8A

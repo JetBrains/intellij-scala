@@ -1,0 +1,139 @@
+
+³&tests/pos/i8892.scala*"
+_empty_/Reporter#*Reporter€*.
+_empty_/Reporter#`<init>`(). €@*<init>€*+
+_empty_/Reporter#report(). *report€*'
+_empty_/Reporter#report().(m)*m€*
+_empty_/Dummy#*Dummy€*+
+_empty_/Dummy#`<init>`(). €@*<init>€*&
+_empty_/Dummy#report().*report€*$
+_empty_/Dummy#report().(m)*m€*"
+_empty_/Dummy#ABug.
+ *ABug€*%
+_empty_/Dummy#ABug.Nat# *Nat€*4
+"_empty_/Dummy#ABug.Nat#`<init>`(). €@*<init>€*)
+_empty_/Dummy#ABug.Nat#`++`().*++€*
+local0 €	*N$1€*
+local1 €*p€*'
+_empty_/Dummy#ABug.Nat#`+`().*+€*0
+#_empty_/Dummy#ABug.Nat#`+`().(that)*that€*(
+_empty_/Dummy#ABug.Zero.
+ ˆ*Zero€*(
+_empty_/Dummy#ABug.Succ# €*Succ€*5
+#_empty_/Dummy#ABug.Succ#`<init>`(). €@*<init>€*3
+&_empty_/Dummy#ABug.Succ#`<init>`().(p) €*p€*%
+_empty_/Dummy#ABug.Succ#[N]	*N€*'
+_empty_/Dummy#ABug.Succ#p. €*p€*,
+_empty_/Dummy#ABug.Succ#copy().*copy€*,
+"_empty_/Dummy#ABug.Succ#copy().[N]	*N€*,
+"_empty_/Dummy#ABug.Succ#copy().(p)*p€*@
+)_empty_/Dummy#ABug.Succ#copy$default$1().*copy$default$1€*6
+,_empty_/Dummy#ABug.Succ#copy$default$1().[N]	*N€*(
+_empty_/Dummy#ABug.Succ#_1().*_1€*'
+_empty_/Dummy#ABug.Succ.
+ *Succ€*.
+ _empty_/Dummy#ABug.Succ.apply().*apply€*-
+#_empty_/Dummy#ABug.Succ.apply().[N]	*N€*-
+#_empty_/Dummy#ABug.Succ.apply().(p)*p€*2
+"_empty_/Dummy#ABug.Succ.unapply().*unapply€*/
+%_empty_/Dummy#ABug.Succ.unapply().[N]	*N€*3
+'_empty_/Dummy#ABug.Succ.unapply().(x$1)*x$1€*4
+#_empty_/Dummy#ABug.Succ.toString().*toString€*
+local2 €	*N$2€*
+local3 €*p€*+
+_empty_/Dummy#ABug.toIntg().*toIntg€*)
+_empty_/Dummy#ABug.toIntg().(n)*n€*&
+_empty_/Dummy#ABug.j31. €*j31€*
+local4 €*Nat_this€*
+local5 €*
+ABug$_this€*
+local6 €*Nat_this€*
+local7 €*
+ABug$_this€*
+local8 €*Nat_this€*
+local9 €*
+ABug$_this€2
+ _empty_/Reporter#2*
+ _empty_/Reporter#`<init>`().2(
+ _empty_/Reporter#report().2+
+ _empty_/Reporter#report().(m)2"
+ scala/Predef.String#2
+ scala/Unit#2
+ _empty_/Dummy#2'
+ _empty_/Dummy#`<init>`().2
+ _empty_/Reporter#2%
+ _empty_/Dummy#report().2(
+ _empty_/Dummy#report().(m)2"
+ scala/Predef.String#2!
+	 _empty_/Dummy#ABug.2%
+ _empty_/Dummy#ABug.Nat#20
+ "_empty_/Dummy#ABug.Nat#`<init>`().2.
+8 8 _empty_/Dummy#ABug.Succ.apply().2&
+4 8_empty_/Dummy#ABug.Succ.2,
+ _empty_/Dummy#ABug.Nat#`++`().2&
+" &_empty_/Dummy#ABug.Succ#2&
+ _empty_/Dummy#ABug.Zero.21
+ #_empty_/Dummy#ABug.Nat#`+`().(that)20
+ "_empty_/Dummy#ABug.Succ.unapply().2&
+ _empty_/Dummy#ABug.Succ.2
+ local02
+ local12+
+ _empty_/Dummy#ABug.Nat#`+`().2
+ local12,
+# %_empty_/Dummy#ABug.Nat#`++`().21
+ "#_empty_/Dummy#ABug.Nat#`+`().(that)2+
+
+
+ _empty_/Dummy#ABug.Nat#`+`().21
+
+&
+ *#_empty_/Dummy#ABug.Nat#`+`().(that)2%
+
+,
+ /_empty_/Dummy#ABug.Nat#2%
+
+2
+ 5_empty_/Dummy#ABug.Nat#2&
+ _empty_/Dummy#ABug.Zero.2%
+  _empty_/Dummy#ABug.Nat#2&
+ _empty_/Dummy#ABug.Succ#21
+ #_empty_/Dummy#ABug.Succ#`<init>`().2)
+! "_empty_/Dummy#ABug.Succ#[N]2%
+, /_empty_/Dummy#ABug.Nat#2)
+ _empty_/Dummy#ABug.Succ#[N]2(
+ _empty_/Dummy#ABug.Succ#p.2-
+ _empty_/Dummy#ABug.Succ#copy().2+
+! !_empty_/Dummy#ABug.Succ#_1().2&
+ _empty_/Dummy#ABug.Succ.2.
+  _empty_/Dummy#ABug.Succ.apply().20
+ "_empty_/Dummy#ABug.Succ.unapply().2-
+ _empty_/Dummy#ABug.toIntg().(n)2&
+ _empty_/Dummy#ABug.Zero.20
+ "_empty_/Dummy#ABug.Succ.unapply().2&
+ _empty_/Dummy#ABug.Succ.2
+ local22
+ local32 
+" #scala/Int#`+`(+4).2*
+ _empty_/Dummy#ABug.toIntg().2
+  local32*
+ !_empty_/Dummy#ABug.toIntg().2-
+) *_empty_/Dummy#ABug.toIntg().(n)2%
+, /_empty_/Dummy#ABug.Nat#2
+2 5
+scala/Int#2%
+ _empty_/Dummy#ABug.j31.2*
+ _empty_/Dummy#ABug.toIntg().2
+ "local42&
+ _empty_/Dummy#ABug.Zero.2
+ $local52
+ %local62,
+ _empty_/Dummy#ABug.Nat#`++`().2&
+ _empty_/Dummy#ABug.Zero.2
+ 'local72
+  (local82,
+ _empty_/Dummy#ABug.Nat#`++`().2
+  *local92+
+# $_empty_/Dummy#ABug.Nat#`+`().2,
+  "_empty_/Dummy#ABug.Nat#`++`().2,
+* ,_empty_/Dummy#ABug.Nat#`++`().2&
+% )_empty_/Dummy#ABug.Zero.PZ 06EDE10F54F1B3AD1D112279E5601082

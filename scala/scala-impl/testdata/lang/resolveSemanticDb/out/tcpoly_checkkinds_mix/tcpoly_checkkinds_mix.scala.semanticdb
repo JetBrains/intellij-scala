@@ -1,0 +1,71 @@
+
+Õ%tests/pos/tcpoly_checkkinds_mix.scala*"
+_empty_/Iterable#*Iterable€*.
+_empty_/Iterable#`<init>`(). €@*<init>€*
+_empty_/Iterable#[A]	*A€*&
+_empty_/Iterable#[Bound]	*Bound€*'
+_empty_/Iterable#MyType#*MyType€*%
+_empty_/Iterable#MyType#[x]	*x€*%
+_empty_/Iterable#map(). *map€*$
+_empty_/Iterable#map().[B]	*B€*$
+_empty_/Iterable#map().(f)*f€*-
+_empty_/Iterable#flatMap(). *flatMap€*(
+_empty_/Iterable#flatMap().[B]	*B€*(
+_empty_/Iterable#flatMap().(f)*f€*+
+_empty_/Iterable#filter(). *filter€*'
+_empty_/Iterable#filter().(p)*p€*&
+_empty_/OrderedSet#*
+OrderedSet€*0
+_empty_/OrderedSet#`<init>`(). €@*<init>€* 
+_empty_/OrderedSet#[T]	*T€*)
+_empty_/OrderedSet#MyType#*MyType€*'
+_empty_/OrderedSet#MyType#[x]	*x€2
+ _empty_/Iterable#2&
+ _empty_/Iterable#`<init>`().2
+ _empty_/Iterable#[A]2"
+ #_empty_/Iterable#[Bound]2&
+ _empty_/Iterable#MyType#2)
+ _empty_/Iterable#MyType#[x]2&
+ _empty_/Iterable#[Bound]2)
+ _empty_/Iterable#MyType#[x]2
+  (_empty_/Iterable#2)
+) *_empty_/Iterable#MyType#[x]2&
+, 1_empty_/Iterable#[Bound]2%
+ 	_empty_/Iterable#map().2(
+
+ _empty_/Iterable#map().[B]2&
+ _empty_/Iterable#[Bound]2(
+ _empty_/Iterable#map().[B]2(
+ _empty_/Iterable#map().(f)2"
+ _empty_/Iterable#[A]2(
+! "_empty_/Iterable#map().[B]2&
+% +_empty_/Iterable#MyType#2(
+, -_empty_/Iterable#map().[B]2)
+ _empty_/Iterable#flatMap().2,
+ _empty_/Iterable#flatMap().[B]2&
+ _empty_/Iterable#[Bound]2,
+ _empty_/Iterable#flatMap().[B]2,
+ _empty_/Iterable#flatMap().(f)2"
+  !_empty_/Iterable#[A]2&
+% +_empty_/Iterable#MyType#2,
+, -_empty_/Iterable#flatMap().[B]2&
+1 7_empty_/Iterable#MyType#2,
+8 9_empty_/Iterable#flatMap().[B]2(
+ _empty_/Iterable#filter().2+
+ _empty_/Iterable#filter().(p)2"
+ _empty_/Iterable#[A]2
+ scala/Boolean#2&
+ %_empty_/Iterable#MyType#2"
+& '_empty_/Iterable#[A]2!
+ _empty_/OrderedSet#2,
+ _empty_/OrderedSet#`<init>`().2
+* 2_empty_/Iterable#2$
+3 4_empty_/OrderedSet#[T]2$
+6 =scala/package.Ordered#2$
+ _empty_/OrderedSet#[T]2(
+ _empty_/OrderedSet#MyType#2+
+ _empty_/OrderedSet#MyType#[x]2$
+ scala/package.Ordered#2+
+ _empty_/OrderedSet#MyType#[x]2!
+! +_empty_/OrderedSet#2+
+, -_empty_/OrderedSet#MyType#[x]PZ 6E66B6FC72DDF67D46B8E1B74494971E

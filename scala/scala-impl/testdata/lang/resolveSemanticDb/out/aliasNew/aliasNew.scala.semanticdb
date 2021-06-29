@@ -1,0 +1,20 @@
+
+étests/pos/aliasNew.scala*
+_empty_/test.
+ *test€*
+_empty_/test.Map#*Map€*
+_empty_/test.xs. €*xs€2
+ _empty_/test.2
+ 
+_empty_/test.Map#2/
+  '!scala/collection/mutable/HashMap#2'
+ scala/collection/mutable/2
+ scala/collection/2"
+( .scala/Predef.String#2
+0 3
+scala/Int#2
+ _empty_/test.xs.2<
+ .scala/collection/mutable/HashMap#`<init>`(+1).2
+ _empty_/test.Map#28
+ *scala/collection/mutable/HashMap#update().2
+ _empty_/test.xs.PZ 7A10FA11F201DEF933CBFBB64C9B8DC7

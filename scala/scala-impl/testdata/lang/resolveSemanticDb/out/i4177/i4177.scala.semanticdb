@@ -1,0 +1,128 @@
+
+Ätests/pos/i4177.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#Foo.
+ *Foo€*+
+_empty_/Test#Foo.unapply().*unapply€*(
+_empty_/Test#Foo.unapply().(x)*x€*!
+_empty_/Test#test().*test€*
+local0 €*a€*
+local1*x$1€*
+local2 €*x€*
+local3 €*b€*
+local4*x$1€*
+local5 €*x€*
+local6 €*e€*
+local7*x$1€*
+local8 €*x€*
+local9 €*f€*
+local10*x€*
+local11 €*g€*
+local12*x€*
+local13*P€*
+local14 €*h€*
+local15*x$1€*
+local16 €*x€*
+local17 €*i€*
+local18*x€*
+local19 €*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+	 _empty_/Test#Foo.2)
+ _empty_/Test#Foo.unapply().2,
+ _empty_/Test#Foo.unapply().(x)2
+ !
+scala/Int#2!
++ -scala/Int#`==`(+3).2,
+) *_empty_/Test#Foo.unapply().(x)2!
+5 5scala/Some.apply().2
+1 5scala/Some.2#
+8 @scala/Any#toString().2,
+6 7_empty_/Test#Foo.unapply().(x)2
+G Kscala/None.2"
+ 
+_empty_/Test#test().2
+ scala/Unit#2
+ 	local02$
+ scala/PartialFunction#2
+ 
+scala/Int#2"
+  &scala/Predef.String#2
+, ,local12)
+4 4_empty_/Test#Foo.unapply().2
+1 4_empty_/Test#Foo.2
+5 6local22
+; <local22
+ 	local32$
+ scala/PartialFunction#2
+ 
+scala/Int#2"
+  &scala/Predef.String#2
+, ,local42
+1 2local52#
+8 @scala/Any#toString().2
+6 7local52
+ 	local62$
+ scala/PartialFunction#2"
+ !scala/Predef.String#2"
+# )scala/Predef.String#2
+/ /local72
+4 5local82
+A Blocal82
+		 	local92$
+		 scala/PartialFunction#2"
+		 !scala/Predef.String#2"
+	#	 )scala/Predef.String#2
+	-	 .local102
+	2	 3local102
+	J	 Klocal102
+
+
+ 	local112$
+
+
+ scala/PartialFunction#2"
+
+
+ !scala/Predef.String#2"
+
+#
+ )scala/Predef.String#2
+
+-
+ .local122
+
+2
+ 3local122)
+
+L
+ Sjava/lang/String#isEmpty().2
+
+J
+ Klocal122
+
+W
+ Xlocal122
+	 
+local132$
+ scala/PartialFunction#2"
+ #scala/Predef.String#2"
+$ *scala/Predef.String#2
+ 	local142
+ local132
+ local152
+ local162*
+ %java/lang/String#toString().2
+ local162
+ 	local172$
+ scala/PartialFunction#2
+ 
+scala/Int#2
+  #
+scala/Int#2
+) *local182
+. /local182
+= >local192
+B Clocal19PZ 3AFA1571B8804312DAA3501FEA375158

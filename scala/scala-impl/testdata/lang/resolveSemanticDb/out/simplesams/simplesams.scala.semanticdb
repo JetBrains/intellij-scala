@@ -1,0 +1,46 @@
+
+«tests/pos/simplesams.scala*
+test/X#*X€*$
+test/X#`<init>`(). €@*<init>€*
+test/X#foo(). *foo€*
+test/X#foo().(x)*x€*
+test/X#bar().*bar€*
+test/XX#*XX€*%
+test/XX#`<init>`(). €@*<init>€*
+
+test/test.
+ *test€*
+test/test.x. €*x€*
+local0*x€*
+test/test.xx. €*xx€*
+local1*x€2
+ test/2
+ test/X#2 
+
+ 
+test/X#`<init>`().2
+ test/X#foo().2
+ test/X#foo().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2
+$ 'test/X#bar().2
+* -test/X#foo().2
+ test/XX#2!
+ test/XX#`<init>`().2
+ test/X#2
+ 
+test/test.2
+ test/test.x.2
+	 
+test/X#2
+ local02
+ 
+scala/Int#2
+ test/test.xx.2
+
+ test/XX#2
+ local12
+ 
+scala/Int#PZ B84E7F1376EEEC4EFF1705BFBE615645

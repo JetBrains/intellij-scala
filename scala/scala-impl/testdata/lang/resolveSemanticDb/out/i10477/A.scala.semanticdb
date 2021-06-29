@@ -1,0 +1,111 @@
+
+Ëtests/pos/i10477/A.scala*+
+gopher/CpsAsyncMonad#*CpsAsyncMonad€*2
+ gopher/CpsAsyncMonad#`<init>`(). €@*<init>€*"
+gopher/CpsAsyncMonad#[F]	*F€*G
+*gopher/CpsAsyncMonad#adoptCallbackStyle(). *adoptCallbackStyle€*7
+-gopher/CpsAsyncMonad#adoptCallbackStyle().[A]	*A€*A
+2gopher/CpsAsyncMonad#adoptCallbackStyle().(source)*source€*!
+gopher/IChannel#*IChannel€*-
+gopher/IChannel#`<init>`(). €@*<init>€*
+gopher/IChannel#[F]	*F€*
+gopher/IChannel#[A]	*A€*&
+gopher/IChannel#aread().*aread€*
+local0*f€*$
+gopher/IChannel#read().*read€*0
+gopher/IChannel#addReader(). *	addReader€*)
+gopher/IChannel#addReader().(f)*f€*`
+5gopher/IChannel#gopher$IChannel$$inline$evidence$1().*"gopher$IChannel$$inline$evidence$1€*#
+gopher/IOChannel#*	IOChannel€*.
+gopher/IOChannel#`<init>`(). €@*<init>€*
+gopher/IOChannel#[F]	*F€*
+gopher/IOChannel#[I]	*I€*
+gopher/IOChannel#[O]	*O€*"
+gopher/A$package. *gopher€*'
+gopher/A$package.await().*await€*&
+gopher/A$package.await().[F]	*F€*&
+gopher/A$package.await().[T]	*T€*&
+gopher/A$package.await().(f)*f€**
+gopher/A$package.await().(am)  *am€2
+ gopher/2
+ scala/util/Try.2
+ scala/util/Try#2
+ scala/util/2
+ scala/2#
+ gopher/CpsAsyncMonad#2.
+  gopher/CpsAsyncMonad#`<init>`().2&
+ gopher/CpsAsyncMonad#[F]28
+ *gopher/CpsAsyncMonad#adoptCallbackStyle().2;
+ -gopher/CpsAsyncMonad#adoptCallbackStyle().[A]2@
+ #2gopher/CpsAsyncMonad#adoptCallbackStyle().(source)2
+& )scala/util/Try#2;
+* +-gopher/CpsAsyncMonad#adoptCallbackStyle().[A]2
+. 2scala/Unit#2
+7 ;scala/Unit#2&
+> ?gopher/CpsAsyncMonad#[F]2;
+@ A-gopher/CpsAsyncMonad#adoptCallbackStyle().[A]2
+
+
+ gopher/IChannel#2)
+
+
+ gopher/IChannel#`<init>`().2#
+
+
+ !gopher/CpsAsyncMonad#2!
+
+!
+ !gopher/IChannel#[F]2!
+
+
+ gopher/IChannel#[F]2!
+
+#
+ $gopher/IChannel#[A]2&
+ gopher/IChannel#aread().2!
+ gopher/IChannel#[F]2!
+ gopher/IChannel#[A]28
+ 1*gopher/CpsAsyncMonad#adoptCallbackStyle().2$
+ scala/Predef.summon().2#
+ gopher/CpsAsyncMonad#2!
+ gopher/IChannel#[F]2
+2 3local02*
+7 @gopher/IChannel#addReader().2
+A Blocal02%
+ gopher/IChannel#read().2!
+ gopher/IChannel#[A]2'
+ gopher/A$package.await().2&
+ #gopher/IChannel#aread().2C
+$ $5gopher/IChannel#gopher$IChannel$$inline$evidence$1().2*
+ gopher/IChannel#addReader().2-
+ gopher/IChannel#addReader().(f)2
+ scala/util/Try#2!
+ gopher/IChannel#[A]2
+  scala/Unit#2
+# 'scala/Unit#2
+ gopher/IOChannel#2*
+ gopher/IOChannel#`<init>`().2#
+ "gopher/CpsAsyncMonad#2"
+" "gopher/IOChannel#[F]2
+0 8gopher/IChannel#2"
+9 :gopher/IOChannel#[F]2"
+; <gopher/IOChannel#[I]2
+C Kgopher/OChannel#2"
+L Mgopher/IOChannel#[F]2"
+N Ogopher/IOChannel#[O]2"
+ gopher/IOChannel#[F]2"
+# $gopher/IOChannel#[I]2"
+% &gopher/IOChannel#[O]2
+gopher/A$package.2'
+ 	gopher/A$package.await().2*
+
+ gopher/A$package.await().[F]2*
+ gopher/A$package.await().[T]2*
+ gopher/A$package.await().(f)2*
+ gopher/A$package.await().[F]2*
+ gopher/A$package.await().[T]2+
+  "gopher/A$package.await().(am)2#
+# 0gopher/CpsAsyncMonad#2*
+1 2gopher/A$package.await().[F]2*
+5 6gopher/A$package.await().[T]2#
+9 <scala/Predef.`???`().PZ 71D14D1402DD829B254865031157987C

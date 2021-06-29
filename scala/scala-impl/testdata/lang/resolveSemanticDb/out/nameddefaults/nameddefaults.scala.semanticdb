@@ -1,0 +1,167 @@
+
+Û3tests/pos/nameddefaults.scala*.
+_empty_/nameddefaults.
+ *nameddefaults€*(
+_empty_/nameddefaults.foo().*foo€*1
+#_empty_/nameddefaults.foo().(first)*first€*3
+$_empty_/nameddefaults.foo().(second)*second€*1
+#_empty_/nameddefaults.foo().(third)*third€*<
+&_empty_/nameddefaults.foo$default$2().*foo$default$2€*<
+&_empty_/nameddefaults.foo$default$3().*foo$default$3€*'
+_empty_/nameddefaults.x(). €*x€*-
+_empty_/nameddefaults.`x_=`(). €*x_=€*/
+#_empty_/nameddefaults.`x_=`().(x$1)*x$1€*'
+_empty_/nameddefaults.y(). €*y€*-
+_empty_/nameddefaults.`y_=`(). €*y_=€*/
+#_empty_/nameddefaults.`y_=`().(x$1)*x$1€*
+local0 €*second$1€*
+local1 €*first$1€*
+local2 €*third$1€*
+local3 €*first$2€*
+local4 €*third$2€*
+local5 €*second$2€*
+local6 €*first$3€*
+local7 €*third$3€*
+local8 €*second$3€*"
+_empty_/nameddefaults.C#*C€*5
+#_empty_/nameddefaults.C#`<init>`(). €@*<init>€*8
+*_empty_/nameddefaults.C#`<init>`().(first)*first€*:
++_empty_/nameddefaults.C#`<init>`().(second)*second€*8
+*_empty_/nameddefaults.C#`<init>`().(third)*third€*/
+_empty_/nameddefaults.C#first. €*first€*1
+_empty_/nameddefaults.C#second. €*second€*/
+_empty_/nameddefaults.C#third. €*third€*$
+_empty_/nameddefaults.C.
+ *C€*Z
+6_empty_/nameddefaults.C.$lessinit$greater$default$2().*$lessinit$greater$default$2€*Z
+6_empty_/nameddefaults.C.$lessinit$greater$default$3().*$lessinit$greater$default$3€*
+local9 €*second$4€*
+local10 €*first$4€*
+local11 €*third$4€*
+local12 €*first$5€*
+local13 €*third$5€*
+local14 €*second$5€2 
+ _empty_/nameddefaults.2*
+ 	_empty_/nameddefaults.foo().21
+
+ #_empty_/nameddefaults.foo().(first)2
+ 
+scala/Int#22
+ $_empty_/nameddefaults.foo().(second)2
+ !
+scala/Int#21
+' ,#_empty_/nameddefaults.foo().(third)2
+. 1
+scala/Int#2 
+? @scala/Int#`+`(+4).21
+9 >#_empty_/nameddefaults.foo().(first)22
+A G$_empty_/nameddefaults.foo().(second)2(
+ _empty_/nameddefaults.x().2,
+ 	_empty_/nameddefaults.`x_=`().2(
+ _empty_/nameddefaults.y().2,
+ 	_empty_/nameddefaults.`y_=`().2*
+ _empty_/nameddefaults.foo().2*
+		 _empty_/nameddefaults.foo().2*
+ _empty_/nameddefaults.foo().2*
+ _empty_/nameddefaults.foo().21
+ #_empty_/nameddefaults.foo().(first)22
+ $_empty_/nameddefaults.foo().(second)2*
+ _empty_/nameddefaults.foo().21
+ #_empty_/nameddefaults.foo().(first)22
+ $_empty_/nameddefaults.foo().(second)2*
+ _empty_/nameddefaults.foo().21
+ #_empty_/nameddefaults.foo().(first)21
+ #_empty_/nameddefaults.foo().(third)2*
+ _empty_/nameddefaults.foo().21
+	 #_empty_/nameddefaults.foo().(third)2*
+ _empty_/nameddefaults.foo().21
+ #_empty_/nameddefaults.foo().(first)2(
+ _empty_/nameddefaults.x().22
+ $_empty_/nameddefaults.foo().(second)2(
+ _empty_/nameddefaults.y().2
+ local02
+ local12
+ local22*
+ _empty_/nameddefaults.foo().21
+ #_empty_/nameddefaults.foo().(first)2(
+ _empty_/nameddefaults.y().22
+ $_empty_/nameddefaults.foo().(second)2(
+ _empty_/nameddefaults.x().2
+ local22
+ local32
+ local42
+ local52*
+ _empty_/nameddefaults.foo().21
+ #_empty_/nameddefaults.foo().(first)2(
+ _empty_/nameddefaults.x().2
+ local521
+ #_empty_/nameddefaults.foo().(third)2(
+ _empty_/nameddefaults.y().2
+ local62
+! local72
+ local82*
+ _empty_/nameddefaults.foo().2
+ local62
+ local821
+	 #_empty_/nameddefaults.foo().(third)2(
+ _empty_/nameddefaults.y().2&
+## 	_empty_/nameddefaults.C#21
+#	# 	#_empty_/nameddefaults.C#`<init>`().2
+## 
+scala/Int#2
+## !
+scala/Int#2
+#.# 1
+scala/Int#2,
+#
+# _empty_/nameddefaults.C#first.2-
+## _empty_/nameddefaults.C#second.2,
+#'# ,_empty_/nameddefaults.C#third.2&
+## _empty_/nameddefaults.C.21
+%% #_empty_/nameddefaults.C#`<init>`().2&
+%% _empty_/nameddefaults.C#21
+'' #_empty_/nameddefaults.C#`<init>`().2&
+'' _empty_/nameddefaults.C#21
+)) #_empty_/nameddefaults.C#`<init>`().2&
+)) _empty_/nameddefaults.C#21
+-- #_empty_/nameddefaults.C#`<init>`().2&
+-- _empty_/nameddefaults.C#28
+-- *_empty_/nameddefaults.C#`<init>`().(first)29
+-- +_empty_/nameddefaults.C#`<init>`().(second)21
+// #_empty_/nameddefaults.C#`<init>`().2&
+// _empty_/nameddefaults.C#28
+// *_empty_/nameddefaults.C#`<init>`().(first)29
+// +_empty_/nameddefaults.C#`<init>`().(second)21
+11 #_empty_/nameddefaults.C#`<init>`().2&
+11 _empty_/nameddefaults.C#28
+11 *_empty_/nameddefaults.C#`<init>`().(first)28
+11 *_empty_/nameddefaults.C#`<init>`().(third)21
+33 #_empty_/nameddefaults.C#`<init>`().2&
+33 _empty_/nameddefaults.C#28
+33 *_empty_/nameddefaults.C#`<init>`().(third)21
+77 #_empty_/nameddefaults.C#`<init>`().2&
+77 _empty_/nameddefaults.C#28
+77 *_empty_/nameddefaults.C#`<init>`().(first)2(
+77 _empty_/nameddefaults.x().29
+77 +_empty_/nameddefaults.C#`<init>`().(second)2(
+77 _empty_/nameddefaults.y().2
+99 local92
+9; local102
+99 local1121
+99 #_empty_/nameddefaults.C#`<init>`().2&
+99 _empty_/nameddefaults.C#28
+99 *_empty_/nameddefaults.C#`<init>`().(first)2(
+99 _empty_/nameddefaults.y().29
+99 +_empty_/nameddefaults.C#`<init>`().(second)2(
+99 _empty_/nameddefaults.x().2
+99 local112
+;; local122
+;>local132
+;; local1421
+;; #_empty_/nameddefaults.C#`<init>`().2&
+;; _empty_/nameddefaults.C#28
+;; *_empty_/nameddefaults.C#`<init>`().(first)2(
+;; _empty_/nameddefaults.x().2
+;; local1428
+;; *_empty_/nameddefaults.C#`<init>`().(third)2(
+;; _empty_/nameddefaults.y().PZ BC1DE5FB9AC1150EE66BA0566BF018A3

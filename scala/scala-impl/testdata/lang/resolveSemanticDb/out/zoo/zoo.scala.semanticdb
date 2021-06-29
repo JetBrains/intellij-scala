@@ -1,0 +1,152 @@
+
+•#tests/pos/zoo.scala*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.FoodStuff#*	FoodStuff€*4
+"_empty_/Test.FoodStuff#`<init>`(). €@*<init>€*
+_empty_/Test.Meat#*Meat€*/
+_empty_/Test.Meat#`<init>`(). €@*<init>€*(
+_empty_/Test.Meat#IsMeat#*IsMeat€*!
+_empty_/Test.Grass#*Grass€*0
+_empty_/Test.Grass#`<init>`(). €@*<init>€*+
+_empty_/Test.Grass#IsGrass#*IsGrass€*#
+_empty_/Test.Animal#*Animal€*1
+_empty_/Test.Animal#`<init>`(). €@*<init>€*&
+_empty_/Test.Animal#Food#*Food€**
+_empty_/Test.Animal#eats(). *eats€*.
+!_empty_/Test.Animal#eats().(food)*food€**
+_empty_/Test.Animal#gets(). *gets€*
+_empty_/Test.Cow#*Cow€*.
+_empty_/Test.Cow#`<init>`(). €@*<init>€*'
+_empty_/Test.Cow#IsMeat#*IsMeat€*#
+_empty_/Test.Cow#Food#*Food€*'
+_empty_/Test.Cow#eats(). *eats€*+
+_empty_/Test.Cow#eats().(food)*food€*'
+_empty_/Test.Cow#gets(). *gets€*
+_empty_/Test.Lion#*Lion€*/
+_empty_/Test.Lion#`<init>`(). €@*<init>€*$
+_empty_/Test.Lion#Food#*Food€*(
+_empty_/Test.Lion#eats(). *eats€*,
+_empty_/Test.Lion#eats().(food)*food€*(
+_empty_/Test.Lion#gets(). *gets€*'
+_empty_/Test.newMeat().*newMeat€*
+local0 *$anon€*)
+_empty_/Test.newGrass().*newGrass€*
+local1 *$anon€*%
+_empty_/Test.newCow().*newCow€*
+local2 *$anon€*
+local3*Food€*
+local4*eats€*
+local5*food€*
+local6*gets€*'
+_empty_/Test.newLion().*newLion€*
+local7 *$anon€*
+local8*eats€*
+local9*food€*
+local10*gets€*$
+_empty_/Test.milka. €*milka€* 
+_empty_/Test.leo. €*leo€2
+ _empty_/Test.2%
+ _empty_/Test.FoodStuff#2,
+"_empty_/Test.FoodStuff#`<init>`().2 
+ 
+_empty_/Test.Meat#2+
+ _empty_/Test.Meat#`<init>`().2%
+ _empty_/Test.FoodStuff#2'
+ _empty_/Test.Meat#IsMeat#2
+ 
+scala/Any#2!
+ _empty_/Test.Grass#2,
+ _empty_/Test.Grass#`<init>`().2%
+ _empty_/Test.FoodStuff#2)
+ _empty_/Test.Grass#IsGrass#2
+ 
+scala/Any#2"
+ _empty_/Test.Animal#2-
+		 _empty_/Test.Animal#`<init>`().2'
+		 _empty_/Test.Animal#Food#2%
+		 _empty_/Test.FoodStuff#2)
+
+
+ 
+_empty_/Test.Animal#eats().2/
+
+
+ !_empty_/Test.Animal#eats().(food)2'
+
+
+ _empty_/Test.Animal#Food#2
+
+
+ scala/Unit#2)
+ 
+_empty_/Test.Animal#gets().2'
+ _empty_/Test.Animal#Food#2
+ 	_empty_/Test.Cow#2*
+ _empty_/Test.Cow#`<init>`().2"
+ _empty_/Test.Animal#2&
+ _empty_/Test.Cow#IsMeat#2
+ 
+scala/Any#2$
+ _empty_/Test.Cow#Food#2!
+ _empty_/Test.Grass#2&
+ 
+_empty_/Test.Cow#eats().2,
+ _empty_/Test.Cow#eats().(food)2$
+ _empty_/Test.Cow#Food#2
+ scala/Unit#2&
+ 
+_empty_/Test.Cow#gets().2$
+ _empty_/Test.Cow#Food#2 
+ 
+_empty_/Test.Lion#2+
+ _empty_/Test.Lion#`<init>`().2"
+ _empty_/Test.Animal#2%
+ _empty_/Test.Lion#Food#2 
+ _empty_/Test.Meat#2'
+ 
+_empty_/Test.Lion#eats().2-
+ _empty_/Test.Lion#eats().(food)2 
+ _empty_/Test.Meat#2
+ scala/Unit#2'
+ 
+_empty_/Test.Lion#gets().2 
+ _empty_/Test.Meat#2%
+ _empty_/Test.newMeat().2 
+ _empty_/Test.Meat#2
+ local02 
+ _empty_/Test.Meat#2&
+ _empty_/Test.newGrass().2!
+ _empty_/Test.Grass#2
+ local12!
+ _empty_/Test.Grass#2$
+ 
+_empty_/Test.newCow().2
+ _empty_/Test.Cow#2
+ local22
+ _empty_/Test.Cow#2
+ local32!
+ _empty_/Test.Grass#2
+ 
+local42
+ local52!
+ _empty_/Test.Grass#2
+ 
+local62&
+ _empty_/Test.newGrass().2%
+!! _empty_/Test.newLion().2 
+!! _empty_/Test.Lion#2
+!! local72 
+!! _empty_/Test.Lion#2
+"" 
+local82
+"" local92 
+"" _empty_/Test.Meat#2
+## 
+local102%
+## _empty_/Test.newMeat().2!
+%% 	_empty_/Test.milka.2$
+%% _empty_/Test.newCow().2
+&& _empty_/Test.leo.2%
+&
+& _empty_/Test.newLion().PZ A29EA8210988C0FA6859BEEB8DC48E16

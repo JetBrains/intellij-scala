@@ -1,0 +1,59 @@
+
+õtests/pos/i10927.scala*&
+_empty_/Transition#*
+Transition€*0
+_empty_/Transition#`<init>`(). €@*<init>€*&
+_empty_/Transition#[From]	*From€*"
+_empty_/Transition#[To]	*To€*)
+_empty_/i10927$package. *_empty_€*)
+_empty_/i10927$package.`==>`#*==>€*0
+#_empty_/i10927$package.`==>`#[From]	*From€*,
+!_empty_/i10927$package.`==>`#[To]	*To€*#
+_empty_/i10927$package.A#*A€*%
+_empty_/i10927$package.A.
+ *A€*#
+_empty_/i10927$package.B#*B€*%
+_empty_/i10927$package.B.
+ *B€*#
+_empty_/i10927$package.C#*C€*%
+_empty_/i10927$package.C.
+ *C€*@
+'_empty_/i10927$package.`given_==>_A_B`. è*given_==>_A_B€*@
+'_empty_/i10927$package.`given_==>_A_C`. è*given_==>_A_C€2
+ _empty_/Transition#2(
+ _empty_/Transition#`<init>`().2#
+ _empty_/Transition#[From]2!
+ _empty_/Transition#[To]2!
+_empty_/i10927$package.2+
+ _empty_/i10927$package.`==>`#21
+ #_empty_/i10927$package.`==>`#[From]2/
+ !_empty_/i10927$package.`==>`#[To]2!
+ %_empty_/Transition#21
+& *#_empty_/i10927$package.`==>`#[From]2/
+, .!_empty_/i10927$package.`==>`#[To]2'
+ _empty_/i10927$package.A#2'
+	 
+_empty_/i10927$package.A.2'
+ _empty_/i10927$package.A.2'
+ _empty_/i10927$package.B#2'
+	 
+_empty_/i10927$package.B.2'
+ _empty_/i10927$package.B.2'
+
+
+ _empty_/i10927$package.C#2'
+
+	
+ 
+_empty_/i10927$package.C.2'
+ _empty_/i10927$package.C.25
+ '_empty_/i10927$package.`given_==>_A_B`.2+
+	 _empty_/i10927$package.`==>`#2'
+ _empty_/i10927$package.A#2'
+ _empty_/i10927$package.B#2#
+ scala/Predef.`???`().25
+ '_empty_/i10927$package.`given_==>_A_C`.2+
+	 _empty_/i10927$package.`==>`#2'
+ _empty_/i10927$package.A#2'
+ _empty_/i10927$package.C#2#
+ scala/Predef.`???`().PZ D2DDDD54D65A94B5D189DEB108A9E9AA

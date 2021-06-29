@@ -1,0 +1,45 @@
+
+¿	tests/pos/sealed-final.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#bar().*bar€*
+_empty_/Foo#bar().(x)*x€*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.mkFoo().*mkFoo€*
+_empty_/Baz1.
+ *Baz1€*
+_empty_/Baz2# *Baz2€**
+_empty_/Baz2#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ _empty_/Foo#bar().2#
+ _empty_/Foo#bar().(x)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2#
+ _empty_/Foo#bar().(x)2
+ 
+_empty_/Foo.2"
+ _empty_/Foo.mkFoo().2
+ _empty_/Foo#2&
+ _empty_/Baz2#`<init>`().2
+ _empty_/Baz2#2
+ _empty_/Baz1.2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Baz2#2&
+ _empty_/Baz2#`<init>`().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+
+
+ _empty_/Test.2
+ _empty_/Test.f().2 
+ _empty_/Foo#bar().2"
+ _empty_/Foo.mkFoo().2
+
+ _empty_/Foo.PZ B4E883B46238DDE3AB59FFBDF4A8B521

@@ -1,0 +1,36 @@
+
+¾	tests/pos/t6896.scala*,
+_empty_/TooManyMains.
+ *TooManyMains€*)
+_empty_/TooManyMains.main().*main€*/
+"_empty_/TooManyMains.main().(args)*args€*+
+_empty_/TooManyMains.main(+1).*main€*+
+!_empty_/TooManyMains.main(+1).(a)*a€*+
+!_empty_/TooManyMains.main(+1).(b)*b€*+
+_empty_/TooManyMains.main(+2).*main€*+
+!_empty_/TooManyMains.main(+2).(s)*s€*+
+!_empty_/TooManyMains.main(+2).(n)*n€2
+ _empty_/TooManyMains.2*
+ 
+_empty_/TooManyMains.main().20
+ "_empty_/TooManyMains.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2,
+ 
+_empty_/TooManyMains.main(+1).2/
+ !_empty_/TooManyMains.main(+1).(a)2
+ 
+scala/Int#2/
+ !_empty_/TooManyMains.main(+1).(b)2
+ 
+scala/Int#2#
+  scala/Predef.`???`().2,
+ 
+_empty_/TooManyMains.main(+2).2/
+ !_empty_/TooManyMains.main(+2).(s)2"
+ scala/Predef.String#2/
+ !_empty_/TooManyMains.main(+2).(n)2"
+ scala/Predef.String#2#
+# &scala/Predef.`???`().PZ E5FEA3CAA237C0BAB41789E8C7B03C99

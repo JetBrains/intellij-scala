@@ -1,0 +1,29 @@
+
+’tests/pos/t6562.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*
+local0*it€*
+local1 *$anon€*
+_empty_/Test#bar().*bar€*
+local2*it€*
+local3 *$anon€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ _empty_/Test#foo().2
+ scala/Unit#2
+ 
+local02
+ local12
+ 
+scala/Any#2
+ local02!
+ _empty_/Test#bar().2
+ scala/Unit#2
+ 
+local22
+ local32
+		 
+scala/Any#2
+		 local2PZ 05474577A1AEB68FFBB582B1EC007DEF

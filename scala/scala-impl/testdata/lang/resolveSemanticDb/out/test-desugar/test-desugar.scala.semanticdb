@@ -1,0 +1,600 @@
+
+ÙŸtests/pos/test-desugar.scala*"
+_empty_/desugar.
+ *desugar€*!
+_empty_/desugar.x(). €*x€*'
+_empty_/desugar.`x_=`(). €*x_=€*)
+_empty_/desugar.`x_=`().(x$1)*x$1€*!
+_empty_/desugar.y(). €*y€*'
+_empty_/desugar.`y_=`(). €*y_=€*)
+_empty_/desugar.`y_=`().(x$1)*x$1€*%
+_empty_/desugar.list. €*list€*
+local0 €*z€*$
+_empty_/desugar.foo0().*foo0€*,
+_empty_/desugar.foo0().(first)*first€*.
+_empty_/desugar.foo0().(second)*second€*,
+_empty_/desugar.foo0().(third)*third€*8
+!_empty_/desugar.foo0$default$2().*foo0$default$2€*8
+!_empty_/desugar.foo0$default$3().*foo0$default$3€*$
+_empty_/desugar.foo1().*foo1€*,
+_empty_/desugar.foo1().(first)*first€*.
+_empty_/desugar.foo1().(second)*second€*,
+_empty_/desugar.foo1().(third)*third€*8
+!_empty_/desugar.foo1$default$2().*foo1$default$2€*8
+!_empty_/desugar.foo1$default$3().*foo1$default$3€*6
+(_empty_/desugar.foo1$default$3().(first)*first€*8
+)_empty_/desugar.foo1$default$3().(second)*second€*$
+_empty_/desugar.foo2().*foo2€*,
+_empty_/desugar.foo2().(first)*first€*.
+_empty_/desugar.foo2().(second)*second€*,
+_empty_/desugar.foo2().(third)*third€*8
+!_empty_/desugar.foo2$default$2().*foo2$default$2€*6
+(_empty_/desugar.foo2$default$2().(first)*first€*8
+!_empty_/desugar.foo2$default$3().*foo2$default$3€*6
+(_empty_/desugar.foo2$default$3().(first)*first€*8
+)_empty_/desugar.foo2$default$3().(second)*second€*2
+_empty_/desugar.caseClasses.
+ *caseClasses€*
+local1*self€*.
+!_empty_/desugar.caseClasses.List#*List€*>
+,_empty_/desugar.caseClasses.List#`<init>`(). €@*<init>€*1
+$_empty_/desugar.caseClasses.List#[T]	 €*T€*7
+(_empty_/desugar.caseClasses.List#head(). *head€*7
+(_empty_/desugar.caseClasses.List#tail(). *tail€*1
+!_empty_/desugar.caseClasses.Cons# €*Cons€*>
+,_empty_/desugar.caseClasses.Cons#`<init>`(). €@*<init>€*B
+2_empty_/desugar.caseClasses.Cons#`<init>`().(head) €*head€*B
+2_empty_/desugar.caseClasses.Cons#`<init>`().(tail) €*tail€*1
+$_empty_/desugar.caseClasses.Cons#[T]	 €*T€*6
+&_empty_/desugar.caseClasses.Cons#head. €*head€*6
+&_empty_/desugar.caseClasses.Cons#tail. €*tail€*5
+(_empty_/desugar.caseClasses.Cons#copy().*copy€*5
++_empty_/desugar.caseClasses.Cons#copy().[T]	*T€*;
+._empty_/desugar.caseClasses.Cons#copy().(head)*head€*;
+._empty_/desugar.caseClasses.Cons#copy().(tail)*tail€*I
+2_empty_/desugar.caseClasses.Cons#copy$default$1().*copy$default$1€*?
+5_empty_/desugar.caseClasses.Cons#copy$default$1().[T]	*T€*I
+2_empty_/desugar.caseClasses.Cons#copy$default$2().*copy$default$2€*?
+5_empty_/desugar.caseClasses.Cons#copy$default$2().[T]	*T€*1
+&_empty_/desugar.caseClasses.Cons#_1().*_1€*1
+&_empty_/desugar.caseClasses.Cons#_2().*_2€*0
+!_empty_/desugar.caseClasses.Cons.
+ *Cons€*7
+)_empty_/desugar.caseClasses.Cons.apply().*apply€*6
+,_empty_/desugar.caseClasses.Cons.apply().[T]	*T€*<
+/_empty_/desugar.caseClasses.Cons.apply().(head)*head€*<
+/_empty_/desugar.caseClasses.Cons.apply().(tail)*tail€*;
++_empty_/desugar.caseClasses.Cons.unapply().*unapply€*8
+._empty_/desugar.caseClasses.Cons.unapply().[T]	*T€*<
+0_empty_/desugar.caseClasses.Cons.unapply().(x$1)*x$1€*=
+,_empty_/desugar.caseClasses.Cons.toString().*toString€*9
++_empty_/desugar.caseClasses.Cons.apply(+1).*apply€*8
+._empty_/desugar.caseClasses.Cons.apply(+1).[T]	*T€*>
+1_empty_/desugar.caseClasses.Cons.apply(+1).(head)*head€*/
+ _empty_/desugar.caseClasses.Nil.
+ ˆ*Nil€*4
+'_empty_/desugar.caseClasses.Nil.head().*head€*4
+'_empty_/desugar.caseClasses.Nil.tail().*tail€**
+_empty_/desugar.patDefs.
+ *patDefs€*)
+_empty_/desugar.patDefs.xs. €*xs€*'
+_empty_/desugar.patDefs.y. €*y€*)
+_empty_/desugar.patDefs.ys. €*ys€*'
+_empty_/desugar.patDefs.z. €*z€*-
+_empty_/desugar.patDefs.cons. €*cons€*)
+_empty_/desugar.patDefs.x1. €*x1€*)
+_empty_/desugar.patDefs.y1. €*y1€*)
+_empty_/desugar.patDefs.z1. €*z1€*(
+_empty_/desugar.Binops.
+ *Binops€*&
+_empty_/desugar.Binops.x. €*x€*&
+_empty_/desugar.Binops.y. €*y€*$
+_empty_/desugar.fors.
+ *fors€*
+local2*x€*
+local3*x€*
+local4*x€*
+local5*y€*
+local6*x€*
+local7*y€*
+local8*x€*
+local9 €*y€*
+local10*x$1€*
+local11*x€*
+local12 €*y€*
+local13 €*z€*
+local14*x$1€*
+local15*u€*
+local16*x€*
+local17*x€*
+local18*x€*
+local19*y€*
+local20*x€*
+local21*y€*
+local22*x€*
+local23 €*y€*
+local24*x$1€*
+local25*x€*
+local26 €*y€*
+local27 €*z€*
+local28*x$1€*
+local29*u€*$
+_empty_/desugar.misc.
+ *misc€*#
+_empty_/desugar.misc.`~`#*~€*&
+_empty_/desugar.misc.`~`#[X]	*X€*&
+_empty_/desugar.misc.`~`#[Y]	*Y€**
+_empty_/desugar.misc.pair. €*pair€*'
+_empty_/desugar.misc.foo().*foo€**
+_empty_/desugar.misc.foo().(xs)*xs€*'
+_empty_/desugar.misc.bar().*bar€*(
+_empty_/desugar.misc.bar().(x)*x€2
+ _empty_/desugar.2"
+ _empty_/desugar.x().2
+	 
+scala/Int#2&
+ 	_empty_/desugar.`x_=`().2"
+ _empty_/desugar.y().2 
+ scala/Int#`*`(+3).2"
+
+ _empty_/desugar.x().2"
+ _empty_/desugar.x().2&
+ 	_empty_/desugar.`y_=`().2#
+ 
+_empty_/desugar.list.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 	local02
+ 
+scala/Int#2"
+ _empty_/desugar.y().2%
+		 
+_empty_/desugar.foo0().2,
+		 _empty_/desugar.foo0().(first)2
+		 
+scala/Int#2-
+		 _empty_/desugar.foo0().(second)2
+		 "
+scala/Int#2,
+	(	 -_empty_/desugar.foo0().(third)2
+	/	 2
+scala/Int#2 
+	@	 Ascala/Int#`+`(+4).2,
+	:	 ?_empty_/desugar.foo0().(first)2-
+	B	 H_empty_/desugar.foo0().(second)2%
+
+
+ 
+_empty_/desugar.foo1().2,
+
+
+ _empty_/desugar.foo1().(first)2
+
+
+ 
+scala/Int#2-
+
+
+ _empty_/desugar.foo1().(second)2
+
+
+ "
+scala/Int#2,
+
+(
+ -_empty_/desugar.foo1().(third)2
+
+/
+ 2
+scala/Int#2 
+
+@
+ Ascala/Int#`+`(+4).2,
+
+:
+ ?_empty_/desugar.foo1().(first)2-
+
+B
+ H_empty_/desugar.foo1().(second)26
+
+
+ (_empty_/desugar.foo1$default$3().(first)27
+
+
+ )_empty_/desugar.foo1$default$3().(second)2%
+ 
+_empty_/desugar.foo2().2,
+ _empty_/desugar.foo2().(first)2
+ 
+scala/Int#2-
+ _empty_/desugar.foo2().(second)2
+ "
+scala/Int#2,
+( -_empty_/desugar.foo2().(third)2
+/ 2
+scala/Int#2 
+@ Ascala/Int#`+`(+4).2,
+: ?_empty_/desugar.foo2().(first)2-
+B H_empty_/desugar.foo2().(second)26
+ (_empty_/desugar.foo2$default$2().(first)26
+ (_empty_/desugar.foo2$default$3().(first)27
+ )_empty_/desugar.foo2$default$3().(second)2*
+	 _empty_/desugar.caseClasses.2
+ local12/
+
+ !_empty_/desugar.caseClasses.List#2:
+ ,_empty_/desugar.caseClasses.List#`<init>`().22
+ $_empty_/desugar.caseClasses.List#[T]26
+
+ (_empty_/desugar.caseClasses.List#head().22
+ $_empty_/desugar.caseClasses.List#[T]26
+
+ (_empty_/desugar.caseClasses.List#tail().2/
+ !_empty_/desugar.caseClasses.List#22
+ $_empty_/desugar.caseClasses.List#[T]2/
+ !_empty_/desugar.caseClasses.Cons#2:
+ ,_empty_/desugar.caseClasses.Cons#`<init>`().22
+" #$_empty_/desugar.caseClasses.Cons#[T]2/
+/ 3!_empty_/desugar.caseClasses.List#22
+4 5$_empty_/desugar.caseClasses.Cons#[T]2/
+@ D!_empty_/desugar.caseClasses.List#22
+E F$_empty_/desugar.caseClasses.Cons#[T]22
+ $_empty_/desugar.caseClasses.Cons#[T]24
+  &_empty_/desugar.caseClasses.Cons#head.24
+) -&_empty_/desugar.caseClasses.Cons#tail.26
+ (_empty_/desugar.caseClasses.Cons#copy().24
+" "&_empty_/desugar.caseClasses.Cons#_1().24
+/ /&_empty_/desugar.caseClasses.Cons#_2().2/
+ !_empty_/desugar.caseClasses.Cons.27
+ )_empty_/desugar.caseClasses.Cons.apply().29
+ +_empty_/desugar.caseClasses.Cons.unapply().29
+
+ +_empty_/desugar.caseClasses.Cons.apply(+1).2<
+ ._empty_/desugar.caseClasses.Cons.apply(+1).[T]2?
+ 1_empty_/desugar.caseClasses.Cons.apply(+1).(head)2<
+ ._empty_/desugar.caseClasses.Cons.apply(+1).[T]2/
+ !!_empty_/desugar.caseClasses.Cons#2<
+" #._empty_/desugar.caseClasses.Cons.apply(+1).[T]27
+' ,)_empty_/desugar.caseClasses.Cons.apply().2?
+- 11_empty_/desugar.caseClasses.Cons.apply(+1).(head)2.
+3 6 _empty_/desugar.caseClasses.Nil.2.
+  _empty_/desugar.caseClasses.Nil.2/
+  !_empty_/desugar.caseClasses.List#2
+! (scala/Nothing#25
+
+ '_empty_/desugar.caseClasses.Nil.head().2)
+   java/lang/Error#`<init>`().2"
+  scala/package.Error#25
+
+ '_empty_/desugar.caseClasses.Nil.tail().2)
+   java/lang/Error#`<init>`().2"
+  scala/package.Error#2&
+	 _empty_/desugar.patDefs.2*
+!! _empty_/desugar.caseClasses.2)
+## 
+_empty_/desugar.patDefs.xs.2/
+## !_empty_/desugar.caseClasses.List#2
+## 
+scala/Int#27
+## )_empty_/desugar.caseClasses.Cons.apply().2/
+## !_empty_/desugar.caseClasses.Cons.27
+#$# $)_empty_/desugar.caseClasses.Cons.apply().2/
+# # $!_empty_/desugar.caseClasses.Cons.2.
+#(# + _empty_/desugar.caseClasses.Nil.2)
+%% _empty_/desugar.patDefs.xs.29
+%% +_empty_/desugar.caseClasses.Cons.unapply().2/
+%% !_empty_/desugar.caseClasses.Cons.2(
+%% _empty_/desugar.patDefs.y.2)
+%% _empty_/desugar.patDefs.ys.2(
+&& _empty_/desugar.patDefs.z.2)
+&& _empty_/desugar.patDefs.xs.29
+&& +_empty_/desugar.caseClasses.Cons.unapply().2/
+&& !_empty_/desugar.caseClasses.Cons.2)
+'' _empty_/desugar.patDefs.xs.29
+'' +_empty_/desugar.caseClasses.Cons.unapply().2/
+'' !_empty_/desugar.caseClasses.Cons.2+
+)	) _empty_/desugar.patDefs.cons.2)
+)) _empty_/desugar.patDefs.xs.2)
+++ 
+_empty_/desugar.patDefs.x1.2
+++ 
+scala/Int#2)
+++ _empty_/desugar.patDefs.y1.2)
+++ _empty_/desugar.patDefs.z1.2%
+.	. _empty_/desugar.Binops.25
+00 'scala/collection/immutable/List#`::`().2 
+00 scala/package.Nil.2'
+0	0 
+_empty_/desugar.Binops.y.2'
+00 _empty_/desugar.Binops.x.2#
+22 _empty_/desugar.list.2 
+22 scala/package.Nil.28
+22 *scala/collection/immutable/`::`.unapply().2!
+22 scala/package.`::`.28
+22 *scala/collection/immutable/`::`.unapply().2!
+2
+2 scala/package.`::`.2'
+22 	_empty_/desugar.Binops.x.2'
+22 _empty_/desugar.Binops.y.2#
+6	6 _empty_/desugar.fors.24
+88 &scala/collection/immutable/List#map().27
+88 )scala/collection/IterableFactory#apply().2!
+88 scala/package.List.2
+8	8 
+local220
+9)9 )"scala/collection/WithFilter#map().28
+99 *scala/collection/IterableOps#withFilter().27
+99 )scala/collection/IterableFactory#apply().2!
+99 scala/package.List.2
+9	9 
+local32!
+9%9 'scala/Int#`==`(+3).2 
+9!9 "scala/Int#`%`(+3).2
+99  local32 
+939 4scala/Int#`*`(+3).2
+919 2local32
+959 6local328
+:: *scala/collection/immutable/List#flatMap().27
+:: )scala/collection/IterableFactory#apply().2!
+:: scala/package.List.2
+:	: 
+local425
+:(: ('scala/collection/immutable/Range#map().2)
+:$: &scala/runtime/RichInt#to().26
+:": "(scala/LowPriorityImplicits#intWrapper().2
+:': (local42
+:: local52 
+:2: 3scala/Int#`*`(+3).2
+:0: 1local42
+:4: 5local528
+;; *scala/collection/immutable/List#flatMap().27
+;; )scala/collection/IterableFactory#apply().2!
+;; scala/package.List.2
+;	; 
+local620
+;;; ;"scala/collection/WithFilter#map().28
+;(; (*scala/collection/IterableOps#withFilter().2)
+;$; &scala/runtime/RichInt#to().26
+;"; "(scala/LowPriorityImplicits#intWrapper().2
+;'; (local62
+;; local72!
+;7; 9scala/Int#`==`(+3).2 
+;/; 0scala/Int#`+`(+4).2
+;-; .local62 
+;3; 4scala/Int#`%`(+3).2
+;1; 2local72 
+;E; Fscala/Int#`*`(+3).2
+;C; Dlocal62
+;G; Hlocal720
+<9< 9"scala/collection/WithFilter#map().28
+<&< &*scala/collection/IterableOps#withFilter().24
+<< &scala/collection/immutable/List#map().27
+<< )scala/collection/IterableFactory#apply().2!
+<< scala/package.List.2
+<	< 
+local82
+<< local92 
+<#< $scala/Int#`*`(+3).2
+<!< "local82
+<%< &local82#
+<	< 	scala/Tuple2.apply().2
+<	< 
+local82
+<< local92
+<	< 	local102%
+<	< 	scala/Tuple2.unapply().2!
+<5< 7scala/Int#`==`(+3).2 
+<-< .scala/Int#`+`(+4).2
+<+< ,local82 
+<1< 2scala/Int#`%`(+3).2
+</< 0local92 
+<C< Dscala/Int#`*`(+3).2
+<A< Blocal82
+<E< Flocal928
+=1= 1*scala/collection/immutable/List#flatMap().24
+== &scala/collection/immutable/List#map().27
+== )scala/collection/IterableFactory#apply().2!
+== scala/package.List.2
+=	= 
+local112
+== local122 
+=#= $scala/Int#`*`(+3).2
+=!= "local112
+=%= &local112
+=(= )local132 
+=.= /scala/Int#`*`(+3).2
+=,= -local112
+=0= 1local122#
+=	= 	scala/Tuple3.apply().2
+=	= 
+local112
+== local122
+=(= )local132
+=	= 	local142%
+=	= 	scala/Tuple3.unapply().25
+=>= >'scala/collection/immutable/Range#map().2)
+=:= <scala/runtime/RichInt#to().26
+=8= 8(scala/LowPriorityImplicits#intWrapper().2
+=== >local122
+=3= 4local152 
+=P= Qscala/Int#`*`(+3).2 
+=L= Mscala/Int#`*`(+3).2 
+=H= Iscala/Int#`*`(+3).2
+=F= Glocal112
+=J= Klocal122
+=N= Olocal132
+=R= Slocal1528
+?? *scala/collection/immutable/List#foreach().27
+?? )scala/collection/IterableFactory#apply().2!
+?? scala/package.List.2
+?	? 
+local162'
+?? $scala/Predef.println(+1).2
+?%? &local1624
+@)@ )&scala/collection/WithFilter#foreach().28
+@@ *scala/collection/IterableOps#withFilter().27
+@@ )scala/collection/IterableFactory#apply().2!
+@@ scala/package.List.2
+@	@ 
+local172!
+@%@ 'scala/Int#`==`(+3).2 
+@!@ "scala/Int#`%`(+3).2
+@@  local172'
+@+@ 2scala/Predef.println(+1).2 
+@5@ 6scala/Int#`*`(+3).2
+@3@ 4local172
+@7@ 8local1728
+AA *scala/collection/immutable/List#foreach().27
+AA )scala/collection/IterableFactory#apply().2!
+AA scala/package.List.2
+A	A 
+local1829
+A(A (+scala/collection/immutable/Range#foreach().2)
+A$A &scala/runtime/RichInt#to().26
+A"A "(scala/LowPriorityImplicits#intWrapper().2
+A'A (local182
+AA local192'
+A*A 1scala/Predef.println(+1).2 
+A4A 5scala/Int#`*`(+3).2
+A2A 3local182
+A6A 7local1928
+BB *scala/collection/immutable/List#foreach().27
+BB )scala/collection/IterableFactory#apply().2!
+BB scala/package.List.2
+B	B 
+local2024
+B;B ;&scala/collection/WithFilter#foreach().28
+B(B (*scala/collection/IterableOps#withFilter().2)
+B$B &scala/runtime/RichInt#to().26
+B"B "(scala/LowPriorityImplicits#intWrapper().2
+B'B (local202
+BB local212!
+B7B 9scala/Int#`==`(+3).2 
+B/B 0scala/Int#`+`(+4).2
+B-B .local202 
+B3B 4scala/Int#`%`(+3).2
+B1B 2local212'
+B=B Dscala/Predef.println(+1).2 
+BGB Hscala/Int#`*`(+3).2
+BEB Flocal202
+BIB Jlocal2124
+C9C 9&scala/collection/WithFilter#foreach().28
+C&C &*scala/collection/IterableOps#withFilter().24
+CC &scala/collection/immutable/List#map().27
+CC )scala/collection/IterableFactory#apply().2!
+CC scala/package.List.2
+C	C 
+local222
+CC local232 
+C#C $scala/Int#`*`(+3).2
+C!C "local222
+C%C &local222#
+C	C 	scala/Tuple2.apply().2
+C	C 
+local222
+CC local232
+C	C 	local242%
+C	C 	scala/Tuple2.unapply().2!
+C5C 7scala/Int#`==`(+3).2 
+C-C .scala/Int#`+`(+4).2
+C+C ,local222 
+C1C 2scala/Int#`%`(+3).2
+C/C 0local232'
+C;C Bscala/Predef.println(+1).2 
+CEC Fscala/Int#`*`(+3).2
+CCC Dlocal222
+CGC Hlocal2328
+D1D 1*scala/collection/immutable/List#foreach().24
+DD &scala/collection/immutable/List#map().27
+DD )scala/collection/IterableFactory#apply().2!
+DD scala/package.List.2
+D	D 
+local252
+DD local262 
+D#D $scala/Int#`*`(+3).2
+D!D "local252
+D%D &local252
+D(D )local272 
+D.D /scala/Int#`*`(+3).2
+D,D -local252
+D0D 1local262#
+D	D 	scala/Tuple3.apply().2
+D	D 
+local252
+DD local262
+D(D )local272
+D	D 	local282%
+D	D 	scala/Tuple3.unapply().29
+D>D >+scala/collection/immutable/Range#foreach().2)
+D:D <scala/runtime/RichInt#to().26
+D8D 8(scala/LowPriorityImplicits#intWrapper().2
+D=D >local262
+D3D 4local292'
+D@D Gscala/Predef.println(+1).2 
+DRD Sscala/Int#`*`(+3).2 
+DND Oscala/Int#`*`(+3).2 
+DJD Kscala/Int#`*`(+3).2
+DHD Ilocal252
+DLD Mlocal262
+DPD Qlocal272
+DTD Ulocal292#
+G	G _empty_/desugar.misc.2#
+H
+H 
+scala/Symbol.apply().2
+HH 
+scala/Symbol.2&
+I$I %scala/StringContext#s().2*
+II scala/StringContext.apply().2"
+II _empty_/desugar.x().2 
+II scala/Int#`+`(+4).2"
+II _empty_/desugar.x().2"
+II _empty_/desugar.y().2'
+J	J 
+_empty_/desugar.misc.`~`#2*
+JJ _empty_/desugar.misc.`~`#[X]2*
+JJ _empty_/desugar.misc.`~`#[Y]2
+JJ scala/Tuple2#2*
+JJ _empty_/desugar.misc.`~`#[X]2*
+JJ _empty_/desugar.misc.`~`#[Y]2(
+KK _empty_/desugar.misc.pair.2'
+KK _empty_/desugar.misc.`~`#2
+KK 
+scala/Int#2"
+KK scala/Predef.String#2-
+KK !scala/Predef.ArrowAssoc#`->`().2(
+KK scala/Predef.ArrowAssoc().2)
+LL _empty_/desugar.misc.foo().2-
+LL _empty_/desugar.misc.foo().(xs)2
+LL 
+scala/Int#2/
+LL !!scala/collection/SeqOps#length().2-
+LL _empty_/desugar.misc.foo().(xs)2)
+MM _empty_/desugar.misc.foo().2#
+MM _empty_/desugar.list.2 
+OO scala/Int#`-`(+3).27
+N
+N )scala/collection/immutable/List#length().2#
+NN 	_empty_/desugar.list.2"
+OO _empty_/desugar.x().2
+OO _empty_/desugar.2)
+PP _empty_/desugar.misc.bar().2,
+PP _empty_/desugar.misc.bar().(x)2
+PP 
+scala/Int#2,
+PP _empty_/desugar.misc.bar().(x)2 
+QQ scala/Int#`+`(+4).2 
+QQ scala/Int#`+`(+4).2"
+QQ _empty_/desugar.x().2"
+Q	Q 
+_empty_/desugar.y().2 
+RR scala/Int#`<`(+3).2"
+RR _empty_/desugar.x().2&
+RR _empty_/desugar.`x_=`().2 
+RR scala/Int#`+`(+4).2"
+RR _empty_/desugar.x().2&
+SS _empty_/desugar.`x_=`().2 
+SS scala/Int#`-`(+3).2"
+SS _empty_/desugar.x().2 
+SS scala/Int#`>`(+3).2"
+SS _empty_/desugar.x().PZ 7466458F426A806192291160EDC3E4AD

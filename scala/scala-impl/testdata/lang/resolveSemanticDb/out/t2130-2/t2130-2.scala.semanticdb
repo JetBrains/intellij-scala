@@ -1,0 +1,96 @@
+
+¡tests/pos/t2130-2.scala*
+foo/bar/package. *bar€*$
+foo/bar/package.Bippy#*Bippy€*3
+!foo/bar/package.Bippy#`<init>`(). €@*<init>€*.
+$foo/bar/package.Bippy#`<init>`().(x)*x€*%
+foo/bar/package.Bippy#x. €*x€*(
+foo/bar/package.Bippy#Ding#*Ding€*8
+&foo/bar/package.Bippy#Ding#`<init>`(). €@*<init>€**
+foo/bar/package.Bippy#Ding.
+ *Ding€*+
+foo/bar/package.Bippy#Dong# €*Dong€*8
+&foo/bar/package.Bippy#Dong#`<init>`(). €@*<init>€*6
+)foo/bar/package.Bippy#Dong#`<init>`().(x) €*x€**
+foo/bar/package.Bippy#Dong#x. €*x€*/
+"foo/bar/package.Bippy#Dong#copy().*copy€*/
+%foo/bar/package.Bippy#Dong#copy().(x)*x€*C
+,foo/bar/package.Bippy#Dong#copy$default$1().*copy$default$1€*+
+ foo/bar/package.Bippy#Dong#_1().*_1€**
+foo/bar/package.Bippy#Dong.
+ *Dong€*1
+#foo/bar/package.Bippy#Dong.apply().*apply€*0
+&foo/bar/package.Bippy#Dong.apply().(x)*x€*5
+%foo/bar/package.Bippy#Dong.unapply().*unapply€*6
+*foo/bar/package.Bippy#Dong.unapply().(x$1)*x$1€*7
+&foo/bar/package.Bippy#Dong.toString().*toString€*&
+foo/bar/package.Bippy.
+ *Bippy€*,
+foo/bar/package.Bippy.Dingus#*Dingus€*:
+(foo/bar/package.Bippy.Dingus#`<init>`(). €@*<init>€*.
+foo/bar/package.Bippy.Dingus.
+ *Dingus€*/
+foo/bar/package.Bippy.Dongus# €*Dongus€*:
+(foo/bar/package.Bippy.Dongus#`<init>`(). €@*<init>€*8
++foo/bar/package.Bippy.Dongus#`<init>`().(x) €*x€*,
+foo/bar/package.Bippy.Dongus#x. €*x€*1
+$foo/bar/package.Bippy.Dongus#copy().*copy€*1
+'foo/bar/package.Bippy.Dongus#copy().(x)*x€*E
+.foo/bar/package.Bippy.Dongus#copy$default$1().*copy$default$1€*-
+"foo/bar/package.Bippy.Dongus#_1().*_1€*.
+foo/bar/package.Bippy.Dongus.
+ *Dongus€*3
+%foo/bar/package.Bippy.Dongus.apply().*apply€*2
+(foo/bar/package.Bippy.Dongus.apply().(x)*x€*7
+'foo/bar/package.Bippy.Dongus.unapply().*unapply€*8
+,foo/bar/package.Bippy.Dongus.unapply().(x$1)*x$1€*9
+(foo/bar/package.Bippy.Dongus.toString().*toString€*,
+foo/bar/package.Bippy.apply().*apply€*-
+"foo/bar/package.Bippy.apply().(xs)*xs€*.
+ foo/bar/package.Bippy.apply(+1).*apply€2
+ foo/2
+ foo/bar/package.2$
+ foo/bar/package.Bippy#2/
+ !foo/bar/package.Bippy#`<init>`().2
+ 
+scala/Int#2&
+ foo/bar/package.Bippy#x.2)
+
+ foo/bar/package.Bippy#Ding#24
+ &foo/bar/package.Bippy#Ding#`<init>`().2)
+ foo/bar/package.Bippy#Ding.2)
+ foo/bar/package.Bippy#Dong#24
+ &foo/bar/package.Bippy#Dong#`<init>`().2
+ scala/Float#2+
+ foo/bar/package.Bippy#Dong#x.20
+ "foo/bar/package.Bippy#Dong#copy().2.
+  foo/bar/package.Bippy#Dong#_1().2)
+ foo/bar/package.Bippy#Dong.21
+ #foo/bar/package.Bippy#Dong.apply().2$
+	 foo/bar/package.Bippy.2+
+	
+	 foo/bar/package.Bippy.Dingus#26
+		 (foo/bar/package.Bippy.Dingus#`<init>`().2+
+
+
+ foo/bar/package.Bippy.Dingus.2+
+ foo/bar/package.Bippy.Dongus#26
+ (foo/bar/package.Bippy.Dongus#`<init>`().2
+ scala/Float#2-
+ foo/bar/package.Bippy.Dongus#x.22
+ $foo/bar/package.Bippy.Dongus#copy().20
+ "foo/bar/package.Bippy.Dongus#_1().2+
+ foo/bar/package.Bippy.Dongus.23
+ %foo/bar/package.Bippy.Dongus.apply().2,
+ foo/bar/package.Bippy.apply().20
+ "foo/bar/package.Bippy.apply().(xs)2
+ 
+scala/Int#2/
+# #!foo/bar/package.Bippy#`<init>`().2$
+ #foo/bar/package.Bippy#25
+' *'scala/collection/IterableOnceOps#sum().20
+$ &"foo/bar/package.Bippy.apply().(xs)2/
+* *!scala/math/Numeric.IntIsIntegral.2.
+  foo/bar/package.Bippy.apply(+1).2/
+ !foo/bar/package.Bippy#`<init>`().2$
+ foo/bar/package.Bippy#PZ 9F9A04E7228765918030048F01B1CFE3

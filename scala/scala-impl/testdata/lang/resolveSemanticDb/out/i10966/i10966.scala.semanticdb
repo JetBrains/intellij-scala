@@ -1,0 +1,50 @@
+
+‹tests/pos/i10966.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local0*apply€*
+local1*a€*
+local2*b€*
+local3*f€*
+local4*a€*
+local5*b€*
+_empty_/Main.foo().*foo€*
+local6*apply€*
+local7*a€2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02
+ local12
+ 
+scala/Int#2
+ local22
+ 
+scala/Int#2
+ #scala/Unit#2
+ 	local02
+ 	local32
+
+ local42
+ 
+scala/Int#2
+ local52
+ 
+scala/Int#2
+ scala/Unit#2
+ local32!
+
+
+ 	_empty_/Main.foo().2
+	 local62
+ local72
+ 
+scala/Int#2
+ scala/Unit#2
+ local6PZ B5FEBD39013EEF009948934924FD880F

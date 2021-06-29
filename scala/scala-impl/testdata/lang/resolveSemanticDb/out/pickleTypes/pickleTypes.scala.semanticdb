@@ -1,0 +1,114 @@
+
+»tests/pos/pickleTypes.scala**
+_empty_/pickleTypes.
+ *pickleTypes€*"
+_empty_/pickleTypes.C# *C€*3
+!_empty_/pickleTypes.C#`<init>`(). €@*<init>€*"
+_empty_/pickleTypes.C#T#*T€*%
+_empty_/pickleTypes.C#x. „*x€*&
+_empty_/pickleTypes.C#f(). *f€*&
+_empty_/pickleTypes.C#g(). *g€*'
+_empty_/pickleTypes.C#g().(y)*y€*&
+_empty_/pickleTypes.C#h(). *h€*'
+_empty_/pickleTypes.C#h().[U]	*U€*'
+_empty_/pickleTypes.C#h().(z)*z€*'
+_empty_/pickleTypes.C#h().(y)*y€*%
+_empty_/pickleTypes.x1. €*x1€*%
+_empty_/pickleTypes.x2. €*x2€*%
+_empty_/pickleTypes.x3. €*x3€*
+local0*T€*%
+_empty_/pickleTypes.x4. €*x4€*
+local1*T€*
+local2 „*x€*%
+_empty_/pickleTypes.x5. €*x5€*
+local3*T€*
+local4 *f€*
+local5 *g€*
+local6*y€*%
+_empty_/pickleTypes.x6. €*x6€*
+local7*T€*
+local8 *f€*
+local9 *g€*
+local10*y€*
+local11 *h€*
+local12	*U€*
+local13*z€*
+local14*y€2
+ _empty_/pickleTypes.2$
+ _empty_/pickleTypes.C#2/
+ !_empty_/pickleTypes.C#`<init>`().2&
+ _empty_/pickleTypes.C#T#2&
+! "_empty_/pickleTypes.C#x.2&
+$ %_empty_/pickleTypes.C#T#2(
++ ,_empty_/pickleTypes.C#f().2&
+. /_empty_/pickleTypes.C#T#2(
+5 6_empty_/pickleTypes.C#g().2+
+7 8_empty_/pickleTypes.C#g().(y)2&
+: ;_empty_/pickleTypes.C#T#2&
+> ?_empty_/pickleTypes.C#T#2(
+E F_empty_/pickleTypes.C#h().2+
+G H_empty_/pickleTypes.C#h().[U]2+
+J K_empty_/pickleTypes.C#h().(z)2+
+M N_empty_/pickleTypes.C#h().[U]2+
+P Q_empty_/pickleTypes.C#h().(y)2&
+S T_empty_/pickleTypes.C#T#2+
+W X_empty_/pickleTypes.C#h().[U]2%
+ _empty_/pickleTypes.x1.2
+
+ 
+scala/Int#2#
+ scala/Predef.`???`().2%
+ _empty_/pickleTypes.x2.2!
+
+ scala/package.List#2!
+ scala/package.List#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2%
+ _empty_/pickleTypes.x3.2$
+
+ _empty_/pickleTypes.C#2
+ local02$
+ _empty_/pickleTypes.C#2#
+ !scala/Predef.`???`().2%
+ _empty_/pickleTypes.x4.2$
+
+ _empty_/pickleTypes.C#2
+ local12
+ 
+scala/Int#2
+  !local22
+# &
+scala/Int#2#
++ .scala/Predef.`???`().2%
+ _empty_/pickleTypes.x5.2$
+
+ _empty_/pickleTypes.C#2
+ local32"
+ scala/Predef.String#2
+# $local42"
+& ,scala/Predef.String#2
+2 3local52
+4 5local62"
+7 =scala/Predef.String#2"
+@ Fscala/Predef.String#2#
+K Nscala/Predef.`???`().2%
+		 _empty_/pickleTypes.x6.2$
+	
+	 _empty_/pickleTypes.C#2
+		 local72"
+		 scala/Predef.String#2
+	#	 $local82"
+	&	 ,scala/Predef.String#2
+	2	 3local92
+	4	 5local102"
+	7	 =scala/Predef.String#2"
+	@	 Fscala/Predef.String#2
+	L	 Mlocal112
+	N	 Olocal122
+	Q	 Rlocal132
+	T	 Ulocal122
+	W	 Xlocal142
+	Z	 [local72
+	^	 _local122#
+	d	 gscala/Predef.`???`().PZ F223AE975E6BC46DF3544A0C8CF65312

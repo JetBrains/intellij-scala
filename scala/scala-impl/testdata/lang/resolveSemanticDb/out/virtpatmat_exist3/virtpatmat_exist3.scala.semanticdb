@@ -1,0 +1,16 @@
+
+Ì!tests/pos/virtpatmat_exist3.scala*.
+_empty_/ReferenceQueue#*ReferenceQueue€*4
+"_empty_/ReferenceQueue#`<init>`(). €@*<init>€*$
+_empty_/ReferenceQueue#[T]	*T€*1
+!_empty_/ReferenceQueue#wrapper().*wrapper€*4
+'_empty_/ReferenceQueue#wrapper().(jref)*jref€2!
+ _empty_/ReferenceQueue#2,
+ "_empty_/ReferenceQueue#`<init>`().2$
+ _empty_/ReferenceQueue#[T]2/
+ !_empty_/ReferenceQueue#wrapper().25
+ '_empty_/ReferenceQueue#wrapper().(jref)2%
+ "_empty_/ReferenceQueue#2%
+( 6_empty_/ReferenceQueue#2(
+7 8_empty_/ReferenceQueue#[T]25
+ '_empty_/ReferenceQueue#wrapper().(jref)PZ CEAA8C985EFD148E7C58E996C0317FF7

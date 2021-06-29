@@ -1,0 +1,26 @@
+
+ètests/pos/i6828.scala*
+_empty_/Foo#*FooÄ*)
+_empty_/Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo#foo().*fooÄ*
+_empty_/Foo#foo().[T]	*TÄ*#
+_empty_/Foo#foo().(ct)  *ctÄ2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ _empty_/Foo#foo().2#
+ _empty_/Foo#foo().[T]2$
+ _empty_/Foo#foo().(ct)2%
+1 9scala/reflect/ClassTag#2
+) 0scala/reflect/2
+# (scala/2#
+: ;_empty_/Foo#foo().[T]2
+? Cscala/Unit#2 
+ _empty_/Foo#foo().2
+ 	
+scala/Int#2-
+
+ 
+scala/reflect/ClassTag.apply().2 
+ _empty_/Foo#foo().2"
+ scala/Predef.String#2-
+ scala/reflect/ClassTag.apply().PZ EACD507F244FEC3D9D39BEF541642F3C

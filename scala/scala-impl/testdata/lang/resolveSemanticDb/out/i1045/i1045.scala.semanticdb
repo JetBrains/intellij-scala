@@ -1,0 +1,87 @@
+
+ëtests/pos/i1045.scala*,
+_empty_/EmptyHashMap.
+ *EmptyHashMap€*
+
+_empty_/T.
+ *T€*/
+_empty_/T.newSymbolMap. €*newSymbolMap€*
+_empty_/T.map. €*map€*
+_empty_/T.Tree#*Tree€*,
+_empty_/T.Tree#`<init>`(). €@*<init>€*
+_empty_/T.Tree#[X]	*X€*!
+_empty_/T.Tree#tpe().*tpe€*
+_empty_/T.Ident#*Ident€*-
+_empty_/T.Ident#`<init>`(). €@*<init>€*
+_empty_/T.Ident#[X]	*X€*
+_empty_/T.Apply#*Apply€*-
+_empty_/T.Apply#`<init>`(). €@*<init>€*
+_empty_/T.Apply#[X]	*X€*
+_empty_/T.x. €*x€*
+_empty_/T.y. €*y€*
+_empty_/T.z. €*z€2
+ scala/collection/2
+ scala/2#
+ _empty_/EmptyHashMap.2<
+= =.scala/collection/mutable/HashMap#`<init>`(+1).2/
+$ +!scala/collection/mutable/HashMap#2'
+ #scala/collection/mutable/2
+, 3scala/Nothing#2
+5 <scala/Nothing#2
+ 
+_empty_/T.2%
+ _empty_/T.newSymbolMap.2/
+ #!scala/collection/mutable/HashMap#2'
+ scala/collection/mutable/2"
+$ *scala/Predef.String#2/
+4 ;!scala/collection/mutable/HashMap#2'
+, 3scala/collection/mutable/2
+< ?
+scala/Int#2
+A Gscala/Double#27
+\ a)scala/collection/mutable/HashMap.empty().2/
+T [!scala/collection/mutable/HashMap.2'
+L Sscala/collection/mutable/2
+ 	_empty_/T.map.2;
+ "-scala/collection/mutable/HashMap#getOrElse().2%
+ _empty_/T.newSymbolMap.27
+8 =)scala/collection/mutable/HashMap.empty().2/
+0 7!scala/collection/mutable/HashMap.2'
+( /scala/collection/mutable/25
+ 	'scala/collection/mutable/HashMap#put().2
+ _empty_/T.map.25
+ 'scala/collection/mutable/HashMap#put().2%
+ _empty_/T.newSymbolMap.2
+ _empty_/T.map.2
+ _empty_/T.Tree#2(
+ _empty_/T.Tree#`<init>`().2 
+ _empty_/T.Tree#[X]2#
+ !_empty_/T.Tree#tpe().2 
+# $_empty_/T.Tree#[X]2
+ _empty_/T.Ident#2)
+ _empty_/T.Ident#`<init>`().2(
+( (_empty_/T.Tree#`<init>`().2
+! %_empty_/T.Tree#2!
+& '_empty_/T.Ident#[X]2!
+ _empty_/T.Ident#[X]2
+ _empty_/T.Apply#2)
+ _empty_/T.Apply#`<init>`().2(
+( (_empty_/T.Tree#`<init>`().2
+! %_empty_/T.Tree#2!
+& '_empty_/T.Apply#[X]2!
+ _empty_/T.Apply#[X]2
+ _empty_/T.x.2
+ 
+scala/`|`#2
+	 _empty_/T.Ident#2
+ scala/Symbol#2
+ _empty_/T.Apply#2
+ %scala/Symbol#2#
+) ,scala/Predef.`???`().2
+ _empty_/T.y.2#
+ _empty_/T.Tree#tpe().2
+
+ _empty_/T.x.2
+ _empty_/T.z.2
+	 scala/Symbol#2
+ _empty_/T.y.PZ FEC180ED99C10292CF411385071B5152

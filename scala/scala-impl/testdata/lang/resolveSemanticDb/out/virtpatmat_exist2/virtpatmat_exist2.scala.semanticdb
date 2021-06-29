@@ -1,0 +1,66 @@
+
+‡!tests/pos/virtpatmat_exist2.scala*(
+_empty_/ParseResult#*ParseResult€*1
+_empty_/ParseResult#`<init>`(). €@*<init>€*$
+_empty_/ParseResult#[T]	 €*T€*'
+_empty_/MemoEntry# €*	MemoEntry€*/
+_empty_/MemoEntry#`<init>`(). €@*<init>€*-
+ _empty_/MemoEntry#`<init>`().(r) €*r€*"
+_empty_/MemoEntry#[T]	 €*T€*#
+_empty_/MemoEntry#r(). €*r€*)
+_empty_/MemoEntry#`r_=`(). €*r_=€*+
+_empty_/MemoEntry#`r_=`().(x$1)*x$1€*&
+_empty_/MemoEntry#copy().*copy€*&
+_empty_/MemoEntry#copy().[T]	*T€*&
+_empty_/MemoEntry#copy().(r)*r€*:
+#_empty_/MemoEntry#copy$default$1().*copy$default$1€*0
+&_empty_/MemoEntry#copy$default$1().[T]	*T€*"
+_empty_/MemoEntry#_1().*_1€*&
+_empty_/MemoEntry.
+ *	MemoEntry€*(
+_empty_/MemoEntry.apply().*apply€*'
+_empty_/MemoEntry.apply().[T]	*T€*'
+_empty_/MemoEntry.apply().(r)*r€*,
+_empty_/MemoEntry.unapply().*unapply€*)
+_empty_/MemoEntry.unapply().[T]	*T€*-
+!_empty_/MemoEntry.unapply().(x$1)*x$1€*.
+_empty_/MemoEntry.toString().*toString€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.grow().*grow€*!
+_empty_/Test.grow().[T]	*T€*
+local0 €*x€2
+ _empty_/ParseResult#2)
+ _empty_/ParseResult#`<init>`().2!
+ _empty_/ParseResult#[T]2 
+ _empty_/MemoEntry#2+
+ _empty_/MemoEntry#`<init>`().2#
+  &scala/package.Either#2
+' .scala/Nothing#2"
+/ :_empty_/ParseResult#2#
+ _empty_/MemoEntry#[T]2$
+ _empty_/MemoEntry#r().2(
+  _empty_/MemoEntry#`r_=`().2#
+_empty_/MemoEntry#copy().2%
+   _empty_/MemoEntry#_1().2 
+ _empty_/MemoEntry.2$
+_empty_/MemoEntry.apply().2&
+_empty_/MemoEntry.unapply().2
+ _empty_/Test.2"
+ 
+_empty_/Test.grow().2%
+ _empty_/Test.grow().[T]2"
+ _empty_/ParseResult#2%
+ _empty_/Test.grow().[T]2 
+' 0_empty_/MemoEntry#2%
+1 2_empty_/Test.grow().[T]2*
+ _empty_/MemoEntry.unapply().2 
+	 _empty_/MemoEntry.2)
+ scala/util/Right.unapply().2"
+ scala/package.Right.2
+ local02"
+ '_empty_/ParseResult#2'
+2 >scala/Any#asInstanceOf().2
+0 1local02"
+? J_empty_/ParseResult#2%
+K L_empty_/Test.grow().[T]PZ 7D9931F4F13C9A4A1EA2B223C20665D8

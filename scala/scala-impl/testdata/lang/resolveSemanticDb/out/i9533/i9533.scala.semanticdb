@@ -1,0 +1,50 @@
+
+¦tests/pos/i9533.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Base# *Base€*/
+_empty_/Test.Base#`<init>`(). €@*<init>€*"
+_empty_/Test.Base#[X]	 €*X€*$
+_empty_/Test.Child# €*Child€*0
+_empty_/Test.Child#`<init>`(). €@*<init>€* 
+_empty_/Test.Child#[X]	*X€*'
+_empty_/Test.Child#copy().*copy€*'
+_empty_/Test.Child#copy().[X]	*X€*#
+_empty_/Test.Child.
+ *Child€*)
+_empty_/Test.Child.apply().*apply€*(
+_empty_/Test.Child.apply().[X]	*X€*-
+_empty_/Test.Child.unapply().*unapply€**
+ _empty_/Test.Child.unapply().[X]	*X€*.
+"_empty_/Test.Child.unapply().(x$1)*x$1€*/
+_empty_/Test.Child.toString().*toString€*#
+_empty_/Test.apply().*apply€*"
+_empty_/Test.apply().[A]	*A€*"
+_empty_/Test.apply().[B]	*B€*"
+_empty_/Test.apply().(r)*r€*
+local0 €	*X$1€2
+ _empty_/Test.2 
+ _empty_/Test.Base#2+
+ _empty_/Test.Base#`<init>`().2#
+ _empty_/Test.Base#[X]2!
+ _empty_/Test.Child#2,
+ _empty_/Test.Child#`<init>`().2 
+  $_empty_/Test.Base#2$
+% &_empty_/Test.Child#[X]2$
+ _empty_/Test.Child#[X]2(
+ _empty_/Test.Child#copy().2!
+ _empty_/Test.Child.2)
+ _empty_/Test.Child.apply().2+
+ _empty_/Test.Child.unapply().2#
+ _empty_/Test.apply().2&
+ _empty_/Test.apply().[A]2&
+ _empty_/Test.apply().[B]2&
+ _empty_/Test.apply().(r)2 
+ _empty_/Test.Base#2&
+ _empty_/Test.apply().[A]2&
+! "_empty_/Test.apply().[B]2
+& *scala/Unit#2&
+ _empty_/Test.apply().(r)2+
+ _empty_/Test.Child.unapply().2!
+ _empty_/Test.Child.2
+ local0PZ 59D4A53DF206AD24E7886485D1C0281F

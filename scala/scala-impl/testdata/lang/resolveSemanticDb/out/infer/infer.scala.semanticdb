@@ -1,0 +1,117 @@
+
+ó tests/pos/infer.scala*
+_empty_/test.
+ *test€*
+_empty_/test.List#*List€*/
+_empty_/test.List#`<init>`(). €@*<init>€*"
+_empty_/test.List#[a]	 €*a€*$
+_empty_/test.List#`::`().*::€*&
+_empty_/test.List#`::`().[b]	*b€*&
+_empty_/test.List#`::`().(x)*x€*"
+_empty_/test.Cons# €*Cons€*/
+_empty_/test.Cons#`<init>`(). €@*<init>€*-
+ _empty_/test.Cons#`<init>`().(x) €*x€*/
+!_empty_/test.Cons#`<init>`().(xs) €*xs€*
+_empty_/test.Cons#[a]	*a€*
+_empty_/test.Cons#[b]	*b€*!
+_empty_/test.Cons#x. €*x€*#
+_empty_/test.Cons#xs. €*xs€*&
+_empty_/test.Cons#copy().*copy€*&
+_empty_/test.Cons#copy().[a]	*a€*&
+_empty_/test.Cons#copy().[b]	*b€*&
+_empty_/test.Cons#copy().(x)*x€*(
+_empty_/test.Cons#copy().(xs)*xs€*:
+#_empty_/test.Cons#copy$default$1().*copy$default$1€*0
+&_empty_/test.Cons#copy$default$1().[a]	*a€*0
+&_empty_/test.Cons#copy$default$1().[b]	*b€*:
+#_empty_/test.Cons#copy$default$2().*copy$default$2€*0
+&_empty_/test.Cons#copy$default$2().[a]	*a€*0
+&_empty_/test.Cons#copy$default$2().[b]	*b€*"
+_empty_/test.Cons#_1().*_1€*"
+_empty_/test.Cons#_2().*_2€*!
+_empty_/test.Cons.
+ *Cons€*(
+_empty_/test.Cons.apply().*apply€*'
+_empty_/test.Cons.apply().[a]	*a€*'
+_empty_/test.Cons.apply().[b]	*b€*'
+_empty_/test.Cons.apply().(x)*x€*)
+_empty_/test.Cons.apply().(xs)*xs€*,
+_empty_/test.Cons.unapply().*unapply€*)
+_empty_/test.Cons.unapply().[a]	*a€*)
+_empty_/test.Cons.unapply().[b]	*b€*-
+!_empty_/test.Cons.unapply().(x$1)*x$1€*.
+_empty_/test.Cons.toString().*toString€* 
+_empty_/test.Nil.
+ ˆ*Nil€*
+_empty_/test.nil().*nil€* 
+_empty_/test.nil().[n]	*n€*!
+_empty_/test.cons().*cons€*!
+_empty_/test.cons().[a]	*a€*!
+_empty_/test.cons().(x)*x€*#
+_empty_/test.cons().(xs)*xs€*
+_empty_/test.x. €*x€*
+_empty_/test.y. €*y€2
+ _empty_/test.2 
+ _empty_/test.List#2+
+ _empty_/test.List#`<init>`().2#
+ _empty_/test.List#[a]2'
+ 
+_empty_/test.List#`::`().2*
+ _empty_/test.List#`::`().[b]2#
+ _empty_/test.List#[a]2*
+ _empty_/test.List#`::`().(x)2*
+ _empty_/test.List#`::`().[b]2 
+ _empty_/test.List#2*
+  _empty_/test.List#`::`().[b]2+
+, ,_empty_/test.Cons#`<init>`().2*
+- ._empty_/test.List#`::`().(x)2 
+ _empty_/test.Cons#2+
+ _empty_/test.Cons#`<init>`().2#
+  !_empty_/test.Cons#[a]2 
+' +_empty_/test.List#2#
+, -_empty_/test.Cons#[b]2+
+? ?_empty_/test.List#`<init>`().2 
+8 <_empty_/test.List#2#
+= >_empty_/test.Cons#[a]2#
+ _empty_/test.Cons#[a]2#
+ _empty_/test.Cons#[b]2"
+ _empty_/test.Cons#x.2#
+# %_empty_/test.Cons#xs.2'
+ _empty_/test.Cons#copy().2%
+   _empty_/test.Cons#_1().2%
+' '_empty_/test.Cons#_2().2 
+ _empty_/test.Cons.2(
+ _empty_/test.Cons.apply().2*
+ _empty_/test.Cons.unapply().2
+ _empty_/test.Nil.2+
+' '_empty_/test.List#`<init>`().2 
+ _empty_/test.List#2
+ &scala/Nothing#2!
+ 	_empty_/test.nil().2$
+
+ _empty_/test.nil().[n]2 
+ _empty_/test.List#2$
+ _empty_/test.nil().[n]2
+ _empty_/test.Nil.2"
+ 
+_empty_/test.cons().2%
+ _empty_/test.cons().[a]2%
+ _empty_/test.cons().(x)2%
+ _empty_/test.cons().[a]2&
+ _empty_/test.cons().(xs)2 
+ _empty_/test.List#2%
+ _empty_/test.cons().[a]2 
+" &_empty_/test.List#2%
+' (_empty_/test.cons().[a]2
+ _empty_/test.x.2 
+	 _empty_/test.List#2
+ 
+scala/Int#2'
+ _empty_/test.List#`::`().2
+ _empty_/test.Nil.2
+		 _empty_/test.y.2 
+			 _empty_/test.List#2
+		 
+scala/Int#2'
+		 _empty_/test.List#`::`().2!
+		 _empty_/test.nil().PZ 0435A6C6807D0CFE935F7FEA0ACB8AD9

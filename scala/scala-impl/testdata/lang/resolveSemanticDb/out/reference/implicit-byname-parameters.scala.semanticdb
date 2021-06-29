@@ -1,0 +1,72 @@
+
+û4tests/pos/reference/implicit-byname-parameters.scala*#
+implicitByName/Test.
+ *Test€*(
+implicitByName/Test.Codec#*Codec€*7
+%implicitByName/Test.Codec#`<init>`(). €@*<init>€*'
+implicitByName/Test.Codec#[T]	*T€*2
+"implicitByName/Test.Codec#write(). *write€*/
+%implicitByName/Test.Codec#write().(x)*x€*2
+implicitByName/Test.intCodec().  *intCodec€*8
+"implicitByName/Test.optionCodec().  *optionCodec€*/
+%implicitByName/Test.optionCodec().[T]	*T€*3
+&implicitByName/Test.optionCodec().(ev)  *ev€*
+local0 *$anon€*
+local1*write€*
+local2*xo€*
+local3 €*x€*#
+implicitByName/Test.s. €*s€2
+ implicitByName/2"
+ implicitByName/Test.2(
+ implicitByName/Test.Codec#23
+ %implicitByName/Test.Codec#`<init>`().2+
+ implicitByName/Test.Codec#[T]20
+ "implicitByName/Test.Codec#write().23
+ %implicitByName/Test.Codec#write().(x)2+
+ implicitByName/Test.Codec#[T]2
+ scala/Unit#2-
+ implicitByName/Test.intCodec().2(
+ implicitByName/Test.Codec#2
+  
+scala/Int#2#
+$ 'scala/Predef.`???`().20
+
+
+ "implicitByName/Test.optionCodec().23
+
+
+ %implicitByName/Test.optionCodec().[T]24
+ &implicitByName/Test.optionCodec().(ev)2(
+ implicitByName/Test.Codec#23
+ %implicitByName/Test.optionCodec().[T]2(
+  %implicitByName/Test.Codec#2
+& ,scala/Option#23
+- .%implicitByName/Test.optionCodec().[T]2
+ local02
+ local12
+ local22
+ scala/Option#23
+ %implicitByName/Test.optionCodec().[T]2
+ !local22#
+ scala/Some.unapply().2
+ scala/Some.2
+ local320
+ "implicitByName/Test.Codec#write().24
+ &implicitByName/Test.optionCodec().(ev)2
+  local32
+ scala/None.2$
+ implicitByName/Test.s.2(
+ scala/Predef.implicitly().2(
+ implicitByName/Test.Codec#2
+ scala/Option#2
+  #
+scala/Int#20
+& &"implicitByName/Test.optionCodec().2-
+& &implicitByName/Test.intCodec().20
+ "implicitByName/Test.Codec#write().2"
+ implicitByName/Test.s.2!
+ scala/Some.apply().2
+ scala/Some.20
+ "implicitByName/Test.Codec#write().2"
+ implicitByName/Test.s.2
+ scala/None.PZ 50AF58089B10CC332159F33C4A3E27BD

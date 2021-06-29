@@ -1,0 +1,49 @@
+
+Átests/pos/t4036.scala*
+_empty_/Error.
+ *Error€*
+_empty_/Error.f().*f€*
+local0 €*X€*
+local1 €*b€*
+local2*copy€*
+local3*copy$default$1€*
+local4*_1€*
+local5
+ *X€*
+local6*apply€*
+local7*unapply€*
+local8*x$1€*
+local9*toString€*+
+local10*$lessinit$greater$default$1€*
+local11 €*r€*
+_empty_/Error.g().*g€*
+local13 €*x€*
+local14 €*y€*
+local15*foo€*
+local16*z€*
+local17*foo$default$1€*
+local18 €*z€2
+ _empty_/Error.2 
+ _empty_/Error.f().2
+	 scala/Unit#2
+ local02
+ local12
+ local22
+ local42
+ local52
+ local62
+ 	local112
+ local62
+ local122 
+ _empty_/Error.g().2
+ 	local132
+ 	local142
+ local152
+ local162
+ 
+scala/Int#2
+ local142
+		 	local182
+
+
+ local15PZ 5B64A67852F23F91AC325F692109211A

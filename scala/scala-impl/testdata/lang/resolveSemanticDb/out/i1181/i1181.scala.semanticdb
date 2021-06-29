@@ -1,0 +1,33 @@
+
+Îtests/pos/i1181.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[M]	*M€* 
+_empty_/Test.foo().(x)*x€*!
+_empty_/Test.Alias#*Alias€* 
+_empty_/Test.Alias#[A]	*A€*
+_empty_/Test.x. €*x€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[M]2$
+ _empty_/Test.foo().(x)2$
+ _empty_/Test.foo().[M]2
+ 
+scala/Int#2$
+ _empty_/Test.foo().(x)2!
+ _empty_/Test.Alias#2$
+ _empty_/Test.Alias#[A]2$
+ _empty_/Test.Alias#[A]2$
+ _empty_/Test.Alias#[A]2
+ _empty_/Test.x.2!
+	 _empty_/Test.Alias#2
+ 
+scala/Int#2#
+ scala/Tuple2.apply().2!
+ _empty_/Test.foo().2!
+ _empty_/Test.Alias#2
+ _empty_/Test.x.2!
+ _empty_/Test.foo().2
+ _empty_/Test.x.PZ 58AE1DCB89D348C079B20890BE6E01C5

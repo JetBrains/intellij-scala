@@ -1,0 +1,37 @@
+
+Òtests/pos/i8845.scala*$
+_empty_/IntToLong#*	IntToLong€*/
+_empty_/IntToLong#`<init>`(). €@*<init>€**
+_empty_/IntToLong#apply(). *apply€*'
+_empty_/IntToLong#apply().(v)*v€*(
+_empty_/i8845$package. *_empty_€*2
+!_empty_/i8845$package.convert1().*convert1€*.
+$_empty_/i8845$package.convert1().(f)*f€*2
+!_empty_/i8845$package.convert2().*convert2€*.
+$_empty_/i8845$package.convert2().(f)*f€*-
+_empty_/i8845$package.test1. €*test1€*-
+_empty_/i8845$package.test2. €*test2€2
+ _empty_/IntToLong#2+
+ _empty_/IntToLong#`<init>`().2(
+ _empty_/IntToLong#apply().2+
+ _empty_/IntToLong#apply().(v)2
+ 
+scala/Int#2
+ scala/Long#2 
+_empty_/i8845$package.2/
+ !_empty_/i8845$package.convert1().22
+ $_empty_/i8845$package.convert1().(f)2 
+ '_empty_/IntToLong#2#
++ .scala/Predef.`???`().2/
+ !_empty_/i8845$package.convert2().22
+ $_empty_/i8845$package.convert2().(f)2 
+ '_empty_/IntToLong#2#
++ .scala/Predef.`???`().2*
+ 	_empty_/i8845$package.test1.2/
+ !_empty_/i8845$package.convert1().2#
+ scala/Int.int2long().2 
+ scala/Int#`*`(+3).2*
+ 	_empty_/i8845$package.test2.2/
+ !_empty_/i8845$package.convert2().2#
+ scala/Int.int2long().2 
+ scala/Int#`*`(+3).PZ 4A857EA9825F5824F89AC3B7CA68A403

@@ -1,0 +1,40 @@
+
+’
+tests/pos/i12218.scala*)
+_empty_/i12218$package. *_empty_€*1
+!_empty_/i12218$package.runTest().*runTest€*
+local0 €*arr€*
+local1 €*first€*"
+_empty_/runTest# *runTest€*-
+_empty_/runTest#`<init>`(). €@*<init>€*'
+_empty_/runTest#main(). € *main€**
+_empty_/runTest#main().(args)*args€*
+local2 €*error€22
+ ((scala/language.experimental.fewerBraces.2&
+ scala/language.experimental.2
+ scala/language.2!
+_empty_/i12218$package.2
+ scala/main#2/
+
+ !_empty_/i12218$package.runTest().2
+ scala/Unit#2
+ 	local02$
+ scala/Array.apply(+5).2
+ scala/Array.2#
+ scala/Boolean#`||`().22
+ $scala/collection/ArrayOps#isEmpty().2)
+ scala/Predef.intArrayOps().2
+ local02
+
+ local12"
+ scala/Array#apply().2
+ local02!
+ scala/Int#`!=`(+3).2
+ local12'
+ scala/Predef.println(+1).2'
+		 scala/Predef.println(+1).2
+_empty_/runTest#2%
+_empty_/runTest#`<init>`().2+
+!_empty_/i12218$package.runTest().23
+)scala/util/CommandLineParser.showError().2
+local2PZ 8FEFC1D30ABA222087F037053E3C4454

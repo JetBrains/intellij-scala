@@ -1,0 +1,80 @@
+
+°tests/pos/i1755.scala*.
+_empty_/hierarOverload#*hierarOverload€*4
+"_empty_/hierarOverload#`<init>`(). €@*<init>€*%
+_empty_/hierarOverload#AB#*AB€*7
+%_empty_/hierarOverload#AB#`<init>`(). €@*<init>€*(
+_empty_/hierarOverload#AB#TB#*TB€*&
+_empty_/hierarOverload#AB#A#*A€*9
+'_empty_/hierarOverload#AB#A#`<init>`(). €@*<init>€*9
+%_empty_/hierarOverload#AB#A#entities. „*entities€*&
+_empty_/hierarOverload#AB#B#*B€*9
+'_empty_/hierarOverload#AB#B#`<init>`(). €@*<init>€*+
+_empty_/hierarOverload#NAnB.
+ *NAnB€**
+_empty_/hierarOverload#NAnB.TB#*TB€**
+_empty_/hierarOverload#NAnB.TA#*TA€**
+_empty_/hierarOverload#NAnB.nA#*nA€*<
+*_empty_/hierarOverload#NAnB.nA#`<init>`(). €@*<init>€**
+_empty_/hierarOverload#NAnB.nB#*nB€*<
+*_empty_/hierarOverload#NAnB.nB#`<init>`(). €@*<init>€*)
+_empty_/hierarOverload#foo().*foo€*
+local0 €*t€*0
+_empty_/hierarOverload2#*hierarOverload2€*5
+#_empty_/hierarOverload2#`<init>`(). €@*<init>€*,
+_empty_/hierarOverload2#NAnB.
+ *NAnB€*+
+ _empty_/hierarOverload2#NAnB.TB#*TB€*+
+ _empty_/hierarOverload2#NAnB.nB#*nB€*=
++_empty_/hierarOverload2#NAnB.nB#`<init>`(). €@*<init>€**
+_empty_/hierarOverload2#foo().*foo€*
+local1 €*t€2!
+ _empty_/hierarOverload#20
+ "_empty_/hierarOverload#`<init>`().2(
+ 
+_empty_/hierarOverload#AB#23
+ %_empty_/hierarOverload#AB#`<init>`().2+
+	 _empty_/hierarOverload#AB#TB#2*
+ _empty_/hierarOverload#AB#A#25
+ '_empty_/hierarOverload#AB#A#`<init>`().23
+ $%_empty_/hierarOverload#AB#A#entities.2!
+& *scala/package.List#2+
++ -_empty_/hierarOverload#AB#TB#2*
+ _empty_/hierarOverload#AB#B#25
+ '_empty_/hierarOverload#AB#B#`<init>`().2*
+	 _empty_/hierarOverload#NAnB.2-
+	 _empty_/hierarOverload#NAnB.TB#2-
+ _empty_/hierarOverload#NAnB.nB#2-
+	 _empty_/hierarOverload#NAnB.TA#2-
+ _empty_/hierarOverload#NAnB.nA#2-
+	
+	 _empty_/hierarOverload#NAnB.nA#28
+		 *_empty_/hierarOverload#NAnB.nA#`<init>`().27
+		 )scala/collection/IterableFactory#apply().2!
+		 scala/package.List.2-
+		 _empty_/hierarOverload#NAnB.nB#2-
+
+
+
+ _empty_/hierarOverload#NAnB.nB#28
+
+
+ *_empty_/hierarOverload#NAnB.nB#`<init>`().2+
+ 	_empty_/hierarOverload#foo().2
+ local028
+! !*_empty_/hierarOverload#NAnB.nB#`<init>`().2-
+ !_empty_/hierarOverload#NAnB.TB#2*
+ _empty_/hierarOverload#NAnB.2&
+ _empty_/hierarOverload2#21
+ #_empty_/hierarOverload2#`<init>`().2+
+	 _empty_/hierarOverload2#NAnB.2.
+	  _empty_/hierarOverload2#NAnB.TB#2.
+  _empty_/hierarOverload2#NAnB.nB#2.
+
+  _empty_/hierarOverload2#NAnB.nB#29
+ +_empty_/hierarOverload2#NAnB.nB#`<init>`().2,
+ 	_empty_/hierarOverload2#foo().2
+ local129
+! !+_empty_/hierarOverload2#NAnB.nB#`<init>`().2.
+ ! _empty_/hierarOverload2#NAnB.TB#2+
+ _empty_/hierarOverload2#NAnB.PZ 1CDAEBFBC7E188790FEF51C779E763EB

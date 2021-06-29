@@ -1,0 +1,14 @@
+
+Ùtests/pos/t4910.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#foo.
+ (*foo€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#foo.2(
+ scala/Predef.implicitly().2
+ _empty_/A#foo.2
+ _empty_/A#foo.PZ 68622B43C6B8D33309801231747FC1A2

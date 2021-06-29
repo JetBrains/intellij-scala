@@ -1,0 +1,138 @@
+
+Ã(tests/pos/i11358.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.test1().*test1€*#
+_empty_/Test.test2().*test2€*#
+_empty_/Test.test3().*test3€*#
+_empty_/Test.test4().*test4€*#
+_empty_/Test.test5().*test5€*#
+_empty_/Test.test6().*test6€*#
+_empty_/Test.test7().*test7€*#
+_empty_/Test.test8().*test8€*!
+_empty_/Test.`+++`().*+++€*"
+_empty_/Test.`+++`().[A]	*A€*&
+_empty_/Test.`+++`().(arr)*arr€*"
+_empty_/Test.`+++`().[B]	*B€*,
+_empty_/Test.`+++`().(suffix)*suffix€*#
+_empty_/Test.`+++`(+1).*+++€*$
+_empty_/Test.`+++`(+1).[A]	*A€*(
+_empty_/Test.`+++`(+1).(arr)*arr€*$
+_empty_/Test.`+++`(+1).[B]	*B€*.
+_empty_/Test.`+++`(+1).(suffix)*suffix€2
+ _empty_/Test.2#
+ _empty_/Test.test1().2*
+ scala/IArray$package.IArray#2
+ 
+scala/Int#2#
+( +_empty_/Test.`+++`().25
+! !'scala/IArray$package.IArray.apply(+14).2*
+ !scala/IArray$package.IArray.25
+2 2'scala/IArray$package.IArray.apply(+14).2*
+, 2scala/IArray$package.IArray.2-
+8 8scala/reflect/ClassTag.apply().2#
+ _empty_/Test.test2().2*
+ scala/IArray$package.IArray#2
+ 
+scala/Int#2%
+( +_empty_/Test.`+++`(+1).25
+! !'scala/IArray$package.IArray.apply(+14).2*
+ !scala/IArray$package.IArray.27
+0 0)scala/collection/IterableFactory#apply().2!
+, 0scala/package.List.2-
+6 6scala/reflect/ClassTag.apply().2#
+ _empty_/Test.test3().2#
+ _empty_/Test.`+++`().2
+ 
+scala/Int#25
+ 'scala/IArray$package.IArray.apply(+14).2*
+ scala/IArray$package.IArray.25
++ +'scala/IArray$package.IArray.apply(+14).2*
+% +scala/IArray$package.IArray.2-
+2 2scala/reflect/ClassTag.apply().2#
+ _empty_/Test.test4().2%
+ _empty_/Test.`+++`(+1).2
+ 
+scala/Int#25
+ 'scala/IArray$package.IArray.apply(+14).2*
+ scala/IArray$package.IArray.27
+) ))scala/collection/IterableFactory#apply().2!
+% )scala/package.List.2-
+0 0scala/reflect/ClassTag.apply().2#
+ _empty_/Test.test5().2*
+ scala/IArray$package.IArray#2
+ 
+scala/Int#2#
+( +_empty_/Test.`+++`().25
+! !'scala/IArray$package.IArray.apply(+14).2*
+ !scala/IArray$package.IArray.2
+, /
+scala/Int#25
+7 7'scala/IArray$package.IArray.apply(+14).2*
+1 7scala/IArray$package.IArray.2-
+> >scala/reflect/ClassTag.apply().2#
+ _empty_/Test.test6().2*
+ scala/IArray$package.IArray#2
+ 
+scala/Int#2%
+( +_empty_/Test.`+++`(+1).25
+! !'scala/IArray$package.IArray.apply(+14).2*
+ !scala/IArray$package.IArray.2
+, /
+scala/Int#27
+5 5)scala/collection/IterableFactory#apply().2!
+1 5scala/package.List.2-
+< <scala/reflect/ClassTag.apply().2#
+ _empty_/Test.test7().2#
+ _empty_/Test.`+++`().25
+ 'scala/IArray$package.IArray.apply(+14).2*
+ scala/IArray$package.IArray.2
+  #
+scala/Int#25
++ +'scala/IArray$package.IArray.apply(+14).2*
+% +scala/IArray$package.IArray.2-
+2 2scala/reflect/ClassTag.apply().2#
+		 _empty_/Test.test8().2%
+		 _empty_/Test.`+++`(+1).25
+		 'scala/IArray$package.IArray.apply(+14).2*
+		 scala/IArray$package.IArray.2
+	 	 #
+scala/Int#27
+	)	 ))scala/collection/IterableFactory#apply().2!
+	%	 )scala/package.List.2-
+	0	 0scala/reflect/ClassTag.apply().2#
+ _empty_/Test.`+++`().2&
+ _empty_/Test.`+++`().[A]2(
+" %_empty_/Test.`+++`().(arr)2*
+' -scala/IArray$package.IArray#2&
+. /_empty_/Test.`+++`().[A]2&
+ _empty_/Test.`+++`().[B]2&
+ _empty_/Test.`+++`().[A]2+
+& ,_empty_/Test.`+++`().(suffix)2*
+. 4scala/IArray$package.IArray#2&
+5 6_empty_/Test.`+++`().[B]2%
+  scala/reflect/ClassTag#2
+ scala/reflect/2&
+   _empty_/Test.`+++`().[A]2%
+ $scala/reflect/ClassTag#2
+ scala/reflect/2&
+$ $_empty_/Test.`+++`().[B]2*
+: @scala/IArray$package.IArray#2&
+A B_empty_/Test.`+++`().[B]2#
+F Iscala/Predef.`???`().2%
+ _empty_/Test.`+++`(+1).2(
+ _empty_/Test.`+++`(+1).[A]2*
+" %_empty_/Test.`+++`(+1).(arr)2(
+. /_empty_/Test.`+++`(+1).[A]2(
+ _empty_/Test.`+++`(+1).[B]2(
+ _empty_/Test.`+++`(+1).[A]2-
+& ,_empty_/Test.`+++`(+1).(suffix)2)
+. :scala/package.IterableOnce#2(
+; <_empty_/Test.`+++`(+1).[B]2(
+   _empty_/Test.`+++`(+1).[A]2%
+ $scala/reflect/ClassTag#2
+ scala/reflect/2(
+$ $_empty_/Test.`+++`(+1).[B]2*
+@ Fscala/IArray$package.IArray#2(
+G H_empty_/Test.`+++`(+1).[B]2#
+L Oscala/Predef.`???`().PZ 98E7244671D3F715B7445C8DDB54BEED

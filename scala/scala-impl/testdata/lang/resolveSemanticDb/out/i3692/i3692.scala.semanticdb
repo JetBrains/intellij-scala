@@ -1,0 +1,100 @@
+
+ùtests/pos/i3692.scala*
+
+_empty_/C#*CÄ*'
+_empty_/C#`<init>`(). Ä@*<init>Ä*
+_empty_/C#T#*TÄ*
+_empty_/Main.
+ *MainÄ*!
+_empty_/Main.main().*mainÄ*'
+_empty_/Main.main().(args)*argsÄ*
+local0 Ä*chooseÄ*
+local1 *applyÄ*
+local2  *cÄ*
+local3 Ä*b0Ä*
+local4 Ä*b1Ä*
+local5 *applyÄ*
+local6*cÄ*
+local7*applyFÄ*
+local8*fÄ*
+local9 *applyÄ*
+local10*cÄ*
+local11 *$anonÄ*
+local12*TÄ2
+ 
+_empty_/C#2
+
+ 
+_empty_/C#`<init>`().2
+ _empty_/C#T#2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02
+ 
+_empty_/C#2
+ local12
+ local22
+ scala/Predef.Set#2
+ "
+scala/Int#25
+* /'scala/collection/immutable/Set.empty().2
+& )scala/Predef.Set.2
+		 
+local32
+		 
+_empty_/C#2
+		 scala/Predef.Set#2
+		 
+scala/Int#2-
+	$	 $scala/ContextFunction1#apply().2
+		 $local02
+
+
+ 
+local42
+
+
+ 
+_empty_/C#2
+
+
+ local52
+
+
+ local62
+
+
+ scala/Predef.Set#2
+
+
+ 
+scala/Int#2-
+
+'
+ 'scala/ContextFunction1#apply().2
+
+!
+ 'local02
+ local72
+ local82
+ 
+_empty_/C#2
+ local92
+ local102
+ scala/Predef.Set#2
+  #
+scala/Int#2&
+) )scala/Function1#apply().2
+( )local82
+* *local112#
+/ /_empty_/C#`<init>`().2
+. /
+_empty_/C#2
+5 6local122
+7 :
+scala/Int#PZ 5A9717E3D80C83546B1ACBD8EBB2BD1B

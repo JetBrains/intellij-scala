@@ -1,0 +1,56 @@
+
+¿
+tests/pos/t7180.scala*
+_empty_/Higher#*Higher€*,
+_empty_/Higher#`<init>`(). €@*<init>€*
+_empty_/Higher#[F]	*F€*
+_empty_/Box#*Box€*)
+_empty_/Box#`<init>`(). €@*<init>€*
+_empty_/Box#[A]	*A€*
+_empty_/Box.
+ *Box€*,
+_empty_/Box.HigherBox().  *	HigherBox€*
+local0 *$anon€*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.box. €*box€*
+_empty_/Foo.Bar#*Bar€*
+_empty_/Foo.Bar#[A]	*A€*
+_empty_/Foo.bar. €*bar€2
+ _empty_/Higher#2$
+ _empty_/Higher#`<init>`().2
+ _empty_/Higher#[F]2
+ 	_empty_/Box#2%
+	 	_empty_/Box#`<init>`().2
+
+ _empty_/Box#[A]2
+ 
+_empty_/Box.2&
+ _empty_/Box.HigherBox().2
+  _empty_/Higher#2
+( (local02
+, 2_empty_/Higher#2
+ 
+_empty_/Foo.2
+ 	_empty_/Foo.box.2(
+ scala/Predef.implicitly().2
+ _empty_/Higher#2&
+# #_empty_/Box.HigherBox().2
+
+
+ 
+_empty_/Foo.Bar#2!
+
+
+ _empty_/Foo.Bar#[A]2
+
+
+ _empty_/Box#2!
+
+
+ _empty_/Foo.Bar#[A]2
+ 	_empty_/Foo.bar.2(
+ scala/Predef.implicitly().2
+ _empty_/Higher#2
+ !_empty_/Foo.Bar#2&
+# #_empty_/Box.HigherBox().PZ 7F39BE98CCDA221C5885D313A8EE3EB9

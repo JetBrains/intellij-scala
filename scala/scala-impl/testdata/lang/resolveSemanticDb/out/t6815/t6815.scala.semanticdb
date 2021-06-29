@@ -1,0 +1,48 @@
+
+°tests/pos/t6815.scala*
+
+_empty_/U#*U€*'
+_empty_/U#`<init>`(). €@*<init>€*0
+_empty_/U#ValOrDefDefApi#*ValOrDefDefApi€*6
+$_empty_/U#ValOrDefDefApi#`<init>`(). €@*<init>€*/
+ _empty_/U#ValOrDefDefApi#name(). *name€**
+_empty_/U#ValOrDefDef#*ValOrDefDef€* 
+_empty_/U#ValDef#*ValDef€*&
+_empty_/U#ValDefApi#*	ValDefApi€*1
+_empty_/U#ValDefApi#`<init>`(). €@*<init>€*-
+_empty_/U#emptyValDef. „*emptyValDef€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.u. €*u€2
+ 
+_empty_/U#2#
+ _empty_/U#`<init>`().2'
+ _empty_/U#ValOrDefDefApi#22
+ $_empty_/U#ValOrDefDefApi#`<init>`().2.
+  _empty_/U#ValOrDefDefApi#name().2
+ 
+scala/Any#2$
+ _empty_/U#ValOrDefDef#2'
+ $_empty_/U#ValOrDefDefApi#2
+ _empty_/U#ValDef#2$
+ _empty_/U#ValOrDefDef#2"
+" +_empty_/U#ValDefApi#2"
+ _empty_/U#ValDefApi#2-
+ _empty_/U#ValDefApi#`<init>`().2'
+ (_empty_/U#ValOrDefDefApi#2
+1 7_empty_/U#ValDef#2$
+ _empty_/U#emptyValDef.2
+ _empty_/U#ValDef#2
+
+
+ _empty_/Test.2
+ _empty_/Test.u.2
+	 
+
+_empty_/U#2#
+ scala/Predef.`???`().2$
+ _empty_/U#emptyValDef.2
+ _empty_/Test.u.2$
+ _empty_/U#emptyValDef.2
+	 
+_empty_/Test.u.PZ AC6FC40D8FD1CE730B44F809F18D015A

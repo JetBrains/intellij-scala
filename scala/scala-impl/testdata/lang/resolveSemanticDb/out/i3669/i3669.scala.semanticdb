@@ -1,0 +1,38 @@
+
+îtests/pos/i3669.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#test().*test€*#
+_empty_/Test#test().(xs)*xs€*
+local0 €*p1€*
+local1 €*p2€*
+local2 €*p3€*
+local3 €*p4€2
+ java/nio/file/2
+ 	java/nio/2
+ java/2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ 
+_empty_/Test#test().2&
+ _empty_/Test#test().(xs)2
+ scala/Array#2"
+ scala/Predef.String#2
+ 
+local02(
+ java/nio/file/Paths#get().2"
+ java/nio/file/Paths#2
+ 
+local12(
+ java/nio/file/Paths#get().2"
+ java/nio/file/Paths#2
+ 
+local22(
+ java/nio/file/Paths#get().2"
+ java/nio/file/Paths#2
+ 
+local32(
+ java/nio/file/Paths#get().2"
+ java/nio/file/Paths#2&
+  "_empty_/Test#test().(xs)PZ 7014CE42B94D51E17A3142D179EE7000

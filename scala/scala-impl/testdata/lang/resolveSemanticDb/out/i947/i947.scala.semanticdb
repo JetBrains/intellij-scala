@@ -1,0 +1,37 @@
+
+žtests/pos/i947.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.c#*c€*,
+_empty_/Test.c#`<init>`(). €@*<init>€* 
+_empty_/Test.c#x(). €*x€*'
+_empty_/Test.c#equals().*equals€*-
+_empty_/Test.c#equals().(other)*other€*
+local0 €*o€*
+local1 €*xs€*
+local2 €	*c€*
+local3 €*ys€*
+local4 €	*d18383€2
+ _empty_/Test.2
+ 	_empty_/Test.c#2(
+ _empty_/Test.c#`<init>`().2!
+ _empty_/Test.c#x().2
+ 
+scala/Int#2&
+ _empty_/Test.c#equals().2-
+ _empty_/Test.c#equals().(other)2
+ "
+scala/Any#2-
+& +_empty_/Test.c#equals().(other)2
+ local02
+ _empty_/Test.c#2!
+ scala/Int#`==`(+3).2!
+ _empty_/Test.c#x().2!
+ _empty_/Test.c#x().2
+ local02
+ local12!
+ scala/package.List#2
+ local22
+		 local32!
+		 scala/package.List#2
+		 local4PZ C976C25243D5344DAA081F06A8555FE2

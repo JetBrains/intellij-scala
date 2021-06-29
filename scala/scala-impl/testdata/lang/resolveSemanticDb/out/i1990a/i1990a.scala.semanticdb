@@ -1,0 +1,66 @@
+
+Ìtests/pos/i1990a.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/A#Foo#*Foo€*+
+_empty_/A#Foo#`<init>`(). €@*<init>€*.
+_empty_/A#Foo#inlineMeth().*
+inlineMeth€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#B#*B€*)
+_empty_/C#B#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local1 €*c€*
+local2 €*b€2
+ 
+_empty_/A#2
+
+ 
+_empty_/A#`<init>`().2
+
+ local02
+ _empty_/A#Foo#2'
+ _empty_/A#Foo#`<init>`().2)
+ _empty_/A#Foo#inlineMeth().2
+ scala/Unit#2'
+ scala/Predef.println(+1).2
+ 
+_empty_/A#2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+		 	_empty_/C#B#2%
+		 _empty_/C#B#`<init>`().2#
+		 _empty_/A#`<init>`().2
+		 
+_empty_/A#2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local12#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 	local22%
+ _empty_/C#B#`<init>`().2
+ _empty_/C#B#2
+ local12)
+ _empty_/A#Foo#inlineMeth().2'
+ _empty_/A#Foo#`<init>`().2
+ _empty_/A#Foo#2
+	 
+local2PZ 142090BBBF81824FD6E7EA1AD6DFBC7B

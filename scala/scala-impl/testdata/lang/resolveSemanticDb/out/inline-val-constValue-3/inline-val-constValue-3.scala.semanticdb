@@ -1,0 +1,34 @@
+
+‰
+'tests/pos/inline-val-constValue-3.scala*<
+*_empty_/`inline-val-constValue-3$package`. *_empty_€*8
+._empty_/`inline-val-constValue-3$package`.f().*f€*;
+1_empty_/`inline-val-constValue-3$package`.f().[N]	*N€*
+local0 €*size€*
+local1 €*n€*
+local2 €*m€*6
+,_empty_/`inline-val-constValue-3$package`.N#*N€*>
+1_empty_/`inline-val-constValue-3$package`.test().*test€24
+*_empty_/`inline-val-constValue-3$package`.2<
+ ._empty_/`inline-val-constValue-3$package`.f().2?
+ 1_empty_/`inline-val-constValue-3$package`.f().[N]2
+ 
+scala/Int#2
+ scala/Unit#2
+ local02=
+  */scala/compiletime/package$package.constValue().2 
+ scala/compiletime/2?
++ ,1_empty_/`inline-val-constValue-3$package`.f().[N]2
+ local12
+ local02
+ local22
+	 
+scala/Int#2
+ local12#
+ scala/Predef.`???`().2:
+ ,_empty_/`inline-val-constValue-3$package`.N#2?
+		 1_empty_/`inline-val-constValue-3$package`.test().2
+	
+	 scala/Unit#2<
+		 ._empty_/`inline-val-constValue-3$package`.f().2:
+		 ,_empty_/`inline-val-constValue-3$package`.N#PZ 4EB50183F8D53936F4400C1159B64F1B

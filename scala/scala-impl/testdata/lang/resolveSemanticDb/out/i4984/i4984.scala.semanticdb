@@ -1,0 +1,141 @@
+
+Ò(tests/pos/i4984.scala* 
+_empty_/Array2.
+ *Array2€*/
+_empty_/Array2.unapplySeq().*
+unapplySeq€*)
+_empty_/Array2.unapplySeq().[T]	*T€*)
+_empty_/Array2.unapplySeq().(x)*x€*=
+!_empty_/Array2.UnapplySeqWrapper# *UnapplySeqWrapper€*>
+,_empty_/Array2.UnapplySeqWrapper#`<init>`(). €@*<init>€*9
+/_empty_/Array2.UnapplySeqWrapper#`<init>`().(a)*a€*.
+$_empty_/Array2.UnapplySeqWrapper#[T]	*T€*0
+#_empty_/Array2.UnapplySeqWrapper#a. €*a€*;
++_empty_/Array2.UnapplySeqWrapper#isEmpty().*isEmpty€*3
+'_empty_/Array2.UnapplySeqWrapper#get().*get€*G
+1_empty_/Array2.UnapplySeqWrapper#lengthCompare().*lengthCompare€*B
+6_empty_/Array2.UnapplySeqWrapper#lengthCompare().(len)*len€*7
+)_empty_/Array2.UnapplySeqWrapper#apply().*apply€*6
+,_empty_/Array2.UnapplySeqWrapper#apply().(i)*i€*5
+(_empty_/Array2.UnapplySeqWrapper#drop().*drop€*5
++_empty_/Array2.UnapplySeqWrapper#drop().(n)*n€*7
+)_empty_/Array2.UnapplySeqWrapper#toSeq().*toSeq€*=
+!_empty_/Array2.UnapplySeqWrapper.
+ *UnapplySeqWrapper€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*#
+_empty_/Test#test1().*test1€*$
+_empty_/Test#test1().(xs)*xs€*
+local0 €*x€*
+local1 €*y€*#
+_empty_/Test#test2().*test2€*$
+_empty_/Test#test2().(xs)*xs€*
+local2 €*x€*
+local3 €*y€*
+local4 €*xs€*#
+_empty_/Test#test3().*test3€*$
+_empty_/Test#test3().(xs)*xs€*
+local5 €*xs€2
+ _empty_/Array2.2*
+ _empty_/Array2.unapplySeq().2-
+ _empty_/Array2.unapplySeq().[T]2-
+ _empty_/Array2.unapplySeq().(x)2
+ scala/Array#2-
+ _empty_/Array2.unapplySeq().[T]2/
+" 3!_empty_/Array2.UnapplySeqWrapper#2-
+4 5_empty_/Array2.unapplySeq().[T]2:
+N N,_empty_/Array2.UnapplySeqWrapper#`<init>`().2-
+O P_empty_/Array2.unapplySeq().(x)2/
+ !_empty_/Array2.UnapplySeqWrapper#2:
+ ,_empty_/Array2.UnapplySeqWrapper#`<init>`().2
+2 7scala/Array#22
+8 9$_empty_/Array2.UnapplySeqWrapper#[T]2&
+J Jscala/AnyVal#`<init>`().2
+D Jscala/AnyVal#22
+  !$_empty_/Array2.UnapplySeqWrapper#[T]21
+/ 0#_empty_/Array2.UnapplySeqWrapper#a.29
+ +_empty_/Array2.UnapplySeqWrapper#isEmpty().2
+ scala/Boolean#25
+ '_empty_/Array2.UnapplySeqWrapper#get().2/
+ !_empty_/Array2.UnapplySeqWrapper#22
+  $_empty_/Array2.UnapplySeqWrapper#[T]2?
+ 1_empty_/Array2.UnapplySeqWrapper#lengthCompare().2D
+ 6_empty_/Array2.UnapplySeqWrapper#lengthCompare().(len)2
+ 
+scala/Int#2
+! $
+scala/Int#28
+) 6*scala/collection/ArrayOps#lengthCompare().2-
+' 'scala/Predef.genericArrayOps().21
+' (#_empty_/Array2.UnapplySeqWrapper#a.2D
+7 :6_empty_/Array2.UnapplySeqWrapper#lengthCompare().(len)27
+ )_empty_/Array2.UnapplySeqWrapper#apply().2:
+ ,_empty_/Array2.UnapplySeqWrapper#apply().(i)2
+ 
+scala/Int#22
+ $_empty_/Array2.UnapplySeqWrapper#[T]2"
+ scala/Array#apply().21
+ #_empty_/Array2.UnapplySeqWrapper#a.2:
+ ,_empty_/Array2.UnapplySeqWrapper#apply().(i)26
+ (_empty_/Array2.UnapplySeqWrapper#drop().29
+ +_empty_/Array2.UnapplySeqWrapper#drop().(n)2
+ 
+scala/Int#2 
+ scala/package.Seq#2
+ scala/22
+  !$_empty_/Array2.UnapplySeqWrapper#[T]2#
+% (scala/Predef.`???`().27
+		 )_empty_/Array2.UnapplySeqWrapper#toSeq().2 
+		 scala/package.Seq#2
+		 scala/22
+		 $_empty_/Array2.UnapplySeqWrapper#[T]20
+	 	 %"scala/collection/ArrayOps#toSeq().2-
+		 scala/Predef.genericArrayOps().21
+		 #_empty_/Array2.UnapplySeqWrapper#a.2/
+ !_empty_/Array2.UnapplySeqWrapper.2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2#
+ _empty_/Test#test1().2'
+ _empty_/Test#test1().(xs)2
+ scala/Array#2
+ 
+scala/Int#2
+  
+scala/Int#2'
+# %_empty_/Test#test1().(xs)2*
+ _empty_/Array2.unapplySeq().2
+	 _empty_/Array2.2
+ local02
+ local12 
+ scala/Int#`+`(+4).2
+ local02
+ local12#
+ _empty_/Test#test2().2'
+ _empty_/Test#test2().(xs)2
+ scala/Array#2
+ 
+scala/Int#2 
+  scala/package.Seq#2
+! $
+scala/Int#2'
+( *_empty_/Test#test2().(xs)2*
+ _empty_/Array2.unapplySeq().2
+	 _empty_/Array2.2
+ local22
+ local32
+ local42
+  "local42#
+ _empty_/Test#test3().2'
+ _empty_/Test#test3().(xs)2
+ scala/Array#2
+ 
+scala/Int#2 
+  scala/package.Seq#2
+! $
+scala/Int#2'
+( *_empty_/Test#test3().(xs)2*
+ _empty_/Array2.unapplySeq().2
+	 _empty_/Array2.2
+ local52
+ local5PZ 604F34C07D5C98E3BEF74E2A5D50B49C

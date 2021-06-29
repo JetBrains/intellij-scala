@@ -1,0 +1,80 @@
+
+Ötests/pos/i6900.scala*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.Foo#*Foo€*/
+_empty_/Test1.Foo#`<init>`(). €@*<init>€*
+_empty_/Test1.Foo#[A]	*A€*&
+_empty_/Test1.Foo#foo(). *foo€*%
+_empty_/Test1.Foo#foo().[C]	*C€*"
+_empty_/Test1.i2f().  *i2f€*!
+_empty_/Test1.i2f().[A]	*A€*!
+_empty_/Test1.i2f().(a)*a€*
+local0 *$anon€*
+local1*foo€*
+local2	*C€*
+_empty_/Test2.
+ *Test2€* 
+_empty_/Test2.foo().*foo€*!
+_empty_/Test2.foo().[A]	*A€*!
+_empty_/Test2.foo().(a)*a€*!
+_empty_/Test2.foo().[C]	*C€2
+ _empty_/Test1.2 
+ _empty_/Test1.Foo#2+
+ _empty_/Test1.Foo#`<init>`().2#
+ _empty_/Test1.Foo#[A]2&
+ _empty_/Test1.Foo#foo().2)
+ _empty_/Test1.Foo#foo().[C]2)
+ _empty_/Test1.Foo#foo().[C]2#
+ _empty_/Test1.Foo#[A]2"
+ _empty_/Test1.i2f().2%
+ _empty_/Test1.i2f().[A]2%
+ _empty_/Test1.i2f().(a)2%
+ _empty_/Test1.i2f().[A]2 
+  _empty_/Test1.Foo#2%
+! "_empty_/Test1.i2f().[A]2
+& &local02 
+* -_empty_/Test1.Foo#2%
+. /_empty_/Test1.i2f().[A]2
+ local12
+ local22
+ local22%
+ _empty_/Test1.i2f().[A]2%
+ _empty_/Test1.i2f().(a)2&
+ _empty_/Test1.Foo#foo().2"
+ _empty_/Test1.i2f().2&
+ _empty_/Test1.Foo#foo().2&
+ _empty_/Test1.Foo#foo().2"
+ _empty_/Test1.i2f().2&
+ _empty_/Test1.Foo#foo().2"
+ scala/Predef.String#2&
+ _empty_/Test1.Foo#foo().2"
+ _empty_/Test1.i2f().2&
+ _empty_/Test1.Foo#foo().2"
+ scala/Predef.String#2&
+ _empty_/Test1.Foo#foo().2"
+ _empty_/Test1.i2f().2&
+ _empty_/Test1.Foo#foo().2"
+ scala/Predef.String#2"
+ scala/Predef.String#2
+ _empty_/Test2.2"
+ _empty_/Test2.foo().2%
+ _empty_/Test2.foo().[A]2%
+ _empty_/Test2.foo().(a)2%
+ _empty_/Test2.foo().[A]2%
+ _empty_/Test2.foo().[C]2%
+ _empty_/Test2.foo().[C]2%
+ _empty_/Test2.foo().[A]2%
+ _empty_/Test2.foo().(a)2"
+ _empty_/Test2.foo().2"
+ _empty_/Test2.foo().2"
+ _empty_/Test2.foo().2"
+ _empty_/Test2.foo().2"
+ scala/Predef.String#2"
+ _empty_/Test2.foo().2"
+ _empty_/Test2.foo().2"
+ scala/Predef.String#2"
+ _empty_/Test2.foo().2"
+ _empty_/Test2.foo().2"
+ scala/Predef.String#2"
+ scala/Predef.String#PZ 150C2D2BEE2E555E1F8C00F035925EF3

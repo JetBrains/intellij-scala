@@ -1,0 +1,42 @@
+
+Êtests/pos/i982.scala*
+
+_empty_/Z#*Z€*'
+_empty_/Z#`<init>`(). €@*<init>€*
+_empty_/Z#Q#*Q€* 
+_empty_/Z#test(). *test€*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*%
+_empty_/X#`<init>`().(x) €*x€*
+_empty_/X#x. €*x€*
+
+_empty_/Y#*Y€*'
+_empty_/Y#`<init>`(). €@*<init>€*"
+_empty_/Y#`<init>`().(x)*x€*
+_empty_/Y#x. €*x€2
+ 
+_empty_/Z#2#
+ _empty_/Z#`<init>`().2
+ _empty_/Z#Q#2
+ 
+_empty_/Z#test().2
+ _empty_/Z#Q#2
+ 
+_empty_/X#2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/Z#2
+ _empty_/X#x.2
+ 
+_empty_/Y#2#
+ _empty_/Y#`<init>`().2
+ 
+_empty_/Z#2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2
+ _empty_/Y#x.2
+ 	_empty_/Y#x.2
+ _empty_/Z#test().2
+ _empty_/Y#x.PZ D3FE9369B9EFEB606D0523AA56B1353E

@@ -1,0 +1,189 @@
+
+Ó,tests/pos/i12909.scala*!
+example/Writer# ˆ*Writer€*,
+example/Writer#`<init>`(). €@*<init>€*.
+example/Writer#`<init>`().(run) €*run€*
+example/Writer#[W]	*W€*
+example/Writer#[A]	*A€*"
+example/Writer#run. €*run€*!
+example/Writer#map().*map€*"
+example/Writer#map().[B]	*B€*"
+example/Writer#map().(f)*f€*)
+example/Writer#flatMap().*flatMap€*&
+example/Writer#flatMap().[B]	*B€*&
+example/Writer#flatMap().(f)*f€*#
+example/Writer#copy().*copy€*#
+example/Writer#copy().[W]	*W€*#
+example/Writer#copy().[A]	*A€*'
+example/Writer#copy().(run)*run€*7
+ example/Writer#copy$default$1().*copy$default$1€*-
+#example/Writer#copy$default$1().[W]	*W€*-
+#example/Writer#copy$default$1().[A]	*A€*
+example/Writer#_1().*_1€* 
+example/Writer.
+ *Writer€*%
+example/Writer.apply().*apply€*$
+example/Writer.apply().[W]	*W€*$
+example/Writer.apply().[A]	*A€*(
+example/Writer.apply().(run)*run€*)
+example/Writer.unapply().*unapply€*&
+example/Writer.unapply().[W]	*W€*&
+example/Writer.unapply().[A]	*A€**
+example/Writer.unapply().(x$1)*x$1€*+
+example/Writer.toString().*toString€*
+example/Main.
+ *Main€*)
+example/Main.WriterOps#*	WriterOps€*4
+"example/Main.WriterOps#`<init>`(). €@*<init>€*/
+%example/Main.WriterOps#`<init>`().(a)*a€*$
+example/Main.WriterOps#[A]	*A€*&
+example/Main.WriterOps#a. €*a€*)
+example/Main.WriterOps#set().*set€**
+ example/Main.WriterOps#set().[W]	*W€**
+ example/Main.WriterOps#set().(w)*w€*-
+example/Main.WriterOps(). (*	WriterOps€*&
+example/Main.WriterOps().[A]	*A€*&
+example/Main.WriterOps().(a)*a€*
+example/Main.x1().*x1€*
+example/Main.x1().[A]	*A€*(
+example/Main.failure. €*failure€*
+local0 €*x€*
+local1*a1€*
+local2*a2€*(
+example/Main.success. €*success€*
+local3 €*temp€*
+local4 €*x€*
+local5*a1€*
+local6*a2€2
+ example/2
+ example/Writer#2(
+ example/Writer#`<init>`().2 
+$ %example/Writer#[W]2 
+' (example/Writer#[A]2 
+ example/Writer#[W]2 
+ example/Writer#[A]2!
+ !example/Writer#run.2#
+ 	example/Writer#map().2&
+
+ example/Writer#map().[B]2&
+ example/Writer#map().(f)2 
+ example/Writer#[A]2&
+ example/Writer#map().[B]2
+ example/Writer#2 
+  !example/Writer#[W]2&
+# $example/Writer#map().[B]2#
+( +scala/Predef.`???`().2'
+ example/Writer#flatMap().2*
+ example/Writer#flatMap().[B]2*
+ example/Writer#flatMap().(f)2 
+ example/Writer#[A]2
+ example/Writer#2 
+  !example/Writer#[W]2*
+# $example/Writer#flatMap().[B]2
+( .example/Writer#2 
+/ 0example/Writer#[W]2*
+2 3example/Writer#flatMap().[B]2#
+7 :scala/Predef.`???`().2 
+example/Writer#copy().2"
+# #example/Writer#_1().2
+ example/Writer.2!
+example/Writer.apply().2#
+example/Writer.unapply().2
+ example/Main.2%
+		 example/Main.WriterOps#20
+		 "example/Main.WriterOps#`<init>`().2(
+	!	 "example/Main.WriterOps#[A]2(
+		 example/Main.WriterOps#[A]2'
+		 example/Main.WriterOps#a.2+
+
+
+ example/Main.WriterOps#set().2.
+
+
+  example/Main.WriterOps#set().[W]2.
+
+
+  example/Main.WriterOps#set().(w)2.
+
+
+  example/Main.WriterOps#set().[W]2
+
+
+ example/Writer#2.
+
+
+  example/Main.WriterOps#set().[W]2(
+
+ 
+ !example/Main.WriterOps#[A]2#
+
+%
+ (scala/Predef.`???`().2'
+		 example/Main.WriterOps().2 
+ example/Main.x1().2#
+	 
+example/Main.x1().[A]2
+ example/Writer#2#
+ scala/package.Vector#2"
+ !scala/Predef.String#2
+$ *scala/Option#2#
++ ,example/Main.x1().[A]2#
+1 4scala/Predef.`???`().2#
+ example/Main.failure.2'
+ example/Writer#flatMap().2#
+ scala/Option.apply().2
+ scala/Option.2#
+ scala/Some.unapply().2
+ scala/Some.2
+ local02 
+
+ example/Main.x1().2
+ scala/Boolean#2+
+  #example/Main.WriterOps#set().2'
+
+ 
+example/Main.WriterOps().2#
+ scala/Option.empty().2
+
+ scala/Option.2
+ scala/Boolean#28
++ 0*scala/collection/immutable/Vector.empty().2#
+$ *scala/package.Vector.2"
+1 7scala/Predef.String#2
+ local12#
+ example/Writer#map().2 
+
+ example/Main.x1().2"
+ scala/Predef.String#2
+ local22#
+ example/Main.success.2'
+%% example/Writer#flatMap().2
+
+ local32#
+ scala/Option.apply().2
+ scala/Option.2#
+ scala/Some.unapply().2
+ scala/Some.2
+ local42 
+
+ example/Main.x1().2
+ scala/Boolean#2+
+! ! #example/Main.WriterOps#set().2'
+!
+! 
+example/Main.WriterOps().2#
+!! scala/Option.empty().2
+!
+! scala/Option.2
+!! scala/Boolean#28
+!+! 0*scala/collection/immutable/Vector.empty().2#
+!$! *scala/package.Vector.2"
+!1! 7scala/Predef.String#2
+$$ 
+local32
+ local52#
+&& example/Writer#map().2 
+&
+& example/Main.x1().2"
+&& scala/Predef.String#2
+&& local6PZ 1B666546A75A42ADC174932D7BE9CB7F

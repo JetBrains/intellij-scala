@@ -1,0 +1,35 @@
+
+ºtests/pos/t1159.scala* 
+_empty_/test17.
+ *test17€*#
+_empty_/test17.main().*main€*)
+_empty_/test17.main().(args)*args€*
+local0 €*value€2
+ _empty_/test17.2$
+ 
+_empty_/test17.main().2*
+ _empty_/test17.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+ local02)
+ java/lang/Float#`<init>`().2
+ java/lang/Float#2
+ 
+java/lang/2
+ java/2(
+ java/lang/Long#`<init>`().2
+ java/lang/Long#2
+ 
+java/lang/2
+ java/2+
+ java/lang/Integer#`<init>`().2 
+ java/lang/Integer#2
+ 
+java/lang/2
+ java/2'
+
+
+ scala/Predef.println(+1).2
+
+
+ local0PZ D5E0950FD8174BC4D1FF8C1906138E0E

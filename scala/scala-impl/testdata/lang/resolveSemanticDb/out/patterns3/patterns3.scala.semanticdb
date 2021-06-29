@@ -1,0 +1,19 @@
+
+étests/pos/patterns3.scala*
+
+_empty_/M.
+ *M€*
+_empty_/M.x. €*x€*
+_empty_/M.y. €*y€2
+ 
+_empty_/M.2#
+& &scala/Tuple2.apply().2
+  &scala/Tuple2.2#
+- -scala/Tuple2.apply().2
+' -scala/Tuple2.2%
+ scala/Tuple2.unapply().2
+ scala/Tuple2.2%
+ scala/Tuple2.unapply().2
+ scala/Tuple2.2
+ _empty_/M.x.2
+ _empty_/M.y.PZ B059F926C8F6B69A76BA61C0BF4DA9CB

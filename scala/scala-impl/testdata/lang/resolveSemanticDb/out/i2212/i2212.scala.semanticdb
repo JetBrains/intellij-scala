@@ -1,0 +1,59 @@
+
+ºtests/pos/i2212.scala*"
+squants/package. *squants€*"
+squants/package.Time#*Time€*
+squants/time/Time#*Time€*/
+squants/time/Time#`<init>`(). €@*<init>€*!
+squants/time/Time.
+ *Time€* 
+squants/time/Time.x().*x€*-
+squants/velocity/Velocity.
+ *Velocity€*
+_empty_/Money.
+ *Money€* 
+_empty_/Money.foo().*foo€*)
+_empty_/Money.foo().(round)*round€*4
+_empty_/Money.foo$default$1().*foo$default$1€2
+ squants/package.2#
+ squants/package.Time#2 
+ squants/time/Time#2
+ squants/time/2
+ squants/2
+ squants/time/2
+ squants/2 
+ squants/time/Time#2+
+ squants/time/Time#`<init>`().2 
+	 squants/time/Time.2$
+ squants/time/Time.x().2
+ squants/velocity/2
+ squants/2
+ squants/time/2
+	 squants/2
+			 squants/2(
+
+	
+ squants/velocity/Velocity.2$
+
+
+ squants/time/Time.x().2 
+
+
+ squants/time/Time.21
+ )#scala/math/BigDecimal.RoundingMode.2$
+ scala/math/BigDecimal.2
+ scala/math/2
+ scala/21
+ )#scala/math/BigDecimal.RoundingMode.2$
+ scala/math/BigDecimal.2
+ scala/math/2
+ scala/2
+ _empty_/Money.2"
+ 	_empty_/Money.foo().2)
+
+ _empty_/Money.foo().(round)2>
+ 0scala/math/BigDecimal.RoundingMode.RoundingMode#2
+9 <
+scala/Int#2#
+? Bscala/Predef.`???`().2;
+- 6-scala/math/BigDecimal.RoundingMode.HALF_EVEN.21
+  ,#scala/math/BigDecimal.RoundingMode.PZ C2435F489F4277DC4DC9C398E8BE3DE9

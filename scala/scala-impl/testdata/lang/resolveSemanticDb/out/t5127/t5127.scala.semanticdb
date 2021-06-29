@@ -1,0 +1,49 @@
+
+Ëtests/pos/t5127.scala* 
+foo/Abstract1#*	Abstract1€*+
+foo/Abstract1#`<init>`(). €@*<init>€*
+foo/Abstract1#[C]	*C€* 
+foo/Abstract2#*	Abstract2€*+
+foo/Abstract2#`<init>`(). €@*<init>€*
+foo/Abstract2#[C]	*C€*(
+foo/Parametrized1#*Parametrized1€*/
+foo/Parametrized1#`<init>`(). €@*<init>€*
+foo/Parametrized1#[T]	*T€*$
+foo/Parametrized1#bar().*bar€*%
+foo/Parametrized1#bar().(a)*a€*
+local0 €*d€*(
+foo/Parametrized2#*Parametrized2€*/
+foo/Parametrized2#`<init>`(). €@*<init>€*
+foo/Parametrized2#[T]	*T€2
+ foo/2
+ foo/Abstract1#2'
+ foo/Abstract1#`<init>`().2
+ foo/Abstract1#[C]2
+ foo/Abstract2#2'
+ foo/Abstract2#`<init>`().2
+- 6foo/Abstract1#2
+7 8foo/Abstract2#[C]2
+ foo/Abstract2#[C]2 
+ foo/Parametrized1#2+
+ foo/Parametrized1#`<init>`().2
+! *foo/Abstract1#2 
++ 8foo/Parametrized2#2#
+9 :foo/Parametrized1#[T]2#
+ foo/Parametrized1#[T]2&
+ foo/Parametrized1#bar().2)
+ foo/Parametrized1#bar().(a)2
+ scala/AnyRef#2
+ scala/Unit#2)
+! "foo/Parametrized1#bar().(a)2
+0 1local02 
+3 @foo/Parametrized1#2'
+G Nscala/Predef.println(+1).2 
+ foo/Parametrized2#2+
+ foo/Parametrized2#`<init>`().2+
+1 1foo/Parametrized1#`<init>`().2 
+! .foo/Parametrized1#2#
+/ 0foo/Parametrized2#[T]2
+7 @foo/Abstract2#2 
+A Nfoo/Parametrized2#2#
+O Pfoo/Parametrized2#[T]2#
+ foo/Parametrized2#[T]PZ 5C9932DE2F59FFD9C992FEAACB9BD035

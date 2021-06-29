@@ -1,0 +1,46 @@
+
+Àtests/pos/superacc.scala*
+
+_empty_/C# *C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#foo().*foo€*
+_empty_/C#baz().*baz€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#foo().*foo€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#I#*I€*)
+_empty_/D#I#`<init>`(). €@*<init>€*
+_empty_/D#I#x. €*x€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 	_empty_/C#foo().2
+ 
+scala/Int#2
+ 	_empty_/C#baz().2
+ 
+scala/Int#2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/T#foo().2 
+  scala/Int#`+`(+4).2
+ _empty_/C#foo().2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 
+_empty_/T#2
+ 	_empty_/D#I#2%
+ _empty_/D#I#`<init>`().2
+ 	_empty_/D#I#x.2
+ _empty_/C#baz().PZ C8966C802E0E4034F01976D4937B65B1

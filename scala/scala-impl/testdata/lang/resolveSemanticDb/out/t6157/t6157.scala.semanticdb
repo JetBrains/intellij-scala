@@ -1,0 +1,48 @@
+
+çtests/pos/t6157.scala*
+_empty_/Test.
+ *TestÄ*!
+_empty_/Test.main().*mainÄ*'
+_empty_/Test.main().(args)*argsÄ*,
+_empty_/ErrorHandler.
+ *ErrorHandlerÄ*I
+,_empty_/ErrorHandler.defaultIfIOException().*defaultIfIOExceptionÄ*9
+/_empty_/ErrorHandler.defaultIfIOException().[T]	*TÄ*E
+5_empty_/ErrorHandler.defaultIfIOException().(default)*defaultÄ*E
+5_empty_/ErrorHandler.defaultIfIOException().(closure)*closureÄ*
+local0 Ä*eÄ2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2(
+ scala/Console.println(+1).2
+ scala/Console.2:
+ ',_empty_/ErrorHandler.defaultIfIOException().2#
+ _empty_/ErrorHandler.2"
+
+
+ java/io/IOException.2"
+
+
+ java/io/IOException#2
+
+
+ java/io/2
+
+
+ java/2#
+ _empty_/ErrorHandler.2:
+ !,_empty_/ErrorHandler.defaultIfIOException().2=
+" #/_empty_/ErrorHandler.defaultIfIOException().[T]2C
+% ,5_empty_/ErrorHandler.defaultIfIOException().(default)2=
+1 2/_empty_/ErrorHandler.defaultIfIOException().[T]2C
+4 ;5_empty_/ErrorHandler.defaultIfIOException().(closure)2=
+@ A/_empty_/ErrorHandler.defaultIfIOException().[T]2=
+D E/_empty_/ErrorHandler.defaultIfIOException().[T]2C
+ 5_empty_/ErrorHandler.defaultIfIOException().(closure)2
+ local02"
+ java/io/IOException#2C
+ 5_empty_/ErrorHandler.defaultIfIOException().(default)PZ 70585BF02A209D1BE0AF7850C567D842

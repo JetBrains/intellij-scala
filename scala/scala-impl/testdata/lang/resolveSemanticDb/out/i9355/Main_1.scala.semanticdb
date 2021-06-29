@@ -1,0 +1,47 @@
+
+¡tests/pos/i9355/Main_1.scala*
+_empty_/JSON.
+ *JSON€*!
+_empty_/JSON.Json# *Json€*/
+_empty_/JSON.Json#`<init>`(). €@*<init>€*&
+_empty_/JSON.JArray# ˆ*JArray€*1
+_empty_/JSON.JArray#`<init>`(). €@*<init>€*7
+&_empty_/JSON.JArray#`<init>`().(elems) €*elems€*+
+_empty_/JSON.JArray#elems. €*elems€*$
+_empty_/JSON.JArray#_1().*_1€*%
+_empty_/JSON.JArray.
+ *JArray€**
+_empty_/JSON.JArray.apply().*apply€*1
+#_empty_/JSON.JArray.apply().(elems)*elems€*4
+!_empty_/JSON.JArray.unapplySeq().*
+unapplySeq€*2
+&_empty_/JSON.JArray.unapplySeq().(x$1)*x$1€*0
+_empty_/JSON.JArray.toString().*toString€*#
+_empty_/JSON.JValue#*JValue€*
+_empty_/Main.
+ *Main€2
+ _empty_/JSON.2 
+ _empty_/JSON.Json#2+
+ _empty_/JSON.Json#`<init>`().2"
+ _empty_/JSON.JArray#2-
+ _empty_/JSON.JArray#`<init>`().2"
+! '_empty_/JSON.JValue#2 
+2 6_empty_/JSON.Json#2(
+ _empty_/JSON.JArray#elems.2'
+! !_empty_/JSON.JArray#_1().2"
+ _empty_/JSON.JArray.2*
+ _empty_/JSON.JArray.apply().2"
+ _empty_/JSON.JValue#2
+ 
+scala/`|`#2
+ java/lang/Number#2"
+ _empty_/JSON.JArray#2
+ _empty_/Main.2
+ 
+scala/App#2'
+ 	scala/Predef.println(+1).2*
+ _empty_/JSON.JArray.apply().2"
+ _empty_/JSON.JArray.2
+
+ _empty_/JSON.2)
+ scala/Predef.int2Integer().PZ 06CEA512E36DC48C2340B64CFE047EC7

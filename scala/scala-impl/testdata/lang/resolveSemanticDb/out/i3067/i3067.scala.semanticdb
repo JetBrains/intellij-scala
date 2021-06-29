@@ -1,0 +1,44 @@
+
+÷tests/pos/i3067.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*%
+_empty_/Test#`<init>`().(f)*f€*
+_empty_/Test#[T]	*T€*
+_empty_/Test#f. €*f€*
+
+_empty_/o.
+ *o€*
+_empty_/o.a.
+ (*a€*
+local0*x€*
+_empty_/o.b.
+ (*b€*
+local1*x€2
+ 
+_empty_/Test#2"
+
+ 
+_empty_/Test#`<init>`().2
+ scala/package.List#2
+ scala/Predef.String#2
+! "_empty_/Test#[T]2
+ _empty_/Test#[T]2
+ _empty_/Test#f.2
+ 
+_empty_/o.2
+ _empty_/o.a.2&
+. ._empty_/Test#`<init>`().2
+  _empty_/Test#2!
+! %scala/package.List#2"
+& ,scala/Predef.String#24
+1 4&scala/collection/immutable/List#map().2&
+5 =scala/Predef.identity().2
+5 5local02
+ _empty_/o.b.2&
+. ._empty_/Test#`<init>`().2
+  _empty_/Test#2!
+! %scala/package.List#2"
+& ,scala/Predef.String#24
+1 4&scala/collection/immutable/List#map().2&
+5 =scala/Predef.identity().2
+5 5local1PZ 60A9482FCDD9B6DCCAA352C71FBC0DA9

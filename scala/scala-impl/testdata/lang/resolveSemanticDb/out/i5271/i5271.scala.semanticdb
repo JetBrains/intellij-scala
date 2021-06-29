@@ -1,0 +1,12 @@
+
+©tests/pos/i5271.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#foo().*foo€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#foo().2
+ scala/Unit#2-
+ scala/runtime/TupleXXL.apply().27
+R R)scala/collection/IterableFactory#apply().2!
+N Rscala/package.List.PZ B92563F3B8F5BC7B3ADB9DF2E4E75A02

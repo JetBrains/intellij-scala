@@ -1,0 +1,40 @@
+
+ûtests/pos/8313.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.DU#*DU€*
+_empty_/Test.DU#[A]	*A€*
+local0 €	*tl€*
+local1 €	*hd€*
+local2 €	*tl€2
+ _empty_/Test.2
+ 	_empty_/Test.DU#2!
+
+ _empty_/Test.DU#[A]2
+ scala/Tuple#2
+ scala/Tuple#2!
+! "_empty_/Test.DU#[A]2-
+	 scala/Tuple$package.EmptyTuple#2-
+ !scala/Tuple$package.EmptyTuple#2
+ scala/`*:`#2
+	 scala/Unit#2
+ local02
+ _empty_/Test.DU#2
+ local02
+ scala/`*:`#2
+	 local12
+ local22
+ scala/`*:`#2
+ local12
+ _empty_/Test.DU#2
+  local22#
+ scala/Tuple2.apply().2
+
+ _empty_/Test.DU#2
+ scala/`*:`#2
+ 
+scala/Int#2
+ scala/`*:`#2
+ 
+scala/Int#2-
+ %scala/Tuple$package.EmptyTuple#PZ 41BD4E779593EC0E5E834458398068E9

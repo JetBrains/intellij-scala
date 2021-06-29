@@ -1,0 +1,20 @@
+
+ítests/pos/t0081.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#b. €*b€*
+_empty_/A#B#*B€*)
+_empty_/A#B#`<init>`(). €@*<init>€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#b.2
+ _empty_/A#B#2
+ 
+_empty_/A#2%
+ _empty_/A#B#`<init>`().2
+ _empty_/A#B#2
+
+ _empty_/A#B#2%
+ _empty_/A#B#`<init>`().PZ 167AADF4D8E1C0F8CFC0AD7F9CA9E58E

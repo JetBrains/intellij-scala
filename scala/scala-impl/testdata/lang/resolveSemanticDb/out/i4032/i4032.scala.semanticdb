@@ -1,0 +1,91 @@
+
+žtests/pos/i4032.scala*
+_empty_/Gen#*Gen€*)
+_empty_/Gen#`<init>`(). €@*<init>€*
+_empty_/Gen#[T]	 €*T€*
+_empty_/Gen#map().*map€*
+_empty_/Gen#map().[U]	*U€*
+_empty_/Gen#map().(f)*f€*
+_empty_/Gen.
+ *Gen€*"
+_empty_/Gen.oneOf().*oneOf€*!
+_empty_/Gen.oneOf().[T]	*T€*#
+_empty_/Gen.oneOf().(t0)*t0€*#
+_empty_/Gen.oneOf().(t1)*t1€*$
+_empty_/Gen.oneOf(+1).*oneOf€*#
+_empty_/Gen.oneOf(+1).[T]	*T€*%
+_empty_/Gen.oneOf(+1).(g0)*g0€*%
+_empty_/Gen.oneOf(+1).(g1)*g1€*$
+_empty_/Arbitrary#*	Arbitrary€*/
+_empty_/Arbitrary#`<init>`(). €@*<init>€*
+_empty_/Arbitrary#[T]	*T€*&
+_empty_/Arbitrary.
+ *	Arbitrary€*0
+_empty_/Arbitrary.arbitrary().*	arbitrary€*+
+!_empty_/Arbitrary.arbitrary().[T]	*T€*0
+_empty_/Arbitrary.arbFuture().*	arbFuture€*+
+!_empty_/Arbitrary.arbFuture().[X]	*X€*
+local0*	exception€2"
+ scala/concurrent/Future.2"
+ scala/concurrent/Future#2
+ scala/concurrent/2
+ scala/2
+ 	_empty_/Gen#2%
+	 	_empty_/Gen#`<init>`().2
+ _empty_/Gen#[T]2 
+ 	_empty_/Gen#map().2#
+
+ _empty_/Gen#map().[U]2#
+ _empty_/Gen#map().(f)2
+ _empty_/Gen#[T]2#
+ _empty_/Gen#map().[U]2
+ _empty_/Gen#2#
+ _empty_/Gen#map().[U]2#
+" %scala/Predef.`???`().2
+ 
+_empty_/Gen.2"
+ _empty_/Gen.oneOf().2%
+ _empty_/Gen.oneOf().[T]2&
+ _empty_/Gen.oneOf().(t0)2%
+ _empty_/Gen.oneOf().[T]2&
+ _empty_/Gen.oneOf().(t1)2%
+ _empty_/Gen.oneOf().[T]2
+ !_empty_/Gen#2%
+" #_empty_/Gen.oneOf().[T]2#
+' *scala/Predef.`???`().2$
+ _empty_/Gen.oneOf(+1).2'
+ _empty_/Gen.oneOf(+1).[T]2(
+ _empty_/Gen.oneOf(+1).(g0)2
+ _empty_/Gen#2'
+ _empty_/Gen.oneOf(+1).[T]2(
+ _empty_/Gen.oneOf(+1).(g1)2
+ "_empty_/Gen#2'
+# $_empty_/Gen.oneOf(+1).[T]2
+( +_empty_/Gen#2'
+, -_empty_/Gen.oneOf(+1).[T]2#
+1 4scala/Predef.`???`().2 
+ _empty_/Arbitrary#2+
+ _empty_/Arbitrary#`<init>`().2#
+ _empty_/Arbitrary#[T]2 
+ _empty_/Arbitrary.2,
+ _empty_/Arbitrary.arbitrary().2/
+ !_empty_/Arbitrary.arbitrary().[T]2
+ _empty_/Gen#2/
+ !_empty_/Arbitrary.arbitrary().[T]2#
+  scala/Predef.`???`().2,
+ _empty_/Arbitrary.arbFuture().2/
+ !_empty_/Arbitrary.arbFuture().[X]2
+ _empty_/Gen#2&
+ scala/concurrent/Future#2/
+  !_empty_/Arbitrary.arbFuture().[X]2$
+ _empty_/Gen.oneOf(+1).2
+ _empty_/Gen.2,
+ _empty_/Arbitrary.arbitrary().2&
+ scala/concurrent/Future#2/
+  !_empty_/Arbitrary.arbFuture().[X]2 
+9 <_empty_/Gen#map().2,
+$ -_empty_/Arbitrary.arbitrary().2&
+. 7scala/package.Throwable#2/
+D J!scala/concurrent/Future.failed().2&
+= Cscala/concurrent/Future.2
+= =local0PZ 6668CEADEB2B28E56B10846652C3C39D

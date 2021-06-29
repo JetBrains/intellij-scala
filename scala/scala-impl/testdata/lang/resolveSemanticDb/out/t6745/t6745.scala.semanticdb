@@ -1,0 +1,20 @@
+
+ètests/pos/t6745.scala*
+_empty_/Bar#*BarÄ*)
+_empty_/Bar#`<init>`(). Ä@*<init>Ä*'
+_empty_/Bar#`<init>`().(i) Ä*iÄ*
+local0*selfÄ*
+_empty_/Bar#i. Ä*iÄ*(
+_empty_/Bar#`<init>`(+1).*<init>Ä2
+ 	_empty_/Bar#2!
+	 	_empty_/Bar#`<init>`().2
+ 
+scala/Int#2
+ local02
+ 
+scala/Any#2
+ scala/AnyRef#2
+ _empty_/Bar#i.2'
+ 
+_empty_/Bar#`<init>`(+1).2%
+ _empty_/Bar#`<init>`().PZ 097E7135DCAC452E740DAAA05B4FD061

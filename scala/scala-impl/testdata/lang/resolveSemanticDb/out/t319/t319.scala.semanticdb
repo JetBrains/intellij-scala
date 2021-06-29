@@ -1,0 +1,81 @@
+
+þtests/pos/t319.scala*
+_empty_/test.
+ *test€*
+_empty_/test.A#*A€*,
+_empty_/test.A#`<init>`(). €@*<init>€*
+_empty_/test.A#T#*T€*
+_empty_/test.B#*B€*,
+_empty_/test.B#`<init>`(). €@*<init>€*
+_empty_/test.B#T#*T€*'
+_empty_/test.functor# *functor€*2
+ _empty_/test.functor#`<init>`(). €@*<init>€*(
+_empty_/test.functor#arg. „*arg€*(
+_empty_/test.functor#res. €*res€*
+local0*T€*
+local1 *$anon€*
+local2*T€*
+_empty_/test.a. €*a€*
+local3 *$anon€*
+local4*T€*
+_empty_/test.b. €*b€*
+local5*T€*
+local6 €*tmp€*
+local7 *$anon€*
+local8 €*arg€*
+local9*T€2
+ _empty_/test.2
+ 	_empty_/test.A#2(
+ _empty_/test.A#`<init>`().2
+ _empty_/test.A#T#2
+ 	_empty_/test.B#2(
+ _empty_/test.B#`<init>`().2
+ _empty_/test.B#T#2#
+ _empty_/test.functor#2.
+  _empty_/test.functor#`<init>`().2'
+ _empty_/test.functor#arg.2
+ _empty_/test.A#2'
+		 _empty_/test.functor#res.2
+		 _empty_/test.B#2
+		 local02
+		 _empty_/test.A#T#2'
+		 _empty_/test.functor#arg.2
+
+
+ local12
+
+
+
+ _empty_/test.B#2
+
+
+ local22
+
+
+ _empty_/test.A#T#2'
+
+
+ _empty_/test.functor#arg.2
+ _empty_/test.a.2
+
+ 
+local32
+ _empty_/test.A#2
+ local42"
+ "scala/Predef.String#2
+ _empty_/test.b.2
+	 
+_empty_/test.B#2
+ local52"
+ scala/Predef.String#2
+ local62
+ local72.
+  _empty_/test.functor#`<init>`().2#
+ _empty_/test.functor#2
+" %local82
+' (_empty_/test.A#2
+0 1local92"
+4 :scala/Predef.String#2
+? @_empty_/test.a.2'
+ _empty_/test.functor#res.2
+ local6PZ D52A25A632E104B692C56E9D99EAA341

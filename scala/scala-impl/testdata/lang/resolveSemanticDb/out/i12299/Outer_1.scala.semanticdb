@@ -1,0 +1,25 @@
+
+§tests/pos/i12299/Outer_1.scala*
+_empty_/Outer.
+ *Outer€*$
+_empty_/Outer.Inner.
+ *Inner€*$
+_empty_/Outer.Inner.Bar#*Bar€*5
+#_empty_/Outer.Inner.Bar#`<init>`(). €@*<init>€*0
+&_empty_/Outer.Inner.Bar#`<init>`().(x)*x€*'
+_empty_/Outer.Inner.Bar#x. €*x€*4
+%_empty_/Outer.Inner.Bar#`<init>`(+1).*<init>€* 
+_empty_/Outer.Bar# *Bar€2
+ _empty_/Outer.2"
+	 _empty_/Outer.Inner.2&
+
+ _empty_/Outer.Inner.Bar#21
+ #_empty_/Outer.Inner.Bar#`<init>`().2
+ 
+scala/Int#2(
+ _empty_/Outer.Inner.Bar#x.23
+
+ %_empty_/Outer.Inner.Bar#`<init>`(+1).21
+ #_empty_/Outer.Inner.Bar#`<init>`().2"
+	 _empty_/Outer.Inner.2 
+ _empty_/Outer.Bar#PZ A963D1F4FDB78909449032CFF623420F

@@ -1,0 +1,92 @@
+
+Ãtests/pos/i1870.scala*
+_empty_/Stream#*Stream€*,
+_empty_/Stream#`<init>`(). €@*<init>€*
+_empty_/Stream#[A]	 €*A€*!
+_empty_/Unfold# €*Unfold€*,
+_empty_/Unfold#`<init>`(). €@*<init>€**
+_empty_/Unfold#`<init>`().(s) €*s€**
+_empty_/Unfold#`<init>`().(f) €*f€*
+_empty_/Unfold#[S]	*S€*
+_empty_/Unfold#[A]	 €*A€*
+_empty_/Unfold#s. €*s€*
+_empty_/Unfold#f. €*f€*#
+_empty_/Unfold#copy().*copy€*#
+_empty_/Unfold#copy().[S]	*S€*#
+_empty_/Unfold#copy().[A]	*A€*#
+_empty_/Unfold#copy().(s)*s€*#
+_empty_/Unfold#copy().(f)*f€*7
+ _empty_/Unfold#copy$default$1().*copy$default$1€*-
+#_empty_/Unfold#copy$default$1().[S]	*S€*-
+#_empty_/Unfold#copy$default$1().[A]	*A€*7
+ _empty_/Unfold#copy$default$2().*copy$default$2€*-
+#_empty_/Unfold#copy$default$2().[S]	*S€*-
+#_empty_/Unfold#copy$default$2().[A]	*A€*
+_empty_/Unfold#_1().*_1€*
+_empty_/Unfold#_2().*_2€* 
+_empty_/Unfold.
+ *Unfold€*%
+_empty_/Unfold.apply().*apply€*$
+_empty_/Unfold.apply().[S]	*S€*$
+_empty_/Unfold.apply().[A]	*A€*$
+_empty_/Unfold.apply().(s)*s€*$
+_empty_/Unfold.apply().(f)*f€*)
+_empty_/Unfold.unapply().*unapply€*&
+_empty_/Unfold.unapply().[S]	*S€*&
+_empty_/Unfold.unapply().[A]	*A€**
+_empty_/Unfold.unapply().(x$1)*x$1€*+
+_empty_/Unfold.toString().*toString€*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.unbox().*unbox€*"
+_empty_/Test.unbox().[A]	*A€*"
+_empty_/Test.unbox().(s)*s€*
+local0 €	*S$1€*
+local1 €*s€*
+local2 €*f€*
+local3 €*s1€*
+local4 €*f1€2
+ _empty_/Stream#2$
+ _empty_/Stream#`<init>`().2
+ _empty_/Stream#[A]2
+ _empty_/Unfold#2(
+ _empty_/Unfold#`<init>`().2 
+ _empty_/Unfold#[S]2 
+! "_empty_/Unfold#[S]2
+& ,scala/Option#2 
+. /_empty_/Unfold#[A]2 
+0 1_empty_/Unfold#[S]2
+= C_empty_/Stream#2 
+D E_empty_/Unfold#[A]2 
+ _empty_/Unfold#[S]2 
+ _empty_/Unfold#[A]2
+ _empty_/Unfold#s.2
+ _empty_/Unfold#f.2 
+_empty_/Unfold#copy().2"
+ _empty_/Unfold#_1().2"
+! !_empty_/Unfold#_2().2
+ _empty_/Unfold.2!
+_empty_/Unfold.apply().2#
+_empty_/Unfold.unapply().2
+ _empty_/Test.2#
+ _empty_/Test.unbox().2&
+ _empty_/Test.unbox().[A]2&
+ _empty_/Test.unbox().(s)2
+ _empty_/Stream#2&
+ _empty_/Test.unbox().[A]2&
+  _empty_/Test.unbox().(s)2'
+ _empty_/Unfold.unapply().2
+	 _empty_/Unfold.2
+ local02
+ local12
+ local22
+
+ local32
+ local12
+
+ local42
+ local22#
+ scala/Tuple2.apply().2
+ local12
+
+ local2PZ B0637EC9C75B459290D40C7B52A8D467

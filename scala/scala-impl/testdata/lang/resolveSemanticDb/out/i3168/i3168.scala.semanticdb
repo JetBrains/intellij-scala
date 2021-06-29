@@ -1,0 +1,51 @@
+
+Êtests/pos/i3168.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*!
+_empty_/Test.C#foo().*foo€*"
+_empty_/Test.C#foo().(x)*x€*#
+_empty_/Test.C#foo(+1).*foo€*$
+_empty_/Test.C#foo(+1).(x)*x€*
+_empty_/Test.COps#*COps€*/
+_empty_/Test.COps#`<init>`(). €@*<init>€*-
+ _empty_/Test.COps#`<init>`().(x) €*x€*!
+_empty_/Test.COps#x. €*x€*$
+_empty_/Test.COps#foo().*foo€*%
+_empty_/Test.COps#foo().(x)*x€*#
+_empty_/Test.COps(). (*COps€*!
+_empty_/Test.COps().(x)*x€*!
+_empty_/Test.test().*test€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2#
+ _empty_/Test.C#foo().2&
+ _empty_/Test.C#foo().(x)2
+ 
+scala/Int#2%
+ _empty_/Test.C#foo(+1).2(
+ _empty_/Test.C#foo(+1).(x)2
+ scala/Double#2 
+ _empty_/Test.COps#2+
+ _empty_/Test.COps#`<init>`().2
+ _empty_/Test.C#2"
+ _empty_/Test.COps#x.2&
+ _empty_/Test.COps#foo().2)
+ _empty_/Test.COps#foo().(x)2"
+ scala/Predef.String#2"
+ _empty_/Test.COps().2"
+
+
+ 
+_empty_/Test.test().2
+
+
+ scala/Unit#2&
+ _empty_/Test.COps#foo().2"
+ _empty_/Test.COps().2(
+
+ 
+_empty_/Test.C#`<init>`().2
+	 
+_empty_/Test.C#PZ 47E4D9B144ED15A7F38543DFB0A7A20F

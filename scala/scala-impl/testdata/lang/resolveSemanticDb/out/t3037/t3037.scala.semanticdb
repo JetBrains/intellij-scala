@@ -1,0 +1,45 @@
+
+ìtests/pos/t3037.scala*
+test/A.
+ *A€*
+test/A.foo().*foo€*
+test/A.foo().[T]	*T€*
+test/A.foo().(x)*x€*
+test/A.x(). €*x€*
+test/A.`x_=`(). €*x_=€* 
+test/A.`x_=`().(x$1)*x$1€*
+test/A.y(). €*y€*
+test/A.`y_=`(). €*y_=€* 
+test/A.`y_=`().(x$1)*x$1€2
+ test/2
+ test/A.2'
+ 	scala/Predef.println(+1).2'
+ scala/Any#asInstanceOf().2
+ java/lang/Object#2
+ 	test/A.foo().2
+
+ test/A.foo().[T]2
+ test/A.foo().(x)2
+ test/A.foo().[T]2
+ test/A.foo().(x)2
+ test/A.x().2
+	 
+scala/Int#2
+ 	test/A.`x_=`().2
+		 test/A.y().2
+			 scala/Long#2
+		 	test/A.`y_=`().2
+
+
+ test/A.`x_=`().2
+
+
+ 	test/A.foo().2
+
+
+
+ test/A.x().2
+ test/A.`y_=`().2
+ 	test/A.foo().2
+
+ test/A.y().PZ 15EFB524511841E88CF6743A96AA6B03

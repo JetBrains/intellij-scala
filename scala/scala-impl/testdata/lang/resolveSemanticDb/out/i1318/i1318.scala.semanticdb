@@ -1,0 +1,168 @@
+
+ƒ$tests/pos/i1318.scala*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.S#*S€*+
+_empty_/Foo.S#`<init>`(). €@*<init>€*&
+_empty_/Foo.S#`<init>`().(i)*i€*
+_empty_/Foo.S#i. €*i€*
+_empty_/Foo.T# €*T€*+
+_empty_/Foo.T#`<init>`(). €@*<init>€*)
+_empty_/Foo.T#`<init>`().(i) €*i€*
+_empty_/Foo.T#i. €*i€*"
+_empty_/Foo.T#copy().*copy€*"
+_empty_/Foo.T#copy().(i)*i€*6
+_empty_/Foo.T#copy$default$1().*copy$default$1€*
+_empty_/Foo.T#_1().*_1€*
+_empty_/Foo.T.
+ *T€*$
+_empty_/Foo.T.apply().*apply€*#
+_empty_/Foo.T.apply().(i)*i€*(
+_empty_/Foo.T.unapply().*unapply€*)
+_empty_/Foo.T.unapply().(x$1)*x$1€**
+_empty_/Foo.T.toString().*toString€**
+_empty_/Foo.T.unapply(+1).*unapply€*'
+_empty_/Foo.T.unapply(+1).(s)*s€*
+_empty_/Foo.s. €*s€*
+local0 €*x€*
+local1 €*y€*
+local2 €*x€*
+_empty_/Bar.
+ *Bar€*
+_empty_/Bar.T# €*T€*+
+_empty_/Bar.T#`<init>`(). €@*<init>€*)
+_empty_/Bar.T#`<init>`().(i) €*i€*
+_empty_/Bar.T#i. €*i€*"
+_empty_/Bar.T#copy().*copy€*"
+_empty_/Bar.T#copy().(i)*i€*6
+_empty_/Bar.T#copy$default$1().*copy$default$1€*
+_empty_/Bar.T#_1().*_1€*
+_empty_/Bar.S#*S€*+
+_empty_/Bar.S#`<init>`(). €@*<init>€*&
+_empty_/Bar.S#`<init>`().(i)*i€*
+_empty_/Bar.S#i. €*i€*
+_empty_/Bar.T.
+ *T€*$
+_empty_/Bar.T.apply().*apply€*#
+_empty_/Bar.T.apply().(i)*i€*(
+_empty_/Bar.T.unapply().*unapply€*)
+_empty_/Bar.T.unapply().(x$1)*x$1€**
+_empty_/Bar.T.toString().*toString€**
+_empty_/Bar.T.unapply(+1).*unapply€*'
+_empty_/Bar.T.unapply(+1).(s)*s€*
+_empty_/Bar.s. €*s€*
+local3 €*x€*
+local4 €*y€*
+local5 €*x€2
+ 
+_empty_/Foo.2
+ 	_empty_/Foo.S#2'
+	 	_empty_/Foo.S#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/Foo.S#i.2
+ _empty_/Foo.T#2'
+ _empty_/Foo.T#`<init>`().2
+ 
+scala/Int#2'
+   _empty_/Foo.S#`<init>`().2
+  _empty_/Foo.S#2
+! "_empty_/Foo.T#i.2
+ _empty_/Foo.T#i.2#
+ _empty_/Foo.T#copy().2!
+ _empty_/Foo.T#_1().2
+	 
+_empty_/Foo.T.2$
+ _empty_/Foo.T.apply().2(
+ _empty_/Foo.T.unapply(+1).2+
+ _empty_/Foo.T.unapply(+1).(s)2
+ _empty_/Foo.S#2
+ scala/Option#2
+ "
+scala/Int#2
+$ '
+scala/Int#2!
+0 0scala/Some.apply().2
+, 0scala/Some.2#
+1 1scala/Tuple2.apply().2
+		 _empty_/Foo.s.2'
+		 _empty_/Foo.S#`<init>`().2
+		 _empty_/Foo.S#2
+ _empty_/Foo.s.2(
+
+ 
+_empty_/Foo.T.unapply(+1).2
+	 
+_empty_/Foo.T.2
+ local02
+ local12'
+ scala/Predef.println(+1).2 
+ scala/Int#`+`(+4).2
+ local02
+  !local12(
+
+ 
+_empty_/Foo.T.unapply(+1).2
+	 
+_empty_/Foo.T.2
+ local22'
+ scala/Predef.println(+1).2
+ local22'
+ scala/Predef.println(+1).2
+ 
+_empty_/Bar.2
+ _empty_/Bar.T#2'
+ _empty_/Bar.T#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Bar.T#i.2#
+ _empty_/Bar.T#copy().2!
+ _empty_/Bar.T#_1().2
+ 	_empty_/Bar.S#2'
+	 	_empty_/Bar.S#`<init>`().2
+ 
+scala/Int#2'
+ _empty_/Bar.T#`<init>`().2
+ _empty_/Bar.T#2
+ _empty_/Bar.S#i.2
+
+ _empty_/Bar.S#i.2
+	 
+_empty_/Bar.T.2$
+ _empty_/Bar.T.apply().2(
+ _empty_/Bar.T.unapply(+1).2+
+ _empty_/Bar.T.unapply(+1).(s)2
+ _empty_/Bar.S#2
+ scala/Option#2
+ "
+scala/Int#2
+$ '
+scala/Int#2!
+0 0scala/Some.apply().2
+, 0scala/Some.2#
+1 1scala/Tuple2.apply().2
+ _empty_/Bar.s.2'
+ _empty_/Bar.S#`<init>`().2
+ _empty_/Bar.S#2
+ _empty_/Bar.s.2(
+ 
+  
+_empty_/Bar.T.unapply(+1).2
+ 	  
+_empty_/Bar.T.2
+   local32
+   local42'
+   scala/Predef.println(+1).2 
+   scala/Int#`+`(+4).2
+   local32
+    !local42(
+!
+! 
+_empty_/Bar.T.unapply(+1).2
+!	! 
+_empty_/Bar.T.2
+!! local52'
+!! scala/Predef.println(+1).2
+!! local52'
+"" scala/Predef.println(+1).PZ C06046D1F8DDC0720998203696699DC5

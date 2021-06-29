@@ -1,0 +1,154 @@
+
+Ï tests/pos/i3945.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.int().*int€* 
+_empty_/Test.int().[A]	*A€* 
+_empty_/Test.int().(k)*k€* 
+_empty_/Test.int().(s)*s€* 
+_empty_/Test.int().(x)*x€*
+_empty_/Test.c. €*c€*
+local0*s€*
+local1*x€*
+local2*s€*
+local3*x€*
+_empty_/Test.q. €*q€*
+local4*k€*
+local5*s€*
+local6*x€*
+_empty_/Test.p. €*p€*
+local7*k€*
+local8*s€*
+local9*x€*
+_empty_/Test.c2. €*c2€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.iC().  *iC€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[A]	*A€*
+_empty_/Test.f().(k)*k€*
+_empty_/Test.f().(s)*s€*
+_empty_/Test.f().(x)*x€* 
+_empty_/Test.f().(y)  *y€*
+_empty_/Test.r. €*r€*
+local10*k€*
+local11*s€*
+local12*x€2
+ _empty_/Test.2!
+ 	_empty_/Test.int().2$
+
+ _empty_/Test.int().[A]2$
+ _empty_/Test.int().(k)2"
+ scala/Predef.String#2$
+ _empty_/Test.int().[A]2$
+ _empty_/Test.int().(s)2"
+  &scala/Predef.String#2$
+( )_empty_/Test.int().(x)2
++ .
+scala/Int#2$
+1 2_empty_/Test.int().[A]2#
+5 8scala/Predef.`???`().2
+ _empty_/Test.c.2"
+
+ scala/Predef.String#2"
+ scala/Predef.String#2"
+  &scala/Predef.String#2
+, /
+scala/Int#2
+5 8
+scala/Int#2"
+= Cscala/Predef.String#2(
+^ escala/Function1#compose().2!
+G J_empty_/Test.int().2
+K N
+scala/Int#2"
+R Xscala/Predef.String#2
+G Glocal02
+G Glocal12!
+f i_empty_/Test.int().2"
+j pscala/Predef.String#2
+f flocal22
+f flocal32
+ _empty_/Test.q.2"
+
+ scala/Predef.String#2
+ 
+scala/Int#2"
+ !scala/Predef.String#2"
+' -scala/Predef.String#2
+3 6
+scala/Int#2
+< ?
+scala/Int#2"
+C Iscala/Predef.String#2!
+M P_empty_/Test.int().2
+Q T
+scala/Int#2"
+X ^scala/Predef.String#2
+M Mlocal42
+M Mlocal52
+M Mlocal62
+ _empty_/Test.p.2"
+
+ scala/Predef.String#2"
+ scala/Predef.String#2"
+  &scala/Predef.String#2
+, /
+scala/Int#2"
+4 :scala/Predef.String#2!
+= @_empty_/Test.int().2
+= =local72
+= =local82
+= =local92
+		 _empty_/Test.c2.2"
+		 scala/Predef.String#2"
+		 scala/Predef.String#2"
+	!	 'scala/Predef.String#2
+	-	 0
+scala/Int#2
+	6	 9
+scala/Int#2"
+	>	 Dscala/Predef.String#2(
+	I	 Pscala/Function1#compose().2
+	G	 H_empty_/Test.q.2
+	Q	 R_empty_/Test.p.2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2(
+ _empty_/Test.B#`<init>`().2
+ _empty_/Test.B#2 
+ _empty_/Test.iC().2
+ _empty_/Test.C#2
+ scala/Unit#2#
+ "scala/Predef.`???`().2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[A]2"
+ _empty_/Test.f().(k)2"
+ scala/Predef.String#2"
+ _empty_/Test.f().[A]2"
+ _empty_/Test.f().(s)2"
+ $scala/Predef.String#2"
+& '_empty_/Test.f().(x)2
+) ,
+scala/Int#2"
+7 8_empty_/Test.f().(y)2"
+: ;_empty_/Test.f().[A]2
+? Cscala/Unit#2"
+F G_empty_/Test.f().[A]2#
+J Mscala/Predef.`???`().2
+ _empty_/Test.r.2"
+
+ scala/Predef.String#2
+ _empty_/Test.C#2"
+ !scala/Predef.String#2
+' *
+scala/Int#2
+/ 0_empty_/Test.B#2
+3 4_empty_/Test.f().2
+3 3local102
+3 3local112
+3 3local122 
+4 4_empty_/Test.iC().PZ 16963E649ED29144F39ED89070053FCC

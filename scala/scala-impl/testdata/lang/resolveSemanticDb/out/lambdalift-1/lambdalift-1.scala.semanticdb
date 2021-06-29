@@ -1,0 +1,69 @@
+
+€tests/pos/lambdalift-1.scala*
+_empty_/Super#*Super€*+
+_empty_/Super#`<init>`(). €@*<init>€*&
+_empty_/Super#`<init>`().(x)*x€*
+_empty_/Super#x. €*x€*
+_empty_/Sub#*Sub€*)
+_empty_/Sub#`<init>`(). €@*<init>€*
+local0*foo3€*
+local1*x€*
+local2*C€*
+local3*<init>€*
+local4*name€*
+local5*bam€*
+local6*y€*
+local7*baz€*
+local8*z€*
+local9 €*fun€2
+ _empty_/Super#2#
+ _empty_/Super#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Super#x.2
+ 	_empty_/Sub#2%
+ _empty_/Sub#`<init>`().2'
+ _empty_/Super#`<init>`().2
+ _empty_/Super#2
+ 
+local02
+ local12
+ 
+scala/Int#2
+
+ local22
+ local42"
+ scala/Predef.String#2
+
+ local52
+ local62
+ 
+scala/Int#2"
+ scala/Predef.String#2
+! $
+scala/Int#2
+		 local72 
+		 scala/Int#`+`(+4).2
+		 local12
+		 local62
+
+
+ 	local82 
+
+
+ scala/Int#`*`(+3).2
+
+
+ local72(
+
+
+ java/lang/String#length().2
+
+
+ local82
+ local92
+  local52
+ local22&
+ scala/Function1#apply().2
+ local92
+ local0PZ BEB7DD53DA74013144D41A8AF1E45356

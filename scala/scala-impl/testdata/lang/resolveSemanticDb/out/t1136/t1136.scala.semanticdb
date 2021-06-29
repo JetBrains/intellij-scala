@@ -1,0 +1,22 @@
+
+¶tests/pos/t1136.scala*
+_empty_/test.
+ *test€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().(s)*s€*
+local0 €*t€2
+ _empty_/test.2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().(s)2
+ 
+scala/Int#2
+ scala/Unit#28
+ *scala/collection/IterableOnceOps#toList().2$
+ _empty_/test.foo().(s)2
+ local02!
+ scala/package.List#2
+ 
+scala/Int#2!
+ _empty_/test.foo().2
+  local0PZ 930CE058DAE41E11C157112E81D91626

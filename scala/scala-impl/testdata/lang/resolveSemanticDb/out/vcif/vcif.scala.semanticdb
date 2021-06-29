@@ -1,0 +1,24 @@
+
+³tests/pos/vcif.scala*$
+_empty_/Position# *Position€*.
+_empty_/Position#`<init>`(). €@*<init>€*0
+!_empty_/Position#`<init>`().(foo) €*foo€*$
+_empty_/Position#foo. €*foo€*)
+_empty_/Position#orElse().*orElse€*-
+ _empty_/Position#orElse().(that)*that€*$
+_empty_/Position.
+ *Position€2
+ _empty_/Position#2&
+ _empty_/Position#`<init>`().2
+ 
+scala/Int#2"
++ +scala/AnyVal#`<init>`().2
+% +scala/AnyVal#2
+ _empty_/Position#foo.2(
+ _empty_/Position#orElse().2.
+  _empty_/Position#orElse().(that)2
+ _empty_/Position#2!
+ scala/Int#`!=`(+3).2#
+ _empty_/Position#foo.2.
+   _empty_/Position#orElse().(that)2
+ _empty_/Position.PZ F29D2CA487423C42E1435F07CA638359

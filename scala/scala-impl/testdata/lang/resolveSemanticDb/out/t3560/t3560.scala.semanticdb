@@ -1,0 +1,38 @@
+
+Átests/pos/t3560.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[X]	*X€* 
+_empty_/Foo#foo(). *foo€*
+_empty_/T3560.
+ *T3560€*
+_empty_/T3560.f().*f€*
+_empty_/T3560.f().[T]	*T€*
+local0 *$anon€*
+local1 €*foo€*
+local2 €*foo_=€*
+local3*x$1€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[X]2
+ _empty_/Foo#foo().2
+ scala/Predef.Map#2
+ #scala/Predef.String#2
+$ '_empty_/Foo#2
+( )_empty_/Foo#[X]2
+ _empty_/T3560.2 
+ _empty_/T3560.f().2#
+ _empty_/T3560.f().[T]2
+ _empty_/Foo#2#
+  !_empty_/T3560.f().[T]2
+% %local02
+) ,_empty_/Foo#2#
+- ._empty_/T3560.f().[T]2
+6 9local122
+? ?$scala/collection/MapFactory#apply().2
+< ?scala/Predef.Map.2"
+@ Fscala/Predef.String#2
+G J_empty_/Foo#2#
+K L_empty_/T3560.f().[T]2
+6 ;local2PZ ACF94886F39519697FE985DBE3001C25

@@ -1,0 +1,36 @@
+
+çtests/pos/i3130a.scala*
+
+_empty_/O.
+ *OÄ*
+
+_empty_/D#*DÄ*'
+_empty_/D#`<init>`(). Ä@*<init>Ä*%
+_empty_/D#`<init>`().(x) Ä*xÄ*
+_empty_/D#x. Ä*xÄ*
+_empty_/D#DD#*DDÄ**
+_empty_/D#DD#`<init>`(). Ä@*<init>Ä*
+_empty_/D#DD.
+ *DDÄ*#
+_empty_/D#DD.apply().*applyÄ2
+ 
+_empty_/O.2#
+ _empty_/D#DD.apply().2
+ _empty_/D#DD.2#
+ _empty_/D#`<init>`().2
+ 
+_empty_/D#2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 
+scala/Int#2
+ _empty_/D#x.2
+ 
+_empty_/D#DD#2&
+
+ 
+_empty_/D#DD#`<init>`().2
+	 _empty_/D#DD.2#
+ _empty_/D#DD.apply().2
+ _empty_/D#x.PZ D1407D2EC7F4B2AAF46BD22629BBEADD

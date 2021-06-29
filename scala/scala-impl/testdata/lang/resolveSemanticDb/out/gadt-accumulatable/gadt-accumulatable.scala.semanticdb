@@ -1,0 +1,382 @@
+
+à‹"tests/pos/gadt-accumulatable.scala*:
+_empty_/`gadt-accumulatable`.
+ *gadt-accumulatable€*-
+ _empty_/`gadt-accumulatable`.Or# *Or€*=
++_empty_/`gadt-accumulatable`.Or#`<init>`(). €@*<init>€*0
+#_empty_/`gadt-accumulatable`.Or#[G]	 €*G€*0
+#_empty_/`gadt-accumulatable`.Or#[B]	 €*B€*2
+"_empty_/`gadt-accumulatable`.Good# ˆ*Good€*?
+-_empty_/`gadt-accumulatable`.Good#`<init>`(). €@*<init>€*=
+0_empty_/`gadt-accumulatable`.Good#`<init>`().(g) €*g€*2
+%_empty_/`gadt-accumulatable`.Good#[G]	 €*G€*1
+$_empty_/`gadt-accumulatable`.Good#g. €*g€*6
+)_empty_/`gadt-accumulatable`.Good#copy().*copy€*6
+,_empty_/`gadt-accumulatable`.Good#copy().[G]	*G€*6
+,_empty_/`gadt-accumulatable`.Good#copy().(g)*g€*J
+3_empty_/`gadt-accumulatable`.Good#copy$default$1().*copy$default$1€*@
+6_empty_/`gadt-accumulatable`.Good#copy$default$1().[G]	*G€*2
+'_empty_/`gadt-accumulatable`.Good#_1().*_1€*1
+"_empty_/`gadt-accumulatable`.Good.
+ *Good€*8
+*_empty_/`gadt-accumulatable`.Good.apply().*apply€*7
+-_empty_/`gadt-accumulatable`.Good.apply().[G]	*G€*7
+-_empty_/`gadt-accumulatable`.Good.apply().(g)*g€*<
+,_empty_/`gadt-accumulatable`.Good.unapply().*unapply€*9
+/_empty_/`gadt-accumulatable`.Good.unapply().[G]	*G€*=
+1_empty_/`gadt-accumulatable`.Good.unapply().(x$1)*x$1€*>
+-_empty_/`gadt-accumulatable`.Good.toString().*toString€*0
+!_empty_/`gadt-accumulatable`.Bad# ˆ*Bad€*>
+,_empty_/`gadt-accumulatable`.Bad#`<init>`(). €@*<init>€*<
+/_empty_/`gadt-accumulatable`.Bad#`<init>`().(b) €*b€*1
+$_empty_/`gadt-accumulatable`.Bad#[B]	 €*B€*0
+#_empty_/`gadt-accumulatable`.Bad#b. €*b€*5
+(_empty_/`gadt-accumulatable`.Bad#copy().*copy€*5
++_empty_/`gadt-accumulatable`.Bad#copy().[B]	*B€*5
++_empty_/`gadt-accumulatable`.Bad#copy().(b)*b€*I
+2_empty_/`gadt-accumulatable`.Bad#copy$default$1().*copy$default$1€*?
+5_empty_/`gadt-accumulatable`.Bad#copy$default$1().[B]	*B€*1
+&_empty_/`gadt-accumulatable`.Bad#_1().*_1€*/
+!_empty_/`gadt-accumulatable`.Bad.
+ *Bad€*7
+)_empty_/`gadt-accumulatable`.Bad.apply().*apply€*6
+,_empty_/`gadt-accumulatable`.Bad.apply().[B]	*B€*6
+,_empty_/`gadt-accumulatable`.Bad.apply().(b)*b€*;
++_empty_/`gadt-accumulatable`.Bad.unapply().*unapply€*8
+._empty_/`gadt-accumulatable`.Bad.unapply().[B]	*B€*<
+0_empty_/`gadt-accumulatable`.Bad.unapply().(x$1)*x$1€*=
+,_empty_/`gadt-accumulatable`.Bad.toString().*toString€*=
+(_empty_/`gadt-accumulatable`.Validation# *
+Validation€*E
+3_empty_/`gadt-accumulatable`.Validation#`<init>`(). €@*<init>€*8
++_empty_/`gadt-accumulatable`.Validation#[E]	 €*E€*2
+"_empty_/`gadt-accumulatable`.Pass.
+ ˆ*Pass€*2
+"_empty_/`gadt-accumulatable`.Fail# €*Fail€*?
+-_empty_/`gadt-accumulatable`.Fail#`<init>`(). €@*<init>€*E
+4_empty_/`gadt-accumulatable`.Fail#`<init>`().(error) €*error€*/
+%_empty_/`gadt-accumulatable`.Fail#[E]	*E€*9
+(_empty_/`gadt-accumulatable`.Fail#error. €*error€*6
+)_empty_/`gadt-accumulatable`.Fail#copy().*copy€*6
+,_empty_/`gadt-accumulatable`.Fail#copy().[E]	*E€*>
+0_empty_/`gadt-accumulatable`.Fail#copy().(error)*error€*J
+3_empty_/`gadt-accumulatable`.Fail#copy$default$1().*copy$default$1€*@
+6_empty_/`gadt-accumulatable`.Fail#copy$default$1().[E]	*E€*2
+'_empty_/`gadt-accumulatable`.Fail#_1().*_1€*1
+"_empty_/`gadt-accumulatable`.Fail.
+ *Fail€*8
+*_empty_/`gadt-accumulatable`.Fail.apply().*apply€*7
+-_empty_/`gadt-accumulatable`.Fail.apply().[E]	*E€*?
+1_empty_/`gadt-accumulatable`.Fail.apply().(error)*error€*<
+,_empty_/`gadt-accumulatable`.Fail.unapply().*unapply€*9
+/_empty_/`gadt-accumulatable`.Fail.unapply().[E]	*E€*=
+1_empty_/`gadt-accumulatable`.Fail.unapply().(x$1)*x$1€*>
+-_empty_/`gadt-accumulatable`.Fail.toString().*toString€*3
+#_empty_/`gadt-accumulatable`.Every# *Every€*@
+._empty_/`gadt-accumulatable`.Every#`<init>`(). €@*<init>€*M
+:_empty_/`gadt-accumulatable`.Every#`<init>`().(underlying)*
+underlying€*3
+&_empty_/`gadt-accumulatable`.Every#[T]	 €*T€*D
+._empty_/`gadt-accumulatable`.Every#underlying. €*
+underlying€*0
+!_empty_/`gadt-accumulatable`.One# ˆ*One€*>
+,_empty_/`gadt-accumulatable`.One#`<init>`(). €@*<init>€*P
+9_empty_/`gadt-accumulatable`.One#`<init>`().(loneElement) €*loneElement€*1
+$_empty_/`gadt-accumulatable`.One#[T]	 €*T€*D
+-_empty_/`gadt-accumulatable`.One#loneElement. €*loneElement€*5
+(_empty_/`gadt-accumulatable`.One#copy().*copy€*5
++_empty_/`gadt-accumulatable`.One#copy().[T]	*T€*I
+5_empty_/`gadt-accumulatable`.One#copy().(loneElement)*loneElement€*I
+2_empty_/`gadt-accumulatable`.One#copy$default$1().*copy$default$1€*?
+5_empty_/`gadt-accumulatable`.One#copy$default$1().[T]	*T€*1
+&_empty_/`gadt-accumulatable`.One#_1().*_1€*/
+!_empty_/`gadt-accumulatable`.One.
+ *One€*7
+)_empty_/`gadt-accumulatable`.One.apply().*apply€*6
+,_empty_/`gadt-accumulatable`.One.apply().[T]	*T€*J
+6_empty_/`gadt-accumulatable`.One.apply().(loneElement)*loneElement€*;
++_empty_/`gadt-accumulatable`.One.unapply().*unapply€*8
+._empty_/`gadt-accumulatable`.One.unapply().[T]	*T€*<
+0_empty_/`gadt-accumulatable`.One.unapply().(x$1)*x$1€*=
+,_empty_/`gadt-accumulatable`.One.toString().*toString€*2
+"_empty_/`gadt-accumulatable`.Many# ˆ*Many€*?
+-_empty_/`gadt-accumulatable`.Many#`<init>`(). €@*<init>€*S
+;_empty_/`gadt-accumulatable`.Many#`<init>`().(firstElement) €*firstElement€*U
+<_empty_/`gadt-accumulatable`.Many#`<init>`().(secondElement) €*secondElement€*U
+<_empty_/`gadt-accumulatable`.Many#`<init>`().(otherElements) €*otherElements€*2
+%_empty_/`gadt-accumulatable`.Many#[T]	 €*T€*G
+/_empty_/`gadt-accumulatable`.Many#firstElement. €*firstElement€*I
+0_empty_/`gadt-accumulatable`.Many#secondElement. €*secondElement€*I
+0_empty_/`gadt-accumulatable`.Many#otherElements. €*otherElements€*2
+'_empty_/`gadt-accumulatable`.Many#_1().*_1€*2
+'_empty_/`gadt-accumulatable`.Many#_2().*_2€*2
+'_empty_/`gadt-accumulatable`.Many#_3().*_3€*1
+"_empty_/`gadt-accumulatable`.Many.
+ *Many€*8
+*_empty_/`gadt-accumulatable`.Many.apply().*apply€*7
+-_empty_/`gadt-accumulatable`.Many.apply().[T]	*T€*M
+8_empty_/`gadt-accumulatable`.Many.apply().(firstElement)*firstElement€*O
+9_empty_/`gadt-accumulatable`.Many.apply().(secondElement)*secondElement€*O
+9_empty_/`gadt-accumulatable`.Many.apply().(otherElements)*otherElements€*B
+/_empty_/`gadt-accumulatable`.Many.unapplySeq().*
+unapplySeq€*<
+2_empty_/`gadt-accumulatable`.Many.unapplySeq().[T]	*T€*@
+4_empty_/`gadt-accumulatable`.Many.unapplySeq().(x$1)*x$1€*>
+-_empty_/`gadt-accumulatable`.Many.toString().*toString€*A
++_empty_/`gadt-accumulatable`.Accumulatable#*Accumulatable€*H
+6_empty_/`gadt-accumulatable`.Accumulatable#`<init>`(). €@*<init>€*8
+._empty_/`gadt-accumulatable`.Accumulatable#[G]	*G€*<
+0_empty_/`gadt-accumulatable`.Accumulatable#[ERR]	*ERR€*@
+2_empty_/`gadt-accumulatable`.Accumulatable#[EVERY]	*EVERY€*Y
+8_empty_/`gadt-accumulatable`.convertOrToAccumulatable().*convertOrToAccumulatable€*E
+;_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G]	*G€*I
+=_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR]	*ERR€*M
+?_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY]	*EVERY€*]
+G_empty_/`gadt-accumulatable`.convertOrToAccumulatable().(accumulatable)*accumulatable€*
+local0 *$anon€*
+local1*when€*
+local2	*OTHERERR€*
+local3*validations€*
+local4 €*g€*
+local5 €*results€*
+local6 €	*E$1€*
+local7 €*x€*
+local8 €*z€*
+local9 €*first€*
+local10 €*tail€*
+local11 €*second€*
+local12 €*rest€*
+local13 €*myBad€2'
+ _empty_/`gadt-accumulatable`.2.
+  _empty_/`gadt-accumulatable`.Or#29
+ +_empty_/`gadt-accumulatable`.Or#`<init>`().2
+* 1scala/Product#2)
+7 Cscala/package.Serializable#21
+ #_empty_/`gadt-accumulatable`.Or#[G]21
+  #_empty_/`gadt-accumulatable`.Or#[B]20
+ "_empty_/`gadt-accumulatable`.Good#2;
+ -_empty_/`gadt-accumulatable`.Good#`<init>`().23
+  %_empty_/`gadt-accumulatable`.Good#[G]29
+7 7+_empty_/`gadt-accumulatable`.Or#`<init>`().2.
+* , _empty_/`gadt-accumulatable`.Or#23
+- .%_empty_/`gadt-accumulatable`.Good#[G]2
+/ 6scala/Nothing#23
+ %_empty_/`gadt-accumulatable`.Good#[G]22
+ $_empty_/`gadt-accumulatable`.Good#g.27
+ )_empty_/`gadt-accumulatable`.Good#copy().25
+ '_empty_/`gadt-accumulatable`.Good#_1().20
+ "_empty_/`gadt-accumulatable`.Good.28
+ *_empty_/`gadt-accumulatable`.Good.apply().2:
+ ,_empty_/`gadt-accumulatable`.Good.unapply().2/
+ !_empty_/`gadt-accumulatable`.Bad#2:
+ ,_empty_/`gadt-accumulatable`.Bad#`<init>`().22
+ $_empty_/`gadt-accumulatable`.Bad#[B]29
+6 6+_empty_/`gadt-accumulatable`.Or#`<init>`().2.
+) + _empty_/`gadt-accumulatable`.Or#2
+, 3scala/Nothing#22
+4 5$_empty_/`gadt-accumulatable`.Bad#[B]22
+ $_empty_/`gadt-accumulatable`.Bad#[B]21
+ #_empty_/`gadt-accumulatable`.Bad#b.26
+ (_empty_/`gadt-accumulatable`.Bad#copy().24
+ &_empty_/`gadt-accumulatable`.Bad#_1().2/
+ !_empty_/`gadt-accumulatable`.Bad.27
+ )_empty_/`gadt-accumulatable`.Bad.apply().29
+ +_empty_/`gadt-accumulatable`.Bad.unapply().26
+ (_empty_/`gadt-accumulatable`.Validation#2A
+ 3_empty_/`gadt-accumulatable`.Validation#`<init>`().2
+& -scala/Product#2)
+3 ?scala/package.Serializable#29
+ +_empty_/`gadt-accumulatable`.Validation#[E]20
+ "_empty_/`gadt-accumulatable`.Pass.26
+ %(_empty_/`gadt-accumulatable`.Validation#2
+& -scala/Nothing#20
+ "_empty_/`gadt-accumulatable`.Fail#2;
+ -_empty_/`gadt-accumulatable`.Fail#`<init>`().23
+ %_empty_/`gadt-accumulatable`.Fail#[E]26
+' 1(_empty_/`gadt-accumulatable`.Validation#23
+2 3%_empty_/`gadt-accumulatable`.Fail#[E]23
+ %_empty_/`gadt-accumulatable`.Fail#[E]26
+ (_empty_/`gadt-accumulatable`.Fail#error.27
+ )_empty_/`gadt-accumulatable`.Fail#copy().25
+ '_empty_/`gadt-accumulatable`.Fail#_1().20
+ "_empty_/`gadt-accumulatable`.Fail.28
+ *_empty_/`gadt-accumulatable`.Fail.apply().2:
+ ,_empty_/`gadt-accumulatable`.Fail.unapply().21
+		 #_empty_/`gadt-accumulatable`.Every#2<
+		 ._empty_/`gadt-accumulatable`.Every#`<init>`().2#
+	9	 ?scala/package.Vector#24
+	@	 A&_empty_/`gadt-accumulatable`.Every#[T]2
+	m	 tscala/Product#2*
+		z	 †scala/package.Serializable#24
+		  &_empty_/`gadt-accumulatable`.Every#[T]2<
+	-	 7._empty_/`gadt-accumulatable`.Every#underlying.2/
+
+
+ !_empty_/`gadt-accumulatable`.One#2:
+
+
+ ,_empty_/`gadt-accumulatable`.One#`<init>`().22
+
+(
+ )$_empty_/`gadt-accumulatable`.One#[T]2<
+
+;
+ ;._empty_/`gadt-accumulatable`.Every#`<init>`().21
+
+3
+ 8#_empty_/`gadt-accumulatable`.Every#22
+
+9
+ :$_empty_/`gadt-accumulatable`.One#[T]27
+
+B
+ B)scala/collection/IterableFactory#apply().2#
+
+<
+ Bscala/package.Vector.2;
+
+C
+ N-_empty_/`gadt-accumulatable`.One#loneElement.22
+
+
+ $_empty_/`gadt-accumulatable`.One#[T]2;
+
+
+ &-_empty_/`gadt-accumulatable`.One#loneElement.26
+
+
+ (_empty_/`gadt-accumulatable`.One#copy().24
+
+(
+ (&_empty_/`gadt-accumulatable`.One#_1().2/
+
+
+ !_empty_/`gadt-accumulatable`.One.27
+
+
+ )_empty_/`gadt-accumulatable`.One.apply().29
+
+
+ +_empty_/`gadt-accumulatable`.One.unapply().20
+ "_empty_/`gadt-accumulatable`.Many#2;
+ -_empty_/`gadt-accumulatable`.Many#`<init>`().23
+* +%_empty_/`gadt-accumulatable`.Many#[T]23
+< =%_empty_/`gadt-accumulatable`.Many#[T]23
+N O%_empty_/`gadt-accumulatable`.Many#[T]2<
+b b._empty_/`gadt-accumulatable`.Every#`<init>`().21
+Z _#_empty_/`gadt-accumulatable`.Every#23
+` a%_empty_/`gadt-accumulatable`.Many#[T]2/
+
+š šscala/collection/SeqOps#`+:`().29
+
+Š Š)scala/collection/IterableFactory#apply().2%
+
+„ Šscala/package.Vector.2@
+
+‹ ˜0_empty_/`gadt-accumulatable`.Many#otherElements.2?
+	s €0_empty_/`gadt-accumulatable`.Many#secondElement.2=
+c o/_empty_/`gadt-accumulatable`.Many#firstElement.23
+ %_empty_/`gadt-accumulatable`.Many#[T]2=
+ (/_empty_/`gadt-accumulatable`.Many#firstElement.2>
+- :0_empty_/`gadt-accumulatable`.Many#secondElement.2>
+? L0_empty_/`gadt-accumulatable`.Many#otherElements.25
+* *'_empty_/`gadt-accumulatable`.Many#_1().25
+< <'_empty_/`gadt-accumulatable`.Many#_2().25
+N N'_empty_/`gadt-accumulatable`.Many#_3().20
+ "_empty_/`gadt-accumulatable`.Many.28
+ *_empty_/`gadt-accumulatable`.Many.apply().2=
+ /_empty_/`gadt-accumulatable`.Many.unapplySeq().29
+ +_empty_/`gadt-accumulatable`.Accumulatable#2D
+ 6_empty_/`gadt-accumulatable`.Accumulatable#`<init>`().2<
+ ._empty_/`gadt-accumulatable`.Accumulatable#[G]2>
+ 0_empty_/`gadt-accumulatable`.Accumulatable#[ERR]2@
+ #2_empty_/`gadt-accumulatable`.Accumulatable#[EVERY]2F
+ 8_empty_/`gadt-accumulatable`.convertOrToAccumulatable().2I
+  ;_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G]2K
+" %=_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR]2M
+' ,?_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY]2U
+= JG_empty_/`gadt-accumulatable`.convertOrToAccumulatable().(accumulatable)2.
+N P _empty_/`gadt-accumulatable`.Or#2I
+L M;_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G]2M
+Q V?_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY]2K
+W Z=_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR]29
+^ k+_empty_/`gadt-accumulatable`.Accumulatable#2I
+l m;_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G]2K
+o r=_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR]2M
+t y?_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY]2
+ local02D
+$ $6_empty_/`gadt-accumulatable`.Accumulatable#`<init>`().29
+ +_empty_/`gadt-accumulatable`.Accumulatable#2I
+ ;_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G]2K
+ =_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR]2M
+ #?_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[EVERY]2
+
+ local12
+ local22K
+ =_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[ERR]2
+  +local32I
+. /;_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G]26
+3 =(_empty_/`gadt-accumulatable`.Validation#2
+> Flocal22.
+N P _empty_/`gadt-accumulatable`.Or#2I
+L M;_empty_/`gadt-accumulatable`.convertOrToAccumulatable().[G]21
+Q V#_empty_/`gadt-accumulatable`.Every#2
+W _local22U
+ G_empty_/`gadt-accumulatable`.convertOrToAccumulatable().(accumulatable)2:
+ ,_empty_/`gadt-accumulatable`.Good.unapply().20
+ "_empty_/`gadt-accumulatable`.Good.2
+ local42
+ local525
+& -'scala/collection/IterableOps#flatMap().2
+ %local32&
+0 0scala/Function1#apply().2
+1 2local42:
+E E,_empty_/`gadt-accumulatable`.Fail.unapply().20
+A E"_empty_/`gadt-accumulatable`.Fail.2
+E Elocal62
+F Glocal72
+P Qlocal82
+S [local22
+^ _local72;
+d d-scala/collection/SeqFactory.Delegate#apply().2 
+a dscala/package.Seq.2
+e flocal720
+n r"_empty_/`gadt-accumulatable`.Pass.2;
+z -scala/collection/SeqFactory.Delegate#empty().2 
+v yscala/package.Seq.2/
+ !scala/collection/SeqOps#length().2
+ local528
+ *_empty_/`gadt-accumulatable`.Good.apply().20
+ "_empty_/`gadt-accumulatable`.Good.2
+ local427
+ )_empty_/`gadt-accumulatable`.Bad.apply().2/
+ !_empty_/`gadt-accumulatable`.Bad.27
+ )_empty_/`gadt-accumulatable`.One.apply().2/
+ !_empty_/`gadt-accumulatable`.One.22
+( ,$scala/collection/IterableOps#head().2
+  'local52
+ local922
+$ ($scala/collection/IterableOps#head().2
+ #local52
+ local1022
+# '$scala/collection/IterableOps#tail().2
+ "local52
+ local1122
+" &$scala/collection/IterableOps#head().2
+ !local102
+ local1222
+  $$scala/collection/IterableOps#tail().2
+ local1027
+ )_empty_/`gadt-accumulatable`.Bad.apply().2/
+ !_empty_/`gadt-accumulatable`.Bad.28
+ *_empty_/`gadt-accumulatable`.Many.apply().20
+ "_empty_/`gadt-accumulatable`.Many.2
+ local92
+  &local112
+( ,local1229
+ +_empty_/`gadt-accumulatable`.Bad.unapply().2/
+ !_empty_/`gadt-accumulatable`.Bad.2
+ local1327
+   )_empty_/`gadt-accumulatable`.Bad.apply().2/
+  !_empty_/`gadt-accumulatable`.Bad.2
+! &local13PZ 2EEC91C8B6F5FB76E6D73D6EF9428BA7

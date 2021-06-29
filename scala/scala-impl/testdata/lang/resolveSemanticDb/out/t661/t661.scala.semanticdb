@@ -1,0 +1,52 @@
+
+¤tests/pos/t661.scala*
+
+test/test.
+ *test€*
+test/test.A# *A€*)
+test/test.A#`<init>`(). €@*<init>€*
+test/test.A#C# *C€*+
+test/test.A#C#`<init>`(). €@*<init>€*
+test/test.A#C#M#*M€* 
+test/test.A#C#foo().*foo€*!
+test/test.A#C#foo().(n)*n€*
+test/test.B#*B€*)
+test/test.B#`<init>`(). €@*<init>€*
+test/test.B#N#*N€*
+test/test.B#CC#*CC€*,
+test/test.B#CC#`<init>`(). €@*<init>€*
+test/test.B#CC#M#*M€*!
+test/test.B#CC#foo().*foo€*"
+test/test.B#CC#foo().(n)*n€2
+ test/2
+ 
+test/test.2
+ test/test.A#2%
+ test/test.A#`<init>`().2
+ test/test.A#C#2'
+ test/test.A#C#`<init>`().2
+ test/test.A#C#M#2"
+
+ test/test.A#C#foo().2%
+ test/test.A#C#foo().(n)2
+ test/test.A#C#M#2
+ scala/Unit#2
+		 	test/test.B#2%
+		 test/test.B#`<init>`().2
+		 test/test.A#2
+
+	
+ 
+test/test.B#N#2
+
+ test/test.B#CC#2(
+ test/test.B#CC#`<init>`().2
+ test/test.A#C#2
+ test/test.B#CC#M#2
+ test/test.B#N#2#
+ test/test.B#CC#foo().2&
+ test/test.B#CC#foo().(n)2
+ test/test.B#CC#M#2
+  $scala/Unit#2"
+- 0test/test.A#C#foo().2&
+1 2test/test.B#CC#foo().(n)PZ 70F9FB2E280E0759906AB78763E2D4E5

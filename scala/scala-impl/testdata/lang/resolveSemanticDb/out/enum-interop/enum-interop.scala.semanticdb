@@ -1,0 +1,34 @@
+
+›	tests/pos/enum-interop.scala*
+_empty_/Test.
+ *Test€* 
+_empty_/Test.cls. €*cls€*5
+_empty_/Test.myAsInstanceOf().*myAsInstanceOf€*+
+!_empty_/Test.myAsInstanceOf().[T]	*T€*/
+#_empty_/Test.myAsInstanceOf().(cls)*cls€2
+ _empty_/Test.2
+ 	_empty_/Test.cls.2
+ java/lang/Class#2
+ 
+java/lang/2
+ java/2#
+  #scala/Predef.`???`().2,
+ _empty_/Test.myAsInstanceOf().2/
+ !_empty_/Test.myAsInstanceOf().[T]2!
+ scala/Predef.Class#2/
+  !!_empty_/Test.myAsInstanceOf().[T]21
+$ '#_empty_/Test.myAsInstanceOf().(cls)2
+3 8java/lang/Class#2
+. 2
+java/lang/2
+) -java/2!
+> Cscala/Predef.Class#2/
+D E!_empty_/Test.myAsInstanceOf().[T]2'
+M Yscala/Any#asInstanceOf().21
+I L#_empty_/Test.myAsInstanceOf().(cls)2!
+Z _scala/Predef.Class#2/
+` a!_empty_/Test.myAsInstanceOf().[T]2'
+ java/lang/Enum#valueOf().2
+ java/lang/Enum#2,
+ _empty_/Test.myAsInstanceOf().2
+ !_empty_/Test.cls.PZ A74B60FC70DC6CE22A700D0716B0998F

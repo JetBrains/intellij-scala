@@ -1,0 +1,44 @@
+
+êtests/pos/t5958.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*1
+_empty_/Test#newComponent().*newComponent€*)
+_empty_/Test#newComponent().(u)*u€*'
+_empty_/Test#Universe#*Universe€*3
+!_empty_/Test#Universe#`<init>`(). €@*<init>€*
+local0*self€*2
+ _empty_/Test#Universe#Component#*	Component€*=
++_empty_/Test#Universe#Component#`<init>`(). €@*<init>€*%
+_empty_/Test#Universe#u. €*u€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2*
+ _empty_/Test#newComponent().2-
+ _empty_/Test#newComponent().(u)2$
+ _empty_/Test#Universe#2.
+# , _empty_/Test#Universe#Component#2-
+! "_empty_/Test#newComponent().(u)2#
+/ 2scala/Predef.`???`().2$
+ _empty_/Test#Universe#2/
+ !_empty_/Test#Universe#`<init>`().2
+ local02.
+
+  _empty_/Test#Universe#Component#29
+ +_empty_/Test#Universe#Component#`<init>`().2*
+ _empty_/Test#newComponent().2.
+ & _empty_/Test#Universe#Component#2*
+ _empty_/Test#newComponent().2$
+ _empty_/Test#Universe#2.
+ & _empty_/Test#Universe#Component#2$
+ _empty_/Test#Universe#2*
+ _empty_/Test#newComponent().2$
+ _empty_/Test#Universe#2.
+ & _empty_/Test#Universe#Component#2*
+		 _empty_/Test#newComponent().2.
+		 & _empty_/Test#Universe#Component#2$
+		 _empty_/Test#Universe#2&
+ 	_empty_/Test#Universe#u.2*
+ _empty_/Test#newComponent().2&
+ _empty_/Test#Universe#u.2.
+   _empty_/Test#Universe#Component#2&
+ _empty_/Test#Universe#u.PZ 89C5E5AD9A5357D9C143DAB208FAE660

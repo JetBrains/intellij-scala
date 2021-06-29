@@ -1,0 +1,67 @@
+
+® tests/pos/t5779-numeq-warn.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*d€*
+local1 €*f€*
+local2 €*n€2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02
+ scala/Double#2?
+& .1scala/math/ScalaNumericAnyConversions#toDouble().2'
+ !scala/math/BigInt#`<<`().2(
+ scala/math/BigInt.apply().2#
+ scala/package.BigInt.2
+ 	local12
+ scala/Float#2%
+ scala/Double#toFloat().2
+ local02
+ 	local22
+ java/lang/Number#2
+ 
+java/lang/2
+ java/2)
+ scala/Predef.float2Float().2%
+  'scala/Double#toFloat().2
+ local02&
+ 
+scala/Predef.assert(+1).2$
+ scala/Double#`==`(+5).2
+ local02
+ local12&
+ 
+scala/Predef.assert(+1).2
+ scala/Any#`==`().2
+ local02
+ local22&
+ 
+scala/Predef.assert(+1).2
+ scala/Any#`==`().2
+ local22
+ local02&
+		 
+scala/Predef.assert(+1).2
+		 scala/Any#`==`().2
+		 local12
+		 local22&
+
+
+ 
+scala/Predef.assert(+1).2
+
+
+ scala/Any#`==`().2
+
+
+ local22
+
+
+ local1PZ 552C1D5C0465556ABE45C67D2E392606

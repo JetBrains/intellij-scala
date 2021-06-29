@@ -1,0 +1,62 @@
+
+ tests/pos/t4266.scala*
+_empty_/Test.
+ *Test€*-
+_empty_/Test.Tensor2Like#*Tensor2Like€*6
+$_empty_/Test.Tensor2Like#`<init>`(). €@*<init>€*(
+_empty_/Test.Tensor2Like#[A1]	*A1€*+
+_empty_/Test.Tensor2Like#[D1]	 €*D1€*)
+_empty_/Test.Tensor2Like#[D]	 €*D€*3
+"_empty_/Test.Tensor2Like#domain(). *domain€*5
+$_empty_/Test.Tensor2Like#checkKey().*checkKey€*3
+(_empty_/Test.Tensor2Like#checkKey().(k1)*k1€*+
+_empty_/Test.DomainLike#*
+DomainLike€*5
+#_empty_/Test.DomainLike#`<init>`(). €@*<init>€*%
+_empty_/Test.DomainLike#[A]	*A€*6
+#_empty_/Test.DomainLike#contains(). *contains€*4
+(_empty_/Test.DomainLike#contains().(key)*key€*;
+ _empty_/Test.Product2DomainLike#*Product2DomainLike€*=
++_empty_/Test.Product2DomainLike#`<init>`(). €@*<init>€*2
+$_empty_/Test.Product2DomainLike#[D1]	 €*D1€*2
+%_empty_/Test.Product2DomainLike#_1(). *_1€2
+ _empty_/Test.2'
+ _empty_/Test.Tensor2Like#22
+ $_empty_/Test.Tensor2Like#`<init>`().2 
+ scala/specialized#2
+ 
+scala/Int.2+
+ _empty_/Test.Tensor2Like#[A1]2+
+ _empty_/Test.Tensor2Like#[D1]2*
+ _empty_/Test.Tensor2Like#[D]20
+ "_empty_/Test.Tensor2Like#domain().2*
+ _empty_/Test.Tensor2Like#[D]22
+		 $_empty_/Test.Tensor2Like#checkKey().26
+		 (_empty_/Test.Tensor2Like#checkKey().(k1)2+
+		 _empty_/Test.Tensor2Like#[A1]2
+		 scala/Unit#21
+
+
+ #_empty_/Test.DomainLike#contains().23
+
+
+ %_empty_/Test.Product2DomainLike#_1().20
+
+
+ "_empty_/Test.Tensor2Like#domain().26
+
+
+ (_empty_/Test.Tensor2Like#checkKey().(k1)2&
+ _empty_/Test.DomainLike#21
+ #_empty_/Test.DomainLike#`<init>`().2)
+ _empty_/Test.DomainLike#[A]21
+ #_empty_/Test.DomainLike#contains().26
+ (_empty_/Test.DomainLike#contains().(key)2)
+ _empty_/Test.DomainLike#[A]2
+ !scala/Boolean#2.
+  _empty_/Test.Product2DomainLike#29
+ +_empty_/Test.Product2DomainLike#`<init>`().22
+ $_empty_/Test.Product2DomainLike#[D1]23
+ 
+%_empty_/Test.Product2DomainLike#_1().22
+ $_empty_/Test.Product2DomainLike#[D1]PZ 9D5F90974EFBA937DBA2C8E65541E83E

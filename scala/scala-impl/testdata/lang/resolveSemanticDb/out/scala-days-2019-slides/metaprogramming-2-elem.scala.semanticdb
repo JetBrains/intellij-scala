@@ -1,0 +1,62 @@
+
+è=tests/pos/scala-days-2019-slides/metaprogramming-2-elem.scala**
+_empty_/ElemExample.
+ *ElemExample€*&
+_empty_/ElemExample.Elem#*Elem€*&
+_empty_/ElemExample.Elem#[X]	*X€*
+local0 €	*t€*
+local1 €	*t€2
+ _empty_/ElemExample.2'
+ _empty_/ElemExample.Elem#2*
+ _empty_/ElemExample.Elem#[X]2*
+ _empty_/ElemExample.Elem#[X]2"
+	 scala/Predef.String#2
+ scala/Char#2
+	 scala/Array#2
+ local02
+ local02%
+	 scala/package.Iterable#2
+ local12
+ local12$
+		 scala/Predef.summon().2
+		 scala/`=:=`#2'
+			 _empty_/ElemExample.Elem#2"
+		 scala/Predef.String#2
+	!	 %scala/Char#2!
+	&	 &scala/`<:<`.refl().2$
+
+
+ scala/Predef.summon().2
+
+
+ scala/`=:=`#2'
+
+	
+ _empty_/ElemExample.Elem#2
+
+
+ scala/Array#2
+
+
+ 
+scala/Int#2
+
+!
+ $
+scala/Int#2!
+
+%
+ %scala/`<:<`.refl().2$
+ scala/Predef.summon().2
+ scala/`=:=`#2'
+	 _empty_/ElemExample.Elem#2!
+ scala/package.List#2
+ scala/Float#2
+! &scala/Float#2!
+' 'scala/`<:<`.refl().2$
+ scala/Predef.summon().2
+ scala/`=:=`#2'
+	 _empty_/ElemExample.Elem#2 
+ scala/package.Nil.2
+! (scala/Nothing#2!
+) )scala/`<:<`.refl().PZ EDC045712B8E0D237E4EAAC2657E0DCD

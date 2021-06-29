@@ -1,0 +1,22 @@
+
+’tests/pos/ops.scala*
+_empty_/Test.
+ *Test€* 
+_empty_/Test.num. €*num€* 
+_empty_/Test.ops. €*ops€*
+local0*lhs€2
+ _empty_/Test.2
+ 	_empty_/Test.num.2(
+ scala/Predef.implicitly().2%
+ scala/package.Integral#2
+  #
+scala/Int#2/
+% %!scala/math/Numeric.IntIsIntegral.2
+ 	_empty_/Test.ops.22
+ $scala/math/Ordering#mkOrderingOps().2
+ _empty_/Test.num.2
+ local024
+	 
+&scala/math/Ordering#OrderingOps#`<`().2&
+ scala/Function1#apply().2
+ _empty_/Test.ops.PZ 50349D39175C747DF75B82AD0B46E330

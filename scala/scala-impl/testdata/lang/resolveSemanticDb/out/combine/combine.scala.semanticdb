@@ -1,0 +1,59 @@
+
+ðtests/pos/combine.scala*$
+_empty_/Semigroup#*	Semigroup€*/
+_empty_/Semigroup#`<init>`(). €@*<init>€*
+_empty_/Semigroup#[A]	*A€*.
+_empty_/Semigroup#combine(). *combine€*)
+_empty_/Semigroup#combine().(x)*x€*)
+_empty_/Semigroup#combine().(y)*y€*
+_empty_/Test.
+ *Test€**
+_empty_/combine$package. *_empty_€*K
+,_empty_/combine$package.given_Semigroup_Int. è*given_Semigroup_Int€*L
+._empty_/combine$package.given_Semigroup_A_B(). (*given_Semigroup_A_B€*;
+1_empty_/combine$package.given_Semigroup_A_B().[A]	*A€*;
+1_empty_/combine$package.given_Semigroup_A_B().[B]	*B€*A
+3_empty_/combine$package.given_Semigroup_A_B().(x$1)  *x$1€*A
+3_empty_/combine$package.given_Semigroup_A_B().(x$2)  *x$2€2
+ _empty_/Semigroup#2'
+ _empty_/Semigroup#`<init>`().2
+ _empty_/Semigroup#[A]2*
+ _empty_/Semigroup#combine().2-
+ _empty_/Semigroup#combine().(x)2#
+ _empty_/Semigroup#[A]2-
+  _empty_/Semigroup#combine().(y)2#
+" #_empty_/Semigroup#[A]2#
+& '_empty_/Semigroup#[A]2
+ _empty_/Test.2
+ 
+scala/App#2*
+ _empty_/Semigroup#combine().2#
+ scala/Tuple2.apply().2#
+ scala/Tuple2.apply().2*
+ _empty_/Semigroup#combine().2#
+ scala/Tuple2.apply().2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+   scala/Tuple2.apply().2"
+_empty_/combine$package.2:
+ ,_empty_/combine$package.given_Semigroup_Int.2 
+ _empty_/Semigroup#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2<
+ ._empty_/combine$package.given_Semigroup_A_B().2?
+ 1_empty_/combine$package.given_Semigroup_A_B().[A]2?
+
+ 1_empty_/combine$package.given_Semigroup_A_B().[B]2A
+ 3_empty_/combine$package.given_Semigroup_A_B().(x$1)2 
+ _empty_/Semigroup#2?
+ 1_empty_/combine$package.given_Semigroup_A_B().[A]2A
+! !3_empty_/combine$package.given_Semigroup_A_B().(x$2)2 
+! *_empty_/Semigroup#2?
++ ,1_empty_/combine$package.given_Semigroup_A_B().[B]2 
+0 9_empty_/Semigroup#2?
+; <1_empty_/combine$package.given_Semigroup_A_B().[A]2?
+> ?1_empty_/combine$package.given_Semigroup_A_B().[B]2#
+E Hscala/Predef.`???`().PZ 1BC17526AD05674F82FAF6C376A3E8CF

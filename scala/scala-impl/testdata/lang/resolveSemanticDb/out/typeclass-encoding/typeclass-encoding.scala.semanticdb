@@ -1,0 +1,286 @@
+
+êY"tests/pos/typeclass-encoding.scala*"
+_empty_/runtime.
+ *runtime€*,
+_empty_/runtime.TypeClass#*	TypeClass€*7
+%_empty_/runtime.TypeClass#`<init>`(). €@*<init>€*,
+_empty_/runtime.TypeClass#This#*This€*8
+%_empty_/runtime.TypeClass#StaticPart#*
+StaticPart€*8
++_empty_/runtime.TypeClass#StaticPart#[This]	*This€*6
+_empty_/runtime.Implementation#*Implementation€*<
+*_empty_/runtime.Implementation#`<init>`(). €@*<init>€*2
+%_empty_/runtime.Implementation#[From]	*From€*1
+$_empty_/runtime.Implementation#This#*This€*?
++_empty_/runtime.Implementation#Implemented#*Implemented€*9
+(_empty_/runtime.Implementation#inject(). *inject€*5
++_empty_/runtime.Implementation#inject().(x)*x€*
+local0*This€*0
+_empty_/runtime.CompanionOf#*CompanionOf€*9
+'_empty_/runtime.CompanionOf#`<init>`(). €@*<init>€*)
+_empty_/runtime.CompanionOf#[T]	*T€*:
+'_empty_/runtime.CompanionOf#StaticPart#*
+StaticPart€*$
+_empty_/runtime.inst().*inst€**
+_empty_/runtime.inst().[From]	*From€*&
+_empty_/runtime.inst().[To]	*To€**
+_empty_/runtime.inst().(ev1)  *ev1€*
+local1*Implemented€**
+_empty_/runtime.inst().(ev2)  *ev2€*
+local2*Implemented€**
+_empty_/runtime.inject().  *inject€*,
+_empty_/runtime.inject().[From]	*From€*&
+_empty_/runtime.inject().(x)*x€*,
+_empty_/runtime.inject().(ev1)  *ev1€*
+local3*This€*(
+_empty_/semiGroups.
+ *
+semiGroups€*/
+_empty_/semiGroups.SemiGroup#*	SemiGroup€*:
+(_empty_/semiGroups.SemiGroup#`<init>`(). €@*<init>€*1
+#_empty_/semiGroups.SemiGroup#add(). *add€*6
+)_empty_/semiGroups.SemiGroup#add().(that)*that€*)
+_empty_/semiGroups.Monoid#*Monoid€*7
+%_empty_/semiGroups.Monoid#`<init>`(). €@*<init>€*8
+%_empty_/semiGroups.Monoid#StaticPart#*
+StaticPart€*8
++_empty_/semiGroups.Monoid#StaticPart#[This]	*This€*7
+ _empty_/semiGroups.MonoidStatic# *MonoidStatic€*=
++_empty_/semiGroups.MonoidStatic#`<init>`(). €@*<init>€*3
+&_empty_/semiGroups.MonoidStatic#[This]	*This€*6
+'_empty_/semiGroups.MonoidStatic#unit(). *unit€*C
+'_empty_/semiGroups.companionOfMonoid().  *companionOfMonoid€*
+local4*
+StaticPart€*
+local5	*X€*
+local6 *$anon€*
+local7*
+StaticPart€*
+local8	*X€*A
+%_empty_/semiGroups.extend_Int_Monoid.
+ (*extend_Int_Monoid€*E
+1_empty_/semiGroups.extend_Int_Monoid.Implemented#*Implemented€*9
+,_empty_/semiGroups.extend_Int_Monoid.unit().*unit€*=
+._empty_/semiGroups.extend_Int_Monoid.inject().*inject€*C
+5_empty_/semiGroups.extend_Int_Monoid.inject().($this)*$this€*
+local9 *$anon€*
+local10*This€*
+local11*add€*
+local12*that€*G
+(_empty_/semiGroups.extend_String_Monoid.
+ (*extend_String_Monoid€*H
+4_empty_/semiGroups.extend_String_Monoid.Implemented#*Implemented€*<
+/_empty_/semiGroups.extend_String_Monoid.unit().*unit€*@
+1_empty_/semiGroups.extend_String_Monoid.inject().*inject€*F
+8_empty_/semiGroups.extend_String_Monoid.inject().($this)*$this€*
+local13*This€*
+local14 *$anon€*
+local15*This€*
+local16*add€*
+local17*that€*%
+_empty_/semiGroups.sum().*sum€*&
+_empty_/semiGroups.sum().[T]	*T€*(
+_empty_/semiGroups.sum().(xs)*xs€*,
+_empty_/semiGroups.sum().($ev)  *$ev€*
+local18*Implemented€*
+local19*x€*
+local20*y€*
+local21*x€*
+local22*y€2
+ _empty_/runtime.2(
+ _empty_/runtime.TypeClass#23
+ %_empty_/runtime.TypeClass#`<init>`().2-
+	 _empty_/runtime.TypeClass#This#23
+	 %_empty_/runtime.TypeClass#StaticPart#29
+ +_empty_/runtime.TypeClass#StaticPart#[This]2-
+ _empty_/runtime.Implementation#28
+ *_empty_/runtime.Implementation#`<init>`().23
+ %_empty_/runtime.Implementation#[From]22
+ 	  $_empty_/runtime.Implementation#This#23
+   %_empty_/runtime.Implementation#[From]29
+!	! +_empty_/runtime.Implementation#Implemented#2(
+!! !_empty_/runtime.TypeClass#26
+"" (_empty_/runtime.Implementation#inject().29
+"" +_empty_/runtime.Implementation#inject().(x)23
+"" %_empty_/runtime.Implementation#[From]29
+"" $+_empty_/runtime.Implementation#Implemented#2
+"," 0local023
+"3" 7%_empty_/runtime.Implementation#[From]2*
+%% _empty_/runtime.CompanionOf#25
+%% '_empty_/runtime.CompanionOf#`<init>`().2-
+%% _empty_/runtime.CompanionOf#[T]25
+%% ('_empty_/runtime.CompanionOf#StaticPart#2%
+'' 
+_empty_/runtime.inst().2+
+'' _empty_/runtime.inst().[From]2)
+'' _empty_/runtime.inst().[To]2(
+''  _empty_/runtime.TypeClass#2*
+(( _empty_/runtime.inst().(ev1)2-
+(( "_empty_/runtime.Implementation#2+
+(#( '_empty_/runtime.inst().[From]2
+(0( ;local12)
+(>( @_empty_/runtime.inst().[To]2*
+)) 	_empty_/runtime.inst().(ev2)2*
+)) _empty_/runtime.CompanionOf#2)
+)) _empty_/runtime.inst().[To]2
+)L) M
+scala/`&`#2-
+)) +_empty_/runtime.Implementation#2+
+),) 0_empty_/runtime.inst().[From]2
+)9) Dlocal22)
+)G) I_empty_/runtime.inst().[To]25
+)R) \'_empty_/runtime.CompanionOf#StaticPart#2*
+)N) Q_empty_/runtime.inst().(ev2)2+
+)]) a_empty_/runtime.inst().[From]2'
+** scala/Any#asInstanceOf().2*
+** _empty_/runtime.inst().(ev1)2'
+,, _empty_/runtime.inject().2-
+,, _empty_/runtime.inject().[From]2*
+,, _empty_/runtime.inject().(x)2-
+,, #_empty_/runtime.inject().[From]2,
+-- _empty_/runtime.inject().(ev1)2-
+-- "_empty_/runtime.Implementation#2-
+-#- '_empty_/runtime.inject().[From]29
+-/- :+_empty_/runtime.Implementation#Implemented#2,
+-+- ._empty_/runtime.inject().(ev1)2
+-B- Flocal32-
+-I- M_empty_/runtime.inject().[From]26
+.. (_empty_/runtime.Implementation#inject().2,
+.. _empty_/runtime.inject().(ev1)2*
+.. _empty_/runtime.inject().(x)2!
+11 _empty_/semiGroups.2
+2	2 _empty_/runtime.2+
+44 _empty_/semiGroups.SemiGroup#26
+44 (_empty_/semiGroups.SemiGroup#`<init>`().2(
+44 #_empty_/runtime.TypeClass#21
+55 #_empty_/semiGroups.SemiGroup#add().27
+55 )_empty_/semiGroups.SemiGroup#add().(that)2-
+55 _empty_/runtime.TypeClass#This#2-
+55 _empty_/runtime.TypeClass#This#2(
+88 _empty_/semiGroups.Monoid#23
+88 %_empty_/semiGroups.Monoid#`<init>`().2+
+88  _empty_/semiGroups.SemiGroup#23
+9	9 %_empty_/semiGroups.Monoid#StaticPart#29
+99 +_empty_/semiGroups.Monoid#StaticPart#[This]2.
+99 ) _empty_/semiGroups.MonoidStatic#29
+9*9 .+_empty_/semiGroups.Monoid#StaticPart#[This]2.
+;;  _empty_/semiGroups.MonoidStatic#29
+;; +_empty_/semiGroups.MonoidStatic#`<init>`().24
+;; "&_empty_/semiGroups.MonoidStatic#[This]25
+;*; .'_empty_/semiGroups.MonoidStatic#unit().24
+;0; 4&_empty_/semiGroups.MonoidStatic#[This]25
+==  '_empty_/semiGroups.companionOfMonoid().2*
+="= -_empty_/runtime.CompanionOf#2(
+=.= 4_empty_/semiGroups.Monoid#2
+>	> local42
+>> local52.
+>> % _empty_/semiGroups.MonoidStatic#2
+>&> 'local52
+?? local625
+?? '_empty_/runtime.CompanionOf#`<init>`().2*
+?
+? _empty_/runtime.CompanionOf#2(
+?? _empty_/semiGroups.Monoid#2
+@	@ local72
+@@ local82.
+@@ % _empty_/semiGroups.MonoidStatic#2
+@&@ 'local823
+CC #%_empty_/semiGroups.extend_Int_Monoid.29
+C=C =+_empty_/semiGroups.MonoidStatic#`<init>`().2.
+C,C 8 _empty_/semiGroups.MonoidStatic#2
+C9C <
+scala/Int#2-
+C?C M_empty_/runtime.Implementation#2
+CNC Q
+scala/Int#2?
+D	D 1_empty_/semiGroups.extend_Int_Monoid.Implemented#2(
+DD _empty_/semiGroups.Monoid#2:
+EE ,_empty_/semiGroups.extend_Int_Monoid.unit().2
+EE 
+scala/Int#2<
+FF ._empty_/semiGroups.extend_Int_Monoid.inject().2C
+FF 5_empty_/semiGroups.extend_Int_Monoid.inject().($this)2
+FF 
+scala/Int#2
+FF local92(
+F!F '_empty_/semiGroups.Monoid#2
+GG local102
+GG 
+scala/Int#2
+H
+H local112
+HH local122
+HH local102
+HH local102 
+H(H )scala/Int#`+`(+4).2C
+H"H '5_empty_/semiGroups.extend_Int_Monoid.inject().($this)2
+H*H .local1226
+LL &(_empty_/semiGroups.extend_String_Monoid.29
+LCL C+_empty_/semiGroups.MonoidStatic#`<init>`().2.
+L/L ; _empty_/semiGroups.MonoidStatic#2"
+L<L Bscala/Predef.String#2-
+LEL S_empty_/runtime.Implementation#2"
+LTL Zscala/Predef.String#2B
+M	M 4_empty_/semiGroups.extend_String_Monoid.Implemented#2(
+MM _empty_/semiGroups.Monoid#2=
+NN /_empty_/semiGroups.extend_String_Monoid.unit().2?
+OO 1_empty_/semiGroups.extend_String_Monoid.inject().2F
+OO 8_empty_/semiGroups.extend_String_Monoid.inject().($this)2"
+OO scala/Predef.String#2(
+OO %_empty_/semiGroups.Monoid#2
+O-O 1local132"
+O4O :scala/Predef.String#2
+PP local142(
+P
+P _empty_/semiGroups.Monoid#2
+QQ local152"
+QQ scala/Predef.String#2
+RR local162
+RR local172
+RR local152
+RR !local1522
+R*R ,$scala/collection/StringOps#`++`(+2).2+
+R$R $scala/Predef.augmentString().2F
+R$R )8_empty_/semiGroups.extend_String_Monoid.inject().($this)2
+R-R 1local172'
+VV 	_empty_/semiGroups.sum().2*
+V
+V _empty_/semiGroups.sum().[T]2+
+VV _empty_/semiGroups.sum().(xs)2!
+VV scala/package.List#2*
+VV _empty_/semiGroups.sum().[T]2,
+V#V &_empty_/semiGroups.sum().($ev)2-
+V(V 6_empty_/runtime.Implementation#2*
+V7V 8_empty_/semiGroups.sum().[T]2
+VAV Llocal182(
+VOV U_empty_/semiGroups.Monoid#27
+WW )scala/collection/LinearSeqOps#foldLeft().2+
+WW _empty_/semiGroups.sum().(xs)25
+W W $'_empty_/semiGroups.MonoidStatic#unit().2%
+WW _empty_/runtime.inst().2*
+WW _empty_/semiGroups.sum().[T]2(
+WW _empty_/semiGroups.Monoid#2,
+WW _empty_/semiGroups.sum().($ev)25
+WW '_empty_/semiGroups.companionOfMonoid().2
+W'W (local192
+W*W +local2021
+W:W ?#_empty_/semiGroups.SemiGroup#add().2'
+W0W 6_empty_/runtime.inject().2
+W7W 8local192,
+W9W 9_empty_/semiGroups.sum().($ev)2
+W@W Alocal2027
+XX )scala/collection/LinearSeqOps#foldLeft().2+
+XX _empty_/semiGroups.sum().(xs)25
+X X $'_empty_/semiGroups.MonoidStatic#unit().2%
+XX _empty_/runtime.inst().2*
+XX _empty_/semiGroups.sum().[T]2(
+XX _empty_/semiGroups.Monoid#2,
+XX _empty_/semiGroups.sum().($ev)25
+XX '_empty_/semiGroups.companionOfMonoid().2
+X'X (local212
+X*X +local2221
+X2X 7#_empty_/semiGroups.SemiGroup#add().2'
+X0X 0_empty_/runtime.inject().2
+X0X 1local212,
+X1X 1_empty_/semiGroups.sum().($ev)2
+X8X 9local22PZ 3CB655991D7CE0BB0B30B2CC2A4C9648

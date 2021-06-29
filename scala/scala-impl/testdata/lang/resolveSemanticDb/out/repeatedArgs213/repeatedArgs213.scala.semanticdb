@@ -1,0 +1,100 @@
+
+ tests/pos/repeatedArgs213.scala**
+_empty_/repeatedArgs#*repeatedArgs€*2
+ _empty_/repeatedArgs#`<init>`(). €@*<init>€*'
+_empty_/repeatedArgs#bar().*bar€**
+_empty_/repeatedArgs#bar().(xs)*xs€*'
+_empty_/repeatedArgs#bat().*bat€**
+_empty_/repeatedArgs#bat().(xs)*xs€*)
+_empty_/repeatedArgs#test().*test€*+
+ _empty_/repeatedArgs#test().(xs)*xs€*
+local0 €*others€*
+local1 €*x€*+
+_empty_/repeatedArgs#test2().*test2€*,
+!_empty_/repeatedArgs#test2().(xs)*xs€*
+local2 €*others€*
+local3 €*x€2%
+ "scala/collection/immutable/2#
+$ +scala/collection/mutable/2
+ scala/collection/2
+ scala/2"
+ java/nio/file/Paths#2
+ java/nio/file/2
+ 	java/nio/2
+ java/2#
+ _empty_/repeatedArgs#2.
+  _empty_/repeatedArgs#`<init>`().2)
+ 	_empty_/repeatedArgs#bar().2-
+
+ _empty_/repeatedArgs#bar().(xs)2"
+ scala/Predef.String#2
+ 
+scala/Int#2)
+ !_empty_/repeatedArgs#bat().2-
+" $_empty_/repeatedArgs#bar().(xs)2)
+ 	_empty_/repeatedArgs#bat().2-
+
+ _empty_/repeatedArgs#bat().(xs)2-
+ scala/collection/immutable/Seq#2)
+ scala/collection/immutable/2"
+ "scala/Predef.String#2/
+* 0!scala/collection/SeqOps#length().2-
+' )_empty_/repeatedArgs#bat().(xs)2*
+ 
+_empty_/repeatedArgs#test().2.
+  _empty_/repeatedArgs#test().(xs)2-
+ scala/collection/immutable/Seq#2)
+ scala/collection/immutable/2"
+ #scala/Predef.String#2
+' +scala/Unit#2)
+ _empty_/repeatedArgs#bar().2)
+		 _empty_/repeatedArgs#bar().2.
+		 
+ _empty_/repeatedArgs#test().(xs)2(
+
+ java/nio/file/Paths#get().2"
+ 	java/nio/file/Paths#2(
+
+ java/nio/file/Paths#get().2"
+ 	java/nio/file/Paths#2.
+  _empty_/repeatedArgs#test().(xs)2
+ local028
+ $*scala/collection/IterableOnceOps#toList().2.
+  _empty_/repeatedArgs#test().(xs)27
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.2
+ 	local12-
+ scala/collection/immutable/Seq#2)
+ scala/collection/immutable/2"
+ scala/Predef.String#2
+# )local02+
+ _empty_/repeatedArgs#test2().2/
+ !_empty_/repeatedArgs#test2().(xs)2
+& '
+scala/`|`#2-
+ scala/collection/immutable/Seq#2)
+ scala/collection/immutable/2"
+ $scala/Predef.String#2
+( ,scala/Null#2
+/ 3scala/Unit#2)
+ _empty_/repeatedArgs#bar().2)
+ _empty_/repeatedArgs#bar().2/
+ 
+!_empty_/repeatedArgs#test2().(xs)2(
+
+ java/nio/file/Paths#get().2"
+ 	java/nio/file/Paths#2(
+
+ java/nio/file/Paths#get().2"
+ 	java/nio/file/Paths#2/
+ !_empty_/repeatedArgs#test2().(xs)2
+ local228
+ $*scala/collection/IterableOnceOps#toList().2/
+ !_empty_/repeatedArgs#test2().(xs)27
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.2
+ 	local32-
+ scala/collection/immutable/Seq#2)
+ scala/collection/immutable/2"
+ scala/Predef.String#2
+# )local2PZ FFE6E2D3DBCBB9CFFACA6F486177735B

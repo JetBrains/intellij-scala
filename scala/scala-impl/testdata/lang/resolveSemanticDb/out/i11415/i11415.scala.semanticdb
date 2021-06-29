@@ -1,0 +1,113 @@
+
+Ÿ"tests/pos/i11415.scala* 
+example/Context#*Context€*-
+example/Context#`<init>`(). €@*<init>€*-
+example/Context#universe. „*universe€**
+example/Context#Universe#*Universe€*6
+$example/Context#Universe#`<init>`(). €@*<init>€*+
+example/Context#Universe#Tree#*Tree€*1
+!example/Context#Universe#Literal#*Literal€*3
+"example/Context#Universe#TermTree#*TermTree€*9
+%example/Context#Universe#TermTreeApi#*TermTreeApi€*B
+0example/Context#Universe#TermTreeApi#`<init>`(). €@*<init>€*7
+$example/Context#Universe#LiteralApi#*
+LiteralApi€*A
+/example/Context#Universe#LiteralApi#`<init>`(). €@*<init>€*1
+!example/Context#Universe#TreeApi#*TreeApi€*>
+,example/Context#Universe#TreeApi#`<init>`(). €@*<init>€**
+example/MacroCompat.
+ *MacroCompat€*.
+example/MacroCompat.Bundles.
+ *Bundles€*0
+#example/MacroCompat.Bundles.mono().*mono€*
+local0 €*bundle$1€*0
+#example/MacroCompat.Bundles.mono().*mono€*.
+example/MacroCompat.Macros2.
+ *Macros2€*8
+&example/MacroCompat.Macros2.MacroImpl#*	MacroImpl€*C
+1example/MacroCompat.Macros2.MacroImpl#`<init>`(). €@*<init>€*A
+4example/MacroCompat.Macros2.MacroImpl#`<init>`().(c) €*c€*5
+(example/MacroCompat.Macros2.MacroImpl#c. €*c€*:
+-example/MacroCompat.Macros2.MacroImpl#mono().*mono€*.
+example/MacroCompat.Macros3.
+ *Macros3€*8
+'example/MacroCompat.Macros3.monoImpl().*monoImpl€*:
+,example/MacroCompat.Macros3.monoImpl().(x$1)  *x$1€2
+ example/21
+# )#scala/language.experimental.macros.2*
+ "scala/language.experimental.2
+ scala/language.2
+ scala/2
+ example/Context#2)
+ example/Context#`<init>`().2'
+ example/Context#universe.2'
+ example/Context#Universe#2'
+ example/Context#Universe#22
+		 $example/Context#Universe#`<init>`().2,
+			 example/Context#Universe#Tree#2
+		 scala/Null#2
+		 scala/AnyRef#2/
+	%	 ,!example/Context#Universe#TreeApi#2/
+
+	
+ !example/Context#Universe#Literal#2
+
+
+ scala/Null#22
+
+
+ &$example/Context#Universe#LiteralApi#20
+
+,
+ 4"example/Context#Universe#TermTree#20
+	 "example/Context#Universe#TermTree#2
+ scala/Null#23
+ (%example/Context#Universe#TermTreeApi#2,
+. 2example/Context#Universe#Tree#23
+
+ %example/Context#Universe#TermTreeApi#2>
+ 0example/Context#Universe#TermTreeApi#`<init>`().2/
+ %!example/Context#Universe#TreeApi#20
+. 6"example/Context#Universe#TermTree#22
+
+ $example/Context#Universe#LiteralApi#2=
+ /example/Context#Universe#LiteralApi#`<init>`().23
+ (%example/Context#Universe#TermTreeApi#2/
+1 8!example/Context#Universe#Literal#2/
+
+ !example/Context#Universe#TreeApi#2:
+ ,example/Context#Universe#TreeApi#`<init>`().2
+ !scala/Product#2,
+* .example/Context#Universe#Tree#2"
+ example/MacroCompat.2*
+	 example/MacroCompat.Bundles.21
+ #example/MacroCompat.Bundles.mono().2
+ 
+scala/Int#2
+, local02;
+, 0-example/MacroCompat.Macros2.MacroImpl#mono().21
+ #example/MacroCompat.Bundles.mono().2
+ 
+scala/Int#21
+ #scala/quoted/runtime/Expr.splice().25
+& .'example/MacroCompat.Macros3.monoImpl().2*
+ %example/MacroCompat.Macros3.2*
+	 example/MacroCompat.Macros2.24
+
+ &example/MacroCompat.Macros2.MacroImpl#2?
+ 1example/MacroCompat.Macros2.MacroImpl#`<init>`().2
+ "example/Context#26
+ (example/MacroCompat.Macros2.MacroImpl#c.2'
+ example/Context#universe.26
+ (example/MacroCompat.Macros2.MacroImpl#c.2;
+
+ -example/MacroCompat.Macros2.MacroImpl#mono().2#
+ scala/Predef.`???`().2*
+"	" example/MacroCompat.Macros3.2
+## scala/quoted/25
+%% 'example/MacroCompat.Macros3.monoImpl().2:
+%% ,example/MacroCompat.Macros3.monoImpl().(x$1)2"
+%% scala/quoted/Quotes#2-
+%$% $scala/ContextFunction1#apply().20
+%#% #"scala/quoted/runtime/Expr.quote().2:
+%!% !,example/MacroCompat.Macros3.monoImpl().(x$1)PZ 202CE09F75440D0420B50FE9D50FA732

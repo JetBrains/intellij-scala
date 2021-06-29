@@ -1,0 +1,19 @@
+
+™ tests/pos/i5498-postfixOps.scala*5
+#_empty_/`i5498-postfixOps$package`. *_empty_€*7
+*_empty_/`i5498-postfixOps$package`.test().*test€*
+local0*elem€2$
+  scala/concurrent/duration/2
+ scala/concurrent/2
+ scala/2-
+#_empty_/`i5498-postfixOps$package`.28
+ *_empty_/`i5498-postfixOps$package`.test().2E
+ 
+7scala/concurrent/duration/DurationConversions#second().2>
+ 0scala/concurrent/duration/package.DurationInt().24
+ &scala/collection/IterableOps#filter().2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+ scala/package.Seq.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local0PZ E63DE25165FAA8EF52AA11AB57B8F459

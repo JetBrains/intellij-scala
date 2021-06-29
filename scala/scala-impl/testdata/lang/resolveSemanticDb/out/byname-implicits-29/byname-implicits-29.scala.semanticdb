@@ -1,0 +1,43 @@
+
+°#tests/pos/byname-implicits-29.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Loop#*Loop€*/
+_empty_/Test.Loop#`<init>`(). €@*<init>€*
+_empty_/Test.Loop#[T]	*T€*
+_empty_/Test.Loop#[U]	*U€*!
+_empty_/Test.Loop.
+ *Loop€*,
+_empty_/Test.Loop.mkLoop().  *mkLoop€*(
+_empty_/Test.Loop.mkLoop().[T]	*T€*(
+_empty_/Test.Loop.mkLoop().[U]	*U€*,
+_empty_/Test.Loop.mkLoop().(tu)  *tu€*,
+_empty_/Test.Loop.mkLoop().(ut)  *ut€*#
+local0 *$_lazy_implicit_$3€2
+ _empty_/Test.2 
+ _empty_/Test.Loop#2+
+ _empty_/Test.Loop#`<init>`().2#
+ _empty_/Test.Loop#[T]2#
+ _empty_/Test.Loop#[U]2 
+	 _empty_/Test.Loop.2)
+ _empty_/Test.Loop.mkLoop().2,
+ _empty_/Test.Loop.mkLoop().[T]2,
+ _empty_/Test.Loop.mkLoop().[U]2-
+' )_empty_/Test.Loop.mkLoop().(tu)2 
+. 2_empty_/Test.Loop#2,
+3 4_empty_/Test.Loop.mkLoop().[T]2,
+6 7_empty_/Test.Loop.mkLoop().[U]2-
+: <_empty_/Test.Loop.mkLoop().(ut)2 
+A E_empty_/Test.Loop#2,
+F G_empty_/Test.Loop.mkLoop().[U]2,
+I J_empty_/Test.Loop.mkLoop().[T]2 
+N R_empty_/Test.Loop#2,
+S T_empty_/Test.Loop.mkLoop().[T]2,
+V W_empty_/Test.Loop.mkLoop().[U]2#
+[ ^scala/Predef.`???`().2(
+ scala/Predef.implicitly().2 
+ _empty_/Test.Loop#2
+ 
+scala/Int#2"
+ scala/Predef.String#2)
+ _empty_/Test.Loop.mkLoop().PZ 772394224077C653B8817A24C0FCEA99

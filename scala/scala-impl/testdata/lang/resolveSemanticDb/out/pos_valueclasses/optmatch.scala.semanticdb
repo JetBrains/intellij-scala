@@ -1,0 +1,75 @@
+
+ˆ)tests/pos/pos_valueclasses/optmatch.scala*+
+optmatch/NonZeroLong# *NonZeroLong€*2
+ optmatch/NonZeroLong#`<init>`(). €@*<init>€*8
+'optmatch/NonZeroLong#`<init>`().(value) €*value€*,
+optmatch/NonZeroLong#value. €*value€*'
+optmatch/NonZeroLong#get().*get€*/
+optmatch/NonZeroLong#isEmpty().*isEmpty€*+
+optmatch/NonZeroLong.
+ *NonZeroLong€*/
+optmatch/NonZeroLong.unapply().*unapply€*4
+&optmatch/NonZeroLong.unapply().(value)*value€*
+optmatch/Foo.
+ *Foo€*'
+optmatch/Foo.unapply().*unapply€*$
+optmatch/Foo.unapply().(x)*x€*
+optmatch/Test.
+ *Test€*
+optmatch/Test.f().*f€*
+optmatch/Test.f().(x)*x€*"
+optmatch/Test.main().*main€*(
+optmatch/Test.main().(args)*args€2
+ 	optmatch/2#
+ optmatch/NonZeroLong#2.
+  optmatch/NonZeroLong#`<init>`().2
+ !scala/Long#2&
+1 1scala/AnyVal#`<init>`().2
++ 1scala/AnyVal#2)
+ optmatch/NonZeroLong#value.2)
+ 	optmatch/NonZeroLong#get().2
+ scala/Long#2)
+ optmatch/NonZeroLong#value.2-
+		 optmatch/NonZeroLong#isEmpty().2
+		 scala/Boolean#2"
+		 scala/Long#`==`(+4).2)
+		 optmatch/NonZeroLong#get().2#
+ optmatch/NonZeroLong.2-
+ optmatch/NonZeroLong.unapply().24
+ &optmatch/NonZeroLong.unapply().(value)2
+ scala/Long#2#
+ 'optmatch/NonZeroLong#2.
+9 9 optmatch/NonZeroLong#`<init>`().2#
+. 9optmatch/NonZeroLong#24
+: ?&optmatch/NonZeroLong.unapply().(value)2
+ 
+optmatch/Foo.2%
+ optmatch/Foo.unapply().2(
+ optmatch/Foo.unapply().(x)2
+ 
+scala/Int#2#
+ "optmatch/NonZeroLong#2.
+4 4 optmatch/NonZeroLong#`<init>`().2#
+) 4optmatch/NonZeroLong#2 
+8 :scala/Long#`<<`().2(
+; <optmatch/Foo.unapply().(x)2
+ optmatch/Test.2 
+ optmatch/Test.f().2#
+ 	optmatch/Test.f().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+ optmatch/Test.f().(x)2%
+ optmatch/Foo.unapply().2
+	 optmatch/Foo.2#
+ 
+optmatch/Test.main().2)
+ optmatch/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2 
+ optmatch/Test.f().2'
+   scala/Predef.println(+1).2 
+   optmatch/Test.f().PZ 6B20D3A7B3D5F169C6BB9879170614D3

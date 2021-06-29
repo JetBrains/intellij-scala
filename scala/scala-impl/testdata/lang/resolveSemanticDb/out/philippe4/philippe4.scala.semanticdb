@@ -1,0 +1,19 @@
+
+‰tests/pos/philippe4.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/Foo#[t]	*t€* 
+_empty_/Foo#foo(). *foo€*%
+_empty_/Foo#foo().(that)*that€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ local02
+  _empty_/Foo#[t]2
+
+ _empty_/Foo#[t]2 
+ 	_empty_/Foo#foo().2&
+
+ _empty_/Foo#foo().(that)2
+ _empty_/Foo#[t]2
+ scala/Boolean#PZ 716347CFFC4A99B22E5BC3DFF6F02638

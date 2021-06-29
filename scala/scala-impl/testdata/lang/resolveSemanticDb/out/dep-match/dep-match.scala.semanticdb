@@ -1,0 +1,31 @@
+
+¿tests/pos/dep-match.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*
+local0*U€*
+_empty_/Test.Bar#*Bar€*
+_empty_/Test.Bar#[T]	*T€*
+_empty_/Test.baz().*baz€*$
+_empty_/Test.baz().(foo)*foo€*
+local1 €*v€2
+ _empty_/Test.2
+ 
+_empty_/Test.Foo#2
+ 
+scala/Int#2
+ local02
+ 
+_empty_/Test.Bar#2"
+ _empty_/Test.Bar#[T]2"
+ _empty_/Test.Bar#[T]2
+	 scala/Unit#2
+ scala/Unit#2!
+ _empty_/Test.baz().2&
+ _empty_/Test.baz().(foo)2
+ _empty_/Test.Foo#2
+  scala/Unit#2
+ 	local12
+ _empty_/Test.Bar#2&
+ _empty_/Test.baz().(foo)2#
+ scala/Predef.`???`().PZ 715149E51AE7F9731B234D37C0666CA7

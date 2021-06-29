@@ -1,0 +1,116 @@
+
+á!*tests/pos/reference/trait-parameters.scala*"
+_empty_/Greeting#*Greeting€*.
+_empty_/Greeting#`<init>`(). €@*<init>€*2
+"_empty_/Greeting#`<init>`().(name) €*name€*&
+_empty_/Greeting#name. €*name€*#
+_empty_/Greeting#msg().*msg€*.
+_empty_/FormalGreeting#*FormalGreeting€*4
+"_empty_/FormalGreeting#`<init>`(). €@*<init>€*)
+_empty_/FormalGreeting#msg().*msg€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+
+_empty_/E#*E€*'
+_empty_/E#`<init>`(). €@*<init>€*+
+_empty_/ImpliedName# €*ImpliedName€*1
+_empty_/ImpliedName#`<init>`(). €@*<init>€*5
+%_empty_/ImpliedName#`<init>`().(name) €*name€*)
+_empty_/ImpliedName#name. €*name€*0
+_empty_/ImpliedName#toString().*toString€*(
+_empty_/ImpliedName#copy().*copy€*.
+!_empty_/ImpliedName#copy().(name)*name€*<
+%_empty_/ImpliedName#copy$default$1().*copy$default$1€*$
+_empty_/ImpliedName#_1().*_1€**
+_empty_/ImpliedName.
+ *ImpliedName€**
+_empty_/ImpliedName.apply().*apply€*/
+"_empty_/ImpliedName.apply().(name)*name€*.
+_empty_/ImpliedName.unapply().*unapply€*/
+#_empty_/ImpliedName.unapply().(x$1)*x$1€*0
+_empty_/ImpliedName.toString().*toString€*0
+_empty_/ImpliedGreeting#*ImpliedGreeting€*5
+#_empty_/ImpliedGreeting#`<init>`(). €@*<init>€*;
+*_empty_/ImpliedGreeting#`<init>`().(iname)  *iname€*/
+_empty_/ImpliedGreeting#iname.  *iname€**
+_empty_/ImpliedGreeting#msg().*msg€*<
+_empty_/ImpliedFormalGreeting#*ImpliedFormalGreeting€*;
+)_empty_/ImpliedFormalGreeting#`<init>`(). €@*<init>€*0
+$_empty_/ImpliedFormalGreeting#msg().*msg€*
+
+_empty_/F#*F€*'
+_empty_/F#`<init>`(). €@*<init>€*,
+_empty_/F#`<init>`().(iname)  *iname€*!
+_empty_/F#iname.  *iname€2
+ _empty_/Greeting#2&
+ _empty_/Greeting#`<init>`().2
+ scala/Predef.String#2 
+ _empty_/Greeting#name.2%
+ 	_empty_/Greeting#msg().2&
+  !scala/StringContext#s().2*
+ scala/StringContext.apply().2$
+  _empty_/Greeting#name.2%
+ _empty_/FormalGreeting#20
+ "_empty_/FormalGreeting#`<init>`().2
+ %_empty_/Greeting#2+
+ _empty_/FormalGreeting#msg().2&
++ ,scala/StringContext#s().2*
+ scala/StringContext.apply().2$
+' +_empty_/Greeting#name.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2*
+ _empty_/Greeting#`<init>`().2
+ _empty_/Greeting#2'
+		 	scala/Predef.println(+1).2%
+	
+	 _empty_/Greeting#msg().2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/Greeting#2
+ 
+_empty_/E#2#
+ _empty_/E#`<init>`().2*
+ _empty_/Greeting#`<init>`().2
+ _empty_/Greeting#2%
+% 3_empty_/FormalGreeting#2"
+ _empty_/ImpliedName#2-
+ _empty_/ImpliedName#`<init>`().2"
+ #scala/Predef.String#2'
+ _empty_/ImpliedName#name.2-
+ _empty_/ImpliedName#toString().2'
+ _empty_/ImpliedName#name.2%
+_empty_/ImpliedName#copy().2'
+ _empty_/ImpliedName#_1().2"
+ _empty_/ImpliedName.2&
+_empty_/ImpliedName.apply().2&
+ _empty_/ImpliedGreeting#21
+ #_empty_/ImpliedGreeting#`<init>`().2"
+' 2_empty_/ImpliedName#2,
+  %_empty_/ImpliedGreeting#iname.2,
+ 
+_empty_/ImpliedGreeting#msg().2&
+" #scala/StringContext#s().2*
+ scala/StringContext.apply().2,
+ "_empty_/ImpliedGreeting#iname.2,
+ _empty_/ImpliedFormalGreeting#27
+$ $)_empty_/ImpliedFormalGreeting#`<init>`().2&
+$ 3_empty_/ImpliedGreeting#22
+ $_empty_/ImpliedFormalGreeting#msg().2&
+- .scala/StringContext#s().2*
+ scala/StringContext.apply().2,
+( -_empty_/ImpliedGreeting#iname.2
+ 
+_empty_/F#2#
+ _empty_/F#`<init>`().2"
+  _empty_/ImpliedName#2,
+* ?_empty_/ImpliedFormalGreeting#2
+ _empty_/F#iname.PZ C948F8F52E66DE44EC125267299F3A03

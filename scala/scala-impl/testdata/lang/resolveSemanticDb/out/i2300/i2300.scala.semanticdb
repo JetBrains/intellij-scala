@@ -1,0 +1,149 @@
+
+Ó/tests/pos/i2300.scala* 
+_empty_/hlists.
+ *hlists€*%
+_empty_/hlists.HList# *HList€*2
+ _empty_/hlists.HList#`<init>`(). €@*<init>€*)
+_empty_/hlists.HList#Merge#*Merge€*(
+_empty_/hlists.HList#Merge#[L]	*L€*-
+_empty_/hlists.HList#merge(). *merge€**
+ _empty_/hlists.HList#merge().[L]	*L€**
+ _empty_/hlists.HList#merge().(l)*l€*&
+_empty_/hlists.HCons# ˆ*HCons€*2
+ _empty_/hlists.HCons#`<init>`(). €@*<init>€*6
+&_empty_/hlists.HCons#`<init>`().(head) €*head€*6
+&_empty_/hlists.HCons#`<init>`().(tail) €*tail€*"
+_empty_/hlists.HCons#[H]	*H€*"
+_empty_/hlists.HCons#[T]	*T€**
+_empty_/hlists.HCons#head. €*head€**
+_empty_/hlists.HCons#tail. €*tail€*)
+_empty_/hlists.HCons#Merge#*Merge€*(
+_empty_/hlists.HCons#Merge#[L]	*L€*+
+_empty_/hlists.HCons#merge().*merge€**
+ _empty_/hlists.HCons#merge().[L]	*L€**
+ _empty_/hlists.HCons#merge().(l)*l€*)
+_empty_/hlists.HCons#copy().*copy€*)
+_empty_/hlists.HCons#copy().[H]	*H€*)
+_empty_/hlists.HCons#copy().[T]	*T€*/
+"_empty_/hlists.HCons#copy().(head)*head€*/
+"_empty_/hlists.HCons#copy().(tail)*tail€*=
+&_empty_/hlists.HCons#copy$default$1().*copy$default$1€*3
+)_empty_/hlists.HCons#copy$default$1().[H]	*H€*3
+)_empty_/hlists.HCons#copy$default$1().[T]	*T€*=
+&_empty_/hlists.HCons#copy$default$2().*copy$default$2€*3
+)_empty_/hlists.HCons#copy$default$2().[H]	*H€*3
+)_empty_/hlists.HCons#copy$default$2().[T]	*T€*%
+_empty_/hlists.HCons#_1().*_1€*%
+_empty_/hlists.HCons#_2().*_2€*%
+_empty_/hlists.HCons.
+ *HCons€*+
+_empty_/hlists.HCons.apply().*apply€**
+ _empty_/hlists.HCons.apply().[H]	*H€**
+ _empty_/hlists.HCons.apply().[T]	*T€*0
+#_empty_/hlists.HCons.apply().(head)*head€*0
+#_empty_/hlists.HCons.apply().(tail)*tail€*/
+_empty_/hlists.HCons.unapply().*unapply€*,
+"_empty_/hlists.HCons.unapply().[H]	*H€*,
+"_empty_/hlists.HCons.unapply().[T]	*T€*0
+$_empty_/hlists.HCons.unapply().(x$1)*x$1€*1
+ _empty_/hlists.HCons.toString().*toString€*#
+_empty_/hlists.HNil# *HNil€*1
+_empty_/hlists.HNil#`<init>`(). €@*<init>€*(
+_empty_/hlists.HNil#Merge#*Merge€*'
+_empty_/hlists.HNil#Merge#[L]	*L€**
+_empty_/hlists.HNil#merge().*merge€*)
+_empty_/hlists.HNil#merge().[L]	*L€*)
+_empty_/hlists.HNil#merge().(l)*l€*$
+_empty_/hlists.HNil. ˆ*HNil€*
+local0
+ ˆ*HNil€*
+_empty_/Test.
+ *Test€*&
+_empty_/Test.merged. €*merged€2
+ _empty_/hlists.2#
+ _empty_/hlists.HList#2.
+  _empty_/hlists.HList#`<init>`().2)
+	 _empty_/hlists.HList#Merge#2,
+ _empty_/hlists.HList#Merge#[L]2#
+ _empty_/hlists.HList#2#
+ #_empty_/hlists.HList#2+
+ _empty_/hlists.HList#merge().2.
+  _empty_/hlists.HList#merge().[L]2#
+ _empty_/hlists.HList#2.
+  _empty_/hlists.HList#merge().(l)2.
+  _empty_/hlists.HList#merge().[L]2)
+! &_empty_/hlists.HList#Merge#2.
+' ( _empty_/hlists.HList#merge().[L]2#
+ _empty_/hlists.HCons#2.
+  _empty_/hlists.HCons#`<init>`().2&
+/ 0_empty_/hlists.HCons#[H]2&
+9 :_empty_/hlists.HCons#[T]2.
+I I _empty_/hlists.HList#`<init>`().2#
+D I_empty_/hlists.HList#2&
+ _empty_/hlists.HCons#[H]2&
+ _empty_/hlists.HCons#[T]2(
+( ,_empty_/hlists.HCons#head.2(
+2 6_empty_/hlists.HCons#tail.2)
+	 _empty_/hlists.HCons#Merge#2,
+ _empty_/hlists.HCons#Merge#[L]2#
+ _empty_/hlists.HList#2#
+ "_empty_/hlists.HCons#2&
+# $_empty_/hlists.HCons#[H]2)
++ 0_empty_/hlists.HList#Merge#2(
+& *_empty_/hlists.HCons#tail.2,
+1 2_empty_/hlists.HCons#Merge#[L]2+
+		 _empty_/hlists.HCons#merge().2.
+		  _empty_/hlists.HCons#merge().[L]2#
+		 _empty_/hlists.HList#2.
+		  _empty_/hlists.HCons#merge().(l)2.
+		  _empty_/hlists.HCons#merge().[L]2)
+	!	 &_empty_/hlists.HCons#Merge#2.
+	'	 ( _empty_/hlists.HCons#merge().[L]2+
+	1	 1_empty_/hlists.HCons.apply().2#
+	,	 1_empty_/hlists.HCons.2(
+	2	 6_empty_/hlists.HCons#head.2+
+	=	 B_empty_/hlists.HList#merge().2(
+	8	 <_empty_/hlists.HCons#tail.2.
+	C	 D _empty_/hlists.HCons#merge().(l)2*
+ _empty_/hlists.HCons#copy().2(
+/ /_empty_/hlists.HCons#_1().2(
+9 9_empty_/hlists.HCons#_2().2#
+ _empty_/hlists.HCons.2+
+ _empty_/hlists.HCons.apply().2-
+ _empty_/hlists.HCons.unapply().2"
+ _empty_/hlists.HNil#2-
+ _empty_/hlists.HNil#`<init>`().2#
+ !_empty_/hlists.HList#2(
+	 _empty_/hlists.HNil#Merge#2+
+ _empty_/hlists.HNil#Merge#[L]2#
+ _empty_/hlists.HList#2+
+ _empty_/hlists.HNil#Merge#[L]2*
+ _empty_/hlists.HNil#merge().2-
+ _empty_/hlists.HNil#merge().[L]2#
+ _empty_/hlists.HList#2-
+ _empty_/hlists.HNil#merge().(l)2-
+ _empty_/hlists.HNil#merge().[L]2(
+! &_empty_/hlists.HNil#Merge#2-
+' (_empty_/hlists.HNil#merge().[L]2-
+, -_empty_/hlists.HNil#merge().(l)2"
+ _empty_/hlists.HNil.2"
+ _empty_/hlists.HNil#2
+' +local02"
+4 8_empty_/hlists.HNil#2
+: >local12
+ _empty_/Test.2
+	 _empty_/hlists.2"
+ _empty_/Test.merged.2#
+ _empty_/hlists.HCons#2
+ 
+scala/Int#2#
+ _empty_/hlists.HCons#2"
+ $scala/Predef.String#2"
+% )_empty_/hlists.HNil#2+
+ _empty_/hlists.HCons#merge().2+
+	 	_empty_/hlists.HCons.apply().2#
+ 	_empty_/hlists.HCons.2"
+ _empty_/hlists.HNil.2+
+ _empty_/hlists.HCons.apply().2#
+ _empty_/hlists.HCons.2"
+' +_empty_/hlists.HNil.PZ A6294590D2836832C4D1923360A0CA4B

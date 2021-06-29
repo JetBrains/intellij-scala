@@ -1,0 +1,80 @@
+
+òtests/pos/i12474.scala*
+bugreport/Show#*Show€*,
+bugreport/Show#`<init>`(). €@*<init>€*
+bugreport/Show#[A]	*A€*%
+bugreport/Show#show(). *show€*#
+bugreport/Show#show().(a)*a€*-
+bugreport/i12474$package. *	bugreport€*7
+%bugreport/i12474$package.showTuple().*	showTuple€*:
+,bugreport/i12474$package.showTuple().[Types]	*Types€*
+local0 €	*head€*
+local1 €	*tail€*
+local2 €*instance€*
+local3 *$anon€*
+local4*show€*
+local5*tuple€*+
+bugreport/i12474$package.run().*run€*
+bugreport/run# *run€*+
+bugreport/run#`<init>`(). €@*<init>€*%
+bugreport/run#main(). € *main€*(
+bugreport/run#main().(args)*args€*
+local6 €*error€2
+ 
+bugreport/2>
+ $0scala/compiletime/package$package.erasedValue().2 
+ scala/compiletime/2
+ scala/2
+ 
+bugreport/Show#2(
+
+ 
+bugreport/Show#`<init>`().2 
+ bugreport/Show#[A]2$
+ 
+bugreport/Show#show().2'
+ bugreport/Show#show().(a)2 
+ bugreport/Show#[A]2"
+ scala/Predef.String#2#
+bugreport/i12474$package.23
+ %bugreport/i12474$package.showTuple().2:
+ ,bugreport/i12474$package.showTuple().[Types]2
+ !bugreport/Show#2:
+" ',bugreport/i12474$package.showTuple().[Types]2>
+	 0scala/compiletime/package$package.erasedValue().2:
+ ,bugreport/i12474$package.showTuple().[Types]2
+		 scala/`*:`#2
+		 local02
+		 local12
+
+
+
+ local22
+ local32
+ bugreport/Show#2
+ scala/`*:`#2
+ local02
+ local12
+ local42
+ local52
+ !scala/`*:`#2
+ local02
+" &local12"
+) /scala/Predef.String#2'
+ scala/Any#asInstanceOf().2
+ local22
+  bugreport/Show#2:
+! &,bugreport/i12474$package.showTuple().[Types]2
+ scala/main#2-
+
+ bugreport/i12474$package.run().23
+ %bugreport/i12474$package.showTuple().2
+ 
+scala/Int#2
+ 
+scala/Int#2
+bugreport/run#2#
+bugreport/run#`<init>`().2)
+bugreport/i12474$package.run().23
+)scala/util/CommandLineParser.showError().2
+local6PZ 0869F5DDD6CE7746536C01B18876DD95

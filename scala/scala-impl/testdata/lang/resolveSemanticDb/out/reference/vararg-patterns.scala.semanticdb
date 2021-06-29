@@ -1,0 +1,71 @@
+
+Ç)tests/pos/reference/vararg-patterns.scala*
+varargPatterns/t1.
+ *t1€*#
+varargPatterns/t1.xs. €*xs€*B
+)varargPatterns/`vararg-patterns$package`. *varargPatterns€*=
+0varargPatterns/`vararg-patterns$package`.Test().*Test€*
+local0 €*arr€*
+local1 €*lst€*
+local2 €*xs€*#
+varargPatterns/Test# *Test€*1
+varargPatterns/Test#`<init>`(). €@*<init>€*+
+varargPatterns/Test#main(). € *main€*.
+!varargPatterns/Test#main().(args)*args€*
+local3 €*error€2
+ varargPatterns/2 
+ 	varargPatterns/t1.2
+ 
+scala/App#2#
+ varargPatterns/t1.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+
+ 
+)scala/collection/SeqFactory#unapplySeq().2!
+ 
+scala/package.List.2'
+ 	scala/Predef.println(+1).2#
+
+ varargPatterns/t1.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+
+ 
+)scala/collection/SeqFactory#unapplySeq().2!
+ 
+scala/package.List.23
+)varargPatterns/`vararg-patterns$package`.2
+ scala/main#2>
+
+ 0varargPatterns/`vararg-patterns$package`.Test().2
+ 	local02$
+ scala/Array.apply(+5).2
+ scala/Array.2
+ 	local127
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local02
+		 local127
+
+
+ )scala/collection/SeqFactory#unapplySeq().2!
+
+	
+ scala/package.List.2
+
+
+ local22'
+
+
+ #scala/Predef.println(+1).2
+
+$
+ &local227
+ )scala/collection/SeqFactory#unapplySeq().2!
+	 scala/package.List.2
+varargPatterns/Test#2)
+varargPatterns/Test#`<init>`().2:
+0varargPatterns/`vararg-patterns$package`.Test().23
+)scala/util/CommandLineParser.showError().2
+local3PZ 9CC2B1F45DB1212E86A0F3A10B5F085A

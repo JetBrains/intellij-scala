@@ -1,0 +1,36 @@
+
+‰tests/pos/i6089.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*&
+_empty_/X#toString().*toString€*
+
+_empty_/Y#*Y€*'
+_empty_/Y#`<init>`(). €@*<init>€*&
+_empty_/Y#toString().*toString€*
+
+_empty_/Z#*Z€*'
+_empty_/Z#`<init>`(). €@*<init>€2
+ 
+_empty_/X#2
+
+ 
+_empty_/X#`<init>`().2
+ _empty_/X#toString().2!
+1 2java/lang/String#`+`().2
+( 0scala/Any#toString().2
+ 
+_empty_/Y#2#
+
+ 
+_empty_/Y#`<init>`().2#
+ _empty_/Y#toString().2%
+1 2java/lang/String#`+`().2#
+( 0scala/Any#toString().2
+ 
+_empty_/Z#2#
+ _empty_/Z#`<init>`().2
+ 
+_empty_/X#2
+ 
+_empty_/Y#PZ F869D5FE19F537D5F878E3799063F883

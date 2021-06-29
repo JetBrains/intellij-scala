@@ -1,0 +1,265 @@
+
+â4tests/pos/t1001.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Overload.
+ *Overload€*$
+_empty_/Overload.foo. €*foo€*
+
+_empty_/A# *A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#data. „*data€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/B#[T]	*T€*
+
+_empty_/C# *C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#data. „*data€*
+
+_empty_/D# *D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/Ee# *Ee€*(
+_empty_/Ee#`<init>`(). €@*<init>€*
+_empty_/N1.
+ *N1€* 
+_empty_/N1.data. €*data€*
+_empty_/N2.
+ *N2€* 
+_empty_/N2.data. €*data€*
+_empty_/N5.
+ *N5€* 
+_empty_/N5.data. €*data€*
+_empty_/N6.
+ *N6€* 
+_empty_/N6.data. €*data€*
+_empty_/N8.
+ *N8€* 
+_empty_/N8.data. €*data€*
+_empty_/N10.
+ *N10€*!
+_empty_/N10.data. €*data€*
+_empty_/N13.
+ *N13€*!
+_empty_/N13.data. €*data€*
+_empty_/N14.
+ *N14€*!
+_empty_/N14.data. €*data€*
+_empty_/N15.
+ *N15€*!
+_empty_/N15.data. €*data€*
+_empty_/N16.
+ *N16€*!
+_empty_/N16.data. €*data€*
+_empty_/N17.
+ *N17€*!
+_empty_/N17.data. €*data€*
+_empty_/N21.
+ *N21€*!
+_empty_/N21.data. €*data€*
+_empty_/N22.
+ *N22€*!
+_empty_/N22.data. €*data€*
+_empty_/N25.
+ *N25€*!
+_empty_/N25.data. €*data€*
+_empty_/N26.
+ *N26€*!
+_empty_/N26.data. €*data€*
+_empty_/N31.
+ *N31€*!
+_empty_/N31.data. €*data€2
+ 	_empty_/Foo#2!
+_empty_/Foo#`<init>`().2
+ _empty_/Overload.2#
+ 	_empty_/Overload.foo.2"
+* *scala/Array#apply().20
+ ("java/lang/Class#getConstructors().2%
+ scala/Predef.classOf().2
+ _empty_/Foo#2@
+ 2java/lang/reflect/Constructor#getDeclaringClass().2#
+ _empty_/Overload.foo.2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#data.2!
+ scala/package.List#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+ #local02
+% &_empty_/B#[T]2
+ 	_empty_/B#[T]2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/C#data.2!
+ scala/package.List#2
+ 
+_empty_/C#2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+  !
+_empty_/B#2
+" #
+_empty_/D#2
+ _empty_/Ee#2$
+ _empty_/Ee#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+! "
+_empty_/B#2
+# %_empty_/Ee#2
+"" 	_empty_/N1.2#
+"" _empty_/D#`<init>`().2
+"" 
+_empty_/D#2
+$$ _empty_/N1.data.2 
+$$ scala/package.Nil.2
+'' 	_empty_/N2.2#
+'' _empty_/D#`<init>`().2
+'' 
+_empty_/D#2
+)) _empty_/N2.data.2 
+)) scala/package.Nil.2
+,, 	_empty_/N5.2#
+,, _empty_/D#`<init>`().2
+,, 
+_empty_/D#2
+.. _empty_/N5.data.27
+.. )scala/collection/IterableFactory#apply().2!
+.. scala/package.List.2
+.. _empty_/N1.2
+11 	_empty_/N6.2#
+11 _empty_/D#`<init>`().2
+11 
+_empty_/D#2
+33 _empty_/N6.data.27
+33 )scala/collection/IterableFactory#apply().2!
+33 scala/package.List.2
+33 _empty_/N1.2
+66 	_empty_/N8.2#
+66 _empty_/D#`<init>`().2
+66 
+_empty_/D#2
+88 _empty_/N8.data.27
+88 )scala/collection/IterableFactory#apply().2!
+88 scala/package.List.2
+88 _empty_/N1.2
+;; 
+_empty_/N10.2#
+;; _empty_/D#`<init>`().2
+;; 
+_empty_/D#2
+== _empty_/N10.data.2 
+== scala/package.Nil.2
+@@ 
+_empty_/N13.2#
+@@ _empty_/D#`<init>`().2
+@@ 
+_empty_/D#2
+BB _empty_/N13.data.27
+BB )scala/collection/IterableFactory#apply().2!
+BB scala/package.List.2
+BB _empty_/N2.2
+EE 
+_empty_/N14.2#
+EE _empty_/D#`<init>`().2
+EE 
+_empty_/D#2
+GG _empty_/N14.data.27
+GG )scala/collection/IterableFactory#apply().2!
+GG scala/package.List.2
+GG _empty_/N5.2
+GG _empty_/N10.2
+GG _empty_/N8.2
+JJ 
+_empty_/N15.2#
+JJ _empty_/D#`<init>`().2
+JJ 
+_empty_/D#2
+LL _empty_/N15.data.27
+LL )scala/collection/IterableFactory#apply().2!
+LL scala/package.List.2
+LL _empty_/N14.2
+OO 
+_empty_/N16.2#
+OO _empty_/D#`<init>`().2
+OO 
+_empty_/D#2
+QQ _empty_/N16.data.27
+QQ )scala/collection/IterableFactory#apply().2!
+QQ scala/package.List.2
+QQ _empty_/N13.2
+QQ _empty_/N6.2
+QQ _empty_/N15.2
+TT 
+_empty_/N17.2#
+TT _empty_/D#`<init>`().2
+TT 
+_empty_/D#2
+VV _empty_/N17.data.27
+VV )scala/collection/IterableFactory#apply().2!
+VV scala/package.List.2
+VV _empty_/N16.2
+YY 
+_empty_/N21.2#
+YY _empty_/D#`<init>`().2
+YY 
+_empty_/D#2
+[[ _empty_/N21.data.27
+[[ )scala/collection/IterableFactory#apply().2!
+[[ scala/package.List.2
+[[ _empty_/N16.2
+^^ 
+_empty_/N22.2#
+^^ _empty_/D#`<init>`().2
+^^ 
+_empty_/D#2
+`` _empty_/N22.data.27
+`` )scala/collection/IterableFactory#apply().2!
+`` scala/package.List.2
+`` _empty_/N17.2
+cc 
+_empty_/N25.2#
+cc _empty_/D#`<init>`().2
+cc 
+_empty_/D#2
+ee _empty_/N25.data.27
+ee )scala/collection/IterableFactory#apply().2!
+ee scala/package.List.2
+ee _empty_/N22.2
+hh 
+_empty_/N26.2$
+hh _empty_/Ee#`<init>`().2
+hh _empty_/Ee#2
+jj _empty_/N26.data.27
+jj )scala/collection/IterableFactory#apply().2!
+jj scala/package.List.2
+jj _empty_/N21.2
+jj _empty_/N17.2
+nn 
+_empty_/N31.2$
+nn _empty_/Ee#`<init>`().2
+nn _empty_/Ee#2
+qq _empty_/N31.data.27
+qq )scala/collection/IterableFactory#apply().2!
+qq scala/package.List.2
+qq 
+_empty_/C#2
+qq _empty_/N26.2
+qq _empty_/N25.PZ 8085F505CDBCCF79E83CEEB97F477BD7

@@ -1,0 +1,27 @@
+
+Õtests/pos/sepComp/B_2.scala*
+
+sepComp/B#*B€*'
+sepComp/B#`<init>`(). €@*<init>€*
+sepComp/B#y. €*y€*
+sepComp/B#a. €*a€2
+ sepComp/2
+ 
+sepComp/B#2#
+ sepComp/B#`<init>`().2#
+ sepComp/A#`<init>`().2
+ 
+sepComp/A#2
+ sepComp/B#y.2
+	 
+scala/Int#2
+ sepComp/A#x.2
+ sepComp/B#a.2 
+ sepComp/A.apply().2
+
+ 
+sepComp/A.2'
+ 	scala/Predef.println(+1).2
+ sepComp/A#x.2
+
+ sepComp/B#a.PZ 1158C85E1BBB17FDAB2378E136D75C28

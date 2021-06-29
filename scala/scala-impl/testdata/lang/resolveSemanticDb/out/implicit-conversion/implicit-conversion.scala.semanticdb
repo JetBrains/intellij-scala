@@ -1,0 +1,23 @@
+
+×#tests/pos/implicit-conversion.scala*
+_empty_/Test.
+ *Test€*O
+)_empty_/Test.given_Conversion_String_Int.
+ (*given_Conversion_String_Int€*?
+1_empty_/Test.given_Conversion_String_Int.apply().*apply€*>
+4_empty_/Test.given_Conversion_String_Int.apply().(x)*x€2
+ _empty_/Test.27
+ #)_empty_/Test.given_Conversion_String_Int.2*
+ scala/Conversion#`<init>`().2
+ scala/Conversion#2"
+ scala/Predef.String#2
+ 
+scala/Int#2?
+ 1_empty_/Test.given_Conversion_String_Int.apply().2B
+ 4_empty_/Test.given_Conversion_String_Int.apply().(x)2"
+ scala/Predef.String#2
+ 
+scala/Int#2-
+( 0java/lang/Integer#parseInt(+2).2 
+  'java/lang/Integer#2)
+1 9scala/Function1#toString().PZ 13B7C9A7AF80C4F6F7031503DBEA8529

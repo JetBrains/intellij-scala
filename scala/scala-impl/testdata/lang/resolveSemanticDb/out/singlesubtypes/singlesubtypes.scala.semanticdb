@@ -1,0 +1,62 @@
+
+ïtests/pos/singlesubtypes.scala*
+
+_empty_/E.
+ *E€*
+_empty_/E.a. €*a€*
+_empty_/E.b. €*b€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€*
+_empty_/Test.c. €*c€*
+_empty_/Test.d. €*d€2
+ 
+_empty_/E.2
+ _empty_/E.a.2"
+	 scala/Predef.String#2#
+ scala/Predef.`???`().2
+ _empty_/E.b.2"
+	 scala/Predef.String#2#
+ scala/Predef.`???`().2
+ _empty_/Test.2
+ _empty_/Test.a.2
+ _empty_/E.a.2
+	 
+
+_empty_/E.2
+ _empty_/E.a.2
+ 
+_empty_/E.2
+ _empty_/Test.b.2
+ _empty_/E.b.2
+	 
+
+_empty_/E.2
+ _empty_/E.b.2
+ 
+_empty_/E.2
+
+
+ _empty_/Test.c.2
+
+
+ 
+scala/`|`#2
+
+	
+ 
+_empty_/Test.a.2
+
+
+ _empty_/Test.b.2#
+
+
+ scala/Predef.`???`().2
+ _empty_/Test.d.2
+ 
+scala/`|`#2
+	 
+_empty_/Test.a.2
+ _empty_/Test.b.2
+ _empty_/Test.c.PZ 989B1C30E55604C6A041C3B75EAE865B

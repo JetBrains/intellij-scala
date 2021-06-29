@@ -1,0 +1,84 @@
+
+¸tests/pos/i10087.scala*)
+_empty_/i10087$package. *_empty_€*'
+_empty_/i10087$package.f1().*f1€*)
+_empty_/i10087$package.f1().[T]	*T€*)
+_empty_/i10087$package.f1().(x)*x€*"
+local0  *given_Ordering_T€*'
+_empty_/i10087$package.f4().*f4€*)
+_empty_/i10087$package.f4().[T]	*T€*)
+_empty_/i10087$package.f4().(x)*x€*
+local1 €*xs€*
+local2*x$1€*"
+local3  *given_Ordering_T€*
+local4*x$1€*
+local5  *x€2
+ scala/math/Ordering.2
+ scala/math/Ordering#2
+ scala/math/21
+ ##scala/collection/immutable/TreeSet.21
+ ##scala/collection/immutable/TreeSet#2)
+ scala/collection/immutable/2
+ scala/collection/2!
+_empty_/i10087$package.2*
+ _empty_/i10087$package.f1().2-
+ _empty_/i10087$package.f1().[T]2-
+
+ _empty_/i10087$package.f1().(x)2"
+ scala/math/Ordering#2-
+ _empty_/i10087$package.f1().[T]2#
+ scala/Tuple2.apply().2-
+ _empty_/i10087$package.f1().(x)2-
+  !_empty_/i10087$package.f1().(x)2%
+ scala/Tuple2.unapply().2
+ local02"
+ scala/math/Ordering#2-
+ _empty_/i10087$package.f1().[T]2>
+/ /0scala/collection/immutable/TreeSet#`<init>`(+1).21
+% ,#scala/collection/immutable/TreeSet#2-
+- ._empty_/i10087$package.f1().[T]2
+/ /local02*
+ _empty_/i10087$package.f4().2-
+ _empty_/i10087$package.f4().[T]2-
+
+ _empty_/i10087$package.f4().(x)2"
+ scala/math/Ordering#2-
+ _empty_/i10087$package.f4().[T]2
+ local127
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2-
+ _empty_/i10087$package.f4().(x)2-
+ _empty_/i10087$package.f4().(x)2-
+ _empty_/i10087$package.f4().(x)24
+ &scala/collection/immutable/List#map().2
+ local12
+ local22
+ local32"
+ scala/math/Ordering#2-
+ _empty_/i10087$package.f4().[T]2>
+		 0scala/collection/immutable/TreeSet#`<init>`(+1).21
+		 #scala/collection/immutable/TreeSet#2-
+		 _empty_/i10087$package.f4().[T]2
+		 local324
+
+!
+ !&scala/collection/immutable/List#map().2
+
+
+ !local12
+
+
+ local42
+
+
+ local52"
+
+
+ scala/math/Ordering#2-
+
+
+ _empty_/i10087$package.f4().[T]2>
+ 0scala/collection/immutable/TreeSet#`<init>`(+1).21
+ #scala/collection/immutable/TreeSet#2-
+ _empty_/i10087$package.f4().[T]2
+ local5PZ 5E39F5D9BAA4FECA8743C49380221A74

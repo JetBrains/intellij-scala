@@ -1,0 +1,37 @@
+
+Ðtests/pos/t4593.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#B#*B€*)
+_empty_/A#B#`<init>`(). €@*<init>€*
+_empty_/A#D.
+ ˆ*D€*
+_empty_/A#C#*C€*)
+_empty_/A#C#`<init>`(). €@*<init>€*
+_empty_/A#C#x(). €*x€*#
+_empty_/A#C#`x_=`(). €*x_=€*%
+_empty_/A#C#`x_=`().(x$1)*x$1€*
+_empty_/A#C#y().*y€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#B#2%
+ _empty_/A#B#`<init>`().2
+ _empty_/A#D.2%
+ _empty_/A#B#`<init>`().2
+ _empty_/A#B#2
+ 	_empty_/A#C#2%
+ _empty_/A#C#`<init>`().2
+ 	_empty_/A#C#x().2
+ _empty_/A#B#2
+ _empty_/A#D.2"
+ _empty_/A#C#`x_=`().2
+
+
+ 	_empty_/A#C#y().2.
+
+
+  java/lang/Object#synchronized().2
+ _empty_/A#C#x().2
+ _empty_/A#D.PZ D3E8E8A6507B452DE924EB0FDF283437

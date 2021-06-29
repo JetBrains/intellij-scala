@@ -1,0 +1,189 @@
+
+„/tests/pos/patmat.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.xs. Ä*xsÄ*
+local0 Ä*xÄ*
+local1 Ä*xs1Ä*
+local2 Ä*xÄ*
+local3 Ä*yÄ*
+local4 Ä*xÄ*
+local5 Ä*yÄ*
+local6 Ä*xÄ*
+local7 Ä*yÄ*'
+_empty_/Test.Option# îÄ*OptionÄ*1
+_empty_/Test.Option#`<init>`(). Ä@*<init>Ä*$
+_empty_/Test.Option#[T]	 Ä*TÄ*%
+_empty_/Test.Option.
+ *OptionÄ**
+_empty_/Test.Option.Some# àÅ*SomeÄ*6
+$_empty_/Test.Option.Some#`<init>`(). Ä@*<init>Ä*<
++_empty_/Test.Option.Some#`<init>`().(value) Ä*valueÄ*&
+_empty_/Test.Option.Some#[T]	*TÄ*0
+_empty_/Test.Option.Some#value. Ä*valueÄ*-
+ _empty_/Test.Option.Some#copy().*copyÄ*-
+#_empty_/Test.Option.Some#copy().[T]	*TÄ*5
+'_empty_/Test.Option.Some#copy().(value)*valueÄ*A
+*_empty_/Test.Option.Some#copy$default$1().*copy$default$1Ä*7
+-_empty_/Test.Option.Some#copy$default$1().[T]	*TÄ*3
+#_empty_/Test.Option.Some#ordinal().*ordinalÄ*)
+_empty_/Test.Option.Some#_1().*_1Ä*(
+_empty_/Test.Option.Some.
+ *SomeÄ*/
+!_empty_/Test.Option.Some.apply().*applyÄ*.
+$_empty_/Test.Option.Some.apply().[T]	*TÄ*6
+(_empty_/Test.Option.Some.apply().(value)*valueÄ*3
+#_empty_/Test.Option.Some.unapply().*unapplyÄ*0
+&_empty_/Test.Option.Some.unapply().[T]	*TÄ*4
+(_empty_/Test.Option.Some.unapply().(x$1)*x$1Ä*5
+$_empty_/Test.Option.Some.toString().*toStringÄ**
+_empty_/Test.Option.None. Ä©*NoneÄ*6
+"_empty_/Test.Option.fromOrdinal().*fromOrdinalÄ*;
++_empty_/Test.Option.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/Test.x. Ä*xÄ*
+local8 Ä*sÄ*%
+_empty_/Test.IntPair#*IntPairÄ*
+local9 Ä*xÄ*
+local10 Ä*yÄ2
+ _empty_/Test.2
+ _empty_/Test.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.xs.28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+	 
+local02
+ local12'
+ scala/Predef.println(+1).2
+ local02'
+! (scala/Predef.println(+1).2
+) ,local12 
+	 scala/package.Nil.2'
+ scala/Predef.println(+1).27
+ )scala/collection/immutable/List#length().2
+ _empty_/Test.xs.2'
+		 scala/Predef.println(+1).2
+
+
+ 
+scala/Int#2'
+
+
+ scala/Predef.println(+1).2'
+ scala/Predef.println(+1).2'
+ scala/Predef.println(+1).2'
+ scala/Predef.println(+1).2'
+ scala/Predef.println(+1).2#
+ scala/Tuple2.apply().27
+ )scala/collection/immutable/List#length().2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2%
+
+ 
+scala/Tuple2.unapply().2 
+ scala/package.Nil.2!
+ scala/package.List#2
+ 
+scala/Int#2'
+  'scala/Predef.println(+1).2%
+
+ 
+scala/Tuple2.unapply().2 
+ scala/package.Nil.2'
+ scala/Predef.println(+1).2%
+
+ 
+scala/Tuple2.unapply().2'
+ scala/Predef.println(+1).2%
+
+ 
+scala/Tuple2.unapply().2
+
+ local22
+ local32'
+ scala/Predef.println(+1).2
+ _empty_/Test.xs.28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2 
+ scala/package.Nil.2'
+ scala/Predef.println(+1).28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2 
+ scala/package.Nil.2'
+ scala/Predef.println(+1).28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2'
+ scala/Predef.println(+1).28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+	 
+local42
+ local52'
+ scala/Predef.println(+1).2#
+ scala/Tuple2.apply().27
+ )scala/collection/immutable/List#length().2
+ _empty_/Test.xs.2
+ _empty_/Test.xs.2%
+ 
+  
+scala/Tuple2.unapply().2 
+   scala/package.Nil.2%
+   scala/Tuple2.unapply().2'
+   %scala/Predef.println(+1).2%
+!
+! 
+scala/Tuple2.unapply().2
+!
+! local62
+!! local72'
+!! scala/Predef.println(+1).2"
+$$ _empty_/Test.Option#2-
+$$ _empty_/Test.Option#`<init>`().2%
+$$ _empty_/Test.Option#[T]2"
+$$ _empty_/Test.Option.2'
+%	% _empty_/Test.Option.Some#22
+%% $_empty_/Test.Option.Some#`<init>`().2*
+%% _empty_/Test.Option.Some#[T]2-
+%,% ,_empty_/Test.Option#`<init>`().2"
+%#% )_empty_/Test.Option#2*
+%*% +_empty_/Test.Option.Some#[T]2*
+%% _empty_/Test.Option.Some#[T]2-
+%% _empty_/Test.Option.Some#value.2.
+%%  _empty_/Test.Option.Some#copy().2,
+%% _empty_/Test.Option.Some#_1().2'
+%	% 	_empty_/Test.Option.Some.2/
+%% !_empty_/Test.Option.Some.apply().21
+%% #_empty_/Test.Option.Some.unapply().2'
+&	& _empty_/Test.Option.None.20
+&	& 	"_empty_/Test.Option.fromOrdinal().2"
+(	( _empty_/Test.Option.2
+** _empty_/Test.x.2"
+*	* _empty_/Test.Option#2"
+** scala/Predef.String#2/
+** !_empty_/Test.Option.Some.apply().2'
+** _empty_/Test.Option.Some.2
+,, _empty_/Test.x.21
+-- #_empty_/Test.Option.Some.unapply().2'
+-	- _empty_/Test.Option.Some.2
+-- local82'
+-- scala/Predef.println(+1).2
+-- local82'
+.	. _empty_/Test.Option.None.2'
+.. scala/Predef.println(+1).2#
+11 _empty_/Test.IntPair#2
+11 
+scala/Int#2
+11 
+scala/Int#2#
+22 scala/Predef.`???`().2%
+3
+3 
+scala/Tuple2.unapply().2
+3
+3 local92
+33 local102#
+33 _empty_/Test.IntPair#2 
+33 scala/Int#`*`(+3).2
+33 local92
+3 3 !local10PZ 85DB70B864AF031E000E62C1E3AB0317

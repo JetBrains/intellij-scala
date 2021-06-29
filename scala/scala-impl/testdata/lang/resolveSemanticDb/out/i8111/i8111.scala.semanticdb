@@ -1,0 +1,41 @@
+
+ætests/pos/i8111.scala*"
+_empty_/Example.
+ *Example€*0
+_empty_/Example.assertLazy().*
+assertLazy€**
+ _empty_/Example.assertLazy().[A]	*A€**
+ _empty_/Example.assertLazy().[B]	*B€**
+ _empty_/Example.assertLazy().(f)*f€*0
+_empty_/Example.fromEither().*
+fromEither€**
+ _empty_/Example.fromEither().[E]	*E€**
+ _empty_/Example.fromEither().[F]	*F€*.
+"_empty_/Example.fromEither().(eea)*eea€*)
+_empty_/Example.result. À*result€*
+local0*eea€2
+ _empty_/Example.2
+ 
+scala/App#2+
+ _empty_/Example.assertLazy().2.
+  _empty_/Example.assertLazy().[A]2.
+  _empty_/Example.assertLazy().[B]2.
+  _empty_/Example.assertLazy().(f)2.
+  _empty_/Example.assertLazy().[A]2.
+! " _empty_/Example.assertLazy().[B]2
+% ,scala/Boolean#2#
+/ 2scala/Predef.`???`().2+
+ _empty_/Example.fromEither().2.
+  _empty_/Example.fromEither().[E]2.
+  _empty_/Example.fromEither().[F]20
+ "_empty_/Example.fromEither().(eea)2#
+ "scala/package.Either#2.
+# $ _empty_/Example.fromEither().[E]2.
+& ' _empty_/Example.fromEither().[F]2
++ /scala/Unit#2#
+2 5scala/Predef.`???`().2%
+ _empty_/Example.result.2+
+ _empty_/Example.assertLazy().2+
+ )_empty_/Example.fromEither().2
+ local02'
+ 	scala/Predef.println(+1).PZ 4E190B03A39F77599DDC55586E816B09

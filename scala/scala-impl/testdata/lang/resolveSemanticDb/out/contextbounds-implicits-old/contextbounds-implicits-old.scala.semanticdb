@@ -1,0 +1,29 @@
+
+Æ+tests/pos/contextbounds-implicits-old.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#f().*f€*
+_empty_/C#f().[T]	*T€*
+_empty_/C#f().[S]	*S€*
+_empty_/C#f().(x)*x€*
+_empty_/C#f().(y)*y€*
+_empty_/C#f().(p)  *p€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#f().2
+ 	_empty_/C#f().[T]2
+ _empty_/C#f().[S]2
+" #_empty_/C#f().(x)2
+% &_empty_/C#f().[T]2
+( )_empty_/C#f().(y)2
++ ,_empty_/C#f().[S]2$
+ scala/Predef.Manifest#2
+ _empty_/C#f().[T]2$
+  scala/Predef.Manifest#2
+   _empty_/C#f().[S]2
+7 8_empty_/C#f().(p)2
+: ;
+_empty_/C#2
+> Bscala/Unit#PZ D285045B01CC13BEDC12B833826F504C

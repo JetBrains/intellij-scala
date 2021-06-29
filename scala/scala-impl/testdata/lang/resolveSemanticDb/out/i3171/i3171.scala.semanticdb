@@ -1,0 +1,45 @@
+
+ý
+tests/pos/i3171.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*'
+_empty_/Test.C#`<init>`().(x)*x€*'
+_empty_/Test.C#`<init>`().(y)*y€*
+_empty_/Test.C#x. €*x€*
+_empty_/Test.C#y. €*y€*+
+_empty_/Test.C#`<init>`(+1).*<init>€*)
+_empty_/Test.C#`<init>`(+1).(x)*x€*)
+_empty_/Test.C#`<init>`(+1).(y)*y€*
+_empty_/Test.C.
+ *C€*Q
+-_empty_/Test.C.$lessinit$greater$default$1().*$lessinit$greater$default$1€*!
+_empty_/Test.test().*test€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+	 	_empty_/Test.C#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2
+
+ _empty_/Test.C#x.2
+ _empty_/Test.C#y.2*
+ _empty_/Test.C#`<init>`(+1).2-
+ _empty_/Test.C#`<init>`(+1).(x)2
+ 
+scala/Int#2-
+ _empty_/Test.C#`<init>`(+1).(y)2"
+ "scala/Predef.String#2(
+ _empty_/Test.C#`<init>`().2-
+ _empty_/Test.C#`<init>`(+1).(x)21
+ #scala/collection/StringOps#toInt().2+
+ scala/Predef.augmentString().2-
+ _empty_/Test.C#`<init>`(+1).(y)2
+ _empty_/Test.C.2"
+ 
+_empty_/Test.test().2
+ scala/Unit#2*
+	 	_empty_/Test.C#`<init>`(+1).2
+ 	_empty_/Test.C#PZ 7B9F108C5B82AFC57D332E10A7F3A6D1

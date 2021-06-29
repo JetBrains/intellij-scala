@@ -1,0 +1,23 @@
+
+´tests/pos/i8129.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.F#*F€*
+_empty_/Test.F#[N]	*N€*
+_empty_/Test.fl().*fl€*
+_empty_/Test.fl().[N]	*N€2
+ _empty_/Test.2
+ _empty_/Test.F#2 
+	 
+_empty_/Test.F#[N]2
+ 
+scala/`|`#2 
+ _empty_/Test.F#[N]2 
+ _empty_/Test.fl().2#
+	 
+_empty_/Test.fl().[N]2
+ 
+scala/`|`#2
+ _empty_/Test.F#2#
+ _empty_/Test.fl().[N]2#
+  scala/Predef.`???`().PZ DDB8A5843BF4992F7688C6B01A4C5A7B

@@ -1,0 +1,17 @@
+
+®tests/pos/i4395b.scala*
+_empty_/Test.
+ *Test€*"
+_empty_/Test.res0. €*res0€*"
+_empty_/Test.res1. €*res1€*"
+_empty_/Test.res4. €*res4€2
+ _empty_/Test.2 
+ 
+_empty_/Test.res0.2
+ scala/Any#`==`().2 
+ 
+_empty_/Test.res1.2
+ scala/Any#`!=`().2 
+ 
+_empty_/Test.res4.2#
+ scala/Any#getClass().PZ 1E19EC15E5D8C43447233EB984E2FE50

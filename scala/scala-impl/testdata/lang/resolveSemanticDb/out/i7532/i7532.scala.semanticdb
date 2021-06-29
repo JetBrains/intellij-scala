@@ -1,0 +1,51 @@
+
+ètests/pos/i7532.scala*
+_empty_/Tasty#*TastyÄ*+
+_empty_/Tasty#`<init>`(). Ä@*<init>Ä* 
+_empty_/Tasty#Term#*TermÄ*$
+_empty_/Tasty#Select#*SelectÄ*A
+"_empty_/Tasty#given_ClassTag_Term. Ë*given_ClassTag_TermÄ*E
+$_empty_/Tasty#given_ClassTag_Select. Ë*given_ClassTag_SelectÄ*&
+_empty_/Tasty#Select.
+ *SelectÄ*/
+_empty_/Tasty#Select.unapply().*unapplyÄ*,
+"_empty_/Tasty#Select.unapply().(x)*xÄ*
+_empty_/Foo.
+ *FooÄ* 
+_empty_/Foo.impl().*implÄ**
+_empty_/Foo.impl().(tasty)  *tastyÄ2
+ _empty_/Tasty#2'
+ _empty_/Tasty#`<init>`().2!
+ _empty_/Tasty#Term#2#
+ _empty_/Tasty#Select#2!
+ _empty_/Tasty#Term#20
+ "_empty_/Tasty#given_ClassTag_Term.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2!
+ #_empty_/Tasty#Term#2#
+' *scala/Predef.`???`().22
+ $_empty_/Tasty#given_ClassTag_Select.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2#
+ %_empty_/Tasty#Select#2#
+) ,scala/Predef.`???`().2#
+	 _empty_/Tasty#Select.2-
+ _empty_/Tasty#Select.unapply().20
+ "_empty_/Tasty#Select.unapply().(x)2#
+ _empty_/Tasty#Select#2
+ #scala/Boolean#2#
+& )scala/Predef.`???`().2
+ 
+_empty_/Foo.2!
+ 
+_empty_/Foo.impl().2(
+ _empty_/Foo.impl().(tasty)2
+ _empty_/Tasty#2
+! %scala/Unit#2(
+ _empty_/Foo.impl().(tasty)2#
+ scala/Predef.`???`().2/
+ !scala/reflect/ClassTag#unapply().2-
+ _empty_/Tasty#Select.unapply().2#
+ _empty_/Tasty#Select.PZ 0A49DAD84586A67D4D97CAE04C0A3F02

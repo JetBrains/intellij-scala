@@ -1,0 +1,16 @@
+
+¦tests/pos/i7819.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*'
+_empty_/Foo#`<init>`().(x) €*x€*
+_empty_/Foo#x. €*x€*
+_empty_/Foo.
+ *Foo€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ 
+scala/Any#2"
+& &scala/AnyVal#`<init>`().2
+  &scala/AnyVal#2
+ _empty_/Foo#x.2
+ _empty_/Foo.PZ 72C092F7C02CC707643BECD26AB5EEB2

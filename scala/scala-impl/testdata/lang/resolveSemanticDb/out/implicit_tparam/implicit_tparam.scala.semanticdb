@@ -1,0 +1,48 @@
+
+“	tests/pos/implicit_tparam.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+
+_empty_/A.
+ *A€*
+_empty_/A.bar.  *bar€*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.getBar().*getBar€*)
+_empty_/Test.getBar().(bar)  *bar€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ 
+_empty_/A#2
+ 
+_empty_/A#2
+_empty_/A#`<init>`().2
+ 
+_empty_/A.2
+ _empty_/A.bar.2
+ _empty_/Bar#2%
+! !_empty_/Bar#`<init>`().2
+ !_empty_/Bar#2
+ _empty_/Test.2$
+		 _empty_/Test.getBar().2)
+		 _empty_/Test.getBar().(bar)2
+		 _empty_/Bar#2)
+	"	 %_empty_/Test.getBar().(bar)2$
+
+
+ _empty_/Test.getBar().2
+
+
+ _empty_/A.bar.PZ 316B32C5E4B1BC79DF0975B14369BB62

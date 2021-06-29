@@ -1,0 +1,65 @@
+
+þtests/pos/SI-7638a.scala*3
+"miniboxing/tests/compile/Ordering#*Ordering€*?
+-miniboxing/tests/compile/Ordering#`<init>`(). €@*<init>€*/
+%miniboxing/tests/compile/Ordering#[A]	*A€*4
+(miniboxing/tests/compile/Ordering#eqv().*eqv€*5
++miniboxing/tests/compile/Ordering#eqv().(x)*x€*5
++miniboxing/tests/compile/Ordering#eqv().(y)*y€*C
+*miniboxing/tests/compile/ArrayVectorOrder#*ArrayVectorOrder€*G
+5miniboxing/tests/compile/ArrayVectorOrder#`<init>`(). €@*<init>€*7
+-miniboxing/tests/compile/ArrayVectorOrder#[A]	*A€*<
+0miniboxing/tests/compile/ArrayVectorOrder#eqv().*eqv€*=
+3miniboxing/tests/compile/ArrayVectorOrder#eqv().(x)*x€*=
+3miniboxing/tests/compile/ArrayVectorOrder#eqv().(y)*y€*;
+%miniboxing/tests/compile/vectorOrder.
+ *vectorOrder€*G
+2miniboxing/tests/compile/vectorOrder.arrayOrder().  *
+arrayOrder€*?
+5miniboxing/tests/compile/vectorOrder.arrayOrder().[A]	*A€*
+local0 *$anon€2'
+  miniboxing/tests/compile/2
+ miniboxing/tests/2
+ miniboxing/20
+ "miniboxing/tests/compile/Ordering#2;
+ -miniboxing/tests/compile/Ordering#`<init>`().2 
+ scala/specialized#23
+ %miniboxing/tests/compile/Ordering#[A]26
+ 	(miniboxing/tests/compile/Ordering#eqv().29
+
+ +miniboxing/tests/compile/Ordering#eqv().(x)2
+ scala/Array#23
+ %miniboxing/tests/compile/Ordering#[A]29
+ +miniboxing/tests/compile/Ordering#eqv().(y)2
+ scala/Array#23
+  !%miniboxing/tests/compile/Ordering#[A]2
+% ,scala/Boolean#28
+ *miniboxing/tests/compile/ArrayVectorOrder#2C
+ 5miniboxing/tests/compile/ArrayVectorOrder#`<init>`().20
+/ 7"miniboxing/tests/compile/Ordering#2;
+8 9-miniboxing/tests/compile/ArrayVectorOrder#[A]2 
+ #scala/specialized#2;
+$ %-miniboxing/tests/compile/ArrayVectorOrder#[A]2>
+ 0miniboxing/tests/compile/ArrayVectorOrder#eqv().2A
+ 3miniboxing/tests/compile/ArrayVectorOrder#eqv().(x)2
+ scala/Array#2;
+ -miniboxing/tests/compile/ArrayVectorOrder#[A]2A
+  !3miniboxing/tests/compile/ArrayVectorOrder#eqv().(y)2
+# (scala/Array#2;
+) *-miniboxing/tests/compile/ArrayVectorOrder#[A]2
+. 5scala/Boolean#26
+> A(miniboxing/tests/compile/Ordering#eqv().2A
+B C3miniboxing/tests/compile/ArrayVectorOrder#eqv().(x)2A
+E F3miniboxing/tests/compile/ArrayVectorOrder#eqv().(y)23
+ %miniboxing/tests/compile/vectorOrder.2@
+ 2miniboxing/tests/compile/vectorOrder.arrayOrder().2 
+ &scala/specialized#2C
+' (5miniboxing/tests/compile/vectorOrder.arrayOrder().[A]28
+F V*miniboxing/tests/compile/ArrayVectorOrder#2'
+> Eminiboxing/tests/compile/2
+8 =miniboxing/tests/2
+- 7miniboxing/2C
+W X5miniboxing/tests/compile/vectorOrder.arrayOrder().[A]2
+22 local028
+22 *miniboxing/tests/compile/ArrayVectorOrder#2C
+22 5miniboxing/tests/compile/vectorOrder.arrayOrder().[A]PZ 97624CCFDBCDE84D17138F74D41B2951

@@ -1,0 +1,135 @@
+
+À6$tests/pos/precise-pattern-type.scala*>
+_empty_/`precise-pattern-type`.
+ *precise-pattern-type€*1
+$_empty_/`precise-pattern-type`.Type#*Type€*A
+/_empty_/`precise-pattern-type`.Type#`<init>`(). €@*<init>€*<
+-_empty_/`precise-pattern-type`.Type#isType().*isType€*1
+$_empty_/`precise-pattern-type`.Tree#*Tree€*A
+/_empty_/`precise-pattern-type`.Tree#`<init>`(). €@*<init>€*4
+'_empty_/`precise-pattern-type`.Tree#[T]	 €*T€*6
+*_empty_/`precise-pattern-type`.Tree#tpe().*tpe€*8
+&_empty_/`precise-pattern-type`.Select# €*Select€*C
+1_empty_/`precise-pattern-type`.Select#`<init>`(). €@*<init>€*G
+7_empty_/`precise-pattern-type`.Select#`<init>`().(qual) €*qual€*6
+)_empty_/`precise-pattern-type`.Select#[T]	 €*T€*;
++_empty_/`precise-pattern-type`.Select#qual. €*qual€*:
+-_empty_/`precise-pattern-type`.Select#copy().*copy€*:
+0_empty_/`precise-pattern-type`.Select#copy().[T]	*T€*@
+3_empty_/`precise-pattern-type`.Select#copy().(qual)*qual€*N
+7_empty_/`precise-pattern-type`.Select#copy$default$1().*copy$default$1€*D
+:_empty_/`precise-pattern-type`.Select#copy$default$1().[T]	*T€*6
++_empty_/`precise-pattern-type`.Select#_1().*_1€*7
+&_empty_/`precise-pattern-type`.Select.
+ *Select€*<
+._empty_/`precise-pattern-type`.Select.apply().*apply€*;
+1_empty_/`precise-pattern-type`.Select.apply().[T]	*T€*A
+4_empty_/`precise-pattern-type`.Select.apply().(qual)*qual€*@
+0_empty_/`precise-pattern-type`.Select.unapply().*unapply€*=
+3_empty_/`precise-pattern-type`.Select.unapply().[T]	*T€*A
+5_empty_/`precise-pattern-type`.Select.unapply().(x$1)*x$1€*B
+1_empty_/`precise-pattern-type`.Select.toString().*toString€*3
+&_empty_/`precise-pattern-type`.test().*test€*3
+)_empty_/`precise-pattern-type`.test().[T]	*T€*9
+,_empty_/`precise-pattern-type`.test().(tree)*tree€*
+local0 €*q€*+
+!_empty_/`precise-pattern-type`.O#*O€*>
+,_empty_/`precise-pattern-type`.O#`<init>`(). €@*<init>€*;
+*_empty_/`precise-pattern-type`.O#ThisTree#*ThisTree€*6
+&_empty_/`precise-pattern-type`.O#tree. „*tree€*5
+(_empty_/`precise-pattern-type`.O#test().*test€*
+local1 €*q€*
+local2 €*tree1€*
+local3 €	*t€*-
+"_empty_/`precise-pattern-type`.OO#*OO€*?
+-_empty_/`precise-pattern-type`.OO#`<init>`(). €@*<init>€*<
++_empty_/`precise-pattern-type`.OO#ThisTree#*ThisTree€*8
+._empty_/`precise-pattern-type`.OO#ThisTree#[T]	*T€*4
+(_empty_/`precise-pattern-type`.OO#foo().*foo€*5
++_empty_/`precise-pattern-type`.OO#foo().(t)*t€*
+local4 €*q€2)
+ _empty_/`precise-pattern-type`.22
+ $_empty_/`precise-pattern-type`.Type#2=
+ /_empty_/`precise-pattern-type`.Type#`<init>`().2;
+ -_empty_/`precise-pattern-type`.Type#isType().2
+ scala/Boolean#22
+ $_empty_/`precise-pattern-type`.Tree#2=
+ /_empty_/`precise-pattern-type`.Tree#`<init>`().25
+ '_empty_/`precise-pattern-type`.Tree#[T]28
+ *_empty_/`precise-pattern-type`.Tree#tpe().25
+ '_empty_/`precise-pattern-type`.Tree#[T]2;
+% 6-scala/annotation/unchecked/uncheckedVariance#2)
+ $scala/annotation/unchecked/2
+ scala/annotation/2#
+9 <scala/Predef.`???`().24
+		 &_empty_/`precise-pattern-type`.Select#2?
+		 1_empty_/`precise-pattern-type`.Select#`<init>`().22
+	&	 *$_empty_/`precise-pattern-type`.Tree#27
+	+	 ,)_empty_/`precise-pattern-type`.Select#[T]2=
+	>	 >/_empty_/`precise-pattern-type`.Tree#`<init>`().22
+	7	 ;$_empty_/`precise-pattern-type`.Tree#27
+	<	 =)_empty_/`precise-pattern-type`.Select#[T]27
+		 )_empty_/`precise-pattern-type`.Select#[T]29
+	 	 $+_empty_/`precise-pattern-type`.Select#qual.2;
+		 -_empty_/`precise-pattern-type`.Select#copy().29
+	&	 &+_empty_/`precise-pattern-type`.Select#_1().24
+		 &_empty_/`precise-pattern-type`.Select.2<
+		 ._empty_/`precise-pattern-type`.Select.apply().2>
+		 0_empty_/`precise-pattern-type`.Select.unapply().24
+ 
+&_empty_/`precise-pattern-type`.test().27
+ )_empty_/`precise-pattern-type`.test().[T]22
+ $_empty_/`precise-pattern-type`.Tree#22
+ $_empty_/`precise-pattern-type`.Type#2:
+  ,_empty_/`precise-pattern-type`.test().(tree)27
+" #)_empty_/`precise-pattern-type`.test().[T]2:
+' +,_empty_/`precise-pattern-type`.test().(tree)2>
+ 0_empty_/`precise-pattern-type`.Select.unapply().24
+	 &_empty_/`precise-pattern-type`.Select.2
+ local02;
+ -_empty_/`precise-pattern-type`.Type#isType().28
+ *_empty_/`precise-pattern-type`.Tree#tpe().2
+ local02/
+ 	!_empty_/`precise-pattern-type`.O#2:
+ ,_empty_/`precise-pattern-type`.O#`<init>`().28
+	 *_empty_/`precise-pattern-type`.O#ThisTree#22
+ $_empty_/`precise-pattern-type`.Tree#22
+ $_empty_/`precise-pattern-type`.Type#24
+ &_empty_/`precise-pattern-type`.O#tree.28
+ *_empty_/`precise-pattern-type`.O#ThisTree#26
+ (_empty_/`precise-pattern-type`.O#test().24
+ &_empty_/`precise-pattern-type`.O#tree.2>
+ 0_empty_/`precise-pattern-type`.Select.unapply().24
+ &_empty_/`precise-pattern-type`.Select.2
+ local12;
+ $-_empty_/`precise-pattern-type`.Type#isType().28
+ *_empty_/`precise-pattern-type`.Tree#tpe().2
+ local12
+ local224
+ &_empty_/`precise-pattern-type`.Select#2
+ local32;
+? E-_empty_/`precise-pattern-type`.Type#isType().28
+; >*_empty_/`precise-pattern-type`.Tree#tpe().29
+6 :+_empty_/`precise-pattern-type`.Select#qual.2
+  %local224
+( .&_empty_/`precise-pattern-type`.Select#22
+/ 3$_empty_/`precise-pattern-type`.Type#20
+ 
+"_empty_/`precise-pattern-type`.OO#2;
+ -_empty_/`precise-pattern-type`.OO#`<init>`().29
+	 +_empty_/`precise-pattern-type`.OO#ThisTree#2<
+ ._empty_/`precise-pattern-type`.OO#ThisTree#[T]2
+ scala/Null#22
+  $$_empty_/`precise-pattern-type`.Tree#2<
+% &._empty_/`precise-pattern-type`.OO#ThisTree#[T]26
+ (_empty_/`precise-pattern-type`.OO#foo().29
+ +_empty_/`precise-pattern-type`.OO#foo().(t)29
+ +_empty_/`precise-pattern-type`.OO#ThisTree#22
+ $_empty_/`precise-pattern-type`.Type#29
+! "+_empty_/`precise-pattern-type`.OO#foo().(t)2>
+ 0_empty_/`precise-pattern-type`.Select.unapply().24
+ &_empty_/`precise-pattern-type`.Select.2
+ local42;
+ $-_empty_/`precise-pattern-type`.Type#isType().28
+ *_empty_/`precise-pattern-type`.Tree#tpe().2
+ local4PZ 6C443D4C0F171D7B02E2A58138D6BA6E

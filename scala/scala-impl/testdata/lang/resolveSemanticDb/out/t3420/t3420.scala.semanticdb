@@ -1,0 +1,40 @@
+
+Œtests/pos/t3420.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#cv. €*cv€*
+_empty_/C#cl. À*cl€*
+_empty_/C#cd().*cd€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#cv.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 
+scala/Int#2
+ 
+scala/Int#2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2
+ _empty_/C#cl.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 
+scala/Int#2
+ 
+scala/Int#2-
+" $scala/Predef.ArrowAssoc#`->`().2(
+   scala/Predef.ArrowAssoc().2
+ 
+_empty_/C#cd().22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 
+scala/Int#2
+ 
+scala/Int#2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().PZ 04D55F373120D15715A06F01CCA03AAD

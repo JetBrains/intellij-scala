@@ -1,0 +1,72 @@
+
+”tests/pos/t1048.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#[U]	*U€*
+_empty_/T#x(). *x€*
+
+_empty_/T.
+ *T€*$
+_empty_/T.unapply().*unapply€*!
+_empty_/T.unapply().[U]	*U€*!
+_empty_/T.unapply().(t)*t€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[W]	*W€*
+_empty_/Test.f().(t)*t€*
+local0 €	*U$1€2
+ 
+_empty_/T#2
+ _empty_/T#`<init>`().2
+ 	_empty_/T#[U]2
+ _empty_/T#x().2
+	 
+
+_empty_/T#2
+ _empty_/T#[U]2
+ 
+_empty_/T.2"
+ _empty_/T.unapply().2%
+ _empty_/T.unapply().[U]2%
+ _empty_/T.unapply().(t)2
+ 
+_empty_/T#2%
+ _empty_/T.unapply().[U]2
+ !scala/Option#2
+" #
+_empty_/T#2%
+) *_empty_/T.unapply().[U]2!
+3 3scala/Some.apply().2
+/ 3scala/Some.2
+6 7_empty_/T#x().2%
+4 5_empty_/T.unapply().(t)2
+ _empty_/Test.2
+		 _empty_/Test.f().2"
+		 	_empty_/Test.f().[W]2"
+		 _empty_/Test.f().(t)2
+		 
+_empty_/T#2"
+		 _empty_/Test.f().[W]2"
+		 _empty_/Test.f().(t)2"
+
+
+
+ 
+_empty_/T.unapply().2
+
+	
+ 
+
+_empty_/T.2"
+
+
+ _empty_/T.unapply().2
+
+
+ 
+_empty_/T.2
+
+
+ local0PZ 42FAF233E08010858DFF295504B0974B

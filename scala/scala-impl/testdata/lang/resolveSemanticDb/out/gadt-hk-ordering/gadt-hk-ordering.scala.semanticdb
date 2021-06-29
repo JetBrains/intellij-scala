@@ -1,0 +1,65 @@
+
+Œ tests/pos/gadt-hk-ordering.scala*
+_empty_/test.
+ *testÄ*#
+_empty_/test.KSUB# îÄ*KSUBÄ*/
+_empty_/test.KSUB#`<init>`(). Ä@*<init>Ä*"
+_empty_/test.KSUB#[F]	 Ä*FÄ*"
+_empty_/test.KSUB#[G]	 Ä*GÄ*!
+_empty_/test.KSUB.
+ *KSUBÄ*(
+_empty_/test.KSUB.Refl# àÅ*ReflÄ*4
+"_empty_/test.KSUB.Refl#`<init>`(). Ä@*<init>Ä*$
+_empty_/test.KSUB.Refl#[S]	*SÄ*+
+_empty_/test.KSUB.Refl#copy().*copyÄ*+
+!_empty_/test.KSUB.Refl#copy().[S]	*SÄ*1
+!_empty_/test.KSUB.Refl#ordinal().*ordinalÄ*&
+_empty_/test.KSUB.Refl.
+ *ReflÄ*-
+_empty_/test.KSUB.Refl.apply().*applyÄ*,
+"_empty_/test.KSUB.Refl.apply().[S]	*SÄ*1
+!_empty_/test.KSUB.Refl.unapply().*unapplyÄ*.
+$_empty_/test.KSUB.Refl.unapply().[S]	*SÄ*2
+&_empty_/test.KSUB.Refl.unapply().(x$1)*x$1Ä*3
+"_empty_/test.KSUB.Refl.toString().*toStringÄ*4
+ _empty_/test.KSUB.fromOrdinal().*fromOrdinalÄ*9
+)_empty_/test.KSUB.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/test.foo().*fooÄ* 
+_empty_/test.foo().[F]	*FÄ*&
+_empty_/test.foo().(ksub)*ksubÄ*
+local0 Ä	*S$1Ä*
+local1 Ä*fiÄ2
+ _empty_/test.2 
+ _empty_/test.KSUB#2+
+ _empty_/test.KSUB#`<init>`().2#
+ _empty_/test.KSUB#[F]2#
+ _empty_/test.KSUB#[G]2 
+ _empty_/test.KSUB.2%
+	 _empty_/test.KSUB.Refl#20
+ "_empty_/test.KSUB.Refl#`<init>`().2+
+( (_empty_/test.KSUB#`<init>`().2 
+ "_empty_/test.KSUB#2(
+# $_empty_/test.KSUB.Refl#[S]2(
+& '_empty_/test.KSUB.Refl#[S]2(
+ _empty_/test.KSUB.Refl#[S]2,
+ _empty_/test.KSUB.Refl#copy().2%
+	 	_empty_/test.KSUB.Refl.2-
+ _empty_/test.KSUB.Refl.apply().2/
+ !_empty_/test.KSUB.Refl.unapply().2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().[F]2'
+ _empty_/test.foo().(ksub)2 
+ !_empty_/test.KSUB#2$
+" #_empty_/test.foo().[F]2'
+ _empty_/test.foo().(ksub)2/
+ !_empty_/test.KSUB.Refl.unapply().2%
+ _empty_/test.KSUB.Refl.2 
+ _empty_/test.KSUB.2
+ local02
+ local12$
+ _empty_/test.foo().[F]2
+ 
+scala/Int#2#
+ scala/Option.apply().2
+ scala/Option.PZ FF0CD7210B05CCC95477861B53CA996F

@@ -1,0 +1,43 @@
+
+™	tests/pos/init.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*!
+_empty_/Foo#cnt(). €*cnt€*'
+_empty_/Foo#`cnt_=`(). €*cnt_=€*'
+_empty_/Foo#`cnt_=`().(x$1)*x$1€*
+_empty_/Foo#Bar#*Bar€*-
+_empty_/Foo#Bar#`<init>`(). €@*<init>€*!
+_empty_/Foo#Bar#id. €*id€*
+_empty_/Test.
+ *Test€* 
+_empty_/Test.foo. €*foo€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#cnt().2$
+ _empty_/Foo#`cnt_=`().2
+ _empty_/Foo#Bar#2)
+ _empty_/Foo#Bar#`<init>`().2$
+ _empty_/Foo#`cnt_=`().2 
+ scala/Int#`+`(+4).2 
+
+ _empty_/Foo#cnt().2!
+ 
+_empty_/Foo#Bar#id.2 
+ _empty_/Foo#cnt().2
+
+
+ _empty_/Test.2
+
+
+ 
+scala/App#2
+ 	_empty_/Test.foo.2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2!
+  "_empty_/Foo#Bar#id.2)
+ _empty_/Foo#Bar#`<init>`().2
+ _empty_/Foo#Bar#2
+ _empty_/Test.foo.PZ DA7AB07336D14BECCB505FC98D3B6500

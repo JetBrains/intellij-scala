@@ -1,0 +1,175 @@
+
+ü#tests/pos/spec-traits.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[T]	*T€*
+_empty_/A#foo(). *foo€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#foo. €*foo€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/Lazy#*Lazy€**
+_empty_/Lazy#`<init>`(). €@*<init>€*!
+_empty_/Lazy#test().*test€*!
+_empty_/Lazy#test().[U]	*U€*)
+_empty_/Lazy#test().(block)*block€*
+local0 À*x€* 
+_empty_/Bug3307#*Bug3307€*-
+_empty_/Bug3307#`<init>`(). €@*<init>€*
+_empty_/Bug3307#f().*f€*!
+_empty_/Bug3307#f().[Z]	*Z€*)
+_empty_/Bug3307#f().(block)*block€*
+local1  *x€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#[X]	*X€* 
+_empty_/Bug3301#*Bug3301€*-
+_empty_/Bug3301#`<init>`(). €@*<init>€*
+_empty_/Bug3301#t().*t€*!
+_empty_/Bug3301#t().[A]	*A€*
+local2*X€*
+local3*foo€*
+local4	*X€*"
+_empty_/Failure.
+ *Failure€*&
+_empty_/Failure.thunk().*thunk€*
+local5*i€*
+local6 €*a€*
+local7 €*b€*
+_empty_/AA.
+ *AA€*
+_empty_/AA.f().*f€*$
+_empty_/AA.f().(block)*block€*
+_empty_/AA.BB.
+ *BB€*
+local8
+ *CC€*
+_empty_/AA.foo().*foo€*
+_empty_/AA.foo().[T]	*T€*
+_empty_/AA.foo().(x)*x€*
+local9
+ *A€*
+
+_empty_/O.
+ *O€*
+_empty_/O.f().*f€*
+_empty_/O.f().[T]	*T€*
+local10*k€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+	 scala/specialized#2
+ 
+scala/Int.2
+ _empty_/A#[T]2
+# &_empty_/A#foo().2
+( )_empty_/A#[T]2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+ 
+scala/Int#2
+  _empty_/B#foo.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ 
+_empty_/Lazy#2&
+ _empty_/Lazy#`<init>`().2"
+ 
+_empty_/Lazy#test().2%
+ _empty_/Lazy#test().[U]2)
+ _empty_/Lazy#test().(block)2%
+ _empty_/Lazy#test().[U]2
+  scala/Unit#2)
+% *_empty_/Lazy#test().(block)2"
+ _empty_/Lazy#test().2
+ local02
+ _empty_/Bug3307#2)
+ _empty_/Bug3307#`<init>`().2"
+ _empty_/Bug3307#f().2%
+ 	_empty_/Bug3307#f().[Z]2)
+ _empty_/Bug3307#f().(block)2"
+ scala/Predef.String#2%
+ _empty_/Bug3307#f().[Z]2
+  $scala/Unit#2&
+	 	scala/Function1#apply().2)
+ 	_empty_/Bug3307#f().(block)2&
+$ $scala/Function0#apply().2"
+ _empty_/Bug3307#f().2
+ local12'
+ scala/Predef.println(+1).2
+ local12
+ 	
+_empty_/T#2#
+	 	_empty_/T#`<init>`().2
+
+ _empty_/T#[X]2
+ _empty_/Bug3301#2)
+ _empty_/Bug3301#`<init>`().2"
+ _empty_/Bug3301#t().2%
+ 	_empty_/Bug3301#t().[A]2
+ 
+_empty_/T#2%
+ _empty_/Bug3301#t().[A]2(
+ scala/sys/package.error().2
+ 
+scala/sys/2
+	 
+local22
+ 
+scala/Int#2
+ local32
+ local42"
+ _empty_/Bug3301#t().2
+ local42
+## _empty_/Failure.2&
+$$ _empty_/Failure.thunk().2
+$$ scala/Unit#29
+%% +scala/collection/immutable/Range#foreach().2)
+%% scala/runtime/RichInt#to().26
+%% (scala/LowPriorityImplicits#intWrapper().2
+%	% 
+local52$
+&& scala/Array.apply(+5).2
+&& scala/Array.2'
+&& scala/Array.unapplySeq().2
+&
+& scala/Array.2
+&& local62
+&& local72
+.. 	_empty_/AA.2
+00 	_empty_/AA.f().2$
+0
+0 _empty_/AA.f().(block)2
+00 scala/Unit#2
+00 scala/Unit#2
+22 _empty_/AA.BB.2
+44 	_empty_/AA.f().2
+55 local82
+;; _empty_/AA.foo().2"
+;; _empty_/AA.foo().[T]2"
+;; _empty_/AA.foo().(x)2"
+;; _empty_/AA.foo().[T]2
+; ; !local92
+?? 
+_empty_/O.2
+?? _empty_/O.f().2 
+?? scala/specialized#2
+?? _empty_/O.f().[T]2
+?"? &scala/Unit#28
+?@? @*scala/collection/immutable/List#foreach().2 
+?4? 7scala/package.Nil.2!
+?9? =scala/package.List#2
+?>? ?_empty_/O.f().[T]2
+?/? 0local10PZ 0398CC6872AF29FBC78E78EFAC365830

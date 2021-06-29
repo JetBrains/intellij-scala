@@ -1,0 +1,24 @@
+
+‚tests/pos/indent3.scala*(
+_empty_/testindent.
+ *
+testindent€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€2
+ _empty_/testindent.2
+ 	
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 	
+_empty_/C#2#
+ _empty_/C#`<init>`().PZ 88F6682B667CAFF50712EF29E3FABC96

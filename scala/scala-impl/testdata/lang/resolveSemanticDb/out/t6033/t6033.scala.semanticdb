@@ -1,0 +1,26 @@
+
+Çtests/pos/t6033.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.b. €*b€*"
+_empty_/Test.big1. €*big1€*"
+_empty_/Test.big2. €*big2€2
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.b.20
+" ""java/math/BigInteger#`<init>`(+8).2#
+ "java/math/BigInteger#2
+ 
+java/math/2
+ java/2 
+ 
+_empty_/Test.big1.2*
+ scala/math/BigInt.apply(+8).2#
+ scala/package.BigInt.2
+ _empty_/Test.b.2 
+ 
+_empty_/Test.big2.2#
+ scala/package.BigInt#28
+ *scala/math/BigInt.javaBigInteger2bigInt().2
+ _empty_/Test.b.PZ B76749D7F3D04B3AB5F8CF2821554293

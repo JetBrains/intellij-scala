@@ -1,0 +1,91 @@
+
+êtests/pos/i3935.scala*
+_empty_/Foo3# îÄ*Foo3Ä**
+_empty_/Foo3#`<init>`(). Ä@*<init>Ä*%
+_empty_/Foo3#`<init>`().(x)*xÄ*
+_empty_/Foo3#[T]	*TÄ*
+_empty_/Foo3#x. Ä*xÄ*
+_empty_/Foo3.
+ *Foo3Ä*!
+_empty_/Foo3.Bar# àÅ*BarÄ*.
+_empty_/Foo3.Bar#`<init>`(). Ä@*<init>Ä*,
+_empty_/Foo3.Bar#`<init>`().(y) Ä*yÄ*
+_empty_/Foo3.Bar#[S]	*SÄ*
+_empty_/Foo3.Bar#[T]	*TÄ* 
+_empty_/Foo3.Bar#y. Ä*yÄ*%
+_empty_/Foo3.Bar#copy().*copyÄ*%
+_empty_/Foo3.Bar#copy().[S]	*SÄ*%
+_empty_/Foo3.Bar#copy().[T]	*TÄ*%
+_empty_/Foo3.Bar#copy().(y)*yÄ*9
+"_empty_/Foo3.Bar#copy$default$1().*copy$default$1Ä*/
+%_empty_/Foo3.Bar#copy$default$1().[S]	*SÄ*/
+%_empty_/Foo3.Bar#copy$default$1().[T]	*TÄ*+
+_empty_/Foo3.Bar#ordinal().*ordinalÄ*!
+_empty_/Foo3.Bar#_1().*_1Ä*
+_empty_/Foo3.Bar.
+ *BarÄ*'
+_empty_/Foo3.Bar.apply().*applyÄ*&
+_empty_/Foo3.Bar.apply().[S]	*SÄ*&
+_empty_/Foo3.Bar.apply().[T]	*TÄ*&
+_empty_/Foo3.Bar.apply().(y)*yÄ*+
+_empty_/Foo3.Bar.unapply().*unapplyÄ*(
+_empty_/Foo3.Bar.unapply().[S]	*SÄ*(
+_empty_/Foo3.Bar.unapply().[T]	*TÄ*,
+ _empty_/Foo3.Bar.unapply().(x$1)*x$1Ä*-
+_empty_/Foo3.Bar.toString().*toStringÄ*/
+_empty_/Foo3.fromOrdinal().*fromOrdinalÄ*4
+$_empty_/Foo3.fromOrdinal().(ordinal)*ordinalÄ*(
+_empty_/i3935$package. *_empty_Ä*)
+_empty_/i3935$package.foo. Ä*fooÄ*)
+_empty_/i3935$package.bar. Ä*barÄ*(
+_empty_/i3935$package.baz().*bazÄ*)
+_empty_/i3935$package.baz().[T]	*TÄ*)
+_empty_/i3935$package.baz().(f)*fÄ*)
+_empty_/i3935$package.qux. Ä*quxÄ2
+ 	_empty_/Foo3#2"
+	 	_empty_/Foo3#`<init>`().2
+ _empty_/Foo3#[T]2
+
+ _empty_/Foo3#[T]2
+ _empty_/Foo3#x.2
+ _empty_/Foo3.2
+ 
+_empty_/Foo3.Bar#2*
+
+ 
+_empty_/Foo3.Bar#`<init>`().2"
+ _empty_/Foo3.Bar#[T]2&
++ +_empty_/Foo3#`<init>`().2
+ #_empty_/Foo3#2!
+$ %_empty_/Foo3.Bar#y.2!
+, -_empty_/Foo3.Bar#y.2"
+ _empty_/Foo3.Bar#[S]2"
+ _empty_/Foo3.Bar#[T]2!
+ _empty_/Foo3.Bar#y.2&
+ _empty_/Foo3.Bar#copy().2$
+ _empty_/Foo3.Bar#_1().2
+ _empty_/Foo3.Bar.2'
+ _empty_/Foo3.Bar.apply().2)
+ _empty_/Foo3.Bar.unapply().2 
+_empty_/i3935$package.2(
+ _empty_/i3935$package.foo.2
+ _empty_/Foo3.Bar#2
+	 _empty_/Foo3.2
+ scala/Nothing#2'
+( (_empty_/Foo3.Bar.apply().2
+% (_empty_/Foo3.Bar.2
+  $_empty_/Foo3.2(
+ _empty_/i3935$package.bar.2(
+
+ _empty_/i3935$package.foo.2*
+ _empty_/i3935$package.baz().2-
+ 	_empty_/i3935$package.baz().[T]2-
+ _empty_/i3935$package.baz().(f)2
+ _empty_/Foo3#2-
+ _empty_/i3935$package.baz().[T]2-
+ _empty_/i3935$package.baz().(f)2-
+! "_empty_/i3935$package.baz().(f)2(
+		 _empty_/i3935$package.qux.2*
+	
+	 _empty_/i3935$package.baz().2(
+		 _empty_/i3935$package.bar.PZ 7A605CC5AAB4D8B10149665729D0804F

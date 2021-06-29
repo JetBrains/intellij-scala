@@ -1,0 +1,45 @@
+
+Êtests/pos/t1053.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#[A]	*A€*
+_empty_/T#U#*U€*)
+_empty_/T#U#`<init>`(). €@*<init>€*
+_empty_/T#U#W#*W€*
+_empty_/T#U#x. €*x€*
+_empty_/Base#*Base€**
+_empty_/Base#`<init>`(). €@*<init>€*
+_empty_/Base#V#*V€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*
+local0*V€*
+_empty_/Test.y. €*y€*
+local1 *$anon€2
+ 
+_empty_/T#2
+ _empty_/T#`<init>`().2
+ 	_empty_/T#[A]2
+ _empty_/T#U#2!
+ _empty_/T#U#`<init>`().2
+ _empty_/T#U#W#2
+  !_empty_/T#[A]2
+' (_empty_/T#U#x.2
+ 
+_empty_/Base#2&
+ _empty_/Base#`<init>`().2
+ _empty_/Base#V#2
+ _empty_/Test.2
+ _empty_/Test.x.2
++ ,_empty_/Base#V#2
+ _empty_/Base#2
+ local02
+ 
+_empty_/T#2
+ _empty_/Test.y.2
+
+ 
+local12
+ _empty_/T#U#2
+ _empty_/Test.x.PZ 85CD3AA31BB1AB044BF2F77DD931E92E

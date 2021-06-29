@@ -1,0 +1,42 @@
+
+ê	tests/pos/typedapply.scala*(
+_empty_/typedapply.
+ *
+typedapplyÄ*%
+_empty_/typedapply.foo().*fooÄ*&
+_empty_/typedapply.foo().[X]	*XÄ*&
+_empty_/typedapply.foo().[Y]	*YÄ*&
+_empty_/typedapply.foo().(x)*xÄ*&
+_empty_/typedapply.foo().(y)*yÄ*"
+_empty_/typedapply.x. Ä*xÄ*
+local0*xÄ*
+local1*yÄ2
+ _empty_/typedapply.2'
+ 	_empty_/typedapply.foo().2*
+
+ _empty_/typedapply.foo().[X]2*
+ _empty_/typedapply.foo().[Y]2*
+ _empty_/typedapply.foo().(x)2*
+ _empty_/typedapply.foo().[X]2*
+ _empty_/typedapply.foo().(y)2*
+ _empty_/typedapply.foo().[Y]2#
+ scala/Tuple2.apply().2*
+  _empty_/typedapply.foo().(x)2*
+" #_empty_/typedapply.foo().(y)2'
+ _empty_/typedapply.foo().2'
+ _empty_/typedapply.foo().2
+ 	
+scala/Int#2"
+ scala/Predef.String#2#
+ _empty_/typedapply.x.2'
+
+ _empty_/typedapply.foo().2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+
+ 
+local02
+
+ 
+local1PZ 693575479178AE46040A9EC7036F7DC2

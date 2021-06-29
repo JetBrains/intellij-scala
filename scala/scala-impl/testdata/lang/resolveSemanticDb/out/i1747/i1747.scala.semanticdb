@@ -1,0 +1,49 @@
+
+ätests/pos/i1747.scala*
+_empty_/Coll1# *Coll1€*+
+_empty_/Coll1#`<init>`(). €@*<init>€*
+_empty_/Coll1#[E]	*E€*(
+_empty_/Coll1#toArray().*toArray€*%
+_empty_/Coll1#toArray().[T]	*T€*%
+_empty_/Coll1#toArray().(a)*a€*
+_empty_/Coll2# *Coll2€*+
+_empty_/Coll2#`<init>`(). €@*<init>€*
+_empty_/Coll2#[E]	*E€*(
+_empty_/Coll2#toArray().*toArray€*%
+_empty_/Coll2#toArray().[T]	*T€*%
+_empty_/Coll2#toArray().(a)*a€2
+ _empty_/Coll1#2#
+ _empty_/Coll1#`<init>`().2
+* 4java/util/Collection#2
+% )
+java/util/2
+  $java/2
+5 6_empty_/Coll1#[E]2
+ _empty_/Coll1#[E]2&
+ _empty_/Coll1#toArray().2)
+ _empty_/Coll1#toArray().[T]2)
+ _empty_/Coll1#toArray().(a)2
+ "scala/Array#2)
+# $_empty_/Coll1#toArray().[T]2
+* 0java/lang/Object#2
+4 9scala/Array#2)
+: ;_empty_/Coll1#toArray().[T]2
+A Gjava/lang/Object#2#
+K Nscala/Predef.`???`().2
+ _empty_/Coll2#2'
+ _empty_/Coll2#`<init>`().2#
+* 4java/util/Collection#2
+% )
+java/util/2
+  $java/2
+5 6_empty_/Coll2#[E]2
+ _empty_/Coll2#[E]2&
+ _empty_/Coll2#toArray().2)
+ _empty_/Coll2#toArray().[T]2
+ "java/lang/Object#2)
+$ %_empty_/Coll2#toArray().(a)2
+' ,scala/Array#2)
+- ._empty_/Coll2#toArray().[T]2
+2 7scala/Array#2)
+8 9_empty_/Coll2#toArray().[T]2#
+= @scala/Predef.`???`().PZ 9DE6D3E9095FDF26D809CB07C6DC5B9C

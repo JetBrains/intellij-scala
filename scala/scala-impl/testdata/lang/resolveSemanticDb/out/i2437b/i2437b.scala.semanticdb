@@ -1,0 +1,25 @@
+
+¼tests/pos/i2437b.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[T]	*T€*$
+_empty_/Test.foo().(arg)*arg€*
+local0 €*bla€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[T]2&
+ _empty_/Test.foo().(arg)2
+ _empty_/Foo#2$
+ _empty_/Test.foo().[T]2&
+ _empty_/Test.foo().(arg)2
+	 local02
+ _empty_/Foo#PZ A1FCB30F05819F3FFF7F045A244EC6A1

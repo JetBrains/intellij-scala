@@ -1,0 +1,34 @@
+
+ˆtests/pos/t3384.scala*
+	test/p/A#*A€*&
+test/p/A#`<init>`(). €@*<init>€*!
+test/p/A#`<init>`().(a)*a€*
+test/p/A#a. €*a€*
+	test/p/A.
+ *A€*K
+'test/p/A.$lessinit$greater$default$1().*$lessinit$greater$default$1€*
+test/po/package. *po€*
+test/po/package.A#*A€*
+test/C#*C€*$
+test/C#`<init>`(). €@*<init>€*
+	test/C#a. €*a€2
+ test/2
+ 	test/p/2
+ 		test/p/A#2"
+	 	test/p/A#`<init>`().2"
+ scala/Predef.String#2
+
+ test/p/A#a.2
+ 	test/p/A.2
+ test/po/package.2 
+ test/po/package.A#2
+ 	test/p/A#2
+ test/p/2
+
+
+ 	test/po/2
+ test/C#2 
+ test/C#`<init>`().2
+ 	test/C#a.2"
+ test/p/A#`<init>`().2 
+ test/po/package.A#PZ 3A9FC093EF71300FA97C9AA787A3AF1C

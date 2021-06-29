@@ -1,0 +1,78 @@
+
+á&tests/pos/singleton-ops-dispatch.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.`+`#*+€*
+_empty_/Test.`+`#[X]	*X€*
+_empty_/Test.`+`#[Y]	*Y€*
+_empty_/Test.t0. €*t0€*
+_empty_/Test.t1. €*t1€*
+_empty_/Test.t2. €*t2€*
+_empty_/Test.t3. €*t3€2 
+ scala/compiletime/ops/2
+ scala/compiletime/2
+ scala/2
+ _empty_/Test.2
+ _empty_/Test.`+`#2"
+ _empty_/Test.`+`#[X]2
+ 
+scala/`|`#2
+ 
+scala/Int#2"
+  scala/Predef.String#2"
+" #_empty_/Test.`+`#[Y]2
++ ,
+scala/`|`#2
+' *
+scala/Int#2"
+- 3scala/Predef.String#2"
+8 9_empty_/Test.`+`#[X]2"
+; <_empty_/Test.`+`#[Y]2
+
+ 
+scala/Int#2
+ 
+scala/Int#2,
+ scala/compiletime/ops/int.`+`#2(
+ scala/compiletime/ops/int.2"
+ _empty_/Test.`+`#[X]2"
+  !_empty_/Test.`+`#[Y]2"
+
+ scala/Predef.String#2"
+ scala/Predef.String#2/
+$ %!scala/compiletime/ops/string.`+`#2+
+ #scala/compiletime/ops/string.2"
+& '_empty_/Test.`+`#[X]2"
+) *_empty_/Test.`+`#[Y]2"
+
+ scala/Predef.String#2
+ 
+scala/Int#2/
+! "!scala/compiletime/ops/string.`+`#2+
+  scala/compiletime/ops/string.2"
+# $_empty_/Test.`+`#[X]21
+* 2#scala/compiletime/ops/int.ToString#2(
+& )scala/compiletime/ops/int.2"
+3 4_empty_/Test.`+`#[Y]2
+
+ 
+scala/Int#2"
+ scala/Predef.String#2/
+! "!scala/compiletime/ops/string.`+`#2+
+  scala/compiletime/ops/string.21
+' /#scala/compiletime/ops/int.ToString#2(
+# &scala/compiletime/ops/int.2"
+0 1_empty_/Test.`+`#[X]2"
+4 5_empty_/Test.`+`#[Y]2
+
+
+ _empty_/Test.t0.2
+
+
+ _empty_/Test.`+`#2
+ _empty_/Test.t1.2
+ _empty_/Test.`+`#2
+ _empty_/Test.t2.2
+ _empty_/Test.`+`#2
+ _empty_/Test.t3.2
+ _empty_/Test.`+`#PZ 2B4A2CBD79C6FA00057C63DB9938A00C

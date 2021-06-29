@@ -1,0 +1,41 @@
+
+Û
+tests/pos/t4501.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#foo().*foo€*
+_empty_/A#foo().[T]	*T€*
+_empty_/A#foo().(a)*a€*
+_empty_/A#foo().(b)*b€*
+_empty_/A#f2().*f2€*
+_empty_/A#f3().*f3€22
+  *$scala/collection/mutable/ListBuffer.22
+  *$scala/collection/mutable/ListBuffer#2'
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#foo().2!
+
+ _empty_/A#foo().[T]2!
+ _empty_/A#foo().(a)2!
+ _empty_/A#foo().[T]2!
+ _empty_/A#foo().(b)2!
+ _empty_/A#foo().[T]2!
+ _empty_/A#foo().[T]2!
+ _empty_/A#foo().(a)2
+ _empty_/A#f2().2
+ _empty_/A#foo().27
+ )scala/collection/IterableFactory#apply().22
+ $scala/collection/mutable/ListBuffer.27
+' ')scala/collection/IterableFactory#apply().22
+ '$scala/collection/mutable/ListBuffer.2
+ _empty_/A#f3().2
+ _empty_/A#foo().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.PZ F22F1F389EF91560E5EE7FC848CEEAC2

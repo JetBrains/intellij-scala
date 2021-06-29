@@ -1,0 +1,37 @@
+
+Âtests/pos/i6003.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.T#*T€*
+_empty_/Test.T.
+ *T€*'
+_empty_/Test.T.unwrap().*unwrap€*%
+_empty_/Test.T.unwrap().(t)*t€*
+_empty_/Test.U#*U€*
+_empty_/Test.W#*W€*
+_empty_/Test.U.
+ *U€*'
+_empty_/Test.U.unwrap().*unwrap€*%
+_empty_/Test.U.unwrap().(w)*w€2
+ _empty_/Test.2
+ _empty_/Test.T#2"
+ scala/Predef.String#2
+	 
+_empty_/Test.T.2&
+ _empty_/Test.T.unwrap().2)
+ _empty_/Test.T.unwrap().(t)2
+ _empty_/Test.T#2"
+ scala/Predef.String#2)
+  _empty_/Test.T.unwrap().(t)2
+ _empty_/Test.U#2"
+ scala/Predef.String#2
+ _empty_/Test.W#2
+ _empty_/Test.U#2
+	 
+_empty_/Test.U.2&
+		 _empty_/Test.U.unwrap().2)
+		 _empty_/Test.U.unwrap().(w)2
+		 _empty_/Test.W#2"
+		 scala/Predef.String#2)
+		  _empty_/Test.U.unwrap().(w)2
+	"	 #_empty_/Test.U#PZ 756C3B713BF69F94AA67569322E29578

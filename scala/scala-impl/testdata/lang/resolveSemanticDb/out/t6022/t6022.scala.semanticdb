@@ -1,0 +1,19 @@
+
+Âtests/pos/t6022.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+local0 €*x€*
+local1 €*list€*
+local2 €*product€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+	 
+scala/Any#2
+	 
+local02
+ scala/AnyRef#2
+	 local12
+ scala/Option#2
+	 local22
+ scala/Product#PZ D7BDDFE37BC8B3C713399D6B8746E53A

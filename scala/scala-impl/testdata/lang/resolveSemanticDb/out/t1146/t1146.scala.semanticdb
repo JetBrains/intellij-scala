@@ -1,0 +1,14 @@
+
+†tests/pos/t1146.scala*
+_empty_/Code#*Code€**
+_empty_/Code#`<init>`(). €@*<init>€*
+local0 €*arr€2
+ 
+_empty_/Code#2&
+ _empty_/Code#`<init>`().2
+ 
+local02"
+ scala/Array.apply().2
+ scala/Array.2"
+ scala/Predef.String#2-
+ scala/reflect/ClassTag.apply().PZ D95B0C6B5394F06EF87D2E6DC4FF6BEA

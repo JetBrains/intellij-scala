@@ -1,0 +1,76 @@
+
+Štests/pos/tcpoly_typesub.scala* 
+_empty_/TypeSub#*TypeSub€*-
+_empty_/TypeSub#`<init>`(). €@*<init>€*
+_empty_/TypeSub#l#*l€*
+_empty_/TypeSub#u#*u€*,
+_empty_/TypeSub#castSub(). *castSub€*'
+_empty_/TypeSub#castSub().[f]	*f€*)
+_empty_/TypeSub#castSub().(fl)*fl€*.
+_empty_/TypeSub#castSuper().*	castSuper€*)
+_empty_/TypeSub#castSuper().[f]	*f€*+
+ _empty_/TypeSub#castSuper().(fu)*fu€*
+local0*c€*
+local1	 €*y€*
+local2*fl€*.
+_empty_/TypeSub#castValue().*	castValue€*)
+_empty_/TypeSub#castValue().[t]	*t€*+
+ _empty_/TypeSub#castValue().(lt)*lt€*
+local3*c€*
+local4	 €*y€2
+ _empty_/TypeSub#2)
+ _empty_/TypeSub#`<init>`().2 
+ _empty_/TypeSub#l#2 
+ _empty_/TypeSub#u#2(
+ _empty_/TypeSub#castSub().2+
+ _empty_/TypeSub#castSub().[f]2,
+ _empty_/TypeSub#castSub().(fl)2+
+ _empty_/TypeSub#castSub().[f]2 
+ _empty_/TypeSub#l#2+
+" #_empty_/TypeSub#castSub().[f]2 
+$ %_empty_/TypeSub#u#2*
+ _empty_/TypeSub#castSuper().2-
+ _empty_/TypeSub#castSuper().[f]2.
+  _empty_/TypeSub#castSuper().(fu)2-
+ _empty_/TypeSub#castSuper().[f]2 
+ _empty_/TypeSub#u#2-
+$ %_empty_/TypeSub#castSuper().[f]2 
+& '_empty_/TypeSub#l#2
+	 
+local02
+ local12-
+ _empty_/TypeSub#castSuper().[f]2
+ local12-
+ _empty_/TypeSub#castSuper().[f]2 
+ _empty_/TypeSub#l#2&
+# #scala/Function1#apply().2(
+ _empty_/TypeSub#castSub().2
+ local02
+ local22-
+ _empty_/TypeSub#castSuper().[f]2 
+ _empty_/TypeSub#l#2
+ !local22.
+$ & _empty_/TypeSub#castSuper().(fu)2*
+		 _empty_/TypeSub#castValue().2-
+		 _empty_/TypeSub#castValue().[t]2.
+		  _empty_/TypeSub#castValue().(lt)2 
+		 _empty_/TypeSub#l#2-
+		  _empty_/TypeSub#castValue().[t]2 
+	$	 %_empty_/TypeSub#u#2-
+	+	 ,_empty_/TypeSub#castValue().[t]2
+
+	
+ 
+local32
+
+
+ local42
+
+
+ local42-
+
+
+ _empty_/TypeSub#castValue().[t]2(
+ _empty_/TypeSub#castSub().2
+ local32.
+  _empty_/TypeSub#castValue().(lt)PZ 698526C00E209F8E4F96E70917B88B5C

@@ -1,0 +1,35 @@
+
+ètests/pos/t4869.scala*
+
+_empty_/C#*CÄ*'
+_empty_/C#`<init>`(). Ä@*<init>Ä*
+_empty_/C#[T]	*TÄ*
+
+_empty_/A#*AÄ*'
+_empty_/A#`<init>`(). Ä@*<init>Ä*
+_empty_/A#f().*fÄ*
+_empty_/A#f().[T]	*TÄ*
+_empty_/A#f().(x)*xÄ*
+_empty_/A#g().*gÄ*
+local0*xÄ2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[T]2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2
+ 	_empty_/A#f().[T]2
+ _empty_/A#f().(x)2
+ _empty_/A#f().[T]2
+ 
+_empty_/C#2
+ _empty_/A#f().[T]2
+ _empty_/A#g().24
+ &scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2
+ _empty_/A#f().2
+ local0PZ C332D781518B5BDDD3D63D11FB184F6D

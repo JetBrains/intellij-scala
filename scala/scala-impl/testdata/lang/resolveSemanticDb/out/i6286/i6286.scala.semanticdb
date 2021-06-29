@@ -1,0 +1,19 @@
+
+›tests/pos/i6286.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.T33#*T33€*
+_empty_/A.T33.
+ *T33€*
+_empty_/A.T33.a. €*a€2
+ 
+_empty_/A.2
+ _empty_/A.T33#2
+ 
+scala/Int#2
+	 _empty_/A.T33.2
+ 	_empty_/A.T33.a.2%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ _empty_/A.T33#PZ 7C91BA5ED077BC6341243726DD63BE34

@@ -1,0 +1,39 @@
+
+·tests/pos/i6854.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*
+_empty_/Lib.
+ *Lib€*$
+_empty_/Lib.IArray2#*IArray2€*$
+_empty_/Lib.IArray2#[T]	 €*T€*&
+_empty_/Lib.IArray2.
+ *IArray2€**
+_empty_/Lib.IArray2.apply().*apply€*)
+_empty_/Lib.IArray2.apply().(x)*x€2
+ _empty_/Test.2
+	 _empty_/Lib.2
+ _empty_/Test.xs.2"
+
+ _empty_/Lib.IArray2#2
+ 
+scala/Int#2*
+   _empty_/Lib.IArray2.apply().2"
+  _empty_/Lib.IArray2.2
+ 
+_empty_/Lib.2"
+ _empty_/Lib.IArray2#2%
+ _empty_/Lib.IArray2#[T]2
+ !scala/Array#2%
+' (_empty_/Lib.IArray2#[T]2"
+	 _empty_/Lib.IArray2.2*
+		 _empty_/Lib.IArray2.apply().2-
+		 _empty_/Lib.IArray2.apply().(x)2
+		 
+scala/Int#2"
+	 	 '_empty_/Lib.IArray2#2
+	(	 +
+scala/Int#2$
+	4	 4scala/Array.apply(+5).2
+	/	 4scala/Array.2-
+	5	 6_empty_/Lib.IArray2.apply().(x)PZ BB537273B4A11E25E3D040C5F4922DD3

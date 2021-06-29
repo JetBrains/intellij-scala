@@ -1,0 +1,28 @@
+
+¡=tests/pos/inline-match-separate/inline-match-separate_1.scala*
+_empty_/Utils.
+ *Utils€*
+_empty_/Utils.Box#*Box€*/
+_empty_/Utils.Box#`<init>`(). €@*<init>€*
+_empty_/Utils.Box#[T]	*T€*
+local0 €	*a€* 
+_empty_/Utils.foo().*foo€*!
+_empty_/Utils.foo().[T]	*T€*!
+_empty_/Utils.foo().(t)*t€2
+ _empty_/Utils.2 
+ _empty_/Utils.Box#2+
+ _empty_/Utils.Box#`<init>`().2#
+ _empty_/Utils.Box#[T]2%
+4 5_empty_/Utils.foo().(t)2 
+ _empty_/Utils.Box#2
+ local02=
+( 2/scala/compiletime/package$package.constValue().2 
+ 'scala/compiletime/2
+ scala/2
+3 4local02"
+ _empty_/Utils.foo().2%
+ _empty_/Utils.foo().[T]2%
+  !_empty_/Utils.foo().(t)2%
+# $_empty_/Utils.foo().[T]2
+' *
+scala/Any#PZ 6E2F0FDDD42F5683F6D6758B106B157F

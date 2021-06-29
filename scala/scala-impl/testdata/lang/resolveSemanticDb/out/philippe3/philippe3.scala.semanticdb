@@ -1,0 +1,259 @@
+
+â4tests/pos/philippe3.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€*
+_empty_/Foo#x. €*x€*
+_empty_/Bar# €*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*'
+_empty_/Bar#`<init>`().(y) €*y€*
+_empty_/Bar#y. €*y€* 
+_empty_/Bar#copy().*copy€* 
+_empty_/Bar#copy().(y)*y€*4
+_empty_/Bar#copy$default$1().*copy$default$1€*
+_empty_/Bar#_1().*_1€*
+_empty_/Bar.
+ *Bar€*"
+_empty_/Bar.apply().*apply€*!
+_empty_/Bar.apply().(y)*y€*&
+_empty_/Bar.unapply().*unapply€*'
+_empty_/Bar.unapply().(x$1)*x$1€*(
+_empty_/Bar.toString().*toString€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+
+_empty_/U#*U€*'
+_empty_/U#`<init>`(). €@*<init>€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/T1#*T1€*(
+_empty_/T1#`<init>`(). €@*<init>€*
+_empty_/T2#*T2€*(
+_empty_/T2#`<init>`(). €@*<init>€*
+_empty_/T5#*T5€*(
+_empty_/T5#`<init>`(). €@*<init>€*
+_empty_/T6#*T6€*(
+_empty_/T6#`<init>`(). €@*<init>€*
+_empty_/T7#*T7€*(
+_empty_/T7#`<init>`(). €@*<init>€*
+_empty_/T8#*T8€*(
+_empty_/T8#`<init>`(). €@*<init>€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+_empty_/C5#*C5€*(
+_empty_/C5#`<init>`(). €@*<init>€*
+_empty_/C6#*C6€*(
+_empty_/C6#`<init>`(). €@*<init>€*
+_empty_/C7#*C7€*(
+_empty_/C7#`<init>`(). €@*<init>€*
+_empty_/C8#*C8€*(
+_empty_/C8#`<init>`(). €@*<init>€*
+_empty_/D1# €*D1€*(
+_empty_/D1#`<init>`(). €@*<init>€*
+_empty_/D1#copy().*copy€*
+_empty_/D1.
+ *D1€*!
+_empty_/D1.apply().*apply€*%
+_empty_/D1.unapply().*unapply€*&
+_empty_/D1.unapply().(x$1)*x$1€*'
+_empty_/D1.toString().*toString€*
+_empty_/D2# €*D2€*(
+_empty_/D2#`<init>`(). €@*<init>€*
+_empty_/D2#copy().*copy€*
+_empty_/D2.
+ *D2€*!
+_empty_/D2.apply().*apply€*%
+_empty_/D2.unapply().*unapply€*&
+_empty_/D2.unapply().(x$1)*x$1€*'
+_empty_/D2.toString().*toString€*
+_empty_/D5# €*D5€*(
+_empty_/D5#`<init>`(). €@*<init>€*
+_empty_/D5#copy().*copy€*
+_empty_/D5.
+ *D5€*!
+_empty_/D5.apply().*apply€*%
+_empty_/D5.unapply().*unapply€*&
+_empty_/D5.unapply().(x$1)*x$1€*'
+_empty_/D5.toString().*toString€*
+_empty_/D6# €*D6€*(
+_empty_/D6#`<init>`(). €@*<init>€*
+_empty_/D6#copy().*copy€*
+_empty_/D6.
+ *D6€*!
+_empty_/D6.apply().*apply€*%
+_empty_/D6.unapply().*unapply€*&
+_empty_/D6.unapply().(x$1)*x$1€*'
+_empty_/D6.toString().*toString€*
+_empty_/D7# €*D7€*(
+_empty_/D7#`<init>`(). €@*<init>€*
+_empty_/D7#copy().*copy€*
+_empty_/D7.
+ *D7€*!
+_empty_/D7.apply().*apply€*%
+_empty_/D7.unapply().*unapply€*&
+_empty_/D7.unapply().(x$1)*x$1€*'
+_empty_/D7.toString().*toString€*
+_empty_/D8# €*D8€*(
+_empty_/D8#`<init>`(). €@*<init>€*
+_empty_/D8#copy().*copy€*
+_empty_/D8.
+ *D8€*!
+_empty_/D8.apply().*apply€*%
+_empty_/D8.unapply().*unapply€*&
+_empty_/D8.unapply().(x$1)*x$1€*'
+_empty_/D8.toString().*toString€*
+_empty_/M1.
+ *M1€*
+_empty_/M2.
+ *M2€*
+_empty_/M5.
+ *M5€*
+_empty_/M6.
+ *M6€*
+_empty_/M7.
+ *M7€*
+_empty_/M8.
+ *M8€2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/Foo#x.2
+ _empty_/Bar#2%
+ _empty_/Bar#`<init>`().2
+ 
+scala/Int#2%
+" "_empty_/Foo#`<init>`().2
+ "_empty_/Foo#2
+# $_empty_/Bar#y.2
+ _empty_/Bar#y.2
+_empty_/Bar#copy().2
+ _empty_/Bar#_1().2
+ _empty_/Bar.2
+_empty_/Bar.apply().2
+ 
+_empty_/T#2
+_empty_/T#`<init>`().2
+ 
+_empty_/U#2
+_empty_/U#`<init>`().2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+
+
+ _empty_/T1#2 
+
+
+_empty_/T1#`<init>`().2
+ _empty_/T2#2 
+_empty_/T2#`<init>`().2
+ _empty_/T5#2$
+ _empty_/T5#`<init>`().2
+ 
+_empty_/T#2
+ _empty_/T6#2$
+ _empty_/T6#`<init>`().2
+ 
+_empty_/T#2
+ _empty_/T7#2$
+ _empty_/T7#`<init>`().2
+ 
+_empty_/T#2
+ 
+_empty_/U#2
+ _empty_/T8#2$
+ _empty_/T8#`<init>`().2
+ 
+_empty_/T#2
+ 
+_empty_/U#2
+ _empty_/C1#2$
+ _empty_/C1#`<init>`().2
+ _empty_/C2#2$
+ _empty_/C2#`<init>`().2
+ _empty_/C5#2$
+ _empty_/C5#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/C6#2$
+ _empty_/C6#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/C7#2$
+ _empty_/C7#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 
+_empty_/U#2
+ _empty_/C8#2$
+ _empty_/C8#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 
+_empty_/U#2
+ _empty_/D1#2$
+ _empty_/D1#`<init>`().2
+ _empty_/D1.2
+ _empty_/D2#2$
+ _empty_/D2#`<init>`().2
+ _empty_/D2.2
+ _empty_/D5#2$
+ _empty_/D5#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/D5.2
+ _empty_/D6#2$
+ _empty_/D6#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/D6.2
+ _empty_/D7#2$
+ _empty_/D7#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+! "
+_empty_/U#2
+ _empty_/D7.2
+ _empty_/D8#2$
+ _empty_/D8#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+! "
+_empty_/U#2
+ _empty_/D8.2
+ 	_empty_/M1.2
+   	_empty_/M2.2
+!! 	_empty_/M5.2#
+!! _empty_/C#`<init>`().2
+!! 
+_empty_/C#2
+"" 	_empty_/M6.2#
+"" _empty_/C#`<init>`().2
+"" 
+_empty_/C#2
+## 	_empty_/M7.2#
+## _empty_/C#`<init>`().2
+## 
+_empty_/C#2
+## 
+_empty_/U#2
+$$ 	_empty_/M8.2#
+$$ _empty_/C#`<init>`().2
+$$ 
+_empty_/C#2
+$$ 
+_empty_/U#PZ 0639AF477D8D33D1B9C414CB3595D8E4

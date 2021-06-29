@@ -1,0 +1,52 @@
+
+õtests/pos/apply-equiv.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*#
+_empty_/Test#Lambda#*Lambda€*1
+_empty_/Test#Lambda#`<init>`(). €@*<init>€*$
+_empty_/Test#Lambda#Arg#*Arg€*(
+_empty_/Test#Lambda#Apply#*Apply€*
+_empty_/Test#T1#*T1€*
+local0*Arg€*
+local1*Apply€*
+_empty_/Test#T2#*T2€*
+_empty_/Test#x(). €*x€*$
+_empty_/Test#`x_=`(). €*x_=€*&
+_empty_/Test#`x_=`().(x$1)*x$1€*
+_empty_/Test#y(). €*y€*$
+_empty_/Test#`y_=`(). €*y_=€*&
+_empty_/Test#`y_=`().(x$1)*x$1€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2@
+ "2scala/compiletime/package$package.uninitialized().2 
+	 scala/compiletime/2"
+ _empty_/Test#Lambda#2-
+ _empty_/Test#Lambda#`<init>`().2&
+ _empty_/Test#Lambda#Arg#2(
+  %_empty_/Test#Lambda#Apply#2
+ 	_empty_/Test#T1#2(
+E J_empty_/Test#Lambda#Apply#2"
+ _empty_/Test#Lambda#2
+ local02
+! $
+scala/Int#2
+. 3local12!
+6 :scala/package.List#2&
+; >_empty_/Test#Lambda#Arg#2
+ 	_empty_/Test#T2#2!
+ scala/package.List#2
+ 
+scala/Int#2
+ _empty_/Test#x().2
+	 _empty_/Test#T1#2@
+ 2scala/compiletime/package$package.uninitialized().2#
+ 	_empty_/Test#`x_=`().2
+		 _empty_/Test#y().2
+			 _empty_/Test#T2#2@
+		 2scala/compiletime/package$package.uninitialized().2#
+		 	_empty_/Test#`y_=`().2#
+ _empty_/Test#`x_=`().2
+ _empty_/Test#y().2#
+ _empty_/Test#`y_=`().2
+ _empty_/Test#x().PZ 1825A3947F7163D5BF0F35E5023A2540

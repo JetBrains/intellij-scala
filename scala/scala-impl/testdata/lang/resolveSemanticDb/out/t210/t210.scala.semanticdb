@@ -1,0 +1,48 @@
+
+ôtests/pos/t210.scala*
+_empty_/Lang1#*Lang1€*+
+_empty_/Lang1#`<init>`(). €@*<init>€*
+_empty_/Lang1#Exp#*Exp€*/
+_empty_/Lang1#Exp#`<init>`(). €@*<init>€*&
+_empty_/Lang1#Visitor#*Visitor€*3
+!_empty_/Lang1#Visitor#`<init>`(). €@*<init>€*&
+_empty_/Lang1#Visitor#f(). *f€*-
+ _empty_/Lang1#Visitor#f().(left)*left€*"
+_empty_/Lang1#Eval1#*Eval1€*1
+_empty_/Lang1#Eval1#`<init>`(). €@*<init>€*
+local0*self€*"
+_empty_/Lang1#Eval1#f().*f€*+
+_empty_/Lang1#Eval1#f().(left)*left€*
+_empty_/Lang2#*Lang2€*+
+_empty_/Lang2#`<init>`(). €@*<init>€*"
+_empty_/Lang2#Eval2#*Eval2€*1
+_empty_/Lang2#Eval2#`<init>`(). €@*<init>€*
+local1*self€2
+ _empty_/Lang1#2'
+ _empty_/Lang1#`<init>`().2 
+ _empty_/Lang1#Exp#2+
+ _empty_/Lang1#Exp#`<init>`().2$
+ _empty_/Lang1#Visitor#2/
+ !_empty_/Lang1#Visitor#`<init>`().2(
+ _empty_/Lang1#Visitor#f().2.
+  _empty_/Lang1#Visitor#f().(left)2 
+ !_empty_/Lang1#Exp#2
+$ (scala/Unit#2"
+ _empty_/Lang1#Eval1#2-
+ _empty_/Lang1#Eval1#`<init>`().2$
+ _empty_/Lang1#Visitor#2
+  $local02$
+& -_empty_/Lang1#Visitor#2&
+ 	_empty_/Lang1#Eval1#f().2,
+
+ _empty_/Lang1#Eval1#f().(left)2 
+ _empty_/Lang1#Exp#2
+ _empty_/Lang2#2'
+ _empty_/Lang2#`<init>`().2
+ _empty_/Lang1#2"
+		 _empty_/Lang2#Eval2#2-
+		 _empty_/Lang2#Eval2#`<init>`().2-
+		 _empty_/Lang1#Eval1#`<init>`().2"
+		 _empty_/Lang1#Eval1#2
+		 "local12$
+	$	 +_empty_/Lang1#Visitor#PZ 12A78A2B56A7D9A0BD8FA1EB506A84F2

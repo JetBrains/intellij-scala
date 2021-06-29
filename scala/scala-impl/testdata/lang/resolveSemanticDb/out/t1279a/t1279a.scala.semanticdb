@@ -1,0 +1,137 @@
+
+°tests/pos/t1279a.scala*
+
+_empty_/M# *M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/M#T#*T€*&
+_empty_/M#selfType# *selfType€*
+local1*T€*0
+_empty_/M#actualSelfType#*actualSelfType€* 
+_empty_/M#next(). *next€*
+_empty_/M#all2().*all2€*
+local2*T€*
+_empty_/M#all3().*all3€*
+local3*T€*&
+_empty_/M#all3Impl().*all3Impl€**
+_empty_/M#all3Impl().(first)*first€*
+local4*T€*
+local5*T€*
+_empty_/M#all4().*all4€*
+local6*T€*&
+_empty_/Unrelated.
+ *	Unrelated€*.
+_empty_/Unrelated.all4Impl().*all4Impl€**
+ _empty_/Unrelated.all4Impl().[U]	*U€*2
+$_empty_/Unrelated.all4Impl().(first)*first€*
+local7*T€*
+local8*T€2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ local02
+ 	
+_empty_/M#2
+ _empty_/M#T#2!
+ _empty_/M#selfType#2
+ 
+_empty_/M#2
+  !local12
+* +_empty_/M#T#2
+% )
+_empty_/M#2'
+ _empty_/M#actualSelfType#2
+ 
+_empty_/M#2!
+& ._empty_/M#selfType#2
+ 
+_empty_/M#next().2!
+ _empty_/M#selfType#2
+ 
+_empty_/M#all2().2#
+ scala/package.Stream#2
+ 
+_empty_/M#2
+ local22
+% &_empty_/M#T#2
+  $
+_empty_/M#2=
+6 6/scala/collection/immutable/Stream.cons.apply().25
+2 6'scala/collection/immutable/Stream.cons.2#
++ 1scala/package.Stream.2
+7 ;
+_empty_/M#2'
+= K_empty_/M#actualSelfType#2
+R V_empty_/M#all2().2
+M Q_empty_/M#next().2
+ 
+_empty_/M#all3().2#
+ scala/package.Stream#2
+ 
+_empty_/M#2
+ local32
+% &_empty_/M#T#2
+  $
+_empty_/M#2#
++ 3_empty_/M#all3Impl().2
+4 8
+_empty_/M#2'
+: H_empty_/M#actualSelfType#2#
+ _empty_/M#all3Impl().2*
+ _empty_/M#all3Impl().(first)2
+ 
+_empty_/M#2
+& 'local42
+0 1_empty_/M#T#2
++ /
+_empty_/M#2#
+5 ;scala/package.Stream#2
+< =
+_empty_/M#2
+D Elocal52
+N O_empty_/M#T#2
+I M
+_empty_/M#2=
+_ _/scala/collection/immutable/Stream.cons.apply().25
+[ _'scala/collection/immutable/Stream.cons.2#
+T Zscala/package.Stream.2*
+` e_empty_/M#all3Impl().(first)2#
+g o_empty_/M#all3Impl().2
+v z_empty_/M#next().2*
+p u_empty_/M#all3Impl().(first)2
+ 
+_empty_/M#all4().2#
+ scala/package.Stream#2
+ 
+_empty_/M#2
+ local62
+% &_empty_/M#T#2
+  $
+_empty_/M#2+
+5 =_empty_/Unrelated.all4Impl().2 
++ 4_empty_/Unrelated.2
+> ?_empty_/M#T#2
+A E
+_empty_/M#2'
+G U_empty_/M#actualSelfType#2 
+ _empty_/Unrelated.2+
+ _empty_/Unrelated.all4Impl().2.
+  _empty_/Unrelated.all4Impl().[U]22
+ $_empty_/Unrelated.all4Impl().(first)2
+ 
+_empty_/M#2
+! "local72.
+& ' _empty_/Unrelated.all4Impl().[U]2#
++ 1scala/package.Stream#2
+2 3
+_empty_/M#2
+: ;local82.
+? @ _empty_/Unrelated.all4Impl().[U]2=
+P P/scala/collection/immutable/Stream.cons.apply().25
+L P'scala/collection/immutable/Stream.cons.2#
+E Kscala/package.Stream.22
+Q V$_empty_/Unrelated.all4Impl().(first)2+
+X `_empty_/Unrelated.all4Impl().2.
+a b _empty_/Unrelated.all4Impl().[U]2
+j n_empty_/M#next().22
+d i$_empty_/Unrelated.all4Impl().(first)PZ 61C3E9ADFCE18C926D0940861CAB8A5B

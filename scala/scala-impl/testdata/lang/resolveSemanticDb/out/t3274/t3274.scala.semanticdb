@@ -1,0 +1,37 @@
+
+ótests/pos/t3274.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#X#*X€*)
+_empty_/A#X#`<init>`(). €@*<init>€*
+_empty_/A#X#Y1#*Y1€*,
+_empty_/A#X#Y1#`<init>`(). €@*<init>€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#Y#*Y€*)
+_empty_/B#Y#`<init>`(). €@*<init>€*
+_empty_/B#Y#f().*f€2
+ 
+_empty_/A#2
+
+ 
+_empty_/A#`<init>`().2
+ 
+_empty_/B#2
+ 	_empty_/A#X#2%
+ _empty_/A#X#`<init>`().2
+
+ _empty_/A#X#Y1#2(
+ _empty_/A#X#Y1#`<init>`().2
+ _empty_/B#Y#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+ 	_empty_/B#Y#2%
+ _empty_/B#Y#`<init>`().2
+ _empty_/B#Y#f().2
+ scala/Unit#PZ F0405B9104F4CC68F10A214B596E4FA4

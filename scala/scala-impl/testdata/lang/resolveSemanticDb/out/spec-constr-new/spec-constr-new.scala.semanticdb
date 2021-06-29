@@ -1,0 +1,48 @@
+
+Ótests/pos/spec-constr-new.scala**
+_empty_/SparseArray2#*SparseArray2€*2
+ _empty_/SparseArray2#`<init>`(). €@*<init>€*<
+)_empty_/SparseArray2#`<init>`().(maxSize) €*maxSize€*E
+/_empty_/SparseArray2#`<init>`().(initialLength)*initialLength€*"
+_empty_/SparseArray2#[T]	*T€*0
+_empty_/SparseArray2#maxSize. €*maxSize€*<
+#_empty_/SparseArray2#initialLength. €*initialLength€*,
+_empty_/SparseArray2#data(). €*data€*.
+_empty_/SparseArray2#index(). €*index€*,
+_empty_/SparseArray2.
+ *SparseArray2€*W
+3_empty_/SparseArray2.$lessinit$greater$default$2().*$lessinit$greater$default$2€*@
+6_empty_/SparseArray2.$lessinit$greater$default$2().[T]	*T€2!
+ scala/reflect/ClassTag.2!
+ scala/reflect/ClassTag#2+
+  (!scala/reflect/package.classTag().2
+ scala/reflect/2
+ scala/2#
+ _empty_/SparseArray2#2.
+  _empty_/SparseArray2#`<init>`().2
+> A
+scala/Int#2
+Q T
+scala/Int#2%
+' /scala/reflect/ClassTag#2&
+/ /_empty_/SparseArray2#[T]2 
+ scala/specialized#2
+  #
+scala/Int.2&
+% &_empty_/SparseArray2#[T]2+
+5 <_empty_/SparseArray2#maxSize.21
+C P#_empty_/SparseArray2#initialLength.2*
+ _empty_/SparseArray2#data().25
+! 0'scala/runtime/Arrays.newGenericArray().21
+" /#_empty_/SparseArray2#initialLength.2+
+ _empty_/SparseArray2#index().2%
+$ $scala/Array#`<init>`().2
+ scala/Array#2
+  #
+scala/Int#21
+% 2#_empty_/SparseArray2#initialLength.2 
+ scala/Int#`+`(+4).2#
+ scala/Array#length().2*
+ _empty_/SparseArray2#data().2#
+ _empty_/SparseArray2.2D
+% &6_empty_/SparseArray2.$lessinit$greater$default$2().[T]PZ 6F38F47265AC1CD3511F210DC4013059

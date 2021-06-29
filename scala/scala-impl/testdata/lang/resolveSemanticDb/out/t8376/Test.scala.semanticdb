@@ -1,0 +1,31 @@
+
+ˆ	tests/pos/t8376/Test.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*&
+_empty_/BindingsY.
+ *	BindingsY€*,
+_empty_/BindingsY.select1().*select1€*/
+"_empty_/BindingsY.select1().(root)*root€*1
+#_empty_/BindingsY.select1().(steps)*steps€*.
+_empty_/BindingsY.select1(+1).*select1€*1
+$_empty_/BindingsY.select1(+1).(root)*root€*3
+%_empty_/BindingsY.select1(+1).(steps)*steps€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2)
+ _empty_/BindingsX#select().2 
+ _empty_/BindingsX#2*
+ _empty_/BindingsY.select1().2 
+ _empty_/BindingsY.2 
+ _empty_/BindingsY.2*
+ _empty_/BindingsY.select1().20
+ "_empty_/BindingsY.select1().(root)2"
+ scala/Predef.String#21
+ !#_empty_/BindingsY.select1().(steps)2"
+# )scala/Predef.String#2,
+ _empty_/BindingsY.select1(+1).22
+ $_empty_/BindingsY.select1(+1).(root)2
+ 
+scala/Any#23
+ %_empty_/BindingsY.select1(+1).(steps)2"
+  &scala/Predef.String#PZ 1607712F63601FE15A815CD5E76F2015

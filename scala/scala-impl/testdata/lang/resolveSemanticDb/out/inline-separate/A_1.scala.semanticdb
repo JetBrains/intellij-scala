@@ -1,0 +1,16 @@
+
+ï#tests/pos/inline-separate/A_1.scala*
+
+_empty_/A.
+ *A€*
+local0  *t€*"
+_empty_/A.summon().*summon€* 
+_empty_/A.summon().[T]	*T€2
+ 
+_empty_/A.2
+	 
+local02$
+ _empty_/A.summon().[T]2
+ local02!
+ _empty_/A.summon().2$
+  !_empty_/A.summon().[T]PZ B5BB2B96F4F6DC01DD50250BB5C795EF

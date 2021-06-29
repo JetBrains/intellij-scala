@@ -1,0 +1,47 @@
+
+°tests/pos/capturedVars2.scala*
+_empty_/Test# *Test€**
+_empty_/Test#`<init>`(). €@*<init>€*&
+_empty_/Test#field(). „*field€*,
+_empty_/Test#`field_=`(). €*field_=€**
+_empty_/Test#`field_=`().(x$1)*x$1€*&
+_empty_/Test#field2. „*field2€*
+_empty_/Test#foo().*foo€*
+local0 €*x€*
+local1*inner€2
+ _empty_/Test#2&
+ _empty_/Test#`<init>`().2#
+ _empty_/Test#field().2
+ 
+scala/Int#2'
+ _empty_/Test#`field_=`().2"
+ _empty_/Test#field2.2
+ 
+scala/Int#2!
+ 	_empty_/Test#foo().2
+ 	local02
+ 
+scala/Int#2
+		 local12
+
+
+ local02 
+
+
+ scala/Int#`+`(+4).2 
+
+
+ scala/Int#`+`(+4).2 
+
+
+ scala/Int#`+`(+4).2
+
+
+
+ local02#
+
+
+ _empty_/Test#field().2"
+
+
+  _empty_/Test#field2.PZ 29A548B388058CE9D6DBE99294D44433

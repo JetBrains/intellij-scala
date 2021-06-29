@@ -1,0 +1,31 @@
+
+òtests/pos/i11128-wildcard.scala*
+
+foo/Outer.
+ *Outer€*
+foo/Outer.Wrap.
+ *Wrap€*#
+foo/Outer.Wrap.Wrap. *Wrap€*!
+foo/Outer.Wrap.Bar# *Bar€*
+foo/Outer.Bar#*Bar€*+
+foo/Outer.Bar#`<init>`(). €@*<init>€*,
+foo/`i11128-wildcard$package`. *foo€*9
+&foo/`i11128-wildcard$package`.wrapBar. €*wrapBar€2
+ foo/2
+ 
+foo/Outer.2
+	 foo/Outer.Wrap.2
+ 
+foo/Outer.2"
+ foo/Outer.Wrap.Wrap.2
+ foo/Outer.Wrap.2!
+ foo/Outer.Wrap.Bar#2
+ foo/Outer.Bar#2'
+ foo/Outer.Bar#`<init>`().2
+ 
+foo/Outer.2(
+foo/`i11128-wildcard$package`.24
+ &foo/`i11128-wildcard$package`.wrapBar.2'
+ foo/Outer.Bar#`<init>`().2!
+ foo/Outer.Wrap.Bar#2
+ foo/Outer.Wrap.PZ 22BC356D7404F8E654570AAFFFA71339

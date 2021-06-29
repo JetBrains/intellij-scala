@@ -1,0 +1,21 @@
+
+Ñ$tests/pos/inlined-inline-param.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().(x)*x€*
+_empty_/Foo#bar().*bar€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ _empty_/Foo#foo().2#
+ _empty_/Foo#foo().(x)2
+ 
+scala/Int#2
+! $
+scala/Int#2#
+' (_empty_/Foo#foo().(x)2 
+ 	_empty_/Foo#bar().2
+ 
+scala/Int#2 
+ _empty_/Foo#foo().2 
+ _empty_/Foo#foo().PZ E324E3A8FFB056526FCD739D69D06704

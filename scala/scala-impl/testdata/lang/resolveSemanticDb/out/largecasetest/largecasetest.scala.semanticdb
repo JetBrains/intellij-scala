@@ -1,0 +1,12 @@
+
+Ètests/pos/largecasetest.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(x)*x€2
+ _empty_/Test.2!
+ _empty_/Test.foo().2$
+ 	_empty_/Test.foo().(x)2
+ 
+scala/Int#2$
+ _empty_/Test.foo().(x)PZ 343DA1DC902B2034E14E26022176B0E6

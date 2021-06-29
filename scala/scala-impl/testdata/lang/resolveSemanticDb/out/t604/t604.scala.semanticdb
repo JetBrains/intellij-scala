@@ -1,0 +1,18 @@
+
+…tests/pos/t604.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.T#*T€*
+_empty_/Test.Foo.
+ *Foo€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(argv)*argv€2
+ _empty_/Test.2
+ _empty_/Test.T#2
+ _empty_/Test.Foo.2
+ _empty_/Test.Foo.2"
+ _empty_/Test.main().2(
+ _empty_/Test.main().(argv)2
+ scala/Array#2"
+ $scala/Predef.String#2
+) -scala/Unit#PZ 342154B115947AACEE41268DFF97A3B9

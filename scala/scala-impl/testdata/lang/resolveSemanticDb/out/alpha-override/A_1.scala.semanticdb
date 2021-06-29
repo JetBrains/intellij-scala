@@ -1,0 +1,13 @@
+
+§"tests/pos/alpha-override/A_1.scala*
+_empty_/A_1#*A_1€*)
+_empty_/A_1#`<init>`(). €@*<init>€*
+_empty_/A_1#foo().*foo€2*
+ scala/annotation/targetName#2
+ scala/annotation/2
+ 	_empty_/A_1#2%
+ _empty_/A_1#`<init>`().2*
+ scala/annotation/targetName#2 
+ _empty_/A_1#foo().2
+  #
+scala/Int#PZ D18AA323EF790D39F233257C2D9EA95F

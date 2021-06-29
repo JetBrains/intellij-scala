@@ -1,0 +1,333 @@
+
+ÔO-tests/pos/trailingCommas/trailingCommas.scala**
+foo/ArgumentExprs1#*ArgumentExprs1Ä*0
+foo/ArgumentExprs1#`<init>`(). Ä@*<init>Ä*!
+foo/ArgumentExprs1#f().*fÄ*(
+foo/ArgumentExprs1#f().(foo)*fooÄ*(
+foo/ArgumentExprs1#f().(bar)*barÄ**
+foo/ArgumentExprs1#f().(ev0)  *ev0Ä**
+foo/ArgumentExprs1#f().(ev1)  *ev1Ä*!
+foo/ArgumentExprs1#g().*gÄ*$
+foo/ArgumentExprs1#g().(x)*xÄ*$
+foo/ArgumentExprs1#g().(y)*yÄ**
+foo/ArgumentExprs2#*ArgumentExprs2Ä*0
+foo/ArgumentExprs2#`<init>`(). Ä@*<init>Ä*
+foo/ArgumentExprs2#C#*CÄ*2
+ foo/ArgumentExprs2#C#`<init>`(). Ä@*<init>Ä*1
+%foo/ArgumentExprs2#C#`<init>`().(foo)*fooÄ*1
+%foo/ArgumentExprs2#C#`<init>`().(bar)*barÄ*3
+%foo/ArgumentExprs2#C#`<init>`().(ev0)  *ev0Ä*3
+%foo/ArgumentExprs2#C#`<init>`().(ev1)  *ev1Ä*(
+foo/ArgumentExprs2#C#foo. Ä*fooÄ*(
+foo/ArgumentExprs2#C#bar. Ä*barÄ*(
+foo/ArgumentExprs2#C#ev0. †*ev0Ä*(
+foo/ArgumentExprs2#C#ev1. †*ev1Ä*
+foo/Params#*ParamsÄ*(
+foo/Params#`<init>`(). Ä@*<init>Ä*
+foo/Params#f(). *fÄ* 
+foo/Params#f().(foo)*fooÄ* 
+foo/Params#f().(bar)*barÄ*"
+foo/Params#f().(ev0)  *ev0Ä*"
+foo/Params#f().(ev1)  *ev1Ä*$
+foo/ClassParams#*ClassParamsÄ*-
+foo/ClassParams#`<init>`(). Ä@*<init>Ä*
+foo/ClassParams#C#*CÄ*/
+foo/ClassParams#C#`<init>`(). Ä@*<init>Ä*.
+"foo/ClassParams#C#`<init>`().(foo)*fooÄ*.
+"foo/ClassParams#C#`<init>`().(bar)*barÄ*0
+"foo/ClassParams#C#`<init>`().(ev0)  *ev0Ä*0
+"foo/ClassParams#C#`<init>`().(ev1)  *ev1Ä*%
+foo/ClassParams#C#foo. Ä*fooÄ*%
+foo/ClassParams#C#bar. Ä*barÄ*%
+foo/ClassParams#C#ev0. †*ev0Ä*%
+foo/ClassParams#C#ev1. †*ev1Ä*
+foo/ClassParams#D# Ä*DÄ*/
+foo/ClassParams#D#`<init>`(). Ä@*<init>Ä*-
+ foo/ClassParams#D#`<init>`().(i) Ä*iÄ*!
+foo/ClassParams#D#i. Ä*iÄ*"
+foo/ClassParams#D#_1().*_1Ä*
+foo/ClassParams#D.
+ *DÄ*(
+foo/ClassParams#D.apply().*applyÄ*'
+foo/ClassParams#D.apply().(i)*iÄ*2
+foo/ClassParams#D.unapplySeq().*
+unapplySeqÄ*0
+$foo/ClassParams#D.unapplySeq().(x$1)*x$1Ä*.
+foo/ClassParams#D.toString().*toStringÄ*$
+foo/SimpleExpr1#*SimpleExpr1Ä*-
+foo/SimpleExpr1#`<init>`(). Ä@*<init>Ä*
+foo/SimpleExpr1#f().*fÄ*
+foo/SimpleExpr1#g().*gÄ*
+foo/TypeArgs#*TypeArgsÄ**
+foo/TypeArgs#`<init>`(). Ä@*<init>Ä*
+foo/TypeArgs#C#*CÄ*,
+foo/TypeArgs#C#`<init>`(). Ä@*<init>Ä*
+foo/TypeArgs#C#[A]	*AÄ*
+foo/TypeArgs#C#[B]	*BÄ*
+foo/TypeArgs#f(). *fÄ*,
+foo/TypeParamClause#*TypeParamClauseÄ*1
+foo/TypeParamClause#`<init>`(). Ä@*<init>Ä* 
+foo/TypeParamClause#C#*CÄ*3
+!foo/TypeParamClause#C#`<init>`(). Ä@*<init>Ä*#
+foo/TypeParamClause#C#[A]	*AÄ*#
+foo/TypeParamClause#C#[B]	*BÄ*2
+foo/FunTypeParamClause#*FunTypeParamClauseÄ*4
+"foo/FunTypeParamClause#`<init>`(). Ä@*<init>Ä*'
+foo/FunTypeParamClause#f(). *fÄ*(
+foo/FunTypeParamClause#f().[A]	*AÄ*(
+foo/FunTypeParamClause#f().[B]	*BÄ*"
+foo/SimpleType#*
+SimpleTypeÄ*,
+foo/SimpleType#`<init>`(). Ä@*<init>Ä*
+foo/SimpleType#f(). *fÄ*
+foo/SimpleType#g().*gÄ*.
+foo/FunctionArgTypes#*FunctionArgTypesÄ*2
+ foo/FunctionArgTypes#`<init>`(). Ä@*<init>Ä*%
+foo/FunctionArgTypes#f(). *fÄ*(
+foo/SimplePattern#*SimplePatternÄ*/
+foo/SimplePattern#`<init>`(). Ä@*<init>Ä*%
+foo/SimplePattern#foo. Ä*fooÄ*%
+foo/SimplePattern#bar. Ä*barÄ*
+local0 Ä*xÄ*
+local1 Ä*xÄ*!
+foo/SimplePattern#x. Ä*xÄ*!
+foo/SimplePattern#y. Ä*yÄ*!
+foo/SimplePattern#z. Ä*zÄ*,
+foo/ImportSelectors#*ImportSelectorsÄ*1
+foo/ImportSelectors#`<init>`(). Ä@*<init>Ä*
+foo/Bindings#*BindingsÄ**
+foo/Bindings#`<init>`(). Ä@*<init>Ä*
+foo/Bindings#g(). *gÄ*
+foo/Bindings#g().(f)*fÄ*
+local2*fooÄ*
+local3*barÄ*
+foo/package. *fooÄ*
+foo/package.Ev0# *Ev0Ä*-
+foo/package.Ev0#`<init>`(). Ä@*<init>Ä*
+foo/package.Ev0.
+ (*Ev0Ä*
+foo/package.Ev1# *Ev1Ä*-
+foo/package.Ev1#`<init>`(). Ä@*<init>Ä*
+foo/package.Ev1.
+ (*Ev1Ä2
+ foo/2!
+ foo/ArgumentExprs1#2,
+ foo/ArgumentExprs1#`<init>`().2%
+ foo/ArgumentExprs1#f().2*
+ foo/ArgumentExprs1#f().(foo)2
+ 
+scala/Int#2*
+ foo/ArgumentExprs1#f().(bar)2"
+ scala/Predef.String#2*
+( +foo/ArgumentExprs1#f().(ev0)2
+- 0foo/package.Ev0#2*
+2 5foo/ArgumentExprs1#f().(ev1)2
+7 :foo/package.Ev1#2%
+ foo/ArgumentExprs1#f().2
+ foo/package.Ev0.2
+		 foo/package.Ev1.2%
+ foo/ArgumentExprs1#g().2(
+ 	foo/ArgumentExprs1#g().(x)2
+ 
+scala/Int#2(
+ foo/ArgumentExprs1#g().(y)2
+ 
+scala/Int#2%
+ foo/ArgumentExprs1#g().2%
+ foo/ArgumentExprs1#g().27
+
+ 
+)scala/collection/IterableFactory#apply().2!
+ 
+scala/package.List.2!
+ foo/ArgumentExprs2#2,
+ foo/ArgumentExprs2#`<init>`().2#
+ 	foo/ArgumentExprs2#C#2.
+	 	 foo/ArgumentExprs2#C#`<init>`().2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+/ 2foo/package.Ev0#2
+9 <foo/package.Ev1#2'
+
+ foo/ArgumentExprs2#C#foo.2'
+ foo/ArgumentExprs2#C#bar.2'
+* -foo/ArgumentExprs2#C#ev0.2'
+4 7foo/ArgumentExprs2#C#ev1.2.
+  foo/ArgumentExprs2#C#`<init>`().2#
+ foo/ArgumentExprs2#C#2
+ foo/package.Ev0.2
+ foo/package.Ev1.2
+ foo/Params#2$
+   foo/Params#`<init>`().2
+   foo/Params#f().2"
+!	! foo/Params#f().(foo)2
+!! 
+scala/Int#2"
+"	" foo/Params#f().(bar)2"
+"" scala/Predef.String#2"
+$	$ foo/Params#f().(ev0)2
+$$ foo/package.Ev0#2"
+%	% foo/Params#f().(ev1)2
+%% foo/package.Ev1#2
+&
+& scala/Unit#2
+)) foo/ClassParams#2)
+** foo/ClassParams#`<init>`().2 
+** 	foo/ClassParams#C#2+
+*	* 	foo/ClassParams#C#`<init>`().2
+++ 
+scala/Int#2"
+,, scala/Predef.String#2
+.. foo/package.Ev0#2
+// foo/package.Ev1#2$
+++ foo/ClassParams#C#foo.2$
+,, foo/ClassParams#C#bar.2$
+.. foo/ClassParams#C#ev0.2$
+// foo/ClassParams#C#ev1.2 
+33 foo/ClassParams#D#2+
+33 foo/ClassParams#D#`<init>`().2
+33 
+scala/Int#2"
+33 foo/ClassParams#D#i.2%
+33 foo/ClassParams#D#_1().2 
+33 foo/ClassParams#D.2(
+33 foo/ClassParams#D.apply().2
+77 foo/SimpleExpr1#2)
+88 foo/SimpleExpr1#`<init>`().2"
+88 foo/SimpleExpr1#f().2
+8
+8 
+scala/Int#2"
+88 scala/Predef.String#2#
+99 scala/Tuple2.apply().2"
+>> foo/SimpleExpr1#g().2
+>	> 
+scala/Int#2
+CC foo/TypeArgs#2&
+DD foo/TypeArgs#`<init>`().2
+DD 	foo/TypeArgs#C#2(
+D	D 	foo/TypeArgs#C#`<init>`().2 
+D
+D foo/TypeArgs#C#[A]2 
+DD foo/TypeArgs#C#[B]2
+EE foo/TypeArgs#f().2
+E	E 
+foo/TypeArgs#C#2
+FF 
+scala/Int#2"
+GG scala/Predef.String#2"
+KK foo/TypeParamClause#2-
+LL foo/TypeParamClause#`<init>`().2$
+LL 	foo/TypeParamClause#C#2/
+L	L 	!foo/TypeParamClause#C#`<init>`().2'
+MM foo/TypeParamClause#C#[A]2'
+NN foo/TypeParamClause#C#[B]2%
+RR foo/FunTypeParamClause#20
+SS "foo/FunTypeParamClause#`<init>`().2)
+SS foo/FunTypeParamClause#f().2,
+TT foo/FunTypeParamClause#f().[A]2,
+UU foo/FunTypeParamClause#f().[B]2
+VV 	scala/Unit#2
+YY foo/SimpleType#2(
+ZZ foo/SimpleType#`<init>`().2!
+ZZ foo/SimpleType#f().2
+[[ 
+scala/Int#2"
+\\ scala/Predef.String#2!
+`` foo/SimpleType#g().2
+aa 
+scala/Int#2#
+ee foo/FunctionArgTypes#2.
+ff  foo/FunctionArgTypes#`<init>`().2'
+ff foo/FunctionArgTypes#f().2
+gg 
+scala/Int#2"
+hh scala/Predef.String#2
+i	i scala/Boolean#2 
+ll foo/SimplePattern#2+
+mm foo/SimplePattern#`<init>`().2
+pp 
+scala/Any#2%
+nn scala/Tuple2.unapply().2$
+nn foo/SimplePattern#foo.2$
+oo foo/SimplePattern#bar.2!
+ss scala/Some.apply().2
+ss scala/Some.2#
+tt scala/Some.unapply().2
+t	t scala/Some.2
+tt local02
+u	u 
+local027
+yy )scala/collection/IterableFactory#apply().2!
+yy scala/package.List.27
+zz )scala/collection/SeqFactory#unapplySeq().2!
+z	z scala/package.List.2
+zz local127
+
+ÄÄ 'scala/collection/immutable/List#`::`().2"
+
+ÄÄ scala/package.Nil.27
+
+ 
+)scala/collection/SeqFactory#unapplySeq().2!
+ 
+scala/package.List.2"
+ foo/SimplePattern#x.2"
+ foo/SimplePattern#y.2"
+ foo/SimplePattern#z.2$
+
+ÉÉ foo/ImportSelectors#2/
+
+ÑÑ foo/ImportSelectors#`<init>`().2 
+
+ÖÖ foo/package.Ev0.2 
+
+ÖÖ foo/package.Ev0#2 
+
+ÜÜ foo/package.Ev1.2 
+
+ÜÜ foo/package.Ev1#2
+
+Ñ	Ñ foo/2
+
+ää foo/Bindings#2(
+
+ãã foo/Bindings#`<init>`().2!
+
+ãã foo/Bindings#g().2$
+
+ãã 	foo/Bindings#g().(f)2
+
+ãã 
+scala/Int#2$
+
+ãã scala/Predef.String#2
+
+ãã #scala/Boolean#2
+
+ã&ã *scala/Unit#2!
+
+çç foo/Bindings#g().2
+
+éé 	local22
+
+èè 	local32
+
+óó foo/package.2 
+
+òò foo/package.Ev0#2+
+
+òò foo/package.Ev0#`<init>`().2 
+
+ò$ò 'foo/package.Ev0.2 
+
+ò0ò 3foo/package.Ev0#2 
+
+ôô foo/package.Ev1#2+
+
+ôô foo/package.Ev1#`<init>`().2 
+
+ô$ô 'foo/package.Ev1.2 
+
+ô0ô 3foo/package.Ev1#PZ 751EE7A7BEDF771E13BE1874A3208944

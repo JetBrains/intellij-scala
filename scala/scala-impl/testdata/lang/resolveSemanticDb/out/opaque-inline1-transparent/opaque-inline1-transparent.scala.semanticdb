@@ -1,0 +1,38 @@
+
+¶	*tests/pos/opaque-inline1-transparent.scala*"
+_empty_/refined.
+ *refined€**
+_empty_/refined.Positive#*Positive€*,
+_empty_/refined.Positive().*Positive€*0
+"_empty_/refined.Positive().(value)*value€*
+_empty_/refined.f().*f€*!
+_empty_/refined.f().(x)*x€*
+_empty_/test.
+ *test€*
+_empty_/test.run().*run€*
+local0 €*x€*
+local1 €*nine€2
+ _empty_/refined.2'
+ _empty_/refined.Positive#2
+ 
+scala/Int#2"
+: ;_empty_/refined.f().20
+< A"_empty_/refined.Positive().(value)2)
+ !_empty_/refined.Positive().20
+" '"_empty_/refined.Positive().(value)2
+) ,
+scala/Int#2'
+/ 7_empty_/refined.Positive#2"
+ _empty_/refined.f().2%
+ 	_empty_/refined.f().(x)2'
+ _empty_/refined.Positive#2'
+ _empty_/refined.Positive#2%
+! "_empty_/refined.f().(x)2
+ _empty_/test.2!
+ 	_empty_/test.run().2
+ scala/Unit#2
+ 	local02
+		 local12)
+		 _empty_/refined.Positive().2
+		 _empty_/refined.2
+	 	 !local0PZ BF403FDE41DD222A948D4A26B865DA35

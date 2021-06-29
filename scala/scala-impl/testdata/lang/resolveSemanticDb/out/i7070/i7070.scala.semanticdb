@@ -1,0 +1,27 @@
+
+ðtests/pos/i7070.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.foo().*foo€*$
+_empty_/Test.foo().(str)*str€*(
+_empty_/Test.given_C. è*given_C€*&
+_empty_/Test.strFoo. €*strFoo€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2!
+ !_empty_/Test.foo().2&
+ _empty_/Test.foo().(str)2"
+ scala/Predef.String#2
+# $_empty_/Test.C#2
+) ,
+scala/Int#2#
+/ 2scala/Predef.`???`().2#
+ _empty_/Test.given_C.2
+ 	_empty_/Test.C#2#
+ scala/Predef.`???`().2"
+ _empty_/Test.strFoo.2-
+ scala/ContextFunction1#apply().2!
+ _empty_/Test.foo().2#
+ _empty_/Test.given_C.PZ 002DC53B61F40AD921F6D795639F421A

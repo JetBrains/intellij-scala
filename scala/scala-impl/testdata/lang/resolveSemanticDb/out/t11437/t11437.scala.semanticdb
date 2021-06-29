@@ -1,0 +1,50 @@
+
+µtests/pos/t11437.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*#
+_empty_/T#adder0. €*adder0€*%
+_empty_/T#adder1(). €*adder1€*+
+_empty_/T#`adder1_=`(). €*adder1_=€*(
+_empty_/T#`adder1_=`().(x$1)*x$1€*%
+_empty_/T#adder2(). €*adder2€*+
+_empty_/T#`adder2_=`(). €*adder2_=€*(
+_empty_/T#`adder2_=`().(x$1)*x$1€* 
+_empty_/Regress#*Regress€*-
+_empty_/Regress#`<init>`(). €@*<init>€*!
+_empty_/Regress#v(). €*v€*'
+_empty_/Regress#`v_=`(). €*v_=€*)
+_empty_/Regress#`v_=`().(x$1)*x$1€*
+_empty_/Regress#f().*f€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ _empty_/T#adder0.2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2!
+ _empty_/T#adder1().2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2%
+ _empty_/T#`adder1_=`().2!
+ _empty_/T#adder2().2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2%
+ _empty_/T#`adder2_=`().2
+ _empty_/Regress#2)
+ _empty_/Regress#`<init>`().2"
+ _empty_/Regress#v().2
+	 
+scala/Int#2@
+ (2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2&
+ 	_empty_/Regress#`v_=`().2"
+ _empty_/Regress#f().PZ F619ED76E99897E74641B43210AA6889

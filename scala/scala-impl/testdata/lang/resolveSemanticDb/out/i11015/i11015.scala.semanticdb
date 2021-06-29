@@ -1,0 +1,31 @@
+
+’tests/pos/i11015.scala*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.apply().*apply€*!
+_empty_/Foo.apply().[A]	*A€*$
+_empty_/Foo.apply(+1).*apply€*#
+_empty_/Foo.apply(+1).[B]	*B€*)
+_empty_/i11015$package. *_empty_€*+
+_empty_/i11015$package.test().*test€2&
+ scala/annotation/targetName#2
+ scala/annotation/2
+ 
+_empty_/Foo.2"
+ _empty_/Foo.apply().2%
+ _empty_/Foo.apply().[A]2
+ 
+scala/Int#2
+ 
+scala/Int#2*
+ scala/annotation/targetName#2$
+ "_empty_/Foo.apply(+1).2'
+# $_empty_/Foo.apply(+1).[B]2"
+( .scala/Predef.String#2"
+1 7scala/Predef.String#2!
+_empty_/i11015$package.2,
+ _empty_/i11015$package.test().2"
+ _empty_/Foo.apply().2
+ _empty_/Foo.2
+ 
+scala/Int#PZ 4CBC5BC479BAEB2FF8B08EA38EDC172C

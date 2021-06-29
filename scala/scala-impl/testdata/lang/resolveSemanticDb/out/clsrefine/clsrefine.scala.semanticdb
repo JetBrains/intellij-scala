@@ -1,0 +1,136 @@
+
+£tests/pos/clsrefine.scala*
+scalac/util/A#*A€*+
+scalac/util/A#`<init>`(). €@*<init>€*
+scalac/util/A#X1#*X1€*
+scalac/util/A#X2#*X2€*
+scalac/util/A#x1. „*x1€*
+scalac/util/A#x2. „*x2€*
+scalac/util/B#*B€*+
+scalac/util/B#`<init>`(). €@*<init>€*
+scalac/util/B#Y#*Y€*
+scalac/util/B#y1. „*y1€*
+scalac/util/B#y2. „*y2€*
+scalac/util/B#X1#*X1€*
+scalac/util/B#X2#*X2€*
+scalac/util/B#x1. €*x1€*
+scalac/util/B#x2. €*x2€*
+scalac/util/B#f().*f€*
+scalac/util/B#f().(x)*x€*!
+scalac/util/B#f().(xs)*xs€*
+scalac/util/B#g().*g€* 
+scalac/util/test.
+ *test€* 
+scalac/util/test.b. €*b€*
+local0*Y€*
+local1 *$anon€*
+local2*Y€*
+local3 €*y1€*
+local4 €*y2€* 
+scalac/util/test.a. €*a€*
+local5*X1€*
+local6*X2€*"
+scalac/util/test.a1. €*a1€*
+local7 *$anon€*
+local8*X1€*
+local9*X2€*
+local10 €*x1€*
+local11 €*x2€*"
+scalac/util/test.b1. €*b1€*
+local12 *$anon€*
+local13*Y€*
+local14 €*y1€*
+local15 €*y2€2
+ scala/2
+ scalac/util/2
+ scalac/2
+ scalac/util/A#2'
+ scalac/util/A#`<init>`().2
+ 	scalac/util/A#X1#2
+ 	scalac/util/A#X2#2
+ scalac/util/A#x1.2
+
+ scalac/util/A#X1#2
+ scalac/util/A#x2.2
+
+ scalac/util/A#X2#2
+
+
+ scalac/util/B#2'
+
+
+ scalac/util/B#`<init>`().2
+
+
+ scalac/util/A#2
+ scalac/util/B#Y#2
+ scalac/util/B#y1.2
+ scalac/util/B#Y#2
+
+ scalac/util/B#y2.2
+ 	scalac/util/B#X1#2
+ scalac/util/B#Y#2
+ 	scalac/util/B#X2#2
+ scalac/util/B#Y#2
+ scalac/util/B#x1.2
+ scalac/util/B#y1.2
+ scalac/util/B#x2.2
+ scalac/util/B#y2.2 
+ scalac/util/B#f().2#
+ 	scalac/util/B#f().(x)2
+ scalac/util/B#Y#2$
+ scalac/util/B#f().(xs)2
+ scalac/util/B#2
+ scala/Unit#2 
+ scalac/util/B#g().2 
+ scalac/util/B#f().2
+ scalac/util/B#y1.2
+ scalac/util/test.2!
+ scalac/util/test.b.2
+	 
+scalac/util/B#2
+ local02
+ 
+scala/Int#2
+ local12
+" #scalac/util/B#2
+	 
+local22
+ 
+scala/Int#2
+ 
+local32
+ local42!
+ scalac/util/test.a.2
+	 
+scalac/util/A#2
+ local52
+ 
+scala/Int#2
+! #local62
+& )
+scala/Int#2!
+. /scalac/util/test.b.2"
+ scalac/util/test.a1.2
+ local72
+ scalac/util/A#2
+	 local82
+ 
+scala/Int#2
+	 local92"
+ scala/Predef.String#2
+ 
+local102
+ 
+local112"
+!! scalac/util/test.b1.2
+!! local122
+!! scalac/util/B#2
+"	" 
+local132
+"" 
+scala/Any#2
+## 
+local142
+$$ 
+local15PZ C8F080293589CAF6F004B53C65AE530B

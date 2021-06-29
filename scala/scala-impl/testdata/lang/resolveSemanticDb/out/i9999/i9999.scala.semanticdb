@@ -1,0 +1,300 @@
+
+Ò=tests/pos/i9999.scala*
+
+_empty_/A# €*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#copy().*copy€*
+
+_empty_/A.
+ *A€* 
+_empty_/A.apply().*apply€*$
+_empty_/A.unapply().*unapply€*%
+_empty_/A.unapply().(x$1)*x$1€*&
+_empty_/A.toString().*toString€*
+
+_empty_/B# €*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#copy().*copy€*
+
+_empty_/B.
+ *B€* 
+_empty_/B.apply().*apply€*$
+_empty_/B.unapply().*unapply€*%
+_empty_/B.unapply().(x$1)*x$1€*&
+_empty_/B.toString().*toString€*
+_empty_/More# €*More€**
+_empty_/More#`<init>`(). €@*<init>€*!
+_empty_/More#copy().*copy€*
+_empty_/More.
+ *More€*#
+_empty_/More.apply().*apply€*'
+_empty_/More.unapply().*unapply€*(
+_empty_/More.unapply().(x$1)*x$1€*)
+_empty_/More.toString().*toString€*
+_empty_/Stop# €*Stop€**
+_empty_/Stop#`<init>`(). €@*<init>€*!
+_empty_/Stop#copy().*copy€*
+_empty_/Stop.
+ *Stop€*#
+_empty_/Stop.apply().*apply€*'
+_empty_/Stop.unapply().*unapply€*(
+_empty_/Stop.unapply().(x$1)*x$1€*)
+_empty_/Stop.toString().*toString€*
+_empty_/DSL# *DSL€*)
+_empty_/DSL#`<init>`(). €@*<init>€*
+_empty_/Fun# €*Fun€*)
+_empty_/Fun#`<init>`(). €@*<init>€*-
+_empty_/Fun#`<init>`().(cont) €*cont€*
+_empty_/Fun#[F]	*F€*!
+_empty_/Fun#cont. €*cont€* 
+_empty_/Fun#copy().*copy€* 
+_empty_/Fun#copy().[F]	*F€*&
+_empty_/Fun#copy().(cont)*cont€*4
+_empty_/Fun#copy$default$1().*copy$default$1€**
+ _empty_/Fun#copy$default$1().[F]	*F€*
+_empty_/Fun#_1().*_1€*
+_empty_/Fun.
+ *Fun€*"
+_empty_/Fun.apply().*apply€*!
+_empty_/Fun.apply().[F]	*F€*'
+_empty_/Fun.apply().(cont)*cont€*&
+_empty_/Fun.unapply().*unapply€*#
+_empty_/Fun.unapply().[F]	*F€*'
+_empty_/Fun.unapply().(x$1)*x$1€*(
+_empty_/Fun.toString().*toString€*
+_empty_/Nop# €*Nop€*)
+_empty_/Nop#`<init>`(). €@*<init>€* 
+_empty_/Nop#copy().*copy€*
+_empty_/Nop.
+ *Nop€*"
+_empty_/Nop.apply().*apply€*&
+_empty_/Nop.unapply().*unapply€*'
+_empty_/Nop.unapply().(x$1)*x$1€*(
+_empty_/Nop.toString().*toString€*(
+_empty_/i9999$package. *_empty_€*$
+_empty_/i9999$package.M2#*M2€*&
+_empty_/i9999$package.M2#[X]	*X€*&
+_empty_/i9999$package.f2().*f2€*(
+_empty_/i9999$package.f2().(x)*x€*$
+_empty_/i9999$package.M1#*M1€*&
+_empty_/i9999$package.M1#[X]	*X€*
+local0 *apply€*
+local1*x€*&
+_empty_/i9999$package.f1().*f1€*(
+_empty_/i9999$package.f1().(x)*x€*
+local2*x€*,
+_empty_/i9999$package.Match2#*Match2€**
+ _empty_/i9999$package.Match2#[X]	*X€*
+local3 *apply€*
+local4*y€*,
+_empty_/i9999$package.Match1#*Match1€**
+ _empty_/i9999$package.Match1#[X]	*X€**
+_empty_/i9999$package.fun2().*fun2€**
+ _empty_/i9999$package.fun2().(x)*x€*
+local5*y€**
+_empty_/i9999$package.fun1().*fun1€**
+ _empty_/i9999$package.fun1().(y)*y€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 
+_empty_/A.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B.2
+ _empty_/More#2&
+ _empty_/More#`<init>`().2
+ _empty_/More.2
+ "_empty_/Stop#2&
+" "_empty_/Stop#`<init>`().2
+ _empty_/Stop.2
+ _empty_/DSL#2!
+_empty_/DSL#`<init>`().2
+ _empty_/Fun#2%
+ _empty_/Fun#`<init>`().2
+, -_empty_/Fun#[F]2%
+: :_empty_/DSL#`<init>`().2
+7 :_empty_/DSL#2
+ _empty_/Fun#[F]2
+& *_empty_/Fun#cont.2
+_empty_/Fun#copy().2
+, ,_empty_/Fun#_1().2
+ _empty_/Fun.2
+_empty_/Fun.apply().2 
+_empty_/Fun.unapply().2
+ _empty_/Nop#2%
+ _empty_/Nop#`<init>`().2%
+ _empty_/DSL#`<init>`().2
+ _empty_/DSL#2
+ _empty_/Nop.2 
+_empty_/i9999$package.2'
+ _empty_/i9999$package.M2#2*
+ 	_empty_/i9999$package.M2#[X]2
+ 
+scala/`|`#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2*
+ _empty_/i9999$package.M2#[X]2
+ 
+_empty_/A#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2
+ 
+_empty_/B#2)
+ _empty_/i9999$package.f2().2,
+ _empty_/i9999$package.f2().(x)2
+ 
+scala/`|`#2
+
+ 
+_empty_/A#2
+ 
+_empty_/B#2'
+ _empty_/i9999$package.M2#2,
+ _empty_/i9999$package.f2().(x)2,
+ _empty_/i9999$package.f2().(x)2
+	
+	 
+_empty_/A#2 
+		 _empty_/A.apply().2
+		 
+_empty_/A.2
+
+
+
+ 
+_empty_/B#2 
+
+
+ _empty_/B.apply().2
+
+
+ 
+_empty_/B.2'
+ _empty_/i9999$package.M1#2*
+ 	_empty_/i9999$package.M1#[X]2
+ 
+scala/`|`#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2*
+ _empty_/i9999$package.M1#[X]2
+ 
+_empty_/A#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2
+ 
+scala/`|`#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2
+ local02
+ local12'
+ _empty_/i9999$package.M2#2
+ local12)
+ _empty_/i9999$package.f1().2,
+ _empty_/i9999$package.f1().(x)2
+ 
+scala/`|`#2
+
+ 
+_empty_/A#2
+ 
+_empty_/B#2'
+ _empty_/i9999$package.M1#2,
+ _empty_/i9999$package.f1().(x)2,
+ _empty_/i9999$package.f1().(x)2
+
+ 
+_empty_/A#2 
+ _empty_/A.apply().2
+ 
+_empty_/A.2
+
+ 
+_empty_/B#2
+ local22
+ 
+scala/`|`#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2)
+ _empty_/i9999$package.f2().2
+ local22+
+ _empty_/i9999$package.Match2#2.
+  _empty_/i9999$package.Match2#[X]2
+ 
+scala/`|`#2
+ _empty_/More#2
+ _empty_/Stop#2
+ "_empty_/DSL#2.
+% & _empty_/i9999$package.Match2#[X]2
+ _empty_/More#2
+ _empty_/Fun#2
+ 
+scala/`|`#2
+ _empty_/More#2
+  _empty_/Stop#2
+" 'local32
+ local42+
+% +_empty_/i9999$package.Match1#2
+, -local42
+ _empty_/Stop#2
+ _empty_/Nop#2+
+!! _empty_/i9999$package.Match1#2.
+!!  _empty_/i9999$package.Match1#[X]2
+!! _empty_/DSL#2.
+!!  _empty_/i9999$package.Match1#[X]2
+"" _empty_/More#2
+"" _empty_/Nop#2
+## _empty_/Stop#2
+## _empty_/Nop#2+
+&& _empty_/i9999$package.fun2().2.
+&	& 
+ _empty_/i9999$package.fun2().(x)2
+&& 
+scala/`|`#2
+&& _empty_/More#2
+&& _empty_/Stop#2+
+&& _empty_/i9999$package.Match2#2.
+&&   _empty_/i9999$package.fun2().(x)2.
+&)& * _empty_/i9999$package.fun2().(x)2
+'
+' _empty_/More#2"
+'' _empty_/Fun.apply().2
+'' _empty_/Fun.2+
+'' _empty_/i9999$package.fun1().2
+'' local52
+(
+( _empty_/Stop#2"
+(( _empty_/Nop.apply().2
+(( _empty_/Nop.2+
+++ _empty_/i9999$package.fun1().2.
++	+ 
+ _empty_/i9999$package.fun1().(y)2
+++ 
+scala/`|`#2
+++ _empty_/More#2
+++ _empty_/Stop#2+
+++ _empty_/i9999$package.Match1#2.
+++   _empty_/i9999$package.fun1().(y)2.
++)+ * _empty_/i9999$package.fun1().(y)2
+,
+, _empty_/More#2"
+,, _empty_/Nop.apply().2
+,, _empty_/Nop.2
+-
+- _empty_/Stop#2"
+-- _empty_/Nop.apply().2
+-- _empty_/Nop.PZ E7152ECD12282E681BBDC8F7E4D9CE50

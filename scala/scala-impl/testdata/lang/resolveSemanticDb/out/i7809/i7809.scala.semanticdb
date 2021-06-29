@@ -1,0 +1,16 @@
+
+þtests/pos/i7809.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#B#*B€*)
+_empty_/A#B#`<init>`(). €@*<init>€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+
+ _empty_/A#B#2%
+ _empty_/A#B#`<init>`().2
+ 
+scala/Any#2%
+ scala/Predef.println().PZ 84F6A27389C39ACEFAEE92A912DC4460

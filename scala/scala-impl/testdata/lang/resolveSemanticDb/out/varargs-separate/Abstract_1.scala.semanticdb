@@ -1,0 +1,30 @@
+
+–+tests/pos/varargs-separate/Abstract_1.scala*
+_empty_/Abs# *Abs€*)
+_empty_/Abs#`<init>`(). €@*<init>€*&
+_empty_/Abs#counter().*counter€*#
+_empty_/Abs#counter().(s)*s€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*&
+_empty_/T#counter(). *counter€*!
+_empty_/T#counter().(s)*s€2#
+ scala/annotation/varargs#2
+ scala/annotation/2
+ scala/2
+ _empty_/Abs#2%
+ _empty_/Abs#`<init>`().2'
+ 
+scala/annotation/varargs#2$
+ _empty_/Abs#counter().2'
+ _empty_/Abs#counter().(s)2"
+  scala/Predef.String#2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2'
+ 
+scala/annotation/varargs#2"
+ _empty_/T#counter().2%
+ _empty_/T#counter().(s)2"
+  scala/Predef.String#2
+$ (scala/Unit#PZ 10BDBA6B55E1906831F9EB6711B311A4

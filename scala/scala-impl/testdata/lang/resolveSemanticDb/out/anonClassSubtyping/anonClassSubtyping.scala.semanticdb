@@ -1,0 +1,52 @@
+
+Å"tests/pos/anonClassSubtyping.scala*
+
+_empty_/O.
+ *OÄ*
+_empty_/O.A#*AÄ*)
+_empty_/O.A#`<init>`(). Ä@*<init>Ä*
+_empty_/O.B#*BÄ*)
+_empty_/O.B#`<init>`(). Ä@*<init>Ä*
+_empty_/O.f().*fÄ*
+_empty_/O.f().[T]	*TÄ*
+_empty_/O.f().(x)*xÄ*
+_empty_/O.f().(y)*yÄ*
+_empty_/O.x. Ä*xÄ*
+local0 *$anonÄ*
+_empty_/O.z. Ä*zÄ*
+local1 *$anonÄ2
+ 
+_empty_/O.2
+ 	_empty_/O.A#2%
+ _empty_/O.A#`<init>`().2
+ 	_empty_/O.B#2%
+ _empty_/O.B#`<init>`().2
+ _empty_/O.f().2
+ 	_empty_/O.f().[T]2
+ _empty_/O.f().(x)2
+ _empty_/O.f().[T]2
+ _empty_/O.f().(y)2
+ _empty_/O.f().[T]2
+ _empty_/O.f().[T]2
+ _empty_/O.f().(x)2
+ _empty_/O.x.2
+	 
+_empty_/O.A#2
+ _empty_/O.f().2
+ local02%
+ _empty_/O.A#`<init>`().2
+ _empty_/O.A#2%
+ _empty_/O.A#`<init>`().2
+ _empty_/O.A#2
+ _empty_/O.z.2
+ 
+scala/`|`#2
+	 
+_empty_/O.A#2
+ _empty_/O.B#2#
+ scala/Predef.`???`().2
+ local12%
+ _empty_/O.A#`<init>`().2
+ _empty_/O.A#2%
+, ,_empty_/O.A#`<init>`().2
++ ,_empty_/O.A#PZ 9D9F7C212CF6D3A04D4C45DA4D974A0B

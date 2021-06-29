@@ -1,0 +1,60 @@
+
+ö
+tests/pos/selfSym.scala*
+
+test/Base#*Base€*'
+test/Base#`<init>`(). €@*<init>€*%
+test/Base#`<init>`().(x) €*x€*
+test/Base#x. €*x€*
+test/Middle# *Middle€*)
+test/Middle#`<init>`(). €@*<init>€*$
+test/Middle#`<init>`().(x)*x€*
+local0*self€*
+test/Middle#x. €*x€*
+test/Middle#f().*f€*
+test/Middle#f().(y)*y€*
+	test/Sub#*Sub€*&
+test/Sub#`<init>`(). €@*<init>€*
+test/Sub#f().*f€*
+test/Sub#f().(x)*x€2
+
+
+ test/2
+ 
+
+test/Base#2#
+
+ 
+test/Base#`<init>`().2
+ 
+scala/Int#2
+ test/Base#x.2
+ test/Middle#2%
+ test/Middle#`<init>`().2
+ 
+scala/Int#2#
+* *test/Base#`<init>`().2
+& *
+test/Base#2
++ ,test/Middle#x.2
+0 4local02
+6 9	test/Sub#2
+ test/Middle#x.2
+ test/Middle#f().2!
+ 	test/Middle#f().(y)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2
+ test/Middle#x.2!
+ test/Middle#f().(y)2
+ 		test/Sub#2"
+ test/Sub#`<init>`().2%
+ test/Middle#`<init>`().2
+ test/Middle#2
+ test/Sub#f().2
+ test/Sub#f().(x)2
+ 
+scala/Int#2
+ test/Sub#f().(x)PZ 63E765DAEFEFC2A9FD70FD46AFC3ABEB

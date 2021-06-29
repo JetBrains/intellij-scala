@@ -1,0 +1,49 @@
+
+í	tests/pos/rebind.scala*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€* 
+_empty_/Foo#Inner#*Inner€*/
+_empty_/Foo#Inner#`<init>`(). €@*<init>€*(
+_empty_/Foo#Inner#inner().*inner€* 
+_empty_/Foo#foo(). *foo€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€* 
+_empty_/Bar#Inner#*Inner€*
+_empty_/Bar#foo().*foo€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ _empty_/Foo#Inner#2+
+ _empty_/Foo#Inner#`<init>`().2(
+ _empty_/Foo#Inner#inner().2
+ 
+scala/Int#2 
+ 	_empty_/Foo#foo().2 
+ _empty_/Foo#Inner#2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2 
+ _empty_/Bar#Inner#2 
+ 	_empty_/Bar#foo().2 
+ _empty_/Bar#Inner#2 
+ _empty_/Bar#foo().2
+
+
+ 
+_empty_/Test#2&
+
+
+ _empty_/Test#`<init>`().2%
+
+
+ _empty_/Foo#`<init>`().2
+
+
+ _empty_/Foo#2
+
+
+ _empty_/Bar#2'
+ 	scala/Predef.println(+1).2(
+ _empty_/Foo#Inner#inner().2 
+
+ _empty_/Bar#foo().PZ 6181513A150893DC2DAFEFDA018BD871

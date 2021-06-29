@@ -1,0 +1,110 @@
+
+êtests/pos/opaque-inline2.scala*"
+_empty_/refined.
+ *refinedÄ**
+_empty_/refined.Positive#*PositiveÄ*,
+_empty_/refined.Positive.
+ *PositiveÄ*8
+ _empty_/refined.PositiveFactory#*PositiveFactoryÄ*=
++_empty_/refined.PositiveFactory#`<init>`(). Ä@*<init>Ä*6
+(_empty_/refined.PositiveFactory#apply().*applyÄ*=
+/_empty_/refined.PositiveFactory#apply().(value)*valueÄ*4
+'_empty_/refined.PositiveFactory#safe().*safeÄ*<
+._empty_/refined.PositiveFactory#safe().(value)*valueÄ*3
+!_empty_/`opaque-inline2$package`. *_empty_Ä*5
+(_empty_/`opaque-inline2$package`.Test().*TestÄ*
+local0 Ä*eightÄ*
+local1 Ä*randomÄ*
+local2 Ä*safeNegativeÄ*
+local3 Ä*safeFiveÄ*
+_empty_/Test# *TestÄ**
+_empty_/Test#`<init>`(). Ä@*<init>Ä*$
+_empty_/Test#main(). Ä *mainÄ*'
+_empty_/Test#main().(args)*argsÄ*
+local4 Ä*errorÄ2 
+ scala/compiletime/2
+ _empty_/refined.2'
+ _empty_/refined.Positive#2
+ 
+scala/Int#2'
+	 _empty_/refined.Positive.2.
+ ) _empty_/refined.PositiveFactory#2.
+  _empty_/refined.PositiveFactory#29
+		 +_empty_/refined.PositiveFactory#`<init>`().26
+		 (_empty_/refined.PositiveFactory#apply().2=
+		 !/_empty_/refined.PositiveFactory#apply().(value)2
+	#	 &
+scala/Int#2'
+	)	 1_empty_/refined.Positive#2 
+
+
+ scala/Int#`<`(+3).2=
+
+
+ /_empty_/refined.PositiveFactory#apply().(value)28
+
+
+ $*scala/compiletime/package$package.error().2%
+
+3
+ 4java/lang/String#`+`().29
+
+%
+ ++scala/compiletime/package$package.codeOf().2=
+
+,
+ 1/_empty_/refined.PositiveFactory#apply().(value)2=
+ /_empty_/refined.PositiveFactory#apply().(value)2 
+ scala/Int#`<`(+3).2<
+	 ._empty_/refined.PositiveFactory#safe().(value)2>
+0 00java/lang/IllegalArgumentException#`<init>`(+1).21
+ 0#java/lang/IllegalArgumentException#2&
+I Jscala/StringContext#s().2*
+3 3scala/StringContext.apply().2<
+4 9._empty_/refined.PositiveFactory#safe().(value)2<
+ ._empty_/refined.PositiveFactory#safe().(value)2'
+ _empty_/refined.Positive#25
+ '_empty_/refined.PositiveFactory#safe().2<
+  %._empty_/refined.PositiveFactory#safe().(value)2
+' *
+scala/Int#2
+6 7
+scala/`|`#2'
+- 5_empty_/refined.Positive#25
+8 P'scala/package.IllegalArgumentException#2+
+!_empty_/`opaque-inline2$package`.2
+ scala/main#26
+
+ (_empty_/`opaque-inline2$package`.Test().2
+ scala/Unit#2
+	 _empty_/refined.2
+ local026
+ (_empty_/refined.PositiveFactory#apply().2'
+ _empty_/refined.Positive.2
+ local125
+ '_empty_/refined.PositiveFactory#safe().2'
+ _empty_/refined.Positive.2*
+/ 6scala/util/Random#nextInt().2 
+( .scala/util/Random.2
+# 'scala/util/2
+ "scala/2
+ local225
+ "'_empty_/refined.PositiveFactory#safe().2'
+ _empty_/refined.Positive.2
+ local325
+ '_empty_/refined.PositiveFactory#safe().2'
+ _empty_/refined.Positive.2'
+ 	scala/Predef.println(+1).2
+
+ local02'
+ 	scala/Predef.println(+1).2
+
+ local12'
+ 	scala/Predef.println(+1).2
+
+ local32
+_empty_/Test#2"
+_empty_/Test#`<init>`().22
+(_empty_/`opaque-inline2$package`.Test().23
+)scala/util/CommandLineParser.showError().2
+local4PZ A3F6ED1BF7CEAF494A62118B37194E31

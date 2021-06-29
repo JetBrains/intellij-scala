@@ -1,0 +1,61 @@
+
+‚tests/pos/t767.scala*"
+_empty_/AbsCell# *AbsCell€*-
+_empty_/AbsCell#`<init>`(). €@*<init>€*
+_empty_/AbsCell#T#*T€*%
+_empty_/AbsCell#init. „*init€*)
+_empty_/AbsCell#value(). €*value€*"
+_empty_/AbsCell#get().*get€*"
+_empty_/AbsCell#set().*set€*#
+_empty_/AbsCell#set().(x)*x€*"
+_empty_/AbsCell#Node#*Node€*2
+ _empty_/AbsCell#Node#`<init>`(). €@*<init>€*(
+_empty_/AbsCell#Node#foo. €*foo€*
+_empty_/inner.
+ *inner€*"
+_empty_/inner.main().*main€*(
+_empty_/inner.main().(args)*args€*
+local0 €*cell€*
+local1 *$anon€*
+local2 €*init€2
+ _empty_/AbsCell#2)
+ _empty_/AbsCell#`<init>`().2 
+ _empty_/AbsCell#T#2#
+ _empty_/AbsCell#Node#2#
+ 
+_empty_/AbsCell#init.2 
+ _empty_/AbsCell#T#2&
+ _empty_/AbsCell#value().2 
+ _empty_/AbsCell#T#2#
+ _empty_/AbsCell#init.2$
+ 	_empty_/AbsCell#get().2 
+ _empty_/AbsCell#T#2&
+ _empty_/AbsCell#value().2$
+ 	_empty_/AbsCell#set().2'
+ _empty_/AbsCell#set().(x)2 
+ _empty_/AbsCell#T#2
+ scala/Unit#2&
+  _empty_/AbsCell#value().2'
+# $_empty_/AbsCell#set().(x)2#
+ _empty_/AbsCell#Node#2.
+  _empty_/AbsCell#Node#`<init>`().2'
+ _empty_/AbsCell#Node#foo.2
+ _empty_/inner.2#
+ 
+_empty_/inner.main().2)
+ _empty_/inner.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02
+ local12)
+ _empty_/AbsCell#`<init>`().2
+ _empty_/AbsCell#2
+! %local22.
+0 0 _empty_/AbsCell#Node#`<init>`().2#
+, 0_empty_/AbsCell#Node#2$
+	 _empty_/AbsCell#set().2
+ local02.
+  _empty_/AbsCell#Node#`<init>`().2 
+ _empty_/AbsCell#T#2
+ local0PZ 7D9E008205AE1F05488FDC31A5D34838

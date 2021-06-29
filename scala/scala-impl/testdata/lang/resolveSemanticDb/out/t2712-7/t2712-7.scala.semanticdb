@@ -1,0 +1,125 @@
+
+×tests/pos/t2712-7.scala*
+	test/Xor# *Xor€*&
+test/Xor#`<init>`(). €@*<init>€*
+test/Xor#[A]	 €*A€*
+test/Xor#[B]	 €*B€*
+	test/Xor.
+ *Xor€*
+test/Xor.Left# ˆ*Left€*+
+test/Xor.Left#`<init>`(). €@*<init>€*)
+test/Xor.Left#`<init>`().(a) €*a€*
+test/Xor.Left#[A]	 €*A€*
+test/Xor.Left#a. €*a€*"
+test/Xor.Left#copy().*copy€*"
+test/Xor.Left#copy().[A]	*A€*"
+test/Xor.Left#copy().(a)*a€*6
+test/Xor.Left#copy$default$1().*copy$default$1€*,
+"test/Xor.Left#copy$default$1().[A]	*A€*
+test/Xor.Left#_1().*_1€*
+test/Xor.Left.
+ *Left€*$
+test/Xor.Left.apply().*apply€*#
+test/Xor.Left.apply().[A]	*A€*#
+test/Xor.Left.apply().(a)*a€*(
+test/Xor.Left.unapply().*unapply€*%
+test/Xor.Left.unapply().[A]	*A€*)
+test/Xor.Left.unapply().(x$1)*x$1€**
+test/Xor.Left.toString().*toString€* 
+test/Xor.Right# ˆ*Right€*,
+test/Xor.Right#`<init>`(). €@*<init>€**
+test/Xor.Right#`<init>`().(b) €*b€*
+test/Xor.Right#[B]	 €*B€*
+test/Xor.Right#b. €*b€*#
+test/Xor.Right#copy().*copy€*#
+test/Xor.Right#copy().[B]	*B€*#
+test/Xor.Right#copy().(b)*b€*7
+ test/Xor.Right#copy$default$1().*copy$default$1€*-
+#test/Xor.Right#copy$default$1().[B]	*B€*
+test/Xor.Right#_1().*_1€*
+test/Xor.Right.
+ *Right€*%
+test/Xor.Right.apply().*apply€*$
+test/Xor.Right.apply().[B]	*B€*$
+test/Xor.Right.apply().(b)*b€*)
+test/Xor.Right.unapply().*unapply€*&
+test/Xor.Right.unapply().[B]	*B€**
+test/Xor.Right.unapply().(x$1)*x$1€*+
+test/Xor.Right.toString().*toString€*
+test/TestXor.
+ *TestXor€*
+test/TestXor.meh().*meh€* 
+test/TestXor.meh().[F]	*F€* 
+test/TestXor.meh().[A]	*A€* 
+test/TestXor.meh().[B]	*B€*"
+test/TestXor.meh().(fa)*fa€* 
+test/TestXor.meh().(f)*f€2
+ test/2
+ 	test/Xor#2"
+ test/Xor#`<init>`().2
+* 1scala/Product#2)
+7 Cscala/package.Serializable#2
+ test/Xor#[A]2
+  test/Xor#[B]2
+ 
+	test/Xor.2
+ test/Xor.Left#2'
+ test/Xor.Left#`<init>`().2
+  test/Xor.Left#[A]2"
+8 8test/Xor#`<init>`().2
+- 0	test/Xor#2
++ ,test/Xor.Left#[A]2
+1 8scala/Nothing#2
+ test/Xor.Left#[A]2
+ test/Xor.Left#a.2#
+ test/Xor.Left#copy().2!
+ test/Xor.Left#_1().2
+ test/Xor.Left.2$
+ test/Xor.Left.apply().2&
+ test/Xor.Left.unapply().2
+ test/Xor.Right#2(
+ test/Xor.Right#`<init>`().2 
+  !test/Xor.Right#[B]2"
+9 9test/Xor#`<init>`().2
+4 7	test/Xor#2
+, 3scala/Nothing#2 
+8 9test/Xor.Right#[B]2 
+ test/Xor.Right#[B]2
+ test/Xor.Right#b.2$
+ test/Xor.Right#copy().2"
+   test/Xor.Right#_1().2
+ test/Xor.Right.2%
+ test/Xor.Right.apply().2'
+ test/Xor.Right.unapply().2
+		 test/TestXor.2
+
+	
+ 	test/Xor.2!
+ 	test/TestXor.meh().2$
+
+ test/TestXor.meh().[F]2$
+ test/TestXor.meh().[A]2$
+ test/TestXor.meh().[B]2%
+ test/TestXor.meh().(fa)2$
+ test/TestXor.meh().[F]2$
+ test/TestXor.meh().[A]2$
+  !test/TestXor.meh().(f)2$
+# $test/TestXor.meh().[A]2$
+( )test/TestXor.meh().[B]2$
+, -test/TestXor.meh().[F]2$
+. /test/TestXor.meh().[B]2#
+3 6scala/Predef.`???`().2!
+ test/TestXor.meh().2(
+ test/Xor.Right#`<init>`().2
+ 	test/Xor#2
+  scala/Boolean#2
+" %
+scala/Int#2 
+* +scala/Int#`<`(+3).2!
+ test/TestXor.meh().2'
+ test/Xor.Left#`<init>`().2
+ 	test/Xor#2
+ !scala/Boolean#2
+# &
+scala/Int#2 
++ ,scala/Int#`<`(+3).PZ 4D4604C55CE7B4FFDA6239AFBFE4FDE3

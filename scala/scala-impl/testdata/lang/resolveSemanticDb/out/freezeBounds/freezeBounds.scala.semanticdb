@@ -1,0 +1,25 @@
+
+¡tests/pos/freezeBounds.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[X]	*X€*
+_empty_/Test.a. €*a€2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[X]2
+ scala/Predef.Set#2"
+ _empty_/Test.f().[X]2
+ scala/Predef.Set#2"
+ _empty_/Test.f().[X]2#
+ "scala/Predef.`???`().2
+ _empty_/Test.a.2
+ _empty_/Test.f().2#
+ scala/Tuple2.apply().27
+ )scala/collection/IterableFactory#apply().2
+ scala/Predef.Set.2
+  #
+scala/Int#27
++ +)scala/collection/IterableFactory#apply().2
+( +scala/Predef.Set.2"
+, 2scala/Predef.String#PZ 60840873B96D0166FD92AA802B857399

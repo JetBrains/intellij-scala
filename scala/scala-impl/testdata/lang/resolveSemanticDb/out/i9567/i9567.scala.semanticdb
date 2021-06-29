@@ -1,0 +1,99 @@
+
+Ètests/pos/i9567.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[F]	*F€*
+_empty_/Foo#[I]	*I€*
+_empty_/Foo#Id#*Id€*
+_empty_/Foo#Id#[X]	*X€* 
+_empty_/Foo#foo(). *foo€*
+_empty_/Foo#foo().[G]	*G€*"
+_empty_/Foo#foo2(). *foo2€* 
+_empty_/Foo#foo2().[X]	*X€*"
+_empty_/Foo#foo3(). *foo3€* 
+_empty_/Foo#foo3().[X]	*X€*
+
+_empty_/M#*M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#[A]	*A€*
+_empty_/M#bla().*bla€*
+_empty_/M#baz().*baz€*
+_empty_/M#baz().(f)*f€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.bar().*bar€* 
+_empty_/Test.bar().(x)*x€*#
+_empty_/Test.bar().(x)[X]	*X€*
+local0*x€2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[F]2
+ _empty_/Foo#[I]2
+ 	_empty_/Foo#Id#2 
+
+ _empty_/Foo#Id#[X]2 
+ _empty_/Foo#Id#[X]2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().[G]2#
+ _empty_/Foo#foo().[G]2
+ scala/Unit#2!
+ 
+_empty_/Foo#foo2().2$
+ _empty_/Foo#foo2().[X]2
+ _empty_/Foo#[F]2"
+ scala/Predef.String#2
+ _empty_/Foo#Id#2$
+  _empty_/Foo#foo2().[X]2!
+ 
+_empty_/Foo#foo3().2$
+ _empty_/Foo#foo3().[X]2
+ _empty_/Foo#[F]2"
+ scala/Predef.String#2
+ _empty_/Foo#[I]2$
+ _empty_/Foo#foo3().[X]2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ 	_empty_/M#[A]2
+ 	_empty_/M#bla().2
+ 
+scala/Int#2
+ 	_empty_/M#baz().2!
+
+ _empty_/M#baz().(f)2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ 
+scala/Int#2&
+! !scala/Function1#apply().2!
+  !_empty_/M#baz().(f)2
+ _empty_/Test.2!
+ 	_empty_/Test.bar().2$
+
+ _empty_/Test.bar().(x)2
+ _empty_/Foo#2'
+ _empty_/Test.bar().(x)[X]2'
+ _empty_/Test.bar().(x)[X]2
+! %scala/Unit#2
+
+ _empty_/M#bla().2 
+ 	_empty_/Foo#foo().2$
+ _empty_/Test.bar().(x)2
+
+ _empty_/M#baz().2 
+ 	_empty_/Foo#foo().2$
+ _empty_/Test.bar().(x)2
+ local02
+ local02
+ _empty_/M#bla().2!
+ 
+_empty_/Foo#foo2().2$
+ _empty_/Test.bar().(x)2
+ _empty_/M#bla().2!
+ 
+_empty_/Foo#foo3().2$
+ _empty_/Test.bar().(x)PZ 2379D3C1528C969446EE8927A696EF53

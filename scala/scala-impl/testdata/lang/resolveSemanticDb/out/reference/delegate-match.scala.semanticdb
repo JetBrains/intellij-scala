@@ -1,0 +1,77 @@
+
+Î(tests/pos/reference/delegate-match.scala* 
+implicitmatch/Test#*Test€*0
+implicitmatch/Test#`<init>`(). €@*<init>€*
+local0  *ord€*+
+implicitmatch/Test#setFor().*setFor€*)
+implicitmatch/Test#setFor().[T]	*T€*$
+implicitmatch/Test#sf. €*sf€*
+implicitmatch/Test#A#*A€*2
+ implicitmatch/Test#A#`<init>`(). €@*<init>€*0
+#implicitmatch/Test#A#`<init>`().(x) €*x€*$
+implicitmatch/Test#A#x. €*x€*$
+implicitmatch/Test#a1.  *a1€*$
+implicitmatch/Test#a2.  *a2€*!
+implicitmatch/Test#f().*f€*
+local1  *ev€2
+ implicitmatch/2!
+ 
+implicitmatch/Test#2,
+ implicitmatch/Test#`<init>`().2
+ 
+scala/App#21
+% ,#scala/collection/immutable/TreeSet.21
+% ,#scala/collection/immutable/TreeSet#21
+. 5#scala/collection/immutable/HashSet.21
+. 5#scala/collection/immutable/HashSet#2)
+ #scala/collection/immutable/2
+ scala/collection/2
+	 scala/2=
+ %/scala/compiletime/package$package.summonFrom().2 
+ scala/compiletime/2
+	 scala/2
+	 local02%
+ scala/package.Ordering#2-
+ implicitmatch/Test#setFor().[T]2>
+2 20scala/collection/immutable/TreeSet#`<init>`(+1).21
+( /#scala/collection/immutable/TreeSet#2-
+0 1implicitmatch/Test#setFor().[T]2
+2 2local02>
+2 20scala/collection/immutable/HashSet#`<init>`(+1).21
+( /#scala/collection/immutable/HashSet#2-
+0 1implicitmatch/Test#setFor().[T]2*
+ implicitmatch/Test#setFor().2-
+  !implicitmatch/Test#setFor().[T]2
+$ 'scala/Predef.Set#2-
+( )implicitmatch/Test#setFor().[T]2$
+ scala/Predef.summon().2%
+	 scala/package.Ordering#2"
+ scala/Predef.String#2)
+ scala/math/Ordering.String.2$
+ implicitmatch/Test#sf.2*
+ implicitmatch/Test#setFor().2"
+ scala/Predef.String#2'
+ 	scala/Predef.println(+1).2#
+ scala/Any#getClass().2$
+
+ implicitmatch/Test#sf.2#
+ 	implicitmatch/Test#A#2.
+	 	 implicitmatch/Test#A#`<init>`().2"
+ scala/Predef.String#2%
+ implicitmatch/Test#A#x.2$
+ implicitmatch/Test#a1.2#
+ implicitmatch/Test#A#2.
+  implicitmatch/Test#A#`<init>`().2#
+ implicitmatch/Test#A#2$
+ implicitmatch/Test#a2.2#
+ implicitmatch/Test#A#2.
+  implicitmatch/Test#A#`<init>`().2#
+ implicitmatch/Test#A#2%
+ implicitmatch/Test#f().2
+ 
+scala/Any#2
+	 local12#
+ implicitmatch/Test#A#2'
+ scala/Predef.println(+1).2%
+ implicitmatch/Test#A#x.2
+ local1PZ AEF1AA149969618EBAAF112335EC67AE

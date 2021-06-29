@@ -1,0 +1,49 @@
+
+¿	tests/pos/t8177d.scala* 
+_empty_/HasElem#*HasElem€*-
+_empty_/HasElem#`<init>`(). €@*<init>€*
+_empty_/HasElem#A#*A€*
+_empty_/View#*View€**
+_empty_/View#`<init>`(). €@*<init>€*
+_empty_/View#[AIn]	*AIn€*
+_empty_/View#tc. „*tc€*
+local0*A€*
+_empty_/View#f2().*f2€*
+_empty_/View#f2().(p)*p€*
+_empty_/Test.
+ *Test€*"
+_empty_/Test.view. €*view€2
+ _empty_/HasElem#2)
+ _empty_/HasElem#`<init>`().2 
+ _empty_/HasElem#A#2
+ 
+_empty_/View#2&
+
+ 
+_empty_/View#`<init>`().2 
+ _empty_/View#[AIn]2
+ _empty_/View#tc.2
+
+ _empty_/HasElem#2
+ local02 
+  _empty_/View#[AIn]2 
+ _empty_/View#f2().2#
+	 
+_empty_/View#f2().(p)2 
+ _empty_/HasElem#A#2
+ _empty_/View#tc.2 
+ _empty_/HasElem#A#2
+ _empty_/View#tc.2#
+ _empty_/View#f2().(p)2
+ _empty_/Test.2 
+ 
+_empty_/Test.view.2
+ _empty_/View#2
+ 
+scala/Int#2 
+
+
+ 	_empty_/View#f2().2 
+
+
+ _empty_/Test.view.PZ 4A52AFCCC0F32EC488491D5D1071CC92

@@ -1,0 +1,192 @@
+
+Ê2!tests/pos/tcpoly_ticket2096.scala*
+_empty_/MBrace#*MBrace€*,
+_empty_/MBrace#`<init>`(). €@*<init>€*
+_empty_/MBrace#[C]	*C€*
+_empty_/MBrace#[A]	*A€*%
+_empty_/MBrace#nest(). *nest€*#
+_empty_/MBrace#nest().(a)*a€*+
+_empty_/MBrace#flatten(). *flatten€*&
+_empty_/MBrace#flatten().[T]	*T€**
+_empty_/MBrace#flatten().(bsq)*bsq€*$
+_empty_/MBraceSeq#*	MBraceSeq€*/
+_empty_/MBraceSeq#`<init>`(). €@*<init>€*
+_empty_/MBraceSeq#[C]	*C€*
+_empty_/MBraceSeq#[A]	*A€*'
+_empty_/MSequitor# €*	MSequitor€*/
+_empty_/MSequitor#`<init>`(). €@*<init>€*/
+!_empty_/MSequitor#`<init>`().(a_) €*a_€*
+_empty_/MSequitor#[A]	*A€*#
+_empty_/MSequitor#a_. €*a_€*&
+_empty_/MSequitor#nest().*nest€*&
+_empty_/MSequitor#nest().(a)*a€*,
+_empty_/MSequitor#flatten().*flatten€*)
+_empty_/MSequitor#flatten().[T]	*T€*-
+!_empty_/MSequitor#flatten().(bsq)*bsq€*
+local0*acc€*
+local1*e€**
+_empty_/MSequitor#length().*length€*.
+_empty_/MSequitor#iterator().*iterator€*(
+_empty_/MSequitor#apply().*apply€*'
+_empty_/MSequitor#apply().(n)*n€*"
+_empty_/MSequitor#_1().*_1€*&
+_empty_/MSequitor.
+ *	MSequitor€*(
+_empty_/MSequitor.apply().*apply€*'
+_empty_/MSequitor.apply().[A]	*A€*)
+_empty_/MSequitor.apply().(a_)*a_€*2
+_empty_/MSequitor.unapplySeq().*
+unapplySeq€*,
+"_empty_/MSequitor.unapplySeq().[A]	*A€*0
+$_empty_/MSequitor.unapplySeq().(x$1)*x$1€*.
+_empty_/MSequitor.toString().*toString€*.
+_empty_/MBraceSequitor#*MBraceSequitor€*4
+"_empty_/MBraceSequitor#`<init>`(). €@*<init>€*$
+_empty_/MBraceSequitor#[A]	*A€*.
+_empty_/MBraceSequitor#empty. €*empty€*+
+_empty_/MBraceSequitor#nest().*nest€*+
+!_empty_/MBraceSequitor#nest().(a)*a€*1
+!_empty_/MBraceSequitor#flatten().*flatten€*.
+$_empty_/MBraceSequitor#flatten().[T]	*T€*2
+&_empty_/MBraceSequitor#flatten().(bsq)*bsq€2
+ _empty_/MBrace#2(
+ _empty_/MBrace#`<init>`().2 
+ _empty_/MBrace#[C]2 
+! "_empty_/MBrace#[A]2$
+ 	_empty_/MBrace#nest().2'
+ _empty_/MBrace#nest().(a)2 
+ _empty_/MBrace#[A]2 
+ _empty_/MBrace#[C]2 
+ _empty_/MBrace#[A]2'
+ _empty_/MBrace#flatten().2*
+ _empty_/MBrace#flatten().[T]2 
+ _empty_/MBrace#[C]2 
+ _empty_/MBrace#[C]2 
+ _empty_/MBrace#[A]2,
+ _empty_/MBrace#flatten().(bsq)2*
+" #_empty_/MBrace#flatten().[T]2 
+( )_empty_/MBrace#[C]2 
+* +_empty_/MBrace#[A]2 
+ _empty_/MBraceSeq#2+
+ _empty_/MBraceSeq#`<init>`().2
+; A_empty_/MBrace#2#
+B C_empty_/MBraceSeq#[C]2#
+D E_empty_/MBraceSeq#[A]2#
+ _empty_/MBraceSeq#[C]2#
+0 1_empty_/MBraceSeq#[A]2 
+
+
+ _empty_/MSequitor#2+
+
+
+ _empty_/MSequitor#`<init>`().2#
+
+
+ _empty_/MSequitor#[A]2 
+
++
+ .scala/package.Seq#2#
+
+/
+ 0_empty_/MSequitor#[A]2
+
+7
+ =_empty_/MBrace#2#
+
+H
+ I_empty_/MSequitor#[A]2#
+
+
+ _empty_/MSequitor#[A]2#
+
+
+ _empty_/MSequitor#a_.2'
+ _empty_/MSequitor#nest().2*
+ _empty_/MSequitor#nest().(a)2#
+ _empty_/MSequitor#[A]2+
+. ._empty_/MSequitor#`<init>`().2 
+" +_empty_/MSequitor#2#
+, -_empty_/MSequitor#[A]2*
+0 1_empty_/MSequitor#nest().(a)2*
+ _empty_/MSequitor#flatten().2-
+ _empty_/MSequitor#flatten().[T]2 
+ $_empty_/MSequitor#2 
+% ._empty_/MSequitor#2#
+/ 0_empty_/MSequitor#[A]2/
+5 8!_empty_/MSequitor#flatten().(bsq)2-
+; <_empty_/MSequitor#flatten().[T]2 
+A J_empty_/MSequitor#2#
+K L_empty_/MSequitor#[A]2:
+ ,scala/collection/IterableOnceOps#foldLeft().2/
+ !_empty_/MSequitor#flatten().(bsq)2+
+   _empty_/MSequitor#`<init>`().2 
+ _empty_/MSequitor#2#
+ _empty_/MSequitor#[A]2
+ 
+local02 
+ _empty_/MSequitor#2#
+ _empty_/MSequitor#[A]2
+ local12 
+ (_empty_/MSequitor#2#
+) *_empty_/MSequitor#[A]2'
+> Jscala/Any#asInstanceOf().22
+7 9$scala/collection/IterableOps#`++`().2
+3 6local02
+: ;local12 
+K T_empty_/MSequitor#2#
+U V_empty_/MSequitor#[A]2)
+ _empty_/MSequitor#length().2/
+  !scala/collection/SeqOps#length().2#
+ _empty_/MSequitor#a_.2+
+ _empty_/MSequitor#iterator().27
+ $)scala/collection/IterableOnce#iterator().2#
+ _empty_/MSequitor#a_.2(
+ _empty_/MSequitor#apply().2+
+ _empty_/MSequitor#apply().(n)2
+ 
+scala/Int#2.
+$ ) scala/collection/SeqOps#apply().2#
+! #_empty_/MSequitor#a_.2+
++ ,_empty_/MSequitor#apply().(n)2%
+
+
+ _empty_/MSequitor#_1().2 
+
+
+ _empty_/MSequitor.2$
+
+
+_empty_/MSequitor.apply().2)
+
+
+_empty_/MSequitor.unapplySeq().2%
+ _empty_/MBraceSequitor#20
+ "_empty_/MBraceSequitor#`<init>`().2 
+  )_empty_/MBraceSeq#2(
+4 5_empty_/MBraceSequitor#[A]2(
+ _empty_/MBraceSequitor#[A]2+
+ 
+_empty_/MBraceSequitor#empty.2 
+ _empty_/MSequitor#2(
+ _empty_/MBraceSequitor#[A]2+
+, ,_empty_/MSequitor#`<init>`().2 
+  )_empty_/MSequitor#2(
+* +_empty_/MBraceSequitor#[A]2,
+ _empty_/MBraceSequitor#nest().2/
+ !_empty_/MBraceSequitor#nest().(a)2(
+ _empty_/MBraceSequitor#[A]2'
+$ (_empty_/MSequitor#nest().2+
+ #_empty_/MBraceSequitor#empty.2/
+* +!_empty_/MBraceSequitor#nest().(a)2/
+ !_empty_/MBraceSequitor#flatten().22
+ $_empty_/MBraceSequitor#flatten().[T]2 
+ $_empty_/MSequitor#2 
+% ._empty_/MSequitor#2(
+/ 0_empty_/MBraceSequitor#[A]24
+5 8&_empty_/MBraceSequitor#flatten().(bsq)22
+; <$_empty_/MBraceSequitor#flatten().[T]2 
+@ I_empty_/MSequitor#2(
+J K_empty_/MBraceSequitor#[A]2*
+U \_empty_/MSequitor#flatten().2+
+O T_empty_/MBraceSequitor#empty.24
+^ a&_empty_/MBraceSequitor#flatten().(bsq)PZ 1F9B1F0D3FE16E52A0567ADFDF59E225

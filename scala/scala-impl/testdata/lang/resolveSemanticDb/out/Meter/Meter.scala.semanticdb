@@ -1,0 +1,394 @@
+
+×Xtests/pos/Meter.scala*0
+a/BoxingConversions# *BoxingConversions€*1
+a/BoxingConversions#`<init>`(). €@*<init>€*)
+a/BoxingConversions#[Boxed]	*Boxed€*-
+a/BoxingConversions#[Unboxed]	*Unboxed€*(
+a/BoxingConversions#box(). *box€*'
+a/BoxingConversions#box().(x)*x€*,
+a/BoxingConversions#unbox(). *unbox€*)
+a/BoxingConversions#unbox().(x)*x€*
+a/Meter# *Meter€*%
+a/Meter#`<init>`(). €@*<init>€*5
+a/Meter#`<init>`().(underlying) €*
+underlying€*)
+a/Meter#underlying. €*
+underlying€*
+a/Meter#`+`().*+€*#
+a/Meter#`+`().(other)*other€*
+a/Meter#`/`().*/€*#
+a/Meter#`/`().(other)*other€*%
+a/Meter#`/`().(dummy)  *dummy€*,
+a/Meter#`/$default$2`().*/$default$2€*-
+a/Meter#`/$default$2`().(other)*other€*
+a/Meter#`/`(+1).*/€*'
+a/Meter#`/`(+1).(factor)*factor€*
+a/Meter#`<`().*<€*#
+a/Meter#`<`().(other)*other€* 
+a/Meter#toFoot().*toFoot€*
+a/Meter#print().*print€*$
+a/Meter#toString().*toString€*
+a/Meter.
+ *Meter€*"
+a/Meter.MeterArg#*MeterArg€*.
+a/Meter.MeterArg#`<init>`(). €@*<init>€*
+a/Meter.apply().*apply€*
+a/Meter.apply().(x)*x€*#
+a/Meter.boxings.  *boxings€*
+local0 *$anon€*
+local1*box€*
+local2*x€*
+local3*unbox€*
+local4*m€*
+a/Foot# *Foot€*$
+a/Foot#`<init>`(). €@*<init>€**
+a/Foot#`<init>`().(unbox) €*unbox€*
+a/Foot#unbox. €*unbox€*
+a/Foot#`+`().*+€*"
+a/Foot#`+`().(other)*other€*#
+a/Foot#toString().*toString€*
+a/Foot.
+ *Foot€*"
+a/Foot.boxings.  *boxings€*
+local5 *$anon€*
+local6*box€*
+local7*x€*
+local8*unbox€*
+local9*m€*
+b/Printable#*	Printable€*)
+b/Printable#`<init>`(). €@*<init>€*"
+b/Printable#print().*print€*(
+b/Printable#proprint().*proprint€*
+_empty_/Test.
+ *Test€*
+local10 €*x€*
+local11 €*a€*
+local12 €*y€*
+local13 €*u€*
+local14 €*b€*
+local15 €*v€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€*
+local16 €*arr€*
+local17*foo€*
+local18	*T€*
+local19*x€*
+local20*i€*
+local21 €*m€2
+ 	a/2"
+ "a/BoxingConversions#2-
+" "a/BoxingConversions#`<init>`().2)
+# (a/BoxingConversions#[Boxed]2+
+* 1a/BoxingConversions#[Unboxed]2(
+ a/BoxingConversions#box().2+
+ a/BoxingConversions#box().(x)2+
+ a/BoxingConversions#[Unboxed]2)
+ a/BoxingConversions#[Boxed]2*
+ a/BoxingConversions#unbox().2-
+ a/BoxingConversions#unbox().(x)2)
+ a/BoxingConversions#[Boxed]2+
+  a/BoxingConversions#[Unboxed]2
+ a/Meter#2!
+ a/Meter#`<init>`().2
+ $scala/Double#2&
+4 4scala/AnyVal#`<init>`().2
+. 4scala/AnyVal#2
+C Lb/Printable#2
+A Bb/2
+: @_root_/2!
+ a/Meter#underlying.2
+ 	a/Meter#`+`().2#
+ a/Meter#`+`().(other)2
+ a/Meter#2
+ a/Meter#2!
+ a/Meter#`<init>`().2
+
+ a/Meter#2#
+  !scala/Double#`+`(+7).2!
+ a/Meter#underlying.2!
+( 2a/Meter#underlying.2#
+" 'a/Meter#`+`().(other)2
+		 	a/Meter#`/`().2#
+		 a/Meter#`/`().(other)2
+		 a/Meter#2#
+	"	 'a/Meter#`/`().(dummy)2
+	/	 7a/Meter.MeterArg#2
+	)	 .a/Meter.2
+	A	 Gscala/Double#2#
+	Z	 [scala/Double#`/`(+6).2!
+	O	 Ya/Meter#underlying.2!
+	b	 la/Meter#underlying.2#
+	\	 aa/Meter#`/`().(other)2-
+		 a/Meter#`/$default$2`().(other)2
+
+
+ 	a/Meter#`/`(+1).2&
+
+
+ a/Meter#`/`(+1).(factor)2
+
+
+ scala/Double#2
+
+
+ !a/Meter#2!
+
+-
+ -a/Meter#`<init>`().2
+
+(
+ -a/Meter#2#
+
+>
+ ?scala/Double#`/`(+6).2!
+
+3
+ =a/Meter#underlying.2&
+
+@
+ Fa/Meter#`/`(+1).(factor)2
+ 	a/Meter#`<`().2#
+ a/Meter#`<`().(other)2
+ a/Meter#2
+ !scala/Boolean#2#
+4 5scala/Double#`<`(+6).2!
+) 3a/Meter#underlying.2!
+< Fa/Meter#underlying.2#
+6 ;a/Meter#`<`().(other)2
+ a/Meter#toFoot().2
+ a/Foot#2 
+ a/Foot#`<init>`().2
+ a/Foot#2#
+0 1scala/Double#`*`(+6).2!
+% /a/Meter#underlying.2
+ a/Meter#print().2$
+# (scala/Console.print().2
+ "scala/Console.2"
+7 <b/Printable#print().2%
+> Fb/Printable#proprint().2!
+ a/Meter#toString().2"
+ !scala/Predef.String#2%
+8 9java/lang/String#`+`().2#
+/ 7scala/Any#toString().2!
+$ .a/Meter#underlying.2
+	 a/Meter.2
+ scala/Double#2
+" 'a/Meter#2
+ a/Meter.MeterArg#2
+ 	a/2*
+ a/Meter.MeterArg#`<init>`().2
+ a/Meter.apply().2!
+ a/Meter.apply().(x)2
+ scala/Double#2
+ a/Meter#2!
++ +a/Meter#`<init>`().2
+& +a/Meter#2!
+, -a/Meter.apply().(x)2
+ a/Meter.boxings.2"
+ +a/BoxingConversions#2
+, 1a/Meter#2
+3 9scala/Double#2
+= =local02-
+a aa/BoxingConversions#`<init>`().2"
+A Ra/BoxingConversions#2
+S Xa/Meter#2
+Z `scala/Double#2
+
+ local12
+ local22
+ scala/Double#2!
+$ $a/Meter#`<init>`().2
+ $a/Meter#2
+% &local22
+
+ local32
+ local42
+ a/Meter#2!
+ (a/Meter#underlying.2
+ local42
+ a/Foot#2 
+ a/Foot#`<init>`().2
+ scala/Double#2&
+. .scala/AnyVal#`<init>`().2
+( .scala/AnyVal#2
+ a/Foot#unbox.2
+ 	a/Foot#`+`().2"
+ a/Foot#`+`().(other)2
+ a/Foot#2
+ a/Foot#2 
+ a/Foot#`<init>`().2
+
+ a/Foot#2#
+ scala/Double#`+`(+7).2
+ a/Foot#unbox.2
+" 'a/Foot#unbox.2"
+ !a/Foot#`+`().(other)2 
+   a/Foot#toString().2%
+ +  ,java/lang/String#`+`().2#
+ "  *scala/Any#toString().2
+   !a/Foot#unbox.2
+"	" a/Foot.2
+## a/Foot.boxings.2"
+## +a/BoxingConversions#2
+#,# 0a/Foot#2
+#2# 8scala/Double#2
+#<# <local52-
+#_# _a/BoxingConversions#`<init>`().2"
+#@# Qa/BoxingConversions#2
+#R# Va/Foot#2
+#X# ^scala/Double#2
+$
+$ local62
+$$ local72
+$$ scala/Double#2 
+$#$ #a/Foot#`<init>`().2
+$$ #a/Foot#2
+$$$ %local72
+%
+% local82
+%% local92
+%% a/Foot#2
+%% "a/Foot#unbox.2
+%% local92
+** 	b/2
+++ b/Printable#2%
+++ b/Printable#`<init>`().2
+++ 
+scala/Any#2"
+,, b/Printable#print().2
+,, scala/Unit#2$
+,, #scala/Console.print().2
+,, scala/Console.2%
+-- b/Printable#proprint().2$
+-%- *scala/Console.print().2
+-- $scala/Console.2
+00 a/2
+11 b/2
+11 _root_/2
+22 _empty_/Test.2
+22 
+scala/App#2
+55 local102
+5	5 a/Meter#2!
+55 a/Meter#`<init>`().2
+55 a/Meter#2
+66 local112
+6	6 java/lang/Object#2'
+66  scala/Any#asInstanceOf().2
+66 local102
+6!6 'java/lang/Object#2
+77 local122
+7	7 a/Meter#2'
+77 scala/Any#asInstanceOf().2
+77 local112
+7 7 %a/Meter#2
+99 local132
+9	9 scala/Double#2
+:: local142
+:	: java/lang/Object#2'
+::  scala/Any#asInstanceOf().2
+:: local132
+:!: 'java/lang/Object#2
+;; local152
+;	; scala/Double#2'
+;;  scala/Any#asInstanceOf().2
+;; local142
+;!; 'scala/Double#2
+>> _empty_/Test.x.2!
+>> a/Meter#`<init>`().2
+>> a/Meter#2
+?? _empty_/Test.y.2
+?
+? _empty_/Test.x.2'
+AA 	scala/Predef.println(+1).2
+AA a/Meter#`/`(+1).2
+AA a/Meter#`+`().2
+AA _empty_/Test.x.2
+AA _empty_/Test.x.2'
+BB 	scala/Predef.println(+1).2#
+BB scala/Any#toString().2
+BB a/Meter#`<`().2
+BB _empty_/Test.x.2
+BB _empty_/Test.x.2'
+CC 	scala/Predef.println(+1).2%
+C$C %java/lang/String#`+`().2'
+C(C 4scala/Any#isInstanceOf().2
+C&C '_empty_/Test.x.2
+C5C :a/Meter#2'
+FF 	scala/Predef.println(+1).2%
+FF java/lang/String#`+`().2#
+FF %scala/Any#hashCode().2
+FF _empty_/Test.x.2'
+GG 	scala/Predef.println(+1).2%
+GG java/lang/String#`+`().2
+G G "scala/Any#`==`().2
+GG _empty_/Test.x.2
+GG 
+scala/Any#2'
+HH 	scala/Predef.println(+1).2%
+HH java/lang/String#`+`().2
+HH scala/Any#`==`().2
+HH _empty_/Test.x.2
+HH _empty_/Test.y.2&
+II scala/Predef.assert(+1).2!
+II scala/Int#`==`(+3).2#
+II scala/Any#hashCode().2
+I	I 
+_empty_/Test.x.2#
+II %scala/Any#hashCode().2
+KK _empty_/Test.a.2
+K	K 
+scala/Any#2
+KK _empty_/Test.x.2
+LL _empty_/Test.b.2
+L	L 
+scala/Any#2
+LL _empty_/Test.y.2'
+MM 	scala/Predef.println(+1).2%
+MM java/lang/String#`+`().2
+MM scala/Any#`==`().2
+MM _empty_/Test.a.2
+MM _empty_/Test.b.2'
+OO scala/Predef.println(+1).2
+PP local162"
+PP scala/Array.apply().2
+PP scala/Array.2
+PP _empty_/Test.x.2
+PP a/Meter#`+`().2
+PP _empty_/Test.y.2
+PP _empty_/Test.x.2-
+PP scala/reflect/ClassTag.apply().2'
+QQ scala/Predef.println(+1).28
+QQ *scala/collection/IterableOnceOps#toList().2<
+QQ .scala/LowPriorityImplicits#genericWrapArray().2
+QQ local162
+RR local172
+RR local182
+RR b/Printable#2
+RR local192
+RR $scala/Array#2
+R%R &local1829
+S S  +scala/collection/immutable/Range#foreach().2,
+SS scala/runtime/RichInt#until().26
+SS (scala/LowPriorityImplicits#intWrapper().2#
+SS  scala/Array#length().2
+SS local192
+SS local202"
+S)S .b/Printable#print().2"
+S%S %scala/Array#apply().2
+S$S %local192
+S&S 'local202'
+S0S 7scala/Predef.println(+1).2%
+S<S =java/lang/String#`+`().2"
+S?S ?scala/Array#apply().2
+S>S ?local192
+S@S Alocal202
+UU 	local212"
+UU scala/Array#apply().2
+UU local162'
+VV scala/Predef.println(+1).2
+VV local212
+WW local172
+WW local16PZ 4F9D53D3822A1E3DDC6341D37D9792F7

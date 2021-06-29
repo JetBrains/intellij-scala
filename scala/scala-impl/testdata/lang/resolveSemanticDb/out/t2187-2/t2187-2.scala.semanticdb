@@ -1,0 +1,27 @@
+
+×tests/pos/t2187-2.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#test().*test€*!
+_empty_/Test#test().[A]	*A€*'
+_empty_/Test#test().(list)*list€*
+local0 €*x€*
+local1 €*y€*
+local2 €*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ 
+_empty_/Test#test().2%
+ _empty_/Test#test().[A]2(
+ _empty_/Test#test().(list)2!
+ scala/package.List#2%
+ _empty_/Test#test().[A]2(
+ #_empty_/Test#test().(list)27
+ )scala/collection/SeqFactory#unapplySeq().2 
+	 scala/package.Seq.2
+ local02
+ local127
+ )scala/collection/SeqFactory#unapplySeq().2 
+	 scala/package.Seq.2
+ local2PZ C7509229C251ECD7A8B1F73C9CAAFE6C

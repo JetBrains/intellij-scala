@@ -1,0 +1,1475 @@
+
+¯˝tests/pos/anykind.scala*
+_empty_/Test.
+ *TestÄ* 
+_empty_/Test.Bar# Ä*BarÄ*.
+_empty_/Test.Bar#`<init>`(). Ä@*<init>Ä*,
+_empty_/Test.Bar#`<init>`().(a) Ä*aÄ*
+_empty_/Test.Bar#[A]	*AÄ* 
+_empty_/Test.Bar#a. Ä*aÄ*%
+_empty_/Test.Bar#copy().*copyÄ*%
+_empty_/Test.Bar#copy().[A]	*AÄ*%
+_empty_/Test.Bar#copy().(a)*aÄ*9
+"_empty_/Test.Bar#copy$default$1().*copy$default$1Ä*/
+%_empty_/Test.Bar#copy$default$1().[A]	*AÄ*!
+_empty_/Test.Bar#_1().*_1Ä*
+_empty_/Test.Bar.
+ *BarÄ*'
+_empty_/Test.Bar.apply().*applyÄ*&
+_empty_/Test.Bar.apply().[A]	*AÄ*&
+_empty_/Test.Bar.apply().(a)*aÄ*+
+_empty_/Test.Bar.unapply().*unapplyÄ*(
+_empty_/Test.Bar.unapply().[A]	*AÄ*,
+ _empty_/Test.Bar.unapply().(x$1)*x$1Ä*-
+_empty_/Test.Bar.toString().*toStringÄ*
+_empty_/Test.Toto#*TotoÄ*/
+_empty_/Test.Toto#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.Toto#[A]	*AÄ*
+_empty_/Test.Toto#[B]	*BÄ*
+_empty_/Test.Foo#*FooÄ*.
+_empty_/Test.Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Test.Foo#[T]	*TÄ*!
+_empty_/Test.Foo#Out#*OutÄ*!
+_empty_/Test.Foo#id().*idÄ*#
+_empty_/Test.Foo#id().(t)*tÄ*
+_empty_/Test.Foo.
+ *FooÄ*'
+_empty_/Test.Foo.foo0().  *foo0Ä*%
+_empty_/Test.Foo.foo0().[T]	*TÄ*
+local0*OutÄ*
+local1 *$anonÄ*
+local2*OutÄ*'
+_empty_/Test.Foo.foo1().  *foo1Ä*%
+_empty_/Test.Foo.foo1().[T]	*TÄ*
+local3*OutÄ*
+local4 *$anonÄ*
+local5*OutÄ*'
+_empty_/Test.Foo.foo2().  *foo2Ä*%
+_empty_/Test.Foo.foo2().[T]	*TÄ*
+local6*OutÄ*
+local7 *$anonÄ*
+local8*OutÄ*
+_empty_/Test.foo().*fooÄ* 
+_empty_/Test.foo().[T]	*TÄ*"
+_empty_/Test.foo().(f)  *fÄ*#
+_empty_/Test.Kinded#*KindedÄ*1
+_empty_/Test.Kinded#`<init>`(). Ä@*<init>Ä*!
+_empty_/Test.Kinded#[M]	*MÄ*$
+_empty_/Test.Kinded#Out#*OutÄ*%
+_empty_/Test.Kinded.
+ *KindedÄ*$
+_empty_/Test.Kinded.Aux#*AuxÄ*%
+_empty_/Test.Kinded.Aux#[M]	*MÄ*+
+_empty_/Test.Kinded.Aux#[Out0]	*Out0Ä*
+local9*OutÄ*0
+_empty_/Test.Kinded.kinded0().  *kinded0Ä*+
+!_empty_/Test.Kinded.kinded0().[M]	*MÄ*
+local10 *$anonÄ*
+local11*OutÄ*0
+_empty_/Test.Kinded.kinded1().  *kinded1Ä*+
+!_empty_/Test.Kinded.kinded1().[M]	*MÄ*
+local12 *$anonÄ*
+local13*OutÄ*
+local14	*tÄ*0
+_empty_/Test.Kinded.kinded2().  *kinded2Ä*+
+!_empty_/Test.Kinded.kinded2().[M]	*MÄ*
+local15 *$anonÄ*
+local16*OutÄ*
+local17	*tÄ*
+local18	*uÄ*#
+_empty_/Test.Kinder#*KinderÄ*1
+_empty_/Test.Kinder#`<init>`(). Ä@*<init>Ä*#
+_empty_/Test.Kinder#[MA]	*MAÄ* 
+_empty_/Test.Kinder#M#*MÄ*&
+_empty_/Test.Kinder#Args#*ArgsÄ*%
+_empty_/Test.Kinder.
+ *KinderÄ*$
+_empty_/Test.Kinder.Aux#*AuxÄ*'
+_empty_/Test.Kinder.Aux#[MA]	*MAÄ*'
+_empty_/Test.Kinder.Aux#[M0]	*M0Ä*-
+_empty_/Test.Kinder.Aux#[Args0]	*Args0Ä*
+local19*MÄ*
+local20*ArgsÄ*0
+_empty_/Test.Kinder.kinder1().  *kinder1Ä*-
+"_empty_/Test.Kinder.kinder1().[M0]	*M0Ä*-
+"_empty_/Test.Kinder.kinder1().[A0]	*A0Ä*
+local21 *$anonÄ*
+local22*MÄ*
+local23	*tÄ*
+local24*ArgsÄ*?
+"_empty_/Test.KinderLowerImplicits#*KinderLowerImplicitsÄ*?
+-_empty_/Test.KinderLowerImplicits#`<init>`(). Ä@*<init>Ä*>
+,_empty_/Test.KinderLowerImplicits#kinder2().  *kinder2Ä*;
+0_empty_/Test.KinderLowerImplicits#kinder2().[M0]	*M0Ä*;
+0_empty_/Test.KinderLowerImplicits#kinder2().[A0]	*A0Ä*;
+0_empty_/Test.KinderLowerImplicits#kinder2().[B0]	*B0Ä*
+local25 *$anonÄ*
+local26*MÄ*
+local27	*tÄ*
+local28	*uÄ*
+local29*ArgsÄ*>
+,_empty_/Test.KinderLowerImplicits#kinder0().  *kinder0Ä*9
+/_empty_/Test.KinderLowerImplicits#kinder0().[A]	*AÄ*
+local30 *$anonÄ*
+local31*MÄ*
+local32*ArgsÄ*'
+_empty_/Test.SameKind#*SameKindÄ*3
+!_empty_/Test.SameKind#`<init>`(). Ä@*<init>Ä*#
+_empty_/Test.SameKind#[M]	*MÄ*%
+_empty_/Test.SameKind#[M2]	*M2Ä*)
+_empty_/Test.SameKind.
+ *SameKindÄ*6
+"_empty_/Test.SameKind.sameKind0().  *	sameKind0Ä*/
+%_empty_/Test.SameKind.sameKind0().[A]	*AÄ*/
+%_empty_/Test.SameKind.sameKind0().[B]	*BÄ*
+local33 *$anonÄ*8
+#_empty_/Test.SameKind.sameKind01().  *
+sameKind01Ä*2
+'_empty_/Test.SameKind.sameKind01().[M1]	*M1Ä*2
+'_empty_/Test.SameKind.sameKind01().[M2]	*M2Ä*
+local34 *$anonÄ*8
+#_empty_/Test.SameKind.sameKind02().  *
+sameKind02Ä*2
+'_empty_/Test.SameKind.sameKind02().[M1]	*M1Ä*2
+'_empty_/Test.SameKind.sameKind02().[M2]	*M2Ä*
+local35 *$anonÄ*)
+_empty_/Test.sameKind().*sameKindÄ*'
+_empty_/Test.sameKind().[M1]	*M1Ä*'
+_empty_/Test.sameKind().[M2]	*M2Ä*5
+"_empty_/Test.sameKind().(sameKind)  *sameKindÄ*#
+_empty_/Test.HList# *HListÄ*0
+_empty_/Test.HList#`<init>`(). Ä@*<init>Ä* 
+_empty_/Test.`::`# à*::Ä*/
+_empty_/Test.`::`#`<init>`(). Ä@*<init>Ä*3
+#_empty_/Test.`::`#`<init>`().(head) Ä*headÄ*3
+#_empty_/Test.`::`#`<init>`().(tail) Ä*tailÄ*"
+_empty_/Test.`::`#[H]	 Ä*HÄ*"
+_empty_/Test.`::`#[T]	 Ä*TÄ*'
+_empty_/Test.`::`#head. Ä*headÄ*'
+_empty_/Test.`::`#tail. Ä*tailÄ*&
+_empty_/Test.`::`#copy().*copyÄ*&
+_empty_/Test.`::`#copy().[H]	*HÄ*&
+_empty_/Test.`::`#copy().[T]	*TÄ*,
+_empty_/Test.`::`#copy().(head)*headÄ*,
+_empty_/Test.`::`#copy().(tail)*tailÄ*:
+#_empty_/Test.`::`#copy$default$1().*copy$default$1Ä*0
+&_empty_/Test.`::`#copy$default$1().[H]	*HÄ*0
+&_empty_/Test.`::`#copy$default$1().[T]	*TÄ*:
+#_empty_/Test.`::`#copy$default$2().*copy$default$2Ä*0
+&_empty_/Test.`::`#copy$default$2().[H]	*HÄ*0
+&_empty_/Test.`::`#copy$default$2().[T]	*TÄ*"
+_empty_/Test.`::`#_1().*_1Ä*"
+_empty_/Test.`::`#_2().*_2Ä*
+_empty_/Test.`::`.
+ *::Ä*(
+_empty_/Test.`::`.apply().*applyÄ*'
+_empty_/Test.`::`.apply().[H]	*HÄ*'
+_empty_/Test.`::`.apply().[T]	*TÄ*-
+ _empty_/Test.`::`.apply().(head)*headÄ*-
+ _empty_/Test.`::`.apply().(tail)*tailÄ*,
+_empty_/Test.`::`.unapply().*unapplyÄ*)
+_empty_/Test.`::`.unapply().[H]	*HÄ*)
+_empty_/Test.`::`.unapply().[T]	*TÄ*-
+!_empty_/Test.`::`.unapply().(x$1)*x$1Ä*.
+_empty_/Test.`::`.toString().*toStringÄ*!
+_empty_/Test.HNil# *HNilÄ*/
+_empty_/Test.HNil#`<init>`(). Ä@*<init>Ä*"
+_empty_/Test.HNil.
+ à*HNilÄ*
+_empty_/Test.New.
+ *NewÄ*)
+_empty_/Test.New.KPList# *KPListÄ*5
+#_empty_/Test.New.KPList#`<init>`(). Ä@*<init>Ä*'
+_empty_/Test.New.KPNil# *KPNilÄ*4
+"_empty_/Test.New.KPNil#`<init>`(). Ä@*<init>Ä*(
+_empty_/Test.New.KPNil.
+ à*KPNilÄ*+
+_empty_/Test.New.KPNil.`:::`().*:::Ä*,
+"_empty_/Test.New.KPNil.`:::`().[H]	*HÄ*,
+"_empty_/Test.New.KPNil.`:::`().[M]	*MÄ*.
+#_empty_/Test.New.KPNil.`:::`().[HL]	*HLÄ*,
+"_empty_/Test.New.KPNil.`:::`().(h)*hÄ*8
+'_empty_/Test.New.KPNil.`:::`().(kinder)  *kinderÄ*&
+_empty_/Test.New.`:::`# ê*:::Ä*4
+"_empty_/Test.New.`:::`#`<init>`(). Ä@*<init>Ä*8
+(_empty_/Test.New.`:::`#`<init>`().(head) Ä*headÄ*8
+(_empty_/Test.New.`:::`#`<init>`().(tail) Ä*tailÄ*<
+*_empty_/Test.New.`:::`#`<init>`().(kinder) †*kinderÄ*$
+_empty_/Test.New.`:::`#[H]	*HÄ*$
+_empty_/Test.New.`:::`#[T]	*TÄ*$
+_empty_/Test.New.`:::`#[M]	*MÄ*(
+_empty_/Test.New.`:::`#[HL0]	*HL0Ä*,
+_empty_/Test.New.`:::`#head. Ä*headÄ*,
+_empty_/Test.New.`:::`#tail. Ä*tailÄ*0
+_empty_/Test.New.`:::`#kinder. †*kinderÄ*+
+_empty_/Test.New.`:::`#copy().*copyÄ*+
+!_empty_/Test.New.`:::`#copy().[H]	*HÄ*+
+!_empty_/Test.New.`:::`#copy().[T]	*TÄ*+
+!_empty_/Test.New.`:::`#copy().[M]	*MÄ*/
+#_empty_/Test.New.`:::`#copy().[HL0]	*HL0Ä*1
+$_empty_/Test.New.`:::`#copy().(head)*headÄ*1
+$_empty_/Test.New.`:::`#copy().(tail)*tailÄ*7
+&_empty_/Test.New.`:::`#copy().(kinder)  *kinderÄ*?
+(_empty_/Test.New.`:::`#copy$default$1().*copy$default$1Ä*5
++_empty_/Test.New.`:::`#copy$default$1().[H]	*HÄ*5
++_empty_/Test.New.`:::`#copy$default$1().[T]	*TÄ*5
++_empty_/Test.New.`:::`#copy$default$1().[M]	*MÄ*9
+-_empty_/Test.New.`:::`#copy$default$1().[HL0]	*HL0Ä*?
+(_empty_/Test.New.`:::`#copy$default$2().*copy$default$2Ä*5
++_empty_/Test.New.`:::`#copy$default$2().[H]	*HÄ*5
++_empty_/Test.New.`:::`#copy$default$2().[T]	*TÄ*5
++_empty_/Test.New.`:::`#copy$default$2().[M]	*MÄ*9
+-_empty_/Test.New.`:::`#copy$default$2().[HL0]	*HL0Ä*'
+_empty_/Test.New.`:::`#_1().*_1Ä*'
+_empty_/Test.New.`:::`#_2().*_2Ä*%
+_empty_/Test.New.`:::`.
+ *:::Ä*-
+_empty_/Test.New.`:::`.apply().*applyÄ*,
+"_empty_/Test.New.`:::`.apply().[H]	*HÄ*,
+"_empty_/Test.New.`:::`.apply().[T]	*TÄ*,
+"_empty_/Test.New.`:::`.apply().[M]	*MÄ*0
+$_empty_/Test.New.`:::`.apply().[HL0]	*HL0Ä*2
+%_empty_/Test.New.`:::`.apply().(head)*headÄ*2
+%_empty_/Test.New.`:::`.apply().(tail)*tailÄ*8
+'_empty_/Test.New.`:::`.apply().(kinder)  *kinderÄ*1
+!_empty_/Test.New.`:::`.unapply().*unapplyÄ*.
+$_empty_/Test.New.`:::`.unapply().[H]	*HÄ*.
+$_empty_/Test.New.`:::`.unapply().[T]	*TÄ*.
+$_empty_/Test.New.`:::`.unapply().[M]	*MÄ*2
+&_empty_/Test.New.`:::`.unapply().[HL0]	*HL0Ä*2
+&_empty_/Test.New.`:::`.unapply().(x$1)*x$1Ä*3
+"_empty_/Test.New.`:::`.toString().*toStringÄ*0
+_empty_/Test.New.KPListOps# à*	KPListOpsÄ*8
+&_empty_/Test.New.KPListOps#`<init>`(). Ä@*<init>Ä*6
+)_empty_/Test.New.KPListOps#`<init>`().(l) Ä*lÄ*(
+_empty_/Test.New.KPListOps#[L]	*LÄ**
+_empty_/Test.New.KPListOps#l. Ä*lÄ*/
+#_empty_/Test.New.KPListOps#`:::`().*:::Ä*0
+&_empty_/Test.New.KPListOps#`:::`().[H]	*HÄ*0
+&_empty_/Test.New.KPListOps#`:::`().[M]	*MÄ*2
+'_empty_/Test.New.KPListOps#`:::`().[HL]	*HLÄ*0
+&_empty_/Test.New.KPListOps#`:::`().(h)*hÄ*<
++_empty_/Test.New.KPListOps#`:::`().(kinder)  *kinderÄ*/
+"_empty_/Test.New.KPListOps#copy().*copyÄ*/
+%_empty_/Test.New.KPListOps#copy().[L]	*LÄ*/
+%_empty_/Test.New.KPListOps#copy().(l)*lÄ*C
+,_empty_/Test.New.KPListOps#copy$default$1().*copy$default$1Ä*9
+/_empty_/Test.New.KPListOps#copy$default$1().[L]	*LÄ*+
+ _empty_/Test.New.KPListOps#_1().*_1Ä*/
+_empty_/Test.New.KPListOps.
+ *	KPListOpsÄ*1
+#_empty_/Test.New.KPListOps.apply().*applyÄ*0
+&_empty_/Test.New.KPListOps.apply().[L]	*LÄ*0
+&_empty_/Test.New.KPListOps.apply().(l)*lÄ*5
+%_empty_/Test.New.KPListOps.unapply().*unapplyÄ*2
+(_empty_/Test.New.KPListOps.unapply().[L]	*LÄ*6
+*_empty_/Test.New.KPListOps.unapply().(x$1)*x$1Ä*7
+&_empty_/Test.New.KPListOps.toString().*toStringÄ*1
+_empty_/Test.New.kplistOps().  *	kplistOpsÄ**
+ _empty_/Test.New.kplistOps().[L]	*LÄ**
+ _empty_/Test.New.kplistOps().(l)*lÄ*"
+_empty_/Test.New.kl. Ä*klÄ*
+local36 Ä*h$3Ä*
+local37 Ä*h$2Ä*
+local38 Ä*h$1Ä* 
+_empty_/Test.New.h. Ä*hÄ*"
+_empty_/Test.New.h2. Ä*h2Ä*"
+_empty_/Test.New.h3. Ä*h3Ä*"
+_empty_/Test.New.h4. Ä*h4Ä*
+_empty_/Test.Old.
+ *OldÄ*)
+_empty_/Test.Old.KPList# *KPListÄ*5
+#_empty_/Test.Old.KPList#`<init>`(). Ä@*<init>Ä*'
+_empty_/Test.Old.KPNil# *KPNilÄ*4
+"_empty_/Test.Old.KPNil#`<init>`(). Ä@*<init>Ä*(
+_empty_/Test.Old.KPNil.
+ à*KPNilÄ*%
+_empty_/Test.Old.`:::`# *:::Ä*4
+"_empty_/Test.Old.`:::`#`<init>`(). Ä@*<init>Ä*$
+_empty_/Test.Old.`:::`#[H]	*HÄ*$
+_empty_/Test.Old.`:::`#[T]	*TÄ*'
+_empty_/Test.Old.KPCons#*KPConsÄ*5
+#_empty_/Test.Old.KPCons#`<init>`(). Ä@*<init>Ä*%
+_empty_/Test.Old.KPCons#[M]	*MÄ*%
+_empty_/Test.Old.KPCons#[T]	*TÄ*&
+_empty_/Test.Old.KPCons#HL#*HLÄ*$
+_empty_/Test.Old.KPCons#H#*HÄ*.
+_empty_/Test.Old.KPCons#head(). *headÄ*.
+_empty_/Test.Old.KPCons#tail(). *tailÄ*)
+_empty_/Test.Old.KPCons.
+ *KPConsÄ*(
+_empty_/Test.Old.KPCons.Aux#*AuxÄ*)
+_empty_/Test.Old.KPCons.Aux#[M]	*MÄ*)
+_empty_/Test.Old.KPCons.Aux#[T]	*TÄ*+
+ _empty_/Test.Old.KPCons.Aux#[H0]	*H0Ä*-
+!_empty_/Test.Old.KPCons.Aux#[HL0]	*HL0Ä*
+local39*HÄ*
+local40*HLÄ*,
+_empty_/Test.Old.KPCons.Apply#*ApplyÄ*;
+)_empty_/Test.Old.KPCons.Apply#`<init>`(). Ä@*<init>Ä*+
+!_empty_/Test.Old.KPCons.Apply#[M]	*MÄ*+
+!_empty_/Test.Old.KPCons.Apply#[A]	*AÄ*.
+"_empty_/Test.Old.KPCons.Apply#Out#*OutÄ*.
+_empty_/Test.Old.KPCons.Apply.
+ *ApplyÄ*.
+"_empty_/Test.Old.KPCons.Apply.Aux#*AuxÄ*/
+%_empty_/Test.Old.KPCons.Apply.Aux#[M]	*MÄ*/
+%_empty_/Test.Old.KPCons.Apply.Aux#[A]	*AÄ*5
+(_empty_/Test.Old.KPCons.Apply.Aux#[Out0]	*Out0Ä*
+local41*OutÄ*8
+'_empty_/Test.Old.KPCons.Apply.apply0().  *apply0Ä*4
+*_empty_/Test.Old.KPCons.Apply.apply0().[M]	*MÄ*
+local42 *$anonÄ*
+local43*OutÄ*8
+'_empty_/Test.Old.KPCons.Apply.apply1().  *apply1Ä*4
+*_empty_/Test.Old.KPCons.Apply.apply1().[M]	*MÄ*4
+*_empty_/Test.Old.KPCons.Apply.apply1().[A]	*AÄ*
+local44 *$anonÄ*
+local45*OutÄ*8
+'_empty_/Test.Old.KPCons.Apply.apply2().  *apply2Ä*4
+*_empty_/Test.Old.KPCons.Apply.apply2().[M]	*MÄ*4
+*_empty_/Test.Old.KPCons.Apply.apply2().[A]	*AÄ*4
+*_empty_/Test.Old.KPCons.Apply.apply2().[B]	*BÄ*
+local46 *$anonÄ*
+local47*OutÄ*0
+ _empty_/Test.Old.KPCons.Unapply#*UnapplyÄ*=
++_empty_/Test.Old.KPCons.Unapply#`<init>`(). Ä@*<init>Ä*-
+#_empty_/Test.Old.KPCons.Unapply#[M]	*MÄ*-
+#_empty_/Test.Old.KPCons.Unapply#[O]	*OÄ*0
+$_empty_/Test.Old.KPCons.Unapply#Out#*OutÄ*2
+ _empty_/Test.Old.KPCons.Unapply.
+ *UnapplyÄ*0
+$_empty_/Test.Old.KPCons.Unapply.Aux#*AuxÄ*1
+'_empty_/Test.Old.KPCons.Unapply.Aux#[M]	*MÄ*1
+'_empty_/Test.Old.KPCons.Unapply.Aux#[O]	*OÄ*7
+*_empty_/Test.Old.KPCons.Unapply.Aux#[Out0]	*Out0Ä*
+local48*OutÄ*>
++_empty_/Test.Old.KPCons.Unapply.unapply0().  *unapply0Ä*8
+._empty_/Test.Old.KPCons.Unapply.unapply0().[M]	*MÄ*
+local49 *$anonÄ*
+local50*OutÄ*>
++_empty_/Test.Old.KPCons.Unapply.unapply1().  *unapply1Ä*8
+._empty_/Test.Old.KPCons.Unapply.unapply1().[M]	*MÄ*:
+/_empty_/Test.Old.KPCons.Unapply.unapply1().[A0]	*A0Ä*
+local51 *$anonÄ*
+local52*OutÄ*>
++_empty_/Test.Old.KPCons.Unapply.unapply2().  *unapply2Ä*8
+._empty_/Test.Old.KPCons.Unapply.unapply2().[M]	*MÄ*:
+/_empty_/Test.Old.KPCons.Unapply.unapply2().[A0]	*A0Ä*:
+/_empty_/Test.Old.KPCons.Unapply.unapply2().[B0]	*B0Ä*
+local53 *$anonÄ*
+local54*OutÄ*<
+&_empty_/Test.Old.KPCons.KPConsBuilder#*KPConsBuilderÄ*C
+1_empty_/Test.Old.KPCons.KPConsBuilder#`<init>`(). Ä@*<init>Ä*3
+)_empty_/Test.Old.KPCons.KPConsBuilder#[M]	*MÄ*<
+._empty_/Test.Old.KPCons.KPConsBuilder#apply().*applyÄ*=
+2_empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0]	*H0Ä*?
+3_empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0]	*HL0Ä*;
+1_empty_/Test.Old.KPCons.KPConsBuilder#apply().[T]	*TÄ*C
+5_empty_/Test.Old.KPCons.KPConsBuilder#apply().(head0)*head0Ä*C
+5_empty_/Test.Old.KPCons.KPConsBuilder#apply().(tail0)*tail0Ä*C
+4_empty_/Test.Old.KPCons.KPConsBuilder#apply().(unap)  *unapÄ*
+local55 *$anonÄ*
+local56*HLÄ*
+local57*HÄ*
+local58 Ä*headÄ*
+local59 Ä*tailÄ*.
+ _empty_/Test.Old.KPCons.apply().*applyÄ*-
+#_empty_/Test.Old.KPCons.apply().[M]	*MÄ*
+local60 *$anonÄ*"
+_empty_/Test.Old.kl. Ä*klÄ* 
+_empty_/Test.Old.h. Ä*hÄ*"
+_empty_/Test.Old.h2. Ä*h2Ä*"
+_empty_/Test.Old.h3. Ä*h3Ä*"
+_empty_/Test.Old.h4. Ä*h4Ä2
+ _empty_/Test.2
+ _empty_/Test.Bar#2*
+ _empty_/Test.Bar#`<init>`().2"
+ _empty_/Test.Bar#[A]2"
+ _empty_/Test.Bar#[A]2!
+ _empty_/Test.Bar#a.2&
+ _empty_/Test.Bar#copy().2$
+ _empty_/Test.Bar#_1().2
+ _empty_/Test.Bar.2'
+ _empty_/Test.Bar.apply().2)
+ _empty_/Test.Bar.unapply().2 
+ _empty_/Test.Toto#2+
+ _empty_/Test.Toto#`<init>`().2#
+ _empty_/Test.Toto#[A]2#
+ _empty_/Test.Toto#[B]2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2"
+ _empty_/Test.Foo#[T]2#
+! $_empty_/Test.Foo#Out#2$
++ -_empty_/Test.Foo#id().2'
+. /_empty_/Test.Foo#id().(t)2#
+1 4_empty_/Test.Foo#Out#2#
+7 :_empty_/Test.Foo#Out#2'
+= >_empty_/Test.Foo#id().(t)2
+	 _empty_/Test.Foo.2&
+ _empty_/Test.Foo.foo0().2)
+ _empty_/Test.Foo.foo0().[T]2
+ _empty_/Test.Foo#2)
+ _empty_/Test.Foo.foo0().[T]2
+( +local02)
+. /_empty_/Test.Foo.foo0().[T]2
+4 4local12
+8 ;_empty_/Test.Foo#2)
+< =_empty_/Test.Foo.foo0().[T]2
+F Ilocal22)
+L M_empty_/Test.Foo.foo0().[T]2&
+ _empty_/Test.Foo.foo1().2)
+ _empty_/Test.Foo.foo1().[T]2
+  _empty_/Test.Foo#2)
+! "_empty_/Test.Foo.foo1().[T]2
++ .local32)
+1 2_empty_/Test.Foo.foo1().[T]2
+3 6
+scala/Any#2
+< <local42
+@ C_empty_/Test.Foo#2)
+D E_empty_/Test.Foo.foo1().[T]2
+N Qlocal52)
+T U_empty_/Test.Foo.foo1().[T]2
+V Y
+scala/Any#2&
+ _empty_/Test.Foo.foo2().2)
+ _empty_/Test.Foo.foo2().[T]2
+  #_empty_/Test.Foo#2)
+$ %_empty_/Test.Foo.foo2().[T]2
+. 1local62)
+4 5_empty_/Test.Foo.foo2().[T]2
+6 9
+scala/Any#2
+; >
+scala/Any#2
+D Dlocal72
+H K_empty_/Test.Foo#2)
+L M_empty_/Test.Foo.foo2().[T]2
+V Ylocal82)
+\ ]_empty_/Test.Foo.foo2().[T]2
+^ a
+scala/Any#2
+c f
+scala/Any#2!
+   	_empty_/Test.foo().2$
+ 
+  _empty_/Test.foo().[T]2
+   scala/AnyKind#2$
+ !  "_empty_/Test.foo().(f)2
+ $  '_empty_/Test.Foo#2$
+ (  )_empty_/Test.foo().[T]2$
+ -  ._empty_/Test.foo().(f)2$
+ 6  7_empty_/Test.foo().(f)2$
+!! _empty_/Test.Foo#id().2!
+!! _empty_/Test.foo().2
+!! 	
+scala/Int#2&
+!
+! 
+_empty_/Test.Foo.foo0().2$
+"" _empty_/Test.Foo#id().2!
+"" _empty_/Test.foo().2!
+"" 
+scala/package.List#2&
+"" _empty_/Test.Foo.foo1().27
+"" )scala/collection/IterableFactory#apply().2!
+"" scala/package.List.2
+"" 
+scala/Any#2$
+## _empty_/Test.Foo#id().2!
+## _empty_/Test.foo().2
+## 	scala/Predef.Map#2&
+#
+# 
+_empty_/Test.Foo.foo2().22
+## $scala/collection/MapFactory#apply().2
+## scala/Predef.Map.2
+## 
+scala/Any#2
+## 
+scala/Any#2-
+##  scala/Predef.ArrowAssoc#`->`().2(
+## scala/Predef.ArrowAssoc().2-
+#+# -scala/Predef.ArrowAssoc#`->`().2(
+#)# )scala/Predef.ArrowAssoc().2-
+#8# :scala/Predef.ArrowAssoc#`->`().2(
+#6# 6scala/Predef.ArrowAssoc().2"
+'' _empty_/Test.Kinded#2-
+'' _empty_/Test.Kinded#`<init>`().2%
+'' _empty_/Test.Kinded#[M]2&
+'$' '_empty_/Test.Kinded#Out#2
+'+' 2scala/AnyKind#2"
+(	( _empty_/Test.Kinded.2&
+)	) _empty_/Test.Kinded.Aux#2)
+)) _empty_/Test.Kinded.Aux#[M]2
+)) scala/AnyKind#2,
+)) _empty_/Test.Kinded.Aux#[Out0]2
+)#) *scala/AnyKind#2"
+).) 4_empty_/Test.Kinded#2)
+)5) 6_empty_/Test.Kinded.Aux#[M]2
+)?) Blocal92,
+)E) I_empty_/Test.Kinded.Aux#[Out0]2,
+++ _empty_/Test.Kinded.kinded0().2/
+++ !_empty_/Test.Kinded.kinded0().[M]2&
+++  _empty_/Test.Kinded.Aux#2/
++!+ "!_empty_/Test.Kinded.kinded0().[M]2/
++$+ %!_empty_/Test.Kinded.kinded0().[M]2
++)+ )local102"
++-+ 3_empty_/Test.Kinded#2/
++4+ 5!_empty_/Test.Kinded.kinded0().[M]2
++>+ Alocal112/
++D+ E!_empty_/Test.Kinded.kinded0().[M]2,
+,, _empty_/Test.Kinded.kinded1().2/
+,, !_empty_/Test.Kinded.kinded1().[M]2&
+, , #_empty_/Test.Kinded.Aux#2/
+,$, %!_empty_/Test.Kinded.kinded1().[M]2/
+,', (!_empty_/Test.Kinded.kinded1().[M]2
+,,, ,local122"
+,0, 6_empty_/Test.Kinded#2/
+,7, 8!_empty_/Test.Kinded.kinded1().[M]2
+,A, Dlocal132
+,E, Flocal142/
+,J, K!_empty_/Test.Kinded.kinded1().[M]2
+,L, Mlocal142,
+-- _empty_/Test.Kinded.kinded2().2/
+-- !_empty_/Test.Kinded.kinded2().[M]2&
+-#- &_empty_/Test.Kinded.Aux#2/
+-'- (!_empty_/Test.Kinded.kinded2().[M]2/
+-*- +!_empty_/Test.Kinded.kinded2().[M]2
+-/- /local152"
+-3- 9_empty_/Test.Kinded#2/
+-:- ;!_empty_/Test.Kinded.kinded2().[M]2
+-D- Glocal162
+-H- Ilocal172
+-K- Llocal182/
+-P- Q!_empty_/Test.Kinded.kinded2().[M]2
+-R- Slocal172
+-U- Vlocal182(
+00 scala/Predef.implicitly().2&
+00 _empty_/Test.Kinded.Aux#2"
+00 _empty_/Test.Kinded.2
+00 
+scala/Int#2
+00  
+scala/Int#2,
+0"0 "_empty_/Test.Kinded.kinded0().2(
+11 scala/Predef.implicitly().2&
+11 _empty_/Test.Kinded.Aux#2"
+11 _empty_/Test.Kinded.2!
+11 scala/package.List#2!
+11 "scala/package.List#2,
+1$1 $_empty_/Test.Kinded.kinded1().2(
+22 scala/Predef.implicitly().2&
+22 _empty_/Test.Kinded.Aux#2"
+22 _empty_/Test.Kinded.2
+22 scala/Predef.Map#2
+22  scala/Predef.Map#2,
+2"2 "_empty_/Test.Kinded.kinded2().2"
+66 _empty_/Test.Kinder#2-
+66 _empty_/Test.Kinder#`<init>`().2&
+66 _empty_/Test.Kinder#[MA]2$
+66 _empty_/Test.Kinder#M#2
+66 &scala/AnyKind#2'
+6-6 1_empty_/Test.Kinder#Args#2!
+656 :_empty_/Test.HList#2"
+7	7 _empty_/Test.Kinder.20
+77 ,"_empty_/Test.KinderLowerImplicits#2&
+8	8 _empty_/Test.Kinder.Aux#2*
+88 _empty_/Test.Kinder.Aux#[MA]2*
+88 _empty_/Test.Kinder.Aux#[M0]2
+88 scala/AnyKind#2-
+8 8 %_empty_/Test.Kinder.Aux#[Args0]2!
+8)8 ._empty_/Test.HList#2"
+828 8_empty_/Test.Kinder#2*
+898 ;_empty_/Test.Kinder.Aux#[MA]2
+8D8 Elocal192*
+8H8 J_empty_/Test.Kinder.Aux#[M0]2
+8Q8 Ulocal202-
+8X8 ]_empty_/Test.Kinder.Aux#[Args0]2,
+:: _empty_/Test.Kinder.kinder1().20
+:: "_empty_/Test.Kinder.kinder1().[M0]20
+: : ""_empty_/Test.Kinder.kinder1().[A0]2&
+:,: /_empty_/Test.Kinder.Aux#2"
+:%: +_empty_/Test.Kinder.20
+:0: 2"_empty_/Test.Kinder.kinder1().[M0]20
+:3: 5"_empty_/Test.Kinder.kinder1().[A0]20
+:8: :"_empty_/Test.Kinder.kinder1().[M0]2 
+:?: A_empty_/Test.`::`#20
+:<: >"_empty_/Test.Kinder.kinder1().[A0]2 
+:B: F_empty_/Test.HNil#2
+:J: Jlocal212"
+:N: T_empty_/Test.Kinder#20
+:U: W"_empty_/Test.Kinder.kinder1().[M0]20
+:X: Z"_empty_/Test.Kinder.kinder1().[A0]2
+:d: elocal222
+:f: glocal2320
+:k: m"_empty_/Test.Kinder.kinder1().[M0]2
+:n: olocal232
+:w: {local242"
+
+:Å: É_empty_/Test.`::`#21
+	:~: Ä"_empty_/Test.Kinder.kinder1().[A0]2"
+
+:Ñ: à_empty_/Test.HNil#20
+== "_empty_/Test.KinderLowerImplicits#2;
+>> -_empty_/Test.KinderLowerImplicits#`<init>`().2:
+>> ,_empty_/Test.KinderLowerImplicits#kinder2().2>
+>> 0_empty_/Test.KinderLowerImplicits#kinder2().[M0]2>
+>#> %0_empty_/Test.KinderLowerImplicits#kinder2().[A0]2>
+>'> )0_empty_/Test.KinderLowerImplicits#kinder2().[B0]2&
+>3> 6_empty_/Test.Kinder.Aux#2"
+>,> 2_empty_/Test.Kinder.2>
+>7> 90_empty_/Test.KinderLowerImplicits#kinder2().[M0]2>
+>:> <0_empty_/Test.KinderLowerImplicits#kinder2().[A0]2>
+>>> @0_empty_/Test.KinderLowerImplicits#kinder2().[B0]2>
+>C> E0_empty_/Test.KinderLowerImplicits#kinder2().[M0]2 
+>J> L_empty_/Test.`::`#2>
+>G> I0_empty_/Test.KinderLowerImplicits#kinder2().[A0]2 
+>P> R_empty_/Test.`::`#2>
+>M> O0_empty_/Test.KinderLowerImplicits#kinder2().[B0]2 
+>S> W_empty_/Test.HNil#2
+>[> [local252"
+>_> e_empty_/Test.Kinder#2>
+>f> h0_empty_/Test.KinderLowerImplicits#kinder2().[M0]2>
+>i> k0_empty_/Test.KinderLowerImplicits#kinder2().[A0]2>
+>m> o0_empty_/Test.KinderLowerImplicits#kinder2().[B0]2
+>y> zlocal262
+>{> |local272
+>~> local282@
+
+>É> Ö0_empty_/Test.KinderLowerImplicits#kinder2().[M0]2
+
+>Ü> álocal272
+
+>â> älocal282
+
+>í> ñlocal292"
+
+>ú> û_empty_/Test.`::`#2@
+
+>ô> õ0_empty_/Test.KinderLowerImplicits#kinder2().[A0]2"
+
+>¢> §_empty_/Test.`::`#2@
+
+>ü> °0_empty_/Test.KinderLowerImplicits#kinder2().[B0]2"
+
+>•> ©_empty_/Test.HNil#2:
+?? ,_empty_/Test.KinderLowerImplicits#kinder0().2=
+?? /_empty_/Test.KinderLowerImplicits#kinder0().[A]2&
+?$? '_empty_/Test.Kinder.Aux#2"
+?? #_empty_/Test.Kinder.2=
+?(? )/_empty_/Test.KinderLowerImplicits#kinder0().[A]2=
+?+? ,/_empty_/Test.KinderLowerImplicits#kinder0().[A]2 
+?.? 2_empty_/Test.HNil#2
+?6? 6local302"
+?:? @_empty_/Test.Kinder#2=
+?A? B/_empty_/Test.KinderLowerImplicits#kinder0().[A]2
+?K? Llocal312=
+?O? P/_empty_/Test.KinderLowerImplicits#kinder0().[A]2
+?W? [local322 
+?^? b_empty_/Test.HNil#2$
+DD _empty_/Test.SameKind#2/
+DD !_empty_/Test.SameKind#`<init>`().2'
+DD _empty_/Test.SameKind#[M]2(
+DD !_empty_/Test.SameKind#[M2]2$
+E	E _empty_/Test.SameKind.20
+GG "_empty_/Test.SameKind.sameKind0().23
+GG %_empty_/Test.SameKind.sameKind0().[A]23
+GG %_empty_/Test.SameKind.sameKind0().[B]2$
+G"G *_empty_/Test.SameKind#23
+G+G ,%_empty_/Test.SameKind.sameKind0().[A]23
+G.G /%_empty_/Test.SameKind.sameKind0().[B]2
+G3G 3local3321
+HH #_empty_/Test.SameKind.sameKind01().25
+HH '_empty_/Test.SameKind.sameKind01().[M1]25
+H#H %'_empty_/Test.SameKind.sameKind01().[M2]2$
+H+H 3_empty_/Test.SameKind#25
+H4H 6'_empty_/Test.SameKind.sameKind01().[M1]25
+H8H :'_empty_/Test.SameKind.sameKind01().[M2]2
+H>H >local3421
+II #_empty_/Test.SameKind.sameKind02().25
+II '_empty_/Test.SameKind.sameKind02().[M1]25
+I&I ('_empty_/Test.SameKind.sameKind02().[M2]2$
+I1I 9_empty_/Test.SameKind#25
+I:I <'_empty_/Test.SameKind.sameKind02().[M1]25
+I>I @'_empty_/Test.SameKind.sameKind02().[M2]2
+IDI Dlocal352&
+LL _empty_/Test.sameKind().2*
+LL _empty_/Test.sameKind().[M1]2
+LL scala/AnyKind#2*
+LL  _empty_/Test.sameKind().[M2]2
+L$L +scala/AnyKind#20
+L6L >"_empty_/Test.sameKind().(sameKind)2$
+L@L H_empty_/Test.SameKind#2*
+LIL K_empty_/Test.sameKind().[M1]2*
+LML O_empty_/Test.sameKind().[M2]20
+LTL \"_empty_/Test.sameKind().(sameKind)2&
+NN 
+_empty_/Test.sameKind().2
+NN 
+scala/Int#2"
+NN scala/Predef.String#20
+NN "_empty_/Test.SameKind.sameKind0().2&
+OO 
+_empty_/Test.sameKind().2!
+OO scala/package.List#21
+OO #_empty_/Test.SameKind.sameKind01().2&
+PP 
+_empty_/Test.sameKind().2
+PP scala/Predef.Map#21
+PP #_empty_/Test.SameKind.sameKind02().2!
+\\ _empty_/Test.HList#2,
+\\ _empty_/Test.HList#`<init>`().2 
+]] _empty_/Test.`::`#2+
+]] _empty_/Test.`::`#`<init>`().2#
+].] /_empty_/Test.`::`#[H]2#
+]8] 9_empty_/Test.`::`#[T]2!
+]C] H_empty_/Test.HList#2#
+]] _empty_/Test.`::`#[H]2#
+]] _empty_/Test.`::`#[T]2%
+]'] +_empty_/Test.`::`#head.2%
+]1] 5_empty_/Test.`::`#tail.2'
+]] _empty_/Test.`::`#copy().2%
+].] ._empty_/Test.`::`#_1().2%
+]8] 8_empty_/Test.`::`#_2().2 
+]] _empty_/Test.`::`.2(
+]] _empty_/Test.`::`.apply().2*
+]] _empty_/Test.`::`.unapply().2 
+^^ _empty_/Test.HNil#2+
+^^ _empty_/Test.HNil#`<init>`().2!
+^^ !_empty_/Test.HList#2 
+__ _empty_/Test.HNil.2 
+__ _empty_/Test.HNil#2
+a	a _empty_/Test.New.2&
+cc _empty_/Test.New.KPList#21
+cc #_empty_/Test.New.KPList#`<init>`().2%
+ee _empty_/Test.New.KPNil#20
+ee "_empty_/Test.New.KPNil#`<init>`().2&
+ee %_empty_/Test.New.KPList#2%
+ff _empty_/Test.New.KPNil.2%
+ff #_empty_/Test.New.KPNil#2-
+g
+g _empty_/Test.New.KPNil.`:::`().20
+gg "_empty_/Test.New.KPNil.`:::`().[H]20
+gg "_empty_/Test.New.KPNil.`:::`().[M]2
+gg scala/AnyKind#21
+gg !#_empty_/Test.New.KPNil.`:::`().[HL]2!
+g%g *_empty_/Test.HList#20
+g,g -"_empty_/Test.New.KPNil.`:::`().(h)20
+g.g /"_empty_/Test.New.KPNil.`:::`().[H]25
+g:g @'_empty_/Test.New.KPNil.`:::`().(kinder)2&
+gIg L_empty_/Test.Kinder.Aux#2"
+gBg H_empty_/Test.Kinder.20
+gMg N"_empty_/Test.New.KPNil.`:::`().[H]20
+gPg Q"_empty_/Test.New.KPNil.`:::`().[M]21
+gSg U#_empty_/Test.New.KPNil.`:::`().[HL]2-
+hh _empty_/Test.New.`:::`.apply().2%
+hh _empty_/Test.New.`:::`.2
+hh _empty_/Test.New.20
+hh "_empty_/Test.New.KPNil.`:::`().(h)2%
+hh _empty_/Test.New.KPNil.25
+hh '_empty_/Test.New.KPNil.`:::`().(kinder)2%
+kk _empty_/Test.New.`:::`#20
+kk "_empty_/Test.New.`:::`#`<init>`().2(
+ll _empty_/Test.New.`:::`#[H]2(
+mm _empty_/Test.New.`:::`#[T]2&
+n"n %_empty_/Test.Kinder.Aux#2"
+nn !_empty_/Test.Kinder.2(
+n&n '_empty_/Test.New.`:::`#[H]2(
+n)n *_empty_/Test.New.`:::`#[M]2*
+n,n /_empty_/Test.New.`:::`#[HL0]2&
+n:n @_empty_/Test.New.KPList#2(
+kk _empty_/Test.New.`:::`#[H]2(
+kk _empty_/Test.New.`:::`#[T]2(
+k*k +_empty_/Test.New.`:::`#[M]2*
+k8k ;_empty_/Test.New.`:::`#[HL0]2*
+ll 
+_empty_/Test.New.`:::`#head.2*
+mm 
+_empty_/Test.New.`:::`#tail.2,
+nn _empty_/Test.New.`:::`#kinder.2,
+kk _empty_/Test.New.`:::`#copy().2*
+ll _empty_/Test.New.`:::`#_1().2*
+mm _empty_/Test.New.`:::`#_2().2%
+kk _empty_/Test.New.`:::`.2-
+kk _empty_/Test.New.`:::`.apply().2/
+kk !_empty_/Test.New.`:::`.unapply().2)
+pp _empty_/Test.New.KPListOps#24
+pp &_empty_/Test.New.KPListOps#`<init>`().2,
+p0p 1_empty_/Test.New.KPListOps#[L]2,
+pp  _empty_/Test.New.KPListOps#[L]2+
+p,p -_empty_/Test.New.KPListOps#l.21
+q
+q #_empty_/Test.New.KPListOps#`:::`().24
+qq &_empty_/Test.New.KPListOps#`:::`().[H]24
+qq &_empty_/Test.New.KPListOps#`:::`().[M]2
+qq scala/AnyKind#25
+qq !'_empty_/Test.New.KPListOps#`:::`().[HL]2!
+q%q *_empty_/Test.HList#24
+q,q -&_empty_/Test.New.KPListOps#`:::`().(h)24
+q.q /&_empty_/Test.New.KPListOps#`:::`().[H]29
+q:q @+_empty_/Test.New.KPListOps#`:::`().(kinder)2&
+qIq L_empty_/Test.Kinder.Aux#2"
+qBq H_empty_/Test.Kinder.24
+qMq N&_empty_/Test.New.KPListOps#`:::`().[H]24
+qPq Q&_empty_/Test.New.KPListOps#`:::`().[M]25
+qSq U'_empty_/Test.New.KPListOps#`:::`().[HL]2-
+rr _empty_/Test.New.`:::`.apply().2%
+rr _empty_/Test.New.`:::`.2
+rr _empty_/Test.New.24
+rr &_empty_/Test.New.KPListOps#`:::`().(h)2+
+rr _empty_/Test.New.KPListOps#l.29
+rr +_empty_/Test.New.KPListOps#`:::`().(kinder)20
+pp "_empty_/Test.New.KPListOps#copy().2.
+p0p 0 _empty_/Test.New.KPListOps#_1().2)
+pp _empty_/Test.New.KPListOps.21
+pp #_empty_/Test.New.KPListOps.apply().23
+pp %_empty_/Test.New.KPListOps.unapply().2+
+uu _empty_/Test.New.kplistOps().2.
+uu  _empty_/Test.New.kplistOps().[L]2&
+u u &_empty_/Test.New.KPList#2.
+u(u ) _empty_/Test.New.kplistOps().(l)2.
+u+u , _empty_/Test.New.kplistOps().[L]2)
+u/u 8_empty_/Test.New.KPListOps#2.
+u9u : _empty_/Test.New.kplistOps().[L]24
+uKu K&_empty_/Test.New.KPListOps#`<init>`().2.
+uLu M _empty_/Test.New.kplistOps().(l)2"
+ww 
+_empty_/Test.New.kl.2
+ww local3621
+w^w ^#_empty_/Test.New.KPListOps#`:::`().2+
+ww _empty_/Test.New.kplistOps().2+
+w#w #_empty_/Test.New.kplistOps().2
+w'w (local372+
+w5w 5_empty_/Test.New.kplistOps().2
+w8w 9local382-
+w^w ^_empty_/Test.New.KPNil.`:::`().2%
+wYw ^_empty_/Test.New.KPNil.2
+w8w 8local382,
+w^w ^_empty_/Test.Kinder.kinder1().2
+w'w 'local372:
+w^w ^,_empty_/Test.KinderLowerImplicits#kinder0().2
+ww local362!
+yy 	_empty_/Test.New.h.2
+yy _empty_/Test.Bar#2
+yy 
+scala/Int#2*
+yy _empty_/Test.New.`:::`#head.2"
+yy _empty_/Test.New.kl.2"
+zz 
+_empty_/Test.New.h2.2"
+zz scala/Predef.String#2*
+zz !_empty_/Test.New.`:::`#head.2*
+zz _empty_/Test.New.`:::`#tail.2"
+zz _empty_/Test.New.kl.2"
+{{ 
+_empty_/Test.New.h3.2!
+{{ scala/package.List#2
+{{ 
+scala/Int#2*
+{%{ )_empty_/Test.New.`:::`#head.2*
+{ { $_empty_/Test.New.`:::`#tail.2*
+{{ _empty_/Test.New.`:::`#tail.2"
+{{ _empty_/Test.New.kl.2"
+|| 
+_empty_/Test.New.h4.2
+|| scala/Predef.Map#2"
+|| scala/Predef.String#2
+|| scala/Long#2*
+|2| 6_empty_/Test.New.`:::`#head.2*
+|-| 1_empty_/Test.New.`:::`#tail.2*
+|(| ,_empty_/Test.New.`:::`#tail.2*
+|#| '_empty_/Test.New.`:::`#tail.2"
+| | "_empty_/Test.New.kl.2!
+
+è	è _empty_/Test.Old.2(
+
+íí _empty_/Test.Old.KPList#23
+
+íí #_empty_/Test.Old.KPList#`<init>`().2'
+
+îî _empty_/Test.Old.KPNil#22
+
+îî "_empty_/Test.Old.KPNil#`<init>`().2(
+
+îî %_empty_/Test.Old.KPList#2'
+
+ïï _empty_/Test.Old.KPNil.2'
+
+ïï #_empty_/Test.Old.KPNil#2'
+
+óó _empty_/Test.Old.`:::`#22
+
+óó "_empty_/Test.Old.`:::`#`<init>`().2(
+
+ó8ó >_empty_/Test.Old.KPList#2*
+
+óó _empty_/Test.Old.`:::`#[H]2*
+
+ó#ó $_empty_/Test.Old.`:::`#[T]2(
+
+ò
+ò _empty_/Test.Old.KPCons#23
+
+òò #_empty_/Test.Old.KPCons#`<init>`().2'
+
+ò4ò 7_empty_/Test.Old.`:::`#2+
+
+ò8ò 9_empty_/Test.Old.KPCons#[M]2+
+
+ò;ò <_empty_/Test.Old.KPCons#[T]2+
+
+òò _empty_/Test.Old.KPCons#[M]2+
+
+òò  _empty_/Test.Old.KPCons#[T]2+
+
+ôô _empty_/Test.Old.KPCons#HL#2#
+
+ôô _empty_/Test.HList#2*
+
+öö _empty_/Test.Old.KPCons#H#2/
+
+õ
+õ _empty_/Test.Old.KPCons#head().2*
+
+õõ _empty_/Test.Old.KPCons#H#2/
+
+ú
+ú _empty_/Test.Old.KPCons#tail().2+
+
+úú _empty_/Test.Old.KPCons#[T]2(
+
+üü _empty_/Test.Old.KPCons.2,
+
+†† _empty_/Test.Old.KPCons.Aux#2/
+
+†† _empty_/Test.Old.KPCons.Aux#[M]2
+
+†† scala/AnyKind#2/
+
+†† _empty_/Test.Old.KPCons.Aux#[T]2(
+
+†"† (_empty_/Test.Old.KPList#20
+
+†*† , _empty_/Test.Old.KPCons.Aux#[H0]21
+
+†.† 1!_empty_/Test.Old.KPCons.Aux#[HL0]2#
+
+†5† :_empty_/Test.HList#2(
+
+†>† D_empty_/Test.Old.KPCons#2/
+
+†E† F_empty_/Test.Old.KPCons.Aux#[M]2/
+
+†H† I_empty_/Test.Old.KPCons.Aux#[T]2
+
+†R† Slocal3920
+
+†V† X _empty_/Test.Old.KPCons.Aux#[H0]2
+
+†_† alocal4021
+
+†d† g!_empty_/Test.Old.KPCons.Aux#[HL0]2.
+
+¢¢ _empty_/Test.Old.KPCons.Apply#29
+
+¢¢ )_empty_/Test.Old.KPCons.Apply#`<init>`().21
+
+¢¢ !_empty_/Test.Old.KPCons.Apply#[M]21
+
+¢ ¢ !!_empty_/Test.Old.KPCons.Apply#[A]22
+
+¢3¢ 6"_empty_/Test.Old.KPCons.Apply#Out#2.
+
+££ _empty_/Test.Old.KPCons.Apply.22
+
+§§ "_empty_/Test.Old.KPCons.Apply.Aux#25
+
+§§ %_empty_/Test.Old.KPCons.Apply.Aux#[M]2
+
+§§ scala/AnyKind#25
+
+§§  %_empty_/Test.Old.KPCons.Apply.Aux#[A]2#
+
+§$§ )_empty_/Test.HList#28
+
+§+§ /(_empty_/Test.Old.KPCons.Apply.Aux#[Out0]2.
+
+§3§ 8_empty_/Test.Old.KPCons.Apply#25
+
+§9§ :%_empty_/Test.Old.KPCons.Apply.Aux#[M]25
+
+§<§ =%_empty_/Test.Old.KPCons.Apply.Aux#[A]2
+
+§F§ Ilocal4128
+
+§L§ P(_empty_/Test.Old.KPCons.Apply.Aux#[Out0]27
+
+•• '_empty_/Test.Old.KPCons.Apply.apply0().2:
+
+•• *_empty_/Test.Old.KPCons.Apply.apply0().[M]22
+
+• • #"_empty_/Test.Old.KPCons.Apply.Aux#2:
+
+•$• %*_empty_/Test.Old.KPCons.Apply.apply0().[M]2"
+
+•'• +_empty_/Test.HNil#2:
+
+•-• .*_empty_/Test.Old.KPCons.Apply.apply0().[M]2
+
+•2• 2local422.
+
+•6• ;_empty_/Test.Old.KPCons.Apply#2:
+
+•<• =*_empty_/Test.Old.KPCons.Apply.apply0().[M]2"
+
+•?• C_empty_/Test.HNil#2
+
+•L• Olocal432:
+
+•R• S*_empty_/Test.Old.KPCons.Apply.apply0().[M]27
+
+¶¶ '_empty_/Test.Old.KPCons.Apply.apply1().2:
+
+¶¶ *_empty_/Test.Old.KPCons.Apply.apply1().[M]2:
+
+¶"¶ #*_empty_/Test.Old.KPCons.Apply.apply1().[A]22
+
+¶&¶ )"_empty_/Test.Old.KPCons.Apply.Aux#2:
+
+¶*¶ +*_empty_/Test.Old.KPCons.Apply.apply1().[M]2"
+
+¶/¶ 1_empty_/Test.`::`#2:
+
+¶-¶ .*_empty_/Test.Old.KPCons.Apply.apply1().[A]2"
+
+¶2¶ 6_empty_/Test.HNil#2:
+
+¶8¶ 9*_empty_/Test.Old.KPCons.Apply.apply1().[M]2:
+
+¶:¶ ;*_empty_/Test.Old.KPCons.Apply.apply1().[A]2
+
+¶@¶ @local442.
+
+¶D¶ I_empty_/Test.Old.KPCons.Apply#2:
+
+¶J¶ K*_empty_/Test.Old.KPCons.Apply.apply1().[M]2"
+
+¶O¶ Q_empty_/Test.`::`#2:
+
+¶M¶ N*_empty_/Test.Old.KPCons.Apply.apply1().[A]2"
+
+¶R¶ V_empty_/Test.HNil#2
+
+¶_¶ blocal452:
+
+¶e¶ f*_empty_/Test.Old.KPCons.Apply.apply1().[M]2:
+
+¶g¶ h*_empty_/Test.Old.KPCons.Apply.apply1().[A]27
+
+ßß '_empty_/Test.Old.KPCons.Apply.apply2().2:
+
+ßß *_empty_/Test.Old.KPCons.Apply.apply2().[M]2:
+
+ß%ß &*_empty_/Test.Old.KPCons.Apply.apply2().[A]2:
+
+ß(ß )*_empty_/Test.Old.KPCons.Apply.apply2().[B]22
+
+ß,ß /"_empty_/Test.Old.KPCons.Apply.Aux#2:
+
+ß0ß 1*_empty_/Test.Old.KPCons.Apply.apply2().[M]2"
+
+ß5ß 7_empty_/Test.`::`#2:
+
+ß3ß 4*_empty_/Test.Old.KPCons.Apply.apply2().[A]2"
+
+ß:ß <_empty_/Test.`::`#2:
+
+ß8ß 9*_empty_/Test.Old.KPCons.Apply.apply2().[B]2"
+
+ß=ß A_empty_/Test.HNil#2:
+
+ßCß D*_empty_/Test.Old.KPCons.Apply.apply2().[M]2:
+
+ßEß F*_empty_/Test.Old.KPCons.Apply.apply2().[A]2:
+
+ßHß I*_empty_/Test.Old.KPCons.Apply.apply2().[B]2
+
+ßNß Nlocal462.
+
+ßRß W_empty_/Test.Old.KPCons.Apply#2:
+
+ßXß Y*_empty_/Test.Old.KPCons.Apply.apply2().[M]2"
+
+ß]ß __empty_/Test.`::`#2:
+
+ß[ß \*_empty_/Test.Old.KPCons.Apply.apply2().[A]2"
+
+ßbß d_empty_/Test.`::`#2:
+
+ß`ß a*_empty_/Test.Old.KPCons.Apply.apply2().[B]2"
+
+ßeß i_empty_/Test.HNil#2
+
+ßrß ulocal472:
+
+ßxß y*_empty_/Test.Old.KPCons.Apply.apply2().[M]2:
+
+ßzß {*_empty_/Test.Old.KPCons.Apply.apply2().[A]2:
+
+ß}ß ~*_empty_/Test.Old.KPCons.Apply.apply2().[B]20
+
+™™  _empty_/Test.Old.KPCons.Unapply#2;
+
+™™ +_empty_/Test.Old.KPCons.Unapply#`<init>`().23
+
+™™ #_empty_/Test.Old.KPCons.Unapply#[M]23
+
+™"™ ##_empty_/Test.Old.KPCons.Unapply#[O]24
+
+™,™ /$_empty_/Test.Old.KPCons.Unapply#Out#2#
+
+™3™ 8_empty_/Test.HList#20
+
+´´  _empty_/Test.Old.KPCons.Unapply.24
+
+¨¨ $_empty_/Test.Old.KPCons.Unapply.Aux#27
+
+¨¨ '_empty_/Test.Old.KPCons.Unapply.Aux#[M]2
+
+¨¨ scala/AnyKind#27
+
+¨¨  '_empty_/Test.Old.KPCons.Unapply.Aux#[O]2:
+
+¨"¨ &*_empty_/Test.Old.KPCons.Unapply.Aux#[Out0]2#
+
+¨*¨ /_empty_/Test.HList#20
+
+¨3¨ : _empty_/Test.Old.KPCons.Unapply#27
+
+¨;¨ <'_empty_/Test.Old.KPCons.Unapply.Aux#[M]27
+
+¨>¨ ?'_empty_/Test.Old.KPCons.Unapply.Aux#[O]2
+
+¨H¨ Klocal482:
+
+¨N¨ R*_empty_/Test.Old.KPCons.Unapply.Aux#[Out0]2;
+
+ÆÆ +_empty_/Test.Old.KPCons.Unapply.unapply0().2>
+
+ÆÆ ._empty_/Test.Old.KPCons.Unapply.unapply0().[M]24
+
+Æ"Æ %$_empty_/Test.Old.KPCons.Unapply.Aux#2>
+
+Æ&Æ '._empty_/Test.Old.KPCons.Unapply.unapply0().[M]2>
+
+Æ)Æ *._empty_/Test.Old.KPCons.Unapply.unapply0().[M]2"
+
+Æ,Æ 0_empty_/Test.HNil#2
+
+Æ4Æ 4local4920
+
+Æ8Æ ? _empty_/Test.Old.KPCons.Unapply#2>
+
+Æ@Æ A._empty_/Test.Old.KPCons.Unapply.unapply0().[M]2>
+
+ÆCÆ D._empty_/Test.Old.KPCons.Unapply.unapply0().[M]2
+
+ÆMÆ Plocal502"
+
+ÆSÆ W_empty_/Test.HNil#2;
+
+ØØ +_empty_/Test.Old.KPCons.Unapply.unapply1().2>
+
+ØØ ._empty_/Test.Old.KPCons.Unapply.unapply1().[M]2?
+
+Ø$Ø &/_empty_/Test.Old.KPCons.Unapply.unapply1().[A0]24
+
+Ø1Ø 4$_empty_/Test.Old.KPCons.Unapply.Aux#20
+
+Ø)Ø 0 _empty_/Test.Old.KPCons.Unapply.2>
+
+Ø5Ø 6._empty_/Test.Old.KPCons.Unapply.unapply1().[M]2>
+
+Ø8Ø 9._empty_/Test.Old.KPCons.Unapply.unapply1().[M]2?
+
+Ø:Ø </_empty_/Test.Old.KPCons.Unapply.unapply1().[A0]2"
+
+ØBØ D_empty_/Test.`::`#2?
+
+Ø?Ø A/_empty_/Test.Old.KPCons.Unapply.unapply1().[A0]2"
+
+ØEØ I_empty_/Test.HNil#2
+
+ØMØ Mlocal5120
+
+ØQØ X _empty_/Test.Old.KPCons.Unapply#2>
+
+ØYØ Z._empty_/Test.Old.KPCons.Unapply.unapply1().[M]2>
+
+Ø\Ø ]._empty_/Test.Old.KPCons.Unapply.unapply1().[M]2?
+
+Ø^Ø `/_empty_/Test.Old.KPCons.Unapply.unapply1().[A0]2
+
+ØjØ mlocal522"
+
+ØsØ u_empty_/Test.`::`#2?
+
+ØpØ r/_empty_/Test.Old.KPCons.Unapply.unapply1().[A0]2"
+
+ØvØ z_empty_/Test.HNil#2;
+
+∞∞ +_empty_/Test.Old.KPCons.Unapply.unapply2().2>
+
+∞∞ ._empty_/Test.Old.KPCons.Unapply.unapply2().[M]2?
+
+∞'∞ )/_empty_/Test.Old.KPCons.Unapply.unapply2().[A0]2?
+
+∞+∞ -/_empty_/Test.Old.KPCons.Unapply.unapply2().[B0]24
+
+∞0∞ 3$_empty_/Test.Old.KPCons.Unapply.Aux#2>
+
+∞4∞ 5._empty_/Test.Old.KPCons.Unapply.unapply2().[M]2>
+
+∞7∞ 8._empty_/Test.Old.KPCons.Unapply.unapply2().[M]2?
+
+∞9∞ ;/_empty_/Test.Old.KPCons.Unapply.unapply2().[A0]2?
+
+∞=∞ ?/_empty_/Test.Old.KPCons.Unapply.unapply2().[B0]2"
+
+∞E∞ G_empty_/Test.`::`#2?
+
+∞B∞ D/_empty_/Test.Old.KPCons.Unapply.unapply2().[A0]2"
+
+∞K∞ M_empty_/Test.`::`#2?
+
+∞H∞ J/_empty_/Test.Old.KPCons.Unapply.unapply2().[B0]2"
+
+∞N∞ R_empty_/Test.HNil#2
+
+∞V∞ Vlocal5320
+
+∞Z∞ a _empty_/Test.Old.KPCons.Unapply#2>
+
+∞b∞ c._empty_/Test.Old.KPCons.Unapply.unapply2().[M]2>
+
+∞e∞ f._empty_/Test.Old.KPCons.Unapply.unapply2().[M]2?
+
+∞g∞ i/_empty_/Test.Old.KPCons.Unapply.unapply2().[A0]2?
+
+∞k∞ m/_empty_/Test.Old.KPCons.Unapply.unapply2().[B0]2
+
+∞w∞ zlocal542$
+∞Ä∞ Ç_empty_/Test.`::`#2?
+
+∞}∞ /_empty_/Test.Old.KPCons.Unapply.unapply2().[A0]2$
+∞Ü∞ à_empty_/Test.`::`#2A
+∞É∞ Ö/_empty_/Test.Old.KPCons.Unapply.unapply2().[B0]2$
+∞â∞ ç_empty_/Test.HNil#26
+
+¥¥ &_empty_/Test.Old.KPCons.KPConsBuilder#2A
+
+¥¥ 1_empty_/Test.Old.KPCons.KPConsBuilder#`<init>`().29
+
+¥¥ )_empty_/Test.Old.KPCons.KPConsBuilder#[M]2>
+
+µµ ._empty_/Test.Old.KPCons.KPConsBuilder#apply().2B
+
+µµ 2_empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0]2C
+
+µµ 3_empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0]2#
+
+µµ "_empty_/Test.HList#2A
+
+µ$µ %1_empty_/Test.Old.KPCons.KPConsBuilder#apply().[T]2(
+
+µ)µ /_empty_/Test.Old.KPList#2E
+
+µ1µ 65_empty_/Test.Old.KPCons.KPConsBuilder#apply().(head0)2B
+
+µ8µ :2_empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0]2E
+
+µ<µ A5_empty_/Test.Old.KPCons.KPConsBuilder#apply().(tail0)2A
+
+µCµ D1_empty_/Test.Old.KPCons.KPConsBuilder#apply().[T]2D
+
+µOµ S4_empty_/Test.Old.KPCons.KPConsBuilder#apply().(unap)24
+
+µ]µ `$_empty_/Test.Old.KPCons.Unapply.Aux#20
+
+µUµ \ _empty_/Test.Old.KPCons.Unapply.29
+
+µaµ b)_empty_/Test.Old.KPCons.KPConsBuilder#[M]2B
+
+µdµ f2_empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0]2C
+
+µhµ k3_empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0]2,
+
+µvµ y_empty_/Test.Old.KPCons.Aux#2(
+
+µoµ u_empty_/Test.Old.KPCons.29
+
+µzµ {)_empty_/Test.Old.KPCons.KPConsBuilder#[M]2A
+
+µ}µ ~1_empty_/Test.Old.KPCons.KPConsBuilder#apply().[T]2D
+µÄµ Ç2_empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0]2E
+µÑµ á3_empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0]2
+µãµ ãlocal552*
+µèµ ï_empty_/Test.Old.KPCons#2;
+µñµ ó)_empty_/Test.Old.KPCons.KPConsBuilder#[M]2C
+µôµ ö1_empty_/Test.Old.KPCons.KPConsBuilder#apply().[T]2
+
+∂∂ local562C
+
+∂∂ 3_empty_/Test.Old.KPCons.KPConsBuilder#apply().[HL0]2
+
+∑∑ local572B
+
+∑∑ 2_empty_/Test.Old.KPCons.KPConsBuilder#apply().[H0]2
+
+∏∏ local582
+
+∏∏ local572E
+
+∏∏ 5_empty_/Test.Old.KPCons.KPConsBuilder#apply().(head0)2
+
+ππ local592A
+
+ππ 1_empty_/Test.Old.KPCons.KPConsBuilder#apply().[T]2E
+
+ππ 5_empty_/Test.Old.KPCons.KPConsBuilder#apply().(tail0)20
+
+Ω
+Ω  _empty_/Test.Old.KPCons.apply().23
+
+ΩΩ #_empty_/Test.Old.KPCons.apply().[M]2
+
+ΩΩ scala/AnyKind#2
+
+Ω Ω  local6026
+
+Ω$Ω 1&_empty_/Test.Old.KPCons.KPConsBuilder#23
+
+Ω2Ω 3#_empty_/Test.Old.KPCons.apply().[M]2$
+
+¬¬ 
+_empty_/Test.Old.kl.2>
+
+√√ ._empty_/Test.Old.KPCons.KPConsBuilder#apply().20
+
+√√  _empty_/Test.Old.KPCons.apply().2(
+
+√√ _empty_/Test.Old.KPCons.2)
+
+ƒƒ _empty_/Test.Bar.apply().2!
+
+ƒƒ _empty_/Test.Bar.2>
+
+≈≈ ._empty_/Test.Old.KPCons.KPConsBuilder#apply().20
+
+≈≈  _empty_/Test.Old.KPCons.apply().2(
+
+≈≈ _empty_/Test.Old.KPCons.2$
+
+≈≈ scala/Predef.String#2>
+
+«« ._empty_/Test.Old.KPCons.KPConsBuilder#apply().20
+
+««  _empty_/Test.Old.KPCons.apply().2(
+
+«
+« _empty_/Test.Old.KPCons.2#
+
+«« scala/package.List#29
+
+»» )scala/collection/IterableFactory#apply().2#
+
+»» scala/package.List.2>
+
+…… ._empty_/Test.Old.KPCons.KPConsBuilder#apply().20
+
+……  _empty_/Test.Old.KPCons.apply().2(
+
+…… _empty_/Test.Old.KPCons.2!
+
+…… scala/Predef.Map#24
+
+   $scala/collection/MapFactory#apply().2!
+
+   scala/Predef.Map.2/
+
+   scala/Predef.ArrowAssoc#`->`().2*
+
+   scala/Predef.ArrowAssoc().2/
+
+ '  )scala/Predef.ArrowAssoc#`->`().2*
+
+     scala/Predef.ArrowAssoc().2'
+
+ÀÀ _empty_/Test.Old.KPNil.2;
+
+ÃÃ +_empty_/Test.Old.KPCons.Unapply.unapply2().2;
+
+ÕÕ +_empty_/Test.Old.KPCons.Unapply.unapply1().2;
+
+Œ	Œ 	+_empty_/Test.Old.KPCons.Unapply.unapply0().2;
+
+œœ +_empty_/Test.Old.KPCons.Unapply.unapply1().2#
+
+—— 	_empty_/Test.Old.h.2!
+
+—— _empty_/Test.Bar#2
+
+—— 
+scala/Int#2/
+
+—— _empty_/Test.Old.KPCons#head().2$
+
+—— _empty_/Test.Old.kl.2$
+
+““ 
+_empty_/Test.Old.h2.2$
+
+““ scala/Predef.String#2/
+
+““ !_empty_/Test.Old.KPCons#head().2/
+
+““ _empty_/Test.Old.KPCons#tail().2$
+
+““ _empty_/Test.Old.kl.2$
+
+”” 
+_empty_/Test.Old.h3.2#
+
+”” scala/package.List#2
+
+”” 
+scala/Int#2/
+
+”%” )_empty_/Test.Old.KPCons#head().2/
+
+” ” $_empty_/Test.Old.KPCons#tail().2/
+
+”” _empty_/Test.Old.KPCons#tail().2$
+
+”” _empty_/Test.Old.kl.2$
+
+‘‘ 
+_empty_/Test.Old.h4.2!
+
+‘‘ scala/Predef.Map#2$
+
+‘‘ scala/Predef.String#2
+
+‘‘ scala/Long#2/
+
+‘2‘ 6_empty_/Test.Old.KPCons#head().2/
+
+‘-‘ 1_empty_/Test.Old.KPCons#tail().2/
+
+‘(‘ ,_empty_/Test.Old.KPCons#tail().2/
+
+‘#‘ '_empty_/Test.Old.KPCons#tail().2$
+
+‘ ‘ "_empty_/Test.Old.kl.PZ EB6220C41F1EAD39BB818988E35D0838

@@ -1,0 +1,19 @@
+
+Ætests/pos/i6507.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.s1().*s1€*
+_empty_/Test.s2().*s2€*
+_empty_/Test.s3().*s3€2
+ _empty_/Test.2 
+ _empty_/Test.s1().2!
+ scala/Tuple#`*:`().2 
+ _empty_/Test.s2().2 
+ _empty_/Test.s2().2!
+ scala/Tuple#`*:`().2 
+ _empty_/Test.s3().2 
+ _empty_/Test.s3().2!
+ scala/Tuple#`*:`().2"
+ scala/Tuple.apply().2
+ scala/Tuple.2 
+ _empty_/Test.s1().PZ 74945D98C0ABAC88AE149782045C9A33

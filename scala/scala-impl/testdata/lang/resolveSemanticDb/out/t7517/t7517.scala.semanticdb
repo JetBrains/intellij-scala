@@ -1,0 +1,134 @@
+
+€tests/pos/t7517.scala*
+_empty_/Box#*Box€*)
+_empty_/Box#`<init>`(). €@*<init>€*
+_empty_/Box#[K]	*K€*
+_empty_/Box.
+ *Box€* 
+_empty_/Box.`âˆ™`# *âˆ™€*/
+_empty_/Box.`âˆ™`#`<init>`(). €@*<init>€*
+_empty_/Box.`âˆ™`#[A]	*A€*
+_empty_/Box.`âˆ™`#[B]	*B€*
+_empty_/Box.`âˆ™`#l#*l€*!
+_empty_/Box.`âˆ™`#l#[T]	*T€*&
+_empty_/Box.SplitBox#*SplitBox€*"
+_empty_/Box.SplitBox#[K]	*K€*"
+_empty_/Box.SplitBox#[B]	*B€*
+local0*l€*
+local1	*A€*"
+_empty_/Box.split().*split€*!
+_empty_/Box.split().[K]	*K€*!
+_empty_/Box.split().[B]	*B€*'
+_empty_/Box.split().(base)*base€*&
+_empty_/Box.Composed#*Composed€*2
+ _empty_/Box.Composed#`<init>`(). €@*<init>€*"
+_empty_/Box.Composed#[B]	*B€*"
+_empty_/Box.Composed#[L]	*L€*(
+_empty_/Box.Composed#box. €*box€*)
+_empty_/Box.Composed#Split#*Split€*(
+_empty_/Box.Composed#Split#[A]	*A€*$
+_empty_/Box.Composed#a. €*a€*&
+_empty_/Box.Composed#a1. €*a1€*&
+_empty_/Box.Composed#a2. €*a2€*
+local2*l€*
+local3	*A€2
+ 	_empty_/Box#2%
+	 	_empty_/Box#`<init>`().2
+ _empty_/Box#[K]2
+ 
+_empty_/Box.2 
+ _empty_/Box.`âˆ™`#2+
+ _empty_/Box.`âˆ™`#`<init>`().2#
+ _empty_/Box.`âˆ™`#[A]2#
+ _empty_/Box.`âˆ™`#[B]2"
+% &_empty_/Box.`âˆ™`#l#2%
+' (_empty_/Box.`âˆ™`#l#[T]2#
+, -_empty_/Box.`âˆ™`#[A]2#
+. /_empty_/Box.`âˆ™`#[B]2%
+0 1_empty_/Box.`âˆ™`#l#[T]2#
+ _empty_/Box.SplitBox#2&
+ _empty_/Box.SplitBox#[K]2&
+ _empty_/Box.SplitBox#[B]2
+" %_empty_/Box#2
+/ 0local02
+1 2local12&
+9 :_empty_/Box.SplitBox#[K]2"
+D E_empty_/Box.`âˆ™`#l#2 
+? @_empty_/Box.`âˆ™`#2
+= >local12&
+A B_empty_/Box.SplitBox#[B]2"
+
+
+ _empty_/Box.split().2%
+
+
+ _empty_/Box.split().[K]2%
+
+
+ _empty_/Box.split().[B]2(
+
+
+ "_empty_/Box.split().(base)2
+
+$
+ '_empty_/Box#2%
+
+(
+ )_empty_/Box.split().[K]2#
+
+-
+ 5_empty_/Box.SplitBox#2%
+
+6
+ 7_empty_/Box.split().[K]2%
+
+8
+ 9_empty_/Box.split().[B]2#
+
+=
+ @scala/Predef.`???`().2#
+	 _empty_/Box.Composed#2.
+  _empty_/Box.Composed#`<init>`().2&
+ _empty_/Box.Composed#[B]2&
+ _empty_/Box.Composed#[L]2'
+
+ _empty_/Box.Composed#box.2
+ _empty_/Box#2&
+ _empty_/Box.Composed#[L]2#
+ scala/Predef.`???`().2)
+ _empty_/Box.Composed#Split#2,
+ _empty_/Box.Composed#Split#[A]2&
+ _empty_/Box.Composed#[L]2"
+& '_empty_/Box.`âˆ™`#l#2 
+! "_empty_/Box.`âˆ™`#2,
+  _empty_/Box.Composed#Split#[A]2&
+# $_empty_/Box.Composed#[B]2%
+
+ _empty_/Box.Composed#a.2
+ _empty_/Box#2)
+ _empty_/Box.Composed#Split#2"
+ #_empty_/Box.split().2
+ _empty_/Box.2'
+$ '_empty_/Box.Composed#box.2&
+
+ _empty_/Box.Composed#a1.2
+ _empty_/Box#2)
+ _empty_/Box.Composed#Split#2"
+ $_empty_/Box.split().2
+ _empty_/Box.2&
+% &_empty_/Box.Composed#[L]2&
+' (_empty_/Box.Composed#[B]2'
+* -_empty_/Box.Composed#box.2&
+
+ _empty_/Box.Composed#a2.2
+ _empty_/Box#2
+ local22
+ local32&
+% &_empty_/Box.Composed#[L]2"
+0 1_empty_/Box.`âˆ™`#l#2 
++ ,_empty_/Box.`âˆ™`#2
+) *local32&
+- ._empty_/Box.Composed#[B]2"
+A F_empty_/Box.split().2
+= @_empty_/Box.2'
+G J_empty_/Box.Composed#box.PZ E02A528EA5ECC025FEBFE71606BA53A6

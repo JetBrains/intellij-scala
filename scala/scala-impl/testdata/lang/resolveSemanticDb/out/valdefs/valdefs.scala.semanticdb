@@ -1,0 +1,46 @@
+
+„tests/pos/valdefs.scala*
+_empty_/test.
+ *test€*!
+_empty_/test.Base# *Base€*/
+_empty_/test.Base#`<init>`(). €@*<init>€*!
+_empty_/test.Base#x. „*x€*!
+_empty_/test.Base#y. €*y€* 
+_empty_/test.Sub# €*Sub€*.
+_empty_/test.Sub#`<init>`(). €@*<init>€* 
+_empty_/test.Sub#x. €*x€* 
+_empty_/test.Sub#y. €*y€*%
+_empty_/test.Sub#copy().*copy€*
+_empty_/test.Sub.
+ *Sub€*'
+_empty_/test.Sub.apply().*apply€*+
+_empty_/test.Sub.unapply().*unapply€*,
+ _empty_/test.Sub.unapply().(x$1)*x$1€*-
+_empty_/test.Sub.toString().*toString€*!
+_empty_/test.Sub2# *Sub2€*/
+_empty_/test.Sub2#`<init>`(). €@*<init>€*!
+_empty_/test.Sub2#x. €*x€*!
+_empty_/test.Sub2#y. €*y€2
+ _empty_/test.2 
+ _empty_/test.Base#2+
+ _empty_/test.Base#`<init>`().2"
+
+ _empty_/test.Base#x.2"
+ scala/Predef.String#2"
+
+ _empty_/test.Base#y.2
+ _empty_/test.Sub#2*
+ _empty_/test.Sub#`<init>`().2+
+! !_empty_/test.Base#`<init>`().2 
+ !_empty_/test.Base#2!
+
+ _empty_/test.Sub#x.2!
+		 _empty_/test.Sub#y.2
+ _empty_/test.Sub.2 
+ _empty_/test.Sub2#2+
+ _empty_/test.Sub2#`<init>`().2+
+& &_empty_/test.Base#`<init>`().2 
+" &_empty_/test.Base#2#
+ scala/Tuple2.apply().2"
+ _empty_/test.Sub2#x.2"
+ _empty_/test.Sub2#y.PZ 2F157B03A69E9C93D624A32531CCAD51

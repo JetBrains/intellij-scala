@@ -1,0 +1,123 @@
+
+€%tests/pos/erased-conforms.scala*&
+_empty_/ErasedTerm#*
+ErasedTerm€*0
+_empty_/ErasedTerm#`<init>`(). €@*<init>€*
+_empty_/`<::<`#*<::<€*,
+_empty_/`<::<`#`<init>`(). €@*<init>€*%
+_empty_/`<::<`#[From]	 €*From€*!
+_empty_/`<::<`#[To]	 €*To€*
+_empty_/`=::=`#*=::=€*,
+_empty_/`=::=`#`<init>`(). €@*<init>€*"
+_empty_/`=::=`#[From]	*From€*
+_empty_/`=::=`#[To]	*To€*4
+"_empty_/`erased-conforms$package`. *_empty_€*N
+5_empty_/`erased-conforms$package`.`given_=::=_X_X`(). (*given_=::=_X_X€*B
+8_empty_/`erased-conforms$package`.`given_=::=_X_X`().[X]	*X€*6
+)_empty_/`erased-conforms$package`.cast().*cast€*<
+/_empty_/`erased-conforms$package`.cast().[From]	*From€*6
+,_empty_/`erased-conforms$package`.cast().(x)*x€*8
+-_empty_/`erased-conforms$package`.cast().[To]	*To€*<
+._empty_/`erased-conforms$package`.cast().(x$2)  *x$2€*<
+,_empty_/`erased-conforms$package`.convert().*convert€*9
+/_empty_/`erased-conforms$package`.convert().[A]	*A€*9
+/_empty_/`erased-conforms$package`.convert().[B]	*B€*9
+/_empty_/`erased-conforms$package`.convert().(a)*a€*;
+/_empty_/`erased-conforms$package`.convert().(x)  *x€*4
+(_empty_/`erased-conforms$package`.App().*App€*
+_empty_/App# *App€*)
+_empty_/App#`<init>`(). €@*<init>€*#
+_empty_/App#main(). € *main€*&
+_empty_/App#main().(args)*args€*
+local0 €*error€28
+ ..scala/language.experimental.erasedDefinitions.2&
+ scala/language.experimental.2
+ scala/language.2!
+ _empty_/ErasedTerm#2(
+_empty_/ErasedTerm#`<init>`().2
+ _empty_/`<::<`#2(
+ _empty_/`<::<`#`<init>`().2,
+0 0_empty_/ErasedTerm#`<init>`().2!
+& 0_empty_/ErasedTerm#2#
+ _empty_/`<::<`#[From]2!
+ _empty_/`<::<`#[To]2
+ _empty_/`=::=`#2(
+ _empty_/`=::=`#`<init>`().2(
+1 1_empty_/`<::<`#`<init>`().2
+* ._empty_/`<::<`#2#
+% )_empty_/`=::=`#[From]2!
+/ 1_empty_/`=::=`#[To]2#
+ _empty_/`=::=`#[From]2!
+ _empty_/`=::=`#[To]2,
+"_empty_/`erased-conforms$package`.2C
+ 5_empty_/`erased-conforms$package`.`given_=::=_X_X`().2F
+ 8_empty_/`erased-conforms$package`.`given_=::=_X_X`().[X]2
+ _empty_/`=::=`#2F
+ 8_empty_/`erased-conforms$package`.`given_=::=_X_X`().[X]2F
+ 8_empty_/`erased-conforms$package`.`given_=::=_X_X`().[X]2>
+1 <0scala/compiletime/package$package.erasedValue().2 
+% 0scala/compiletime/2
+ $scala/27
+
+
+ )_empty_/`erased-conforms$package`.cast().2=
+		 /_empty_/`erased-conforms$package`.cast().[From]2:
+		 ,_empty_/`erased-conforms$package`.cast().(x)2=
+		 /_empty_/`erased-conforms$package`.cast().[From]2;
+
+
+ -_empty_/`erased-conforms$package`.cast().[To]2<
+
+
+ ._empty_/`erased-conforms$package`.cast().(x$2)2
+
+!
+ %_empty_/`<::<`#2=
+
+
+  /_empty_/`erased-conforms$package`.cast().[From]2;
+
+&
+ (-_empty_/`erased-conforms$package`.cast().[To]2;
+
++
+ --_empty_/`erased-conforms$package`.cast().[To]2'
+
+2
+ >scala/Any#asInstanceOf().2:
+
+0
+ 1,_empty_/`erased-conforms$package`.cast().(x)2;
+
+?
+ A-_empty_/`erased-conforms$package`.cast().[To]2:
+ ,_empty_/`erased-conforms$package`.convert().2=
+ /_empty_/`erased-conforms$package`.convert().[A]2=
+ /_empty_/`erased-conforms$package`.convert().[B]2=
+ /_empty_/`erased-conforms$package`.convert().(a)2=
+ /_empty_/`erased-conforms$package`.convert().[A]2=
+) */_empty_/`erased-conforms$package`.convert().(x)2
+. 2_empty_/`<::<`#2=
+, -/_empty_/`erased-conforms$package`.convert().[A]2=
+3 4/_empty_/`erased-conforms$package`.convert().[B]2=
+7 8/_empty_/`erased-conforms$package`.convert().[B]27
+ )_empty_/`erased-conforms$package`.cast().2=
+ /_empty_/`erased-conforms$package`.convert().(a)2=
+	 
+/_empty_/`erased-conforms$package`.convert().[B]2=
+ /_empty_/`erased-conforms$package`.convert().(x)2
+ scala/main#26
+
+ (_empty_/`erased-conforms$package`.App().2
+ scala/Unit#2:
+ ,_empty_/`erased-conforms$package`.convert().2
+ !
+scala/Int#2
+# &
+scala/Int#2C
+* *5_empty_/`erased-conforms$package`.`given_=::=_X_X`().2
+_empty_/App#2!
+_empty_/App#`<init>`().22
+(_empty_/`erased-conforms$package`.App().23
+)scala/util/CommandLineParser.showError().2
+local0PZ ECB22DF4640E2DA0567C3989D30CAAB1

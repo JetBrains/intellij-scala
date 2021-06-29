@@ -1,0 +1,30 @@
+
+ &tests/pos/java-inherited-type1/S.scala*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*
+
+_empty_/S.
+ *S€*
+_empty_/S.Inner#*Inner€*-
+_empty_/S.Inner#`<init>`(). €@*<init>€*
+_empty_/S1#*S1€*(
+_empty_/S1#`<init>`(). €@*<init>€*
+_empty_/S1.
+ *S1€*!
+_empty_/S1.Inner1#*Inner1€*/
+_empty_/S1.Inner1#`<init>`(). €@*<init>€2
+ 
+_empty_/S#2
+ _empty_/S#`<init>`().2 
+ _empty_/S1#`<init>`().2
+ _empty_/S1#2
+ 
+_empty_/S.2
+ _empty_/S.Inner#2)
+ _empty_/S.Inner#`<init>`().2
+ _empty_/S1#2 
+_empty_/S1#`<init>`().2
+ 	_empty_/S1.2 
+ _empty_/S1.Inner1#2+
+ _empty_/S1.Inner1#`<init>`().PZ 787D90B377043973270DD90D68C9F379

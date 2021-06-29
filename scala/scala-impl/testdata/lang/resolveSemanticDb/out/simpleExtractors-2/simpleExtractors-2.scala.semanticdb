@@ -1,0 +1,49 @@
+
+‰
+"tests/pos/simpleExtractors-2.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#bar().*bar€*
+_empty_/Foo#bar().(x)*x€*
+local0 €*i€*
+local1 €*s€*
+local2 €*i€*
+local3 €*s€*
+local4 €*r€*
+local5 €*i€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#bar().2#
+
+ _empty_/Foo#bar().(x)2
+ 
+scala/Any#2
+ scala/Unit#2#
+ _empty_/Foo#bar().(x)2#
+ scala/Some.unapply().2
+	 scala/Some.2#
+ scala/Some.unapply().2
+ scala/Some.2
+ local02
+ 
+scala/Int#2'
+ &scala/Predef.println(+1).2
+' (local02#
+ scala/Some.unapply().2
+	 scala/Some.2
+ local12#
+ scala/Some.unapply().2
+ scala/Some.2
+ local22'
+ %scala/Predef.println(+1).2
+& 'local12
+	 
+local32#
+ scala/Some.unapply().2
+ scala/Some.2
+ local42#
+ scala/Some.unapply().2
+ scala/Some.2
+ local52'
+" )scala/Predef.println(+1).2
+* +local3PZ 3A3B582121EFA893539A432DEC3055A5

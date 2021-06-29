@@ -1,0 +1,66 @@
+
+ætests/pos/tailcall/i1089.scala*"
+hello/Enclosing#*	Enclosing€*-
+hello/Enclosing#`<init>`(). €@*<init>€**
+hello/Enclosing#SomeData#*SomeData€*6
+$hello/Enclosing#SomeData#`<init>`(). €@*<init>€*4
+'hello/Enclosing#SomeData#`<init>`().(x) €*x€*(
+hello/Enclosing#SomeData#x. €*x€*,
+hello/Enclosing#localDef().*localDef€*
+local0*foo€*
+local1*data€*
+local2*test€*
+local3*i€*
+local4*data€*
+hello/world.
+ *world€2
+ hello/2'
+ scala/annotation/tailrec#2
+ scala/annotation/2
+ scala/2
+ hello/Enclosing#2)
+ hello/Enclosing#`<init>`().2'
+ hello/Enclosing#SomeData#22
+ $hello/Enclosing#SomeData#`<init>`().2
+ 
+scala/Int#2)
+ hello/Enclosing#SomeData#x.2)
+ hello/Enclosing#localDef().2
+ scala/Unit#2
+ local02
+ local12'
+ hello/Enclosing#SomeData#2
+  
+scala/Int#2)
+( )hello/Enclosing#SomeData#x.2
+# 'local12'
+
+
+ scala/annotation/tailrec#2
+ local22
+ local32
+ 
+scala/Int#2
+ local42'
+ #hello/Enclosing#SomeData#2
+& *scala/Unit#2!
+ scala/Int#`!=`(+3).2
+
+ local32'
+ scala/Predef.println(+1).2
+ local02
+ local42
+ local22 
+ scala/Int#`-`(+3).2
+ local32
+ local42
+ local222
+ $hello/Enclosing#SomeData#`<init>`().2'
+ hello/Enclosing#SomeData#2
+ hello/world.2
+ 
+scala/App#2'
+ 	scala/Predef.println(+1).2)
+ hello/Enclosing#localDef().2)
+ hello/Enclosing#`<init>`().2
+ hello/Enclosing#PZ B6507A7296BC0D05CEB25CFFBB178C02

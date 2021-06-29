@@ -1,0 +1,24 @@
+
+®tests/pos/polytypes.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.T#*T€*
+_empty_/Test.T#[X]	*X€*'
+_empty_/Test.reverse().*reverse€*$
+_empty_/Test.reverse().[X]	*X€*&
+_empty_/Test.reverse().(xs)*xs€2
+ _empty_/Test.2
+ _empty_/Test.T#2 
+ _empty_/Test.T#[X]2!
+ scala/package.List#2 
+ _empty_/Test.T#[X]2!
+ #scala/package.List#2 
+$ %_empty_/Test.T#[X]2%
+ _empty_/Test.reverse().2(
+ _empty_/Test.reverse().[X]2)
+ _empty_/Test.reverse().(xs)2!
+ scala/package.List#2(
+ _empty_/Test.reverse().[X]2!
+ #scala/package.List#2(
+$ %_empty_/Test.reverse().[X]2#
+) ,scala/Predef.`???`().PZ A6C94A7D138254601FDE73F48769CB66

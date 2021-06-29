@@ -1,0 +1,71 @@
+
+îtests/pos/i7392.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.ZStream#*ZStream€*2
+ _empty_/Test.ZStream#`<init>`(). €@*<init>€*%
+_empty_/Test.ZStream#[R]	 €*R€*%
+_empty_/Test.ZStream#[E]	 €*E€*%
+_empty_/Test.ZStream#[A]	 €*A€*'
+_empty_/Test.ZStream.
+ *ZStream€*+
+_empty_/Test.ZStream.empty().*empty€*
+_empty_/Test.Gen#*Gen€*.
+_empty_/Test.Gen#`<init>`(). €@*<init>€*3
+$_empty_/Test.Gen#`<init>`().(sample)*sample€*!
+_empty_/Test.Gen#[R]	 €*R€*!
+_empty_/Test.Gen#[A]	 €*A€**
+_empty_/Test.Gen#sample. €*sample€*1
+_empty_/Test.fromIterable().*fromIterable€*)
+_empty_/Test.fromIterable().[R]	*R€*)
+_empty_/Test.fromIterable().[A]	*A€*+
+ _empty_/Test.fromIterable().(as)*as€*7
+&_empty_/Test.fromIterable().(shrinker)*shrinker€*E
+&_empty_/Test.fromIterable$default$2().*fromIterable$default$2€*3
+)_empty_/Test.fromIterable$default$2().[R]	*R€*3
+)_empty_/Test.fromIterable$default$2().[A]	*A€2
+ _empty_/Test.2#
+ _empty_/Test.ZStream#2.
+  _empty_/Test.ZStream#`<init>`().2&
+ _empty_/Test.ZStream#[R]2&
+ _empty_/Test.ZStream#[E]2&
+ _empty_/Test.ZStream#[A]2#
+	 _empty_/Test.ZStream.2+
+ _empty_/Test.ZStream.empty().2#
+ _empty_/Test.ZStream#2
+ 
+scala/Any#2
+ #scala/Nothing#2
+% ,scala/Nothing#2#
+ 	scala/Predef.`???`().2
+		 _empty_/Test.Gen#2*
+		 _empty_/Test.Gen#`<init>`().2#
+		 #_empty_/Test.ZStream#2"
+	$	 %_empty_/Test.Gen#[R]2
+	'	 .scala/Nothing#2"
+	0	 1_empty_/Test.Gen#[A]2"
+		 _empty_/Test.Gen#[R]2"
+		 _empty_/Test.Gen#[A]2&
+		 _empty_/Test.Gen#sample.2*
+ _empty_/Test.fromIterable().2-
+ _empty_/Test.fromIterable().[R]2-
+ _empty_/Test.fromIterable().[A]2.
+  _empty_/Test.fromIterable().(as)2%
+ scala/package.Iterable#2-
+ _empty_/Test.fromIterable().[A]24
+ &_empty_/Test.fromIterable().(shrinker)2-
+ _empty_/Test.fromIterable().[A]2#
+ _empty_/Test.ZStream#2-
+ _empty_/Test.fromIterable().[R]2
+ &scala/Nothing#2-
+( )_empty_/Test.fromIterable().[A]2
+ _empty_/Test.Gen#2-
+	 
+_empty_/Test.fromIterable().[R]2-
+ _empty_/Test.fromIterable().[A]2#
+ scala/Predef.`???`().27
+ )_empty_/Test.fromIterable$default$2().[R]27
+ )_empty_/Test.fromIterable$default$2().[A]27
+2 3)_empty_/Test.fromIterable$default$2().[A]2+
+@ E_empty_/Test.ZStream.empty().2#
+8 ?_empty_/Test.ZStream.PZ F16717A0B48E7F0D7AFEA6DA6F9301A9

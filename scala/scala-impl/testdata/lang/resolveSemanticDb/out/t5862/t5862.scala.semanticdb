@@ -1,0 +1,149 @@
+
+Õ.tests/pos/t5862.scala*
+test/Emitter#*Emitter€**
+test/Emitter#`<init>`(). €@*<init>€*
+test/Emitter#[A]	*A€*#
+test/Emitter#emit(). *emit€*)
+test/Emitter#emit().(value)*value€*)
+test/TaggedMapper# *TaggedMapper€*/
+test/TaggedMapper#`<init>`(). €@*<init>€*3
+#test/TaggedMapper#`<init>`().(tags) €*tags€*/
+!test/TaggedMapper#`<init>`().(mA)  *mA€*1
+"test/TaggedMapper#`<init>`().(wtA)  *wtA€*/
+!test/TaggedMapper#`<init>`().(mK)  *mK€*1
+"test/TaggedMapper#`<init>`().(wtK)  *wtK€*3
+#test/TaggedMapper#`<init>`().(ordK)  *ordK€*/
+!test/TaggedMapper#`<init>`().(mV)  *mV€*1
+"test/TaggedMapper#`<init>`().(wtV)  *wtV€*
+test/TaggedMapper#[A]	*A€*
+test/TaggedMapper#[K]	*K€*
+test/TaggedMapper#[V]	*V€*'
+test/TaggedMapper#tags. €*tags€*#
+test/TaggedMapper#mA.  *mA€*%
+test/TaggedMapper#wtA.  *wtA€*#
+test/TaggedMapper#mK.  *mK€*%
+test/TaggedMapper#wtK.  *wtK€*'
+test/TaggedMapper#ordK.  *ordK€*#
+test/TaggedMapper#mV.  *mV€*%
+test/TaggedMapper#wtV.  *wtV€*#
+test/WireFormat#*
+WireFormat€*-
+test/WireFormat#`<init>`(). €@*<init>€*
+test/WireFormat#[A]	*A€*'
+test/MapReduceJob#*MapReduceJob€*/
+test/MapReduceJob#`<init>`(). €@*<init>€*0
+test/MapReduceJob#DataSource#*
+DataSource€*:
+(test/MapReduceJob#DataSource#`<init>`(). €@*<init>€*-
+test/MapReduceJob#mappers. €*mappers€*<
+$test/MapReduceJob#addTaggedMapper().*addTaggedMapper€*1
+'test/MapReduceJob#addTaggedMapper().[A]	*A€*1
+'test/MapReduceJob#addTaggedMapper().[K]	*K€*1
+'test/MapReduceJob#addTaggedMapper().[V]	*V€*9
++test/MapReduceJob#addTaggedMapper().(input)*input€*1
+'test/MapReduceJob#addTaggedMapper().(m)*m€*
+local0*tag€2
+ test/2!
+ java/io/DataOutput.2!
+ java/io/DataOutput#2
+ java/io/2
+ java/2 
+ java/io/DataInput.2 
+ java/io/DataInput#2
+ java/io/2
+ java/2
+ test/Emitter#2&
+ test/Emitter#`<init>`().2
+ test/Emitter#[A]2"
+ 
+test/Emitter#emit().2)
+ test/Emitter#emit().(value)2
+ test/Emitter#[A]2
+ scala/Unit#2 
+ test/TaggedMapper#2+
+ test/TaggedMapper#`<init>`().2
+ scala/Predef.Set#2
+ 
+scala/Int#2$
+ scala/Predef.Manifest#2#
+  test/TaggedMapper#[A]2
+, 6test/WireFormat#2#
+7 8test/TaggedMapper#[A]2$
+ scala/Predef.Manifest#2#
+  test/TaggedMapper#[K]2
+, 6test/WireFormat#2#
+7 8test/TaggedMapper#[K]2%
+E Mscala/package.Ordering#2#
+N Otest/TaggedMapper#[K]2$
+ scala/Predef.Manifest#2#
+  test/TaggedMapper#[V]2
+, 6test/WireFormat#2#
+7 8test/TaggedMapper#[V]2)
+
+ scala/package.Serializable#2#
+ test/TaggedMapper#[A]2#
+  test/TaggedMapper#[K]2#
+" #test/TaggedMapper#[V]2%
+	 test/TaggedMapper#tags.2#
+ test/TaggedMapper#mA.2$
+' *test/TaggedMapper#wtA.2#
+ test/TaggedMapper#mK.2$
+' *test/TaggedMapper#wtK.2%
+? Ctest/TaggedMapper#ordK.2#
+ test/TaggedMapper#mV.2$
+' *test/TaggedMapper#wtV.2
+ test/WireFormat#2)
+ test/WireFormat#`<init>`().2!
+ test/WireFormat#[A]2 
+ test/MapReduceJob#2+
+ test/MapReduceJob#`<init>`().2+
+ test/MapReduceJob#DataSource#26
+ (test/MapReduceJob#DataSource#`<init>`().2+
+$ 'scala/collection/mutable/Set.2+
+$ 'scala/collection/mutable/Set#2+
+1 4scala/collection/mutable/Map.2+
+1 4scala/collection/mutable/Map#2'
+ !scala/collection/mutable/2
+ scala/collection/2
+	 scala/2(
+ test/MapReduceJob#mappers.2+
+ scala/collection/mutable/Map#2+
+ &test/MapReduceJob#DataSource#2+
+( ,scala/collection/mutable/Set#2 
+- 9test/TaggedMapper#2;
+L Q-scala/collection/MapFactory.Delegate#empty().2+
+G Kscala/collection/mutable/Map.22
+ $test/MapReduceJob#addTaggedMapper().25
+ 'test/MapReduceJob#addTaggedMapper().[A]25
+ 'test/MapReduceJob#addTaggedMapper().[K]25
+ 'test/MapReduceJob#addTaggedMapper().[V]29
+ $+test/MapReduceJob#addTaggedMapper().(input)2+
+& 0test/MapReduceJob#DataSource#25
+2 3'test/MapReduceJob#addTaggedMapper().(m)2 
+5 Atest/TaggedMapper#25
+B C'test/MapReduceJob#addTaggedMapper().[A]25
+E F'test/MapReduceJob#addTaggedMapper().[K]25
+H I'test/MapReduceJob#addTaggedMapper().[V]2
+M Qscala/Unit#2(
+   scala/Boolean#`unary_!`().21
+ #scala/collection/MapOps#contains().2(
+	 test/MapReduceJob#mappers.29
+ +test/MapReduceJob#addTaggedMapper().(input)27
+ )scala/collection/mutable/Growable#`+=`().2(
+ test/MapReduceJob#mappers.2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().29
+ +test/MapReduceJob#addTaggedMapper().(input)2@
+ 2scala/collection/IterableFactory.Delegate#apply().2+
+ scala/collection/mutable/Set.25
+  !'test/MapReduceJob#addTaggedMapper().(m)27
+   )scala/collection/mutable/Growable#`+=`().2.
+    scala/collection/MapOps#apply().2(
+   test/MapReduceJob#mappers.29
+   +test/MapReduceJob#addTaggedMapper().(input)25
+   'test/MapReduceJob#addTaggedMapper().(m)29
+"" +scala/collection/IterableOnceOps#foreach().2%
+"" 
+test/TaggedMapper#tags.25
+"" 'test/MapReduceJob#addTaggedMapper().(m)2
+"" local0PZ 20ACB8C5600746A0BBC9789D757B4665

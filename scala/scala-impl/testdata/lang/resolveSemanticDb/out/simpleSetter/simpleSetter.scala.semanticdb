@@ -1,0 +1,15 @@
+
+Ûtests/pos/simpleSetter.scala*
+_empty_/Test.
+ *Test€*$
+_empty_/Test.name(). €*name€**
+_empty_/Test.`name_=`(). €*name_=€*)
+_empty_/Test.`name_=`().(x$1)*x$1€2
+ _empty_/Test.2"
+ 
+_empty_/Test.name().2"
+ scala/Predef.String#2&
+ _empty_/Test.`name_=`().2&
+ _empty_/Test.`name_=`().2%
+ java/lang/String#`+`().2"
+	 _empty_/Test.name().PZ 15A287AD4673365FEE89AB1069801E1F

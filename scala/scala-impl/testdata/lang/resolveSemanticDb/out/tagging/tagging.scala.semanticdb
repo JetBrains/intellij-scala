@@ -1,0 +1,334 @@
+
+´etests/pos/tagging.scala*"
+_empty_/tagging.
+ *tagging€*&
+_empty_/tagging.Tagged#*Tagged€*$
+_empty_/tagging.Tagged#[X]	*X€*$
+_empty_/tagging.Tagged#[Y]	*Y€*(
+_empty_/tagging.Tagged.
+ *Tagged€*)
+_empty_/tagging.Tagged.tag().*tag€**
+ _empty_/tagging.Tagged.tag().[S]	*S€**
+ _empty_/tagging.Tagged.tag().[T]	*T€**
+ _empty_/tagging.Tagged.tag().(s)*s€*-
+_empty_/tagging.Tagged.untag().*untag€*,
+"_empty_/tagging.Tagged.untag().[S]	*S€*,
+"_empty_/tagging.Tagged.untag().[T]	*T€*.
+#_empty_/tagging.Tagged.untag().(st)*st€*+
+_empty_/tagging.Tagged.tags().*tags€*+
+!_empty_/tagging.Tagged.tags().[F]	*F€*+
+!_empty_/tagging.Tagged.tags().[S]	*S€*+
+!_empty_/tagging.Tagged.tags().[T]	*T€*-
+"_empty_/tagging.Tagged.tags().(fs)*fs€*/
+ _empty_/tagging.Tagged.untags().*untags€*-
+#_empty_/tagging.Tagged.untags().[F]	*F€*-
+#_empty_/tagging.Tagged.untags().[S]	*S€*-
+#_empty_/tagging.Tagged.untags().[T]	*T€*1
+%_empty_/tagging.Tagged.untags().(fst)*fst€*A
+(_empty_/tagging.Tagged.taggedClassTag().  *taggedClassTag€*5
++_empty_/tagging.Tagged.taggedClassTag().[S]	*S€*5
++_empty_/tagging.Tagged.taggedClassTag().[T]	*T€*9
+,_empty_/tagging.Tagged.taggedClassTag().(ct)  *ct€* 
+_empty_/tagging.`@@`#*@@€*"
+_empty_/tagging.`@@`#[S]	*S€*"
+_empty_/tagging.`@@`#[T]	*T€*,
+_empty_/tagging.UntagOps# *UntagOps€*6
+$_empty_/tagging.UntagOps#`<init>`(). €@*<init>€*3
+(_empty_/tagging.UntagOps#`<init>`().(st)*st€*&
+_empty_/tagging.UntagOps#[S]	*S€*&
+_empty_/tagging.UntagOps#[T]	*T€**
+_empty_/tagging.UntagOps#st. €*st€*/
+!_empty_/tagging.UntagOps#untag().*untag€*,
+_empty_/tagging.UntagOps.
+ *UntagOps€*.
+_empty_/tagging.UntagOps(). (*UntagOps€*(
+_empty_/tagging.UntagOps().[S]	*S€*(
+_empty_/tagging.UntagOps().[T]	*T€**
+_empty_/tagging.UntagOps().(st)*st€*.
+_empty_/tagging.UntagsOps# *	UntagsOps€*7
+%_empty_/tagging.UntagsOps#`<init>`(). €@*<init>€*4
+)_empty_/tagging.UntagsOps#`<init>`().(fs)*fs€*'
+_empty_/tagging.UntagsOps#[F]	*F€*'
+_empty_/tagging.UntagsOps#[S]	*S€*'
+_empty_/tagging.UntagsOps#[T]	*T€*+
+_empty_/tagging.UntagsOps#fs. €*fs€*2
+#_empty_/tagging.UntagsOps#untags().*untags€*.
+_empty_/tagging.UntagsOps.
+ *	UntagsOps€*0
+_empty_/tagging.UntagsOps(). (*	UntagsOps€*)
+_empty_/tagging.UntagsOps().[F]	*F€*)
+_empty_/tagging.UntagsOps().[S]	*S€*)
+_empty_/tagging.UntagsOps().[T]	*T€*+
+ _empty_/tagging.UntagsOps().(fs)*fs€*(
+_empty_/tagging.TagOps# *TagOps€*4
+"_empty_/tagging.TagOps#`<init>`(). €@*<init>€*/
+%_empty_/tagging.TagOps#`<init>`().(s)*s€*$
+_empty_/tagging.TagOps#[S]	*S€*&
+_empty_/tagging.TagOps#s. €*s€*)
+_empty_/tagging.TagOps#tag().*tag€**
+ _empty_/tagging.TagOps#tag().[T]	*T€*(
+_empty_/tagging.TagOps.
+ *TagOps€**
+_empty_/tagging.TagOps(). (*TagOps€*&
+_empty_/tagging.TagOps().[S]	*S€*&
+_empty_/tagging.TagOps().(s)*s€**
+_empty_/tagging.TagsOps# *TagsOps€*5
+#_empty_/tagging.TagsOps#`<init>`(). €@*<init>€*2
+'_empty_/tagging.TagsOps#`<init>`().(fs)*fs€*%
+_empty_/tagging.TagsOps#[F]	*F€*%
+_empty_/tagging.TagsOps#[S]	*S€*)
+_empty_/tagging.TagsOps#fs. €*fs€*,
+_empty_/tagging.TagsOps#tags().*tags€*,
+"_empty_/tagging.TagsOps#tags().[T]	*T€**
+_empty_/tagging.TagsOps.
+ *TagsOps€*,
+_empty_/tagging.TagsOps(). (*TagsOps€*'
+_empty_/tagging.TagsOps().[F]	*F€*'
+_empty_/tagging.TagsOps().[S]	*S€*)
+_empty_/tagging.TagsOps().(fs)*fs€*$
+_empty_/tagging.Meter#*Meter€*3
+!_empty_/tagging.Meter#`<init>`(). €@*<init>€*"
+_empty_/tagging.Foot#*Foot€*2
+ _empty_/tagging.Foot#`<init>`(). €@*<init>€*&
+_empty_/tagging.Fathom#*Fathom€*4
+"_empty_/tagging.Fathom#`<init>`(). €@*<init>€*
+_empty_/tagging.x. €*x€*
+_empty_/tagging.y. €*y€*!
+_empty_/tagging.xs. €*xs€*
+_empty_/tagging.o. €*o€*!
+_empty_/tagging.om. €*om€*!
+_empty_/tagging.ys. €*ys€*#
+_empty_/tagging.ys1. €*ys1€2!
+ scala/reflect/ClassTag.2!
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+ scala/2
+ _empty_/tagging.2%
+ _empty_/tagging.Tagged#2(
+ _empty_/tagging.Tagged#[X]2(
+ _empty_/tagging.Tagged#[Y]2(
+ _empty_/tagging.Tagged#[X]2%
+	 _empty_/tagging.Tagged.2+
+ _empty_/tagging.Tagged.tag().2.
+  _empty_/tagging.Tagged.tag().[S]2.
+  _empty_/tagging.Tagged.tag().[T]2.
+  _empty_/tagging.Tagged.tag().(s)2.
+  _empty_/tagging.Tagged.tag().[S]2%
+ _empty_/tagging.Tagged#2.
+  ! _empty_/tagging.Tagged.tag().[S]2.
+# $ _empty_/tagging.Tagged.tag().[T]2.
+) * _empty_/tagging.Tagged.tag().(s)2.
+, - _empty_/tagging.Tagged.tag().[S]2-
+ _empty_/tagging.Tagged.untag().20
+ "_empty_/tagging.Tagged.untag().[S]20
+ "_empty_/tagging.Tagged.untag().[T]21
+ #_empty_/tagging.Tagged.untag().(st)2%
+ _empty_/tagging.Tagged#20
+  "_empty_/tagging.Tagged.untag().[S]20
+" #"_empty_/tagging.Tagged.untag().[T]20
+' ("_empty_/tagging.Tagged.untag().[S]21
++ -#_empty_/tagging.Tagged.untag().(st)2,
+
+
+ _empty_/tagging.Tagged.tags().2/
+
+
+ !_empty_/tagging.Tagged.tags().[F]2/
+
+
+ !_empty_/tagging.Tagged.tags().[S]2/
+
+
+ !_empty_/tagging.Tagged.tags().[T]20
+
+
+ "_empty_/tagging.Tagged.tags().(fs)2/
+
+
+ !_empty_/tagging.Tagged.tags().[F]2/
+
+
+  !_empty_/tagging.Tagged.tags().[S]2/
+
+$
+ %!_empty_/tagging.Tagged.tags().[F]2%
+
+&
+ ,_empty_/tagging.Tagged#2/
+
+-
+ .!_empty_/tagging.Tagged.tags().[S]2/
+
+0
+ 1!_empty_/tagging.Tagged.tags().[T]20
+
+6
+ 8"_empty_/tagging.Tagged.tags().(fs)2.
+  _empty_/tagging.Tagged.untags().21
+ #_empty_/tagging.Tagged.untags().[F]21
+ #_empty_/tagging.Tagged.untags().[S]21
+ #_empty_/tagging.Tagged.untags().[T]23
+ %_empty_/tagging.Tagged.untags().(fst)21
+  !#_empty_/tagging.Tagged.untags().[F]2%
+" (_empty_/tagging.Tagged#21
+) *#_empty_/tagging.Tagged.untags().[S]21
+, -#_empty_/tagging.Tagged.untags().[T]21
+2 3#_empty_/tagging.Tagged.untags().[F]21
+4 5#_empty_/tagging.Tagged.untags().[S]23
+9 <%_empty_/tagging.Tagged.untags().(fst)26
+ (_empty_/tagging.Tagged.taggedClassTag().29
+  !+_empty_/tagging.Tagged.taggedClassTag().[S]29
+# $+_empty_/tagging.Tagged.taggedClassTag().[T]2:
+/ 1,_empty_/tagging.Tagged.taggedClassTag().(ct)2%
+3 ;scala/reflect/ClassTag#29
+< =+_empty_/tagging.Tagged.taggedClassTag().[S]2%
+A Iscala/reflect/ClassTag#2%
+J P_empty_/tagging.Tagged#29
+Q R+_empty_/tagging.Tagged.taggedClassTag().[S]29
+T U+_empty_/tagging.Tagged.taggedClassTag().[T]2:
+ ,_empty_/tagging.Tagged.taggedClassTag().(ct)2#
+ 	_empty_/tagging.`@@`#2&
+
+ _empty_/tagging.`@@`#[S]2&
+ _empty_/tagging.`@@`#[T]2%
+ _empty_/tagging.Tagged#2&
+ _empty_/tagging.`@@`#[S]2&
+ _empty_/tagging.`@@`#[T]2'
+ _empty_/tagging.UntagOps#22
+ $_empty_/tagging.UntagOps#`<init>`().2#
+& (_empty_/tagging.`@@`#2*
+$ %_empty_/tagging.UntagOps#[S]2*
+) *_empty_/tagging.UntagOps#[T]2&
+: :scala/AnyVal#`<init>`().2
+4 :scala/AnyVal#2*
+ _empty_/tagging.UntagOps#[S]2*
+ _empty_/tagging.UntagOps#[T]2*
+  "_empty_/tagging.UntagOps#st.2/
+ !_empty_/tagging.UntagOps#untag().2*
+ _empty_/tagging.UntagOps#[S]2-
+ _empty_/tagging.Tagged.untag().2%
+ _empty_/tagging.Tagged.2*
+  "_empty_/tagging.UntagOps#st.2'
+ _empty_/tagging.UntagOps.2)
+ _empty_/tagging.UntagOps().2(
+ _empty_/tagging.UntagsOps#23
+ %_empty_/tagging.UntagsOps#`<init>`().2+
++ ,_empty_/tagging.UntagsOps#[F]2#
+/ 1_empty_/tagging.`@@`#2+
+- ._empty_/tagging.UntagsOps#[S]2+
+2 3_empty_/tagging.UntagsOps#[T]2&
+D Dscala/AnyVal#`<init>`().2
+> Dscala/AnyVal#2+
+ _empty_/tagging.UntagsOps#[F]2+
+! "_empty_/tagging.UntagsOps#[S]2+
+$ %_empty_/tagging.UntagsOps#[T]2+
+' )_empty_/tagging.UntagsOps#fs.21
+ #_empty_/tagging.UntagsOps#untags().2+
+ _empty_/tagging.UntagsOps#[F]2+
+ _empty_/tagging.UntagsOps#[S]2.
+ $ _empty_/tagging.Tagged.untags().2%
+ _empty_/tagging.Tagged.2+
+% '_empty_/tagging.UntagsOps#fs.2(
+ _empty_/tagging.UntagsOps.2*
+ _empty_/tagging.UntagsOps().2%
+ _empty_/tagging.TagOps#20
+ "_empty_/tagging.TagOps#`<init>`().2(
+ _empty_/tagging.TagOps#[S]2&
+/ /scala/AnyVal#`<init>`().2
+) /scala/AnyVal#2(
+ _empty_/tagging.TagOps#[S]2'
+ _empty_/tagging.TagOps#s.2+
+ _empty_/tagging.TagOps#tag().2.
+  _empty_/tagging.TagOps#tag().[T]2#
+ _empty_/tagging.`@@`#2(
+ _empty_/tagging.TagOps#[S]2.
+  _empty_/tagging.TagOps#tag().[T]2+
+  #_empty_/tagging.Tagged.tag().2%
+ _empty_/tagging.Tagged.2'
+$ %_empty_/tagging.TagOps#s.2%
+ _empty_/tagging.TagOps.2'
+ _empty_/tagging.TagOps().2&
+ _empty_/tagging.TagsOps#21
+ #_empty_/tagging.TagsOps#`<init>`().2)
+& '_empty_/tagging.TagsOps#[F]2)
+( )_empty_/tagging.TagsOps#[S]2&
+: :scala/AnyVal#`<init>`().2
+4 :scala/AnyVal#2)
+ _empty_/tagging.TagsOps#[F]2)
+  _empty_/tagging.TagsOps#[S]2)
+" $_empty_/tagging.TagsOps#fs.2-
+   _empty_/tagging.TagsOps#tags().20
+   "_empty_/tagging.TagsOps#tags().[T]2)
+   _empty_/tagging.TagsOps#[F]2#
+   _empty_/tagging.`@@`#2)
+   _empty_/tagging.TagsOps#[S]20
+   "_empty_/tagging.TagsOps#tags().[T]2,
+ $  (_empty_/tagging.Tagged.tags().2%
+   #_empty_/tagging.Tagged.2)
+ )  +_empty_/tagging.TagsOps#fs.2&
+ _empty_/tagging.TagsOps.2(
+ _empty_/tagging.TagsOps().2$
+## _empty_/tagging.Meter#2/
+## !_empty_/tagging.Meter#`<init>`().2#
+$$ _empty_/tagging.Foot#2.
+$$  _empty_/tagging.Foot#`<init>`().2%
+%% _empty_/tagging.Fathom#20
+%% "_empty_/tagging.Fathom#`<init>`().2 
+'' _empty_/tagging.x.2#
+'' _empty_/tagging.`@@`#2
+'	' scala/Double#2$
+'' _empty_/tagging.Meter#2+
+'!' $_empty_/tagging.TagOps#tag().2'
+'' _empty_/tagging.TagOps().2$
+'%' *_empty_/tagging.Meter#2 
+(( _empty_/tagging.y.2#
+(( _empty_/tagging.`@@`#2
+(	( scala/Double#2#
+(( _empty_/tagging.Foot#2+
+("( %_empty_/tagging.TagOps#tag().2'
+(( _empty_/tagging.TagOps().2#
+(&( *_empty_/tagging.Foot#2!
+)) _empty_/tagging.xs.2
+)
+) scala/Array#2#
+)) _empty_/tagging.`@@`#2
+)) scala/Double#2$
+)) _empty_/tagging.Meter#2-
+)8) <_empty_/tagging.TagsOps#tags().2(
+)#) #_empty_/tagging.TagsOps().2$
+)() (scala/Array.apply(+8).2
+)#) (scala/Array.2$
+)=) B_empty_/tagging.Meter#2 
+++ _empty_/tagging.o.2%
++	+ scala/package.Ordering#2
+++ scala/Double#2(
+++ &scala/Predef.implicitly().2;
++&+ &-scala/math/Ordering.DeprecatedDoubleOrdering.2!
+,, _empty_/tagging.om.2%
+,
+, scala/package.Ordering#2#
+,, _empty_/tagging.`@@`#2
+,, scala/Double#2$
+,, "_empty_/tagging.Meter#2-
+,(, ,_empty_/tagging.TagsOps#tags().2(
+,&, &_empty_/tagging.TagsOps().2 
+,&, '_empty_/tagging.o.2$
+,-, 2_empty_/tagging.Meter#2,
+-- scala/math/Ordering#compare().2!
+-- _empty_/tagging.om.2 
+-- _empty_/tagging.x.2 
+-- _empty_/tagging.x.25
+// 'scala/collection/IterableOnceOps#min().2;
+// -scala/LowPriorityImplicits#wrapDoubleArray().2!
+// _empty_/tagging.xs.2!
+/	/ _empty_/tagging.om.2!
+33 _empty_/tagging.ys.2%
+3$3 $scala/Array#`<init>`().2
+33 scala/Array#2#
+33 _empty_/tagging.`@@`#2
+33 scala/Double#2#
+33 #_empty_/tagging.Foot#2"
+44 	_empty_/tagging.ys1.2%
+44 scala/Array#`<init>`().2
+44 scala/Array#2
+44 scala/Double#PZ 0DC082D5050840615D763BFF6DA6B9A3

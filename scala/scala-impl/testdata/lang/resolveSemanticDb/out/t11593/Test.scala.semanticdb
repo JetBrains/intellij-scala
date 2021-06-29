@@ -1,0 +1,30 @@
+
+ãtests/pos/t11593/Test.scala*
+foo/X.
+ *X€*
+foo/X.bar().*bar€*
+foo/X.bar().(x)*x€*
+_empty_/Test.
+ *Test€2
+ foo/2
+ 
+java/util/2
+	 java/2
+	 
+foo/X.2
+ foo/X.bar().2
+ foo/X.bar().(x)2#
+ java/util/Properties#2
+  scala/Unit#2'
+# *scala/Predef.println(+1).2(
+6 =java/lang/Class#getName().2#
+- 5scala/Any#getClass().2
++ ,foo/X.bar().(x)2
+ foo/X.bar().2.
+  java/util/Properties#`<init>`().2#
+ java/util/Properties#2
+ _empty_/Test.2
+ 
+scala/App#2
+ foo/X.2
+ foo/PZ 205C7114BA1AD90D4C29B58993530073

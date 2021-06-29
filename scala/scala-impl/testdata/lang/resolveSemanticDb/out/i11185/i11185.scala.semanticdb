@@ -1,0 +1,124 @@
+
+·tests/pos/i11185.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().(a)*a€* 
+_empty_/Test#foo().(b)*b€*
+local0*x$1€*
+local1*a€*
+local2*b€*
+local3*x$1€*
+local4*a€*
+local5*b€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€* 
+_empty_/Test2#foo().*foo€*!
+_empty_/Test2#foo().(a)*a€*!
+_empty_/Test2#foo().(b)*b€* 
+_empty_/Test2#bar().*bar€*!
+_empty_/Test2#bar().(f)*f€*"
+_empty_/Test2#bar(+1).*bar€*#
+_empty_/Test2#bar(+1).(f)*f€*)
+_empty_/Test2#bar(+1).(x$2)  *x$2€*
+local6*x$1€*
+local7*a€*
+local8*b€*
+local9*x$1€*
+local10*a€*
+local11*b€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().(a)2
+ 
+scala/Int#2$
+ _empty_/Test#foo().(b)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2$
+ _empty_/Test#foo().(a)2$
+  !_empty_/Test#foo().(b)21
+ #scala/collection/IterableOps#map().22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2-
+ 
+scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2
+ scala/Tuple2#_1.2
+ scala/Tuple2#_2.2!
+ _empty_/Test#foo().2
+ local12
+ local221
+ #scala/collection/IterableOps#map().22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2-
+ 
+scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2
+ scala/Tuple2#_1.2
+ scala/Tuple2#_2.2!
+ _empty_/Test#foo().2
+ local42
+ local52
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2"
+ 	_empty_/Test2#foo().2%
+
+ _empty_/Test2#foo().(a)2
+ 
+scala/Int#2%
+ _empty_/Test2#foo().(b)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2%
+ _empty_/Test2#foo().(a)2%
+  !_empty_/Test2#foo().(b)2"
+		 	_empty_/Test2#bar().2%
+	
+	 _empty_/Test2#bar().(f)2
+		 
+scala/Int#2
+		 
+scala/Int#2
+		  
+scala/Int#2$
+
+
+ 	_empty_/Test2#bar(+1).2'
+
+
+
+ _empty_/Test2#bar(+1).(f)2
+
+
+ 
+scala/Int#2
+
+
+ 
+scala/Int#2"
+
+
+ #scala/Predef.String#2)
+
++
+ +_empty_/Test2#bar(+1).(x$2)2
+
++
+ .
+scala/Int#2"
+ _empty_/Test2#bar().2
+ scala/Tuple2#_1.2
+ scala/Tuple2#_2.2"
+ 	_empty_/Test2#foo().2
+ local72
+ local82"
+ _empty_/Test2#bar().2
+ scala/Tuple2#_1.2
+ scala/Tuple2#_2.2"
+ 	_empty_/Test2#foo().2
+ local102
+ local11PZ 15A431649B8259846C46C0792F9FB190

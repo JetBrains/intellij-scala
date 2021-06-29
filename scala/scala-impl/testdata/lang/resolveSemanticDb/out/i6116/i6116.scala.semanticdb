@@ -1,0 +1,71 @@
+
+žtests/pos/i6116.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#f().*f€*
+_empty_/Test#f().(x)*x€*
+_empty_/Test#f().(y)*y€*
+_empty_/Test#f(+1).*f€* 
+_empty_/Test#f(+1).(x)*x€* 
+_empty_/Test#f(+1).(y)*y€*
+_empty_/Test#g().*g€*
+_empty_/Test#g().(x)*x€*
+_empty_/Test#g().(y)*y€*
+_empty_/Test#g().(z)*z€*
+_empty_/Test#g(+1).*g€* 
+_empty_/Test#g(+1).(x)*x€* 
+_empty_/Test#g(+1).(y)*y€* 
+_empty_/Test#g(+1).(z)*z€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#f().2"
+ 	_empty_/Test#f().(x)2
+ 
+scala/Int#2"
+ _empty_/Test#f().(y)2"
+ scala/Predef.String#2
+ 
+scala/Int#2#
+" %scala/Predef.`???`().2!
+ _empty_/Test#f(+1).2$
+ 	_empty_/Test#f(+1).(x)2
+ 
+scala/Int#2$
+ _empty_/Test#f(+1).(y)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+ "scala/Predef.`???`().2
+ _empty_/Test#f().2!
+ _empty_/Test#f(+1).2
+ _empty_/Test#g().2"
+ 	_empty_/Test#g().(x)2
+ 
+scala/Int#2"
+ _empty_/Test#g().(y)2
+ 
+scala/Int#2"
+ _empty_/Test#g().(z)2
+ 
+scala/Int#2
+! $
+scala/Int#2#
+' *scala/Predef.`???`().2!
+ _empty_/Test#g(+1).2$
+ 	_empty_/Test#g(+1).(x)2
+ 
+scala/Int#2$
+ _empty_/Test#g(+1).(y)2
+ 
+scala/Int#2$
+ _empty_/Test#g(+1).(z)2"
+ !scala/Predef.String#2
+$ '
+scala/Int#2#
+* -scala/Predef.`???`().2
+
+
+ _empty_/Test#g().2!
+ _empty_/Test#g(+1).PZ 5455FC868AB453D4E5C693B9D7E0F4D7

@@ -1,0 +1,53 @@
+
+à	tests/pos/t675.scala*
+test/T#*T€*$
+test/T#`<init>`(). €@*<init>€*
+test/T#Foo# *Foo€*(
+test/T#Foo#`<init>`(). €@*<init>€*
+test/T#FOO_0.
+ *FOO_0€*
+	test/T#X#*X€*&
+test/T#X#`<init>`(). €@*<init>€*
+test/T#X#foo().*foo€*
+
+test/Test.
+ *Test€*
+test/Test.t. €*t€*
+local0 *$anon€*
+test/Test.x. €*x€*
+local1 *$anon€2
+ test/2
+ test/T#2 
+ test/T#`<init>`().2
+ test/T#Foo#2$
+ test/T#Foo#`<init>`().2
+ test/T#FOO_0.2$
+" "test/T#Foo#`<init>`().2
+ "test/T#Foo#2(
+ scala/Console.println(+1).2
+ scala/Console.2
+ 		test/T#X#2"
+ test/T#X#`<init>`().2
+ test/T#X#foo().2
+ test/T#Foo#2
+ test/T#FOO_0.2
+ 
+test/Test.2
+ 
+scala/App#2
+ test/Test.t.2
+
+ 
+local02
+ test/T#2
+ test/Test.x.2
+
+ 
+local12
+ 	test/T#X#2
+ test/Test.t.2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2
+ test/T#X#foo().2
+ test/Test.x.PZ BA40CF6089904CB9BC2C1A1AB7716E5A

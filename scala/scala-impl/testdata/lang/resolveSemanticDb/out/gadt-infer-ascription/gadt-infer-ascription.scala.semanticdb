@@ -1,0 +1,151 @@
+
+≤1%tests/pos/gadt-infer-ascription.scala*0
+_empty_/GadtAscription.
+ *GadtAscriptionÄ*+
+_empty_/GadtAscription.Var# îÄ*VarÄ*8
+&_empty_/GadtAscription.Var#`<init>`(). Ä@*<init>Ä*(
+_empty_/GadtAscription.Var#[G]	*GÄ*(
+_empty_/GadtAscription.Var#[A]	*AÄ*)
+_empty_/GadtAscription.Var.
+ *VarÄ*+
+_empty_/GadtAscription.Var.Z# àÅ*ZÄ*:
+(_empty_/GadtAscription.Var.Z#`<init>`(). Ä@*<init>Ä**
+ _empty_/GadtAscription.Var.Z#[G]	*GÄ**
+ _empty_/GadtAscription.Var.Z#[A]	*AÄ*1
+$_empty_/GadtAscription.Var.Z#copy().*copyÄ*1
+'_empty_/GadtAscription.Var.Z#copy().[G]	*GÄ*1
+'_empty_/GadtAscription.Var.Z#copy().[A]	*AÄ*7
+'_empty_/GadtAscription.Var.Z#ordinal().*ordinalÄ*)
+_empty_/GadtAscription.Var.Z.
+ *ZÄ*3
+%_empty_/GadtAscription.Var.Z.apply().*applyÄ*2
+(_empty_/GadtAscription.Var.Z.apply().[G]	*GÄ*2
+(_empty_/GadtAscription.Var.Z.apply().[A]	*AÄ*7
+'_empty_/GadtAscription.Var.Z.unapply().*unapplyÄ*4
+*_empty_/GadtAscription.Var.Z.unapply().[G]	*GÄ*4
+*_empty_/GadtAscription.Var.Z.unapply().[A]	*AÄ*8
+,_empty_/GadtAscription.Var.Z.unapply().(x$1)*x$1Ä*9
+(_empty_/GadtAscription.Var.Z.toString().*toStringÄ*+
+_empty_/GadtAscription.Var.S# àÅ*SÄ*:
+(_empty_/GadtAscription.Var.S#`<init>`(). Ä@*<init>Ä*8
++_empty_/GadtAscription.Var.S#`<init>`().(x) Ä*xÄ**
+ _empty_/GadtAscription.Var.S#[G]	*GÄ**
+ _empty_/GadtAscription.Var.S#[A]	*AÄ**
+ _empty_/GadtAscription.Var.S#[B]	*BÄ*,
+_empty_/GadtAscription.Var.S#x. Ä*xÄ*1
+$_empty_/GadtAscription.Var.S#copy().*copyÄ*1
+'_empty_/GadtAscription.Var.S#copy().[G]	*GÄ*1
+'_empty_/GadtAscription.Var.S#copy().[A]	*AÄ*1
+'_empty_/GadtAscription.Var.S#copy().[B]	*BÄ*1
+'_empty_/GadtAscription.Var.S#copy().(x)*xÄ*E
+._empty_/GadtAscription.Var.S#copy$default$1().*copy$default$1Ä*;
+1_empty_/GadtAscription.Var.S#copy$default$1().[G]	*GÄ*;
+1_empty_/GadtAscription.Var.S#copy$default$1().[A]	*AÄ*;
+1_empty_/GadtAscription.Var.S#copy$default$1().[B]	*BÄ*7
+'_empty_/GadtAscription.Var.S#ordinal().*ordinalÄ*-
+"_empty_/GadtAscription.Var.S#_1().*_1Ä*)
+_empty_/GadtAscription.Var.S.
+ *SÄ*3
+%_empty_/GadtAscription.Var.S.apply().*applyÄ*2
+(_empty_/GadtAscription.Var.S.apply().[G]	*GÄ*2
+(_empty_/GadtAscription.Var.S.apply().[A]	*AÄ*2
+(_empty_/GadtAscription.Var.S.apply().[B]	*BÄ*2
+(_empty_/GadtAscription.Var.S.apply().(x)*xÄ*7
+'_empty_/GadtAscription.Var.S.unapply().*unapplyÄ*4
+*_empty_/GadtAscription.Var.S.unapply().[G]	*GÄ*4
+*_empty_/GadtAscription.Var.S.unapply().[A]	*AÄ*4
+*_empty_/GadtAscription.Var.S.unapply().[B]	*BÄ*8
+,_empty_/GadtAscription.Var.S.unapply().(x$1)*x$1Ä*9
+(_empty_/GadtAscription.Var.S.toString().*toStringÄ*=
+)_empty_/GadtAscription.Var.fromOrdinal().*fromOrdinalÄ*B
+2_empty_/GadtAscription.Var.fromOrdinal().(ordinal)*ordinalÄ*1
+!_empty_/GadtAscription.evalVar().*evalVarÄ*.
+$_empty_/GadtAscription.evalVar().[G]	*GÄ*.
+$_empty_/GadtAscription.evalVar().[A]	*AÄ*.
+$_empty_/GadtAscription.evalVar().(x)*xÄ*2
+&_empty_/GadtAscription.evalVar().(rho)*rhoÄ*
+local0 Ä	*gÄ*
+local1 Ä	*aÄ*
+local2 Ä*sÄ*
+local3 Ä	*gÄ*
+local4 Ä	*aÄ*
+local5 Ä	*bÄ2%
+ _empty_/GadtAscription.2)
+ 
+_empty_/GadtAscription.Var#24
+
+ 
+&_empty_/GadtAscription.Var#`<init>`().2,
+ _empty_/GadtAscription.Var#[G]2,
+ _empty_/GadtAscription.Var#[A]2)
+ _empty_/GadtAscription.Var.2+
+	 
+_empty_/GadtAscription.Var.Z#26
+
+ 
+(_empty_/GadtAscription.Var.Z#`<init>`().24
+) )&_empty_/GadtAscription.Var#`<init>`().2)
+ _empty_/GadtAscription.Var#2.
+  ! _empty_/GadtAscription.Var.Z#[A]2.
+# $ _empty_/GadtAscription.Var.Z#[G]2.
+' ( _empty_/GadtAscription.Var.Z#[A]2.
+  _empty_/GadtAscription.Var.Z#[G]2.
+  _empty_/GadtAscription.Var.Z#[A]22
+ $_empty_/GadtAscription.Var.Z#copy().2+
+	 	_empty_/GadtAscription.Var.Z.23
+ %_empty_/GadtAscription.Var.Z.apply().25
+ '_empty_/GadtAscription.Var.Z.unapply().2+
+	 
+_empty_/GadtAscription.Var.S#26
+
+ 
+(_empty_/GadtAscription.Var.S#`<init>`().2)
+ _empty_/GadtAscription.Var#2.
+  _empty_/GadtAscription.Var.S#[G]2.
+  _empty_/GadtAscription.Var.S#[A]24
+8 8&_empty_/GadtAscription.Var#`<init>`().2)
+* -_empty_/GadtAscription.Var#2.
+/ 0 _empty_/GadtAscription.Var.S#[B]2.
+2 3 _empty_/GadtAscription.Var.S#[G]2.
+6 7 _empty_/GadtAscription.Var.S#[A]2.
+  _empty_/GadtAscription.Var.S#[G]2.
+  _empty_/GadtAscription.Var.S#[A]2.
+  _empty_/GadtAscription.Var.S#[B]2-
+ _empty_/GadtAscription.Var.S#x.22
+ $_empty_/GadtAscription.Var.S#copy().20
+ "_empty_/GadtAscription.Var.S#_1().2+
+	 	_empty_/GadtAscription.Var.S.23
+ %_empty_/GadtAscription.Var.S.apply().25
+ '_empty_/GadtAscription.Var.S.unapply().2)
+	 _empty_/GadtAscription.Var.2/
+ !_empty_/GadtAscription.evalVar().22
+ $_empty_/GadtAscription.evalVar().[G]22
+ $_empty_/GadtAscription.evalVar().[A]22
+ $_empty_/GadtAscription.evalVar().(x)2)
+ _empty_/GadtAscription.Var#22
+ $_empty_/GadtAscription.evalVar().[G]22
+ $_empty_/GadtAscription.evalVar().[A]24
+" %&_empty_/GadtAscription.evalVar().(rho)22
+' ($_empty_/GadtAscription.evalVar().[G]22
++ ,$_empty_/GadtAscription.evalVar().[A]22
+/ 0$_empty_/GadtAscription.evalVar().(x)2+
+		 _empty_/GadtAscription.Var.Z#2
+		 local02
+		 local12*
+
+	
+ 	scala/NonEmptyTuple#apply().24
+
+
+ 	&_empty_/GadtAscription.evalVar().(rho)2
+	 
+local22+
+ _empty_/GadtAscription.Var.S#2
+ local32
+ local42
+ local52/
+ !_empty_/GadtAscription.evalVar().2-
+ _empty_/GadtAscription.Var.S#x.2
+ local22*
+ scala/NonEmptyTuple#apply().24
+ &_empty_/GadtAscription.evalVar().(rho)PZ E2A2E94ACBA8A4B4666BAD37C9975125

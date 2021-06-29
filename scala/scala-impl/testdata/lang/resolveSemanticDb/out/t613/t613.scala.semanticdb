@@ -1,0 +1,52 @@
+
+—
+tests/pos/t613.scala*
+_empty_/Outer#*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*
+_empty_/Outer#y. €*y€*
+_empty_/Outer#C# *C€*-
+_empty_/Outer#C#`<init>`(). €@*<init>€*
+_empty_/Outer#C#x. „*x€*!
+_empty_/Outer#foo. €*foo€*
+local0 *$anon€*
+local1*I€*
+local2 €*z€*
+local3 €*x€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.o. €*o€2
+ _empty_/Outer#2#
+ _empty_/Outer#`<init>`().2
+ 
+scala/App#2
+ _empty_/Outer#y.2
+	 
+scala/Int#2
+ _empty_/Outer#C#2)
+ _empty_/Outer#C#`<init>`().2 
+ 	_empty_/Outer#C#x.2
+ 
+scala/Int#2 
+ 	_empty_/Outer#foo.2
+ local02)
+ _empty_/Outer#C#`<init>`().2
+ _empty_/Outer#C#2
+
+ local12
+
+ local22
+ _empty_/Outer#y.2
+		 	local32
+		 local22
+		 local12
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.o.2'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer#2'
+ 	scala/Predef.println(+1).2 
+ _empty_/Outer#C#x.2 
+ _empty_/Outer#foo.2
+
+ _empty_/Test.o.PZ F471429D586B66BBC48C5D727AAE04DC

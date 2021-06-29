@@ -1,0 +1,44 @@
+
+étests/pos/contrib467.scala*
+
+_empty_/M# *M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#data. „*data€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0
+ *SA€*
+local1 €*data€*
+local2
+ *SB€*
+local3 €*data€2
+ 
+_empty_/M#2#
+ _empty_/M#`<init>`().2
+ _empty_/M#data.2!
+ scala/package.List#2
+ 
+_empty_/M#2
+ _empty_/Test.2"
+ _empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+# 'scala/Unit#2
+		 local02#
+		 _empty_/M#`<init>`().2
+		 
+_empty_/M#2
+ local127
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local22#
+ _empty_/M#`<init>`().2
+ 
+_empty_/M#2
+ local327
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local4PZ 865E2D9FC5FED2F205DEB6F57E7EE916

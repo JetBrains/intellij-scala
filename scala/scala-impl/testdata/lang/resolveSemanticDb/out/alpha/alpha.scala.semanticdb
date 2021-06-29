@@ -1,0 +1,16 @@
+
+Ûtests/pos/alpha.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*!
+_empty_/Test.foo(+1).*foo€*"
+_empty_/Test.foo(+1).(x)*x€2&
+ scala/annotation/targetName#2
+ scala/annotation/2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2*
+ scala/annotation/targetName#2#
+ _empty_/Test.foo(+1).2&
+ _empty_/Test.foo(+1).(x)2
+  #
+scala/Int#PZ D67A066D2046D5A171617235F99E54AD

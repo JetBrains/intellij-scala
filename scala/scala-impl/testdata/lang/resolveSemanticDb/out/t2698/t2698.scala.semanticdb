@@ -1,0 +1,44 @@
+
+‚tests/pos/t2698.scala* 
+_empty_/WordExp#*WordExp€*-
+_empty_/WordExp#`<init>`(). €@*<init>€*&
+_empty_/WordExp#Label# *Label€*3
+!_empty_/WordExp#Label#`<init>`(). €@*<init>€*(
+_empty_/WordExp#_labelT#*_labelT€*
+_empty_/S2# *S2€*(
+_empty_/S2#`<init>`(). €@*<init>€* 
+_empty_/S2#lang. „*lang€*%
+_empty_/S2#__labelT#*__labelT€*&
+_empty_/S2#deltaq(). €*deltaq€*,
+_empty_/S2#`deltaq_=`(). €*deltaq_=€*)
+_empty_/S2#`deltaq_=`().(x$1)*x$1€*#
+_empty_/S2#delta1().*delta1€2
+ _empty_/WordExp#2)
+ _empty_/WordExp#`<init>`().2$
+ _empty_/WordExp#Label#2/
+ !_empty_/WordExp#Label#`<init>`().2&
+ _empty_/WordExp#_labelT#2$
+ _empty_/WordExp#Label#2
+ scala/collection/2
+ scala/2
+ _empty_/S2#2$
+ _empty_/S2#`<init>`().2
+ 
+_empty_/S2#lang.2
+ _empty_/WordExp#2"
+		 _empty_/S2#__labelT#2&
+		 _empty_/WordExp#_labelT#2
+		 _empty_/S2#lang.2"
+ _empty_/S2#deltaq().2
+ scala/Array#2"
+ _empty_/S2#__labelT#2@
+, 92scala/compiletime/package$package.uninitialized().2 
+  +scala/compiletime/2&
+ _empty_/S2#`deltaq_=`().2"
+ _empty_/S2#delta1().22
+ $scala/collection/MapFactory#apply().2-
+ scala/collection/immutable/Map.2)
+ scala/collection/immutable/27
+% 1)scala/collection/ArrayOps#zipWithIndex().2)
+ scala/Predef.refArrayOps().2"
+ $_empty_/S2#deltaq().PZ E054A1898781437B6CFAA592339BB291

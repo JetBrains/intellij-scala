@@ -1,0 +1,107 @@
+
+·$tests/pos/i4449.scala*2
+_empty_/TreeAccumulator2#*TreeAccumulator2€*6
+$_empty_/TreeAccumulator2#`<init>`(). €@*<init>€*+
+_empty_/TreeAccumulator2#foo().*foo€*8
+(_empty_/TreeAccumulator2#foo().(reflect)*reflect€*2
+%_empty_/TreeAccumulator2#foo().(tree)*tree€**
+_empty_/Reflection2# *Reflection2€*1
+_empty_/Reflection2#`<init>`(). €@*<init>€* 
+_empty_/Reflection2#X#*X€* 
+_empty_/Reflection2#Y#*Y€*(
+_empty_/Reflection2#xct(). $*xct€*(
+_empty_/Reflection2#yct(). $*yct€*#
+_empty_/Reflection2#A. „*A€*2
+_empty_/Reflection2#AExtractor#*
+AExtractor€*<
+*_empty_/Reflection2#AExtractor#`<init>`(). €@*<init>€*;
+)_empty_/Reflection2#AExtractor#unapply(). *unapply€*6
+,_empty_/Reflection2#AExtractor#unapply().(x)*x€*#
+_empty_/Reflection2#B. „*B€*2
+_empty_/Reflection2#BExtractor#*
+BExtractor€*<
+*_empty_/Reflection2#BExtractor#`<init>`(). €@*<init>€*;
+)_empty_/Reflection2#BExtractor#unapply(). *unapply€*6
+,_empty_/Reflection2#BExtractor#unapply().(x)*x€*#
+_empty_/Reflection2#C. „*C€*2
+_empty_/Reflection2#CExtractor#*
+CExtractor€*<
+*_empty_/Reflection2#CExtractor#`<init>`(). €@*<init>€*;
+)_empty_/Reflection2#CExtractor#unapply(). *unapply€*6
+,_empty_/Reflection2#CExtractor#unapply().(x)*x€*#
+_empty_/Reflection2#D. „*D€*2
+_empty_/Reflection2#DExtractor#*
+DExtractor€*<
+*_empty_/Reflection2#DExtractor#`<init>`(). €@*<init>€*;
+)_empty_/Reflection2#DExtractor#unapply(). *unapply€*6
+,_empty_/Reflection2#DExtractor#unapply().(x)*x€2#
+ _empty_/TreeAccumulator2#22
+ $_empty_/TreeAccumulator2#`<init>`().2-
+ 	_empty_/TreeAccumulator2#foo().26
+
+ (_empty_/TreeAccumulator2#foo().(reflect)2"
+ _empty_/Reflection2#23
+  $%_empty_/TreeAccumulator2#foo().(tree)2
+& )
+scala/Any#2
+, 0scala/Unit#26
+ (_empty_/TreeAccumulator2#foo().(reflect)23
+ %_empty_/TreeAccumulator2#foo().(tree)2/
+ !scala/reflect/ClassTag#unapply().27
+ )_empty_/Reflection2#AExtractor#unapply().2$
+ _empty_/Reflection2#A.2/
+ !scala/reflect/ClassTag#unapply().27
+ )_empty_/Reflection2#BExtractor#unapply().2$
+ _empty_/Reflection2#B.2/
+ !scala/reflect/ClassTag#unapply().27
+ )_empty_/Reflection2#CExtractor#unapply().2$
+ _empty_/Reflection2#C.2/
+ !scala/reflect/ClassTag#unapply().27
+ )_empty_/Reflection2#DExtractor#unapply().2$
+ _empty_/Reflection2#D.2"
+ _empty_/Reflection2#2-
+ _empty_/Reflection2#`<init>`().2$
+ _empty_/Reflection2#X#2$
+ _empty_/Reflection2#Y#2(
+ _empty_/Reflection2#xct().2%
+" *scala/reflect/ClassTag#2
+ !scala/reflect/2
+ scala/2$
++ ,_empty_/Reflection2#X#2(
+ _empty_/Reflection2#yct().2%
+" *scala/reflect/ClassTag#2
+ !scala/reflect/2
+ scala/2$
++ ,_empty_/Reflection2#Y#2$
+ _empty_/Reflection2#A.2-
+	 _empty_/Reflection2#AExtractor#2-
+ _empty_/Reflection2#AExtractor#28
+ *_empty_/Reflection2#AExtractor#`<init>`().27
+ )_empty_/Reflection2#AExtractor#unapply().2:
+ ,_empty_/Reflection2#AExtractor#unapply().(x)2$
+ _empty_/Reflection2#X#2
+ scala/Boolean#2$
+ _empty_/Reflection2#B.2-
+	 _empty_/Reflection2#BExtractor#2-
+ _empty_/Reflection2#BExtractor#28
+ *_empty_/Reflection2#BExtractor#`<init>`().27
+ )_empty_/Reflection2#BExtractor#unapply().2:
+ ,_empty_/Reflection2#BExtractor#unapply().(x)2$
+ _empty_/Reflection2#X#2
+ scala/Boolean#2$
+   _empty_/Reflection2#C.2-
+ 	  _empty_/Reflection2#CExtractor#2-
+!! _empty_/Reflection2#CExtractor#28
+"" *_empty_/Reflection2#CExtractor#`<init>`().27
+"" )_empty_/Reflection2#CExtractor#unapply().2:
+"" ,_empty_/Reflection2#CExtractor#unapply().(x)2$
+"" _empty_/Reflection2#Y#2
+"" scala/Boolean#2$
+%% _empty_/Reflection2#D.2-
+%	% _empty_/Reflection2#DExtractor#2-
+&& _empty_/Reflection2#DExtractor#28
+'' *_empty_/Reflection2#DExtractor#`<init>`().27
+'' )_empty_/Reflection2#DExtractor#unapply().2:
+'' ,_empty_/Reflection2#DExtractor#unapply().(x)2$
+'' _empty_/Reflection2#X#2
+'' scala/Boolean#PZ 86B530C26EBBB197196C2CFE58F6A075

@@ -1,0 +1,16 @@
+
+žtests/pos/i2949.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(a)*a€*
+_empty_/Foo#a. €*a€*
+_empty_/Foo#A#*A€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ _empty_/Foo#A#2
+ _empty_/Foo#2
+
+ _empty_/Foo#a.2
+ _empty_/Foo#A#2
+ 
+scala/Int#PZ 0B4885DAF924DC7F288F4E7451AF20EB

@@ -1,0 +1,11 @@
+
+ítests/pos/i3971.scala*:
+_empty_/BadInlineConstCheck.
+ *BadInlineConstCheck€*7
+$_empty_/BadInlineConstCheck.MaxSize. ˆ*MaxSize€2&
+ _empty_/BadInlineConstCheck.22
+ $_empty_/BadInlineConstCheck.MaxSize.2 
+# $scala/Int#`+`(+4).2!
+ "scala/Int.MaxValue.2
+ 
+scala/Int.PZ 076AF6A2C8E40656B06265FC0CF8C463

@@ -1,0 +1,327 @@
+
+ _tests/pos/extmethods.scala*
+_empty_/That1#*That1€*+
+_empty_/That1#`<init>`(). €@*<init>€*
+_empty_/That1#[A]	*A€*
+
+_empty_/T# *T€*'
+_empty_/T#`<init>`(). €@*<init>€*%
+_empty_/T#`<init>`().(x) €*x€*
+local0*self€*
+_empty_/T#[A]	*A€*
+_empty_/T#[This]	*This€*
+_empty_/T#x. €*x€* 
+_empty_/T#loop(). *loop€*
+_empty_/T#loop().(x)*x€*"
+_empty_/T#loop().(cnt)*cnt€* 
+_empty_/T#const().*const€*
+_empty_/T#const().[B]	*B€*
+
+_empty_/T.
+ *T€*
+_empty_/Foo# *Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*)
+_empty_/Foo#`<init>`().(xs) €*xs€*
+_empty_/Foo#[A]	 €*A€*
+_empty_/Foo#xs. €*xs€*
+_empty_/Foo#baz().*baz€*
+_empty_/Foo#baz().[B]	*B€*
+_empty_/Foo#baz().(x)*x€*
+_empty_/Foo.
+ *Foo€*8
+_empty_/CollectionStrawMan.
+ *CollectionStrawMan€*7
+$_empty_/CollectionStrawMan.ArrayOps# *ArrayOps€*A
+/_empty_/CollectionStrawMan.ArrayOps#`<init>`(). €@*<init>€*A
+3_empty_/CollectionStrawMan.ArrayOps#`<init>`().(xs) €*xs€*1
+'_empty_/CollectionStrawMan.ArrayOps#[A]	*A€*5
+'_empty_/CollectionStrawMan.ArrayOps#xs. €*xs€*>
+._empty_/CollectionStrawMan.ArrayOps#elemTag().*elemTag€*D
+1_empty_/CollectionStrawMan.ArrayOps#newBuilder().*
+newBuilder€*7
+$_empty_/CollectionStrawMan.ArrayOps.
+ *ArrayOps€*9
+&_empty_/CollectionStrawMan.ArrayOps(). (*ArrayOps€*3
+)_empty_/CollectionStrawMan.ArrayOps().[A]	*A€*5
+*_empty_/CollectionStrawMan.ArrayOps().(xs)*xs€*
+_empty_/TT#*TT€*(
+_empty_/TT#`<init>`(). €@*<init>€*
+_empty_/TT#A#*A€*
+_empty_/TT#m. „*m€*
+_empty_/TT#f().*f€*
+_empty_/TT#f().[B]	*B€*
+_empty_/TT#f().(x)*x€*
+_empty_/CC.
+ *CC€*
+_empty_/CC.A#*A€*
+_empty_/CC.m. €*m€*-
+_empty_/extmethods$package. *_empty_€*1
+#_empty_/extmethods$package.foldl().*foldl€*0
+&_empty_/extmethods$package.foldl().[A]	*A€*2
+'_empty_/extmethods$package.foldl().(xs)*xs€*0
+&_empty_/extmethods$package.foldl().[B]	*B€*0
+&_empty_/extmethods$package.foldl().(z)*z€*2
+'_empty_/extmethods$package.foldl().(op)*op€*3
+$_empty_/extmethods$package.concat().*concat€*1
+'_empty_/extmethods$package.concat().[A]	*A€*3
+(_empty_/extmethods$package.concat().(xs)*xs€*1
+'_empty_/extmethods$package.concat().[B]	*B€*3
+(_empty_/extmethods$package.concat().(ys)*ys€**
+_empty_/extmethods$package.x. €*x€*
+local1*x€*
+local2*y€**
+_empty_/extmethods$package.y. €*y€*,
+_empty_/extmethods$package.y1. €*y1€**
+_empty_/extmethods$package.z. €*z€*,
+_empty_/extmethods$package.z1. €*z1€*-
+!_empty_/extmethods$package.foo().*foo€*.
+$_empty_/extmethods$package.foo().(x)*x€*.
+$_empty_/extmethods$package.foo().[B]	*B€*.
+$_empty_/extmethods$package.foo().(y)*y€*,
+_empty_/extmethods$package.xx. €*xx€*+
+ _empty_/extmethods$package.ff().*ff€*-
+#_empty_/extmethods$package.ff().(x)*x€*-
+#_empty_/extmethods$package.ff().[X]	*X€*-
+"_empty_/extmethods$package.ff(+1).*ff€*/
+%_empty_/extmethods$package.ff(+1).(x)*x€*/
+%_empty_/extmethods$package.ff(+1).[X]	*X€*/
+%_empty_/extmethods$package.ff(+1).(s)*s€*-
+"_empty_/extmethods$package.ff(+2).*ff€*/
+%_empty_/extmethods$package.ff(+2).(x)*x€*/
+%_empty_/extmethods$package.ff(+2).[X]	*X€*/
+%_empty_/extmethods$package.ff(+2).(n)*n€*,
+_empty_/extmethods$package.yy. €*yy€2
+ _empty_/That1#2#
+ _empty_/That1#`<init>`().2
+ _empty_/That1#[A]2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+$ '
+scala/Int#2&
+7 7scala/AnyVal#`<init>`().2
+1 7scala/AnyVal#2
+ local02
+ _empty_/T#[This]2
+ 	_empty_/T#[A]2
+ _empty_/T#[This]2
+! "_empty_/T#x.2
+ _empty_/T#loop().2"
+ _empty_/T#loop().(x)2
+ _empty_/T#[This]2$
+ _empty_/T#loop().(cnt)2
+ "
+scala/Int#2
+% (
+scala/Int#2
++ /_empty_/T#loop().2"
+0 1_empty_/T#loop().(x)2 
+7 8scala/Int#`+`(+4).2$
+3 6_empty_/T#loop().(cnt)2 
+ _empty_/T#const().2#
+ _empty_/T#const().[B]2
+ scala/Boolean#2 
+' '_empty_/T#const().2
+ 
+_empty_/T.2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2!
+  $scala/package.List#2
+% &_empty_/Foo#[A]2&
+7 7scala/AnyVal#`<init>`().2
+1 7scala/AnyVal#2
+ _empty_/Foo#[A]2
+ _empty_/Foo#xs.2 
+ 	_empty_/Foo#baz().2#
+
+ _empty_/Foo#baz().[B]2
+ _empty_/Foo#[A]2#
+ _empty_/Foo#baz().(x)2#
+ _empty_/Foo#baz().[B]2!
+ scala/package.List#2#
+ _empty_/Foo#baz().[B]2#
+# &scala/Predef.`???`().2
+ _empty_/Foo.2)
+ _empty_/CollectionStrawMan.23
+ '%scala/collection/mutable/ArrayBuffer.23
+ '%scala/collection/mutable/ArrayBuffer#2'
+ scala/collection/mutable/2
+	 scala/collection/2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+	 scala/reflect/22
+ $_empty_/CollectionStrawMan.ArrayOps#2=
+ /_empty_/CollectionStrawMan.ArrayOps#`<init>`().2
+% *scala/Array#25
++ ,'_empty_/CollectionStrawMan.ArrayOps#[A]2&
+= =scala/AnyVal#`<init>`().2
+7 =scala/AnyVal#25
+ '_empty_/CollectionStrawMan.ArrayOps#[A]25
+! #'_empty_/CollectionStrawMan.ArrayOps#xs.2<
+ ._empty_/CollectionStrawMan.ArrayOps#elemTag().2%
+ scala/reflect/ClassTag#25
+ '_empty_/CollectionStrawMan.ArrayOps#[A]2-
+' 'scala/reflect/ClassTag.apply().2%
+ 'scala/reflect/ClassTag.21
+4 D#java/lang/Class#getComponentType().2#
++ 3scala/Any#getClass().25
+( *'_empty_/CollectionStrawMan.ArrayOps#xs.2?
+ "1_empty_/CollectionStrawMan.ArrayOps#newBuilder().2?
+8 A1scala/collection/mutable/ArrayBuffer#mapResult().2@
+7 72scala/collection/mutable/ArrayBuffer#`<init>`(+1).23
+) 4%scala/collection/mutable/ArrayBuffer#25
+5 6'_empty_/CollectionStrawMan.ArrayOps#[A]29
+D K+scala/collection/IterableOnceOps#toArray().2<
+L S._empty_/CollectionStrawMan.ArrayOps#elemTag().22
+ $_empty_/CollectionStrawMan.ArrayOps.24
+ &_empty_/CollectionStrawMan.ArrayOps().2
+"" _empty_/TT#2$
+## _empty_/TT#`<init>`().2
+## _empty_/TT#A#2
+$$ _empty_/TT#m.2
+$	$ 
+_empty_/TT#A#2
+%% _empty_/TT#f().2 
+%% 	_empty_/TT#f().[B]2
+%% _empty_/TT#A#2 
+%% _empty_/TT#f().(x)2 
+%% _empty_/TT#f().[B]2
+%% _empty_/TT#A#2#
+%% !scala/Predef.`???`().2
+%'% (_empty_/TT#m.2 
+%.% /_empty_/TT#f().(x)2
+** 	_empty_/CC.2
+** _empty_/TT#2
+++ _empty_/CC.A#2 
+++ scala/package.Seq#2
+++ 
+scala/Int#2
+,, _empty_/CC.m.2 
+,
+, scala/package.Nil.2%
+_empty_/extmethods$package.21
+ #_empty_/extmethods$package.foldl().24
+ &_empty_/extmethods$package.foldl().[A]25
+ '_empty_/extmethods$package.foldl().(xs)2!
+ scala/package.List#24
+ &_empty_/extmethods$package.foldl().[A]24
+ &_empty_/extmethods$package.foldl().[B]24
+ &_empty_/extmethods$package.foldl().(z)24
+ &_empty_/extmethods$package.foldl().[B]25
+ '_empty_/extmethods$package.foldl().(op)24
+! "&_empty_/extmethods$package.foldl().[B]24
+$ %&_empty_/extmethods$package.foldl().[A]24
+* +&_empty_/extmethods$package.foldl().[B]24
+. /&_empty_/extmethods$package.foldl().[B]27
+ )scala/collection/LinearSeqOps#foldLeft().25
+ '_empty_/extmethods$package.foldl().(xs)2!
+	 scala/package.List#24
+ &_empty_/extmethods$package.foldl().[A]24
+ &_empty_/extmethods$package.foldl().(z)25
+  '_empty_/extmethods$package.foldl().(op)22
+ $_empty_/extmethods$package.concat().25
+ '_empty_/extmethods$package.concat().[A]26
+ (_empty_/extmethods$package.concat().(xs)25
+ '_empty_/extmethods$package.concat().[A]25
+ '_empty_/extmethods$package.concat().[B]25
+ '_empty_/extmethods$package.concat().[A]26
+ (_empty_/extmethods$package.concat().(ys)2!
+  $scala/package.List#25
+% &'_empty_/extmethods$package.concat().[B]2!
+* .scala/package.List#25
+/ 0'_empty_/extmethods$package.concat().[A]22
+7 9$scala/collection/IterableOps#`++`().26
+4 6(_empty_/extmethods$package.concat().(xs)26
+: <(_empty_/extmethods$package.concat().(ys)2+
+ _empty_/extmethods$package.x.21
+ #_empty_/extmethods$package.foldl().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+  
+scala/Int#2
+& 'local12
+) *local22 
+1 2scala/Int#`+`(+4).2
+/ 0local12(
+5 ;java/lang/String#length().2
+3 4local22+
+ _empty_/extmethods$package.y.2/
+ !scala/collection/SeqOps#concat().2 
+ scala/package.Nil.25
+ 'scala/collection/immutable/List#`::`().2 
+ scala/package.Nil.2,
+ _empty_/extmethods$package.y1.2!
+ scala/package.List#2
+ 
+scala/Int#2+
+ _empty_/extmethods$package.y.2+
+ _empty_/extmethods$package.z.2/
+ !scala/collection/SeqOps#concat().25
+ 'scala/collection/immutable/List#`::`().2 
+ scala/package.Nil.2 
+ scala/package.Nil.2,
+   _empty_/extmethods$package.z1.2!
+   scala/package.List#2
+   
+scala/Int#2+
+   _empty_/extmethods$package.z.2/
+(( 	!_empty_/extmethods$package.foo().22
+'' $_empty_/extmethods$package.foo().(x)2
+'' _empty_/TT#22
+(
+( $_empty_/extmethods$package.foo().[B]2
+(( _empty_/TT#A#22
+(( $_empty_/extmethods$package.foo().(x)22
+(( $_empty_/extmethods$package.foo().(y)22
+(( $_empty_/extmethods$package.foo().[B]2
+(( _empty_/TT#f().22
+(( $_empty_/extmethods$package.foo().(x)22
+( ( !$_empty_/extmethods$package.foo().(y)2,
+.. _empty_/extmethods$package.xx.2/
+.. !_empty_/extmethods$package.foo().2
+.	. _empty_/CC.27
+.. )scala/collection/IterableFactory#apply().2!
+.. scala/package.List.2.
+11  _empty_/extmethods$package.ff().21
+00 #_empty_/extmethods$package.ff().(x)2
+00 _empty_/TT#21
+1	1 
+#_empty_/extmethods$package.ff().[X]2
+11 
+scala/Int#20
+22 "_empty_/extmethods$package.ff(+1).23
+00 %_empty_/extmethods$package.ff(+1).(x)23
+2	2 
+%_empty_/extmethods$package.ff(+1).[X]23
+22 %_empty_/extmethods$package.ff(+1).(s)2"
+22 scala/Predef.String#2
+22 
+scala/Int#2(
+2 2 &java/lang/String#length().23
+22 %_empty_/extmethods$package.ff(+1).(s)20
+33 "_empty_/extmethods$package.ff(+2).23
+00 %_empty_/extmethods$package.ff(+2).(x)23
+3	3 
+%_empty_/extmethods$package.ff(+2).[X]23
+33 %_empty_/extmethods$package.ff(+2).(n)2
+33 
+scala/Int#2
+33 
+scala/Int#23
+33 %_empty_/extmethods$package.ff(+2).(n)2,
+55 _empty_/extmethods$package.yy.2 
+88 scala/Int#`+`(+4).2 
+77 scala/Int#`+`(+4).2.
+66  _empty_/extmethods$package.ff().2
+66 _empty_/CC.2
+66 
+scala/Int#20
+77 	"_empty_/extmethods$package.ff(+1).2
+77 _empty_/CC.2"
+7
+7 scala/Predef.String#20
+88 	"_empty_/extmethods$package.ff(+2).2
+88 _empty_/CC.2
+8
+8 
+scala/Int#PZ A14FB53BA8FEE8883CC7E9F593FF7C59

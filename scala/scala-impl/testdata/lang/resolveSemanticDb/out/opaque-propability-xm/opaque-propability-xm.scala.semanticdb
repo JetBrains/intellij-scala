@@ -1,0 +1,176 @@
+
+å=%tests/pos/opaque-propability-xm.scala*
+_empty_/prob.
+ *prob€*-
+_empty_/prob.Probability#*Probability€*/
+_empty_/prob.Probability.
+ (*Probability€*/
+!_empty_/prob.Probability.apply().*apply€*.
+$_empty_/prob.Probability.apply().(n)*n€*1
+"_empty_/prob.Probability.unsafe().*unsafe€*/
+%_empty_/prob.Probability.unsafe().(p)*p€*5
+$_empty_/prob.Probability.asDouble().*asDouble€*1
+'_empty_/prob.Probability.asDouble().(p)*p€*0
+_empty_/prob.Probability.Never. €*Never€*6
+"_empty_/prob.Probability.CoinToss. €*CoinToss€*4
+!_empty_/prob.Probability.Certain. €*Certain€*6
+"_empty_/prob.Probability.ordering.  *ordering€*5
+%_empty_/prob.Probability.`unary_~`().*unary_~€*4
+)_empty_/prob.Probability.`unary_~`().(p1)*p1€*)
+_empty_/prob.Probability.`&`().*&€*.
+#_empty_/prob.Probability.`&`().(p1)*p1€*.
+#_empty_/prob.Probability.`&`().(p2)*p2€*)
+_empty_/prob.Probability.`|`().*|€*.
+#_empty_/prob.Probability.`|`().(p1)*p1€*.
+#_empty_/prob.Probability.`|`().(p2)*p2€*=
+(_empty_/prob.Probability.isImpossible().*isImpossible€*7
+,_empty_/prob.Probability.isImpossible().(p1)*p1€*7
+%_empty_/prob.Probability.isCertain().*	isCertain€*4
+)_empty_/prob.Probability.isCertain().(p1)*p1€*1
+"_empty_/prob.Probability.sample().*sample€*1
+&_empty_/prob.Probability.sample().(p1)*p1€*/
+%_empty_/prob.Probability.sample().(r)*r€*E
+,_empty_/prob.Probability.sample$default$2().*sample$default$2€*;
+0_empty_/prob.Probability.sample$default$2().(p1)*p1€*5
+$_empty_/prob.Probability.toDouble().*toDouble€*3
+(_empty_/prob.Probability.toDouble().(p1)*p1€*0
+_empty_/prob.caughtTrain. €*caughtTrain€*0
+_empty_/prob.missedTrain. €*missedTrain€*,
+_empty_/prob.caughtCab. €*	caughtCab€*(
+_empty_/prob.arrived. €*arrived€2
+ _empty_/prob.2'
+ _empty_/prob.Probability#2
+ "scala/Double#2'
+ _empty_/prob.Probability.2/
+ !_empty_/prob.Probability.apply().22
+ $_empty_/prob.Probability.apply().(n)2
+ scala/Double#2
+  scala/Option#2'
+! ,_empty_/prob.Probability#2#
+ scala/Boolean#`&&`().2$
+ scala/Double#`<=`(+6).22
+ $_empty_/prob.Probability.apply().(n)2$
+ scala/Double#`<=`(+6).22
+ $_empty_/prob.Probability.apply().(n)2!
+$ $scala/Some.apply().2
+  $scala/Some.22
+% &$_empty_/prob.Probability.apply().(n)2
+- 1scala/None.20
+ "_empty_/prob.Probability.unsafe().23
+ %_empty_/prob.Probability.unsafe().(p)2
+ scala/Double#2'
+ &_empty_/prob.Probability#2'
+ scala/Predef.require(+1).2#
+ scala/Boolean#`&&`().2$
+ scala/Double#`<=`(+6).23
+ %_empty_/prob.Probability.unsafe().(p)2$
+ scala/Double#`<=`(+6).23
+ %_empty_/prob.Probability.unsafe().(p)2&
+J Kscala/StringContext#s().2*
+& &scala/StringContext.apply().23
+H I%_empty_/prob.Probability.unsafe().(p)23
+		 %_empty_/prob.Probability.unsafe().(p)22
+ $_empty_/prob.Probability.asDouble().25
+ '_empty_/prob.Probability.asDouble().(p)2'
+ _empty_/prob.Probability#2
+" (scala/Double#25
++ ,'_empty_/prob.Probability.asDouble().(p)2-
+ _empty_/prob.Probability.Never.2'
+ _empty_/prob.Probability#20
+ "_empty_/prob.Probability.CoinToss.2'
+ _empty_/prob.Probability#2/
+ !_empty_/prob.Probability.Certain.2'
+ _empty_/prob.Probability#20
+ "_empty_/prob.Probability.ordering.2%
+ #scala/package.Ordering#2'
+$ /_empty_/prob.Probability#2(
+ scala/Predef.implicitly().2%
+ scala/package.Ordering#2
+  scala/Double#20
+" ""_empty_/prob.Probability.ordering.23
+$ +%_empty_/prob.Probability.`unary_~`().27
+ )_empty_/prob.Probability.`unary_~`().(p1)2'
+ _empty_/prob.Probability#2'
+. 9_empty_/prob.Probability#2#
+D Escala/Double#`-`(+6).2/
+< C!_empty_/prob.Probability.Certain.27
+F H)_empty_/prob.Probability.`unary_~`().(p1)2-
+$ %_empty_/prob.Probability.`&`().21
+ #_empty_/prob.Probability.`&`().(p1)2'
+ _empty_/prob.Probability#21
+' )#_empty_/prob.Probability.`&`().(p2)2'
++ 6_empty_/prob.Probability#2'
+9 D_empty_/prob.Probability#2#
+J Kscala/Double#`*`(+6).21
+G I#_empty_/prob.Probability.`&`().(p1)21
+L N#_empty_/prob.Probability.`&`().(p2)2-
+$ %_empty_/prob.Probability.`|`().21
+ #_empty_/prob.Probability.`|`().(p1)2'
+ _empty_/prob.Probability#21
+' )#_empty_/prob.Probability.`|`().(p2)2'
++ 6_empty_/prob.Probability#2'
+9 D_empty_/prob.Probability#2#
+O Pscala/Double#`-`(+6).2#
+J Kscala/Double#`+`(+7).21
+G I#_empty_/prob.Probability.`|`().(p1)21
+L N#_empty_/prob.Probability.`|`().(p2)2#
+U Vscala/Double#`*`(+6).21
+R T#_empty_/prob.Probability.`|`().(p1)21
+W Y#_empty_/prob.Probability.`|`().(p2)26
+$ 0(_empty_/prob.Probability.isImpossible().2:
+ ,_empty_/prob.Probability.isImpossible().(p1)2'
+ _empty_/prob.Probability#2
+2 9scala/Boolean#2$
+? Ascala/Double#`==`(+6).2:
+< >,_empty_/prob.Probability.isImpossible().(p1)2-
+B G_empty_/prob.Probability.Never.23
+$ -%_empty_/prob.Probability.isCertain().27
+ )_empty_/prob.Probability.isCertain().(p1)2'
+ _empty_/prob.Probability#2
+/ 6scala/Boolean#2$
+< >scala/Double#`==`(+6).27
+9 ;)_empty_/prob.Probability.isCertain().(p1)2/
+? F!_empty_/prob.Probability.Certain.2 
+ scala/util/Random.2 
+ scala/util/Random#2
+ scala/util/2
+ scala/20
+$ *"_empty_/prob.Probability.sample().24
+ &_empty_/prob.Probability.sample().(p1)2'
+ _empty_/prob.Probability#23
++ ,%_empty_/prob.Probability.sample().(r)2 
+. 4scala/util/Random#2
+@ Gscala/Boolean#2$
+W Yscala/Double#`<=`(+6).2-
+L Vscala/util/Random#nextDouble().23
+J K%_empty_/prob.Probability.sample().(r)24
+Z \&_empty_/prob.Probability.sample().(p1)2>
+ 0_empty_/prob.Probability.sample$default$2().(p1)2 
+7 =scala/util/Random.22
+$ ,$_empty_/prob.Probability.toDouble().26
+ (_empty_/prob.Probability.toDouble().(p1)2'
+ _empty_/prob.Probability#2
+. 4scala/Double#26
+7 9(_empty_/prob.Probability.toDouble().(p1)2'
+"" _empty_/prob.caughtTrain.20
+" " &"_empty_/prob.Probability.unsafe().2'
+"" _empty_/prob.Probability.2'
+## _empty_/prob.missedTrain.23
+## %_empty_/prob.Probability.`unary_~`().2'
+##  _empty_/prob.caughtTrain.2%
+$$ _empty_/prob.caughtCab.20
+$$ &"_empty_/prob.Probability.CoinToss.2'
+$$ _empty_/prob.Probability.2#
+%% _empty_/prob.arrived.2-
+%% _empty_/prob.Probability.`|`().2'
+%% _empty_/prob.caughtTrain.2-
+%% _empty_/prob.Probability.`&`().2'
+%% *_empty_/prob.missedTrain.2%
+%-% 6_empty_/prob.caughtCab.2'
+'' 	scala/Predef.println(+1).28
+'.' 4*scala/collection/IterableOnceOps#toList().25
+'' 'scala/collection/immutable/Range#map().2)
+'' scala/runtime/RichInt#to().26
+'' (scala/LowPriorityImplicits#intWrapper().20
+'' "_empty_/prob.Probability.sample().2#
+'' #_empty_/prob.arrived.PZ 2FCC44AF946EAAD4B784C66EBFA9FF6F

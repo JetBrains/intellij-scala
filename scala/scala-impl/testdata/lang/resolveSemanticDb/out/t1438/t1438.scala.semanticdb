@@ -1,0 +1,59 @@
+
+Øtests/pos/t1438.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[A]	*A€*
+_empty_/C#CC#*CC€*
+_empty_/C#CC#[B]	*B€*
+_empty_/C#aio().*aio€*
+_empty_/C#aio().[T]	*T€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#[A]	*A€*
+_empty_/D#nv().*nv€*
+_empty_/D#nv().[B]	*B€*$
+_empty_/D#nv().(elems)*elems€*
+local0 €*x€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[A]2
+ 	_empty_/C#CC#2
+
+ _empty_/C#CC#[B]2
+ 
+_empty_/C#2
+ _empty_/C#CC#[B]2
+ 	_empty_/C#aio().2!
+
+ _empty_/C#aio().[T]2!
+ _empty_/C#aio().[T]2
+ _empty_/C#aio().2!
+ _empty_/C#aio().[T]2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/D#[A]2
+ 	_empty_/D#[A]2
+ _empty_/D#nv().2 
+ _empty_/D#nv().[B]2$
+ _empty_/D#nv().(elems)2%
+ %scala/package.Iterator#2 
+& '_empty_/D#nv().[B]2
++ -_empty_/C#CC#2 
+. /_empty_/D#nv().[B]2
+ 	local02#
+ _empty_/D#`<init>`().2
+ 
+_empty_/D#2 
+ _empty_/D#nv().[B]2
+ 	_empty_/C#aio().2
+ local02
+
+ _empty_/C#CC#2 
+ _empty_/D#nv().[B]PZ A3D4596FA6DB791C0768AA03112E489D

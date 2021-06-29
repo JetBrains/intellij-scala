@@ -1,0 +1,34 @@
+
+ètests/pos/i11064.scala*&
+_empty_/TypedArray#*
+TypedArrayÄ*0
+_empty_/TypedArray#`<init>`(). Ä@*<init>Ä* 
+_empty_/TypedArray#[T]	*TÄ*&
+_empty_/TypedArray#[Repr]	*ReprÄ*
+_empty_/Ops#*OpsÄ*)
+_empty_/Ops#`<init>`(). Ä@*<init>Ä*
+_empty_/Ops#[T]	*TÄ*.
+_empty_/Ops#typedArray(). *
+typedArrayÄ*
+_empty_/Test.
+ *TestÄ*!
+_empty_/Test.test().*testÄ*%
+_empty_/Test.test().(ops)*opsÄ2
+ _empty_/TypedArray#2(
+ _empty_/TypedArray#`<init>`().2 
+ _empty_/TypedArray#[T]2#
+ _empty_/TypedArray#[Repr]2
+ 	_empty_/Ops#2%
+	 	_empty_/Ops#`<init>`().2
+
+ _empty_/Ops#[T]2'
+ _empty_/Ops#typedArray().2
+ _empty_/Ops#[T]2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2'
+ _empty_/Test.test().(ops)2
+ _empty_/Ops#2!
+ #_empty_/TypedArray#2'
+2 <_empty_/Ops#typedArray().2'
+. 1_empty_/Test.test().(ops)PZ 4D157CB783A36B903A5CF723498C71E7

@@ -1,0 +1,52 @@
+
+Ítests/pos/t5726.scala*(
+_empty_/DynamicTest#*DynamicTest€*1
+_empty_/DynamicTest#`<init>`(). €@*<init>€*:
+$_empty_/DynamicTest#selectDynamic().*selectDynamic€*7
+*_empty_/DynamicTest#selectDynamic().(name)*name€*:
+$_empty_/DynamicTest#updateDynamic().*updateDynamic€*7
+*_empty_/DynamicTest#updateDynamic().(name)*name€*9
++_empty_/DynamicTest#updateDynamic().(value)*value€*
+_empty_/MyApp.
+ *MyApp€*(
+_empty_/MyApp.testing().*testing€*
+local0 €*test€2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2"
+ _empty_/DynamicTest#2-
+ _empty_/DynamicTest#`<init>`().2
+ !scala/Dynamic#22
+ $_empty_/DynamicTest#selectDynamic().28
+ *_empty_/DynamicTest#selectDynamic().(name)2"
+  scala/Predef.String#2&
+4 5scala/StringContext#s().2*
+& &scala/StringContext.apply().28
+0 4*_empty_/DynamicTest#selectDynamic().(name)22
+ $_empty_/DynamicTest#updateDynamic().28
+ *_empty_/DynamicTest#updateDynamic().(name)2"
+  scala/Predef.String#29
+" '+_empty_/DynamicTest#updateDynamic().(value)2
+) ,
+scala/Any#2
+/ 3scala/Unit#2'
+ scala/Predef.println(+1).2&
+G Hscala/StringContext#s().2*
+ scala/StringContext.apply().28
+/ 3*_empty_/DynamicTest#updateDynamic().(name)29
+B G+_empty_/DynamicTest#updateDynamic().(value)2
+		 _empty_/MyApp.2
+		 
+scala/App#2&
+
+
+ _empty_/MyApp.testing().2
+
+
+ scala/Unit#2
+ local02-
+ _empty_/DynamicTest#`<init>`().2"
+ _empty_/DynamicTest#22
+ $_empty_/DynamicTest#updateDynamic().2
+ local02&
+ 	_empty_/MyApp.testing().PZ D12DA18BF49219925026497D4E4C82A2

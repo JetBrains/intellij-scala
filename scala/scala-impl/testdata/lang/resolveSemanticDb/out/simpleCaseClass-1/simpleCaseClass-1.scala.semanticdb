@@ -1,0 +1,18 @@
+
+§!tests/pos/simpleCaseClass-1.scala*
+
+_empty_/A# €*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#copy().*copy€*
+
+_empty_/A.
+ *A€* 
+_empty_/A.apply().*apply€*$
+_empty_/A.unapply().*unapply€*%
+_empty_/A.unapply().(x$1)*x$1€*&
+_empty_/A.toString().*toString€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ 
+_empty_/A.PZ CB99E44D877FAE77B77147CB17D36B04

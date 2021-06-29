@@ -1,0 +1,84 @@
+
+“tests/pos/S5.scala*
+
+_empty_/M# *M€*'
+_empty_/M#`<init>`(). €@*<init>€*
+_empty_/M#_N. „*_N€*
+_empty_/M#n. „*n€*
+_empty_/M#_M. €*_M€*
+_empty_/M#m. €*m€*
+_empty_/M#m#*m€*)
+_empty_/M#m#`<init>`(). €@*<init>€*
+
+_empty_/N#*N€*'
+_empty_/N#`<init>`(). €@*<init>€*
+_empty_/N#_N. €*_N€*
+_empty_/N#n. €*n€*
+_empty_/N#_M. „*_M€*
+_empty_/N#m. „*m€*
+_empty_/N#n#*n€*)
+_empty_/N#n#`<init>`(). €@*<init>€*
+
+_empty_/O.
+ *O€*#
+_empty_/O.system. €*system€*
+local0 *$anon€2
+
+
+ 
+_empty_/M#2#
+
+
+ _empty_/M#`<init>`().2
+ 
+_empty_/M#_N.2
+ 
+_empty_/N#2
+ 	_empty_/M#n.2
+ _empty_/N#n#2
+ _empty_/M#_N.2
+ 
+_empty_/M#_M.2
+ 
+_empty_/M#2
+ 	_empty_/M#m.2
+ _empty_/M#m#2
+ _empty_/M#_M.2%
+ _empty_/M#m#`<init>`().2
+ _empty_/M#m#2
+ _empty_/M#_M.2
+
+ _empty_/M#m#2%
+ _empty_/M#m#`<init>`().2
+ 
+_empty_/N#2#
+ _empty_/N#`<init>`().2
+ 
+_empty_/N#_N.2
+ 
+_empty_/N#2
+ 	_empty_/N#n.2
+ _empty_/N#n#2
+ _empty_/N#_N.2%
+ _empty_/N#n#`<init>`().2
+ _empty_/N#n#2
+ _empty_/N#_N.2
+ 
+_empty_/N#_M.2
+ 
+_empty_/M#2
+ 	_empty_/N#m.2
+ _empty_/M#m#2
+ _empty_/N#_M.2
+
+ _empty_/N#n#2%
+ _empty_/N#n#`<init>`().2
+ 
+_empty_/O.2
+ _empty_/O.system.2
+ local02#
+ _empty_/M#`<init>`().2
+ 
+_empty_/M#2
+ 
+_empty_/N#PZ 8141B3C62EA7868E21C93E935AE6B539

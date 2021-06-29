@@ -1,0 +1,23 @@
+
+×tests/pos/t566.scala*
+_empty_/test.
+ *test€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().[a]	*a€*"
+_empty_/test.foo().(ys)*ys€*
+local0 €*elem$1€2
+ _empty_/test.2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().[a]2%
+ _empty_/test.foo().(ys)2!
+ scala/package.List#2$
+ _empty_/test.foo().[a]2!
+ scala/package.List#2$
+  !_empty_/test.foo().[a]2
+ local025
+ 'scala/collection/immutable/List#`::`().22
+ $scala/collection/IterableOps#tail().2%
+ _empty_/test.foo().(ys)2
+ local02!
+ _empty_/test.foo().PZ 116E3407F878C46522B72E4A5489FB0B

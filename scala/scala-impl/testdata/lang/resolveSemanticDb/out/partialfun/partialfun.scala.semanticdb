@@ -1,0 +1,40 @@
+
+²tests/pos/partialfun.scala*(
+_empty_/partialfun.
+ *
+partialfun€*7
+"_empty_/partialfun.applyPartial().*applyPartial€*/
+%_empty_/partialfun.applyPartial().[b]	*b€*/
+%_empty_/partialfun.applyPartial().(f)*f€*/
+%_empty_/partialfun.applyPartial().(x)*x€*
+local0*x$1€*
+local1 €*xxx€2
+ _empty_/partialfun.20
+ "_empty_/partialfun.applyPartial().23
+ %_empty_/partialfun.applyPartial().[b]23
+ %_empty_/partialfun.applyPartial().(f)2$
+ (scala/PartialFunction#2
+) /scala/Option#2"
+0 6scala/Predef.String#23
+9 :%_empty_/partialfun.applyPartial().[b]23
+= >%_empty_/partialfun.applyPartial().(x)2
+@ Fscala/Option#2"
+G Mscala/Predef.String#22
+
+ $scala/PartialFunction#isDefinedAt().23
+ 	%_empty_/partialfun.applyPartial().(f)23
+ %_empty_/partialfun.applyPartial().(x)2&
+ scala/Function1#apply().23
+ %_empty_/partialfun.applyPartial().(f)23
+ %_empty_/partialfun.applyPartial().(x)20
+ "_empty_/partialfun.applyPartial().2
+ local02#
+ scala/Some.unapply().2
+	 scala/Some.2
+ local12
+ local12
+	 scala/None.2*
+% %scala/MatchError#`<init>`().2
+ %scala/MatchError#2
+& *scala/None.2
+ 	scala/None.PZ BBEB0F18251041A7B88B70575BF8F360

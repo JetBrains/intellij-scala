@@ -1,0 +1,35 @@
+
+¶	tests/pos/i7745.scala*
+
+_empty_/F#*F€*'
+_empty_/F#`<init>`(). €@*<init>€*
+_empty_/F#[x]	*x€*(
+_empty_/i7745$package. *_empty_€**
+_empty_/i7745$package.foo().  *foo€*)
+_empty_/i7745$package.foo().[f]	*f€*)
+_empty_/i7745$package.foo().[y]	*y€*)
+_empty_/i7745$package.foo().[x]	*x€*-
+ _empty_/i7745$package.foo().(ev)  *ev€*+
+_empty_/i7745$package.test. €*test€2
+ 
+_empty_/F#2
+ _empty_/F#`<init>`().2
+ 	_empty_/F#[x]2 
+_empty_/i7745$package.2*
+ _empty_/i7745$package.foo().2-
+ _empty_/i7745$package.foo().[f]2-
+ _empty_/i7745$package.foo().[y]2-
+ _empty_/i7745$package.foo().[x]2-
+  _empty_/i7745$package.foo().[f]2-
+! "_empty_/i7745$package.foo().[y]2.
+. 0 _empty_/i7745$package.foo().(ev)2
+2 3
+_empty_/F#2-
+4 5_empty_/i7745$package.foo().[y]2
+9 :
+_empty_/F#2-
+; <_empty_/i7745$package.foo().[x]2#
+@ Cscala/Predef.`???`().2)
+ _empty_/i7745$package.test.2(
+ scala/Predef.implicitly().2'
+ scala/Predef.$conforms().PZ 4AF127F7CBBE35262C61251E624FA50C

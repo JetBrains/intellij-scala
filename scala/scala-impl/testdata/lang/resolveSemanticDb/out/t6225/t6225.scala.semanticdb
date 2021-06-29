@@ -1,0 +1,48 @@
+
+í	tests/pos/t6225.scala*
+library/x/X#*X€*)
+library/x/X#`<init>`(). €@*<init>€*
+library/x/X#Foo#*Foo€*-
+library/x/X#Foo#`<init>`(). €@*<init>€*
+library/x/X#foo.  *foo€*
+library/y/package. *y€*
+_empty_/ko.
+ *ko€*
+_empty_/ko2.
+ *ko2€2
+ 
+library/x/2
+ library/2
+ 	library/x/X#2%
+ library/x/X#`<init>`().2
+
+ library/x/X#Foo#2)
+ library/x/X#Foo#`<init>`().2
+ library/x/X#foo.2
+ library/x/X#Foo#2)
+# #library/x/X#Foo#`<init>`().2
+  #library/x/X#Foo#2
+ library/2 
+ library/y/package.2%
+& &library/x/X#`<init>`().2
+% &library/x/X#2
+# $
+library/x/2
+ "library/2
+ 	_empty_/ko.2
+ library/x/X#Foo#2
+ library/x/X#foo.2
+ 
+library/y/2
+	 library/2(
+ scala/Predef.implicitly().2
+ library/x/X#Foo#2
+ library/x/X#foo.2
+ 
+_empty_/ko2.2
+ 
+library/y/2
+	 library/2(
+ scala/Predef.implicitly().2
+ library/x/X#Foo#2
+ library/x/X#foo.PZ C27E786CBAE73D4F54A26EA19980DAD5

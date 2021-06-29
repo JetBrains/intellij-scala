@@ -1,0 +1,207 @@
+
+ï1&tests/pos/opaque-immutable-array.scala*
+_empty_/ia.
+ *ia€*!
+_empty_/ia.IArray#*IArray€*!
+_empty_/ia.IArray#[A1]	*A1€*#
+_empty_/ia.IArray.
+ *IArray€*(
+_empty_/ia.IArray.apply().*apply€*'
+_empty_/ia.IArray.apply().[A]	*A€*)
+_empty_/ia.IArray.apply().(xs)*xs€*2
+_empty_/ia.IArray.initialize().*
+initialize€*,
+"_empty_/ia.IArray.initialize().[A]	*A€*2
+%_empty_/ia.IArray.initialize().(body)*body€*&
+_empty_/ia.IArray.size().*size€*&
+_empty_/ia.IArray.size().[A]	*A€*(
+_empty_/ia.IArray.size().(ia)*ia€*$
+_empty_/ia.IArray.get().*get€*%
+_empty_/ia.IArray.get().[A]	*A€*'
+_empty_/ia.IArray.get().(ia)*ia€*%
+_empty_/ia.IArray.get().(i)*i€**
+_empty_/ia.IArray.sorted().*sorted€*(
+_empty_/ia.IArray.sorted().[A]	*A€**
+_empty_/ia.IArray.sorted().(ia)*ia€*
+local0 €*arr€*6
+!_empty_/ia.IArray.binarySearch().*binarySearch€*0
+%_empty_/ia.IArray.binarySearch().(ia)*ia€*4
+'_empty_/ia.IArray.binarySearch().(elem)*elem€*1
+_empty_/ia.binaryIndexOf().*binaryIndexOf€**
+_empty_/ia.binaryIndexOf().(ia)*ia€*.
+!_empty_/ia.binaryIndexOf().(elem)*elem€*
+local1 €*lower€*
+local2 €*upper€*
+local3 €*middle€*
+local4 €*n€2
+ 	_empty_/ia.2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2
+ scala/reflect/2
+	 scala/2
+ java/util/Arrays#2
+ 
+java/util/2
+	 java/2 
+ _empty_/ia.IArray#2$
+ _empty_/ia.IArray#[A1]2
+  scala/Array#2$
+! #_empty_/ia.IArray#[A1]2 
+	 _empty_/ia.IArray.2(
+ _empty_/ia.IArray.apply().2+
+ _empty_/ia.IArray.apply().[A]2,
+ _empty_/ia.IArray.apply().(xs)2+
+  _empty_/ia.IArray.apply().[A]2%
+ scala/reflect/ClassTag#2+
+ _empty_/ia.IArray.apply().[A]2-
+% /_empty_/ia.IArray.initialize().2"
+5 5scala/Array.apply().2
+0 5scala/Array.2,
+6 8_empty_/ia.IArray.apply().(xs)2-
+		 _empty_/ia.IArray.initialize().20
+		 "_empty_/ia.IArray.initialize().[A]23
+		 %_empty_/ia.IArray.initialize().(body)2
+		 $scala/Array#20
+	%	 &"_empty_/ia.IArray.initialize().[A]2 
+	*	 0_empty_/ia.IArray#20
+	1	 2"_empty_/ia.IArray.initialize().[A]23
+	6	 :%_empty_/ia.IArray.initialize().(body)2'
+
+
+ _empty_/ia.IArray.size().2*
+
+
+ _empty_/ia.IArray.size().[A]2+
+
+
+ _empty_/ia.IArray.size().(ia)2 
+
+
+ _empty_/ia.IArray#2*
+
+
+ _empty_/ia.IArray.size().[A]2
+
+ 
+ #
+scala/Int#2#
+
+)
+ /scala/Array#length().2+
+
+&
+ (_empty_/ia.IArray.size().(ia)2&
+ _empty_/ia.IArray.get().2)
+ _empty_/ia.IArray.get().[A]2*
+ _empty_/ia.IArray.get().(ia)2 
+ _empty_/ia.IArray#2)
+ _empty_/ia.IArray.get().[A]2)
+ _empty_/ia.IArray.get().(i)2
+! $
+scala/Int#2)
+' (_empty_/ia.IArray.get().[A]2"
+- -scala/Array#apply().2*
++ -_empty_/ia.IArray.get().(ia)2)
+. /_empty_/ia.IArray.get().(i)2)
+ _empty_/ia.IArray.sorted().2,
+ _empty_/ia.IArray.sorted().[A]2
+ scala/AnyRef#2-
+, ._empty_/ia.IArray.sorted().(ia)2 
+0 6_empty_/ia.IArray#2,
+7 8_empty_/ia.IArray.sorted().[A]2"
+" *scala/math/Ordering#2
+ !scala/math/2,
+* *_empty_/ia.IArray.sorted().[A]2 
+< B_empty_/ia.IArray#2,
+C D_empty_/ia.IArray.sorted().[A]2
+
+ local02(
+ java/util/Arrays#copyOf().2
+ java/util/Arrays#2-
+  _empty_/ia.IArray.sorted().(ia)2#
+% +scala/Array#length().2-
+" $_empty_/ia.IArray.sorted().(ia)2/
+ "!scala/util/Sorting.quickSort(+3).2!
+ scala/util/Sorting.2
+ scala/util/2
+ scala/2
+# &local02
+ 	local02/
+ !_empty_/ia.IArray.binarySearch().23
+ %_empty_/ia.IArray.binarySearch().(ia)2 
+ _empty_/ia.IArray#2
+  $scala/Long#25
+' +'_empty_/ia.IArray.binarySearch().(elem)2
+- 1scala/Long#2
+4 7
+scala/Int#2.
+  java/util/Arrays#binarySearch().2
+ java/util/Arrays#23
+ %_empty_/ia.IArray.binarySearch().(ia)25
+ "'_empty_/ia.IArray.binarySearch().(elem)2&
+ 
+scala/Predef.assert(+1).2!
+  "scala/Int#`==`(+3).2'
+ _empty_/ia.IArray.size().2(
+ _empty_/ia.IArray.apply().2-
+ scala/reflect/ClassTag.apply().2&
+ 
+scala/Predef.assert(+1).2!
+! #scala/Int#`==`(+3).2'
+ _empty_/ia.IArray.size().2(
+ _empty_/ia.IArray.apply().2 
+ _empty_/ia.IArray.2-
+ scala/reflect/ClassTag.apply().2)
+!! _empty_/ia.binaryIndexOf().2-
+!! _empty_/ia.binaryIndexOf().(ia)2 
+!! _empty_/ia.IArray#2
+!! #scala/Long#2/
+!&! *!_empty_/ia.binaryIndexOf().(elem)2
+!,! 0scala/Long#2
+!3! 6
+scala/Int#2
+"" local12
+"" 
+scala/Int#2
+## local22
+## 
+scala/Int#2'
+##  _empty_/ia.IArray.size().2 
+## _empty_/ia.IArray.2-
+#!# #_empty_/ia.binaryIndexOf().(ia)2!
+$$ scala/Int#`<=`(+3).2
+$$ local12
+$$ local22
+%
+% local32 
+%#% &scala/Int#`>>>`().2 
+%% scala/Int#`+`(+4).2
+%% local12
+%% !local22
+&
+& local42&
+&& _empty_/ia.IArray.get().2 
+&& _empty_/ia.IArray.2-
+&& _empty_/ia.binaryIndexOf().(ia)2
+&& #local32"
+(( scala/Long#`==`(+4).2
+(
+( local42/
+(( !_empty_/ia.binaryIndexOf().(elem)2
+(( "local32)
+("( "_empty_/ia.binaryIndexOf().2!
+)) scala/Long#`<`(+4).2
+)) local42/
+)) !_empty_/ia.binaryIndexOf().(elem)2
+)) local12 
+)() )scala/Int#`+`(+4).2
+)!) 'local32
+** local22 
+** scala/Int#`-`(+3).2
+** local32 
+,, scala/Int#`-`(+3).2$
+,
+, 
+scala/Int#`unary_-`().2
+,, 
+local1PZ 859565128687CDD08ABB8EB49997D2C4

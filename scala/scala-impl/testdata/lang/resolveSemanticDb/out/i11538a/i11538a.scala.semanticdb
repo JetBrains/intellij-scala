@@ -1,0 +1,62 @@
+
+Ùtests/pos/i11538a.scala*
+
+a/Printer#*Printer€*'
+a/Printer#`<init>`(). €@*<init>€*
+a/Printer#[A]	*A€*"
+a/Printer#print(). *print€*
+a/Printer#print().(a)*a€*
+a/i11538a$package. *a€*F
+'a/i11538a$package.given_Printer_String.
+ (*given_Printer_String€*=
+/a/i11538a$package.given_Printer_String.print().*print€*<
+2a/i11538a$package.given_Printer_String.print().(s)*s€*
+b/test.
+ *test€*9
+b/test.summonStringPrinter().*summonStringPrinter€*&
+local0  *given_Printer_String€*$
+b/test.summoned. €*summoned€*,
+b/test.summonedFrom. €*summonedFrom€2
+ 	a/2
+ 
+a/Printer#2#
+ a/Printer#`<init>`().2
+ a/Printer#[A]2 
+ a/Printer#print().2#
+ a/Printer#print().(a)2
+ a/Printer#[A]2
+ scala/Unit#2 
+ a/i11538a$package.25
+ 'a/i11538a$package.given_Printer_String.2
+ 
+a/Printer#2"
+ scala/Predef.String#2=
+ /a/i11538a$package.given_Printer_String.print().2@
+ 2a/i11538a$package.given_Printer_String.print().(s)2"
+ scala/Predef.String#2'
+ "scala/Predef.println(+1).2@
+# $2a/i11538a$package.given_Printer_String.print().(s)2
+ 	b/2
+
+	
+ 
+a/2
+	 b/test.28
+ #*scala/compiletime/package$package.error().2=
+% //scala/compiletime/package$package.summonFrom().2 
+ scala/compiletime/2
+ scala/2+
+ "b/test.summonStringPrinter().2
+ local02
+ 
+a/Printer#2"
+ !scala/Predef.String#28
+ *scala/compiletime/package$package.error().2
+ b/test.summoned.2$
+ scala/Predef.summon().2
+ !
+a/Printer#2"
+" (scala/Predef.String#25
+* *'a/i11538a$package.given_Printer_String.2"
+ b/test.summonedFrom.2+
+ *b/test.summonStringPrinter().PZ F7669B4E3993071787F4960FA4E5C843

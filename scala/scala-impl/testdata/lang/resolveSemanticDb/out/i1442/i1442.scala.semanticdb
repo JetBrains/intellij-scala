@@ -1,0 +1,114 @@
+
+œtests/pos/i1442.scala*$
+_empty_/Test1442.
+ *Test1442€*7
+ _empty_/Test1442.sumMinimized(). *sumMinimized€*-
+#_empty_/Test1442.sumMinimized().[B]	*B€*1
+%_empty_/Test1442.sumMinimized().(num)*num€*
+local0 €*cse€*%
+_empty_/Test1442.sum(). *sum€*$
+_empty_/Test1442.sum().[B]	*B€**
+_empty_/Test1442.sum().(num)  *num€*
+local1 €*cse€2
+ _empty_/Test1442.2.
+  _empty_/Test1442.sumMinimized().21
+ #_empty_/Test1442.sumMinimized().[B]23
+ %_empty_/Test1442.sumMinimized().(num)2$
+! (scala/package.Numeric#21
+) *#_empty_/Test1442.sumMinimized().[B]2
+. 1
+scala/Int#2
+
+ local02!
+ !scala/math/Numeric.2
+ scala/math/2
+ scala/2'
+. :scala/Any#asInstanceOf().2!
+F Mscala/math/Numeric.2
+A Escala/math/2
+; @scala/2#
+< >scala/Boolean#`||`().2
+ local02!
+  scala/math/Numeric.2
+ scala/math/2
+ scala/2$
+& (java/lang/Object#eq().23
+" %%_empty_/Test1442.sumMinimized().(num)2/
+- :!scala/math/Numeric.IntIsIntegral.2
+) ,local02$
+ java/lang/Object#eq().23
+ %_empty_/Test1442.sumMinimized().(num)28
+ 1*scala/math/Numeric.BigDecimalAsIfIntegral.2
+ local02%
+ _empty_/Test1442.sum().2(
+ _empty_/Test1442.sum().[B]2*
+ _empty_/Test1442.sum().(num)2$
+! (scala/package.Numeric#2(
+) *_empty_/Test1442.sum().[B]2(
+. /_empty_/Test1442.sum().[B]2
+
+
+ local12!
+
+
+ "scala/math/Numeric.2
+
+
+ scala/math/2
+
+
+ scala/2'
+
+/
+ ;scala/Any#asInstanceOf().2!
+
+G
+ Nscala/math/Numeric.2
+
+B
+ Fscala/math/2
+
+<
+ Ascala/2#
+* ,scala/Boolean#`||`().2#
+* ,scala/Boolean#`||`().2#
+* ,scala/Boolean#`||`().2#
++ -scala/Boolean#`||`().2#
+, .scala/Boolean#`||`().2#
+? Ascala/Boolean#`||`().2
+ local12!
+ $scala/math/Numeric.2
+ scala/math/2
+ scala/2$
+* ,java/lang/Object#eq().2*
+& )_empty_/Test1442.sum().(num)2/
+1 >!scala/math/Numeric.IntIsIntegral.2
+- 0local12$
+ java/lang/Object#eq().2*
+ _empty_/Test1442.sum().(num)22
+ +$scala/math/Numeric.BigIntIsIntegral.2
+ local12$
+ java/lang/Object#eq().2*
+ _empty_/Test1442.sum().(num)21
+ *#scala/math/Numeric.ShortIsIntegral.2
+ local12$
+ java/lang/Object#eq().2*
+ _empty_/Test1442.sum().(num)20
+ )"scala/math/Numeric.ByteIsIntegral.2
+ local12$
+ java/lang/Object#eq().2*
+ _empty_/Test1442.sum().(num)20
+ )"scala/math/Numeric.CharIsIntegral.2
+ local12$
+ java/lang/Object#eq().2*
+ _empty_/Test1442.sum().(num)20
+ )"scala/math/Numeric.LongIsIntegral.2
+ local12$
+ java/lang/Object#eq().2*
+ _empty_/Test1442.sum().(num)28
+ 1*scala/math/Numeric.BigDecimalIsFractional.2
+ local12'
+ scala/Any#asInstanceOf().2(
+ _empty_/Test1442.sum().[B]2'
+ scala/Any#asInstanceOf().2(
+  _empty_/Test1442.sum().[B]PZ 2B94B60109D962DD376EDF514926B2C5

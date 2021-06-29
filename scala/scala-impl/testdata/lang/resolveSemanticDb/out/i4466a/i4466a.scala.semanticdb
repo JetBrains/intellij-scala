@@ -1,0 +1,45 @@
+
+»
+tests/pos/i4466a.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*"
+_empty_/Foo#apply().*apply€*%
+_empty_/Foo#apply().(bar)*bar€*$
+_empty_/Foo#apply(+1).*apply€*#
+_empty_/Foo#apply(+1).(i)*i€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*$
+_empty_/Bar#`<init>`().(x)*x€*
+_empty_/Bar#[X]	*X€*
+_empty_/Bar#x. €*x€*
+_empty_/Main#*Main€**
+_empty_/Main#`<init>`(). €@*<init>€* 
+_empty_/Main#foo. €*foo€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2"
+ _empty_/Foo#apply().2'
+ _empty_/Foo#apply().(bar)2
+ _empty_/Bar#2
+ 
+scala/Int#2
+  scala/Unit#2$
+ _empty_/Foo#apply(+1).2'
+ _empty_/Foo#apply(+1).(i)2
+ 
+scala/Int#2
+ scala/Unit#2
+ 	_empty_/Bar#2%
+	 	_empty_/Bar#`<init>`().2
+ _empty_/Bar#[X]2
+
+ _empty_/Bar#[X]2
+ _empty_/Bar#x.2
+ 
+_empty_/Main#2&
+ _empty_/Main#`<init>`().2
+ 	_empty_/Main#foo.2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2"
+		 _empty_/Foo#apply().2
+		 _empty_/Main#foo.2%
+		 _empty_/Bar#`<init>`().PZ A788DE2ABB62A563DF14B004D254832B

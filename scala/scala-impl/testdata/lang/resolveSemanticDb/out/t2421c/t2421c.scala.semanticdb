@@ -1,0 +1,73 @@
+
+×tests/pos/t2421c.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.F#*F€*,
+_empty_/Test.F#`<init>`(). €@*<init>€*
+_empty_/Test.F#[X]	*X€*
+_empty_/Test.f().*f€*"
+_empty_/Test.f().(aa)  *aa€*
+_empty_/Test.a().  *a€*
+_empty_/Test.G#*G€*,
+_empty_/Test.G#`<init>`(). €@*<init>€*
+_empty_/Test.G#[X]	*X€*
+_empty_/Test.g().  *g€*
+_empty_/Test.g().[X]	*X€*
+_empty_/Test.b().  *b€*
+_empty_/Test.b().[X]	*X€*"
+_empty_/Test.b().(mx)  *mx€2
+ _empty_/Test.2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ 	_empty_/Test.F#2(
+	 	_empty_/Test.F#`<init>`().2 
+
+ _empty_/Test.F#[X]2
+ _empty_/Test.f().2#
+ _empty_/Test.f().(aa)2
+ _empty_/Test.F#2
+ _empty_/Test.A#2'
+ $scala/Predef.println(+1).2#
+% '_empty_/Test.f().(aa)2
+ _empty_/Test.a().2
+ _empty_/Test.F#2
+ _empty_/Test.A#2(
+" "_empty_/Test.F#`<init>`().2
+ _empty_/Test.F#2
+  !_empty_/Test.A#2
+ 	_empty_/Test.G#2(
+	 	_empty_/Test.G#`<init>`().2 
+
+ _empty_/Test.G#[X]2
+ _empty_/Test.g().2"
+ _empty_/Test.g().[X]2
+ _empty_/Test.G#2
+ _empty_/Test.2"
+ _empty_/Test.g().[X]2(
+) )_empty_/Test.G#`<init>`().2
+% &_empty_/Test.G#2"
+' (_empty_/Test.g().[X]2
+ _empty_/Test.b().2"
+ _empty_/Test.b().[X]2
+ _empty_/Test.B#2#
+" $_empty_/Test.b().(mx)2
+& '_empty_/Test.G#2"
+( )_empty_/Test.b().[X]2
+2 3_empty_/Test.F#2
+- 1_empty_/Test.2"
+4 5_empty_/Test.b().[X]2(
+A A_empty_/Test.F#`<init>`().2
+= >_empty_/Test.F#2"
+? @_empty_/Test.b().[X]2
+ _empty_/Test.f().2
+ _empty_/Test.a().PZ 67099F3E1F113659309CAE93617F63DD

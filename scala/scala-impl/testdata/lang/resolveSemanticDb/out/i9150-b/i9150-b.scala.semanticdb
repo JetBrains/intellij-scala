@@ -1,0 +1,24 @@
+
+õtests/pos/i9150-b.scala*,
+_empty_/`i9150-b$package`. *_empty_€**
+_empty_/`i9150-b$package`.Foo#*Foo€*,
+_empty_/`i9150-b$package`.Foo.
+ *Foo€*8
+&_empty_/`i9150-b$package`.fooErased().*	fooErased€*3
+)_empty_/`i9150-b$package`.fooErased().[T]	*T€*)
+_empty_/`i9150-b$package`.f. €*f€2:
+ $0scala/compiletime/package$package.erasedValue().2
+ scala/compiletime/2
+ scala/2$
+_empty_/`i9150-b$package`.2,
+ _empty_/`i9150-b$package`.Foo#2,
+ _empty_/`i9150-b$package`.Foo.2,
+ 
+_empty_/`i9150-b$package`.Foo.24
+ &_empty_/`i9150-b$package`.fooErased().27
+ )_empty_/`i9150-b$package`.fooErased().[T]2>
+! ,0scala/compiletime/package$package.erasedValue().27
+- .)_empty_/`i9150-b$package`.fooErased().[T]2*
+ _empty_/`i9150-b$package`.f.24
+ &_empty_/`i9150-b$package`.fooErased().2,
+ _empty_/`i9150-b$package`.Foo#PZ A0D16BB6CC4B9B0B04900CA95FDFC1E4

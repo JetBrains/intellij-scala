@@ -1,0 +1,18 @@
+
+ý#tests/pos/t6976/ImplicitBug_2.scala* 
+_empty_/Support#*Support€*-
+_empty_/Support#`<init>`(). €@*<init>€*,
+_empty_/ImplicitsBug.
+ *ImplicitsBug€2
+ _empty_/Support#2%
+ _empty_/Support#`<init>`().2
+ _empty_/Exts#2#
+ _empty_/ImplicitsBug.2
+ 
+scala/App#2
+% )_empty_/Exts#2'
+ 	scala/Predef.println(+1).2)
+ _empty_/Exts.AnyExts#moo().2%
+
+ 
+_empty_/Exts#AnyExts().PZ 9EE5138C6F41EA08F524F1D8C48314CF

@@ -1,0 +1,47 @@
+
+€
+tests/pos/i9109.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#foo().*foo€*
+_empty_/A#foo().[T]	*T€*
+_empty_/A#foo().(x)*x€*
+_empty_/A#foo(+1).*foo€*
+_empty_/A#foo(+1).[T]	*T€*
+_empty_/A#foo(+1).(x)*x€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#foo().*foo€*
+_empty_/B#foo().[T]	*T€*
+_empty_/B#foo().(x)*x€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#foo().2!
+
+ _empty_/A#foo().[T]2)
+ scala/package.Serializable#2!
+ _empty_/A#foo().(x)2!
+  !_empty_/A#foo().[T]2
+$ (scala/Unit#2 
+ 	_empty_/A#foo(+1).2#
+
+ _empty_/A#foo(+1).[T]2&
+ scala/package.Cloneable#2#
+ _empty_/A#foo(+1).(x)2#
+ _empty_/A#foo(+1).[T]2
+! %scala/Unit#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#foo().2!
+ _empty_/B#foo().[T]2)
+ $scala/package.Serializable#2!
+& '_empty_/B#foo().(x)2!
+) *_empty_/B#foo().[T]2
+- 1scala/Unit#PZ 8786B602E8523B87E9198BAE5C26AD59

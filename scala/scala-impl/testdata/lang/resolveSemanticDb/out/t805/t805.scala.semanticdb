@@ -1,0 +1,52 @@
+
+·tests/pos/t805.scala*&
+_empty_/MatcherYYY#*
+MatcherYYY€*0
+_empty_/MatcherYYY#`<init>`(). €@*<init>€*-
+_empty_/MatcherYYY#NodeImpl#*NodeImpl€*9
+'_empty_/MatcherYYY#NodeImpl#`<init>`(). €@*<init>€*/
+_empty_/MatcherYYY#Matchable#*	Matchable€*:
+(_empty_/MatcherYYY#Matchable#`<init>`(). €@*<init>€*7
+'_empty_/MatcherYYY#Matchable#doMatch().*doMatch€*0
+_empty_/BraceMatcherXXX#*BraceMatcherXXX€*5
+#_empty_/BraceMatcherXXX#`<init>`(). €@*<init>€*4
+"_empty_/BraceMatcherXXX#NodeImpl2#*	NodeImpl2€*?
+-_empty_/BraceMatcherXXX#NodeImpl2#`<init>`(). €@*<init>€*>
+,_empty_/BraceMatcherXXX#NodeImpl2#doMatch(). *doMatch€*C
+4_empty_/BraceMatcherXXX#NodeImpl2#doMatch().(braces)*braces€*4
+"_empty_/BraceMatcherXXX#BracePair#*	BracePair€*?
+-_empty_/BraceMatcherXXX#BracePair#`<init>`(). €@*<init>€*>
+,_empty_/BraceMatcherXXX#BracePair#BraceImpl#*	BraceImpl€*I
+7_empty_/BraceMatcherXXX#BracePair#BraceImpl#`<init>`(). €@*<init>€*F
+6_empty_/BraceMatcherXXX#BracePair#BraceImpl#doMatch().*doMatch€2
+ _empty_/MatcherYYY#2,
+ _empty_/MatcherYYY#`<init>`().2*
+ _empty_/MatcherYYY#NodeImpl#25
+ '_empty_/MatcherYYY#NodeImpl#`<init>`().2+
+ _empty_/MatcherYYY#Matchable#26
+ (_empty_/MatcherYYY#Matchable#`<init>`().2*
+ "_empty_/MatcherYYY#NodeImpl#25
+ '_empty_/MatcherYYY#Matchable#doMatch().2
+  scala/Unit#2&
+ _empty_/BraceMatcherXXX#21
+ #_empty_/BraceMatcherXXX#`<init>`().2!
+ (_empty_/MatcherYYY#20
+ "_empty_/BraceMatcherXXX#NodeImpl2#2;
+ -_empty_/BraceMatcherXXX#NodeImpl2#`<init>`().2*
+  (_empty_/MatcherYYY#NodeImpl#2:
+ ,_empty_/BraceMatcherXXX#NodeImpl2#doMatch().2B
+ 4_empty_/BraceMatcherXXX#NodeImpl2#doMatch().(braces)20
+ $"_empty_/BraceMatcherXXX#BracePair#2
+( ,scala/Unit#20
+
+
+ "_empty_/BraceMatcherXXX#BracePair#2;
+ -_empty_/BraceMatcherXXX#BracePair#`<init>`().2:
+
+ ,_empty_/BraceMatcherXXX#BracePair#BraceImpl#2E
+ 7_empty_/BraceMatcherXXX#BracePair#BraceImpl#`<init>`().20
+ %"_empty_/BraceMatcherXXX#NodeImpl2#2+
++ 4_empty_/MatcherYYY#Matchable#2D
+ 6_empty_/BraceMatcherXXX#BracePair#BraceImpl#doMatch().2
+ !scala/Unit#25
+ '_empty_/MatcherYYY#Matchable#doMatch().PZ 0CC979E0BACD3E8E7D15A88DE2A731B0

@@ -1,0 +1,95 @@
+
+·&tests/pos/class-gadt/inheritance.scala**
+_empty_/inheritance.
+ *inheritanceÄ*(
+_empty_/inheritance.SUB# îÄ*SUBÄ*5
+#_empty_/inheritance.SUB#`<init>`(). Ä@*<init>Ä*(
+_empty_/inheritance.SUB#[A]	 Ä*AÄ*(
+_empty_/inheritance.SUB#[B]	 Ä*BÄ*&
+_empty_/inheritance.SUB.
+ *SUBÄ*.
+_empty_/inheritance.SUB.Refl# àÅ*ReflÄ*:
+(_empty_/inheritance.SUB.Refl#`<init>`(). Ä@*<init>Ä**
+ _empty_/inheritance.SUB.Refl#[S]	*SÄ*1
+$_empty_/inheritance.SUB.Refl#copy().*copyÄ*1
+'_empty_/inheritance.SUB.Refl#copy().[S]	*SÄ*7
+'_empty_/inheritance.SUB.Refl#ordinal().*ordinalÄ*,
+_empty_/inheritance.SUB.Refl.
+ *ReflÄ*3
+%_empty_/inheritance.SUB.Refl.apply().*applyÄ*2
+(_empty_/inheritance.SUB.Refl.apply().[S]	*SÄ*7
+'_empty_/inheritance.SUB.Refl.unapply().*unapplyÄ*4
+*_empty_/inheritance.SUB.Refl.unapply().[S]	*SÄ*8
+,_empty_/inheritance.SUB.Refl.unapply().(x$1)*x$1Ä*9
+(_empty_/inheritance.SUB.Refl.toString().*toStringÄ*:
+&_empty_/inheritance.SUB.fromOrdinal().*fromOrdinalÄ*?
+/_empty_/inheritance.SUB.fromOrdinal().(ordinal)*ordinalÄ* 
+_empty_/inheritance.A#*AÄ*3
+!_empty_/inheritance.A#`<init>`(). Ä@*<init>Ä*1
+$_empty_/inheritance.A#`<init>`().(v) Ä*vÄ*#
+_empty_/inheritance.A#[T]	*TÄ*%
+_empty_/inheritance.A#v. Ä*vÄ*+
+_empty_/inheritance.A#foo1. Ä*foo1Ä* 
+_empty_/inheritance.C#*CÄ*3
+!_empty_/inheritance.C#`<init>`(). Ä@*<init>Ä*3
+%_empty_/inheritance.C#`<init>`().(v1) Ä*v1Ä*#
+_empty_/inheritance.C#[T]	*TÄ*'
+_empty_/inheritance.C#v1. Ä*v1Ä*,
+_empty_/inheritance.C#eval1().*eval1Ä*+
+!_empty_/inheritance.C#eval1().(t)*tÄ*+
+!_empty_/inheritance.C#eval1().(e)*eÄ2
+ _empty_/inheritance.2&
+ _empty_/inheritance.SUB#21
+ #_empty_/inheritance.SUB#`<init>`().2)
+
+ _empty_/inheritance.SUB#[A]2)
+ _empty_/inheritance.SUB#[B]2&
+ _empty_/inheritance.SUB.2+
+ 	_empty_/inheritance.SUB.Refl#26
+	 	(_empty_/inheritance.SUB.Refl#`<init>`().21
+   #_empty_/inheritance.SUB#`<init>`().2&
+ _empty_/inheritance.SUB#2.
+  _empty_/inheritance.SUB.Refl#[S]2.
+  _empty_/inheritance.SUB.Refl#[S]2.
+
+  _empty_/inheritance.SUB.Refl#[S]2.
+$_empty_/inheritance.SUB.Refl#copy().2+
+ _empty_/inheritance.SUB.Refl.2/
+%_empty_/inheritance.SUB.Refl.apply().21
+'_empty_/inheritance.SUB.Refl.unapply().2$
+ _empty_/inheritance.A#2/
+ !_empty_/inheritance.A#`<init>`().2'
+ _empty_/inheritance.A#[T]2'
+ 	_empty_/inheritance.A#[T]2&
+ _empty_/inheritance.A#v.2)
+ _empty_/inheritance.A#foo1.2'
+
+ _empty_/inheritance.A#[T]2&
+ _empty_/inheritance.A#v.2$
+ _empty_/inheritance.C#2/
+ !_empty_/inheritance.C#`<init>`().2'
+ _empty_/inheritance.C#[T]2/
+" "!_empty_/inheritance.A#`<init>`().2$
+ _empty_/inheritance.A#2'
+  !_empty_/inheritance.C#[T]2'
+# %_empty_/inheritance.C#v1.2'
+ 	_empty_/inheritance.C#[T]2'
+ _empty_/inheritance.C#v1.2,
+		 	_empty_/inheritance.C#eval1().2/
+	
+	 !_empty_/inheritance.C#eval1().(t)2'
+		 _empty_/inheritance.C#[T]2/
+		 !_empty_/inheritance.C#eval1().(e)2&
+		 _empty_/inheritance.SUB#2'
+		 _empty_/inheritance.C#[T]2
+		 
+scala/Int#2
+	!	 $
+scala/Int#2-
+
+
+ !_empty_/inheritance.C#eval1().(e)25
+ '_empty_/inheritance.SUB.Refl.unapply().2+
+	 _empty_/inheritance.SUB.Refl.2&
+ _empty_/inheritance.SUB.2)
+ _empty_/inheritance.A#foo1.PZ 6BC5D541AE7A59924E3899017B483623

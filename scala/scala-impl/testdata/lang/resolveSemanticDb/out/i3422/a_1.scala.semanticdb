@@ -1,0 +1,27 @@
+
+Ãtests/pos/i3422/a_1.scala*
+_empty_/Fun#*Fun€*)
+_empty_/Fun#`<init>`(). €@*<init>€*
+_empty_/Fun#[L]	*L€*
+_empty_/O1.
+ *O1€*
+_empty_/O1.N#*N€**
+_empty_/O1.N#`<init>`(). €@*<init>€*
+_empty_/O1.N#[X]	*X€*
+_empty_/O2.
+ *O2€*
+_empty_/O2.bar().*bar€2
+ 	_empty_/Fun#2!
+	 	_empty_/Fun#`<init>`().2
+
+ _empty_/Fun#[L]2
+ 	_empty_/O1.2
+ 	_empty_/O1.N#2&
+	 	_empty_/O1.N#`<init>`().2
+
+ _empty_/O1.N#[X]2
+ 	_empty_/O2.2
+ 	_empty_/O2.bar().2
+ _empty_/Fun#2
+ _empty_/O1.2#
+ scala/Predef.`???`().PZ A60226878D8E770882C7BFD01BACBF38

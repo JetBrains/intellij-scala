@@ -1,0 +1,152 @@
+
+þ!tests/pos/i0290-type-bind-2.scala*
+_empty_/foo.
+ *foo€*
+_empty_/foo.x. €*x€*
+local0 €*t€*
+local1 €	*tt€*
+_empty_/bar.
+ *bar€*
+_empty_/bar.C#*C€*+
+_empty_/bar.C#`<init>`(). €@*<init>€*
+_empty_/bar.C#[T]	*T€*
+_empty_/bar.x. €*x€*
+local2 €*x€*
+local3 €	*u€*
+local4*x€*
+local5 €*s€*
+_empty_/foo2.
+ *foo2€*
+local6 €*x€*
+local7 €*t€*
+local8 €	*tt€*
+_empty_/bar2.
+ *bar2€*
+local9*C€*
+local10	*T€*
+local11 €*x€*
+local12 €*x€*
+local13 €	*u€*
+local14*x€*
+local15 €*s€*
+_empty_/foo3.
+ *foo3€*
+_empty_/foo3.x0. €*x0€*
+local16 €*x€*
+local17 €*t€*
+local18 €	*tt€*
+_empty_/bar3.
+ *bar3€*
+_empty_/bar3.f0().*f0€*
+local19*C€*
+local20	*T€*
+local21 €*x€*
+local22 €*x€*
+local23 €	*u€*
+local24*x€*
+local25 €*s€2
+ 
+_empty_/foo.2
+ _empty_/foo.x.27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2
+ _empty_/foo.x.2
+	 
+local02!
+ scala/package.List#2
+ local12'
+ +scala/Any#asInstanceOf().22
+ $scala/collection/IterableOps#head().2
+ local02
+, .local12
+ 
+_empty_/bar.2
+		 	_empty_/bar.C#2'
+			 	_empty_/bar.C#`<init>`().2
+	
+	 _empty_/bar.C#[T]2
+ _empty_/bar.x.2
+	 scala/AnyRef#2'
+ _empty_/bar.C#`<init>`().2
+ _empty_/bar.x.2
+	 
+local22
+ _empty_/bar.C#2
+ local32
+
+ local42
+ local32
+ local42
+
+ local52 
+ scala/package.Seq#2
+ local42
+ _empty_/foo2.2
+ local627
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2
+ local62
+	 
+local72!
+ scala/package.List#2
+ local82'
+ +scala/Any#asInstanceOf().22
+ $scala/collection/IterableOps#head().2
+ local72
+, .local82
+ _empty_/bar2.2
+ 	local92
+
+ local102
+ local112
+	 scala/AnyRef#2
+!! local112
+"	" 
+local122
+"" local92
+"" local132
+#
+# local142
+## local132
+## local142
+$
+$ local152 
+$$ scala/package.Seq#2
+$$ local142
+(( _empty_/foo3.2
+(( _empty_/foo3.x0.2
+)) local1627
+)) )scala/collection/IterableFactory#apply().2!
+)
+) scala/package.List.2
+** local162
++	+ 
+local172!
+++ scala/package.List#2
+++ local182'
+++ +scala/Any#asInstanceOf().22
+++ $scala/collection/IterableOps#head().2
+++ local172
++,+ .local182
+// _empty_/bar3.2 
+// _empty_/bar3.f0().2
+11 	local192
+1
+1 local202
+33 local212
+3	3 scala/AnyRef#2
+55 local212
+6	6 
+local222
+66 local192
+66 local232
+7
+7 local242
+77 local232
+77 local242
+8
+8 local252 
+88 scala/package.Seq#2
+88 local24PZ 829F0976F206DFA97780F87AFCFAF2E7

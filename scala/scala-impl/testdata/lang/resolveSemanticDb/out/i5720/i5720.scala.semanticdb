@@ -1,0 +1,426 @@
+
+ïxtests/pos/i5720.scala*
+_empty_/AUnit#*AUnit€*+
+_empty_/AUnit#`<init>`(). €@*<init>€*
+_empty_/AUnit#[B]	*B€*"
+_empty_/ABoolean#*ABoolean€*.
+_empty_/ABoolean#`<init>`(). €@*<init>€*
+_empty_/ABoolean#[B]	*B€*
+_empty_/AByte#*AByte€*+
+_empty_/AByte#`<init>`(). €@*<init>€*
+_empty_/AByte#[B]	*B€*
+_empty_/AChar#*AChar€*+
+_empty_/AChar#`<init>`(). €@*<init>€*
+_empty_/AChar#[B]	*B€*
+_empty_/AShort#*AShort€*,
+_empty_/AShort#`<init>`(). €@*<init>€*
+_empty_/AShort#[B]	*B€*
+_empty_/AInt#*AInt€**
+_empty_/AInt#`<init>`(). €@*<init>€*
+_empty_/AInt#[B]	*B€*
+_empty_/ALong#*ALong€*+
+_empty_/ALong#`<init>`(). €@*<init>€*
+_empty_/ALong#[B]	*B€*
+_empty_/AFloat#*AFloat€*,
+_empty_/AFloat#`<init>`(). €@*<init>€*
+_empty_/AFloat#[B]	*B€* 
+_empty_/ADouble#*ADouble€*-
+_empty_/ADouble#`<init>`(). €@*<init>€*
+_empty_/ADouble#[B]	*B€* 
+_empty_/ValClU# *ValClU€*,
+_empty_/ValClU#`<init>`(). €@*<init>€**
+_empty_/ValClU#`<init>`().(i) €*i€*
+_empty_/ValClU#i. €*i€* 
+_empty_/ValClU.
+ *ValClU€* 
+_empty_/AValClU#*AValClU€*-
+_empty_/AValClU#`<init>`(). €@*<init>€*
+_empty_/AValClU#[B]	*B€* 
+_empty_/ValClI# *ValClI€*,
+_empty_/ValClI#`<init>`(). €@*<init>€**
+_empty_/ValClI#`<init>`().(i) €*i€*
+_empty_/ValClI#i. €*i€* 
+_empty_/ValClI.
+ *ValClI€* 
+_empty_/AValClI#*AValClI€*-
+_empty_/AValClI#`<init>`(). €@*<init>€*
+_empty_/AValClI#[B]	*B€**
+opaquetypes/package. *opaquetypes€*0
+opaquetypes/package.Logarithm#*	Logarithm€*2
+opaquetypes/package.Logarithm.
+ *	Logarithm€*<
+)opaquetypes/package.Logarithm.ALogarithm#*
+ALogarithm€*F
+4opaquetypes/package.Logarithm.ALogarithm#`<init>`(). €@*<init>€*6
+,opaquetypes/package.Logarithm.ALogarithm#[B]	*B€*0
+#opaquetypes/package.Logarithm.ALog#*ALog€*0
+&opaquetypes/package.Logarithm.ALog#[x]	*x€*2
+$opaquetypes/package.Logarithm.ALogD#*ALogD€*1
+'opaquetypes/package.Logarithm.ALogD#[x]	*x€*2
+$opaquetypes/package.Logarithm.ALogN#*ALogN€*1
+'opaquetypes/package.Logarithm.ALogN#[x]	*x€*2
+$opaquetypes/package.Logarithm.A1Log#*A1Log€*1
+'opaquetypes/package.Logarithm.A1Log#[x]	*x€*4
+%opaquetypes/package.Logarithm.A1LogN#*A1LogN€*2
+(opaquetypes/package.Logarithm.A1LogN#[x]	*x€*<
+)opaquetypes/package.Logarithm.ALogNested#*
+ALogNested€*F
+4opaquetypes/package.Logarithm.ALogNested#`<init>`(). €@*<init>€*6
+,opaquetypes/package.Logarithm.ALogNested#[B]	*B€*F
+-opaquetypes/package.Logarithm.ValClLogNested# *ValClLogNested€*J
+8opaquetypes/package.Logarithm.ValClLogNested#`<init>`(). €@*<init>€*H
+;opaquetypes/package.Logarithm.ValClLogNested#`<init>`().(i) €*i€*<
+/opaquetypes/package.Logarithm.ValClLogNested#i. €*i€*F
+-opaquetypes/package.Logarithm.ValClLogNested.
+ *ValClLogNested€*F
+.opaquetypes/package.Logarithm.AValClLogNested#*AValClLogNested€*K
+9opaquetypes/package.Logarithm.AValClLogNested#`<init>`(). €@*<init>€*;
+1opaquetypes/package.Logarithm.AValClLogNested#[B]	*B€**
+ opaquetypes/package.Logarithm.A#*A€*-
+#opaquetypes/package.Logarithm.A#[x]	*x€*,
+!opaquetypes/package.Logarithm.AN#*AN€*.
+$opaquetypes/package.Logarithm.AN#[x]	*x€*0
+opaquetypes/package.ValClLog# *ValClLog€*:
+(opaquetypes/package.ValClLog#`<init>`(). €@*<init>€*8
++opaquetypes/package.ValClLog#`<init>`().(i) €*i€*,
+opaquetypes/package.ValClLog#i. €*i€*0
+opaquetypes/package.ValClLog.
+ *ValClLog€*0
+opaquetypes/package.AValClLog#*	AValClLog€*;
+)opaquetypes/package.AValClLog#`<init>`(). €@*<init>€*+
+!opaquetypes/package.AValClLog#[B]	*B€**
+opaquetypes/package.AClLog#*AClLog€*(
+opaquetypes/package.AClLog#[x]	*x€*,
+opaquetypes/package.AClLogN#*AClLogN€*)
+opaquetypes/package.AClLogN#[x]	*x€*,
+opaquetypes/package.ADouble#*ADouble€*9
+'opaquetypes/package.ADouble#`<init>`(). €@*<init>€*)
+opaquetypes/package.ADouble#[B]	*B€*"
+opaquetypes/package.AD#*AD€*$
+opaquetypes/package.AD#[x]	*x€*$
+opaquetypes/package.ADN#*ADN€*%
+opaquetypes/package.ADN#[x]	*x€*2
+opaquetypes/package.ALogarithm#*
+ALogarithm€*<
+*opaquetypes/package.ALogarithm#`<init>`(). €@*<init>€*,
+"opaquetypes/package.ALogarithm#[B]	*B€*&
+opaquetypes/package.ALog#*ALog€*&
+opaquetypes/package.ALog#[x]	*x€*(
+opaquetypes/package.ALogN#*ALogN€*'
+opaquetypes/package.ALogN#[x]	*x€*(
+opaquetypes/package.A1Log#*A1Log€*'
+opaquetypes/package.A1Log#[x]	*x€**
+opaquetypes/package.A1LogN#*A1LogN€*(
+opaquetypes/package.A1LogN#[x]	*x€*
+_empty_/Main.
+ *Main€*
+_empty_/Main.AU#*AU€*
+_empty_/Main.AU#[x]	*x€*
+_empty_/Main.AUN#*AUN€*
+_empty_/Main.AUN#[x]	*x€*
+_empty_/Main.AB#*AB€*
+_empty_/Main.AB#[x]	*x€*
+_empty_/Main.ABN#*ABN€*
+_empty_/Main.ABN#[x]	*x€*
+_empty_/Main.ABy#*ABy€*
+_empty_/Main.ABy#[x]	*x€*
+_empty_/Main.AByN#*AByN€*
+_empty_/Main.AByN#[x]	*x€*
+_empty_/Main.AC#*AC€*
+_empty_/Main.AC#[x]	*x€*
+_empty_/Main.ACN#*ACN€*
+_empty_/Main.ACN#[x]	*x€*
+_empty_/Main.AS#*AS€*
+_empty_/Main.AS#[x]	*x€*
+_empty_/Main.ASN#*ASN€*
+_empty_/Main.ASN#[x]	*x€*
+_empty_/Main.AI#*AI€*
+_empty_/Main.AI#[x]	*x€*
+_empty_/Main.AIN#*AIN€*
+_empty_/Main.AIN#[x]	*x€*
+_empty_/Main.AL#*AL€*
+_empty_/Main.AL#[x]	*x€*
+_empty_/Main.ALN#*ALN€*
+_empty_/Main.ALN#[x]	*x€*
+_empty_/Main.AF#*AF€*
+_empty_/Main.AF#[x]	*x€*
+_empty_/Main.AFN#*AFN€*
+_empty_/Main.AFN#[x]	*x€*
+_empty_/Main.AD#*AD€*
+_empty_/Main.AD#[x]	*x€*
+_empty_/Main.ADN#*ADN€*
+_empty_/Main.ADN#[x]	*x€*
+_empty_/Main.ACU#*ACU€*
+_empty_/Main.ACU#[x]	*x€*
+_empty_/Main.ACUN#*ACUN€*
+_empty_/Main.ACUN#[x]	*x€*
+_empty_/Main.ACI#*ACI€*
+_empty_/Main.ACI#[x]	*x€*
+_empty_/Main.ACIN#*ACIN€*
+_empty_/Main.ACIN#[x]	*x€2
+ _empty_/AUnit#2'
+ _empty_/AUnit#`<init>`().2
+ _empty_/AUnit#[B]2
+ _empty_/ABoolean#2*
+ _empty_/ABoolean#`<init>`().2"
+ _empty_/ABoolean#[B]2
+ _empty_/AByte#2'
+ _empty_/AByte#`<init>`().2
+ _empty_/AByte#[B]2
+ _empty_/AChar#2'
+ _empty_/AChar#`<init>`().2
+ _empty_/AChar#[B]2
+		 _empty_/AShort#2(
+		 _empty_/AShort#`<init>`().2 
+		 _empty_/AShort#[B]2
+
+
+ 
+_empty_/AInt#2&
+
+
+
+ 
+_empty_/AInt#`<init>`().2
+
+
+ _empty_/AInt#[B]2
+ _empty_/ALong#2'
+ _empty_/ALong#`<init>`().2
+ _empty_/ALong#[B]2
+ _empty_/AFloat#2(
+ _empty_/AFloat#`<init>`().2 
+ _empty_/AFloat#[B]2
+ _empty_/ADouble#2)
+ _empty_/ADouble#`<init>`().2!
+ _empty_/ADouble#[B]2
+ _empty_/ValClU#2(
+ _empty_/ValClU#`<init>`().2
+ scala/Unit#2&
+( (scala/AnyVal#`<init>`().2
+" (scala/AnyVal#2
+ _empty_/ValClU#i.2
+ _empty_/ValClU.2
+ _empty_/AValClU#2)
+ _empty_/AValClU#`<init>`().2!
+ _empty_/AValClU#[B]2
+ _empty_/ValClI#2(
+ _empty_/ValClI#`<init>`().2
+ 
+scala/Int#2&
+' 'scala/AnyVal#`<init>`().2
+! 'scala/AnyVal#2
+ _empty_/ValClI#i.2
+ _empty_/ValClI.2
+ _empty_/AValClI#2)
+ _empty_/AValClI#`<init>`().2!
+ _empty_/AValClI#[B]2"
+ opaquetypes/package.2,
+ opaquetypes/package.Logarithm#2
+  scala/Double#2,
+	 opaquetypes/package.Logarithm.27
+
+ )opaquetypes/package.Logarithm.ALogarithm#2B
+ 4opaquetypes/package.Logarithm.ALogarithm#`<init>`().2:
+ ,opaquetypes/package.Logarithm.ALogarithm#[B]21
+	 #opaquetypes/package.Logarithm.ALog#27
+ )opaquetypes/package.Logarithm.ALogarithm#24
+ &opaquetypes/package.Logarithm.ALog#[x]2,
+# ,opaquetypes/package.Logarithm#22
+	 $opaquetypes/package.Logarithm.ALogD#27
+ )opaquetypes/package.Logarithm.ALogarithm#25
+ 'opaquetypes/package.Logarithm.ALogD#[x]2
+$ *scala/Double#22
+	 $opaquetypes/package.Logarithm.ALogN#27
+ )opaquetypes/package.Logarithm.ALogarithm#25
+ 'opaquetypes/package.Logarithm.ALogN#[x]2
+$ +scala/Nothing#22
+	 $opaquetypes/package.Logarithm.A1Log#2-
+ 'opaquetypes/package.ALogarithm#2
+ opaquetypes/25
+) *'opaquetypes/package.Logarithm.A1Log#[x]2,
+0 9opaquetypes/package.Logarithm#23
+	 %opaquetypes/package.Logarithm.A1LogN#2-
+ (opaquetypes/package.ALogarithm#2
+ opaquetypes/26
+* +(opaquetypes/package.Logarithm.A1LogN#[x]2
+1 8scala/Nothing#27
+!
+! )opaquetypes/package.Logarithm.ALogNested#2B
+!! 4opaquetypes/package.Logarithm.ALogNested#`<init>`().2:
+!! ,opaquetypes/package.Logarithm.ALogNested#[B]2;
+"
+" -opaquetypes/package.Logarithm.ValClLogNested#2F
+"" 8opaquetypes/package.Logarithm.ValClLogNested#`<init>`().2,
+" " )opaquetypes/package.Logarithm#2&
+"9" 9scala/AnyVal#`<init>`().2
+"3" 9scala/AnyVal#2=
+"" /opaquetypes/package.Logarithm.ValClLogNested#i.2;
+"
+" 
+-opaquetypes/package.Logarithm.ValClLogNested.2<
+#
+# .opaquetypes/package.Logarithm.AValClLogNested#2G
+## 9opaquetypes/package.Logarithm.AValClLogNested#`<init>`().2?
+## 1opaquetypes/package.Logarithm.AValClLogNested#[B]2.
+%	% 
+ opaquetypes/package.Logarithm.A#2<
+%% .opaquetypes/package.Logarithm.AValClLogNested#21
+%% #opaquetypes/package.Logarithm.A#[x]2;
+%%% 3-opaquetypes/package.Logarithm.ValClLogNested#2/
+&	& !opaquetypes/package.Logarithm.AN#2<
+&& .opaquetypes/package.Logarithm.AValClLogNested#22
+&&  $opaquetypes/package.Logarithm.AN#[x]2
+&&& -scala/Nothing#2+
+(( opaquetypes/package.ValClLog#26
+(( (opaquetypes/package.ValClLog#`<init>`().2,
+(( !opaquetypes/package.Logarithm#2&
+(1( 1scala/AnyVal#`<init>`().2
+(+( 1scala/AnyVal#2-
+(( opaquetypes/package.ValClLog#i.2+
+(( opaquetypes/package.ValClLog.2,
+)) opaquetypes/package.AValClLog#27
+)) )opaquetypes/package.AValClLog#`<init>`().2/
+)) !opaquetypes/package.AValClLog#[B]2)
+** opaquetypes/package.AClLog#2,
+** opaquetypes/package.AValClLog#2,
+** opaquetypes/package.AClLog#[x]2+
+*"* *opaquetypes/package.ValClLog#2*
+++ opaquetypes/package.AClLogN#2,
+++ opaquetypes/package.AValClLog#2-
+++ opaquetypes/package.AClLogN#[x]2
++#+ *scala/Nothing#2*
+-- opaquetypes/package.ADouble#25
+-- 'opaquetypes/package.ADouble#`<init>`().2-
+-- opaquetypes/package.ADouble#[B]2%
+.. 	opaquetypes/package.AD#2*
+.. opaquetypes/package.ADouble#2(
+.. opaquetypes/package.AD#[x]2
+.. "scala/Double#2&
+// 
+opaquetypes/package.ADN#2*
+// opaquetypes/package.ADouble#2)
+// opaquetypes/package.ADN#[x]2
+// $scala/Nothing#2-
+11 opaquetypes/package.ALogarithm#28
+11 *opaquetypes/package.ALogarithm#`<init>`().20
+11 "opaquetypes/package.ALogarithm#[B]2'
+22 opaquetypes/package.ALog#2-
+22 opaquetypes/package.ALogarithm#2*
+22 opaquetypes/package.ALog#[x]2,
+2!2 *opaquetypes/package.Logarithm#2(
+33 opaquetypes/package.ALogN#2-
+33 opaquetypes/package.ALogarithm#2+
+33 opaquetypes/package.ALogN#[x]2
+3"3 )scala/Nothing#2(
+55 opaquetypes/package.A1Log#27
+55 #)opaquetypes/package.Logarithm.ALogarithm#2,
+55 opaquetypes/package.Logarithm.2+
+5%5 &opaquetypes/package.A1Log#[x]2,
+5,5 5opaquetypes/package.Logarithm#2)
+66 opaquetypes/package.A1LogN#27
+66 $)opaquetypes/package.Logarithm.ALogarithm#2,
+66 opaquetypes/package.Logarithm.2,
+6&6 'opaquetypes/package.A1LogN#[x]2
+6-6 4scala/Nothing#2
+99 _empty_/Main.2
+:: 	_empty_/Main.AU#2
+:: _empty_/AUnit#2!
+:: _empty_/Main.AU#[x]2
+:: scala/Unit#2
+;; 
+_empty_/Main.AUN#2
+;; _empty_/AUnit#2"
+;; _empty_/Main.AUN#[x]2
+;; "scala/Nothing#2
+== 	_empty_/Main.AB#2
+== _empty_/ABoolean#2!
+== _empty_/Main.AB#[x]2
+== $scala/Boolean#2
+>> 
+_empty_/Main.ABN#2
+>> _empty_/ABoolean#2"
+>> _empty_/Main.ABN#[x]2
+>> %scala/Nothing#2
+AA 
+_empty_/Main.ABy#2
+AA _empty_/AByte#2"
+AA _empty_/Main.ABy#[x]2
+AA scala/Byte#2 
+BB _empty_/Main.AByN#2
+BB _empty_/AByte#2#
+BB _empty_/Main.AByN#[x]2
+BB #scala/Nothing#2
+DD 	_empty_/Main.AC#2
+DD _empty_/AChar#2!
+DD _empty_/Main.AC#[x]2
+DD scala/Char#2
+EE 
+_empty_/Main.ACN#2
+EE _empty_/AChar#2"
+EE _empty_/Main.ACN#[x]2
+EE "scala/Nothing#2
+HH 	_empty_/Main.AS#2
+HH _empty_/AShort#2!
+HH _empty_/Main.AS#[x]2
+HH  scala/Short#2
+II 
+_empty_/Main.ASN#2
+II _empty_/AShort#2"
+II _empty_/Main.ASN#[x]2
+II #scala/Nothing#2
+KK 	_empty_/Main.AI#2
+KK _empty_/AInt#2!
+KK _empty_/Main.AI#[x]2
+KK 
+scala/Int#2
+LL 
+_empty_/Main.AIN#2
+LL _empty_/AInt#2"
+LL _empty_/Main.AIN#[x]2
+LL !scala/Nothing#2
+NN 	_empty_/Main.AL#2
+NN _empty_/ALong#2!
+NN _empty_/Main.AL#[x]2
+NN scala/Long#2
+OO 
+_empty_/Main.ALN#2
+OO _empty_/ALong#2"
+OO _empty_/Main.ALN#[x]2
+OO "scala/Nothing#2
+RR 	_empty_/Main.AF#2
+RR _empty_/AFloat#2!
+RR _empty_/Main.AF#[x]2
+RR  scala/Float#2
+SS 
+_empty_/Main.AFN#2
+SS _empty_/AFloat#2"
+SS _empty_/Main.AFN#[x]2
+SS #scala/Nothing#2
+UU 	_empty_/Main.AD#2
+UU _empty_/ADouble#2!
+UU _empty_/Main.AD#[x]2
+UU "scala/Double#2
+VV 
+_empty_/Main.ADN#2
+VV _empty_/ADouble#2"
+VV _empty_/Main.ADN#[x]2
+VV $scala/Nothing#2
+YY 
+_empty_/Main.ACU#2
+YY _empty_/AValClU#2"
+YY _empty_/Main.ACU#[x]2
+YY #_empty_/ValClU#2 
+ZZ _empty_/Main.ACUN#2
+ZZ _empty_/AValClU#2#
+ZZ _empty_/Main.ACUN#[x]2
+ZZ %scala/Nothing#2
+\\ 
+_empty_/Main.ACI#2
+\\ _empty_/AValClI#2"
+\\ _empty_/Main.ACI#[x]2
+\\ #_empty_/ValClI#2 
+]] _empty_/Main.ACIN#2
+]] _empty_/AValClI#2#
+]] _empty_/Main.ACIN#[x]2
+]] %scala/Nothing#PZ A49CC183D9365F797D785539CA946479

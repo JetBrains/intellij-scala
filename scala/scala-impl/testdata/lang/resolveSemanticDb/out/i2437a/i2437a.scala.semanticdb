@@ -1,0 +1,18 @@
+
+Ätests/pos/i2437a.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*$
+_empty_/Test.foo().(arg)*arg€*
+local0 €*bla€*
+local1 €	*t€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2&
+
+ _empty_/Test.foo().(arg)2
+ 
+scala/Any#2&
+ _empty_/Test.foo().(arg)2
+	 local02!
+ scala/package.List#2
+ local1PZ 8EDE3CA25043B7CB1F63A054C8B468CD

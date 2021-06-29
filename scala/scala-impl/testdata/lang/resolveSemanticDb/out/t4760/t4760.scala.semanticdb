@@ -1,0 +1,42 @@
+
+°	tests/pos/t4760.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#f1().*f1€*
+_empty_/Test#f2().*f2€*
+_empty_/Test#f2b().*f2b€*
+_empty_/Test#f().*f€*
+_empty_/Test#f3().*f3€*
+local0*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2 
+ _empty_/Test#f1().2
+ scala/2 
+
+
+ _empty_/Test#f2().2
+ scala/2!
+ 	_empty_/Test#f2b().2+
+$ 'scala/collection/mutable/Map.2+
+$ 'scala/collection/mutable/Map#2'
+ #scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ _empty_/Test#f().2
+ scala/Unit#2%
+ scala/Predef.locally().29
+# 0+scala/util/PropertiesTrait#lineSeparator().2$
+ "scala/util/Properties.2
+ scala/util/2
+ scala/2 
+ _empty_/Test#f3().2
+ scala/2%
+ 	scala/Predef.locally().2
+ local02
+ 
+scala/Int#2
+ scala/util/2
+ scala/2
+ %scala/concurrent/2
+ scala/PZ B69A1E646EC569AAA22D383092BC5549

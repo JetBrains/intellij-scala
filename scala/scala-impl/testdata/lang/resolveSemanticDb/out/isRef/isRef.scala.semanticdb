@@ -1,0 +1,75 @@
+
+ø
+tests/pos/isRef.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#A#*A€*
+local0*T€*
+_empty_/Foo#B#*B€*
+local1*S€*
+_empty_/Foo#b(). *b€* 
+_empty_/Foo#aorb().*aorb€*
+_empty_/Foo2#*Foo2€**
+_empty_/Foo2#`<init>`(). €@*<init>€*
+_empty_/Foo2#A#*A€*
+_empty_/Foo2#B#*B€*
+_empty_/Foo2#b(). *b€*!
+_empty_/Foo2#aorb().*aorb€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#A#2
+ 
+scala/Any#2
+ local02
+ 
+scala/Int#2
+ _empty_/Foo#B#2
+ 
+scala/Any#2
+ local12"
+ !scala/Predef.String#2
+ _empty_/Foo#b().2
+	 
+_empty_/Foo#B#2!
+ 
+_empty_/Foo#aorb().2
+ 
+scala/`|`#2
+ _empty_/Foo#A#2
+ _empty_/Foo#B#2
+ _empty_/Foo#b().2
+ 
+_empty_/Foo2#2&
+ _empty_/Foo2#`<init>`().2
+ _empty_/Foo2#A#2
+ _empty_/Foo2#B#2
+		 _empty_/Foo2#b().2
+			 
+_empty_/Foo2#B#2
+		 
+scala/Int#2"
+
+
+ 
+_empty_/Foo2#aorb().2
+
+
+ 
+scala/`|`#2
+
+
+ _empty_/Foo2#A#2
+
+
+ 
+scala/Int#2
+
+
+ _empty_/Foo2#B#2
+
+
+ 
+scala/Int#2
+
+
+ _empty_/Foo2#b().PZ 509118927A3B4CFCAF517D6FDB20B4FE

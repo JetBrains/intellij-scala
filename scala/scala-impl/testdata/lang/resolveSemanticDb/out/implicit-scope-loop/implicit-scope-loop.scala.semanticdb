@@ -1,0 +1,82 @@
+
+»#tests/pos/implicit-scope-loop.scala*
+_empty_/Dummy#*Dummy€*+
+_empty_/Dummy#`<init>`(). €@*<init>€*
+_empty_/Dummy#[T]	*T€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[T]	*T€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+
+_empty_/B.
+ *B€* 
+_empty_/B.theB().  *theB€*
+local0 *$anon€* 
+_empty_/B.theA().  *theA€*
+local1 *$anon€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.getB().*getB€*#
+_empty_/Test.getB().(b)  *b€*!
+_empty_/Test.getA().*getA€*!
+_empty_/Test.getA().[T]	*T€*#
+_empty_/Test.getA().(a)  *a€2
+ _empty_/Dummy#2#
+ _empty_/Dummy#`<init>`().2
+ _empty_/Dummy#[T]2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/B#2
+ 	_empty_/A#[T]2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ _empty_/Dummy#2
+ 
+_empty_/A#2
+ 
+scala/Int#2
+ 
+_empty_/B.2
+ _empty_/B.theB().2
+ 
+_empty_/B#2
+ local02
+ 
+_empty_/B#2
+ _empty_/B.theA().2
+ 
+_empty_/A#2
+ 
+scala/Int#2
+ local12
+" #
+_empty_/A#2
+$ '
+scala/Int#2
+
+
+ _empty_/Test.2"
+ 
+_empty_/Test.getB().2%
+ _empty_/Test.getB().(b)2
+ 
+_empty_/B#2%
+ _empty_/Test.getB().(b)2"
+ 
+_empty_/Test.getA().2%
+ _empty_/Test.getA().[T]2%
+ _empty_/Test.getA().(a)2
+ 
+_empty_/A#2%
+ _empty_/Test.getA().[T]2%
+" #_empty_/Test.getA().(a)2"
+ _empty_/Test.getB().2
+ _empty_/B.theA().2"
+ _empty_/Test.getA().2
+ _empty_/B.theA().PZ 17507E1B9D016AE9BE079E6F2E5CB381

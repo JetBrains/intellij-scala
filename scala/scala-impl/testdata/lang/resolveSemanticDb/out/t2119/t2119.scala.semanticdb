@@ -1,0 +1,25 @@
+
+Þtests/pos/t2119.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#orig. €*orig€*
+_empty_/A#copy. €*copy€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#orig.2/
+, ,!java/util/ArrayList#`<init>`(+1).2"
+ $java/util/ArrayList#2
+ 
+java/util/2
+ java/2"
+% +scala/Predef.String#2
+ 
+_empty_/A#copy.2/
+$ $!java/util/ArrayList#`<init>`(+2).2
+ 
+java/util/2
+ java/2
+% )_empty_/A#orig.PZ C13D7C452A574B551C2E98EC4CBA90A2

@@ -1,0 +1,60 @@
+
+Åtests/pos/i9833.scala*
+_empty_/Main.
+ *MainÄ*)
+_empty_/Main.Extends# îÄ*ExtendsÄ*2
+ _empty_/Main.Extends#`<init>`(). Ä@*<init>Ä*"
+_empty_/Main.Extends#[A]	*AÄ*"
+_empty_/Main.Extends#[B]	*BÄ*)
+_empty_/Main.Extends#cast().*castÄ*)
+_empty_/Main.Extends#cast().(a)*aÄ*'
+_empty_/Main.Extends.
+ *ExtendsÄ*'
+_empty_/Main.Extends.Ev# àÅ*EvÄ*5
+#_empty_/Main.Extends.Ev#`<init>`(). Ä@*<init>Ä*%
+_empty_/Main.Extends.Ev#[B]	*BÄ*%
+_empty_/Main.Extends.Ev#[A]	*AÄ*,
+_empty_/Main.Extends.Ev#copy().*copyÄ*,
+"_empty_/Main.Extends.Ev#copy().[B]	*BÄ*,
+"_empty_/Main.Extends.Ev#copy().[A]	*AÄ*2
+"_empty_/Main.Extends.Ev#ordinal().*ordinalÄ*%
+_empty_/Main.Extends.Ev.
+ *EvÄ*.
+ _empty_/Main.Extends.Ev.apply().*applyÄ*-
+#_empty_/Main.Extends.Ev.apply().[B]	*BÄ*-
+#_empty_/Main.Extends.Ev.apply().[A]	*AÄ*2
+"_empty_/Main.Extends.Ev.unapply().*unapplyÄ*/
+%_empty_/Main.Extends.Ev.unapply().[B]	*BÄ*/
+%_empty_/Main.Extends.Ev.unapply().[A]	*AÄ*3
+'_empty_/Main.Extends.Ev.unapply().(x$1)*x$1Ä*4
+#_empty_/Main.Extends.Ev.toString().*toStringÄ*7
+#_empty_/Main.Extends.fromOrdinal().*fromOrdinalÄ*<
+,_empty_/Main.Extends.fromOrdinal().(ordinal)*ordinalÄ2
+ _empty_/Main.2
+ 
+scala/App#2#
+ _empty_/Main.Extends#2.
+  _empty_/Main.Extends#`<init>`().2&
+ _empty_/Main.Extends#[A]2&
+ _empty_/Main.Extends#[B]2*
+ _empty_/Main.Extends#cast().2-
+ _empty_/Main.Extends#cast().(a)2&
+ _empty_/Main.Extends#[A]2&
+ _empty_/Main.Extends#[B]20
+ "_empty_/Main.Extends.Ev.unapply().2&
+ _empty_/Main.Extends.Ev.2#
+ _empty_/Main.Extends.2-
+ _empty_/Main.Extends#cast().(a)2#
+ _empty_/Main.Extends.2&
+	 _empty_/Main.Extends.Ev#21
+ #_empty_/Main.Extends.Ev#`<init>`().2.
+- - _empty_/Main.Extends#`<init>`().2#
+$ +_empty_/Main.Extends#2)
+" #_empty_/Main.Extends.Ev#[A]2)
+, -_empty_/Main.Extends.Ev#[B]2)
+ _empty_/Main.Extends.Ev#[B]2)
+ _empty_/Main.Extends.Ev#[A]2-
+ _empty_/Main.Extends.Ev#copy().2&
+	 	_empty_/Main.Extends.Ev.2.
+  _empty_/Main.Extends.Ev.apply().20
+ "_empty_/Main.Extends.Ev.unapply().PZ E0608F65606A4DF65B88D7CB678A0B30

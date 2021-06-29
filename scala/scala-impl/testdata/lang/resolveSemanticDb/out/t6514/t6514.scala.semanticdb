@@ -1,0 +1,21 @@
+
+¥tests/pos/t6514.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.e().*e€*"
+_empty_/Test.e().(msg)*msg€*
+_empty_/Test.a().*a€*
+_empty_/Test.a().(b)*b€2
+ _empty_/Test.2
+ _empty_/Test.e().2$
+ _empty_/Test.e().(msg)2"
+ scala/Predef.String#2/
+$ $!java/lang/Exception#`<init>`(+1).2&
+ $scala/package.Exception#2$
+% (_empty_/Test.e().(msg)2
+ _empty_/Test.a().2"
+ 	_empty_/Test.a().(b)2
+ scala/Boolean#2"
+ _empty_/Test.a().(b)2
+ _empty_/Test.e().2
+ _empty_/Test.e().PZ 2E3C950FECC77C961CAA263F191D21A8

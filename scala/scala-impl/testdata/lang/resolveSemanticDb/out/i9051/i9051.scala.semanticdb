@@ -1,0 +1,52 @@
+
+à
+tests/pos/i9051.scala*
+	zio/ZRef#*ZRef€*&
+zio/ZRef#`<init>`(). €@*<init>€*
+	zio/ZRef.
+ *ZRef€*)
+zio/ZRef.ZRefSyntax# *
+ZRefSyntax€*1
+zio/ZRef.ZRefSyntax#`<init>`(). €@*<init>€*2
+%zio/ZRef.ZRefSyntax#`<init>`().(self)*self€*)
+zio/ZRef.ZRefSyntax#self. €*self€*8
+#zio/ZRef.ZRefSyntax#unsafeUpdate().*unsafeUpdate€*)
+zio/ZRef.ZRefSyntax.
+ *
+ZRefSyntax€*+
+zio/ZRef.ZRefSyntax(). (*
+ZRefSyntax€*)
+zio/ZRef.ZRefSyntax().(self)*self€*
+	zio/Main.
+ *Main€*
+zio/Main.ref. €*ref€2
+ zio/2
+ 
+	zio/ZRef#2
+zio/ZRef#`<init>`().2
+ 	zio/ZRef.2"
+ (zio/ZRef.ZRefSyntax#2
+
+ zio/2-
+( (zio/ZRef.ZRefSyntax#`<init>`().2
+; ?	zio/ZRef#2&
+O Oscala/AnyVal#`<init>`().2
+I Oscala/AnyVal#2'
+5 9zio/ZRef.ZRefSyntax#self.21
+ #zio/ZRef.ZRefSyntax#unsafeUpdate().2
+ scala/Boolean#2"
+ zio/ZRef.ZRefSyntax.2$
+ zio/ZRef.ZRefSyntax().2
+ 	zio/Main.2
+ 
+scala/App#2
+ 	zio/Main.ref.2"
+ zio/ZRef#`<init>`().2
+ 	zio/ZRef#2'
+ 	scala/Predef.println(+1).21
+ #zio/ZRef.ZRefSyntax#unsafeUpdate().2$
+
+ 
+zio/ZRef.ZRefSyntax().2
+
+ zio/Main.ref.PZ 39D6E034AA74F6FB56DEDC9E5DA92FD5

@@ -1,0 +1,32 @@
+
+Þ$tests/pos/toplevel-opaque/Test.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€2
+ _empty_/Test.2
+ _empty_/Test.x.2,
+	 
+_empty_/`opaque-id$package`.T#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Test.y.2
+	 
+scala/Int#2
+ _empty_/Test.a.2
+	 
+scala/Int#20
+ "_empty_/`opaque-id$package`.T.f().2,
+ _empty_/`opaque-id$package`.T.2
+ _empty_/Test.x.2
+ _empty_/Test.b.2,
+	 
+_empty_/`opaque-id$package`.T#2
+ 
+scala/Int#20
+ "_empty_/`opaque-id$package`.T.g().2,
+ _empty_/`opaque-id$package`.T.2
+ _empty_/Test.y.PZ C09C3F389FBC14F7C613FBC64444BD44

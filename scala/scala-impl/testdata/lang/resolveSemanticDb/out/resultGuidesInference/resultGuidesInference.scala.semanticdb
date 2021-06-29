@@ -1,0 +1,26 @@
+
+ß%tests/pos/resultGuidesInference.scala*
+_empty_/test.
+ *test€*
+_empty_/test.foo().*foo€* 
+_empty_/test.foo().[T]	*T€* 
+_empty_/test.foo().(x)*x€*
+_empty_/test.x. €*x€*
+local0*x€2
+ _empty_/test.2!
+ 	_empty_/test.foo().2$
+
+ _empty_/test.foo().[T]2$
+ _empty_/test.foo().(x)2$
+ _empty_/test.foo().[T]2$
+ _empty_/test.foo().[T]2
+ scala/Array#2$
+  _empty_/test.foo().[T]2#
+$ 'scala/Predef.`???`().2
+ _empty_/test.x.2
+	 scala/Array#2
+ 
+scala/Int#2!
+ _empty_/test.foo().2
+ local02
+  local0PZ 8FED940C04D2121B49975FA7E4E3789B

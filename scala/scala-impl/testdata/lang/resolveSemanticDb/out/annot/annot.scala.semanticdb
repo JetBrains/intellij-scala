@@ -1,0 +1,79 @@
+
+®tests/pos/annot.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*!
+_empty_/Test#foo2().*foo2€*!
+_empty_/Test#foo3().*foo3€*
+_empty_/Test#bar().*bar€*
+_empty_/Test#baz().*baz€*
+_empty_/Test#A#*A€*,
+_empty_/Test#A#`<init>`(). €@*<init>€*
+_empty_/Test#B#*B€*,
+_empty_/Test#B#`<init>`(). €@*<init>€*
+_empty_/Test#x. €*x€*
+_empty_/Test#C#*C€*,
+_empty_/Test#C#`<init>`(). €@*<init>€*
+_empty_/Test#C#x. €*x€*
+_empty_/Test#f. €*f€2
+ java/beans/Transient.2
+ java/beans/Transient#2
+ java/beans/2
+ java/2;
+ --scala/annotation/unchecked/uncheckedVariance#2)
+ scala/annotation/unchecked/2
+ scala/annotation/2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2)
+ java/lang/SuppressWarnings#2"
+ scala/Array.apply().2
+ scala/Array.2-
+ scala/reflect/ClassTag.apply().2!
+% (_empty_/Test#foo().2#
+- 0scala/Predef.`???`().2)
+		 java/lang/SuppressWarnings#2"
+		 scala/Array.apply().2
+		 scala/Array.2-
+	&	 &scala/reflect/ClassTag.apply().2"
+	,	 0_empty_/Test#foo2().2#
+	5	 8scala/Predef.`???`().2)
+ java/lang/SuppressWarnings#2"
+ scala/Array.apply().2
+ scala/Array.2-
+ scala/reflect/ClassTag.apply().2"
+% )_empty_/Test#foo3().2#
+. 1scala/Predef.`???`().2#
+ java/beans/Transient#2!
+ _empty_/Test#bar().2#
+ !scala/Predef.`???`().2#
+ java/beans/Transient#2!
+ _empty_/Test#baz().2#
+ scala/Predef.`???`().2
+ 	_empty_/Test#A#2(
+ _empty_/Test#A#`<init>`().2
+ 	_empty_/Test#B#2(
+ _empty_/Test#B#`<init>`().2
+ _empty_/Test#x.2
+	 
+_empty_/Test#A#2;
+ -scala/annotation/unchecked/uncheckedVariance#2
+# $_empty_/Test#B#2;
+& 7-scala/annotation/unchecked/uncheckedVariance#2#
+: =scala/Predef.`???`().2
+ 	_empty_/Test#C#2(
+ _empty_/Test#C#`<init>`().2(
+) )_empty_/Test#A#`<init>`().2
+ _empty_/Test#A#2;
+ &-scala/annotation/unchecked/uncheckedVariance#2
+/ 0_empty_/Test#B#2;
+2 C-scala/annotation/unchecked/uncheckedVariance#2
+J K_empty_/Test#C#x.2
+ _empty_/Test#f.2
+
+ 
+scala/Int#2
+ 
+scala/Int#2;
+ (-scala/annotation/unchecked/uncheckedVariance#2#
++ .scala/Predef.`???`().PZ 9B773F47EB62F764EEE0672F56D0F5D0

@@ -1,0 +1,29 @@
+
+±tests/pos/i6655.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€*
+local0 €*x€*
+local1 €*y€*
+local2 €*y€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2
+ scala/Unit#2
+ 	local02
+ 
+scala/`|`#2"
+ scala/Predef.String#2
+ scala/Null#2#
+ scala/Predef.`???`().2
+
+ scala/Any#`!=`().2
+ 	local02
+
+ local12(
+ java/lang/String#length().2
+ local02
+
+ local22
+ local0PZ 5A18DE8682ED5441D93B5AC75E5E2CE9

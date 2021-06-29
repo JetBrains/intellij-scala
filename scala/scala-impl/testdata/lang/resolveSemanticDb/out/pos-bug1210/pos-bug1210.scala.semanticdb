@@ -1,0 +1,79 @@
+
+¢tests/pos/pos-bug1210.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€**
+_empty_/Test.f().(recurse)*recurse€*
+_empty_/Test.M# *M€*,
+_empty_/Test.M#`<init>`(). €@*<init>€*
+local0*self€*)
+_empty_/Test.M#Settings#*Settings€*)
+_empty_/Test.M#selfType#*selfType€*
+local1*Settings€*
+_empty_/Test.M#v. €*v€*
+local2*x€*
+_empty_/Test.M2# *M2€*-
+_empty_/Test.M2#`<init>`(). €@*<init>€*
+local3*self€**
+_empty_/Test.M2#Settings#*Settings€**
+_empty_/Test.M2#selfType#*selfType€*
+local4*Settings€*
+_empty_/Test.M2#g().*g€2
+ _empty_/Test.2
+ 	_empty_/Test.f().2"
+
+ _empty_/Test.f().[T]2(
+ _empty_/Test.f().(recurse)2"
+ _empty_/Test.f().[T]2!
+ scala/package.List#2"
+  !_empty_/Test.f().[T]2!
+% )scala/package.List#2"
+* +_empty_/Test.f().[T]2 
+ scala/package.Nil.2
+ _empty_/Test.M#2(
+ _empty_/Test.M#`<init>`().2
+ 
+local02&
+		 _empty_/Test.M#Settings#2&
+
+
+ _empty_/Test.M#selfType#2
+
+
+ _empty_/Test.M#2
+
+ 
+ (local12&
+
+0
+ 8_empty_/Test.M#Settings#2
+
++
+ /_empty_/Test.M#2
+ _empty_/Test.M#v.2!
+ scala/package.List#2&
+ _empty_/Test.M#selfType#2
+  !_empty_/Test.f().2&
+" *_empty_/Test.M#selfType#2
+- .local22&
+0 8_empty_/Test.M#selfType#2
+? @_empty_/Test.M#v.2
+= >local22
+ _empty_/Test.M2#2)
+ _empty_/Test.M2#`<init>`().2
+ 
+local32'
+ _empty_/Test.M2#Settings#2'
+ _empty_/Test.M2#selfType#2
+ _empty_/Test.M2#2
+! )local42'
+1 9_empty_/Test.M2#Settings#2
+, 0_empty_/Test.M2#2"
+ _empty_/Test.M2#g().2!
+ scala/package.List#2'
+ _empty_/Test.M2#selfType#2 
+  #scala/package.Nil.2
+ _empty_/Test.f().2'
+ _empty_/Test.M2#selfType#2"
+ _empty_/Test.M2#g().PZ DB2A4886CF85A80D54F453C24729F065

@@ -1,0 +1,29 @@
+
+Átests/pos/i4430.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*sb€2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 
+local021
+( (#java/lang/StringBuilder#`<init>`().2&
+ (java/lang/StringBuilder#2
+ 
+java/lang/2
+ java/21
+ #java/lang/StringBuilder#append(+6).2
+ local02"
+ scala/Array.apply().2
+ scala/Array.2
+ scala/Char#2-
+ scala/reflect/ClassTag.apply().27
+ )java/lang/AbstractStringBuilder#length().2
+ local0PZ 7EEEE283F670948AE2EF1EFFEDE3E120

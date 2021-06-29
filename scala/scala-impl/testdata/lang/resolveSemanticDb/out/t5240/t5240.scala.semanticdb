@@ -1,0 +1,11 @@
+
+‡tests/pos/t5240.scala*
+foo/package. *foo€*'
+foo/package.labels(). €*labels€*-
+foo/package.`labels_=`(). €*labels_=€**
+foo/package.`labels_=`().(x$1)*x$1€2
+ foo/package.2#
+ foo/package.labels().2
+ scala/Array#2"
+ scala/Predef.String#2'
+ foo/package.`labels_=`().PZ 017165AD4B34D5F8B4D92B34F6F5C94E

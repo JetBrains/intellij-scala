@@ -1,0 +1,47 @@
+
+õtests/pos/i10082.scala* 
+_empty_/Kotlin.
+ *Kotlin€*
+_empty_/Kotlin.it().*it€*!
+_empty_/Kotlin.it().[T]	*T€*#
+_empty_/Kotlin.it().(t)  *t€*!
+_empty_/Kotlin.fun().*fun€*"
+_empty_/Kotlin.fun().[T]	*T€*"
+_empty_/Kotlin.fun().[U]	*U€*$
+_empty_/Kotlin.fun().(fn)*fn€*"
+_empty_/Kotlin.fun().(x)*x€*)
+_empty_/i10082$package. *_empty_€*+
+_empty_/i10082$package.Test().*Test€*
+local0*x€2
+ _empty_/Kotlin.2"
+ _empty_/Kotlin.it().2%
+	 
+_empty_/Kotlin.it().[T]2%
+ _empty_/Kotlin.it().(t)2%
+ _empty_/Kotlin.it().[T]2%
+ _empty_/Kotlin.it().(t)2#
+ 	_empty_/Kotlin.fun().2&
+
+ _empty_/Kotlin.fun().[T]2&
+ _empty_/Kotlin.fun().[U]2'
+ _empty_/Kotlin.fun().(fn)2&
+ _empty_/Kotlin.fun().[T]2&
+ _empty_/Kotlin.fun().[U]2&
+ _empty_/Kotlin.fun().(x)2&
+  !_empty_/Kotlin.fun().[T]2&
+$ %_empty_/Kotlin.fun().[U]2-
+* *scala/ContextFunction1#apply().2'
+( *_empty_/Kotlin.fun().(fn)2&
+1 2_empty_/Kotlin.fun().(x)2#
+ _empty_/Kotlin.fun().2"
+ _empty_/Kotlin.it().2
+ _empty_/Kotlin.2!
+_empty_/i10082$package.2,
+ _empty_/i10082$package.Test().24
+ &scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ _empty_/Kotlin.fun().2 
+ scala/Int#`+`(+4).2"
+ _empty_/Kotlin.it().2
+ local0PZ F8F155C331CC7AF3B1973C08BB9F71C3

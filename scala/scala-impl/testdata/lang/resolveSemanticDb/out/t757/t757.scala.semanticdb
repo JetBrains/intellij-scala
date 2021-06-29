@@ -1,0 +1,28 @@
+
+¶tests/pos/t757.scala*
+foo/C.
+ *C€*
+foo/C.foo().*foo€*
+	bar/Main.
+ *Main€2
+ foo/2
+	 
+foo/C.2
+ foo/C.foo().2
+ scala/Unit#2(
+ scala/Console.println(+1).2
+ scala/Console.2
+ bar/2
+			 	bar/Main.2
+		 
+scala/App#2
+
+
+
+ foo/C.foo().2
+
+
+ 	foo/C.2
+
+
+ foo/PZ FE981CEF45EB6BD12A7B96C549AB6FCA

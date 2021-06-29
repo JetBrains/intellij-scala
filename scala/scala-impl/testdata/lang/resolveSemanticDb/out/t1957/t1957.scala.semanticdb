@@ -1,0 +1,104 @@
+
+¬tests/pos/t1957.scala*
+_empty_/Test.
+ *Test€*)
+_empty_/Test.Settings# *Settings€*3
+!_empty_/Test.Settings#`<init>`(). €@*<init>€*#
+_empty_/Test.Grist# *Grist€*0
+_empty_/Test.Grist#`<init>`(). €@*<init>€*
+local0*self€*5
+ _empty_/Test.Grist#settingsType#*settingsType€*1
+_empty_/Test.Grist#moduleType#*
+moduleType€*
+local1*settingsType€*,
+_empty_/Test.Grist#module. „*module€*!
+_empty_/Test.Tool# *Tool€*/
+_empty_/Test.Tool#`<init>`(). €@*<init>€*
+local2*self€*4
+_empty_/Test.Tool#settingsType#*settingsType€*0
+_empty_/Test.Tool#moduleType#*
+moduleType€*
+local3*settingsType€*.
+_empty_/Test.Tool#gristType#*	gristType€*
+local4*
+moduleType€*
+local5*settingsType€*4
+_empty_/Test.Tool#inputGrist(). *
+inputGrist€*%
+_empty_/Test.Module# *Module€*1
+_empty_/Test.Module#`<init>`(). €@*<init>€*
+local6*self€*6
+!_empty_/Test.Module#settingsType#*settingsType€*@
+%_empty_/Test.Module#commonModuleType# *commonModuleType€*
+local7*settingsType€*.
+_empty_/Test.Module#selfType#*selfType€*+
+_empty_/Test.Module#tools. „*tools€*
+local8*settingsType€*"
+_empty_/Test.Module#f().*f€*
+local9 €*inputGrists€2
+ _empty_/Test.2$
+ _empty_/Test.Settings#2/
+ !_empty_/Test.Settings#`<init>`().2!
+ _empty_/Test.Grist#2,
+ _empty_/Test.Grist#`<init>`().2
+ 
+local02.
+  _empty_/Test.Grist#settingsType#2$
+ %_empty_/Test.Settings#2,
+ _empty_/Test.Grist#moduleType#2"
+ !_empty_/Test.Module#2
+( 4local12.
+< H _empty_/Test.Grist#settingsType#2!
+7 ;_empty_/Test.Grist#2(
+ _empty_/Test.Grist#module.2,
+ _empty_/Test.Grist#moduleType#2 
+ _empty_/Test.Tool#2+
+ _empty_/Test.Tool#`<init>`().2
+ 
+local22-
+ _empty_/Test.Tool#settingsType#2$
+ %_empty_/Test.Settings#2+
+ _empty_/Test.Tool#moduleType#2"
+  _empty_/Test.Module#2
+( 4local32-
+< H_empty_/Test.Tool#settingsType#2 
+7 ;_empty_/Test.Tool#2*
+ _empty_/Test.Tool#gristType#2!
+ _empty_/Test.Grist#2
+& 0local42+
+9 C_empty_/Test.Tool#moduleType#2 
+4 8_empty_/Test.Tool#2
+J Vlocal52-
+_ k_empty_/Test.Tool#settingsType#2 
+Z ^_empty_/Test.Tool#2-
+ _empty_/Test.Tool#inputGrist().2!
+ scala/package.List#2*
+ &_empty_/Test.Tool#gristType#2"
+ _empty_/Test.Module#2-
+ _empty_/Test.Module#`<init>`().2
+ 
+local62/
+ !_empty_/Test.Module#settingsType#2$
+ %_empty_/Test.Settings#23
+ #%_empty_/Test.Module#commonModuleType#2"
+& ,_empty_/Test.Module#2
+3 ?local72/
+G S!_empty_/Test.Module#settingsType#2"
+B F_empty_/Test.Module#2+
+ _empty_/Test.Module#selfType#2"
+ _empty_/Test.Module#23
+& 6%_empty_/Test.Module#commonModuleType#2(
+ _empty_/Test.Module#tools.2!
+ scala/package.List#2 
+ _empty_/Test.Tool#2
+# /local82/
+7 C!_empty_/Test.Module#settingsType#2"
+2 6_empty_/Test.Module#2&
+ _empty_/Test.Module#f().2!
+ scala/package.List#23
+ .%_empty_/Test.Module#commonModuleType#2
+!! local928
+!$! +*scala/collection/immutable/List#flatMap().2(
+!! #_empty_/Test.Module#tools.2-
+!.! 8_empty_/Test.Tool#inputGrist().2#
+99 scala/Predef.`???`().PZ 56DC2D0455587CBEB3DFE6757DFA32C7

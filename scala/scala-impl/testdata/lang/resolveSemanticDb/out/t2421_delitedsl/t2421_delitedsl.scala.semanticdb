@@ -1,0 +1,178 @@
+
+Õ6tests/pos/t2421_delitedsl.scala*$
+_empty_/DeliteDSL#*	DeliteDSL€*/
+_empty_/DeliteDSL#`<init>`(). €@*<init>€*&
+_empty_/DeliteDSL#`<~<`# *<~<€*5
+#_empty_/DeliteDSL#`<~<`#`<init>`(). €@*<init>€*.
+_empty_/DeliteDSL#`<~<`#[From]	 €*From€**
+_empty_/DeliteDSL#`<~<`#[To]	 €*To€*.
+_empty_/DeliteDSL#trivial().  *trivial€*)
+_empty_/DeliteDSL#trivial().[A]	*A€*
+local0 *$anon€*
+local1*apply€*
+local2*x€*,
+_empty_/DeliteDSL#Forcible#*Forcible€*8
+&_empty_/DeliteDSL#Forcible#`<init>`(). €@*<init>€*(
+_empty_/DeliteDSL#Forcible#[T]	*T€*.
+_empty_/DeliteDSL#Forcible.
+ *Forcible€*5
+%_empty_/DeliteDSL#Forcible.factory().*factory€*2
+(_empty_/DeliteDSL#Forcible.factory().[T]	*T€*2
+(_empty_/DeliteDSL#Forcible.factory().(f)*f€*
+local3 *$anon€*
+local4*apply€*
+local5*x€*1
+_empty_/DeliteDSL#DeliteInt# €*	DeliteInt€*9
+'_empty_/DeliteDSL#DeliteInt#`<init>`(). €@*<init>€*7
+*_empty_/DeliteDSL#DeliteInt#`<init>`().(x) €*x€*+
+_empty_/DeliteDSL#DeliteInt#x. €*x€*0
+#_empty_/DeliteDSL#DeliteInt#copy().*copy€*0
+&_empty_/DeliteDSL#DeliteInt#copy().(x)*x€*D
+-_empty_/DeliteDSL#DeliteInt#copy$default$1().*copy$default$1€*,
+!_empty_/DeliteDSL#DeliteInt#_1().*_1€*0
+_empty_/DeliteDSL#DeliteInt.
+ *	DeliteInt€*2
+$_empty_/DeliteDSL#DeliteInt.apply().*apply€*1
+'_empty_/DeliteDSL#DeliteInt.apply().(x)*x€*6
+&_empty_/DeliteDSL#DeliteInt.unapply().*unapply€*7
++_empty_/DeliteDSL#DeliteInt.unapply().(x$1)*x$1€*8
+'_empty_/DeliteDSL#DeliteInt.toString().*toString€*5
+_empty_/DeliteDSL#forcibleInt.  *forcibleInt€*<
+#_empty_/DeliteDSL#DeliteCollection#*DeliteCollection€*@
+._empty_/DeliteDSL#DeliteCollection#`<init>`(). €@*<init>€*@
+2_empty_/DeliteDSL#DeliteCollection#`<init>`().(xs) €*xs€*0
+&_empty_/DeliteDSL#DeliteCollection#[T]	*T€*4
+&_empty_/DeliteDSL#DeliteCollection#xs. €*xs€*A
+/_empty_/DeliteDSL#DeliteCollection#headProxy().*	headProxy€*<
+2_empty_/DeliteDSL#DeliteCollection#headProxy().[P]	*P€*>
+2_empty_/DeliteDSL#DeliteCollection#headProxy().(w)  *w€*&
+_empty_/DeliteDSL#Test.
+ *Test€*&
+_empty_/DeliteDSL#Test.x. €*x€*4
+ _empty_/DeliteDSL#Test.xAlready. €*xAlready€2
+ _empty_/DeliteDSL#2+
+ _empty_/DeliteDSL#`<init>`().2&
+ _empty_/DeliteDSL#`<~<`#21
+ #_empty_/DeliteDSL#`<~<`#`<init>`().2,
+* ._empty_/DeliteDSL#`<~<`#[From]2*
+2 4_empty_/DeliteDSL#`<~<`#[To]2,
+ _empty_/DeliteDSL#`<~<`#[From]2*
+ _empty_/DeliteDSL#`<~<`#[To]2*
+ _empty_/DeliteDSL#trivial().2-
+ _empty_/DeliteDSL#trivial().[A]2&
+  _empty_/DeliteDSL#`<~<`#2-
+ _empty_/DeliteDSL#trivial().[A]2-
+! "_empty_/DeliteDSL#trivial().[A]2
+% %local021
+1 1#_empty_/DeliteDSL#`<~<`#`<init>`().2&
+, /_empty_/DeliteDSL#`<~<`#2-
+* +_empty_/DeliteDSL#trivial().[A]2-
+0 1_empty_/DeliteDSL#trivial().[A]2
+8 =local12
+> ?local22-
+A B_empty_/DeliteDSL#trivial().[A]2
+F Glocal22)
+ _empty_/DeliteDSL#Forcible#24
+ &_empty_/DeliteDSL#Forcible#`<init>`().2,
+ _empty_/DeliteDSL#Forcible#[T]2)
+	 _empty_/DeliteDSL#Forcible.23
+ %_empty_/DeliteDSL#Forcible.factory().26
+ (_empty_/DeliteDSL#Forcible.factory().[T]26
+ (_empty_/DeliteDSL#Forcible.factory().(f)26
+ (_empty_/DeliteDSL#Forcible.factory().[T]2)
+ #_empty_/DeliteDSL#Forcible#26
+$ %(_empty_/DeliteDSL#Forcible.factory().[T]2
+* *local321
+@ @#_empty_/DeliteDSL#`<~<`#`<init>`().2&
+1 4_empty_/DeliteDSL#`<~<`#26
+/ 0(_empty_/DeliteDSL#Forcible.factory().[T]2)
+5 =_empty_/DeliteDSL#Forcible#26
+> ?(_empty_/DeliteDSL#Forcible.factory().[T]2
+F Klocal42
+L Mlocal526
+O P(_empty_/DeliteDSL#Forcible.factory().[T]2&
+U Uscala/Function1#apply().26
+T U(_empty_/DeliteDSL#Forcible.factory().(f)2
+V Wlocal52*
+		 _empty_/DeliteDSL#DeliteInt#25
+		 '_empty_/DeliteDSL#DeliteInt#`<init>`().2
+		 
+scala/Int#2)
+	'	 /_empty_/DeliteDSL#Forcible#2
+	0	 3
+scala/Int#2,
+		 _empty_/DeliteDSL#DeliteInt#x.21
+		 #_empty_/DeliteDSL#DeliteInt#copy().2/
+		 !_empty_/DeliteDSL#DeliteInt#_1().2*
+		 _empty_/DeliteDSL#DeliteInt.22
+		 $_empty_/DeliteDSL#DeliteInt.apply().2,
+
+
+ _empty_/DeliteDSL#forcibleInt.2&
+
+ 
+ #_empty_/DeliteDSL#`<~<`#2
+
+
+ 
+scala/Int#2)
+
+$
+ ,_empty_/DeliteDSL#Forcible#2
+
+-
+ 0
+scala/Int#23
+
+=
+ D%_empty_/DeliteDSL#Forcible.factory().2)
+
+4
+ <_empty_/DeliteDSL#Forcible.22
+
+N
+ N$_empty_/DeliteDSL#DeliteInt.apply().2*
+
+E
+ N_empty_/DeliteDSL#DeliteInt.2
+
+R
+ U
+scala/Int#21
+ #_empty_/DeliteDSL#DeliteCollection#2<
+ ._empty_/DeliteDSL#DeliteCollection#`<init>`().2%
+$ ,scala/package.Iterable#24
+- .&_empty_/DeliteDSL#DeliteCollection#[T]24
+ &_empty_/DeliteDSL#DeliteCollection#[T]24
+  "&_empty_/DeliteDSL#DeliteCollection#xs.2=
+ /_empty_/DeliteDSL#DeliteCollection#headProxy().2@
+ 2_empty_/DeliteDSL#DeliteCollection#headProxy().[P]2)
+ _empty_/DeliteDSL#Forcible#2@
+- .2_empty_/DeliteDSL#DeliteCollection#headProxy().(w)2&
+2 5_empty_/DeliteDSL#`<~<`#24
+0 1&_empty_/DeliteDSL#DeliteCollection#[T]2@
+6 72_empty_/DeliteDSL#DeliteCollection#headProxy().[P]2@
+: ;2_empty_/DeliteDSL#DeliteCollection#headProxy().[P]2&
+? ?scala/Function1#apply().2@
+> ?2_empty_/DeliteDSL#DeliteCollection#headProxy().(w)22
+C G$scala/collection/IterableOps#head().24
+@ B&_empty_/DeliteDSL#DeliteCollection#xs.2%
+	 _empty_/DeliteDSL#Test.2'
+ 	_empty_/DeliteDSL#Test.x.2=
+. 7/_empty_/DeliteDSL#DeliteCollection#headProxy().2<
+   ._empty_/DeliteDSL#DeliteCollection#`<init>`().27
+% %)scala/collection/IterableFactory#apply().2!
+! %scala/package.List.2,
+7 7_empty_/DeliteDSL#forcibleInt.2.
+    _empty_/DeliteDSL#Test.xAlready.2=
+ V  _/_empty_/DeliteDSL#DeliteCollection#headProxy().2<
+ '  '._empty_/DeliteDSL#DeliteCollection#`<init>`().27
+ ,  ,)scala/collection/IterableFactory#apply().2!
+ (  ,scala/package.List.22
+ 6  6$_empty_/DeliteDSL#DeliteInt.apply().2*
+ -  6_empty_/DeliteDSL#DeliteInt.22
+ C  C$_empty_/DeliteDSL#DeliteInt.apply().2*
+ :  C_empty_/DeliteDSL#DeliteInt.22
+ P  P$_empty_/DeliteDSL#DeliteInt.apply().2*
+ G  P_empty_/DeliteDSL#DeliteInt.2*
+ _  __empty_/DeliteDSL#trivial().PZ C72578482684BC4A3AD073CF20A7480A

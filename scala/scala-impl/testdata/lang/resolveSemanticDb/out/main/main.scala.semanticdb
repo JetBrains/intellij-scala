@@ -1,0 +1,38 @@
+
+ð	tests/pos/main.scala*
+foo/main$package. *foo€*%
+foo/main$package.main().*main€*
+	foo/main# *main€*&
+foo/main#`<init>`(). €@*<init>€* 
+foo/main#main(). € *main€*#
+foo/main#main().(args)*args€*
+local0 €*error€*'
+_empty_/main$package. *_empty_€*)
+_empty_/main$package.List().*List€*
+_empty_/List# *List€**
+_empty_/List#`<init>`(). €@*<init>€*$
+_empty_/List#main(). € *main€*'
+_empty_/List#main().(args)*args€*
+local1 €*error€2
+ foo/2
+ foo/main$package.2
+ scala/main#2&
+ foo/main$package.main().2
+ scala/Unit#2'
+ "scala/Predef.println(+1).2
+ 	foo/main#2"
+ foo/main#`<init>`().2&
+ foo/main$package.main().27
+ )scala/util/CommandLineParser.showError().2
+ local02
+_empty_/main$package.2
+ scala/main#2*
+
+ _empty_/main$package.List().2
+ scala/Unit#2'
+  scala/Predef.println(+1).2
+_empty_/List#2"
+_empty_/List#`<init>`().2&
+_empty_/main$package.List().23
+)scala/util/CommandLineParser.showError().2
+local1PZ 0CE410F9BDC5FD6F55CC4C304C9436F4

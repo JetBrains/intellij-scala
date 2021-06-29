@@ -1,0 +1,192 @@
+
+º4#tests/pos/i4188/collections_1.scala*.
+collections/collections.
+ *collections€*4
+"collections/collections.AnyConstr#*	AnyConstr€*/
+%collections/collections.AnyConstr#[X]	*X€*&
+collections/Iterable#*Iterable€*2
+ collections/Iterable#`<init>`(). €@*<init>€*%
+collections/Iterable#[A]	 €*A€*,
+collections/IterableOps#*IterableOps€*5
+#collections/IterableOps#`<init>`(). €@*<init>€*(
+collections/IterableOps#[A]	 €*A€**
+collections/IterableOps#[CC]	 €*CC€*(
+collections/IterableOps#[C]	 €*C€*
+collections/Map#*Map€*-
+collections/Map#`<init>`(). €@*<init>€*
+collections/Map#[K]	*K€* 
+collections/Map#[V]	 €*V€*"
+collections/MapOps#*MapOps€*0
+collections/MapOps#`<init>`(). €@*<init>€* 
+collections/MapOps#[K]	*K€*#
+collections/MapOps#[V]	 €*V€*%
+collections/MapOps#[CC]	 €*CC€*#
+collections/MapOps#[C]	 €*C€*'
+collections/MapOps#view().*view€*
+collections/View#*View€*.
+collections/View#`<init>`(). €@*<init>€*!
+collections/View#[A]	 €*A€*$
+collections/MapView#*MapView€*1
+collections/MapView#`<init>`(). €@*<init>€*
+local0*l€*
+local1	*X€*
+local2	*Y€*!
+collections/MapView#[K]	*K€*$
+collections/MapView#[V]	 €*V€*.
+collections/MapDecorator#*MapDecorator€*6
+$collections/MapDecorator#`<init>`(). €@*<init>€*&
+collections/MapDecorator#[C]	*C€*&
+collections/MapDecorator#[M]	*M€*(
+collections/HasMapOps#*	HasMapOps€*3
+!collections/HasMapOps#`<init>`(). €@*<init>€*#
+collections/HasMapOps#[C]	*C€*"
+collections/HasMapOps#K#*K€*"
+collections/HasMapOps#V#*V€*"
+collections/HasMapOps#A#*A€*,
+collections/decorators.
+ *
+decorators€*;
+&collections/decorators.MapDecorator().*MapDecorator€*3
+)collections/decorators.MapDecorator().[C]	*C€*9
+,collections/decorators.MapDecorator().(coll)*coll€*9
++collections/decorators.MapDecorator().(map)  *map€*=
+&collections/decorators.mapHasMapOps().  *mapHasMapOps€*5
+*collections/decorators.mapHasMapOps().[CC]	*CC€*5
+*collections/decorators.mapHasMapOps().[K0]	*K0€*5
+*collections/decorators.mapHasMapOps().[V0]	*V0€*
+local3*K€*
+local4*V€2
+ collections/2&
+ collections/collections.20
+ "collections/collections.AnyConstr#23
+ %collections/collections.AnyConstr#[X]2
+ 
+scala/Any#2&
+ collections/collections.2#
+ collections/Iterable#2.
+  collections/Iterable#`<init>`().2&
+ &collections/IterableOps#2&
+' (collections/Iterable#[A]2#
+4 <collections/Iterable#2&
+= >collections/Iterable#[A]2&
+ collections/Iterable#[A]2&
+
+
+ collections/IterableOps#21
+
+
+ #collections/IterableOps#`<init>`().2)
+
+
+ collections/IterableOps#[A]2*
+
+
+ collections/IterableOps#[CC]2)
+
+
+  collections/IterableOps#[C]2
+ 	collections/Map#2)
+	 	collections/Map#`<init>`().2!
+ collections/MapOps#2!
+  !collections/Map#[K]2!
+# $collections/Map#[V]2
++ .collections/Map#2!
+/ 0collections/Map#[K]2!
+2 3collections/Map#[V]2!
+
+ collections/Map#[K]2!
+ collections/Map#[V]2!
+ collections/MapOps#2,
+ collections/MapOps#`<init>`().2&
+
+ collections/IterableOps#2$
+ collections/MapOps#[K]2$
+ collections/MapOps#[V]2$
+( )collections/MapOps#[C]2$
+ collections/MapOps#[K]2$
+ collections/MapOps#[V]2%
+ collections/MapOps#[CC]2$
+@ Acollections/MapOps#[C]2(
+ 
+collections/MapOps#view().2"
+ collections/MapView#2$
+ collections/MapOps#[K]2$
+ collections/MapOps#[V]2#
+ scala/Predef.`???`().2
+ 
+collections/View#2*
+
+ 
+collections/View#`<init>`().2#
+ collections/Iterable#2"
+  !collections/View#[A]2&
+( 3collections/IterableOps#2"
+4 5collections/View#[A]2
+= Acollections/View#2"
+B Ccollections/View#[A]2"
+ collections/View#[A]2"
+ collections/MapView#2-
+ collections/MapView#`<init>`().2!
+
+ collections/MapOps#2%
+ collections/MapView#[K]2%
+ collections/MapView#[V]2
+  local02
+! "local12
+$ %local22
+) -collections/View#2
+/ 0local12
+2 3local22
+< @collections/View#2%
+B Ccollections/MapView#[K]2%
+E Fcollections/MapView#[V]2
+ collections/View#2%
+ collections/MapView#[K]2%
+ collections/MapView#[V]2%
+ collections/MapView#[K]2%
+ collections/MapView#[V]2'
+ collections/MapDecorator#22
+ $collections/MapDecorator#`<init>`().2*
+ collections/MapDecorator#[C]2*
+ collections/MapDecorator#[M]2$
+ collections/HasMapOps#2/
+ !collections/HasMapOps#`<init>`().2'
+ collections/HasMapOps#[C]2&
+ collections/HasMapOps#K#2&
+!! collections/HasMapOps#V#2&
+## collections/HasMapOps#A#2&
+## collections/HasMapOps#K#2&
+## collections/HasMapOps#V#2%
+&& collections/decorators.24
+'' &collections/decorators.MapDecorator().27
+'' )collections/decorators.MapDecorator().[C]2:
+'' ,collections/decorators.MapDecorator().(coll)27
+'' )collections/decorators.MapDecorator().[C]29
+'(' ++collections/decorators.MapDecorator().(map)2$
+'-' 6collections/HasMapOps#27
+'7' 8)collections/decorators.MapDecorator().[C]2'
+'<' Hcollections/MapDecorator#27
+'I' J)collections/decorators.MapDecorator().[C]29
+'L' O+collections/decorators.MapDecorator().(map)2#
+'X' [scala/Predef.`???`().24
+)) &collections/decorators.mapHasMapOps().28
+)) *collections/decorators.mapHasMapOps().[CC]28
+)p) r*collections/decorators.mapHasMapOps().[K0]28
+)t) v*collections/decorators.mapHasMapOps().[V0]2%
+	)y) ‚collections/HasMapOps#2:
+
+)ƒ) …*collections/decorators.mapHasMapOps().[CC]2:
+
+)†) ˆ*collections/decorators.mapHasMapOps().[K0]2:
+
+)Š) Œ*collections/decorators.mapHasMapOps().[V0]2
+
+)–) —local32:
+
+)š) œ*collections/decorators.mapHasMapOps().[K0]2
+
+)£) ¤local42:
+
+)§) ©*collections/decorators.mapHasMapOps().[V0]2%
+
+)®) ±scala/Predef.`???`().PZ 950EC1268EE43FC59F4205A42789E8A7

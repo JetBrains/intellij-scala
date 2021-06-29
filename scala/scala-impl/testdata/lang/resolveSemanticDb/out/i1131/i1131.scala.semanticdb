@@ -1,0 +1,37 @@
+
+Ó	tests/pos/i1131.scala*
+_empty_/Outer#*Outer€*+
+_empty_/Outer#`<init>`(). €@*<init>€*"
+_empty_/Outer#Inner#*Inner€*1
+_empty_/Outer#Inner#`<init>`(). €@*<init>€**
+_empty_/MustBeATrait#*MustBeATrait€*2
+ _empty_/MustBeATrait#`<init>`(). €@*<init>€*$
+_empty_/MustBeATrait#o. €*o€*,
+_empty_/MustBeATrait#inner. €*inner€*
+local0*C€*.
+_empty_/MustBeATrait#inner2. €*inner2€*
+local1 *$anon€2
+ _empty_/Outer#2'
+ _empty_/Outer#`<init>`().2"
+ _empty_/Outer#Inner#2-
+ _empty_/Outer#Inner#`<init>`().2#
+ _empty_/MustBeATrait#2.
+  _empty_/MustBeATrait#`<init>`().2%
+ _empty_/MustBeATrait#o.2'
+ _empty_/Outer#`<init>`().2
+ _empty_/Outer#2)
+ _empty_/MustBeATrait#inner.2
+
+ local02-
+ _empty_/Outer#Inner#`<init>`().2"
+ _empty_/Outer#Inner#2%
+
+ _empty_/MustBeATrait#o.2
+
+
+ 	local02*
+ _empty_/MustBeATrait#inner2.2
+ local12-
+ _empty_/Outer#Inner#`<init>`().2"
+ _empty_/Outer#Inner#2%
+ _empty_/MustBeATrait#o.PZ 18DBF16E10B06036CBC6FDB0491DFF9C

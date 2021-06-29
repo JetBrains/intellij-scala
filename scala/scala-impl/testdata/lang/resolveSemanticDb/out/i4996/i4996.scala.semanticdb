@@ -1,0 +1,30 @@
+
+Ätests/pos/i4996.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#M#*M€*+
+_empty_/Foo#M#`<init>`(). €@*<init>€*
+_empty_/Foo#M#[A]	*A€*
+_empty_/Foo#foo().*foo€*!
+_empty_/Foo#foo().[i0]	*i0€*
+_empty_/Foo#foo().(a)*a€*2
+_empty_/Foo#foo$default$1().*foo$default$1€*+
+ _empty_/Foo#foo$default$1().[i0]	*i0€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ 	_empty_/Foo#M#2'
+	 	_empty_/Foo#M#`<init>`().2
+
+ _empty_/Foo#M#[A]2 
+ 	_empty_/Foo#foo().2$
+
+ _empty_/Foo#foo().[i0]2#
+ _empty_/Foo#foo().(a)2!
+ scala/package.List#2"
+ #scala/Predef.String#2
+ _empty_/Foo#M#2$
+ _empty_/Foo#foo().[i0]2#
+. 1scala/Predef.`???`().2.
+
+  _empty_/Foo#foo$default$1().[i0]2#
+' *scala/Predef.`???`().PZ 2A7C579CDFCDFA9142AEC83D0FD8A150

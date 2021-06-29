@@ -1,0 +1,21 @@
+
+Øtests/pos/return_thistype.scala*
+_empty_/As#*As€*(
+_empty_/As#`<init>`(). €@*<init>€*
+_empty_/As#A#*A€**
+_empty_/As#A#`<init>`(). €@*<init>€*
+_empty_/As#A#foo().*foo€*!
+_empty_/As#A#foo2().*foo2€*
+_empty_/As#A#bar().*bar€2
+ _empty_/As#2$
+ _empty_/As#`<init>`().2
+ 	_empty_/As#A#2&
+ _empty_/As#A#`<init>`().2!
+ _empty_/As#A#foo().2'
+ +scala/Any#asInstanceOf().2!
+ _empty_/As#A#bar().2"
+ _empty_/As#A#foo2().2'
+ *scala/Any#asInstanceOf().2!
+ _empty_/As#A#bar().2!
+ _empty_/As#A#bar().2
+ _empty_/As#A#PZ F9A7BA169CEBA74D35D2DD692EB1FD6E

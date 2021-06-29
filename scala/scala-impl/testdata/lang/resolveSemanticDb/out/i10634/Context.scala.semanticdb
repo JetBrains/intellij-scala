@@ -1,0 +1,26 @@
+
+Åtests/pos/i10634/Context.scala* 
+_empty_/Context#*Context€*-
+_empty_/Context#`<init>`(). €@*<init>€*&
+_empty_/Context#Symbol#*Symbol€*
+_empty_/SymOps#*SymOps€*,
+_empty_/SymOps#`<init>`(). €@*<init>€**
+_empty_/SymOps#`<init>`().(c) €*c€*
+_empty_/SymOps#[C]	*C€*
+_empty_/SymOps#c. €*c€*5
+_empty_/SymOps#getVisibility().*getVisibility€*0
+$_empty_/SymOps#getVisibility().(sym)*sym€2
+ _empty_/Context#2)
+ _empty_/Context#`<init>`().2%
+ _empty_/Context#Symbol#2
+ _empty_/SymOps#2(
+ _empty_/SymOps#`<init>`().2 
+" #_empty_/SymOps#[C]2 
+ _empty_/SymOps#[C]2
+  _empty_/SymOps#c.2-
+ _empty_/SymOps#getVisibility().22
+ $_empty_/SymOps#getVisibility().(sym)2%
+ _empty_/Context#Symbol#2
+ _empty_/SymOps#c.2
+ 
+scala/Int#PZ FD14F3523C3D7A725AA73E90CF018C4A

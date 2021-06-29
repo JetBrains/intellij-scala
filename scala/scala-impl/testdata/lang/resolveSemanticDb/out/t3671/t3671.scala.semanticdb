@@ -1,0 +1,25 @@
+
+Ëtests/pos/t3671.scala*
+_empty_/Crash.
+ *Crash€*$
+_empty_/Crash.crash().*crash€*+
+_empty_/Crash.crash().(value)*value€2
+ _empty_/Crash.2$
+ _empty_/Crash.crash().2+
+ _empty_/Crash.crash().(value)2
+ 
+scala/Int#2
+ scala/Unit#2+
+ _empty_/Crash.crash().(value)2*
+ (java/lang/Integer#MAX_VALUE.2 
+ java/lang/Integer#2
+ 
+java/lang/2
+ java/2'
+, 3scala/Predef.println(+1).2*
+ (java/lang/Integer#MIN_VALUE.2 
+ java/lang/Integer#2
+ 
+java/lang/2
+ java/2'
+, 3scala/Predef.println(+1).PZ 1903F5FD4AF77BBEC46971CBB36D1CDF

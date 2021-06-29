@@ -1,0 +1,77 @@
+
+§#tests/pos/i4167/collections_1.scala*
+collection/Seq#*Seq€*,
+collection/Seq#`<init>`(). €@*<init>€*
+collection/Seq#[A]	 €*A€*!
+collection/SeqOps#*SeqOps€*/
+collection/SeqOps#`<init>`(). €@*<init>€*"
+collection/SeqOps#[A]	 €*A€*$
+collection/SeqOps#[CC]	 €*CC€*"
+collection/SeqOps#[C]	 €*C€*%
+collection/immutable/Seq#*Seq€*6
+$collection/immutable/Seq#`<init>`(). €@*<init>€*)
+collection/immutable/Seq#[A]	 €*A€*+
+collection/immutable/SeqOps#*SeqOps€*9
+'collection/immutable/SeqOps#`<init>`(). €@*<init>€*,
+collection/immutable/SeqOps#[A]	 €*A€*.
+ collection/immutable/SeqOps#[CC]	 €*CC€*,
+collection/immutable/SeqOps#[C]	 €*C€*'
+collection/StringOps#*	StringOps€*2
+ collection/StringOps#`<init>`(). €@*<init>€2
+ collection/2
+ 	collection/Seq#2(
+	 	collection/Seq#`<init>`().2 
+ collection/SeqOps#2 
+ collection/Seq#[A]2
+% (collection/Seq#2 
+) *collection/Seq#[A]2 
+ collection/Seq#[A]2 
+ collection/SeqOps#2+
+ collection/SeqOps#`<init>`().2
+% (
+scala/Any#2#
+ collection/SeqOps#[A]2$
+ collection/SeqOps#[CC]2#
+ collection/SeqOps#[C]2#
+ collection/immutable/2'
+ collection/immutable/Seq#22
+ $collection/immutable/Seq#`<init>`().2
+# &collection/Seq#2
+ "collection/2*
+' (collection/immutable/Seq#[A]2*
+/ 5collection/immutable/SeqOps#2*
+6 7collection/immutable/Seq#[A]2'
+> Acollection/immutable/Seq#2*
+B Ccollection/immutable/Seq#[A]2*
+ collection/immutable/Seq#[A]2*
+ collection/immutable/SeqOps#25
+ 'collection/immutable/SeqOps#`<init>`().2 
+2 8collection/SeqOps#2
+' 1collection/2-
+9 :collection/immutable/SeqOps#[A]2.
+< > collection/immutable/SeqOps#[CC]2-
+@ Acollection/immutable/SeqOps#[C]2-
+ collection/immutable/SeqOps#[A]2.
+  collection/immutable/SeqOps#[CC]2-
+ collection/immutable/SeqOps#[C]2#
+
+
+ collection/StringOps#2.
+
+
+  collection/StringOps#`<init>`().2 
+
+#
+ )collection/SeqOps#2
+
+
+ "collection/2
+
+*
+ .scala/Char#2#
+
+0
+ 9collection/immutable/2"
+
+?
+ Escala/Predef.String#PZ D7B0BD10CDA1F03EAC5AAC394DB07870

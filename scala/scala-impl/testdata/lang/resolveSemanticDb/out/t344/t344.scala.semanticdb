@@ -1,0 +1,52 @@
+
+¿tests/pos/t344.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.A#*A€*+
+_empty_/Bug.A#`<init>`(). €@*<init>€*
+_empty_/Bug.A1# €*A1€*,
+_empty_/Bug.A1#`<init>`(). €@*<init>€*#
+_empty_/Bug.A1#copy().*copy€*
+_empty_/Bug.A1.
+ *A1€*%
+_empty_/Bug.A1.apply().*apply€*)
+_empty_/Bug.A1.unapply().*unapply€**
+_empty_/Bug.A1.unapply().(x$1)*x$1€*+
+_empty_/Bug.A1.toString().*toString€*
+_empty_/Bug.A2# €*A2€*,
+_empty_/Bug.A2#`<init>`(). €@*<init>€*#
+_empty_/Bug.A2#copy().*copy€*
+_empty_/Bug.A2.
+ *A2€*%
+_empty_/Bug.A2.apply().*apply€*)
+_empty_/Bug.A2.unapply().*unapply€**
+_empty_/Bug.A2.unapply().(x$1)*x$1€*+
+_empty_/Bug.A2.toString().*toString€*
+_empty_/Bug.f().*f€*
+local0 €*a€2
+ 
+_empty_/Bug.2
+ 	_empty_/Bug.A#2'
+ _empty_/Bug.A#`<init>`().2
+ _empty_/Bug.A1#2(
+ _empty_/Bug.A1#`<init>`().2'
+ _empty_/Bug.A#`<init>`().2
+ _empty_/Bug.A#2
+ _empty_/Bug.A1.2
+ _empty_/Bug.A2#2(
+ _empty_/Bug.A2#`<init>`().2'
+ _empty_/Bug.A#`<init>`().2
+ _empty_/Bug.A#2
+ _empty_/Bug.A2.2
+ _empty_/Bug.f().2
+	 
+_empty_/Bug.A#2%
+ _empty_/Bug.A1.apply().2
+ _empty_/Bug.A1.2
+
+ local02%
+ _empty_/Bug.A1.apply().2
+ _empty_/Bug.A1.2%
+$ $_empty_/Bug.A2.apply().2
+" $_empty_/Bug.A2.2
+		 local0PZ 4F39353EDE8C68ADA0BAEDF61244EEFA

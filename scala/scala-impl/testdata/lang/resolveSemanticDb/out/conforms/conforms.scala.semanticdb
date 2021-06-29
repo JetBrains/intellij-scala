@@ -1,0 +1,22 @@
+
+»tests/pos/conforms.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[A]	*A€*
+_empty_/Test.f().[B]	*B€*
+_empty_/Test.f().(x)*x€* 
+_empty_/Test.f().(e)  *e€2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[A]2"
+ _empty_/Test.f().[B]2"
+ _empty_/Test.f().(x)2"
+ _empty_/Test.f().[A]2"
+ _empty_/Test.f().(e)2
+  #scala/`<:<`#2"
+$ %_empty_/Test.f().[A]2"
+' (_empty_/Test.f().[B]2"
+, -_empty_/Test.f().[B]2"
+0 0scala/`<:<`#apply().2"
+0 1_empty_/Test.f().(x)PZ 327E39B430AA5D6CFC2806AE117FE049

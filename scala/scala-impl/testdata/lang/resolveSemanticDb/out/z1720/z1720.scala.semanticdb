@@ -1,0 +1,87 @@
+
+¬tests/pos/z1720.scala*
+test/Thing#*Thing€*(
+test/Thing#`<init>`(). €@*<init>€*
+test/Thing#info().*info€*!
+test/Thing#info2().*info2€*
+local0*self€*
+
+test/Info#*Info€*'
+test/Info#`<init>`(). €@*<init>€*
+test/Info#[T]	*T€*"
+test/InfoImpl# €*InfoImpl€*+
+test/InfoImpl#`<init>`(). €@*<init>€*1
+ test/InfoImpl#`<init>`().(thing) €*thing€*
+test/InfoImpl#[T]	*T€*%
+test/InfoImpl#thing. €*thing€*"
+test/InfoImpl#copy().*copy€*"
+test/InfoImpl#copy().[T]	*T€**
+test/InfoImpl#copy().(thing)*thing€*6
+test/InfoImpl#copy$default$1().*copy$default$1€*,
+"test/InfoImpl#copy$default$1().[T]	*T€*
+test/InfoImpl#_1().*_1€*!
+test/InfoImpl.
+ *InfoImpl€*$
+test/InfoImpl.apply().*apply€*#
+test/InfoImpl.apply().[T]	*T€*+
+test/InfoImpl.apply().(thing)*thing€*(
+test/InfoImpl.unapply().*unapply€*%
+test/InfoImpl.unapply().[T]	*T€*)
+test/InfoImpl.unapply().(x$1)*x$1€**
+test/InfoImpl.toString().*toString€*-
+test/InfoRepository.
+ *InfoRepository€*.
+test/InfoRepository.getInfo().*getInfo€*+
+!test/InfoRepository.getInfo().(t)*t€2
+ test/2
+ test/Thing#2$
+ test/Thing#`<init>`().2 
+ 
+test/Thing#info().2
+ 
+test/Info#2,
+- 4test/InfoRepository.getInfo().2"
+ ,test/InfoRepository.2!
+ test/Thing#info2().2
+ 
+test/Info#2
+ local02,
+ test/InfoRepository.getInfo().2"
+ test/InfoRepository.2
+ local02
+
+
+ 
+
+test/Info#2#
+
+
+
+ 
+test/Info#`<init>`().2
+
+
+ test/Info#[T]2
+ test/InfoImpl#2'
+ test/InfoImpl#`<init>`().2
+ test/InfoImpl#[T]2
+) -
+test/Info#2
+. /test/InfoImpl#[T]2
+ test/InfoImpl#[T]2"
+ test/InfoImpl#thing.2
+test/InfoImpl#copy().2!
+ test/InfoImpl#_1().2
+ test/InfoImpl.2 
+test/InfoImpl.apply().2"
+test/InfoImpl.unapply().2"
+ test/InfoRepository.2,
+ test/InfoRepository.getInfo().2/
+ !test/InfoRepository.getInfo().(t)2
+ test/Thing#2
+ 
+test/Info#2/
+ !test/InfoRepository.getInfo().(t)2$
+0 0test/InfoImpl.apply().2
+( 0test/InfoImpl.2/
+1 2!test/InfoRepository.getInfo().(t)PZ 609E0C541661F62DA5FB2F70A0E1D23F

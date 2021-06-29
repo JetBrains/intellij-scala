@@ -1,0 +1,52 @@
+
+ü	tests/pos/trait-java-enum.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*"
+_empty_/MyEnum# ”€*MyEnum€*,
+_empty_/MyEnum#`<init>`(). €@*<init>€* 
+_empty_/MyEnum.
+ *MyEnum€*
+_empty_/MyEnum.A. €©*A€*
+_empty_/MyEnum.B. €©*B€**
+_empty_/MyEnum.$values. €*$values€*'
+_empty_/MyEnum.values().*values€*)
+_empty_/MyEnum.valueOf().*valueOf€*.
+ _empty_/MyEnum.valueOf().($name)*$name€*#
+_empty_/MyEnum.$new().*$new€*3
+!_empty_/MyEnum.$new().(_$ordinal)*	_$ordinal€*+
+_empty_/MyEnum.$new().($name)*$name€*1
+_empty_/MyEnum.fromOrdinal().*fromOrdinal€*6
+&_empty_/MyEnum.fromOrdinal().(ordinal)*ordinal€2
+ 
+_empty_/T#2
+ _empty_/T#`<init>`().2
+ java/lang/Enum#2
+ 
+java/lang/2
+ java/2
+  
+_empty_/T#2
+ _empty_/MyEnum#2(
+ _empty_/MyEnum#`<init>`().2
+ 
+_empty_/T#2
+ _empty_/MyEnum.2
+ _empty_/MyEnum.A.2
+
+ _empty_/MyEnum.B.2%
+
+ 
+_empty_/MyEnum.$values.2&
+
+ 
+_empty_/MyEnum.values().2'
+
+ 
+_empty_/MyEnum.valueOf().2$
+
+ 
+_empty_/MyEnum.$new().2+
+
+ 
+_empty_/MyEnum.fromOrdinal().PZ 9F705CD49A706C6E5EB3A2598009D7E0

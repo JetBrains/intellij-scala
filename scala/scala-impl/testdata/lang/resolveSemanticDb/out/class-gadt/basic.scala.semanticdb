@@ -1,0 +1,117 @@
+
+∫" tests/pos/class-gadt/basic.scala*
+_empty_/basic.
+ *basicÄ*$
+_empty_/basic.Expr# îÄ*ExprÄ*0
+_empty_/basic.Expr#`<init>`(). Ä@*<init>Ä* 
+_empty_/basic.Expr#[A]	*AÄ*"
+_empty_/basic.Expr.
+ *ExprÄ*/
+_empty_/basic.Expr.IntExpr# àÅ*IntExprÄ*8
+&_empty_/basic.Expr.IntExpr#`<init>`(). Ä@*<init>Ä*>
+-_empty_/basic.Expr.IntExpr#`<init>`().(value) Ä*valueÄ*2
+!_empty_/basic.Expr.IntExpr#value. Ä*valueÄ*/
+"_empty_/basic.Expr.IntExpr#copy().*copyÄ*7
+)_empty_/basic.Expr.IntExpr#copy().(value)*valueÄ*C
+,_empty_/basic.Expr.IntExpr#copy$default$1().*copy$default$1Ä*5
+%_empty_/basic.Expr.IntExpr#ordinal().*ordinalÄ*+
+ _empty_/basic.Expr.IntExpr#_1().*_1Ä*-
+_empty_/basic.Expr.IntExpr.
+ *IntExprÄ*1
+#_empty_/basic.Expr.IntExpr.apply().*applyÄ*8
+*_empty_/basic.Expr.IntExpr.apply().(value)*valueÄ*5
+%_empty_/basic.Expr.IntExpr.unapply().*unapplyÄ*6
+*_empty_/basic.Expr.IntExpr.unapply().(x$1)*x$1Ä*7
+&_empty_/basic.Expr.IntExpr.toString().*toStringÄ*+
+_empty_/basic.Expr.Other# àÅ*OtherÄ*6
+$_empty_/basic.Expr.Other#`<init>`(). Ä@*<init>Ä*<
++_empty_/basic.Expr.Other#`<init>`().(value) Ä*valueÄ*&
+_empty_/basic.Expr.Other#[T]	*TÄ*0
+_empty_/basic.Expr.Other#value. Ä*valueÄ*-
+ _empty_/basic.Expr.Other#copy().*copyÄ*-
+#_empty_/basic.Expr.Other#copy().[T]	*TÄ*5
+'_empty_/basic.Expr.Other#copy().(value)*valueÄ*A
+*_empty_/basic.Expr.Other#copy$default$1().*copy$default$1Ä*7
+-_empty_/basic.Expr.Other#copy$default$1().[T]	*TÄ*3
+#_empty_/basic.Expr.Other#ordinal().*ordinalÄ*)
+_empty_/basic.Expr.Other#_1().*_1Ä*)
+_empty_/basic.Expr.Other.
+ *OtherÄ*/
+!_empty_/basic.Expr.Other.apply().*applyÄ*.
+$_empty_/basic.Expr.Other.apply().[T]	*TÄ*6
+(_empty_/basic.Expr.Other.apply().(value)*valueÄ*3
+#_empty_/basic.Expr.Other.unapply().*unapplyÄ*0
+&_empty_/basic.Expr.Other.unapply().[T]	*TÄ*4
+(_empty_/basic.Expr.Other.unapply().(x$1)*x$1Ä*5
+$_empty_/basic.Expr.Other.toString().*toStringÄ*5
+!_empty_/basic.Expr.fromOrdinal().*fromOrdinalÄ*:
+*_empty_/basic.Expr.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/basic.C#*CÄ*-
+_empty_/basic.C#`<init>`(). Ä@*<init>Ä*
+_empty_/basic.C#[A]	*AÄ*$
+_empty_/basic.C#eval().*evalÄ*$
+_empty_/basic.C#eval().(e)*eÄ*
+local0 Ä*iÄ*
+local1 Ä*vÄ2
+ _empty_/basic.2!
+ _empty_/basic.Expr#2,
+ _empty_/basic.Expr#`<init>`().2$
+ _empty_/basic.Expr#[A]2!
+ _empty_/basic.Expr.2)
+	 _empty_/basic.Expr.IntExpr#24
+ &_empty_/basic.Expr.IntExpr#`<init>`().2
+ 
+scala/Int#2,
+. ._empty_/basic.Expr#`<init>`().2!
+% )_empty_/basic.Expr#2
+* -
+scala/Int#2/
+ !_empty_/basic.Expr.IntExpr#value.20
+ "_empty_/basic.Expr.IntExpr#copy().2.
+  _empty_/basic.Expr.IntExpr#_1().2)
+	 	_empty_/basic.Expr.IntExpr.21
+ #_empty_/basic.Expr.IntExpr.apply().2'
+	 _empty_/basic.Expr.Other#22
+ $_empty_/basic.Expr.Other#`<init>`().2*
+ _empty_/basic.Expr.Other#[T]2,
++ +_empty_/basic.Expr#`<init>`().2!
+$ (_empty_/basic.Expr#2*
+) *_empty_/basic.Expr.Other#[T]2*
+ _empty_/basic.Expr.Other#[T]2-
+ _empty_/basic.Expr.Other#value.2.
+  _empty_/basic.Expr.Other#copy().2,
+ _empty_/basic.Expr.Other#_1().2'
+	 	_empty_/basic.Expr.Other.2/
+ !_empty_/basic.Expr.Other.apply().21
+ #_empty_/basic.Expr.Other.unapply().2
+ 	_empty_/basic.C#2)
+	 	_empty_/basic.C#`<init>`().2!
+
+ _empty_/basic.C#[A]2%
+ _empty_/basic.C#eval().2(
+ _empty_/basic.C#eval().(e)2!
+ _empty_/basic.Expr#2!
+ _empty_/basic.C#[A]2!
+ _empty_/basic.C#[A]2(
+ _empty_/basic.C#eval().(e)23
+		 %_empty_/basic.Expr.IntExpr.unapply().2)
+		 _empty_/basic.Expr.IntExpr.2!
+		 _empty_/basic.Expr.2
+		 local02 
+	"	 #scala/Int#`+`(+4).2
+	 	 !local021
+
+
+ #_empty_/basic.Expr.Other.unapply().2'
+
+
+ _empty_/basic.Expr.Other.2!
+
+
+ _empty_/basic.Expr.2
+
+
+ local12
+
+
+ local1PZ 1EA8D89A95875B051BA8D14E4EF5A8F8

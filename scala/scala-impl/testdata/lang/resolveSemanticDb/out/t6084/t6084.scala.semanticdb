@@ -1,0 +1,90 @@
+
+¾tests/pos/t6084.scala*
+foo/package. *foo€*
+foo/package.X#*X€*
+foo/package.X#[T]	*T€*
+foo/package.X#[U]	*U€*
+foo/Foo# *Foo€*%
+foo/Foo#`<init>`(). €@*<init>€*#
+foo/Foo#`<init>`().(d) €*d€*
+foo/Foo#[T]	*T€*
+foo/Foo#[U]	*U€*
+
+foo/Foo#d. €*d€*
+foo/Foo#f1().*f1€*
+foo/Foo#f1().(r)*r€*
+local0 €*x€*
+foo/Foo#f2().*f2€*
+foo/Foo#f2().(r)*r€*
+local1 €*x€*
+foo/Foo#f3().*f3€*
+foo/Foo#f3().(r)*r€*
+local2 €*x€*
+foo/Foo#apply().*apply€*
+foo/Foo#apply().(x)*x€2
+ foo/package.2
+ foo/package.X#2
+ foo/package.X#[T]2
+  foo/package.X#[U]2
+% &foo/package.X#[T]2
+* +foo/package.X#[U]2
+ foo/2
+ foo/Foo#2!
+ foo/Foo#`<init>`().2
+  foo/Foo#[T]2
+$ %foo/Foo#[U]2
+0 1foo/Foo#[T]2
+5 6foo/Foo#[U]2
+ foo/Foo#[T]2
+ foo/Foo#[U]2
+ 
+foo/Foo#d.2
+ 
+foo/Foo#f1().2
+ foo/Foo#f1().(r)2
+ foo/package.X#2
+ foo/Foo#[T]2
+ foo/Foo#[U]2
+# $foo/Foo#f1().(r)2
+2 3local02
+5 8foo/Foo#2
+C D
+foo/Foo#d.2
+A Blocal02
+ 
+foo/Foo#f2().2
+ foo/Foo#f2().(r)2
+ foo/package.X#2
+ foo/Foo#[T]2
+ foo/Foo#[U]2
+ foo/Foo#[T]2
+ foo/Foo#[U]2
+# $foo/Foo#f2().(r)2
+2 3local12
+5 8foo/Foo#2
+C D
+foo/Foo#d.2
+A Blocal12
+ 
+foo/Foo#f3().2
+ foo/Foo#f3().(r)2
+ foo/package.X#2
+ foo/Foo#[T]2
+ foo/Foo#[U]2
+ foo/package.X#2
+ foo/Foo#[T]2
+ foo/Foo#[U]2
+# $foo/Foo#f3().(r)2
+2 3local22
+5 8foo/Foo#2
+C D
+foo/Foo#d.2
+A Blocal22
+		 foo/Foo#apply().2!
+		 foo/Foo#apply().(x)2
+		 foo/Foo#[T]2
+		 foo/Foo#[U]2&
+		 scala/Function1#apply().2
+		 
+foo/Foo#d.2!
+		 foo/Foo#apply().(x)PZ 0C68CC0386430092F631D9276EB6D7CB

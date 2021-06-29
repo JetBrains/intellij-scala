@@ -1,0 +1,719 @@
+
+ÍÐtests/pos/i3666-gadt.scala*
+_empty_/i3666.
+ *i3666€* 
+_empty_/i3666.Exp# *Exp€*/
+_empty_/i3666.Exp#`<init>`(). €@*<init>€*
+_empty_/i3666.Exp#[T]	*T€*!
+_empty_/i3666.Num# €*Num€*/
+_empty_/i3666.Num#`<init>`(). €@*<init>€*-
+ _empty_/i3666.Num#`<init>`().(n) €*n€*!
+_empty_/i3666.Num#n. €*n€*&
+_empty_/i3666.Num#copy().*copy€*&
+_empty_/i3666.Num#copy().(n)*n€*:
+#_empty_/i3666.Num#copy$default$1().*copy$default$1€*"
+_empty_/i3666.Num#_1().*_1€* 
+_empty_/i3666.Num.
+ *Num€*(
+_empty_/i3666.Num.apply().*apply€*'
+_empty_/i3666.Num.apply().(n)*n€*,
+_empty_/i3666.Num.unapply().*unapply€*-
+!_empty_/i3666.Num.unapply().(x$1)*x$1€*.
+_empty_/i3666.Num.toString().*toString€*#
+_empty_/i3666.Plus# €*Plus€*0
+_empty_/i3666.Plus#`<init>`(). €@*<init>€*0
+"_empty_/i3666.Plus#`<init>`().(e1) €*e1€*0
+"_empty_/i3666.Plus#`<init>`().(e2) €*e2€*$
+_empty_/i3666.Plus#e1. €*e1€*$
+_empty_/i3666.Plus#e2. €*e2€*'
+_empty_/i3666.Plus#copy().*copy€*)
+_empty_/i3666.Plus#copy().(e1)*e1€*)
+_empty_/i3666.Plus#copy().(e2)*e2€*;
+$_empty_/i3666.Plus#copy$default$1().*copy$default$1€*;
+$_empty_/i3666.Plus#copy$default$2().*copy$default$2€*#
+_empty_/i3666.Plus#_1().*_1€*#
+_empty_/i3666.Plus#_2().*_2€*"
+_empty_/i3666.Plus.
+ *Plus€*)
+_empty_/i3666.Plus.apply().*apply€**
+_empty_/i3666.Plus.apply().(e1)*e1€**
+_empty_/i3666.Plus.apply().(e2)*e2€*-
+_empty_/i3666.Plus.unapply().*unapply€*.
+"_empty_/i3666.Plus.unapply().(x$1)*x$1€*/
+_empty_/i3666.Plus.toString().*toString€*!
+_empty_/i3666.Var# €*Var€*/
+_empty_/i3666.Var#`<init>`(). €@*<init>€*3
+#_empty_/i3666.Var#`<init>`().(name) €*name€*
+_empty_/i3666.Var#[T]	*T€*'
+_empty_/i3666.Var#name. €*name€*&
+_empty_/i3666.Var#copy().*copy€*&
+_empty_/i3666.Var#copy().[T]	*T€*,
+_empty_/i3666.Var#copy().(name)*name€*:
+#_empty_/i3666.Var#copy$default$1().*copy$default$1€*0
+&_empty_/i3666.Var#copy$default$1().[T]	*T€*"
+_empty_/i3666.Var#_1().*_1€* 
+_empty_/i3666.Var.
+ *Var€*(
+_empty_/i3666.Var.apply().*apply€*'
+_empty_/i3666.Var.apply().[T]	*T€*-
+ _empty_/i3666.Var.apply().(name)*name€*,
+_empty_/i3666.Var.unapply().*unapply€*)
+_empty_/i3666.Var.unapply().[T]	*T€*-
+!_empty_/i3666.Var.unapply().(x$1)*x$1€*.
+_empty_/i3666.Var.toString().*toString€*'
+_empty_/i3666.Lambda# €*Lambda€*2
+ _empty_/i3666.Lambda#`<init>`(). €@*<init>€*0
+#_empty_/i3666.Lambda#`<init>`().(x) €*x€*0
+#_empty_/i3666.Lambda#`<init>`().(e) €*e€*"
+_empty_/i3666.Lambda#[T]	*T€*"
+_empty_/i3666.Lambda#[U]	*U€*$
+_empty_/i3666.Lambda#x. €*x€*$
+_empty_/i3666.Lambda#e. €*e€*)
+_empty_/i3666.Lambda#copy().*copy€*)
+_empty_/i3666.Lambda#copy().[T]	*T€*)
+_empty_/i3666.Lambda#copy().[U]	*U€*)
+_empty_/i3666.Lambda#copy().(x)*x€*)
+_empty_/i3666.Lambda#copy().(e)*e€*=
+&_empty_/i3666.Lambda#copy$default$1().*copy$default$1€*3
+)_empty_/i3666.Lambda#copy$default$1().[T]	*T€*3
+)_empty_/i3666.Lambda#copy$default$1().[U]	*U€*=
+&_empty_/i3666.Lambda#copy$default$2().*copy$default$2€*3
+)_empty_/i3666.Lambda#copy$default$2().[T]	*T€*3
+)_empty_/i3666.Lambda#copy$default$2().[U]	*U€*%
+_empty_/i3666.Lambda#_1().*_1€*%
+_empty_/i3666.Lambda#_2().*_2€*&
+_empty_/i3666.Lambda.
+ *Lambda€*+
+_empty_/i3666.Lambda.apply().*apply€**
+ _empty_/i3666.Lambda.apply().[T]	*T€**
+ _empty_/i3666.Lambda.apply().[U]	*U€**
+ _empty_/i3666.Lambda.apply().(x)*x€**
+ _empty_/i3666.Lambda.apply().(e)*e€*/
+_empty_/i3666.Lambda.unapply().*unapply€*,
+"_empty_/i3666.Lambda.unapply().[T]	*T€*,
+"_empty_/i3666.Lambda.unapply().[U]	*U€*0
+$_empty_/i3666.Lambda.unapply().(x$1)*x$1€*1
+ _empty_/i3666.Lambda.toString().*toString€*!
+_empty_/i3666.App# €*App€*/
+_empty_/i3666.App#`<init>`(). €@*<init>€*-
+ _empty_/i3666.App#`<init>`().(f) €*f€*-
+ _empty_/i3666.App#`<init>`().(e) €*e€*
+_empty_/i3666.App#[T]	*T€*
+_empty_/i3666.App#[U]	*U€*!
+_empty_/i3666.App#f. €*f€*!
+_empty_/i3666.App#e. €*e€*&
+_empty_/i3666.App#copy().*copy€*&
+_empty_/i3666.App#copy().[T]	*T€*&
+_empty_/i3666.App#copy().[U]	*U€*&
+_empty_/i3666.App#copy().(f)*f€*&
+_empty_/i3666.App#copy().(e)*e€*:
+#_empty_/i3666.App#copy$default$1().*copy$default$1€*0
+&_empty_/i3666.App#copy$default$1().[T]	*T€*0
+&_empty_/i3666.App#copy$default$1().[U]	*U€*:
+#_empty_/i3666.App#copy$default$2().*copy$default$2€*0
+&_empty_/i3666.App#copy$default$2().[T]	*T€*0
+&_empty_/i3666.App#copy$default$2().[U]	*U€*"
+_empty_/i3666.App#_1().*_1€*"
+_empty_/i3666.App#_2().*_2€* 
+_empty_/i3666.App.
+ *App€*(
+_empty_/i3666.App.apply().*apply€*'
+_empty_/i3666.App.apply().[T]	*T€*'
+_empty_/i3666.App.apply().[U]	*U€*'
+_empty_/i3666.App.apply().(f)*f€*'
+_empty_/i3666.App.apply().(e)*e€*,
+_empty_/i3666.App.unapply().*unapply€*)
+_empty_/i3666.App.unapply().[T]	*T€*)
+_empty_/i3666.App.unapply().[U]	*U€*-
+!_empty_/i3666.App.unapply().(x$1)*x$1€*.
+_empty_/i3666.App.toString().*toString€* 
+_empty_/i3666.Env# *Env€*/
+_empty_/i3666.Env#`<init>`(). €@*<init>€*
+local0*outer€**
+_empty_/i3666.Env#apply(). *apply€*'
+_empty_/i3666.Env#apply().[T]	*T€*'
+_empty_/i3666.Env#apply().(x)*x€*"
+_empty_/i3666.Env#`+`().*+€*%
+_empty_/i3666.Env#`+`().[T]	*T€*'
+_empty_/i3666.Env#`+`().(xe)*xe€*
+local1 *$anon€*
+local2*apply€*
+local3	*T€*
+local4*x€* 
+_empty_/i3666.Env.
+ *Env€*)
+_empty_/i3666.Env.empty. €*empty€*
+local5 *$anon€*
+local6*apply€*
+local7	*T€*
+local8*x€*"
+_empty_/i3666.Test.
+ *Test€*&
+_empty_/i3666.Test.exp. €*exp€*'
+_empty_/i3666.Test.eval().*eval€*'
+_empty_/i3666.Test.eval().[T]	*T€*'
+_empty_/i3666.Test.eval().(e)*e€*+
+_empty_/i3666.Test.eval().(env)*env€*
+local9 €*n€*
+local10 €*e1€*
+local11 €*e2€*
+local12 €*v€*
+local13 €	*T$1€*
+local14 €	*U$1€*
+local15 €*x€*
+local16 €	*s€*
+local17 €*e€*
+local18*y€*
+local19 €	*T$2€*
+local20 €*f€*
+local21 €*e€*&
+_empty_/i3666Hoas.
+ *	i3666Hoas€*$
+_empty_/i3666Hoas.Exp# *Exp€*3
+!_empty_/i3666Hoas.Exp#`<init>`(). €@*<init>€*#
+_empty_/i3666Hoas.Exp#[T]	*T€*+
+_empty_/i3666Hoas.IntLit# €*IntLit€*6
+$_empty_/i3666Hoas.IntLit#`<init>`(). €@*<init>€*4
+'_empty_/i3666Hoas.IntLit#`<init>`().(n) €*n€*(
+_empty_/i3666Hoas.IntLit#n. €*n€*-
+ _empty_/i3666Hoas.IntLit#copy().*copy€*-
+#_empty_/i3666Hoas.IntLit#copy().(n)*n€*A
+*_empty_/i3666Hoas.IntLit#copy$default$1().*copy$default$1€*)
+_empty_/i3666Hoas.IntLit#_1().*_1€**
+_empty_/i3666Hoas.IntLit.
+ *IntLit€*/
+!_empty_/i3666Hoas.IntLit.apply().*apply€*.
+$_empty_/i3666Hoas.IntLit.apply().(n)*n€*3
+#_empty_/i3666Hoas.IntLit.unapply().*unapply€*4
+(_empty_/i3666Hoas.IntLit.unapply().(x$1)*x$1€*5
+$_empty_/i3666Hoas.IntLit.toString().*toString€*3
+_empty_/i3666Hoas.BooleanLit# €*
+BooleanLit€*:
+(_empty_/i3666Hoas.BooleanLit#`<init>`(). €@*<init>€*8
++_empty_/i3666Hoas.BooleanLit#`<init>`().(b) €*b€*,
+_empty_/i3666Hoas.BooleanLit#b. €*b€*1
+$_empty_/i3666Hoas.BooleanLit#copy().*copy€*1
+'_empty_/i3666Hoas.BooleanLit#copy().(b)*b€*E
+._empty_/i3666Hoas.BooleanLit#copy$default$1().*copy$default$1€*-
+"_empty_/i3666Hoas.BooleanLit#_1().*_1€*2
+_empty_/i3666Hoas.BooleanLit.
+ *
+BooleanLit€*3
+%_empty_/i3666Hoas.BooleanLit.apply().*apply€*2
+(_empty_/i3666Hoas.BooleanLit.apply().(b)*b€*7
+'_empty_/i3666Hoas.BooleanLit.unapply().*unapply€*8
+,_empty_/i3666Hoas.BooleanLit.unapply().(x$1)*x$1€*9
+(_empty_/i3666Hoas.BooleanLit.toString().*toString€*+
+_empty_/i3666Hoas.GenLit# €*GenLit€*6
+$_empty_/i3666Hoas.GenLit#`<init>`(). €@*<init>€*4
+'_empty_/i3666Hoas.GenLit#`<init>`().(t) €*t€*&
+_empty_/i3666Hoas.GenLit#[T]	*T€*(
+_empty_/i3666Hoas.GenLit#t. €*t€*-
+ _empty_/i3666Hoas.GenLit#copy().*copy€*-
+#_empty_/i3666Hoas.GenLit#copy().[T]	*T€*-
+#_empty_/i3666Hoas.GenLit#copy().(t)*t€*A
+*_empty_/i3666Hoas.GenLit#copy$default$1().*copy$default$1€*7
+-_empty_/i3666Hoas.GenLit#copy$default$1().[T]	*T€*)
+_empty_/i3666Hoas.GenLit#_1().*_1€**
+_empty_/i3666Hoas.GenLit.
+ *GenLit€*/
+!_empty_/i3666Hoas.GenLit.apply().*apply€*.
+$_empty_/i3666Hoas.GenLit.apply().[T]	*T€*.
+$_empty_/i3666Hoas.GenLit.apply().(t)*t€*3
+#_empty_/i3666Hoas.GenLit.unapply().*unapply€*0
+&_empty_/i3666Hoas.GenLit.unapply().[T]	*T€*4
+(_empty_/i3666Hoas.GenLit.unapply().(x$1)*x$1€*5
+$_empty_/i3666Hoas.GenLit.toString().*toString€*'
+_empty_/i3666Hoas.Plus# €*Plus€*4
+"_empty_/i3666Hoas.Plus#`<init>`(). €@*<init>€*4
+&_empty_/i3666Hoas.Plus#`<init>`().(e1) €*e1€*4
+&_empty_/i3666Hoas.Plus#`<init>`().(e2) €*e2€*(
+_empty_/i3666Hoas.Plus#e1. €*e1€*(
+_empty_/i3666Hoas.Plus#e2. €*e2€*+
+_empty_/i3666Hoas.Plus#copy().*copy€*-
+"_empty_/i3666Hoas.Plus#copy().(e1)*e1€*-
+"_empty_/i3666Hoas.Plus#copy().(e2)*e2€*?
+(_empty_/i3666Hoas.Plus#copy$default$1().*copy$default$1€*?
+(_empty_/i3666Hoas.Plus#copy$default$2().*copy$default$2€*'
+_empty_/i3666Hoas.Plus#_1().*_1€*'
+_empty_/i3666Hoas.Plus#_2().*_2€*&
+_empty_/i3666Hoas.Plus.
+ *Plus€*-
+_empty_/i3666Hoas.Plus.apply().*apply€*.
+#_empty_/i3666Hoas.Plus.apply().(e1)*e1€*.
+#_empty_/i3666Hoas.Plus.apply().(e2)*e2€*1
+!_empty_/i3666Hoas.Plus.unapply().*unapply€*2
+&_empty_/i3666Hoas.Plus.unapply().(x$1)*x$1€*3
+"_empty_/i3666Hoas.Plus.toString().*toString€*%
+_empty_/i3666Hoas.Fun# €*Fun€*3
+!_empty_/i3666Hoas.Fun#`<init>`(). €@*<init>€*1
+$_empty_/i3666Hoas.Fun#`<init>`().(f) €*f€*#
+_empty_/i3666Hoas.Fun#[S]	*S€*#
+_empty_/i3666Hoas.Fun#[T]	*T€*%
+_empty_/i3666Hoas.Fun#f. €*f€**
+_empty_/i3666Hoas.Fun#copy().*copy€**
+ _empty_/i3666Hoas.Fun#copy().[S]	*S€**
+ _empty_/i3666Hoas.Fun#copy().[T]	*T€**
+ _empty_/i3666Hoas.Fun#copy().(f)*f€*>
+'_empty_/i3666Hoas.Fun#copy$default$1().*copy$default$1€*4
+*_empty_/i3666Hoas.Fun#copy$default$1().[S]	*S€*4
+*_empty_/i3666Hoas.Fun#copy$default$1().[T]	*T€*&
+_empty_/i3666Hoas.Fun#_1().*_1€*$
+_empty_/i3666Hoas.Fun.
+ *Fun€*,
+_empty_/i3666Hoas.Fun.apply().*apply€*+
+!_empty_/i3666Hoas.Fun.apply().[S]	*S€*+
+!_empty_/i3666Hoas.Fun.apply().[T]	*T€*+
+!_empty_/i3666Hoas.Fun.apply().(f)*f€*0
+ _empty_/i3666Hoas.Fun.unapply().*unapply€*-
+#_empty_/i3666Hoas.Fun.unapply().[S]	*S€*-
+#_empty_/i3666Hoas.Fun.unapply().[T]	*T€*1
+%_empty_/i3666Hoas.Fun.unapply().(x$1)*x$1€*2
+!_empty_/i3666Hoas.Fun.toString().*toString€*%
+_empty_/i3666Hoas.App# €*App€*3
+!_empty_/i3666Hoas.App#`<init>`(). €@*<init>€*1
+$_empty_/i3666Hoas.App#`<init>`().(f) €*f€*1
+$_empty_/i3666Hoas.App#`<init>`().(e) €*e€*#
+_empty_/i3666Hoas.App#[T]	*T€*#
+_empty_/i3666Hoas.App#[U]	*U€*%
+_empty_/i3666Hoas.App#f. €*f€*%
+_empty_/i3666Hoas.App#e. €*e€**
+_empty_/i3666Hoas.App#copy().*copy€**
+ _empty_/i3666Hoas.App#copy().[T]	*T€**
+ _empty_/i3666Hoas.App#copy().[U]	*U€**
+ _empty_/i3666Hoas.App#copy().(f)*f€**
+ _empty_/i3666Hoas.App#copy().(e)*e€*>
+'_empty_/i3666Hoas.App#copy$default$1().*copy$default$1€*4
+*_empty_/i3666Hoas.App#copy$default$1().[T]	*T€*4
+*_empty_/i3666Hoas.App#copy$default$1().[U]	*U€*>
+'_empty_/i3666Hoas.App#copy$default$2().*copy$default$2€*4
+*_empty_/i3666Hoas.App#copy$default$2().[T]	*T€*4
+*_empty_/i3666Hoas.App#copy$default$2().[U]	*U€*&
+_empty_/i3666Hoas.App#_1().*_1€*&
+_empty_/i3666Hoas.App#_2().*_2€*$
+_empty_/i3666Hoas.App.
+ *App€*,
+_empty_/i3666Hoas.App.apply().*apply€*+
+!_empty_/i3666Hoas.App.apply().[T]	*T€*+
+!_empty_/i3666Hoas.App.apply().[U]	*U€*+
+!_empty_/i3666Hoas.App.apply().(f)*f€*+
+!_empty_/i3666Hoas.App.apply().(e)*e€*0
+ _empty_/i3666Hoas.App.unapply().*unapply€*-
+#_empty_/i3666Hoas.App.unapply().[T]	*T€*-
+#_empty_/i3666Hoas.App.unapply().[U]	*U€*1
+%_empty_/i3666Hoas.App.unapply().(x$1)*x$1€*2
+!_empty_/i3666Hoas.App.toString().*toString€*&
+_empty_/i3666Hoas.eval().*eval€*&
+_empty_/i3666Hoas.eval().[T]	*T€*&
+_empty_/i3666Hoas.eval().(e)*e€*
+local22 €*n€*
+local23 €*b€*
+local24 €*t€*
+local25 €*e1€*
+local26 €*e2€*
+local27 €*f€*
+local28 €	*s€*
+local29 €	*t€*
+local30*v€*
+local31 €	*T$3€*
+local32 €*f€*
+local33 €*e€*%
+_empty_/i3666Hoas.exp. €*exp€*
+local34*x€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ _empty_/i3666.2 
+ _empty_/i3666.Exp#2+
+ _empty_/i3666.Exp#`<init>`().2#
+ _empty_/i3666.Exp#[T]2 
+ _empty_/i3666.Num#2+
+ _empty_/i3666.Num#`<init>`().2
+ 
+scala/Int#2 
+! $_empty_/i3666.Exp#2
+% (
+scala/Int#2"
+ _empty_/i3666.Num#n.2'
+ _empty_/i3666.Num#copy().2%
+ _empty_/i3666.Num#_1().2 
+ _empty_/i3666.Num.2(
+ _empty_/i3666.Num.apply().2!
+ _empty_/i3666.Plus#2,
+ _empty_/i3666.Plus#`<init>`().2 
+ _empty_/i3666.Exp#2
+ 
+scala/Int#2 
+$ '_empty_/i3666.Exp#2
+( +
+scala/Int#2 
+6 9_empty_/i3666.Exp#2
+: =
+scala/Int#2$
+ _empty_/i3666.Plus#e1.2$
+  "_empty_/i3666.Plus#e2.2(
+ _empty_/i3666.Plus#copy().2&
+ _empty_/i3666.Plus#_1().2&
+$ $_empty_/i3666.Plus#_2().2!
+ _empty_/i3666.Plus.2)
+ _empty_/i3666.Plus.apply().2 
+ _empty_/i3666.Var#2+
+ _empty_/i3666.Var#`<init>`().2"
+  scala/Predef.String#2 
+* -_empty_/i3666.Exp#2#
+. /_empty_/i3666.Var#[T]2#
+ _empty_/i3666.Var#[T]2%
+ _empty_/i3666.Var#name.2'
+ _empty_/i3666.Var#copy().2%
+ _empty_/i3666.Var#_1().2 
+ _empty_/i3666.Var.2(
+ _empty_/i3666.Var.apply().2*
+ _empty_/i3666.Var.unapply().2#
+ _empty_/i3666.Lambda#2.
+  _empty_/i3666.Lambda#`<init>`().2 
+  _empty_/i3666.Var#2&
+! "_empty_/i3666.Lambda#[T]2 
+( +_empty_/i3666.Exp#2&
+, -_empty_/i3666.Lambda#[U]2 
+8 ;_empty_/i3666.Exp#2&
+< =_empty_/i3666.Lambda#[T]2&
+A B_empty_/i3666.Lambda#[U]2&
+ _empty_/i3666.Lambda#[T]2&
+ _empty_/i3666.Lambda#[U]2%
+ _empty_/i3666.Lambda#x.2%
+% &_empty_/i3666.Lambda#e.2*
+ _empty_/i3666.Lambda#copy().2(
+ _empty_/i3666.Lambda#_1().2(
+( (_empty_/i3666.Lambda#_2().2#
+ _empty_/i3666.Lambda.2+
+ _empty_/i3666.Lambda.apply().2-
+ _empty_/i3666.Lambda.unapply().2 
+ _empty_/i3666.App#2+
+ _empty_/i3666.App#`<init>`().2 
+ _empty_/i3666.Exp#2#
+ _empty_/i3666.App#[T]2#
+# $_empty_/i3666.App#[U]2 
+* -_empty_/i3666.Exp#2#
+. /_empty_/i3666.App#[T]2 
+: =_empty_/i3666.Exp#2#
+> ?_empty_/i3666.App#[U]2#
+ _empty_/i3666.App#[T]2#
+ _empty_/i3666.App#[U]2"
+ _empty_/i3666.App#f.2"
+' (_empty_/i3666.App#e.2'
+ _empty_/i3666.App#copy().2%
+ _empty_/i3666.App#_1().2%
+* *_empty_/i3666.App#_2().2 
+ _empty_/i3666.App.2(
+ _empty_/i3666.App.apply().2*
+ _empty_/i3666.App.unapply().2 
+		 _empty_/i3666.Env#2+
+		 _empty_/i3666.Env#`<init>`().2
+		 local02(
+
+
+ _empty_/i3666.Env#apply().2+
+
+
+ _empty_/i3666.Env#apply().[T]2+
+
+
+ _empty_/i3666.Env#apply().(x)2 
+
+
+ _empty_/i3666.Var#2+
+
+
+ _empty_/i3666.Env#apply().[T]2+
+
+
+ _empty_/i3666.Env#apply().[T]2&
+ 	_empty_/i3666.Env#`+`().2)
+ _empty_/i3666.Env#`+`().[T]2*
+ _empty_/i3666.Env#`+`().(xe)2 
+ _empty_/i3666.Var#2)
+ _empty_/i3666.Env#`+`().[T]2)
+ _empty_/i3666.Env#`+`().[T]2
+! !local12+
+( (_empty_/i3666.Env#`<init>`().2 
+% (_empty_/i3666.Env#2
+
+ local22
+ local32
+ local42 
+ _empty_/i3666.Var#2
+ local32
+  local32
+ scala/Any#`==`().2
+ local42
+ scala/Tuple2#_1.2*
+ _empty_/i3666.Env#`+`().(xe)2'
+ *scala/Any#asInstanceOf().2
+ scala/Tuple2#_2.2*
+ _empty_/i3666.Env#`+`().(xe)2
++ ,local32(
+ _empty_/i3666.Env#apply().2 
+ _empty_/i3666.Env#2
+ local42 
+	 _empty_/i3666.Env.2&
+ _empty_/i3666.Env.empty.2
+ local52+
+ _empty_/i3666.Env#`<init>`().2 
+ _empty_/i3666.Env#2
+
+ local62
+ local72
+ local82 
+ _empty_/i3666.Var#2
+ local72
+  local72#
+# &scala/Predef.`???`().2!
+	 _empty_/i3666.Test.2%
+ _empty_/i3666.Test.exp.2(
+ _empty_/i3666.App.apply().2 
+ _empty_/i3666.App.2+
+ _empty_/i3666.Lambda.apply().2#
+ _empty_/i3666.Lambda.2(
+ _empty_/i3666.Var.apply().2 
+ _empty_/i3666.Var.2
+  
+scala/Int#2)
+, ,_empty_/i3666.Plus.apply().2!
+( ,_empty_/i3666.Plus.2(
+0 0_empty_/i3666.Var.apply().2 
+- 0_empty_/i3666.Var.2
+1 4
+scala/Int#2(
+? ?_empty_/i3666.Num.apply().2 
+< ?_empty_/i3666.Num.2(
+I I_empty_/i3666.Var.apply().2 
+F I_empty_/i3666.Var.2
+J M
+scala/Int#2(
+ _empty_/i3666.Test.eval().2+
+ _empty_/i3666.Test.eval().[T]2+
+ _empty_/i3666.Test.eval().(e)2 
+ _empty_/i3666.Exp#2+
+ _empty_/i3666.Test.eval().[T]2-
+ _empty_/i3666.Test.eval().(env)2 
+  #_empty_/i3666.Env#2+
+& '_empty_/i3666.Test.eval().[T]2+
+* +_empty_/i3666.Test.eval().(e)2*
+ _empty_/i3666.Num.unapply().2 
+ _empty_/i3666.Num.2
+ local92
+ local92+
+ _empty_/i3666.Plus.unapply().2!
+ _empty_/i3666.Plus.2
+ local102
+ local112 
+) *scala/Int#`+`(+4).2(
+ _empty_/i3666.Test.eval().2
+  "local102-
+$ '_empty_/i3666.Test.eval().(env)2(
++ /_empty_/i3666.Test.eval().2
+0 2local112-
+4 7_empty_/i3666.Test.eval().(env)2
+   local122 
+   _empty_/i3666.Var#2(
+   _empty_/i3666.Env#apply().2-
+   _empty_/i3666.Test.eval().(env)2
+   local122-
+!! _empty_/i3666.Lambda.unapply().2#
+!! _empty_/i3666.Lambda.2
+!! local132
+!! local142
+!! local152 
+!! _empty_/i3666.Var#2
+!! local162
+!! local172
+!%! &local182
+!(! )local162(
+!.! 2_empty_/i3666.Test.eval().2
+!3! 4local172&
+!:! ;_empty_/i3666.Env#`+`().2-
+!6! 9_empty_/i3666.Test.eval().(env)2-
+!?! Ascala/Predef.ArrowAssoc#`->`().2(
+!=! =scala/Predef.ArrowAssoc().2
+!=! >local152
+!B! Clocal182*
+"" _empty_/i3666.App.unapply().2 
+"" _empty_/i3666.App.2
+"" local192
+"" local202
+"" local212&
+"$" $scala/Function1#apply().2(
+"" _empty_/i3666.Test.eval().2
+"" local202-
+" " #_empty_/i3666.Test.eval().(env)2(
+"%" )_empty_/i3666.Test.eval().2
+"*" +local212-
+"-" 0_empty_/i3666.Test.eval().(env)2(
+%% _empty_/i3666.Test.eval().2%
+%	% _empty_/i3666.Test.exp.2&
+%% _empty_/i3666.Env.empty.2 
+%% _empty_/i3666.Env.2 
+)) _empty_/i3666Hoas.2$
+** _empty_/i3666Hoas.Exp#2/
+** !_empty_/i3666Hoas.Exp#`<init>`().2'
+** _empty_/i3666Hoas.Exp#[T]2'
+++ _empty_/i3666Hoas.IntLit#22
+++ $_empty_/i3666Hoas.IntLit#`<init>`().2
+++ 
+scala/Int#2$
++$+ '_empty_/i3666Hoas.Exp#2
++(+ +
+scala/Int#2)
+++ _empty_/i3666Hoas.IntLit#n.2.
+++  _empty_/i3666Hoas.IntLit#copy().2,
+++ _empty_/i3666Hoas.IntLit#_1().2'
+++ _empty_/i3666Hoas.IntLit.2/
+++ !_empty_/i3666Hoas.IntLit.apply().2+
+,, _empty_/i3666Hoas.BooleanLit#26
+,, (_empty_/i3666Hoas.BooleanLit#`<init>`().2
+,, "scala/Boolean#2$
+,,, /_empty_/i3666Hoas.Exp#2
+,0, 7scala/Boolean#2-
+,, _empty_/i3666Hoas.BooleanLit#b.22
+,, $_empty_/i3666Hoas.BooleanLit#copy().20
+,, "_empty_/i3666Hoas.BooleanLit#_1().2+
+,, _empty_/i3666Hoas.BooleanLit.23
+,, %_empty_/i3666Hoas.BooleanLit.apply().2'
+.. _empty_/i3666Hoas.GenLit#22
+.. $_empty_/i3666Hoas.GenLit#`<init>`().2*
+.. _empty_/i3666Hoas.GenLit#[T]2$
+.%. (_empty_/i3666Hoas.Exp#2*
+.). *_empty_/i3666Hoas.GenLit#[T]2*
+.. _empty_/i3666Hoas.GenLit#[T]2)
+.. _empty_/i3666Hoas.GenLit#t.2.
+..  _empty_/i3666Hoas.GenLit#copy().2,
+.. _empty_/i3666Hoas.GenLit#_1().2'
+.. _empty_/i3666Hoas.GenLit.2/
+.. !_empty_/i3666Hoas.GenLit.apply().21
+.. #_empty_/i3666Hoas.GenLit.unapply().2%
+// _empty_/i3666Hoas.Plus#20
+// "_empty_/i3666Hoas.Plus#`<init>`().2$
+// _empty_/i3666Hoas.Exp#2
+// 
+scala/Int#2$
+/$/ '_empty_/i3666Hoas.Exp#2
+/(/ +
+scala/Int#2$
+/6/ 9_empty_/i3666Hoas.Exp#2
+/:/ =
+scala/Int#2(
+// _empty_/i3666Hoas.Plus#e1.2(
+/ / "_empty_/i3666Hoas.Plus#e2.2,
+// _empty_/i3666Hoas.Plus#copy().2*
+// _empty_/i3666Hoas.Plus#_1().2*
+/$/ $_empty_/i3666Hoas.Plus#_2().2%
+// _empty_/i3666Hoas.Plus.2-
+// _empty_/i3666Hoas.Plus.apply().2$
+00 _empty_/i3666Hoas.Fun#2/
+00 !_empty_/i3666Hoas.Fun#`<init>`().2$
+00 _empty_/i3666Hoas.Exp#2'
+00 _empty_/i3666Hoas.Fun#[S]2$
+0$0 '_empty_/i3666Hoas.Exp#2'
+0(0 )_empty_/i3666Hoas.Fun#[T]2$
+040 7_empty_/i3666Hoas.Exp#2'
+080 9_empty_/i3666Hoas.Fun#[S]2'
+0=0 >_empty_/i3666Hoas.Fun#[T]2'
+00 _empty_/i3666Hoas.Fun#[S]2'
+00 _empty_/i3666Hoas.Fun#[T]2&
+00 _empty_/i3666Hoas.Fun#f.2+
+00 _empty_/i3666Hoas.Fun#copy().2)
+00 _empty_/i3666Hoas.Fun#_1().2$
+00 _empty_/i3666Hoas.Fun.2,
+00 _empty_/i3666Hoas.Fun.apply().2.
+00  _empty_/i3666Hoas.Fun.unapply().2$
+11 _empty_/i3666Hoas.App#2/
+11 !_empty_/i3666Hoas.App#`<init>`().2$
+11 _empty_/i3666Hoas.Exp#2'
+11 _empty_/i3666Hoas.App#[T]2'
+1#1 $_empty_/i3666Hoas.App#[U]2$
+1*1 -_empty_/i3666Hoas.Exp#2'
+1.1 /_empty_/i3666Hoas.App#[T]2$
+1:1 =_empty_/i3666Hoas.Exp#2'
+1>1 ?_empty_/i3666Hoas.App#[U]2'
+11 _empty_/i3666Hoas.App#[T]2'
+11 _empty_/i3666Hoas.App#[U]2&
+11 _empty_/i3666Hoas.App#f.2&
+1'1 (_empty_/i3666Hoas.App#e.2+
+11 _empty_/i3666Hoas.App#copy().2)
+11 _empty_/i3666Hoas.App#_1().2)
+1*1 *_empty_/i3666Hoas.App#_2().2$
+11 _empty_/i3666Hoas.App.2,
+11 _empty_/i3666Hoas.App.apply().2.
+11  _empty_/i3666Hoas.App.unapply().2'
+44 
+_empty_/i3666Hoas.eval().2*
+44 _empty_/i3666Hoas.eval().[T]2*
+44 _empty_/i3666Hoas.eval().(e)2$
+44 _empty_/i3666Hoas.Exp#2*
+44 _empty_/i3666Hoas.eval().[T]2*
+44 _empty_/i3666Hoas.eval().[T]2*
+44 _empty_/i3666Hoas.eval().(e)21
+55 #_empty_/i3666Hoas.IntLit.unapply().2'
+5	5 _empty_/i3666Hoas.IntLit.2
+55 local222
+55 local2225
+66 '_empty_/i3666Hoas.BooleanLit.unapply().2+
+6	6 _empty_/i3666Hoas.BooleanLit.2
+66 local232
+66 local2321
+77 #_empty_/i3666Hoas.GenLit.unapply().2'
+7	7 _empty_/i3666Hoas.GenLit.2
+77 local242
+77 local242/
+88 !_empty_/i3666Hoas.Plus.unapply().2%
+8	8 _empty_/i3666Hoas.Plus.2
+88 local252
+88 local262 
+8"8 #scala/Int#`+`(+4).2'
+88 _empty_/i3666Hoas.eval().2
+88  local252'
+8$8 (_empty_/i3666Hoas.eval().2
+8)8 +local262
+9	9 
+local272$
+99 _empty_/i3666Hoas.Fun#2
+99 local282
+99 local292
+:: local302
+:
+: local282'
+:: _empty_/i3666Hoas.eval().2&
+:: scala/Function1#apply().2&
+:: _empty_/i3666Hoas.Fun#f.2
+:: local272/
+:: !_empty_/i3666Hoas.GenLit.apply().2'
+:: _empty_/i3666Hoas.GenLit.2
+: : !local302.
+;;  _empty_/i3666Hoas.App.unapply().2$
+;	; _empty_/i3666Hoas.App.2
+;; local312
+;; local322
+;; local332&
+;; scala/Function1#apply().2'
+;; _empty_/i3666Hoas.eval().2
+;; local322'
+;; "_empty_/i3666Hoas.eval().2
+;#; $local332$
+>> 	_empty_/i3666Hoas.exp.2,
+>> _empty_/i3666Hoas.App.apply().2$
+>> _empty_/i3666Hoas.App.2,
+>> _empty_/i3666Hoas.Fun.apply().2$
+>> _empty_/i3666Hoas.Fun.2
+>> 
+scala/Int#2
+>> local342-
+>&> &_empty_/i3666Hoas.Plus.apply().2%
+>"> &_empty_/i3666Hoas.Plus.2
+>'> (local342/
+>0> 0!_empty_/i3666Hoas.IntLit.apply().2'
+>*> 0_empty_/i3666Hoas.IntLit.2/
+>=> =!_empty_/i3666Hoas.IntLit.apply().2'
+>7> =_empty_/i3666Hoas.IntLit.2'
+@@ _empty_/i3666Hoas.eval().2$
+@@ 
+_empty_/i3666Hoas.exp.PZ CE718228EFEB59489507113EDB1D05C2

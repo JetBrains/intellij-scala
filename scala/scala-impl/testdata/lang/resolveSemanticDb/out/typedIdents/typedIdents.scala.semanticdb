@@ -1,0 +1,53 @@
+
+«	'tests/pos/typedIdents/typedIdents.scala*
+P/A.
+ *A€*
+P/A.B.
+ *B€*
+P/A.B.C.
+ *C€*
+
+P/A.B.C.x. €*x€*
+local0 €*x€2
+ 	P/2
+	 scala/Console.2
+	 
+P/A.2(
+ scala/Console.println(+1).2%
+ java/lang/String#`+`().2
+ P/X.2
+ P/A.B.2
+ Q/2(
+ scala/Console.println(+1).2%
+ java/lang/String#`+`().2
+ Q/X.2
+ Q/X.2(
+ scala/Console.println(+1).2%
+ java/lang/String#`+`().2
+ Q/X.x.2
+		 P/A.B.C.2
+
+
+ 
+P/A.B.C.x.2(
+ scala/Console.println(+1).2%
+ java/lang/String#`+`().2
+ 
+P/A.B.C.x.2%
+ scala/Predef.locally().2
+ Q/X.2
+ Q/2
+ Q/X.y.2
+ Q/X.2(
+
+ scala/Console.println(+1).2%
+ java/lang/String#`+`().2
+ Q/X.y.2%
+
+ scala/Predef.locally().2
+ local02
+ P/X.2
+ P/2(
+ scala/Console.println(+1).2%
+ java/lang/String#`+`().2
+ local0PZ 36EE3DDD01CFE30437A45E401DC6474D

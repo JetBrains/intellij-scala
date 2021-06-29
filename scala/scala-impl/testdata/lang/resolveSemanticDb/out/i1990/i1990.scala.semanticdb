@@ -1,0 +1,44 @@
+
+Ãtests/pos/i1990.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#Foo#*Foo€*+
+_empty_/A#Foo#`<init>`(). €@*<init>€*.
+_empty_/A#Foo#inlineMeth().*
+inlineMeth€*
+_empty_/A#Bar#*Bar€*+
+_empty_/A#Bar#`<init>`(). €@*<init>€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#Foo#2'
+ _empty_/A#Foo#`<init>`().2)
+ _empty_/A#Foo#inlineMeth().2
+ scala/Unit#2'
+ _empty_/A#Bar#`<init>`().2
+
+ _empty_/A#Bar#2
+ _empty_/A#Bar#2'
+ _empty_/A#Bar#`<init>`().2
+		 
+_empty_/B#2#
+		 _empty_/B#`<init>`().2#
+		 _empty_/A#`<init>`().2
+		 
+_empty_/A#2)
+
+
+ _empty_/A#Foo#inlineMeth().2'
+
+
+
+ 
+_empty_/A#Foo#`<init>`().2
+
+
+ 
+_empty_/A#Foo#PZ 3C3BCA2FF57034CBEA28E388C715700D

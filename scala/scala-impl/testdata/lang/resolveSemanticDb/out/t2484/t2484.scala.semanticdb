@@ -1,0 +1,136 @@
+
+‘ tests/pos/t2484.scala*
+_empty_/Admin#*Admin€*+
+_empty_/Admin#`<init>`(). €@*<init>€*1
+_empty_/Admin#jScrollPane. €*jScrollPane€*$
+_empty_/Admin#t2484().*t2484€*
+local0*someFunction€*
+local1*nested€*
+local2*componentShown€*
+local3*e€*
+_empty_/Admin2#*Admin2€*,
+_empty_/Admin2#`<init>`(). €@*<init>€*2
+_empty_/Admin2#jScrollPane. €*jScrollPane€*%
+_empty_/Admin2#t2484().*t2484€*
+local4*someFunction€*
+local5 *$anon€*
+local6*componentShown€*
+local7*e€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.meh().*meh€*"
+_empty_/Test.meh().(xs)*xs€*
+local8*x€*
+local9 *$anon€2?
+- 35scala/concurrent/ExecutionContext.Implicits.global().26
+# ,,scala/concurrent/ExecutionContext.Implicits.2,
+ ""scala/concurrent/ExecutionContext.2
+ scala/concurrent/2
+ _empty_/Admin#2'
+ _empty_/Admin#`<init>`().2-
+' 'javax/swing/JApplet#`<init>`().2"
+  'javax/swing/JApplet#2
+ javax/swing/2
+ javax/2(
+ _empty_/Admin#jScrollPane.21
+/ /#javax/swing/JScrollPane#`<init>`().2&
+$ /javax/swing/JScrollPane#2
+ #javax/swing/2
+ javax/2$
+ _empty_/Admin#t2484().2
+ scala/Unit#2.
+  scala/concurrent/Future.apply().2&
+ scala/concurrent/Future.2
+
+ scala/concurrent/2
+ 	scala/2.
+) 5 java/lang/Object#synchronized().2(
+ (_empty_/Admin#jScrollPane.2
+
+ local028
+ &*java/awt/Component#addComponentListener().2(
+ _empty_/Admin#jScrollPane.2
+		 local129
+	<	 <+java/awt/event/ComponentAdapter#`<init>`().2.
+	,	 < java/awt/event/ComponentAdapter#2
+	&	 +java/awt/event/2
+	"	 %	java/awt/2
+		 !java/2
+
+
+ %local22
+
+'
+ (local32,
+
+9
+ Gjava/awt/event/ComponentEvent#2
+
+3
+ 8java/awt/event/2
+
+/
+ 2	java/awt/2
+
+*
+ .java/2
+ local02;
+ /-java/awt/Component#removeComponentListener().2(
+ _empty_/Admin#jScrollPane.2
+ local12C
+ 5scala/concurrent/ExecutionContext.Implicits.global().2
+ _empty_/Admin2#2(
+ _empty_/Admin2#`<init>`().2-
+( (javax/swing/JApplet#`<init>`().2"
+! (javax/swing/JApplet#2
+  javax/swing/2
+ javax/2)
+ _empty_/Admin2#jScrollPane.21
+/ /#javax/swing/JScrollPane#`<init>`().2&
+$ /javax/swing/JScrollPane#2
+ #javax/swing/2
+ javax/2%
+ _empty_/Admin2#t2484().2
+ scala/Unit#2.
+  scala/concurrent/Future.apply().2&
+ scala/concurrent/Future.2
+
+ scala/concurrent/2
+ 	scala/2.
+) 5 java/lang/Object#synchronized().2)
+ (_empty_/Admin2#jScrollPane.2
+
+ local428
+ &*java/awt/Component#addComponentListener().2)
+ _empty_/Admin2#jScrollPane.2
+( (local529
+K K+java/awt/event/ComponentAdapter#`<init>`().2.
+; K java/awt/event/ComponentAdapter#2
+5 :java/awt/event/2
+1 4	java/awt/2
+, 0java/2
+Z hlocal62
+j klocal72-
+	| Šjava/awt/event/ComponentEvent#2
+v {java/awt/event/2
+r u	java/awt/2
+m qjava/2
+ local42;
+% <-java/awt/Component#removeComponentListener().2)
+ $_empty_/Admin2#jScrollPane.2C
+ 5scala/concurrent/ExecutionContext.Implicits.global().2
+## _empty_/Test.2!
+$$ 	_empty_/Test.meh().2%
+$
+$ _empty_/Test.meh().(xs)2!
+$$ scala/package.List#2
+$$ 
+scala/Any#2
+$$ scala/Unit#24
+%% 
+&scala/collection/immutable/List#map().2%
+%% _empty_/Test.meh().(xs)2
+%% local82
+%% local92*
+%% java/lang/Object#`<init>`().2
+%% scala/AnyRef#PZ CD428DD4639BF2FD94A430FC2D7FDB36

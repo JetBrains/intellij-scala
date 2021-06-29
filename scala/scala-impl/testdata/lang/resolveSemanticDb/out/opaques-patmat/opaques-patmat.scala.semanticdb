@@ -1,0 +1,151 @@
+
+º1tests/pos/opaques-patmat.scala*,
+_empty_/OpaquePatmat.
+ *OpaquePatmat€*%
+_empty_/OpaquePatmat.Pos#*Pos€*'
+_empty_/OpaquePatmat.Pos.
+ *Pos€*/
+!_empty_/OpaquePatmat.Pos.mkPos().*mkPos€*.
+$_empty_/OpaquePatmat.Pos.mkPos().(i)*i€*1
+"_empty_/OpaquePatmat.Pos.coerce().*coerce€*/
+%_empty_/OpaquePatmat.Pos.coerce().[F]	*F€*1
+&_empty_/OpaquePatmat.Pos.coerce().(fa)*fa€*)
+_empty_/OpaquePatmat.Expr# *Expr€*7
+%_empty_/OpaquePatmat.Expr#`<init>`(). €@*<init>€*'
+_empty_/OpaquePatmat.Expr#[T]	*T€*0
+_empty_/OpaquePatmat.PosExpr# ˆ*PosExpr€*:
+(_empty_/OpaquePatmat.PosExpr#`<init>`(). €@*<init>€*8
++_empty_/OpaquePatmat.PosExpr#`<init>`().(p) €*p€*,
+_empty_/OpaquePatmat.PosExpr#p. €*p€*1
+$_empty_/OpaquePatmat.PosExpr#copy().*copy€*1
+'_empty_/OpaquePatmat.PosExpr#copy().(p)*p€*E
+._empty_/OpaquePatmat.PosExpr#copy$default$1().*copy$default$1€*-
+"_empty_/OpaquePatmat.PosExpr#_1().*_1€*/
+_empty_/OpaquePatmat.PosExpr.
+ *PosExpr€*3
+%_empty_/OpaquePatmat.PosExpr.apply().*apply€*2
+(_empty_/OpaquePatmat.PosExpr.apply().(p)*p€*7
+'_empty_/OpaquePatmat.PosExpr.unapply().*unapply€*8
+,_empty_/OpaquePatmat.PosExpr.unapply().(x$1)*x$1€*9
+(_empty_/OpaquePatmat.PosExpr.toString().*toString€*0
+_empty_/OpaquePatmat.IntExpr# ˆ*IntExpr€*:
+(_empty_/OpaquePatmat.IntExpr#`<init>`(). €@*<init>€*8
++_empty_/OpaquePatmat.IntExpr#`<init>`().(i) €*i€*,
+_empty_/OpaquePatmat.IntExpr#i. €*i€*1
+$_empty_/OpaquePatmat.IntExpr#copy().*copy€*1
+'_empty_/OpaquePatmat.IntExpr#copy().(i)*i€*E
+._empty_/OpaquePatmat.IntExpr#copy$default$1().*copy$default$1€*-
+"_empty_/OpaquePatmat.IntExpr#_1().*_1€*/
+_empty_/OpaquePatmat.IntExpr.
+ *IntExpr€*3
+%_empty_/OpaquePatmat.IntExpr.apply().*apply€*2
+(_empty_/OpaquePatmat.IntExpr.apply().(i)*i€*7
+'_empty_/OpaquePatmat.IntExpr.unapply().*unapply€*8
+,_empty_/OpaquePatmat.IntExpr.unapply().(x$1)*x$1€*9
+(_empty_/OpaquePatmat.IntExpr.toString().*toString€*0
+_empty_/OpaquePatmat.StrExpr# ˆ*StrExpr€*:
+(_empty_/OpaquePatmat.StrExpr#`<init>`(). €@*<init>€*8
++_empty_/OpaquePatmat.StrExpr#`<init>`().(s) €*s€*,
+_empty_/OpaquePatmat.StrExpr#s. €*s€*1
+$_empty_/OpaquePatmat.StrExpr#copy().*copy€*1
+'_empty_/OpaquePatmat.StrExpr#copy().(s)*s€*E
+._empty_/OpaquePatmat.StrExpr#copy$default$1().*copy$default$1€*-
+"_empty_/OpaquePatmat.StrExpr#_1().*_1€*/
+_empty_/OpaquePatmat.StrExpr.
+ *StrExpr€*3
+%_empty_/OpaquePatmat.StrExpr.apply().*apply€*2
+(_empty_/OpaquePatmat.StrExpr.apply().(s)*s€*7
+'_empty_/OpaquePatmat.StrExpr.unapply().*unapply€*8
+,_empty_/OpaquePatmat.StrExpr.unapply().(x$1)*x$1€*9
+(_empty_/OpaquePatmat.StrExpr.toString().*toString€*)
+_empty_/OpaquePatmat.eval().*eval€*)
+_empty_/OpaquePatmat.eval().(e)*e€*
+local0 €*p€2
+ _empty_/OpaquePatmat.2'
+ _empty_/OpaquePatmat.Pos#2
+ 
+scala/Int#2'
+	 _empty_/OpaquePatmat.Pos.2/
+ !_empty_/OpaquePatmat.Pos.mkPos().22
+ $_empty_/OpaquePatmat.Pos.mkPos().(i)2
+ 
+scala/Int#2'
+ _empty_/OpaquePatmat.Pos#2%
+ scala/Predef.require().2 
+ scala/Int#`>`(+3).22
+ $_empty_/OpaquePatmat.Pos.mkPos().(i)22
+ $_empty_/OpaquePatmat.Pos.mkPos().(i)20
+ "_empty_/OpaquePatmat.Pos.coerce().23
+ %_empty_/OpaquePatmat.Pos.coerce().[F]24
+ &_empty_/OpaquePatmat.Pos.coerce().(fa)23
+ %_empty_/OpaquePatmat.Pos.coerce().[F]2
+ 
+scala/Int#23
+" #%_empty_/OpaquePatmat.Pos.coerce().[F]2'
+$ '_empty_/OpaquePatmat.Pos#24
++ -&_empty_/OpaquePatmat.Pos.coerce().(fa)2(
+
+
+ _empty_/OpaquePatmat.Expr#23
+
+
+ %_empty_/OpaquePatmat.Expr#`<init>`().2+
+
+
+ _empty_/OpaquePatmat.Expr#[T]2+
+ _empty_/OpaquePatmat.PosExpr#26
+ (_empty_/OpaquePatmat.PosExpr#`<init>`().2'
+ !_empty_/OpaquePatmat.Pos#2(
++ /_empty_/OpaquePatmat.Expr#2'
+0 3_empty_/OpaquePatmat.Pos#2-
+ _empty_/OpaquePatmat.PosExpr#p.22
+ $_empty_/OpaquePatmat.PosExpr#copy().20
+ "_empty_/OpaquePatmat.PosExpr#_1().2+
+ _empty_/OpaquePatmat.PosExpr.23
+ %_empty_/OpaquePatmat.PosExpr.apply().2+
+ _empty_/OpaquePatmat.IntExpr#26
+ (_empty_/OpaquePatmat.IntExpr#`<init>`().2
+ !
+scala/Int#2(
++ /_empty_/OpaquePatmat.Expr#2
+0 3
+scala/Int#2-
+ _empty_/OpaquePatmat.IntExpr#i.22
+ $_empty_/OpaquePatmat.IntExpr#copy().20
+ "_empty_/OpaquePatmat.IntExpr#_1().2+
+ _empty_/OpaquePatmat.IntExpr.23
+ %_empty_/OpaquePatmat.IntExpr.apply().2+
+ _empty_/OpaquePatmat.StrExpr#26
+ (_empty_/OpaquePatmat.StrExpr#`<init>`().2"
+ $scala/Predef.String#2(
+. 2_empty_/OpaquePatmat.Expr#2"
+3 9scala/Predef.String#2-
+ _empty_/OpaquePatmat.StrExpr#s.22
+ $_empty_/OpaquePatmat.StrExpr#copy().20
+ "_empty_/OpaquePatmat.StrExpr#_1().2+
+ _empty_/OpaquePatmat.StrExpr.23
+ %_empty_/OpaquePatmat.StrExpr.apply().2*
+ 
+_empty_/OpaquePatmat.eval().2-
+ _empty_/OpaquePatmat.eval().(e)2(
+ _empty_/OpaquePatmat.Expr#2'
+ _empty_/OpaquePatmat.Pos#2'
+ _empty_/OpaquePatmat.Pos#2-
+  !_empty_/OpaquePatmat.eval().(e)25
+ '_empty_/OpaquePatmat.PosExpr.unapply().2+
+	 _empty_/OpaquePatmat.PosExpr.2
+ local02
+ local025
+ '_empty_/OpaquePatmat.IntExpr.unapply().2+
+	 _empty_/OpaquePatmat.IntExpr.2/
+  !_empty_/OpaquePatmat.Pos.mkPos().2'
+ _empty_/OpaquePatmat.Pos.25
+ '_empty_/OpaquePatmat.StrExpr.unapply().2+
+	 _empty_/OpaquePatmat.StrExpr.2#
+ scala/Predef.`???`().2*
+ _empty_/OpaquePatmat.eval().20
+ "_empty_/OpaquePatmat.Pos.coerce().2'
+ 
+_empty_/OpaquePatmat.Pos.23
+ %_empty_/OpaquePatmat.IntExpr.apply().2+
+ _empty_/OpaquePatmat.IntExpr.PZ FABF8D9BCAD04E403083FCA5E81B3135

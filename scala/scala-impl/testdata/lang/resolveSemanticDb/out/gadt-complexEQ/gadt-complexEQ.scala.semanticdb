@@ -1,0 +1,159 @@
+
+²,tests/pos/gadt-complexEQ.scala*&
+_empty_/complexEQ.
+ *	complexEQ€*"
+_empty_/complexEQ.EQ# *EQ€*2
+ _empty_/complexEQ.EQ#`<init>`(). €@*<init>€*"
+_empty_/complexEQ.EQ#[A]	*A€*"
+_empty_/complexEQ.EQ#[B]	*B€*'
+_empty_/complexEQ.Refl# ˆ*Refl€*4
+"_empty_/complexEQ.Refl#`<init>`(). €@*<init>€*$
+_empty_/complexEQ.Refl#[A]	*A€*+
+_empty_/complexEQ.Refl#copy().*copy€*+
+!_empty_/complexEQ.Refl#copy().[A]	*A€*&
+_empty_/complexEQ.Refl.
+ *Refl€*-
+_empty_/complexEQ.Refl.apply().*apply€*,
+"_empty_/complexEQ.Refl.apply().[A]	*A€*1
+!_empty_/complexEQ.Refl.unapply().*unapply€*.
+$_empty_/complexEQ.Refl.unapply().[A]	*A€*2
+&_empty_/complexEQ.Refl.unapply().(x$1)*x$1€*3
+"_empty_/complexEQ.Refl.toString().*toString€* 
+_empty_/complexEQ.m().*m€*#
+_empty_/complexEQ.m().[A]	*A€*#
+_empty_/complexEQ.m().[B]	*B€*#
+_empty_/complexEQ.m().[C]	*C€*#
+_empty_/complexEQ.m().[D]	*D€*%
+_empty_/complexEQ.m().(e1)*e1€*%
+_empty_/complexEQ.m().(e2)*e2€*#
+_empty_/complexEQ.m().(d)*d€*
+local0 €*r1€*
+local1 €*r2€*
+local2 €*r3€*"
+_empty_/complexEQ.m2().*m2€*$
+_empty_/complexEQ.m2().[Z]	*Z€*$
+_empty_/complexEQ.m2().[A]	*A€*$
+_empty_/complexEQ.m2().[B]	*B€*$
+_empty_/complexEQ.m2().[C]	*C€*$
+_empty_/complexEQ.m2().[D]	*D€*&
+_empty_/complexEQ.m2().(e0)*e0€*&
+_empty_/complexEQ.m2().(e1)*e1€*&
+_empty_/complexEQ.m2().(e2)*e2€*$
+_empty_/complexEQ.m2().(d)*d€*
+local3 €*r1€*
+local4 €*r2€*
+local5 €*r3€2
+ _empty_/complexEQ.2#
+ _empty_/complexEQ.EQ#2.
+  _empty_/complexEQ.EQ#`<init>`().2&
+ _empty_/complexEQ.EQ#[A]2&
+ _empty_/complexEQ.EQ#[B]2%
+ _empty_/complexEQ.Refl#20
+ "_empty_/complexEQ.Refl#`<init>`().2#
+% '_empty_/complexEQ.EQ#2(
+( )_empty_/complexEQ.Refl#[A]2(
++ ,_empty_/complexEQ.Refl#[A]2(
+ _empty_/complexEQ.Refl#[A]2,
+ _empty_/complexEQ.Refl#copy().2%
+ _empty_/complexEQ.Refl.2-
+ _empty_/complexEQ.Refl.apply().2/
+ !_empty_/complexEQ.Refl.unapply().2$
+ _empty_/complexEQ.m().2'
+ 	_empty_/complexEQ.m().[A]2'
+ _empty_/complexEQ.m().[B]2'
+ _empty_/complexEQ.m().[C]2'
+ _empty_/complexEQ.m().[D]2(
+ _empty_/complexEQ.m().(e1)2#
+ _empty_/complexEQ.EQ#2'
+ _empty_/complexEQ.m().[A]2'
+  _empty_/complexEQ.m().[B]2'
+" #_empty_/complexEQ.m().[C]2(
+' )_empty_/complexEQ.m().(e2)2#
++ -_empty_/complexEQ.EQ#2'
+. /_empty_/complexEQ.m().[A]2'
+2 3_empty_/complexEQ.m().[C]2'
+5 6_empty_/complexEQ.m().[D]2'
+: ;_empty_/complexEQ.m().(d)2'
+= >_empty_/complexEQ.m().[D]2'
+A B_empty_/complexEQ.m().[A]2(
+ _empty_/complexEQ.m().(e1)2/
+ !_empty_/complexEQ.Refl.unapply().2%
+ _empty_/complexEQ.Refl.2(
+ _empty_/complexEQ.m().(e2)2/
+ !_empty_/complexEQ.Refl.unapply().2%
+ _empty_/complexEQ.Refl.2
+ local02'
+ _empty_/complexEQ.m().[B]2'
+ _empty_/complexEQ.m().[B]2#
+ scala/Tuple2.apply().2'
+ _empty_/complexEQ.m().(d)2'
+  _empty_/complexEQ.m().(d)2
+		 local12'
+		 _empty_/complexEQ.m().[C]2'
+		 _empty_/complexEQ.m().[C]2
+		 local02
+
+
+ local22'
+
+
+ _empty_/complexEQ.m().[D]2'
+
+
+ _empty_/complexEQ.m().[D]2
+
+
+ local02
+
+ local02%
+ _empty_/complexEQ.m2().2(
+	 
+_empty_/complexEQ.m2().[Z]2(
+ _empty_/complexEQ.m2().[A]2(
+ _empty_/complexEQ.m2().[B]2(
+ _empty_/complexEQ.m2().[C]2(
+ _empty_/complexEQ.m2().[D]2)
+ _empty_/complexEQ.m2().(e0)2#
+ _empty_/complexEQ.EQ#2(
+  _empty_/complexEQ.m2().[Z]2(
+" #_empty_/complexEQ.m2().[A]2)
+& (_empty_/complexEQ.m2().(e1)2#
+* ,_empty_/complexEQ.EQ#2(
+- ._empty_/complexEQ.m2().[A]2(
+1 2_empty_/complexEQ.m2().[B]2(
+4 5_empty_/complexEQ.m2().[C]2)
+9 ;_empty_/complexEQ.m2().(e2)2#
+= ?_empty_/complexEQ.EQ#2(
+@ A_empty_/complexEQ.m2().[Z]2(
+D E_empty_/complexEQ.m2().[C]2(
+G H_empty_/complexEQ.m2().[D]2(
+L M_empty_/complexEQ.m2().(d)2(
+O P_empty_/complexEQ.m2().[D]2(
+S T_empty_/complexEQ.m2().[Z]2#
+ scala/Tuple3.apply().2)
+ _empty_/complexEQ.m2().(e0)2)
+	 _empty_/complexEQ.m2().(e1)2)
+ _empty_/complexEQ.m2().(e2)2%
+ scala/Tuple3.unapply().2/
+ !_empty_/complexEQ.Refl.unapply().2%
+ _empty_/complexEQ.Refl.2/
+ !_empty_/complexEQ.Refl.unapply().2%
+ _empty_/complexEQ.Refl.2/
+   !_empty_/complexEQ.Refl.unapply().2%
+  _empty_/complexEQ.Refl.2
+ local32(
+ _empty_/complexEQ.m2().[B]2(
+ _empty_/complexEQ.m2().[B]2#
+ scala/Tuple2.apply().2(
+ _empty_/complexEQ.m2().(d)2(
+  _empty_/complexEQ.m2().(d)2
+ local42(
+ _empty_/complexEQ.m2().[C]2(
+ _empty_/complexEQ.m2().[C]2
+ local32
+ local52(
+ _empty_/complexEQ.m2().[D]2(
+ _empty_/complexEQ.m2().[D]2
+ local32
+
+ local3PZ 102E8A9740632717EDE18C1F607617E6

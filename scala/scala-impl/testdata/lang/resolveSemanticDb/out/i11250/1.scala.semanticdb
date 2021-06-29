@@ -1,0 +1,82 @@
+
+¶tests/pos/i11250/1.scala**
+shapeless3/data/Monoidal#*Monoidal€*6
+$shapeless3/data/Monoidal#`<init>`(). €@*<init>€*'
+shapeless3/data/Monoidal#to#*to€*/
+ shapeless3/data/Monoidal#length#*length€*-
+#shapeless3/data/Monoidal#length#[m]	*m€*,
+shapeless3/data/Monoidal.
+ *Monoidal€*/
+ shapeless3/data/Monoidal.length#*length€*-
+#shapeless3/data/Monoidal.length#[m]	*m€*<
+"shapeless3/data/UnboundedMonoidal#*UnboundedMonoidal€*?
+-shapeless3/data/UnboundedMonoidal#`<init>`(). €@*<init>€*1
+&shapeless3/data/UnboundedMonoidal#[T0]	*T0€*1
+&shapeless3/data/UnboundedMonoidal#[U0]	*U0€*0
+%shapeless3/data/UnboundedMonoidal#to#*to€*2
+(shapeless3/data/UnboundedMonoidal#to#[t]	*t€*
+local0 €	*hd€*
+local1 €	*tl€*&
+shapeless3/data/pairs.
+ *pairs€*4
+shapeless3/data/MonoidalTest.
+ *MonoidalTest€*)
+shapeless3/data/MonoidalTest.p#*p€2
+ shapeless3/data/2
+ shapeless3/2 
+ scala/compiletime/2
+ scala/2'
+ shapeless3/data/Monoidal#22
+ $shapeless3/data/Monoidal#`<init>`().2*
+ 	shapeless3/data/Monoidal#to#2
+ scala/Tuple#2.
+  shapeless3/data/Monoidal#length#21
+ #shapeless3/data/Monoidal#length#[m]2.
+ " shapeless3/data/Monoidal.length#2'
+ shapeless3/data/Monoidal.2*
+# %shapeless3/data/Monoidal#to#21
+& '#shapeless3/data/Monoidal#length#[m]2'
+		 shapeless3/data/Monoidal.2
+
+	
+ scala/Tuple.2.
+  shapeless3/data/Monoidal.length#21
+ #shapeless3/data/Monoidal.length#[m]2
+ scala/Tuple#2
+  scala/Tuple.Size#21
+! "#shapeless3/data/Monoidal.length#[m]20
+ "shapeless3/data/UnboundedMonoidal#2;
+ -shapeless3/data/UnboundedMonoidal#`<init>`().2'
+. 6shapeless3/data/Monoidal#24
+ &shapeless3/data/UnboundedMonoidal#[T0]24
+" $&shapeless3/data/UnboundedMonoidal#[U0]23
+ 	%shapeless3/data/UnboundedMonoidal#to#26
+
+ (shapeless3/data/UnboundedMonoidal#to#[t]2
+ scala/Tuple#26
+ (shapeless3/data/UnboundedMonoidal#to#[t]24
+	 &shapeless3/data/UnboundedMonoidal#[T0]2
+ local02
+ local12
+ scala/`*:`#2
+ local023
+ %shapeless3/data/UnboundedMonoidal#to#2
+  "local124
+	 &shapeless3/data/UnboundedMonoidal#[U0]2-
+ scala/Tuple$package.EmptyTuple#2$
+ shapeless3/data/pairs.20
+ &"shapeless3/data/UnboundedMonoidal#2
+/ 3scala/Unit#2+
+ shapeless3/data/MonoidalTest.2-
+ shapeless3/data/MonoidalTest.p#2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ "scala/Boolean#2
+$ (scala/Unit#2$
+ scala/Predef.summon().2
+ scala/`=:=`#2.
+  shapeless3/data/Monoidal#length#2$
+	 shapeless3/data/pairs.2-
+ shapeless3/data/MonoidalTest.p#2!
+ scala/`<:<`.refl().PZ 5ECB2465E3A15600F2A41B95F65CDC1D

@@ -1,0 +1,48 @@
+
+žtests/pos/i7041.scala*(
+_empty_/i7041$package. *_empty_€*.
+_empty_/i7041$package.rescue().*rescue€*,
+"_empty_/i7041$package.rescue().[T]	*T€*,
+"_empty_/i7041$package.rescue().[E]	*E€*.
+#_empty_/i7041$package.rescue().(op)*op€*:
+)_empty_/i7041$package.rescue().(fallback)*fallback€*
+local0 €*ex€*
+local1 €*ex€**
+_empty_/i7041$package.test().*test€*
+local2*x$1€2-
+ )#scala/util/control/NonLocalReturns.2
+ scala/util/control/2
+ scala/util/2
+ scala/2 
+_empty_/i7041$package.2-
+ _empty_/i7041$package.rescue().20
+ "_empty_/i7041$package.rescue().[T]20
+ "_empty_/i7041$package.rescue().[E]2&
+ scala/package.Throwable#21
+  #_empty_/i7041$package.rescue().(op)20
+% &"_empty_/i7041$package.rescue().[T]27
+ )_empty_/i7041$package.rescue().(fallback)2$
+ .scala/PartialFunction#20
+/ 0"_empty_/i7041$package.rescue().[E]20
+2 3"_empty_/i7041$package.rescue().[T]21
+ 
+#_empty_/i7041$package.rescue().(op)2
+ local02A
+ 3scala/util/control/NonLocalReturns.ReturnThrowable#2
++ -local02
+ local120
+ "_empty_/i7041$package.rescue().[E]22
+  $scala/PartialFunction#isDefinedAt().27
+ )_empty_/i7041$package.rescue().(fallback)2
+! #local12&
+/ /scala/Function1#apply().27
+' /)_empty_/i7041$package.rescue().(fallback)2
+0 2local12
+? Alocal12+
+ _empty_/i7041$package.test().2
+
+ scala/Unit#2-
+ _empty_/i7041$package.rescue().2 
+ scala/Int#`/`(+3).2
+ local22,
+ ,java/lang/ArithmeticException#PZ D2E0C36792FC40C2A2A32061FA235F53

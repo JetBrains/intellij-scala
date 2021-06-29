@@ -1,0 +1,49 @@
+
+‘tests/pos/i4867.scala*,
+_empty_/UnionMapping.
+ *UnionMapping€*+
+_empty_/UnionMapping.parse().*parse€*4
+%_empty_/UnionMapping.parse().(string)*string€*7
+#_empty_/UnionMapping.test_number().*test_number€*
+local0 €*strings€*
+local1 €*asdf€*
+local2 €*union€2
+ _empty_/UnionMapping.2+
+ _empty_/UnionMapping.parse().23
+ %_empty_/UnionMapping.parse().(string)2"
+ "scala/Predef.String#2
+) *
+scala/`|`#2
+% (
+scala/Int#2
++ 1scala/Double#2*
+ java/lang/String#contains().23
+ %_empty_/UnionMapping.parse().(string)24
+ &scala/collection/StringOps#toDouble().2+
+ scala/Predef.augmentString().23
+ %_empty_/UnionMapping.parse().(string)21
+ #scala/collection/StringOps#toInt().2+
+ scala/Predef.augmentString().23
+ %_empty_/UnionMapping.parse().(string)21
+ #_empty_/UnionMapping.test_number().2
+		 local02 
+		 scala/package.Seq#2"
+		 scala/Predef.String#2;
+	"	 "-scala/collection/SeqFactory.Delegate#apply().2 
+		 "scala/package.Seq.2
+ local12 
+ scala/package.Seq#2
+ scala/AnyVal#21
+$ '#scala/collection/IterableOps#map().2
+ #local02+
+( -_empty_/UnionMapping.parse().2
+ local22 
+ scala/package.Seq#2
+ 
+scala/`|`#2
+ 
+scala/Int#2
+ scala/Double#21
++ .#scala/collection/IterableOps#map().2
+# *local02+
+/ 4_empty_/UnionMapping.parse().PZ 26A8F70BAC3289A954A57F6E11DE7D5A

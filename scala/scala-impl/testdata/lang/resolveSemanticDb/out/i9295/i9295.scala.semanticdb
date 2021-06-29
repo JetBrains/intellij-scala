@@ -1,0 +1,52 @@
+
+°tests/pos/i9295.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*0
+_empty_/Foo#applyDynamic().*applyDynamic€*.
+!_empty_/Foo#applyDynamic().(name)*name€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€*0
+_empty_/Bar#applyDynamic().*applyDynamic€*.
+!_empty_/Bar#applyDynamic().(name)*name€*(
+_empty_/Bar#applyDynamic().(x)*x€*(
+_empty_/i9295$package. *_empty_€*)
+_empty_/i9295$package.foo. €*foo€*(
+_empty_/i9295$package.baz().*baz€2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ scala/Dynamic#2)
+ _empty_/Foo#applyDynamic().2/
+ !_empty_/Foo#applyDynamic().(name)2"
+ scala/Predef.String#2
+$ '_empty_/Bar#2#
+* -scala/Predef.`???`().2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2
+ scala/Dynamic#2)
+ _empty_/Bar#applyDynamic().2/
+ !_empty_/Bar#applyDynamic().(name)2"
+ scala/Predef.String#2,
+! "_empty_/Bar#applyDynamic().(x)2
+$ '
+scala/Int#2#
++ .scala/Predef.`???`().2 
+
+
+_empty_/i9295$package.2(
+
+
+ _empty_/i9295$package.foo.2%
+
+
+ _empty_/Foo#`<init>`().2
+
+
+ _empty_/Foo#2*
+ _empty_/i9295$package.baz().2)
+ _empty_/Bar#applyDynamic().2)
+ _empty_/Foo#applyDynamic().2(
+
+ _empty_/i9295$package.foo.PZ FF52AA86042282CA7F48DBFB17129A5A

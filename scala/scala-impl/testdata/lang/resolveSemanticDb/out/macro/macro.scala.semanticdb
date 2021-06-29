@@ -1,0 +1,18 @@
+
+±tests/pos/macro.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#foo().*foo€*
+_empty_/A#foo().*foo€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#foo().2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/A#foo().2
+ 
+scala/Int#2#
+ scala/Predef.`???`().PZ 8108B6EB168BF15F7EC1FD00186DCB76

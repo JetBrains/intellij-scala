@@ -1,0 +1,36 @@
+
+³	tests/pos/i5794.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Entry#*Entry€*0
+_empty_/Test.Entry#`<init>`(). €@*<init>€*#
+_empty_/Test.Entry#Key#*Key€*&
+_empty_/Test.Entry#key. „*key€*-
+_empty_/Test.extractKey().*
+extractKey€*'
+_empty_/Test.extractKey().(e)*e€*,
+_empty_/Test.extractor. €*	extractor€*
+local0 *apply€*
+local1*e€*
+local2*e€2
+ _empty_/Test.2!
+ _empty_/Test.Entry#2,
+ _empty_/Test.Entry#`<init>`().2%
+ _empty_/Test.Entry#Key#2%
+ !_empty_/Test.Entry#key.2%
+# &_empty_/Test.Entry#Key#2(
+ _empty_/Test.extractKey().2+
+ _empty_/Test.extractKey().(e)2!
+ _empty_/Test.Entry#2%
+ !_empty_/Test.Entry#Key#2+
+ _empty_/Test.extractKey().(e)2%
+& )_empty_/Test.Entry#key.2+
+$ %_empty_/Test.extractKey().(e)2%
+ _empty_/Test.extractor.2!
+ _empty_/Test.Entry#2
+ !local02
+ local12%
+! $_empty_/Test.Entry#Key#2
+  local12(
+' 1_empty_/Test.extractKey().2
+' 'local2PZ 75119B1039E90D7E9799C6222BEAA138

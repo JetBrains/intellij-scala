@@ -1,0 +1,56 @@
+
+ê(tests/pos/tcpoly_return_overriding.scala* 
+_empty_/Generic#*Generic€*-
+_empty_/Generic#`<init>`(). €@*<init>€*
+_empty_/Generic#[g]	*g€*&
+_empty_/Generic#unit(). *unit€*
+_empty_/Rep#*Rep€*)
+_empty_/Rep#`<init>`(). €@*<init>€*
+_empty_/Rep#[t]	*t€* 
+_empty_/Rep#rep(). *rep€*
+_empty_/Rep#rep().[m]	*m€*%
+_empty_/Rep#rep().(gen)  *gen€*
+_empty_/foo.
+ *foo€*
+_empty_/foo.rep().*rep€*
+_empty_/foo.rep().[g]	*g€*%
+_empty_/foo.rep().(gen)  *gen€2
+ _empty_/Generic#2%
+ _empty_/Generic#`<init>`().2
+ _empty_/Generic#[g]2%
+ 
+_empty_/Generic#unit().2!
+ _empty_/Generic#[g]2
+ scala/Unit#2
+ 	_empty_/Rep#2%
+	 	_empty_/Rep#`<init>`().2
+
+ _empty_/Rep#[t]2 
+ 	_empty_/Rep#rep().2#
+
+ _empty_/Rep#rep().[m]2%
+ _empty_/Rep#rep().(gen)2
+ %_empty_/Generic#2#
+& '_empty_/Rep#rep().[m]2#
++ ,_empty_/Rep#rep().[m]2
+- ._empty_/Rep#[t]2
+
+
+ 
+_empty_/foo.2
+
+
+ _empty_/Rep#2
+
+
+ scala/Unit#2 
+ 	_empty_/foo.rep().2#
+
+ _empty_/foo.rep().[g]2%
+ _empty_/foo.rep().(gen)2
+ %_empty_/Generic#2#
+& '_empty_/foo.rep().[g]2#
++ ,_empty_/foo.rep().[g]2
+- 1scala/Unit#2%
+8 <_empty_/Generic#unit().2%
+4 7_empty_/foo.rep().(gen)PZ CE44AD4CD5EB58550862F60F48E9529B

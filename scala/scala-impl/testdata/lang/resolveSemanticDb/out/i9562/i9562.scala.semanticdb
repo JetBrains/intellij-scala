@@ -1,0 +1,66 @@
+
+˜tests/pos/i9562.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#foo().*foo€*&
+_empty_/Unrelated.
+ *	Unrelated€* 
+_empty_/Unrelated.g().*g€*#
+_empty_/Unrelated.g().(f)*f€*"
+_empty_/Unrelated.h1().*h1€*$
+_empty_/Unrelated.h1().(f)*f€*"
+_empty_/Unrelated.h2().*h2€*$
+_empty_/Unrelated.h2().(f)*f€*&
+_empty_/Unrelated.`++:`().*++:€*'
+_empty_/Unrelated.`++:`().(x)*x€*'
+_empty_/Unrelated.`++:`().(f)*f€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ 	_empty_/Foo#foo().2 
+ _empty_/Unrelated.2$
+ 	_empty_/Unrelated.g().2'
+ _empty_/Unrelated.g().(f)2
+ _empty_/Foo#2 
+ _empty_/Foo#foo().2'
+ _empty_/Unrelated.g().(f)2%
+ 
+_empty_/Unrelated.h1().2(
+ _empty_/Unrelated.h1().(f)2
+ _empty_/Foo#2
+ 
+scala/Int#2%
+		 
+_empty_/Unrelated.h2().2(
+ _empty_/Unrelated.h2().(f)2
+		 
+scala/Int#2 
+		 scala/Int#`+`(+4).2%
+		 _empty_/Unrelated.h1().2(
+		 _empty_/Unrelated.h2().(f)2(
+
+
+ _empty_/Unrelated.`++:`().2+
+
+
+ _empty_/Unrelated.`++:`().(x)2
+
+
+ 
+scala/Int#2+
+ _empty_/Unrelated.`++:`().(f)2
+
+
+ 
+scala/Int#2 
+
+
+  scala/Int#`+`(+4).2%
+
+
+ _empty_/Unrelated.h2().2+
+
+
+ _empty_/Unrelated.`++:`().(f)2+
+
+!
+ "_empty_/Unrelated.`++:`().(x)PZ D22F8683BBDF6D68BD7991FEABC2EA72

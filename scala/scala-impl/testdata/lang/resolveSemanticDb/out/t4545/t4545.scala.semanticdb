@@ -1,0 +1,426 @@
+
+§Stests/pos/t4545.scala*
+_empty_/Test.
+ *TestÄ*
+_empty_/Test.f().*fÄ*
+_empty_/Test.f().[A]	*AÄ*
+_empty_/Test.f().[B]	*BÄ*
+_empty_/Test.f().[C]	*CÄ*
+_empty_/Test.f().[D]	*DÄ*
+_empty_/Test.f().[E]	*EÄ*
+_empty_/Test.f().[F]	*FÄ*
+_empty_/Test.f().[G]	*GÄ*
+_empty_/Test.f().[H]	*HÄ*
+_empty_/Test.f().[I]	*IÄ*
+_empty_/Test.f().[J]	*JÄ*
+_empty_/Test.f().[K]	*KÄ*
+_empty_/Test.f().[L]	*LÄ*
+_empty_/Test.f().[M]	*MÄ*
+_empty_/Test.f().[N]	*NÄ*
+_empty_/Test.f().[O]	*OÄ*
+_empty_/Test.f().[P]	*PÄ*
+_empty_/Test.f().[Q]	*QÄ*
+_empty_/Test.f().[R]	*RÄ*
+_empty_/Test.f().[S]	*SÄ*
+_empty_/Test.f().[T]	*TÄ*&
+_empty_/Test.f().(table)*tableÄ*"
+_empty_/Test.f().(fun)*funÄ*
+_empty_/Test.g().*gÄ*
+_empty_/Test.g().[A]	*AÄ*
+_empty_/Test.g().[B]	*BÄ*
+_empty_/Test.g().[C]	*CÄ*
+_empty_/Test.g().[D]	*DÄ*
+_empty_/Test.g().[E]	*EÄ*
+_empty_/Test.g().[F]	*FÄ*
+_empty_/Test.g().[G]	*GÄ*
+_empty_/Test.g().[H]	*HÄ*
+_empty_/Test.g().[I]	*IÄ*
+_empty_/Test.g().[J]	*JÄ*
+_empty_/Test.g().[K]	*KÄ*
+_empty_/Test.g().[L]	*LÄ*
+_empty_/Test.g().[M]	*MÄ*
+_empty_/Test.g().[N]	*NÄ*
+_empty_/Test.g().[O]	*OÄ*
+_empty_/Test.g().[P]	*PÄ*
+_empty_/Test.g().[Q]	*QÄ*
+_empty_/Test.g().[R]	*RÄ*
+_empty_/Test.g().[S]	*SÄ*
+_empty_/Test.g().[T]	*TÄ*
+_empty_/Test.g().[U]	*UÄ*&
+_empty_/Test.g().(table)*tableÄ*"
+_empty_/Test.g().(fun)*funÄ*
+_empty_/Test.g20().*g20Ä*
+local0*x$1Ä*
+local1*x$2Ä*
+local2*x$3Ä*
+local3*x$4Ä*
+local4*x$5Ä*
+local5*x$6Ä*
+local6*x$7Ä*
+local7*x$8Ä*
+local8*x$9Ä*
+local9*x$10Ä*
+local10*x$11Ä*
+local11*x$12Ä*
+local12*x$13Ä*
+local13*x$14Ä*
+local14*x$15Ä*
+local15*x$16Ä*
+local16*x$17Ä*
+local17*x$18Ä*
+local18*x$19Ä*
+local19*x$20Ä*
+local20 Ä*aÄ*
+local21 Ä*bÄ*
+local22 Ä*cÄ*
+local23 Ä*dÄ*
+local24 Ä*eÄ*
+local25 Ä*fÄ*
+local26 Ä*gÄ*
+local27 Ä*hÄ*
+local28 Ä*iÄ*
+local29 Ä*jÄ*
+local30 Ä*kÄ*
+local31 Ä*lÄ*
+local32 Ä*mÄ*
+local33 Ä*nÄ*
+local34 Ä*oÄ*
+local35 Ä*pÄ*
+local36 Ä*qÄ*
+local37 Ä*rÄ*
+local38 Ä*sÄ*
+local39 Ä*tÄ*
+_empty_/Test.g21().*g21Ä*
+local40*x$1Ä*
+local41*x$2Ä*
+local42*x$3Ä*
+local43*x$4Ä*
+local44*x$5Ä*
+local45*x$6Ä*
+local46*x$7Ä*
+local47*x$8Ä*
+local48*x$9Ä*
+local49*x$10Ä*
+local50*x$11Ä*
+local51*x$12Ä*
+local52*x$13Ä*
+local53*x$14Ä*
+local54*x$15Ä*
+local55*x$16Ä*
+local56*x$17Ä*
+local57*x$18Ä*
+local58*x$19Ä*
+local59*x$20Ä*
+local60*x$21Ä*
+local61 Ä*aÄ*
+local62 Ä*bÄ*
+local63 Ä*cÄ*
+local64 Ä*dÄ*
+local65 Ä*eÄ*
+local66 Ä*fÄ*
+local67 Ä*gÄ*
+local68 Ä*hÄ*
+local69 Ä*iÄ*
+local70 Ä*jÄ*
+local71 Ä*kÄ*
+local72 Ä*lÄ*
+local73 Ä*mÄ*
+local74 Ä*nÄ*
+local75 Ä*oÄ*
+local76 Ä*pÄ*
+local77 Ä*qÄ*
+local78 Ä*rÄ*
+local79 Ä*sÄ*
+local80 Ä*tÄ*
+local81 Ä*uÄ2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[A]2"
+ _empty_/Test.f().[B]2"
+ _empty_/Test.f().[C]2"
+ _empty_/Test.f().[D]2"
+ _empty_/Test.f().[E]2"
+ _empty_/Test.f().[F]2"
+ _empty_/Test.f().[G]2"
+ _empty_/Test.f().[H]2"
+  !_empty_/Test.f().[I]2"
+# $_empty_/Test.f().[J]2"
+& '_empty_/Test.f().[K]2"
+) *_empty_/Test.f().[L]2"
+, -_empty_/Test.f().[M]2"
+/ 0_empty_/Test.f().[N]2"
+2 3_empty_/Test.f().[O]2"
+5 6_empty_/Test.f().[P]2"
+8 9_empty_/Test.f().[Q]2"
+; <_empty_/Test.f().[R]2"
+> ?_empty_/Test.f().[S]2"
+A B_empty_/Test.f().[T]2&
+D I_empty_/Test.f().(table)2
+K Rscala/Tuple20#2"
+S T_empty_/Test.f().[A]2"
+V W_empty_/Test.f().[B]2"
+Y Z_empty_/Test.f().[C]2"
+\ ]_empty_/Test.f().[D]2"
+_ `_empty_/Test.f().[E]2"
+b c_empty_/Test.f().[F]2"
+e f_empty_/Test.f().[G]2"
+h i_empty_/Test.f().[H]2"
+k l_empty_/Test.f().[I]2"
+n o_empty_/Test.f().[J]2"
+q r_empty_/Test.f().[K]2"
+t u_empty_/Test.f().[L]2"
+w x_empty_/Test.f().[M]2"
+z {_empty_/Test.f().[N]2"
+} ~_empty_/Test.f().[O]2$
+
+Ä Å_empty_/Test.f().[P]2$
+
+É Ñ_empty_/Test.f().[Q]2$
+
+Ü á_empty_/Test.f().[R]2$
+
+â ä_empty_/Test.f().[S]2$
+
+å ç_empty_/Test.f().[T]2&
+
+ê ì_empty_/Test.f().(fun)2$
+
+ñ ó_empty_/Test.f().[A]2$
+
+ô ö_empty_/Test.f().[B]2$
+
+ú ù_empty_/Test.f().[C]2$
+
+ü †_empty_/Test.f().[D]2$
+
+¢ £_empty_/Test.f().[E]2$
+
+• ¶_empty_/Test.f().[F]2$
+
+® ©_empty_/Test.f().[G]2$
+
+´ ¨_empty_/Test.f().[H]2$
+
+Æ Ø_empty_/Test.f().[I]2$
+
+± ≤_empty_/Test.f().[J]2$
+
+¥ µ_empty_/Test.f().[K]2$
+
+∑ ∏_empty_/Test.f().[L]2$
+
+∫ ª_empty_/Test.f().[M]2$
+
+Ω æ_empty_/Test.f().[N]2$
+
+¿ ¡_empty_/Test.f().[O]2$
+
+√ ƒ_empty_/Test.f().[P]2$
+
+∆ «_empty_/Test.f().[Q]2$
+
+…  _empty_/Test.f().[R]2$
+
+Ã Õ_empty_/Test.f().[S]2$
+
+œ –_empty_/Test.f().[T]2
+
+’ Ÿscala/Unit#2
+
+‹ ‡scala/Unit#2
+ _empty_/Test.g().2"
+ 	_empty_/Test.g().[A]2"
+ _empty_/Test.g().[B]2"
+ _empty_/Test.g().[C]2"
+ _empty_/Test.g().[D]2"
+ _empty_/Test.g().[E]2"
+ _empty_/Test.g().[F]2"
+ _empty_/Test.g().[G]2"
+ _empty_/Test.g().[H]2"
+  !_empty_/Test.g().[I]2"
+# $_empty_/Test.g().[J]2"
+& '_empty_/Test.g().[K]2"
+) *_empty_/Test.g().[L]2"
+, -_empty_/Test.g().[M]2"
+/ 0_empty_/Test.g().[N]2"
+2 3_empty_/Test.g().[O]2"
+5 6_empty_/Test.g().[P]2"
+8 9_empty_/Test.g().[Q]2"
+; <_empty_/Test.g().[R]2"
+> ?_empty_/Test.g().[S]2"
+A B_empty_/Test.g().[T]2"
+D E_empty_/Test.g().[U]2&
+G L_empty_/Test.g().(table)2
+N Uscala/Tuple21#2"
+V W_empty_/Test.g().[A]2"
+Y Z_empty_/Test.g().[B]2"
+\ ]_empty_/Test.g().[C]2"
+_ `_empty_/Test.g().[D]2"
+b c_empty_/Test.g().[E]2"
+e f_empty_/Test.g().[F]2"
+h i_empty_/Test.g().[G]2"
+k l_empty_/Test.g().[H]2"
+n o_empty_/Test.g().[I]2"
+q r_empty_/Test.g().[J]2"
+t u_empty_/Test.g().[K]2"
+w x_empty_/Test.g().[L]2"
+z {_empty_/Test.g().[M]2"
+} ~_empty_/Test.g().[N]2$
+
+Ä Å_empty_/Test.g().[O]2$
+
+É Ñ_empty_/Test.g().[P]2$
+
+Ü á_empty_/Test.g().[Q]2$
+
+â ä_empty_/Test.g().[R]2$
+
+å ç_empty_/Test.g().[S]2$
+
+è ê_empty_/Test.g().[T]2$
+
+í ì_empty_/Test.g().[U]2&
+
+ñ ô_empty_/Test.g().(fun)2$
+
+ú ù_empty_/Test.g().[A]2$
+
+ü †_empty_/Test.g().[B]2$
+
+¢ £_empty_/Test.g().[C]2$
+
+• ¶_empty_/Test.g().[D]2$
+
+® ©_empty_/Test.g().[E]2$
+
+´ ¨_empty_/Test.g().[F]2$
+
+Æ Ø_empty_/Test.g().[G]2$
+
+± ≤_empty_/Test.g().[H]2$
+
+¥ µ_empty_/Test.g().[I]2$
+
+∑ ∏_empty_/Test.g().[J]2$
+
+∫ ª_empty_/Test.g().[K]2$
+
+Ω æ_empty_/Test.g().[L]2$
+
+¿ ¡_empty_/Test.g().[M]2$
+
+√ ƒ_empty_/Test.g().[N]2$
+
+∆ «_empty_/Test.g().[O]2$
+
+…  _empty_/Test.g().[P]2$
+
+Ã Õ_empty_/Test.g().[Q]2$
+
+œ –_empty_/Test.g().[R]2$
+
+“ ”_empty_/Test.g().[S]2$
+
+’ ÷_empty_/Test.g().[T]2$
+
+ÿ Ÿ_empty_/Test.g().[U]2
+
+ﬁ ‚scala/Unit#2
+
+Â Èscala/Unit#2!
+ 	_empty_/Test.g20().2
+ _empty_/Test.f().2$
+ scala/Tuple20.apply().2$
+ scala/Tuple20.apply().2
+ local02
+ local12
+ local22
+ local32
+ local42
+ local52
+ local62
+ local72
+ local82
+ local92
+ local102
+ local112
+ local122
+ local132
+ local142
+ local152
+ local162
+ local172
+ local182
+ local192&
+ scala/Tuple20.unapply().2
+ local202
+ local212
+ local222
+ local232
+ local242
+ local252
+  local262
+" #local272
+% &local282
+( )local292
++ ,local302
+. /local312
+1 2local322
+4 5local332
+7 8local342
+: ;local352
+= >local362
+@ Alocal372
+C Dlocal382
+F Glocal392!
+
+
+ 	_empty_/Test.g21().2
+
+
+ _empty_/Test.g().2$
+ scala/Tuple21.apply().2$
+ scala/Tuple21.apply().2
+ local402
+ local412
+ local422
+ local432
+ local442
+ local452
+ local462
+ local472
+ local482
+ local492
+ local502
+ local512
+ local522
+ local532
+ local542
+ local552
+ local562
+ local572
+ local582
+ local592
+ local602&
+ scala/Tuple21.unapply().2
+ local612
+ local622
+ local632
+ local642
+ local652
+ local662
+  local672
+" #local682
+% &local692
+( )local702
++ ,local712
+. /local722
+1 2local732
+4 5local742
+7 8local752
+: ;local762
+= >local772
+@ Alocal782
+C Dlocal792
+F Glocal802
+I Jlocal81PZ D7FC06C7679487AAE269E042E5DE2318

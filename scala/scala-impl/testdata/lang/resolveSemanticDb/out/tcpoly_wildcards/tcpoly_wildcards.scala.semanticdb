@@ -1,0 +1,19 @@
+
+Õ tests/pos/tcpoly_wildcards.scala*
+_empty_/test#*test€**
+_empty_/test#`<init>`(). €@*<init>€*
+_empty_/test#[b]	*b€*
+_empty_/test#moo().*moo€* 
+_empty_/test#moo().[a]	*a€2
+ 
+_empty_/test#2"
+
+ 
+_empty_/test#`<init>`().2
+ _empty_/test#[b]2!
+ 	_empty_/test#moo().2$
+
+ _empty_/test#moo().[a]2(
+ scala/sys/package.error().2
+ 
+scala/sys/PZ 4EC2FA5E5F9249A9F9089A7ECAC0D6EC

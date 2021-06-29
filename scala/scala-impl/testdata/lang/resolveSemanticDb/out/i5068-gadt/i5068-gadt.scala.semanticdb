@@ -1,0 +1,190 @@
+
+¨8tests/pos/i5068-gadt.scala*
+_empty_/i5068.
+ *i5068€*!
+_empty_/i5068.Box# €*Box€*/
+_empty_/i5068.Box#`<init>`(). €@*<init>€*5
+$_empty_/i5068.Box#`<init>`().(value) €*value€*
+_empty_/i5068.Box#[F]	*F€*)
+_empty_/i5068.Box#value. €*value€*&
+_empty_/i5068.Box#copy().*copy€*&
+_empty_/i5068.Box#copy().[F]	*F€*.
+ _empty_/i5068.Box#copy().(value)*value€*:
+#_empty_/i5068.Box#copy$default$1().*copy$default$1€*0
+&_empty_/i5068.Box#copy$default$1().[F]	*F€*"
+_empty_/i5068.Box#_1().*_1€* 
+_empty_/i5068.Box.
+ *Box€*(
+_empty_/i5068.Box.apply().*apply€*'
+_empty_/i5068.Box.apply().[F]	*F€*/
+!_empty_/i5068.Box.apply().(value)*value€*,
+_empty_/i5068.Box.unapply().*unapply€*)
+_empty_/i5068.Box.unapply().[F]	*F€*-
+!_empty_/i5068.Box.unapply().(x$1)*x$1€*.
+_empty_/i5068.Box.toString().*toString€* 
+_empty_/i5068.IsK# *IsK€*/
+_empty_/i5068.IsK#`<init>`(). €@*<init>€*
+_empty_/i5068.IsK#[F]	*F€*
+_empty_/i5068.IsK#[G]	*G€*%
+_empty_/i5068.ReflK# ˆ*ReflK€*1
+_empty_/i5068.ReflK#`<init>`(). €@*<init>€*!
+_empty_/i5068.ReflK#[F]	*F€*(
+_empty_/i5068.ReflK#copy().*copy€*(
+_empty_/i5068.ReflK#copy().[F]	*F€*$
+_empty_/i5068.ReflK.
+ *ReflK€**
+_empty_/i5068.ReflK.apply().*apply€*)
+_empty_/i5068.ReflK.apply().[F]	*F€*.
+_empty_/i5068.ReflK.unapply().*unapply€*+
+!_empty_/i5068.ReflK.unapply().[F]	*F€*/
+#_empty_/i5068.ReflK.unapply().(x$1)*x$1€*0
+_empty_/i5068.ReflK.toString().*toString€* 
+_empty_/i5068.foo().*foo€*!
+_empty_/i5068.foo().[F]	*F€*!
+_empty_/i5068.foo().[G]	*G€*!
+_empty_/i5068.foo().(r)*r€*!
+_empty_/i5068.foo().(a)*a€* 
+_empty_/i5068b.
+ *i5068b€*-
+_empty_/i5068b.WeirdShape#*
+WeirdShape€*'
+_empty_/i5068b.WeirdShape#[A]	*A€*'
+_empty_/i5068b.WeirdShape#[B]	*B€*"
+_empty_/i5068b.Box# €*Box€*0
+_empty_/i5068b.Box#`<init>`(). €@*<init>€*6
+%_empty_/i5068b.Box#`<init>`().(value) €*value€* 
+_empty_/i5068b.Box#[F]	*F€**
+_empty_/i5068b.Box#value. €*value€*'
+_empty_/i5068b.Box#copy().*copy€*'
+_empty_/i5068b.Box#copy().[F]	*F€*/
+!_empty_/i5068b.Box#copy().(value)*value€*;
+$_empty_/i5068b.Box#copy$default$1().*copy$default$1€*1
+'_empty_/i5068b.Box#copy$default$1().[F]	*F€*#
+_empty_/i5068b.Box#_1().*_1€*!
+_empty_/i5068b.Box.
+ *Box€*)
+_empty_/i5068b.Box.apply().*apply€*(
+_empty_/i5068b.Box.apply().[F]	*F€*0
+"_empty_/i5068b.Box.apply().(value)*value€*-
+_empty_/i5068b.Box.unapply().*unapply€**
+ _empty_/i5068b.Box.unapply().[F]	*F€*.
+"_empty_/i5068b.Box.unapply().(x$1)*x$1€*/
+_empty_/i5068b.Box.toString().*toString€*!
+_empty_/i5068b.IsK# *IsK€*0
+_empty_/i5068b.IsK#`<init>`(). €@*<init>€* 
+_empty_/i5068b.IsK#[F]	*F€* 
+_empty_/i5068b.IsK#[G]	*G€*&
+_empty_/i5068b.ReflK# ˆ*ReflK€*2
+ _empty_/i5068b.ReflK#`<init>`(). €@*<init>€*"
+_empty_/i5068b.ReflK#[F]	*F€*)
+_empty_/i5068b.ReflK#copy().*copy€*)
+_empty_/i5068b.ReflK#copy().[F]	*F€*%
+_empty_/i5068b.ReflK.
+ *ReflK€*+
+_empty_/i5068b.ReflK.apply().*apply€**
+ _empty_/i5068b.ReflK.apply().[F]	*F€*/
+_empty_/i5068b.ReflK.unapply().*unapply€*,
+"_empty_/i5068b.ReflK.unapply().[F]	*F€*0
+$_empty_/i5068b.ReflK.unapply().(x$1)*x$1€*1
+ _empty_/i5068b.ReflK.toString().*toString€*!
+_empty_/i5068b.foo().*foo€*"
+_empty_/i5068b.foo().[F]	*F€*"
+_empty_/i5068b.foo().[G]	*G€*"
+_empty_/i5068b.foo().(r)*r€*"
+_empty_/i5068b.foo().(a)*a€2
+ _empty_/i5068.2 
+ _empty_/i5068.Box#2+
+ _empty_/i5068.Box#`<init>`().2#
+ _empty_/i5068.Box#[F]2
+  #
+scala/Int#2#
+ _empty_/i5068.Box#[F]2&
+ _empty_/i5068.Box#value.2'
+ _empty_/i5068.Box#copy().2%
+ _empty_/i5068.Box#_1().2 
+ _empty_/i5068.Box.2(
+ _empty_/i5068.Box.apply().2*
+ _empty_/i5068.Box.unapply().2 
+ _empty_/i5068.IsK#2+
+ _empty_/i5068.IsK#`<init>`().2#
+ _empty_/i5068.IsK#[F]2#
+ _empty_/i5068.IsK#[G]2"
+ _empty_/i5068.ReflK#2-
+ _empty_/i5068.ReflK#`<init>`().2 
+) ,_empty_/i5068.IsK#2%
+- ._empty_/i5068.ReflK#[F]2%
+0 1_empty_/i5068.ReflK#[F]2%
+ _empty_/i5068.ReflK#[F]2)
+ _empty_/i5068.ReflK#copy().2"
+ _empty_/i5068.ReflK.2*
+ _empty_/i5068.ReflK.apply().2,
+ _empty_/i5068.ReflK.unapply().2"
+ 	_empty_/i5068.foo().2%
+
+ _empty_/i5068.foo().[F]2%
+ _empty_/i5068.foo().[G]2%
+ _empty_/i5068.foo().(r)2 
+ _empty_/i5068.IsK#2%
+ _empty_/i5068.foo().[F]2%
+  _empty_/i5068.foo().[G]2%
+" #_empty_/i5068.foo().(a)2 
+% (_empty_/i5068.Box#2%
+) *_empty_/i5068.foo().[F]2 
+. 1_empty_/i5068.Box#2%
+2 3_empty_/i5068.foo().[G]2%
+7 8_empty_/i5068.foo().(r)2,
+K K_empty_/i5068.ReflK.unapply().2"
+F K_empty_/i5068.ReflK.2%
+Q R_empty_/i5068.foo().(a)2
+ _empty_/i5068b.2(
+		 _empty_/i5068b.WeirdShape#2+
+		 _empty_/i5068b.WeirdShape#[A]2+
+		 _empty_/i5068b.WeirdShape#[B]2+
+		 _empty_/i5068b.WeirdShape#[A]2+
+		  _empty_/i5068b.WeirdShape#[B]2!
+ _empty_/i5068b.Box#2,
+ _empty_/i5068b.Box#`<init>`().2$
+2 3_empty_/i5068b.Box#[F]2(
+4 >_empty_/i5068b.WeirdShape#2
+@ C
+scala/Int#2$
+ _empty_/i5068b.Box#[F]2'
++ 0_empty_/i5068b.Box#value.2(
+ _empty_/i5068b.Box#copy().2&
+2 2_empty_/i5068b.Box#_1().2!
+ _empty_/i5068b.Box.2)
+ _empty_/i5068b.Box.apply().2+
+ _empty_/i5068b.Box.unapply().2!
+ _empty_/i5068b.IsK#2,
+ _empty_/i5068b.IsK#`<init>`().2$
+ _empty_/i5068b.IsK#[F]2$
++ ,_empty_/i5068b.IsK#[G]2#
+ _empty_/i5068b.ReflK#2.
+  _empty_/i5068b.ReflK#`<init>`().2!
+= @_empty_/i5068b.IsK#2&
+A B_empty_/i5068b.ReflK#[F]2&
+D E_empty_/i5068b.ReflK#[F]2&
+ _empty_/i5068b.ReflK#[F]2*
+ _empty_/i5068b.ReflK#copy().2#
+ _empty_/i5068b.ReflK.2+
+ _empty_/i5068b.ReflK.apply().2-
+ _empty_/i5068b.ReflK.unapply().2#
+ 	_empty_/i5068b.foo().2&
+
+ _empty_/i5068b.foo().[F]2&
+" #_empty_/i5068b.foo().[G]2&
+ _empty_/i5068b.foo().(r)2!
+	 _empty_/i5068b.IsK#2&
+ _empty_/i5068b.foo().[F]2&
+ _empty_/i5068b.foo().[G]2&
+ _empty_/i5068b.foo().(a)2!
+ 
+_empty_/i5068b.Box#2&
+ _empty_/i5068b.foo().[F]2!
+ _empty_/i5068b.Box#2&
+	 
+_empty_/i5068b.foo().[G]2&
+ _empty_/i5068b.foo().(r)2-
+" "_empty_/i5068b.ReflK.unapply().2#
+ "_empty_/i5068b.ReflK.2&
+( )_empty_/i5068b.foo().(a)PZ 7E9308A45F258A7E89FE40BD5E90E8ED

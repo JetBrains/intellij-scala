@@ -1,0 +1,58 @@
+
+¦tests/pos/t5859.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f().*f€*
+_empty_/A#f().(xs)*xs€*
+_empty_/A#f().(ys)*ys€*
+_empty_/A#f(+1).*f€*
+_empty_/A#f(+1).(xs)*xs€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2 
+ 
+_empty_/A#f().(xs)2!
+ scala/package.List#2
+ 
+scala/Int#2 
+ _empty_/A#f().(ys)2
+ !scala/AnyRef#2
+ _empty_/A#f(+1).2"
+ 
+_empty_/A#f(+1).(xs)2
+ scala/AnyRef#2
+ _empty_/A#f(+1).2
+ _empty_/A#f(+1).27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+	 scala/AnyRef#2
+ _empty_/A#f(+1).27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/A#f(+1).2 
+ scala/package.Nil.2
+
+
+ _empty_/A#f(+1).2"
+
+	
+ 	scala/Array.apply().2
+
+
+ 	scala/Array.2
+
+
+
+ scala/AnyRef#2-
+
+
+ scala/reflect/ClassTag.apply().2
+ _empty_/A#f().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/A#f().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2 
+ scala/package.Nil.PZ 35370B021E19A8AFD3F65DABCEC1494B

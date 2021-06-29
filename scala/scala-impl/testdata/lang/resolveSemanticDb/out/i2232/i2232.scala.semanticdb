@@ -1,0 +1,253 @@
+
+ì@tests/pos/i2232.scala*
+_empty_/Cats.
+ *Cats€*%
+_empty_/Cats.Trivial#*Trivial€*2
+ _empty_/Cats.Trivial#`<init>`(). €@*<init>€*"
+_empty_/Cats.Trivial#[A]	*A€*)
+_empty_/Cats.trivial().  *trivial€*$
+_empty_/Cats.trivial().[A]	*A€*
+local0 *$anon€*
+_empty_/Cats.Obj#*Obj€*
+_empty_/Cats.Obj#[C]	*C€*
+_empty_/Cats.Obj#[A]	*A€*
+local1*l€*
+local2	*c0€*
+local3	*c1€*
+_empty_/Cats.Cat#*Cat€*
+_empty_/Cats.Cat#[C]	*C€*
+_empty_/Cats.Cat#[A]	*A€*
+_empty_/Cats.Cat#[B]	*B€*
+local4*l€*
+local5	*c0€*
+local6	*c1€*'
+_empty_/Cats.Category#*Category€*3
+!_empty_/Cats.Category#`<init>`(). €@*<init>€*#
+_empty_/Cats.Category#[C]	*C€*&
+_empty_/Cats.Category#`->`#*->€*(
+_empty_/Cats.Category#`->`#[X]	*X€*(
+_empty_/Cats.Category#`->`#[Y]	*Y€*&
+_empty_/Cats.Category#Obj#*Obj€*'
+_empty_/Cats.Category#Obj#[X]	*X€*(
+_empty_/Cats.Category#id(). *id€*(
+_empty_/Cats.Category#id().[A]	*A€*2
+ _empty_/Cats.Category#andThen(). *andThen€*-
+#_empty_/Cats.Category#andThen().[A]	*A€*-
+#_empty_/Cats.Category#andThen().[B]	*B€*-
+#_empty_/Cats.Category#andThen().[C]	*C€*/
+$_empty_/Cats.Category#andThen().(ab)*ab€*/
+$_empty_/Cats.Category#andThen().(bc)*bc€*)
+_empty_/Cats.Category.
+ *Category€*&
+_empty_/Cats.Category.ByF#*ByF€*'
+_empty_/Cats.Category.ByF#[F]	*F€*
+local7*->€*
+local8	*X€*
+local9	*Y€*
+_empty_/Cats.Scal#*Scal€*
+_empty_/Cats.Scal#[f]	*f€*"
+_empty_/Cats.scal.  *scal€*
+local10 *$anon€*
+local11*id€*
+local12	*A€*
+local13*a€*
+local14*andThen€*
+local15	*A€*
+local16	*B€*
+local17	*C€*
+local18*ab€*
+local19*bc€*-
+_empty_/Cats.CategoryOps#*CategoryOps€*6
+$_empty_/Cats.CategoryOps#`<init>`(). €@*<init>€*3
+(_empty_/Cats.CategoryOps#`<init>`().(ab)*ab€*&
+_empty_/Cats.CategoryOps#[F]	*F€*&
+_empty_/Cats.CategoryOps#[A]	*A€*&
+_empty_/Cats.CategoryOps#[B]	*B€**
+_empty_/Cats.CategoryOps#ab. €*ab€*-
+!_empty_/Cats.CategoryOps#`>>>`().*>>>€*.
+$_empty_/Cats.CategoryOps#`>>>`().[C]	*C€*0
+%_empty_/Cats.CategoryOps#`>>>`().(bc)*bc€*0
+$_empty_/Cats.CategoryOps#`>>>`().(F)  *F€*1
+_empty_/Cats.CategoryOps(). (*CategoryOps€*(
+_empty_/Cats.CategoryOps().[F]	*F€*(
+_empty_/Cats.CategoryOps().[A]	*A€*(
+_empty_/Cats.CategoryOps().[B]	*B€**
+_empty_/Cats.CategoryOps().(ab)*ab€*
+_empty_/Cats.f. €*f€*
+_empty_/Cats.g. €*g€2
+ _empty_/Cats.2#
+ _empty_/Cats.Trivial#2.
+  _empty_/Cats.Trivial#`<init>`().2&
+ _empty_/Cats.Trivial#[A]2%
+ _empty_/Cats.trivial().2(
+ _empty_/Cats.trivial().[A]2#
+ "_empty_/Cats.Trivial#2(
+# $_empty_/Cats.trivial().[A]2
+( (local02#
+, 3_empty_/Cats.Trivial#2(
+4 5_empty_/Cats.trivial().[A]2
+ 
+_empty_/Cats.Obj#2"
+ _empty_/Cats.Obj#[C]2"
+ _empty_/Cats.Obj#[A]2"
+ _empty_/Cats.Obj#[C]2
+ local12
+ local22
+! #local32
+- /local22"
+0 1_empty_/Cats.Obj#[A]2
+ 
+_empty_/Cats.Cat#2"
+ _empty_/Cats.Cat#[C]2"
+ _empty_/Cats.Cat#[A]2"
+ 	_empty_/Cats.Cat#[B]2"
+ _empty_/Cats.Cat#[C]2
+ local42
+ local52
+! #local62
+- /local62"
+0 1_empty_/Cats.Cat#[A]2"
+3 4_empty_/Cats.Cat#[B]2$
+		 _empty_/Cats.Category#2/
+		 !_empty_/Cats.Category#`<init>`().2'
+		 _empty_/Cats.Category#[C]2)
+
+	
+ _empty_/Cats.Category#`->`#2,
+
+
+ _empty_/Cats.Category#`->`#[X]2,
+
+
+ _empty_/Cats.Category#`->`#[Y]2
+
+
+ _empty_/Cats.Cat#2
+
+
+ _empty_/Cats.2'
+
+
+ _empty_/Cats.Category#[C]2,
+
+!
+ "_empty_/Cats.Category#`->`#[X]2,
+
+$
+ %_empty_/Cats.Category#`->`#[Y]2(
+	 _empty_/Cats.Category#Obj#2+
+ _empty_/Cats.Category#Obj#[X]2
+ _empty_/Cats.Obj#2
+ _empty_/Cats.2'
+ _empty_/Cats.Category#[C]2+
+ _empty_/Cats.Category#Obj#[X]2)
+ 
+_empty_/Cats.Category#id().2,
+ _empty_/Cats.Category#id().[A]2(
+ _empty_/Cats.Category#Obj#2,
+ _empty_/Cats.Category#id().[A]2)
+ _empty_/Cats.Category#`->`#2,
+ _empty_/Cats.Category#id().[A]2,
+ _empty_/Cats.Category#id().[A]2.
+  _empty_/Cats.Category#andThen().21
+ #_empty_/Cats.Category#andThen().[A]21
+ #_empty_/Cats.Category#andThen().[B]21
+ #_empty_/Cats.Category#andThen().[C]22
+ $_empty_/Cats.Category#andThen().(ab)2)
+ !_empty_/Cats.Category#`->`#21
+ #_empty_/Cats.Category#andThen().[A]21
+" ##_empty_/Cats.Category#andThen().[B]22
+% '$_empty_/Cats.Category#andThen().(bc)2)
++ -_empty_/Cats.Category#`->`#21
+) *#_empty_/Cats.Category#andThen().[B]21
+. /#_empty_/Cats.Category#andThen().[C]2)
+4 6_empty_/Cats.Category#`->`#21
+2 3#_empty_/Cats.Category#andThen().[A]21
+7 8#_empty_/Cats.Category#andThen().[C]2$
+	 _empty_/Cats.Category.2(
+	 _empty_/Cats.Category.ByF#2+
+ _empty_/Cats.Category.ByF#[F]2$
+  _empty_/Cats.Category#2
++ -local72
+/ 0local82
+2 3local92+
+7 8_empty_/Cats.Category.ByF#[F]2
+9 :local82
+< =local92 
+ _empty_/Cats.Scal#2#
+ _empty_/Cats.Scal#[f]2#
+  !_empty_/Cats.Scal#[f]2 
+ _empty_/Cats.scal.2$
+ _empty_/Cats.Category#2 
+ "_empty_/Cats.Scal#2
+& &local102$
+* 2_empty_/Cats.Category#2 
+3 7_empty_/Cats.Scal#2
+ 
+local112
+ local122(
+ _empty_/Cats.Category#Obj#2
+ local122)
+ _empty_/Cats.Category#`->`#2
+ local122
+ local122
+" #local132
+' (local132
+ local142
+ local152
+ local162
+ local172
+ local182)
+ !_empty_/Cats.Category#`->`#2
+ local152
+" #local162
+% 'local192)
++ -_empty_/Cats.Category#`->`#2
+) *local162
+. /local172)
+4 6_empty_/Cats.Category#`->`#2
+2 3local152
+7 8local172(
+> Escala/Function1#andThen().2
+; =local182
+F Hlocal192'
+ _empty_/Cats.CategoryOps#22
+ $_empty_/Cats.CategoryOps#`<init>`().2*
+0 1_empty_/Cats.CategoryOps#[F]2*
+2 3_empty_/Cats.CategoryOps#[A]2*
+5 6_empty_/Cats.CategoryOps#[B]2*
+ _empty_/Cats.CategoryOps#[F]2*
+& '_empty_/Cats.CategoryOps#[A]2*
+) *_empty_/Cats.CategoryOps#[B]2*
+, ._empty_/Cats.CategoryOps#ab.2/
+ !_empty_/Cats.CategoryOps#`>>>`().22
+ $_empty_/Cats.CategoryOps#`>>>`().[C]23
+ %_empty_/Cats.CategoryOps#`>>>`().(bc)2*
+ _empty_/Cats.CategoryOps#[F]2*
+ _empty_/Cats.CategoryOps#[B]22
+ $_empty_/Cats.CategoryOps#`>>>`().[C]22
+% &$_empty_/Cats.CategoryOps#`>>>`().(F)2(
+1 4_empty_/Cats.Category.ByF#2$
+( 0_empty_/Cats.Category.2*
+5 6_empty_/Cats.CategoryOps#[F]2*
+: ;_empty_/Cats.CategoryOps#[F]2*
+< =_empty_/Cats.CategoryOps#[A]22
+? @$_empty_/Cats.CategoryOps#`>>>`().[C]2#
+ 	scala/Predef.`???`().2)
+ _empty_/Cats.CategoryOps().2
+!! _empty_/Cats.f.2
+!	! 
+scala/Int#2
+!! 
+scala/Int#2 
+!! scala/Int#`+`(+4).2
+"" _empty_/Cats.g.2
+"	" 
+scala/Int#2"
+"" scala/Predef.String#2#
+"" #scala/Any#toString().2/
+## !_empty_/Cats.CategoryOps#`>>>`().2)
+## _empty_/Cats.CategoryOps().2
+## _empty_/Cats.f.2
+## 	_empty_/Cats.g.2 
+#	# 	_empty_/Cats.scal.PZ 75F6D2C52252FA034A9885D08DF796D7

@@ -1,0 +1,107 @@
+
+¿tests/pos/t2435.scala*
+_empty_/Bug.
+ *Bug€*$
+_empty_/Bug.FChain# *FChain€*0
+_empty_/Bug.FChain#`<init>`(). €@*<init>€*
+_empty_/Bug.FChain#T#*T€*)
+_empty_/Bug.FChain#chain().*chain€*6
+%_empty_/Bug.FChain#chain().(constant)*constant€*+
+_empty_/Bug.FConstant# €*	FConstant€*3
+!_empty_/Bug.FConstant#`<init>`(). €@*<init>€*?
++_empty_/Bug.FConstant#`<init>`().(constant) €*constant€*7
+'_empty_/Bug.FConstant#`<init>`().(tail) €*tail€*#
+_empty_/Bug.FConstant#[E]	*E€*3
+_empty_/Bug.FConstant#constant. €*constant€*+
+_empty_/Bug.FConstant#tail. €*tail€*"
+_empty_/Bug.FConstant#T#*T€**
+_empty_/Bug.FConstant#copy().*copy€**
+ _empty_/Bug.FConstant#copy().[E]	*E€*8
+'_empty_/Bug.FConstant#copy().(constant)*constant€*0
+#_empty_/Bug.FConstant#copy().(tail)*tail€*>
+'_empty_/Bug.FConstant#copy$default$1().*copy$default$1€*4
+*_empty_/Bug.FConstant#copy$default$1().[E]	*E€*>
+'_empty_/Bug.FConstant#copy$default$2().*copy$default$2€*4
+*_empty_/Bug.FConstant#copy$default$2().[E]	*E€*&
+_empty_/Bug.FConstant#_1().*_1€*&
+_empty_/Bug.FConstant#_2().*_2€**
+_empty_/Bug.FConstant.
+ *	FConstant€*,
+_empty_/Bug.FConstant.apply().*apply€*+
+!_empty_/Bug.FConstant.apply().[E]	*E€*9
+(_empty_/Bug.FConstant.apply().(constant)*constant€*1
+$_empty_/Bug.FConstant.apply().(tail)*tail€*0
+ _empty_/Bug.FConstant.unapply().*unapply€*-
+#_empty_/Bug.FConstant.unapply().[E]	*E€*1
+%_empty_/Bug.FConstant.unapply().(x$1)*x$1€*2
+!_empty_/Bug.FConstant.toString().*toString€* 
+_empty_/Bug.FNil.
+ *FNil€*
+_empty_/Bug.FNil.T#*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a1. €*a1€*
+_empty_/Test.a2. €*a2€*
+_empty_/Test.a3. €*a3€*
+_empty_/Test.a4. €*a4€2
+ 
+_empty_/Bug.2!
+ _empty_/Bug.FChain#2,
+ _empty_/Bug.FChain#`<init>`().2#
+	 
+_empty_/Bug.FChain#T#2)
+ _empty_/Bug.FChain#chain().23
+ %_empty_/Bug.FChain#chain().(constant)2"
+ scala/Predef.String#2/
+ !_empty_/Bug.FConstant#`<init>`().2$
+
+ _empty_/Bug.FConstant#23
+ '%_empty_/Bug.FChain#chain().(constant)2$
+ _empty_/Bug.FConstant#2/
+ !_empty_/Bug.FConstant#`<init>`().2"
+- 3scala/Predef.String#2'
+: ;_empty_/Bug.FConstant#[E]2,
+K K_empty_/Bug.FChain#`<init>`().2!
+E K_empty_/Bug.FChain#2'
+ _empty_/Bug.FConstant#[E]2-
+$ ,_empty_/Bug.FConstant#constant.2)
+5 9_empty_/Bug.FConstant#tail.2&
+			 
+_empty_/Bug.FConstant#T#2#
+		 _empty_/Bug.FChain#T#2)
+		 _empty_/Bug.FConstant#tail.2+
+ _empty_/Bug.FConstant#copy().2)
+- -_empty_/Bug.FConstant#_1().2)
+: :_empty_/Bug.FConstant#_2().2$
+ _empty_/Bug.FConstant.2,
+ _empty_/Bug.FConstant.apply().2.
+  _empty_/Bug.FConstant.unapply().2
+	 _empty_/Bug.FNil.2,
+ _empty_/Bug.FChain#`<init>`().2!
+ _empty_/Bug.FChain#2!
+	 
+_empty_/Bug.FNil.T#2
+ scala/Unit#2
+ _empty_/Test.2
+	 _empty_/Bug.2'
+ 	scala/Predef.println(+1).2
+ _empty_/Test.a1.2)
+  _empty_/Bug.FChain#chain().2)
+ _empty_/Bug.FChain#chain().2
+ _empty_/Bug.FNil.2
+ _empty_/Test.a2.2)
+ _empty_/Bug.FChain#chain().2
+ _empty_/Test.a1.2'
+ 	scala/Predef.println(+1).2
+ _empty_/Test.a3.2)
+& +_empty_/Bug.FChain#chain().2)
+  _empty_/Bug.FChain#chain().2)
+ _empty_/Bug.FChain#chain().2
+ _empty_/Bug.FNil.2
+ _empty_/Test.a4.2$
+
+ _empty_/Bug.FConstant#2$
+ "_empty_/Bug.FConstant#2$
+( 1_empty_/Bug.FConstant#2
+2 6_empty_/Bug.FNil.2
+A C_empty_/Test.a3.PZ D17854A9977AE5EACCEF46C903C5E3A7

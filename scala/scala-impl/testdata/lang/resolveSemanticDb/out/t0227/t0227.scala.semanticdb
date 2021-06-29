@@ -1,0 +1,82 @@
+
+ótests/pos/t0227.scala*$
+_empty_/Settings# *Settings€*.
+_empty_/Settings#`<init>`(). €@*<init>€*
+_empty_/Settings#f().*f€*"
+_empty_/Settings#f().[T]	*T€*,
+_empty_/Settings#f().(a_args)*a_args€*"
+_empty_/Factory# *Factory€*-
+_empty_/Factory#`<init>`(). €@*<init>€*0
+_empty_/Factory#libraryType#*libraryType€*(
+_empty_/Factory#apply(). *apply€*3
+"_empty_/Factory#apply().(settings)*settings€*
+_empty_/Base# *Base€**
+_empty_/Base#`<init>`(). €@*<init>€**
+_empty_/Base#settings. „*settings€*(
+_empty_/Base#demands. €*demands€*
+_empty_/SA#*SA€*(
+_empty_/SA#`<init>`(). €@*<init>€*4
+ _empty_/SA#`<init>`().(settings) €*settings€*(
+_empty_/SA#settings. €*settings€*&
+_empty_/SA#demands. €*demands€*
+local0 €*prefix$1€*
+_empty_/SC.
+ *SC€*+
+_empty_/SC.libraryType#*libraryType€*
+_empty_/SD.
+ *SD€*+
+_empty_/SD.libraryType#*libraryType€2
+ _empty_/Settings#2*
+ _empty_/Settings#`<init>`().2#
+ 	_empty_/Settings#f().2&
+
+ _empty_/Settings#f().[T]2+
+ _empty_/Settings#f().(a_args)2&
+ _empty_/Settings#f().[T]2!
+ scala/package.List#2&
+  _empty_/Settings#f().[T]2 
+$ 'scala/package.Nil.2
+ _empty_/Factory#2)
+ _empty_/Factory#`<init>`().2*
+	 _empty_/Factory#libraryType#2
+ _empty_/Base#2&
+ _empty_/Factory#apply().20
+ "_empty_/Factory#apply().(settings)2
+ &_empty_/Settings#2*
+) 4_empty_/Factory#libraryType#2(
+; @scala/sys/package.error().2
+7 :
+scala/sys/2
+
+
+ _empty_/Base#2&
+ _empty_/Base#`<init>`().2$
+ _empty_/Base#settings.2
+ _empty_/Settings#2#
+ _empty_/Base#demands.2!
+ scala/package.List#2
+  '_empty_/Factory#2 
++ .scala/package.Nil.2
+ _empty_/SA#2$
+ _empty_/SA#`<init>`().2
+ _empty_/Settings#2&
+- -_empty_/Base#`<init>`().2
+) -_empty_/Base#2"
+ _empty_/SA#settings.2!
+ _empty_/SA#demands.2
+  local026
+	 	(scala/collection/immutable/List#`:::`().2#
+ _empty_/Settings#f().2"
+ _empty_/SA#settings.2
+ _empty_/SC.2
+   local02
+ 	_empty_/SC.2)
+ _empty_/Factory#`<init>`().2
+ _empty_/Factory#2%
+	 _empty_/SC.libraryType#2
+ _empty_/Base#2
+ 	_empty_/SD.2)
+ _empty_/Factory#`<init>`().2
+ _empty_/Factory#2%
+	 _empty_/SD.libraryType#2
+ _empty_/SA#PZ 5907CB96E88B2FB5B3BB568BD2E9A2F2

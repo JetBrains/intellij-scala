@@ -1,0 +1,4045 @@
+
+ﬁ´tests/pos/t4579.scala*,
+_empty_/LispTokenizer#*LispTokenizerÄ*3
+!_empty_/LispTokenizer#`<init>`(). Ä@*<init>Ä*.
+$_empty_/LispTokenizer#`<init>`().(s)*sÄ*%
+_empty_/LispTokenizer#s. Ä*sÄ*'
+_empty_/LispTokenizer#i(). Ä*iÄ*8
+$_empty_/LispTokenizer#isDelimiter().*isDelimiterÄ*3
+(_empty_/LispTokenizer#isDelimiter().(ch)*chÄ*0
+ _empty_/LispTokenizer#hasNext().*hasNextÄ**
+_empty_/LispTokenizer#next().*nextÄ*
+local0 Ä*startÄ*
+_empty_/Lisp#*LispÄ**
+_empty_/Lisp#`<init>`(). Ä@*<init>Ä*
+_empty_/Lisp#Data#*DataÄ*1
+_empty_/Lisp#string2lisp(). *string2lispÄ*(
+_empty_/Lisp#string2lisp().(s)*sÄ*1
+_empty_/Lisp#lisp2string(). *lisp2stringÄ*(
+_empty_/Lisp#lisp2string().(s)*sÄ*+
+_empty_/Lisp#evaluate(). *evaluateÄ*%
+_empty_/Lisp#evaluate().(d)*dÄ*-
+_empty_/Lisp#evaluate(+1). *evaluateÄ*'
+_empty_/Lisp#evaluate(+1).(s)*sÄ*2
+_empty_/LispCaseClasses.
+ *LispCaseClassesÄ**
+_empty_/LispCaseClasses.Data#*DataÄ*:
+(_empty_/LispCaseClasses.Data#`<init>`(). Ä@*<init>Ä*C
+-_empty_/LispCaseClasses.Data#elemsToString().*elemsToStringÄ*-
+_empty_/LispCaseClasses.CONS# Ä*CONSÄ*:
+(_empty_/LispCaseClasses.CONS#`<init>`(). Ä@*<init>Ä*<
+-_empty_/LispCaseClasses.CONS#`<init>`().(car) Ä*carÄ*<
+-_empty_/LispCaseClasses.CONS#`<init>`().(cdr) Ä*cdrÄ*0
+!_empty_/LispCaseClasses.CONS#car. Ä*carÄ*0
+!_empty_/LispCaseClasses.CONS#cdr. Ä*cdrÄ*9
+(_empty_/LispCaseClasses.CONS#toString().*toStringÄ*C
+-_empty_/LispCaseClasses.CONS#elemsToString().*elemsToStringÄ*1
+$_empty_/LispCaseClasses.CONS#copy().*copyÄ*5
+)_empty_/LispCaseClasses.CONS#copy().(car)*carÄ*5
+)_empty_/LispCaseClasses.CONS#copy().(cdr)*cdrÄ*E
+._empty_/LispCaseClasses.CONS#copy$default$1().*copy$default$1Ä*E
+._empty_/LispCaseClasses.CONS#copy$default$2().*copy$default$2Ä*-
+"_empty_/LispCaseClasses.CONS#_1().*_1Ä*-
+"_empty_/LispCaseClasses.CONS#_2().*_2Ä*,
+_empty_/LispCaseClasses.CONS.
+ *CONSÄ*3
+%_empty_/LispCaseClasses.CONS.apply().*applyÄ*6
+*_empty_/LispCaseClasses.CONS.apply().(car)*carÄ*6
+*_empty_/LispCaseClasses.CONS.apply().(cdr)*cdrÄ*7
+'_empty_/LispCaseClasses.CONS.unapply().*unapplyÄ*8
+,_empty_/LispCaseClasses.CONS.unapply().(x$1)*x$1Ä*9
+(_empty_/LispCaseClasses.CONS.toString().*toStringÄ*+
+_empty_/LispCaseClasses.NIL# Ä*NILÄ*9
+'_empty_/LispCaseClasses.NIL#`<init>`(). Ä@*<init>Ä*8
+'_empty_/LispCaseClasses.NIL#toString().*toStringÄ*0
+#_empty_/LispCaseClasses.NIL#copy().*copyÄ**
+_empty_/LispCaseClasses.NIL.
+ *NILÄ*2
+$_empty_/LispCaseClasses.NIL.apply().*applyÄ*6
+&_empty_/LispCaseClasses.NIL.unapply().*unapplyÄ*7
++_empty_/LispCaseClasses.NIL.unapply().(x$1)*x$1Ä*8
+'_empty_/LispCaseClasses.NIL.toString().*toStringÄ*+
+_empty_/LispCaseClasses.SYM# Ä*SYMÄ*9
+'_empty_/LispCaseClasses.SYM#`<init>`(). Ä@*<init>Ä*=
+-_empty_/LispCaseClasses.SYM#`<init>`().(name) Ä*nameÄ*1
+!_empty_/LispCaseClasses.SYM#name. Ä*nameÄ*8
+'_empty_/LispCaseClasses.SYM#toString().*toStringÄ*0
+#_empty_/LispCaseClasses.SYM#copy().*copyÄ*6
+)_empty_/LispCaseClasses.SYM#copy().(name)*nameÄ*D
+-_empty_/LispCaseClasses.SYM#copy$default$1().*copy$default$1Ä*,
+!_empty_/LispCaseClasses.SYM#_1().*_1Ä**
+_empty_/LispCaseClasses.SYM.
+ *SYMÄ*2
+$_empty_/LispCaseClasses.SYM.apply().*applyÄ*7
+*_empty_/LispCaseClasses.SYM.apply().(name)*nameÄ*6
+&_empty_/LispCaseClasses.SYM.unapply().*unapplyÄ*7
++_empty_/LispCaseClasses.SYM.unapply().(x$1)*x$1Ä*8
+'_empty_/LispCaseClasses.SYM.toString().*toStringÄ*+
+_empty_/LispCaseClasses.NUM# Ä*NUMÄ*9
+'_empty_/LispCaseClasses.NUM#`<init>`(). Ä@*<init>Ä*7
+*_empty_/LispCaseClasses.NUM#`<init>`().(x) Ä*xÄ*+
+_empty_/LispCaseClasses.NUM#x. Ä*xÄ*8
+'_empty_/LispCaseClasses.NUM#toString().*toStringÄ*0
+#_empty_/LispCaseClasses.NUM#copy().*copyÄ*0
+&_empty_/LispCaseClasses.NUM#copy().(x)*xÄ*D
+-_empty_/LispCaseClasses.NUM#copy$default$1().*copy$default$1Ä*,
+!_empty_/LispCaseClasses.NUM#_1().*_1Ä**
+_empty_/LispCaseClasses.NUM.
+ *NUMÄ*2
+$_empty_/LispCaseClasses.NUM.apply().*applyÄ*1
+'_empty_/LispCaseClasses.NUM.apply().(x)*xÄ*6
+&_empty_/LispCaseClasses.NUM.unapply().*unapplyÄ*7
++_empty_/LispCaseClasses.NUM.unapply().(x$1)*x$1Ä*8
+'_empty_/LispCaseClasses.NUM.toString().*toStringÄ*+
+_empty_/LispCaseClasses.STR# Ä*STRÄ*9
+'_empty_/LispCaseClasses.STR#`<init>`(). Ä@*<init>Ä*7
+*_empty_/LispCaseClasses.STR#`<init>`().(x) Ä*xÄ*+
+_empty_/LispCaseClasses.STR#x. Ä*xÄ*8
+'_empty_/LispCaseClasses.STR#toString().*toStringÄ*0
+#_empty_/LispCaseClasses.STR#copy().*copyÄ*0
+&_empty_/LispCaseClasses.STR#copy().(x)*xÄ*D
+-_empty_/LispCaseClasses.STR#copy$default$1().*copy$default$1Ä*,
+!_empty_/LispCaseClasses.STR#_1().*_1Ä**
+_empty_/LispCaseClasses.STR.
+ *STRÄ*2
+$_empty_/LispCaseClasses.STR.apply().*applyÄ*1
+'_empty_/LispCaseClasses.STR.apply().(x)*xÄ*6
+&_empty_/LispCaseClasses.STR.unapply().*unapplyÄ*7
++_empty_/LispCaseClasses.STR.unapply().(x$1)*x$1Ä*8
+'_empty_/LispCaseClasses.STR.toString().*toStringÄ*+
+_empty_/LispCaseClasses.FUN# Ä*FUNÄ*9
+'_empty_/LispCaseClasses.FUN#`<init>`(). Ä@*<init>Ä*7
+*_empty_/LispCaseClasses.FUN#`<init>`().(f) Ä*fÄ*+
+_empty_/LispCaseClasses.FUN#f. Ä*fÄ*8
+'_empty_/LispCaseClasses.FUN#toString().*toStringÄ*0
+#_empty_/LispCaseClasses.FUN#copy().*copyÄ*0
+&_empty_/LispCaseClasses.FUN#copy().(f)*fÄ*D
+-_empty_/LispCaseClasses.FUN#copy$default$1().*copy$default$1Ä*,
+!_empty_/LispCaseClasses.FUN#_1().*_1Ä**
+_empty_/LispCaseClasses.FUN.
+ *FUNÄ*2
+$_empty_/LispCaseClasses.FUN.apply().*applyÄ*1
+'_empty_/LispCaseClasses.FUN.apply().(f)*fÄ*6
+&_empty_/LispCaseClasses.FUN.unapply().*unapplyÄ*7
++_empty_/LispCaseClasses.FUN.unapply().(x$1)*x$1Ä*8
+'_empty_/LispCaseClasses.FUN.toString().*toStringÄ*,
+_empty_/LispCaseClasses.list().*listÄ*.
+!_empty_/LispCaseClasses.list(+1).*listÄ*0
+%_empty_/LispCaseClasses.list(+1).(x0)*x0Ä*.
+!_empty_/LispCaseClasses.list(+2).*listÄ*0
+%_empty_/LispCaseClasses.list(+2).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+2).(x1)*x1Ä*.
+!_empty_/LispCaseClasses.list(+3).*listÄ*0
+%_empty_/LispCaseClasses.list(+3).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+3).(x1)*x1Ä*0
+%_empty_/LispCaseClasses.list(+3).(x2)*x2Ä*.
+!_empty_/LispCaseClasses.list(+4).*listÄ*0
+%_empty_/LispCaseClasses.list(+4).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+4).(x1)*x1Ä*0
+%_empty_/LispCaseClasses.list(+4).(x2)*x2Ä*0
+%_empty_/LispCaseClasses.list(+4).(x3)*x3Ä*.
+!_empty_/LispCaseClasses.list(+5).*listÄ*0
+%_empty_/LispCaseClasses.list(+5).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+5).(x1)*x1Ä*0
+%_empty_/LispCaseClasses.list(+5).(x2)*x2Ä*0
+%_empty_/LispCaseClasses.list(+5).(x3)*x3Ä*0
+%_empty_/LispCaseClasses.list(+5).(x4)*x4Ä*.
+!_empty_/LispCaseClasses.list(+6).*listÄ*0
+%_empty_/LispCaseClasses.list(+6).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+6).(x1)*x1Ä*0
+%_empty_/LispCaseClasses.list(+6).(x2)*x2Ä*0
+%_empty_/LispCaseClasses.list(+6).(x3)*x3Ä*0
+%_empty_/LispCaseClasses.list(+6).(x4)*x4Ä*0
+%_empty_/LispCaseClasses.list(+6).(x5)*x5Ä*.
+!_empty_/LispCaseClasses.list(+7).*listÄ*0
+%_empty_/LispCaseClasses.list(+7).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+7).(x1)*x1Ä*0
+%_empty_/LispCaseClasses.list(+7).(x2)*x2Ä*0
+%_empty_/LispCaseClasses.list(+7).(x3)*x3Ä*0
+%_empty_/LispCaseClasses.list(+7).(x4)*x4Ä*0
+%_empty_/LispCaseClasses.list(+7).(x5)*x5Ä*0
+%_empty_/LispCaseClasses.list(+7).(x6)*x6Ä*.
+!_empty_/LispCaseClasses.list(+8).*listÄ*0
+%_empty_/LispCaseClasses.list(+8).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+8).(x1)*x1Ä*0
+%_empty_/LispCaseClasses.list(+8).(x2)*x2Ä*0
+%_empty_/LispCaseClasses.list(+8).(x3)*x3Ä*0
+%_empty_/LispCaseClasses.list(+8).(x4)*x4Ä*0
+%_empty_/LispCaseClasses.list(+8).(x5)*x5Ä*0
+%_empty_/LispCaseClasses.list(+8).(x6)*x6Ä*0
+%_empty_/LispCaseClasses.list(+8).(x7)*x7Ä*.
+!_empty_/LispCaseClasses.list(+9).*listÄ*0
+%_empty_/LispCaseClasses.list(+9).(x0)*x0Ä*0
+%_empty_/LispCaseClasses.list(+9).(x1)*x1Ä*0
+%_empty_/LispCaseClasses.list(+9).(x2)*x2Ä*0
+%_empty_/LispCaseClasses.list(+9).(x3)*x3Ä*0
+%_empty_/LispCaseClasses.list(+9).(x4)*x4Ä*0
+%_empty_/LispCaseClasses.list(+9).(x5)*x5Ä*0
+%_empty_/LispCaseClasses.list(+9).(x6)*x6Ä*0
+%_empty_/LispCaseClasses.list(+9).(x7)*x7Ä*0
+%_empty_/LispCaseClasses.list(+9).(x8)*x8Ä*/
+"_empty_/LispCaseClasses.list(+10).*listÄ*1
+&_empty_/LispCaseClasses.list(+10).(x0)*x0Ä*1
+&_empty_/LispCaseClasses.list(+10).(x1)*x1Ä*1
+&_empty_/LispCaseClasses.list(+10).(x2)*x2Ä*1
+&_empty_/LispCaseClasses.list(+10).(x3)*x3Ä*1
+&_empty_/LispCaseClasses.list(+10).(x4)*x4Ä*1
+&_empty_/LispCaseClasses.list(+10).(x5)*x5Ä*1
+&_empty_/LispCaseClasses.list(+10).(x6)*x6Ä*1
+&_empty_/LispCaseClasses.list(+10).(x7)*x7Ä*1
+&_empty_/LispCaseClasses.list(+10).(x8)*x8Ä*1
+&_empty_/LispCaseClasses.list(+10).(x9)*x9Ä*3
+!_empty_/LispCaseClasses.curexp(). Ä*curexpÄ*9
+%_empty_/LispCaseClasses.`curexp_=`(). Ä*curexp_=Ä*6
+*_empty_/LispCaseClasses.`curexp_=`().(x$1)*x$1Ä*1
+ _empty_/LispCaseClasses.trace(). Ä*traceÄ*7
+$_empty_/LispCaseClasses.`trace_=`(). Ä*trace_=Ä*5
+)_empty_/LispCaseClasses.`trace_=`().(x$1)*x$1Ä*3
+!_empty_/LispCaseClasses.indent(). Ä*indentÄ*9
+%_empty_/LispCaseClasses.`indent_=`(). Ä*indent_=Ä*6
+*_empty_/LispCaseClasses.`indent_=`().(x$1)*x$1Ä*6
+$_empty_/LispCaseClasses.lispError().*	lispErrorÄ*1
+'_empty_/LispCaseClasses.lispError().[a]	*aÄ*5
+)_empty_/LispCaseClasses.lispError().(msg)*msgÄ*8
+$_empty_/LispCaseClasses.Environment#*EnvironmentÄ*A
+/_empty_/LispCaseClasses.Environment#`<init>`(). Ä@*<init>Ä*>
+-_empty_/LispCaseClasses.Environment#lookup(). *lookupÄ*:
+0_empty_/LispCaseClasses.Environment#lookup().(n)*nÄ*B
+0_empty_/LispCaseClasses.Environment#extendRec().*	extendRecÄ*C
+6_empty_/LispCaseClasses.Environment#extendRec().(name)*nameÄ*C
+6_empty_/LispCaseClasses.Environment#extendRec().(expr)*exprÄ*
+local1 *$anonÄ*
+local2*lookupÄ*
+local3*nÄ*<
+-_empty_/LispCaseClasses.Environment#extend().*extendÄ*@
+3_empty_/LispCaseClasses.Environment#extend().(name)*nameÄ*:
+0_empty_/LispCaseClasses.Environment#extend().(v)*vÄ*
+local4*env1Ä*E
+)_empty_/LispCaseClasses.EmptyEnvironment. Ä*EmptyEnvironmentÄ*
+local5 *$anonÄ*
+local6*lookupÄ*
+local7*nÄ*0
+!_empty_/LispCaseClasses.toList().*toListÄ*.
+$_empty_/LispCaseClasses.toList().(x)*xÄ*
+local8 Ä*yÄ*
+local9 Ä*ysÄ*6
+$_empty_/LispCaseClasses.toBoolean().*	toBooleanÄ*1
+'_empty_/LispCaseClasses.toBoolean().(x)*xÄ*6
+$_empty_/LispCaseClasses.normalize().*	normalizeÄ*1
+'_empty_/LispCaseClasses.normalize().(x)*xÄ*
+local10 Ä*nameÄ*
+local11 Ä*argsÄ*
+local12 Ä*bodyÄ*
+local13 Ä*exprÄ*
+local14 Ä*exprÄ*
+local15 Ä*testÄ*
+local16 Ä*exprÄ*
+local17 Ä*restÄ*
+local18 Ä*hÄ*
+local19 Ä*tÄ*,
+_empty_/LispCaseClasses.eval().*evalÄ*,
+"_empty_/LispCaseClasses.eval().(x)*xÄ*0
+$_empty_/LispCaseClasses.eval().(env)*envÄ*
+local20 Ä*prevexpÄ*
+local21*xÄ*
+local22 Ä*resultÄ*
+local23*xÄ*.
+ _empty_/LispCaseClasses.eval1().*eval1Ä*-
+#_empty_/LispCaseClasses.eval1().(x)*xÄ*1
+%_empty_/LispCaseClasses.eval1().(env)*envÄ*
+local24 Ä*nameÄ*
+local25 Ä*nameÄ*
+local26 Ä*yÄ*
+local27 Ä*zÄ*
+local28*env1Ä*
+local29 Ä*nameÄ*
+local30 Ä*yÄ*
+local31 Ä*zÄ*
+local32 Ä*paramsÄ*
+local33 Ä*yÄ*
+local34 Ä*cÄ*
+local35 Ä*tÄ*
+local36 Ä*eÄ*
+local37 Ä*xÄ*
+local38 Ä*yÄ*
+local39 Ä*xsÄ*
+local40*xÄ*.
+ _empty_/LispCaseClasses.apply().*applyÄ*/
+$_empty_/LispCaseClasses.apply().(fn)*fnÄ*3
+&_empty_/LispCaseClasses.apply().(args)*argsÄ*
+local41 Ä*fÄ*4
+#_empty_/LispCaseClasses.mkLambda().*mkLambdaÄ*:
++_empty_/LispCaseClasses.mkLambda().(params)*paramsÄ*6
+)_empty_/LispCaseClasses.mkLambda().(expr)*exprÄ*4
+(_empty_/LispCaseClasses.mkLambda().(env)*envÄ*
+local42*	extendEnvÄ*
+local43*envÄ*
+local44*psÄ*
+local45*argsÄ*
+local46 Ä*pÄ*
+local47 Ä*ps1Ä*
+local48 Ä*argÄ*
+local49 Ä*args1Ä*
+local50 Ä*psÄ*
+local51*x$1Ä*
+local52 Ä*nameÄ*
+local53*argsÄ*7
+"_empty_/LispCaseClasses.globalEnv. Ä*	globalEnvÄ*
+local54*x$1Ä*
+local55 Ä*arg1Ä*
+local56 Ä*arg2Ä*
+local57 Ä*arg1Ä*
+local58 Ä*arg2Ä*
+local59*x$1Ä*
+local60 Ä*arg1Ä*
+local61 Ä*arg2Ä*
+local62 Ä*arg1Ä*
+local63 Ä*arg2Ä*
+local64*x$1Ä*
+local65 Ä*arg1Ä*
+local66 Ä*arg2Ä*
+local67*x$1Ä*
+local68 Ä*arg1Ä*
+local69 Ä*arg2Ä*
+local70*x$1Ä*
+local71 Ä*arg1Ä*
+local72 Ä*arg2Ä*
+local73*x$1Ä*
+local74 Ä*xÄ*
+local75 Ä*xsÄ*
+local76*x$1Ä*
+local77 Ä*xÄ*
+local78 Ä*xsÄ*
+local79*x$1Ä*
+local80*x$1Ä*
+local81 Ä*xÄ*
+local82 Ä*yÄ*4
+#_empty_/LispCaseClasses.evaluate().*evaluateÄ*0
+&_empty_/LispCaseClasses.evaluate().(x)*xÄ*6
+%_empty_/LispCaseClasses.evaluate(+1).*evaluateÄ*2
+(_empty_/LispCaseClasses.evaluate(+1).(s)*sÄ*:
+&_empty_/LispCaseClasses.string2lisp().*string2lispÄ*3
+)_empty_/LispCaseClasses.string2lisp().(s)*sÄ*
+local83 Ä*itÄ*
+local84*parseÄ*
+local85*tokenÄ*
+local86*	parseListÄ*
+local87 Ä*tokenÄ*:
+&_empty_/LispCaseClasses.lisp2string().*lisp2stringÄ*3
+)_empty_/LispCaseClasses.lisp2string().(d)*dÄ*"
+_empty_/LispAny.
+ *LispAnyÄ*"
+_empty_/LispAny.Data#*DataÄ*)
+_empty_/LispAny.Lambda# Ä*LambdaÄ*4
+"_empty_/LispAny.Lambda#`<init>`(). Ä@*<init>Ä*2
+%_empty_/LispAny.Lambda#`<init>`().(f) Ä*fÄ*&
+_empty_/LispAny.Lambda#f. Ä*fÄ*+
+_empty_/LispAny.Lambda#copy().*copyÄ*+
+!_empty_/LispAny.Lambda#copy().(f)*fÄ*?
+(_empty_/LispAny.Lambda#copy$default$1().*copy$default$1Ä*'
+_empty_/LispAny.Lambda#_1().*_1Ä*(
+_empty_/LispAny.Lambda.
+ *LambdaÄ*-
+_empty_/LispAny.Lambda.apply().*applyÄ*,
+"_empty_/LispAny.Lambda.apply().(f)*fÄ*1
+!_empty_/LispAny.Lambda.unapply().*unapplyÄ*2
+&_empty_/LispAny.Lambda.unapply().(x$1)*x$1Ä*3
+"_empty_/LispAny.Lambda.toString().*toStringÄ*+
+_empty_/LispAny.curexp(). Ä*curexpÄ*1
+_empty_/LispAny.`curexp_=`(). Ä*curexp_=Ä*.
+"_empty_/LispAny.`curexp_=`().(x$1)*x$1Ä*)
+_empty_/LispAny.trace(). Ä*traceÄ*/
+_empty_/LispAny.`trace_=`(). Ä*trace_=Ä*-
+!_empty_/LispAny.`trace_=`().(x$1)*x$1Ä*+
+_empty_/LispAny.indent(). Ä*indentÄ*1
+_empty_/LispAny.`indent_=`(). Ä*indent_=Ä*.
+"_empty_/LispAny.`indent_=`().(x$1)*x$1Ä*.
+_empty_/LispAny.lispError().*	lispErrorÄ*)
+_empty_/LispAny.lispError().[a]	*aÄ*-
+!_empty_/LispAny.lispError().(msg)*msgÄ*0
+_empty_/LispAny.Environment#*EnvironmentÄ*9
+'_empty_/LispAny.Environment#`<init>`(). Ä@*<init>Ä*6
+%_empty_/LispAny.Environment#lookup(). *lookupÄ*2
+(_empty_/LispAny.Environment#lookup().(n)*nÄ*:
+(_empty_/LispAny.Environment#extendRec().*	extendRecÄ*;
+._empty_/LispAny.Environment#extendRec().(name)*nameÄ*;
+._empty_/LispAny.Environment#extendRec().(expr)*exprÄ*
+local88 *$anonÄ*
+local89*lookupÄ*
+local90*nÄ*4
+%_empty_/LispAny.Environment#extend().*extendÄ*8
++_empty_/LispAny.Environment#extend().(name)*nameÄ*2
+(_empty_/LispAny.Environment#extend().(v)*vÄ*
+local91*env1Ä*=
+!_empty_/LispAny.EmptyEnvironment. Ä*EmptyEnvironmentÄ*
+local92 *$anonÄ*
+local93*lookupÄ*
+local94*nÄ*(
+_empty_/LispAny.asList().*asListÄ*&
+_empty_/LispAny.asList().(x)*xÄ*
+local95 Ä*yÄ*&
+_empty_/LispAny.asInt().*asIntÄ*%
+_empty_/LispAny.asInt().(x)*xÄ*
+local96 Ä*yÄ*,
+_empty_/LispAny.asString().*asStringÄ*(
+_empty_/LispAny.asString().(x)*xÄ*
+local97 Ä*yÄ*.
+_empty_/LispAny.asBoolean().*	asBooleanÄ*)
+_empty_/LispAny.asBoolean().(x)*xÄ*.
+_empty_/LispAny.normalize().*	normalizeÄ*)
+_empty_/LispAny.normalize().(x)*xÄ*
+local98 Ä*xÄ*
+local99 Ä*yÄ*
+local100 Ä*elem$1Ä*
+local101 Ä*xÄ*
+local102 Ä*yÄ*
+local103 Ä*elem$2Ä*
+local104 Ä*nameÄ*
+local105 Ä*argsÄ*
+local106 Ä*bodyÄ*
+local107 Ä*exprÄ*
+local108 Ä*elem$5Ä*
+local109 Ä*elem$4Ä*
+local110 Ä*exprÄ*
+local111 Ä*restÄ*
+local112 Ä*testÄ*
+local113 Ä*exprÄ*
+local114 Ä*restÄ*
+local115 Ä*elem$8Ä*
+local116 Ä*elem$7Ä*
+local117 Ä*exprÄ*
+local118 Ä*hÄ*
+local119 Ä*tÄ*
+local120 Ä*elem$9Ä*$
+_empty_/LispAny.eval().*evalÄ*$
+_empty_/LispAny.eval().(x)*xÄ*(
+_empty_/LispAny.eval().(env)*envÄ*
+local121 Ä*prevexpÄ*
+local122*xÄ*
+local123 Ä*resultÄ*
+local124*xÄ*&
+_empty_/LispAny.eval1().*eval1Ä*%
+_empty_/LispAny.eval1().(x)*xÄ*)
+_empty_/LispAny.eval1().(env)*envÄ*
+local125 Ä*nameÄ*
+local126 Ä*nameÄ*
+local127 Ä*yÄ*
+local128 Ä*zÄ*
+local129*env1Ä*
+local130 Ä*nameÄ*
+local131 Ä*yÄ*
+local132 Ä*zÄ*
+local133 Ä*paramsÄ*
+local134 Ä*yÄ*
+local135 Ä*cÄ*
+local136 Ä*yÄ*
+local137 Ä*zÄ*
+local138 Ä*yÄ*
+local139 Ä*yÄ*
+local140 Ä*zÄ*
+local141*xÄ*
+local142 Ä*yÄ*
+local143 Ä*yÄ*
+local144 Ä*yÄ*2
+_empty_/LispAny.lisp2string().*lisp2stringÄ*+
+!_empty_/LispAny.lisp2string().(x)*xÄ*
+local145 Ä*nameÄ*
+local146 Ä*yÄ*
+local147 Ä*ysÄ*
+local148*list2stringÄ*
+local149*xsÄ*
+local150 Ä*yÄ*
+local151 Ä*ysÄ*&
+_empty_/LispAny.apply().*applyÄ*'
+_empty_/LispAny.apply().(fn)*fnÄ*+
+_empty_/LispAny.apply().(args)*argsÄ*
+local152 Ä*fÄ*,
+_empty_/LispAny.mkLambda().*mkLambdaÄ*2
+#_empty_/LispAny.mkLambda().(params)*paramsÄ*.
+!_empty_/LispAny.mkLambda().(expr)*exprÄ*,
+ _empty_/LispAny.mkLambda().(env)*envÄ*
+local153*	extendEnvÄ*
+local154*envÄ*
+local155*psÄ*
+local156*argsÄ*
+local157 Ä*pÄ*
+local158 Ä*ps1Ä*
+local159 Ä*argÄ*
+local160 Ä*args1Ä*
+local161 Ä*psÄ*
+local162*x$1Ä*
+local163 Ä*nameÄ*
+local164*argsÄ*/
+_empty_/LispAny.globalEnv. Ä*	globalEnvÄ*
+local165*x$1Ä*
+local166 Ä*arg1Ä*
+local167 Ä*arg2Ä*
+local168*x$1Ä*
+local169 Ä*arg1Ä*
+local170 Ä*arg2Ä*
+local171 Ä*arg1Ä*
+local172 Ä*arg2Ä*
+local173*x$1Ä*
+local174 Ä*arg1Ä*
+local175 Ä*arg2Ä*
+local176*x$1Ä*
+local177 Ä*arg1Ä*
+local178 Ä*arg2Ä*
+local179*x$1Ä*
+local180 Ä*arg1Ä*
+local181 Ä*arg2Ä*
+local182*x$1Ä*
+local183 Ä*arg1Ä*
+local184 Ä*arg2Ä*
+local185*x$1Ä*
+local186 Ä*xÄ*
+local187 Ä*xsÄ*
+local188*x$1Ä*
+local189 Ä*xÄ*
+local190 Ä*xsÄ*
+local191*x$1Ä*,
+_empty_/LispAny.evaluate().*evaluateÄ*(
+_empty_/LispAny.evaluate().(x)*xÄ*.
+_empty_/LispAny.evaluate(+1).*evaluateÄ**
+ _empty_/LispAny.evaluate(+1).(s)*sÄ*2
+_empty_/LispAny.string2lisp().*string2lispÄ*+
+!_empty_/LispAny.string2lisp().(s)*sÄ*
+local192 Ä*itÄ*
+local193*parseÄ*
+local194*tokenÄ*
+local195*	parseListÄ*
+local196 Ä*tokenÄ*
+local197 Ä*elem$10Ä*"
+_empty_/LispUser#*LispUserÄ*.
+_empty_/LispUser#`<init>`(). Ä@*<init>Ä*/
+"_empty_/LispUser#`<init>`().(lisp)*lispÄ*&
+_empty_/LispUser#lisp. Ä*lispÄ*-
+_empty_/LispUser#evaluate().*evaluateÄ*)
+_empty_/LispUser#evaluate().(s)*sÄ*#
+_empty_/LispUser#run().*runÄ*
+_empty_/Test.
+ *TestÄ*!
+_empty_/Test.main().*mainÄ*'
+_empty_/Test.main().(args)*argsÄ2$
+ _empty_/LispTokenizer#2/
+ !_empty_/LispTokenizer#`<init>`().2"
+ scala/Predef.String#2%
+' /scala/package.Iterator#2"
+0 6scala/Predef.String#2&
+ _empty_/LispTokenizer#s.2(
+ _empty_/LispTokenizer#i().22
+		 $_empty_/LispTokenizer#isDelimiter().26
+		 (_empty_/LispTokenizer#isDelimiter().(ch)2
+		 "scala/Char#2#
+	=	 ?scala/Boolean#`||`().2#
+	0	 2scala/Boolean#`||`().2"
+	)	 +scala/Char#`<=`(+2).26
+	&	 ((_empty_/LispTokenizer#isDelimiter().(ch)2"
+	6	 8scala/Char#`==`(+2).26
+	3	 5(_empty_/LispTokenizer#isDelimiter().(ch)2"
+	C	 Escala/Char#`==`(+2).26
+	@	 B(_empty_/LispTokenizer#isDelimiter().(ch)2.
+
+
+  _empty_/LispTokenizer#hasNext().2
+
+
+ scala/Boolean#2#
+ scala/Boolean#`&&`().2 
+ scala/Int#`<`(+3).2(
+ _empty_/LispTokenizer#i().2(
+ java/lang/String#length().2&
+ _empty_/LispTokenizer#s.2"
+) +scala/Char#`<=`(+2).2(
+ %java/lang/String#charAt().2&
+ _empty_/LispTokenizer#s.2(
+& '_empty_/LispTokenizer#i().2(
+1 2_empty_/LispTokenizer#i().2 
+2 2scala/Int#`+`(+4).2 
+ scala/Int#`<`(+3).2(
+ _empty_/LispTokenizer#i().2(
+
+ java/lang/String#length().2&
+ 	_empty_/LispTokenizer#s.2+
+ 
+_empty_/LispTokenizer#next().2"
+ scala/Predef.String#2.
+  _empty_/LispTokenizer#hasNext().2
+
+ local02(
+ _empty_/LispTokenizer#i().22
+
+ $_empty_/LispTokenizer#isDelimiter().2(
+ java/lang/String#charAt().2&
+ _empty_/LispTokenizer#s.2(
+  _empty_/LispTokenizer#i().2(
+# $_empty_/LispTokenizer#i().2 
+$ $scala/Int#`+`(+4).2(
+
+ _empty_/LispTokenizer#i().2 
+ scala/Int#`+`(+4).2(
+ _empty_/LispTokenizer#i().2(
+" "scala/Boolean#`unary_!`().22
+ $_empty_/LispTokenizer#isDelimiter().2(
+ java/lang/String#charAt().2&
+ _empty_/LispTokenizer#s.2(
+  !_empty_/LispTokenizer#i().2-
+ java/lang/String#substring(+1).2&
+ _empty_/LispTokenizer#s.2
+ local02(
+ _empty_/LispTokenizer#i().2(
+ scala/sys/package.error().2
+ 
+scala/sys/2
+ 
+_empty_/Lisp#2&
+ _empty_/Lisp#`<init>`().2 
+ _empty_/Lisp#Data#2)
+!! _empty_/Lisp#string2lisp().2,
+!! _empty_/Lisp#string2lisp().(s)2"
+!! scala/Predef.String#2 
+!! "_empty_/Lisp#Data#2)
+"" _empty_/Lisp#lisp2string().2,
+"" _empty_/Lisp#lisp2string().(s)2 
+"" _empty_/Lisp#Data#2"
+"" "scala/Predef.String#2&
+$$ _empty_/Lisp#evaluate().2)
+$$ _empty_/Lisp#evaluate().(d)2 
+$$ _empty_/Lisp#Data#2 
+$$ _empty_/Lisp#Data#2(
+&& _empty_/Lisp#evaluate(+1).2+
+&& _empty_/Lisp#evaluate(+1).(s)2"
+&& scala/Predef.String#2 
+&& _empty_/Lisp#Data#2&
+,, _empty_/LispCaseClasses.2
+,, #_empty_/Lisp#29
+.. +scala/collection/IterableFactory#range(+1).27
+.. )scala/collection/IterableFactory#range().2!
+.	. scala/package.List.2+
+00 _empty_/LispCaseClasses.Data#26
+11 (_empty_/LispCaseClasses.Data#`<init>`().2;
+11 -_empty_/LispCaseClasses.Data#elemsToString().2"
+11 scala/Predef.String#2#
+1"1 *scala/Any#toString().2+
+33 _empty_/LispCaseClasses.CONS#26
+33 (_empty_/LispCaseClasses.CONS#`<init>`().2+
+33 _empty_/LispCaseClasses.Data#2+
+3"3 &_empty_/LispCaseClasses.Data#2+
+303 4_empty_/LispCaseClasses.Data#2/
+33 !_empty_/LispCaseClasses.CONS#car.2/
+33  !_empty_/LispCaseClasses.CONS#cdr.26
+44 (_empty_/LispCaseClasses.CONS#toString().2%
+444 5java/lang/String#`+`().2%
+4"4 #java/lang/String#`+`().2;
+4$4 1-_empty_/LispCaseClasses.CONS#elemsToString().2;
+55 -_empty_/LispCaseClasses.CONS#elemsToString().2%
+525 3java/lang/String#`+`().2#
+5'5 /scala/Any#toString().2/
+5#5 &!_empty_/LispCaseClasses.CONS#car.2/
+555 8!_empty_/LispCaseClasses.CONS#cdr.24
+66 &_empty_/LispCaseClasses.NIL.unapply().2*
+66 _empty_/LispCaseClasses.NIL.2%
+77 java/lang/String#`+`().2;
+77 +-_empty_/LispCaseClasses.Data#elemsToString().2/
+77 !_empty_/LispCaseClasses.CONS#cdr.22
+33 $_empty_/LispCaseClasses.CONS#copy().20
+33 "_empty_/LispCaseClasses.CONS#_1().20
+3"3 ""_empty_/LispCaseClasses.CONS#_2().2+
+33 _empty_/LispCaseClasses.CONS.23
+33 %_empty_/LispCaseClasses.CONS.apply().2*
+:: _empty_/LispCaseClasses.NIL#25
+:: '_empty_/LispCaseClasses.NIL#`<init>`().2+
+:: _empty_/LispCaseClasses.Data#25
+;; '_empty_/LispCaseClasses.NIL#toString().2*
+:: _empty_/LispCaseClasses.NIL.2*
+== _empty_/LispCaseClasses.SYM#25
+== '_empty_/LispCaseClasses.SYM#`<init>`().2"
+== scala/Predef.String#2+
+='= +_empty_/LispCaseClasses.Data#2/
+== !_empty_/LispCaseClasses.SYM#name.25
+>> '_empty_/LispCaseClasses.SYM#toString().2/
+>> "!_empty_/LispCaseClasses.SYM#name.21
+== #_empty_/LispCaseClasses.SYM#copy().2/
+== !_empty_/LispCaseClasses.SYM#_1().2*
+== _empty_/LispCaseClasses.SYM.22
+== $_empty_/LispCaseClasses.SYM.apply().2*
+@@ _empty_/LispCaseClasses.NUM#25
+@@ '_empty_/LispCaseClasses.NUM#`<init>`().2
+@@ 
+scala/Int#2+
+@!@ %_empty_/LispCaseClasses.Data#2,
+@@ _empty_/LispCaseClasses.NUM#x.25
+AA '_empty_/LispCaseClasses.NUM#toString().2#
+A A (scala/Any#toString().2,
+AA _empty_/LispCaseClasses.NUM#x.21
+@@ #_empty_/LispCaseClasses.NUM#copy().2/
+@@ !_empty_/LispCaseClasses.NUM#_1().2*
+@@ _empty_/LispCaseClasses.NUM.22
+@@ $_empty_/LispCaseClasses.NUM.apply().2*
+CC _empty_/LispCaseClasses.STR#25
+CC '_empty_/LispCaseClasses.STR#`<init>`().2"
+CC scala/Predef.String#2+
+C$C (_empty_/LispCaseClasses.Data#2,
+CC _empty_/LispCaseClasses.STR#x.25
+DD '_empty_/LispCaseClasses.STR#toString().2%
+D'D (java/lang/String#`+`().2%
+D#D $java/lang/String#`+`().2,
+D%D &_empty_/LispCaseClasses.STR#x.21
+CC #_empty_/LispCaseClasses.STR#copy().2/
+CC !_empty_/LispCaseClasses.STR#_1().2*
+CC _empty_/LispCaseClasses.STR.22
+CC $_empty_/LispCaseClasses.STR.apply().2*
+FF _empty_/LispCaseClasses.FUN#25
+FF '_empty_/LispCaseClasses.FUN#`<init>`().2!
+FF scala/package.List#2+
+FF _empty_/LispCaseClasses.Data#2+
+F"F &_empty_/LispCaseClasses.Data#2+
+F0F 4_empty_/LispCaseClasses.Data#2,
+FF _empty_/LispCaseClasses.FUN#f.25
+GG '_empty_/LispCaseClasses.FUN#toString().21
+FF #_empty_/LispCaseClasses.FUN#copy().2/
+FF !_empty_/LispCaseClasses.FUN#_1().2*
+FF _empty_/LispCaseClasses.FUN.22
+FF $_empty_/LispCaseClasses.FUN.apply().2-
+JJ 
+_empty_/LispCaseClasses.list().2+
+JJ _empty_/LispCaseClasses.Data#22
+KK $_empty_/LispCaseClasses.NIL.apply().2*
+KK _empty_/LispCaseClasses.NIL.2/
+LL 
+!_empty_/LispCaseClasses.list(+1).23
+LL %_empty_/LispCaseClasses.list(+1).(x0)2+
+LL _empty_/LispCaseClasses.Data#2+
+LL _empty_/LispCaseClasses.Data#23
+MM %_empty_/LispCaseClasses.CONS.apply().2+
+MM _empty_/LispCaseClasses.CONS.23
+M	M %_empty_/LispCaseClasses.list(+1).(x0)22
+MM $_empty_/LispCaseClasses.NIL.apply().2*
+MM _empty_/LispCaseClasses.NIL.2/
+NN 
+!_empty_/LispCaseClasses.list(+2).23
+NN %_empty_/LispCaseClasses.list(+2).(x0)2+
+NN _empty_/LispCaseClasses.Data#23
+NN %_empty_/LispCaseClasses.list(+2).(x1)2+
+NN _empty_/LispCaseClasses.Data#2+
+N N $_empty_/LispCaseClasses.Data#23
+OO %_empty_/LispCaseClasses.CONS.apply().2+
+OO _empty_/LispCaseClasses.CONS.23
+O	O %_empty_/LispCaseClasses.list(+2).(x0)2/
+OO !_empty_/LispCaseClasses.list(+1).23
+OO %_empty_/LispCaseClasses.list(+2).(x1)2/
+PP 
+!_empty_/LispCaseClasses.list(+3).23
+PP %_empty_/LispCaseClasses.list(+3).(x0)2+
+PP _empty_/LispCaseClasses.Data#23
+PP %_empty_/LispCaseClasses.list(+3).(x1)2+
+PP _empty_/LispCaseClasses.Data#23
+PP !%_empty_/LispCaseClasses.list(+3).(x2)2+
+P#P '_empty_/LispCaseClasses.Data#2+
+P*P ._empty_/LispCaseClasses.Data#23
+QQ %_empty_/LispCaseClasses.CONS.apply().2+
+QQ _empty_/LispCaseClasses.CONS.23
+Q	Q %_empty_/LispCaseClasses.list(+3).(x0)2/
+QQ !_empty_/LispCaseClasses.list(+2).23
+QQ %_empty_/LispCaseClasses.list(+3).(x1)23
+QQ %_empty_/LispCaseClasses.list(+3).(x2)2/
+RR 
+!_empty_/LispCaseClasses.list(+4).23
+RR %_empty_/LispCaseClasses.list(+4).(x0)2+
+RR _empty_/LispCaseClasses.Data#23
+RR %_empty_/LispCaseClasses.list(+4).(x1)2+
+RR _empty_/LispCaseClasses.Data#23
+RR !%_empty_/LispCaseClasses.list(+4).(x2)2+
+R#R '_empty_/LispCaseClasses.Data#23
+R)R +%_empty_/LispCaseClasses.list(+4).(x3)2+
+R-R 1_empty_/LispCaseClasses.Data#2+
+R4R 8_empty_/LispCaseClasses.Data#23
+SS %_empty_/LispCaseClasses.CONS.apply().2+
+SS _empty_/LispCaseClasses.CONS.23
+S	S %_empty_/LispCaseClasses.list(+4).(x0)2/
+SS !_empty_/LispCaseClasses.list(+3).23
+SS %_empty_/LispCaseClasses.list(+4).(x1)23
+SS %_empty_/LispCaseClasses.list(+4).(x2)23
+SS %_empty_/LispCaseClasses.list(+4).(x3)2/
+TT 
+!_empty_/LispCaseClasses.list(+5).23
+TT %_empty_/LispCaseClasses.list(+5).(x0)2+
+TT _empty_/LispCaseClasses.Data#23
+TT %_empty_/LispCaseClasses.list(+5).(x1)2+
+TT _empty_/LispCaseClasses.Data#23
+TT !%_empty_/LispCaseClasses.list(+5).(x2)2+
+T#T '_empty_/LispCaseClasses.Data#23
+T)T +%_empty_/LispCaseClasses.list(+5).(x3)2+
+T-T 1_empty_/LispCaseClasses.Data#23
+T3T 5%_empty_/LispCaseClasses.list(+5).(x4)2+
+T7T ;_empty_/LispCaseClasses.Data#2+
+T>T B_empty_/LispCaseClasses.Data#23
+UU %_empty_/LispCaseClasses.CONS.apply().2+
+UU _empty_/LispCaseClasses.CONS.23
+U	U %_empty_/LispCaseClasses.list(+5).(x0)2/
+UU !_empty_/LispCaseClasses.list(+4).23
+UU %_empty_/LispCaseClasses.list(+5).(x1)23
+UU %_empty_/LispCaseClasses.list(+5).(x2)23
+UU %_empty_/LispCaseClasses.list(+5).(x3)23
+UU  %_empty_/LispCaseClasses.list(+5).(x4)2/
+VV 
+!_empty_/LispCaseClasses.list(+6).23
+VV %_empty_/LispCaseClasses.list(+6).(x0)2+
+VV _empty_/LispCaseClasses.Data#23
+VV %_empty_/LispCaseClasses.list(+6).(x1)2+
+VV _empty_/LispCaseClasses.Data#23
+VV !%_empty_/LispCaseClasses.list(+6).(x2)2+
+V#V '_empty_/LispCaseClasses.Data#23
+V)V +%_empty_/LispCaseClasses.list(+6).(x3)2+
+V-V 1_empty_/LispCaseClasses.Data#23
+V3V 5%_empty_/LispCaseClasses.list(+6).(x4)2+
+V7V ;_empty_/LispCaseClasses.Data#23
+V=V ?%_empty_/LispCaseClasses.list(+6).(x5)2+
+VAV E_empty_/LispCaseClasses.Data#2+
+VHV L_empty_/LispCaseClasses.Data#23
+WW %_empty_/LispCaseClasses.CONS.apply().2+
+WW _empty_/LispCaseClasses.CONS.23
+W	W %_empty_/LispCaseClasses.list(+6).(x0)2/
+WW !_empty_/LispCaseClasses.list(+5).23
+WW %_empty_/LispCaseClasses.list(+6).(x1)23
+WW %_empty_/LispCaseClasses.list(+6).(x2)23
+WW %_empty_/LispCaseClasses.list(+6).(x3)23
+WW  %_empty_/LispCaseClasses.list(+6).(x4)23
+W"W $%_empty_/LispCaseClasses.list(+6).(x5)2/
+XX 
+!_empty_/LispCaseClasses.list(+7).23
+XX %_empty_/LispCaseClasses.list(+7).(x0)2+
+XX _empty_/LispCaseClasses.Data#23
+XX %_empty_/LispCaseClasses.list(+7).(x1)2+
+XX _empty_/LispCaseClasses.Data#23
+XX !%_empty_/LispCaseClasses.list(+7).(x2)2+
+X#X '_empty_/LispCaseClasses.Data#23
+X)X +%_empty_/LispCaseClasses.list(+7).(x3)2+
+X-X 1_empty_/LispCaseClasses.Data#23
+X3X 5%_empty_/LispCaseClasses.list(+7).(x4)2+
+X7X ;_empty_/LispCaseClasses.Data#23
+X=X ?%_empty_/LispCaseClasses.list(+7).(x5)2+
+XAX E_empty_/LispCaseClasses.Data#23
+YY %_empty_/LispCaseClasses.list(+7).(x6)2+
+YY _empty_/LispCaseClasses.Data#2+
+YY _empty_/LispCaseClasses.Data#23
+ZZ %_empty_/LispCaseClasses.CONS.apply().2+
+ZZ _empty_/LispCaseClasses.CONS.23
+Z	Z %_empty_/LispCaseClasses.list(+7).(x0)2/
+ZZ !_empty_/LispCaseClasses.list(+6).23
+ZZ %_empty_/LispCaseClasses.list(+7).(x1)23
+ZZ %_empty_/LispCaseClasses.list(+7).(x2)23
+ZZ %_empty_/LispCaseClasses.list(+7).(x3)23
+ZZ  %_empty_/LispCaseClasses.list(+7).(x4)23
+Z"Z $%_empty_/LispCaseClasses.list(+7).(x5)23
+Z&Z (%_empty_/LispCaseClasses.list(+7).(x6)2/
+[[ 
+!_empty_/LispCaseClasses.list(+8).23
+[[ %_empty_/LispCaseClasses.list(+8).(x0)2+
+[[ _empty_/LispCaseClasses.Data#23
+[[ %_empty_/LispCaseClasses.list(+8).(x1)2+
+[[ _empty_/LispCaseClasses.Data#23
+[[ !%_empty_/LispCaseClasses.list(+8).(x2)2+
+[#[ '_empty_/LispCaseClasses.Data#23
+[)[ +%_empty_/LispCaseClasses.list(+8).(x3)2+
+[-[ 1_empty_/LispCaseClasses.Data#23
+[3[ 5%_empty_/LispCaseClasses.list(+8).(x4)2+
+[7[ ;_empty_/LispCaseClasses.Data#23
+[=[ ?%_empty_/LispCaseClasses.list(+8).(x5)2+
+[A[ E_empty_/LispCaseClasses.Data#23
+\\ %_empty_/LispCaseClasses.list(+8).(x6)2+
+\\ _empty_/LispCaseClasses.Data#23
+\\ %_empty_/LispCaseClasses.list(+8).(x7)2+
+\\ _empty_/LispCaseClasses.Data#2+
+\\ _empty_/LispCaseClasses.Data#23
+]] %_empty_/LispCaseClasses.CONS.apply().2+
+]] _empty_/LispCaseClasses.CONS.23
+]	] %_empty_/LispCaseClasses.list(+8).(x0)2/
+]] !_empty_/LispCaseClasses.list(+7).23
+]] %_empty_/LispCaseClasses.list(+8).(x1)23
+]] %_empty_/LispCaseClasses.list(+8).(x2)23
+]] %_empty_/LispCaseClasses.list(+8).(x3)23
+]]  %_empty_/LispCaseClasses.list(+8).(x4)23
+]"] $%_empty_/LispCaseClasses.list(+8).(x5)23
+]&] (%_empty_/LispCaseClasses.list(+8).(x6)23
+]*] ,%_empty_/LispCaseClasses.list(+8).(x7)2/
+^^ 
+!_empty_/LispCaseClasses.list(+9).23
+^^ %_empty_/LispCaseClasses.list(+9).(x0)2+
+^^ _empty_/LispCaseClasses.Data#23
+^^ %_empty_/LispCaseClasses.list(+9).(x1)2+
+^^ _empty_/LispCaseClasses.Data#23
+^^ !%_empty_/LispCaseClasses.list(+9).(x2)2+
+^#^ '_empty_/LispCaseClasses.Data#23
+^)^ +%_empty_/LispCaseClasses.list(+9).(x3)2+
+^-^ 1_empty_/LispCaseClasses.Data#23
+^3^ 5%_empty_/LispCaseClasses.list(+9).(x4)2+
+^7^ ;_empty_/LispCaseClasses.Data#23
+^=^ ?%_empty_/LispCaseClasses.list(+9).(x5)2+
+^A^ E_empty_/LispCaseClasses.Data#23
+__ %_empty_/LispCaseClasses.list(+9).(x6)2+
+__ _empty_/LispCaseClasses.Data#23
+__ %_empty_/LispCaseClasses.list(+9).(x7)2+
+__ _empty_/LispCaseClasses.Data#23
+__ %_empty_/LispCaseClasses.list(+9).(x8)2+
+__ _empty_/LispCaseClasses.Data#2+
+_"_ &_empty_/LispCaseClasses.Data#23
+`` %_empty_/LispCaseClasses.CONS.apply().2+
+`` _empty_/LispCaseClasses.CONS.23
+`	` %_empty_/LispCaseClasses.list(+9).(x0)2/
+`` !_empty_/LispCaseClasses.list(+8).23
+`` %_empty_/LispCaseClasses.list(+9).(x1)23
+`` %_empty_/LispCaseClasses.list(+9).(x2)23
+`` %_empty_/LispCaseClasses.list(+9).(x3)23
+``  %_empty_/LispCaseClasses.list(+9).(x4)23
+`"` $%_empty_/LispCaseClasses.list(+9).(x5)23
+`&` (%_empty_/LispCaseClasses.list(+9).(x6)23
+`*` ,%_empty_/LispCaseClasses.list(+9).(x7)23
+`.` 0%_empty_/LispCaseClasses.list(+9).(x8)20
+aa 
+"_empty_/LispCaseClasses.list(+10).24
+aa &_empty_/LispCaseClasses.list(+10).(x0)2+
+aa _empty_/LispCaseClasses.Data#24
+aa &_empty_/LispCaseClasses.list(+10).(x1)2+
+aa _empty_/LispCaseClasses.Data#24
+aa !&_empty_/LispCaseClasses.list(+10).(x2)2+
+a#a '_empty_/LispCaseClasses.Data#24
+a)a +&_empty_/LispCaseClasses.list(+10).(x3)2+
+a-a 1_empty_/LispCaseClasses.Data#24
+a3a 5&_empty_/LispCaseClasses.list(+10).(x4)2+
+a7a ;_empty_/LispCaseClasses.Data#24
+a=a ?&_empty_/LispCaseClasses.list(+10).(x5)2+
+aAa E_empty_/LispCaseClasses.Data#24
+bb &_empty_/LispCaseClasses.list(+10).(x6)2+
+bb _empty_/LispCaseClasses.Data#24
+bb &_empty_/LispCaseClasses.list(+10).(x7)2+
+bb _empty_/LispCaseClasses.Data#24
+bb &_empty_/LispCaseClasses.list(+10).(x8)2+
+bb _empty_/LispCaseClasses.Data#24
+b!b #&_empty_/LispCaseClasses.list(+10).(x9)2+
+b%b )_empty_/LispCaseClasses.Data#2+
+b,b 0_empty_/LispCaseClasses.Data#23
+cc %_empty_/LispCaseClasses.CONS.apply().2+
+cc _empty_/LispCaseClasses.CONS.24
+c	c &_empty_/LispCaseClasses.list(+10).(x0)2/
+cc !_empty_/LispCaseClasses.list(+9).24
+cc &_empty_/LispCaseClasses.list(+10).(x1)24
+cc &_empty_/LispCaseClasses.list(+10).(x2)24
+cc &_empty_/LispCaseClasses.list(+10).(x3)24
+cc  &_empty_/LispCaseClasses.list(+10).(x4)24
+c"c $&_empty_/LispCaseClasses.list(+10).(x5)24
+c&c (&_empty_/LispCaseClasses.list(+10).(x6)24
+c*c ,&_empty_/LispCaseClasses.list(+10).(x7)24
+c.c 0&_empty_/LispCaseClasses.list(+10).(x8)24
+c2c 4&_empty_/LispCaseClasses.list(+10).(x9)2/
+ee !_empty_/LispCaseClasses.curexp().2+
+ee _empty_/LispCaseClasses.Data#23
+ee %_empty_/LispCaseClasses.`curexp_=`().2.
+ff  _empty_/LispCaseClasses.trace().2
+ff scala/Boolean#22
+ff $_empty_/LispCaseClasses.`trace_=`().2/
+gg !_empty_/LispCaseClasses.indent().2
+gg 
+scala/Int#23
+gg %_empty_/LispCaseClasses.`indent_=`().22
+ii $_empty_/LispCaseClasses.lispError().25
+ii '_empty_/LispCaseClasses.lispError().[a]27
+ii )_empty_/LispCaseClasses.lispError().(msg)2"
+ii scala/Predef.String#25
+i!i "'_empty_/LispCaseClasses.lispError().[a]2(
+jj scala/sys/package.error().2
+jj 
+scala/sys/2%
+j%j &java/lang/String#`+`().2%
+jj java/lang/String#`+`().2%
+jj java/lang/String#`+`().27
+jj )_empty_/LispCaseClasses.lispError().(msg)2/
+j'j -!_empty_/LispCaseClasses.curexp().22
+ll $_empty_/LispCaseClasses.Environment#2=
+mm /_empty_/LispCaseClasses.Environment#`<init>`().2;
+mm -_empty_/LispCaseClasses.Environment#lookup().2>
+mm 0_empty_/LispCaseClasses.Environment#lookup().(n)2"
+mm scala/Predef.String#2+
+mm _empty_/LispCaseClasses.Data#2>
+nn 0_empty_/LispCaseClasses.Environment#extendRec().2D
+nn 6_empty_/LispCaseClasses.Environment#extendRec().(name)2"
+nn scala/Predef.String#2D
+n n $6_empty_/LispCaseClasses.Environment#extendRec().(expr)22
+n&n 1$_empty_/LispCaseClasses.Environment#2+
+n5n 9_empty_/LispCaseClasses.Data#2
+oo local122
+o
+o $_empty_/LispCaseClasses.Environment#2
+pp local22
+pp local32"
+pp scala/Predef.String#2+
+pp #_empty_/LispCaseClasses.Data#2
+qq scala/Any#`==`().2
+qq local32D
+qq 6_empty_/LispCaseClasses.Environment#extendRec().(name)2&
+qq scala/Function1#apply().2D
+qq 6_empty_/LispCaseClasses.Environment#extendRec().(expr)2;
+q:q @-_empty_/LispCaseClasses.Environment#lookup().2
+qAq Blocal32;
+ss -_empty_/LispCaseClasses.Environment#extend().2A
+ss 3_empty_/LispCaseClasses.Environment#extend().(name)2"
+ss scala/Predef.String#2>
+ss 0_empty_/LispCaseClasses.Environment#extend().(v)2+
+s s $_empty_/LispCaseClasses.Data#2>
+s(s 10_empty_/LispCaseClasses.Environment#extendRec().2A
+s2s 63_empty_/LispCaseClasses.Environment#extend().(name)2
+s9s =local42>
+sAs B0_empty_/LispCaseClasses.Environment#extend().(v)27
+uu )_empty_/LispCaseClasses.EmptyEnvironment.2
+uu local522
+uu ($_empty_/LispCaseClasses.Environment#2
+vv local62
+vv local72"
+vv scala/Predef.String#2+
+vv _empty_/LispCaseClasses.Data#22
+v"v +$_empty_/LispCaseClasses.lispError().2%
+v:v ;java/lang/String#`+`().2
+v<v =local72/
+yy !_empty_/LispCaseClasses.toList().22
+yy $_empty_/LispCaseClasses.toList().(x)2+
+yy _empty_/LispCaseClasses.Data#2!
+yy scala/package.List#2+
+yy  _empty_/LispCaseClasses.Data#22
+y$y %$_empty_/LispCaseClasses.toList().(x)24
+zz &_empty_/LispCaseClasses.NIL.unapply().2*
+z	z _empty_/LispCaseClasses.NIL.27
+zz )scala/collection/IterableFactory#apply().2!
+zz scala/package.List.25
+{{ '_empty_/LispCaseClasses.CONS.unapply().2+
+{	{ _empty_/LispCaseClasses.CONS.2
+{{ local82
+{{ local925
+{'{ ''scala/collection/immutable/List#`::`().2/
+{{ #!_empty_/LispCaseClasses.toList().2
+{${ &local92
+{{ local822
+|| $_empty_/LispCaseClasses.lispError().2%
+|+| ,java/lang/String#`+`().22
+|-| .$_empty_/LispCaseClasses.toList().(x)22
+ $_empty_/LispCaseClasses.toBoolean().25
+ '_empty_/LispCaseClasses.toBoolean().(x)2+
+ _empty_/LispCaseClasses.Data#25
+ '_empty_/LispCaseClasses.toBoolean().(x)26
+
+ÄÄ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+Ä	Ä _empty_/LispCaseClasses.NUM.24
+
+ÑÑ $_empty_/LispCaseClasses.normalize().27
+
+ÑÑ '_empty_/LispCaseClasses.normalize().(x)2-
+
+ÑÑ _empty_/LispCaseClasses.Data#2-
+
+ÑÑ _empty_/LispCaseClasses.Data#27
+
+Ñ!Ñ "'_empty_/LispCaseClasses.normalize().(x)27
+
+ÖÖ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+Ö	Ö _empty_/LispCaseClasses.CONS.26
+
+ÖÖ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+ÖÖ _empty_/LispCaseClasses.SYM.27
+
+ÜÜ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+ÜÜ _empty_/LispCaseClasses.CONS.27
+
+ÜÜ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+ÜÜ _empty_/LispCaseClasses.CONS.26
+
+ÜÜ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+ÜÜ _empty_/LispCaseClasses.SYM.2
+
+ÜÜ local102
+
+Ü Ü $local1127
+
+Ü+Ü +'_empty_/LispCaseClasses.CONS.unapply().2-
+
+Ü'Ü +_empty_/LispCaseClasses.CONS.2
+
+Ü,Ü 0local1227
+
+Ü6Ü 6'_empty_/LispCaseClasses.CONS.unapply().2-
+
+Ü2Ü 6_empty_/LispCaseClasses.CONS.2
+
+Ü7Ü ;local1326
+
+Ü@Ü @&_empty_/LispCaseClasses.NIL.unapply().2,
+
+Ü=Ü @_empty_/LispCaseClasses.NIL.24
+
+áá $_empty_/LispCaseClasses.normalize().21
+
+áá !_empty_/LispCaseClasses.list(+4).24
+
+áá $_empty_/LispCaseClasses.SYM.apply().2,
+
+áá _empty_/LispCaseClasses.SYM.24
+
+àà $_empty_/LispCaseClasses.SYM.apply().2,
+
+àà _empty_/LispCaseClasses.SYM.2
+
+àà local1021
+
+àà !_empty_/LispCaseClasses.list(+3).24
+
+àà $_empty_/LispCaseClasses.SYM.apply().2,
+
+àà _empty_/LispCaseClasses.SYM.2
+
+à'à +local112
+
+à-à 1local122
+
+à4à 8local1327
+
+ââ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+â	â _empty_/LispCaseClasses.CONS.26
+
+ââ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+ââ _empty_/LispCaseClasses.SYM.27
+
+ââ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+ââ _empty_/LispCaseClasses.CONS.27
+
+â$â $'_empty_/LispCaseClasses.CONS.unapply().2-
+
+â â $_empty_/LispCaseClasses.CONS.26
+
+â(â (&_empty_/LispCaseClasses.SYM.unapply().2,
+
+â%â (_empty_/LispCaseClasses.SYM.27
+
+â6â 6'_empty_/LispCaseClasses.CONS.unapply().2-
+
+â2â 6_empty_/LispCaseClasses.CONS.2
+
+â7â ;local1426
+
+â@â @&_empty_/LispCaseClasses.NIL.unapply().2,
+
+â=â @_empty_/LispCaseClasses.NIL.26
+
+âHâ H&_empty_/LispCaseClasses.NIL.unapply().2,
+
+âEâ H_empty_/LispCaseClasses.NIL.24
+
+ää $_empty_/LispCaseClasses.normalize().2
+
+ää local1427
+
+ãã '_empty_/LispCaseClasses.CONS.unapply().2-
+
+ã	ã _empty_/LispCaseClasses.CONS.26
+
+ãã &_empty_/LispCaseClasses.SYM.unapply().2,
+
+ãã _empty_/LispCaseClasses.SYM.27
+
+ãã '_empty_/LispCaseClasses.CONS.unapply().2-
+
+ãã _empty_/LispCaseClasses.CONS.27
+
+ã$ã $'_empty_/LispCaseClasses.CONS.unapply().2-
+
+ã ã $_empty_/LispCaseClasses.CONS.2
+
+ã%ã )local1527
+
+ã/ã /'_empty_/LispCaseClasses.CONS.unapply().2-
+
+ã+ã /_empty_/LispCaseClasses.CONS.2
+
+ã0ã 4local1626
+
+ã9ã 9&_empty_/LispCaseClasses.NIL.unapply().2,
+
+ã6ã 9_empty_/LispCaseClasses.NIL.2
+
+ã?ã Clocal1724
+
+åå $_empty_/LispCaseClasses.normalize().21
+
+åå !_empty_/LispCaseClasses.list(+4).24
+
+åå $_empty_/LispCaseClasses.SYM.apply().2,
+
+åå _empty_/LispCaseClasses.SYM.2
+
+å å $local152
+
+å&å *local1625
+
+å0å 0%_empty_/LispCaseClasses.CONS.apply().2-
+
+å,å 0_empty_/LispCaseClasses.CONS.24
+
+å4å 4$_empty_/LispCaseClasses.SYM.apply().2,
+
+å1å 4_empty_/LispCaseClasses.SYM.2
+
+å>å Blocal1727
+
+çç '_empty_/LispCaseClasses.CONS.unapply().2-
+
+ç	ç _empty_/LispCaseClasses.CONS.2
+
+çç local182
+
+çç local1925
+
+çç %_empty_/LispCaseClasses.CONS.apply().2-
+
+çç _empty_/LispCaseClasses.CONS.24
+
+çç %$_empty_/LispCaseClasses.normalize().2
+
+ç&ç 'local1824
+
+ç*ç 3$_empty_/LispCaseClasses.normalize().2
+
+ç4ç 5local1927
+
+éé '_empty_/LispCaseClasses.normalize().(x)2/
+
+ëë 
+_empty_/LispCaseClasses.eval().22
+
+ëë "_empty_/LispCaseClasses.eval().(x)2-
+
+ëë _empty_/LispCaseClasses.Data#24
+
+ëë $_empty_/LispCaseClasses.eval().(env)24
+
+ëë $$_empty_/LispCaseClasses.Environment#2-
+
+ë'ë +_empty_/LispCaseClasses.Data#2
+
+íí local2021
+
+íí !_empty_/LispCaseClasses.curexp().25
+
+ìì 
+%_empty_/LispCaseClasses.`curexp_=`().22
+
+ìì "_empty_/LispCaseClasses.eval().(x)20
+
+îî  _empty_/LispCaseClasses.trace().2:
+
+ï ï  *scala/collection/immutable/List#foreach().29
+
+ïï )scala/collection/IterableFactory#range().21
+
+ïï !_empty_/LispCaseClasses.indent().21
+
+ï ï  !scala/math/Numeric.IntIsIntegral.2
+
+ïï local212&
+
+ï*ï /scala/Console.print().2
+
+ï"ï )scala/Console.2*
+
+ññ scala/Console.println(+1).2
+
+ññ scala/Console.2'
+
+ññ java/lang/String#`+`().22
+
+ñ ñ !"_empty_/LispCaseClasses.eval().(x)25
+
+óó %_empty_/LispCaseClasses.`indent_=`().2"
+
+óó scala/Int#`+`(+4).21
+
+óó !_empty_/LispCaseClasses.indent().2
+
+ôô local2220
+
+ôô  _empty_/LispCaseClasses.eval1().22
+
+ôô "_empty_/LispCaseClasses.eval().(x)24
+
+ôô $_empty_/LispCaseClasses.eval().(env)20
+
+öö  _empty_/LispCaseClasses.trace().25
+
+õõ %_empty_/LispCaseClasses.`indent_=`().2"
+
+õõ scala/Int#`-`(+3).21
+
+õõ !_empty_/LispCaseClasses.indent().2:
+
+ú ú  *scala/collection/immutable/List#foreach().29
+
+úú )scala/collection/IterableFactory#range().21
+
+úú !_empty_/LispCaseClasses.indent().21
+
+ú ú  !scala/math/Numeric.IntIsIntegral.2
+
+úú local232&
+
+ú*ú /scala/Console.print().2
+
+ú"ú )scala/Console.2*
+
+ùù scala/Console.println(+1).2
+
+ùù scala/Console.2'
+
+ùù java/lang/String#`+`().2
+
+ù ù &local2225
+
+üü 
+%_empty_/LispCaseClasses.`curexp_=`().2
+
+üü local202
+
+†† 
+local2220
+
+££  _empty_/LispCaseClasses.eval1().23
+
+££ #_empty_/LispCaseClasses.eval1().(x)2-
+
+££ _empty_/LispCaseClasses.Data#25
+
+££ %_empty_/LispCaseClasses.eval1().(env)24
+
+££ %$_empty_/LispCaseClasses.Environment#2-
+
+£(£ ,_empty_/LispCaseClasses.Data#23
+
+£/£ 0#_empty_/LispCaseClasses.eval1().(x)26
+
+§§ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+§	§ _empty_/LispCaseClasses.SYM.2
+
+§§ local242=
+
+•
+• -_empty_/LispCaseClasses.Environment#lookup().25
+
+•• 	%_empty_/LispCaseClasses.eval1().(env)2
+
+•• local2427
+
+¶¶ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+¶	¶ _empty_/LispCaseClasses.CONS.26
+
+¶¶ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+¶¶ _empty_/LispCaseClasses.SYM.27
+
+¶¶ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+¶¶ _empty_/LispCaseClasses.CONS.26
+
+¶"¶ "&_empty_/LispCaseClasses.SYM.unapply().2,
+
+¶¶ "_empty_/LispCaseClasses.SYM.2
+
+¶#¶ 'local2527
+
+¶.¶ .'_empty_/LispCaseClasses.CONS.unapply().2-
+
+¶*¶ ._empty_/LispCaseClasses.CONS.2
+
+¶/¶ 0local2627
+
+¶6¶ 6'_empty_/LispCaseClasses.CONS.unapply().2-
+
+¶2¶ 6_empty_/LispCaseClasses.CONS.2
+
+¶7¶ 8local2726
+
+¶=¶ =&_empty_/LispCaseClasses.NIL.unapply().2,
+
+¶:¶ =_empty_/LispCaseClasses.NIL.2/
+
+ßß 
+_empty_/LispCaseClasses.eval().2
+
+ßß local272@
+
+ßß 0_empty_/LispCaseClasses.Environment#extendRec().25
+
+ßß %_empty_/LispCaseClasses.eval1().(env)2
+
+ßß  local252
+
+ß#ß 'local282/
+
+ß+ß /_empty_/LispCaseClasses.eval().2
+
+ß0ß 1local262
+
+ß3ß 7local2827
+
+®® '_empty_/LispCaseClasses.CONS.unapply().2-
+
+®	® _empty_/LispCaseClasses.CONS.26
+
+®® &_empty_/LispCaseClasses.SYM.unapply().2,
+
+®® _empty_/LispCaseClasses.SYM.27
+
+®® '_empty_/LispCaseClasses.CONS.unapply().2-
+
+®® _empty_/LispCaseClasses.CONS.26
+
+®"® "&_empty_/LispCaseClasses.SYM.unapply().2,
+
+®® "_empty_/LispCaseClasses.SYM.2
+
+®#® 'local2927
+
+®.® .'_empty_/LispCaseClasses.CONS.unapply().2-
+
+®*® ._empty_/LispCaseClasses.CONS.2
+
+®/® 0local3027
+
+®6® 6'_empty_/LispCaseClasses.CONS.unapply().2-
+
+®2® 6_empty_/LispCaseClasses.CONS.2
+
+®7® 8local3126
+
+®=® =&_empty_/LispCaseClasses.NIL.unapply().2,
+
+®:® =_empty_/LispCaseClasses.NIL.2/
+
+©© 
+_empty_/LispCaseClasses.eval().2
+
+©© local312=
+
+©© -_empty_/LispCaseClasses.Environment#extend().25
+
+©© %_empty_/LispCaseClasses.eval1().(env)2
+
+©© local292/
+
+©© #_empty_/LispCaseClasses.eval().2
+
+©$© %local3025
+
+©'© *%_empty_/LispCaseClasses.eval1().(env)27
+
+™™ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+™	™ _empty_/LispCaseClasses.CONS.26
+
+™™ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+™™ _empty_/LispCaseClasses.SYM.27
+
+™!™ !'_empty_/LispCaseClasses.CONS.unapply().2-
+
+™™ !_empty_/LispCaseClasses.CONS.2
+
+™"™ (local3227
+
+™.™ .'_empty_/LispCaseClasses.CONS.unapply().2-
+
+™*™ ._empty_/LispCaseClasses.CONS.2
+
+™/™ 0local3326
+
+™5™ 5&_empty_/LispCaseClasses.NIL.unapply().2,
+
+™2™ 5_empty_/LispCaseClasses.NIL.23
+
+´´ #_empty_/LispCaseClasses.mkLambda().2
+
+´´ local322
+
+´´ local3325
+
+´´ %_empty_/LispCaseClasses.eval1().(env)27
+
+¨¨ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+¨	¨ _empty_/LispCaseClasses.CONS.26
+
+¨¨ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+¨¨ _empty_/LispCaseClasses.SYM.27
+
+¨¨ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+¨¨ _empty_/LispCaseClasses.CONS.2
+
+¨¨ local3427
+
+¨%¨ %'_empty_/LispCaseClasses.CONS.unapply().2-
+
+¨!¨ %_empty_/LispCaseClasses.CONS.2
+
+¨&¨ 'local3527
+
+¨-¨ -'_empty_/LispCaseClasses.CONS.unapply().2-
+
+¨)¨ -_empty_/LispCaseClasses.CONS.2
+
+¨.¨ /local3626
+
+¨4¨ 4&_empty_/LispCaseClasses.NIL.unapply().2,
+
+¨1¨ 4_empty_/LispCaseClasses.NIL.24
+
+≠
+≠ $_empty_/LispCaseClasses.toBoolean().2/
+
+≠≠ _empty_/LispCaseClasses.eval().2
+
+≠≠ local3425
+
+≠≠ %_empty_/LispCaseClasses.eval1().(env)2/
+
+≠#≠ '_empty_/LispCaseClasses.eval().2
+
+≠(≠ )local3525
+
+≠+≠ .%_empty_/LispCaseClasses.eval1().(env)2/
+
+≠5≠ 9_empty_/LispCaseClasses.eval().2
+
+≠:≠ ;local3625
+
+≠=≠ @%_empty_/LispCaseClasses.eval1().(env)27
+
+ÆÆ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+Æ	Æ _empty_/LispCaseClasses.CONS.26
+
+ÆÆ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+ÆÆ _empty_/LispCaseClasses.SYM.27
+
+Æ Æ  '_empty_/LispCaseClasses.CONS.unapply().2-
+
+ÆÆ  _empty_/LispCaseClasses.CONS.2
+
+Æ!Æ "local3726
+
+Æ'Æ '&_empty_/LispCaseClasses.NIL.unapply().2,
+
+Æ$Æ '_empty_/LispCaseClasses.NIL.2
+
+ØØ local3727
+
+∞∞ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+∞	∞ _empty_/LispCaseClasses.CONS.2
+
+∞∞ local382
+
+∞∞ local3920
+
+±±  _empty_/LispCaseClasses.apply().2/
+
+±± _empty_/LispCaseClasses.eval().2
+
+±± local3825
+
+±± %_empty_/LispCaseClasses.eval1().(env)26
+
+±%± (&scala/collection/immutable/List#map().21
+
+±±  !_empty_/LispCaseClasses.toList().2
+
+±!± #local392
+
+±*± +local402/
+
+±/± 3_empty_/LispCaseClasses.eval().2
+
+±4± 5local4025
+
+±7± :%_empty_/LispCaseClasses.eval1().(env)26
+
+≤≤ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+≤	≤ _empty_/LispCaseClasses.NUM.23
+
+≤≤ #_empty_/LispCaseClasses.eval1().(x)26
+
+≥≥ &_empty_/LispCaseClasses.STR.unapply().2,
+
+≥	≥ _empty_/LispCaseClasses.STR.23
+
+≥≥ #_empty_/LispCaseClasses.eval1().(x)26
+
+¥¥ &_empty_/LispCaseClasses.FUN.unapply().2,
+
+¥	¥ _empty_/LispCaseClasses.FUN.23
+
+¥¥ #_empty_/LispCaseClasses.eval1().(x)24
+
+∂∂ $_empty_/LispCaseClasses.lispError().20
+
+ππ  _empty_/LispCaseClasses.apply().24
+
+ππ $_empty_/LispCaseClasses.apply().(fn)2-
+
+ππ _empty_/LispCaseClasses.Data#26
+
+ππ &_empty_/LispCaseClasses.apply().(args)2#
+
+ππ  scala/package.List#2-
+
+π!π %_empty_/LispCaseClasses.Data#2-
+
+π)π -_empty_/LispCaseClasses.Data#24
+
+π0π 2$_empty_/LispCaseClasses.apply().(fn)26
+
+∫∫ &_empty_/LispCaseClasses.FUN.unapply().2,
+
+∫	∫ _empty_/LispCaseClasses.FUN.2
+
+∫∫ local412(
+
+∫∫ scala/Function1#apply().2
+
+∫∫ local4126
+
+∫∫ &_empty_/LispCaseClasses.apply().(args)24
+
+ªª $_empty_/LispCaseClasses.lispError().2'
+
+ª8ª 9java/lang/String#`+`().24
+
+ª:ª <$_empty_/LispCaseClasses.apply().(fn)23
+
+ææ #_empty_/LispCaseClasses.mkLambda().2;
+
+ææ +_empty_/LispCaseClasses.mkLambda().(params)2-
+
+ææ _empty_/LispCaseClasses.Data#29
+
+ææ !)_empty_/LispCaseClasses.mkLambda().(expr)2-
+
+æ#æ '_empty_/LispCaseClasses.Data#28
+
+æ)æ ,(_empty_/LispCaseClasses.mkLambda().(env)24
+
+æ.æ 9$_empty_/LispCaseClasses.Environment#2-
+
+æ<æ @_empty_/LispCaseClasses.Data#2
+
+¿¿ local422
+
+¿¿ local4324
+
+¿¿ "$_empty_/LispCaseClasses.Environment#2
+
+¡¡ local442#
+
+¡¡ scala/package.List#2$
+
+¡¡ !scala/Predef.String#2
+
+¡$¡ (local452#
+
+¡*¡ .scala/package.List#2-
+
+¡/¡ 3_empty_/LispCaseClasses.Data#24
+
+¡7¡ B$_empty_/LispCaseClasses.Environment#2%
+
+¬¬ scala/Tuple2.apply().2
+
+¬¬ 	local442
+
+¬¬ local452'
+
+√√ scala/Tuple2.unapply().29
+
+√√ )scala/collection/SeqFactory#unapplySeq().2#
+
+√√ scala/package.List.29
+
+√√ )scala/collection/SeqFactory#unapplySeq().2#
+
+√√ scala/package.List.2
+
+ƒ
+ƒ local432'
+
+≈≈ scala/Tuple2.unapply().2:
+
+≈≈ *scala/collection/immutable/`::`.unapply().2#
+
+≈≈ scala/package.`::`.2
+
+≈≈ local462
+
+≈≈ local472:
+
+≈≈ *scala/collection/immutable/`::`.unapply().2#
+
+≈≈ scala/package.`::`.2
+
+≈≈ local482
+
+≈≈ $local492
+
+∆
+∆ local422=
+
+∆∆ -_empty_/LispCaseClasses.Environment#extend().2
+
+∆∆ local432
+
+∆∆  local462
+
+∆"∆ %local482
+
+∆(∆ +local472
+
+∆-∆ 2local4924
+
+»
+» $_empty_/LispCaseClasses.lispError().2
+
+ÀÀ 
+local502#
+
+ÀÀ scala/package.List#2$
+
+ÀÀ scala/Predef.String#26
+
+À*À -&scala/collection/immutable/List#map().21
+
+ÀÀ !!_empty_/LispCaseClasses.toList().2;
+
+À"À (+_empty_/LispCaseClasses.mkLambda().(params)2
+
+ÃÃ local5126
+
+ÃÃ &_empty_/LispCaseClasses.SYM.unapply().2,
+
+ÃÃ _empty_/LispCaseClasses.SYM.2
+
+ÃÃ local522
+
+ÃÃ local522*
+
+ÕÕ scala/sys/package.error().2
+
+ÕÕ 
+scala/sys/24
+
+–– $_empty_/LispCaseClasses.FUN.apply().2,
+
+–– _empty_/LispCaseClasses.FUN.2
+
+–– local532/
+
+–– _empty_/LispCaseClasses.eval().29
+
+–– )_empty_/LispCaseClasses.mkLambda().(expr)2
+
+–– $local4228
+
+–%– ((_empty_/LispCaseClasses.mkLambda().(env)2
+
+–*– ,local502
+
+–.– 2local5322
+
+”” "_empty_/LispCaseClasses.globalEnv.2=
+
+ÁÁ -_empty_/LispCaseClasses.Environment#extend().2=
+
+‰‰ -_empty_/LispCaseClasses.Environment#extend().2=
+
+‚‚ -_empty_/LispCaseClasses.Environment#extend().2=
+
+‡‡ -_empty_/LispCaseClasses.Environment#extend().2=
+
+ﬁﬁ -_empty_/LispCaseClasses.Environment#extend().2=
+
+‹‹ -_empty_/LispCaseClasses.Environment#extend().2=
+
+⁄⁄ -_empty_/LispCaseClasses.Environment#extend().2=
+
+◊◊ -_empty_/LispCaseClasses.Environment#extend().2=
+
+‘‘ -_empty_/LispCaseClasses.Environment#extend().29
+
+”” ")_empty_/LispCaseClasses.EmptyEnvironment.24
+
+‘‘ $_empty_/LispCaseClasses.FUN.apply().2,
+
+‘‘ _empty_/LispCaseClasses.FUN.2
+
+’’ local5429
+
+’’ )scala/collection/SeqFactory#unapplySeq().2#
+
+’’ scala/package.List.26
+
+’’ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+’’ _empty_/LispCaseClasses.NUM.2
+
+’’ local5526
+
+’’ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+’’ _empty_/LispCaseClasses.NUM.2
+
+’’ "local5624
+
+’+’ +$_empty_/LispCaseClasses.NUM.apply().2,
+
+’(’ +_empty_/LispCaseClasses.NUM.2#
+
+’5’ 7scala/Int#`==`(+3).2
+
+’0’ 4local552
+
+’8’ <local5629
+
+÷÷ )scala/collection/SeqFactory#unapplySeq().2#
+
+÷÷ scala/package.List.26
+
+÷÷ &_empty_/LispCaseClasses.STR.unapply().2,
+
+÷÷ _empty_/LispCaseClasses.STR.2
+
+÷÷ local5726
+
+÷÷ &_empty_/LispCaseClasses.STR.unapply().2,
+
+÷÷ _empty_/LispCaseClasses.STR.2
+
+÷÷ "local5824
+
+÷+÷ +$_empty_/LispCaseClasses.NUM.apply().2,
+
+÷(÷ +_empty_/LispCaseClasses.NUM.2!
+
+÷5÷ 7scala/Any#`==`().2
+
+÷0÷ 4local572
+
+÷8÷ <local5824
+
+◊◊ $_empty_/LispCaseClasses.FUN.apply().2,
+
+◊◊ _empty_/LispCaseClasses.FUN.2
+
+ÿÿ local5929
+
+ÿÿ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÿÿ scala/package.List.26
+
+ÿÿ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+ÿÿ _empty_/LispCaseClasses.NUM.2
+
+ÿÿ local6026
+
+ÿÿ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+ÿÿ _empty_/LispCaseClasses.NUM.2
+
+ÿÿ "local6124
+
+ÿ+ÿ +$_empty_/LispCaseClasses.NUM.apply().2,
+
+ÿ(ÿ +_empty_/LispCaseClasses.NUM.2"
+
+ÿ1ÿ 2scala/Int#`+`(+4).2
+
+ÿ,ÿ 0local602
+
+ÿ3ÿ 7local6129
+
+ŸŸ )scala/collection/SeqFactory#unapplySeq().2#
+
+ŸŸ scala/package.List.26
+
+ŸŸ &_empty_/LispCaseClasses.STR.unapply().2,
+
+ŸŸ _empty_/LispCaseClasses.STR.2
+
+ŸŸ local6226
+
+ŸŸ &_empty_/LispCaseClasses.STR.unapply().2,
+
+ŸŸ _empty_/LispCaseClasses.STR.2
+
+ŸŸ "local6324
+
+Ÿ+Ÿ +$_empty_/LispCaseClasses.STR.apply().2,
+
+Ÿ(Ÿ +_empty_/LispCaseClasses.STR.2'
+
+Ÿ1Ÿ 2java/lang/String#`+`().2
+
+Ÿ,Ÿ 0local622
+
+Ÿ3Ÿ 7local6324
+
+⁄⁄ $_empty_/LispCaseClasses.FUN.apply().2,
+
+⁄⁄ _empty_/LispCaseClasses.FUN.2
+
+€€ local6429
+
+€€ )scala/collection/SeqFactory#unapplySeq().2#
+
+€€ scala/package.List.26
+
+€€ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+€€ _empty_/LispCaseClasses.NUM.2
+
+€€ local6526
+
+€€ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+€€ _empty_/LispCaseClasses.NUM.2
+
+€€ "local6624
+
+€+€ +$_empty_/LispCaseClasses.NUM.apply().2,
+
+€(€ +_empty_/LispCaseClasses.NUM.2"
+
+€1€ 2scala/Int#`-`(+3).2
+
+€,€ 0local652
+
+€3€ 7local6624
+
+‹‹ $_empty_/LispCaseClasses.FUN.apply().2,
+
+‹‹ _empty_/LispCaseClasses.FUN.2
+
+›› local6729
+
+›› )scala/collection/SeqFactory#unapplySeq().2#
+
+›› scala/package.List.26
+
+›› &_empty_/LispCaseClasses.NUM.unapply().2,
+
+›› _empty_/LispCaseClasses.NUM.2
+
+›› local6826
+
+›› &_empty_/LispCaseClasses.NUM.unapply().2,
+
+›› _empty_/LispCaseClasses.NUM.2
+
+›› "local6924
+
+›+› +$_empty_/LispCaseClasses.NUM.apply().2,
+
+›(› +_empty_/LispCaseClasses.NUM.2"
+
+›1› 2scala/Int#`*`(+3).2
+
+›,› 0local682
+
+›3› 7local6924
+
+ﬁﬁ $_empty_/LispCaseClasses.FUN.apply().2,
+
+ﬁﬁ _empty_/LispCaseClasses.FUN.2
+
+ﬂﬂ local7029
+
+ﬂﬂ )scala/collection/SeqFactory#unapplySeq().2#
+
+ﬂﬂ scala/package.List.26
+
+ﬂﬂ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+ﬂﬂ _empty_/LispCaseClasses.NUM.2
+
+ﬂﬂ local7126
+
+ﬂﬂ &_empty_/LispCaseClasses.NUM.unapply().2,
+
+ﬂﬂ _empty_/LispCaseClasses.NUM.2
+
+ﬂﬂ "local7224
+
+ﬂ+ﬂ +$_empty_/LispCaseClasses.NUM.apply().2,
+
+ﬂ(ﬂ +_empty_/LispCaseClasses.NUM.2"
+
+ﬂ1ﬂ 2scala/Int#`/`(+3).2
+
+ﬂ,ﬂ 0local712
+
+ﬂ3ﬂ 7local7224
+
+‡‡ $_empty_/LispCaseClasses.FUN.apply().2,
+
+‡‡ _empty_/LispCaseClasses.FUN.2
+
+·· local7329
+
+·· )scala/collection/SeqFactory#unapplySeq().2#
+
+·· scala/package.List.27
+
+·· '_empty_/LispCaseClasses.CONS.unapply().2-
+
+·· _empty_/LispCaseClasses.CONS.2
+
+·· local742
+
+·· local752
+
+· · !local7424
+
+‚‚ $_empty_/LispCaseClasses.FUN.apply().2,
+
+‚‚ _empty_/LispCaseClasses.FUN.2
+
+„„ local7629
+
+„„ )scala/collection/SeqFactory#unapplySeq().2#
+
+„„ scala/package.List.27
+
+„„ '_empty_/LispCaseClasses.CONS.unapply().2-
+
+„„ _empty_/LispCaseClasses.CONS.2
+
+„„ local772
+
+„„ local782
+
+„ „ "local7824
+
+‰‰ $_empty_/LispCaseClasses.FUN.apply().2,
+
+‰‰ _empty_/LispCaseClasses.FUN.2
+
+ÂÂ local7929
+
+ÂÂ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÂÂ scala/package.List.26
+
+ÂÂ &_empty_/LispCaseClasses.NIL.unapply().2,
+
+ÂÂ _empty_/LispCaseClasses.NIL.24
+
+ÂÂ $_empty_/LispCaseClasses.NUM.apply().2,
+
+ÂÂ _empty_/LispCaseClasses.NUM.24
+
+ÊÊ $_empty_/LispCaseClasses.NUM.apply().2,
+
+ÊÊ _empty_/LispCaseClasses.NUM.24
+
+ÁÁ $_empty_/LispCaseClasses.FUN.apply().2,
+
+ÁÁ _empty_/LispCaseClasses.FUN.2
+
+ËË local8029
+
+ËË )scala/collection/SeqFactory#unapplySeq().2#
+
+ËË scala/package.List.2
+
+ËË local812
+
+ËË local8225
+
+ËË %_empty_/LispCaseClasses.CONS.apply().2-
+
+ËË _empty_/LispCaseClasses.CONS.2
+
+ËË local812
+
+Ë!Ë "local8223
+
+ÍÍ #_empty_/LispCaseClasses.evaluate().26
+
+ÍÍ &_empty_/LispCaseClasses.evaluate().(x)2-
+
+ÍÍ _empty_/LispCaseClasses.Data#2-
+
+ÍÍ _empty_/LispCaseClasses.Data#2/
+
+Í Í $_empty_/LispCaseClasses.eval().24
+
+Í%Í .$_empty_/LispCaseClasses.normalize().26
+
+Í/Í 0&_empty_/LispCaseClasses.evaluate().(x)22
+
+Í3Í <"_empty_/LispCaseClasses.globalEnv.25
+
+ÎÎ %_empty_/LispCaseClasses.evaluate(+1).28
+
+ÎÎ (_empty_/LispCaseClasses.evaluate(+1).(s)2$
+
+ÎÎ scala/Predef.String#2-
+
+ÎÎ _empty_/LispCaseClasses.Data#23
+
+Î"Î *#_empty_/LispCaseClasses.evaluate().26
+
+Î+Î 6&_empty_/LispCaseClasses.string2lisp().28
+
+Î7Î 8(_empty_/LispCaseClasses.evaluate(+1).(s)26
+
+ÌÌ &_empty_/LispCaseClasses.string2lisp().29
+
+ÌÌ )_empty_/LispCaseClasses.string2lisp().(s)2$
+
+ÌÌ scala/Predef.String#2-
+
+ÌÌ "_empty_/LispCaseClasses.Data#2
+
+ÓÓ 
+local8321
+
+ÓÓ !_empty_/LispTokenizer#`<init>`().2&
+
+ÓÓ _empty_/LispTokenizer#29
+
+ÓÓ  )_empty_/LispCaseClasses.string2lisp().(s)2
+
+ÔÔ local842
+
+ÔÔ local852$
+
+ÔÔ scala/Predef.String#2-
+
+ÔÔ "_empty_/LispCaseClasses.Data#2!
+
+ scala/Any#`==`().2
+
+
+ local852
+
+ !local862!
+
+ÒÒ scala/Any#`==`().2
+
+ÒÒ local852*
+
+Ò!Ò &scala/sys/package.error().2
+
+ÒÒ  
+scala/sys/2%
+
+Ú&Ú (scala/Boolean#`&&`().2$
+
+ÚÚ scala/Char#`<=`(+2).2*
+
+ÚÚ "java/lang/String#charAt().2
+
+ÚÚ local852$
+
+Ú9Ú ;scala/Char#`<=`(+2).2*
+
+Ú/Ú 5java/lang/String#charAt().2
+
+Ú)Ú .local8524
+
+ÛÛ $_empty_/LispCaseClasses.NUM.apply().2,
+
+ÛÛ _empty_/LispCaseClasses.NUM.23
+
+ÛÛ #scala/collection/StringOps#toInt().2-
+
+ÛÛ scala/Predef.augmentString().2
+
+ÛÛ local852%
+
+Ù'Ù )scala/Boolean#`&&`().2$
+
+ÙÙ !scala/Char#`==`(+2).2*
+
+ÙÙ java/lang/String#charAt().2
+
+ÙÙ local852$
+
+ÙHÙ Jscala/Char#`==`(+2).2*
+
+Ù0Ù 6java/lang/String#charAt().2
+
+Ù*Ù /local852"
+
+ÙEÙ Fscala/Int#`-`(+3).2*
+
+Ù=Ù Cjava/lang/String#length().2
+
+Ù7Ù <local8524
+
+ıı $_empty_/LispCaseClasses.STR.apply().2,
+
+ıı _empty_/LispCaseClasses.STR.2/
+
+ıı java/lang/String#substring(+1).2
+
+ıı local852"
+
+ı-ı .scala/Int#`-`(+3).2*
+
+ı$ı *java/lang/String#length().2
+
+ıı #local8524
+
+ˆˆ $_empty_/LispCaseClasses.SYM.apply().2,
+
+ˆˆ _empty_/LispCaseClasses.SYM.2
+
+ˆˆ local852
+
+¯¯ local862-
+
+¯¯ _empty_/LispCaseClasses.Data#2
+
+˘
+˘ local872-
+
+˘˘ _empty_/LispTokenizer#next().2
+
+˘˘ local832!
+
+˙˙ scala/Any#`==`().2
+
+˙
+˙ local8724
+
+˙˙ $_empty_/LispCaseClasses.NIL.apply().2,
+
+˙˙ _empty_/LispCaseClasses.NIL.25
+
+˙'˙ '%_empty_/LispCaseClasses.CONS.apply().2-
+
+˙#˙ '_empty_/LispCaseClasses.CONS.2
+
+˙(˙ -local842
+
+˙.˙ 3local872
+
+˙6˙ ?local862
+
+¸¸ 	local842-
+
+¸¸ _empty_/LispTokenizer#next().2
+
+¸
+¸ local8326
+
+ˇˇ &_empty_/LispCaseClasses.lisp2string().29
+
+ˇˇ )_empty_/LispCaseClasses.lisp2string().(d)2-
+
+ˇˇ _empty_/LispCaseClasses.Data#2$
+
+ˇˇ "scala/Predef.String#2%
+
+ˇ'ˇ /scala/Any#toString().29
+
+ˇ%ˇ &)_empty_/LispCaseClasses.lisp2string().(d)2 
+
+ÖÖ _empty_/LispAny.2
+
+ÖÖ _empty_/Lisp#2#
+
+á	á scala/package.List.2%
+
+ââ _empty_/LispAny.Data#2
+
+ââ 
+scala/Any#2'
+
+ãã _empty_/LispAny.Lambda#22
+
+ãã "_empty_/LispAny.Lambda#`<init>`().2#
+
+ãã scala/package.List#2%
+
+ãã  _empty_/LispAny.Data#2%
+
+ã%ã )_empty_/LispAny.Data#2)
+
+ãã _empty_/LispAny.Lambda#f.2.
+
+ãã _empty_/LispAny.Lambda#copy().2,
+
+ãã _empty_/LispAny.Lambda#_1().2'
+
+ãã _empty_/LispAny.Lambda.2/
+
+ãã _empty_/LispAny.Lambda.apply().2)
+
+çç _empty_/LispAny.curexp().2%
+
+çç _empty_/LispAny.Data#2-
+
+çç _empty_/LispAny.`curexp_=`().2(
+
+éé _empty_/LispAny.trace().2
+
+éé scala/Boolean#2,
+
+éé _empty_/LispAny.`trace_=`().2)
+
+èè _empty_/LispAny.indent().2
+
+èè 
+scala/Int#2-
+
+èè _empty_/LispAny.`indent_=`().2,
+
+ëë _empty_/LispAny.lispError().2/
+
+ëë _empty_/LispAny.lispError().[a]21
+
+ëë !_empty_/LispAny.lispError().(msg)2$
+
+ëë scala/Predef.String#2/
+
+ë!ë "_empty_/LispAny.lispError().[a]2*
+
+íí scala/sys/package.error().2
+
+íí 
+scala/sys/2'
+
+í%í &java/lang/String#`+`().2'
+
+íí java/lang/String#`+`().2'
+
+íí java/lang/String#`+`().21
+
+íí !_empty_/LispAny.lispError().(msg)2)
+
+í'í -_empty_/LispAny.curexp().2,
+
+îî _empty_/LispAny.Environment#27
+
+ïï '_empty_/LispAny.Environment#`<init>`().25
+
+ïï %_empty_/LispAny.Environment#lookup().28
+
+ïï (_empty_/LispAny.Environment#lookup().(n)2$
+
+ïï scala/Predef.String#2%
+
+ïï _empty_/LispAny.Data#28
+
+ññ (_empty_/LispAny.Environment#extendRec().2>
+
+ññ ._empty_/LispAny.Environment#extendRec().(name)2$
+
+ññ scala/Predef.String#2>
+
+ñ ñ $._empty_/LispAny.Environment#extendRec().(expr)2,
+
+ñ&ñ 1_empty_/LispAny.Environment#2%
+
+ñ5ñ 9_empty_/LispAny.Data#2
+
+óó local882,
+
+ó
+ó _empty_/LispAny.Environment#2
+
+òò local892
+
+òò local902$
+
+òò scala/Predef.String#2%
+
+òò #_empty_/LispAny.Data#2!
+
+ôô scala/Any#`==`().2
+
+ôô local902>
+
+ôô ._empty_/LispAny.Environment#extendRec().(name)2(
+
+ôô scala/Function1#apply().2>
+
+ôô ._empty_/LispAny.Environment#extendRec().(expr)25
+
+ô:ô @%_empty_/LispAny.Environment#lookup().2
+
+ôAô Blocal9025
+
+õõ %_empty_/LispAny.Environment#extend().2;
+
+õõ +_empty_/LispAny.Environment#extend().(name)2$
+
+õõ scala/Predef.String#28
+
+õõ (_empty_/LispAny.Environment#extend().(v)2%
+
+õ õ $_empty_/LispAny.Data#28
+
+õ(õ 1(_empty_/LispAny.Environment#extendRec().2;
+
+õ2õ 6+_empty_/LispAny.Environment#extend().(name)2
+
+õ9õ =local9128
+
+õAõ B(_empty_/LispAny.Environment#extend().(v)21
+
+ùù !_empty_/LispAny.EmptyEnvironment.2
+
+ùù local922,
+
+ùù (_empty_/LispAny.Environment#2
+
+ûû local932
+
+ûû local942$
+
+ûû scala/Predef.String#2%
+
+ûû _empty_/LispAny.Data#2,
+
+û"û +_empty_/LispAny.lispError().2'
+
+û:û ;java/lang/String#`+`().2
+
+û<û =local942)
+
+°° _empty_/LispAny.asList().2,
+
+°° _empty_/LispAny.asList().(x)2%
+
+°° _empty_/LispAny.Data#2#
+
+°° scala/package.List#2%
+
+°°  _empty_/LispAny.Data#2,
+
+°$° %_empty_/LispAny.asList().(x)2
+
+¢	¢ 
+local952#
+
+¢¢ scala/package.List#2
+
+¢¢ local952,
+
+££ _empty_/LispAny.lispError().2'
+
+£+£ ,java/lang/String#`+`().2,
+
+£-£ ._empty_/LispAny.asList().(x)2(
+
+¶¶ _empty_/LispAny.asInt().2+
+
+¶¶ _empty_/LispAny.asInt().(x)2%
+
+¶¶ _empty_/LispAny.Data#2
+
+¶¶ 
+scala/Int#2+
+
+¶¶ _empty_/LispAny.asInt().(x)2
+
+ß	ß 
+local962
+
+ßß 
+scala/Int#2
+
+ßß local962,
+
+®® _empty_/LispAny.lispError().2'
+
+®+® ,java/lang/String#`+`().2+
+
+®-® ._empty_/LispAny.asInt().(x)2+
+
+´´ _empty_/LispAny.asString().2.
+
+´´ _empty_/LispAny.asString().(x)2%
+
+´´ _empty_/LispAny.Data#2$
+
+´´ scala/Predef.String#2.
+
+´"´ #_empty_/LispAny.asString().(x)2
+
+¨	¨ 
+local972$
+
+¨¨ scala/Predef.String#2
+
+¨¨ local972,
+
+≠≠ _empty_/LispAny.lispError().2'
+
+≠)≠ *java/lang/String#`+`().2.
+
+≠+≠ ,_empty_/LispAny.asString().(x)2,
+
+∞∞ _empty_/LispAny.asBoolean().2/
+
+∞∞ _empty_/LispAny.asBoolean().(x)2%
+
+∞∞ _empty_/LispAny.Data#2
+
+∞∞ !scala/Boolean#2!
+
+∞&∞ (scala/Any#`!=`().2/
+
+∞$∞ %_empty_/LispAny.asBoolean().(x)2,
+
+≤≤ _empty_/LispAny.normalize().2/
+
+≤≤ _empty_/LispAny.normalize().(x)2%
+
+≤≤ _empty_/LispAny.Data#2%
+
+≤≤ _empty_/LispAny.Data#2/
+
+≤!≤ "_empty_/LispAny.normalize().(x)2:
+
+≥≥ *scala/collection/immutable/`::`.unapply().2#
+
+≥≥ scala/package.`::`.20
+
+≥≥  scala/UniquenessCache#unapply().2
+
+≥	≥ scala/Symbol.2:
+
+≥≥ *scala/collection/immutable/`::`.unapply().2#
+
+≥≥ scala/package.`::`.2
+
+≥≥ local982:
+
+≥#≥ #*scala/collection/immutable/`::`.unapply().2#
+
+≥!≥ #scala/package.`::`.2
+
+≥≥  local992"
+
+≥$≥ 'scala/package.Nil.2,
+
+¥¥ _empty_/LispAny.normalize().2
+
+¥¥ local10027
+
+¥2¥ 2'scala/collection/immutable/List#`::`().2"
+
+¥/¥ 2scala/package.Nil.2
+
+¥%¥ &local992
+
+¥ ¥ !local982
+
+¥¥ local1002:
+
+µµ *scala/collection/immutable/`::`.unapply().2#
+
+µµ scala/package.`::`.20
+
+µµ  scala/UniquenessCache#unapply().2
+
+µ	µ scala/Symbol.2:
+
+µµ *scala/collection/immutable/`::`.unapply().2#
+
+µµ scala/package.`::`.2
+
+µµ local1012:
+
+µ"µ "*scala/collection/immutable/`::`.unapply().2#
+
+µ µ "scala/package.`::`.2
+
+µµ local1022"
+
+µ#µ &scala/package.Nil.2,
+
+∂∂ _empty_/LispAny.normalize().2
+
+∂∂ local10327
+
+∂2∂ 2'scala/collection/immutable/List#`::`().2"
+
+∂/∂ 2scala/package.Nil.2
+
+∂*∂ +local1022
+
+∂ ∂ !local1012
+
+∂∂ local1032:
+
+∑∑ *scala/collection/immutable/`::`.unapply().2#
+
+∑∑ scala/package.`::`.20
+
+∑∑  scala/UniquenessCache#unapply().2
+
+∑	∑ scala/Symbol.2:
+
+∑+∑ +*scala/collection/immutable/`::`.unapply().2#
+
+∑)∑ +scala/package.`::`.2:
+
+∑"∑ "*scala/collection/immutable/`::`.unapply().2#
+
+∑ ∑ "scala/package.`::`.2
+
+∑∑ local1042
+
+∑#∑ 'local1052:
+
+∑3∑ 3*scala/collection/immutable/`::`.unapply().2#
+
+∑1∑ 3scala/package.`::`.2
+
+∑,∑ 0local1062:
+
+∑;∑ ;*scala/collection/immutable/`::`.unapply().2#
+
+∑9∑ ;scala/package.`::`.2
+
+∑4∑ 8local1072"
+
+∑<∑ ?scala/package.Nil.2,
+
+∏∏ _empty_/LispAny.normalize().2
+
+∏∏ local10827
+
+∏a∏ a'scala/collection/immutable/List#`::`().2
+
+∏*∏ *local1092"
+
+∏^∏ ascala/package.Nil.2
+
+∏V∏ Zlocal1072
+
+∏*∏ *local1092
+
+∏!∏ %local1042
+
+∏∏ local1082:
+
+ππ *scala/collection/immutable/`::`.unapply().2#
+
+ππ scala/package.`::`.20
+
+ππ  scala/UniquenessCache#unapply().2
+
+π	π scala/Symbol.2:
+
+π=π =*scala/collection/immutable/`::`.unapply().2#
+
+π;π =scala/package.`::`.2:
+
+π-π -*scala/collection/immutable/`::`.unapply().2#
+
+π+π -scala/package.`::`.20
+
+π"π " scala/UniquenessCache#unapply().2
+
+ππ "scala/Symbol.2:
+
+π5π 5*scala/collection/immutable/`::`.unapply().2#
+
+π3π 5scala/package.`::`.2
+
+π.π 2local1102"
+
+π6π 9scala/package.Nil.2
+
+π>π Blocal1112,
+
+∫∫ _empty_/LispAny.normalize().2
+
+∫∫ local1102:
+
+ªª *scala/collection/immutable/`::`.unapply().2#
+
+ªª scala/package.`::`.20
+
+ªª  scala/UniquenessCache#unapply().2
+
+ª	ª scala/Symbol.2:
+
+ª3ª 3*scala/collection/immutable/`::`.unapply().2#
+
+ª1ª 3scala/package.`::`.2:
+
+ª#ª #*scala/collection/immutable/`::`.unapply().2#
+
+ª!ª #scala/package.`::`.2
+
+ªª  local1122:
+
+ª+ª +*scala/collection/immutable/`::`.unapply().2#
+
+ª)ª +scala/package.`::`.2
+
+ª$ª (local1132"
+
+ª,ª /scala/package.Nil.2
+
+ª4ª 8local1142,
+
+ºº _empty_/LispAny.normalize().2
+
+ºº local11527
+
+ºMº M'scala/collection/immutable/List#`::`().2
+
+º/º /local1162"
+
+ºJº Mscala/package.Nil.2
+
+º/º /local1162
+
+º&º *local1132
+
+ºº "local1122
+
+ºº local1152:
+
+ΩΩ *scala/collection/immutable/`::`.unapply().2#
+
+ΩΩ scala/package.`::`.20
+
+ΩΩ  scala/UniquenessCache#unapply().2
+
+Ω	Ω scala/Symbol.2:
+
+Ω,Ω ,*scala/collection/immutable/`::`.unapply().2#
+
+Ω*Ω ,scala/package.`::`.20
+
+Ω!Ω ! scala/UniquenessCache#unapply().2
+
+ΩΩ !scala/Symbol.2:
+
+Ω4Ω 4*scala/collection/immutable/`::`.unapply().2#
+
+Ω2Ω 4scala/package.`::`.2
+
+Ω-Ω 1local1172"
+
+Ω5Ω 8scala/package.Nil.2,
+
+ææ _empty_/LispAny.normalize().2
+
+ææ local1172:
+
+øø *scala/collection/immutable/`::`.unapply().2#
+
+øø scala/package.`::`.2
+
+ø	ø 
+local1182
+
+øø local1192
+
+¿¿ local12027
+
+¿*¿ *'scala/collection/immutable/List#`::`().2)
+
+¿¿ _empty_/LispAny.asList().2,
+
+¿¿ &_empty_/LispAny.normalize().2
+
+¿'¿ (local1192
+
+¿¿ local1202/
+
+¬¬ _empty_/LispAny.normalize().(x)2'
+
+≈≈ 
+_empty_/LispAny.eval().2*
+
+≈≈ _empty_/LispAny.eval().(x)2%
+
+≈≈ _empty_/LispAny.Data#2,
+
+≈≈ _empty_/LispAny.eval().(env)2,
+
+≈≈ $_empty_/LispAny.Environment#2%
+
+≈'≈ +_empty_/LispAny.Data#2
+
+∆∆ local1212)
+
+∆∆ _empty_/LispAny.curexp().2-
+
+«« 
+_empty_/LispAny.`curexp_=`().2*
+
+«« _empty_/LispAny.eval().(x)2(
+
+»» _empty_/LispAny.trace().2:
+
+… …  *scala/collection/immutable/List#foreach().29
+
+…… )scala/collection/IterableFactory#range().2)
+
+…… _empty_/LispAny.indent().21
+
+… …  !scala/math/Numeric.IntIsIntegral.2
+
+…… local1222&
+
+…*… /scala/Console.print().2
+
+…"… )scala/Console.2*
+
+   scala/Console.println(+1).2
+
+   scala/Console.2'
+
+   java/lang/String#`+`().2*
+
+    !_empty_/LispAny.eval().(x)2-
+
+ÀÀ _empty_/LispAny.`indent_=`().2"
+
+ÀÀ scala/Int#`+`(+4).2)
+
+ÀÀ _empty_/LispAny.indent().2
+
+ÕÕ local1232(
+
+ÕÕ _empty_/LispAny.eval1().2*
+
+ÕÕ _empty_/LispAny.eval().(x)2,
+
+ÕÕ _empty_/LispAny.eval().(env)2(
+
+ŒŒ _empty_/LispAny.trace().2-
+
+œœ _empty_/LispAny.`indent_=`().2"
+
+œœ scala/Int#`-`(+3).2)
+
+œœ _empty_/LispAny.indent().2:
+
+– –  *scala/collection/immutable/List#foreach().29
+
+–– )scala/collection/IterableFactory#range().2)
+
+–– _empty_/LispAny.indent().21
+
+– –  !scala/math/Numeric.IntIsIntegral.2
+
+–– local1242&
+
+–*– /scala/Console.print().2
+
+–"– )scala/Console.2*
+
+—— scala/Console.println(+1).2
+
+—— scala/Console.2'
+
+—— java/lang/String#`+`().2
+
+— — &local1232-
+
+”” 
+_empty_/LispAny.`curexp_=`().2
+
+”” local1212
+
+‘‘ 
+local1232(
+
+◊◊ _empty_/LispAny.eval1().2+
+
+◊◊ _empty_/LispAny.eval1().(x)2%
+
+◊◊ _empty_/LispAny.Data#2-
+
+◊◊ _empty_/LispAny.eval1().(env)2,
+
+◊◊ %_empty_/LispAny.Environment#2%
+
+◊(◊ ,_empty_/LispAny.Data#2+
+
+◊/◊ 0_empty_/LispAny.eval1().(x)20
+
+ÿÿ  scala/UniquenessCache#unapply().2
+
+ÿ	ÿ scala/Symbol.2
+
+ÿÿ local12525
+
+Ÿ
+Ÿ %_empty_/LispAny.Environment#lookup().2-
+
+ŸŸ 	_empty_/LispAny.eval1().(env)2
+
+ŸŸ local1252:
+
+⁄⁄ *scala/collection/immutable/`::`.unapply().2#
+
+⁄⁄ scala/package.`::`.20
+
+⁄⁄  scala/UniquenessCache#unapply().2
+
+⁄	⁄ scala/Symbol.2:
+
+⁄)⁄ )*scala/collection/immutable/`::`.unapply().2#
+
+⁄'⁄ )scala/package.`::`.20
+
+⁄ ⁄   scala/UniquenessCache#unapply().2
+
+⁄⁄  scala/Symbol.2
+
+⁄!⁄ %local1262:
+
+⁄.⁄ .*scala/collection/immutable/`::`.unapply().2#
+
+⁄,⁄ .scala/package.`::`.2
+
+⁄*⁄ +local1272:
+
+⁄3⁄ 3*scala/collection/immutable/`::`.unapply().2#
+
+⁄1⁄ 3scala/package.`::`.2
+
+⁄/⁄ 0local1282"
+
+⁄4⁄ 7scala/package.Nil.2'
+
+€€ 
+_empty_/LispAny.eval().2
+
+€€ local12828
+
+€€ (_empty_/LispAny.Environment#extendRec().2-
+
+€€ _empty_/LispAny.eval1().(env)2
+
+€€  local1262
+
+€#€ 'local1292'
+
+€+€ /_empty_/LispAny.eval().2
+
+€0€ 1local1272
+
+€3€ 7local1292:
+
+‹‹ *scala/collection/immutable/`::`.unapply().2#
+
+‹‹ scala/package.`::`.20
+
+‹‹  scala/UniquenessCache#unapply().2
+
+‹	‹ scala/Symbol.2:
+
+‹)‹ )*scala/collection/immutable/`::`.unapply().2#
+
+‹'‹ )scala/package.`::`.20
+
+‹ ‹   scala/UniquenessCache#unapply().2
+
+‹‹  scala/Symbol.2
+
+‹!‹ %local1302:
+
+‹.‹ .*scala/collection/immutable/`::`.unapply().2#
+
+‹,‹ .scala/package.`::`.2
+
+‹*‹ +local1312:
+
+‹3‹ 3*scala/collection/immutable/`::`.unapply().2#
+
+‹1‹ 3scala/package.`::`.2
+
+‹/‹ 0local1322"
+
+‹4‹ 7scala/package.Nil.2'
+
+›› 
+_empty_/LispAny.eval().2
+
+›› local13225
+
+›› %_empty_/LispAny.Environment#extend().2-
+
+›› _empty_/LispAny.eval1().(env)2
+
+›› local1302'
+
+›› #_empty_/LispAny.eval().2
+
+›$› %local1312-
+
+›'› *_empty_/LispAny.eval1().(env)2:
+
+ﬁﬁ *scala/collection/immutable/`::`.unapply().2#
+
+ﬁﬁ scala/package.`::`.20
+
+ﬁﬁ  scala/UniquenessCache#unapply().2
+
+ﬁ	ﬁ scala/Symbol.2:
+
+ﬁ&ﬁ &*scala/collection/immutable/`::`.unapply().2#
+
+ﬁ$ﬁ &scala/package.`::`.2
+
+ﬁﬁ #local1332:
+
+ﬁ+ﬁ +*scala/collection/immutable/`::`.unapply().2#
+
+ﬁ)ﬁ +scala/package.`::`.2
+
+ﬁ'ﬁ (local1342"
+
+ﬁ,ﬁ /scala/package.Nil.2+
+
+ﬂﬂ _empty_/LispAny.mkLambda().2
+
+ﬂﬂ local1332
+
+ﬂﬂ local1342-
+
+ﬂﬂ _empty_/LispAny.eval1().(env)2:
+
+‡‡ *scala/collection/immutable/`::`.unapply().2#
+
+‡‡ scala/package.`::`.20
+
+‡‡  scala/UniquenessCache#unapply().2
+
+‡	‡ scala/Symbol.2:
+
+‡‡ *scala/collection/immutable/`::`.unapply().2#
+
+‡‡ scala/package.`::`.2
+
+‡‡ local1352:
+
+‡"‡ "*scala/collection/immutable/`::`.unapply().2#
+
+‡ ‡ "scala/package.`::`.2
+
+‡‡ local1362:
+
+‡'‡ '*scala/collection/immutable/`::`.unapply().2#
+
+‡%‡ 'scala/package.`::`.2
+
+‡#‡ $local1372"
+
+‡(‡ +scala/package.Nil.2,
+
+·
+· _empty_/LispAny.asBoolean().2'
+
+·· _empty_/LispAny.eval().2
+
+·· local1352-
+
+·· _empty_/LispAny.eval1().(env)2'
+
+·#· '_empty_/LispAny.eval().2
+
+·(· )local1362-
+
+·+· ._empty_/LispAny.eval1().(env)2'
+
+·5· 9_empty_/LispAny.eval().2
+
+·:· ;local1372-
+
+·=· @_empty_/LispAny.eval1().(env)2:
+
+‚‚ *scala/collection/immutable/`::`.unapply().2#
+
+‚‚ scala/package.`::`.20
+
+‚‚  scala/UniquenessCache#unapply().2
+
+‚	‚ scala/Symbol.2:
+
+‚ ‚  *scala/collection/immutable/`::`.unapply().2#
+
+‚‚  scala/package.`::`.2
+
+‚‚ local1382"
+
+‚!‚ $scala/package.Nil.2
+
+„„ local1382:
+
+‰‰ *scala/collection/immutable/`::`.unapply().2#
+
+‰‰ scala/package.`::`.2
+
+‰	‰ 
+local1392
+
+‰‰ local1402(
+
+ÂÂ _empty_/LispAny.apply().2'
+
+ÂÂ _empty_/LispAny.eval().2
+
+ÂÂ local1392-
+
+ÂÂ _empty_/LispAny.eval1().(env)26
+
+ÂÂ &scala/collection/immutable/List#map().2
+
+ÂÂ local1402
+
+Â!Â "local1412'
+
+Â&Â *_empty_/LispAny.eval().2
+
+Â+Â ,local1412-
+
+Â.Â 1_empty_/LispAny.eval1().(env)21
+
+ÊÊ !_empty_/LispAny.Lambda.unapply().2'
+
+Ê	Ê _empty_/LispAny.Lambda.2+
+
+ÊÊ _empty_/LispAny.eval1().(x)2
+
+Á	Á 
+local1422$
+
+ÁÁ scala/Predef.String#2+
+
+ÁÁ _empty_/LispAny.eval1().(x)2
+
+Ë	Ë 
+local1432
+
+ËË 
+scala/Int#2+
+
+ËË _empty_/LispAny.eval1().(x)2
+
+È	È 
+local1442,
+
+ÈÈ _empty_/LispAny.lispError().2.
+
+ÏÏ _empty_/LispAny.lisp2string().21
+
+ÏÏ !_empty_/LispAny.lisp2string().(x)2%
+
+ÏÏ _empty_/LispAny.Data#2$
+
+ÏÏ "scala/Predef.String#21
+
+Ï%Ï &!_empty_/LispAny.lisp2string().(x)20
+
+ÌÌ  scala/UniquenessCache#unapply().2
+
+Ì	Ì scala/Symbol.2
+
+ÌÌ local1452
+
+ÌÌ local1452"
+
+Ó	Ó scala/package.Nil.2:
+
+ÔÔ *scala/collection/immutable/`::`.unapply().2#
+
+ÔÔ scala/package.`::`.2
+
+Ô	Ô 
+local1462
+
+ÔÔ local1472
+
+
+ local1482
+
+ local1492#
+
+ scala/package.List#2%
+
+ #_empty_/LispAny.Data#2$
+
+' -scala/Predef.String#2
+
+0 2local14929
+
+ÒÒ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÒÒ scala/package.List.2:
+
+ÚÚ *scala/collection/immutable/`::`.unapply().2#
+
+ÚÚ scala/package.`::`.2
+
+ÚÚ local1502
+
+ÚÚ local1512'
+
+Ú-Ú .java/lang/String#`+`().2'
+
+ÚÚ java/lang/String#`+`().2.
+
+ÚÚ )_empty_/LispAny.lisp2string().2
+
+Ú*Ú +local1502
+
+Ú/Ú :local1482
+
+Ú;Ú =local1512'
+
+Ù-Ù .java/lang/String#`+`().2'
+
+ÙÙ java/lang/String#`+`().2'
+
+Ù
+Ù java/lang/String#`+`().2.
+
+ÙÙ _empty_/LispAny.lisp2string().2
+
+ÙÙ local1462
+
+ÙÙ (local1482
+
+Ù)Ù +local1472)
+
+ıı  scala/Any#isInstanceOf().21
+
+ıı !_empty_/LispAny.lisp2string().(x)2$
+
+ı!ı 'scala/Predef.String#2'
+
+ı3ı 4java/lang/String#`+`().2'
+
+ı/ı 0java/lang/String#`+`().21
+
+ı1ı 2!_empty_/LispAny.lisp2string().(x)2%
+
+ıBı Jscala/Any#toString().21
+
+ı@ı A!_empty_/LispAny.lisp2string().(x)2(
+
+¯¯ _empty_/LispAny.apply().2,
+
+¯¯ _empty_/LispAny.apply().(fn)2%
+
+¯¯ _empty_/LispAny.Data#2.
+
+¯¯ _empty_/LispAny.apply().(args)2#
+
+¯¯  scala/package.List#2%
+
+¯!¯ %_empty_/LispAny.Data#2%
+
+¯)¯ -_empty_/LispAny.Data#2,
+
+¯0¯ 2_empty_/LispAny.apply().(fn)21
+
+˘˘ !_empty_/LispAny.Lambda.unapply().2'
+
+˘	˘ _empty_/LispAny.Lambda.2
+
+˘˘ local1522(
+
+˘˘ scala/Function1#apply().2
+
+˘˘ local1522.
+
+˘˘ _empty_/LispAny.apply().(args)2,
+
+˙˙ _empty_/LispAny.lispError().2'
+
+˙F˙ Gjava/lang/String#`+`().2'
+
+˙=˙ >java/lang/String#`+`().2'
+
+˙8˙ 9java/lang/String#`+`().2,
+
+˙:˙ <_empty_/LispAny.apply().(fn)2.
+
+˙H˙ L_empty_/LispAny.apply().(args)2+
+
+˝˝ _empty_/LispAny.mkLambda().23
+
+˝˝ #_empty_/LispAny.mkLambda().(params)2%
+
+˝˝ _empty_/LispAny.Data#21
+
+˝˝ !!_empty_/LispAny.mkLambda().(expr)2%
+
+˝#˝ '_empty_/LispAny.Data#20
+
+˝)˝ , _empty_/LispAny.mkLambda().(env)2,
+
+˝.˝ 9_empty_/LispAny.Environment#2%
+
+˝<˝ @_empty_/LispAny.Data#2
+
+ˇˇ local1532
+
+ˇˇ local1542,
+
+ˇˇ "_empty_/LispAny.Environment#2
+
+ÄÄ local1552#
+
+ÄÄ scala/package.List#2$
+
+ÄÄ !scala/Predef.String#2
+
+Ä$Ä (local1562#
+
+Ä*Ä .scala/package.List#2%
+
+Ä/Ä 3_empty_/LispAny.Data#2,
+
+Ä7Ä B_empty_/LispAny.Environment#2%
+
+ÅÅ scala/Tuple2.apply().2
+
+ÅÅ 	local1552
+
+ÅÅ local1562'
+
+ÇÇ scala/Tuple2.unapply().29
+
+ÇÇ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÇÇ scala/package.List.29
+
+ÇÇ )scala/collection/SeqFactory#unapplySeq().2#
+
+ÇÇ scala/package.List.2
+
+É
+É local1542'
+
+ÑÑ scala/Tuple2.unapply().2:
+
+ÑÑ *scala/collection/immutable/`::`.unapply().2#
+
+ÑÑ scala/package.`::`.2
+
+ÑÑ local1572
+
+ÑÑ local1582:
+
+ÑÑ *scala/collection/immutable/`::`.unapply().2#
+
+ÑÑ scala/package.`::`.2
+
+ÑÑ local1592
+
+ÑÑ $local1602
+
+Ö
+Ö local15325
+
+ÖÖ %_empty_/LispAny.Environment#extend().2
+
+ÖÖ local1542
+
+ÖÖ  local1572
+
+Ö"Ö %local1592
+
+Ö(Ö +local1582
+
+Ö-Ö 2local1602,
+
+á
+á _empty_/LispAny.lispError().2
+
+ää 
+local1612#
+
+ää scala/package.List#2$
+
+ää scala/Predef.String#26
+
+ä*ä -&scala/collection/immutable/List#map().2)
+
+ää !_empty_/LispAny.asList().23
+
+ä"ä (#_empty_/LispAny.mkLambda().(params)2
+
+ãã local16220
+
+ãã  scala/UniquenessCache#unapply().2
+
+ãã scala/Symbol.2
+
+ãã local1632
+
+ãã local1632*
+
+åå scala/sys/package.error().2
+
+åå 
+scala/sys/2/
+
+è
+è 
+_empty_/LispAny.Lambda.apply().2'
+
+èè 
+_empty_/LispAny.Lambda.2
+
+èè local1642'
+
+èè _empty_/LispAny.eval().21
+
+èè !_empty_/LispAny.mkLambda().(expr)2
+
+èè 'local15320
+
+è(è + _empty_/LispAny.mkLambda().(env)2
+
+è-è /local1612
+
+è1è 5local1642*
+
+íí _empty_/LispAny.globalEnv.25
+
+•• %_empty_/LispAny.Environment#extend().25
+
+££ %_empty_/LispAny.Environment#extend().25
+
+°° %_empty_/LispAny.Environment#extend().25
+
+üü %_empty_/LispAny.Environment#extend().25
+
+ûû %_empty_/LispAny.Environment#extend().25
+
+úú %_empty_/LispAny.Environment#extend().25
+
+öö %_empty_/LispAny.Environment#extend().25
+
+òò %_empty_/LispAny.Environment#extend().25
+
+ïï %_empty_/LispAny.Environment#extend().25
+
+ìì %_empty_/LispAny.Environment#extend().21
+
+íí "!_empty_/LispAny.EmptyEnvironment.2/
+
+ìì _empty_/LispAny.Lambda.apply().2'
+
+ìì _empty_/LispAny.Lambda.2
+
+îî local16529
+
+îî )scala/collection/SeqFactory#unapplySeq().2#
+
+îî scala/package.List.2
+
+îî local1662
+
+îî local1672!
+
+î(î *scala/Any#`==`().2
+
+î#î 'local1662
+
+î+î /local1672/
+
+ïï _empty_/LispAny.Lambda.apply().2'
+
+ïï _empty_/LispAny.Lambda.2
+
+ññ local16829
+
+ññ )scala/collection/SeqFactory#unapplySeq().2#
+
+ññ scala/package.List.2
+
+ññ local1692
+
+ññ 
+scala/Int#2
+
+ññ local1702
+
+ñ!ñ $
+scala/Int#2"
+
+ñ.ñ /scala/Int#`+`(+4).2
+
+ñ)ñ -local1692
+
+ñ0ñ 4local17029
+
+óó )scala/collection/SeqFactory#unapplySeq().2#
+
+óó scala/package.List.2
+
+óó local1712$
+
+óó scala/Predef.String#2
+
+óó "local1722$
+
+ó$ó *scala/Predef.String#2'
+
+ó4ó 5java/lang/String#`+`().2
+
+ó/ó 3local1712
+
+ó6ó :local1722/
+
+òò _empty_/LispAny.Lambda.apply().2'
+
+òò _empty_/LispAny.Lambda.2
+
+ôô local17329
+
+ôô )scala/collection/SeqFactory#unapplySeq().2#
+
+ôô scala/package.List.2
+
+ôô local1742
+
+ôô 
+scala/Int#2
+
+ôô local1752
+
+ô!ô $
+scala/Int#2"
+
+ô.ô /scala/Int#`-`(+3).2
+
+ô)ô -local1742
+
+ô0ô 4local1752/
+
+öö _empty_/LispAny.Lambda.apply().2'
+
+öö _empty_/LispAny.Lambda.2
+
+õõ local17629
+
+õõ )scala/collection/SeqFactory#unapplySeq().2#
+
+õõ scala/package.List.2
+
+õõ local1772
+
+õõ 
+scala/Int#2
+
+õõ local1782
+
+õ!õ $
+scala/Int#2"
+
+õ.õ /scala/Int#`*`(+3).2
+
+õ)õ -local1772
+
+õ0õ 4local1782/
+
+úú _empty_/LispAny.Lambda.apply().2'
+
+úú _empty_/LispAny.Lambda.2
+
+ùù local17929
+
+ùù )scala/collection/SeqFactory#unapplySeq().2#
+
+ùù scala/package.List.2
+
+ùù local1802
+
+ùù 
+scala/Int#2
+
+ùù local1812
+
+ù!ù $
+scala/Int#2"
+
+ù.ù /scala/Int#`/`(+3).2
+
+ù)ù -local1802
+
+ù0ù 4local1812"
+
+ûû scala/package.Nil.2/
+
+üü _empty_/LispAny.Lambda.apply().2'
+
+üü _empty_/LispAny.Lambda.2
+
+†† local18229
+
+†† )scala/collection/SeqFactory#unapplySeq().2#
+
+†† scala/package.List.2
+
+†† local1832
+
+†† local18427
+
+†3† 3'scala/collection/immutable/List#`::`().2)
+
+†'† -_empty_/LispAny.asList().2
+
+†.† 2local1842
+
+†† #local1832/
+
+°° _empty_/LispAny.Lambda.apply().2'
+
+°° _empty_/LispAny.Lambda.2
+
+¢¢ local18529
+
+¢¢ )scala/collection/SeqFactory#unapplySeq().2#
+
+¢¢ scala/package.List.2:
+
+¢¢ *scala/collection/immutable/`::`.unapply().2#
+
+¢¢ scala/package.`::`.2
+
+¢¢ local1862
+
+¢¢ local1872
+
+¢¢ local1862/
+
+££ _empty_/LispAny.Lambda.apply().2'
+
+££ _empty_/LispAny.Lambda.2
+
+§§ local18829
+
+§§ )scala/collection/SeqFactory#unapplySeq().2#
+
+§§ scala/package.List.2:
+
+§§ *scala/collection/immutable/`::`.unapply().2#
+
+§§ scala/package.`::`.2
+
+§§ local1892
+
+§§ local1902
+
+§§ local1902/
+
+•• _empty_/LispAny.Lambda.apply().2'
+
+•• _empty_/LispAny.Lambda.2
+
+¶¶ local19129
+
+¶¶ )scala/collection/SeqFactory#unapplySeq().2#
+
+¶¶ scala/package.List.2"
+
+¶¶ scala/package.Nil.2+
+
+©© _empty_/LispAny.evaluate().2.
+
+©© _empty_/LispAny.evaluate().(x)2%
+
+©© _empty_/LispAny.Data#2%
+
+©© _empty_/LispAny.Data#2'
+
+© © $_empty_/LispAny.eval().2,
+
+©%© ._empty_/LispAny.normalize().2.
+
+©/© 0_empty_/LispAny.evaluate().(x)2*
+
+©3© <_empty_/LispAny.globalEnv.2-
+
+™™ _empty_/LispAny.evaluate(+1).20
+
+™™  _empty_/LispAny.evaluate(+1).(s)2$
+
+™™ scala/Predef.String#2%
+
+™™ _empty_/LispAny.Data#2+
+
+™"™ *_empty_/LispAny.evaluate().2.
+
+™+™ 6_empty_/LispAny.string2lisp().20
+
+™7™ 8 _empty_/LispAny.evaluate(+1).(s)2.
+
+¨¨ _empty_/LispAny.string2lisp().21
+
+¨¨ !_empty_/LispAny.string2lisp().(s)2$
+
+¨¨ scala/Predef.String#2%
+
+¨¨ "_empty_/LispAny.Data#2
+
+≠≠ 
+local19221
+
+≠≠ !_empty_/LispTokenizer#`<init>`().2&
+
+≠≠ _empty_/LispTokenizer#21
+
+≠≠  !_empty_/LispAny.string2lisp().(s)2
+
+ÆÆ local1932
+
+ÆÆ local1942$
+
+ÆÆ scala/Predef.String#2%
+
+ÆÆ "_empty_/LispAny.Data#2!
+
+ØØ scala/Any#`==`().2
+
+Ø
+Ø local1942
+
+ØØ !local1952!
+
+∞∞ scala/Any#`==`().2
+
+∞∞ local1942*
+
+∞!∞ &scala/sys/package.error().2
+
+∞∞  
+scala/sys/21
+
+≤≤ &!scala/runtime/RichChar#isDigit().29
+
+≤≤ )scala/LowPriorityImplicits#charWrapper().2*
+
+≤≤ java/lang/String#charAt().2
+
+≤≤ local19423
+
+≥≥ #scala/collection/StringOps#toInt().2-
+
+≥≥ scala/Predef.augmentString().2
+
+≥≥ local1942%
+
+¥'¥ )scala/Boolean#`&&`().2$
+
+¥¥ !scala/Char#`==`(+2).2*
+
+¥¥ java/lang/String#charAt().2
+
+¥¥ local1942$
+
+¥H¥ Jscala/Char#`==`(+2).2*
+
+¥0¥ 6java/lang/String#charAt().2
+
+¥*¥ /local1942"
+
+¥E¥ Fscala/Int#`-`(+3).2*
+
+¥=¥ Cjava/lang/String#length().2
+
+¥7¥ <local1942/
+
+µµ java/lang/String#substring(+1).2
+
+µµ local1942"
+
+µ)µ *scala/Int#`-`(+3).2*
+
+µ µ &java/lang/String#length().2
+
+µµ local1942%
+
+∂∂ scala/Symbol.apply().2
+
+∂∂ scala/Symbol.2
+
+∂∂ local1942
+
+∏∏ local1952#
+
+∏∏ scala/package.List#2%
+
+∏∏ _empty_/LispAny.Data#2
+
+π
+π local1962-
+
+ππ _empty_/LispTokenizer#next().2
+
+ππ local1922!
+
+∫∫ scala/Any#`==`().2
+
+∫
+∫ local1962"
+
+∫∫ scala/package.Nil.2
+
+∫&∫ *local19727
+
+∫:∫ :'scala/collection/immutable/List#`::`().2
+
+∫1∫ :local1952
+
+∫&∫ &local1972
+
+ºº 	local1932-
+
+ºº _empty_/LispTokenizer#next().2
+
+º
+º local1922!
+
+√√ _empty_/LispUser#2,
+
+√√ _empty_/LispUser#`<init>`().2
+
+√√ _empty_/Lisp#2&
+
+√√ _empty_/LispUser#lisp.2&
+
+≈	≈ _empty_/LispUser#lisp.2,
+
+«« _empty_/LispUser#evaluate().2/
+
+«« _empty_/LispUser#evaluate().(s)2$
+
+«« scala/Predef.String#2+
+
+«« '_empty_/Lisp#lisp2string().2*
+
+«-« 5_empty_/Lisp#evaluate(+1).2&
+
+«(« ,_empty_/LispUser#lisp.2/
+
+«6« 7_empty_/LispUser#evaluate().(s)2'
+
+…… 	_empty_/LispUser#run().2*
+
+ÀÀ scala/Console.println(+1).2
+
+ÀÀ scala/Console.2)
+
+À>À Jscala/Any#asInstanceOf().2+
+
+ÀÀ _empty_/Lisp#string2lisp().2
+
+ÀKÀ Qscala/AnyRef#2*
+
+ÃÃ scala/Console.println(+1).2
+
+ÃÃ scala/Console.2+
+
+ÃÃ _empty_/Lisp#lisp2string().2+
+
+Ã Ã +_empty_/Lisp#string2lisp().2(
+
+ÕÕ scala/Console.println().2
+
+ÕÕ scala/Console.2*
+
+œœ scala/Console.println(+1).2
+
+œœ scala/Console.2'
+
+œ(œ )java/lang/String#`+`().2,
+
+œ*œ 2_empty_/LispUser#evaluate().2*
+
+–– scala/Console.println(+1).2
+
+–– scala/Console.2'
+
+–(– )java/lang/String#`+`().2,
+
+–*– 2_empty_/LispUser#evaluate().2*
+
+—— scala/Console.println(+1).2
+
+—— scala/Console.2'
+
+—(— )java/lang/String#`+`().2,
+
+—*— 2_empty_/LispUser#evaluate().2*
+
+““ scala/Console.println(+1).2
+
+““ scala/Console.2'
+
+“(“ )java/lang/String#`+`().2,
+
+“*“ 2_empty_/LispUser#evaluate().2*
+
+”” scala/Console.println(+1).2
+
+”” scala/Console.2'
+
+”(” )java/lang/String#`+`().2,
+
+”*” 2_empty_/LispUser#evaluate().2(
+
+‘‘ scala/Console.println().2
+
+‘‘ scala/Console.2*
+
+÷÷ scala/Console.println(+1).2
+
+÷÷ scala/Console.2'
+
+÷%÷ &java/lang/String#`+`().2,
+
+÷'÷ /_empty_/LispUser#evaluate().2'
+
+⁄&⁄ 'java/lang/String#`+`().2'
+
+ŸŸ java/lang/String#`+`().2'
+
+ÿÿ java/lang/String#`+`().2'
+
+◊◊ java/lang/String#`+`().2*
+
+‹‹ scala/Console.println(+1).2
+
+‹‹ scala/Console.2'
+
+‹%‹ &java/lang/String#`+`().2,
+
+‹'‹ /_empty_/LispUser#evaluate().2'
+
+‡-‡ .java/lang/String#`+`().2'
+
+ﬂﬂ java/lang/String#`+`().2'
+
+ﬁﬁ java/lang/String#`+`().2'
+
+›› java/lang/String#`+`().2*
+
+‚‚ scala/Console.println(+1).2
+
+‚‚ scala/Console.2'
+
+‚ ‚ !java/lang/String#`+`().2,
+
+‚"‚ *_empty_/LispUser#evaluate().2'
+
+ˆ#ˆ $java/lang/String#`+`().2'
+
+ı9ı :java/lang/String#`+`().2'
+
+Ù+Ù ,java/lang/String#`+`().2'
+
+ÛÛ java/lang/String#`+`().2'
+
+ÚÚ java/lang/String#`+`().2'
+
+Ò!Ò "java/lang/String#`+`().2'
+
+# $java/lang/String#`+`().2'
+
+Ô"Ô #java/lang/String#`+`().2'
+
+Ó"Ó #java/lang/String#`+`().2'
+
+ÌÌ java/lang/String#`+`().2'
+
+ÏÏ java/lang/String#`+`().2'
+
+ÎÎ java/lang/String#`+`().2'
+
+Í"Í #java/lang/String#`+`().2'
+
+È È !java/lang/String#`+`().2'
+
+ËË java/lang/String#`+`().2'
+
+ÁÁ java/lang/String#`+`().2'
+
+ÊÊ java/lang/String#`+`().2'
+
+ÂÂ java/lang/String#`+`().2'
+
+‰‰ java/lang/String#`+`().2'
+
+„„ java/lang/String#`+`().2(
+
+¯¯ scala/Console.println().2
+
+¯¯ scala/Console.2
+
+ˇˇ _empty_/Test.2$
+
+ÄÄ 
+_empty_/Test.main().2*
+
+ÄÄ _empty_/Test.main().(args)2
+
+ÄÄ scala/Array#2$
+
+ÄÄ scala/Predef.String#2
+
+Ä!Ä %scala/Unit#2'
+
+Å"Å %_empty_/LispUser#run().2,
+
+ÅÅ _empty_/LispUser#`<init>`().2!
+
+ÅÅ _empty_/LispUser#2(
+
+ÅÅ  _empty_/LispCaseClasses.2'
+
+ÇÇ _empty_/LispUser#run().2,
+
+ÇÇ _empty_/LispUser#`<init>`().2!
+
+ÇÇ _empty_/LispUser#2 
+
+ÇÇ _empty_/LispAny.PZ 06E2494B35D5C5DA7363019DE1C9AC9C

@@ -1,0 +1,56 @@
+
+•&tests/pos/polymorphic-case-class.scala*
+_empty_/Bippy# €*Bippy€*+
+_empty_/Bippy#`<init>`(). €@*<init>€*)
+_empty_/Bippy#`<init>`().(x) €*x€*)
+_empty_/Bippy#`<init>`().(z) €*z€*
+_empty_/Bippy#[T]	*T€*
+_empty_/Bippy#[U]	 €*U€*
+_empty_/Bippy#[V]	 €*V€*
+_empty_/Bippy#x. €*x€*
+_empty_/Bippy#z. €*z€*"
+_empty_/Bippy#copy().*copy€*"
+_empty_/Bippy#copy().[T]	*T€*"
+_empty_/Bippy#copy().[U]	*U€*"
+_empty_/Bippy#copy().[V]	*V€*"
+_empty_/Bippy#copy().(x)*x€*"
+_empty_/Bippy#copy().(z)*z€*6
+_empty_/Bippy#copy$default$1().*copy$default$1€*,
+"_empty_/Bippy#copy$default$1().[T]	*T€*,
+"_empty_/Bippy#copy$default$1().[U]	*U€*,
+"_empty_/Bippy#copy$default$1().[V]	*V€*6
+_empty_/Bippy#copy$default$2().*copy$default$2€*,
+"_empty_/Bippy#copy$default$2().[T]	*T€*,
+"_empty_/Bippy#copy$default$2().[U]	*U€*,
+"_empty_/Bippy#copy$default$2().[V]	*V€*
+_empty_/Bippy#_1().*_1€*
+_empty_/Bippy#_2().*_2€*
+_empty_/Bippy.
+ *Bippy€*$
+_empty_/Bippy.apply().*apply€*#
+_empty_/Bippy.apply().[T]	*T€*#
+_empty_/Bippy.apply().[U]	*U€*#
+_empty_/Bippy.apply().[V]	*V€*#
+_empty_/Bippy.apply().(x)*x€*#
+_empty_/Bippy.apply().(z)*z€*(
+_empty_/Bippy.unapply().*unapply€*%
+_empty_/Bippy.unapply().[T]	*T€*%
+_empty_/Bippy.unapply().[U]	*U€*%
+_empty_/Bippy.unapply().[V]	*V€*)
+_empty_/Bippy.unapply().(x$1)*x$1€**
+_empty_/Bippy.toString().*toString€2
+ _empty_/Bippy#2'
+ _empty_/Bippy#`<init>`().2
+  _empty_/Bippy#[T]2
+% &_empty_/Bippy#[V]2
+ _empty_/Bippy#[T]2
+ _empty_/Bippy#[U]2
+ _empty_/Bippy#[V]2
+ _empty_/Bippy#x.2
+" #_empty_/Bippy#z.2
+_empty_/Bippy#copy().2!
+ _empty_/Bippy#_1().2!
+% %_empty_/Bippy#_2().2
+ _empty_/Bippy.2 
+_empty_/Bippy.apply().2"
+_empty_/Bippy.unapply().PZ 4BB775D0012F85F901393E6C330E43B9

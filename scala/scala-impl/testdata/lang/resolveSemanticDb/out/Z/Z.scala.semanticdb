@@ -1,0 +1,31 @@
+
+ètests/pos/Z.scala*
+
+_empty_/X#*XÄ*'
+_empty_/X#`<init>`(). Ä@*<init>Ä*
+_empty_/X#elem. Ä*elemÄ*
+_empty_/test.
+ *testÄ*
+_empty_/test.g().*gÄ*
+_empty_/test.g().(x)*xÄ*
+_empty_/test.f().*fÄ*
+_empty_/test.f().(x)*xÄ2
+ 
+_empty_/X#2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#elem.2
+ 
+scala/Int#2
+ _empty_/test.2
+ _empty_/test.g().2"
+ 	_empty_/test.g().(x)2
+ 
+_empty_/X#2
+ _empty_/X#elem.2"
+ _empty_/test.g().(x)2
+ _empty_/test.f().2"
+ 	_empty_/test.f().(x)2
+ scala/AnyRef#2#
+ scala/Any#toString().2"
+ _empty_/test.f().(x)PZ F8AED2CA0FF631F06193205C7BD9E20D

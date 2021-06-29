@@ -1,0 +1,32 @@
+
+§tests/pos/t2038.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+local0*x$1€*
+local1 €*f€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().24
+= @&scala/collection/immutable/List#map().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2!
+ scala/Some.apply().2
+ scala/Some.2%
+ scala/Predef.classOf().2 
+ %java/lang/Integer#2
+ 
+java/lang/2
+ java/2!
+- -scala/Some.apply().2
+) -scala/Some.2%
+. 5scala/Predef.classOf().2
+6 9
+scala/Int#2
+ local02#
+ scala/Some.unapply().2
+	 scala/Some.2
+ local12!
+ scala/Predef.Class#2%
+  $java/lang/Class#cast().2
+ local12#
+% (scala/Predef.`???`().PZ D3746F64626D1635B91195073436A35B

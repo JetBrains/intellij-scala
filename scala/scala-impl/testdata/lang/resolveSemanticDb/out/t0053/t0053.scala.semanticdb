@@ -1,0 +1,26 @@
+
+´tests/pos/t0053.scala*
+_empty_/bug.
+ *bug€*$
+_empty_/bug.foobar().*foobar€*"
+_empty_/bug.foobar().[c]	*c€*
+local0*Foo€*
+local1*foo€*
+local2*Bar€*
+local3*bar€2
+ 
+_empty_/bug.2#
+ _empty_/bug.foobar().2&
+ _empty_/bug.foobar().[c]2
+ 
+scala/Int#2
+
+ local02
+ local12
+ local22
+# &local22
+
+ local22
+ local32&
+ _empty_/bug.foobar().[c]2
+ "local3PZ 8E3A14AA613D95021A3C2909298511B4

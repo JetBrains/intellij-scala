@@ -1,0 +1,30 @@
+
+œtests/pos/i11538b.scala*
+a/i11538b$package. *a€*"
+a/i11538b$package.Foo#*Foo€*%
+a/i11538b$package.foo. è*foo€*
+_empty_/test.
+ *test€*7
+_empty_/test.summonInlineFoo().*summonInlineFoo€**
+_empty_/test.summoned. €*summoned€*6
+_empty_/test.summonedInline. €*summonedInline€2
+ 	a/2 
+ a/i11538b$package.2$
+ 
+a/i11538b$package.Foo#2$
+ a/i11538b$package.foo.2$
+ a/i11538b$package.Foo#2#
+ scala/Predef.`???`().2
+ a/2
+ _empty_/test.2-
+ _empty_/test.summonInlineFoo().2?
+1 =1scala/compiletime/package$package.summonInline().2 
+% 0scala/compiletime/2
+ $scala/2$
+> Aa/i11538b$package.Foo#2$
+ _empty_/test.summoned.2$
+ scala/Predef.summon().2$
+ a/i11538b$package.Foo#2$
+ a/i11538b$package.foo.2*
+ _empty_/test.summonedInline.2-
+ &_empty_/test.summonInlineFoo().PZ D0449B81233B9931CAF91DE5F64E0153

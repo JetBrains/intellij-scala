@@ -1,0 +1,22 @@
+
+°tests/pos/t5856b.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#test().*test€*
+_empty_/Test#f().*f€*
+_empty_/Test#f().(b)*b€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ 
+_empty_/Test#test().2
+ _empty_/Test#f().2
+ scala/Any#`==`().2&
+ scala/StringContext#s().2*
+ scala/StringContext.apply().2
+ _empty_/Test#f().2"
+ _empty_/Test#f().(b)2
+  scala/Boolean#2
+# *scala/Boolean#2(
+/ /scala/Boolean#`unary_!`().2"
+. /_empty_/Test#f().(b)PZ 594CDED6675A245075CFCB235C877227

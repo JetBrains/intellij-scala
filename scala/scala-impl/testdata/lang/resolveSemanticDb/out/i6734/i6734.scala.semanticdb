@@ -1,0 +1,109 @@
+
+Ûtests/pos/i6734.scala*
+_empty_/Bug.
+ *Bug€*"
+_empty_/Bug.pipe2().*pipe2€*!
+_empty_/Bug.pipe2().[A]	*A€*!
+_empty_/Bug.pipe2().[B]	*B€*!
+_empty_/Bug.pipe2().[Z]	*Z€*#
+_empty_/Bug.pipe2().(ab)*ab€*!
+_empty_/Bug.pipe2().(f)*f€*&
+_empty_/Bug.leftErr().*leftErr€*#
+_empty_/Bug.leftErr().[A]	*A€*#
+_empty_/Bug.leftErr().[B]	*B€*#
+_empty_/Bug.leftErr().(a)*a€*#
+_empty_/Bug.leftErr().(b)*b€*
+local0*a€*
+local1*b€*&
+_empty_/Bug.leftOk1().*leftOk1€*#
+_empty_/Bug.leftOk1().[A]	*A€*#
+_empty_/Bug.leftOk1().[B]	*B€*#
+_empty_/Bug.leftOk1().(a)*a€*#
+_empty_/Bug.leftOk1().(b)*b€*
+local2*a€*
+local3*b€*&
+_empty_/Bug.leftOk2().*leftOk2€*#
+_empty_/Bug.leftOk2().[A]	*A€*#
+_empty_/Bug.leftOk2().[B]	*B€*#
+_empty_/Bug.leftOk2().(a)*a€*#
+_empty_/Bug.leftOk2().(b)*b€*
+local4 €*t€*
+local5*a€*
+local6*b€2
+ 
+_empty_/Bug.2"
+ _empty_/Bug.pipe2().2%
+ _empty_/Bug.pipe2().[A]2%
+ _empty_/Bug.pipe2().[B]2%
+ _empty_/Bug.pipe2().[Z]2&
+ _empty_/Bug.pipe2().(ab)2%
+ _empty_/Bug.pipe2().[A]2%
+ _empty_/Bug.pipe2().[B]2%
+ _empty_/Bug.pipe2().(f)2%
+ _empty_/Bug.pipe2().[A]2%
+ _empty_/Bug.pipe2().[B]2%
+ _empty_/Bug.pipe2().[Z]2%
+  _empty_/Bug.pipe2().[Z]2&
+$ $scala/Function2#apply().2%
+# $_empty_/Bug.pipe2().(f)2
+( *scala/Tuple2#_1.2&
+% '_empty_/Bug.pipe2().(ab)2
+/ 1scala/Tuple2#_2.2&
+, ._empty_/Bug.pipe2().(ab)2$
+ _empty_/Bug.leftErr().2'
+ _empty_/Bug.leftErr().[A]2'
+ _empty_/Bug.leftErr().[B]2'
+ _empty_/Bug.leftErr().(a)2'
+ _empty_/Bug.leftErr().[A]2'
+ _empty_/Bug.leftErr().(b)2'
+ _empty_/Bug.leftErr().[B]2'
+ _empty_/Bug.leftErr().[A]2"
+" '_empty_/Bug.pipe2().2#
+ scala/Tuple2.apply().2'
+ _empty_/Bug.leftErr().(a)2'
+  _empty_/Bug.leftErr().(b)2
+) *local02
+, -local12
+2 3local02$
+ _empty_/Bug.leftOk1().2'
+ _empty_/Bug.leftOk1().[A]2'
+ _empty_/Bug.leftOk1().[B]2'
+ _empty_/Bug.leftOk1().(a)2'
+ _empty_/Bug.leftOk1().[A]2'
+ _empty_/Bug.leftOk1().(b)2'
+ _empty_/Bug.leftOk1().[B]2'
+ _empty_/Bug.leftOk1().[A]2"
+( -_empty_/Bug.pipe2().2#
+! !scala/Tuple2.apply().2
+ !scala/Tuple2.2'
+" #_empty_/Bug.leftOk1().(a)2'
+% &_empty_/Bug.leftOk1().(b)2
+/ 0local22
+2 3local32
+8 9local22$
+
+
+ _empty_/Bug.leftOk2().2'
+		 _empty_/Bug.leftOk2().[A]2'
+		 _empty_/Bug.leftOk2().[B]2'
+		 _empty_/Bug.leftOk2().(a)2'
+		 _empty_/Bug.leftOk2().[A]2'
+
+
+ _empty_/Bug.leftOk2().(b)2'
+
+
+ _empty_/Bug.leftOk2().[B]2'
+
+
+ _empty_/Bug.leftOk2().[A]2
+
+ local42#
+ scala/Tuple2.apply().2'
+ _empty_/Bug.leftOk2().(a)2'
+ _empty_/Bug.leftOk2().(b)2"
+ _empty_/Bug.pipe2().2
+ local42
+ local52
+ local62
+ local5PZ 9B1EC228AEA97E90CD984B81A6CE86B0

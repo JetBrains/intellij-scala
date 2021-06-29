@@ -1,0 +1,23 @@
+
+±tests/pos/i6745.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/Foo#M#*M€*"
+_empty_/Foo#apply().*apply€*'
+_empty_/Foo#apply().(prog)*prog€*
+local1 *apply€*
+local2*h€2
+ 	_empty_/Foo#2!
+ _empty_/Foo#`<init>`().2
+ local02
+ _empty_/Foo#M#2"
+ _empty_/Foo#apply().2(
+ _empty_/Foo#apply().(prog)2
+! &local12
+ local22
+& '_empty_/Foo#M#2
+$ %local22
+* +_empty_/Foo#M#2&
+2 2scala/Function1#apply().2(
+. 2_empty_/Foo#apply().(prog)PZ F228C7B8F0187BDD8377B7A848024F29

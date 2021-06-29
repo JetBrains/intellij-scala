@@ -1,0 +1,41 @@
+
+’!tests/pos/targetName-refine.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#f(). *f€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#f().*f€*6
+$_empty_/`targetName-refine$package`. *_empty_€*3
+&_empty_/`targetName-refine$package`.x. €*x€*
+local0 *f€2&
+ scala/annotation/targetName#2
+ scala/annotation/2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2*
+ scala/annotation/targetName#2
+ _empty_/T#f().2
+ 
+scala/Any#2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/T#2*
+ scala/annotation/targetName#2
+ _empty_/C#f().2
+ 
+scala/Int#2.
+$_empty_/`targetName-refine$package`.24
+ &_empty_/`targetName-refine$package`.x.2
+ 
+_empty_/T#2
+ local02
+ 
+scala/Int#2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#PZ 1CC7336ADB376FF82FDDEE0FB93593BA

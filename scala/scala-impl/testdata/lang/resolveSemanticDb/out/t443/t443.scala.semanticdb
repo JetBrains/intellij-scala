@@ -1,0 +1,34 @@
+
+ètests/pos/t443.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.lookup().*lookup€2
+ _empty_/Test.2$
+ _empty_/Test.lookup().2
+ scala/Option#2
+ scala/Tuple2#2"
+ $scala/Predef.String#2"
+& ,scala/Predef.String#2
+ scala/Option#2
+ scala/Tuple2#2"
+  scala/Predef.String#2"
+" (scala/Predef.String#2#
+ scala/Some.unapply().2
+ scala/Some.2%
+ scala/Tuple2.unapply().2!
+ scala/Some.apply().2
+
+ scala/Some.2#
+ scala/Tuple2.apply().2$
+
+ _empty_/Test.lookup().2#
+		 scala/Some.unapply().2
+		 scala/Some.2!
+	 	  scala/Some.apply().2
+		  scala/Some.2
+
+
+ scala/None.2
+
+
+ scala/None.PZ 0B943DB75FDC31C56252B4B20B62C3A4

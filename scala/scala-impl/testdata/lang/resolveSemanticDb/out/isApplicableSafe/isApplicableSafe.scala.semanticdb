@@ -1,0 +1,87 @@
+
+Á tests/pos/isApplicableSafe.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#Array#*Array€*-
+_empty_/A#Array#`<init>`(). €@*<init>€*
+_empty_/A#Array#[T]	*T€* 
+_empty_/A#Array.
+ *Array€*&
+_empty_/A#Array.apply().*apply€*%
+_empty_/A#Array.apply().[T]	*T€*'
+_empty_/A#Array.apply().(xs)*xs€*(
+_empty_/A#Array.apply(+1).*apply€*'
+_empty_/A#Array.apply(+1).(x)*x€*)
+_empty_/A#Array.apply(+1).(xs)*xs€*
+_empty_/A#xs(). €*xs€*#
+_empty_/A#`xs_=`(). €*xs_=€*$
+_empty_/A#`xs_=`().(x$1)*x$1€*
+_empty_/A#ys(). €*ys€*#
+_empty_/A#`ys_=`(). €*ys_=€*$
+_empty_/A#`ys_=`().(x$1)*x$1€*
+_empty_/A#zs. €*zs€2!
+ scala/reflect/ClassTag.2!
+ scala/reflect/ClassTag#2
+ scala/reflect/2@
+  2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#Array#2)
+ _empty_/A#Array#`<init>`().2!
+ _empty_/A#Array#[T]2
+	 _empty_/A#Array.2&
+ _empty_/A#Array.apply().2)
+ _empty_/A#Array.apply().[T]2*
+ _empty_/A#Array.apply().(xs)2)
+  _empty_/A#Array.apply().[T]2%
+ scala/reflect/ClassTag#2)
+ _empty_/A#Array.apply().[T]2
+$ )_empty_/A#Array#2)
+* +_empty_/A#Array.apply().[T]2#
+/ 2scala/Predef.`???`().2(
+ _empty_/A#Array.apply(+1).2+
+ _empty_/A#Array.apply(+1).(x)2
+ 
+scala/Int#2,
+ _empty_/A#Array.apply(+1).(xs)2
+ 
+scala/Int#2
+! &_empty_/A#Array#2
+' *
+scala/Int#2#
+. 1scala/Predef.`???`().2
+ _empty_/A#xs().2
+
+ _empty_/A#Array#2
+ _empty_/A#Array#2
+ scala/Symbol#2@
+! .2scala/compiletime/package$package.uninitialized().2!
+ 
+_empty_/A#`xs_=`().2
+ _empty_/A#ys().2
+
+ _empty_/A#Array#2
+ scala/Predef.Map#2
+ scala/Symbol#2
+ scala/Predef.Set#2
+  &scala/Symbol#2@
+, 92scala/compiletime/package$package.uninitialized().2!
+ 
+_empty_/A#`ys_=`().2!
+22 _empty_/A#`ys_=`().2&
+22 _empty_/A#Array.apply().2
+22 _empty_/A#Array.22
+22 $scala/collection/MapFactory#apply().2
+22 scala/Predef.Map.22
+22 $scala/collection/MapFactory#apply().2
+22 scala/Predef.Map.2-
+22 scala/reflect/ClassTag.apply().2
+44 _empty_/A#zs.2&
+44 _empty_/A#Array.apply().2
+44 _empty_/A#Array.22
+44 $scala/collection/MapFactory#apply().2
+44 scala/Predef.Map.2-
+44 scala/reflect/ClassTag.apply().PZ 921FC74F5B7942ECDB8A1841AD3C747B

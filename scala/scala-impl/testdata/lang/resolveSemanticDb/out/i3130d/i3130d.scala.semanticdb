@@ -1,0 +1,34 @@
+
+‚tests/pos/i3130d.scala*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*"
+_empty_/D#`<init>`().(x)*x€*
+_empty_/D#x. €*x€*
+_empty_/D#DD#*DD€**
+_empty_/D#DD#`<init>`(). €@*<init>€*#
+_empty_/D#DD#apply().*apply€*!
+_empty_/D#inner. €*inner€*
+_empty_/Test.
+ *Test€2
+ 
+_empty_/D#2
+ _empty_/D#`<init>`().2
+ 
+scala/Int#2
+ 	_empty_/D#x.2
+ 
+_empty_/D#DD#2&
+ _empty_/D#DD#`<init>`().2#
+ _empty_/D#DD#apply().2&
+ _empty_/D#DD#`<init>`().2
+ _empty_/D#DD#2
+ _empty_/D#inner.2&
+ _empty_/D#DD#`<init>`().2
+ _empty_/D#DD#2
+ _empty_/Test.2#
+ _empty_/D#DD#apply().2
+ _empty_/D#inner.2#
+ _empty_/D#`<init>`().2
+ 
+_empty_/D#PZ 3F466DD16DB3946668493605C9C7D041

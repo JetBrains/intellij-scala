@@ -1,0 +1,63 @@
+
+ÿtests/pos/range.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.r1. €*r1€*
+_empty_/Test.r2. €*r2€*#
+_empty_/Test.until().*until€*"
+_empty_/Test.until().(d)*d€*&
+_empty_/Test.until().(end)*end€*%
+_empty_/Test.until(+1).*until€*$
+_empty_/Test.until(+1).(d)*d€*(
+_empty_/Test.until(+1).(end)*end€**
+_empty_/Test.until(+1).(step)*step€2
+ scala/math/2
+ scala/26
+ ((scala/collection/immutable/NumericRange.26
+ ((scala/collection/immutable/NumericRange#2)
+ scala/collection/immutable/2
+ scala/collection/2
+ _empty_/Test.2
+ _empty_/Test.r1.27
++ 2)scala/collection/immutable/Range.Partial#2/
+% *!scala/collection/immutable/Range.2)
+ $scala/collection/immutable/2
+ scala/collection/2
+
+ scala/2#
+; >scala/Predef.`???`().2
+ _empty_/Test.r2.27
+ )scala/collection/immutable/Range.Partial#2"
+ scala/package.Range.2
+
+ scala/2
+& (_empty_/Test.r1.2#
+ _empty_/Test.until().2&
+ _empty_/Test.until().(d)2$
+ scala/math/BigDecimal#2(
+ _empty_/Test.until().(end)2$
+  *scala/math/BigDecimal#27
+3 :)scala/collection/immutable/Range.Partial#2"
+- 2scala/package.Range.2$
+; Escala/math/BigDecimal#2@
+T ]2scala/collection/immutable/NumericRange.Exclusive#26
+G S(scala/collection/immutable/NumericRange.2$
+^ hscala/math/BigDecimal#2B
+ 4scala/collection/immutable/Range.Partial#`<init>`().2"
+ scala/package.Range.2%
+ _empty_/Test.until(+1).2&
+ _empty_/Test.until().(d)2(
+ "_empty_/Test.until().(end)2%
+ _empty_/Test.until(+1).2(
+ _empty_/Test.until(+1).(d)2$
+ scala/math/BigDecimal#2*
+ _empty_/Test.until(+1).(end)2$
+  *scala/math/BigDecimal#2+
+, 0_empty_/Test.until(+1).(step)2$
+2 <scala/math/BigDecimal#2B
+P P4scala/collection/immutable/Range.BigDecimal.apply().2:
+F P,scala/collection/immutable/Range.BigDecimal.2"
+@ Escala/package.Range.2(
+Q R_empty_/Test.until(+1).(d)2*
+T W_empty_/Test.until(+1).(end)2+
+Y ]_empty_/Test.until(+1).(step)PZ 291BAC5108393DAFDB524806B1B9E1CA

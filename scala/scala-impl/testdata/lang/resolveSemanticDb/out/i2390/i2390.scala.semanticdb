@@ -1,0 +1,38 @@
+
+´tests/pos/i2390.scala*$
+_empty_/TestSuite#*	TestSuite€*/
+_empty_/TestSuite#`<init>`(). €@*<init>€*.
+_empty_/TestSuite#NoArgTest#*	NoArgTest€*9
+'_empty_/TestSuite#NoArgTest#`<init>`(). €@*<init>€*.
+_empty_/TestSuiteMixin#*TestSuiteMixin€*4
+"_empty_/TestSuiteMixin#`<init>`(). €@*<init>€*
+local0*self€*)
+_empty_/TestSuiteMixin#foo().*foo€*0
+#_empty_/TestSuiteMixin#foo().(test)*test€*6
+_empty_/CancelAfterFailure#*CancelAfterFailure€*8
+&_empty_/CancelAfterFailure#`<init>`(). €@*<init>€*
+local1*self€*-
+!_empty_/CancelAfterFailure#foo().*foo€*4
+'_empty_/CancelAfterFailure#foo().(test)*test€2
+ _empty_/TestSuite#2+
+ _empty_/TestSuite#`<init>`().2*
+ _empty_/TestSuite#NoArgTest#25
+ '_empty_/TestSuite#NoArgTest#`<init>`().2%
+ _empty_/TestSuiteMixin#20
+ "_empty_/TestSuiteMixin#`<init>`().2
+ local02 
+ &_empty_/TestSuite#2+
+ 	_empty_/TestSuiteMixin#foo().21
+
+ #_empty_/TestSuiteMixin#foo().(test)2*
+ _empty_/TestSuite#NoArgTest#2%
+ _empty_/TestSuiteMixin#2)
+ _empty_/CancelAfterFailure#24
+! !&_empty_/CancelAfterFailure#`<init>`().2%
+! /_empty_/TestSuiteMixin#2
+2 6local12 
+8 A_empty_/TestSuite#2/
+		 !_empty_/CancelAfterFailure#foo().25
+		 '_empty_/CancelAfterFailure#foo().(test)2*
+		 '_empty_/TestSuite#NoArgTest#2)
+		 _empty_/CancelAfterFailure#PZ 8B1D9E5027DBFE9647A3AB5FB634B4CC

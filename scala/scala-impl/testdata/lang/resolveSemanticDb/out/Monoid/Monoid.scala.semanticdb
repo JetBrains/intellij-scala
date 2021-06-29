@@ -1,0 +1,240 @@
+
+ì\tests/pos/Monoid.scala*1
+strawman/typeclasses/SemiGroup#*	SemiGroup€*<
+*strawman/typeclasses/SemiGroup#`<init>`(). €@*<init>€*,
+"strawman/typeclasses/SemiGroup#[T]	*T€*9
+(strawman/typeclasses/SemiGroup#append(). *append€*5
++strawman/typeclasses/SemiGroup#append().(x)*x€*5
++strawman/typeclasses/SemiGroup#append().(y)*y€*3
+strawman/typeclasses/SemiGroup.
+ *	SemiGroup€*/
+#strawman/typeclasses/SemiGroup.Ops#*Ops€*@
+.strawman/typeclasses/SemiGroup.Ops#`<init>`(). €@*<init>€*C
+/strawman/typeclasses/SemiGroup.Ops#InfixAppend#*InfixAppend€*L
+:strawman/typeclasses/SemiGroup.Ops#InfixAppend#`<init>`(). €@*<init>€*M
+@strawman/typeclasses/SemiGroup.Ops#InfixAppend#`<init>`().(self)*self€*<
+2strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T]	*T€*D
+4strawman/typeclasses/SemiGroup.Ops#InfixAppend#self. €*self€*C
+7strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().*|+|€*L
+>strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().(other)*other€*G
+1strawman/typeclasses/SemiGroup.Ops#InfixAppend(). (*InfixAppend€*>
+4strawman/typeclasses/SemiGroup.Ops#InfixAppend().[T]	*T€*D
+7strawman/typeclasses/SemiGroup.Ops#InfixAppend().(self)*self€*R
+=strawman/typeclasses/SemiGroup.Ops#InfixAppend().(evidence$1)  *
+evidence$1€*1
+#strawman/typeclasses/SemiGroup.ops.
+ *ops€*+
+strawman/typeclasses/Monoid#*Monoid€*9
+'strawman/typeclasses/Monoid#`<init>`(). €@*<init>€*)
+strawman/typeclasses/Monoid#[T]	*T€*-
+strawman/typeclasses/Monoid#id. „*id€*-
+strawman/typeclasses/Monoid.
+ *Monoid€*.
+ strawman/typeclasses/Monoid.ops.
+ *ops€*'
+strawman/typeclasses/Ring#*Ring€*7
+%strawman/typeclasses/Ring#`<init>`(). €@*<init>€*'
+strawman/typeclasses/Ring#[T]	*T€*/
+strawman/typeclasses/Ring#zero. €*zero€*-
+strawman/typeclasses/Ring#one. „*one€*6
+$strawman/typeclasses/Ring#product(). *product€*1
+'strawman/typeclasses/Ring#product().(x)*x€*1
+'strawman/typeclasses/Ring#product().(y)*y€*)
+strawman/typeclasses/Ring.
+ *Ring€**
+strawman/typeclasses/Ring.Ops#*Ops€*;
+)strawman/typeclasses/Ring.Ops#`<init>`(). €@*<init>€*@
++strawman/typeclasses/Ring.Ops#InfixProduct#*InfixProduct€*H
+6strawman/typeclasses/Ring.Ops#InfixProduct#`<init>`(). €@*<init>€*I
+<strawman/typeclasses/Ring.Ops#InfixProduct#`<init>`().(self)*self€*8
+.strawman/typeclasses/Ring.Ops#InfixProduct#[T]	*T€*@
+0strawman/typeclasses/Ring.Ops#InfixProduct#self. €*self€*?
+3strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`().*|*|€*H
+:strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`().(other)*other€*D
+-strawman/typeclasses/Ring.Ops#InfixProduct(). (*InfixProduct€*:
+0strawman/typeclasses/Ring.Ops#InfixProduct().[T]	*T€*@
+3strawman/typeclasses/Ring.Ops#InfixProduct().(self)*self€*N
+9strawman/typeclasses/Ring.Ops#InfixProduct().(evidence$2)  *
+evidence$2€*,
+strawman/typeclasses/Ring.ops.
+ *ops€*)
+strawman/typeclasses/Test.
+ *Test€*>
+'strawman/typeclasses/Test.StringMonoid.
+ (*StringMonoid€*?
+0strawman/typeclasses/Test.StringMonoid.append().*append€*=
+3strawman/typeclasses/Test.StringMonoid.append().(x)*x€*=
+3strawman/typeclasses/Test.StringMonoid.append().(y)*y€*8
+*strawman/typeclasses/Test.StringMonoid.id. €*id€*4
+"strawman/typeclasses/Test.IntRing.
+ (*IntRing€*:
++strawman/typeclasses/Test.IntRing.append().*append€*8
+.strawman/typeclasses/Test.IntRing.append().(x)*x€*8
+.strawman/typeclasses/Test.IntRing.append().(y)*y€*3
+%strawman/typeclasses/Test.IntRing.id. €*id€*5
+&strawman/typeclasses/Test.IntRing.one. €*one€*<
+,strawman/typeclasses/Test.IntRing.product().*product€*9
+/strawman/typeclasses/Test.IntRing.product().(x)*x€*9
+/strawman/typeclasses/Test.IntRing.product().(y)*y€2
+ strawman/typeclasses/2
+ 	strawman/2-
+ strawman/typeclasses/SemiGroup#28
+ *strawman/typeclasses/SemiGroup#`<init>`().20
+ "strawman/typeclasses/SemiGroup#[T]26
+ (strawman/typeclasses/SemiGroup#append().29
+ +strawman/typeclasses/SemiGroup#append().(x)20
+ "strawman/typeclasses/SemiGroup#[T]29
+ +strawman/typeclasses/SemiGroup#append().(y)20
+ "strawman/typeclasses/SemiGroup#[T]20
+ "strawman/typeclasses/SemiGroup#[T]2-
+ strawman/typeclasses/SemiGroup.21
+ #strawman/typeclasses/SemiGroup.Ops#2<
+ .strawman/typeclasses/SemiGroup.Ops#`<init>`().2=
+ /strawman/typeclasses/SemiGroup.Ops#InfixAppend#2H
+ :strawman/typeclasses/SemiGroup.Ops#InfixAppend#`<init>`().2@
+3 42strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T]2-
+" +strawman/typeclasses/SemiGroup#2@
++ +2strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T]2@
+  2strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T]2B
+- 14strawman/typeclasses/SemiGroup.Ops#InfixAppend#self.2E
+
+ 7strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().2L
+ >strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().(other)2@
+ 2strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T]2@
+ 2strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T]26
+7 =(strawman/typeclasses/SemiGroup#append().2(
+ (scala/Predef.implicitly().2-
+) 2strawman/typeclasses/SemiGroup#2@
+3 42strawman/typeclasses/SemiGroup.Ops#InfixAppend#[T]2B
+> B4strawman/typeclasses/SemiGroup.Ops#InfixAppend#self.2L
+D I>strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().(other)2?
+ 1strawman/typeclasses/SemiGroup.Ops#InfixAppend().21
+	 #strawman/typeclasses/SemiGroup.ops.2<
+ .strawman/typeclasses/SemiGroup.Ops#`<init>`().21
+ #strawman/typeclasses/SemiGroup.Ops#2*
+ strawman/typeclasses/Monoid#25
+ 'strawman/typeclasses/Monoid#`<init>`().2-
+ !strawman/typeclasses/SemiGroup#2-
+" #strawman/typeclasses/Monoid#[T]2-
+ strawman/typeclasses/Monoid#[T]2-
+ strawman/typeclasses/Monoid#id.2-
+
+ strawman/typeclasses/Monoid#[T]2*
+ strawman/typeclasses/Monoid.2.
+	  strawman/typeclasses/Monoid.ops.2<
+" ".strawman/typeclasses/SemiGroup.Ops#`<init>`().21
+ "#strawman/typeclasses/SemiGroup.Ops#2-
+ strawman/typeclasses/SemiGroup.2(
+ 
+strawman/typeclasses/Ring#23
+
+ 
+%strawman/typeclasses/Ring#`<init>`().2*
+ strawman/typeclasses/Monoid#2+
+ strawman/typeclasses/Ring#[T]2+
+ strawman/typeclasses/Ring#[T]2-
+ 
+strawman/typeclasses/Ring#zero.2-
+ strawman/typeclasses/Monoid#id.2,
+ 	strawman/typeclasses/Ring#one.2+
+ strawman/typeclasses/Ring#[T]22
+ $strawman/typeclasses/Ring#product().25
+ 'strawman/typeclasses/Ring#product().(x)2+
+ strawman/typeclasses/Ring#[T]25
+ 'strawman/typeclasses/Ring#product().(y)2+
+ strawman/typeclasses/Ring#[T]2+
+ strawman/typeclasses/Ring#[T]2(
+ strawman/typeclasses/Ring.2,
+ strawman/typeclasses/Ring.Ops#27
+ )strawman/typeclasses/Ring.Ops#`<init>`().2<
+! !.strawman/typeclasses/SemiGroup.Ops#`<init>`().21
+ !#strawman/typeclasses/SemiGroup.Ops#2-
+ strawman/typeclasses/SemiGroup.29
+ +strawman/typeclasses/Ring.Ops#InfixProduct#2D
+ 6strawman/typeclasses/Ring.Ops#InfixProduct#`<init>`().2<
+/ 0.strawman/typeclasses/Ring.Ops#InfixProduct#[T]2(
+# 'strawman/typeclasses/Ring#2<
+' '.strawman/typeclasses/Ring.Ops#InfixProduct#[T]2<
+  !.strawman/typeclasses/Ring.Ops#InfixProduct#[T]2>
+) -0strawman/typeclasses/Ring.Ops#InfixProduct#self.2A
+
+ 3strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`().2H
+ :strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`().(other)2<
+ .strawman/typeclasses/Ring.Ops#InfixProduct#[T]2<
+ .strawman/typeclasses/Ring.Ops#InfixProduct#[T]22
+2 9$strawman/typeclasses/Ring#product().2(
+ (scala/Predef.implicitly().2(
+) -strawman/typeclasses/Ring#2<
+. /.strawman/typeclasses/Ring.Ops#InfixProduct#[T]2>
+: >0strawman/typeclasses/Ring.Ops#InfixProduct#self.2H
+@ E:strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`().(other)2;
+ -strawman/typeclasses/Ring.Ops#InfixProduct().2,
+ 	  strawman/typeclasses/Ring.ops.27
+   )strawman/typeclasses/Ring.Ops#`<init>`().2,
+   strawman/typeclasses/Ring.Ops#2(
+%% strawman/typeclasses/Test.25
+&& 'strawman/typeclasses/Test.StringMonoid.2*
+&'& -strawman/typeclasses/Monoid#2"
+&.& 4scala/Predef.String#2>
+'' 0strawman/typeclasses/Test.StringMonoid.append().2A
+'' 3strawman/typeclasses/Test.StringMonoid.append().(x)2"
+'' scala/Predef.String#2A
+'' 3strawman/typeclasses/Test.StringMonoid.append().(y)2"
+'' #scala/Predef.String#2"
+'&' ,scala/Predef.String#22
+'1' 3$scala/collection/StringOps#`++`(+2).2+
+'/' /scala/Predef.augmentString().2A
+'/' 03strawman/typeclasses/Test.StringMonoid.append().(x)2A
+'4' 53strawman/typeclasses/Test.StringMonoid.append().(y)28
+(( 
+*strawman/typeclasses/Test.StringMonoid.id.20
+++ "strawman/typeclasses/Test.IntRing.2(
++"+ &strawman/typeclasses/Ring#2
++'+ *
+scala/Int#29
+,, +strawman/typeclasses/Test.IntRing.append().2<
+,, .strawman/typeclasses/Test.IntRing.append().(x)2
+,, 
+scala/Int#2<
+,, .strawman/typeclasses/Test.IntRing.append().(y)2
+,, 
+scala/Int#2 
+,#, $scala/Int#`+`(+4).2<
+,!, ".strawman/typeclasses/Test.IntRing.append().(x)2<
+,%, &.strawman/typeclasses/Test.IntRing.append().(y)23
+-- 
+%strawman/typeclasses/Test.IntRing.id.24
+.. &strawman/typeclasses/Test.IntRing.one.2:
+// ,strawman/typeclasses/Test.IntRing.product().2=
+// /strawman/typeclasses/Test.IntRing.product().(x)2
+// 
+scala/Int#2=
+// /strawman/typeclasses/Test.IntRing.product().(y)2
+// 
+scala/Int#2 
+/$/ %scala/Int#`*`(+3).2=
+/"/ #/strawman/typeclasses/Test.IntRing.product().(x)2=
+/&/ '/strawman/typeclasses/Test.IntRing.product().(y)2.
+22  strawman/typeclasses/Monoid.ops.2*
+2	2 strawman/typeclasses/Monoid.2,
+33 strawman/typeclasses/Ring.ops.2(
+3	3 strawman/typeclasses/Ring.2E
+44 7strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().2?
+44 1strawman/typeclasses/SemiGroup.Ops#InfixAppend().25
+44 'strawman/typeclasses/Test.StringMonoid.2E
+55 7strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().2?
+55 1strawman/typeclasses/SemiGroup.Ops#InfixAppend().25
+55 'strawman/typeclasses/Test.StringMonoid.28
+55 *strawman/typeclasses/Test.StringMonoid.id.25
+55 'strawman/typeclasses/Test.StringMonoid.2E
+66 7strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().2?
+66 1strawman/typeclasses/SemiGroup.Ops#InfixAppend().28
+66 *strawman/typeclasses/Test.StringMonoid.id.25
+66 'strawman/typeclasses/Test.StringMonoid.25
+66 'strawman/typeclasses/Test.StringMonoid.2E
+88 7strawman/typeclasses/SemiGroup.Ops#InfixAppend#`|+|`().2?
+88 1strawman/typeclasses/SemiGroup.Ops#InfixAppend().20
+88 "strawman/typeclasses/Test.IntRing.2A
+99 3strawman/typeclasses/Ring.Ops#InfixProduct#`|*|`().2;
+99 -strawman/typeclasses/Ring.Ops#InfixProduct().20
+99 "strawman/typeclasses/Test.IntRing.PZ 01138AB0B464E839E5E3A7B64C34A4B8

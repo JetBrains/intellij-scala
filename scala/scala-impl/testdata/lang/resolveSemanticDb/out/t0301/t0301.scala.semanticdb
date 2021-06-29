@@ -1,0 +1,41 @@
+
+¦
+tests/pos/t0301.scala*
+	fos/Expr# *Expr€*&
+fos/Expr#`<init>`(). €@*<init>€*
+fos/Var# €*Var€*%
+fos/Var#`<init>`(). €@*<init>€*
+fos/Var#copy().*copy€*
+fos/Var.
+ *Var€*
+fos/Var.apply().*apply€*"
+fos/Var.unapply().*unapply€*#
+fos/Var.unapply().(x$1)*x$1€*$
+fos/Var.toString().*toString€* 
+fos/Analyzer.
+ *Analyzer€*1
+fos/Analyzer.substitution().*substitution€*/
+"fos/Analyzer.substitution().(expr)*expr€*-
+!fos/Analyzer.substitution().(cls)*cls€2
+ fos/2
+ 	fos/Expr#2
+fos/Expr#`<init>`().2
+ fos/Var#2!
+ fos/Var#`<init>`().2"
+ fos/Expr#`<init>`().2
+ 	fos/Expr#2
+ fos/Var.2
+ fos/Analyzer.2*
+ fos/Analyzer.substitution().20
+ "fos/Analyzer.substitution().(expr)2
+ 	fos/Expr#2/
+ "!fos/Analyzer.substitution().(cls)2
+% (fos/Var#2
+) ,fos/Var#2
+0 4	fos/Expr#20
+ "fos/Analyzer.substitution().(expr)2
+ scala/Tuple2#_2.2/
+ !fos/Analyzer.substitution().(cls)2
+ scala/Tuple2#_1.2/
+ !fos/Analyzer.substitution().(cls)20
+		 "fos/Analyzer.substitution().(expr)PZ 59C399A0B4201A76211D39ACFBE9BF9B

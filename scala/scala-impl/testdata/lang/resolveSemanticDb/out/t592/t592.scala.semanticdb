@@ -1,0 +1,227 @@
+
+­Htests/pos/t592.scala*
+_empty_/Graph#*Graph€*+
+_empty_/Graph#`<init>`(). €@*<init>€* 
+_empty_/Graph#Edge#*Edge€* 
+_empty_/Graph#Node#*Node€*(
+_empty_/Graph#NodeIntf#*NodeIntf€*4
+"_empty_/Graph#NodeIntf#`<init>`(). €@*<init>€*;
+%_empty_/Graph#NodeIntf#connectWith(). *connectWith€*8
++_empty_/Graph#NodeIntf#connectWith().(node)*node€*&
+_empty_/Graph#nodes(). *nodes€*&
+_empty_/Graph#edges(). *edges€**
+_empty_/Graph#addNode(). *addNode€*#
+_empty_/Graph#ids(). €*ids€*)
+_empty_/Graph#`ids_=`(). €*ids_=€*)
+_empty_/Graph#`ids_=`().(x$1)*x$1€*.
+_empty_/DirectedGraph# *DirectedGraph€*3
+!_empty_/DirectedGraph#`<init>`(). €@*<init>€*(
+_empty_/DirectedGraph#Edge#*Edge€*0
+_empty_/DirectedGraph#EdgeImpl#*EdgeImpl€*<
+*_empty_/DirectedGraph#EdgeImpl#`<init>`(). €@*<init>€*A
+2_empty_/DirectedGraph#EdgeImpl#`<init>`().(origin)*origin€*=
+0_empty_/DirectedGraph#EdgeImpl#`<init>`().(dest)*dest€*8
+&_empty_/DirectedGraph#EdgeImpl#origin. €*origin€*4
+$_empty_/DirectedGraph#EdgeImpl#dest. €*dest€*3
+&_empty_/DirectedGraph#EdgeImpl#from().*from€*/
+$_empty_/DirectedGraph#EdgeImpl#to().*to€*;
+*_empty_/DirectedGraph#EdgeImpl#toString().*toString€*0
+_empty_/DirectedGraph#NodeImpl#*NodeImpl€*<
+*_empty_/DirectedGraph#NodeImpl#`<init>`(). €@*<init>€*
+local0*self€*0
+"_empty_/DirectedGraph#NodeImpl#id. €*id€*A
+-_empty_/DirectedGraph#NodeImpl#connectWith().*connectWith€*@
+3_empty_/DirectedGraph#NodeImpl#connectWith().(node)*node€*
+local1 €*edge€*;
+*_empty_/DirectedGraph#NodeImpl#toString().*toString€*2
+ _empty_/DirectedGraph#newNode(). *newNode€*2
+ _empty_/DirectedGraph#newEdge(). *newEdge€*3
+&_empty_/DirectedGraph#newEdge().(from)*from€*/
+$_empty_/DirectedGraph#newEdge().(to)*to€*/
+_empty_/DirectedGraph#nodes(). €*nodes€*5
+"_empty_/DirectedGraph#`nodes_=`(). €*nodes_=€*3
+'_empty_/DirectedGraph#`nodes_=`().(x$1)*x$1€*/
+_empty_/DirectedGraph#edges(). €*edges€*5
+"_empty_/DirectedGraph#`edges_=`(). €*edges_=€*3
+'_empty_/DirectedGraph#`edges_=`().(x$1)*x$1€*0
+ _empty_/DirectedGraph#addNode().*addNode€*
+local2 €*node€*<
+_empty_/ConcreteDirectedGraph#*ConcreteDirectedGraph€*;
+)_empty_/ConcreteDirectedGraph#`<init>`(). €@*<init>€*0
+#_empty_/ConcreteDirectedGraph#Edge#*Edge€*0
+#_empty_/ConcreteDirectedGraph#Node#*Node€*8
+(_empty_/ConcreteDirectedGraph#newNode().*newNode€*8
+(_empty_/ConcreteDirectedGraph#newEdge().*newEdge€*5
++_empty_/ConcreteDirectedGraph#newEdge().(f)*f€*5
++_empty_/ConcreteDirectedGraph#newEdge().(t)*t€*,
+_empty_/ExplicitThis.
+ *ExplicitThis€*)
+_empty_/ExplicitThis.main().*main€*/
+"_empty_/ExplicitThis.main().(args)*args€*
+local3 €*g€*
+local4 €*n1€*
+local5 €*n2€*
+local6 €*n3€2
+ _empty_/Graph#2'
+ _empty_/Graph#`<init>`().2!
+ _empty_/Graph#Edge#2!
+ _empty_/Graph#Node#2%
+ _empty_/Graph#NodeIntf#2%
+ _empty_/Graph#NodeIntf#20
+ "_empty_/Graph#NodeIntf#`<init>`().23
+ %_empty_/Graph#NodeIntf#connectWith().29
+ +_empty_/Graph#NodeIntf#connectWith().(node)2!
+ _empty_/Graph#Node#2!
+! %_empty_/Graph#Edge#2$
+ _empty_/Graph#nodes().2!
+ scala/package.List#2!
+ _empty_/Graph#Node#2$
+		 _empty_/Graph#edges().2!
+		 scala/package.List#2!
+		 _empty_/Graph#Edge#2&
+
+
+ _empty_/Graph#addNode().2!
+
+
+ _empty_/Graph#Node#2"
+ _empty_/Graph#ids().2&
+ _empty_/Graph#`ids_=`().2$
+ _empty_/DirectedGraph#2/
+% %!_empty_/DirectedGraph#`<init>`().2
+% *_empty_/Graph#2)
+ _empty_/DirectedGraph#Edge#2-
+ _empty_/DirectedGraph#EdgeImpl#2-
+ _empty_/DirectedGraph#EdgeImpl#28
+ *_empty_/DirectedGraph#EdgeImpl#`<init>`().2!
+ _empty_/Graph#Node#2!
+% )_empty_/Graph#Node#24
+ &_empty_/DirectedGraph#EdgeImpl#origin.22
+ #$_empty_/DirectedGraph#EdgeImpl#dest.24
+ &_empty_/DirectedGraph#EdgeImpl#from().24
+ &_empty_/DirectedGraph#EdgeImpl#origin.22
+ 
+$_empty_/DirectedGraph#EdgeImpl#to().22
+ $_empty_/DirectedGraph#EdgeImpl#dest.28
+ *_empty_/DirectedGraph#EdgeImpl#toString().2%
+0 1java/lang/String#`+`().2%
+( )java/lang/String#`+`().2%
+  java/lang/String#`+`().24
+! '&_empty_/DirectedGraph#EdgeImpl#origin.22
+2 6$_empty_/DirectedGraph#EdgeImpl#dest.2-
+ _empty_/DirectedGraph#NodeImpl#28
+ *_empty_/DirectedGraph#NodeImpl#`<init>`().2%
+ !_empty_/Graph#NodeIntf#2
+$ (local02!
+* ._empty_/Graph#Node#20
+ 
+"_empty_/DirectedGraph#NodeImpl#id.2"
+ _empty_/Graph#ids().2&
+ _empty_/Graph#`ids_=`().2 
+ scala/Int#`+`(+4).2"
+
+ _empty_/Graph#ids().2;
+ -_empty_/DirectedGraph#NodeImpl#connectWith().2A
+ 3_empty_/DirectedGraph#NodeImpl#connectWith().(node)2!
+ _empty_/Graph#Node#2)
+! %_empty_/DirectedGraph#Edge#2
+
+ local12.
+  _empty_/DirectedGraph#newEdge().2A
+ #3_empty_/DirectedGraph#NodeImpl#connectWith().(node)20
+ "_empty_/DirectedGraph#`edges_=`().25
+ 'scala/collection/immutable/List#`::`().2,
+ _empty_/DirectedGraph#edges().2
+ local12
+ 
+local128
+   *_empty_/DirectedGraph#NodeImpl#toString().2%
+ $  %java/lang/String#`+`().20
+ &  ("_empty_/DirectedGraph#NodeImpl#id.2.
+##  _empty_/DirectedGraph#newNode().2!
+## _empty_/Graph#Node#2.
+$$  _empty_/DirectedGraph#newEdge().24
+$$ &_empty_/DirectedGraph#newEdge().(from)2!
+$$ "_empty_/Graph#Node#22
+$$$ &$_empty_/DirectedGraph#newEdge().(to)2!
+$($ ,_empty_/Graph#Node#2)
+$/$ 3_empty_/DirectedGraph#Edge#2,
+%% _empty_/DirectedGraph#nodes().2!
+%% scala/package.List#2!
+%% _empty_/Graph#Node#2 
+%% scala/package.Nil.20
+%% "_empty_/DirectedGraph#`nodes_=`().2,
+&& _empty_/DirectedGraph#edges().2!
+&& scala/package.List#2)
+&& _empty_/DirectedGraph#Edge#2 
+&& scala/package.Nil.20
+&& "_empty_/DirectedGraph#`edges_=`().2.
+((  _empty_/DirectedGraph#addNode().2!
+(( _empty_/Graph#Node#2
+)) local22.
+))  _empty_/DirectedGraph#newNode().20
+** 	"_empty_/DirectedGraph#`nodes_=`().25
+** 'scala/collection/immutable/List#`::`().2,
+** _empty_/DirectedGraph#nodes().2
+** local22
+++ local22,
+// _empty_/ConcreteDirectedGraph#27
+/$/ $)_empty_/ConcreteDirectedGraph#`<init>`().2/
+/1/ 1!_empty_/DirectedGraph#`<init>`().2$
+/$/ 1_empty_/DirectedGraph#21
+00 #_empty_/ConcreteDirectedGraph#Edge#2-
+00 _empty_/DirectedGraph#EdgeImpl#21
+11 #_empty_/ConcreteDirectedGraph#Node#2-
+11 _empty_/DirectedGraph#NodeImpl#26
+33 (_empty_/ConcreteDirectedGraph#newNode().21
+33 #_empty_/ConcreteDirectedGraph#Node#28
+44 *_empty_/DirectedGraph#NodeImpl#`<init>`().2-
+44 _empty_/DirectedGraph#NodeImpl#26
+77 (_empty_/ConcreteDirectedGraph#newEdge().29
+77 +_empty_/ConcreteDirectedGraph#newEdge().(f)21
+77 #_empty_/ConcreteDirectedGraph#Node#29
+7!7 "+_empty_/ConcreteDirectedGraph#newEdge().(t)21
+7$7 (#_empty_/ConcreteDirectedGraph#Node#21
+7+7 /#_empty_/ConcreteDirectedGraph#Edge#28
+88 *_empty_/DirectedGraph#EdgeImpl#`<init>`().2-
+88 _empty_/DirectedGraph#EdgeImpl#29
+88 +_empty_/ConcreteDirectedGraph#newEdge().(f)29
+88 +_empty_/ConcreteDirectedGraph#newEdge().(t)2#
+<< _empty_/ExplicitThis.2*
+== 
+_empty_/ExplicitThis.main().20
+== "_empty_/ExplicitThis.main().(args)2
+== scala/Array#2"
+== scala/Predef.String#2
+=!= %scala/Unit#2
+>> 	local32
+>> _empty_/Graph#27
+>,> ,)_empty_/ConcreteDirectedGraph#`<init>`().2,
+>> ,_empty_/ConcreteDirectedGraph#2
+?? 
+local42&
+?? _empty_/Graph#addNode().2
+?? local32
+@@ 
+local52&
+@@ _empty_/Graph#addNode().2
+@@ local32
+AA 
+local62&
+AA _empty_/Graph#addNode().2
+AA local32(
+BB scala/Console.println(+1).2
+BB scala/Console.23
+BB "%_empty_/Graph#NodeIntf#connectWith().2
+BB local42
+B#B %local52(
+CC scala/Console.println(+1).2
+CC scala/Console.23
+CC "%_empty_/Graph#NodeIntf#connectWith().2
+CC local52
+C#C %local62(
+DD scala/Console.println(+1).2
+DD scala/Console.23
+DD "%_empty_/Graph#NodeIntf#connectWith().2
+DD local42
+D#D %local6PZ 60F0965CDF6CA9E704652458F26EDAB2

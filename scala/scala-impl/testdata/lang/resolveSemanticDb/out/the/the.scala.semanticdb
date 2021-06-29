@@ -1,0 +1,33 @@
+
+¹tests/pos/the.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*
+_empty_/Test.Foo#T#*T€* 
+_empty_/Test.Foo#x. „*x€*%
+_empty_/Test.intFoo.
+ (*intFoo€* 
+_empty_/Test.intFoo.T#*T€*#
+_empty_/Test.intFoo.x. €*x€*
+_empty_/Test.y. €*y€2
+ _empty_/Test.2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2!
+ _empty_/Test.Foo#T#2!
+ _empty_/Test.Foo#x.2!
+ _empty_/Test.Foo#T#2"
+ _empty_/Test.intFoo.2
+ _empty_/Test.Foo#2$
+	 
+_empty_/Test.intFoo.T#2
+ 
+scala/Int#2$
+ 	_empty_/Test.intFoo.x.2
+		 _empty_/Test.y.2
+			 
+scala/Int#2$
+		 _empty_/Test.intFoo.x.2$
+		 scala/Predef.summon().2
+		 _empty_/Test.Foo#2"
+		 _empty_/Test.intFoo.PZ F258F2D622FE8E2218381DC2459A043D

@@ -1,0 +1,34 @@
+
+œ	tests/pos/test-inliner2.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*#
+_empty_/A#debug(). €*debug€*"
+_empty_/A#ifelse().*ifelse€* 
+_empty_/A#ifelse().[T]	*T€*&
+_empty_/A#ifelse().(cond)*cond€**
+_empty_/A#ifelse().(ifPart)*ifPart€*.
+_empty_/A#ifelse().(elsePart)*elsePart€* 
+_empty_/A#bob1(). *bob1€* 
+_empty_/A#bob2(). *bob2€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2 
+ _empty_/A#debug().2!
+ _empty_/A#ifelse().2$
+ _empty_/A#ifelse().[T]2'
+ #_empty_/A#ifelse().(cond)2
+( /scala/Boolean#2)
+1 7_empty_/A#ifelse().(ifPart)2$
+< =_empty_/A#ifelse().[T]2+
+? G_empty_/A#ifelse().(elsePart)2$
+L M_empty_/A#ifelse().[T]2$
+P Q_empty_/A#ifelse().[T]2'
+ _empty_/A#ifelse().(cond)2)
+ _empty_/A#ifelse().(ifPart)2+
+ "_empty_/A#ifelse().(elsePart)2
+ _empty_/A#bob1().2!
+ _empty_/A#ifelse().2 
+ !_empty_/A#debug().2
+		 _empty_/A#bob2().2 
+		 _empty_/A#debug().PZ 9E2C2202B84ABEB04A3E242FE6A86C01

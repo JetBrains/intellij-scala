@@ -1,0 +1,117 @@
+
+Þ%tests/pos/virtpatmat_castbinder.scala*
+_empty_/IntMap#*IntMap€*,
+_empty_/IntMap#`<init>`(). €@*<init>€*
+_empty_/IntMap#[V]	 €*V€*
+_empty_/Bin# €*Bin€*)
+_empty_/Bin#`<init>`(). €@*<init>€*'
+_empty_/Bin#`<init>`().(m) €*m€*
+_empty_/Bin#[T]	 €*T€*
+_empty_/Bin#m. €*m€* 
+_empty_/Bin#copy().*copy€* 
+_empty_/Bin#copy().[T]	*T€* 
+_empty_/Bin#copy().(m)*m€*4
+_empty_/Bin#copy$default$1().*copy$default$1€**
+ _empty_/Bin#copy$default$1().[T]	*T€*
+_empty_/Bin#_1().*_1€*
+_empty_/Bin.
+ *Bin€*"
+_empty_/Bin.apply().*apply€*!
+_empty_/Bin.apply().[T]	*T€*!
+_empty_/Bin.apply().(m)*m€*&
+_empty_/Bin.unapply().*unapply€*#
+_empty_/Bin.unapply().[T]	*T€*'
+_empty_/Bin.unapply().(x$1)*x$1€*(
+_empty_/Bin.toString().*toString€*
+_empty_/Tip# €*Tip€*)
+_empty_/Tip#`<init>`(). €@*<init>€*'
+_empty_/Tip#`<init>`().(x) €*x€*
+_empty_/Tip#[T]	 €*T€*
+_empty_/Tip#x. €*x€* 
+_empty_/Tip#copy().*copy€* 
+_empty_/Tip#copy().[T]	*T€* 
+_empty_/Tip#copy().(x)*x€*4
+_empty_/Tip#copy$default$1().*copy$default$1€**
+ _empty_/Tip#copy$default$1().[T]	*T€*
+_empty_/Tip#_1().*_1€*
+_empty_/Tip.
+ *Tip€*"
+_empty_/Tip.apply().*apply€*!
+_empty_/Tip.apply().[T]	*T€*!
+_empty_/Tip.apply().(x)*x€*&
+_empty_/Tip.unapply().*unapply€*#
+_empty_/Tip.unapply().[T]	*T€*'
+_empty_/Tip.unapply().(x$1)*x$1€*(
+_empty_/Tip.toString().*toString€*.
+_empty_/IntMapIterator#*IntMapIterator€*4
+"_empty_/IntMapIterator#`<init>`(). €@*<init>€*$
+_empty_/IntMapIterator#[V]	*V€*$
+_empty_/IntMapIterator#[T]	*T€*3
+!_empty_/IntMapIterator#valueOf(). *valueOf€*2
+&_empty_/IntMapIterator#valueOf().(tip)*tip€*+
+_empty_/IntMapIterator#pop(). *pop€*+
+_empty_/IntMapIterator#next().*next€*
+local0 €*t€2
+ _empty_/IntMap#2$
+ _empty_/IntMap#`<init>`().2
+ _empty_/IntMap#[V]2
+ _empty_/Bin#2%
+ _empty_/Bin#`<init>`().2
+ _empty_/IntMap#2
+ _empty_/Bin#[T]2(
+2 2_empty_/IntMap#`<init>`().2
+) /_empty_/IntMap#2
+0 1_empty_/Bin#[T]2
+ _empty_/Bin#[T]2
+ _empty_/Bin#m.2
+_empty_/Bin#copy().2
+ _empty_/Bin#_1().2
+ _empty_/Bin.2
+_empty_/Bin.apply().2 
+_empty_/Bin.unapply().2
+ _empty_/Tip#2%
+ _empty_/Tip#`<init>`().2
+ _empty_/Tip#[T]2(
+* *_empty_/IntMap#`<init>`().2
+! '_empty_/IntMap#2
+( )_empty_/Tip#[T]2
+ _empty_/Tip#[T]2
+ _empty_/Tip#x.2
+_empty_/Tip#copy().2
+ _empty_/Tip#_1().2
+ _empty_/Tip.2
+_empty_/Tip.apply().2 
+_empty_/Tip.unapply().2%
+ _empty_/IntMapIterator#20
+ "_empty_/IntMapIterator#`<init>`().2(
+ _empty_/IntMapIterator#[V]2(
+ _empty_/IntMapIterator#[T]2/
+ !_empty_/IntMapIterator#valueOf().24
+ &_empty_/IntMapIterator#valueOf().(tip)2
+ _empty_/Tip#2(
+ _empty_/IntMapIterator#[V]2(
+ _empty_/IntMapIterator#[T]2+
+ 	_empty_/IntMapIterator#pop().2
+ _empty_/IntMap#2(
+ _empty_/IntMapIterator#[V]2,
+ 
+_empty_/IntMapIterator#next().2(
+ _empty_/IntMapIterator#[T]2+
+		 _empty_/IntMapIterator#pop().2$
+
+
+ _empty_/Bin.unapply().2
+
+
+ _empty_/Bin.2
+
+
+ local02$
+
+
+ _empty_/Tip.unapply().2
+
+
+ _empty_/Tip.2/
+ !_empty_/IntMapIterator#valueOf().2
+ local0PZ E44E401B790DA285D3998B45F343D060

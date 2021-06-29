@@ -1,0 +1,119 @@
+
+µ"tests/pos/i1790.scala*
+_empty_/Try#*Try€*)
+_empty_/Try#`<init>`(). €@*<init>€*
+_empty_/Try#[T]	 €*T€**
+_empty_/Try#transform().*	transform€*%
+_empty_/Try#transform().[U]	*U€*%
+_empty_/Try#transform().(s)*s€*%
+_empty_/Try#transform().(f)*f€*
+local0 €*v€*
+local1 €*e€*
+local2 €*e€*#
+_empty_/Success# ˆ*Success€*-
+_empty_/Success#`<init>`(). €@*<init>€*3
+"_empty_/Success#`<init>`().(value) €*value€* 
+_empty_/Success#[T]	 €*T€*'
+_empty_/Success#value. €*value€*$
+_empty_/Success#copy().*copy€*$
+_empty_/Success#copy().[T]	*T€*,
+_empty_/Success#copy().(value)*value€*8
+!_empty_/Success#copy$default$1().*copy$default$1€*.
+$_empty_/Success#copy$default$1().[T]	*T€* 
+_empty_/Success#_1().*_1€*"
+_empty_/Success.
+ *Success€*&
+_empty_/Success.apply().*apply€*%
+_empty_/Success.apply().[T]	*T€*-
+_empty_/Success.apply().(value)*value€**
+_empty_/Success.unapply().*unapply€*'
+_empty_/Success.unapply().[T]	*T€*+
+_empty_/Success.unapply().(x$1)*x$1€*,
+_empty_/Success.toString().*toString€*#
+_empty_/Failure# ˆ*Failure€*-
+_empty_/Failure#`<init>`(). €@*<init>€*;
+&_empty_/Failure#`<init>`().(exception) €*	exception€* 
+_empty_/Failure#[T]	 €*T€*/
+_empty_/Failure#exception. €*	exception€*"
+_empty_/Failure#get().*get€*$
+_empty_/Failure#copy().*copy€*$
+_empty_/Failure#copy().[T]	*T€*4
+"_empty_/Failure#copy().(exception)*	exception€*8
+!_empty_/Failure#copy$default$1().*copy$default$1€*.
+$_empty_/Failure#copy$default$1().[T]	*T€* 
+_empty_/Failure#_1().*_1€*"
+_empty_/Failure.
+ *Failure€*&
+_empty_/Failure.apply().*apply€*%
+_empty_/Failure.apply().[T]	*T€*5
+#_empty_/Failure.apply().(exception)*	exception€**
+_empty_/Failure.unapply().*unapply€*'
+_empty_/Failure.unapply().[T]	*T€*+
+_empty_/Failure.unapply().(x$1)*x$1€*,
+_empty_/Failure.toString().*toString€2&
+ "scala/util/control/NonFatal.2
+ scala/util/control/2
+ scala/util/2
+ scala/2
+ 	_empty_/Try#2%
+	 	_empty_/Try#`<init>`().2
+ _empty_/Try#[T]2&
+ _empty_/Try#transform().2)
+ _empty_/Try#transform().[U]2)
+ _empty_/Try#transform().(s)2
+ _empty_/Try#[T]2
+ _empty_/Try#2)
+  _empty_/Try#transform().[U]2)
+# $_empty_/Try#transform().(f)2&
+& /scala/package.Throwable#2
+3 6_empty_/Try#2)
+7 8_empty_/Try#transform().[U]2
+< ?_empty_/Try#2)
+@ A_empty_/Try#transform().[U]2(
+ _empty_/Success.unapply().2
+ _empty_/Success.2
+ local02&
+ scala/Function1#apply().2)
+ _empty_/Try#transform().(s)2
+ local02(
+ _empty_/Failure.unapply().2
+ _empty_/Failure.2
+ local12&
+ scala/Function1#apply().2)
+ _empty_/Try#transform().(f)2
+ local124
+ &scala/util/control/NonFatal.unapply().2*
+ scala/util/control/NonFatal.2
+ local22&
+! !_empty_/Failure.apply().2
+ !_empty_/Failure.2
+" #local22
+ _empty_/Success#2)
+ _empty_/Success#`<init>`().2!
+$ %_empty_/Success#[T]2%
+5 5_empty_/Try#`<init>`().2
+/ 2_empty_/Try#2!
+3 4_empty_/Success#[T]2!
+ _empty_/Success#[T]2$
+ "_empty_/Success#value.2!
+_empty_/Success#copy().2#
+$ $_empty_/Success#_1().2
+ _empty_/Success.2"
+_empty_/Success.apply().2$
+_empty_/Success.unapply().2
+ _empty_/Failure#2)
+ _empty_/Failure#`<init>`().2&
+( 1scala/package.Throwable#2%
+A A_empty_/Try#`<init>`().2
+; >_empty_/Try#2!
+? @_empty_/Failure#[T]2!
+ _empty_/Failure#[T]2(
+ &_empty_/Failure#exception.2$
+ 	_empty_/Failure#get().2!
+ _empty_/Failure#[T]2(
+ _empty_/Failure#exception.2!
+_empty_/Failure#copy().2#
+( (_empty_/Failure#_1().2
+ _empty_/Failure.2"
+_empty_/Failure.apply().2$
+_empty_/Failure.unapply().PZ EAF8A778F5D40134BBFBB1F5CA02232F

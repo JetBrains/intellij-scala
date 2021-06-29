@@ -1,0 +1,183 @@
+
+¾8!tests/pos/tcpoly_overloaded.scala*
+_empty_/Monad#*Monad€*+
+_empty_/Monad#`<init>`(). €@*<init>€*
+_empty_/Monad#[T]	*T€*%
+_empty_/Monad#[MyType]	*MyType€*#
+_empty_/Monad#[Bound]	*Bound€**
+_empty_/Monad#flatMap(). *flatMap€*%
+_empty_/Monad#flatMap().[S]	*S€*7
+$_empty_/Monad#flatMap().[RContainer]	*
+RContainer€*/
+ _empty_/Monad#flatMap().[RBound]	*RBound€*/
+ _empty_/Monad#flatMap().[Result]	*Result€*%
+_empty_/Monad#flatMap().(f)*f€*,
+_empty_/Monad#flatMap(+1). *flatMap€*'
+_empty_/Monad#flatMap(+1).[S]	*S€*9
+&_empty_/Monad#flatMap(+1).[RContainer]	*
+RContainer€*1
+"_empty_/Monad#flatMap(+1).[RBound]	*RBound€*1
+"_empty_/Monad#flatMap(+1).[Result]	*Result€*'
+_empty_/Monad#flatMap(+1).(f)*f€*+
+_empty_/Monad#flatMap(+1).(foo)*foo€*,
+_empty_/Monad#flatMap(+2). *flatMap€*'
+_empty_/Monad#flatMap(+2).[S]	*S€*'
+_empty_/Monad#flatMap(+2).(f)*f€*+
+_empty_/Monad#flatMap(+2).(foo)*foo€*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*!
+_empty_/Test#moo(). *moo€*!
+_empty_/Test#MList#*MList€*0
+_empty_/Test#MList#`<init>`(). €@*<init>€*-
+"_empty_/Test#MList#`<init>`().(el)*el€*+
+!_empty_/Test#MList#`<init>`().[X]	*X€* 
+_empty_/Test#MList#[T]	*T€*$
+_empty_/Test#MList#el. €*el€*-
+_empty_/Test#MList#flatMap().*flatMap€**
+ _empty_/Test#MList#flatMap().[S]	*S€*<
+)_empty_/Test#MList#flatMap().[RContainer]	*
+RContainer€*4
+%_empty_/Test#MList#flatMap().[RBound]	*RBound€*4
+%_empty_/Test#MList#flatMap().[Result]	*Result€**
+ _empty_/Test#MList#flatMap().(f)*f€*/
+_empty_/Test#MList#flatMap(+1).*flatMap€*,
+"_empty_/Test#MList#flatMap(+1).[S]	*S€*>
++_empty_/Test#MList#flatMap(+1).[RContainer]	*
+RContainer€*6
+'_empty_/Test#MList#flatMap(+1).[RBound]	*RBound€*6
+'_empty_/Test#MList#flatMap(+1).[Result]	*Result€*,
+"_empty_/Test#MList#flatMap(+1).(f)*f€*0
+$_empty_/Test#MList#flatMap(+1).(foo)*foo€*/
+_empty_/Test#MList#flatMap(+2).*flatMap€*,
+"_empty_/Test#MList#flatMap(+2).[S]	*S€*,
+"_empty_/Test#MList#flatMap(+2).(f)*f€*0
+$_empty_/Test#MList#flatMap(+2).(foo)*foo€*
+_empty_/Test#l. €*l€*
+_empty_/Test#l.[X]	*X€*
+local0*x€2
+ _empty_/Monad#2#
+ _empty_/Monad#`<init>`().2
+ _empty_/Monad#[T]2 
+ !_empty_/Monad#[MyType]2
+2 7_empty_/Monad#[Bound]2&
+ _empty_/Monad#flatMap().2)
+ _empty_/Monad#flatMap().[S]2.
+  _empty_/Monad#flatMap().[RBound]2)
+ _empty_/Monad#flatMap().[S]22
+ ($_empty_/Monad#flatMap().[RContainer]2.
+: @ _empty_/Monad#flatMap().[RBound]2.
+  _empty_/Monad#flatMap().[Result]2)
+ _empty_/Monad#flatMap().(f)2
+ _empty_/Monad#[T]2.
+  _empty_/Monad#flatMap().[Result]2)
+ _empty_/Monad#flatMap().[S]2.
+# ) _empty_/Monad#flatMap().[Result]2)
+* +_empty_/Monad#flatMap().[S]2(
+ _empty_/Monad#flatMap(+1).2+
+ _empty_/Monad#flatMap(+1).[S]20
+ "_empty_/Monad#flatMap(+1).[RBound]2+
+ _empty_/Monad#flatMap(+1).[S]24
+ (&_empty_/Monad#flatMap(+1).[RContainer]20
+: @"_empty_/Monad#flatMap(+1).[RBound]20
+ "_empty_/Monad#flatMap(+1).[Result]2+
+ _empty_/Monad#flatMap(+1).(f)2
+ _empty_/Monad#[T]20
+ "_empty_/Monad#flatMap(+1).[Result]2+
+ _empty_/Monad#flatMap(+1).[S]2-
+" %_empty_/Monad#flatMap(+1).(foo)2"
+' -scala/Predef.String#20
+0 6"_empty_/Monad#flatMap(+1).[Result]2+
+7 8_empty_/Monad#flatMap(+1).[S]2(
+ _empty_/Monad#flatMap(+2).2+
+ _empty_/Monad#flatMap(+2).[S]2#
+ _empty_/Monad#[Bound]2+
+ _empty_/Monad#flatMap(+2).[S]2+
+ _empty_/Monad#flatMap(+2).(f)2
+ _empty_/Monad#[T]2$
+ _empty_/Monad#[MyType]2+
+ _empty_/Monad#flatMap(+2).[S]2-
+" %_empty_/Monad#flatMap(+2).(foo)2
+' *
+scala/Int#2$
+- 3_empty_/Monad#[MyType]2+
+4 5_empty_/Monad#flatMap(+2).[S]2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#moo().2!
+ _empty_/Test#MList#2
+ 
+scala/Int#2!
+ _empty_/Test#MList#2,
+ _empty_/Test#MList#`<init>`().2$
+ _empty_/Test#MList#[T]2
+  %_empty_/Monad#2$
+& '_empty_/Test#MList#[T]2!
+) -scala/package.List#2/
+0 1!_empty_/Test#MList#`<init>`().[X]2
+7 :
+scala/Any#2$
+ _empty_/Test#MList#[T]2$
+ _empty_/Test#MList#el.2+
+ _empty_/Test#MList#flatMap().2.
+  _empty_/Test#MList#flatMap().[S]23
+ %_empty_/Test#MList#flatMap().[RBound]2.
+  _empty_/Test#MList#flatMap().[S]27
+  *)_empty_/Test#MList#flatMap().[RContainer]23
+< B%_empty_/Test#MList#flatMap().[RBound]23
+ %_empty_/Test#MList#flatMap().[Result]2.
+  _empty_/Test#MList#flatMap().(f)2$
+ _empty_/Test#MList#[T]23
+ %_empty_/Test#MList#flatMap().[Result]2.
+  _empty_/Test#MList#flatMap().[S]23
+! '%_empty_/Test#MList#flatMap().[Result]2.
+( ) _empty_/Test#MList#flatMap().[S]2(
+1 6scala/sys/package.error().2
+- 0
+scala/sys/2-
+ _empty_/Test#MList#flatMap(+1).20
+ "_empty_/Test#MList#flatMap(+1).[S]25
+ '_empty_/Test#MList#flatMap(+1).[RBound]20
+ "_empty_/Test#MList#flatMap(+1).[S]29
+  *+_empty_/Test#MList#flatMap(+1).[RContainer]25
+< B'_empty_/Test#MList#flatMap(+1).[RBound]25
+ '_empty_/Test#MList#flatMap(+1).[Result]20
+ "_empty_/Test#MList#flatMap(+1).(f)2$
+ _empty_/Test#MList#[T]25
+ '_empty_/Test#MList#flatMap(+1).[Result]20
+ "_empty_/Test#MList#flatMap(+1).[S]22
+  #$_empty_/Test#MList#flatMap(+1).(foo)2"
+% +scala/Predef.String#25
+. 4'_empty_/Test#MList#flatMap(+1).[Result]20
+5 6"_empty_/Test#MList#flatMap(+1).[S]2(
+? Dscala/sys/package.error().2
+; >
+scala/sys/2-
+ _empty_/Test#MList#flatMap(+2).20
+ "_empty_/Test#MList#flatMap(+2).[S]20
+ "_empty_/Test#MList#flatMap(+2).(f)2$
+ _empty_/Test#MList#[T]2!
+ scala/package.List#20
+ "_empty_/Test#MList#flatMap(+2).[S]22
+ !$_empty_/Test#MList#flatMap(+2).(foo)2
+# &
+scala/Int#2!
+) -scala/package.List#20
+. /"_empty_/Test#MList#flatMap(+2).[S]2(
+8 =scala/sys/package.error().2
+4 7
+scala/sys/2
+ _empty_/Test#l.2!
+	 _empty_/Test#MList#2"
+ scala/Predef.String#2+
+ $_empty_/Test#MList#flatMap().2!
+ _empty_/Test#moo().2"
+% +scala/Predef.String#2!
+- 1scala/package.List#2 
+4 5_empty_/Test#l.[X]2
+; >
+scala/Any#2
+H Ilocal02
+K N
+scala/Int#2,
+\ \_empty_/Test#MList#`<init>`().PZ 055737663C40167EC7534388BD970114

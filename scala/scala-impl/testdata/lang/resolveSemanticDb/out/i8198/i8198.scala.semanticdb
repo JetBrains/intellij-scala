@@ -1,0 +1,92 @@
+
+®tests/pos/i8198.scala*
+_empty_/Eq#*Eq€*(
+_empty_/Eq#`<init>`(). €@*<init>€*
+_empty_/Eq#[A]	*A€*!
+_empty_/Eq#`===`(). *===€* 
+_empty_/Eq#`===`().(x)*x€* 
+_empty_/Eq#`===`().(y)*y€*
+_empty_/Eq#`/==`().*/==€* 
+_empty_/Eq#`/==`().(x)*x€* 
+_empty_/Eq#`/==`().(y)*y€*
+_empty_/Id# €*Id€*(
+_empty_/Id#`<init>`(). €@*<init>€*(
+_empty_/Id#`<init>`().(id) €*id€*
+_empty_/Id#[T]	*T€*
+_empty_/Id#id. €*id€*
+_empty_/Id#copy().*copy€*
+_empty_/Id#copy().[T]	*T€*!
+_empty_/Id#copy().(id)*id€*3
+_empty_/Id#copy$default$1().*copy$default$1€*)
+_empty_/Id#copy$default$1().[T]	*T€*
+_empty_/Id#_1().*_1€*
+_empty_/Id.
+ *Id€*!
+_empty_/Id.apply().*apply€* 
+_empty_/Id.apply().[T]	*T€*"
+_empty_/Id.apply().(id)*id€*%
+_empty_/Id.unapply().*unapply€*"
+_empty_/Id.unapply().[T]	*T€*&
+_empty_/Id.unapply().(x$1)*x$1€*'
+_empty_/Id.toString().*toString€*(
+_empty_/i8198$package. *_empty_€*,
+_empty_/i8198$package.idEq(). (*idEq€**
+ _empty_/i8198$package.idEq().[A]	*A€*0
+"_empty_/i8198$package.idEq().(eqA)  *eqA€*
+local0 *$anon€*
+local1*===€*
+local2*i1€*
+local3*i2€2
+ _empty_/Eq#2 
+ _empty_/Eq#`<init>`().2
+	 
+_empty_/Eq#[A]2!
+ _empty_/Eq#`===`().2$
+ _empty_/Eq#`===`().(x)2
+ _empty_/Eq#[A]2$
+ _empty_/Eq#`===`().(y)2
+ _empty_/Eq#[A]2
+ scala/Boolean#2!
+ _empty_/Eq#`/==`().2$
+ _empty_/Eq#`/==`().(x)2$
+ _empty_/Eq#`/==`().(y)2
+ _empty_/Eq#[A]2
+ scala/Boolean#2(
+' (scala/Boolean#`unary_!`().2!
+" %_empty_/Eq#`===`().2$
+  !_empty_/Eq#`/==`().(x)2$
+& '_empty_/Eq#`/==`().(y)2
+ _empty_/Id#2$
+ _empty_/Id#`<init>`().2
+ _empty_/Id#[T]2
+ _empty_/Id#[T]2
+ _empty_/Id#id.2
+_empty_/Id#copy().2
+ _empty_/Id#_1().2
+ _empty_/Id.2
+_empty_/Id.apply().2
+_empty_/Id.unapply().2 
+_empty_/i8198$package.2+
+ 
+_empty_/i8198$package.idEq().2.
+  _empty_/i8198$package.idEq().[A]20
+ "_empty_/i8198$package.idEq().(eqA)2
+ _empty_/Eq#2.
+  _empty_/i8198$package.idEq().[A]2
+! #_empty_/Eq#2
+$ &_empty_/Id#2.
+' ( _empty_/i8198$package.idEq().[A]2
+- -local02
+		 local12
+		 local22
+		 _empty_/Id#2.
+		  _empty_/i8198$package.idEq().[A]2
+	!	 #local32
+	%	 '_empty_/Id#2.
+	(	 ) _empty_/i8198$package.idEq().[A]2(
+	?	 @scala/Boolean#`unary_!`().2!
+	0	 0_empty_/Eq#`/==`().2
+	3	 5_empty_/Id#id.2
+	0	 2local22
+	=	 ?_empty_/Id#id.2
+	:	 <local3PZ 6DB453DF1CC3CCEB39A401B4C2F3432D

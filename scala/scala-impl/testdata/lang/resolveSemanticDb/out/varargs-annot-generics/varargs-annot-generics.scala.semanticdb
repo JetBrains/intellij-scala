@@ -1,0 +1,93 @@
+
+ò&tests/pos/varargs-annot-generics.scala*"
+_empty_/VarArgs.
+ *VarArgs€*$
+_empty_/VarArgs.foo1().*foo1€*$
+_empty_/VarArgs.foo1().[A]	*A€*$
+_empty_/VarArgs.foo1().(x)*x€*&
+_empty_/VarArgs.foo1().(xs)*xs€*$
+_empty_/VarArgs.foo2().*foo2€*$
+_empty_/VarArgs.foo2().[A]	*A€*$
+_empty_/VarArgs.foo2().(x)*x€*&
+_empty_/VarArgs.foo2().(xs)*xs€*$
+_empty_/VarArgs.foo3().*foo3€*$
+_empty_/VarArgs.foo3().[A]	*A€*$
+_empty_/VarArgs.foo3().(n)*n€*$
+_empty_/VarArgs.bar1().*bar1€*$
+_empty_/VarArgs.bar1().[A]	*A€*$
+_empty_/VarArgs.bar1().(x)*x€*$
+_empty_/VarArgs.bar2().*bar2€*$
+_empty_/VarArgs.bar2().[A]	*A€*$
+_empty_/VarArgs.bar2().(x)*x€*&
+_empty_/VarArgs.bar2().(xs)*xs€*$
+_empty_/VarArgs.bar3().*bar3€*$
+_empty_/VarArgs.bar3().[A]	*A€*&
+_empty_/VarArgs.bar3().(xs)*xs€2#
+ scala/annotation/varargs#2
+ scala/annotation/2
+ scala/2
+ _empty_/VarArgs.2'
+ scala/annotation/varargs#2%
+ _empty_/VarArgs.foo1().2(
+ _empty_/VarArgs.foo1().[A]2(
+ _empty_/VarArgs.foo1().(x)2(
+ _empty_/VarArgs.foo1().[A]2)
+ _empty_/VarArgs.foo1().(xs)2"
+ scala/Predef.String#2(
+# $_empty_/VarArgs.foo1().[A]2#
+' *scala/Predef.`???`().2'
+ scala/annotation/varargs#2%
+ _empty_/VarArgs.foo2().2(
+ _empty_/VarArgs.foo2().[A]2(
+ _empty_/VarArgs.foo2().(x)2!
+ scala/package.List#2(
+ _empty_/VarArgs.foo2().[A]2)
+ _empty_/VarArgs.foo2().(xs)2"
+ %scala/Predef.String#2(
+) *_empty_/VarArgs.foo2().[A]2#
+- 0scala/Predef.`???`().2'
+		 scala/annotation/varargs#2%
+
+
+ _empty_/VarArgs.foo3().2(
+
+
+ _empty_/VarArgs.foo3().[A]2(
+
+
+ _empty_/VarArgs.foo3().(n)2
+
+
+ 
+scala/Int#2
+
+
+ scala/Unit#2#
+
+ 
+ #scala/Predef.`???`().2'
+ scala/annotation/varargs#2%
+ _empty_/VarArgs.bar1().2(
+ _empty_/VarArgs.bar1().[A]2(
+ _empty_/VarArgs.bar1().(x)2(
+ _empty_/VarArgs.bar1().[A]2
+ scala/Unit#2#
+ !scala/Predef.`???`().2'
+ scala/annotation/varargs#2%
+ _empty_/VarArgs.bar2().2(
+ _empty_/VarArgs.bar2().[A]2(
+ _empty_/VarArgs.bar2().(x)2(
+ _empty_/VarArgs.bar2().[A]2)
+ _empty_/VarArgs.bar2().(xs)2(
+ _empty_/VarArgs.bar2().[A]2(
+ _empty_/VarArgs.bar2().[A]2#
+" %scala/Predef.`???`().2'
+ scala/annotation/varargs#2%
+ _empty_/VarArgs.bar3().2(
+ _empty_/VarArgs.bar3().[A]2#
+ java/lang/Comparable#2(
+ _empty_/VarArgs.bar3().[A]2)
+  "_empty_/VarArgs.bar3().(xs)2(
+$ %_empty_/VarArgs.bar3().[A]2(
+) *_empty_/VarArgs.bar3().[A]2#
+- 0scala/Predef.`???`().PZ BAA78AE19A33203C58F3EC9097E7A69C

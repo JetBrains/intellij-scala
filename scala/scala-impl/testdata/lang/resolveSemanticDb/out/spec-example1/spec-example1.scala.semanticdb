@@ -1,0 +1,56 @@
+
+Û
+tests/pos/spec-example1.scala*
+
+_empty_/C# *C€*'
+_empty_/C#`<init>`(). €@*<init>€*$
+_empty_/C#`<init>`().(_f)*_f€*
+_empty_/C#[T]	*T€*
+_empty_/C#_f. €*_f€*
+_empty_/C#m(). *m€*
+_empty_/C#m().(x)*x€*
+_empty_/C#n().*n€*
+_empty_/C#n().(x)*x€*
+_empty_/C#f. €*f€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#m().*m€*
+_empty_/D#m().(x)*x€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+% &_empty_/C#[T]2
+ scala/specialized#2
+ _empty_/C#[T]2
+! #_empty_/C#_f.2
+ _empty_/C#m().2
+ 	_empty_/C#m().(x)2
+ _empty_/C#[T]2
+ _empty_/C#[T]2
+ _empty_/C#n().2
+ 	_empty_/C#n().(x)2
+ _empty_/C#[T]2
+ _empty_/C#[T]2
+ _empty_/C#n().(x)2
+ _empty_/C#f.2
+	 
+_empty_/C#[T]2
+ _empty_/C#_f.2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 
+scala/Int#2
+ _empty_/D#m().2
+ 	_empty_/D#m().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`*`(+3).2
+ _empty_/D#m().(x)2
+ _empty_/D#m().(x)PZ 944D1D6D130E4A28A9DB5CA230947A6E

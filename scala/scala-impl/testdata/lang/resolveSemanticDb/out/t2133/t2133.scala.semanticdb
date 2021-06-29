@@ -1,0 +1,35 @@
+
+êtests/pos/t2133.scala*
+_empty_/Foo#*FooÄ*)
+_empty_/Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo#bar.
+ *barÄ* 
+_empty_/Foo#bar.fn().*fnÄ*
+_empty_/Foo2#*Foo2Ä**
+_empty_/Foo2#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo2#bip.
+ *bipÄ*!
+_empty_/Foo2#bip.fn().*fnÄ*
+_empty_/Bob#*BobÄ*)
+_empty_/Bob#`<init>`(). Ä@*<init>Ä*
+_empty_/Bob#go().*goÄ2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+	 _empty_/Foo#bar.2#
+ _empty_/Foo#bar.fn().2
+ 
+_empty_/Foo2#2&
+ _empty_/Foo2#`<init>`().2
+	 _empty_/Foo2#bip.2$
+ 
+_empty_/Foo2#bip.fn().2
+ 	_empty_/Bob#2%
+ _empty_/Bob#`<init>`().2*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ !_empty_/Foo#2
+' +_empty_/Foo2#2
+	 _empty_/Foo2#bip.2
+	 _empty_/Foo#bar.2
+ _empty_/Bob#go().2$
+ _empty_/Foo2#bip.fn().PZ 2C14C295CF4571F3C08CEE18EEF2F61D

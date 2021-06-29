@@ -1,0 +1,49 @@
+
+™
+tests/pos/i11819.scala**
+opaquetypes/package. *opaquetypes€*$
+opaquetypes/package.Foo#*Foo€*&
+opaquetypes/package.Bar.
+ *Bar€*(
+opaquetypes/package.Bar.Baz#*Baz€*9
+'opaquetypes/package.Bar.Baz#`<init>`(). €@*<init>€*7
+*opaquetypes/package.Bar.Baz#`<init>`().(i) €*i€*+
+opaquetypes/package.Bar.Baz#i. €*i€*.
+"opaquetypes/package.Bar.Baz#foo().*foo€*5
+(opaquetypes/package.Bar.Baz#foo().(that)*that€*
+local0 €*that1€2
+ opaquetypes/2"
+ opaquetypes/package.2&
+ opaquetypes/package.Foo#2
+ scala/Double#2&
+	 opaquetypes/package.Bar.2*
+
+ opaquetypes/package.Bar.Baz#25
+ 'opaquetypes/package.Bar.Baz#`<init>`().2&
+ opaquetypes/package.Foo#2,
+ opaquetypes/package.Bar.Baz#i.20
+	
+	 "opaquetypes/package.Bar.Baz#foo().26
+		 (opaquetypes/package.Bar.Baz#foo().(that)2
+		 
+scala/Any#2
+		 !scala/Boolean#26
+	$	 ((opaquetypes/package.Bar.Baz#foo().(that)2
+
+
+ local02*
+
+
+ opaquetypes/package.Bar.Baz#2$
+
+,
+ .scala/Double#`==`(+6).2,
+
+*
+ +opaquetypes/package.Bar.Baz#i.2,
+
+5
+ 6opaquetypes/package.Bar.Baz#i.2
+
+/
+ 4local0PZ F3BADC1F3873E34B07FDB4189ED29892

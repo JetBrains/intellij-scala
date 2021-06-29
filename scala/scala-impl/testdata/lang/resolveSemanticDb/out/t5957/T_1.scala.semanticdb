@@ -1,0 +1,18 @@
+
+³tests/pos/t5957/T_1.scala*
+
+_empty_/T# *T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#t2(). *t2€*
+_empty_/T#t4(). *t4€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ _empty_/T#t2().2
+ _empty_/Test#Bar#2
+
+ _empty_/Test#2
+ _empty_/T#t4().2
+ _empty_/Test#Baz#2
+
+ _empty_/Test#PZ 7178A8550672100383540E9026F2369B

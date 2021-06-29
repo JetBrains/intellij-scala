@@ -1,0 +1,23 @@
+
+Ätests/pos/i4854.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#f().*f€*
+_empty_/C#f().(x)*x€*
+_empty_/C#f. €*f€*
+local0*s€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#f().2
+ 	_empty_/C#f().(x)2
+ 
+scala/Int#2
+ scala/Unit#2
+ _empty_/C#f.2"
+	 scala/Predef.String#2
+ scala/Unit#2
+ local02&
+ scala/Function1#apply().2
+ _empty_/C#f.PZ 418CAF078EB949C0F7011247FDEB69C5

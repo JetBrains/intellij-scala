@@ -1,0 +1,80 @@
+
+øtests/pos/i4725.scala*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.T#*T€*-
+_empty_/Test1.T#`<init>`(). €@*<init>€*
+_empty_/Test1.T#[A]	*A€* 
+_empty_/Test1.foo().*foo€*!
+_empty_/Test1.foo().[S]	*S€*!
+_empty_/Test1.foo().[A]	*A€*%
+_empty_/Test1.foo().(ev)  *ev€*"
+_empty_/Test1.bar().  *bar€*!
+_empty_/Test1.bar().[A]	*A€*%
+_empty_/Test1.bar().(ev)  *ev€*
+local0  *ev€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.T#*T€*-
+_empty_/Test2.T#`<init>`(). €@*<init>€*
+_empty_/Test2.S#*S€*-
+_empty_/Test2.S#`<init>`(). €@*<init>€* 
+_empty_/Test2.foo().*foo€*%
+_empty_/Test2.foo().(ev)  *ev€*"
+_empty_/Test2.bar().  *bar€*%
+_empty_/Test2.bar().(ev)  *ev€*
+local1  *ev€2
+ _empty_/Test1.2
+ 	_empty_/Test1.T#2)
+	 	_empty_/Test1.T#`<init>`().2!
+
+ _empty_/Test1.T#[A]2"
+ 	_empty_/Test1.foo().2%
+
+ _empty_/Test1.foo().[S]2%
+ _empty_/Test1.foo().[A]2&
+ _empty_/Test1.foo().(ev)2
+ _empty_/Test1.T#2%
+  _empty_/Test1.foo().[A]2
+& '_empty_/Test1.T#2%
+( )_empty_/Test1.foo().[S]2%
+* +_empty_/Test1.foo().[A]2
+0 4scala/Unit#2"
+ _empty_/Test1.bar().2%
+ _empty_/Test1.bar().[A]2&
+ _empty_/Test1.bar().(ev)2
+  !_empty_/Test1.T#2%
+" #_empty_/Test1.bar().[A]2
+' (_empty_/Test1.T#2!
+) -scala/package.List#2%
+. /_empty_/Test1.bar().[A]2#
+4 7scala/Predef.`???`().2"
+ _empty_/Test1.foo().2!
+ 
+scala/package.List#2
+ 
+scala/Int#2"
+ _empty_/Test1.bar().2
+ local02
+		 _empty_/Test2.2
+
+
+ 	_empty_/Test2.T#2)
+
+
+ _empty_/Test2.T#`<init>`().2
+ 	_empty_/Test2.S#2)
+ _empty_/Test2.S#`<init>`().2"
+ 	_empty_/Test2.foo().2&
+ _empty_/Test2.foo().(ev)2
+ _empty_/Test2.T#2
+ _empty_/Test2.S#2
+ "scala/Unit#2"
+ _empty_/Test2.bar().2&
+ _empty_/Test2.bar().(ev)2
+ _empty_/Test2.T#2
+! "_empty_/Test2.S#2#
+% (scala/Predef.`???`().2"
+ _empty_/Test2.foo().2"
+ _empty_/Test2.bar().2
+ local1PZ FCB3BE6DAF657A394EE52ADA1177D00F

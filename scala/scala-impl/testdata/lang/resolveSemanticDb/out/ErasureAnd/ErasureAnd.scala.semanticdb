@@ -1,0 +1,51 @@
+
+€	tests/pos/ErasureAnd.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+local0*self€*
+_empty_/A#foo().*foo€*#
+_empty_/A#foo().(arg1)*arg1€*#
+_empty_/A#foo().(arg2)*arg2€*
+local1*bar€*
+_empty_/A#foo(+1).*foo€*#
+_empty_/A#foo(+1).(arg)*arg€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€2
+ 
+_empty_/A#2
+
+ 
+_empty_/A#`<init>`().2
+
+ local02
+ 
+_empty_/B#2
+ _empty_/A#foo().2$
+ _empty_/A#foo().(arg1)2
+ 
+scala/Int#2$
+ !_empty_/A#foo().(arg2)2
+# &
+scala/Int#2
+) ,
+scala/Int#2
+ local12
+ _empty_/A#foo().2$
+ _empty_/A#foo().(arg1)2$
+ !_empty_/A#foo().(arg2)2
+ _empty_/A#foo().2$
+ _empty_/A#foo().(arg1)2$
+ _empty_/A#foo().(arg2)2 
+ 	_empty_/A#foo(+1).2%
+
+ _empty_/A#foo(+1).(arg)2
+ 
+scala/Int#2%
+ _empty_/A#foo(+1).(arg)2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#PZ 20FC55542A62E08848E2C2EDF1D9D7AB

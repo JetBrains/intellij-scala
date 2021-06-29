@@ -1,0 +1,71 @@
+
+ª&tests/pos/varargs-annot-override.scala*"
+_empty_/NoAnnot# *NoAnnot€*-
+_empty_/NoAnnot#`<init>`(). €@*<init>€* 
+_empty_/NoAnnot#f(). *f€*'
+_empty_/NoAnnot#f().(args)*args€*
+_empty_/B1#*B1€*(
+_empty_/B1#`<init>`(). €@*<init>€*
+_empty_/B1#f().*f€*"
+_empty_/B1#f().(args)*args€*
+_empty_/B2#*B2€*(
+_empty_/B2#`<init>`(). €@*<init>€*
+_empty_/B2#f().*f€*"
+_empty_/B2#f().(args)*args€*
+_empty_/C1#*C1€*(
+_empty_/C1#`<init>`(). €@*<init>€*
+_empty_/C1#f().*f€*"
+_empty_/C1#f().(args)*args€*
+_empty_/C2#*C2€*(
+_empty_/C2#`<init>`(). €@*<init>€*
+_empty_/C2#f().*f€*"
+_empty_/C2#f().(args)*args€2#
+ scala/annotation/varargs#2
+ scala/annotation/2
+ scala/2
+ _empty_/NoAnnot#2)
+ _empty_/NoAnnot#`<init>`().2"
+ _empty_/NoAnnot#f().2(
+ _empty_/NoAnnot#f().(args)2"
+ scala/Predef.String#2
+ scala/Unit#2
+ _empty_/B1#2$
+ _empty_/B1#`<init>`().2)
+ _empty_/NoAnnot#`<init>`().2
+ _empty_/NoAnnot#2
+ _empty_/B1#f().2#
+ _empty_/B1#f().(args)2"
+ scala/Predef.String#2
+
+
+ _empty_/B2#2$
+
+
+ _empty_/B2#`<init>`().2)
+
+
+ _empty_/NoAnnot#`<init>`().2
+
+
+ _empty_/NoAnnot#2'
+ 
+scala/annotation/varargs#2
+ _empty_/B2#f().2#
+ _empty_/B2#f().(args)2"
+ scala/Predef.String#2
+ _empty_/C1#2$
+ _empty_/C1#`<init>`().2$
+ _empty_/B2#`<init>`().2
+ _empty_/B2#2
+ _empty_/C1#f().2#
+ _empty_/C1#f().(args)2"
+ scala/Predef.String#2
+ _empty_/C2#2$
+ _empty_/C2#`<init>`().2$
+ _empty_/B2#`<init>`().2
+ _empty_/B2#2'
+ 
+scala/annotation/varargs#2
+ _empty_/C2#f().2#
+ _empty_/C2#f().(args)2"
+ scala/Predef.String#PZ 491498744EEAC58C6630119063F4CAB5

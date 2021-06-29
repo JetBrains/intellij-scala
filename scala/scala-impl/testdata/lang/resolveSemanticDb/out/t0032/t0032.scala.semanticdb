@@ -1,0 +1,56 @@
+
+Åtests/pos/t0032.scala**
+_empty_/PromptStream#*PromptStreamÄ*2
+ _empty_/PromptStream#`<init>`(). Ä@*<init>Ä*-
+#_empty_/PromptStream#`<init>`().(s)*sÄ*$
+_empty_/PromptStream#s. Ä*sÄ*/
+_empty_/PromptStream#println().*printlnÄ*
+_empty_/Main.
+ *MainÄ* 
+_empty_/Main.out. Ä*outÄ*!
+_empty_/Main.main().*mainÄ*'
+_empty_/Main.main().(args)*argsÄ2
+ java/io/OutputStream.2
+ java/io/OutputStream#2
+ )java/io/PrintStream.2
+ )java/io/PrintStream#2
+ java/io/2
+ java/2#
+ _empty_/PromptStream#2.
+  _empty_/PromptStream#`<init>`().2#
+ "java/io/OutputStream#2/
+7 7!java/io/PrintStream#`<init>`(+2).2"
+, 7java/io/PrintStream#2%
+8 9_empty_/PromptStream#s.2%
+ _empty_/PromptStream#s.2-
+ _empty_/PromptStream#println().2,
+# *java/io/PrintStream#println().2
+ _empty_/Main.2
+ _empty_/Main.out.2.
+  _empty_/PromptStream#`<init>`().2#
+ _empty_/PromptStream#2#
+0 3java/lang/System#out.2
+) /java/lang/System#2
+$ (
+java/lang/2
+ #java/2(
+
+
+ java/lang/System#setOut().2
+
+
+ java/lang/System#2
+
+	
+ 
+java/lang/2
+
+
+ java/2
+
+
+ _empty_/Main.out.2"
+ _empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#PZ D32B5997B83AB46E3467F507EB8C617A

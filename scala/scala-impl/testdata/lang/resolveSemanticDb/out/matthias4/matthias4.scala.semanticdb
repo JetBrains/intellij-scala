@@ -1,0 +1,221 @@
+
+Þ5tests/pos/matthias4.scala*
+_empty_/_a#*_a€*(
+_empty_/_a#`<init>`(). €@*<init>€*
+_empty_/_a#a. „*a€*
+_empty_/_a#A. „*A€*
+_empty_/_a#A#*A€*#
+_empty_/_a#AObject#*AObject€*0
+_empty_/_a#AObject#`<init>`(). €@*<init>€*)
+_empty_/_a#AObject#getX(). *getX€*)
+_empty_/_a#AObject#setX(). *setX€*'
+_empty_/_a#AObject#setX().(x)*x€*
+_empty_/a123#*a123€**
+_empty_/a123#`<init>`(). €@*<init>€*
+_empty_/a123#a. €*a€*
+_empty_/a123#A. €*A€*
+_empty_/a123#A#*A€*,
+_empty_/a123#A#`<init>`(). €@*<init>€*#
+_empty_/a123#A#getX().*getX€*#
+_empty_/a123#A#setX().*setX€*#
+_empty_/a123#A#setX().(x)*x€*
+_empty_/_b#*_b€*(
+_empty_/_b#`<init>`(). €@*<init>€*
+_empty_/_b#b. „*b€*
+_empty_/_b#B. „*B€*
+_empty_/_b#B#*B€*#
+_empty_/_b#BObject#*BObject€*0
+_empty_/_b#BObject#`<init>`(). €@*<init>€*
+_empty_/_b#BObject#X#*X€*)
+_empty_/_b#BObject#getX(). *getX€*)
+_empty_/_b#BObject#setX(). *setX€*'
+_empty_/_b#BObject#setX().(x)*x€*
+
+_empty_/b# *b€*'
+_empty_/b#`<init>`(). €@*<init>€*
+_empty_/b#b. €*b€*
+_empty_/b#B. €*B€*
+_empty_/b#B#*B€*)
+_empty_/b#B#`<init>`(). €@*<init>€*
+_empty_/b#B#X#*X€*+
+_empty_/b#B#X#`<init>`(). €@*<init>€* 
+_empty_/b#B#getX().*getX€* 
+_empty_/b#B#setX().*setX€* 
+_empty_/b#B#setX().(x)*x€*
+_empty_/_m#*_m€*(
+_empty_/_m#`<init>`(). €@*<init>€*
+_empty_/_m#m. „*m€*
+_empty_/_m#M. „*M€*
+_empty_/_m#M#*M€*#
+_empty_/_m#MObject#*MObject€*0
+_empty_/_m#MObject#`<init>`(). €@*<init>€*
+
+_empty_/m# *m€*'
+_empty_/m#`<init>`(). €@*<init>€*
+_empty_/m#m. €*m€*
+_empty_/m#M. €*M€*
+_empty_/m#M#*M€*)
+_empty_/m#M#`<init>`(). €@*<init>€* 
+_empty_/m#M#test().*test€*
+local0 €*x€* 
+_empty_/m#Linker#*Linker€*.
+_empty_/m#Linker#`<init>`(). €@*<init>€* 
+_empty_/m#Linker#b. €*b€* 
+_empty_/m#Linker#B. €*B€*
+_empty_/m#Linker#B#*B€* 
+_empty_/m#Linker#m. €*m€* 
+_empty_/m#Linker#M. €*M€*
+_empty_/m#Linker#M#*M€2
+ _empty_/_a#2$
+ _empty_/_a#`<init>`().2
+ scala/AnyRef#2
+ _empty_/_b#2
+ 	_empty_/_a#a.2
+ _empty_/_a#2
+ 	_empty_/_a#A.2
+ _empty_/_a#A#2
+	 
+_empty_/_a#A#2!
+ _empty_/_a#AObject#2
+ _empty_/_a#a.2!
+
+ _empty_/_a#AObject#2,
+ _empty_/_a#AObject#`<init>`().2(
+ _empty_/_a#AObject#getX().2#
+ _empty_/_b#BObject#X#2
+ _empty_/_b#B.2(
+ _empty_/_a#AObject#setX().2+
+ _empty_/_a#AObject#setX().(x)2#
+ _empty_/_b#BObject#X#2
+ _empty_/_b#B.2
+ scala/Unit#2
+ 
+_empty_/a123#2&
+ _empty_/a123#`<init>`().2
+ scala/AnyRef#2
+ !_empty_/_a#2
+' )_empty_/_b#2
+   	_empty_/a123#a.2
+!! 	_empty_/a123#A.2
+!! _empty_/a123#A#2(
+!! _empty_/a123#A#`<init>`().2
+!! _empty_/a123#A#2
+"
+" _empty_/a123#A#2(
+"" _empty_/a123#A#`<init>`().2!
+"" _empty_/_a#AObject#2$
+## _empty_/a123#A#getX().2#
+## _empty_/_b#BObject#X#2
+## _empty_/_b#B.2(
+##  _empty_/_b#BObject#getX().2
+## _empty_/_b#B.2$
+$$ _empty_/a123#A#setX().2'
+$$ _empty_/a123#A#setX().(x)2#
+$$ _empty_/_b#BObject#X#2
+$$ _empty_/_b#B.2(
+$$ !_empty_/_b#BObject#setX().2
+$$ _empty_/_b#B.2'
+$"$ #_empty_/a123#A#setX().(x)2
+(( _empty_/_b#2$
+)) _empty_/_b#`<init>`().2
+)) 	_empty_/_b#b.2
+)) _empty_/_b#2
+** 	_empty_/_b#B.2
+** _empty_/_b#B#2
++	+ 
+_empty_/_b#B#2!
+++ _empty_/_b#BObject#2
+++ _empty_/_b#b.2!
+,
+, _empty_/_b#BObject#2,
+-- _empty_/_b#BObject#`<init>`().2#
+-- _empty_/_b#BObject#X#2(
+.. _empty_/_b#BObject#getX().2#
+.. _empty_/_b#BObject#X#2(
+// _empty_/_b#BObject#setX().2+
+// _empty_/_b#BObject#setX().(x)2#
+// _empty_/_b#BObject#X#2
+// scala/Unit#2
+22 
+_empty_/b#2#
+22 _empty_/b#`<init>`().2*
+2!2 !java/lang/Object#`<init>`().2
+22 !scala/AnyRef#2
+2'2 )_empty_/_b#2
+33 	_empty_/b#b.2
+44 	_empty_/b#B.2
+44 _empty_/b#B#2%
+44 _empty_/b#B#`<init>`().2
+44 _empty_/b#B#2
+5
+5 _empty_/b#B#2%
+55 _empty_/b#B#`<init>`().2!
+55 _empty_/_b#BObject#2
+66 _empty_/b#B#X#2'
+66 _empty_/b#B#X#`<init>`().2!
+77 _empty_/b#B#getX().2
+77 _empty_/b#B#X#2'
+77 _empty_/b#B#X#`<init>`().2
+77 _empty_/b#B#X#2!
+88 _empty_/b#B#setX().2$
+88 _empty_/b#B#setX().(x)2
+88 _empty_/b#B#X#2
+<< _empty_/_m#2$
+== _empty_/_m#`<init>`().2
+== 	_empty_/_m#m.2
+== _empty_/_m#2
+>> 	_empty_/_m#M.2
+>> _empty_/_m#M#2
+?	? 
+_empty_/_m#M#2!
+?? _empty_/_m#MObject#2
+?? _empty_/_m#m.2!
+@
+@ _empty_/_m#MObject#2,
+@@ _empty_/_m#MObject#`<init>`().2
+BB 
+_empty_/m#2#
+BB _empty_/m#`<init>`().2*
+B!B !java/lang/Object#`<init>`().2
+BB !scala/AnyRef#2
+B'B )_empty_/_m#2
+B/B 1_empty_/_b#2
+CC 	_empty_/m#m.2
+DD 	_empty_/m#M.2
+DD _empty_/m#M#2%
+DD _empty_/m#M#`<init>`().2
+DD _empty_/m#M#2
+E
+E _empty_/m#M#2%
+EE _empty_/m#M#`<init>`().2!
+EE _empty_/_m#MObject#2
+E#E '_empty_/a123#2
+E-E 3_empty_/m#Linker#2!
+FF _empty_/m#M#test().2
+GG local02#
+GG _empty_/_b#BObject#X#2!
+GG _empty_/m#Linker#B.2(
+GG _empty_/_b#BObject#getX().2!
+GG _empty_/m#Linker#B.2$
+HH _empty_/a123#A#setX().2
+HH _empty_/a123#A.2
+HH local02
+K
+K _empty_/m#Linker#2*
+LL _empty_/m#Linker#`<init>`().2!
+LL _empty_/m#Linker#b.2
+LL _empty_/_b#b.2
+L&L '_empty_/_b#b.2!
+MM _empty_/m#Linker#B.2
+MM _empty_/_b#B.2
+M&M '_empty_/_b#B.2!
+NN _empty_/m#Linker#B#2
+NN _empty_/_b#B#2!
+OO _empty_/m#Linker#m.2
+OO _empty_/m#m.2
+O&O '_empty_/m#m.2!
+PP _empty_/m#Linker#M.2
+PP _empty_/m#M.2
+P&P '_empty_/m#M.2!
+QQ _empty_/m#Linker#M#2
+QQ _empty_/m#M#PZ 9E90342FBC9750443DB0C2ABD9845740

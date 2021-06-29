@@ -1,0 +1,46 @@
+
+ƒtests/pos/i4785.scala*
+_empty_/i4785#*i4785€*+
+_empty_/i4785#`<init>`(). €@*<init>€* 
+_empty_/i4785#bar().*bar€*#
+_empty_/i4785#bar().(xs)*xs€*"
+_empty_/i4785#test().*test€*$
+_empty_/i4785#test().(xs)*xs€*$
+_empty_/i4785#test().(ys)*ys€2
+ scala/Predef.Set.2
+ scala/Predef.2
+ scala/2"
+ java/nio/file/Paths#2
+ java/nio/file/2
+ 	java/nio/2
+ java/2
+ _empty_/i4785#2'
+ _empty_/i4785#`<init>`().2"
+ 	_empty_/i4785#bar().2&
+
+ _empty_/i4785#bar().(xs)2
+ java/lang/String#2/
+ "!scala/collection/SeqOps#length().2&
+ _empty_/i4785#bar().(xs)2#
+ 
+_empty_/i4785#test().2'
+ _empty_/i4785#test().(xs)2 
+ scala/package.Seq#2
+ java/lang/String#2'
+ _empty_/i4785#test().(ys)2
+  %scala/Array#2
+& ,java/lang/String#2(
+
+ java/nio/file/Paths#get().2"
+ 	java/nio/file/Paths#2'
+ _empty_/i4785#test().(xs)2(
+	
+	 java/nio/file/Paths#get().2"
+		 	java/nio/file/Paths#2'
+		 _empty_/i4785#test().(ys)2"
+ _empty_/i4785#bar().2'
+ 
+_empty_/i4785#test().(xs)2"
+ _empty_/i4785#bar().2'
+ 
+_empty_/i4785#test().(ys)PZ AEA116041F9CBF6A9A0CF1477F2257AF

@@ -1,0 +1,18 @@
+
+‡tests/pos/t5967.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(a)*a€2
+ _empty_/Test.2
+ 	_empty_/Test.f().2"
+
+ _empty_/Test.f().(a)2
+ 
+scala/Int#2"
+ _empty_/Test.f().(a)28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2 
+ scala/package.Nil.2.
+  scala/collection/Seq#toString().2"
+ _empty_/Test.f().(a)PZ 87638B919D3517B52505E42E19AF903B

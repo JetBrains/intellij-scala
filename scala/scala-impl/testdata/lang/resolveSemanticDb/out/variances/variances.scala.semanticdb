@@ -1,0 +1,124 @@
+
+àtests/pos/variances.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[T]	 €*T€*
+_empty_/C#[U]	 €*U€*
+_empty_/HasY#*HasY€**
+_empty_/HasY#`<init>`(). €@*<init>€*
+_empty_/HasY#Y#*Y€*
+_empty_/Foo1#*Foo1€**
+_empty_/Foo1#`<init>`(). €@*<init>€*
+_empty_/Foo1#[X]	 €*X€*
+_empty_/Foo1#bar().*bar€* 
+_empty_/Foo1#bar().[Y]	*Y€* 
+_empty_/Foo1#bar().(y)*y€*
+_empty_/Foo2#*Foo2€**
+_empty_/Foo2#`<init>`(). €@*<init>€*
+_empty_/Foo2#[X]	 €*X€*
+_empty_/Foo2#bar().*bar€* 
+_empty_/Foo2#bar().(x)*x€*
+local0*Y€* 
+_empty_/Foo2#bar().(y)*y€*
+_empty_/Foo3#*Foo3€**
+_empty_/Foo3#`<init>`(). €@*<init>€*
+_empty_/Foo3#[X]	 €*X€*
+_empty_/Foo3#bar().*bar€* 
+_empty_/Foo3#bar().[Y]	*Y€* 
+_empty_/Foo3#bar().(y)*y€*
+_empty_/Foo4#*Foo4€**
+_empty_/Foo4#`<init>`(). €@*<init>€*
+_empty_/Foo4#[X]	 €*X€*
+_empty_/Foo4#bar().*bar€* 
+_empty_/Foo4#bar().(x)*x€*
+local1*Y€* 
+_empty_/Foo4#bar().(y)*y€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+	 
+_empty_/C#[T]2
+ _empty_/C#[U]2
+ 
+_empty_/HasY#2&
+ _empty_/HasY#`<init>`().2
+ _empty_/HasY#Y#2
+ 
+_empty_/Foo1#2&
+
+ 
+_empty_/Foo1#`<init>`().2
+ _empty_/Foo1#[X]2!
+ _empty_/Foo1#bar().2$
+ _empty_/Foo1#bar().[Y]2
+ _empty_/Foo1#[X]2$
+! "_empty_/Foo1#bar().(y)2$
+$ %_empty_/Foo1#bar().[Y]2$
+) *_empty_/Foo1#bar().(y)2
+
+
+ 
+_empty_/Foo2#2&
+
+
+
+ 
+_empty_/Foo2#`<init>`().2
+
+
+ _empty_/Foo2#[X]2!
+
+
+ _empty_/Foo2#bar().2$
+
+
+ _empty_/Foo2#bar().(x)2
+
+
+  _empty_/HasY#2
+
+(
+ )local02
+
+-
+ ._empty_/Foo2#[X]2$
+
+2
+ 3_empty_/Foo2#bar().(y)2
+
+7
+ 8_empty_/HasY#Y#2$
+
+5
+ 6_empty_/Foo2#bar().(x)2$
+
+<
+ =_empty_/Foo2#bar().(y)2
+ 
+_empty_/Foo3#2&
+
+ 
+_empty_/Foo3#`<init>`().2
+ _empty_/Foo3#[X]2!
+ _empty_/Foo3#bar().2$
+ _empty_/Foo3#bar().[Y]2
+ _empty_/Foo3#[X]2$
+! "_empty_/Foo3#bar().(y)2$
+$ %_empty_/Foo3#bar().[Y]2$
+) *_empty_/Foo3#bar().(y)2
+ 
+_empty_/Foo4#2&
+
+ 
+_empty_/Foo4#`<init>`().2
+ _empty_/Foo4#[X]2!
+ _empty_/Foo4#bar().2$
+ _empty_/Foo4#bar().(x)2
+  _empty_/HasY#2
+( )local12
+- ._empty_/Foo4#[X]2$
+2 3_empty_/Foo4#bar().(y)2
+7 8_empty_/HasY#Y#2$
+5 6_empty_/Foo4#bar().(x)2$
+< =_empty_/Foo4#bar().(y)PZ 13EEE4C2222C70044017439864AEB073

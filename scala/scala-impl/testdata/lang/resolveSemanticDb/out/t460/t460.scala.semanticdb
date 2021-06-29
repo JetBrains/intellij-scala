@@ -1,0 +1,46 @@
+
+½	tests/pos/t460.scala* 
+_empty_/Bug460.
+ *Bug460€*)
+_empty_/Bug460.testFun().*testFun€*&
+_empty_/Bug460.testFun().(x)*x€*&
+_empty_/Bug460.testFun().(y)*y€* 
+_empty_/Bug460.fn. €*fn€*
+local0*x€*
+local1*y€*
+local2*x€*
+local3*y€*
+local4*x€*
+local5*y€2
+ _empty_/Bug460.2'
+ _empty_/Bug460.testFun().2*
+ _empty_/Bug460.testFun().(x)2
+ 
+scala/Int#2*
+ _empty_/Bug460.testFun().(y)2
+ 
+scala/Int#2 
+$ %scala/Int#`+`(+4).2*
+" #_empty_/Bug460.testFun().(x)2*
+& '_empty_/Bug460.testFun().(y)2 
+ _empty_/Bug460.fn.2'
+ _empty_/Bug460.testFun().2
+ local02
+ local12&
+ scala/Function2#apply().2 
+ _empty_/Bug460.fn.2&
+ scala/Function2#apply().2'
+ 
+_empty_/Bug460.testFun().2&
+ scala/Function2#apply().2'
+ 
+_empty_/Bug460.testFun().2
+ local22
+ local32&
+
+ 
+scala/Function2#apply().2'
+ 
+_empty_/Bug460.testFun().2
+ local42
+ local5PZ 73BA7764E31279525090FEBCC6BD300A

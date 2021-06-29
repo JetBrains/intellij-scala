@@ -1,0 +1,23 @@
+
+ôtests/pos/i7744.scala*
+
+_empty_/A# *A€*'
+_empty_/A#`<init>`(). €@*<init>€*"
+_empty_/A#`<init>`().(x)*x€*
+_empty_/A#[F]	*F€*
+_empty_/A#[X]	*X€*
+_empty_/A#x. €*x€*
+
+_empty_/A.
+ *A€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ _empty_/A#[X]2"
+/ /scala/AnyVal#`<init>`().2
+) /scala/AnyVal#2
+ 	_empty_/A#[F]2
+ _empty_/A#[X]2
+ _empty_/A#x.2
+ 
+_empty_/A.PZ 05CCC25E2C9BA8F3D151E573810FB833

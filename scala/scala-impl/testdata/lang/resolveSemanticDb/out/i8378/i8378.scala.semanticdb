@@ -1,0 +1,96 @@
+
+ˆtests/pos/i8378.scala*
+_empty_/Has#*Has€*)
+_empty_/Has#`<init>`(). €@*<init>€*
+_empty_/Has#[A]	*A€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/ZLayer#*ZLayer€*,
+_empty_/ZLayer#`<init>`(). €@*<init>€*#
+_empty_/ZLayer#[RIn]	 €*RIn€*
+_empty_/ZLayer#[E]	 €*E€*%
+_empty_/ZLayer#[ROut]	 €*ROut€* 
+_empty_/ZLayer.
+ *ZLayer€*3
+_empty_/ZLayer.fromServices().*fromServices€*-
+"_empty_/ZLayer.fromServices().[A0]	*A0€*-
+"_empty_/ZLayer.fromServices().[A1]	*A1€*+
+!_empty_/ZLayer.fromServices().[B]	*B€*+
+!_empty_/ZLayer.fromServices().(f)*f€*(
+_empty_/i8378$package. *_empty_€*+
+_empty_/i8378$package.live. €*live€*
+local0*a€*
+local1*b€*
+local2 *$anon€2
+ 	_empty_/Has#2!
+	 	_empty_/Has#`<init>`().2
+
+ _empty_/Has#[A]2
+ 
+_empty_/A#2
+_empty_/A#`<init>`().2
+ 
+_empty_/B#2
+_empty_/B#`<init>`().2
+ 
+_empty_/C#2
+_empty_/C#`<init>`().2
+ _empty_/ZLayer#2(
+ _empty_/ZLayer#`<init>`().2"
+ _empty_/ZLayer#[RIn]2 
+ _empty_/ZLayer#[E]2#
+ _empty_/ZLayer#[ROut]2
+ _empty_/ZLayer.2,
+		 _empty_/ZLayer.fromServices().20
+		 "_empty_/ZLayer.fromServices().[A0]20
+		 "_empty_/ZLayer.fromServices().[A1]2/
+		 !_empty_/ZLayer.fromServices().[B]2/
+		 !_empty_/ZLayer.fromServices().(f)20
+	"	 $"_empty_/ZLayer.fromServices().[A0]20
+	&	 ("_empty_/ZLayer.fromServices().[A1]2/
+	-	 .!_empty_/ZLayer.fromServices().[B]2
+	1	 7_empty_/ZLayer#2
+	8	 ;_empty_/Has#20
+	<	 >"_empty_/ZLayer.fromServices().[A0]2
+	E	 H_empty_/Has#20
+	I	 K"_empty_/ZLayer.fromServices().[A1]2
+	N	 Uscala/Nothing#2
+	W	 Z_empty_/Has#2/
+	[	 \!_empty_/ZLayer.fromServices().[B]2#
+
+
+ scala/Predef.`???`().2 
+_empty_/i8378$package.2)
+ _empty_/i8378$package.live.2
+
+ _empty_/ZLayer#2
+ 
+scala/`&`#2
+ _empty_/Has#2
+ 
+_empty_/A#2
+ _empty_/Has#2
+ 
+_empty_/B#2
+" )scala/Nothing#2
++ ._empty_/Has#2
+/ 0
+_empty_/C#2,
+	 _empty_/ZLayer.fromServices().2
+ _empty_/ZLayer.2
+ local02
+ 
+_empty_/A#2
+  local12
+" #
+_empty_/B#2
+ local22
+ 	
+_empty_/C#PZ 48698898075AA89B20EC0FBB0D10C1D5

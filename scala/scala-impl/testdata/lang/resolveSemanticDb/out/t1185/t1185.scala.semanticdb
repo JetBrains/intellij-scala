@@ -1,0 +1,45 @@
+
+õtests/pos/t1185.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*(
+_empty_/Test#member(). €*member€*
+_empty_/Test#foo().*foo€*!
+_empty_/Test#look().*look€*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local0 €*fff€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2$
+ _empty_/Test#member().2!
+ 	_empty_/Test#foo().2&
+ scala/Function0#apply().2$
+ _empty_/Test#member().2"
+ 
+_empty_/Test#look().2$
+ _empty_/Test#member().2
+ _empty_/Main.2"
+		 
+_empty_/Main.main().2(
+		 _empty_/Main.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	"	 &scala/Unit#2
+
+
+ local02&
+
+
+ _empty_/Test#`<init>`().2
+
+
+ _empty_/Test#2!
+ _empty_/Test#foo().2
+ local02&
+ 
+scala/Predef.assert(+1).2!
+ scala/Int#`==`(+3).2"
+ _empty_/Test#look().2
+ local0PZ 3DA96F920A6D16A839DA8E77A5B52720

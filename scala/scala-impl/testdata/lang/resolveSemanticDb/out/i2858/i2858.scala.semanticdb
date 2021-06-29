@@ -1,0 +1,41 @@
+
+àtests/pos/i2858.scala*
+_empty_/Cont#*Cont€**
+_empty_/Cont#`<init>`(). €@*<init>€*'
+_empty_/Cont#`<init>`().(x0)*x0€*
+_empty_/Cont#[A0]	*A0€*
+_empty_/Cont#x0. €*x0€*
+_empty_/Cont#A#*A€*
+_empty_/Cont#x. €*x€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*
+local0 €*c€*
+local1*A€2
+ 
+_empty_/Cont#2"
+
+ 
+_empty_/Cont#`<init>`().2
+ _empty_/Cont#[A0]2
+ _empty_/Cont#[A0]2
+ _empty_/Cont#x0.2
+ _empty_/Cont#A#2
+" $_empty_/Cont#[A0]2
+* +_empty_/Cont#x.2
+- ._empty_/Cont#A#2
+1 3_empty_/Cont#x0.2
+ _empty_/Test.2"
+ 
+_empty_/Test.test().2
+ scala/Unit#2
+ 	local02
+ 
+scala/`&`#2
+ _empty_/Cont#2
+ local12
+  #
+scala/Int#2&
+0 0_empty_/Cont#`<init>`().2
+ _empty_/Cont#x.2
+ local0PZ C02EAD9F55D0DA4EDC9F474D52F418AF

@@ -1,0 +1,62 @@
+
+Ítests/pos/i7648.scala*
+	i7648/IO#*IO€*&
+i7648/IO#`<init>`(). €@*<init>€*
+i7648/IO#[A]	 €*A€*
+i7648/Functor#*Functor€*+
+i7648/Functor#`<init>`(). €@*<init>€*
+i7648/Functor#[F]	*F€*
+i7648/Monad#*Monad€*)
+i7648/Monad#`<init>`(). €@*<init>€*
+i7648/Monad#[F]	*F€*
+i7648/Stream#*Stream€**
+i7648/Stream#`<init>`(). €@*<init>€*
+i7648/Stream#[F]	 €*F€*
+i7648/Stream#[A]	 €*A€*!
+i7648/Stream#take().*take€*#
+i7648/Stream#take().[F1]	*F1€*!
+i7648/Stream#take().(n)*n€*#
+i7648/Stream#take().(f)  *f€*
+i7648/Test.
+ *Test€*&
+i7648/Test.ioMonad.  *ioMonad€*
+i7648/Test.x. €*x€2
+ i7648/2
+ 	i7648/IO#2"
+ i7648/IO#`<init>`().2
+
+ i7648/IO#[A]2
+ i7648/Functor#2'
+ i7648/Functor#`<init>`().2
+ i7648/Functor#[F]2
+ i7648/Monad#2%
+ i7648/Monad#`<init>`().2
+ !i7648/Functor#2
+" #i7648/Monad#[F]2
+ i7648/Monad#[F]2
+ i7648/Stream#2&
+ i7648/Stream#`<init>`().2
+ i7648/Stream#[F]2
+ i7648/Stream#[A]2"
+ 
+i7648/Stream#take().2&
+ i7648/Stream#take().[F1]2%
+ i7648/Stream#take().(n)2
+  
+scala/Int#2%
++ ,i7648/Stream#take().(f)2
+. 5i7648/Functor#2&
+6 8i7648/Stream#take().[F1]2
+< Bi7648/Stream#2&
+C Ei7648/Stream#take().[F1]2
+G Hi7648/Stream#[A]2
+ i7648/Test.2!
+ i7648/Test.ioMonad.2
+ i7648/Monad#2
+ i7648/Test.x.2"
+ "i7648/Stream#take().2&
+ i7648/Stream#`<init>`().2
+ i7648/Stream#2
+ 
+scala/Int#2!
+* *i7648/Test.ioMonad.PZ 4F9F045DF162B8A85413DF8B283AF467

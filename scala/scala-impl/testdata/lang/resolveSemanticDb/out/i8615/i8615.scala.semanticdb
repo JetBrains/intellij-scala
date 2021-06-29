@@ -1,0 +1,47 @@
+
+±tests/pos/i8615.scala*,
+_empty_/ArrayOrdering#*ArrayOrdering€*3
+!_empty_/ArrayOrdering#`<init>`(). €@*<init>€*#
+_empty_/ArrayOrdering#[N]	*N€*0
+ _empty_/ArrayOrdering#compare().*compare€*-
+#_empty_/ArrayOrdering#compare().(x)*x€*-
+#_empty_/ArrayOrdering#compare().(y)*y€*2
+_empty_/ArrayIntOrdering#*ArrayIntOrdering€*6
+$_empty_/ArrayIntOrdering#`<init>`(). €@*<init>€*3
+#_empty_/ArrayIntOrdering#compare().*compare€*0
+&_empty_/ArrayIntOrdering#compare().(x)*x€*0
+&_empty_/ArrayIntOrdering#compare().(y)*y€2 
+ _empty_/ArrayOrdering#2+
+ !_empty_/ArrayOrdering#`<init>`().2
+* 2scala/math/Ordering#2
+% )scala/math/2
+ $scala/2
+3 8scala/Array#2#
+9 :_empty_/ArrayOrdering#[N]2#
+ _empty_/ArrayOrdering#[N]2.
+  _empty_/ArrayOrdering#compare().21
+ #_empty_/ArrayOrdering#compare().(x)2
+ scala/Array#2'
+ _empty_/ArrayOrdering#[N]21
+ #_empty_/ArrayOrdering#compare().(y)2
+ #scala/Array#2'
+$ %_empty_/ArrayOrdering#[N]2#
+* -scala/Predef.`???`().2'
+ _empty_/ArrayIntOrdering#22
+ $_empty_/ArrayIntOrdering#`<init>`().2"
+* 2scala/math/Ordering#2
+% )scala/math/2
+ $scala/2
+3 8scala/Array#2
+9 <
+scala/Int#21
+ #_empty_/ArrayIntOrdering#compare().24
+ &_empty_/ArrayIntOrdering#compare().(x)2
+ scala/Array#2
+ 
+scala/Int#24
+ &_empty_/ArrayIntOrdering#compare().(y)2
+  %scala/Array#2
+& )
+scala/Int#2#
+. 1scala/Predef.`???`().PZ 6ABE215B6EB941E3F459491F391F9E88

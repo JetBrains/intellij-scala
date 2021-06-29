@@ -1,0 +1,17 @@
+
+õtests/pos/t5703/Impl.scala*.
+_empty_/Implementation#*Implementation€*4
+"_empty_/Implementation#`<init>`(). €@*<init>€*+
+_empty_/Implementation#func().*func€*5
+&_empty_/Implementation#func().(params)*params€2!
+ _empty_/Implementation#2,
+ "_empty_/Implementation#`<init>`().2$
+) )_empty_/Base#`<init>`(+1).2
+ !_empty_/Base#2
+" (java/lang/Object#2,
+ 
+_empty_/Implementation#func().24
+ &_empty_/Implementation#func().(params)2
+ scala/Array#2
+ java/lang/Object#2
+# 'scala/Unit#PZ FA243B5A32D0202BA71E5EBD703088D5

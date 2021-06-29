@@ -1,0 +1,43 @@
+
+Ú	tests/pos/i1216a.scala*
+_empty_/Main.
+ *Main€* 
+_empty_/Main.MAX. €*MAX€*
+_empty_/Main.s1. €*s1€*
+_empty_/Main.s2. €*s2€*&
+_empty_/Main.target. €*target€*
+_empty_/Main.i(). €*i€*$
+_empty_/Main.`i_=`(). €*i_=€*&
+_empty_/Main.`i_=`().(x$1)*x$1€2
+ _empty_/Main.2
+ 	_empty_/Main.MAX.2
+ _empty_/Main.s1.2%
+& &scala/Array#`<init>`().2
+  scala/Array#2
+! %scala/Long#2
+' *_empty_/Main.MAX.2
+
+ _empty_/Main.s2.2"
+ _empty_/Main.target.2
+ _empty_/Main.i().2#
+ 	_empty_/Main.`i_=`().2 
+ scala/Int#`<`(+3).2
+	 
+_empty_/Main.i().2
+ _empty_/Main.MAX.2#
+
+ 
+scala/Array#update().2"
+ 
+_empty_/Main.target.2
+ _empty_/Main.i().2!
+ scala/Long#`+`(+5).2"
+ scala/Array#apply().2
+ _empty_/Main.s1.2
+ _empty_/Main.i().2"
+ scala/Array#apply().2
+ _empty_/Main.s2.2
+ _empty_/Main.i().2#
+ _empty_/Main.`i_=`().2 
+ scala/Int#`+`(+4).2
+ _empty_/Main.i().PZ 6B8DBF6041D3385D738B1AC5C2147B86

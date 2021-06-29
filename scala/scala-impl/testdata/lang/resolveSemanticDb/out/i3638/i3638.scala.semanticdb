@@ -1,0 +1,27 @@
+
+Ÿtests/pos/i3638.scala*,
+p/a/JavaInteraction#*JavaInteraction€*1
+p/a/JavaInteraction#`<init>`(). €@*<init>€*0
+$p/a/JavaInteraction#`<init>`().(arr)*arr€*'
+p/a/JavaInteraction#arr. €*arr€*(
+p/a/JavaInteraction#Inner#*Inner€*7
+%p/a/JavaInteraction#Inner#`<init>`(). €@*<init>€2
+ 	p/2
+
+ p/a/2"
+
+ p/a/JavaInteraction#2-
+ p/a/JavaInteraction#`<init>`().2
+ $scala/Array#2
+% )scala/Char#21
+' '#java/io/CharArrayReader#`<init>`().2&
+ 'java/io/CharArrayReader#2
+ java/io/2
+ java/2&
+( +p/a/JavaInteraction#arr.2&
+ p/a/JavaInteraction#arr.2(
+ p/a/JavaInteraction#Inner#23
+ %p/a/JavaInteraction#Inner#`<init>`().2.
+
+  java/io/CharArrayReader#count().2.
+  java/io/CharArrayReader#count().PZ D7E67AC64F6997EB3E95728435C818DF

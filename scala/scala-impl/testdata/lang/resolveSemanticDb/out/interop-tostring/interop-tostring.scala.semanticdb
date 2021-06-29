@@ -1,0 +1,18 @@
+
+± tests/pos/interop-tostring.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#x. €*x€*
+_empty_/Foo#s. €*s€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#x.2 
+ java/lang/Integer#2
+ 
+java/lang/2
+	 java/2)
+ scala/Predef.int2Integer().2
+ _empty_/Foo#s.2"
+	 scala/Predef.String#2+
+ java/lang/Integer#toString().2
+ _empty_/Foo#x.PZ C05D14E29D6885932CA5CF4289C37837

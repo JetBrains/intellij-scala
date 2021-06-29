@@ -1,0 +1,39 @@
+
+†tests/pos/i7893.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.l1. €*l1€* 
+_empty_/Test.lc1. €*lc1€*
+_empty_/Test.l2. €*l2€*
+local0*x€* 
+_empty_/Test.lc2. €*lc2€2
+ _empty_/Test.2
+ _empty_/Test.l1.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2&
+ scala/Predef.identity().2
+ scala/Predef.2
+  #
+scala/Int#2
+ 	_empty_/Test.lc1.2!
+ scala/package.List#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  _empty_/Test.l1.2
+ _empty_/Test.l2.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2&
+ scala/Predef.identity().2
+ scala/Predef.2
+  #
+scala/Int#2
+ local02
+ 	_empty_/Test.lc2.2!
+ scala/package.List#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+  _empty_/Test.l2.PZ C05AB7A0B45FBDFD4EB2E2F5893D7CEA

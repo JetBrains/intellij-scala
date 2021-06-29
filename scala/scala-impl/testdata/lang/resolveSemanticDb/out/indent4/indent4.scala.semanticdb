@@ -1,0 +1,68 @@
+
+âtests/pos/indent4.scala*(
+_empty_/testindent.
+ *
+testindent€*
+local0 €*x€*
+local1 €*x€*
+local2*x€*
+local3 €*y€*
+local4*x€*
+local5 €*y€*
+local6*x€*
+local7 €*y€*
+local8*i€*
+local9*i€2
+ _empty_/testindent.2
+ 	local02'
+ scala/Predef.println(+1).2
+ local02
+ 	local12'
+ scala/Predef.println(+1).2
+ local128
+
+
+ *scala/collection/immutable/List#foreach().27
+
+
+ )scala/collection/IterableFactory#apply().2!
+
+
+ scala/package.List.2
+
+
+ local22
+ 	local32
+ local22'
+ scala/Predef.println(+1).2
+ local328
+ *scala/collection/immutable/List#foreach().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ 	local42
+ 	local52
+ local42'
+ scala/Predef.println(+1).2
+ local528
+ *scala/collection/immutable/List#foreach().27
+ )scala/collection/IterableFactory#apply().2!
+	 scala/package.List.2
+ local62
+ 	local72
+ local62'
+ scala/Predef.println(+1).2
+ local72'
+ scala/Predef.println(+1).28
+ *scala/collection/immutable/List#foreach().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local82'
+ scala/Predef.println(+1).2
+ local82'
+ scala/Predef.println(+1).28
+!! *scala/collection/immutable/List#foreach().27
+!! )scala/collection/IterableFactory#apply().2!
+!! scala/package.List.2
+!! local92'
+"" scala/Predef.println(+1).2
+"" local9PZ 7E971D52B06C12725915FAB6C019FA77

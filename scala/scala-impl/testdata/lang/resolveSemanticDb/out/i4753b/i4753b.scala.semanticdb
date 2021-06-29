@@ -1,0 +1,24 @@
+
+ùtests/pos/i4753b.scala*
+_empty_/Foo1#*Foo1Ä**
+_empty_/Foo1#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo1#foo().*fooÄ*
+_empty_/Foo2#*Foo2Ä**
+_empty_/Foo2#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo2#foo().*fooÄ2
+ 
+_empty_/Foo1#2&
+ _empty_/Foo1#`<init>`().2!
+ 	_empty_/Foo1#foo().2"
+ scala/Predef.String#2
+ 
+scala/Int#2
+ 
+_empty_/Foo2#2&
+ _empty_/Foo2#`<init>`().2&
+ _empty_/Foo1#`<init>`().2
+ _empty_/Foo1#2!
+ _empty_/Foo2#foo().2"
+ scala/Predef.String#2
+ "
+scala/Int#PZ ED79BA3D752C4009F2FABF30288B2D7A

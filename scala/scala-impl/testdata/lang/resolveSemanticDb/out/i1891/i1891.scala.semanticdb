@@ -1,0 +1,59 @@
+
+˜tests/pos/i1891.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.CC2#*CC2€*.
+_empty_/Test.CC2#`<init>`(). €@*<init>€*)
+_empty_/Test.CC2#`<init>`().(a)*a€*)
+_empty_/Test.CC2#`<init>`().(b)*b€*
+_empty_/Test.CC2#[A]	*A€*
+_empty_/Test.CC2#[B]	*B€* 
+_empty_/Test.CC2#a. €*a€* 
+_empty_/Test.CC2#b. €*b€*
+_empty_/Test.T2#*T2€*
+_empty_/Test.T2#[A]	*A€*
+_empty_/Test.T2#[B]	*B€*+
+_empty_/Test.ArrowAssoc#*
+ArrowAssoc€*5
+#_empty_/Test.ArrowAssoc#`<init>`(). €@*<init>€*9
+)_empty_/Test.ArrowAssoc#`<init>`().(self) €*self€*%
+_empty_/Test.ArrowAssoc#[A]	*A€*-
+_empty_/Test.ArrowAssoc#self. €*self€*&
+_empty_/Test.ArrowAssoc#f().*f€*)
+_empty_/Test.ArrowAssoc#f().[B]	*B€*)
+_empty_/Test.ArrowAssoc#f().(y)*y€*
+_empty_/Test.foo().*foo€2
+ _empty_/Test.2
+ _empty_/Test.CC2#2*
+ _empty_/Test.CC2#`<init>`().2"
+ _empty_/Test.CC2#[A]2"
+ _empty_/Test.CC2#[B]2"
+ _empty_/Test.CC2#[A]2"
+ _empty_/Test.CC2#[B]2!
+ _empty_/Test.CC2#a.2!
+ _empty_/Test.CC2#b.2
+ 	_empty_/Test.T2#2!
+
+ _empty_/Test.T2#[A]2!
+ _empty_/Test.T2#[B]2
+ _empty_/Test.CC2#2!
+ _empty_/Test.T2#[A]2!
+ _empty_/Test.T2#[B]2&
+ _empty_/Test.ArrowAssoc#21
+ #_empty_/Test.ArrowAssoc#`<init>`().2)
+  !_empty_/Test.ArrowAssoc#[A]2)
+ _empty_/Test.ArrowAssoc#[A]2+
+ _empty_/Test.ArrowAssoc#self.2*
+ _empty_/Test.ArrowAssoc#f().2-
+ _empty_/Test.ArrowAssoc#f().[B]2-
+ _empty_/Test.ArrowAssoc#f().(y)2-
+ _empty_/Test.ArrowAssoc#f().[B]2
+ _empty_/Test.CC2#2)
+  _empty_/Test.ArrowAssoc#[A]2-
+" #_empty_/Test.ArrowAssoc#f().[B]2*
+. ._empty_/Test.CC2#`<init>`().2+
+/ 3_empty_/Test.ArrowAssoc#self.2-
+5 6_empty_/Test.ArrowAssoc#f().(y)2!
+		 	_empty_/Test.foo().2*
+	 	 !_empty_/Test.ArrowAssoc#f().21
+		 #_empty_/Test.ArrowAssoc#`<init>`().PZ D2E5121A312FEEA51FA63B5E0956124A

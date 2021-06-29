@@ -1,0 +1,38 @@
+
+„tests/pos/tinondefcons.scala*
+_empty_/Atom#*Atom€**
+_empty_/Atom#`<init>`(). €@*<init>€*%
+_empty_/Atom#`<init>`().(b)*b€*
+_empty_/Atom#[T]	*T€*
+_empty_/Atom#b. €*b€*$
+_empty_/Atom#elem(). €*elem€**
+_empty_/Atom#`elem_=`(). €*elem_=€*)
+_empty_/Atom#`elem_=`().(x$1)*x$1€*)
+_empty_/Atom#`<init>`(+1).*<init>€*'
+_empty_/Atom#`<init>`(+1).(s)*s€*$
+_empty_/AtomTest.
+ *AtomTest€2
+ 
+_empty_/Atom#2&
+
+ 
+_empty_/Atom#`<init>`().2
+ scala/Boolean#2
+ _empty_/Atom#[T]2
+ _empty_/Atom#b.2"
+ 
+_empty_/Atom#elem().2
+ _empty_/Atom#[T]2&
+ _empty_/Atom#`elem_=`().2(
+ 
+_empty_/Atom#`<init>`(+1).2+
+ _empty_/Atom#`<init>`(+1).(s)2
+ _empty_/Atom#[T]2&
+ _empty_/Atom#`<init>`().2
+
+
+ _empty_/AtomTest.2&
+ _empty_/Atom#`elem_=`().2(
+
+ 
+_empty_/Atom#`<init>`(+1).PZ 61E6C6BDE8D1E93EC3BE1463FC715194

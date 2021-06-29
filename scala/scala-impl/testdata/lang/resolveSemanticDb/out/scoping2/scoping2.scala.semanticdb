@@ -1,0 +1,43 @@
+
+Ý	tests/pos/scoping2.scala*
+_empty_/That.
+ *That€*
+_empty_/That.A#*A€*,
+_empty_/That.A#`<init>`(). €@*<init>€*
+_empty_/That.A#T#*T€*
+_empty_/That.A#I#*I€*.
+_empty_/That.A#I#`<init>`(). €@*<init>€*
+_empty_/That.B#*B€*,
+_empty_/That.B#`<init>`(). €@*<init>€*
+_empty_/That.B#T#*T€*
+_empty_/That.B#J#*J€*.
+_empty_/That.B#J#`<init>`(). €@*<init>€*
+_empty_/That.C#*C€*,
+_empty_/That.C#`<init>`(). €@*<init>€*
+_empty_/That.C#T#*T€2
+ _empty_/That.2
+ _empty_/That.A#2(
+	 	_empty_/That.A#`<init>`().2
+ _empty_/That.A#T#2
+ _empty_/That.A#I#2
+ _empty_/That.A#I#2*
+	 	_empty_/That.A#I#`<init>`().2
+ _empty_/That.B#2(
+ _empty_/That.B#`<init>`().2
+ _empty_/That.B#T#2
+ _empty_/That.B#J#2
+ _empty_/That.B#J#2*
+ _empty_/That.B#J#`<init>`().2
+		 _empty_/That.C#2(
+		 _empty_/That.C#`<init>`().2
+		 _empty_/That.A#2
+		 _empty_/That.B#2
+
+
+ _empty_/That.C#T#2
+
+
+ _empty_/That.A#I#2
+
+
+ _empty_/That.B#J#PZ 2A852D4560C0693F8FDEAADEB7202C05

@@ -1,0 +1,93 @@
+
+Åtests/pos/i7872.scala*
+_empty_/Test.
+ *TestÄ*!
+_empty_/Test.flip().*flipÄ*
+local0 *applyÄ*
+local1*xÄ*
+_empty_/Test.n. Ä*nÄ*
+_empty_/Test.m. Ä*mÄ*
+_empty_/Test2.
+ *Test2Ä* 
+_empty_/Test2.Flip#*FlipÄ* 
+_empty_/Test2.Flip#[N]	*NÄ*"
+_empty_/Test2.flip().*flipÄ*
+local2 *applyÄ*
+local3*xÄ*
+_empty_/Test3.
+ *Test3Ä* 
+_empty_/Test3.Flip#*FlipÄ* 
+_empty_/Test3.Flip#[N]	*NÄ*"
+_empty_/Test3.flip().*flipÄ*"
+_empty_/Test3.flip().(x)*xÄ2
+ _empty_/Test.2"
+ 
+_empty_/Test.flip().2
+ 
+scala/`|`#2
+ local02
+ local12
+ local12#
+E Hscala/Predef.`???`().2&
+ scala/Function1#apply().2"
+ _empty_/Test.flip().2&
+ scala/Function1#apply().2"
+ _empty_/Test.flip().2&
+ scala/Function1#apply().2"
+ _empty_/Test.flip().2#
+
+ scala/Predef.`???`().2
+ _empty_/Test.n.2
+ 
+scala/`|`#2#
+ scala/Predef.`???`().2&
+ scala/Function1#apply().2"
+ _empty_/Test.flip().2
+ _empty_/Test.n.2
+ _empty_/Test.m.2
+	 
+_empty_/Test.n.2&
+8 8scala/Function1#apply().2"
+4 8_empty_/Test.flip().2
+9 :_empty_/Test.n.2
+
+
+ _empty_/Test2.2!
+ _empty_/Test2.Flip#2$
+ _empty_/Test2.Flip#[N]2
+ 
+scala/`|`#2
+ 
+scala/`|`#2$
+# $_empty_/Test2.Flip#[N]2#
+ 
+_empty_/Test2.flip().2
+ 
+scala/`|`#2
+ local22
+ local32!
+ _empty_/Test2.Flip#2
+  local32#
+) ,scala/Predef.`???`().2&
+ scala/Function1#apply().2#
+ _empty_/Test2.flip().2&
+ scala/Function1#apply().2#
+ _empty_/Test2.flip().2
+ _empty_/Test3.2!
+ _empty_/Test3.Flip#2$
+ _empty_/Test3.Flip#[N]2
+ 
+scala/`|`#2
+ 
+scala/`|`#2$
+# $_empty_/Test3.Flip#[N]2#
+ 
+_empty_/Test3.flip().2&
+ _empty_/Test3.flip().(x)2
+ 
+scala/`|`#2!
+ _empty_/Test3.Flip#2&
+ _empty_/Test3.flip().(x)2#
+% (scala/Predef.`???`().2#
+ _empty_/Test3.flip().2#
+ _empty_/Test3.flip().PZ B6EE3F2BDC4B76FF9DE302F68659F0F8

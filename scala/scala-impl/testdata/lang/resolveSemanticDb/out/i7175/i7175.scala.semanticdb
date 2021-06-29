@@ -1,0 +1,188 @@
+
+­>tests/pos/i7175.scala*
+_empty_/foo.
+ *foo€* 
+_empty_/foo.main().*main€*&
+_empty_/foo.main().(args)*args€*.
+_empty_/foo.ConfigOrigin#*ConfigOrigin€*6
+$_empty_/foo.ConfigOrigin#`<init>`(). €@*<init>€*=
+'_empty_/foo.ConfigOrigin#description(). *description€*7
+$_empty_/foo.ConfigOrigin#filename(). *filename€*-
+_empty_/foo.ConfigOrigin#url(). *url€*7
+$_empty_/foo.ConfigOrigin#resource(). *resource€*;
+&_empty_/foo.ConfigOrigin#lineNumber(). *
+lineNumber€*7
+$_empty_/foo.ConfigOrigin#comments(). *comments€*?
+(_empty_/foo.ConfigOrigin#withComments(). *withComments€*C
+2_empty_/foo.ConfigOrigin#withComments().(comments)*comments€*C
+*_empty_/foo.ConfigOrigin#withLineNumber(). *withLineNumber€*I
+6_empty_/foo.ConfigOrigin#withLineNumber().(lineNumber)*
+lineNumber€*,
+_empty_/foo.ConfigValue#*ConfigValue€*5
+#_empty_/foo.ConfigValue#`<init>`(). €@*<init>€*2
+!_empty_/foo.ConfigValue#origin(). *origin€*8
+$_empty_/foo.ConfigValue#unwrapped(). *	unwrapped€*2
+!_empty_/foo.ConfigValue#render(). *render€*>
+'_empty_/foo.ConfigValue#withFallback(). *withFallback€*<
+._empty_/foo.ConfigValue#withFallback().(other)*other€*:
+%_empty_/foo.ConfigValue#withOrigin(). *
+withOrigin€*<
+-_empty_/foo.ConfigValue#withOrigin().(origin)*origin€*4
+_empty_/foo.ConfigMergeable#*ConfigMergeable€*9
+'_empty_/foo.ConfigMergeable#`<init>`(). €@*<init>€*B
++_empty_/foo.ConfigMergeable#withFallback(). *withFallback€*@
+2_empty_/foo.ConfigMergeable#withFallback().(other)*other€*2
+_empty_/foo.MergeableValue#*MergeableValue€*8
+&_empty_/foo.MergeableValue#`<init>`(). €@*<init>€*G
+-_empty_/foo.MergeableValue#toFallbackValue(). *toFallbackValue€*<
+_empty_/foo.SimpleConfigOrigin# *SimpleConfigOrigin€*<
+*_empty_/foo.SimpleConfigOrigin#`<init>`(). €@*<init>€*;
+*_empty_/foo.SimpleConfigOrigin#comments().*comments€*A
+-_empty_/foo.SimpleConfigOrigin#description().*description€*;
+*_empty_/foo.SimpleConfigOrigin#filename().*filename€*?
+,_empty_/foo.SimpleConfigOrigin#lineNumber().*
+lineNumber€*;
+*_empty_/foo.SimpleConfigOrigin#resource().*resource€*1
+%_empty_/foo.SimpleConfigOrigin#url().*url€*C
+._empty_/foo.SimpleConfigOrigin#withComments().*withComments€*I
+8_empty_/foo.SimpleConfigOrigin#withComments().(comments)*comments€*G
+0_empty_/foo.SimpleConfigOrigin#withLineNumber().*withLineNumber€*O
+<_empty_/foo.SimpleConfigOrigin#withLineNumber().(lineNumber)*
+lineNumber€*>
+ _empty_/foo.AbstractConfigValue# *AbstractConfigValue€*=
++_empty_/foo.AbstractConfigValue#`<init>`(). €@*<init>€*G
+4_empty_/foo.AbstractConfigValue#`<init>`().(_origin) €*_origin€*;
+(_empty_/foo.AbstractConfigValue#_origin. €*_origin€*8
+)_empty_/foo.AbstractConfigValue#origin().*origin€2
+ 
+_empty_/foo.2!
+ 
+_empty_/foo.main().2'
+ _empty_/foo.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+( /scala/Predef.println(+1).2
+ java/net/URL.2
+ java/net/URL#2
+ 	java/net/2
+	 java/2
+ java/util/List.2
+ java/util/List#2
+ 
+java/util/2
+	 java/2'
+ _empty_/foo.ConfigOrigin#22
+ $_empty_/foo.ConfigOrigin#`<init>`().25
+ '_empty_/foo.ConfigOrigin#description().2"
+ scala/Predef.String#22
+ $_empty_/foo.ConfigOrigin#filename().2"
+ scala/Predef.String#2-
+		 _empty_/foo.ConfigOrigin#url().2
+		 java/net/URL#22
+
+
+ $_empty_/foo.ConfigOrigin#resource().2"
+
+
+ scala/Predef.String#24
+ &_empty_/foo.ConfigOrigin#lineNumber().2
+ 
+scala/Int#22
+ $_empty_/foo.ConfigOrigin#comments().2
+ java/util/List#2"
+ scala/Predef.String#26
+ (_empty_/foo.ConfigOrigin#withComments().2@
+ 2_empty_/foo.ConfigOrigin#withComments().(comments)2
+ #java/util/List#2"
+$ *scala/Predef.String#2'
+. :_empty_/foo.ConfigOrigin#28
+ *_empty_/foo.ConfigOrigin#withLineNumber().2D
+ !6_empty_/foo.ConfigOrigin#withLineNumber().(lineNumber)2
+# &
+scala/Int#2'
+) 5_empty_/foo.ConfigOrigin#2&
+ _empty_/foo.ConfigValue#21
+ #_empty_/foo.ConfigValue#`<init>`().2*
+ +_empty_/foo.ConfigMergeable#2/
+ !_empty_/foo.ConfigValue#origin().2'
+ _empty_/foo.ConfigOrigin#22
+ $_empty_/foo.ConfigValue#unwrapped().2
+ scala/AnyRef#2/
+ !_empty_/foo.ConfigValue#render().2"
+ scala/Predef.String#25
+ '_empty_/foo.ConfigValue#withFallback().2<
+ #._empty_/foo.ConfigValue#withFallback().(other)2*
+% 4_empty_/foo.ConfigMergeable#2&
+7 B_empty_/foo.ConfigValue#23
+ %_empty_/foo.ConfigValue#withOrigin().2;
+ -_empty_/foo.ConfigValue#withOrigin().(origin)2'
+ '_empty_/foo.ConfigOrigin#2&
+* 5_empty_/foo.ConfigValue#2*
+ _empty_/foo.ConfigMergeable#25
+   '_empty_/foo.ConfigMergeable#`<init>`().29
+   +_empty_/foo.ConfigMergeable#withFallback().2@
+   2_empty_/foo.ConfigMergeable#withFallback().(other)2*
+   +_empty_/foo.ConfigMergeable#2*
+ .  =_empty_/foo.ConfigMergeable#2)
+## _empty_/foo.MergeableValue#24
+## &_empty_/foo.MergeableValue#`<init>`().2*
+## ._empty_/foo.ConfigMergeable#2;
+$$ -_empty_/foo.MergeableValue#toFallbackValue().2&
+$$ &_empty_/foo.ConfigValue#2-
+((  _empty_/foo.SimpleConfigOrigin#28
+()( )*_empty_/foo.SimpleConfigOrigin#`<init>`().2'
+()( 5_empty_/foo.ConfigOrigin#28
+)) *_empty_/foo.SimpleConfigOrigin#comments().2
+))  java/util/List#2
+)) 
+java/util/2
+)) java/2"
+)!) 'scala/Predef.String#2#
+)+) .scala/Predef.`???`().2;
+** -_empty_/foo.SimpleConfigOrigin#description().2"
+** scala/Predef.String#2#
+** !scala/Predef.`???`().28
+++ *_empty_/foo.SimpleConfigOrigin#filename().2"
+++ scala/Predef.String#2#
+++ scala/Predef.`???`().2:
+,, ,_empty_/foo.SimpleConfigOrigin#lineNumber().2
+,, 
+scala/Int#2#
+,, scala/Predef.`???`().28
+-- *_empty_/foo.SimpleConfigOrigin#resource().2"
+-- scala/Predef.String#2#
+-- scala/Predef.`???`().23
+.. %_empty_/foo.SimpleConfigOrigin#url().2
+.. java/net/URL#2
+.. 	java/net/2
+.. java/2#
+.. scala/Predef.`???`().2<
+// ._empty_/foo.SimpleConfigOrigin#withComments().2F
+// 8_empty_/foo.SimpleConfigOrigin#withComments().(comments)2
+/)/ -java/util/List#2
+/$/ (
+java/util/2
+// #java/2"
+/./ 4scala/Predef.String#2'
+/</ H_empty_/foo.ConfigOrigin#2
+/8/ ;_empty_/foo.2#
+/K/ Nscala/Predef.`???`().2>
+00 0_empty_/foo.SimpleConfigOrigin#withLineNumber().2J
+00 !<_empty_/foo.SimpleConfigOrigin#withLineNumber().(lineNumber)2
+0#0 &
+scala/Int#2'
+0-0 9_empty_/foo.ConfigOrigin#2
+0)0 ,_empty_/foo.2#
+0<0 ?scala/Predef.`???`().2.
+33 $ _empty_/foo.AbstractConfigValue#29
+3$3 $+_empty_/foo.AbstractConfigValue#`<init>`().2'
+333 ?_empty_/foo.ConfigOrigin#2&
+44 _empty_/foo.ConfigValue#2)
+5	5 _empty_/foo.MergeableValue#26
+3*3 1(_empty_/foo.AbstractConfigValue#_origin.27
+77 )_empty_/foo.AbstractConfigValue#origin().2-
+77 )_empty_/foo.SimpleConfigOrigin#2'
+88 scala/Any#asInstanceOf().26
+8	8 (_empty_/foo.AbstractConfigValue#_origin.2-
+88 0_empty_/foo.SimpleConfigOrigin#PZ 3AF3054D847A11027011CED832D292EC

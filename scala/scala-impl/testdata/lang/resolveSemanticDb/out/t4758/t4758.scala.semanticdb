@@ -1,0 +1,106 @@
+
+­tests/pos/t4758.scala*
+bar/M#*M€*#
+bar/M#`<init>`(). €@*<init>€*
+	bar/M#[F]	*F€*
+bar/S#*S€*#
+bar/S#`<init>`(). €@*<init>€*!
+bar/S#`<init>`().(x) €*x€*
+	bar/S#[X]	*X€*
+	bar/S#[A]	*A€*
+bar/S#x. €*x€*
+bar/S.
+ *S€*
+bar/S.apply().*apply€*
+bar/S.apply().[X]	*X€*
+bar/S.apply().[A]	*A€*
+bar/S.apply().(x)*x€* 
+bar/S.unapply().*unapply€*
+bar/S.unapply().[X]	*X€*
+bar/S.unapply().[A]	*A€*
+bar/S.unapply().(p)*p€*
+foo/M#*M€*#
+foo/M#`<init>`(). €@*<init>€*
+	foo/M#[F]	*F€*
+foo/S# €*S€*#
+foo/S#`<init>`(). €@*<init>€*!
+foo/S#`<init>`().(x) €*x€*
+	foo/S#[X]	*X€*
+	foo/S#[A]	*A€*
+foo/S#x. €*x€*
+foo/S#copy().*copy€*
+foo/S#copy().[X]	*X€*
+foo/S#copy().[A]	*A€*
+foo/S#copy().(x)*x€*.
+foo/S#copy$default$1().*copy$default$1€*$
+foo/S#copy$default$1().[X]	*X€*$
+foo/S#copy$default$1().[A]	*A€*
+foo/S#_1().*_1€*
+foo/S.
+ *S€*
+foo/S.apply().*apply€*
+foo/S.apply().[X]	*X€*
+foo/S.apply().[A]	*A€*
+foo/S.apply().(x)*x€* 
+foo/S.unapply().*unapply€*
+foo/S.unapply().[X]	*X€*
+foo/S.unapply().[A]	*A€*!
+foo/S.unapply().(x$1)*x$1€*"
+foo/S.toString().*toString€2
+ bar/2
+ 	bar/M#2
+	 	bar/M#`<init>`().2
+
+ 	bar/M#[F]2
+ 	bar/S#2
+	 	bar/S#`<init>`().2
+! "	bar/S#[X]2
+# $	bar/S#[A]2
+
+ 	bar/S#[X]2
+ 	bar/S#[A]2
+  bar/S#x.2
+	 
+bar/S.2
+ bar/S.apply().2
+ bar/S.apply().[X]2
+ bar/S.apply().[A]2
+  bar/S.apply().(x)2
+" #bar/S.apply().[X]2
+$ %bar/S.apply().[A]2
+) *bar/S#2
++ ,bar/S.apply().[X]2
+. /bar/S.apply().[A]2
+> >bar/S#`<init>`().2
+7 8bar/S#2
+9 :bar/S.apply().[X]2
+< =bar/S.apply().[A]2
+? @bar/S.apply().(x)2
+		 bar/S.unapply().2!
+		 bar/S.unapply().[X]2!
+		 bar/S.unapply().[A]2!
+	!	 "bar/S.unapply().(p)2
+	$	 %bar/S#2!
+	&	 'bar/S.unapply().[X]2!
+	)	 *bar/S.unapply().[A]2!
+	3	 3scala/Some.apply().2
+	/	 3scala/Some.2
+	6	 7bar/S#x.2!
+	4	 5bar/S.unapply().(p)2
+ foo/2
+ 	foo/M#2
+	 	foo/M#`<init>`().2
+
+ 	foo/M#[F]2
+ foo/S#2
+ foo/S#`<init>`().2
+# $	foo/S#[X]2
+% &	foo/S#[A]2
+ 	foo/S#[X]2
+ 	foo/S#[A]2
+  !foo/S#x.2
+ foo/S#copy().2
+# #foo/S#_1().2
+ foo/S.2
+ foo/S.apply().2
+ foo/S.unapply().PZ B518559E5D124C0D48B1591567BF4947

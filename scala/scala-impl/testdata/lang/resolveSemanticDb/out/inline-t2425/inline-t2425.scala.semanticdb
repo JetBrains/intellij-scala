@@ -1,0 +1,18 @@
+
+žtests/pos/inline-t2425.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[T]	*T€*$
+_empty_/Test.foo().(bar)*bar€2
+ _empty_/Test.2
+ 
+scala/App#2!
+ _empty_/Test.foo().2$
+ _empty_/Test.foo().[T]2&
+ _empty_/Test.foo().(bar)2$
+ _empty_/Test.foo().[T]2&
+ _empty_/Test.foo().(bar)2!
+ _empty_/Test.foo().2$
+ scala/Array.apply(+5).2
+ scala/Array.PZ 8AD153FA3CF46FC5D2A432D6B78670FD

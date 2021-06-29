@@ -1,0 +1,134 @@
+
+€tests/pos/t4070b.scala*
+a/DeliteOp# *DeliteOp€*(
+a/DeliteOp#`<init>`(). €@*<init>€*
+a/DeliteOp#[B]	*B€*.
+a/DeliteCollection# *DeliteCollection€*0
+a/DeliteCollection#`<init>`(). €@*<init>€* 
+a/DeliteCollection#[A]	*A€*
+a/Exp# *Exp€*#
+a/Exp#`<init>`(). €@*<init>€*
+	a/Exp#[T]	*T€*
+a/Exp#Type(). *Type€*"
+a/DeliteOpMap#*DeliteOpMap€*+
+a/DeliteOpMap#`<init>`(). €@*<init>€*
+a/DeliteOpMap#[A]	*A€*
+a/DeliteOpMap#[B]	*B€*
+a/DeliteOpMap#[C]	*C€*
+a/DeliteOpMap#in. „*in€*#
+a/DeliteOpMap#func. „*func€*%
+a/DeliteOpMap#alloc. „*alloc€*
+a/Test.
+ *Test€*
+a/Test.f().*f€*
+a/Test.f().(x)*x€*
+local0 €*map€*
+b/Test.
+ *Test€*
+b/Test.f().*f€*
+b/Test.f().(x)*x€*
+local1 €*map€*
+b/DeliteOp# *DeliteOp€*(
+b/DeliteOp#`<init>`(). €@*<init>€*
+b/DeliteOp#[B]	*B€*.
+b/DeliteCollection# *DeliteCollection€*0
+b/DeliteCollection#`<init>`(). €@*<init>€* 
+b/DeliteCollection#[A]	*A€*
+b/Exp# *Exp€*#
+b/Exp#`<init>`(). €@*<init>€*
+	b/Exp#[T]	*T€*
+b/Exp#Type(). *Type€*"
+b/DeliteOpMap#*DeliteOpMap€*+
+b/DeliteOpMap#`<init>`(). €@*<init>€*
+b/DeliteOpMap#[A]	*A€*
+b/DeliteOpMap#[B]	*B€*
+b/DeliteOpMap#[C]	*C€*
+b/DeliteOpMap#in. „*in€*#
+b/DeliteOpMap#func. „*func€*%
+b/DeliteOpMap#alloc. „*alloc€2
+ 	a/2
+ a/DeliteOp#2$
+ a/DeliteOp#`<init>`().2
+ a/DeliteOp#[B]2!
+ !a/DeliteCollection#2,
+! !a/DeliteCollection#`<init>`().2$
+" #a/DeliteCollection#[A]2
+ a/Exp#2
+ a/Exp#`<init>`().2
+ 	a/Exp#[T]2
+ "a/Exp#Type().2
+$ %	a/Exp#[T]2
+ a/DeliteOpMap#2'
+ a/DeliteOpMap#`<init>`().2
+= Ea/DeliteOp#2
+F Ga/DeliteOpMap#[C]2
+H Ia/DeliteOpMap#[B]2
+ a/DeliteOpMap#[A]2
+ a/DeliteOpMap#[B]2
+ a/DeliteOpMap#[C]2
+ 
+a/DeliteOpMap#in.2
+ a/Exp#2
+ a/DeliteOpMap#[C]2
+ a/DeliteOpMap#[A]2!
+ a/DeliteOpMap#func.2
+ a/Exp#2
+ a/DeliteOpMap#[B]2"
+ a/DeliteOpMap#alloc.2
+ a/Exp#2
+ a/DeliteOpMap#[C]2
+ a/DeliteOpMap#[B]2
+	 a/Test.2
+ 	a/Test.f().2
+
+ a/Test.f().(x)2
+ a/DeliteOp#2
+ a/Test.f().(x)2
+ local02
+ a/DeliteOpMap#2
+0 4a/Exp#Type().2"
+* /a/DeliteOpMap#alloc.2
+& )local02
+ 	b/2
+	 b/Test.2
+ 	b/Test.f().2
+
+ b/Test.f().(x)2
+ b/DeliteOp#2
+ b/Test.f().(x)2
+ local12
+ b/DeliteOpMap#2
+0 4b/Exp#Type().2"
+* /b/DeliteOpMap#alloc.2
+& )local12
+ b/DeliteOp#2$
+ b/DeliteOp#`<init>`().2
+ b/DeliteOp#[B]2!
+ !b/DeliteCollection#2,
+! !b/DeliteCollection#`<init>`().2$
+" #b/DeliteCollection#[A]2
+ b/Exp#2
+ b/Exp#`<init>`().2
+ 	b/Exp#[T]2
+ "b/Exp#Type().2
+$ %	b/Exp#[T]2
+ b/DeliteOpMap#2'
+ b/DeliteOpMap#`<init>`().2
+= Eb/DeliteOp#2
+F Gb/DeliteOpMap#[C]2
+H Ib/DeliteOpMap#[B]2
+ b/DeliteOpMap#[A]2
+ b/DeliteOpMap#[B]2
+ b/DeliteOpMap#[C]2
+ 
+b/DeliteOpMap#in.2
+ b/Exp#2
+ b/DeliteOpMap#[C]2
+ b/DeliteOpMap#[A]2!
+ b/DeliteOpMap#func.2
+ b/Exp#2
+ b/DeliteOpMap#[B]2"
+   b/DeliteOpMap#alloc.2
+   b/Exp#2
+   b/DeliteOpMap#[C]2
+   b/DeliteOpMap#[B]PZ FDD11EB1F1022184806FF3949FD9D30A

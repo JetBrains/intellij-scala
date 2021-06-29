@@ -1,0 +1,65 @@
+
+≠+tests/pos/pseudo-thistype-constraints.scala*
+_empty_/Test.
+ *TestÄ*#
+_empty_/Test.Expr# îÄ*ExprÄ*/
+_empty_/Test.Expr#`<init>`(). Ä@*<init>Ä*"
+_empty_/Test.Expr#[T]	 Ä*TÄ*&
+_empty_/Test.Expr#eval().*evalÄ*
+local0*goÄ*
+local1	*TTÄ*
+local2*selfÄ*
+local3 Ä*bÄ*!
+_empty_/Test.Expr.
+ *ExprÄ*.
+_empty_/Test.Expr.BoolLit# àÅ*BoolLitÄ*7
+%_empty_/Test.Expr.BoolLit#`<init>`(). Ä@*<init>Ä*5
+(_empty_/Test.Expr.BoolLit#`<init>`().(b) Ä*bÄ*)
+_empty_/Test.Expr.BoolLit#b. Ä*bÄ*.
+!_empty_/Test.Expr.BoolLit#copy().*copyÄ*.
+$_empty_/Test.Expr.BoolLit#copy().(b)*bÄ*B
++_empty_/Test.Expr.BoolLit#copy$default$1().*copy$default$1Ä*4
+$_empty_/Test.Expr.BoolLit#ordinal().*ordinalÄ**
+_empty_/Test.Expr.BoolLit#_1().*_1Ä*,
+_empty_/Test.Expr.BoolLit.
+ *BoolLitÄ*0
+"_empty_/Test.Expr.BoolLit.apply().*applyÄ*/
+%_empty_/Test.Expr.BoolLit.apply().(b)*bÄ*4
+$_empty_/Test.Expr.BoolLit.unapply().*unapplyÄ*5
+)_empty_/Test.Expr.BoolLit.unapply().(x$1)*x$1Ä*6
+%_empty_/Test.Expr.BoolLit.toString().*toStringÄ*4
+ _empty_/Test.Expr.fromOrdinal().*fromOrdinalÄ*9
+)_empty_/Test.Expr.fromOrdinal().(ordinal)*ordinalÄ2
+ _empty_/Test.2 
+ _empty_/Test.Expr#2+
+ _empty_/Test.Expr#`<init>`().2#
+ _empty_/Test.Expr#[T]2'
+ _empty_/Test.Expr#eval().2#
+ _empty_/Test.Expr#[T]2
+
+ local02
+ local12
+ local22
+! "
+scala/`&`#2 
+# '_empty_/Test.Expr#2
+( *local12
+. 0local12
+3 7local222
+ $_empty_/Test.Expr.BoolLit.unapply().2(
+ _empty_/Test.Expr.BoolLit.2
+ local32
+ local32
+ local02 
+ _empty_/Test.Expr.2(
+	 _empty_/Test.Expr.BoolLit#23
+ %_empty_/Test.Expr.BoolLit#`<init>`().2
+ scala/Boolean#2+
+2 2_empty_/Test.Expr#`<init>`().2 
+% )_empty_/Test.Expr#2
+* 1scala/Boolean#2*
+ _empty_/Test.Expr.BoolLit#b.2/
+ !_empty_/Test.Expr.BoolLit#copy().2-
+ _empty_/Test.Expr.BoolLit#_1().2(
+	 	_empty_/Test.Expr.BoolLit.20
+ "_empty_/Test.Expr.BoolLit.apply().PZ F6D7E2C37A32453C4ED4493ACFA12D67

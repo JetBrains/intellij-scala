@@ -1,0 +1,32 @@
+
+¶tests/pos/t5892.scala*
+_empty_/foo#*foo€*)
+_empty_/foo#`<init>`(). €@*<init>€*$
+_empty_/foo#`<init>`().(a)*a€*
+_empty_/foo#a. €*a€*
+
+_empty_/o.
+ *o€*
+_empty_/o.i2s().  *i2s€*
+_empty_/o.i2s().(i)*i€* 
+_empty_/o.blerg().*blerg€2
+ 	_empty_/foo#2!
+	 	_empty_/foo#`<init>`().2
+ scala/Predef.String#2,
+( 8"scala/annotation/StaticAnnotation#2
+ 'scala/annotation/2
+
+ _empty_/foo#a.2
+ 
+_empty_/o.2
+ _empty_/o.i2s().2!
+ _empty_/o.i2s().(i)2
+ 
+scala/Int#2"
+ "scala/Predef.String#2
+ _empty_/foo#2
+ _empty_/o.i2s().2"
+
+ scala/Predef.String#2 
+ _empty_/o.blerg().2
+ !scala/Unit#PZ 290AB1F58EF97B9AC295C1FA1D2D744E

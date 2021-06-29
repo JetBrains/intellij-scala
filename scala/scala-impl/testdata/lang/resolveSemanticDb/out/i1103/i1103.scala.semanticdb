@@ -1,0 +1,38 @@
+
+ètests/pos/i1103.scala*
+_empty_/Sys#*Sys€*)
+_empty_/Sys#`<init>`(). €@*<init>€*
+_empty_/Sys#[S]	*S€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo#t. €*t€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#foo().[A]	*A€*
+_empty_/Foo#foo().(x)*x€*2
+_empty_/Foo#foo$default$1().*foo$default$1€*)
+_empty_/Foo#foo$default$1().[A]	*A€2
+ 	_empty_/Sys#2!
+	 	_empty_/Sys#`<init>`().2
+
+ _empty_/Sys#[S]2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ _empty_/Foo#t.2
+	 
+_empty_/Foo#[T]2#
+ scala/Predef.`???`().2 
+ 	_empty_/Foo#foo().2#
+
+ _empty_/Foo#foo().[A]2
+ _empty_/Sys#2#
+ _empty_/Foo#foo().[A]2#
+ _empty_/Foo#foo().(x)2#
+ _empty_/Foo#foo().[A]2#
+# $_empty_/Foo#foo().(x)2-
+
+ _empty_/Foo#foo$default$1().[A]2-
+ _empty_/Foo#foo$default$1().[A]2
+ _empty_/Foo#t.PZ 135979923B2DABEBEB8872B8EE571C51

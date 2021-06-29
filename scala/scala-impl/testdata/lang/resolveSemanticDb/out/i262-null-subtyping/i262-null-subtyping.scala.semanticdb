@@ -1,0 +1,83 @@
+
+ñ#tests/pos/i262-null-subtyping.scala*
+
+_empty_/O.
+ *O€*
+_empty_/O.Base#*Base€*,
+_empty_/O.Base#`<init>`(). €@*<init>€*
+_empty_/O.Base#T#*T€*
+_empty_/O.a. €*a€*
+local0*T€*
+_empty_/O.b. €*b€*
+local1*T€*
+_empty_/O.c. €*c€*
+local2*T€*
+_empty_/O.A#*A€*)
+_empty_/O.A#`<init>`(). €@*<init>€*
+_empty_/O.B#*B€*)
+_empty_/O.B#`<init>`(). €@*<init>€*
+_empty_/O.d. €*d€*
+_empty_/O.e. €*e€*
+_empty_/O.f. €*f€*
+local3 *toString€*
+_empty_/O.g. €*g€*
+local4 *toString€2
+ 
+_empty_/O.2
+ _empty_/O.Base#2(
+ _empty_/O.Base#`<init>`().2
+ 
+scala/Any#2
+  !_empty_/O.Base#T#2
+ _empty_/O.a.2
+	 _empty_/O.Base#2
+ local02
+ _empty_/O.b.2
+	 
+scala/Any#2
+ _empty_/O.Base#2
+ local12
+ _empty_/O.c.2
+	 scala/AnyRef#2
+ _empty_/O.Base#2
+! "local22
+ 	_empty_/O.A#2%
+ _empty_/O.A#`<init>`().2
+ 	_empty_/O.B#2%
+ _empty_/O.B#`<init>`().2
+
+
+ _empty_/O.d.2
+
+
+ 
+scala/`&`#2
+
+	
+ 
+_empty_/O.A#2
+
+
+ _empty_/O.B#2
+ _empty_/O.e.2
+ 
+scala/`|`#2
+	 
+_empty_/O.A#2
+ _empty_/O.B#2
+ _empty_/O.f.2
+ 
+scala/`&`#2
+
+ _empty_/O.A#2
+ _empty_/O.B#2
+ local32"
+! 'scala/Predef.String#2
+ _empty_/O.g.2
+ 
+scala/`|`#2
+
+ _empty_/O.A#2
+ _empty_/O.B#2
+ local42"
+! 'scala/Predef.String#PZ 0A57614B616D1DE95D5D33521A6DD930

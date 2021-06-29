@@ -1,0 +1,16 @@
+
+Ètests/pos/i2166.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+( )_empty_/Test.f().PZ F92439582823F378DF59AD7D83B69CE5

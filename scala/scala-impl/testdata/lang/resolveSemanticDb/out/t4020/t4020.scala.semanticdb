@@ -1,0 +1,93 @@
+
+­tests/pos/t4020.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#Foo# *Foo€*+
+_empty_/A#Foo#`<init>`(). €@*<init>€*
+_empty_/a1.
+ *a1€* 
+_empty_/a1.Foo1# €*Foo1€*-
+_empty_/a1.Foo1#`<init>`(). €@*<init>€*+
+_empty_/a1.Foo1#`<init>`().(i) €*i€*
+_empty_/a1.Foo1#i. €*i€*$
+_empty_/a1.Foo1#copy().*copy€*$
+_empty_/a1.Foo1#copy().(i)*i€*8
+!_empty_/a1.Foo1#copy$default$1().*copy$default$1€* 
+_empty_/a1.Foo1#_1().*_1€*
+_empty_/a1.Foo1.
+ *Foo1€*&
+_empty_/a1.Foo1.apply().*apply€*%
+_empty_/a1.Foo1.apply().(i)*i€**
+_empty_/a1.Foo1.unapply().*unapply€*+
+_empty_/a1.Foo1.unapply().(x$1)*x$1€*,
+_empty_/a1.Foo1.toString().*toString€*
+_empty_/a2.
+ *a2€* 
+_empty_/a2.Foo2# €*Foo2€*-
+_empty_/a2.Foo2#`<init>`(). €@*<init>€*+
+_empty_/a2.Foo2#`<init>`().(i) €*i€*
+_empty_/a2.Foo2#i. €*i€*$
+_empty_/a2.Foo2#copy().*copy€*$
+_empty_/a2.Foo2#copy().(i)*i€*8
+!_empty_/a2.Foo2#copy$default$1().*copy$default$1€* 
+_empty_/a2.Foo2#_1().*_1€*
+_empty_/a2.Foo2.
+ *Foo2€*&
+_empty_/a2.Foo2.apply().*apply€*%
+_empty_/a2.Foo2.apply().(i)*i€**
+_empty_/a2.Foo2.unapply().*unapply€*+
+_empty_/a2.Foo2.unapply().(x$1)*x$1€*,
+_empty_/a2.Foo2.toString().*toString€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#mthd().*mthd€*"
+_empty_/B#mthd().(foo)*foo€*
+local0 €*i€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#Foo#2'
+ _empty_/A#Foo#`<init>`().2
+ 	_empty_/a1.2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/a1.Foo1#2)
+ _empty_/a1.Foo1#`<init>`().2
+ 
+scala/Int#2
+$ '_empty_/A#Foo#2 
+ _empty_/a1.Foo1#i.2%
+ _empty_/a1.Foo1#copy().2#
+ _empty_/a1.Foo1#_1().2
+ _empty_/a1.Foo1.2&
+ _empty_/a1.Foo1.apply().2
+ 	_empty_/a2.2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#2
+		 _empty_/a2.Foo2#2)
+		 _empty_/a2.Foo2#`<init>`().2
+		 
+scala/Int#2
+	$	 '_empty_/A#Foo#2 
+		 _empty_/a2.Foo2#i.2%
+		 _empty_/a2.Foo2#copy().2#
+		 _empty_/a2.Foo2#_1().2
+		 _empty_/a2.Foo2.2&
+		 _empty_/a2.Foo2.apply().2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ _empty_/B#mthd().2$
+ _empty_/B#mthd().(foo)2
+ _empty_/A#Foo#2
+ _empty_/a2.2$
+ _empty_/B#mthd().(foo)2(
+ _empty_/a2.Foo2.unapply().2
+ _empty_/a2.Foo2.2
+ _empty_/a2.2
+ local02
+  local0PZ 3C29CCCC8E9F5320D3D843727CF3F316

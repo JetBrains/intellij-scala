@@ -1,0 +1,24 @@
+
+ûtests/pos/t7853.scala*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*
+_empty_/S#T#*T€*)
+_empty_/S#T#`<init>`(). €@*<init>€*
+_empty_/S#T#U#*U€*+
+_empty_/S#T#U#`<init>`(). €@*<init>€*
+_empty_/S#T#U#V#*V€*-
+_empty_/S#T#U#V#`<init>`(). €@*<init>€2
+ 
+_empty_/S#2#
+ _empty_/S#`<init>`().2
+ 	_empty_/S#T#2%
+ _empty_/S#T#`<init>`().2
+
+ 
+scala/Any#2
+
+ _empty_/S#T#U#2'
+ _empty_/S#T#U#`<init>`().2
+ _empty_/S#T#U#V#2)
+ _empty_/S#T#U#V#`<init>`().PZ AEA437F1F0D665333EB9A42C69F91E0C

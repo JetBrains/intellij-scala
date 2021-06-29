@@ -1,0 +1,67 @@
+
+®tests/pos/param-depmeth.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#T#*T€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().(x)*x€*
+_empty_/Test.f().(y)*y€*
+_empty_/Test.c. €*c€*
+local0 *$anon€*
+local1*T€*
+_empty_/Test.c2. €*c2€*
+local2 *$anon€*
+local3*T€*
+_empty_/Test.d. €*d€*
+local4*T€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.C#T#2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().(x)2
+ _empty_/Test.C#2"
+ _empty_/Test.f().(y)2
+ _empty_/Test.C#T#2"
+ _empty_/Test.f().(x)2
+ _empty_/Test.C#T#2"
+ _empty_/Test.f().(x)2"
+ _empty_/Test.f().(y)2
+ _empty_/Test.c.2
+
+ 
+local02(
+ _empty_/Test.C#`<init>`().2
+ _empty_/Test.C#2
+ local12"
+ !scala/Predef.String#2
+ _empty_/Test.c2.2
+ _empty_/Test.c.2
+		 _empty_/Test.f().2
+		 _empty_/Test.c.2
+
+
+ _empty_/Test.f().2
+
+
+ local22(
+
+	
+ 	_empty_/Test.C#`<init>`().2
+
+
+ 	_empty_/Test.C#2
+
+
+ local32"
+
+
+ scala/Predef.String#2
+ _empty_/Test.d.2"
+! "scala/Predef.String#2
+
+ _empty_/Test.C#2
+ local42"
+ scala/Predef.String#PZ 7DD333F3798119D18559119DE71CE108

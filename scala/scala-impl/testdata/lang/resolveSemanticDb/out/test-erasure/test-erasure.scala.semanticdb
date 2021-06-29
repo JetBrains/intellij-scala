@@ -1,0 +1,40 @@
+
+
+tests/pos/test-erasure.scala*"
+_empty_/erasure.
+ *erasure€*
+_empty_/erasure.C#*C€*/
+_empty_/erasure.C#`<init>`(). €@*<init>€**
+ _empty_/erasure.C#`<init>`().(x)*x€*!
+_empty_/erasure.C#x. €*x€*.
+_empty_/erasure.C#`<init>`(+1).*<init>€*&
+_empty_/erasure.const().*const€*%
+_empty_/erasure.const().[T]	*T€*%
+_empty_/erasure.const().(x)*x€*%
+_empty_/erasure.const().(y)*y€*
+_empty_/erasure.x. €*x€*
+_empty_/erasure.y. €*y€2
+ _empty_/erasure.2 
+ 	_empty_/erasure.C#2+
+	 	_empty_/erasure.C#`<init>`().2
+ 
+scala/Int#2"
+
+ _empty_/erasure.C#x.2-
+ _empty_/erasure.C#`<init>`(+1).2+
+ _empty_/erasure.C#`<init>`().2
+ 
+java/lang/2
+	 java/2&
+		 _empty_/erasure.const().2)
+		 _empty_/erasure.const().[T]2)
+		 _empty_/erasure.const().(x)2)
+		 _empty_/erasure.const().[T]2)
+		 _empty_/erasure.const().(y)2)
+		 _empty_/erasure.const().[T]2)
+		 _empty_/erasure.const().(x)2 
+ _empty_/erasure.x.2 
+ _empty_/erasure.y.2&
+
+ _empty_/erasure.const().2 
+ _empty_/erasure.x.PZ A3B5A0E2F17939CF544AED8CC3C0C281

@@ -1,0 +1,62 @@
+
+¢tests/pos/this-types.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€* 
+_empty_/A#A_This#*A_This€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€* 
+_empty_/B#A_This#*A_This€* 
+_empty_/B#B_This#*B_This€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€* 
+_empty_/C#A_This#*A_This€* 
+_empty_/C#C_This#*C_This€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€* 
+_empty_/D#B_This#*B_This€* 
+_empty_/D#C_This#*C_This€* 
+_empty_/D#D_This#*D_This€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#A_This#2
+ 
+_empty_/A#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#A_This#2
+ _empty_/B#B_This#2
+ _empty_/B#B_This#2
+ 
+_empty_/B#2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/C#A_This#2
+ _empty_/C#C_This#2
+		 _empty_/C#C_This#2
+		 
+_empty_/C#2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 
+_empty_/B#2
+ 
+_empty_/C#2
+ _empty_/D#B_This#2
+ _empty_/D#D_This#2
+ _empty_/D#C_This#2
+ _empty_/D#D_This#2
+ _empty_/D#D_This#2
+ 
+_empty_/D#PZ 9B1CB9174B0A73C37E3C4C7F3BADD961

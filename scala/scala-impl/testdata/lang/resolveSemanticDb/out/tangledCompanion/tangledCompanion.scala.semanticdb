@@ -1,0 +1,67 @@
+
+î tests/pos/tangledCompanion.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*
+_empty_/Coll.
+ *Coll€*5
+_empty_/Coll.IterableFactory#*IterableFactory€*:
+(_empty_/Coll.IterableFactory#`<init>`(). €@*<init>€*-
+ _empty_/Coll.IterableFactory#[C]	 €*C€*'
+_empty_/Coll.LazyList#*LazyList€*3
+!_empty_/Coll.LazyList#`<init>`(). €@*<init>€*4
+'_empty_/Coll.LazyList#`<init>`().(expr)*expr€*&
+_empty_/Coll.LazyList#[A]	 €*A€*+
+_empty_/Coll.LazyList#expr. €*expr€*)
+_empty_/Coll.LazyList.
+ *LazyList€*2
+ _empty_/Coll.LazyList.Evaluated#*	Evaluated€*0
+#_empty_/Coll.LazyList.Evaluated#[A]	 €*A€*,
+_empty_/Coll.LazyList.Empty.
+ *Empty€**
+_empty_/Coll.LazyList.`#::`.
+ *#::€*6
+&_empty_/Coll.LazyList.`#::`.unapply().*unapply€*3
+)_empty_/Coll.LazyList.`#::`.unapply().[A]	*A€*3
+)_empty_/Coll.LazyList.`#::`.unapply().(s)*s€2
+ _empty_/Test.2
+	 _empty_/Coll.2*
+ _empty_/Coll.LazyList.`#::`.2$
+	 _empty_/Coll.LazyList.2
+ _empty_/Test.xs.2*
+ _empty_/Coll.LazyList.Empty.2$
+ _empty_/Coll.LazyList.2
+		 _empty_/Coll.2+
+ _empty_/Coll.IterableFactory#26
+ (_empty_/Coll.IterableFactory#`<init>`().2.
+  _empty_/Coll.IterableFactory#[C]2$
+ _empty_/Coll.LazyList#2/
+ !_empty_/Coll.LazyList#`<init>`().2.
+' 0 _empty_/Coll.LazyList.Evaluated#2$
+ &_empty_/Coll.LazyList.2'
+1 2_empty_/Coll.LazyList#[A]2'
+ _empty_/Coll.LazyList#[A]2)
+ _empty_/Coll.LazyList#expr.2$
+	 _empty_/Coll.LazyList.2+
+ )_empty_/Coll.IterableFactory#2.
+	  _empty_/Coll.LazyList.Evaluated#21
+ #_empty_/Coll.LazyList.Evaluated#[A]2
+ scala/Option#21
+! "#_empty_/Coll.LazyList.Evaluated#[A]2$
+$ ,_empty_/Coll.LazyList#21
+- .#_empty_/Coll.LazyList.Evaluated#[A]2*
+ _empty_/Coll.LazyList.Empty.2/
+* *!_empty_/Coll.LazyList#`<init>`().2$
+ !_empty_/Coll.LazyList#2
+" )scala/Nothing#2
++ /scala/None.2*
+ _empty_/Coll.LazyList.`#::`.24
+
+ &_empty_/Coll.LazyList.`#::`.unapply().27
+ )_empty_/Coll.LazyList.`#::`.unapply().[A]27
+ )_empty_/Coll.LazyList.`#::`.unapply().(s)2$
+  _empty_/Coll.LazyList#27
+! ")_empty_/Coll.LazyList.`#::`.unapply().[A]2.
+& / _empty_/Coll.LazyList.Evaluated#27
+0 1)_empty_/Coll.LazyList.`#::`.unapply().[A]2#
+5 8scala/Predef.`???`().PZ 9ABFCAA0C8AE864A662C66DFBB079D13

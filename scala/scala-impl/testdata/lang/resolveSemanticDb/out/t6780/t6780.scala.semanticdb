@@ -1,0 +1,69 @@
+
+êtests/pos/t6780.scala*
+
+_empty_/O.
+ *OÄ*
+_empty_/O.i().  *iÄ*
+_empty_/Foo#*FooÄ*)
+_empty_/Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Foo#v1. §*v1Ä*
+_empty_/Foo#d1(). $*d1Ä*
+_empty_/Foo#v2. Ñ*v2Ä*
+_empty_/Foo#v3. §*v3Ä*
+_empty_/Bar1#*Bar1Ä**
+_empty_/Bar1#`<init>`(). Ä@*<init>Ä*
+_empty_/Bar1#v1. †*v1Ä*
+_empty_/Bar1#d1().*d1Ä*
+_empty_/Bar1#v2. †*v2Ä*
+_empty_/Bar1#v3. †*v3Ä2
+ 
+_empty_/O.2
+ _empty_/O.i().2
+ 
+scala/Int#2
+ 
+_empty_/O.2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#v1.2
+ 
+scala/Any#2
+ _empty_/Foo#d1().2
+ 
+scala/Any#2
+		 _empty_/Foo#v2.2
+		 
+scala/Any#2
+
+
+ _empty_/Foo#v3.2
+
+
+ 
+scala/Any#2
+ 
+_empty_/Bar1#2&
+ _empty_/Bar1#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Bar1#v1.2(
+ $scala/Predef.implicitly().2
+% (
+scala/Int#2
+) )_empty_/O.i().2 
+ _empty_/Bar1#d1().2(
+ $scala/Predef.implicitly().2
+% (
+scala/Int#2
+) )_empty_/O.i().2
+ _empty_/Bar1#v2.2(
+ $scala/Predef.implicitly().2
+% (
+scala/Int#2
+) )_empty_/O.i().2
+ _empty_/Bar1#v3.2
+ 
+scala/Any#2(
+ $scala/Predef.implicitly().2
+% (
+scala/Int#2
+) )_empty_/O.i().PZ 3FACC7DC28F6F6460EB432291D1A4C64

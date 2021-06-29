@@ -1,0 +1,37 @@
+
+Œ
+tests/pos/i1868.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*%
+_empty_/Test#`<init>`().(x)*x€*
+_empty_/Test#[X]	*X€*
+_empty_/Test#x. €*x€*?
+#_empty_/Test#checkSpecialization().*checkSpecialization€*0
+&_empty_/Test#checkSpecialization().[Y]	*Y€*0
+&_empty_/Test#checkSpecialization().(y)*y€*
+local0*specMe€*
+local1	*T€*?
+#_empty_/Test#checkNameStartsWith().*checkNameStartsWith€*:
++_empty_/Test#checkNameStartsWith().(prefix)*prefix€2
+ 
+_empty_/Test#2"
+
+ 
+_empty_/Test#`<init>`().2
+ _empty_/Test#[X]2
+ _empty_/Test#[X]2
+ _empty_/Test#x.21
+ #_empty_/Test#checkSpecialization().24
+ &_empty_/Test#checkSpecialization().[Y]24
+ &_empty_/Test#checkSpecialization().(y)24
+  !&_empty_/Test#checkSpecialization().[Y]2
+$ %_empty_/Test#[X]2
+ local02 
+ scala/specialized#2
+ local12
+ _empty_/Test#x.21
+ !#_empty_/Test#checkNameStartsWith().29
+" (+_empty_/Test#checkNameStartsWith().(prefix)2"
+* 0scala/Predef.String#2-
+D Djava/lang/Exception#`<init>`().2&
+; Dscala/package.Exception#PZ A20B24FB1458F15B993AB3E1072421A5

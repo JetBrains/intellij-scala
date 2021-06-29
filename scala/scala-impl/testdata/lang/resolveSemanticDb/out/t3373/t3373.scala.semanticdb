@@ -1,0 +1,46 @@
+
+Œtests/pos/t3373.scala*
+_empty_/Entry#*Entry€*+
+_empty_/Entry#`<init>`(). €@*<init>€*,
+_empty_/Entry#`<init>`().(time)*time€*#
+_empty_/Entry#time. €*time€*(
+_empty_/Entry#getTime().*getTime€*
+_empty_/Test.
+ *Test€*/
+_empty_/Test.extractTime().*extractTime€*(
+_empty_/Test.extractTime().(e)*e€*2
+_empty_/Test.orderEntries.  *orderEntries€*
+local0 *$anon€*
+local1*compare€*
+local2*first€*
+local3*second€2
+ _empty_/Entry#2#
+ _empty_/Entry#`<init>`().2
+ scala/Long#2
+ _empty_/Entry#time.2&
+ _empty_/Entry#getTime().2
+ scala/Long#2!
+ _empty_/Entry#time.2
+ _empty_/Test.2)
+ _empty_/Test.extractTime().2,
+ _empty_/Test.extractTime().(e)2
+ _empty_/Entry#2&
+  '_empty_/Entry#getTime().2,
+ _empty_/Test.extractTime().(e)2(
+ _empty_/Test.orderEntries.2%
+ %scala/package.Ordering#2
+& +_empty_/Entry#2
+/ /local02%
+3 ;scala/package.Ordering#2
+< A_empty_/Entry#2
+ local12
+ local22
+ _empty_/Entry#2
+ #local32
+% *_empty_/Entry#23
+A H%scala/runtime/OrderedProxy#compare().27
+. .)scala/LowPriorityImplicits#longWrapper().2)
+. 9_empty_/Test.extractTime().2
+: ?local22)
+I T_empty_/Test.extractTime().2
+U [local3PZ 67E672536B07639B31AA8AC4B1AAE830

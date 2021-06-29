@@ -1,0 +1,128 @@
+
+’'tests/pos/i9844.scala*
+_empty_/test1.
+ *test1€*
+_empty_/test1.Foo#*Foo€*/
+_empty_/test1.Foo#`<init>`(). €@*<init>€*
+_empty_/test1.Foo#[A]	*A€*
+_empty_/test1.Baz#*Baz€*/
+_empty_/test1.Baz#`<init>`(). €@*<init>€*
+_empty_/test1.Baz#[A]	*A€*"
+_empty_/test1.Baz#Bar#*Bar€*3
+!_empty_/test1.Baz#Bar#`<init>`(). €@*<init>€**
+_empty_/test1.Baz#Bar#bar(). *bar€*)
+_empty_/test1.Baz#Bar#bar().(a)*a€*
+_empty_/test2.
+ *test2€*
+_empty_/test2.Foo#*Foo€*/
+_empty_/test2.Foo#`<init>`(). €@*<init>€*#
+_empty_/test2.Foo#f(). €*f€*)
+_empty_/test2.Foo#`f_=`(). €*f_=€*+
+_empty_/test2.Foo#`f_=`().(x$1)*x$1€*
+_empty_/test2.Baz#*Baz€*/
+_empty_/test2.Baz#`<init>`(). €@*<init>€*"
+_empty_/test2.Baz#Bam#*Bam€*3
+!_empty_/test2.Baz#Bam#`<init>`(). €@*<init>€*%
+_empty_/test2.Baz#Bam#f. €*f€*"
+_empty_/test2.Baz#Bar#*Bar€*3
+!_empty_/test2.Baz#Bar#`<init>`(). €@*<init>€*%
+_empty_/test2.Baz#Bar#g. €*g€*'
+_empty_/test2.Baz#Bar#g1. €*g1€*
+_empty_/test3.
+ *test3€*4
+_empty_/test3.DetSkipOctree.
+ *DetSkipOctree€*0
+!_empty_/test3.DetSkipOctree.Leaf# *Leaf€*>
+,_empty_/test3.DetSkipOctree.Leaf#`<init>`(). €@*<init>€*0
+%_empty_/test3.DetSkipOctree.Leaf#[PL]	*PL€*4
+#_empty_/test3.DetSkipOctree.Branch# *Branch€*@
+._empty_/test3.DetSkipOctree.Branch#`<init>`(). €@*<init>€*2
+'_empty_/test3.DetSkipOctree.Branch#[PL]	*PL€*2
+_empty_/test3.DetSkipOctree#*DetSkipOctree€*9
+'_empty_/test3.DetSkipOctree#`<init>`(). €@*<init>€*+
+ _empty_/test3.DetSkipOctree#[PL]	*PL€* 
+_empty_/test3.Impl#*Impl€*0
+_empty_/test3.Impl#`<init>`(). €@*<init>€*"
+_empty_/test3.Impl#[PL]	*PL€*'
+_empty_/test3.Impl#Leaf# *Leaf€*9
+"_empty_/test3.Impl#LeftBranchImpl#*LeftBranchImpl€*?
+-_empty_/test3.Impl#LeftBranchImpl#`<init>`(). €@*<init>€*B
+/_empty_/test3.Impl#LeftBranchImpl#demoteLeaf().*
+demoteLeaf€*D
+6_empty_/test3.Impl#LeftBranchImpl#demoteLeaf().(point)*point€*B
+5_empty_/test3.Impl#LeftBranchImpl#demoteLeaf().(leaf)*leaf€2
+ _empty_/test1.2 
+ _empty_/test1.Foo#2+
+ _empty_/test1.Foo#`<init>`().2#
+ _empty_/test1.Foo#[A]2 
+ _empty_/test1.Baz#2+
+ _empty_/test1.Baz#`<init>`().2#
+ _empty_/test1.Baz#[A]2$
+
+ _empty_/test1.Baz#Bar#2/
+ !_empty_/test1.Baz#Bar#`<init>`().2 
+ _empty_/test1.Foo#2#
+ _empty_/test1.Baz#[A]2*
+
+ _empty_/test1.Baz#Bar#bar().2-
+ _empty_/test1.Baz#Bar#bar().(a)2#
+ _empty_/test1.Baz#[A]2
+ scala/Unit#2
+
+
+ _empty_/test2.2 
+ _empty_/test2.Foo#2+
+ _empty_/test2.Foo#`<init>`().2$
+ _empty_/test2.Foo#f().2(
+ _empty_/test2.Foo#`f_=`().2 
+ _empty_/test2.Baz#2+
+ _empty_/test2.Baz#`<init>`().2$
+
+ _empty_/test2.Baz#Bam#2/
+ !_empty_/test2.Baz#Bam#`<init>`().2&
+
+ _empty_/test2.Baz#Bam#f.2$
+
+ _empty_/test2.Baz#Bar#2/
+ !_empty_/test2.Baz#Bar#`<init>`().2$
+ _empty_/test2.Baz#Bam#2 
+ _empty_/test2.Foo#2&
+ _empty_/test2.Baz#Bar#g.2&
+ _empty_/test2.Baz#Bam#f.2'
+ _empty_/test2.Baz#Bar#g1.2
+ 
+scala/Int#2&
+ _empty_/test2.Baz#Bar#g.2
+ _empty_/test3.2*
+	 _empty_/test3.DetSkipOctree.2/
+ !_empty_/test3.DetSkipOctree.Leaf#2:
+ ,_empty_/test3.DetSkipOctree.Leaf#`<init>`().23
+ %_empty_/test3.DetSkipOctree.Leaf#[PL]21
+ #_empty_/test3.DetSkipOctree.Branch#2<
+ ._empty_/test3.DetSkipOctree.Branch#`<init>`().25
+ '_empty_/test3.DetSkipOctree.Branch#[PL]2*
+ _empty_/test3.DetSkipOctree#25
+ '_empty_/test3.DetSkipOctree#`<init>`().2.
+  _empty_/test3.DetSkipOctree#[PL]2!
+   _empty_/test3.Impl#2,
+   _empty_/test3.Impl#`<init>`().2*
+   &_empty_/test3.DetSkipOctree#2%
+ '  )_empty_/test3.Impl#[PL]2%
+   _empty_/test3.Impl#[PL]2&
+!! _empty_/test3.Impl#Leaf#2/
+!$! (!_empty_/test3.DetSkipOctree.Leaf#2*
+!! #_empty_/test3.DetSkipOctree.2%
+!)! +_empty_/test3.Impl#[PL]20
+## ""_empty_/test3.Impl#LeftBranchImpl#2;
+$$ -_empty_/test3.Impl#LeftBranchImpl#`<init>`().21
+$$  #_empty_/test3.DetSkipOctree.Branch#2*
+$$ _empty_/test3.DetSkipOctree.2%
+$!$ #_empty_/test3.Impl#[PL]2=
+&
+& /_empty_/test3.Impl#LeftBranchImpl#demoteLeaf().2D
+&& 6_empty_/test3.Impl#LeftBranchImpl#demoteLeaf().(point)2%
+&& _empty_/test3.Impl#[PL]2C
+& & $5_empty_/test3.Impl#LeftBranchImpl#demoteLeaf().(leaf)2&
+&&& *_empty_/test3.Impl#Leaf#2
+&-& 1scala/Unit#2#
+&4& 7scala/Predef.`???`().PZ C9B52C060D05EB9A2F701A56D58D5FD5

@@ -1,0 +1,32 @@
+
+Ætests/pos/t3174.scala*
+_empty_/test.
+ *test€*%
+_empty_/test.method().*method€*
+local0*Foo€*
+local1
+ *Color€*
+local2
+ *Blue€*
+local3*Board€*
+local4 €*grid€2
+ _empty_/test.2$
+ _empty_/test.method().2
+ scala/Unit#2
+
+ local02*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2
+ local12
+ local22
+		 local32
+
+
+ local42
+
+
+ local52
+
+
+ local62
+ local0PZ 903AE241D056CC41D53408BDB126DB05

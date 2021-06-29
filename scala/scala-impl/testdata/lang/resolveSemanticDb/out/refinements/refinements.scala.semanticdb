@@ -1,0 +1,64 @@
+
+àtests/pos/refinements.scala*
+_empty_/TS#*TS€*(
+_empty_/TS#`<init>`(). €@*<init>€*
+_empty_/TS#TX#*TX€*
+_empty_/TT#*TT€*(
+_empty_/TT#`<init>`(). €@*<init>€*
+local0*self€*
+local1*TX€*
+_empty_/TT#TX#*TX€*
+_empty_/TT#lift().*lift€*
+_empty_/TT#lift().(x)*x€*
+_empty_/UU#*UU€*(
+_empty_/UU#`<init>`(). €@*<init>€*
+_empty_/UU#UX#*UX€*
+_empty_/UU#u. „*u€*
+_empty_/UU#x. „*x€*
+local2*UX€*
+_empty_/UU#y. €*y€*
+_empty_/UU#z. €*z€2
+ _empty_/TS#2 
+ _empty_/TS#`<init>`().2
+ _empty_/TS#TX#2
+ 
+scala/Int#2
+ _empty_/TT#2$
+ _empty_/TT#`<init>`().2
+ local02
+ local12
+  
+scala/Int#2
+ 	_empty_/TT#TX#2 
+ 
+_empty_/TT#lift().2#
+ _empty_/TT#lift().(x)2
+ 
+scala/Int#2
+ _empty_/TT#TX#2#
+ _empty_/TT#lift().(x)2
+ _empty_/UU#2$
+		 _empty_/UU#`<init>`().2
+		 	_empty_/UU#UX#2
+
+
+ _empty_/UU#u.2
+
+	
+ _empty_/UU#UX#2
+ _empty_/UU#x.2
+ 
+scala/`&`#2
+ local22
+! $
+scala/Int#2
+ _empty_/UU#y.2
+	 
+scala/Int#2
+ _empty_/UU#u.2
+ _empty_/UU#x.2
+ _empty_/UU#z.2
+ _empty_/UU#UX#2
+	 
+_empty_/UU#x.2
+ _empty_/UU#y.PZ 278500D794A5BECE67B7C07D04C1ABA6

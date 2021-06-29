@@ -1,0 +1,35 @@
+
+ñtests/pos/derives-obj.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[T]	*T€*
+
+_empty_/C.
+ *C€*$
+_empty_/C.derived().*derived€*!
+_empty_/C.derived().[T]	*T€*
+
+_empty_/X.
+ *X€*)
+_empty_/X.derived$C. à*	derived$C€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[T]2
+ 
+_empty_/C.2"
+ _empty_/C.derived().2%
+ _empty_/C.derived().[T]2
+ 
+_empty_/C#2%
+ _empty_/C.derived().[T]2#
+" %scala/Predef.`???`().2
+ 
+_empty_/X.2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ 
+_empty_/X.2"
+# #_empty_/C.derived().PZ 32743D78021A94849AA2FC13567DC7CF

@@ -1,0 +1,20 @@
+
+átests/pos/t3622/Test.scala*
+
+test/Test#*Test€*'
+test/Test#`<init>`(). €@*<init>€*4
+test/Test#doInBackground1().*doInBackground1€*/
+"test/Test#doInBackground1().(args)*args€2
+ test/2
+ 
+
+test/Test#2#
+ test/Test#`<init>`().2,
+ test/MyAsyncTask#`<init>`(+1).2
+ test/MyAsyncTask#2*
+ %test/Test#doInBackground1().2
+ test/20
+& *"test/Test#doInBackground1().(args)2
+, 1scala/Array#2"
+2 8scala/Predef.String#2"
+< Bscala/Predef.String#PZ E5EED5390F359652B0AB70130CDA2168

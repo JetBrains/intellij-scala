@@ -1,0 +1,44 @@
+
+Êtests/pos/tailcall/t6479.scala*<
+_empty_/TailrecAfterTryCatch.
+ *TailrecAfterTryCatch€*5
+%_empty_/TailrecAfterTryCatch.good1(). *good1€*
+local0 €*e€*5
+%_empty_/TailrecAfterTryCatch.good2(). *good2€*
+local1 €*e€*5
+%_empty_/TailrecAfterTryCatch.good3(). *good3€*
+local2 €*e€*1
+#_empty_/TailrecAfterTryCatch.bad(). *bad€*
+local3 €*e€2'
+ _empty_/TailrecAfterTryCatch.2'
+ scala/annotation/tailrec#2
+ scala/annotation/23
+ %_empty_/TailrecAfterTryCatch.good1().2
+ scala/Unit#2
+		 local02/
+		 (!java/lang/ClassNotFoundException#23
+ %_empty_/TailrecAfterTryCatch.good1().2'
+ scala/annotation/tailrec#2
+ scala/annotation/23
+ %_empty_/TailrecAfterTryCatch.good2().2
+ scala/Unit#23
+ %_empty_/TailrecAfterTryCatch.good2().2
+ local12/
+ (!java/lang/ClassNotFoundException#23
+ %_empty_/TailrecAfterTryCatch.good2().2'
+ scala/annotation/tailrec#2
+ scala/annotation/23
+ %_empty_/TailrecAfterTryCatch.good3().2
+ scala/Unit#23
+"" %_empty_/TailrecAfterTryCatch.good3().2
+$$ local22/
+$$ $!java/lang/ClassNotFoundException#23
+&& 	%_empty_/TailrecAfterTryCatch.good3().2'
+)) scala/annotation/tailrec#2
+)) scala/annotation/21
+** #_empty_/TailrecAfterTryCatch.bad().2
+** scala/Unit#21
+.. #_empty_/TailrecAfterTryCatch.bad().2
+00 local32/
+00 (!java/lang/ClassNotFoundException#21
+22 #_empty_/TailrecAfterTryCatch.bad().PZ EB28DBB9BB4ADCCDFB552AFAA4A0B4C4

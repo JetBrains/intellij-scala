@@ -1,0 +1,88 @@
+
+ƒ%tests/pos/implicit-match-nested.scala*@
+ _empty_/`implicit-match-nested`.
+ *implicit-match-nested€*/
+"_empty_/`implicit-match-nested`.A# €*A€*?
+-_empty_/`implicit-match-nested`.A#`<init>`(). €@*<init>€*/
+%_empty_/`implicit-match-nested`.A#[T]	*T€*6
+)_empty_/`implicit-match-nested`.A#copy().*copy€*6
+,_empty_/`implicit-match-nested`.A#copy().[T]	*T€*.
+"_empty_/`implicit-match-nested`.A.
+ *A€*8
+*_empty_/`implicit-match-nested`.A.apply().*apply€*7
+-_empty_/`implicit-match-nested`.A.apply().[T]	*T€*<
+,_empty_/`implicit-match-nested`.A.unapply().*unapply€*9
+/_empty_/`implicit-match-nested`.A.unapply().[T]	*T€*=
+1_empty_/`implicit-match-nested`.A.unapply().(x$1)*x$1€*>
+-_empty_/`implicit-match-nested`.A.toString().*toString€*/
+"_empty_/`implicit-match-nested`.B# €*B€*?
+-_empty_/`implicit-match-nested`.B#`<init>`(). €@*<init>€*/
+%_empty_/`implicit-match-nested`.B#[T]	*T€*6
+)_empty_/`implicit-match-nested`.B#copy().*copy€*6
+,_empty_/`implicit-match-nested`.B#copy().[T]	*T€*.
+"_empty_/`implicit-match-nested`.B.
+ *B€*8
+*_empty_/`implicit-match-nested`.B.apply().*apply€*7
+-_empty_/`implicit-match-nested`.B.apply().[T]	*T€*<
+,_empty_/`implicit-match-nested`.B.unapply().*unapply€*9
+/_empty_/`implicit-match-nested`.B.unapply().[T]	*T€*=
+1_empty_/`implicit-match-nested`.B.unapply().(x$1)*x$1€*>
+-_empty_/`implicit-match-nested`.B.toString().*toString€*/
+"_empty_/`implicit-match-nested`.a.  *a€*1
+#_empty_/`implicit-match-nested`.b1.  *b1€*1
+#_empty_/`implicit-match-nested`.b2.  *b2€*
+local0 €	*t€*
+local1  *b€*:
+*_empty_/`implicit-match-nested`.locateB().*locateB€2*
+  _empty_/`implicit-match-nested`.2=
+ /scala/compiletime/package$package.summonFrom().2 
+	 scala/compiletime/20
+ "_empty_/`implicit-match-nested`.A#2;
+ -_empty_/`implicit-match-nested`.A#`<init>`().23
+ %_empty_/`implicit-match-nested`.A#[T]27
+ )_empty_/`implicit-match-nested`.A#copy().20
+ "_empty_/`implicit-match-nested`.A.28
+ *_empty_/`implicit-match-nested`.A.apply().2:
+ ,_empty_/`implicit-match-nested`.A.unapply().20
+ "_empty_/`implicit-match-nested`.B#2;
+ -_empty_/`implicit-match-nested`.B#`<init>`().23
+ %_empty_/`implicit-match-nested`.B#[T]27
+ )_empty_/`implicit-match-nested`.B#copy().20
+ "_empty_/`implicit-match-nested`.B.28
+ *_empty_/`implicit-match-nested`.B.apply().2:
+ ,_empty_/`implicit-match-nested`.B.unapply().20
+ "_empty_/`implicit-match-nested`.a.20
+ "_empty_/`implicit-match-nested`.A#2
+ 
+scala/Int#28
+ *_empty_/`implicit-match-nested`.A.apply().20
+ "_empty_/`implicit-match-nested`.A.2
+  
+scala/Int#21
+ #_empty_/`implicit-match-nested`.b1.20
+ "_empty_/`implicit-match-nested`.B#2
+ 
+scala/Int#28
+ *_empty_/`implicit-match-nested`.B.apply().20
+ "_empty_/`implicit-match-nested`.B.2
+ !
+scala/Int#21
+ #_empty_/`implicit-match-nested`.b2.20
+ "_empty_/`implicit-match-nested`.B#2"
+ scala/Predef.String#28
+   *_empty_/`implicit-match-nested`.B.apply().20
+  "_empty_/`implicit-match-nested`.B.2"
+! 'scala/Predef.String#20
+ "_empty_/`implicit-match-nested`.A#2
+ local02
+ local120
+ "_empty_/`implicit-match-nested`.B#2
+ local02
+ local128
+
+
+  *_empty_/`implicit-match-nested`.locateB().20
+
+"
+ #"_empty_/`implicit-match-nested`.B#28
+ 	*_empty_/`implicit-match-nested`.locateB().PZ E1C98F23FD5BF7BB2D91F34C5631DE31

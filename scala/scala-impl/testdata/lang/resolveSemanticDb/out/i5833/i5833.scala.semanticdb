@@ -1,0 +1,108 @@
+
+ñtests/pos/i5833.scala*&
+_empty_/Dependent.
+ *	Dependent€* 
+_empty_/Dependent.x().*x€*
+local0 *apply€*
+local1  *i€* 
+_empty_/Dependent.y().*y€*
+local2 *apply€*
+local3  *i€**
+_empty_/Independent.
+ *Independent€*"
+_empty_/Independent.x().*x€*"
+_empty_/Independent.y().*y€*2
+_empty_/NarrowDependent.
+ *NarrowDependent€*&
+_empty_/NarrowDependent.x().*x€*&
+_empty_/NarrowDependent.y().*y€*
+local4 *apply€*
+local5  *i€*0
+_empty_/WidenDependent.
+ *WidenDependent€*%
+_empty_/WidenDependent.x().*x€*
+local6 *apply€*
+local7  *i€*%
+_empty_/WidenDependent.y().*y€2
+ _empty_/Dependent.2$
+ _empty_/Dependent.x().2
+ 
+scala/Int#2
+ local02
+
+ local12
+ 
+scala/Int#2#
+ scala/Predef.`???`().2$
+ _empty_/Dependent.y().2
+ 
+scala/Int#2
+ local22
+
+ local32
+ 
+scala/Int#2-
+ scala/ContextFunction1#apply().2$
+ _empty_/Dependent.x().2"
+ _empty_/Independent.2&
+ _empty_/Independent.x().2
+	 
+scala/Int#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2&
+ _empty_/Independent.y().2
+	 
+scala/Int#2
+ 
+scala/Int#2-
+ scala/ContextFunction1#apply().2&
+ _empty_/Independent.x().2&
+ _empty_/NarrowDependent.2*
+		 _empty_/NarrowDependent.x().2
+			 
+scala/Int#2
+		 
+scala/Int#2#
+		 scala/Predef.`???`().2*
+
+
+ _empty_/NarrowDependent.y().2
+
+
+ 
+scala/Int#2
+
+
+ local42
+
+
+
+ local52
+
+
+ 
+scala/Int#2-
+
+
+ scala/ContextFunction1#apply().2*
+
+
+ _empty_/NarrowDependent.x().2%
+ _empty_/WidenDependent.2)
+ _empty_/WidenDependent.x().2
+ 
+scala/Int#2
+ local62
+
+ local72
+ 
+scala/Int#2#
+ scala/Predef.`???`().2)
+ _empty_/WidenDependent.y().2
+	 
+scala/Int#2
+ 
+scala/Int#2-
+ scala/ContextFunction1#apply().2)
+ _empty_/WidenDependent.x().PZ 6E9F89E4E57443EF0B4625E9F09DEFCB

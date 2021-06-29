@@ -1,0 +1,22 @@
+
+ûtests/pos/t116.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*&
+_empty_/C#`<init>`(+1).*<init>€*$
+_empty_/C#`<init>`(+1).(x)*x€*
+local0*D€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2%
+ 
+_empty_/C#`<init>`(+1).2(
+ _empty_/C#`<init>`(+1).(x)2
+ 
+scala/Int#2#
+ _empty_/C#`<init>`().2
+
+ local02#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#PZ 16A7FCF23AE95FD157986A0121A280EA

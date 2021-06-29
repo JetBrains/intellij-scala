@@ -1,0 +1,71 @@
+
+™tests/pos/i5997.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#v1. €*v1€*
+local0*v€*
+_empty_/Test#v2. €*v2€*
+local1*v€*
+_empty_/Test#v3. €*v3€*
+local2*v€*
+_empty_/Test#v4. €*v4€*
+_empty_/Test#v5().*v5€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().(x)*x€*
+_empty_/Test#bar().*bar€*
+local3 €*x€*
+_empty_/Test#baz().*baz€*
+local4*x€*
+local5*x€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#v1.2!
+, /scala/Option#map().2!
+ scala/Some.apply().2
+ scala/Some.2
+& *scala/None.2
+0 1local02 
+6 7scala/Int#`+`(+4).2
+5 6local02
+ _empty_/Test#v2.2!
+$ 'scala/Option#map().2!
+ scala/Some.apply().2
+ scala/Some.2
+( )local12 
+. /scala/Int#`+`(+4).2
+- .local12
+ _empty_/Test#v3.2!
++ .scala/Option#map().2!
+$ $scala/Some.apply().2
+  $scala/Some.2
+/ 0local22 
+5 6scala/Int#`+`(+4).2
+4 5local22
+ _empty_/Test#v4.2#
+ %scala/Any#toString().2 
+ _empty_/Test#v5().2
+
+ scala/Option#2"
+ scala/Predef.String#2!
+ scala/Some.apply().2
+ scala/Some.2#
+3 ;scala/Any#toString().2!
+, ,scala/Some.apply().2
+( ,scala/Some.2 
+1 1_empty_/Test#v5().2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().(x)2
+ scala/Boolean#2(
+ scala/Boolean#`unary_!`().2$
+ _empty_/Test#foo().(x)2!
+ 	_empty_/Test#bar().2
+3 4local32
+8 9local32!
+ 	_empty_/Test#baz().2&
+2 2scala/Function1#apply().2&
+ $scala/Predef.identity().2
+ local42&
+* 2scala/Predef.identity().2
+* *local5PZ 0ABA0F246DDE1F6145A7CD780A4191E8

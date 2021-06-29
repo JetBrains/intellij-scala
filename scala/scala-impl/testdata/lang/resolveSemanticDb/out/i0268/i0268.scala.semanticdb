@@ -1,0 +1,134 @@
+
+²"tests/pos/i0268.scala* 
+typespatmat/Box2# *Box2€*.
+typespatmat/Box2#`<init>`(). €@*<init>€*
+typespatmat/Box2#[T]	*T€*!
+typespatmat/Int2# ˆ*Int2€*.
+typespatmat/Int2#`<init>`(). €@*<init>€*,
+typespatmat/Int2#`<init>`().(x) €*x€* 
+typespatmat/Int2#x. €*x€*%
+typespatmat/Int2#copy().*copy€*%
+typespatmat/Int2#copy().(x)*x€*9
+"typespatmat/Int2#copy$default$1().*copy$default$1€*!
+typespatmat/Int2#_1().*_1€* 
+typespatmat/Int2.
+ *Int2€*'
+typespatmat/Int2.apply().*apply€*&
+typespatmat/Int2.apply().(x)*x€*+
+typespatmat/Int2.unapply().*unapply€*,
+ typespatmat/Int2.unapply().(x$1)*x$1€*-
+typespatmat/Int2.toString().*toString€*!
+typespatmat/Str2# ˆ*Str2€*.
+typespatmat/Str2#`<init>`(). €@*<init>€*,
+typespatmat/Str2#`<init>`().(x) €*x€* 
+typespatmat/Str2#x. €*x€*%
+typespatmat/Str2#copy().*copy€*%
+typespatmat/Str2#copy().(x)*x€*9
+"typespatmat/Str2#copy$default$1().*copy$default$1€*!
+typespatmat/Str2#_1().*_1€* 
+typespatmat/Str2.
+ *Str2€*'
+typespatmat/Str2.apply().*apply€*&
+typespatmat/Str2.apply().(x)*x€*+
+typespatmat/Str2.unapply().*unapply€*,
+ typespatmat/Str2.unapply().(x$1)*x$1€*-
+typespatmat/Str2.toString().*toString€*
+typespatmat/Gen# ˆ*Gen€*-
+typespatmat/Gen#`<init>`(). €@*<init>€*+
+typespatmat/Gen#`<init>`().(x) €*x€*
+typespatmat/Gen#[T]	*T€*
+typespatmat/Gen#x. €*x€*$
+typespatmat/Gen#copy().*copy€*$
+typespatmat/Gen#copy().[T]	*T€*$
+typespatmat/Gen#copy().(x)*x€*8
+!typespatmat/Gen#copy$default$1().*copy$default$1€*.
+$typespatmat/Gen#copy$default$1().[T]	*T€* 
+typespatmat/Gen#_1().*_1€*
+typespatmat/Gen.
+ *Gen€*&
+typespatmat/Gen.apply().*apply€*%
+typespatmat/Gen.apply().[T]	*T€*%
+typespatmat/Gen.apply().(x)*x€**
+typespatmat/Gen.unapply().*unapply€*'
+typespatmat/Gen.unapply().[T]	*T€*+
+typespatmat/Gen.unapply().(x$1)*x$1€*,
+typespatmat/Gen.toString().*toString€* 
+typespatmat/Box2.
+ *Box2€*+
+typespatmat/Box2.double2().*double2€*(
+typespatmat/Box2.double2().[T]	*T€*(
+typespatmat/Box2.double2().(x)*x€*
+local0 €*i€*
+local1 €*s€*
+local2 €*x€2
+ typespatmat/2
+ typespatmat/Box2#2*
+ typespatmat/Box2#`<init>`().2"
+ typespatmat/Box2#[T]2
+ typespatmat/Int2#2*
+ typespatmat/Int2#`<init>`().2
+ 
+scala/Int#2
+& *typespatmat/Box2#2
++ .
+scala/Int#2!
+ typespatmat/Int2#x.2"
+typespatmat/Int2#copy().2$
+ typespatmat/Int2#_1().2
+ typespatmat/Int2.2#
+typespatmat/Int2.apply().2
+ typespatmat/Str2#2*
+ typespatmat/Str2#`<init>`().2"
+ scala/Predef.String#2
+& *typespatmat/Box2#2"
++ 1scala/Predef.String#2!
+ typespatmat/Str2#x.2"
+typespatmat/Str2#copy().2$
+ typespatmat/Str2#_1().2
+ typespatmat/Str2.2#
+typespatmat/Str2.apply().2
+ typespatmat/Gen#2)
+ typespatmat/Gen#`<init>`().2!
+ typespatmat/Gen#[T]2
+& *typespatmat/Box2#2!
++ ,typespatmat/Gen#[T]2!
+ typespatmat/Gen#[T]2 
+ typespatmat/Gen#x.2!
+typespatmat/Gen#copy().2#
+ typespatmat/Gen#_1().2
+ typespatmat/Gen.2"
+typespatmat/Gen.apply().2$
+typespatmat/Gen.unapply().2
+ typespatmat/Box2.2)
+		 typespatmat/Box2.double2().2,
+		 typespatmat/Box2.double2().[T]2,
+		 typespatmat/Box2.double2().(x)2
+		 typespatmat/Box2#2,
+		 typespatmat/Box2.double2().[T]2,
+		 typespatmat/Box2.double2().[T]2,
+	"	 #typespatmat/Box2.double2().(x)2)
+
+
+ typespatmat/Int2.unapply().2
+
+	
+ typespatmat/Int2.2
+
+
+ local02 
+
+
+ scala/Int#`*`(+3).2
+
+
+ local02)
+ typespatmat/Str2.unapply().2
+	 typespatmat/Str2.2
+ local12%
+ java/lang/String#`+`().2
+ local12
+ local12(
+ typespatmat/Gen.unapply().2
+	 typespatmat/Gen.2
+ local22
+ local2PZ D06F0F95854B884D638E482F96797BA3

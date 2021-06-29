@@ -1,0 +1,37 @@
+
+çtests/pos/t7788.scala*
+_empty_/Test#*TestÄ**
+_empty_/Test#`<init>`(). Ä@*<init>Ä*)
+_empty_/Test#conforms().*conformsÄ*%
+_empty_/Test#conforms().(x)*xÄ*%
+_empty_/Test#conforms().(y)*yÄ*
+_empty_/Test#foo().*fooÄ* 
+_empty_/Test#foo().[A]	*AÄ*$
+_empty_/Test#foo().(ev)  *evÄ2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2&
+ _empty_/Test#conforms().2)
+ _empty_/Test#conforms().(x)2
+ 
+scala/Int#2)
+ _empty_/Test#conforms().(y)2
+ 
+scala/Int#2 
+# $scala/Int#`<`(+3).2)
+! "_empty_/Test#conforms().(x)2)
+% &_empty_/Test#conforms().(y)2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().[A]2%
+ _empty_/Test#foo().(ev)2
+ 
+scala/Int#2$
+! "_empty_/Test#foo().[A]2#
+& )scala/Predef.`???`().2!
+ _empty_/Test#foo().2
+ 	
+scala/Int#2'
+
+ 
+scala/Predef.$conforms().PZ 08B3BF9CDE3A36A4582ACAB3333BDA22

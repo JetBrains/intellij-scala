@@ -1,0 +1,42 @@
+
+Ö
+ tests/pos/implicitonSelect.scala*
+_empty_/test.
+ *test€*
+_empty_/test.A#*A€*,
+_empty_/test.A#`<init>`(). €@*<init>€*
+_empty_/test.B#*B€*,
+_empty_/test.B#`<init>`(). €@*<init>€*!
+_empty_/test.a2b().  *a2b€* 
+_empty_/test.a2b().(x)*x€*
+_empty_/test.ARef#*ARef€*/
+_empty_/test.ARef#`<init>`(). €@*<init>€*!
+_empty_/test.ARef#a. €*a€*
+_empty_/test.x. €*x€*
+_empty_/test.b. €*b€2
+ _empty_/test.2
+ 	_empty_/test.A#2(
+ _empty_/test.A#`<init>`().2
+ 	_empty_/test.B#2(
+ _empty_/test.B#`<init>`().2!
+ _empty_/test.a2b().2$
+ _empty_/test.a2b().(x)2
+ _empty_/test.A#2
+ _empty_/test.B#2(
+# #_empty_/test.B#`<init>`().2
+" #_empty_/test.B#2 
+ _empty_/test.ARef#2+
+ _empty_/test.ARef#`<init>`().2"
+ _empty_/test.ARef#a.2
+ _empty_/test.A#2(
+ _empty_/test.A#`<init>`().2
+ _empty_/test.A#2
+ _empty_/test.x.2+
+ _empty_/test.ARef#`<init>`().2 
+ _empty_/test.ARef#2
+ _empty_/test.b.2
+	 
+_empty_/test.B#2!
+ _empty_/test.a2b().2"
+ _empty_/test.ARef#a.2
+ _empty_/test.x.PZ 2B1835C1707617671446AF9331EF0C25

@@ -1,0 +1,47 @@
+
+Ïtests/pos/compile1.scala* 
+_empty_/Test2_2#*Test2_2€*-
+_empty_/Test2_2#`<init>`(). €@*<init>€*(
+_empty_/Test2_2#`<init>`().(i)*i€*
+_empty_/Test2_2#i. €*i€*
+local0 €*t€*
+local1 €*x€*
+local2 €*y€*
+local3 €*z€*
+local4 €*x€*
+local5 €*y€*
+local6 €*z€*
+local7 €*y€*
+local8 €*z€*
+local9 €*z2_2€2
+ java/lang/System.2
+ java/lang/System#2
+ 
+java/lang/2
+ java/2
+		 _empty_/Test2_2#2)
+		 _empty_/Test2_2#`<init>`().2
+		 
+scala/Int#2 
+		 _empty_/Test2_2#i.2
+ 	local02
+
+ local12
+ local22
+ local32 
+ _empty_/Test2_2#i.2
+
+ local32
+ 	local42
+
+ local52
+ local62 
+ _empty_/Test2_2#i.2
+ 	local62
+ 	local72
+
+ local82 
+ _empty_/Test2_2#i.2
+ local82
+ local92 
+ _empty_/Test2_2#i.PZ 78452FEDB1DCCB540BA4894166014215

@@ -1,0 +1,27 @@
+
+Ž*tests/pos/toplevel-cyclic/moredefs_1.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*"
+_empty_/B#`<init>`().(x)*x€*
+_empty_/B#x. €*x€*-
+_empty_/moredefs_1$package. *_empty_€**
+_empty_/moredefs_1$package.r. €*r€2
+ 
+_empty_/B#2
+ _empty_/B#`<init>`().2
+ scala/Option#2#
+ _empty_/defs_1$package.A#2
+ 	_empty_/B#x.2%
+_empty_/moredefs_1$package.2+
+ _empty_/moredefs_1$package.r.2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2!
+ scala/Some.apply().2
+ scala/Some.2)
+ _empty_/defs_1$package.A().2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ scala/None.PZ 950B5537848EED0C5E9079F3D095963C

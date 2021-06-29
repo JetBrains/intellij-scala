@@ -1,0 +1,142 @@
+
+•( tests/pos/erasure-nsquared.scala* 
+_empty_/BigCast#*BigCast€*-
+_empty_/BigCast#`<init>`(). €@*<init>€*"
+_empty_/BigCast#bar().*bar€*#
+_empty_/BigCast#bar().(x)*x€2
+ _empty_/BigCast#2)
+ _empty_/BigCast#`<init>`().2$
+ 	_empty_/BigCast#bar().2'
+
+ _empty_/BigCast#bar().(x)2
+ 
+scala/Int#2
+ scala/AnyRef#22
+ "  &$scala/collection/IterableOps#head().2'
+   scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+
+"
+ &$scala/collection/IterableOps#head().2'
+
+
+ scala/Any#asInstanceOf().22
+	"	 &$scala/collection/IterableOps#head().2'
+		 scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().22
+" &$scala/collection/IterableOps#head().2'
+ scala/Any#asInstanceOf().2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+		 scala/package.List#2
+		 scala/AnyRef#2!
+
+
+ scala/package.List#2
+
+
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+ scala/package.List#2
+ scala/AnyRef#2!
+   scala/package.List#2
+   scala/AnyRef#PZ 4FCD7A2063F7618EEF06ED4E663269BC

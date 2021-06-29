@@ -1,0 +1,704 @@
+
+ÉÍtests/pos/i3857.scala*
+_empty_/foo.
+ *foo€*
+_empty_/foo.num# *num€*-
+_empty_/foo.num#`<init>`(). €@*<init>€*
+_empty_/foo.One# ˆ*One€*-
+_empty_/foo.One#`<init>`(). €@*<init>€*$
+_empty_/foo.One#copy().*copy€*
+_empty_/foo.One.
+ *One€*&
+_empty_/foo.One.apply().*apply€**
+_empty_/foo.One.unapply().*unapply€*+
+_empty_/foo.One.unapply().(x$1)*x$1€*,
+_empty_/foo.One.toString().*toString€*!
+_empty_/foo.Bit0# ˆ*Bit0€*.
+_empty_/foo.Bit0#`<init>`(). €@*<init>€*,
+_empty_/foo.Bit0#`<init>`().(a) €*a€* 
+_empty_/foo.Bit0#a. €*a€*%
+_empty_/foo.Bit0#copy().*copy€*%
+_empty_/foo.Bit0#copy().(a)*a€*9
+"_empty_/foo.Bit0#copy$default$1().*copy$default$1€*!
+_empty_/foo.Bit0#_1().*_1€* 
+_empty_/foo.Bit0.
+ *Bit0€*'
+_empty_/foo.Bit0.apply().*apply€*&
+_empty_/foo.Bit0.apply().(a)*a€*+
+_empty_/foo.Bit0.unapply().*unapply€*,
+ _empty_/foo.Bit0.unapply().(x$1)*x$1€*-
+_empty_/foo.Bit0.toString().*toString€*!
+_empty_/foo.Bit1# ˆ*Bit1€*.
+_empty_/foo.Bit1#`<init>`(). €@*<init>€*,
+_empty_/foo.Bit1#`<init>`().(a) €*a€* 
+_empty_/foo.Bit1#a. €*a€*%
+_empty_/foo.Bit1#copy().*copy€*%
+_empty_/foo.Bit1#copy().(a)*a€*9
+"_empty_/foo.Bit1#copy$default$1().*copy$default$1€*!
+_empty_/foo.Bit1#_1().*_1€* 
+_empty_/foo.Bit1.
+ *Bit1€*'
+_empty_/foo.Bit1.apply().*apply€*&
+_empty_/foo.Bit1.apply().(a)*a€*+
+_empty_/foo.Bit1.unapply().*unapply€*,
+ _empty_/foo.Bit1.unapply().(x$1)*x$1€*-
+_empty_/foo.Bit1.toString().*toString€*&
+_empty_/foo.abschar# *abschar€*1
+_empty_/foo.abschar#`<init>`(). €@*<init>€*+
+_empty_/foo.zero_char# ˆ*	zero_char€*3
+!_empty_/foo.zero_char#`<init>`(). €@*<init>€**
+_empty_/foo.zero_char#copy().*copy€**
+_empty_/foo.zero_char.
+ *	zero_char€*,
+_empty_/foo.zero_char.apply().*apply€*0
+ _empty_/foo.zero_char.unapply().*unapply€*1
+%_empty_/foo.zero_char.unapply().(x$1)*x$1€*2
+!_empty_/foo.zero_char.toString().*toString€*!
+_empty_/foo.Char# ˆ*Char€*.
+_empty_/foo.Char#`<init>`(). €@*<init>€*,
+_empty_/foo.Char#`<init>`().(a) €*a€* 
+_empty_/foo.Char#a. €*a€*%
+_empty_/foo.Char#copy().*copy€*%
+_empty_/foo.Char#copy().(a)*a€*9
+"_empty_/foo.Char#copy$default$1().*copy$default$1€*!
+_empty_/foo.Char#_1().*_1€* 
+_empty_/foo.Char.
+ *Char€*'
+_empty_/foo.Char.apply().*apply€*&
+_empty_/foo.Char.apply().(a)*a€*+
+_empty_/foo.Char.unapply().*unapply€*,
+ _empty_/foo.Char.unapply().(x$1)*x$1€*-
+_empty_/foo.Char.toString().*toString€*6
+_empty_/foo.integer_of_char().*integer_of_char€*-
+"_empty_/foo.integer_of_char().(x0)*x0€*
+local0*f€*
+local1*x€2
+ 
+_empty_/foo.2
+ _empty_/foo.num#2)
+ _empty_/foo.num#`<init>`().2
+ _empty_/foo.One#2)
+ _empty_/foo.One#`<init>`().2)
+$ $_empty_/foo.num#`<init>`().2
+! $_empty_/foo.num#2
+ _empty_/foo.One.2
+ _empty_/foo.Bit0#2*
+ _empty_/foo.Bit0#`<init>`().2
+ _empty_/foo.num#2)
++ +_empty_/foo.num#`<init>`().2
+( +_empty_/foo.num#2!
+ _empty_/foo.Bit0#a.2&
+ _empty_/foo.Bit0#copy().2$
+ _empty_/foo.Bit0#_1().2
+ _empty_/foo.Bit0.2'
+ _empty_/foo.Bit0.apply().2
+ _empty_/foo.Bit1#2*
+ _empty_/foo.Bit1#`<init>`().2
+ _empty_/foo.num#2)
++ +_empty_/foo.num#`<init>`().2
+( +_empty_/foo.num#2!
+ _empty_/foo.Bit1#a.2&
+ _empty_/foo.Bit1#copy().2$
+ _empty_/foo.Bit1#_1().2
+ _empty_/foo.Bit1.2'
+ _empty_/foo.Bit1.apply().2"
+ _empty_/foo.abschar#2-
+ _empty_/foo.abschar#`<init>`().2$
+ _empty_/foo.zero_char#2/
+ !_empty_/foo.zero_char#`<init>`().2-
+. ._empty_/foo.abschar#`<init>`().2"
+' ._empty_/foo.abschar#2$
+ _empty_/foo.zero_char.2
+ _empty_/foo.Char#2*
+ _empty_/foo.Char#`<init>`().2
+ _empty_/foo.num#2-
+/ /_empty_/foo.abschar#`<init>`().2"
+( /_empty_/foo.abschar#2!
+ _empty_/foo.Char#a.2&
+ _empty_/foo.Char#copy().2$
+ _empty_/foo.Char#_1().2
+ _empty_/foo.Char.2'
+ _empty_/foo.Char.apply().2,
+
+
+ _empty_/foo.integer_of_char().20
+
+
+ "_empty_/foo.integer_of_char().(x0)2"
+
+
+ !_empty_/foo.abschar#2#
+
+$
+ *scala/package.BigInt#2
+ 	local02
+
+ local12
+ 
+scala/Int#2
+ 
+scala/Int#2
+ local120
+ "_empty_/foo.integer_of_char().(x0)2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit0.unapply().2
+ !_empty_/foo.Bit0.2)
+& &_empty_/foo.Bit0.unapply().2
+" &_empty_/foo.Bit0.2(
+* *_empty_/foo.One.unapply().2
+' *_empty_/foo.One.2(
+< <scala/math/BigInt.apply().2#
+6 <scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit1.unapply().2
+ _empty_/foo.Bit1.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+ _empty_/foo.Char.unapply().2
+	 _empty_/foo.Char.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+ _empty_/foo.Bit0.unapply().2
+ _empty_/foo.Bit0.2)
+! !_empty_/foo.Bit1.unapply().2
+ !_empty_/foo.Bit1.2(
+% %_empty_/foo.One.unapply().2
+" %_empty_/foo.One.2(
+6 6scala/math/BigInt.apply().2#
+0 6scala/package.BigInt.2)
+   _empty_/foo.Char.unapply().2
+ 	  _empty_/foo.Char.2)
+   _empty_/foo.Bit1.unapply().2
+   _empty_/foo.Bit1.2)
+   _empty_/foo.Bit1.unapply().2
+   _empty_/foo.Bit1.2)
+   _empty_/foo.Bit1.unapply().2
+   _empty_/foo.Bit1.2)
+ !  !_empty_/foo.Bit0.unapply().2
+   !_empty_/foo.Bit0.2(
+ %  %_empty_/foo.One.unapply().2
+ "  %_empty_/foo.One.2(
+ 6  6scala/math/BigInt.apply().2#
+ 0  6scala/package.BigInt.2)
+!! _empty_/foo.Char.unapply().2
+!	! _empty_/foo.Char.2)
+!! _empty_/foo.Bit0.unapply().2
+!! _empty_/foo.Bit0.2)
+!! _empty_/foo.Bit1.unapply().2
+!! _empty_/foo.Bit1.2)
+!! _empty_/foo.Bit1.unapply().2
+!! _empty_/foo.Bit1.2)
+!!! !_empty_/foo.Bit0.unapply().2
+!! !_empty_/foo.Bit0.2(
+!%! %_empty_/foo.One.unapply().2
+!"! %_empty_/foo.One.2(
+!6! 6scala/math/BigInt.apply().2#
+!0! 6scala/package.BigInt.2)
+"" _empty_/foo.Char.unapply().2
+"	" _empty_/foo.Char.2)
+"" _empty_/foo.Bit1.unapply().2
+"" _empty_/foo.Bit1.2)
+"" _empty_/foo.Bit0.unapply().2
+"" _empty_/foo.Bit0.2)
+"" _empty_/foo.Bit1.unapply().2
+"" _empty_/foo.Bit1.2)
+"!" !_empty_/foo.Bit0.unapply().2
+"" !_empty_/foo.Bit0.2(
+"%" %_empty_/foo.One.unapply().2
+""" %_empty_/foo.One.2(
+"6" 6scala/math/BigInt.apply().2#
+"0" 6scala/package.BigInt.2)
+## _empty_/foo.Char.unapply().2
+#	# _empty_/foo.Char.2)
+## _empty_/foo.Bit0.unapply().2
+## _empty_/foo.Bit0.2)
+## _empty_/foo.Bit0.unapply().2
+## _empty_/foo.Bit0.2)
+## _empty_/foo.Bit1.unapply().2
+## _empty_/foo.Bit1.2)
+#!# !_empty_/foo.Bit0.unapply().2
+## !_empty_/foo.Bit0.2(
+#%# %_empty_/foo.One.unapply().2
+#"# %_empty_/foo.One.2(
+#6# 6scala/math/BigInt.apply().2#
+#0# 6scala/package.BigInt.2)
+$$ _empty_/foo.Char.unapply().2
+$	$ _empty_/foo.Char.2)
+$$ _empty_/foo.Bit1.unapply().2
+$$ _empty_/foo.Bit1.2)
+$$ _empty_/foo.Bit1.unapply().2
+$$ _empty_/foo.Bit1.2)
+$$ _empty_/foo.Bit0.unapply().2
+$$ _empty_/foo.Bit0.2)
+$!$ !_empty_/foo.Bit0.unapply().2
+$$ !_empty_/foo.Bit0.2(
+$%$ %_empty_/foo.One.unapply().2
+$"$ %_empty_/foo.One.2(
+$6$ 6scala/math/BigInt.apply().2#
+$0$ 6scala/package.BigInt.2)
+%% _empty_/foo.Char.unapply().2
+%	% _empty_/foo.Char.2)
+%% _empty_/foo.Bit0.unapply().2
+%% _empty_/foo.Bit0.2)
+%% _empty_/foo.Bit1.unapply().2
+%% _empty_/foo.Bit1.2)
+%% _empty_/foo.Bit0.unapply().2
+%% _empty_/foo.Bit0.2)
+%!% !_empty_/foo.Bit0.unapply().2
+%% !_empty_/foo.Bit0.2(
+%%% %_empty_/foo.One.unapply().2
+%"% %_empty_/foo.One.2(
+%6% 6scala/math/BigInt.apply().2#
+%0% 6scala/package.BigInt.2)
+&& _empty_/foo.Char.unapply().2
+&	& _empty_/foo.Char.2)
+&& _empty_/foo.Bit1.unapply().2
+&& _empty_/foo.Bit1.2)
+&& _empty_/foo.Bit0.unapply().2
+&& _empty_/foo.Bit0.2)
+&& _empty_/foo.Bit0.unapply().2
+&& _empty_/foo.Bit0.2)
+&!& !_empty_/foo.Bit0.unapply().2
+&& !_empty_/foo.Bit0.2(
+&%& %_empty_/foo.One.unapply().2
+&"& %_empty_/foo.One.2(
+&6& 6scala/math/BigInt.apply().2#
+&0& 6scala/package.BigInt.2)
+'' _empty_/foo.Char.unapply().2
+'	' _empty_/foo.Char.2)
+'' _empty_/foo.Bit0.unapply().2
+'' _empty_/foo.Bit0.2)
+'' _empty_/foo.Bit0.unapply().2
+'' _empty_/foo.Bit0.2)
+'' _empty_/foo.Bit0.unapply().2
+'' _empty_/foo.Bit0.2)
+'!' !_empty_/foo.Bit0.unapply().2
+'' !_empty_/foo.Bit0.2(
+'%' %_empty_/foo.One.unapply().2
+'"' %_empty_/foo.One.2(
+'6' 6scala/math/BigInt.apply().2#
+'0' 6scala/package.BigInt.2)
+(( _empty_/foo.Char.unapply().2
+(	( _empty_/foo.Char.2)
+(( _empty_/foo.Bit1.unapply().2
+(( _empty_/foo.Bit1.2)
+(( _empty_/foo.Bit1.unapply().2
+(( _empty_/foo.Bit1.2)
+(( _empty_/foo.Bit1.unapply().2
+(( _empty_/foo.Bit1.2(
+( (  _empty_/foo.One.unapply().2
+((  _empty_/foo.One.2(
+(0( 0scala/math/BigInt.apply().2#
+(*( 0scala/package.BigInt.2)
+)) _empty_/foo.Char.unapply().2
+)	) _empty_/foo.Char.2)
+)) _empty_/foo.Bit0.unapply().2
+)) _empty_/foo.Bit0.2)
+)) _empty_/foo.Bit1.unapply().2
+)) _empty_/foo.Bit1.2)
+)) _empty_/foo.Bit1.unapply().2
+)) _empty_/foo.Bit1.2(
+) )  _empty_/foo.One.unapply().2
+))  _empty_/foo.One.2(
+)0) 0scala/math/BigInt.apply().2#
+)*) 0scala/package.BigInt.2)
+** _empty_/foo.Char.unapply().2
+*	* _empty_/foo.Char.2)
+** _empty_/foo.Bit1.unapply().2
+** _empty_/foo.Bit1.2)
+** _empty_/foo.Bit0.unapply().2
+** _empty_/foo.Bit0.2)
+** _empty_/foo.Bit1.unapply().2
+** _empty_/foo.Bit1.2(
+* *  _empty_/foo.One.unapply().2
+**  _empty_/foo.One.2(
+*0* 0scala/math/BigInt.apply().2#
+*** 0scala/package.BigInt.2)
+++ _empty_/foo.Char.unapply().2
++	+ _empty_/foo.Char.2)
+++ _empty_/foo.Bit0.unapply().2
+++ _empty_/foo.Bit0.2)
+++ _empty_/foo.Bit0.unapply().2
+++ _empty_/foo.Bit0.2)
+++ _empty_/foo.Bit1.unapply().2
+++ _empty_/foo.Bit1.2(
++ +  _empty_/foo.One.unapply().2
+++  _empty_/foo.One.2(
++0+ 0scala/math/BigInt.apply().2#
++*+ 0scala/package.BigInt.2)
+,, _empty_/foo.Char.unapply().2
+,	, _empty_/foo.Char.2)
+,, _empty_/foo.Bit1.unapply().2
+,, _empty_/foo.Bit1.2)
+,, _empty_/foo.Bit1.unapply().2
+,, _empty_/foo.Bit1.2)
+,, _empty_/foo.Bit0.unapply().2
+,, _empty_/foo.Bit0.2(
+, ,  _empty_/foo.One.unapply().2
+,,  _empty_/foo.One.2(
+,0, 0scala/math/BigInt.apply().2#
+,*, 0scala/package.BigInt.2)
+-- _empty_/foo.Char.unapply().2
+-	- _empty_/foo.Char.2)
+-- _empty_/foo.Bit0.unapply().2
+-- _empty_/foo.Bit0.2)
+-- _empty_/foo.Bit1.unapply().2
+-- _empty_/foo.Bit1.2)
+-- _empty_/foo.Bit0.unapply().2
+-- _empty_/foo.Bit0.2(
+- -  _empty_/foo.One.unapply().2
+--  _empty_/foo.One.2(
+-0- 0scala/math/BigInt.apply().2#
+-*- 0scala/package.BigInt.2)
+.. _empty_/foo.Char.unapply().2
+.	. _empty_/foo.Char.2)
+.. _empty_/foo.Bit1.unapply().2
+.. _empty_/foo.Bit1.2)
+.. _empty_/foo.Bit0.unapply().2
+.. _empty_/foo.Bit0.2)
+.. _empty_/foo.Bit0.unapply().2
+.. _empty_/foo.Bit0.2(
+. .  _empty_/foo.One.unapply().2
+..  _empty_/foo.One.2(
+.0. 0scala/math/BigInt.apply().2#
+.*. 0scala/package.BigInt.2)
+// _empty_/foo.Char.unapply().2
+/	/ _empty_/foo.Char.2)
+// _empty_/foo.Bit0.unapply().2
+// _empty_/foo.Bit0.2)
+// _empty_/foo.Bit0.unapply().2
+// _empty_/foo.Bit0.2)
+// _empty_/foo.Bit0.unapply().2
+// _empty_/foo.Bit0.2(
+/ /  _empty_/foo.One.unapply().2
+//  _empty_/foo.One.2(
+/0/ 0scala/math/BigInt.apply().2#
+/*/ 0scala/package.BigInt.2)
+00 _empty_/foo.Char.unapply().2
+0	0 _empty_/foo.Char.2)
+00 _empty_/foo.Bit1.unapply().2
+00 _empty_/foo.Bit1.2)
+00 _empty_/foo.Bit1.unapply().2
+00 _empty_/foo.Bit1.2(
+00 _empty_/foo.One.unapply().2
+00 _empty_/foo.One.2(
+0*0 *scala/math/BigInt.apply().2#
+0$0 *scala/package.BigInt.2)
+11 _empty_/foo.Char.unapply().2
+1	1 _empty_/foo.Char.2)
+11 _empty_/foo.Bit0.unapply().2
+11 _empty_/foo.Bit0.2)
+11 _empty_/foo.Bit1.unapply().2
+11 _empty_/foo.Bit1.2(
+11 _empty_/foo.One.unapply().2
+11 _empty_/foo.One.2(
+1*1 *scala/math/BigInt.apply().2#
+1$1 *scala/package.BigInt.2)
+22 _empty_/foo.Char.unapply().2
+2	2 _empty_/foo.Char.2)
+22 _empty_/foo.Bit1.unapply().2
+22 _empty_/foo.Bit1.2)
+22 _empty_/foo.Bit0.unapply().2
+22 _empty_/foo.Bit0.2(
+22 _empty_/foo.One.unapply().2
+22 _empty_/foo.One.2(
+2*2 *scala/math/BigInt.apply().2#
+2$2 *scala/package.BigInt.2)
+33 _empty_/foo.Char.unapply().2
+3	3 _empty_/foo.Char.2)
+33 _empty_/foo.Bit0.unapply().2
+33 _empty_/foo.Bit0.2)
+33 _empty_/foo.Bit0.unapply().2
+33 _empty_/foo.Bit0.2(
+33 _empty_/foo.One.unapply().2
+33 _empty_/foo.One.2(
+3*3 *scala/math/BigInt.apply().2#
+3$3 *scala/package.BigInt.2)
+44 _empty_/foo.Char.unapply().2
+4	4 _empty_/foo.Char.2)
+44 _empty_/foo.Bit1.unapply().2
+44 _empty_/foo.Bit1.2(
+44 _empty_/foo.One.unapply().2
+44 _empty_/foo.One.2(
+4$4 $scala/math/BigInt.apply().2#
+44 $scala/package.BigInt.2)
+55 _empty_/foo.Char.unapply().2
+5	5 _empty_/foo.Char.2)
+55 _empty_/foo.Bit0.unapply().2
+55 _empty_/foo.Bit0.2(
+55 _empty_/foo.One.unapply().2
+55 _empty_/foo.One.2(
+5$5 $scala/math/BigInt.apply().2#
+55 $scala/package.BigInt.2)
+66 _empty_/foo.Char.unapply().2
+6	6 _empty_/foo.Char.2(
+66 _empty_/foo.One.unapply().2
+66 _empty_/foo.One.2(
+66 scala/math/BigInt.apply().2#
+66 scala/package.BigInt.2.
+77  _empty_/foo.zero_char.unapply().2$
+7	7 _empty_/foo.zero_char.2(
+77 scala/math/BigInt.apply().2#
+77 scala/package.BigInt.PZ D2C336526E1483B6D5AFCB44A8204DD5

@@ -1,0 +1,32 @@
+
+¤tests/pos/maxim1.scala*
+_empty_/test.
+ *test€*
+_empty_/test.f().*f€*
+_empty_/test.f().(x)*x€*
+_empty_/test.f().(y)*y€*
+_empty_/test.y().*y€*
+local0*y€*!
+_empty_/test.main().*main€2
+ _empty_/test.2
+ _empty_/test.f().2"
+ 	_empty_/test.f().(x)2
+ 
+scala/Int#2"
+ _empty_/test.f().(y)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2"
+ _empty_/test.f().(x)2"
+ _empty_/test.f().(y)2
+ _empty_/test.y().2
+	 
+scala/Int#2
+ 
+scala/Int#2
+ _empty_/test.f().2
+ local02"
+ 
+_empty_/test.main().2&
+ scala/Function1#apply().2
+ _empty_/test.y().PZ B4AFA13233B69ECE43AA306D37EA6DE5

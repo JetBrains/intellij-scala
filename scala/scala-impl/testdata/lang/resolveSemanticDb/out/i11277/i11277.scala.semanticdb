@@ -1,0 +1,31 @@
+
+çtests/pos/i11277.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#Num#*Num€*
+_empty_/Foo#z. €*z€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.id().*id€*
+_empty_/Test.id().(f)*f€*
+_empty_/Test.id().(x)*x€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#Num#2
+ 
+scala/Int#2
+ _empty_/Foo#z.2 
+ _empty_/Test.id().2
+
+ _empty_/Test.2
+ _empty_/Test.2 
+ _empty_/Test.id().2#
+	 
+_empty_/Test.id().(f)2
+ _empty_/Foo#2#
+ _empty_/Test.id().(x)2
+ _empty_/Foo#Num#2#
+ _empty_/Test.id().(f)2
+ !_empty_/Foo#Num#2#
+ _empty_/Test.id().(f)2#
+$ %_empty_/Test.id().(x)PZ 6532DF18CCAB08FA93F77D292ADA77A9

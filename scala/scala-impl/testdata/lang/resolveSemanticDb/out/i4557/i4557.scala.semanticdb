@@ -1,0 +1,28 @@
+
+‹tests/pos/i4557.scala*
+_empty_/Parser#*Parser€*,
+_empty_/Parser#`<init>`(). €@*<init>€*
+_empty_/Parser#[T]	*T€*"
+_empty_/Parser#[Elem]	*Elem€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.P#*P€*
+_empty_/Test.P#[T]	*T€*/
+_empty_/Test.CustomParser#*CustomParser€*7
+%_empty_/Test.CustomParser#`<init>`(). €@*<init>€2
+ _empty_/Parser#2$
+ _empty_/Parser#`<init>`().2
+ _empty_/Parser#[T]2
+ _empty_/Parser#[Elem]2
+ _empty_/Test.2
+ _empty_/Test.P#2 
+	 
+_empty_/Test.P#[T]2
+ _empty_/Parser#2 
+ _empty_/Test.P#[T]2
+ scala/Char#2(
+ _empty_/Test.CustomParser#23
+ %_empty_/Test.CustomParser#`<init>`().2(
+$ $_empty_/Parser#`<init>`().2
+ _empty_/Test.P#2
+ #scala/Unit#PZ BB9E5906454302CD4F457B3C84BB0780

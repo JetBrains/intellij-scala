@@ -1,0 +1,41 @@
+
+Ñtests/pos/i12140/Trait.scala*
+example/Trait#*Trait€*+
+example/Trait#`<init>`(). €@*<init>€*!
+example/Trait#foo.  *foo€*
+example/Trait.
+ *Trait€* 
+example/Trait.get().*get€*(
+example/Trait.getImpl().*getImpl€*+
+example/Trait.getImpl().(x$1)  *x$1€*
+local0 *$anon€2
+ example/2
+ scala/quoted/2
+ example/Trait#2'
+ example/Trait#`<init>`().2 
+ example/Trait#foo.2
+ 
+scala/Int#2
+		 example/Trait.2"
+
+
+ example/Trait.get().2
+
+
+ example/Trait#21
+
+
+ #scala/quoted/runtime/Expr.splice().2&
+
+
+ $example/Trait.getImpl().2&
+ example/Trait.getImpl().2+
+ example/Trait.getImpl().(x$1)2"
+ scala/quoted/Quotes#2 
+ !scala/quoted/Expr#2
+" 'example/Trait#2-
+: :scala/ContextFunction1#apply().20
+. ."scala/quoted/runtime/Expr.quote().2
+. .local02
+2 7example/Trait#2+
++ +example/Trait.getImpl().(x$1)PZ 1D42A8FF0BBECE991531049FACBD400C

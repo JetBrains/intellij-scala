@@ -1,0 +1,67 @@
+
+ùtests/pos/t5577.scala*
+_empty_/Test.
+ *Test€*3
+_empty_/Test.AlarmingBuffer#*AlarmingBuffer€*9
+'_empty_/Test.AlarmingBuffer#`<init>`(). €@*<init>€*)
+_empty_/Test.AlarmingBuffer#[T]	*T€*8
+'_empty_/Test.AlarmingBuffer#sizeHint().*sizeHint€*4
+*_empty_/Test.AlarmingBuffer#sizeHint().(x)*x€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*!
+local0 €*iteratorBuilder€*
+local1*res€*
+local2*x€2
+ scala/collection/2
+ _empty_/Test.2*
+		 _empty_/Test.AlarmingBuffer#25
+		 '_empty_/Test.AlarmingBuffer#`<init>`().2@
+	8	 82scala/collection/mutable/ArrayBuffer#`<init>`(+1).23
+	*	 5%scala/collection/mutable/ArrayBuffer#2'
+	"	 )scala/collection/mutable/2-
+	6	 7_empty_/Test.AlarmingBuffer#[T]2-
+		 _empty_/Test.AlarmingBuffer#[T]25
+
+
+ '_empty_/Test.AlarmingBuffer#sizeHint().28
+
+
+ *_empty_/Test.AlarmingBuffer#sizeHint().(x)2
+
+
+  
+scala/Int#2
+
+#
+ 'scala/Unit#2'
+ scala/Predef.println(+1).2%
+' (java/lang/String#`+`().28
+) **_empty_/Test.AlarmingBuffer#sizeHint().(x)2>
+ 0scala/collection/mutable/ArrayBuffer#sizeHint().28
+ *_empty_/Test.AlarmingBuffer#sizeHint().(x)2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02?
+4 =1scala/collection/mutable/ArrayBuffer#mapResult().25
+2 2'_empty_/Test.AlarmingBuffer#`<init>`().2*
+ -_empty_/Test.AlarmingBuffer#2
+. 1
+scala/Int#2
+ 	local128
+ *scala/collection/IndexedSeqOps#iterator().2
+ local12:
+ ,scala/collection/mutable/Builder#sizeHint().2
+ local028
+ *scala/collection/mutable/Growable#`++=`().2
+ local02,
+  scala/runtime/RichInt#until().26
+ (scala/LowPriorityImplicits#intWrapper().29
+ $+scala/collection/IterableOnceOps#foreach().28
+ *scala/collection/mutable/Builder#result().2
+ local02'
+% ,scala/Predef.println(+1).2
+% %local2PZ D169439F9E689005645FA9102C0AE12D

@@ -1,0 +1,46 @@
+
+á	tests/pos/i9403.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€* 
+local0*fCompareToBoolean€*
+local1*x€*
+local2 *	compareTo€*
+local3*y€*
+local4*y€2:
+  40scala/reflect/Selectable.reflectiveSelectable().2#
+ scala/reflect/Selectable.2
+ scala/reflect/2
+ scala/2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local02
+ local12
+# ,local22
+- .local32 
+: Ajava/lang/Boolean#2
+5 9
+java/lang/2
+0 4java/2
+D G
+scala/Int#2
+K Llocal42
+N Uscala/Boolean#2
+X [
+scala/Int#26
+ (scala/reflect/Selectable#applyDynamic().2>
+ 0scala/reflect/Selectable.reflectiveSelectable().2
+ local12-
+ scala/Predef.boolean2Boolean().2
+ local42&
+ 
+scala/Predef.assert(+1).2 
+* +scala/Int#`<`(+3).2
+ local02-
+ scala/Predef.boolean2Boolean().PZ 01706CB427BF58C2E8A14CE47234DF84

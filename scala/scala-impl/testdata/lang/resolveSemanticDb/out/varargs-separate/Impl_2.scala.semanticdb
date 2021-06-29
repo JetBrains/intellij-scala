@@ -1,0 +1,52 @@
+
+ç
+'tests/pos/varargs-separate/Impl_2.scala*
+_empty_/Impl#*ImplÄ**
+_empty_/Impl#`<init>`(). Ä@*<init>Ä*'
+_empty_/Impl#counter().*counterÄ*$
+_empty_/Impl#counter().(s)*sÄ*
+
+_empty_/B#*BÄ*'
+_empty_/B#`<init>`(). Ä@*<init>Ä*$
+_empty_/B#counter().*counterÄ*!
+_empty_/B#counter().(s)*sÄ*
+
+_empty_/C#*CÄ*'
+_empty_/C#`<init>`(). Ä@*<init>Ä*$
+_empty_/C#counter().*counterÄ*!
+_empty_/C#counter().(s)*sÄ2#
+ scala/annotation/varargs#2
+ scala/annotation/2
+ scala/2
+ 
+_empty_/Impl#2&
+ _empty_/Impl#`<init>`().2%
+ _empty_/Abs#`<init>`().2
+ _empty_/Abs#2%
+ _empty_/Impl#counter().2(
+ _empty_/Impl#counter().(s)2"
+  scala/Predef.String#2
+$ (scala/Unit#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/T#2"
+ _empty_/B#counter().2%
+ _empty_/B#counter().(s)2"
+  scala/Predef.String#2
+$ (scala/Unit#2
+
+
+ 
+_empty_/C#2#
+
+
+ _empty_/C#`<init>`().2
+
+
+ 
+_empty_/B#2"
+ _empty_/C#counter().2%
+ _empty_/C#counter().(s)2"
+  scala/Predef.String#PZ 9E6EDF3F6F7E10A48E22158C738DC089

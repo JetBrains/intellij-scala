@@ -1,0 +1,26 @@
+
+Ütests/pos/t2187.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*"
+_empty_/Test.foo().(xs)*xs€*
+local0 €*x€*
+local1 €*x€*
+local2 €*y€2
+ _empty_/Test.2
+ 
+scala/App#2!
+ 	_empty_/Test.foo().2%
+
+ _empty_/Test.foo().(xs)2!
+ scala/package.List#2"
+ scala/Predef.String#2%
+ _empty_/Test.foo().(xs)27
+ )scala/collection/SeqFactory#unapplySeq().2 
+	 scala/package.Seq.2
+ local02
+ local027
+ )scala/collection/SeqFactory#unapplySeq().2 
+	 scala/package.Seq.2
+ local12
+ local2PZ 6A116A3DDD5941D3397F0859E47B4CC4

@@ -1,0 +1,214 @@
+
+¬3tests/pos/test-implicits1.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*+
+_empty_/X#`<init>`().(elem) €*elem€*
+_empty_/X#elem. €*elem€*
+_empty_/X#foo().*foo€*
+_empty_/X#foo().(y)*y€*
+
+_empty_/X.
+ *X€*"
+_empty_/X.BarDeco#*BarDeco€*/
+_empty_/X.BarDeco#`<init>`(). €@*<init>€**
+ _empty_/X.BarDeco#`<init>`().(x)*x€*!
+_empty_/X.BarDeco#x. €*x€*$
+_empty_/X.BarDeco#bar().*bar€*&
+_empty_/X.BarDeco(). (*BarDeco€*!
+_empty_/X.BarDeco().(x)*x€*&
+_empty_/Implicits.
+ *	Implicits€*'
+_empty_/Implicits.impl.  *impl€*(
+_empty_/Implicits.conv().  *conv€*&
+_empty_/Implicits.conv().(x)*x€*0
+_empty_/Implicits.Xdecorator#*
+Xdecorator€*:
+(_empty_/Implicits.Xdecorator#`<init>`(). €@*<init>€*5
++_empty_/Implicits.Xdecorator#`<init>`().(x)*x€*,
+_empty_/Implicits.Xdecorator#x. €*x€*/
+#_empty_/Implicits.Xdecorator#foo().*foo€*6
+)_empty_/Implicits.Xdecorator#foo().(cond)*cond€*4
+_empty_/Implicits.XDecorator().  *
+XDecorator€*,
+"_empty_/Implicits.XDecorator().(x)*x€*!
+_empty_/Implicits.a. €*a€*!
+_empty_/Implicits.b. €*b€*$
+_empty_/Implicits.foo().*foo€*%
+_empty_/Implicits.foo().(x)*x€*'
+_empty_/Implicits.foo().(y)  *y€*!
+_empty_/Implicits.y. €*y€*!
+_empty_/Implicits.z. €*z€*!
+_empty_/Implicits.c. €*c€*!
+_empty_/Implicits.d. €*d€*!
+_empty_/Implicits.x. €*x€*!
+_empty_/Implicits.e. €*e€*,
+_empty_/Implicits.Modifier#*Modifier€*8
+&_empty_/Implicits.Modifier#`<init>`(). €@*<init>€*4
+_empty_/Implicits.stringNode().  *
+stringNode€*,
+"_empty_/Implicits.stringNode().(v)*v€*
+local0 *$anon€*!
+_empty_/Implicits.s. €*s€*#
+_empty_/Implicits.xx. €*xx€**
+_empty_/Implicits.useOrd().*useOrd€*(
+_empty_/Implicits.useOrd().[T]	*T€**
+_empty_/Implicits.useOrd().(xs)*xs€2
+ 
+_empty_/X#2
+ _empty_/X#`<init>`().2
+ 
+scala/Int#2
+ _empty_/X#elem.2
+ 	_empty_/X#foo().2!
+
+ _empty_/X#foo().(y)2"
+ scala/Predef.String#2
+ 
+scala/Int#2 
+% &scala/Int#`+`(+4).2(
+ $java/lang/String#length().2!
+ _empty_/X#foo().(y)2
+' +_empty_/X#elem.2
+ 
+_empty_/X.2 
+ _empty_/X.BarDeco#2+
+ _empty_/X.BarDeco#`<init>`().2
+ 
+_empty_/X#2"
+ _empty_/X.BarDeco#x.2&
+ _empty_/X.BarDeco#bar().2"
+ scala/Predef.String#2"
+ _empty_/X.BarDeco().2 
+
+
+ _empty_/Implicits.2%
+ _empty_/Implicits.impl.2
+ 
+_empty_/X#2#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2'
+ _empty_/Implicits.conv().2*
+ _empty_/Implicits.conv().(x)2
+ 
+scala/Int#2
+ 
+_empty_/X#2#
+& &_empty_/X#`<init>`().2
+% &
+_empty_/X#2*
+' (_empty_/Implicits.conv().(x)2+
+ _empty_/Implicits.Xdecorator#26
+ (_empty_/Implicits.Xdecorator#`<init>`().2
+ 
+_empty_/X#2*
+' 'java/lang/Object#`<init>`().2
+! 'java/lang/Object#2-
+ _empty_/Implicits.Xdecorator#x.21
+ #_empty_/Implicits.Xdecorator#foo().27
+ )_empty_/Implicits.Xdecorator#foo().(cond)2
+ scala/Boolean#2
+ 
+scala/Int#27
+& *)_empty_/Implicits.Xdecorator#foo().(cond)2
+. 1_empty_/X#foo().2-
+, -_empty_/Implicits.Xdecorator#x.2-
+ _empty_/Implicits.XDecorator().20
+ "_empty_/Implicits.XDecorator().(x)2
+ 
+_empty_/X#2+
+! +_empty_/Implicits.Xdecorator#26
+< <(_empty_/Implicits.Xdecorator#`<init>`().2+
+2 <_empty_/Implicits.Xdecorator#20
+= >"_empty_/Implicits.XDecorator().(x)2"
+ _empty_/Implicits.a.2
+	 java/lang/Object#2"
+ _empty_/Implicits.b.2
+	 
+scala/Any#2&
+ 	_empty_/Implicits.foo().2)
+
+ _empty_/Implicits.foo().(x)2
+ 
+scala/Int#2)
+ _empty_/Implicits.foo().(y)2
+ 
+_empty_/X#2
+" %
+scala/Int#2'
+ scala/Predef.println(+1).2)
+ _empty_/Implicits.foo().(y)2)
+ _empty_/Implicits.foo().(x)2"
+ _empty_/Implicits.y.2
+	 
+scala/Int#2&
+ _empty_/Implicits.foo().2%
+ _empty_/Implicits.impl.2"
+   _empty_/Implicits.z.2
+ 	  
+
+_empty_/X#2'
+   _empty_/Implicits.conv().2"
+"" _empty_/Implicits.c.2
+"	" 
+scala/Int#2
+"" _empty_/X#elem.2'
+"" _empty_/Implicits.conv().2"
+"" _empty_/Implicits.y.2"
+$$ _empty_/Implicits.d.2
+$	$ 
+scala/Int#2
+$$ _empty_/X#foo().2"
+$$ _empty_/Implicits.z.2"
+&& _empty_/Implicits.x.2
+&	& 
+
+_empty_/X#2'
+&& _empty_/Implicits.conv().2'
+** 	scala/Predef.println(+1).2&
+** _empty_/X.BarDeco#bar().2"
+*
+* 
+_empty_/X.BarDeco().2"
+*
+* _empty_/Implicits.z.2"
+,, _empty_/Implicits.e.2
+,	, 
+scala/Int#21
+,, #_empty_/Implicits.Xdecorator#foo().2-
+,, _empty_/Implicits.XDecorator().2"
+,, _empty_/Implicits.z.2)
+00 _empty_/Implicits.Modifier#24
+00 &_empty_/Implicits.Modifier#`<init>`().2-
+22 _empty_/Implicits.stringNode().20
+22 "_empty_/Implicits.stringNode().(v)2"
+22 #scala/Predef.String#2)
+2&2 ._empty_/Implicits.Modifier#2
+212 1local02)
+252 =_empty_/Implicits.Modifier#2"
+44 _empty_/Implicits.s.2)
+4	4 _empty_/Implicits.Modifier#2-
+44 _empty_/Implicits.stringNode().2'
+44 (scala/Option#getOrElse().2!
+44 scala/Some.apply().2
+44 scala/Some.2#
+66 _empty_/Implicits.xx.2
+6
+6 
+scala/Int#2$
+66 scala/Byte.byte2int().2
+66 scala/Byte#2)
+99 _empty_/Implicits.useOrd().2,
+99 _empty_/Implicits.useOrd().[T]2-
+99 !_empty_/Implicits.useOrd().(xs)2,
+9#9 $_empty_/Implicits.useOrd().[T]2"
+99 scala/math/Ordering#2
+99 scala/math/2,
+99 _empty_/Implicits.useOrd().[T]2)
+:: _empty_/Implicits.useOrd().2!
+:: scala/Some.apply().2
+:	: scala/Some.2
+:: scala/None.2+
+:: scala/math/Ordering.Option().2&
+:: scala/math/Ordering.Int.PZ F57BACE402280A10DEC38DB607FB11E5

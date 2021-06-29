@@ -1,0 +1,58 @@
+
+ó	!tests/pos/caseClassInMethod.scala*
+
+_empty_/t.
+ *t€*
+_empty_/t.f().*f€*
+local0
+ *C€*
+local1*apply€*
+local2*unapply€*
+local3*x$1€*
+local4*toString€*
+local5 €*C€*
+local6*copy€*
+_empty_/t.g().*g€*
+local7 €*D€*
+local8 €*x€*
+local9*copy€*
+local10*copy$default$1€*
+local11*_1€*
+local12
+ *D€*
+local13*apply€*
+local14*unapply€*
+local15*x$1€*
+local16*toString€*
+_empty_/t.h().*h€*
+local17 €*E€*
+local18 €*y€*
+local19*copy€*
+local20*copy$default$1€*
+local21*_1€*
+local22
+ *E€*
+local23*apply€*
+local24*unapply€*
+local25*x$1€*
+local26*toString€*+
+local27*$lessinit$greater$default$1€2
+ 
+_empty_/t.2
+ _empty_/t.f().2
+ local02
+! "local52
+ _empty_/t.g().2
+ local72
+ local82
+ local92
+ local112
+) *local122
+ local132
+ _empty_/t.h().2
+ local172
+ local182
+ local192
+ local212
+ local222
+ local23PZ 56BCBC57DB56CABCA82E5563F913DE73

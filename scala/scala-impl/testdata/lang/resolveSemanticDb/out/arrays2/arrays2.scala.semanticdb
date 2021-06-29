@@ -1,0 +1,105 @@
+
+¤tests/pos/arrays2.scala*
+
+_empty_/C# €*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#copy().*copy€*
+
+_empty_/C.
+ *C€* 
+_empty_/C.apply().*apply€*$
+_empty_/C.unapply().*unapply€*%
+_empty_/C.unapply().(x$1)*x$1€*&
+_empty_/C.toString().*toString€*"
+_empty_/arrays2.
+ *arrays2€*$
+_empty_/arrays2.main().*main€**
+_empty_/arrays2.main().(args)*args€*
+local0 €*a€*"
+_empty_/arrays4.
+ *arrays4€*%
+_empty_/arrays4.args. €*args€*"
+_empty_/arrays3.
+ *arrays3€*&
+_empty_/arrays3.apply().*apply€*%
+_empty_/arrays3.apply().[X]	*X€*'
+_empty_/arrays3.apply().(xs)*xs€*(
+_empty_/arrays3.apply2().*apply2€*&
+_empty_/arrays3.apply2().[X]	*X€*(
+_empty_/arrays3.apply2().(xs)*xs€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 
+_empty_/C.2
+ _empty_/arrays2.2%
+ 
+_empty_/arrays2.main().2+
+ _empty_/arrays2.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02
+ scala/Array#2
+ scala/Array#2
+ 
+_empty_/C#2%
+0 0scala/Array#`<init>`().2
+! &scala/Array#2
+' ,scala/Array#2
+- .
+_empty_/C#2#
+ scala/Array#update().2
+ local02%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ 
+_empty_/C#2#
+ scala/Array#update().2"
+ scala/Array#apply().2
+ local02#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/arrays4.2#
+ 
+_empty_/arrays4.args.2"
+ scala/Array.apply().2
+ scala/Array.2"
+ scala/Predef.String#2-
+# #scala/reflect/ClassTag.apply().22
+ $scala/collection/StringOps#format().2+
+ scala/Predef.augmentString().2#
+ _empty_/arrays4.args.2
+ _empty_/arrays3.2&
+ _empty_/arrays3.apply().2)
+ _empty_/arrays3.apply().[X]2
+ scala/AnyRef#2*
+ _empty_/arrays3.apply().(xs)2)
+ _empty_/arrays3.apply().[X]2
+. 2java/util/List#2
+) -
+java/util/2
+$ (java/2)
+3 4_empty_/arrays3.apply().[X]2(
+I Ojava/util/Arrays#asList().2
+B Hjava/util/Arrays#2
+= A
+java/util/2
+8 <java/2*
+P R_empty_/arrays3.apply().(xs)2'
+ _empty_/arrays3.apply2().2*
+ _empty_/arrays3.apply2().[X]2+
+ _empty_/arrays3.apply2().(xs)2*
+ _empty_/arrays3.apply2().[X]2
+% )java/util/List#2
+  $
+java/util/2
+ java/2*
+* +_empty_/arrays3.apply2().[X]2(
+@ Fjava/util/Arrays#asList().2
+9 ?java/util/Arrays#2
+4 8
+java/util/2
+/ 3java/2+
+G I_empty_/arrays3.apply2().(xs)PZ ACB7AAB3868F779339E7D28EB517CF65

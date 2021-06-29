@@ -1,0 +1,77 @@
+
+”tests/pos/or-inf.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a().*a€*"
+_empty_/Test.a().(lis)*lis€*
+_empty_/Test.b().*b€*"
+_empty_/Test.b().(lis)*lis€*
+_empty_/Test.c().*c€*
+_empty_/Test.c().(x)*x€2
+ _empty_/Test.2
+ _empty_/Test.a().2$
+ _empty_/Test.a().(lis)2
+ 
+scala/`|`#2
+ scala/Predef.Set#2
+ 
+scala/Int#2
+ scala/Predef.Set#2"
+ "scala/Predef.String#2
+ _empty_/Test.a().27
+ )scala/collection/IterableFactory#apply().2
+ scala/Predef.Set.2
+ _empty_/Test.a().27
+ )scala/collection/IterableFactory#apply().2
+ scala/Predef.Set.2
+ _empty_/Test.b().2$
+ _empty_/Test.b().(lis)2!
+ scala/package.List#2
+ 
+scala/`|`#2
+ scala/Predef.Set#2
+ 
+scala/Int#2
+  scala/Predef.Set#2"
+! 'scala/Predef.String#2
+ _empty_/Test.b().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+ )scala/collection/IterableFactory#apply().2
+	 scala/Predef.Set.2
+ _empty_/Test.b().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+ )scala/collection/IterableFactory#apply().2
+	 scala/Predef.Set.2
+
+
+ _empty_/Test.c().2"
+
+
+ 	_empty_/Test.c().(x)2
+
+
+ 
+scala/`|`#2
+
+
+ scala/Predef.Set#2
+
+
+ 
+scala/Any#2
+
+
+ scala/Array#2
+
+
+ 
+scala/Any#2
+ _empty_/Test.c().27
+ )scala/collection/IterableFactory#apply().2
+ scala/Predef.Set.2
+ _empty_/Test.c().2"
+	 	scala/Array.apply().2
+ 	scala/Array.2)
+ scala/reflect/ClassTag.Any.PZ 286227B8620305B53F1F653EFDCF74F7

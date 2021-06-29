@@ -1,0 +1,11 @@
+
+Ü*tests/pos/mixin-forwarder-clash2/B_2.scala*
+_empty_/Bar2#*Bar2€**
+_empty_/Bar2#`<init>`(). €@*<init>€2
+ 
+_empty_/Bar2#2&
+ _empty_/Bar2#`<init>`().2&
+ _empty_/Bar1#`<init>`().2
+ _empty_/Bar1#2
+  _empty_/Two#2
+! $_empty_/Foo#PZ E1D9019A88155143233EF2CBA793EA5A

@@ -1,0 +1,35 @@
+
+£tests/pos/singletontrait.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[T]	*T€* 
+_empty_/Test.foo().(x)*x€*
+_empty_/Test.bar().*bar€* 
+_empty_/Test.bar().[T]	*T€* 
+_empty_/Test.bar().(x)*x€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[T]2
+ scala/Singleton#2$
+ _empty_/Test.foo().(x)2$
+ _empty_/Test.foo().[T]2$
+! "_empty_/Test.foo().[T]2$
+% &_empty_/Test.foo().(x)2!
+ 	_empty_/Test.bar().2$
+
+ _empty_/Test.bar().[T]2
+ 
+scala/Int#2
+ !scala/Singleton#2$
+# $_empty_/Test.bar().(x)2$
+& '_empty_/Test.bar().[T]2$
+* +_empty_/Test.bar().[T]2$
+. /_empty_/Test.bar().(x)2
+ _empty_/Test.a.2!
+ _empty_/Test.foo().2
+ _empty_/Test.b.2!
+ _empty_/Test.bar().PZ 9F2F85BF3EFBF79EEDE788E17B773459

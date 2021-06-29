@@ -1,0 +1,18 @@
+
+ôtests/pos/t177.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#foo().*foo€*
+local0
+ *Y€*
+local1*bar€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 	_empty_/A#foo().2
+ local02
+
+ local12
+ 	local12
+ local2PZ A491108B51273D66E4AC1101290B18AF

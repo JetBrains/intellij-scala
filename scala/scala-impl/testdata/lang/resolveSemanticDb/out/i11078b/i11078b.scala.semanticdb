@@ -1,0 +1,77 @@
+
+çtests/pos/i11078b.scala*
+_empty_/Test#*TestÄ**
+_empty_/Test#`<init>`(). Ä@*<init>Ä*
+_empty_/Test#Foo#*FooÄ*.
+_empty_/Test#Foo#`<init>`(). Ä@*<init>Ä*
+_empty_/Test#Foo#[A]	*AÄ*+
+_empty_/Test#FooWrapper#*
+FooWrapperÄ*5
+#_empty_/Test#FooWrapper#`<init>`(). Ä@*<init>Ä*
+local0*selfÄ*$
+_empty_/Test#FooWrapper#A#*AÄ*2
+"_empty_/Test#FooWrapper#doThing().*doThingÄ*3
+'_empty_/Test#FooWrapper#doThing().(foo)*fooÄ*
+local1*AÄ*"
+_empty_/Test#foos. Ä*foosÄ*&
+_empty_/Test#newFoo. Ä*newFooÄ*
+local2*topFooÄ*
+local3*fooÄ2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#Foo#2*
+ _empty_/Test#Foo#`<init>`().2"
+ _empty_/Test#Foo#[A]2&
+ _empty_/Test#FooWrapper#21
+ #_empty_/Test#FooWrapper#`<init>`().2
+ local02(
+	 
+_empty_/Test#FooWrapper#A#2
+ _empty_/Test#Foo#2(
+ _empty_/Test#FooWrapper#A#20
+ "_empty_/Test#FooWrapper#doThing().25
+ '_empty_/Test#FooWrapper#doThing().(foo)2&
+ _empty_/Test#FooWrapper#2&
+" ,_empty_/Test#FooWrapper#2
+4 5local12(
+= >_empty_/Test#FooWrapper#A#2&
+8 <_empty_/Test#FooWrapper#2#
+C Fscala/Predef.`???`().2&
+ _empty_/Test#FooWrapper#2 
+		 
+_empty_/Test#foos.2 
+		 scala/package.Seq#2
+		 scala/2&
+		  _empty_/Test#FooWrapper#2#
+	$	 'scala/Predef.`???`().2"
+
+
+ _empty_/Test#newFoo.2:
+
+
+ ,scala/collection/IterableOnceOps#foldLeft().2 
+
+
+ _empty_/Test#foos.2#
+
+
+  scala/Predef.`???`().2&
+
+#
+ -_empty_/Test#FooWrapper#2
+
+0
+ 6local22
+
+8
+ ;local320
+
+G
+ N"_empty_/Test#FooWrapper#doThing().2
+
+@
+ Flocal22
+
+O
+ Rlocal3PZ 6F225553866F24D18C6C2D9A61FE4BA5

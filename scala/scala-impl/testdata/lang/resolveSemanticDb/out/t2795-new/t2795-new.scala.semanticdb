@@ -1,0 +1,48 @@
+
+˜tests/pos/t2795-new.scala*
+t1/Element#*Element€*(
+t1/Element#`<init>`(). €@*<init>€*
+t1/Element#[T]	*T€*
+
+t1/Config#*Config€*'
+t1/Config#`<init>`(). €@*<init>€*
+t1/Config#T#*T€*
+t1/Config#m. ¤*m€*
+t1/Transform#*	Transform€**
+t1/Transform#`<init>`(). €@*<init>€*
+local0*self€*1
+t1/Transform#processBlock().*processBlock€*1
+#t1/Transform#processBlock().(block)*block€*
+local1 €*X€2
+ 
+t1/2%
+ scala/reflect/ClassTag.2%
+ scala/reflect/ClassTag#2/
+  (!scala/reflect/package.classTag().2
+ scala/reflect/2
+ scala/2
+ t1/Element#2$
+ t1/Element#`<init>`().2
+ t1/Element#[T]2
+ 
+t1/Config#2#
+ t1/Config#`<init>`().2
+ t1/Config#T#2
+ t1/Element#2
+ t1/Config#T#2
+		 t1/Config#m.2%
+		 scala/reflect/ClassTag#2
+		 t1/Config#T#2
+ t1/Transform#2&
+ t1/Transform#`<init>`().2
+ local02
+ 
+t1/Config#2*
+ t1/Transform#processBlock().21
+ #t1/Transform#processBlock().(block)2
+ scala/Array#2
+  !t1/Config#T#2
+% )scala/Unit#2
+ 	local125
+ 'scala/runtime/Arrays.newGenericArray().2
+ t1/Config#m.PZ FD2C1E6D3CA98590C2C44D686E001D15

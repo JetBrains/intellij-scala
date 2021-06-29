@@ -1,0 +1,24 @@
+
+ütests/pos/t3528.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f2().*f2€*
+_empty_/A#f3().*f3€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f2().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+ )scala/collection/IterableFactory#apply().2
+ scala/Predef.Set.27
+   )scala/collection/IterableFactory#apply().2!
+  scala/package.List.2
+ _empty_/A#f3().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2"
+ scala/package.Range#2!
+# 'scala/package.List#2
+( +
+scala/Int#PZ C79212DE8614C431569340FD7BFB6009

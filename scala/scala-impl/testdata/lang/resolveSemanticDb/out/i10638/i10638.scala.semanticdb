@@ -1,0 +1,31 @@
+
+ùtests/pos/i10638.scala*
+	woes/Txn#*TxnÄ*&
+woes/Txn#`<init>`(). Ä@*<init>Ä*
+woes/Txn#[T]	*TÄ*
+
+woes/Impl#*ImplÄ*'
+woes/Impl#`<init>`(). Ä@*<init>Ä*
+woes/Impl#[Repr]	*ReprÄ*
+woes/Impl#Ext# *ExtÄ*!
+woes/Extension#*	ExtensionÄ*,
+woes/Extension#`<init>`(). Ä@*<init>Ä*"
+woes/Extension#[Repr]	*ReprÄ2
+ woes/2
+ 		woes/Txn#2"
+	 	woes/Txn#`<init>`().2
+
+ woes/Txn#[T]2
+ 
+
+woes/Impl#2#
+
+ 
+woes/Impl#`<init>`().2
+ woes/Impl#[Repr]2
+ woes/Impl#Ext#2
+ woes/Extension#2
+ !woes/Impl#[Repr]2
+ woes/Extension#2(
+ woes/Extension#`<init>`().2#
+ woes/Extension#[Repr]PZ D05E2B27D0136578213C1A9D2EB8DF3A

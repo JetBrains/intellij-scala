@@ -1,0 +1,85 @@
+
+Ètests/pos/i4075-gadt.scala*
+_empty_/i4075.
+ *i4075€*!
+_empty_/i4075.One# €*One€*/
+_empty_/i4075.One#`<init>`(). €@*<init>€*1
+"_empty_/i4075.One#`<init>`().(fst) €*fst€*
+_empty_/i4075.One#[T]	*T€*%
+_empty_/i4075.One#fst. €*fst€*&
+_empty_/i4075.One#copy().*copy€*&
+_empty_/i4075.One#copy().[T]	*T€**
+_empty_/i4075.One#copy().(fst)*fst€*:
+#_empty_/i4075.One#copy$default$1().*copy$default$1€*0
+&_empty_/i4075.One#copy$default$1().[T]	*T€*"
+_empty_/i4075.One#_1().*_1€* 
+_empty_/i4075.One.
+ *One€*(
+_empty_/i4075.One.apply().*apply€*'
+_empty_/i4075.One.apply().[T]	*T€*+
+_empty_/i4075.One.apply().(fst)*fst€*,
+_empty_/i4075.One.unapply().*unapply€*)
+_empty_/i4075.One.unapply().[T]	*T€*-
+!_empty_/i4075.One.unapply().(x$1)*x$1€*.
+_empty_/i4075.One.toString().*toString€* 
+_empty_/i4075.bad().*bad€*!
+_empty_/i4075.bad().[T]	*T€*!
+_empty_/i4075.bad().(e)*e€*
+local0 €*foo€*
+local1 €	*a€*
+local2 €*t€*
+local3 €*ok€*!
+_empty_/i4075.one. €*one€2
+ _empty_/i4075.2 
+ _empty_/i4075.One#2+
+ _empty_/i4075.One#`<init>`().2#
+ _empty_/i4075.One#[T]2#
+ _empty_/i4075.One#[T]2$
+ _empty_/i4075.One#fst.2'
+ _empty_/i4075.One#copy().2%
+ _empty_/i4075.One#_1().2 
+ _empty_/i4075.One.2(
+ _empty_/i4075.One.apply().2*
+ _empty_/i4075.One.unapply().2"
+ 	_empty_/i4075.bad().2%
+
+ _empty_/i4075.bad().[T]2%
+ _empty_/i4075.bad().(e)2 
+ _empty_/i4075.One#2%
+ _empty_/i4075.bad().[T]2%
+ _empty_/i4075.bad().(e)2
+	 local02 
+ _empty_/i4075.One#2
+ local12
+
+ local22%
+ _empty_/i4075.bad().[T]2$
+ _empty_/i4075.One#fst.2%
+ _empty_/i4075.bad().(e)2
+
+ local32
+ local12
+ local22(
+	 	_empty_/i4075.One.apply().2 
+ 	_empty_/i4075.One.2
+
+ local32 
+
+
+ 	_empty_/i4075.one.2 
+
+
+ _empty_/i4075.One#2
+
+
+ 
+scala/Int#2"
+
+
+ _empty_/i4075.bad().2(
+
+
+ _empty_/i4075.One.apply().2 
+
+
+ _empty_/i4075.One.PZ E031B7037837A9656974EF6A982CF25D

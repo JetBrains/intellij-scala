@@ -1,0 +1,47 @@
+
+›)tests/pos/singleton-ops-composition.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.t0. €*t0€*
+_empty_/Test.t1. €*t1€*
+_empty_/Test.t3. €*t3€*
+_empty_/Test.t4. €*t4€*
+_empty_/Test.t5. €*t5€2(
+ $scala/compiletime/ops/boolean.2 
+ scala/compiletime/ops/2
+ scala/compiletime/2
+ scala/2(
+  scala/compiletime/ops/int.2$
+ scala/compiletime/ops/2 
+ scala/compiletime/2
+ scala/2
+ _empty_/Test.2
+ _empty_/Test.t0.2,
+ scala/compiletime/ops/int.`+`#2,
+ scala/compiletime/ops/int.`*`#2
+ _empty_/Test.t1.2,
+ scala/compiletime/ops/int.`%`#2,
+ scala/compiletime/ops/int.`+`#2,
+ scala/compiletime/ops/int.`*`#2
+ _empty_/Test.t3.2,
+  !scala/compiletime/ops/int.`+`#2,
+ scala/compiletime/ops/int.`+`#2,
+ scala/compiletime/ops/int.`+`#2,
+ scala/compiletime/ops/int.`*`#2,
+ scala/compiletime/ops/int.`*`#2,
+ scala/compiletime/ops/int.`*`#2,
+$ %scala/compiletime/ops/int.`*`#2
+ _empty_/Test.t4.21
+( *#scala/compiletime/ops/boolean.`||`#21
+ #scala/compiletime/ops/boolean.`||`#21
+ #scala/compiletime/ops/boolean.`&&`#21
+  "#scala/compiletime/ops/boolean.`&&`#20
+1 2"scala/compiletime/ops/boolean.`^`#2
+ _empty_/Test.t5.22
+
+ $scala/compiletime/ops/int.BitwiseOr#2,
+( *scala/compiletime/ops/int.`^`#2-
+# %scala/compiletime/ops/int.`>>`#2.
+   scala/compiletime/ops/int.`>>>`#2-
+ scala/compiletime/ops/int.`<<`#23
+. 8%scala/compiletime/ops/int.BitwiseAnd#PZ 2DE656ADF8A1CD49864565B1EDD9C10C

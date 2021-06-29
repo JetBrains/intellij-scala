@@ -1,0 +1,171 @@
+
+õ&tests/pos/constrs.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*$
+_empty_/Foo#`<init>`().(x)*x€*'
+_empty_/Foo#`<init>`().(y) €*y€*
+_empty_/Foo#x. €*x€*
+_empty_/Foo#y(). €*y€*#
+_empty_/Foo#`y_=`(). €*y_=€*%
+_empty_/Foo#`y_=`().(x$1)*x$1€*
+_empty_/Foo#z. €*z€*
+_empty_/Foo#u(). €*u€*#
+_empty_/Foo#`u_=`(). €*u_=€*%
+_empty_/Foo#`u_=`().(x$1)*x$1€*
+_empty_/Foo#f().*f€*
+_empty_/Baz#*Baz€*)
+_empty_/Baz#`<init>`(). €@*<init>€*-
+_empty_/Baz#`<init>`().(base) €*base€*!
+_empty_/Baz#base. €*base€*
+_empty_/Bar#*Bar€*)
+_empty_/Bar#`<init>`(). €@*<init>€**
+_empty_/Bar#`<init>`().(base)*base€*.
+_empty_/Bar#`<init>`().(byName)*byName€*,
+_empty_/Bar#`<init>`().(local)*local€*!
+_empty_/Bar#base. €*base€*%
+_empty_/Bar#byName. €*byName€*#
+_empty_/Bar#local. €*local€*
+_empty_/Bar#f().*f€*"
+_empty_/Rational#*Rational€*.
+_empty_/Rational#`<init>`(). €@*<init>€*)
+_empty_/Rational#`<init>`().(n)*n€*)
+_empty_/Rational#`<init>`().(d)*d€* 
+_empty_/Rational#n. €*n€* 
+_empty_/Rational#d. €*d€*#
+_empty_/Rational#gcd().*gcd€*$
+_empty_/Rational#gcd().(x)*x€*$
+_empty_/Rational#gcd().(y)*y€* 
+_empty_/Rational#x. €*x€*'
+_empty_/Rational#numer().*numer€*'
+_empty_/Rational#denom().*denom€*$
+_empty_/Rational2#*	Rational2€*/
+_empty_/Rational2#`<init>`(). €@*<init>€**
+ _empty_/Rational2#`<init>`().(n)*n€**
+ _empty_/Rational2#`<init>`().(d)*d€*!
+_empty_/Rational2#n. €*n€*!
+_empty_/Rational2#d. €*d€*$
+_empty_/Rational2#gcd().*gcd€*%
+_empty_/Rational2#gcd().(x)*x€*%
+_empty_/Rational2#gcd().(y)*y€*!
+_empty_/Rational2#x. €*x€*)
+_empty_/Rational2#numer. €*numer€*)
+_empty_/Rational2#denom. €*denom€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2
+
+ _empty_/Foo#x.2
+ _empty_/Foo#y().2
+ _empty_/Foo#`y_=`().2
+ _empty_/Foo#z.2
+	 
+scala/Int#2
+ _empty_/Foo#u().2
+	 
+scala/Int#2@
+ (2scala/compiletime/package$package.uninitialized().2 
+ scala/compiletime/2"
+ 	_empty_/Foo#`u_=`().2
+ _empty_/Foo#f().2
+
+ _empty_/Foo#x.2
+
+
+ 	_empty_/Baz#2%
+
+	
+ 	_empty_/Baz#`<init>`().2
+
+
+ 
+scala/Int#2
+
+
+ _empty_/Baz#base.2
+ 	_empty_/Bar#2%
+	 	_empty_/Bar#`<init>`().2
+ 
+scala/Int#2"
+  &scala/Predef.String#2
+/ 2
+scala/Int#2%
+? ?_empty_/Baz#`<init>`().2
+< ?_empty_/Baz#2 
+E Fscala/Int#`+`(+4).2
+@ D_empty_/Bar#base.2 
+G L_empty_/Bar#local.2
+
+ _empty_/Bar#base.2!
+ _empty_/Bar#byName.2 
+( -_empty_/Bar#local.2
+ _empty_/Bar#f().2'
+ scala/Predef.println(+1).2%
+" #java/lang/String#`+`().2#
+ !scala/Any#toString().2
+ _empty_/Bar#base.2!
+$ *_empty_/Bar#byName.2
+ _empty_/Rational#2*
+ _empty_/Rational#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+ _empty_/Rational#n.2!
+ _empty_/Rational#d.2%
+ 	_empty_/Rational#gcd().2(
+
+ _empty_/Rational#gcd().(x)2
+ 
+scala/Int#2(
+ _empty_/Rational#gcd().(y)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+! $scala/Predef.`???`().2!
+ _empty_/Rational#x.2%
+ _empty_/Rational#gcd().2!
+ _empty_/Rational#n.2!
+ _empty_/Rational#d.2'
+ _empty_/Rational#numer().2 
+ scala/Int#`/`(+3).2!
+ _empty_/Rational#n.2!
+ _empty_/Rational#x.2'
+ _empty_/Rational#denom().2 
+ scala/Int#`/`(+3).2!
+ _empty_/Rational#d.2!
+ _empty_/Rational#x.2 
+ _empty_/Rational2#2+
+ _empty_/Rational2#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2"
+ _empty_/Rational2#n.2"
+ _empty_/Rational2#d.2&
+ 	_empty_/Rational2#gcd().2)
+
+ _empty_/Rational2#gcd().(x)2
+ 
+scala/Int#2)
+ _empty_/Rational2#gcd().(y)2
+ 
+scala/Int#2
+ 
+scala/Int#2#
+! $scala/Predef.`???`().2"
+ _empty_/Rational2#x.2&
+ _empty_/Rational2#gcd().2"
+ _empty_/Rational2#n.2"
+ _empty_/Rational2#d.2&
+ _empty_/Rational2#numer.2 
+ scala/Int#`/`(+3).2"
+ _empty_/Rational2#n.2"
+ _empty_/Rational2#x.2&
+ _empty_/Rational2#denom.2 
+ scala/Int#`/`(+3).2"
+ _empty_/Rational2#d.2"
+ _empty_/Rational2#x.PZ E3C2B49914926D8C596CCD1F32151871

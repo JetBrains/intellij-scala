@@ -1,0 +1,28 @@
+
+¨tests/pos/i6849b.scala*
+
+_empty_/A.
+ *A€**
+_empty_/A.unapplySeq().*
+unapplySeq€*$
+_empty_/A.unapplySeq().(a)*a€*)
+_empty_/i6849b$package. *_empty_€*1
+!_empty_/i6849b$package.unapply().*unapply€*.
+$_empty_/i6849b$package.unapply().(x)*x€2
+ 
+_empty_/A.2%
+ _empty_/A.unapplySeq().2(
+ _empty_/A.unapplySeq().(a)2
+ 
+scala/Any#2 
+ scala/package.Seq#26
+# #(scala/LowPriorityImplicits#wrapString().2!
+_empty_/i6849b$package.2/
+ !_empty_/i6849b$package.unapply().22
+ $_empty_/i6849b$package.unapply().(x)2
+ 
+scala/Any#22
+ $_empty_/i6849b$package.unapply().(x)2%
+& &_empty_/A.unapplySeq().2
+% &
+_empty_/A.PZ EB873AA3DFFF2463FC8FCF4234AF49E9

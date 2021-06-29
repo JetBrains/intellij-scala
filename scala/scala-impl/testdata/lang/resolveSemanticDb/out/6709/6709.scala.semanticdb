@@ -1,0 +1,316 @@
+
+≥Stests/pos/6709.scala*
+_empty_/Foo.
+ *FooÄ*&
+_empty_/Foo.LeafElem#*LeafElemÄ*"
+_empty_/Foo.LeafElem#[X]	*XÄ*
+local0 Ä	*tÄ*
+local1 Ä	*tÄ*(
+_empty_/Foo.leafElem().*leafElemÄ*$
+_empty_/Foo.leafElem().[X]	*XÄ*$
+_empty_/Foo.leafElem().(x)*xÄ*
+local2 Ä*xÄ*
+local3 Ä*xÄ*
+local4 Ä	*tÄ*
+local5 Ä*xÄ*
+local6 Ä	*tÄ**
+_empty_/Foo.leafElem2().*	leafElem2Ä*%
+_empty_/Foo.leafElem2().[X]	*XÄ*%
+_empty_/Foo.leafElem2().(x)*xÄ*
+local7 Ä*wÄ*
+local8 Ä	*tÄ*
+_empty_/Bar.
+ *BarÄ*
+_empty_/Bar.Plus#*PlusÄ*
+_empty_/Bar.Plus#[A]	*AÄ*
+_empty_/Bar.Plus#[B]	*BÄ*
+local9 Ä	*pÄ* 
+_empty_/Bar.plus().*plusÄ* 
+_empty_/Bar.plus().[A]	*AÄ* 
+_empty_/Bar.plus().[B]	*BÄ* 
+_empty_/Bar.plus().(a)*aÄ* 
+_empty_/Bar.plus().(b)*bÄ*
+local10 Ä*aÄ*
+local11 Ä	*pÄ* 
+_empty_/Bar.pred().*predÄ* 
+_empty_/Bar.pred().[X]	*XÄ* 
+_empty_/Bar.pred().(x)*xÄ* 
+_empty_/Bar.succ().*succÄ* 
+_empty_/Bar.succ().[X]	*XÄ* 
+_empty_/Bar.succ().(x)*xÄ*!
+_empty_/Bar.nine. Ä*nineÄ*
+_empty_/Main.
+ *MainÄ*'
+_empty_/Main.BinNat# îÄ*BinNatÄ*1
+_empty_/Main.BinNat#`<init>`(). Ä@*<init>Ä*%
+_empty_/Main.BinNat.
+ *BinNatÄ**
+_empty_/Main.BinNat.Zero. Ä©*ZeroÄ*(
+_empty_/Main.BinNat.Odd# àÅ*OddÄ*5
+#_empty_/Main.BinNat.Odd#`<init>`(). Ä@*<init>Ä*3
+&_empty_/Main.BinNat.Odd#`<init>`().(n) Ä*nÄ*%
+_empty_/Main.BinNat.Odd#[N]	*NÄ*'
+_empty_/Main.BinNat.Odd#n. Ä*nÄ*,
+_empty_/Main.BinNat.Odd#copy().*copyÄ*,
+"_empty_/Main.BinNat.Odd#copy().[N]	*NÄ*,
+"_empty_/Main.BinNat.Odd#copy().(n)*nÄ*@
+)_empty_/Main.BinNat.Odd#copy$default$1().*copy$default$1Ä*6
+,_empty_/Main.BinNat.Odd#copy$default$1().[N]	*NÄ*2
+"_empty_/Main.BinNat.Odd#ordinal().*ordinalÄ*(
+_empty_/Main.BinNat.Odd#_1().*_1Ä*&
+_empty_/Main.BinNat.Odd.
+ *OddÄ*.
+ _empty_/Main.BinNat.Odd.apply().*applyÄ*-
+#_empty_/Main.BinNat.Odd.apply().[N]	*NÄ*-
+#_empty_/Main.BinNat.Odd.apply().(n)*nÄ*2
+"_empty_/Main.BinNat.Odd.unapply().*unapplyÄ*/
+%_empty_/Main.BinNat.Odd.unapply().[N]	*NÄ*3
+'_empty_/Main.BinNat.Odd.unapply().(x$1)*x$1Ä*4
+#_empty_/Main.BinNat.Odd.toString().*toStringÄ**
+_empty_/Main.BinNat.Even# àÅ*EvenÄ*6
+$_empty_/Main.BinNat.Even#`<init>`(). Ä@*<init>Ä*4
+'_empty_/Main.BinNat.Even#`<init>`().(n) Ä*nÄ*&
+_empty_/Main.BinNat.Even#[N]	*NÄ*(
+_empty_/Main.BinNat.Even#n. Ä*nÄ*-
+ _empty_/Main.BinNat.Even#copy().*copyÄ*-
+#_empty_/Main.BinNat.Even#copy().[N]	*NÄ*-
+#_empty_/Main.BinNat.Even#copy().(n)*nÄ*A
+*_empty_/Main.BinNat.Even#copy$default$1().*copy$default$1Ä*7
+-_empty_/Main.BinNat.Even#copy$default$1().[N]	*NÄ*3
+#_empty_/Main.BinNat.Even#ordinal().*ordinalÄ*)
+_empty_/Main.BinNat.Even#_1().*_1Ä*(
+_empty_/Main.BinNat.Even.
+ *EvenÄ*/
+!_empty_/Main.BinNat.Even.apply().*applyÄ*.
+$_empty_/Main.BinNat.Even.apply().[N]	*NÄ*.
+$_empty_/Main.BinNat.Even.apply().(n)*nÄ*3
+#_empty_/Main.BinNat.Even.unapply().*unapplyÄ*0
+&_empty_/Main.BinNat.Even.unapply().[N]	*NÄ*4
+(_empty_/Main.BinNat.Even.unapply().(x$1)*x$1Ä*5
+$_empty_/Main.BinNat.Even.toString().*toStringÄ*(
+_empty_/Main.BinNat.$new().*$newÄ*8
+&_empty_/Main.BinNat.$new().(_$ordinal)*	_$ordinalÄ*0
+"_empty_/Main.BinNat.$new().($name)*$nameÄ*6
+"_empty_/Main.BinNat.fromOrdinal().*fromOrdinalÄ*;
++_empty_/Main.BinNat.fromOrdinal().(ordinal)*ordinalÄ*
+_empty_/Main.Inc#*IncÄ*
+_empty_/Main.Inc#[N]	*NÄ*
+local12 Ä	*nÄ*
+local13 Ä	*nÄ*
+_empty_/Main.inc().*incÄ* 
+_empty_/Main.inc().[N]	*NÄ* 
+_empty_/Main.inc().(b)*bÄ*
+local14 Ä*oÄ*
+local15 Ä	*nÄ*
+local16 Ä*eÄ*
+local17 Ä	*nÄ2
+ 
+_empty_/Foo.2#
+ _empty_/Foo.LeafElem#2&
+ _empty_/Foo.LeafElem#[X]2&
+ _empty_/Foo.LeafElem#[X]2"
+	 scala/Predef.String#2
+ scala/Char#2
+	 scala/Array#2
+ local02#
+  _empty_/Foo.LeafElem#2
+! "local02%
+	 scala/package.Iterable#2
+ local12#
+  _empty_/Foo.LeafElem#2
+! "local12
+	 scala/AnyVal#2&
+ _empty_/Foo.LeafElem#[X]2%
+ _empty_/Foo.leafElem().2(
+ _empty_/Foo.leafElem().[X]2(
+ _empty_/Foo.leafElem().(x)2(
+ _empty_/Foo.leafElem().[X]2#
+ !_empty_/Foo.LeafElem#2(
+" #_empty_/Foo.leafElem().[X]2(
+		 _empty_/Foo.leafElem().(x)2
+
+
+ local22"
+
+
+ scala/Predef.String#2(
+
+
+ %java/lang/String#charAt().2
+
+
+ local22
+ local32
+ scala/Array#2
+ local42%
+ %_empty_/Foo.leafElem().2"
+' 'scala/Array#apply().2
+& 'local32
+ local52%
+ scala/package.Iterable#2
+ local62%
+ %_empty_/Foo.leafElem().22
+( ,$scala/collection/IterableOps#head().2
+& 'local52
+ scala/AnyVal#2(
+ _empty_/Foo.leafElem().(x)2&
+ _empty_/Foo.leafElem2().2)
+ _empty_/Foo.leafElem2().[X]2)
+ _empty_/Foo.leafElem2().(x)2)
+ _empty_/Foo.leafElem2().[X]2#
+ "_empty_/Foo.LeafElem#2)
+# $_empty_/Foo.leafElem2().[X]2)
+ _empty_/Foo.leafElem2().(x)2"
+ scala/Predef.String#2%
+ "_empty_/Foo.leafElem().2)
+# $_empty_/Foo.leafElem2().[X]2)
+& '_empty_/Foo.leafElem2().(x)2
+ local72
+ scala/Array#2
+ local82%
+ "_empty_/Foo.leafElem().2)
+# $_empty_/Foo.leafElem2().[X]2)
+& '_empty_/Foo.leafElem2().(x)2
+ 
+_empty_/Bar.2(
+ scala/compiletime/ops/int.2$
+ scala/compiletime/ops/2 
+	 scala/compiletime/2
+ _empty_/Bar.Plus#2"
+ _empty_/Bar.Plus#[A]2
+ 
+scala/Int#2"
+ _empty_/Bar.Plus#[B]2
+ 
+scala/Int#2
+# &
+scala/Int#2"
+ _empty_/Bar.Plus#[A]2"
+ _empty_/Bar.Plus#[B]2*
+ scala/compiletime/ops/int.S#2
+ local92*
+ scala/compiletime/ops/int.S#2
+ _empty_/Bar.Plus#2
+ local92"
+ _empty_/Bar.Plus#[B]2!
+   
+_empty_/Bar.plus().2$
+   _empty_/Bar.plus().[A]2
+   
+scala/Int#2$
+   _empty_/Bar.plus().[B]2
+   
+scala/Int#2$
+    _empty_/Bar.plus().(a)2$
+ "  #_empty_/Bar.plus().[A]2$
+ %  &_empty_/Bar.plus().(b)2$
+ (  )_empty_/Bar.plus().[B]2
+ ,  0_empty_/Bar.Plus#2$
+ 1  2_empty_/Bar.plus().[A]2$
+ 4  5_empty_/Bar.plus().[B]2$
+!! _empty_/Bar.plus().(a)2$
+"" _empty_/Bar.plus().(b)2
+## local102*
+## scala/compiletime/ops/int.S#2
+## local112!
+## _empty_/Bar.succ().2!
+## _empty_/Bar.plus().2!
+# # $_empty_/Bar.pred().2
+#%# &local102$
+#)# *_empty_/Bar.plus().(b)2!
+&& 
+_empty_/Bar.pred().2$
+&& _empty_/Bar.pred().[X]2
+&& 
+scala/Int#2$
+&& _empty_/Bar.pred().(x)2*
+&& scala/compiletime/ops/int.S#2$
+&& _empty_/Bar.pred().[X]2$
+&&  _empty_/Bar.pred().[X]2'
+&+& 7scala/Any#asInstanceOf().2 
+&&& 'scala/Int#`-`(+3).2$
+&$& %_empty_/Bar.pred().(x)2!
+'' 
+_empty_/Bar.succ().2$
+'' _empty_/Bar.succ().[X]2
+'' 
+scala/Int#2$
+'' _empty_/Bar.succ().(x)2$
+'' _empty_/Bar.succ().[X]2*
+'' scala/compiletime/ops/int.S#2$
+'' _empty_/Bar.succ().[X]2'
+'+' 7scala/Any#asInstanceOf().2 
+'&' 'scala/Int#`+`(+4).2$
+'$' %_empty_/Bar.succ().(x)2
+)) 
+_empty_/Bar.nine.2!
+)) _empty_/Bar.plus().2
+,, _empty_/Main.2"
+-- _empty_/Main.BinNat#2-
+.. _empty_/Main.BinNat#`<init>`().2"
+-- _empty_/Main.BinNat.2'
+.	. _empty_/Main.BinNat.Zero.2&
+0	0 _empty_/Main.BinNat.Odd#21
+00 #_empty_/Main.BinNat.Odd#`<init>`().2)
+00 _empty_/Main.BinNat.Odd#[N]2)
+00 _empty_/Main.BinNat.Odd#[N]2(
+00 _empty_/Main.BinNat.Odd#n.2-
+00 _empty_/Main.BinNat.Odd#copy().2+
+00 _empty_/Main.BinNat.Odd#_1().2&
+0	0 	_empty_/Main.BinNat.Odd.2.
+00  _empty_/Main.BinNat.Odd.apply().20
+00 "_empty_/Main.BinNat.Odd.unapply().2'
+2	2 _empty_/Main.BinNat.Even#22
+22 $_empty_/Main.BinNat.Even#`<init>`().2*
+22 _empty_/Main.BinNat.Even#[N]2*
+22 _empty_/Main.BinNat.Even#[N]2)
+22 _empty_/Main.BinNat.Even#n.2.
+22  _empty_/Main.BinNat.Even#copy().2,
+22 _empty_/Main.BinNat.Even#_1().2'
+2	2 	_empty_/Main.BinNat.Even.2/
+22 !_empty_/Main.BinNat.Even.apply().21
+22 #_empty_/Main.BinNat.Even.unapply().2"
+5	5 _empty_/Main.BinNat.2
+77 
+_empty_/Main.Inc#2"
+77 _empty_/Main.Inc#[N]2"
+77 _empty_/Main.BinNat#2"
+77 !_empty_/Main.BinNat#2"
+88 _empty_/Main.Inc#[N]2'
+99 _empty_/Main.BinNat.Zero.2&
+99 _empty_/Main.BinNat.Odd#2'
+99  _empty_/Main.BinNat.Zero.2&
+:: _empty_/Main.BinNat.Odd#2
+:: local122'
+:: _empty_/Main.BinNat.Even#2
+:: local122'
+;; _empty_/Main.BinNat.Even#2
+;; local132&
+;; _empty_/Main.BinNat.Odd#2
+;; _empty_/Main.Inc#2
+; ; !local132!
+>> 	_empty_/Main.inc().2$
+>
+> _empty_/Main.inc().[N]2"
+>> _empty_/Main.BinNat#2$
+>> _empty_/Main.inc().(b)2$
+>> _empty_/Main.inc().[N]2
+>> !_empty_/Main.Inc#2$
+>"> #_empty_/Main.inc().[N]2$
+?? _empty_/Main.inc().(b)2'
+@@ _empty_/Main.BinNat.Zero.21
+@"@ "#_empty_/Main.BinNat.Odd#`<init>`().2'
+@#@ '_empty_/Main.BinNat.Zero.2
+AA local142&
+AA _empty_/Main.BinNat.Odd#2
+AA local1522
+A#A #$_empty_/Main.BinNat.Even#`<init>`().2(
+A&A '_empty_/Main.BinNat.Odd#n.2
+A$A %local142
+BB local162'
+BB _empty_/Main.BinNat.Even#2
+BB local1721
+DD #_empty_/Main.BinNat.Odd#`<init>`().2!
+DD _empty_/Main.inc().2)
+DD _empty_/Main.BinNat.Even#n.2
+DD local16PZ 5AB6CA3B0BD021EA0345016EB9B8F758

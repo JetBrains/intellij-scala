@@ -1,0 +1,32 @@
+
+ƒtests/pos/ho-implicits.scala*
+_empty_/Test2.
+ *Test2€*"
+_empty_/Test2.__1().  *__1€*"
+_empty_/Test2.__2().  *__2€*
+_empty_/Test2.f().*f€2
+ _empty_/Test2.2"
+ _empty_/Test2.__1().2
+ 
+scala/Int#2"
+ "scala/Predef.String#2&
+C Dscala/StringContext#s().2*
+' 'scala/StringContext.apply().2(
+3 =scala/Predef.implicitly().2
+> A
+scala/Int#2"
+ _empty_/Test2.__2().2
+ 
+scala/Int#2 
+ _empty_/Test2.f().2"
+	 scala/Predef.String#2
+ 
+scala/Int#2(
+- 3java/lang/String#length().2(
+ $scala/Predef.implicitly().2"
+% +scala/Predef.String#2-
+ scala/ContextFunction1#apply().2 
+ _empty_/Test2.f().2"
+ _empty_/Test2.__2().2
+ 
+scala/Int#PZ 533FF462EF49572C15946EE7A79C106E

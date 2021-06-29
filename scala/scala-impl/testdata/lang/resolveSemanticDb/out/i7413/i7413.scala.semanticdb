@@ -1,0 +1,133 @@
+
+Á!tests/pos/i7413.scala* 
+_empty_/Fixture#*Fixture€*-
+_empty_/Fixture#`<init>`(). €@*<init>€*
+_empty_/Fixture#[A]	*A€*,
+_empty_/TestFramework#*TestFramework€*3
+!_empty_/TestFramework#`<init>`(). €@*<init>€*#
+_empty_/TestFramework#[A]	*A€*&
+_empty_/TestFramework#in().*in€*6
+%_empty_/TestFramework#in().(testName)*testName€*.
+!_empty_/TestFramework#in().(test)*test€* 
+_empty_/Greeter#*Greeter€*-
+_empty_/Greeter#`<init>`(). €@*<init>€*&
+_empty_/Greeter#greet().*greet€*+
+_empty_/Greeter#greet().(name)*name€*'
+_empty_/MyFixture# €*	MyFixture€*/
+_empty_/MyFixture#`<init>`(). €@*<init>€*3
+#_empty_/MyFixture#`<init>`().(name) €*name€*9
+&_empty_/MyFixture#`<init>`().(greeter) €*greeter€*'
+_empty_/MyFixture#name. €*name€*-
+_empty_/MyFixture#greeter. €*greeter€*&
+_empty_/MyFixture#copy().*copy€*,
+_empty_/MyFixture#copy().(name)*name€*2
+"_empty_/MyFixture#copy().(greeter)*greeter€*:
+#_empty_/MyFixture#copy$default$1().*copy$default$1€*:
+#_empty_/MyFixture#copy$default$2().*copy$default$2€*"
+_empty_/MyFixture#_1().*_1€*"
+_empty_/MyFixture#_2().*_2€*&
+_empty_/MyFixture.
+ *	MyFixture€*(
+_empty_/MyFixture.apply().*apply€*-
+ _empty_/MyFixture.apply().(name)*name€*3
+#_empty_/MyFixture.apply().(greeter)*greeter€*,
+_empty_/MyFixture.unapply().*unapply€*-
+!_empty_/MyFixture.unapply().(x$1)*x$1€*.
+_empty_/MyFixture.toString().*toString€*
+_empty_/Test1.
+ *Test1€*"
+_empty_/Test1.conv.
+ (*conv€*)
+_empty_/Test1.conv.apply().*apply€*(
+_empty_/Test1.conv.apply().(x)*x€*
+_empty_/Test1.g. €*g€*
+_empty_/MyTest#*MyTest€*,
+_empty_/MyTest#`<init>`(). €@*<init>€2-
+ )#scala/language.implicitConversions.2
+ scala/language.2
+ scala/2
+ _empty_/Fixture#2)
+ _empty_/Fixture#`<init>`().2
+ #scala/Conversion#2!
+' (_empty_/Fixture#[A]2!
+ _empty_/Fixture#[A]2$
+ _empty_/TestFramework#2/
+ !_empty_/TestFramework#`<init>`().2'
+ _empty_/TestFramework#[A]2)
+# %_empty_/TestFramework#in().23
+ %_empty_/TestFramework#in().(testName)2"
+ scala/Predef.String#2/
+& *!_empty_/TestFramework#in().(test)2
+, 3_empty_/Fixture#2'
+4 5_empty_/TestFramework#[A]2
+; ?scala/Unit#2
+B Fscala/Unit#2#
+I Lscala/Predef.`???`().2
+ _empty_/Greeter#2)
+ _empty_/Greeter#`<init>`().2&
+ _empty_/Greeter#greet().2,
+ _empty_/Greeter#greet().(name)2"
+ scala/Predef.String#2"
+ !scala/Predef.String#2&
+1 2scala/StringContext#s().2*
+& &scala/StringContext.apply().2,
+- 1_empty_/Greeter#greet().(name)2 
+
+
+ _empty_/MyFixture#2+
+
+
+ _empty_/MyFixture#`<init>`().2"
+
+
+ !scala/Predef.String#2
+
+,
+ 3_empty_/Greeter#2%
+
+
+ _empty_/MyFixture#name.2(
+
+#
+ *_empty_/MyFixture#greeter.2#
+
+
+_empty_/MyFixture#copy().2%
+
+
+ _empty_/MyFixture#_1().2%
+
+,
+ ,_empty_/MyFixture#_2().2 
+
+
+ _empty_/MyFixture.2$
+
+
+_empty_/MyFixture.apply().2
+ _empty_/Test1.2!
+ _empty_/Test1.conv.2*
+$ $scala/Conversion#`<init>`().2
+ scala/Conversion#2
+ #_empty_/Greeter#2)
+ _empty_/Test1.conv.apply().2,
+ _empty_/Test1.conv.apply().(x)2
+ _empty_/Greeter#2#
+ "scala/Predef.`???`().2
+ _empty_/Test1.g.2
+	 _empty_/Greeter#2)
+ _empty_/Test1.conv.apply().2
+ _empty_/MyTest#2(
+ _empty_/MyTest#`<init>`().2$
+ "_empty_/TestFramework#2 
+# ,_empty_/MyFixture#2)
+ _empty_/TestFramework#in().2&
+ 
+scala/Predef.assert(+1).2
+# %scala/Any#`==`().2&
+ _empty_/Greeter#greet().2(
+ _empty_/MyFixture#greeter.2%
+ !_empty_/MyFixture#name.2&
+7 8scala/StringContext#s().2*
+( (scala/StringContext.apply().2%
+2 6_empty_/MyFixture#name.PZ 1B0ABE2E39AC4A39CF4620563C099D75

@@ -1,0 +1,32 @@
+
+Ôtests/pos/patmatSeq.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€*
+local0 €*x€*
+local1 €*y€*
+local2 €*x€2
+ _empty_/Test.2
+ _empty_/Test.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ _empty_/Test.xs.2
+ 
+
+scala/Any#27
+ )scala/collection/SeqFactory#unapplySeq().2 
+	 scala/package.Seq.2
+ local02
+ local12'
+ scala/Predef.println(+1).2&
+& 'scala/StringContext#s().2*
+   scala/StringContext.apply().2
+! "local02
+% &local127
+ )scala/collection/SeqFactory#unapplySeq().2 
+	 scala/package.Seq.2
+ local22'
+ scala/Predef.println(+1).2&
+, -scala/StringContext#s().2*
+ scala/StringContext.apply().2'
+ scala/Predef.println(+1).PZ E9F6E4971AC664B6706577AB2DB324BF

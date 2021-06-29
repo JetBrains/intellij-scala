@@ -1,0 +1,78 @@
+
+Ýtests/pos/i11981.scala*
+_empty_/Main.
+ *Main€*
+_empty_/Main.Null#*Null€*/
+_empty_/Main.Null#`<init>`(). €@*<init>€*'
+_empty_/Main.Optional#*Optional€*#
+_empty_/Main.Optional#[A]	*A€**
+_empty_/Main.maybeInt. €*maybeInt€*
+_empty_/Main.TC#*TC€*-
+_empty_/Main.TC#`<init>`(). €@*<init>€*
+_empty_/Main.TC#[F]	*F€*
+_empty_/Main.g1. è*g1€*
+_empty_/Main.g2. è*g2€*)
+_empty_/Main.summonTC().*summonTC€*%
+_empty_/Main.summonTC().[F]	*F€*%
+_empty_/Main.summonTC().[A]	*A€*%
+_empty_/Main.summonTC().(f)*f€*+
+_empty_/Main.summonTC().(x$2)  *x$2€2
+ _empty_/Main.2 
+
+ _empty_/Main.Null#2+
+ _empty_/Main.Null#`<init>`().2$
+	 _empty_/Main.Optional#2'
+ _empty_/Main.Optional#[A]2
+ 
+scala/`|`#2'
+ _empty_/Main.Optional#[A]2 
+ _empty_/Main.Null#2$
+ _empty_/Main.maybeInt.2$
+ _empty_/Main.Optional#2
+ 
+scala/Int#2
+
+ _empty_/Main.TC#2)
+ _empty_/Main.TC#`<init>`().2!
+ _empty_/Main.TC#[F]2
+
+
+
+ _empty_/Main.g1.2
+
+
+ _empty_/Main.TC#2$
+
+
+ _empty_/Main.Optional#2#
+
+
+  scala/Predef.`???`().2
+
+ _empty_/Main.g2.2
+ _empty_/Main.TC#2#
+ scala/Predef.`???`().2&
+ _empty_/Main.summonTC().2)
+ _empty_/Main.summonTC().[F]2)
+ _empty_/Main.summonTC().[A]2)
+ _empty_/Main.summonTC().(f)2)
+ _empty_/Main.summonTC().[F]2)
+  _empty_/Main.summonTC().[A]2+
+) )_empty_/Main.summonTC().(x$2)2
+) +_empty_/Main.TC#2)
+, -_empty_/Main.summonTC().[F]2
+1 5scala/Unit#2#
+8 ;scala/Predef.`???`().2&
+ _empty_/Main.summonTC().2#
+ scala/Option.apply().2
+ scala/Option.2
+ _empty_/Main.g2.2&
+ _empty_/Main.summonTC().2$
+ _empty_/Main.Optional#2
+ 
+scala/Int#2$
+ $_empty_/Main.maybeInt.2
+% %_empty_/Main.g1.2&
+ _empty_/Main.summonTC().2$
+ _empty_/Main.maybeInt.2
+ _empty_/Main.g1.PZ 546D6DB99EFE5328411DD3E00066178B

@@ -1,0 +1,26 @@
+
+¿tests/pos/finalvals.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. ˆ*x€*
+_empty_/Test.y. ˆ*y€*
+_empty_/Test.x1. €*x1€*
+_empty_/Test.y1. €*y1€*
+_empty_/Test.O.
+ *O€*
+_empty_/Test.O.x. €*x€2
+ _empty_/Test.2
+ _empty_/Test.x.2
+ _empty_/Test.y.2'
+ scala/Predef.println(+1).2
+ _empty_/Test.x1.2
+ _empty_/Test.x.2
+ _empty_/Test.y1.2
+ _empty_/Test.y.2
+	 
+_empty_/Test.O.2
+ _empty_/Test.O.x.2'
+ 	scala/Predef.println(+1).2
+ _empty_/Test.O.x.2
+
+ _empty_/Test.O.PZ E982011304611F4B534DE491784DEF28

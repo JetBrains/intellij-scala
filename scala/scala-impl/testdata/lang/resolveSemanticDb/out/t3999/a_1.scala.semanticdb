@@ -1,0 +1,38 @@
+
+“tests/pos/t3999/a_1.scala*
+foo/Outside#*Outside€*)
+foo/Outside#`<init>`(). €@*<init>€*
+foo/bar/package. *bar€* 
+foo/bar/package.Val#*Val€*1
+foo/bar/package.Val#`<init>`(). €@*<init>€*,
+"foo/bar/package.Val#`<init>`().(b)*b€*#
+foo/bar/package.Val#b. €*b€*4
+foo/bar/package.boolean2Val().  *boolean2Val€*+
+!foo/bar/package.boolean2Val().(b)*b€*<
+"foo/bar/package.boolean2Outside().  *boolean2Outside€*/
+%foo/bar/package.boolean2Outside().(b)*b€2
+ foo/2
+ foo/Outside#2!
+foo/Outside#`<init>`().2
+ foo/bar/package.2"
+ foo/bar/package.Val#2-
+ foo/bar/package.Val#`<init>`().2
+ scala/Boolean#2$
+ foo/bar/package.Val#b.2,
+ foo/bar/package.boolean2Val().2/
+ !foo/bar/package.boolean2Val().(b)2
+ %scala/Boolean#2"
+: =foo/bar/package.Val#2
+0 9foo/bar/package.2
+, /foo/bar/2
+( +foo/2-
+G Gfoo/bar/package.Val#`<init>`().2"
+D Gfoo/bar/package.Val#2/
+H I!foo/bar/package.boolean2Val().(b)20
+ "foo/bar/package.boolean2Outside().23
+  %foo/bar/package.boolean2Outside().(b)2
+" )scala/Boolean#2
+0 7foo/Outside#2
+, /foo/2%
+E Efoo/Outside#`<init>`().2
+> Efoo/Outside#PZ 94AA4E568821D7E0F6051C6F95E1C6FA

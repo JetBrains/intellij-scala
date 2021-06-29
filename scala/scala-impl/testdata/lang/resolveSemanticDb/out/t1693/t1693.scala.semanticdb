@@ -1,0 +1,62 @@
+
+Þtests/pos/t1693.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Foo#*Foo€*.
+_empty_/Test.Foo#`<init>`(). €@*<init>€*%
+_empty_/Test.SomeOps#*SomeOps€*2
+ _empty_/Test.SomeOps#`<init>`(). €@*<init>€*-
+#_empty_/Test.SomeOps#`<init>`().(x)*x€*$
+_empty_/Test.SomeOps#x. €*x€*'
+_empty_/Test.SomeOps#foo().*foo€*(
+_empty_/Test.SomeOps#foo().(x)*x€*'
+_empty_/Test.OtherOps#*OtherOps€*3
+!_empty_/Test.OtherOps#`<init>`(). €@*<init>€*.
+$_empty_/Test.OtherOps#`<init>`().(x)*x€*%
+_empty_/Test.OtherOps#x. €*x€*(
+_empty_/Test.OtherOps#foo().*foo€*)
+_empty_/Test.OtherOps#foo().(x)*x€*-
+_empty_/Test.mkSomeOps().  *	mkSomeOps€*&
+_empty_/Test.mkSomeOps().(x)*x€*/
+_empty_/Test.mkOtherOps().  *
+mkOtherOps€*'
+_empty_/Test.mkOtherOps().(x)*x€2
+ _empty_/Test.2
+ _empty_/Test.Foo#2*
+ _empty_/Test.Foo#`<init>`().2#
+ _empty_/Test.SomeOps#2.
+  _empty_/Test.SomeOps#`<init>`().2
+ _empty_/Test.Foo#2%
+ _empty_/Test.SomeOps#x.2)
+ "_empty_/Test.SomeOps#foo().2,
+# $_empty_/Test.SomeOps#foo().(x)2"
+& ,scala/Predef.String#2$
+ _empty_/Test.OtherOps#2/
+ !_empty_/Test.OtherOps#`<init>`().2
+ _empty_/Test.Foo#2&
+ _empty_/Test.OtherOps#x.2*
+  #_empty_/Test.OtherOps#foo().2-
+$ %_empty_/Test.OtherOps#foo().(x)2
+' *
+scala/Int#2'
+ _empty_/Test.mkSomeOps().2*
+ _empty_/Test.mkSomeOps().(x)2
+ _empty_/Test.Foo#2#
+# *_empty_/Test.SomeOps#2.
+8 8 _empty_/Test.SomeOps#`<init>`().2#
+1 8_empty_/Test.SomeOps#2*
+9 :_empty_/Test.mkSomeOps().(x)2(
+ _empty_/Test.mkOtherOps().2+
+ _empty_/Test.mkOtherOps().(x)2
+  _empty_/Test.Foo#2$
+$ ,_empty_/Test.OtherOps#2/
+; ;!_empty_/Test.OtherOps#`<init>`().2$
+3 ;_empty_/Test.OtherOps#2+
+< =_empty_/Test.mkOtherOps().(x)2*
+ _empty_/Test.OtherOps#foo().2(
+ _empty_/Test.mkOtherOps().2*
+
+ 
+_empty_/Test.Foo#`<init>`().2
+ 
+_empty_/Test.Foo#PZ 20DE4BDB5660B756ACC8AF2601D1A7DD

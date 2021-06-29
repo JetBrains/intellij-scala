@@ -1,0 +1,43 @@
+
+¢	tests/pos/i3500.scala*
+_empty_/Map2#*Map2€**
+_empty_/Map2#`<init>`(). €@*<init>€*
+_empty_/Map2#[K]	*K€*
+_empty_/Map2#get().*get€* 
+_empty_/Map2#get().(k)*k€*
+_empty_/Map2#foo().*foo€*
+local0 €*that€*
+local1 €	*b€*
+local2 €*that€*
+local3 €	*b€2
+ 
+_empty_/Map2#2"
+
+ 
+_empty_/Map2#`<init>`().2
+ _empty_/Map2#[K]2!
+ 	_empty_/Map2#get().2$
+
+ _empty_/Map2#get().(k)2
+ _empty_/Map2#[K]2
+ _empty_/Map2#[K]2$
+ _empty_/Map2#get().(k)2!
+ 	_empty_/Map2#foo().2
+ _empty_/Map2#[K]2
+ local02
+ _empty_/Map2#2
+ local12!
+! $_empty_/Map2#get().2
+  local02'
+' 3scala/Any#asInstanceOf().2
+4 5local12
+ local22
+ _empty_/Map2#2
+ local32!
+! $_empty_/Map2#get().2
+  local22'
+' 3scala/Any#asInstanceOf().2
+4 5_empty_/Map2#[K]2!
+ _empty_/Map2#get().2'
+ "scala/Any#asInstanceOf().2
+# $_empty_/Map2#[K]PZ 2870B26018D3A9943A052253FE722D47

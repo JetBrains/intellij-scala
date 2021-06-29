@@ -1,0 +1,16 @@
+
+Ítests/pos/i9994.scala*
+pkg/Foo#*Foo€*%
+pkg/Foo#`<init>`(). €@*<init>€*
+pkg/Foo#foo(). *foo€*
+pkg/Bar# *Bar€*%
+pkg/Bar#`<init>`(). €@*<init>€*
+pkg/Bar#foo().*foo€2
+ pkg/2
+ 	pkg/Foo#2!
+ pkg/Foo#`<init>`().2
+ 	pkg/Foo#foo().2
+ pkg/Bar#2!
+ pkg/Bar#`<init>`().2
+ pkg/Foo#2
+ 	pkg/Bar#foo().PZ 4B6A6A3196309DC6A689A1B74D7F4741

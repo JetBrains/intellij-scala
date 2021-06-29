@@ -1,0 +1,36 @@
+
+Ñ	tests/pos/t4112.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*treemap€2)
+ scala/collection/immutable/2
+ scala/collection/2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local023
+* ,%scala/collection/SortedMapOps#`++`().28
+ *scala/collection/SortedMapFactory#apply().21
+ #scala/collection/immutable/TreeMap.2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2-
+$ &scala/Predef.ArrowAssoc#`->`().2(
+" "scala/Predef.ArrowAssoc().2&
+) )scala/math/Ordering.Int.28
+4 4*scala/collection/SortedMapFactory#apply().21
+- 4#scala/collection/immutable/TreeMap.2-
+7 9scala/Predef.ArrowAssoc#`->`().2(
+5 5scala/Predef.ArrowAssoc().2&
+< <scala/math/Ordering.Int.2
+		 local021
+		 #scala/collection/immutable/TreeMap#2
+		 
+scala/Int#2
+		 
+scala/Int#PZ 73F9457012BF28B389B3654987B90426

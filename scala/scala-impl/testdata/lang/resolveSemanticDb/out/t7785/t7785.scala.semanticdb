@@ -1,0 +1,104 @@
+
+ùtests/pos/t7785.scala*
+
+_empty_/R#*R€*'
+_empty_/R#`<init>`(). €@*<init>€* 
+_empty_/R#[Repr]	 €*Repr€*.
+_empty_/TraversableOps#*TraversableOps€*4
+"_empty_/TraversableOps#`<init>`(). €@*<init>€*&
+_empty_/TraversableOps#R.  *R€*/
+_empty_/TraversableOps#OpsDup1#*OpsDup1€*<
+*_empty_/TraversableOps#OpsDup1#`<init>`(). €@*<init>€*2
+%_empty_/TraversableOps#OpsDup1#[Repr]	*Repr€*7
+'_empty_/TraversableOps#OpsDup1#force(). *force€*8
++_empty_/TraversableOps#OpsDup1#force().(bf)  *bf€*'
+_empty_/TraversableOps#Ops#*Ops€*8
+&_empty_/TraversableOps#Ops#`<init>`(). €@*<init>€*.
+!_empty_/TraversableOps#Ops#[Repr]	*Repr€*3
+#_empty_/TraversableOps#Ops#force(). *force€*4
+'_empty_/TraversableOps#Ops#force().(bf)  *bf€*:
+*_empty_/TraversableOps#Ops#force().(dummy)  *dummy€*1
+ _empty_/TraversableOps#ct2ops(). $*ct2ops€*-
+#_empty_/TraversableOps#ct2ops().[T]	*T€*-
+#_empty_/TraversableOps#ct2ops().[C]	*C€*-
+#_empty_/TraversableOps#ct2ops().(t)*t€*-
+_empty_/TraversableOps#force().*force€*,
+"_empty_/TraversableOps#force().[T]	*T€*,
+"_empty_/TraversableOps#force().(t)*t€*+
+_empty_/TraversableOps#foo(). *foo€**
+ _empty_/TraversableOps#foo().[T]	*T€**
+ _empty_/TraversableOps#foo().[C]	*C€2
+ scala/language.2
+ scala/2
+ 
+_empty_/R#2#
+ _empty_/R#`<init>`().2
+	 _empty_/R#[Repr]2%
+ _empty_/TraversableOps#20
+ "_empty_/TraversableOps#`<init>`().2'
+ _empty_/TraversableOps#R.2
+ 
+_empty_/R#2
+ scala/Nothing#2#
+ "scala/Predef.`???`().2-
+		 _empty_/TraversableOps#OpsDup1#28
+		 *_empty_/TraversableOps#OpsDup1#`<init>`().23
+		 %_empty_/TraversableOps#OpsDup1#[Repr]25
+
+
+ '_empty_/TraversableOps#OpsDup1#force().29
+
+
+ +_empty_/TraversableOps#OpsDup1#force().(bf)2
+
+
+ 
+_empty_/R#23
+
+
+ !%_empty_/TraversableOps#OpsDup1#[Repr]2
+
+%
+ (
+scala/Any#2)
+ _empty_/TraversableOps#Ops#24
+ &_empty_/TraversableOps#Ops#`<init>`().2-
+ !_empty_/TraversableOps#OpsDup1#2/
+" &!_empty_/TraversableOps#Ops#[Repr]2/
+ !_empty_/TraversableOps#Ops#[Repr]21
+ #_empty_/TraversableOps#Ops#force().25
+ '_empty_/TraversableOps#Ops#force().(bf)2
+ 
+_empty_/R#2/
+ !!_empty_/TraversableOps#Ops#[Repr]28
+$ )*_empty_/TraversableOps#Ops#force().(dummy)2"
++ 8scala/DummyImplicit#2
+; >
+scala/Any#2.
+  _empty_/TraversableOps#ct2ops().21
+ #_empty_/TraversableOps#ct2ops().[T]21
+ #_empty_/TraversableOps#ct2ops().[C]21
+  !#_empty_/TraversableOps#ct2ops().(t)21
+# $#_empty_/TraversableOps#ct2ops().[C]21
+% &#_empty_/TraversableOps#ct2ops().[T]2)
+ _empty_/TraversableOps#Ops#21
+ 	#_empty_/TraversableOps#ct2ops().[C]21
+
+ #_empty_/TraversableOps#ct2ops().[T]2-
+ _empty_/TraversableOps#force().20
+ "_empty_/TraversableOps#force().[T]20
+ "_empty_/TraversableOps#force().(t)2
+ scala/Option#20
+ "_empty_/TraversableOps#force().[T]21
+ #_empty_/TraversableOps#Ops#force().2.
+  _empty_/TraversableOps#ct2ops().20
+ "_empty_/TraversableOps#force().(t)2'
+ _empty_/TraversableOps#R.20
+ "scala/DummyImplicit.dummyImplicit.2+
+   	_empty_/TraversableOps#foo().2.
+ 
+   _empty_/TraversableOps#foo().[T]2.
+    _empty_/TraversableOps#foo().[C]2)
+   _empty_/TraversableOps#Ops#2.
+    _empty_/TraversableOps#foo().[C]2.
+    _empty_/TraversableOps#foo().[T]PZ BA15C92ECCC0CB26C4B93DE222C62A67

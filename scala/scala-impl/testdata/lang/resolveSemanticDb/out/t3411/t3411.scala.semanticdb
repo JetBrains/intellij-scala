@@ -1,0 +1,25 @@
+
+³tests/pos/t3411.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.g().*g€*
+_empty_/A.g().(c)*c€*
+_empty_/A.f().*f€*
+local0 À*x€*
+local1*x$1€2
+ 
+_empty_/A.2
+ _empty_/A.g().2
+ 	_empty_/A.g().(c)2$
+ scala/PartialFunction#2
+ 
+scala/Any#2
+ #scala/Unit#2
+' +scala/Unit#2
+ _empty_/A.f().2
+	 scala/Unit#2
+ local02
+ _empty_/A.g().2
+ local12
+ local0PZ 02EBD218B292A50E19CFC57D03F8A1BA

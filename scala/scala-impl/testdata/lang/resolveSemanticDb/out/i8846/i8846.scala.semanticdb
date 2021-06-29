@@ -1,0 +1,42 @@
+
+ätests/pos/i8846.scala*
+
+example/X#*X€*'
+example/X#`<init>`(). €@*<init>€*"
+example/X#`<init>`().(a)*a€*
+example/X#a. €*a€*
+example/XImpl#*XImpl€*+
+example/XImpl#`<init>`(). €@*<init>€*.
+ example/XImpl#`<init>`().(param)*param€*
+local0*helper€*
+local1 *$anon€*
+local2*close€*%
+example/XImpl#param. €*param€2
+ example/2
+ 
+example/X#2#
+ example/X#`<init>`().2
+ 
+scala/Any#2
+ 	example/X#a.2
+ example/XImpl#2'
+ example/XImpl#`<init>`().2
+	 
+scala/Int#2#
+ example/X#`<init>`().2
+
+ 
+example/X#2
+ local02&
+ java/lang/AutoCloseable#2
+" "local12&
+& 3java/lang/AutoCloseable#2
+
+ local22'
+ scala/Predef.println(+1).2"
+ !example/XImpl#param.2
+
+
+ 
+local02"
+ example/XImpl#param.PZ 4A388BBD941601C33DF0D6A4D77DD5BC

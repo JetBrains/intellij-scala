@@ -1,0 +1,23 @@
+
+Ëtests/pos/i8181.scala*
+_empty_/Main.
+ *Main€*!
+_empty_/Main.main().*main€*'
+_empty_/Main.main().(args)*args€*
+local0*putout€*
+local1*a€2
+ _empty_/Main.2"
+ 
+_empty_/Main.main().2(
+ _empty_/Main.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+
+ local02
+ local12
+ scala/AnyRef#2
+ scala/Unit#2'
+ "scala/Predef.println(+1).2
+# $local12
+ local0PZ F9AB4EFD4FA30C8EAF8036D00F053CEA

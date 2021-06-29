@@ -1,0 +1,60 @@
+
+…&tests/pos/mixin-forwarder-clash1.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/One#*One€*)
+_empty_/One#`<init>`(). €@*<init>€*
+_empty_/One#[X]	*X€*$
+_empty_/One#concat().*concat€*,
+_empty_/One#concat().(suffix)*suffix€*
+_empty_/Two#*Two€*)
+_empty_/Two#`<init>`(). €@*<init>€*
+_empty_/Two#[Y]	*Y€*$
+_empty_/Two#concat().*concat€**
+_empty_/Two#concat().[Dummy]	*Dummy€*,
+_empty_/Two#concat().(suffix)*suffix€*
+_empty_/Bar1#*Bar1€**
+_empty_/Bar1#`<init>`(). €@*<init>€*
+_empty_/Bar2#*Bar2€**
+_empty_/Bar2#`<init>`(). €@*<init>€2
+ 	_empty_/Foo#2!
+_empty_/Foo#`<init>`().2
+ 	_empty_/One#2%
+	 	_empty_/One#`<init>`().2
+
+ _empty_/One#[X]2#
+ _empty_/One#concat().2+
+ _empty_/One#concat().(suffix)2
+ 
+scala/Int#2
+ _empty_/One#[X]2#
+ "scala/Predef.`???`().2
+
+
+ 	_empty_/Two#2%
+
+	
+ 	_empty_/Two#`<init>`().2
+
+
+
+ _empty_/Two#[Y]2#
+ _empty_/Two#concat().2*
+ _empty_/Two#concat().[Dummy]2+
+ _empty_/Two#concat().(suffix)2
+ 
+scala/Int#2
+" #_empty_/Two#[Y]2#
+& )scala/Predef.`???`().2
+ 
+_empty_/Bar1#2&
+ _empty_/Bar1#`<init>`().2
+ _empty_/One#2
+ _empty_/Foo#2
+ 
+_empty_/Bar2#2&
+ _empty_/Bar2#`<init>`().2&
+ _empty_/Bar1#`<init>`().2
+ _empty_/Bar1#2
+  _empty_/Two#2
+! $_empty_/Foo#PZ F105D5DFB049C5A0E19813C24338FC27

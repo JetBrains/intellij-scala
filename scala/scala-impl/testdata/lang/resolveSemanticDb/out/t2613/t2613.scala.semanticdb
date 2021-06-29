@@ -1,0 +1,33 @@
+
+ãtests/pos/t2613.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Row#*Row€*.
+_empty_/Test.Row#`<init>`(). €@*<init>€*-
+_empty_/Test.MyRelation# *
+MyRelation€*5
+#_empty_/Test.MyRelation#`<init>`(). €@*<init>€*%
+_empty_/Test.MyRelation#[R]	*R€*6
+"_empty_/Test.MyRelation#[Relation]	 €*Relation€*
+_empty_/Test.M#*M€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€2&
+ scala/language.existentials.2
+ scala/language.2
+ _empty_/Test.2
+ _empty_/Test.Row#2*
+ _empty_/Test.Row#`<init>`().2&
+ _empty_/Test.MyRelation#21
+ #_empty_/Test.MyRelation#`<init>`().2)
+ _empty_/Test.MyRelation#[R]20
+( 0"_empty_/Test.MyRelation#[Relation]2
+ _empty_/Test.M#2&
+ _empty_/Test.MyRelation#2
+ _empty_/Test.Row#2&
+% /_empty_/Test.MyRelation#2%
+		 scala/Tuple2.unapply().2"
+		 scala/Predef.String#2
+		 _empty_/Test.M#2
+		 _empty_/Test.x.2
+			 
+_empty_/Test.y.PZ DA8F12BC7CB74EE1306F1246032F05BB

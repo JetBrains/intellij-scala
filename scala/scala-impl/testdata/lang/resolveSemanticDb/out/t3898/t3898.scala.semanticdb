@@ -1,0 +1,38 @@
+
+ð	tests/pos/t3898.scala*
+_empty_/Atomic#*Atomic€*,
+_empty_/Atomic#`<init>`(). €@*<init>€*
+_empty_/Atomic#[T]	*T€*
+_empty_/Atomic#x(). *x€*
+_empty_/Atomic#f().*f€*"
+_empty_/Atomic#f().(fn)*fn€*
+_empty_/Atomic#f(+1).*f€*"
+_empty_/Atomic#f(+1).[R]	*R€*"
+_empty_/Atomic#f(+1).(a)*a€*"
+_empty_/Atomic#f(+1).(b)*b€2
+ _empty_/Atomic#2$
+ _empty_/Atomic#`<init>`().2
+ scala/specialized#2
+ !scala/Boolean.2
+# $_empty_/Atomic#[T]2!
+ _empty_/Atomic#x().2 
+	 
+_empty_/Atomic#[T]2!
+ _empty_/Atomic#f().2%
+ 
+_empty_/Atomic#f().(fn)2 
+ _empty_/Atomic#[T]2 
+ _empty_/Atomic#[T]2
+ scala/Boolean#2#
+  _empty_/Atomic#f(+1).2&
+# #scala/Function1#apply().2%
+! #_empty_/Atomic#f().(fn)2!
+$ %_empty_/Atomic#x().2#
+ _empty_/Atomic#f(+1).2&
+ 	_empty_/Atomic#f(+1).[R]2&
+ _empty_/Atomic#f(+1).(a)2 
+ _empty_/Atomic#[T]2&
+ _empty_/Atomic#f(+1).(b)2&
+ _empty_/Atomic#f(+1).[R]2&
+ _empty_/Atomic#f(+1).[R]2&
+ _empty_/Atomic#f(+1).(b)PZ EDB8770641CEE1BC895C4760883CC3F6

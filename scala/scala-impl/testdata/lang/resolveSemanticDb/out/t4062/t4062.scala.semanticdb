@@ -1,0 +1,37 @@
+
+Útests/pos/t4062.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*%
+_empty_/A#`<init>`().(f) €*f€*
+_empty_/A#f. €*f€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*"
+_empty_/B#`<init>`().(a)*a€*"
+_empty_/B#`<init>`().(f)*f€*
+_empty_/B#a. €*a€*
+_empty_/B#f. €*f€2
+ 
+_empty_/A#2
+ _empty_/A#`<init>`().2
+ scala/Predef.String#2
+ _empty_/A#f.2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ scala/Option#2"
+ scala/Predef.String#2"
+  &scala/Predef.String#2#
+1 1_empty_/A#`<init>`().2
+0 1
+_empty_/A#2
+2 3_empty_/B#f.2
+ 	_empty_/B#a.2
+ _empty_/B#f.2
+ _empty_/B#a.2#
+ scala/Some.unapply().2
+	 scala/Some.2
+ _empty_/B#f.2#
+ scala/Predef.print().2
+ _empty_/B#f.PZ 1843BE21620A20E42D785F1E724D78FE

@@ -1,0 +1,64 @@
+
+Åtests/pos/i3538.scala*
+_empty_/Inv#*InvÄ*)
+_empty_/Inv#`<init>`(). Ä@*<init>Ä*
+_empty_/Inv#[T]	*TÄ*
+_empty_/Test#*TestÄ**
+_empty_/Test#`<init>`(). Ä@*<init>Ä*!
+_empty_/Test#Wrong#*WrongÄ*0
+_empty_/Test#Wrong#`<init>`(). Ä@*<init>Ä*1
+$_empty_/Test#Wrong#`<init>`().(test)*testÄ*(
+_empty_/Test#Wrong#test. Ä*testÄ*)
+_empty_/Test#Wrong#right().*rightÄ*%
+_empty_/Test#Wrong(). (*WrongÄ*(
+_empty_/Test#Wrong().(test)*testÄ*!
+_empty_/Test#Right#*RightÄ*0
+_empty_/Test#Right#`<init>`(). Ä@*<init>Ä*1
+$_empty_/Test#Right#`<init>`().(test)*testÄ*(
+_empty_/Test#Right#test. Ä*testÄ*)
+_empty_/Test#Right#right().*rightÄ*.
+!_empty_/Test#Right#right().(node)*nodeÄ*%
+_empty_/Test#Right(). (*RightÄ*(
+_empty_/Test#Right().(test)*testÄ*
+_empty_/Test#inv().*invÄ* 
+_empty_/Test#inv().[T]	*TÄ* 
+_empty_/Test#inv().(x)*xÄ2
+ 	_empty_/Inv#2%
+	 	_empty_/Inv#`<init>`().2
+
+ _empty_/Inv#[T]2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ _empty_/Test#Wrong#2,
+ _empty_/Test#Wrong#`<init>`().2
+ !_empty_/Test#2&
+ _empty_/Test#Wrong#test.2)
+ _empty_/Test#Wrong#right().2
+ 
+scala/Any#2#
+ scala/Predef.`???`().2#
+ _empty_/Test#Wrong().2!
+ _empty_/Test#Right#2,
+ _empty_/Test#Right#`<init>`().2
+ !_empty_/Test#2&
+ _empty_/Test#Right#test.2)
+ _empty_/Test#Right#right().2/
+ !_empty_/Test#Right#right().(node)2
+ 
+scala/Any#2
+ 
+scala/Any#2#
+  #scala/Predef.`???`().2#
+ _empty_/Test#Right().2!
+ 	_empty_/Test#inv().2$
+
+ _empty_/Test#inv().[T]2$
+ _empty_/Test#inv().(x)2$
+ _empty_/Test#inv().[T]2
+ _empty_/Inv#2$
+ _empty_/Test#inv().[T]2#
+  scala/Predef.`???`().2)
+	 _empty_/Test#Right#right().2#
+ _empty_/Test#Right().2!
+ _empty_/Test#inv().PZ 10046F2DC865C6C4206A2974FDF42F13

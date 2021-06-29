@@ -1,0 +1,26 @@
+
+•tests/pos/i11311.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.cat1().*cat1€*#
+_empty_/Test.cat1().(s1)*s1€*#
+_empty_/Test.cat1().(s2)*s2€*$
+_empty_/Test.fcat1. €*fcat1€*
+local0*s1€*
+local1*s2€2 
+ scala/language.future.2
+ scala/language.2
+ _empty_/Test.2"
+ 
+_empty_/Test.cat1().2&
+ _empty_/Test.cat1().(s1)2"
+ scala/Predef.String#2&
+ _empty_/Test.cat1().(s2)2"
+ !scala/Predef.String#2%
+( )java/lang/String#`+`().2&
+% '_empty_/Test.cat1().(s1)2&
+* ,_empty_/Test.cat1().(s2)2!
+ _empty_/Test.fcat1.2"
+ _empty_/Test.cat1().2
+ local02
+ local1PZ BC2233ECF9E9F11AA50B9D52BD5783FB

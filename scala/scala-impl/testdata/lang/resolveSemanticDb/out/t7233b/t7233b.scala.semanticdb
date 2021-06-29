@@ -1,0 +1,35 @@
+
+çtests/pos/t7233b.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().(a)*a€*
+_empty_/Test.ok1().*ok1€* 
+_empty_/Test.ok1().(a)*a€*
+_empty_/Test.ok2().*ok2€* 
+_empty_/Test.ok2().(a)*a€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().(a)2
+ 
+scala/Any#2#
+ 'scala/Any#toString().2$
+ _empty_/Test.foo().(a)2#
+0 3scala/Any#toString().2!
+ 	_empty_/Test.ok1().2$
+
+ _empty_/Test.ok1().(a)2"
+ scala/Predef.String#2'
+" .scala/Any#isInstanceOf().2$
+  !_empty_/Test.ok1().(a)2'
+7 :scala/Any#isInstanceOf().2"
+; Ascala/Predef.String#2!
+ 	_empty_/Test.ok2().2$
+
+ _empty_/Test.ok2().(a)2
+ 
+scala/Int#2 
+ $scala/Int#toInt().2$
+ _empty_/Test.ok2().(a)2 
+, .scala/Int#toInt().PZ D608764DD96ABFDB2A7FADA73B979F16

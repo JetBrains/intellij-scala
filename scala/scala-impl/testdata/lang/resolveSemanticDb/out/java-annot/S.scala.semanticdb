@@ -1,0 +1,23 @@
+
+Åtests/pos/java-annot/S.scala*
+
+_empty_/C.
+ *CÄ*
+_empty_/C.cs. Ä*csÄ*
+
+_empty_/S.
+ *SÄ*
+_empty_/S.f().*fÄ2
+ 
+_empty_/C.2
+ _empty_/C.cs.2
+ 
+_empty_/S.2
+ 
+_empty_/J#2
+ 	_empty_/C.cs.2
+ 
+_empty_/C.2
+ _empty_/S.f().2
+ 
+scala/Int#PZ BEE523E93C4F2DA7BA4162FCCD34F80C

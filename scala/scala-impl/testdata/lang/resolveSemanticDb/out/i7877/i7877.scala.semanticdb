@@ -1,0 +1,139 @@
+
+â"tests/pos/i7877.scala*"
+_empty_/Example.
+ *Example€*$
+_empty_/Example.ZSink#*ZSink€*3
+!_empty_/Example.ZSink#`<init>`(). €@*<init>€*&
+_empty_/Example.ZSink#[R]	 €*R€*&
+_empty_/Example.ZSink#[E]	 €*E€*(
+_empty_/Example.ZSink#[A0]	 €*A0€*&
+_empty_/Example.ZSink#[A]	 €*A€*&
+_empty_/Example.ZSink#[B]	 €*B€*.
+_empty_/Example.ZSink#orElse().*orElse€*.
+#_empty_/Example.ZSink#orElse().[R1]	*R1€*.
+#_empty_/Example.ZSink#orElse().[E1]	*E1€*0
+$_empty_/Example.ZSink#orElse().[A00]	*A00€*.
+#_empty_/Example.ZSink#orElse().[A1]	*A1€*,
+"_empty_/Example.ZSink#orElse().[C]	*C€*2
+%_empty_/Example.ZSink#orElse().(that)*that€*0
+#_empty_/Example.ZSink#orElse().(ev)  *ev€*&
+_empty_/Example.ZSink.
+ *ZSink€*2
+!_empty_/Example.ZSink.identity().*identity€*.
+$_empty_/Example.ZSink.identity().[A]	*A€**
+_empty_/Example.ZSink.fail().*fail€**
+ _empty_/Example.ZSink.fail().[E]	*E€**
+ _empty_/Example.ZSink.fail().(e)*e€*
+_empty_/Example.a. €*a€2
+ _empty_/Example.2
+ 
+scala/App#2$
+ _empty_/Example.ZSink#2/
+ !_empty_/Example.ZSink#`<init>`().2'
+ _empty_/Example.ZSink#[R]2'
+ _empty_/Example.ZSink#[E]2(
+ _empty_/Example.ZSink#[A0]2'
+ _empty_/Example.ZSink#[A]2'
+  !_empty_/Example.ZSink#[B]2-
+ _empty_/Example.ZSink#orElse().21
+ #_empty_/Example.ZSink#orElse().[R1]2'
+ _empty_/Example.ZSink#[R]21
+ #_empty_/Example.ZSink#orElse().[E1]22
+ $_empty_/Example.ZSink#orElse().[A00]2(
+# %_empty_/Example.ZSink#[A0]21
+' )#_empty_/Example.ZSink#orElse().[A1]2'
+- ._empty_/Example.ZSink#[A]20
+0 1"_empty_/Example.ZSink#orElse().[C]23
+ 
+%_empty_/Example.ZSink#orElse().(that)2$
+ _empty_/Example.ZSink#21
+ #_empty_/Example.ZSink#orElse().[R1]21
+ #_empty_/Example.ZSink#orElse().[E1]22
+ $_empty_/Example.ZSink#orElse().[A00]21
+ !#_empty_/Example.ZSink#orElse().[A1]20
+# $"_empty_/Example.ZSink#orElse().[C]21
+ #_empty_/Example.ZSink#orElse().(ev)2
+ scala/`=:=`#21
+ #_empty_/Example.ZSink#orElse().[A1]22
+ $_empty_/Example.ZSink#orElse().[A00]2$
+  %_empty_/Example.ZSink#21
+& (#_empty_/Example.ZSink#orElse().[R1]21
+* ,#_empty_/Example.ZSink#orElse().[E1]22
+. 1$_empty_/Example.ZSink#orElse().[A00]21
+3 5#_empty_/Example.ZSink#orElse().[A1]2#
+7 =scala/package.Either#2'
+> ?_empty_/Example.ZSink#[B]20
+A B"_empty_/Example.ZSink#orElse().[C]2#
+ 	scala/Predef.`???`().2$
+			 _empty_/Example.ZSink.2/
+
+
+ !_empty_/Example.ZSink.identity().22
+
+
+ $_empty_/Example.ZSink.identity().[A]2$
+
+
+ _empty_/Example.ZSink#2
+
+
+ 
+scala/Any#2
+
+ 
+ $scala/Unit#2
+
+&
+ -scala/Nothing#22
+
+/
+ 0$_empty_/Example.ZSink.identity().[A]22
+
+2
+ 3$_empty_/Example.ZSink.identity().[A]2#
+
+7
+ :scala/Predef.`???`().2+
+ _empty_/Example.ZSink.fail().2.
+  _empty_/Example.ZSink.fail().[E]2.
+  _empty_/Example.ZSink.fail().(e)2.
+  _empty_/Example.ZSink.fail().[E]2$
+ _empty_/Example.ZSink#2
+  
+scala/Any#2.
+" # _empty_/Example.ZSink.fail().[E]2
+% ,scala/Nothing#2
+. 1
+scala/Any#2
+3 :scala/Nothing#2#
+> Ascala/Predef.`???`().2 
+ _empty_/Example.a.2$
+	 _empty_/Example.ZSink#2
+ 
+scala/Any#2"
+ scala/Predef.String#2
+ 
+scala/Int#2
+! $
+scala/Int#2#
+& ,scala/package.Either#2
+- 0
+scala/Int#2
+2 9scala/Nothing#2-
+ _empty_/Example.ZSink#orElse().2/
+
+ !_empty_/Example.ZSink.identity().2$
+ 	_empty_/Example.ZSink.2
+ 
+scala/Int#2+
+% )_empty_/Example.ZSink.fail().2$
+ $_empty_/Example.ZSink.2!
+2 2scala/`<:<`.refl().2-
+ _empty_/Example.ZSink#orElse().2/
+ !_empty_/Example.ZSink.identity().2$
+ _empty_/Example.ZSink.2
+ 
+scala/Int#2+
+# '_empty_/Example.ZSink.fail().2$
+ "_empty_/Example.ZSink.2!
+0 0scala/`<:<`.refl().PZ 0EC9CE0936A37DB78BC258D4828808F7

@@ -1,0 +1,90 @@
+
+¬tests/pos/t1843.scala*
+_empty_/Crash.
+ *Crash€*,
+_empty_/Crash.UpdateType#*
+UpdateType€*6
+$_empty_/Crash.UpdateType#`<init>`(). €@*<init>€*&
+_empty_/Crash.UpdateType#[A]	*A€*1
+_empty_/Crash.StateUpdate# €*StateUpdate€*7
+%_empty_/Crash.StateUpdate#`<init>`(). €@*<init>€*G
+1_empty_/Crash.StateUpdate#`<init>`().(updateType) €*
+updateType€*=
+,_empty_/Crash.StateUpdate#`<init>`().(value) €*value€*'
+_empty_/Crash.StateUpdate#[A]	*A€*;
+%_empty_/Crash.StateUpdate#updateType. €*
+updateType€*1
+ _empty_/Crash.StateUpdate#value. €*value€*.
+!_empty_/Crash.StateUpdate#copy().*copy€*.
+$_empty_/Crash.StateUpdate#copy().[A]	*A€*@
+-_empty_/Crash.StateUpdate#copy().(updateType)*
+updateType€*6
+(_empty_/Crash.StateUpdate#copy().(value)*value€*B
++_empty_/Crash.StateUpdate#copy$default$1().*copy$default$1€*8
+._empty_/Crash.StateUpdate#copy$default$1().[A]	*A€*B
++_empty_/Crash.StateUpdate#copy$default$2().*copy$default$2€*8
+._empty_/Crash.StateUpdate#copy$default$2().[A]	*A€**
+_empty_/Crash.StateUpdate#_1().*_1€**
+_empty_/Crash.StateUpdate#_2().*_2€*0
+_empty_/Crash.StateUpdate.
+ *StateUpdate€*0
+"_empty_/Crash.StateUpdate.apply().*apply€*/
+%_empty_/Crash.StateUpdate.apply().[A]	*A€*A
+._empty_/Crash.StateUpdate.apply().(updateType)*
+updateType€*7
+)_empty_/Crash.StateUpdate.apply().(value)*value€*4
+$_empty_/Crash.StateUpdate.unapply().*unapply€*1
+'_empty_/Crash.StateUpdate.unapply().[A]	*A€*5
+)_empty_/Crash.StateUpdate.unapply().(x$1)*x$1€*6
+%_empty_/Crash.StateUpdate.toString().*toString€*=
+ _empty_/Crash.IntegerUpdateType.
+ ˆ*IntegerUpdateType€*$
+_empty_/Crash.crash().*crash€*/
+_empty_/Crash.crash().(updates)*updates€*
+local0 €*u€*
+local1 €*us€*
+local2 €	*A$1€*
+local3 €*key€*
+local4 €*newValue€2
+ _empty_/Crash.2'
+ _empty_/Crash.UpdateType#22
+ $_empty_/Crash.UpdateType#`<init>`().2*
+ _empty_/Crash.UpdateType#[A]2(
+ _empty_/Crash.StateUpdate#23
+ %_empty_/Crash.StateUpdate#`<init>`().2'
+) 3_empty_/Crash.UpdateType#2+
+4 5_empty_/Crash.StateUpdate#[A]2+
+@ A_empty_/Crash.StateUpdate#[A]2+
+ _empty_/Crash.StateUpdate#[A]23
+ &%_empty_/Crash.StateUpdate#updateType.2.
+8 = _empty_/Crash.StateUpdate#value.2/
+ !_empty_/Crash.StateUpdate#copy().2-
+) )_empty_/Crash.StateUpdate#_1().2-
+@ @_empty_/Crash.StateUpdate#_2().2(
+ _empty_/Crash.StateUpdate.20
+ "_empty_/Crash.StateUpdate.apply().22
+ $_empty_/Crash.StateUpdate.unapply().2.
+  _empty_/Crash.IntegerUpdateType.2'
+( 2_empty_/Crash.UpdateType#2 
+3 :java/lang/Integer#2$
+ _empty_/Crash.crash().2-
+ _empty_/Crash.crash().(updates)2!
+ scala/package.List#2(
+ %_empty_/Crash.StateUpdate#2
+, 0scala/Unit#2-
+ _empty_/Crash.crash().(updates)2 
+ scala/package.Nil.28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local02
+ local12
+ 	local022
+ $_empty_/Crash.StateUpdate.unapply().2(
+ _empty_/Crash.StateUpdate.2
+ local22
+ local32
+  (local42
+2 4scala/Any#`==`().2
+. 1local32.
+5 F _empty_/Crash.IntegerUpdateType.2'
+ scala/Predef.println(+1).PZ F0EFCF67610B52594DFB8338D58D7127

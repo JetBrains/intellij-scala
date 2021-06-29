@@ -1,0 +1,44 @@
+
+ótests/pos/ticket2197.scala*(
+_empty_/PartialType#*PartialType€*1
+_empty_/PartialType#`<init>`(). €@*<init>€*!
+_empty_/PartialType#[T]	*T€*!
+_empty_/PartialType#[A]	*A€*(
+_empty_/PartialType#Apply#*Apply€*'
+_empty_/PartialType#Apply#[B]	*B€*
+_empty_/State# *State€*+
+_empty_/State#`<init>`(). €@*<init>€*
+_empty_/State#[S]	*S€*
+_empty_/State#[A]	 €*A€*
+_empty_/Pure#*Pure€**
+_empty_/Pure#`<init>`(). €@*<init>€*
+_empty_/Pure#[P]	*P€*$
+_empty_/StatePure#*	StatePure€*/
+_empty_/StatePure#`<init>`(). €@*<init>€*
+_empty_/StatePure#[X]	*X€2
+ _empty_/PartialType#2)
+ _empty_/PartialType#`<init>`().2!
+ _empty_/PartialType#[T]2!
+ _empty_/PartialType#[A]2(
+ _empty_/PartialType#Apply#2+
+ _empty_/PartialType#Apply#[B]2%
+ _empty_/PartialType#[T]2%
+ _empty_/PartialType#[A]2+
+ _empty_/PartialType#Apply#[B]2
+ _empty_/State#2'
+ _empty_/State#`<init>`().2
+ _empty_/State#[S]2
+ _empty_/State#[A]2
+ 
+_empty_/Pure#2&
+
+ 
+_empty_/Pure#`<init>`().2
+ _empty_/Pure#[P]2 
+ _empty_/StatePure#2+
+ _empty_/StatePure#`<init>`().2
+ _empty_/Pure#2(
+6 ;_empty_/PartialType#Apply#2"
+  +_empty_/PartialType#2#
+3 4_empty_/StatePure#[X]2#
+ _empty_/StatePure#[X]PZ EDB3A3C430CD30B794ADF8BD702A1715

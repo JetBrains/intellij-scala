@@ -1,0 +1,72 @@
+
+Ðtests/pos/t361.scala**
+_empty_/Bug361Global#*Bug361Global€*2
+ _empty_/Bug361Global#`<init>`(). €@*<init>€**
+_empty_/Bug361Trees# *Bug361Trees€*1
+_empty_/Bug361Trees#`<init>`(). €@*<init>€*
+local0*self€*(
+_empty_/Bug361Trees#Tree# *Tree€*6
+$_empty_/Bug361Trees#Tree#`<init>`(). €@*<init>€*.
+_empty_/Bug361Trees#Tree#pos(). €*pos€*4
+#_empty_/Bug361Trees#Tree#`pos_=`(). €*pos_=€*4
+(_empty_/Bug361Trees#Tree#`pos_=`().(x$1)*x$1€*6
+ _empty_/Bug361Trees#posAssigner.
+ *posAssigner€*6
+(_empty_/Bug361Trees#posAssigner.atPos().*atPos€*5
++_empty_/Bug361Trees#posAssigner.atPos().[T]	*T€*9
+-_empty_/Bug361Trees#posAssigner.atPos().(pos)*pos€*;
+._empty_/Bug361Trees#posAssigner.atPos().(tree)*tree€**
+_empty_/Bug361Trees#atPos().*atPos€*)
+_empty_/Bug361Trees#atPos().[T]	*T€*-
+!_empty_/Bug361Trees#atPos().(pos)*pos€*/
+"_empty_/Bug361Trees#atPos().(tree)*tree€2
+ _empty_/Bug361Global#2*
+  _empty_/Bug361Global#`<init>`().2)
+& &_empty_/Bug361Trees#`<init>`().2
+ &_empty_/Bug361Trees#2"
+ _empty_/Bug361Trees#2-
+ _empty_/Bug361Trees#`<init>`().2
+ !local02#
+# /_empty_/Bug361Global#2'
+ _empty_/Bug361Trees#Tree#22
+ $_empty_/Bug361Trees#Tree#`<init>`().2-
+ _empty_/Bug361Trees#Tree#pos().2
+ 
+scala/Int#21
+ #_empty_/Bug361Trees#Tree#`pos_=`().2.
+	  _empty_/Bug361Trees#posAssigner.26
+		 (_empty_/Bug361Trees#posAssigner.atPos().29
+		 +_empty_/Bug361Trees#posAssigner.atPos().[T]2'
+		 _empty_/Bug361Trees#Tree#2;
+		 -_empty_/Bug361Trees#posAssigner.atPos().(pos)2
+		 !
+scala/Int#2<
+	#	 '._empty_/Bug361Trees#posAssigner.atPos().(tree)29
+	)	 *+_empty_/Bug361Trees#posAssigner.atPos().[T]29
+	-	 .+_empty_/Bug361Trees#posAssigner.atPos().[T]21
+
+
+ #_empty_/Bug361Trees#Tree#`pos_=`().2<
+
+
+ 
+._empty_/Bug361Trees#posAssigner.atPos().(tree)2;
+
+
+ -_empty_/Bug361Trees#posAssigner.atPos().(pos)2<
+
+
+ ._empty_/Bug361Trees#posAssigner.atPos().(tree)2*
+ _empty_/Bug361Trees#atPos().2-
+ _empty_/Bug361Trees#atPos().[T]2'
+ _empty_/Bug361Trees#Tree#2/
+ !_empty_/Bug361Trees#atPos().(pos)2
+ 
+scala/Int#20
+! %"_empty_/Bug361Trees#atPos().(tree)2-
+' (_empty_/Bug361Trees#atPos().[T]2-
++ ,_empty_/Bug361Trees#atPos().[T]26
+; @(_empty_/Bug361Trees#posAssigner.atPos().2.
+/ : _empty_/Bug361Trees#posAssigner.2/
+A D!_empty_/Bug361Trees#atPos().(pos)20
+F J"_empty_/Bug361Trees#atPos().(tree)PZ F76D0A7AD0E42AE5AC9C6AB24BA0DB28

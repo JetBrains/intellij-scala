@@ -1,0 +1,71 @@
+
+ÿ>tests/pos/scala-days-2019-slides/metaprogramming-1-match.scala*
+_empty_/App.
+ *App€*
+_empty_/App.Nat#*Nat€*-
+_empty_/App.Nat#`<init>`(). €@*<init>€*!
+_empty_/App.Zero.
+ ˆ*Zero€*!
+_empty_/App.Succ# €*Succ€*.
+_empty_/App.Succ#`<init>`(). €@*<init>€*,
+_empty_/App.Succ#`<init>`().(n) €*n€*
+_empty_/App.Succ#[N]	*N€* 
+_empty_/App.Succ#n. €*n€*%
+_empty_/App.Succ#copy().*copy€*%
+_empty_/App.Succ#copy().[N]	*N€*%
+_empty_/App.Succ#copy().(n)*n€*9
+"_empty_/App.Succ#copy$default$1().*copy$default$1€*/
+%_empty_/App.Succ#copy$default$1().[N]	*N€*!
+_empty_/App.Succ#_1().*_1€* 
+_empty_/App.Succ.
+ *Succ€*'
+_empty_/App.Succ.apply().*apply€*&
+_empty_/App.Succ.apply().[N]	*N€*&
+_empty_/App.Succ.apply().(n)*n€*+
+_empty_/App.Succ.unapply().*unapply€*(
+_empty_/App.Succ.unapply().[N]	*N€*,
+ _empty_/App.Succ.unapply().(x$1)*x$1€*-
+_empty_/App.Succ.toString().*toString€*"
+_empty_/App.toInt().*toInt€*!
+_empty_/App.toInt().(n)*n€*
+local0 €	*N$1€*
+local1 €*n1€*%
+_empty_/App.natTwo. €*natTwo€2
+ 
+_empty_/App.2
+ _empty_/App.Nat#2)
+ _empty_/App.Nat#`<init>`().2
+ _empty_/App.Zero.2
+ _empty_/App.Nat#2
+ _empty_/App.Succ#2*
+ _empty_/App.Succ#`<init>`().2"
+  _empty_/App.Succ#[N]2
+* -_empty_/App.Nat#2"
+ _empty_/App.Succ#[N]2!
+ _empty_/App.Succ#n.2&
+ _empty_/App.Succ#copy().2$
+ _empty_/App.Succ#_1().2
+ _empty_/App.Succ.2'
+ _empty_/App.Succ.apply().2)
+ _empty_/App.Succ.unapply().2"
+ _empty_/App.toInt().2%
+ _empty_/App.toInt().(n)2
+ _empty_/App.Nat#2
+ "
+scala/Int#2%
+, -_empty_/App.toInt().(n)2
+	 _empty_/App.Zero.2)
+ _empty_/App.Succ.unapply().2
+	 _empty_/App.Succ.2
+ local02
+ local12 
+  scala/Int#`+`(+4).2"
+ _empty_/App.toInt().2
+ local12!
+ _empty_/App.natTwo.2"
+ _empty_/App.toInt().2'
+ _empty_/App.Succ.apply().2
+ _empty_/App.Succ.2'
+ _empty_/App.Succ.apply().2
+ _empty_/App.Succ.2
+ #_empty_/App.Zero.PZ 469A80DC376489B9D980EA2790FBB210

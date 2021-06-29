@@ -1,0 +1,31 @@
+
+Ì	tests/pos/named-typeargs.scala*
+namedTypeArgsR/t1.
+ *t1€*0
+namedTypeArgsR/t1.construct().*	construct€*1
+$namedTypeArgsR/t1.construct().[Elem]	*Elem€*1
+$namedTypeArgsR/t1.construct().[Coll]	*Coll€*-
+"namedTypeArgsR/t1.construct().(xs)*xs€*%
+namedTypeArgsR/t1.xs3. €*xs3€*%
+namedTypeArgsR/t1.xs2. €*xs2€29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ namedTypeArgsR/2 
+ 	namedTypeArgsR/t1.2,
+ namedTypeArgsR/t1.construct().22
+ $namedTypeArgsR/t1.construct().[Elem]22
+ $namedTypeArgsR/t1.construct().[Coll]20
+ !"namedTypeArgsR/t1.construct().(xs)22
+# '$namedTypeArgsR/t1.construct().[Elem]22
++ /$namedTypeArgsR/t1.construct().[Coll]22
+0 4$namedTypeArgsR/t1.construct().[Elem]2#
+8 ;scala/Predef.`???`().2$
+ 	namedTypeArgsR/t1.xs3.2,
+ namedTypeArgsR/t1.construct().2!
+ !scala/package.List#2$
+		 	namedTypeArgsR/t1.xs2.2,
+		 namedTypeArgsR/t1.construct().2!
+		 !scala/package.List#2
+	*	 -
+scala/Int#PZ B3E213A827D725C2F9D491A0618A1F64

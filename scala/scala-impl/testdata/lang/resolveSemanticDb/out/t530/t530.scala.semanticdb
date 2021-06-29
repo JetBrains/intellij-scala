@@ -1,0 +1,22 @@
+
+ªtests/pos/t530.scala*
+
+test/Test.
+ *Test€*&
+test/Test.process1().*process1€*
+local0
+ *	generator€*
+local1 €*c€*
+local3
+ *compiler€2
+ test/2
+ 
+test/Test.2#
+ test/Test.process1().2
+ scala/AnyRef#2
+ local02
+
+ local12
+ local22
+ local32
+ local4PZ 0B1B0C89551C363E1FAC2A1FE74D8B80

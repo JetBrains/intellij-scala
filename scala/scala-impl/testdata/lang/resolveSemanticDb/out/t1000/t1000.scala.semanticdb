@@ -1,0 +1,25 @@
+
+ùtests/pos/t1000.scala*
+
+_empty_/A.
+ *A€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.xs. €*xs€2
+ 
+_empty_/A.2'
+ 	scala/Predef.println(+1).2
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.xs.2$
+ scala/Array.apply(+5).2
+ scala/Array.2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2#
+$ *scala/Array#length().21
+ #scala/collection/ArrayOps#filter().2)
+ scala/Predef.intArrayOps().2
+ _empty_/Test.xs.2!
+  scala/Int#`>=`(+3).PZ 2E1DFCC7ECD5ACDD8376E3B14EC4E452

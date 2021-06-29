@@ -1,0 +1,17 @@
+
+º"tests/pos/hk-reduce-variance.scala*
+_empty_/Cov#*Cov€*)
+_empty_/Cov#`<init>`(). €@*<init>€*$
+_empty_/Cov#`<init>`().(a)*a€*
+_empty_/Cov#[A]	 €*A€*
+_empty_/Cov#a. €*a€*
+_empty_/Cov#foo().*foo€2
+ 	_empty_/Cov#2!
+	 	_empty_/Cov#`<init>`().2
+ _empty_/Cov#[A]2
+ _empty_/Cov#[A]2
+ _empty_/Cov#a.2 
+ 	_empty_/Cov#foo().2;
+ -scala/collection/SeqFactory.Delegate#apply().2 
+ scala/package.Seq.2
+ _empty_/Cov#a.PZ 22B6FCE77751915DF7F8A9FA876DF48E

@@ -1,0 +1,50 @@
+
+‘%tests/pos/scala2-macro-compat-3.scala* 
+_empty_/Macro1.
+ *Macro1€*/
+_empty_/Macro1.lineNumber().*
+lineNumber€*/
+_empty_/Macro1.lineNumber().*
+lineNumber€*.
+_empty_/Macro1Consume.
+ *Macro1Consume€*+
+_empty_/Macro1Consume.test. €*test€*4
+_empty_/LineNumberMacro2.
+ *LineNumberMacro2€*1
+!_empty_/LineNumberMacro2.Context#*Context€*>
+,_empty_/LineNumberMacro2.Context#`<init>`(). €@*<init>€*3
+&_empty_/LineNumberMacro2.Context#Expr#*Expr€*6
+)_empty_/LineNumberMacro2.Context#Expr#[T]	 €*T€*I
+._empty_/LineNumberMacro2.thisLineNumberImpl().*thisLineNumberImpl€*G
+7_empty_/LineNumberMacro2.thisLineNumberImpl().(context)*context€2
+ _empty_/Macro1.21
+% +#scala/language.experimental.macros.2*
+ $scala/language.experimental.2
+ scala/language.2
+	 scala/2*
+ _empty_/Macro1.lineNumber().2
+ 
+scala/Int#2<
+/ A._empty_/LineNumberMacro2.thisLineNumberImpl().2'
+ ._empty_/LineNumberMacro2.2*
+ _empty_/Macro1.lineNumber().2
+ 
+scala/Int#2$
+ _empty_/Macro1Consume.2)
+		 
+_empty_/Macro1Consume.test.2*
+		 _empty_/Macro1.lineNumber().2
+		 _empty_/Macro1.2'
+ _empty_/LineNumberMacro2.2/
+ !_empty_/LineNumberMacro2.Context#2:
+ ,_empty_/LineNumberMacro2.Context#`<init>`().24
+	 &_empty_/LineNumberMacro2.Context#Expr#27
+ )_empty_/LineNumberMacro2.Context#Expr#[T]2<
+ ._empty_/LineNumberMacro2.thisLineNumberImpl().2E
+  7_empty_/LineNumberMacro2.thisLineNumberImpl().(context)2/
+" )!_empty_/LineNumberMacro2.Context#24
+4 8&_empty_/LineNumberMacro2.Context#Expr#2E
+, 37_empty_/LineNumberMacro2.thisLineNumberImpl().(context)2
+9 <
+scala/Int#2#
+ scala/Predef.`???`().PZ 1784FE4F4C99D9E0595E37E3CF272B8B

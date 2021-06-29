@@ -1,0 +1,65 @@
+
+ã-tests/pos/singleton-ops-test-issue-8287.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.Vec#*Vec€*.
+_empty_/Test.Vec#`<init>`(). €@*<init>€*
+_empty_/Test.Vec#[S]	*S€*)
+_empty_/Test.Vec#concat().*concat€*)
+_empty_/Test.Vec#concat().[RS]	*RS€*-
+ _empty_/Test.Vec#concat().(that)*that€*
+_empty_/Test.v1. €*v1€*
+_empty_/Test.v2. €*v2€*
+_empty_/Test.v3. €*v3€* 
+_empty_/Test.v3a. €*v3a€* 
+_empty_/Test.v3b. €*v3b€2$
+  scala/compiletime/ops/int.2 
+ scala/compiletime/ops/2
+ scala/compiletime/2
+ scala/2
+ _empty_/Test.2
+ _empty_/Test.Vec#2*
+ _empty_/Test.Vec#`<init>`().2"
+ _empty_/Test.Vec#[S]2(
+ _empty_/Test.Vec#concat().2,
+ _empty_/Test.Vec#concat().[RS]2
+ 
+scala/Int#2.
+! % _empty_/Test.Vec#concat().(that)2
+( +_empty_/Test.Vec#2,
+, ._empty_/Test.Vec#concat().[RS]2
+3 6_empty_/Test.Vec#2,
+9 :scala/compiletime/ops/int.`+`#2"
+7 8_empty_/Test.Vec#[S]2,
+; =_empty_/Test.Vec#concat().[RS]2*
+P P_empty_/Test.Vec#`<init>`().2
+E H_empty_/Test.Vec#2,
+K Lscala/compiletime/ops/int.`+`#2"
+I J_empty_/Test.Vec#[S]2,
+M O_empty_/Test.Vec#concat().[RS]2
+ _empty_/Test.v1.2*
+ _empty_/Test.Vec#`<init>`().2
+ _empty_/Test.Vec#2
+ _empty_/Test.v2.2*
+ _empty_/Test.Vec#`<init>`().2
+ _empty_/Test.Vec#2
+		 _empty_/Test.v3.2
+		 _empty_/Test.Vec#2(
+		 _empty_/Test.Vec#concat().2
+		 _empty_/Test.v1.2
+		  _empty_/Test.v2.2
+
+
+ 	_empty_/Test.v3a.2(
+
+
+ _empty_/Test.Vec#concat().2
+
+
+ _empty_/Test.v1.2
+
+
+ _empty_/Test.v2.2
+ 	_empty_/Test.v3b.2
+ _empty_/Test.Vec#2
+ _empty_/Test.v3a.PZ 27C6144DF859FEFFB0F5E7AAFF4B883F

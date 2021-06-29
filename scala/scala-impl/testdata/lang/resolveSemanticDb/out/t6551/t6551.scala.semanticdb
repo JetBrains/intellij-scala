@@ -1,0 +1,46 @@
+
+Âtests/pos/t6551.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0*Lenser€*
+local1	*T€*
+local2*selectDynamic€*
+local3*propName€*
+local4*lens€*
+local5	*T€*
+local6 €*qq€2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2
+ _empty_/Test.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+
+ local02
+ #scala/Dynamic#2
+ local12
+
+ local22
+  local32"
+" (scala/Predef.String#2#
+, /scala/Predef.`???`().2
+ local42
+ local52
+ local02
+ local52
+
+
+ 
+local62
+
+
+ local42"
+
+
+ scala/Predef.String#PZ BAD087C81E0359CC7CAAF5E902FA4AD6

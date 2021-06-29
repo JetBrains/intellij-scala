@@ -1,0 +1,18 @@
+
+¨%tests/pos/inline-named-typeargs.scala*
+_empty_/t1.
+ *t1€*)
+_empty_/t1.construct().*	construct€**
+_empty_/t1.construct().[Elem]	*Elem€**
+_empty_/t1.construct().[Coll]	*Coll€*&
+_empty_/t1.construct().(xs)*xs€2
+ 	_empty_/t1.2#
+P Sscala/Predef.`???`().2%
+ "_empty_/t1.construct().2+
+# '_empty_/t1.construct().[Elem]2+
+) -_empty_/t1.construct().[Coll]2)
+2 4_empty_/t1.construct().(xs)2!
+6 :scala/package.List#2+
+; ?_empty_/t1.construct().[Elem]2+
+C G_empty_/t1.construct().[Coll]2+
+H L_empty_/t1.construct().[Elem]PZ A9C56BDEDC900BE0D40586FE5F5BB361

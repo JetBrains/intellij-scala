@@ -1,0 +1,40 @@
+
+¦tests/pos/i2152.scala*
+_empty_/Contra#*Contra€*,
+_empty_/Contra#`<init>`(). €@*<init>€*-
+ _empty_/Contra#`<init>`().(task)*task€*
+_empty_/Contra#[D]	 €*D€*$
+_empty_/Contra#task. €*task€*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.narrow().*narrow€*)
+_empty_/Test.narrow().(task)*task€*#
+_empty_/Test.ident().*ident€*,
+_empty_/Test.ident().[Before]	*Before€**
+_empty_/Test.ident().(elems)*elems€* 
+_empty_/Test.foo. €*foo€2
+ _empty_/Contra#2$
+ _empty_/Contra#`<init>`().2
+ scala/AnyRef#2
+ _empty_/Contra#[D]2
+ _empty_/Contra#task.2
+ _empty_/Test.2$
+ _empty_/Test.narrow().2*
+ _empty_/Test.narrow().(task)2
+ scala/AnyRef#2
+ "_empty_/Contra#2*
+# '_empty_/Test.narrow().(task)2(
+: :_empty_/Contra#`<init>`().2*
+; ?_empty_/Test.narrow().(task)2#
+ _empty_/Test.ident().2+
+ _empty_/Test.ident().[Before]2*
+ _empty_/Test.ident().(elems)2
+ !_empty_/Contra#2+
+" (_empty_/Test.ident().[Before]2
+, 2_empty_/Contra#2+
+3 9_empty_/Test.ident().[Before]2*
+= B_empty_/Test.ident().(elems)2
+ 	_empty_/Test.foo.2#
+ _empty_/Test.ident().2$
+ _empty_/Test.narrow().2
+ _empty_/Test.foo.PZ CCECF0C217BF08CBB6B96BC8FF438CD5

@@ -1,0 +1,125 @@
+
+ª#tests/pos/tcpoly_boundedmonad.scala*
+_empty_/Monad#*Monad€*+
+_empty_/Monad#`<init>`(). €@*<init>€*
+_empty_/Monad#[T]	*T€*%
+_empty_/Monad#[MyType]	*MyType€*#
+_empty_/Monad#[Bound]	*Bound€*"
+_empty_/Monad#map(). *map€*!
+_empty_/Monad#map().[S]	*S€*!
+_empty_/Monad#map().(f)*f€**
+_empty_/Monad#flatMap(). *flatMap€*%
+_empty_/Monad#flatMap().[S]	*S€*7
+$_empty_/Monad#flatMap().[RContainer]	*
+RContainer€*/
+ _empty_/Monad#flatMap().[RBound]	*RBound€*/
+ _empty_/Monad#flatMap().[Result]	*Result€*%
+_empty_/Monad#flatMap().(f)*f€*(
+_empty_/Monad#filter(). *filter€*$
+_empty_/Monad#filter().(p)*p€*
+_empty_/Set#*Set€*)
+_empty_/Set#`<init>`(). €@*<init>€*
+_empty_/Set#[T]	*T€*
+_empty_/Set#map().*map€*
+_empty_/Set#map().[S]	*S€*
+_empty_/Set#map().(f)*f€*&
+_empty_/Set#flatMap().*flatMap€*#
+_empty_/Set#flatMap().[S]	*S€*5
+"_empty_/Set#flatMap().[RContainer]	*
+RContainer€*-
+_empty_/Set#flatMap().[RBound]	*RBound€*-
+_empty_/Set#flatMap().[Result]	*Result€*#
+_empty_/Set#flatMap().(f)*f€*$
+_empty_/Set#filter().*filter€*"
+_empty_/Set#filter().(p)*p€2
+ _empty_/Monad#2#
+ _empty_/Monad#`<init>`().2
+ _empty_/Monad#[T]2 
+ !_empty_/Monad#[MyType]2
+2 7_empty_/Monad#[Bound]2"
+ 	_empty_/Monad#map().2%
+
+ _empty_/Monad#map().[S]2#
+ _empty_/Monad#[Bound]2%
+ _empty_/Monad#map().[S]2%
+ _empty_/Monad#map().(f)2
+ _empty_/Monad#[T]2%
+! "_empty_/Monad#map().[S]2$
+% +_empty_/Monad#[MyType]2%
+, -_empty_/Monad#map().[S]2&
+ _empty_/Monad#flatMap().2)
+ _empty_/Monad#flatMap().[S]2.
+  _empty_/Monad#flatMap().[RBound]2)
+ _empty_/Monad#flatMap().[S]22
+ ($_empty_/Monad#flatMap().[RContainer]2.
+: @ _empty_/Monad#flatMap().[RBound]2.
+  _empty_/Monad#flatMap().[Result]2)
+ _empty_/Monad#flatMap().(f)2
+ _empty_/Monad#[T]2.
+  _empty_/Monad#flatMap().[Result]2)
+ _empty_/Monad#flatMap().[S]2.
+# ) _empty_/Monad#flatMap().[Result]2)
+* +_empty_/Monad#flatMap().[S]2%
+ _empty_/Monad#filter().2(
+ _empty_/Monad#filter().(p)2
+ _empty_/Monad#[T]2
+ scala/Boolean#2$
+ %_empty_/Monad#[MyType]2
+& '_empty_/Monad#[T]2
+
+
+ 	_empty_/Set#2%
+
+	
+ 	_empty_/Set#`<init>`().2
+
+#
+ (_empty_/Monad#2
+
+)
+ *_empty_/Set#[T]2$
+
+1
+ 8scala/package.Ordered#2
+
+
+
+ _empty_/Set#[T]2 
+ 	_empty_/Set#map().2#
+
+ _empty_/Set#map().[S]2$
+ scala/package.Ordered#2#
+ _empty_/Set#map().[S]2#
+ _empty_/Set#map().(f)2
+ _empty_/Set#[T]2#
+# $_empty_/Set#map().[S]2
+' *_empty_/Set#2#
++ ,_empty_/Set#map().[S]2(
+4 9scala/sys/package.error().2
+0 3
+scala/sys/2$
+ _empty_/Set#flatMap().2'
+ _empty_/Set#flatMap().[S]2,
+ _empty_/Set#flatMap().[RBound]2'
+ _empty_/Set#flatMap().[S]20
+ ("_empty_/Set#flatMap().[RContainer]2,
+: @_empty_/Set#flatMap().[RBound]2,
+ _empty_/Set#flatMap().[Result]2'
+ _empty_/Set#flatMap().(f)2
+ _empty_/Set#[T]2,
+ _empty_/Set#flatMap().[Result]2'
+ _empty_/Set#flatMap().[S]2,
+# )_empty_/Set#flatMap().[Result]2'
+* +_empty_/Set#flatMap().[S]2(
+4 9scala/sys/package.error().2
+0 3
+scala/sys/2#
+ _empty_/Set#filter().2&
+ _empty_/Set#filter().(p)2
+ _empty_/Set#[T]2
+ scala/Boolean#2
+ "_empty_/Set#2
+# $_empty_/Set#[T]2(
+, 1scala/sys/package.error().2
+( +
+scala/sys/PZ B3B79F858E1B8D0B02810A14D493735D

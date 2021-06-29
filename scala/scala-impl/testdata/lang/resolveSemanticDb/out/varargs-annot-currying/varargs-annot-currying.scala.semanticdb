@@ -1,0 +1,91 @@
+
+û&tests/pos/varargs-annot-currying.scala*"
+_empty_/VarArgs.
+ *VarArgs€*"
+_empty_/VarArgs.two().*two€*#
+_empty_/VarArgs.two().(a)*a€*#
+_empty_/VarArgs.two().(b)*b€*4
+_empty_/VarArgs.twoPrimitive().*twoPrimitive€*,
+"_empty_/VarArgs.twoPrimitive().(a)*a€*,
+"_empty_/VarArgs.twoPrimitive().(b)*b€*&
+_empty_/VarArgs.three().*three€*'
+_empty_/VarArgs.three().(a3)*a3€*'
+_empty_/VarArgs.three().(b3)*b3€*'
+_empty_/VarArgs.three().(c3)*c3€*8
+!_empty_/VarArgs.threePrimitive().*threePrimitive€*0
+%_empty_/VarArgs.threePrimitive().(a3)*a3€*0
+%_empty_/VarArgs.threePrimitive().(b3)*b3€*0
+%_empty_/VarArgs.threePrimitive().(c3)*c3€**
+_empty_/VarArgs.emptyOk().*emptyOk€*)
+_empty_/VarArgs.emptyOk().(xs)*xs€2#
+ scala/annotation/varargs#2
+ scala/annotation/2
+ scala/2
+ _empty_/VarArgs.2'
+ scala/annotation/varargs#2$
+ 
+_empty_/VarArgs.two().2'
+ _empty_/VarArgs.two().(a)2
+ 
+scala/Int#2'
+ _empty_/VarArgs.two().(b)2"
+ scala/Predef.String#2
+  'scala/Nothing#2#
+* -scala/Predef.`???`().2'
+ scala/annotation/varargs#2-
+ _empty_/VarArgs.twoPrimitive().20
+ "_empty_/VarArgs.twoPrimitive().(a)2
+ 
+scala/Int#20
+ "_empty_/VarArgs.twoPrimitive().(b)2
+ "
+scala/Int#2
+& -scala/Nothing#2#
+0 3scala/Predef.`???`().2'
+		 scala/annotation/varargs#2&
+
+
+ _empty_/VarArgs.three().2*
+
+
+ _empty_/VarArgs.three().(a3)2
+
+
+ 
+scala/Int#2*
+
+
+ _empty_/VarArgs.three().(b3)2"
+
+
+  scala/Predef.String#2*
+
+"
+ $_empty_/VarArgs.three().(c3)2"
+
+&
+ ,scala/Predef.String#2
+
+0
+ 7scala/Nothing#2#
+
+:
+ =scala/Predef.`???`().2'
+ scala/annotation/varargs#2/
+ !_empty_/VarArgs.threePrimitive().23
+ %_empty_/VarArgs.threePrimitive().(a3)2
+ 
+scala/Int#23
+ !%_empty_/VarArgs.threePrimitive().(b3)2"
+# )scala/Predef.String#23
++ -%_empty_/VarArgs.threePrimitive().(c3)2
+/ 2
+scala/Int#2
+6 =scala/Nothing#2#
+@ Cscala/Predef.`???`().2'
+ scala/annotation/varargs#2(
+ _empty_/VarArgs.emptyOk().2,
+ _empty_/VarArgs.emptyOk().(xs)2"
+ scala/Predef.String#2
+! (scala/Nothing#2#
++ .scala/Predef.`???`().PZ 84F66AE0B70617BCCB7AFADF0A1DE4E9

@@ -1,0 +1,50 @@
+
+Ýtests/pos/t1090.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.Manager#*Manager€*2
+ _empty_/Test.Manager#`<init>`(). €@*<init>€*'
+_empty_/Test.Manager#Node#*Node€*3
+ _empty_/Test.Manager#iterator(). *iterator€*
+_empty_/Test.Core#*Core€*/
+_empty_/Test.Core#`<init>`(). €@*<init>€*$
+_empty_/Test.Core#Node#*Node€*,
+_empty_/Test.Core#NodeImpl#*NodeImpl€*8
+&_empty_/Test.Core#NodeImpl#`<init>`(). €@*<init>€**
+_empty_/Test.Core#Manager#*Manager€*7
+%_empty_/Test.Core#Manager#`<init>`(). €@*<init>€*,
+_empty_/Test.Core#Manager#Node#*Node€* 
+_empty_/Test.Core#f().*f€*/
+_empty_/Test.Core#f().(manager)*manager€*
+local0*x$1€*
+local1 €*node€2
+ _empty_/Test.2#
+ _empty_/Test.Manager#2.
+  _empty_/Test.Manager#`<init>`().2(
+	 _empty_/Test.Manager#Node#2.
+  _empty_/Test.Manager#iterator().2%
+ scala/package.Iterator#2(
+  _empty_/Test.Manager#Node#2 
+ _empty_/Test.Core#2+
+ _empty_/Test.Core#`<init>`().2%
+	 _empty_/Test.Core#Node#2)
+
+ _empty_/Test.Core#NodeImpl#24
+ &_empty_/Test.Core#NodeImpl#`<init>`().2(
+
+ _empty_/Test.Core#Manager#23
+ %_empty_/Test.Core#Manager#`<init>`().2#
+ &_empty_/Test.Manager#2
+ _empty_/Test.2-
+		 _empty_/Test.Core#Manager#Node#2%
+		  _empty_/Test.Core#Node#2$
+ 	_empty_/Test.Core#f().2-
+
+ _empty_/Test.Core#f().(manager)2(
+ _empty_/Test.Core#Manager#29
+0 7+scala/collection/IterableOnceOps#foreach().2.
+' / _empty_/Test.Manager#iterator().2-
+ &_empty_/Test.Core#f().(manager)2
+ local02
+ local12)
+ _empty_/Test.Core#NodeImpl#PZ B693CFFE3606D8EC1730D91E4C0B8651

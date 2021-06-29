@@ -1,0 +1,112 @@
+
+÷tests/pos/i9667.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#M#*M€*(
+_empty_/i9667$package. *_empty_€*(
+_empty_/i9667$package.foo().*foo€*
+local0 *$anon€*
+local1
+ *Foo€*)
+_empty_/i9667$package.bar. €*bar€*
+local2 *$anon€*
+local3*C€*
+local4*B€*
+local5*D€*
+local6 €*x€*
+local7 €*xx€*
+local8 €*y€*
+local9 €*z€*
+local10 €*zz€*+
+_empty_/i9667$package.bar1. €*bar1€*
+local11*B€*
+local12*D€*
+local13 „*x€*
+local14 „*xx€*
+local15 „*y€*
+local16 „*z€*
+local17 „*zz€2
+ 
+_empty_/A#2#
+
+ 
+_empty_/A#`<init>`().2
+ _empty_/A#M#2 
+_empty_/i9667$package.2*
+ _empty_/i9667$package.foo().2
+
+ 
+local02'
+  scala/reflect/Selectable#2
+ scala/reflect/2
+* -local12(
+ _empty_/i9667$package.bar.2
+
+ 
+local22'
+  scala/reflect/Selectable#2
+ scala/reflect/2
+ 	local32
+ 
+_empty_/A#2
+ local42
+ local52
+ local32
+		 local62
+			 
+local32#
+		 scala/Predef.`???`().2
+
+
+ local72
+
+
+ _empty_/A#M#2
+
+
+
+ local62#
+
+
+ scala/Predef.`???`().2
+ local82
+	 
+local42#
+ scala/Predef.`???`().2
+ local92
+	 
+local32#
+ scala/Predef.`???`().2
+ local102
+ _empty_/A#M#2
+
+ local92#
+ scala/Predef.`???`().2)
+ _empty_/i9667$package.bar1.2'
+ scala/reflect/Selectable#2
+
+ scala/reflect/2
+ local112
+ local122
+ 
+_empty_/A#2
+ local132
+	 
+
+_empty_/A#2
+ local142
+
+ 
+scala/Any#2
+ local152
+ local112
+ local162
+	 
+
+_empty_/A#2
+ local172
+
+ 
+scala/Any#2(
+ _empty_/i9667$package.bar.PZ 83F65A4D8D048A45266F6DD861851F8D

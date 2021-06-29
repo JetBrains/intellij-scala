@@ -1,0 +1,318 @@
+
+©Ctests/pos/i6450.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#A().*A€*
+_empty_/Foo#A().(i)*i€*
+_empty_/Foo#A.
+ *A€*$
+_empty_/Foo#A.apply().*apply€*#
+_empty_/Foo#A.apply().(i)*i€*
+_empty_/Foo#B().*B€*
+_empty_/Foo#B().(i)*i€*
+_empty_/Foo#B.
+ *B€*$
+_empty_/Foo#B.apply().*apply€*#
+_empty_/Foo#B.apply().(i)*i€*&
+_empty_/Foo#B.apply(+1).*apply€*%
+_empty_/Foo#B.apply(+1).(b)*b€*
+_empty_/Foo#C().*C€*
+_empty_/Foo#C().(i)*i€*
+_empty_/Foo#C.
+ *C€*$
+_empty_/Foo#C.apply().*apply€*#
+_empty_/Foo#C.apply().(i)*i€*
+_empty_/Foo#foo().*foo€*
+_empty_/Foo#bar().*bar€*
+_empty_/Foo#baz().*baz€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€*
+_empty_/Test.y. €*y€*
+_empty_/Test.z. €*z€*
+_empty_/Test.x1. €*x1€*
+_empty_/Test.y1. €*y1€*
+_empty_/Test.z1. €*z1€*
+_empty_/Test1.
+ *Test1€*
+_empty_/Test1.A#*A€*-
+_empty_/Test1.A#`<init>`(). €@*<init>€*&
+_empty_/Test1.A#apply().*apply€*%
+_empty_/Test1.A#apply().(x)*x€*
+_empty_/Test1.B.
+ *B€*
+_empty_/Test1.B.f().*f€*!
+_empty_/Test1.B.f().(x)*x€*
+local0 *$anon€*
+_empty_/Test1.B.f. À*f€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.A#*A€*-
+_empty_/Test2.A#`<init>`(). €@*<init>€*(
+_empty_/Test2.A#apply(). *apply€*%
+_empty_/Test2.A#apply().(x)*x€*
+_empty_/Test2.B.
+ *B€*
+_empty_/Test2.B.f().*f€*!
+_empty_/Test2.B.f().(e)*e€*
+_empty_/Test2.B.f. €*f€*
+_empty_/Test2.B.g. €*g€*
+_empty_/Test3.
+ *Test3€*
+_empty_/Test3.A#*A€*-
+_empty_/Test3.A#`<init>`(). €@*<init>€*(
+_empty_/Test3.A#apply(). *apply€*%
+_empty_/Test3.A#apply().(x)*x€*
+_empty_/Test3.B.
+ *B€*
+_empty_/Test3.B.f().*f€*!
+_empty_/Test3.B.f().(e)*e€*
+_empty_/Test3.B.f. €*f€*
+_empty_/Test4.
+ *Test4€*
+_empty_/Test4.A#*A€*-
+_empty_/Test4.A#`<init>`(). €@*<init>€*(
+_empty_/Test4.A#apply(). *apply€*%
+_empty_/Test4.A#apply().(x)*x€*
+_empty_/Test4.B.
+ *B€*
+_empty_/Test4.B.f().*f€*!
+_empty_/Test4.B.f().(e)*e€*
+_empty_/Test4.B.f. €*f€*
+_empty_/Test5.
+ *Test5€*
+_empty_/Test5.A#*A€*-
+_empty_/Test5.A#`<init>`(). €@*<init>€*(
+_empty_/Test5.A#apply(). *apply€*%
+_empty_/Test5.A#apply().(x)*x€*
+_empty_/Test5.B.
+ *B€*
+_empty_/Test5.B.f().*f€*!
+_empty_/Test5.B.f().(e)*e€*
+_empty_/Test5.B.f. €*f€*
+_empty_/Test6.
+ *Test6€*
+_empty_/Test6.A#*A€*-
+_empty_/Test6.A#`<init>`(). €@*<init>€*(
+_empty_/Test6.A#apply(). *apply€*%
+_empty_/Test6.A#apply().(x)*x€*
+_empty_/Test6.B.
+ *B€*
+_empty_/Test6.B.f().*f€*!
+_empty_/Test6.B.f().(e)*e€*
+_empty_/Test6.B.f. €*f€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#A().2!
+ 	_empty_/Foo#A().(i)2
+ scala/Double#2!
+ _empty_/Foo#A().(i)2
+	 
+_empty_/Foo#A.2$
+ _empty_/Foo#A.apply().2'
+ _empty_/Foo#A.apply().(i)2
+ 
+scala/Int#2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2'
+ _empty_/Foo#A.apply().(i)2
+ _empty_/Foo#B().2!
+ 	_empty_/Foo#B().(i)2
+ 
+scala/Any#2!
+ _empty_/Foo#B().(i)2
+	 
+_empty_/Foo#B.2$
+ _empty_/Foo#B.apply().2'
+ _empty_/Foo#B.apply().(i)2
+ 
+scala/Int#2 
+ scala/Int#`+`(+4).2'
+ _empty_/Foo#B.apply().(i)2&
+ _empty_/Foo#B.apply(+1).2)
+ _empty_/Foo#B.apply(+1).(b)2
+ scala/Float#2
+
+
+ _empty_/Foo#C().2!
+
+
+ 	_empty_/Foo#C().(i)2
+
+
+ 
+scala/Int#2 
+
+
+ scala/Int#`+`(+4).2!
+
+
+ _empty_/Foo#C().(i)2
+	 
+_empty_/Foo#C.2$
+ _empty_/Foo#C.apply().2'
+ _empty_/Foo#C.apply().(i)2
+ scala/Double#2
+  scala/Double#2'
+# $_empty_/Foo#C.apply().(i)2 
+ 	_empty_/Foo#foo().2$
+ _empty_/Foo#A.apply().2
+ _empty_/Foo#A.2 
+ 	_empty_/Foo#bar().2$
+ _empty_/Foo#B.apply().2
+ _empty_/Foo#B.2 
+ 	_empty_/Foo#baz().2
+ _empty_/Foo#C().2
+ _empty_/Test.2
+ _empty_/Test.x.2 
+ _empty_/Foo#foo().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Test.y.2 
+ _empty_/Foo#bar().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Test.z.2 
+ _empty_/Foo#baz().2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2
+ _empty_/Test.x1.2
+
+ 
+scala/Int#2
+ _empty_/Test.x.2
+ _empty_/Test.y1.2
+
+ 
+scala/Int#2
+ _empty_/Test.y.2
+ _empty_/Test.z1.2
+
+ 
+scala/Int#2
+ _empty_/Test.z.2
+ _empty_/Test1.2
+ 	_empty_/Test1.A#2)
+ _empty_/Test1.A#`<init>`().2&
+ _empty_/Test1.A#apply().2)
+ _empty_/Test1.A#apply().(x)2
+ 
+scala/Any#2
+ 
+scala/Int#2
+"	" 
+_empty_/Test1.B.2"
+## 	_empty_/Test1.B.f().2%
+#
+# _empty_/Test1.B.f().(x)2
+## 
+scala/Any#2
+## _empty_/Test1.A#2
+## local02
+## _empty_/Test1.A#2 
+$$ _empty_/Test1.B.f.2
+$$ _empty_/Test1.A#2"
+$$ _empty_/Test1.B.f().2
+(( _empty_/Test2.2
+)) 	_empty_/Test2.A#2)
+** _empty_/Test2.A#`<init>`().2&
+** _empty_/Test2.A#apply().2)
+** _empty_/Test2.A#apply().(x)2
+** scala/AnyRef#2
+** 
+scala/Int#2
+,	, 
+_empty_/Test2.B.2"
+-- 	_empty_/Test2.B.f().2%
+-
+- _empty_/Test2.B.f().(e)2
+-- 
+scala/Any#2
+-- _empty_/Test2.A#2#
+-- scala/Predef.`???`().2 
+.. 	_empty_/Test2.B.f.2
+.. _empty_/Test2.A#2#
+.. scala/Predef.`???`().2 
+// 	_empty_/Test2.B.g.2
+// _empty_/Test2.A#2"
+// _empty_/Test2.B.f().2
+33 _empty_/Test3.2
+44 	_empty_/Test3.A#2)
+55 _empty_/Test3.A#`<init>`().2&
+55 _empty_/Test3.A#apply().2)
+55 _empty_/Test3.A#apply().(x)2"
+55 scala/Predef.String#2
+55 
+scala/Int#2
+7	7 
+_empty_/Test3.B.2"
+88 	_empty_/Test3.B.f().2%
+8
+8 _empty_/Test3.B.f().(e)2%
+88 java/lang/CharSequence#2
+88 _empty_/Test3.A#2#
+8 8 #scala/Predef.`???`().2 
+99 	_empty_/Test3.B.f.2
+99 _empty_/Test3.A#2"
+99 _empty_/Test3.B.f().2
+>> _empty_/Test4.2
+?? 	_empty_/Test4.A#2)
+@@ _empty_/Test4.A#`<init>`().2&
+@@ _empty_/Test4.A#apply().2)
+@@ _empty_/Test4.A#apply().(x)2
+@@ 
+scala/Any#2
+@@ 
+scala/Int#2
+B	B 
+_empty_/Test4.B.2"
+CC 	_empty_/Test4.B.f().2%
+C
+C _empty_/Test4.B.f().(e)2
+CC 
+scala/Any#2
+CC _empty_/Test4.A#2#
+CC scala/Predef.`???`().2 
+DD 	_empty_/Test4.B.f.2
+DD _empty_/Test4.A#2"
+DD _empty_/Test4.B.f().2
+HH _empty_/Test5.2
+II 	_empty_/Test5.A#2)
+JJ _empty_/Test5.A#`<init>`().2&
+JJ _empty_/Test5.A#apply().2)
+JJ _empty_/Test5.A#apply().(x)2
+JJ 
+scala/Any#2
+JJ 
+scala/Int#2
+L	L 
+_empty_/Test5.B.2"
+MM 	_empty_/Test5.B.f().2%
+M
+M _empty_/Test5.B.f().(e)2
+MM scala/AnyRef#2
+MM _empty_/Test5.A#2#
+MM scala/Predef.`???`().2 
+NN 	_empty_/Test5.B.f.2
+NN _empty_/Test5.A#2"
+NN _empty_/Test5.B.f().2
+RR _empty_/Test6.2
+SS 	_empty_/Test6.A#2)
+TT _empty_/Test6.A#`<init>`().2&
+TT _empty_/Test6.A#apply().2)
+TT _empty_/Test6.A#apply().(x)2%
+TT java/lang/CharSequence#2
+T T #
+scala/Int#2
+V	V 
+_empty_/Test6.B.2"
+WW 	_empty_/Test6.B.f().2%
+W
+W _empty_/Test6.B.f().(e)2"
+WW scala/Predef.String#2
+WW _empty_/Test6.A#2#
+WW scala/Predef.`???`().2 
+XX 	_empty_/Test6.B.f.2
+XX _empty_/Test6.A#2"
+XX _empty_/Test6.B.f().PZ AB26782D6C2F9AE91C49FB0EB074FF12

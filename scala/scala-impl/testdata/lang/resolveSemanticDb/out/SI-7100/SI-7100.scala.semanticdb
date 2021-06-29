@@ -1,0 +1,18 @@
+
+Ütests/pos/SI-7100.scala*
+_empty_/Buffer#*Buffer€*,
+_empty_/Buffer#`<init>`(). €@*<init>€*
+_empty_/Buffer#f().*f€* 
+_empty_/Buffer#f().[T]	*T€2
+ _empty_/Buffer#2(
+ _empty_/Buffer#`<init>`().2!
+ _empty_/Buffer#f().2 
+	 scala/specialized#2
+ 
+scala/Int.2$
+ _empty_/Buffer#f().[T]2$
+  !_empty_/Buffer#f().[T]2'
+ scala/Any#asInstanceOf().2$
+ _empty_/Buffer#f().[T]2'
+ scala/Any#asInstanceOf().2$
+ _empty_/Buffer#f().[T]PZ 2A983CC4C658863DA4FF427E5F2156B9

@@ -1,0 +1,44 @@
+
+¹	tests/pos/i9478.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*)
+_empty_/Foo#`<init>`().(fa) €*fa€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo#[F]	*F€*
+_empty_/Foo#[A]	*A€*
+_empty_/Foo#[B]	*B€*
+_empty_/Foo#fa. €*fa€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x().*x€*
+_empty_/Test.x().[T]	*T€*$
+_empty_/Test.x().(tmab)*tmab€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+' (_empty_/Foo#[T]2
+) *_empty_/Foo#[F]2
++ ,_empty_/Foo#[A]2
+/ 0_empty_/Foo#[F]2
+1 2_empty_/Foo#[B]2
+
+ _empty_/Foo#[T]2
+ _empty_/Foo#[F]2
+ _empty_/Foo#[A]2
+ _empty_/Foo#[B]2
+# %_empty_/Foo#fa.2
+ _empty_/Test.2
+ _empty_/Test.x().2"
+ 	_empty_/Test.x().[T]2%
+ _empty_/Test.x().(tmab)2"
+ _empty_/Test.x().[T]2#
+ scala/package.Either#2
+  #
+scala/Int#2"
+% +scala/Predef.String#2#
+. 4scala/package.Either#2
+5 8
+scala/Int#2
+: =
+scala/Int#2%
+ _empty_/Foo#`<init>`().2%
+ _empty_/Test.x().(tmab)PZ 3D4BADE84B89D33B82D70BF166B1AF21

@@ -1,0 +1,94 @@
+
+Ýtests/pos/chan.scala*&
+_empty_/Comparator#*
+Comparator€*0
+_empty_/Comparator#`<init>`(). €@*<init>€*
+_empty_/Comparator#T#*T€*1
+_empty_/Comparator#ordering(). *ordering€*-
+_empty_/Comparator#compare().*compare€**
+ _empty_/Comparator#compare().(a)*a€**
+ _empty_/Comparator#compare().(b)*b€*.
+_empty_/IntComparator.
+ *IntComparator€*"
+_empty_/IntComparator.T#*T€*2
+!_empty_/IntComparator.ordering().*ordering€*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.process().*process€*$
+_empty_/Test.process().(c)*c€*,
+_empty_/Test.process().(items)*items€*$
+_empty_/Processor#*	Processor€*/
+_empty_/Processor#`<init>`(). €@*<init>€**
+ _empty_/Processor#`<init>`().(c)*c€*
+local0*T€*
+_empty_/Processor#[K]	*K€*!
+_empty_/Processor#c. €*c€*,
+_empty_/Processor#process().*process€*1
+#_empty_/Processor#process().(items)*items€2
+ _empty_/Comparator#2,
+ _empty_/Comparator#`<init>`().2#
+	 
+_empty_/Comparator#T#2,
+ _empty_/Comparator#ordering().2%
+ scala/package.Ordering#2#
+ _empty_/Comparator#T#2+
+ _empty_/Comparator#compare().2.
+  _empty_/Comparator#compare().(a)2#
+ _empty_/Comparator#T#2.
+  _empty_/Comparator#compare().(b)2#
+ _empty_/Comparator#T#2
+  
+scala/Int#2,
+, 3scala/math/Ordering#compare().2,
+# +_empty_/Comparator#ordering().2.
+4 5 _empty_/Comparator#compare().(a)2.
+7 8 _empty_/Comparator#compare().(b)2$
+ _empty_/IntComparator.2!
+ '_empty_/Comparator#2&
+	 
+_empty_/IntComparator.T#2
+ 
+scala/Int#2/
+ !_empty_/IntComparator.ordering().2%
+ scala/package.Ordering#2
+ 
+scala/Int#2&
++ .scala/math/Ordering.Int.2%
+" *scala/package.Ordering.2
+
+
+ _empty_/Test.2%
+ _empty_/Test.process().2(
+ _empty_/Test.process().(c)2!
+ _empty_/Comparator#2,
+ "_empty_/Test.process().(items)2 
+$ 'scala/package.Seq#2#
+* +_empty_/Comparator#T#2(
+( )_empty_/Test.process().(c)2
+/ 2
+scala/Int#2+
+ _empty_/Comparator#compare().2(
+ _empty_/Test.process().(c)2.
+  scala/collection/SeqOps#apply().2,
+ _empty_/Test.process().(items)2.
+  scala/collection/SeqOps#apply().2,
+ _empty_/Test.process().(items)2 
+ _empty_/Processor#2+
+ _empty_/Processor#`<init>`().2!
+  _empty_/Comparator#2
+( )local02#
+, -_empty_/Processor#[K]2#
+ _empty_/Processor#[K]2"
+ _empty_/Processor#c.2*
+ _empty_/Processor#process().21
+ #_empty_/Processor#process().(items)2 
+ scala/package.Seq#2#
+ _empty_/Processor#[K]2
+ !
+scala/Int#2+
+ _empty_/Comparator#compare().2"
+ _empty_/Processor#c.2.
+  scala/collection/SeqOps#apply().21
+ #_empty_/Processor#process().(items)2.
+  scala/collection/SeqOps#apply().21
+ #_empty_/Processor#process().(items)PZ 50E20145ACFDB8983902159B7A3B2C17

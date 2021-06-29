@@ -1,0 +1,204 @@
+
+á2tests/pos/inferred.scala*
+_empty_/LIST# *LIST€**
+_empty_/LIST#`<init>`(). €@*<init>€*
+_empty_/LIST#[T]	 €*T€*)
+_empty_/LIST#isEmpty(). *isEmpty€*#
+_empty_/LIST#head(). *head€*#
+_empty_/LIST#tail(). *tail€*'
+_empty_/LIST#prepend().*prepend€*$
+_empty_/LIST#prepend().[U]	*U€*$
+_empty_/LIST#prepend().(x)*x€*
+_empty_/LIST#map().*map€* 
+_empty_/LIST#map().[U]	*U€* 
+_empty_/LIST#map().(f)*f€*
+_empty_/NIL.
+ *NIL€*&
+_empty_/NIL.isEmpty().*isEmpty€* 
+_empty_/NIL.head().*head€* 
+_empty_/NIL.tail().*tail€*
+_empty_/CONS#*CONS€**
+_empty_/CONS#`<init>`(). €@*<init>€*'
+_empty_/CONS#`<init>`().(hd)*hd€*'
+_empty_/CONS#`<init>`().(tl)*tl€*
+_empty_/CONS#[U]	*U€*
+_empty_/CONS#hd. €*hd€*
+_empty_/CONS#tl. €*tl€*'
+_empty_/CONS#isEmpty().*isEmpty€*!
+_empty_/CONS#head().*head€*!
+_empty_/CONS#tail().*tail€*$
+_empty_/Inferred.
+ *Inferred€*#
+_empty_/Inferred.foo().*foo€*$
+_empty_/Inferred.foo().[T]	*T€*$
+_empty_/Inferred.foo().(x)*x€* 
+_empty_/Inferred.x. €*x€* 
+_empty_/Inferred.y. €*y€*#
+_empty_/Inferred.bar().*bar€*$
+_empty_/Inferred.bar().[U]	*U€*&
+_empty_/Inferred.bar().(xs)*xs€* 
+_empty_/Inferred.n. €*n€*"
+_empty_/Inferred.nn. €*nn€*&
+_empty_/Inferred.ints. €*ints€*(
+_empty_/Inferred.ints1. €*ints1€* 
+_empty_/Inferred.a. €*a€*"
+_empty_/Inferred.n2. €*n2€*$
+_empty_/Inferred.ss2. €*ss2€*$
+_empty_/Inferred.ss3. €*ss3€*!
+_empty_/Inferred.cl().*cl€*
+local0*x€*(
+_empty_/Inferred.ints2. €*ints2€*(
+_empty_/Inferred.ints3. €*ints3€*(
+_empty_/Inferred.ints4. €*ints4€2
+ _empty_/LIST#2"
+ _empty_/LIST#`<init>`().2
+ _empty_/LIST#[T]2%
+ _empty_/LIST#isEmpty().2
+ scala/Boolean#2"
+ 
+_empty_/LIST#head().2
+ _empty_/LIST#[T]2"
+ 
+_empty_/LIST#tail().2
+ _empty_/LIST#2
+ _empty_/LIST#[T]2%
+ _empty_/LIST#prepend().2(
+ _empty_/LIST#prepend().[U]2
+ _empty_/LIST#[T]2(
+ _empty_/LIST#prepend().(x)2(
+ _empty_/LIST#prepend().[U]2
+ #_empty_/LIST#2(
+$ %_empty_/LIST#prepend().[U]2&
+1 1_empty_/CONS#`<init>`().2(
+2 3_empty_/LIST#prepend().(x)2!
+ 	_empty_/LIST#map().2$
+
+ _empty_/LIST#map().[U]2$
+ _empty_/LIST#map().(f)2
+ _empty_/LIST#[T]2$
+ _empty_/LIST#map().[U]2
+ _empty_/LIST#2$
+ _empty_/LIST#map().[U]2%
+' ._empty_/LIST#isEmpty().2
+0 3_empty_/NIL.2%
+E L_empty_/LIST#prepend().2!
+> A_empty_/LIST#map().2"
+9 =_empty_/LIST#tail().2$
+B C_empty_/LIST#map().(f)2&
+N Nscala/Function1#apply().2$
+M N_empty_/LIST#map().(f)2"
+O S_empty_/LIST#head().2
+ 
+_empty_/NIL.2&
+   _empty_/LIST#`<init>`().2
+ _empty_/LIST#2
+ scala/Nothing#2$
+ _empty_/NIL.isEmpty().2!
+ 
+_empty_/NIL.head().2)
+ java/lang/Error#`<init>`().2"
+ scala/package.Error#2!
+ 
+_empty_/NIL.tail().2#
+ scala/Predef.`???`().2
+ 
+_empty_/CONS#2&
+
+ 
+_empty_/CONS#`<init>`().2
+ _empty_/CONS#[U]2
+ _empty_/LIST#2
+ _empty_/CONS#[U]2&
+1 1_empty_/LIST#`<init>`().2
+* ._empty_/LIST#2
+/ 0_empty_/CONS#[U]2
+ _empty_/CONS#[U]2
+ _empty_/CONS#hd.2
+ _empty_/CONS#tl.2%
+ _empty_/CONS#isEmpty().2"
+ 
+_empty_/CONS#head().2
+ _empty_/CONS#[U]2
+ _empty_/CONS#hd.2"
+ 
+_empty_/CONS#tail().2
+ _empty_/CONS#tl.2
+ _empty_/Inferred.2%
+ 	_empty_/Inferred.foo().2(
+
+ _empty_/Inferred.foo().[T]2(
+ _empty_/Inferred.foo().(x)2(
+ _empty_/Inferred.foo().[T]2(
+ _empty_/Inferred.foo().[T]2(
+ _empty_/Inferred.foo().(x)2!
+ _empty_/Inferred.x.2%
+
+ _empty_/Inferred.foo().2!
+ _empty_/Inferred.y.2%
+
+ _empty_/Inferred.foo().2%
+   	_empty_/Inferred.bar().2(
+ 
+  _empty_/Inferred.bar().[U]2)
+   _empty_/Inferred.bar().(xs)2
+   _empty_/LIST#2(
+   _empty_/Inferred.bar().[U]2
+   _empty_/LIST#2(
+    !_empty_/Inferred.bar().[U]2)
+ %  '_empty_/Inferred.bar().(xs)2!
+"" _empty_/Inferred.n.2
+"
+" _empty_/NIL.2"
+$$ _empty_/Inferred.nn.2%
+$$ _empty_/Inferred.bar().2
+$$ _empty_/NIL.2$
+&& 
+_empty_/Inferred.ints.2
+&& _empty_/LIST#2
+&& 
+scala/Int#2%
+&& #_empty_/LIST#prepend().2
+&& _empty_/NIL.2%
+(( _empty_/Inferred.ints1.2%
+(( #_empty_/LIST#prepend().2%
+(( _empty_/LIST#prepend().2
+(( _empty_/NIL.2!
+** _empty_/Inferred.a.2!
+** scala/Int#`==`(+3).2
+** _empty_/NIL.2$
+** #_empty_/Inferred.ints.2"
+,, _empty_/Inferred.n2.2-
+,&, )scala/collection/immutable/Nil.2)
+,, %scala/collection/immutable/2
+,, scala/collection/2
+,, scala/2#
+.. 	_empty_/Inferred.ss2.2.
+.&. * scala/collection/immutable/List#2)
+.. %scala/collection/immutable/2
+.. scala/collection/2
+.. scala/2"
+.+. 1scala/Predef.String#25
+.@. @'scala/collection/immutable/List#`::`().2"
+.>. @_empty_/Inferred.n2.2#
+00 	_empty_/Inferred.ss3.25
+00 'scala/collection/immutable/List#`::`().2"
+00 _empty_/Inferred.n2.2$
+22 _empty_/Inferred.cl().2
+22 local02
+22 
+scala/Int#2 
+22 scala/Int#`+`(+4).2
+22 local02%
+44 _empty_/Inferred.ints2.2!
+44 _empty_/LIST#map().2$
+44 _empty_/Inferred.ints.2 
+44 scala/Int#`+`(+4).2%
+66 _empty_/Inferred.ints3.2&
+66 _empty_/CONS#`<init>`().2
+66 _empty_/CONS#2
+66 
+scala/Int#2
+66 "_empty_/NIL.2%
+88 _empty_/Inferred.ints4.2&
+88 _empty_/CONS#`<init>`().2
+88 _empty_/NIL.PZ 7F3FD08B88DC24949CBA2505C46BC402

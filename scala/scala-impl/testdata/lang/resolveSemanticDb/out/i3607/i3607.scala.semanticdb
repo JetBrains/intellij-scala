@@ -1,0 +1,22 @@
+
+ˆtests/pos/i3607.scala*
+
+_empty_/A.
+ *A€*
+_empty_/A.x.  *x€*
+_empty_/Test1.
+ *Test1€2
+ 
+_empty_/A.2
+ _empty_/A.x.2
+ 
+scala/Int#2
+ _empty_/Test1.2
+ _empty_/A.x.2
+	 
+
+_empty_/A.2(
+ scala/Predef.implicitly().2
+ 
+scala/Int#2
+ _empty_/A.x.PZ A97B7EEDD9ECECC14B0A1C3A9BCA3BD3

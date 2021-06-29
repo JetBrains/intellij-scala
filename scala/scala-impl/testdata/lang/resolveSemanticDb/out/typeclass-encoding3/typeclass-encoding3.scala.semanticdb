@@ -1,0 +1,1628 @@
+
+¶‡#tests/pos/typeclass-encoding3.scala*
+_empty_/Test.
+ *TestÄ*,
+_empty_/Test.Rectangle# Ä*	RectangleÄ*4
+"_empty_/Test.Rectangle#`<init>`(). Ä@*<init>Ä*:
+)_empty_/Test.Rectangle#`<init>`().(width) Ä*widthÄ*<
+*_empty_/Test.Rectangle#`<init>`().(height) Ä*heightÄ*.
+_empty_/Test.Rectangle#width. Ä*widthÄ*0
+_empty_/Test.Rectangle#height. Ä*heightÄ*+
+_empty_/Test.Rectangle#copy().*copyÄ*3
+%_empty_/Test.Rectangle#copy().(width)*widthÄ*5
+&_empty_/Test.Rectangle#copy().(height)*heightÄ*?
+(_empty_/Test.Rectangle#copy$default$1().*copy$default$1Ä*?
+(_empty_/Test.Rectangle#copy$default$2().*copy$default$2Ä*'
+_empty_/Test.Rectangle#_1().*_1Ä*'
+_empty_/Test.Rectangle#_2().*_2Ä*+
+_empty_/Test.Rectangle.
+ *	RectangleÄ*-
+_empty_/Test.Rectangle.apply().*applyÄ*4
+&_empty_/Test.Rectangle.apply().(width)*widthÄ*6
+'_empty_/Test.Rectangle.apply().(height)*heightÄ*1
+!_empty_/Test.Rectangle.unapply().*unapplyÄ*2
+&_empty_/Test.Rectangle.unapply().(x$1)*x$1Ä*3
+"_empty_/Test.Rectangle.toString().*toStringÄ*&
+_empty_/Test.Circle# Ä*CircleÄ*1
+_empty_/Test.Circle#`<init>`(). Ä@*<init>Ä*9
+'_empty_/Test.Circle#`<init>`().(radius) Ä*radiusÄ*-
+_empty_/Test.Circle#radius. Ä*radiusÄ*(
+_empty_/Test.Circle#copy().*copyÄ*2
+#_empty_/Test.Circle#copy().(radius)*radiusÄ*<
+%_empty_/Test.Circle#copy$default$1().*copy$default$1Ä*$
+_empty_/Test.Circle#_1().*_1Ä*%
+_empty_/Test.Circle.
+ *CircleÄ**
+_empty_/Test.Circle.apply().*applyÄ*3
+$_empty_/Test.Circle.apply().(radius)*radiusÄ*.
+_empty_/Test.Circle.unapply().*unapplyÄ*/
+#_empty_/Test.Circle.unapply().(x$1)*x$1Ä*0
+_empty_/Test.Circle.toString().*toStringÄ*3
+_empty_/Test.Rectangle_area#*Rectangle_areaÄ*9
+'_empty_/Test.Rectangle_area#`<init>`(). Ä@*<init>Ä*:
+-_empty_/Test.Rectangle_area#`<init>`().(this)*thisÄ*1
+!_empty_/Test.Rectangle_area#this. Ä*thisÄ*0
+#_empty_/Test.Rectangle_area#area().*areaÄ*7
+_empty_/Test.Rectangle_area(). (*Rectangle_areaÄ*1
+$_empty_/Test.Rectangle_area().(this)*thisÄ*3
+_empty_/Test.Circle_HasArea#*Circle_HasAreaÄ*9
+'_empty_/Test.Circle_HasArea#`<init>`(). Ä@*<init>Ä*:
+-_empty_/Test.Circle_HasArea#`<init>`().(this)*thisÄ*1
+!_empty_/Test.Circle_HasArea#this. Ä*thisÄ*0
+#_empty_/Test.Circle_HasArea#area().*areaÄ*7
+_empty_/Test.Circle_HasArea(). (*Circle_HasAreaÄ*1
+$_empty_/Test.Circle_HasArea().(this)*thisÄ*)
+_empty_/Test.SemiGroup#*	SemiGroupÄ*4
+"_empty_/Test.SemiGroup#`<init>`(). Ä@*<init>Ä*0
+_empty_/Test.SemiGroup#common. Ñ*commonÄ*3
+!_empty_/Test.SemiGroup#combine(). *combineÄ*4
+'_empty_/Test.SemiGroup#combine().(that)*thatÄ*+
+_empty_/Test.SemiGroup.
+ *	SemiGroupÄ*-
+_empty_/Test.SemiGroup.Common#*CommonÄ*;
+)_empty_/Test.SemiGroup.Common#`<init>`(). Ä@*<init>Ä*
+local0*selfÄ*0
+#_empty_/Test.SemiGroup.Common#This#*ThisÄ*8
+'_empty_/Test.SemiGroup.Common#inject(). *injectÄ*4
+*_empty_/Test.SemiGroup.Common#inject().(x)*xÄ*
+local1 Ñ*commonÄ*'
+_empty_/Test.SemiGroup.by().*byÄ*)
+_empty_/Test.SemiGroup.by().[A]	*AÄ*-
+ _empty_/Test.SemiGroup.by().(ev)  *evÄ*
+local2*ThisÄ*#
+_empty_/Test.Monoid#*MonoidÄ*1
+_empty_/Test.Monoid#`<init>`(). Ä@*<init>Ä*-
+_empty_/Test.Monoid#common. Ñ*commonÄ*%
+_empty_/Test.Monoid.
+ *MonoidÄ**
+_empty_/Test.Monoid.Common#*CommonÄ*8
+&_empty_/Test.Monoid.Common#`<init>`(). Ä@*<init>Ä*
+local3*selfÄ*5
+$_empty_/Test.Monoid.Common#inject(). *injectÄ*1
+'_empty_/Test.Monoid.Common#inject().(x)*xÄ*
+local4 Ñ*commonÄ*1
+"_empty_/Test.Monoid.Common#unit(). *unitÄ*$
+_empty_/Test.Monoid.by().*byÄ*&
+_empty_/Test.Monoid.by().[A]	*AÄ**
+_empty_/Test.Monoid.by().(ev)  *evÄ*
+local5*ThisÄ*
+_empty_/Test.Str#*StrÄ*.
+_empty_/Test.Str#`<init>`(). Ä@*<init>Ä*,
+_empty_/Test.Str#`<init>`().(s) Ä*sÄ* 
+_empty_/Test.Str#s. Ä*sÄ**
+_empty_/Test.Str#common. Ä*commonÄ*+
+_empty_/Test.Str#combine().*combineÄ*.
+!_empty_/Test.Str#combine().(that)*thatÄ*
+_empty_/Test.Str.
+ *StrÄ*#
+_empty_/Test.Str.This#*ThisÄ*)
+_empty_/Test.Str.inject().*injectÄ*'
+_empty_/Test.Str.inject().(x)*xÄ*%
+_empty_/Test.Str.unit().*unitÄ*#
+_empty_/Test.SubStr#*SubStrÄ*1
+_empty_/Test.SubStr#`<init>`(). Ä@*<init>Ä*,
+"_empty_/Test.SubStr#`<init>`().(s)*sÄ*#
+_empty_/Test.SubStr#s. Ä*sÄ*3
+_empty_/Test.String_Monoid.
+ (*String_MonoidÄ*
+local6*selfÄ*-
+ _empty_/Test.String_Monoid.This#*ThisÄ*-
+ _empty_/Test.String_Monoid.Impl#*ImplÄ*=
++_empty_/Test.String_Monoid.Impl#`<init>`(). Ä@*<init>Ä*>
+1_empty_/Test.String_Monoid.Impl#`<init>`().(this)*thisÄ*5
+%_empty_/Test.String_Monoid.Impl#this. Ä*thisÄ*9
+'_empty_/Test.String_Monoid.Impl#common. Ä*commonÄ*:
+*_empty_/Test.String_Monoid.Impl#combine().*combineÄ*=
+0_empty_/Test.String_Monoid.Impl#combine().(that)*thatÄ*3
+$_empty_/Test.String_Monoid.inject().*injectÄ*1
+'_empty_/Test.String_Monoid.inject().(x)*xÄ*/
+"_empty_/Test.String_Monoid.unit().*unitÄ*
+_empty_/Test.f().*fÄ*
+_empty_/Test.f().[X]	*XÄ*
+_empty_/Test.f().(x)*xÄ*"
+_empty_/Test.f().(ev)  *evÄ*
+local7*ThisÄ*
+_empty_/Test.sum().*sumÄ* 
+_empty_/Test.sum().[A]	*AÄ*"
+_empty_/Test.sum().(xs)*xsÄ*$
+_empty_/Test.sum().(ev)  *evÄ*
+local8*ThisÄ*
+_empty_/Test.Ord#*OrdÄ*.
+_empty_/Test.Ord#`<init>`(). Ä@*<init>Ä**
+_empty_/Test.Ord#common. Ñ*commonÄ*1
+_empty_/Test.Ord#compareTo(). *	compareToÄ*0
+#_empty_/Test.Ord#compareTo().(that)*thatÄ*!
+_empty_/Test.Ord#`<`().*<Ä**
+_empty_/Test.Ord#`<`().(that)*thatÄ*!
+_empty_/Test.Ord#`>`().*>Ä**
+_empty_/Test.Ord#`>`().(that)*thatÄ*
+_empty_/Test.Ord.
+ *OrdÄ*'
+_empty_/Test.Ord.Common#*CommonÄ*5
+#_empty_/Test.Ord.Common#`<init>`(). Ä@*<init>Ä*
+local9*selfÄ**
+_empty_/Test.Ord.Common#This#*ThisÄ*2
+!_empty_/Test.Ord.Common#inject(). *injectÄ*.
+$_empty_/Test.Ord.Common#inject().(x)*xÄ*
+local10 Ñ*commonÄ*3
+ _empty_/Test.Ord.Common#minimum. Ñ*minimumÄ*!
+_empty_/Test.Ord.by().*byÄ*#
+_empty_/Test.Ord.by().[A]	*AÄ*'
+_empty_/Test.Ord.by().(ev)  *evÄ*
+local11*ThisÄ*'
+_empty_/Test.Int_Ord.
+ (*Int_OrdÄ*
+local12*selfÄ*'
+_empty_/Test.Int_Ord.This#*ThisÄ*'
+_empty_/Test.Int_Ord.Impl#*ImplÄ*7
+%_empty_/Test.Int_Ord.Impl#`<init>`(). Ä@*<init>Ä*8
++_empty_/Test.Int_Ord.Impl#`<init>`().(this)*thisÄ*/
+_empty_/Test.Int_Ord.Impl#this. Ä*thisÄ*3
+!_empty_/Test.Int_Ord.Impl#common. Ä*commonÄ*8
+&_empty_/Test.Int_Ord.Impl#compareTo().*	compareToÄ*9
+,_empty_/Test.Int_Ord.Impl#compareTo().(that)*thatÄ*-
+_empty_/Test.Int_Ord.inject().*injectÄ*+
+!_empty_/Test.Int_Ord.inject().(x)*xÄ*0
+_empty_/Test.Int_Ord.minimum. Ä*minimumÄ*'
+_empty_/Test.List_Ord#*List_OrdÄ*3
+!_empty_/Test.List_Ord#`<init>`(). Ä@*<init>Ä*2
+%_empty_/Test.List_Ord#`<init>`().(ev)  *evÄ*
+local13*ThisÄ*
+local14*selfÄ*#
+_empty_/Test.List_Ord#[T]	*TÄ*'
+_empty_/Test.List_Ord#ev. †*evÄ*(
+_empty_/Test.List_Ord#This#*ThisÄ*(
+_empty_/Test.List_Ord#Impl#*ImplÄ*8
+&_empty_/Test.List_Ord#Impl#`<init>`(). Ä@*<init>Ä*9
+,_empty_/Test.List_Ord#Impl#`<init>`().(this)*thisÄ*0
+ _empty_/Test.List_Ord#Impl#this. Ä*thisÄ*4
+"_empty_/Test.List_Ord#Impl#common. Ä*commonÄ*9
+'_empty_/Test.List_Ord#Impl#compareTo().*	compareToÄ*:
+-_empty_/Test.List_Ord#Impl#compareTo().(that)*thatÄ*
+local15 Ä*xÄ*
+local16 Ä*xsÄ*
+local17 Ä*yÄ*
+local18 Ä*ysÄ*
+local19 Ä*fstÄ*.
+_empty_/Test.List_Ord#inject().*injectÄ*,
+"_empty_/Test.List_Ord#inject().(x)*xÄ*1
+_empty_/Test.List_Ord#minimum. Ä*minimumÄ*+
+_empty_/Test.List_Ord().  *List_OrdÄ*%
+_empty_/Test.List_Ord().[T]	*TÄ*)
+_empty_/Test.List_Ord().(ev)  *evÄ*
+local20*ThisÄ*
+_empty_/Test.max().*maxÄ* 
+_empty_/Test.max().[T]	*TÄ* 
+_empty_/Test.max().(x)*xÄ* 
+_empty_/Test.max().(y)*yÄ*$
+_empty_/Test.max().(ev)  *evÄ*
+local21*ThisÄ*!
+_empty_/Test.max(+1).*maxÄ*"
+_empty_/Test.max(+1).[T]	*TÄ*$
+_empty_/Test.max(+1).(xs)*xsÄ*&
+_empty_/Test.max(+1).(ev)  *evÄ*
+local22*ThisÄ*
+_empty_/Test.x1. Ä*x1Ä*
+_empty_/Test.x2. Ä*x2Ä*
+_empty_/Test.x3. Ä*x3Ä*
+_empty_/Test.x4. Ä*x4Ä*%
+_empty_/Test.Functor#*FunctorÄ*2
+ _empty_/Test.Functor#`<init>`(). Ä@*<init>Ä*"
+_empty_/Test.Functor#[A]	*AÄ*.
+_empty_/Test.Functor#common. Ñ*commonÄ*)
+_empty_/Test.Functor#map(). *mapÄ*(
+_empty_/Test.Functor#map().[B]	*BÄ*(
+_empty_/Test.Functor#map().(f)*fÄ*'
+_empty_/Test.Functor.
+ *FunctorÄ*+
+_empty_/Test.Functor.Common#*CommonÄ*9
+'_empty_/Test.Functor.Common#`<init>`(). Ä@*<init>Ä*
+local23*selfÄ*.
+!_empty_/Test.Functor.Common#This#*ThisÄ*.
+$_empty_/Test.Functor.Common#This#[A]	*AÄ*6
+%_empty_/Test.Functor.Common#inject(). *injectÄ*2
+(_empty_/Test.Functor.Common#inject().[A]	*AÄ*2
+(_empty_/Test.Functor.Common#inject().(x)*xÄ*
+local24 Ñ*commonÄ*%
+_empty_/Test.Functor.by().*byÄ*'
+_empty_/Test.Functor.by().[F]	*FÄ*+
+_empty_/Test.Functor.by().(ev)  *evÄ*
+local25*ThisÄ*
+local26	*AÄ*!
+_empty_/Test.Monad#*MonadÄ*0
+_empty_/Test.Monad#`<init>`(). Ä@*<init>Ä*
+local27*selfÄ* 
+_empty_/Test.Monad#[A]	*AÄ*,
+_empty_/Test.Monad#common. Ñ*commonÄ*/
+_empty_/Test.Monad#flatMap(). *flatMapÄ**
+ _empty_/Test.Monad#flatMap().[B]	*BÄ**
+ _empty_/Test.Monad#flatMap().(f)*fÄ*%
+_empty_/Test.Monad#map().*mapÄ*&
+_empty_/Test.Monad#map().[B]	*BÄ*&
+_empty_/Test.Monad#map().(f)*fÄ*
+local28*xÄ*#
+_empty_/Test.Monad.
+ *MonadÄ*)
+_empty_/Test.Monad.Common#*CommonÄ*7
+%_empty_/Test.Monad.Common#`<init>`(). Ä@*<init>Ä*
+local29*selfÄ*0
+!_empty_/Test.Monad.Common#pure(). *pureÄ*.
+$_empty_/Test.Monad.Common#pure().[A]	*AÄ*.
+$_empty_/Test.Monad.Common#pure().(x)*xÄ*4
+#_empty_/Test.Monad.Common#inject(). *injectÄ*0
+&_empty_/Test.Monad.Common#inject().[A]	*AÄ*0
+&_empty_/Test.Monad.Common#inject().(x)*xÄ*
+local30 Ñ*commonÄ*#
+_empty_/Test.Monad.by().*byÄ*%
+_empty_/Test.Monad.by().[F]	*FÄ*)
+_empty_/Test.Monad.by().(ev)  *evÄ*
+local31*ThisÄ*
+local32	*AÄ*-
+_empty_/Test.List_Monad.
+ (*
+List_MonadÄ*
+local33*selfÄ**
+_empty_/Test.List_Monad.This#*ThisÄ**
+ _empty_/Test.List_Monad.This#[A]	*AÄ**
+_empty_/Test.List_Monad.Impl#*ImplÄ*:
+(_empty_/Test.List_Monad.Impl#`<init>`(). Ä@*<init>Ä*;
+._empty_/Test.List_Monad.Impl#`<init>`().(this)*thisÄ**
+ _empty_/Test.List_Monad.Impl#[A]	*AÄ*2
+"_empty_/Test.List_Monad.Impl#this. Ä*thisÄ*6
+$_empty_/Test.List_Monad.Impl#common. Ä*commonÄ*7
+'_empty_/Test.List_Monad.Impl#flatMap().*flatMapÄ*4
+*_empty_/Test.List_Monad.Impl#flatMap().[B]	*BÄ*4
+*_empty_/Test.List_Monad.Impl#flatMap().(f)*fÄ*,
+_empty_/Test.List_Monad.pure().*pureÄ*,
+"_empty_/Test.List_Monad.pure().[A]	*AÄ*,
+"_empty_/Test.List_Monad.pure().(x)*xÄ*0
+!_empty_/Test.List_Monad.inject().*injectÄ*.
+$_empty_/Test.List_Monad.inject().[A]	*AÄ*.
+$_empty_/Test.List_Monad.inject().(x)*xÄ*
+_empty_/Test.g().*gÄ*
+_empty_/Test.g().[F]	*FÄ*
+_empty_/Test.g().[A]	*AÄ*
+_empty_/Test.g().[B]	*BÄ*
+_empty_/Test.g().(x)*xÄ*
+_empty_/Test.g().(f)*fÄ*"
+_empty_/Test.g().(ev)  *evÄ*
+local34*ThisÄ*
+local35	*AÄ*
+_empty_/Test.h().*hÄ*
+_empty_/Test.h().[F]	*FÄ*
+_empty_/Test.h().[A]	*AÄ*
+_empty_/Test.h().[B]	*BÄ*
+_empty_/Test.h().(x)*xÄ*"
+_empty_/Test.h().(ev)  *evÄ*
+local36*ThisÄ*
+local37	*AÄ*
+local38*fÄ*
+_empty_/Test.r. Ä*rÄ*/
+_empty_/Test.$eq$gt_Monad#*$eq$gt_MonadÄ*7
+%_empty_/Test.$eq$gt_Monad#`<init>`(). Ä@*<init>Ä*
+local39*selfÄ*+
+_empty_/Test.$eq$gt_Monad#[Ctx]	*CtxÄ*,
+_empty_/Test.$eq$gt_Monad#This#*ThisÄ*,
+"_empty_/Test.$eq$gt_Monad#This#[A]	*AÄ*,
+_empty_/Test.$eq$gt_Monad#Impl#*ImplÄ*<
+*_empty_/Test.$eq$gt_Monad#Impl#`<init>`(). Ä@*<init>Ä*=
+0_empty_/Test.$eq$gt_Monad#Impl#`<init>`().(this)*thisÄ*,
+"_empty_/Test.$eq$gt_Monad#Impl#[A]	*AÄ*4
+$_empty_/Test.$eq$gt_Monad#Impl#this. Ä*thisÄ*8
+&_empty_/Test.$eq$gt_Monad#Impl#common. Ä*commonÄ*9
+)_empty_/Test.$eq$gt_Monad#Impl#flatMap().*flatMapÄ*6
+,_empty_/Test.$eq$gt_Monad#Impl#flatMap().[B]	*BÄ*6
+,_empty_/Test.$eq$gt_Monad#Impl#flatMap().(f)*fÄ*
+local40*ctxÄ*.
+!_empty_/Test.$eq$gt_Monad#pure().*pureÄ*.
+$_empty_/Test.$eq$gt_Monad#pure().[A]	*AÄ*.
+$_empty_/Test.$eq$gt_Monad#pure().(x)*xÄ*
+local41*ctxÄ*2
+#_empty_/Test.$eq$gt_Monad#inject().*injectÄ*0
+&_empty_/Test.$eq$gt_Monad#inject().[A]	*AÄ*0
+&_empty_/Test.$eq$gt_Monad#inject().(x)*xÄ*3
+_empty_/Test.$eq$gt_Monad().  *$eq$gt_MonadÄ*-
+!_empty_/Test.$eq$gt_Monad().[Ctx]	*CtxÄ**
+ _empty_/Test.`<local Test$>`.[X]	*XÄ*
+local42*ctxÄ*
+local43*xÄ*
+local44*ctxÄ29
+ //scala/language.experimental.namedTypeArguments.2&
+ scala/language.experimental.2
+ scala/language.2
+ _empty_/Test.2%
+ _empty_/Test.Rectangle#20
+ "_empty_/Test.Rectangle#`<init>`().2
+ $scala/Double#2
+. 4scala/Double#2+
+ _empty_/Test.Rectangle#width.2,
+& ,_empty_/Test.Rectangle#height.2,
+ _empty_/Test.Rectangle#copy().2*
+ _empty_/Test.Rectangle#_1().2*
+. ._empty_/Test.Rectangle#_2().2%
+ _empty_/Test.Rectangle.2-
+ _empty_/Test.Rectangle.apply().2"
+ _empty_/Test.Circle#2-
+ _empty_/Test.Circle#`<init>`().2
+ "scala/Double#2)
+ _empty_/Test.Circle#radius.2)
+ _empty_/Test.Circle#copy().2'
+ _empty_/Test.Circle#_1().2"
+ _empty_/Test.Circle.2*
+ _empty_/Test.Circle.apply().2*
+ _empty_/Test.Rectangle_area#25
+ '_empty_/Test.Rectangle_area#`<init>`().2%
+( 1_empty_/Test.Rectangle#2/
+! %!_empty_/Test.Rectangle_area#this.21
+ #_empty_/Test.Rectangle_area#area().2
+ scala/Double#2#
+$ %scala/Double#`*`(+6).2+
+ #_empty_/Test.Rectangle#width.2/
+ !_empty_/Test.Rectangle_area#this.2,
+- 3_empty_/Test.Rectangle#height.2/
+& ,!_empty_/Test.Rectangle_area#this.2,
+ _empty_/Test.Rectangle_area().2*
+ _empty_/Test.Circle_HasArea#25
+ '_empty_/Test.Circle_HasArea#`<init>`().2"
+( ._empty_/Test.Circle#2/
+! %!_empty_/Test.Circle_HasArea#this.21
+ #_empty_/Test.Circle_HasArea#area().2#
+! "scala/Double#`*`(+6).2#
+ scala/Double#`*`(+3).2)
+ _empty_/Test.Circle#radius.2/
+ !_empty_/Test.Circle_HasArea#this.2$
+( *scala/math/package.Pi.2
+# 'scala/math/2,
+ _empty_/Test.Circle_HasArea().2%
+>> _empty_/Test.SemiGroup#20
+?? "_empty_/Test.SemiGroup#`<init>`().2,
+?? _empty_/Test.SemiGroup#common.2,
+??  _empty_/Test.SemiGroup.Common#2%
+?? _empty_/Test.SemiGroup.2,
+@@ _empty_/Test.SemiGroup#common.2/
+BB !_empty_/Test.SemiGroup#combine().25
+BB '_empty_/Test.SemiGroup#combine().(that)2%
+D	D _empty_/Test.SemiGroup.2,
+E
+E _empty_/Test.SemiGroup.Common#27
+EE )_empty_/Test.SemiGroup.Common#`<init>`().2
+EE local021
+FF #_empty_/Test.SemiGroup.Common#This#25
+G
+G '_empty_/Test.SemiGroup.Common#inject().28
+GG *_empty_/Test.SemiGroup.Common#inject().(x)21
+GG #_empty_/Test.SemiGroup.Common#This#2%
+GG $_empty_/Test.SemiGroup#2
+G,G 2local12,
+G4G 8_empty_/Test.SemiGroup.Common#2*
+II 
+_empty_/Test.SemiGroup.by().2-
+II _empty_/Test.SemiGroup.by().[A]2.
+II  _empty_/Test.SemiGroup.by().(ev)2,
+I%I +_empty_/Test.SemiGroup.Common#2%
+II $_empty_/Test.SemiGroup.2
+I3I 7local22-
+I:I ;_empty_/Test.SemiGroup.by().[A]2.
+I@I B _empty_/Test.SemiGroup.by().(ev)2.
+IJI L _empty_/Test.SemiGroup.by().(ev)2"
+LL _empty_/Test.Monoid#2-
+LL _empty_/Test.Monoid#`<init>`().2%
+LL  _empty_/Test.SemiGroup#2)
+MM _empty_/Test.Monoid#common.2)
+MM _empty_/Test.Monoid.Common#2"
+MM _empty_/Test.Monoid.2)
+NN _empty_/Test.Monoid#common.2"
+P	P _empty_/Test.Monoid.2)
+Q
+Q _empty_/Test.Monoid.Common#24
+QQ &_empty_/Test.Monoid.Common#`<init>`().2,
+Q#Q )_empty_/Test.SemiGroup.Common#2%
+QQ "_empty_/Test.SemiGroup.2
+Q,Q 0local322
+R
+R $_empty_/Test.Monoid.Common#inject().25
+RR '_empty_/Test.Monoid.Common#inject().(x)21
+RR #_empty_/Test.SemiGroup.Common#This#2"
+RR !_empty_/Test.Monoid#2
+R(R .local42)
+R0R 4_empty_/Test.Monoid.Common#20
+S
+S "_empty_/Test.Monoid.Common#unit().21
+SS #_empty_/Test.SemiGroup.Common#This#2'
+UU 
+_empty_/Test.Monoid.by().2*
+UU _empty_/Test.Monoid.by().[A]2+
+UU _empty_/Test.Monoid.by().(ev)2)
+U"U (_empty_/Test.Monoid.Common#2"
+UU !_empty_/Test.Monoid.2
+U0U 4local52*
+U7U 8_empty_/Test.Monoid.by().[A]2+
+U=U ?_empty_/Test.Monoid.by().(ev)2+
+UGU I_empty_/Test.Monoid.by().(ev)2
+XX _empty_/Test.Str#2*
+XX _empty_/Test.Str#`<init>`().2"
+XX scala/Predef.String#2"
+X#X )_empty_/Test.Monoid#2!
+XX _empty_/Test.Str#s.2&
+YY _empty_/Test.Str#common.2
+YY _empty_/Test.Str.2
+YY _empty_/Test.Str.2)
+ZZ _empty_/Test.Str#combine().2/
+ZZ !_empty_/Test.Str#combine().(that)2
+ZZ _empty_/Test.Str#2
+ZZ _empty_/Test.Str#2*
+Z)Z )_empty_/Test.Str#`<init>`().2
+Z&Z )_empty_/Test.Str#2%
+Z1Z 2java/lang/String#`+`().2!
+Z/Z 0_empty_/Test.Str#s.2!
+Z8Z 9_empty_/Test.Str#s.2/
+Z3Z 7!_empty_/Test.Str#combine().(that)2
+\	\ _empty_/Test.Str.2)
+\\ "_empty_/Test.Monoid.Common#2"
+\\ _empty_/Test.Monoid.2$
+]	] _empty_/Test.Str.This#2
+]] _empty_/Test.Str#2(
+^^ _empty_/Test.Str.inject().2+
+^^ _empty_/Test.Str.inject().(x)2$
+^^ _empty_/Test.Str.This#2
+^^ _empty_/Test.Str#2+
+^^  _empty_/Test.Str.inject().(x)2&
+__ _empty_/Test.Str.unit().2*
+__ _empty_/Test.Str#`<init>`().2
+__ _empty_/Test.Str#2"
+bb _empty_/Test.SubStr#2-
+bb _empty_/Test.SubStr#`<init>`().2"
+bb scala/Predef.String#2*
+b%b %_empty_/Test.Str#`<init>`().2
+b"b %_empty_/Test.Str#2$
+b&b '_empty_/Test.SubStr#s.2$
+bb _empty_/Test.SubStr#s.2)
+dd _empty_/Test.String_Monoid.2)
+d/d 5_empty_/Test.Monoid.Common#2"
+d(d ._empty_/Test.Monoid.2
+d8d <local62.
+e	e  _empty_/Test.String_Monoid.This#2"
+ee scala/Predef.String#2.
+f
+f  _empty_/Test.String_Monoid.Impl#29
+ff +_empty_/Test.String_Monoid.Impl#`<init>`().2.
+ff  _empty_/Test.String_Monoid.This#2"
+f%f +_empty_/Test.Monoid#23
+ff %_empty_/Test.String_Monoid.Impl#this.25
+g
+g '_empty_/Test.String_Monoid.Impl#common.2)
+gg _empty_/Test.String_Monoid.2)
+gg "_empty_/Test.String_Monoid.28
+h
+h *_empty_/Test.String_Monoid.Impl#combine().2>
+hh 0_empty_/Test.String_Monoid.Impl#combine().(that)2"
+hh scala/Predef.String#2"
+h!h 'scala/Predef.String#2%
+h1h 2java/lang/String#`+`().23
+h*h 0%_empty_/Test.String_Monoid.Impl#this.2>
+h3h 70_empty_/Test.String_Monoid.Impl#combine().(that)22
+jj $_empty_/Test.String_Monoid.inject().25
+jj '_empty_/Test.String_Monoid.inject().(x)2.
+jj  _empty_/Test.String_Monoid.This#2.
+jj  _empty_/Test.String_Monoid.Impl#29
+j(j (+_empty_/Test.String_Monoid.Impl#`<init>`().2.
+j$j ( _empty_/Test.String_Monoid.Impl#25
+j)j *'_empty_/Test.String_Monoid.inject().(x)20
+kk "_empty_/Test.String_Monoid.unit().2
+nn _empty_/Test.f().2"
+nn 	_empty_/Test.f().[X]2"
+nn _empty_/Test.f().(x)2"
+nn _empty_/Test.f().[X]2#
+nn _empty_/Test.f().(ev)2)
+n%n +_empty_/Test.Monoid.Common#2"
+nn $_empty_/Test.Monoid.2
+n3n 7local72"
+n:n ;_empty_/Test.f().[X]2/
+o!o (!_empty_/Test.SemiGroup#combine().22
+oo $_empty_/Test.Monoid.Common#inject().2#
+oo _empty_/Test.f().(ev)20
+oo "_empty_/Test.Monoid.Common#unit().2'
+oo _empty_/Test.Monoid.by().2"
+oo _empty_/Test.Monoid.2"
+oo _empty_/Test.f().[X]2#
+oo _empty_/Test.f().(ev)2"
+o)o *_empty_/Test.f().(x)2!
+rr 	_empty_/Test.sum().2$
+r
+r _empty_/Test.sum().[A]2%
+rr _empty_/Test.sum().(xs)2!
+rr scala/package.List#2$
+rr _empty_/Test.sum().[A]2%
+r#r %_empty_/Test.sum().(ev)2)
+r.r 4_empty_/Test.Monoid.Common#2"
+r'r -_empty_/Test.Monoid.2
+r<r @local82$
+rCr D_empty_/Test.sum().[A]2$
+rIr J_empty_/Test.sum().[A]27
+ss )scala/collection/LinearSeqOps#foldLeft().2%
+ss _empty_/Test.sum().(xs)20
+ss !"_empty_/Test.Monoid.Common#unit().2'
+ss _empty_/Test.Monoid.by().2"
+ss _empty_/Test.Monoid.2$
+ss _empty_/Test.sum().[A]2%
+ss _empty_/Test.sum().(ev)2/
+s0s 7!_empty_/Test.SemiGroup#combine().22
+s&s ,$_empty_/Test.Monoid.Common#inject().2%
+s#s %_empty_/Test.sum().(ev)2
+uu _empty_/Test.f().2*
+uu _empty_/Test.Str#`<init>`().2
+uu _empty_/Test.Str#2
+uu _empty_/Test.Str.2
+vv _empty_/Test.f().2)
+v
+v 
+_empty_/Test.String_Monoid.2
+ww _empty_/Test.f().2-
+ww _empty_/Test.SubStr#`<init>`().2"
+ww _empty_/Test.SubStr#2
+ww _empty_/Test.Str.2!
+yy _empty_/Test.sum().27
+y
+y 
+)scala/collection/IterableFactory#apply().2!
+yy 
+scala/package.List.2)
+yy _empty_/Test.String_Monoid.2!
+
+ùù _empty_/Test.Ord#2,
+
+ûû _empty_/Test.Ord#`<init>`().2(
+
+ûû _empty_/Test.Ord#common.2(
+
+ûû _empty_/Test.Ord.Common#2!
+
+ûû _empty_/Test.Ord.2(
+
+üü _empty_/Test.Ord#common.2-
+
+°° _empty_/Test.Ord#compareTo().23
+
+°° #_empty_/Test.Ord#compareTo().(that)2
+
+°° "
+scala/Int#2'
+
+¢¢ 	_empty_/Test.Ord#`<`().2-
+
+¢¢ _empty_/Test.Ord#`<`().(that)2"
+
+¢)¢ *scala/Int#`<`(+3).2-
+
+¢¢ "_empty_/Test.Ord#compareTo().2-
+
+¢#¢ '_empty_/Test.Ord#`<`().(that)2'
+
+££ 	_empty_/Test.Ord#`>`().2-
+
+££ _empty_/Test.Ord#`>`().(that)2"
+
+£)£ *scala/Int#`>`(+3).2-
+
+££ "_empty_/Test.Ord#compareTo().2-
+
+£#£ '_empty_/Test.Ord#`>`().(that)2!
+
+•	• _empty_/Test.Ord.2(
+
+¶
+¶ _empty_/Test.Ord.Common#23
+
+¶¶ #_empty_/Test.Ord.Common#`<init>`().2
+
+¶¶ local92-
+
+ßß _empty_/Test.Ord.Common#This#21
+
+®
+® !_empty_/Test.Ord.Common#inject().24
+
+®® $_empty_/Test.Ord.Common#inject().(x)2-
+
+®® _empty_/Test.Ord.Common#This#2!
+
+®® _empty_/Test.Ord#2
+
+®&® ,local102(
+
+®.® 2_empty_/Test.Ord.Common#20
+
+©
+©  _empty_/Test.Ord.Common#minimum.2-
+
+©© _empty_/Test.Ord.Common#This#2&
+
+´´ 
+_empty_/Test.Ord.by().2)
+
+´´ _empty_/Test.Ord.by().[A]2*
+
+´´ _empty_/Test.Ord.by().(ev)2(
+
+´´ %_empty_/Test.Ord.Common#2!
+
+´´ _empty_/Test.Ord.2
+
+´-´ 1local112)
+
+´4´ 5_empty_/Test.Ord.by().[A]2*
+
+´:´ <_empty_/Test.Ord.by().(ev)2*
+
+´D´ F_empty_/Test.Ord.by().(ev)2%
+
+ÆÆ _empty_/Test.Int_Ord.2(
+
+Æ&Æ ,_empty_/Test.Ord.Common#2!
+
+Æ"Æ %_empty_/Test.Ord.2
+
+Æ/Æ 3local122*
+
+Ø	Ø _empty_/Test.Int_Ord.This#2
+
+ØØ 
+scala/Int#2*
+
+∞
+∞ _empty_/Test.Int_Ord.Impl#25
+
+∞∞ %_empty_/Test.Int_Ord.Impl#`<init>`().2*
+
+∞∞ _empty_/Test.Int_Ord.This#2!
+
+∞%∞ (_empty_/Test.Ord#2/
+
+∞∞ _empty_/Test.Int_Ord.Impl#this.21
+
+±
+± !_empty_/Test.Int_Ord.Impl#common.2%
+
+±± _empty_/Test.Int_Ord.2%
+
+±± "_empty_/Test.Int_Ord.26
+
+≤
+≤ &_empty_/Test.Int_Ord.Impl#compareTo().2<
+
+≤≤ ,_empty_/Test.Int_Ord.Impl#compareTo().(that)2
+
+≤≤ 
+scala/Int#2"
+
+≥≥ scala/Int#`<`(+3).2/
+
+≥≥ _empty_/Test.Int_Ord.Impl#this.2<
+
+≥≥ ,_empty_/Test.Int_Ord.Impl#compareTo().(that)2"
+
+≥.≥ /scala/Int#`>`(+3).2/
+
+≥'≥ -_empty_/Test.Int_Ord.Impl#this.2<
+
+≥0≥ 4,_empty_/Test.Int_Ord.Impl#compareTo().(that)2&
+
+≥8≥ 8scala/Int#`unary_+`().2.
+
+µµ _empty_/Test.Int_Ord.inject().21
+
+µµ !_empty_/Test.Int_Ord.inject().(x)2*
+
+µµ _empty_/Test.Int_Ord.This#2*
+
+µµ _empty_/Test.Int_Ord.Impl#25
+
+µ(µ (%_empty_/Test.Int_Ord.Impl#`<init>`().2*
+
+µ$µ (_empty_/Test.Int_Ord.Impl#21
+
+µ)µ *!_empty_/Test.Int_Ord.inject().(x)2-
+
+∂∂ _empty_/Test.Int_Ord.minimum.2#
+
+∂∂ scala/Int.MinValue.2
+
+∂∂ 
+scala/Int.2&
+
+ππ _empty_/Test.List_Ord#21
+
+ππ !_empty_/Test.List_Ord#`<init>`().2(
+
+π%π +_empty_/Test.Ord.Common#2!
+
+π!π $_empty_/Test.Ord.2
+
+π3π 7local132)
+
+π:π ;_empty_/Test.List_Ord#[T]2(
+
+πKπ Q_empty_/Test.Ord.Common#2!
+
+πGπ J_empty_/Test.Ord.2
+
+πTπ Xlocal142)
+
+ππ _empty_/Test.List_Ord#[T]2)
+
+ππ _empty_/Test.List_Ord#ev.2+
+
+∫	∫ _empty_/Test.List_Ord#This#2#
+
+∫∫ scala/package.List#2)
+
+∫∫ _empty_/Test.List_Ord#[T]2+
+
+ª
+ª _empty_/Test.List_Ord#Impl#26
+
+ªª &_empty_/Test.List_Ord#Impl#`<init>`().2+
+
+ªª _empty_/Test.List_Ord#This#2!
+
+ª%ª (_empty_/Test.Ord#20
+
+ªª  _empty_/Test.List_Ord#Impl#this.22
+
+º
+º "_empty_/Test.List_Ord#Impl#common.2&
+
+ºº _empty_/Test.List_Ord#2&
+
+ºº "_empty_/Test.List_Ord#27
+
+Ω
+Ω '_empty_/Test.List_Ord#Impl#compareTo().2=
+
+ΩΩ -_empty_/Test.List_Ord#Impl#compareTo().(that)2#
+
+ΩΩ scala/package.List#2)
+
+ΩΩ  _empty_/Test.List_Ord#[T]2
+
+Ω$Ω '
+scala/Int#2%
+
+Ω+Ω +scala/Tuple2.apply().20
+
+Ω+Ω 1 _empty_/Test.List_Ord#Impl#this.2=
+
+Ω3Ω 7-_empty_/Test.List_Ord#Impl#compareTo().(that)2'
+
+ææ scala/Tuple2.unapply().2"
+
+ææ scala/package.Nil.2"
+
+ææ scala/package.Nil.2'
+
+øø scala/Tuple2.unapply().2"
+
+øø scala/package.Nil.2'
+
+¿¿ scala/Tuple2.unapply().2"
+
+¿¿ scala/package.Nil.2&
+
+¿¿ scala/Int#`unary_+`().2'
+
+¡¡ scala/Tuple2.unapply().2:
+
+¡¡ *scala/collection/immutable/`::`.unapply().2#
+
+¡¡ scala/package.`::`.2
+
+¡¡ local152
+
+¡¡ local162:
+
+¡¡ *scala/collection/immutable/`::`.unapply().2#
+
+¡¡ scala/package.`::`.2
+
+¡¡ local172
+
+¡¡ local182
+
+¬¬ local192-
+
+¬!¬ *_empty_/Test.Ord#compareTo().21
+
+¬¬ !_empty_/Test.Ord.Common#inject().2)
+
+¬¬ _empty_/Test.List_Ord#ev.2
+
+¬¬ local152
+
+¬+¬ ,local172#
+
+√√ scala/Int#`!=`(+3).2
+
+√√ local192
+
+√√ local1927
+
+√8√ A'_empty_/Test.List_Ord#Impl#compareTo().2/
+
+√-√ 3_empty_/Test.List_Ord#inject().2(
+
+√!√ )_empty_/Test.List_Ord().2)
+
+√*√ +_empty_/Test.List_Ord#[T]2)
+
+√,√ ,_empty_/Test.List_Ord#ev.2
+
+√4√ 6local162
+
+√B√ Dlocal182/
+
+∆∆ _empty_/Test.List_Ord#inject().22
+
+∆∆ "_empty_/Test.List_Ord#inject().(x)2+
+
+∆∆ _empty_/Test.List_Ord#This#2+
+
+∆∆ _empty_/Test.List_Ord#Impl#26
+
+∆(∆ (&_empty_/Test.List_Ord#Impl#`<init>`().2+
+
+∆$∆ (_empty_/Test.List_Ord#Impl#22
+
+∆)∆ *"_empty_/Test.List_Ord#inject().(x)2.
+
+«« _empty_/Test.List_Ord#minimum.2"
+
+«« scala/package.Nil.2(
+
+   _empty_/Test.List_Ord().2+
+
+   _empty_/Test.List_Ord().[T]2,
+
+ $  &_empty_/Test.List_Ord().(ev)2(
+
+ ,  2_empty_/Test.Ord.Common#2!
+
+ (  +_empty_/Test.Ord.2
+
+ :  >local202+
+
+ A  B_empty_/Test.List_Ord().[T]2&
+
+ G  O_empty_/Test.List_Ord#2+
+
+ P  Q_empty_/Test.List_Ord().[T]21
+
+ÀÀ !_empty_/Test.List_Ord#`<init>`().2&
+
+ÀÀ _empty_/Test.List_Ord#2+
+
+ÀÀ _empty_/Test.List_Ord().[T]2,
+
+ÀÀ _empty_/Test.List_Ord().(ev)2#
+
+ÕÕ 	_empty_/Test.max().2&
+
+Õ
+Õ _empty_/Test.max().[T]2&
+
+ÕÕ _empty_/Test.max().(x)2&
+
+ÕÕ _empty_/Test.max().[T]2&
+
+ÕÕ _empty_/Test.max().(y)2&
+
+ÕÕ _empty_/Test.max().[T]2'
+
+Õ"Õ $_empty_/Test.max().(ev)2(
+
+Õ*Õ 0_empty_/Test.Ord.Common#2!
+
+Õ&Õ )_empty_/Test.Ord.2
+
+Õ8Õ <local212&
+
+Õ?Õ @_empty_/Test.max().[T]2'
+
+ÕWÕ X_empty_/Test.Ord#`<`().21
+
+ÕMÕ S!_empty_/Test.Ord.Common#inject().2'
+
+ÕJÕ L_empty_/Test.max().(ev)2&
+
+ÕTÕ U_empty_/Test.max().(x)2&
+
+ÕYÕ Z_empty_/Test.max().(y)2&
+
+Õ\Õ ]_empty_/Test.max().(x)2&
+
+ÕcÕ d_empty_/Test.max().(y)2%
+
+œœ 	_empty_/Test.max(+1).2(
+
+œ
+œ _empty_/Test.max(+1).[T]2)
+
+œœ _empty_/Test.max(+1).(xs)2#
+
+œœ scala/package.List#2(
+
+œœ _empty_/Test.max(+1).[T]2)
+
+œ#œ %_empty_/Test.max(+1).(ev)2(
+
+œ+œ 1_empty_/Test.Ord.Common#2!
+
+œ'œ *_empty_/Test.Ord.2
+
+œ9œ =local222(
+
+œ@œ A_empty_/Test.max(+1).[T]2(
+
+œFœ G_empty_/Test.max(+1).[T]29
+
+–– )scala/collection/LinearSeqOps#foldLeft().2)
+
+–– _empty_/Test.max(+1).(xs)20
+
+–– ! _empty_/Test.Ord.Common#minimum.2&
+
+–– _empty_/Test.Ord.by().2!
+
+–– _empty_/Test.Ord.2(
+
+–– _empty_/Test.max(+1).[T]2)
+
+–– _empty_/Test.max(+1).(ev)2#
+
+–#– &_empty_/Test.max().2)
+
+–,– ,_empty_/Test.max(+1).(ev)2 
+
+““ _empty_/Test.x1.2#
+
+““ _empty_/Test.max().2%
+
+““ _empty_/Test.Int_Ord.2 
+
+”” _empty_/Test.x2.2#
+
+”” _empty_/Test.max().29
+
+”” )scala/collection/IterableFactory#apply().2#
+
+”” scala/package.List.2"
+
+”” scala/package.Nil.2(
+
+”” _empty_/Test.List_Ord().2%
+
+”” _empty_/Test.Int_Ord.2 
+
+‘‘ _empty_/Test.x3.2%
+
+‘‘ _empty_/Test.max(+1).29
+
+‘‘ )scala/collection/IterableFactory#apply().2#
+
+‘‘ scala/package.List.2%
+
+‘‘ _empty_/Test.Int_Ord.2 
+
+’’ _empty_/Test.x4.2%
+
+’’ _empty_/Test.max(+1).29
+
+’’ )scala/collection/IterableFactory#apply().2#
+
+’’ scala/package.List.29
+
+’’ )scala/collection/IterableFactory#apply().2#
+
+’’ scala/package.List.29
+
+’$’ $)scala/collection/IterableFactory#apply().2#
+
+’ ’ $scala/package.List.2"
+
+’,’ /scala/package.Nil.2(
+
+’1’ 1_empty_/Test.List_Ord().2%
+
+’1’ 1_empty_/Test.Int_Ord.2%
+
+ÚÚ _empty_/Test.Functor#20
+
+ÚÚ  _empty_/Test.Functor#`<init>`().2(
+
+ÚÚ _empty_/Test.Functor#[A]2,
+
+ÛÛ _empty_/Test.Functor#common.2,
+
+ÛÛ _empty_/Test.Functor.Common#2%
+
+ÛÛ _empty_/Test.Functor.2,
+
+ÙÙ _empty_/Test.Functor#common.2+
+
+ˆˆ _empty_/Test.Functor#map().2.
+
+ˆˆ _empty_/Test.Functor#map().[B]2.
+
+ˆˆ _empty_/Test.Functor#map().(f)2(
+
+ˆˆ _empty_/Test.Functor#[A]2.
+
+ˆˆ _empty_/Test.Functor#map().[B]2.
+
+ˆ ˆ !_empty_/Test.Functor#map().[B]2%
+
+˘	˘ _empty_/Test.Functor.2,
+
+˙
+˙ _empty_/Test.Functor.Common#27
+
+˙˙ '_empty_/Test.Functor.Common#`<init>`().2
+
+˙˙ local2321
+
+˚˚ !_empty_/Test.Functor.Common#This#24
+
+˚˚ $_empty_/Test.Functor.Common#This#[A]25
+
+¸
+¸ %_empty_/Test.Functor.Common#inject().28
+
+¸¸ (_empty_/Test.Functor.Common#inject().[A]28
+
+¸¸ (_empty_/Test.Functor.Common#inject().(x)21
+
+¸¸ !_empty_/Test.Functor.Common#This#28
+
+¸¸ (_empty_/Test.Functor.Common#inject().[A]2%
+
+¸!¸ (_empty_/Test.Functor#28
+
+¸)¸ *(_empty_/Test.Functor.Common#inject().[A]2
+
+¸2¸ 8local242,
+
+¸:¸ >_empty_/Test.Functor.Common#2*
+
+˛˛ _empty_/Test.Functor.by().2-
+
+˛˛ _empty_/Test.Functor.by().[F]2.
+
+˛!˛ #_empty_/Test.Functor.by().(ev)2,
+
+˛-˛ 3_empty_/Test.Functor.Common#2%
+
+˛%˛ ,_empty_/Test.Functor.2
+
+˛;˛ ?local252
+
+˛@˛ Alocal262-
+
+˛E˛ F_empty_/Test.Functor.by().[F]2
+
+˛G˛ Hlocal262.
+
+˛N˛ P_empty_/Test.Functor.by().(ev)2.
+
+˛X˛ Z_empty_/Test.Functor.by().(ev)2#
+
+ÅÅ _empty_/Test.Monad#2.
+
+ÅÅ _empty_/Test.Monad#`<init>`().2%
+
+ÅÅ  _empty_/Test.Functor#2&
+
+Å!Å "_empty_/Test.Monad#[A]2
+
+Å&Å *local272&
+
+ÅÅ _empty_/Test.Monad#[A]2*
+
+ÇÇ _empty_/Test.Monad#common.2*
+
+ÇÇ _empty_/Test.Monad.Common#2#
+
+ÇÇ _empty_/Test.Monad.2*
+
+ÉÉ _empty_/Test.Monad#common.2-
+
+ÖÖ _empty_/Test.Monad#flatMap().20
+
+ÖÖ  _empty_/Test.Monad#flatMap().[B]20
+
+ÖÖ  _empty_/Test.Monad#flatMap().(f)2&
+
+ÖÖ _empty_/Test.Monad#[A]20
+
+Ö Ö ! _empty_/Test.Monad#flatMap().[B]20
+
+Ö*Ö + _empty_/Test.Monad#flatMap().[B]2)
+
+ÜÜ _empty_/Test.Monad#map().2,
+
+ÜÜ _empty_/Test.Monad#map().[B]2,
+
+ÜÜ _empty_/Test.Monad#map().(f)2&
+
+ÜÜ _empty_/Test.Monad#[A]2,
+
+ÜÜ _empty_/Test.Monad#map().[B]2,
+
+Ü Ü !_empty_/Test.Monad#map().[B]2-
+
+Ü%Ü ,_empty_/Test.Monad#flatMap().2*
+
+Ü/Ü 8scala/Function1#andThen().2,
+
+Ü-Ü ._empty_/Test.Monad#map().(f)21
+
+Ü9Ü =!_empty_/Test.Monad.Common#pure().2
+
+Ü9Ü 9local282#
+
+à	à _empty_/Test.Monad.2*
+
+â
+â _empty_/Test.Monad.Common#25
+
+ââ %_empty_/Test.Monad.Common#`<init>`().2,
+
+â!â '_empty_/Test.Functor.Common#2%
+
+ââ  _empty_/Test.Functor.2
+
+â*â .local2921
+
+ä
+ä !_empty_/Test.Monad.Common#pure().24
+
+ää $_empty_/Test.Monad.Common#pure().[A]24
+
+ää $_empty_/Test.Monad.Common#pure().(x)24
+
+ää $_empty_/Test.Monad.Common#pure().[A]21
+
+ää !_empty_/Test.Functor.Common#This#24
+
+ää $_empty_/Test.Monad.Common#pure().[A]23
+
+ã
+ã #_empty_/Test.Monad.Common#inject().26
+
+ãã &_empty_/Test.Monad.Common#inject().[A]26
+
+ãã &_empty_/Test.Monad.Common#inject().(x)21
+
+ãã !_empty_/Test.Functor.Common#This#26
+
+ãã &_empty_/Test.Monad.Common#inject().[A]2#
+
+ã!ã &_empty_/Test.Monad#26
+
+ã'ã (&_empty_/Test.Monad.Common#inject().[A]2
+
+ã0ã 6local302*
+
+ã8ã <_empty_/Test.Monad.Common#2(
+
+çç 
+_empty_/Test.Monad.by().2+
+
+çç _empty_/Test.Monad.by().[F]2,
+
+çç _empty_/Test.Monad.by().(ev)2*
+
+ç$ç *_empty_/Test.Monad.Common#2#
+
+çç #_empty_/Test.Monad.2
+
+ç2ç 6local312
+
+ç7ç 8local322+
+
+ç<ç =_empty_/Test.Monad.by().[F]2
+
+ç>ç ?local322,
+
+çEç G_empty_/Test.Monad.by().(ev)2,
+
+çOç Q_empty_/Test.Monad.by().(ev)2(
+
+êê _empty_/Test.List_Monad.2*
+
+ê+ê 1_empty_/Test.Monad.Common#2#
+
+ê%ê *_empty_/Test.Monad.2
+
+ê4ê 8local332-
+
+ë	ë _empty_/Test.List_Monad.This#20
+
+ëë  _empty_/Test.List_Monad.This#[A]2#
+
+ëë scala/package.List#20
+
+ëë  _empty_/Test.List_Monad.This#[A]2-
+
+í
+í _empty_/Test.List_Monad.Impl#28
+
+íí (_empty_/Test.List_Monad.Impl#`<init>`().2-
+
+íí _empty_/Test.List_Monad.This#20
+
+íí   _empty_/Test.List_Monad.Impl#[A]2#
+
+í+í 0_empty_/Test.Monad#20
+
+í1í 2 _empty_/Test.List_Monad.Impl#[A]20
+
+íí  _empty_/Test.List_Monad.Impl#[A]22
+
+íí "_empty_/Test.List_Monad.Impl#this.24
+
+ì
+ì $_empty_/Test.List_Monad.Impl#common.2(
+
+ìì _empty_/Test.List_Monad.2(
+
+ìì "_empty_/Test.List_Monad.27
+
+î
+î '_empty_/Test.List_Monad.Impl#flatMap().2:
+
+îî *_empty_/Test.List_Monad.Impl#flatMap().[B]2:
+
+îî *_empty_/Test.List_Monad.Impl#flatMap().(f)20
+
+îî  _empty_/Test.List_Monad.Impl#[A]2-
+
+îî !_empty_/Test.List_Monad.This#2:
+
+î"î #*_empty_/Test.List_Monad.Impl#flatMap().[B]2-
+
+î'î +_empty_/Test.List_Monad.This#2:
+
+î,î -*_empty_/Test.List_Monad.Impl#flatMap().[B]2:
+
+î8î ?*scala/collection/immutable/List#flatMap().22
+
+î1î 7"_empty_/Test.List_Monad.Impl#this.2:
+
+î@î A*_empty_/Test.List_Monad.Impl#flatMap().(f)2/
+
+ññ _empty_/Test.List_Monad.pure().22
+
+ññ "_empty_/Test.List_Monad.pure().[A]22
+
+ññ "_empty_/Test.List_Monad.pure().(x)22
+
+ññ "_empty_/Test.List_Monad.pure().[A]2-
+
+ññ _empty_/Test.List_Monad.This#22
+
+ññ "_empty_/Test.List_Monad.pure().[A]27
+
+ñ)ñ )'scala/collection/immutable/List#`::`().2"
+
+ñ&ñ )scala/package.Nil.22
+
+ñ!ñ ""_empty_/Test.List_Monad.pure().(x)21
+
+óó !_empty_/Test.List_Monad.inject().24
+
+óó $_empty_/Test.List_Monad.inject().[A]24
+
+óó $_empty_/Test.List_Monad.inject().(x)2#
+
+óó scala/package.List#24
+
+óó $_empty_/Test.List_Monad.inject().[A]2-
+
+óó #_empty_/Test.List_Monad.Impl#24
+
+ó$ó %$_empty_/Test.List_Monad.inject().[A]28
+
+ó4ó 4(_empty_/Test.List_Monad.Impl#`<init>`().2-
+
+ó-ó 1_empty_/Test.List_Monad.Impl#24
+
+ó2ó 3$_empty_/Test.List_Monad.inject().[A]24
+
+ó5ó 6$_empty_/Test.List_Monad.inject().(x)2!
+
+öö _empty_/Test.g().2$
+
+öö 	_empty_/Test.g().[F]2$
+
+öö _empty_/Test.g().[A]2$
+
+öö _empty_/Test.g().[B]2$
+
+öö _empty_/Test.g().(x)2$
+
+öö _empty_/Test.g().[A]2$
+
+öö _empty_/Test.g().(f)2$
+
+öö _empty_/Test.g().[A]2$
+
+ö"ö #_empty_/Test.g().[B]2%
+
+ö.ö 0_empty_/Test.g().(ev)2*
+
+ö8ö >_empty_/Test.Monad.Common#2#
+
+ö2ö 7_empty_/Test.Monad.2
+
+öFö Jlocal342
+
+öKö Llocal352$
+
+öPö Q_empty_/Test.g().[F]2
+
+öRö Slocal3521
+
+õ	õ !_empty_/Test.Functor.Common#This#2%
+
+õõ _empty_/Test.g().(ev)2$
+
+õõ _empty_/Test.g().[B]2)
+
+ú#ú &_empty_/Test.Monad#map().23
+
+úú #_empty_/Test.Monad.Common#inject().2%
+
+úú _empty_/Test.g().(ev)21
+
+úú !_empty_/Test.Monad.Common#pure().2(
+
+úú _empty_/Test.Monad.by().2#
+
+úú _empty_/Test.Monad.2$
+
+úú _empty_/Test.g().[F]2%
+
+úú _empty_/Test.g().(ev)2$
+
+úú  _empty_/Test.g().(x)2$
+
+ú'ú (_empty_/Test.g().(f)2!
+
+ûû _empty_/Test.h().2$
+
+ûû 	_empty_/Test.h().[F]2$
+
+ûû _empty_/Test.h().[A]2$
+
+ûû _empty_/Test.h().[B]2$
+
+ûû _empty_/Test.h().(x)2$
+
+ûû _empty_/Test.h().[A]2%
+
+û#û %_empty_/Test.h().(ev)2*
+
+û-û 3_empty_/Test.Monad.Common#2#
+
+û'û ,_empty_/Test.Monad.2
+
+û;û ?local362
+
+û@û Alocal372$
+
+ûEû F_empty_/Test.h().[F]2
+
+ûGû Hlocal372$
+
+üü _empty_/Test.h().[A]21
+
+üü !_empty_/Test.Functor.Common#This#2%
+
+üü _empty_/Test.h().(ev)2$
+
+üü _empty_/Test.h().[B]21
+
+üü "!_empty_/Test.Functor.Common#This#2%
+
+üü _empty_/Test.h().(ev)2$
+
+ü#ü $_empty_/Test.h().[B]2
+
+†† local382-
+
+†(† /_empty_/Test.Monad#flatMap().23
+
+†† #_empty_/Test.Monad.Common#inject().2%
+
+†	† _empty_/Test.h().(ev)21
+
+†† #!_empty_/Test.Monad.Common#pure().2(
+
+†† _empty_/Test.Monad.by().2#
+
+†† _empty_/Test.Monad.2$
+
+†† _empty_/Test.h().[F]2%
+
+†† _empty_/Test.h().(ev)2$
+
+†$† %_empty_/Test.h().(x)2
+
+†0† 1local382
+
+¢¢ _empty_/Test.r.2!
+
+¢
+¢ _empty_/Test.g().2#
+
+¢¢ scala/package.List#2%
+
+¢¢ #scala/Any#toString().2(
+
+¢$¢ $_empty_/Test.List_Monad.2*
+
+∞∞ _empty_/Test.$eq$gt_Monad#25
+
+∞∞ %_empty_/Test.$eq$gt_Monad#`<init>`().2*
+
+∞(∞ ._empty_/Test.Monad.Common#2#
+
+∞"∞ '_empty_/Test.Monad.2
+
+∞1∞ 5local392/
+
+∞∞ _empty_/Test.$eq$gt_Monad#[Ctx]2/
+
+±	± _empty_/Test.$eq$gt_Monad#This#22
+
+±± "_empty_/Test.$eq$gt_Monad#This#[A]2/
+
+±± _empty_/Test.$eq$gt_Monad#[Ctx]22
+
+±± "_empty_/Test.$eq$gt_Monad#This#[A]2/
+
+≤
+≤ _empty_/Test.$eq$gt_Monad#Impl#2:
+
+≤≤ *_empty_/Test.$eq$gt_Monad#Impl#`<init>`().2/
+
+≤≤ _empty_/Test.$eq$gt_Monad#This#22
+
+≤≤  "_empty_/Test.$eq$gt_Monad#Impl#[A]2#
+
+≤+≤ 0_empty_/Test.Monad#22
+
+≤1≤ 2"_empty_/Test.$eq$gt_Monad#Impl#[A]22
+
+≤≤ "_empty_/Test.$eq$gt_Monad#Impl#[A]24
+
+≤≤ $_empty_/Test.$eq$gt_Monad#Impl#this.26
+
+≥
+≥ &_empty_/Test.$eq$gt_Monad#Impl#common.2*
+
+≥≥ _empty_/Test.$eq$gt_Monad#2*
+
+≥≥ "_empty_/Test.$eq$gt_Monad#29
+
+¥
+¥ )_empty_/Test.$eq$gt_Monad#Impl#flatMap().2<
+
+¥¥ ,_empty_/Test.$eq$gt_Monad#Impl#flatMap().[B]2<
+
+¥¥ ,_empty_/Test.$eq$gt_Monad#Impl#flatMap().(f)22
+
+¥¥ "_empty_/Test.$eq$gt_Monad#Impl#[A]2/
+
+¥¥ !_empty_/Test.$eq$gt_Monad#This#2<
+
+¥"¥ #,_empty_/Test.$eq$gt_Monad#Impl#flatMap().[B]2/
+
+¥'¥ +_empty_/Test.$eq$gt_Monad#This#2<
+
+¥,¥ -,_empty_/Test.$eq$gt_Monad#Impl#flatMap().[B]2
+
+µµ local402(
+
+µµ scala/Function1#apply().2(
+
+µµ scala/Function1#apply().2<
+
+µµ ,_empty_/Test.$eq$gt_Monad#Impl#flatMap().(f)2(
+
+µµ scala/Function1#apply().24
+
+µµ $_empty_/Test.$eq$gt_Monad#Impl#this.2
+
+µµ local402
+
+µµ !local4021
+
+∑∑ !_empty_/Test.$eq$gt_Monad#pure().24
+
+∑∑ $_empty_/Test.$eq$gt_Monad#pure().[A]24
+
+∑∑ $_empty_/Test.$eq$gt_Monad#pure().(x)24
+
+∑∑ $_empty_/Test.$eq$gt_Monad#pure().[A]2/
+
+∑∑ _empty_/Test.$eq$gt_Monad#This#24
+
+∑∑ $_empty_/Test.$eq$gt_Monad#pure().[A]2
+
+∏∏ 	local4124
+
+∏∏ $_empty_/Test.$eq$gt_Monad#pure().(x)23
+
+ππ #_empty_/Test.$eq$gt_Monad#inject().26
+
+ππ &_empty_/Test.$eq$gt_Monad#inject().[A]26
+
+ππ &_empty_/Test.$eq$gt_Monad#inject().(x)2/
+
+ππ _empty_/Test.$eq$gt_Monad#This#26
+
+ππ &_empty_/Test.$eq$gt_Monad#inject().[A]2/
+
+ππ #_empty_/Test.$eq$gt_Monad#Impl#26
+
+π$π %&_empty_/Test.$eq$gt_Monad#inject().[A]2:
+
+π4π 4*_empty_/Test.$eq$gt_Monad#Impl#`<init>`().2/
+
+π-π 1_empty_/Test.$eq$gt_Monad#Impl#26
+
+π2π 3&_empty_/Test.$eq$gt_Monad#inject().[A]26
+
+π5π 6&_empty_/Test.$eq$gt_Monad#inject().(x)2,
+
+ºº _empty_/Test.$eq$gt_Monad().21
+
+ºº !_empty_/Test.$eq$gt_Monad().[Ctx]2*
+
+º"º ._empty_/Test.$eq$gt_Monad#21
+
+º/º 2!_empty_/Test.$eq$gt_Monad().[Ctx]25
+
+ºKº K%_empty_/Test.$eq$gt_Monad#`<init>`().2*
+
+º:º F_empty_/Test.$eq$gt_Monad#21
+
+ºGº J!_empty_/Test.$eq$gt_Monad().[Ctx]2!
+
+ææ _empty_/Test.g().20
+
+æ	æ 
+ _empty_/Test.`<local Test$>`.[X]2
+
+ææ 
+scala/Int#20
+
+ææ  _empty_/Test.`<local Test$>`.[X]2
+
+ææ local422
+
+æ æ #
+scala/Int#2
+
+æ+æ ,local432
+
+æ1æ 4local442
+
+æ6æ 9
+scala/Int#2+
+
+æ@æ Hscala/Function1#toString().2
+
+æ>æ ?local432,
+
+æIæ I_empty_/Test.$eq$gt_Monad().PZ 656F8E1CF089B6635F4D388601AE573B

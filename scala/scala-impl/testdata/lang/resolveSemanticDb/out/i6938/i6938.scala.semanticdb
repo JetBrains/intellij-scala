@@ -1,0 +1,62 @@
+
+€tests/pos/i6938.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo.
+ *Foo€*6
+_empty_/Foo.given_Foo_Tuple1#*given_Foo_Tuple1€*:
+(_empty_/Foo.given_Foo_Tuple1#`<init>`(). €@*<init>€**
+ _empty_/Foo.given_Foo_Tuple1#[T]	*T€*:
+_empty_/Foo.given_Foo_Tuple1(). (*given_Foo_Tuple1€*,
+"_empty_/Foo.given_Foo_Tuple1().[T]	*T€*0
+_empty_/Foo.given_Foo_T_U#*given_Foo_T_U€*7
+%_empty_/Foo.given_Foo_T_U#`<init>`(). €@*<init>€*'
+_empty_/Foo.given_Foo_T_U#[T]	*T€*'
+_empty_/Foo.given_Foo_T_U#[U]	*U€*4
+_empty_/Foo.given_Foo_T_U(). (*given_Foo_T_U€*)
+_empty_/Foo.given_Foo_T_U().[T]	*T€*)
+_empty_/Foo.given_Foo_T_U().[U]	*U€*4
+_empty_/Foo.given_Foo_T_U_V#*given_Foo_T_U_V€*9
+'_empty_/Foo.given_Foo_T_U_V#`<init>`(). €@*<init>€*)
+_empty_/Foo.given_Foo_T_U_V#[T]	*T€*)
+_empty_/Foo.given_Foo_T_U_V#[U]	*U€*)
+_empty_/Foo.given_Foo_T_U_V#[V]	*V€*8
+_empty_/Foo.given_Foo_T_U_V(). (*given_Foo_T_U_V€*+
+!_empty_/Foo.given_Foo_T_U_V().[T]	*T€*+
+!_empty_/Foo.given_Foo_T_U_V().[U]	*U€*+
+!_empty_/Foo.given_Foo_T_U_V().[V]	*V€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ 
+_empty_/Foo.2+
+ _empty_/Foo.given_Foo_Tuple1#26
+	 	(_empty_/Foo.given_Foo_Tuple1#`<init>`().2
+ _empty_/Foo#2
+ scala/Tuple1#2.
+  _empty_/Foo.given_Foo_Tuple1#[T]2.
+	 
+ _empty_/Foo.given_Foo_Tuple1#[T]2-
+ _empty_/Foo.given_Foo_Tuple1().2(
+ _empty_/Foo.given_Foo_T_U#23
+	 	%_empty_/Foo.given_Foo_T_U#`<init>`().2
+ _empty_/Foo#2+
+ _empty_/Foo.given_Foo_T_U#[T]2+
+ _empty_/Foo.given_Foo_T_U#[U]2+
+	 
+_empty_/Foo.given_Foo_T_U#[T]2+
+ _empty_/Foo.given_Foo_T_U#[U]2*
+ _empty_/Foo.given_Foo_T_U().2*
+ _empty_/Foo.given_Foo_T_U_V#25
+	 	'_empty_/Foo.given_Foo_T_U_V#`<init>`().2
+ _empty_/Foo#2-
+ _empty_/Foo.given_Foo_T_U_V#[T]2-
+ _empty_/Foo.given_Foo_T_U_V#[U]2-
+ _empty_/Foo.given_Foo_T_U_V#[V]2-
+	 
+_empty_/Foo.given_Foo_T_U_V#[T]2-
+ _empty_/Foo.given_Foo_T_U_V#[U]2-
+ _empty_/Foo.given_Foo_T_U_V#[V]2,
+ _empty_/Foo.given_Foo_T_U_V().PZ C8481F800040813DEEC47035CE4E9A06

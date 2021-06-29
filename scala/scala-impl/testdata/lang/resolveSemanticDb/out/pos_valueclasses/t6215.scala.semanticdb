@@ -1,0 +1,27 @@
+
+¹&tests/pos/pos_valueclasses/t6215.scala*
+
+t6215/Foo# *Foo€*'
+t6215/Foo#`<init>`(). €@*<init>€*%
+t6215/Foo#`<init>`().(v) €*v€*
+t6215/Foo#v. €*v€*
+t6215/Foo#len().*len€*
+t6215/Foo#f().*f€*
+
+t6215/Foo.
+ *Foo€2
+ t6215/2
+ 	
+t6215/Foo#2#
+	 	t6215/Foo#`<init>`().2"
+ scala/Predef.String#2&
+' 'scala/AnyVal#`<init>`().2
+! 'scala/AnyVal#2
+ t6215/Foo#v.2
+6 9t6215/Foo#len().2(
+> Djava/lang/String#length().2
+< =t6215/Foo#v.2
+K Lt6215/Foo#f().2
+O Rt6215/Foo#len().2
+ 
+t6215/Foo.PZ 8437E75C4339FAD980D4F4498DED2CB7

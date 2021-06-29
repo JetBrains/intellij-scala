@@ -1,0 +1,63 @@
+
+Ûtests/pos/t796.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.Twice.
+ *Twice€*)
+_empty_/Test.Twice.apply().*apply€*(
+_empty_/Test.Twice.apply().(x)*x€*-
+_empty_/Test.Twice.unapply().*unapply€**
+ _empty_/Test.Twice.unapply().(x)*x€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().(x)*x€*
+local0 €*y€2
+ _empty_/Test.2
+ 
+scala/App#2!
+
+	
+ _empty_/Test.Twice.2)
+ _empty_/Test.Twice.apply().2,
+ _empty_/Test.Twice.apply().(x)2
+ 
+scala/Int#2 
+ scala/Int#`*`(+3).2,
+ _empty_/Test.Twice.apply().(x)2+
+ _empty_/Test.Twice.unapply().2.
+  _empty_/Test.Twice.unapply().(x)2
+ 
+scala/Int#2
+ scala/Option#2
+  &scala/Tuple1#2
+' *
+scala/Int#2!
+ scala/Int#`==`(+3).2 
+ scala/Int#`%`(+3).2.
+
+  _empty_/Test.Twice.unapply().(x)2!
+ scala/Some.apply().2
+ scala/Some.2#
+! !scala/Tuple1.apply().2
+ !scala/Tuple1.2 
+$ %scala/Int#`/`(+3).2.
+" # _empty_/Test.Twice.unapply().(x)2
+ scala/None.2"
+ 
+_empty_/Test.test().2%
+ _empty_/Test.test().(x)2
+ 
+scala/Int#2%
+ _empty_/Test.test().(x)2+
+ _empty_/Test.Twice.unapply().2!
+	 _empty_/Test.Twice.2
+ local02%
+' (java/lang/String#`+`().2
+) *local02(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2"
+ _empty_/Test.test().2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2"
+ _empty_/Test.test().PZ 3F7E281690335C007A9EBB46075DBBD2

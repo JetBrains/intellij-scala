@@ -1,0 +1,59 @@
+
+åtests/pos/t7022.scala*
+_empty_/Catch#*Catch€*+
+_empty_/Catch#`<init>`(). €@*<init>€*
+_empty_/Catch#[T]	 €*T€*&
+_empty_/Catch#either().*either€*$
+_empty_/Catch#either().[U]	*U€**
+_empty_/Catch#either().(body)*body€*
+_empty_/Test.
+ *Test€*+
+_empty_/Test.RichCatch# *	RichCatch€*4
+"_empty_/Test.RichCatch#`<init>`(). €@*<init>€*2
+%_empty_/Test.RichCatch#`<init>`().(c) €*c€*$
+_empty_/Test.RichCatch#[T]	*T€*&
+_empty_/Test.RichCatch#c. €*c€*7
+$_empty_/Test.RichCatch#validation().*
+validation€*1
+'_empty_/Test.RichCatch#validation().[U]	*U€*1
+'_empty_/Test.RichCatch#validation().(u)*u€*+
+_empty_/Test.RichCatch.
+ *	RichCatch€*-
+_empty_/Test.RichCatch(). (*	RichCatch€*&
+_empty_/Test.RichCatch().[T]	*T€*&
+_empty_/Test.RichCatch().(c)*c€2
+ _empty_/Catch#2#
+ _empty_/Catch#`<init>`().2
+ _empty_/Catch#[T]2%
+ _empty_/Catch#either().2(
+ _empty_/Catch#either().[U]2
+ _empty_/Catch#[T]2+
+ _empty_/Catch#either().(body)2(
+  !_empty_/Catch#either().[U]2#
+$ *scala/package.Either#2&
++ 4scala/package.Throwable#2(
+6 7_empty_/Catch#either().[U]2#
+; >scala/Predef.`???`().2
+ _empty_/Test.2%
+ _empty_/Test.RichCatch#20
+ "_empty_/Test.RichCatch#`<init>`().2
+' ,_empty_/Catch#2(
+- ._empty_/Test.RichCatch#[T]2&
+? ?scala/AnyVal#`<init>`().2
+9 ?scala/AnyVal#2(
+ _empty_/Test.RichCatch#[T]2'
+$ %_empty_/Test.RichCatch#c.22
+
+ $_empty_/Test.RichCatch#validation().25
+ '_empty_/Test.RichCatch#validation().[U]2(
+ _empty_/Test.RichCatch#[T]25
+ '_empty_/Test.RichCatch#validation().(u)25
+# $'_empty_/Test.RichCatch#validation().[U]2#
+' -scala/package.Either#2&
+. 7scala/package.Throwable#25
+9 :'_empty_/Test.RichCatch#validation().[U]2%
+@ F_empty_/Catch#either().2'
+> ?_empty_/Test.RichCatch#c.25
+G H'_empty_/Test.RichCatch#validation().(u)2%
+ _empty_/Test.RichCatch.2'
+ _empty_/Test.RichCatch().PZ 34F28B491B5074598BE321C54971AC8C

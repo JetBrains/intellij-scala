@@ -1,0 +1,47 @@
+
+‘	tests/pos/t201.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#[a]	*a€*
+_empty_/C#f().*f€*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#[b]	*b€*
+_empty_/D#E#*E€*)
+_empty_/D#E#`<init>`(). €@*<init>€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.d. €*d€*
+_empty_/Test.e().*e€2
+ 
+_empty_/C#2
+ _empty_/C#`<init>`().2
+ 	_empty_/C#[a]2
+ _empty_/C#f().2
+ _empty_/C#[a]2
+ _empty_/C#f().2
+ 
+_empty_/D#2#
+ _empty_/D#`<init>`().2
+ 	_empty_/D#[b]2
+ _empty_/D#E#2%
+ _empty_/D#E#`<init>`().2#
+! !_empty_/C#`<init>`().2
+ 
+_empty_/C#2
+  _empty_/D#[b]2
+ _empty_/Test.2
+ _empty_/Test.d.2#
+ _empty_/D#`<init>`().2
+ 
+_empty_/D#2
+ 
+scala/Int#2
+ _empty_/Test.e().2%
+ _empty_/D#E#`<init>`().2
+ _empty_/D#E#2
+ _empty_/Test.d.2
+ _empty_/C#f().2
+ _empty_/Test.e().PZ F8D23815C40C8E12D827359DAA144386

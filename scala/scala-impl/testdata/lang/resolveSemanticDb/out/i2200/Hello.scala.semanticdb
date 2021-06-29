@@ -1,0 +1,33 @@
+
+òtests/pos/i2200/Hello.scala*
+bar/Fix#*Fix€*%
+bar/Fix#`<init>`(). €@*<init>€*(
+bar/Fix#`<init>`().(unfix)*unfix€*
+bar/Fix#[F]	*F€*
+bar/Fix#unfix. €*unfix€*
+bar/DocTree.
+ *DocTree€*&
+bar/DocTree.docTree().*docTree€*#
+bar/DocTree.docTree().(s)*s€2
+ bar/2)
+ !scala/language.higherKinds.2
+ scala/language.2
+ scala/2
+ 	bar/Fix#2!
+	 	bar/Fix#`<init>`().2
+ bar/Fix#[F]2
+ bar/Fix#2
+ bar/Fix#[F]2
+
+ bar/Fix#[F]2
+ bar/Fix#unfix.2
+ bar/DocTree.2$
+ bar/DocTree.docTree().2'
+ bar/DocTree.docTree().(s)2%
+ bar/package.StreamTree#2"
+ #bar/package.DocTree#2"
+' .bar/package.DocTree#2!
+8 8bar/Fix#`<init>`().2'
+9 :bar/DocTree.docTree().(s)2%
+< Fbar/package.StreamTree#2"
+G Nbar/package.DocTree#PZ 86F462E894984A05E6370A8A1BED4D74

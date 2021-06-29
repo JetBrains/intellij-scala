@@ -1,0 +1,53 @@
+
+Ð
+tests/pos/t1565.scala*"
+_empty_/Bug1565.
+ *Bug1565€*!
+_empty_/Bug1565.xs. €*xs€*
+local0*x€*
+local1*x€*
+local2*x€*
+local3*e€*
+local4 €*buf0€2
+ _empty_/Bug1565.2!
+ _empty_/Bug1565.xs.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+		 )scala/collection/immutable/List#filter().2!
+		 _empty_/Bug1565.xs.2
+		 local02 
+		 scala/Int#`<`(+3).2
+		 local027
+
+
+ )scala/collection/immutable/List#filter().2!
+
+
+ _empty_/Bug1565.xs.2
+
+
+ local12 
+
+
+ scala/Int#`<`(+3).2
+
+
+ local127
+ )scala/collection/immutable/List#filter().2!
+ _empty_/Bug1565.xs.2
+ local22 
+ scala/Int#`<`(+3).2
+ local227
+ )scala/collection/immutable/List#filter().2!
+ _empty_/Bug1565.xs.2 
+ scala/Int#`<`(+3).27
+ )scala/collection/immutable/List#filter().2!
+ _empty_/Bug1565.xs.2 
+ scala/Int#`<`(+3).28
+ *scala/collection/immutable/List#foreach().2!
+ _empty_/Bug1565.xs.2
+ local32
+ local42 
+ scala/Int#`+`(+4).2
+ local32
+ local4PZ C0981F6C94E91A8A1A3CE2634809A2C8

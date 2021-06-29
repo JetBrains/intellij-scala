@@ -1,0 +1,76 @@
+
+ëtests/pos/i1540.scala*
+_empty_/Casey1#*Casey1€*,
+_empty_/Casey1#`<init>`(). €@*<init>€**
+_empty_/Casey1#`<init>`().(a) €*a€*
+_empty_/Casey1#a. €*a€*)
+_empty_/Casey1#isEmpty().*isEmpty€*+
+_empty_/Casey1#isEmpty(+1).*isEmpty€*(
+_empty_/Casey1#isEmpty(+1).(x)*x€*!
+_empty_/Casey1#get().*get€*#
+_empty_/Casey1#get(+1).*get€*$
+_empty_/Casey1#get(+1).(x)*x€* 
+_empty_/Casey1.
+ *Casey1€*)
+_empty_/Casey1.unapply().*unapply€*&
+_empty_/Casey1.unapply().(a)*a€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local0 €*c€*
+local1 €*x€2
+ _empty_/Casey1#2$
+ _empty_/Casey1#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Casey1#a.2'
+ _empty_/Casey1#isEmpty().2
+ scala/Boolean#2)
+ _empty_/Casey1#isEmpty(+1).2,
+ _empty_/Casey1#isEmpty(+1).(x)2
+ 
+scala/Int#2
+ scala/Boolean#2#
+! $scala/Predef.`???`().2#
+ 	_empty_/Casey1#get().2
+ 
+scala/Int#2
+ _empty_/Casey1#a.2%
+ 	_empty_/Casey1#get(+1).2(
+
+ _empty_/Casey1#get(+1).(x)2
+ 
+scala/Int#2"
+ scala/Predef.String#2#
+ scala/Predef.`???`().2
+ _empty_/Casey1.2'
+ _empty_/Casey1.unapply().2*
+ _empty_/Casey1.unapply().(a)2
+ %_empty_/Casey1#2*
+) *_empty_/Casey1.unapply().(a)2
+ _empty_/Test.2"
+		 
+_empty_/Test.main().2(
+		 _empty_/Test.main().(args)2
+		 scala/Array#2"
+		 scala/Predef.String#2
+	!	 %scala/Unit#2(
+
+"
+ "_empty_/Casey1#`<init>`().2
+
+
+ "_empty_/Casey1#2
+
+
+ 	local02
+
+
+ local12&
+ 
+scala/Predef.assert(+1).2!
+ scala/Int#`==`(+3).2
+ local12#
+ _empty_/Casey1#get().2
+ local0PZ C300D1BDE3EEE5E6C985A8233D0BD6B1

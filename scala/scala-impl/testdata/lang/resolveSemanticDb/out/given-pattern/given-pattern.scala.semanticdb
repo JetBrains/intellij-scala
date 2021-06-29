@@ -1,0 +1,168 @@
+
+ÿ*tests/pos/given-pattern.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*+
+_empty_/Test#trySummon().*	trySummon€*&
+_empty_/Test#trySummon().[S]	*S€*&
+_empty_/Test#trySummon().[T]	*T€*&
+_empty_/Test#trySummon().(f)*f€*%
+_empty_/Test#setFor().*setFor€*#
+_empty_/Test#setFor().[T]	*T€*
+local0*x$1€*
+local1  *ord€*"
+local2  *given_Ordering_T€*
+_empty_/Test#f1().*f1€*
+_empty_/Test#f1().[T]	*T€*
+_empty_/Test#f1().(x)*x€*
+local3  *y€*
+_empty_/Test#f2().*f2€*
+_empty_/Test#f2().[T]	*T€*
+_empty_/Test#f2().(x)*x€*
+local4 €*xs€*
+local5*x$1€*
+local6  *y€*
+_empty_/Test#f3().*f3€*
+_empty_/Test#f3().[T]	*T€*
+_empty_/Test#f3().(x)*x€*"
+local7  *given_Ordering_T€*
+_empty_/Test#f4().*f4€*
+_empty_/Test#f4().[T]	*T€*
+_empty_/Test#f4().(x)*x€*
+local8 €*xs€*
+local9*x$1€*#
+local10  *given_Ordering_T€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().21
+% ,#scala/collection/immutable/TreeSet.21
+% ,#scala/collection/immutable/TreeSet#21
+. 5#scala/collection/immutable/HashSet.21
+. 5#scala/collection/immutable/HashSet#2)
+ #scala/collection/immutable/2
+ scala/collection/2
+	 scala/2#
+H Kscala/Predef.`???`().2'
+ "_empty_/Test#trySummon().2*
+# $_empty_/Test#trySummon().[S]2*
+& '_empty_/Test#trySummon().[T]2*
+) *_empty_/Test#trySummon().(f)2$
+, ;scala/PartialFunction#2*
+< =_empty_/Test#trySummon().[S]2*
+? @_empty_/Test#trySummon().[T]2*
+D E_empty_/Test#trySummon().[T]2$
+ _empty_/Test#setFor().2'
+ _empty_/Test#setFor().[T]2
+ scala/Predef.Set#2'
+ _empty_/Test#setFor().[T]2'
+! *_empty_/Test#trySummon().2
+ local02
+	 local12%
+ scala/package.Ordering#2'
+ _empty_/Test#setFor().[T]2>
+2 20scala/collection/immutable/TreeSet#`<init>`(+1).21
+( /#scala/collection/immutable/TreeSet#2'
+0 1_empty_/Test#setFor().[T]2
+2 2local12
+			 	local22%
+		 scala/package.Ordering#2'
+		 _empty_/Test#setFor().[T]2>
+	2	 20scala/collection/immutable/TreeSet#`<init>`(+1).21
+	(	 /#scala/collection/immutable/TreeSet#2'
+	0	 1_empty_/Test#setFor().[T]2
+	2	 2local22>
+
+2
+ 20scala/collection/immutable/HashSet#`<init>`(+1).21
+
+(
+ /#scala/collection/immutable/HashSet#2'
+
+0
+ 1_empty_/Test#setFor().[T]2 
+ _empty_/Test#f1().2#
+	 
+_empty_/Test#f1().[T]2#
+ _empty_/Test#f1().(x)2%
+ scala/package.Ordering#2#
+ _empty_/Test#f1().[T]2#
+ scala/Tuple2.apply().2#
+  _empty_/Test#f1().(x)2#
+" #_empty_/Test#f1().(x)2%
+
+ 
+scala/Tuple2.unapply().2
+
+ local32%
+ scala/package.Ordering#2#
+ _empty_/Test#f1().[T]2>
+5 50scala/collection/immutable/TreeSet#`<init>`(+1).21
++ 2#scala/collection/immutable/TreeSet#2#
+3 4_empty_/Test#f1().[T]2
+5 5local32 
+ _empty_/Test#f2().2#
+	 
+_empty_/Test#f2().[T]2#
+ _empty_/Test#f2().(x)2%
+ scala/package.Ordering#2#
+ _empty_/Test#f2().[T]2
+ 
+local427
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ _empty_/Test#f2().(x)2#
+ _empty_/Test#f2().(x)2#
+ _empty_/Test#f2().(x)24
+# #&scala/collection/immutable/List#map().2
+! #local42
+ local52
+ 	local62%
+ scala/package.Ordering#2#
+ _empty_/Test#f2().[T]2>
+ 0scala/collection/immutable/TreeSet#`<init>`(+1).21
+ #scala/collection/immutable/TreeSet#2#
+ _empty_/Test#f2().[T]2
+ local62 
+ _empty_/Test#f3().2#
+	 
+_empty_/Test#f3().[T]2#
+ _empty_/Test#f3().(x)2%
+ scala/package.Ordering#2#
+ _empty_/Test#f3().[T]2#
+ scala/Tuple2.apply().2#
+  _empty_/Test#f3().(x)2#
+" #_empty_/Test#f3().(x)2%
+
+ 
+scala/Tuple2.unapply().2
+
+ 
+local72%
+ scala/package.Ordering#2#
+ _empty_/Test#f3().[T]2>
+1 10scala/collection/immutable/TreeSet#`<init>`(+1).21
+' .#scala/collection/immutable/TreeSet#2#
+/ 0_empty_/Test#f3().[T]2
+1 1local72 
+ _empty_/Test#f4().2#
+	 
+_empty_/Test#f4().[T]2#
+ _empty_/Test#f4().(x)2%
+ scala/package.Ordering#2#
+ _empty_/Test#f4().[T]2
+ 
+local827
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2#
+ _empty_/Test#f4().(x)2#
+ _empty_/Test#f4().(x)2#
+ _empty_/Test#f4().(x)24
+ &scala/collection/immutable/List#map().2
+ local82
+ local92
+ local102%
+ scala/package.Ordering#2#
+ _empty_/Test#f4().[T]2>
+ 0scala/collection/immutable/TreeSet#`<init>`(+1).21
+ #scala/collection/immutable/TreeSet#2#
+ _empty_/Test#f4().[T]2
+ local10PZ 02DBD90A86D98CE9A197E85665C45499

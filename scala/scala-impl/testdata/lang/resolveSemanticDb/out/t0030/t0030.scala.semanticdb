@@ -1,0 +1,42 @@
+
+£tests/pos/t0030.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#f(). *f€*
+_empty_/A#f().(x)*x€*
+_empty_/A#f(+1). *f€*
+_empty_/A#f(+1).(x)*x€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#f().*f€*
+_empty_/B#f().(x)*x€*
+_empty_/B#f(+1).*f€*
+_empty_/B#f(+1).(x)*x€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ _empty_/A#f().2
+ 	_empty_/A#f().(x)2
+ 
+scala/Int#2
+ scala/Unit#2
+ _empty_/A#f(+1).2!
+ 	_empty_/A#f(+1).(x)2"
+ scala/Predef.String#2
+ scala/Unit#2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/A#2
+ _empty_/B#f().2
+ 	_empty_/B#f().(x)2
+ 
+scala/Int#2
+ scala/Unit#2
+ _empty_/B#f(+1).2!
+ 	_empty_/B#f(+1).(x)2"
+ scala/Predef.String#2
+ scala/Unit#PZ 05AD2EAA8A0AB9DDF6C7307CB7928E64

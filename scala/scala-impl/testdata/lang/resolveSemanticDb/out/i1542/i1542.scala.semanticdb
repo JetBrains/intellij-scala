@@ -1,0 +1,653 @@
+
+ë^tests/pos/i1542.scala*
+_empty_/Bar#*BarÄ*)
+_empty_/Bar#`<init>`(). Ä@*<init>Ä*
+_empty_/Bar#foo().*fooÄ*!
+_empty_/Bar#foo().(p1)*p1Ä*!
+_empty_/Bar#foo().(p2)*p2Ä*!
+_empty_/Bar#foo().(p3)*p3Ä*!
+_empty_/Bar#foo().(p4)*p4Ä*!
+_empty_/Bar#foo().(p5)*p5Ä*!
+_empty_/Bar#foo().(p6)*p6Ä*!
+_empty_/Bar#foo().(p7)*p7Ä*!
+_empty_/Bar#foo().(p8)*p8Ä*!
+_empty_/Bar#foo().(p9)*p9Ä*#
+_empty_/Bar#foo().(p10)*p10Ä*#
+_empty_/Bar#foo().(p11)*p11Ä*#
+_empty_/Bar#foo().(p12)*p12Ä*#
+_empty_/Bar#foo().(p13)*p13Ä*#
+_empty_/Bar#foo().(p14)*p14Ä*#
+_empty_/Bar#foo().(p15)*p15Ä*#
+_empty_/Bar#foo().(p16)*p16Ä*#
+_empty_/Bar#foo().(p17)*p17Ä*#
+_empty_/Bar#foo().(p18)*p18Ä*#
+_empty_/Bar#foo().(p19)*p19Ä*#
+_empty_/Bar#foo().(p20)*p20Ä*#
+_empty_/Bar#foo().(p21)*p21Ä*#
+_empty_/Bar#foo().(p22)*p22Ä*#
+_empty_/Bar#foo().(p23)*p23Ä*#
+_empty_/Bar#foo().(p24)*p24Ä*#
+_empty_/Bar#foo().(p25)*p25Ä*#
+_empty_/Bar#foo().(p26)*p26Ä*#
+_empty_/Bar#foo().(p27)*p27Ä*#
+_empty_/Bar#foo().(p28)*p28Ä*#
+_empty_/Bar#foo().(p29)*p29Ä*#
+_empty_/Bar#foo().(p30)*p30Ä*#
+_empty_/Bar#foo().(p31)*p31Ä*#
+_empty_/Bar#foo().(p32)*p32Ä*#
+_empty_/Bar#foo().(p33)*p33Ä*#
+_empty_/Bar#foo().(p34)*p34Ä*#
+_empty_/Bar#foo().(p35)*p35Ä*#
+_empty_/Bar#foo().(p36)*p36Ä*#
+_empty_/Bar#foo().(p37)*p37Ä*#
+_empty_/Bar#foo().(p38)*p38Ä*#
+_empty_/Bar#foo().(p39)*p39Ä*#
+_empty_/Bar#foo().(p40)*p40Ä*#
+_empty_/Bar#foo().(p41)*p41Ä*#
+_empty_/Bar#foo().(p42)*p42Ä*#
+_empty_/Bar#foo().(p43)*p43Ä*#
+_empty_/Bar#foo().(p44)*p44Ä*#
+_empty_/Bar#foo().(p45)*p45Ä*#
+_empty_/Bar#foo().(p46)*p46Ä*#
+_empty_/Bar#foo().(p47)*p47Ä*#
+_empty_/Bar#foo().(p48)*p48Ä*#
+_empty_/Bar#foo().(p49)*p49Ä*#
+_empty_/Bar#foo().(p50)*p50Ä*#
+_empty_/Bar#foo().(p51)*p51Ä*#
+_empty_/Bar#foo().(p52)*p52Ä*#
+_empty_/Bar#foo().(p53)*p53Ä*#
+_empty_/Bar#foo().(p54)*p54Ä*#
+_empty_/Bar#foo().(p55)*p55Ä*#
+_empty_/Bar#foo().(p56)*p56Ä*#
+_empty_/Bar#foo().(p57)*p57Ä*#
+_empty_/Bar#foo().(p58)*p58Ä*#
+_empty_/Bar#foo().(p59)*p59Ä*#
+_empty_/Bar#foo().(p60)*p60Ä*#
+_empty_/Bar#foo().(p61)*p61Ä*#
+_empty_/Bar#foo().(p62)*p62Ä*#
+_empty_/Bar#foo().(p63)*p63Ä*#
+_empty_/Bar#foo().(p64)*p64Ä*#
+_empty_/Bar#foo().(p65)*p65Ä*#
+_empty_/Bar#foo().(p66)*p66Ä*#
+_empty_/Bar#foo().(p67)*p67Ä*#
+_empty_/Bar#foo().(p68)*p68Ä*#
+_empty_/Bar#foo().(p69)*p69Ä*#
+_empty_/Bar#foo().(p70)*p70Ä*#
+_empty_/Bar#foo().(p71)*p71Ä*#
+_empty_/Bar#foo().(p72)*p72Ä*#
+_empty_/Bar#foo().(p73)*p73Ä*#
+_empty_/Bar#foo().(p74)*p74Ä*#
+_empty_/Bar#foo().(p75)*p75Ä*#
+_empty_/Bar#foo().(p76)*p76Ä*#
+_empty_/Bar#foo().(p77)*p77Ä*#
+_empty_/Bar#foo().(p78)*p78Ä*#
+_empty_/Bar#foo().(p79)*p79Ä*#
+_empty_/Bar#foo().(p80)*p80Ä*#
+_empty_/Bar#foo().(p81)*p81Ä*#
+_empty_/Bar#foo().(p82)*p82Ä*#
+_empty_/Bar#foo().(p83)*p83Ä*#
+_empty_/Bar#foo().(p84)*p84Ä*#
+_empty_/Bar#foo().(p85)*p85Ä*#
+_empty_/Bar#foo().(p86)*p86Ä*#
+_empty_/Bar#foo().(p87)*p87Ä*#
+_empty_/Bar#foo().(p88)*p88Ä*#
+_empty_/Bar#foo().(p89)*p89Ä*#
+_empty_/Bar#foo().(p90)*p90Ä*#
+_empty_/Bar#foo().(p91)*p91Ä*#
+_empty_/Bar#foo().(p92)*p92Ä*#
+_empty_/Bar#foo().(p93)*p93Ä*#
+_empty_/Bar#foo().(p94)*p94Ä*#
+_empty_/Bar#foo().(p95)*p95Ä*#
+_empty_/Bar#foo().(p96)*p96Ä*#
+_empty_/Bar#foo().(p97)*p97Ä*#
+_empty_/Bar#foo().(p98)*p98Ä*#
+_empty_/Bar#foo().(p99)*p99Ä*%
+_empty_/Bar#foo().(p100)*p100Ä*%
+_empty_/Bar#foo().(p101)*p101Ä*%
+_empty_/Bar#foo().(p102)*p102Ä*%
+_empty_/Bar#foo().(p103)*p103Ä*%
+_empty_/Bar#foo().(p104)*p104Ä*%
+_empty_/Bar#foo().(p105)*p105Ä*%
+_empty_/Bar#foo().(p106)*p106Ä*%
+_empty_/Bar#foo().(p107)*p107Ä*%
+_empty_/Bar#foo().(p108)*p108Ä*%
+_empty_/Bar#foo().(p109)*p109Ä*%
+_empty_/Bar#foo().(p110)*p110Ä*%
+_empty_/Bar#foo().(p111)*p111Ä2
+ 	_empty_/Bar#2%
+ _empty_/Bar#`<init>`().2 
+ 	_empty_/Bar#foo().2$
+
+ _empty_/Bar#foo().(p1)2
+ 
+scala/Int#2$
+ _empty_/Bar#foo().(p2)2
+ 
+scala/Int#2$
+ _empty_/Bar#foo().(p3)2
+  #
+scala/Int#2$
+% '_empty_/Bar#foo().(p4)2
+) ,
+scala/Int#2$
+. 0_empty_/Bar#foo().(p5)2
+2 5
+scala/Int#2$
+7 9_empty_/Bar#foo().(p6)2
+; >
+scala/Int#2$
+@ B_empty_/Bar#foo().(p7)2
+D G
+scala/Int#2$
+I K_empty_/Bar#foo().(p8)2
+M P
+scala/Int#2$
+R T_empty_/Bar#foo().(p9)2
+V Y
+scala/Int#2%
+[ ^_empty_/Bar#foo().(p10)2
+` c
+scala/Int#2%
+e h_empty_/Bar#foo().(p11)2
+j m
+scala/Int#2%
+o r_empty_/Bar#foo().(p12)2
+t w
+scala/Int#2%
+y |_empty_/Bar#foo().(p13)2
+	~ Å
+scala/Int#2'
+
+É Ü_empty_/Bar#foo().(p14)2
+
+à ã
+scala/Int#2'
+
+ç ê_empty_/Bar#foo().(p15)2
+
+í ï
+scala/Int#2'
+
+ó ö_empty_/Bar#foo().(p16)2
+
+ú ü
+scala/Int#2'
+
+° §_empty_/Bar#foo().(p17)2
+
+¶ ©
+scala/Int#2'
+
+´ Æ_empty_/Bar#foo().(p18)2
+
+∞ ≥
+scala/Int#2'
+
+µ ∏_empty_/Bar#foo().(p19)2
+
+∫ Ω
+scala/Int#2'
+
+ø ¬_empty_/Bar#foo().(p20)2
+
+ƒ «
+scala/Int#2'
+
+… Ã_empty_/Bar#foo().(p21)2
+
+Œ —
+scala/Int#2'
+
+” ÷_empty_/Bar#foo().(p22)2
+
+ÿ €
+scala/Int#2'
+
+› ‡_empty_/Bar#foo().(p23)2
+
+‚ Â
+scala/Int#2'
+
+Á Í_empty_/Bar#foo().(p24)2
+
+Ï Ô
+scala/Int#2'
+
+Ò Ù_empty_/Bar#foo().(p25)2
+
+ˆ ˘
+scala/Int#2'
+
+˚ ˛_empty_/Bar#foo().(p26)2
+
+Ä É
+scala/Int#2'
+
+Ö à_empty_/Bar#foo().(p27)2
+
+ä ç
+scala/Int#2'
+
+è í_empty_/Bar#foo().(p28)2
+
+î ó
+scala/Int#2'
+
+ô ú_empty_/Bar#foo().(p29)2
+
+û °
+scala/Int#2'
+
+£ ¶_empty_/Bar#foo().(p30)2
+
+® ´
+scala/Int#2'
+
+≠ ∞_empty_/Bar#foo().(p31)2
+
+≤ µ
+scala/Int#2'
+
+∑ ∫_empty_/Bar#foo().(p32)2
+
+º ø
+scala/Int#2'
+
+¡ ƒ_empty_/Bar#foo().(p33)2
+
+∆ …
+scala/Int#2'
+
+À Œ_empty_/Bar#foo().(p34)2
+
+– ”
+scala/Int#2'
+
+’ ÿ_empty_/Bar#foo().(p35)2
+
+⁄ ›
+scala/Int#2'
+
+ﬂ ‚_empty_/Bar#foo().(p36)2
+
+‰ Á
+scala/Int#2'
+
+È Ï_empty_/Bar#foo().(p37)2
+
+Ó Ò
+scala/Int#2'
+
+Û ˆ_empty_/Bar#foo().(p38)2
+
+¯ ˚
+scala/Int#2'
+
+˝ Ä_empty_/Bar#foo().(p39)2
+
+Ç Ö
+scala/Int#2'
+
+á ä_empty_/Bar#foo().(p40)2
+
+å è
+scala/Int#2'
+
+ë î_empty_/Bar#foo().(p41)2
+
+ñ ô
+scala/Int#2'
+
+õ û_empty_/Bar#foo().(p42)2
+
+† £
+scala/Int#2'
+
+• ®_empty_/Bar#foo().(p43)2
+
+™ ≠
+scala/Int#2'
+
+Ø ≤_empty_/Bar#foo().(p44)2
+
+¥ ∑
+scala/Int#2'
+
+π º_empty_/Bar#foo().(p45)2
+
+æ ¡
+scala/Int#2'
+
+√ ∆_empty_/Bar#foo().(p46)2
+
+» À
+scala/Int#2'
+
+Õ –_empty_/Bar#foo().(p47)2
+
+“ ’
+scala/Int#2'
+
+◊ ⁄_empty_/Bar#foo().(p48)2
+
+‹ ﬂ
+scala/Int#2'
+
+· ‰_empty_/Bar#foo().(p49)2
+
+Ê È
+scala/Int#2'
+
+Î Ó_empty_/Bar#foo().(p50)2
+
+ Û
+scala/Int#2'
+
+ı ¯_empty_/Bar#foo().(p51)2
+
+˙ ˝
+scala/Int#2'
+
+ˇ Ç_empty_/Bar#foo().(p52)2
+
+Ñ á
+scala/Int#2'
+
+â å_empty_/Bar#foo().(p53)2
+
+é ë
+scala/Int#2'
+
+ì ñ_empty_/Bar#foo().(p54)2
+
+ò õ
+scala/Int#2'
+
+ù †_empty_/Bar#foo().(p55)2
+
+¢ •
+scala/Int#2'
+
+ß ™_empty_/Bar#foo().(p56)2
+
+¨ Ø
+scala/Int#2'
+
+± ¥_empty_/Bar#foo().(p57)2
+
+∂ π
+scala/Int#2'
+
+ª æ_empty_/Bar#foo().(p58)2
+
+¿ √
+scala/Int#2'
+
+≈ »_empty_/Bar#foo().(p59)2
+
+  Õ
+scala/Int#2'
+
+œ “_empty_/Bar#foo().(p60)2
+
+‘ ◊
+scala/Int#2'
+
+Ÿ ‹_empty_/Bar#foo().(p61)2
+
+ﬁ ·
+scala/Int#2'
+
+„ Ê_empty_/Bar#foo().(p62)2
+
+Ë Î
+scala/Int#2'
+
+Ì _empty_/Bar#foo().(p63)2
+
+Ú ı
+scala/Int#2'
+
+˜ ˙_empty_/Bar#foo().(p64)2
+
+¸ ˇ
+scala/Int#2'
+
+Å Ñ_empty_/Bar#foo().(p65)2
+
+Ü â
+scala/Int#2'
+
+ã é_empty_/Bar#foo().(p66)2
+
+ê ì
+scala/Int#2'
+
+ï ò_empty_/Bar#foo().(p67)2
+
+ö ù
+scala/Int#2'
+
+ü ¢_empty_/Bar#foo().(p68)2
+
+§ ß
+scala/Int#2'
+
+© ¨_empty_/Bar#foo().(p69)2
+
+Æ ±
+scala/Int#2'
+
+≥ ∂_empty_/Bar#foo().(p70)2
+
+∏ ª
+scala/Int#2'
+
+Ω ¿_empty_/Bar#foo().(p71)2
+
+¬ ≈
+scala/Int#2'
+
+«  _empty_/Bar#foo().(p72)2
+
+Ã œ
+scala/Int#2'
+
+— ‘_empty_/Bar#foo().(p73)2
+
+÷ Ÿ
+scala/Int#2'
+
+€ ﬁ_empty_/Bar#foo().(p74)2
+
+‡ „
+scala/Int#2'
+
+Â Ë_empty_/Bar#foo().(p75)2
+
+Í Ì
+scala/Int#2'
+
+Ô Ú_empty_/Bar#foo().(p76)2
+
+Ù ˜
+scala/Int#2'
+
+˘ ¸_empty_/Bar#foo().(p77)2
+
+˛ Å
+scala/Int#2'
+
+É Ü_empty_/Bar#foo().(p78)2
+
+à ã
+scala/Int#2'
+
+ç ê_empty_/Bar#foo().(p79)2
+
+í ï
+scala/Int#2'
+
+ó ö_empty_/Bar#foo().(p80)2
+
+ú ü
+scala/Int#2'
+
+° §_empty_/Bar#foo().(p81)2
+
+¶ ©
+scala/Int#2'
+
+´ Æ_empty_/Bar#foo().(p82)2
+
+∞ ≥
+scala/Int#2'
+
+µ ∏_empty_/Bar#foo().(p83)2
+
+∫ Ω
+scala/Int#2'
+
+ø ¬_empty_/Bar#foo().(p84)2
+
+ƒ «
+scala/Int#2'
+
+… Ã_empty_/Bar#foo().(p85)2
+
+Œ —
+scala/Int#2'
+
+” ÷_empty_/Bar#foo().(p86)2
+
+ÿ €
+scala/Int#2'
+
+› ‡_empty_/Bar#foo().(p87)2
+
+‚ Â
+scala/Int#2'
+
+Á Í_empty_/Bar#foo().(p88)2
+
+Ï Ô
+scala/Int#2'
+
+Ò Ù_empty_/Bar#foo().(p89)2
+
+ˆ ˘
+scala/Int#2'
+
+˚ ˛_empty_/Bar#foo().(p90)2
+
+Ä É
+scala/Int#2'
+
+Ö à_empty_/Bar#foo().(p91)2
+
+ä ç
+scala/Int#2'
+
+è í_empty_/Bar#foo().(p92)2
+
+î ó
+scala/Int#2'
+
+ô ú_empty_/Bar#foo().(p93)2
+
+û °
+scala/Int#2'
+
+£ ¶_empty_/Bar#foo().(p94)2
+
+® ´
+scala/Int#2'
+
+≠ ∞_empty_/Bar#foo().(p95)2
+
+≤ µ
+scala/Int#2'
+
+∑ ∫_empty_/Bar#foo().(p96)2
+
+º ø
+scala/Int#2'
+
+¡ ƒ_empty_/Bar#foo().(p97)2
+
+∆ …
+scala/Int#2'
+
+À Œ_empty_/Bar#foo().(p98)2
+
+– ”
+scala/Int#2'
+
+’ ÿ_empty_/Bar#foo().(p99)2
+
+⁄ ›
+scala/Int#2(
+
+ﬂ „_empty_/Bar#foo().(p100)2
+
+Â Ë
+scala/Int#2(
+
+Í Ó_empty_/Bar#foo().(p101)2
+
+ Û
+scala/Int#2(
+
+ı ˘_empty_/Bar#foo().(p102)2
+
+˚ ˛
+scala/Int#2(
+
+Ä Ñ_empty_/Bar#foo().(p103)2
+
+Ü â
+scala/Int#2(
+
+ã è_empty_/Bar#foo().(p104)2
+
+ë î
+scala/Int#2(
+
+ñ ö_empty_/Bar#foo().(p105)2
+
+ú ü
+scala/Int#2(
+
+° •_empty_/Bar#foo().(p106)2
+
+ß ™
+scala/Int#2(
+
+¨ ∞_empty_/Bar#foo().(p107)2
+
+≤ µ
+scala/Int#2(
+
+∑ ª_empty_/Bar#foo().(p108)2
+
+Ω ¿
+scala/Int#2(
+
+¬ ∆_empty_/Bar#foo().(p109)2
+
+» À
+scala/Int#2(
+
+Õ —_empty_/Bar#foo().(p110)2
+
+” ÷
+scala/Int#2(
+
+ÿ ‹_empty_/Bar#foo().(p111)2
+
+ﬁ ·
+scala/Int#2
+
+‰ Á
+scala/Int#2 
+ _empty_/Bar#foo().PZ 2ECD2FDE07145FF11255A9A7D01E4803

@@ -1,0 +1,81 @@
+
+û'tests/pos/pos_valueclasses/t6260a.scala*
+t6260a/Option# *Option€*+
+t6260a/Option#`<init>`(). €@*<init>€*1
+ t6260a/Option#`<init>`().(value) €*value€*
+t6260a/Option#[A]	 €*A€*%
+t6260a/Option#value. €*value€*
+t6260a/Option.
+ *Option€*
+t6260a/Foo# *Foo€*(
+t6260a/Foo#`<init>`(). €@*<init>€*
+t6260a/Foo#[A]	*A€*
+t6260a/Foo#f(). *f€*
+t6260a/Bar#*Bar€*(
+t6260a/Bar#`<init>`(). €@*<init>€*
+t6260a/Bar#[A]	*A€*
+t6260a/Bar#f().*f€*!
+t6260a/Wrapper# *Wrapper€*,
+t6260a/Wrapper#`<init>`(). €@*<init>€*2
+!t6260a/Wrapper#`<init>`().(value) €*value€*&
+t6260a/Wrapper#value. €*value€*!
+t6260a/Wrapper.
+ *Wrapper€*
+t6260a/Test# *Test€*)
+t6260a/Test#`<init>`(). €@*<init>€*$
+t6260a/Test#check(). *check€*%
+t6260a/Test#check().(the)*the€*
+	t6260a/T.
+ *T€*
+local0 *$anon€*
+local1*check€*
+local2*the€2
+ t6260a/2
+ t6260a/Option#2'
+ t6260a/Option#`<init>`().2
+" #t6260a/Option#[A]2&
+3 3scala/AnyVal#`<init>`().2
+- 3scala/AnyVal#2
+ t6260a/Option#[A]2"
+  t6260a/Option#value.2
+ t6260a/Option.2
+ t6260a/Foo#2$
+ t6260a/Foo#`<init>`().2
+ t6260a/Foo#[A]2
++ ,t6260a/Foo#f().2
+0 6t6260a/Option#2
+7 8t6260a/Foo#[A]2
+ t6260a/Bar#2$
+ t6260a/Bar#`<init>`().2$
+$ $t6260a/Foo#`<init>`().2
+ !t6260a/Foo#2
+" #t6260a/Bar#[A]2
+ t6260a/Bar#[A]2
++ ,t6260a/Bar#f().2
+0 6t6260a/Option#2
+7 8t6260a/Bar#[A]2#
+< ?scala/Predef.`???`().2
+ t6260a/Wrapper#2(
+ t6260a/Wrapper#`<init>`().2
+ 
+scala/Int#2&
+, ,scala/AnyVal#`<init>`().2
+& ,scala/AnyVal#2#
+ t6260a/Wrapper#value.2
+ t6260a/Wrapper.2
+ t6260a/Test#2%
+ t6260a/Test#`<init>`().2"
+ t6260a/Test#check().2'
+  #t6260a/Test#check().(the)2
+% ,t6260a/Wrapper#2
+/ 6scala/Boolean#2
+ 	t6260a/T.2
+ local02%
+
+ 
+t6260a/Test#`<init>`().2
+ 
+t6260a/Test#2
+ local12
+ local22
+ #t6260a/Wrapper#PZ 36F128ED9FEEAC796D0ED471E2A448B8

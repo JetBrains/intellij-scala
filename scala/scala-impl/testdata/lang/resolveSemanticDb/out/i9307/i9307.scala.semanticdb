@@ -1,0 +1,43 @@
+
+¯tests/pos/i9307.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*#
+_empty_/Foo#foo1(). €*foo1€*#
+_empty_/Foo#foo2(). €*foo2€*#
+_empty_/Foo#foo3(). €*foo3€*#
+_empty_/Foo#foo4(). €*foo4€*#
+_empty_/Foo#foo5(). €*foo5€*#
+_empty_/Foo#foo6(). €*foo6€2<
+  2scala/compiletime/package$package.uninitialized().2
+ scala/compiletime/2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2!
+ _empty_/Foo#foo1().2
+ 
+scala/Int#2@
+ '2scala/compiletime/package$package.uninitialized().2!
+ _empty_/Foo#foo2().2
+ scala/Array#2
+ 
+scala/Int#2@
+! .2scala/compiletime/package$package.uninitialized().2!
+ _empty_/Foo#foo3().2
+ scala/Array#2
+  #
+scala/Int#2@
+' 42scala/compiletime/package$package.uninitialized().2!
+ _empty_/Foo#foo4().2
+ scala/Array#2
+  java/lang/Object#2@
+$ 12scala/compiletime/package$package.uninitialized().2!
+ _empty_/Foo#foo5().2
+ scala/Array#2
+ scala/Array#2
+  #
+scala/Int#2@
+( 52scala/compiletime/package$package.uninitialized().2!
+ _empty_/Foo#foo6().2!
+ scala/package.List#2
+ 
+scala/Int#2@
+  -2scala/compiletime/package$package.uninitialized().PZ 344D8078933819651D1EC0DBA4A7D872

@@ -1,0 +1,48 @@
+
+¡
+&tests/pos/pos_valueclasses/t8011.scala*$
+t8011/ThingOps1# *	ThingOps1€*-
+t8011/ThingOps1#`<init>`(). €@*<init>€*+
+t8011/ThingOps1#`<init>`().(x) €*x€*
+t8011/ThingOps1#x. €*x€* 
+t8011/ThingOps1#fn().*fn€*"
+t8011/ThingOps1#fn().[A]	*A€*
+local0 *$anon€*
+local1*foo€*
+local2*a€*$
+t8011/ThingOps1.
+ *	ThingOps1€*
+t8011/X#*X€*%
+t8011/X#`<init>`(). €@*<init>€*
+t8011/X#[B]	*B€*
+t8011/X#foo(). *foo€*
+t8011/X#foo().(a)*a€2
+ t8011/2
+ t8011/ThingOps1#2)
+ t8011/ThingOps1#`<init>`().2"
+ scala/Predef.String#2&
+- -scala/AnyVal#`<init>`().2
+' -scala/AnyVal#2 
+ t8011/ThingOps1#x.2#
+ t8011/ThingOps1#fn().2&
+	 
+t8011/ThingOps1#fn().[A]2
+ 
+scala/Any#2
+ local02
+ 	t8011/X#2&
+
+ t8011/ThingOps1#fn().[A]2
+ local12
+ local22&
+ t8011/ThingOps1#fn().[A]2
+  local22
+ t8011/ThingOps1.2
+		 t8011/X#2!
+		 t8011/X#`<init>`().2
+		 	t8011/X#[B]2
+		 t8011/X#foo().2
+		 t8011/X#foo().(a)2
+		 t8011/X#[B]2
+		 
+scala/Any#PZ 53ADBD7E6AFB21D03C7715BC19580B0A

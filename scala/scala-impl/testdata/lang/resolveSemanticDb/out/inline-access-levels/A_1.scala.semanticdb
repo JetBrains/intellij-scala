@@ -1,0 +1,27 @@
+
+Ÿ(tests/pos/inline-access-levels/A_1.scala*
+test/A.
+ *A€*
+test/A.x(). €*x€*
+test/A.actOnX().*actOnX€*
+test/A.actOnX().(f)*f€*#
+test/A.inline$x().*inline$x€*)
+test/A.`inline$x_=`().*
+inline$x_=€*'
+test/A.`inline$x_=`().(x$0)*x$0€2
+ test/2
+ test/A.2
+ test/A.x().2
+ 
+scala/Int#2
+ test/A.actOnX().2!
+ test/A.actOnX().(f)2
+ 
+scala/Int#2
+ !
+scala/Int#2$
+ test/A.`inline$x_=`().2&
+	 	scala/Function1#apply().2!
+ 	test/A.actOnX().(f)2 
+
+ test/A.inline$x().PZ 0D56A11F583F8769E17D5722A1C39070

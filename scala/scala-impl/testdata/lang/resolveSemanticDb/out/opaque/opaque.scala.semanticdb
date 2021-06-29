@@ -1,0 +1,174 @@
+
+ñ1tests/pos/opaque.scala**
+_empty_/opaquetypes.
+ *opaquetypes€*0
+_empty_/opaquetypes.Logarithm#*	Logarithm€*2
+_empty_/opaquetypes.Logarithm.
+ *	Logarithm€*4
+&_empty_/opaquetypes.Logarithm.apply().*apply€*3
+)_empty_/opaquetypes.Logarithm.apply().(d)*d€*2
+%_empty_/opaquetypes.Logarithm.safe().*safe€*2
+(_empty_/opaquetypes.Logarithm.safe().(d)*d€*:
+)_empty_/opaquetypes.Logarithm.exponent().*exponent€*6
+,_empty_/opaquetypes.Logarithm.exponent().(l)*l€*8
+!_empty_/opaquetypes.LogarithmOps# *LogarithmOps€*>
+,_empty_/opaquetypes.LogarithmOps#`<init>`(). €@*<init>€*B
+2_empty_/opaquetypes.LogarithmOps#`<init>`().(this) €*this€*6
+&_empty_/opaquetypes.LogarithmOps#this. €*this€*=
+,_empty_/opaquetypes.LogarithmOps#toDouble().*toDouble€*1
+'_empty_/opaquetypes.LogarithmOps#`+`().*+€*:
+-_empty_/opaquetypes.LogarithmOps#`+`().(that)*that€*1
+'_empty_/opaquetypes.LogarithmOps#`*`().**€*:
+-_empty_/opaquetypes.LogarithmOps#`*`().(that)*that€*8
+!_empty_/opaquetypes.LogarithmOps.
+ *LogarithmOps€*:
+#_empty_/opaquetypes.LogarithmOps(). (*LogarithmOps€*6
+)_empty_/opaquetypes.LogarithmOps().(this)*this€*%
+_empty_/opaquetypes.LL. €*LL€*$
+_empty_/usesites.
+ *usesites€* 
+_empty_/usesites.l. €*l€*"
+_empty_/usesites.l2. €*l2€*"
+_empty_/usesites.l3. €*l3€*"
+_empty_/usesites.l4. €*l4€* 
+_empty_/usesites.d. €*d€*"
+_empty_/usesites.l5. €*l5€2'
+ scala/Predef.any2stringadd().2%
+ scala/Predef.any2stringadd.2%
+ scala/Predef.any2stringadd#2
+ scala/Predef.2"
+ _empty_/opaquetypes.2,
+ _empty_/opaquetypes.Logarithm#2
+  scala/Double#2,
+	 _empty_/opaquetypes.Logarithm.24
+ &_empty_/opaquetypes.Logarithm.apply().27
+ )_empty_/opaquetypes.Logarithm.apply().(d)2
+ scala/Double#2,
+ #_empty_/opaquetypes.Logarithm#2'
++ .scala/math/package.log().2
+& *scala/math/27
+/ 0)_empty_/opaquetypes.Logarithm.apply().(d)23
+		 %_empty_/opaquetypes.Logarithm.safe().26
+		 (_empty_/opaquetypes.Logarithm.safe().(d)2
+		 scala/Double#2
+		 scala/Option#2,
+	 	 )_empty_/opaquetypes.Logarithm#2#
+
+
+ scala/Double#`>`(+6).26
+
+
+
+ (_empty_/opaquetypes.Logarithm.safe().(d)2!
+
+
+ scala/Some.apply().2
+
+
+ scala/Some.2'
+
+
+  scala/math/package.log().2
+
+
+ scala/math/26
+
+!
+ "(_empty_/opaquetypes.Logarithm.safe().(d)2
+
+*
+ .scala/None.27
+ )_empty_/opaquetypes.Logarithm.exponent().2:
+ ,_empty_/opaquetypes.Logarithm.exponent().(l)2,
+ _empty_/opaquetypes.Logarithm#2
+  &scala/Double#2:
+) *,_empty_/opaquetypes.Logarithm.exponent().(l)2&
+ 
+scala/Predef.assert(+1).2$
+ scala/Double#`==`(+6).27
+ )_empty_/opaquetypes.Logarithm.exponent().2%
+ _empty_/opaquetypes.LL.2/
+ !_empty_/opaquetypes.LogarithmOps#2:
+ ,_empty_/opaquetypes.LogarithmOps#`<init>`().2,
+* 3_empty_/opaquetypes.Logarithm#2&
+C Cscala/AnyVal#`<init>`().2
+= Cscala/AnyVal#24
+# '&_empty_/opaquetypes.LogarithmOps#this.2:
+ ,_empty_/opaquetypes.LogarithmOps#toDouble().2
+ scala/Double#2'
+  #scala/math/package.exp().2
+ scala/math/24
+$ *&_empty_/opaquetypes.LogarithmOps#this.25
+ 	'_empty_/opaquetypes.LogarithmOps#`+`().2;
+
+ -_empty_/opaquetypes.LogarithmOps#`+`().(that)2,
+ _empty_/opaquetypes.Logarithm#2,
+ %_empty_/opaquetypes.Logarithm#24
+1 1&_empty_/opaquetypes.Logarithm.apply().2,
+( 1_empty_/opaquetypes.Logarithm.2#
+C Dscala/Double#`+`(+7).2'
+7 :scala/math/package.exp().2
+2 6scala/math/24
+; A&_empty_/opaquetypes.LogarithmOps#this.2'
+J Mscala/math/package.exp().2
+E Iscala/math/2;
+N R-_empty_/opaquetypes.LogarithmOps#`+`().(that)25
+ 	'_empty_/opaquetypes.LogarithmOps#`*`().2;
+
+ -_empty_/opaquetypes.LogarithmOps#`*`().(that)2,
+ _empty_/opaquetypes.Logarithm#2,
+ %_empty_/opaquetypes.Logarithm#24
+1 1&_empty_/opaquetypes.Logarithm.apply().2,
+( 1_empty_/opaquetypes.Logarithm.2#
+9 :scala/Double#`+`(+7).24
+2 8&_empty_/opaquetypes.LogarithmOps#this.2;
+; ?-_empty_/opaquetypes.LogarithmOps#`*`().(that)2/
+ !_empty_/opaquetypes.LogarithmOps.21
+ #_empty_/opaquetypes.LogarithmOps().2%
+ _empty_/opaquetypes.LL.2,
+
+ _empty_/opaquetypes.Logarithm#24
+ &_empty_/opaquetypes.Logarithm.apply().2,
+ _empty_/opaquetypes.Logarithm.2
+ _empty_/usesites.2"
+	 _empty_/opaquetypes.2!
+ _empty_/usesites.l.24
+ &_empty_/opaquetypes.Logarithm.apply().2,
+
+ _empty_/opaquetypes.Logarithm.2"
+ _empty_/usesites.l2.24
+ &_empty_/opaquetypes.Logarithm.apply().2,
+ _empty_/opaquetypes.Logarithm.2"
+   _empty_/usesites.l3.25
+   '_empty_/opaquetypes.LogarithmOps#`*`().21
+   #_empty_/opaquetypes.LogarithmOps().2!
+   _empty_/usesites.l.2"
+   _empty_/usesites.l2.2"
+!! _empty_/usesites.l4.25
+!! '_empty_/opaquetypes.LogarithmOps#`+`().21
+!! #_empty_/opaquetypes.LogarithmOps().2!
+!! _empty_/usesites.l.2"
+!! _empty_/usesites.l2.2&
+%% scala/Predef.assert(+1).2
+%% scala/Any#`==`().2!
+%	% 
+_empty_/usesites.l.24
+%% &_empty_/opaquetypes.Logarithm.apply().2,
+%% _empty_/opaquetypes.Logarithm.2&
+&& scala/Predef.assert(+1).2
+&& scala/Any#`!=`().2!
+&	& 
+_empty_/usesites.l.2"
+&& _empty_/usesites.l2.2!
+'' _empty_/usesites.d.2:
+'' ,_empty_/opaquetypes.LogarithmOps#toDouble().21
+'
+' 
+#_empty_/opaquetypes.LogarithmOps().2"
+'
+' _empty_/usesites.l3.2"
+(( _empty_/usesites.l5.2,
+(
+( _empty_/opaquetypes.Logarithm#2'
+(( (scala/Any#asInstanceOf().2,
+()( 2_empty_/opaquetypes.Logarithm#PZ DE3C829BB2389F41D2C68599F42A5C09

@@ -1,0 +1,114 @@
+
+ètests/pos/t7944.scala*
+
+_empty_/M#*MÄ*'
+_empty_/M#`<init>`(). Ä@*<init>Ä*
+_empty_/M#[A]	 Ä*AÄ*
+_empty_/M#[B]	 Ä*BÄ*
+_empty_/Test.
+ *TestÄ*)
+_empty_/Test.EitherOps#*	EitherOpsÄ*4
+"_empty_/Test.EitherOps#`<init>`(). Ä@*<init>Ä*5
+(_empty_/Test.EitherOps#`<init>`().(self)*selfÄ*$
+_empty_/Test.EitherOps#[A]	*AÄ*$
+_empty_/Test.EitherOps#[B]	*BÄ*,
+_empty_/Test.EitherOps#self. Ä*selfÄ*9
+%_empty_/Test.EitherOps#disjunction().*disjunctionÄ*-
+_empty_/Test.EitherOps(). (*	EitherOpsÄ*&
+_empty_/Test.EitherOps().[A]	*AÄ*&
+_empty_/Test.EitherOps().[B]	*BÄ*,
+_empty_/Test.EitherOps().(self)*selfÄ*
+_empty_/Test.foo().*fooÄ*
+local0 Ä*lÄ*
+local1 Ä*okÄ* 
+local2 Ä*runawayTypeVarÄ*
+local3 Ä*assignÄ*
+local4 Ä*assign1Ä*
+local5 Ä*tempÄ*
+local6 Ä*assign2Ä*
+local7 Ä*assign3Ä*
+local8 Ä*tempÄ2
+ 
+_empty_/M#2
+ _empty_/M#`<init>`().2
+	 
+_empty_/M#[A]2
+ _empty_/M#[B]2
+ _empty_/Test.2%
+ _empty_/Test.EitherOps#20
+ "_empty_/Test.EitherOps#`<init>`().2#
+' -scala/package.Either#2(
+. /_empty_/Test.EitherOps#[A]2(
+1 2_empty_/Test.EitherOps#[B]2(
+ _empty_/Test.EitherOps#[A]2(
+ _empty_/Test.EitherOps#[B]2*
+! %_empty_/Test.EitherOps#self.23
+ %_empty_/Test.EitherOps#disjunction().2
+ 
+_empty_/M#2(
+ _empty_/Test.EitherOps#[A]2(
+ _empty_/Test.EitherOps#[B]2'
+ _empty_/Test.EitherOps().2!
+ 	_empty_/Test.foo().2
+ 	local02#
+ scala/package.Either#2
+ 
+scala/Int#2
+ scala/Nothing#2&
+& &scala/util/Left.apply().2!
+" &scala/package.Left.2
+' *
+scala/Int#2
+, 3scala/Nothing#2
+
+
+ 
+local123
+
+
+ %%_empty_/Test.EitherOps#disjunction().2'
+
+
+ _empty_/Test.EitherOps().2
+
+
+ local02
+ local223
+ &%_empty_/Test.EitherOps#disjunction().2'
+ _empty_/Test.EitherOps().2
+ local02
+ local32
+ 
+_empty_/M#2
+ 
+scala/Int#2
+ scala/Nothing#2
+" 0local22
+ local42
+ 
+_empty_/M#2
+ 
+scala/Int#2
+ scala/Nothing#2
+( ,local52
+/ =local22
+? Clocal52
+ local62
+ 
+_empty_/M#2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+" 0local22
+ local72
+ 
+_empty_/M#2
+ 
+scala/Int#2
+ scala/Nothing#2
+( ,local823
+7 B%_empty_/Test.EitherOps#disjunction().2'
+/ /_empty_/Test.EitherOps().2&
+3 3scala/util/Left.apply().2!
+/ 3scala/package.Left.2
+D Hlocal8PZ F474D38DBD612020CE23AB4729DB44CE

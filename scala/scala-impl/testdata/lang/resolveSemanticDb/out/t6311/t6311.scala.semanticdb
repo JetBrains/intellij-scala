@@ -1,0 +1,38 @@
+
+Í
+tests/pos/t6311.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€**
+_empty_/A#fooMinimal().*
+fooMinimal€*$
+_empty_/A#fooMinimal().[T]	*T€**
+_empty_/A#fooMinimal().[Coll]	*Coll€*(
+_empty_/A#fooMinimal().(msg)*msg€*.
+_empty_/A#fooMinimal().(param1)*param1€*.
+_empty_/A#fooMinimal().(param2)*param2€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2%
+ _empty_/A#fooMinimal().2(
+ _empty_/A#fooMinimal().[T]2+
+ _empty_/A#fooMinimal().[Coll]2(
+ 'scala/package.Traversable#2(
+( )_empty_/A#fooMinimal().[T]2*
+, /_empty_/A#fooMinimal().(msg)2"
+1 7scala/Predef.String#2-
+9 ?_empty_/A#fooMinimal().(param1)2(
+A Lscala/package.Traversable#2(
+M N_empty_/A#fooMinimal().[T]2-
+Q W_empty_/A#fooMinimal().(param2)2+
+Y ]_empty_/A#fooMinimal().[Coll]2(
+` kscala/package.Traversable#2(
+l m_empty_/A#fooMinimal().[T]2/
+
+„ „java/lang/Exception#`<init>`().2'
+	{ „scala/package.Exception#2%
+ _empty_/A#fooMinimal().27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.PZ 53218C80DF210E4CE82956DEF196CCC2

@@ -1,0 +1,58 @@
+
+Ý	tests/pos/poly-signature.scala*
+
+_empty_/P#*P€*'
+_empty_/P#`<init>`(). €@*<init>€*
+_empty_/P#[A]	*A€*
+_empty_/P#foo().*foo€*
+_empty_/P#foo().[T]	*T€*
+_empty_/P#foo().(x)*x€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#foo().*foo€*
+_empty_/C#foo().(x)*x€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().(p)*p€2
+ 
+_empty_/P#2
+ _empty_/P#`<init>`().2
+ 	_empty_/P#[A]2
+ 	_empty_/P#foo().2!
+
+ _empty_/P#foo().[T]2!
+ _empty_/P#foo().(x)2
+ 
+scala/Int#2
+ _empty_/P#[A]2#
+ scala/Predef.`???`().2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/P#2
+ 
+scala/Int#2
+ 	_empty_/C#foo().2!
+
+ _empty_/C#foo().(x)2
+ 
+scala/Int#2
+ 
+scala/Int#2!
+ _empty_/C#foo().(x)2
+ _empty_/Test.2"
+		 
+_empty_/Test.test().2%
+		 _empty_/Test.test().(p)2
+		 
+_empty_/C#2
+		 scala/Unit#2
+
+
+ 	_empty_/C#foo().2%
+
+
+ _empty_/Test.test().(p)PZ 6F03497F4380F42A952843114556FEAA

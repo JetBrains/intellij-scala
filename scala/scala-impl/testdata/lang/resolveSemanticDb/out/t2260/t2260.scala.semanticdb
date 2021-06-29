@@ -1,0 +1,46 @@
+
+ë
+tests/pos/t2260.scala*
+	top/Text#*Text€*&
+top/Text#`<init>`(). €@*<init>€*,
+top/Text#`<init>`().(value) €*value€* 
+top/Text#value. €*value€*#
+top/Text#compare().*compare€*&
+top/Text#compare().(that)*that€*
+
+top/Index.
+ *Index€*
+top/Index.tree. €*tree€2
+ top/2
+ 
+	top/Text#2"
+
+ 
+top/Text#`<init>`().2"
+ scala/Predef.String#2$
+& -scala/package.Ordered#2
+. 2	top/Text#2
+ top/Text#value.2!
+ top/Text#compare().2'
+ top/Text#compare().(that)2
+ 	top/Text#23
+" )%scala/collection/StringOps#compare().2+
+ scala/Predef.augmentString().2
+ !top/Text#value.2
+/ 4top/Text#value.2'
+* .top/Text#compare().(that)2
+ 
+top/Index.21
+$ +#scala/collection/immutable/TreeMap.21
+$ +#scala/collection/immutable/TreeMap#2)
+ #scala/collection/immutable/2
+ scala/collection/2
+	 scala/2
+ 
+top/Index.tree.29
+ +scala/collection/immutable/TreeMap.empty().21
+ #scala/collection/immutable/TreeMap.2
+ 	top/Text#2"
+! 'scala/Predef.String#2@
+( (2scala/math/LowPriorityOrderingImplicits#ordered().2'
+( (scala/Predef.$conforms().PZ CDCE3AFD14C3862B484D47AF531F430E

@@ -1,0 +1,124 @@
+
+žtests/pos/i12226.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.P# *P€*,
+_empty_/Test.P#`<init>`(). €@*<init>€*
+_empty_/Test.P#[T]	*T€*
+_empty_/Test.C1# €*C1€*-
+_empty_/Test.C1#`<init>`(). €@*<init>€*-
+_empty_/Test.C1#`<init>`().(c1) €*c1€*
+_empty_/Test.C1#[T]	*T€*!
+_empty_/Test.C1#c1. €*c1€*$
+_empty_/Test.C1#copy().*copy€*$
+_empty_/Test.C1#copy().[T]	*T€*&
+_empty_/Test.C1#copy().(c1)*c1€*8
+!_empty_/Test.C1#copy$default$1().*copy$default$1€*.
+$_empty_/Test.C1#copy$default$1().[T]	*T€* 
+_empty_/Test.C1#_1().*_1€*
+_empty_/Test.C1.
+ *C1€*&
+_empty_/Test.C1.apply().*apply€*%
+_empty_/Test.C1.apply().[T]	*T€*'
+_empty_/Test.C1.apply().(c1)*c1€**
+_empty_/Test.C1.unapply().*unapply€*'
+_empty_/Test.C1.unapply().[T]	*T€*+
+_empty_/Test.C1.unapply().(x$1)*x$1€*,
+_empty_/Test.C1.toString().*toString€*
+_empty_/Test.C2# €*C2€*-
+_empty_/Test.C2#`<init>`(). €@*<init>€*-
+_empty_/Test.C2#`<init>`().(c2) €*c2€*
+_empty_/Test.C2#[T]	*T€*!
+_empty_/Test.C2#c2. €*c2€*$
+_empty_/Test.C2#copy().*copy€*$
+_empty_/Test.C2#copy().[T]	*T€*&
+_empty_/Test.C2#copy().(c2)*c2€*8
+!_empty_/Test.C2#copy$default$1().*copy$default$1€*.
+$_empty_/Test.C2#copy$default$1().[T]	*T€* 
+_empty_/Test.C2#_1().*_1€*
+_empty_/Test.C2.
+ *C2€*&
+_empty_/Test.C2.apply().*apply€*%
+_empty_/Test.C2.apply().[T]	*T€*'
+_empty_/Test.C2.apply().(c2)*c2€**
+_empty_/Test.C2.unapply().*unapply€*'
+_empty_/Test.C2.unapply().[T]	*T€*+
+_empty_/Test.C2.unapply().(x$1)*x$1€*,
+_empty_/Test.C2.toString().*toString€*!
+_empty_/Test.test().*test€*!
+_empty_/Test.test().[T]	*T€*!
+_empty_/Test.test().(p)*p€*!
+_empty_/Test.test().(t)*t€*
+local0 €*t€*
+local1 €*s€*
+local2*test€2
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.P#2(
+ _empty_/Test.P#`<init>`().2 
+ _empty_/Test.P#[T]2
+ _empty_/Test.C1#2)
+ _empty_/Test.C1#`<init>`().2!
+! "_empty_/Test.C1#[T]2
+, -_empty_/Test.P#2!
+. /_empty_/Test.C1#[T]2!
+ _empty_/Test.C1#[T]2!
+ _empty_/Test.C1#c1.2%
+ _empty_/Test.C1#copy().2#
+! !_empty_/Test.C1#_1().2
+ _empty_/Test.C1.2&
+ _empty_/Test.C1.apply().2(
+ _empty_/Test.C1.unapply().2
+ _empty_/Test.C2#2)
+ _empty_/Test.C2#`<init>`().2!
+ _empty_/Test.C2#[T]2
+" #_empty_/Test.P#2!
+$ %_empty_/Test.C2#[T]2!
+ _empty_/Test.C2#[T]2!
+ _empty_/Test.C2#c2.2%
+ _empty_/Test.C2#copy().2#
+ _empty_/Test.C2#_1().2
+ _empty_/Test.C2.2&
+ _empty_/Test.C2.apply().2(
+ _empty_/Test.C2.unapply().2"
+ 
+_empty_/Test.test().2%
+ _empty_/Test.test().[T]2%
+ _empty_/Test.test().(p)2
+ _empty_/Test.P#2%
+ _empty_/Test.test().[T]2%
+ _empty_/Test.test().(t)2%
+ _empty_/Test.test().[T]2
+ "scala/Unit#2%
+% &_empty_/Test.test().(p)2(
+ _empty_/Test.C1.unapply().2
+	 _empty_/Test.C1.2
+
+ local02%
+ _empty_/Test.test().[T]2#
+ scala/Predef.`???`().2
+	
+	 local12"
+		 scala/Predef.String#2
+		 local02
+
+
+
+ local22)
+
+
+ _empty_/Test.C1#`<init>`().2
+
+
+ _empty_/Test.C1#2%
+
+
+ _empty_/Test.test().[T]2
+
+
+ local02'
+ scala/Predef.println(+1).2(
+ _empty_/Test.C2.unapply().2
+	 _empty_/Test.C2.2'
+ scala/Predef.println(+1).PZ 69AD83398758E79309150476A4350D55

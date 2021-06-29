@@ -1,0 +1,175 @@
+
+é.tests/pos/i12286.scala*
+_empty_/Base# *Base€**
+_empty_/Base#`<init>`(). €@*<init>€*!
+_empty_/Base#str(). *str€*
+_empty_/One# €*One€*)
+_empty_/One#`<init>`(). €@*<init>€*+
+_empty_/One#`<init>`().(str) €*str€*
+_empty_/One#str. €*str€* 
+_empty_/One#copy().*copy€*$
+_empty_/One#copy().(str)*str€*4
+_empty_/One#copy$default$1().*copy$default$1€*
+_empty_/One#_1().*_1€*
+_empty_/One.
+ *One€*"
+_empty_/One.apply().*apply€*%
+_empty_/One.apply().(str)*str€*&
+_empty_/One.unapply().*unapply€*'
+_empty_/One.unapply().(x$1)*x$1€*(
+_empty_/One.toString().*toString€*
+_empty_/Two# €*Two€*)
+_empty_/Two#`<init>`(). €@*<init>€*+
+_empty_/Two#`<init>`().(str) €*str€*
+_empty_/Two#str. €*str€* 
+_empty_/Two#copy().*copy€*$
+_empty_/Two#copy().(str)*str€*4
+_empty_/Two#copy$default$1().*copy$default$1€*
+_empty_/Two#_1().*_1€*
+_empty_/Two.
+ *Two€*"
+_empty_/Two.apply().*apply€*%
+_empty_/Two.apply().(str)*str€*&
+_empty_/Two.unapply().*unapply€*'
+_empty_/Two.unapply().(x$1)*x$1€*(
+_empty_/Two.toString().*toString€*
+_empty_/Three# €*Three€*+
+_empty_/Three#`<init>`(). €@*<init>€*-
+_empty_/Three#`<init>`().(str) €*str€*!
+_empty_/Three#str. €*str€*"
+_empty_/Three#copy().*copy€*&
+_empty_/Three#copy().(str)*str€*6
+_empty_/Three#copy$default$1().*copy$default$1€*
+_empty_/Three#_1().*_1€*
+_empty_/Three.
+ *Three€*$
+_empty_/Three.apply().*apply€*'
+_empty_/Three.apply().(str)*str€*(
+_empty_/Three.unapply().*unapply€*)
+_empty_/Three.unapply().(x$1)*x$1€**
+_empty_/Three.toString().*toString€*
+_empty_/Item# €*Item€**
+_empty_/Item#`<init>`(). €@*<init>€*,
+_empty_/Item#`<init>`().(_id) €*_id€* 
+_empty_/Item#_id. €*_id€*!
+_empty_/Item#copy().*copy€*%
+_empty_/Item#copy().(_id)*_id€*5
+_empty_/Item#copy$default$1().*copy$default$1€*
+_empty_/Item#_1().*_1€*
+_empty_/Item.
+ *Item€*#
+_empty_/Item.apply().*apply€*&
+_empty_/Item.apply().(_id)*_id€*'
+_empty_/Item.unapply().*unapply€*(
+_empty_/Item.unapply().(x$1)*x$1€*)
+_empty_/Item.toString().*toString€*)
+_empty_/i12286$package. *_empty_€*7
+$_empty_/i12286$package.doWithItem().*
+doWithItem€*1
+'_empty_/i12286$package.doWithItem().[T]	*T€*7
+*_empty_/i12286$package.doWithItem().(item)*item€*9
++_empty_/i12286$package.doWithItem().(value)*value€*;
+,_empty_/i12286$package.doWithItem().(action)*action€*;
+&_empty_/i12286$package.doWithItemId().*doWithItemId€*3
+)_empty_/i12286$package.doWithItemId().[U]	*U€*=
+._empty_/i12286$package.doWithItemId().(itemId)*itemId€*;
+-_empty_/i12286$package.doWithItemId().(value)*value€*=
+._empty_/i12286$package.doWithItemId().(action)*action€2
+ _empty_/Base#2"
+ _empty_/Base#`<init>`().2
+ _empty_/Base#str().2
+ #scala/Predef.String#2
+ _empty_/One#2%
+ _empty_/One#`<init>`().2"
+ scala/Predef.String#2
+$ (_empty_/Base#2
+ _empty_/One#str.2
+_empty_/One#copy().2
+ _empty_/One#_1().2
+ _empty_/One.2
+_empty_/One.apply().2
+ _empty_/Two#2%
+ _empty_/Two#`<init>`().2"
+ scala/Predef.String#2
+$ (_empty_/Base#2
+ _empty_/Two#str.2
+_empty_/Two#copy().2
+ _empty_/Two#_1().2
+ _empty_/Two.2
+_empty_/Two.apply().2
+ _empty_/Three#2'
+ _empty_/Three#`<init>`().2"
+ scala/Predef.String#2
+& *_empty_/Base#2 
+ _empty_/Three#str.2
+_empty_/Three#copy().2!
+ _empty_/Three#_1().2
+ _empty_/Three.2 
+_empty_/Three.apply().2
+ _empty_/Item#2&
+ _empty_/Item#`<init>`().2"
+ scala/Predef.String#2
+ _empty_/Item#_id.2
+_empty_/Item#copy().2 
+ _empty_/Item#_1().2
+ _empty_/Item.2
+_empty_/Item.apply().2!
+_empty_/i12286$package.22
+ $_empty_/i12286$package.doWithItem().2
+ _empty_/25
+ '_empty_/i12286$package.doWithItem().[T]2
+' (
+scala/`|`#2
+! "
+scala/`|`#2
+  _empty_/One#2
+# &_empty_/Two#2
+) ._empty_/Three#28
+ *_empty_/i12286$package.doWithItem().(item)2
+	 _empty_/Item#29
+ +_empty_/i12286$package.doWithItem().(value)25
+ '_empty_/i12286$package.doWithItem().[T]2:
+ ,_empty_/i12286$package.doWithItem().(action)25
+" #'_empty_/i12286$package.doWithItem().[T]2
+( ,_empty_/Item#24
+0 <&_empty_/i12286$package.doWithItemId().2
+B E_empty_/Item#_id.28
+= A*_empty_/i12286$package.doWithItem().(item)29
+G L+_empty_/i12286$package.doWithItem().(value)2:
+N T,_empty_/i12286$package.doWithItem().(action)24
+		 &_empty_/i12286$package.doWithItemId().2
+		 _empty_/27
+		 )_empty_/i12286$package.doWithItemId().[U]2
+	)	 *
+scala/`|`#2
+	#	 $
+scala/`|`#2
+		 "_empty_/One#2
+	%	 (_empty_/Two#2
+	+	 0_empty_/Three#2<
+
+
+ 	._empty_/i12286$package.doWithItemId().(itemId)2"
+
+
+ scala/Predef.String#2;
+
+
+ -_empty_/i12286$package.doWithItemId().(value)27
+
+
+ )_empty_/i12286$package.doWithItemId().[U]2<
+
+
+ #._empty_/i12286$package.doWithItemId().(action)27
+
+&
+ ')_empty_/i12286$package.doWithItemId().[U]2
+
+,
+ 0_empty_/Item#2'
+ scala/Predef.println(+1).2!
+ _empty_/Base#str().2;
+ -_empty_/i12286$package.doWithItemId().(value)2#
+ _empty_/Item.apply().2
+ _empty_/Item.PZ 3E944A22F00AA9C28E595E689B4D3D6A

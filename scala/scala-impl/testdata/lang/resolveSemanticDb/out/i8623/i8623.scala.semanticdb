@@ -1,0 +1,65 @@
+
+»tests/pos/i8623.scala*
+_empty_/QC#*QC€*(
+_empty_/QC#`<init>`(). €@*<init>€*!
+_empty_/QC#tasty.
+ *tasty€*#
+_empty_/QC#tasty.Tree#*Tree€*#
+_empty_/QC#tasty.pos().*pos€**
+_empty_/QC#tasty.pos().(tree)*tree€*(
+_empty_/i8623$package. *_empty_€*,
+_empty_/i8623$package.test1().*test1€*
+local0 è*given_QC€*
+local1*unseal€*
+local2  *qctx€*,
+_empty_/i8623$package.test2().*test2€*
+local3
+ (*given_QC€*
+local4*unseal€*
+local5  *qctx€2
+ _empty_/QC#2$
+ _empty_/QC#`<init>`().2
+	 _empty_/QC#tasty.2$
+	 _empty_/QC#tasty.Tree#2%
+
+ _empty_/QC#tasty.pos().2+
+ _empty_/QC#tasty.pos().(tree)2$
+ _empty_/QC#tasty.Tree#2$
+ _empty_/QC#tasty.Tree#2#
+ scala/Predef.`???`().2 
+_empty_/i8623$package.2,
+ 	_empty_/i8623$package.test1().2
+ local02
+ 
+_empty_/QC#2#
+ scala/Predef.`???`().2
+		 local12
+		 local22
+		 _empty_/QC#2$
+	)	 -_empty_/QC#tasty.Tree#2
+	#	 (_empty_/QC#tasty.2
+		 "local22#
+	0	 3scala/Predef.`???`().2%
+
+
+ _empty_/QC#tasty.pos().2
+
+
+ local12
+
+
+ local02,
+ 	_empty_/i8623$package.test2().2
+ local32
+ 
+_empty_/QC#2
+ local42
+ local52
+ _empty_/QC#2$
+) -_empty_/QC#tasty.Tree#2
+# (_empty_/QC#tasty.2
+ "local52#
+0 3scala/Predef.`???`().2%
+ _empty_/QC#tasty.pos().2
+ local42
+ local6PZ D881AC24AB3325E7E82D198F525D44E4

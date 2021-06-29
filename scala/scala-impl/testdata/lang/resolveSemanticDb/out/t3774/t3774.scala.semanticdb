@@ -1,0 +1,33 @@
+
+tests/pos/t3774.scala*
+_empty_/Hang.
+ *Hang€*
+local0*x€*
+local1*y€2
+ _empty_/Hang.2-
+ scala/collection/MapOps#`++`().22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2
+ 
+
+scala/Int#2
+ 
+scala/Int#2!
+ scala/package.List#2
+ 
+scala/Int#2D
+0 06scala/collection/StrictOptimizedIterableOps#flatMap().2)
+, .scala/runtime/RichInt#to().26
+* *(scala/LowPriorityImplicits#intWrapper().2
+% &local025
+> >'scala/collection/immutable/Range#map().2)
+: <scala/runtime/RichInt#to().26
+8 8(scala/LowPriorityImplicits#intWrapper().2
+3 4local12-
+L Nscala/Predef.ArrowAssoc#`->`().2(
+G Gscala/Predef.ArrowAssoc().2#
+H Hscala/Tuple2.apply().2
+H Ilocal02
+J Klocal12)
+R Tscala/runtime/RichInt#to().26
+P P(scala/LowPriorityImplicits#intWrapper().PZ 372A164AF5458F7DA2755AA185D87605

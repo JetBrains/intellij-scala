@@ -1,0 +1,75 @@
+
+òtests/pos/t2429.scala*
+_empty_/Msg.
+ *Msg€*
+_empty_/Msg.T#*T€*+
+_empty_/Msg.T#`<init>`(). €@*<init>€*
+_empty_/Msg.TSeq#*TSeq€*.
+_empty_/Msg.TSeq#`<init>`(). €@*<init>€* 
+_empty_/Msg.TSeq.
+ *TSeq€*-
+_empty_/Msg.TSeq.fromSeq().  *fromSeq€*(
+_empty_/Msg.TSeq.fromSeq().(s)*s€*$
+_empty_/Msg.render().*render€*
+local0 €*msgs€*
+local1*x$1€*
+local2 €*a€*
+local3 €*b€*
+_empty_/Oops.
+ *Oops€2
+ 
+_empty_/Msg.2
+ 	_empty_/Msg.T#2'
+ _empty_/Msg.T#`<init>`().2
+ _empty_/Msg.TSeq#2*
+ _empty_/Msg.TSeq#`<init>`().2
+	 _empty_/Msg.TSeq.2)
+ _empty_/Msg.TSeq.fromSeq().2,
+ _empty_/Msg.TSeq.fromSeq().(s)2 
+ scala/package.Seq#2
+  !_empty_/Msg.T#2
+% )_empty_/Msg.TSeq#2(
+0 5scala/sys/package.error().2
+, /
+scala/sys/2#
+		 _empty_/Msg.render().2
+		 scala/Unit#2
+
+
+ local02
+
+
+ _empty_/Msg.TSeq#2)
+
+
+ _empty_/Msg.TSeq.fromSeq().28
+
+)
+ 0*scala/collection/immutable/List#flatMap().27
+
+
+ )scala/collection/IterableFactory#apply().2!
+
+
+ scala/package.List.2
+
+
+ 
+scala/Any#2
+
+!
+ $
+scala/Any#2
+ local12%
+ scala/Tuple2.unapply().2
+ local22
+ local32
+ 	local22
+ local32(
+ scala/sys/package.error().2
+ 
+scala/sys/2 
+ 
+scala/package.Seq#2
+ _empty_/Msg.T#2
+ _empty_/Oops.PZ D922D4DA3218A9330DC59E0E08CC1D1B

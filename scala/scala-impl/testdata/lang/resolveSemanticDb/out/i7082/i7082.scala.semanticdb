@@ -1,0 +1,63 @@
+
+Útests/pos/i7082.scala*&
+_empty_/Overloads.
+ *	Overloads€*$
+_empty_/Overloads.foo().*foo€*%
+_empty_/Overloads.foo().[V]	*V€*%
+_empty_/Overloads.foo().(x)*x€*%
+_empty_/Overloads.foo().(y)*y€*%
+_empty_/Overloads.foo().(z)*z€*8
+"_empty_/Overloads.foo$default$1().*foo$default$1€*/
+%_empty_/Overloads.foo$default$1().[V]	*V€*8
+"_empty_/Overloads.foo$default$2().*foo$default$2€*/
+%_empty_/Overloads.foo$default$2().[V]	*V€*8
+"_empty_/Overloads.foo$default$3().*foo$default$3€*/
+%_empty_/Overloads.foo$default$3().[V]	*V€*&
+_empty_/Overloads.foo(+1).*foo€*'
+_empty_/Overloads.foo(+1).[V]	*V€*'
+_empty_/Overloads.foo(+1).(x)*x€*'
+_empty_/Overloads.foo(+1).(y)*y€*&
+_empty_/Overloads.foo(+2).*foo€*'
+_empty_/Overloads.foo(+2).[V]	*V€*'
+_empty_/Overloads.foo(+2).(x)*x€2
+ _empty_/Overloads.2&
+ 	_empty_/Overloads.foo().2)
+
+ _empty_/Overloads.foo().[V]2)
+ _empty_/Overloads.foo().(x)2
+ 
+scala/Int#2)
+ _empty_/Overloads.foo().(y)2
+ 
+scala/Int#2)
+% &_empty_/Overloads.foo().(z)2
+( +
+scala/Int#2
+2 9scala/Nothing#2#
+< ?scala/Predef.`???`().23
+
+ %_empty_/Overloads.foo$default$1().[V]23
+
+ %_empty_/Overloads.foo$default$2().[V]23
+
+ %_empty_/Overloads.foo$default$3().[V]2(
+ 	_empty_/Overloads.foo(+1).2+
+
+ _empty_/Overloads.foo(+1).[V]2+
+ _empty_/Overloads.foo(+1).(x)2
+ 
+scala/Int#2+
+ _empty_/Overloads.foo(+1).(y)2
+ 
+scala/Int#2
+ %scala/Nothing#2#
+( +scala/Predef.`???`().2(
+ 	_empty_/Overloads.foo(+2).2+
+
+ _empty_/Overloads.foo(+2).[V]2+
+ _empty_/Overloads.foo(+2).(x)2
+ 
+scala/Int#2
+ scala/Nothing#2#
+  #scala/Predef.`???`().2(
+ _empty_/Overloads.foo(+2).PZ 5B1A3C2A6EE93EAEF072AAA2B6D083A5

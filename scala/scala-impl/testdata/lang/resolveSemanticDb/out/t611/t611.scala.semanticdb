@@ -1,0 +1,108 @@
+
+Ò&tests/pos/t611.scala*%
+bug/contrib_60/Field# *Field€*2
+ bug/contrib_60/Field#`<init>`(). €@*<init>€*1
+bug/contrib_60/Field#FieldType#*	FieldType€*>
+%bug/contrib_60/Field#internalValue(). „*internalValue€*D
+)bug/contrib_60/Field#`internalValue_=`(). €*internalValue_=€*:
+.bug/contrib_60/Field#`internalValue_=`().(x$1)*x$1€*,
+bug/contrib_60/IntField# €*IntField€*5
+#bug/contrib_60/IntField#`<init>`(). €@*<init>€*;
+*bug/contrib_60/IntField#`<init>`().(value) €*value€*/
+bug/contrib_60/IntField#value. €*value€*4
+"bug/contrib_60/IntField#FieldType#*	FieldType€*A
+(bug/contrib_60/IntField#internalValue(). €*internalValue€*G
+,bug/contrib_60/IntField#`internalValue_=`(). €*internalValue_=€*=
+1bug/contrib_60/IntField#`internalValue_=`().(x$1)*x$1€*,
+bug/contrib_60/IntField#copy().*copy€*4
+&bug/contrib_60/IntField#copy().(value)*value€*@
+)bug/contrib_60/IntField#copy$default$1().*copy$default$1€*(
+bug/contrib_60/IntField#_1().*_1€*+
+bug/contrib_60/IntField.
+ *IntField€*.
+ bug/contrib_60/IntField.apply().*apply€*5
+'bug/contrib_60/IntField.apply().(value)*value€*2
+"bug/contrib_60/IntField.unapply().*unapply€*3
+'bug/contrib_60/IntField.unapply().(x$1)*x$1€*4
+#bug/contrib_60/IntField.toString().*toString€*2
+bug/contrib_60/StringField# €*StringField€*8
+&bug/contrib_60/StringField#`<init>`(). €@*<init>€*>
+-bug/contrib_60/StringField#`<init>`().(value) €*value€*2
+!bug/contrib_60/StringField#value. €*value€*7
+%bug/contrib_60/StringField#FieldType#*	FieldType€*D
++bug/contrib_60/StringField#internalValue(). €*internalValue€*J
+/bug/contrib_60/StringField#`internalValue_=`(). €*internalValue_=€*@
+4bug/contrib_60/StringField#`internalValue_=`().(x$1)*x$1€*/
+"bug/contrib_60/StringField#copy().*copy€*7
+)bug/contrib_60/StringField#copy().(value)*value€*C
+,bug/contrib_60/StringField#copy$default$1().*copy$default$1€*+
+ bug/contrib_60/StringField#_1().*_1€*1
+bug/contrib_60/StringField.
+ *StringField€*1
+#bug/contrib_60/StringField.apply().*apply€*8
+*bug/contrib_60/StringField.apply().(value)*value€*5
+%bug/contrib_60/StringField.unapply().*unapply€*6
+*bug/contrib_60/StringField.unapply().(x$1)*x$1€*7
+&bug/contrib_60/StringField.toString().*toString€*#
+bug/contrib_60/Test.
+ *Test€*(
+bug/contrib_60/Test.main().*main€*.
+!bug/contrib_60/Test.main().(args)*args€2
+ bug/contrib_60/2
+ bug/2#
+ bug/contrib_60/Field#2.
+  bug/contrib_60/Field#`<init>`().2-
+ bug/contrib_60/Field#FieldType#23
+ %bug/contrib_60/Field#internalValue().2-
+ bug/contrib_60/Field#FieldType#27
+ )bug/contrib_60/Field#`internalValue_=`().2&
+ bug/contrib_60/IntField#21
+ #bug/contrib_60/IntField#`<init>`().2
+ 
+scala/Int#2.
+- - bug/contrib_60/Field#`<init>`().2#
+( -bug/contrib_60/Field#2,
+ bug/contrib_60/IntField#value.20
+		 "bug/contrib_60/IntField#FieldType#2
+		 
+scala/Int#26
+ (bug/contrib_60/IntField#internalValue().20
+ "bug/contrib_60/IntField#FieldType#2,
+! &bug/contrib_60/IntField#value.2:
+ ,bug/contrib_60/IntField#`internalValue_=`().2)
+bug/contrib_60/IntField#copy().2+
+ bug/contrib_60/IntField#_1().2&
+ bug/contrib_60/IntField.2*
+ bug/contrib_60/IntField.apply().2)
+ bug/contrib_60/StringField#24
+ &bug/contrib_60/StringField#`<init>`().2"
+ $scala/Predef.String#2.
+3 3 bug/contrib_60/Field#`<init>`().2#
+. 3bug/contrib_60/Field#2/
+ !bug/contrib_60/StringField#value.23
+ %bug/contrib_60/StringField#FieldType#2"
+ scala/Predef.String#29
+ +bug/contrib_60/StringField#internalValue().23
+ %bug/contrib_60/StringField#FieldType#2/
+! &!bug/contrib_60/StringField#value.2=
+ /bug/contrib_60/StringField#`internalValue_=`().2,
+"bug/contrib_60/StringField#copy().2.
+  bug/contrib_60/StringField#_1().2)
+ bug/contrib_60/StringField.2-
+#bug/contrib_60/StringField.apply().2"
+ bug/contrib_60/Test.2)
+ 
+bug/contrib_60/Test.main().2/
+ !bug/contrib_60/Test.main().(args)2
+ scala/Array#2
+ scala/2"
+ $scala/Predef.String#2
+( ,scala/Unit#2(
+ scala/Console.println(+1).2
+ scala/Console.27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.24
+( (&bug/contrib_60/StringField#`<init>`().2)
+ (bug/contrib_60/StringField#21
+> >#bug/contrib_60/IntField#`<init>`().2&
+6 >bug/contrib_60/IntField#PZ 8165466BE3FC12A2088E4C85315DE2AD

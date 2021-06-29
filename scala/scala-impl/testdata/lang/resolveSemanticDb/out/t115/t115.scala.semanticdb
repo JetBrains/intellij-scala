@@ -1,0 +1,72 @@
+
+îtests/pos/t115.scala*
+
+_empty_/S#*S€*'
+_empty_/S#`<init>`(). €@*<init>€*"
+_empty_/S#`<init>`().(f)*f€*"
+_empty_/S#`<init>`().(x)*x€*
+_empty_/S#[A]	*A€*
+_empty_/S#f. €*f€*
+_empty_/S#x. €*x€*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*"
+_empty_/T#`<init>`().(f)*f€*"
+_empty_/T#`<init>`().(y)*y€*
+local0*x€*
+_empty_/T#[B]	*B€*
+_empty_/T#f. €*f€*
+_empty_/T#y. €*y€*
+_empty_/Test.
+ *Test€*
+local1*x€*
+_empty_/Test.f. €*f€*
+local2*x€2
+ 
+_empty_/S#2
+ _empty_/S#`<init>`().2
+ _empty_/S#[A]2
+ _empty_/S#[A]2
+ _empty_/S#[A]2
+ 	_empty_/S#[A]2
+ _empty_/S#f.2
+ _empty_/S#x.2(
+
+ scala/Console.println(+1).2
+ 	scala/Console.2&
+ scala/Function1#apply().2
+ _empty_/S#f.2
+ _empty_/S#x.2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+ _empty_/T#[B]2
+ _empty_/T#[B]2
+ _empty_/T#[B]2#
+% %_empty_/S#`<init>`().2
+' (local02
+* +_empty_/T#[B]2&
+1 1scala/Function1#apply().2
+0 1_empty_/T#f.2
+2 3local02
+6 7_empty_/T#y.2
+ 	_empty_/T#[B]2
+ _empty_/T#f.2
+ _empty_/T#y.2
+ _empty_/Test.2
+ 
+scala/App#2#
+ _empty_/T#`<init>`().2
+ 
+_empty_/T#2
+ 
+scala/Int#2
+ local12 
+ scala/Int#`*`(+3).2
+ local12
+ _empty_/Test.f.2#
+ _empty_/S#`<init>`().2
+ local22
+ 
+scala/Int#2
+ local2PZ 8BC1FC54A5E8D3A171FFC5728613ACC4

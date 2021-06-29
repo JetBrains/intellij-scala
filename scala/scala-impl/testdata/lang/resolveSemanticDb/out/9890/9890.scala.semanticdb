@@ -1,0 +1,253 @@
+
+µ9tests/pos/9890.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x#*x€*,
+_empty_/Test.x#`<init>`(). €@*<init>€*!
+_empty_/Test.Range#*Range€*$
+_empty_/Test.Range#[Min]	*Min€*$
+_empty_/Test.Range#[Max]	*Max€*'
+_empty_/Test.TupleMap#*TupleMap€*'
+_empty_/Test.TupleMap#[Tup]	*Tup€*+
+_empty_/Test.TupleMap#[Bound]	*Bound€*#
+_empty_/Test.TupleMap#[F]	*F€*
+local0 €	*h€*
+local1 €	*t€*+
+_empty_/Test.TupleDedup#*
+TupleDedup€*)
+_empty_/Test.TupleDedup#[Tup]	*Tup€*+
+_empty_/Test.TupleDedup#[Mask]	*Mask€*
+local2 €	*h€*
+local3 €	*t€*+
+_empty_/Test.CoordToPos#*
+CoordToPos€*%
+_empty_/Test.CoordToPos#[r]	*r€*%
+_empty_/Test.CoordToPos#[c]	*c€*
+_empty_/Test.Cell#*Cell€*
+_empty_/Test.Cell#[r]	*r€*
+_empty_/Test.Cell#[c]	*c€*'
+_empty_/Test.Cell#[Board]	*Board€*
+_empty_/Test.Col#*Col€*
+_empty_/Test.Col#[c]	*c€*&
+_empty_/Test.Col#[Board]	*Board€*
+_empty_/Test.Col#[r]	*r€*+
+_empty_/Test.ColFromPos#*
+ColFromPos€*)
+_empty_/Test.ColFromPos#[Pos]	*Pos€*%
+_empty_/Test.Sudoku1#*Sudoku1€2
+ _empty_/Test.2(
+ "scala/compiletime/ops/int.2$
+ scala/compiletime/ops/2 
+ scala/compiletime/2
+	 scala/2
+ 	_empty_/Test.x#2(
+ _empty_/Test.x#`<init>`().2!
+ _empty_/Test.Range#2&
+ _empty_/Test.Range#[Min]2
+ 
+scala/Int#2&
+ _empty_/Test.Range#[Max]2
+  #
+scala/Int#2
+( -scala/Tuple#2&
+0 3_empty_/Test.Range#[Min]2&
+	 _empty_/Test.Range#[Max]2-
+ scala/Tuple$package.EmptyTuple#2
+ scala/`*:`#2&
+ _empty_/Test.Range#[Min]2!
+ _empty_/Test.Range#2,
+  scala/compiletime/ops/int.`+`#2&
+ _empty_/Test.Range#[Min]2&
+$ '_empty_/Test.Range#[Max]2$
+
+
+ _empty_/Test.TupleMap#2)
+
+
+ _empty_/Test.TupleMap#[Tup]2
+
+
+ scala/Tuple#2+
+
+
+ #_empty_/Test.TupleMap#[Bound]2'
+
+%
+ &_empty_/Test.TupleMap#[F]2
+
+7
+ <scala/Tuple#2)
+
+?
+ B_empty_/Test.TupleMap#[Tup]2-
+	 scala/Tuple$package.EmptyTuple#2-
+ !scala/Tuple$package.EmptyTuple#2
+ scala/`*:`#2
+	 
+local02
+ local12
+ scala/`*:`#2'
+ _empty_/Test.TupleMap#[F]2
+ local02$
+ #_empty_/Test.TupleMap#2
+$ %local12+
+' ,_empty_/Test.TupleMap#[Bound]2'
+. /_empty_/Test.TupleMap#[F]2&
+ _empty_/Test.TupleDedup#2+
+ _empty_/Test.TupleDedup#[Tup]2
+ scala/Tuple#2,
+  $_empty_/Test.TupleDedup#[Mask]2
+) .scala/Tuple#2+
+1 4_empty_/Test.TupleDedup#[Tup]2-
+	 scala/Tuple$package.EmptyTuple#2-
+ !scala/Tuple$package.EmptyTuple#2
+ scala/`*:`#2
+	 
+local22
+ local32
+ local22,
+ _empty_/Test.TupleDedup#[Mask]2&
+ _empty_/Test.TupleDedup#2
+ local32,
+! %_empty_/Test.TupleDedup#[Mask]2
+ scala/`*:`#2
+ local22&
+ _empty_/Test.TupleDedup#2
+  !local32
+% &
+scala/`|`#2
+# $local22,
+' +_empty_/Test.TupleDedup#[Mask]2&
+ _empty_/Test.CoordToPos#2)
+ _empty_/Test.CoordToPos#[r]2
+ 
+scala/Int#2)
+ _empty_/Test.CoordToPos#[c]2
+! $
+scala/Int#2,
+. /scala/compiletime/ops/int.`+`#2,
+* +scala/compiletime/ops/int.`*`#2)
+( )_empty_/Test.CoordToPos#[r]2)
+0 1_empty_/Test.CoordToPos#[c]2 
+ _empty_/Test.Cell#2#
+ _empty_/Test.Cell#[r]2
+ 
+scala/Int#2#
+ _empty_/Test.Cell#[c]2
+ 
+scala/Int#2'
+  %_empty_/Test.Cell#[Board]2
+) .scala/Tuple#2
+8 <scala/Tuple.Elem#2
+2 7scala/Tuple.2'
+= B_empty_/Test.Cell#[Board]2&
+D N_empty_/Test.CoordToPos#2#
+O P_empty_/Test.Cell#[r]2#
+R S_empty_/Test.Cell#[c]2
+ 
+_empty_/Test.Col#2"
+ _empty_/Test.Col#[c]2
+ 
+scala/Int#2&
+ _empty_/Test.Col#[Board]2
+ #scala/Tuple#2$
+' /_empty_/Test.TupleMap#2!
+0 5_empty_/Test.Range#2
+= @
+scala/Int#2"
+C D_empty_/Test.Col#[r]2
+H K
+scala/Int#2 
+Q U_empty_/Test.Cell#2"
+V W_empty_/Test.Col#[r]2"
+Y Z_empty_/Test.Col#[c]2&
+\ a_empty_/Test.Col#[Board]2&
+ _empty_/Test.ColFromPos#2+
+ _empty_/Test.ColFromPos#[Pos]2
+ 
+scala/Int#2,
+$ %scala/compiletime/ops/int.`%`#2+
+  #_empty_/Test.ColFromPos#[Pos]2#
+ _empty_/Test.Sudoku1#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+ _empty_/Test.x#2
+!! _empty_/Test.x#2
+!! _empty_/Test.x#2
+!! _empty_/Test.x#2
+!! _empty_/Test.x#2
+"" _empty_/Test.x#2
+"
+" _empty_/Test.x#2
+"" _empty_/Test.x#2
+"" _empty_/Test.x#2
+"" _empty_/Test.x#2
+## _empty_/Test.x#2
+#
+# _empty_/Test.x#2
+## _empty_/Test.x#2
+## _empty_/Test.x#2
+%% _empty_/Test.x#2
+%
+% _empty_/Test.x#2
+%% _empty_/Test.x#2
+%% _empty_/Test.x#2
+%% _empty_/Test.x#2
+%% _empty_/Test.x#2
+&& _empty_/Test.x#2
+&
+& _empty_/Test.x#2
+&& _empty_/Test.x#2
+&& _empty_/Test.x#2
+'' _empty_/Test.x#2
+'' _empty_/Test.x#2
+'' _empty_/Test.x#2
+'' _empty_/Test.x#2
+'' _empty_/Test.x#2
+''  _empty_/Test.x#2$
+++ scala/Predef.summon().2
++%+ (scala/`=:=`#2
++	+ _empty_/Test.Col#2&
+++ _empty_/Test.ColFromPos#2#
+++ #_empty_/Test.Sudoku1#2
++*+ +_empty_/Test.x#2
++0+ 1_empty_/Test.x#2
++7+ 8_empty_/Test.x#2
++:+ ;_empty_/Test.x#2
++>+ ?_empty_/Test.x#2!
++G+ Gscala/`<:<`.refl().2$
+-- scala/Predef.summon().2
+-<- ?scala/`=:=`#2&
+-	- _empty_/Test.TupleDedup#2
+-- _empty_/Test.x#2
+-- _empty_/Test.x#2
+-"- #_empty_/Test.x#2
+-%- &_empty_/Test.x#2
+-)- *_empty_/Test.x#2
+-3- :scala/Nothing#2
+-A- B_empty_/Test.x#2!
+-P- Pscala/`<:<`.refl().2$
+// scala/Predef.summon().2
+/:/ =scala/`=:=`#2&
+/	/ _empty_/Test.TupleDedup#2
+// _empty_/Test.Col#2&
+// "_empty_/Test.ColFromPos#2#
+/'/ ._empty_/Test.Sudoku1#2
+/1/ 8scala/Nothing#2
+/?/ @_empty_/Test.x#2!
+/N/ Nscala/`<:<`.refl().PZ FAE6D04F9036B7B99B16CC77F0761CF0

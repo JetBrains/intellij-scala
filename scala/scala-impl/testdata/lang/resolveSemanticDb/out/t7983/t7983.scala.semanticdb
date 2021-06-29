@@ -1,0 +1,164 @@
+
+Ê7tests/pos/t7983.scala*2
+foo/bar/baz/DivergenceTest#*DivergenceTest€*8
+&foo/bar/baz/DivergenceTest#`<init>`(). €@*<init>€*9
+&foo/bar/baz/DivergenceTest#ColumnBase#*
+ColumnBase€*C
+1foo/bar/baz/DivergenceTest#ColumnBase#`<init>`(). €@*<init>€*3
+)foo/bar/baz/DivergenceTest#ColumnBase#[T]	*T€*9
+&foo/bar/baz/DivergenceTest#ShapeLevel#*
+ShapeLevel€*C
+1foo/bar/baz/DivergenceTest#ShapeLevel#`<init>`(). €@*<init>€*-
+ foo/bar/baz/DivergenceTest#Flat#*Flat€*=
++foo/bar/baz/DivergenceTest#Flat#`<init>`(). €@*<init>€*/
+!foo/bar/baz/DivergenceTest#Lower#*Lower€*>
+,foo/bar/baz/DivergenceTest#Lower#`<init>`(). €@*<init>€*1
+"foo/bar/baz/DivergenceTest#Shape2#*Shape2€*?
+-foo/bar/baz/DivergenceTest#Shape2#`<init>`(). €@*<init>€*7
+)foo/bar/baz/DivergenceTest#Shape2#[Level]	*Level€*2
+%foo/bar/baz/DivergenceTest#Shape2#[M]	 €*M€*/
+%foo/bar/baz/DivergenceTest#Shape2#[U]	*U€*G
+-foo/bar/baz/DivergenceTest#columnBaseShape(). (*columnBaseShape€*B
+4foo/bar/baz/DivergenceTest#columnBaseShape().[Level]	*Level€*:
+0foo/bar/baz/DivergenceTest#columnBaseShape().[T]	*T€*:
+0foo/bar/baz/DivergenceTest#columnBaseShape().[C]	*C€*>
+1foo/bar/baz/DivergenceTest#columnBaseShape().(ev)  *ev€*9
+&foo/bar/baz/DivergenceTest#intShape(). (*intShape€*;
+-foo/bar/baz/DivergenceTest#intShape().[Level]	*Level€*3
+)foo/bar/baz/DivergenceTest#intShape().[T]	*T€*?
+)foo/bar/baz/DivergenceTest#tuple2Shape(). (*tuple2Shape€*>
+0foo/bar/baz/DivergenceTest#tuple2Shape().[Level]	*Level€*8
+-foo/bar/baz/DivergenceTest#tuple2Shape().[M1]	*M1€*8
+-foo/bar/baz/DivergenceTest#tuple2Shape().[M2]	*M2€*8
+-foo/bar/baz/DivergenceTest#tuple2Shape().[U1]	*U1€*8
+-foo/bar/baz/DivergenceTest#tuple2Shape().[U2]	*U2€*:
+-foo/bar/baz/DivergenceTest#tuple2Shape().(u1)  *u1€*:
+-foo/bar/baz/DivergenceTest#tuple2Shape().(u2)  *u2€*-
+!foo/bar/baz/DivergenceTest#foo().*foo€*
+local0*Coffees€*
+local1*map1€*
+local2	*F€*
+local3	*T€*
+local4*f€*
+local5  *shape€2
+ foo/bar/baz/2
+ foo/bar/2
+ foo/2)
+ foo/bar/baz/DivergenceTest#24
+ &foo/bar/baz/DivergenceTest#`<init>`().24
+ &foo/bar/baz/DivergenceTest#ColumnBase#2?
+ 1foo/bar/baz/DivergenceTest#ColumnBase#`<init>`().27
+ )foo/bar/baz/DivergenceTest#ColumnBase#[T]24
+ &foo/bar/baz/DivergenceTest#ShapeLevel#2?
+ 1foo/bar/baz/DivergenceTest#ShapeLevel#`<init>`().2.
+  foo/bar/baz/DivergenceTest#Flat#29
+ +foo/bar/baz/DivergenceTest#Flat#`<init>`().24
+ &foo/bar/baz/DivergenceTest#ShapeLevel#2/
+ !foo/bar/baz/DivergenceTest#Lower#2:
+ ,foo/bar/baz/DivergenceTest#Lower#`<init>`().2.
+  foo/bar/baz/DivergenceTest#Flat#20
+
+
+ "foo/bar/baz/DivergenceTest#Shape2#2;
+
+
+ -foo/bar/baz/DivergenceTest#Shape2#`<init>`().27
+
+
+ )foo/bar/baz/DivergenceTest#Shape2#[Level]23
+
+%
+ &%foo/bar/baz/DivergenceTest#Shape2#[M]23
+
+(
+ )%foo/bar/baz/DivergenceTest#Shape2#[U]2;
+ $-foo/bar/baz/DivergenceTest#columnBaseShape().2B
+% *4foo/bar/baz/DivergenceTest#columnBaseShape().[Level]2.
+. 2 foo/bar/baz/DivergenceTest#Flat#24
+6 @&foo/bar/baz/DivergenceTest#ShapeLevel#2>
+B C0foo/bar/baz/DivergenceTest#columnBaseShape().[T]2>
+E F0foo/bar/baz/DivergenceTest#columnBaseShape().[C]24
+J T&foo/bar/baz/DivergenceTest#ColumnBase#2?
+. 01foo/bar/baz/DivergenceTest#columnBaseShape().(ev)2
+4 7scala/`<:<`#2>
+2 30foo/bar/baz/DivergenceTest#columnBaseShape().[C]24
+8 B&foo/bar/baz/DivergenceTest#ColumnBase#2>
+C D0foo/bar/baz/DivergenceTest#columnBaseShape().[T]20
+' -"foo/bar/baz/DivergenceTest#Shape2#2B
+. 34foo/bar/baz/DivergenceTest#columnBaseShape().[Level]2>
+5 60foo/bar/baz/DivergenceTest#columnBaseShape().[C]2>
+8 90foo/bar/baz/DivergenceTest#columnBaseShape().[T]2#
+= @scala/Predef.`???`().24
+ &foo/bar/baz/DivergenceTest#intShape().2;
+ #-foo/bar/baz/DivergenceTest#intShape().[Level]24
+' 1&foo/bar/baz/DivergenceTest#ShapeLevel#27
+3 4)foo/bar/baz/DivergenceTest#intShape().[T]20
+7 ="foo/bar/baz/DivergenceTest#Shape2#2;
+> C-foo/bar/baz/DivergenceTest#intShape().[Level]2
+E H
+scala/Int#2
+J M
+scala/Int#2#
+Q Tscala/Predef.`???`().27
+  )foo/bar/baz/DivergenceTest#tuple2Shape().2>
+! &0foo/bar/baz/DivergenceTest#tuple2Shape().[Level]24
+* 4&foo/bar/baz/DivergenceTest#ShapeLevel#2;
+6 8-foo/bar/baz/DivergenceTest#tuple2Shape().[M1]2;
+9 ;-foo/bar/baz/DivergenceTest#tuple2Shape().[M2]2;
+= ?-foo/bar/baz/DivergenceTest#tuple2Shape().[U1]2;
+@ B-foo/bar/baz/DivergenceTest#tuple2Shape().[U2]2;
+* ,-foo/bar/baz/DivergenceTest#tuple2Shape().(u1)20
+. 4"foo/bar/baz/DivergenceTest#Shape2#2>
+: ?0foo/bar/baz/DivergenceTest#tuple2Shape().[Level]2;
+A C-foo/bar/baz/DivergenceTest#tuple2Shape().[M1]2;
+E G-foo/bar/baz/DivergenceTest#tuple2Shape().[U1]2;
+* ,-foo/bar/baz/DivergenceTest#tuple2Shape().(u2)20
+. 4"foo/bar/baz/DivergenceTest#Shape2#2>
+: ?0foo/bar/baz/DivergenceTest#tuple2Shape().[Level]2;
+A C-foo/bar/baz/DivergenceTest#tuple2Shape().[M2]2;
+E G-foo/bar/baz/DivergenceTest#tuple2Shape().[U2]20
+# )"foo/bar/baz/DivergenceTest#Shape2#2>
+* /0foo/bar/baz/DivergenceTest#tuple2Shape().[Level]2;
+2 4-foo/bar/baz/DivergenceTest#tuple2Shape().[M1]2;
+5 7-foo/bar/baz/DivergenceTest#tuple2Shape().[M2]2;
+; =-foo/bar/baz/DivergenceTest#tuple2Shape().[U1]2;
+> @-foo/bar/baz/DivergenceTest#tuple2Shape().[U2]2#
+E Hscala/Predef.`???`().2/
+ 	!foo/bar/baz/DivergenceTest#foo().2
+ scala/Unit#2
+
+ local024
+ $&foo/bar/baz/DivergenceTest#ColumnBase#2
+% (
+scala/Int#2
+ local12
+ local22
+ local32
+ local42
+ local22
+" 'local520
+) /"foo/bar/baz/DivergenceTest#Shape2#2.
+5 9 foo/bar/baz/DivergenceTest#Flat#2
+; <local22
+> ?local32#
+D Gscala/Predef.`???`().2
+ local12#
+
+ 
+scala/Tuple2.apply().2#
+ scala/Tuple2.apply().2
+ local027
+! !)foo/bar/baz/DivergenceTest#tuple2Shape().24
+! !&foo/bar/baz/DivergenceTest#intShape().2;
+! !-foo/bar/baz/DivergenceTest#columnBaseShape().2!
+! !scala/`<:<`.refl().2
+ local12#
+
+ 
+scala/Tuple2.apply().2#
+ scala/Tuple2.apply().2
+ local027
+! !)foo/bar/baz/DivergenceTest#tuple2Shape().2;
+! !-foo/bar/baz/DivergenceTest#columnBaseShape().2!
+! !scala/`<:<`.refl().24
+! !&foo/bar/baz/DivergenceTest#intShape().PZ 62FEDC718D14F447CF695708916EAA31

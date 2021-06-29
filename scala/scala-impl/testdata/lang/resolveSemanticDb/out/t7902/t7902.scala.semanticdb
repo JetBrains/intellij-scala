@@ -1,0 +1,56 @@
+
+ù
+tests/pos/t7902.scala*
+_empty_/Bug.
+ *Bug€*
+_empty_/Bug.Tag#*Tag€*-
+_empty_/Bug.Tag#`<init>`(). €@*<init>€*
+_empty_/Bug.Tag#[W]	*W€*$
+_empty_/Bug.ofType().*ofType€*"
+_empty_/Bug.ofType().[W]	*W€* 
+_empty_/Bug.InSeq#*InSeq€*!
+_empty_/Bug.InSeq#[M3]	*M3€*
+_empty_/Bug.x. €*x€*
+_empty_/Bug.y. €*y€*
+_empty_/Bug.T.
+ *T€*
+_empty_/Bug.T.z. €*z€2)
+ !scala/language.higherKinds.2
+ scala/language.2
+ scala/2
+ 
+_empty_/Bug.2
+ _empty_/Bug.Tag#2)
+ _empty_/Bug.Tag#`<init>`().2!
+ _empty_/Bug.Tag#[W]2#
+ _empty_/Bug.ofType().2&
+ _empty_/Bug.ofType().[W]2
+ _empty_/Bug.Tag#2&
+ _empty_/Bug.ofType().[W]2#
+" %scala/Predef.`???`().2 
+ _empty_/Bug.InSeq#2$
+ _empty_/Bug.InSeq#[M3]2
+ scala/Some#2$
+  _empty_/Bug.InSeq#[M3]2
+! $
+scala/Any#2
+
+
+ _empty_/Bug.x.2#
+
+
+
+ _empty_/Bug.ofType().2 
+
+
+ _empty_/Bug.InSeq#2
+ _empty_/Bug.y.2
+	 
+scala/Any#2#
+ _empty_/Bug.ofType().2 
+ _empty_/Bug.InSeq#2
+	 
+_empty_/Bug.T.2
+ 	_empty_/Bug.T.z.2#
+ _empty_/Bug.ofType().2 
+ _empty_/Bug.InSeq#PZ A94E6B80BE684A5EAE8572B475E3B5AD

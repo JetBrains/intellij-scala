@@ -1,0 +1,73 @@
+
+­tests/pos/t703.scala*
+_empty_/Go.
+ *Go€*
+_empty_/Go.A#*A€**
+_empty_/Go.A#`<init>`(). €@*<init>€*
+_empty_/Go.A#f(). *f€*
+_empty_/Go.B#*B€**
+_empty_/Go.B#`<init>`(). €@*<init>€*
+_empty_/Go.B#f().*f€*
+_empty_/Go.C#*C€**
+_empty_/Go.C#`<init>`(). €@*<init>€*
+_empty_/Go.C#f().*f€*
+_empty_/Go.D#*D€**
+_empty_/Go.D#`<init>`(). €@*<init>€*
+_empty_/Go.D#f().*f€*
+_empty_/Go.Super#*Super€*.
+_empty_/Go.Super#`<init>`(). €@*<init>€*
+_empty_/Go.Super#f().*f€*
+_empty_/Go.main().*main€*%
+_empty_/Go.main().(args)*args€*
+local0
+ *d€2
+ 	_empty_/Go.2
+ 	_empty_/Go.A#2&
+ _empty_/Go.A#`<init>`().2
+ 	_empty_/Go.A#f().2
+ scala/Unit#2
+ 	_empty_/Go.B#2&
+ _empty_/Go.B#`<init>`().2
+ _empty_/Go.A#2
+ _empty_/Go.B#f().2
+ _empty_/Go.A#f().2(
+ scala/Console.println(+1).2
+ scala/Console.2
+
+
+ 	_empty_/Go.C#2&
+
+
+ _empty_/Go.C#`<init>`().2
+
+
+ _empty_/Go.A#2
+ _empty_/Go.C#f().2
+ _empty_/Go.A#f().2(
+ scala/Console.println(+1).2
+ scala/Console.2
+ 	_empty_/Go.D#2&
+ _empty_/Go.D#`<init>`().2
+ _empty_/Go.B#2
+ _empty_/Go.C#2
+ _empty_/Go.D#f().2
+ _empty_/Go.C#f().2
+ _empty_/Go.Super#2*
+ _empty_/Go.Super#`<init>`().2
+ _empty_/Go.A#2#
+ 	_empty_/Go.Super#f().2
+ scala/Unit#2(
+ !scala/Console.println(+1).2
+ scala/Console.2 
+ 
+_empty_/Go.main().2&
+ _empty_/Go.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+# 'scala/Unit#2
+ local02*
+ _empty_/Go.Super#`<init>`().2
+ _empty_/Go.Super#2
+  !_empty_/Go.D#2
+ _empty_/Go.D#f().2
+ local1PZ BB33CAEAF58F65C1122B72020A6B9F16

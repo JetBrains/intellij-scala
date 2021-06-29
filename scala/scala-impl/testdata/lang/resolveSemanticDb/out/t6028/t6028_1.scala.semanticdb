@@ -1,0 +1,16 @@
+
+—tests/pos/t6028/t6028_1.scala*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#foo().*foo€*
+_empty_/C#foo().(a)*a€2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#foo().2!
+ _empty_/C#foo().(a)2
+ 
+scala/Int#2
+ scala/Unit#2!
+" #_empty_/C#foo().(a)PZ 59D1B70DB70424890F799C07253FF880

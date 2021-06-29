@@ -1,0 +1,44 @@
+
+™#tests/pos/annotations/MyClass.scala* 
+_empty_/MyClass#*MyClass€*-
+_empty_/MyClass#`<init>`(). €@*<init>€*(
+_empty_/MyClass#method().*method€*"
+_empty_/MyClass2#*MyClass2€*.
+_empty_/MyClass2#`<init>`(). €@*<init>€*"
+_empty_/MyClass3#*MyClass3€*.
+_empty_/MyClass3#`<init>`(). €@*<init>€*)
+_empty_/MyClass3#method().*method€2
+ _empty_/MyClass#2)
+ _empty_/MyClass#`<init>`().2#
+ _empty_/MyAnnotation#26
+ (_empty_/MyAnnotation#`<init>`(+1).(Name)2;
+ &-_empty_/MyAnnotation#`<init>`(+1).(foBaskaLi)2$
+. .scala/Array.apply(+5).2
+) .scala/Array.2'
+ _empty_/MyClass#method().2#
+ scala/Predef.`???`().2
+ _empty_/MyClass2#2*
+ _empty_/MyClass2#`<init>`().2*
+Q Qjava/lang/Object#`<init>`().2
+ scala/AnyRef#2#
+ +_empty_/MyAnnotation#26
+, 0(_empty_/MyAnnotation#`<init>`(+1).(Name)2;
+8 A-_empty_/MyAnnotation#`<init>`(+1).(foBaskaLi)2$
+I Iscala/Array.apply(+5).2
+D Iscala/Array.2
+ _empty_/MyClass3#2*
+ _empty_/MyClass3#`<init>`().2*
+Q Qjava/lang/Object#`<init>`().2
+ scala/AnyRef#2#
+ +_empty_/MyAnnotation#26
+, 0(_empty_/MyAnnotation#`<init>`(+1).(Name)2;
+8 A-_empty_/MyAnnotation#`<init>`(+1).(foBaskaLi)2$
+I Iscala/Array.apply(+5).2
+D Iscala/Array.2#
+ _empty_/MyAnnotation#26
+ (_empty_/MyAnnotation#`<init>`(+1).(Name)2;
+ &-_empty_/MyAnnotation#`<init>`(+1).(foBaskaLi)2$
+. .scala/Array.apply(+5).2
+) .scala/Array.2(
+		 _empty_/MyClass3#method().2#
+		 scala/Predef.`???`().PZ 2022A8881B8168A69223DF8CF504680E

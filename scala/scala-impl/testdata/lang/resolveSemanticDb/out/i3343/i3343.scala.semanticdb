@@ -1,0 +1,25 @@
+
+ýtests/pos/i3343.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€* 
+_empty_/Test.foo().[C]	*C€*"
+_empty_/Test.foo().(t)  *t€*
+_empty_/Test.a. €*a€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2$
+
+ _empty_/Test.foo().[C]2$
+ _empty_/Test.foo().(t)2$
+ _empty_/Test.foo().[C]2
+ "scala/Char#2(
+' 2scala/package.Traversable#2
+3 7scala/Char#2$
+; <_empty_/Test.foo().[C]2
+= Ascala/Char#2#
+E Hscala/Predef.`???`().2
+ _empty_/Test.a.2!
+	 scala/package.List#2
+ scala/Char#2!
+ _empty_/Test.foo().2'
+ scala/Predef.$conforms().PZ F36B4274B4EECB1B46EA727CA52E872B

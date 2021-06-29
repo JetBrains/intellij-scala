@@ -1,0 +1,25 @@
+
+ˆtests/pos/i3480.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#foo().*foo€* 
+_empty_/Test#foo().(x)*x€*
+local0*x$1€*
+local1 €*i€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2!
+ 	_empty_/Test#foo().2$
+
+ _empty_/Test#foo().(x)2$
+ scala/PartialFunction#2
+  
+scala/Int#2
+" %
+scala/Int#2&
++ +scala/Function1#apply().2$
+* +_empty_/Test#foo().(x)2!
+ _empty_/Test#foo().2
+ local02
+ local12
+ local1PZ AB0CE0416FE6210DA958779F296246E4

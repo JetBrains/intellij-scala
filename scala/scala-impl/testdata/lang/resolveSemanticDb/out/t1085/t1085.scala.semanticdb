@@ -1,0 +1,37 @@
+
+ƒ	tests/pos/t1085.scala* 
+_empty_/Functor#*Functor€*-
+_empty_/Functor#`<init>`(). €@*<init>€*
+_empty_/Functor#[a]	*a€*&
+_empty_/Functor#MyType#*MyType€*$
+_empty_/Functor#MyType#[a]	*a€*
+_empty_/Test.
+ *Test€*/
+_empty_/Test.listFunctor().*listFunctor€*(
+_empty_/Test.listFunctor().[a]	*a€*
+local0*MyType€*
+local1	*x€*
+local2 *$anon€*
+local3*MyType€*
+local4	*t€2
+ _empty_/Functor#2%
+ _empty_/Functor#`<init>`().2
+ _empty_/Functor#[a]2%
+	 _empty_/Functor#MyType#2(
+ _empty_/Functor#MyType#[a]2
+ _empty_/Test.2)
+ _empty_/Test.listFunctor().2,
+ _empty_/Test.listFunctor().[a]2
+ _empty_/Functor#2,
+ _empty_/Test.listFunctor().[a]2
+& ,local02
+- .local12!
+0 4scala/package.List#2
+5 6local12
+; ;local22
+? F_empty_/Functor#2,
+G H_empty_/Test.listFunctor().[a]2
+	 local32
+ local42!
+ scala/package.List#2
+ local4PZ 9E88AAAF63BEFBDA167DE82F20B60378

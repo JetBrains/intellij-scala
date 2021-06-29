@@ -1,0 +1,31 @@
+
+…tests/pos/t284-pos.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#[T]	*T€*
+_empty_/B#f1(). *f1€*
+_empty_/B#f1().(a)*a€*
+_empty_/B#f2(). *f2€*
+_empty_/B#f2().(a)*a€*
+_empty_/B#f3().*f3€*
+_empty_/B#f3().(a)*a€2
+ 
+_empty_/B#2
+ _empty_/B#`<init>`().2
+ 	_empty_/B#[T]2
+ 
+_empty_/B#f1().2 
+ _empty_/B#f1().(a)2
+ _empty_/B#[T]2
+ scala/Unit#2
+ 
+_empty_/B#f2().2 
+ _empty_/B#f2().(a)2
+ _empty_/B#[T]2
+ scala/Unit#2
+ 
+_empty_/B#f3().2 
+ _empty_/B#f3().(a)2
+ _empty_/B#[T]2
+ scala/Unit#PZ 6281C1C0E1937658CAFDDFD72B3E3DE7

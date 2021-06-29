@@ -1,0 +1,200 @@
+
+¤9tests/pos/i10997.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*%
+_empty_/Test#Parent# *Parent€*1
+_empty_/Test#Parent#`<init>`(). €@*<init>€* 
+_empty_/Test#Foo# €*Foo€*.
+_empty_/Test#Foo#`<init>`(). €@*<init>€*,
+_empty_/Test#Foo#`<init>`().(x) €*x€*,
+_empty_/Test#Foo#`<init>`().(y) €*y€*,
+_empty_/Test#Foo#`<init>`().(s) €*s€* 
+_empty_/Test#Foo#x. €*x€* 
+_empty_/Test#Foo#y. €*y€* 
+_empty_/Test#Foo#s. €*s€*%
+_empty_/Test#Foo#copy().*copy€*%
+_empty_/Test#Foo#copy().(x)*x€*%
+_empty_/Test#Foo#copy().(y)*y€*%
+_empty_/Test#Foo#copy().(s)*s€*9
+"_empty_/Test#Foo#copy$default$1().*copy$default$1€*9
+"_empty_/Test#Foo#copy$default$2().*copy$default$2€*9
+"_empty_/Test#Foo#copy$default$3().*copy$default$3€*!
+_empty_/Test#Foo#_1().*_1€*!
+_empty_/Test#Foo#_2().*_2€*!
+_empty_/Test#Foo#_3().*_3€*
+_empty_/Test#Foo.
+ *Foo€*'
+_empty_/Test#Foo.apply().*apply€*&
+_empty_/Test#Foo.apply().(x)*x€*&
+_empty_/Test#Foo.apply().(y)*y€*&
+_empty_/Test#Foo.apply().(s)*s€*+
+_empty_/Test#Foo.unapply().*unapply€*,
+ _empty_/Test#Foo.unapply().(x$1)*x$1€*-
+_empty_/Test#Foo.toString().*toString€* 
+_empty_/Test#Bar# €*Bar€*.
+_empty_/Test#Bar#`<init>`(). €@*<init>€*,
+_empty_/Test#Bar#`<init>`().(x) €*x€*,
+_empty_/Test#Bar#`<init>`().(y) €*y€* 
+_empty_/Test#Bar#x. €*x€* 
+_empty_/Test#Bar#y. €*y€*%
+_empty_/Test#Bar#copy().*copy€*%
+_empty_/Test#Bar#copy().(x)*x€*%
+_empty_/Test#Bar#copy().(y)*y€*9
+"_empty_/Test#Bar#copy$default$1().*copy$default$1€*9
+"_empty_/Test#Bar#copy$default$2().*copy$default$2€*!
+_empty_/Test#Bar#_1().*_1€*!
+_empty_/Test#Bar#_2().*_2€*
+_empty_/Test#Bar.
+ *Bar€*'
+_empty_/Test#Bar.apply().*apply€*&
+_empty_/Test#Bar.apply().(x)*x€*&
+_empty_/Test#Bar.apply().(y)*y€*+
+_empty_/Test#Bar.unapply().*unapply€*,
+ _empty_/Test#Bar.unapply().(x$1)*x$1€*-
+_empty_/Test#Bar.toString().*toString€*
+_empty_/Test2.
+ *Test2€*!
+_empty_/Test2.Foo# €*Foo€*/
+_empty_/Test2.Foo#`<init>`(). €@*<init>€*-
+ _empty_/Test2.Foo#`<init>`().(x) €*x€*-
+ _empty_/Test2.Foo#`<init>`().(y) €*y€*-
+ _empty_/Test2.Foo#`<init>`().(s) €*s€*!
+_empty_/Test2.Foo#x. €*x€*!
+_empty_/Test2.Foo#y. €*y€*!
+_empty_/Test2.Foo#s. €*s€*&
+_empty_/Test2.Foo#copy().*copy€*&
+_empty_/Test2.Foo#copy().(x)*x€*&
+_empty_/Test2.Foo#copy().(y)*y€*&
+_empty_/Test2.Foo#copy().(s)*s€*:
+#_empty_/Test2.Foo#copy$default$1().*copy$default$1€*:
+#_empty_/Test2.Foo#copy$default$2().*copy$default$2€*:
+#_empty_/Test2.Foo#copy$default$3().*copy$default$3€*"
+_empty_/Test2.Foo#_1().*_1€*"
+_empty_/Test2.Foo#_2().*_2€*"
+_empty_/Test2.Foo#_3().*_3€* 
+_empty_/Test2.Foo.
+ *Foo€*(
+_empty_/Test2.Foo.apply().*apply€*'
+_empty_/Test2.Foo.apply().(x)*x€*'
+_empty_/Test2.Foo.apply().(y)*y€*'
+_empty_/Test2.Foo.apply().(s)*s€*,
+_empty_/Test2.Foo.unapply().*unapply€*-
+!_empty_/Test2.Foo.unapply().(x$1)*x$1€*.
+_empty_/Test2.Foo.toString().*toString€*!
+_empty_/Test2.Bar# €*Bar€*/
+_empty_/Test2.Bar#`<init>`(). €@*<init>€*-
+ _empty_/Test2.Bar#`<init>`().(x) €*x€*-
+ _empty_/Test2.Bar#`<init>`().(y) €*y€*!
+_empty_/Test2.Bar#x. €*x€*!
+_empty_/Test2.Bar#y. €*y€*&
+_empty_/Test2.Bar#copy().*copy€*&
+_empty_/Test2.Bar#copy().(x)*x€*&
+_empty_/Test2.Bar#copy().(y)*y€*:
+#_empty_/Test2.Bar#copy$default$1().*copy$default$1€*:
+#_empty_/Test2.Bar#copy$default$2().*copy$default$2€*"
+_empty_/Test2.Bar#_1().*_1€*"
+_empty_/Test2.Bar#_2().*_2€* 
+_empty_/Test2.Bar.
+ *Bar€*(
+_empty_/Test2.Bar.apply().*apply€*'
+_empty_/Test2.Bar.apply().(x)*x€*'
+_empty_/Test2.Bar.apply().(y)*y€*,
+_empty_/Test2.Bar.unapply().*unapply€*-
+!_empty_/Test2.Bar.unapply().(x$1)*x$1€*.
+_empty_/Test2.Bar.toString().*toString€*
+_empty_/Test2.i. €*i€*"
+_empty_/Test2.Inner#*Inner€*1
+_empty_/Test2.Inner#`<init>`(). €@*<init>€*,
+_empty_/Test2.Inner#Parent# *Parent€*8
+&_empty_/Test2.Inner#Parent#`<init>`(). €@*<init>€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2"
+ _empty_/Test#Parent#2-
+ _empty_/Test#Parent#`<init>`().2
+ _empty_/Test#Foo#2*
+ _empty_/Test#Foo#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2"
+$ *scala/Predef.String#2"
+4 :_empty_/Test#Parent#2!
+ _empty_/Test#Foo#x.2!
+ _empty_/Test#Foo#y.2!
+! "_empty_/Test#Foo#s.2&
+ _empty_/Test#Foo#copy().2$
+ _empty_/Test#Foo#_1().2$
+ _empty_/Test#Foo#_2().2$
+$ $_empty_/Test#Foo#_3().2
+ _empty_/Test#Foo.2'
+ _empty_/Test#Foo.apply().2
+ _empty_/Test#Bar#2*
+ _empty_/Test#Bar#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2"
+) /_empty_/Test#Parent#2!
+ _empty_/Test#Bar#x.2!
+ _empty_/Test#Bar#y.2&
+ _empty_/Test#Bar#copy().2$
+ _empty_/Test#Bar#_1().2$
+ _empty_/Test#Bar#_2().2
+ _empty_/Test#Bar.2'
+ _empty_/Test#Bar.apply().2'
+ 	scala/Predef.println(+1).2$
+
+ scala/Predef.summon().2'
+! #scala/deriving/Mirror.Of#2$
+  scala/deriving/Mirror.2
+ scala/deriving/2"
+$ *_empty_/Test#Parent#2
+		 _empty_/Test2.2 
+ _empty_/Test2.Foo#2+
+ _empty_/Test2.Foo#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2"
+$ *scala/Predef.String#2)
+6 <_empty_/Test2.Inner#Parent#2
+4 5_empty_/Test2.i.2"
+ _empty_/Test2.Foo#x.2"
+ _empty_/Test2.Foo#y.2"
+! "_empty_/Test2.Foo#s.2'
+ _empty_/Test2.Foo#copy().2%
+ _empty_/Test2.Foo#_1().2%
+ _empty_/Test2.Foo#_2().2%
+$ $_empty_/Test2.Foo#_3().2 
+ _empty_/Test2.Foo.2(
+ _empty_/Test2.Foo.apply().2 
+ _empty_/Test2.Bar#2+
+ _empty_/Test2.Bar#`<init>`().2
+ 
+scala/Int#2
+ 
+scala/Int#2)
++ 1_empty_/Test2.Inner#Parent#2
+) *_empty_/Test2.i.2"
+ _empty_/Test2.Bar#x.2"
+ _empty_/Test2.Bar#y.2'
+ _empty_/Test2.Bar#copy().2%
+ _empty_/Test2.Bar#_1().2%
+ _empty_/Test2.Bar#_2().2 
+ _empty_/Test2.Bar.2(
+ _empty_/Test2.Bar.apply().2
+ _empty_/Test2.i.2-
+ _empty_/Test2.Inner#`<init>`().2"
+
+ _empty_/Test2.Inner#2"
+ _empty_/Test2.Inner#2-
+ _empty_/Test2.Inner#`<init>`().2)
+ _empty_/Test2.Inner#Parent#24
+ &_empty_/Test2.Inner#Parent#`<init>`().2'
+ scala/Predef.println(+1).2$
+ scala/Predef.summon().2'
+# %scala/deriving/Mirror.Of#2$
+ "scala/deriving/Mirror.2
+ scala/deriving/2)
+& ,_empty_/Test2.Inner#Parent#PZ 46CAEAA310AB436725A17FCA99174873

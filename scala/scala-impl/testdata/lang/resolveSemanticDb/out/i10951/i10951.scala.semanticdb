@@ -1,0 +1,62 @@
+
+Òtests/pos/i10951.scala*
+_empty_/Dyn.
+ *Dyn€*2
+_empty_/Dyn.selectDynamic().*selectDynamic€*)
+_empty_/Dyn.selectDynamic().[T]	*T€*/
+"_empty_/Dyn.selectDynamic().(name)*name€*)
+_empty_/i10951$package. *_empty_€*&
+_empty_/i10951$package.a. €*a€*&
+_empty_/i10951$package.b. €*b€*&
+_empty_/i10951$package.c. €*c€2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2
+ 
+_empty_/Dyn.2
+ scala/Dynamic#2*
+ _empty_/Dyn.selectDynamic().2-
+ _empty_/Dyn.selectDynamic().[T]20
+ "_empty_/Dyn.selectDynamic().(name)2"
+ #scala/Predef.String#2
+& ,scala/Option#2-
+- ._empty_/Dyn.selectDynamic().[T]2
+2 6scala/None.2!
+_empty_/i10951$package.2'
+ _empty_/i10951$package.a.2
+ scala/Option#2
+ 
+scala/Int#2
+ 
+scala/Int#2*
+ $_empty_/Dyn.selectDynamic().2
+ _empty_/Dyn.2
+% +scala/Tuple2#2
+, /
+scala/Int#2
+1 4
+scala/Int#2'
+ _empty_/i10951$package.b.2
+ scala/Option#2
+ 
+scala/Int#2
+ 
+scala/Int#2*
+  -_empty_/Dyn.selectDynamic().2
+ _empty_/Dyn.2
+/ 2
+scala/Int#2
+4 7
+scala/Int#2'
+ _empty_/i10951$package.c.2
+ scala/Option#2
+ 
+scala/Int#2
+ 
+scala/Int#2*
+ $_empty_/Dyn.selectDynamic().2
+ _empty_/Dyn.2
+& )
+scala/Int#2
++ .
+scala/Int#PZ C48AAD72104BCCFD7828EF0504BBF3A0

@@ -1,0 +1,84 @@
+
+Ûtests/pos/t0095.scala*(
+_empty_/ParseResult#*ParseResult€*1
+_empty_/ParseResult#`<init>`(). €@*<init>€*$
+_empty_/ParseResult#[T]	 €*T€*#
+_empty_/Success# €*Success€*-
+_empty_/Success#`<init>`(). €@*<init>€*+
+_empty_/Success#`<init>`().(t) €*t€* 
+_empty_/Success#[T]	 €*T€*
+_empty_/Success#t. €*t€*$
+_empty_/Success#copy().*copy€*$
+_empty_/Success#copy().[T]	*T€*$
+_empty_/Success#copy().(t)*t€*8
+!_empty_/Success#copy$default$1().*copy$default$1€*.
+$_empty_/Success#copy$default$1().[T]	*T€* 
+_empty_/Success#_1().*_1€*"
+_empty_/Success.
+ *Success€*&
+_empty_/Success.apply().*apply€*%
+_empty_/Success.apply().[T]	*T€*%
+_empty_/Success.apply().(t)*t€**
+_empty_/Success.unapply().*unapply€*'
+_empty_/Success.unapply().[T]	*T€*+
+_empty_/Success.unapply().(x$1)*x$1€*,
+_empty_/Success.toString().*toString€**
+_empty_/Nonterminal# *Nonterminal€*1
+_empty_/Nonterminal#`<init>`(). €@*<init>€*+
+_empty_/Nonterminal#[Output]	*Output€*:
+#_empty_/Nonterminal#SubNonterminal#*SubNonterminal€*,
+_empty_/Nonterminal#parse(). *parse€*,
+_empty_/Nonterminal#parse1().*parse1€*.
+"_empty_/Nonterminal#parse1().(nts)*nts€*
+local0 €*nt€*
+local1 €*nts€*
+local2 €*so€2
+ _empty_/ParseResult#2)
+ _empty_/ParseResult#`<init>`().2!
+ _empty_/ParseResult#[T]2
+ _empty_/Success#2)
+ _empty_/Success#`<init>`().2!
+ _empty_/Success#[T]2-
+3 3_empty_/ParseResult#`<init>`().2"
+% 0_empty_/ParseResult#2!
+1 2_empty_/Success#[T]2!
+ _empty_/Success#[T]2 
+ _empty_/Success#t.2!
+_empty_/Success#copy().2#
+ _empty_/Success#_1().2
+ _empty_/Success.2"
+_empty_/Success.apply().2$
+_empty_/Success.unapply().2"
+ _empty_/Nonterminal#2-
+ _empty_/Nonterminal#`<init>`().2*
+ !_empty_/Nonterminal#[Output]21
+ #_empty_/Nonterminal#SubNonterminal#2"
+ #_empty_/Nonterminal#2*
+) /_empty_/Nonterminal#[Output]2*
+ _empty_/Nonterminal#parse().2"
+ _empty_/ParseResult#2*
+ _empty_/Nonterminal#[Output]2+
+		 _empty_/Nonterminal#parse1().20
+		 "_empty_/Nonterminal#parse1().(nts)2!
+		 scala/package.List#21
+		 %#_empty_/Nonterminal#SubNonterminal#2"
+	)	 4_empty_/ParseResult#2*
+	5	 ;_empty_/Nonterminal#[Output]20
+
+
+ "_empty_/Nonterminal#parse1().(nts)28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local02
+ local12*
+ _empty_/Nonterminal#parse().2
+ local02(
+3 3_empty_/Success.unapply().2
+, 3_empty_/Success.2
+4 6local22&
+B B_empty_/Success.apply().2
+; B_empty_/Success.2
+C Elocal22 
+ scala/package.Nil.2)
+! !java/lang/Error#`<init>`().2"
+ !scala/package.Error#PZ 1AB404392E96C618FD0F1EE155B8390E

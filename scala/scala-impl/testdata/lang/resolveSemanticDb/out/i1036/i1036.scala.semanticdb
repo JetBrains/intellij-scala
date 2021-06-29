@@ -1,0 +1,82 @@
+
+Ätests/pos/i1036.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.second().*second€*%
+_empty_/Test.second().[sA]	*sA€*%
+_empty_/Test.second().[sB]	*sB€*'
+_empty_/Test.second().(foo)*foo€*'
+_empty_/Test.second().(bar)*bar€*#
+_empty_/Test.third().*third€*"
+_empty_/Test.third().[A]	*A€*"
+_empty_/Test.third().[B]	*B€*&
+_empty_/Test.third().(foo)*foo€*&
+_empty_/Test.third().(bar)*bar€*1
+_empty_/Test.expectString().*expectString€*)
+_empty_/Test.expectString().(s)*s€*!
+_empty_/Test.test().*test€*
+local0 €*x€*
+local1*s€*
+local2*s€*
+local3*s€2
+ _empty_/Test.2$
+ _empty_/Test.second().2(
+ _empty_/Test.second().[sA]2(
+ _empty_/Test.second().[sB]2(
+ _empty_/Test.second().[sA]2)
+ _empty_/Test.second().(foo)2(
+  "_empty_/Test.second().[sA]2)
+$ '_empty_/Test.second().(bar)2(
+) +_empty_/Test.second().[sB]2(
+. 0_empty_/Test.second().[sB]2)
+3 6_empty_/Test.second().(bar)2#
+ _empty_/Test.third().2&
+ _empty_/Test.third().[A]2&
+ _empty_/Test.third().[B]2&
+ _empty_/Test.third().[A]2(
+ _empty_/Test.third().(foo)2&
+ _empty_/Test.third().[A]2(
+ "_empty_/Test.third().(bar)2&
+$ %_empty_/Test.third().[B]2&
+( )_empty_/Test.third().[B]2(
+, /_empty_/Test.third().(bar)2*
+ _empty_/Test.expectString().2-
+ _empty_/Test.expectString().(s)2"
+ scala/Predef.String#2-
+  !_empty_/Test.expectString().(s)2"
+ 
+_empty_/Test.test().2
+ 	local02$
+ _empty_/Test.second().25
+ 'scala/collection/immutable/Set.empty().2
+ scala/Predef.Set.2"
+ #scala/Predef.String#25
+* /'scala/collection/immutable/Set.empty().2
+& )scala/Predef.Set.21
+ 	#scala/collection/IterableOps#map().2
+ local02*
+
+ _empty_/Test.expectString().2
+
+ 
+local121
+) ,#scala/collection/IterableOps#map().2$
+ 
+_empty_/Test.second().25
+ 'scala/collection/immutable/Set.empty().2
+ scala/Predef.Set.2"
+ scala/Predef.String#25
+" ''scala/collection/immutable/Set.empty().2
+ !scala/Predef.Set.2*
+- 9_empty_/Test.expectString().2
+- -local221
+	(	 +#scala/collection/IterableOps#map().2#
+		 	_empty_/Test.third().25
+		 'scala/collection/immutable/Set.empty().2
+	
+	 scala/Predef.Set.2"
+		 scala/Predef.String#25
+	!	 &'scala/collection/immutable/Set.empty().2
+		  scala/Predef.Set.2*
+	,	 8_empty_/Test.expectString().2
+	,	 ,local3PZ 50C2232369A55BB719B6E2EB9EF80B89

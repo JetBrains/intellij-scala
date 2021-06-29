@@ -1,0 +1,444 @@
+
+¨a tests/pos/approximateUnion.scala*4
+_empty_/approximateUnion.
+ *approximateUnion€*%
+_empty_/approximateUnion.C#*C€*8
+&_empty_/approximateUnion.C#`<init>`(). €@*<init>€*+
+_empty_/approximateUnion.C#[T]	 €*T€*%
+_empty_/approximateUnion.D#*D€*8
+&_empty_/approximateUnion.D#`<init>`(). €@*<init>€*%
+_empty_/approximateUnion.E#*E€*8
+&_empty_/approximateUnion.E#`<init>`(). €@*<init>€*%
+_empty_/approximateUnion.X#*X€*8
+&_empty_/approximateUnion.X#`<init>`(). €@*<init>€*+
+_empty_/approximateUnion.X#[T]	 €*T€*
+local0*A€*
+local1*B€*
+local2 €*coin€*
+local3 €*x€*
+local4 *$anon€*
+local5 *$anon€*
+local6 €*y€*
+local7 *$anon€*
+local8 *$anon€*
+local9 €*xtest€*
+local10 €*ytest€*
+local11*A€*
+local12*B€*
+local13 €*coin€*
+local14 €*x€*
+local15 *$anon€*
+local16 *$anon€*
+local17 €*y€*
+local18 *$anon€*
+local19 *$anon€*
+local20 €*xtest€*
+local21 €*ytest€*6
+_empty_/approximateUnion2.
+ *approximateUnion2€*&
+_empty_/approximateUnion2.C#*C€*9
+'_empty_/approximateUnion2.C#`<init>`(). €@*<init>€*)
+_empty_/approximateUnion2.C#[T]	*T€*&
+_empty_/approximateUnion2.D#*D€*9
+'_empty_/approximateUnion2.D#`<init>`(). €@*<init>€*&
+_empty_/approximateUnion2.E#*E€*9
+'_empty_/approximateUnion2.E#`<init>`(). €@*<init>€*&
+_empty_/approximateUnion2.X#*X€*9
+'_empty_/approximateUnion2.X#`<init>`(). €@*<init>€*,
+_empty_/approximateUnion2.X#[T]	 €*T€*
+local22*A€*
+local23*B€*
+local24 €*coin€*
+local25 €*x€*
+local26 *$anon€*
+local27 *$anon€*
+local28 €*y€*
+local29 *$anon€*
+local30 *$anon€*
+local31 €*xtest€*
+local32 €*ytest€*
+local33*A€*
+local34*B€*
+local35 €*coin€*
+local36 €*x€*
+local37 *$anon€*
+local38 *$anon€*
+local39 €*y€*
+local40 *$anon€*
+local41 *$anon€*
+local42 €*xtest€*
+local43 €*ytest€*6
+_empty_/approximateUnion3.
+ *approximateUnion3€*&
+_empty_/approximateUnion3.C#*C€*9
+'_empty_/approximateUnion3.C#`<init>`(). €@*<init>€*,
+_empty_/approximateUnion3.C#[T]	 €*T€*&
+_empty_/approximateUnion3.D#*D€*9
+'_empty_/approximateUnion3.D#`<init>`(). €@*<init>€*&
+_empty_/approximateUnion3.E#*E€*9
+'_empty_/approximateUnion3.E#`<init>`(). €@*<init>€*&
+_empty_/approximateUnion3.X#*X€*9
+'_empty_/approximateUnion3.X#`<init>`(). €@*<init>€*,
+_empty_/approximateUnion3.X#[T]	 €*T€*
+local44*A€*
+local45*B€*
+local46 €*coin€*
+local47 €*x€*
+local48 *$anon€*
+local49 *$anon€*
+local50 €*y€*
+local51 *$anon€*
+local52 *$anon€*
+local53 €*xtest€*
+local54 €*ytest€*
+local55*A€*
+local56*B€*
+local57 €*coin€*
+local58 €*x€*
+local59 *$anon€*
+local60 *$anon€*
+local61 €*y€*
+local62 *$anon€*
+local63 *$anon€*
+local64 €*xtest€*
+local65 €*ytest2€2#
+ _empty_/approximateUnion.2)
+ 	_empty_/approximateUnion.C#24
+	 	&_empty_/approximateUnion.C#`<init>`().2,
+ _empty_/approximateUnion.C#[T]2)
+ 	_empty_/approximateUnion.D#24
+ &_empty_/approximateUnion.D#`<init>`().2)
+ 	_empty_/approximateUnion.E#24
+ &_empty_/approximateUnion.E#`<init>`().2)
+ 	_empty_/approximateUnion.X#24
+	 	&_empty_/approximateUnion.X#`<init>`().2,
+ _empty_/approximateUnion.X#[T]2
+
+ local02)
+ _empty_/approximateUnion.C#2
+ local02)
+ _empty_/approximateUnion.D#2
+	
+	 local12)
+		 _empty_/approximateUnion.C#2
+		 local12)
+		 _empty_/approximateUnion.D#2
+ local22
+ 	local32
+ local22
+ local42
+ local02
+# #local52
+' (local12
+ 	local62!
+ scala/Some.apply().2
+ scala/Some.2
+ local22
+ local72
+  local02
+( (local82
+, -local12
+ local92
+ 
+scala/`&`#2)
+ _empty_/approximateUnion.C#2
+ 
+scala/`|`#2
+ local02
+ local12)
+ _empty_/approximateUnion.D#2
+ local32
+ local102
+ scala/Some#2
+ 
+scala/`&`#2)
+ _empty_/approximateUnion.C#2
+ 
+scala/`|`#2
+ local02
+ local12)
+  _empty_/approximateUnion.D#2
+$ %local62
+
+ local112)
+ _empty_/approximateUnion.C#2)
+ _empty_/approximateUnion.X#2
+ local112)
+! "_empty_/approximateUnion.D#2
+
+ local122)
+ _empty_/approximateUnion.C#2)
+ _empty_/approximateUnion.X#2
+ local122)
+! "_empty_/approximateUnion.D#2)
+( )_empty_/approximateUnion.E#2
+ local132
+ 	local142
+ local132
+ local152
+ local112
+# #local162
+' (local122
+ 	local172!
+ scala/Some.apply().2
+ scala/Some.2
+ local132
+ local182
+  local112
+( (local192
+, -local122
+ local202
+ 
+scala/`&`#2)
+ _empty_/approximateUnion.C#2)
+ _empty_/approximateUnion.X#2
+ 
+scala/`&`#2
+ local112
+ local122)
+ _empty_/approximateUnion.D#2
+! "local142
+ local212
+ scala/Some#2
+  !
+scala/`&`#2)
+ _empty_/approximateUnion.C#2)
+ _empty_/approximateUnion.X#2
+ 
+scala/`&`#2
+ local112
+ local122)
+" #_empty_/approximateUnion.D#2
+' (local172(
+   _empty_/approximateUnion2.2*
+"" 	_empty_/approximateUnion2.C#25
+"	" 	'_empty_/approximateUnion2.C#`<init>`().2-
+"
+" _empty_/approximateUnion2.C#[T]2*
+## 	_empty_/approximateUnion2.D#25
+## '_empty_/approximateUnion2.D#`<init>`().2*
+$$ 	_empty_/approximateUnion2.E#25
+$$ '_empty_/approximateUnion2.E#`<init>`().2*
+%% 	_empty_/approximateUnion2.X#25
+%	% 	'_empty_/approximateUnion2.X#`<init>`().2-
+%% _empty_/approximateUnion2.X#[T]2
+(
+( local222*
+(( _empty_/approximateUnion2.C#2
+(( local222*
+(( _empty_/approximateUnion2.D#2
+)
+) local232*
+)) _empty_/approximateUnion2.C#2
+)) local232*
+)) _empty_/approximateUnion2.D#2
+++ local242
+,, 	local252
+,, local242
+,, local262
+,, local222
+,#, #local272
+,', (local232
+-- 	local282!
+-- scala/Some.apply().2
+-- scala/Some.2
+-- local242
+-- local292
+--  local222
+-(- (local302
+-,- -local232
+// local312
+/&/ '
+scala/`&`#2*
+// _empty_/approximateUnion2.C#2
+// 
+scala/`&`#2
+// local222
+// local232
+/!/ "
+scala/`|`#2
+//  local222
+/#/ $local232*
+/(/ )_empty_/approximateUnion2.D#2
+/,/ -local252
+00 local322
+00 scala/Some#2
+0+0 ,
+scala/`&`#2*
+00 _empty_/approximateUnion2.C#2
+00 
+scala/`&`#2
+00 local222
+00  local232
+0&0 '
+scala/`|`#2
+0$0 %local222
+0(0 )local232*
+0-0 ._empty_/approximateUnion2.D#2
+020 3local282
+4
+4 local332*
+44 _empty_/approximateUnion2.C#2*
+44 _empty_/approximateUnion2.X#2
+44 local332*
+4!4 "_empty_/approximateUnion2.D#2
+5
+5 local342*
+55 _empty_/approximateUnion2.C#2*
+55 _empty_/approximateUnion2.X#2
+55 local342*
+5!5 "_empty_/approximateUnion2.D#2*
+5(5 )_empty_/approximateUnion2.E#2
+77 local352
+88 	local362
+88 local352
+88 local372
+88 local332
+8#8 #local382
+8'8 (local342
+99 	local392!
+99 scala/Some.apply().2
+99 scala/Some.2
+99 local352
+99 local402
+99  local332
+9(9 (local412
+9,9 -local342
+;; local422
+;,; -
+scala/`&`#2*
+;; _empty_/approximateUnion2.C#2*
+;; _empty_/approximateUnion2.X#2
+;; 
+scala/`|`#2
+;; local332
+;; local342*
+;"; #_empty_/approximateUnion2.X#2
+;&; '
+scala/`&`#2
+;$; %local332
+;(; )local342*
+;.; /_empty_/approximateUnion2.D#2
+;2; 3local362
+<< local432
+<< scala/Some#2*
+<< _empty_/approximateUnion2.C#2*
+<< _empty_/approximateUnion2.X#2
+<<  
+scala/`|`#2
+<< local332
+<!< "local342*
+<'< (_empty_/approximateUnion2.X#2
+<+< ,
+scala/`&`#2
+<)< *local332
+<-< .local342
+<4< 5local392(
+@@ _empty_/approximateUnion3.2*
+BB 	_empty_/approximateUnion3.C#25
+B	B 	'_empty_/approximateUnion3.C#`<init>`().2-
+BB _empty_/approximateUnion3.C#[T]2*
+CC 	_empty_/approximateUnion3.D#25
+CC '_empty_/approximateUnion3.D#`<init>`().2*
+DD 	_empty_/approximateUnion3.E#25
+DD '_empty_/approximateUnion3.E#`<init>`().2*
+EE 	_empty_/approximateUnion3.X#25
+E	E 	'_empty_/approximateUnion3.X#`<init>`().2-
+EE _empty_/approximateUnion3.X#[T]2
+H
+H local442*
+HH _empty_/approximateUnion3.C#2
+HH local442*
+HH _empty_/approximateUnion3.D#2
+I
+I local452*
+II _empty_/approximateUnion3.C#2
+II local452*
+II _empty_/approximateUnion3.D#2
+KK local462
+LL 	local472
+LL local462
+LL local482
+LL local442
+L#L #local492
+L'L (local452
+MM 	local502!
+MM scala/Some.apply().2
+MM scala/Some.2
+MM local462
+MM local512
+MM  local442
+M(M (local522
+M,M -local452
+OO local532
+OO 
+scala/`&`#2*
+OO _empty_/approximateUnion3.C#2
+OO 
+scala/`&`#2
+OO local442
+OO local452*
+OO _empty_/approximateUnion3.D#2
+OO local472
+PP local542
+PP scala/Some#2
+PP 
+scala/`&`#2*
+PP _empty_/approximateUnion3.C#2
+PP 
+scala/`&`#2
+PP local442
+PP local452*
+PP  _empty_/approximateUnion3.D#2
+P$P %local502
+T
+T local552*
+TT _empty_/approximateUnion3.C#2*
+TT _empty_/approximateUnion3.X#2
+TT local552*
+T!T "_empty_/approximateUnion3.D#2
+U
+U local562*
+UU _empty_/approximateUnion3.C#2*
+UU _empty_/approximateUnion3.X#2
+UU local562*
+U!U "_empty_/approximateUnion3.D#2*
+U(U )_empty_/approximateUnion3.E#2
+WW local572
+XX 	local582
+XX local572
+XX local592
+XX local552
+X#X #local602
+X'X (local562
+YY 	local612!
+YY scala/Some.apply().2
+YY scala/Some.2
+YY local572
+YY local622
+YY  local552
+Y(Y (local632
+Y,Y -local562
+[[ local642
+[[ 
+scala/`&`#2*
+[[ _empty_/approximateUnion3.C#2*
+[[ _empty_/approximateUnion3.X#2
+[[ 
+scala/`|`#2
+[[ local552
+[[ local562*
+[[ _empty_/approximateUnion3.D#2
+[![ "local582
+\\ local652
+\\ scala/Some#2
+\!\ "
+scala/`&`#2*
+\\ _empty_/approximateUnion3.C#2*
+\\ _empty_/approximateUnion3.X#2
+\\ 
+scala/`|`#2
+\\ local552
+\\ local562*
+\#\ $_empty_/approximateUnion3.D#2
+\(\ )local61PZ FF840EEC77E8EA63069446CD36DBB921

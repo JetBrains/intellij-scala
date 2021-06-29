@@ -1,0 +1,384 @@
+
+ÎZtests/pos/i6238.scala*
+_empty_/K1.
+ *K1€*
+_empty_/K1.Foo#*Foo€*,
+_empty_/K1.Foo#`<init>`(). €@*<init>€*
+_empty_/K1.Foo#[T]	*T€*
+_empty_/K1.Bar#*Bar€*,
+_empty_/K1.Bar#`<init>`(). €@*<init>€*
+_empty_/K1.Bar#[F]	*F€*
+_empty_/K1.Bar.
+ *Bar€*%
+_empty_/K1.Bar.barF().  *barF€*#
+_empty_/K1.Bar.barF().[F]	*F€*+
+_empty_/K1.Bar.barF().(fooF)  *fooF€*
+_empty_/K1.A#*A€**
+_empty_/K1.A#`<init>`(). €@*<init>€*
+_empty_/K1.A#[T]	*T€*
+_empty_/K1.A.
+ *A€*#
+_empty_/K1.A.fooA().  *fooA€*!
+_empty_/K1.A.fooA().[F]	*F€*)
+_empty_/K1.A.fooA().(barB)  *barB€*
+_empty_/K1.B#*B€**
+_empty_/K1.B#`<init>`(). €@*<init>€*
+_empty_/K1.B#[T]	*T€*
+_empty_/K1.B.
+ *B€*#
+_empty_/K1.B.fooB().  *fooB€*!
+_empty_/K1.B.fooB().[F]	*F€*
+_empty_/K1U.
+ *K1U€*
+_empty_/K1U.Foo#*Foo€*-
+_empty_/K1U.Foo#`<init>`(). €@*<init>€*
+_empty_/K1U.Foo#[T]	*T€*
+_empty_/K1U.Bar#*Bar€*-
+_empty_/K1U.Bar#`<init>`(). €@*<init>€*
+_empty_/K1U.Bar#[F]	*F€*
+_empty_/K1U.Bar.
+ *Bar€*&
+_empty_/K1U.Bar.barF().  *barF€*$
+_empty_/K1U.Bar.barF().[F]	*F€*,
+_empty_/K1U.Bar.barF().(fooF)  *fooF€*
+_empty_/K1U.A#*A€*+
+_empty_/K1U.A#`<init>`(). €@*<init>€*
+_empty_/K1U.A#[T]	*T€*
+_empty_/K1U.A.
+ *A€*$
+_empty_/K1U.A.fooA().  *fooA€*"
+_empty_/K1U.A.fooA().[F]	*F€**
+_empty_/K1U.A.fooA().(barB)  *barB€*
+_empty_/K1U.B#*B€*+
+_empty_/K1U.B#`<init>`(). €@*<init>€*
+_empty_/K1U.B#[T]	*T€*
+_empty_/K1U.B.
+ *B€*$
+_empty_/K1U.B.fooB().  *fooB€*"
+_empty_/K1U.B.fooB().[F]	*F€*
+_empty_/K1L.
+ *K1L€*
+_empty_/K1L.Foo#*Foo€*-
+_empty_/K1L.Foo#`<init>`(). €@*<init>€*
+_empty_/K1L.Foo#[T]	*T€*
+_empty_/K1L.Bar#*Bar€*-
+_empty_/K1L.Bar#`<init>`(). €@*<init>€*
+_empty_/K1L.Bar#[F]	*F€*
+_empty_/K1L.Bar.
+ *Bar€*&
+_empty_/K1L.Bar.barF().  *barF€*$
+_empty_/K1L.Bar.barF().[F]	*F€*,
+_empty_/K1L.Bar.barF().(fooF)  *fooF€*
+_empty_/K1L.A#*A€*+
+_empty_/K1L.A#`<init>`(). €@*<init>€*
+_empty_/K1L.A#[T]	*T€*
+_empty_/K1L.A.
+ *A€*$
+_empty_/K1L.A.fooA().  *fooA€*"
+_empty_/K1L.A.fooA().[F]	*F€**
+_empty_/K1L.A.fooA().(barB)  *barB€*
+_empty_/K1L.B#*B€*+
+_empty_/K1L.B#`<init>`(). €@*<init>€*
+_empty_/K1L.B#[T]	*T€*
+_empty_/K1L.B.
+ *B€*$
+_empty_/K1L.B.fooB().  *fooB€*"
+_empty_/K1L.B.fooB().[F]	*F€*
+_empty_/K11.
+ *K11€*
+_empty_/K11.Foo#*Foo€*-
+_empty_/K11.Foo#`<init>`(). €@*<init>€*
+_empty_/K11.Foo#[T]	*T€*
+_empty_/K11.Bar#*Bar€*-
+_empty_/K11.Bar#`<init>`(). €@*<init>€*
+_empty_/K11.Bar#[F]	*F€*
+_empty_/K11.Bar.
+ *Bar€*&
+_empty_/K11.Bar.barF().  *barF€*$
+_empty_/K11.Bar.barF().[F]	*F€*,
+_empty_/K11.Bar.barF().(fooF)  *fooF€*
+_empty_/K11.A#*A€*+
+_empty_/K11.A#`<init>`(). €@*<init>€*
+_empty_/K11.A#[T]	*T€*
+_empty_/K11.A.
+ *A€*$
+_empty_/K11.A.fooA().  *fooA€*"
+_empty_/K11.A.fooA().[F]	*F€**
+_empty_/K11.A.fooA().(barB)  *barB€*
+_empty_/K11.B#*B€*+
+_empty_/K11.B#`<init>`(). €@*<init>€*
+_empty_/K11.B#[T]	*T€*
+_empty_/K11.B.
+ *B€*$
+_empty_/K11.B.fooB().  *fooB€*"
+_empty_/K11.B.fooB().[F]	*F€*
+_empty_/K2.
+ *K2€*
+_empty_/K2.Foo#*Foo€*,
+_empty_/K2.Foo#`<init>`(). €@*<init>€*
+_empty_/K2.Foo#[T]	*T€*
+_empty_/K2.Bar#*Bar€*,
+_empty_/K2.Bar#`<init>`(). €@*<init>€*
+_empty_/K2.Bar#[F]	*F€*
+_empty_/K2.Bar.
+ *Bar€*%
+_empty_/K2.Bar.barF().  *barF€*#
+_empty_/K2.Bar.barF().[F]	*F€*+
+_empty_/K2.Bar.barF().(fooF)  *fooF€*
+_empty_/K2.A#*A€**
+_empty_/K2.A#`<init>`(). €@*<init>€*
+_empty_/K2.A#[T]	*T€*
+_empty_/K2.A#[U]	*U€*
+_empty_/K2.A.
+ *A€*#
+_empty_/K2.A.fooA().  *fooA€*!
+_empty_/K2.A.fooA().[F]	*F€*)
+_empty_/K2.A.fooA().(barB)  *barB€*
+_empty_/K2.B#*B€**
+_empty_/K2.B#`<init>`(). €@*<init>€*
+_empty_/K2.B#[T]	*T€*
+_empty_/K2.B#[U]	*U€*
+_empty_/K2.B.
+ *B€*#
+_empty_/K2.B.fooB().  *fooB€*!
+_empty_/K2.B.fooB().[F]	*F€*
+_empty_/Test.
+ *Test€2
+ 	_empty_/K1.2
+ _empty_/K1.Foo#2(
+ _empty_/K1.Foo#`<init>`().2 
+ _empty_/K1.Foo#[T]2
+ _empty_/K1.Bar#2(
+ _empty_/K1.Bar#`<init>`().2 
+ _empty_/K1.Bar#[F]2
+	 _empty_/K1.Bar.2$
+ _empty_/K1.Bar.barF().2'
+ _empty_/K1.Bar.barF().[F]2*
+% )_empty_/K1.Bar.barF().(fooF)2
++ ._empty_/K1.Foo#2
+/ 2_empty_/K1.Bar#2'
+3 4_empty_/K1.Bar.barF().[F]2
+9 <_empty_/K1.Bar#2'
+= >_empty_/K1.Bar.barF().[F]2
+ 	_empty_/K1.A#2&
+	 	_empty_/K1.A#`<init>`().2
+
+ _empty_/K1.A#[T]2
+			 
+_empty_/K1.A.2"
+
+
+ _empty_/K1.A.fooA().2%
+
+
+ _empty_/K1.A.fooA().[F]2(
+
+(
+ ,_empty_/K1.A.fooA().(barB)2%
+
+.
+ /_empty_/K1.A.fooA().[F]2
+
+5
+ 8_empty_/K1.Foo#2%
+
+9
+ :_empty_/K1.A.fooA().[F]2
+ 	_empty_/K1.B#2&
+	 	_empty_/K1.B#`<init>`().2
+
+ _empty_/K1.B#[T]2
+	 
+_empty_/K1.B.2"
+ _empty_/K1.B.fooB().2%
+ _empty_/K1.B.fooB().[F]2
+  #_empty_/K1.Foo#2%
+$ %_empty_/K1.B.fooB().[F]2
+ 
+_empty_/K1U.2
+ _empty_/K1U.Foo#2)
+ _empty_/K1U.Foo#`<init>`().2!
+ _empty_/K1U.Foo#[T]2
+ _empty_/K1U.Bar#2)
+ _empty_/K1U.Bar#`<init>`().2!
+ _empty_/K1U.Bar#[F]2
+	 _empty_/K1U.Bar.2%
+ _empty_/K1U.Bar.barF().2(
+ _empty_/K1U.Bar.barF().[F]2+
+, 0_empty_/K1U.Bar.barF().(fooF)2
+2 5_empty_/K1U.Foo#2
+6 9_empty_/K1U.Bar#2(
+: ;_empty_/K1U.Bar.barF().[F]2
+@ C_empty_/K1U.Bar#2(
+D E_empty_/K1U.Bar.barF().[F]2
+ 	_empty_/K1U.A#2'
+	 	_empty_/K1U.A#`<init>`().2
+
+ _empty_/K1U.A#[T]2
+	 
+_empty_/K1U.A.2#
+ _empty_/K1U.A.fooA().2&
+ _empty_/K1U.A.fooA().[F]2)
+/ 3_empty_/K1U.A.fooA().(barB)2&
+5 6_empty_/K1U.A.fooA().[F]2
+< ?_empty_/K1U.Foo#2&
+@ A_empty_/K1U.A.fooA().[F]2
+   	_empty_/K1U.B#2'
+ 	  	_empty_/K1U.B#`<init>`().2
+ 
+  _empty_/K1U.B#[T]2
+!	! 
+_empty_/K1U.B.2#
+"" _empty_/K1U.B.fooB().2&
+"" _empty_/K1U.B.fooB().[F]2
+"'" *_empty_/K1U.Foo#2&
+"+" ,_empty_/K1U.B.fooB().[F]2
+&& 
+_empty_/K1L.2
+'' _empty_/K1L.Foo#2)
+'' _empty_/K1L.Foo#`<init>`().2!
+'' _empty_/K1L.Foo#[T]2
+)) _empty_/K1L.Bar#2)
+)) _empty_/K1L.Bar#`<init>`().2!
+)) _empty_/K1L.Bar#[F]2
+*	* _empty_/K1L.Bar.2%
+++ _empty_/K1L.Bar.barF().2(
+++ _empty_/K1L.Bar.barF().[F]2+
++,+ 0_empty_/K1L.Bar.barF().(fooF)2
++2+ 5_empty_/K1L.Foo#2
++6+ 9_empty_/K1L.Bar#2(
++:+ ;_empty_/K1L.Bar.barF().[F]2
++@+ C_empty_/K1L.Bar#2(
++D+ E_empty_/K1L.Bar.barF().[F]2
+.. 	_empty_/K1L.A#2'
+.	. 	_empty_/K1L.A#`<init>`().2
+.
+. _empty_/K1L.A#[T]2
+/	/ 
+_empty_/K1L.A.2#
+00 _empty_/K1L.A.fooA().2&
+00 _empty_/K1L.A.fooA().[F]2)
+0/0 3_empty_/K1L.A.fooA().(barB)2&
+050 6_empty_/K1L.A.fooA().[F]2
+0<0 ?_empty_/K1L.Foo#2&
+0@0 A_empty_/K1L.A.fooA().[F]2
+33 	_empty_/K1L.B#2'
+3	3 	_empty_/K1L.B#`<init>`().2
+3
+3 _empty_/K1L.B#[T]2
+4	4 
+_empty_/K1L.B.2#
+55 _empty_/K1L.B.fooB().2&
+55 _empty_/K1L.B.fooB().[F]2
+5'5 *_empty_/K1L.Foo#2&
+5+5 ,_empty_/K1L.B.fooB().[F]2
+99 
+_empty_/K11.2
+:: _empty_/K11.Foo#2)
+:: _empty_/K11.Foo#`<init>`().2!
+:: _empty_/K11.Foo#[T]2
+<< _empty_/K11.Bar#2)
+<< _empty_/K11.Bar#`<init>`().2!
+<< _empty_/K11.Bar#[F]2
+=	= _empty_/K11.Bar.2%
+>> _empty_/K11.Bar.barF().2(
+>> _empty_/K11.Bar.barF().[F]2+
+>(> ,_empty_/K11.Bar.barF().(fooF)2
+>.> 1_empty_/K11.Foo#2
+>2> 5_empty_/K11.Bar#2(
+>6> 7_empty_/K11.Bar.barF().[F]2
+><> ?_empty_/K11.Bar#2(
+>@> A_empty_/K11.Bar.barF().[F]2
+AA 	_empty_/K11.A#2'
+A	A 	_empty_/K11.A#`<init>`().2
+A
+A _empty_/K11.A#[T]2
+B	B 
+_empty_/K11.A.2#
+CC _empty_/K11.A.fooA().2&
+CC _empty_/K11.A.fooA().[F]2)
+C+C /_empty_/K11.A.fooA().(barB)2&
+C1C 2_empty_/K11.A.fooA().[F]2
+C8C ;_empty_/K11.Foo#2&
+C<C =_empty_/K11.A.fooA().[F]2
+FF 	_empty_/K11.B#2'
+F	F 	_empty_/K11.B#`<init>`().2
+F
+F _empty_/K11.B#[T]2
+G	G 
+_empty_/K11.B.2#
+HH _empty_/K11.B.fooB().2&
+HH _empty_/K11.B.fooB().[F]2
+H#H &_empty_/K11.Foo#2&
+H'H (_empty_/K11.B.fooB().[F]2
+LL 	_empty_/K2.2
+MM _empty_/K2.Foo#2(
+MM _empty_/K2.Foo#`<init>`().2 
+MM _empty_/K2.Foo#[T]2
+OO _empty_/K2.Bar#2(
+OO _empty_/K2.Bar#`<init>`().2 
+OO _empty_/K2.Bar#[F]2
+P	P _empty_/K2.Bar.2$
+QQ _empty_/K2.Bar.barF().2'
+QQ _empty_/K2.Bar.barF().[F]2*
+Q(Q ,_empty_/K2.Bar.barF().(fooF)2
+Q.Q 1_empty_/K2.Foo#2
+Q2Q 5_empty_/K2.Bar#2'
+Q6Q 7_empty_/K2.Bar.barF().[F]2
+Q<Q ?_empty_/K2.Bar#2'
+Q@Q A_empty_/K2.Bar.barF().[F]2
+TT 	_empty_/K2.A#2&
+T	T 	_empty_/K2.A#`<init>`().2
+T
+T _empty_/K2.A#[T]2
+TT _empty_/K2.A#[U]2
+U	U 
+_empty_/K2.A.2"
+VV _empty_/K2.A.fooA().2%
+VV _empty_/K2.A.fooA().[F]2(
+V+V /_empty_/K2.A.fooA().(barB)2%
+V1V 2_empty_/K2.A.fooA().[F]2
+V8V ;_empty_/K2.Foo#2%
+V<V =_empty_/K2.A.fooA().[F]2
+YY 	_empty_/K2.B#2&
+Y	Y 	_empty_/K2.B#`<init>`().2
+Y
+Y _empty_/K2.B#[T]2
+YY _empty_/K2.B#[U]2
+Z	Z 
+_empty_/K2.B.2"
+[[ _empty_/K2.B.fooB().2%
+[[ _empty_/K2.B.fooB().[F]2
+[#[ &_empty_/K2.Foo#2%
+['[ (_empty_/K2.B.fooB().[F]2
+__ _empty_/Test.2
+aa _empty_/K1.2(
+bb scala/Predef.implicitly().2
+bb _empty_/K1.Bar#2$
+bb _empty_/K1.Bar.barF().2"
+bb _empty_/K1.A.fooA().2"
+bb _empty_/K1.B.fooB().2
+ff _empty_/K1U.2(
+gg scala/Predef.implicitly().2
+gg _empty_/K1U.Bar#2%
+gg _empty_/K1U.Bar.barF().2#
+gg _empty_/K1U.A.fooA().2#
+gg _empty_/K1U.B.fooB().2
+kk _empty_/K1L.2(
+ll scala/Predef.implicitly().2
+ll _empty_/K1L.Bar#2%
+ll _empty_/K1L.Bar.barF().2#
+ll _empty_/K1L.A.fooA().2#
+ll _empty_/K1L.B.fooB().2
+pp _empty_/K11.2(
+qq scala/Predef.implicitly().2
+qq _empty_/K11.Bar#2%
+qq _empty_/K11.Bar.barF().2#
+qq _empty_/K11.A.fooA().2#
+qq _empty_/K11.B.fooB().2
+uu _empty_/K2.2(
+vv scala/Predef.implicitly().2
+vv _empty_/K2.Bar#2$
+vv _empty_/K2.Bar.barF().2"
+vv _empty_/K2.A.fooA().2"
+vv _empty_/K2.B.fooB().PZ 56A54413758416937BCFB96A758F53F1

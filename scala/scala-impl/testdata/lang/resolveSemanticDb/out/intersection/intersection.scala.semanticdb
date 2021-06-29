@@ -1,0 +1,166 @@
+
+ø%tests/pos/intersection.scala*,
+_empty_/intersection.
+ *intersection€*!
+_empty_/intersection.A#*A€*4
+"_empty_/intersection.A#`<init>`(). €@*<init>€*!
+_empty_/intersection.B#*B€*4
+"_empty_/intersection.B#`<init>`(). €@*<init>€*$
+_empty_/intersection.x. €*x€*$
+_empty_/intersection.y. €*y€*$
+_empty_/intersection.z. €*z€*$
+_empty_/intersection.a. €*a€*$
+_empty_/intersection.c. €*c€*+
+_empty_/intersection.needsA#*needsA€*+
+_empty_/intersection.needsB#*needsB€*!
+_empty_/intersection.C#*C€*4
+"_empty_/intersection.C#`<init>`(). €@*<init>€*'
+_empty_/intersection.C#[T]	 €*T€*#
+_empty_/intersection.f().*f€*#
+_empty_/intersection.g().*g€*#
+_empty_/intersection.h().*h€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.A#*A€*,
+_empty_/Test.A#`<init>`(). €@*<init>€*
+_empty_/Test.A#f(). *f€*
+_empty_/Test.B#*B€*,
+_empty_/Test.B#`<init>`(). €@*<init>€*
+_empty_/Test.B#f().*f€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#f().*f€*
+_empty_/Test.bc. €*bc€*
+local0 *$anon€*#
+_empty_/Test.fooAB().*fooAB€*%
+_empty_/Test.fooAB1().*fooAB1€*#
+_empty_/Test.fooBA().*fooBA€*%
+_empty_/Test.fooBA1().*fooBA1€2
+ _empty_/intersection.2%
+ 	_empty_/intersection.A#20
+ "_empty_/intersection.A#`<init>`().2%
+ 	_empty_/intersection.B#20
+ "_empty_/intersection.B#`<init>`().2%
+ _empty_/intersection.x.2%
+	 
+_empty_/intersection.A#2
+ scala/Unit#2#
+ scala/Predef.`???`().2%
+ _empty_/intersection.y.2%
+	 
+_empty_/intersection.B#2
+ scala/Unit#2#
+ scala/Predef.`???`().2%
+ _empty_/intersection.z.2#
+ scala/Predef.`???`().2%
+ _empty_/intersection.x.2%
+ _empty_/intersection.y.2%
+
+
+ _empty_/intersection.a.2
+
+
+ 
+scala/`&`#2%
+
+	
+ 
+_empty_/intersection.A#2%
+
+
+ _empty_/intersection.B#2
+
+
+ scala/Unit#2%
+
+
+ _empty_/intersection.z.2%
+ _empty_/intersection.c.2
+ 
+scala/`|`#2%
+
+ _empty_/intersection.A#2
+ scala/Unit#2%
+ _empty_/intersection.B#2
+ !scala/Unit#2#
+) ,scala/Predef.`???`().2%
+. /_empty_/intersection.x.2%
+5 6_empty_/intersection.y.2*
+ _empty_/intersection.needsA#2%
+ _empty_/intersection.A#2
+ scala/Nothing#2*
+ _empty_/intersection.needsB#2%
+ _empty_/intersection.B#2
+ scala/Nothing#2%
+ 	_empty_/intersection.C#20
+	 	"_empty_/intersection.C#`<init>`().2(
+ _empty_/intersection.C#[T]2'
+ _empty_/intersection.f().2
+ 
+scala/`&`#2%
+	 
+_empty_/intersection.C#2%
+ _empty_/intersection.A#2%
+ _empty_/intersection.C#2%
+ _empty_/intersection.B#2#
+ scala/Predef.`???`().2'
+ _empty_/intersection.g().2%
+	 
+_empty_/intersection.C#2
+ 
+scala/`|`#2%
+ _empty_/intersection.A#2%
+ _empty_/intersection.B#2'
+ _empty_/intersection.f().2'
+ _empty_/intersection.h().2
+ 
+scala/`&`#2%
+	 
+_empty_/intersection.C#2%
+ _empty_/intersection.A#2%
+ _empty_/intersection.C#2%
+ _empty_/intersection.B#2'
+ _empty_/intersection.g().2
+ _empty_/Test.2
+ 	_empty_/Test.A#2(
+ _empty_/Test.A#`<init>`().2!
+ 	_empty_/Test.A#f().2
+ 
+scala/Any#2
+ 	_empty_/Test.B#2(
+ _empty_/Test.B#`<init>`().2
+ _empty_/Test.A#2!
+ _empty_/Test.B#f().2
+ 
+scala/Int#2
+   	_empty_/Test.C#2(
+   _empty_/Test.C#`<init>`().2
+   _empty_/Test.A#2!
+!! 	_empty_/Test.C#f().2
+!! 
+scala/Any#2
+$$ _empty_/Test.bc.2
+$
+$ _empty_/Test.B#2
+$$ _empty_/Test.C#2
+$$ local02
+$$ _empty_/Test.C#2
+$ $ !_empty_/Test.B#2#
+&& _empty_/Test.fooAB().2!
+&&  _empty_/Test.B#f().2#
+&& scala/Predef.`???`().2
+&& _empty_/Test.A#2
+&& _empty_/Test.B#2$
+'' _empty_/Test.fooAB1().2
+'' 
+scala/Int#2#
+'' _empty_/Test.fooAB().2#
+(( _empty_/Test.fooBA().2!
+((  _empty_/Test.B#f().2#
+(( scala/Predef.`???`().2
+(( _empty_/Test.B#2
+(( _empty_/Test.A#2$
+)) _empty_/Test.fooBA1().2
+)) 
+scala/Int#2#
+)) _empty_/Test.fooBA().PZ 159C037C5634B79124F81A1E9119D196

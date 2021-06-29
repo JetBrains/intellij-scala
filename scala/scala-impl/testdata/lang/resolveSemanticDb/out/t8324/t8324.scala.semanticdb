@@ -1,0 +1,43 @@
+
+»
+tests/pos/t8324.scala*#
+p1/ProjectDef# *
+ProjectDef€*+
+p1/ProjectDef#`<init>`(). €@*<init>€*=
+&p1/ProjectDef#`<init>`().(autoPlugins) €*autoPlugins€*1
+p1/ProjectDef#autoPlugins. €*autoPlugins€*-
+p1/ResolvedProject# *ResolvedProject€*0
+p1/ResolvedProject#`<init>`(). €@*<init>€*7
+!p1/ResolvedProject#autoPlugins(). *autoPlugins€*1
+p1/ProjectDefinition# *ProjectDefinition€*2
+ p1/ProjectDefinition#`<init>`(). €@*<init>€*9
+#p1/ProjectDefinition#autoPlugins(). *autoPlugins€*
+p1/Test.
+ *Test€*
+local0 *$anon€2
+ 
+p1/2
+ !p1/ProjectDef#2
+
+ p1/2'
+! !p1/ProjectDef#`<init>`().2
+3 6
+scala/Any#2#
+@ Qp1/ProjectDefinition#2(
+& 1p1/ProjectDef#autoPlugins.2!
+ p1/ResolvedProject#2,
+% %p1/ResolvedProject#`<init>`().2#
+% 6p1/ProjectDefinition#2/
+ !p1/ResolvedProject#autoPlugins().2
+ 
+scala/Any#2#
+ p1/ProjectDefinition#2.
+  p1/ProjectDefinition#`<init>`().21
+ #p1/ProjectDefinition#autoPlugins().2
+ "
+scala/Any#2
+ p1/Test.2
+ local02'
+ p1/ProjectDef#`<init>`().2
+ p1/ProjectDef#2!
+ +p1/ResolvedProject#PZ 47700AE8E5FE4E7EC1D65FE560AA2D8E

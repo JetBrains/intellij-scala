@@ -1,0 +1,58 @@
+
+¹tests/pos/sammy_twice.scala*
+
+_empty_/F#*F€*'
+_empty_/F#`<init>`(). €@*<init>€*
+_empty_/F#[T]	*T€*
+_empty_/F#[U]	*U€*"
+_empty_/F#apply(). *apply€*
+_empty_/F#apply().(x)*x€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#app().*app€*
+_empty_/C#app().[T]	*T€*
+_empty_/C#app().[U]	*U€*
+_empty_/C#app().(x)*x€*
+_empty_/C#app().(f)*f€*
+local0*x€*
+local1*x€2
+ 
+_empty_/F#2#
+ _empty_/F#`<init>`().2
+ 	_empty_/F#[T]2
+ _empty_/F#[U]2 
+ _empty_/F#apply().2#
+ _empty_/F#apply().(x)2
+ _empty_/F#[T]2
+! "_empty_/F#[U]2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ 	_empty_/C#app().2!
+
+ _empty_/C#app().[T]2!
+ _empty_/C#app().[U]2!
+ _empty_/C#app().(x)2!
+ _empty_/C#app().[T]2!
+ _empty_/C#app().(f)2
+ 
+_empty_/F#2!
+ _empty_/C#app().[T]2!
+ _empty_/C#app().[U]2!
+# $_empty_/C#app().[U]2 
+( (_empty_/F#apply().2!
+' (_empty_/C#app().(f)2!
+) *_empty_/C#app().(x)2
+ _empty_/C#app().2
+	 
+local027
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local02
+ _empty_/C#app().2
+	 
+local127
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2
+ local1PZ 80809107424D16CF575F0E41A39EFAC1

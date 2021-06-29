@@ -1,0 +1,177 @@
+
+’'tests/pos/tparam_inf.scala*
+_empty_/HasFoo#*HasFoo€*,
+_empty_/HasFoo#`<init>`(). €@*<init>€*
+_empty_/HasFoo#[T]	*T€*
+_empty_/HasFoo#x. €*x€*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Foo#get().*get€*
+_empty_/Foo#get().(x)*x€* 
+_empty_/Foo#get2().*get2€* 
+_empty_/Foo#get2().(x)*x€* 
+_empty_/Foo#foo1().*foo1€* 
+_empty_/Foo#foo1().(x)*x€*$
+_empty_/Foo#foo1().(ev)  *ev€* 
+_empty_/Foo#foo2().*foo2€* 
+_empty_/Foo#foo2().(x)*x€*$
+_empty_/Foo#foo2().(ev)  *ev€* 
+_empty_/Foo#foo3().*foo3€*(
+_empty_/Foo#foo3().[Dummy]	*Dummy€* 
+_empty_/Foo#foo3().(x)*x€*$
+_empty_/Foo#foo3().(ev)  *ev€* 
+_empty_/Foo#foo4().*foo4€*(
+_empty_/Foo#foo4().[Dummy]	*Dummy€* 
+_empty_/Foo#foo4().(x)*x€*$
+_empty_/Foo#foo4().(ev)  *ev€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.foo1().*foo1€*!
+_empty_/Test.foo1().[T]	*T€*!
+_empty_/Test.foo1().(x)*x€*%
+_empty_/Test.foo1().(ev)  *ev€*!
+_empty_/Test.foo2().*foo2€*!
+_empty_/Test.foo2().[T]	*T€*!
+_empty_/Test.foo2().(x)*x€*%
+_empty_/Test.foo2().(ev)  *ev€*#
+_empty_/Test.test1().*test1€*
+local0  *ii€*
+_empty_/Test.hf().*hf€*
+_empty_/Test.hf().[T]	*T€*#
+_empty_/Test.test2().*test2€*
+local1  *ii€2
+ _empty_/HasFoo#2$
+ _empty_/HasFoo#`<init>`().2
+ _empty_/HasFoo#[T]2
+ _empty_/HasFoo#x.2
+	 _empty_/Foo#2 
+ _empty_/HasFoo#[T]2#
+ scala/Predef.`???`().2
+ 	_empty_/Foo#2%
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2 
+ 	_empty_/Foo#get().2#
+
+ _empty_/Foo#get().(x)2
+ _empty_/Foo#[T]2
+ _empty_/Foo#[T]2#
+ _empty_/Foo#get().(x)2!
+ 
+_empty_/Foo#get2().2$
+ _empty_/Foo#get2().(x)2
+ _empty_/Foo#[T]2
+ scala/Nothing#2#
+ scala/Predef.`???`().2!
+ 
+_empty_/Foo#foo1().2$
+ _empty_/Foo#foo1().(x)2
+ _empty_/Foo#[T]2%
+ _empty_/Foo#foo1().(ev)2
+ _empty_/Foo#[T]2
+" )scala/Nothing#2#
+, /scala/Predef.`???`().2!
+ 
+_empty_/Foo#foo2().2$
+ _empty_/Foo#foo2().(x)2
+ _empty_/Foo#[T]2%
+ _empty_/Foo#foo2().(ev)2
+ _empty_/Foo#[T]2
+" #_empty_/Foo#[T]2#
+& )scala/Predef.`???`().2!
+		 
+_empty_/Foo#foo3().2(
+		 _empty_/Foo#foo3().[Dummy]2$
+		 _empty_/Foo#foo3().(x)2
+		 _empty_/Foo#[T]2%
+	!	 #_empty_/Foo#foo3().(ev)2
+	%	 &_empty_/Foo#[T]2
+	)	 0scala/Nothing#2#
+	3	 6scala/Predef.`???`().2!
+
+
+ 
+_empty_/Foo#foo4().2(
+
+
+ _empty_/Foo#foo4().[Dummy]2$
+
+
+ _empty_/Foo#foo4().(x)2
+
+
+ _empty_/Foo#[T]2%
+
+!
+ #_empty_/Foo#foo4().(ev)2
+
+%
+ &_empty_/Foo#[T]2
+
+)
+ *_empty_/Foo#[T]2#
+
+-
+ 0scala/Predef.`???`().2
+ _empty_/Test.2"
+ 
+_empty_/Test.foo1().2%
+ _empty_/Test.foo1().[T]2%
+ _empty_/Test.foo1().(x)2%
+ _empty_/Test.foo1().[T]2&
+ _empty_/Test.foo1().(ev)2%
+! "_empty_/Test.foo1().[T]2
+% ,scala/Nothing#2#
+/ 2scala/Predef.`???`().2"
+ 
+_empty_/Test.foo2().2%
+ _empty_/Test.foo2().[T]2%
+ _empty_/Test.foo2().(x)2%
+ _empty_/Test.foo2().[T]2&
+ _empty_/Test.foo2().(ev)2%
+! "_empty_/Test.foo2().[T]2%
+% &_empty_/Test.foo2().[T]2#
+) ,scala/Predef.`???`().2#
+ _empty_/Test.test1().2
+ scala/Unit#2
+ local02
+ 
+scala/Int#2"
+ _empty_/Test.foo1().2
+ local02"
+ _empty_/Test.foo2().2
+ local02 
+ _empty_/Test.hf().2#
+	 
+_empty_/Test.hf().[T]2
+ _empty_/HasFoo#2#
+ _empty_/Test.hf().[T]2#
+ scala/Predef.`???`().2#
+ _empty_/Test.test2().2
+ scala/Unit#2
+ local12
+ 
+scala/Int#2 
+	 _empty_/Foo#get().2
+ _empty_/HasFoo#x.2 
+ _empty_/Test.hf().2!
+	 _empty_/Foo#get2().2
+ _empty_/HasFoo#x.2 
+ _empty_/Test.hf().2!
+ 	  _empty_/Foo#foo1().2
+   _empty_/HasFoo#x.2 
+   _empty_/Test.hf().2
+   local12!
+!	! _empty_/Foo#foo2().2
+!! _empty_/HasFoo#x.2 
+!! _empty_/Test.hf().2
+!! local12!
+"	" _empty_/Foo#foo3().2
+"" _empty_/HasFoo#x.2 
+"" _empty_/Test.hf().2
+"" local12!
+#	# _empty_/Foo#foo4().2
+## _empty_/HasFoo#x.2 
+## _empty_/Test.hf().2
+## local1PZ D8AECFC2A91F6B646EA6ACF301EBC3EE

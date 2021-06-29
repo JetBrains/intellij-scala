@@ -1,0 +1,14 @@
+
+ˆtests/pos/i1137-3/B_2.scala*
+
+_empty_/B.
+ *B€*
+_empty_/B.foo().*foo€2
+ 
+_empty_/B.2
+ 	_empty_/B.foo().2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/A#PZ EBF6C831C3B344CDC4F1D77475DCAA2A

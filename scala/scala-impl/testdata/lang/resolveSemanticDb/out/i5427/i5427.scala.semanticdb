@@ -1,0 +1,243 @@
+
+È>tests/pos/i5427.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[In]	*In€*
+_empty_/Foo#Out#*Out€*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.fooInt().  *fooInt€*
+local0*Out€*!
+_empty_/Test.str().  *str€*#
+_empty_/Test.test1().*test1€*"
+_empty_/Test.test1().[A]	*A€*$
+_empty_/Test.test1().(f1)*f1€*&
+_empty_/Test.test1().(f2)  *f2€*#
+_empty_/Test.test2().*test2€*"
+_empty_/Test.test2().[A]	*A€*&
+_empty_/Test.test2().(f1)  *f1€*&
+_empty_/Test.test2().(f2)  *f2€*
+_empty_/Test2.
+ *Test2€*(
+_empty_/Test2.fooInt().  *fooInt€*
+local1*Out€*.
+_empty_/Test2.fooString().  *	fooString€*
+local2*Out€*0
+_empty_/Test2.fooBoolean().  *
+fooBoolean€*
+local3*Out€*$
+_empty_/Test2.test3().*test3€*#
+_empty_/Test2.test3().[A]	*A€*%
+_empty_/Test2.test3().(f1)*f1€*%
+_empty_/Test2.test3().(f2)*f2€*'
+_empty_/Test2.test3().(f3)  *f3€*$
+_empty_/Test2.test4().*test4€*#
+_empty_/Test2.test4().[A]	*A€*'
+_empty_/Test2.test4().(f1)  *f1€*'
+_empty_/Test2.test4().(f2)  *f2€*'
+_empty_/Test2.test4().(f3)  *f3€*
+_empty_/Test2.t3. €*t3€*
+_empty_/Test2.t4. €*t4€*
+_empty_/Test3.
+ *Test3€*&
+_empty_/Test3.fooInt().*fooInt€*
+local4*Out€*$
+_empty_/Test3.istr().  *istr€*$
+_empty_/Test3.iint().  *iint€*$
+_empty_/Test3.test5().*test5€*#
+_empty_/Test3.test5().[A]	*A€*'
+_empty_/Test3.test5().(f1)  *f1€*'
+_empty_/Test3.test5().(f2)  *f2€*8
+ _empty_/Test3.test5$default$1().*test5$default$1€*-
+#_empty_/Test3.test5$default$1().[A]	*A€*
+_empty_/Test3.t5. €*t5€*
+local5 €*f2$1€*
+local6 €*f1$1€*
+_empty_/Test4.
+ *Test4€*(
+_empty_/Test4.fooInt().  *fooInt€*
+local7*Out€* 
+_empty_/Test4.str().*str€*$
+_empty_/Test4.test6().*test6€*#
+_empty_/Test4.test6().[A]	*A€*'
+_empty_/Test4.test6().(f1)  *f1€*'
+_empty_/Test4.test6().(f2)  *f2€*8
+ _empty_/Test4.test6$default$2().*test6$default$2€*-
+#_empty_/Test4.test6$default$2().[A]	*A€*
+_empty_/Test4.t6. €*t6€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[In]2
+ _empty_/Foo#Out#2
+ _empty_/Test.2$
+ _empty_/Test.fooInt().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+' *local02"
+- 3scala/Predef.String#2#
+8 ;scala/Predef.`???`().2!
+ _empty_/Test.str().2"
+ scala/Predef.String#2#
+  scala/Predef.`???`().2#
+ _empty_/Test.test1().2&
+ _empty_/Test.test1().[A]2'
+ _empty_/Test.test1().(f1)2
+ _empty_/Foo#2&
+ _empty_/Test.test1().[A]2'
+$ &_empty_/Test.test1().(f2)2
++ ._empty_/Foo#Out#2'
+( *_empty_/Test.test1().(f1)2#
+2 5scala/Predef.`???`().2#
+ _empty_/Test.test2().2&
+ _empty_/Test.test2().[A]2'
+ _empty_/Test.test2().(f1)2
+ _empty_/Foo#2&
+  !_empty_/Test.test2().[A]2'
+$ &_empty_/Test.test2().(f2)2
++ ._empty_/Foo#Out#2'
+( *_empty_/Test.test2().(f1)2#
+2 5scala/Predef.`???`().2#
+		 _empty_/Test.test1().2$
+		 _empty_/Test.fooInt().2!
+		 _empty_/Test.str().2#
+
+
+ _empty_/Test.test2().2$
+
+
+ _empty_/Test.fooInt().2!
+
+
+ _empty_/Test.str().2
+ _empty_/Test2.2%
+ _empty_/Test2.fooInt().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+' *local12"
+- 3scala/Predef.String#2#
+8 ;scala/Predef.`???`().2(
+ _empty_/Test2.fooString().2
+ _empty_/Foo#2"
+ $scala/Predef.String#2
+- 0local22
+3 :scala/Boolean#2#
+? Bscala/Predef.`???`().2)
+ _empty_/Test2.fooBoolean().2
+ _empty_/Foo#2
+ &scala/Boolean#2
+/ 2local32
+5 ;scala/Double#2#
+@ Cscala/Predef.`???`().2$
+ _empty_/Test2.test3().2'
+ _empty_/Test2.test3().[A]2(
+ _empty_/Test2.test3().(f1)2
+ _empty_/Foo#2'
+ _empty_/Test2.test3().[A]2(
+ _empty_/Test2.test3().(f2)2
+ "_empty_/Foo#2
+& )_empty_/Foo#Out#2(
+# %_empty_/Test2.test3().(f1)2(
+5 7_empty_/Test2.test3().(f3)2
+9 <_empty_/Foo#2
+@ C_empty_/Foo#Out#2(
+= ?_empty_/Test2.test3().(f2)2
+J M_empty_/Foo#Out#2(
+G I_empty_/Test2.test3().(f3)2#
+P Sscala/Predef.`???`().2$
+ _empty_/Test2.test4().2'
+ _empty_/Test2.test4().[A]2(
+ _empty_/Test2.test4().(f1)2
+ _empty_/Foo#2'
+  !_empty_/Test2.test4().[A]2(
+$ &_empty_/Test2.test4().(f2)2
+( +_empty_/Foo#2
+/ 2_empty_/Foo#Out#2(
+, ._empty_/Test2.test4().(f1)2(
+5 7_empty_/Test2.test4().(f3)2
+9 <_empty_/Foo#2
+@ C_empty_/Foo#Out#2(
+= ?_empty_/Test2.test4().(f2)2
+J M_empty_/Foo#Out#2(
+G I_empty_/Test2.test4().(f3)2#
+P Sscala/Predef.`???`().2
+ _empty_/Test2.t3.2$
+ _empty_/Test2.test3().2%
+ _empty_/Test2.fooInt().2(
+ "_empty_/Test2.fooString().2)
+# #_empty_/Test2.fooBoolean().2
+ _empty_/Test2.t3.2
+ scala/Double#2
+ _empty_/Test2.t4.2$
+ _empty_/Test2.test4().2
+ 
+scala/Int#2%
+ _empty_/Test2.fooInt().2(
+ _empty_/Test2.fooString().2)
+ _empty_/Test2.fooBoolean().2
+ _empty_/Test2.t4.2
+ scala/Double#2
+ _empty_/Test3.2%
+ _empty_/Test3.fooInt().2
+ _empty_/Foo#2
+ 
+scala/Int#2
+ !local42"
+$ *scala/Predef.String#2#
+/ 2scala/Predef.`???`().2#
+ _empty_/Test3.istr().2"
+ scala/Predef.String#2#
+ !scala/Predef.`???`().2#
+ _empty_/Test3.iint().2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2$
+   _empty_/Test3.test5().2'
+   _empty_/Test3.test5().[A]2(
+   _empty_/Test3.test5().(f1)2
+   _empty_/Foo#2'
+    !_empty_/Test3.test5().[A]2(
+ -  /_empty_/Test3.test5().(f2)2
+ 4  7_empty_/Foo#Out#2(
+ 1  3_empty_/Test3.test5().(f1)2(
+ ;  =_empty_/Test3.test5().(f2)21
+   #_empty_/Test3.test5$default$1().[A]2%
+ %  +_empty_/Test3.fooInt().2
+"" _empty_/Test3.t5.2
+"" local62$
+"" _empty_/Test3.test5().2
+"" local62(
+"# _empty_/Test3.test5().(f2)2#
+"" _empty_/Test3.istr().2
+%% _empty_/Test3.t5.2"
+%% scala/Predef.String#2
+(( _empty_/Test4.2%
+)) _empty_/Test4.fooInt().2
+)) _empty_/Foo#2
+)) 
+scala/Int#2
+)') *local72"
+)-) 3scala/Predef.String#2#
+)8) ;scala/Predef.`???`().2"
+** 	_empty_/Test4.str().2"
+** scala/Predef.String#2#
+** scala/Predef.`???`().2$
+,, _empty_/Test4.test6().2'
+,, _empty_/Test4.test6().[A]2(
+,, _empty_/Test4.test6().(f1)2
+,, _empty_/Foo#2'
+, , !_empty_/Test4.test6().[A]2(
+,$, &_empty_/Test4.test6().(f2)2
+,+, ._empty_/Foo#Out#2(
+,(, *_empty_/Test4.test6().(f1)2(
+,8, :_empty_/Test4.test6().(f2)21
+,, #_empty_/Test4.test6$default$2().[A]2"
+,1, 4_empty_/Test4.str().2
+.. _empty_/Test4.t6.2$
+.. _empty_/Test4.test6().2(
+./ _empty_/Test4.test6().(f1)2%
+.. _empty_/Test4.fooInt().2
+// _empty_/Test4.t6.2"
+// scala/Predef.String#PZ 10D01C2C0B198BD6140CB68C5D444C58

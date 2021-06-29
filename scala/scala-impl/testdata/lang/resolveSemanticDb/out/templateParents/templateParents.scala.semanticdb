@@ -1,0 +1,74 @@
+
+ùtests/pos/templateParents.scala*2
+_empty_/templateParents.
+ *templateParents€*$
+_empty_/templateParents.C#*C€*7
+%_empty_/templateParents.C#`<init>`(). €@*<init>€*2
+(_empty_/templateParents.C#`<init>`().(x)*x€**
+_empty_/templateParents.C#[T]	 €*T€*)
+_empty_/templateParents.C#x. €*x€*$
+_empty_/templateParents.D#*D€*7
+%_empty_/templateParents.D#`<init>`(). €@*<init>€*$
+_empty_/templateParents.E#*E€*7
+%_empty_/templateParents.E#`<init>`(). €@*<init>€*
+local0 *$anon€*4
+_empty_/templateParents1.
+ *templateParents1€*%
+_empty_/templateParents1.C#*C€*8
+&_empty_/templateParents1.C#`<init>`(). €@*<init>€*+
+_empty_/templateParents1.C#[T]	 €*T€*%
+_empty_/templateParents1.D#*D€*8
+&_empty_/templateParents1.D#`<init>`(). €@*<init>€*%
+_empty_/templateParents1.E#*E€*8
+&_empty_/templateParents1.E#`<init>`(). €@*<init>€*(
+_empty_/templateParents1.x. €*x€*
+local1 *$anon€*(
+_empty_/templateParents1.y. €*y€2"
+ _empty_/templateParents.2(
+ 	_empty_/templateParents.C#23
+	 	%_empty_/templateParents.C#`<init>`().2+
+ _empty_/templateParents.C#[T]2+
+ _empty_/templateParents.C#[T]2*
+ _empty_/templateParents.C#x.2(
+ 	_empty_/templateParents.D#23
+ %_empty_/templateParents.D#`<init>`().2(
+ _empty_/templateParents.C#2"
+ scala/Predef.String#2(
+ 	_empty_/templateParents.E#23
+ %_empty_/templateParents.E#`<init>`().2(
+ _empty_/templateParents.C#2
+ 
+scala/Int#2
+ local023
+ %_empty_/templateParents.C#`<init>`().2(
+ _empty_/templateParents.D#2'
+
+
+ _empty_/templateParents1.2)
+ 	_empty_/templateParents1.C#24
+	 	&_empty_/templateParents1.C#`<init>`().2,
+ _empty_/templateParents1.C#[T]2)
+ 	_empty_/templateParents1.D#24
+ &_empty_/templateParents1.D#`<init>`().2)
+ _empty_/templateParents1.C#2"
+ scala/Predef.String#2)
+ 	_empty_/templateParents1.E#24
+ &_empty_/templateParents1.E#`<init>`().2)
+ _empty_/templateParents1.C#2
+ 
+scala/Int#2)
+ _empty_/templateParents1.x.2
+
+ 
+local12)
+ _empty_/templateParents1.D#2)
+ _empty_/templateParents1.E#2)
+ _empty_/templateParents1.y.2)
+	 
+_empty_/templateParents1.C#2
+ 
+scala/`&`#2
+ 
+scala/Int#2"
+ scala/Predef.String#2)
+ _empty_/templateParents1.x.PZ C986B0BDAE8C99A6B41641E758EDC496

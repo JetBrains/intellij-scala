@@ -1,0 +1,31 @@
+
+’tests/pos/depmet_1_pos.scala*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.precise().*precise€*$
+_empty_/Test.precise().(x)*x€*$
+_empty_/Test.precise().(y)*y€* 
+_empty_/Test.foo. €*foo€* 
+_empty_/Test.fun. €*fun€*
+local0*y€* 
+_empty_/Test.bar. €*bar€2
+ _empty_/Test.2%
+ _empty_/Test.precise().2(
+ _empty_/Test.precise().(x)2"
+ scala/Predef.String#2(
+ _empty_/Test.precise().(y)2(
+ _empty_/Test.precise().(x)2(
+% &_empty_/Test.precise().(x)2(
+. /_empty_/Test.precise().(y)2
+ 	_empty_/Test.foo.2
+ 	_empty_/Test.fun.2
+ _empty_/Test.foo.2
+ _empty_/Test.foo.2%
+# *_empty_/Test.precise().2
++ ._empty_/Test.foo.2
+# #local02
+ 	_empty_/Test.bar.2
+ _empty_/Test.foo.2%
+ _empty_/Test.precise().2
+ "_empty_/Test.foo.2
+$ '_empty_/Test.foo.PZ 85BE3C37288BBA7294B3DD1A8563104F

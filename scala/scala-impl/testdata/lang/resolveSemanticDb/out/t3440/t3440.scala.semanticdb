@@ -1,0 +1,43 @@
+
+â
+tests/pos/t3440.scala*
+_empty_/test.
+ *test€*3
+_empty_/test.SampleFormat1# *SampleFormat1€*8
+&_empty_/test.SampleFormat1#`<init>`(). €@*<init>€*C
++_empty_/test.SampleFormat1#readerFactory(). *readerFactory€*"
+_empty_/test.Int8.
+ ˆ*Int8€*8
+"_empty_/test.Int8.readerFactory().*readerFactory€*$
+_empty_/test.Int16.
+ ˆ*Int16€*9
+#_empty_/test.Int16.readerFactory().*readerFactory€*
+local0 *$anon€2
+ _empty_/test.2)
+ _empty_/test.SampleFormat1#24
+ &_empty_/test.SampleFormat1#`<init>`().29
+ +_empty_/test.SampleFormat1#readerFactory().2
+ 
+scala/Any#2 
+ _empty_/test.Int8.24
+( (&_empty_/test.SampleFormat1#`<init>`().2)
+ (_empty_/test.SampleFormat1#20
+ "_empty_/test.Int8.readerFactory().2(
+ !scala/sys/package.error().2
+ 
+scala/sys/2!
+ _empty_/test.Int16.24
+) )&_empty_/test.SampleFormat1#`<init>`().2)
+ )_empty_/test.SampleFormat1#21
+		 #_empty_/test.Int16.readerFactory().2(
+		 !scala/sys/package.error().2
+		 
+scala/sys/2
+ local02
+ 
+scala/Any#2 
+ _empty_/test.Int8.2!
+ _empty_/test.Int16.2(
+ scala/sys/package.error().2
+ 
+scala/sys/PZ 36FB71CAD6745A8B2700F9C95A9E788F

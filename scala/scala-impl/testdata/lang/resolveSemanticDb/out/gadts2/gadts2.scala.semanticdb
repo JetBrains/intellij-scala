@@ -1,0 +1,202 @@
+
+ò6tests/pos/gadts2.scala*
+_empty_/Test.
+ *Test€*%
+_empty_/Test.Number# *Number€*1
+_empty_/Test.Number#`<init>`(). €@*<init>€*$
+_empty_/Test.MyInt# €*MyInt€*0
+_empty_/Test.MyInt#`<init>`(). €@*<init>€*.
+!_empty_/Test.MyInt#`<init>`().(n) €*n€*"
+_empty_/Test.MyInt#n. €*n€*'
+_empty_/Test.MyInt#copy().*copy€*'
+_empty_/Test.MyInt#copy().(n)*n€*;
+$_empty_/Test.MyInt#copy$default$1().*copy$default$1€*#
+_empty_/Test.MyInt#_1().*_1€*#
+_empty_/Test.MyInt.
+ *MyInt€*)
+_empty_/Test.MyInt.apply().*apply€*(
+_empty_/Test.MyInt.apply().(n)*n€*-
+_empty_/Test.MyInt.unapply().*unapply€*.
+"_empty_/Test.MyInt.unapply().(x$1)*x$1€*/
+_empty_/Test.MyInt.toString().*toString€**
+_empty_/Test.MyDouble# €*MyDouble€*3
+!_empty_/Test.MyDouble#`<init>`(). €@*<init>€*1
+$_empty_/Test.MyDouble#`<init>`().(d) €*d€*%
+_empty_/Test.MyDouble#d. €*d€**
+_empty_/Test.MyDouble#copy().*copy€**
+ _empty_/Test.MyDouble#copy().(d)*d€*>
+'_empty_/Test.MyDouble#copy$default$1().*copy$default$1€*&
+_empty_/Test.MyDouble#_1().*_1€*)
+_empty_/Test.MyDouble.
+ *MyDouble€*,
+_empty_/Test.MyDouble.apply().*apply€*+
+!_empty_/Test.MyDouble.apply().(d)*d€*0
+ _empty_/Test.MyDouble.unapply().*unapply€*1
+%_empty_/Test.MyDouble.unapply().(x$1)*x$1€*2
+!_empty_/Test.MyDouble.toString().*toString€*
+_empty_/Test.Term#*Term€*/
+_empty_/Test.Term#`<init>`(). €@*<init>€*
+_empty_/Test.Term#[a]	*a€*"
+_empty_/Test.Cell# €*Cell€*/
+_empty_/Test.Cell#`<init>`(). €@*<init>€*-
+ _empty_/Test.Cell#`<init>`().(x) €*x€*
+_empty_/Test.Cell#[a]	*a€*#
+_empty_/Test.Cell#x(). €*x€*)
+_empty_/Test.Cell#`x_=`(). €*x_=€*+
+_empty_/Test.Cell#`x_=`().(x$1)*x$1€*&
+_empty_/Test.Cell#copy().*copy€*&
+_empty_/Test.Cell#copy().[a]	*a€*&
+_empty_/Test.Cell#copy().(x)*x€*:
+#_empty_/Test.Cell#copy$default$1().*copy$default$1€*0
+&_empty_/Test.Cell#copy$default$1().[a]	*a€*"
+_empty_/Test.Cell#_1().*_1€*!
+_empty_/Test.Cell.
+ *Cell€*(
+_empty_/Test.Cell.apply().*apply€*'
+_empty_/Test.Cell.apply().[a]	*a€*'
+_empty_/Test.Cell.apply().(x)*x€*,
+_empty_/Test.Cell.unapply().*unapply€*)
+_empty_/Test.Cell.unapply().[a]	*a€*-
+!_empty_/Test.Cell.unapply().(x$1)*x$1€*.
+_empty_/Test.Cell.toString().*toString€*(
+_empty_/Test.NumTerm# ˆ*NumTerm€*2
+ _empty_/Test.NumTerm#`<init>`(). €@*<init>€*0
+#_empty_/Test.NumTerm#`<init>`().(n) €*n€*$
+_empty_/Test.NumTerm#n. €*n€*)
+_empty_/Test.NumTerm#copy().*copy€*)
+_empty_/Test.NumTerm#copy().(n)*n€*=
+&_empty_/Test.NumTerm#copy$default$1().*copy$default$1€*%
+_empty_/Test.NumTerm#_1().*_1€*'
+_empty_/Test.NumTerm.
+ *NumTerm€*+
+_empty_/Test.NumTerm.apply().*apply€**
+ _empty_/Test.NumTerm.apply().(n)*n€*/
+_empty_/Test.NumTerm.unapply().*unapply€*0
+$_empty_/Test.NumTerm.unapply().(x$1)*x$1€*1
+ _empty_/Test.NumTerm.toString().*toString€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[A]	*A€*
+_empty_/Test.f().(t)*t€*
+_empty_/Test.f().(c)*c€*
+local0 €*n€*
+_empty_/Test.x. €*x€*!
+_empty_/Test.main().*main€*'
+_empty_/Test.main().(args)*args€*
+local1 €*cell€2
+ _empty_/Test.2"
+ _empty_/Test.Number#2-
+ _empty_/Test.Number#`<init>`().2!
+ _empty_/Test.MyInt#2,
+ _empty_/Test.MyInt#`<init>`().2
+ 
+scala/Int#2-
+) )_empty_/Test.Number#`<init>`().2"
+# )_empty_/Test.Number#2#
+ _empty_/Test.MyInt#n.2(
+ _empty_/Test.MyInt#copy().2&
+ _empty_/Test.MyInt#_1().2!
+ _empty_/Test.MyInt.2)
+ _empty_/Test.MyInt.apply().2$
+ _empty_/Test.MyDouble#2/
+ !_empty_/Test.MyDouble#`<init>`().2
+ scala/Double#2-
+/ /_empty_/Test.Number#`<init>`().2"
+) /_empty_/Test.Number#2&
+ _empty_/Test.MyDouble#d.2+
+ _empty_/Test.MyDouble#copy().2)
+ _empty_/Test.MyDouble#_1().2$
+ _empty_/Test.MyDouble.2,
+ _empty_/Test.MyDouble.apply().2 
+ _empty_/Test.Term#2+
+ _empty_/Test.Term#`<init>`().2#
+ _empty_/Test.Term#[a]2 
+ _empty_/Test.Cell#2+
+ _empty_/Test.Cell#`<init>`().2#
+ _empty_/Test.Cell#[a]2 
+' +_empty_/Test.Term#2#
+, -_empty_/Test.Cell#[a]2#
+ _empty_/Test.Cell#[a]2$
+ _empty_/Test.Cell#x().2(
+ _empty_/Test.Cell#`x_=`().2'
+ _empty_/Test.Cell#copy().2%
+ _empty_/Test.Cell#_1().2 
+ _empty_/Test.Cell.2(
+ _empty_/Test.Cell.apply().2*
+ _empty_/Test.Cell.unapply().2#
+ _empty_/Test.NumTerm#2.
+  _empty_/Test.NumTerm#`<init>`().2"
+" (_empty_/Test.Number#2 
+2 6_empty_/Test.Term#2"
+7 =_empty_/Test.Number#2%
+  _empty_/Test.NumTerm#n.2*
+ _empty_/Test.NumTerm#copy().2(
+" "_empty_/Test.NumTerm#_1().2#
+ _empty_/Test.NumTerm.2+
+ _empty_/Test.NumTerm.apply().2
+
+
+ _empty_/Test.f().2"
+
+
+ 	_empty_/Test.f().[A]2"
+
+
+ _empty_/Test.f().(t)2 
+
+
+ _empty_/Test.Term#2"
+
+
+ _empty_/Test.f().[A]2"
+
+
+ _empty_/Test.f().(c)2 
+
+
+ _empty_/Test.Cell#2"
+
+
+  _empty_/Test.f().[A]2
+
+$
+ (scala/Unit#2"
+ _empty_/Test.f().(t)2-
+ _empty_/Test.NumTerm.unapply().2#
+ _empty_/Test.NumTerm.2
+ local02(
+ _empty_/Test.Cell#`x_=`().2"
+ _empty_/Test.f().(c)2,
+' '_empty_/Test.MyDouble.apply().2$
+ '_empty_/Test.MyDouble.2
+ _empty_/Test.x.2 
+	 _empty_/Test.Term#2"
+ _empty_/Test.Number#2+
+ _empty_/Test.NumTerm.apply().2#
+ _empty_/Test.NumTerm.2)
+% %_empty_/Test.MyInt.apply().2!
+  %_empty_/Test.MyInt.2"
+ 
+_empty_/Test.main().2(
+ _empty_/Test.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ local12(
+ _empty_/Test.Cell.apply().2 
+ _empty_/Test.Cell.2"
+ _empty_/Test.Number#2)
+! !_empty_/Test.MyInt.apply().2!
+ !_empty_/Test.MyInt.2(
+ scala/Console.println(+1).2
+ scala/Console.2
+ local12
+ _empty_/Test.f().2"
+ _empty_/Test.Number#2.
+  _empty_/Test.NumTerm#`<init>`().2#
+ _empty_/Test.NumTerm#2)
+ _empty_/Test.MyInt.apply().2!
+ _empty_/Test.MyInt.2
+% )local12(
+ scala/Console.println(+1).2
+ scala/Console.2
+ local1PZ 102958FBC4B0113A1B7AB50B3E0C0B2C

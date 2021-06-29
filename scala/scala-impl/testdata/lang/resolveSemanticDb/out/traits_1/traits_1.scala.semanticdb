@@ -1,0 +1,121 @@
+
+•!tests/pos/traits_1.scala*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.Color#*Color€*!
+_empty_/Test.Shape#*Shape€*0
+_empty_/Test.Shape#`<init>`(). €@*<init>€*+
+_empty_/Test.Shape#equals().*equals€*1
+#_empty_/Test.Shape#equals().(other)*other€*'
+_empty_/Test.Bordered#*Bordered€*3
+!_empty_/Test.Bordered#`<init>`(). €@*<init>€*5
+ _empty_/Test.Bordered#thickness. „*	thickness€*.
+_empty_/Test.Bordered#equals().*equals€*4
+&_empty_/Test.Bordered#equals().(other)*other€*
+local0 €*that€*%
+_empty_/Test.Colored#*Colored€*2
+ _empty_/Test.Colored#`<init>`(). €@*<init>€*,
+_empty_/Test.Colored#color. „*color€*-
+_empty_/Test.Colored#equals().*equals€*3
+%_empty_/Test.Colored#equals().(other)*other€*
+local1 €*that€*?
+"_empty_/Test.BorderedColoredShape#*BorderedColoredShape€*?
+-_empty_/Test.BorderedColoredShape#`<init>`(). €@*<init>€*:
++_empty_/Test.BorderedColoredShape#equals().*equals€*@
+2_empty_/Test.BorderedColoredShape#equals().(other)*other€*
+local2 €*that€*"
+_empty_/Test.bcs1. €*bcs1€*
+local3 *$anon€*
+local4 €*	thickness€*
+local5 €*color€*"
+_empty_/Test.bcs2. €*bcs2€*
+local6 *$anon€*
+local7 €*	thickness€*
+local8 €*color€2
+ _empty_/Test.2!
+ _empty_/Test.Color#2
+ 
+scala/Int#2!
+ _empty_/Test.Shape#2,
+ _empty_/Test.Shape#`<init>`().2*
+ _empty_/Test.Shape#equals().21
+ #_empty_/Test.Shape#equals().(other)2
+ "
+scala/Any#2$
+ _empty_/Test.Bordered#2/
+ !_empty_/Test.Bordered#`<init>`().2!
+ _empty_/Test.Shape#2.
+  _empty_/Test.Bordered#thickness.2
+ 
+scala/Int#2-
+ _empty_/Test.Bordered#equals().24
+ &_empty_/Test.Bordered#equals().(other)2
+ "
+scala/Any#24
+& +&_empty_/Test.Bordered#equals().(other)2
+ local02$
+ _empty_/Test.Bordered#2!
+, .scala/Int#`==`(+3).2.
+" + _empty_/Test.Bordered#thickness.2.
+4 = _empty_/Test.Bordered#thickness.2
+/ 3local02#
+ _empty_/Test.Colored#2.
+  _empty_/Test.Colored#`<init>`().2!
+ _empty_/Test.Shape#2)
+ _empty_/Test.Colored#color.2!
+ _empty_/Test.Color#2,
+ _empty_/Test.Colored#equals().23
+ %_empty_/Test.Colored#equals().(other)2
+ "
+scala/Any#23
+& +%_empty_/Test.Colored#equals().(other)2
+ local12#
+ _empty_/Test.Colored#2!
+' )scala/Int#`==`(+3).2)
+! &_empty_/Test.Colored#color.2)
+/ 4_empty_/Test.Colored#color.2
+* .local120
+ "_empty_/Test.BorderedColoredShape#2;
+% %-_empty_/Test.BorderedColoredShape#`<init>`().2!
+% *_empty_/Test.Shape#2$
+, 4_empty_/Test.Bordered#2#
+6 =_empty_/Test.Colored#29
+ +_empty_/Test.BorderedColoredShape#equals().2@
+ 2_empty_/Test.BorderedColoredShape#equals().(other)2
+ "
+scala/Any#2@
+& +2_empty_/Test.BorderedColoredShape#equals().(other)2
+ local220
+ %"_empty_/Test.BorderedColoredShape#2#
+% 'scala/Boolean#`&&`().2#
+ scala/Boolean#`&&`().2,
+ _empty_/Test.Colored#equals().2
+ local22-
+ _empty_/Test.Bordered#equals().2
+ #local22,
+ _empty_/Test.Colored#equals().2
+ "local22 
+ 
+_empty_/Test.bcs1.2
+ local320
+ %"_empty_/Test.BorderedColoredShape#2
+ local42
+ local52 
+!! 
+_empty_/Test.bcs2.2
+!! local620
+!! %"_empty_/Test.BorderedColoredShape#2
+"" local72
+## local82(
+%
+% scala/Console.println(+1).2
+%% 	scala/Console.2
+%% scala/Any#`==`().2 
+%% _empty_/Test.bcs1.2 
+%% _empty_/Test.bcs1.2(
+&
+& scala/Console.println(+1).2
+&& 	scala/Console.2
+&& scala/Any#`==`().2 
+&& _empty_/Test.bcs1.2 
+&& _empty_/Test.bcs2.PZ 35155FA5AB01A25C3AFD399FED4CA750

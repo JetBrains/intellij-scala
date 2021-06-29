@@ -1,0 +1,75 @@
+
+Ãtests/pos/t3498-new.scala*
+
+_empty_/A# *A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#[T]	*T€*
+_empty_/A#[U]	*U€*
+_empty_/A#f(). *f€*#
+_empty_/A#f().(state)*state€*
+
+_empty_/B# *B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#T#*T€*
+_empty_/B#U#*U€*
+_empty_/B#N. €*N€*
+_empty_/B#f().*f€*#
+_empty_/B#f().(state)*state€2!
+ scala/reflect/ClassTag.2!
+ scala/reflect/ClassTag#2+
+  (!scala/reflect/package.classTag().2
+ scala/reflect/2
+ scala/2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2%
+0 8scala/reflect/ClassTag#2
+8 8_empty_/A#[U]2
+ _empty_/A#[T]2 
+  scala/specialized#2
+' *
+scala/Int.2
+! &scala/2
+, -_empty_/A#[U]2
+ 	_empty_/A#f().2#
+
+ _empty_/A#f().(state)2
+ _empty_/A#[T]2
+ scala/Array#2
+ _empty_/A#[U]2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2#
+. ._empty_/A#`<init>`().2
+ 
+_empty_/A#2
+ !scala/Array#2
+" &scala/Byte#2
+) ,
+scala/Int#2-
+. .scala/reflect/ClassTag.apply().2
+	 
+_empty_/B#T#2
+ scala/Array#2
+ scala/Byte#2
+	 
+_empty_/B#U#2
+ 
+scala/Int#2
+
+
+ 	_empty_/B#N.2
+ 	_empty_/B#f().2#
+
+ _empty_/B#f().(state)2
+ _empty_/B#T#2
+ scala/Array#2
+ _empty_/B#U#2%
+ scala/Array#`<init>`().2
+ scala/Array#2
+ _empty_/B#U#2 
+ scala/Int#`+`(+1).2
+ _empty_/B#N.2"
+ scala/Array#apply().2#
+ _empty_/B#f().(state)2
+  _empty_/B#N.PZ 7E7299DA9BFF39CD90C7E84440A9C53F

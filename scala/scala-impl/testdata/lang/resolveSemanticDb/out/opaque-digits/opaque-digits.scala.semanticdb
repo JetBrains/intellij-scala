@@ -1,0 +1,79 @@
+
+½tests/pos/opaque-digits.scala*
+_empty_/pkg.
+ *pkg€*,
+_empty_/pkg.Alphabetic# *
+Alphabetic€*4
+"_empty_/pkg.Alphabetic#`<init>`(). €@*<init>€*:
+)_empty_/pkg.Alphabetic#`<init>`().(value) €*value€*.
+_empty_/pkg.Alphabetic#value. €*value€*,
+_empty_/pkg.Alphabetic.
+ *
+Alphabetic€*7
+$_empty_/pkg.Alphabetic.fromString().*
+fromString€*1
+'_empty_/pkg.Alphabetic.fromString().(s)*s€*"
+_empty_/pkg.Digits#*Digits€*$
+_empty_/pkg.Digits.
+ *Digits€*3
+ _empty_/pkg.Digits.fromString().*
+fromString€*-
+#_empty_/pkg.Digits.fromString().(s)*s€*/
+_empty_/pkg.Digits.asString().*asString€*+
+!_empty_/pkg.Digits.asString().(d)*d€2
+ 
+_empty_/pkg.21
+  #java/lang/Character#isAlphabetic().2.
+" ) java/lang/Character#isDigit(+1).2,
+" )java/lang/Character#isDigit().2"
+	 java/lang/Character#2%
+ _empty_/pkg.Alphabetic#20
+ "_empty_/pkg.Alphabetic#`<init>`().2"
+, 2scala/Predef.String#2&
+B Bscala/AnyVal#`<init>`().2
+< Bscala/AnyVal#2+
+% *_empty_/pkg.Alphabetic#value.2%
+	 _empty_/pkg.Alphabetic.22
+ $_empty_/pkg.Alphabetic.fromString().25
+ '_empty_/pkg.Alphabetic.fromString().(s)2"
+ scala/Predef.String#2
+ %scala/Option#2%
+& 0_empty_/pkg.Alphabetic#22
+ $scala/collection/StringOps#forall().2+
+
+ 
+scala/Predef.augmentString().25
+
+ '_empty_/pkg.Alphabetic.fromString().(s)21
+ #java/lang/Character#isAlphabetic().2$
+   scala/Char.char2int().2!
+) )scala/Some.apply().2
+% )scala/Some.20
+8 8"_empty_/pkg.Alphabetic#`<init>`().2%
+. 8_empty_/pkg.Alphabetic#25
+9 :'_empty_/pkg.Alphabetic.fromString().(s)2
+		 scala/None.2!
+ _empty_/pkg.Digits#2"
+ scala/Predef.String#2!
+	 _empty_/pkg.Digits.2.
+  _empty_/pkg.Digits.fromString().21
+ #_empty_/pkg.Digits.fromString().(s)2"
+ scala/Predef.String#2
+ %scala/Option#2!
+& ,_empty_/pkg.Digits#22
+ $scala/collection/StringOps#forall().2+
+
+ 
+scala/Predef.augmentString().21
+
+ #_empty_/pkg.Digits.fromString().(s)2,
+ java/lang/Character#isDigit().2!
+$ $scala/Some.apply().2
+  $scala/Some.21
+% &#_empty_/pkg.Digits.fromString().(s)2
+ scala/None.2,
+ _empty_/pkg.Digits.asString().2/
+ !_empty_/pkg.Digits.asString().(d)2!
+ _empty_/pkg.Digits#2"
+ #scala/Predef.String#2/
+& '!_empty_/pkg.Digits.asString().(d)PZ AD51FD570B4CE91E54706A1554218132

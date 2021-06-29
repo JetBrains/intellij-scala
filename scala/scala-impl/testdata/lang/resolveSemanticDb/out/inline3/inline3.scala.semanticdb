@@ -1,0 +1,112 @@
+
+ˆtests/pos/inline3.scala*
+_empty_/K0.
+ *K0€*
+_empty_/K0.T#*T€*5
+_empty_/K0.ProductInstances#*ProductInstances€*)
+_empty_/K0.ProductInstances#[F]	*F€*)
+_empty_/K0.ProductInstances#[T]	*T€*1
+_empty_/K0.summonAsArray().*summonAsArray€*(
+_empty_/K0.summonAsArray().[F]	*F€*(
+_empty_/K0.summonAsArray().[T]	*T€*;
+ _empty_/K0.mkProductInstances().*mkProductInstances€*-
+#_empty_/K0.mkProductInstances().[F]	*F€*-
+#_empty_/K0.mkProductInstances().[T]	*T€*
+_empty_/K0.x. €*x€*
+_empty_/K0.foo().*foo€*
+_empty_/K0.foo().(x)*x€*@
+_empty_/ErasedProductInstances# *ErasedProductInstances€*<
+*_empty_/ErasedProductInstances#`<init>`(). €@*<init>€*;
+/_empty_/ErasedProductInstances#`<init>`().(is0)*is0€*.
+#_empty_/ErasedProductInstances#[FT]	*FT€*2
+#_empty_/ErasedProductInstances#is0. €*is0€*
+_empty_/Monoid#*Monoid€*,
+_empty_/Monoid#`<init>`(). €@*<init>€*
+_empty_/Monoid#[A]	*A€*
+_empty_/ISB# €*ISB€*)
+_empty_/ISB#`<init>`(). €@*<init>€*'
+_empty_/ISB#`<init>`().(i) €*i€*
+_empty_/ISB#i. €*i€* 
+_empty_/ISB#copy().*copy€* 
+_empty_/ISB#copy().(i)*i€*4
+_empty_/ISB#copy$default$1().*copy$default$1€*
+_empty_/ISB#_1().*_1€*
+_empty_/ISB.
+ *ISB€*"
+_empty_/ISB.apply().*apply€*!
+_empty_/ISB.apply().(i)*i€*&
+_empty_/ISB.unapply().*unapply€*'
+_empty_/ISB.unapply().(x$1)*x$1€*(
+_empty_/ISB.toString().*toString€*
+_empty_/Test.
+ *Test€2
+ 	_empty_/K0.2
+ _empty_/K0.T#2"
+ scala/Predef.String#2*
+ _empty_/K0.ProductInstances#2-
+  _empty_/K0.ProductInstances#[F]2-
+% &_empty_/K0.ProductInstances#[T]2-
+* @_empty_/ErasedProductInstances#2-
+A B_empty_/K0.ProductInstances#[F]2-
+C D_empty_/K0.ProductInstances#[T]2)
+ _empty_/K0.summonAsArray().2,
+ _empty_/K0.summonAsArray().[F]2,
+! "_empty_/K0.summonAsArray().[T]2
+% *scala/Array#2
++ .
+scala/Any#2#
+2 5scala/Predef.`???`().2.
+  _empty_/K0.mkProductInstances().21
+  !#_empty_/K0.mkProductInstances().[F]21
+& '#_empty_/K0.mkProductInstances().[T]2*
+* :_empty_/K0.ProductInstances#21
+; <#_empty_/K0.mkProductInstances().[F]21
+> ?#_empty_/K0.mkProductInstances().[T]2'
+4 @scala/Any#asInstanceOf().28
+ *_empty_/ErasedProductInstances#`<init>`().2)
+ ,_empty_/K0.summonAsArray().21
+- .#_empty_/K0.mkProductInstances().[F]21
+0 1#_empty_/K0.mkProductInstances().[T]2*
+A Q_empty_/K0.ProductInstances#21
+R S#_empty_/K0.mkProductInstances().[F]21
+U V#_empty_/K0.mkProductInstances().[T]2
+
+
+ _empty_/K0.x.2
+
+	
+ 
+_empty_/K0.T#2
+ _empty_/K0.foo().2"
+ _empty_/K0.foo().(x)2
+ _empty_/K0.T#2
+ _empty_/K0.T#2'
+" .scala/Any#asInstanceOf().2
+/ 0_empty_/K0.T#2-
+ "_empty_/ErasedProductInstances#28
+" "*_empty_/ErasedProductInstances#`<init>`().2
+/ 4scala/Array#2
+5 8
+scala/Any#21
+# %#_empty_/ErasedProductInstances#[FT]21
+' *#_empty_/ErasedProductInstances#is0.2
+ _empty_/Monoid#2(
+ _empty_/Monoid#`<init>`().2 
+ _empty_/Monoid#[A]2
+ _empty_/ISB#2%
+ _empty_/ISB#`<init>`().2
+ 
+scala/Int#2
+ _empty_/ISB#i.2
+_empty_/ISB#copy().2
+ _empty_/ISB#_1().2
+ _empty_/ISB.2
+_empty_/ISB.apply().2
+ _empty_/Test.2
+ _empty_/K0.foo().2
+ _empty_/K0.2
+ _empty_/K0.x.2
+	 _empty_/K0.2.
+  _empty_/K0.mkProductInstances().2
+ _empty_/K0.2
+  #_empty_/ISB#PZ D2A5EDE5B3955277F0FE4DFF4D8EA734

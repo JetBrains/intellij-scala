@@ -1,0 +1,25 @@
+
+ tests/pos/kinzer.scala*.
+_empty_/ScalaMenuTest.
+ *ScalaMenuTest€**
+_empty_/ScalaMenuTest.main().*main€*0
+#_empty_/ScalaMenuTest.main().(args)*args€*
+local0 €*v€2$
+ _empty_/ScalaMenuTest.2+
+ 
+_empty_/ScalaMenuTest.main().21
+ #_empty_/ScalaMenuTest.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02+
+! !javax/swing/JMenu#`<init>`().2 
+ !javax/swing/JMenu#2
+ javax/swing/2
+ javax/2&
+ 	javax/swing/JMenu#add().2
+ local02/
+# #!javax/swing/JMenuItem#`<init>`().2$
+ #javax/swing/JMenuItem#2
+ javax/swing/2
+ javax/PZ 5F063A2D310E8E392047C8AB5724214A

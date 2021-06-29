@@ -1,0 +1,163 @@
+
+Þ*tests/pos/i12306.scala*
+_empty_/Record#*Record€*,
+_empty_/Record#`<init>`(). €@*<init>€*/
+!_empty_/Record#`<init>`().(elems)*elems€*&
+_empty_/Record#elems. €*elems€*(
+_empty_/Record#fields. €*fields€*5
+_empty_/Record#selectDynamic().*selectDynamic€*2
+%_empty_/Record#selectDynamic().(name)*name€* 
+_empty_/Record.
+ *Record€*%
+_empty_/Record.apply().*apply€*,
+_empty_/Record.apply().(elems)*elems€*)
+_empty_/i12306$package. *_empty_€*+
+_empty_/i12306$package.join().*join€*+
+!_empty_/i12306$package.join().[A]	*A€*+
+!_empty_/i12306$package.join().(a)*a€*+
+!_empty_/i12306$package.join().[B]	*B€*+
+!_empty_/i12306$package.join().(b)*b€*-
+_empty_/i12306$package.Person#*Person€*
+local0 „*name€*
+local1 „*age€*+
+_empty_/i12306$package.Child#*Child€*
+local2 „*parent€*=
+&_empty_/i12306$package.PersonAndChild#*PersonAndChild€*
+local3 „*name€*
+local4 „*age€*
+local5 „*parent€*-
+_empty_/i12306$package.hello().*hello€*
+local6 €*person€*
+local7 €*child€* 
+local8 €*personAndChild€*
+local9 €*v1€*
+local10 €*v2€*
+_empty_/hello# *hello€*+
+_empty_/hello#`<init>`(). €@*<init>€*%
+_empty_/hello#main(). € *main€*(
+_empty_/hello#main().(args)*args€*
+local11 €*error€2
+ _empty_/Record#2$
+ _empty_/Record#`<init>`().2
+ scala/Predef.Map#2
+ scala/Predef.String#2
+  #
+scala/Any#2
+. 8scala/Selectable#2
+ _empty_/Record#elems.2$
+ _empty_/Record#fields.25
+ 'scala/collection/immutable/Map#toMap().2#
+ _empty_/Record#elems.2!
+ scala/`<:<`.refl().2-
+ _empty_/Record#selectDynamic().23
+ %_empty_/Record#selectDynamic().(name)2"
+  scala/Predef.String#2
+# &
+scala/Any#2.
+/ / scala/collection/MapOps#apply().2$
+) /_empty_/Record#fields.23
+0 4%_empty_/Record#selectDynamic().(name)2
+ _empty_/Record.2%
+ _empty_/Record.apply().2,
+ _empty_/Record.apply().(elems)2
+ scala/Predef.Map#2"
+ scala/Predef.String#2
+ "
+scala/Any#2
+& ,_empty_/Record#2(
+9 9_empty_/Record#`<init>`().2
+3 9_empty_/Record#2,
+: ?_empty_/Record.apply().(elems)2!
+_empty_/i12306$package.2,
+ 
+_empty_/i12306$package.join().2/
+ !_empty_/i12306$package.join().[A]2
+ _empty_/Record#2/
+ !_empty_/i12306$package.join().(a)2/
+ !_empty_/i12306$package.join().[A]2/
+ !_empty_/i12306$package.join().[B]2
+ _empty_/Record#2/
+ !_empty_/i12306$package.join().(b)2/
+ !_empty_/i12306$package.join().[B]2
+! "
+scala/`&`#2/
+  !_empty_/i12306$package.join().[A]2/
+# $!_empty_/i12306$package.join().[B]2'
+! -scala/Any#asInstanceOf().2%
+
+ 
+_empty_/Record.apply().2
+ 
+_empty_/Record.2-
+ scala/collection/MapOps#`++`().2$
+ _empty_/Record#fields.2/
+ !_empty_/i12306$package.join().(a)2$
+ _empty_/Record#fields.2/
+ !_empty_/i12306$package.join().(b)2
+0 1
+scala/`&`#2/
+. /!_empty_/i12306$package.join().[A]2/
+2 3!_empty_/i12306$package.join().[B]2,
+ _empty_/i12306$package.Person#2
+ _empty_/Record#2
+ local02"
+! 'scala/Predef.String#2
+- 0local12
+2 5
+scala/Int#2+
+ 
+_empty_/i12306$package.Child#2
+ _empty_/Record#2
+  local22"
+" (scala/Predef.String#24
+ &_empty_/i12306$package.PersonAndChild#2
+ _empty_/Record#2
+# 'local32"
+) /scala/Predef.String#2
+5 8local42
+: =
+scala/Int#2
+C Ilocal52"
+K Qscala/Predef.String#2
+ scala/main#2-
+
+ _empty_/i12306$package.hello().2
+ local62'
+: Fscala/Any#asInstanceOf().2%
+ _empty_/Record.apply().2
+ _empty_/Record.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2-
+! #scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2-
+2 4scala/Predef.ArrowAssoc#`->`().2(
+, ,scala/Predef.ArrowAssoc().2,
+G M_empty_/i12306$package.Person#2
+ local72'
+/ ;scala/Any#asInstanceOf().2%
+ _empty_/Record.apply().2
+ _empty_/Record.22
+ $scala/collection/MapFactory#apply().2
+ scala/Predef.Map.2-
+" $scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2+
+< A_empty_/i12306$package.Child#2
+ local82,
+ "_empty_/i12306$package.join().2
+ local62
+# (local72
+ local924
+
+ &_empty_/i12306$package.PersonAndChild#2
+ )local82
+ local1024
+
+ &_empty_/i12306$package.PersonAndChild#2,
+" &_empty_/i12306$package.join().2
+ !local62
+' ,local72
+_empty_/hello#2#
+_empty_/hello#`<init>`().2)
+_empty_/i12306$package.hello().23
+)scala/util/CommandLineParser.showError().2
+local11PZ 854399C317283AB99F8D5E2734B88F62

@@ -1,0 +1,141 @@
+
+ô)tests/pos/t0786.scala*2
+_empty_/ImplicitProblem.
+ *ImplicitProblem€*$
+_empty_/ImplicitProblem.M#*M€*7
+%_empty_/ImplicitProblem.M#`<init>`(). €@*<init>€*'
+_empty_/ImplicitProblem.M#[T]	*T€*2
+"_empty_/ImplicitProblem.nullval().*nullval€*/
+%_empty_/ImplicitProblem.nullval().[T]	*T€*(
+_empty_/ImplicitProblem.Rep#*Rep€*9
+'_empty_/ImplicitProblem.Rep#`<init>`(). €@*<init>€*)
+_empty_/ImplicitProblem.Rep#[T]	*T€*2
+#_empty_/ImplicitProblem.Rep#eval(). *eval€*2
+!_empty_/ImplicitProblem.toRep0().  *toRep0€*.
+$_empty_/ImplicitProblem.toRep0().(n)*n€*
+local0 *$anon€*
+local1*eval€*2
+!_empty_/ImplicitProblem.toRepN().  *toRepN€*.
+$_empty_/ImplicitProblem.toRepN().[T]	*T€*.
+$_empty_/ImplicitProblem.toRepN().(n)*n€*0
+$_empty_/ImplicitProblem.toRepN().(f)  *f€*
+local2 *$anon€*
+local3*eval€*.
+ _empty_/ImplicitProblem.depth().*depth€*-
+#_empty_/ImplicitProblem.depth().[T]	*T€*-
+#_empty_/ImplicitProblem.depth().(n)*n€*1
+$_empty_/ImplicitProblem.depth().(ev)  *ev€*,
+_empty_/ImplicitProblem.main().*main€*2
+%_empty_/ImplicitProblem.main().(args)*args€*
+local4*n€*
+local5*n€*
+local6*m€*
+local7*n€*
+local8*n€2"
+ _empty_/ImplicitProblem.2(
+ 	_empty_/ImplicitProblem.M#23
+	 	%_empty_/ImplicitProblem.M#`<init>`().2+
+
+ _empty_/ImplicitProblem.M#[T]20
+ "_empty_/ImplicitProblem.nullval().23
+ %_empty_/ImplicitProblem.nullval().[T]2'
+ $scala/Any#asInstanceOf().23
+% &%_empty_/ImplicitProblem.nullval().[T]2*
+ _empty_/ImplicitProblem.Rep#25
+ '_empty_/ImplicitProblem.Rep#`<init>`().2-
+ _empty_/ImplicitProblem.Rep#[T]21
+ #_empty_/ImplicitProblem.Rep#eval().2
+ 
+scala/Int#2/
+		 !_empty_/ImplicitProblem.toRep0().22
+		 $_empty_/ImplicitProblem.toRep0().(n)2
+		 
+scala/Int#2*
+		 "_empty_/ImplicitProblem.Rep#2
+	#	 &
+scala/Int#2
+	*	 *local02*
+	.	 1_empty_/ImplicitProblem.Rep#2
+	2	 5
+scala/Int#2
+
+
+ local12/
+ !_empty_/ImplicitProblem.toRepN().22
+ $_empty_/ImplicitProblem.toRepN().[T]22
+ $_empty_/ImplicitProblem.toRepN().(n)2(
+ _empty_/ImplicitProblem.M#22
+ $_empty_/ImplicitProblem.toRepN().[T]22
++ ,$_empty_/ImplicitProblem.toRepN().(f)22
+. /$_empty_/ImplicitProblem.toRepN().[T]2*
+3 6_empty_/ImplicitProblem.Rep#22
+7 8$_empty_/ImplicitProblem.toRepN().[T]2*
+< ?_empty_/ImplicitProblem.Rep#2(
+@ A_empty_/ImplicitProblem.M#22
+B C$_empty_/ImplicitProblem.toRepN().[T]2
+H Hlocal22*
+L O_empty_/ImplicitProblem.Rep#2(
+P Q_empty_/ImplicitProblem.M#22
+R S$_empty_/ImplicitProblem.toRepN().[T]2
+ local32 
+" #scala/Int#`+`(+4).21
+ !#_empty_/ImplicitProblem.Rep#eval().2&
+ scala/Function1#apply().22
+ $_empty_/ImplicitProblem.toRepN().(f)20
+ "_empty_/ImplicitProblem.nullval().22
+ $_empty_/ImplicitProblem.toRepN().[T]2.
+  _empty_/ImplicitProblem.depth().21
+ #_empty_/ImplicitProblem.depth().[T]21
+ #_empty_/ImplicitProblem.depth().(n)21
+ #_empty_/ImplicitProblem.depth().[T]22
+  $_empty_/ImplicitProblem.depth().(ev)21
+" ##_empty_/ImplicitProblem.depth().[T]2*
+' *_empty_/ImplicitProblem.Rep#21
++ ,#_empty_/ImplicitProblem.depth().[T]21
+7 ;#_empty_/ImplicitProblem.Rep#eval().2&
+3 3scala/Function1#apply().22
+1 3$_empty_/ImplicitProblem.depth().(ev)21
+4 5#_empty_/ImplicitProblem.depth().(n)2-
+ 
+_empty_/ImplicitProblem.main().23
+ %_empty_/ImplicitProblem.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2'
+ scala/Predef.println(+1).2.
+  _empty_/ImplicitProblem.depth().20
+ "_empty_/ImplicitProblem.nullval().2(
+ _empty_/ImplicitProblem.M#2
+ 
+scala/Int#2/
+" "!_empty_/ImplicitProblem.toRepN().2
+" "local42/
+" "!_empty_/ImplicitProblem.toRep0().2'
+ scala/Predef.println(+1).21
+  #_empty_/ImplicitProblem.Rep#eval().2/
+ !_empty_/ImplicitProblem.toRepN().20
+ "_empty_/ImplicitProblem.nullval().2(
+ _empty_/ImplicitProblem.M#2
+ 
+scala/Int#2/
+ !_empty_/ImplicitProblem.toRep0().2
+ local52
+	 
+local62(
+ _empty_/ImplicitProblem.M#2
+ 
+scala/Int#2'
+ scala/Predef.println(+1).2.
+  _empty_/ImplicitProblem.depth().20
+ "_empty_/ImplicitProblem.nullval().2
+ local62/
+ !_empty_/ImplicitProblem.toRepN().2
+ local72/
+ !_empty_/ImplicitProblem.toRep0().2'
+ scala/Predef.println(+1).21
+ #_empty_/ImplicitProblem.Rep#eval().2/
+ !_empty_/ImplicitProblem.toRepN().20
+ "_empty_/ImplicitProblem.nullval().2
+ local62/
+ !_empty_/ImplicitProblem.toRep0().2
+ local8PZ 1E552D543C96BDCE019C4475AB26819E

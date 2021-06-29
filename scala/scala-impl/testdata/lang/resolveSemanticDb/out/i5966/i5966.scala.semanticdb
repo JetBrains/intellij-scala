@@ -1,0 +1,32 @@
+
+ûtests/pos/i5966.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.foo().*foo€*
+local0  *v€*
+local1*x€*$
+_empty_/Test.myInt. è*myInt€2
+ _empty_/Test.2!
+ 	_empty_/Test.foo().2
+ local02
+ 
+scala/Int#2
+ local12
+  
+scala/Int#2 
+' (scala/Int#`+`(+4).2
+% &local02
+) *local12!
+ _empty_/Test.myInt.2
+ 
+scala/Int#2&
+ scala/Function1#apply().2-
+ scala/ContextFunction1#apply().2!
+ _empty_/Test.foo().2!
+ _empty_/Test.myInt.2-
+ scala/ContextFunction1#apply().2!
+ _empty_/Test.foo().2&
+ scala/Function1#apply().2-
+ scala/ContextFunction1#apply().2!
+ _empty_/Test.foo().2!
+ _empty_/Test.myInt.PZ 2CC8B59B3D539F317A6809CA3B34E977

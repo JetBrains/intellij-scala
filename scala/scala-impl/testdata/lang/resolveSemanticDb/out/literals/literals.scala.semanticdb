@@ -1,0 +1,17 @@
+
+åtests/pos/literals.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€*
+_empty_/Test.c. €*c€*
+_empty_/Test.d. €*d€*
+_empty_/Test.e. €*e€*
+_empty_/Test.f. €*f€2
+ _empty_/Test.2
+ _empty_/Test.a.2
+ _empty_/Test.b.2
+ _empty_/Test.c.2
+ _empty_/Test.d.2
+ _empty_/Test.e.2
+ _empty_/Test.f.PZ FC8E38118EC7E004F8E9C98D95A6BACB

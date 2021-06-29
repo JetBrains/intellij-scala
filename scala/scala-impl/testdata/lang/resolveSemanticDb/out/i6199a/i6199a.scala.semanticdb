@@ -1,0 +1,83 @@
+
+Òtests/pos/i6199a.scala* 
+_empty_/Encoder#*Encoder€*-
+_empty_/Encoder#`<init>`(). €@*<init>€*
+_empty_/Encoder#[T]	*T€*(
+_empty_/Encoder#encode().*encode€*&
+_empty_/Encoder#encode().(v)*v€*5
+_empty_/ValueWithEncoder# €*ValueWithEncoder€*6
+$_empty_/ValueWithEncoder#`<init>`(). €@*<init>€*<
++_empty_/ValueWithEncoder#`<init>`().(value) €*value€*@
+-_empty_/ValueWithEncoder#`<init>`().(encoder) €*encoder€*&
+_empty_/ValueWithEncoder#[T]	*T€*0
+_empty_/ValueWithEncoder#value. €*value€*4
+!_empty_/ValueWithEncoder#encoder. €*encoder€*-
+ _empty_/ValueWithEncoder#copy().*copy€*-
+#_empty_/ValueWithEncoder#copy().[T]	*T€*5
+'_empty_/ValueWithEncoder#copy().(value)*value€*9
+)_empty_/ValueWithEncoder#copy().(encoder)*encoder€*A
+*_empty_/ValueWithEncoder#copy$default$1().*copy$default$1€*7
+-_empty_/ValueWithEncoder#copy$default$1().[T]	*T€*A
+*_empty_/ValueWithEncoder#copy$default$2().*copy$default$2€*7
+-_empty_/ValueWithEncoder#copy$default$2().[T]	*T€*)
+_empty_/ValueWithEncoder#_1().*_1€*)
+_empty_/ValueWithEncoder#_2().*_2€*4
+_empty_/ValueWithEncoder.
+ *ValueWithEncoder€*/
+!_empty_/ValueWithEncoder.apply().*apply€*.
+$_empty_/ValueWithEncoder.apply().[T]	*T€*6
+(_empty_/ValueWithEncoder.apply().(value)*value€*:
+*_empty_/ValueWithEncoder.apply().(encoder)*encoder€*3
+#_empty_/ValueWithEncoder.unapply().*unapply€*0
+&_empty_/ValueWithEncoder.unapply().[T]	*T€*4
+(_empty_/ValueWithEncoder.unapply().(x$1)*x$1€*5
+$_empty_/ValueWithEncoder.toString().*toString€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.a. €*a€*
+_empty_/Test.b. €*b€*
+local0*ve€*
+_empty_/Test.c. €*c€2
+ _empty_/Encoder#2%
+ _empty_/Encoder#`<init>`().2
+ _empty_/Encoder#[T]2#
+ _empty_/Encoder#encode().2&
+ _empty_/Encoder#encode().(v)2
+! "_empty_/Encoder#[T]2
+% +scala/Predef.String#2
+0 8scala/Any#toString().2&
+. /_empty_/Encoder#encode().(v)2'
+ _empty_/ValueWithEncoder#22
+ $_empty_/ValueWithEncoder#`<init>`().2*
+& '_empty_/ValueWithEncoder#[T]2
+2 9_empty_/Encoder#2*
+: ;_empty_/ValueWithEncoder#[T]2*
+ _empty_/ValueWithEncoder#[T]2-
+ $_empty_/ValueWithEncoder#value.2/
+) 0!_empty_/ValueWithEncoder#encoder.2*
+ _empty_/ValueWithEncoder#copy().2,
+& &_empty_/ValueWithEncoder#_1().2,
+2 2_empty_/ValueWithEncoder#_2().2'
+ _empty_/ValueWithEncoder.2+
+!_empty_/ValueWithEncoder.apply().2-
+#_empty_/ValueWithEncoder.unapply().2
+ _empty_/Test.2
+ _empty_/Test.a.2 
+	 scala/package.Seq#2'
+ _empty_/ValueWithEncoder#2;
+( --scala/collection/SeqFactory.Delegate#empty().2 
+$ 'scala/package.Seq.2
+ _empty_/Test.b.21
+ #scala/collection/IterableOps#map().2
+
+ _empty_/Test.a.2
+ local02'
+! '_empty_/Encoder#encode().2/
+  !_empty_/ValueWithEncoder#encoder.2
+ local02-
++ 0_empty_/ValueWithEncoder#value.2
+( *local02
+ _empty_/Test.c.2 
+	 scala/package.Seq#2"
+ scala/Predef.String#2
+ _empty_/Test.b.PZ EF2C3DEB13678AA9D37D572C650BCA88

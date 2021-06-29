@@ -1,0 +1,102 @@
+
+“tests/pos/t5444.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#a().*a€*
+local0*T€*
+local1*x€*
+local2*U€*
+local3*x1€*
+local4*Bippy€*
+local5*z€*
+_empty_/Test#b().*b€*
+local6*T€*
+local7*y€*
+local8*T2€*
+local9*yy€*
+local10*U€*
+local11*y1€*
+local12*T3€*
+local13*yy€*
+local14*Bippy€*
+local15*z€*
+local16 *$anon€*
+_empty_/Test#c().*c€*
+local17*T€*
+local18*z€*
+local19*U€*
+local20*z1€*
+local21 *$anon€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#a().2
+
+ local02
+
+ local12
+	
+	 local22
+
+
+
+ local32
+
+ local42
+ local02
+  local22
+' (local52 
+1 2scala/Int#`+`(+4).2
+- .local12
+3 5local32
+ local42
+ _empty_/Test#b().2
+ scala/Unit#2
+
+ local62
+
+ local72
+ local82
+ local92
+
+ local102
+
+ local112
+ local122
+ local132
+
+ local142
+ local62
+  local102
+' (local152 
+8 9scala/Int#`+`(+4).2 
+1 2scala/Int#`+`(+4).2
+- .local72
+3 5local1125
+^ a'scala/collection/IterableOnceOps#sum().25
+S V'scala/collection/immutable/Range#map().2)
+= ?scala/runtime/RichInt#to().26
+; ;(scala/LowPriorityImplicits#intWrapper().2
+M Olocal92
+A Alocal162
+E Glocal82 
+Y Zscala/Int#`+`(+4).2/
+a a!scala/math/Numeric.IntIsIntegral.2
+ local152
+	 local142
+ _empty_/Test#c().2
+ scala/Unit#2
+ 
+  local172
+!
+! local182
+#
+# local192
+$
+$ local202
+&& local202
+&& local212&
+&& _empty_/Test#`<init>`().2
+&	& _empty_/Test#2
+&& local172
+&& local19PZ 9A15A65BA30D1A77DFEA57E585755C94

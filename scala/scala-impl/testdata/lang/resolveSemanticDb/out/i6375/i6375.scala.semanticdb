@@ -1,0 +1,28 @@
+
+ƒtests/pos/i6375.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*,
+_empty_/Test#given_Int. è*	given_Int€*
+_empty_/Test#f().*f€*
+_empty_/Test#g().*g€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2%
+ _empty_/Test#given_Int.2
+ 
+scala/Int#2
+!! _empty_/Test#f().2
+!! 
+scala/Int#2
+!! scala/Boolean#2-
+!5! 5scala/ContextFunction1#apply().2
+!%! (
+scala/Int#2
+!-! 4scala/Boolean#2
+## _empty_/Test#g().2
+## 
+scala/Int#2
+## !scala/Boolean#2-
+$$ scala/ContextFunction1#apply().2
+$$ _empty_/Test#g().2%
+$$ _empty_/Test#given_Int.PZ C2036E98B99EC446A13246EB4EDD7D26

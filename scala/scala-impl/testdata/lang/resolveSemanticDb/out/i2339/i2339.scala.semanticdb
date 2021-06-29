@@ -1,0 +1,72 @@
+
+„tests/pos/i2339.scala*
+_empty_/Foo# €*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*,
+_empty_/Foo#`<init>`().(conv)  *conv€*
+_empty_/Foo#[K]	*K€*
+_empty_/Foo#[V]	*V€*!
+_empty_/Foo#conv.  *conv€*
+_empty_/Foo#a. €*a€*
+local0*x$1€*
+local1*x$2€*
+local2 €*v1€*
+local3 €*v2€*
+_empty_/Foo#b. €*b€* 
+_empty_/Foo#copy().*copy€* 
+_empty_/Foo#copy().[K]	*K€* 
+_empty_/Foo#copy().[V]	*V€*(
+_empty_/Foo#copy().(conv)  *conv€*
+_empty_/Foo.
+ *Foo€*"
+_empty_/Foo.apply().*apply€*!
+_empty_/Foo.apply().[K]	*K€*!
+_empty_/Foo.apply().[V]	*V€*)
+_empty_/Foo.apply().(conv)  *conv€*&
+_empty_/Foo.unapply().*unapply€*#
+_empty_/Foo.unapply().[K]	*K€*#
+_empty_/Foo.unapply().[V]	*V€*'
+_empty_/Foo.unapply().(x$1)*x$1€*(
+_empty_/Foo.toString().*toString€2#
+ scala/collection/mutable/2
+ scala/collection/2
+ scala/2
+ _empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+& 0scala/Conversion#2
+1 2_empty_/Foo#[V]2$
+4 ;scala/package.Ordered#2
+< =_empty_/Foo#[V]2<
+ .scala/collection/mutable/HashMap#`<init>`(+1).2/
+ !scala/collection/mutable/HashMap#2'
+ scala/collection/mutable/2
+ _empty_/Foo#[K]2
+ _empty_/Foo#[V]2
+ _empty_/Foo#[K]2
+ _empty_/Foo#[V]2
+  $_empty_/Foo#conv.2
+ _empty_/Foo#a.21
+ #scala/collection/SeqOps#sortWith().27
+ )scala/collection/IterableOnceOps#toSeq().2#
+   scala/Tuple2.apply().2
+   local02
+   local12%
+& &scala/Tuple2.unapply().2%
+' 'scala/Tuple2.unapply().2
+* ,local22%
+0 0scala/Tuple2.unapply().2
+3 5local32'
+> ?scala/math/Ordered#`>`().2'
+; ;scala/Conversion#apply().2
+; =local22
+@ Blocal32
+ _empty_/Foo#b.21
+ #scala/collection/SeqOps#sortWith().27
+ )scala/collection/IterableOnceOps#toSeq().2'
+# $scala/math/Ordered#`>`().2'
+ scala/Conversion#apply().2
+  "scala/Tuple2#_2.2
+' )scala/Tuple2#_2.2
+_empty_/Foo#copy().2
+ _empty_/Foo.2
+_empty_/Foo.apply().2 
+_empty_/Foo.unapply().PZ 0E61BC5E2F0DF212A66A58940E124089

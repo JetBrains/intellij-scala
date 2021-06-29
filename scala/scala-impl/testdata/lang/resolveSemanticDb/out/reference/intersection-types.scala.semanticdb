@@ -1,0 +1,96 @@
+
+ƒ,tests/pos/reference/intersection-types.scala*"
+intersectionTypes/t1.
+ *t1€*1
+intersectionTypes/t1.Resetable#*	Resetable€*<
+*intersectionTypes/t1.Resetable#`<init>`(). €@*<init>€*7
+'intersectionTypes/t1.Resetable#reset(). *reset€*/
+intersectionTypes/t1.Growable#*Growable€*;
+)intersectionTypes/t1.Growable#`<init>`(). €@*<init>€*+
+!intersectionTypes/t1.Growable#[T]	*T€*2
+$intersectionTypes/t1.Growable#add(). *add€*1
+'intersectionTypes/t1.Growable#add().(x)*x€*#
+intersectionTypes/t1.f().*f€*&
+intersectionTypes/t1.f().(x)*x€*"
+intersectionTypes/t2.
+ *t2€*!
+intersectionTypes/t2.A#*A€*4
+"intersectionTypes/t2.A#`<init>`(). €@*<init>€*5
+"intersectionTypes/t2.A#children(). *children€*!
+intersectionTypes/t2.B#*B€*4
+"intersectionTypes/t2.B#`<init>`(). €@*<init>€*5
+"intersectionTypes/t2.B#children(). *children€*$
+intersectionTypes/t2.x. €*x€*&
+intersectionTypes/t2.ys. €*ys€*!
+intersectionTypes/t2.C#*C€*4
+"intersectionTypes/t2.C#`<init>`(). €@*<init>€*3
+"intersectionTypes/t2.C#children().*children€*$
+intersectionTypes/t2.z. €*z€2
+ intersectionTypes/2#
+ 	intersectionTypes/t1.2-
+ intersectionTypes/t1.Resetable#28
+ *intersectionTypes/t1.Resetable#`<init>`().25
+ 'intersectionTypes/t1.Resetable#reset().2,
+ intersectionTypes/t1.Growable#27
+ )intersectionTypes/t1.Growable#`<init>`().2/
+ !intersectionTypes/t1.Growable#[T]22
+ $intersectionTypes/t1.Growable#add().25
+ 'intersectionTypes/t1.Growable#add().(x)2/
+ !intersectionTypes/t1.Growable#[T]2'
+ intersectionTypes/t1.f().2*
+ 	intersectionTypes/t1.f().(x)2
+ 
+scala/`&`#2-
+ intersectionTypes/t1.Resetable#2,
+ intersectionTypes/t1.Growable#2"
+  &scala/Predef.String#25
+ 'intersectionTypes/t1.Resetable#reset().2*
+ intersectionTypes/t1.f().(x)22
+ 	$intersectionTypes/t1.Growable#add().2*
+ intersectionTypes/t1.f().(x)2#
+ 	intersectionTypes/t2.2%
+ 	intersectionTypes/t2.A#20
+ "intersectionTypes/t2.A#`<init>`().20
+ "intersectionTypes/t2.A#children().2!
+ scala/package.List#2%
+ intersectionTypes/t2.A#2%
+ 	intersectionTypes/t2.B#20
+ "intersectionTypes/t2.B#`<init>`().20
+ "intersectionTypes/t2.B#children().2!
+ scala/package.List#2%
+ intersectionTypes/t2.B#2%
+ intersectionTypes/t2.x.2
+ 
+scala/`&`#2%
+	 
+intersectionTypes/t2.A#2%
+ intersectionTypes/t2.B#20
+ "intersectionTypes/t2.C#`<init>`().2%
+ intersectionTypes/t2.C#2&
+ intersectionTypes/t2.ys.2!
+
+ scala/package.List#2
+ 
+scala/`&`#2%
+ intersectionTypes/t2.A#2%
+ intersectionTypes/t2.B#20
+ ""intersectionTypes/t2.B#children().2%
+ intersectionTypes/t2.x.2%
+ 	intersectionTypes/t2.C#20
+ "intersectionTypes/t2.C#`<init>`().2%
+ intersectionTypes/t2.A#2%
+ intersectionTypes/t2.B#20
+ "intersectionTypes/t2.C#children().2!
+ scala/package.List#2
+ 
+scala/`&`#2%
+ intersectionTypes/t2.A#2%
+ intersectionTypes/t2.B#2#
+  #scala/Predef.`???`().2%
+"" intersectionTypes/t2.z.2
+"" 
+scala/`&`#2%
+"	" 
+intersectionTypes/t2.B#2%
+"" intersectionTypes/t2.A#2%
+"" intersectionTypes/t2.x.PZ 42D91B986218AD4F96BE51C05CFD0395

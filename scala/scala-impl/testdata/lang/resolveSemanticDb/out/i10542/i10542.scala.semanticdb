@@ -1,0 +1,88 @@
+
+Ìtests/pos/i10542.scala*
+test_10542/Foo#*Foo€*,
+test_10542/Foo#`<init>`(). €@*<init>€*!
+test_10542/Foo#foo().*foo€*"
+test_10542/Foo#foo().[A]	*A€*"
+test_10542/Foo#foo().(t)*t€*
+test_10542/Bar.
+ *Bar€*
+test_10542/Test.
+ *Test€*
+local0 *T1€*
+local1
+ ˆ*S1€*
+test_10540/Foo#*Foo€*,
+test_10540/Foo#`<init>`(). €@*<init>€*!
+test_10540/Foo#foo().*foo€*"
+test_10540/Foo#foo().[A]	*A€*"
+test_10540/Foo#foo().(t)*t€*
+test_10540/Bar.
+ *Bar€*
+test_10540/Test.
+ *Test€*
+local2*T1€*
+local3 €*array€*
+local4 *$anon€*-
+test_9655/i10542$package. *	test_9655€*+
+test_9655/i10542$package.foo().*foo€*,
+"test_9655/i10542$package.foo().[T]	*T€*2
+%test_9655/i10542$package.foo().(body)*body€*-
+ test_9655/i10542$package.test().*test€*
+local5 *Status€*
+local6
+ *Active€2
+ test_10542/2
+ test_10542/Foo#2(
+ test_10542/Foo#`<init>`().2#
+ test_10542/Foo#foo().2&
+ test_10542/Foo#foo().[A]2&
+ test_10542/Foo#foo().(t)2&
+ test_10542/Foo#foo().[A]2
+  $scala/Unit#2
+	 test_10542/Bar.2
+ test_10542/Foo#2
+	 test_10542/Test.2#
+		 test_10542/Foo#foo().2
+		 test_10542/Bar.2
+
+
+ local02
+ local12
+ local02
+ test_10540/2
+ test_10540/Foo#2(
+ test_10540/Foo#`<init>`().2#
+ test_10540/Foo#foo().2&
+ test_10540/Foo#foo().[A]2&
+ test_10540/Foo#foo().(t)2&
+ test_10540/Foo#foo().[A]2
+  $scala/Unit#2
+	 test_10540/Bar.2
+ test_10540/Foo#2
+	 test_10540/Test.2#
+ test_10540/Foo#foo().2
+ test_10540/Bar.2
+ local22
+
+ local32"
+ scala/Array.apply().2
+ scala/Array.2
+ local42
+ local22-
+" "scala/reflect/ClassTag.apply().2
+ 
+test_9655/2'
+   test_9655/i10542$package.2-
+   test_9655/i10542$package.foo().20
+   "test_9655/i10542$package.foo().[T]23
+   %test_9655/i10542$package.foo().(body)20
+ !  ""test_9655/i10542$package.foo().[T]20
+ %  &"test_9655/i10542$package.foo().[T]23
+ )  -%test_9655/i10542$package.foo().(body)2.
+"" 
+ test_9655/i10542$package.test().2-
+"" test_9655/i10542$package.foo().2
+## local52
+$$ local62
+$$  local5PZ 5CD34EF4B6A52137A710E975B058918B

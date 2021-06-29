@@ -1,0 +1,663 @@
+
+Éâtests/pos/opaque-groups.scala* 
+groups/package. *groups€*+
+groups/package.Semigroup#*	Semigroup€*6
+$groups/package.Semigroup#`<init>`(). €@*<init>€*&
+groups/package.Semigroup#[A]	*A€*5
+#groups/package.Semigroup#combine(). *combine€*0
+&groups/package.Semigroup#combine().(x)*x€*0
+&groups/package.Semigroup#combine().(y)*y€*-
+groups/package.Semigroup.
+ *	Semigroup€*-
+ groups/package.Semigroup.inst().*inst€*-
+#groups/package.Semigroup.inst().[A]	*A€*-
+#groups/package.Semigroup.inst().(f)*f€*
+local0 *$anon€*
+local1*combine€*
+local2*x€*
+local3*y€*
+groups/package.Id#*Id€*
+groups/package.Id#[A]	*A€*)
+groups/package.Wrapping#*Wrapping€*5
+#groups/package.Wrapping#`<init>`(). €@*<init>€*%
+groups/package.Wrapping#[F]	*F€*0
+ groups/package.Wrapping#wraps(). *wraps€*-
+#groups/package.Wrapping#wraps().[G]	*G€*-
+#groups/package.Wrapping#wraps().[A]	*A€*/
+$groups/package.Wrapping#wraps().(ga)*ga€*2
+!groups/package.Wrapping#unwrap(). *unwrap€*.
+$groups/package.Wrapping#unwrap().[G]	*G€*.
+$groups/package.Wrapping#unwrap().[A]	*A€*0
+%groups/package.Wrapping#unwrap().(ga)*ga€*)
+groups/package.Wrapper# *Wrapper€*4
+"groups/package.Wrapper#`<init>`(). €@*<init>€*
+local4*self€*#
+groups/package.Wrapper#F#*F€*/
+groups/package.Wrapper#wraps(). *wraps€*,
+"groups/package.Wrapper#wraps().[G]	*G€*,
+"groups/package.Wrapper#wraps().[A]	*A€*.
+#groups/package.Wrapper#wraps().(ga)*ga€*1
+ groups/package.Wrapper#unwrap(). *unwrap€*-
+#groups/package.Wrapper#unwrap().[G]	*G€*-
+#groups/package.Wrapper#unwrap().[A]	*A€*1
+%groups/package.Wrapper#unwrap().(gfa)*gfa€*/
+groups/package.Wrapper#apply(). *apply€*,
+"groups/package.Wrapper#apply().[A]	*A€*,
+"groups/package.Wrapper#apply().(a)*a€*A
+'groups/package.Wrapper#WrapperWrapping.
+ (*WrapperWrapping€*=
+/groups/package.Wrapper#WrapperWrapping.wraps().*wraps€*<
+2groups/package.Wrapper#WrapperWrapping.wraps().[G]	*G€*<
+2groups/package.Wrapper#WrapperWrapping.wraps().[A]	*A€*>
+3groups/package.Wrapper#WrapperWrapping.wraps().(ga)*ga€*?
+0groups/package.Wrapper#WrapperWrapping.unwrap().*unwrap€*=
+3groups/package.Wrapper#WrapperWrapping.unwrap().[G]	*G€*=
+3groups/package.Wrapper#WrapperWrapping.unwrap().[A]	*A€*?
+4groups/package.Wrapper#WrapperWrapping.unwrap().(ga)*ga€*#
+groups/package.First#*First€*"
+groups/package.First#[A]	*A€*%
+groups/package.First.
+ *First€*!
+groups/package.First.F#*F€*$
+groups/package.First.F#[A]	*A€*+
+groups/package.First.wraps().*wraps€**
+ groups/package.First.wraps().[G]	*G€**
+ groups/package.First.wraps().[A]	*A€*,
+!groups/package.First.wraps().(ga)*ga€*-
+groups/package.First.unwrap().*unwrap€*+
+!groups/package.First.unwrap().[G]	*G€*+
+!groups/package.First.unwrap().[A]	*A€*/
+#groups/package.First.unwrap().(gfa)*gfa€*?
+&groups/package.First.firstSemigroup().  *firstSemigroup€*3
+)groups/package.First.firstSemigroup().[A]	*A€*
+local5*x€*
+local6*y€*!
+groups/package.Last#*Last€*!
+groups/package.Last#[A]	*A€*#
+groups/package.Last.
+ *Last€* 
+groups/package.Last.F#*F€*#
+groups/package.Last.F#[A]	*A€**
+groups/package.Last.wraps().*wraps€*)
+groups/package.Last.wraps().[G]	*G€*)
+groups/package.Last.wraps().[A]	*A€*+
+ groups/package.Last.wraps().(ga)*ga€*,
+groups/package.Last.unwrap().*unwrap€**
+ groups/package.Last.unwrap().[G]	*G€**
+ groups/package.Last.unwrap().[A]	*A€*.
+"groups/package.Last.unwrap().(gfa)*gfa€*<
+$groups/package.Last.lastSemigroup().  *lastSemigroup€*1
+'groups/package.Last.lastSemigroup().[A]	*A€*
+local7*x€*
+local8*y€*
+groups/package.Min#*Min€* 
+groups/package.Min#[A]	*A€*!
+groups/package.Min.
+ *Min€*
+groups/package.Min.F#*F€*"
+groups/package.Min.F#[A]	*A€*)
+groups/package.Min.wraps().*wraps€*(
+groups/package.Min.wraps().[G]	*G€*(
+groups/package.Min.wraps().[A]	*A€**
+groups/package.Min.wraps().(ga)*ga€*+
+groups/package.Min.unwrap().*unwrap€*)
+groups/package.Min.unwrap().[G]	*G€*)
+groups/package.Min.unwrap().[A]	*A€*-
+!groups/package.Min.unwrap().(gfa)*gfa€*9
+"groups/package.Min.minSemigroup().  *minSemigroup€*/
+%groups/package.Min.minSemigroup().[A]	*A€*1
+%groups/package.Min.minSemigroup().(o)  *o€*
+local9*x€*
+local10*y€*
+groups/package.Max#*Max€* 
+groups/package.Max#[A]	*A€*!
+groups/package.Max.
+ *Max€*
+groups/package.Max.F#*F€*"
+groups/package.Max.F#[A]	*A€*)
+groups/package.Max.wraps().*wraps€*(
+groups/package.Max.wraps().[G]	*G€*(
+groups/package.Max.wraps().[A]	*A€**
+groups/package.Max.wraps().(ga)*ga€*+
+groups/package.Max.unwrap().*unwrap€*)
+groups/package.Max.unwrap().[G]	*G€*)
+groups/package.Max.unwrap().[A]	*A€*-
+!groups/package.Max.unwrap().(gfa)*gfa€*9
+"groups/package.Max.maxSemigroup().  *maxSemigroup€*/
+%groups/package.Max.maxSemigroup().[A]	*A€*1
+%groups/package.Max.maxSemigroup().(o)  *o€*
+local11*x€*
+local12*y€*!
+groups/package.Plus#*Plus€*!
+groups/package.Plus#[A]	*A€*#
+groups/package.Plus.
+ *Plus€* 
+groups/package.Plus.F#*F€*#
+groups/package.Plus.F#[A]	*A€**
+groups/package.Plus.wraps().*wraps€*)
+groups/package.Plus.wraps().[G]	*G€*)
+groups/package.Plus.wraps().[A]	*A€*+
+ groups/package.Plus.wraps().(ga)*ga€*,
+groups/package.Plus.unwrap().*unwrap€**
+ groups/package.Plus.unwrap().[G]	*G€**
+ groups/package.Plus.unwrap().[A]	*A€*.
+"groups/package.Plus.unwrap().(gfa)*gfa€*<
+$groups/package.Plus.plusSemigroup().  *plusSemigroup€*1
+'groups/package.Plus.plusSemigroup().[A]	*A€*3
+'groups/package.Plus.plusSemigroup().(n)  *n€*
+local13*x€*
+local14*y€*#
+groups/package.Times#*Times€*"
+groups/package.Times#[A]	*A€*%
+groups/package.Times.
+ *Times€*!
+groups/package.Times.F#*F€*$
+groups/package.Times.F#[A]	*A€*+
+groups/package.Times.wraps().*wraps€**
+ groups/package.Times.wraps().[G]	*G€**
+ groups/package.Times.wraps().[A]	*A€*,
+!groups/package.Times.wraps().(ga)*ga€*-
+groups/package.Times.unwrap().*unwrap€*+
+!groups/package.Times.unwrap().[G]	*G€*+
+!groups/package.Times.unwrap().[A]	*A€*/
+#groups/package.Times.unwrap().(gfa)*gfa€*?
+&groups/package.Times.timesSemigroup().  *timesSemigroup€*3
+)groups/package.Times.timesSemigroup().[A]	*A€*5
+)groups/package.Times.timesSemigroup().(n)  *n€*
+local15*x€*
+local16*y€*)
+groups/package.Reversed#*Reversed€*%
+groups/package.Reversed#[A]	*A€*+
+groups/package.Reversed.
+ *Reversed€*$
+groups/package.Reversed.F#*F€*'
+groups/package.Reversed.F#[A]	*A€*.
+ groups/package.Reversed.wraps().*wraps€*-
+#groups/package.Reversed.wraps().[G]	*G€*-
+#groups/package.Reversed.wraps().[A]	*A€*/
+$groups/package.Reversed.wraps().(ga)*ga€*0
+!groups/package.Reversed.unwrap().*unwrap€*.
+$groups/package.Reversed.unwrap().[G]	*G€*.
+$groups/package.Reversed.unwrap().[A]	*A€*2
+&groups/package.Reversed.unwrap().(gfa)*gfa€*F
++groups/package.Reversed.reversedOrdering().  *reversedOrdering€*8
+.groups/package.Reversed.reversedOrdering().[A]	*A€*:
+.groups/package.Reversed.reversedOrdering().(o)  *o€*+
+groups/package.Unordered#*	Unordered€*&
+groups/package.Unordered#[A]	*A€*-
+groups/package.Unordered.
+ *	Unordered€*%
+groups/package.Unordered.F#*F€*(
+groups/package.Unordered.F#[A]	*A€*/
+!groups/package.Unordered.wraps().*wraps€*.
+$groups/package.Unordered.wraps().[G]	*G€*.
+$groups/package.Unordered.wraps().[A]	*A€*0
+%groups/package.Unordered.wraps().(ga)*ga€*1
+"groups/package.Unordered.unwrap().*unwrap€*/
+%groups/package.Unordered.unwrap().[G]	*G€*/
+%groups/package.Unordered.unwrap().[A]	*A€*3
+'groups/package.Unordered.unwrap().(gfa)*gfa€*I
+-groups/package.Unordered.unorderedOrdering().  *unorderedOrdering€*:
+0groups/package.Unordered.unorderedOrdering().[A]	*A€2
+ groups/package.2'
+ groups/package.Semigroup#22
+ $groups/package.Semigroup#`<init>`().2*
+ groups/package.Semigroup#[A]21
+ #groups/package.Semigroup#combine().24
+ &groups/package.Semigroup#combine().(x)2*
+ groups/package.Semigroup#[A]24
+ &groups/package.Semigroup#combine().(y)2*
+ groups/package.Semigroup#[A]2*
+ groups/package.Semigroup#[A]2'
+	 groups/package.Semigroup.2.
+  groups/package.Semigroup.inst().21
+ #groups/package.Semigroup.inst().[A]21
+ #groups/package.Semigroup.inst().(f)21
+ #groups/package.Semigroup.inst().[A]21
+ #groups/package.Semigroup.inst().[A]21
+ #groups/package.Semigroup.inst().[A]2'
+! *groups/package.Semigroup#21
++ ,#groups/package.Semigroup.inst().[A]2
+ local02'
+
+ groups/package.Semigroup#21
+ #groups/package.Semigroup.inst().[A]2
+ local12
+ local221
+ #groups/package.Semigroup.inst().[A]2
+ local321
+ #groups/package.Semigroup.inst().[A]21
+! "#groups/package.Semigroup.inst().[A]2&
+& &scala/Function2#apply().21
+% &#groups/package.Semigroup.inst().(f)2
+' (local22
+* +local32 
+ 	groups/package.Id#2#
+
+ groups/package.Id#[A]2#
+ groups/package.Id#[A]2&
+ groups/package.Wrapping#21
+ #groups/package.Wrapping#`<init>`().2)
+ groups/package.Wrapping#[F]2.
+  groups/package.Wrapping#wraps().21
+ #groups/package.Wrapping#wraps().[G]21
+ #groups/package.Wrapping#wraps().[A]22
+ $groups/package.Wrapping#wraps().(ga)21
+ #groups/package.Wrapping#wraps().[G]21
+ #groups/package.Wrapping#wraps().[A]21
+" ##groups/package.Wrapping#wraps().[G]2)
+$ %groups/package.Wrapping#[F]21
+& '#groups/package.Wrapping#wraps().[A]2/
+ !groups/package.Wrapping#unwrap().22
+ $groups/package.Wrapping#unwrap().[G]22
+ $groups/package.Wrapping#unwrap().[A]23
+ %groups/package.Wrapping#unwrap().(ga)22
+ $groups/package.Wrapping#unwrap().[G]2)
+ groups/package.Wrapping#[F]22
+  !$groups/package.Wrapping#unwrap().[A]22
+& '$groups/package.Wrapping#unwrap().[G]22
+( )$groups/package.Wrapping#unwrap().[A]2%
+ groups/package.Wrapper#20
+ "groups/package.Wrapper#`<init>`().2
+ local42'
+	 
+groups/package.Wrapper#F#2-
+ groups/package.Wrapper#wraps().20
+ "groups/package.Wrapper#wraps().[G]20
+ "groups/package.Wrapper#wraps().[A]21
+ #groups/package.Wrapper#wraps().(ga)20
+ "groups/package.Wrapper#wraps().[G]20
+ "groups/package.Wrapper#wraps().[A]20
+" #"groups/package.Wrapper#wraps().[G]2'
+$ %groups/package.Wrapper#F#20
+& '"groups/package.Wrapper#wraps().[A]2.
+  groups/package.Wrapper#unwrap().21
+ #groups/package.Wrapper#unwrap().[G]21
+ #groups/package.Wrapper#unwrap().[A]23
+ %groups/package.Wrapper#unwrap().(gfa)21
+ #groups/package.Wrapper#unwrap().[G]2'
+  groups/package.Wrapper#F#21
+! "#groups/package.Wrapper#unwrap().[A]21
+' (#groups/package.Wrapper#unwrap().[G]21
+) *#groups/package.Wrapper#unwrap().[A]2-
+ groups/package.Wrapper#apply().20
+ "groups/package.Wrapper#apply().[A]20
+ "groups/package.Wrapper#apply().(a)20
+ "groups/package.Wrapper#apply().[A]2'
+ groups/package.Wrapper#F#20
+  !"groups/package.Wrapper#apply().[A]2-
+% *groups/package.Wrapper#wraps().2 
++ -groups/package.Id#20
+/ 0"groups/package.Wrapper#apply().[A]20
+2 3"groups/package.Wrapper#apply().(a)25
+ #'groups/package.Wrapper#WrapperWrapping.2&
+, 4groups/package.Wrapping#2'
+5 6groups/package.Wrapper#F#2=
+
+ /groups/package.Wrapper#WrapperWrapping.wraps().2@
+ 2groups/package.Wrapper#WrapperWrapping.wraps().[G]2@
+ 2groups/package.Wrapper#WrapperWrapping.wraps().[A]2A
+ 3groups/package.Wrapper#WrapperWrapping.wraps().(ga)2@
+ 2groups/package.Wrapper#WrapperWrapping.wraps().[G]2@
+  2groups/package.Wrapper#WrapperWrapping.wraps().[A]2@
+$ %2groups/package.Wrapper#WrapperWrapping.wraps().[G]2'
+& 'groups/package.Wrapper#F#2@
+( )2groups/package.Wrapper#WrapperWrapping.wraps().[A]2-
+3 8groups/package.Wrapper#wraps().2%
+. 2groups/package.Wrapper#2A
+9 ;3groups/package.Wrapper#WrapperWrapping.wraps().(ga)2>
+
+ 0groups/package.Wrapper#WrapperWrapping.unwrap().2A
+ 3groups/package.Wrapper#WrapperWrapping.unwrap().[G]2A
+ 3groups/package.Wrapper#WrapperWrapping.unwrap().[A]2B
+ 4groups/package.Wrapper#WrapperWrapping.unwrap().(ga)2A
+ 3groups/package.Wrapper#WrapperWrapping.unwrap().[G]2'
+  !groups/package.Wrapper#F#2A
+" #3groups/package.Wrapper#WrapperWrapping.unwrap().[A]2A
+( )3groups/package.Wrapper#WrapperWrapping.unwrap().[G]2A
+* +3groups/package.Wrapper#WrapperWrapping.unwrap().[A]2.
+4 : groups/package.Wrapper#unwrap().2%
+/ 3groups/package.Wrapper#2B
+; =4groups/package.Wrapper#WrapperWrapping.unwrap().(ga)2#
+   groups/package.First#2&
+   groups/package.First#[A]2&
+   groups/package.First#[A]2#
+!	! groups/package.First.20
+!! "groups/package.Wrapper#`<init>`().2%
+!! groups/package.Wrapper#2%
+"	" 
+groups/package.First.F#2(
+"" groups/package.First.F#[A]2#
+"" groups/package.First#2(
+"" groups/package.First.F#[A]2+
+## groups/package.First.wraps().2.
+##  groups/package.First.wraps().[G]2.
+##  groups/package.First.wraps().[A]2/
+## !groups/package.First.wraps().(ga)2.
+##  groups/package.First.wraps().[G]2.
+##  groups/package.First.wraps().[A]2.
+#"# # groups/package.First.wraps().[G]2#
+#$# )groups/package.First#2.
+#*# + groups/package.First.wraps().[A]2/
+#0# 2!groups/package.First.wraps().(ga)2,
+$$ groups/package.First.unwrap().2/
+$$ !groups/package.First.unwrap().[G]2/
+$$ !groups/package.First.unwrap().[A]21
+$$ #groups/package.First.unwrap().(gfa)2/
+$$ !groups/package.First.unwrap().[G]2#
+$$ $groups/package.First#2/
+$%$ &!groups/package.First.unwrap().[A]2/
+$+$ ,!groups/package.First.unwrap().[G]2/
+$-$ .!groups/package.First.unwrap().[A]21
+$2$ 5#groups/package.First.unwrap().(gfa)24
+%% &groups/package.First.firstSemigroup().27
+% % !)groups/package.First.firstSemigroup().[A]2'
+%$% -groups/package.Semigroup#2#
+%.% 3groups/package.First#27
+%4% 5)groups/package.First.firstSemigroup().[A]2.
+&&  groups/package.Semigroup.inst().2'
+&& groups/package.Semigroup.2
+&& local52
+&& local62
+&&  local52"
+)) groups/package.Last#2%
+)) groups/package.Last#[A]2%
+)) groups/package.Last#[A]2"
+*	* groups/package.Last.20
+** "groups/package.Wrapper#`<init>`().2%
+** groups/package.Wrapper#2$
++	+ 
+groups/package.Last.F#2'
+++ groups/package.Last.F#[A]2"
+++ groups/package.Last#2'
+++ groups/package.Last.F#[A]2*
+,, groups/package.Last.wraps().2-
+,, groups/package.Last.wraps().[G]2-
+,, groups/package.Last.wraps().[A]2.
+,,  groups/package.Last.wraps().(ga)2-
+,, groups/package.Last.wraps().[G]2-
+,, groups/package.Last.wraps().[A]2-
+,", #groups/package.Last.wraps().[G]2"
+,$, (groups/package.Last#2-
+,), *groups/package.Last.wraps().[A]2.
+,/, 1 groups/package.Last.wraps().(ga)2+
+-- groups/package.Last.unwrap().2.
+--  groups/package.Last.unwrap().[G]2.
+--  groups/package.Last.unwrap().[A]20
+-- "groups/package.Last.unwrap().(gfa)2.
+--  groups/package.Last.unwrap().[G]2"
+-- #groups/package.Last#2.
+-$- % groups/package.Last.unwrap().[A]2.
+-*- + groups/package.Last.unwrap().[G]2.
+-,- - groups/package.Last.unwrap().[A]20
+-1- 4"groups/package.Last.unwrap().(gfa)22
+.. $groups/package.Last.lastSemigroup().25
+..  'groups/package.Last.lastSemigroup().[A]2'
+.#. ,groups/package.Semigroup#2"
+.-. 1groups/package.Last#25
+.2. 3'groups/package.Last.lastSemigroup().[A]2.
+//  groups/package.Semigroup.inst().2'
+// groups/package.Semigroup.2
+// local72
+// local82
+//  local82!
+22 groups/package.Min#2$
+22 groups/package.Min#[A]2$
+22 groups/package.Min#[A]2!
+3	3 groups/package.Min.20
+33 "groups/package.Wrapper#`<init>`().2%
+33 groups/package.Wrapper#2#
+4	4 
+groups/package.Min.F#2&
+44 groups/package.Min.F#[A]2!
+44 groups/package.Min#2&
+44 groups/package.Min.F#[A]2)
+55 groups/package.Min.wraps().2,
+55 groups/package.Min.wraps().[G]2,
+55 groups/package.Min.wraps().[A]2-
+55 groups/package.Min.wraps().(ga)2,
+55 groups/package.Min.wraps().[G]2,
+55 groups/package.Min.wraps().[A]2,
+5"5 #groups/package.Min.wraps().[G]2!
+5$5 'groups/package.Min#2,
+5(5 )groups/package.Min.wraps().[A]2-
+5.5 0groups/package.Min.wraps().(ga)2*
+66 groups/package.Min.unwrap().2-
+66 groups/package.Min.unwrap().[G]2-
+66 groups/package.Min.unwrap().[A]2/
+66 !groups/package.Min.unwrap().(gfa)2-
+66 groups/package.Min.unwrap().[G]2!
+66 "groups/package.Min#2-
+6#6 $groups/package.Min.unwrap().[A]2-
+6)6 *groups/package.Min.unwrap().[G]2-
+6+6 ,groups/package.Min.unwrap().[A]2/
+606 3!groups/package.Min.unwrap().(gfa)20
+77 "groups/package.Min.minSemigroup().23
+77 %groups/package.Min.minSemigroup().[A]23
+7*7 +%groups/package.Min.minSemigroup().(o)2%
+7-7 5scala/package.Ordering#23
+767 7%groups/package.Min.minSemigroup().[A]2'
+7;7 Dgroups/package.Semigroup#2!
+7E7 Hgroups/package.Min#23
+7I7 J%groups/package.Min.minSemigroup().[A]2.
+88  groups/package.Semigroup.inst().2'
+88 groups/package.Semigroup.2(
+88 scala/math/Ordering#min().23
+88 %groups/package.Min.minSemigroup().(o)2
+88 local92
+88 local102!
+;; groups/package.Max#2$
+;; groups/package.Max#[A]2$
+;; groups/package.Max#[A]2!
+<	< groups/package.Max.20
+<< "groups/package.Wrapper#`<init>`().2%
+<< groups/package.Wrapper#2#
+=	= 
+groups/package.Max.F#2&
+== groups/package.Max.F#[A]2!
+== groups/package.Max#2&
+== groups/package.Max.F#[A]2)
+>> groups/package.Max.wraps().2,
+>> groups/package.Max.wraps().[G]2,
+>> groups/package.Max.wraps().[A]2-
+>> groups/package.Max.wraps().(ga)2,
+>> groups/package.Max.wraps().[G]2,
+>> groups/package.Max.wraps().[A]2,
+>"> #groups/package.Max.wraps().[G]2!
+>$> 'groups/package.Max#2,
+>(> )groups/package.Max.wraps().[A]2-
+>.> 0groups/package.Max.wraps().(ga)2*
+?? groups/package.Max.unwrap().2-
+?? groups/package.Max.unwrap().[G]2-
+?? groups/package.Max.unwrap().[A]2/
+?? !groups/package.Max.unwrap().(gfa)2-
+?? groups/package.Max.unwrap().[G]2!
+?? "groups/package.Max#2-
+?#? $groups/package.Max.unwrap().[A]2-
+?)? *groups/package.Max.unwrap().[G]2-
+?+? ,groups/package.Max.unwrap().[A]2/
+?0? 3!groups/package.Max.unwrap().(gfa)20
+@@ "groups/package.Max.maxSemigroup().23
+@@ %groups/package.Max.maxSemigroup().[A]23
+@*@ +%groups/package.Max.maxSemigroup().(o)2%
+@-@ 5scala/package.Ordering#23
+@6@ 7%groups/package.Max.maxSemigroup().[A]2'
+@;@ Dgroups/package.Semigroup#2!
+@E@ Hgroups/package.Max#23
+@I@ J%groups/package.Max.maxSemigroup().[A]2.
+AA  groups/package.Semigroup.inst().2'
+AA groups/package.Semigroup.2(
+AA scala/math/Ordering#max().23
+AA %groups/package.Max.maxSemigroup().(o)2
+AA local112
+AA local122"
+DD groups/package.Plus#2%
+DD groups/package.Plus#[A]2%
+DD groups/package.Plus#[A]2"
+E	E groups/package.Plus.20
+EE "groups/package.Wrapper#`<init>`().2%
+EE groups/package.Wrapper#2$
+F	F 
+groups/package.Plus.F#2'
+FF groups/package.Plus.F#[A]2"
+FF groups/package.Plus#2'
+FF groups/package.Plus.F#[A]2*
+GG groups/package.Plus.wraps().2-
+GG groups/package.Plus.wraps().[G]2-
+GG groups/package.Plus.wraps().[A]2.
+GG  groups/package.Plus.wraps().(ga)2-
+GG groups/package.Plus.wraps().[G]2-
+GG groups/package.Plus.wraps().[A]2-
+G"G #groups/package.Plus.wraps().[G]2"
+G$G (groups/package.Plus#2-
+G)G *groups/package.Plus.wraps().[A]2.
+G/G 1 groups/package.Plus.wraps().(ga)2+
+HH groups/package.Plus.unwrap().2.
+HH  groups/package.Plus.unwrap().[G]2.
+HH  groups/package.Plus.unwrap().[A]20
+HH "groups/package.Plus.unwrap().(gfa)2.
+HH  groups/package.Plus.unwrap().[G]2"
+HH #groups/package.Plus#2.
+H$H % groups/package.Plus.unwrap().[A]2.
+H*H + groups/package.Plus.unwrap().[G]2.
+H,H - groups/package.Plus.unwrap().[A]20
+H1H 4"groups/package.Plus.unwrap().(gfa)22
+II $groups/package.Plus.plusSemigroup().25
+II  'groups/package.Plus.plusSemigroup().[A]25
+I+I ,'groups/package.Plus.plusSemigroup().(n)2$
+I.I 5scala/package.Numeric#25
+I6I 7'groups/package.Plus.plusSemigroup().[A]2'
+I;I Dgroups/package.Semigroup#2"
+IEI Igroups/package.Plus#25
+IJI K'groups/package.Plus.plusSemigroup().[A]2.
+JJ  groups/package.Semigroup.inst().2'
+JJ groups/package.Semigroup.2(
+JJ scala/math/Numeric#plus().25
+JJ 'groups/package.Plus.plusSemigroup().(n)2
+JJ local132
+JJ local142#
+MM groups/package.Times#2&
+MM groups/package.Times#[A]2&
+MM groups/package.Times#[A]2#
+N	N groups/package.Times.20
+NN "groups/package.Wrapper#`<init>`().2%
+NN groups/package.Wrapper#2%
+O	O 
+groups/package.Times.F#2(
+OO groups/package.Times.F#[A]2#
+OO groups/package.Times#2(
+OO groups/package.Times.F#[A]2+
+PP groups/package.Times.wraps().2.
+PP  groups/package.Times.wraps().[G]2.
+PP  groups/package.Times.wraps().[A]2/
+PP !groups/package.Times.wraps().(ga)2.
+PP  groups/package.Times.wraps().[G]2.
+PP  groups/package.Times.wraps().[A]2.
+P"P # groups/package.Times.wraps().[G]2#
+P$P )groups/package.Times#2.
+P*P + groups/package.Times.wraps().[A]2/
+P0P 2!groups/package.Times.wraps().(ga)2,
+QQ groups/package.Times.unwrap().2/
+QQ !groups/package.Times.unwrap().[G]2/
+QQ !groups/package.Times.unwrap().[A]21
+QQ #groups/package.Times.unwrap().(gfa)2/
+QQ !groups/package.Times.unwrap().[G]2#
+QQ $groups/package.Times#2/
+Q%Q &!groups/package.Times.unwrap().[A]2/
+Q+Q ,!groups/package.Times.unwrap().[G]2/
+Q-Q .!groups/package.Times.unwrap().[A]21
+Q2Q 5#groups/package.Times.unwrap().(gfa)24
+RR &groups/package.Times.timesSemigroup().27
+R R !)groups/package.Times.timesSemigroup().[A]27
+R,R -)groups/package.Times.timesSemigroup().(n)2$
+R/R 6scala/package.Numeric#27
+R7R 8)groups/package.Times.timesSemigroup().[A]2'
+R<R Egroups/package.Semigroup#2#
+RFR Kgroups/package.Times#27
+RLR M)groups/package.Times.timesSemigroup().[A]2.
+SS  groups/package.Semigroup.inst().2'
+SS groups/package.Semigroup.2)
+SS scala/math/Numeric#times().27
+SS )groups/package.Times.timesSemigroup().(n)2
+SS local152
+SS local162&
+VV groups/package.Reversed#2)
+VV groups/package.Reversed#[A]2)
+VV groups/package.Reversed#[A]2&
+W	W groups/package.Reversed.20
+W!W !"groups/package.Wrapper#`<init>`().2%
+WW !groups/package.Wrapper#2(
+X	X 
+groups/package.Reversed.F#2+
+XX groups/package.Reversed.F#[A]2&
+XX groups/package.Reversed#2+
+XX groups/package.Reversed.F#[A]2.
+YY  groups/package.Reversed.wraps().21
+YY #groups/package.Reversed.wraps().[G]21
+YY #groups/package.Reversed.wraps().[A]22
+YY $groups/package.Reversed.wraps().(ga)21
+YY #groups/package.Reversed.wraps().[G]21
+YY #groups/package.Reversed.wraps().[A]21
+Y"Y ##groups/package.Reversed.wraps().[G]2&
+Y$Y ,groups/package.Reversed#21
+Y-Y .#groups/package.Reversed.wraps().[A]22
+Y3Y 5$groups/package.Reversed.wraps().(ga)2/
+ZZ !groups/package.Reversed.unwrap().22
+ZZ $groups/package.Reversed.unwrap().[G]22
+ZZ $groups/package.Reversed.unwrap().[A]24
+ZZ &groups/package.Reversed.unwrap().(gfa)22
+ZZ $groups/package.Reversed.unwrap().[G]2&
+ZZ 'groups/package.Reversed#22
+Z(Z )$groups/package.Reversed.unwrap().[A]22
+Z.Z /$groups/package.Reversed.unwrap().[G]22
+Z0Z 1$groups/package.Reversed.unwrap().[A]24
+Z5Z 8&groups/package.Reversed.unwrap().(gfa)29
+[[ !+groups/package.Reversed.reversedOrdering().2<
+["[ #.groups/package.Reversed.reversedOrdering().[A]2<
+[.[ /.groups/package.Reversed.reversedOrdering().(o)2%
+[1[ 9scala/package.Ordering#2<
+[:[ ;.groups/package.Reversed.reversedOrdering().[A]2%
+[?[ Gscala/package.Ordering#2&
+[H[ Pgroups/package.Reversed#2<
+[Q[ R.groups/package.Reversed.reversedOrdering().[A]2,
+\\ scala/math/Ordering#reverse().2<
+\\ .groups/package.Reversed.reversedOrdering().(o)2'
+__ groups/package.Unordered#2*
+__ groups/package.Unordered#[A]2*
+__ groups/package.Unordered#[A]2'
+`	` groups/package.Unordered.20
+`"` ""groups/package.Wrapper#`<init>`().2%
+`` "groups/package.Wrapper#2)
+a	a 
+groups/package.Unordered.F#2,
+aa groups/package.Unordered.F#[A]2'
+aa groups/package.Unordered#2,
+aa groups/package.Unordered.F#[A]2/
+bb !groups/package.Unordered.wraps().22
+bb $groups/package.Unordered.wraps().[G]22
+bb $groups/package.Unordered.wraps().[A]23
+bb %groups/package.Unordered.wraps().(ga)22
+bb $groups/package.Unordered.wraps().[G]22
+bb $groups/package.Unordered.wraps().[A]22
+b"b #$groups/package.Unordered.wraps().[G]2'
+b$b -groups/package.Unordered#22
+b.b /$groups/package.Unordered.wraps().[A]23
+b4b 6%groups/package.Unordered.wraps().(ga)20
+cc "groups/package.Unordered.unwrap().23
+cc %groups/package.Unordered.unwrap().[G]23
+cc %groups/package.Unordered.unwrap().[A]25
+cc 'groups/package.Unordered.unwrap().(gfa)23
+cc %groups/package.Unordered.unwrap().[G]2'
+cc (groups/package.Unordered#23
+c)c *%groups/package.Unordered.unwrap().[A]23
+c/c 0%groups/package.Unordered.unwrap().[G]23
+c1c 2%groups/package.Unordered.unwrap().[A]25
+c6c 9'groups/package.Unordered.unwrap().(gfa)2;
+dd "-groups/package.Unordered.unorderedOrdering().2>
+d#d $0groups/package.Unordered.unorderedOrdering().[A]2%
+d'd /scala/package.Ordering#2'
+d0d 9groups/package.Unordered#2>
+d:d ;0groups/package.Unordered.unorderedOrdering().[A]2'
+ee scala/math/Ordering.by().2%
+ee scala/package.Ordering.2;
+ee -groups/package.Unordered.unorderedOrdering().PZ 7A7562EDAECBDC583717D0B93A42511A

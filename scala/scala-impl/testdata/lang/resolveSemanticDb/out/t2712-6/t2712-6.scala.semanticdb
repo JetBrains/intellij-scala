@@ -1,0 +1,61 @@
+
+ƒtests/pos/t2712-6.scala*
+
+test/Tags.
+ *Tags€* 
+test/Tags.Tagged#*Tagged€*
+test/Tags.Tagged#[A]	*A€*
+test/Tags.Tagged#[T]	*T€*
+local0*Tag€*
+local1*Self€*
+test/Tags.`@@`#*@@€*
+test/Tags.`@@`#[T]	*T€* 
+test/Tags.`@@`#[Tag]	*Tag€**
+test/Tags.Disjunction#*Disjunction€*3
+!test/Tags.Disjunction#`<init>`(). €@*<init>€*
+test/Tags.meh().*meh€*
+test/Tags.meh().[M]	*M€*
+test/Tags.meh().[A]	*A€*
+test/Tags.meh().(ma)*ma€2
+ test/2
+ 
+test/Tags.2
+ test/Tags.Tagged#2"
+ test/Tags.Tagged#[A]2"
+ test/Tags.Tagged#[T]2
+ local02"
+" #test/Tags.Tagged#[T]2
+* .local12"
+1 2test/Tags.Tagged#[A]2
+ 	test/Tags.`@@`#2 
+
+ test/Tags.`@@`#[T]2"
+ test/Tags.`@@`#[Tag]2
+ test/Tags.Tagged#2 
+ test/Tags.`@@`#[T]2"
+ !test/Tags.`@@`#[Tag]2$
+ test/Tags.Disjunction#2/
+ !test/Tags.Disjunction#`<init>`().2
+		 	test/Tags.meh().2!
+	
+	 test/Tags.meh().[M]2!
+		 test/Tags.meh().[A]2"
+		 test/Tags.meh().(ma)2!
+		 test/Tags.meh().[M]2!
+		 test/Tags.meh().[A]2!
+		 test/Tags.meh().[M]2!
+	 	 !test/Tags.meh().[A]2"
+	%	 'test/Tags.meh().(ma)2
+
+
+ test/Tags.meh().2
+
+
+ test/Tags.`@@`#2
+
+
+ 
+scala/Int#2$
+
+
+ test/Tags.Disjunction#PZ B3E9F8E621B985C2FBB6B03A368563A5

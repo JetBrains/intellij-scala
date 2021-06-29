@@ -1,0 +1,50 @@
+
+¿	tests/pos/t0055.scala*
+
+_empty_/X#*X€*'
+_empty_/X#`<init>`(). €@*<init>€*"
+_empty_/X#`<init>`().(x)*x€*
+_empty_/X#x. €*x€*
+
+_empty_/W#*W€*'
+_empty_/W#`<init>`(). €@*<init>€*
+local0 *$anon€*
+local1 *$anon€*
+_empty_/W#Y#*Y€*)
+_empty_/W#Y#`<init>`(). €@*<init>€*
+_empty_/W#Y#y().*y€*
+
+_empty_/Z#*Z€*'
+_empty_/Z#`<init>`(). €@*<init>€*"
+_empty_/Z#`<init>`().(r)*r€*
+_empty_/Z#r. €*r€*&
+_empty_/Z#`<init>`(+1).*<init>€2
+ 
+_empty_/X#2
+ _empty_/X#`<init>`().2
+ 
+scala/Any#2
+ 	_empty_/X#x.2
+ 
+_empty_/W#2#
+ _empty_/W#`<init>`().2
+ local02#
+ _empty_/X#`<init>`().2
+ 
+_empty_/X#2
+ local12%
+ _empty_/Z#`<init>`(+1).2
+ 
+_empty_/Z#2
+ _empty_/W#Y#2
+ 	_empty_/W#Y#2%
+ _empty_/W#Y#`<init>`().2
+ _empty_/W#Y#y().2
+ 
+_empty_/Z#2#
+ _empty_/Z#`<init>`().2
+ 
+scala/Any#2
+ 	_empty_/Z#r.2%
+ _empty_/Z#`<init>`(+1).2#
+% %_empty_/Z#`<init>`().PZ 1886ADA2AEDD879F9F0ACDD67F6B44C2

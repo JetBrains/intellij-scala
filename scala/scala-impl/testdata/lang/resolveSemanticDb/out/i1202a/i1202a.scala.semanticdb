@@ -1,0 +1,32 @@
+
+ðtests/pos/i1202a.scala*
+i1202a/Test#*Test€*)
+i1202a/Test#`<init>`(). €@*<init>€*
+i1202a/Test#[T]	*T€*,
+i1202a/Test#testMethod().*
+testMethod€*
+i1202a/Foo#*Foo€*(
+i1202a/Foo#`<init>`(). €@*<init>€*
+i1202a/Foo#[T]	*T€*'
+i1202a/Foo#`<init>`(+1).*<init>€*'
+i1202a/Foo#`<init>`(+1).(ct)*ct€2
+ i1202a/2
+ 
+i1202a/Test#2%
+
+ 
+i1202a/Test#`<init>`().2
+ i1202a/Test#[T]2'
+ i1202a/Test#testMethod().2
+ scala/Unit#2&
+ i1202a/Foo#`<init>`(+1).2
+ 	i1202a/Foo#2$
+	 	i1202a/Foo#`<init>`().2
+
+ i1202a/Foo#[T]2&
+ 
+i1202a/Foo#`<init>`(+1).2*
+ i1202a/Foo#`<init>`(+1).(ct)2
+ i1202a/Test#2
+ i1202a/Foo#[T]2$
+ i1202a/Foo#`<init>`().PZ 9FCF0A193D26B0363258A809E00909C3

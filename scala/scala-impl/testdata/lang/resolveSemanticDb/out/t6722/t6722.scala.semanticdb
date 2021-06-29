@@ -1,0 +1,41 @@
+
+’
+tests/pos/t6722.scala*
+_empty_/Dyn#*Dyn€*)
+_empty_/Dyn#`<init>`(). €@*<init>€*2
+_empty_/Dyn#selectDynamic().*selectDynamic€*)
+_empty_/Dyn#selectDynamic().(s)*s€*
+_empty_/Dyn#get().*get€*
+_empty_/Dyn#get().[T]	*T€*
+_empty_/Foo.
+ *Foo€*
+_empty_/Foo.dyn. €*dyn€2"
+ scala/language.dynamics.2
+ scala/language.2
+ scala/2
+ 	_empty_/Dyn#2%
+ _empty_/Dyn#`<init>`().2
+ scala/Dynamic#2*
+ _empty_/Dyn#selectDynamic().2-
+ _empty_/Dyn#selectDynamic().(s)2"
+ scala/Predef.String#2
+  #_empty_/Dyn#2%
+- -_empty_/Dyn#`<init>`().2
+* -_empty_/Dyn#2 
+ 	_empty_/Dyn#get().2#
+
+ _empty_/Dyn#get().[T]2#
+ _empty_/Dyn#get().[T]2'
+ #scala/Any#asInstanceOf().2#
+$ %_empty_/Dyn#get().[T]2
+ 
+_empty_/Foo.2
+ 	_empty_/Foo.dyn.2%
+ _empty_/Dyn#`<init>`().2
+ _empty_/Dyn#2 
+		 _empty_/Dyn#get().2*
+		 _empty_/Dyn#selectDynamic().2*
+			 _empty_/Dyn#selectDynamic().2*
+		 	_empty_/Dyn#selectDynamic().2
+		 _empty_/Foo.dyn.2"
+		 scala/Predef.String#PZ 90F3CC2E1747011E8EF8C1C3E12124DA

@@ -1,0 +1,30 @@
+
+©"tests/pos/rangepos-anonapply.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*1
+_empty_/Test#PropTraverser#*PropTraverser€*8
+&_empty_/Test#PropTraverser#`<init>`(). €@*<init>€*1
+#_empty_/Test#PropTraverser#apply().*apply€*0
+&_empty_/Test#PropTraverser#apply().(x)*x€*%
+_empty_/Test#gather().*gather€*#
+_empty_/Test#gather().(x)*x€*
+local0 *$anon€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2)
+ _empty_/Test#PropTraverser#24
+ &_empty_/Test#PropTraverser#`<init>`().21
+ #_empty_/Test#PropTraverser#apply().24
+ &_empty_/Test#PropTraverser#apply().(x)2
+ 
+scala/Int#2
+ scala/Unit#2$
+ _empty_/Test#gather().2'
+ _empty_/Test#gather().(x)2
+ 
+scala/Int#2
+ scala/Unit#21
+ #_empty_/Test#PropTraverser#apply().2
+ local02)
+	 _empty_/Test#PropTraverser#2'
+ _empty_/Test#gather().(x)PZ 477EDBD14215C869EEB4F922BAE04CAA

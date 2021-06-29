@@ -1,0 +1,66 @@
+
+Åtests/pos/objXfun.scala*
+_empty_/Foo.
+ *FooÄ*"
+_empty_/Foo.apply().*applyÄ*!
+_empty_/Foo.apply().(x)*xÄ*
+
+_empty_/E# îÄ*EÄ*'
+_empty_/E#`<init>`(). Ä@*<init>Ä*"
+_empty_/E#`<init>`().(x)*xÄ*
+_empty_/E#x. Ä*xÄ*
+
+_empty_/E.
+ *EÄ*
+_empty_/E.C# àÅ*CÄ*)
+_empty_/E.C#`<init>`(). Ä@*<init>Ä*'
+_empty_/E.C#`<init>`().(x) Ä*xÄ*
+_empty_/E.C#x. Ä*xÄ* 
+_empty_/E.C#copy().*copyÄ* 
+_empty_/E.C#copy().(x)*xÄ*4
+_empty_/E.C#copy$default$1().*copy$default$1Ä*&
+_empty_/E.C#ordinal().*ordinalÄ*
+_empty_/E.C#_1().*_1Ä*
+_empty_/E.C.
+ *CÄ*"
+_empty_/E.C.apply().*applyÄ*!
+_empty_/E.C.apply().(x)*xÄ*&
+_empty_/E.C.unapply().*unapplyÄ*'
+_empty_/E.C.unapply().(x$1)*x$1Ä*(
+_empty_/E.C.toString().*toStringÄ*,
+_empty_/E.fromOrdinal().*fromOrdinalÄ*1
+!_empty_/E.fromOrdinal().(ordinal)*ordinalÄ2
+ 
+_empty_/Foo.2
+ 
+scala/Int#2
+ 
+scala/Int#2"
+ _empty_/Foo.apply().2%
+ _empty_/Foo.apply().(x)2
+ 
+scala/Int#2%
+ _empty_/Foo.apply().(x)2
+ 
+_empty_/E#2#
+ _empty_/E#`<init>`().2
+
+ 
+scala/Int#2
+ _empty_/E#x.2
+ 
+_empty_/E.2
+ _empty_/E.C#2%
+ _empty_/E.C#`<init>`().2
+ 
+scala/Int#2#
+ _empty_/E#`<init>`().2
+ 
+_empty_/E#2
+ _empty_/E.C#x.2
+	 
+_empty_/E.C#x.2!
+ _empty_/E.C#copy().2
+ _empty_/E.C#_1().2
+ _empty_/E.C.2"
+ _empty_/E.C.apply().PZ DD7CA37FAB7A6EBA2CAA3039BC42669E

@@ -1,0 +1,57 @@
+
+¼tests/pos/9871.scala*
+_empty_/Test.
+ *Test€*1
+_empty_/Test.IsTypeInTuple#*IsTypeInTuple€*(
+_empty_/Test.IsTypeInTuple#[T]	*T€*,
+ _empty_/Test.IsTypeInTuple#[Tup]	*Tup€*
+local0 €	*ts€*
+local1 €	*ts€2
+ _empty_/Test.2)
+ _empty_/Test.IsTypeInTuple#2,
+ _empty_/Test.IsTypeInTuple#[T]2.
+  _empty_/Test.IsTypeInTuple#[Tup]2
+ $scala/Tuple#2.
+( + _empty_/Test.IsTypeInTuple#[Tup]2-
+	 scala/Tuple$package.EmptyTuple#2
+ scala/`*:`#2,
+	 
+_empty_/Test.IsTypeInTuple#[T]2
+ local02
+ scala/`*:`#2
+ local12)
+ !_empty_/Test.IsTypeInTuple#2,
+" #_empty_/Test.IsTypeInTuple#[T]2
+% 'local12$
+ scala/Predef.summon().2
+' *scala/`=:=`#2
+ scala/`*:`#2
+
+ 
+scala/Int#2
+ scala/`*:`#2"
+ scala/Predef.String#2-
+ %scala/Tuple$package.EmptyTuple#2
+, /
+scala/Int#2"
+1 7scala/Predef.String#2!
+9 9scala/`<:<`.refl().2$
+ scala/Predef.summon().2
+< ?scala/`=:=`#2)
+	 _empty_/Test.IsTypeInTuple#2"
+ scala/Predef.String#2
+# %scala/`*:`#2
+ "
+scala/Int#2
+- /scala/`*:`#2"
+& ,scala/Predef.String#2-
+0 :scala/Tuple$package.EmptyTuple#2!
+E Escala/`<:<`.refl().2$
+ scala/Predef.summon().2
+. 1scala/`=:=`#2)
+	 _empty_/Test.IsTypeInTuple#2"
+ scala/Predef.String#2
+  #
+scala/Int#2"
+% +scala/Predef.String#2!
+7 7scala/`<:<`.refl().PZ 606A89D1705CB6AA4F26ED7C706E1B4D

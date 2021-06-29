@@ -1,0 +1,47 @@
+
+§
+#tests/pos/dependent-implicits.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.T#*T€*,
+_empty_/Test.T#`<init>`(). €@*<init>€*
+_empty_/Test.T#X#*X€*
+_empty_/Test.T#x. „*x€*
+_empty_/Test.f().  *f€*
+_empty_/Test.f().(x)*x€*
+_empty_/Test.t. €*t€*
+local0 *$anon€*
+local1*X€*
+local2 €*x€*
+_empty_/Test.x. €*x€*
+_empty_/Test.uy. €*uy€2
+ _empty_/Test.2
+ 	_empty_/Test.T#2(
+ _empty_/Test.T#`<init>`().2
+ _empty_/Test.T#X#2
+ _empty_/Test.T#x.2
+ _empty_/Test.T#X#2
+ _empty_/Test.f().2"
+ _empty_/Test.f().(x)2
+ _empty_/Test.T#2
+ _empty_/Test.T#X#2"
+ _empty_/Test.f().(x)2
+  !_empty_/Test.T#x.2"
+ _empty_/Test.f().(x)2
+ _empty_/Test.t.2
+
+ 
+local02
+ _empty_/Test.T#2
+ local12"
+ !scala/Predef.String#2
+' (local22
+ _empty_/Test.x.2"
+	 scala/Predef.String#2
+ _empty_/Test.f().2
+ _empty_/Test.t.2
+ _empty_/Test.uy.2"
+
+ scala/Predef.String#2
+ _empty_/Test.f().2
+ _empty_/Test.t.PZ D4769BD9B0D80B98F9D7A575A96EA8C7

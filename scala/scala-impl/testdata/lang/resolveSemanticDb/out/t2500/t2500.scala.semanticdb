@@ -1,0 +1,80 @@
+
+¿tests/pos/t2500.scala*
+_empty_/Test.
+ *Test€*
+local0*x€*
+local1*x€*
+local2*x€2
+ _empty_/Test.2
+ scala/collection/2
+ scala/2,
+< ?scala/collection/MapOps#map().2;
+	 	-scala/collection/MapFactory.Delegate#apply().2#
+ 	scala/collection/Map.2-
+ scala/Predef.ArrowAssoc#`->`().2(
+
+ 
+scala/Predef.ArrowAssoc().2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2#
+* -scala/collection/Map#2
+ )scala/collection/2
+. 1
+scala/Int#2"
+3 9scala/Predef.String#2&
+@ Hscala/Predef.identity().2
+J M
+scala/Int#2"
+O Uscala/Predef.String#2
+@ @local02#
+l oscala/collection/Map#2
+a kscala/collection/2
+[ `scala/2
+p s
+scala/Int#2"
+t zscala/Predef.String#22
+H K$scala/collection/SortedMapOps#map().2A
+ 3scala/collection/SortedMapFactory.Delegate#apply().2)
+ scala/collection/SortedMap.2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2-
+ scala/Predef.ArrowAssoc#`->`().2(
+ scala/Predef.ArrowAssoc().2&
+# #scala/math/Ordering.Int.2)
+0 9scala/collection/SortedMap#2
+% /scala/collection/2
+: =
+scala/Int#2"
+? Escala/Predef.String#2&
+L Tscala/Predef.identity().2
+V Y
+scala/Int#2"
+[ ascala/Predef.String#2
+L Llocal12&
+c cscala/math/Ordering.Int.2*
+	w €scala/collection/SortedMap#2
+l vscala/collection/2
+f kscala/2
+
+ „
+scala/Int#2$
+
+… ‹scala/Predef.String#22
+2 5$scala/collection/SortedSetOps#map().2H
+ :scala/collection/EvidenceIterableFactory.Delegate#apply().2)
+ scala/collection/SortedSet.2&
+ scala/math/Ordering.Int.2)
+" +scala/collection/SortedSet#2
+ !scala/collection/2
+, /
+scala/Int#2&
+6 >scala/Predef.identity().2
+? B
+scala/Int#2
+6 6local22&
+C Cscala/math/Ordering.Int.2)
+W `scala/collection/SortedSet#2
+L Vscala/collection/2
+F Kscala/2
+a d
+scala/Int#PZ 13F190F3B77C708FA649BCE16EB8CAEF

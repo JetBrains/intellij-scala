@@ -1,0 +1,43 @@
+
+©tests/pos/test-implicits.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.X#*X€*,
+_empty_/Test.X#`<init>`(). €@*<init>€*'
+_empty_/Test.X#`<init>`().(i)*i€*
+_empty_/Test.X#i. €*i€*%
+_empty_/Test.int2x().  *int2x€*"
+_empty_/Test.int2x().(i)*i€*
+_empty_/Test.x. €*x€*
+_empty_/Test.foo().*foo€*
+local0  *x€2
+ _empty_/Test.2
+ 	_empty_/Test.X#2(
+	 	_empty_/Test.X#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/Test.X#i.2#
+ _empty_/Test.int2x().2&
+ _empty_/Test.int2x().(i)2
+ 
+scala/Int#2
+ _empty_/Test.X#2(
+' '_empty_/Test.X#`<init>`().2
+& '_empty_/Test.X#2&
+( )_empty_/Test.int2x().(i)2
+ _empty_/Test.x.2
+	 
+_empty_/Test.X#2#
+ _empty_/Test.int2x().2!
+ 	_empty_/Test.foo().2
+		 local02(
+
+
+ scala/Predef.implicitly().2"
+
+
+ scala/Predef.String#2
+
+
+ local0PZ 24FEB045938EC1189597BDE09BD2B63C

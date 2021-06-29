@@ -1,0 +1,17 @@
+
+ätests/pos/t4269.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+local0*x$1€*
+local1 €*items€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2.
+  scala/PartialFunction.condOpt().2$
+ scala/PartialFunction.2 
+ scala/package.Nil.2
+ local02
+	 local127
+ )scala/collection/SeqFactory#unapplySeq().2!
+ scala/package.List.PZ 035A4BA13558C5BD8A87EB43240B607D

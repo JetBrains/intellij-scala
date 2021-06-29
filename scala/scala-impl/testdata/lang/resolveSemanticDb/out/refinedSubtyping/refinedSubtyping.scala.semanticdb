@@ -1,0 +1,215 @@
+
+ 6 tests/pos/refinedSubtyping.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#C#*C€*,
+_empty_/Test#C#`<init>`(). €@*<init>€*
+_empty_/Test#C#T#*T€*!
+_empty_/Test#C#Coll#*Coll€*
+_empty_/Test#T1#*T1€*
+local0*T€*
+_empty_/Test#T11#*T11€*
+local1*Coll€*
+_empty_/Test#T2#*T2€*
+local2*Coll€*
+_empty_/Test#T22#*T22€*
+local3*T€*
+_empty_/Test#x(). €*x€*$
+_empty_/Test#`x_=`(). €*x_=€*&
+_empty_/Test#`x_=`().(x$1)*x$1€*
+_empty_/Test#y(). €*y€*$
+_empty_/Test#`y_=`(). €*y_=€*&
+_empty_/Test#`y_=`().(x$1)*x$1€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€*
+_empty_/Test2#A#*A€*-
+_empty_/Test2#A#`<init>`(). €@*<init>€*
+_empty_/Test2#B#*B€*-
+_empty_/Test2#B#`<init>`(). €@*<init>€*
+_empty_/Test2#C#*C€*-
+_empty_/Test2#C#`<init>`(). €@*<init>€*
+_empty_/Test2#C#T#*T€*
+_empty_/Test2#T1#*T1€*
+local4*T€*
+local5*T€*
+_empty_/Test2#U1#*U1€*
+local6*T€*
+local7*T€*
+_empty_/Test2#x(). €*x€*%
+_empty_/Test2#`x_=`(). €*x_=€*'
+_empty_/Test2#`x_=`().(x$1)*x$1€*
+_empty_/Test2#y(). €*y€*%
+_empty_/Test2#`y_=`(). €*y_=€*'
+_empty_/Test2#`y_=`().(x$1)*x$1€*
+_empty_/Test3#*Test3€*+
+_empty_/Test3#`<init>`(). €@*<init>€*
+_empty_/Test3#A#*A€*-
+_empty_/Test3#A#`<init>`(). €@*<init>€*
+_empty_/Test3#B#*B€*-
+_empty_/Test3#B#`<init>`(). €@*<init>€*
+_empty_/Test3#C#*C€*-
+_empty_/Test3#C#`<init>`(). €@*<init>€*
+_empty_/Test3#C#T#*T€*
+_empty_/Test3#T1#*T1€*
+local8*T€*
+_empty_/Test3#T2#*T2€*
+local9*T€*
+_empty_/Test3#U1#*U1€*
+local10*T€*
+_empty_/Test3#U2#*U2€*
+local11*T€*
+_empty_/Test3#x(). €*x€*%
+_empty_/Test3#`x_=`(). €*x_=€*'
+_empty_/Test3#`x_=`().(x$1)*x$1€*
+_empty_/Test3#y(). €*y€*%
+_empty_/Test3#`y_=`(). €*y_=€*'
+_empty_/Test3#`y_=`().(x$1)*x$1€*
+_empty_/Test3#x1. €*x1€*
+_empty_/Test3#y1. €*y1€*
+_empty_/Test4#*Test4€*+
+_empty_/Test4#`<init>`(). €@*<init>€*
+_empty_/Test4#A# *A€*-
+_empty_/Test4#A#`<init>`(). €@*<init>€*
+_empty_/Test4#A#T#*T€*!
+_empty_/Test4#A#xz. „*xz€*
+_empty_/Test4#yy. €*yy€*
+local12 „*xz€*
+_empty_/Test4#zz. €*zz€*
+local13 „*xz€2<
+  2scala/compiletime/package$package.uninitialized().2
+ scala/compiletime/2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ 	_empty_/Test#C#2(
+ _empty_/Test#C#`<init>`().2
+ _empty_/Test#C#T#2"
+ _empty_/Test#C#Coll#2
+ 	_empty_/Test#T1#2
+ _empty_/Test#C#2
+ local02
+ 
+scala/Int#2
+ 
+_empty_/Test#T11#2
+ _empty_/Test#T1#2
+ local12
+ !scala/Predef.Set#2
+" %
+scala/Int#2
+		 	_empty_/Test#T2#2
+		 _empty_/Test#C#2
+		 local22
+		 scala/Predef.Set#2
+	 	 !_empty_/Test#C#T#2
+ 
+_empty_/Test#T22#2
+ _empty_/Test#T2#2
+ local32
+ 
+scala/Int#2
+ _empty_/Test#x().2
+	 _empty_/Test#T11#2@
+ 2scala/compiletime/package$package.uninitialized().2#
+ 	_empty_/Test#`x_=`().2
+ _empty_/Test#y().2
+	 _empty_/Test#T22#2@
+ 2scala/compiletime/package$package.uninitialized().2#
+ 	_empty_/Test#`y_=`().2#
+ _empty_/Test#`x_=`().2
+ _empty_/Test#y().2#
+ _empty_/Test#`y_=`().2
+ _empty_/Test#x().2
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2
+ 	_empty_/Test2#A#2)
+ _empty_/Test2#A#`<init>`().2
+ 	_empty_/Test2#B#2)
+ _empty_/Test2#B#`<init>`().2
+ 	_empty_/Test2#C#2)
+ _empty_/Test2#C#`<init>`().2 
+ _empty_/Test2#C#T#2
+ 	_empty_/Test2#T1#2
+ _empty_/Test2#C#2
+ local42
+ _empty_/Test2#A#2
+% &local52
+* +_empty_/Test2#B#2
+ 	_empty_/Test2#U1#2
+ _empty_/Test2#C#2
+ local62
+ _empty_/Test2#B#2
+% &local72
+* +_empty_/Test2#A#2 
+   _empty_/Test2#x().2
+ 	  _empty_/Test2#T1#2@
+   2scala/compiletime/package$package.uninitialized().2$
+   	_empty_/Test2#`x_=`().2 
+!! _empty_/Test2#y().2
+!	! _empty_/Test2#U1#2@
+!! 2scala/compiletime/package$package.uninitialized().2$
+!! 	_empty_/Test2#`y_=`().2$
+## _empty_/Test2#`x_=`().2 
+## _empty_/Test2#y().2$
+$$ _empty_/Test2#`y_=`().2 
+$$ _empty_/Test2#x().2
+(( _empty_/Test3#2'
+** _empty_/Test3#`<init>`().2
+** 	_empty_/Test3#A#2)
+** _empty_/Test3#A#`<init>`().2
+++ 	_empty_/Test3#B#2)
+++ _empty_/Test3#B#`<init>`().2
+-- 	_empty_/Test3#C#2)
+-- _empty_/Test3#C#`<init>`().2 
+-- _empty_/Test3#C#T#2
+// 	_empty_/Test3#T1#2
+// _empty_/Test3#C#2
+// local82
+// _empty_/Test3#A#2
+00 	_empty_/Test3#T2#2
+00 _empty_/Test3#T1#2
+00 local92
+00 _empty_/Test3#B#2
+22 	_empty_/Test3#U1#2
+22 _empty_/Test3#C#2
+22 local102
+22 _empty_/Test3#B#2
+33 	_empty_/Test3#U2#2
+33 _empty_/Test3#U1#2
+33 local112
+33 _empty_/Test3#A#2 
+55 _empty_/Test3#x().2
+5	5 _empty_/Test3#T2#2@
+55 2scala/compiletime/package$package.uninitialized().2$
+55 	_empty_/Test3#`x_=`().2 
+66 _empty_/Test3#y().2
+6	6 _empty_/Test3#U2#2@
+66 2scala/compiletime/package$package.uninitialized().2$
+66 	_empty_/Test3#`y_=`().2
+88 _empty_/Test3#x1.2 
+88 _empty_/Test3#x().2
+99 _empty_/Test3#y1.2 
+99 _empty_/Test3#y().2$
+;; _empty_/Test3#`x_=`().2 
+;; _empty_/Test3#y().2$
+<< _empty_/Test3#`y_=`().2 
+<< _empty_/Test3#x().2
+?? _empty_/Test4#2'
+AA _empty_/Test4#`<init>`().2
+AA _empty_/Test4#A#2)
+AA _empty_/Test4#A#`<init>`().2 
+AA _empty_/Test4#A#T#2!
+A!A #_empty_/Test4#A#xz.2
+A%A (
+scala/Any#2
+CC _empty_/Test4#yy.2
+C
+C _empty_/Test4#A#2
+CC local122 
+CC _empty_/Test4#A#T#2
+EE _empty_/Test4#zz.2
+E
+E _empty_/Test4#A#2
+EE local132 
+EE _empty_/Test4#A#T#2
+EE _empty_/Test4#yy.PZ D483DA0289647A0571DF9B4A9F21EAD0

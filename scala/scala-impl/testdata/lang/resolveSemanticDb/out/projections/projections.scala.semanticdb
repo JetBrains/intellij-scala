@@ -1,0 +1,83 @@
+
+ætests/pos/projections.scala*(
+_empty_/projections#*projections€*1
+_empty_/projections#`<init>`(). €@*<init>€**
+_empty_/projections#Lambda#*Lambda€*8
+&_empty_/projections#Lambda#`<init>`(). €@*<init>€*+
+_empty_/projections#Lambda#Arg#*Arg€*/
+!_empty_/projections#Lambda#Apply#*Apply€*%
+_empty_/projections#x(). €*x€*
+local0*Apply€*
+local1*Arg€*+
+_empty_/projections#`x_=`(). €*x_=€*-
+!_empty_/projections#`x_=`().(x$1)*x$1€*%
+_empty_/projections#y(). €*y€*+
+_empty_/projections#`y_=`(). €*y_=€*-
+!_empty_/projections#`y_=`().(x$1)*x$1€*'
+_empty_/projections#xx(). €*xx€*
+local2*Apply€*
+local3*Arg€*-
+_empty_/projections#`xx_=`(). €*xx_=€*.
+"_empty_/projections#`xx_=`().(x$1)*x$1€2<
+  2scala/compiletime/package$package.uninitialized().2
+ scala/compiletime/2"
+ _empty_/projections#2-
+ _empty_/projections#`<init>`().2)
+ _empty_/projections#Lambda#24
+ &_empty_/projections#Lambda#`<init>`().2-
+ _empty_/projections#Lambda#Arg#2/
+  %!_empty_/projections#Lambda#Apply#2&
+ _empty_/projections#x().2
+< A
+scala/Int#2)
+
+ _empty_/projections#Lambda#2
+ local02
+  #
+scala/Int#2
+* -local12"
+0 6scala/Predef.String#2@
+D Q2scala/compiletime/package$package.uninitialized().2*
+ 	_empty_/projections#`x_=`().2&
+ _empty_/projections#y().2
+	 
+scala/Int#2@
+ 2scala/compiletime/package$package.uninitialized().2*
+ 	_empty_/projections#`y_=`().2*
+ _empty_/projections#`x_=`().2&
+ _empty_/projections#y().2*
+ _empty_/projections#`y_=`().2&
+ _empty_/projections#x().2'
+
+
+ _empty_/projections#xx().2/
+
+=
+ B!_empty_/projections#Lambda#Apply#2)
+
+
+ _empty_/projections#Lambda#2
+
+
+ local22-
+
+!
+ $_empty_/projections#Lambda#Arg#2
+
+.
+ 1local32
+
+4
+ 7
+scala/Int#2@
+
+E
+ R2scala/compiletime/package$package.uninitialized().2+
+
+
+ 
+_empty_/projections#`xx_=`().2+
+ _empty_/projections#`xx_=`().2&
+ _empty_/projections#y().2*
+ _empty_/projections#`y_=`().2'
+ _empty_/projections#xx().PZ 209F95EFF0A603275E0B9EA96B4B34AB

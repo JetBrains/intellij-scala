@@ -1,0 +1,216 @@
+
+¯6tests/pos/t5508.scala*!
+TestTestters/Test1#*Test1€*0
+TestTestters/Test1#`<init>`(). €@*<init>€*(
+TestTestters/Test1#_st(). €*_st€*.
+TestTestters/Test1#`_st_=`(). €*_st_=€*.
+"TestTestters/Test1#`_st_=`().(x$1)*x$1€*)
+TestTestters/Test1#close().*close€*
+local0*x$1€*
+local1 €*x€*#
+TestTestters/Base1.
+ *Base1€*'
+TestTestters/Base1.Test2#*Test2€*6
+$TestTestters/Base1.Test2#`<init>`(). €@*<init>€*.
+TestTestters/Base1.Test2#_st(). €*_st€*4
+#TestTestters/Base1.Test2#`_st_=`(). €*_st_=€*4
+(TestTestters/Base1.Test2#`_st_=`().(x$1)*x$1€*/
+!TestTestters/Base1.Test2#close().*close€*
+local2*x$1€*
+local3 €*x€*!
+TestTestters/Test3#*Test3€*0
+TestTestters/Test3#`<init>`(). €@*<init>€*(
+TestTestters/Test3#_st(). €*_st€*)
+TestTestters/Test3#close().*close€*
+local4*x$1€*
+local5 €*x€*#
+TestTestters/Base2.
+ *Base2€*'
+TestTestters/Base2.Test4#*Test4€*6
+$TestTestters/Base2.Test4#`<init>`(). €@*<init>€*.
+TestTestters/Base2.Test4#_st(). €*_st€*/
+!TestTestters/Base2.Test4#close().*close€*
+local6*x$1€*
+local7 €*x€*!
+TestTestters/Base3#*Base3€*0
+TestTestters/Base3#`<init>`(). €@*<init>€*'
+TestTestters/Base3#Test5#*Test5€*6
+$TestTestters/Base3#Test5#`<init>`(). €@*<init>€*.
+TestTestters/Base3#Test5#_st(). €*_st€*4
+#TestTestters/Base3#Test5#`_st_=`(). €*_st_=€*4
+(TestTestters/Base3#Test5#`_st_=`().(x$1)*x$1€*/
+!TestTestters/Base3#Test5#close().*close€*
+local8*x$1€*
+local9 €*x€*#
+TestTestters/Base4.
+ *Base4€*'
+TestTestters/Base4.Test6#*Test6€*6
+$TestTestters/Base4.Test6#`<init>`(). €@*<init>€*.
+TestTestters/Base4.Test6#_st(). €*_st€*4
+#TestTestters/Base4.Test6#`_st_=`(). €*_st_=€*4
+(TestTestters/Base4.Test6#`_st_=`().(x$1)*x$1€*/
+!TestTestters/Base4.Test6#close().*close€*
+local10*x$1€*
+local11 €*x€*#
+TestTestters/Base5.
+ *Base5€*'
+TestTestters/Base5.Test7#*Test7€*6
+$TestTestters/Base5.Test7#`<init>`(). €@*<init>€*.
+TestTestters/Base5.Test7#_st(). €*_st€*4
+#TestTestters/Base5.Test7#`_st_=`(). €*_st_=€*4
+(TestTestters/Base5.Test7#`_st_=`().(x$1)*x$1€*/
+!TestTestters/Base5.Test7#close().*close€*#
+TestTestters/Base6.
+ *Base6€*'
+TestTestters/Base6.Test8#*Test8€*6
+$TestTestters/Base6.Test8#`<init>`(). €@*<init>€*.
+TestTestters/Base6.Test8#_st(). €*_st€*/
+!TestTestters/Base6.Test8#close().*close€*#
+TestTestters/Base7.
+ *Base7€*'
+TestTestters/Base7.Test9#*Test9€*6
+$TestTestters/Base7.Test9#`<init>`(). €@*<init>€*,
+TestTestters/Base7.Test9#st(). €*st€*2
+"TestTestters/Base7.Test9#`st_=`(). €*st_=€*3
+'TestTestters/Base7.Test9#`st_=`().(x$1)*x$1€*/
+!TestTestters/Base7.Test9#close().*close€2
+ TestTestters/2!
+ TestTestters/Test1#2,
+ TestTestters/Test1#`<init>`().2'
+ TestTestters/Test1#_st().2
+ 
+scala/Int#2+
+ TestTestters/Test1#`_st_=`().2)
+ TestTestters/Test1#close().2$
+ scala/PartialFunction#2
+ !
+scala/Any#2
+" %
+scala/Any#2
+ local02
+	 
+local12
+ 
+scala/Int#2+
+ 	TestTestters/Test1#`_st_=`().2&
+ scala/Predef.identity().2'
+ TestTestters/Test1#_st().2!
+
+
+ TestTestters/Base1.2'
+ TestTestters/Base1.Test2#22
+ $TestTestters/Base1.Test2#`<init>`().2-
+ TestTestters/Base1.Test2#_st().2
+ 
+scala/Int#21
+ #TestTestters/Base1.Test2#`_st_=`().2/
+ !TestTestters/Base1.Test2#close().2$
+ scala/PartialFunction#2
+  #
+scala/Any#2
+$ '
+scala/Any#2
+ local22
+ local32
+ 
+scala/Int#21
+ #TestTestters/Base1.Test2#`_st_=`().2&
+ scala/Predef.identity().2-
+ TestTestters/Base1.Test2#_st().2!
+ TestTestters/Test3#2,
+ TestTestters/Test3#`<init>`().2'
+ TestTestters/Test3#_st().2
+ 
+scala/Int#2)
+ TestTestters/Test3#close().2$
+ scala/PartialFunction#2
+ !
+scala/Any#2
+" %
+scala/Any#2
+ local42
+	 
+local52
+ 
+scala/Int#2'
+ 	TestTestters/Test3#_st().2!
+ TestTestters/Base2.2'
+ TestTestters/Base2.Test4#22
+ $TestTestters/Base2.Test4#`<init>`().2-
+ TestTestters/Base2.Test4#_st().2
+ 
+scala/Int#2/
+ !TestTestters/Base2.Test4#close().2$
+ scala/PartialFunction#2
+  #
+scala/Any#2
+$ '
+scala/Any#2
+   local62
+   local72
+   
+scala/Int#2-
+!! TestTestters/Base2.Test4#_st().2!
+&& TestTestters/Base3#2,
+'' TestTestters/Base3#`<init>`().2'
+'' TestTestters/Base3#Test5#22
+(( $TestTestters/Base3#Test5#`<init>`().2-
+(( TestTestters/Base3#Test5#_st().2
+(( 
+scala/Int#21
+(( #TestTestters/Base3#Test5#`_st_=`().2/
+)) !TestTestters/Base3#Test5#close().2$
+)) scala/PartialFunction#2
+) ) #
+scala/Any#2
+)$) '
+scala/Any#2
+** local82
+** local92
+** 
+scala/Int#21
+++ #TestTestters/Base3#Test5#`_st_=`().2!
+00 TestTestters/Base4.2'
+11 TestTestters/Base4.Test6#22
+22 $TestTestters/Base4.Test6#`<init>`().2-
+22 TestTestters/Base4.Test6#_st().2
+22 
+scala/Int#21
+22 #TestTestters/Base4.Test6#`_st_=`().2/
+33 !TestTestters/Base4.Test6#close().2$
+33 scala/PartialFunction#2
+3 3 #
+scala/Any#2
+3$3 '
+scala/Any#2
+44 local102
+44 local112
+44 
+scala/Int#2!
+99 TestTestters/Base5.2'
+:: TestTestters/Base5.Test7#22
+;; $TestTestters/Base5.Test7#`<init>`().2-
+;; TestTestters/Base5.Test7#_st().2
+;; 
+scala/Int#21
+;; #TestTestters/Base5.Test7#`_st_=`().2/
+<< !TestTestters/Base5.Test7#close().21
+== 	#TestTestters/Base5.Test7#`_st_=`().2!
+BB TestTestters/Base6.2'
+CC TestTestters/Base6.Test8#22
+DD $TestTestters/Base6.Test8#`<init>`().2-
+DD TestTestters/Base6.Test8#_st().2
+DD 
+scala/Int#2/
+EE !TestTestters/Base6.Test8#close().2-
+FF 	TestTestters/Base6.Test8#_st().2!
+KK TestTestters/Base7.2'
+LL TestTestters/Base7.Test9#22
+MM $TestTestters/Base7.Test9#`<init>`().2,
+MM 
+TestTestters/Base7.Test9#st().2
+MM 
+scala/Int#20
+MM "TestTestters/Base7.Test9#`st_=`().2/
+NN !TestTestters/Base7.Test9#close().20
+OO "TestTestters/Base7.Test9#`st_=`().PZ 595EFEED23905465F969DCA9658F0C1B

@@ -1,0 +1,21 @@
+
+Ôtests/pos/t0154.scala*#
+test/MyMatchers#*
+MyMatchers€*-
+test/MyMatchers#`<init>`(). €@*<init>€*3
+test/MyMatchers#StringMatch. €*StringMatch€*
+local0 *$anon€*,
+test/MyMatchers#Something#*	Something€*7
+%test/MyMatchers#Something#`<init>`(). €@*<init>€2
+ test/2
+ test/MyMatchers#2)
+ test/MyMatchers#`<init>`().2*
+ test/MyMatchers#StringMatch.2
+ local02*
+ java/lang/Object#`<init>`().2
+ scala/AnyRef#2(
+
+ test/MyMatchers#Something#23
+ %test/MyMatchers#Something#`<init>`().2
+ scala/AnyRef#2*
+ test/MyMatchers#StringMatch.PZ B3C48CEF6A7D300468ADF1863EA0332E

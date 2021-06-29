@@ -1,0 +1,489 @@
+
+Î«tests/pos/i12126.scala*(
+_empty_/Structures.
+ *
+Structures€*+
+_empty_/Structures.Functor#*Functor€*8
+&_empty_/Structures.Functor#`<init>`(). €@*<init>€*(
+_empty_/Structures.Functor#[F]	*F€*/
+!_empty_/Structures.Functor#map(). *map€*.
+$_empty_/Structures.Functor#map().[A]	*A€*0
+%_empty_/Structures.Functor#map().(fa)*fa€*.
+$_empty_/Structures.Functor#map().[B]	*B€*.
+$_empty_/Structures.Functor#map().(f)*f€*+
+ _empty_/Structures.Functor#as().*as€*-
+#_empty_/Structures.Functor#as().[A]	*A€*/
+$_empty_/Structures.Functor#as().(fa)*fa€*-
+#_empty_/Structures.Functor#as().[B]	*B€*-
+#_empty_/Structures.Functor#as().(b)*b€*/
+"_empty_/Structures.Functor#void().*void€*/
+%_empty_/Structures.Functor#void().[A]	*A€*1
+&_empty_/Structures.Functor#void().(fa)*fa€*3
+_empty_/Structures.Applicative#*Applicative€*<
+*_empty_/Structures.Applicative#`<init>`(). €@*<init>€*,
+"_empty_/Structures.Applicative#[F]	*F€*5
+&_empty_/Structures.Applicative#pure(). *pure€*3
+)_empty_/Structures.Applicative#pure().[A]	*A€*3
+)_empty_/Structures.Applicative#pure().(a)*a€*3
+&_empty_/Structures.Applicative#unit().*unit€*5
+&_empty_/Structures.Applicative#map2(). *map2€*3
+)_empty_/Structures.Applicative#map2().[A]	*A€*5
+*_empty_/Structures.Applicative#map2().(fa)*fa€*3
+)_empty_/Structures.Applicative#map2().[B]	*B€*3
+)_empty_/Structures.Applicative#map2().[C]	*C€*5
+*_empty_/Structures.Applicative#map2().(fb)*fb€*3
+)_empty_/Structures.Applicative#map2().(f)*f€*1
+%_empty_/Structures.Applicative#map().*map€*2
+(_empty_/Structures.Applicative#map().[A]	*A€*4
+)_empty_/Structures.Applicative#map().(fa)*fa€*2
+(_empty_/Structures.Applicative#map().[B]	*B€*2
+(_empty_/Structures.Applicative#map().(f)*f€*
+local0*a€*'
+_empty_/Structures.Monad#*Monad€*6
+$_empty_/Structures.Monad#`<init>`(). €@*<init>€*&
+_empty_/Structures.Monad#[F]	*F€*5
+#_empty_/Structures.Monad#flatMap(). *flatMap€*0
+&_empty_/Structures.Monad#flatMap().[A]	*A€*2
+'_empty_/Structures.Monad#flatMap().(fa)*fa€*0
+&_empty_/Structures.Monad#flatMap().[B]	*B€*0
+&_empty_/Structures.Monad#flatMap().(f)*f€*+
+_empty_/Structures.Monad#map().*map€*,
+"_empty_/Structures.Monad#map().[A]	*A€*.
+#_empty_/Structures.Monad#map().(fa)*fa€*,
+"_empty_/Structures.Monad#map().[B]	*B€*,
+"_empty_/Structures.Monad#map().(f)*f€*
+local1*a€*-
+ _empty_/Structures.Monad#map2().*map2€*-
+#_empty_/Structures.Monad#map2().[A]	*A€*/
+$_empty_/Structures.Monad#map2().(fa)*fa€*-
+#_empty_/Structures.Monad#map2().[B]	*B€*-
+#_empty_/Structures.Monad#map2().[C]	*C€*/
+$_empty_/Structures.Monad#map2().(fb)*fb€*-
+#_empty_/Structures.Monad#map2().(f)*f€*
+local2*a€*
+local3*b€*?
+$_empty_/Structures.given_Monad_List.
+ (*given_Monad_List€*8
++_empty_/Structures.given_Monad_List.pure().*pure€*8
+._empty_/Structures.given_Monad_List.pure().[A]	*A€*8
+._empty_/Structures.given_Monad_List.pure().(a)*a€*>
+._empty_/Structures.given_Monad_List.flatMap().*flatMap€*;
+1_empty_/Structures.given_Monad_List.flatMap().[A]	*A€*=
+2_empty_/Structures.given_Monad_List.flatMap().(fa)*fa€*;
+1_empty_/Structures.given_Monad_List.flatMap().[B]	*B€*;
+1_empty_/Structures.given_Monad_List.flatMap().(f)*f€*C
+&_empty_/Structures.given_Monad_Option.
+ (*given_Monad_Option€*:
+-_empty_/Structures.given_Monad_Option.pure().*pure€*:
+0_empty_/Structures.given_Monad_Option.pure().[A]	*A€*:
+0_empty_/Structures.given_Monad_Option.pure().(a)*a€*@
+0_empty_/Structures.given_Monad_Option.flatMap().*flatMap€*=
+3_empty_/Structures.given_Monad_Option.flatMap().[A]	*A€*?
+4_empty_/Structures.given_Monad_Option.flatMap().(fa)*fa€*=
+3_empty_/Structures.given_Monad_Option.flatMap().[B]	*B€*=
+3_empty_/Structures.given_Monad_Option.flatMap().(f)*f€*+
+_empty_/Structures.Kleisli#*Kleisli€*(
+_empty_/Structures.Kleisli#[F]	*F€*(
+_empty_/Structures.Kleisli#[A]	*A€*(
+_empty_/Structures.Kleisli#[B]	*B€*)
+_empty_/Structures.apply().*apply€*(
+_empty_/Structures.apply().[F]	*F€*(
+_empty_/Structures.apply().[A]	*A€*(
+_empty_/Structures.apply().[B]	*B€*(
+_empty_/Structures.apply().(k)*k€*(
+_empty_/Structures.apply().(a)*a€*-
+_empty_/Structures.Kleisli.
+ *Kleisli€*1
+#_empty_/Structures.Kleisli.apply().*apply€*0
+&_empty_/Structures.Kleisli.apply().[F]	*F€*0
+&_empty_/Structures.Kleisli.apply().[A]	*A€*0
+&_empty_/Structures.Kleisli.apply().[B]	*B€*0
+&_empty_/Structures.Kleisli.apply().(f)*f€*C
+'_empty_/Structures.given_Monad_Kleisli#*given_Monad_Kleisli€*D
+2_empty_/Structures.given_Monad_Kleisli#`<init>`(). €@*<init>€*B
+5_empty_/Structures.given_Monad_Kleisli#`<init>`().(F)  *F€*?
+5_empty_/Structures.given_Monad_Kleisli#`<init>`().[B]	*B€*4
+*_empty_/Structures.given_Monad_Kleisli#[F]	*F€*4
+*_empty_/Structures.given_Monad_Kleisli#[A]	*A€*6
+)_empty_/Structures.given_Monad_Kleisli#F.  *F€*;
+._empty_/Structures.given_Monad_Kleisli#pure().*pure€*;
+1_empty_/Structures.given_Monad_Kleisli#pure().[B]	*B€*;
+1_empty_/Structures.given_Monad_Kleisli#pure().(b)*b€*A
+1_empty_/Structures.given_Monad_Kleisli#flatMap().*flatMap€*>
+4_empty_/Structures.given_Monad_Kleisli#flatMap().[B]	*B€*>
+4_empty_/Structures.given_Monad_Kleisli#flatMap().(k)*k€*>
+4_empty_/Structures.given_Monad_Kleisli#flatMap().[C]	*C€*>
+4_empty_/Structures.given_Monad_Kleisli#flatMap().(f)*f€*
+local4*a€*
+local5*b€*G
+)_empty_/Structures.given_Monad_Kleisli(). (*given_Monad_Kleisli€*6
+,_empty_/Structures.given_Monad_Kleisli().[F]	*F€*6
+,_empty_/Structures.given_Monad_Kleisli().[A]	*A€*8
+,_empty_/Structures.given_Monad_Kleisli().(F)  *F€*)
+_empty_/i12126$package. *_empty_€*)
+_empty_/i12126$package.run().*run€*
+local6 €*p€*
+local7*x€*
+local8 €*q€*
+local9	*B€*
+_empty_/run# *run€*)
+_empty_/run#`<init>`(). €@*<init>€*#
+_empty_/run#main(). € *main€*&
+_empty_/run#main().(args)*args€*
+local10 €*error€2
+ _empty_/Structures.2)
+ _empty_/Structures.Functor#24
+ &_empty_/Structures.Functor#`<init>`().2,
+ _empty_/Structures.Functor#[F]2/
+
+ !_empty_/Structures.Functor#map().22
+ $_empty_/Structures.Functor#map().[A]23
+ %_empty_/Structures.Functor#map().(fa)2,
+ _empty_/Structures.Functor#[F]22
+ $_empty_/Structures.Functor#map().[A]22
+ $_empty_/Structures.Functor#map().[B]22
+ $_empty_/Structures.Functor#map().(f)22
+ $_empty_/Structures.Functor#map().[A]22
+ $_empty_/Structures.Functor#map().[B]2,
+ _empty_/Structures.Functor#[F]22
+  $_empty_/Structures.Functor#map().[B]2.
+
+  _empty_/Structures.Functor#as().21
+ #_empty_/Structures.Functor#as().[A]22
+ $_empty_/Structures.Functor#as().(fa)21
+ #_empty_/Structures.Functor#as().[A]21
+ #_empty_/Structures.Functor#as().[B]21
+ #_empty_/Structures.Functor#as().(b)21
+ #_empty_/Structures.Functor#as().[B]2,
+ _empty_/Structures.Functor#[F]21
+ #_empty_/Structures.Functor#as().[B]2/
+ !!_empty_/Structures.Functor#map().22
+ $_empty_/Structures.Functor#as().(fa)21
+' (#_empty_/Structures.Functor#as().(b)20
+
+ "_empty_/Structures.Functor#void().23
+ %_empty_/Structures.Functor#void().[A]24
+ &_empty_/Structures.Functor#void().(fa)23
+ %_empty_/Structures.Functor#void().[A]2,
+ _empty_/Structures.Functor#[F]2
+ scala/Unit#2.
+  _empty_/Structures.Functor#as().24
+ &_empty_/Structures.Functor#void().(fa)2-
+ _empty_/Structures.Applicative#28
+ *_empty_/Structures.Applicative#`<init>`().2)
+" )_empty_/Structures.Functor#20
+* +"_empty_/Structures.Applicative#[F]20
+ "_empty_/Structures.Applicative#[F]24
+		 &_empty_/Structures.Applicative#pure().27
+		 )_empty_/Structures.Applicative#pure().[A]27
+		 )_empty_/Structures.Applicative#pure().(a)27
+		 )_empty_/Structures.Applicative#pure().[A]20
+		 "_empty_/Structures.Applicative#[F]27
+		 )_empty_/Structures.Applicative#pure().[A]24
+
+
+ &_empty_/Structures.Applicative#unit().20
+
+
+ "_empty_/Structures.Applicative#[F]2
+
+
+ scala/Unit#24
+
+
+ &_empty_/Structures.Applicative#pure().24
+
+ &_empty_/Structures.Applicative#map2().27
+ )_empty_/Structures.Applicative#map2().[A]28
+ *_empty_/Structures.Applicative#map2().(fa)20
+ "_empty_/Structures.Applicative#[F]27
+ )_empty_/Structures.Applicative#map2().[A]27
+ )_empty_/Structures.Applicative#map2().[B]27
+ )_empty_/Structures.Applicative#map2().[C]28
+ *_empty_/Structures.Applicative#map2().(fb)20
+ "_empty_/Structures.Applicative#[F]27
+ )_empty_/Structures.Applicative#map2().[B]27
+  )_empty_/Structures.Applicative#map2().(f)27
+# $)_empty_/Structures.Applicative#map2().[A]27
+& ')_empty_/Structures.Applicative#map2().[B]27
+, -)_empty_/Structures.Applicative#map2().[C]20
+0 1"_empty_/Structures.Applicative#[F]27
+2 3)_empty_/Structures.Applicative#map2().[C]23
+
+ %_empty_/Structures.Applicative#map().26
+ (_empty_/Structures.Applicative#map().[A]27
+ )_empty_/Structures.Applicative#map().(fa)26
+ (_empty_/Structures.Applicative#map().[A]26
+ (_empty_/Structures.Applicative#map().[B]26
+ (_empty_/Structures.Applicative#map().(f)26
+ (_empty_/Structures.Applicative#map().[A]26
+ (_empty_/Structures.Applicative#map().[B]20
+ "_empty_/Structures.Applicative#[F]26
+  (_empty_/Structures.Applicative#map().[B]24
+ &_empty_/Structures.Applicative#map2().27
+ 
+)_empty_/Structures.Applicative#map().(fa)24
+ &_empty_/Structures.Applicative#unit().2
+ local02&
+! !scala/Function1#apply().26
+  !(_empty_/Structures.Applicative#map().(f)2
+" #local02'
+ _empty_/Structures.Monad#22
+ $_empty_/Structures.Monad#`<init>`().2-
+ '_empty_/Structures.Applicative#2*
+( )_empty_/Structures.Monad#[F]2*
+ _empty_/Structures.Monad#[F]21
+
+ #_empty_/Structures.Monad#flatMap().24
+ &_empty_/Structures.Monad#flatMap().[A]25
+ '_empty_/Structures.Monad#flatMap().(fa)2*
+ _empty_/Structures.Monad#[F]24
+ &_empty_/Structures.Monad#flatMap().[A]24
+ &_empty_/Structures.Monad#flatMap().[B]24
+ &_empty_/Structures.Monad#flatMap().(f)24
+ &_empty_/Structures.Monad#flatMap().[A]2*
+ _empty_/Structures.Monad#[F]24
+  &_empty_/Structures.Monad#flatMap().[B]2*
+$ %_empty_/Structures.Monad#[F]24
+& '&_empty_/Structures.Monad#flatMap().[B]2-
+ _empty_/Structures.Monad#map().20
+ "_empty_/Structures.Monad#map().[A]21
+ #_empty_/Structures.Monad#map().(fa)20
+ "_empty_/Structures.Monad#map().[A]20
+ "_empty_/Structures.Monad#map().[B]20
+ "_empty_/Structures.Monad#map().(f)20
+ "_empty_/Structures.Monad#map().[A]20
+" #"_empty_/Structures.Monad#map().[B]2*
+& '_empty_/Structures.Monad#[F]20
+( )"_empty_/Structures.Monad#map().[B]21
+ #_empty_/Structures.Monad#flatMap().21
+ #_empty_/Structures.Monad#map().(fa)2
+ local124
+ &_empty_/Structures.Applicative#pure().2&
+ scala/Function1#apply().20
+ "_empty_/Structures.Monad#map().(f)2
+ local12.
+
+  _empty_/Structures.Monad#map2().21
+ #_empty_/Structures.Monad#map2().[A]22
+ $_empty_/Structures.Monad#map2().(fa)21
+ #_empty_/Structures.Monad#map2().[A]21
+ #_empty_/Structures.Monad#map2().[B]21
+ #_empty_/Structures.Monad#map2().[C]22
+ $_empty_/Structures.Monad#map2().(fb)2*
+ _empty_/Structures.Monad#[F]21
+ #_empty_/Structures.Monad#map2().[B]21
+  #_empty_/Structures.Monad#map2().(f)21
+# $#_empty_/Structures.Monad#map2().[A]21
+& '#_empty_/Structures.Monad#map2().[B]21
+, -#_empty_/Structures.Monad#map2().[C]2*
+0 1_empty_/Structures.Monad#[F]21
+2 3#_empty_/Structures.Monad#map2().[C]21
+ #_empty_/Structures.Monad#flatMap().22
+ $_empty_/Structures.Monad#map2().(fa)2
+ local22-
+ _empty_/Structures.Monad#map().22
+ $_empty_/Structures.Monad#map2().(fb)2
+ local32&
+" "scala/Function2#apply().21
+! "#_empty_/Structures.Monad#map2().(f)2
+# $local22
+& 'local322
+ $_empty_/Structures.given_Monad_List.2'
+ _empty_/Structures.Monad#2!
+ scala/package.List#29
+ +_empty_/Structures.given_Monad_List.pure().2<
+ ._empty_/Structures.given_Monad_List.pure().[A]2<
+ ._empty_/Structures.given_Monad_List.pure().(a)2<
+ ._empty_/Structures.given_Monad_List.pure().[A]27
+ )scala/collection/IterableFactory#apply().2!
+ scala/package.List.2<
+ ._empty_/Structures.given_Monad_List.pure().(a)2<
+
+ ._empty_/Structures.given_Monad_List.flatMap().2?
+ 1_empty_/Structures.given_Monad_List.flatMap().[A]2@
+ 2_empty_/Structures.given_Monad_List.flatMap().(fa)2!
+ scala/package.List#2?
+ 1_empty_/Structures.given_Monad_List.flatMap().[A]2?
+ 1_empty_/Structures.given_Monad_List.flatMap().[B]2?
+ 1_empty_/Structures.given_Monad_List.flatMap().(f)2?
+ 1_empty_/Structures.given_Monad_List.flatMap().[A]2!
+ !scala/package.List#2?
+" #1_empty_/Structures.given_Monad_List.flatMap().[B]28
++ 2*scala/collection/immutable/List#flatMap().2@
+( *2_empty_/Structures.given_Monad_List.flatMap().(fa)2?
+3 41_empty_/Structures.given_Monad_List.flatMap().(f)24
+ &_empty_/Structures.given_Monad_Option.2'
+ _empty_/Structures.Monad#2;
+ -_empty_/Structures.given_Monad_Option.pure().2>
+ 0_empty_/Structures.given_Monad_Option.pure().[A]2>
+ 0_empty_/Structures.given_Monad_Option.pure().(a)2>
+ 0_empty_/Structures.given_Monad_Option.pure().[A]2!
+ scala/Some.apply().2
+ scala/Some.2>
+ 0_empty_/Structures.given_Monad_Option.pure().(a)2>
+ 
+  0_empty_/Structures.given_Monad_Option.flatMap().2A
+ 3_empty_/Structures.given_Monad_Option.flatMap().[A]2B
+ 4_empty_/Structures.given_Monad_Option.flatMap().(fa)2
+ scala/Option#2A
+ 3_empty_/Structures.given_Monad_Option.flatMap().[A]2A
+   3_empty_/Structures.given_Monad_Option.flatMap().[B]2A
+   3_empty_/Structures.given_Monad_Option.flatMap().(f)2A
+   3_empty_/Structures.given_Monad_Option.flatMap().[A]2
+   #scala/Option#2A
+ $  %3_empty_/Structures.given_Monad_Option.flatMap().[B]2%
+ -  4scala/Option#flatMap().2B
+ *  ,4_empty_/Structures.given_Monad_Option.flatMap().(fa)2A
+ 5  63_empty_/Structures.given_Monad_Option.flatMap().(f)2)
+## _empty_/Structures.Kleisli#2,
+## _empty_/Structures.Kleisli#[F]2,
+## _empty_/Structures.Kleisli#[A]2,
+##  _empty_/Structures.Kleisli#[B]2,
+#$# %_empty_/Structures.Kleisli#[A]2,
+#)# *_empty_/Structures.Kleisli#[F]2,
+#+# ,_empty_/Structures.Kleisli#[B]2)
+&& _empty_/Structures.apply().2,
+%% _empty_/Structures.apply().[F]2,
+%% _empty_/Structures.apply().[A]2,
+%% _empty_/Structures.apply().[B]2,
+%% _empty_/Structures.apply().(k)2)
+%% #_empty_/Structures.Kleisli#2,
+%$% %_empty_/Structures.apply().[F]2,
+%'% (_empty_/Structures.apply().[A]2,
+%*% +_empty_/Structures.apply().[B]2,
+&& _empty_/Structures.apply().(a)2,
+&& _empty_/Structures.apply().[A]2,
+&& _empty_/Structures.apply().[F]2,
+&& _empty_/Structures.apply().[B]2&
+&& scala/Function1#apply().2,
+&& _empty_/Structures.apply().(k)2,
+&& _empty_/Structures.apply().(a)2)
+(	( _empty_/Structures.Kleisli.21
+)) #_empty_/Structures.Kleisli.apply().24
+)) &_empty_/Structures.Kleisli.apply().[F]24
+)) &_empty_/Structures.Kleisli.apply().[A]24
+)) &_empty_/Structures.Kleisli.apply().[B]24
+)) &_empty_/Structures.Kleisli.apply().(f)24
+)) &_empty_/Structures.Kleisli.apply().[A]24
+)") #&_empty_/Structures.Kleisli.apply().[F]24
+)$) %&_empty_/Structures.Kleisli.apply().[B]2)
+))) 0_empty_/Structures.Kleisli#24
+)1) 2&_empty_/Structures.Kleisli.apply().[F]24
+)4) 5&_empty_/Structures.Kleisli.apply().[A]24
+)7) 8&_empty_/Structures.Kleisli.apply().[B]24
+)<) =&_empty_/Structures.Kleisli.apply().(f)25
+++ '_empty_/Structures.given_Monad_Kleisli#2@
++	+ 	2_empty_/Structures.given_Monad_Kleisli#`<init>`().2'
+++  _empty_/Structures.Monad#28
++!+ "*_empty_/Structures.given_Monad_Kleisli#[F]2'
++&+ +_empty_/Structures.Monad#2C
++-+ .5_empty_/Structures.given_Monad_Kleisli#`<init>`().[B]2)
++4+ ;_empty_/Structures.Kleisli#28
++<+ =*_empty_/Structures.given_Monad_Kleisli#[F]28
++?+ @*_empty_/Structures.given_Monad_Kleisli#[A]28
++	+ 
+*_empty_/Structures.given_Monad_Kleisli#[F]28
+++ *_empty_/Structures.given_Monad_Kleisli#[A]27
+++ )_empty_/Structures.given_Monad_Kleisli#F.2<
+,, ._empty_/Structures.given_Monad_Kleisli#pure().2?
+,, 1_empty_/Structures.given_Monad_Kleisli#pure().[B]2?
+,, 1_empty_/Structures.given_Monad_Kleisli#pure().(b)2?
+,, 1_empty_/Structures.given_Monad_Kleisli#pure().[B]21
+,, #_empty_/Structures.Kleisli.apply().2)
+,, _empty_/Structures.Kleisli.24
+,', +&_empty_/Structures.Applicative#pure().27
+,%, &)_empty_/Structures.given_Monad_Kleisli#F.2?
+,,, -1_empty_/Structures.given_Monad_Kleisli#pure().(b)2?
+.
+. 1_empty_/Structures.given_Monad_Kleisli#flatMap().2B
+-- 4_empty_/Structures.given_Monad_Kleisli#flatMap().[B]2B
+-- 4_empty_/Structures.given_Monad_Kleisli#flatMap().(k)2)
+-- _empty_/Structures.Kleisli#28
+-- *_empty_/Structures.given_Monad_Kleisli#[F]28
+--  *_empty_/Structures.given_Monad_Kleisli#[A]2B
+-"- #4_empty_/Structures.given_Monad_Kleisli#flatMap().[B]2B
+.. 4_empty_/Structures.given_Monad_Kleisli#flatMap().[C]2B
+.. 4_empty_/Structures.given_Monad_Kleisli#flatMap().(f)2B
+.. 4_empty_/Structures.given_Monad_Kleisli#flatMap().[B]2)
+.. $_empty_/Structures.Kleisli#28
+.%. &*_empty_/Structures.given_Monad_Kleisli#[F]28
+.(. )*_empty_/Structures.given_Monad_Kleisli#[A]2B
+.+. ,4_empty_/Structures.given_Monad_Kleisli#flatMap().[C]2
+// 	local421
+// #_empty_/Structures.Monad#flatMap().2&
+// scala/Function1#apply().2B
+// 4_empty_/Structures.given_Monad_Kleisli#flatMap().(k)2
+// local42
+// local52&
+/#/ #scala/Function1#apply().2&
+/ /  scala/Function1#apply().2B
+//  4_empty_/Structures.given_Monad_Kleisli#flatMap().(f)2
+/!/ "local52
+/$/ %local427
+++ )_empty_/Structures.given_Monad_Kleisli().2!
+11 _empty_/Structures.2!
+33_empty_/i12126$package.2
+33 scala/main#2+
+3
+3 _empty_/i12126$package.run().2!
+4	4 _empty_/Structures.2'
+55 	scala/Predef.println(+1).2.
+5
+5 
+ _empty_/Structures.Monad#map2().27
+55 )scala/collection/IterableFactory#apply().2!
+5
+5 scala/package.List.27
+5!5 !)scala/collection/IterableFactory#apply().2!
+55 !scala/package.List.2#
+5-5 -scala/Tuple2.apply().2
+77 local62)
+7	7 _empty_/Structures.Kleisli#2
+77 
+scala/Int#2
+77 !
+scala/Int#21
+7,7 ,#_empty_/Structures.Kleisli.apply().2)
+7%7 ,_empty_/Structures.Kleisli.2
+7.7 /local72
+717 4
+scala/Int#2!
+7B7 Dscala/Int#`==`(+3).2 
+7>7 ?scala/Int#`%`(+3).2
+7<7 =local72!
+7P7 Pscala/Some.apply().2
+7L7 Pscala/Some.2
+7Q7 Rlocal72
+7Y7 ]scala/None.2
+88 local82)
+8	8 _empty_/Structures.Kleisli#2
+88 
+scala/Int#2
+88 !
+scala/Int#2<
+8Z8 ^._empty_/Structures.given_Monad_Kleisli#pure().2$
+8%8 +scala/Predef.summon().2-
+8,8 7_empty_/Structures.Applicative#2
+898 :local92)
+8@8 G_empty_/Structures.Kleisli#2
+8P8 S
+scala/Int#2
+8U8 Vlocal927
+8Y8 Y)_empty_/Structures.given_Monad_Kleisli().24
+8Y8 Y&_empty_/Structures.given_Monad_Option.2'
+99 	scala/Predef.println(+1).2)
+9
+9 _empty_/Structures.apply().2.
+9
+9 
+ _empty_/Structures.Monad#map2().2
+9
+9 local62
+99 local82 
+99 scala/Int#`+`(+4).2
+33_empty_/run#2!
+33_empty_/run#`<init>`().2'
+33_empty_/i12126$package.run().23
+33)scala/util/CommandLineParser.showError().2
+33local10PZ 96863943BC0289E2CE8553728E6B3E10

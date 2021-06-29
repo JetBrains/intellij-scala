@@ -1,0 +1,17 @@
+
+ýtests/pos/t3494.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.f().*f€*
+_empty_/Test.f().[T]	*T€* 
+_empty_/Test.f().(xs)*xs€*
+_empty_/Test.x. €*x€2
+ _empty_/Test.2
+ _empty_/Test.f().2"
+ 	_empty_/Test.f().[T]2#
+ _empty_/Test.f().(xs)2"
+ _empty_/Test.f().[T]2
+ _empty_/Test.x.2
+ _empty_/Test.f().2
+ _empty_/Test.x.2
+ _empty_/Test.x.PZ 1A20E2AE490FF4589FE9A30107CD8D18

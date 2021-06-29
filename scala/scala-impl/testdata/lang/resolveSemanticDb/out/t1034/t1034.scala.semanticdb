@@ -1,0 +1,31 @@
+
+™tests/pos/t1034.scala*$
+_empty_/Terminal.
+ *Terminal€*'
+_empty_/Terminal.apply().*apply€*&
+_empty_/Terminal.apply().[a]	*a€*
+local0*a€*"
+_empty_/Terminal.i0. €*i0€*"
+_empty_/Terminal.i1. €*i1€*"
+_empty_/Terminal.i2. €*i2€2
+ _empty_/Terminal.2'
+ _empty_/Terminal.apply().2*
+ _empty_/Terminal.apply().[a]2*
+ _empty_/Terminal.apply().[a]2
+ scala/Unit#2
+  local02"
+ _empty_/Terminal.i0.2'
+ _empty_/Terminal.apply().2
+ _empty_/Terminal.2
+ 
+scala/Int#2"
+ _empty_/Terminal.i1.2'
+ _empty_/Terminal.apply().2
+ _empty_/Terminal.2
+ 
+scala/Int#2"
+ _empty_/Terminal.i2.2'
+ _empty_/Terminal.apply().2
+ _empty_/Terminal.2
+ 
+scala/Int#PZ 5BA64464467FAFE309D70C89EF4D92B6

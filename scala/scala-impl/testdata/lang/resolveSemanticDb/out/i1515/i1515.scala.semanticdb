@@ -1,0 +1,76 @@
+
+£tests/pos/i1515.scala*
+_empty_/Trait# *Trait€*+
+_empty_/Trait#`<init>`(). €@*<init>€*
+_empty_/Trait#[T]	*T€*
+_empty_/Case# ˆ*Case€**
+_empty_/Case#`<init>`(). €@*<init>€*(
+_empty_/Case#`<init>`().(e) €*e€*
+_empty_/Case#[T]	*T€*
+_empty_/Case#e. €*e€*!
+_empty_/Case#copy().*copy€*!
+_empty_/Case#copy().[T]	*T€*!
+_empty_/Case#copy().(e)*e€*5
+_empty_/Case#copy$default$1().*copy$default$1€*+
+!_empty_/Case#copy$default$1().[T]	*T€*
+_empty_/Case#_1().*_1€*
+_empty_/Case.
+ *Case€*#
+_empty_/Case.apply().*apply€*"
+_empty_/Case.apply().[T]	*T€*"
+_empty_/Case.apply().(e)*e€*'
+_empty_/Case.unapply().*unapply€*$
+_empty_/Case.unapply().[T]	*T€*(
+_empty_/Case.unapply().(x$1)*x$1€*)
+_empty_/Case.toString().*toString€*
+_empty_/Demo.
+ *Demo€*!
+_empty_/Demo.main().*main€*'
+_empty_/Demo.main().(args)*args€*
+local0*f€*
+local1	*H€*
+local2*t€*
+local3 €*e€2
+ _empty_/Trait#2#
+ _empty_/Trait#`<init>`().2
+ _empty_/Trait#[T]2
+ _empty_/Case#2&
+ _empty_/Case#`<init>`().2
+ _empty_/Case#[T]2
+' ,_empty_/Trait#2
+- ._empty_/Case#[T]2
+ _empty_/Case#[T]2
+ _empty_/Case#e.2
+_empty_/Case#copy().2 
+ _empty_/Case#_1().2
+ _empty_/Case.2
+_empty_/Case.apply().2!
+_empty_/Case.unapply().2
+ _empty_/Demo.2"
+ 
+_empty_/Demo.main().2(
+ _empty_/Demo.main().(args)2
+ scala/Array#2"
+ scala/Predef.String#2
+! %scala/Unit#2
+ 	local02
+
+ local12
+ local22
+ _empty_/Trait#2
+ local12
+ scala/Unit#2
+ local22%
+		 _empty_/Case.unapply().2
+		 _empty_/Case.2
+		 local32'
+		 scala/Predef.println(+1).2!
+	$	 $scala/Some.apply().2
+	 	 $scala/Some.2
+	%	 &local32
+ local02#
+
+ 
+_empty_/Case.apply().2
+ 
+_empty_/Case.PZ D2C63345C0C137BAE2A8A7E1F747B24E

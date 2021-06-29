@@ -1,0 +1,92 @@
+
+àtests/pos/i9965.scala*
+
+_empty_/D#*D€*'
+_empty_/D#`<init>`(). €@*<init>€*
+_empty_/D#[T]	*T€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#f().*f€*
+local0*dd€*
+local1	*U€*
+local2 €*xx€*
+local3*ee€*
+local4	*V€*
+local5*d€*
+local6	*V€*$
+_empty_/C#locally().*locally€*!
+_empty_/C#locally().[T]	*T€*'
+_empty_/C#locally().(body)*body€*
+_empty_/C#g().*g€*
+_empty_/C#g().[T]	*T€*
+_empty_/C#g().(x)*x€2
+ 
+_empty_/D#2
+ _empty_/D#`<init>`().2
+ 	_empty_/D#[T]2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#f().2"
+ _empty_/C#locally().2
+ local02#
+ _empty_/D#`<init>`().2
+ 
+_empty_/D#2
+ local12
+ local12
+ local22
+ local32
+ local02
+ local42
+! "local42
+ local42
+	
+	 local52
+		 local62
+		 local02
+		 local62
+		 local02
+		  local62
+
+
+ _empty_/C#g().2
+
+
+ 	
+_empty_/D#2
+
+
+
+ 
+scala/Int#2
+
+
+ local52
+
+
+ 
+scala/Int#2
+ _empty_/C#g().2
+ 	
+_empty_/D#2
+ 
+scala/Int#2
+ 
+scala/Int#2
+ local32
+ !
+scala/Int#2"
+ _empty_/C#locally().2%
+ _empty_/C#locally().[T]2(
+ #_empty_/C#locally().(body)2%
+% &_empty_/C#locally().[T]2%
+) *_empty_/C#locally().[T]2(
+- 1_empty_/C#locally().(body)2
+ _empty_/C#g().2
+ 	_empty_/C#g().[T]2
+ _empty_/C#g().(x)2
+ _empty_/C#g().[T]2
+ _empty_/C#g().[T]2
+ _empty_/C#g().(x)PZ BFF0785F3A52D2A1873F0AF596A08284

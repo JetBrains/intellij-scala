@@ -1,0 +1,40 @@
+
+ô	tests/pos/patdef.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C# €*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€**
+_empty_/Test.C#`<init>`().(x) €*x€*
+_empty_/Test.C#x. €*x€*#
+_empty_/Test.C#copy().*copy€*#
+_empty_/Test.C#copy().(x)*x€*7
+ _empty_/Test.C#copy$default$1().*copy$default$1€*
+_empty_/Test.C#_1().*_1€*
+_empty_/Test.C.
+ *C€*%
+_empty_/Test.C.apply().*apply€*$
+_empty_/Test.C.apply().(x)*x€*)
+_empty_/Test.C.unapply().*unapply€**
+_empty_/Test.C.unapply().(x$1)*x$1€*+
+_empty_/Test.C.toString().*toString€*
+_empty_/Test.c. €*c€*
+_empty_/Test.x. €*x€2
+ _empty_/Test.2
+ _empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+ 
+scala/Int#2
+ _empty_/Test.C#x.2$
+ _empty_/Test.C#copy().2"
+ _empty_/Test.C#_1().2
+ _empty_/Test.C.2%
+ _empty_/Test.C.apply().2
+ _empty_/Test.c.2
+	 
+scala/Any#2%
+ _empty_/Test.C.apply().2
+ _empty_/Test.C.2
+ 	_empty_/Test.x.2
+ _empty_/Test.c.2'
+ _empty_/Test.C.unapply().2
+ _empty_/Test.C.PZ DFB03445CB621FE9F9E903362F4BC75E

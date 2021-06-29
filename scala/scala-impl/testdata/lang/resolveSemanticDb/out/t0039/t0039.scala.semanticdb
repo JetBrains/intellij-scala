@@ -1,0 +1,65 @@
+
+®tests/pos/t0039.scala*(
+_empty_/Extensible# *
+Extensible€*0
+_empty_/Extensible#`<init>`(). €@*<init>€*+
+!_empty_/Extensible#`<init>`().(x)*x€*-
+"_empty_/Extensible#`<init>`().(xs)*xs€*
+local0*self€* 
+_empty_/Extensible#[A]	*A€*&
+_empty_/Extensible#[This]	*This€*"
+_empty_/Extensible#x. €*x€*$
+_empty_/Extensible#xs. €*xs€*+
+_empty_/Extensible#mkObj(). *mkObj€*(
+_empty_/Extensible#mkObj().(x)*x€**
+_empty_/Extensible#mkObj().(xs)*xs€*
+_empty_/Fixed#*Fixed€*+
+_empty_/Fixed#`<init>`(). €@*<init>€*&
+_empty_/Fixed#`<init>`().(x)*x€*(
+_empty_/Fixed#`<init>`().(xs)*xs€*
+_empty_/Fixed#[A]	*A€*
+_empty_/Fixed#x. €*x€*
+_empty_/Fixed#xs. €*xs€*$
+_empty_/Fixed#mkObj().*mkObj€*#
+_empty_/Fixed#mkObj().(x)*x€*%
+_empty_/Fixed#mkObj().(xs)*xs€2
+ _empty_/Extensible#2(
+ _empty_/Extensible#`<init>`().2 
+= >_empty_/Extensible#[A]2#
+D H_empty_/Extensible#[This]2
+L Plocal02#
+R V_empty_/Extensible#[This]2 
+ _empty_/Extensible#[A]2#
+ !_empty_/Extensible#[This]2
+: ;_empty_/Extensible#x.2 
+@ B_empty_/Extensible#xs.2)
+ _empty_/Extensible#mkObj().2,
+ _empty_/Extensible#mkObj().(x)2$
+ _empty_/Extensible#[A]2-
+ _empty_/Extensible#mkObj().(xs)2'
+ _empty_/Extensible#[This]2'
+ #_empty_/Extensible#[This]2
+ _empty_/Fixed#2'
+ _empty_/Fixed#`<init>`().2
+ _empty_/Fixed#[A]2
+ _empty_/Fixed#2
+  _empty_/Fixed#[A]2,
+B B_empty_/Extensible#`<init>`().2!
++ 5_empty_/Extensible#2
+6 7_empty_/Fixed#[A]2
+9 >_empty_/Fixed#2
+? @_empty_/Fixed#[A]2
+C D_empty_/Fixed#x.2
+F H_empty_/Fixed#xs.2
+ _empty_/Fixed#[A]2
+ _empty_/Fixed#x.2
+ _empty_/Fixed#xs.2$
+ _empty_/Fixed#mkObj().2'
+ _empty_/Fixed#mkObj().(x)2
+ _empty_/Fixed#[A]2(
+ _empty_/Fixed#mkObj().(xs)2
+ _empty_/Fixed#2
+ _empty_/Fixed#[A]2'
+- -_empty_/Fixed#`<init>`().2'
+. /_empty_/Fixed#mkObj().(x)2(
+1 3_empty_/Fixed#mkObj().(xs)PZ 821DF9B8A11B56DA4CFD68BC032C1851

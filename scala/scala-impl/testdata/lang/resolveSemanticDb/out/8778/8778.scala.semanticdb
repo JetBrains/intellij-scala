@@ -1,0 +1,96 @@
+
+ötests/pos/8778.scala*
+_empty_/Inv#*Inv€*)
+_empty_/Inv#`<init>`(). €@*<init>€*
+_empty_/Inv#[T]	*T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.M#*M€*
+_empty_/Test.M#[X]	*X€*
+_empty_/Test.m().*m€*
+_empty_/Test.m().[X]	*X€*
+_empty_/Test.m().(x)*x€*
+_empty_/Test.ev. €*ev€*"
+_empty_/Test.invN. €*invN€*
+local0 *$anon€2
+ 	_empty_/Inv#2!
+	 	_empty_/Inv#`<init>`().2
+
+ _empty_/Inv#[T]2
+ _empty_/Test.2
+ _empty_/Test.M#2 
+	 
+_empty_/Test.M#[X]2 
+ _empty_/Test.M#[X]2
+	 _empty_/Inv#2
+ 
+scala/`&`#2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ !
+scala/Int#2
+	 
+scala/Any#2"
+ scala/Predef.String#2
+
+
+ _empty_/Test.m().2"
+
+
+ 	_empty_/Test.m().[X]2"
+
+
+ _empty_/Test.m().(x)2"
+
+
+ _empty_/Test.m().[X]2
+
+
+ _empty_/Test.M#2"
+
+
+ _empty_/Test.m().[X]2"
+
+
+ _empty_/Test.m().(x)2
+ _empty_/Inv#2
+ 
+scala/`&`#2
+ 
+scala/Int#2"
+ scala/Predef.String#2
+ 
+scala/Any#2
+ _empty_/Test.ev.2
+ scala/`=:=`#2
+
+ _empty_/Inv#2
+ scala/Nothing#2
+ _empty_/Inv#2
+# $
+scala/`&`#2
+ "
+scala/Int#2"
+% +scala/Predef.String#2'
+I Uscala/Any#asInstanceOf().2(
+0 :scala/Predef.implicitly().2
+? Bscala/`=:=`#2
+; >
+scala/Int#2
+C F
+scala/Int#2!
+G Gscala/`<:<`.refl().2 
+ 
+_empty_/Test.invN.2
+ _empty_/Inv#2
+ scala/Nothing#2
+ local02
+ "_empty_/Inv#2
+# *scala/Nothing#2
+ _empty_/Test.m().2 
+ _empty_/Test.invN.2
+ _empty_/Test.m().2"
+ scala/`=:=`#apply().2
+ _empty_/Test.ev.2 
+ _empty_/Test.invN.PZ C05039CEFFEB907F02115F11EC151187

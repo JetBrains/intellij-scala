@@ -1,0 +1,150 @@
+
+Žtests/pos/hklower.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#T#*T€*
+_empty_/Test#T#[X]	*X€*
+_empty_/Test#U#*U€*
+_empty_/Test#U#[X]	*X€*
+_empty_/Test#V#*V€*
+_empty_/Test#V#[X]	*X€*
+_empty_/Test#W#*W€*
+_empty_/Test#W#[X]	*X€*
+_empty_/Test#f().*f€*
+_empty_/Test#f().[C]	*C€*
+_empty_/Test#f().(x)*x€*
+_empty_/Test#v. €*v€*
+_empty_/Test#t. €*t€*
+_empty_/Test2#*Test2€*+
+_empty_/Test2#`<init>`(). €@*<init>€*
+_empty_/Test2#T#*T€*-
+_empty_/Test2#T#`<init>`(). €@*<init>€*
+_empty_/Test2#T#[X]	*X€*
+_empty_/Test2#U#*U€*
+_empty_/Test2#U#[X]	*X€*
+_empty_/Test2#V#*V€*
+_empty_/Test2#V#[X]	*X€*
+_empty_/Test2#W#*W€*
+_empty_/Test2#W#[X]	*X€*
+_empty_/Test2#f().*f€*
+_empty_/Test2#f().[C]	*C€*
+_empty_/Test2#f().(x)*x€*
+_empty_/Test2#v. €*v€*
+_empty_/Test2#t. €*t€*
+_empty_/Test2#x(). €*x€*%
+_empty_/Test2#`x_=`(). €*x_=€*'
+_empty_/Test2#`x_=`().(x$1)*x$1€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#T#2 
+	 
+_empty_/Test#T#[X]2
+ _empty_/Test#U#2 
+	 
+_empty_/Test#U#[X]2
+ _empty_/Test#T#2 
+ _empty_/Test#U#[X]2
+ _empty_/Test#V#2 
+	 
+_empty_/Test#V#[X]2
+ _empty_/Test#T#2 
+ _empty_/Test#V#[X]2
+ _empty_/Test#W#2 
+	 
+_empty_/Test#W#[X]2
+ _empty_/Test#T#2 
+ _empty_/Test#W#[X]2
+ _empty_/Test#T#2 
+ _empty_/Test#W#[X]2
+ _empty_/Test#f().2"
+ 	_empty_/Test#f().[C]2"
+ _empty_/Test#f().(x)2"
+ _empty_/Test#f().[C]2
+ 
+scala/Int#2#
+# &scala/Predef.`???`().2
+
+
+ _empty_/Test#v.2
+
+	
+ 
+_empty_/Test#V#2
+
+
+ 
+scala/Int#2#
+
+
+ scala/Predef.`???`().2
+ _empty_/Test#t.2
+	 
+_empty_/Test#T#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Test#f().2
+ _empty_/Test#V#2
+ _empty_/Test#v.2
+ _empty_/Test#f().2
+ _empty_/Test#V#2
+ _empty_/Test#t.2
+ _empty_/Test2#2'
+ _empty_/Test2#`<init>`().2
+ 	_empty_/Test2#T#2)
+	 	_empty_/Test2#T#`<init>`().2!
+
+ _empty_/Test2#T#[X]2
+ _empty_/Test2#U#2!
+	 
+_empty_/Test2#U#[X]2
+ _empty_/Test2#T#2!
+ _empty_/Test2#U#[X]2
+ _empty_/Test2#V#2!
+	 
+_empty_/Test2#V#[X]2
+ _empty_/Test2#T#2!
+ _empty_/Test2#V#[X]2
+ _empty_/Test2#W#2!
+	 
+_empty_/Test2#W#[X]2
+ _empty_/Test2#T#2!
+ _empty_/Test2#W#[X]2
+ _empty_/Test2#T#2!
+ _empty_/Test2#W#[X]2 
+ _empty_/Test2#f().2#
+ 	_empty_/Test2#f().[C]2#
+ _empty_/Test2#f().(x)2#
+ _empty_/Test2#f().[C]2
+ 
+scala/Int#2#
+# &scala/Predef.`???`().2
+ _empty_/Test2#v.2
+	 
+_empty_/Test2#V#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2
+ _empty_/Test2#t.2
+	 
+_empty_/Test2#T#2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2 
+   _empty_/Test2#f().2
+   _empty_/Test2#V#2
+   _empty_/Test2#v.2 
+"" _empty_/Test2#f().2
+"" _empty_/Test2#V#2
+"" _empty_/Test2#t.2 
+$$ _empty_/Test2#x().2
+$	$ 
+_empty_/Test2#V#2
+$$ 
+scala/Int#2@
+$$ +2scala/compiletime/package$package.uninitialized().2 
+$$ scala/compiletime/2$
+$$ 	_empty_/Test2#`x_=`().2$
+%% _empty_/Test2#`x_=`().2
+%% _empty_/Test2#t.PZ CF1C3C4AA5E09AB110A64FEEDD79FA02

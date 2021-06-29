@@ -1,0 +1,64 @@
+
+È'tests/pos/inline-match-specialize.scala*D
+"_empty_/`inline-match-specialize`.
+ *inline-match-specialize€*5
+&_empty_/`inline-match-specialize`.Box# €*Box€*C
+1_empty_/`inline-match-specialize`.Box#`<init>`(). €@*<init>€*I
+8_empty_/`inline-match-specialize`.Box#`<init>`().(value) €*value€*6
+)_empty_/`inline-match-specialize`.Box#[T]	 €*T€*=
+,_empty_/`inline-match-specialize`.Box#value. €*value€*:
+-_empty_/`inline-match-specialize`.Box#copy().*copy€*:
+0_empty_/`inline-match-specialize`.Box#copy().[T]	*T€*B
+4_empty_/`inline-match-specialize`.Box#copy().(value)*value€*N
+7_empty_/`inline-match-specialize`.Box#copy$default$1().*copy$default$1€*D
+:_empty_/`inline-match-specialize`.Box#copy$default$1().[T]	*T€*6
++_empty_/`inline-match-specialize`.Box#_1().*_1€*4
+&_empty_/`inline-match-specialize`.Box.
+ *Box€*<
+._empty_/`inline-match-specialize`.Box.apply().*apply€*;
+1_empty_/`inline-match-specialize`.Box.apply().[T]	*T€*C
+5_empty_/`inline-match-specialize`.Box.apply().(value)*value€*@
+0_empty_/`inline-match-specialize`.Box.unapply().*unapply€*=
+3_empty_/`inline-match-specialize`.Box.unapply().[T]	*T€*A
+5_empty_/`inline-match-specialize`.Box.unapply().(x$1)*x$1€*B
+1_empty_/`inline-match-specialize`.Box.toString().*toString€*
+local0 €*box€*
+local1 €	*t€*B
+/_empty_/`inline-match-specialize`.specialize().*
+specialize€*<
+2_empty_/`inline-match-specialize`.specialize().[T]	*T€*@
+4_empty_/`inline-match-specialize`.specialize().(box)*box€*7
+'_empty_/`inline-match-specialize`.ibox. €*ibox€2,
+ "_empty_/`inline-match-specialize`.24
+ &_empty_/`inline-match-specialize`.Box#2?
+ 1_empty_/`inline-match-specialize`.Box#`<init>`().27
+ )_empty_/`inline-match-specialize`.Box#[T]27
+ )_empty_/`inline-match-specialize`.Box#[T]2:
+ ,_empty_/`inline-match-specialize`.Box#value.2;
+ -_empty_/`inline-match-specialize`.Box#copy().29
+ +_empty_/`inline-match-specialize`.Box#_1().24
+ &_empty_/`inline-match-specialize`.Box.2<
+ ._empty_/`inline-match-specialize`.Box.apply().2>
+ 0_empty_/`inline-match-specialize`.Box.unapply().2B
+E H4_empty_/`inline-match-specialize`.specialize().(box)2
+	 local024
+ &_empty_/`inline-match-specialize`.Box#2
+ local12
+ local02=
+ #/_empty_/`inline-match-specialize`.specialize().2@
+$ %2_empty_/`inline-match-specialize`.specialize().[T]2B
+' *4_empty_/`inline-match-specialize`.specialize().(box)24
+, /&_empty_/`inline-match-specialize`.Box#2@
+0 12_empty_/`inline-match-specialize`.specialize().[T]24
+5 8&_empty_/`inline-match-specialize`.Box#2@
+9 :2_empty_/`inline-match-specialize`.specialize().[T]25
+ 
+'_empty_/`inline-match-specialize`.ibox.24
+ &_empty_/`inline-match-specialize`.Box#2
+ 
+scala/Int#2=
+ !/_empty_/`inline-match-specialize`.specialize().2
+" %
+scala/Any#2<
+* *._empty_/`inline-match-specialize`.Box.apply().24
+' *&_empty_/`inline-match-specialize`.Box.PZ 558D8ED88406B2A09E983ECA4F216699

@@ -1,0 +1,15 @@
+
+îtests/pos/t2610.scala*-
+mada/defects/tests/bbb/package. *bbb€*1
+%mada/defects/tests/bbb/package.bar().*bar€*-
+mada/defects/tests/aaa/package. *aaa€*1
+%mada/defects/tests/aaa/package.foo().*foo€2
+ mada/2
+ mada/defects/2
+' ,mada/defects/tests/2-
+ mada/defects/tests/bbb/package.23
+ %mada/defects/tests/bbb/package.bar().23
+ %mada/defects/tests/aaa/package.foo().2%
+ mada/defects/tests/aaa/2-
+ mada/defects/tests/aaa/package.23
+ %mada/defects/tests/aaa/package.foo().PZ D6944843C00BD68933005004E4729530

@@ -1,0 +1,59 @@
+
+”tests/pos/leaks.scala*
+_empty_/Outer1#*Outer1€*,
+_empty_/Outer1#`<init>`(). €@*<init>€*
+_empty_/Outer1#x. €*x€*#
+_empty_/Outer1#Inner#*Inner€*2
+ _empty_/Outer1#Inner#`<init>`(). €@*<init>€*'
+_empty_/Outer1#Inner#foo().*foo€* 
+_empty_/Outer2.
+ *Outer2€*
+_empty_/Outer2.x. €*x€*
+_empty_/Outer2#*Outer2€*,
+_empty_/Outer2#`<init>`(). €@*<init>€*#
+_empty_/Outer2#Inner#*Inner€*2
+ _empty_/Outer2#Inner#`<init>`(). €@*<init>€*'
+_empty_/Outer2#Inner#foo().*foo€*
+_empty_/Outer3#*Outer3€*,
+_empty_/Outer3#`<init>`(). €@*<init>€*
+_empty_/Outer3#x. €*x€*#
+_empty_/Outer3#meth().*meth€*
+local0*Inner€*
+local1*foo€2
+ _empty_/Outer1#2(
+ _empty_/Outer1#`<init>`().2
+ _empty_/Outer1#x.2
+ 
+scala/Int#2#
+ _empty_/Outer1#Inner#2.
+  _empty_/Outer1#Inner#`<init>`().2)
+ _empty_/Outer1#Inner#foo().2
+ _empty_/Outer1#x.2
+ _empty_/Outer1#x.2
+ _empty_/Outer2.2
+		 _empty_/Outer2.x.2
+		 
+scala/Int#2
+ _empty_/Outer2#2(
+ _empty_/Outer2#`<init>`().2#
+ _empty_/Outer2#Inner#2.
+  _empty_/Outer2#Inner#`<init>`().2)
+ _empty_/Outer2#Inner#foo().2
+ _empty_/Outer2.x.2
+ _empty_/Outer2.2
+$ %_empty_/Outer2.x.2
+ #_empty_/Outer2.2
+ _empty_/Outer3#2(
+ _empty_/Outer3#`<init>`().2
+ _empty_/Outer3#x.2
+ 
+scala/Int#2$
+ 
+_empty_/Outer3#meth().2
+ scala/Unit#2
+
+ local02
+
+ local12
+ _empty_/Outer3#x.2
+ _empty_/Outer3#x.PZ D9F833B9A58F1E4E32EBD33FC39CA6D3

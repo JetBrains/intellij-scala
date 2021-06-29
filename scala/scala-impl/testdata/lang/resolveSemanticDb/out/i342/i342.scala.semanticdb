@@ -1,0 +1,19 @@
+
+»tests/pos/i342.scala*
+_empty_/Test.
+ *Test€*#
+_empty_/Test.test2().*test2€*
+local0 €*ds€*
+local1*s€2
+ _empty_/Test.2#
+ _empty_/Test.test2().2
+ 
+scala/Int#2
+ 
+local02"
+ scala/Predef.String#2
+ 	local12
+ local02
+ local02(
+ java/lang/String#length().2
+ local1PZ DD2DCCA91DCD5BC06CF9F6E0E3D9724F

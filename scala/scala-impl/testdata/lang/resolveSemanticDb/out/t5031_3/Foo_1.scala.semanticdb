@@ -1,0 +1,10 @@
+
+ãtests/pos/t5031_3/Foo_1.scala*
+foo/bar/Foo.
+ *Foo€*
+foo/bar/Foo.bar().*bar€2
+ foo/bar/2
+ foo/2
+ 
+foo/bar/Foo.2 
+ 	foo/bar/Foo.bar().PZ 21736AD720CA53D3C0B144E6F8F30A4E

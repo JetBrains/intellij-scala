@@ -1,0 +1,18 @@
+
+ü#tests/pos/parents-cycle/Use_2.scala*
+_empty_/Use.
+ *Use€*
+_empty_/Use.b1. €*b1€*
+_empty_/Use.b2. €*b2€*
+_empty_/Use.b3. €*b3€2
+ 
+_empty_/Use.2
+ _empty_/Use.b1.2$
+ _empty_/B1#`<init>`().2
+ _empty_/B1#2
+ _empty_/Use.b2.2$
+ _empty_/B2#`<init>`().2
+ _empty_/B2#2
+ _empty_/Use.b3.2$
+ _empty_/B3#`<init>`().2
+ _empty_/B3#PZ 64A087F2864AD29CCD3859E4121FDA50

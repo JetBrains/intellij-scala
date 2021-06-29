@@ -1,0 +1,15 @@
+
+štests/pos/t439.scala*
+_empty_/test.
+ *test€*
+_empty_/test.Foo# *Foo€*.
+_empty_/test.Foo#`<init>`(). €@*<init>€*
+_empty_/test.o.
+ *o€2
+ _empty_/test.2
+ _empty_/test.Foo#2*
+ _empty_/test.Foo#`<init>`().2
+	 
+_empty_/test.o.2*
+ _empty_/test.Foo#`<init>`().2
+ _empty_/test.Foo#PZ A546478A6A5D8FF62AA71F11182FC24D

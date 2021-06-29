@@ -1,0 +1,40 @@
+
+¾	)tests/pos/toplevel-opaque-xm/Test_2.scala*
+
+logs/Test.
+ *Test€*
+logs/Test.l. €*l€*
+logs/Test.l2. €*l2€*
+logs/Test.l3. €*l3€*
+logs/Test.l4. €*l4€*
+logs/Test.d. €*d€*
+logs/Test.l5. €*l5€2
+ logs/2
+ 
+logs/Test.2
+ logs/Test.l.29
+ +logs/Logarithm_1$package.Logarithm.apply().21
+
+ #logs/Logarithm_1$package.Logarithm.2
+ logs/Test.l2.29
+ +logs/Logarithm_1$package.Logarithm.apply().21
+ #logs/Logarithm_1$package.Logarithm.2
+ logs/Test.l3.2D
+ 6logs/Logarithm_1$package.Logarithm.given_AnyRef.`*`().2
+ logs/Test.l.2
+ logs/Test.l2.2
+ logs/Test.l4.2D
+ 6logs/Logarithm_1$package.Logarithm.given_AnyRef.`+`().2
+ logs/Test.l.2
+ logs/Test.l2.2
+ logs/Test.d.2I
+
+ 
+;logs/Logarithm_1$package.Logarithm.given_AnyRef.toDouble().2
+
+ logs/Test.l3.2
+ logs/Test.l5.21
+
+ #logs/Logarithm_1$package.Logarithm#2'
+ (scala/Any#asInstanceOf().21
+) 2#logs/Logarithm_1$package.Logarithm#PZ B29C0287F57EDD42B67CA80712DF0CAA

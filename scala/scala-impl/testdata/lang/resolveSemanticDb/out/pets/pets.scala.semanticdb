@@ -1,0 +1,135 @@
+
+Ý%tests/pos/pets.scala*
+_empty_/Pet#*Pet€*)
+_empty_/Pet#`<init>`(). €@*<init>€*
+_empty_/Pet#This#*This€*"
+_empty_/Pet#name(). *name€*(
+_empty_/Pet#renamed(). *renamed€*/
+_empty_/Pet#renamed().(newName)*newName€*
+_empty_/Fish# €*Fish€**
+_empty_/Fish#`<init>`(). €@*<init>€*.
+_empty_/Fish#`<init>`().(name) €*name€*,
+_empty_/Fish#`<init>`().(age) €*age€*"
+_empty_/Fish#name. €*name€* 
+_empty_/Fish#age. €*age€*
+_empty_/Fish#This#*This€*'
+_empty_/Fish#renamed().*renamed€*0
+ _empty_/Fish#renamed().(newName)*newName€*!
+_empty_/Fish#copy().*copy€*'
+_empty_/Fish#copy().(name)*name€*%
+_empty_/Fish#copy().(age)*age€*5
+_empty_/Fish#copy$default$1().*copy$default$1€*5
+_empty_/Fish#copy$default$2().*copy$default$2€*
+_empty_/Fish#_1().*_1€*
+_empty_/Fish#_2().*_2€*
+_empty_/Fish.
+ *Fish€*#
+_empty_/Fish.apply().*apply€*(
+_empty_/Fish.apply().(name)*name€*&
+_empty_/Fish.apply().(age)*age€*'
+_empty_/Fish.unapply().*unapply€*(
+_empty_/Fish.unapply().(x$1)*x$1€*)
+_empty_/Fish.toString().*toString€*
+_empty_/Kitty# €*Kitty€*+
+_empty_/Kitty#`<init>`(). €@*<init>€*/
+_empty_/Kitty#`<init>`().(name) €*name€*-
+_empty_/Kitty#`<init>`().(age) €*age€*#
+_empty_/Kitty#name. €*name€*!
+_empty_/Kitty#age. €*age€* 
+_empty_/Kitty#This#*This€*(
+_empty_/Kitty#renamed().*renamed€*1
+!_empty_/Kitty#renamed().(newName)*newName€*"
+_empty_/Kitty#copy().*copy€*(
+_empty_/Kitty#copy().(name)*name€*&
+_empty_/Kitty#copy().(age)*age€*6
+_empty_/Kitty#copy$default$1().*copy$default$1€*6
+_empty_/Kitty#copy$default$2().*copy$default$2€*
+_empty_/Kitty#_1().*_1€*
+_empty_/Kitty#_2().*_2€*
+_empty_/Kitty.
+ *Kitty€*$
+_empty_/Kitty.apply().*apply€*)
+_empty_/Kitty.apply().(name)*name€*'
+_empty_/Kitty.apply().(age)*age€*(
+_empty_/Kitty.unapply().*unapply€*)
+_empty_/Kitty.unapply().(x$1)*x$1€**
+_empty_/Kitty.toString().*toString€*
+_empty_/Test.
+ *Test€*'
+_empty_/Test.esquire().*esquire€*$
+_empty_/Test.esquire().[A]	*A€*$
+_empty_/Test.esquire().(a)*a€*
+_empty_/Test.f. €*f€2
+ 	_empty_/Pet#2%
+ _empty_/Pet#`<init>`().2
+ _empty_/Pet#This#2
+ _empty_/Pet#2!
+ 
+_empty_/Pet#name().2"
+ scala/Predef.String#2$
+ _empty_/Pet#renamed().2-
+ _empty_/Pet#renamed().(newName)2"
+ scala/Predef.String#2
+  $_empty_/Pet#This#2
+ _empty_/Fish#2&
+ _empty_/Fish#`<init>`().2"
+ scala/Predef.String#2
+# &
+scala/Int#2
+0 3_empty_/Pet#2 
+ _empty_/Fish#name.2
+ !_empty_/Fish#age.2 
+ _empty_/Fish#This#2
+ _empty_/Fish#2%
+		 _empty_/Fish#renamed().2.
+		  _empty_/Fish#renamed().(newName)2"
+		 scala/Predef.String#2
+	 	 $_empty_/Fish#2"
+	'	 +_empty_/Fish#copy().2(
+	,	 0_empty_/Fish#copy().(name)2.
+	3	 : _empty_/Fish#renamed().(newName)2
+_empty_/Fish#copy().2 
+ _empty_/Fish#_1().2 
+# #_empty_/Fish#_2().2
+ _empty_/Fish.2
+_empty_/Fish.apply().2
+ _empty_/Kitty#2'
+ _empty_/Kitty#`<init>`().2"
+ scala/Predef.String#2
+$ '
+scala/Int#2
+1 4_empty_/Pet#2!
+ _empty_/Kitty#name.2 
+ "_empty_/Kitty#age.2!
+ _empty_/Kitty#This#2
+ _empty_/Kitty#2&
+ _empty_/Kitty#renamed().2/
+ !_empty_/Kitty#renamed().(newName)2"
+ scala/Predef.String#2
+  %_empty_/Kitty#2#
+( ,_empty_/Kitty#copy().2)
+- 1_empty_/Kitty#copy().(name)2/
+4 ;!_empty_/Kitty#renamed().(newName)2
+_empty_/Kitty#copy().2!
+ _empty_/Kitty#_1().2!
+$ $_empty_/Kitty#_2().2
+ _empty_/Kitty.2 
+_empty_/Kitty.apply().2
+ _empty_/Test.2%
+ _empty_/Test.esquire().2(
+ _empty_/Test.esquire().[A]2
+ _empty_/Pet#2(
+ _empty_/Test.esquire().(a)2(
+ _empty_/Test.esquire().[A]2
+! %_empty_/Pet#This#2(
+  _empty_/Test.esquire().(a)2$
+* 1_empty_/Pet#renamed().2(
+( )_empty_/Test.esquire().(a)2%
+9 :java/lang/String#`+`().2!
+4 8_empty_/Pet#name().2(
+2 3_empty_/Test.esquire().(a)2
+ _empty_/Test.f.2
+	 _empty_/Fish#2%
+ _empty_/Test.esquire().2&
+   _empty_/Fish#`<init>`().2
+  _empty_/Fish#PZ 9D5E5B627CA90914280811032D86D41A

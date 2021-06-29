@@ -1,0 +1,24 @@
+
+Ÿtests/pos/t4220.scala*
+_empty_/Boo#*Boo€*)
+_empty_/Boo#`<init>`(). €@*<init>€*$
+_empty_/Boo#`<init>`().(a)*a€*
+_empty_/Boo#a. €*a€*
+_empty_/Boo.
+ *Boo€*N
+*_empty_/Boo.$lessinit$greater$default$1().*$lessinit$greater$default$1€*
+_empty_/test.
+ *test€*
+_empty_/test.Boo#*Boo€*.
+_empty_/test.Boo#`<init>`(). €@*<init>€2
+ 	_empty_/Boo#2%
+	 	_empty_/Boo#`<init>`().2
+ 
+scala/Int#2
+
+ _empty_/Boo#a.2
+ _empty_/Boo.2
+ _empty_/test.2
+
+ _empty_/test.Boo#2*
+ _empty_/test.Boo#`<init>`().PZ 3EA600EF604A633AD8C59528383EB36A

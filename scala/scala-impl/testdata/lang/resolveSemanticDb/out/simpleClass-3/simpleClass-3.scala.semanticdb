@@ -1,0 +1,24 @@
+
+ëtests/pos/simpleClass-3.scala*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€2
+ 
+_empty_/B#2
+_empty_/B#`<init>`().2
+ 
+_empty_/C#2
+_empty_/C#`<init>`().2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+ 
+_empty_/B#2
+ 
+_empty_/C#PZ 124B2A042FF3EFA7A16D45F33411BE0D

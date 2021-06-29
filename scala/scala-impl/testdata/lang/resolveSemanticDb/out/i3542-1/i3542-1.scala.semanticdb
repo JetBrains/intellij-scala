@@ -1,0 +1,34 @@
+
+Øtests/pos/i3542-1.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#[T]	*T€*
+_empty_/Test.
+ *Test€*!
+_empty_/Test.foo().  *foo€* 
+_empty_/Test.foo().[T]	*T€*&
+_empty_/Test.foo().(rec)  *rec€* 
+_empty_/Test.bla. €*bla€*#
+local0 *$_lazy_implicit_$2€2
+ 	_empty_/Foo#2!
+	 	_empty_/Foo#`<init>`().2
+
+ _empty_/Foo#[T]2
+ _empty_/Test.2!
+ _empty_/Test.foo().2$
+ _empty_/Test.foo().[T]2&
+ "_empty_/Test.foo().(rec)2
+' *_empty_/Foo#2$
++ ,_empty_/Test.foo().[T]2
+0 3_empty_/Foo#2$
+4 5_empty_/Test.foo().[T]2#
+9 <scala/Predef.`???`().2
+ 	_empty_/Test.bla.2
+ _empty_/Foo#2
+ 
+scala/Int#2(
+  scala/Predef.implicitly().2
+! $_empty_/Foo#2
+% (
+scala/Int#2!
+* *_empty_/Test.foo().PZ 3567AF8383D1823E858D424D15C6E790

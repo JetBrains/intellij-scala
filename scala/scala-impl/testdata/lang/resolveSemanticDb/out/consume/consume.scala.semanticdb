@@ -1,0 +1,338 @@
+
+­Ztests/pos/consume.scala*
+_empty_/Test1.
+ *Test1€*(
+_empty_/Test1.consume().*consume€*'
+_empty_/Test1.consume().(xs)*xs€*-
+_empty_/Test1.consume().(limit)*limit€*
+local0 €*x€*
+local1 €*xs1€*
+_empty_/Test2.
+ *Test2€*(
+_empty_/Test2.consume().*consume€*%
+_empty_/Test2.consume().[T]	*T€*'
+_empty_/Test2.consume().(xs)*xs€*-
+_empty_/Test2.consume().(limit)*limit€*
+local2 €*zero€*
+local3 €*x€*
+local4 €*xs1€*
+_empty_/math3.
+ *math3€*
+_empty_/math3.Ord#*Ord€*/
+_empty_/math3.Ord#`<init>`(). €@*<init>€*
+_empty_/math3.Ord#[T]	*T€*"
+_empty_/math3.Ord#`>`().*>€*%
+_empty_/math3.Ord#`>`().(x)*x€*%
+_empty_/math3.Ord#`>`().(t)*t€*$
+_empty_/math3.Ord#`<=`().*<=€*&
+_empty_/math3.Ord#`<=`().(x)*x€*&
+_empty_/math3.Ord#`<=`().(t)*t€*&
+_empty_/math3.Numeric#*Numeric€*3
+!_empty_/math3.Numeric#`<init>`(). €@*<init>€*#
+_empty_/math3.Numeric#[T]	*T€*&
+_empty_/math3.Numeric#`+`().*+€*)
+_empty_/math3.Numeric#`+`().(x)*x€*)
+_empty_/math3.Numeric#`+`().(y)*y€*&
+_empty_/math3.Numeric#`-`().*-€*)
+_empty_/math3.Numeric#`-`().(x)*x€*)
+_empty_/math3.Numeric#`-`().(y)*y€*0
+ _empty_/math3.Numeric#numeric().*numeric€*-
+#_empty_/math3.Numeric#numeric().(x)*x€*
+_empty_/Test3.
+ *Test3€*(
+_empty_/Test3.consume().*consume€*%
+_empty_/Test3.consume().[T]	*T€*'
+_empty_/Test3.consume().(xs)*xs€*-
+_empty_/Test3.consume().(limit)*limit€*
+local5 €*x€*
+local6 €*xs1€**
+_empty_/Test3.consume(+1).*consume€*'
+_empty_/Test3.consume(+1).[T]	*T€*)
+_empty_/Test3.consume(+1).(xs)*xs€*/
+!_empty_/Test3.consume(+1).(limit)*limit€*
+local7 €*x€*
+local8 €*xs1€**
+_empty_/Test3.consume(+2).*consume€*'
+_empty_/Test3.consume(+2).[T]	*T€*)
+_empty_/Test3.consume(+2).(xs)*xs€*/
+!_empty_/Test3.consume(+2).(limit)*limit€*
+local9*	dropCount€*
+local10*it€*
+local11*start€*
+local12*limit€**
+_empty_/Test3.consume(+3).*consume€*'
+_empty_/Test3.consume(+3).[T]	*T€*)
+_empty_/Test3.consume(+3).(xs)*xs€*/
+!_empty_/Test3.consume(+3).(limit)*limit€*
+local13 €*sum€*
+local14*x€**
+_empty_/Test3.consume2().*consume2€*&
+_empty_/Test3.consume2().[T]	*T€*(
+_empty_/Test3.consume2().(xs)*xs€*.
+ _empty_/Test3.consume2().(limit)*limit€2
+ _empty_/Test1.2&
+ _empty_/Test1.consume().2*
+ _empty_/Test1.consume().(xs)2!
+ scala/package.List#2
+ 
+scala/Int#2-
+ "_empty_/Test1.consume().(limit)2
+$ '
+scala/Int#2!
+* .scala/package.List#2
+/ 2
+scala/Int#2*
+6 8_empty_/Test1.consume().(xs)28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+	 
+local02
+ local12 
+ scala/Int#`>`(+3).2-
+ _empty_/Test1.consume().(limit)2&
+" )_empty_/Test1.consume().2
+* -local12 
+5 6scala/Int#`-`(+3).2-
+/ 4_empty_/Test1.consume().(limit)2
+7 8local02*
+ _empty_/Test1.consume().(xs)2
+ _empty_/Test2.2!
+ scala/math/Numeric.2!
+ scala/math/Numeric#2
+ scala/math/2
+	 scala/2+
+ %scala/math/Numeric.Implicits.2!
+ scala/math/Numeric.2
+ scala/math/2
+	 scala/2,
+ &scala/math/Ordering.Implicits.2"
+ scala/math/Ordering.2
+ scala/math/2
+	 scala/2&
+
+
+ _empty_/Test2.consume().2)
+
+
+ _empty_/Test2.consume().[T]2*
+
+
+ _empty_/Test2.consume().(xs)2!
+
+
+ "scala/package.List#2)
+
+#
+ $_empty_/Test2.consume().[T]2-
+
+'
+ ,_empty_/Test2.consume().(limit)2)
+
+.
+ /_empty_/Test2.consume().[T]2!
+
+
+ scala/math/Numeric#2)
+
+
+ _empty_/Test2.consume().[T]2!
+
+2
+ 6scala/package.List#2)
+
+7
+ 8_empty_/Test2.consume().[T]2
+ local22(
+& *scala/math/Numeric#zero().2(
+ scala/Predef.implicitly().2!
+ !scala/math/Numeric#2)
+" #_empty_/Test2.consume().[T]2*
+ _empty_/Test2.consume().(xs)28
+ *scala/collection/immutable/`::`.unapply().2!
+ scala/package.`::`.2
+ local32
+ local424
+ &scala/math/Ordering#OrderingOps#`>`().2D
+ 6scala/math/Ordering.ExtraImplicits#infixOrderingOps().2-
+ _empty_/Test2.consume().(limit)2
+ #local22&
+' ._empty_/Test2.consume().2
+/ 2local422
+: ;$scala/math/Numeric#NumericOps#`-`().2B
+4 44scala/math/Numeric.ExtraImplicits#infixNumericOps().2-
+4 9_empty_/Test2.consume().(limit)2
+< =local32*
+ _empty_/Test2.consume().(xs)2
+ _empty_/math3.2 
+ _empty_/math3.Ord#2+
+ _empty_/math3.Ord#`<init>`().2#
+ _empty_/math3.Ord#[T]2&
+ _empty_/math3.Ord#`>`().2)
+ _empty_/math3.Ord#`>`().(x)2#
+ _empty_/math3.Ord#[T]2)
+ _empty_/math3.Ord#`>`().(t)2#
+  _empty_/math3.Ord#[T]2
+# *scala/Boolean#2#
+- 0scala/Predef.`???`().2'
+ _empty_/math3.Ord#`<=`().2*
+ _empty_/math3.Ord#`<=`().(x)2#
+ _empty_/math3.Ord#[T]2*
+ _empty_/math3.Ord#`<=`().(t)2#
+  !_empty_/math3.Ord#[T]2
+$ +scala/Boolean#2#
+. 1scala/Predef.`???`().2$
+ _empty_/math3.Numeric#2/
+ !_empty_/math3.Numeric#`<init>`().2 
+ _empty_/math3.Ord#2'
+  _empty_/math3.Numeric#[T]2'
+ _empty_/math3.Numeric#[T]2*
+ _empty_/math3.Numeric#`+`().2-
+ _empty_/math3.Numeric#`+`().(x)2'
+ _empty_/math3.Numeric#[T]2-
+ _empty_/math3.Numeric#`+`().(y)2'
+  _empty_/math3.Numeric#[T]2'
+# $_empty_/math3.Numeric#[T]2#
+' *scala/Predef.`???`().2*
+ _empty_/math3.Numeric#`-`().2-
+ _empty_/math3.Numeric#`-`().(x)2'
+ _empty_/math3.Numeric#[T]2-
+ _empty_/math3.Numeric#`-`().(y)2'
+  _empty_/math3.Numeric#[T]2'
+# $_empty_/math3.Numeric#[T]2#
+' *scala/Predef.`???`().2.
+ " _empty_/math3.Numeric#numeric().21
+ #_empty_/math3.Numeric#numeric().(x)2
+ 
+scala/Int#2'
+$ %_empty_/math3.Numeric#[T]2#
+( +scala/Predef.`???`().2
+ 	_empty_/math3.2
+ _empty_/Test3.2
+	 _empty_/math3.2-
+ !scala/collection/immutable/Seq.2-
+ !scala/collection/immutable/Seq#2)
+ scala/collection/immutable/2
+	 scala/collection/2&
+!! _empty_/Test3.consume().2)
+!! _empty_/Test3.consume().[T]2*
+!! _empty_/Test3.consume().(xs)2!
+!! "scala/package.List#2)
+!#! $_empty_/Test3.consume().[T]2-
+!'! ,_empty_/Test3.consume().(limit)2)
+!.! /_empty_/Test3.consume().[T]2$
+!! _empty_/math3.Numeric#2)
+!! _empty_/Test3.consume().[T]2!
+!2! 6scala/package.List#2)
+!7! 8_empty_/Test3.consume().[T]2*
+!<! >_empty_/Test3.consume().(xs)28
+"" *scala/collection/immutable/`::`.unapply().2!
+"" scala/package.`::`.2
+"	" 
+local52
+"" local62-
+"" _empty_/Test3.consume().(limit)2&
+"*" 1_empty_/Test3.consume().2
+"2" 5local62-
+"7" <_empty_/Test3.consume().(limit)2
+"?" @local52*
+## _empty_/Test3.consume().(xs)2(
+%% _empty_/Test3.consume(+1).2+
+%% _empty_/Test3.consume(+1).[T]2,
+%% _empty_/Test3.consume(+1).(xs)2%
+%% &scala/package.LazyList#2+
+%'% (_empty_/Test3.consume(+1).[T]2/
+%+% 0!_empty_/Test3.consume(+1).(limit)2+
+%2% 3_empty_/Test3.consume(+1).[T]2$
+%% _empty_/math3.Numeric#2+
+%% _empty_/Test3.consume(+1).[T]2%
+%6% >scala/package.LazyList#2+
+%?% @_empty_/Test3.consume(+1).[T]2,
+%D% F_empty_/Test3.consume(+1).(xs)2,
+&& scala/package.`#::`.unapply().2"
+&& scala/package.`#::`.2
+&	& 
+local72
+&& local82/
+&& !_empty_/Test3.consume(+1).(limit)2(
+&+& 2_empty_/Test3.consume(+1).2
+&3& 6local82/
+&8& =!_empty_/Test3.consume(+1).(limit)2
+&@& Alocal72,
+'' _empty_/Test3.consume(+1).(xs)2(
+)) _empty_/Test3.consume(+2).2+
+)) _empty_/Test3.consume(+2).[T]2,
+)) _empty_/Test3.consume(+2).(xs)2-
+)) !scala/collection/immutable/Seq#2+
+)") #_empty_/Test3.consume(+2).[T]2/
+)&) +!_empty_/Test3.consume(+2).(limit)2+
+)-) ._empty_/Test3.consume(+2).[T]2$
+)) _empty_/math3.Numeric#2+
+)) _empty_/Test3.consume(+2).[T]2-
+)1) 4scala/collection/immutable/Seq#2+
+)5) 6_empty_/Test3.consume(+2).[T]2
+** local92
+** local102%
+** scala/package.Iterator#2+
+**  _empty_/Test3.consume(+2).[T]2
+*#* (local112
+*** -
+scala/Int#2
+*/* 4local122+
+*6* 7_empty_/Test3.consume(+2).[T]2
+*:* =
+scala/Int#2#
+++ scala/Boolean#`&&`().2
++	+ local1222
++!+ ($scala/collection/Iterator#hasNext().2
+++  local102
++.+ 7local92
++8+ :local102 
++B+ Cscala/Int#`+`(+4).2
++<+ Alocal112
++G+ Llocal122/
++R+ V!scala/collection/Iterator#next().2
++O+ Qlocal102
+,, local1122
+-- $scala/collection/IterableOps#drop().2,
+-- _empty_/Test3.consume(+2).(xs)2
+-- local927
+-- !)scala/collection/IterableOnce#iterator().2,
+-- _empty_/Test3.consume(+2).(xs)2/
+-&- +!_empty_/Test3.consume(+2).(limit)2(
+// _empty_/Test3.consume(+3).2+
+// _empty_/Test3.consume(+3).[T]2,
+// _empty_/Test3.consume(+3).(xs)2%
+// &scala/package.Iterable#2+
+/'/ (_empty_/Test3.consume(+3).[T]2/
+/+/ 0!_empty_/Test3.consume(+3).(limit)2+
+/2/ 3_empty_/Test3.consume(+3).[T]2$
+// _empty_/math3.Numeric#2+
+// _empty_/Test3.consume(+3).[T]2%
+/6/ >scala/package.Iterable#2+
+/?/ @_empty_/Test3.consume(+3).[T]2
+00 local1327
+11 )scala/collection/IterableOps#dropWhile().2,
+11 _empty_/Test3.consume(+3).(xs)2
+11 local142
+2
+2 local132/
+22 !_empty_/Test3.consume(+3).(limit)2
+22 "local132
+2&2 'local142'
+55 _empty_/Test3.consume2().2*
+55 _empty_/Test3.consume2().[T]2+
+55 _empty_/Test3.consume2().(xs)2%
+55 'scala/package.Iterable#2*
+5(5 )_empty_/Test3.consume2().[T]2.
+5,5 1 _empty_/Test3.consume2().(limit)2*
+535 4_empty_/Test3.consume2().[T]2$
+55 _empty_/math3.Numeric#2*
+55 _empty_/Test3.consume2().[T]2%
+575 ?scala/package.Iterable#2*
+5@5 A_empty_/Test3.consume2().[T]2'
+66 _empty_/Test3.consume2().29
+66 +scala/collection/immutable/LazyList.from().2%
+66 scala/package.LazyList.2+
+66 _empty_/Test3.consume2().(xs)2.
+6 6 % _empty_/Test3.consume2().(limit)2
+77 	_empty_/Test3.PZ 8B2E6ABECBFBF6274BC0C80AFA744096

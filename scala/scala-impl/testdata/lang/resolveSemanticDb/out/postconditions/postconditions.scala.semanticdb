@@ -1,0 +1,65 @@
+
+Ðtests/pos/postconditions.scala*0
+_empty_/PostConditions.
+ *PostConditions€*;
+%_empty_/PostConditions.WrappedResult#*WrappedResult€*2
+(_empty_/PostConditions.WrappedResult#[T]	*T€*/
+ _empty_/PostConditions.result().*result€*-
+#_empty_/PostConditions.result().[T]	*T€*/
+#_empty_/PostConditions.result().(r)  *r€*3
+"_empty_/PostConditions.ensuring().*ensuring€*/
+%_empty_/PostConditions.ensuring().[T]	*T€*/
+%_empty_/PostConditions.ensuring().(x)*x€*?
+-_empty_/PostConditions.ensuring().(condition)*	condition€*'
+local0 è*given_WrappedResult_T€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.s. €*s€2!
+ _empty_/PostConditions.23
+ %_empty_/PostConditions.WrappedResult#26
+ (_empty_/PostConditions.WrappedResult#[T]26
+! "(_empty_/PostConditions.WrappedResult#[T]2.
+  _empty_/PostConditions.result().21
+ #_empty_/PostConditions.result().[T]21
+ #_empty_/PostConditions.result().(r)23
+ &%_empty_/PostConditions.WrappedResult#21
+' (#_empty_/PostConditions.result().[T]21
+, -#_empty_/PostConditions.result().[T]21
+0 1#_empty_/PostConditions.result().(r)20
+ ""_empty_/PostConditions.ensuring().23
+ %_empty_/PostConditions.ensuring().[T]23
+ %_empty_/PostConditions.ensuring().(x)23
+ %_empty_/PostConditions.ensuring().[T]2;
+$ --_empty_/PostConditions.ensuring().(condition)23
+/ <%_empty_/PostConditions.WrappedResult#23
+= >%_empty_/PostConditions.ensuring().[T]2
+D Kscala/Boolean#23
+N O%_empty_/PostConditions.ensuring().[T]2
+
+ 
+local023
+
+ %_empty_/PostConditions.WrappedResult#23
+ %_empty_/PostConditions.ensuring().[T]23
+ %_empty_/PostConditions.ensuring().(x)2&
+ 
+scala/Predef.assert(+1).2-
+ scala/ContextFunction1#apply().2;
+ -_empty_/PostConditions.ensuring().(condition)2
+ local023
+ %_empty_/PostConditions.ensuring().(x)2
+
+
+ _empty_/Test.20
+ !"_empty_/PostConditions.ensuring().2.
+# ) _empty_/PostConditions.result().2%
+	 _empty_/PostConditions.2
+ _empty_/Test.s.20
+ $"_empty_/PostConditions.ensuring().25
+ 'scala/collection/IterableOnceOps#sum().27
+ )scala/collection/IterableFactory#apply().2!
+
+ scala/package.List.2/
+ !scala/math/Numeric.IntIsIntegral.2!
+, .scala/Int#`==`(+3).2.
+% + _empty_/PostConditions.result().PZ 0F4F05E0D5F95FC9916A9AE982811A1A

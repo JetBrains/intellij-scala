@@ -1,0 +1,29 @@
+
+­tests/pos/i10495.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#run().*run€*
+_empty_/Foo#run().(x)*x€*
+_empty_/Bar.
+ *Bar€*
+_empty_/Bar.run().*run€*
+_empty_/Bar.run().(v)*v€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2 
+ _empty_/Foo#run().2#
+ _empty_/Foo#run().(x)2"
+ scala/Predef.String#2
+  $scala/Unit#2#
+( +scala/Predef.`???`().2
+ 
+_empty_/Bar.2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#2 
+ 	_empty_/Bar.run().2#
+
+ _empty_/Bar.run().(v)2
+ 
+scala/Int#2
+ scala/Unit#2#
+ scala/Predef.`???`().2 
+ _empty_/Foo#run().PZ 19F9B89F50EBB9FF3A3CCD908B7E398F

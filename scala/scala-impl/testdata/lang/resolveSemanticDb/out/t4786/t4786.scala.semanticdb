@@ -1,0 +1,76 @@
+
+“tests/pos/t4786.scala*
+_empty_/Matrix#*Matrix€*,
+_empty_/Matrix#`<init>`(). €@*<init>€*
+_empty_/Matrix#[A]	*A€*"
+_empty_/Matrix#[Repr]	*Repr€*-
+_empty_/Matrix#duplicate().*	duplicate€**
+_empty_/Matrix#duplicate().(mb)*mb€*(
+_empty_/DenseMatrix#*DenseMatrix€*1
+_empty_/DenseMatrix#`<init>`(). €@*<init>€*!
+_empty_/DenseMatrix#[A]	*A€*.
+_empty_/DenseMatrixFlt#*DenseMatrixFlt€*4
+"_empty_/DenseMatrixFlt#`<init>`(). €@*<init>€*,
+_empty_/MatrixBuilder#*MatrixBuilder€*3
+!_empty_/MatrixBuilder#`<init>`(). €@*<init>€*#
+_empty_/MatrixBuilder#[A]	*A€*)
+_empty_/MatrixBuilder#[Repr]	*Repr€*.
+_empty_/MatrixBuilder#zeros(). *zeros€*6
+_empty_/DenseFloatBuilder.
+ *DenseFloatBuilder€*1
+ _empty_/DenseFloatBuilder.zeros. €*zeros€*
+local0 *$anon€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.m1. €*m1€*
+_empty_/Test.m2. €*m2€2
+ _empty_/Matrix#2$
+ _empty_/Matrix#`<init>`().2
+ scala/specialized#2
+ _empty_/Matrix#[A]2
+ !_empty_/Matrix#[Repr]2)
+ _empty_/Matrix#duplicate().2-
+ _empty_/Matrix#duplicate().(mb)2$
+ !_empty_/MatrixBuilder#2 
+" #_empty_/Matrix#[A]2#
+% )_empty_/Matrix#[Repr]2#
+- 1_empty_/Matrix#[Repr]2 
+2 3_empty_/Matrix#[A]2,
+ _empty_/MatrixBuilder#zeros().2-
+ _empty_/Matrix#duplicate().(mb)2"
+ _empty_/DenseMatrix#2-
+ _empty_/DenseMatrix#`<init>`().2
+* 0_empty_/Matrix#2%
+1 2_empty_/DenseMatrix#[A]2 
+ scala/specialized#2%
+  _empty_/DenseMatrix#[A]2%
+ _empty_/DenseMatrixFlt#20
+ "_empty_/DenseMatrixFlt#`<init>`().2"
+ (_empty_/DenseMatrix#2
+) .scala/Float#2$
+ _empty_/MatrixBuilder#2/
+ !_empty_/MatrixBuilder#`<init>`().2 
+  scala/specialized#2'
+! "_empty_/MatrixBuilder#[A]2*
+$ (_empty_/MatrixBuilder#[Repr]2,
+		 _empty_/MatrixBuilder#zeros().2*
+		 _empty_/MatrixBuilder#[Repr]2'
+		 _empty_/MatrixBuilder#[A]2(
+ _empty_/DenseFloatBuilder.2$
+! ._empty_/MatrixBuilder#2
+/ 4scala/Float#2.
+  _empty_/DenseFloatBuilder.zeros.2
+ local02*
+ java/lang/Object#`<init>`().2
+ java/lang/Object#2%
+ ,_empty_/DenseMatrixFlt#2
+ _empty_/Test.2
+ 
+scala/App#2
+ _empty_/Test.m1.2.
+ " _empty_/DenseFloatBuilder.zeros.2(
+ _empty_/DenseFloatBuilder.2
+ _empty_/Test.m2.2)
+ _empty_/Matrix#duplicate().2
+ _empty_/Test.m1.2(
+ )_empty_/DenseFloatBuilder.PZ 8D07B1ABAEF3F901EA7BA3D096F54525

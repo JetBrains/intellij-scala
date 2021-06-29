@@ -1,0 +1,92 @@
+
+™ tests/pos/class-refinement.scala*
+_empty_/Test.
+ *Test€*
+_empty_/Test.C#*C€*,
+_empty_/Test.C#`<init>`(). €@*<init>€*
+_empty_/Test.C#I#*I€*.
+_empty_/Test.C#I#`<init>`(). €@*<init>€*
+_empty_/Test.T#*T€*,
+_empty_/Test.T#`<init>`(). €@*<init>€*
+_empty_/Test.x. €*x€*
+local0*I€*
+_empty_/Test.y. €*y€*
+
+_empty_/B#*B€*'
+_empty_/B#`<init>`(). €@*<init>€*
+_empty_/B#C#*C€*)
+_empty_/B#C#`<init>`(). €@*<init>€*
+_empty_/B#C#I#*I€*
+_empty_/B#T#*T€*)
+_empty_/B#T#`<init>`(). €@*<init>€*
+_empty_/B#CC#*CC€*
+_empty_/B#x. €*x€*
+local1*I€*
+_empty_/Test2.
+ *Test2€*
+_empty_/Test2.CC#*CC€*.
+_empty_/Test2.CC#`<init>`(). €@*<init>€*
+_empty_/Test2.CC#I#*I€*0
+_empty_/Test2.CC#I#`<init>`(). €@*<init>€*
+_empty_/Test2.y. €*y€2
+ _empty_/Test.2
+ 	_empty_/Test.C#2(
+ _empty_/Test.C#`<init>`().2
+
+ _empty_/Test.C#I#2*
+ _empty_/Test.C#I#`<init>`().2
+ 	_empty_/Test.T#2(
+ _empty_/Test.T#`<init>`().2
+
+
+ _empty_/Test.x.2
+
+	
+ 
+_empty_/Test.C#2
+
+
+ local02
+
+
+ _empty_/Test.T#2#
+
+
+  scala/Predef.`???`().2
+ _empty_/Test.y.2
+ _empty_/Test.C#I#2
+	 
+_empty_/Test.x.2#
+ scala/Predef.`???`().2
+ 
+_empty_/B#2#
+ _empty_/B#`<init>`().2
+ 	_empty_/B#C#2%
+ _empty_/B#C#`<init>`().2
+	 
+_empty_/B#C#I#2
+ 	_empty_/B#T#2%
+ _empty_/B#T#`<init>`().2
+ 	_empty_/B#CC#2
+ _empty_/B#C#2
+ _empty_/B#x.2
+	 _empty_/B#CC#2
+ local12
+ _empty_/B#T#2#
+ !scala/Predef.`???`().2
+ _empty_/Test2.2#
+ _empty_/B#`<init>`().2
+ 
+_empty_/B#2
+ 
+_empty_/Test2.CC#2*
+ _empty_/Test2.CC#`<init>`().2%
+ _empty_/B#C#`<init>`().2
+ _empty_/B#C#2!
+ _empty_/Test2.CC#I#2,
+ _empty_/Test2.CC#I#`<init>`().2
+ _empty_/Test2.y.2!
+ _empty_/Test2.CC#I#2
+	 
+_empty_/B#x.2#
+ scala/Predef.`???`().PZ 6364F38B6B4D47A63E1A9FFDFB319331

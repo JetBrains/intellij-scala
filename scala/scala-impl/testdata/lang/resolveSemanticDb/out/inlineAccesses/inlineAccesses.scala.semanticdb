@@ -1,0 +1,61 @@
+
+î
+tests/pos/inlineAccesses.scala*
+
+_empty_/T#*T€*'
+_empty_/T#`<init>`(). €@*<init>€*
+_empty_/T#O.
+ *O€*
+
+_empty_/C#*C€*'
+_empty_/C#`<init>`(). €@*<init>€*
+_empty_/C#T#*T€*
+_empty_/C#x(). €*x€*
+_empty_/C#f().*f€*
+_empty_/C#dup().*dup€*&
+_empty_/C#inline$x().*inline$x€*,
+_empty_/C#`inline$x_=`().*
+inline$x_=€**
+_empty_/C#`inline$x_=`().(x$0)*x$0€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.c. €*c€2
+ 
+_empty_/T#2#
+ _empty_/T#`<init>`().2
+	 
+_empty_/T#O.2
+ 
+_empty_/C#2#
+ _empty_/C#`<init>`().2
+ _empty_/C#T#2
+ 
+_empty_/C#2
+ _empty_/C#x().2
+ _empty_/C#f().2'
+		 _empty_/C#`inline$x_=`().2 
+		 scala/Int#`+`(+4).2#
+		 _empty_/C#inline$x().2'
+
+
+ _empty_/C#`inline$x_=`().2 
+
+
+
+ scala/Int#`+`(+4).2#
+
+
+ 	_empty_/C#inline$x().2#
+ _empty_/C#inline$x().2
+ _empty_/C#dup().2#
+ _empty_/C#`<init>`().2
+ _empty_/C#T#2
+ _empty_/Test.2
+ _empty_/Test.c.2#
+ _empty_/C#`<init>`().2
+ 
+_empty_/C#2
+ _empty_/C#f().2
+ _empty_/Test.c.2
+ _empty_/C#dup().2
+ _empty_/Test.c.PZ BF7876CE6D8E9B6398F9182041CC06B6

@@ -1,0 +1,19 @@
+
+µtests/pos/t6072.scala*
+
+_empty_/A#*A€*'
+_empty_/A#`<init>`(). €@*<init>€*
+_empty_/A#B.
+ *B€*
+_empty_/A#B.eq().*eq€*"
+_empty_/A#B.eq().(lvl)*lvl€2
+ 
+_empty_/A#2#
+ _empty_/A#`<init>`().2
+	 
+_empty_/A#B.2
+ _empty_/A#B.eq().2$
+ _empty_/A#B.eq().(lvl)2
+ 
+scala/Int#2#
+  #scala/Predef.`???`().PZ BE14794484CB71A0AB64F572873C539A

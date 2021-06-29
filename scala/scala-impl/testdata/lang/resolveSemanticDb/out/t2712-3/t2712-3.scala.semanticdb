@@ -1,0 +1,117 @@
+
+Ìtests/pos/t2712-3.scala*
+test/Test1.
+ *Test1€*
+test/Test1.Foo#*Foo€*,
+test/Test1.Foo#`<init>`(). €@*<init>€*
+test/Test1.Foo#[T]	*T€*
+test/Test1.Foo#[F]	*F€*
+test/Test1.meh().*meh€*
+test/Test1.meh().[M]	*M€*
+test/Test1.meh().[F]	*F€*
+test/Test1.meh().(x)*x€*
+test/Test2.
+ *Test2€*
+test/Test2.TC#*TC€*+
+test/Test2.TC#`<init>`(). €@*<init>€*
+test/Test2.TC#[T]	*T€*
+test/Test2.Foo#*Foo€*,
+test/Test2.Foo#`<init>`(). €@*<init>€*
+test/Test2.Foo#[F]	*F€*
+test/Test2.Foo#[G]	*G€*
+test/Test2.meh().*meh€* 
+test/Test2.meh().[GG]	*GG€*
+test/Test2.meh().(g)*g€*
+test/Test3.
+ *Test3€*
+test/Test3.TC#*TC€*+
+test/Test3.TC#`<init>`(). €@*<init>€*
+test/Test3.TC#[F]	*F€*
+test/Test3.TC2#*TC2€*,
+test/Test3.TC2#`<init>`(). €@*<init>€*
+test/Test3.TC2#[F]	*F€*
+test/Test3.Foo#*Foo€*,
+test/Test3.Foo#`<init>`(). €@*<init>€*
+test/Test3.Foo#[F]	*F€*
+test/Test3.Foo#[G]	*G€*
+test/Test3.meh().*meh€*
+test/Test3.meh().[G]	*G€*
+test/Test3.meh().(g)*g€2
+ test/2
+ test/Test1.2
+ test/Test1.Foo#2(
+ test/Test1.Foo#`<init>`().2 
+ test/Test1.Foo#[T]2 
+ test/Test1.Foo#[F]2
+ 	test/Test1.meh().2"
+
+ test/Test1.meh().[M]2"
+ test/Test1.meh().[F]2"
+ test/Test1.meh().(x)2"
+ test/Test1.meh().[M]2"
+ test/Test1.meh().[F]2"
+# $test/Test1.meh().[M]2"
+% &test/Test1.meh().[F]2"
+* +test/Test1.meh().(x)2
+ test/Test1.meh().2(
+ test/Test1.Foo#`<init>`().2
+
+ test/Test1.Foo#2
+ 
+scala/Int#2!
+ scala/package.List#2
+ test/Test2.2
+		 
+test/Test2.TC#2'
+	
+	 
+test/Test2.TC#`<init>`().2
+		 test/Test2.TC#[T]2
+
+
+ test/Test2.Foo#2(
+
+
+ test/Test2.Foo#`<init>`().2 
+
+
+ test/Test2.Foo#[F]2 
+
+
+ test/Test2.Foo#[G]2
+ 	test/Test2.meh().2#
+
+ test/Test2.meh().[GG]2"
+ test/Test2.meh().(g)2#
+ test/Test2.meh().[GG]2#
+! $scala/Predef.`???`().2
+ test/Test2.meh().2(
+ test/Test2.Foo#`<init>`().2
+
+ test/Test2.Foo#2
+ test/Test3.2
+ 
+test/Test3.TC#2'
+
+ 
+test/Test3.TC#`<init>`().2
+ test/Test3.TC#[F]2
+ test/Test3.TC2#2(
+ test/Test3.TC2#`<init>`().2 
+ test/Test3.TC2#[F]2
+ test/Test3.Foo#2(
+ test/Test3.Foo#`<init>`().2 
+ test/Test3.Foo#[F]2 
+ test/Test3.Foo#[G]2(
+ test/Test3.Foo#`<init>`().2
+ 	test/Test3.Foo#2
+ 	test/Test3.meh().2"
+
+ test/Test3.meh().[G]2"
+ test/Test3.meh().(g)2"
+ test/Test3.meh().[G]2#
+# &scala/Predef.`???`().2
+ test/Test3.meh().2(
+ test/Test3.Foo#`<init>`().2
+
+ test/Test3.Foo#PZ F9655944AE2B4CB1CFC25F51F4F6CFD2

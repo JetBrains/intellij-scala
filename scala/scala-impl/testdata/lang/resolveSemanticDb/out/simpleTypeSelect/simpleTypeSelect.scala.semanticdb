@@ -1,0 +1,16 @@
+
+ç tests/pos/simpleTypeSelect.scala*
+_empty_/Foo#*Foo€*)
+_empty_/Foo#`<init>`(). €@*<init>€*
+_empty_/Foo#Bar#*Bar€*
+_empty_/Test.
+ *Test€*
+_empty_/Test.x. €*x€2
+ 	_empty_/Foo#2%
+ _empty_/Foo#`<init>`().2
+ _empty_/Foo#Bar#2
+ _empty_/Test.2
+ _empty_/Test.x.2
+ _empty_/Foo#Bar#2
+	 _empty_/Foo#2#
+ scala/Predef.`???`().PZ 1796C228CF4121E834408AD7A0E0C66E

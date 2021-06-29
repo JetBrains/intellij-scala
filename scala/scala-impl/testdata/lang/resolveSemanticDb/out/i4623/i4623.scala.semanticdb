@@ -1,0 +1,33 @@
+
+Ätests/pos/i4623.scala*
+_empty_/Test#*Test€**
+_empty_/Test#`<init>`(). €@*<init>€*
+_empty_/Test#A#*A€*
+local0*T€*
+_empty_/Test#B#*B€*
+local1*T€*
+_empty_/Test#C#*C€*
+local2*T€*
+_empty_/Test#D#*D€*
+local3*T€2
+ 
+_empty_/Test#2&
+ _empty_/Test#`<init>`().2
+ _empty_/Test#A#2
+ 
+scala/Any#2
+ local02
+ _empty_/Test#B#2
+ 
+scala/Any#2
+ local12
+ _empty_/Test#C#2
+ _empty_/Test#A#2
+ _empty_/Test#B#2
+ local22
+ _empty_/Test#D#2!
+ scala/package.List#2
+ _empty_/Test#A#2!
+ scala/package.List#2
+ _empty_/Test#B#2
+( )local3PZ 79ADAD04FE13202BB96B9649C6A9FABD

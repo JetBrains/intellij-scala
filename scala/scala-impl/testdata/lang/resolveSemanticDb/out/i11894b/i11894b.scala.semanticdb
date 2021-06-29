@@ -1,0 +1,79 @@
+
+Ùtests/pos/i11894b.scala*(
+_empty_/CallbackTo.
+ *
+CallbackTo€*/
+_empty_/CallbackTo.asOption().*asOption€*+
+!_empty_/CallbackTo.asOption().[A]	*A€*1
+$_empty_/CallbackTo.asOption().(self)*self€*(
+_empty_/CallbackTo# *
+CallbackTo€*0
+_empty_/CallbackTo#`<init>`(). €@*<init>€*.
+!_empty_/CallbackTo#`<init>`().(x) €*x€* 
+_empty_/CallbackTo#[A]	*A€*"
+_empty_/CallbackTo#x. €*x€*+
+_empty_/CallbackTo#runNow().*runNow€*1
+_empty_/CallbackTo#toScalaFn().*	toScalaFn€*%
+_empty_/CallbackTo#map().*map€*&
+_empty_/CallbackTo#map().[B]	*B€*&
+_empty_/CallbackTo#map().(f)*f€*/
+_empty_/CallbackTo#toOption().*toOption€*
+local0 €*x€*
+local1 €*y€2
+ _empty_/CallbackTo.2,
+ _empty_/CallbackTo.asOption().2/
+ !_empty_/CallbackTo.asOption().[A]22
+ $_empty_/CallbackTo.asOption().(self)2!
+  _empty_/CallbackTo#2
+! 'scala/Option#2/
+( )!_empty_/CallbackTo.asOption().[A]2
+ scala/Option#2/
+  !!_empty_/CallbackTo.asOption().[A]2&
+ scala/Function0#apply().2-
+ _empty_/CallbackTo#toScalaFn().22
+ 
+$_empty_/CallbackTo.asOption().(self)2!
+ _empty_/CallbackTo#2,
+ _empty_/CallbackTo#`<init>`().2!
+" &scala/package.List#2$
+' (_empty_/CallbackTo#[A]2$
+ _empty_/CallbackTo#[A]2#
+  _empty_/CallbackTo#x.2*
+		 _empty_/CallbackTo#runNow().2$
+		 _empty_/CallbackTo#[A]22
+
+
+ 
+$scala/collection/IterableOps#head().2#
+
+
+ _empty_/CallbackTo#x.2-
+ _empty_/CallbackTo#toScalaFn().2$
+ _empty_/CallbackTo#[A]2*
+
+ _empty_/CallbackTo#runNow().2'
+ 	_empty_/CallbackTo#map().2*
+
+ _empty_/CallbackTo#map().[B]2*
+ _empty_/CallbackTo#map().(f)2$
+ _empty_/CallbackTo#[A]2*
+ _empty_/CallbackTo#map().[B]2!
+ #_empty_/CallbackTo#2*
+$ %_empty_/CallbackTo#map().[B]2#
+ scala/Predef.`???`().2,
+ _empty_/CallbackTo#toOption().2
+ scala/Option#2$
+ _empty_/CallbackTo#[A]2
+ 	local02'
+ _empty_/CallbackTo#map().2
+ scala/Option#2$
+ _empty_/CallbackTo#[A]2!
+ scala/Some.apply().2
+ scala/Some.2
+ 	local12
+ local02!
+ _empty_/CallbackTo#2
+  scala/Option#2$
+! "_empty_/CallbackTo#[A]2,
+ _empty_/CallbackTo.asOption().2
+ local1PZ 784B0D0ADEBCB684C5C6DFED2DEDE222

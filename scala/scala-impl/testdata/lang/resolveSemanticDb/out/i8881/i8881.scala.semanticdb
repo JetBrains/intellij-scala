@@ -1,0 +1,31 @@
+
+´tests/pos/i8881.scala*
+_empty_/Crash.
+ *Crash€*
+_empty_/Crash.f().*f€*
+_empty_/Crash.f().(a)*a€*
+_empty_/Crash.f().(b)*b€*
+_empty_/Crash.f().(c)*c€*0
+_empty_/Crash.f$default$3().*f$default$3€*-
+_empty_/Crash.given_Int. è*	given_Int€2
+ _empty_/Crash.2 
+ _empty_/Crash.f().2#
+ 	_empty_/Crash.f().(a)2"
+ scala/Predef.String#2#
+ _empty_/Crash.f().(b)2"
+ scala/Predef.String#2#
+ _empty_/Crash.f().(c)2
+! $
+scala/Int#2
++ .
+scala/Int#2"
+3 9scala/Predef.String#2&
+ _empty_/Crash.given_Int.2
+ 
+scala/Int#2#
+ scala/Predef.`???`().2-
+ scala/ContextFunction1#apply().2 
+ _empty_/Crash.f().2#
+ _empty_/Crash.f().(a)2#
+ _empty_/Crash.f().(b)2&
+ _empty_/Crash.given_Int.PZ CDFEABAC3ED2FA6AEEB3161393C699E7
