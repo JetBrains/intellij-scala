@@ -28,12 +28,16 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.util.IndentUtil
 
 /**
- * Some other indentation-related logic:
+ * Other indentation-related Platform logic:
  *  - [[com.intellij.codeInsight.editorActions.EnterHandler#executeWriteActionInner]]
  *  - [[com.intellij.formatting.FormatProcessor#getIndent]]
- *  - [[org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcessor.getChildIndent]]
- *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isIncomplete]]
+ *
+ * Other indentation-related Scala Plugin logic:
  *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.getChildAttributes]]<br>
+ *    used to calculate alignment and indent for new blocks when pressing Enter
+ *  - [[org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcessor.getChildIndent]]
+ *    used to calcualte indent for existing elements
+ *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isIncomplete]]<br>
  *    used when typing after incomplete block, in the beginning of some structure, e.g.: {{{
  *      def foo = <caret>
  *    }}}

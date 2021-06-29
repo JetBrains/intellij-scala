@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.{ScLiteral, ScPrimaryConstr
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.xml._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScExtension, ScFunction}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScExtension, ScExtensionBody, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScPackaging}
@@ -118,7 +118,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
           Indent.getSpaceIndent(indentsCount * indentSize)
         }
         new ChildAttributes(indent, null)
-      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody |
+      case _: ScBlockExpr | _: ScEarlyDefinitions | _: ScTemplateBody | _: ScExtensionBody |
            _: ScFor | _: ScWhile | _: ScCatchBlock | ElementType(ScalaTokenTypes.kYIELD | ScalaTokenTypes.kDO) =>
         val indent =
           if (braceShifted) {
