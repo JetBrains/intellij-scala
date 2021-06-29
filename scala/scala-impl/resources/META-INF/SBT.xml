@@ -81,6 +81,9 @@
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionContributor"
                                 order="after scalaCompletionContrubutor" id="sbtPackageSearchDependencyCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributor"
+                                order="after scalaCompletionContrubutor" id="sbtScalaVersionCompletionContributor"/>
 <!--        <completion.contributor language="Scala"-->
 <!--                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"-->
 <!--                                order="first, before liveTemplates" id="sbtMavenDependencyCompletionContributor"/>-->
