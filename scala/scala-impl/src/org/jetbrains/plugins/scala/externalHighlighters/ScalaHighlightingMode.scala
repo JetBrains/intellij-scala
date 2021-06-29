@@ -14,9 +14,9 @@ import scala.concurrent.duration._
 
 object ScalaHighlightingMode {
 
-  private def showScala2Errors(project: Project): Boolean =
+  private def showCompilerErrorsScala2(project: Project): Boolean =
     ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2
-  def showScala3Errors(project: Project): Boolean =
+  def showCompilerErrorsScala3(project: Project): Boolean =
     ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3
 
   def addSettingsListener(project: Project)
@@ -26,8 +26,8 @@ object ScalaHighlightingMode {
       .subscribe(CompilerHighlightingListener.Topic, listener)
 
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
-    showScala3Errors(project) && project.hasScala3 ||
-      showScala2Errors(project) && project.hasScala
+    showCompilerErrorsScala3(project) && project.hasScala3 ||
+      showCompilerErrorsScala2(project) && project.hasScala
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean =
     file match {
@@ -45,19 +45,19 @@ object ScalaHighlightingMode {
     val project = file.getProject
     val isRegularScalaFile = virtualFile.getFileType == ScalaFileType.INSTANCE
     if (isRegularScalaFile) {
-      file.isScala3File && showScala3Errors(project) ||
-        file.isScala2File && showScala2Errors(project)
+      file.isScala3File && showCompilerErrorsScala3(project) ||
+        file.isScala2File && showCompilerErrorsScala2(project)
     } else if (file.isWorksheetFile) {
       // actually this should work for regular files as well
-      file.isInScala3Module && showScala3Errors(project) ||
-        file.isInScalaModule && showScala2Errors(project)
+      file.isInScala3Module && showCompilerErrorsScala3(project) ||
+        file.isInScalaModule && showCompilerErrorsScala2(project)
     } else {
       false
     }
   }
 
   private def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
-    showScala3Errors(javaFile.getProject) && javaFile.isInScala3Module
+    showCompilerErrorsScala3(javaFile.getProject) && javaFile.isInScala3Module
 
   def showParserErrors(file: PsiFile): Boolean = {
     val shouldSkip = file.isInScala3Module && isShowErrorsFromCompilerEnabled(file)

@@ -430,7 +430,7 @@ object ScalaAnnotator {
     val settings = ScalaProjectSettings.getInstance(file.getProject)
     file match {
       case scalaFile: ScalaFile =>
-        settings.isTypeAwareHighlightingEnabled && !isLibrarySource(scalaFile) && !(ScalaHighlightingMode.showScala3Errors(file.getProject) && scalaFile.isInScala3Module)
+        settings.isTypeAwareHighlightingEnabled && !isLibrarySource(scalaFile) && !(ScalaHighlightingMode.showCompilerErrorsScala3(file.getProject) && scalaFile.isInScala3Module)
       case _: JavaDummyHolder =>
         settings.isTypeAwareHighlightingEnabled
       case _ => false
