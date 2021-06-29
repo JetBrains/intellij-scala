@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
 import java.awt.Point
@@ -44,7 +45,7 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
   def shouldShowHint(): Boolean =
-    !isShowErrorsFromCompilerEnabled(place.getContainingFile) && !mayBeKeyword(place)
+    !isScala3AndErrorsFromCompiler(place.getContainingFile) && !mayBeKeyword(place)
 
   def isAddUnambiguous: Boolean
 
@@ -185,8 +186,8 @@ private object ScalaImportElementFix {
       AppExecutorUtil.createBoundedApplicationPoolExecutor("ScalaImportElementFixExecutor", 2)
   }
 
-  private def isShowErrorsFromCompilerEnabled(file: PsiFile) =
-    ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
+  private def isScala3AndErrorsFromCompiler(file: PsiFile) =
+    file.isInScala3Module && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
 
   implicit class EditorEx(val editor: Editor) extends AnyVal {
     def caretNear(place: PsiElement): Boolean =
