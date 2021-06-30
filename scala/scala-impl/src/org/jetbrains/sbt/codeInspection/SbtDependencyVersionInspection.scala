@@ -73,6 +73,11 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
           }).mkString(".")
         }
 
+        def isVersionStable(version: String): Boolean = {
+          val unstablePattern = """.*[a-zA-Z-].*"""
+          !version.matches(unstablePattern)
+        }
+
         def isGreaterStableVersion(newVer: String, oldVer: String): Boolean = {
           val oldVerPreprocessed = preprocessVersion(oldVer)
           val newVerPreprocessed = preprocessVersion(newVer)
@@ -84,7 +89,7 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
         waitAndAdd(searchPromise, cld, addVersion)
 
         versions.foreach(ver => {
-          if (!ver.contains('-') && isGreaterStableVersion(ver, newerStableVersion)) {
+          if (isVersionStable(ver) && isGreaterStableVersion(ver, newerStableVersion)) {
             newerStableVersion = ver
           }
         })
@@ -94,7 +99,7 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
             SbtBundle.message("packagesearch.newer.stable.version.available", groupId, artifactId),
             isOnTheFly,
             Array(new SbtUpdateDependencyVersionQuickFix(element, newerStableVersion).asInstanceOf[LocalQuickFix]),
-            highlightType))
+            ProblemHighlightType.WEAK_WARNING))
         else None
       case _ => None
     }
