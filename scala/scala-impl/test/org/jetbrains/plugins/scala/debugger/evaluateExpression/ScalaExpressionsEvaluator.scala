@@ -389,4 +389,65 @@ abstract class ScalaExpressionsEvaluatorBase extends ScalaDebuggerTestCase {
     }
   }
 
+  addFileWithBreakpoints("ValueClasses.scala",
+    s"""
+       |object ValueClasses {
+       |  final case class MetricKilograms1(private val value: Double) extends AnyVal
+       |  object MetricKilograms1 {
+       |    def kgsString(kgs: MetricKilograms1): String =
+       |      kgs.value + "kg"
+       |  }
+       |
+       |  class MetricKilograms2(val value: Double) extends AnyVal {
+       |    override def toString(): String = "MetricKilograms2(" + value + ")"
+       |  }
+       |  def kgs2String(kgs: MetricKilograms2): String =
+       |    kgs.value + "kg"
+       |
+       |  implicit class MetricKilograms3(private val value: Double) extends AnyVal {
+       |    def kgString: String = value + "kg"
+       |  }
+       |  def kgs3String(kgs: MetricKilograms3): String = kgs.kgString
+       |
+       |  def main(args: Array[String]): Unit = {
+       |    val metricValue1 = MetricKilograms1(2.2)
+       |    val mvOption1 = Some(metricValue1)
+       |
+       |    val metricValue2 = new MetricKilograms2(2.2)
+       |    val mvOption2 = Some(metricValue2)
+       |
+       |    val metricValue3: MetricKilograms3 = 2.2
+       |    val mvOption3 = Some(metricValue3)
+       |
+       |    println(MetricKilograms1.kgsString(metricValue1)) $bp
+       |  }
+       |}
+      """.stripMargin.trim()
+  )
+  def testValueClasses(): Unit =
+    runDebugger() {
+      waitForBreakpoint()
+      evalEquals("metricValue1", "MetricKilograms1(2.2)")
+      evalEquals("metricValue1.value", "2.2")
+      evalEquals("MetricKilograms1.kgsString(metricValue1)", "2.2kg")
+      evalEquals("MetricKilograms1.kgsString(metricValue1.value)", "2.2kg") //doesn't compile but may be evaluated
+      evalEquals("mvOption1.get.value", "2.2")
+      evalEquals("MetricKilograms1.kgsString(mvOption1.get)", "2.2kg")
+
+      evalEquals("metricValue2", "MetricKilograms2(2.2)")
+      evalEquals("metricValue2.value", "2.2")
+      evalEquals("kgs2String(metricValue1)", "2.2kg")
+      evalEquals("kgs2String(metricValue1.value)", "2.2kg") //doesn't compile but may be evaluated
+      evalEquals("mvOption2.get.value", "2.2")
+      evalEquals("kgs2String(mvOption2.get)", "2.2kg")
+
+      evalEquals("metricValue3.value", "2.2")
+      evalEquals("kgs3String(metricValue3)", "2.2kg")
+      evalEquals("kgs3String(metricValue3.value)", "2.2kg") //doesn't compile but may be evaluated
+      evalEquals("mvOption3.get.value", "2.2")
+      evalEquals("kgs3String(mvOption3.get)", "2.2kg")
+      evalEquals("2.2.kgString", "2.2kg")
+      evalEquals("kgs3String(2.2)", "2.2kg")
+    }
+
 }

@@ -166,7 +166,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
   private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
     def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
-    if (!(ScalaHighlightingMode.showScala3Errors(call.getProject) && call.isInScala3Module) && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
+    if (!(ScalaHighlightingMode.showCompilerErrorsScala3(call.getProject) && call.isInScala3Module) && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
       for {
         ref <- call.getEffectiveInvokedExpr.asOptionOfUnsafe[ScReference]
         resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())

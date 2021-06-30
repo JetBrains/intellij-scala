@@ -15,7 +15,7 @@ class ScalaDefaultHighlightingSettingProvider extends DefaultHighlightingSetting
   override def getDefaultSetting(project: Project, file: VirtualFile): FileHighlightingSetting =
     if (ApplicationManager.getApplication.isUnitTestMode)
       null
-    else if (!ScalaHighlightingMode.showScala3Errors(project))
+    else if (!ScalaHighlightingMode.showCompilerErrorsScala3(project))
       null
     else
       Option(PsiManager.getInstance(project).findFile(file)).filter(_.isInScala3Module)

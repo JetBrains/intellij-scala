@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.breadcrumbs
 
 import java.awt.Color
-
-import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, TextAttributesKey}
+import com.intellij.openapi.editor.colors.{EditorColors, EditorColorsManager, EditorColorsScheme, TextAttributesKey}
+import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.PsiElement
 import com.intellij.xml.breadcrumbs.{BreadcrumbsPresentationProvider, CrumbPresentation}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -10,7 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 import com.intellij.ui.ColorUtil._
-import com.intellij.ui.JBColor
+import com.intellij.ui.{ColorUtil, JBColor}
+import org.jetbrains.plugins.scala.extensions.ToNullSafe
 
 /**
   * User: Dmitry.Naydanov
@@ -84,14 +85,26 @@ object ScalaBreadcrumbsPresentationProvider {
     else if (lum1 < lum2 || lum1 == lum2 && isTemplateDef && lum1 > MIN_LUM) darker(c, t) else brighter(c, t)
   }
   
-  private def getAttributesByKey(attributesKey: TextAttributesKey) = 
-    EditorColorsManager.getInstance.getGlobalScheme.getAttributes(attributesKey)
+  private def getAttributesByKey(attributesKey: TextAttributesKey): (TextAttributes, TextAttributes) = {
+    val scheme = EditorColorsManager.getInstance.getGlobalScheme
+    val fromGlobalScheme = scheme.getAttributes(attributesKey)
+    val fallback = {
+      val isDark = ColorUtil.isDark(scheme.getDefaultBackground)
+      val defaultSchemeName = if (isDark) "Darcula" else EditorColorsScheme.DEFAULT_SCHEME_NAME
+      EditorColorsManager.getInstance.getScheme(defaultSchemeName).getAttributes(attributesKey)
+    }
+    (fromGlobalScheme, fallback)
+  }
+
+  private def getForegroundColorByKey(attributesKey: TextAttributesKey) = {
+    val (main, fallback) = getAttributesByKey(attributesKey)
+    main.getForegroundColor.nullSafe.getOrElse(fallback.getForegroundColor)
+  }
   
-  private def getForegroundColorByKey(attributesKey: TextAttributesKey) = 
-    getAttributesByKey(attributesKey).getForegroundColor
-  
-  private def getBackgroundColorByKey(attributesKey: TextAttributesKey) = 
-    getAttributesByKey(attributesKey).getBackgroundColor
+  private def getBackgroundColorByKey(attributesKey: TextAttributesKey) = {
+    val (main, fallback) = getAttributesByKey(attributesKey)
+    main.getBackgroundColor.nullSafe.getOrElse(fallback.getBackgroundColor)
+  }
 
   //Good idea from Android plugin 
   private val THRESHOLD = 1.9

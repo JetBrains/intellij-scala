@@ -43,7 +43,7 @@ sealed abstract class ImportUsed(private val pointer: SmartPsiElementPointer[Psi
     val isScala3 = Option(element).exists(_.isInScala3Module)
     qualName.exists(settings.isAlwaysUsedImport) ||
       isLanguageFeatureImport ||
-      (ScalaHighlightingMode.showScala3Errors(project) && isScala3)
+      (ScalaHighlightingMode.showCompilerErrorsScala3(project) && isScala3)
   }
 
   private def isLanguageFeatureImport: Boolean = {
