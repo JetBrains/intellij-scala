@@ -1,26 +1,29 @@
 package org.jetbrains.plugins.scala.console
 
-import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleImpl}
+import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleImpl, LanguageConsoleView}
 import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleViewContentType
 import com.intellij.lang.Language
+import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.ex.EditorEx
 import com.intellij.openapi.editor.markup.TextAttributes
+import com.intellij.openapi.keymap.KeymapUtil
 import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.testFramework.LightVirtualFile
-import com.intellij.ui.SideBorder
+import com.intellij.ui.{JBColor, SideBorder}
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole._
+import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.ModuleExt
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaBundle, ScalaLanguage}
 
 import java.awt.{Color, Font}
 import scala.collection.mutable
@@ -51,8 +54,6 @@ class ScalaLanguageConsole(module: Module, language: Language)
     ScalaConsoleInfo.addConsole(this, controller, processHandler)
   }
 
-  import ConsoleState.ConsoleState
-
   private var state: ConsoleState = ConsoleState.Init
 
   override def print(text: String, contentType: ConsoleViewContentType): Unit = {
@@ -60,6 +61,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
     val contentTypeAdjusted = adjustContentType(state, contentType)
     super.print(text, contentTypeAdjusted)
     updatePrompt()
+    updateConsoleEditorPlaceholder()
     updateTempResultValueDefinitions(text, contentType)
   }
 
@@ -69,7 +71,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
     // print some debug info
     //val tid = Thread.currentThread().getId
     //val stateTransferMessage = f"$state%23s -> $newState%-23s"
-    //println(s"# $tid $stateTransferMessage  text: $text".stripTrailing())
+    //println(f"# $tid%5s $stateTransferMessage content type: $contentType%-25s text: $text".stripTrailing())
 
     // TODO: override `LanguageConsoleImpl.getMinHistoryLineCount` and return `1` when it's made `protected
     //  Details: Scala 3 doesn't print any welcome message and prints prompt right after the system output.
@@ -102,6 +104,8 @@ class ScalaLanguageConsole(module: Module, language: Language)
           case _                                     =>
             state match {
               case Init | PrintingSystemOutput => PrintingWelcomeMessage
+              case Ready                       => Evaluating // consider REPL to be in Evaluating state until `scala>` prompt is printed
+              case InputIsInProgress           => Ready
               case state                       => state
             }
         }
@@ -122,11 +126,39 @@ class ScalaLanguageConsole(module: Module, language: Language)
     }
 
   private def updatePrompt(): Unit = {
-    val prompt = if (state == ConsoleState.InputIsInProgress) ScalaPromptInputInProgressText else ScalaPromptIdleText
+    import ConsoleState._
+    val prompt = state match {
+      case Ready             => ScalaPromptIdleText
+      case InputIsInProgress => ScalaPromptInputInProgressText
+      case Init |
+           PrintingSystemOutput |
+           PrintingWelcomeMessage |
+           Terminated |
+           Evaluating        => ScalaPromptEmpty
+
+    }
     if (prompt != getPrompt) {
       super.setPrompt(prompt)
       updateUI() // note that some blinking can still take place when sending multiline content to the REPL process
     }
+  }
+
+  private val EditorPlaceholderAttributes: TextAttributes ={
+    val attrs = new TextAttributes
+    attrs.setForegroundColor(JBColor.LIGHT_GRAY)
+    attrs.setFontType(Font.ITALIC)
+    attrs
+  }
+
+  private val TransparentAttributes: TextAttributes = {
+    val attrs = new TextAttributes()
+    attrs.setForegroundColor(new Color(0, 0, 0, 0))
+    attrs
+  }
+
+  private def updateConsoleEditorPlaceholder(): Unit = {
+    val placeholderAttributes = if (state == ConsoleState.Ready) EditorPlaceholderAttributes else TransparentAttributes
+    getConsoleEditor.setPlaceholderAttributes(placeholderAttributes)
   }
 
   private def updateTempResultValueDefinitions(output: String, contentType: ConsoleViewContentType): Unit =
@@ -228,8 +260,10 @@ class ScalaLanguageConsole(module: Module, language: Language)
 }
 
 private object ScalaLanguageConsole {
-  private val ScalaPromptIdleText                   = "scala>"
-  private val ScalaPromptInputInProgressText        = "     |"
+  private val ScalaPromptIdleText            = "scala>"
+  private val ScalaPromptInputInProgressText = "     |"
+  private val ScalaPromptEmpty               = ""
+
   private val ScalaPromptInputInProgressTextTrimmed = ScalaPromptInputInProgressText.trim
 
   //example 1: res5: Long = 42
@@ -243,26 +277,27 @@ private object ScalaLanguageConsole {
   }
 
   //noinspection TypeAnnotation
-  private object ConsoleState extends Enumeration {
-    type ConsoleState = Value
-    val Init = Value
+  private sealed trait ConsoleState
+  private object ConsoleState {
+    object Init extends ConsoleState
     /**
      * Process command line printed as the first (folded) line in viewer editor, something like: {{{
      *   .../java.exe -Djline.terminal=NONE ... scala.tools.nsc.MainGenericRunner ...
      * }}}
      */
-    val PrintingSystemOutput = Value
+    object PrintingSystemOutput extends ConsoleState
     /**
      * in Scala2 REPL prints some system output info before showing the prompt: {{{
      *   Welcome to Scala 2.13.2 (OpenJDK 64-Bit Server VM, Java 11.0.9).
-     *  Type in expressions for evaluation. Or try :help.
+     *  Type in expressions for objectuation. Or try :help.
      * }}}
      */
-    val PrintingWelcomeMessage = Value
-    val Ready = Value
-    val InputIsInProgress = Value
-    /** indicates that console is stopped and "Process finished with exit code -1" is printed to the output  */
-    val Terminated = Value
+    object PrintingWelcomeMessage extends ConsoleState
+    object Ready extends ConsoleState
+    object InputIsInProgress extends ConsoleState
+    object Evaluating extends ConsoleState
+    /** indicates that console is stopped and "Process finished with exit code N" is printed to the output  */
+    object Terminated extends ConsoleState
   }
 
   private class Helper(project: Project, title: String, language: Language)
@@ -283,6 +318,17 @@ private object ScalaLanguageConsole {
         val hideLinesCount = 1
         editor.getSettings.setAdditionalLinesCount(-hideLinesCount)
       }
+      else {
+        setupEditorPlaceholderText(editor)
+      }
+    }
+
+    private def setupEditorPlaceholderText(editor: EditorEx): Unit = {
+      val executeCommandAction = ActionManager.getInstance.getAction(ScalaConsoleExecuteAction.ActionId)
+      val executeCommandActionShortcutText = KeymapUtil.getFirstKeyboardShortcutText(executeCommandAction)
+
+      editor.setPlaceholder(ScalaBundle.message("scala.language.console.placeholder.command.to.execute", executeCommandActionShortcutText))
+      editor.setShowPlaceholderWhenFocused(true)
     }
   }
 
