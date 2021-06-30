@@ -41,6 +41,7 @@
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.estaticoNewtype.NewTypeInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.simulacrum.SimulacrumInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.derevo.DerevoInjector"/>
 
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TypePluralNamesProvider"/>
