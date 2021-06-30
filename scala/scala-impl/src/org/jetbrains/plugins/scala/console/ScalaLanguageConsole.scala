@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.console
 
-import com.intellij.execution.console.{ConsoleHistoryController, LanguageConsoleImpl, LanguageConsoleView}
+import com.intellij.execution.console.{ConsoleHistoryController, ConsoleRootType, LanguageConsoleImpl}
 import com.intellij.execution.filters.TextConsoleBuilderImpl
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.ui.ConsoleViewContentType
@@ -14,10 +14,12 @@ import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiFile
 import com.intellij.testFramework.LightVirtualFile
 import com.intellij.ui.{JBColor, SideBorder}
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole._
 import org.jetbrains.plugins.scala.console.actions.ScalaConsoleExecuteAction
+import org.jetbrains.plugins.scala.extensions.PsiNamedElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTrait}
@@ -31,7 +33,7 @@ import scala.collection.mutable
 class ScalaLanguageConsole(module: Module, language: Language)
   extends LanguageConsoleImpl(new ScalaLanguageConsole.Helper(
     module.getProject,
-    ScalaLanguageConsoleView.ScalaConsole,
+    ScalaConsoleTitle,
     language
   )) {
 
@@ -48,7 +50,7 @@ class ScalaLanguageConsole(module: Module, language: Language)
 
   override def attachToProcess(processHandler: ProcessHandler): Unit = {
     super.attachToProcess(processHandler)
-    val controller = new ConsoleHistoryController(ScalaLanguageConsoleView.ScalaConsoleRootType, null, this)
+    val controller = new ConsoleHistoryController(ScalaConsoleRootType, null, this)
     controller.install()
 
     ScalaConsoleInfo.addConsole(this, controller, processHandler)
@@ -259,7 +261,13 @@ class ScalaLanguageConsole(module: Module, language: Language)
   }
 }
 
-private object ScalaLanguageConsole {
+object ScalaLanguageConsole {
+  private[console] val ScalaConsoleTitle: String = ScalaBundle.message("scala.console.config.display.name")
+
+  def isScalaConsoleFile(file: PsiFile): Boolean = file.name == ScalaConsoleTitle
+
+  private object ScalaConsoleRootType extends ConsoleRootType("scala", ScalaConsoleTitle)
+
   private val ScalaPromptIdleText            = "scala>"
   private val ScalaPromptInputInProgressText = "     |"
   private val ScalaPromptEmpty               = ""
@@ -332,7 +340,7 @@ private object ScalaLanguageConsole {
     }
   }
 
-  def builderFor(module: Module): TextConsoleBuilderImpl = new Builder(module)
+  private[console] def builderFor(module: Module): TextConsoleBuilderImpl = new Builder(module)
 
   private class Builder(module: Module) extends TextConsoleBuilderImpl(module.getProject) {
 
