@@ -6,7 +6,7 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAlias, ScValue, ScValueOrVariable, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 
@@ -22,16 +22,17 @@ trait Element extends StructureViewTreeElement with ColoredItemPresentation {
 
 object Element {
 
-  def apply(element: PsiElement, inherited: Boolean = false): Seq[Element] = element match {
-    case packaging: ScPackaging => packaging.typeDefinitions.map(new TypeDefinition(_))
+  def forPsi(element: PsiElement, inherited: Boolean = false): Seq[Element] = element match {
     // TODO Type definition can be inherited
     case definition: ScTypeDefinition => Seq(new TypeDefinition(definition))
+    case packaging: ScPackaging       => packaging.getChildren.flatMap(Element.forPsi(_)).toSeq
     case parameter: ScClassParameter  => Seq(new ValOrVarParameter(parameter, inherited))
     case function: ScFunction         => Seq(new Function(function, inherited))
+    case variable: ScValue            => variable.declaredElements.map(new Value(_, inherited))
     case variable: ScVariable         => variable.declaredElements.map(new Variable(_, inherited))
-    case value: ScValue               => value.declaredElements.map(new Value(_, inherited))
     case alias: ScTypeAlias           => Seq(new TypeAlias(alias, inherited))
     case block: ScBlockExpr           => Seq(new Block(block))
+    case extension: ScExtension       => Seq(new Extension(extension))
     case _                            => Seq.empty
   }
 

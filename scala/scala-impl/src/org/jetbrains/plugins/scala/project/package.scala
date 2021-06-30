@@ -322,13 +322,17 @@ package object project {
     @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def hasScala3: Boolean = modulesWithScala.exists(_.hasScala3)
 
+    /**
+     * @return list of modules with Scala SDK setup
+     * @note it doesn't return any *-build modules even though it contains syntetic
+     */
     def modulesWithScala: Seq[Module] =
       if (project.isDisposed) Seq.empty
       else modulesWithScalaCached
 
     @CachedInUserData(project, ProjectRootManager.getInstance(project))
     private def modulesWithScalaCached: Seq[Module] =
-      modules.filter(_.hasScala)
+      modules.filter(m => m.hasScala && !m.isBuildModule)
 
     def anyScalaModule: Option[Module] =
       modulesWithScala.headOption

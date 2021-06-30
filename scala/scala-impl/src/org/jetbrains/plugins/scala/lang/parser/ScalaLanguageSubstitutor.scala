@@ -7,6 +7,7 @@ import com.intellij.openapi.module.{Module, ModuleUtilCore}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.LanguageSubstitutor
+import com.intellij.testFramework.LightVirtualFile
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.lang.parser.ScalaLanguageSubstitutor.looksLikeScala3LibJar
 import org.jetbrains.plugins.scala.project.ModuleExt
@@ -16,9 +17,17 @@ import scala.util.matching.Regex
 final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
 
   /** @note for worksheet language substitutions see<br>
-   *       [[org.jetbrains.plugins.scala.worksheet.WorksheetLanguageSubstitutor]] */
-  override def getLanguage(file: VirtualFile, project: Project): Language =
-    if (ScalaFileType.INSTANCE.isMyFileType(file))
+   *        [[org.jetbrains.plugins.scala.worksheet.WorksheetLanguageSubstitutor]] */
+  override def getLanguage(file: VirtualFile, project: Project): Language = {
+    val assignedLanguage = file match {
+      // primary case: language injected into the Scala REPL file,
+      // see org.jetbrains.plugins.scala.console.ScalaLanguageConsole.Helper
+      case lightFile: LightVirtualFile => lightFile.getLanguage
+      case _                           => null
+    }
+    val substituted = if (assignedLanguage != null)
+      assignedLanguage
+    else if (ScalaFileType.INSTANCE.isMyFileType(file))
       ModuleUtilCore.findModuleForFile(file, project) match {
         case module: Module if module.hasScala3 => Scala3Language.INSTANCE
         // TODO For library sources, determine whether a .scala file (possibly in a JAR) is associated with a .tasty file (possibly in a JAR)
@@ -26,6 +35,8 @@ final class ScalaLanguageSubstitutor extends LanguageSubstitutor {
       }
     else
       null
+    substituted
+  }
 }
 
 private object ScalaLanguageSubstitutor {

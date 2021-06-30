@@ -2,19 +2,16 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.openapi.util.Iconable
 import com.intellij.psi.PsiElement
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValue}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScValueOrVariable, ScVariableDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.types.TypePresentationContext
 import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresentation.withSimpleNames
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 08.05.2008
-*/
-class Value(element: ScNamedElement, inherited: Boolean)
+import javax.swing.Icon
+
+abstract class ValOrVar(element: ScNamedElement, inherited: Boolean)
   extends AbstractTreeElement(element, inherited) {
 
   override def location: Option[String] = value.map(_.containingClass).map(_.name)
@@ -28,15 +25,22 @@ class Value(element: ScNamedElement, inherited: Boolean)
   override def getIcon(open: Boolean): Icon =
     value.map(_.getIcon(Iconable.ICON_FLAG_VISIBILITY)).orNull
 
-  override def children: Seq[PsiElement] = value match {
-    case Some(definition: ScPatternDefinition) => definition.expr match {
-      case Some(block: ScBlockExpr) => Block.childrenOf(block)
-      case _ => Seq.empty
+  override def children: Seq[PsiElement] = {
+    val definition = value match {
+      case Some(definition: ScPatternDefinition)  => definition.expr
+      case Some(definition: ScVariableDefinition) => definition.expr
+      case _                                      => None
     }
-    case _ => Seq.empty
+    definition match {
+      case Some(block: ScBlockExpr) => Block.childrenOf(block)
+      case _                        => Seq.empty
+    }
   }
 
   override def isAlwaysLeaf: Boolean = false
 
-  private def value = element.parentsInFile.findByType[ScValue]
+  private def value: Option[ScValueOrVariable] = element.parentsInFile.findByType[ScValueOrVariable]
 }
+
+final class Value(element: ScNamedElement, inherited: Boolean) extends ValOrVar(element, inherited)
+final class Variable(element: ScNamedElement, inherited: Boolean) extends ValOrVar(element, inherited)
