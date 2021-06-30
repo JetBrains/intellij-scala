@@ -233,9 +233,11 @@ trait ProjectStructureMatcher {
         val sdkProperties = actualLibrary.properties
         assertEquals("Scala SDK language level", expectedScalaSdk.languageLevel, sdkProperties.languageLevel)
 
-        val expectedClassPath = expectedScalaSdk.classpath.map(normalizePathSeparators).sorted.mkString("\n")
-        val actualClasspath = sdkProperties.compilerClasspath.map(_.getAbsolutePath).map(normalizePathSeparators).sorted.mkString("\n")
-        assertEquals("Scala SDK classpath", expectedClassPath, actualClasspath)
+        expectedScalaSdk.classpath.foreach { classpath =>
+          val expectedClassPath = classpath.map(normalizePathSeparators).sorted.mkString("\n")
+          val actualClasspath = sdkProperties.compilerClasspath.map(_.getAbsolutePath).map(normalizePathSeparators).sorted.mkString("\n")
+          assertEquals("Scala SDK classpath", expectedClassPath, actualClasspath)
+        }
     }
   }
 

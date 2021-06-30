@@ -17,6 +17,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
@@ -35,6 +36,14 @@ class ProjectImportingTest extends ImportingTestCase
   def testSimple(): Unit = {
     val scalaLibrary = expectedScalaLibrary(ScalaVersion.fromString("2.13.5").get)
     runSimpleTest("simple", scalaLibrary)
+
+    // Adding the assertion here create a separate heavy test for such a tiny check
+    // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
+    Assert.assertEquals(
+      "modulesWithScala should return list of non *-build modules",
+      Seq("simple"),
+      myProject.modulesWithScala.map(_.getName),
+    )
   }
 
   def testSimpleDoNotUseCoursier(): Unit = {

@@ -1,0 +1,58 @@
+package org.jetbrains.plugins.scala.structureView
+
+import com.intellij.lang.Language
+import org.jetbrains.plugins.scala.ScalaLanguage
+import org.jetbrains.plugins.scala.icons.Icons.{ABSTRACT_CLASS, CASE_CLASS, CLASS, ENUM, EXTENSION, FUNCTION, OBJECT, TRAIT, TYPE_ALIAS, VAL, VAR}
+import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
+
+class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
+
+  override protected def scalaLanguage: Language = ScalaLanguage.INSTANCE
+
+  // NOTE: in Scala 2 top level functions/value/etc... are not supported
+  // but it still will not hurt to show them in the structure view even in a non-compilable code
+  private val TopLevelDefinitionsText =
+    """class MyClass()
+      |
+      |case class MyCaseClass()
+      |
+      |abstract class MyAbstractClass()
+      |
+      |trait MyTrait
+      |
+      |object MyObject
+      |
+      |type MyTypeAlias[T] = (String, T)
+      |
+      |val myValue = 1
+      |
+      |val myVariable = 2
+      |
+      |def myFunction: String = ???
+      |
+      |""".stripMargin
+
+  private val TopLevelDefinitionsNodes: Seq[Node] =
+    Seq(
+      Node(CLASS, "MyClass()"),
+      Node(CASE_CLASS, "MyCaseClass()"),
+      Node(ABSTRACT_CLASS, "MyAbstractClass()"),
+      Node(TRAIT, "MyTrait"),
+      Node(OBJECT, "MyObject"),
+      Node(TYPE_ALIAS, "MyTypeAlias"),
+      Node(VAL, "myValue"),
+      Node(VAR, "myVariable"),
+      Node(FUNCTION, "myFunction: String"),
+    )
+
+  def testTopLevelDefinitions_InRootPackage(): Unit = {
+    check(TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
+  }
+
+  // TODO:
+  //  We could parse top level definitions in Scala, even though it's not compilable (we already do so in root package, for "script" files)
+  //  We could show the error later in annotator.
+//  def testTopLevelDefinitions_InPackage(): Unit = {
+//    check("package aaa.bbb.ccc\n" + TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
+//  }
+}

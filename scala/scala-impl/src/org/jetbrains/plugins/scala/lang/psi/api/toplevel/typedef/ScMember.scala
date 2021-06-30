@@ -11,10 +11,10 @@ import com.intellij.psi._
 import com.intellij.psi.util._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -107,7 +107,14 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
   }
 
-  def isLocal: Boolean = containingClass == null && !isTopLevel
+  def isLocal: Boolean = containingClass == null && !isTopLevel && {
+    // TODO: this might be non-actual in Andrey S. branch
+    val isExtensionMethod = this match {
+      case Parent(Parent(_: ScExtension)) => true
+      case _                              => false
+    }
+    !isExtensionMethod
+  }
 
   def isDefinedInClass: Boolean = containingClass != null
 

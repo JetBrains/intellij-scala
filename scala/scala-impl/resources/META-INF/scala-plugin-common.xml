@@ -484,6 +484,8 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelAliasByPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelImplicitClassByPackageIndex"/>
 
+        <filePropertyPusher implementation="org.jetbrains.plugins.scala.project.ScalaLanguageLevelPusher"/>
+
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer"/>
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.autoImport.ImportOrderingIndexer"/>
 
@@ -1836,8 +1838,7 @@
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
         </action>
         <action id="ScalaConsole.NewLine" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleNewLineAction">
-            <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift ENTER"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift ENTER"/>
         </action>
         <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>

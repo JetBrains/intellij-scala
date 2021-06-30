@@ -9,7 +9,8 @@ import org.jetbrains.plugins.scala.NlsString
 
 // TODO make private (after decoupling Test)
 trait AbstractItemPresentation extends ColoredItemPresentation { self: Element =>
-  override def getPresentableText: String = NlsString.force("")
+
+  override def getPresentableText: String
 
   override final def getLocationString: String =
     if (inherited) location.map(UIUtil.rightArrow + _).orNull else null

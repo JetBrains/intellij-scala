@@ -44,7 +44,11 @@ object ProjectStructureDsl {
   object javadocs         extends Attribute[Seq[String]]("javadocs")                        with LibraryAttribute
   object scalaSdkSettings extends Attribute[Option[ScalaSdkAttributes]]("scalaSdkSettings") with LibraryAttribute
 
-  case class ScalaSdkAttributes(languageLevel: ScalaLanguageLevel, classpath: Seq[String])
+  case class ScalaSdkAttributes(languageLevel: ScalaLanguageLevel, classpath: Option[Seq[String]])
+  object ScalaSdkAttributes {
+    def apply(languageLevel: ScalaLanguageLevel, classpath: Seq[String]): ScalaSdkAttributes =
+      new ScalaSdkAttributes(languageLevel, Some(classpath))
+  }
 
   object isExported extends Attribute[Boolean]("isExported")    with DependencyAttribute
   object scope      extends Attribute[DependencyScope]("scope") with DependencyAttribute
