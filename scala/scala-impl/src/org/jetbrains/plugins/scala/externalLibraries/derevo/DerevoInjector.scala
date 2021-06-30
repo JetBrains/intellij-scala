@@ -142,7 +142,7 @@ class DerevoInjector extends SyntheticMembersInjector {
 
             case _ => None
           }
-        }.collectFirst { case v => v }
+        }.headOption
       case _ => None
     }
   }
@@ -164,9 +164,9 @@ class DerevoInjector extends SyntheticMembersInjector {
 
           val implicitStr = if (implicits.isEmpty) "" else s"(implicit ${implicits.mkString(", ")})"
 
-          s"implicit def idea$$injected_$ix[$tparamStr]$implicitStr: ${tpeTo(s"${obj.name}[$tparamStr]")} = ???"
+          s"implicit def idea$$derevo_injected_${obj.name}_$ix[$tparamStr]$implicitStr: ${tpeTo(s"${obj.name}[$tparamStr]")} = ???"
         } else {
-          s"implicit val idea$$injected_$ix: ${tpeTo(obj.name)} = ???"
+          s"implicit val idea$$derevo_injected_${obj.name}_$ix: ${tpeTo(obj.name)} = ???"
         }
       }
 
