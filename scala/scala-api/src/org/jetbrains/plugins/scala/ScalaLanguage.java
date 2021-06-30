@@ -16,12 +16,13 @@
 package org.jetbrains.plugins.scala;
 
 import com.intellij.lang.Language;
+import com.intellij.lang.jvm.JvmLanguage;
 
 /**
  * @author ilyas
  * Date: 20.09.2006
  */
-public class ScalaLanguage extends Language {
+public class ScalaLanguage extends Language implements JvmLanguage {
 
     public static final ScalaLanguage INSTANCE = new ScalaLanguage();
 
