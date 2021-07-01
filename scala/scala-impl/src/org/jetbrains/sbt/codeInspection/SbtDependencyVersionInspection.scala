@@ -31,16 +31,17 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
                                            maybeQuickFix: Option[LocalQuickFix],
                                            descriptionTemplate: String,
                                            highlightType: ProblemHighlightType)
-                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = {
+                                          (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = try {
     val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
     val scalaVer = element.scalaLanguageLevelOrDefault.getVersion
     element.getParent match {
       case infix: ScInfixExpr
         if SBT_ORG_ARTIFACT.contains(infix.left.`type`().getOrAny.canonicalText)
           && element == infix.right =>
+        val libDepList = inReadAction(SbtDependencyUtils.getLibraryDependenciesOrPlacesFromPsi(infix, mode = GetDep))
+        if (libDepList.isEmpty) return None
         val libDep = SbtDependencyUtils.processLibraryDependencyFromExprAndString(
-          inReadAction(SbtDependencyUtils.getLibraryDependenciesOrPlacesFromPsi(infix, mode = GetDep)
-          ).head.asInstanceOf[(ScExpression, String, ScExpression)]).map(_.asInstanceOf[String])
+          libDepList.head.asInstanceOf[(ScExpression, String, ScExpression)]).map(_.asInstanceOf[String])
 
         if (libDep.length < 3) return None
 
@@ -103,6 +104,8 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
         else None
       case _ => None
     }
+  } catch {
+    case _: Exception => None
   }
 }
 
