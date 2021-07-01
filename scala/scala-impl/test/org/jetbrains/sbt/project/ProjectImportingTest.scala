@@ -37,7 +37,7 @@ class ProjectImportingTest extends ImportingTestCase
     val scalaLibrary = expectedScalaLibrary(ScalaVersion.fromString("2.13.5").get)
     runSimpleTest("simple", scalaLibrary)
 
-    // Adding the assertion here create a separate heavy test for such a tiny check
+    // Adding the assertion here not to create a separate heavy test for such a tiny check
     // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
     Assert.assertEquals(
       "modulesWithScala should return list of non *-build modules",
