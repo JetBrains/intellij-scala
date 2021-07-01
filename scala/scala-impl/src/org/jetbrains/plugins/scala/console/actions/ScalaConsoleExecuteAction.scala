@@ -42,7 +42,7 @@ class ScalaConsoleExecuteAction extends AnAction(
     val historyController = ScalaConsoleInfo.getController(editor)
 
     if (editor == null || console == null || processHandler == null || historyController == null) {
-      LOG.info(new Throwable(s"Enter action in console failed: $editor, $console"))
+      LOG.info(new Throwable(s"Enter action in console failed: editor: $editor console: $console processHandler: $processHandler historyController: $historyController"))
       return
     }
 
@@ -85,4 +85,6 @@ class ScalaConsoleExecuteAction extends AnAction(
 
 object ScalaConsoleExecuteAction {
   private val LOG = Logger.getInstance(this.getClass)
+
+  val ActionId = "ScalaConsole.Execute"
 }

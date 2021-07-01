@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.console.configuration
 
 import java.io.File
-
 import com.intellij.execution._
 import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
@@ -16,7 +15,6 @@ import org.jdom.Element
 import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView.ScalaConsole
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
@@ -128,7 +126,7 @@ class ScalaConsoleRunConfiguration(
       val classPath = params.getClassPath
 
       val module = requireModule
-      val success = ensureJLineInClassPathOrShowErrorNotification(classPath, module, ScalaConsole)
+      val success = ensureJLineInClassPathOrShowErrorNotification(classPath, module, ScalaLanguageConsole.ScalaConsoleTitle)
       if (success)
         super.execute(executor, runner)
       else
