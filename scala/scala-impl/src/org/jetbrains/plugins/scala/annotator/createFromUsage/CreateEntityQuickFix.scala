@@ -10,7 +10,7 @@ import com.intellij.refactoring.util.CommonRefactoringUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
 import org.jetbrains.plugins.scala.codeInspection.collections.MethodRepr
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScSelfTypeElement, ScSimpleTypeElement}
@@ -113,7 +113,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
 
         val template = builder.buildTemplate()
 
-        val isScalaConsole = file.getName == ScalaLanguageConsoleView.ScalaConsole
+        val isScalaConsole = ScalaLanguageConsole.isScalaConsoleFile(file)
         if (!isScalaConsole) {
           val newEditor = positionCursor(entity.getLastChild)
           val range = entity.getTextRange
