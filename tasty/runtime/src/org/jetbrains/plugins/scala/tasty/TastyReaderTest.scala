@@ -39,6 +39,7 @@ object TastyReaderTest {
       "parameter/ByName",
       "parameter/CaseClass",
       "parameter/Class",
+      "parameter/ContextBounds",
       "parameter/Def",
       "parameter/DefaultArguments",
       "parameter/Enum",
