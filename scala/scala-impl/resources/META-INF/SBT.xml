@@ -18,7 +18,6 @@
                   implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
                   fieldName="MODULE$"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator"/>
-<!--        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>-->
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="before ScalaDocumentationProvider"/>
         <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition"/>
 
