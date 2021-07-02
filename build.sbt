@@ -170,13 +170,7 @@ lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
   .settings(
     intellijMainJars := Seq.empty,
     scalaVersion := "3.0.0",
-    libraryDependencies += "org.scala-lang" % "scala3-tasty-inspector_3" % "3.0.0" excludeAll(
-      ExclusionRule(organization = "org.scala-lang.modules"),
-      ExclusionRule(organization = "org.scala-sbt"),
-      ExclusionRule(organization = "org.jline"),
-      ExclusionRule(organization = "net.java.dev.jna"),
-      ExclusionRule(organization = "com.google.protobuf")
-    ),
+    libraryDependencies += "org.scala-lang" % "tasty-core_3" % "3.0.0",
     (Compile / scalacOptions) := Seq("-strict"), // TODO If there are no unique options, sbt import adds the module to a profile with macros enabled.
     (Compile / unmanagedSourceDirectories) += baseDirectory.value / "src",
     packageMethod := PackagingMethod.Standalone("lib/tasty/tasty-runtime.jar"),
