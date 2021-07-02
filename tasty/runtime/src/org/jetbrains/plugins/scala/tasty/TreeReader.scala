@@ -1,18 +1,13 @@
 package org.jetbrains.plugins.scala.tasty
 
 import dotty.tools.dotc.core.Names.Name
-import dotty.tools.dotc.core.tasty.TastyUnpickler
-import dotty.tools.dotc.core.tasty.TastyUnpickler.{NameTable, SectionUnpickler}
 import dotty.tools.tasty.TastyBuffer.{Addr, NameRef}
 import dotty.tools.tasty.TastyFormat._
-import dotty.tools.tasty.TastyReader
+import dotty.tools.tasty.{TastyReader, UnpickleException}
 
 // TODO read children lazily
 // TODO don't use classes from dotc (requires parsing the name section manually)
-private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](ASTsSection) {
-  override def unpickle(reader: TastyReader, nameAtRef: NameTable): Node =
-    readTree(reader)
-
+private class TreeReader(nameAtRef: NameTable) {
   private def readNat(in: TastyReader): Int = in.readNat()
 
   private def nameToString(name: Name): String = name.toString
@@ -106,9 +101,19 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
 
 object TreeReader {
   def treeFrom(bytes: Array[Byte]): Node = {
-    val unpickler = new TastyUnpickler(bytes)
+    val in = new TastyReader(bytes)
 
-    unpickler.unpickle(new TreeReader(unpickler.nameAtRef))
-      .getOrElse(throw new RuntimeException("No AST section"))
+    new HeaderReader(in).readFullHeader()
+
+    val nameTableReader = new NameTableReader(in)
+    nameTableReader.read()
+    val nameTable = nameTableReader.nameAtRef
+
+    val sectionName = nameTable.apply(NameRef(in.readNat()))
+    val sectionEnd = in.readEnd()
+    if (sectionName.asSimpleName.toString != "ASTs") {
+      throw new UnpickleException("No ASTs section")
+    }
+    new TreeReader(nameTable).readTree(new TastyReader(bytes, in.currentAddr.index, sectionEnd.index, in.currentAddr.index))
   }
 }
