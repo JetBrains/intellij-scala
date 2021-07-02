@@ -18,6 +18,8 @@ trait ScEnumCase extends ScConstructorOwner {
    * type params implicitly inherited from parent enum class.
    */
   def physicalTypeParameters: Seq[ScTypeParam]
+
+  override def isCase: Boolean = true
 }
 
 object ScEnumCase {

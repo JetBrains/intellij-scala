@@ -6,7 +6,6 @@ package toplevel
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.packaging.ScPackagingImpl.LeftBraceOrColon
 
 trait ScPackaging extends ScImportsHolder
   with statements.ScDeclaredElementsHolder

@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScPatternArgumentList}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScGivenPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -222,16 +222,13 @@ object ScalaPsiUtil {
     }
   }
 
-  /**
-    * Pick all type parameters by method maps them to the appropriate type arguments, if they are
-    */
   def undefineMethodTypeParams(fun: PsiMethod): ScSubstitutor = {
-    implicit val ctx: ProjectContext = fun
     val typeParameters = fun match {
-      case fun: ScFunction => fun.typeParameters
-      case fun: PsiMethod => fun.getTypeParameters.toSeq
+      case fun: ScFunction => fun.typeParametersWithExtension
+      case fun: PsiMethod  => fun.getTypeParameters.toSeq
     }
-    ScSubstitutor.bind(typeParameters.map(TypeParameter(_)))(UndefinedType(_, level = 1))
+
+    ScSubstitutor.bind(typeParameters)(UndefinedType(_, level = 1))
   }
 
   @tailrec
@@ -242,11 +239,9 @@ object ScalaPsiUtil {
         elem match {
           case mem: ScMember =>
             if (mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)) true
-            else mem.containingClass match {
-              case null =>
-                false // e.g. can be null for Scala3 extension method
-              case clazz =>
-                isLocalOrPrivate(clazz)
+            else {
+              val containingCls = mem.containingClass
+              (containingCls eq null) || isLocalOrPrivate(containingCls)
             }
           case _ => false
         }
@@ -1525,17 +1520,18 @@ object ScalaPsiUtil {
     addBefore[ScTypeAlias](typeAlias, parent, anchorOpt)
   }
 
-  def isImplicit(namedElement: PsiNamedElement): Boolean = {
+  def isImplicit(namedElement: PsiNamedElement): Boolean =
     namedElement match {
-      case Implicit0Binding()                        => true /** See [[BetterMonadicForSupport]] */
-      case owner: ScModifierListOwner                => hasImplicitModifier(owner)
-      case inNameContext(owner: ScModifierListOwner) => hasImplicitModifier(owner)
-      case _                                         => false
+      case _: ScGiven                                           => true
+      case _: ScGivenPattern                                    => true
+      case Implicit0Binding()                                   => true /** See [[BetterMonadicForSupport]] */
+      case owner: ScModifierListOwner                           => hasImplicitModifier(owner)
+      case inNameContext(owner: ScModifierListOwner)            => hasImplicitModifier(owner)
+      case _                                                    => false
     }
-  }
 
   def hasImplicitModifier(modifierListOwner: ScModifierListOwner): Boolean = modifierListOwner match {
-    case p: ScParameter => p.isImplicitParameter
+    case p: ScParameter => p.isImplicitOrContextParameter
     case _              => modifierListOwner.hasModifierProperty("implicit")
   }
 
@@ -1598,5 +1594,15 @@ object ScalaPsiUtil {
     }
 
     CodeEditUtil.removeChildren(list.getNode, begin, end)
+  }
+
+  def generateGivenOrExtensionName(tes: ScTypeElement*): String = {
+    // todo: implement correct naming : https://dotty.epfl.ch/docs/reference/contextual/relationship-implicits.html#anonymous-given-instances
+    var text = tes.map(_.getText).mkString("_")
+    text = text.replaceAll("=>", "_to_")
+    text = text.replaceAll("[^a-zA-Z_0-9]+", "_")
+    text = text.replaceAll("(^_+)|(_+$)", "")
+
+    "given_" + text
   }
 }

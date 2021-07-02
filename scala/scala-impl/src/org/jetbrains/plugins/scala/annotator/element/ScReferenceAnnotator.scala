@@ -30,7 +30,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.{ScInterpolatedExpressionPrefix, ScInterpolatedPatternPrefix}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
-import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
@@ -81,9 +81,19 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
            val refText = genericCall.referencedExpr.getText
             refText == "Lambda" || refText == "λ"
         }
+
       (targetElement, refContext) match {
-        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall) if !isKindProjector(genericCall) =>
-          ScParameterizedTypeElementAnnotator.annotateTypeArgs(typeParamOwner, genericCall.typeArgs, r.substitutor)
+        case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall)
+            if !isKindProjector(genericCall) =>
+          val typeParams = typeParamOwner.typeParameters.map(TypeParameter(_))
+          val stringPresentation = s"method ${typeParamOwner.name}"
+
+          ScParameterizedTypeElementAnnotator.annotateTypeArgs(
+            typeParams,
+            genericCall.typeArgs,
+            r.substitutor,
+            stringPresentation
+          )
         case _ =>
       }
 
@@ -162,7 +172,7 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                 }
 
                 withoutNonHighlightables(problems, holder).foreach {
-                  case DoesNotTakeParameters() =>
+                  case DoesNotTakeParameters =>
                     holder.createErrorAnnotation(
                       call.argsElement,
                       ScalaBundle.message("annotator.error.target.does.not.take.parameters", fun.name)
@@ -197,7 +207,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                       ScalaBundle.message("annotator.error.parameter.specified.multiple.times"))
                   case WrongTypeParameterInferred => //todo: ?
                   case ExpectedTypeMismatch => //will be reported later
-
                   case AmbiguousImplicitParameters(_) =>
                   case DefaultTypeParameterMismatch(_, _) =>
                   case DoesNotTakeTypeParameters =>
@@ -528,28 +537,30 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
   // some properties cannot be shown because they are synthetic for example.
   // filter these out
-  private def withoutNonHighlightables(problems: Seq[ApplicabilityProblem], holder: ScalaAnnotationHolder)
-  : Seq[ApplicabilityProblem] = problems.filter {
-    case PositionalAfterNamedArgument(argument) => inSameFile(argument, holder)
+  private def withoutNonHighlightables(
+    problems: Seq[ApplicabilityProblem],
+    holder:   ScalaAnnotationHolder
+  ): Seq[ApplicabilityProblem] = problems.filter {
+    case PositionalAfterNamedArgument(argument)      => inSameFile(argument, holder)
     case ParameterSpecifiedMultipleTimes(assignment) => inSameFile(assignment, holder)
-    case UnresolvedParameter(assignment) => inSameFile(assignment, holder)
-    case ExpansionForNonRepeatedParameter(argument) => inSameFile(argument, holder)
-    case ExcessArgument(argument) => inSameFile(argument, holder)
-    case MissedParametersClause(clause) => inSameFile(clause, holder)
-    case TypeMismatch(expression, _) => inSameFile(expression, holder)
-    case ExcessTypeArgument(argument) => inSameFile(argument, holder)
-    case MalformedDefinition(_) => true
-    case DoesNotTakeParameters() => true
-    case MissedValueParameter(_) => true
-    case DefaultTypeParameterMismatch(_, _) => true
-    case WrongTypeParameterInferred => true
-    case DoesNotTakeTypeParameters => true
-    case MissedTypeParameter(_) => true
-    case ExpectedTypeMismatch => true
-    case NotFoundImplicitParameter(_) => true
-    case AmbiguousImplicitParameters(_) => true
-    case IncompleteCallSyntax(_) => true
-    case InternalApplicabilityProblem(_) => true
+    case UnresolvedParameter(assignment)             => inSameFile(assignment, holder)
+    case ExpansionForNonRepeatedParameter(argument)  => inSameFile(argument, holder)
+    case ExcessArgument(argument)                    => inSameFile(argument, holder)
+    case MissedParametersClause(clause)              => inSameFile(clause, holder)
+    case TypeMismatch(expression, _)                 => inSameFile(expression, holder)
+    case ExcessTypeArgument(argument)                => inSameFile(argument, holder)
+    case MalformedDefinition(_)                      => true
+    case DoesNotTakeParameters                       => true
+    case MissedValueParameter(_)                     => true
+    case DefaultTypeParameterMismatch(_, _)          => true
+    case WrongTypeParameterInferred                  => true
+    case DoesNotTakeTypeParameters                   => true
+    case MissedTypeParameter(_)                      => true
+    case ExpectedTypeMismatch                        => true
+    case NotFoundImplicitParameter(_)                => true
+    case AmbiguousImplicitParameters(_)              => true
+    case IncompleteCallSyntax(_)                     => true
+    case InternalApplicabilityProblem(_)             => true
   }
 
   private def inSameFile(elem: PsiElement, holder: ScalaAnnotationHolder): Boolean = {

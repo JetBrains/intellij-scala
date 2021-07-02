@@ -26,12 +26,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-import scala.collection
-import scala.collection.mutable.ArrayBuffer
 import scala.meta.intellij.QuasiquoteInferUtil
 
 /**
@@ -530,7 +529,7 @@ object Compatibility {
   }
 
   def compatible(
-    named:              PsiNamedElement,
+    srr:                ScalaResolveResult,
     substitutor:        ScSubstitutor,
     argClauses:         List[Seq[Expression]],
     checkWithImplicits: Boolean,
@@ -539,6 +538,8 @@ object Compatibility {
   )(implicit
     project: ProjectContext
   ): ConformanceExtResult = {
+    val named = srr.element
+
     def checkParameterListConformance(parameters: Seq[Parameter], arguments: Seq[Expression]) =
       checkConformanceExt(parameters, arguments, checkWithImplicits, isShapesResolve)
 
@@ -547,7 +548,7 @@ object Compatibility {
     named match {
       case synthetic: ScSyntheticFunction =>
         if (synthetic.paramClauses.isEmpty)
-          return ConformanceExtResult(Seq(new DoesNotTakeParameters))
+          return ConformanceExtResult(Seq(DoesNotTakeParameters))
 
         val parameters = synthetic.paramClauses.head.map(p =>
           p.copy(paramType = substitutor(p.paramType))
@@ -555,20 +556,47 @@ object Compatibility {
 
         checkParameterListConformance(parameters, firstArgumentListArgs)
       case fun: ScFunction =>
-        if (!fun.hasParameterClause && argClauses.nonEmpty)
-          return ConformanceExtResult(Seq(new DoesNotTakeParameters))
+        val isDefinedInExtension = ResolveUtils.isExtensionMethod(fun)
+
+        if ((!fun.hasParameterClause && !isDefinedInExtension) && argClauses.nonEmpty)
+          return ConformanceExtResult(Seq(DoesNotTakeParameters))
 
         if (QuasiquoteInferUtil.isMetaQQ(fun) && ref.isInstanceOf[ScReferenceExpression]) {
           val params = QuasiquoteInferUtil.getMetaQQExpectedTypes(ref.asInstanceOf[ScReferenceExpression])
           return checkParameterListConformance(params, firstArgumentListArgs)
         }
 
+        val isQualifiedExtensionCall = srr.isExtension
+
+        def isRecursiveOrSameScopeExtensionCall =
+          isDefinedInExtension &&
+            !isQualifiedExtensionCall &&
+            srr.extensionContext == fun.extensionMethodOwner
+
+        /**
+         * We ignore parameter clauses coming from extension if:
+         * 1. `fun` was invoked as a proper extension, e.g. `x.fun(bar)`
+         * 2. `fun` was invoked from inside the body of an extension method defined in the
+         * same collective extension as `fun`, e.g.
+         * {{{
+         * extension (x: T)
+         *  def fun2 = fun
+         *  def fun = ???
+         * }}}
+         */
+        val shouldDropExtensionParameterClauses = isQualifiedExtensionCall || isRecursiveOrSameScopeExtensionCall
+
+        val clauses =
+          if (shouldDropExtensionParameterClauses) fun.effectiveParameterClauses
+          else                                     fun.parameterClausesWithExtension
+
+        val firstClause = clauses.headOption
+
         val parameters =
-          fun.effectiveParameterClauses
-             .headOption
-             .toList
-             .flatMap(_.effectiveParameters)
-             .map(toParameter(_, substitutor))
+          firstClause
+            .toSeq
+            .flatMap(_.effectiveParameters)
+            .map(toParameter(_, substitutor))
 
         checkParameterListConformance(parameters, firstArgumentListArgs)
       case constructor: ScPrimaryConstructor =>
@@ -652,7 +680,8 @@ object Compatibility {
                                        argClauseCount: Int): Seq[MissedParametersClause] = {
     var minParamClauses = paramClauses.length
 
-    val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicit)
+    val hasImplicitClause = paramClauses.lastOption.exists(_.isImplicitOrUsing)
+    //@TODO: multiple using clauses
     if (hasImplicitClause)
       minParamClauses -= 1
 

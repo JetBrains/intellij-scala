@@ -63,7 +63,7 @@ object ScalaElementType {
       new ScExportStmtImpl(stub, nodeType, node, debugName)
   }
 
-  val Extension = new ScExtensionElementType
+  val EXTENSION = new ScExtensionElementType
   val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration
   val PATTERN_DEFINITION: ScPropertyElementType[ScPatternDefinition] = ValueDefinition
   val VARIABLE_DECLARATION: ScPropertyElementType[ScVariableDeclaration] = VariableDeclaration
@@ -85,6 +85,7 @@ object ScalaElementType {
   val TEMPLATE_PARENTS = new ScTemplateParentsElementType
   val TEMPLATE_DERIVES = new ScTemplateDerivesElementType
   val TEMPLATE_BODY = new ScTemplateBodyElementType
+  val EXTENSION_BODY = new ScExtensionBodyElementType
   val PARAM = new signatures.ScParameterElementType
   val PARAM_CLAUSE = new signatures.ScParamClauseElementType
   val PARAM_CLAUSES = new signatures.ScParamClausesElementType

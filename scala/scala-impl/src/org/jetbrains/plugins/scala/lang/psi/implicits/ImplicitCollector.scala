@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.macros.evaluator.ScalaMacroEvaluator
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil
 import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
@@ -22,7 +22,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ProcessSubtypes
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.ReplaceWith
+import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve._
 import org.jetbrains.plugins.scala.lang.resolve.processor.MostSpecificUtil
 import org.jetbrains.plugins.scala.macroAnnotations.Measure
@@ -79,12 +82,57 @@ object ImplicitCollector {
     }
   }
 
-  def visibleImplicits(place: PsiElement): Set[ScalaResolveResult] =
-    ImplicitSearchScope.forElement(place).cachedVisibleImplicits
+  def visibleImplicits(
+    place:                  PsiElement,
+    extensionData:          Option[ExtensionConversionData],
+    withExtensionsInGivens: Boolean = false
+  ): Set[ScalaResolveResult] = {
+    val implicits = ImplicitSearchScope.forElement(place).cachedVisibleImplicits
 
-  def implicitsFromType(place: PsiElement, scType: ScType): Set[ScalaResolveResult] =
-    ImplicitSearchScope.forElement(place).cachedImplicitsByType(scType)
+    if (!withExtensionsInGivens) implicits
+    else {
+      implicits ++ extensionData.to(Set).flatMap(collectExtensionsFromGivenDefinitions(implicits, _))
+    }
+  }
 
+  /**
+   * Apart from being located directly in the lexical or implicit scope, extensions
+   * can also be located inside given definitions inside the aforementioned scopes.
+   */
+  private def collectExtensionsFromGivenDefinitions(
+    places:        Set[ScalaResolveResult],
+    extensionData: ExtensionConversionData
+  ): Set[ScalaResolveResult] = {
+    val place = extensionData.place
+    val proc  = new ExtensionProcessor(place, extensionData.refName)
+
+    places.foreach {
+      case ScalaResolveResult(tdef @ ScGivenDefinition.DesugaredTypeDefinition(gvn), subst) =>
+        val fromGivenType      = tdef.`type`().toOption
+        val state              = ScalaResolveState.withSubstitutor(subst)
+        val stateWithGivenType = fromGivenType.fold(state)(state.withImplicitScopeObject)
+
+        gvn.extensions.foreach(ext =>
+          ext.extensionMethods.foreach(proc.execute(_, stateWithGivenType))
+        )
+      case _ => ()
+    }
+
+    proc.candidatesS
+  }
+
+  def implicitsFromType(
+    place:                  PsiElement,
+    scType:                 ScType,
+    extensionData:          Option[ExtensionConversionData],
+    withExtensionsInGivens: Boolean = false
+  ): Set[ScalaResolveResult] = {
+    val implicits = ImplicitSearchScope.forElement(place).cachedImplicitsByType(scType)
+
+    if (!withExtensionsInGivens) implicits
+    else
+      implicits ++ extensionData.to(Set).flatMap(collectExtensionsFromGivenDefinitions(implicits, _))
+  }
 }
 
 /**
@@ -94,15 +142,18 @@ object ImplicitCollector {
  * User: Alexander Podkhalyuzin
  * Date: 23.11.2009
  */
-class ImplicitCollector(place: PsiElement,
-                        tp: ScType,
-                        expandedTp: ScType,
-                        coreElement: Option[ScNamedElement],
-                        isImplicitConversion: Boolean,
-                        searchImplicitsRecursively: Int = 0,
-                        extensionData: Option[ExtensionConversionData] = None,
-                        fullInfo: Boolean = false,
-                        previousRecursionState: Option[ImplicitsRecursionGuard.RecursionMap] = None) {
+class ImplicitCollector(
+  place:                      PsiElement,
+  tp:                         ScType,
+  expandedTp:                 ScType,
+  coreElement:                Option[ScNamedElement],
+  isImplicitConversion:       Boolean,
+  searchImplicitsRecursively: Int = 0,
+  extensionData:              Option[ExtensionConversionData] = None,
+  fullInfo:                   Boolean = false,
+  previousRecursionState:     Option[ImplicitsRecursionGuard.RecursionMap] = None,
+  withExtensions:             Boolean = false
+) {
   def this(state: ImplicitState) = {
     this(state.place, state.tp, state.expandedTp, state.coreElement, state.isImplicitConversion,
        state.searchImplicitsRecursively, state.extensionData, state.fullInfo, state.previousRecursionState)
@@ -129,31 +180,49 @@ class ImplicitCollector(place: PsiElement,
       }
 
       ProgressManager.checkCanceled()
-
       if (fullInfo) {
-        val visible = visibleNamesCandidates
+        val visible = visibleNamesCandidates(withExtensionsInGivens = false)
         val fromNameCandidates = collectFullInfo(visible)
 
         val allCandidates =
           if (fromNameCandidates.exists(_.implicitReason == OkResult)) fromNameCandidates
           else {
-            val fromTypeNotVisible = fromTypeCandidates.filterNot(c => visible.exists(_.element == c.element))
+            val fromTypeNotVisible =
+              fromTypeCandidates(withExtensionsInGivens = false)
+                .filterNot(c => visible.exists(_.element == c.element))
+
             fromNameCandidates ++ collectFullInfo(fromTypeNotVisible)
           }
 
         //todo: should we also compare types like in MostSpecificUtil.isAsSpecificAs ?
         allCandidates.sortWith(mostSpecificUtil.isInMoreSpecificClass)
-      }
-      else {
+      } else {
         ImplicitCollector.cache(project)
           .getOrCompute(place, tp, mayCacheResult = !isExtensionConversion) {
-            val firstCandidates = compatible(visibleNamesCandidates)
-            TraceLogger.log("Compatible candidates from visible Names", firstCandidates)
-            if (firstCandidates.exists(_.isApplicable())) firstCandidates
+            //Step 1: Process only extension candidates in lexical scope
+            //Step 2: Try implicits/givens from lexical scope and extensions inside given definitions
+            //Step 3: Try implicits/givens/extension from implicit scope and extension inside given definitions
+            val visible = visibleNamesCandidates(withExtensionsInGivens = withExtensions)
+
+            val (visibleExtensions, otherVisibleCandidates) =
+              visible.partition(candidate => candidate.isExtension && candidate.implicitScopeObject.isEmpty)
+
+            val extensionCandidates =
+              if (withExtensions) compatible(visibleExtensions)
+              else                Seq.empty
+
+            TraceLogger.log("Compatible extensions from lexical scope", extensionCandidates)
+
+            if (extensionCandidates.exists(_.isApplicable())) extensionCandidates
             else {
-              val secondCandidates = compatible(fromTypeCandidates)
-              TraceLogger.log("No compatible candidates from names, so try from type", secondCandidates)
-              if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
+              val firstCandidates = compatible(otherVisibleCandidates)
+              TraceLogger.log("Compatible implicits from lexical scope", firstCandidates)
+              if (firstCandidates.exists(_.isApplicable())) firstCandidates
+              else {
+                val secondCandidates = compatible(fromTypeCandidates(withExtensions))
+                TraceLogger.log("Compatible extensions and implicits from implicit scope", firstCandidates)
+                if (secondCandidates.nonEmpty) secondCandidates else firstCandidates
+              }
             }
           }
       }
@@ -172,12 +241,12 @@ class ImplicitCollector(place: PsiElement,
     }
   }
 
-  private def visibleNamesCandidates: Set[ScalaResolveResult] =
-    ImplicitCollector.visibleImplicits(place)
+  private def visibleNamesCandidates(withExtensionsInGivens: Boolean): Set[ScalaResolveResult] =
+    ImplicitCollector.visibleImplicits(place, extensionData, withExtensionsInGivens)
       .map(_.copy(implicitSearchState = Some(collectorState)))
 
-  private def fromTypeCandidates: Set[ScalaResolveResult] =
-    ImplicitCollector.implicitsFromType(place, expandedTp)
+  private def fromTypeCandidates(withExtensionsInGivens: Boolean): Set[ScalaResolveResult] =
+    ImplicitCollector.implicitsFromType(place, expandedTp, extensionData, withExtensionsInGivens)
       .map(_.copy(implicitSearchState = Some(collectorState)))
 
   private def compatible(candidates: Set[ScalaResolveResult]): Seq[ScalaResolveResult] = TraceLogger.func {
@@ -187,7 +256,6 @@ class ImplicitCollector(place: PsiElement,
     val compatible =
       if (withoutLocalTypeInference.nonEmpty) withoutLocalTypeInference
       else collectCompatibleCandidates(candidates, withLocalTypeInference = true)
-
 
     mostSpecificUtil.mostSpecificForImplicitParameters(compatible) match {
       case Some(r) => Seq(r)
@@ -220,15 +288,16 @@ class ImplicitCollector(place: PsiElement,
 
     c.element match {
       case fun: ScFunction =>
-        if (!fun.hasTypeParameters && withLocalTypeInference) return None
+        if (fun.typeParametersWithExtension.isEmpty && withLocalTypeInference) return None
 
         //scala.Predef.$conforms should be excluded
         if (isImplicitConversion && isPredefConforms(fun)) return None
 
+        val clauses = fun.effectiveParameterClauses
         //to avoid checking implicit functions in case of simple implicit parameter search
-        val hasNonImplicitClause = fun.effectiveParameterClauses.exists(!_.isImplicit)
-        if (hasNonImplicitClause) {
-          val clause = fun.paramClauses.clauses.head
+        val hasNonImplicitClause = clauses.exists(!_.isImplicitOrUsing)
+        if (!c.isExtension && hasNonImplicitClause) {
+          val clause = clauses.head
           val paramsCount = clause.parameters.size
           if (!possibleScalaFunction.exists(x => x == -1 || x == paramsCount)) {
             return reportWrong(c, FunctionForParameterResult, Seq(WrongTypeParameterInferred))
@@ -316,17 +385,18 @@ class ImplicitCollector(place: PsiElement,
     InferUtil.updateAccordingToExpectedType(
       nonValueType0,
       filterTypeParams = isImplicitConversion,
-      expectedType = Some(tp),
+      expectedType     = Some(tp),
       place,
       canThrowSCE = true
     )
   }
 
   private def updateImplicitParameters(
-    c:                 ScalaResolveResult,
-    nonValueType0:     ScType,
-    hasImplicitClause: Boolean,
-    hadDependents:     Boolean
+    c:                       ScalaResolveResult,
+    nonValueType0:           ScType,
+    hasImplicitClause:       Boolean,
+    hadDependents:           Boolean,
+    expectedTypeConstraints: ConstraintSystem
   ): Option[ScalaResolveResult] = TraceLogger.func {
     val fun = c.element.asInstanceOf[ScFunction]
 
@@ -350,9 +420,16 @@ class ImplicitCollector(place: PsiElement,
 
     def noImplicitParametersResult(nonValueType: ScType): Some[ScalaResolveResult] = {
       val (valueType, typeParams) = inferValueType(nonValueType)
+
+      val subst = expectedTypeConstraints match {
+        case ConstraintSystem(subst) => subst
+        case _                       => ScSubstitutor.empty
+      }
+
       val result = c.copy(
-        implicitParameterType = Some(valueType),
-        implicitReason = OkResult,
+        subst                    = c.substitutor.followed(subst),
+        implicitParameterType    = Some(valueType),
+        implicitReason           = OkResult,
         unresolvedTypeParameters = Some(typeParams)
       )
       Some(result)
@@ -361,23 +438,32 @@ class ImplicitCollector(place: PsiElement,
     def fullResult(
       resType:          ScType,
       implicitParams:   Seq[ScalaResolveResult],
+      constraints:      ConstraintSystem,
       checkConformance: Boolean = false
     ): Option[ScalaResolveResult] = {
       val (valueType, typeParams) = inferValueType(resType)
 
-      val allImportsUsed = implicitParams.map(_.importsUsed).foldLeft(c.importsUsed)(_ ++ _)
+      val constraintSubst = constraints + expectedTypeConstraints match {
+        case ConstraintSystem(subst) => Option(subst)
+        case _                       => None
+      }
 
-      val result = c.copy(
-        implicitParameterType = Some(valueType),
-        implicitParameters = implicitParams,
-        implicitReason = OkResult,
-        unresolvedTypeParameters = Some(typeParams),
-        importsUsed = allImportsUsed
-      )
+      constraintSubst.fold(reportWrong(c, CantInferTypeParameterResult)) { subst =>
+        val allImportsUsed = implicitParams.map(_.importsUsed).foldLeft(c.importsUsed)(_ ++ _)
 
-      if (checkConformance && !valueType.conforms(tp))
-        reportWrong(result, TypeDoesntConformResult, Seq(WrongTypeParameterInferred))
-      else Some(result)
+        val result = c.copy(
+          subst                    = c.substitutor.followed(subst),
+          implicitParameterType    = Option(valueType),
+          implicitParameters       = implicitParams,
+          implicitReason           = OkResult,
+          unresolvedTypeParameters = Option(typeParams),
+          importsUsed              = allImportsUsed
+        )
+
+        if (checkConformance && !valueType.conforms(tp))
+          reportWrong(result, TypeDoesntConformResult, Seq(WrongTypeParameterInferred))
+        else Option(result)
+      }
     }
 
     def wrongExtensionConversion(nonValueType: ScType): Option[ScalaResolveResult] = {
@@ -400,7 +486,7 @@ class ImplicitCollector(place: PsiElement,
         val updated = updateNonValueType(nonValueType0)
 
         if (hadDependents) UndefinedType.revertDependentTypes(updated)
-        else updated
+        else               updated
       }
       catch {
         case _: SafeCheckException => return wrongTypeParam(nonValueType0, CantInferTypeParameterResult)
@@ -411,7 +497,9 @@ class ImplicitCollector(place: PsiElement,
 
     if (hasImplicitClause && notTooDeepSearch) {
 
-      if (!hadDependents) {
+      val isExtensionMethod = c.element.asOptionOf[ScFunctionDefinition].forall(_.isExtensionMethod)
+
+      if (!hadDependents && !isExtensionMethod) {
         wrongExtensionConversion(nonValueType) match {
           case Some(errorResult) => return Some(errorResult)
           case None              => ()
@@ -419,7 +507,7 @@ class ImplicitCollector(place: PsiElement,
       }
 
       try {
-        val (resType, implicitParams0) =
+        val (resType, implicitParams0, constraints) =
           InferUtil.updateTypeWithImplicitParameters(
             nonValueType,
             place,
@@ -433,7 +521,7 @@ class ImplicitCollector(place: PsiElement,
         if (implicitParams.exists(_.isImplicitParameterProblem))
           reportParamNotFoundResult(resType, implicitParams)
         else
-          fullResult(resType, implicitParams, hadDependents)
+          fullResult(resType, implicitParams, constraints, hadDependents)
       }
       catch {
         case _: SafeCheckException => wrongTypeParam(nonValueType, CantInferTypeParameterResult)
@@ -446,7 +534,8 @@ class ImplicitCollector(place: PsiElement,
   @Measure
   private def checkFunctionType(
     c:                ScalaResolveResult,
-    nonValueFunTypes: NonValueFunctionTypes
+    nonValueFunTypes: NonValueFunctionTypes,
+    constraints:      ConstraintSystem
   ): Option[ScalaResolveResult] = TraceLogger.func {
 
     def compute(): Option[ScalaResolveResult] = {
@@ -456,7 +545,13 @@ class ImplicitCollector(place: PsiElement,
 
         case Some(nonValueType0) =>
           try {
-            updateImplicitParameters(c, c.substitutor(nonValueType0), nonValueFunTypes.hasImplicitClause, nonValueFunTypes.hadDependents)
+            updateImplicitParameters(
+              c,
+              c.substitutor(nonValueType0),
+              nonValueFunTypes.hasImplicitClause,
+              nonValueFunTypes.hadDependents,
+              constraints
+            )
           }
           catch {
             case _: SafeCheckException =>
@@ -508,7 +603,7 @@ class ImplicitCollector(place: PsiElement,
   ): Option[ScalaResolveResult] = TraceLogger.func {
     val fun = c.element.asInstanceOf[ScFunction]
 
-    if (fun.hasTypeParameters && !withLocalTypeInference)
+    if (fun.typeParametersWithExtension.nonEmpty && !withLocalTypeInference)
       return None
 
     val macroEvaluator = ScalaMacroEvaluator.getInstance(project)
@@ -521,16 +616,15 @@ class ImplicitCollector(place: PsiElement,
       case Some(undefined: ScType) =>
 
         val undefinedConforms =
-          isImplicitConversion && checkWeakConformance(undefined, tp) ||
-            undefined.conforms(tp)
+          if (isImplicitConversion) checkWeakConformance(undefined, tp)
+          else                      undefined.conforms(tp, ConstraintSystem.empty)
 
-        if (undefinedConforms) {
-          if (checkFast) Some(c)
-          else checkFunctionType(c, nonValueFunctionTypes)
-        }
-        else {
-          reportWrong(c, TypeDoesntConformResult)
-        }
+        if (undefinedConforms.isRight) {
+          if (checkFast) Option(c)
+          else {
+            checkFunctionType(c, nonValueFunctionTypes, undefinedConforms.constraints)
+          }
+        } else reportWrong(c, TypeDoesntConformResult)
       case _ =>
         if (!withLocalTypeInference) reportWrong(c, BadTypeResult)
         else None
@@ -541,8 +635,12 @@ class ImplicitCollector(place: PsiElement,
     extensionData match {
       case None => Some(cand)
       case Some(data) =>
-        extensionConversionCheck(data, cand).orElse {
-          reportWrong(cand, CantFindExtensionMethodResult)
+        cand.element match {
+          case fun @ ExtensionMethod() => Option.when(data.refName == fun.name)(cand)
+          case _ =>
+            extensionConversionCheck(data, cand).orElse(
+              reportWrong(cand, CantFindExtensionMethodResult)
+            )
         }
     }
   }
@@ -595,21 +693,25 @@ class ImplicitCollector(place: PsiElement,
       case _                           => 1
     }
 
-  private def checkWeakConformance(left: ScType, right: ScType): Boolean = {
+  private def checkWeakConformance(left: ScType, right: ScType): ConstraintsResult = {
     def function1Arg(scType: ScType): Option[(ScType, ScType)] = scType match {
       case ParameterizedType(ScDesignatorType(c: PsiClass), args) if args.size == 2 =>
         if (c.qualifiedName == "scala.Function1") (args.head, args.last).toOption
-        else                                      None
+        else None
       case _ => None
     }
 
     function1Arg(left) match {
       case Some((leftArg, leftRes)) =>
         function1Arg(right) match {
-          case Some((rightArg, rightRes)) => rightArg.weakConforms(leftArg) && leftRes.conforms(rightRes)
-          case _                          => false
+          case Some((rightArg, rightRes)) =>
+            rightArg.conforms(leftArg, ConstraintSystem.empty, checkWeak = true) match {
+              case cs: ConstraintSystem => leftRes.conforms(rightRes, cs)
+              case left                 => left
+            }
+          case _ => ConstraintsResult.Left
         }
-      case _ => false
+      case _ => ConstraintsResult.Left
     }
   }
 }

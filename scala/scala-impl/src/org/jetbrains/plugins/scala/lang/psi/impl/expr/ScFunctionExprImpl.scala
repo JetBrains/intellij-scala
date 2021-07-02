@@ -57,8 +57,11 @@ class ScFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with 
   private[this] def widenSingletonsInRetType(retType: ScType): ScType = retType match {
     case lit: ScLiteralType =>
       this.expectedType() match {
-        case Some(FunctionType(expectedRetTpe, _)) if expectedRetTpe.conforms(Singleton) => lit
-        case _                                                                           => lit.widen
+        case Some(FunctionType(expectedRetTpe, _)) =>
+          val eTpe = expectedRetTpe.removeAbstracts
+          if (!eTpe.isNothing && eTpe.conforms(Singleton)) lit
+          else                                             lit.widen
+        case _ => lit.widen
       }
     case tpe => tpe
   }

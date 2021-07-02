@@ -137,7 +137,7 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Int
       |          ParameterType
       |            SimpleType: Int
       |              CodeReferenceElement: Int
@@ -147,14 +147,14 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: String
       |          ParameterType
       |            SimpleType: String
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Double
       |          ParameterType
       |            SimpleType: Double
       |              CodeReferenceElement: Double
@@ -205,14 +205,14 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(()('(')
       |          PsiElement(using)('using')
       |          PsiWhiteSpace(' ')
-      |          ClassParameter: _
+      |          ClassParameter: Int
       |            ParameterType
       |              SimpleType: Int
       |                CodeReferenceElement: Int
       |                  PsiElement(identifier)('Int')
       |          PsiElement(,)(',')
       |          PsiWhiteSpace(' ')
-      |          ClassParameter: _
+      |          ClassParameter: Test
       |            ParameterType
       |              SimpleType: Test
       |                CodeReferenceElement: Test

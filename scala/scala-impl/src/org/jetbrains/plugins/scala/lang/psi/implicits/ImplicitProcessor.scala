@@ -114,7 +114,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
         element.processDeclarations(this, ScalaResolveState.empty, lastParent, getPlace)) {
         val isNewLevel = element match {
           case _: ScTemplateBody | _: ScExtendsBlock => true // template body and inherited members are at the same level
-          case _ => changedLevel
+          case _                                     => changedLevel
         }
 
         if (isNewLevel) {

@@ -19,14 +19,14 @@ class ScGenericCallAnnotatorTest extends SimpleTestCase {
 
   def testTooManyTypeParameter(): Unit = {
     assertMessages(messages("test[Int, Int, Int]"))(
-      Error(", I", "Too many type arguments for test[X, Y]")
+      Error(", I", "Too many type arguments for method test, expected: 2, found: 3")
     )
     assertMessages(messages("test[Int, Int, Boolean, Int]"))(
-      Error(", B", "Too many type arguments for test[X, Y]")
+      Error(", B", "Too many type arguments for method test, expected: 2, found: 4")
     )
 
     assertMessages(messages("def nop = (); nop[Int]"))(
-      Error("[Int]", "nop does not take type arguments")
+      Error("[Int]", "method nop does not take type arguments")
     )
   }
 

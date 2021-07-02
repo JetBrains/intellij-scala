@@ -5,6 +5,7 @@ import org.jetbrains.plugins.scala.extensions.{ElementText, _}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScTypeParam}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -19,6 +20,16 @@ package object statements {
     def noRecursion: Boolean = tailRecursive.isEmpty && ordinaryRecursive.isEmpty
 
     def tailRecursionOnly: Boolean = tailRecursive.nonEmpty && ordinaryRecursive.isEmpty
+  }
+
+  implicit class ScFunctionExt(private val function: ScFunction) extends AnyVal {
+    def parameterClausesWithExtension: Seq[ScParameterClause] =
+      function.extensionMethodOwner.fold(Seq.empty[ScParameterClause])(_.effectiveParameterClauses) ++
+        function.effectiveParameterClauses
+
+    def typeParametersWithExtension: Seq[ScTypeParam] =
+      function.extensionMethodOwner.fold(Seq.empty[ScTypeParam])(_.typeParameters) ++
+        function.typeParameters
   }
 
   implicit class ScFunctionDefinitionExt(private val function: ScFunctionDefinition) extends AnyVal {

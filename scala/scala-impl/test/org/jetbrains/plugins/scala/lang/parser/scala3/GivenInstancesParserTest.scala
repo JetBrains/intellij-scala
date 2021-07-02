@@ -279,7 +279,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -341,7 +341,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -379,7 +379,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_without_tpye_params(): Unit = checkTree(
+  def test_without_type_params(): Unit = checkTree(
     """
       |given Test(using Ord[Int]): Ord[Double] with {}
       |""".stripMargin,
@@ -399,7 +399,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[Int]
       |          ParameterType
       |            ParametrizedType: Ord[Int]
       |              SimpleType: Ord
@@ -668,7 +668,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -726,7 +726,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -780,7 +780,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[Int]
       |          ParameterType
       |            ParametrizedType: Ord[Int]
       |              SimpleType: Ord
@@ -961,6 +961,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |          CodeReferenceElement: Int
       |            PsiElement(identifier)('Int')
       |        PsiElement(])(']')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiWhiteSpace(' ')
@@ -987,6 +989,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    SimpleType: Test
       |      CodeReferenceElement: Test
       |        PsiElement(identifier)('Test')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiWhiteSpace(' ')

@@ -67,7 +67,7 @@ case class ApplyOrUpdateInvocation(call: MethodInvocation,
 
   private def candidatesWithConversion(processor: MethodResolveProcessor, noImplicitsForArgs: Boolean) = {
     processor.resetPrecedence()
-    ImplicitResolveResult.processImplicitConversions(processor.refName, call, processor, noImplicitsForArgs) {
+    ImplicitResolveResult.processImplicitConversionsAndExtensions(processor.refName, call, processor, noImplicitsForArgs) {
       _.withImports.withType
     }(baseExpr)
     processor.candidatesS

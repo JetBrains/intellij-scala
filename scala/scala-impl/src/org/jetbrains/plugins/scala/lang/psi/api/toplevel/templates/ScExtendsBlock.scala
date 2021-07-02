@@ -7,7 +7,7 @@ package templates
 
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -51,6 +51,8 @@ trait ScExtendsBlock extends ScalaPsiElement {
   def isAnonymousClass: Boolean
 
   def selfTypeElement: Option[ScSelfTypeElement]
+
+  def extensions: Seq[ScExtension]
 
   def selfType: Option[ScType]
 

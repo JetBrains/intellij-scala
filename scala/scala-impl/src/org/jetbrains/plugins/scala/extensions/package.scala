@@ -376,7 +376,7 @@ package object extensions {
     // For `is` there's "unsafe" `isInstanceOf`, but for `asOption` there's only `match` (which is verbose).
     def asOptionOfUnsafe[E : ClassTag]: Option[E] =
       v match {
-        case e: E => Some(e)
+        case e: E => Option(e)
         case _    => None
       }
   }
@@ -1140,6 +1140,24 @@ package object extensions {
 
     def isWhitespaceOrComment: Boolean = {
       node != null && PsiImplUtil.isWhitespaceOrComment(node)
+    }
+
+    def nextNonWhitespaceNode: ASTNode = {
+      var next = node.getTreeNext
+
+      while (next != null && next.isWhitespaceOrComment)
+        next = next.getTreeNext
+
+      next
+    }
+
+    def prevNonWhitespaceNode: ASTNode = {
+      var prev = node.getTreePrev
+
+      while (prev != null && prev.isWhitespaceOrComment)
+        prev = prev.getTreePrev
+
+      prev
     }
   }
 

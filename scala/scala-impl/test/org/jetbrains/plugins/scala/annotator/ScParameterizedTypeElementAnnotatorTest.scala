@@ -1,12 +1,32 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.lang.Language
 import org.jetbrains.plugins.scala.annotator.element.ScParameterizedTypeElementAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
 
-class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
+trait ScParameterizedTypeElementAnnotatorTestBase extends SimpleTestCase {
+  protected val language: Language
+
+  def messages(code: String): List[Message] = {
+    val file: ScalaFile = parseText(code, language)
+
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+
+    file.depthFirst().filterByType[ScParameterizedTypeElement].foreach { pte =>
+      ScParameterizedTypeElementAnnotator.annotate(pte, typeAware = true)
+    }
+
+    mock.annotations
+  }
+}
+
+class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTypeElementAnnotatorTestBase {
+  override protected val language: Language = ScalaLanguage.INSTANCE
+
   def testTooFewTypeParameter(): Unit = {
     assertMessagesInAllContexts("Test[Int]")(
       Error("t]", "Unspecified type parameters: Y")
@@ -18,10 +38,10 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
 
   def testTooManyTypeParameter(): Unit = {
     assertMessagesInAllContexts("Test[Int, Int, Int]")(
-      Error(", I", "Too many type arguments for Test[X, Y]")
+      Error(", I", "Too many type arguments for Test, expected: 2, found: 3")
     )
     assertMessagesInAllContexts("Test[Int, Int, Boolean, Int]")(
-      Error(", B", "Too many type arguments for Test[X, Y]")
+      Error(", B", "Too many type arguments for Test, expected: 2, found: 4")
     )
 
     assertMessagesInAllContexts("A[Int]")(
@@ -314,16 +334,23 @@ class ScParameterizedTypeElementAnnotatorTest extends SimpleTestCase {
       assertMessages(messages(Header + context))(expected: _*)
     }
   }
+}
 
-  def messages(code: String): List[Message] = {
-    val file: ScalaFile = code.parse
+class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTypeElementAnnotatorTestBase {
+  override protected val language: Language  = Scala3Language.INSTANCE
 
-    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-
-    file.depthFirst().filterByType[ScParameterizedTypeElement].foreach { pte =>
-      ScParameterizedTypeElementAnnotator.annotate(pte, typeAware = true)
-    }
-
-    mock.annotations
-  }
+  def testTypeLambdaAsTypeConstuctor(): Unit = assertNothing(messages(
+    """
+      |def foo[F[_], A](fa: F[A]): F[A] = fa
+      |foo[[X] =>> List[X], Int](???)
+      |type TL = [A] =>> String
+      |foo[TL, Int](???)
+      |type TL2 = [X] =>> [Y] =>> List[X]
+      |foo[TL2[String], Int](???)
+      |type TL3[A] = [B, D] =>> [C] =>> Int
+      |foo[TL3[Int][String, Double], Int](???)
+      |type TL4 = TL
+      |foo[TL4, String](???)
+      |""".stripMargin
+  ))
 }

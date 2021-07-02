@@ -28,8 +28,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil._
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.{ExtensionMethod, ScExpressionForExpectedTypesEx}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ScExpressionForExpectedTypesEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.DynamicResolveProcessor._
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -170,7 +170,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       val isApplySugarCall = reference.refName != applyName && found.exists(isApplySugarResult)
 
       if (isApplySugarCall) {
-        val applyRef = createRef(reference, _ + s".$applyName")
+        val applyRef = createRef(reference, s"${reference.getText}.$applyName")
         doResolve(applyRef, processor(smartProcessor = false, applyName))
       } else {
         doResolve(reference, processor(smartProcessor = false), tryThisQualifier = true)
@@ -220,7 +220,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
     tryThisQualifier:   Boolean = false
   ): Array[ScalaResolveResult] = {
 
-    def resolveUnqalified(processor: BaseProcessor): BaseProcessor =
+    def resolveUnqualified(processor: BaseProcessor): BaseProcessor =
       ref.getContext match {
         case ScSugarCallExpr(operand, operation, _) if ref == operation =>
           processQualifier(operand, processor)
@@ -233,14 +233,24 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     def resolveUnqualifiedExpression(processor: BaseProcessor): Unit = {
       @tailrec
-      def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
+      def treeWalkUp(place: PsiElement, lastParent: PsiElement, state: ResolveState): Unit = {
         if (place == null) return
-        if (!place.processDeclarations(processor, ScalaResolveState.empty, lastParent, ref)) return
+        if (!place.processDeclarations(processor, state, lastParent, ref)) return
         place match {
           case _: ScTemplateBody | _: ScExtendsBlock => //template body and inherited members are at the same level
           case _ => if (!processor.changedLevel) return
         }
-        treeWalkUp(place.getContext, place)
+
+        val newState = place match {
+          /** An extension method `f` can be referenced by a simple identifier (and rewritten by the compiler to the qualified form)
+           * if it is called from inside the body of an extension method `g`, which is defined in the same collective extension.
+           * To support resolve of such cases we store information about enclosing extension in the resolve state.
+           */
+          case fdef @ ExtensionMethod() => fdef.extensionMethodOwner.fold(state)(state.withExtensionContext)
+          case _                        => state
+        }
+
+        treeWalkUp(place.getContext, place, newState)
       }
 
       val context = ref.getContext
@@ -253,7 +263,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       }
 
       contextElement.foreach(processAssignment(_, processor))
-      treeWalkUp(ref, null)
+      treeWalkUp(ref, null, ScalaResolveState.empty)
     }
 
     def processAssignment(assign: PsiElement, processor: BaseProcessor): Unit = assign.getContext match {
@@ -564,21 +574,25 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
         case _                                 =>
       }
 
-      if (candidates.isEmpty || (!shape && candidates.forall(!_.isApplicable())) || (processor match {
+      val withImplicitConversion = processor match {
         case cp: CompletionProcessor => cp.withImplicitConversions
-        case _ => false
-      })) {
+        case _                       => false
+      }
+
+      val noApplicableCandidates =
+        candidates.isEmpty ||
+          (!shape && candidates.forall(!_.isApplicable()))
+
+      if (noApplicableCandidates || withImplicitConversion) {
         processor match {
           case processor: CompletionProcessor => completeImplicits(qualifier, processor)
           case _ =>
-            ImplicitResolveResult.processImplicitConversions(
-              targetNameFor(processor),
-              ref,
-              processor,
-              noImplicitsForArgs = candidates.nonEmpty
-            ) {
-              _.withImports.withImplicitType.withType
-            }(qualifier)
+              ImplicitResolveResult.processImplicitConversionsAndExtensions(
+                targetNameFor(processor),
+                ref,
+                processor,
+                noImplicitsForArgs = candidates.nonEmpty
+              )(_.withImports.withImplicitType.withType)(qualifier)
         }
 
         (processor, processor.candidates) match {
@@ -613,7 +627,7 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
 
     val actualProcessor = ref.qualifier match {
       case None =>
-        resolveUnqalified(processor)
+        resolveUnqualified(processor)
       case Some(superQ: ScSuperReference) =>
         ResolveUtils.processSuperReference(superQ, processor, ref)
         processor
@@ -625,17 +639,15 @@ class ReferenceExpressionResolver(implicit projectContext: ProjectContext) {
       res = doResolve(ref, processor, accessibilityCheck = false)
     }
     if (res.nonEmpty && res.forall(!_.isValidResult) && ref.qualifier.isEmpty && tryThisQualifier) {
-      val thisExpr = createRef(ref, "this." + _)
+      val thisExpr = createRef(ref, s"this.${ref.getText}")
       res = doResolve(thisExpr, processor, accessibilityCheck)
     }
     res
   }
 
-  private def createRef(ref: ScReferenceExpression, textUpdate: String => String): ScReferenceExpression = {
-    val newText = textUpdate(ref.getText)
-    ScalaPsiElementFactory.createExpressionFromText(newText, ref.getContext)
+  private def createRef(ref: ScReferenceExpression, text: String): ScReferenceExpression =
+    ScalaPsiElementFactory.createExpressionFromText(text, ref.getContext)
       .asInstanceOf[ScReferenceExpression]
-  }
 
   /**
    * Seek parameter with appropriate name in appropriate parameter clause.

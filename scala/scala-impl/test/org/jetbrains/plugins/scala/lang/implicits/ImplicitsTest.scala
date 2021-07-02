@@ -9,6 +9,23 @@ import org.jetbrains.plugins.scala.lang.typeInference.TypeInferenceTestBase
 
 class ImplicitsTest extends TypeInferenceTestBase {
 
+  def testSCL7955(): Unit = doTest(
+    s"""
+       |class A[-T]
+       |class B
+       |trait C
+       |trait D
+       |trait E extends C with D
+       |implicit val c: C = new C {}
+       |implicit def d[T <: D]: T = sys.exit()
+       |implicit def a[T](a: A[T])(implicit t: T): B = new B
+       |val b: B = ${START}new A[E]$END
+       |def foo(implicit z: A[E] => B) = 123
+       |foo
+       |//B
+       |""".stripMargin
+  )
+
   def testSCL13205(): Unit = {
     doTest(
       s"""

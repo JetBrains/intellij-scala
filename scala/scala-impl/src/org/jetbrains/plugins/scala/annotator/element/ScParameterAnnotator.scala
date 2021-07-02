@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScFunctionExpr
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenDefinition
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
@@ -17,7 +18,7 @@ object ScParameterAnnotator extends ElementAnnotator[ScParameter] {
       case null =>
         val message = ScalaBundle.message("annotator.error.parameter.without.an.owner.name", element.name)
         holder.createErrorAnnotation(element, message)
-      case _: ScMethodLike | _: ScExtension =>
+      case _: ScMethodLike | _: ScExtension | _: ScGivenDefinition =>
         element.typeElement match {
           case None =>
             val message = ScalaBundle.message("annotator.error.missing.type.annotation.for.parameter", element.name)

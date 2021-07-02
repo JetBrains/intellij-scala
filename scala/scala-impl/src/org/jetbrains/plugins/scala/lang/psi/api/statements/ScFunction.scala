@@ -94,9 +94,9 @@ trait ScFunction
 
   override def declaredElements: Seq[ScFunction] = Seq(this)
 
-  def isExtensionMethod: Boolean
+  def extensionMethodOwner: Option[ScExtension]
 
-  def extensionMethodClause: Option[ScParameterClause]
+  def isExtensionMethod: Boolean
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
     visitor.visitFunction(this)

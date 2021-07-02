@@ -101,4 +101,5 @@ public class JavaArrayFactoryUtil {
 
   public static ArrayFactory<ScBindingPattern> ScBindingPatternFactory = ScBindingPattern[]::new;
 
+  public static ArrayFactory<ScExtension> ScExtensionFactory = ScExtension[]::new;
 }
