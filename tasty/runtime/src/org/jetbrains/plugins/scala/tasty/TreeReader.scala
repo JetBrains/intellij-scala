@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.tasty
 
-import dotty.tools.dotc.core.Names.Name
 import dotty.tools.tasty.TastyBuffer.{Addr, NameRef}
 import dotty.tools.tasty.TastyFormat._
 import dotty.tools.tasty.{TastyReader, UnpickleException}

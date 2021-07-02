@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.tasty
 
-import dotty.tools.dotc.core.NameKinds.{SignedName, numberedNameKindOfTag, qualifiedNameKindOfTag, simpleNameKindOfTag, uniqueNameKindOfSeparator}
-import dotty.tools.dotc.core.Names.{EmptyTermName, TermName, termName}
-import dotty.tools.dotc.core.Signature
-import dotty.tools.tasty.TastyBuffer.NameRef
 import dotty.tools.tasty.TastyFormat.NameTags.{DEFAULTGETTER, EXPANDED, EXPANDPREFIX, QUALIFIED, SIGNED, TARGETSIGNED, UNIQUE, UTF8}
 import dotty.tools.tasty.TastyReader
+import TermName._
+
+import scala.io.Codec
 
 // See dotty.tools.dotc.core.tasty.TastyUnpickler
 
@@ -20,12 +19,9 @@ private class NameTableReader(in: TastyReader) {
 
   private def readName(): TermName = nameAtRef(readNameRef())
 
-  private def readParamSig(): Signature.ParamSig = {
-    val ref = readInt()
-    if (ref < 0)
-      ref.abs
-    else
-      nameAtRef(NameRef(ref)).toTypeName
+  def termName(bs: Array[Byte], offset: Int, len: Int): SimpleName = {
+    val chars = Codec.fromUTF8(bs, offset, len)
+    new TermName(new String(chars))
   }
 
   private def readNameContents(): TermName = {
@@ -33,13 +29,15 @@ private class NameTableReader(in: TastyReader) {
     val length = readNat()
     val start = currentAddr
     val end = start + length
-    def readSignedRest(original: TermName, target: TermName): TermName =
-      val result = readName().toTypeName
+    def readSignedRest(original: TermName, target: TermName): TermName = {
+//      val result = readName().toTypeName
       // DOTTY: we shouldn't have to give an explicit type to paramsSig,
       // see https://github.com/lampepfl/dotty/issues/4867
-      val paramsSig: List[Signature.ParamSig] = until(end)(readParamSig())
-      val sig = Signature(paramsSig, result)
-      SignedName(original, sig, target)
+//      val paramsSig: List[Signature.ParamSig] = until(end)(readParamSig())
+//      val sig = Signature(paramsSig, result)
+      goto(end)
+      SignedName(original, "[...]", target)
+    }
 
     val result = tag match {
       case UTF8 =>

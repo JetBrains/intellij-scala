@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.tasty
 
-import dotty.tools.dotc.core.Names.TermName
 import dotty.tools.tasty.TastyBuffer.NameRef
 
 import scala.collection.mutable.ArrayBuffer
