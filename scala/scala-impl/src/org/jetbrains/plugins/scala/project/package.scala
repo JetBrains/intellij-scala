@@ -439,7 +439,7 @@ package object project {
     var enableFeaturesCheckInTests = false
   }
 
-  /** @note duplicate in [[org.jetbrains.sbt.annotator.SbtDependencyAnnotator.doAnnotate]] */
+
   private def findBuildModule(m: Module): Option[Module] = m match {
     case SbtModuleType(_) => Some(m)
     case _ =>                moduleByName(m.getProject, s"${m.getName}${Sbt.BuildModuleSuffix}")
