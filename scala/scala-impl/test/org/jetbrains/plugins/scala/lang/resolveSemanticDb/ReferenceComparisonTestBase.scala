@@ -1,11 +1,12 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
+import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.Result
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 
 
 
@@ -52,9 +53,9 @@ class ReferenceComparisonTestBase extends ComparisonTestBase {
           for(semanticDbTarget <- semanticDbReferences.flatMap(_.symbol)) {
             didTest = true
             val ourTargets = resolved.flatMap(r => Seq(r.element) ++ r.parentElement).filterByType[ScNamedElement]
-            if (!ourTargets.exists(e => textPosOf(e.nameId) == semanticDbTarget.position)) {
+            if (!ourTargets.exists(posOfNavigationElementWithAdjustedEscapeId(_) == semanticDbTarget.position)) {
               val ours = ourTargets
-                .map(e => s"${e.name} at ${textPosOf(e).readableString}")
+                .map(e => s"${e.name} at ${textPosOf(e.getNavigationElement).readableString}")
                 .mkString("\n")
               problems :+= s"$refWithPos resolves to $semanticDbTarget in semanticdb, but we resolve to:\n$ours"
               allSuccess = false
@@ -97,5 +98,11 @@ object ReferenceComparisonTestBase {
 
   object Result {
     val empty: Result = Result(Seq.empty, 0, 0, 0, 0, 0)
+  }
+
+  def posOfNavigationElementWithAdjustedEscapeId(e: PsiNamedElement): TextPos = {
+    val pos = textPosOf(e.getNavigationElement)
+    if (e.name.startsWith("`")) pos.copy(col = pos.col + 1)
+    else pos
   }
 }
