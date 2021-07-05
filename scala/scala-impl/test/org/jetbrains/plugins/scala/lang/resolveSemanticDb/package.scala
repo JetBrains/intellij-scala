@@ -21,10 +21,9 @@ package object resolveSemanticDb {
 
   def textPosOf(e: PsiElement): TextPos = textPosOf(e.getTextOffset, e.getContainingFile)
   def textPosOf(offset: Int, file: PsiFile): TextPos = {
-    val fileViewProvider = file.getViewProvider
-    val document = fileViewProvider.getDocument
-    val line = document.getLineNumber(offset)
-    val col = offset - document.getLineStartOffset(line)
+    val offsetText = file.getText.substring(0, offset)
+    val line = offsetText.count(_ == '\n')
+    val col = offset - (offsetText.lastIndexOf('\n') + 1)
     TextPos(line, col)
   }
 }
