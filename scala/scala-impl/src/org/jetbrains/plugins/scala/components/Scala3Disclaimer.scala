@@ -3,16 +3,13 @@ package org.jetbrains.plugins.scala.components
 import com.intellij.notification._
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
-import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.{Project, ProjectManagerListener}
+import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.settings.{ScalaProjectSettings, ScalaProjectSettingsConfigurable}
 import org.jetbrains.plugins.scala.util.NotificationUtil.HyperlinkListener
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaBundle}
-import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.{SbtProjectSettings, SbtProjectSettingsListener}
 
 import java.io.File
@@ -22,10 +19,6 @@ import java.util.function.Consumer
 
 object Scala3Disclaimer {
   private val DottyVersion = "scalaVersion\\s*:=\\s*\"(0\\.\\S+)\"".r
-  // TODO Create a constant (for project template, compiler, etc.)
-  private val SupportedDottyVersion = LatestScalaVersions.Scala_3_0.minor
-
-  private var versionInfoShown = false
 
   class ProjectListener extends ProjectManagerListener {
     override def projectOpened(project: Project): Unit = {
@@ -62,15 +55,6 @@ object Scala3Disclaimer {
           configureUpdatesActionIn(project))
         setShownIn(project)
       }
-    }
-
-    if (!versionInfoShown) {
-      dottyVersion.filter(_ != SupportedDottyVersion).foreach { unsupportedVersion =>
-        showDisclaimerIn(project,
-          ScalaBundle.message("scala.3.support.is.incompatible", unsupportedVersion, SupportedDottyVersion),
-          useDottyVersionActionIn(project, SupportedDottyVersion), configureUpdatesActionIn(project))
-      }
-      versionInfoShown = true
     }
   }
 
@@ -109,14 +93,4 @@ object Scala3Disclaimer {
 
   private def read(file: File): String = new String(Files.readAllBytes(file.toPath))
 
-  private def write(file: File, contents: String): Unit = Files.write(file.toPath, contents.getBytes)
-
-  private def useDottyVersionActionIn(project: Project, version: String): NotificationAction = new NotificationAction(ScalaBundle.message("adjust.dotty.version", version)) {
-    override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-      buildSbtIn(project).foreach { file =>
-        write(file, DottyVersion.replaceFirstIn(read(file), "scalaVersion := \"" + SupportedDottyVersion + "\""))
-        ExternalSystemUtil.refreshProjects(new ImportSpecBuilder(project, SbtProjectSystem.Id))
-      }
-    }
-  }
 }
