@@ -3,24 +3,20 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.{outPath, sourcePath}
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.file.{Files, Path, Paths}
 import scala.jdk.StreamConverters._
 
-abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestAdapter{
+abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+  //override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ComparisonTestBase])
 
-  def doTest(): Unit
+  def doTest(testName: String, succeeds: Boolean): Unit
 
-  def testName: String =
-    getTestName(false).ensuring(_.startsWith("_")).substring(1)
-
-  def outDir: Path = outPath.resolve(testName)
-
-  protected def setupFiles(): Seq[PsiFile] = {
+  protected def setupFiles(testName: String): Seq[PsiFile] = {
     val testDirPath = sourcePath.resolve(testName)
     val testFilePath = sourcePath.resolve(testName + ".scala")
     val (source, sourceBasePath) =
