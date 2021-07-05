@@ -69,6 +69,7 @@ object TreePrinter {
         case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)) => tpe
         case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
         case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
+        case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => tpe
       }.map(textOfType)
         .filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
           !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
@@ -92,8 +93,7 @@ object TreePrinter {
       val isAbstractGiven = node.hasFlag(GIVEN)
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
-      val tpe = children.find(_.isTypeTree)
-      children.filter(_.is(EMPTYCLAUSE, PARAM))
+      val tpe = children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE)).headOption
       textOfAnnotationIn(node) +
       (if (name == "<init>") {
         modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
@@ -343,9 +343,9 @@ object TreePrinter {
     } else {
       node.children.foreach {
         case Node(PRIVATEqualified, _, Seq(qualifier)) =>
-          s += "private[" + textOfType(qualifier) + "] "
+          s += "private[" + asQualifier(textOfType(qualifier)) + "] "
         case Node(PROTECTEDqualified, _, Seq(qualifier)) =>
-          s += "protected[" + textOfType(qualifier) + "] "
+          s += "protected[" + asQualifier(textOfType(qualifier)) + "] "
         case _ =>
       }
     }
@@ -398,5 +398,10 @@ object TreePrinter {
       }
       s
     case _ => "" // TODO exhaustive match
+  }
+
+  private def asQualifier(tpe: String): String = {
+    val i = tpe.lastIndexOf(".")
+    (if (i == -1) tpe else tpe.drop(i + 1)).stripSuffix("$")
   }
 }

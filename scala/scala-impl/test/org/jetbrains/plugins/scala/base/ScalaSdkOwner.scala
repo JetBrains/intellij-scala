@@ -65,7 +65,7 @@ trait ScalaSdkOwner extends Test
 
 object ScalaSdkOwner {
 
-  private val Scala3Versions = Seq(LatestScalaVersions.Dotty, LatestScalaVersions.Scala_3_0)
+  private val Scala3Versions = Seq(LatestScalaVersions.Scala_3_0)
 
   // todo: eventually move to version Scala_2_13
   //       (or better, move ScalaLanguageLevel.getDefault to Scala_2_13 and use ScalaVersion.default again)

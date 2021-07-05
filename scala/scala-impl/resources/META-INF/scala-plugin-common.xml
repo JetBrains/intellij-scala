@@ -1787,8 +1787,8 @@
     <projectListeners>
         <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
                   class="scala.meta.intellij.ClearMetaExpansionManagerListener"/>
-        <listener topic="org.jetbrains.sbt.project.settings.SbtProjectSettingsListener"
-                  class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$SbtProjectListener"/>
+        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
+                  class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$DumbModeListener"/>
         <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
                   class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
 

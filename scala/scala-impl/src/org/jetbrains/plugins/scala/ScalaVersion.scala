@@ -60,7 +60,6 @@ object LatestScalaVersions {
   val Scala_2_11 = new ScalaVersion(ScalaLanguageLevel.Scala_2_11, "12")
   val Scala_2_12 = new ScalaVersion(ScalaLanguageLevel.Scala_2_12, "13")
   val Scala_2_13 = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "3") // TODO: update to at least 2.13.6
-  val Dotty      = new ScalaVersion(ScalaLanguageLevel.Dotty, "0-RC1") // TODO delete in 2021.2
   val Scala_3_0  = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0")
 
   val all: Seq[ScalaVersion] = Seq(
@@ -69,7 +68,6 @@ object LatestScalaVersions {
     Scala_2_11,
     Scala_2_12,
     Scala_2_13,
-    Dotty,
     Scala_3_0
   )
 }

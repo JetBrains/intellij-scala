@@ -258,10 +258,6 @@ object DependencyManagerBase {
        *  - https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.3
        */
       val (org, idPrefix, idSuffix) = scalaVersion.languageLevel match {
-        case ScalaLanguageLevel.Dotty     => ("ch.epfl.lamp", "dotty", "_" + scalaVersion.major)
-        // NOTE: since scala 3.0.0 release version (no suffixes) it uses `_3` suffix, compare:
-        // 3.0.0     : scala3-library_3
-        // 3.0.0-RC3 : scala3-library_3.0.0-RC3
         case ScalaLanguageLevel.Scala_3_0 =>
           val minorSuffix = scalaVersion.minorSuffix
           if (minorSuffix.startsWith("0") && minorSuffix.contains("-")) // e.g. 3.0.0-RC3
