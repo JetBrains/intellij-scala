@@ -7,8 +7,7 @@ import java.net.URLClassLoader
 import java.nio.file.{Files, Paths}
 
 object TastyReader {
-  def read(bytes: Array[Byte]): Option[(String, String)] =
-    Some(api.read(bytes))
+  def read(bytes: Array[Byte]): Option[(String, String)] = api.read(bytes)
 
   // TODO Access TastyImpl directly
   private lazy val api: TastyApi = {
