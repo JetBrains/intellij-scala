@@ -46,15 +46,19 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         depList
       }
 
-      def addResult(results: CompletionResultSet, result: String): Unit = try {
+      def addResult(results: CompletionResultSet, result: String, fillArtifact: Boolean): Unit = try {
         val depList: List[String] = generateCompletedDependency(result)
         val artifactText = SbtDependencyUtils.generateArtifactText(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtCommon.defaultLibScope))
+        val partialArtifactText = artifactText.split("%").filter(_.nonEmpty).map(_.trim).slice(1, artifactText.length).mkString(" % ")
         if (!(depCache contains artifactText)) {
           results.addElement(new LookupElement {
             override def getLookupString: String = result + RENDERING_PLACEHOLDER
 
             override def renderElement(presentation: LookupElementPresentation): Unit = {
-              presentation.setItemText(artifactText)
+              if (fillArtifact)
+                presentation.setItemText(partialArtifactText)
+              else
+                presentation.setItemText(artifactText)
               presentation.setItemTextBold(true)
             }
 
@@ -99,8 +103,8 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
           throw e
       }
 
-      def completeDependency(resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => try {
-        addResult(resultSet, s"${repo.getGroupId}:${repo.getArtifactId}:")
+      def completeDependency(resultSet: CompletionResultSet, fillArtifact: Boolean = false): MavenRepositoryArtifactInfo => Unit = repo => try {
+        addResult(resultSet, s"${repo.getGroupId}:${repo.getArtifactId}:", fillArtifact)
         resultSet.stopHere()
       } catch {
         case e: Exception =>
@@ -153,14 +157,16 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                   case ref: ScReferenceExpression =>
                     inReadAction(SbtDependencyTraverser.traverseReferenceExpr(ref)(callback))
                 }
+                val groupId = extractedContents(0).asInstanceOf[String]
                 val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                  extractedContents(0).asInstanceOf[String],
+                  groupId,
                   cleanText,
                   dependencySearch,
                   PackageSearchApiHelper.createSearchParameters(params),
                   cld)
 
-                waitAndAdd(searchPromise, cld, completeDependency(results))
+                if (trimDummy(groupId).isEmpty) waitAndAdd(searchPromise, cld, completeDependency(results))
+                else waitAndAdd(searchPromise, cld, completeDependency(results, fillArtifact = true))
                 return
               }
             case x if x > 1 => inReadAction {
