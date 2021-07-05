@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ThrowableRunnable
 import org.jetbrains.plugins.scala.decompiler.scalasig.ScalaSigPrinter.StringFixes
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.Result
 import org.jetbrains.plugins.scala.util.TestUtils
 
 import java.nio.file.{Files, Path, Paths}
+import scala.collection.mutable
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 object ReferenceComparisonTestsGenerator {
   val excluded: Set[String] = Set(
-    "large" // it's just very large with ~10k references/definitions
+    "large", "large2" // they're just very large with ~10k references/definitions
   )
 
   val testOutputPath: Path =
@@ -31,6 +33,7 @@ object ReferenceComparisonTestsGenerator {
         |package org.jetbrains.plugins.scala.lang.resolveSemanticDb
         |package generated
         |
+        |//noinspection NameBooleanParameters
         |class ReferenceComparisonTest extends ReferenceComparisonTestBase {
         |""".stripMargin
 
@@ -38,7 +41,13 @@ object ReferenceComparisonTestsGenerator {
     var successes = 0
     var result = Result.empty
 
+
     val testOutPaths = Files.list(ComparisonTestBase.outPath).iterator().asScala.toSeq
+      .sortBy(_.getFileName.toString)((x, y) => StringUtil.naturalCompare(x, y))
+
+    val originalTestNames = testOutPaths.map(_.getFileName.toString).toSet
+    val usedTestNames = mutable.Set.empty[String]
+
     for {
       testOutPath <- testOutPaths
       testName = testOutPath.getFileName.toString
@@ -54,7 +63,14 @@ object ReferenceComparisonTestsGenerator {
             successes += 1
           result += res
 
-          builder ++= raw"""  def ${s"test_$testName".escapeNonIdentifiers}(): Unit = doTest("$testName", $success)"""
+          val normalizedTestName = testName.replace('-', '_')
+          val finalTestName =
+            if (usedTestNames.contains(normalizedTestName) || originalTestNames.contains(normalizedTestName))
+              testName
+            else normalizedTestName
+          usedTestNames += finalTestName
+          val testId = s"test_$finalTestName".escapeNonIdentifiers
+          builder ++= raw"""  def $testId(): Unit = doTest("$testName", $success)"""
           builder += '\n'
 
           val progress = cases.toDouble / testOutPaths.size.toDouble * 100
