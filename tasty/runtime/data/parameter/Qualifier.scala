@@ -24,4 +24,8 @@ trait Qualifier {
   enum EnumCaseClassProtected {
     case Class(protected[parameter] val x: Int)
   }
+
+  object Object {
+    class Class(private[Object] val x: Int)
+  }
 }

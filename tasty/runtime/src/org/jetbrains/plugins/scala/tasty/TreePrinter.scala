@@ -343,9 +343,9 @@ object TreePrinter {
     } else {
       node.children.foreach {
         case Node(PRIVATEqualified, _, Seq(qualifier)) =>
-          s += "private[" + textOfType(qualifier) + "] "
+          s += "private[" + asQualifier(textOfType(qualifier)) + "] "
         case Node(PROTECTEDqualified, _, Seq(qualifier)) =>
-          s += "protected[" + textOfType(qualifier) + "] "
+          s += "protected[" + asQualifier(textOfType(qualifier)) + "] "
         case _ =>
       }
     }
@@ -398,5 +398,10 @@ object TreePrinter {
       }
       s
     case _ => "" // TODO exhaustive match
+  }
+
+  private def asQualifier(tpe: String): String = {
+    val i = tpe.lastIndexOf(".")
+    (if (i == -1) tpe else tpe.drop(i + 1)).stripSuffix("$")
   }
 }
