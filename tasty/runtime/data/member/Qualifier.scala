@@ -54,4 +54,8 @@ trait Qualifier {
   private[member] given privateGivenInstance: T1 with {}
 
   private[member] given T2 with {}
+
+  object Object {
+    private[Object] def method: Int = ???
+  }
 }

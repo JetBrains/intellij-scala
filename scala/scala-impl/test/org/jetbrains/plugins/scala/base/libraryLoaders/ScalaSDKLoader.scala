@@ -27,15 +27,6 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
 
   protected def binaryDependencies(implicit version: ScalaVersion): List[DependencyDescription] =
     version.languageLevel match { // TODO maybe refactoring?
-      case ScalaLanguageLevel.Dotty =>
-        List(
-          scalaCompilerDescription.transitive(),
-          scalaLibraryDescription.transitive(),
-          //scalaLibraryDescription(Scala_2_13),
-          //DependencyDescription("ch.epfl.lamp", s"tasty-core_${version.major}", version.minor),
-          DependencyDescription("ch.epfl.lamp", "dotty-interfaces", version.minor),
-          //DependencyDescription("org.scala-lang.modules", "scala-asm", "7.0.0-scala-1")
-        )
       case ScalaLanguageLevel.Scala_3_0 =>
         List(
           scalaCompilerDescription.transitive(),
@@ -63,7 +54,7 @@ case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaComp
     val dependencies = binaryDependencies
     val resolved = dependencyManager.resolve(dependencies: _*)
 
-    if (version.languageLevel == ScalaLanguageLevel.Scala_3_0 || version.languageLevel == ScalaLanguageLevel.Dotty)
+    if (version.languageLevel == ScalaLanguageLevel.Scala_3_0)
       assertTrue(
         s"Failed to resolve scala sdk version $version, result:\n${resolved.mkString("\n")}",
         resolved.size >= dependencies.size

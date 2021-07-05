@@ -38,7 +38,7 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
   val isMetaEnabled: Boolean =
     compilerPlugins.exists(isMetaParadiseJar)
 
-  val hasScala3: Boolean = scalaLanguageLevel >= Dotty
+  val hasScala3: Boolean = scalaLanguageLevel >= Scala_3_0
 
   val hasNewCollectionsFramework: Boolean = scalaLanguageLevel >= Scala_2_13
 

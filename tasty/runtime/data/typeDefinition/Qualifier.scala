@@ -36,4 +36,8 @@ trait Qualifier {
   enum ProtectedEnumCaseClass {
     protected[typeDefinition] case Class()
   }
+
+  object Object {
+    private[Object] class Class
+  }
 }

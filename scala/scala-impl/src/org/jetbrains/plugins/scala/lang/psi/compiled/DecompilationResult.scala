@@ -123,11 +123,7 @@ private object DecompilationResult {
 
   private def sourceNameAndText(file: VirtualFile, content: () => Array[Byte]): Option[(String, String)] = {
     if (file.getExtension == TastyFileType.getDefaultExtension) {
-      try {
-        TastyReader.read(content.apply())
-      } catch {
-        case NonFatal(_) => None // TODO Propagate or log
-      }
+      TastyReader.read(content.apply())
     } else {
       Decompiler.sourceNameAndText(file.getName, content())
     }
