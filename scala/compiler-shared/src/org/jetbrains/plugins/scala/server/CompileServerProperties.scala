@@ -6,7 +6,7 @@ object CompileServerProperties {
 
   final val IsScalaCompileServer = "ij.scala.compile.server"
   
-  def isScalaCompileServer: Boolean = {
+  def isMyselfScalaCompileServer: Boolean = {
     val optionResult = for {
       value <- sys.props.get(IsScalaCompileServer)
       booleanValue <- Try(value.toBoolean).toOption

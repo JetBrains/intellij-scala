@@ -15,17 +15,27 @@ import scala.jdk.CollectionConverters._
 /**
  * @author Pavel Fatin
  */
-class LocalServer extends Server {
+final class LocalServer extends Server {
 
   import LocalServer._
 
   private var cachedCompilerFactory: Option[CompilerFactory] = None
   private val lock = new Object()
 
-  override def compile(sbtData: SbtData,
-              compilerData: CompilerData,
-              compilationData: CompilationData,
-              client: Client): ExitCode = {
+  override def compile(
+    sbtData: SbtData,
+    compilerData: CompilerData,
+    compilationData: CompilationData,
+    client: Client
+  ): Either[Server.ServerError, ExitCode] =
+    Right(compile2(sbtData, compilerData, compilationData, client))
+
+  def compile2(
+    sbtData: SbtData,
+    compilerData: CompilerData,
+    compilationData: CompilationData,
+    client: Client
+  ): ExitCode = {
     val collectingSourcesClient = new DelegateClient(client) with CollectingSourcesClient
     val compiler = try lock.synchronized {
       val compilerFactory = compilerFactoryFrom(sbtData, compilerData)

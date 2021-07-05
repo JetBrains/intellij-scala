@@ -1,38 +1,39 @@
-package org.jetbrains.jps
-package incremental
-package scala
-
-import _root_.java.io._
-import _root_.java.net.InetAddress
-import _root_.java.util.ServiceLoader
+package org.jetbrains.jps.incremental.scala
 
 import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
-import org.jetbrains.jps.builders.java.JavaBuilderUtil
+import com.intellij.openapi.util.Key
+import org.jetbrains.jps.ModuleChunk
+import org.jetbrains.jps.incremental.{CompileContext, ModuleLevelBuilder}
+import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.ProgressMessage
+import org.jetbrains.jps.incremental.scala.Server.ServerError
+import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
 
+import _root_.java.io._
+import _root_.java.net.InetAddress
+import _root_.java.util.ServiceLoader
 import _root_.scala.jdk.CollectionConverters._
 
-/**
- * Nikolay.Tropin
- * 11/19/13
- */
 // TODO: use a proper naming. Scala builder of what? Strings? Code? Psi trees?
 object ScalaBuilder {
 
+  private val DisableScalaCompileServerForContextKey = Key.create[Boolean]("DisableScalaCompileServerForContextKey")
+
   import data._
 
-  def compile(context: CompileContext,
-              chunk: ModuleChunk,
-              sources: Seq[File],
-              allSources: Seq[File],
-              modules: Set[JpsModule],
-              client: Client): Either[String, ModuleLevelBuilder.ExitCode] = {
-
-    context.processMessage(new ProgressMessage("Reading compilation settings..."))
+  def compile(
+    context: CompileContext,
+    chunk: ModuleChunk,
+    sources: Seq[File],
+    allSources: Seq[File],
+    modules: Set[JpsModule],
+    client: Client
+  ): Either[String, ModuleLevelBuilder.ExitCode] = {
+    context.processMessage(new ProgressMessage(JpsBundle.message("reading.compilation.settings.0", chunk.getPresentableShortName)))
 
     for {
       sbtData         <-  sbtData
@@ -42,8 +43,31 @@ object ScalaBuilder {
     } yield {
       scalaLibraryWarning(modules, compilationData, client)
 
+      def fallbackToLocalServer(reasonMessage: String, e: Exception): ExitCode = {
+        context.putUserData(DisableScalaCompileServerForContextKey, true)
+        //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
+        client.warning(reasonMessage + s" [${chunk.getPresentableShortName}]" + "\n" + JpsBundle.message("trying.to.compile.without.it"))
+        ClientUtils.reportException(reasonMessage, e, client)
+        localServer.compile2(sbtData, compilerData, compilationData, client)
+      }
+
       val server = getServer(context)
-      server.compile(sbtData, compilerData, compilationData, client)
+      server.compile(sbtData, compilerData, compilationData, client) match {
+        case Left(error)     =>
+          import CompileServerCommonMessages._
+          import ServerError._
+          error match {
+            case ConnectionError(address, port, cause)            =>
+              fallbackToLocalServer(cantConnectToCompileServerErrorMessage(address, port), cause)
+            case UnknownHost(address, cause)               =>
+              val message = unknownHostErrorMessage(address)
+              client.error(message)
+              ClientUtils.reportException(message, cause, client)
+              ExitCode.ABORT
+          }
+        case Right(exitCode) =>
+          exitCode
+      }
     }
   }
 
@@ -66,21 +90,21 @@ object ScalaBuilder {
   val Log: JpsLogger = JpsLogger.getInstance(ScalaBuilder.getClass.getName)
 
   // Cached local localServer
-  private var cachedServer: Option[Server] = None
+  private var cachedLocalServer: Option[LocalServer] = None
 
   private val lock = new Object()
 
-  def localServer: Server = {
+  private def localServer: LocalServer = {
     lock.synchronized {
-      val server = cachedServer.getOrElse(new local.LocalServer())
-      cachedServer = Some(server)
+      val server = cachedLocalServer.getOrElse(new local.LocalServer())
+      cachedLocalServer = Some(server)
       server
     }
   }
 
   private def cleanLocalServerCache(): Unit =
     lock.synchronized {
-      cachedServer = None
+      cachedLocalServer = None
     }
 
   private lazy val sbtData = {
@@ -102,7 +126,11 @@ object ScalaBuilder {
   }
 
   private def getServer(implicit context: CompileContext): Server = {
-    if (isCompileServerEnabled && !CompileServerProperties.isScalaCompileServer) {
+    val useRemoteServer = isCompileServerEnabled &&
+      !CompileServerProperties.isMyselfScalaCompileServer &&
+      !context.getUserData(DisableScalaCompileServerForContextKey)
+
+    if (useRemoteServer) {
       cleanLocalServerCache()
       val port = globalSettings.getCompileServerPort
       Log.info(s"using remote server with port: $port")

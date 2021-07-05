@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java._
@@ -45,7 +44,7 @@ class SbtBuilder extends ModuleLevelBuilder(BuilderCategory.TRANSLATOR) {
 
     updateSharedResources(context, chunk)
 
-    context.processMessage(new ProgressMessage("Searching for compilable files..."))
+    context.processMessage(new ProgressMessage(JpsBundle.message("searching.for.compilable.files.0", chunk.getPresentableShortName)))
 
     val dirtyFilesFromIntellij = collectDirtyFiles(dirtyFilesHolder)
 
