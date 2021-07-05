@@ -93,8 +93,7 @@ object TreePrinter {
       val isAbstractGiven = node.hasFlag(GIVEN)
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
       val isDeclaration = children.filter(!_.isModifier).lastOption.exists(_.isTypeTree)
-      val tpe = children.find(_.isTypeTree)
-      children.filter(_.is(EMPTYCLAUSE, PARAM))
+      val tpe = children.dropWhile(_.is(TYPEPARAM, PARAM, EMPTYCLAUSE, SPLITCLAUSE)).headOption
       textOfAnnotationIn(node) +
       (if (name == "<init>") {
         modifiersIn(node) + "def this" + parametersIn(node) + " = ???" // TODO parameter, { /* compiled code */ }
