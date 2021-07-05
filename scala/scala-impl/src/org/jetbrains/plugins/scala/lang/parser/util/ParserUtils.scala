@@ -10,6 +10,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.BlockExpr
 
 import scala.annotation.tailrec
 
@@ -198,6 +199,13 @@ object ParserUtils {
             // don't advance, we already added error, let's continue parsing following expression if we can parse it
             //builder.advanceLexer()
         }
+      case ScalaTokenTypes.tLBRACE =>
+        // normal blocks are not allowed here,
+        // but we have to parse them anyway
+        // otherwise closing braces might be
+        // matched to other, wrong opening braces
+        builder.error(expectedMessage)
+        BlockExpr()
       case _ =>
         builder.error(expectedMessage)
         builder.advanceLexer() // Ate something
