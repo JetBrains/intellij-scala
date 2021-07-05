@@ -19,8 +19,8 @@ final class SbtExtraControls {
   val resolveSbtClassifiersCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.resolveSbtClassifiers"), SbtBundle.message("sbt.settings.resolveSbtClassifiers.tooltip"))
   val useSbtShellForImportCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForImport"), SbtBundle.message("sbt.settings.useShellForImport.tooltip"))
   val useSbtShellForBuildCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.useShellForBuild"), SbtBundle.message("sbt.settings.useShellForBuild.tooltip"))
-  val remoteDebugSbtShellCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.remoteDebug"), SbtBundle.message("sbt.settings.allowSbtVersionOverride.tooltip"))
-  val allowSbtVersionOverrideCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.allowSbtVersionOverride"), SbtBundle.message("sbt.settings.remoteDebug.tooltip"))
+  val remoteDebugSbtShellCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.remoteDebug"), SbtBundle.message("sbt.settings.remoteDebug.tooltip"))
+  val allowSbtVersionOverrideCheckBox: JCheckBoxWithTooltip = ct(SbtBundle.message("sbt.settings.allowSbtVersionOverride"), SbtBundle.message("sbt.settings.allowSbtVersionOverride.tooltip"))
 
   locally {
     content.setLayout(new GridLayoutManager(8, 2, new Insets(0, 0, 0, 0), -1, -1))
