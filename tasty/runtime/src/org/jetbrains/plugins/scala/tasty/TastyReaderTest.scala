@@ -68,6 +68,7 @@ object TastyReaderTest {
       "typeDefinition/Qualifier",
       "typeDefinition/Trait",
       "types/And",
+      "types/Annotated",
       "types/Constant",
       "types/Function",
       "types/Ident",
