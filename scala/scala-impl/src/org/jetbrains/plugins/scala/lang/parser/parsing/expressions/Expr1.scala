@@ -340,8 +340,9 @@ object Expr1 extends ParsingRule {
   private def parseIf(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
     val iw = builder.currentIndentationWidth
     builder.advanceLexer() //Ate if
+    lazy val condIndent = builder.findPreviousIndent
     builder.getTokenType match {
-      case InScala3(_) if builder.findPreviousIndent.forall(_ > iw) && parseParenlessIfCondition() =>
+      case InScala3(_) if condIndent.forall(_ > iw) && parseParenlessIfCondition(condIndent.isDefined) =>
         // already parsed everything till after 'then'
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
@@ -387,10 +388,10 @@ object Expr1 extends ParsingRule {
     exprMarker.done(ScalaElementType.IF_STMT)
   }
 
-  def parseParenlessIfCondition()(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parseParenlessIfCondition(hasIndent: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val startedWithLParen = builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS
     val rollbackMarker = builder.mark()
-    val success = ExprInIndentationRegion() && (
+    val success = builder.withDisabledNewlinesIf(!hasIndent)(ExprInIndentationRegion()) && (
       if (builder.getTokenType == ScalaTokenType.ThenKeyword) {
         builder.advanceLexer()
         true

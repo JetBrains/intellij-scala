@@ -120,6 +120,10 @@ package object parser {
       finally repr.restoreNewlinesState()
     }
 
+    def withDisabledNewlinesIf[T](cond: Boolean)(body: => T): T =
+      if (cond) withDisabledNewlines(body)
+      else body
+
     def findPreviousNewLine: Option[String] = {
       val (steps, _) = repr.skipWhiteSpacesAndComments(1)
 
