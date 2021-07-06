@@ -520,4 +520,63 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_leading_using_clause(): Unit = checkTree(
+    """
+      |extension (using Test)(i: Int):
+      |  def test = 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement(using)('using')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: Test
+      |          ParameterType
+      |            SimpleType: Test
+      |              CodeReferenceElement: Test
+      |                PsiElement(identifier)('Test')
+      |        PsiElement())(')')
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiElement(:)(':')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: test
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('test')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

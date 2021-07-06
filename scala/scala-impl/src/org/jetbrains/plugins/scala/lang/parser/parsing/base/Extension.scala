@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.{Param, ParamClaus
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{FunDcl, FunDef}
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlockOrIndentationRegion
 
+import scala.annotation.tailrec
+
 /*
  * Extension  ::=  ‘extension’ [DefTypeParamClause] ‘(’ DefParam ‘)’
  *                  {UsingParamClause} ExtMethods
@@ -137,11 +139,17 @@ object ExtensionParameterClauses extends ParsingRule {
       }
 
       builder.getTokenType match {
-        case ScalaTokenTypes.kIMPLICIT | ScalaTokenType.UsingKeyword =>
+        case ScalaTokenTypes.kIMPLICIT =>
           builder.error(ScalaBundle.message("parameter.expected"))
           paramMarker.rollbackTo()
           builder.restoreNewlinesState()
           return false
+        case ScalaTokenTypes.tIDENTIFIER if builder.getTokenText == "using" =>
+          // ExtensionParameterClause can be preceded by a using class
+          paramMarker.rollbackTo()
+          builder.restoreNewlinesState()
+          ParamClause()
+          return ExtensionParameterClause()
         case _ => ()
       }
 

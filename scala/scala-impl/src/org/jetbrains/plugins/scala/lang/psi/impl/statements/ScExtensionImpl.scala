@@ -24,8 +24,11 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
 
   override def toString: String = "Extension on " + targetTypeElement.fold("<unknown>")(_.getText)
 
+  override def targetParameter: Option[ScParameter] =
+    allClauses.find(!_.isUsing).flatMap(_.parameters.headOption)
+
   override def targetTypeElement: Option[ScTypeElement] =
-    parameters.headOption.flatMap(_.typeElement)
+    targetParameter.flatMap(_.typeElement)
 
   override def extensionMethods: Seq[ScFunctionDefinition] =
     extensionBody.fold(Seq.empty[ScFunctionDefinition])(_.functions)
