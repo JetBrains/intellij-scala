@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 object Quoted {
@@ -13,12 +14,7 @@ object Quoted {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer()
-        Block.parse(builder)
-        if (builder.getTokenType == ScalaTokenTypes.tRBRACE) {
-          builder.advanceLexer()
-        } else {
-          builder error ErrMsg("rbrace.expected")
-        }
+        ParserUtils.parseLoopUntilRBrace(builder, () => Block.parse(builder))
         marker.done(ScalaElementType.QUOTED_BLOCK)
       case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer()
