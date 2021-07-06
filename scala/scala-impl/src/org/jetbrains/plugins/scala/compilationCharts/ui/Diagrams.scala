@@ -114,20 +114,25 @@ object Diagrams {
 final case class ProgressDiagram(segmentGroups: Seq[Seq[Segment]],
                                  rowCount: Int)
 
+sealed trait TimeRangeOwner {
+  def from: FiniteDuration
+  def to: FiniteDuration
+}
+
 final case class Segment(unitId: CompilationUnitId,
-                         from: FiniteDuration,
-                         to: FiniteDuration,
+                         override val from: FiniteDuration,
+                         override val to: FiniteDuration,
                          progress: Double,
                          phases: Seq[Phase],
-                         units: Seq[CompilationUnit])
+                         units: Seq[CompilationUnit]) extends TimeRangeOwner
 
 final case class Phase(name: String,
-                       from: FiniteDuration,
-                       to: FiniteDuration)
+                       override val from: FiniteDuration,
+                       override val to: FiniteDuration) extends TimeRangeOwner
 
 final case class CompilationUnit(path: String,
-                                 from: FiniteDuration,
-                                 to: FiniteDuration)
+                                 override val from: FiniteDuration,
+                                 override val to: FiniteDuration) extends TimeRangeOwner
 
 final case class MemoryDiagram(points: Seq[MemoryPoint],
                                maxMemory: Memory)
