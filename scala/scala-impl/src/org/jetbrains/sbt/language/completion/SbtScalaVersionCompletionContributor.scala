@@ -68,7 +68,7 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
         Scala 3 versions
        */
       getVersionFromArtifact("org.scala-lang", "scala3-compiler_3")
-      println(scalaVersionSeq.sortWith(compareVersion))
+
       val newResult = result.withRelevanceSorter(
         CompletionService.getCompletionService.defaultSorter(parameters, result.getPrefixMatcher).weigh(SbtDependencyVersionWeigher)
       )
