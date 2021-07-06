@@ -62,7 +62,7 @@ object SbtDependencyUtils {
     val targetCoordinates = dependency.getCoordinates
     val targetDepText: String = generateArtifactTextVerbose(
       targetCoordinates.getGroupId,
-      targetCoordinates.getArtifactId,
+      targetCoordinates.getArtifactId.replaceAll("_\\d+.*$", ""),
       if (versionRequired) targetCoordinates.getVersion else "",
       if (configurationRequired) dependency.getScope else SbtCommon.defaultLibScope)
     val libDeps = getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetDep)

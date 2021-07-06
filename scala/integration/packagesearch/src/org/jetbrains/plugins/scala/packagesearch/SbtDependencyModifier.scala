@@ -5,6 +5,7 @@ import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDepende
 import com.intellij.externalSystem.ExternalDependencyModificator
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.model.ProjectKeys
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
@@ -21,7 +22,7 @@ import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetP
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.getSbtFileOpt
 import org.jetbrains.sbt.project.data.SbtModuleExtData
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.language.utils.{SbtArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{DependencyOrRepositoryPlaceInfo, SbtArtifactInfo, SbtCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolverUtils}
 
 import java.util
@@ -159,6 +160,13 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     // Check whether the IDE is in Dumb Mode. If it is, return empty list instead proceeding
     if (DumbService.getInstance(module.getProject).isDumb) return List().asJava
 
+    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
+    val libsFromIDE = SbtUtil.
+      getModuleData(module.getProject, moduleId, ProjectKeys.LIBRARY_DEPENDENCY).
+      toList.
+      map(lib => lib.getTarget.getExternalName.split(":").slice(0, 2).mkString(":"))
+
+
     val libDeps = SbtDependencyUtils.
       getLibraryDependenciesOrPlaces(getSbtFileOpt(module), module.getProject, module, GetDep).
       map(_.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)])
@@ -186,20 +194,25 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
         libDepArr.length match {
           case x if x < 3 || x > 4 => null
-          case x if x == 3 => new DeclaredDependency(
-            new UnifiedDependency(
-              libDepArr(0),
-              SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
-              libDepArr(2),
-              SbtCommon.defaultLibScope),
-            dataContext)
-          case x if x == 4 => new DeclaredDependency(
-            new UnifiedDependency(
-              libDepArr(0),
-              SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
-              libDepArr(2),
-              libDepArr(3)),
-            dataContext)
+          case x if x >= 3 =>
+            val scope = if (x == 3) SbtCommon.defaultLibScope else libDepArr(3)
+            val scalaArtifact = s"${libDepArr(0)}:${SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer)}"
+            if (libsFromIDE.contains(scalaArtifact))
+              new DeclaredDependency(
+                new UnifiedDependency(
+                  libDepArr(0),
+                  SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
+                  libDepArr(2),
+                  scope),
+                dataContext)
+            else
+              new DeclaredDependency(
+                new UnifiedDependency(
+                  libDepArr(0),
+                  libDepArr(1),
+                  libDepArr(2),
+                  scope),
+                dataContext)
         }
       }).filter(_ != null).toList.asJava
     })
