@@ -7,13 +7,17 @@ import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
-import java.net.{ConnectException, InetAddress, UnknownHostException}
+import java.net.{ConnectException, InetAddress, SocketTimeoutException, UnknownHostException}
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 final class RemoteServer(
   override val address: InetAddress,
   override val port: Int
 ) extends Server
   with RemoteResourceOwner {
+
+  override protected def socketReadTimeout: FiniteDuration =
+    Option(System.getProperty("scala.compile.server.socket.read.timeout.seconds").toInt.seconds).getOrElse(30.seconds)
 
   override def compile(sbtData: SbtData,
                        compilerData: CompilerData,
@@ -28,6 +32,7 @@ final class RemoteServer(
       // client.compilationEnd() is meant to be sent by remote server
       Right(ExitCode.OK)
     } catch {
+      case e: SocketTimeoutException => Left(ServerError.SocketReadTimeout(address, port, socketReadTimeout, e))
       case e: ConnectException       => Left(ServerError.ConnectionError(address, port, e))
       case e: UnknownHostException   => Left(ServerError.UnknownHost(address, e))
     }

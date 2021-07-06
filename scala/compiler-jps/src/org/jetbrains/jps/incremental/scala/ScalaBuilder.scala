@@ -21,6 +21,10 @@ import _root_.scala.jdk.CollectionConverters._
 // TODO: use a proper naming. Scala builder of what? Strings? Code? Psi trees?
 object ScalaBuilder {
 
+  /**
+   * If there is some error during connection to the Compile Server,
+   * remember it and do not try using CS when building subsequent module chunks
+   */
   private val DisableScalaCompileServerForContextKey = Key.create[Boolean]("DisableScalaCompileServerForContextKey")
 
   import data._
@@ -43,12 +47,15 @@ object ScalaBuilder {
     } yield {
       scalaLibraryWarning(modules, compilationData, client)
 
+      // TODO: ensure Scala Compile server is stopped in order it doesn't eventually
+      //  do any compilation in parallel with local compilation
       def fallbackToLocalServer(reasonMessage: String, e: Exception): ExitCode = {
         context.putUserData(DisableScalaCompileServerForContextKey, true)
         //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
         client.warning(reasonMessage + s" [${chunk.getPresentableShortName}]" + "\n" + JpsBundle.message("trying.to.compile.without.it"))
         ClientUtils.reportException(reasonMessage, e, client)
-        localServer.compile2(sbtData, compilerData, compilationData, client)
+
+        localServer.doCompile(sbtData, compilerData, compilationData, client)
       }
 
       val server = getServer(context)
@@ -57,6 +64,8 @@ object ScalaBuilder {
           import CompileServerCommonMessages._
           import ServerError._
           error match {
+            case SocketReadTimeout(address, port, timeout, cause) =>
+              fallbackToLocalServer(noResponseFromCompileServer(address, port, timeout), cause)
             case ConnectionError(address, port, cause)            =>
               fallbackToLocalServer(cantConnectToCompileServerErrorMessage(address, port), cause)
             case UnknownHost(address, cause)               =>

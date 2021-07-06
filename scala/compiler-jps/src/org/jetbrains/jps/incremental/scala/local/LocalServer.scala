@@ -28,9 +28,9 @@ final class LocalServer extends Server {
     compilationData: CompilationData,
     client: Client
   ): Either[Server.ServerError, ExitCode] =
-    Right(compile2(sbtData, compilerData, compilationData, client))
+    Right(doCompile(sbtData, compilerData, compilationData, client))
 
-  def compile2(
+  def doCompile(
     sbtData: SbtData,
     compilerData: CompilerData,
     compilationData: CompilationData,

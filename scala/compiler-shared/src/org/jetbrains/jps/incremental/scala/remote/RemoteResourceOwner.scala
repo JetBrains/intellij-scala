@@ -9,7 +9,7 @@ import java.io._
 import java.net.{InetAddress, Socket}
 import java.nio.charset.StandardCharsets
 import java.util.Base64
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.Using
 
 /**
@@ -20,11 +20,15 @@ trait RemoteResourceOwner {
 
   protected def address: InetAddress
   protected def port: Int
-  
+
+  // TODO: set non-zero value and properly handle timeout exception in all usages RemoteResourceOwner
+  protected def socketReadTimeout: FiniteDuration = Duration.Zero
+
   protected val currentDirectory: String = System.getProperty("user.dir")
 
   @throws[java.io.IOException]
   @throws[java.net.SocketException]
+  @throws[java.net.SocketTimeoutException]
   @throws[java.net.UnknownHostException]
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
     val encodedArgs = arguments.map(s => Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
@@ -34,6 +38,7 @@ trait RemoteResourceOwner {
         output.flush()
         if (client != null) {
           Using.resource(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
+            socket.setSoTimeout(socketReadTimeout.toMillis.toInt)
             handle(input, client)
           }
         }

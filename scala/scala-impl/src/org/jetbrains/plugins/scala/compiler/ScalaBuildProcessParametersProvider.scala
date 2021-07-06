@@ -4,6 +4,7 @@ import java.util
 import com.intellij.compiler.server.BuildProcessParametersProvider
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdkVersion
+import com.intellij.openapi.util.registry.Registry
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.plugins.scala.compiler.data.SbtData
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
@@ -20,7 +21,9 @@ class ScalaBuildProcessParametersProvider(project: Project)
   override def getVMArguments: util.List[String] = {
     customScalaCompilerInterfaceDir().toSeq ++
     parallelCompilationOptions() ++
-    addOpens()
+    addOpens() :+
+    // this is the only way to propagate registry values to the JPS process
+    s"-Dscala.compile.server.socket.read.timeout.seconds=${Registry.intValue("scala.compile.server.socket.read.timeout.seconds")}"
   }.asJava
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {
