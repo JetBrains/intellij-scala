@@ -1,9 +1,12 @@
-package org.jetbrains.jps.incremental.scala
+package org.jetbrains.jps.incremental.scala.utils
+
+import org.jetbrains.jps.incremental.scala.ScalaJpsSharedBundle
 
 import java.net.InetAddress
 import scala.concurrent.duration.FiniteDuration
 
-object CompileServerCommonMessages {
+object CompileServerSharedConnectionErrorMessages {
+
   def unknownHostErrorMessage(address: InetAddress): String =
     ScalaJpsSharedBundle.message("unknown.ip.address.of.compile.server", address.toString)
 

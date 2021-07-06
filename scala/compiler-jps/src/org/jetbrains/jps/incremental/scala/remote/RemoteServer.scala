@@ -1,9 +1,9 @@
-package org.jetbrains.jps.incremental.scala
-package remote
+package org.jetbrains.jps.incremental.scala.remote
 
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.Utils
 import org.jetbrains.jps.incremental.scala.Server.ServerError
+import org.jetbrains.jps.incremental.scala.{Client, Server}
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 

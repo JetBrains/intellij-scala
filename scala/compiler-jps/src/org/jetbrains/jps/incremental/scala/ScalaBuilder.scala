@@ -45,6 +45,8 @@ object ScalaBuilder {
       compilerData    <- dataFactory.getCompilerDataFactory.from(context, chunk)
       compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
     } yield {
+      Log.info(s"Compiling ${compilationData.sources.size} files; module: ${chunk.getPresentableShortName}")
+
       scalaLibraryWarning(modules, compilationData, client)
 
       // TODO: ensure Scala Compile server is stopped in order it doesn't eventually
@@ -52,8 +54,9 @@ object ScalaBuilder {
       def fallbackToLocalServer(reasonMessage: String, e: Exception): ExitCode = {
         context.putUserData(DisableScalaCompileServerForContextKey, true)
         //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
-        client.warning(reasonMessage + s" [${chunk.getPresentableShortName}]" + "\n" + JpsBundle.message("trying.to.compile.without.it"))
-        ClientUtils.reportException(reasonMessage, e, client)
+        val message = reasonMessage + s" [${chunk.getPresentableShortName}]\n" + JpsBundle.message("trying.to.compile.without.it")
+        client.warning(message)
+        Log.warn(message, e)
 
         localServer.doCompile(sbtData, compilerData, compilationData, client)
       }
@@ -61,7 +64,7 @@ object ScalaBuilder {
       val server = getServer(context)
       server.compile(sbtData, compilerData, compilationData, client) match {
         case Left(error)     =>
-          import CompileServerCommonMessages._
+          import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedConnectionErrorMessages._
           import ServerError._
           error match {
             case SocketReadTimeout(address, port, timeout, cause) =>
@@ -71,7 +74,7 @@ object ScalaBuilder {
             case UnknownHost(address, cause)               =>
               val message = unknownHostErrorMessage(address)
               client.error(message)
-              ClientUtils.reportException(message, cause, client)
+              Log.error(message, cause)
               ExitCode.ABORT
           }
         case Right(exitCode) =>
@@ -142,10 +145,10 @@ object ScalaBuilder {
     if (useRemoteServer) {
       cleanLocalServerCache()
       val port = globalSettings.getCompileServerPort
-      Log.info(s"using remote server with port: $port")
+      Log.info(s"Using remote server with port: $port")
       new remote.RemoteServer(InetAddress.getByName(null), port)
     } else {
-      Log.info("using local server")
+      Log.info("Using local server")
       localServer
     }
   }
