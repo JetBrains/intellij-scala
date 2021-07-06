@@ -7,7 +7,7 @@ package params
 import com.intellij.psi.tree.IElementType
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 
 abstract class TypesAsParams(val paramType: IElementType) extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
@@ -44,13 +44,10 @@ abstract class TypesAsParams(val paramType: IElementType) extends ParsingRule {
 
   private def tryParseTypeAsParam(rollback: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark()
-    val typeMarker = builder.mark()
-    if (Type.parse(builder)) {
-      typeMarker.done(ScalaElementType.PARAM_TYPE)
+    if (ParamType()) {
       paramMarker.done(paramType)
       true
     } else {
-      typeMarker.drop()
       if (rollback) paramMarker.rollbackTo()
       else paramMarker.drop()
       false
