@@ -42,7 +42,8 @@ public class PackageSearchApiHelper {
                                                             String artifactId,
                                                             DependencySearchService service,
                                                             SearchParameters searchParameters,
-                                                            ConcurrentLinkedDeque<MavenRepositoryArtifactInfo> cld) {
+                                                            ConcurrentLinkedDeque<MavenRepositoryArtifactInfo> cld,
+                                                            Boolean fillArtifact) {
         String finalGroupId = formatString(groupId);
         String finalArtifactId = formatString(artifactId);
         String textSearch = "";
@@ -52,7 +53,7 @@ public class PackageSearchApiHelper {
         return service.fulltextSearch(textSearch, searchParameters, repo -> {
             if (repo instanceof MavenRepositoryArtifactInfo) {
                 MavenRepositoryArtifactInfo tempRepo = (MavenRepositoryArtifactInfo) repo;
-                if (!finalGroupId.equals("") && !finalArtifactId.equals("")) {
+                if (fillArtifact) {
                     if (tempRepo.getGroupId().equals(finalGroupId))
                         cld.add((MavenRepositoryArtifactInfo) repo);
                 }

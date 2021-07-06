@@ -51,7 +51,8 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
           artifactId,
           dependencySearch,
           PackageSearchApiHelper.createSearchParameters(parameters),
-          cld
+          cld,
+          false
         )
 
         PackageSearchApiHelper.waitAndAdd(searchPromise, cld, addVersion(groupId, artifactId, result))
