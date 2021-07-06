@@ -276,4 +276,43 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_named_using_param(): Unit = checkTree(
+    "def test(using => X): Unit = ()",
+    """
+      |ScalaFile
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement(using)('using')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: X
+      |          ParameterType
+      |            PsiElement(=>)('=>')
+      |            PsiWhiteSpace(' ')
+      |            SimpleType: X
+      |              CodeReferenceElement: X
+      |                PsiElement(identifier)('X')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: Unit
+      |      CodeReferenceElement: Unit
+      |        PsiElement(identifier)('Unit')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    UnitExpression
+      |      PsiElement(()('(')
+      |      PsiElement())(')')
+      |""".stripMargin
+  )
 }
