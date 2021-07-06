@@ -1,6 +1,6 @@
-[0,3425]: PackageDef
+[0,3441]: PackageDef
 [0,0]: Ident
-[0,3425]: ModuleDef
+[0,3441]: ModuleDef
 [22,3425]: Template
 [22,22]: DefDef
 [22,22]: TypeTree
@@ -272,7 +272,7 @@
 [1322,1327]: Ident
 [1328,1332]: Block
 [1331,1332]: Ident
-[1338,1568]: TypeDef
+[1338,1581]: TypeDef
 [1356,1568]: Template
 [1356,1356]: DefDef
 [1356,1356]: TypeTree
@@ -328,7 +328,7 @@
 [1792,1793]: Ident
 [1794,1795]: Ident
 [1796,1797]: Ident
-[1802,2113]: TypeDef
+[1802,2127]: TypeDef
 [1821,2113]: Template
 [1821,1821]: DefDef
 [1821,1821]: TypeTree
@@ -450,7 +450,7 @@
 [2457,2461]: ValDef
 [2460,2461]: Ident
 [2464,2471]: Ident
-[2474,2569]: ModuleDef
+[2474,2579]: ModuleDef
 [2490,2569]: Template
 [2490,2490]: DefDef
 [2490,2490]: TypeTree
@@ -472,7 +472,7 @@
 [2564,2565]: Ident
 [2566,2567]: Ident
 [2568,2569]: Ident
-[2583,2800]: ModuleDef
+[2583,2810]: ModuleDef
 [2600,2800]: Template
 [2600,2600]: DefDef
 [2600,2600]: TypeTree
