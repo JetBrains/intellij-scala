@@ -111,7 +111,7 @@
                          bundle="messages.ScalaSbtBundle"
                          key="packagesearch.dependency.version.inspection.description"
                          shortName="SbtDependencyVersionInspection" groupKey="group.sbt"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
 
         <!--end of Package Search inspections-->
 
