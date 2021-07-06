@@ -154,7 +154,13 @@ object TreePrinter {
       val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
       if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
       else if (base == "scala.|") elements.mkString(" | ")
-      else simple(base) + "[" + elements.mkString(", ") + "]"
+      else {
+        if (base.startsWith("scala.Function")) {
+          (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + " => " + elements.last
+        } else {
+          simple(base) + "[" + elements.mkString(", ") + "]"
+        }
+      }
     case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
       annotation match {
         case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) if textOfType(tpe0) == "scala.annotation.internal.Repeated" => // TODO FQN
