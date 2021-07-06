@@ -26,6 +26,8 @@ class ProcessWatcher(process: Process, commandLine: String) {
 
   def running: Boolean = !processHandler.isProcessTerminated
 
+  def pid: Long = process.pid()
+
   def errors(): Seq[String] = {
     lock.synchronized {
       val result = errorLines

@@ -105,7 +105,13 @@ final class CompileServerManager(project: Project) extends Disposable {
       override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 
       //noinspection ReferencePassedToNls
-      override def getTooltipText: String = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
+      override def getTooltipText: String = {
+        val portDetail = launcher.port.map(_.formatted("TCP %d"))
+        val pidDetail = launcher.pid.map(_.formatted("PID %d"))
+        val details = portDetail ++ pidDetail
+        val detailsText = if (details.isEmpty) "" else details.mkString(" (", ", ", ")")
+        title + detailsText
+      }
 
       private object ClickConsumer extends Consumer[MouseEvent] {
         override def consume(t: MouseEvent): Unit = toggleList(t)

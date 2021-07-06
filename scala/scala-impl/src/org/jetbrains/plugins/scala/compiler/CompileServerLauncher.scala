@@ -274,6 +274,7 @@ object CompileServerLauncher {
   def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
 
   def port: Option[Int] = serverInstance.map(_.port)
+  def pid: Option[Long] = serverInstance.map(_.watcher.pid)
 
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedSdk(project)
