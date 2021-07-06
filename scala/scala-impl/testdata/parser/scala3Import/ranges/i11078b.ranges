@@ -13,7 +13,7 @@
 [30,33]: Ident
 [34,35]: Ident
 [36,36]: TypeTree
-[41,162]: TypeDef
+[41,179]: TypeDef
 [63,162]: Template
 [63,63]: DefDef
 [63,63]: TypeTree
