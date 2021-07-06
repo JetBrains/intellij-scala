@@ -58,42 +58,42 @@ object ParserUtils {
     }
   }
 
-  @tailrec
-  def parseLoopUntilRBrace(builder: ScalaPsiBuilder, fun: () => Unit, braceReported: Boolean = false): Unit = {
+  def parseLoopUntilRBrace(braceReported: Boolean = false)(body: => Unit)(implicit builder: ScalaPsiBuilder): Unit = {
     var br = braceReported
-    fun()
-    builder.getTokenType match {
-      case ScalaTokenTypes.tRBRACE =>
-        builder.advanceLexer()
-        return
-      case ScalaTokenTypes.tLBRACE => //to avoid missing '{'
-        if (!braceReported) {
-          builder error ErrMsg("rbrace.expected")
-          br = true
-        }
-        var balance = 1
-        builder.advanceLexer()
-        while (balance != 0 && !builder.eof) {
-          builder.getTokenType match {
-            case ScalaTokenTypes.tRBRACE => balance -= 1
-            case ScalaTokenTypes.tLBRACE => balance += 1
-            case _ =>
+    while (true) {
+      body
+      builder.getTokenType match {
+        case ScalaTokenTypes.tRBRACE =>
+          builder.advanceLexer()
+          return
+        case ScalaTokenTypes.tLBRACE => //to avoid missing '{'
+          if (!br) {
+            builder error ErrMsg("rbrace.expected")
+            br = true
+          }
+          var balance = 1
+          builder.advanceLexer()
+          while (balance != 0 && !builder.eof) {
+            builder.getTokenType match {
+              case ScalaTokenTypes.tRBRACE => balance -= 1
+              case ScalaTokenTypes.tLBRACE => balance += 1
+              case _ =>
+            }
+            builder.advanceLexer()
+          }
+          if (builder.eof)
+            return
+        case _ =>
+          if (!br) {
+            builder error ErrMsg("rbrace.expected")
+            br = true
           }
           builder.advanceLexer()
-        }
-        if (builder.eof)
-          return
-      case _ =>
-        if (!braceReported) {
-          builder error ErrMsg("rbrace.expected")
-          br = true
-        }
-        builder.advanceLexer()
-        if (builder.eof) {
-          return
-        }
+          if (builder.eof) {
+            return
+          }
+      }
     }
-    parseLoopUntilRBrace(builder, fun, br)
   }
 
   def parseBalancedParenthesis(builder: ScalaPsiBuilder, accepted: TokenSet, count: Int = 1): Boolean = {

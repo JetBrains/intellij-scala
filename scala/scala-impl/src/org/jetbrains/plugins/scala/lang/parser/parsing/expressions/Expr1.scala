@@ -176,12 +176,11 @@ object Expr1 extends ParsingRule {
           case ScalaTokenTypes.tLBRACE =>
             builder.advanceLexer() //Ate {
             builder.enableNewlines()
-            def foo(): Unit = {
+            ParserUtils.parseLoopUntilRBrace() {
               if (!Enumerators()) {
                 builder error ErrMsg("enumerators.expected")
               }
             }
-            ParserUtils.parseLoopUntilRBrace(builder, foo _)
             builder.restoreNewlinesState()
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
@@ -417,13 +416,11 @@ object Expr1 extends ParsingRule {
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
 
-        def foo(): Unit = {
+        ParserUtils.parseLoopUntilRBrace() {
           if (!CaseClauses()) {
             builder error ErrMsg("case.clauses.expected")
           }
         }
-
-        ParserUtils.parseLoopUntilRBrace(builder, foo _)
         builder.restoreNewlinesState()
 
       case InScala3(ScalaTokenTypes.kCASE) if builder.isScala3IndentationBasedSyntaxEnabled =>

@@ -33,7 +33,9 @@ object Refinement extends ParsingRule {
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
 
-        ParserUtils.parseLoopUntilRBrace(builder, () => RefineStatSeq())
+        ParserUtils.parseLoopUntilRBrace() {
+          RefineStatSeq()
+        }
         builder.restoreNewlinesState()
         refineMarker.done(ScalaElementType.REFINEMENT)
 
