@@ -102,7 +102,7 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
             SbtBundle.message("packagesearch.newer.stable.version.available", groupId, artifactId),
             isOnTheFly,
             Array(new SbtUpdateDependencyVersionQuickFix(element, newerStableVersion).asInstanceOf[LocalQuickFix]),
-            ProblemHighlightType.WEAK_WARNING))
+            highlightType))
         else None
       case _ => None
     }
