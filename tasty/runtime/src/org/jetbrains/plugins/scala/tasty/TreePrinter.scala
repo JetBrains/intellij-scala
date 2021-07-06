@@ -242,7 +242,9 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
+        params += textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
         templateTypeParams.map(_.next()).foreach { typeParam =>
+          params += textOfAnnotationIn(typeParam).replace("\n", " ") // TODO Handle in the method
           if (typeParam.hasFlag(COVARIANT)) {
             params += "+"
           }
@@ -302,6 +304,7 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
+        params += textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
         if (node.hasFlag(INLINE)) {
           params += "inline "
         }

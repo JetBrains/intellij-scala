@@ -18,6 +18,7 @@ object TastyReaderTest {
 
     Seq(
       "annotation/Members",
+      "annotation/Parameters",
       "annotation/Text",
       "member/Bounds",
       "member/Def",
