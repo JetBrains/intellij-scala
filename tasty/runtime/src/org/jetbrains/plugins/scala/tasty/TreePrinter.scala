@@ -155,7 +155,9 @@ object TreePrinter {
       if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
       else if (base == "scala.|") elements.mkString(" | ")
       else {
-        if (base.startsWith("scala.Function")) {
+        if (base.startsWith("scala.Tuple")) {
+          elements.mkString("(", ", ", ")")
+        } else if (base.startsWith("scala.Function")) {
           (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + " => " + elements.last
         } else {
           simple(base) + "[" + elements.mkString(", ") + "]"
