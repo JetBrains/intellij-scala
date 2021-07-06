@@ -6,10 +6,9 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, Spliced}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, SplicedType}
 
 import scala.annotation.tailrec
 
@@ -129,7 +128,7 @@ trait SimpleType {
             fMarker.done(ScalaElementType.SIMPLE_TYPE)
         }
       case ScalaTokenType.SpliceStart =>
-        Spliced.parse(builder, inType = true)
+        SplicedType.parse(builder)
       case _ =>
         return rollbackCase(builder, simpleMarker)
     }
