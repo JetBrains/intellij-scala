@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * AnnotationExpr ::= Constr [[nl] '{' {NameValuePair} '}']
  */
-object AnnotationExpr {
+object AnnotationExpr extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val annotExprMarker = builder.mark
     if (!Constructor.parse(builder, isAnnotation = true)) {
       annotExprMarker.drop()
@@ -36,8 +36,8 @@ object AnnotationExpr {
         builder.advanceLexer() //Ate }
         builder.enableNewlines()
         
-        def foo(): Unit = {
-          while (NameValuePair.parse(builder)) {
+        ParserUtils.parseLoopUntilRBrace() {
+          while (NameValuePair()) {
             builder.getTokenType match {
               case ScalaTokenTypes.tCOMMA => builder.advanceLexer()
               case _ =>
@@ -48,8 +48,6 @@ object AnnotationExpr {
             }
           }
         }
-        
-        ParserUtils.parseLoopUntilRBrace(builder, foo _)
         builder.restoreNewlinesState()
         annotExprMarker.done(ScalaElementType.ANNOTATION_EXPR)
         

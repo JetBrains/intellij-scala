@@ -100,12 +100,12 @@ object SimplePattern extends ParsingRule {
       case _ =>
     }
 
-    if (InterpolationPattern parse builder) {
+    if (InterpolationPattern()) {
       simplePatternMarker.done(ScalaElementType.INTERPOLATION_PATTERN)
       return true
     }
 
-    if (Literal parse builder) {
+    if (Literal()) {
       simplePatternMarker.done(ScalaElementType.LITERAL_PATTERN)
       return true
     }

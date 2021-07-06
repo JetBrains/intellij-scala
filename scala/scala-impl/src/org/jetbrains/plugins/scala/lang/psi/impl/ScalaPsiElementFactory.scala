@@ -300,12 +300,12 @@ object ScalaPsiElementFactory {
 
   def createAnnotationExpression(@NonNls text: String)
                                 (implicit ctx: ProjectContext): ScAnnotationExpr =
-    createElement(text)(expressions.AnnotationExpr.parse)
+    createElement(text)(expressions.AnnotationExpr.parse(_))
       .asInstanceOf[ScAnnotationExpr]
 
   def createBlockExpressionWithoutBracesFromText(@NonNls text: String)
                                                 (implicit ctx: ProjectContext): ScBlockImpl = {
-    createElement(text)(expressions.Block.parse(_, hasBrace = false, needNode = true)) match {
+    createElement(text)(expressions.Block.parse(hasBrace = false, needNode = true)(_)) match {
       case b: ScBlockImpl => b
       case _ => null
     }

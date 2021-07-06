@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.{BlockIndentation, ScalaElementTy
  */
 object CommonUtils {
 
-  def parseInterpolatedString(builder: ScalaPsiBuilder, isPattern: Boolean): Unit = {
+  def parseInterpolatedString(isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Unit = {
     val prefixMarker = builder.mark()
     builder.advanceLexer()
     val prefixType =
@@ -44,7 +44,7 @@ object CommonUtils {
               builder.error(ScalaBundle.message("wrong.pattern"))
             else if (builder.getTokenType != ScalaTokenTypes.tRBRACE) {
               builder.error(ScalaBundle.message("right.brace.expected"))
-              ParserUtils.parseLoopUntilRBrace(builder, () => (), braceReported = true)
+              ParserUtils.parseLoopUntilRBrace(braceReported = true) {}
             }
             else
               builder.advanceLexer()
@@ -102,7 +102,7 @@ object CommonUtils {
       case _ =>
     }
 
-  def eatAllSemicolons(builder: ScalaPsiBuilder): Unit = {
+  def eatAllSemicolons()(implicit builder: ScalaPsiBuilder): Unit = {
     while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
       builder.advanceLexer()
     }

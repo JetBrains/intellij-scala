@@ -17,9 +17,9 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 /*
  * Block ::= {BlockStat semi}[ResultExpr]
  */
-object Block {
+object Block extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Unit = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
       var hasSemicolon = false
       var rollbackMarker = builder.mark()
@@ -51,6 +51,7 @@ object Block {
       }
       rollbackMarker.drop()
     }
+    true
   }
 
   private def parseImpl(implicit builder: ScalaPsiBuilder): Int = {
@@ -78,8 +79,9 @@ object Block {
     i
   }
 
-  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean,
-            needNode: Boolean = false): Boolean = {
+  def apply(hasBrace: Boolean, needNode: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean =
+    parse(hasBrace, needNode)
+  def parse(hasBrace: Boolean, needNode: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (hasBrace) {
       val blockMarker = builder.mark
       builder.getTokenType match {
@@ -90,7 +92,9 @@ object Block {
           blockMarker.drop()
           return false
       }
-      ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
+      ParserUtils.parseLoopUntilRBrace() {
+        Block()
+      }
       builder.restoreNewlinesState()
       blockMarker.done(ScCodeBlockElementType.BlockExpression)
     }

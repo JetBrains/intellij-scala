@@ -14,7 +14,9 @@ abstract class Spliced(elementType: ScalaElementType) extends ParsingRule {
     assert(builder.getTokenType == ScalaTokenTypes.tLBRACE) // should be handled by the lexer
     builder.advanceLexer()
 
-    ParserUtils.parseLoopUntilRBrace(builder, () => Block.parse(builder))
+    ParserUtils.parseLoopUntilRBrace() {
+      Block()
+    }
 
     marker.done(elementType)
     true
