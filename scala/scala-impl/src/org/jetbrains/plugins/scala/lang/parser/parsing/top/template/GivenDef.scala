@@ -102,11 +102,10 @@ object GivenDef {
 
     if (builder.getTokenType == ScalaTokenTypes.kWITH) {
       builder.advanceLexer()
-    } else {
-      builder.error(ScalaBundle.message("expected.with"))
+
+      if (!GivenTemplateBody())
+        builder.error(ScalaBundle.message("lbrace.expected"))
     }
-    if (!GivenTemplateBody())
-      builder.error(ScalaBundle.message("lbrace.expected"))
 
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
     true

@@ -572,6 +572,33 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_constr_app(): Unit = checkTree(
+    """
+      |given Foo()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScGivenDefinition: given_Foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Foo
+      |            CodeReferenceElement: Foo
+      |              PsiElement(identifier)('Foo')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_plain(): Unit = checkTree(
     """
       |given Ord[Int] with {}
