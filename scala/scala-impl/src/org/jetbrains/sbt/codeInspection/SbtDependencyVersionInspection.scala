@@ -57,7 +57,9 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
           artifactId,
           dependencySearch,
           new SearchParameters(true, isUnitTestMode),
-          cld)
+          cld,
+          false
+        )
         var newerStableVersion = version
 
         def addVersion(repo: MavenRepositoryArtifactInfo): Unit = {

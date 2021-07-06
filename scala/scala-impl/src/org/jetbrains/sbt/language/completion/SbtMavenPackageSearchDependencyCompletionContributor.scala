@@ -145,7 +145,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                   "",
                   dependencySearch,
                   PackageSearchApiHelper.createSearchParameters(params),
-                  cld)
+                  cld,
+                  false
+                )
 
                 waitAndAdd(searchPromise, cld, completeDependency(results))
                 return
@@ -158,15 +160,17 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                     inReadAction(SbtDependencyTraverser.traverseReferenceExpr(ref)(callback))
                 }
                 val groupId = extractedContents(0).asInstanceOf[String]
+                val fillArtifact = trimDummy(groupId).nonEmpty
                 val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
                   groupId,
                   cleanText,
                   dependencySearch,
                   PackageSearchApiHelper.createSearchParameters(params),
-                  cld)
+                  cld,
+                  fillArtifact
+                )
 
-                if (trimDummy(groupId).isEmpty) waitAndAdd(searchPromise, cld, completeDependency(results))
-                else waitAndAdd(searchPromise, cld, completeDependency(results, fillArtifact = true))
+                waitAndAdd(searchPromise, cld, completeDependency(results, fillArtifact))
                 return
               }
             case x if x > 1 => inReadAction {
@@ -182,7 +186,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                     artifactId,
                     dependencySearch,
                     PackageSearchApiHelper.createSearchParameters(params),
-                    cld)
+                    cld,
+                    false
+                  )
                   val newResults = results.withRelevanceSorter(CompletionService.getCompletionService.defaultSorter(params, results.getPrefixMatcher).weigh(SbtDependencyVersionWeigher))
 
                   waitAndAdd(searchPromise, cld, completeVersion(groupId, extractedContents(1).asInstanceOf[String], newResults))
@@ -201,7 +207,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                 "",
                 dependencySearch,
                 PackageSearchApiHelper.createSearchParameters(params),
-                cld)
+                cld,
+                false
+              )
 
               waitAndAdd(searchPromise, cld, completeDependency(results))
               return
@@ -219,7 +227,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                         "",
                         dependencySearch,
                         PackageSearchApiHelper.createSearchParameters(params),
-                        cld)
+                        cld,
+                        false
+                      )
 
                       waitAndAdd(searchPromise, cld, completeDependency(results))
                       return
@@ -246,7 +256,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                 "",
                 dependencySearch,
                 PackageSearchApiHelper.createSearchParameters(params),
-                cld)
+                cld,
+                false
+              )
 
               waitAndAdd(searchPromise, cld, completeDependency(results))
               return
@@ -264,7 +276,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                       "",
                       dependencySearch,
                       PackageSearchApiHelper.createSearchParameters(params),
-                      cld)
+                      cld,
+                      false
+                    )
 
                     waitAndAdd(searchPromise, cld, completeDependency(results))
                     return
