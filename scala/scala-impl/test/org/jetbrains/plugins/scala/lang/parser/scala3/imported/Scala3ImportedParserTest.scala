@@ -124,6 +124,7 @@ abstract class Scala3ImportedParserTestBase(dir: String) extends ScalaFileSetTes
 }
 
 
+@RunWith(classOf[AllTests])
 class Scala3ImportedParserTest extends Scala3ImportedParserTestBase(Scala3ImportedParserTest.directory) {
   override protected def shouldHaveErrors: Boolean = false
 }
@@ -139,6 +140,7 @@ object Scala3ImportedParserTest {
  * If this tests fails because you fixed parser stuff,
  * run [[Scala3ImportedParserTest_Move_Fixed_Tests]].
  */
+@RunWith(classOf[AllTests])
 class Scala3ImportedParserTest_Fail extends Scala3ImportedParserTestBase(Scala3ImportedParserTest_Fail.directory) {
   override protected def shouldHaveErrors: Boolean = true
 }
