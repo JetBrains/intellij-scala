@@ -235,4 +235,64 @@ class FunDefTest extends SimpleScala3ParserTestBase {
       |          PsiElement(.)('.')
       |          PsiElement(identifier)('toString')""".stripMargin
   )
+
+  def test_func_expr_result(): Unit = checkTree(
+    """
+      |def error =
+      |  x
+      |  () => ()
+      |
+      |def test = 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScFunctionDefinition: error
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('error')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    BlockExpression
+      |      PsiWhiteSpace('\n  ')
+      |      ReferenceExpression: x
+      |        PsiElement(identifier)('x')
+      |      PsiWhiteSpace('\n  ')
+      |      FunctionExpression
+      |        Parameters
+      |          ParametersClause
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=>)('=>')
+      |        PsiWhiteSpace(' ')
+      |        BlockOfExpressions
+      |          UnitExpression
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |  PsiWhiteSpace('\n\n')
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      <empty list>
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

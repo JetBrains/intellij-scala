@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 object Block extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+    if (!ResultExpr() && BlockStat()) {
       var hasSemicolon = false
       var rollbackMarker = builder.mark()
 
@@ -37,7 +37,7 @@ object Block extends ParsingRule {
 
       updateSemicolon()
 
-      while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
+      while (!ResultExpr() && BlockStat()) {
         if (!hasSemicolon) {
           rollbackMarker.rollbackTo()
           builder error ErrMsg("semi.expected")
@@ -61,13 +61,16 @@ object Block extends ParsingRule {
     var tts: List[IElementType] = Nil
     var continue = true
 
+    val prevIndentation = builder.currentIndentationWidth
     while (continue) {
       blockIndentation.fromHere()
-      if (ResultExpr.parse(builder)) {
+      if (builder.isScala3IndentationBasedSyntaxEnabled && builder.findPreviousIndent.exists(_ < prevIndentation)) {
+        continue = false
+      } else if (ResultExpr()) {
         continue = false
         i = i + 1
         tts ::= builder.getTokenType
-      } else if (BlockStat.parse(builder)) {
+      } else if (BlockStat()) {
         i = i + 1
         tts ::= builder.getTokenType
       } else {
