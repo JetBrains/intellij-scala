@@ -175,7 +175,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def isImportDelimiter(psi: PsiElement): Boolean = psi.is[PsiWhiteSpace]
 
-  override def supports(file: PsiFile): Boolean = file.is[ScalaFile]
+  //we should not apply this to Play2ScalaFile, it is covered by Play2ImportOptimizer
+  override def supports(file: PsiFile): Boolean =
+    file.is[ScalaFile] && !file.getVirtualFile.getName.endsWith(".html")
 
   def replaceWithNewImportInfos(range: RangeInfo, importInfos: Iterable[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
     val firstPsi = range.firstPsi.retrieve()
