@@ -46,7 +46,8 @@ lazy val scalaCommunity: sbt.Project =
       packageSearchIntegration,
       propertiesIntegration % "test->test;compile->compile",
       javaDecompilerIntegration,
-      mlCompletionIntegration % "test->test;compile->compile"
+      mlCompletionIntegration % "test->test;compile->compile",
+      pluginXml,
     )
     .settings(
       ideExcludedDirectories    := Seq(baseDirectory.value / "target"),
@@ -62,10 +63,16 @@ lazy val scalaCommunity: sbt.Project =
         runtimeDependencies,
       ),
       packageLibraryMappings := Dependencies.scalaLibrary -> Some("lib/scala-library.jar") :: Nil,
+      packageMethod := PackagingMethod.Standalone(),
       intellijPlugins := intellijPlugins.all(ScopeFilter(inDependencies(ThisProject, includeRoot = false))).value.flatten.distinct,
       (Test / definedTests) := { // all sub-project tests need to be run within main project's classpath
         definedTests.all(ScopeFilter(inDependencies(scalaCommunity, includeRoot = false), inConfigurations(Test))).value.flatten }
     )
+
+lazy val pluginXml = newProject("pluginXml", file("pluginXml"))
+  .settings(
+    packageMethod := PackagingMethod.Standalone(),
+  )
 
 lazy val scalaApi = newProject(
   "scala-api",

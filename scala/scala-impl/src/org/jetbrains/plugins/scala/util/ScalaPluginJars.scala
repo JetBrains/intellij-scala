@@ -14,15 +14,8 @@ import scala.util.parsing.combinator.RegexParsers
 object ScalaPluginJars {
 
   val libRoot: File = {
-    val jarPath = new File(PathUtil.getJarPathForClass(this.getClass)) // scalaUltimate.jar
-    // TODO: looks like we do not need this check anymore
-    //  looks like dev idea classpath always contains path to jar file
-    val isDevelopmentMode = jarPath.getName == "classes"
-    if (isDevelopmentMode) {
-      new File(jarPath.getParentFile, "lib")
-    } else  {
-      jarPath.getParentFile
-    }
+    val jarPath = new File(PathUtil.getJarPathForClass(this.getClass)) // scalaCommunity.jar
+    jarPath.getParentFile
   }
 
   val jpsRoot: File =
