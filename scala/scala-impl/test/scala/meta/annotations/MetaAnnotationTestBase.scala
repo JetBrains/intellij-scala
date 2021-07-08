@@ -11,7 +11,7 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.JavaCodeInsightFixtureTestCase
 import com.intellij.testFramework.{CompilerTester, PsiTestUtil}
-import org.jetbrains.plugins.scala.{DependencyManager, NlsString}
+import org.jetbrains.plugins.scala.{TestDependencyManager, NlsString}
 import org.jetbrains.plugins.scala.DependencyManagerBase._
 import org.jetbrains.plugins.scala.debugger.{CompilationCache, ScalaCompilerTestBase}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
@@ -67,7 +67,7 @@ abstract class MetaAnnotationTestBase extends JavaCodeInsightFixtureTestCase wit
   }
 
   protected def enableParadisePlugin(): Unit = {
-    val pluginArtifact = DependencyManager.resolve("org.scalameta" % s"paradise_${version.minor}" % PARADISE_VERSION)
+    val pluginArtifact = TestDependencyManager.resolve("org.scalameta" % s"paradise_${version.minor}" % PARADISE_VERSION)
     val profile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
     val settings = profile.getSettings
     assertTrue("Paradise plugin not found, aborting compilation", pluginArtifact.nonEmpty)
