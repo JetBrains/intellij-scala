@@ -17,9 +17,7 @@ import org.junit.Assert._
 
 case class ScalaSDKLoader(includeScalaReflect: Boolean = false, includeScalaCompiler: Boolean = false) extends LibraryLoader {
 
-  protected lazy val dependencyManager: DependencyManagerBase = new DependencyManagerBase {
-    override protected val artifactBlackList: Set[String] = Set.empty
-  }
+  protected lazy val dependencyManager: DependencyManagerBase = DependencyManager
 
   import DependencyManagerBase._
   import ScalaSDKLoader._

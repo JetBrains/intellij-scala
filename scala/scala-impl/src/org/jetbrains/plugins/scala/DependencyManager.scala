@@ -28,8 +28,10 @@ abstract class DependencyManagerBase {
   // which is loaded in a special way in tests via org.jetbrains.plugins.scala.base.libraryLoaders.ScalaSDKLoader
   //TODO: should we add scala3-* here?
   //TODO: maybe we should only introduce this default blacklist in tests which actually rely on it and leave it empty by default?
-  protected val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
+  protected val artifactBlackList: Set[String] = Set.empty
+
   private def ignoreArtifact(artifactName: String): Boolean = artifactBlackList.contains(stripScalaVersion(artifactName))
+
   protected val logLevel: Int = org.apache.ivy.util.Message.MSG_WARN
 
   protected def resolvers: Seq[Resolver] = defaultResolvers
@@ -333,4 +335,10 @@ object DependencyManagerBase {
   }
 }
 
-object DependencyManager extends DependencyManagerBase
+object TestDependencyManager extends DependencyManagerBase {
+  override val artifactBlackList: Set[String] = Set("scala-library", "scala-reflect", "scala-compiler")
+}
+
+object DependencyManager extends DependencyManagerBase {
+  override val artifactBlackList: Set[String] = Set.empty
+}

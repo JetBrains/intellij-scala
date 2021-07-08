@@ -1,8 +1,5 @@
 package org.jetbrains.bsp.protocol.session
 
-import java.io.File
-import java.net.URI
-
 import ch.epfl.scala.bsp4j.{BspConnectionDetails, BuildClientCapabilities, InitializeBuildParams}
 import com.google.gson.{JsonArray, JsonObject}
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
@@ -10,6 +7,7 @@ import org.jetbrains.bsp.{BspBundle, BspError, BspErrorMessage}
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier
 
+import java.net.URI
 import scala.jdk.CollectionConverters._
 
 object BspServerConnector {

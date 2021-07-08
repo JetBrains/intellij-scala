@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.worksheet.integration.repl
 
 import com.intellij.openapi.editor.Editor
-import org.jetbrains.plugins.scala.{DependencyManager, WorksheetEvaluationTests}
+import org.jetbrains.plugins.scala.{TestDependencyManager, WorksheetEvaluationTests}
 import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedRegistryValue
 import org.jetbrains.plugins.scala.util.assertions.StringAssertions._
 import org.jetbrains.plugins.scala.util.runners._
@@ -33,7 +33,7 @@ class WorksheetReplIntegration_Scala_2_13_Test extends WorksheetReplIntegration_
      * see org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer for the details
      */
     import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
-    DependencyManager.resolve("jline" % "jline" % "2.14.6")
+    TestDependencyManager.resolve("jline" % "jline" % "2.14.6")
 
     val left =
       """val a = 1
