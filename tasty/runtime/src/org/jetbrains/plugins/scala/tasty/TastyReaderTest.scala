@@ -18,6 +18,7 @@ object TastyReaderTest {
 
     Seq(
       "annotation/Members",
+      "annotation/Parameters",
       "annotation/Text",
       "member/Bounds",
       "member/Def",
@@ -67,7 +68,9 @@ object TastyReaderTest {
       "typeDefinition/Qualifier",
       "typeDefinition/Trait",
       "types/And",
+      "types/Annotated",
       "types/Constant",
+      "types/Function",
       "types/Ident",
       "types/Literal",
       "types/Or",
@@ -76,6 +79,7 @@ object TastyReaderTest {
       "types/Select",
       "types/Singleton",
       "types/This",
+      "types/Tuple",
       "EmptyPackage",
       "Nesting",
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>

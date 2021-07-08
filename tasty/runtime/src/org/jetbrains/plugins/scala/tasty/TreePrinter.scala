@@ -127,9 +127,9 @@ object TreePrinter {
   // TODO keep prefixes? but those are not "relative" imports, but regular (implicit) imports of each Scala compilation unit
   private def simple(tpe: String): String = {
     val s1 = tpe.stripPrefix("_root_.")
-    val s2 = if (!s1.stripPrefix("scala.").stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
-    val s3 = if (!s2.stripPrefix("java.lang.").stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
-    val s4 = if (!s3.stripPrefix("scala.Predef.").stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
+    val s2 = if (!s1.stripPrefix("scala.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s1.stripPrefix("scala.") else s1
+    val s3 = if (!s2.stripPrefix("java.lang.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s2.stripPrefix("java.lang.") else s2
+    val s4 = if (!s3.stripPrefix("scala.Predef.").takeWhile(!_.isWhitespace).stripSuffix(".type").contains('.')) s3.stripPrefix("scala.Predef.") else s3
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
@@ -154,11 +154,23 @@ object TreePrinter {
       val (base, elements) = (textOfType(constructor), arguments.map(it => simple(textOfType(it))))
       if (base == "scala.&") elements.mkString(" & ") // TODO infix types in general?
       else if (base == "scala.|") elements.mkString(" | ")
-      else simple(base) + "[" + elements.mkString(", ") + "]"
+      else {
+        if (base.startsWith("scala.Tuple")) {
+          elements.mkString("(", ", ", ")")
+        } else if (base.startsWith("scala.Function")) {
+          (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + " => " + elements.last
+        } else {
+          simple(base) + "[" + elements.mkString(", ") + "]"
+        }
+      }
     case Node(ANNOTATEDtpt | ANNOTATEDtype, _, Seq(tpe, annotation)) =>
       annotation match {
-        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) if textOfType(tpe0) == "scala.annotation.internal.Repeated" => // TODO FQN
-          textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
+        case Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe0, _: _*)), _: _*)), args: _*)) =>
+          if (textOfType(tpe0) == "scala.annotation.internal.Repeated") textOfType(tpe.children(1)) + "*" // TODO check tree (APPLIEDtpt)
+          else textOfType(tpe) + " " + "@" + simple(textOfType(tpe0)) + {
+            val args = annotation.children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
+            if (args.nonEmpty) "(" + args + ")" else ""
+          }
         case _ => textOfType(tpe)
       }
     case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
@@ -234,7 +246,9 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
+        params += textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
         templateTypeParams.map(_.next()).foreach { typeParam =>
+          params += textOfAnnotationIn(typeParam).replace("\n", " ") // TODO Handle in the method
           if (typeParam.hasFlag(COVARIANT)) {
             params += "+"
           }
@@ -294,6 +308,7 @@ object TreePrinter {
         if (next) {
           params += ", "
         }
+        params += textOfAnnotationIn(node).replace("\n", " ") // TODO Handle in the method
         if (node.hasFlag(INLINE)) {
           params += "inline "
         }

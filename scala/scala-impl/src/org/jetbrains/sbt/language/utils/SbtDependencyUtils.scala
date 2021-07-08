@@ -201,6 +201,30 @@ object SbtDependencyUtils {
 
   def cleanUpDependencyPart(s: String): String = s.trim.replaceAll("^\"|\"$", "")
 
+  def isScalaLibraryDependency(psi: PsiElement): Boolean = {
+    var result = false
+
+    def callback(psiElement: PsiElement): Boolean = {
+      psiElement match {
+        case infix: ScInfixExpr if infix.operation.refName.contains("%%") =>
+          result = true
+          false
+        case _ => true
+      }
+    }
+
+    inReadAction({
+      psi match {
+        case infix: ScInfixExpr => SbtDependencyTraverser.traverseInfixExpr(infix)(callback)
+        case call: ScMethodCall => SbtDependencyTraverser.traverseMethodCall(call)(callback)
+        case refExpr: ScReferenceExpression => SbtDependencyTraverser.traverseReferenceExpr(refExpr)(callback)
+        case _ =>
+      }
+    })
+
+    result
+  }
+
   /** Parse Library Dependencies or Places from PsiElement
    *
    * @param psi  psiElement need passing
