@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPreviewWizard
 import org.jetbrains.sbt.language.utils.SbtCommon.defaultLibScope
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
-import org.jetbrains.sbt.language.utils.SbtDependencyUtils.getSbtFileOpt
+import org.jetbrains.sbt.language.utils.SbtDependencyUtils.{getSbtFileOpt, isScalaLibraryDependency}
 import org.jetbrains.sbt.project.data.SbtModuleExtData
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.language.utils.{DependencyOrRepositoryPlaceInfo, SbtArtifactInfo, SbtCommon, SbtDependencyUtils}
@@ -160,13 +160,6 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     // Check whether the IDE is in Dumb Mode. If it is, return empty list instead proceeding
     if (DumbService.getInstance(module.getProject).isDumb) return List().asJava
 
-    val moduleId = ExternalSystemApiUtil.getExternalProjectId(module)
-    val libsFromIDE = SbtUtil.
-      getModuleData(module.getProject, moduleId, ProjectKeys.LIBRARY_DEPENDENCY).
-      toList.
-      map(lib => lib.getTarget.getExternalName.split(":").slice(0, 2).mkString(":"))
-
-
     val libDeps = SbtDependencyUtils.
       getLibraryDependenciesOrPlaces(getSbtFileOpt(module), module.getProject, module, GetDep).
       map(_.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)])
@@ -196,8 +189,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
           case x if x < 3 || x > 4 => null
           case x if x >= 3 =>
             val scope = if (x == 3) SbtCommon.defaultLibScope else libDepArr(3)
-            val scalaArtifact = s"${libDepArr(0)}:${SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer)}"
-            if (libsFromIDE.contains(scalaArtifact))
+            if (isScalaLibraryDependency(libDepInfixAndString._1))
               new DeclaredDependency(
                 new UnifiedDependency(
                   libDepArr(0),
