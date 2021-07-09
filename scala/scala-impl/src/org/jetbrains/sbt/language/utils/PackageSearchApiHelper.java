@@ -12,28 +12,6 @@ import java.util.Arrays;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 public class PackageSearchApiHelper {
-    public static Promise<Integer> searchGroupArtifact(String groupId,
-                                                       String artifactId,
-                                                       DependencySearchService service,
-                                                       SearchParameters searchParameters,
-                                                       ConcurrentLinkedDeque<MavenRepositoryArtifactInfo> cld) {
-        if (artifactId == null) {
-            return service.fulltextSearch(groupId, searchParameters, repo -> {
-                if (repo instanceof MavenRepositoryArtifactInfo) {
-                    cld.add((MavenRepositoryArtifactInfo) repo);
-                }
-            });
-        }
-        else {
-            return service.suggestPrefix(groupId, artifactId, searchParameters, repo -> {
-                if (repo instanceof MavenRepositoryArtifactInfo) {
-                    cld.add((MavenRepositoryArtifactInfo) repo);
-                }
-            });
-        }
-
-    }
-
     private static String formatString(String str) {
         return str.replaceAll("^\"+|\"+$", "");
     }
@@ -50,20 +28,20 @@ public class PackageSearchApiHelper {
         if (!finalGroupId.equals("") && !finalArtifactId.equals(""))
             textSearch = String.format("%s:%s", finalGroupId, finalArtifactId);
         else textSearch = finalGroupId + finalArtifactId;
-        return service.fulltextSearch(textSearch, searchParameters, repo -> {
-            if (repo instanceof MavenRepositoryArtifactInfo) {
-                MavenRepositoryArtifactInfo tempRepo = (MavenRepositoryArtifactInfo) repo;
-                if (fillArtifact) {
+        if (fillArtifact)
+            return service.suggestPrefix(finalGroupId, finalArtifactId, searchParameters, repo -> {
+                if (repo instanceof MavenRepositoryArtifactInfo) {
+                    MavenRepositoryArtifactInfo tempRepo = (MavenRepositoryArtifactInfo) repo;
                     if (tempRepo.getGroupId().equals(finalGroupId))
                         cld.add((MavenRepositoryArtifactInfo) repo);
                 }
-                else {
+            });
+        else
+            return service.fulltextSearch(textSearch, searchParameters, repo -> {
+                if (repo instanceof MavenRepositoryArtifactInfo) {
                     cld.add((MavenRepositoryArtifactInfo) repo);
                 }
-
-            }
-        });
-
+            });
     }
 
     public static SearchParameters createSearchParameters(CompletionParameters params) {
