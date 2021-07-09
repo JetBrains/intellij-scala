@@ -5,7 +5,9 @@ import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION_BODY, PARAM_CLAUSES}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
@@ -31,8 +33,8 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
   override def parameters: Seq[ScParameter] =
     clauses.toSeq.flatMap(_.clauses.flatMap(_.parameters))
 
-  override def clauses: Option[ScParameters]          = findChild[ScParameters]
-  override def extensionBody: Option[ScExtensionBody] = findChild[ScExtensionBody]
+  override def clauses: Option[ScParameters]          = getStubOrPsiChild(PARAM_CLAUSES).toOption
+  override def extensionBody: Option[ScExtensionBody] = getStubOrPsiChild(EXTENSION_BODY).toOption
 
   override def getContainingClass: PsiClass = null
 
