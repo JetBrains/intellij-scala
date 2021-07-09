@@ -26,9 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
   *         Date: 22.02.2008
   */
 
-class ScFunctionDefinitionImpl(stub: ScFunctionStub[ScFunctionDefinition],
-                               nodeType: ScFunctionElementType[ScFunctionDefinition],
-                               node: ASTNode)
+class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S],
+                                                          nodeType: ScFunctionElementType[S],
+                                                          node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDefinition {
 

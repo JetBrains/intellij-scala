@@ -9,8 +9,10 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.psi.{PsiElement, PsiNamedElement}
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.PARAM_CLAUSES
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGivenDefinition, ScMember}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
@@ -48,7 +50,7 @@ class ScGivenDefinitionImpl(
 
   @Cached(ModTracker.anyScalaPsiChange, this)
   override def clauses: Option[ScParameters] =
-    findChild[ScParameters]
+    getStubOrPsiChild(PARAM_CLAUSES).toOption
 
   override def parameters: Seq[ScParameter] =
     clauses.fold(Seq.empty[ScParameter])(_.params)
