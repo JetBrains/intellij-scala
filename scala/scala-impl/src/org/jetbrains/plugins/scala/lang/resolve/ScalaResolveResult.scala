@@ -71,12 +71,8 @@ class ScalaResolveResult(
   /**
    * this is important to get precedence information
    */
-  def getActualElement: PsiNamedElement = {
-    parentElement match {
-      case Some(e) => e
-      case None => element
-    }
-  }
+  def getActualElement: PsiNamedElement =
+    parentElement.getOrElse(element)
 
   def isApplicable(withExpectedType: Boolean = false): Boolean =
     if (withExpectedType) problems.isEmpty
