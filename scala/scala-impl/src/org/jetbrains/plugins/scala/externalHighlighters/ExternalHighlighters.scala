@@ -11,7 +11,7 @@ import com.intellij.psi._
 import com.intellij.xml.util.XmlStringUtil
 import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
@@ -90,8 +90,11 @@ object ExternalHighlighters {
         .escapedToolTip(escapeHtmlWithNewLines(description))
         .group(ScalaCompilerPassId)
         .create()
-      val fixes = findQuickFixes(psiFile, highlightRange, highlighting.highlightType)
-      fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
+
+      executeOnPooledThread {
+        val fixes = inReadAction(findQuickFixes(psiFile, highlightRange, highlighting.highlightType))
+        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
+      }
       highlightInfo
     }
   }
