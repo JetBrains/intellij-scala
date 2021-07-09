@@ -208,7 +208,6 @@ class ScalaFoldingBuilder extends CustomFoldingBuilder with PossiblyDumbAware {
       case d: ScPatternDefinition  => d.expr
       case d: ScVariableDefinition => d.expr
       case d: ScFunctionDefinition => d.body
-      case _: ScGivenAlias         => defaultBodyImpl
       case _: ScTypeAlias          => defaultBodyImpl
       case _                       => None
     }

@@ -19,4 +19,7 @@ class Scala3ResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with Sim
        |}
        |""".stripMargin)
 
+  def testGivenAliasParam(): Unit = doResolveTest(
+    s"given mySummon[A](using ${REFTGT}value: A): A = ${REFSRC}value"
+  )
 }
