@@ -176,11 +176,13 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
             case x if x > 1 => inReadAction {
               val deps = SbtDependencyUtils.getLibraryDependenciesOrPlacesFromPsi(expr, mode = GetDep)
               if (deps.nonEmpty) {
-                extractedContents = SbtDependencyUtils.processLibraryDependencyFromExprAndString(deps.head.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)])
+                val libDepExprTuple = deps.head.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]
+                extractedContents = SbtDependencyUtils.processLibraryDependencyFromExprAndString(libDepExprTuple)
                 val dep = extractedContents.map(str => trimDummy(str.asInstanceOf[String]))
                 if (dep.length >= 3) {
                   val groupId = extractedContents(0).asInstanceOf[String]
-                  val artifactId = s"${extractedContents(1).asInstanceOf[String]}"
+                  var artifactId = s"${extractedContents(1).asInstanceOf[String]}"
+                  if (SbtDependencyUtils.isScalaLibraryDependency(libDepExprTuple._1)) artifactId = SbtDependencyUtils.buildScalaDependencyString(artifactId, scalaVer)
                   val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
                     groupId,
                     artifactId,
