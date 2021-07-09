@@ -224,8 +224,8 @@ lazy val scalaImpl: sbt.Project =
       packageAdditionalProjects := Seq(tastyRuntime),
       packageLibraryMappings := Seq(
         "org.scalameta" %% ".*" % ".*"                     -> Some("lib/scalameta.jar"),
-        "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,
-        "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
+        // "com.thesamet.scalapb" %% "scalapb-runtime" % ".*" -> None,
+        // "com.thesamet.scalapb" %% "lenses" % ".*"          -> None,
         Dependencies.scalaXml                              -> Some("lib/scala-xml.jar"),
         Dependencies.scalaReflect                          -> Some("lib/scala-reflect.jar"),
         Dependencies.scalaLibrary                          -> None,
