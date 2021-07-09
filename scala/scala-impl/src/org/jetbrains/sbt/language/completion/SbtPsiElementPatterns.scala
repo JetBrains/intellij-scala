@@ -1,5 +1,8 @@
 package org.jetbrains.sbt.language.completion
 
+import com.intellij.codeInsight.completion.CompletionInitializationContext
+import com.intellij.lang.properties.PropertiesFileType
+import com.intellij.lang.properties.psi.Property
 import com.intellij.patterns.PatternCondition
 import com.intellij.patterns.PlatformPatterns.{psiElement, psiFile}
 import com.intellij.patterns.PsiElementPattern.Capture
@@ -20,6 +23,10 @@ object SbtPsiElementPatterns {
     psiFile.withFileType(instanceOf(classOf[ScalaFileType]))
   }
 
+  def propertiesFilePattern: Capture[PsiElement] = psiElement.inFile {
+    psiFile.withFileType(instanceOf(classOf[PropertiesFileType]))
+  }
+
   def sbtModuleIdPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isSbtModuleIdPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
       elem match {
@@ -32,11 +39,13 @@ object SbtPsiElementPatterns {
     }
   })
 
-  def scalaVersionPattern:Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isScalaVersionPattern") {
+  def versionPattern:Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isVersionPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
       elem match {
         case infix: ScInfixExpr =>
           infix.left.getText == "scalaVersion" && infix.operation.refName == ":="
+        case property: Property =>
+          property.getFirstChild.getText == "sbt.version" && property.getLastChild.getText.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
         case _ => false
       }
     }
