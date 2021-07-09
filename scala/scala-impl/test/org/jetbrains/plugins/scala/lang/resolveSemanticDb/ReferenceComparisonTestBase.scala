@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTes
 
 
 
-class ReferenceComparisonTestBase extends ComparisonTestBase {
+abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
   override def doTest(testName: String, shouldSucceed: Boolean): Unit = {
     val Result(problems, _, _, _, _, _) = runTestToResult(testName)
