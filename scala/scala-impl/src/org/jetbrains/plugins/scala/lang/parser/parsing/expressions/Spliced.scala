@@ -15,7 +15,7 @@ abstract class Spliced(elementType: ScalaElementType) extends ParsingRule {
     builder.advanceLexer()
 
     ParserUtils.parseLoopUntilRBrace() {
-      Block.Content()
+      Block.ContentInBraces()
     }
 
     marker.done(elementType)
