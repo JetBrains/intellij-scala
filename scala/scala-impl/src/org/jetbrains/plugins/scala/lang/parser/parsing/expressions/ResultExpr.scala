@@ -33,7 +33,7 @@ object ResultExpr extends ParsingRule {
     def parseFunctionEnd(): Boolean = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
         builder.advanceLexer() //Ate => or ?=>
-        Block(hasBrace = false, needNode = true)
+        Block.Braceless(needNode = true)
         backupMarker.drop()
         resultMarker.done(ScalaElementType.FUNCTION_EXPR)
         true

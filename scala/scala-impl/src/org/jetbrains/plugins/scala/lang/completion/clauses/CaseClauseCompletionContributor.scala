@@ -157,15 +157,15 @@ object CaseClauseCompletionContributor {
       }
   }
 
-  private final object AotCompletionProvider extends aot.CompletionProvider[ScTypedPattern] {
+  private final object AotCompletionProvider extends aot.CompletionProvider[ScTypedPatternLike] {
 
-    override protected def findTypeElement(pattern: ScTypedPattern): Option[ScTypeElement] =
+    override protected def findTypeElement(pattern: ScTypedPatternLike): Option[ScTypeElement] =
       pattern.typePattern.map(_.typeElement)
 
     override protected def createConsumer(resultSet: CompletionResultSet, position: PsiElement): aot.Consumer = new aot.TypedConsumer(resultSet)
 
-    override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScTypedPattern =
-      createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPattern]
+    override protected def createElement(text: String, context: PsiElement, child: PsiElement): ScTypedPatternLike =
+      createPatternFromTextWithContext(text, context, child).asInstanceOf[ScTypedPatternLike]
   }
 
   private final class CaseClauseInsertHandler(components: ClassPatternComponents)

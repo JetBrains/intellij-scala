@@ -57,7 +57,7 @@ abstract class CaseClause extends ParsingRule {
 
 object CaseClause extends CaseClause {
   override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
-    if (!Block(hasBrace = false, needNode = true)) {
+    if (!Block.Braceless(needNode = true)) {
       builder error ErrMsg("wrong.expression")
     }
   }
