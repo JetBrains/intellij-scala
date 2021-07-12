@@ -969,7 +969,7 @@ class ReferenceComparisonTest extends ReferenceComparisonTestBase {
   def test_i10997(): Unit = doTest("i10997", false)
   def test_i11003(): Unit = doTest("i11003", false)
   def test_i11015(): Unit = doTest("i11015", true)
-  def test_i11020(): Unit = doTest("i11020", false)
+  def test_i11020(): Unit = doTest("i11020", true)
   def test_i11057(): Unit = doTest("i11057", false)
   def test_i11064(): Unit = doTest("i11064", true)
   def test_i11075(): Unit = doTest("i11075", true)
