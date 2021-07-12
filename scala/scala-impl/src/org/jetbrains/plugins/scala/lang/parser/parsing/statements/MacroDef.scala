@@ -43,7 +43,7 @@ object MacroDef extends ParsingRule {
                           if (builder.twoNewlinesBeforeCurrentToken) {
                             return false
                           }
-                          Block(hasBrace = true)
+                          Block.Braced()
                           marker.drop()
                           true
                         case _ =>
@@ -81,7 +81,7 @@ object MacroDef extends ParsingRule {
                     if (builder.twoNewlinesBeforeCurrentToken) {
                       return false
                     }
-                    Block(hasBrace = true)
+                    Block.Braced()
                     marker.drop()
                     true
                   case _ =>

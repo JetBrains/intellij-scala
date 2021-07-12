@@ -78,7 +78,7 @@ object FunDef extends ParsingRule {
               faultMarker.rollbackTo()
               return false
             }
-            Block(hasBrace = true)
+            Block.Braced()
             faultMarker.drop()
             true
           case _ =>

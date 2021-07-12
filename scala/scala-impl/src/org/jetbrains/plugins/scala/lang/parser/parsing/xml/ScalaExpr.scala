@@ -25,7 +25,7 @@ object ScalaExpr extends ParsingRule {
         builder.enableNewlines()
       case _ => return false
     }
-    if (!Block(hasBrace = false, needNode = true)) {
+    if (!Block.Braceless(needNode = true)) {
       builder error ErrMsg("xml.scala.expression.exected")
     }
     CommonUtils.eatAllSemicolons()
