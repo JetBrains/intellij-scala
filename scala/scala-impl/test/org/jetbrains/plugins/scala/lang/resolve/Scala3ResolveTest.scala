@@ -8,16 +8,25 @@ class Scala3ResolveTest extends ScalaLightCodeInsightFixtureTestAdapter with Sim
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
 
-  def testSummon(): Unit = doResolveTest(
-    s"""class A {
-       |  def ${REFTGT}bar(): Unit = ()
-       |}
-       |given A = new A
-       |
-       |def foo(): Unit = {
-       |  summon[A].${REFSRC}bar()
-       |}
-       |""".stripMargin)
+  def testSummon(): Unit = {
+    doResolveTest(
+      s"""class A {
+         |  def ${REFTGT}bar(): Unit = ()
+         |}
+         |given A = new A
+         |
+         |def foo(): Unit = {
+         |  summon[A].${REFSRC}bar()
+         |}
+         |""".stripMargin)
+
+    doResolveTest(
+      s"def foo: String = Predef.${REFSRC}summon[String]")
+  }
+
+  def testStrictEquality(): Unit= doResolveTest(
+    s"import scala.language.${REFSRC}strictEquality"
+  )
 
   def testGivenAliasParam(): Unit = doResolveTest(
     s"given mySummon[A](using ${REFTGT}value: A): A = ${REFSRC}value"

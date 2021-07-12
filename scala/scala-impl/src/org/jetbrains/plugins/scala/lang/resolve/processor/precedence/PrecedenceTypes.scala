@@ -70,13 +70,6 @@ object PrecedenceTypes {
   private val defaultPrecedenceTypes =
     new PrecedenceTypes(defaultImplicitlyImportedSymbols)
 
-  private def defaultImplicitlyImportedSymbols(m: Module): Seq[String] =
-    if (m.hasScala3) defaultImplicitlyImportedSymbols :+ "scala.runtime.stdLibPatches.Predef"
-    else defaultImplicitlyImportedSymbols
-
-  private def defaultPrecedenceTypes(m: Module) =
-    new PrecedenceTypes(defaultImplicitlyImportedSymbols(m))
-
   private def mayHaveCustomDefaultImports(e: PsiElement): Boolean =
     e.getContainingFile match {
       case sf: ScalaFile if !sf.isCompiled => true
@@ -85,7 +78,7 @@ object PrecedenceTypes {
 
   @CachedInUserData(module, ScalaCompilerConfiguration.modTracker(module.getProject))
   def forModule(module: Module): PrecedenceTypes =
-    module.customDefaultImports.fold(defaultPrecedenceTypes(module))(new PrecedenceTypes(_))
+    module.customDefaultImports.fold(defaultPrecedenceTypes)(new PrecedenceTypes(_))
 
   def forElement(e: PsiElement): PrecedenceTypes =
     e.module.fold(defaultPrecedenceTypes) { m =>
