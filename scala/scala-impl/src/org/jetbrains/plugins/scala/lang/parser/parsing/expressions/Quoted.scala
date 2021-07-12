@@ -16,7 +16,7 @@ object Quoted extends ParsingRule {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer()
         ParserUtils.parseLoopUntilRBrace() {
-          Block.Content()
+          Block.ContentInBraces()
         }
         marker.done(ScalaElementType.QUOTED_BLOCK)
       case ScalaTokenTypes.tLSQBRACKET =>

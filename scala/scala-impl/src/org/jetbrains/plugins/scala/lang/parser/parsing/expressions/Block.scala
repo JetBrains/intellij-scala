@@ -18,9 +18,9 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * Block ::= {BlockStat semi}[ResultExpr]
  */
 object Block {
-  object Content extends ParsingRule {
+  object ContentInBraces extends ParsingRule {
     override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-      if (!ResultExpr() && BlockStat()) {
+      if (!ResultExpr(stopOnOutdent = false) && BlockStat()) {
         var hasSemicolon = false
         var rollbackMarker = builder.mark()
 
@@ -37,7 +37,7 @@ object Block {
 
         updateSemicolon()
 
-        while (!ResultExpr() && BlockStat()) {
+        while (!ResultExpr(stopOnOutdent = false) && BlockStat()) {
           if (!hasSemicolon) {
             rollbackMarker.rollbackTo()
             builder error ErrMsg("semi.expected")
@@ -67,7 +67,7 @@ object Block {
           return false
       }
       ParserUtils.parseLoopUntilRBrace() {
-        Block.Content()
+        Block.ContentInBraces()
       }
       builder.restoreNewlinesState()
       blockMarker.done(ScCodeBlockElementType.BlockExpression)
@@ -76,9 +76,9 @@ object Block {
   }
 
   object Braceless {
-    def apply(needNode: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+    def apply(stopOnOutdent: Boolean, needNode: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
       val bm = builder.mark()
-      val count = parseImpl()
+      val count = parseImpl(stopOnOutdent)
       if (count > 1 || needNode) {
         bm.done(ScalaElementType.BLOCK)
       } else {
@@ -87,7 +87,7 @@ object Block {
       true
     }
 
-    private def parseImpl()(implicit builder: ScalaPsiBuilder): Int = {
+    private def parseImpl(stopOnOutdent: Boolean)(implicit builder: ScalaPsiBuilder): Int = {
       var i: Int = 0
       val blockIndentation = BlockIndentation.create
 
@@ -97,9 +97,14 @@ object Block {
       val prevIndentation = builder.currentIndentationWidth
       while (continue) {
         blockIndentation.fromHere()
-        if (builder.isScala3IndentationBasedSyntaxEnabled && builder.findPreviousIndent.exists(_ < prevIndentation)) {
+        val isOutdent =
+          stopOnOutdent &&
+          builder.isScala3 &&
+          builder.isScala3IndentationBasedSyntaxEnabled &&
+            builder.findPreviousIndent.exists(_ < prevIndentation)
+        if (isOutdent) {
           continue = false
-        } else if (ResultExpr()) {
+        } else if (ResultExpr(stopOnOutdent)) {
           continue = false
           i = i + 1
           tts ::= builder.getTokenType

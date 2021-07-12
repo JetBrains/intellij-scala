@@ -305,7 +305,7 @@ object ScalaPsiElementFactory {
 
   def createBlockExpressionWithoutBracesFromText(@NonNls text: String)
                                                 (implicit ctx: ProjectContext): ScBlockImpl = {
-    createElement(text)(expressions.Block.Braceless(needNode = true)(_)) match {
+    createElement(text)(expressions.Block.Braceless(stopOnOutdent = false, needNode = true)(_)) match {
       case b: ScBlockImpl => b
       case _ => null
     }

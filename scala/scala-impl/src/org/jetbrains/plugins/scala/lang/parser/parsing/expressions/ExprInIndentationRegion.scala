@@ -86,7 +86,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
             parseRest(isBlock = true)
           } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
             isBlock
-          } else if (!ResultExpr() && !BlockStat()) {
+          } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
             builder.advanceLexer() // ate something
             parseRest(isBlock = true)
           } else {

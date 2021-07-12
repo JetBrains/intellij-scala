@@ -43,14 +43,14 @@ object BlockExpr extends ParsingRule {
           builder.getTokenType match {
             case ClassKeyword | ObjectKeyword =>
               backMarker.rollbackTo()
-              Block.Content()
+              Block.ContentInBraces()
             case _ =>
               backMarker.rollbackTo()
               CaseClauses()
           }
         case _ =>
           blockIndentation.fromHere()
-          Block.Content()
+          Block.ContentInBraces()
       }
     }
     blockIndentation.drop()
