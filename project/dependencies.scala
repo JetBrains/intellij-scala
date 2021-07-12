@@ -112,7 +112,6 @@ object Dependencies {
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
-  val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % "0.27.0-RC1"
   val scala3SbtBridge = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.0-M2"
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
@@ -198,7 +197,6 @@ object DependencyGroups {
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
     compilerBridgeSources_2_13,
-    dottySbtBridge,
     scala3SbtBridge
   )
 }

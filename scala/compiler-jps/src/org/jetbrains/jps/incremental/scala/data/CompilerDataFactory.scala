@@ -96,17 +96,9 @@ object CompilerDataFactory
       }
   }
 
-  def hasDotty(modules: Set[JpsModule]): Boolean =
-    modules.exists {
-      compilerJarsIn(_).exists(_.hasDotty)
-    }
   def hasScala3(modules: Set[JpsModule]): Boolean =
     modules.exists {
-      compilerJarsIn(_).exists(_.hasDotty)
-    }
-  def hasScala3OrDotty(modules: Set[JpsModule]): Boolean =
-    modules.exists {
-      compilerJarsIn(_).exists(_.hasScala3OrDotty)
+      compilerJarsIn(_).exists(_.hasScala3)
     }
 
   private def hasOldScala(modules: Set[JpsModule]) =
@@ -123,11 +115,11 @@ object CompilerDataFactory
   def scalaOptionsFor(compilerSettings: CompilerSettings, chunk: ModuleChunk): Seq[String] = {
     val configuredOptions = compilerSettings.getCompilerOptions
     val modules = chunk.getModules.asScala.toSet
-    val hasScala3OrDotty = CompilerDataFactory.hasScala3OrDotty(modules)
+    val hasScala3 = CompilerDataFactory.hasScala3(modules)
 
     bootClasspathOptions(hasOldScala(modules)) ++
       semanticDbOptionsFor(configuredOptions.toIndexedSeq, chunk) ++
-      configuredOptions.filterNot(_.startsWith("-g:") && hasScala3OrDotty) // TODO SCL-16881
+      configuredOptions.filterNot(_.startsWith("-g:") && hasScala3) // TODO SCL-16881
   }
 
   private def bootClasspathOptions(hasOldScala: Boolean): Seq[String] =
