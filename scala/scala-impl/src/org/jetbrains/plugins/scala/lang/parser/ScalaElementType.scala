@@ -140,9 +140,7 @@ object ScalaElementType {
       new ScEnumCaseImpl(stub, nodeType, node, debugName)
   }
 
-  val EnumCases = new ScalaElementType("ScEnumCases") {
-    override def createElement(node: ASTNode) = new ScEnumCasesImpl(node, toString)
-  }
+  val EnumCases = ScEnumCasesElementType
 
   val NewTemplate = new ScTemplateDefinitionElementType[ScNewTemplateDefinition]("ScNewTemplateDefinition") {
 

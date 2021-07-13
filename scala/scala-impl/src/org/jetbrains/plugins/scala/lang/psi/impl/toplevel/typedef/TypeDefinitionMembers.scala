@@ -6,7 +6,6 @@ package toplevel
 package typedef
 
 import java.{util => ju}
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
@@ -26,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
+import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, UnloadableThreadLocal}
 
 /**
  * @author ven
@@ -185,6 +184,11 @@ object TypeDefinitionMembers {
 
     if (shouldProcessMethods(processor) && !processEnum(clazz, processor.execute(_, state)))
       return false
+
+    if (place.isInScala3File)
+      stdLibPatches(clazz).foreach {
+        processClassDeclarations(_, processor, state, lastParent, place)
+      }
 
     true
   }
@@ -472,6 +476,22 @@ object TypeDefinitionMembers {
     }
     syntheticMethods.map(TermSignature(_, signature.substitutor))
   }
+
+  private object stdLibPatches {
+    val map = Map(
+      "scala.Predef" -> "scala.runtime.stdLibPatches.Predef",
+      "scala.language" -> "scala.runtime.stdLibPatches.language"
+    )
+
+    def apply(clazz: PsiClass): Option[ScObject] =
+      for {
+        obj       <- clazz.asOptionOf[ScObject]
+        patchName <- map.get(obj.qualifiedName)
+        patchObj  <- clazz.elementScope.getCachedObject(patchName)
+      } yield patchObj
+
+  }
+
 
   private implicit class TermNodeIteratorOps(override val iterator: Iterator[MixinNodes.Node[TermSignature]]) extends AnyVal
     with NodesIteratorFilteredOps[TermSignature] {
