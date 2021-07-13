@@ -28,7 +28,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
-            .getOrElse(new ScalaInstance("stub", null, null, new File(""), new File(""), Array.empty, None))
+            .getOrElse(new ScalaInstance("stub", null, null, Array.empty[File], new File(""), Array.empty[File], None))
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
