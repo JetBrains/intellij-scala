@@ -26,6 +26,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     case isUnapplyFromVal(binding) => binding
     case isCaseClassParameter(cp) => cp
     case isCaseClassApply(clazz) => clazz
+    case isSyntheticObject(clazz) => clazz
     case isVarSetterFakeMethod(refPattern) => refPattern
     case isVarSetterWrapper(refPattern) => refPattern
     case _ => null
@@ -101,6 +102,15 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
         case (fun: ScFunctionDefinition) && ContainingClass(obj: ScObject) if fun.isApplyMethod && fun.isSynthetic =>
           Option(obj.fakeCompanionClassOrCompanionClass)
             .collect { case cls: ScClass if cls.isCase => cls }
+        case _ => None
+      }
+    }
+  }
+
+  private object isSyntheticObject {
+    def unapply(ref: ScReference): Option[PsiClass] = {
+      ref.resolve() match {
+        case obj: ScObject if obj.isSyntheticObject => obj.baseCompanion
         case _ => None
       }
     }
