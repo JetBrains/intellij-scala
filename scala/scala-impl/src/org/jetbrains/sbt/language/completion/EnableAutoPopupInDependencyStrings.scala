@@ -20,8 +20,16 @@ class EnableAutoPopupInDependencyStrings extends CompletionConfidence {
               SBT_MODULE_ID_TYPE.contains(infix.`type`().getOrAny.canonicalText) ||
               SBT_ORG_ARTIFACT.contains(infix.`type`().getOrAny.canonicalText) =>
             ThreeState.NO
-          case infix: ScInfixExpr if infix.left.getText == "scalaVersion" && infix.operation.refName == ":=" =>
-            ThreeState.NO
+          case infix: ScInfixExpr if infix.operation.refName == ":=" =>
+            infix.left match {
+              case subInfix: ScInfixExpr
+                if subInfix.operation.refName == "/" && subInfix.right.getText == "scalaVersion" =>
+                ThreeState.NO
+              case other if other.getText == "scalaVersion" =>
+                ThreeState.NO
+              case _ =>
+                ThreeState.UNSURE
+            }
           case argList: ScArgumentExprList =>
             val grandParent = argList.getParent.getParent
             grandParent match {
