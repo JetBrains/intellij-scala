@@ -45,7 +45,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
     holder: ScalaAnnotationHolder
   ): Unit = {
     superRefs(tdef).collect {
-      case (range, ScEnum.DesugaredEnumClass(enum)) =>
+      case (range, ScEnum.Original(enum)) =>
         tdef match {
           case cse: ScEnumCase if cse.enumParent eq enum => ()
           case _ =>
