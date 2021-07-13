@@ -42,8 +42,15 @@ object SbtPsiElementPatterns {
   def versionPattern:Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isVersionPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
       elem match {
-        case infix: ScInfixExpr =>
-          infix.left.getText == "scalaVersion" && infix.operation.refName == ":="
+        case infix: ScInfixExpr if infix.operation.refName == ":=" =>
+          infix.left match {
+            /* ThisBuild / scalaVersion := ... */
+            case subInfix: ScInfixExpr =>
+              subInfix.operation.refName == "/" && subInfix.right.getText == "scalaVersion"
+            /* scalaVersion := ... */
+            case other =>
+              other.getText == "scalaVersion"
+          }
         case property: Property =>
           property.getFirstChild.getText == "sbt.version" && property.getLastChild.getText.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
         case _ => false
