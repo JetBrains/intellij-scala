@@ -29,6 +29,7 @@ import org.jetbrains.plugins.scala.components.InvalidRepoException;
 import org.jetbrains.plugins.scala.components.ScalaPluginUpdater;
 import org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier;
 import org.jetbrains.plugins.scala.components.libextensions.ui.LibExtensionsSettingsPanelWrapper;
+import org.jetbrains.plugins.scala.package$;
 import org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings;
 
 import javax.swing.*;
@@ -215,6 +216,12 @@ public class ScalaProjectSettingsPanel {
         for (DependencyAwareInjectionSettings uiWithDependency : EP_NAME.getExtensionList()) {
             extraSettings.add(uiWithDependency.createComponent(injectionJPanel));
         }
+
+        if (!package$.MODULE$.isInternalMode()) {
+            String text = compilerHighlightingScala2CheckBox.getText();
+            compilerHighlightingScala2CheckBox.setText(text.substring(0, text.length() - 2));
+        }
+        compilerHighlightingScala3CheckBox.setVisible(package$.MODULE$.isInternalMode());
 
         setSettings();
 
