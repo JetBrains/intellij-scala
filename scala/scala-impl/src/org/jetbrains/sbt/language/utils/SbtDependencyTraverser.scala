@@ -126,24 +126,20 @@ object SbtDependencyTraverser {
   def traverseBlockExpr(blockExpr: ScBlockExpr)(callback: PsiElement => Boolean): Unit = {
     if (!callback(blockExpr)) return
 
-    def traverse(be: ScalaPsiElement):Unit = {
-      be.acceptChildren(new ScalaElementVisitor {
-        override def visitInfixExpression(infix: ScInfixExpr): Unit = {
-          traverseInfixExpr(infix)(callback)
-        }
+    blockExpr.acceptChildren(new ScalaElementVisitor {
+      override def visitInfixExpression(infix: ScInfixExpr): Unit = {
+        traverseInfixExpr(infix)(callback)
+      }
 
-        override def visitMethodCallExpression(call: ScMethodCall): Unit = {
-          if (call.deepestInvokedExpr.textMatches(SbtDependencyUtils.SEQ))
-            traverseSeq(call)(callback)
-        }
+      override def visitMethodCallExpression(call: ScMethodCall): Unit = {
+        if (call.deepestInvokedExpr.textMatches(SbtDependencyUtils.SEQ))
+          traverseSeq(call)(callback)
+      }
 
-        override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
-          traverseReferenceExpr(ref)(callback)
-        }
-      })
-    }
-
-    traverse(blockExpr)
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
+        traverseReferenceExpr(ref)(callback)
+      }
+    })
   }
 
   def traverseSettings(settings: ScMethodCall)(callback: PsiElement => Boolean): Unit = {
