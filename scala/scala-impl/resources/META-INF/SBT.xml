@@ -125,10 +125,6 @@
                      description="Internal, do not change"/>
     </extensions>
 
-    <extensions defaultExtensionNs="org.intellij.scala">
-        <unresolvedReferenceFixProvider implementation="org.jetbrains.sbt.annotator.dependency.AddSbtDependencyFixProvider"/>
-    </extensions>
-
     <actions>
         <action id="Scala.Sbt.RunTask" class="org.jetbrains.sbt.shell.action.RunTaskAction"/>
         <action id="Scala.Sbt.ShowTask" class="org.jetbrains.sbt.shell.action.ShowTaskAction"/>
