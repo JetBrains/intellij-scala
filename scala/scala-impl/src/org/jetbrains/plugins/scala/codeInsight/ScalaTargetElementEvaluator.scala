@@ -3,6 +3,7 @@ package codeInsight
 
 import com.intellij.codeInsight.{TargetElementEvaluatorEx, TargetElementEvaluatorEx2}
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.nameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScReferencePattern}
@@ -24,6 +25,8 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
   override def getElementByReference(ref: PsiReference, flags: Int): PsiElement = ref.getElement match {
     case isUnapplyFromVal(binding) => binding
     case isCaseClassParameter(cp) => cp
+    case isCaseClassApply(clazz) => clazz
+    case isSyntheticObject(clazz) => clazz
     case isVarSetterFakeMethod(refPattern) => refPattern
     case isVarSetterWrapper(refPattern) => refPattern
     case _ => null
@@ -54,7 +57,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     def unapply(ref: ScReference): Option[ScReferencePattern] = {
       ref.resolve() match {
         case fake @ FakePsiMethod(refPattern: ScReferencePattern)
-          if setterSuffixes.exists(fake.getName.endsWith) && nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
+          if setterSuffixes.exists(fake.getName.endsWith) && nameContext(refPattern).is[ScVariable] => Some(refPattern)
         case _ => None
       }
     }
@@ -65,7 +68,7 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
     def unapply(ref: PsiReferenceExpression): Option[ScReferencePattern] = {
       ref.resolve() match {
         case PsiTypedDefinitionWrapper(refPattern: ScReferencePattern)
-          if refPattern.getName.endsWith(setterSuffix) && nameContext(refPattern).isInstanceOf[ScVariable] => Some(refPattern)
+          if refPattern.name.endsWith(setterSuffix) && nameContext(refPattern).is[ScVariable] => Some(refPattern)
         case _ => None
       }
     }
@@ -90,6 +93,26 @@ class ScalaTargetElementEvaluator extends TargetElementEvaluatorEx2 with TargetE
         case _ =>
       }
       None
+    }
+  }
+
+  private object isCaseClassApply {
+    def unapply(ref: ScReference): Option[ScClass] = {
+      ref.resolve() match {
+        case (fun: ScFunctionDefinition) && ContainingClass(obj: ScObject) if fun.isApplyMethod && fun.isSynthetic =>
+          Option(obj.fakeCompanionClassOrCompanionClass)
+            .collect { case cls: ScClass if cls.isCase => cls }
+        case _ => None
+      }
+    }
+  }
+
+  private object isSyntheticObject {
+    def unapply(ref: ScReference): Option[PsiClass] = {
+      ref.resolve() match {
+        case obj: ScObject if obj.isSyntheticObject => obj.baseCompanion
+        case _ => None
+      }
     }
   }
 

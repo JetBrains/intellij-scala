@@ -19,7 +19,7 @@ import scala.math.Ordering.comparatorToOrdering
 abstract class ScalaTodoItemsTestBase extends ScalaLightCodeInsightFixtureTestAdapter with Markers {
 
   protected def testTodos(textWithMarkers: String, fileType: String = "scala"): Unit = {
-    val (text, ranges) = extractSequentialMarkers(textWithMarkers.withNormalizedSeparator)
+    val (text, ranges) = extractMarker(textWithMarkers.withNormalizedSeparator)
 
     val file = configureFromFileText(text, fileType)
 

@@ -18,16 +18,16 @@ class EnumMembersInjector extends SyntheticMembersInjector {
   override def injectMembers(source: ScTypeDefinition): Seq[String] = source match {
     case obj: ScObject =>
       obj.fakeCompanionClassOrCompanionClass match {
-        case enum: ScEnum                    => processEnumCases(enum)
-        case ScEnum.DesugaredEnumClass(enum) => processEnumCases(enum)
-        case _                               => Seq.empty
+        case enum: ScEnum          => processEnumCases(enum)
+        case ScEnum.Original(enum) => processEnumCases(enum)
+        case _                     => Seq.empty
       }
     case _ => Seq.empty
   }
 
   override def injectFunctions(source: ScTypeDefinition): Seq[String] = source match {
     case obj: ScObject if obj.isSynthetic => obj.fakeCompanionClassOrCompanionClass match {
-      case ScEnum.DesugaredEnumClass(enum) =>
+      case ScEnum.Original(enum) =>
         val singletonCases =
           enum.cases.collect { case cse @ ScEnumCase.SingletonCase(_, _) => cse }
         injectEnumMethods(enum, singletonCases)
@@ -36,10 +36,8 @@ class EnumMembersInjector extends SyntheticMembersInjector {
     case _ => Seq.empty
   }
 
-  override def needsCompanionObject(source: ScTypeDefinition): Boolean = source match {
-    case ScEnum.DesugaredEnumClass(_) => true
-    case _                            => false
-  }
+  override def needsCompanionObject(source: ScTypeDefinition): Boolean =
+    ScEnum.isDesugaredEnumClass(source)
 }
 
 object EnumMembersInjector {

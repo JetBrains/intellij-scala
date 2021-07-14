@@ -38,7 +38,7 @@ trait SignatureProcessor[T <: Signature] {
   @tailrec
   final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
     case null                                           => ()
-    case ScEnum.DesugaredEnumClass(enum)                => processAll(enum, substitutor, sink)
+    case ScEnum.Original(enum)                          => processAll(enum, substitutor, sink)
     case ScGivenDefinition.DesugaredTypeDefinition(gvn) => processAll(gvn, substitutor, sink)
     case syn: ScSyntheticClass                          => processAll(realClass(syn), substitutor, sink)
     case td: ScTemplateDefinition                       => processScala(td, substitutor, sink)

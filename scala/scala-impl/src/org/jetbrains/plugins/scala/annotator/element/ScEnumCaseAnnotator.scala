@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.annotator.element
 
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotationHolder
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, OptionExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
@@ -18,10 +18,7 @@ object ScEnumCaseAnnotator extends ElementAnnotator[ScEnumCase] {
     val parents = cse.physicalExtendsBlock.toOption.flatMap(_.templateParents)
 
     def isDesignatedToEnumParent(tpe: ScType): Boolean =
-      tpe.extractClass.exists {
-        case ScEnum.DesugaredEnumClass(`enum`) => true
-        case _                                 => false
-      }
+      tpe.extractClass.filterByType[ScTypeDefinition].exists(ScEnum.isDesugaredEnumClass)
 
     val nonVariantTypeParameter =
       enum.typeParameters.find(_.variance.isInvariant)
