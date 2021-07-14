@@ -265,8 +265,8 @@ private object AbstractScalaFormatterTestBase {
       new TestData(textBefore, Some(textAfter), fileName, action, ranges, actionRepeats, checkAfterEachIteration = false)
 
     def apply(before: String, after: String, fileName: String, action: Action, actionRepeats: Int, checkAfterEachIteration: Boolean): TestData = {
-      val (beforeWithoutMarkers, selectedTextRanges) = MarkersUtils.extractMarkers(before.withNormalizedSeparator)
-      val (afterWithoutMarkers, _) = MarkersUtils.extractMarkers(after.withNormalizedSeparator)
+      val (beforeWithoutMarkers, selectedTextRanges) = MarkersUtils.extractNumberedMarkers(before.withNormalizedSeparator)
+      val (afterWithoutMarkers, _) = MarkersUtils.extractNumberedMarkers(after.withNormalizedSeparator)
       TestData(beforeWithoutMarkers, Some(afterWithoutMarkers), fileName, action, selectedTextRanges, actionRepeats, checkAfterEachIteration)
     }
 

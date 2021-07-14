@@ -25,7 +25,7 @@ trait Markers {
    * line /start/ 1 content /end/
    * line /start0/ /start1/ 2 /end1/ content/end0/
    */
-  def extractMarkers(inputText: String): (String, Seq[TextRange]) = {
+  def extractNumberedMarkers(inputText: String): (String, Seq[TextRange]) = {
     var input = inputText
     val caretPosition = inputText.indexOf(caretText)
     def removeCaret(index: Int): Int =
