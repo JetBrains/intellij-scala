@@ -10,10 +10,12 @@ import com.intellij.psi.impl.CheckUtil
 import com.intellij.psi.impl.source.tree.LazyParseablePsiElement
 import com.intellij.psi.search.SearchScope
 import com.intellij.psi.stubs.{IStubElementType, StubElement}
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import com.intellij.psi.{PsiElement, StubBasedPsiElement}
+import com.intellij.util.ArrayFactory
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{stubOrPsiNextSibling, stubOrPsiPrevSibling}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
@@ -96,6 +98,11 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
 
   override protected def findChildByClassScala[T >: Null <: ScalaPsiElement](clazz: Class[T]): T = findChildByClass[T](clazz)
 
+  override def getStubOrPsiChildren[Psi <: PsiElement](filter: TokenSet, f: ArrayFactory[_ <: Psi]): Array[Psi] = {
+    assertFilterMakesSenseForStubs(filter)
+    super.getStubOrPsiChildren(filter, f)
+  }
+
   override def delete(): Unit = {
     getParent match {
       case x: LazyParseablePsiElement =>
@@ -134,4 +141,14 @@ abstract class ScalaStubBasedElementImpl[T <: PsiElement, S <: StubElement[T]](@
 
   override def getUseScope: SearchScope =
     ScalaUseScope(super.getUseScope, this)
+
+  private def assertFilterMakesSenseForStubs(filter: TokenSet): Unit = {
+    if (isUnitTestMode && (filter ne TokenSet.ANY)) {
+      val elementTypes = filter.getTypes
+      val nonStubTypes = elementTypes.filterNot(_.is[IStubElementType[_, _]])
+      if (nonStubTypes.nonEmpty)
+        throw new IllegalArgumentException(s"Non-stub element types (${nonStubTypes.mkString(", ")}) should not be used in getStubOrPsiChildren")
+    }
+  }
+
 }

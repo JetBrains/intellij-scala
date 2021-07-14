@@ -35,8 +35,6 @@ object TokenSets {
 
   val FUNCTIONS: TokenSet = TokenSet.create(FUNCTION_DECLARATION, FUNCTION_DEFINITION, MACRO_DEFINITION, GIVEN_ALIAS)
 
-  val ENUM_CASES: TokenSet = TokenSet.create(EnumCases)
-
   val PROPERTIES: TokenSet = TokenSet.create(
     VALUE_DECLARATION,
     PATTERN_DEFINITION,

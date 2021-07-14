@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION, SELF_TYPE, TEMPLATE_BODY}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION, EnumCases, SELF_TYPE, TEMPLATE_BODY}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
@@ -45,7 +45,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
     getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory).toSeq
 
   override def cases: Seq[ScEnumCases] =
-    getStubOrPsiChildren(ENUM_CASES, ScEnumCasesFactory).toSeq
+    getStubOrPsiChildren(EnumCases, ScEnumCasesFactory).toSeq
 
   override def functions: Seq[ScFunction] =
     getStubOrPsiChildren(FUNCTIONS, ScFunctionFactory).toSeq.filterNot(_.isLocal)
