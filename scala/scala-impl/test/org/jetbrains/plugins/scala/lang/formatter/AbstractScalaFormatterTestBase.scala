@@ -124,7 +124,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
    * NOTE: for now it only supports selection of a whole valid node
    */
   protected def doAllRangesTextTest(text: String, checkResult: Boolean = true): Unit = {
-    val (textClean, selections) = MarkersUtils.extractNestedMarkers(text.withNormalizedSeparator)
+    val (textClean, selections) = MarkersUtils.extractMarker(text.withNormalizedSeparator)
     val selection: TextRange = selections match {
       case head :: Nil => head
       case Nil         => TextRange.create(0, textClean.length)

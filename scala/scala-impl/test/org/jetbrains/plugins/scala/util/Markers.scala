@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.util
 
 import com.intellij.openapi.util.TextRange
+import junit.framework.TestCase
+import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert._
 
-import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable
 
@@ -27,82 +28,85 @@ trait Markers {
    * line /start0/ /start1/ 2 /end1/ content/end0/
    */
   def extractNumberedMarkers(inputText: String): (String, Seq[TextRange]) = {
-    var input = inputText
-    val caretPosition = inputText.indexOf(caretText)
-    def removeCaret(index: Int): Int =
-      if (caretPosition >= 0 && index > caretPosition) index - caretText.length else index
-    val markerPositions = mutable.Map[String, Int]()
-    val textRanges = mutable.Buffer.empty[TextRange]
+    def hasMarker(startName: String, endName: String): Boolean =
+      inputText.contains(startName) && inputText.contains(endName)
 
-    def detectMarker(start: String, end: String): Boolean = {
-      input.contains(start) && input.contains(end) && {
-        markerPositions.put(start, removeCaret(input.indexOf(start)))
-        markerPositions.put(end, removeCaret(input.indexOf(end)))
-        true
-      }
-    }
-    @tailrec
-    def detectNumberedMarkers(i: Int): Int =
-      if (detectMarker(startMarker(i), endMarker(i))) detectNumberedMarkers(i + 1) else i
+    val hasNormalStartMarker = hasMarker(startMarker, endMarker)
+    val numberedMarkers = LazyList.from(0).takeWhile(i => hasMarker(startMarker(i), endMarker(i)))
 
-    val hasStartMarker = detectMarker(startMarker, endMarker)
-    val index = detectNumberedMarkers(0)
-    val adjustedMarkers = sortMarkers(markerPositions.toList.sortBy(_._2)).toMap
-
-    def addRange(start: String, end: String): Unit = {
-      input = input.replace(start, "")
-      input = input.replace(end, "")
-      textRanges += new TextRange(adjustedMarkers(start), adjustedMarkers(end))
-    }
-
-    if (hasStartMarker)
-      addRange(startMarker, endMarker)
-    for (i <- 0 until index) addRange(startMarker(i), endMarker(i))
-
-    input -> textRanges.toSeq
+    val (resultText, ranges) = extractMarkers(
+      inputText,
+      hasNormalStartMarker.fold(Seq((startMarker, endMarker)), Seq.empty) ++
+        numberedMarkers.map(i => (startMarker(i), endMarker(i))),
+      considerCaret = true
+    )
+    (resultText, ranges.map(_._1))
   }
-
-  private def sortMarkers(sorted: List[(String, Int)], offset: Int = 0): List[(String, Int)] = {
-    sorted match {
-      case (marker, position) :: tail => (marker, position - offset) :: sortMarkers(tail, offset + marker.length)
-      case _ => sorted
-    }
-  }
-
 
 
   /**
-   * Used to extract ranges that do not intersect
+   * Used to extract ranges that may be nested.
    *
    * @example
    * line /start/ 1 content /end/
-   * line /start/ 2 /end/ /start/ content /end/
-   *
-   * TODO: reuse extractSequentialMarkers generic implementation
+   * line /start/ /start/ 1 /end/ content /start/ 2 /end/ /end/
    */
-  def extractNestedMarkers(inputText: String,
-                           startMarker: String = this.startMarker,
-                           endMarker: String = this.endMarker,
-                           considerCaret: Boolean = false,
-                           caretText: String = this.caretText): (String, Seq[TextRange]) = {
-    val (ranges, idxAdjust) = findRangesAndAdjustment(inputText, startMarker, endMarker)
+  def extractMarker(inputText: String,
+                    startMarker: String = this.startMarker,
+                    endMarker: String = this.endMarker,
+                    considerCaret: Boolean = false,
+                    caretText: String = this.caretText): (String, Seq[TextRange]) = {
+    val (resultText, ranges) = extractMarkers(inputText, Seq(startMarker -> endMarker), considerCaret, caretText)
+    (resultText, ranges.map(_._1))
+  }
+
+  /**
+   * Uuuuuuultimate function to extract ranges from an input sequence.
+   * Multiple marker-kinds are supported and markers of different kinds
+   * do not interfere with one another.
+   * Markers of the same kind may be nested, but may not be interleaved.
+   * (In fact they cannot be interleaved, now that I think about it).
+   *
+   * @param inputText       example: {{{
+   *   line /start/ some content /start/ inner content /end/ some more content /end/
+   *   line <foldStart> 2 </foldEnd> [[ content ]]
+   * }}}
+   * @param startEndMarkers example: {{{
+   *   Seq(("/start/", "/end/"), ("<foldStart>", "<foldEnd>"), ("[[", "]]"))
+   * }}}
+   */
+  def extractMarkers(inputText: String,
+                     markers: Seq[(String, String)],
+                     considerCaret: Boolean = false,
+                     caretText: String = this.caretText): (String, Seq[(TextRange, Int)]) = {
+    val (ranges, idxAdjust) = markers.zipWithIndex
+      .foldLeft((Seq.empty[(TextRange, Int)], (_: Int) => 0)) {
+        case ((prevRanges, prevIdxAdjust), ((startMarker, endMarker), markerIdx)) =>
+          val (ranges, idxAdjust) = findRangesAndAdjustment(inputText, startMarker, endMarker)
+          (prevRanges ++ ranges.map(_ -> markerIdx), i => prevIdxAdjust(i) + idxAdjust(i))
+      }
+
     val caret = considerCaret.option(inputText.indexOf(caretText)).filter(_ >= 0)
-    def adjustIndexForMarkersAndCaret(i: Int): Int = {
-      val adjustedIdx = idxAdjust(i)
-      i - adjustedIdx - caret.exists(i > _).fold(caretText.length, 0)
-    }
+    def adjustIndexForMarkersAndCaret(i: Int): Int =
+      i - idxAdjust(i) - caret.exists(i > _).fold(caretText.length, 0)
 
-    val rangesFixed = ranges.map {
-      case TextRangeExt(start, end) =>
-        TextRange.create(
-          adjustIndexForMarkersAndCaret(start),
-          adjustIndexForMarkersAndCaret(end),
-        )
-    }
+    val rangesFixed = ranges
+      .sortBy{ case (TextRangeExt(s, e), _) => (s, -e) }
+      .map {
+        case (TextRangeExt(start, end), markerIdx) =>
+          val newRange = TextRange.create(
+            adjustIndexForMarkersAndCaret(start),
+            adjustIndexForMarkersAndCaret(end),
+          )
+          (newRange, markerIdx)
+      }
 
-    val textFixed = inputText
-      .replace(startMarker, "")
-      .replace(endMarker, "")
+    val textFixed = markers.foldLeft(inputText) {
+      case (text, (startMarker, endMarker)) =>
+        text
+          .replace(startMarker, "")
+          .replace(endMarker, "")
+    }
 
     (textFixed, rangesFixed)
   }
@@ -124,12 +128,12 @@ trait Markers {
 
     val allIndices = (startIndexes.map(_ -> true) ++ endIndexes.map(_ -> false)).sortBy(_._1)
     val rangesBuilder = Seq.newBuilder[TextRange]
-    val starterStack = mutable.Stack.empty[Int]
+    val unclosedRangeStarts = mutable.Stack.empty[Int]
 
     for ((idx, isStart) <- allIndices)
-      if (isStart) starterStack.push(idx)
+      if (isStart) unclosedRangeStarts.push(idx)
       else {
-        val start = starterStack
+        val start = unclosedRangeStarts
           .removeHeadOption()
           .getOrElse(throw new AssertionError(s"No matching start marker for end marker at $idx"))
         rangesBuilder += TextRange.create(start, idx)
@@ -141,88 +145,66 @@ trait Markers {
       assertTrue("range end offset can't be smaller then start offset", range.getEndOffset >= range.getStartOffset)
     }
 
-    val adjustmentsAfterIdx =
-      allIndices.scanLeft(0) {
-        case (prev, (_, isStart)) =>
-          prev + isStart.fold(startMarker.length, endMarker.length)
-      }.tail
+    // a sequence that holds at the index i the adjustment-amount
+    // for all positions in the input text between the start offsets
+    // of allIndices(i-1) and allIndices(i)
+    // note that this list has one more element than allIndices,
+    // because the last entry corresponds to the end of the inputtext
+    val adjustmentsBeforeMarker =
+      allIndices.foldLeft(List(0)) {
+        case (prevs, (_, isStart)) =>
+          prevs.head + isStart.fold(startMarker.length, endMarker.length) :: prevs
+      }.reverse
 
     val adjustments =
       (allIndices.map(_._1) :+ inputText.length)
-        .zip(0 +: adjustmentsAfterIdx)
+        .zip(adjustmentsBeforeMarker)
         .to(SortedMap)
 
     (ranges, adjustments.valuesIteratorFrom(_).next())
   }
-  /**
-   * Used to extract ranges that do not do not intersect, support
-   *
-   * @param inputText       example: {{{
-   *   line /start/ 1 content /end/
-   *   line <foldStart> 2 </foldEnd> [[ content ]]
-   * }}}
-   * @param startEndMarkers example: {{{
-   *   Seq(("/start/", "/end/"), ("<foldStart>", "<foldEnd>"), ("[[", "]]"))
-   * }}}
-   */
-  def extractSequentialMarkers(inputText: String, startEndMarkers: Seq[(String, String)]): (String, Seq[(TextRange, Int)]) = {
-    type MarkerType = Int
-
-    // marker selection ranges with marker types
-    val ranges: Seq[(TextRange, MarkerType)] = startEndMarkers.zipWithIndex.flatMap {
-      case ((startMarker, endMarker), markerType) =>
-        val startReg = s"\\Q$startMarker\\E".r
-        val endReg   = s"\\Q$endMarker\\E".r
-
-        val startMatches = startReg.findAllMatchIn(inputText).map(m => TextRange.create(m.start, m.end)).toSeq
-        val endMatches   = endReg.findAllMatchIn(inputText).map(m => TextRange.create(m.start, m.end)).toSeq
-
-        assertEquals(
-          s"start & end markers ($startMarker / $endMarker) counts are not equal\nstart: $startMatches,\nend: $endMatches",
-          startMatches.size,
-          endMatches.size
-        )
-
-        val ranges = startMatches.zip(endMatches).map { case (s, e) => TextRange.create(s.getStartOffset, e.getStartOffset) }
-        ranges.foreach { range =>
-          assertTrue("range end offset can't be smaller then start offset", range.getEndOffset >= range.getStartOffset)
-        }
-
-        ranges.map(r => (r, markerType))
-    }
-
-    assertNonIntersecting(ranges.map(_._1))
-
-    val rangesFixed = ranges.foldLeft(Seq.empty[(TextRange, MarkerType)], 0) {
-      case ((ranges, removedChars), (range, markerType)) =>
-        val (startMarker, endMarker) = startEndMarkers(markerType)
-
-        val start = range.getStartOffset - removedChars
-        val end = range.getEndOffset - removedChars - startMarker.length
-
-        val rangesUpdated = ranges :+ (TextRange.create(start, end), markerType)
-        val removedCharsUpdated = removedChars + startMarker.length + endMarker.length
-
-        (rangesUpdated, removedCharsUpdated)
-    }._1
-
-    assertNonIntersecting(rangesFixed.map(_._1))
-
-    // it is not most efficient way: we could build text by parts in the previous foldLeft and StringBuilder
-    // but it a little clear this way and doesn't matter much in tests cause it anyway costs milliseconds
-    val textFixed = startEndMarkers.foldLeft(inputText) { case (text, (startMarker, endMarker)) =>
-      text.replace(startMarker, "").replace(endMarker, "")
-    }
-
-    (textFixed, rangesFixed)
-  }
-
-  private def assertNonIntersecting(ranges: Seq[TextRange]): Unit =
-    ranges.sliding(2).foreach {
-      case Seq(prev, curr) =>
-        assertTrue("ranges shouldn't intersect", curr.getStartOffset >= prev.getEndOffset)
-      case _ =>
-    }
 }
 
 object MarkersUtils extends Markers
+
+
+class MarkerUtilsTest extends TestCase with Markers with AssertionMatchers {
+  def test_super_multi_nested(): Unit = {
+    val code =
+      """
+        |<a></a>
+        |<b>0</b>
+        |<a><b></a></b>
+        |<c><a>1<a>2<b><caret>3</a>4</b>5</a></c>
+        |""".stripMargin
+
+    val (result, ranges) = extractMarkers(
+      code,
+      Seq("a", "b", "c").map(c => (s"<$c>", s"</$c>")),
+      considerCaret = true
+    )
+
+    result shouldBe
+      """
+        |
+        |0
+        |
+        |12<caret>345
+        |""".stripMargin
+
+    ranges shouldBe Seq(
+      // <a></a>
+      TextRange.create(1, 1) -> 0,
+      // <b>0</b>
+      TextRange.create(2, 3) -> 1,
+      // <a><b></a></b>
+      TextRange.create(4, 4) -> 0,
+      TextRange.create(4, 4) -> 1,
+      // <c><a>1<a>2<b><caret>3</a>4</b>5</a></c>
+      TextRange.create(5, 10) -> 2,
+      TextRange.create(5, 10) -> 0,
+      TextRange.create(6, 8) -> 0,
+      TextRange.create(7, 9) -> 1,
+    )
+  }
+}
