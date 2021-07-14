@@ -12,12 +12,10 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
 final class RemoteServer(
   override val address: InetAddress,
-  override val port: Int
+  override val port: Int,
+  override protected val socketReadTimeout: FiniteDuration
 ) extends Server
   with RemoteResourceOwner {
-
-  override protected def socketReadTimeout: FiniteDuration =
-    Option(System.getProperty("scala.compile.server.socket.read.timeout.seconds").toInt.seconds).getOrElse(30.seconds)
 
   override def compile(sbtData: SbtData,
                        compilerData: CompilerData,

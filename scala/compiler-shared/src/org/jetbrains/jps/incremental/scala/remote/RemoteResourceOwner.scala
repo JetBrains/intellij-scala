@@ -38,7 +38,10 @@ trait RemoteResourceOwner {
         output.flush()
         if (client != null) {
           Using.resource(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
-            socket.setSoTimeout(socketReadTimeout.toMillis.toInt)
+            val timoutMs = socketReadTimeout.toMillis
+            if (timoutMs > 0) {
+              socket.setSoTimeout(timoutMs.toInt)
+            }
             handle(input, client)
           }
         }

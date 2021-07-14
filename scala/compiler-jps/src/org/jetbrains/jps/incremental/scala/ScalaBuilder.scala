@@ -4,11 +4,11 @@ import com.intellij.openapi.application.PathManager
 import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import com.intellij.openapi.util.Key
 import org.jetbrains.jps.ModuleChunk
-import org.jetbrains.jps.incremental.{CompileContext, ModuleLevelBuilder}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.messages.ProgressMessage
 import org.jetbrains.jps.incremental.scala.Server.ServerError
 import org.jetbrains.jps.incremental.scala.local.LocalServer
+import org.jetbrains.jps.incremental.{CompileContext, ModuleLevelBuilder}
 import org.jetbrains.jps.model.module.JpsModule
 import org.jetbrains.plugins.scala.compiler.data.{CompilationData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerProperties
@@ -17,6 +17,7 @@ import _root_.java.io._
 import _root_.java.net.InetAddress
 import _root_.java.util.ServiceLoader
 import _root_.scala.jdk.CollectionConverters._
+import scala.concurrent.duration.{Duration, DurationInt}
 
 // TODO: use a proper naming. Scala builder of what? Strings? Code? Psi trees?
 object ScalaBuilder {
@@ -61,7 +62,7 @@ object ScalaBuilder {
         localServer.doCompile(sbtData, compilerData, compilationData, client)
       }
 
-      val server = getServer(context)
+      val server = getServer(context, compilerData.compilerJars.exists(_.hasScala3))
       server.compile(sbtData, compilerData, compilationData, client) match {
         case Left(error)     =>
           import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedConnectionErrorMessages._
@@ -137,7 +138,7 @@ object ScalaBuilder {
     }
   }
 
-  private def getServer(implicit context: CompileContext): Server = {
+  private def getServer(implicit context: CompileContext, moduleHasScala3: Boolean): Server = {
     val useRemoteServer = isCompileServerEnabled &&
       !CompileServerProperties.isMyselfScalaCompileServer &&
       !context.getUserData(DisableScalaCompileServerForContextKey)
@@ -146,7 +147,14 @@ object ScalaBuilder {
       cleanLocalServerCache()
       val port = globalSettings.getCompileServerPort
       Log.info(s"Using remote server with port: $port")
-      new remote.RemoteServer(InetAddress.getByName(null), port)
+
+
+      // TODO: do not disable timout for Scala3 when compilation progress is fixed for Scala3 (see SCL-18400)
+      //  (still will need to use 0 for versions before the fix)
+      val socketReadTimeout =
+        if (moduleHasScala3) Duration.Zero
+        else Option(System.getProperty("scala.compile.server.socket.read.timeout.seconds").toInt.seconds).getOrElse(60.seconds)
+      new remote.RemoteServer(InetAddress.getByName(null), port, socketReadTimeout)
     } else {
       Log.info("Using local server")
       localServer
