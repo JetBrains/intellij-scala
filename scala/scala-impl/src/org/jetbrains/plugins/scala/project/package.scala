@@ -233,7 +233,7 @@ package object project {
       scalaModuleSettings.map(_.scalaLanguageLevel)
 
     def scalaMinorVersion: Option[ScalaVersion] =
-      scalaModuleSettings.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
+      scalaModuleSettings.flatMap(_.scalaMinorVersion)
 
     def scalaMinorVersionOrDefault: ScalaVersion =
       scalaMinorVersion.getOrElse(ScalaVersion.default)

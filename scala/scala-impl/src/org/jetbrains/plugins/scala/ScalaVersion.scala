@@ -12,8 +12,10 @@ class ScalaVersion(
 
   def minor: String = major + "." + minorSuffix
 
+  lazy val minorVersion: project.Version = project.Version(minorSuffix)
+
   override def compare(that: ScalaVersion): Int =
-    (languageLevel, project.Version(minor)) compare (that.languageLevel, project.Version(that.minor))
+    (languageLevel, minorVersion) compare (that.languageLevel, that.minorVersion)
 
   def withMinor(newMinorSuffix: String): ScalaVersion = new ScalaVersion(languageLevel, newMinorSuffix)
   def withMinor(newMinorSuffix: Int): ScalaVersion = withMinor(newMinorSuffix.toString)

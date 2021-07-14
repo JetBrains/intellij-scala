@@ -8,9 +8,10 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.{CollectProcessor, FindProcessor}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
-import org.jetbrains.plugins.scala.project.ScalaModuleSettings.{ScalaVersionProvider, Yimports, YnoPredefOrNoImports, isMetaParadiseJar}
+import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -25,6 +26,9 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
     case _ => None
   }
   val compilerVersion: Option[String] = scalaVersionProvider.compilerVersion
+
+  def scalaMinorVersion: Option[ScalaVersion] =
+    compilerVersion.flatMap(ScalaVersion.fromString)
 
   val scalaLanguageLevel: ScalaLanguageLevel = scalaVersionProvider.languageLevel
 
@@ -95,7 +99,14 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
   }
 
   val isSource3Enabled: Boolean =
-    additionalCompilerOptions.contains("-Xsource:3")
+    additionalCompilerOptions.contains("-Xsource:3") && scalaMinorVersion.forall {
+      version =>
+        version.languageLevel match {
+          case ScalaLanguageLevel.Scala_2_12 => version.minorVersion >= minorVersionSinceWhichSource3InScala2_12
+          case ScalaLanguageLevel.Scala_2_13 => version.minorVersion >= minorVersionSinceWhichSource3InScala2_13
+          case lvl => lvl >= ScalaLanguageLevel.Scala_3_0
+      }
+    }
 
   val isPartialUnificationEnabled: Boolean =
     scalaLanguageLevel >= Scala_2_13 || additionalCompilerOptions.contains("-Ypartial-unification")
@@ -114,6 +125,11 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
 }
 
 private object ScalaModuleSettings {
+  private val minorVersionSinceWhichSource3InScala2_12 =
+    Version("14")
+
+  private val minorVersionSinceWhichSource3InScala2_13 =
+    Version("6")
 
   sealed trait ScalaVersionProvider {
     def languageLevel: ScalaLanguageLevel
