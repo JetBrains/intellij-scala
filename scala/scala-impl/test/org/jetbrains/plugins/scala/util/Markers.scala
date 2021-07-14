@@ -5,7 +5,8 @@ import org.jetbrains.plugins.scala.extensions._
 import org.junit.Assert._
 
 import scala.annotation.tailrec
-import scala.collection.{immutable, mutable}
+import scala.collection.immutable.SortedMap
+import scala.collection.mutable
 
 trait Markers {
 
@@ -79,48 +80,79 @@ trait Markers {
    *
    * TODO: reuse extractSequentialMarkers generic implementation
    */
-  def extractSequentialMarkers(inputText: String,
-                               startMarker: String = this.startMarker,
-                               endMarker: String = this.endMarker,
-                               considerCaret: Boolean = false,
-                               caretText: String = this.caretText): (String, Seq[TextRange]) = {
-    val ranges = findRanges(inputText, startMarker, endMarker)
+  def extractNestedMarkers(inputText: String,
+                           startMarker: String = this.startMarker,
+                           endMarker: String = this.endMarker,
+                           considerCaret: Boolean = false,
+                           caretText: String = this.caretText): (String, Seq[TextRange]) = {
+    val (ranges, idxAdjust) = findRangesAndAdjustment(inputText, startMarker, endMarker)
     val caret = considerCaret.option(inputText.indexOf(caretText)).filter(_ >= 0)
-    def adjustIndexForCaret(i: Int): Int =
-      caret.fold(i)(caret => if (i > caret) i - caretText.length else i)
-
-    val rangesFixed = ranges.zipWithIndex.map { case (range, idx) =>
-      val alreadyRemovedChars = idx * (endMarker.length + startMarker.length)
-      val start = adjustIndexForCaret(range.getStartOffset) - alreadyRemovedChars
-      val end = adjustIndexForCaret(range.getEndOffset) - alreadyRemovedChars - startMarker.length // plus first start marker
-      TextRange.create(start, end)
+    def adjustIndexForMarkersAndCaret(i: Int): Int = {
+      val adjustedIdx = idxAdjust(i)
+      i - adjustedIdx - caret.exists(i > _).fold(caretText.length, 0)
     }
 
-    val textFixed = inputText.replace(startMarker, "").replace(endMarker, "")
+    val rangesFixed = ranges.map {
+      case TextRangeExt(start, end) =>
+        TextRange.create(
+          adjustIndexForMarkersAndCaret(start),
+          adjustIndexForMarkersAndCaret(end),
+        )
+    }
+
+    val textFixed = inputText
+      .replace(startMarker, "")
+      .replace(endMarker, "")
 
     (textFixed, rangesFixed)
   }
 
-  def findRanges(inputText: String, startMarker: String, endMarker: String): Seq[TextRange] = {
+  def findRanges(inputText: String, startMarker: String, endMarker: String): Seq[TextRange] =
+    findRangesAndAdjustment(inputText, startMarker, endMarker)._1
+
+  private def findRangesAndAdjustment(inputText: String, startMarker: String, endMarker: String): (Seq[TextRange], Int => Int) = {
     val startReg = s"\\Q$startMarker\\E".r
     val endReg = s"\\Q$endMarker\\E".r
 
     val startIndexes = startReg.findAllMatchIn(inputText).map(_.start).toList
     val endIndexes = endReg.findAllMatchIn(inputText).map(_.start).toList
     assertEquals(
-      s"start & end markers counts are not equal\nstart: $startIndexes,\nend: $endIndexes\ntext: ${inputText}",
+      s"start & end markers counts are not equal\nstart: $startIndexes,\nend: $endIndexes\ntext: $inputText",
       startIndexes.size,
       endIndexes.size
     )
-    val ranges = startIndexes.zip(endIndexes).map { case (s, e) => TextRange.create(s, e) }
+
+    val allIndices = (startIndexes.map(_ -> true) ++ endIndexes.map(_ -> false)).sortBy(_._1)
+    val rangesBuilder = Seq.newBuilder[TextRange]
+    val starterStack = mutable.Stack.empty[Int]
+
+    for ((idx, isStart) <- allIndices)
+      if (isStart) starterStack.push(idx)
+      else {
+        val start = starterStack
+          .removeHeadOption()
+          .getOrElse(throw new AssertionError(s"No matching start marker for end marker at $idx"))
+        rangesBuilder += TextRange.create(start, idx)
+      }
+
+
+    val ranges = rangesBuilder.result()
     ranges.foreach { range =>
       assertTrue("range end offset can't be smaller then start offset", range.getEndOffset >= range.getStartOffset)
     }
-    ranges.sliding(2).foreach {
-      case Seq(prev, curr) => assertTrue("ranges shouldn't intersect", curr.getStartOffset >= prev.getEndOffset)
-      case _ =>
-    }
-    ranges
+
+    val adjustmentsAfterIdx =
+      allIndices.scanLeft(0) {
+        case (prev, (_, isStart)) =>
+          prev + isStart.fold(startMarker.length, endMarker.length)
+      }.tail
+
+    val adjustments =
+      (allIndices.map(_._1) :+ inputText.length)
+        .zip(0 +: adjustmentsAfterIdx)
+        .to(SortedMap)
+
+    (ranges, adjustments.valuesIteratorFrom(_).next())
   }
   /**
    * Used to extract ranges that do not do not intersect, support
