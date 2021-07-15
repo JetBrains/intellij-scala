@@ -154,16 +154,18 @@ object StableId {
   }
 
   private def shouldStopBeforeDot(forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val s3f = builder.scala3Features
     val lookAhead = builder.lookAhead(1)
     lookAhead match {
       case `kTYPE` => true
       case `tUNDER` | `tLBRACE` | ScalaTokenType.GivenKeyword if forImport => true
       case `kMATCH` if builder.isScala3 => true
-      case `tIDENTIFIER` if forImport && builder.isScala3orSource3 =>
-        builder.predict(builder => builder.getTokenText == "*" || {
-          builder.advanceLexer()
-          builder.getTokenText == "as"
-        })
+      case `tIDENTIFIER` if forImport && (s3f.`Scala 3 renaming imports` || s3f.`Scala 3 wildcard imports`) =>
+        builder.predict(builder => (s3f.`Scala 3 wildcard imports` && builder.getTokenText == "*") ||
+          s3f.`Scala 3 renaming imports` && {
+            builder.advanceLexer()
+            builder.getTokenText == "as"
+          })
       case _ => false
     }
   }

@@ -319,7 +319,10 @@ object Expr1 extends ParsingRule {
             Ascription.parse(builder)
             exprMarker.done(ScalaElementType.TYPED_EXPR_STMT)
             return true
-          case InScala3.orSource3(ScalaTokenTypes.tIDENTIFIER) if builder.getTokenText == "*" && builder.lookAhead(1) == ScalaTokenTypes.tRPARENTHESIS =>
+          case ScalaTokenTypes.tIDENTIFIER if
+              builder.scala3Features.`Scala 3 vararg splice syntax` &&
+              builder.getTokenText == "*" &&
+              builder.lookAhead(1) == ScalaTokenTypes.tRPARENTHESIS =>
             val seqMarker = builder.mark()
             builder.advanceLexer() // ate *
             seqMarker.done(ScalaElementType.SEQUENCE_ARG)

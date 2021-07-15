@@ -12,8 +12,10 @@ class ScalaVersion(
 
   def minor: String = major + "." + minorSuffix
 
+  lazy val minorVersion: project.Version = project.Version(minorSuffix)
+
   override def compare(that: ScalaVersion): Int =
-    (languageLevel, project.Version(minor)) compare (that.languageLevel, project.Version(that.minor))
+    (languageLevel, minorVersion) compare (that.languageLevel, that.minorVersion)
 
   def withMinor(newMinorSuffix: String): ScalaVersion = new ScalaVersion(languageLevel, newMinorSuffix)
   def withMinor(newMinorSuffix: Int): ScalaVersion = withMinor(newMinorSuffix.toString)
@@ -58,8 +60,8 @@ object LatestScalaVersions {
   val Scala_2_9  = new ScalaVersion(ScalaLanguageLevel.Scala_2_9, "3")
   val Scala_2_10 = new ScalaVersion(ScalaLanguageLevel.Scala_2_10, "7")
   val Scala_2_11 = new ScalaVersion(ScalaLanguageLevel.Scala_2_11, "12")
-  val Scala_2_12 = new ScalaVersion(ScalaLanguageLevel.Scala_2_12, "13")
-  val Scala_2_13 = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "3") // TODO: update to at least 2.13.6
+  val Scala_2_12 = new ScalaVersion(ScalaLanguageLevel.Scala_2_12, "14")
+  val Scala_2_13 = new ScalaVersion(ScalaLanguageLevel.Scala_2_13, "6")
   val Scala_3_0  = new ScalaVersion(ScalaLanguageLevel.Scala_3_0, "0")
 
   val all: Seq[ScalaVersion] = Seq(

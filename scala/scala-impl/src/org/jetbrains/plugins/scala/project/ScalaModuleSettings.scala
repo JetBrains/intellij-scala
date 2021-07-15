@@ -8,9 +8,10 @@ import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.util.io.JarUtil.{containsEntry, getJarAttribute}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.util.CommonProcessors.{CollectProcessor, FindProcessor}
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
-import org.jetbrains.plugins.scala.project.ScalaModuleSettings.{ScalaVersionProvider, Yimports, YnoPredefOrNoImports, isMetaParadiseJar}
+import org.jetbrains.plugins.scala.project.ScalaModuleSettings._
 import org.jetbrains.plugins.scala.project.settings.{ScalaCompilerConfiguration, ScalaCompilerSettings}
 import org.jetbrains.sbt.settings.SbtSettings
 
@@ -25,6 +26,9 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
     case _ => None
   }
   val compilerVersion: Option[String] = scalaVersionProvider.compilerVersion
+
+  def scalaMinorVersion: Option[ScalaVersion] =
+    compilerVersion.flatMap(ScalaVersion.fromString)
 
   val scalaLanguageLevel: ScalaLanguageLevel = scalaVersionProvider.languageLevel
 
@@ -111,10 +115,17 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
       case Yimports(imports) if scalaLanguageLevel >= Scala_2_13 => imports
       case YnoPredefOrNoImports(imports)                         => imports
     }
+
+  val scala3Features: Scala3Features =
+    new Scala3Features(
+      scalaMinorVersion.getOrElse(ScalaVersion.default),
+      isSource3Enabled,
+      hasNoIndentFlag,
+      hasOldSyntaxFlag
+    )
 }
 
 private object ScalaModuleSettings {
-
   sealed trait ScalaVersionProvider {
     def languageLevel: ScalaLanguageLevel
     def compilerVersion: Option[String]

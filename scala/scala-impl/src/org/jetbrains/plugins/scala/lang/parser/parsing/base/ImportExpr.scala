@@ -7,7 +7,6 @@ package base
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableId}
-import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 
 /**
 * User: Alexander.Podkhalyuzin
@@ -27,7 +26,7 @@ object ImportExpr extends ParsingRule {
     }
 
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
-      if (builder.isScala3orSource3 && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+      if (builder.scala3Features.`Scala 3 renaming imports` && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
         // import a as b
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
@@ -53,7 +52,7 @@ object ImportExpr extends ParsingRule {
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() // Ate given
         InfixType.parse(builder)
-      case InScala3.orSource3(ScalaTokenTypes.tIDENTIFIER) =>
+      case ScalaTokenTypes.tIDENTIFIER if builder.scala3Features.`Scala 3 renaming imports` =>
         if (!builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar)) {
           val selectorsMarker = builder.mark()
           val selectorMarker = builder.mark()

@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import junit.framework.TestCase
 import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer.ImportTextCreator
+import org.jetbrains.plugins.scala.project.Scala3Features
 import org.junit.Assert.assertEquals
 
 class ImportTextCreatorTest extends TestCase {
@@ -12,9 +13,9 @@ class ImportTextCreatorTest extends TestCase {
   private def getImportText(info: ImportInfo,
                             isUnicodeArrow: Boolean = false,
                             spacesInImports: Boolean = false,
-                            isScala3OrSource3: Boolean = false,
+                            scala3Features: Scala3Features = Scala3Features.none,
                             nameOrdering: Option[Ordering[String]] = lexOrdering): String =
-    textCreator.getImportText(info, isUnicodeArrow, spacesInImports, isScala3OrSource3, nameOrdering)
+    textCreator.getImportText(info, isUnicodeArrow, spacesInImports, scala3Features, nameOrdering)
 
   def testGetImportText_Root_And_Wildcard(): Unit = {
     val info = ImportInfo("scala.collection", hasWildcard = true, rootUsed = true)
@@ -38,7 +39,8 @@ class ImportTextCreatorTest extends TestCase {
 
   def testGetImportText_Scala3(): Unit = {
     val info = ImportInfo("java.lang", renames = Map("Long" -> "JLong"))
-    assertEquals("import java.lang.Long as JLong", getImportText(info, isScala3OrSource3 = true))
+    assertEquals("import java.lang.Long as JLong", getImportText(info, scala3Features = Scala3Features.`-Xsource:3 in 2.12.14 or 2.13.6`))
+    assertEquals("import java.lang.Long as JLong", getImportText(info, scala3Features = Scala3Features.`-Xsource:3 in 2.12.15 or 2.13.7`))
   }
 
 
@@ -63,13 +65,15 @@ class ImportTextCreatorTest extends TestCase {
       renames = Map("Long" -> "JLong", "Float" -> "JFloat"),
       hiddenNames = Set("System"),
       hasWildcard = true)
+    assertEquals("import java.lang.{ Character, Integer, Runtime, Float as JFloat, Long as JLong, System as _, _ }",
+      getImportText(info, spacesInImports = true, scala3Features = Scala3Features.`-Xsource:3 in 2.12.14 or 2.13.6`))
     assertEquals("import java.lang.{ Character, Integer, Runtime, Float as JFloat, Long as JLong, System as _, * }",
-      getImportText(info, spacesInImports = true, isScala3OrSource3 = true))
+      getImportText(info, spacesInImports = true, scala3Features = Scala3Features.`-Xsource:3 in 2.12.15 or 2.13.7`))
   }
 
   def testGetImportText_No_Sorting(): Unit = {
     val info = ImportInfo("java.lang", singleNames = Set("Long", "Integer", "Float", "Short"))
-    assertEquals("import java.lang.{Long, Integer, Float, Short}", getImportText(info, spacesInImports = false, nameOrdering = None))
+    assertEquals("import java.lang.{Long, Integer, Float, Short}", getImportText(info, nameOrdering = None))
   }
 
   def testLexSorting(): Unit = {

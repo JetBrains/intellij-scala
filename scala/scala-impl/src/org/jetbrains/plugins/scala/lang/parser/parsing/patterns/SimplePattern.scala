@@ -178,8 +178,8 @@ object SimplePattern extends ParsingRule {
           // xs* (Scala 3 new?)
           def parseSeqWildcardBindingScala3_new(): Boolean = {
             builder.getTokenType match {
-              case InScala3.orSource3(ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER)
-                if builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER)  =>
+              case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER
+                if builder.scala3Features.`Scala 3 vararg splice syntax` && builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER)  =>
 
                 builder.lookAhead(2) match {
                   case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tCOMMA =>

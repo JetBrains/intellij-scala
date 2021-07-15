@@ -4,6 +4,7 @@ package parsing
 package builder
 
 import com.intellij.lang.PsiBuilder
+import org.jetbrains.plugins.scala.project.Scala3Features
 
 /**
   * @author Alexander Podkhalyuzin
@@ -32,9 +33,7 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def isStrictMode: Boolean
 
-  def isSource3Enabled: Boolean
-
-  def isScala3orSource3: Boolean
+  def scala3Features: Scala3Features
 
   def isScala3IndentationBasedSyntaxEnabled: Boolean
 

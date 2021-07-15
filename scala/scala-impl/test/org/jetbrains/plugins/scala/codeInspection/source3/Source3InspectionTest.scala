@@ -1,10 +1,14 @@
 package org.jetbrains.plugins.scala.codeInspection.source3
 
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.util.Source3TestCase
 
 class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_2_13.withMinor(6)
+
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[Source3Inspection]
 
@@ -57,25 +61,29 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
 
 
   def test_wildcard_import(): Unit = {
-    val selectedText = s"import base.${START}_$END"
-    checkTextHasError(selectedText)
+    assert(version <= ScalaVersion.Latest.Scala_2_13.withMinor(6),
+      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports. Also adjust supportedIn to 2.13.7")
+    //val selectedText = s"import base.${START}_$END"
+    //checkTextHasError(selectedText)
 
-    testQuickFix(
-      "import base._",
-      "import base.*",
-      "Replace with *"
-    )
+    //testQuickFix(
+    //  "import base._",
+    //  "import base.*",
+    //  "Replace with *"
+    //)
   }
 
   def test_wildcard_import_in_selector(): Unit = {
-    val selectedText = s"import base.{nope, ${START}_$END}"
-    checkTextHasError(selectedText)
+    assert(version <= ScalaVersion.Latest.Scala_2_13.withMinor(6),
+      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports. Also adjust supportedIn to 2.13.7")
+    //val selectedText = s"import base.{nope, ${START}_$END}"
+    //checkTextHasError(selectedText)
 
-    testQuickFix(
-      "import base.{nope, _}",
-      "import base.{nope, *}",
-      "Replace with *"
-    )
+    //testQuickFix(
+    //  "import base.{nope, _}",
+    //  "import base.{nope, *}",
+    //  "Replace with *"
+    //)
   }
 
   def test_underscore_is_shadowing(): Unit = {

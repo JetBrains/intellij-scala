@@ -133,12 +133,6 @@ package object project {
     def hasNoIndentFlag: Boolean = scalaModuleSettings.exists(_.hasNoIndentFlag)
     def hasOldSyntaxFlag: Boolean = scalaModuleSettings.exists(_.hasOldSyntaxFlag)
 
-    // http://dotty.epfl.ch/docs/reference/other-new-features/indentation.html
-    // Significant indentation is enabled by default.
-    // It can be turned off by giving any of the options -no-indent, -old-syntax and -language:Scala2
-    // (NOTE: looks like -language:Scala2 doesn't affect anything in the compiler)
-    def isScala3IndentationBasedSyntaxEnabled: Boolean = !(hasNoIndentFlag || hasOldSyntaxFlag)
-
     def isJvmModule: Boolean = !isScalaJs && !isScalaNative && !isSharedSourceModule
 
     def findJVMModule: Option[Module] = {
@@ -233,7 +227,7 @@ package object project {
       scalaModuleSettings.map(_.scalaLanguageLevel)
 
     def scalaMinorVersion: Option[ScalaVersion] =
-      scalaModuleSettings.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
+      scalaModuleSettings.flatMap(_.scalaMinorVersion)
 
     def scalaMinorVersionOrDefault: ScalaVersion =
       scalaMinorVersion.getOrElse(ScalaVersion.default)
@@ -279,6 +273,9 @@ package object project {
 
     def isSource3Enabled: Boolean =
       scalaModuleSettings.exists(_.isSource3Enabled)
+
+    def scala3Features: Scala3Features =
+      scalaModuleSettings.fold(Scala3Features.default)(_.scala3Features)
 
     def isPartialUnificationEnabled: Boolean =
       scalaModuleSettings.exists(_.isPartialUnificationEnabled)
@@ -482,7 +479,8 @@ package object project {
 
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
 
-    def isScala3IndentationBasedSyntaxEnabled: Boolean = isDefinedInModuleOrProject(_.isScala3IndentationBasedSyntaxEnabled)
+    def scala3Features: Scala3Features =
+      inThisModuleOrProject(_.scala3Features).getOrElse(Scala3Features.default)
 
     def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
 
