@@ -99,14 +99,7 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
   }
 
   val isSource3Enabled: Boolean =
-    additionalCompilerOptions.contains("-Xsource:3") && scalaMinorVersion.forall {
-      version =>
-        version.languageLevel match {
-          case ScalaLanguageLevel.Scala_2_12 => version.minorVersion >= minorVersionSinceWhichSource3InScala2_12
-          case ScalaLanguageLevel.Scala_2_13 => version.minorVersion >= minorVersionSinceWhichSource3InScala2_13
-          case lvl => lvl >= ScalaLanguageLevel.Scala_3_0
-      }
-    }
+    additionalCompilerOptions.contains("-Xsource:3")
 
   val isPartialUnificationEnabled: Boolean =
     scalaLanguageLevel >= Scala_2_13 || additionalCompilerOptions.contains("-Ypartial-unification")
@@ -122,15 +115,17 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
       case Yimports(imports) if scalaLanguageLevel >= Scala_2_13 => imports
       case YnoPredefOrNoImports(imports)                         => imports
     }
+
+  val scala3Features: Scala3Features =
+    new Scala3Features(
+      scalaMinorVersion.getOrElse(ScalaVersion.default),
+      isSource3Enabled,
+      hasNoIndentFlag,
+      hasOldSyntaxFlag
+    )
 }
 
 private object ScalaModuleSettings {
-  private val minorVersionSinceWhichSource3InScala2_12 =
-    Version("14")
-
-  private val minorVersionSinceWhichSource3InScala2_13 =
-    Version("6")
-
   sealed trait ScalaVersionProvider {
     def languageLevel: ScalaLanguageLevel
     def compilerVersion: Option[String]
