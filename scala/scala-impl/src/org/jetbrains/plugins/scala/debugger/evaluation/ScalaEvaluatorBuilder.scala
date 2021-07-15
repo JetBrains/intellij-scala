@@ -35,7 +35,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
 
     val scalaFragment = codeFragment match {
       case sf: ScalaCodeFragment => sf
-      case _ => throw EvaluationException(ScalaBundle.message("non-scala.code.fragment"))
+      case _ => throw new IllegalArgumentException("Non-scala code fragment in scala evaluator builder")
     }
 
     val project = codeFragment.getProject
