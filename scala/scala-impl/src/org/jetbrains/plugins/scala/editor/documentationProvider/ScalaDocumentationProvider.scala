@@ -1,15 +1,12 @@
 package org.jetbrains.plugins.scala
 package editor.documentationProvider
 
-import java.util.function.Consumer
-
 import com.intellij.codeInsight.javadoc.JavaDocUtil
 import com.intellij.lang.documentation.CodeDocumentationProvider
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.util.Pair
 import com.intellij.psi._
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
+import org.jetbrains.annotations.{NonNls, Nullable}
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider._
 import org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationUtils.EmptyDoc
 import org.jetbrains.plugins.scala.extensions._
@@ -23,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.light.{PsiClassWrapper, ScFunctionWrapper}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
+import java.util.function.Consumer
 import scala.annotation.tailrec
 
 class ScalaDocumentationProvider extends CodeDocumentationProvider {
@@ -66,14 +64,14 @@ class ScalaDocumentationProvider extends CodeDocumentationProvider {
 
     if (!containingFile.isInstanceOf[ScalaFile]) {
       if (element.isInstanceOf[ScalaPsiElement])
-        debugMessage(ScalaEditorBundle.message("doc.is.not.in.scala.file"), element)
+        debugMessage("Asked to build doc for a scala element, but it is in non scala file (1)", element)
 
       return null
     }
 
     val elementWithDoc = getElementWithDoc(element)
     if (elementWithDoc == null) {
-      debugMessage(ScalaEditorBundle.message("no.doc.owner.for.element"), element)
+      debugMessage("No actual doc owner found for element (2)", element)
       return null
     }
 
@@ -139,7 +137,7 @@ object ScalaDocumentationProvider {
 
   private val LOG = Logger.getInstance("#org.jetbrains.plugins.scala.editor.documentationProvider.ScalaDocumentationProvider")
 
-  private def debugMessage(msg: String, elem: PsiElement): Unit = {
+  private def debugMessage(@NonNls msg: String, elem: PsiElement): Unit = {
     val footer = if (!elem.isValid) {
       s"[Invalid Element: ${elem.getNode} ${elem.getClass.getName}]"
     } else if (elem.getContainingFile == null) {
