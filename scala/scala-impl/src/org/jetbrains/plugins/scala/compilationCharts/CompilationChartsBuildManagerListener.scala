@@ -5,7 +5,7 @@ import com.intellij.openapi.compiler.{CompileContext, CompileTask}
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsComponentHolder
-import org.jetbrains.plugins.scala.compiler.CompileServerClient
+import org.jetbrains.plugins.scala.compiler.{CompileServerClient, CompileServerLauncher}
 import org.jetbrains.plugins.scala.isUnitTestMode
 import org.jetbrains.plugins.scala.util.ScheduledService
 
@@ -45,9 +45,14 @@ private final class CompilationChartsUpdater(project: Project)
   extends ScheduledService(1.seconds) {
 
   override def runnable: Runnable = { () =>
-    val currentTime = System.nanoTime()
-    updateCompileServerMetricsState(currentTime)
-    refreshDiagram()
+    if (CompileServerLauncher.running) {
+      val currentTime = System.nanoTime()
+      updateCompileServerMetricsState(currentTime)
+      refreshDiagram()
+    }
+    else {
+      stopScheduling()
+    }
   }
 
   private def updateCompileServerMetricsState(currentTime: Timestamp): Unit = {

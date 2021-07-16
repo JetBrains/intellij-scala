@@ -37,6 +37,15 @@ abstract class ProjectDataServiceTestCase extends HeavyPlatformTestCase {
     )
   }
 
+  protected def assertNoNotificationShown(project: Project): Unit = {
+    val actualNotifications = Option(project.getUserData(ShownNotificationsKey)).getOrElse(Nil).map(ExpectedNotificationData.apply)
+    assertCollectionEquals(
+      "No notifications expected",
+      Seq.empty[ExpectedNotificationData],
+      actualNotifications
+    )
+  }
+
   protected case class ExpectedNotificationData(systemId: ProjectSystemId, source: NotificationSource, category: NotificationCategory)
 
   protected object ExpectedNotificationData {
