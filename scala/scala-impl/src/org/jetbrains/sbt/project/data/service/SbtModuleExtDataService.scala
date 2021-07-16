@@ -37,7 +37,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
       SbtModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix, basePackage) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
-      Option(scalaVersion).foreach(configureScalaSdk(project, module, _, scalacClasspath.asScala.toSeq)(modelsProvider))
+      Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq)(modelsProvider))
       configureOrInheritSdk(module, Option(sdk))(modelsProvider)
       importJavacOptions(module, javacOptions.asScala.toSeq)(project, modelsProvider)
 
@@ -47,8 +47,16 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     }
   }
 
+  /**
+   * Reminder: SbtModuleExtData is built based on `show scalaInstance` sbt command result.
+   * In theory looks like if there are no scala libraries in the module, no SbtModuleExtData should be reported for the module
+   * But sbt creates `scalaInstance` in such cases anyway
+   * see https://github.com/sbt/sbt/issues/6559
+   * Also e.g. for Scala 3 (dotty) project, there is not explicit scala3-library dependency in modules,
+   * because all modules already depend on scala3-module in the Scala3 project itself
+   * So scalaInstance is reported for modules only as compiler which should be used to compile sources
+   */
   private def configureScalaSdk(
-    project: Project,
     module: Module,
     compilerVersion: String,
     scalacClasspath: Seq[File]
@@ -57,11 +65,6 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
   ): Unit = {
     val scalaLibraries = librariesWithScalaRuntimeJar(module)
     if (scalaLibraries.nonEmpty) {
-      // NOTE:
-      // Reminder: SbtModuleExtData is built based on `show scalaInstance` sbt command result.
-      // In theory looks like if there are no scala libraries in the module, no SbtModuleExtData should be reported for the module
-      // But sbt creates `scalaInstance` in such cases anyway
-      // see https://github.com/sbt/sbt/issues/6559
       val scalaLibraryWithSameVersion = scalaLibraries.find(isSameCompileVersionOrLanguageLevel(compilerVersion, _))
 
       scalaLibraryWithSameVersion match {
@@ -70,10 +73,30 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
             // library created but not yet marked as Scala SDK
             ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, scalacClasspath)
           }
-        case None          =>
-          showScalaLibraryNotFoundWarning(compilerVersion, module.getName)(project)
+        case None =>
+          // example: Scala 3 (dotty) project https://github.com/lampepfl/dotty
+          // TODO: dotty modules also have scala-library dependency (scala 2)
+          //  The library is reused between modules, and if in some module it's marked as Scala 2 SDK,
+          //  it's displayed as SDK in all other modules.
+          //  It can be quite confusing.
+          //  E.g. ATM in dotty project `tasty-core-scala2` uses Scala 2 and marks scala-library as Scala SDK.
+          //  So as a solution, when we convert scala-library to scala sdk we should probably create a copy of it
+          //  (which in it's turn might be reused in all modules which depend on the library as on SDK)
+          //  see also: org.jetbrains.plugins.scala.project.ScalaModuleSettings SCL-18166, SCL-18867
+          createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath)
       }
     }
+    else {
+      // example: Scala project https://github.com/scala/scala
+      createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath)
+    }
+  }
+
+  private def createModuleLevelScalaSdk(module: Module, compilerVersion: String, scalacClasspath: Seq[File])
+                                       (implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
+    val rootModel = modelsProvider.getModifiableRootModel(module)
+    val testLibrary = rootModel.getModuleLibraryTable.createLibrary(s"scala-sdk-$compilerVersion")
+    ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, testLibrary, scalacClasspath)
   }
 
   private def isSameCompileVersionOrLanguageLevel(compilerVersion: String, scalaLibrary: Library): Boolean =

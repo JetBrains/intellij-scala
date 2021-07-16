@@ -1,6 +1,7 @@
 package org.jetbrains.sbt
 package project
 
+import com.intellij.application.options.RegistryManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.{ProjectData => ESProjectData, _}
@@ -21,7 +22,7 @@ import org.jetbrains.plugins.scala.project.external.{AndroidJdk, JdkByHome, JdkB
 import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
 import org.jetbrains.sbt.SbtUtil._
 import org.jetbrains.sbt.project.SbtProjectResolver._
-import org.jetbrains.sbt.project.data._
+import org.jetbrains.sbt.project.data.{LibraryNode, _}
 import org.jetbrains.sbt.project.module.SbtModuleType
 import org.jetbrains.sbt.project.settings._
 import org.jetbrains.sbt.project.structure._
@@ -146,14 +147,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val useShellImport = settings.useShellForImport && shellImportSupported(sbtVersion) && project != null
     val options = dumpOptions(settings)
 
-    if (!sbtLauncher.isFile) {
-      val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.getCanonicalPath)
-      Failure(new FileNotFoundException(error))
-    } else if (!importSupported(sbtVersion)) {
-      val message = SbtBundle.message("sbt.sincesbtversion.required", sinceSbtVersion)
-      Failure(new UnsupportedOperationException(message))
-    }
-    else usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+    def doDumpStructure(structureFile: File): Try[(Elem, BuildMessages)] = {
       val structureFilePath = normalizePath(structureFile)
 
       val dumper = new SbtStructureDump()
@@ -214,6 +208,36 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
         log.debug(s"failed to dump sbt structure, sbt process output:\n$processOutput")
       }
       result
+    }
+
+    if (!sbtLauncher.isFile) {
+      val error = SbtBundle.message("sbt.launcher.not.found", sbtLauncher.getCanonicalPath)
+      Failure(new FileNotFoundException(error))
+    } else if (!importSupported(sbtVersion)) {
+      val message = SbtBundle.message("sbt.sincesbtversion.required", sinceSbtVersion)
+      Failure(new UnsupportedOperationException(message))
+    }
+    else {
+      val structureFileReused = new File(FileUtil.getTempDirectory) / s"sbt-structure-reused-${projectRoot.getName}.xml"
+      if (RegistryManager.getInstance().is("sbt.project.import.reuse.previous.structure.file")){
+        if (structureFileReused.exists()) {
+          log.warn(s"reused structure file: $structureFileReused")
+          val elem = XML.load(structureFileReused.toURI.toURL)
+          Try((elem, BuildMessages.empty))
+        }
+        else {
+          log.warn(s"reused structure file created: $structureFileReused")
+          doDumpStructure(structureFileReused)
+        }
+      }
+      else {
+        if (structureFileReused.exists()) {
+          structureFileReused.delete()
+        }
+        usingTempFile("sbt-structure", Some(".xml")) { structureFile =>
+          doDumpStructure(structureFile)
+        }
+      }
     }
   }
 
@@ -412,9 +436,27 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sdk = android.map(_.targetVersion).map(AndroidJdk)
       .orElse(java.flatMap(_.home).map(JdkByHome))
 
+    // HACK: in `dotty` project itself, `scalaInstance` reports different scala-library version for `libraryJars` and `compilerJars`
+    // Because of bug SCL-19086  we merge all the jars in a single `allJars` and scalac classpath gets duplicated entreis
+    // In this workaround we imply that scalac classpath should have the latest library version and deduplicate it.
+    // TODO: remove the hack when SCL-19086 is fixed in `sbt-structure`
+    val scalacClasspath: Seq[File] = {
+      val allJars = scala.fold(Seq.empty[File])(_.jars)
+      val scala2Libraries = allJars.filter(isScala2Library)
+      val withDeduplicatedScala2Lbrary = if (scala2Libraries.size > 1) {
+        val latestLibrary = scala2Libraries.maxBy(_.getName) // assuming that lexical order is the same as fair by-version order
+        allJars.filter { file =>
+          !isScala2Library(file) || file == latestLibrary
+        }
+      }
+      else
+        allJars
+      withDeduplicatedScala2Lbrary
+    }
+
     val data = SbtModuleExtData(
       scala.map(_.version),
-      scala.fold(Seq.empty[File])(_.jars),
+      scalacClasspath,
       scala.fold(Seq.empty[String])(_.options),
       sdk,
       java.fold(Seq.empty[String])(_.options),
@@ -424,6 +466,7 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     new ModuleExtNode(data)
   }
 
+  private def isScala2Library(file: File): Boolean = file.getName.startsWith("scala-library-")
 
   private def createTaskData(project: sbtStructure.ProjectData): Seq[SbtTaskNode] = {
     project.tasks.map { t =>

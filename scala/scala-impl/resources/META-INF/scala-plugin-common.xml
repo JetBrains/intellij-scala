@@ -584,6 +584,8 @@
                      description="Prints raw output of process that executes test framework runner, including unprocessed TeamCity service messages"/>
         <registryKey key="scala.compile.server.socket.read.timeout.seconds" defaultValue="60" restartRequired="false"
                      description="A timeout (in seconds) to read data from client socket of scala compile server. If any read operation is longer than the timeout, we consider that something has happened with server and fallback to compilation without it"/>
+        <registryKey key="sbt.project.import.reuse.previous.structure.file" defaultValue="false" restartRequired="false"
+                     description="If enabled, project reimport will not launch sbt process to extract the structure. `sbt-structure.xml` file generated in the previous import will be used. This flag should be used when testing project import process on the same project (to avoid wating for a long time just to get a file with same contents"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
