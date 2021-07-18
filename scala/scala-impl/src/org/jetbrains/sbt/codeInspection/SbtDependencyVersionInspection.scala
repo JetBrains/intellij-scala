@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.language.completion.SBT_ORG_ARTIFACT
 import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, SbtDependencyUtils}

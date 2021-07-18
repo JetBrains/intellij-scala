@@ -4,33 +4,28 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.progress.util.ProgressWrapper
 import com.intellij.openapi.progress.{ProgressIndicatorProvider, ProgressManager}
 import com.intellij.util.concurrency.AppExecutorUtil
-import com.intellij.util.containers.{ContainerUtil, SLRUMap}
 import com.intellij.util.io.HttpRequests
 import com.jetbrains.packagesearch.intellij.plugin.api.http.EmptyBodyException
 import com.jetbrains.packagesearch.intellij.plugin.PluginEnvironment
 import org.jetbrains.concurrency.{AsyncPromise, Promise}
 import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
 import org.jetbrains.sbt.language.utils.CustomPackageSearchApiClient.searchDependencyVersions
-import org.jetbrains.sbt.language.utils.SbtDependencyCommon.defaultLibScope
 
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque, Executors}
-import scala.concurrent.{Await, Future}
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque}
+import scala.concurrent.Future
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.duration._
 import scala.language.postfixOps
 import spray.json._
 
 import java.net.HttpURLConnection
 import java.util
-import java.util.{Arrays, Collections}
+import java.util.Collections
 import scala.jdk.CollectionConverters._
-import scala.collection.mutable
 import scala.util.{Failure, Success}
 
 object CustomPackageSearchApiClient {
   private val baseUrl = "https://package-search.services.jetbrains.com/api"
   private val timeoutInSeconds = 10
-  private val cacheSize = 500
 
   private val cache = new ConcurrentHashMap[String, Future[util.Collection[MavenRepositoryArtifactInfo]]]()
   private val executorService = AppExecutorUtil.createBoundedScheduledExecutorService("CustomPackageSearchApiClient", 2)
@@ -67,7 +62,7 @@ object CustomPackageSearchApiClient {
     null
   }
 
-  def handleRequest(key: String, url: String, acceptContentType: String, timeoutInSeconds: Int = 10): String = try {
+  def handleRequest(url: String, acceptContentType: String, timeoutInSeconds: Int = 10): String = try {
 
     val builder = HttpRequests
       .request(url)
@@ -134,7 +129,7 @@ object CustomPackageSearchApiClient {
                                           artifactId: String,
                                           cacheKey: String,
                                           contentType: ContentTypes = ContentTypes.Minimal): () => util.Collection[MavenRepositoryArtifactInfo] = () => try {
-    val reqRes = handleRequest(cacheKey,s"$baseUrl/package/$groupId:$artifactId", contentType.toString, timeoutInSeconds)
+    val reqRes = handleRequest(s"$baseUrl/package/$groupId:$artifactId", contentType.toString, timeoutInSeconds)
     if (reqRes.nonEmpty) {
       reqRes.parseJson.asJsObject.getFields("package") match {
         case Seq(obj: JsObject) =>

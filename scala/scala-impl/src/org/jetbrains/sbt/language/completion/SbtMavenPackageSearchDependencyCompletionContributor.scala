@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion.{CompletionContributor, CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
@@ -14,14 +14,11 @@ import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, PackageSearchApiHelper, SbtArtifactInfo, SbtDependencyCommon, SbtDependencyTraverser, SbtDependencyUtils}
 
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque}
-import java.util.function.BiConsumer
-import scala.collection.mutable
 
 class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
