@@ -11,7 +11,7 @@ import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ModuleTransfor
 import com.jetbrains.packagesearch.intellij.plugin.ui.toolwindow.models.PackageVersion
 import org.jetbrains.plugins.scala.packagesearch.utils.{SbtProjectModuleType, ScalaKotlinHelper}
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.language.utils.{SbtCommon, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{SbtDependencyCommon, SbtDependencyUtils}
 
 import java.io.File
 import java.util
@@ -35,7 +35,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     val targetedLibDep = SbtDependencyUtils.findLibraryDependency(
       project,
       module,
-      new UnifiedDependency(groupId, artifactId, packageVersion.toString, SbtCommon.defaultLibScope),
+      new UnifiedDependency(groupId, artifactId, packageVersion.toString, SbtDependencyCommon.defaultLibScope),
       configurationRequired = false
     )
 
@@ -59,7 +59,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
             module,
             null,
             buildFile,
-            SbtCommon.buildSystemType,
+            SbtDependencyCommon.buildSystemType,
             SbtProjectModuleType,
             (_,_,_) => null
         )

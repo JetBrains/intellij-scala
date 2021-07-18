@@ -24,10 +24,7 @@ public class PackageSearchApiHelper {
                                                             Boolean fillArtifact) {
         String finalGroupId = formatString(groupId);
         String finalArtifactId = formatString(artifactId);
-        String textSearch = "";
-        if (!finalGroupId.equals("") && !finalArtifactId.equals(""))
-            textSearch = String.format("%s:%s", finalGroupId, finalArtifactId);
-        else textSearch = finalGroupId + finalArtifactId;
+        String textSearch = String.format("%s %s", finalGroupId, finalArtifactId);
         if (fillArtifact)
             return service.suggestPrefix(finalGroupId, finalArtifactId, searchParameters, repo -> {
                 if (repo instanceof MavenRepositoryArtifactInfo) {
