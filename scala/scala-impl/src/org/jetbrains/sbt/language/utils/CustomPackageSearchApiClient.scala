@@ -133,7 +133,6 @@ object CustomPackageSearchApiClient {
 
   def getDependencyVersionsInfoFromServer(groupId: String,
                                           artifactId: String,
-                                          cacheKey: String,
                                           contentType: ContentTypes = ContentTypes.Minimal): () => util.Collection[MavenRepositoryArtifactInfo] = () => try {
     val reqRes = handleRequest(s"$baseUrl/package/$groupId:$artifactId", contentType.toString, timeoutInSeconds)
     if (reqRes.nonEmpty) {
@@ -164,11 +163,11 @@ object CustomPackageSearchApiClient {
   }
 
   def searchDependencyVersions(groupId: String,
-                            artifactId: String,
-                            contentType: ContentTypes = ContentTypes.Minimal,
-                            consumer: MavenRepositoryArtifactInfo => Unit): Promise[Int] = {
+                               artifactId: String,
+                               contentType: ContentTypes = ContentTypes.Minimal,
+                               consumer: MavenRepositoryArtifactInfo => Unit): Promise[Int] = {
     val cacheKey = s"$groupId:$artifactId"
-    performSearch(cacheKey, consumer, getDependencyVersionsInfoFromServer(groupId, artifactId, cacheKey, contentType))
+    performSearch(cacheKey, consumer, getDependencyVersionsInfoFromServer(groupId, artifactId, contentType))
   }
 }
 
