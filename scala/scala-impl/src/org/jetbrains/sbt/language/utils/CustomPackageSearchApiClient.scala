@@ -107,7 +107,13 @@ object CustomPackageSearchApiClient {
           ProgressManager.getInstance().runProcess(
             (() => {
               val collection = searchLogic()
-              if (collection != null) collection.asScala.foreach(consumer)
+              if (collection != null) {
+                collection.asScala.foreach(artifact => {
+                  if (resultSet.add(artifact)) {
+                    consumer(artifact)
+                  }
+                })
+              }
               promise.setResult(1)
             }): Runnable,
             wrapper

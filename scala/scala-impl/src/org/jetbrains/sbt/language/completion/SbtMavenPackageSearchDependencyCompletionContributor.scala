@@ -35,7 +35,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       implicit val project: Project = place.getProject
 
       val versions = new ConcurrentHashMap[String, List[String]]()
-      val scalaVers = SbtDependencyUtils.getAllScalaVersionsOrDefault(place)
+      val scalaVers = SbtDependencyUtils.getAllScalaVersionsOrDefault(place, majorOnly = true)
 
       resultSet.restartCompletionOnAnyPrefixChange()
 
@@ -130,7 +130,6 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
             groupId,
             artifactId,
             (lib: MavenRepositoryArtifactInfo) => {
-//                versions += (lib.version -> ((if (scalaVer != null) scalaVer else JAVA_VERSION_FLAG) :: versions.getOrElse(lib.version, Nil)))
               lib.getItems.foreach(item => versions.put(item.getVersion, (if (scalaVer != null) scalaVer else JAVA_VERSION_FLAG) :: versions.getOrDefault(item.getVersion, Nil)))
 
             }

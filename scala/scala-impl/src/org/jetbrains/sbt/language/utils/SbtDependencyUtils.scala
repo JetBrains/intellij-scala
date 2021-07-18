@@ -40,9 +40,10 @@ object SbtDependencyUtils {
     case object GetDep extends GetMode
   }
 
-  def getAllScalaVersionsOrDefault(psiElement: PsiElement): List[String] = {
+  def getAllScalaVersionsOrDefault(psiElement: PsiElement, majorOnly: Boolean = false): List[String] = {
     var scalaVers = SbtDependencyUtils.getAllScalaVers(psiElement.getProject).sortWith(SbtDependencyUtils.isGreaterStableVersion)
     if (scalaVers.isEmpty) scalaVers = List(psiElement.scalaLanguageLevelOrDefault.getVersion)
+    if (majorOnly) scalaVers = scalaVers.map(ver => ver.split("\\.").take(2).mkString("."))
     scalaVers
   }
 
