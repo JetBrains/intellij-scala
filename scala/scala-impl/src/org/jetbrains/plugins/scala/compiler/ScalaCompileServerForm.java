@@ -16,6 +16,7 @@ import com.intellij.util.ui.UI;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import scala.Some$;
 
 import javax.swing.*;
 import java.awt.*;
@@ -140,6 +141,9 @@ public class ScalaCompileServerForm implements Configurable {
     @Override
     public void apply() {
         mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
+        if (!mySettings.COMPILE_SERVER_ENABLED) {
+            CompileServerLauncher.stop(0, Some$.MODULE$.apply("compile server disabled from settings"));
+        }
 
         Sdk sdk = myCompilationServerSdk.getSelectedJdk();
         mySettings.USE_DEFAULT_SDK = sdkModel.isDefault(sdk);

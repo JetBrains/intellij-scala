@@ -21,19 +21,12 @@ trait ScalaParserTestOps {
     s"[[Err($err)]]"
 
   def checkParseErrors(text: String): ScalaFile = {
-    val (code, expectedErrors) = extractExpectedErrors(text)
+    val (code, expectedErrors) = extractExpectedErrors(text.withNormalizedSeparator)
 
     val file = parseText(code)
     val errors = file.depthFirst().toSeq.filterByType[PsiErrorElement]
-    if (expectedErrors.isEmpty) {
-      assert(errors.isEmpty, "Expected no errors but found: " + errors.map(_.getErrorDescription).mkString(", "))
-    } else {
-      val errorsWithPos = errors.map(psi => psi.getTextOffset -> psi.getErrorDescription).toSet
-      val notFoundErrors = (expectedErrors -- errorsWithPos).toSeq.sortBy(_._1).map(_._2)
-      val unexpectedErrors = (errorsWithPos -- expectedErrors).toSeq.sortBy(_._1).map(_._2)
-      assert(unexpectedErrors.isEmpty, "Found unexpected errors: " + unexpectedErrors.mkString(", "))
-      assert(notFoundErrors.isEmpty, "Expected errors but didn't find: " + notFoundErrors.mkString(", "))
-    }
+    val errorsWithPos = errors.map(psi => psi.getTextOffset -> psi.getErrorDescription).toSet
+    assertEquals("parse errors do not match", expectedErrors.toSeq.sorted, errorsWithPos.toSeq.sorted)
     file
   }
 }

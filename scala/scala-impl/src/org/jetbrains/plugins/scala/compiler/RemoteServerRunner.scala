@@ -1,23 +1,23 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import java.net.{ConnectException, InetAddress, UnknownHostException}
-import java.nio.file.Path
-
 import com.intellij.compiler.server.BuildManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
-import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{CompileServerCommand, RemoteResourceOwner}
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.jps.incremental.scala.Client
+import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedConnectionErrorMessages
 import org.jetbrains.plugins.scala.compiler.RemoteServerRunner._
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
+import java.net.{ConnectException, InetAddress, UnknownHostException}
+import java.nio.file.Path
 import scala.util.control.NonFatal
 
 /**
  * @see [[NonServerRunner]]
  */
-class RemoteServerRunner(project: Project)
+final class RemoteServerRunner(project: Project)
   extends RemoteResourceOwner {
 
   override protected val address: InetAddress = InetAddress.getByName(null)
@@ -33,7 +33,7 @@ class RemoteServerRunner(project: Project)
   def buildProcess(command: String,
                    arguments: Seq[String],
                    client: Client): CompilationProcess = new CompilationProcess {
-    val COUNT = 10
+    val ConnectionRetryAttempts = 10
 
     var callbacks: Seq[Option[Throwable] => Unit] = Seq.empty
 
@@ -44,14 +44,15 @@ class RemoteServerRunner(project: Project)
       val buildSystemDir = BuildManager.getInstance.getBuildSystemDirectory(project)
       var unhandledException: Option[Throwable] = None
       try {
-        for (i <- 0 until (COUNT - 1)) {
+        for (i <- 0 until ConnectionRetryAttempts - 1) {
           try {
-            Thread.sleep(i*20)
+            Thread.sleep(i * 20)
             val token = readToken(buildSystemDir, port)
             send(command, token +: arguments, client)
             return
           } catch {
-            case _: ConnectException | _: CantFindSecureTokenException => Thread.sleep(100)
+            case _: ConnectException | _: CantFindSecureTokenException =>
+              Thread.sleep(100)
           }
         }
 
@@ -59,13 +60,15 @@ class RemoteServerRunner(project: Project)
         send(command, token +: arguments, client)
       } catch {
         case e: ConnectException =>
-          val message = ScalaBundle.message("cannot.connect.to.compile.server", address.toString, port)
+          val message = CompileServerSharedConnectionErrorMessages.cantConnectToCompileServerErrorMessage(address, port)
           client.error(message)
-          reportException(message, e, client)
+          Log.error(message, e)
+
         case e: UnknownHostException =>
-          val message = unknownHostErrorMessage
+          val message = CompileServerSharedConnectionErrorMessages.unknownHostErrorMessage(address)
           client.error(message)
-          reportException(message, e, client)
+          Log.error(message, e)
+
         case NonFatal(ex) =>
           unhandledException = Some(ex)
       } finally {
@@ -74,7 +77,8 @@ class RemoteServerRunner(project: Project)
     }
 
     override def stop(): Unit = {
-      // TODO: SCL-17265 do not stop the whole server! Investigate whether we can cancel
+      // TODO: SCL-17265 do not stop the whole server!
+      // Investigate whether we can cancel single NGSession thread to stop worksheet execution
       CompileServerLauncher.ensureServerNotRunning(project)
     }
   }
@@ -82,6 +86,8 @@ class RemoteServerRunner(project: Project)
 
 private object RemoteServerRunner {
   private class CantFindSecureTokenException extends Exception
+
+  private val Log = Logger.getInstance(classOf[RemoteServerRunner])
 
   private def readToken(buildSystemDir: Path, port: Int): String =
     CompileServerToken.tokenForPort(buildSystemDir, port).getOrElse(throw new CantFindSecureTokenException)

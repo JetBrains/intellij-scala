@@ -1,11 +1,11 @@
 package org.jetbrains.plugins.scala.compiler.data
 
-import java.io.File
-
-import org.jetbrains.jps.incremental.scala.{compilerVersionIn, containsDotty, containsScala3}
+import org.jetbrains.jps.incremental.scala.{compilerVersionIn, containsScala3}
 import org.jetbrains.plugins.scala.compiler.data.CompilerJarsFactory.CompilerJarsResolveError
 import org.jetbrains.plugins.scala.util.JarUtil
 import org.jetbrains.plugins.scala.util.JarUtil.JarFileWithName
+
+import java.io.File
 
 trait CompilerJarsFactory {
 
@@ -31,8 +31,7 @@ object CompilerJarsFactory
   def fromJarFiles(files: Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
     val ioFiles = files.map(_.file)
     val compilerPrefix =
-      if (containsDotty(ioFiles)) "dotty"
-      else if (containsScala3(ioFiles)) "scala3"
+      if (containsScala3(ioFiles)) "scala3"
       else "scala"
 
     val init: Either[CompilerJarsResolveError, Seq[JarFileWithName]] = Right(Seq.empty)

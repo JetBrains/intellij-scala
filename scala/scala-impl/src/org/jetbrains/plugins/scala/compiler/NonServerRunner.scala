@@ -23,6 +23,7 @@ import org.jetbrains.plugins.scala.util.ScalaPluginJars
 
 import _root_.scala.jdk.CollectionConverters._
 
+// TODO: move to worksheet module?
 /**
  * @see [[RemoteServerRunner]]
  */

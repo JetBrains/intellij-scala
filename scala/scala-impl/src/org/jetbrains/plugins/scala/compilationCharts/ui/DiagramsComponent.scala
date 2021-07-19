@@ -1,21 +1,22 @@
 package org.jetbrains.plugins.scala.compilationCharts.ui
 
-import java.awt.event.{MouseAdapter, MouseEvent}
-import java.awt.geom.{Point2D, Rectangle2D}
-import java.awt.{Dimension, Graphics, Graphics2D, Point, Rectangle, RenderingHints}
 import com.intellij.ide.ui.laf.UIThemeBasedLookAndFeelInfo
 import com.intellij.ide.ui.{LafManager, UISettings}
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.vfs.VfsUtil
 import com.intellij.ui.components.{JBPanelWithEmptyText, JBScrollPane}
 import com.intellij.util.ui.StartupUiUtil
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compilationCharts.ui.Common._
-import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory, Timestamp}
+import org.jetbrains.plugins.scala.compilationCharts.{CompilationProgressStateManager, CompileServerMetricsStateManager, Memory}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 
+import java.awt.event.{MouseAdapter, MouseEvent}
+import java.awt.geom.{Point2D, Rectangle2D}
+import java.awt._
 import java.io.File
 import javax.swing.UIManager
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.collection.mutable
+import scala.concurrent.duration.{Duration, DurationInt, DurationLong, FiniteDuration}
 import scala.math.Ordering.Implicits._
 
 class DiagramsComponent(chartsComponent: CompilationChartsComponent,
@@ -50,19 +51,40 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
         val i = path.lastIndexOf(File.separatorChar)
         if (i >= 0) path.substring(i + 1) else "?"
       }
-      
+
       // TODO Use more effective search?
-      for (group <- diagram.segmentGroups.lift(selectedRow);
-           segment <- group.find(segment => segment.from <= selectedTime && segment.to >= selectedTime);
-           phase = if (currentLevel >= Level.Phases) segment.phases.find(it => it.from <= selectedTime && it.to >= selectedTime) else None;
-           unit = if (currentLevel >= Level.Units) segment.units.find(it => it.from <= selectedTime && it.to >= selectedTime) else None) {
+      for {
+        group   <- diagram.segmentGroups.lift(selectedRow)
+        segment <- group.find(segment => segment.from <= selectedTime && segment.to >= selectedTime)
+        phase   = if (currentLevel >= Level.Phases) segment.phases.find(it => it.from <= selectedTime && it.to >= selectedTime) else None
+        unit    = if (currentLevel >= Level.Units) segment.units.find(it => it.from <= selectedTime && it.to >= selectedTime) else None
+      } {
         // TODO Show duration, number of files, etc. (maybe also labels)
         // TODO Implement navigation to file / module
-        setToolTipText(
-          unit.map(it => fileNameIn(it.path) + " | ").getOrElse("") +
-            phase.map(_.name.capitalize + " | ").getOrElse("") +
-            segment.unitId.moduleId
-        )
+
+        val moduleName   = segment.unitId.moduleId
+
+        val tooltipText = if (phase.orElse(unit).nonEmpty) {
+          val rows = mutable.Buffer.empty[(String, String, TimeRangeOwner)]
+          rows += (("Module", moduleName, segment))
+          phase.foreach(it => rows += (("Phase", it.name.capitalize, it)))
+          unit.foreach(it => rows += (("Unit", fileNameIn(it.path), it)))
+          val htmlRows = rows.map { case (title, name, timeRangeOwner) =>
+            val duration = stringifyForSegmentTooltip(timeRangeOwner)
+            //language=HTML
+            s"""<tr>
+               |<td><pre style='margin: 0'>$title</pre></td>
+               |<td><pre style='margin: 0'> : $name</pre></td>
+               |<td><pre style='margin: 0'> ($duration)</pre></td>
+               |</tr>""".stripMargin
+          }
+          htmlRows.mkString("""<table>""", "", "</table>")
+        }
+        else {
+          //language=HTML
+          s"<pre>${moduleName} (${stringifyForSegmentTooltip(segment)})</pre>"
+        }
+        setToolTipText(tooltipText)
       }
     }
   })
@@ -207,7 +229,7 @@ class DiagramsComponent(chartsComponent: CompilationChartsComponent,
       val point = new Point2D.Double(x, clip.getY)
       if (i % currentZoom.durationLabelPeriod == 0) {
         if (i != 0) graphics.printVerticalLine(point, LongDashLength, LineColor, DashStroke)
-        val text = " " + stringify(i * currentZoom.durationStep)
+        val text = " " + stringifyForAxisLabel(i * currentZoom.durationStep)
         val textClip = new Rectangle2D.Double(point.x, clip.getY, clip.getWidth, clip.getHeight)
         val rendering = graphics.getTextRendering(textClip, text, SmallFont, HAlign.Left, VAlign.Top)
         val fixedRendering = rendering.translate(rendering.x, rendering.y + rendering.rect.getHeight / 4)
@@ -278,7 +300,7 @@ object DiagramsComponent {
   private def toMegabytes(bytes: Memory): Long =
     math.round(bytes.toDouble / 1024 / 1024)
 
-  private def stringify(duration: FiniteDuration): String = {
+  private def stringifyForAxisLabel(duration: FiniteDuration): String = {
     val minutes = duration.toMinutes
     val seconds = duration.toSeconds % 60
     val minutesStr = Option(minutes).filter(_ > 0).map(_.toString + "m")
@@ -286,6 +308,42 @@ object DiagramsComponent {
     val result = Seq(minutesStr, secondsStr).flatten.mkString(" ")
     if (result.nonEmpty) result else "0"
   }
+
+  private def roundToSeconds(duration0: FiniteDuration): FiniteDuration =
+    Math.round(duration0.toMillis / 1000f).seconds
+
+  private def stringifyForSegmentTooltip(timeRangeOwner: TimeRangeOwner): String =
+    stringifyForSegmentTooltip(timeRangeOwner.to - timeRangeOwner.from)
+
+  @TestOnly
+  def stringifyForSegmentTooltip(duration0: FiniteDuration): String = {
+    val (duration, secondFractionSuffix) =
+      if (duration0 > 1.minute)
+        (roundToSeconds(duration0), "")
+      else if (duration0 > 1.second) {
+        val millis0 = duration0.toMillis % 1000
+        val millisHundred = Math.round(millis0 / 100f) // 0-10
+        val secondFraction = millisHundred % 10 //0 -9
+        ((duration0.toSeconds + millisHundred / 10).seconds, if (secondFraction == 0) "" else s".$secondFraction")
+      }
+      else
+        (duration0, "")
+
+    val hours = duration.toHours.toInt
+    val minutes = (duration.toMinutes % 60).toInt
+    val seconds = (duration.toSeconds % 60).toInt
+    val millis = (duration.toMillis % 1000).toInt
+
+    val builder = new StringBuilder
+
+    if (hours > 0) builder.append(hours).append(" h ")
+    if (minutes > 0) builder.append(minutes).append(" m ")
+    if (seconds > 0) builder.append(seconds).append(secondFractionSuffix).append(" s ")
+    if (millis > 0 && duration < 1.second && secondFractionSuffix.isEmpty) builder.append(millis).append(" ms ")
+
+    builder.mkString.stripTrailing
+  }
+
 
   private final val MinMemoryDiagramHeight = 3 * ProgressRowHeight
   private final val DurationAxisHeight = 1.5 * SmallFont.getSize + UIManager.get("ScrollBar.width").asInstanceOf[Int]

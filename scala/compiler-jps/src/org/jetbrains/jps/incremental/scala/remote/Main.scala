@@ -6,8 +6,7 @@ import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.{Base64, Timer, TimerTask}
-
-import com.martiansoftware.nailgun.NGContext
+import com.martiansoftware.nailgun.{NGContext, NGServer}
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.fs.BuildFSState
@@ -17,6 +16,7 @@ import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 import org.jetbrains.jps.incremental.scala.remote.MeteringScheduler.ArgsParsed
+import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtil
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -39,6 +39,7 @@ object Main {
   private val worksheetServer = new WorksheetServer
 
   private var shutdownTimer: Timer = _
+  private var shutdownByTimout: Boolean = false
 
   private val maxHeapSize = Runtime.getRuntime.maxMemory()
   private val currentParallelism = new AtomicInteger(0)
@@ -71,6 +72,13 @@ object Main {
       standalone = false
     )
     resetShutdownTimer(context)
+  }
+
+  //noinspection ScalaUnusedSymbol
+  def nailShutdown(server: NGServer): Unit = {
+    import CompileServerSharedMessages._
+    val details = if (shutdownByTimout) s" ($ProcessWasIdleFor ${shutdownDelay.getOrElse("<unknown>")})" else ""
+    System.out.println(CompileServerShutdownPrefix + s"$details")
   }
 
   def main(args: Array[String]): Unit = {
@@ -268,21 +276,32 @@ object Main {
     }
   }
 
-  private def resetShutdownTimer(context: NGContext): Unit = {
-    val delay = Option(System.getProperty("shutdown.delay")).map(_.toInt)
+  def initShutdownTimer(server: NGServer): Unit =
+    resetShutdownTimer(server)
+
+  private def resetShutdownTimer(context: NGContext): Unit =
+    resetShutdownTimer(context.getNGServer)
+
+  private def resetShutdownTimer(server: NGServer): Unit = {
+    val delay = shutdownDelay
     delay.foreach { t =>
-      val delayMs = t * 60 * 1000
       val shutdownTask = new TimerTask {
-        override def run(): Unit = context.getNGServer.shutdown(true)
+        override def run(): Unit = {
+          shutdownByTimout = true
+          server.shutdown(true)
+        }
       }
 
       synchronized {
         cancelShutdownTimer()
         shutdownTimer = new Timer()
-        shutdownTimer.schedule(shutdownTask, delayMs)
+        shutdownTimer.schedule(shutdownTask, t.toMillis)
       }
     }
   }
+
+  private def shutdownDelay: Option[FiniteDuration] =
+    Option(System.getProperty("shutdown.delay")).map(_.toInt.minutes)
 }
 
 object MeteringScheduler {

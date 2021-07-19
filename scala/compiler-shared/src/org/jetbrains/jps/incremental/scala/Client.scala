@@ -46,8 +46,10 @@ trait Client {
   // TODO: extract to bundle carefully, DynamicBundle isn't available in JSP process
   def progress(text: String, done: Option[Float] = None): Unit
 
+  /** Log info message to the JPS log (build.log) */
   def internalInfo(text: String): Unit
 
+  /** Log debug message to the JPS log (build.log) */
   def internalDebug(text: String): Unit
 
   def generated(source: File, module: File, name: String): Unit
@@ -68,7 +70,7 @@ trait Client {
 
   def processingEnd(): Unit
 
-  /** Used in sbt compile to invalidate every begined source - so after cancel there will be work to recomile */
+  /** Used in sbt compile to invalidate every begined source - so after cancel there will be work to recompile */
   def sourceStarted(source: String): Unit
 
   def meteringInfo(info: CompileServerMeteringInfo): Unit // TODO replace with metrics

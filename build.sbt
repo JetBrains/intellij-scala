@@ -507,7 +507,6 @@ lazy val runtimeDependencies =
         Dependencies.sbtLaunch -> Some("launcher/sbt-launch.jar"),
         Dependencies.sbtInterface -> Some("lib/jps/sbt-interface.jar"),
         Dependencies.zincInterface -> Some("lib/jps/compiler-interface.jar"),
-        Dependencies.dottySbtBridge -> Some("lib/jps/dotty-sbt-bridge.jar"),
         Dependencies.scala3SbtBridge -> Some("lib/jps/scala3-sbt-bridge.jar"),
         Dependencies.compilerBridgeSources_2_13 -> Some("lib/jps/compiler-interface-sources-2.13.jar"),
         Dependencies.compilerBridgeSources_2_11 -> Some("lib/jps/compiler-interface-sources-2.11.jar"),

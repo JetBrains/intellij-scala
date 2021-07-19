@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package compiler
+package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
+import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
@@ -40,7 +41,8 @@ object CompileServerLauncher {
   private val NailgunRunnerFQN = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
 
   private def attachDebugAgent = false
-  private def waitUntilDebuggerAttached = false
+  private def waitUntilDebuggerAttached = true
+  private def debugAgentPort = "5006"
 
   /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
   private class Listener extends BuildManagerListener {
@@ -138,6 +140,8 @@ object CompileServerLauncher {
     filesPath        <- extension.classpathSeq
   } yield new File(pluginsLibs, filesPath)
 
+  // TODO: track that we attach debug agent and show notification, as with JPS Build Process
+  // TODO: add internal action "Debug Scala Compile Server" as with JPS "Debug Build Process"
   private def start(project: Project, jdk: JDK): Either[CompileServerProblem.Error, Process] = {
     LOG.traceWithDebugInDev(s"starting server")
 
@@ -227,11 +231,24 @@ object CompileServerLauncher {
           .either(builder.start())
           .left.map(e => CompileServerProblem.Error(NlsString.force(e.getMessage)))
           .map { process =>
-            val watcher = new ProcessWatcher(process, "scalaCompileServer")
+            val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
             serverInstance = Some(instance)
             watcher.startNotify()
-            infoAndPrintOnTeamcity(s"compile server process started : ${instance.summary}")
+            watcher.addProcessListener(new ProcessAdapter {
+              override def processTerminated(event: ProcessEvent): Unit =
+                serverInstance = None
+            })
+            infoAndPrintOnTeamcity(s"compile server process started: ${instance.summary}")
+            LOG.debug(s"command line: ${builder.command().asScala.mkString(" ")}")
+            LOG.debug(s"working directory: ${instance.workingDir}")
+
+            if (attachDebugAgent) {
+              // this line, printed to the stdout of dev IDEA instance will cause debugger
+              // to automatically attach to the process in main IDEA instance
+              // (works only if `debugger.auto.attach.from.console` registry is enabled in main IDEA instance)
+              println(s"Listening for transport dt_socket at address: $debugAgentPort")
+            }
             process
           }
       case (_, absentFiles) =>
@@ -274,6 +291,7 @@ object CompileServerLauncher {
   def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
 
   def port: Option[Int] = serverInstance.map(_.port)
+  def pid: Option[Long] = serverInstance.map(_.watcher.pid)
 
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedSdk(project)
@@ -329,7 +347,7 @@ object CompileServerLauncher {
     val debugAgent: Option[String] =
       if (attachDebugAgent) {
         val suspend = if(waitUntilDebuggerAttached) "y" else "n"
-        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5006")
+        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=$debugAgentPort")
       } else None
 
     xmx ++ otherParams ++ debugAgent
@@ -343,7 +361,7 @@ object CompileServerLauncher {
     LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
     val reasons = restartReasons(project)
     if (reasons.nonEmpty)
-      stop(timeoutMs = 3000L, debugReason = Some(s"needsRestart: ${reasons.mkString(", ")}"))
+      stop(timeoutMs = 3000L, debugReason = Some(s"needs to restart: ${reasons.mkString(", ")}"))
 
     running || tryToStart(project)
   }
@@ -363,7 +381,7 @@ object CompileServerLauncher {
       val reasons = mutable.ArrayBuffer.empty[String]
       if (workingDirChanged) reasons += "working dir changed"
       if (jdkChanged) reasons += "jdk changed"
-      if (jvmParametersChanged) reasons += "jvm parameters"
+      if (jvmParametersChanged) reasons += "jvm parameters changed"
       reasons.toSeq
     }.getOrElse(Seq.empty)
   }
@@ -446,9 +464,9 @@ private case class ServerInstance(watcher: ProcessWatcher,
     stopped = true
     watcher.destroyAndWait(timeoutMs)
   }
-
   def summary: String = {
-    s"port: $port" +
+    s"pid: ${watcher.pid}" +
+      s", port: $port" +
       s", jdk: $jdk" +
       s", jvmParameters: ${jvmParameters.mkString(",")}" +
       s", stopped: $stopped" +

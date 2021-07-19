@@ -41,6 +41,8 @@ class ToggleHighlightingModeListener
       } else {
         ExternalHighlighters.eraseAllHighlightings(project)
       }
+      // TODO: we should ensure that we do not do this if the project wasn't highlighted with compiler at all,
+      //  e.g. for Scala 2 projects where it's disabled by default
       forceStandardHighlighting(project)
       CompileServerNotificationsService.get(project).resetNotifications()
     }

@@ -1,15 +1,15 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import java.io._
-import java.net.{InetAddress, Socket}
-import java.nio.charset.StandardCharsets
-import java.util.Base64
-
 import com.martiansoftware.nailgun.NGConstants
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala._
 
+import java.io._
+import java.net.{InetAddress, Socket}
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+import scala.concurrent.duration.{Duration, FiniteDuration}
 import scala.util.Using
 
 /**
@@ -20,18 +20,28 @@ trait RemoteResourceOwner {
 
   protected def address: InetAddress
   protected def port: Int
-  
+
+  // TODO: set non-zero value and properly handle timeout exception in all usages RemoteResourceOwner
+  protected def socketReadTimeout: FiniteDuration = Duration.Zero
+
   protected val currentDirectory: String = System.getProperty("user.dir")
 
+  @throws[java.io.IOException]
+  @throws[java.net.SocketException]
+  @throws[java.net.SocketTimeoutException]
+  @throws[java.net.UnknownHostException]
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
-    val encodedArgs = arguments.map(s =>
-      Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
+    val encodedArgs = arguments.map(s => Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
     Using.resource(new Socket(address, port)) { socket =>
       Using.resource(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
         createChunks(command, encodedArgs).foreach(_.writeTo(output))
         output.flush()
         if (client != null) {
           Using.resource(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
+            val timoutMs = socketReadTimeout.toMillis
+            if (timoutMs > 0) {
+              socket.setSoTimeout(timoutMs.toInt)
+            }
             handle(input, client)
           }
         }
@@ -86,29 +96,6 @@ trait RemoteResourceOwner {
   private def toBytes(s: String) = s.getBytes
 
   private def fromBytes(bytes: Array[Byte]) = new String(bytes)
-
-  protected def cantConnectToCompileServerErrorMessage: String =
-    s"Cannot connect to compile server at ${address.toString}:$port"
-
-  protected def unknownHostErrorMessage: String =
-    s"Unknown IP address of compile server host: ${address.toString}"
-
-  protected def reportException(message: String, ex: Throwable, client: Client): Unit = {
-    val className = this.getClass.getSimpleName
-    val tid = Thread.currentThread
-    client.internalInfo(s"[$className] [t$tid] $message\n${exceptionText(ex)}")
-  }
-
-  protected def exceptionText(ex: Throwable): String =
-    s"${ex.toString}\n${stackTraceText(ex)}"
-
-  private def stackTraceText(exception: Throwable): String =
-    stackTraceText(exception.getStackTrace)
-
-  private def stackTraceText(stackTrace: Array[StackTraceElement]): String = {
-    val linePrefix = "\tat "
-    stackTrace.mkString(linePrefix, "\n" + linePrefix, "")
-  }
 }
 
 object RemoteResourceOwner {

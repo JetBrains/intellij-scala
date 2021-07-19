@@ -40,7 +40,8 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
 
   def testWithIncompatibleScalaLibrary(): Unit = {
     importProjectData(generateScalaProject("2.11.5", Some("2.10.4"), Seq.empty))
-    assertScalaLibraryWarningNotificationShown(getProject, SbtProjectSystem.Id)
+    //assertScalaLibraryWarningNotificationShown(getProject, SbtProjectSystem.Id)
+    assertNoNotificationShown(getProject)
   }
 
   def testWithCompatibleScalaLibrary(): Unit = {
