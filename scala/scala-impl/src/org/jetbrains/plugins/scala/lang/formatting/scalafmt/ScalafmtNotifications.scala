@@ -57,14 +57,14 @@ object ScalafmtNotifications {
   def displayInfo(message: String,
                   actions: Seq[NotificationAction] = Nil,
                   listener: Option[NotificationListener] = None)
-                 (implicit project: Project = null): Unit = {
+                 (implicit project: Project): Unit = {
     displayNotification(message, NotificationType.INFORMATION, actions, listener)
   }
 
   def displayWarning(message: String,
                      actions: Seq[NotificationAction] = Nil,
                      listener: Option[NotificationListener] = None)
-                    (implicit project: Project = null): Unit = {
+                    (implicit project: Project): Unit = {
     displayNotification(message, NotificationType.WARNING, actions, listener)
   }
 

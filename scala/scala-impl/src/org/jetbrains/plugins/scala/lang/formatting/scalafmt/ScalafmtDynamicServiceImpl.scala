@@ -59,6 +59,7 @@ final class ScalafmtDynamicServiceImpl
   // NOTE: maybe we should set project in dummy state while downloading formatter?
   override def resolve(
     version: ScalafmtVersion,
+    project: Project,
     downloadIfMissing: Boolean,
     verbosity: FmtVerbosity,
     extraResolvers: Seq[Resolver],
@@ -81,7 +82,7 @@ final class ScalafmtDynamicServiceImpl
     }
 
     if (verbosity == FmtVerbosity.Verbose)
-      resolveResult.left.foreach(reportResolveError)
+      resolveResult.left.foreach(reportResolveError(_)(project))
 
     resolveResult
   }
@@ -116,7 +117,8 @@ final class ScalafmtDynamicServiceImpl
     }
   }
 
-  private def reportResolveError(error: ScalafmtResolveError): Unit = {
+  private def reportResolveError(error: ScalafmtResolveError)
+                                (implicit project: Project): Unit = {
     import ScalafmtNotifications._
 
     @NonNls val NewLine = "<br>"
@@ -160,8 +162,9 @@ final class ScalafmtDynamicServiceImpl
     extends NotificationAction(title) {
 
     override def actionPerformed(e: AnActionEvent, notification: Notification): Unit = {
-      resolveAsync(version, e.getProject, onResolved = {
-        case Right(_) => ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.progress.version.was.downloaded", version))
+      val project = e.getProject
+      resolveAsync(version, project, onResolved = {
+        case Right(_) => ScalafmtNotifications.displayInfo(ScalaBundle.message("scalafmt.progress.version.was.downloaded", version))(project)
         case _ => // relying on error reporting in resolve method
       })
       notification.expire()
@@ -189,7 +192,7 @@ final class ScalafmtDynamicServiceImpl
             val progressListener = new ProgressIndicatorDownloadListener(indicator, title)
             val result = try {
               val resolvers = projectResolvers(project)
-              resolve(version, downloadIfMissing = true, FmtVerbosity.Verbose, resolvers, progressListener = progressListener)
+              resolve(version, project, downloadIfMissing = true, FmtVerbosity.Verbose, resolvers, progressListener = progressListener)
             } catch {
               case pce: ProcessCanceledException =>
                 Left(DownloadError(version, pce))
@@ -210,9 +213,12 @@ final class ScalafmtDynamicServiceImpl
     version: ScalafmtVersion,
     extraResolvers: Seq[Resolver],
     progressListener: DownloadProgressListener
-  ): Unit =
+  ): Unit = {
+    // TODO: avoid null project, use Option, and propagate it everywhere
+    //  currently we rely that if verbosity == FmtVerbosity.FailSilent, the project isn't used
     if (!formattersCache.contains(version))
-      resolve(version, downloadIfMissing = true, FmtVerbosity.FailSilent, extraResolvers, progressListener = progressListener)
+      resolve(version, null, downloadIfMissing = true, FmtVerbosity.FailSilent, extraResolvers, progressListener = progressListener)
+  }
 }
 
 object ScalafmtDynamicServiceImpl {
