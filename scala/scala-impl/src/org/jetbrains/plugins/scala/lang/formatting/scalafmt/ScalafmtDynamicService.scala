@@ -16,8 +16,12 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtRefl
 trait ScalafmtDynamicService {
   def clearCaches(): Unit
 
+  /**
+   * @param project project in which to show resolve errors notifications
+   */
   def resolve(
     version: ScalafmtVersion,
+    project: Project,
     downloadIfMissing: Boolean,
     verbosity: FmtVerbosity,
     extraResolvers: Seq[Resolver],
