@@ -236,8 +236,10 @@ object CompileServerLauncher {
             serverInstance = Some(instance)
             watcher.startNotify()
             watcher.addProcessListener(new ProcessAdapter {
-              override def processTerminated(event: ProcessEvent): Unit =
+              override def processTerminated(event: ProcessEvent): Unit = {
+                CompileServerManager(project).checkErrorsFromProcessOutput()
                 serverInstance = None
+              }
             })
             infoAndPrintOnTeamcity(s"compile server process started: ${instance.summary}")
             LOG.debug(s"command line: ${builder.command().asScala.mkString(" ")}")
