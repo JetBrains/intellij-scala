@@ -157,24 +157,26 @@ final class CompileServerManager(project: Project) extends Disposable {
   }
 
   private object TimerListener extends ActionListener {
-    private var wasRunning: Option[Boolean] = None
-
     override def actionPerformed(e: ActionEvent): Unit = {
-      val nowRunning = running
+      checkErrorsFromProcessOutput()
+    }
+  }
 
-      configureWidget()
+  private[compiler] def checkErrorsFromProcessOutput(): Unit = {
+    val nowRunning = running
 
-      if (installed || nowRunning)
-        updateWidget()
+    configureWidget()
 
-      wasRunning = Some(nowRunning)
+    if (installed || nowRunning)
+      updateWidget()
 
-      val errors = launcher.errors()
+    // TODO: getter-like method `errors` removes retrieved errors under the hood
+    val errors = launcher.errors()
 
-      if (errors.nonEmpty) {
-        //noinspection ReferencePassedToNls
-        Notifications.Bus.notify(new Notification(NotificationGroupId, title, errors.mkString, NotificationType.ERROR), project)
-      }
+    if (errors.nonEmpty) {
+      //noinspection ReferencePassedToNls
+      val message = errors.mkString.replace("\n", "<br/>")
+      Notifications.Bus.notify(new Notification(NotificationGroupId, title, message, NotificationType.ERROR), project)
     }
   }
 
