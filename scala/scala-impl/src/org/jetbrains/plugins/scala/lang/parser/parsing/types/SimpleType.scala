@@ -104,9 +104,22 @@ trait SimpleType {
         }
         builder.restoreNewlinesState()
       case ScalaTokenTypes.kTHIS |
-              ScalaTokenTypes.tIDENTIFIER |
-              ScalaTokenTypes.kSUPER =>
-        val newMarker = builder.mark
+           ScalaTokenTypes.tIDENTIFIER |
+           ScalaTokenTypes.kSUPER =>
+        val newMarker = builder.mark()
+        val refMarker = builder.mark()
+        if (builder.kindProjectUnderscorePlaceholdersOptionEnabled
+          && (builder.getTokenText == "+" || builder.getTokenText == "-")) {
+          builder.advanceLexer()
+          if (builder.getTokenText == "_") {
+            builder.advanceLexer()
+            refMarker.collapse(ScalaTokenTypes.tIDENTIFIER)
+            newMarker.done(ScalaElementType.REFERENCE)
+            simpleMarker.done(ScalaElementType.SIMPLE_TYPE)
+            return true
+          } else newMarker.rollbackTo()
+        } else refMarker.drop()
+
         Path parse(builder, ScalaElementType.REFERENCE)
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT =>
@@ -130,13 +143,13 @@ trait SimpleType {
       case ScalaTokenType.SpliceStart =>
         SplicedType.parse(builder)
       case _ =>
-        return rollbackCase(builder, simpleMarker)
+        return rollbackCase(simpleMarker)
     }
     parseTail(simpleMarker)
     true
   }
 
-  protected def rollbackCase(builder: ScalaPsiBuilder, simpleMarker: Marker): Boolean = {
+  protected def rollbackCase(simpleMarker: Marker): Boolean = {
     simpleMarker.rollbackTo()
     false
   }

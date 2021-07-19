@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector.{injectEnumCase, injectEnumMethods}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
@@ -56,9 +56,13 @@ object EnumMembersInjector {
           if (tps.isEmpty) ""
           else             tps.map(_.typeParameterText).commaSeparated(model = Model.SquareBrackets)
 
-        s"$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
+        s"""
+           |$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText {
+           |  def ordinal: Int = ???
+           |}
+           |""".stripMargin
       case None =>
-        s"$modifiers val ${cse.name}: $supersText = ???"
+        s"$modifiers val ${cse.name}: $supersText { def ordinal: Int } = ???"
     }
   }
 
@@ -71,16 +75,14 @@ object EnumMembersInjector {
 
     val rawEnumTypeText = s"${owner.name}$wildcardsText"
     val fromOrdinal     = s"def fromOrdinal(ordinal: Int): $rawEnumTypeText = ???"
-    val ordinal         = s"override def ordinal: Int = ???"
 
     // @TODO: valueOf return type is acutually LUB of all singleton cases
     if (singletonCases.size == owner.cases.size)
       Seq(
         s"def values: Array[$rawEnumTypeText] = ???",
         s"def valueOf(name: String): $rawEnumTypeText = ???",
-        ordinal,
         fromOrdinal
       )
-    else Seq(ordinal, fromOrdinal)
+    else Seq(fromOrdinal)
   }
 }
