@@ -76,8 +76,9 @@ object Main {
 
   //noinspection ScalaUnusedSymbol
   def nailShutdown(server: NGServer): Unit = {
-    val details = if (shutdownByTimout) s" (process was idle for ${shutdownDelay.getOrElse("<unknown>")})" else ""
-    System.out.println(CompileServerSharedMessages.CompileServerShutdown + s"$details")
+    import CompileServerSharedMessages._
+    val details = if (shutdownByTimout) s" ($ProcessWasIdleFor ${shutdownDelay.getOrElse("<unknown>")})" else ""
+    System.out.println(CompileServerShutdownPrefix + s"$details")
   }
 
   def main(args: Array[String]): Unit = {

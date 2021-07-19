@@ -231,7 +231,7 @@ object CompileServerLauncher {
           .either(builder.start())
           .left.map(e => CompileServerProblem.Error(NlsString.force(e.getMessage)))
           .map { process =>
-            val watcher = new ProcessWatcher(process, "scalaCompileServer")
+            val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
             serverInstance = Some(instance)
             watcher.startNotify()
