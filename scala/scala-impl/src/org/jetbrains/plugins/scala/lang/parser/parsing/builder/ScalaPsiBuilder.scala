@@ -35,6 +35,8 @@ trait ScalaPsiBuilder extends PsiBuilder {
 
   def scala3Features: Scala3Features
 
+  def kindProjectUnderscorePlaceholdersOptionEnabled: Boolean
+
   def isScala3IndentationBasedSyntaxEnabled: Boolean
 
   def currentIndentationWidth: IndentationWidth

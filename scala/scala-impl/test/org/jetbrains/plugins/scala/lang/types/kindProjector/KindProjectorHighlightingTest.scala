@@ -8,9 +8,13 @@ class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdap
     super.setUp()
 
     val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
-    val newSettings = defaultProfile.getSettings.copy(
-      plugins = defaultProfile.getSettings.plugins :+ "kind-projector"
+    val settings       = defaultProfile.getSettings
+
+    val newSettings = settings.copy(
+      plugins = settings.plugins :+ "kind-projector",
+      additionalCompilerOptions = settings.additionalCompilerOptions :+ "-P:kind-projector:underscore-placeholders"
     )
+
     defaultProfile.setSettings(newSettings)
   }
 
@@ -151,6 +155,14 @@ class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdap
         |trait Hk[F[_]]
         |
         |def test: Hk[Lambda[x => List[x]]] = ???
+        |""".stripMargin
+    )
+
+  def testUnderscorePlaceholders(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait Foo[F[+_]]
+        |def b: Foo[Either[Int, +_]] = ???
         |""".stripMargin
     )
 }
