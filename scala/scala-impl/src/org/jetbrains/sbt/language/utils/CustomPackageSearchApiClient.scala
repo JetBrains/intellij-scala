@@ -49,7 +49,7 @@ object CustomPackageSearchApiClient {
   def foundInCache(key: String, callback: MavenRepositoryArtifactInfo => Unit): Promise[Int] = {
     val future = cache.get(key)
     if (future != null) {
-      val p: AsyncPromise[Int] = new AsyncPromise()
+      val p: AsyncPromise[Int] = new AsyncPromise[Int]()
       future.onComplete {
         case Success(artifactsList) =>
           artifactsList.asScala.foreach(callback)
@@ -98,7 +98,7 @@ object CustomPackageSearchApiClient {
       return cacheValue
     }
 
-    val promise = new AsyncPromise[Int]()
+    val promise: AsyncPromise[Int] = new AsyncPromise[Int]()
     val wrapper = ProgressWrapper.wrap(ProgressIndicatorProvider.getInstance().getProgressIndicator)
     val resultSet: util.Collection[MavenRepositoryArtifactInfo] = Collections.synchronizedSet(new util.LinkedHashSet())
     executorService.submit(new Runnable {

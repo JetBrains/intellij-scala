@@ -138,10 +138,10 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
       def completeVersions(resultSet: CompletionResultSet): Unit = {
         versions.forEach((version: String, supportedScalaVersions: List[String]) => {
-          if (supportedScalaVersions.head == JAVA_VERSION_FLAG || supportedScalaVersions.length == scalaVers.length) {
+          if (supportedScalaVersions.head == JAVA_VERSION_FLAG) {
             addVersionResult(version, "", resultSet)
           } else {
-            addVersionResult(version, s"(scalaVer ${supportedScalaVersions.mkString(", ")})", resultSet)
+            addVersionResult(version, s"(${supportedScalaVersions.mkString(", ")})", resultSet)
           }
         })
         resultSet.stopHere()
