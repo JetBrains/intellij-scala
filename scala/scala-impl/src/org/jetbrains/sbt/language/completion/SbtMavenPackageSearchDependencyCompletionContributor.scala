@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfi
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
-import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, PackageSearchApiHelper, SbtArtifactInfo, SbtDependencyCommon, SbtDependencyTraverser, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, PackageSearchApiHelper, SbtArtifactInfo, SbtDependencyCommon, SbtDependencyTraverser, SbtDependencyUtils}
 
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque}
 
@@ -30,6 +30,8 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
   extend(CompletionType.BASIC, PATTERN, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = try {
+      val useCache: Boolean = if (params.isExtendedCompletion) false else true
+      val stableVersionOnly: Boolean = if (params.isExtendedCompletion) false else true
       val depCache = collection.mutable.Map[String, Boolean]()
       val place = positionFromParameters(params)
       implicit val project: Project = place.getProject
@@ -117,9 +119,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
           override def renderElement(presentation: LookupElementPresentation): Unit = {
             presentation.setItemText(result)
-            presentation.setItemTextBold(true)
+            if (SbtDependencyUtils.isVersionStable(result)) presentation.setItemTextBold(true)
             presentation.setTailText(" ")
-            presentation.appendTailText(tailText, true)
+            presentation.appendTailTextItalic(tailText, true)
           }
         })
       }
@@ -129,8 +131,12 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
           .waitAndAddDependencyVersions(
             groupId,
             artifactId,
+            CustomPackageSearchParams(useCache = useCache),
             (lib: MavenRepositoryArtifactInfo) => {
-              lib.getItems.foreach(item => versions.put(item.getVersion, (if (scalaVer != null) scalaVer else JAVA_VERSION_FLAG) :: versions.getOrDefault(item.getVersion, Nil)))
+              lib.getItems.foreach(item => {
+                if (!stableVersionOnly || stableVersionOnly && SbtDependencyUtils.isVersionStable(item.getVersion))
+                  versions.put(item.getVersion, (if (scalaVer != null) scalaVer else JAVA_VERSION_FLAG) :: versions.getOrDefault(item.getVersion, Nil))
+              })
 
             }
           )

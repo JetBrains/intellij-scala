@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.language.completion.SBT_ORG_ARTIFACT
-import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtDependencyUtils}
 
 import scala.collection.mutable
 
@@ -57,6 +57,7 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
             .waitAndAddDependencyVersions(
               groupId,
               artifactId,
+              CustomPackageSearchParams(useCache = true),
               (lib: MavenRepositoryArtifactInfo) => lib.getItems.foreach(item =>
                 versions.add(item.getVersion))
             )

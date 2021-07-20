@@ -1,34 +1,31 @@
 package org.jetbrains.sbt.language.utils
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.progress.util.ProgressWrapper
-import com.intellij.openapi.progress.{ProgressIndicatorProvider, ProgressManager}
+import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.HttpRequests
-import com.jetbrains.packagesearch.intellij.plugin.api.http.EmptyBodyException
 import com.jetbrains.packagesearch.intellij.plugin.PluginEnvironment
-import org.jetbrains.concurrency.{AsyncPromise, Promise}
+import com.jetbrains.packagesearch.intellij.plugin.api.http.EmptyBodyException
 import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
-import org.jetbrains.sbt.language.utils.CustomPackageSearchApiClient.searchDependencyVersions
-
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque}
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.language.postfixOps
 import spray.json._
 
 import java.net.HttpURLConnection
 import java.util
-import java.util.Collections
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque}
+import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future}
 import scala.jdk.CollectionConverters._
+import scala.language.postfixOps
 import scala.util.{Failure, Success}
 
 object CustomPackageSearchApiClient {
+  private val logger = Logger.getInstance(this.getClass)
+
   private val baseUrl = "https://package-search.services.jetbrains.com/api"
   private val timeoutInSeconds = 10
 
-  private val cache = new ConcurrentHashMap[String, Future[util.Collection[MavenRepositoryArtifactInfo]]]()
-  private val executorService = AppExecutorUtil.createBoundedScheduledExecutorService("CustomPackageSearchApiClient", 2)
+  private val cache = new ConcurrentHashMap[String, Future[List[MavenRepositoryArtifactInfo]]]()
+  private implicit val executionContext: ExecutionContextExecutor = ExecutionContext.fromExecutor(AppExecutorUtil.getAppExecutorService)
 
   sealed trait ContentTypes
   private object ContentTypes {
@@ -46,21 +43,6 @@ object CustomPackageSearchApiClient {
     ("JB-Plugin-Version", pluginEnvironment.getPluginVersion),
     ("JB-IDE-Version", pluginEnvironment.getIdeVersion))
 
-  def foundInCache(key: String, callback: MavenRepositoryArtifactInfo => Unit): Promise[Int] = {
-    val future = cache.get(key)
-    if (future != null) {
-      val p: AsyncPromise[Int] = new AsyncPromise[Int]()
-      future.onComplete {
-        case Success(artifactsList) =>
-          artifactsList.asScala.foreach(callback)
-          p.setResult(1)
-        case Failure(e) =>
-          p.setError(e)
-      }
-      return p
-    }
-    null
-  }
 
   def handleRequest(url: String, acceptContentType: String, timeoutInSeconds: Int = 10): String = try {
 
@@ -90,45 +72,31 @@ object CustomPackageSearchApiClient {
   }
 
   def performSearch(cacheKey: String,
+                    searchParams: CustomPackageSearchParams,
                     consumer: MavenRepositoryArtifactInfo => Unit,
                     searchLogic: () => util.Collection[MavenRepositoryArtifactInfo]
-                   ): Promise[Int] = {
-    val cacheValue = foundInCache(cacheKey, consumer)
-    if (cacheValue != null) {
-      return cacheValue
+                   ): Future[List[MavenRepositoryArtifactInfo]] = {
+    val cacheAvailable =
+      if (searchParams.useCache) Option(cache.get(cacheKey))
+      else None
+
+    val result = cacheAvailable.getOrElse {
+      val newFuture = Future {
+        Option(searchLogic())
+          .map(_.asScala.toList)
+          .getOrElse(List.empty)
+
+      }
+      cache.put(cacheKey, newFuture)
+
+      newFuture
     }
 
-    val promise: AsyncPromise[Int] = new AsyncPromise[Int]()
-    val wrapper = ProgressWrapper.wrap(ProgressIndicatorProvider.getInstance().getProgressIndicator)
-    val resultSet: util.Collection[MavenRepositoryArtifactInfo] = Collections.synchronizedSet(new util.LinkedHashSet())
-    executorService.submit(new Runnable {
-      override def run(): Unit = {
-        try {
-          ProgressManager.getInstance().runProcess(
-            (() => {
-              val collection = searchLogic()
-              if (collection != null) {
-                collection.asScala.foreach(artifact => {
-                  if (resultSet.add(artifact)) {
-                    consumer(artifact)
-                  }
-                })
-              }
-              promise.setResult(1)
-            }): Runnable,
-            wrapper
-          )
-        } catch {
-          case e: Exception =>
-            promise.setError(e)
-        }
-      }
-    })
-    promise.onSuccess((_: Int) => {
-      if (resultSet.asScala.nonEmpty) {
-        cache.put(cacheKey, Future {resultSet})
-      }
-    })
+    result.andThen {
+      case Failure(error) => logger.warn("CustomPackageSearchApiClient.performSearch",error)
+      case Success(artifactInfos) =>
+        artifactInfos.foreach(consumer)
+    }
   }
 
   def getDependencyVersionsInfoFromServer(groupId: String,
@@ -164,16 +132,20 @@ object CustomPackageSearchApiClient {
 
   def searchDependencyVersions(groupId: String,
                                artifactId: String,
+                               searchParams: CustomPackageSearchParams,
                                contentType: ContentTypes = ContentTypes.Minimal,
-                               consumer: MavenRepositoryArtifactInfo => Unit): Promise[Int] = {
+                               consumer: MavenRepositoryArtifactInfo => Unit): Future[List[MavenRepositoryArtifactInfo]] = {
     val cacheKey = s"$groupId:$artifactId"
-    performSearch(cacheKey, consumer, getDependencyVersionsInfoFromServer(groupId, artifactId, contentType))
+    performSearch(cacheKey, searchParams, consumer, getDependencyVersionsInfoFromServer(groupId, artifactId, contentType))
   }
 }
+
+case class CustomPackageSearchParams(useCache: Boolean)
 
 object CustomPackageSearchApiHelper {
   def waitAndAddDependencyVersions(groupId: String,
                                    artifactId: String,
+                                   searchParams: CustomPackageSearchParams,
                                    consumer: MavenRepositoryArtifactInfo => Unit): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) {
       consumer(new MavenRepositoryArtifactInfo("org.scalatest", "scalatest", util.Arrays.asList("3.0.8", "3.0.8-RC1", "3.0.8-RC2", "3.0.8-RC3", "3.0.8-RC4", "3.0.8-RC5")))
@@ -182,9 +154,9 @@ object CustomPackageSearchApiHelper {
 
     val cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo] = new ConcurrentLinkedDeque[MavenRepositoryArtifactInfo]()
     val callback: MavenRepositoryArtifactInfo => Unit = (artifact: MavenRepositoryArtifactInfo) => cld.add(artifact)
-    val promise = searchDependencyVersions(groupId = groupId, artifactId = artifactId, consumer = callback)
+    val future = CustomPackageSearchApiClient.searchDependencyVersions(groupId = groupId, artifactId = artifactId, searchParams = searchParams, consumer = callback)
 
-    while (promise.getState == Promise.State.PENDING || !cld.isEmpty) {
+    while (!future.isCompleted || !cld.isEmpty) {
       ProgressManager.checkCanceled()
       val item = cld.poll()
       if (item != null)
