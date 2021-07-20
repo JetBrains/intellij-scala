@@ -16,12 +16,12 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
-import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
+import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
-import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, JvmOptions, LibraryJars, ScalaPluginJars, ScalaShutDownTracker}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
@@ -237,7 +237,19 @@ object CompileServerLauncher {
             watcher.startNotify()
             watcher.addProcessListener(new ProcessAdapter {
               override def processTerminated(event: ProcessEvent): Unit = {
-                CompileServerManager(project).checkErrorsFromProcessOutput()
+                // CS can terminate if we close IDEA and the project will be disposed already
+                if (!project.isDisposed) {
+                  CompileServerManager(project).checkErrorsFromProcessOutput()
+
+                  val isExpectedProcessTermination = watcher.isTerminatedByIdleTimeout || instance.stopped
+                  if (!isExpectedProcessTermination) {
+                    invokeLater {
+                      CompileServerManager(project).showNotification(ScalaBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
+                      LOG.warn(s"Compile server terminated unexpectedly: ${instance.summary}")
+                    }
+                  }
+                }
+
                 serverInstance = None
               }
             })
@@ -456,22 +468,26 @@ private case class ServerInstance(watcher: ProcessWatcher,
                                   workingDir: File,
                                   jdk: JDK,
                                   jvmParameters: Set[String]) {
-  private var stopped = false
+  private var _stopped = false
 
-  def running: Boolean = !stopped && watcher.running
+  def running: Boolean = !_stopped && watcher.running
+
+  def stopped: Boolean = _stopped
 
   def errors(): Seq[String] = watcher.errors()
 
+  def pid: Long = watcher.pid
+
   def destroyAndWait(timeoutMs: Long): Boolean = {
-    stopped = true
+    _stopped = true
     watcher.destroyAndWait(timeoutMs)
   }
   def summary: String = {
-    s"pid: ${watcher.pid}" +
+    s"pid: $pid" +
       s", port: $port" +
       s", jdk: $jdk" +
       s", jvmParameters: ${jvmParameters.mkString(",")}" +
-      s", stopped: $stopped" +
+      s", stopped: ${_stopped}" +
       s", running: $running" +
       s", errors: ${errors().mkString("(", ", ", ")")}"
   }

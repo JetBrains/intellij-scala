@@ -50,6 +50,9 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
     process.waitFor(ms, TimeUnit.MILLISECONDS)
   }
 
+  private var _terminatedByIdleTimeout = false
+  def isTerminatedByIdleTimeout = _terminatedByIdleTimeout
+
   private object MyProcessListener extends ProcessAdapter {
     override def onTextAvailable(event: ProcessEvent, outputType: Key[_]): Unit = {
       val text = event.getText
@@ -66,6 +69,7 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
             Log.info(s"[$outputType] ${text.stripTrailing()}")
             if (text.contains(CompileServerSharedMessages.ProcessWasIdleFor)) {
               invokeLater {
+                _terminatedByIdleTimeout = true
                 CompileServerManager(project).showStoppedByIdleTimoutNotification()
               }
             }

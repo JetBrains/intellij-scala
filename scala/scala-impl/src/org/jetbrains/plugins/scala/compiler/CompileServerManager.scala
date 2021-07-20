@@ -176,8 +176,13 @@ final class CompileServerManager(project: Project) extends Disposable {
     if (errors.nonEmpty) {
       //noinspection ReferencePassedToNls
       val message = errors.mkString.replace("\n", "<br/>")
-      Notifications.Bus.notify(new Notification(NotificationGroupId, title, message, NotificationType.ERROR), project)
+      showNotification(message, NotificationType.ERROR)
     }
+  }
+
+  @RequiresEdt
+  def showNotification(@Nls message: String, notificationType: NotificationType): Unit = {
+    Notifications.Bus.notify(new Notification(NotificationGroupId, title, message, notificationType), project)
   }
 
   @RequiresEdt
