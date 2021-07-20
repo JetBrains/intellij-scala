@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.structureView
 
 import com.intellij.lang.Language
+import com.intellij.testFramework.UsefulTestCase.assertThrows
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.icons.Icons.{ABSTRACT_CLASS, CASE_CLASS, CLASS, ENUM, EXTENSION, FUNCTION, OBJECT, TRAIT, TYPE_ALIAS, VAL, VAR}
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
@@ -26,7 +27,7 @@ class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
       |
       |val myValue = 1
       |
-      |val myVariable = 2
+      |var myVariable = 2
       |
       |def myFunction: String = ???
       |
@@ -47,6 +48,32 @@ class Scala2StructureViewTest extends ScalaStructureViewCommonTests {
 
   def testTopLevelDefinitions_InRootPackage(): Unit = {
     check(TopLevelDefinitionsText, TopLevelDefinitionsNodes: _*)
+  }
+
+  def testThatCheckMethodCorrectlyFailsOnWrongIcons(): Unit = {
+    assertThrows(
+      classOf[org.junit.ComparisonFailure],
+      null,
+      () => {
+        check(
+          """class A""",
+          Node(OBJECT, "A")
+        )
+      }
+    )
+  }
+
+  def testThatCheckMethodCorrectlyFailsOnWrongNames(): Unit = {
+    assertThrows(
+      classOf[org.junit.ComparisonFailure],
+      null,
+      () => {
+        check(
+          """class A""",
+          Node(CLASS, "B")
+        )
+      }
+    )
   }
 
   // TODO:

@@ -129,6 +129,18 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case _                          => false
   }
 
+  /**
+   * There is an inconsistency in method behaviour for root & non-root packages.<br>
+   * In root package it returns None for non-top-level methods.<br>
+   * In non=root package it returns Some(file package fqn)<br>
+   *
+   * TODO:
+   *  1. in 2021.3 make it always return None for all non-top level members<br>
+   *     remember that @main methods in objects also should be considered as with a top-level quolifier<br>
+   *     probably a separate utility method should be created
+   *  2. `isTopLevel` should be equal to topLevelQualifier.nonEmpty`<br>
+   *     we might even remove isTopLevel from the stubs
+   */
   def topLevelQualifier: Option[String] =
     PsiTreeUtil
       .getStubOrPsiParentOfType(this, classOf[ScPackaging])

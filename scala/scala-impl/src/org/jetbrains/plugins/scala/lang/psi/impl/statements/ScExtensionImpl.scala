@@ -6,6 +6,7 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiClass, PsiElement, ResolveState}
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION_BODY, PARAM_CLAUSES}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -13,16 +14,22 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember.WithBaseIconProvider
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtensionStub
 
+import javax.swing.Icon
 
 class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
     extends ScalaStubBasedElementImpl(stub, ScalaElementType.EXTENSION, node)
     with ScExtension
-    with ScTypeParametersOwner {
+    with ScTypeParametersOwner
+    with WithBaseIconProvider {
 
   override def toString: String = "Extension on " + targetTypeElement.fold("<unknown>")(_.getText)
+
+  override protected final def baseIcon: Icon =
+    Icons.EXTENSION
 
   override def targetParameter: Option[ScParameter] =
     allClauses.find(!_.isUsing).flatMap(_.parameters.headOption)

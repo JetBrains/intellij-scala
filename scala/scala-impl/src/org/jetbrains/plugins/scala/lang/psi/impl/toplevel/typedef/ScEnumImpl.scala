@@ -45,9 +45,9 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
       case _: Exception                => None
     }
 
-//noinspection TypeAnnotation
+  //noinspection TypeAnnotation
   override protected def targetTokenType = EnumKeyword
 
   //noinspection TypeAnnotation
-  override protected def baseIcon = icons.Icons.CLASS; // TODO add an icon
+  override protected def baseIcon = icons.Icons.ENUM
 }

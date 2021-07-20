@@ -32,11 +32,11 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     check(
       """val (v1, v2, v3, (v4, v5)) = ???
         |""".stripMargin,
-      Node(VAR, "v1"),
-      Node(VAR, "v2"),
-      Node(VAR, "v3"),
-      Node(VAR, "v4"),
-      Node(VAR, "v5")
+      Node(VAL, "v1"),
+      Node(VAL, "v2"),
+      Node(VAL, "v3"),
+      Node(VAL, "v4"),
+      Node(VAL, "v5")
     )
   }
 
@@ -429,9 +429,12 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     check("""
           class C(val p1: Float, val p2: Double)
           """,
-      Node(CLASS, "C(Float, Double)",
-        Node(FIELD_VAL, "p1: Float",
-        Node(FIELD_VAL, "p2: Double"))))
+      Node(
+        CLASS,
+        "C(Float, Double)",
+        Node(FIELD_VAL, "p1: Float"),
+        Node(FIELD_VAL, "p2: Double")
+      ))
   }
 
   def testFinalValueInPrimaryConstructor(): Unit = {
@@ -454,9 +457,12 @@ abstract class ScalaStructureViewCommonTests extends ScalaStructureViewTestBase 
     check("""
           class C(val p1: Float)(val p2: Double)
           """,
-      Node(CLASS, "C(Float)(Double)",
-        Node(FIELD_VAL, "p1: Float",
-        Node(FIELD_VAL, "p2: Double"))))
+      Node(
+        CLASS, "C(Float)(Double)",
+        Node(FIELD_VAL, "p1: Float"),
+        Node(FIELD_VAL, "p2: Double")
+      )
+    )
   }
 
   def testParametersInCaseClass(): Unit = {

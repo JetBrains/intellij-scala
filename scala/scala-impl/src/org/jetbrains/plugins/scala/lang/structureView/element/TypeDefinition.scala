@@ -16,7 +16,7 @@ class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(d
 
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 
-    val valueParameters = definition.asOptionOf[ScClass].flatMap {
+    val valueParameters = definition.asOptionOf[ScConstructorOwner].flatMap {
       _.constructor.map { constructor =>
         FromStubsParameterRenderer.renderClauses(constructor.parameterList)
       }
@@ -47,8 +47,14 @@ object TypeDefinition {
        case _ => Seq.empty
      }
 
+     // NOTE: in future, enum cases could be returned by `membersWithSynthetic` method, so this will be redundant
+     val enumCases = definition match {
+       case ec: ScEnum => ec.cases
+       case _               => Nil
+     }
+
      val definitions = definition.typeDefinitions
 
-     blocks ++ members ++ definitions
+     enumCases ++ blocks ++ members ++ definitions
    }
 }
