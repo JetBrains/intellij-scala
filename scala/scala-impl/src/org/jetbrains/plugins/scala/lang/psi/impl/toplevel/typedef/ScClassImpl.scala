@@ -156,14 +156,9 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
   private def syntheticImplicitMethod: Option[ScFunction] = {
-    try {
-      val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-      method.syntheticNavigationElement = this
-      Some(method)
-    } catch {
-      case p: ProcessCanceledException => throw p
-      case _: Exception => None
-    }
+    val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+    method.syntheticNavigationElement = this
+    Option(method)
   }
 
   override def psiFields: Array[PsiField] = {

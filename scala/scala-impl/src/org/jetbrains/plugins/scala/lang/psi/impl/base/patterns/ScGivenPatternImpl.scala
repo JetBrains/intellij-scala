@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScGivenPattern
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGiven
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
 final class ScGivenPatternImpl(node: ASTNode)
   extends ScalaPsiElementImpl(node)
@@ -14,14 +14,9 @@ final class ScGivenPatternImpl(node: ASTNode)
     with ScGivenPattern
     with TypedPatternLikeImpl {
 
-  override def typeElement: Option[ScTypeElement] = findChild[ScTypeElement]
-
-  override def `type`(): TypeResult = typeElement match {
-    case Some(te) => te.`type`()
-    case None     => Failure("ScGivenPattern without type element.")
-  }
-
-  override def isWildcard: Boolean = false
-  override def nameId: PsiElement  = typeElement.orNull
-  override def name: String        = typeElement.fold("")(ScGiven.generateAnonymousGivenName)
+  override def typeElement: ScTypeElement = findChild[ScTypeElement].get
+  override def `type`(): TypeResult       = typeElement.`type`()
+  override def isWildcard: Boolean        = false
+  override def nameId: PsiElement         = typeElement
+  override def name: String               = ScGiven.generateAnonymousGivenName(typeElement)
 }

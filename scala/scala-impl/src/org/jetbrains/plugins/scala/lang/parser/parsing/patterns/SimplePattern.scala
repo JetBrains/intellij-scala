@@ -93,10 +93,15 @@ object SimplePattern extends ParsingRule {
         builder.advanceLexer() //Ate given
 
         val hasTypeElement = CompoundType.parse(builder, isPattern = true)
-        if (!hasTypeElement) builder.error(ScalaBundle.message("type.expected"))
 
-        simplePatternMarker.done(ScalaElementType.GIVEN_PATTERN)
-        return true
+        if (!hasTypeElement) {
+          builder.error(ScalaBundle.message("type.expected"))
+          simplePatternMarker.drop()
+          return false
+        } else {
+          simplePatternMarker.done(ScalaElementType.GIVEN_PATTERN)
+          return true
+        }
       case _ =>
     }
 
