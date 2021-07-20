@@ -24,4 +24,6 @@ class OptimizeImportsWildcardTest extends OptimizeImportsTestBase {
   def testNameConflictTypeAlias(): Unit = doTest()
 
   def testShadowAndSelectors(): Unit = doTest()
+
+  def testMergeIntoWildcard(): Unit = doTest()
 }
