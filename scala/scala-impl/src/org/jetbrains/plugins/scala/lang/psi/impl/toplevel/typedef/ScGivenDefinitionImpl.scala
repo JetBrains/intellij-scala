@@ -56,35 +56,31 @@ class ScGivenDefinitionImpl(
     clauses.fold(Seq.empty[ScParameter])(_.params)
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def desugaredDefinitions: Seq[ScMember] =
-    try {
-      val supersText = extendsBlock.templateParents.fold("")(_.getText)
+  override def desugaredDefinitions: Seq[ScMember] = {
+    val supersText = extendsBlock.templateParents.fold("")(_.getText)
 
-      if (isObject) {
-        val text = s"implicit object $name extends $supersText"
-        val obj  = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, this.getContext, this)
-        obj.originalGivenElement       = this
-        obj.syntheticNavigationElement = this
-        Seq(obj)
-      } else {
-        val typeParametersText = typeParametersClause.fold("")(_.getTextByStub)
-        val parametersText     = clauses.fold("")(_.getText)
+    if (isObject) {
+      val text = s"implicit object $name extends $supersText"
+      val obj  = ScalaPsiElementFactory.createTypeDefinitionWithContext(text, this.getContext, this)
+      obj.originalGivenElement       = this
+      obj.syntheticNavigationElement = this
+      Seq(obj)
+    } else {
+      val typeParametersText = typeParametersClause.fold("")(_.getTextByStub)
+      val parametersText     = clauses.fold("")(_.getText)
 
-        val clsText        = s"class $name$typeParametersText$parametersText extends $supersText"
-        val conversionText = s"implicit def $name$typeParametersText$parametersText: $name$typeParametersText = ???"
+      val clsText            = s"class $name$typeParametersText$parametersText extends $supersText"
+      val implicitMethodText = s"implicit def $name$typeParametersText$parametersText: $name$typeParametersText = ???"
 
-        val cls            = ScalaPsiElementFactory.createTypeDefinitionWithContext(clsText, this.getContext, this)
-        cls.originalGivenElement       = this
-        cls.syntheticNavigationElement = this
+      val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(clsText, this.getContext, this)
+      cls.originalGivenElement       = this
+      cls.syntheticNavigationElement = this
 
-        val conversion     = ScalaPsiElementFactory.createDefinitionWithContext(conversionText, this.getContext, this)
-        conversion.originalGivenElement       = this
-        conversion.syntheticNavigationElement = this
+      val implicitMethod = ScalaPsiElementFactory.createDefinitionWithContext(implicitMethodText, this.getContext, this)
+      implicitMethod.originalGivenElement       = this
+      implicitMethod.syntheticNavigationElement = this
 
-        Seq(cls, conversion)
-      }
-    } catch {
-      case p: ProcessCanceledException => throw p
-      case _: Exception                => Seq.empty
+      Seq(cls, implicitMethod)
     }
+  }
 }
