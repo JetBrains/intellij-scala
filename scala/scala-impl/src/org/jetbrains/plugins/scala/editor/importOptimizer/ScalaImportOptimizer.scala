@@ -560,16 +560,17 @@ object ScalaImportOptimizer {
     }
 
     def possiblyWithWildcard(info: ImportInfo): ImportInfo = {
-      val needUpdate = info.singleNames.size >= settings.classCountToUseImportOnDemand
-      val onlySingleNames = info.hiddenNames.isEmpty && info.renames.isEmpty && !info.hasWildcard
+      val tooManySingleNames = info.singleNames.size >= settings.classCountToUseImportOnDemand
+      val onlySingleNames    = info.hiddenNames.isEmpty && info.renames.isEmpty
 
-      if (!needUpdate || !onlySingleNames) return info
+      val mayReplaceAllWithWildcard = tooManySingleNames && onlySingleNames && !info.hasWildcard
+      val mayMergeIntoWildcard = onlySingleNames && info.hasWildcard
+
+      if (!mayReplaceAllWithWildcard && !mayMergeIntoWildcard) return info
 
       val withWildcard = info.toWildcardInfo.withAllNamesForWildcard(rangeStartPsi)
 
       if (withWildcard.wildcardHasUnusedImplicit) return info
-
-      updateWithWildcardNames(infos)
 
       val explicitNames = infos.flatMap {
         case `info` => Seq.empty
@@ -590,6 +591,8 @@ object ScalaImportOptimizer {
         withWildcard.copy(hiddenNames = clashesWithOtherWildcards)
       else info
     }
+
+    updateWithWildcardNames(infos)
 
     for ((info, i) <- infos.zipWithIndex) {
       val newInfo = possiblyWithWildcard(info)
