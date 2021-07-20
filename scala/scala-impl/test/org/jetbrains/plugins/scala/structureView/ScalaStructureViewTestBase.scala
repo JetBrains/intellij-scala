@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons
 import com.intellij.ide.structureView.StructureViewTreeElement
 import com.intellij.ide.util.treeView.smartTree.TreeElement
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.IconLoader
 import com.intellij.psi.PsiFileFactory
 import com.intellij.psi.impl.ElementBase
 import com.intellij.ui.{CoreIconManager, IconManager, LayeredIcon}
@@ -37,6 +38,7 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
   override def setUp(): Unit = {
     super.setUp()
 
+    IconLoader.clearCacheInTests()
     /**
      * By default IconManager is deactivated and `com.intellij.ui.DummyIconManager` is used
      * We need a proper IconManager implementation, in order layered icons are properly built in structure view tests.
