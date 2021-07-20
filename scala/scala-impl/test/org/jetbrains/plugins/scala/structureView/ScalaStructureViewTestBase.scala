@@ -11,9 +11,11 @@ import com.intellij.util.PlatformIcons
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.structureView.ScalaStructureViewModel
 import org.jetbrains.plugins.scala.structureView.ScalaStructureViewTestBase.Node
+import org.jetbrains.plugins.scala.util.BaseIconProvider
 import org.junit.Assert
 import org.junit.Assert.fail
 
@@ -48,9 +50,9 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
   }
 
   protected def check(@Language("Scala") code: String, nodes: Node*): Unit = {
-    val actualNode: Node = {
-      val file = psiFileOf(code)(getProject)
+    val file = psiFileOf(code)(getProject)
 
+    val actualNode: Node = {
       val model = new ScalaStructureViewModel(file)
 
       val sorter: Seq[TreeElement] => Seq[TreeElement] = elements => {
@@ -65,7 +67,18 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
 
     val expectedStr = expectedNode.presentation()
     val actualStr   = actualNode.presentation()
-    Assert.assertEquals(expectedStr, actualStr)
+
+    try Assert.assertEquals(expectedStr, actualStr) catch {
+      case ae: AssertionError =>
+        println("BaseIconProvider.getIcon for all elements in file:")
+        file.breadthFirst().foreach {
+          case element: BaseIconProvider =>
+            println(f"$element%-50s (valid: ${element.isValid}) ${element.getIcon(0)}")
+          case _ =>
+        }
+        System.err.println()
+        throw ae
+    }
   }
 
   protected def psiFileOf(@Language("Scala") text: String)(project: Project): ScalaFile = {
