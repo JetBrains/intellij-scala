@@ -172,4 +172,8 @@ class DecompilerTest extends DecompilerTestBase {
   def testAbstractOverride(): Unit = {
     doTest("LoggingFSM.class")
   }
+
+  def testDistageTestConfig(): Unit = {
+    doTest("TestConfig.class")
+  }
 }
