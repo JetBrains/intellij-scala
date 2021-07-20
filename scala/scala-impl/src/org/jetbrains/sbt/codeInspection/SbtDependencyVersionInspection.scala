@@ -1,29 +1,23 @@
 package org.jetbrains.sbt.codeInspection
 
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
 import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
-import org.jetbrains.idea.reposearch.{DependencySearchService, SearchParameters}
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
 import org.jetbrains.plugins.scala.extensions.{&&, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.language.completion.SBT_ORG_ARTIFACT
-import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
-import org.jetbrains.sbt.language.utils.{PackageSearchApiHelper, SbtDependencyUtils}
-import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtDependencyUtils}
 
-import java.util.concurrent.ConcurrentLinkedDeque
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable
 
 class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
 
@@ -32,67 +26,52 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
                                            descriptionTemplate: String,
                                            highlightType: ProblemHighlightType)
                                           (implicit manager: InspectionManager, isOnTheFly: Boolean): Option[ProblemDescriptor] = try {
-    val isUnitTestMode = ApplicationManager.getApplication.isUnitTestMode
-    val scalaVer = element.scalaLanguageLevelOrDefault.getVersion
+
+    val versions: mutable.HashSet[String] = mutable.HashSet.empty
+
     element.getParent match {
       case infix: ScInfixExpr
         if SBT_ORG_ARTIFACT.contains(infix.left.`type`().getOrAny.canonicalText)
           && element == infix.right =>
-        val libDepList = inReadAction(SbtDependencyUtils.getLibraryDependenciesOrPlacesFromPsi(infix, mode = GetDep))
+        val libDepList = inReadAction(SbtDependencyUtils.getLibraryDependenciesOrPlacesFromPsi(infix, mode = SbtDependencyUtils.GetMode.GetDep))
         if (libDepList.isEmpty) return None
+        val libDepExprTuple = libDepList.head.asInstanceOf[(ScInfixExpr, String, ScInfixExpr)]
         val libDep = SbtDependencyUtils.processLibraryDependencyFromExprAndString(
-          libDepList.head.asInstanceOf[(ScExpression, String, ScExpression)]).map(_.asInstanceOf[String])
+          libDepExprTuple).map(_.asInstanceOf[String])
 
         if (libDep.length < 3) return None
 
+        val scalaVers = SbtDependencyUtils.getAllScalaVersionsOrDefault(element)
+
         val groupId = libDep(0)
         val artifactId = libDep(1)
+
         val version = libDep(2)
 
-        val cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo] = new ConcurrentLinkedDeque[MavenRepositoryArtifactInfo]()
-        val dependencySearch = DependencySearchService.getInstance(element.getProject)
-        val versions = ArrayBuffer[String]()
-        val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-          groupId,
-          artifactId,
-          dependencySearch,
-          new SearchParameters(true, isUnitTestMode),
-          cld,
-          false
-        )
         var newerStableVersion = version
 
-        def addVersion(repo: MavenRepositoryArtifactInfo): Unit = {
-          if (repo.getGroupId == groupId && (repo.getArtifactId == artifactId || repo.getArtifactId == s"${artifactId}_$scalaVer"))
-            repo.getItems.foreach(item => versions += item.getVersion)
+        if (groupId == null || groupId.isEmpty || artifactId == null || artifactId.isEmpty) return None
+
+        def addVersion(groupId: String, artifactId: String): Unit = {
+          CustomPackageSearchApiHelper
+            .waitAndAddDependencyVersions(
+              groupId,
+              artifactId,
+              CustomPackageSearchParams(useCache = true),
+              (lib: MavenRepositoryArtifactInfo) => lib.getItems.foreach(item =>
+                versions.add(item.getVersion))
+            )
         }
 
-        def preprocessVersion(v: String): String = {
-          val pattern = """\d+""".r
-          v.split("\\.").map(part => {
-            val newPart = pattern.findAllIn(part).toList
-            if (newPart.isEmpty) 0
-            else newPart(0)
-          }).mkString(".")
+        if (!SbtDependencyUtils.isScalaLibraryDependency(libDepExprTuple._1)) {
+          addVersion(groupId, artifactId)
         }
-
-        def isVersionStable(version: String): Boolean = {
-          val unstablePattern = """.*[a-zA-Z-].*"""
-          !version.matches(unstablePattern)
+        else {
+          scalaVers.foreach(scalaVer => addVersion(groupId, SbtDependencyUtils.buildScalaDependencyString(artifactId, scalaVer)))
         }
-
-        def isGreaterStableVersion(newVer: String, oldVer: String): Boolean = {
-          val oldVerPreprocessed = preprocessVersion(oldVer)
-          val newVerPreprocessed = preprocessVersion(newVer)
-          newVerPreprocessed.split("\\.")
-            .zipAll(oldVerPreprocessed.split("\\."), "0", "0")
-            .find {case(a, b) => a != b }
-            .fold(0) { case (a, b) => a.toInt - b.toInt } > 0
-        }
-        waitAndAdd(searchPromise, cld, addVersion)
 
         versions.foreach(ver => {
-          if (isVersionStable(ver) && isGreaterStableVersion(ver, newerStableVersion)) {
+          if (SbtDependencyUtils.isVersionStable(ver) && SbtDependencyUtils.isGreaterStableVersion(ver, newerStableVersion)) {
             newerStableVersion = ver
           }
         })

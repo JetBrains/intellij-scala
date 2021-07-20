@@ -1,7 +1,7 @@
 package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion.{CompletionContributor, CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
-import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder, LookupElementPresentation}
+import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
@@ -14,12 +14,11 @@ import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
-import org.jetbrains.sbt.language.utils.{PackageSearchApiHelper, SbtArtifactInfo, SbtCommon, SbtDependencyTraverser, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, PackageSearchApiHelper, SbtArtifactInfo, SbtDependencyCommon, SbtDependencyTraverser, SbtDependencyUtils}
 
-import java.util.concurrent.ConcurrentLinkedDeque
+import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque}
 
 class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
@@ -27,15 +26,20 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
   private val RENDERING_PLACEHOLDER = "Sbtzzz"
 
+  private val JAVA_VERSION_FLAG = "java"
+
   extend(CompletionType.BASIC, PATTERN, new CompletionProvider[CompletionParameters] {
-    override def addCompletions(params: CompletionParameters, context: ProcessingContext, results: CompletionResultSet): Unit = try {
+    override def addCompletions(params: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = try {
+      val useCache: Boolean = if (params.isExtendedCompletion) false else true
+      val stableVersionOnly: Boolean = if (params.isExtendedCompletion) false else true
       val depCache = collection.mutable.Map[String, Boolean]()
       val place = positionFromParameters(params)
       implicit val project: Project = place.getProject
 
-      val scalaVer = place.scalaLanguageLevelOrDefault.getVersion
+      val versions = new ConcurrentHashMap[String, List[String]]()
+      val scalaVers = SbtDependencyUtils.getAllScalaVersionsOrDefault(place, majorOnly = true)
 
-      results.restartCompletionOnAnyPrefixChange()
+      resultSet.restartCompletionOnAnyPrefixChange()
 
       val cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo] = new ConcurrentLinkedDeque[MavenRepositoryArtifactInfo]()
       val dependencySearch = DependencySearchService.getInstance(place.getProject)
@@ -46,12 +50,12 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         depList
       }
 
-      def addResult(results: CompletionResultSet, result: String, fillArtifact: Boolean): Unit = try {
+      def addArtifactResult(result: String, fillArtifact: Boolean, resultSet: CompletionResultSet): Unit = {
         val depList: List[String] = generateCompletedDependency(result)
-        val artifactText = SbtDependencyUtils.generateArtifactText(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtCommon.defaultLibScope))
+        val artifactText = SbtDependencyUtils.generateArtifactText(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtDependencyCommon.defaultLibScope))
         val partialArtifactText = artifactText.split("%").filter(_.nonEmpty).map(_.trim).slice(1, artifactText.length).mkString(" % ")
         if (!(depCache contains artifactText)) {
-          results.addElement(new LookupElement {
+          resultSet.addElement(new LookupElement {
             override def getLookupString: String = result + RENDERING_PLACEHOLDER
 
             override def renderElement(presentation: LookupElementPresentation): Unit = {
@@ -63,7 +67,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
             }
 
             override def handleInsert(context: InsertionContext): Unit = {
-              val artifactExpr = SbtDependencyUtils.generateArtifactPsiExpression(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtCommon.defaultLibScope))
+              val artifactExpr = SbtDependencyUtils.generateArtifactPsiExpression(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtDependencyCommon.defaultLibScope))
               val caretModel = context.getEditor.getCaretModel
 
               val psiElement = context.getFile.findElementAt(caretModel.getOffset)
@@ -98,25 +102,54 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
           })
           depCache += (artifactText -> true)
         }
-      } catch {
-        case e: Exception =>
-          throw e
       }
 
-      def completeDependency(resultSet: CompletionResultSet, fillArtifact: Boolean = false): MavenRepositoryArtifactInfo => Unit = repo => try {
-        addResult(resultSet, s"${repo.getGroupId}:${repo.getArtifactId}:", fillArtifact)
+      def completeDependency(fillArtifact: Boolean = false, resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => try {
+        addArtifactResult(s"${repo.getGroupId}:${repo.getArtifactId}:", fillArtifact, resultSet)
         resultSet.stopHere()
       } catch {
         case e: Exception =>
           throw e
       }
 
-      def completeVersion(groupId: String, artifactId: String, resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => {
-        if (repo.getGroupId == groupId && (repo.getArtifactId == artifactId || repo.getArtifactId == s"${artifactId}_$scalaVer"))
-          repo.getItems.foreach(item => {
-            resultSet.addElement(LookupElementBuilder.create(item.getVersion))
-          })
+      def addVersionResult(result: String, tailText: String, resultSet: CompletionResultSet):Unit = {
+        resultSet.addElement(new LookupElement {
 
+          override def getLookupString: String = result
+
+          override def renderElement(presentation: LookupElementPresentation): Unit = {
+            presentation.setItemText(result)
+            if (SbtDependencyUtils.isVersionStable(result)) presentation.setItemTextBold(true)
+            presentation.setTailText(" ")
+            presentation.appendTailTextItalic(tailText, true)
+          }
+        })
+      }
+
+      def fillInVersions(groupId: String, artifactId: String, scalaVer: String): Unit = {
+        CustomPackageSearchApiHelper
+          .waitAndAddDependencyVersions(
+            groupId,
+            artifactId,
+            CustomPackageSearchParams(useCache = useCache),
+            (lib: MavenRepositoryArtifactInfo) => {
+              lib.getItems.foreach(item => {
+                if (!stableVersionOnly || stableVersionOnly && SbtDependencyUtils.isVersionStable(item.getVersion))
+                  versions.put(item.getVersion, (if (scalaVer != null) scalaVer else JAVA_VERSION_FLAG) :: versions.getOrDefault(item.getVersion, Nil))
+              })
+
+            }
+          )
+      }
+
+      def completeVersions(resultSet: CompletionResultSet): Unit = {
+        versions.forEach((version: String, supportedScalaVersions: List[String]) => {
+          if (supportedScalaVersions.head == JAVA_VERSION_FLAG) {
+            addVersionResult(version, "", resultSet)
+          } else {
+            addVersionResult(version, s"(${supportedScalaVersions.mkString(", ")})", resultSet)
+          }
+        })
         resultSet.stopHere()
       }
 
@@ -149,7 +182,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                   false
                 )
 
-                waitAndAdd(searchPromise, cld, completeDependency(results))
+                waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
                 return
               }
               else if (expr.right.textMatches(place.getText)) {
@@ -170,7 +203,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                   fillArtifact
                 )
 
-                waitAndAdd(searchPromise, cld, completeDependency(results, fillArtifact))
+                waitAndAdd(searchPromise, cld, completeDependency(fillArtifact = fillArtifact, resultSet = resultSet))
                 return
               }
             case x if x > 1 => inReadAction {
@@ -181,19 +214,19 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                 val dep = extractedContents.map(str => trimDummy(str.asInstanceOf[String]))
                 if (dep.length >= 3) {
                   val groupId = extractedContents(0).asInstanceOf[String]
-                  var artifactId = s"${extractedContents(1).asInstanceOf[String]}"
-                  if (SbtDependencyUtils.isScalaLibraryDependency(libDepExprTuple._1)) artifactId = SbtDependencyUtils.buildScalaDependencyString(artifactId, scalaVer)
-                  val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                    groupId,
-                    artifactId,
-                    dependencySearch,
-                    PackageSearchApiHelper.createSearchParameters(params),
-                    cld,
-                    false
-                  )
-                  val newResults = results.withRelevanceSorter(CompletionService.getCompletionService.defaultSorter(params, results.getPrefixMatcher).weigh(SbtDependencyVersionWeigher))
+                  val artifactId = s"${extractedContents(1).asInstanceOf[String]}"
+                  if (groupId == null || groupId.isEmpty || artifactId == null || artifactId.isEmpty) return
 
-                  waitAndAdd(searchPromise, cld, completeVersion(groupId, extractedContents(1).asInstanceOf[String], newResults))
+                  val newResultSet = resultSet.withRelevanceSorter(CompletionService.getCompletionService.defaultSorter(params, resultSet.getPrefixMatcher).weigh(SbtDependencyVersionWeigher))
+
+                  val isScalaLib = SbtDependencyUtils.isScalaLibraryDependency(libDepExprTuple._1)
+                  if (!isScalaLib) {
+                    fillInVersions(groupId, artifactId, null)
+                  } else {
+                    scalaVers.foreach(scalaVer => fillInVersions(groupId, SbtDependencyUtils.buildScalaDependencyString(artifactId, scalaVer), scalaVer))
+                  }
+
+                  completeVersions(newResultSet)
                   return
                 }
               }
@@ -213,7 +246,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                 false
               )
 
-              waitAndAdd(searchPromise, cld, completeDependency(results))
+              waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
               return
 
             /*
@@ -233,7 +266,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                         false
                       )
 
-                      waitAndAdd(searchPromise, cld, completeDependency(results))
+                      waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
                       return
                     }
                   })
@@ -262,7 +295,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                 false
               )
 
-              waitAndAdd(searchPromise, cld, completeDependency(results))
+              waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
               return
             }
           /*
@@ -282,7 +315,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                       false
                     )
 
-                    waitAndAdd(searchPromise, cld, completeDependency(results))
+                    waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
                     return
                   }
                 })
@@ -292,7 +325,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         }
       }
     } catch {
-      case e: Exception =>
+      case _ : Exception =>
 
     }
   })

@@ -7,7 +7,7 @@ import com.intellij.openapi.project.Project
 import com.jetbrains.packagesearch.intellij.plugin.extensibility.BuildSystemType
 import org.jetbrains.sbt.project.SbtProjectSystem
 
-object SbtCommon {
+object SbtDependencyCommon {
   val buildSystemType = new BuildSystemType(
     "SBT",
     "sbt",
