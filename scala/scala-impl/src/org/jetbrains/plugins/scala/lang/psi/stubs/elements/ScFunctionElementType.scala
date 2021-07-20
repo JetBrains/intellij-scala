@@ -114,7 +114,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
 
     if (stub.annotations.contains("main")) {
       val packageFqn = stub.topLevelQualifier
-      val syntheticClassName = packageFqn.fold("")(_ + ".") + functionName
+      val syntheticClassName = packageFqn.filter(_.nonEmpty).fold("")(_ + ".") + functionName
       sink.occurrences(ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY, syntheticClassName)
     }
 
