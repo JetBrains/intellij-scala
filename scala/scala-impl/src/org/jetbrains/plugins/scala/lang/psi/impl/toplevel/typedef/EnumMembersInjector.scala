@@ -2,8 +2,8 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector.{injectEnumCase, injectEnumMethods}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector.{injectEnumCase, methodsForCompanionObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 /**
@@ -30,9 +30,10 @@ class EnumMembersInjector extends SyntheticMembersInjector {
       case ScEnum.Original(enum) =>
         val singletonCases =
           enum.cases.collect { case cse @ ScEnumCase.SingletonCase(_, _) => cse }
-        injectEnumMethods(enum, singletonCases)
+        methodsForCompanionObject(enum, singletonCases)
       case _ => Seq.empty
     }
+    case _: ScEnum | ScEnum.Original(_) => Seq("def ordinal: Int = ???")
     case _ => Seq.empty
   }
 
@@ -56,17 +57,13 @@ object EnumMembersInjector {
           if (tps.isEmpty) ""
           else             tps.map(_.typeParameterText).commaSeparated(model = Model.SquareBrackets)
 
-        s"""
-           |$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText {
-           |  def ordinal: Int = ???
-           |}
-           |""".stripMargin
+        s"$modifiers case class ${cse.name}$typeParamsText${cons.getText} extends $supersText"
       case None =>
-        s"$modifiers val ${cse.name}: $supersText { def ordinal: Int } = ???"
+        s"$modifiers val ${cse.name}: $supersText = ???"
     }
   }
 
-  private def injectEnumMethods(owner: ScEnum, singletonCases: Seq[ScEnumCase]): Seq[String] = {
+  private def methodsForCompanionObject(owner: ScEnum, singletonCases: Seq[ScEnumCase]): Seq[String] = {
     val tps = owner.typeParameters
 
     val wildcardsText   =
