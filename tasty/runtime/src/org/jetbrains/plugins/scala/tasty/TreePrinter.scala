@@ -55,7 +55,7 @@ object TreePrinter {
         val repr = node.children.headOption.filter(_.is(LAMBDAtpt)).getOrElse(node) // TODO handle LAMBDAtpt in parametersIn?
         val bounds = repr.children.find(_.is(TYPEBOUNDStpt))
         parametersIn(repr, Some(repr)) + (if (bounds.isDefined) boundsIn(bounds.get)
-        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(repr.children.findLast(_.isTypeTree).map(textOfType).getOrElse("")))) // TODO parameter, { /* compiled code */ }
+        else " = " + (if (node.hasFlag(OPAQUE)) "???" else simple(repr.children.findLast(_.isTypeTree).map(textOfType(_)).getOrElse("")))) // TODO parameter, { /* compiled code */ }
       })
 
     case node @ Node(TEMPLATE, _, children) => // TODO method?
@@ -70,7 +70,7 @@ object TreePrinter {
         case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
         case Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)) => tpe
         case Node(APPLY, _, Seq(Node(APPLY, _, Seq(Node(TYPEAPPLY, _, Seq(Node(SELECTin, _, Seq(Node(NEW, _, Seq(tpe, _: _*)), _: _*)), _: _*)), _: _*)), _: _*)) => tpe
-      }.map(textOfType)
+      }.map(textOfType(_, parensRequired = true))
         .filter(s => s.nonEmpty && s != "java.lang.Object" && s != "_root_.scala.runtime.EnumValue" &&
           !(isInCaseClass && s == "_root_.scala.Product" || s == "_root_.scala.Serializable"))
         .map(simple)
@@ -133,7 +133,7 @@ object TreePrinter {
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
-  private def textOfType(node: Node): String = node match {
+  private def textOfType(node: Node, parensRequired: Boolean = false): String = node match { // TODO proper settings
     case Node(IDENTtpt, _, Seq(tail)) => textOfType(tail)
     case Node(SINGLETONtpt, _, Seq(tail)) =>
       val literal = textOfConstant(tail)
@@ -158,7 +158,8 @@ object TreePrinter {
         if (base.startsWith("scala.Tuple")) {
           elements.mkString("(", ", ", ")")
         } else if (base.startsWith("scala.Function")) {
-          (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + " => " + elements.last
+          val s = (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + " => " + elements.last
+          if (parensRequired) "(" + s + ")" else s
         } else {
           simple(base) + "[" + elements.mkString(", ") + "]"
         }
@@ -195,7 +196,7 @@ object TreePrinter {
   private def textOfAnnotationIn(node: Node): String = {
     node.children.lastOption match {
       case Some(Node(ANNOTATION, _, Seq(tpe, Node(APPLY, _, children)))) =>
-        val name = Option(tpe).map(textOfType).filter(!_.startsWith("scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("")
+        val name = Option(tpe).map(textOfType(_)).filter(!_.startsWith("scala.annotation.internal.")).map(simple).map("@" + _).getOrElse("")
         if (name.isEmpty) "" else {
           val args = children.map(textOfConstant).filter(_.nonEmpty).mkString(", ")
           name + (if (args.nonEmpty) "(" + args + ")" else "") + "\n"
