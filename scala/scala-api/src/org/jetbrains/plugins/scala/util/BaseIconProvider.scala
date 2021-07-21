@@ -10,8 +10,6 @@ import javax.swing.Icon
 //noinspection ScalaWrongMethodsUsage
 trait BaseIconProvider extends Iconable {
 
-  import ElementPresentationUtil._
-
   protected def delegate: PsiModifierListOwner
 
   protected def baseIcon: Icon
@@ -19,18 +17,18 @@ trait BaseIconProvider extends Iconable {
   // TODO baseIcon shouldn't return null in ScVariable and ScFunction
   override def getIcon(flags: Int): Icon = baseIcon match {
     case _: Icon if delegate.isValid =>
-      addVisibilityIcon(
-        delegate,
-        flags,
-        IconManager.getInstance.createLayeredIcon(delegate, baseIcon, layerFlags(flags))
-      )
+      val layerFlags = getLayerFlags(flags)
+      val layeredIcon = IconManager.getInstance.createLayeredIcon(delegate, baseIcon, layerFlags)
+      ElementPresentationUtil.addVisibilityIcon(delegate, flags, layeredIcon)
     case _ => null
   }
 
   /**
-   * @see [[getFlags]], [[FLAGS_ABSTRACT]], [[FLAGS_FINAL]]
+   * @see [[ElementPresentationUtil.getFlags]]
+   * @see [[ElementPresentationUtil.FLAGS_ABSTRACT]]
+   * @see [[ElementPresentationUtil.FLAGS_FINAL]]
    */
-  private[this] def layerFlags(flags: Int): Int =
+  private[this] def getLayerFlags(flags: Int): Int =
     (if (Option(delegate.getModifierList).exists(_.hasExplicitModifier(PsiModifier.FINAL))) 0x400 else 0) |
       (if (delegate.hasModifierProperty(PsiModifier.ABSTRACT)) 0x100 else 0) |
       (if ((flags & Iconable.ICON_FLAG_READ_STATUS) == 0 || delegate.isWritable) 0 else ElementBase.FLAGS_LOCKED)

@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import javax.swing.Icon
 
 // TODO: improve in SCL-19224
+//  - show visibility icon
 final class Extension(extension: ScExtension) extends AbstractTreeElement(extension) {
 
   override def getPresentableText: String = {
@@ -16,8 +17,6 @@ final class Extension(extension: ScExtension) extends AbstractTreeElement(extens
   }
 
   override protected def location: Option[String] = None // TODO: extension can be inherited
-
-  override def getIcon(open: Boolean): Icon = Icons.EXTENSION // TODO: which icon should we use?
 
   override def getTextAttributesKey: TextAttributesKey = super.getTextAttributesKey
 
