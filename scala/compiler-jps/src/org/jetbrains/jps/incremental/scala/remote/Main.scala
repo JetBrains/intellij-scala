@@ -39,7 +39,7 @@ object Main {
   private val worksheetServer = new WorksheetServer
 
   private var shutdownTimer: Timer = _
-  private var shutdownByTimout: Boolean = false
+  @volatile private var shutdownByTimout: Boolean = false
 
   private val maxHeapSize = Runtime.getRuntime.maxMemory()
   private val currentParallelism = new AtomicInteger(0)
@@ -79,6 +79,11 @@ object Main {
     import CompileServerSharedMessages._
     val details = if (shutdownByTimout) s" ($ProcessWasIdleFor ${shutdownDelay.getOrElse("<unknown>")})" else ""
     System.out.println(CompileServerShutdownPrefix + s"$details")
+
+    // `System.exit` is called by `NGServer.shutdown`
+    // It doesn't guarantee standard output streams flush
+    // (ideally this flush should be done by Nailgun itself)
+    System.out.flush()
   }
 
   def main(args: Array[String]): Unit = {
