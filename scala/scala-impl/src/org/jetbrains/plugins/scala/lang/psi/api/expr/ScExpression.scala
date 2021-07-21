@@ -242,13 +242,17 @@ object ScExpression {
             val widened      = nonValueType.widenLiteralType(expr, expectedType)
             val maybeSAMpt   = expectedType.flatMap(widened.expectedSAMType(expr, fromUnderscore, _))
 
+            def inferValueType(tpe: ScType): ScType =
+              if (expr.is[ScPolyFunctionExpr]) tpe
+              else                             tpe.inferValueType
+
             val valueType =
-              widened
-                .dropMethodTypeEmptyParams(expr, expectedType)
-                .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
-                .inferValueType
-                .unpackedType
-                .synthesizePartialFunctionType(expr, expectedType)
+              inferValueType(
+                widened
+                  .dropMethodTypeEmptyParams(expr, expectedType)
+                  .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
+              ).unpackedType
+               .synthesizePartialFunctionType(expr, expectedType)
 
             if (ignoreBaseType) Right(valueType)
             else
