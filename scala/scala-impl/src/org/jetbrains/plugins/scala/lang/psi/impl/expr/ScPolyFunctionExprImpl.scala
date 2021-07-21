@@ -9,14 +9,15 @@ import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScPolyFunctionExpr}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-class ScPolyFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScPolyFunctionExpr {
-
-  override def typeParameters : Seq[ScTypeParam] = typeParamClause.typeParameters
-
-  override def typeParamClause: ScTypeParamClause = findChild[ScTypeParamClause].get
+class ScPolyFunctionExprImpl(node: ASTNode)
+    extends ScExpressionImplBase(node)
+    with ScPolyFunctionExpr
+    with ScTypeParametersOwner {
 
   override def result: Option[ScExpression] = findChild[ScExpression]
 
@@ -24,22 +25,16 @@ class ScPolyFunctionExprImpl(node: ASTNode) extends ScExpressionImplBase(node) w
                                    state: ResolveState,
                                    lastParent: PsiElement,
                                    place: PsiElement): Boolean = {
-    //result match {
-    //  case Some(x) if x == lastParent || (lastParent.isInstanceOf[ScalaPsiElement] &&
-    //    x == lastParent.asInstanceOf[ScalaPsiElement].getDeepSameElementInContext) =>
-    //    for (p <- parameters) {
-    //      if (!processor.execute(p, state)) return false
-    //    }
-    //    true
-    //  case _ => true
-    //}
-    // todo: implement this!
+    if (lastParent != null) {
+      if (!super[ScTypeParametersOwner].processDeclarations(processor, state, lastParent, place))
+        return false
+    }
     true
   }
 
   protected override def innerType: TypeResult = {
-    // todo: implement this!
-    Failure(NlsString.force("not implemented"))
+    val resultType = this.flatMapType(result).getOrAny
+    Right(ScTypePolymorphicType(resultType, typeParameters.map(TypeParameter(_))))
   }
 
   override def controlFlowScope: Option[ScalaPsiElement] = result

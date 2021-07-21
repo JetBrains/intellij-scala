@@ -4,12 +4,10 @@ package psi
 package api
 package expr
 
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScTypeParam, ScTypeParamClause}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
-trait ScPolyFunctionExpr extends ScExpression with ScControlFlowOwner {
-  def typeParameters : Seq[ScTypeParam]
-
-  def typeParamClause: ScTypeParamClause
+trait ScPolyFunctionExpr extends ScExpression with ScControlFlowOwner with ScTypeParametersOwner {
 
   def result: Option[ScExpression]
 
