@@ -88,7 +88,9 @@ object TreePrinter {
         (if (isInGiven) (parents.mkString(" with ") + " with") else (if (parents.isEmpty) "" else " extends " + parents.mkString(", "))) +
         (if (members.isEmpty) (if (isInGiven) " {}" else "") else " {\n" + members + "\n}")
 
-    case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !name.contains("$default$") => // TODO why it's not synthetic?
+    // TODO why some artifacts are not synthetic (e.g. in org.scalatest.funsuite.AnyFunSuiteLike)?
+    // TODO why $default$ methods are not synthetic?
+    case node @ Node(DEFDEF, Seq(name), children) if !node.hasFlag(FIELDaccessor) && !node.hasFlag(SYNTHETIC) && !node.hasFlag(ARTIFACT) && !name.contains("$default$") =>
       if (!privateMembers && node.hasFlag(PRIVATE)) return ""
       val isAbstractGiven = node.hasFlag(GIVEN)
       val isAnonymousGiven = isAbstractGiven && name.startsWith("given_")
