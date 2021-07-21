@@ -233,6 +233,7 @@ object CompileServerLauncher {
           .map { process =>
             val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
+            LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
             watcher.startNotify()
             watcher.addProcessListener(new ProcessAdapter {
@@ -412,7 +413,9 @@ object CompileServerLauncher {
     val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
     if (!isUsed(port)) port else {
       LOG.info(s"compile server port is already used ($port), searching for available port")
-      NetUtils.findAvailableSocketPort()
+      val result = NetUtils.findAvailableSocketPort()
+      LOG.info(s"found available port: $result")
+      result
     }
   }
 

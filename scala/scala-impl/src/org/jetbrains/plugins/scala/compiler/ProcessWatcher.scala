@@ -74,6 +74,11 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
               }
             }
           }
+
+          //see com.martiansoftware.nailgun.NGServer.NGServerShutdowner
+          if (text.startsWith("NGServer shut down")) {
+            Log.info(s"[$outputType] ${text.stripTrailing()}")
+          }
         }
 
         case ProcessOutputTypes.STDERR => lock.synchronized {
