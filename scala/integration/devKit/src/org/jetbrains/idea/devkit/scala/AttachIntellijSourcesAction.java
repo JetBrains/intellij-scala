@@ -81,6 +81,8 @@ public class AttachIntellijSourcesAction extends AnAction {
 
                 Collection<VirtualFile> roots = JavaVfsSourceRootDetectionUtil.suggestRoots(maybeSourcesZip.get(), indicator);
 
+                LOG.info("Found source roots: " + roots.stream().map(VirtualFile::getPath).collect(Collectors.joining("\n")));
+
                 ApplicationManager.getApplication().invokeLater(() -> {
                     application.runWriteAction(() ->
                             ijLibraries.stream()

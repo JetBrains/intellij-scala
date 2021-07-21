@@ -41,7 +41,18 @@ abstract class ScalaStructureViewTestBase extends ScalaLightCodeInsightFixtureTe
      * (see [[org.jetbrains.plugins.scala.util.BaseIconProvider.getIcon]])
      */
     IconManager.getInstance() match {
-      case _: CoreIconManager =>
+      case iconManager: CoreIconManager =>
+        // workaround for IDEA-274148 (can remove it when the issue is fixed)
+        // copied from com.intellij.psi.impl.ElementPresentationUtil static initializer
+        val FLAGS_STATIC = 0x200
+        val FLAGS_FINAL = 0x400
+        val FLAGS_JUNIT_TEST = 0x2000
+        val FLAGS_RUNNABLE = 0x4000
+
+        iconManager.registerIconLayer(FLAGS_STATIC, AllIcons.Nodes.StaticMark)
+        iconManager.registerIconLayer(FLAGS_FINAL, AllIcons.Nodes.FinalMark)
+        iconManager.registerIconLayer(FLAGS_JUNIT_TEST, AllIcons.Nodes.JunitTestMark)
+        iconManager.registerIconLayer(FLAGS_RUNNABLE, AllIcons.Nodes.RunnableMark)
       case m =>
         fail(s"Unexpected icon manager: ${m.getClass} (expected ${classOf[CoreIconManager]})")
     }
