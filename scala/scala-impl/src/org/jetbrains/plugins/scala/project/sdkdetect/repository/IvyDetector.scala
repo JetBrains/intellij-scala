@@ -48,7 +48,7 @@ private[repository] object IvyDetector extends ScalaSdkDetectorDependencyManager
         value match {
           case ResolveFailure.UnresolvedDependencies(resolved, unresolved, _) =>
             if (unresolved.forall(isOptionalDependency))
-              Right(patchedDescriptor(descriptor, resolved, resolver))
+              Right(patchedScala3SdkDescriptor(descriptor, resolved, resolver))
             else
               Left(unresolved.map(_.toString).map(UnresolvedArtifact.apply))
           case ResolveFailure.UnknownProblem(problems) =>
@@ -57,18 +57,18 @@ private[repository] object IvyDetector extends ScalaSdkDetectorDependencyManager
             Left(Seq(UnknownException(exception)))
         }
       case Right(resolved) =>
-        Right(patchedDescriptor(descriptor, resolved, resolver))
+        Right(patchedScala3SdkDescriptor(descriptor, resolved, resolver))
     }
   }
 
-  private def patchedDescriptor(
+  private def patchedScala3SdkDescriptor(
     descriptor: ScalaSdkDescriptor,
-    resolved: Seq[ResolvedDependency],
+    compilerDependencies: Seq[ResolvedDependency],
     resolver: LocalCachesResolver
   ): ScalaSdkDescriptor = {
-    val compilerJars = resolved.map(_.file)
+    val compilerJars = compilerDependencies.map(_.file)
 
-    val scala2LibraryDep = resolved.find(_.info.artId == "scala-library")
+    val scala2LibraryDep = compilerDependencies.find(_.info.artId == "scala-library")
     val scala2LibraryJar = scala2LibraryDep.map(_.file)
     val scala2LibrarySrcJar = scala2LibraryDep.flatMap { libDep =>
       val result = resolver.resolveSingleFromCaches(libDep.info.copy(kind = Types.SRC))
@@ -76,7 +76,7 @@ private[repository] object IvyDetector extends ScalaSdkDetectorDependencyManager
     }
 
     descriptor
-      .withExtraCompilerClasspath(compilerJars)
+      .copy(compilerClasspath = compilerJars)
       .withExtraLibraryFiles(scala2LibraryJar.toSeq)
       .withExtraSourcesFiles(scala2LibrarySrcJar.toSeq)
   }
