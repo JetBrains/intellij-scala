@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.worksheet.ammonite
 
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.{PsiElement, ResolveState}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.{FileDeclarationsContributor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.worksheet.ammonite.AmmoniteUtil.isAmmoniteFile
@@ -30,7 +31,7 @@ final class AmmoniteFileDeclarationsContributor extends FileDeclarationsContribu
 
         DEFAULT_IMPORTS.foreach {
           imp =>
-            val importStmt = ScalaPsiElementFactory.createImportFromText(s"import $imp", holder)
+            val importStmt = ScalaPsiElementFactory.createScalaElementFromText[ScImportStmt](s"import $imp")(ammoniteFile.projectContext)
             importStmt.processDeclarations(processor, state, null, ammoniteFile)
         }
       case _ =>
