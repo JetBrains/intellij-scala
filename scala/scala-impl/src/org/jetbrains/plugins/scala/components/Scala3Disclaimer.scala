@@ -31,7 +31,7 @@ object Scala3Disclaimer {
 
     if (!isShownIn(project) && project.hasScala3) {
       showDisclaimerIn(project,
-        ScalaBundle.message("scala.3.support.is.experimental", "https://blog.jetbrains.com/scala/2020/03/17/scala-3-support-in-intellij-scala-plugin/"),
+        ScalaBundle.message("scala.3.support.is.experimental"),
         configureUpdatesActionIn(project))
       setShownIn(project)
     }
