@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.statements
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionDefinitionFactory
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionFactory
 import org.jetbrains.plugins.scala.extensions.StubBasedExt
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION_BODY, FUNCTION_DEFINITION}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.TokenSets.FUNCTIONS
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.EXTENSION_BODY
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtensionBody, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScExtensionBodyStub
 
@@ -18,6 +19,6 @@ final class ScExtensionBodyImpl private (stub: ScExtensionBodyStub, node: ASTNod
 
   override def toString: String = "ScExtensionBody"
 
-  override def functions: Seq[ScFunctionDefinition] =
-    this.stubOrPsiChildren(FUNCTION_DEFINITION, ScFunctionDefinitionFactory).toSeq
+  override def functions: Seq[ScFunction] =
+    this.stubOrPsiChildren(FUNCTIONS, ScFunctionFactory).toSeq
 }

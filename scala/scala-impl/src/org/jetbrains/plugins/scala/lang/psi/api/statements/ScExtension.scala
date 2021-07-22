@@ -13,11 +13,12 @@ trait ScExtension extends ScTypeParametersOwner
   with ScParameterOwner
   with ScDocCommentOwner
   with ScCommentOwner
-  with ScMember {
+  with ScMember
+  with ScDeclaredElementsHolder {
 
   def extensionBody: Option[ScExtensionBody]
   def targetParameter: Option[ScParameter]
   def targetTypeElement: Option[ScTypeElement]
-  def extensionMethods: Seq[ScFunctionDefinition]
+  def extensionMethods: Seq[ScFunction]
   def effectiveParameterClauses: Seq[ScParameterClause]
 }
