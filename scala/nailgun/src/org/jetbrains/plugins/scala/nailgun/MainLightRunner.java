@@ -7,7 +7,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 
 /**
- * used in {@link org.jetbrains.plugins.scala.compiler.NonServerRunner}.
+ * used in {@link org.jetbrains.plugins.scala.worksheet.server.NonServerRunner}.
  */
 public class MainLightRunner {
 

@@ -1,11 +1,4 @@
-package org.jetbrains.plugins.scala
-package compiler
-
-import java.io.{BufferedReader, File, InputStreamReader, Reader}
-import java.nio.charset.StandardCharsets
-import java.util.Base64
-import java.util.concurrent.Future
-import java.util.concurrent.atomic.AtomicBoolean
+package org.jetbrains.plugins.scala.worksheet.server
 
 import com.intellij.compiler.server.BuildManager
 import com.intellij.execution.process._
@@ -17,13 +10,18 @@ import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.BaseDataReader
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.{ClientEventProcessor, Event, TraceEvent}
-import org.jetbrains.plugins.scala.compiler.NonServerRunner.Log
 import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtils
+import org.jetbrains.plugins.scala.compiler.{CompilationProcess, CompileServerLauncher, RemoteServerRunner}
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
+import org.jetbrains.plugins.scala.worksheet.server.NonServerRunner.Log
 
+import java.io.{BufferedReader, File, InputStreamReader, Reader}
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicBoolean
 import _root_.scala.jdk.CollectionConverters._
 
-// TODO: move to worksheet module?
 /**
  * @see [[RemoteServerRunner]]
  */
