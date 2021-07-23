@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
  * User: Alexander Podkhalyuzin
  * Date: 31.07.2008
  */
-private class TypeAlias(alias: ScTypeAlias, inherited: Boolean) extends AbstractTreeElement(alias, inherited)  {
+private class TypeAlias(alias: ScTypeAlias, inherited: Boolean) extends AbstractTreeElementDelegatingChildrenToPsi(alias, inherited)  {
   override def location: Option[String] =
     Option(element.containingClass).map(_.name)
 

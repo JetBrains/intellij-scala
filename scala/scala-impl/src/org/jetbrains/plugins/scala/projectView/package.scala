@@ -4,7 +4,7 @@ import com.intellij.ide.projectView.ViewSettings
 import com.intellij.ide.util.treeView.AbstractTreeNode
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTypeDefinition}
 
@@ -44,6 +44,9 @@ package object projectView {
       Seq(new NamedElementNode(element))
     case value: ScValueOrVariable =>
       value.declaredElements.map(new NamedElementNode(_))
-    case _ => Seq.empty
+    case extension: ScExtension =>
+      Seq(new ExtensionNode(extension))
+    case _ =>
+      Seq.empty
   }
 }
