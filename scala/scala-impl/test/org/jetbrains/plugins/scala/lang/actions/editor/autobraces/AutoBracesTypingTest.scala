@@ -618,4 +618,17 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
        |""".stripMargin -> ContinuationOnNewline,
     'x'
   )
+
+  def test_before_brace(): Unit = checkGeneratedTextAfterTyping(
+    s"""
+       |val x =
+       |  object$CARET{}
+       |""".stripMargin,
+    s"""
+       |val x = {
+       |  object $CARET{}
+       |}
+       |""".stripMargin,
+    ' '
+  )
 }
