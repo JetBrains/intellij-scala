@@ -15,7 +15,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.MultilineStringUtil.MultilineQuotes
 
-// TODO: autoinsert single quote like in Java
 final class ScalaQuoteHandler extends JavaLikeQuoteHandler with MultiCharQuoteHandler {
 
   import ScalaQuoteHandler._
@@ -112,10 +111,10 @@ object ScalaQuoteHandler {
         // in case of empty file (see CompleteMultilineStringTest.testCompleteMultiCaret_EmptyFileWithEmptyEndLine)
         // TODO: simplify when parsing of incomplete multiline strings is unified for interpolated and non-interpolated strings
         //  to understand what is happening here just try to open psi tree viewer and see how incomplete `s"""` or `"""` are parsed
-        (iterator.getTokenType == tWRONG_STRING || {
+        (iterator.getTokenType == tWRONG_STRING || iterator.getStart > 0 && {
           iterator.retreat()
           iterator.getTokenType == tWRONG_STRING
-        }) && {
+        }) && iterator.getStart > 0 && {
           iterator.retreat()
           iterator.getTokenType == tSTRING
         }
