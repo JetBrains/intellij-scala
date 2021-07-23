@@ -957,4 +957,28 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement())(')')
       |  PsiWhiteSpace('\n')""".stripMargin
   )
+
+  def test_infix_after_comment(): Unit = checkTree(
+    """
+      |x
+      |/*
+      |*/ + 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  InfixExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiWhiteSpace('\n')
+      |    PsiComment(BlockComment)('/*\n*/')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: +
+      |      PsiElement(identifier)('+')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }
