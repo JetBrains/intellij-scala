@@ -39,16 +39,7 @@ private[projectView] class TypeDefinitionNode(definition: ScTypeDefinition)
       case _ => Nil
     }
 
-    val memberNodes: Seq[Node] = value.members.flatMap {
-      case definition: ScTypeDefinition =>
-        Seq(new TypeDefinitionNode(definition))
-      case element: ScNamedElement =>
-        Seq(new NamedElementNode(element))
-      case value: ScValueOrVariable =>
-        value.declaredElements.map(new NamedElementNode(_))
-      case _ => Seq.empty
-    }
-
+    val memberNodes: Seq[Node] = value.members.flatMap(buildMemberNodes)
     (enumCasesNodes ++ memberNodes).asJava
   }
 
