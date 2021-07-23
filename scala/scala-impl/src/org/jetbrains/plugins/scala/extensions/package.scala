@@ -652,6 +652,9 @@ package object extensions {
       case _ => parents.takeWhile(!_.is[PsiFile])
     }
 
+    def pathToLastChild: Iterator[PsiElement] =
+      Iterator.iterate[PsiElement](element.getLastChild)(_.getLastChild).takeWhile(_ != null)
+
     def withParentsInFile: Iterator[PsiElement] = Iterator(element) ++ parentsInFile
 
     def children: Iterator[PsiElement] = new ChildrenIterator(element)

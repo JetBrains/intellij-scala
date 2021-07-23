@@ -74,7 +74,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
   }
 
   private def getChildAttributesIntellijInner(newChildIndex: Int, scalaSettings: ScalaCodeStyleSettings): ChildAttributes = {
-    val parent = getNode.getPsi
+    val blockFirstNode = getNode.getPsi
 
     val indentSize = settings.getIndentSize(ScalaFileType.INSTANCE)
     val braceShifted = settings.BRACE_STYLE == CommonCodeStyleSettings.NEXT_LINE_SHIFTED
@@ -84,7 +84,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
         Some(psi.getNode.getElementType)
     }
 
-    parent match {
+    blockFirstNode match {
       case m: ScMatch =>
         val isAfterLastCaseClause = m.clauses.nonEmpty
         val indent =
@@ -135,7 +135,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       case p: ScPackaging if p.isExplicit =>
         new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScBlock =>
-        val grandParent = parent.getParent
+        val grandParent = blockFirstNode.getParent
         val indent = grandParent match {
           case _: ScCaseClause | _: ScFunctionExpr => Indent.getNormalIndent
           case _  => Indent.getNoneIndent
@@ -182,7 +182,7 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       case _: ScDefinitionWithAssignment =>
         new ChildAttributes(Indent.getNormalIndent, null)
       // extension (ss: Seq[String]) ...
-      case _: ScExtension                                      =>
+      case _: ScExtension =>
         new ChildAttributes(Indent.getNormalIndent, null)
       // given intOrd: Ord[Int] with <caret+Enter>
       case (_: ScExtendsBlock) && Parent(_: ScGivenDefinition) =>
@@ -191,9 +191,14 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       // in this case `com.intellij.formatting.FormatProcessor.getParentFor` doesn't select ScExtendsBlock
       case (_: ScTemplateParents) && Parent((_: ScExtendsBlock) && Parent(_: ScGivenDefinition)) if lastNode.getElementType == ScalaTokenTypes.kWITH =>
         new ChildAttributes(Indent.getNormalIndent, null)
+      case ElementType(ScalaTokenTypes.kEXTENDS) =>
+        if (scalaSettings.ALIGN_EXTENDS_WITH == ScalaCodeStyleSettings.ALIGN_TO_EXTENDS)
+          new ChildAttributes(Indent.getNoneIndent, null)
+        else
+          new ChildAttributes(Indent.getNormalIndent, null)
       case _: ScEnumerator =>
         new ChildAttributes(Indent.getNormalIndent, null)
-      case _                                                   =>
+      case _ =>
         new ChildAttributes(Indent.getNoneIndent, null)
     }
   }
@@ -340,7 +345,7 @@ object ScalaBlock {
       case _: ScTemplateBody => lastChild.getElementType == ScalaTokenTypes.tCOLON
       // `given intOrd: Ord[Int] with <caret>`
       case _: ScExtendsBlock => lastChild.getElementType == ScalaTokenTypes.kWITH
-      case ret: ScReturn =>
+      case ret: ScReturn if ret.expr.isEmpty =>
         // NOTE: compare only type text, do not
         val hasUnitReturnType: Boolean = ret.method.exists(_.returnTypeElement.exists(isUnitTypeText))
         !hasUnitReturnType

@@ -251,7 +251,7 @@ class Scala3EnterTest extends Scala3EnterBaseTest
       indentOptions.TAB_SIZE = tabSizeNew
       indentOptions.USE_TAB_CHARACTER = true
 
-      def useTabs(text: String): String = text.replaceAll(" " * 3, "\t")
+      def useTabs(text: String): String = text.replaceAll(" " * tabSizeNew, "\t")
 
       val beforeWithTabs = useTabs(before)
       val afterWithTabs = useTabs(after)
@@ -684,4 +684,53 @@ class Scala3EnterTest extends Scala3EnterBaseTest
       indentOptions.INDENT_SIZE = INDENT_SIZE_BEFORE
     }
   }
+
+  def testEnterAfterEnumCase(): Unit = {
+    val before =
+      s"""enum ListEnum1[+A]:
+         |  case Cons(h: A, t: ListEnum1[A])
+         |  case Empty$CARET
+         |""".stripMargin
+    val after  =
+      s"""enum ListEnum1[+A]:
+         |  case Cons(h: A, t: ListEnum1[A])
+         |  case Empty
+         |  $CARET
+         |""".stripMargin
+
+    doEnterTestWithAndWithoutTabs(before, after)
+  }
+
+  def testEnterAfterEnumCase_1(): Unit = {
+    val before =
+      s"""enum ListEnum1[+A]:
+         |  case Cons(h: A, t: ListEnum1[A])
+         |  case Empty,$CARET Empty42
+         |""".stripMargin
+    val after  =
+      s"""enum ListEnum1[+A]:
+         |  case Cons(h: A, t: ListEnum1[A])
+         |  case Empty,
+         |  ${CARET}Empty42
+         |""".stripMargin
+
+    doEnterTestWithAndWithoutTabs(before, after)
+  }
+
+  def testInExtendsList_AfterLastWith_IndentationBasedSyntax(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""abstract class B(x: Int)
+         |  extends A
+         |    with G1[G2[G3[G4]]]$CARET :
+         |  def foo1 = 1
+         |  def foo2 = 1""".stripMargin,
+      s"""abstract class B(x: Int)
+         |  extends A
+         |    with G1[G2[G3[G4]]]
+         |    $CARET :
+         |  def foo1 = 1
+         |  def foo2 = 1""".stripMargin
+    )
+  }
+
 }
