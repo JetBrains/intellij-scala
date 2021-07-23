@@ -39,10 +39,13 @@ class EventGeneratingClient(writeEvent: Event => Unit, canceled: => Boolean) ext
     publishEvent(ProgressEvent(text, done))
 
   override def internalInfo(text: String): Unit =
-    publishEvent(InfoEvent(text))
+    publishEvent(InternalInfoEvent(text))
 
   override def internalDebug(text: String): Unit =
-    publishEvent(DebugEvent(text))
+    publishEvent(InternalDebugEvent(text))
+
+  override def internalTrace(text: String): Unit =
+    publishEvent(InternalTraceEvent(text))
 
   override def generated(source: File, module: File, name: String): Unit =
     publishEvent(GeneratedEvent(source, module, name))

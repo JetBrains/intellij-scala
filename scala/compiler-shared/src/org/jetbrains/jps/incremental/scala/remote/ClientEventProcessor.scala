@@ -15,11 +15,14 @@ class ClientEventProcessor(client: Client) {
       case ProgressEvent(text, done) =>
         client.progress(text, done)
 
-      case DebugEvent(text) =>
+      case InternalDebugEvent(text) =>
         client.internalDebug(text)
 
-      case InfoEvent(text) =>
+      case InternalInfoEvent(text) =>
         client.internalInfo(text)
+
+      case InternalTraceEvent(text) =>
+        client.internalTrace(text)
 
       case TraceEvent(exceptionClassName, message, stackTrace) =>
         client.trace(new ServerException(exceptionClassName, message, stackTrace))

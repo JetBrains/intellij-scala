@@ -49,8 +49,14 @@ trait Client {
   /** Log info message to the JPS log (build.log) */
   def internalInfo(text: String): Unit
 
+  // TODO: support lazy message calculating: if debug/trace log level are not enabled, do not pass the messages
+  //  CS must also know whether e.g. trace level is enabled
+  //  So this will require some synchronising of logging level change between IDEA & JPS with CS process.
   /** Log debug message to the JPS log (build.log) */
   def internalDebug(text: String): Unit
+
+  /** Log trace message to the JPS log (build.log) */
+  def internalTrace(text: String): Unit
 
   def generated(source: File, module: File, name: String): Unit
 

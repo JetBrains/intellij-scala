@@ -32,7 +32,7 @@ import scala.util.{Failure, Success, Try}
  *
  * @see [[org.jetbrains.plugins.scala.nailgun.NailgunRunner]]<br>
  *      [[org.jetbrains.plugins.scala.nailgun.NailgunMainLightRunner]]
- *      [[org.jetbrains.plugins.scala.compiler.NonServerRunner]]
+ *      [[org.jetbrains.plugins.scala.worksheet.server.NonServerRunner]]
  */
 object Main {
   private val server = new LocalServer()
@@ -104,6 +104,10 @@ object Main {
 
 
     try {
+      def traceStep(message: String): Unit =
+        client.internalTrace(s"[main nail]: $message")
+      traceStep("parsing arguments")
+
       val argsParsed = parseArgs(commandId, argsEncoded) match {
         case Success(result) =>
           result
@@ -112,6 +116,7 @@ object Main {
           return
       }
 
+      traceStep("validating token")
       // Don't check token in non-server mode
       if (port != -1) {
         try {
@@ -125,7 +130,9 @@ object Main {
         }
       }
 
+      traceStep(s"handling command: $commandId")
       handleCommand(argsParsed.command, client)
+      traceStep(s"done")
     } catch {
       case e: Throwable =>
         client.trace(e)

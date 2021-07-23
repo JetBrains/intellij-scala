@@ -31,10 +31,13 @@ trait RemoteResourceOwner {
   @throws[java.net.SocketTimeoutException]
   @throws[java.net.UnknownHostException]
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
+    client.internalTrace(s"sending command to server: `$command`")
     val encodedArgs = arguments.map(s => Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
     Using.resource(new Socket(address, port)) { socket =>
       Using.resource(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
-        createChunks(command, encodedArgs).foreach(_.writeTo(output))
+        val chunks = createChunks(command, encodedArgs)
+        client.internalTrace(s"writing chunks to socket")
+        chunks.foreach(_.writeTo(output))
         output.flush()
         if (client != null) {
           Using.resource(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
@@ -42,6 +45,7 @@ trait RemoteResourceOwner {
             if (timoutMs > 0) {
               socket.setSoTimeout(timoutMs.toInt)
             }
+            client.internalTrace("reading chunks from socket")
             handle(input, client)
           }
         }
@@ -75,6 +79,9 @@ trait RemoteResourceOwner {
         // sbt "leaks" some messages into console (e.g. for "explain type errors" option).
         // For example such errors occur during compilation errors of worksheet ILoopWrapper instances.
         // Report such output not as errors, but as warnings (to continue make process).
+        //
+        // Also sometimes Nailgun prints to NGContext output (instead of default process output)
+        // e.g. see com.martiansoftware.nailgun.builtins.DefaultNail.nailMain
         case Chunk(NGConstants.CHUNKTYPE_STDERR, data) =>
           val message = fromBytes(data)
           if (StringUtils.isNotBlank(message)) {

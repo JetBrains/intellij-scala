@@ -16,6 +16,7 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
+import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
@@ -27,8 +28,10 @@ import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
 import java.util.UUID
 import javax.swing.event.HyperlinkEvent
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
+import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.Exception._
@@ -83,15 +86,36 @@ object CompileServerLauncher {
     }
   }
 
-  // TODO: implement proper wait for server initialization, addDisconnectListener command doesn't even exist
-  //  Nailgun server sends error for it via stderr which we ignore by passing null client
-  private def sendDummyRequest(project: Project): Try[Unit] =
-    Try {
-      new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
-    }.recoverWith { case _: Exception if isUnitTestMode && waitUntilDebuggerAttached =>
-      LOG.traceWithDebugInDev("waiting for compile server initialization...")
-      sendDummyRequest(project)
+  // TODO: implement proper wait for server initialization
+  //  addDisconnectListener command doesn't even exist
+  //  com.martiansoftware.nailgun.builtins.DefaultNail.nailMain will be used instead
+  //  it sends an error to the socket output (as a NGConstants.CHUNKTYPE_STDERR chunk)
+  //  but we ignore it because we use DummyClient
+  private val MaxReconnectAttempt = 10
+  private val SleepTimeBetweenReconnectAttempts = 1.second
+  @tailrec
+  private def sendDummyRequest(project: Project): Unit = {
+    var reconnectAttempt = 1
+    try {
+      LOG.traceWithDebugInDev(s"waiting for compile server initialization... ($reconnectAttempt / $MaxReconnectAttempt)")
+      new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, DummyClient.Instance)
+    } catch {
+      case ex: IOException =>
+        if (isUnitTestMode) {
+          if (reconnectAttempt < MaxReconnectAttempt) {
+            reconnectAttempt += 1
+            Thread.sleep(SleepTimeBetweenReconnectAttempts.toMillis)
+            sendDummyRequest(project)
+          }
+          else {
+            throw new RuntimeException("compile server hasn't been initialised", ex)
+          }
+        }
+        else {
+          LOG.warn(ex)
+        }
     }
+  }
 
 
   private def isUnitTestMode: Boolean =

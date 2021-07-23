@@ -46,8 +46,7 @@ object ScalaBuilder {
       compilerData    <- dataFactory.getCompilerDataFactory.from(context, chunk)
       compilationData <- dataFactory.getCompilationDataFactory.from(sources, allSources, context,  chunk)
     } yield {
-      Log.info(s"Compiling ${compilationData.sources.size} files; module: ${chunk.getPresentableShortName}")
-
+      Log.info(s"Compiling ${compilationData.sources.size} files; module: ${chunk.getPresentableShortName}; compiler: ${compilerData.compilerJars.orNull}")
       scalaLibraryWarning(modules, compilationData, client)
 
       // TODO: ensure Scala Compile server is stopped in order it doesn't eventually

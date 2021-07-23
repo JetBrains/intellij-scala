@@ -10,6 +10,11 @@ import org.jetbrains.plugins.scala.server.CompileServerToken
 import java.net.{ConnectException, InetAddress, SocketTimeoutException, UnknownHostException}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 
+// TODO: this class can only be used in the JPS process, not in the Scala Compile Server process
+//  we should split compiler-jps module into several modules:
+//  1. classes which can be used only in JPS process
+//  2. classes which can be used only in CS process
+//  3. classes which can be used in both JPS and CS processes
 final class RemoteServer(
   override val address: InetAddress,
   override val port: Int,
@@ -25,6 +30,7 @@ final class RemoteServer(
 
     try {
       val buildSystemDir = Utils.getSystemRoot.toPath
+      client.internalTrace(s"reading token for port: $port")
       val token = CompileServerToken.tokenForPort(buildSystemDir, port).getOrElse("NO_TOKEN")
       send(CommandIds.Compile, token +: arguments, client)
       // client.compilationEnd() is meant to be sent by remote server
