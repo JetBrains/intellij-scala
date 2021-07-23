@@ -644,4 +644,17 @@ class Scala3IndentationBasedSyntaxBackspaceTest extends ScalaBackspaceHandlerBas
          |    444
          |""".stripMargin
     )
+
+  def test_backspace_at_end(): Unit =
+    performTest(
+      s"""class A {
+         |}
+         |  $CARET${"      "}""".stripMargin,
+      s"""class A {
+         |}
+         |$CARET
+         |""".stripMargin.trim
+    ){
+      () => performBackspaceAction()
+    }
 }
