@@ -1,26 +1,25 @@
 package org.jetbrains.sbt.language.completion
 
-import com.intellij.codeInsight.completion.{CompletionContributor, CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
+import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
-import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
-import org.jetbrains.idea.reposearch.DependencySearchService
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inReadAction, inWriteCommandAction}
-import org.jetbrains.plugins.scala.lang.completion.positionFromParameters
 import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
-import org.jetbrains.sbt.language.utils.PackageSearchApiHelper.waitAndAdd
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
-import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, PackageSearchApiHelper, SbtArtifactInfo, SbtDependencyCommon, SbtDependencyTraverser, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils._
 
-import java.util.concurrent.{ConcurrentHashMap, ConcurrentLinkedDeque}
+import java.util.concurrent.ConcurrentLinkedDeque
 
 class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionContributor {
+
+  private val logger = Logger.getInstance(this.getClass)
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
       psiElement.inside(SbtPsiElementPatterns.sbtModuleIdPattern)
 
@@ -31,18 +30,18 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
   extend(CompletionType.BASIC, PATTERN, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = try {
       val useCache: Boolean = if (params.isExtendedCompletion) false else true
+      val searchParams = CustomPackageSearchParams(useCache = useCache)
       val stableVersionOnly: Boolean = if (params.isExtendedCompletion) false else true
-      val depCache = collection.mutable.Map[String, Boolean]()
+      val depLookUp = collection.mutable.Map[String, Boolean]()
       val place = positionFromParameters(params)
       implicit val project: Project = place.getProject
 
-      val versions = new ConcurrentHashMap[String, List[String]]()
+      var versions = Map[String, List[String]]()
       val scalaVers = SbtDependencyUtils.getAllScalaVersionsOrDefault(place, majorOnly = true)
 
       resultSet.restartCompletionOnAnyPrefixChange()
 
-      val cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo] = new ConcurrentLinkedDeque[MavenRepositoryArtifactInfo]()
-      val dependencySearch = DependencySearchService.getInstance(place.getProject)
+      val cld: ConcurrentLinkedDeque[SbtExtendedArtifactInfo] = new ConcurrentLinkedDeque[SbtExtendedArtifactInfo]()
 
       def generateCompletedDependency(dep: String): List[String] = {
         var depList: List[String] = dep.split(':').toList
@@ -54,7 +53,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         val depList: List[String] = generateCompletedDependency(result)
         val artifactText = SbtDependencyUtils.generateArtifactText(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtDependencyCommon.defaultLibScope))
         val partialArtifactText = artifactText.split("%").filter(_.nonEmpty).map(_.trim).slice(1, artifactText.length).mkString(" % ")
-        if (!(depCache contains artifactText)) {
+        if (!(depLookUp contains artifactText)) {
           resultSet.addElement(new LookupElement {
             override def getLookupString: String = result + RENDERING_PLACEHOLDER
 
@@ -100,12 +99,12 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
               context.commitDocument()
             }
           })
-          depCache += (artifactText -> true)
+          depLookUp += (artifactText -> true)
         }
       }
 
-      def completeDependency(fillArtifact: Boolean = false, resultSet: CompletionResultSet): MavenRepositoryArtifactInfo => Unit = repo => try {
-        addArtifactResult(s"${repo.getGroupId}:${repo.getArtifactId}:", fillArtifact, resultSet)
+      def completeDependency(fillArtifact: Boolean = false, resultSet: CompletionResultSet): SbtExtendedArtifactInfo => Unit = repo => try {
+        addArtifactResult(s"${repo.groupId}:${repo.artifactId}:", fillArtifact, resultSet)
         resultSet.stopHere()
       } catch {
         case e: Exception =>
@@ -127,15 +126,15 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       }
 
       def fillInVersions(groupId: String, artifactId: String, scalaVer: String): Unit = {
+        val searchFuture = CustomPackageSearchApiHelper.searchDependencyVersions(groupId, artifactId, searchParams, cld)
         CustomPackageSearchApiHelper
-          .waitAndAddDependencyVersions(
-            groupId,
-            artifactId,
-            CustomPackageSearchParams(useCache = useCache),
-            (lib: MavenRepositoryArtifactInfo) => {
-              lib.getItems.foreach(item => {
-                if (!stableVersionOnly || stableVersionOnly && SbtDependencyUtils.isVersionStable(item.getVersion))
-                  versions.put(item.getVersion, (if (scalaVer != null) scalaVer else JAVA_VERSION_FLAG) :: versions.getOrDefault(item.getVersion, Nil))
+          .waitAndAdd(
+            searchFuture,
+            cld,
+            (lib: SbtExtendedArtifactInfo) => {
+              lib.versions.foreach(item => {
+                if (!stableVersionOnly || stableVersionOnly && SbtDependencyUtils.isVersionStable(item))
+                  versions = versions + (item -> ((if (scalaVer != null) scalaVer else JAVA_VERSION_FLAG) :: versions.getOrElse(item, Nil)))
               })
 
             }
@@ -143,11 +142,11 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       }
 
       def completeVersions(resultSet: CompletionResultSet): Unit = {
-        versions.forEach((version: String, supportedScalaVersions: List[String]) => {
-          if (supportedScalaVersions.head == JAVA_VERSION_FLAG) {
-            addVersionResult(version, "", resultSet)
+        versions.foreach(version => {
+          if (version._2.head == JAVA_VERSION_FLAG) {
+            addVersionResult(version._1, "", resultSet)
           } else {
-            addVersionResult(version, s"(${supportedScalaVersions.mkString(", ")})", resultSet)
+            addVersionResult(version._1, s"(${version._2.mkString(", ")})", resultSet)
           }
         })
         resultSet.stopHere()
@@ -173,16 +172,10 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
             case 1 if !(expr.right.isInstanceOf[ScReferenceExpression] &&
                 expr.right.`type`().getOrAny.canonicalText.equals(SBT_LIB_CONFIGURATION)) =>
               if (expr.left.textMatches(place.getText)) {
-                val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                  cleanText,
-                  "",
-                  dependencySearch,
-                  PackageSearchApiHelper.createSearchParameters(params),
-                  cld,
-                  false
-                )
 
-                waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
+                val searchFuture = CustomPackageSearchApiHelper.searchDependency(cleanText, "", searchParams, cld, fillArtifact = false)
+
+                CustomPackageSearchApiHelper.waitAndAdd(searchFuture, cld, completeDependency(resultSet = resultSet))
                 return
               }
               else if (expr.right.textMatches(place.getText)) {
@@ -194,16 +187,10 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                 }
                 val groupId = extractedContents(0).asInstanceOf[String]
                 val fillArtifact = trimDummy(groupId).nonEmpty
-                val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                  groupId,
-                  cleanText,
-                  dependencySearch,
-                  PackageSearchApiHelper.createSearchParameters(params),
-                  cld,
-                  fillArtifact
-                )
 
-                waitAndAdd(searchPromise, cld, completeDependency(fillArtifact = fillArtifact, resultSet = resultSet))
+                val searchFuture = CustomPackageSearchApiHelper.searchDependency(groupId, cleanText, searchParams, cld, fillArtifact = fillArtifact)
+
+                CustomPackageSearchApiHelper.waitAndAdd(searchFuture, cld, completeDependency(fillArtifact = fillArtifact, resultSet = resultSet))
                 return
               }
             case x if x > 1 => inReadAction {
@@ -237,16 +224,9 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         else if (expr.left.textMatches("libraryDependencies")) {
           expr.operation.refName match {
             case "+=" =>
-              val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                cleanText,
-                "",
-                dependencySearch,
-                PackageSearchApiHelper.createSearchParameters(params),
-                cld,
-                false
-              )
 
-              waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
+              val searchFuture = CustomPackageSearchApiHelper.searchDependency(cleanText, "", searchParams, cld, fillArtifact = false)
+              CustomPackageSearchApiHelper.waitAndAdd(searchFuture, cld, completeDependency(resultSet = resultSet))
               return
 
             /*
@@ -257,16 +237,8 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                 case seq: ScMethodCall if seq.deepestInvokedExpr.textMatches(SbtDependencyUtils.SEQ) =>
                   seq.args.exprs.foreach(expr => {
                     if (trimDummy(expr.getText) == cleanText) {
-                      val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                        cleanText,
-                        "",
-                        dependencySearch,
-                        PackageSearchApiHelper.createSearchParameters(params),
-                        cld,
-                        false
-                      )
-
-                      waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
+                      val searchFuture = CustomPackageSearchApiHelper.searchDependency(cleanText, "", searchParams, cld, fillArtifact = false)
+                      CustomPackageSearchApiHelper.waitAndAdd(searchFuture, cld, completeDependency(resultSet = resultSet))
                       return
                     }
                   })
@@ -286,16 +258,8 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
           case patDef: ScPatternDefinition if SBT_MODULE_ID_TYPE.contains(patDef.`type`().getOrAny.canonicalText) =>
             val lastLeaf = patDef.lastLeaf
             if (trimDummy(lastLeaf.getText) == cleanText) {
-              val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                cleanText,
-                "",
-                dependencySearch,
-                PackageSearchApiHelper.createSearchParameters(params),
-                cld,
-                false
-              )
-
-              waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
+              val searchFuture = CustomPackageSearchApiHelper.searchDependency(cleanText, "", searchParams, cld, fillArtifact = false)
+              CustomPackageSearchApiHelper.waitAndAdd(searchFuture, cld, completeDependency(resultSet = resultSet))
               return
             }
           /*
@@ -306,16 +270,8 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
               case patDef: ScPatternDefinition if SBT_MODULE_ID_TYPE.exists(patDef.`type`().getOrAny.canonicalText.contains) =>
                 argList.exprs.foreach(expr => {
                   if (trimDummy(expr.getText) == cleanText) {
-                    val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-                      cleanText,
-                      "",
-                      dependencySearch,
-                      PackageSearchApiHelper.createSearchParameters(params),
-                      cld,
-                      false
-                    )
-
-                    waitAndAdd(searchPromise, cld, completeDependency(resultSet = resultSet))
+                    val searchFuture = CustomPackageSearchApiHelper.searchDependency(cleanText, "", searchParams, cld, fillArtifact = false)
+                    CustomPackageSearchApiHelper.waitAndAdd(searchFuture, cld, completeDependency(resultSet = resultSet))
                     return
                   }
                 })

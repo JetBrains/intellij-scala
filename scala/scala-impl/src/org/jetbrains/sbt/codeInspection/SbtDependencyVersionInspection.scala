@@ -4,7 +4,6 @@ import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDes
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
-import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection}
 import org.jetbrains.plugins.scala.extensions.{&&, inReadAction}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
@@ -15,8 +14,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.language.completion.SBT_ORG_ARTIFACT
-import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtExtendedArtifactInfo, SbtDependencyUtils}
 
+import java.util.concurrent.ConcurrentLinkedDeque
 import scala.collection.mutable
 
 class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
@@ -52,14 +52,16 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
 
         if (groupId == null || groupId.isEmpty || artifactId == null || artifactId.isEmpty) return None
 
+        val cld = new ConcurrentLinkedDeque[SbtExtendedArtifactInfo]()
+
         def addVersion(groupId: String, artifactId: String): Unit = {
+          val searchFuture = CustomPackageSearchApiHelper.searchDependencyVersions(groupId, artifactId, CustomPackageSearchParams(useCache = true), cld)
           CustomPackageSearchApiHelper
-            .waitAndAddDependencyVersions(
-              groupId,
-              artifactId,
-              CustomPackageSearchParams(useCache = true),
-              (lib: MavenRepositoryArtifactInfo) => lib.getItems.foreach(item =>
-                versions.add(item.getVersion))
+            .waitAndAdd(
+              searchFuture,
+              cld,
+              (lib: SbtExtendedArtifactInfo) => lib.versions.foreach(item =>
+                versions.add(item))
             )
         }
 
