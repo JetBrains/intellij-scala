@@ -26,7 +26,7 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
   override def checkFile(file: PsiFile,
                          manager: InspectionManager,
                          isOnTheFly: Boolean): Array[ProblemDescriptor] = file match {
-    case scalaFile: ScalaFile if ScalaLanguageConsole.isScalaConsoleFile(scalaFile) &&
+    case scalaFile: ScalaFile if !ScalaLanguageConsole.isScalaConsoleFile(scalaFile) &&
       IntentionAvailabilityChecker.checkInspection(this, scalaFile) &&
       !InjectedLanguageManager.getInstance(scalaFile.getProject).isInjectedFragment(scalaFile) &&
       !scalaFile.isScriptFile &&
