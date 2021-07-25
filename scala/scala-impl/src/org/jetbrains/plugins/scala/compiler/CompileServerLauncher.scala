@@ -266,7 +266,8 @@ object CompileServerLauncher {
                 if (!project.isDisposed) {
                   CompileServerManager(project).checkErrorsFromProcessOutput()
 
-                  val isExpectedProcessTermination = watcher.isTerminatedByIdleTimeout || instance.stopped
+                  // TODO: more reliable "unexpected process termination" SCL-19367
+                  val isExpectedProcessTermination = true // watcher.isTerminatedByIdleTimeout || instance.stopped
                   if (!isExpectedProcessTermination) {
                     invokeLater {
                       CompileServerManager(project).showNotification(ScalaBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
