@@ -37,7 +37,7 @@ class ImportTextCreatorTest extends TestCase {
     assertEquals("import java.lang.{ Long ⇒ JLong }", getImportText(info, isUnicodeArrow = true, spacesInImports = true))
   }
 
-  def testGetImportText_Scala3(): Unit = {
+  def testGetImportText_source3(): Unit = {
     val info = ImportInfo("java.lang", renames = Map("Long" -> "JLong"))
     assertEquals("import java.lang.Long as JLong", getImportText(info, scala3Features = Scala3Features.`-Xsource:3 in 2.12.14 or 2.13.6`))
     assertEquals("import java.lang.Long as JLong", getImportText(info, scala3Features = Scala3Features.`-Xsource:3 in 2.12.15 or 2.13.7`))
@@ -59,7 +59,7 @@ class ImportTextCreatorTest extends TestCase {
       getImportText(info, spacesInImports = true))
   }
 
-  def testGetImportText_Renames_Hidden_Singles_Wildcard_Spaces_in_Scala3(): Unit = {
+  def testGetImportText_Renames_Hidden_Singles_Wildcard_Spaces_in_source3(): Unit = {
     val info = ImportInfo("java.lang",
       singleNames = Set("Integer", "Character", "Runtime"),
       renames = Map("Long" -> "JLong", "Float" -> "JFloat"),
@@ -68,6 +68,14 @@ class ImportTextCreatorTest extends TestCase {
     assertEquals("import java.lang.{ Character, Integer, Runtime, Float as JFloat, Long as JLong, System as _, _ }",
       getImportText(info, spacesInImports = true, scala3Features = Scala3Features.`-Xsource:3 in 2.12.14 or 2.13.6`))
     assertEquals("import java.lang.{ Character, Integer, Runtime, Float as JFloat, Long as JLong, System as _, * }",
+      getImportText(info, spacesInImports = true, scala3Features = Scala3Features.`-Xsource:3 in 2.12.15 or 2.13.7`))
+  }
+
+  def testWildcardOnly_in_source3(): Unit = {
+    val info = ImportInfo("java.lang", hasWildcard = true)
+    assertEquals("import java.lang.*",
+      getImportText(info, spacesInImports = true, scala3Features = Scala3Features.`-Xsource:3 in 2.12.14 or 2.13.6`))
+    assertEquals("import java.lang.*",
       getImportText(info, spacesInImports = true, scala3Features = Scala3Features.`-Xsource:3 in 2.12.15 or 2.13.7`))
   }
 

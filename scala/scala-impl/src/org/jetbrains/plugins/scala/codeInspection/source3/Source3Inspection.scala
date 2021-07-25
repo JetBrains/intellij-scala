@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.source3
 
 import com.intellij.codeInspection.ui.MultipleCheckboxOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
@@ -25,9 +24,7 @@ import scala.beans.BeanProperty
 class Source3Inspection extends AbstractRegisteredInspection {
   @BeanProperty final var convertWildcardUnderscore: Boolean = true
   @BeanProperty final var addGeneratorCase: Boolean = true
-  @BeanProperty final var convertWildcardImport: Boolean =
-    if (ApplicationManager.getApplication.isUnitTestMode) true
-    else false
+  @BeanProperty final var convertWildcardImport: Boolean = true
   @BeanProperty final var convertImportAlias: Boolean = true
   @BeanProperty final var convertVarArgSplices: Boolean = true
   @BeanProperty final var convertNamedWildcardPattern: Boolean = true
@@ -60,9 +57,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
               .asInstanceOf[ScFor].enumerators.head.generators.head
           }
         )
-      case ElementType(ScalaTokenTypes.tUNDER) if convertWildcardImport &&
-                                                  element.getParent.is[ScImportSelector, ScImportExpr] &&
-                                                  element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT) =>
+      case ElementType(ScalaTokenTypes.tUNDER) if convertWildcardImport && isUpgradableImportWildcard(element) =>
         super.problemDescriptor(
           element,
           createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.star")) { underscore =>
@@ -144,6 +139,21 @@ object Source3Inspection {
         case _ => None
       }
     }
+  }
+
+  private def isUpgradableImportWildcard(element: PsiElement): Boolean = {
+    // example: import test.{x => _}
+    def isNotShadowingAlias = element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT)
+
+    def isInRightElement = element.getParent match {
+      case _: ScImportExpr => true
+      case _: ScImportSelector =>
+        // bug with * in selectors, so don't use it here
+        element.scala3Features.`Scala 3 wildcard imports in selector`
+      case _ => false
+    }
+
+    isInRightElement && isNotShadowingAlias
   }
 
   private def createReplacingQuickFix[T <: PsiElement](element: T, @Nls name: String)(transform: T => PsiElement): Some[LocalQuickFix] =

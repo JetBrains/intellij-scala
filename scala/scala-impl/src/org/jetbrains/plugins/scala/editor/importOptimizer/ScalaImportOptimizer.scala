@@ -392,8 +392,15 @@ object ScalaImportOptimizer {
       val root = if (rootUsed) s"${_root_prefix}." else ""
       val hasAlias = renames.nonEmpty || hiddenNames.nonEmpty
       val postfix =
-        if (groupStrings.length > 1 || (hasAlias && !scala3Features.`Scala 3 renaming imports`)) groupStrings.mkString(s"{$space", ", ", s"$space}")
-        else groupStrings.head
+        if (groupStrings.length > 1 || (hasAlias && !scala3Features.`Scala 3 renaming imports`)) {
+          // this is needed to fix the wildcard-import bug in 2.13.6 with -Xsource:3
+          def fixWildcardInSelector(s: String): String =
+            if (s == wildcard && !scala3Features.`Scala 3 wildcard imports in selector`) "_"
+            else s
+          groupStrings
+            .map(fixWildcardInSelector)
+            .mkString(s"{$space", ", ", s"$space}")
+        } else groupStrings.head
       val prefix = s"$root${relative.getOrElse(prefixQualifier)}"
       val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
       ImportTextData(prefix, dotOrNot, postfix)

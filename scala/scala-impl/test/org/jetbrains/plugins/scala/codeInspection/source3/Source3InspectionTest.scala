@@ -14,8 +14,6 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
 
   override protected val description = "Scala 2 syntax with -Xsource:3"
 
-  //override protected def descriptionMatches(s: String): Boolean = s != null
-
   def test_wildcard_replacement(): Unit = {
     val selectedText = s"val x: ${START}_$END <: Any = 1"
     checkTextHasError(selectedText)
@@ -61,21 +59,19 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
 
 
   def test_wildcard_import(): Unit = {
-    assert(version <= ScalaVersion.Latest.Scala_2_13.withMinor(6),
-      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports. Also adjust supportedIn to 2.13.7")
-    //val selectedText = s"import base.${START}_$END"
-    //checkTextHasError(selectedText)
+    val selectedText = s"import base.${START}_$END"
+    checkTextHasError(selectedText)
 
-    //testQuickFix(
-    //  "import base._",
-    //  "import base.*",
-    //  "Replace with *"
-    //)
+    testQuickFix(
+      "import base._",
+      "import base.*",
+      "Replace with *"
+    )
   }
 
   def test_wildcard_import_in_selector(): Unit = {
     assert(version <= ScalaVersion.Latest.Scala_2_13.withMinor(6),
-      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports. Also adjust supportedIn to 2.13.7")
+      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports in selectors. Also adjust supportedIn to 2.13.7")
     //val selectedText = s"import base.{nope, ${START}_$END}"
     //checkTextHasError(selectedText)
 

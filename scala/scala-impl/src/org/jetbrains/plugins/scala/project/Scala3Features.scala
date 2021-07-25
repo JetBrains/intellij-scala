@@ -24,7 +24,8 @@ final class Scala3Features(version: ScalaVersion,
   def `& instead of with`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `Scala 3 vararg splice syntax`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   // wildcards import are bugged in 2.12.14 and 2.13.6
-  def `Scala 3 wildcard imports`: Boolean = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`
+  def `Scala 3 wildcard imports`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+  def `Scala 3 wildcard imports in selector`: Boolean = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`
   def `Scala 3 renaming imports`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `soft keywords open and infix`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `leading infix operator`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
