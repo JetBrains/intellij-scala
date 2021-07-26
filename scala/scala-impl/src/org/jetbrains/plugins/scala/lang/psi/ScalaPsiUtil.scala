@@ -29,7 +29,7 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods._
-import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScGivenPattern, ScPatternArgumentList}
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScBindingPattern, ScCaseClause, ScGivenPattern, ScPattern, ScPatternArgumentList}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -233,19 +233,18 @@ object ScalaPsiUtil {
 
   @tailrec
   def isLocalOrPrivate(elem: PsiElement): Boolean = {
-    elem.getContext match {
-      case _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions => false
-      case _: ScTemplateBody =>
-        elem match {
-          case mem: ScMember =>
-            if (mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis)) true
-            else {
-              val containingCls = mem.containingClass
-              (containingCls eq null) || isLocalOrPrivate(containingCls)
-            }
-          case _ => false
-        }
-      case _ => true
+    (elem, elem.getContext) match {
+      case (mem: ScMember, _) if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
+        true
+      case (_, _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions) =>
+        false
+      case (_: ScMember, body: ScExtensionBody) =>
+        isLocalOrPrivate(body.getParent)
+      case (mem: ScMember, _) =>
+        val cls = mem.containingClass
+        (cls == null) || isLocalOrPrivate(cls)
+      case _ =>
+        true
     }
   }
 
