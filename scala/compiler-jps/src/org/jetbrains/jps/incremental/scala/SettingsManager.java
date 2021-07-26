@@ -42,11 +42,17 @@ public class SettingsManager {
             .recursivelyExportedOnly()
             .getLibraries();
 
+    JpsLibrary scalaSdk = null;
     for (JpsLibrary library : libraries) {
       if (library.getType() == ScalaLibraryType.getInstance()) {
-        return Option.apply(library);
+        // TODO: workaround for SCL-17196, SCL-18166, SCL-18867
+        //  see also the same workaround in org.jetbrains.plugins.scala.project.ScalaModuleSettings.apply
+        if (library.getName().contains("scala3"))
+          return Option.apply(library);
+        else
+          scalaSdk = library;
       }
     }
-    return Option.empty();
+    return Option.apply(scalaSdk);
   }
 }

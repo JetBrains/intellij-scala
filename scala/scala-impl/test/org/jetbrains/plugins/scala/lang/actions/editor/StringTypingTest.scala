@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions.editor
 
+/** TODO: unify with [[org.jetbrains.plugins.scala.codeInsight.editorActions.ScalaQuoteHandlerTest]] */
 class StringTypingTest extends EditorTypeActionTestBase {
 
   override protected def typedChar: Char = '"'
@@ -61,4 +62,31 @@ class StringTypingTest extends EditorTypeActionTestBase {
     s"""s$qqq some content $qq$CARET$q""",
     s"""s$qqq some content $qqq$CARET"""
   )
+
+  def testTypeQuiteInComment(): Unit = {
+    // in the beginning of the file
+    doRepetitiveTypingTest(
+      s"""//$CARET""",
+      s"""//$q$CARET""",
+      s"""//$qq$CARET""",
+      s"""//$qqq$CARET""",
+    )
+
+    // with spaces before comment
+    doRepetitiveTypingTest(
+      s"""   //$CARET""",
+      s"""   //$q$CARET""",
+      s"""   //$qq$CARET""",
+      s"""   //$qqq$CARET""",
+    )
+
+    doRepetitiveTypingTest(
+      s"""class A {
+         |  //$CARET
+         |}""".stripMargin,
+    s"""class A {
+         |  //$q$CARET
+         |}""".stripMargin
+    )
+  }
 }

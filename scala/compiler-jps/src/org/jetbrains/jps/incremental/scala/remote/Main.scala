@@ -74,6 +74,7 @@ object Main {
     resetShutdownTimer(context)
   }
 
+  // TODO: more reliable "unexpected process termination"  SCL-19367
   //noinspection ScalaUnusedSymbol
   def nailShutdown(server: NGServer): Unit = {
     import CompileServerSharedMessages._

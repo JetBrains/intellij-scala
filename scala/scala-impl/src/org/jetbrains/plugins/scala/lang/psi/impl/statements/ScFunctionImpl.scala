@@ -147,8 +147,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       parent match {
         case _: ScExtendsBlock =>
           return if (isAbstractMember) PlatformIcons.ABSTRACT_METHOD_ICON else PlatformIcons.METHOD_ICON
-        case _: ScBlock | _: ScalaFile => return Icons.FUNCTION
-        case _ => parent = parent.getParent
+        case _: ScBlock | _: ScalaFile | _: ScExtension  =>
+          return Icons.FUNCTION
+        case _ =>
+          parent = parent.getParent
       }
     }
     null

@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresen
 import javax.swing.Icon
 
 abstract class ValOrVar(element: ScNamedElement, inherited: Boolean)
-  extends AbstractTreeElement(element, inherited) {
+  extends AbstractTreeElementDelegatingChildrenToPsi(element, inherited) {
 
   override def location: Option[String] = value.map(_.containingClass).map(_.name)
 

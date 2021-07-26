@@ -16,6 +16,7 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
     super.check(code, nodes: _*)
 
   private val EnumCaseIcon = CLASS
+  private val BlockIcon = PlatformIcons.CLASS_INITIALIZER
 
   private val TopLevelDefinitionsText =
     """class MyClass()
@@ -129,4 +130,110 @@ class Scala3StructureViewTest extends ScalaStructureViewCommonTests {
       )
     )
   }
+
+  def testExtensions_SingleMethod(): Unit = {
+    check(
+      """extension (x: String) def f1: String = ???
+        |
+        |extension (x: String)
+        |  def f1: String = ???
+        |""".stripMargin,
+      Node(EXTENSION, "extension (String)", Node(FUNCTION, "f1: String")),
+      Node(EXTENSION, "extension (String)", Node(FUNCTION, "f1: String")),
+    )
+  }
+
+  def testExtensions_Collective(): Unit = {
+    check(
+      """extension (x: String)
+        |  def f1: String = ???
+        |  def f2: String = ???
+        |
+        |extension (x: String)
+        |  def f1: String = ???
+        |  def f2: String = ???
+        |end extension
+        |
+        |extension (x: String) {
+        |  def f1: String = ???
+        |  def f2: String = ???
+        |}
+        |""".stripMargin,
+      Node(EXTENSION, "extension (String)", Node(FUNCTION, "f1: String"), Node(FUNCTION, "f2: String")),
+      Node(EXTENSION, "extension (String)", Node(FUNCTION, "f1: String"), Node(FUNCTION, "f2: String")),
+      Node(EXTENSION, "extension (String)", Node(FUNCTION, "f1: String"), Node(FUNCTION, "f2: String")),
+    )
+  }
+
+  def testExtensions_WithParameters_WithContextParameters_WithTypeParameters(): Unit = {
+    check(
+      """extension (using context1: Int)(x: String)(using context2: Int) {
+        |  def f1: String = ???
+        |}
+        |
+        |extension [T1, T2 <: AnyRef](x: String) {
+        |  def f2[T3](p: T3) = ???
+        |}
+        |""".stripMargin,
+      Node(EXTENSION, "extension (?=> Int)(String)(?=> Int)", Node(FUNCTION, "f1: String")),
+      Node(EXTENSION, "extension [T1, T2 <: AnyRef](String)", Node(FUNCTION, "f2[T3](T3)"))
+    )
+  }
+
+  def testExtension_InAllScopes(): Unit = {
+    check(
+      """object Wrapper {
+        |  extension (s: String) def f1: String = s + "_1"
+        |
+        |  def foo1(): Unit = {
+        |    extension (s: String) def f2: String = s + "_2"
+        |
+        |    {
+        |      def foo = 1
+        |      extension (s: String) def f3: String = s + "_3"
+        |      println("test".f3)
+        |    }
+        |
+        |    println("test".f1)
+        |    println("test".f2)
+        |  }
+        |}
+        |""".stripMargin,
+      Node(OBJECT, "Wrapper",
+        Node(EXTENSION, "extension (String)", Node(FUNCTION, "f1: String")),
+        Node(PlatformIcons.METHOD_ICON, "foo1(): Unit",
+          Node(EXTENSION, "extension (String)", Node(FUNCTION, "f2: String")),
+          new Node(BlockIcon, "", // using `new` to avoid "public" modifier icon
+            Node(FUNCTION, "foo"),
+            Node(EXTENSION, "extension (String)", Node(FUNCTION, "f3: String")),
+          ),
+        ),
+      ),
+    )
+  }
+
+  // FIXME: org.jetbrains.plugins.scala.lang.structureView.ScalaInheritedMembersNodeProvider.nodesOf
+  //  currently all inherited extension methods are shown as plain methods
+//  def testExtension_Inherited(): Unit = {
+//    check(
+//      """class Parent {
+//        |  extension (s: String)
+//        |    def ext1: String = s + "_1"
+//        |}
+//        |
+//        |object Child extends Parent {
+//        |
+//        |  extension (s: String)
+//        |    def ext2: String = s + "_4"
+//        |}
+//        |""".stripMargin,
+//      """[fileScala] foo.scala
+//        |[classScala, c_public] Parent
+//        |  [function, c_public] extension (String)
+//        |    [method, c_public] ext1: String
+//        |[objectScala, c_public] Child
+//        |  [function, c_public] extension (String)
+//        |    [method, c_public] ext2: String""".stripMargin
+//    )
+//  }
 }

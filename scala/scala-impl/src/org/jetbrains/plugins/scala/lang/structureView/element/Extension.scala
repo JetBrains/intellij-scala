@@ -2,18 +2,18 @@ package org.jetbrains.plugins.scala.lang.structureView.element
 
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
-
-import javax.swing.Icon
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameterClause
+import org.jetbrains.plugins.scala.lang.structureView.element.Extension.clauseText
 
 // TODO: improve in SCL-19224
-//  - show visibility icon
-final class Extension(extension: ScExtension) extends AbstractTreeElement(extension) {
+// - inherited extensions
+final class Extension(extension: ScExtension) extends AbstractTreeElementDelegatingChildrenToPsi(extension) {
 
   override def getPresentableText: String = {
-    val parameterTypeText = extension.targetTypeElement.fold("")(_.getText)
-    s"extension ($parameterTypeText)"
+    val typeParameters = extension.typeParametersClause.fold("")(_.getTextByStub)
+    val parametersText = extension.allClauses.map(clauseText).mkString
+    s"extension $typeParameters$parametersText"
   }
 
   override protected def location: Option[String] = None // TODO: extension can be inherited
@@ -25,4 +25,13 @@ final class Extension(extension: ScExtension) extends AbstractTreeElement(extens
   override def isAlwaysLeaf: Boolean = false
 
   override def isAlwaysShowsPlus: Boolean = super.isAlwaysShowsPlus
+}
+
+object Extension {
+
+  private def clauseText(paramsClause: ScParameterClause): String = {
+    val prefix = if (paramsClause.isUsing) "?=> " else ""
+    val parametersTexts  = paramsClause.parameters.map(p => s"${p.typeElement.fold("")(_.getText)}")
+    "(" + prefix + parametersTexts.mkString(", ") + ")"
+  }
 }
