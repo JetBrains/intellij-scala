@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.runner
 
 import com.intellij.execution.application.ApplicationConfiguration
-import com.intellij.execution.configurations.{JavaParameters, ParametersList, RunConfigurationBase, RunnerSettings}
-import com.intellij.execution.{ExecutionException, RunConfigurationExtension}
+import com.intellij.execution.configurations.{JavaParameters, ParametersList, RunConfigurationBase, RunnerSettings, RuntimeConfigurationException}
+import com.intellij.execution.impl.{EditConfigurationsDialog, RunDialog}
+import com.intellij.execution.{CantRunException, ExecutionBundle, ExecutionException, RunConfigurationExtension, RunnerAndConfigurationSettings}
+import com.intellij.openapi.options.ex.SingleConfigurableEditor
 import com.intellij.openapi.project.Project
 import com.intellij.util.concurrency.annotations.RequiresEdt
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeLater}
 import org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClass.MainMethodParameters
 import org.jetbrains.plugins.scala.runner.view.ScalaProvideMainMethodParametersDialog
 
@@ -32,7 +34,7 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
   override def validateConfiguration(
     configurationBase: RunConfigurationBase[_],
     isExecution: Boolean
-  ): Unit = {}
+  ): Unit = ()
 
   @throws[ExecutionException]
   override def updateJavaParameters[T <: RunConfigurationBase[_]](
@@ -63,19 +65,21 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
 
     val programParametersList = javaParameters.getProgramParametersList
     val command = validateAllCustomParameterValuesAreProvided(
-      configuration.getProject,
+      configuration,
       programParametersList.getParameters.asScala.toSeq,
       expectedParams
     )
     command match {
-      case DoNothing =>
-      case CancelExecution =>
-        throw new ExecutionException(ScalaBundle.message("execution.cancelled"))
-      case UpdateParameters(newParameters) =>
-        programParametersList.clearAll()
-        programParametersList.addAll(newParameters: _*)
-
-        configuration.setProgramParameters(programParametersList.getParametersString)
+      case DoNothing          =>
+      case NoProgramArguments =>
+        throw new CantRunException(ScalaBundle.message("no.program.arguments"))
+//      case CancelExecution =>
+//        throw new ExecutionException(ScalaBundle.message("execution.cancelled"))
+//      case UpdateParameters(newParameters) =>
+//        programParametersList.clearAll()
+//        programParametersList.addAll(newParameters: _*)
+//
+//        configuration.setProgramParameters(programParametersList.getParametersString)
     }
   }
 
@@ -85,11 +89,10 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
    *
    * If provided arguments are not enough, it shows a dialog which allows user filling missing values for the parameters.
    */
-  @RequiresEdt
   private def validateAllCustomParameterValuesAreProvided(
-    project: Project,
+    configuration: ApplicationConfiguration,
     actualParameters: Seq[String],
-    expectedParameters: Seq[MainMethodParameters.CustomParameter]
+    expectedParameters: Seq[MainMethodParameters.CustomParameter],
   ): ValidationResultCommand = {
     val expectedCount = expectedParameters.size
     val actualCount = actualParameters.size
@@ -100,16 +103,30 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
       else actualCount < expectedCount
 
     if (tooFewArguments) {
-      val dialog = new ScalaProvideMainMethodParametersDialog(project, expectedParameters, actualParameters)
-      val ok = dialog.showAndGet()
-      if (ok) {
-        val argumentsFromForm = dialog.filledParametersValues
-        val argumentsFinal = fixVarargParameter(argumentsFromForm, hasVarargs)
-        UpdateParameters(argumentsFinal)
+      invokeLater {
+        showParametersDialogAndGet(configuration.getProject, actualParameters, expectedParameters).foreach { filledParameters0 =>
+          val filledParameters = fixVarargParameter(filledParameters0, hasVarargs)
+          val paramList = new ParametersList()
+          paramList.addAll(filledParameters: _*)
+          configuration.setProgramParameters(paramList.getParametersString)
+        }
       }
-      else CancelExecution
+
+      NoProgramArguments
     }
     else DoNothing
+  }
+
+  @RequiresEdt
+  private def showParametersDialogAndGet(
+    project: Project,
+    actualParameters: Seq[String],
+    expectedParameters: Seq[MainMethodParameters.CustomParameter]
+  ): Option[Seq[String]] = {
+    val dialog = new ScalaProvideMainMethodParametersDialog(project, expectedParameters, actualParameters)
+    val ok = dialog.showAndGet()
+    if (ok) Some(dialog.filledParametersValues)
+    else None
   }
 
   /**
@@ -135,7 +152,8 @@ final class ScalaApplicationConfigurationExtension extends RunConfigurationExten
   private sealed trait ValidationResultCommand
   private object ValidateCommand {
     object DoNothing extends ValidationResultCommand
-    object CancelExecution extends ValidationResultCommand
-    case class UpdateParameters(parameters: Seq[String]) extends ValidationResultCommand
+    object NoProgramArguments extends ValidationResultCommand
+    //object CancelExecution extends ValidationResultCommand
+    //case class UpdateParameters(parameters: Seq[String]) extends ValidationResultCommand
   }
 }

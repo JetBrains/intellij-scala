@@ -17,10 +17,6 @@ abstract class AbstractTreeElement[T <: PsiElement](
 
   override def getValue: AnyRef = if (element.isValid) element else null
 
-  override def getChildren: Array[TreeElement] = children.flatMap(Element.forPsi(_)).toArray
-
-  protected def children: Seq[PsiElement] = Seq.empty
-
   override def isAlwaysLeaf: Boolean = true
 
   override def isAlwaysShowsPlus: Boolean = false
@@ -41,5 +37,15 @@ abstract class AbstractTreeElement[T <: PsiElement](
   }
 
   override def hashCode(): Int = getValue #+ inherited
+}
+
+abstract class AbstractTreeElementDelegatingChildrenToPsi[T <: PsiElement](
+  override val element: T,
+  override val inherited: Boolean = false
+) extends AbstractTreeElement(element, inherited) {
+
+  override final def getChildren: Array[TreeElement] = children.flatMap(Element.forPsi(_)).toArray
+
+  protected def children: Seq[PsiElement] = Seq.empty
 }
 

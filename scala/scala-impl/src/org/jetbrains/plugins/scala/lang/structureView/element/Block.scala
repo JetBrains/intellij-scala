@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.structureView.element.Block.childrenOf
 
-private class Block(block: ScBlock) extends AbstractTreeElement(block) {
+private class Block(block: ScBlock) extends AbstractTreeElementDelegatingChildrenToPsi(block) {
   override def getIcon(open: Boolean): Icon = PlatformIcons.CLASS_INITIALIZER
 
   override def getPresentableText: String = ""
@@ -21,6 +21,6 @@ private class Block(block: ScBlock) extends AbstractTreeElement(block) {
 
 private object Block {
   def childrenOf(block: ScBlock): Seq[PsiElement] = block.getChildren.collect {
-    case element @ (_: ScFunction | _: ScTypeDefinition | _: ScBlockExpr) => element
+    case element @ (_: ScFunction | _: ScTypeDefinition | _: ScBlockExpr | _: ScExtension) => element
   }.toSeq
 }

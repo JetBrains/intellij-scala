@@ -21,7 +21,7 @@ private[projectView] sealed abstract class FileNode(protected val file: ScalaFil
 
   override def getChildrenImpl: ju.Collection[Node] =
     if (settings.isShowMembers)
-      file.typeDefinitions.map(new TypeDefinitionNode(_): Node).asJava
+      file.members.flatMap(buildMemberNodes(_)).asJava
     else
       emptyNodesList
 

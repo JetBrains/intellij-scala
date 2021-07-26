@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.structureView.element.AbstractItemPresen
 * Date: 04.05.2008
 */
 private class Function(function: ScFunction, inherited: Boolean)
-  extends AbstractTreeElement(function, inherited) {
+  extends AbstractTreeElementDelegatingChildrenToPsi(function, inherited) {
 
   override def location: Option[String] = Option(function.containingClass).map(_.name)
 

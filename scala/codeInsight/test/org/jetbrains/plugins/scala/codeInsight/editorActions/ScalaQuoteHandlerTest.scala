@@ -4,8 +4,9 @@ package editorActions
 
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
 import com.intellij.testFramework.EditorTestUtil.{CARET_TAG => Caret}
+import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-class ScalaQuoteHandlerTest extends base.ScalaLightCodeInsightFixtureTestAdapter {
+class ScalaQuoteHandlerTest extends EditorActionTestBase {
 
   import ScalaQuoteHandlerTest._
 
@@ -126,16 +127,16 @@ class ScalaQuoteHandlerTest extends base.ScalaLightCodeInsightFixtureTestAdapter
     CharCharacter
   )
 
-  //  def testCharEnd(): Unit = doTest(
-  //    s"""class Foo {
-  //       |  val foo = '$Caret
-  //       |}""".stripMargin
-  //  )(
-  //    s"""class Foo {
-  //       |  val foo = ''$CARET
-  //       |}""".stripMargin,
-  //    CharCharacter
-  //  )
+    def testCharEnd(): Unit = doTest(
+      s"""class Foo {
+         |  val foo = '$Caret
+         |}""".stripMargin
+    )(
+      s"""class Foo {
+         |  val foo = ''$CARET
+         |}""".stripMargin,
+      CharCharacter
+    )
 
   private def doTest(fileText: String,
                      fileName: String = "Foo.scala")
