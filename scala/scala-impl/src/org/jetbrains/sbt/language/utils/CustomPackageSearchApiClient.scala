@@ -1,14 +1,14 @@
 package org.jetbrains.sbt.language.utils
 
 import com.google.common.cache.{Cache, CacheBuilder}
+import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ex.ApplicationInfoEx
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.concurrency.AppExecutorUtil
 import com.intellij.util.io.HttpRequests
-import com.jetbrains.packagesearch.intellij.plugin.PluginEnvironment
-import com.jetbrains.packagesearch.intellij.plugin.api.http.EmptyBodyException
 import spray.json._
 
 import java.net.{HttpURLConnection, URLEncoder}
@@ -44,11 +44,11 @@ object CustomPackageSearchApiClient {
     }
   }
 
-  private val pluginEnvironment = new PluginEnvironment()
 
   private val headers = List(
-    ("JB-Plugin-Version", pluginEnvironment.getPluginVersion),
-    ("JB-IDE-Version", pluginEnvironment.getIdeVersion))
+    ("Scala-Plugin-Version", PluginManagerCore.getPlugins.find(_.getName == "Scala").map(_.getVersion).getOrElse("-")),
+    ("IDEA-Build-Number", ApplicationInfoEx.getInstanceEx.getBuild.asString)
+  )
 
 
   def handleRequest(url: String, acceptContentType: String, timeoutInSeconds: Int = 10): String = try {
@@ -70,8 +70,10 @@ object CustomPackageSearchApiClient {
       val responseText = request.readString()
       if (statusCode == HttpURLConnection.HTTP_OK && responseText.nonEmpty)
         return responseText
+      else if (statusCode != HttpURLConnection.HTTP_OK)
+        throw new RuntimeException(s"http status code $statusCode")
       else
-        throw new EmptyBodyException
+        throw new RuntimeException(s"Empty body response text")
     })
   } catch {
     case _: Exception =>
