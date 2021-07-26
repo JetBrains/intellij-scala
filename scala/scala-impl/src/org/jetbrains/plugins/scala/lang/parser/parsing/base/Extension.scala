@@ -191,9 +191,13 @@ object ExtMethod extends ParsingRule {
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
     val iw = builder.currentIndentationWidth
-    if (FunDef() || FunDcl()) {
+    if (FunDef()) {
       End(iw)
       defMarker.done(ScalaElementType.FUNCTION_DEFINITION)
+      true
+    } else if (FunDcl()) {
+      End(iw)
+      defMarker.done(ScalaElementType.FUNCTION_DECLARATION)
       true
     } else {
       defMarker.rollbackTo()

@@ -52,11 +52,6 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
 
   override def hasModifierProperty(name: String): Boolean = false
 
-  def effectiveParameterClauses: Seq[ScParameterClause] =
-    allClauses ++ clauses.flatMap(
-      ScalaPsiUtil.syntheticParamClause(this, _, isClassParameter = false)()
-    )
-
   override def processDeclarations(
     processor:  PsiScopeProcessor,
     state:      ResolveState,

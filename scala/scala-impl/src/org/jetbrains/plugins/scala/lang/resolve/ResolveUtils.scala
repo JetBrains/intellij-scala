@@ -484,7 +484,7 @@ object ResolveUtils {
   }
 
   object ExtensionMethod {
-    def unapply(fdef: ScFunctionDefinition): Boolean = fdef.isExtensionMethod
+    def unapply(fdef: ScFunction): Boolean = fdef.isExtensionMethod
   }
 
   def isExtensionMethod(e: PsiElement): Boolean = e match {

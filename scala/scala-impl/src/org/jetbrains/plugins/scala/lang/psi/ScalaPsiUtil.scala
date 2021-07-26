@@ -1251,6 +1251,9 @@ object ScalaPsiUtil {
     val element = nameContext(signature.namedElement)
     isConcreteElement(element)
   }
+  
+  def isExtensionMethodSignature(signature: Signature): Boolean = 
+    signature.isExtensionMethod
 
   @annotation.tailrec
   private def simpleBoundName(bound: ScTypeElement): Option[String] = bound match {

@@ -15,6 +15,7 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
@@ -39,7 +40,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.light.ScFunctionWrapper
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
-import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameterType, Unit}
+import org.jetbrains.plugins.scala.lang.psi.types.api.{FunctionType, ParameterizedType, TypeParameter, TypeParameterType, Unit}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
@@ -179,8 +180,12 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
   override def definedReturnType: TypeResult = {
     def renameTypeParams(superM: PsiMethod): ScSubstitutor = {
       import org.jetbrains.plugins.scala.lang.psi.types.api.PsiTypeParametersExt
-      val superTypeParams = superM.getTypeParameters.instantiate
-      ScSubstitutor.bind(superTypeParams, typeParameters)(TypeParameterType(_))
+      val superTypeParams = superM match {
+        case fn: ScFunction => fn.typeParametersWithExtension.map(TypeParameter(_))
+        case _              => superM.getTypeParameters.instantiate
+      }
+
+      ScSubstitutor.bind(superTypeParams, this.typeParametersWithExtension)(TypeParameterType(_))
     }
 
     returnTypeElement match {
@@ -233,7 +238,7 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       }
     } else Option(this)
 
-      paramClauses.clauses ++
+    paramClauses.clauses ++
       maybeOwner.flatMap {
         ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
       }
