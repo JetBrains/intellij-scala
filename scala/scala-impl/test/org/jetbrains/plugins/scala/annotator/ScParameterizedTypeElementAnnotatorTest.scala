@@ -1,19 +1,28 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.Language
+import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.annotator.ScParameterizedTypeElementAnnotatorTestBase.messagesForParameterizedTypeElements
 import org.jetbrains.plugins.scala.annotator.element.ScParameterizedTypeElementAnnotator
-import org.jetbrains.plugins.scala.base.SimpleTestCase
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SimpleTestCase}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
+import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+
 
 trait ScParameterizedTypeElementAnnotatorTestBase extends SimpleTestCase {
   protected val language: Language
 
   def messages(code: String): List[Message] = {
     val file: ScalaFile = parseText(code, language)
+    messagesForParameterizedTypeElements(file)
+  }
+}
 
+object ScParameterizedTypeElementAnnotatorTestBase {
+  def messagesForParameterizedTypeElements(file: PsiFile): List[Message] = {
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
     file.depthFirst().filterByType[ScParameterizedTypeElement].foreach { pte =>
@@ -353,4 +362,23 @@ class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTyp
       |foo[TL4, String](???)
       |""".stripMargin
   ))
+}
+
+class ScParameterizedTypeElementAnnotatorTest_with_java extends ScalaLightCodeInsightFixtureTestAdapter with MatcherAssertions {
+
+  def messages(code: String) = {
+    val file = getFixture.addFileToProject("Test.scala", code)
+    messagesForParameterizedTypeElements(file)
+  }
+
+  // SCL-19362
+  def testGenericBoundedByObjectInJava(): Unit = {
+    getFixture.addFileToProject("Base.java", "class Base<A extends Object> {}")
+
+    assertNothing(messages(
+      """
+        |class Test[T] extends Base[T]
+        |""".stripMargin
+    ))
+  }
 }
