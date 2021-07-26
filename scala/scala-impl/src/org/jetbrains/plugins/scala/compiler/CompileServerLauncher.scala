@@ -201,9 +201,9 @@ object CompileServerLauncher {
         deleteOldTokenFile(buildSystemDir, freePort)
         val id = settings.COMPILE_SERVER_ID
 
-        val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY
+        val shutdownDelay = settings.COMPILE_SERVER_SHUTDOWN_DELAY * 60
         val shutdownDelayArg = if (settings.COMPILE_SERVER_SHUTDOWN_IDLE && shutdownDelay >= 0) {
-          Seq(s"-Dshutdown.delay=$shutdownDelay")
+          Seq(s"-Dshutdown.delay.seconds=$shutdownDelay")
         } else Nil
         val isScalaCompileServer = s"-D${CompileServerProperties.IsScalaCompileServer}=true"
         val parallelCompilation = s"-D${GlobalOptions.COMPILE_PARALLEL_OPTION}=${settings.COMPILE_SERVER_PARALLEL_COMPILATION}"
@@ -266,11 +266,13 @@ object CompileServerLauncher {
                 if (!project.isDisposed) {
                   CompileServerManager(project).checkErrorsFromProcessOutput()
 
-                  // TODO: more reliable "unexpected process termination" SCL-19367
-                  val isExpectedProcessTermination = true // watcher.isTerminatedByIdleTimeout || instance.stopped
+                  val isExpectedProcessTermination = watcher.isTerminatedByIdleTimeout || instance.stopped
                   if (!isExpectedProcessTermination) {
                     invokeLater {
-                      CompileServerManager(project).showNotification(ScalaBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
+                      // TODO: remove `isInternal` check in 2021.3
+                      if (ApplicationManager.getApplication.isInternal) {
+                        CompileServerManager(project).showNotification(ScalaBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
+                      }
                       LOG.warn(s"Compile server terminated unexpectedly: ${instance.summary}")
                     }
                   }
