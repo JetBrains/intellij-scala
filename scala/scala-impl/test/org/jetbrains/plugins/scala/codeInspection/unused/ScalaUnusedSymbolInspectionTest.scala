@@ -574,7 +574,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     s"""
        |import scala.annotation.unused
        |
-       |private object Test {
+       |object Test {
        |  @unused
        |  private def test(): Unit = ()
        |  @unused
@@ -591,7 +591,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     s"""
        |import scala.annotation.nowarn
        |
-       |private object Test {
+       |object Test {
        |  @nowarn("unused")
        |  private def test(): Unit = ()
        |  @nowarn("unused")
