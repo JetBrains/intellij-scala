@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAccessModifier, ScModifierList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameter}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScPatternDefinition, ScTypeAlias, ScValueDeclaration}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaration, ScExtensionBody, ScPatternDefinition, ScTypeAlias, ScValueDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScModifierListOwner, ScPackaging}
@@ -214,7 +214,7 @@ private[annotator] object ModifierChecker {
                       owner,
                       Override
                     )
-                  case member: ScMember if member.getParent.is[ScTemplateBody, ScEarlyDefinitions] =>
+                  case member: ScMember if member.getParent.is[ScTemplateBody, ScEarlyDefinitions, ScExtensionBody] =>
                     checkDuplicates(modifierPsi, Override)
                   case _: ScClassParameter => checkDuplicates(modifierPsi, Override)
                   case _ =>
