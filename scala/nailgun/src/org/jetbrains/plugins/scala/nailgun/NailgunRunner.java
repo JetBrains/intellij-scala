@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.nailgun;
 
 import com.martiansoftware.nailgun.Alias;
+import com.martiansoftware.nailgun.NGConstants;
 import com.martiansoftware.nailgun.NGServer;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,7 +30,7 @@ import static java.util.Arrays.asList;
 @SuppressWarnings("JavadocReference")
 public class NailgunRunner {
 
-  /** NOTE: set of commands should be equal to commands from {@link org.jetbrains.jps.incremental.scala.remote.CommandIds} */
+  /** NOTE: set of commands should be equal to the commands from {@link org.jetbrains.jps.incremental.scala.remote.CommandIds} */
   private static final String[] COMMANDS = {
           "compile",
           "compile-jps",
@@ -44,6 +43,9 @@ public class NailgunRunner {
   private static final String STOP_ALIAS_START = "stop_";
   private static final String STOP_CLASS_NAME = "com.martiansoftware.nailgun.builtins.NGStop";
 
+  /**
+   * An alternative to default nailgun main {@link com.martiansoftware.nailgun.NGServer#main(java.lang.String[])}
+   */
   public static void main(String[] args) throws Exception {
     if (args.length != 4)
       throw new IllegalArgumentException("Usage: NailgunRunner [port] [id] [classpath] [system-dir-path]");
@@ -133,15 +135,22 @@ public class NailgunRunner {
 
   private static NGServer createServer(InetAddress address, int port, String id, Path buildSystemDir, URLClassLoader classLoader)
           throws Exception {
-    NGServer server = new NGServer(address, port);
+
+    NGServer server = new NGServer(
+            address,
+            port,
+            // explicitly pass default argument values to remind their existence
+            NGServer.DEFAULT_SESSIONPOOLSIZE,
+            NGConstants.HEARTBEAT_TIMEOUT_MILLIS
+    );
 
     server.setAllowNailsByClassName(false);
 
-    Class<?> mainNailClass = Utils.loadAndSetupMainClass(classLoader, buildSystemDir);
+    Class<?> mainNailClass = Utils.loadAndSetupServerMainNailClass(classLoader, buildSystemDir);
+    Utils.setupServerShutdownTimer(mainNailClass, server);
     for (String command : COMMANDS) {
       server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, mainNailClass));
     }
-    initShutdownTimer(mainNailClass, server);
 
     // TODO: token should be checked
     Class<?> stopClass = classLoader.loadClass(STOP_CLASS_NAME);
@@ -151,14 +160,8 @@ public class NailgunRunner {
     return server;
   }
 
-  // we need the server to shut down on timer even if no compilation was done (nailMain is not invoked)
-  private static void initShutdownTimer(Class<?> mainNailClass, NGServer server) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Method method = mainNailClass.getMethod("initShutdownTimer", NGServer.class);
-    method.invoke(null, server);
-  }
-
   private static class ShutdownHook extends Thread {
-    static final int TIMEOUT = 30;
+    private static final int WAIT_FOR_SERVER_TERMINATION_TIMEOUT_MS = 3000;
 
     private final NGServer myServer;
     private final Path buildSystemDir;
@@ -173,15 +176,27 @@ public class NailgunRunner {
 
       myServer.shutdown(false);
 
-      for (int i = 0; i < TIMEOUT; i++) {
-        if (!myServer.isRunning()) break;
+      long waitStart = System.currentTimeMillis();
+      while (System.currentTimeMillis() - waitStart < WAIT_FOR_SERVER_TERMINATION_TIMEOUT_MS) {
+        if (!myServer.isRunning())
+          break;
 
         try {
+          //noinspection BusyWait
           Thread.sleep(100);
         } catch (InterruptedException e) {
           // do nothing
         }
       }
+
+      // copied from com.martiansoftware.nailgun.NGServer.NGServerShutdowner
+      if (myServer.isRunning()) {
+        System.err.println("Unable to cleanly shutdown server.  Exiting JVM Anyway.");
+      } else {
+        System.out.println("NGServer shut down.");
+      }
+      System.err.flush();
+      System.out.flush();
     }
   }
 
