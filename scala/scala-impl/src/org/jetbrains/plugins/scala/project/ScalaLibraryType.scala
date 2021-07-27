@@ -31,7 +31,7 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
 
       private val form = new ScalaLibraryEditorForm()
 
-      override def createComponent: JComponent = form.getComponent
+      override def createComponent: JComponent = form.contentPanel
 
       override def isModified: Boolean = formState != propertiesState
 
@@ -41,8 +41,8 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
 
       override def reset(): Unit = {
         val state = propertiesState
-        form.setLanguageLevel(state.getLanguageLevel)
-        form.setClasspath(state.getCompilerClasspath)
+        form.languageLevel = state.getLanguageLevel
+        form.classpath = state.getCompilerClasspath
       }
 
       private def properties = editorComponent.getProperties
@@ -50,8 +50,8 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
       private def propertiesState = properties.getState
 
       private def formState = new ScalaLibraryPropertiesState(
-        form.getLanguageLevel,
-        form.getClasspath
+        form.languageLevel,
+        form.classpath
       )
     }
 
