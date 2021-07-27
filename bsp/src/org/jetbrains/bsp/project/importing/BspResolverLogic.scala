@@ -440,6 +440,15 @@ private[importing] object BspResolverLogic {
       case (first, _) => first
     }
 
+  private val jarSuffix = ".jar"
+  private val sourcesSuffix = "-sources"
+  private def libraryPrefix(path: File) =
+    if (path.getName.endsWith(jarSuffix))
+      Option(path.getCanonicalPath.stripSuffix(jarSuffix).stripSuffix(sourcesSuffix))
+    else None
+  private def libraryName(path: File) =
+    path.getName.stripSuffix(jarSuffix).stripSuffix(sourcesSuffix)
+
   private[importing] def projectNode(workspace: File,
                                      projectModules: ProjectModules,
                                      excludedPaths: List[File]
@@ -465,8 +474,27 @@ private[importing] object BspResolverLogic {
         Some(moduleNode)
       }
 
+    val projectLibraryDependencies: Map[String, LibraryData] =
+      projectModules.modules
+        .flatMap(m => m.data.classpath ++
+          m.data.classpathSources ++
+          m.data.testClasspath ++
+          m.data.testClasspathSources)
+        .groupBy(libraryPrefix)
+        .flatMap { case (pathPrefix, jars) => pathPrefix.map(_ -> jars) } // ignore non-standard jar libs
+        .flatMap { case (pathPrefix, jars) =>
+          val binary = jars.find(_.getCanonicalPath.endsWith(pathPrefix + jarSuffix))
+          val source = jars.find(_.getName.contains(sourcesSuffix))
+          binary.map { bin =>
+            val data = new LibraryData(BSP.ProjectSystemId, libraryName(bin))
+            data.addPath(LibraryPathType.BINARY, bin.getCanonicalPath)
+            source.foreach(src => data.addPath(LibraryPathType.SOURCE, src.getCanonicalPath))
+            pathPrefix -> data
+          }
+        }
+
     def toModuleNode(moduleDescription: ModuleDescription) =
-      createModuleNode(projectRootPath, moduleFileDirectoryPath, moduleDescription, projectNode)
+      createModuleNode(projectRootPath, moduleFileDirectoryPath, moduleDescription, projectNode, projectLibraryDependencies)
 
     val idsToTargetModule: Seq[(Seq[TargetId], DataNode[ModuleData])] =
       projectModules.modules.map { m =>
@@ -497,6 +525,11 @@ private[importing] object BspResolverLogic {
     addRootExclusions(modules, projectRoot, excludedPaths)
     modules.foreach(projectNode.addChild)
     projectNode.addChild(bspProjectData)
+
+    projectLibraryDependencies.values.foreach { data =>
+      val node = new DataNode[LibraryData](ProjectKeys.LIBRARY, data, projectNode)
+      projectNode.addChild(node)
+    }
 
     projectNode
   }
@@ -533,7 +566,9 @@ private[importing] object BspResolverLogic {
   private[importing] def createModuleNode(projectRootPath: String,
                                           moduleFileDirectoryPath: String,
                                           moduleDescription: ModuleDescription,
-                                          projectNode: DataNode[ProjectData]): DataNode[ModuleData] = {
+                                          projectNode: DataNode[ProjectData],
+                                          projectLibraryDependencies: Map[String, LibraryData]
+                                         ): DataNode[ModuleData] = {
     import ExternalSystemSourceType._
 
     val moduleDescriptionData = moduleDescription.data
@@ -580,39 +615,70 @@ private[importing] object BspResolverLogic {
 
     moduleData.setInheritProjectCompileOutputPath(false)
 
+
+    def namedLibraries(classpath: Seq[File], sources: Seq[File]) = {
+      val (named,other) = classpath
+        .groupBy(libraryPrefix)
+        .partitionMap {
+          case Some(libName) -> _ => Left(libName)
+          case None -> paths => Right(paths)
+        }
+      val otherSources = sources.filter { s => !libraryPrefix(s).exists(projectLibraryDependencies.contains) }
+      (named, other.flatten, otherSources)
+    }
+
+    val (namedLibs, otherLibs, otherSources) =
+      namedLibraries(moduleDescriptionData.classpath, moduleDescriptionData.classpathSources)
+    val (namedTestLibs, otherTestLibs , otherTestSources) =
+      namedLibraries(moduleDescriptionData.testClasspath, moduleDescriptionData.testClasspathSources)
+
+    def configureNamedLibraryDependencyData(libPrefixes: Iterable[String], scope: DependencyScope) = libPrefixes
+      .flatMap(projectLibraryDependencies.get)
+      .map { libData =>
+        val libDepData = new LibraryDependencyData(moduleData, libData, LibraryLevel.PROJECT)
+        libDepData.setScope(scope)
+        libDepData
+      }
+
+    val namedLibraryDependencyData =
+      configureNamedLibraryDependencyData(namedLibs, DependencyScope.COMPILE) ++
+        configureNamedLibraryDependencyData(namedTestLibs, DependencyScope.TEST)
+
+    def configureLibraryDependencyData(name: String, scope: DependencyScope, libs: Iterable[File], sources: Iterable[File]) = {
+      val libraryData = new LibraryData(BSP.ProjectSystemId, name)
+      libs.foreach { path => libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath) }
+      sources.foreach { path => libraryData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath) }
+      val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
+      libraryDependencyData.setScope(scope)
+      libraryDependencyData
+    }
+
     val libraryDataName =
       BspResolverNamingExtension.libraryData(moduleDescription)
         .getOrElse(BspBundle.message("bsp.resolver.modulename.dependencies", moduleName))
-    val libraryData = new LibraryData(BSP.ProjectSystemId, libraryDataName)
-    moduleDescriptionData.classpath.foreach { path =>
-      libraryData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
-    }
-    moduleDescriptionData.classpathSources.foreach { path =>
-      libraryData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
-    }
-    val libraryDependencyData = new LibraryDependencyData(moduleData, libraryData, LibraryLevel.MODULE)
-    libraryDependencyData.setScope(DependencyScope.COMPILE)
-
     val libraryTestDataName =
       BspResolverNamingExtension.libraryTestData(moduleDescription)
         .getOrElse(BspBundle.message("bsp.resolver.modulename.test.dependencies", moduleName))
-    val libraryTestData = new LibraryData(BSP.ProjectSystemId, libraryTestDataName)
-    moduleDescriptionData.testClasspath.foreach { path =>
-      libraryTestData.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
-    }
-    moduleDescriptionData.testClasspathSources.foreach { path =>
-      libraryTestData.addPath(LibraryPathType.SOURCE, path.getCanonicalPath)
-    }
-    val libraryTestDependencyData = new LibraryDependencyData(moduleData, libraryTestData, LibraryLevel.MODULE)
-    libraryTestDependencyData.setScope(DependencyScope.TEST)
+
+    val libraryDependencyData =
+      configureLibraryDependencyData(libraryDataName, DependencyScope.COMPILE, otherLibs, otherSources)
+    val libraryTestDependencyData =
+      configureLibraryDependencyData(libraryTestDataName, DependencyScope.TEST, otherTestLibs, otherTestSources)
+
 
     // data node wiring
 
     val moduleNode = new DataNode[ModuleData](ProjectKeys.MODULE, moduleData, projectNode)
 
-    val libraryDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryDependencyData, moduleNode)
+    namedLibraryDependencyData
+      .map { data => new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, data, moduleNode) }
+      .foreach(moduleNode.addChild)
+
+    val libraryDependencyNode =
+      new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryDependencyData, moduleNode)
     moduleNode.addChild(libraryDependencyNode)
-    val libraryTestDependencyNode = new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
+    val libraryTestDependencyNode =
+      new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
     moduleNode.addChild(libraryTestDependencyNode)
 
     if (moduleType == SbtModuleType.instance) {
@@ -773,5 +839,14 @@ private[importing] object BspResolverLogic {
   private[importing] case class TargetId(id: String) extends DependencyId(id)
 
   private[importing] case class ModuleDep(parent: DependencyId, child: DependencyId, scope: DependencyScope, export: Boolean)
+
+  private[importing] case class Library(name: String, binary: File, sources: Option[File]) {
+    val data: LibraryData = {
+      val libraryData = new LibraryData(BSP.ProjectSystemId, name)
+      libraryData.addPath(LibraryPathType.BINARY, binary.getCanonicalPath)
+      sources.foreach(src => libraryData.addPath(LibraryPathType.BINARY, src.getCanonicalPath))
+      libraryData
+    }
+  }
 
 }
