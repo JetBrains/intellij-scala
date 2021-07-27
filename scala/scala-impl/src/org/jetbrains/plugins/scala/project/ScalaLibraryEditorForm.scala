@@ -24,7 +24,7 @@ class ScalaLibraryEditorForm() {
   private val myLanguageLevel: ComboBox[ScalaLanguageLevel] = {
     val combo = new ComboBox[ScalaLanguageLevel]
     combo.setRenderer(new NamedValueRenderer)
-    combo.setModel(new DefaultComboBoxModel[ScalaLanguageLevel](ScalaLanguageLevel.values))
+    combo.setModel(new DefaultComboBoxModel[ScalaLanguageLevel](ScalaLanguageLevel.values.reverse))
     combo
   }
 
