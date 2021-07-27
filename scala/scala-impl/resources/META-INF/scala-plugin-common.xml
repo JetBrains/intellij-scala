@@ -1456,12 +1456,6 @@
                          groupPath="Scala,Collections" groupKey="group.simplifications.other"
                          shortName="FoldTrueAnd" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseMapInspection"
-                         bundle="messages.ScalaInspectionBundle"
-                         key="displayname.reverse.and.map.to.reversemap"
-                         groupPath="Scala,Collections" groupKey="group.simplifications.other"
-                         shortName="ReverseMap" level="WARNING"
-                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseIteratorInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.reverse.and.iterator.to.reverseiterator"
