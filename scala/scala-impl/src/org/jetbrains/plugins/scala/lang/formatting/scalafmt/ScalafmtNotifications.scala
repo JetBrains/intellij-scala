@@ -10,28 +10,30 @@ import scala.ref.WeakReference
 private[formatting]
 object ScalafmtNotifications {
 
-  private def notificationGroup =
-    ScalaNotificationGroups.balloonGroup
-  private def notificationErrorGroup =
-    ScalaNotificationGroups.stickyBalloonGroup
+  private val ScalafmtInfoBalloonGroupId        = "Scalafmt Notifications"
+  private val ScalafmtErrorBalloonGroupId       = "Scalafmt Error Notifications"
+  private val ScalafmtFormatErrorBalloonGroupId = "Scalafmt Format Error Notifications"
+
+  private def scalafmtInfoBalloonGroup        = NotificationGroupManager.getInstance().getNotificationGroup(ScalafmtInfoBalloonGroupId)
+  private def scalafmtErrorBalloonGroup       = NotificationGroupManager.getInstance().getNotificationGroup(ScalafmtErrorBalloonGroupId)
+  private def scalafmtFormatErrorBalloonGroup = NotificationGroupManager.getInstance().getNotificationGroup(ScalafmtFormatErrorBalloonGroupId)
 
   // do not display notification with same content several times
   private val messagesShown: mutable.Map[String, WeakReference[Notification]] = ScalaCollectionsUtil.newConcurrentMap
 
-  private def displayNotification(message: String,
-                                  notificationType: NotificationType,
-                                  actions: Seq[NotificationAction] = Nil,
-                                  listener: Option[NotificationListener] = None)
-                                 (implicit project: Project): Unit = {
+  private def displayNotification(
+    message: String,
+    notificationType: NotificationType,
+    group: NotificationGroup,
+    actions: Seq[NotificationAction] = Nil,
+    listener: Option[NotificationListener] = None
+  )
+    (implicit project: Project): Unit = {
     updateShownMessagesCache(message)
-    if (messagesShown.contains(message)) return
+    if (messagesShown.contains(message))
+      return
 
-    val notification: Notification =
-      if (notificationType == NotificationType.INFORMATION) {
-        notificationGroup.createNotification(message, notificationType)
-      } else {
-        notificationErrorGroup.createNotification(message, notificationType)
-      }
+    val notification = group.createNotification(message, notificationType)
     listener.foreach(notification.setListener)
     actions.foreach(notification.addAction)
     notification.notify(project)
@@ -58,21 +60,36 @@ object ScalafmtNotifications {
                   actions: Seq[NotificationAction] = Nil,
                   listener: Option[NotificationListener] = None)
                  (implicit project: Project): Unit = {
-    displayNotification(message, NotificationType.INFORMATION, actions, listener)
+    displayNotification(message, NotificationType.INFORMATION, scalafmtInfoBalloonGroup, actions, listener)
   }
 
   def displayWarning(message: String,
                      actions: Seq[NotificationAction] = Nil,
                      listener: Option[NotificationListener] = None)
                     (implicit project: Project): Unit = {
-    displayNotification(message, NotificationType.WARNING, actions, listener)
+    displayNotification(message, NotificationType.WARNING, scalafmtInfoBalloonGroup, actions, listener)
   }
 
   def displayError(message: String,
                    actions: Seq[NotificationAction] = Nil,
                    listener: Option[NotificationListener] = None)
                   (implicit project: Project = null): Unit = {
-    displayNotification(message, NotificationType.ERROR, actions, listener)
+    displayNotification(message, NotificationType.ERROR, scalafmtErrorBalloonGroup, actions, listener)
+  }
+
+  def displayFormatError(message: String,
+                         actions: Seq[NotificationAction] = Nil,
+                         listener: Option[NotificationListener] = None)
+                  (implicit project: Project = null): Unit = {
+    displayNotification(message, NotificationType.ERROR, scalafmtFormatErrorBalloonGroup, actions, listener)
+  }
+
+  def hideAllFormatErrorNotifications(): Unit = {
+    for {
+      notificationRef <- messagesShown.valuesIterator
+      notification <- notificationRef.get
+      if notification.getGroupId == ScalafmtFormatErrorBalloonGroupId
+    } notification.hideBalloon()
   }
 
   sealed trait FmtVerbosity

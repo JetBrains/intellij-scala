@@ -21,6 +21,7 @@ import javax.swing.event.HyperlinkEvent
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, _}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.displayFormatError
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.{PositionExceptionImpl, ReflectionException}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtReflect, ScalafmtReflectConfig}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.processors.PsiChange._
@@ -155,6 +156,9 @@ object ScalaFmtPreFormatProcessor {
     implicit val context: ConfigContext = ConfigContext(config, Option(file.getVirtualFile).safeMap(_.getCanonicalPath))
 
     val result = formatRange(file, rangeUpdated)
+    if (result.isRight) {
+      ScalafmtNotifications.hideAllFormatErrorNotifications()
+    }
     for {
       res <- result
       _ = if (ApplicationManager.getApplication.isUnitTestMode) {
@@ -378,6 +382,7 @@ object ScalaFmtPreFormatProcessor {
       case Left(error: ScalafmtFormatError) =>
         reportInvalidCodeFailure(file, Some(error))(file.getProject)
       case _ =>
+        ScalafmtNotifications.hideAllFormatErrorNotifications()
     }
   }
 
@@ -883,14 +888,12 @@ object ScalaFmtPreFormatProcessor {
 
   private def reportInvalidCodeFailure(file: PsiFile, error: Option[ScalafmtFormatError] = None)
                                       (implicit project: Project): Unit = {
-    import ScalafmtNotifications.displayError
-
     val fileName = file.name
 
     def displayParseError(message: String, offset: Int): Unit = {
       val errorMessage = ScalaBundle.message("scalafmt.format.errors.scala.file.parse.error", fileLink(fileName, offset), message)
       val listener = fileLinkListener(project, file, offset)
-      displayError(errorMessage, listener = Some(listener))
+      ScalafmtNotifications.displayFormatError(errorMessage, listener = Some(listener))
     }
 
     if (ScalaCodeStyleSettings.getInstance(project).SCALAFMT_SHOW_INVALID_CODE_WARNINGS && !failSilent) {
@@ -908,7 +911,7 @@ object ScalaFmtPreFormatProcessor {
         case _ =>
           val errorMessage = ScalaBundle.message("scalafmt.format.errors.failed.to.find.correct.surrounding.code", fileLink(fileName))
           val listener = fileLinkListener(project, file, 0)
-          displayError(errorMessage, listener = Some(listener))
+          ScalafmtNotifications.displayFormatError(errorMessage, listener = Some(listener))
           if (ApplicationManager.getApplication.isUnitTestMode)
             throw new AssertionError(errorMessage)
       }
