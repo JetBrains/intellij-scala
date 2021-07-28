@@ -176,7 +176,10 @@ object ParserUtils {
     blockIndentation.fromHere()
     builder.getTokenType match {
       case null =>
-        builder.error(ErrMsg("rbrace.expected"))
+        if (baseIndentation.isEmpty) {
+          // ok when we are in indentation style
+          builder.error(ErrMsg("rbrace.expected"))
+        }
         return
       case ScalaTokenTypes.tRBRACE =>
         if (baseIndentation.isEmpty)

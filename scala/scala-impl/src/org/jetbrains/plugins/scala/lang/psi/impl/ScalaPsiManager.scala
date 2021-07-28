@@ -370,8 +370,13 @@ class ScalaPsiManager(implicit val project: Project) {
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnChange)
   def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {
     val types = ArraySeq.unsafeWrapArray(typeParameter.getExtendsListTypes ++ typeParameter.getImplementsListTypes)
-    if (types.isEmpty) Any
-    else andType(types)
+    types match {
+      case Seq() => Any
+      case Seq(one) if one.equalsToText(CommonClassNames.JAVA_LANG_OBJECT) =>
+        // Generics with upper bound java.lang.Object should have the upper bound scala.Any in Scala
+        Any
+      case _ => andType(types)
+    }
   }
 
   private def andType(psiTypes: Seq[PsiType]): ScType = {

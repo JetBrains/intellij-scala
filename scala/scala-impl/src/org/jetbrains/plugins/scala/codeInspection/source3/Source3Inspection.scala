@@ -40,15 +40,16 @@ class Source3Inspection extends AbstractRegisteredInspection {
       return None
     }
 
+    val features = element.scala3Features
     element match {
-      case ScWildcardTypeElementUnderscore(wildcardTypeElement, underscore) if convertWildcardUnderscore =>
+      case ScWildcardTypeElementUnderscore(wildcardTypeElement, underscore) if convertWildcardUnderscore && features.`? as wildcard marker` =>
         super.problemDescriptor(
           underscore,
           createReplacingQuickFix(wildcardTypeElement, ScalaInspectionBundle.message("replace.with.questionmark")) { e =>
             ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
           }
         )
-      case gen@ScGenerator(pattern, _) if addGeneratorCase && gen.caseKeyword.isEmpty &&
+      case gen@ScGenerator(pattern, _) if addGeneratorCase && features.`case in pattern bindings` && gen.caseKeyword.isEmpty &&
           generatorType(gen).exists(ty => !pattern.isIrrefutableFor(Some(ty))) =>
         super.problemDescriptor(
           pattern,
@@ -64,7 +65,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
             ScalaPsiElementFactory.createImportFromTextWithContext("import a.*", underscore.getContext, null).lastLeaf
           }
         )
-      case ElementType(ScalaTokenTypes.tFUNTYPE) if convertImportAlias && element.getParent.is[ScImportSelector] =>
+      case ElementType(ScalaTokenTypes.tFUNTYPE) if convertImportAlias && features.`Scala 3 renaming imports` && element.getParent.is[ScImportSelector] =>
         super.problemDescriptor(
           element,
           createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.as")) { arrow =>
@@ -72,7 +73,8 @@ class Source3Inspection extends AbstractRegisteredInspection {
               .importExprs.head.selectors.head.findFirstChildByType(ScalaTokenType.AsKeyword).get
           }
         )
-      case typed@ScTypedExpression.sequenceArg(seqArg) if convertVarArgSplices && seqArg.getFirstChild.elementType == ScalaTokenTypes.tUNDER =>
+      case typed@ScTypedExpression.sequenceArg(seqArg) if convertVarArgSplices && features.`Scala 3 vararg splice syntax` &&
+          seqArg.getFirstChild.elementType == ScalaTokenTypes.tUNDER =>
         super.problemDescriptor(
           seqArg,
           createReplacingQuickFix(typed, ScalaInspectionBundle.message("replace.with.star")) { typed =>
@@ -85,7 +87,8 @@ class Source3Inspection extends AbstractRegisteredInspection {
               .asInstanceOf[ScMethodCall].argumentExpressions.head
           }
         )
-      case named@ScNamingPattern(seqWildcard: ScSeqWildcardPattern) if convertNamedWildcardPattern && seqWildcard.isWildcard =>
+      case named@ScNamingPattern(seqWildcard: ScSeqWildcardPattern) if convertNamedWildcardPattern &&
+          features.`Scala 3 vararg splice syntax` && seqWildcard.isWildcard =>
         super.problemDescriptor(
           named,
           createReplacingQuickFix(named, ScalaInspectionBundle.message("replace.with.name.followed.by.star", named.name)) { named =>
@@ -93,7 +96,8 @@ class Source3Inspection extends AbstractRegisteredInspection {
               .asInstanceOf[ScConstructorPattern].args.patterns.head
           }
         )
-      case withKw@ElementType(ScalaTokenTypes.kWITH) && Parent(compoundType: ScCompoundTypeElement) if convertCompoundTypes && !compoundType.getParent.is[ScTypePattern] =>
+      case withKw@ElementType(ScalaTokenTypes.kWITH) && Parent(compoundType: ScCompoundTypeElement) if convertCompoundTypes &&
+          features.`& instead of with` && !compoundType.getParent.is[ScTypePattern] =>
         super.problemDescriptor(
           withKw,
           createReplacingQuickFix(withKw, ScalaInspectionBundle.message("replace.with.and.char")) { withKw =>
@@ -146,10 +150,8 @@ object Source3Inspection {
     def isNotShadowingAlias = element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT)
 
     def isInRightElement = element.getParent match {
-      case _: ScImportExpr => true
-      case _: ScImportSelector =>
-        // bug with * in selectors, so don't use it here
-        element.scala3Features.`Scala 3 wildcard imports in selector`
+      case _: ScImportExpr => element.scala3Features.`Scala 3 wildcard imports`
+      case _: ScImportSelector => element.scala3Features.`Scala 3 wildcard imports in selector`
       case _ => false
     }
 

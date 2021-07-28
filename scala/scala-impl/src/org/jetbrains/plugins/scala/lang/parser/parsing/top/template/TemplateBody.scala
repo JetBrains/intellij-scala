@@ -47,11 +47,13 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
         val currentIndent = builder.currentIndentationWidth
         val prevIndent = builder.findPreviousIndent
         prevIndent match {
-          case None =>
+          case None if builder.getTokenType != null =>
             // if something else comes after the colon in the same line
             // we have to rollback because it might be a typing like
             //
             //   call(new Blob: Ty)
+            //
+            // except if we are at eof. Then everything is fine
             marker.rollbackTo()
             builder.restoreNewlinesState()
             return false

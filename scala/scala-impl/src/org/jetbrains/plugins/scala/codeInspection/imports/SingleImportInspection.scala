@@ -5,7 +5,7 @@ package imports
 import com.intellij.codeInspection.{LocalInspectionTool, ProblemHighlightType, ProblemsHolder}
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelectors}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -23,8 +23,11 @@ class SingleImportInspection extends LocalInspectionTool {
       override def visitImportExpr(importExpr: ScImportExpr): Unit = {
         importExpr.selectorSet.foreach {
           case selSet@ScImportSelectors(selector) if selSet.getFirstChild.elementType == ScalaTokenTypes.tLBRACE =>
+            val isScala3AliasImport =
+              selector.scala3Features.`Scala 3 renaming imports` &&
+                selector.findFirstChildByType(ScalaTokenType.AsKeyword).isDefined
             val isAliasImportInScala2 =
-              !selector.isScala3OrSource3Enabled &&
+              !isScala3AliasImport &&
               selector.isAliasedImport
 
             if (!isAliasImportInScala2) {
