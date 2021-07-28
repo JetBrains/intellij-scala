@@ -32,15 +32,16 @@ abstract class SingleImportInspectionTestBase extends ScalaQuickFixTestBase {
   def test_two_selector(): Unit = checkTextHasNoErrors(
     "import test.{x, y}"
   )
+
+  def test_alias_scala2_style(): Unit = checkTextHasNoErrors(
+    s"import test.{x => y}"
+  )
+
 }
 
 class SingleImportInspectionTest_2 extends SingleImportInspectionTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean =
     version <= LatestScalaVersions.Scala_2_13
-
-  def test_alias(): Unit = checkTextHasNoErrors(
-    "import test.{x => y}"
-  )
 
   def test_wildcard(): Unit = doTest(
     s"import test.$START{_}$END",
@@ -61,7 +62,6 @@ class SingleImportInspectionTest_3 extends SingleImportInspectionTestBase {
     s"import test.$START{x as y}$END",
     "import test.x as y"
   )
-
 
   def test_no_need_alias(): Unit = checkTextHasNoErrors(
     "import test.x as y"
