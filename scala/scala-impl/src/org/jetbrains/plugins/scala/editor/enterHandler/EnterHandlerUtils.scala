@@ -3,9 +3,9 @@ package org.jetbrains.plugins.scala.editor.enterHandler
 import com.intellij.psi.{PsiElement, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 
-private object EnterHandlerUtils {
+object EnterHandlerUtils {
 
-  def precededIndentWhitespace(element: PsiElement): Option[PsiWhiteSpace] =
+  private[enterHandler] def precededIndentWhitespace(element: PsiElement): Option[PsiWhiteSpace] =
     element.getPrevNonEmptyLeaf match {
       case ws: PsiWhiteSpace if ws.textContains('\n') => Some(ws)
       case _                                          => None
@@ -16,7 +16,7 @@ private object EnterHandlerUtils {
    *         None - otherwise (if there is some code before the caret)
    * @todo can we move it to org.jetbrains.plugins.scala.util.IndentUtil, like calcIndent?
    */
-  def calcCaretIndent(
+  private[editor] def calcCaretIndent(
     caretOffset: Int,
     documentText: CharSequence,
     tabSize: Int

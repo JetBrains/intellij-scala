@@ -31,6 +31,9 @@ import org.jetbrains.plugins.scala.util.IndentUtil
  * Other indentation-related Platform logic:
  *  - [[com.intellij.codeInsight.editorActions.EnterHandler#executeWriteActionInner]]
  *  - [[com.intellij.formatting.FormatProcessor#getIndent]]
+ *  - [[com.intellij.psi.codeStyle.lineIndent.LineIndentProvider#getLineIndent]]<br>
+ *    [[com.intellij.psi.impl.source.codeStyle.lineIndent.IndentCalculator#getIndentString]]
+ *    (when [[com.intellij.psi.impl.source.codeStyle.lineIndent.JavaLikeLangLineIndentProvider]] is used)
  *
  * Other indentation-related Scala Plugin logic:
  *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.getChildAttributes]]<br>
@@ -41,6 +44,7 @@ import org.jetbrains.plugins.scala.util.IndentUtil
  *    used when typing after incomplete block, in the beginning of some structure, e.g.: {{{
  *      def foo = <caret>
  *    }}}
+ *  - [[org.jetbrains.plugins.scala.editor.ScalaLineIndentProvider.getLineIndent]]
  */
 class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapter {
 
@@ -73,7 +77,7 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
     val result = if (caretIsAtTheEndOfLine) {
       // from [[com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegate.preprocessEnter]]:
       // Important Note: A document associated with the editor may have modifications which are not reflected yet in the PSI file.
-      // If any s with PSI are needed including a search for PSI elements, the document must be committed first to update the PSI.
+      // If any operations with PSI are needed including a search for PSI elements, the document must be committed first to update the PSI.
       document.commit(editor.getProject)
 
       val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, document, caretOffset)
@@ -81,7 +85,11 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
         return Result.Continue
 
       val indentOptions = CodeStyle.getIndentOptions(file)
-      checkCaretAfterEmptyCaseClauseArrow(elementAtCaret) match {
+      val documentText = document.getCharsSequence
+      val caretIndent = EnterHandlerUtils.calcCaretIndent(caretOffset, documentText, indentOptions.TAB_SIZE)
+      val caretIndentSize = caretIndent.getOrElse(Int.MaxValue) // using MaxValue if the caret isn't inside code indent
+
+      checkCaretAfterEmptyCaseClauseArrow(elementAtCaret, caretIndentSize, indentOptions) match {
         case Some(clause) =>
           // WORKAROUND:
           // press Enter after the case clause WITHOUT any code in the body
@@ -89,7 +97,7 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
           insertNewLineWithSpacesAtCaret(editor, document, clause, indentOptions, extraSpaces = CodeStyle.getIndentSize(file), needRemoveTrailingSpaces = true)
           Result.Stop
         case _ =>
-          val indentedElementOpt = previousElementInIndentationContext(elementAtCaret, caretOffset, document.getCharsSequence, indentOptions)
+          val indentedElementOpt = previousElementInIndentationContext(elementAtCaret, caretIndentSize, indentOptions)
           indentedElementOpt match {
             case Some((indentedElement, _)) =>
               insertNewLineWithSpacesAtCaret(editor, document, indentedElement, indentOptions, needRemoveTrailingSpaces = true)
@@ -179,8 +187,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
    */
   private[editor] def previousElementInIndentationContext(
     @NotNull elementAtCaret: PsiElement,
-    caretOffset: Int,
-    documentText: CharSequence,
+    caretIndentSize: Int,
     indentOptions: IndentOptions
   ): Option[(PsiElement, Int)] = {
     // NOTE 1: there are still some issues with Scala3 + tabs, see: SCL-18817
@@ -188,30 +195,39 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     //  according to http://dotty.epfl.ch/docs/reference/other-new-features/indentation.html
     //  "Indentation prefixes can consist of spaces and/or tabs. Indentation widths are the indentation prefixes themselves"
 
-    val caretIndent = EnterHandlerUtils.calcCaretIndent(caretOffset, documentText, indentOptions.TAB_SIZE)
-    val caretIndentSize = caretIndent.getOrElse(Int.MaxValue) // using MaxValue if the caret ins not inside code indent
-
     // TODO: ignore `;`
-    val lastRealElement = elementAtCaret match {
+    val lastRealElement = getLastRealElement(elementAtCaret)
+    assert(lastRealElement != null)
+
+    val result = if (lastRealElement.is[PsiErrorElement])
+      None
+    else {
+      val elementAtCaretEndOffset = elementAtCaret.endOffset
+
+      val withParents0 = lastRealElement.withParentsInFile: Iterator[PsiElement]
+      val withParents1 = withParents0.takeWhile(e => e != null && e.endOffset <= elementAtCaretEndOffset)
+      val indented = withParents1.flatMap(parent => toIndentedElement(parent, caretIndentSize, indentOptions))
+      indented.headOption
+    }
+    //println(s"indentedElement: $result")
+    result
+  }
+
+  private def getLastRealElement(elementAtCaret: PsiElement): PsiElement = {
+    val real0 = elementAtCaret match {
       case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws) match {
         case null => ws
         case prev => prev
       }
       case el => el
     }
-    assert(lastRealElement != null)
-    val result = if (lastRealElement.is[PsiErrorElement])
-      None
-    else {
-      val realElementOffset = lastRealElement.endOffset
-
-      val withParents0 = lastRealElement.withParentsInFile: Iterator[PsiElement]
-      val withParents1 = withParents0.takeWhile(e => e != null && e.endOffset <= realElementOffset)
-      val indented = withParents1.flatMap(parent => toIndentedElement(parent, caretIndentSize, indentOptions))
-      indented.headOption
+    real0 match {
+      case c: PsiComment if !c.startsFromNewLine() => PsiTreeUtil.prevCodeLeaf(c) match {
+        case null => c
+        case prev => prev
+      }
+      case el => el
     }
-    //println(s"indentedElement: $result")
-    result
   }
 
   private def toIndentedElement(
@@ -296,12 +312,25 @@ object Scala3IndentationBasedSyntaxEnterHandler {
         isInIndentationContext
 
       case clause: ScCaseClause =>
-        // WORKAROUND:
-        // press Enter / Backspace after the LAST case clause WITH some code on the same line with clause arrow
-        // `case _ => doSomething()<caret>`
-        // NOTE: in case clauses with braces, this automatically works via `ScalaBlock.getChildAttributes`.
-        // However with braceless clauses selected formatter block belongs to the parent scope, not to the clauses
-        // so wrong indent is used without this workaround
+
+        /**
+         * WORKAROUND:
+         * press Enter / Backspace after the LAST case clause WITH some code on the same line with clause arrow
+         * before: {{{
+         *   ref match
+         *     case _ => doSomething()<caret>
+         * }}}
+         *
+         * after: {{{
+         *   ref match
+         *     case _ => doSomething()
+         *     <caret>
+         * }}}
+         *
+         * NOTE: in case clauses with braces, this automatically works via `ScalaBlock.getChildAttributes`.
+         * However with braceless clauses selected formatter block belongs to the parent scope, not to the clauses
+         * so wrong indent is used without this workaround
+         */
         val isLastClause = clause.getNextSibling == null
         val isBracelessClauses: Boolean = {
           val clauses = clause.getParent
@@ -309,6 +338,8 @@ object Scala3IndentationBasedSyntaxEnterHandler {
           prev != null && prev.elementType != ScalaTokenTypes.tLBRACE
         }
         isLastClause && isBracelessClauses
+      case _: PsiComment =>
+        true
       case _: ScEnumCases =>
         true
       case _ =>
@@ -381,7 +412,11 @@ object Scala3IndentationBasedSyntaxEnterHandler {
    *         case clause without any code after the caret:
    *         {{{case _ =><caret><new line> (with optional spaces around caret)}}}
    */
-  private def checkCaretAfterEmptyCaseClauseArrow(elementAtCaret: PsiElement): Option[ScCaseClause] = {
+  private def checkCaretAfterEmptyCaseClauseArrow(
+    elementAtCaret: PsiElement,
+    caretIndentSize: Int,
+    indentOptions: IndentOptions,
+  ): Option[ScCaseClause] = {
     val canBeAfterCaseClauseArrow =
       elementAtCaret match {
         // `case _ =><caret>EOF` (no whitespaces around caret, caret is at the end of file)
@@ -391,10 +426,15 @@ object Scala3IndentationBasedSyntaxEnterHandler {
         case _                => false
       }
     if (canBeAfterCaseClauseArrow) {
-      val prevLeaf = PsiTreeUtil.prevCodeLeaf(elementAtCaret)
+      val prevLeaf = PsiTreeUtil.prevLeaf(elementAtCaret) match {
+        case b: ScBlock => PsiTreeUtil.prevLeaf(b)
+        case el => el
+      }
       prevLeaf match {
         case ElementType(ScalaTokenTypes.tFUNTYPE) && Parent(clause: ScCaseClause) =>
-          Some(clause)
+          val caretIsIndentedFromClause = elementIndentSize(clause, caretIndentSize, indentOptions.TAB_SIZE).isDefined
+          if (caretIsIndentedFromClause) Some(clause)
+          else None
         case _ => None
       }
     }
