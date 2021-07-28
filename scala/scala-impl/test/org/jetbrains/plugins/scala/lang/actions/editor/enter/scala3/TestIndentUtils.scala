@@ -15,15 +15,27 @@ private[editor] object TestIndentUtils {
       .takeWhile(_ == ' ')
       .size
 
+  def calcIndentAtSameLine(text: String, offset: Int): Int = {
+    text.view
+      .slice(0, offset).reverseIterator
+      .takeWhile(_ == ' ')
+      .size
+  }
+
   def addIndentAfterAllNewLines(injectedCode: String, indentSize: Int): String = {
     val indentStr = " " * indentSize
     injectedCode.replace("\n", "\n" + indentStr)
   }
 
+  def addIndentToAllLines(injectedCode: String, indentSize: Int): String = {
+    val indentStr = " " * indentSize
+    injectedCode.linesIterator.map(indentStr + _).mkString("\n")
+  }
+
   /** See [[TestIndentUtilsTest]] for the example */
   def injectCodeWithIndentAdjust(injectedCode: String, contextCode: String, placeholder: String): String = {
     val placeholderIdx = contextCode.indexOf(placeholder)
-    val baseIndent = TestIndentUtils.calcIndentBefore(contextCode, placeholderIdx)
+    val baseIndent = TestIndentUtils.calcLineIndent(contextCode, placeholderIdx)
     val injectedCodeIndented = TestIndentUtils.addIndentAfterAllNewLines(injectedCode, baseIndent)
     contextCode.replaceFirst(placeholder, injectedCodeIndented)
   }

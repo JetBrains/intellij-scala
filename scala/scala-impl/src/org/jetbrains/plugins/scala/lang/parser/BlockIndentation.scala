@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *
  * object Test { def a = 0  // <- no error, the whitespaces before the def have no effect on indentation
  *     def b = 0            // <- even though it is not the first statement, its indentation is used for the whole block
- *         object Inner     // <- Belongs to Test. It's indentation is irrelevant
+ *         object Inner:    // <- Belongs to Test. It's indentation is irrelevant
  *       def c = 0          // <- belongs to inner because indentation greater than b's (indentation of Inner doesn't matter)
  *     def d = 0            // <- belongs to Test because indentation not greater than b's
  * }
