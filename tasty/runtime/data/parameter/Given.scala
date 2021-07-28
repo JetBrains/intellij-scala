@@ -59,7 +59,7 @@ trait Given {
 
   given instanceMultipleClauses(using x: Int)(using y: Int): T5 with {}
 
-  given instanceTypeAndValueParameter[A](using x: Int): T6  with {}
+  given instanceTypeAndValueParameter[A](using x: Int): T6 with {}
 
   given [A]: T7 with {}
 
@@ -71,5 +71,5 @@ trait Given {
 
   given (using x: Int)(using y: Int): T11 with {}
 
-  given [A](using x: Int): T12  with {}
+  given [A](using x: Int): T12 with {}
 }

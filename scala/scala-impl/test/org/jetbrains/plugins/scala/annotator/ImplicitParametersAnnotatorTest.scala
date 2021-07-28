@@ -55,7 +55,7 @@ class ImplicitParametersAnnotatorTest extends ImplicitParametersAnnotatorTestBas
       |
       |  implicit def default[T]: Equality[T] = nothing
       |
-      |  def equal(right: Int): MatcherFactory1[Int, Equality[Int]] = nothing
+      |  def equal(right: Int): MatcherFactory1[Int, Equality] = nothing
       |
       |  this should equal(42)
       |}""".stripMargin)

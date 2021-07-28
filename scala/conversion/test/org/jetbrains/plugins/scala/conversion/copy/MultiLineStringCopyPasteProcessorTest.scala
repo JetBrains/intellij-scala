@@ -491,13 +491,13 @@ class MultiLineStringCopyPasteProcessorTest extends CopyPasteTestBase {
          |   '''.stripMargin
          |""".stripMargin
     val to =
-      s"""s''$Start'green yellow$End
+      s"""s""$Start"green yellow$End
          |   | $Caret'''.stripMargin
          |""".stripMargin
     // indention is strange due to it actually becomes a broken string (quote is included with selection)
     val after =
-      s"""s''first line
-         |  second line$Caret
+      s"""s""first line
+         |second line$Caret
          |   | '''.stripMargin
          |""".stripMargin
     doTestMultiline(from, to, after)

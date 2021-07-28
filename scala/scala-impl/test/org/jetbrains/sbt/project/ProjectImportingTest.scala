@@ -8,15 +8,16 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
-import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelModuleExtensionImpl, LanguageLevelProjectExtension, ModifiableRootModel, ModuleRootModificationUtil}
+import com.intellij.openapi.roots.{LanguageLevelModuleExtension, LanguageLevelProjectExtension, ModuleRootModificationUtil}
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.testFramework.IdeaTestUtil
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.model.java.compiler.JpsJavaCompilerOptions
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
-import org.jetbrains.plugins.scala.{DependencyManager, DependencyManagerBase, LatestScalaVersions, ScalaVersion, SlowTests}
+import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.settings.SbtSettings
+import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
 
@@ -26,41 +27,65 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Category(Array(classOf[SlowTests]))
-class ProjectImportingTest extends ImportingTestCase with InexactMatch {
+class ProjectImportingTest extends ImportingTestCase
+  with ProjectStructureExpectedLibrariesOps
+  with InexactMatch {
 
-  import DependencyManagerBase._
-  import ProjectImportingTest._
   import ProjectStructureDsl._
 
-  implicit private val scalaVersion: ScalaVersion = LatestScalaVersions.Scala_2_11
+  def testSimple(): Unit = {
+    val scalaLibrary = expectedScalaLibrary(ScalaVersion.fromString("2.13.5").get)
+    runSimpleTest("simple", scalaLibrary)
 
-  def testSimple(): Unit = runTest(
-    new project("simple") {
-      lazy val scalaLibrary: library = {
-        val dependency = scalaLibraryDescription
-        new library(s"sbt: $dependency:jar") {
-          // TODO DependencyManager resolves with ivy, but in sbt 1.3+ coursier is the default
-          classes += DependencyManager.resolveSingle(dependency).file.getAbsolutePath
+    // Adding the assertion here not to create a separate heavy test for such a tiny check
+    // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
+    Assert.assertEquals(
+      "modulesWithScala should return list of non *-build modules",
+      Seq("simple"),
+      myProject.modulesWithScala.map(_.getName),
+    )
+  }
+
+  def testSimpleDoNotUseCoursier(): Unit = {
+    val scalaLibrary = expectedScalaLibraryFromIvy(ScalaVersion.fromString("2.12.10").get)
+    runSimpleTest("simpleDoNotUseCoursier", scalaLibrary)
+  }
+
+  private def runSimpleTest(projectName: String, expectedScalaLibrary: library): Unit =
+    runTest(
+      new project(projectName) {
+        libraries += expectedScalaLibrary
+
+        modules += new module(projectName) {
+          contentRoots += getProjectPath
+          ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
+          testSources := Seq("src/test/scala", "src/test/java")
+          resources := Seq("src/main/resources")
+          testResources := Seq("src/test/resources")
+          excluded := Seq("target")
+          libraryDependencies += expectedScalaLibrary
         }
-      }
 
+        modules += new module(s"$projectName-build") {
+          ProjectStructureDsl.sources := Seq("")
+          excluded := Seq("project/target", "target")
+        }
+      })
+
+  def testProjectWithUppercaseName(): Unit = runTest {
+    new project("MyProjectWithUppercaseName") {
+      lazy val scalaLibrary: library = expectedScalaLibrary(ScalaVersion.fromString("2.13.6").get)
       libraries += scalaLibrary
 
-      modules += new module("simple") {
-        contentRoots += getProjectPath
-        ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
-        testSources := Seq("src/test/scala", "src/test/java")
-        resources := Seq("src/main/resources")
-        testResources := Seq("src/test/resources")
-        excluded := Seq("target")
-        libraryDependencies += scalaLibrary
-      }
-
-      modules += new module("simple-build") {
-        ProjectStructureDsl.sources := Seq("")
-        excluded := Seq("project/target", "target")
-      }
-    })
+      modules := Seq(
+        new module("MyProjectWithUppercaseName") {
+          libraryDependencies += scalaLibrary
+        },
+        new module("MyProjectWithUppercaseName-build") {
+        }
+      )
+    }
+  }
 
   def testMultiModule(): Unit = runTest(
     new project("multiModule") {
@@ -123,9 +148,6 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
     */
   def testSCL12520(): Unit = runTest(
     new project("scl12520") {
-
-      val projectURI: URI = getProjectPath.toURI
-
       val sharedModule: module = new module("p1-sources") {
         contentRoots += getProjectPath + "/p1/shared"
       }
@@ -184,22 +206,34 @@ class ProjectImportingTest extends ImportingTestCase with InexactMatch {
         sbtProjectId := "SCL-14635"
       }
 
-      lazy val ideaPlugin: module = new module("sbt-idea-plugin") {
+      // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
+      lazy val ideaPluginRoot: module = new module("sbtIdeaPlugin") {
         sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-plugin")
       }
-      lazy val ideaPluginBuild: module = new module("sbt-idea-plugin-build", buildModulesGroup) {}
+      lazy val ideaPluginRootBuild: module = new module("sbtIdeaPlugin-build", buildModulesGroup)
+
+      lazy val ideaPluginInnerModule = new module("sbt-idea-plugin")
 
       lazy val ideaShell: module = new module("sbt-idea-shell") {
         sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-shell")
       }
-      lazy val ideaShellBuild: module = new module("sbt-idea-shell-build", buildModulesGroup) {}
+      lazy val ideaShellBuild: module = new module("sbt-idea-shell-build", buildModulesGroup)
 
       lazy val ideSettings: module = new module("sbt-ide-settings") {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
       }
-      lazy val ideSettingsBuild: module = new module("sbt-ide-settings-build", buildModulesGroup) {}
+      lazy val ideSettingsBuild: module = new module("sbt-ide-settings-build", buildModulesGroup)
 
-      modules := Seq(base, ideaPlugin, ideaPluginBuild, ideaShell, ideaShellBuild, ideSettings, ideSettingsBuild)
+      modules := Seq(
+        base,
+        ideaPluginRoot,
+        ideaPluginRootBuild,
+        ideaPluginInnerModule,
+        ideaShell,
+        ideaShellBuild,
+        ideSettings,
+        ideSettingsBuild
+      )
     }
   )
 

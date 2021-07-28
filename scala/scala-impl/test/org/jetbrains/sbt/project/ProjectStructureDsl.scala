@@ -1,13 +1,12 @@
 package org.jetbrains.sbt
 package project
 
-import java.net.URI
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.pom.java.LanguageLevel
-import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.plugins.scala.project.external.SdkReference
 
+import java.net.URI
 import scala.language.implicitConversions
 
 /**
@@ -23,62 +22,53 @@ object ProjectStructureDsl {
   trait LibraryAttribute
   trait DependencyAttribute
 
-  val libraries =
-    new Attribute[Seq[library]]("libraries") with ProjectAttribute with ModuleAttribute
-  val modules =
-    new Attribute[Seq[module]]("modules") with ProjectAttribute
-  val sdk =
-    new Attribute[SdkReference]("sdk") with ProjectAttribute with ModuleAttribute
-  val javaLanguageLevel =
-    new Attribute[LanguageLevel]("javaLanguageLevel") with ProjectAttribute with ModuleAttribute
-  val javaTargetBytecodeLevel =
-    new Attribute[String]("javaTargetBytecodeLevel") with ProjectAttribute with ModuleAttribute
-  val javacOptions =
-    new Attribute[Seq[String]]("javacOptions") with ProjectAttribute with ModuleAttribute
+  object libraries               extends Attribute[Seq[library]]("libraries")          with ProjectAttribute with ModuleAttribute
+  object modules                 extends Attribute[Seq[module]]("modules")             with ProjectAttribute
+  object sdk                     extends Attribute[SdkReference]("sdk")                with ProjectAttribute with ModuleAttribute
+  object javaLanguageLevel       extends Attribute[LanguageLevel]("javaLanguageLevel") with ProjectAttribute with ModuleAttribute
+  object javaTargetBytecodeLevel extends Attribute[String]("javaTargetBytecodeLevel")  with ProjectAttribute with ModuleAttribute
+  object javacOptions            extends Attribute[Seq[String]]("javacOptions")        with ProjectAttribute with ModuleAttribute
 
-  val sbtBuildURI =
-    new Attribute[URI]("sbtBuildURI") with ModuleAttribute
-  val sbtProjectId =
-    new Attribute[String]("sbtProjectId") with ModuleAttribute
-  val contentRoots =
-    new Attribute[Seq[String]]("contentRoots") with ModuleAttribute
-  val sources =
-    new Attribute[Seq[String]]("sources") with ModuleAttribute with LibraryAttribute
-  val testSources =
-    new Attribute[Seq[String]]("testSources") with ModuleAttribute
-  val resources =
-    new Attribute[Seq[String]]("resources") with ModuleAttribute
-  val testResources =
-    new Attribute[Seq[String]]("testResources") with ModuleAttribute
-  val excluded =
-    new Attribute[Seq[String]]("excluded") with ModuleAttribute
-  val moduleDependencies =
-    new Attribute[Seq[dependency[module]]]("moduleDependencies") with ModuleAttribute
-  val libraryDependencies =
-    new Attribute[Seq[dependency[library]]]("libraryDependencies") with ModuleAttribute
+  object sbtBuildURI         extends Attribute[URI]("sbtBuildURI")                              with ModuleAttribute
+  object sbtProjectId        extends Attribute[String]("sbtProjectId")                          with ModuleAttribute
+  object contentRoots        extends Attribute[Seq[String]]("contentRoots")                     with ModuleAttribute
+  object sources             extends Attribute[Seq[String]]("sources")                          with ModuleAttribute with LibraryAttribute
+  object testSources         extends Attribute[Seq[String]]("testSources")                      with ModuleAttribute
+  object resources           extends Attribute[Seq[String]]("resources")                        with ModuleAttribute
+  object testResources       extends Attribute[Seq[String]]("testResources")                    with ModuleAttribute
+  object excluded            extends Attribute[Seq[String]]("excluded")                         with ModuleAttribute
+  object moduleDependencies  extends Attribute[Seq[dependency[module]]]("moduleDependencies")   with ModuleAttribute
+  object libraryDependencies extends Attribute[Seq[dependency[library]]]("libraryDependencies") with ModuleAttribute
 
-  val classes =
-    new Attribute[Seq[String]]("classes") with LibraryAttribute
-  val javadocs =
-    new Attribute[Seq[String]]("javadocs") with LibraryAttribute
-  val scalaSdkSettings =
-    new Attribute[Option[ScalaSdkSettings]]("scalaSdkSettings") with LibraryAttribute
+  object classes          extends Attribute[Seq[String]]("classes")                         with LibraryAttribute
+  object javadocs         extends Attribute[Seq[String]]("javadocs")                        with LibraryAttribute
+  object scalaSdkSettings extends Attribute[Option[ScalaSdkAttributes]]("scalaSdkSettings") with LibraryAttribute
 
-  case class ScalaSdkSettings(languageLevel: ScalaLanguageLevel, classpath: Seq[String])
+  case class ScalaSdkAttributes(languageLevel: ScalaLanguageLevel, classpath: Option[Seq[String]])
+  object ScalaSdkAttributes {
+    def apply(languageLevel: ScalaLanguageLevel, classpath: Seq[String]): ScalaSdkAttributes =
+      new ScalaSdkAttributes(languageLevel, Some(classpath))
+  }
 
-  val isExported =
-    new Attribute[Boolean]("isExported") with DependencyAttribute
-  val scope =
-    new Attribute[DependencyScope]("scope") with DependencyAttribute
+  object isExported extends Attribute[Boolean]("isExported")    with DependencyAttribute
+  object scope      extends Attribute[DependencyScope]("scope") with DependencyAttribute
 
   sealed trait Attributed {
     protected val attributes = new AttributeMap
 
-    def foreach[T : Manifest](attribute: Attribute[T])(body: T => Unit): Unit =
+    def foreach[T : Manifest](attribute: Attribute[T])(body: T => Option[MatchType] => Unit): Unit =
+      attributes.get(attribute).foreach { attributeValue: T =>
+        body(attributeValue)(attributes.getMatchType(attribute))
+      }
+
+    def foreach0[T : Manifest](attribute: Attribute[T])(body: T => Unit): Unit =
       attributes.get(attribute).foreach(body)
 
     def get[T: Manifest](attribute: Attribute[T]): Option[T] =
       attributes.get(attribute)
+
+    protected implicit def matchTypeDef(attribute: Attribute[_]): MatchTypeDef =
+      new MatchTypeDef(attribute, attributes)
   }
 
   trait Named {
@@ -117,5 +107,7 @@ object ProjectStructureDsl {
 
   implicit def library2libraryDependency(library: library): dependency[library] =
     new dependency(library)
+  implicit def libraries2libraryDependencices(libraries: Seq[library]): Seq[dependency[library]] =
+    libraries.map(library2libraryDependency)
 }
 

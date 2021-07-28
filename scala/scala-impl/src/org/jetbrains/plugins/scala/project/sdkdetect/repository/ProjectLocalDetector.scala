@@ -9,11 +9,13 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.project.template.{PathExt, _}
 
-private[repository] class ProjectLocalDetector(contextDirectory: VirtualFile) extends ScalaSdkDetector {
-  override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = ProjectSdkChoice(descriptor)
+private[repository] class ProjectLocalDetector(contextDirectory: VirtualFile) extends ScalaSdkDetectorDependencyManagerBase {
+
   override def friendlyName: String = ScalaBundle.message("local.project.libraries")
 
-  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
+  override protected def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = ProjectSdkChoice(descriptor)
+
+  override protected def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
     if (contextDirectory == null)
       return JStream.empty()
 

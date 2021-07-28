@@ -61,7 +61,7 @@ object Literal extends ParsingRule {
         builder.advanceLexer() //Ate -
         matchNumber(builder.getTokenType)
       case `tINTERPOLATED_STRING_ID` =>
-        CommonUtils.parseInterpolatedString(builder, isPattern = false)
+        CommonUtils.parseInterpolatedString(isPattern = false)
         marker.done(InterpolatedString)
         true
       case `tINTERPOLATED_MULTILINE_STRING` |

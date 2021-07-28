@@ -45,7 +45,7 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
   }
 
   private def isAllowed(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean =
-    builder.isScala3 || (builder.isSource3Enabled && isAllowedInSource3(tokenType))
+    builder.isScala3 || isAllowedInSource3(tokenType)
 
   protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean = false
 
@@ -107,10 +107,11 @@ object LocalSoftModifier extends SoftModifier(
   Open,
   Infix,
 ) {
-  override protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val modifier = tokenType.modifier
-    modifier == Open || modifier == Infix
-  }
+  override protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean =
+    builder.scala3Features.`soft keywords open and infix` && {
+      val modifier = tokenType.modifier
+      modifier == Open || modifier == Infix
+    }
 }
 
 /**

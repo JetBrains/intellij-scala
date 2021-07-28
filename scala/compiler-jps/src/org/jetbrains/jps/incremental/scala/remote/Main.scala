@@ -6,8 +6,7 @@ import java.nio.file.{Files, Path}
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
 import java.util.{Base64, Timer, TimerTask}
-
-import com.martiansoftware.nailgun.NGContext
+import com.martiansoftware.nailgun.{NGContext, NGServer}
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.fs.BuildFSState
@@ -17,6 +16,7 @@ import org.jetbrains.jps.incremental.scala.data.CompileServerCommandParser
 import org.jetbrains.jps.incremental.scala.local.LocalServer
 import org.jetbrains.jps.incremental.scala.local.worksheet.WorksheetServer
 import org.jetbrains.jps.incremental.scala.remote.MeteringScheduler.ArgsParsed
+import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedMessages
 import org.jetbrains.jps.incremental.{MessageHandler, Utils}
 import org.jetbrains.plugins.scala.compiler.CompilerEvent
 import org.jetbrains.plugins.scala.compiler.data.Arguments
@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtil
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.{Failure, Success, Try}
 
 /**
@@ -32,13 +32,14 @@ import scala.util.{Failure, Success, Try}
  *
  * @see [[org.jetbrains.plugins.scala.nailgun.NailgunRunner]]<br>
  *      [[org.jetbrains.plugins.scala.nailgun.NailgunMainLightRunner]]
- *      [[org.jetbrains.plugins.scala.compiler.NonServerRunner]]
+ *      [[org.jetbrains.plugins.scala.worksheet.server.NonServerRunner]]
  */
 object Main {
   private val server = new LocalServer()
   private val worksheetServer = new WorksheetServer
 
   private var shutdownTimer: Timer = _
+  @volatile private var shutdownByTimout: Boolean = false
 
   private val maxHeapSize = Runtime.getRuntime.maxMemory()
   private val currentParallelism = new AtomicInteger(0)
@@ -73,6 +74,19 @@ object Main {
     resetShutdownTimer(context)
   }
 
+  // TODO: more reliable "unexpected process termination"  SCL-19367
+  //noinspection ScalaUnusedSymbol
+  def nailShutdown(server: NGServer): Unit = {
+    import CompileServerSharedMessages._
+    val details = if (shutdownByTimout) s" ($ProcessWasIdleFor ${shutdownDelay.getOrElse("<unknown>")})" else ""
+    System.out.println(CompileServerShutdownPrefix + s"$details")
+
+    // `System.exit` is called by `NGServer.shutdown`
+    // It doesn't guarantee standard output streams flush
+    // (ideally this flush should be done by Nailgun itself)
+    System.out.flush()
+  }
+
   def main(args: Array[String]): Unit = {
     serverLogic(CommandIds.Compile, args.toIndexedSeq, System.out, -1, standalone = true)
   }
@@ -91,6 +105,10 @@ object Main {
 
 
     try {
+      def traceStep(message: String): Unit =
+        client.internalTrace(s"[main nail]: $message")
+      traceStep("parsing arguments")
+
       val argsParsed = parseArgs(commandId, argsEncoded) match {
         case Success(result) =>
           result
@@ -99,6 +117,7 @@ object Main {
           return
       }
 
+      traceStep("validating token")
       // Don't check token in non-server mode
       if (port != -1) {
         try {
@@ -112,7 +131,9 @@ object Main {
         }
       }
 
+      traceStep(s"handling command: $commandId")
       handleCommand(argsParsed.command, client)
+      traceStep(s"done")
     } catch {
       case e: Throwable =>
         client.trace(e)
@@ -268,21 +289,32 @@ object Main {
     }
   }
 
-  private def resetShutdownTimer(context: NGContext): Unit = {
-    val delay = Option(System.getProperty("shutdown.delay")).map(_.toInt)
+  def initShutdownTimer(server: NGServer): Unit =
+    resetShutdownTimer(server)
+
+  private def resetShutdownTimer(context: NGContext): Unit =
+    resetShutdownTimer(context.getNGServer)
+
+  private def resetShutdownTimer(server: NGServer): Unit = {
+    val delay = shutdownDelay
     delay.foreach { t =>
-      val delayMs = t * 60 * 1000
       val shutdownTask = new TimerTask {
-        override def run(): Unit = context.getNGServer.shutdown(true)
+        override def run(): Unit = {
+          shutdownByTimout = true
+          server.shutdown(true)
+        }
       }
 
       synchronized {
         cancelShutdownTimer()
         shutdownTimer = new Timer()
-        shutdownTimer.schedule(shutdownTask, delayMs)
+        shutdownTimer.schedule(shutdownTask, t.toMillis)
       }
     }
   }
+
+  private def shutdownDelay: Option[FiniteDuration] =
+    Option(System.getProperty("shutdown.delay")).map(_.toInt.minutes)
 }
 
 object MeteringScheduler {

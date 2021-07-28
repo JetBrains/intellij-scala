@@ -21,7 +21,7 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
   override def getID: String = "ScalaSyntacticSugar"
 
   override def buildVisitor(holder: ProblemsHolder, isOnTheFly: Boolean): PsiElementVisitor = {
-    if (!holder.getFile.isInstanceOf[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
+    if (!holder.getFile.is[ScalaFile]) return PsiElementVisitor.EMPTY_VISITOR
 
     object QualifiedName {
       def unapply(p: PsiElement): Option[String] = p match {
@@ -45,10 +45,10 @@ class FunctionTupleSyntacticSugarInspection extends LocalInspectionTool {
                       referredElement match {
                         case Some(QualifiedName(FunctionN(n))) if te.typeArgList.typeArgs.length == (n.toInt + 1) =>
                           holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
-                            new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
+                            new FunctionTypeSyntacticSugarQuickFix(te), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false))
                         case Some(QualifiedName(TupleN(n))) if (te.typeArgList.typeArgs.length == n.toInt) && n.toInt != 1 =>
                           holder.registerProblem(holder.getManager.createProblemDescriptor(te, ScalaInspectionBundle.message("syntactic.sugar.could.be.used"),
-                            new TupleTypeSyntacticSugarQuickFix(te), ProblemHighlightType.WEAK_WARNING, false))
+                            new TupleTypeSyntacticSugarQuickFix(te), ProblemHighlightType.GENERIC_ERROR_OR_WARNING, false))
                         case _ =>
                       }
                     }

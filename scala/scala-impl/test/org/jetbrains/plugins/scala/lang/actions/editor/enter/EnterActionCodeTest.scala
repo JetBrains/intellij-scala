@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.enter
 
-import com.intellij.testFramework.fixtures.CodeInsightTestFixture
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 
-class EnterActionCodeTest extends EditorActionTestBase {
+class EnterActionCodeTest extends EditorActionTestBase
+  with Scala2AndScala3EnterActionCommonTests {
 
   def testInsideEmptyParameterClauses(): Unit = {
     getScalaSettings.INDENT_FIRST_PARAMETER = false

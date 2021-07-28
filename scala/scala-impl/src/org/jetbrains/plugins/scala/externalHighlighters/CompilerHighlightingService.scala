@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.externalHighlighters.compiler._
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
@@ -63,7 +64,7 @@ final class CompilerHighlightingService(project: Project)
       }
     }
 
-  def triggerWorksheetCompilation(psiFile: PsiFile,
+  def triggerWorksheetCompilation(psiFile: ScalaFile,
                                   document: Document,
                                   afterCompilation: () => Unit = () => ()): Unit =
     scheduleDocumentCompilation(worksheetExecutor, document) { client =>

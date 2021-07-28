@@ -42,7 +42,7 @@ class ScalaConsoleExecuteAction extends AnAction(
     val historyController = ScalaConsoleInfo.getController(editor)
 
     if (editor == null || console == null || processHandler == null || historyController == null) {
-      LOG.info(new Throwable(s"Enter action in console failed: $editor, $console"))
+      LOG.info(new Throwable(s"Enter action in console failed: editor: $editor console: $console processHandler: $processHandler historyController: $historyController"))
       return
     }
 
@@ -53,7 +53,12 @@ class ScalaConsoleExecuteAction extends AnAction(
     inWriteAction {
       val range: TextRange = new TextRange(0, document.getTextLength)
       editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+      // note: it uses `range` instead ot just editor `text` because under the hood it splits actual editor content
+      // according to the highlighter attributes and passes correct ContentType to the history console
       console.addToHistory(range, console.getConsoleEditor, true)
+      // without this line there will be a slight blinking of user input code SCL-16655
+      // see com.intellij.execution.impl.ConsoleViewImpl.print
+      console.flushDeferredText()
       historyController.addToHistory(text)
 
       editor.getCaretModel.moveToOffset(0)
@@ -80,4 +85,6 @@ class ScalaConsoleExecuteAction extends AnAction(
 
 object ScalaConsoleExecuteAction {
   private val LOG = Logger.getInstance(this.getClass)
+
+  val ActionId = "ScalaConsole.Execute"
 }

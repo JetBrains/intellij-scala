@@ -12,11 +12,9 @@ import com.intellij.psi._
 import com.intellij.psi.search.PsiElementProcessor
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
-import javax.swing.Icon
 import org.jetbrains.annotations.Nls
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.createFromUsage.CreateFromUsageUtil._
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -25,6 +23,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaDirectoryService
+
+import javax.swing.Icon
 
 /**
  * Nikolay.Tropin
@@ -173,7 +173,7 @@ abstract class CreateTypeDefinitionQuickFix(ref: ScReference, kind: ClassKind)
 
     val template = builder.buildTemplate()
     val targetFile = clazz.getContainingFile
-    val isScalaConsole = targetFile.name == ScalaLanguageConsoleView.ScalaConsole
+    val isScalaConsole = ScalaLanguageConsole.isScalaConsoleFile(targetFile)
 
     if (!isScalaConsole) {
       val newEditor = positionCursor(clazz.nameId)

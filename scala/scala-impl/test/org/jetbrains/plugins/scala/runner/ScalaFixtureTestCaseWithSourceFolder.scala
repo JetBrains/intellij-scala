@@ -39,7 +39,7 @@ abstract class ScalaFixtureTestCaseWithSourceFolder extends ScalaFixtureTestCase
 
   protected def scalaLanguage: Language = {
     val languageLevel = version.languageLevel
-    if (languageLevel >= ScalaLanguageLevel.Dotty) Scala3Language.INSTANCE
+    if (languageLevel >= ScalaLanguageLevel.Scala_3_0) Scala3Language.INSTANCE
     else ScalaLanguage.INSTANCE
   }
 

@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, FunctionType, Nothing, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils.ExtensionMethod
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, MethodResolveProcessor}
 import org.jetbrains.plugins.scala.lang.resolve.{ScalaResolveResult, ScalaResolveState}
@@ -70,34 +71,54 @@ object ImplicitResolveResult {
     }
   }
 
-  def processImplicitConversions(refName: String,
-                                 ref: ScExpression,
-                                 processor: BaseProcessor,
-                                 noImplicitsForArgs: Boolean = false,
-                                 precalculatedType: Option[ScType] = None)
-                                (build: ResolverStateBuilder => ResolverStateBuilder)
-                                (implicit place: ScExpression): Unit = for {
-    expressionType <- precalculatedType.orElse(this.expressionType)
-    if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
+  def processImplicitConversionsAndExtensions(
+    refName:            String,
+    ref:                ScExpression,
+    processor:          BaseProcessor,
+    noImplicitsForArgs: Boolean = false,
+    precalculatedType:  Option[ScType] = None
+  )(build:              ResolverStateBuilder => ResolverStateBuilder
+  )(implicit
+    place: ScExpression
+  ): Unit = {
+    val srr = for {
+      expressionType <- precalculatedType.orElse(this.expressionType)
+      if !expressionType.equiv(Nothing) // do not proceed with nothing type, due to performance problems.
+      resolveResult <- findImplicitConversionOrExtension(expressionType, refName, ref, processor, noImplicitsForArgs)
+    } yield resolveResult
 
-    resolveResult <- findImplicitConversion(expressionType, refName, ref, processor, noImplicitsForArgs)
-    resultType <- ExtensionConversionHelper.specialExtractParameterType(resolveResult)
+    srr match {
+      case Some(ScalaResolveResult(ext @ ExtensionMethod(), subst)) =>
+        processor.execute(ext, ScalaResolveState.withSubstitutor(subst).withExtensionMethodMarker)
+      case Some(conversion) =>
+        for {
+          resultType    <- ExtensionConversionHelper.specialExtractParameterType(conversion)
+          unresolvedTypeParameters = conversion.unresolvedTypeParameters.getOrElse(Seq.empty)
 
-    unresolvedTypeParameters = resolveResult.unresolvedTypeParameters.getOrElse(Seq.empty)
-    result = RegularImplicitResolveResult(resolveResult, resultType, unresolvedTypeParameters = unresolvedTypeParameters) //todo: from companion parameter
+          result = RegularImplicitResolveResult(
+            conversion,
+            resultType,
+            unresolvedTypeParameters = unresolvedTypeParameters
+          ) //todo: from companion parameter
 
-    builder = build(result.builder)
+          builder     = build(result.builder)
+          substituted = result.implicitDependentSubstitutor(result.`type`)
+        } processor.processType(substituted, place, builder.state)
+      case None => ()
+    }
+  }
 
-    substituted = result.implicitDependentSubstitutor(result.`type`)
-  } processor.processType(substituted, place, builder.state)
-
-  private[this] def findImplicitConversion(expressionType: ScType,
-                                           refName: String, ref: ScExpression,
-                                           processor: BaseProcessor,
-                                           noImplicitsForArgs: Boolean)
-                                          (implicit place: ScExpression): Option[ScalaResolveResult] = TraceLogger.func {
+  private[this] def findImplicitConversionOrExtension(
+    expressionType:     ScType,
+    refName:            String,
+    ref:                ScExpression,
+    processor:          BaseProcessor,
+    noImplicitsForArgs: Boolean
+  )(implicit
+    place: ScExpression
+  ): Option[ScalaResolveResult] = TraceLogger.func {
     import place.elementScope
-    val functionType = FunctionType(Any(place.projectContext), Seq(expressionType))
+    val functionType         = FunctionType(Any(place.projectContext), Seq(expressionType))
     val expandedFunctionType = FunctionType(expressionType, arguments(processor, noImplicitsForArgs))
 
     def checkImplicits(noApplicability: Boolean = false, withoutImplicitsForArgs: Boolean = noImplicitsForArgs): Seq[ScalaResolveResult] = TraceLogger.func {
@@ -107,9 +128,10 @@ object ImplicitResolveResult {
         place,
         functionType,
         expandedFunctionType,
-        coreElement = None,
+        coreElement          = None,
         isImplicitConversion = true,
-        extensionData = Some(data)
+        extensionData        = Option(data),
+        withExtensions       = place.isInScala3Module
       ).collect()
     }
 
@@ -123,7 +145,7 @@ object ImplicitResolveResult {
 
     foundImplicits match {
       case Seq(resolveResult) => Some(resolveResult)
-      case _ => None
+      case _                  => None
     }
   }
 

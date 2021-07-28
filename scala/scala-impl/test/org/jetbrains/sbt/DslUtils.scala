@@ -11,11 +11,20 @@ object DslUtils {
    */
   class Attribute[T](val key: String)
 
+  sealed trait MatchType
+  object MatchType {
+    object Exact extends MatchType
+    object Inexact extends MatchType
+  }
+
   /**
    * Type-safe storage for attributes
    */
   class AttributeMap {
     private var attributes = Map.empty[(Attribute[_], String), Any]
+
+    // by default use ExactMatch or InexactMatch trait behaviour
+    private var matchTypeMap = Map.empty[Attribute[_], MatchType]
 
     def get[T](attribute: Attribute[T])(implicit m: Manifest[T]): Option[T] =
       attributes.get((attribute, m.toString)).map(_.asInstanceOf[T])
@@ -25,6 +34,11 @@ object DslUtils {
 
     def put[T](attribute: Attribute[T], value: T)(implicit m: Manifest[T]): Unit =
       attributes = attributes + ((attribute, m.toString) -> value)
+
+    def setMatchType(attribute: Attribute[_], matchType: MatchType): Unit =
+      matchTypeMap = matchTypeMap + ((attribute, matchType))
+    def getMatchType(attribute: Attribute[_]): Option[MatchType] =
+      matchTypeMap.get(attribute)
   }
 
   /**
@@ -49,5 +63,10 @@ object DslUtils {
       val seqConcat = attributes.get(attribute).getOrElse(Seq.empty) ++ newSeq
       attributes.put(attribute, seqConcat)
     }
+  }
+
+  class MatchTypeDef(attribute: Attribute[_], attributes: AttributeMap) {
+    def exactMatch(): Unit = attributes.setMatchType(attribute, MatchType.Exact)
+    def inexactMatch(): Unit = attributes.setMatchType(attribute, MatchType.Inexact)
   }
 }

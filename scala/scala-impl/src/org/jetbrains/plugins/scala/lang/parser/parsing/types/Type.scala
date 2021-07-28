@@ -29,7 +29,7 @@ object Type extends Type {
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()
       true
-    } else builder.isScala3orSource3 && builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
+    } else builder.scala3Features.`? as wildcard marker` && builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
 }
 
 trait Type {

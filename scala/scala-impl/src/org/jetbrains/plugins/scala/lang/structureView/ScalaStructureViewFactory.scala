@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.structureView
 import com.intellij.ide.structureView.StructureViewBuilder
 import com.intellij.lang.PsiStructureViewFactory
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsoleView}
+import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
@@ -16,7 +16,7 @@ class ScalaStructureViewFactory extends PsiStructureViewFactory {
     case scalaFile: ScalaFile =>
       Stats.trigger(FeatureKey.structureView)
 
-      if (scalaFile.getName == ScalaLanguageConsoleView.ScalaConsole) {
+      if (ScalaLanguageConsole.isScalaConsoleFile(scalaFile)) {
         new ScalaStructureViewBuilder(scalaFile, Some(ScalaConsoleInfo.getConsole(scalaFile)))
       } else {
         new ScalaStructureViewBuilder(scalaFile)

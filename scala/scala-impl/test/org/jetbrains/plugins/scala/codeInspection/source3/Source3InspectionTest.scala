@@ -1,16 +1,18 @@
 package org.jetbrains.plugins.scala.codeInspection.source3
 
 import com.intellij.codeInspection.LocalInspectionTool
+import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.codeInspection.ScalaQuickFixTestBase
 import org.jetbrains.plugins.scala.util.Source3TestCase
 
 class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version >= ScalaVersion.Latest.Scala_2_13.withMinor(6)
+
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[Source3Inspection]
 
   override protected val description = "Scala 2 syntax with -Xsource:3"
-
-  //override protected def descriptionMatches(s: String): Boolean = s != null
 
   def test_wildcard_replacement(): Unit = {
     val selectedText = s"val x: ${START}_$END <: Any = 1"
@@ -39,6 +41,23 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
     checkTextHasNoErrors(selectedText)
   }
 
+  def test_case_not_needed_for_irrefutable_pattern_tuple(): Unit = {
+    val selectedText = s"for { (a, b) <- Seq((1, 2)) } ()"
+    checkTextHasNoErrors(selectedText)
+  }
+
+  // SCL-19204
+  def test_yield(): Unit = checkTextHasNoErrors(
+    """
+      |for {
+      |  (a, b) <- returnTuple
+      |  _ = println(a)
+      |  _ = println(b)
+      |} yield ()
+      |""".stripMargin
+  )
+
+
   def test_wildcard_import(): Unit = {
     val selectedText = s"import base.${START}_$END"
     checkTextHasError(selectedText)
@@ -50,19 +69,18 @@ class Source3InspectionTest extends ScalaQuickFixTestBase with Source3TestCase {
     )
   }
 
-  def test_wildcard_import_in_selector(): Unit =
-    checkTextHasNoErrors("import base.{nope, _}")
+  def test_wildcard_import_in_selector(): Unit = {
+    assert(version <= ScalaVersion.Latest.Scala_2_13.withMinor(6),
+      "please uncomment and delete this assert. in 2.13.6 there is a bug with wildcard imports in selectors. Also adjust supportedIn to 2.13.7")
+    //val selectedText = s"import base.{nope, ${START}_$END}"
+    //checkTextHasError(selectedText)
 
-  //def test_wildcard_import_in_selector(): Unit = {
-  //  val selectedText = s"import base.{nope, ${START}_$END}"
-  //  checkTextHasError(selectedText)
-  //
-  //  testQuickFix(
-  //    "import base.{nope, _}",
-  //    "import base.{nope, *}",
-  //    "Replace with *"
-  //  )
-  //}
+    //testQuickFix(
+    //  "import base.{nope, _}",
+    //  "import base.{nope, *}",
+    //  "Replace with *"
+    //)
+  }
 
   def test_underscore_is_shadowing(): Unit = {
     val selectedText = s"import base.{x as _}"

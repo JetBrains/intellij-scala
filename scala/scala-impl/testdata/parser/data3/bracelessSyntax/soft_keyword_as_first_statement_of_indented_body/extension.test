@@ -38,7 +38,7 @@ ScalaFile
                     PsiElement(identifier)('String')
             PsiElement())(')')
         PsiWhiteSpace('\n    ')
-        ScTemplateBody
+        ScExtensionBody
           ScFunctionDefinition: foo
             AnnotationsList
               <empty list>

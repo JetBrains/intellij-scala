@@ -19,12 +19,12 @@ abstract class SbtCompletionTestBase extends {
   override protected val caretMarker = EditorTestUtil.CARET_TAG
   override protected val extension = "sbt"
 } with completion.CompletionTestBase {
+  self: MockSbtBase =>
 
   override def folderPath: String = super.folderPath + "Sbt/"
 
-
   override def doTest(): Unit = {
-    // child tests contain too many completion items (more then default 500) which leads to undeterministic test result
+    // child tests contain too many completion items (more then default 500) which leads to nondeterministic test result
     // the warning is produced by IDEA:
     // Your test might miss some lookup items, because only 500 most relevant items are guaranteed to be shown in the lookup. You can:
     // 1. Make the prefix used for completion longer, so that there are less suggestions.

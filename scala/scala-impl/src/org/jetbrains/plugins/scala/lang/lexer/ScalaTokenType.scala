@@ -18,27 +18,27 @@ object ScalaTokenType {
 
   import ScalaModifier._
 
-  val ClassKeyword     = new ScalaTokenType("class")
-  val TraitKeyword     = new ScalaTokenType("trait")
-  val EnumKeyword      = new ScalaTokenType("enum")
-  val ObjectKeyword    = new ScalaTokenType("object")
-  val GivenKeyword     = new ScalaTokenType("given")
-  val UsingKeyword     = new ScalaTokenType("using")
-  val ExtensionKeyword = new ScalaTokenType("extension")
+  val ClassKeyword     = ScalaKeywordTokenType("class")
+  val TraitKeyword     = ScalaKeywordTokenType("trait")
+  val EnumKeyword      = ScalaKeywordTokenType("enum")
+  val ObjectKeyword    = ScalaKeywordTokenType("object")
+  val GivenKeyword     = ScalaKeywordTokenType("given")
+  val UsingKeyword     = ScalaKeywordTokenType("using")
+  val ExtensionKeyword = ScalaKeywordTokenType("extension")
 
-  val NewKeyword = new ScalaTokenType("new")
+  val NewKeyword = ScalaKeywordTokenType("new")
 
   val Long    = new ScalaTokenType("long")
   val Integer = new ScalaTokenType("integer")
   val Double  = new ScalaTokenType("double")
   val Float   = new ScalaTokenType("float")
 
-  val ExportKeyword = new ScalaTokenType("export")
-  val ThenKeyword   = new ScalaTokenType("then")
-  val EndKeyword    = new ScalaTokenType("end")
+  val ExportKeyword = ScalaKeywordTokenType("export")
+  val ThenKeyword   = ScalaKeywordTokenType("then")
+  val EndKeyword    = ScalaKeywordTokenType("end")
 
-  val AsKeyword      = new ScalaTokenType("as")
-  val DerivesKeyword = new ScalaTokenType("derives")
+  val AsKeyword      = ScalaKeywordTokenType("as")
+  val DerivesKeyword = ScalaKeywordTokenType("derives")
 
   // soft modifiers (Scala 3)
   val InlineKeyword      = ScalaModifierTokenType(Inline)

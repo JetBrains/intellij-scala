@@ -10,18 +10,18 @@ import scala.collection.immutable.ArraySeq
  * @author Nikolay.Tropin
  */
 
-object ReverseMap extends SimplificationType() {
+object ReverseMapInspection extends SimplificationType() {
   override def hint: String = ScalaInspectionBundle.message("replace.reverse.map")
 
   override def getSimplification(expr: ScExpression): Option[Simplification] = {
     expr match {
-      case qual`.reverse`Seq()`.map`Seq() =>
-        Some(replace(expr).withText(invocationText(qual, "reverseMap")).highlightFrom(qual))
+      case `.reverse`(qual) `.map` f =>
+        Some(replace(expr).withText(invocationText(qual, "reverseMap", f)).highlightFrom(qual))
       case _ => None
     }
   }
 }
 
 class ReverseMapInspection extends OperationOnCollectionInspection {
-  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ReverseMap)
+  override def possibleSimplificationTypes: ArraySeq[SimplificationType] = ArraySeq(ReverseMapInspection)
 }

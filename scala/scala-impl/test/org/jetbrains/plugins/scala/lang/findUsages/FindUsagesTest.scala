@@ -25,7 +25,7 @@ class FindUsagesTest extends ScalaFixtureTestCase with Markers {
   private def defaultOptions = new ScalaTypeDefinitionFindUsagesOptions(getProject)
 
   private def doTest(fileText: String, options: FindUsagesOptions = defaultOptions): Unit = {
-    val (source, expectedUsageRanges) = extractMarkers(StringUtil.convertLineSeparators(fileText))
+    val (source, expectedUsageRanges) = extractNumberedMarkers(StringUtil.convertLineSeparators(fileText))
     myFixture.configureByText("dummy.scala", source)
     val elem = myFixture.getElementAtCaret
     val named = PsiTreeUtil.getParentOfType(elem, classOf[ScNamedElement], false)

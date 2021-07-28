@@ -43,11 +43,11 @@ object MacroDef extends ParsingRule {
                           if (builder.twoNewlinesBeforeCurrentToken) {
                             return false
                           }
-                          Block.parse(builder, hasBrace = true)
+                          Block.Braced()
                           marker.drop()
                           true
                         case _ =>
-                          if (QualId.parse(builder)) {
+                          if (QualId()) {
                             if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
                               TypeArgs.parse(builder, isPattern = false)
                             }
@@ -81,11 +81,11 @@ object MacroDef extends ParsingRule {
                     if (builder.twoNewlinesBeforeCurrentToken) {
                       return false
                     }
-                    Block.parse(builder, hasBrace = true)
+                    Block.Braced()
                     marker.drop()
                     true
                   case _ =>
-                    if (QualId.parse(builder)) {
+                    if (QualId()) {
                       if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
                         TypeArgs.parse(builder, isPattern = false)
                       }

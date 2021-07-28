@@ -79,15 +79,8 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
         if (reference == null)
           return null
 
-        val result = getGotoDeclarationTargetsForElement(reference, maybeParent)
+        getGotoDeclarationTargetsForElement(reference, maybeParent)
 
-        if ((result == null || result.isEmpty) && isTastyEnabledFor(element)) {
-          targetElementByTasty(containingFile.getProject, sourceElement, offset)
-            .map(Array(_))
-            .getOrElse(result)
-        }
-        else
-          result
       case _ => null
     }
   }
@@ -129,20 +122,6 @@ object ScalaGoToDeclarationHandler {
       if (syntheticTargets.isEmpty) Seq(element)
       else                          syntheticTargets
     }.toArray
-  }
-
-  @Measure
-  private def targetElementByTasty(project: Project, sourceElement: PsiElement, caretOffset: Int): Option[PsiElement] = {
-    for (tastyPath <- TastyPath(sourceElement);
-         tastyFile <- TastyReader.read(tastyPath); // IDEA shows "Resolving Reference..." modal progress
-         (file, offset) <- referenceTargetAt(caretOffset, tastyFile);
-         virtualFile <- Option(VfsUtil.findFileByIoFile(new File(project.getBasePath, file), false));
-         psiFile <- Option(PsiManager.getInstance(project).findFile(virtualFile));
-         targetElement <- Option(psiFile.findElementAt(offset)))
-    yield {
-      showTastyNotification("Navigation") // Internal mode
-      targetElement
-    }
   }
 
   private def regularCase(result: ScalaResolveResult): Seq[PsiElement] = {
@@ -213,13 +192,14 @@ object ScalaGoToDeclarationHandler {
 
   private def syntheticTarget(element: PsiElement): Seq[PsiElement] =
     element match {
-      case ScEnum.DesugaredEnumClass(enum)          => Seq(enum)
-      case ScEnumCase.DesugaredEnumCase(name, enum) => enum.cases.filter(_.name == name)
-      case function: ScFunction                     => Option(function.syntheticNavigationElement).toSeq
+      case ScEnum.Original(enum)                            => Seq(enum)
+      case ScEnumCase.Original(enumCase)                    => Seq(enumCase)
+      case ScGivenDefinition.DesugaredTypeDefinition(gvn)   => Seq(gvn)
+      case function: ScFunction                             => Option(function.syntheticNavigationElement).toSeq
       case scObject: ScObject if scObject.isSyntheticObject =>
         val companionClass = getCompanionModule(scObject)
         companionClass.collect {
-          case ScEnum.DesugaredEnumClass(enum) => enum
+          case ScEnum.Original(enum) => enum
         }.orElse(companionClass).toSeq
       case definition: ScTypeDefinition if definition.isSynthetic => Option(definition.syntheticContainingClass).toSeq
       case parameter: ScParameter                                 => parameterForSyntheticParameter(parameter).toSeq

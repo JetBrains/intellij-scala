@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.compilation
 
+import com.intellij.codeInsight.CodeInsightSettings
 import com.intellij.openapi.application.ex.{ApplicationEx, ApplicationManagerEx}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.Sdk
@@ -173,4 +174,19 @@ object CompilerTestUtil {
 
   def withErrorsFromCompilerDisabled(project: Project): RevertableChange =
     withErrorsFromCompiler(project, enabled = false)
+
+  def withModifiedSetting[Settings, T](instance: => Settings)
+                                      (value: T)
+                                      (get: Settings => T, set: (Settings, T) => ()): RevertableChange = new RevertableChange {
+    private var before: Option[T] = None
+
+    override def applyChange(): Unit = {
+      before = Some(get(instance))
+      set(instance, value)
+    }
+
+    override def revertChange(): Unit =
+      before.foreach(set(instance, _))
+  }
+
 }

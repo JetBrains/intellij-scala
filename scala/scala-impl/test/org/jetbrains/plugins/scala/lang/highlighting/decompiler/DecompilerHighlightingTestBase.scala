@@ -4,8 +4,10 @@ package highlighting
 package decompiler
 
 import com.intellij.psi.PsiDocumentManager
+import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Error, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
+import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, LibraryLoader}
 import org.jetbrains.plugins.scala.decompiler.DecompilerTestBase
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
@@ -18,6 +20,7 @@ abstract class DecompilerHighlightingTestBase extends ScalaFixtureTestCase with 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  >= LatestScalaVersions.Scala_2_11
 
   override protected val includeReflectLibrary: Boolean = true
+  override protected val includeCompilerAsLibrary: Boolean = true
 
   override def basePath = s"${super.basePath}/highlighting/"
 

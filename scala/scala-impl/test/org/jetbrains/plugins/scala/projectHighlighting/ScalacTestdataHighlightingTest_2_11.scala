@@ -43,11 +43,10 @@ abstract class ScalacTestdataHighlightingTestBase_2_12
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
 
+  override protected val includeReflectLibrary = true
+  override protected val includeCompilerAsLibrary = true
+
   override def getProject = super.getProject
 
   override def getModule: Module = super.getModule
-
-  override def librariesLoaders = Seq(
-    ScalaSDKLoader(includeScalaReflect = true)
-  )
 }

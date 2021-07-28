@@ -16,8 +16,10 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt, executeUndoTransparentAction, invokeLater, scheduleOnPooledThread}
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
+import org.jetbrains.plugins.scala.lang.lexer.{ScalaKeywordTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.{ScalaBundle, isUnitTestMode}
 
 import java.awt.Point
@@ -42,8 +44,7 @@ abstract class ScalaImportElementFix[Element <: ElementToImport](val place: PsiE
 
   def createAddImportAction(editor: Editor): ScalaAddImportAction[_, _]
 
-  def shouldShowHint(): Boolean =
-    !isShowErrorsFromCompilerEnabled(place.getContainingFile)
+  def shouldShowHint(): Boolean = !mayBeKeyword(place)
 
   def isAddUnambiguous: Boolean
 
@@ -184,8 +185,8 @@ private object ScalaImportElementFix {
       AppExecutorUtil.createBoundedApplicationPoolExecutor("ScalaImportElementFixExecutor", 2)
   }
 
-  private def isShowErrorsFromCompilerEnabled(file: PsiFile) =
-    ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
+  private def isScala3AndErrorsFromCompiler(file: PsiFile) =
+    file.isInScala3Module && ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(file)
 
   implicit class EditorEx(val editor: Editor) extends AnyVal {
     def caretNear(place: PsiElement): Boolean =
@@ -214,4 +215,12 @@ private object ScalaImportElementFix {
 
   private def isQualified(name: String) =
     name.indexOf('.') != -1
+
+  private val softKeywords: Set[String] =
+    ScalaTokenTypes.SOFT_KEYWORDS.getTypes.map(_.asInstanceOf[ScalaKeywordTokenType].keywordText).toSet
+
+  private def mayBeKeyword(place: PsiElement): Boolean = place match {
+    case ref: ScReference if ref.qualifier.isEmpty => softKeywords.contains(ref.refName)
+    case _ => false
+  }
 }

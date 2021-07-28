@@ -55,12 +55,12 @@ object ImportOrderings {
   /**
    * Ordering preferring local definitions before external ones
    */
-  def externalOriginOrdering: Ordering[PsiElement] = {
+  def externalOriginOrdering: Ordering[PsiElement] =
     Ordering.by {
       case _: PsiPackage     => false
       case ContainingFile(f) => f.getVirtualFile.isInLocalFileSystem
+      case _                 => false
     }
-  }
 
   /**
    * Ordering by amount of times the import was used in other parts of the project

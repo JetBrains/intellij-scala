@@ -113,6 +113,8 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
     INTERPOLATED_INJECTION_MAPPING.put("xml", "XML");
   }
 
+  public enum TypeChecker {BuiltIn, Compiler}
+
   public enum ScalaCollectionHighlightingLevel {None, OnlyNonQualified, All}
 
   //collection type highlighting settings

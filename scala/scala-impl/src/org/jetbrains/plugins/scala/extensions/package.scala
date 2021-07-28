@@ -376,7 +376,7 @@ package object extensions {
     // For `is` there's "unsafe" `isInstanceOf`, but for `asOption` there's only `match` (which is verbose).
     def asOptionOfUnsafe[E : ClassTag]: Option[E] =
       v match {
-        case e: E => Some(e)
+        case e: E => Option(e)
         case _    => None
       }
   }
@@ -392,10 +392,10 @@ package object extensions {
     // Use for safely checking for null in chained calls
     @inline def safeMap[A](f: T => A): Option[A] = if (option.isEmpty) None else Option(f(option.get))
 
-    def filterByType[S <: AnyRef : ClassTag]: Option[S] = {
+    def filterByType[S <: AnyRef : ClassTag]: Option[T with S] = {
       option match {
         case Some(element) if implicitly[ClassTag[S]].runtimeClass.isInstance(element) =>
-          option.asInstanceOf[Option[S]]
+          option.asInstanceOf[Option[T with S]]
         case _ => None
       }
     }
@@ -471,6 +471,10 @@ package object extensions {
       if (string.length <= maxLen) string
       else string.substring(0, maxLen - restMarker.length) + restMarker
     }
+
+    def lowercased: String =
+      if (string == null || string.length == 0 || !string.charAt(0).isUpper) string
+      else string.updated(0, string.charAt(0).toLower)
   }
 
   object StringExt {
@@ -647,6 +651,9 @@ package object extensions {
       case _: PsiFile | _: PsiDirectory => Iterator.empty
       case _ => parents.takeWhile(!_.is[PsiFile])
     }
+
+    def pathToLastChild: Iterator[PsiElement] =
+      Iterator.iterate[PsiElement](element.getLastChild)(_.getLastChild).takeWhile(_ != null)
 
     def withParentsInFile: Iterator[PsiElement] = Iterator(element) ++ parentsInFile
 
@@ -1136,6 +1143,24 @@ package object extensions {
 
     def isWhitespaceOrComment: Boolean = {
       node != null && PsiImplUtil.isWhitespaceOrComment(node)
+    }
+
+    def nextNonWhitespaceNode: ASTNode = {
+      var next = node.getTreeNext
+
+      while (next != null && next.isWhitespaceOrComment)
+        next = next.getTreeNext
+
+      next
+    }
+
+    def prevNonWhitespaceNode: ASTNode = {
+      var prev = node.getTreePrev
+
+      while (prev != null && prev.isWhitespaceOrComment)
+        prev = prev.getTreePrev
+
+      prev
     }
   }
 

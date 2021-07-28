@@ -67,7 +67,7 @@ object ImportImplicitInstanceFix {
       case TypeToSearch(path, scType) => findCompatibleInstances(scType, owner).map(FoundImplicit(_, path, scType))
     }
     val alreadyImported =
-      ImplicitCollector.visibleImplicits(owner).flatMap(GlobalImplicitInstance.from)
+      ImplicitCollector.visibleImplicits(owner, None).flatMap(GlobalImplicitInstance.from)
 
     allInstances
       .distinctBy(_.instance)
@@ -106,7 +106,7 @@ object ImportImplicitInstanceFix {
       compatibleInstances(typeToSearch, owner.resolveScope, owner)
 
     val availableByType =
-      ImplicitCollector.implicitsFromType(owner, typeToSearch).flatMap(GlobalImplicitInstance.from)
+      ImplicitCollector.implicitsFromType(owner, typeToSearch, None).flatMap(GlobalImplicitInstance.from)
 
     allInstances -- availableByType
   }

@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.structureView
 
-import java.util.Collections
-import java.{util => ju}
-
 import com.intellij.execution.PsiLocation
 import com.intellij.icons.AllIcons
 import com.intellij.ide.util.FileStructureNodeProvider
@@ -27,11 +24,13 @@ import org.jetbrains.plugins.scala.lang.psi.impl.base.patterns.ScPatternsImpl
 import org.jetbrains.plugins.scala.lang.structureView.element.{Test, TypeDefinition, Value}
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer
 import org.jetbrains.plugins.scala.testingSupport.test.AbstractTestConfigurationProducer.CreateFromContextInfo.ClassWithTestName
-import org.jetbrains.plugins.scala.testingSupport.test.munit.{MUnitTestFramework, MUnitUtils}
+import org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitUtils
 import org.jetbrains.plugins.scala.testingSupport.test.scalatest.ScalaTestUtil
 import org.jetbrains.plugins.scala.testingSupport.test.specs2.Specs2Util
 import org.jetbrains.plugins.scala.testingSupport.test.utest.UTestConfigurationProducer
 
+import java.util.Collections
+import java.{util => ju}
 import scala.annotation.tailrec
 import scala.jdk.CollectionConverters._
 

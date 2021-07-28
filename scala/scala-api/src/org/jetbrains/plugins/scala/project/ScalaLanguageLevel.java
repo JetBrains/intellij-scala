@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.project;
 
+import com.intellij.openapi.util.Key;
 import org.jetbrains.annotations.NotNull;
 import scala.Option;
 import scala.math.Ordered;
@@ -13,7 +14,6 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_11("2.11"),
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
-    Dotty("0.27"), // TODO delete in 2021.2
     Scala_3_0("3.0");
 
     @NotNull
@@ -22,6 +22,8 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     private final String myName;
     @NotNull
     private final String myPattern;
+
+    public static final Key<ScalaLanguageLevel> KEY = Key.create("SCALA_LANGUAGE_LEVEL");
 
     ScalaLanguageLevel(@NotNull String version) {
         this(version, version, Pattern.quote(version) + ".*");

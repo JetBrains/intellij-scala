@@ -11,9 +11,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 * @author Alexander Podkhalyuzin
 * Date: 06.03.2008
 */
-object NameValuePair {
+object NameValuePair extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val nameMarker = builder.mark
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>

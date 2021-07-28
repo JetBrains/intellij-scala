@@ -45,8 +45,7 @@ abstract class IdeClient(compilerName: String,
   }
 
   override def compilationStart(): Unit = {
-    val progressMsg = JpsBundle.message("compiling.progress.message", chunk.getPresentableShortName) + "..."
-    context.processMessage(new ProgressMessage(progressMsg))
+    context.processMessage(new ProgressMessage(JpsBundle.message("compiling.progress.message", chunk.getPresentableShortName)))
     context.processMessage(CompilerEvent.CompilationStarted(compilationId, compilationUnitId).toCustomMessage)
   }
 
@@ -78,6 +77,9 @@ abstract class IdeClient(compilerName: String,
 
   override def internalDebug(text: String): Unit =
     ScalaBuilder.Log.debug(text)
+
+  override def internalTrace(text: String): Unit =
+    ScalaBuilder.Log.trace(text)
 
   override def deleted(module: File): Unit = {
     val paths = util.Collections.singletonList(FileUtil.toCanonicalPath(module.getPath))

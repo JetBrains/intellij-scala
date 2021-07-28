@@ -63,7 +63,7 @@ class ExpandPatternIntention extends PsiElementBaseIntentionAction {
             val nameId = typePattern.nameId.getText
             nameId match {
               case "_" => (typePattern, patText)
-              case _ => (typePattern, "%s@%s".format(nameId, patText))
+              case _ => (typePattern, s"$nameId@$patText")
             }
           }
         case _ => None

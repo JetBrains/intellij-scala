@@ -10,9 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 /**
  * @author Alexander Podkhalyuzin
  */
-trait ScTypedPattern extends ScBindingPattern {
-  def typePattern: Option[ScTypePattern] = findChild[ScTypePattern]
-}
+trait ScTypedPattern extends ScBindingPattern with ScTypedPatternLike
 
 object ScTypedPattern {
   def unapply(pattern: ScTypedPattern): Option[ScTypeElement] =

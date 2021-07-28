@@ -373,7 +373,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
             marker.done(syntaxElementType)
             return true
           } else {
-            scaladocError(builder, ScalaBundle.message("scaladoc.parsing.closing.link.element.before.opening.one"))
+            scaladocError(builder, ScalaBundle.message("scaladoc.parsing.closing.link.tag.before.opening"))
           }
         case a: ScalaDocSyntaxElementType if a == DOC_MONOSPACE_TAG || syntaxElementType != DOC_MONOSPACE_TAG =>
           if (syntaxElementType == a) { //

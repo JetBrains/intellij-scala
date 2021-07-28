@@ -70,9 +70,20 @@ class BspProjectResolver extends ExternalSystemProjectResolver[BspExecutionSetti
 
     val structureEventId = BuildMessages.randomEventId
     reporter.startTask(structureEventId, None, BspBundle.message("bsp.resolver.resolving.build.structure"))
+    val reloadEventId = BuildMessages.randomEventId
+    val reloadRequest = {
+      if (capabilities.getCanReload) {
+        reporter.startTask(reloadEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.reloading"))
+        server.workspaceReload()
+      }
+      else CompletableFuture.completedFuture(new Object)
+    }
     val targetsEventId = BuildMessages.randomEventId
-    reporter.startTask(targetsEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.targets"))
-    val targetsRequest = server.workspaceBuildTargets()
+    val targetsRequest = reloadRequest.thenCompose { _ =>
+      reporter.finishTask(reloadEventId, BspBundle.message("bsp.resolver.build.reloading"), new SuccessResultImpl())
+      reporter.startTask(targetsEventId, Some(structureEventId), BspBundle.message("bsp.resolver.build.targets"))
+      server.workspaceBuildTargets()
+    }
 
     val projectNodeFuture: CompletableFuture[DataNode[ProjectData]] =
       targetsRequest
@@ -296,7 +307,7 @@ object BspProjectResolver {
   //noinspection ReferencePassedToNls
   private def fetchScalacOptions(targets: List[BuildTarget], parentId: EventId)(implicit bsp: BspServer, reporter: BuildReporter) = {
     val scalaTargetIds = targets
-      .filter(t => t.getLanguageIds.contains("scala") && t.getDataKind == BuildTargetDataKind.SCALA)
+      .filter(t => t.getLanguageIds.contains("scala") && t.getDataKind == BuildTargetDataKind.SCALA || t.getDataKind == BuildTargetDataKind.SBT)
       .map(_.getId).asJava
 
     if (! scalaTargetIds.isEmpty) {

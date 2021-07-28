@@ -30,7 +30,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      ScFunctionDefinition: test
       |        AnnotationsList
       |          <empty list>
@@ -81,14 +81,14 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: X
       |          ParameterType
       |            SimpleType: X
       |              CodeReferenceElement: X
       |                PsiElement(identifier)('X')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      ScFunctionDefinition: test
       |        AnnotationsList
       |          <empty list>
@@ -136,7 +136,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      ScFunctionDefinition: test
       |        AnnotationsList
       |          <empty list>
@@ -202,7 +202,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace(' ')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      PsiElement({)('{')
       |      PsiWhiteSpace('\n  ')
       |      ScFunctionDefinition: a
@@ -271,7 +271,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      ScFunctionDefinition: a
       |        AnnotationsList
       |          <empty list>
@@ -335,7 +335,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |              CodeReferenceElement: Int
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      PsiElement(:)(':')
       |      PsiWhiteSpace('\n  ')
       |      ScFunctionDefinition: a
@@ -403,7 +403,7 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('Int')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n  ')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      ScFunctionDefinition: a
       |        AnnotationsList
       |          <empty list>
@@ -469,13 +469,14 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |                PsiElement(identifier)('String')
       |        PsiElement())(')')
       |    PsiWhiteSpace('\n')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      PsiErrorElement:Expected at least one extension method
       |        <empty list>
       |      End: extension
       |        PsiElement(end)('end')
       |        PsiWhiteSpace(' ')
-      |        PsiElement(identifier)('extension')""".stripMargin
+      |        PsiElement(identifier)('extension')
+      |""".stripMargin
   )
 
   // #EA-5880432
@@ -512,10 +513,69 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |          Parameters
       |            PsiErrorElement:Parameter clause expected
       |              <empty list>
-      |          ScTemplateBody
+      |          ScExtensionBody
       |            <empty list>
       |        PsiWhiteSpace('\n')
       |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_leading_using_clause(): Unit = checkTree(
+    """
+      |extension (using Test)(i: Int):
+      |  def test = 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  Extension on Int
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement(using)('using')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: Test
+      |          ParameterType
+      |            SimpleType: Test
+      |              CodeReferenceElement: Test
+      |                PsiElement(identifier)('Test')
+      |        PsiElement())(')')
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: i
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('i')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiElement(:)(':')
+      |      PsiWhiteSpace('\n  ')
+      |      ScFunctionDefinition: test
+      |        AnnotationsList
+      |          <empty list>
+      |        Modifiers
+      |          <empty list>
+      |        PsiElement(def)('def')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(identifier)('test')
+      |        Parameters
+      |          <empty list>
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(=)('=')
+      |        PsiWhiteSpace(' ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('3')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )

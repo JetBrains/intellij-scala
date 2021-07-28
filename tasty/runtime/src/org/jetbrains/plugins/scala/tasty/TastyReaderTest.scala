@@ -17,35 +17,45 @@ object TastyReaderTest {
     var passed, failed = Seq.empty[String]
 
     Seq(
+      "annotation/Members",
+      "annotation/Parameters",
+      "annotation/Text",
       "member/Bounds",
       "member/Def",
       "member/ExtensionMethod",
       "member/Given",
       "member/InlineModifier",
       "member/Modifiers",
+      "member/Qualifier",
       "member/This",
       "member/Type",
       "member/Val",
       "member/Var",
-      "package1/Members",
-      "package1/topLevel",
+      "package1/package2/package",
       "package1/package2/Chained",
       "package1/package2/Flat",
+      "package1/package2/Scope",
+      "package1/Members",
+      "package1/topLevel",
       "parameter/Bounds",
       "parameter/ByName",
       "parameter/CaseClass",
       "parameter/Class",
+      "parameter/ContextBounds",
       "parameter/Def",
       "parameter/DefaultArguments",
       "parameter/Enum",
       "parameter/EnumCaseClass",
       "parameter/Extension",
       "parameter/ExtensionMethod",
+      "parameter/Given",
+      "parameter/HKT",
+      "parameter/InlineModifier",
+      "parameter/Modifiers",
+      "parameter/Qualifier",
       "parameter/Repeated",
       "parameter/Trait",
       "parameter/Type",
-      "parameter/InlineModifier",
-      "parameter/Modifiers",
       "parameter/Variance", // TODO TypeMember
       "typeDefinition/Class",
       "typeDefinition/Companions",
@@ -55,7 +65,21 @@ object TastyReaderTest {
       "typeDefinition/Modifiers",
       "typeDefinition/Object",
       "typeDefinition/Parents",
+      "typeDefinition/Qualifier",
       "typeDefinition/Trait",
+      "types/And",
+      "types/Annotated",
+      "types/Constant",
+      "types/Function",
+      "types/Ident",
+      "types/Literal",
+      "types/Or",
+      "types/Projection",
+      "types/Refs",
+      "types/Select",
+      "types/Singleton",
+      "types/This",
+      "types/Tuple",
       "EmptyPackage",
       "Nesting",
     ).map("community/tasty/runtime/data/" + _ + ".scala").foreach { scalaFile =>
@@ -70,7 +94,7 @@ object TastyReaderTest {
       val tree = TreeReader.treeFrom(readBytes(tastyFile))
 
       val actual = try {
-        textOf(tree)
+        textOf(tree)(using privateMembers = true)
       } catch {
         case NonFatal(e) =>
           Console.err.println(scalaFile)

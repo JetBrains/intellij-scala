@@ -2,7 +2,7 @@ package org.jetbrains.sbt.project.structure
 
 import java.io.File
 
-import org.jetbrains.sbt.project.data.Play2ProjectData
+import org.jetbrains.sbt.project.data.SbtPlay2ProjectData
 import org.jetbrains.sbt.project.structure.Play2Keys.AllKeys._
 import org.jetbrains.sbt.structure.Play2Data
 import org.jetbrains.sbt.RichSeq
@@ -16,7 +16,7 @@ import scala.collection.immutable.HashMap
 object Play2OldStructureAdapter {
   type ProjectId = String
 
-  def apply(newData: Seq[(ProjectId, File, Play2Data)]): Play2ProjectData = {
+  def apply(newData: Seq[(ProjectId, File, Play2Data)]): SbtPlay2ProjectData = {
     val projectKeyValueTriples = newData.flatMap {
       case (id, baseDir, data) => extractProjectKeyValue(id, baseDir, data)
     }
@@ -24,7 +24,7 @@ object Play2OldStructureAdapter {
       case (string, triples) => (string, triples.map(t => (t._1, t._3)))
     }
 
-    Play2ProjectData(avoidSL7005Bug[String, ProjectId, ParsedValue[_]](oldData))
+    SbtPlay2ProjectData(avoidSL7005Bug[String, ProjectId, ParsedValue[_]](oldData))
   }
 
   private def extractProjectKeyValue(id: ProjectId, baseDir: File, data: Play2Data): Seq[(ProjectId, String, ParsedValue[_])] =  {

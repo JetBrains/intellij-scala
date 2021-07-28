@@ -137,7 +137,7 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Int
       |          ParameterType
       |            SimpleType: Int
       |              CodeReferenceElement: Int
@@ -147,14 +147,14 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: String
       |          ParameterType
       |            SimpleType: String
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement(,)(',')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Double
       |          ParameterType
       |            SimpleType: Double
       |              CodeReferenceElement: Double
@@ -205,14 +205,14 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(()('(')
       |          PsiElement(using)('using')
       |          PsiWhiteSpace(' ')
-      |          ClassParameter: _
+      |          ClassParameter: Int
       |            ParameterType
       |              SimpleType: Int
       |                CodeReferenceElement: Int
       |                  PsiElement(identifier)('Int')
       |          PsiElement(,)(',')
       |          PsiWhiteSpace(' ')
-      |          ClassParameter: _
+      |          ClassParameter: Test
       |            ParameterType
       |              SimpleType: Test
       |                CodeReferenceElement: Test
@@ -274,6 +274,45 @@ class Scala3UsingParserTest extends SimpleScala3ParserTestBase {
       |    ExtendsBlock
       |      <empty list>
       |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_named_using_param(): Unit = checkTree(
+    "def test(using => X): Unit = ()",
+    """
+      |ScalaFile
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement(using)('using')
+      |        PsiWhiteSpace(' ')
+      |        Parameter: X
+      |          ParameterType
+      |            PsiElement(=>)('=>')
+      |            PsiWhiteSpace(' ')
+      |            SimpleType: X
+      |              CodeReferenceElement: X
+      |                PsiElement(identifier)('X')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: Unit
+      |      CodeReferenceElement: Unit
+      |        PsiElement(identifier)('Unit')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    UnitExpression
+      |      PsiElement(()('(')
+      |      PsiElement())(')')
       |""".stripMargin
   )
 }

@@ -18,67 +18,45 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  * Block ::= {BlockStat semi}[ResultExpr]
  */
 object Block {
+  object ContentInBraces extends ParsingRule {
+    override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+      if (!ResultExpr(stopOnOutdent = false) && BlockStat()) {
+        var hasSemicolon = false
+        var rollbackMarker = builder.mark()
 
-  def parse(builder: ScalaPsiBuilder): Unit = {
-    if (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
-      var hasSemicolon = false
-      var rollbackMarker = builder.mark()
+        def updateSemicolon(): Unit = {
+          builder.getTokenType match {
+            case ScalaTokenTypes.tSEMICOLON =>
+              hasSemicolon = true
+              while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
+                builder.advanceLexer()
+              }
+            case _ => if (builder.newlineBeforeCurrentToken) hasSemicolon = true
+          }
+        }
 
-      def updateSemicolon(): Unit = {
-        builder.getTokenType match {
-          case ScalaTokenTypes.tSEMICOLON =>
+        updateSemicolon()
+
+        while (!ResultExpr(stopOnOutdent = false) && BlockStat()) {
+          if (!hasSemicolon) {
+            rollbackMarker.rollbackTo()
+            builder error ErrMsg("semi.expected")
             hasSemicolon = true
-            while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
-              builder.advanceLexer()
-            }
-          case _ => if (builder.newlineBeforeCurrentToken) hasSemicolon = true
+            rollbackMarker = builder.mark()
+          } else {
+            updateSemicolon()
+            rollbackMarker.drop()
+            rollbackMarker = builder.mark()
+          }
         }
+        rollbackMarker.drop()
       }
-
-      updateSemicolon()
-
-      while (!ResultExpr.parse(builder) && BlockStat.parse(builder)) {
-        if (!hasSemicolon) {
-          rollbackMarker.rollbackTo()
-          builder error ErrMsg("semi.expected")
-          hasSemicolon = true
-          rollbackMarker = builder.mark()
-        } else {
-          updateSemicolon()
-          rollbackMarker.drop()
-          rollbackMarker = builder.mark()
-        }
-      }
-      rollbackMarker.drop()
+      true
     }
   }
 
-  private def parseImpl(builder: ScalaPsiBuilder): Int = {
-    var i: Int = 0
-
-    var tts: List[IElementType] = Nil
-    var continue = true
-
-    while (continue) {
-      if (ResultExpr.parse(builder)) {
-        continue = false
-        i = i + 1
-        tts ::= builder.getTokenType
-      } else if (BlockStat.parse(builder)) {
-        i = i + 1
-        tts ::= builder.getTokenType
-      } else {
-        continue = false
-      }
-    }
-    if (tts.drop(1).headOption.contains(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test
-
-    i
-  }
-
-  def parse(builder: ScalaPsiBuilder, hasBrace: Boolean,
-            needNode: Boolean = false): Boolean = {
-    if (hasBrace) {
+  object Braced extends ParsingRule {
+    override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
       val blockMarker = builder.mark
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE =>
@@ -88,20 +66,58 @@ object Block {
           blockMarker.drop()
           return false
       }
-      ParserUtils.parseLoopUntilRBrace(builder, () => parse(builder))
+      ParserUtils.parseLoopUntilRBrace() {
+        Block.ContentInBraces()
+      }
       builder.restoreNewlinesState()
       blockMarker.done(ScCodeBlockElementType.BlockExpression)
+      true
     }
-    else {
+  }
+
+  object Braceless {
+    def apply(stopOnOutdent: Boolean, needNode: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
       val bm = builder.mark()
-      val count = parseImpl(builder)
-      if (count > 1) {
+      val count = parseImpl(stopOnOutdent)
+      if (count > 1 || needNode) {
         bm.done(ScalaElementType.BLOCK)
       } else {
-        if (!needNode) bm.drop() else bm.done(ScalaElementType.BLOCK)
-//        bm.done(ScalaElementTypes.BLOCK)
+        bm.drop()
       }
+      true
     }
-    true
+
+    private def parseImpl(stopOnOutdent: Boolean)(implicit builder: ScalaPsiBuilder): Int = {
+      var i: Int = 0
+      val blockIndentation = BlockIndentation.create
+
+      var tts: List[IElementType] = Nil
+      var continue = true
+
+      val prevIndentation = builder.currentIndentationWidth
+      while (continue) {
+        blockIndentation.fromHere()
+        val isOutdent =
+          stopOnOutdent &&
+          builder.isScala3 &&
+          builder.isScala3IndentationBasedSyntaxEnabled &&
+            builder.findPreviousIndent.exists(_ < prevIndentation)
+        if (isOutdent) {
+          continue = false
+        } else if (ResultExpr(stopOnOutdent)) {
+          continue = false
+          i = i + 1
+          tts ::= builder.getTokenType
+        } else if (BlockStat()) {
+          i = i + 1
+          tts ::= builder.getTokenType
+        } else {
+          continue = false
+        }
+      }
+      if (tts.drop(1).headOption.contains(ScalaTokenTypes.tSEMICOLON)) i -= 1  // See unit_to_unit.test
+      blockIndentation.drop()
+      i
+    }
   }
 }

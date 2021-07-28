@@ -67,7 +67,7 @@ final class ScExistentialType private (
       case (ParameterizedType(pType, args), ParameterizedType(rType, _)) =>
         val res = pType.equivInner(rType, constraints, falseUndef)
         if (res.isLeft) return res
-        ScalaConformance.extractParams(rType) match {
+        extractTypeParameters(rType) match {
           case Some(iter) =>
             val (names, existArgsBounds) =
               args.zip(iter.toList).collect {

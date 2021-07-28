@@ -9,14 +9,14 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.structureView.element.TypeDefinition.childrenOf
 
-class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElement(definition) {
+class TypeDefinition(definition: ScTypeDefinition) extends AbstractTreeElementDelegatingChildrenToPsi(definition) {
 
   override def getPresentableText: String = {
     val name = Option(definition.nameId).map(_.getText)
 
     val typeParameters = definition.typeParametersClause.map(_.typeParameters.map(_.name).mkString("[", ", ", "]"))
 
-    val valueParameters = definition.asOptionOf[ScClass].flatMap {
+    val valueParameters = definition.asOptionOf[ScConstructorOwner].flatMap {
       _.constructor.map { constructor =>
         FromStubsParameterRenderer.renderClauses(constructor.parameterList)
       }
@@ -38,17 +38,22 @@ object TypeDefinition {
        .flatMap(_.getChildren)
        .filterByType[ScBlockExpr]
 
-     val members = definition.membersWithSynthetic.flatMap {
+     val members = definition.members.flatMap {
        case constructor: ScPrimaryConstructor => definition match {
          case c: ScClass if c.isCase => constructor.effectiveFirstParameterSection
          case _ => constructor.valueParameters
        }
-       case element @ (_: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias) if !element.isSynthetic => Seq(element)
+       case element @ (_: ScFunction | _: ScVariable | _: ScValue | _: ScTypeAlias | _: ScExtension) => Seq(element)
        case _ => Seq.empty
      }
 
-     val definitions = definition.typeDefinitions
+     val enumCases = definition match {
+       case ec: ScEnum => ec.cases
+       case _               => Nil
+     }
 
-     blocks ++ members ++ definitions
+     val typeDefinitions = definition.typeDefinitions
+
+     enumCases ++ blocks ++ members ++ typeDefinitions
    }
 }

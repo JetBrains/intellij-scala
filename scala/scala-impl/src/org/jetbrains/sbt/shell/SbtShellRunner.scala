@@ -148,6 +148,7 @@ final class SbtShellRunner(project: Project, consoleTitle: String, debugConnecti
     mainPanel.setLayout(new BorderLayout)
     mainPanel.add(toolbarPanel, BorderLayout.WEST)
     mainPanel.add(consoleView.getComponent, BorderLayout.CENTER)
+    actionToolBar.setTargetComponent(mainPanel)
 
     //noinspection ScalaExtractStringToBundle
     val content = ContentFactory.SERVICE.getInstance.createContent(mainPanel, "sbt-shell-toolwindow-content", true)

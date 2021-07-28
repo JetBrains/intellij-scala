@@ -4,6 +4,7 @@ package psi
 package api
 package statements
 
+import org.jetbrains.plugins.scala.extensions.OptionExt
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScEnum, ScMember, ScObject}
@@ -18,6 +19,8 @@ trait ScEnumCase extends ScConstructorOwner {
    * type params implicitly inherited from parent enum class.
    */
   def physicalTypeParameters: Seq[ScTypeParam]
+
+  override def isCase: Boolean = true
 }
 
 object ScEnumCase {
@@ -26,23 +29,27 @@ object ScEnumCase {
       Option.when(cse.constructor.isEmpty)((cse.name, cse.superTypes))
   }
 
-  object DesugaredEnumCase {
-    def unapply(e: ScNamedElement): Option[(String, ScEnum)] =
+  object Original {
+    def unapply(e: ScNamedElement): Option[ScEnumCase] =
+      OriginalEnum.unapply(e).flatMap {
+        enum =>
+          val name = e.name
+          enum.cases.find(_.name == name)
+      }
+  }
+
+  object OriginalEnum {
+    def unapply(e: ScNamedElement): Option[ScEnum] =
       ScalaPsiUtil.nameContext(e) match {
         case member: ScMember =>
           member.syntheticNavigationElement match {
-            case null => None
-            case obj: ScObject =>
-              obj.baseCompanion match {
-                case Some(enum: ScEnum) => Option((e.getName, enum))
-                case _                  => None
-              }
-            case _ => None
+            case obj: ScObject => obj.baseCompanion.filterByType[ScEnum]
+            case _             => None
           }
         case _ => None
       }
   }
 
   def isDesugaredEnumCase(cls: ScNamedElement): Boolean =
-    DesugaredEnumCase.unapply(cls).isDefined
+    OriginalEnum.unapply(cls).isDefined
 }

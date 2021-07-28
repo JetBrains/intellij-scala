@@ -7,10 +7,8 @@ package statements
 import com.intellij.ide.util.EditSourceUtil
 import com.intellij.lang.ASTNode
 import com.intellij.navigation.ItemPresentation
-import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
-import javax.swing.Icon
-import org.jetbrains.plugins.scala.extensions.ifReadAllowed
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, ifReadAllowed}
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
@@ -19,6 +17,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTypeAliasStub
+
+import javax.swing.Icon
 
 /**
 * @author Alexander Podkhalyuzin
@@ -60,9 +60,12 @@ final class ScTypeAliasDefinitionImpl private(stub: ScTypeAliasStub, node: ASTNo
   override def getPresentation: ItemPresentation = {
     new ItemPresentation() {
       override def getPresentableText: String = name
-      def getTextAttributesKey: TextAttributesKey = null
-      override def getLocationString: String = "(" + ScTypeAliasDefinitionImpl.this.containingClass.qualifiedName + ")"
       override def getIcon(open: Boolean): Icon = ScTypeAliasDefinitionImpl.this.getIcon(0)
+      override def getLocationString: String = {
+        val classFqn = ScTypeAliasDefinitionImpl.this.containingClass.toOption.map(_.qualifiedName)
+        val fqn = classFqn.orElse(topLevelQualifier)
+        "(" + fqn.getOrElse("") + ")"
+      }
     }
   }
 

@@ -82,7 +82,7 @@ object ImportSelectors extends ParsingRule {
               importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
               true
             case _ =>
-              ParserUtils.parseLoopUntilRBrace(builder, () => {}) //we need to find closing brace, otherwise we can miss important things
+              ParserUtils.parseLoopUntilRBrace() {} //we need to find closing brace, otherwise we can miss important things
               builder.restoreNewlinesState()
               importSelectorMarkers.done(ScalaElementType.IMPORT_SELECTORS)
               true

@@ -18,10 +18,8 @@ class RemoveBracesForSingleImportQuickFix(importExpr: ScImportExpr)
 
   override protected def doApplyFix(iExpr: ScImportExpr)
                                    (implicit project: Project): Unit = {
-    val name =
-      if (iExpr.hasWildcardSelector) TokenTexts.importWildcardText(iExpr)
-      else iExpr.importedNames.headOption.getOrElse("")
-    val text = s"${iExpr.qualifier.get.getText}.$name"
+    val selector = iExpr.selectors.head.getText
+    val text = s"${iExpr.qualifier.get.getText}.$selector"
 
     inWriteAction {
       iExpr.replace(createImportExprWithContextFromText(text, iExpr))

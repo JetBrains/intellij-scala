@@ -2,40 +2,36 @@ package org.jetbrains.sbt
 package project
 package template
 
-import java.awt.{Color, FlowLayout, GridLayout}
-import java.io.File
 import com.intellij.ide.util.projectWizard.{ModuleBuilder, ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.service.project.wizard.AbstractExternalModuleBuilder
 import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.options.ConfigurationException
-import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SdkTypeId}
+import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk, SimpleJavaSdkType}
 import com.intellij.openapi.roots.ModifiableRootModel
-import com.intellij.openapi.util.{io, text}
+import com.intellij.openapi.util.io
 import com.intellij.ui.DocumentAdapter
-import com.intellij.ui.components.{JBLabel, JBTextField}
+import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.UI
-import com.jgoodies.forms.factories.Borders.EmptyBorder
-import net.miginfocom.layout.CC
-import net.miginfocom.swing.MigLayout
-
-import javax.swing._
-import org.jetbrains.annotations.NonNls
-import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
+import org.jetbrains.annotations.{NonNls, TestOnly}
 import org.jetbrains.plugins.scala.extensions.JComponentExt.ActionListenersOwner
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog
-import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Version, Versions}
+import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Versions}
+import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
+import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
-import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{doSetupModule, getOrCreateContentRootDir}
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.doSetupModule
+
+import java.awt.FlowLayout
+import java.io.File
+import javax.swing._
 
 /**
  * User: Dmitry Naydanov, Pavel Fatin
  * Date: 11/23/13
  */
-class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings](
-  SbtProjectSystem.Id,
-  new SbtProjectSettings
-) {
+class SbtModuleBuilder extends SbtModuleBuilderBase {
 
   import SbtModuleBuilder._
   import Versions.{SBT => SbtKind, Scala => ScalaKind}
@@ -54,14 +50,9 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   // Scala3 is only supported since sbt 1.5.0
   private val minSbtVersionForScala3 = "1.5.0"
   private lazy val sbtVersionsForScala3 = Versions(
-    "1.5.2",
+    LatestSbtVersion,
     sbtVersions.versions.filter(_ >= minSbtVersionForScala3)
   )
-
-  locally {
-    val settings = getExternalProjectSettings
-    settings.setResolveJavadocs(false)
-  }
 
   override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
@@ -69,7 +60,7 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     val root = new File(getModuleFileDirectory)
     if (root.exists()) {
       val Selections(sbtVersionOpt, scalaVersionOpt, resolveClassifiers, resolveSbtClassifiers, packagePrefix) = selections
-      val sbtVersion = sbtVersionOpt.getOrElse("1.5.2")
+      val sbtVersion = sbtVersionOpt.getOrElse(LatestSbtVersion)
       val scalaVersion = scalaVersionOpt.getOrElse(ScalaVersion.Latest.Scala_2_13.minor)
 
       locally {
@@ -80,46 +71,52 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
 
       createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, packagePrefix)
 
-      setModuleFilePath(updateModuleFilePath(getModuleFilePath))
+      setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
     }
 
     super.createModule(moduleModel)
   }
+
+  override def setupRootModel(model: ModifiableRootModel): Unit =
+    SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath)
 
   override def setupModule(module: Module): Unit = {
     super.setupModule(module)
     doSetupModule(module, getExternalProjectSettings, getContentEntryPath)
   }
 
-  override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep = {
-    {
+  override def modifySettingsStep(settingsStep: SettingsStep): ModuleWizardStep =
+    new MySdkSettingsStep(settingsStep)
+
+  private def isScala3Version(scalaVersion: String) = scalaVersion.startsWith("3")
+
+  final class MySdkSettingsStep(settingsStep: SettingsStep) extends ScalaSettingsStepBase(settingsStep, this) {
+
+    locally {
       selections.update(ScalaKind, scalaVersions)
       selections.update(SbtKind, sbtVersions)
     }
 
-    val sbtVersionComboBox = applyTo(new SComboBox[String]())(
+    private val sbtVersionComboBox = applyTo(new SComboBox[String]())(
       _.setItems(sbtVersions.versions.toArray),
       _.setSelectedItemSafe(selections.sbtVersion.orNull)
     )
 
-    val scalaVersionComboBox = applyTo(new SComboBox[String]())(
+    private val scalaVersionComboBox = applyTo(new SComboBox[String]())(
       setupScalaVersionItems
     )
 
-    val packagePrefixField = applyTo(new JBTextField())(
+    private val packagePrefixField = applyTo(new JBTextField())(
       _.setText(selections.packagePrefix.getOrElse("")),
       _.getEmptyText.setText(ScalaBundle.message("package.prefix.example"))
     )
 
-    //noinspection TypeAnnotation
-    val step = sdkSettingsStep(settingsStep)
-
-    val resolveClassifiersCheckBox: JCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
+    private val resolveClassifiersCheckBox: JCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
       _.setToolTipText(SbtBundle.message("sbt.download.scala.standard.library.sources")),
       _.setSelected(selections.resolveClassifiers)
     )
 
-    val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
+    private val resolveSbtClassifiersCheckBox = applyTo(new JCheckBox(SbtBundle.message("sbt.settings.sources")))(
       _.setToolTipText(SbtBundle.message("sbt.download.sbt.sources")),
       _.setSelected(selections.resolveSbtClassifiers)
     )
@@ -148,15 +145,15 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
     packagePrefixField.getDocument.addDocumentListener(
       (_ => selections.packagePrefix = Option(packagePrefixField.getText).filter(_.nonEmpty)): DocumentAdapter)
 
-    val SpaceBeforeClassifierCheckbox = 4
+    private val SpaceBeforeClassifierCheckbox = 4
 
-    val sbtVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
+    private val sbtVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
       _.add(sbtVersionComboBox),
       _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
       _.add(resolveSbtClassifiersCheckBox),
     )
 
-    val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
+    private val scalaVersionPanel = applyTo(new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0)))(
       _.add(scalaVersionComboBox),
       _.add(Box.createHorizontalStrut(SpaceBeforeClassifierCheckbox)),
       _.add(resolveClassifiersCheckBox),
@@ -178,17 +175,6 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
           label.setText(label.getText.substring(8) |> (s => s.substring(0, 1).toUpperCase + s.substring(1)))
       }
     }
-
-    step
-  }
-
-  private def isScala3Version(scalaVersion: String) = scalaVersion.startsWith("3")
-
-  private def sdkSettingsStep(settingsStep: SettingsStep) = new SdkSettingsStep(
-    settingsStep,
-    this,
-    (_: SdkTypeId).isInstanceOf[JavaSdk]
-  ) {
 
     override def updateDataModel(): Unit = {
       settingsStep.getContext.setProjectJdk(myJdkComboBox.getSelectedJdk)
@@ -224,6 +210,16 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
         case _ =>
       }
     }
+
+    @TestOnly
+    def setScalaVersion(version: String): Unit = {
+      scalaVersionComboBox.setSelectedItemEnsuring(version)
+    }
+
+    @TestOnly
+    def setSbtVersion(version: String): Unit = {
+      sbtVersionComboBox.setSelectedItemEnsuring(version)
+    }
   }
 
   private def setupScalaVersionItems(cbx: SComboBox[String]): Unit = {
@@ -243,21 +239,11 @@ class SbtModuleBuilder extends AbstractExternalModuleBuilder[SbtProjectSettings]
   }
 
   override def getNodeIcon: Icon = Sbt.Icon
-
-  override def setupRootModel(model: ModifiableRootModel): Unit = SbtModuleBuilderUtil.tryToSetupRootModel(
-    model,
-    getContentEntryPath,
-  )
-
-  // TODO customize the path in UI when IDEA-122951 will be implemented
-  protected def updateModuleFilePath(pathname: String): String = {
-    val file = new File(pathname)
-    file.getParent + "/" + Sbt.ModulesDirectory + "/" + file.getName.toLowerCase
-  }
-
 }
 
 object SbtModuleBuilder {
+
+  val LatestSbtVersion = "1.5.4"
 
   import Sbt._
 

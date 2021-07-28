@@ -8,31 +8,24 @@ import com.intellij.openapi.externalSystem.model.project.ProjectData
 import com.intellij.openapi.externalSystem.service.project.IdeModifiableModelsProvider
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.project.external.{AbstractDataService, AbstractImporter}
+import org.jetbrains.plugins.scala.project.external.ScalaAbstractProjectDataService
 import org.jetbrains.sbt.resolvers.{SbtIndexesManager, SbtResolver}
 
+import java.util
 import scala.jdk.CollectionConverters._
 
-/**
-  * @author Pavel Fatin
-  */
-final class SbtBuildModuleDataService extends AbstractDataService[SbtBuildModuleData, Module](SbtBuildModuleData.Key) {
+final class SbtBuildModuleDataService extends ScalaAbstractProjectDataService[SbtBuildModuleData, Module](SbtBuildModuleData.Key) {
 
-  //noinspection TypeAnnotation
-  override def createImporter(toImport: Seq[DataNode[SbtBuildModuleData]],
-                              projectData: ProjectData,
-                              project: Project,
-                              modelsProvider: IdeModifiableModelsProvider) =
-    new AbstractImporter[SbtBuildModuleData](toImport, projectData, project, modelsProvider) {
-
-      override def importData(): Unit = for {
-        moduleNode <- dataToImport
-        module <- getIdeModuleByNode(moduleNode)
-      } SbtBuildModuleDataService.importData(module, moduleNode.getData)
-    }
-}
-
-object SbtBuildModuleDataService {
+  override def importData(
+    toImport: util.Collection[_ <: DataNode[SbtBuildModuleData]],
+    projectData: ProjectData,
+    project: Project,
+    modelsProvider: IdeModifiableModelsProvider
+  ): Unit =
+    for {
+      moduleNode <- toImport.asScala
+      module     <- modelsProvider.getIdeModuleByNode(moduleNode)
+    } importData(module, moduleNode.getData)
 
   private def importData(sbtModule: Module,
                          data: SbtBuildModuleData): Unit = {
@@ -49,6 +42,6 @@ object SbtBuildModuleDataService {
                                     (implicit project: Project): Unit =
     for {
       localIvyResolver <- resolvers.asScala.find(_.name == "Local cache")
-      indexesManager <- SbtIndexesManager.getInstance(project)
+      indexesManager   <- SbtIndexesManager.getInstance(project)
     } indexesManager.scheduleLocalIvyIndexUpdate(localIvyResolver)
 }

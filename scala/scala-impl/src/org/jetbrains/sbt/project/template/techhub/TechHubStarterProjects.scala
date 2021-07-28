@@ -15,7 +15,7 @@ case class EntryParameters(`type`: String, query: String, displayName: String, d
                            pattern: String, format: String)
 case class EntryFeatured(scala: Int) // there are other fields, but we don't care
 
-object TechHubStarterProjects {
+private object TechHubStarterProjects {
 
   private val API_VERSION = "v1"
   private val API_URI = s"https://example.lightbend.com/$API_VERSION/api"
@@ -46,11 +46,11 @@ object TechHubStarterProjects {
     }
   }
 
-  def downloadTemplate(entry: IndexEntry, pathTo: File, name: String, onError: String => Unit): Unit = {
+  def downloadTemplate(entry: IndexEntry, pathTo: File, projectName: String, onError: String => Unit): Unit = {
     try {
       // hack to pass required name param when necessary. currently only name param is ever required in the templates
       // _rawArchive=true gives us the template without any sbt launchers and scripts
-      val url = s"${entry.downloadUrl}?name=$name&_rawArchive_=true"
+      val url = s"${entry.downloadUrl}?name=$projectName&_rawArchive_=true"
       TechHubDownloadUtil.downloadContentToFile(url, pathTo)
     } catch {
       case io: IOException =>

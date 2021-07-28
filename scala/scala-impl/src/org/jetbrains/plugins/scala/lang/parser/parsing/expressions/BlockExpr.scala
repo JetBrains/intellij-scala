@@ -35,7 +35,7 @@ object BlockExpr extends ParsingRule {
         return false
     }
     val blockIndentation = BlockIndentation.create
-    def loopFunction(): Unit = {
+    ParserUtils.parseLoopUntilRBrace() {
       builder.getTokenType match {
         case `kCASE` =>
           val backMarker = builder.mark
@@ -43,17 +43,16 @@ object BlockExpr extends ParsingRule {
           builder.getTokenType match {
             case ClassKeyword | ObjectKeyword =>
               backMarker.rollbackTo()
-              Block.parse(builder)
+              Block.ContentInBraces()
             case _ =>
               backMarker.rollbackTo()
-              CaseClauses parse builder
+              CaseClauses()
           }
         case _ =>
           blockIndentation.fromHere()
-          Block.parse(builder)
+          Block.ContentInBraces()
       }
     }
-    ParserUtils.parseLoopUntilRBrace(builder, loopFunction _)
     blockIndentation.drop()
     builder.restoreNewlinesState()
     blockExprMarker.done(ScCodeBlockElementType.BlockExpression)

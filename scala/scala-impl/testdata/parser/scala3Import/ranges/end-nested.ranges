@@ -1,6 +1,6 @@
 [0,266]: PackageDef
 [0,0]: Ident
-[0,65]: DefDef
+[0,71]: DefDef
 [6,7]: TypeDef
 [6,6]: TypeBoundsTree
 [9,21]: ValDef
@@ -19,10 +19,10 @@
 [58,62]: Ident
 [63,65]: Block
 [73,266]: ModuleDef
-[88,256]: Template
+[88,266]: Template
 [88,88]: DefDef
 [88,88]: TypeTree
-[88,256]: ParsedTry
+[88,266]: ParsedTry
 [92,169]: Match
 [92,105]: Apply
 [92,96]: Ident

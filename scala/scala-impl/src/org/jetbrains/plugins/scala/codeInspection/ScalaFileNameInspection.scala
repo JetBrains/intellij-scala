@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.{PsiFile, PsiNamedElement}
 import com.intellij.refactoring.RefactoringFactory
 import com.intellij.refactoring.rename.RenameProcessor
+import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTypeDefinition}
@@ -25,7 +26,7 @@ final class ScalaFileNameInspection extends LocalInspectionTool {
   override def checkFile(file: PsiFile,
                          manager: InspectionManager,
                          isOnTheFly: Boolean): Array[ProblemDescriptor] = file match {
-    case scalaFile: ScalaFile if scalaFile.getName != console.ScalaLanguageConsoleView.ScalaConsole &&
+    case scalaFile: ScalaFile if !ScalaLanguageConsole.isScalaConsoleFile(scalaFile) &&
       IntentionAvailabilityChecker.checkInspection(this, scalaFile) &&
       !InjectedLanguageManager.getInstance(scalaFile.getProject).isInjectedFragment(scalaFile) &&
       !scalaFile.isScriptFile &&

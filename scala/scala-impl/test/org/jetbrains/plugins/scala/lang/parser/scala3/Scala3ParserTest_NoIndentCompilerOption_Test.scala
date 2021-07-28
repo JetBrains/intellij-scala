@@ -985,7 +985,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement())(')')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      <empty list>
       |  PsiWhiteSpace('\n  ')
       |  ScFunctionDefinition: f1
@@ -1023,7 +1023,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |              CodeReferenceElement: String
       |                PsiElement(identifier)('String')
       |        PsiElement())(')')
-      |    ScTemplateBody
+      |    ScExtensionBody
       |      <empty list>
       |  PsiWhiteSpace('\n  ')
       |  ScFunctionDefinition: f2
@@ -1085,7 +1085,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
         |                PsiElement(identifier)('String')
         |        PsiElement())(')')
         |    PsiWhiteSpace(' ')
-        |    ScTemplateBody
+        |    ScExtensionBody
         |      ScFunctionDefinition: f1
         |        AnnotationsList
         |          <empty list>

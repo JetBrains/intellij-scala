@@ -80,7 +80,7 @@ class ScalaMavenImporterTest
         classes := Seq(
           "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
         ).map(mavenLocalArtifact)
-        scalaSdkSettings := Some(ScalaSdkSettings(ScalaLanguageLevel.Scala_2_13, Seq(
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_2_13, Seq(
           "org/scala-lang/scala-compiler/2.13.6/scala-compiler-2.13.6.jar",
           "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar",
           "org/scala-lang/scala-reflect/2.13.6/scala-reflect-2.13.6.jar",
@@ -98,7 +98,7 @@ class ScalaMavenImporterTest
       },
       new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("3.0.0").get)}") {
         classes := Seq("org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar").map(mavenLocalArtifact)
-        scalaSdkSettings := Some(ScalaSdkSettings(ScalaLanguageLevel.Scala_3_0, Seq(
+        scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_3_0, Seq(
           "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
           "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
           "org/jline/jline-reader/3.19.0/jline-reader-3.19.0.jar",

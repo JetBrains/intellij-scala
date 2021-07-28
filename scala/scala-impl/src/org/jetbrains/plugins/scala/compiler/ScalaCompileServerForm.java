@@ -16,6 +16,7 @@ import com.intellij.util.ui.UI;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.plugins.scala.ScalaBundle;
+import scala.Some$;
 
 import javax.swing.*;
 import java.awt.*;
@@ -72,7 +73,7 @@ public class ScalaCompileServerForm implements Configurable {
         mySdkPanel.add(UI.PanelFactory.panel(myCompilationServerSdk).withTooltip(ScalaBundle.message("compile.server.description")).createPanel(), BorderLayout.CENTER);
 
         myShutdownDelay.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_SHUTDOWN_DELAY, 0, 24 * 60, 1));
-        myParallelism.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_PARALLELISM, 1, 6, 1));
+        myParallelism.setModel(new SpinnerNumberModel(mySettings.COMPILE_SERVER_PARALLELISM, 1, 9999, 1));
 
         updateJvmSettingsPanel();
     }
@@ -140,6 +141,9 @@ public class ScalaCompileServerForm implements Configurable {
     @Override
     public void apply() {
         mySettings.COMPILE_SERVER_ENABLED = myEnableCompileServer.isSelected();
+        if (!mySettings.COMPILE_SERVER_ENABLED) {
+            CompileServerLauncher.stop(0, Some$.MODULE$.apply("compile server disabled from settings"));
+        }
 
         Sdk sdk = myCompilationServerSdk.getSelectedJdk();
         mySettings.USE_DEFAULT_SDK = sdkModel.isDefault(sdk);

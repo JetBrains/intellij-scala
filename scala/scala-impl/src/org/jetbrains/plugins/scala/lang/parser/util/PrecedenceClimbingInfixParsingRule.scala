@@ -119,7 +119,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
   protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
     !builder.newlineBeforeCurrentToken || {
-      if (builder.isScala3orSource3) {
+      if (builder.scala3Features.`leading infix operator`) {
         // In scala 3 the infix operator may be on the next line
         // but only if it is a leading infix operator. (https://dotty.epfl.ch/docs/reference/changed-features/operators.html)
         // A leading infix operator is
@@ -131,24 +131,24 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
         val opText = builder.getTokenText
         builder.rawLookup(1) == ScalaTokenTypes.tWHITE_SPACE_IN_LINE &&
           isSymbolicIdentifier(opText) && {
-          val Some(opIndent) = builder.findPreviousIndent
-          builder.predict { builder =>
-            // A leading infix operator must be followed by a lexically suitable expression.
-            // Usually any simple expr will do. However, a backquoted identifier may serve as
-            // either an op or a reference. So the additional constraint is that the following
-            // token can't be an assignment operator.
-            // (https://github.com/scala/scala/pull/9567/files#diff-1bfb209890ef057b7b17d9124b3a5c518e22acd4d554a6b561598af8087f0fd5R455)
-            // Example:
-            //   test += (a + b)
-            //   `test` += 12 // `test` should not be a leading infix operator
-            def opIsBacktickIdFollowedByAssignment: Boolean =
-              opText.startsWith("`") && isAssignmentOperator(builder.getTokenText)
+            val opIndent = builder.findPreviousIndent
+            builder.predict { builder =>
+              // A leading infix operator must be followed by a lexically suitable expression.
+              // Usually any simple expr will do. However, a backquoted identifier may serve as
+              // either an op or a reference. So the additional constraint is that the following
+              // token can't be an assignment operator.
+              // (https://github.com/scala/scala/pull/9567/files#diff-1bfb209890ef057b7b17d9124b3a5c518e22acd4d554a6b561598af8087f0fd5R455)
+              // Example:
+              //   test += (a + b)
+              //   `test` += 12 // `test` should not be a leading infix operator
+              def opIsBacktickIdFollowedByAssignment: Boolean =
+                opText.startsWith("`") && isAssignmentOperator(builder.getTokenText)
 
-            startsExpression(builder.getTokenType) &&
-              builder.findPreviousIndent.forall(rhsIndent => rhsIndent >= opIndent) &&
-              !opIsBacktickIdFollowedByAssignment
+              startsExpression(builder.getTokenType) &&
+                builder.findPreviousIndent.forall(rhsIndent => opIndent.exists(rhsIndent >= _)) &&
+                !opIsBacktickIdFollowedByAssignment
+            }
           }
-        }
 
       } else false
     }

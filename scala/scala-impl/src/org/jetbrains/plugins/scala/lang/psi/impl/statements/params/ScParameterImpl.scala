@@ -16,7 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.{ScStringLiteral, 
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createWildcardPattern
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.signatures.ScParamElementType
@@ -45,9 +44,6 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
 
   override def isCallByNameParameter: Boolean = byStubOrPsi(_.isCallByNameParameter)(paramType.exists(_.isCallByNameParameter))
 
-  override def getNameIdentifier: PsiIdentifier =
-    physicalNameId.map(new JavaIdentifier(_)).orNull
-
   override def deprecatedName: Option[String] = byStubOrPsi(_.deprecatedName) {
     // by-text heuristic is used because this method is called during stub creation,
     // so actual resolving of an annotation causes deadlock
@@ -62,18 +58,16 @@ class ScParameterImpl protected (stub: ScParameterStub, nodeType: ScParamElement
     } yield name
   }
 
-  // in Scala 3 in a using clause you can have parameter without a name
-  // Example:
-  //   def test(normalParam: Int)(using Ordering[Int]) = ???
-  //                                    ^^^^^^^^^^^^^ <- parameter without name
-  private lazy val syntheticWildcardIdForTypeOnlyUsingParameter: PsiElement = createWildcardPattern
+  override def nameId: PsiElement = {
+    val id = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
+    if (id != null) id
+    else {
+      val under = findChildByType[PsiElement](ScalaTokenTypes.tUNDER)
 
-  override def nameId: PsiElement =
-    physicalNameId.getOrElse(syntheticWildcardIdForTypeOnlyUsingParameter)
-
-  private def physicalNameId: Option[PsiElement] =
-    findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER).toOption
-      .orElse(findChildByType[PsiElement](ScalaTokenTypes.tUNDER).toOption)
+      if (under != null) under
+      else               typeElement.orNull
+    }
+  }
 
   override def getTypeElement: PsiTypeElement = null
 

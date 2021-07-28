@@ -56,6 +56,7 @@ class ActionPanel(setZoom: Zoom => Unit, setLevel: Level => Unit)
     actions.foreach(actionGroup.add)
     val place = classOf[CompilationChartsComponent].getSimpleName
     val toolbar = ActionManager.getInstance.createActionToolbar(place, actionGroup, true)
+    toolbar.setTargetComponent(this)
     val component = toolbar.getComponent
     component
   }

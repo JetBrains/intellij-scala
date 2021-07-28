@@ -73,7 +73,7 @@ abstract class ScTemplateDefinitionImpl[T <: ScTemplateDefinition] private[impl]
 
   protected def targetTokenType: ScalaTokenType
 
-  override final def toString: String = debugName + extensions.ifReadAllowed(s": $name")("")
+  override final def toString: String = debugName + ifReadAllowed(s": $name")("")
 
   override final def targetToken: LeafPsiElement = findChildByType[LeafPsiElement](targetTokenType)
 

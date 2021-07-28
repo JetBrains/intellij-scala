@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.resolve
 import com.intellij.openapi.util.Key
 import com.intellij.psi.ResolveState
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
@@ -66,6 +67,12 @@ trait ResolveStateOps extends Any {
   def withImplicitScopeObject(tpe: ScType): ResolveState =
     resolveState.put(IMPLICIT_SCOPE_OBJECT, tpe)
 
+  def withExtensionMethodMarker: ResolveState =
+    resolveState.put(EXTENSION_METHOD, TRUE)
+
+  def withExtensionContext(ext: ScExtension): ResolveState =
+    resolveState.put(EXTENSION_CONTEXT, ext)
+
   def substitutor: ScSubstitutor =
     option(SUBSTITUTOR_KEY).getOrElse(ScSubstitutor.empty)
 
@@ -104,6 +111,12 @@ trait ResolveStateOps extends Any {
 
   def implicitScopeObject: Option[ScType] =
     option(IMPLICIT_SCOPE_OBJECT)
+
+  def isExtensionMethod: Boolean =
+    boolean(EXTENSION_METHOD)
+
+  def extensionContext: Option[ScExtension] =
+    option(EXTENSION_CONTEXT)
 }
 
 private object ResolveStateOps {
@@ -134,4 +147,8 @@ private object ResolveStateOps {
 
   // specifies the designator type of an object in an implicit scope, which provided this resolve result
   private val IMPLICIT_SCOPE_OBJECT: Key[ScType] = Key.create("scala.implicit.scope.object")
+
+  private val EXTENSION_METHOD: Key[TRUE.type] = Key.create("scala.extension.method.marker")
+
+  private val EXTENSION_CONTEXT: Key[ScExtension] = Key.create("scala.extension.context")
 }

@@ -42,7 +42,6 @@ object Artifact {
   //  - org.scala-lang.scala3-library
   // and some artifacts from
   //  - org.scala-lang.modules.*
-  private[template]
   val ScalaLibraryAndModulesArtifacts: ListSet[Artifact] = ListSet(
     ScalaLibrary,
     Scala3Library,

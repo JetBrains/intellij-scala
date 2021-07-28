@@ -1,0 +1,16 @@
+<html>
+<body>
+<p>Reports when a collection is reversed explicitly before calling <code>find</code>.</p>
+
+<p> The quick-fix will use <code>xs.findLast(f)</code>, which might be more efficient in some cases.</p>
+<p><b>Example:</b></p>
+<pre><code>
+  Seq(1, 2).reverse.find(_ == 2)
+</code></pre>
+<p>After the quick-fix is applied:</p>
+<pre><code>
+  Seq(1, 2).findLast(_ == 2)
+</code></pre>
+<!-- tooltip end -->
+</body>
+</html>

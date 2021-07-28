@@ -1,18 +1,12 @@
 package org.jetbrains.plugins.scala.tasty
 
-import dotty.tools.dotc.core.Names.Name
-import dotty.tools.dotc.core.tasty.TastyUnpickler
-import dotty.tools.dotc.core.tasty.TastyUnpickler.{NameTable, SectionUnpickler}
 import dotty.tools.tasty.TastyBuffer.{Addr, NameRef}
 import dotty.tools.tasty.TastyFormat._
-import dotty.tools.tasty.TastyReader
+import dotty.tools.tasty.{TastyReader, UnpickleException}
 
 // TODO read children lazily
 // TODO don't use classes from dotc (requires parsing the name section manually)
-private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](ASTsSection) {
-  override def unpickle(reader: TastyReader, nameAtRef: NameTable): Node =
-    readTree(reader)
-
+private class TreeReader(nameAtRef: NameTable) {
   private def readNat(in: TastyReader): Int = in.readNat()
 
   private def nameToString(name: Name): String = name.toString
@@ -28,6 +22,8 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
     val tag = in.readByte()
 
     var nat = -1
+
+    var value = -1L
 
     var names = Seq.empty[String]
     var children = Seq.empty[Node]
@@ -64,7 +60,7 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
     else if (tag >= firstNatASTTreeTag) {
       tag match {
         case IDENT | IDENTtpt | SELECT | SELECTtpt | TERMREF | TYPEREF | SELFDEF => names :+= readName(in)
-        case _ => readNat(in)
+        case _ => nat = readNat(in)
       }
       children :+= readTree(in)
     }
@@ -73,6 +69,9 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
     else if (tag >= firstNatTreeTag)
       tag match {
         case TERMREFpkg | TYPEREFpkg | STRINGconst | IMPORTED => names :+= readName(in)
+        case CHARconst => value = in.readNat()
+        case BYTEconst | SHORTconst | INTconst | FLOATconst => value = in.readInt()
+        case LONGconst | DOUBLEconst => value = in.readLongInt()
         case _ => nat = readNat(in)
       }
 
@@ -84,16 +83,36 @@ private class TreeReader(nameAtRef: NameTable) extends SectionUnpickler[Node](AS
           a.nextSibling = Some(b)
           b.previousSibling = Some(a)
         }
-        Node(tag, names, children)
+        val node = Node(tag, names, children)
+        tag match {
+          case TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect =>
+            val in0 = in.subReader(Addr(nat), in.endAddr)
+            in0.readByte() // Tag
+            in0.readNat() // Length
+            node.refName = Some(readName(in0)) // TODO use as node name?
+          case _ =>
+        }
+        node.value = value
+        node
     }
   }
 }
 
 object TreeReader {
   def treeFrom(bytes: Array[Byte]): Node = {
-    val unpickler = new TastyUnpickler(bytes)
+    val in = new TastyReader(bytes)
 
-    unpickler.unpickle(new TreeReader(unpickler.nameAtRef))
-      .getOrElse(throw new RuntimeException("No AST section"))
+    new HeaderReader(in).readFullHeader()
+
+    val nameTableReader = new NameTableReader(in)
+    nameTableReader.read()
+    val nameTable = nameTableReader.nameAtRef
+
+    val sectionName = nameTable.apply(NameRef(in.readNat()))
+    val sectionEnd = in.readEnd()
+    if (sectionName.asSimpleName.toString != "ASTs") {
+      throw new UnpickleException("No ASTs section")
+    }
+    new TreeReader(nameTable).readTree(new TastyReader(bytes, in.currentAddr.index, sectionEnd.index, in.currentAddr.index))
   }
 }

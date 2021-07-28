@@ -40,8 +40,8 @@ object ScalaIndexKeys {
   val METHOD_NAME_KEY                     = createIndexKey[String, ScFunction]("sc.method.name")
   val CLASS_NAME_IN_PACKAGE_KEY           = createIndexKey[String, PsiClass]("sc.class.name.in.package")
   val JAVA_CLASS_NAME_IN_PACKAGE_KEY      = createIndexKey[String, PsiClass]("sc.java.class.name.in.package")
-  val IMPLICIT_OBJECT_KEY                 = createIndexKey[String, ScObject]("sc.implcit.object")
-  val ANNOTATED_MEMBER_KEY                = createIndexKey[String, ScAnnotation]("sc.annotatde.member.name")
+  val IMPLICIT_OBJECT_KEY                 = createIndexKey[String, ScObject]("sc.implicit.object")
+  val ANNOTATED_MEMBER_KEY                = createIndexKey[String, ScAnnotation]("sc.annotated.member.name")
   val PROPERTY_NAME_KEY                   = createIndexKey[String, ScValueOrVariable]("sc.property.name")
   val PROPERTY_CLASS_NAME_KEY             = createIndexKey[String, ScValueOrVariable]("sc.property.class.name")
   val CLASS_PARAMETER_NAME_KEY            = createIndexKey[String, ScClassParameter]("sc.class.parameter.name")
@@ -54,6 +54,7 @@ object ScalaIndexKeys {
   val TOP_LEVEL_VAL_OR_VAR_BY_PKG_KEY     = createIndexKey[String, ScValueOrVariable]("sc.top.level.valvar.by.package.key")
   val TOP_LEVEL_FUNCTION_BY_PKG_KEY       = createIndexKey[String, ScFunction]("sc.top.level.function.by.package.key")
   val TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY = createIndexKey[String, ScClass]("sc.top.level.implicit.class.by.package.key")
+  val TOP_LEVEL_EXTENSION_BY_PKG_KEY      = createIndexKey[String, ScExtension]("sc.top.level.extension.by.package.key")
 
   // Scala3 @main methods
   val ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY  = createIndexKey[String, ScFunction]("sc.annotated.main.function.by.package.key")

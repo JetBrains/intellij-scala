@@ -1,10 +1,10 @@
-[0,3702]: PackageDef
+[0,3710]: PackageDef
 [0,0]: Ident
 [0,34]: Import
 [7,17]: Ident
 [35,60]: Import
 [42,52]: Ident
-[62,432]: TypeDef
+[62,452]: TypeDef
 [91,432]: Template
 [91,91]: DefDef
 [91,91]: TypeTree
@@ -45,8 +45,8 @@
 [370,371]: Ident
 [413,432]: DefDef
 [425,432]: Ident
-[503,3187]: TypeDef
-[513,3176]: Template
+[503,3196]: TypeDef
+[513,3187]: Template
 [513,572]: DefDef
 [514,530]: ValDef
 [524,530]: Ident
@@ -387,7 +387,7 @@
 [2553,2560]: Ident
 [2561,2571]: Ident
 [2616,2621]: Literal
-[2625,2933]: DefDef
+[2625,2950]: DefDef
 [2643,2647]: Ident
 [2650,2933]: Match
 [2650,2669]: Apply
@@ -442,7 +442,7 @@
 [2904,2927]: Literal
 [2928,2931]: Ident
 [2931,2931]: Literal
-[2954,3176]: DefDef
+[2954,3187]: DefDef
 [2966,2973]: Ident
 [2980,3176]: If
 [2983,3006]: Apply
@@ -472,7 +472,7 @@
 [3145,3152]: Apply
 [3145,3150]: Ident
 [3172,3176]: Literal
-[3221,3350]: ModuleDef
+[3221,3365]: ModuleDef
 [3268,3350]: Template
 [3268,3268]: DefDef
 [3268,3268]: TypeTree
@@ -500,7 +500,7 @@
 [3342,3343]: Ident
 [3344,3347]: Ident
 [3348,3348]: Literal
-[3397,3702]: ModuleDef
+[3397,3710]: ModuleDef
 [3411,3702]: Template
 [3411,3411]: DefDef
 [3411,3411]: TypeTree

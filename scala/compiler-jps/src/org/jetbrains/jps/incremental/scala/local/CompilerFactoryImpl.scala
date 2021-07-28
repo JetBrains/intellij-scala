@@ -28,7 +28,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
-            .getOrElse(new ScalaInstance("stub", null, null, new File(""), new File(""), Array.empty, None))
+            .getOrElse(new ScalaInstance("stub", null, null, Array.empty[File], new File(""), Array.empty[File], None))
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
@@ -52,7 +52,6 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
         scalaInstance = scalaInstance,
         javaClassVersion = sbtData.javaClassVersion,
         client = Option(client),
-        isDotty = compilerJars.exists(_.hasDotty),
         isScala3 = compilerJars.exists(_.hasScala3),
       )
 
@@ -81,7 +80,22 @@ object CompilerFactoryImpl {
   private def createScalaInstance(jars: CompilerJars) = {
     def createClassLoader(paths: Seq[File]) = {
       val urls = Path.toURLs(paths)
-      val newClassloader = new URLClassLoader(urls, ClasspathUtil.rootLoader)
+
+      // NOTE: it's required for only for Scala3 compilation, cause they moved to `xsbti.CompilerInterface2`
+      // We need to use same compile-interface classes in the Scala3 compiler and Scala Compile Server
+      // (see commit message for the details  SCL-18861)
+      val isXbtiClass = (className: String) => className.startsWith("xsbti.")
+      val isNotXbtiClass = (className: String) => !isXbtiClass(className)
+      val delegatingToCompilerInterfaceLoader = new classpath.DualLoader(
+        classOf[xsbti.AnalysisCallback].getClassLoader, // any class from compiler-interface
+        isXbtiClass,
+        _ => false,
+        ClasspathUtil.rootLoader,
+        isNotXbtiClass,
+        _ => true
+      )
+
+      val newClassloader = new URLClassLoader(urls, delegatingToCompilerInterfaceLoader)
 
       classLoadersMap += paths -> newClassloader
 
@@ -114,11 +128,8 @@ object CompilerFactoryImpl {
                                        scalaInstance: ScalaInstance,
                                        javaClassVersion: String,
                                        client: Option[Client],
-                                       isDotty: Boolean,
                                        isScala3: Boolean): File =
-    if (isDotty)
-      compilerBridges.scala3.dotty
-    else if (isScala3)
+    if (isScala3)
       compilerBridges.scala3.scala3
     else {
       val scalaVersion = scalaInstance.actualVersion

@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
@@ -29,6 +29,7 @@ object SbtDependencyTraverser {
         case call: ScMethodCall => traverseMethodCall(call)(callback)
         case refExpr: ScReferenceExpression => traverseReferenceExpr(refExpr)(callback)
         case stringLiteral: ScStringLiteral => traverseStringLiteral(stringLiteral)(callback)
+        case blockExpr: ScBlockExpr => traverseBlockExpr(blockExpr)(callback)
         case _ =>
       }
     }
@@ -101,6 +102,7 @@ object SbtDependencyTraverser {
       patternDef.expr match {
         case Some(call: ScMethodCall) => traverseMethodCall(call)(callback)
         case Some(infix: ScInfixExpr) => traverseInfixExpr(infix)(callback)
+        case Some(blockExpr: ScBlockExpr) => traverseBlockExpr(blockExpr)(callback)
         case _ =>
       }
     }
@@ -119,6 +121,25 @@ object SbtDependencyTraverser {
         traverseReferenceExpr(refExpr)(callback)
       case _ =>
     }
+  }
+
+  def traverseBlockExpr(blockExpr: ScBlockExpr)(callback: PsiElement => Boolean): Unit = {
+    if (!callback(blockExpr)) return
+
+    blockExpr.acceptChildren(new ScalaElementVisitor {
+      override def visitInfixExpression(infix: ScInfixExpr): Unit = {
+        traverseInfixExpr(infix)(callback)
+      }
+
+      override def visitMethodCallExpression(call: ScMethodCall): Unit = {
+        if (call.deepestInvokedExpr.textMatches(SbtDependencyUtils.SEQ))
+          traverseSeq(call)(callback)
+      }
+
+      override def visitReferenceExpression(ref: ScReferenceExpression): Unit = {
+        traverseReferenceExpr(ref)(callback)
+      }
+    })
   }
 
   def traverseSettings(settings: ScMethodCall)(callback: PsiElement => Boolean): Unit = {

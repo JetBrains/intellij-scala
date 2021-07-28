@@ -142,28 +142,33 @@ trait ScalaBounds extends api.Bounds {
 
     def isEmpty: Boolean = typeNamedElement.isEmpty
 
-    val projectionOption: Option[ScType] = projectionOptionImpl(tp)
+    val projectionOption: Option[ScType] = projectionOptionImpl(tp, Set.empty)
 
     @tailrec
-    private def projectionOptionImpl(tp: ScType): Option[ScType] = tp match {
-      case ParameterizedType(des, _) => projectionOptionImpl(des)
-      case proj @ ScProjectionType(p, _) =>
-        proj.actualElement match {
-          case _: PsiClass => Some(p)
-          case t: ScTypeAliasDefinition =>
-            t.aliasedType.toOption match {
-              case None          => None
-              case Some(aliased) => projectionOptionImpl(proj.actualSubst(aliased))
-            }
-          case _: ScTypeAliasDeclaration => Some(p)
-          case _                         => None
-        }
-      case ScDesignatorType(t: ScTypeAliasDefinition) =>
-        t.aliasedType.toOption match {
-          case None          => None
-          case Some(aliased) => projectionOptionImpl(aliased)
-        }
-      case _ => None
+    private def projectionOptionImpl(tp: ScType, visited: Set[ScType]): Option[ScType] = {
+      if (visited(tp))
+        return None
+
+      tp match {
+        case ParameterizedType(des, _) => projectionOptionImpl(des, visited + tp)
+        case proj @ ScProjectionType(p, _) =>
+          proj.actualElement match {
+            case _: PsiClass => Some(p)
+            case t: ScTypeAliasDefinition =>
+              t.aliasedType.toOption match {
+                case None          => None
+                case Some(aliased) => projectionOptionImpl(proj.actualSubst(aliased), visited + tp)
+              }
+            case _: ScTypeAliasDeclaration => Some(p)
+            case _                         => None
+          }
+        case ScDesignatorType(t: ScTypeAliasDefinition) =>
+          t.aliasedType.toOption match {
+            case None          => None
+            case Some(aliased) => projectionOptionImpl(aliased, visited + tp)
+          }
+        case _ => None
+      }
     }
 
     def getSuperClasses: Seq[ClassLike] = {

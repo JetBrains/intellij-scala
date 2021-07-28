@@ -24,16 +24,15 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
  * BlockResult ::=  [‘implicit’] FunParams ‘=>’ Block
  *               |  Expr1
  */
-object ResultExpr extends ParsingRule {
-
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+object ResultExpr {
+  def apply(stopOnOutdent: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val resultMarker = builder.mark()
     val backupMarker = builder.mark()
 
     def parseFunctionEnd(): Boolean = builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
         builder.advanceLexer() //Ate => or ?=>
-        Block.parse(builder, hasBrace = false, needNode = true)
+        Block.Braceless(stopOnOutdent, needNode = true)
         backupMarker.drop()
         resultMarker.done(ScalaElementType.FUNCTION_EXPR)
         true

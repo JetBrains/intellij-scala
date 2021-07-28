@@ -35,7 +35,7 @@ abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilder {
       case root if root.exists() =>
         extractArchive(root, archiveURL)
         processExtractedArchive(root.toPath)
-        setModuleFilePath(updateModuleFilePath(getModuleFilePath))
+        setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
       case _ =>
     }
 

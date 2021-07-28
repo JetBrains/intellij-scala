@@ -1,12 +1,11 @@
 package org.jetbrains.sbt
 
-import com.intellij.notification.NotificationGroup
-import javax.swing.Icon
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project.Version
-import org.jetbrains.plugins.scala.util.ScalaNotificationGroups
+
+import javax.swing.Icon
 
 /**
  * @author Pavel Fatin

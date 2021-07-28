@@ -31,9 +31,9 @@ object GivenDef {
     val iw = builder.currentIndentationWidth
     builder.advanceLexer() // ate given
 
-    GivenSig()
+    val hasSignature = GivenSig()
 
-    if(parseGivenAlias()) {
+    if (parseGivenAlias(hasSignature = hasSignature)) {
       End(iw)
       templateMarker.done(ScalaElementType.GIVEN_ALIAS)
     } else if (parseGivenDefinition()) {
@@ -44,9 +44,11 @@ object GivenDef {
     }
   }
 
-  private def parseGivenAlias()(implicit builder: ScalaPsiBuilder): Boolean = {
+  private def parseGivenAlias(hasSignature: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
     if (Type.parse(builder) && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
+      if (!hasSignature) builder.mark().done(ScalaElementType.PARAM_CLAUSES)
+
       // given alias
       aliasMarker.drop()
       builder.advanceLexer() // ate =
@@ -100,11 +102,10 @@ object GivenDef {
 
     if (builder.getTokenType == ScalaTokenTypes.kWITH) {
       builder.advanceLexer()
-    } else {
-      builder.error(ScalaBundle.message("expected.with"))
+
+      if (!GivenTemplateBody())
+        builder.error(ScalaBundle.message("lbrace.expected"))
     }
-    if (!GivenTemplateBody())
-      builder.error(ScalaBundle.message("lbrace.expected"))
 
     extendsBlockMarker.done(ScalaElementType.EXTENDS_BLOCK)
     true

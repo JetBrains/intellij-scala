@@ -6,33 +6,36 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import org.jetbrains.plugins.scala.extensions.{ifReadAllowed, _}
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameters
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
-import org.jetbrains.plugins.scala.lang.psi.impl.statements.ScFunctionImpl
+import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDefinitionImpl, ScFunctionImpl}
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFunctionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScFunctionElementType
-import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 
-class ScGivenAliasImpl(stub: ScFunctionStub[ScGivenAlias],
-                       nodeType: ScFunctionElementType[ScGivenAlias],
-                       node: ASTNode)
-  extends ScFunctionImpl(stub, nodeType, node)
+class ScGivenAliasImpl(
+  stub:     ScFunctionStub[ScGivenAlias],
+  nodeType: ScFunctionElementType[ScGivenAlias],
+  node:     ASTNode
+) extends ScFunctionDefinitionImpl(stub, nodeType, node)
     with ScGivenImpl
     with ScGivenAlias {
 
   override def toString: String = "ScGivenAlias: " + ifReadAllowed(name)("")
-  override def returnType: TypeResult = Failure(ScalaBundle.message("scgivenaliasimpl.returntype.not.yet.implemented"))
 
-  override protected def typeElementForAnonymousName: Option[ScTypeElement] =
-    byPsiOrStub(findChild[ScTypeElement])(_.typeElement)
+  override def returnType: TypeResult = typeElement.`type`()
 
+  override def typeElement: ScTypeElement =
+    byPsiOrStub(findChildByClassScala(classOf[ScTypeElement]))(_.typeElement.get)
 
-  private lazy val syntheticEmptyParameterList =
-    ScalaPsiElementFactory.createParamClausesWithContext("", this, this.getFirstChild)
+  override def nameInner: String = {
+    val explicitName = nameElement.map(_.getText)
 
-  override def paramClauses: ScParameters = {
-    super.paramClauses.nullSafe.getOrElse(syntheticEmptyParameterList)
+    explicitName
+      .getOrElse(ScalaPsiUtil.generateGivenOrExtensionName(typeElement))
   }
+
+  override def nameId: PsiElement = nameElement.getOrElse(typeElement)
 }

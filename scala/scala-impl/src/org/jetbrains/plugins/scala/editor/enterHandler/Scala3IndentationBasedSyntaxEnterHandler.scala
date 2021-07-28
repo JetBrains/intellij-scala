@@ -7,7 +7,7 @@ import com.intellij.codeInsight.editorActions.enter.EnterHandlerDelegateAdapter
 import com.intellij.formatting.IndentInfo
 import com.intellij.openapi.actionSystem.DataContext
 import com.intellij.openapi.editor.actionSystem.EditorActionHandler
-import com.intellij.openapi.editor.{Document, Editor, EditorModificationUtil, EditorModificationUtilEx}
+import com.intellij.openapi.editor.{Document, Editor, EditorModificationUtilEx}
 import com.intellij.openapi.util.Ref
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings.IndentOptions
@@ -23,16 +23,21 @@ import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScCommentOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScEnumCases, ScExtensionBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.util.IndentUtil
 
 /**
- * Some other indentation-related logic:
+ * Other indentation-related Platform logic:
  *  - [[com.intellij.codeInsight.editorActions.EnterHandler#executeWriteActionInner]]
  *  - [[com.intellij.formatting.FormatProcessor#getIndent]]
- *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isIncomplete]]
+ *
+ * Other indentation-related Scala Plugin logic:
  *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.getChildAttributes]]<br>
+ *    used to calculate alignment and indent for new blocks when pressing Enter
+ *  - [[org.jetbrains.plugins.scala.lang.formatting.processors.ScalaIndentProcessor.getChildIndent]]
+ *    used to calcualte indent for existing elements
+ *  - [[org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.isIncomplete]]<br>
  *    used when typing after incomplete block, in the beginning of some structure, e.g.: {{{
  *      def foo = <caret>
  *    }}}
@@ -97,7 +102,9 @@ class Scala3IndentationBasedSyntaxEnterHandler extends EnterHandlerDelegateAdapt
     else {
       // looks like document commit is not required in this particular case
       val elementAtCaret = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, document, caretOffset)
-      indentCodeAfterCaseClauseArrow(document, elementAtCaret, caretOffset)
+      if (elementAtCaret != null) {
+        indentCodeAfterCaseClauseArrow(document, elementAtCaret, caretOffset)
+      }
       Result.Continue
     }
     //println(s"preprocessEnter: $result")
@@ -170,7 +177,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
    *
    * @todo extract to [[AutoBraceUtils]] if want to reuse e.g. in backspace handlers?
    */
-    private[editor] def previousElementInIndentationContext(
+  private[editor] def previousElementInIndentationContext(
     @NotNull elementAtCaret: PsiElement,
     caretOffset: Int,
     documentText: CharSequence,
@@ -184,6 +191,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     val caretIndent = EnterHandlerUtils.calcCaretIndent(caretOffset, documentText, indentOptions.TAB_SIZE)
     val caretIndentSize = caretIndent.getOrElse(Int.MaxValue) // using MaxValue if the caret ins not inside code indent
 
+    // TODO: ignore `;`
     val lastRealElement = elementAtCaret match {
       case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws) match {
         case null => ws
@@ -211,7 +219,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     caretIndentSize: Int,
     indentOptions: IndentOptions
   ): Option[(PsiElement, Int)] = {
-    if (isElementIsInIndentationContext(element))
+    if (isElementInIndentationContext(element))
       for {
         elementIndentSize <- elementIndentSize(element, maxElementIndentSize = caretIndentSize, indentOptions.TAB_SIZE)
       } yield {
@@ -220,7 +228,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     else None
   }
 
-  private def isElementIsInIndentationContext(element: PsiElement): Boolean = {
+  private def isElementInIndentationContext(element: PsiElement): Boolean = {
     // TODO: it should be just ScBlockStatement, without ScCommentOwner:
     //  according to the language spec, definitions are also block statements,
     //  but in our hierarchy they are not, we should try adding ScBlockStatement to all Definition PSI hierarchy
@@ -230,9 +238,6 @@ object Scala3IndentationBasedSyntaxEnterHandler {
       // if  match  return  then  throw  try  while  yield
       case _: ScBlockStatement | _: ScCommentOwner =>
         val parent = element.getParent
-
-
-        val isInsideTemplateBody = parent.is[ScTemplateBody]
 
         val isInsideIndentationBlock = parent match {
           case block: ScBlock =>
@@ -282,7 +287,8 @@ object Scala3IndentationBasedSyntaxEnterHandler {
         }
 
         val isInIndentationContext =
-          isInsideTemplateBody ||
+          parent.is[ScTemplateBody] ||
+            parent.is[ScExtensionBody] ||
             isInsideIndentationBlock ||
             isInsideIndentationBlock_AsSingleBlockElement1 ||
             isInsideIndentationBlock_AsSingleBlockElement2
@@ -303,8 +309,10 @@ object Scala3IndentationBasedSyntaxEnterHandler {
           prev != null && prev.elementType != ScalaTokenTypes.tLBRACE
         }
         isLastClause && isBracelessClauses
+      case _: ScEnumCases =>
+        true
       case _ =>
-         false
+        false
     }
   }
 
@@ -394,8 +402,6 @@ object Scala3IndentationBasedSyntaxEnterHandler {
   }
 
   private val SpaceOrTab = " \t"
-
-
 
   /** The logic is inspired by [[com.intellij.openapi.editor.actions.EnterAction.insertNewLineAtCaret]] */
   private def insertNewLineWithSpacesAtCaret(

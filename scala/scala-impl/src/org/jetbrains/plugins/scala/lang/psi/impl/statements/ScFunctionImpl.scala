@@ -147,8 +147,10 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
       parent match {
         case _: ScExtendsBlock =>
           return if (isAbstractMember) PlatformIcons.ABSTRACT_METHOD_ICON else PlatformIcons.METHOD_ICON
-        case _: ScBlock | _: ScalaFile => return Icons.FUNCTION
-        case _ => parent = parent.getParent
+        case _: ScBlock | _: ScalaFile | _: ScExtension  =>
+          return Icons.FUNCTION
+        case _ =>
+          parent = parent.getParent
       }
     }
     null
@@ -211,22 +213,30 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
 
   override def parameterListCount: Int = paramClauses.clauses.length
 
-  override def isExtensionMethod: Boolean = extensionMethodClause.isDefined
+  def extensionMethodOwner: Option[ScExtension] = {
+    val parent = getParent
 
-  override def extensionMethodClause: Option[ScParameterClause] = Option(getStubOrPsiChild(ScalaElementType.PARAM_CLAUSE))
+    if (parent != null && parent.is[ScExtensionBody])
+      parent.getParent.asOptionOf[ScExtension]
+    else None
+  }
+
+  override def isExtensionMethod: Boolean =
+    byStubOrPsi(_.isExtensionMethod)(extensionMethodOwner.nonEmpty)
 
   @CachedInUserData(this, BlockModificationTracker(this))
   override def effectiveParameterClauses: Seq[ScParameterClause] = {
     val maybeOwner = if (isConstructor) {
       containingClass match {
         case owner: ScTypeParametersOwner => Some(owner)
-        case _ => None
+        case _                            => None
       }
-    } else Some(this)
+    } else Option(this)
 
-    paramClauses.clauses ++ maybeOwner.flatMap {
-      ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
-    }
+      paramClauses.clauses ++
+      maybeOwner.flatMap {
+        ScalaPsiUtil.syntheticParamClause(_, paramClauses, isClassParameter = false)()
+      }
   }
 
   /**

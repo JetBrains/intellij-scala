@@ -14,7 +14,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScGivenAlias
 import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScFunctionDeclarationImpl, ScFunctionDefinitionImpl, ScMacroDefinitionImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScGivenAliasImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.impl.ScFunctionStubImpl
-import org.jetbrains.plugins.scala.macroAnnotations.Measure
 
 /**
   * User: Alexander Podkhalyuzin
@@ -36,6 +35,7 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
     dataStream.writeNames(stub.implicitClassNames)
     dataStream.writeBoolean(stub.isTopLevel)
     dataStream.writeOptionName(stub.topLevelQualifier)
+    dataStream.writeBoolean(stub.isExtensionMethod)
   }
 
   override def deserialize(dataStream: StubInputStream, parent: StubElement[_ <: PsiElement]) =
@@ -52,7 +52,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       isLocal                          = dataStream.readBoolean,
       implicitClassNames               = dataStream.readNames,
       isTopLevel                       = dataStream.readBoolean,
-      topLevelQualifier                = dataStream.readOptionName
+      topLevelQualifier                = dataStream.readOptionName,
+      isExtensionMethod                = dataStream.readBoolean
     )
 
   override def createStubImpl(function: Fun,
@@ -95,7 +96,8 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       isLocal                          = function.containingClass == null,
       implicitClassNames               = ScImplicitStub.implicitClassNames(function, function.returnTypeElement),
       isTopLevel                       = function.isTopLevel,
-      topLevelQualifier                = function.topLevelQualifier
+      topLevelQualifier                = function.topLevelQualifier,
+      isExtensionMethod                = function.isExtensionMethod
     )
   }
 
@@ -110,11 +112,9 @@ abstract class ScFunctionElementType[Fun <: ScFunction](debugName: String,
       packageFqn.foreach(sink.fqnOccurence(TOP_LEVEL_FUNCTION_BY_PKG_KEY, _))
     }
 
-
-
     if (stub.annotations.contains("main")) {
       val packageFqn = stub.topLevelQualifier
-      val syntheticClassName = packageFqn.fold("")(_ + ".") + functionName
+      val syntheticClassName = packageFqn.filter(_.nonEmpty).fold("")(_ + ".") + functionName
       sink.occurrences(ANNOTATED_MAIN_FUNCTION_BY_PKG_KEY, syntheticClassName)
     }
 

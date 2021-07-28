@@ -25,5 +25,6 @@ final class ScFunctionStubImpl[F <: ScFunction](
   override val isLocal:                          Boolean,
   override val implicitClassNames:               Array[String],
   override val isTopLevel:                       Boolean,
-  override val topLevelQualifier:                Option[String]
+  override val topLevelQualifier:                Option[String],
+  override val isExtensionMethod:                Boolean
 ) extends ScNamedStubBase[F](parent, elementType, name) with ScFunctionStub[F]

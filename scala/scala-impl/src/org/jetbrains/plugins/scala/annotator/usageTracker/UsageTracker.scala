@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.AuxiliaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
@@ -68,12 +68,18 @@ object UsageTracker {
     val file = element.getContainingFile
     if (named.isValid && named.getContainingFile == file &&
       !PsiTreeUtil.isAncestor(named, element, true)) { //to filter recursive usages
+
+      val holder = ScalaRefCountHolder.getInstance(file)
       val value: ValueUsed = element match {
-        case ref: ScReferenceExpression if checkWrite &&
-          ScalaPsiUtil.isPossiblyAssignment(ref) => WriteValueUsed(named)
+        case ref: ScReferenceExpression if checkWrite && ScalaPsiUtil.isPossiblyAssignment(ref) =>
+          ref.getContext match {
+            case ScAssignment.resolvesTo(target) if target != named =>
+              holder.registerValueUsed(WriteValueUsed(target))
+            case _ =>
+          }
+          WriteValueUsed(named)
         case _ => ReadValueUsed(named)
       }
-      val holder = ScalaRefCountHolder.getInstance(file)
       holder.registerValueUsed(value)
       // For use of unapply method, see SCL-3463
       resolveResult.parentElement.foreach(parent => holder.registerValueUsed(ReadValueUsed(parent)))

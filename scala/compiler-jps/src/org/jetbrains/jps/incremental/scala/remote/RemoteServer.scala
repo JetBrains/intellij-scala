@@ -1,46 +1,44 @@
-package org.jetbrains.jps.incremental.scala
-package remote
-
-import java.net.{ConnectException, InetAddress, UnknownHostException}
+package org.jetbrains.jps.incremental.scala.remote
 
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
 import org.jetbrains.jps.incremental.Utils
-import org.jetbrains.jps.incremental.scala.JpsBundle
+import org.jetbrains.jps.incremental.scala.Server.ServerError
+import org.jetbrains.jps.incremental.scala.{Client, Server}
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
-/**
- * @author Pavel Fatin
- */
-class RemoteServer(override val address: InetAddress, override val port: Int)
-  extends Server
-    with RemoteResourceOwner {
+import java.net.{ConnectException, InetAddress, SocketTimeoutException, UnknownHostException}
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
+
+// TODO: this class can only be used in the JPS process, not in the Scala Compile Server process
+//  we should split compiler-jps module into several modules:
+//  1. classes which can be used only in JPS process
+//  2. classes which can be used only in CS process
+//  3. classes which can be used in both JPS and CS processes
+final class RemoteServer(
+  override val address: InetAddress,
+  override val port: Int,
+  override protected val socketReadTimeout: FiniteDuration
+) extends Server
+  with RemoteResourceOwner {
 
   override def compile(sbtData: SbtData,
                        compilerData: CompilerData,
                        compilationData: CompilationData,
-                       client: Client): ExitCode = {
-
+                       client: Client): Either[Server.ServerError, ExitCode] = {
     val arguments = Arguments(sbtData, compilerData, compilationData, None).asStrings
 
     try {
       val buildSystemDir = Utils.getSystemRoot.toPath
+      client.internalTrace(s"reading token for port: $port")
       val token = CompileServerToken.tokenForPort(buildSystemDir, port).getOrElse("NO_TOKEN")
       send(CommandIds.Compile, token +: arguments, client)
       // client.compilationEnd() is meant to be sent by remote server
-      ExitCode.OK
+      Right(ExitCode.OK)
     } catch {
-      case e: ConnectException =>
-        val message = cantConnectToCompileServerErrorMessage
-        //noinspection ScalaExtractStringToBundle,ReferencePassedToNls
-        client.warning(message + "\n" + JpsBundle.message("trying.to.compile.without.it"))
-        reportException(message, e, client)
-        ScalaBuilder.localServer.compile(sbtData, compilerData, compilationData, client)
-      case e: UnknownHostException =>
-        val message = unknownHostErrorMessage
-        client.error(message)
-        reportException(message, e, client)
-        ExitCode.ABORT
+      case e: SocketTimeoutException => Left(ServerError.SocketReadTimeout(address, port, socketReadTimeout, e))
+      case e: ConnectException       => Left(ServerError.ConnectionError(address, port, e))
+      case e: UnknownHostException   => Left(ServerError.UnknownHost(address, e))
     }
   }
 }

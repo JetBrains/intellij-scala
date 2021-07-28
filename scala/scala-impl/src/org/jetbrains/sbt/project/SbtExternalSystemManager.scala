@@ -17,7 +17,6 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.util.{Pair, SystemInfo}
 import com.intellij.util.Function
 import com.intellij.util.net.HttpConfigurable
-import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.annotations.NonNls
 import org.jetbrains.jps.model.java.JdkVersionDetector
 import org.jetbrains.sbt.project.settings._
@@ -164,14 +163,8 @@ object SbtExternalSystemManager {
   private def getAndroidEnvironmentVariables(projectJdkName: Option[String]): Map[String, String] =
     projectJdkName
       .flatMap(name => Option(ProjectJdkTable.getInstance().findJdk(name)))
-      .flatMap { sdk =>
-        try {
-          sdk.getSdkType.isInstanceOf[AndroidSdkType].option(Map("ANDROID_HOME" -> sdk.getSdkModificator.getHomePath))
-        } catch {
-          case _ : PluginException => None
-          case _ : NoClassDefFoundError => None
-        }
-      }.getOrElse(Map.empty)
+      .map(SbtEnvironmentVariablesProvider.computeAdditionalVariables)
+      .getOrElse(Map.empty)
 
   private def getVmOptions(settings: SbtSettings.State, jreHome: Option[File]): Seq[String] = {
     @NonNls val userOptions = settings.getVmParameters.split("\\s+").toSeq.filter(_.nonEmpty)

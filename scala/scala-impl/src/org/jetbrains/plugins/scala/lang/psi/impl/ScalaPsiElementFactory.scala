@@ -243,8 +243,13 @@ object ScalaPsiElementFactory {
                                               isClassParameter: Boolean): ScParameterClause =
     if (clauses.isEmpty)
       throw new IncorrectOperationException("At least one clause required.")
+    else if (context.isInScala3File)
+      createElementWithContext[ScParameterClause](s"(using ${clauses.commaSeparated()})", context, null) {
+        case builder if isClassParameter => top.params.ClassParamClause.parse(builder)
+        case builder => params.ParamClause.parse(builder)
+      }
     else
-      createElementWithContext[ScParameterClause](s"(implicit ${clauses.commaSeparated()})", context, contextLastChild(context)) {
+      createElementWithContext[ScParameterClause](s"(implicit ${clauses.commaSeparated()})", context, null) {
         case builder if isClassParameter => top.params.ImplicitClassParamClause.parse(builder)
         case builder => params.ImplicitParamClause.parse(builder)
       }
@@ -295,12 +300,12 @@ object ScalaPsiElementFactory {
 
   def createAnnotationExpression(@NonNls text: String)
                                 (implicit ctx: ProjectContext): ScAnnotationExpr =
-    createElement(text)(expressions.AnnotationExpr.parse)
+    createElement(text)(expressions.AnnotationExpr.parse(_))
       .asInstanceOf[ScAnnotationExpr]
 
   def createBlockExpressionWithoutBracesFromText(@NonNls text: String)
                                                 (implicit ctx: ProjectContext): ScBlockImpl = {
-    createElement(text)(expressions.Block.parse(_, hasBrace = false, needNode = true)) match {
+    createElement(text)(expressions.Block.Braceless(stopOnOutdent = false, needNode = true)(_)) match {
       case b: ScBlockImpl => b
       case _ => null
     }

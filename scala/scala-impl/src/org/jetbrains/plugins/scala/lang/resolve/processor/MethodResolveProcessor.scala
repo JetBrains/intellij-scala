@@ -30,8 +30,6 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
 
-import scala.collection.mutable.ArrayBuffer
-
 //todo: remove all argumentClauses, we need just one of them
 class MethodResolveProcessor(override val ref: PsiElement,
                              val refName: String,
@@ -69,6 +67,8 @@ class MethodResolveProcessor(override val ref: PsiElement,
     def unresolvedTypeParameters: Option[Seq[TypeParameter]] = state.unresolvedTypeParams
     def renamed: Option[String] = state.renamed
     def forwardReference: Boolean = state.isForwardRef
+    def extensionMethod: Boolean = state.isExtensionMethod
+    def extensionContext: Option[ScExtension] = state.extensionContext
     def importsUsed = state.importsUsed
 
     if (nameMatches(namedElement) || constructorResolve) {
@@ -79,9 +79,22 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
       namedElement match {
         case m: PsiMethod =>
-          addResult(new ScalaResolveResult(m, s, importsUsed, renamed,
-            implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
-            isForwardReference = forwardReference, unresolvedTypeParameters = unresolvedTypeParameters))
+          addResult(
+            new ScalaResolveResult(
+              m,
+              s,
+              importsUsed,
+              renamed,
+              implicitConversion       = implFunction,
+              implicitType             = implType,
+              fromType                 = fromType,
+              isAccessible             = accessible,
+              isForwardReference       = forwardReference,
+              unresolvedTypeParameters = unresolvedTypeParameters,
+              isExtension              = extensionMethod,
+              extensionContext         = extensionContext
+            )
+          )
         case _: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
         case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
@@ -190,23 +203,31 @@ object MethodResolveProcessor {
 
     val realResolveResult = c.innerResolveResult match {
       case Some(rr) => rr
-      case _ => c
+      case _        => c
     }
+
     val element = realResolveResult.element
     val s = realResolveResult.substitutor
 
     val elementsForUndefining = element match {
       case ScalaConstructor(_) if !selfConstructorResolve => Seq(realResolveResult.getActualElement)
-      case Constructor(_) =>
-        Seq(realResolveResult.getActualElement, element).distinct
-      case _ => Seq(element) //do not
+      case Constructor(_)                                 => Seq(realResolveResult.getActualElement, element).distinct
+      case _                                              => Seq(element) //do not
     }
+
     val iterator = elementsForUndefining.iterator
     var tempSubstitutor: ScSubstitutor = ScSubstitutor.empty
     while (iterator.hasNext) {
       val element = iterator.next()
+
       tempSubstitutor = tempSubstitutor.followed(
-        undefinedSubstitutor(element, s, selfConstructorResolve, typeArgElements)
+        undefinedSubstitutor(
+          element,
+          s,
+          selfConstructorResolve,
+          typeArgElements,
+          realResolveResult.isExtension
+        )
       )
     }
 
@@ -361,7 +382,7 @@ object MethodResolveProcessor {
 
       if (typeArgElements.isEmpty || allTypeParametersDefined) {
         val result =
-          Compatibility.compatible(constr, substitutor, argumentClauses, checkWithImplicits, isShapeResolve)
+          Compatibility.compatible(realResolveResult, substitutor, argumentClauses, checkWithImplicits, isShapeResolve)
         problems ++= result.problems
         result.copy(problems = problems.result())
       } else {
@@ -413,7 +434,7 @@ object MethodResolveProcessor {
 
         val argsConformance =
           Compatibility.compatible(
-            e,
+            realResolveResult,
             substitutorWithExpected,
             args,
             checkWithImplicits,
@@ -440,7 +461,7 @@ object MethodResolveProcessor {
             case _ =>
           }
         } else {
-          problems += new DoesNotTakeParameters
+          problems += DoesNotTakeParameters
         }
         ConformanceExtResult(problems.result())
       case _: PsiClass =>
@@ -455,7 +476,7 @@ object MethodResolveProcessor {
       case JavaConstructor(constructor) => javaConstructorCompatibility(constructor)
       case fun: ScFunction if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
-              fun.paramClauses.clauses.head.isImplicit &&
+              fun.paramClauses.clauses.head.isImplicitOrUsing && //@TODO: multiple using clauses ???
               argumentClauses.isEmpty =>
         addExpectedTypeProblems()
       //eta expansion
@@ -472,7 +493,7 @@ object MethodResolveProcessor {
       case tpOwner: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication(tpOwner, tpOwner.getTypeParameters.toSeq)
       case _ =>
         if (typeArgElements.nonEmpty) problems += DoesNotTakeTypeParameters
-        if (argumentClauses.nonEmpty) problems += new DoesNotTakeParameters
+        if (argumentClauses.nonEmpty) problems += DoesNotTakeParameters
         addExpectedTypeProblems()
     }
 
@@ -520,17 +541,24 @@ object MethodResolveProcessor {
   }
 
   // TODO clean this up
-  def undefinedSubstitutor(element: PsiNamedElement, s: ScSubstitutor, selfConstructorResolve: Boolean,
-                           typeArgElements: Seq[ScTypeElement]): ScSubstitutor = {
+  def undefinedSubstitutor(
+    element:                PsiElement,
+    subst:                  ScSubstitutor,
+    selfConstructorResolve: Boolean,
+    typeArgElements:        Seq[ScTypeElement],
+    isExtension:            Boolean
+  ): ScSubstitutor = {
     if (selfConstructorResolve) return ScSubstitutor.empty
 
     implicit val ctx: ProjectContext = element
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
-      case t: ScTypeParametersOwner => Some(t.typeParameters)
-      case p: PsiTypeParameterListOwner => Some(p.getTypeParameters.toSeq)
-      case _ => None
+      case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension)
+      case t: ScTypeParametersOwner        => Option(t.typeParameters)
+      case p: PsiTypeParameterListOwner    => Option(p.getTypeParameters.toSeq)
+      case _                               => None
     }
+
     maybeTypeParameters match {
       case Some(typeParameters: Seq[PsiTypeParameter]) =>
         val follower =
@@ -539,8 +567,8 @@ object MethodResolveProcessor {
           else
             ScSubstitutor.bind(typeParameters)(UndefinedType(_))
 
-        s.followed(follower)
-      case _ => s
+        subst.followed(follower)
+      case _ => subst
     }
   }
 
@@ -698,9 +726,9 @@ object MethodResolveProcessor {
       val (substitutor, cleanTypeArguments) =
         r.element match {
           case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
-            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements), true)
+            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements, r.isExtension), true)
           case owner: PsiTypeParameterListOwner if owner.getTypeParameters.length > 0 =>
-            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements), true)
+            (undefinedSubstitutor(owner, r.substitutor, selfConstructorResolve = false, typeArgElements, r.isExtension), true)
           case _ => (r.substitutor, false)
         }
 
@@ -737,7 +765,7 @@ object MethodResolveProcessor {
     import proc._
 
     val expanded = input.flatMap(expandApplyOrUpdateMethod(_, proc)).iterator
-    var builder  = Set.newBuilder[ScalaResolveResult]
+    val builder  = Set.newBuilder[ScalaResolveResult]
 
     //problemsFor make all the work, wrapping it in scala collection API adds 9 unnecessary methods to the stacktrace
     while (expanded.hasNext) {

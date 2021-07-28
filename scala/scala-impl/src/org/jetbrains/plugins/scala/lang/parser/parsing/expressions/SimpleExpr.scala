@@ -71,11 +71,11 @@ object SimpleExpr extends ParsingRule {
       case `SpliceStart` =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
-        Spliced.parse(builder, inType = false)
+        SplicedExpr()
       case `QuoteStart` =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
-        Quoted.parse(builder)
+        Quoted()
       case `tLPARENTHESIS` =>
         state = true
         builder.advanceLexer()

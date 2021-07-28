@@ -8,9 +8,7 @@ package patterns
 import com.intellij.lang.ASTNode
 import com.intellij.psi._
 import com.intellij.psi.scope.PsiScopeProcessor
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.{PsiTypeExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
@@ -36,6 +34,8 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
   def this(stub: ScBindingPatternStub[ScTypedPattern]) = this(stub, null)
 
   override def nameId: PsiElement = findChildByType[PsiElement](TokenSets.ID_SET)
+
+  override def typePattern: Option[ScTypePattern] = findChild[ScTypePattern]
 
   override def toString: String = "TypedPattern: " + ifReadAllowed(name)("")
 
@@ -89,7 +89,7 @@ class ScTypedPatternImpl private(stub: ScBindingPatternStub[ScTypedPattern], nod
           }
         this.expectedType match {
           case Some(expectedType) =>
-            typeElementType.map(resType => expectedType.glb(resType, checkWeak = false))
+            typeElementType.map(resType => expectedType.glb(resType))
           case _ => typeElementType
         }
       case None => Failure(ScalaBundle.message("no.type.pattern"))

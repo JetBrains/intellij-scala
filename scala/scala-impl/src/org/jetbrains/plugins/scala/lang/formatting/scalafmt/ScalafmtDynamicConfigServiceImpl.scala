@@ -33,7 +33,7 @@ import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 import scala.util.Try
 
-final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
+final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Project)
   extends ScalafmtDynamicConfigService {
 
   private val Log = Logger.getInstance(classOf[ScalafmtDynamicConfigService])
@@ -111,7 +111,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
 
   private def intellijDefaultConfig: Option[ScalafmtReflectConfig] = {
     ScalafmtDynamicService.instance
-      .resolve(DefaultVersion, downloadIfMissing = false, FmtVerbosity.FailSilent, projectResolvers(project))
+      .resolve(DefaultVersion, project, downloadIfMissing = false, FmtVerbosity.FailSilent, projectResolvers(project))
       .toOption.map(_.intellijScalaFmtConfig)
   }
 
@@ -194,7 +194,7 @@ final class ScalafmtDynamicConfigServiceImpl(private val project: Project)
         case Left(e)      => Left(ConfigResolveError.ConfigParseError(configPath, e))
       }
       fmtReflect <- ScalafmtDynamicService.instance
-        .resolve(version, downloadIfMissing = false, verbosity, projectResolvers(project), resolveFast)
+        .resolve(version, project, downloadIfMissing = false, verbosity, projectResolvers(project), resolveFast)
         .left.map(ConfigResolveError.ConfigScalafmtResolveError)
       config <- parseConfig(configFile, fmtReflect)
     } yield config

@@ -275,7 +275,7 @@ object AutoBraceInsertionTools {
   private def findLastTokenOfExpressionAfterStatementStart(element: PsiElement, file: PsiFile, statementStart: Int, caretOffset: Int): Option[PsiElement] =
     for {
       // find an element that certainly encloses everything
-      enclosement <- element.parents.findByType[PsiFile, ScBlock]
+      enclosement <- element.parents.filter(_.startOffset <= statementStart).findByType[PsiFile, ScBlock]
       enclosementStart = enclosement.startOffset
       statementStartInEnclosement = statementStart - enclosementStart
       caretInEnclosement = caretOffset - enclosementStart

@@ -33,7 +33,7 @@
 [113,114]: Ident
 [115,117]: Number
 [125,127]: Tuple
-[135,591]: DefDef
+[135,599]: DefDef
 [141,147]: ValDef
 [144,147]: Ident
 [150,153]: Ident
@@ -252,8 +252,8 @@
 [1030,1031]: Ident
 [1032,1034]: Number
 [1040,1042]: Tuple
-[1044,1237]: TypeDef
-[1059,1229]: Template
+[1044,1247]: TypeDef
+[1059,1237]: Template
 [1059,1059]: DefDef
 [1059,1059]: TypeTree
 [1059,1063]: ValDef
@@ -278,7 +278,7 @@
 [1130,1144]: Ident
 [1153,1155]: Ident
 [1160,1161]: Ident
-[1165,1229]: ValDef
+[1165,1237]: ValDef
 [1170,1170]: TypeTree
 [1177,1229]: New
 [1177,1229]: Template
@@ -302,7 +302,7 @@
 [1286,1319]: Import
 [1293,1311]: Select
 [1293,1303]: Ident
-[1321,2246]: TypeDef
+[1321,2256]: TypeDef
 [1332,2246]: Template
 [1332,1353]: DefDef
 [1333,1352]: ValDef
@@ -310,7 +310,7 @@
 [1340,1344]: Ident
 [1345,1351]: Ident
 [1352,1352]: TypeTree
-[1358,1382]: TypeDef
+[1358,1392]: TypeDef
 [1373,1382]: Template
 [1373,1373]: DefDef
 [1373,1373]: TypeTree
@@ -397,7 +397,7 @@
 [1736,1737]: Ident
 [1738,1746]: Block
 [1741,1746]: Literal
-[1750,1922]: ParsedTry
+[1750,1932]: ParsedTry
 [1754,1831]: Match
 [1754,1767]: Apply
 [1754,1758]: Ident

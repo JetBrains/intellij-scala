@@ -2,8 +2,9 @@ package org.jetbrains.sbt.language.utils
 
 import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDependencyRepository}
 import com.intellij.openapi.command.WriteCommandAction
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.{DumbService, Project}
-import com.intellij.openapi.module.{Module => OpenapiModule}
+import com.intellij.openapi.module.{ModuleManager, Module => OpenapiModule}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
@@ -13,10 +14,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt}
 import org.jetbrains.sbt.SbtUtil.getSbtModuleData
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
-import org.jetbrains.sbt.project.data.SbtModuleData
+import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleExtData}
 import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
 
 import java.io.File
@@ -33,17 +34,74 @@ object SbtDependencyUtils {
   val SBT_MODULE_ID_TYPE = "sbt.ModuleID"
   val SBT_LIB_CONFIGURATION = "_root_.sbt.librarymanagement.Configuration"
 
-  private val InfixOpsSet = Set(":=", "+=", "++=")
-
   sealed trait GetMode
   object GetMode {
     case object GetPlace extends GetMode
     case object GetDep extends GetMode
   }
 
+  def getAllScalaVersionsOrDefault(psiElement: PsiElement, majorOnly: Boolean = false): List[String] = {
+    var scalaVers = SbtDependencyUtils.getAllScalaVers(psiElement.getProject).sortWith(SbtDependencyUtils.isGreaterStableVersion)
+    if (scalaVers.isEmpty) scalaVers = List(psiElement.scalaLanguageLevelOrDefault.getVersion)
+    if (majorOnly) scalaVers = scalaVers.map(ver => ver.split("\\.").take(2).mkString("."))
+    scalaVers
+  }
+
+  def preprocessVersion(v: String): String = {
+    val pattern = """\d+""".r
+    v.split("\\.").map(part => {
+      val newPart = pattern.findAllIn(part).toList
+      if (newPart.isEmpty) 0
+      else newPart(0)
+    }).mkString(".")
+  }
+
+  def isVersionStable(version: String): Boolean = {
+    val unstablePattern = """.*[a-zA-Z-].*"""
+    !version.matches(unstablePattern)
+  }
+
+  def isGreaterStableVersion(newVer: String, oldVer: String): Boolean = {
+    val oldVerPreprocessed = preprocessVersion(oldVer)
+    val newVerPreprocessed = preprocessVersion(newVer)
+    newVerPreprocessed.split("\\.")
+      .zipAll(oldVerPreprocessed.split("\\."), "0", "0")
+      .find {case(a, b) => a != b }
+      .fold(0) { case (a, b) => a.toInt - b.toInt } > 0
+  }
+
+  def getScalaVerFromModule(module: OpenapiModule): String = {
+    var scalaVer: String = ""
+    val moduleExtData = SbtUtil.getModuleData(
+      module.getProject,
+      ExternalSystemApiUtil.getExternalProjectId(module),
+      SbtModuleExtData.Key).toSeq
+    if (moduleExtData.nonEmpty) scalaVer = moduleExtData.head.scalaVersion
+    scalaVer
+  }
+
+  def getAllScalaVers(project: Project): List[String] = {
+    var res: List[String] = Nil
+    val modules = ModuleManager.getInstance(project).getModules
+    res = modules.map(getScalaVerFromModule).toList
+    res.filter(_.nonEmpty).distinct
+  }
+
   def buildScalaDependencyString(artifactID: String, scalaVer: String): String = {
     val ver = scalaVer.split('.')
-    s"${artifactID}_${ver(0)}.${ver(1)}"
+    ver.length match {
+      case 1 =>
+        s"${artifactID}_${ver(0)}"
+      case 2 | 3 =>
+        ver.head match {
+          case "3" =>
+            s"${artifactID}_${ver(0)}"
+          case _ =>
+            s"${artifactID}_${ver(0)}.${ver(1)}"
+        }
+      case _ =>
+        s"${artifactID}"
+    }
   }
 
   def findLibraryDependency(project: Project,
@@ -55,9 +113,9 @@ object SbtDependencyUtils {
     val targetCoordinates = dependency.getCoordinates
     val targetDepText: String = generateArtifactTextVerbose(
       targetCoordinates.getGroupId,
-      targetCoordinates.getArtifactId,
+      targetCoordinates.getArtifactId.replaceAll("_\\d+.*$", ""),
       if (versionRequired) targetCoordinates.getVersion else "",
-      if (configurationRequired) dependency.getScope else SbtCommon.defaultLibScope)
+      if (configurationRequired) dependency.getScope else SbtDependencyCommon.defaultLibScope)
     val libDeps = getLibraryDependenciesOrPlaces(sbtFileOpt, project, module, GetDep)
     libDeps.foreach(
       libDep => {
@@ -70,13 +128,13 @@ object SbtDependencyUtils {
               a,
               b,
               if (versionRequired) c else "",
-              SbtCommon.defaultLibScope)
+              SbtDependencyCommon.defaultLibScope)
           case List(a, b, c, d) =>
             processedDepText = generateArtifactTextVerbose(
               a,
               b,
               if (versionRequired) c else "",
-              if (configurationRequired) d else SbtCommon.defaultLibScope)
+              if (configurationRequired) d else SbtDependencyCommon.defaultLibScope)
           case _ =>
         }
 
@@ -193,6 +251,30 @@ object SbtDependencyUtils {
   }
 
   def cleanUpDependencyPart(s: String): String = s.trim.replaceAll("^\"|\"$", "")
+
+  def isScalaLibraryDependency(psi: PsiElement): Boolean = {
+    var result = false
+
+    def callback(psiElement: PsiElement): Boolean = {
+      psiElement match {
+        case infix: ScInfixExpr if infix.operation.refName.contains("%%") =>
+          result = true
+          false
+        case _ => true
+      }
+    }
+
+    inReadAction({
+      psi match {
+        case infix: ScInfixExpr => SbtDependencyTraverser.traverseInfixExpr(infix)(callback)
+        case call: ScMethodCall => SbtDependencyTraverser.traverseMethodCall(call)(callback)
+        case refExpr: ScReferenceExpression => SbtDependencyTraverser.traverseReferenceExpr(refExpr)(callback)
+        case _ =>
+      }
+    })
+
+    result
+  }
 
   /** Parse Library Dependencies or Places from PsiElement
    *
@@ -491,9 +573,9 @@ object SbtDependencyUtils {
     if (artifactId.matches("^.+_\\d+.*$"))
       artifactText += s""""${groupId}" %% "${artifactId.replaceAll("_\\d+.*$", "")}" % "${version}""""
     else
-      artifactText += s""""${groupId}" %% "${artifactId}" % "${version}""""
+      artifactText += s""""${groupId}" % "${artifactId}" % "${version}""""
 
-    if (configuration != SbtCommon.defaultLibScope) {
+    if (configuration != SbtDependencyCommon.defaultLibScope) {
       artifactText += s""" % $configuration"""
     }
     artifactText

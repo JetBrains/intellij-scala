@@ -11,7 +11,7 @@ import scala.annotation.nowarn
 import scala.collection.mutable
 
 case class IvyManagedLoader(dependencies: DependencyDescription*) extends LibraryLoader {
-  protected lazy val dependencyManager: DependencyManagerBase = DependencyManager
+  protected lazy val dependencyManager: DependencyManagerBase = TestDependencyManager
 
   override def init(implicit module: Module, version: ScalaVersion): Unit = {
     val resolved = IvyManagedLoader.cache.getOrElseUpdate(

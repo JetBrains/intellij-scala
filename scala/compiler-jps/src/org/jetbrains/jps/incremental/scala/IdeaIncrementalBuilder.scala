@@ -1,7 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 
 import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.DirtyFilesHolder
@@ -33,7 +32,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
     if (isDisabled(context, chunk) || ChunkExclusionService.isExcluded(chunk))
       return ExitCode.NOTHING_DONE
 
-    context.processMessage(new ProgressMessage("Searching for compilable files..."))
+    context.processMessage(new ProgressMessage(JpsBundle.message("searching.for.compilable.files.0", chunk.getPresentableShortName)))
 
     val sourceDependencies = SourceDependenciesProviderService.getSourceDependenciesFor(chunk)
     if (sourceDependencies.nonEmpty) {
@@ -74,8 +73,7 @@ class IdeaIncrementalBuilder(category: BuilderCategory) extends ModuleLevelBuild
 
     val successfullyCompiled = mutable.Set.empty[File]
 
-    val compilerName = if (data.CompilerDataFactory.hasDotty(modules)) "dotc"
-    else "scalac"
+    val compilerName = "scalac"
 
     val client = new local.IdeClientIdea(compilerName, context, chunk, outputConsumer,
       callback, successfullyCompiled, packageObjectsData)

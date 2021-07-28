@@ -5,7 +5,6 @@ package impl
 
 import java.util.concurrent.atomic.AtomicReference
 import java.util.concurrent.{ConcurrentHashMap, ConcurrentMap}
-
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
 import com.intellij.openapi.roots.ProjectRootManager
@@ -23,7 +22,7 @@ import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, CleanupSche
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAlias
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.idToName
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
@@ -115,6 +114,10 @@ class ScalaPsiManager(implicit val project: Project) {
     if (DumbService.getInstance(project).isDumb) Seq.empty
     else getTopLevelImplicitClassesByPackageCached(fqn, scope).toSeq
 
+  def getTopLevelExtensionsByPackage(fqn: String, scope: GlobalSearchScope): Seq[ScExtension] =
+    if (DumbService.getInstance(project).isDumb) Seq.empty
+    else getTopLevelExtensionsByPackageCached(fqn, scope).toSeq
+
   import ScalaIndexKeys._
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
@@ -124,6 +127,10 @@ class ScalaPsiManager(implicit val project: Project) {
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   private def getTopLevelImplicitClassesByPackageCached(fqn: String, scope: GlobalSearchScope): Iterable[ScClass] =
     TOP_LEVEL_IMPLICIT_CLASS_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
+
+  @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
+  private def getTopLevelExtensionsByPackageCached(fqn: String, scope: GlobalSearchScope): Iterable[ScExtension] =
+    TOP_LEVEL_EXTENSION_BY_PKG_KEY.elements(cleanFqn(fqn), scope)
 
   @CachedWithoutModificationCount(ValueWrapper.SofterReference, clearCacheOnTopLevelChange)
   def getCachedPackage(inFqn: String): Option[PsiPackage] = {
@@ -174,7 +181,8 @@ class ScalaPsiManager(implicit val project: Project) {
     val fqn = cleanFqn(pkgFqn)
     TOP_LEVEL_VAL_OR_VAR_BY_PKG_KEY.elements(fqn, scope) ++
       TOP_LEVEL_TYPE_ALIAS_BY_PKG_KEY.elements(fqn, scope) ++
-      TOP_LEVEL_FUNCTION_BY_PKG_KEY.elements(fqn, scope)
+      TOP_LEVEL_FUNCTION_BY_PKG_KEY.elements(fqn, scope) ++
+      TOP_LEVEL_EXTENSION_BY_PKG_KEY.elements(fqn, scope)
   }
 
   def getTypeAliasesByName(name: String, scope: GlobalSearchScope): Iterable[ScTypeAlias] =

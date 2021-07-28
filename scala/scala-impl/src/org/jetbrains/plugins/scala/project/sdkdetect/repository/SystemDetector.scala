@@ -1,27 +1,31 @@
 package org.jetbrains.plugins.scala.project.sdkdetect.repository
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.util.SystemInfo
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure
-import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector.CompilerClasspathResolveFailure._
+import org.jetbrains.plugins.scala.project.sdkdetect.repository.CompilerClasspathResolveFailure.{AmbiguousArtifactsResolved, UnresolvedArtifact}
 import org.jetbrains.plugins.scala.project.template._
 
 import java.io.File
 import java.nio.file.{Path, Paths}
-import java.util.function.{Function => JFunction}
 import java.util.stream.{Stream => JStream}
+import scala.jdk.CollectionConverters.IteratorHasAsScala
 import scala.util.Using
 
 
-private[project] object SystemDetector extends ScalaSdkDetector {
-  override def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = SystemSdkChoice(descriptor)
+private[project] object SystemDetector extends ScalaSdkDetectorBase {
+
+  private val Log = Logger.getInstance(this.getClass)
+
   override def friendlyName: String = ScalaBundle.message("system.wide.scala")
 
-  private def env(name: String): Option[String] = Option(System.getenv(name))
+  override protected def buildSdkChoice(descriptor: ScalaSdkDescriptor): SdkChoice = SystemSdkChoice(descriptor)
 
-  private val scalaChildDirs = Set("bin", "lib")
+  private val BinFolder = "bin"
+  private val LibFolder = "lib"
+  private val scalaChildDirs = Set(BinFolder, LibFolder)
 
   private val scala2LibChildFiles  = Set(
     "scala-compiler.jar",
@@ -46,7 +50,7 @@ private[project] object SystemDetector extends ScalaSdkDetector {
       containsRequiredScala3LibraryJars(scalaDir)
 
   private def containsRequiredScala2LibraryJars(scalaDir: Path): Boolean = {
-    val libDir = scalaDir / "lib"
+    val libDir = scalaDir / LibFolder
     scala2LibChildFiles.forall(libDir.childExists)
   }
 
@@ -63,7 +67,7 @@ private[project] object SystemDetector extends ScalaSdkDetector {
         return false
     }
 
-    val libDir = scalaDir / "lib"
+    val libDir = scalaDir / LibFolder
     val expectedLibFiles = scala3LibChildFiles(scala3Version)
     expectedLibFiles.forall(libDir.childExists)
   }
@@ -95,26 +99,74 @@ private[project] object SystemDetector extends ScalaSdkDetector {
       .map(s => Paths.get(s).getParent.toOption.map(_.getParent)) // we should return *parent* dir for "scala" folder, not the "bin" one
   }.toSeq.flatten
 
+  private def env(name: String): Option[String] = Option(System.getenv(name))
+
   private def rootsFromEnv: Seq[Path] = env("SCALA_HOME").map(Paths.get(_)).toSeq
 
   private def getSystemRoots: Seq[Path] = (rootsFromPath ++ rootsFromEnv ++ rootsFromPrograms).filter(_.exists)
 
-  override def buildJarStream(implicit indicator: ProgressIndicator): JStream[Path] = {
-    val streams = getSystemRoots.map { root =>
-      root
-        .children
-        .filter { dir =>
-          progress(dir.toString)
-          dir.isDir                                                  &&
-            dir.getFileName.toString.toLowerCase.startsWith("scala") &&
-            scalaChildDirs.forall(dir.childExists)                   &&
-            containsRequiredScalaLibraryJars(dir)
-        }
-        .map[JStream[Path]](collectJarFiles)
-        .flatMap(JFunction.identity[JStream[Path]]())
+  override protected def collectSdkDescriptors(implicit indicator: ProgressIndicator): Seq[ScalaSdkDescriptor] = {
+    val jarStreams: Seq[(JStream[Path], Path)] =
+      buildJarStreams(indicator)
+
+    val components: Seq[(Seq[ScalaSdkComponent], Path)] =
+      jarStreams.map { case (jarStream, sdkRootPath) =>
+        (componentsFromJarStream(jarStream), sdkRootPath)
+      }
+
+    val sdkDescriptorsOrErrors: Seq[(Either[Seq[CompilerClasspathResolveFailure], ScalaSdkDescriptor], Path)] =
+      components.map { case (components, sdkRootPath) =>
+        (buildFromComponents(components, None, indicator), sdkRootPath)
+      }
+
+    val sdkDescriptors: Seq[(ScalaSdkDescriptor, Path)] = sdkDescriptorsOrErrors.flatMap {
+      case (Left(errors), path)             =>
+        logScalaSdkSkippedInPath(path, errors.map(_.errorMessage))
+        None
+      case (Right(descriptor), sdkRootPath) =>
+        Some((descriptor, sdkRootPath))
+    }
+    val versionsCount = sdkDescriptors.groupBy(_._1.version).view.mapValues(_.size).toMap
+    sdkDescriptors.map { case (sdk, sdkRootPath) =>
+      // show sdkRoot folder name as label only if there are several system SDKs with same version
+      val label = if (versionsCount(sdk.version) > 1) Some(sdkRootPath.getFileName.toString) else None
+      sdk.withLabel(label)
+    }
+  }
+
+  protected final def logScalaSdkSkippedInPath(sdkRootPath: Path, errors: Seq[String]): Unit = {
+    Log.trace(
+      s"Scala SDK Descriptor candidate is skipped" +
+        s" (detector: ${this.getClass.getSimpleName}, sdkRootPath: $sdkRootPath)," +
+        s" errors: ${errors.zipWithIndex.map(_.swap).mkString(", ")}"
+    )
+  }
+
+  private def buildJarStreams(implicit indicator: ProgressIndicator): Seq[(JStream[Path], Path)] = {
+    val roots = getSystemRoots
+
+    val scalaSdkFolders: Seq[Path] = roots.flatMap { root =>
+      // note: files stream must be closed
+      Using.resource(root.children) { childrenStream =>
+        childrenStream
+          .filter { path =>
+            progress(path.toString)
+            isScalaSdkFolder(path)
+          }
+          .iterator().asScala.toSeq
+      }
     }
 
-    streams.foldLeft(JStream.empty[Path]()){ case (a, b) => JStream.concat(a,b) }
+    scalaSdkFolders.map { scalaSdkRoot =>
+      (collectJarFiles(scalaSdkRoot), scalaSdkRoot)
+    }
+  }
+
+  private def isScalaSdkFolder(path: Path): Boolean = {
+    path.isDir &&
+      path.getFileName.toString.toLowerCase.startsWith("scala") &&
+      scalaChildDirs.forall(path.childExists) &&
+      containsRequiredScalaLibraryJars(path)
   }
 
   override protected def resolveExtraRequiredJarsScala3(descriptor: ScalaSdkDescriptor)

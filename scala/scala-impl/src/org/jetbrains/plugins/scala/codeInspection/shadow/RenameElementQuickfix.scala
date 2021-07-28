@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.codeInspection.shadow
 
-import com.intellij.injected.editor.EditorWindow
 import com.intellij.openapi.actionSystem._
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.application.ApplicationManager
@@ -35,14 +34,17 @@ class RenameElementQuickfix(myRef: PsiElement, @Nls name: String) extends Abstra
                                    (implicit project: Project): AnActionEvent = {
     val builder = SimpleDataContext.builder()
     val containingFile = ref.getContainingFile
-    @nowarn("cat=deprecation") val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)
-    if (editor.is[EditorWindow]) {
-      builder.add(CommonDataKeys.EDITOR, editor)
-      builder.add(CommonDataKeys.PSI_ELEMENT, ref)
-    } else if (ApplicationManager.getApplication.isUnitTestMode) {
+    @nowarn("cat=deprecation")
+    val editor: Editor = InjectedLanguageUtil.openEditorFor(containingFile, project)
+    builder.add(CommonDataKeys.PROJECT, project)
+    builder.add(LangDataKeys.CONTEXT_LANGUAGES, Array(containingFile.getLanguage))
+    if (ApplicationManager.getApplication.isUnitTestMode) {
       val element = new TextEditorPsiDataProvider().getData(CommonDataKeys.PSI_ELEMENT.getName,
         editor, editor.getCaretModel.getCurrentCaret).asInstanceOf[PsiElement]
       builder.add(CommonDataKeys.PSI_ELEMENT, element)
+    } else {
+      builder.add(CommonDataKeys.EDITOR, editor)
+      builder.add(CommonDataKeys.PSI_ELEMENT, ref)
     }
     val dataContext = builder.build()
     new AnActionEvent(null, dataContext, "", action.getTemplatePresentation, ActionManager.getInstance, 0)

@@ -50,7 +50,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     val des  = tpe.designator
 
     val captureLength        = args.length - tvArgs.length
-    val abstractedTypeParams = extractTypeParameters(des).drop(captureLength)
+    val abstractedTypeParams = TypeVariableUnification.extractTypeParameters(des).drop(captureLength)
     val tvTypeParameters     = tvDes.typeParameters
 
     if (!unifiableKinds(abstractedTypeParams, tvTypeParameters))
@@ -58,7 +58,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
     else if (captureLength == 0) {
        /** Higher-kinded type var with same arity as `tpe` */
       checkParameterizedType(
-        tvTypeParameters.map(_.psiTypeParameter).iterator,
+        tvTypeParameters,
         tvArgs, args,
         addBound(constraints, des),
         visited, checkWeak, boundKind == Bound.Equivalence
@@ -68,7 +68,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
       val (captured, abstracted) = args.splitAt(captureLength)
       val conformance =
         checkParameterizedType(
-          tvTypeParameters.map(_.psiTypeParameter).iterator,
+          tvTypeParameters,
           tvArgs, abstracted, constraints,
           visited, checkWeak, boundKind == Bound.Equivalence
         )
@@ -81,7 +81,7 @@ trait TypeVariableUnification { self: ScalaConformance with ProjectContextOwner 
           ScTypePolymorphicType(
             ScParameterizedType(
               des,
-              captured.toSeq ++ abstractedTypeParams.map(TypeParameterType(_))
+              captured ++ abstractedTypeParams.map(TypeParameterType(_))
             ),
             abstractedTypeParams
           )

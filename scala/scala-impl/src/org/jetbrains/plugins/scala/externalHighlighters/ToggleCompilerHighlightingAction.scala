@@ -16,11 +16,15 @@ class ToggleCompilerHighlightingScala2Action extends ToggleAction(
     ScalaProjectSettings.getInstance(e.getProject).setCompilerHighlightingScala2(state)
 }
 
+// Is effectively a per-project Registry key, accessible vis Find Action.
 class ToggleCompilerHighlightingScala3Action extends ToggleAction(
   ScalaBundle.message("scala.project.settings.form.compiler.highlighting.scala3"),
   ScalaBundle.message("scala.project.settings.form.compiler.highlighting.tooltip"),
   /* icon = */ null
 ) {
+  override def update(e: AnActionEvent): Unit =
+    e.getPresentation.setVisible(false) // Can still be found explicitly.
+
   override def isSelected(e: AnActionEvent): Boolean =
     ScalaProjectSettings.getInstance(e.getProject).isCompilerHighlightingScala3
 

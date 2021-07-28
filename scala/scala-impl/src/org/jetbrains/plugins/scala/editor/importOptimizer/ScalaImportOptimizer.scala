@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, Scala3Features}
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
@@ -175,7 +175,9 @@ class ScalaImportOptimizer extends ImportOptimizer {
 
   protected def isImportDelimiter(psi: PsiElement): Boolean = psi.is[PsiWhiteSpace]
 
-  override def supports(file: PsiFile): Boolean = file.is[ScalaFile]
+  //we should not apply this to Play2ScalaFile, it is covered by Play2ImportOptimizer
+  override def supports(file: PsiFile): Boolean =
+    file.is[ScalaFile] && !file.getVirtualFile.getName.endsWith(".html")
 
   def replaceWithNewImportInfos(range: RangeInfo, importInfos: Iterable[ImportInfo], settings: OptimizeImportSettings, file: PsiFile): Unit = {
     val firstPsi = range.firstPsi.retrieve()
@@ -363,7 +365,7 @@ object ScalaImportOptimizer {
     private def getImportTextData(importInfo: ImportInfo,
                                   isUnicodeArrow: Boolean,
                                   spacesInImports: Boolean,
-                                  isScala3OrSource3: Boolean,
+                                  scala3Features: Scala3Features,
                                   nameOrdering: Option[Ordering[String]]): ImportTextData = {
       import importInfo._
 
@@ -375,11 +377,11 @@ object ScalaImportOptimizer {
       }
 
       val arrow =
-        if (isScala3OrSource3) "as"
+        if (scala3Features.`Scala 3 renaming imports`) "as"
         else if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow
         else "=>"
       val wildcard =
-        if (isScala3OrSource3) "*"
+        if (scala3Features.`Scala 3 wildcard imports`) "*"
         else "_"
       addGroup(singleNames)
       addGroup(renames.map { case (from, to) => s"$from $arrow $to" })
@@ -390,8 +392,15 @@ object ScalaImportOptimizer {
       val root = if (rootUsed) s"${_root_prefix}." else ""
       val hasAlias = renames.nonEmpty || hiddenNames.nonEmpty
       val postfix =
-        if (groupStrings.length > 1 || (hasAlias && !isScala3OrSource3)) groupStrings.mkString(s"{$space", ", ", s"$space}")
-        else groupStrings.head
+        if (groupStrings.length > 1 || (hasAlias && !scala3Features.`Scala 3 renaming imports`)) {
+          // this is needed to fix the wildcard-import bug in 2.13.6 with -Xsource:3
+          def fixWildcardInSelector(s: String): String =
+            if (s == wildcard && !scala3Features.`Scala 3 wildcard imports in selector`) "_"
+            else s
+          groupStrings
+            .map(fixWildcardInSelector)
+            .mkString(s"{$space", ", ", s"$space}")
+        } else groupStrings.head
       val prefix = s"$root${relative.getOrElse(prefixQualifier)}"
       val dotOrNot = if (prefix.endsWith(".") || prefix.isEmpty) "" else "."
       ImportTextData(prefix, dotOrNot, postfix)
@@ -400,12 +409,12 @@ object ScalaImportOptimizer {
     def getImportText(importInfo: ImportInfo,
                       isUnicodeArrow: Boolean,
                       spacesInImports: Boolean,
-                      isScala3OrSource3: Boolean,
+                      scala3Features: Scala3Features,
                       nameOrdering: Option[Ordering[String]]): String =
-      getImportTextData(importInfo, isUnicodeArrow, spacesInImports, isScala3OrSource3, nameOrdering).fullText
+      getImportTextData(importInfo, isUnicodeArrow, spacesInImports, scala3Features, nameOrdering).fullText
 
     def getScalastyleSortableText(importInfo: ImportInfo): String =
-      getImportTextData(importInfo, isUnicodeArrow = false, spacesInImports = false, isScala3OrSource3 = false, nameOrdering = None)
+      getImportTextData(importInfo, isUnicodeArrow = false, spacesInImports = false, scala3Features = Scala3Features.none, nameOrdering = None)
         .forScalastyleSorting
 
     def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String = {
@@ -413,7 +422,7 @@ object ScalaImportOptimizer {
         if (settings.scalastyleOrder) Some(ScalastyleSettings.nameOrdering)
         else if (settings.sortImports) Some(Ordering.String)
         else None
-      getImportText(importInfo, settings.isUnicodeArrow, settings.spacesInImports, settings.isScala3OrSource3, ordering)
+      getImportText(importInfo, settings.isUnicodeArrow, settings.spacesInImports, settings.scala3Features, ordering)
     }
   }
 
@@ -558,16 +567,17 @@ object ScalaImportOptimizer {
     }
 
     def possiblyWithWildcard(info: ImportInfo): ImportInfo = {
-      val needUpdate = info.singleNames.size >= settings.classCountToUseImportOnDemand
-      val onlySingleNames = info.hiddenNames.isEmpty && info.renames.isEmpty && !info.hasWildcard
+      val tooManySingleNames = info.singleNames.size >= settings.classCountToUseImportOnDemand
+      val onlySingleNames    = info.hiddenNames.isEmpty && info.renames.isEmpty
 
-      if (!needUpdate || !onlySingleNames) return info
+      val mayReplaceAllWithWildcard = tooManySingleNames && onlySingleNames && !info.hasWildcard
+      val mayMergeIntoWildcard = onlySingleNames && info.hasWildcard
+
+      if (!mayReplaceAllWithWildcard && !mayMergeIntoWildcard) return info
 
       val withWildcard = info.toWildcardInfo.withAllNamesForWildcard(rangeStartPsi)
 
       if (withWildcard.wildcardHasUnusedImplicit) return info
-
-      updateWithWildcardNames(infos)
 
       val explicitNames = infos.flatMap {
         case `info` => Seq.empty
@@ -588,6 +598,8 @@ object ScalaImportOptimizer {
         withWildcard.copy(hiddenNames = clashesWithOtherWildcards)
       else info
     }
+
+    updateWithWildcardNames(infos)
 
     for ((info, i) <- infos.zipWithIndex) {
       val newInfo = possiblyWithWildcard(info)

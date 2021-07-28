@@ -53,11 +53,11 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
 
   private lazy val result: Result = {
     val visible =
-      (for {
-        result <- ImplicitCollector.visibleImplicits(ref)
+      for {
+        result <- ImplicitCollector.visibleImplicits(ref, None)
         fun    <- result.element.asOptionOf[ScFunction]
         if fun.isImplicitConversion
-      } yield fun)
+      } yield fun
 
     val conversionsToImport = ArrayBuffer.empty[GlobalImplicitConversion]
     val notFoundImplicits = ArrayBuffer.empty[ScalaResolveResult]

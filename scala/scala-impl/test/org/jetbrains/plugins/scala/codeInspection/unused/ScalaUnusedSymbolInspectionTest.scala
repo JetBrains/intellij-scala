@@ -635,4 +635,35 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
       hintOnlyXBinding
     )
   }
+
+  def testSugarOp(): Unit = checkTextHasNoErrors(
+    s"""object Ctx {
+       |  private class Test {
+       |    def +(_: Any): Test = this
+       |  }
+       |  private var test = new Test
+       |  test += 3
+       |}
+       |""".stripMargin
+  )
+
+  def testPropertyAssign_used(): Unit = checkTextHasNoErrors(
+    s"""object Test {
+       |  private def data: Int = 0
+       |  private def data_=(i: Int): Int = i
+       |
+       |  Test.data = 3
+       |}
+       |""".stripMargin
+  )
+
+  def testPropertyAssign_unused(): Unit = checkTextHasError(
+    s"""object Test {
+       |  private def data: Int = 0
+       |  private def ${START}data_=$END(i: Int): Int = i
+       |
+       |  println(Test.data)
+       |}
+       |""".stripMargin
+  )
 }

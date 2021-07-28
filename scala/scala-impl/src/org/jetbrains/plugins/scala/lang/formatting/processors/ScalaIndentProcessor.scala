@@ -210,7 +210,7 @@ object ScalaIndentProcessor extends ScalaTokenTypes {
           case ScalaTokenTypes.kTHROW => Indent.getNoneIndent
           case _                      => blockChildIndent
         }
-      case _: ScEarlyDefinitions | _: ScTemplateBody =>
+      case _: ScEarlyDefinitions | _: ScTemplateBody | _: ScExtensionBody =>
         childElementType match {
           case ScalaTokenTypes.tLBRACE | ScalaTokenTypes.tRBRACE | ScalaElementType.END_STMT => Indent.getNoneIndent
           case _ if settings.CLASS_BRACE_STYLE == NEXT_LINE_SHIFTED => Indent.getNoneIndent

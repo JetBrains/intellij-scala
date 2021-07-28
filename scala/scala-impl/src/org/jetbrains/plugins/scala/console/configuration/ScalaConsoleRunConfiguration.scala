@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.console.configuration
 
 import java.io.File
-
 import com.intellij.execution._
 import com.intellij.execution.configurations.{ConfigurationFactory, JavaParameters, _}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
@@ -16,7 +15,6 @@ import org.jdom.Element
 import org.jetbrains.annotations.{ApiStatus, Nls}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.console.ScalaLanguageConsole
-import org.jetbrains.plugins.scala.console.ScalaLanguageConsoleView.ScalaConsole
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.{JlineResolveResult, showJLineMissingNotification}
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
@@ -43,7 +41,13 @@ class ScalaConsoleRunConfiguration(
   configurationFactory
 ) {
 
-  private val MainClass = "scala.tools.nsc.MainGenericRunner"
+  //language=Scala
+  private val Scala2MainClass = "scala.tools.nsc.MainGenericRunner"
+  private val Scala3MainClass = "dotty.tools.repl.Main"
+
+  // TODO: looks like it isn't required for Scala3 and also for Scala2
+  //  in Scala3 JLine is always used, there is not option to disable it
+  //  in Scala2 we disable it with `org.jetbrains.plugins.scala.console.configuration.ScalaConsoleRunConfiguration.disableJLineOption`
   private val DefaultJavaOptions = "-Djline.terminal=NONE"
   private val UseJavaCp = "-usejavacp"
 
@@ -104,8 +108,16 @@ class ScalaConsoleRunConfiguration(
 
     override protected def createJavaParameters: JavaParameters = {
       val params = createParams
-      val args = consoleArgs + " " + disableJLineOption
-      params.getProgramParametersList.addParametersString(args)
+      val module = requireModule
+      params.getProgramParametersList.addParametersString(consoleArgs)
+
+      // see dotty.tools.repl.JLineTerminal.dumbTerminal (in scala3-compiler_3-3.0.0.jar)
+      // also related IDEA-183619
+      if (module.hasScala3)
+        params.addEnv("TERM", "dumb")
+      else
+        params.getProgramParametersList.addParametersString(disableJLineOption)
+
       params
     }
 
@@ -114,7 +126,7 @@ class ScalaConsoleRunConfiguration(
       val classPath = params.getClassPath
 
       val module = requireModule
-      val success = ensureJLineInClassPathOrShowErrorNotification(classPath, module, ScalaConsole)
+      val success = ensureJLineInClassPathOrShowErrorNotification(classPath, module, ScalaLanguageConsole.ScalaConsoleTitle)
       if (success)
         super.execute(executor, runner)
       else
@@ -152,7 +164,7 @@ class ScalaConsoleRunConfiguration(
       throw CantRunException.noJdkForModule(module)
     }
 
-    new JavaParameters {
+    val parameters: JavaParameters = new JavaParameters {{
       configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
       getVMParametersList.addParametersString(javaOptions)
@@ -160,8 +172,11 @@ class ScalaConsoleRunConfiguration(
       setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
       getClassPath.addRunners()
       setWorkingDirectory(workingDirectory)
-      setMainClass(MainClass)
-    }
+
+      val mainClass = if (module.hasScala3) Scala3MainClass else Scala2MainClass
+      setMainClass(mainClass)
+    }}
+    parameters
   }
 
   /** ShortenCommandLine.ARGS_FILE is intentionally not used even if JdkUtil.useClasspathJar is true

@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.codeInspection.collections
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 
 import scala.collection.immutable.ArraySeq
 
@@ -21,8 +22,8 @@ object ComparingDiffCollectionKinds extends SimplificationType {
     }
   }
   object Side {
-    case object Right extends Side
-    case object Left extends Side
+    final case object Right extends Side
+    final case object Left extends Side
   }
 
   override def hint: String = ScalaInspectionBundle.message("hint.comparing.different.collection.kinds")
@@ -39,7 +40,8 @@ object ComparingDiffCollectionKinds extends SimplificationType {
         val (otherKind, exprToConvert) =
           side.fold(rightKind -> left)(leftKind -> right)
         if (otherKind == "Array") return Seq.empty
-        val convertText = partConvertedExprText(expr, exprToConvert, "to" + otherKind)
+        val method = if (otherKind == "Iterator" && expr.scalaLanguageLevelOrDefault >= ScalaLanguageLevel.Scala_2_13) "iterator" else s"to$otherKind"
+        val convertText = partConvertedExprText(expr, exprToConvert, method)
         Seq(replace(expr).withText(convertText).withHint(convertHint(side, otherKind)).highlightRef)
       }
       convertSimplification(Side.Left) ++ convertSimplification(Side.Right)

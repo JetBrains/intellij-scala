@@ -1,41 +1,31 @@
 package org.jetbrains.bsp.protocol.session
-import java.io.File
-
 import ch.epfl.scala.bsp4j.BspConnectionDetails
 import com.intellij.execution.configurations.JavaParameters
 import com.intellij.openapi.projectRoots.{JavaSdk, ProjectJdkTable}
-import org.jetbrains.bsp.{BspBundle, BspError}
 import org.jetbrains.bsp.protocol.session.BspServerConnector.BspCapabilities
 import org.jetbrains.bsp.protocol.session.BspSession.Builder
+import org.jetbrains.bsp.{BspBundle, BspError}
 import org.jetbrains.plugins.scala.DependencyManager
 import org.jetbrains.plugins.scala.DependencyManagerBase.RichStr
 import org.jetbrains.plugins.scala.build.BuildReporter
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
-import org.jetbrains.sbt.SbtUtil
 
+import java.io.File
 import scala.jdk.CollectionConverters._
 
 class BloopLauncherConnector(base: File, compilerOutput: File, capabilities: BspCapabilities) extends BspServerConnector {
 
-  val bloopVersion: String = BuildInfo.bloopVersion // TODO parameterize from build
+  val bloopVersion: String = BuildInfo.bloopVersion
   val bspVersion = "2.0.0"
 
   override def connect(reporter: BuildReporter): Either[BspError, Builder] = {
 
     val dependencies = Seq(
-      ("ch.epfl.scala" % "bloop-launcher_2.12" % bloopVersion).transitive(),
-      "org.scala-lang" % "scala-library" % "2.12.12"
+      ("ch.epfl.scala" % "bloop-launcher_2.12" % bloopVersion).transitive()
     )
     val launcherClasspath = DependencyManager.resolve(dependencies: _*)
       .map(_.file.getCanonicalPath)
       .asJava
-
-//    val launcher = new File(SbtUtil.getLauncherDir, "bloop-launcher.jar")
-//    val scalaSdk = new File(SbtUtil.getLibDir, "scala-library.jar")
-//    val jna = new File(SbtUtil.getLibDir, "jna-4.5.0.jar") // TODO ensure it's the version that is packaged
-//    val jnaPlatform = new File(SbtUtil.getLibDir, "jna-platform-4.5.0.jar")
-//    val scalaXml = new File(SbtUtil.getLibDir, "scala-xml.jar")
-//    val launcherClasspath = List(launcher, scalaSdk, jna, jnaPlatform, scalaXml).map(_.getCanonicalPath).asJava
 
     // TODO handle no available jdk case
     val jdk = ProjectJdkTable.getInstance().findMostRecentSdkOfType(JavaSdk.getInstance())

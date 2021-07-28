@@ -63,7 +63,7 @@
 [245,246]: Ident
 [248,248]: TypeTree
 [251,252]: Ident
-[256,616]: TypeDef
+[256,635]: TypeDef
 [273,616]: Template
 [273,279]: DefDef
 [274,278]: TypeDef
@@ -181,7 +181,7 @@
 [689,690]: Ident
 [692,692]: TypeTree
 [695,696]: Ident
-[700,1188]: TypeDef
+[700,1201]: TypeDef
 [711,1188]: Template
 [711,717]: DefDef
 [712,716]: TypeDef

@@ -89,7 +89,7 @@ class ScalaHighlightConstructorInvocationUsagesTest extends ScalaLightCodeInsigh
   }
 
   def doTest(fileText: String): Unit = {
-    val (fileTextWithoutMarkers, expectedRanges) = extractSequentialMarkers(fileText.withNormalizedSeparator, considerCaret = true)
+    val (fileTextWithoutMarkers, expectedRanges) = extractMarker(fileText.withNormalizedSeparator, considerCaret = true)
     val file = myFixture.configureByText("dummy.scala", fileTextWithoutMarkers)
     val finalFileText = file.getText
 

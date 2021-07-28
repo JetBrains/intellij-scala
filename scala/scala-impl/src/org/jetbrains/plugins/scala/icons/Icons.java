@@ -47,6 +47,7 @@ public interface Icons {
     Icon TRAIT_AND_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/trait_object_scala.svg", Icons.class);
     Icon PACKAGE_WITH_OBJECT = getIcon("/org/jetbrains/plugins/scala/images/packageWithObject.svg", Icons.class);
     Icon MULTIPLE_TYPE_DEFINITONS = getIcon("/org/jetbrains/plugins/scala/images/multipleTypeDefinitions.svg", Icons.class);
+    Icon ENUM = getIcon("/org/jetbrains/plugins/scala/images/enumScala.svg", Icons.class);
 
     //Companion gutter icons
     Icon CLASS_COMPANION = getIcon("/org/jetbrains/plugins/scala/images/class_companion.svg", Icons.class);
@@ -64,6 +65,7 @@ public interface Icons {
     Icon TYPE_ALIAS = getIcon("/org/jetbrains/plugins/scala/images/type_alias.svg", Icons.class);
     Icon ABSTRACT_TYPE_ALIAS = getIcon("/org/jetbrains/plugins/scala/images/abstract_type_alias.svg", Icons.class);
     Icon FUNCTION = getIcon("/org/jetbrains/plugins/scala/images/function.svg", Icons.class);
+    Icon EXTENSION = FUNCTION; // TODO: need dedicated icon or not?
     Icon VAR = getIcon("/org/jetbrains/plugins/scala/images/variable.svg", Icons.class);
     Icon VAL = getIcon("/org/jetbrains/plugins/scala/images/value.svg", Icons.class);
     Icon PARAMETER = getIcon("/org/jetbrains/plugins/scala/images/parameter.svg", Icons.class);

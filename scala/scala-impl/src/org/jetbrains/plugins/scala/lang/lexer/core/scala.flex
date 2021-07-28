@@ -487,6 +487,7 @@ XML_BEGIN = "<" ("_" | [:jletter:]) | "<!--" | "<?" ("_" | [:jletter:]) | "<![CD
 
 {symbolLiteral}                          {  return process(tSYMBOL);  }
 
+"''" / [^']                              {  return process(tCHAR);  }
 {CHARACTER_LITERAL}                      {  return process(tCHAR);  }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

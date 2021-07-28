@@ -17,18 +17,18 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions._
  * ScalaExpr ::= '{' Block '}'
  */
 
-object ScalaExpr {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object ScalaExpr extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START =>
         builder.advanceLexer()
         builder.enableNewlines()
       case _ => return false
     }
-    if (!Block.parse(builder, hasBrace = false, needNode = true)) {
+    if (!Block.Braceless(stopOnOutdent = false, needNode = true)) {
       builder error ErrMsg("xml.scala.expression.exected")
     }
-    CommonUtils.eatAllSemicolons(builder)
+    CommonUtils.eatAllSemicolons()
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_END =>
         builder.advanceLexer()

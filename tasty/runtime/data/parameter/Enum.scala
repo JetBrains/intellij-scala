@@ -10,19 +10,19 @@ trait Enum {
   }
 
   enum ValueParameter(x: Int) {
-    case Case extends ValueParameter/**/(1)/**/
+    case Case/**/ extends ValueParameter(1)/**/
   }
 
   enum ValueParameters(x: Int, y: Long) {
-    case Case extends ValueParameters/**/(1, 2L)/**/
+    case Case/**/ extends ValueParameters(1, 2L)/**/
   }
 
   enum EmptyClause/**/()/**/ {
-    case Case extends EmptyClause
+    case Case/**/ extends EmptyClause/**/
   }
 
   enum MultipleClauses(x: Int)(y: Long) {
-    case Case extends MultipleClauses/**/(1)(2L)/**/
+    case Case/**/ extends MultipleClauses(1)(2L)/**/
   }
 
   enum TypeAndValueParameters[A](x: Int) {

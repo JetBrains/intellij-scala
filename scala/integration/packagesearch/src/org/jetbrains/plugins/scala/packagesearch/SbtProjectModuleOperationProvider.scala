@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.packagesearch.utils.SbtProjectModuleType
 class SbtProjectModuleOperationProvider extends AbstractProjectModuleOperationProvider {
   override def hasSupportFor(project: Project, psiFile: PsiFile): Boolean = {
     val file = psiFile.getVirtualFile
-    if (file == null) return false
+    if (file == null || file.getExtension == null) return false
     if (file.getExtension.toLowerCase() == "sbt" || file.getExtension.toLowerCase() == "scala") return true
     false
   }

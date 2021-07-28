@@ -6,6 +6,7 @@ import com.intellij.pom.java.LanguageLevel
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -15,9 +16,10 @@ import org.junit.runner.JUnitCore
 
 import java.io.{File, PrintWriter}
 import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path, Paths, StandardCopyOption}
+import java.nio.file.attribute.FileAttribute
+import java.nio.file.{CopyOption, Files, Path, Paths, StandardCopyOption}
 import scala.io.Source
-import scala.jdk.CollectionConverters.{EnumerationHasAsScala, ListHasAsScala}
+import scala.jdk.CollectionConverters.{EnumerationHasAsScala, IteratorHasAsScala, ListHasAsScala}
 import scala.sys.process.Process
 import scala.util.Using
 
@@ -36,6 +38,7 @@ class AfterUpdateDottyVersionScript
       Script.FromTestCase(classOf[RecompileMacroPrinter3]) #::
       Script.FromTestCase(classOf[Scala3ImportedParserTest_Import_FromDottyDirectory]) #::
       Script.FromTestSuite(new Scala3ImportedParserTest_Move_Fixed_Tests.Scala3ImportedParserTest_Move_Fixed_Tests) #::
+      Script.FromTestCase(classOf[Scala3ImportedSemanticDbTest_Import_FromDottyDirectory]) #::
         LazyList.empty
     tests.foreach(runScript)
   }
@@ -220,6 +223,118 @@ object AfterUpdateDottyVersionScript {
     }
   }
 
+
+  /**
+   * Imports semanticdb tests from the dotty repositiory
+   *
+   * @author tobias.kahlert
+   */
+  private class Scala3ImportedSemanticDbTest_Import_FromDottyDirectory
+    extends TestCase {
+
+    def test(): Unit = {
+      val repoPath = cloneRepository("https://github.com/lampepfl/dotty/").toPath
+
+      clearDirectory(ComparisonTestBase.sourcePath.toString)
+      clearDirectory(ComparisonTestBase.outPath.toString)
+
+      Files.createDirectories(ComparisonTestBase.sourcePath)
+      Files.createDirectories(ComparisonTestBase.outPath)
+
+      // we want synthetic symbols and setter symbols as well
+      patchFile(
+        repoPath.resolve("compiler/src/dotty/tools/dotc/semanticdb/ExtractSemanticDB.scala"),
+        """    private def excludeDef(sym: Symbol)(using Context): Boolean =
+          |      !sym.exists
+          |      || sym.isLocalDummy
+          |      || sym.is(Synthetic)
+          |      || sym.isSetter
+          |      || excludeDefOrUse(sym)
+          |""".stripMargin,
+        """    private def excludeDef(sym: Symbol)(using Context): Boolean =
+          |      !sym.exists
+          |      || sym.isLocalDummy
+          |      //|| sym.is(Synthetic)
+          |      //|| sym.isSetter
+          |      || excludeDefOrUse(sym)
+          |""".stripMargin
+      )
+
+      // do not delete test output files
+      patchFile(
+        repoPath.resolve("compiler/test/dotty/tools/vulpix/ParallelTesting.scala"),
+        """    val generateClassFiles = compileFilesInDir(f, flags0, fromTastyFilter)
+          |
+          |    new TastyCompilationTest(
+          |      generateClassFiles.keepOutput,
+          |      new CompilationTest(targets).keepOutput,
+          |      shouldDelete = true
+          |    )
+          |""".stripMargin,
+        """    val generateClassFiles = compileFilesInDir(f, flags0, fromTastyFilter)
+          |
+          |    new TastyCompilationTest(
+          |      generateClassFiles.keepOutput,
+          |      new CompilationTest(targets).keepOutput,
+          |      shouldDelete = false // <- changes here
+          |    )
+          |""".stripMargin
+      )
+
+      // no need to run the run-tests... posTestFromTasty already creates the semanticdb files
+      patchFile(
+        repoPath.resolve("compiler/test/dotty/tools/dotc/FromTastyTests.scala"),
+        """
+          |  @Test def runTestFromTasty: Unit = {
+          |    // Can be reproduced with
+          |    // > sbt
+          |    // > scalac -Ythrough-tasty -Ycheck:all <source>
+          |    // > scala Test
+          |
+          |    implicit val testGroup: TestGroup = TestGroup("runTestFromTasty")
+          |    compileTastyInDir(s"tests${JFile.separator}run", defaultOptions,
+          |      fromTastyFilter = FileFilter.exclude(TestSources.runFromTastyBlacklisted)
+          |    ).checkRuns()
+          |  }
+          |""".stripMargin,
+        """
+          |  @Test def runTestFromTasty: Unit = {
+          |    // Can be reproduced with
+          |    // > sbt
+          |    // > scalac -Ythrough-tasty -Ycheck:all <source>
+          |    // > scala Test
+          |
+          |    //implicit val testGroup: TestGroup = TestGroup("runTestFromTasty")
+          |    //compileTastyInDir(s"tests${JFile.separator}run", defaultOptions,
+          |    //  fromTastyFilter = FileFilter.exclude(TestSources.runFromTastyBlacklisted)
+          |    //).checkRuns()
+          |  }
+          |""".stripMargin
+      )
+
+      runSbt(s"testCompilation --from-tasty ${File.separator}pos${File.separator}", repoPath)
+
+      copyRecursively(repoPath.resolve("tests/pos"), ComparisonTestBase.sourcePath)
+
+      val posOutDir = repoPath.resolve("out/posTestFromTasty/pos")
+      assert(Files.isDirectory(posOutDir))
+
+      for {
+        testOutPath <- Files.list(posOutDir).iterator().asScala
+        file <- allFilesIn(testOutPath.toFile)
+        if file.getName.endsWith(".semanticdb")
+      } {
+        val dirName = testOutPath.getFileName.toString
+        val dirPath = ComparisonTestBase.outPath.resolve(dirName)
+        val targetFilePath = dirPath.resolve(file.getName)
+        Files.createDirectories(dirPath)
+        Files.copy(file.toPath, targetFilePath)
+      }
+
+      ReferenceComparisonTestsGenerator.run()
+    }
+  }
+
   private def scalaUltimateProjectDir: Path = {
     val file = new File(getClass.getProtectionDomain.getCodeSource.getLocation.getPath)
     file
@@ -251,12 +366,25 @@ object AfterUpdateDottyVersionScript {
       assert(file.isDirectory)
       val files = new File(path).listFiles()
       assert(files != null)
-      files.foreach(_.delete())
+      files.map(_.toPath).foreach(deleteRecursively)
     }
     else {
       // probably the folder is already deleted in the previous script run
     }
   }
+
+  private def deleteRecursively(path: Path): Unit = {
+    if (Files.isDirectory(path))
+      Files.list(path).forEach(deleteRecursively)
+    Files.delete(path)
+  }
+
+  private def copyRecursively(source: Path, target: Path): Unit =
+    Using.resource(Files.walk(source))(
+      _.forEachOrdered { sourcePath =>
+        Files.copy(sourcePath, target.resolve(source.relativize(sourcePath)), StandardCopyOption.REPLACE_EXISTING)
+      }
+    )
 
   sealed trait Script
   object Script {
@@ -344,16 +472,20 @@ object AfterUpdateDottyVersionScript {
       clearDirectory(rangesDirectory)
     }
 
-    val isWindows = System.getProperty("os.name").toLowerCase.contains("win")
-    val sbtExecutable = if (isWindows) "sbt.bat" else "sbt"
-    val sc2 = Process(sbtExecutable :: "testCompilation --from-tasty pos" :: Nil, repoPath.toFile).!
-    assert(sc2 == 0, s"sbt failed with exit code $sc2")
+    runSbt("testCompilation --from-tasty pos", repoPath)
 
     val blacklisted = linesInFile(repoPath.resolve("compiler/test/dotc/pos-from-tasty.blacklist"))
       .filterNot(_.isBlank)
       .filterNot(_.startsWith("#"))
       .size
     assert(allFilesIn(dottyParserTestsFailDir).size - blacklisted == allFilesIn(rangesDirectory).size)
+  }
+
+  def runSbt(cmdline: String, dir: Path): Unit = {
+    val isWindows = System.getProperty("os.name").toLowerCase.contains("win")
+    val sbtExecutable = if (isWindows) "sbt.bat" else "sbt"
+    val sc2 = Process(sbtExecutable :: cmdline :: Nil, dir.toFile).!
+    assert(sc2 == 0, s"sbt failed with exit code $sc2")
   }
 
   // We need to replace `\` with `/` (or escape `\` to `\\`) to make files patching work on Windows,

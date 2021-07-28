@@ -1,19 +1,22 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
-import java.util.Collections
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.openapi.editor.{Document, Editor, EditorFactory}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.problems.WolfTheProblemSolver
-import com.intellij.psi.{JavaTokenType, PsiElement, PsiFile, PsiJavaToken, PsiManager, PsiWhiteSpace}
+import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi._
 import com.intellij.xml.util.XmlStringUtil
+import org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, invokeLater}
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, executeOnPooledThread, inReadAction, invokeLater}
 import org.jetbrains.plugins.scala.externalHighlighters.ExternalHighlighting.Pos
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.settings.ProblemSolverUtils
-import org.jetbrains.plugins.scala.extensions.inReadAction
 
+import java.util.Collections
 import scala.jdk.CollectionConverters._
 
 object ExternalHighlighters {
@@ -32,7 +35,7 @@ object ExternalHighlighters {
         if ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
       } invokeLater {
         val externalHighlights = state.externalHighlightings(virtualFile)
-        val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, editor))
+        val highlightInfos = externalHighlights.flatMap(toHighlightInfo(_, document, psiFile))
         UpdateHighlightersUtil.setHighlightersToEditor(
           project,
           document, 0, document.getTextLength,
@@ -72,20 +75,28 @@ object ExternalHighlighters {
       errorFiles.foreach(wolf.reportProblemsFromExternalSource(_, this))
     }
 
-  private def toHighlightInfo(highlighting: ExternalHighlighting, editor: Editor): Option[HighlightInfo] = {
+  private def toHighlightInfo(highlighting: ExternalHighlighting, document: Document, psiFile: PsiFile): Option[HighlightInfo] = {
     val message = highlighting.message
     //noinspection ReferencePassedToNls
     for {
-      startOffset <- convertToOffset(highlighting.from, message, editor)
-      highlightRange <- calculateRangeToHighlight(startOffset, highlighting.to, message, editor)
+      startOffset <- convertToOffset(highlighting.from, message, document)
+      highlightRange <- calculateRangeToHighlight(startOffset, highlighting.to, message, document, psiFile)
       description = message.trim.stripSuffix(lineText(message))
-    } yield HighlightInfo
-      .newHighlightInfo(highlighting.highlightType)
-      .range(highlightRange)
-      .description(description)
-      .escapedToolTip(escapeHtmlWithNewLines(description))
-      .group(ScalaCompilerPassId)
-      .create()
+    } yield {
+      val highlightInfo = HighlightInfo
+        .newHighlightInfo(highlighting.highlightType)
+        .range(highlightRange)
+        .description(description)
+        .escapedToolTip(escapeHtmlWithNewLines(description))
+        .group(ScalaCompilerPassId)
+        .create()
+
+      executeOnPooledThread {
+        val fixes = inReadAction(findQuickFixes(psiFile, highlightRange, highlighting.highlightType))
+        fixes.foreach(highlightInfo.registerFix(_, null, null, highlightRange, null))
+      }
+      highlightInfo
+    }
   }
 
   private def escapeHtmlWithNewLines(unescapedTooltip: String): String = {
@@ -98,18 +109,15 @@ object ExternalHighlighters {
   private def calculateRangeToHighlight(startOffset: Int,
                                         to: Pos,
                                         message: String,
-                                        editor: Editor): Option[TextRange] =
-    convertToOffset(to, message, editor)
+                                        document: Document,
+                                        psiFile: PsiFile): Option[TextRange] =
+    convertToOffset(to, message, document)
       .filter(_ != startOffset)
       .map { endOffset => TextRange.create(startOffset, endOffset) }
-      .orElse(guessRangeToHighlight(editor, startOffset))
+      .orElse(guessRangeToHighlight(psiFile, startOffset))
 
-  private def guessRangeToHighlight(editor: Editor, startOffset: Int): Option[TextRange] =
-    for {
-      virtualFile <- editor.getDocument.virtualFile
-      psiFile <- Option(PsiManager.getInstance(editor.getProject).findFile(virtualFile))
-      element <- elementToHighlight(psiFile, startOffset)
-    } yield element.getTextRange
+  private def guessRangeToHighlight(psiFile: PsiFile, startOffset: Int): Option[TextRange] =
+    elementToHighlight(psiFile, startOffset).map(_.getTextRange)
 
   private def elementToHighlight(file: PsiFile, offset: Int): Option[PsiElement] =
     Option(file.findElementAt(offset)).flatMap {
@@ -123,7 +131,7 @@ object ExternalHighlighters {
 
   private def convertToOffset(pos: Pos,
                               message: String,
-                              editor: Editor): Option[Int] = pos match {
+                              document: Document): Option[Int] = pos match {
     case Pos.LineColumn(l, c) =>
       val line = l - 1
       val column = (c - 1).max(0)
@@ -131,7 +139,6 @@ object ExternalHighlighters {
         None
       } else {
         val lineTextFromMessage = lineText(message)
-        val document = editor.getDocument
         // TODO: dotc and scalac report different lines in their messages :(
         val actualLine =
           Seq(line, line - 1, line + 1)
@@ -158,4 +165,14 @@ object ExternalHighlighters {
     } else {
       None
     }
+
+  private def findQuickFixes(file: PsiFile,
+                             range: TextRange,
+                             highlightInfoType: HighlightInfoType): Seq[IntentionAction] = {
+    val ref = PsiTreeUtil.findElementOfClassAtRange(file, range.getStartOffset, range.getEndOffset, classOf[ScReference])
+
+    if (ref != null && highlightInfoType == HighlightInfoType.WRONG_REF && ref.multiResolveScala(false).isEmpty)
+      UnresolvedReferenceFixProvider.fixesFor(ref)
+    else Seq.empty
+  }
 }

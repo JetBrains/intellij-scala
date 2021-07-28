@@ -1,23 +1,22 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
-object Quoted {
-  def parse(builder: ScalaPsiBuilder): Unit = {
+object Quoted extends ParsingRule {
+  final override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     assert(builder.getTokenType == ScalaTokenType.QuoteStart)
     val marker = builder.mark()
     builder.advanceLexer()
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer()
-        Block.parse(builder)
-        if (builder.getTokenType == ScalaTokenTypes.tRBRACE) {
-          builder.advanceLexer()
-        } else {
-          builder error ErrMsg("rbrace.expected")
+        ParserUtils.parseLoopUntilRBrace() {
+          Block.ContentInBraces()
         }
         marker.done(ScalaElementType.QUOTED_BLOCK)
       case ScalaTokenTypes.tLSQBRACKET =>
@@ -25,16 +24,14 @@ object Quoted {
         if (!Type.parse(builder)) {
           builder error ErrMsg("type.expected")
           marker.drop()
-          return
-        }
-        if (builder.getTokenType != ScalaTokenTypes.tRSQBRACKET) {
+        } else if (builder.getTokenType != ScalaTokenTypes.tRSQBRACKET) {
           builder error ErrMsg("rsqbracket.expected")
           marker.drop()
-          return
+        } else {
+          builder.advanceLexer()
+          marker.done(ScalaElementType.QUOTED_TYPE)
         }
-
-        builder.advanceLexer()
-        marker.done(ScalaElementType.QUOTED_TYPE)
     }
+    true
   }
 }

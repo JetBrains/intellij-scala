@@ -5,9 +5,9 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -37,12 +37,13 @@ trait SignatureProcessor[T <: Signature] {
 
   @tailrec
   final def processAll(clazz: PsiClass, substitutor: ScSubstitutor, sink: Sink): Unit = clazz match {
-      case null                            => ()
-      case ScEnum.DesugaredEnumClass(enum) => processAll(enum, substitutor, sink)
-      case syn: ScSyntheticClass           => processAll(realClass(syn), substitutor, sink)
-      case td: ScTemplateDefinition        => processScala(td, substitutor, sink)
-      case _                               => processJava(clazz, substitutor, sink)
-    }
+    case null                                           => ()
+    case ScEnum.Original(enum)                          => processAll(enum, substitutor, sink)
+    case ScGivenDefinition.DesugaredTypeDefinition(gvn) => processAll(gvn, substitutor, sink)
+    case syn: ScSyntheticClass                          => processAll(realClass(syn), substitutor, sink)
+    case td: ScTemplateDefinition                       => processScala(td, substitutor, sink)
+    case _                                              => processJava(clazz, substitutor, sink)
+  }
 
   private def realClass(syn: ScSyntheticClass): ScTemplateDefinition =
     syn.elementScope.getCachedClass(syn.getQualifiedName)
@@ -68,7 +69,11 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
     for (member <- template.membersWithSynthetic.filterByType[ScNamedElement]) {
       member match {
         case e: ScEnum => e.syntheticClass.foreach(cls => process(TypeSignature(cls, subst), sink))
-        case _         => ()
+        case gvn: ScGivenDefinition =>
+          gvn.desugaredDefinitions.collect {
+            case tdef: ScTypeDefinition => process(TypeSignature(tdef, subst), sink)
+          }
+        case _ => ()
       }
       process(TypeSignature(member, subst), sink)
     }
@@ -130,6 +135,12 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
         case c: ScTypeDefinition =>
           syntheticSignaturesFromInnerClass(c, subst)
             .foreach(addSignature)
+        case ext: ScExtension =>
+          ext
+            .extensionMethods
+            .foreach(m => addSignature(
+              new PhysicalMethodSignature(m, subst, isExtensionMethod = true))
+            )
         case _ =>
       }
     }
@@ -173,13 +184,17 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
   private def syntheticSignaturesFromInnerClass(td: ScTypeDefinition, subst: ScSubstitutor): Seq[TermSignature] = {
     val companionSig = td.fakeCompanionModule.map(TermSignature(_, subst))
 
-    val implicitClassFun = td match {
+    val syntheticTerms = td match {
+      case gvn: ScGivenDefinition => gvn.desugaredDefinitions.collect {
+        case fn: ScFunctionDefinition => new PhysicalMethodSignature(fn, subst)
+        case obj: ScObject            => TermSignature(obj, subst)
+      }
       case c: ScClass if c.hasModifierProperty("implicit") =>
-        c.getSyntheticImplicitMethod.map(new PhysicalMethodSignature(_, subst))
-      case _ => None
+        c.getSyntheticImplicitMethod.toSeq.map(new PhysicalMethodSignature(_, subst))
+      case _ => Seq.empty
     }
 
-    companionSig.toList ::: implicitClassFun.toList
+    companionSig.toList ::: syntheticTerms.toList
   }
 }
 

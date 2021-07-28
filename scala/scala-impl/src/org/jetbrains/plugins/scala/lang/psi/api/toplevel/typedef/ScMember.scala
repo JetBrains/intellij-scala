@@ -11,10 +11,10 @@ import com.intellij.psi._
 import com.intellij.psi.util._
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.caches.ModTracker
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, StubBasedExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -49,6 +49,12 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
   final def originalEnumElement_=(e: ScEnum): Unit =
     putUserData(originalEnumElementKey, e)
+
+  final def originalGivenElement: ScGivenDefinition =
+    getUserData(originalGivenElementKey)
+
+  final def originalGivenElement_=(e: ScGivenDefinition): Unit =
+    putUserData(originalGivenElementKey, e)
 
   /**
     * getContainingClassStrict(bar) == null in
@@ -107,7 +113,14 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     }
   }
 
-  def isLocal: Boolean = containingClass == null && !isTopLevel
+  def isLocal: Boolean = containingClass == null && !isTopLevel && {
+    // TODO: this might be non-actual in Andrey S. branch
+    val isExtensionMethod = this match {
+      case Parent(Parent(_: ScExtension)) => true
+      case _                              => false
+    }
+    !isExtensionMethod
+  }
 
   def isDefinedInClass: Boolean = containingClass != null
 
@@ -116,6 +129,18 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
     case _                          => false
   }
 
+  /**
+   * There is an inconsistency in method behaviour for root & non-root packages.<br>
+   * In root package it returns None for non-top-level methods.<br>
+   * In non=root package it returns Some(file package fqn)<br>
+   *
+   * TODO:
+   *  1. in 2021.3 make it always return None for all non-top level members<br>
+   *     remember that @main methods in objects also should be considered as with a top-level quolifier<br>
+   *     probably a separate utility method should be created
+   *  2. `isTopLevel` should be equal to topLevelQualifier.nonEmpty`<br>
+   *     we might even remove isTopLevel from the stubs
+   */
   def topLevelQualifier: Option[String] =
     PsiTreeUtil
       .getStubOrPsiParentOfType(this, classOf[ScPackaging])
@@ -203,24 +228,20 @@ object ScMember {
   }
 
   private val syntheticNavigationElementKey = Key.create[PsiElement]("ScMember.syntheticNavigationElement")
+  private val syntheticContainingClassKey   = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
+  private val originalEnumElementKey        = Key.create[ScEnum]("ScMember.originalEnumElement")
+  private val originalGivenElementKey       = Key.create[ScGivenDefinition]("ScMember.originalGivenElement")
 
-  private val syntheticContainingClassKey = Key.create[ScTypeDefinition]("ScMember.syntheticContainingClass")
-
-  private val originalEnumElementKey = Key.create[ScEnum]("ScMember.originalEnumElement")
-
-  private def containingClass(member: ScMember,
-                              found: ScTemplateDefinition) = member match {
-    case _: ScFunction |
-         _: ScTypeDefinition =>
+  private def containingClass(member: ScMember, found: ScTemplateDefinition) = member match {
+    case _: ScFunction | _: ScTypeDefinition =>
       member.syntheticContainingClass match {
         case null if member.isSynthetic => found
-        case null => null
-        case clazz => clazz
+        case null                       => null
+        case clazz                      => clazz
       }
-    case _: ScTypeAlias |
-         _: ScValueOrVariable => member.syntheticContainingClass
+    case _: ScTypeAlias | _: ScValueOrVariable         => member.syntheticContainingClass
     case _: ScClassParameter | _: ScPrimaryConstructor => found
-    case _ => null
+    case _                                             => null
   }
 
   implicit class ScMemberExt(private val member: ScMember) extends AnyVal {

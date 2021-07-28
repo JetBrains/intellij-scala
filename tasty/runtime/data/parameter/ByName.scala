@@ -6,7 +6,7 @@ trait ByName {
   class Class(x: => Int)
 
   enum Enum(x: => Int) {
-    case Case extends Enum/**/(1)/**/
+    case Case/**/ extends Enum(1)/**/
   }
 
   extension (i: => Int)

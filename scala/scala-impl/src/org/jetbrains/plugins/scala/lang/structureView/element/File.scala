@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 * Date: 04.05.2008
 */
 // TODO Provide the element dynamically (or, at least, test how all that works in console)
-private class File(file: () => ScalaFile) extends AbstractTreeElement(file()) {
+private class File(file: () => ScalaFile) extends AbstractTreeElementDelegatingChildrenToPsi(file()) {
   override def getPresentableText: String = file().name
 
   override def children: Seq[PsiElement] = file().getChildren.toSeq

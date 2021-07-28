@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala.codeInspection.source3
 
 import com.intellij.codeInspection.ui.MultipleCheckboxOptionsPanel
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
 import org.jetbrains.annotations.Nls
@@ -15,6 +14,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElemen
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportSelectors, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
+import org.jetbrains.plugins.scala.lang.psi.types.api.ParameterizedType
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import javax.swing.JComponent
@@ -23,9 +24,7 @@ import scala.beans.BeanProperty
 class Source3Inspection extends AbstractRegisteredInspection {
   @BeanProperty final var convertWildcardUnderscore: Boolean = true
   @BeanProperty final var addGeneratorCase: Boolean = true
-  @BeanProperty final var convertWildcardImport: Boolean =
-    if (ApplicationManager.getApplication.isUnitTestMode) true
-    else false
+  @BeanProperty final var convertWildcardImport: Boolean = true
   @BeanProperty final var convertImportAlias: Boolean = true
   @BeanProperty final var convertVarArgSplices: Boolean = true
   @BeanProperty final var convertNamedWildcardPattern: Boolean = true
@@ -49,7 +48,8 @@ class Source3Inspection extends AbstractRegisteredInspection {
             ScalaPsiElementFactory.createTypeElementFromText(e.getText.replaceFirst("_", "?"), e, null)
           }
         )
-      case gen@ScGenerator(pattern, Some(expr)) if addGeneratorCase && gen.caseKeyword.isEmpty && !pattern.isIrrefutableFor(expr.`type`().toOption)=>
+      case gen@ScGenerator(pattern, _) if addGeneratorCase && gen.caseKeyword.isEmpty &&
+          generatorType(gen).exists(ty => !pattern.isIrrefutableFor(Some(ty))) =>
         super.problemDescriptor(
           pattern,
           createReplacingQuickFix(gen, ScalaInspectionBundle.message("add.case")) { gen =>
@@ -57,9 +57,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
               .asInstanceOf[ScFor].enumerators.head.generators.head
           }
         )
-      case ElementType(ScalaTokenTypes.tUNDER) if convertWildcardImport &&
-                                                  element.getParent.is[/*ScImportSelector TODO: this is correct but the scala compiler has a bug in 2.13.6*/ ScImportExpr] &&
-                                                  element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT) =>
+      case ElementType(ScalaTokenTypes.tUNDER) if convertWildcardImport && isUpgradableImportWildcard(element) =>
         super.problemDescriptor(
           element,
           createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.star")) { underscore =>
@@ -143,10 +141,32 @@ object Source3Inspection {
     }
   }
 
+  private def isUpgradableImportWildcard(element: PsiElement): Boolean = {
+    // example: import test.{x => _}
+    def isNotShadowingAlias = element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT)
+
+    def isInRightElement = element.getParent match {
+      case _: ScImportExpr => true
+      case _: ScImportSelector =>
+        // bug with * in selectors, so don't use it here
+        element.scala3Features.`Scala 3 wildcard imports in selector`
+      case _ => false
+    }
+
+    isInRightElement && isNotShadowingAlias
+  }
+
   private def createReplacingQuickFix[T <: PsiElement](element: T, @Nls name: String)(transform: T => PsiElement): Some[LocalQuickFix] =
     Some(new AbstractFixOnPsiElement(name: String, element) {
       override protected def doApplyFix(element: T)(implicit project: Project): Unit = {
         element.replace(transform(element))
       }
     })
+
+  private def generatorType(gen: ScGenerator): Option[ScType] =
+    for {
+      desugared <- gen.desugared
+      (_, param) <- desugared.analogMethodCall.matchedParameters.headOption
+      ty <- Some(param.expectedType).collect { case ParameterizedType(_, Seq(p, _)) => p }
+    } yield ty
 }

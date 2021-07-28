@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
  *         | 'do' Expr [semi] 'while' '(' Expr ')'
  *         | 'for' ('(' Enumerators ')' | '{' Enumerators '}') {nl} ['yield'] Expr
  *         | 'throw' Expr
- * 
+ *
  *         | implicit Id => Expr  # Not in Scala Specification yet!
  *
  *         | 'return' [Expr]
@@ -176,12 +176,11 @@ object Expr1 extends ParsingRule {
           case ScalaTokenTypes.tLBRACE =>
             builder.advanceLexer() //Ate {
             builder.enableNewlines()
-            def foo(): Unit = {
+            ParserUtils.parseLoopUntilRBrace() {
               if (!Enumerators()) {
                 builder error ErrMsg("enumerators.expected")
               }
             }
-            ParserUtils.parseLoopUntilRBrace(builder, foo _)
             builder.restoreNewlinesState()
           case ScalaTokenTypes.tLPARENTHESIS =>
             builder.advanceLexer() //Ate (
@@ -320,7 +319,10 @@ object Expr1 extends ParsingRule {
             Ascription.parse(builder)
             exprMarker.done(ScalaElementType.TYPED_EXPR_STMT)
             return true
-          case InScala3.orSource3(ScalaTokenTypes.tIDENTIFIER) if builder.getTokenText == "*" && builder.lookAhead(1) == ScalaTokenTypes.tRPARENTHESIS =>
+          case ScalaTokenTypes.tIDENTIFIER if
+              builder.scala3Features.`Scala 3 vararg splice syntax` &&
+              builder.getTokenText == "*" &&
+              builder.lookAhead(1) == ScalaTokenTypes.tRPARENTHESIS =>
             val seqMarker = builder.mark()
             builder.advanceLexer() // ate *
             seqMarker.done(ScalaElementType.SEQUENCE_ARG)
@@ -341,8 +343,9 @@ object Expr1 extends ParsingRule {
   private def parseIf(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {
     val iw = builder.currentIndentationWidth
     builder.advanceLexer() //Ate if
+    lazy val condIndent = builder.findPreviousIndent
     builder.getTokenType match {
-      case InScala3(_) if parseParenlessIfCondition() =>
+      case InScala3(_) if condIndent.forall(_ > iw) && parseParenlessIfCondition(condIndent.isDefined) =>
         // already parsed everything till after 'then'
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (
@@ -357,6 +360,12 @@ object Expr1 extends ParsingRule {
         builder.restoreNewlinesState()
       case _ =>
         builder error ErrMsg("condition.expected")
+
+        if (builder.findPreviousIndent.exists(_ <= iw)) {
+          exprMarker.done(ScalaElementType.IF_STMT)
+          End(iw)
+          return
+        }
     }
 
     builder.skipExternalToken()
@@ -382,10 +391,10 @@ object Expr1 extends ParsingRule {
     exprMarker.done(ScalaElementType.IF_STMT)
   }
 
-  def parseParenlessIfCondition()(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parseParenlessIfCondition(hasIndent: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val startedWithLParen = builder.getTokenType == ScalaTokenTypes.tLPARENTHESIS
     val rollbackMarker = builder.mark()
-    val success = ExprInIndentationRegion() && (
+    val success = builder.withDisabledNewlinesIf(!hasIndent)(ExprInIndentationRegion()) && (
       if (builder.getTokenType == ScalaTokenType.ThenKeyword) {
         builder.advanceLexer()
         true
@@ -411,13 +420,11 @@ object Expr1 extends ParsingRule {
         builder.advanceLexer() //Ate {
         builder.enableNewlines()
 
-        def foo(): Unit = {
+        ParserUtils.parseLoopUntilRBrace() {
           if (!CaseClauses()) {
             builder error ErrMsg("case.clauses.expected")
           }
         }
-
-        ParserUtils.parseLoopUntilRBrace(builder, foo _)
         builder.restoreNewlinesState()
 
       case InScala3(ScalaTokenTypes.kCASE) if builder.isScala3IndentationBasedSyntaxEnabled =>

@@ -7,8 +7,7 @@ package typedef
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameters, ScTypeParamClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScDeclaredElementsHolder}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScDeclaredElementsHolder, ScParameterOwner}
 
 trait ScGiven extends ScalaPsiElement
   with ScNamedElement
@@ -16,12 +15,11 @@ trait ScGiven extends ScalaPsiElement
   with ScMember.WithBaseIconProvider
   with ScCommentOwner
   with ScDocCommentOwner
-  with ScDeclaredElementsHolder
-{
-  // Given signature elements
-  def givenName: Option[PsiElement]
-  def givenTypeParamClause: Option[ScTypeParamClause]
-  def givenParameters: Option[ScParameters]
+  with ScParameterOwner
+  with ScTypeParametersOwner
+  with ScDeclaredElementsHolder {
+
+  def nameElement: Option[PsiElement]
 }
 
 object ScGiven {

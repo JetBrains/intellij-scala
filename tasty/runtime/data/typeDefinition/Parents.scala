@@ -33,6 +33,12 @@ trait Parents {
 
   class Class9 extends TypeAndValueParameter[Int]/**/(1)/**/
 
+  case class CaseClass1() extends NoParameters
+
+  abstract class NonCaseClass1 extends Product
+
+  abstract class NonCaseClass2 extends Serializable
+
   trait Trait1 extends NoParameters
 
   trait Trait2 extends TypeParameter[Int]

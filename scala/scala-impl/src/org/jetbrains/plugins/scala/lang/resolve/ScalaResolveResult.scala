@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.completion.lookups.ScalaLookupItem
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypeAlias, ScTypeAliasDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScTypeAlias, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed, ImportWildcardSelectorUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
@@ -51,11 +51,13 @@ class ScalaResolveResult(
   val nameArgForDynamic:        Option[String] = None, //argument to a dynamic call
   val isForwardReference:       Boolean = false,
   val implicitParameterType:    Option[ScType] = None,
-  val implicitParameters:       Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used inerchangeably
+  val implicitParameters:       Seq[ScalaResolveResult] = Seq.empty, // TODO Arguments and parameters should not be used interchangeably
   val implicitReason:           ImplicitResult = NoResult,
   val implicitSearchState:      Option[ImplicitState] = None,
   val unresolvedTypeParameters: Option[Seq[TypeParameter]] = None,
-  val implicitScopeObject:      Option[ScType] = None
+  val implicitScopeObject:      Option[ScType] = None,
+  val isExtension:              Boolean = false, /** true, if resolved reference was an extension method */
+  val extensionContext:         Option[ScExtension] = None /** enclosing extension, important for resolving extension methods */
 ) extends ResolveResult
     with ProjectContextOwner {
   if (element == null) throw new NullPointerException("element is null")
@@ -69,12 +71,8 @@ class ScalaResolveResult(
   /**
    * this is important to get precedence information
    */
-  def getActualElement: PsiNamedElement = {
-    parentElement match {
-      case Some(e) => e
-      case None => element
-    }
-  }
+  def getActualElement: PsiNamedElement =
+    parentElement.getOrElse(element)
 
   def isApplicable(withExpectedType: Boolean = false): Boolean =
     if (withExpectedType) problems.isEmpty
@@ -118,7 +116,9 @@ class ScalaResolveResult(
     implicitReason:           ImplicitResult             = implicitReason,
     implicitSearchState:      Option[ImplicitState]      = implicitSearchState,
     unresolvedTypeParameters: Option[Seq[TypeParameter]] = unresolvedTypeParameters,
-    implicitScopeObject:      Option[ScType]             = implicitScopeObject
+    implicitScopeObject:      Option[ScType]             = implicitScopeObject,
+    isExtension:              Boolean                    = isExtension,
+    extensionContext:         Option[ScExtension]        = extensionContext
   ): ScalaResolveResult =
     new ScalaResolveResult(
       element,
@@ -145,7 +145,9 @@ class ScalaResolveResult(
       implicitReason           = implicitReason,
       implicitSearchState      = implicitSearchState,
       unresolvedTypeParameters = unresolvedTypeParameters,
-      implicitScopeObject      = implicitScopeObject
+      implicitScopeObject      = implicitScopeObject,
+      isExtension              = isExtension,
+      extensionContext         = extensionContext
     )
 
   override def equals(other: Any): Boolean = other match {

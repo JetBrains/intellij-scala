@@ -8,7 +8,7 @@ import com.jetbrains.packagesearch.intellij.plugin.extensibility.{ConfigurableCo
 import javax.swing.{JLabel, JTextField}
 import javax.swing.event.DocumentEvent
 import org.jetbrains.plugins.scala.packagesearch.configuration.{PackageSearchSbtConfiguration, packageSearchSbtConfigurationForProject}
-import org.jetbrains.sbt.language.utils.SbtCommon
+import org.jetbrains.sbt.language.utils.SbtDependencyCommon
 
 class SbtConfigurableContributor(project: Project) extends ConfigurableContributor {
   override def createDriver(): ConfigurableContributorDriver = new SbtConfigurableContributorDriver(project)
@@ -37,7 +37,7 @@ class SbtConfigurableContributorDriver(project: Project) extends ConfigurableCon
 
     formBuilder.addLabeledComponent(PackageSearchSbtBundle.message("packagesearch.configuration.sbt.scopes.default.string"), sbtScopeEditor)
 
-    val label = new JLabel(s"${PackageSearchSbtBundle.message("packagesearch.configuration.sbt.scopes.string")} ${SbtCommon.libScopes.replace(",", ", ")}")
+    val label = new JLabel(s"${PackageSearchSbtBundle.message("packagesearch.configuration.sbt.scopes.string")} ${SbtDependencyCommon.libScopes.replace(",", ", ")}")
     formBuilder.addComponentToRightColumn(RelativeFont.TINY.install(RelativeFont.ITALIC.install(label)))
   }
 
@@ -49,7 +49,7 @@ class SbtConfigurableContributorDriver(project: Project) extends ConfigurableCon
   }
 
   override def restoreDefaults(): Unit = {
-    sbtScopeEditor.setText(SbtCommon.defaultLibScope)
+    sbtScopeEditor.setText(SbtDependencyCommon.defaultLibScope)
     modified = true
   }
 }

@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala
 package compiler
 
-import java.awt.Point
-import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
-
 import com.intellij.icons.AllIcons
 import com.intellij.ide.DataManager
 import com.intellij.notification.{Notification, NotificationType, Notifications}
@@ -11,17 +8,25 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, DefaultActionGroup, Separator}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbAware, Project}
-import com.intellij.openapi.ui.popup.JBPopupFactory
+import com.intellij.openapi.ui.MessageType
+import com.intellij.openapi.ui.popup.Balloon.Position
+import com.intellij.openapi.ui.popup.{Balloon, JBPopupFactory}
 import com.intellij.openapi.util.IconLoader
+import com.intellij.openapi.wm.impl.status.IdeStatusBarImpl
 import com.intellij.openapi.wm.{StatusBar, StatusBarWidget, WindowManager}
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.util.Consumer
-import javax.swing.{Icon, Timer}
+import com.intellij.util.concurrency.annotations.RequiresEdt
+import com.intellij.util.ui.PositionTracker
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.compiler.CompileServerManager._
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.project._
 import org.jetbrains.plugins.scala.settings.ShowSettingsUtilImplExt
+
+import java.awt.Point
+import java.awt.event.{ActionEvent, ActionListener, MouseEvent}
+import javax.swing.{Icon, Timer}
 
 /**
  * @author Pavel Fatin
@@ -62,6 +67,7 @@ final class CompileServerManager(project: Project) extends Disposable {
 
   @Nls
   private def title = ScalaBundle.message("scala.compile.server.title")
+  private val NotificationGroupId = "Scala Compile Server"
 
   private def configureWidget(): Unit = {
     if (ApplicationManager.getApplication.isUnitTestMode) return
@@ -105,7 +111,13 @@ final class CompileServerManager(project: Project) extends Disposable {
       override def getClickConsumer: Consumer[MouseEvent] = ClickConsumer
 
       //noinspection ReferencePassedToNls
-      override def getTooltipText: String = title + launcher.port.map(_.formatted(" (TCP %d)")).getOrElse("")
+      override def getTooltipText: String = {
+        val portDetail = launcher.port.map(_.formatted("TCP %d"))
+        val pidDetail = launcher.pid.map(_.formatted("PID %d"))
+        val details = portDetail ++ pidDetail
+        val detailsText = if (details.isEmpty) "" else details.mkString(" (", ", ", ")")
+        title + detailsText
+      }
 
       private object ClickConsumer extends Consumer[MouseEvent] {
         override def consume(t: MouseEvent): Unit = toggleList(t)
@@ -145,36 +157,52 @@ final class CompileServerManager(project: Project) extends Disposable {
   }
 
   private object TimerListener extends ActionListener {
-    private var wasRunning: Option[Boolean] = None
-
     override def actionPerformed(e: ActionEvent): Unit = {
-      val nowRunning = running
-
-      configureWidget()
-
-      if (installed || nowRunning)
-        updateWidget()
-
-      wasRunning = Some(nowRunning)
-
-      val errors = launcher.errors()
-
-      if (errors.nonEmpty) {
-        //noinspection ReferencePassedToNls
-        Notifications.Bus.notify(new Notification(title, title, errors.mkString, NotificationType.ERROR), project)
-      }
+      checkErrorsFromProcessOutput()
     }
+  }
+
+  private[compiler] def checkErrorsFromProcessOutput(): Unit = {
+    val nowRunning = running
+
+    configureWidget()
+
+    if (installed || nowRunning)
+      updateWidget()
+
+    // TODO: getter-like method `errors` removes retrieved errors under the hood
+    val errors = launcher.errors()
+
+    if (errors.nonEmpty) {
+      //noinspection ReferencePassedToNls
+      val message = errors.mkString.replace("\n", "<br/>")
+      showNotification(message, NotificationType.ERROR)
+    }
+  }
+
+  @RequiresEdt
+  def showNotification(@Nls message: String, notificationType: NotificationType): Unit = {
+    Notifications.Bus.notify(new Notification(NotificationGroupId, title, message, notificationType), project)
+  }
+
+  @RequiresEdt
+  def showStoppedByIdleTimoutNotification(): Unit = {
+    val message = NlsString(ScalaBundle.message("compile.server.stopped.due.to.inactivity"))
+    showBalloonNotificationOnWidget(message, Widget, project)
   }
 }
 
 object CompileServerManager {
+
+  def apply(project: Project): CompileServerManager =
+    project.getService(classOf[CompileServerManager])
 
   def configureWidget(project: Project): Unit =
     // in unit tests we preload compile server before any project is started
     if (project == null && isUnitTestMode || project.isDisposed) {
      // ok, nothing to configure
     } else {
-      val instance = project.getService(classOf[CompileServerManager])
+      val instance = CompileServerManager(project)
       instance.configureWidget()
     }
 
@@ -185,4 +213,42 @@ object CompileServerManager {
     val settings = ScalaCompileServerSettings.getInstance()
     settings.COMPILE_SERVER_ENABLED = true
   }
+
+  /**
+   * This method only shows the balloon, but doesn't log it in the "Event Log" tool window.
+   *
+   * Current IntelliJ API doesn't support showing real Notifications on widgets (like on tool windows)
+   * and you can add a "Event Log" entry only via a `com.intellij.notification.Notification` object.
+   *
+   * TODO: rewrite with proper api when IDEA-273990 is fixed
+   */
+  private def showBalloonNotificationOnWidget(message: NlsString, widget: StatusBarWidget, project: Project): Unit = {
+    val balloonBuilder = JBPopupFactory.getInstance.createHtmlTextBalloonBuilder(message.nls, MessageType.INFO, null)
+    val balloon = balloonBuilder.createBalloon()
+
+    val statusBar = Option(WindowManager.getInstance.getStatusBar(project))
+    val positionTracker = statusBar match {
+      case Some(bar: IdeStatusBarImpl) if bar.getComponent.isVisible =>
+        val component = Option(bar.getWidgetComponent(widget.ID()))
+        component.map { c =>
+          new PositionTracker[Balloon](c) {
+            override def recalculateLocation(b: Balloon): RelativePoint =
+              new RelativePoint(c, new Point(c.getWidth / 2, 0))
+          }
+        }
+      case _ =>
+        // if status bar is not visible, show the balloon in the right-bottom corner
+        val component = Option(WindowManager.getInstance.getIdeFrame(project)).map(_.getComponent)
+        component.map { c =>
+          new PositionTracker[Balloon](c) {
+            override def recalculateLocation(b: Balloon): RelativePoint = {
+              new RelativePoint(c, new Point(c.getWidth, c.getHeight))
+            }
+          }
+        }
+    }
+
+    positionTracker.foreach(balloon.show(_, Position.above))
+  }
+
 }

@@ -1,24 +1,28 @@
 package org.jetbrains.plugins.scala.lang.parser.parsing.expressions
 
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
+import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
-object Spliced {
-  def parse(builder: ScalaPsiBuilder, inType: Boolean): Unit = {
+abstract class Spliced(elementType: ScalaElementType) extends ParsingRule {
+  final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     assert(builder.getTokenType == ScalaTokenType.SpliceStart)
     builder.advanceLexer()
     assert(builder.getTokenType == ScalaTokenTypes.tLBRACE) // should be handled by the lexer
     builder.advanceLexer()
 
-    Block.parse(builder)
-
-    if (builder.getTokenType == ScalaTokenTypes.tRBRACE) {
-      builder.advanceLexer()
-    } else {
-      builder error ErrMsg("rbrace.expected")
+    ParserUtils.parseLoopUntilRBrace() {
+      Block.ContentInBraces()
     }
-    marker.done(if (inType) ScalaElementType.SPLICED_BLOCK_TYPE else ScalaElementType.SPLICED_BLOCK_EXPR)
+
+    marker.done(elementType)
+    true
   }
 }
+
+object SplicedExpr extends Spliced(ScalaElementType.SPLICED_BLOCK_EXPR)
+
+object SplicedType extends Spliced(ScalaElementType.SPLICED_BLOCK_TYPE)

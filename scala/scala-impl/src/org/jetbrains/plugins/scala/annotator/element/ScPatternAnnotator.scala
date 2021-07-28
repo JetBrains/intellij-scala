@@ -233,7 +233,7 @@ object ScPatternAnnotator extends ElementAnnotator[ScPattern] {
           Some(TupleType(subTypes)(pattern.elementScope))
         }
         else None
-      case typed: ScTypedPattern =>
+      case typed: ScTypedPatternLike =>
         typed.typePattern.map(_.typeElement.calcType)
       case naming: ScNamingPattern =>
         patternType(naming.named)

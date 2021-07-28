@@ -41,7 +41,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
     case RegularCase(_, problems, _)                           => problems
     case SyntheticCase(RegularCase(_, problems, _), _, _)      => problems
     case FailureCase(_, problems) if problems.nonEmpty         => problems
-    case FailureCase(Failure(`noSuitableMethodFoundError`), _) => Seq(DoesNotTakeParameters())
+    case FailureCase(Failure(`noSuitableMethodFoundError`), _) => Seq(DoesNotTakeParameters)
     case _                                                     => Seq.empty
   }
 
@@ -108,7 +108,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
                 val maybeRegularCase = checkApplication(updatedProcessedType, Some(result))
                 val regularCase = maybeRegularCase.getOrElse {
-                  RegularCase(updatedProcessedType, Seq(new DoesNotTakeParameters))
+                  RegularCase(updatedProcessedType, Seq(DoesNotTakeParameters))
                 }
 
                 SyntheticCase(

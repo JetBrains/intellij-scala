@@ -9,10 +9,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScTypePolymorphicType
 package object designator {
   implicit class ScDesignatorTypeOps(val des: DesignatorOwner) extends AnyVal {
     def polyTypeOption: Option[ScTypePolymorphicType] = {
-      val typeParams = des.element match {
-        case alias: ScTypeAlias => alias.typeParameters.map(TypeParameter(_))
-        case cls: PsiClass      => cls.getTypeParameters.map(TypeParameter(_)).toSeq
-        case _                  => Seq.empty
+      val typeParams = des.extractDesignated(false) match {
+        case Some(alias: ScTypeAlias) => alias.typeParameters.map(TypeParameter(_))
+        case Some(cls: PsiClass)      => cls.getTypeParameters.map(TypeParameter(_)).toSeq
+        case _                        => Seq.empty
       }
 
       if (typeParams.isEmpty) None

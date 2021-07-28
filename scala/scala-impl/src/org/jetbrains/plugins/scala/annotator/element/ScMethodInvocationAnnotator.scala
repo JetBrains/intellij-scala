@@ -4,7 +4,6 @@ package element
 
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
 import org.jetbrains.plugins.scala.extensions._
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
+import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -91,7 +91,7 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     //todo: better error explanation?
     //todo: duplicate
     problems.foreach {
-      case DoesNotTakeParameters() =>
+      case DoesNotTakeParameters =>
         val targetName = call.getInvokedExpr.`type`().toOption
           .map("'" + _.presentableText + "'")
           .getOrElse(ScalaBundle.message("does.not.take.parameter.default.target"))
@@ -166,14 +166,19 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
   private def checkMissingArgumentClauses(call: MethodInvocation)(implicit holder: ScalaAnnotationHolder): Unit = {
     def functionTypeExpected = call.expectedType().exists(FunctionType.isFunctionType)
-    if (!(ScalaHighlightingMode.showScala3Errors(call.getProject) && call.isInScala3Module) && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
+    def isScala3dotcErrorsMode: Boolean = ScalaHighlightingMode.showCompilerErrorsScala3(call.getProject) && call.isInScala3Module
+
+    if (!isScala3dotcErrorsMode && isOuterMostCall(call) && !functionTypeExpected && !call.parent.exists(_.is[ScUnderscoreSection])) {
       for {
-        ref <- call.getEffectiveInvokedExpr.asOptionOfUnsafe[ScReference]
+        ref           <- call.getEffectiveInvokedExpr.asOptionOfUnsafe[ScReference]
         resolveResult <- call.applyOrUpdateElement.orElse(ref.bind())
         if !resolveResult.isDynamic
-        fun <- resolveResult.element.asOptionOf[ScFunction]
-        numArgumentClauses = countArgumentClauses(call)
-        problems = Compatibility.missedParameterClauseProblemsFor(fun.effectiveParameterClauses, numArgumentClauses)
+        fun                                  <- resolveResult.element.asOptionOf[ScFunction]
+        numArgumentClauses                   = countArgumentClauses(call)
+        clauses                              =
+          if (!ResolveUtils.isExtensionMethodCall(ref, fun)) fun.effectiveParameterClauses
+          else                                               fun.effectiveParameterClauses.dropWhile(_.owner != fun)
+        problems                             = Compatibility.missedParameterClauseProblemsFor(clauses, numArgumentClauses)
         MissedParametersClause(missedClause) <- problems
       } {
         val endOffset = call.getTextRange.getEndOffset

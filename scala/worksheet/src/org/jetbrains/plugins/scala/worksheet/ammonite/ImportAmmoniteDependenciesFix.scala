@@ -225,7 +225,7 @@ object ImportAmmoniteDependenciesFix {
       case MajorVersion(m) =>
         grouped.get(m).map(_.last)
       case ExactVersion(m, v) =>
-        grouped.get(m).flatMap(_.reverse.find(v >= _))
+        grouped.get(m).flatMap(_.findLast(v >= _))
     }
   }
 

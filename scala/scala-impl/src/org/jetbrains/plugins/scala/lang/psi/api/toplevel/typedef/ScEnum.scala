@@ -13,14 +13,11 @@ trait ScEnum extends ScConstructorOwner {
 }
 
 object ScEnum {
-  object DesugaredEnumClass {
+  object Original {
     def unapply(cls: ScClass): Option[ScEnum] =
-      cls.originalEnumElement match {
-        case null => None
-        case enum => Option(enum)
-      }
+      Option(cls.originalEnumElement)
   }
 
-  def isDesugaredEnumClass(cls: ScClass): Boolean =
+  def isDesugaredEnumClass(cls: ScTypeDefinition): Boolean =
     cls.originalEnumElement ne null
 }

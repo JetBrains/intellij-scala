@@ -14,11 +14,11 @@ import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.TokenSets._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{SELF_TYPE, TEMPLATE_BODY}
+import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION, EnumCases, SELF_TYPE, TEMPLATE_BODY}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScEnumCases, ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDeclaredElementsHolder, ScEnumCases, ScExtension, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.ScTemplateDefinitionImpl
@@ -45,7 +45,7 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
     getStubOrPsiChildren(ALIASES_SET, ScTypeAliasFactory).toSeq
 
   override def cases: Seq[ScEnumCases] =
-    getStubOrPsiChildren(ENUM_CASES, ScEnumCasesFactory).toSeq
+    getStubOrPsiChildren(EnumCases, ScEnumCasesFactory).toSeq
 
   override def functions: Seq[ScFunction] =
     getStubOrPsiChildren(FUNCTIONS, ScFunctionFactory).toSeq.filterNot(_.isLocal)
@@ -67,6 +67,9 @@ class ScTemplateBodyImpl private (stub: ScTemplateBodyStub, node: ASTNode)
       case s: ScMember => s.isLocal
       case _ => false
     }
+
+  override def extensions: Seq[ScExtension] =
+    getStubOrPsiChildren(EXTENSION, ScExtensionFactory).toSeq.filterNot(_.isLocal)
 
   override def exprs: Seq[ScExpression] =
     if (this.getStub != null) Seq.empty //we don't have stubbed expressions

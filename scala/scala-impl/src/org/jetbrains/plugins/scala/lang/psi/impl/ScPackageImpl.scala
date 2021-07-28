@@ -12,7 +12,7 @@ import com.intellij.psi.scope.{NameHint, PsiScopeProcessor}
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.caches.ScalaShortNamesCacheManager
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScPackageLike}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -150,10 +150,15 @@ object ScPackageImpl {
         val obj = topLevelImplicits.next()
         if (!processor.execute(obj, state)) return false
       }
+
       true
     case base: BaseProcessor =>
       val nameHint = base.getHint(NameHint.KEY)
-      val name = if (nameHint == null) "" else nameHint.getName(state)
+
+      val name =
+        if (nameHint == null) ""
+        else                  nameHint.getName(state)
+
       if (name != null && name != "" && base.getClassKind) {
         try {
           base.setClassKind(classKind = false)
@@ -181,6 +186,10 @@ object ScPackageImpl {
                   case e: ScEnum if e.isTopLevel =>
                     e.syntheticClass.foreach { synCls =>
                       if (!processor.execute(synCls, state)) return false
+                    }
+                  case gvn: ScGivenDefinition if gvn.isTopLevel =>
+                    gvn.desugaredDefinitions.foreach { synDef =>
+                      if (!processor.execute(synDef, state)) return false
                     }
                   case _ => ()
                 }

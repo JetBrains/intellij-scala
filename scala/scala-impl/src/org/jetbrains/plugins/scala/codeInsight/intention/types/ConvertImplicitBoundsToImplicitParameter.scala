@@ -8,16 +8,20 @@ import com.intellij.openapi.command.undo.UndoUtil
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import com.intellij.psi.impl.source.codeStyle.CodeEditUtil
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.codeInsight.intention.types.ConvertImplicitBoundsToImplicitParameter._
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.decompiler.scalasig.ScalaSigPrinter.StringFixes
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScParameterOwner}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTrait}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScConstructorOwner, ScTrait}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeBoundsOwner, ScTypeParametersOwner}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createClauseFromText, createParameterFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createImplicitClauseFromTextWithContext
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.lang.refactoring.util.InplaceRenameHelper
 
+import scala.collection.mutable
 import scala.jdk.CollectionConverters._
 
 class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAction {
@@ -31,7 +35,8 @@ class ConvertImplicitBoundsToImplicitParameter extends PsiElementBaseIntentionAc
 
   override def invoke(project: Project, editor: Editor, element: PsiElement): Unit = {
     val addedParams = doConversion(element)
-    runRenamingTemplate(addedParams)
+    if (!isUnitTestMode)
+      runRenamingTemplate(addedParams)
   }
 }
 
@@ -47,62 +52,53 @@ object ConvertImplicitBoundsToImplicitParameter {
       }
 
   def doConversion(element: PsiElement): Seq[ScParameter] = {
-    val parameterOwner = Option(element).filter(_.isValid)
+    val parameterOwner = Option(element)
+      .filter(_.isValid)
       .flatMap(_.parentOfType(classOf[ScParameterOwner], strict = false))
+      .filterByType[ScTypeParametersOwner]
       .getOrElse(return Seq.empty)
 
-    val function = (parameterOwner match {
-      case function: ScFunction => Some(function)
-      case clazz: ScClass => clazz.constructor
-      case _ => None
-    }).getOrElse(return Seq.empty)
-
-    import function.projectContext
-
-    def removeImplicitBounds(): Unit = parameterOwner match {
-      case parameterOwner: ScTypeParametersOwner =>
-        val typeParameters = parameterOwner.typeParameters
-        typeParameters.foreach(_.removeImplicitBounds())
+    val (function, isClass) = parameterOwner match {
+      case function: ScFunction => (function, false)
+      case ScConstructorOwner.constructor(constr) => (constr, true)
+      case _ => return Seq.empty
     }
 
-    parameterOwner.allClauses.lastOption match {
-      case Some(paramClause) if paramClause.isImplicit =>
-        // Already has an implicit parameter clause: delete it, add the bounds, then
-        // add the parameters from the deleted clause the the new one.
-        paramClause.delete()
-        function.effectiveParameterClauses.lastOption match {
-          case Some(implicitParamClause) if implicitParamClause.isImplicit =>
-            val newClause = createClauseFromText(implicitParamClause.getText)
-            val addedParametersCount = newClause.parameters.size
-            for (p <- paramClause.parameters) {
-              val newParam = createParameterFromText(p.getText)
-              newClause.addParameter(newParam)
-            }
-            val addedClause = function.parameterList.addClause(newClause).clauses.last
-            removeImplicitBounds()
-            UndoUtil.markPsiFileForUndo(function.getContainingFile)
-            addedClause.parameters.take(addedParametersCount)
-          case _ => Seq.empty
-        }
-      case _ =>
-        function.effectiveParameterClauses.lastOption match {
-          case Some(implicitParamClause) if implicitParamClause.isImplicit =>
-            // for a constructor, might need to add an empty parameter section before the
-            // implicit section.
-            val extra = function.effectiveParameterClauses.drop(parameterOwner.allClauses.size).headOption
-            var result: Seq[ScParameter] = Seq.empty
-            for(c <- extra) {
-              val newClause = createClauseFromText(c.getText)
-              val addedParametersCount = c.parameters.size
-              val addedClause = function.parameterList.addClause(newClause).clauses.last
-              result = addedClause.parameters.take(addedParametersCount)
-            }
-            removeImplicitBounds()
-            UndoUtil.markPsiFileForUndo(function.getContainingFile)
-            result
-          case _ => Seq.empty
-        }
-    }
+    val existingClause = parameterOwner.allClauses.lastOption.filter(pc => (pc.isImplicit || pc.isUsing) && !element.isInScala3File)
+    val existingParams = existingClause.iterator.flatMap(_.parameters).toSeq
+
+    val candidates = for {
+      tp <- parameterOwner.typeParameters
+      cb <- tp.contextBoundTypeElement
+      cbText = cb.getText
+      cbName = cbText.lowercased
+      typeText = cbText.parenthesize(!ScalaNamesValidator.isIdentifier(cbText))
+    } yield (cbName.escapeNonIdentifiers, (cbName + tp.name.capitalize).escapeNonIdentifiers, s"$typeText[${tp.name}]")
+
+    val isUniqueName = candidates.groupBy(_._1).filter(_._2.sizeIs == 1).keySet
+
+    val nextNumber = mutable.Map.empty[String, Int]
+    val newParamsTexts = for {
+      (primaryName, altName, typeText) <- candidates
+      name = if (isUniqueName(primaryName)) primaryName else altName
+      suffix = nextNumber.updateWith(name)(old => Some(old.getOrElse(-1) + 1)).filter(_ >= 1).fold("")(_.toString)
+    } yield s"$name$suffix: $typeText"
+
+
+    // remove old clause
+    existingClause.foreach(_.delete())
+
+    // add clause
+    val clause = createImplicitClauseFromTextWithContext(existingParams.map(_.getText) ++ newParamsTexts, parameterOwner, isClass)
+    CodeEditUtil.setNodeGenerated(clause.getNode, true)
+    function.parameterList.addClause(clause)
+
+    // remove bounds
+    parameterOwner.typeParameters.foreach(_.removeImplicitBounds())
+
+    UndoUtil.markPsiFileForUndo(function.getContainingFile)
+
+    clause.parameters.takeRight(newParamsTexts.size)
   }
 
   def runRenamingTemplate(params: Seq[ScParameter]): Unit = {

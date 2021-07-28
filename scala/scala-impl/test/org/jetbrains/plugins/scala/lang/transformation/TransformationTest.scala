@@ -48,7 +48,7 @@ abstract class TransformationTest extends base.ScalaLightCodeInsightFixtureTestA
     actualFile.depthFirst()
       .foreach(transform(_, actualFile, reformat))
 
-    val (afterCode, expectedReformatRanges) = extractMarkers(after)
+    val (afterCode, expectedReformatRanges) = extractNumberedMarkers(after)
     val expectedReformatRangesWithHeader = expectedReformatRanges.map(adjustMarkerRanges)
     assertEquals(afterCode.trim, slice(actualFile).trim)
 

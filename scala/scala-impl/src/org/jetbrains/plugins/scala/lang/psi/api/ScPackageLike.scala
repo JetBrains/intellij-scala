@@ -7,6 +7,7 @@ import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
@@ -23,8 +24,12 @@ trait ScPackageLike extends PsiElement {
     processor: PsiScopeProcessor,
     state:     ResolveState,
     place:     PsiElement
-  ): Boolean =
-    getTopLevelDefs(place.resolveScope).forall(processor.execute(_, state))
+  ): Boolean = {
+    getTopLevelDefs(place.resolveScope).forall {
+      case ext: ScExtension => ext.extensionMethods.forall(processor.execute(_, state))
+      case topLevelDef      => processor.execute(topLevelDef, state)
+    }
+  }
 
   private def getTopLevelDefs(scope: GlobalSearchScope): Iterable[ScMember] =
     ScalaPsiManager.instance(getProject).getTopLevelDefinitionsByPackage(fqn, scope)

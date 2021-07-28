@@ -3,8 +3,6 @@ package org.jetbrains.sbt.runner
 import java.io.File
 import java.util
 import java.util.jar.JarFile
-
-import com.intellij.diagnostic.PluginException
 import com.intellij.execution.configuration.EnvironmentVariablesComponent
 import com.intellij.execution.configurations._
 import com.intellij.execution.process.ProcessEvent
@@ -20,10 +18,10 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.xmlb.XmlSerializer
 import org.jdom.Element
-import org.jetbrains.android.sdk.AndroidSdkType
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 import org.jetbrains.sbt.SbtUtil
+import org.jetbrains.sbt.project.SbtEnvironmentVariablesProvider
 import org.jetbrains.sbt.settings.SbtSettings
 
 import scala.beans.BeanProperty
@@ -128,17 +126,9 @@ class SbtCommandLineState(val processedCommands: String, val configuration: SbtR
     val environmentVariables = configuration.environmentVariables
     val params: JavaParameters = new JavaParameters
     val jdk: Sdk = JavaParametersUtil.createProjectJdk(configuration.getProject, null)
+    val additionalEnvVariables = SbtEnvironmentVariablesProvider.computeAdditionalVariables(jdk).asJava
+    environmentVariables.putAll(additionalEnvVariables)
 
-    try {
-      jdk.getSdkType match {
-        case _: AndroidSdkType =>
-          environmentVariables.put("ANDROID_HOME", jdk.getSdkModificator.getHomePath)
-        case _ => // do nothing
-      }
-    } catch {
-      case _: NoClassDefFoundError |  _: PluginException=> // no android plugin, do nothing
-    }
-    
     params.setWorkingDirectory(configuration.getWorkingDir)
     params.configureByProject(configuration.getProject, JavaParameters.JDK_ONLY, jdk)
     

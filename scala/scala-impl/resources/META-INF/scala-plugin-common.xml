@@ -41,6 +41,7 @@
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.QuasiQuotesInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.estaticoNewtype.NewTypeInjector"/>
         <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.simulacrum.SimulacrumInjector"/>
+        <syntheticMemberInjector implementation="org.jetbrains.plugins.scala.externalLibraries.derevo.DerevoInjector"/>
 
         <genericTypeNamesProvider
                 implementation="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.TypePluralNamesProvider"/>
@@ -365,6 +366,7 @@
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.FormatAfterEnterHandler"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AutoBraceEnterHandler"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler"/>
+        <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.TemplateParentsEnterHandler"/>
 
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.ScalaMainMethodProvider"/>
         <javaMainMethodProvider implementation="org.jetbrains.plugins.scala.runner.Scala3MainMethodProvider"/>
@@ -421,6 +423,7 @@
         <constantExpressionEvaluator language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.util.ScalaConstantExpressionEvaluator"/>
         <annotationSupport language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.ScalaAnnotationSupport"/>
         <!--<classNameInsertHandler implementationClass="org.jetbrains.plugins.scala.lang.completion.ScalaClassNameInsertHandler" language="Scala"/>-->
+        <jvm.declarationSearcher language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.psi.ScalaDeclarationSearcher" />
 
         <gotoClassContributor implementation="org.jetbrains.plugins.scala.gotoclass.ScalaGoToClassContributor"
                               order="first"/>
@@ -483,6 +486,9 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelFunctionByPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelAliasByPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelImplicitClassByPackageIndex"/>
+        <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelExtensionByPackageIndex"/>
+
+        <filePropertyPusher implementation="org.jetbrains.plugins.scala.project.ScalaLanguageLevelPusher"/>
 
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer"/>
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.autoImport.ImportOrderingIndexer"/>
@@ -569,10 +575,6 @@
         <filetype.decompiler filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyDecompiler"/>
         <syntaxHighlighter id="tasty.file" key="TASTy" factoryClass="org.jetbrains.plugins.scala.tasty.TastySyntaxHighlighterFactory"/>
 
-        <registryKey key="scala.highlighting.compiler.errors.in.editor" defaultValue="false" restartRequired="false"
-                     description="Show errors from scala compiler in the editor"/>
-        <registryKey key="dotty.highlighting.compiler.errors.in.editor" defaultValue="true" restartRequired="false"
-                     description="Show errors from dotty compiler in the editor"/>
         <registryKey key="scala.highlighting.compilation.delay.millis" defaultValue="750" restartRequired="false"
                      description="Delay between runs of the compilation for highlighting, millis"/>
         <registryKey key="scala.highlighting.compilation.timeout.to.show.progress.millis" defaultValue="7000" restartRequired="false"
@@ -581,6 +583,10 @@
                      description="Erase compiler.process.jdk value before compilation. A dirty hack needed because of removal of SetSameJdkToBuildProcessAsInCompileServer #SCL-17676"/>
         <registryKey key="scala.test.framework.runner.log.raw.process.output" defaultValue="false" restartRequired="false"
                      description="Prints raw output of process that executes test framework runner, including unprocessed TeamCity service messages"/>
+        <registryKey key="scala.compile.server.socket.read.timeout.seconds" defaultValue="60" restartRequired="false"
+                     description="A timeout (in seconds) to read data from client socket of scala compile server. If any read operation is longer than the timeout, we consider that something has happened with server and fallback to compilation without it"/>
+        <registryKey key="sbt.project.import.reuse.previous.structure.file" defaultValue="false" restartRequired="false"
+                     description="If enabled, project reimport will not launch sbt process to extract the structure. `sbt-structure.xml` file generated in the previous import will be used. This flag should be used when testing project import process on the same project (to avoid wating for a long time just to get a file with same contents"/>
 
         <spellchecker.bundledDictionaryProvider implementation="org.jetbrains.plugins.scala.spellchecker.ScalaBundledDictionaryProvider"/>
         <spellchecker.support language="Scala" implementationClass="org.jetbrains.plugins.scala.spellchecker.ScalaSpellcheckingStrategy"/>
@@ -1101,7 +1107,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.syntactic.sugar"
                          groupPath="Scala" groupKey="group.syntactic.simplification"
-                         shortName="FunctionTupleSyntacticSugar" level="WARNING"
+                         shortName="FunctionTupleSyntacticSugar" level="WEAK WARNING"
                          id="FunctionTupleSyntacticSugar" enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.ScalaUnnecessarySemicolonInspection"
                          bundle="messages.ScalaInspectionBundle"
@@ -1462,6 +1468,12 @@
                          groupPath="Scala,Collections" groupKey="group.simplifications.other"
                          shortName="ReverseIterator" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ReverseFindInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.reverse.find.to.findLast"
+                         groupPath="Scala,Collections" groupKey="group.simplifications.other"
+                         shortName="ReverseFind" level="WARNING"
+                         enabledByDefault="true" language="Scala"/>
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ToSetAndBackInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.conversion.to.set.and.back.to.distinct"
@@ -1776,8 +1788,8 @@
     <projectListeners>
         <listener topic="com.intellij.openapi.compiler.CompilationStatusListener"
                   class="scala.meta.intellij.ClearMetaExpansionManagerListener"/>
-        <listener topic="org.jetbrains.sbt.project.settings.SbtProjectSettingsListener"
-                  class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$SbtProjectListener"/>
+        <listener topic="com.intellij.openapi.project.DumbService$DumbModeListener"
+                  class="org.jetbrains.plugins.scala.components.Scala3Disclaimer$DumbModeListener"/>
         <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
                   class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCache"/>
 
@@ -1830,8 +1842,7 @@
             <keyboard-shortcut keymap="Mac OS X" first-keystroke="meta shift ENTER"/>
         </action>
         <action id="ScalaConsole.NewLine" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleNewLineAction">
-            <keyboard-shortcut keymap="$default" first-keystroke="shift ENTER"/>
-            <keyboard-shortcut keymap="Mac OS X" first-keystroke="shift ENTER"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift ENTER"/>
         </action>
         <action id="ScalaConsole.Clean" class="org.jetbrains.plugins.scala.console.actions.ScalaConsoleCleanAction">
             <keyboard-shortcut keymap="$default" first-keystroke="control L"/>

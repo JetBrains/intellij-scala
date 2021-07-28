@@ -86,18 +86,6 @@ class ShowTypeInfoAction extends AnAction(
       val offset = TargetElementUtil.adjustOffset(file, editor.getDocument,
         editor.logicalPositionToOffset(editor.getCaretModel.getLogicalPosition))
 
-      if (isTastyEnabledFor(file)) {
-        for (element <- Option(file.findElementAt(offset));
-             tastyPath <- TastyPath(element);
-             tastyFile <- TastyReader.read(tastyPath);
-             presentation <- typeAt(editor.getCaretModel.getOffset, tastyFile)) {
-
-          showTastyNotification("Type Info") // Internal mode
-          ScalaActionUtil.showHint(editor, presentation)
-          return
-        }
-      }
-
       ShowTypeInfoAction.getTypeInfoHint(file, offset).foreach(ScalaActionUtil.showHint(editor, _))
     }
   }

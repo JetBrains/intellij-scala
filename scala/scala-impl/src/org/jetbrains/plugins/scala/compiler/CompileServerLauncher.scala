@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala
-package compiler
+package org.jetbrains.plugins.scala.compiler
 
 import com.intellij.compiler.server.impl.BuildProcessClasspathManager
 import com.intellij.compiler.server.{BuildManager, BuildManagerListener, BuildProcessParametersProvider}
+import com.intellij.execution.process.{ProcessAdapter, ProcessEvent}
 import com.intellij.notification.{Notification, NotificationListener, NotificationType, Notifications}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.diagnostic.Logger
@@ -16,18 +16,22 @@ import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.api.GlobalOptions
 import org.jetbrains.jps.cmdline.ClasspathBootstrap
+import org.jetbrains.jps.incremental.scala.DummyClient
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.server.{CompileServerProperties, CompileServerToken}
+import org.jetbrains.plugins.scala.util._
 import org.jetbrains.plugins.scala.util.teamcity.TeamcityUtils
-import org.jetbrains.plugins.scala.util.{IntellijPlatformJars, JvmOptions, LibraryJars, ScalaPluginJars, ScalaShutDownTracker}
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import java.io.{File, IOException}
 import java.nio.file.{Files, Path}
 import java.util.UUID
 import javax.swing.event.HyperlinkEvent
+import scala.annotation.tailrec
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
+import scala.concurrent.duration.DurationInt
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 import scala.util.control.Exception._
@@ -40,7 +44,8 @@ object CompileServerLauncher {
   private val NailgunRunnerFQN = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
 
   private def attachDebugAgent = false
-  private def waitUntilDebuggerAttached = false
+  private def waitUntilDebuggerAttached = true
+  private def debugAgentPort = "5006"
 
   /* @see [[org.jetbrains.plugins.scala.compiler.ServerMediatorTask]] */
   private class Listener extends BuildManagerListener {
@@ -81,15 +86,36 @@ object CompileServerLauncher {
     }
   }
 
-  // TODO: implement proper wait for server initialization, addDisconnectListener command doesn't even exist
-  //  Nailgun server sends error for it via stderr which we ignore by passing null client
-  private def sendDummyRequest(project: Project): Try[Unit] =
-    Try {
-      new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, null)
-    }.recoverWith { case _: Exception if isUnitTestMode && waitUntilDebuggerAttached =>
-      LOG.traceWithDebugInDev("waiting for compile server initialization...")
-      sendDummyRequest(project)
+  // TODO: implement proper wait for server initialization
+  //  addDisconnectListener command doesn't even exist
+  //  com.martiansoftware.nailgun.builtins.DefaultNail.nailMain will be used instead
+  //  it sends an error to the socket output (as a NGConstants.CHUNKTYPE_STDERR chunk)
+  //  but we ignore it because we use DummyClient
+  private val MaxReconnectAttempt = 10
+  private val SleepTimeBetweenReconnectAttempts = 1.second
+  @tailrec
+  private def sendDummyRequest(project: Project): Unit = {
+    var reconnectAttempt = 1
+    try {
+      LOG.traceWithDebugInDev(s"waiting for compile server initialization... ($reconnectAttempt / $MaxReconnectAttempt)")
+      new RemoteServerRunner(project).send("addDisconnectListener", Seq.empty, DummyClient.Instance)
+    } catch {
+      case ex: IOException =>
+        if (isUnitTestMode) {
+          if (reconnectAttempt < MaxReconnectAttempt) {
+            reconnectAttempt += 1
+            Thread.sleep(SleepTimeBetweenReconnectAttempts.toMillis)
+            sendDummyRequest(project)
+          }
+          else {
+            throw new RuntimeException("compile server hasn't been initialised", ex)
+          }
+        }
+        else {
+          LOG.warn(ex)
+        }
     }
+  }
 
 
   private def isUnitTestMode: Boolean =
@@ -138,6 +164,8 @@ object CompileServerLauncher {
     filesPath        <- extension.classpathSeq
   } yield new File(pluginsLibs, filesPath)
 
+  // TODO: track that we attach debug agent and show notification, as with JPS Build Process
+  // TODO: add internal action "Debug Scala Compile Server" as with JPS "Debug Build Process"
   private def start(project: Project, jdk: JDK): Either[CompileServerProblem.Error, Process] = {
     LOG.traceWithDebugInDev(s"starting server")
 
@@ -227,11 +255,40 @@ object CompileServerLauncher {
           .either(builder.start())
           .left.map(e => CompileServerProblem.Error(NlsString.force(e.getMessage)))
           .map { process =>
-            val watcher = new ProcessWatcher(process, "scalaCompileServer")
+            val watcher = new ProcessWatcher(project, process, "scalaCompileServer")
             val instance = ServerInstance(watcher, freePort, builder.directory(), jdk, userJvmParameters.toSet)
+            LOG.assertTrue(serverInstance.isEmpty, "serverInstance is expected to be None")
             serverInstance = Some(instance)
             watcher.startNotify()
-            infoAndPrintOnTeamcity(s"compile server process started : ${instance.summary}")
+            watcher.addProcessListener(new ProcessAdapter {
+              override def processTerminated(event: ProcessEvent): Unit = {
+                // CS can terminate if we close IDEA and the project will be disposed already
+                if (!project.isDisposed) {
+                  CompileServerManager(project).checkErrorsFromProcessOutput()
+
+                  // TODO: more reliable "unexpected process termination" SCL-19367
+                  val isExpectedProcessTermination = true // watcher.isTerminatedByIdleTimeout || instance.stopped
+                  if (!isExpectedProcessTermination) {
+                    invokeLater {
+                      CompileServerManager(project).showNotification(ScalaBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
+                      LOG.warn(s"Compile server terminated unexpectedly: ${instance.summary}")
+                    }
+                  }
+                }
+
+                serverInstance = None
+              }
+            })
+            infoAndPrintOnTeamcity(s"compile server process started: ${instance.summary}")
+            LOG.debug(s"command line: ${builder.command().asScala.mkString(" ")}")
+            LOG.debug(s"working directory: ${instance.workingDir}")
+
+            if (attachDebugAgent) {
+              // this line, printed to the stdout of dev IDEA instance will cause debugger
+              // to automatically attach to the process in main IDEA instance
+              // (works only if `debugger.auto.attach.from.console` registry is enabled in main IDEA instance)
+              println(s"Listening for transport dt_socket at address: $debugAgentPort")
+            }
             process
           }
       case (_, absentFiles) =>
@@ -274,6 +331,7 @@ object CompileServerLauncher {
   def errors(): Seq[String] = serverInstance.map(_.errors()).getOrElse(Seq.empty)
 
   def port: Option[Int] = serverInstance.map(_.port)
+  def pid: Option[Long] = serverInstance.map(_.watcher.pid)
 
   def defaultSdk(project: Project): Sdk =
     CompileServerJdkManager.recommendedSdk(project)
@@ -329,7 +387,7 @@ object CompileServerLauncher {
     val debugAgent: Option[String] =
       if (attachDebugAgent) {
         val suspend = if(waitUntilDebuggerAttached) "y" else "n"
-        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5006")
+        Some(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=$debugAgentPort")
       } else None
 
     xmx ++ otherParams ++ debugAgent
@@ -343,7 +401,7 @@ object CompileServerLauncher {
     LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
     val reasons = restartReasons(project)
     if (reasons.nonEmpty)
-      stop(timeoutMs = 3000L, debugReason = Some(s"needsRestart: ${reasons.mkString(", ")}"))
+      stop(timeoutMs = 3000L, debugReason = Some(s"needs to restart: ${reasons.mkString(", ")}"))
 
     running || tryToStart(project)
   }
@@ -363,7 +421,7 @@ object CompileServerLauncher {
       val reasons = mutable.ArrayBuffer.empty[String]
       if (workingDirChanged) reasons += "working dir changed"
       if (jdkChanged) reasons += "jdk changed"
-      if (jvmParametersChanged) reasons += "jvm parameters"
+      if (jvmParametersChanged) reasons += "jvm parameters changed"
       reasons.toSeq
     }.getOrElse(Seq.empty)
   }
@@ -380,7 +438,9 @@ object CompileServerLauncher {
     val port = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
     if (!isUsed(port)) port else {
       LOG.info(s"compile server port is already used ($port), searching for available port")
-      NetUtils.findAvailableSocketPort()
+      val result = NetUtils.findAvailableSocketPort()
+      LOG.info(s"found available port: $result")
+      result
     }
   }
 
@@ -436,22 +496,26 @@ private case class ServerInstance(watcher: ProcessWatcher,
                                   workingDir: File,
                                   jdk: JDK,
                                   jvmParameters: Set[String]) {
-  private var stopped = false
+  private var _stopped = false
 
-  def running: Boolean = !stopped && watcher.running
+  def running: Boolean = !_stopped && watcher.running
+
+  def stopped: Boolean = _stopped
 
   def errors(): Seq[String] = watcher.errors()
 
+  def pid: Long = watcher.pid
+
   def destroyAndWait(timeoutMs: Long): Boolean = {
-    stopped = true
+    _stopped = true
     watcher.destroyAndWait(timeoutMs)
   }
-
   def summary: String = {
-    s"port: $port" +
+    s"pid: $pid" +
+      s", port: $port" +
       s", jdk: $jdk" +
       s", jvmParameters: ${jvmParameters.mkString(",")}" +
-      s", stopped: $stopped" +
+      s", stopped: ${_stopped}" +
       s", running: $running" +
       s", errors: ${errors().mkString("(", ", ", ")")}"
   }

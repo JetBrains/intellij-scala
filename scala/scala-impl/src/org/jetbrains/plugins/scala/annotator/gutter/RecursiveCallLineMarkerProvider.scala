@@ -5,7 +5,6 @@ package gutter
 import java.util.function.Supplier
 import java.{util => ju}
 
-import com.android.tools.idea.rendering.GutterIconRenderer
 import com.intellij.codeInsight.daemon.{LineMarkerInfo, LineMarkerProvider}
 import com.intellij.openapi.editor.markup.GutterIconRenderer.Alignment
 import com.intellij.psi.PsiElement

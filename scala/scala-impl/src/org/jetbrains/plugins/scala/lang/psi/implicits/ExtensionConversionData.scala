@@ -38,9 +38,9 @@ object ExtensionConversionHelper {
         implicit val project: Project = resolveResult.element.getProject
         for {
           functionType <- ElementScope(project).cachedFunction1Type
-          substituted <- implicitParameterType.conforms(functionType, ConstraintSystem.empty) match {
+          substituted  <- implicitParameterType.conforms(functionType, ConstraintSystem.empty) match {
             case ConstraintSystem(substitutor) => Some(substitutor(functionType))
-            case _ => None
+            case _                             => None
           }
 
           (resultType, _) <- FunctionType.unapply(substituted.removeAbstracts)
@@ -54,15 +54,13 @@ object ExtensionConversionHelper {
     specialExtractParameterType(candidate).filter {
       case _: ValType if isHardCoded => false
       case _                         => true
-    }.filter {
+    }.filter(
       checkHasMethodFast(data, _)
-    }.flatMap { tp =>
+    ).flatMap { tp =>
       if (!noApplicability && processor.isInstanceOf[MethodResolveProcessor]) {
         val typeParams = candidate match {
           case ScalaResolveResult(function: ScFunction, _) if function.hasTypeParameters =>
-            function.typeParameters.map {
-              TypeParameter(_)
-            }
+            function.typeParameters.map(TypeParameter(_))
           case _ => Seq.empty
         }
 

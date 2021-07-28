@@ -71,7 +71,7 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
             new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
               p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
           }),
-            clauses.lastOption.exists(_.isImplicit))
+            clauses.lastOption.exists(_.isImplicitOrUsing))
         case JavaConstructor(c) =>
           (Seq(c.parameters.map { p =>
             Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)
@@ -88,7 +88,10 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
               ScTypePolymorphicType(ScMethodType(i, params.last, isImplicit = true), p)
             case _ => ScMethodType(tp, params.last, isImplicit = true)
           }
-          InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
+          val (updatedTp, implicits, _) =
+            InferUtil.updateTypeWithImplicitParameters(newTp, this, None, withExpected, fullInfo = false)
+
+          (updatedTp, implicits)
         } else {
           (tp, None)
         }

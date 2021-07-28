@@ -6,10 +6,9 @@ package types
 
 import com.intellij.lang.PsiBuilder
 import com.intellij.lang.PsiBuilder.Marker
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, Spliced}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Literal, SplicedType}
 
 import scala.annotation.tailrec
 
@@ -105,9 +104,22 @@ trait SimpleType {
         }
         builder.restoreNewlinesState()
       case ScalaTokenTypes.kTHIS |
-              ScalaTokenTypes.tIDENTIFIER |
-              ScalaTokenTypes.kSUPER =>
-        val newMarker = builder.mark
+           ScalaTokenTypes.tIDENTIFIER |
+           ScalaTokenTypes.kSUPER =>
+        val newMarker = builder.mark()
+        val refMarker = builder.mark()
+        if (builder.kindProjectUnderscorePlaceholdersOptionEnabled
+          && (builder.getTokenText == "+" || builder.getTokenText == "-")) {
+          builder.advanceLexer()
+          if (builder.getTokenText == "_") {
+            builder.advanceLexer()
+            refMarker.collapse(ScalaTokenTypes.tIDENTIFIER)
+            newMarker.done(ScalaElementType.REFERENCE)
+            simpleMarker.done(ScalaElementType.SIMPLE_TYPE)
+            return true
+          } else newMarker.rollbackTo()
+        } else refMarker.drop()
+
         Path parse(builder, ScalaElementType.REFERENCE)
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT =>
@@ -129,15 +141,15 @@ trait SimpleType {
             fMarker.done(ScalaElementType.SIMPLE_TYPE)
         }
       case ScalaTokenType.SpliceStart =>
-        Spliced.parse(builder, inType = true)
+        SplicedType.parse(builder)
       case _ =>
-        return rollbackCase(builder, simpleMarker)
+        return rollbackCase(simpleMarker)
     }
     parseTail(simpleMarker)
     true
   }
 
-  protected def rollbackCase(builder: ScalaPsiBuilder, simpleMarker: Marker): Boolean = {
+  protected def rollbackCase(simpleMarker: Marker): Boolean = {
     simpleMarker.rollbackTo()
     false
   }

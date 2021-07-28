@@ -91,18 +91,21 @@ object SimplePattern extends ParsingRule {
         }
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() //Ate given
-        CompoundType.parse(builder, isPattern = true)
+
+        val hasTypeElement = CompoundType.parse(builder, isPattern = true)
+        if (!hasTypeElement) builder.error(ScalaBundle.message("type.expected"))
+
         simplePatternMarker.done(ScalaElementType.GIVEN_PATTERN)
         return true
       case _ =>
     }
 
-    if (InterpolationPattern parse builder) {
+    if (InterpolationPattern()) {
       simplePatternMarker.done(ScalaElementType.INTERPOLATION_PATTERN)
       return true
     }
 
-    if (Literal parse builder) {
+    if (Literal()) {
       simplePatternMarker.done(ScalaElementType.LITERAL_PATTERN)
       return true
     }
@@ -175,8 +178,8 @@ object SimplePattern extends ParsingRule {
           // xs* (Scala 3 new?)
           def parseSeqWildcardBindingScala3_new(): Boolean = {
             builder.getTokenType match {
-              case InScala3.orSource3(ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER)
-                if builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER)  =>
+              case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER
+                if builder.scala3Features.`Scala 3 vararg splice syntax` && builder.lookAhead(1, ScalaTokenTypes.tIDENTIFIER)  =>
 
                 builder.lookAhead(2) match {
                   case ScalaTokenTypes.tRPARENTHESIS | ScalaTokenTypes.tCOMMA =>

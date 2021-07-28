@@ -8,8 +8,6 @@ import com.intellij.lang.PsiBuilder
 import com.intellij.lang.impl.PsiBuilderAdapter
 import com.intellij.openapi.util.text.StringUtil.isWhiteSpace
 import com.intellij.psi.impl.source.resolve.FileContextUtil.CONTAINING_FILE_KEY
-import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 
 // TODO: now isScala3 is properly set only in org.jetbrains.plugins.scala.lang.parser.ScalaParser
 //  update all ScalaPsiBuilderImpl instantiations passing proper isScala3 value
@@ -34,11 +32,24 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   override final lazy val isStrictMode: Boolean =
     containingFile.exists(_.isCompilerStrictMode)
 
-  override final lazy val isSource3Enabled: Boolean =
-    containingFile.exists(_.isSource3Enabled)
+  override final lazy val scala3Features: Scala3Features = {
+    def featuresByVersion(features: Scala3Features): Scala3Features =
+      features.inVersion(if (isScala3) ScalaVersion.Latest.Scala_3_0 else ScalaVersion.Latest.Scala_2_13)
 
-  override final lazy val isScala3orSource3: Boolean =
-    isScala3 || containingFile.exists(_.isSource3Enabled)
+    // If we don't have a module or a concrete scala version of the file
+    // force the version given by isScala
+    containingFile.flatMap(_.module) match {
+      case Some(module) =>
+        val features = module.scala3Features
+        //
+        if (module.scalaMinorVersion.isDefined) features
+        else featuresByVersion(features)
+      case None => featuresByVersion(Scala3Features.none)
+    }
+  }
+
+  override final lazy val kindProjectUnderscorePlaceholdersOptionEnabled: Boolean =
+    containingFile.exists(_.kindProjectorUnderscorePlaceholdersEnabled)
 
   private lazy val _isTrailingCommasEnabled =
     containingFile.exists(_.isTrailingCommasEnabled)
@@ -135,12 +146,8 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
 
   private var indentationStack = List(IndentationWidth.initial)
 
-  def isScala3IndentationBasedSyntaxEnabled: Boolean = {
-    val module = containingFile.flatMap(_.module)
-    // assuming that the file it's scala3 file, and if it doesn't contain a module,
-    // enable indentation syntax (as it is by default in the compiler)
-    module.forall(_.isScala3IndentationBasedSyntaxEnabled)
-  }
+  def isScala3IndentationBasedSyntaxEnabled: Boolean =
+    scala3Features.indentationBasedSyntaxEnabled
 
   override def currentIndentationWidth: IndentationWidth =
     indentationStack.head

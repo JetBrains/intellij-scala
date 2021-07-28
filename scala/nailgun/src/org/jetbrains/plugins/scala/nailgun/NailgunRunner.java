@@ -5,6 +5,8 @@ import com.martiansoftware.nailgun.NGServer;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -135,10 +137,11 @@ public class NailgunRunner {
 
     server.setAllowNailsByClassName(false);
 
-    Class<?> serverClass = Utils.loadAndSetupMainClass(classLoader, buildSystemDir);
+    Class<?> mainNailClass = Utils.loadAndSetupMainClass(classLoader, buildSystemDir);
     for (String command : COMMANDS) {
-      server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, serverClass));
+      server.getAliasManager().addAlias(new Alias(command, SERVER_DESCRIPTION, mainNailClass));
     }
+    initShutdownTimer(mainNailClass, server);
 
     // TODO: token should be checked
     Class<?> stopClass = classLoader.loadClass(STOP_CLASS_NAME);
@@ -146,6 +149,12 @@ public class NailgunRunner {
     server.getAliasManager().addAlias(new Alias(stopAlias, "", stopClass));
 
     return server;
+  }
+
+  // we need the server to shut down on timer even if no compilation was done (nailMain is not invoked)
+  private static void initShutdownTimer(Class<?> mainNailClass, NGServer server) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Method method = mainNailClass.getMethod("initShutdownTimer", NGServer.class);
+    method.invoke(null, server);
   }
 
   private static class ShutdownHook extends Thread {

@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.psi.adapters.PsiParameterAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScGivenDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScImportableDeclarationsOwner, ScModifierListOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
@@ -70,16 +70,30 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
 
   def deprecatedName: Option[String]
 
-  def owner: PsiElement = {
-    ScalaPsiUtil.getContextOfType(this, true, classOf[ScFunctionExpr],
-      classOf[ScFunction], classOf[ScPrimaryConstructor], classOf[ScExtension])
-  }
+  def owner: PsiElement =
+    ScalaPsiUtil.getContextOfType(
+      this,
+      true,
+      classOf[ScFunctionExpr],
+      classOf[ScFunction],
+      classOf[ScPrimaryConstructor],
+      classOf[ScExtension],
+      classOf[ScGivenDefinition]
+    )
 
   def isImplicitParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
     clause.isImplicit
   }
+
+  def isContextParameter: Boolean = {
+    val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
+    if (clause == null) return false
+    clause.isUsing
+  }
+
+  def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter
 
   def index: Int = getParent.getParent match {
     case parameters: ScParameters => parameters.params.indexOf(this)

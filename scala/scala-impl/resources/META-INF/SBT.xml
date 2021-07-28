@@ -2,6 +2,12 @@
 
 <idea-plugin>
 
+    <extensionPoints>
+        <extensionPoint qualifiedName="com.intellij.sbt.environmentVariableProvider"
+                        interface="org.jetbrains.sbt.project.SbtEnvironmentVariablesProvider"
+                        dynamic="true"/>
+    </extensionPoints>
+
     <extensions defaultExtensionNs="com.intellij">
         <lang.parserDefinition language="sbt" implementationClass="org.jetbrains.sbt.language.SbtParserDefinition"/>
         <lang.fileViewProviderFactory language="sbt"
@@ -12,7 +18,6 @@
                   implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition$SbtShellFileType$"
                   fieldName="MODULE$"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator"/>
-        <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtDependencyAnnotator"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="before ScalaDocumentationProvider"/>
         <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition"/>
 
@@ -43,6 +48,7 @@
         <projectImportBuilder implementation="org.jetbrains.sbt.project.SbtProjectImportBuilder"/>
 
         <projectOpenProcessor implementation="org.jetbrains.sbt.project.SbtProjectOpenProcessor"/>
+        <externalSystemUnlinkedProjectAware implementation="org.jetbrains.sbt.project.SbtUnlinkedProjectAware"/>
 
         <moduleType id="SBT_MODULE" implementationClass="org.jetbrains.sbt.project.module.SbtModuleType"/>
         <moduleConfigurationEditorProvider implementation="org.jetbrains.sbt.project.module.SbtModuleEditorProvider"/>
@@ -73,12 +79,15 @@
                                 order="first, before liveTemplates" id="sbtCompletionContributor"/>
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtMavenPackageSearchDependencyCompletionContributor"
-                                order="after scalaCompletionContrubutor" id="sbtPackageSearchDependencyCompletionContributor"/>
-<!--        <completion.contributor language="Scala"-->
-<!--                                implementationClass="org.jetbrains.sbt.language.completion.SbtMavenDependencyCompletionContributor"-->
-<!--                                order="first, before liveTemplates" id="sbtMavenDependencyCompletionContributor"/>-->
+                                order="first" id="sbtPackageSearchDependencyCompletionContributor"/>
+        <completion.contributor language="any"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributor"
+                                order="first" id="sbtScalaVersionCompletionContributor"/>
         <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
                                 order="first"/>
+
+        <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInDependencyStrings" order="first"/>
+
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
 
@@ -93,6 +102,16 @@
                          shortName="SbtReplaceProjectWithProjectIn"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 
+        <!--Package Search inspections-->
+
+        <localInspection implementationClass="org.jetbrains.sbt.codeInspection.SbtDependencyVersionInspection"
+                         bundle="messages.ScalaSbtBundle"
+                         key="packagesearch.dependency.version.inspection.description"
+                         shortName="SbtDependencyVersionInspection" groupKey="group.sbt"
+                         level="WEAK WARNING" enabledByDefault="true" language="Scala"/>
+
+        <!--end of Package Search inspections-->
+
         <configurationType implementation="org.jetbrains.sbt.runner.SbtConfigurationType"/>
 
         <programRunner implementation="org.jetbrains.sbt.runner.SbtProgramRunner" order="first"/>
@@ -104,10 +123,6 @@
 
         <registryKey key="SBT.system.in.process" defaultValue="true" restartRequired="true"
                      description="Internal, do not change"/>
-    </extensions>
-
-    <extensions defaultExtensionNs="org.intellij.scala">
-        <unresolvedReferenceFixProvider implementation="org.jetbrains.sbt.annotator.dependency.AddSbtDependencyFixProvider"/>
     </extensions>
 
     <actions>

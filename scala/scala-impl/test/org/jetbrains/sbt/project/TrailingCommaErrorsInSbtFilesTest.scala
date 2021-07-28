@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.project.ProjectPsiFileExt
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings.TrailingCommasMode
 import org.jetbrains.plugins.scala.{SlowTests, inWriteAction}
+import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
 import org.jetbrains.sbt.project.TrailingCommaErrorsInSbtFilesTest.{ParserError, withModifiedValue}
 import org.junit.Assert
 import org.junit.Assert.{assertNotNull, assertTrue}
@@ -24,7 +25,7 @@ import java.io.File
 class TrailingCommaErrorsInSbtFilesTest extends ImportingTestCase {
 
   //noinspection NotImplementedCode
-  override def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit = ???
+  override def defaultAssertMatch: AttributeMatchType = ???
 
   // Reminder: trailing commas are supported since 2.12.2
   def testTrailing_comma_sbt_0_13_scala_2_12_1(): Unit = testTrailingCommaErrors(

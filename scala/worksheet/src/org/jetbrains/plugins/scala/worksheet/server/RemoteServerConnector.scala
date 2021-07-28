@@ -1,18 +1,15 @@
 package org.jetbrains.plugins.scala
 package worksheet.server
 
-import java.io._
 import com.intellij.openapi.compiler.{CompilerMessage, CompilerPaths}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.util.registry.Registry
 import com.intellij.openapi.vfs.VirtualFile
-import org.jetbrains.annotations.TestOnly
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
-import org.jetbrains.plugins.scala.compiler.{CompilationProcess, NonServerRunner, RemoteServerConnectorBase, RemoteServerRunner}
+import org.jetbrains.plugins.scala.compiler.{CompilationProcess, RemoteServerConnectorBase, RemoteServerRunner}
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer
 import org.jetbrains.plugins.scala.console.configuration.ScalaSdkJLineFixer.JlineResolveResult
 import org.jetbrains.plugins.scala.extensions.LoggerExt
@@ -20,10 +17,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerSettings
 import org.jetbrains.plugins.scala.util.ScalaPluginJars
-import org.jetbrains.plugins.scala.worksheet.{WorksheetCompilerExtension, WorksheetUtils}
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetFileHook
 import org.jetbrains.plugins.scala.worksheet.server.RemoteServerConnector._
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+import org.jetbrains.plugins.scala.worksheet.{WorksheetCompilerExtension, WorksheetUtils}
+
+import java.io._
 
 // TODO: split to REPL and PLAIN args, change serialization format
 // TODO: clean up this shit with arguments, half in constructor, half in method call

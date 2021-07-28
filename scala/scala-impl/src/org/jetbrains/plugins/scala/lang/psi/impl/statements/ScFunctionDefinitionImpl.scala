@@ -8,9 +8,8 @@ import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScFunctionDefinitionFactory, ScFunctionFactory}
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScFunctionDefinitionFactory
 import org.jetbrains.plugins.scala.extensions.{StubBasedExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FUNCTION_DEFINITION
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
@@ -27,9 +26,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, api}
   *         Date: 22.02.2008
   */
 
-class ScFunctionDefinitionImpl(stub: ScFunctionStub[ScFunctionDefinition],
-                               nodeType: ScFunctionElementType[ScFunctionDefinition],
-                               node: ASTNode)
+class ScFunctionDefinitionImpl[S <: ScFunctionDefinition](stub: ScFunctionStub[S],
+                                                          nodeType: ScFunctionElementType[S],
+                                                          node: ASTNode)
   extends ScFunctionImpl(stub, nodeType, node)
     with ScFunctionDefinition {
 

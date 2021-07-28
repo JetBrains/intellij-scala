@@ -4,7 +4,8 @@
 <idea-plugin>
 
   <extensions defaultExtensionNs="com.intellij">
-    <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.AndroidFacetDataService"/>
+    <externalProjectDataService implementation="org.jetbrains.sbt.project.data.service.SbtAndroidFacetDataService"/>
+    <sbt.environmentVariableProvider implementation="org.jetbrains.sbt.project.data.AndroidSbtEnvironmentVariablesProvider"/>
   </extensions>
 
   <extensions defaultExtensionNs="org.intellij.scala">

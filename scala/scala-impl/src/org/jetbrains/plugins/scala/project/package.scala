@@ -133,12 +133,6 @@ package object project {
     def hasNoIndentFlag: Boolean = scalaModuleSettings.exists(_.hasNoIndentFlag)
     def hasOldSyntaxFlag: Boolean = scalaModuleSettings.exists(_.hasOldSyntaxFlag)
 
-    // http://dotty.epfl.ch/docs/reference/other-new-features/indentation.html
-    // Significant indentation is enabled by default.
-    // It can be turned off by giving any of the options -no-indent, -old-syntax and -language:Scala2
-    // (NOTE: looks like -language:Scala2 doesn't affect anything in the compiler)
-    def isScala3IndentationBasedSyntaxEnabled: Boolean = !(hasNoIndentFlag || hasOldSyntaxFlag)
-
     def isJvmModule: Boolean = !isScalaJs && !isScalaNative && !isSharedSourceModule
 
     def findJVMModule: Option[Module] = {
@@ -200,12 +194,30 @@ package object project {
 
     private def withPathsRelativeTo(baseDirectory: String, options: Seq[String]): Seq[String] = options.map { option =>
       if (option.startsWith("-Xplugin:")) {
-        val path = option.substring(9)
-        val absolutePath = if (new File(path).isAbsolute) path else new File(baseDirectory, path).getPath;
-        "-Xplugin:" + absolutePath
+        val compoundPath = option.substring(9)
+        val compoundPathAbsolute = toAbsoluteCompoundPath(baseDirectory, compoundPath)
+        "-Xplugin:" + compoundPathAbsolute
       } else {
         option
       }
+    }
+
+    // SCL-11861, SCL-18534
+    private def toAbsoluteCompoundPath(baseDirectory: String, compoundPath: String): String = {
+      // according to https://docs.scala-lang.org/overviews/compiler-options/index.html
+      // `,` is used as plugins separator: `-Xplugin PATHS1,PATHS2`
+      // but in SCL-11861 `;` is used
+      val pluginSeparator = if (compoundPath.contains(";")) ';' else ','
+
+      val paths = compoundPath.split(pluginSeparator)
+      val pathsAbsolute = paths.map(toAbsolutePath(baseDirectory, _))
+      pathsAbsolute.mkString(pluginSeparator.toString)
+    }
+
+    private def toAbsolutePath(baseDirectory: String, path: String): String = {
+      val file = new File(path).isAbsolute
+      if (file) path
+      else new File(baseDirectory, path).getPath
     }
 
     private def compilerConfiguration =
@@ -215,7 +227,7 @@ package object project {
       scalaModuleSettings.map(_.scalaLanguageLevel)
 
     def scalaMinorVersion: Option[ScalaVersion] =
-      scalaModuleSettings.flatMap(_.compilerVersion).flatMap(ScalaVersion.fromString)
+      scalaModuleSettings.flatMap(_.scalaMinorVersion)
 
     def scalaMinorVersionOrDefault: ScalaVersion =
       scalaMinorVersion.getOrElse(ScalaVersion.default)
@@ -262,6 +274,9 @@ package object project {
     def isSource3Enabled: Boolean =
       scalaModuleSettings.exists(_.isSource3Enabled)
 
+    def scala3Features: Scala3Features =
+      scalaModuleSettings.fold(Scala3Features.default)(_.scala3Features)
+
     def isPartialUnificationEnabled: Boolean =
       scalaModuleSettings.exists(_.isPartialUnificationEnabled)
 
@@ -304,13 +319,17 @@ package object project {
     @CachedInUserData(project, ProjectRootManager.getInstance(project))
     def hasScala3: Boolean = modulesWithScala.exists(_.hasScala3)
 
+    /**
+     * @return list of modules with Scala SDK setup
+     * @note it doesn't return any *-build modules even though it contains syntetic
+     */
     def modulesWithScala: Seq[Module] =
       if (project.isDisposed) Seq.empty
       else modulesWithScalaCached
 
     @CachedInUserData(project, ProjectRootManager.getInstance(project))
     private def modulesWithScalaCached: Seq[Module] =
-      modules.filter(_.hasScala)
+      modules.filter(m => m.hasScala && !m.isBuildModule)
 
     def anyScalaModule: Option[Module] =
       modulesWithScala.headOption
@@ -417,7 +436,7 @@ package object project {
     var enableFeaturesCheckInTests = false
   }
 
-  /** @note duplicate in [[org.jetbrains.sbt.annotator.SbtDependencyAnnotator.doAnnotate]] */
+
   private def findBuildModule(m: Module): Option[Module] = m match {
     case SbtModuleType(_) => Some(m)
     case _ =>                moduleByName(m.getProject, s"${m.getName}${Sbt.BuildModuleSuffix}")
@@ -460,7 +479,8 @@ package object project {
 
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
 
-    def isScala3IndentationBasedSyntaxEnabled: Boolean = isDefinedInModuleOrProject(_.isScala3IndentationBasedSyntaxEnabled)
+    def scala3Features: Scala3Features =
+      inThisModuleOrProject(_.scala3Features).getOrElse(Scala3Features.default)
 
     def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
 

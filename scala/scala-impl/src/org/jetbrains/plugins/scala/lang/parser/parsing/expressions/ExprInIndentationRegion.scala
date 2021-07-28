@@ -5,7 +5,6 @@ package parsing
 package expressions
 
 import com.intellij.psi.tree.IElementType
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.base.Extension
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -87,7 +86,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
             parseRest(isBlock = true)
           } else if (builder.eof() || isFollowSetIfIndented(builder.getTokenType)) {
             isBlock
-          } else if (!ResultExpr() && !BlockStat()) {
+          } else if (!ResultExpr(stopOnOutdent = true) && !BlockStat()) {
             builder.advanceLexer() // ate something
             parseRest(isBlock = true)
           } else {

@@ -120,7 +120,7 @@ abstract class ScalaHighlightsTestBase extends ScalaLightCodeInsightFixtureTestA
     val fileText = normalize(createTestText(text))
 
     val (_, expectedRanges) =
-      MarkersUtils.extractSequentialMarkers(fileText, START, END)
+      MarkersUtils.extractMarker(fileText, START, END)
 
     val expectedHighlights =
       expectedRanges.map(ExpectedHighlight)

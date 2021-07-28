@@ -19,9 +19,10 @@ class RedundantBlockInspectionTest extends ScalaInspectionTestBase {
          |  case _ =>
          |    $START{$END
          |      x
-         |    }
+         |    $START}$END
          |}
-         |""".stripMargin
+         |""".stripMargin,
+      allowAdditionalHighlights = true
     )
 
     testQuickFix(

@@ -7,10 +7,10 @@ object Versions {
   // NOTE: sbt-launch / bloop-launcher won't be fetched on refresh.
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
-  val bloopVersion = "1.4.8-26-cbddb8ba"
-  val zincVersion = "1.4.0-M12"
-  val intellijVersion = "212.4321"
-  val bspVersion = "2.0.0-M12+27-4994bd9d-SNAPSHOT"
+  val bloopVersion = "1.4.8-81-e170cd66"
+  val zincVersion = "1.4.3"
+  val intellijVersion = "212.4638.7"
+  val bspVersion = "2.0.0-M14"
   val sbtStructureVersion: String = "2021.1.1"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.13"
@@ -106,14 +106,14 @@ object Dependencies {
   val compilerIndicesProtocol: ModuleID = "org.jetbrains.scala" %% "scala-compiler-indices-protocol" % compilerIndicesVersion
 
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
+  /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
-  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.3.0"
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.4.0"
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
   val compilerBridgeSources_2_13 = "org.scala-sbt" % "compiler-bridge_2.13" % zincVersion classifier "sources"
-  val dottySbtBridge = "ch.epfl.lamp" % "dotty-sbt-bridge" % "0.27.0-RC1"
-  val scala3SbtBridge = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.0-M2"
+  val scala3SbtBridge = "org.scala-lang" % "scala3-sbt-bridge" % "3.0.0"
 
   // "provided" danger: we statically depend on a single version, but need to support all the version
   // some part of our code is now statically dependent on lib classes, another part uses reflections for other versions
@@ -198,7 +198,6 @@ object DependencyGroups {
     compilerBridgeSources_2_10,
     compilerBridgeSources_2_11,
     compilerBridgeSources_2_13,
-    dottySbtBridge,
     scala3SbtBridge
   )
 }

@@ -279,7 +279,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -341,7 +341,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -379,7 +379,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
-  def test_without_tpye_params(): Unit = checkTree(
+  def test_without_type_params(): Unit = checkTree(
     """
       |given Test(using Ord[Int]): Ord[Double] with {}
       |""".stripMargin,
@@ -399,7 +399,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[Int]
       |          ParameterType
       |            ParametrizedType: Ord[Int]
       |              SimpleType: Ord
@@ -572,6 +572,33 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_constr_app(): Unit = checkTree(
+    """
+      |given Foo()
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScGivenDefinition: given_Foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(given)('given')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      TemplateParents
+      |        ConstructorInvocation
+      |          SimpleType: Foo
+      |            CodeReferenceElement: Foo
+      |              PsiElement(identifier)('Foo')
+      |          ArgumentList
+      |            PsiElement(()('(')
+      |            PsiElement())(')')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_plain(): Unit = checkTree(
     """
       |given Ord[Int] with {}
@@ -668,7 +695,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -726,7 +753,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[T]
       |          ParameterType
       |            ParametrizedType: Ord[T]
       |              SimpleType: Ord
@@ -780,7 +807,7 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |        PsiElement(()('(')
       |        PsiElement(using)('using')
       |        PsiWhiteSpace(' ')
-      |        Parameter: _
+      |        Parameter: Ord[Int]
       |          ParameterType
       |            ParametrizedType: Ord[Int]
       |              SimpleType: Ord
@@ -961,6 +988,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |          CodeReferenceElement: Int
       |            PsiElement(identifier)('Int')
       |        PsiElement(])(']')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiWhiteSpace(' ')
@@ -987,6 +1016,8 @@ class GivenInstancesParserTest extends SimpleScala3ParserTestBase {
       |    SimpleType: Test
       |      CodeReferenceElement: Test
       |        PsiElement(identifier)('Test')
+      |    Parameters
+      |      <empty list>
       |    PsiWhiteSpace(' ')
       |    PsiElement(=)('=')
       |    PsiWhiteSpace(' ')

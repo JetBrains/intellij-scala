@@ -5,6 +5,7 @@ package shadow
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScReferencePattern}
@@ -27,7 +28,7 @@ class VariablePatternShadowInspection extends AbstractRegisteredInspection {
           new RenameVariablePatternFix(refPat)
         )
         val descriptor =
-          manager.createProblemDescriptor(refPat.nameId, description, isOnTheFly, quickFixes, ProblemHighlightType.WARNING)
+          manager.createProblemDescriptor(refPat.nameId, description, isOnTheFly, quickFixes, ProblemHighlightType.GENERIC_ERROR_OR_WARNING)
 
         Some(descriptor)
       case _ =>
@@ -40,7 +41,7 @@ object VariablePatternShadowInspection {
   def description: String = ScalaInspectionBundle.message("suspicious.shadowing.by.a.variable.pattern")
 
   def isInCaseClause(ref: ScReferencePattern): Boolean =
-    ScalaPsiUtil.nameContext(ref).isInstanceOf[ScCaseClause]
+    ScalaPsiUtil.nameContext(ref).is[ScCaseClause]
 
   def doesShadowOtherPattern(ref: ScReferencePattern): Boolean = (
     for {
@@ -57,7 +58,7 @@ class ConvertToStableIdentifierPatternFix(r: ScReferencePattern)
 
   override protected def doApplyFix(ref: ScReferencePattern)
                                    (implicit project: Project): Unit = {
-    val stableIdPattern = createPatternFromText("`%s`".format(ref.getText))
+    val stableIdPattern = createPatternFromText(s"`${ref.getText}`")
     ref.replace(stableIdPattern)
   }
 }

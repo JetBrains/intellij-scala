@@ -11,6 +11,7 @@ import com.intellij.openapi.externalSystem.service.project.manage.ContentRootDat
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.ModuleType
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import org.jetbrains.plugins.scala.project.IncrementalityType
 import org.jetbrains.plugins.scala.project.external._
@@ -18,88 +19,81 @@ import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 import org.jetbrains.sbt.project.sources.SharedSourcesModuleType
 import org.jetbrains.sbt.settings.SbtSettings
 
-/**
- * @author Pavel Fatin
- */
-class SbtProjectDataService extends AbstractDataService[SbtProjectData, Project](SbtProjectData.Key) {
-  override def createImporter(toImport: Seq[DataNode[SbtProjectData]],
-                              projectData: ProjectData,
-                              project: Project,
-                              modelsProvider: IdeModifiableModelsProvider): Importer[SbtProjectData] = {
+import java.util
+import scala.jdk.CollectionConverters.CollectionHasAsScala
+
+class SbtProjectDataService extends ScalaAbstractProjectDataService[SbtProjectData, Project](SbtProjectData.Key) {
+
+  override def importData(
+    toImport: util.Collection[_ <: DataNode[SbtProjectData]],
+    projectData: ProjectData,
+    project: Project,
+    modelsProvider: IdeModifiableModelsProvider
+  ): Unit = {
+    val dataToImport  = toImport.asScala
+
     for {
-      head <- toImport.headOption
+      head <- dataToImport.headOption
       projectData <- Option(ExternalSystemApiUtil.findParent(head, ProjectKeys.PROJECT))
     } {
       projectData.removeUserData(ContentRootDataService.CREATE_EMPTY_DIRECTORIES) //we don't need creating empty dirs anyway
     }
 
-    new SbtProjectDataService.Importer(toImport, projectData, project, modelsProvider)
+    dataToImport.foreach(node => doImport(project, node.getData, modelsProvider))
   }
-}
 
-object SbtProjectDataService {
+  private def doImport(project: Project, data: SbtProjectData, modelsProvider: IdeModifiableModelsProvider): Unit = {
+    configureJdk(project, data)
+    setDefaultJavacOptions(project)
+    setSbtVersion(project, data)
+    updateIncrementalityType(project, modelsProvider)
+  }
 
-  private class Importer(dataToImport: Seq[DataNode[SbtProjectData]],
-                         projectData: ProjectData,
-                         project: Project,
-                         modelsProvider: IdeModifiableModelsProvider)
-    extends AbstractImporter[SbtProjectData](dataToImport, projectData, project, modelsProvider) {
+  private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction(project) {
+    val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+    val projectJdk: Option[Sdk] =
+      Option(data.jdk)
+        .flatMap(SdkUtils.findProjectSdk)
+        .orElse(existingJdk)
+        .orElse(SdkUtils.mostRecentJdk)
+    projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
+  }
 
-    override def importData(): Unit =
-      dataToImport.foreach(node => doImport(node.getData))
 
-    private def doImport(data: SbtProjectData): Unit = {
-      configureJdk(project, data)
-      setDefaultJavacOptions(project)
-      setSbtVersion(project, data)
-      updateIncrementalityType(project)
+  private def setDefaultJavacOptions(project: Project): Unit = executeProjectChangeAction(project) {
+    // special options -source, -target OR --release
+    setDefaultProjectLanguageLevel(project)
+    setDefaultTargetBytecodeLevel(project)
+
+    val javacOptions = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
+    javacOptions.ADDITIONAL_OPTIONS_STRING = ""
+  }
+
+  // NOTE: looks like this will not effect anything in sbt projects,
+  // because each module (including root module) has explicitly set java language level
+  // so project language level should not be used
+  private def setDefaultProjectLanguageLevel(project: Project): Unit = {
+    val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
+    val jdkLanguageLevel = projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn)
+    jdkLanguageLevel.foreach { level =>
+      val extension = LanguageLevelProjectExtension.getInstance(project)
+      extension.setLanguageLevel(level)
+      extension.setDefault(true)
     }
+  }
 
-    private def configureJdk(project: Project, data: SbtProjectData): Unit = executeProjectChangeAction {
-      val existingJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-      val projectJdk =
-        Option(data.jdk)
-          .flatMap(SdkUtils.findProjectSdk)
-          .orElse(existingJdk)
-          .orElse(SdkUtils.mostRecentJdk)
-      projectJdk.foreach(ProjectRootManager.getInstance(project).setProjectSdk)
-    }
+  private def setDefaultTargetBytecodeLevel(project: Project): Unit = {
+    val compilerSettings = CompilerConfiguration.getInstance(project)
+    compilerSettings.setProjectBytecodeTarget(null) // means "same as language level"
+  }
 
+  private def setSbtVersion(project: Project, data: SbtProjectData): Unit =
+    Option(SbtSettings.getInstance(project).getLinkedProjectSettings(data.projectPath))
+      .foreach(s => s.sbtVersion = data.sbtVersion)
 
-    private def setDefaultJavacOptions(project: Project): Unit = executeProjectChangeAction {
-      // special options -source, -target OR --release
-      setDefaultProjectLanguageLevel(project)
-      setDefaultTargetBytecodeLevel(project)
-
-      val javacOptions = JavacConfiguration.getOptions(project, classOf[JavacConfiguration])
-      javacOptions.ADDITIONAL_OPTIONS_STRING = ""
-    }
-
-    // NOTE: looks like this will not effect anything in sbt projects,
-    // because each module (including root module) has explicitly set java language level
-    // so project language level should not be used
-    private def setDefaultProjectLanguageLevel(project: Project): Unit = {
-      val projectJdk = Option(ProjectRootManager.getInstance(project).getProjectSdk)
-      val jdkLanguageLevel = projectJdk.flatMap(SdkUtils.defaultJavaLanguageLevelIn)
-      jdkLanguageLevel.foreach { level =>
-        val extension = LanguageLevelProjectExtension.getInstance(project)
-        extension.setLanguageLevel(level)
-        extension.setDefault(true)
-      }
-    }
-
-    private def setDefaultTargetBytecodeLevel(project: Project): Unit = {
-      val compilerSettings = CompilerConfiguration.getInstance(project)
-      compilerSettings.setProjectBytecodeTarget(null) // means "same as language level"
-    }
-
-    private def setSbtVersion(project: Project, data: SbtProjectData): Unit =
-      Option(SbtSettings.getInstance(project).getLinkedProjectSettings(data.projectPath))
-        .foreach(s => s.sbtVersion = data.sbtVersion)
-
-    private def updateIncrementalityType(project: Project): Unit = {
-      if (getModules.exists(it => ModuleType.get(it) == SharedSourcesModuleType.instance))
-        ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
-    }
+  private def updateIncrementalityType(project: Project, modelsProvider: IdeModifiableModelsProvider): Unit = {
+    val modules = modelsProvider.getModules
+    if (modules.exists(it => ModuleType.get(it) == SharedSourcesModuleType.instance))
+      ScalaCompilerConfiguration.instanceIn(project).incrementalityType = IncrementalityType.SBT
   }
 }

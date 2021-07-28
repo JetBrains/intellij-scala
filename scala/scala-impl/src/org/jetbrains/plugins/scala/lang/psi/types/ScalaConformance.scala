@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaConformance._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -92,7 +91,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
   }
 
   protected def checkParameterizedType(
-    parametersIterator: Iterator[PsiTypeParameter],
+    typeParams:         Iterable[TypeParameter],
     args1:              Iterable[ScType],
     args2:              Iterable[ScType],
     _constraints:       ConstraintSystem,
@@ -116,11 +115,12 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
       true
     }
 
-    val args1Iterator = args1.iterator
-    val args2Iterator = args2.iterator
+    val parametersIterator = typeParams.iterator
+    val args1Iterator  = args1.iterator
+    val args2Iterator  = args2.iterator
 
     while (parametersIterator.hasNext && args1Iterator.hasNext && args2Iterator.hasNext) {
-      val tp = parametersIterator.next()
+      val tp = parametersIterator.next().psiTypeParameter
       val (lhs, rhs) = (args1Iterator.next(), args2Iterator.next())
       tp match {
         case scp: ScTypeParam if scp.isContravariant && !checkEquivalence =>
@@ -918,7 +918,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 if (args1.length != args2.length) {
                   result = ConstraintsResult.Left
                 } else {
-                  result = checkParameterizedType(lhs.typeParameters.map(_.psiTypeParameter).iterator, args1, args2,
+                  result = checkParameterizedType(lhs.typeParameters, args1, args2,
                     constraints, visited, checkWeak)
                 }
               } else result = retryTypeParamsConformance(lhs, rhs, l, r, constraints)
@@ -927,7 +927,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 if (addBound) constraints = constraints.withUpper(typeParameter.typeParamId, des1)
 
                 result = checkParameterizedType(
-                  typeParameter.typeParameters.map(_.psiTypeParameter).iterator,
+                  typeParameter.typeParameters,
                   args1, args2, constraints,
                   visited, checkWeak
                 )
@@ -937,7 +937,7 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
             case _ if des1 equiv des2 =>
               result =
                 if (args1.length != args2.length) ConstraintsResult.Left
-                else extractParams(des1) match {
+                else extractTypeParameters(des1) match {
                   case Some(params) => checkParameterizedType(params, args1, args2, constraints, visited, checkWeak)
                   case _            => ConstraintsResult.Left
                 }
@@ -965,9 +965,11 @@ trait ScalaConformance extends api.Conformance with TypeVariableUnification {
                 } else {
                   proj1.actualElement match {
                     case td: ScTypeParametersOwner =>
-                      result = checkParameterizedType(td.typeParameters.iterator, args1, args2, constraints, visited, checkWeak)
+                      val tps = td.typeParameters.map(TypeParameter(_))
+                      result = checkParameterizedType(tps, args1, args2, constraints, visited, checkWeak)
                     case td: PsiTypeParameterListOwner =>
-                      result = checkParameterizedType(td.getTypeParameters.iterator, args1, args2, constraints, visited, checkWeak)
+                      val tps = td.getTypeParameters.map(TypeParameter(_))
+                      result = checkParameterizedType(tps, args1, args2, constraints, visited, checkWeak)
                     case _ =>
                       result = ConstraintsResult.Left
                   }
@@ -1465,21 +1467,6 @@ private object ScalaConformance {
           .withUpper(typeParameter.typeParamId, bound, variance = Invariant)
           .withLower(typeParameter.typeParamId, bound, variance = Invariant)
     }
-
-  private[psi] def extractParams(des: ScType): Option[Iterator[PsiTypeParameter]] =
-    des match {
-      case undef: UndefinedType =>
-        Option(undef.typeParameter.psiTypeParameter).map(_.getTypeParameters.iterator)
-      case tpt: TypeParameterType => Option(tpt.typeParameters.map(_.psiTypeParameter).iterator)
-      case _ =>
-        des.extractDesignated(false).map {
-          case ta: ScTypeAlias      => ta.typeParameters.iterator
-          case td: ScTypeDefinition => td.typeParameters.iterator
-          case cls: PsiClass        => cls.getTypeParameters.iterator
-          case _                    => Iterator.empty
-        }
-    }
-
 
   private[types] object UndefinedOrWildcard {
     def unapply(tpe: NonValueType): Option[(TypeParameter, Boolean)] = tpe match {

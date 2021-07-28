@@ -13,18 +13,21 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.{ExtractClass, ValType}
  * 2014-10-02
  */
 object ValueClassType {
-  def unapply(tp: ScType): Option[ScType] = {
-    tp match {
+
+  object Param {
+    def unapply(tp: ScType): Option[ScClassParameter] = tp match {
       case _: ValType => None
       case ExtractClass(cl: ScClass) if isValueClass(cl) =>
         cl.constructors match {
-          case Seq(pc: ScPrimaryConstructor) =>
-            pc.parameters.headOption.map(_.paramType())
+          case Seq(pc: ScPrimaryConstructor) => pc.parameters.headOption
           case _ => None
         }
       case _ => None
     }
   }
+
+  def unapply(tp: ScType): Option[ScType] =
+    ValueClassType.Param.unapply(tp).map(_.paramType())
 
   def isValueType(tp: ScType): Boolean = unapply(tp).isDefined
 

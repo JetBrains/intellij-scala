@@ -8,6 +8,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.psi.codeStyle.CodeStyleSettings
 import com.intellij.util.indexing.FileBasedIndex
 import org.jetbrains.plugins.scala.ScalaFileType
+import org.jetbrains.plugins.scala.extensions.{executeOnPooledThread, inReadAction}
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer.AsteriskAlignStyle
@@ -35,7 +36,9 @@ final class CodeStyleSettingsInferService(private val project: Project)
     } else {
       StartupManagerEx.getInstanceEx(project).runWhenProjectIsInitialized { () =>
         DumbService.getInstance(project).runWhenSmart { () =>
-          inferSettings()
+          executeOnPooledThread {
+            inferSettings()
+          }
           state.done = true
         }
       }
@@ -55,10 +58,13 @@ final class CodeStyleSettingsInferService(private val project: Project)
     val sourcesScope = SourceFilterScope(Seq(ScalaFileType.INSTANCE))(project)
 
     val alignTypeCounts: Map[AsteriskAlignStyle, Int] =
-      fileIndex.getAllKeys(indexId, project).asScala.map { alignType =>
-        val occurrences = fileIndex.getValues(indexId, alignType, sourcesScope).asScala
-        alignType -> occurrences.foldLeft(0)(_ + _)
-      }.filter(_._2 > 0).toMap
+      inReadAction {
+        val styles = fileIndex.getAllKeys(indexId, project).asScala
+        styles.map { alignType =>
+          val occurrences = fileIndex.getValues(indexId, alignType, sourcesScope).asScala
+          alignType -> occurrences.foldLeft(0)(_ + _)
+        }.filter(_._2 > 0).toMap
+      }
 
     if (alignTypeCounts.nonEmpty) {
       val mostUsedStyle = alignTypeCounts.maxBy(_._2)._1

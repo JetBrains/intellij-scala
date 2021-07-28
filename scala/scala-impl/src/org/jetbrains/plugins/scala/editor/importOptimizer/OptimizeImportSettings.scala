@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.editor.importOptimizer
 
 import java.util.regex.Pattern
-
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
-import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
+import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, Scala3Features}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 /**
@@ -19,7 +18,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
                                   collectImports: Boolean,
                                   isUnicodeArrow: Boolean,
                                   spacesInImports: Boolean,
-                                  isScala3OrSource3: Boolean,
+                                  scala3Features: Scala3Features,
                                   classCountToUseImportOnDemand: Int,
                                   importLayout: Array[String],
                                   isAlwaysUsedImport: String => Boolean,
@@ -28,7 +27,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
   def scalastyleGroups: Option[Seq[Pattern]] = scalastyleSettings.groups
   def scalastyleOrder: Boolean = scalastyleSettings.scalastyleOrder
 
-  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings, basePackage: Option[String], isScala3OrSource3: Boolean) = {
+  private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings, basePackage: Option[String], scala3Features: Scala3Features) = {
 
     this(
       s.isAddFullQualifiedImports,
@@ -38,7 +37,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
       s.isCollectImports,
       s.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR,
       s.SPACES_IN_IMPORTS,
-      isScala3OrSource3,
+      scala3Features,
       s.getClassCountToUseImportOnDemand,
       s.getImportLayout,
       s.isAlwaysUsedImport,
@@ -70,6 +69,6 @@ object OptimizeImportSettings {
       }
       else None
 
-    new OptimizeImportSettings(codeStyleSettings, scalastyleSettings, basePackage, file.isScala3OrSource3Enabled)
+    new OptimizeImportSettings(codeStyleSettings, scalastyleSettings, basePackage, file.scala3Features)
   }
 }

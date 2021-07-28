@@ -77,13 +77,15 @@ object ScalaOverridingMemberSearcher {
              deep: Boolean = true,
              withSelfType: Boolean = false): Array[PsiNamedElement] = {
     val scope = scopeOption.getOrElse(member.getUseScope)
+
     def inTemplateBodyOrEarlyDef(element: PsiElement) = element.getParent match {
-        case _: ScTemplateBody | _: ScEarlyDefinitions => true
-        case _ => false
+      case _: ScTemplateBody | _: ScEarlyDefinitions => true
+      case _                                         => false
     }
+
     member match {
-      case _: ScFunction | _: ScTypeAlias => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
-      case td: ScTypeDefinition if !td.isObject => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
+      case _: ScFunction | _: ScTypeAlias           => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
+      case td: ScTypeDefinition if !td.isObject     => if (!inTemplateBodyOrEarlyDef(member)) return Array.empty
       case cp: ScClassParameter if cp.isClassMember =>
       case x: PsiNamedElement =>
         val nameContext = ScalaPsiUtil.nameContext(x)
@@ -92,7 +94,7 @@ object ScalaOverridingMemberSearcher {
     }
 
     val parentClass = member match {
-      case m: PsiMethod => m.containingClass
+      case m: PsiMethod       => m.containingClass
       case x: PsiNamedElement => PsiTreeUtil.getParentOfType(x, classOf[ScTemplateDefinition])
     }
 

@@ -111,6 +111,7 @@ class Scala3IndentationBasedSyntaxBackspaceHandler extends BackspaceHandlerDeleg
 
     val targetColumn = getWidth(myReplacement, indentOptions.TAB_SIZE)
     val endOffset = CharArrayUtil.shiftForward(documentText, caretOffset, SpaceOrTab)
+      .min(documentText.length() - 1)
     // NOTE: extra check for `\n` to workaround IDEA-268212
     val logicalPosition =
       if (caretOffset < endOffset && documentText.charAt(endOffset) != '\n') editor.offsetToLogicalPosition(endOffset)

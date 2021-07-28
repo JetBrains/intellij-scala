@@ -274,9 +274,11 @@ object ScExpression {
 
     def updatedWithImplicitParameters(tpe: ScType, checkExpectedType: Boolean): (ScType, Option[Seq[ScalaResolveResult]]) = {
       val checkImplicitParameters = ScalaPsiUtil.withEtaExpansion(expr)
-      if (checkImplicitParameters)
-        InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
-      else (tpe, None)
+      if (checkImplicitParameters) {
+        val (updatedType, implicits, _) =
+          InferUtil.updateTypeWithImplicitParameters(tpe, expr, None, checkExpectedType, fullInfo = false)
+        (updatedType, implicits)
+      } else (tpe, None)
     }
 
     //numeric literal narrowing

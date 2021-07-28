@@ -15,11 +15,14 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.index.{ImplicitConversionIndex
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.AnyFqn
 import org.junit.Assert._
 
+import scala.collection.immutable.Iterable
 import scala.language.implicitConversions
 import scala.reflect.ClassTag
 
 class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   override protected def supportedIn(version: ScalaVersion): Boolean = version  == LatestScalaVersions.Scala_2_12
+
+  override protected val includeCompilerAsLibrary: Boolean = true
 
   private def intKey(s: String): Integer = Integer.valueOf(s.hashCode)
 
@@ -81,7 +84,24 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testPackageFQN(): Unit = {
     val packagings = elementsInScalaLibrary(intKey("scala.math"), PACKAGE_FQN_KEY)
-    assertEquals("Wrong number of packagings found: ", 14, packagings.size)
+    //noinspection ScalaWrongPlatformMethodsUsage
+    val containingFiles = packagings.map(_.getContainingFile.getName)
+    assertCollectionEqualsTextual(containingFiles, "Wrong number of packagings found: ")(
+      """BigDecimal.class
+        |BigInt.class
+        |Equiv.class
+        |Fractional.class
+        |Integral.class
+        |LowPriorityEquiv.class
+        |LowPriorityOrderingImplicits.class
+        |Numeric.class
+        |Ordered.class
+        |Ordering.class
+        |PartialOrdering.class
+        |PartiallyOrdered.class
+        |ScalaNumericAnyConversions.class
+        |ScalaNumericConversions.class""".stripMargin
+    )
   }
 
   def testMethodName(): Unit = {
@@ -153,10 +173,22 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
   def testAnnotatedMembers(): Unit = {
     val annotations = elementsInScalaLibrary("implicitNotFound", ANNOTATED_MEMBER_KEY)
     val annotated = annotations.map(PsiTreeUtil.getParentOfType(_, classOf[ScMember])).flatMap(_.qualifiedNameOpt).toSet
-    assertEquals(14, annotated.size)
-    assertContains(annotated, "scala.reflect.ClassTag")
-    assertContains(annotated, "scala.Predef.=:=")
-    assertContains(annotated, "scala.Function1")
+    assertCollectionEqualsTextual(annotated)(
+      """scala.Function1
+        |scala.Predef.<:<
+        |scala.Predef.=:=
+        |scala.Predef.ClassManifest
+        |scala.Predef.Manifest
+        |scala.collection.generic.CanBuildFrom
+        |scala.concurrent.CanAwait
+        |scala.concurrent.ExecutionContext
+        |scala.math.Ordering
+        |scala.reflect.ClassManifest
+        |scala.reflect.ClassTag
+        |scala.reflect.Manifest
+        |scala.sys.Prop.Creator
+        |scala.util.hashing.Hashing""".stripMargin,
+    )
   }
 
   def testPropertyName(): Unit = {
@@ -216,9 +248,21 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
       ImplicitInstanceIndex.forClassFqn(fqn, moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt)
 
     val orderings = forClassFqn("scala.math.Ordering")
-    assertEquals(13, orderings.size)
-    assertContains(orderings, "scala.math.LowPriorityOrderingImplicits.ordered")
-    assertContains(orderings, "scala.math.Ordering.ExtraImplicits.seqDerivedOrdering")
+    assertCollectionEqualsTextual(orderings)(
+      """scala.math.LowPriorityOrderingImplicits.comparatorToOrdering
+        |scala.math.LowPriorityOrderingImplicits.ordered
+        |scala.math.Ordering.ExtraImplicits.seqDerivedOrdering
+        |scala.math.Ordering.Iterable
+        |scala.math.Ordering.Option
+        |scala.math.Ordering.Tuple2
+        |scala.math.Ordering.Tuple3
+        |scala.math.Ordering.Tuple4
+        |scala.math.Ordering.Tuple5
+        |scala.math.Ordering.Tuple6
+        |scala.math.Ordering.Tuple7
+        |scala.math.Ordering.Tuple8
+        |scala.math.Ordering.Tuple9""".stripMargin
+    )
 
     val booleanOrdering = forClassFqn("scala.math.Ordering.BooleanOrdering")
     assertEquals(Set("scala.math.Ordering.Boolean"), booleanOrdering)
@@ -253,7 +297,7 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
 
   def testImplicitConversion_AllConversions(): Unit = {
     val all = ImplicitConversionIndex.allConversions(moduleWithLibraries)(getProject).flatMap(_.qualifiedNameOpt).toSet
-    assertEquals(
+    assertCollectionEqualsTextual(all)(
       """scala.Byte.byte2double
         |scala.Byte.byte2float
         |scala.Byte.byte2int
@@ -532,8 +576,17 @@ class StubIndexTest_2_12 extends ScalaLightCodeInsightFixtureTestAdapter {
         |scala.tools.util.PathResolver.MkLines
         |scala.util.Either.MergeableEither
         |scala.util.Random.javaRandomToRandom
-        |scala.util.control.Exception.throwableSubtypeToCatcher""".stripMargin.replace("\r", ""),
-      all.toSeq.sorted.mkString("\n")
+        |scala.util.control.Exception.throwableSubtypeToCatcher""".stripMargin.replace("\r", "")
+    )
+  }
+
+  // it's easier to update test data from diff view: just copy the actual concatenated text and paste it
+  private def assertCollectionEqualsTextual(actualElements: Iterable[String], message: String = null)
+                                           (expectedElementsSortedConcatenated: String): Unit = {
+    assertEquals(
+      message,
+      expectedElementsSortedConcatenated.replace("\r", ""),
+      actualElements.toSeq.sorted.mkString("\n")
     )
   }
 }

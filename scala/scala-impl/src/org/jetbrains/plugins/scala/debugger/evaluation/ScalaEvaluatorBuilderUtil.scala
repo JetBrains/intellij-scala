@@ -410,10 +410,13 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def valueClassInstanceEvaluator(value: Evaluator, innerType: ScType, classType: ScType): Evaluator = {
     val valueClassType = new ScalaTypeEvaluator(DebuggerUtil.getJVMQualifiedName(classType))
-    val innerJvmName = DebuggerUtil.getJVMStringForType(innerType, isParam = true)
+    val innerJvmName = DebuggerUtil.getJVMStringForType(innerType)
     val signature = JVMNameUtil.getJVMRawText(s"($innerJvmName)V")
     ScalaDuplexEvaluator(new ScalaNewClassInstanceEvaluator(valueClassType, signature, Array(value)), value)
   }
+
+  def unwrapValueClass(instance: Evaluator, valueClassType: ScType, param: ScClassParameter): Evaluator =
+    UnwrapValueClassEvaluator(instance, DebuggerUtil.getJVMQualifiedName(valueClassType), param.name, param.isPrivate)
 
   def repeatedArgEvaluator(exprsForP: Seq[ScExpression], expectedType: ScType, context: PsiElement): Evaluator = {
     def seqEvaluator: Evaluator = {
@@ -1298,32 +1301,37 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
     //boxing and unboxing actions
     def unbox(typeTo: String) = unaryEvaluator(unboxEvaluator(evaluator), typeTo)
-    def box() = boxEvaluator(evaluator)
+    def unboxTo(valType: ValType) = valType match {
+      case Int     => unbox("toInteger")
+      case Byte    => unbox("toByte")
+      case Long    => unbox("toLong")
+      case Boolean => unboxEvaluator(evaluator)
+      case Float   => unbox("toFloat")
+      case Short   => unbox("toShort")
+      case Double  => unbox("toDouble")
+      case Char    => unbox("toCharacter")
+      case Unit    => new BlockStatementEvaluator(Array(evaluator, unitEvaluator()))
+      case _       => evaluator
+    }
+
     def valueClassInstance(eval: Evaluator) = {
       expr match {
         case _: ScNewTemplateDefinition => eval
         case Typeable(_: ValType) => eval
-        case Typeable(tp@ValueClassType(inner)) =>
-          valueClassInstanceEvaluator(eval, inner, tp)
+        case Typeable(tp) => tp.tryExtractDesignatorSingleton match {
+          case vc @ ValueClassType(inner) => valueClassInstanceEvaluator(eval, inner, vc)
+          case _ => eval
+        }
         case _ => eval
       }
     }
 
-    val unboxed = expr.smartExpectedType() match {
-      case Some(Int) => unbox("toInteger")
-      case Some(Byte) => unbox("toByte")
-      case Some(Long) => unbox("toLong")
-      case Some(Boolean) => unboxEvaluator(evaluator)
-      case Some(Float) => unbox("toFloat")
-      case Some(Short) => unbox("toShort")
-      case Some(Double) => unbox("toDouble")
-      case Some(Char) => unbox("toCharacter")
-      case Some(Unit) => new BlockStatementEvaluator(Array(evaluator, unitEvaluator()))
-      case None => evaluator
-      case _ => box()
+    expr.smartExpectedType() match {
+      case Some(valType: ValType)         => unboxTo(valType)
+      case Some(tp @ ValueClassType.Param(cp)) => unwrapValueClass(evaluator, tp, cp)
+      case Some(_)                        => boxEvaluator(evaluator)
+      case None                           => valueClassInstance(evaluator)
     }
-
-    valueClassInstance(unboxed)
   }
 
   def classTagText(arg: ScType): String = {
@@ -1386,8 +1394,10 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
 
   def isOfPrimitiveType(param: PsiParameter): Boolean = param match { //todo specialized type parameters
     case p: ScParameter =>
-      val tp: ScType = p.`type`().getOrAny
-      tp.isPrimitive
+      p.`type`().getOrAny match {
+        case ValueClassType(inner) => inner.isPrimitive
+        case tp                    => tp.isPrimitive
+      }
     case _: PsiParameter =>
       val tp = param.getType
       import com.intellij.psi.PsiType._

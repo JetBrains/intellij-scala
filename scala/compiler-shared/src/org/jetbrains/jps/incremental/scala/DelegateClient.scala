@@ -21,6 +21,9 @@ class DelegateClient(client: Client)
   override def internalDebug(text: String): Unit =
     client.internalDebug(text)
 
+  override def internalTrace(text: String): Unit =
+    client.internalTrace(text)
+
   override def generated(source: File, module: File, name: String): Unit =
     client.generated(source, module, name)
 

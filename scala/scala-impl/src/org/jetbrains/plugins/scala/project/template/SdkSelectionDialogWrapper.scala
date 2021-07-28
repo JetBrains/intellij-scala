@@ -1,23 +1,29 @@
 package org.jetbrains.plugins.scala.project.template
 
+import com.intellij.CommonBundle
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.progress.{ProgressIndicator, Task}
-import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.openapi.ui.{DialogWrapper, Messages}
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.table.TableView
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.sdkdetect.ScalaSdkProvider
 import org.jetbrains.plugins.scala.project.sdkdetect.repository.ScalaSdkDetector
 import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog.ScalaVersionResolveResult
+import org.jetbrains.plugins.scala.project.template.SdkSelectionDialogWrapper.{showDuplicatedFilesError, validateSdk}
 import org.jetbrains.plugins.scala.project.template.sdk_browse.ExplicitSdkSelection
+import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
 
 import java.awt.Dimension
 import java.awt.event.ActionEvent
+import java.io.File
 import javax.swing._
 import javax.swing.event.ListSelectionEvent
 
 class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWrapper(true) {
+
+  import org.jetbrains.plugins.scala.project.template.SdkSelectionDialogWrapper.SdkValidationError._
 
   private val myTable = new TableView[SdkChoice]
   private val myTableModel = new SdkTableModel
@@ -25,7 +31,6 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
   private var sdkScanIndicator: Option[ProgressIndicator] = None
 
   private var mySelectedSdk: Option[ScalaSdkDescriptor] = None
-
 
   locally {
     setTitle(ScalaBundle.message("sdk.create.select.files"))
@@ -62,8 +67,27 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
   }
 
   override def doOKAction(): Unit = {
+    val sdk = selectedSdkFromTable
+    sdk match {
+      case Some(sdk) =>
+        validateSdk(sdk) match {
+          case Left(duplicatedFiles: DuplicatedFiles) =>
+            showDuplicatedFilesError(this.getContentPanel, duplicatedFiles)
+            return
+          case Right(_)                               =>
+        }
+      case _         =>
+    }
+    mySelectedSdk = selectedSdkFromTable
+
     super.doOKAction()
-    onOK()
+    closeDialogGracefully()
+  }
+
+  private def selectedSdkFromTable: Option[ScalaSdkDescriptor] = {
+    if (myTable.getSelectedRowCount > 0)
+      Some(myTableModel.getItems.get(myTable.getSelectedRow).sdk)
+    else None
   }
 
   override def createLeftSideActions(): Array[Action] = {
@@ -82,7 +106,7 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
     val resolvedScalaVersion = new ScalaVersionDownloadingDialog(this.getContentPanel).showAndGetSelected()
     resolvedScalaVersion.foreach { case ScalaVersionResolveResult(version, compilerJars, librarySourcesJars) =>
       val libraryJars = compilerJars.filter(f => ScalaLibraryFileNames.exists(f.getName.startsWith(_)))
-      val sdkDescriptor = ScalaSdkDescriptor(Some(version), compilerJars, libraryJars, librarySourcesJars, Nil /*docs are not downloaded*/)
+      val sdkDescriptor = ScalaSdkDescriptor(Some(version), None, compilerJars, libraryJars, librarySourcesJars, Nil /*docs are not downloaded*/)
       closeDialogGracefully(Some(sdkDescriptor))
     }
   }
@@ -92,14 +116,6 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
     resultOpt.foreach { sdk =>
       closeDialogGracefully(Some(sdk))
     }
-  }
-
-  private def onOK(): Unit = {
-    val sdk =
-      if (myTable.getSelectedRowCount > 0)
-        Some(myTableModel.getItems.get(myTable.getSelectedRow).sdk)
-      else None
-    closeDialogGracefully(sdk)
   }
 
   private def onCancel(): Unit = {
@@ -114,6 +130,10 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
 
   private def closeDialogGracefully(sdkDescriptor: Option[ScalaSdkDescriptor]): Unit = {
     mySelectedSdk = sdkDescriptor
+    closeDialogGracefully()
+  }
+
+  private def closeDialogGracefully(): Unit = {
     cancelCurrentSdkScanning()
     dispose()
   }
@@ -134,7 +154,7 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
     override def run(indicator: ProgressIndicator): Unit = {
       sdkScanIndicator = Some(indicator)
 
-      val scalaJarDetectors =  ScalaSdkDetector.allDetectors(contextDirectory)
+      val scalaJarDetectors = ScalaSdkDetector.allDetectors(contextDirectory)
       val scalaSdkProvider = new ScalaSdkProvider(indicator, scalaJarDetectors)
       scalaSdkProvider.discoverSDKs(this.addToTable)
 
@@ -154,4 +174,51 @@ class SdkSelectionDialogWrapper(contextDirectory: VirtualFile) extends DialogWra
       })
     }
   }
+}
+
+object SdkSelectionDialogWrapper {
+
+  private val Log = Logger.getInstance(classOf[SdkSelectionDialogWrapper])
+
+  private sealed trait SdkValidationError
+
+  private object SdkValidationError {
+    final case class DuplicatedFiles(duplicates: Map[String, Seq[File]], componentName: NlsString) extends SdkValidationError
+  }
+
+  import SdkValidationError._
+
+  private def validateSdk(descriptor: ScalaSdkDescriptor): Either[SdkValidationError, ()] = {
+    for {
+      _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.compiler.classpath")))
+      _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.library")))
+      _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.library.source")))
+      _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.library.scaladoc")))
+    } yield ()
+  }
+
+  private def assertNoDuplicates(files: Seq[File], componentName: NlsString): Either[DuplicatedFiles, ()] = {
+    val nameToFiles = files.groupBy(_.getName)
+    val duplicates = nameToFiles.filter(_._2.lengthCompare(1) > 0)
+    if (duplicates.isEmpty)
+      Right(())
+    else
+      Left(DuplicatedFiles(duplicates, componentName))
+  }
+
+  private def showDuplicatedFilesError(component: JComponent, duplicatedFiles: DuplicatedFiles): Unit = {
+    Log.warn(s"Duplicate files found: $duplicatedFiles") // warn (no error) just not to show the error in EA (we already show the dialog)
+
+    val DuplicatedFiles(duplicates, componentName) = duplicatedFiles
+
+    val messageLine1 = ScalaBundle.message("scala.sdk.descriptor.contains.duplicated.files", componentName)
+    val messageLineOther = duplicates
+      .map { case (name, files) => s"$name: ${files.mkString(",")}" }
+      .mkString("\n")
+    val message = messageLine1 + "\n" + messageLineOther
+
+    val title = CommonBundle.message("title.error")
+    Messages.showErrorDialog(component, message, title)
+  }
+
 }

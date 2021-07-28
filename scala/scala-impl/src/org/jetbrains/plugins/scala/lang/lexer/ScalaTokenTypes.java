@@ -107,34 +107,34 @@ public interface ScalaTokenTypes {
     ScalaModifierTokenType kPROTECTED = ScalaModifierTokenType.of(ScalaModifier.Protected);
     ScalaModifierTokenType kSEALED = ScalaModifierTokenType.of(ScalaModifier.Sealed);
 
-    IElementType kCATCH = new ScalaTokenType("catch");
-    IElementType kDEF = new ScalaTokenType("def");
-    IElementType kDO = new ScalaTokenType("do");
-    IElementType kELSE = new ScalaTokenType("else");
-    IElementType kEXTENDS = new ScalaTokenType("extends");
-    IElementType kFALSE = new ScalaTokenType("false");
-    IElementType kFINALLY = new ScalaTokenType("finally");
-    IElementType kFOR = new ScalaTokenType("for");
-    IElementType kFOR_SOME = new ScalaTokenType("forSome");
-    IElementType kIF = new ScalaTokenType("if");
-    IElementType kIMPORT = new ScalaTokenType("import");
-    IElementType kMATCH = new ScalaTokenType("match");
-    IElementType kNULL = new ScalaTokenType("null");
-    IElementType kPACKAGE = new ScalaTokenType("package");
+    IElementType kCATCH    = new ScalaKeywordTokenType("catch");
+    IElementType kDEF      = new ScalaKeywordTokenType("def");
+    IElementType kDO       = new ScalaKeywordTokenType("do");
+    IElementType kELSE     = new ScalaKeywordTokenType("else");
+    IElementType kEXTENDS  = new ScalaKeywordTokenType("extends");
+    IElementType kFALSE    = new ScalaKeywordTokenType("false");
+    IElementType kFINALLY  = new ScalaKeywordTokenType("finally");
+    IElementType kFOR      = new ScalaKeywordTokenType("for");
+    IElementType kFOR_SOME = new ScalaKeywordTokenType("forSome");
+    IElementType kIF       = new ScalaKeywordTokenType("if");
+    IElementType kIMPORT   = new ScalaKeywordTokenType("import");
+    IElementType kMATCH    = new ScalaKeywordTokenType("match");
+    IElementType kNULL     = new ScalaKeywordTokenType("null");
+    IElementType kPACKAGE  = new ScalaKeywordTokenType("package");
 
-    IElementType kRETURN = new ScalaTokenType("return");
-    IElementType kSUPER = new ScalaTokenType("super");
-    IElementType kTHIS = new ScalaTokenType("this");
-    IElementType kTHROW = new ScalaTokenType("throw");
-    IElementType kTRY = new ScalaTokenType("try");
-    IElementType kTRUE = new ScalaTokenType("true");
-    IElementType kTYPE = new ScalaTokenType("type");
-    IElementType kVAL = new ScalaTokenType("val");
-    IElementType kVAR = new ScalaTokenType("var");
-    IElementType kWHILE = new ScalaTokenType("while");
-    IElementType kWITH = new ScalaTokenType("with");
-    IElementType kYIELD = new ScalaTokenType("yield");
-    IElementType kMACRO = new ScalaTokenType("macro");
+    IElementType kRETURN = new ScalaKeywordTokenType("return");
+    IElementType kSUPER  = new ScalaKeywordTokenType("super");
+    IElementType kTHIS   = new ScalaKeywordTokenType("this");
+    IElementType kTHROW  = new ScalaKeywordTokenType("throw");
+    IElementType kTRY    = new ScalaKeywordTokenType("try");
+    IElementType kTRUE   = new ScalaKeywordTokenType("true");
+    IElementType kTYPE   = new ScalaKeywordTokenType("type");
+    IElementType kVAL    = new ScalaKeywordTokenType("val");
+    IElementType kVAR    = new ScalaKeywordTokenType("var");
+    IElementType kWHILE  = new ScalaKeywordTokenType("while");
+    IElementType kWITH   = new ScalaKeywordTokenType("with");
+    IElementType kYIELD  = new ScalaKeywordTokenType("yield");
+    IElementType kMACRO  = new ScalaKeywordTokenType("macro");
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ///////////////////////// variables and constants //////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Block, Block
  *  CaseClause ::= 'case' Pattern [Guard] '=>' Block
  */
 abstract class CaseClause extends ParsingRule {
-  protected def parseBody(builder: ScalaPsiBuilder): Unit
+  protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit
 
   protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean =
     true
@@ -49,15 +49,15 @@ abstract class CaseClause extends ParsingRule {
         caseClauseMarker.done(ScalaElementType.CASE_CLAUSE)
         return true
     }
-    parseBody(builder)
+    parseBody()
     caseClauseMarker.done(ScalaElementType.CASE_CLAUSE)
     true
   }
 }
 
 object CaseClause extends CaseClause {
-  override protected def parseBody(builder: ScalaPsiBuilder): Unit = {
-    if (!Block.parse(builder, hasBrace = false, needNode = true)) {
+  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
+    if (!Block.Braceless(stopOnOutdent = false, needNode = true)) {
       builder error ErrMsg("wrong.expression")
     }
   }
@@ -76,7 +76,7 @@ object CaseClause extends CaseClause {
  * }}}
  */
 object CaseClauseInBracelessCaseClauses extends CaseClause {
-  override protected def parseBody(builder: ScalaPsiBuilder): Unit = {
+  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
     BlockInIndentationRegion.parse(builder)
   }
 
@@ -108,8 +108,8 @@ object CaseClauseInBracelessCaseClauses extends CaseClause {
  * }}}
  */
 object ExprCaseClause extends CaseClause {
-  override protected def parseBody(builder: ScalaPsiBuilder): Unit = {
-    if (!ExprInIndentationRegion.parse(builder)) {
+  override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
+    if (!ExprInIndentationRegion()) {
       builder error ErrMsg("expression.expected")
     }
   }

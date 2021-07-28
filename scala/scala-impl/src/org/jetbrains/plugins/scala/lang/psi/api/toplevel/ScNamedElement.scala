@@ -78,6 +78,8 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
 
   override def getNameIdentifier: PsiIdentifier = if (nameId != null) new JavaIdentifier(nameId) else null
 
+  override def getIdentifyingElement: PsiElement = nameId
+
   override def setName(name: String): PsiElement = {
     val id = nameId.getNode
     val parent = id.getTreeParent

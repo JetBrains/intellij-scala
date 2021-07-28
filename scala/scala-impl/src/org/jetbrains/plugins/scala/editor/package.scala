@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, invokeAndWait}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocElementType
-import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ProjectPsiFileExt}
+import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 
 import scala.reflect.ClassTag
 
@@ -88,7 +88,7 @@ package object editor {
       previousIsStringToken || afterInterpolatedInjection
     }
 
-    def inDocComment(offset: Int): Boolean = isTokenType(offset - 1, _.isInstanceOf[ScalaDocElementType])
+    def inDocComment(offset: Int): Boolean = isTokenType(offset - 1, _.is[ScalaDocElementType])
 
     private def isTokenType(offset: Int, predicate: IElementType => Boolean): Boolean = {
       if (0 <= offset && offset < editor.getDocument.getTextLength) {
@@ -117,7 +117,7 @@ package object editor {
   private[editor] def indentElement(file: PsiFile, checkVisibleOnly: Boolean = true)
                                    (document: Document, project: Project, element: PsiElement, offset: Int)
                                    (prevCondition: PsiElement => Boolean,
-                                    condition: PsiElement => Boolean = _.isInstanceOf[PsiWhiteSpace]): Unit = {
+                                    condition: PsiElement => Boolean = _.is[PsiWhiteSpace]): Unit = {
     if (condition(element)) {
       val prev = if (checkVisibleOnly) PsiTreeUtil.prevVisibleLeaf(element) else PsiTreeUtil.prevLeaf(element)
       if (prevCondition(prev)) {
@@ -130,7 +130,7 @@ package object editor {
   private[editor] def useIndentationBasedSyntax(file: PsiFile): Boolean =
     file.getLanguage.isKindOf(Scala3Language.INSTANCE) && {
       val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX && file.isScala3IndentationBasedSyntaxEnabled
+      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX && file.scala3Features.indentationBasedSyntaxEnabled
     }
 
   private[editor] implicit class PsiWhiteSpaceOps(private val target: PsiWhiteSpace) extends AnyVal {

@@ -9,7 +9,6 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
 import com.intellij.psi.PsiManager
-import org.jetbrains.idea.maven.indices.MavenIndex
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -17,12 +16,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPreviewWizard
-import org.jetbrains.sbt.language.utils.SbtCommon.defaultLibScope
+import org.jetbrains.sbt.language.utils.SbtDependencyCommon.defaultLibScope
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
-import org.jetbrains.sbt.language.utils.SbtDependencyUtils.getSbtFileOpt
-import org.jetbrains.sbt.project.data.ModuleExtData
+import org.jetbrains.sbt.language.utils.SbtDependencyUtils.{getSbtFileOpt, isScalaLibraryDependency}
+import org.jetbrains.sbt.project.data.SbtModuleExtData
 import org.jetbrains.sbt.SbtUtil
-import org.jetbrains.sbt.language.utils.{SbtArtifactInfo, DependencyOrRepositoryPlaceInfo, SbtCommon, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{DependencyOrRepositoryPlaceInfo, SbtArtifactInfo, SbtDependencyCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolverUtils}
 
 import java.util
@@ -166,12 +165,8 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
 
     implicit val project: Project = module.getProject
-    var scalaVer: String = ""
-    val moduleExtData = SbtUtil.getModuleData(
-      project,
-      ExternalSystemApiUtil.getExternalProjectId(module),
-      ModuleExtData.Key).toSeq
-    if (moduleExtData.nonEmpty) scalaVer = moduleExtData.head.scalaVersion
+
+    val scalaVer = SbtDependencyUtils.getScalaVerFromModule(module)
 
     inReadAction({
       libDeps.map(libDepInfixAndString => {
@@ -187,20 +182,24 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
         libDepArr.length match {
           case x if x < 3 || x > 4 => null
-          case x if x == 3 => new DeclaredDependency(
-            new UnifiedDependency(
-              libDepArr(0),
-              SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
-              libDepArr(2),
-              SbtCommon.defaultLibScope),
-            dataContext)
-          case x if x == 4 => new DeclaredDependency(
-            new UnifiedDependency(
-              libDepArr(0),
-              SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
-              libDepArr(2),
-              libDepArr(3)),
-            dataContext)
+          case x if x >= 3 =>
+            val scope = if (x == 3) SbtDependencyCommon.defaultLibScope else libDepArr(3)
+            if (isScalaLibraryDependency(libDepInfixAndString._1))
+              new DeclaredDependency(
+                new UnifiedDependency(
+                  libDepArr(0),
+                  SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
+                  libDepArr(2),
+                  scope),
+                dataContext)
+            else
+              new DeclaredDependency(
+                new UnifiedDependency(
+                  libDepArr(0),
+                  libDepArr(1),
+                  libDepArr(2),
+                  scope),
+                dataContext)
         }
       }).filter(_ != null).toList.asJava
     })
@@ -212,7 +211,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
   override def declaredRepositories(module: OpenapiModule.Module): util.List[UnifiedDependencyRepository] = {
     SbtResolverUtils.projectResolvers(module.getProject).collect {
       case r: SbtMavenResolver =>
-        new UnifiedDependencyRepository(r.name, r.presentableName, MavenIndex.normalizePathOrUrl(r.root))
+        new UnifiedDependencyRepository(r.name, r.presentableName, r.normalizedRoot)
     }.toList.asJava
   }
 }

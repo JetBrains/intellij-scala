@@ -200,6 +200,43 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |""".stripMargin
   )
 
+  def test_new_line_in_if_condition(): Unit = checkTree(
+    """
+      |if a
+      |  (x) then
+      |  a
+      |else
+      |  b
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  IfStatement
+      |    PsiElement(if)('if')
+      |    PsiWhiteSpace(' ')
+      |    MethodCall
+      |      ReferenceExpression: a
+      |        PsiElement(identifier)('a')
+      |      PsiWhiteSpace('\n  ')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        ReferenceExpression: x
+      |          PsiElement(identifier)('x')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(then)('then')
+      |    PsiWhiteSpace('\n  ')
+      |    ReferenceExpression: a
+      |      PsiElement(identifier)('a')
+      |    PsiWhiteSpace('\n')
+      |    PsiElement(else)('else')
+      |    PsiWhiteSpace('\n  ')
+      |    ReferenceExpression: b
+      |      PsiElement(identifier)('b')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
   def test_while_without_do_intended(): Unit = checkTree(
     """
       |while (a)
@@ -919,5 +956,29 @@ class ExprParserTest extends SimpleScala3ParserTestBase {
       |          PsiElement(string content)('"in while body"')
       |        PsiElement())(')')
       |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_infix_after_comment(): Unit = checkTree(
+    """
+      |x
+      |/*
+      |*/ + 3
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  InfixExpression
+      |    ReferenceExpression: x
+      |      PsiElement(identifier)('x')
+      |    PsiWhiteSpace('\n')
+      |    PsiComment(BlockComment)('/*\n*/')
+      |    PsiWhiteSpace(' ')
+      |    ReferenceExpression: +
+      |      PsiElement(identifier)('+')
+      |    PsiWhiteSpace(' ')
+      |    IntegerLiteral
+      |      PsiElement(integer)('3')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
   )
 }
