@@ -484,7 +484,10 @@ lazy val packageSearchIntegration =
   newProject("packagesearch", file("scala/integration/packagesearch"))
     .dependsOn(scalaImpl)
     .settings(
-      intellijPlugins += "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
+      intellijPlugins ++= Seq(
+        "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
+        "com.intellij.externalSystem.dependencyUpdater".toPlugin,
+      )
     )
 
 

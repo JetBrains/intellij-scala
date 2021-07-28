@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.components
 
-import com.intellij.ide.plugins._
+import com.intellij.ide.plugins.{org => _, _}
 import com.intellij.ide.util.PropertiesComponent
 import com.intellij.notification._
 import com.intellij.openapi.application.ex.ApplicationInfoEx

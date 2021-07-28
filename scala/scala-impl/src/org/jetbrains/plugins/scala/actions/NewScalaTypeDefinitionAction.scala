@@ -104,7 +104,7 @@ class NewScalaTypeDefinitionAction extends CreateTemplateInPackageAction[ScTypeD
   }
 
   private def isUnderSourceRoots(dataContext: DataContext): Boolean = {
-    val module: Module = dataContext.getData(LangDataKeys.MODULE.getName).asInstanceOf[Module]
+    val module: Module = dataContext.getData(PlatformDataKeys.MODULE.getName).asInstanceOf[Module]
     val validModule =
       if (module == null) false
       else

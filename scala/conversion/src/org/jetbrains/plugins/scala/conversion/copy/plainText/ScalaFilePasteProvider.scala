@@ -1,11 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
-import java.awt.datatransfer.DataFlavor
-import java.io.File
-import java.{util => ju}
-
 import com.intellij.ide.{IdeView, PasteProvider}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformDataKeys}
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.module.Module
@@ -19,6 +15,9 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, ToNullSafe, inWriteCom
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.ModuleExt
 
+import java.awt.datatransfer.DataFlavor
+import java.io.File
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -80,13 +79,10 @@ final class ScalaFilePasteProvider extends PasteProvider {
 
 private object ScalaFilePasteProvider {
 
-  import CommonDataKeys._
-  import LangDataKeys._
-
   implicit class DataContextExt(private val context: DataContext) extends AnyVal {
-    def maybeIdeView: Option[IdeView] = Option(IDE_VIEW.getData(context))
-    def maybeProject: Option[Project] = Option(PROJECT.getData(context))
-    def maybeModule: Option[Module] = Option(MODULE.getData(context))
+    def maybeIdeView: Option[IdeView] = Option(LangDataKeys.IDE_VIEW.getData(context))
+    def maybeProject: Option[Project] = Option(CommonDataKeys.PROJECT.getData(context))
+    def maybeModule: Option[Module] = Option(PlatformDataKeys.MODULE.getData(context))
   }
 
   implicit class CopyPasteManagerExt(private val manager: CopyPasteManager) extends AnyVal {

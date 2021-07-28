@@ -3,7 +3,7 @@ package worksheet
 package actions
 
 import com.intellij.ide.fileTemplates.actions.AttributesDefaults
-import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, DataContext, LangDataKeys}
+import com.intellij.openapi.actionSystem.{AnActionEvent, CommonDataKeys, DataContext, LangDataKeys, PlatformDataKeys}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiDirectory, PsiFile}
@@ -39,7 +39,7 @@ final class NewScalaWorksheetAction extends LazyFileTemplateAction(
   override def update(event: AnActionEvent): Unit = {
     super.update(event)
 
-    val isEnabled = event.getDataContext.getData(LangDataKeys.MODULE.getName) match {
+    val isEnabled = event.getDataContext.getData(PlatformDataKeys.MODULE.getName) match {
       case module: Module => module.hasScala
       case _ => false
     }

@@ -5,9 +5,8 @@ package i18n
 package internal
 
 import java.util
-
 import com.intellij.codeInsight.AnnotationUtil
-import com.intellij.codeInspection.{BatchQuickFix, InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.codeInspection.{BatchQuickFix, CommonProblemDescriptor, InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectFileIndex
@@ -103,7 +102,7 @@ object ScalaExtractStringToBundleInspection {
   }
 
   private class ScalaMoveToBundleQuickFix(_element: ScExpression)
-    extends AbstractFixOnPsiElement("Extract to bundle", _element) with BatchQuickFix[Null] {
+    extends AbstractFixOnPsiElement("Extract to bundle", _element) with BatchQuickFix {
     override def startInWriteAction(): Boolean = false
     override protected def doApplyFix(element: ScExpression)(implicit project: Project): Unit = {
       val parts = element match {
@@ -130,7 +129,7 @@ object ScalaExtractStringToBundleInspection {
     }
 
     // find a way to disable batch mode... until then just show this message
-    override def applyFix(project: Project, descriptors: Array[Null], psiElementsToIgnore: util.List[PsiElement], refreshViews: Runnable): Unit =
+    override def applyFix(project: Project, descriptors: Array[CommonProblemDescriptor], psiElementsToIgnore: util.List[PsiElement], refreshViews: Runnable): Unit =
       Messages.showErrorDialog(project, "Don' run ExtractStringToBundle inspection in batch mode", "Do not run in batch mode")
   }
 }

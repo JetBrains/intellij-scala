@@ -1,9 +1,10 @@
 package org.jetbrains.plugins.scala.actions.internal
 
+import com.intellij.ide.nls.NlsMessages
+
 import java.awt.Toolkit
 import java.awt.datatransfer.StringSelection
 import java.text.SimpleDateFormat
-
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.application.ex.ApplicationInfoEx
@@ -38,7 +39,7 @@ class ScalaCollectShortTroubleshootingInfoAction extends AnAction(
     val ideaBuildDate = {
       val cal = appInfo.getBuildDate
       val date = if (appInfo.getBuild.isSnapshot) new SimpleDateFormat("HH:mm, ").format(cal.getTime) else ""
-      date + DateFormatUtil.formatAboutDialogDate(cal.getTime)
+      date + NlsMessages.formatDateLong(cal.getTime)
     }
     val scalaPluginVersion = PluginManagerCore.getPlugins.find(_.getName == "Scala").map(_.getVersion).getOrElse("-")
     val osInfo = s"${SystemInfo.OS_NAME} (${SystemInfo.OS_VERSION}, ${SystemInfo.OS_ARCH})"

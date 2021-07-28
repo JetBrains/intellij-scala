@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
 class EditPackagePrefixAction extends AnAction(ScalaBundle.message("edit.package.prefix")) {
   override def actionPerformed(e: AnActionEvent): Unit = {
     val modifiableModel = {
-      val module = LangDataKeys.MODULE.getData(e.getDataContext)
+      val module = PlatformDataKeys.MODULE.getData(e.getDataContext)
       ModuleRootManager.getInstance(module).getModifiableModel
     }
 
@@ -31,7 +31,7 @@ class EditPackagePrefixAction extends AnAction(ScalaBundle.message("edit.package
     super.update(e)
 
     val isSourceRoot =
-      Option(LangDataKeys.MODULE.getData(e.getDataContext))
+      Option(PlatformDataKeys.MODULE.getData(e.getDataContext))
         .flatMap(module => Option(CommonDataKeys.VIRTUAL_FILE.getData(e.getDataContext))
           .map(file => ModuleRootManager.getInstance(module).getSourceRoots.contains(file)))
         .getOrElse(false)

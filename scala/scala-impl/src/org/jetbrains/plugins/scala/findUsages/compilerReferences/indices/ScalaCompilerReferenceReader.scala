@@ -8,7 +8,7 @@ import com.intellij.compiler.backwardRefs.CompilerReferenceReader
 import com.intellij.compiler.backwardRefs.SearchId
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.progress.ProgressManager
-import com.intellij.openapi.vfs.{CompactVirtualFileSet, VfsUtil, VirtualFile, VirtualFileWithId}
+import com.intellij.openapi.vfs.{CompactVirtualFileSet, VfsUtil, VfsUtilCore, VirtualFile, VirtualFileWithId}
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.containers.Queue
 import com.intellij.util.indexing.StorageException
@@ -70,7 +70,7 @@ private[findUsages] class ScalaCompilerReferenceReader private[compilerReference
 
   override def findReferentFileIds(ref: CompilerRef, checkBaseClassAmbiguity: Boolean): util.Set[VirtualFile] =
     rethrowStorageExceptionIn {
-      val referentFiles = new CompactVirtualFileSet
+      val referentFiles = VfsUtilCore.createCompactVirtualFileSet()
 
       searchInBackwardUsagesIndex(ref) {
         case (fileId, _) =>

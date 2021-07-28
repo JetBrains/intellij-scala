@@ -169,8 +169,11 @@ public abstract class ModuleDelegate implements Module {
     }
 
     @Override
-    public @NotNull RuntimeException createError(@NotNull @NonNls String message, @NotNull PluginId pluginId, @Nullable Map<String, String> attachments) {
-        return module.createError(message, pluginId, attachments);
+    public @NotNull RuntimeException createError(@NotNull @NonNls String message,
+                                                 @Nullable Throwable error,
+                                                 @NotNull PluginId pluginId,
+                                                 @Nullable Map<String, String> attachments) {
+        return module.createError(message, error, pluginId, attachments);
     }
 
     @Override
