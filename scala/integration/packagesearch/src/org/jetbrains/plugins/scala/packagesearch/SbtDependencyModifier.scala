@@ -5,7 +5,6 @@ import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDepende
 import com.intellij.externalSystem.ExternalDependencyModificator
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
 import com.intellij.psi.PsiManager
@@ -16,11 +15,10 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfi
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPreviewWizard
+import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.language.utils.SbtDependencyCommon.defaultLibScope
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.{getSbtFileOpt, isScalaLibraryDependency}
-import org.jetbrains.sbt.project.data.SbtModuleExtData
-import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.language.utils.{DependencyOrRepositoryPlaceInfo, SbtArtifactInfo, SbtDependencyCommon, SbtDependencyUtils}
 import org.jetbrains.sbt.resolvers.{SbtMavenResolver, SbtResolverUtils}
 
@@ -188,7 +186,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
               new DeclaredDependency(
                 new UnifiedDependency(
                   libDepArr(0),
-                  SbtDependencyUtils.buildScalaDependencyString(libDepArr(1), scalaVer),
+                  SbtDependencyUtils.buildScalaArtifactIdString(libDepArr(0), libDepArr(1), scalaVer),
                   libDepArr(2),
                   scope),
                 dataContext)

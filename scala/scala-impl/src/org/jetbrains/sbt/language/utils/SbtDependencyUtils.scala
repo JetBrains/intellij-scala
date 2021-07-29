@@ -34,6 +34,82 @@ object SbtDependencyUtils {
   val SBT_MODULE_ID_TYPE = "sbt.ModuleID"
   val SBT_LIB_CONFIGURATION = "_root_.sbt.librarymanagement.Configuration"
 
+  val SCALA_DEPENDENCIES_WITH_MINOR_SCALA_VERSION_LIST = List(
+    "ch.epfl.scala:scalafix-cli",
+    "ch.epfl.scala:scalafix-reflect",
+    "ch.epfl.scala:scalafix-testkit",
+    "com.avsystem.scex:scex-core",
+    "com.avsystem.scex:scex-macros",
+    "com.avsystem.scex:scex-util",
+    "com.github.cb372:scala-typed-holes",
+    "com.github.dkhalansky:paradisenglib",
+    "com.github.dkhalansky:paradisengplugin",
+    "com.github.ghik:silencer-lib",
+    "com.github.ghik:silencer-plugin",
+    "com.github.tomasmikula:pascal",
+    "com.github.wheaties:twotails",
+    "com.github.wheaties:twotails-annotations",
+    "com.kubukoz:better-tostring",
+    "com.lihaoyi:ammonite",
+    "com.lihaoyi:ammonite-api",
+    "com.lihaoyi:ammonite-compiler",
+    "com.lihaoyi:ammonite-compiler-interface",
+    "com.lihaoyi:ammonite-interp",
+    "com.lihaoyi:ammonite-interp-api",
+    "com.lihaoyi:ammonite-interpApi",
+    "com.lihaoyi:ammonite-repl",
+    "com.lihaoyi:ammonite-repl-api",
+    "com.lihaoyi:ammonite-replApi",
+    "com.lihaoyi:ammonite-runtime",
+    "com.lihaoyi:ammonite-shell",
+    "com.lihaoyi:ammonite-sshd",
+    "com.lihaoyi:ammonite-test-api",
+    "com.lihaoyi:ammonite-util",
+    "com.lihaoyi:mill-bridge",
+    "com.sksamuel.scapegoat:scalac-scapegoat-plugin",
+    "com.typesafe.genjavadoc:genjavadoc-plugin",
+    "edu.berkeley.cs:chisel3-plugin",
+    "io.methvin:orphan-finder",
+    "io.regadas:socco-ng",
+    "io.tryp:splain",
+    "org.jupyter-scala:ammonite",
+    "org.jupyter-scala:ammonite-compiler",
+    "org.jupyter-scala:ammonite-repl",
+    "org.jupyter-scala:ammonite-runtime",
+    "org.jupyter-scala:ammonite-sshd",
+    "org.jupyter-scala:ammonite-util",
+    "org.jupyter-scala:scala-api",
+    "org.jupyter-scala:scala-cli",
+    "org.jupyter-scala:scala-kernel",
+    "org.scala-js:scalajs-compiler",
+    "org.scala-js:scalajs-junit-test-plugin",
+    "org.scala-lang.plugins:scala-continuations-plugin",
+    "org.scala-native:junit-plugin",
+    "org.scala-native:nscplugin",
+    "org.scala-refactoring:org.scala-refactoring.library",
+    "org.scala-sbt.sxr:sxr",
+    "org.scalamacros:paradise",
+    "org.scalameta:interactive",
+    "org.scalameta:metac",
+    "org.scalameta:mtags",
+    "org.scalameta:paradise",
+    "org.scalameta:scalahost",
+    "org.scalameta:scalahost-nsc",
+    "org.scalameta:semanticdb-scalac",
+    "org.scalameta:semanticdb-scalac-core",
+    "org.scalaz:deriving-plugin",
+    "org.scoverage:scalac-scoverage-plugin",
+    "org.scoverage:scalac-scoverage-runtime",
+    "org.scoverage:scalac-scoverage-runtime_sjs1",
+    "org.typelevel:kind-projector",
+    "org.virtuslab.semanticgraphs:scalac-plugin",
+    "org.wartremover:wartremover",
+    "org.wartremover:wartremover-contrib",
+    "sh.almond:scala-interpreter",
+    "sh.almond:scala-kernel",
+    "sh.almond:scala-kernel-api"
+  )
+
   sealed trait GetMode
   object GetMode {
     case object GetPlace extends GetMode
@@ -44,7 +120,7 @@ object SbtDependencyUtils {
     var scalaVers = SbtDependencyUtils.getAllScalaVers(psiElement.getProject).sortWith(SbtDependencyUtils.isGreaterStableVersion)
     if (scalaVers.isEmpty) scalaVers = List(psiElement.scalaLanguageLevelOrDefault.getVersion)
     if (majorOnly) scalaVers = scalaVers.map(ver => ver.split("\\.").take(2).mkString("."))
-    scalaVers
+    scalaVers.distinct
   }
 
   def preprocessVersion(v: String): String = {
@@ -87,20 +163,17 @@ object SbtDependencyUtils {
     res.filter(_.nonEmpty).distinct
   }
 
-  def buildScalaDependencyString(artifactID: String, scalaVer: String): String = {
-    val ver = scalaVer.split('.')
-    ver.length match {
-      case 1 =>
-        s"${artifactID}_${ver(0)}"
-      case 2 | 3 =>
-        ver.head match {
-          case "3" =>
-            s"${artifactID}_${ver(0)}"
-          case _ =>
-            s"${artifactID}_${ver(0)}.${ver(1)}"
-        }
+  def buildScalaArtifactIdString(groupId: String, artifactId: String, scalaVer: String): String = {
+    if (scalaVer == null || scalaVer.isEmpty) return artifactId
+    val shouldIncludeScalaMinorVer = SCALA_DEPENDENCIES_WITH_MINOR_SCALA_VERSION_LIST contains s"$groupId:$artifactId"
+    val paddedScalaVer = scalaVer.split('.').padTo(3, "0")
+    if (shouldIncludeScalaMinorVer) return s"${artifactId}_${paddedScalaVer.mkString(".")}"
+    paddedScalaVer.head match {
+      case "3" =>
+        s"${artifactId}_${paddedScalaVer(0)}"
       case _ =>
-        s"${artifactID}"
+        s"${artifactId}_${paddedScalaVer(0)}.${paddedScalaVer(1)}"
+
     }
   }
 
