@@ -1,5 +1,6 @@
 package org.jetbrains.jps.incremental.scala.utils
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.jps.incremental.scala.ScalaJpsSharedBundle
 
 import java.net.InetAddress
@@ -7,12 +8,18 @@ import scala.concurrent.duration.FiniteDuration
 
 object CompileServerSharedConnectionErrorMessages {
 
+  @Nls
   def unknownHostErrorMessage(address: InetAddress): String =
     ScalaJpsSharedBundle.message("unknown.ip.address.of.compile.server", address.toString)
 
-  def cantConnectToCompileServerErrorMessage(address: InetAddress, port: Int): String =
-    ScalaJpsSharedBundle.message("cannot.connect.to.compile.server.at", address.toString, port)
+  @Nls
+  def cantConnectToCompileServerErrorMessage(address: InetAddress, port: Int, reason: Option[String] = None): String = {
+    @Nls val reasonSuffix = reason.fold("")(r => s" ($r)")
+    //noinspection ReferencePassedToNls
+    ScalaJpsSharedBundle.message("cannot.connect.to.compile.server.at", address.toString, port) + reasonSuffix
+  }
 
-  def noResponseFromCompileServer(address: InetAddress, port: Int, readTimeout: FiniteDuration): String =
-    ScalaJpsSharedBundle.message("no.response.from.the.compile.server", address.toString, port, readTimeout)
+  @Nls
+  def socketConnectTimeout(connectTimeout: FiniteDuration): String =
+    ScalaJpsSharedBundle.message("socket.connect.timout", connectTimeout)
 }

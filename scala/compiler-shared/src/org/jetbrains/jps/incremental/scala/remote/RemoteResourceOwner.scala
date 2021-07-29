@@ -6,10 +6,10 @@ import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala._
 
 import java.io._
-import java.net.{InetAddress, Socket}
+import java.net.{InetAddress, InetSocketAddress, Socket}
 import java.nio.charset.StandardCharsets
 import java.util.Base64
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.Using
 
 /**
@@ -21,19 +21,25 @@ trait RemoteResourceOwner {
   protected def address: InetAddress
   protected def port: Int
 
-  // TODO: set non-zero value and properly handle timeout exception in all usages RemoteResourceOwner
-  protected def socketReadTimeout: FiniteDuration = Duration.Zero
+  protected def socketConnectTimeout: FiniteDuration = 10.seconds
 
   protected val currentDirectory: String = System.getProperty("user.dir")
 
   @throws[java.io.IOException]
   @throws[java.net.SocketException]
+  @throws[java.net.ConnectException]
   @throws[java.net.SocketTimeoutException]
   @throws[java.net.UnknownHostException]
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
     client.internalTrace(s"sending command to server: `$command`")
     val encodedArgs = arguments.map(s => Base64.getEncoder.encodeToString(s.getBytes(StandardCharsets.UTF_8)))
-    Using.resource(new Socket(address, port)) { socket =>
+
+    val socket = new Socket()
+    val socketAddress = new InetSocketAddress(address, port)
+    socket.connect(socketAddress, socketConnectTimeout.toMillis.toInt)
+    client.internalTrace(s"socket connected")
+
+    Using.resource(socket) { socket =>
       Using.resource(new DataOutputStream(new BufferedOutputStream(socket.getOutputStream))) { output =>
         val chunks = createChunks(command, encodedArgs)
         client.internalTrace(s"writing chunks to socket")
@@ -41,10 +47,6 @@ trait RemoteResourceOwner {
         output.flush()
         if (client != null) {
           Using.resource(new DataInputStream(new BufferedInputStream(socket.getInputStream))) { input =>
-            val timoutMs = socketReadTimeout.toMillis
-            if (timoutMs > 0) {
-              socket.setSoTimeout(timoutMs.toInt)
-            }
             client.internalTrace("reading chunks from socket")
             handle(input, client)
           }
