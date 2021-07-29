@@ -23,7 +23,7 @@ class ScalaBuildProcessParametersProvider(project: Project)
     parallelCompilationOptions() ++
     addOpens() :+
     // this is the only way to propagate registry values to the JPS process
-    s"-Dscala.compile.server.socket.read.timeout.seconds=${Registry.intValue("scala.compile.server.socket.read.timeout.seconds")}"
+    s"-Dscala.compile.server.socket.connect.timeout.milliseconds=${Registry.intValue("scala.compile.server.socket.connect.timeout.milliseconds")}"
   }.asJava
 
   private def customScalaCompilerInterfaceDir(): Option[String] = {

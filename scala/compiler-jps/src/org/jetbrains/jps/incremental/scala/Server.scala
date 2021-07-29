@@ -19,7 +19,7 @@ trait Server {
 object Server {
   sealed trait ServerError
   object ServerError {
-    final case class SocketReadTimeout(address: InetAddress, port: Int, timeout: FiniteDuration, cause: SocketTimeoutException) extends ServerError
+    final case class SocketConnectTimeout(address: InetAddress, port: Int, timeout: FiniteDuration, cause: SocketTimeoutException) extends ServerError
     final case class ConnectionError(address: InetAddress, port: Int, cause: ConnectException) extends ServerError
     final case class UnknownHost(address: InetAddress, cause: UnknownHostException) extends ServerError
   }

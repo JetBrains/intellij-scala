@@ -40,9 +40,13 @@ object ScalaBundleSorting {
     bundlePath = scalaModDir + "integration/devKit/resources/messages/ScalaDevkitBundle.properties",
   )
 
-  val jpsModule: ModuleInfo = ModuleInfo(
+  val compilerJpsModule: ModuleInfo = ModuleInfo(
     rootPath = scalaModDir + "compiler-jps/",
     bundlePath = scalaModDir + "compiler-jps/resources/messages/ScalaJpsBundle.properties",
+  )
+  val compilerSharedModule: ModuleInfo = ModuleInfo(
+    rootPath = scalaModDir + "compiler-shared/",
+    bundlePath = scalaModDir + "compiler-shared/resources/messages/ScalaJpsSharedBundle.properties",
   )
 
   val macrosModule: ModuleInfo = ModuleInfo(
@@ -97,7 +101,9 @@ object ScalaBundleSorting {
     scalaImplModule, scalaImplModuleErrMsg, scalaImplModuleCodeInspection, scalaImplModuleSbt, scalaMetaModule,
     uastModule,
     worksheetModule,
-    intellilangModule
+    intellilangModule,
+    compilerJpsModule,
+    compilerSharedModule,
   )
 
   def main(args: Array[String]): Unit = sortAll(allModuleInfos)
