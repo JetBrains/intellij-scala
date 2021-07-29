@@ -1,34 +1,38 @@
-package org.jetbrains.plugins.scala
-package internal
-package bundle
+package org.jetbrains.plugins.scala.internal.bundle
 
-import junit.framework.TestCase
+import junit.framework.{TestCase, TestSuite}
+import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSorting._
+import org.jetbrains.plugins.scala.internal.bundle.ScalaBundleSortingTest.ActualTest
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
+import org.junit.runner.RunWith
+import org.junit.runners.AllTests
 
-/**
- * If this fails maybe run the main method in [[ScalaBundleSorting]]
- */
-class ScalaBundleSortingTest extends ScalaBundleSortingTestBase {
-  def test_bspModule(): Unit = testDirectory(bspModule)
-  def test_codeInsightModule(): Unit = testDirectory(codeInsightModule)
-  def test_conversionModule(): Unit = testDirectory(conversionModule)
-  def test_devkitModule(): Unit = testDirectory(devkitModule)
-  def test_compilerJpsModule(): Unit = testDirectory(compilerJpsModule)
-  def test_compilerSharedModule(): Unit = testDirectory(compilerSharedModule)
-  def test_macrosModule(): Unit = testDirectory(macrosModule)
-  def test_scalaImplModule(): Unit = testDirectory(scalaImplModule)
-  def test_scalaImplModuleErrMsg(): Unit = testDirectory(scalaImplModuleErrMsg)
-  def test_scalaImplModuleCodeInspection(): Unit = testDirectory(scalaImplModuleCodeInspection)
-  def test_uastModule(): Unit = testDirectory(uastModule)
-  def test_worksheetModule(): Unit = testDirectory(worksheetModule)
+@RunWith(classOf[AllTests])
+class ScalaBundleSortingTest extends TestSuite {
+  locally {
+    val tests = ScalaBundleSorting.allModuleInfos.map(new ActualTest(_))
+    tests.foreach(this.addTest)
+  }
 }
+
+object ScalaBundleSortingTest {
+  def suite: TestSuite = new ScalaBundleSortingTest
+
+  final class ActualTest(moduleInfo: ModuleInfo) extends ScalaBundleSortingTestBase {
+    this.setName(moduleInfo.bundleAbsolutePath)
+    override def runTest(): Unit = {
+      testDirectory(moduleInfo)
+    }
+  }
+}
+
 
 abstract class ScalaBundleSortingTestBase extends TestCase with AssertionMatchers {
   def testDirectory(info: ModuleInfo): Unit = {
     val findings = findKeysInModule(info)
-    val I18nBundleContent(entries) = read(info.bundlePath)
+    val I18nBundleContent(entries) = read(info.bundleAbsolutePath)
 
     val keyToFinding = findings.groupBy(_.key)
 

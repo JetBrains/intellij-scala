@@ -1,115 +1,95 @@
-package org.jetbrains.plugins.scala
-package internal
-package bundle
-
-import java.io.File
-import java.util.Scanner
-import java.util.regex.Pattern
+package org.jetbrains.plugins.scala.internal.bundle
 
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent
 import org.jetbrains.plugins.scala.util.internal.I18nBundleContent._
 
+import java.io.File
+import java.util.Scanner
+import java.util.regex.Pattern
 import scala.io.Source
 
+//noinspection ScalaUnusedSymbol
 object ScalaBundleSorting {
-  case class ModuleInfo(rootPath: String, bundlePath: String, searcher: Searcher = new Searcher) {
+
+  case class ModuleInfo(rootPath: String, bundleMessagesRelativePath: String, searcher: Searcher = new Searcher) {
     def srcPath: String = rootPath + "src/"
     def resourcesPath: String = rootPath + "resources/"
+    def messagesPath: String = resourcesPath + "messages/"
+    def bundleAbsolutePath: String = messagesPath + bundleMessagesRelativePath
   }
 
   val scalaModDir: String = TestUtils.findCommunityRoot() + "scala/"
-
-  val bspModule: ModuleInfo = ModuleInfo(
-    rootPath = TestUtils.findCommunityRoot() + "bsp/",
-    bundlePath = TestUtils.findCommunityRoot() + "bsp/resources/messages/ScalaBspBundle.properties",
-  )
-
-  val codeInsightModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "codeInsight/",
-    bundlePath = scalaModDir + "codeInsight/resources/messages/ScalaCodeInsightBundle.properties",
-  )
-
-  val conversionModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "conversion/",
-    bundlePath = scalaModDir + "conversion/resources/messages/ScalaConversionBundle.properties",
-  )
-
-  val devkitModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "integration/devKit/",
-    bundlePath = scalaModDir + "integration/devKit/resources/messages/ScalaDevkitBundle.properties",
-  )
-
-  val compilerJpsModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "compiler-jps/",
-    bundlePath = scalaModDir + "compiler-jps/resources/messages/ScalaJpsBundle.properties",
-  )
-  val compilerSharedModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "compiler-shared/",
-    bundlePath = scalaModDir + "compiler-shared/resources/messages/ScalaJpsSharedBundle.properties",
-  )
-
-  val macrosModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "macros/",
-    bundlePath = scalaModDir + "macros/resources/messages/ScalaMacrosBundle.properties",
-  )
-
   val scalaImplDir: String = scalaModDir + "scala-impl/"
-  val scalaImplModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir,
-    bundlePath = scalaImplDir + "resources/messages/ScalaBundle.properties",
-  )
-  val scalaImplModuleErrMsg: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir,
-    bundlePath = scalaImplDir + "resources/messages/ScalaEditorBundle.properties",
-  )
-
-  val scalaImplModuleCodeInspection: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir,
-    bundlePath = scalaImplDir + "resources/messages/ScalaInspectionBundle.properties",
-  )
-
-  val scalaImplModuleSbt: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir,
-    bundlePath = scalaImplDir + "resources/messages/ScalaSbtBundle.properties"
-  )
-
-  val scalaMetaModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaImplDir,
-    bundlePath = scalaImplDir + "resources/messages/ScalaMetaBundle.properties"
-  )
-
-  val uastModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "uast/",
-    bundlePath = scalaModDir + "uast/resources/messages/ScalaUastBundle.properties",
-  )
-
-  val worksheetModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "worksheet/",
-    bundlePath = scalaModDir + "worksheet/resources/messages/ScalaWorksheetBundle.properties",
-  )
-
-  val intellilangModule: ModuleInfo = ModuleInfo(
-    rootPath = scalaModDir + "integration/intellilang/",
-    bundlePath = scalaModDir + "integration/intellilang/resources/messages/ScalaIntellilangBundle.properties",
-  )
 
   val allModuleInfos: Seq[ModuleInfo] = Seq(
-    bspModule,
-    codeInsightModule,
-    conversionModule,
-    scalaImplModule, scalaImplModuleErrMsg, scalaImplModuleCodeInspection, scalaImplModuleSbt, scalaMetaModule,
-    uastModule,
-    worksheetModule,
-    intellilangModule,
-    compilerJpsModule,
-    compilerSharedModule,
+    ModuleInfo(
+      rootPath = TestUtils.findCommunityRoot() + "bsp/",
+      bundleMessagesRelativePath = "ScalaBspBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "codeInsight/",
+      bundleMessagesRelativePath = "ScalaCodeInsightBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "conversion/",
+      bundleMessagesRelativePath = "ScalaConversionBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "integration/devKit/",
+      bundleMessagesRelativePath = "ScalaDevkitBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "compiler-jps/",
+      bundleMessagesRelativePath = "ScalaJpsBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "compiler-shared/",
+      bundleMessagesRelativePath = "ScalaJpsSharedBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "macros/",
+      bundleMessagesRelativePath = "ScalaMacrosBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaEditorBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaInspectionBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaSbtBundle.properties"
+    ),
+    ModuleInfo(
+      rootPath = scalaImplDir,
+      bundleMessagesRelativePath = "ScalaMetaBundle.properties"
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "uast/",
+      bundleMessagesRelativePath = "ScalaUastBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "worksheet/",
+      bundleMessagesRelativePath = "ScalaWorksheetBundle.properties",
+    ),
+    ModuleInfo(
+      rootPath = scalaModDir + "integration/intellilang/",
+      bundleMessagesRelativePath = "ScalaIntellilangBundle.properties",
+    ),
   )
 
   def main(args: Array[String]): Unit = sortAll(allModuleInfos)
 
   def sortAll(moduleInfos: Seq[ModuleInfo]): Unit = for (info <- moduleInfos) {
-    val ModuleInfo(rootPath, bundlePath, _) = info
+    val ModuleInfo(rootPath, _, _) = info
+    val bundlePath = info.bundleAbsolutePath
     println(s"Find keys in $rootPath")
     val findings = findKeysInModule(info)
     val keyToFinding = findings.groupBy(_.key)
