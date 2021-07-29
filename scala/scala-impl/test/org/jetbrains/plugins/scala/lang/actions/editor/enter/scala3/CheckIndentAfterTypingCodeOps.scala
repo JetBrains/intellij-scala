@@ -53,7 +53,21 @@ trait CheckIndentAfterTypingCodeOps {
       if (line.nonEmpty) {
         performTest(beforeTyping, expectedAfterTyping, stripTrailingSpacesAfterAction = stripTrailingSpaces) { () =>
           performTypingAction(line)
-          adjustLineIndentAtCaretPosition()
+
+          // do not adjust indent for comments (required for tests with comments in the end of indentaion block)
+          // example: {{{
+          //   def foo =
+          //     println(1)
+          //     //line comment <caret+Enter>
+          // }}}
+          // comments in the end of block are not attached to the block, so the formatter moves it to the right
+          val isComment = {
+            val trimmedLine = line.trim
+            trimmedLine.startsWith("//") || trimmedLine.startsWith("/*")
+          }
+          if (!isComment) {
+            adjustLineIndentAtCaretPosition()
+          }
         }
       }
 

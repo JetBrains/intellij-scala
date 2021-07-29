@@ -435,6 +435,7 @@ object Scala3TestDataBracelessCode {
           |var y = 2
           |
           |
+          |//line comment
           |x + y""".stripMargin,
         "Statements"
       )
@@ -446,6 +447,7 @@ object Scala3TestDataBracelessCode {
           |case _: B =>
           |
           |
+          |/* block comment */
           |case _: C =>""".stripMargin,
         "CaseClauses"
       )
@@ -456,6 +458,7 @@ object Scala3TestDataBracelessCode {
         |def f2 = ???
         |
         |
+        |/** doc comment */
         |def f3 = ???""".stripMargin,
       "DefDef"
     )
@@ -475,6 +478,7 @@ object Scala3TestDataBracelessCode {
         |class C
         |
         |
+        |//line comment
         |sealed class SC
         |
         |import scala.collection._

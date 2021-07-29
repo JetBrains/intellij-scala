@@ -67,10 +67,10 @@ object ScalaBuilder {
           import org.jetbrains.jps.incremental.scala.utils.CompileServerSharedConnectionErrorMessages._
           import ServerError._
           error match {
-            case SocketReadTimeout(address, port, timeout, cause) =>
-              fallbackToLocalServer(noResponseFromCompileServer(address, port, timeout), cause)
-            case ConnectionError(address, port, cause)            =>
-              fallbackToLocalServer(cantConnectToCompileServerErrorMessage(address, port), cause)
+            case SocketConnectTimeout(address, port, timeout, cause) =>
+              fallbackToLocalServer(cantConnectToCompileServerErrorMessage(address, port, reason = Some(socketConnectTimeout(timeout))), cause)
+            case ConnectionError(address, port, cause)               =>
+              fallbackToLocalServer(cantConnectToCompileServerErrorMessage(address, port, reason = Option(cause.getMessage).filter(_.trim.nonEmpty)), cause)
             case UnknownHost(address, cause)               =>
               val message = unknownHostErrorMessage(address)
               client.error(message)
@@ -146,14 +146,8 @@ object ScalaBuilder {
       cleanLocalServerCache()
       val port = globalSettings.getCompileServerPort
       Log.info(s"Using remote server with port: $port")
-
-
-      // TODO: do not disable timout for Scala3 when compilation progress is fixed for Scala3 (see SCL-18400)
-      //  (still will need to use 0 for versions before the fix)
-      val socketReadTimeout =
-        if (moduleHasScala3) Duration.Zero
-        else Option(System.getProperty("scala.compile.server.socket.read.timeout.seconds").toInt.seconds).getOrElse(60.seconds)
-      new remote.RemoteServer(InetAddress.getByName(null), port, socketReadTimeout)
+      val socketConnectTimeout = Option(System.getProperty("scala.compile.server.socket.connect.timeout.milliseconds")).map(_.toInt.milliseconds).getOrElse(10.milliseconds)
+      new remote.RemoteServer(InetAddress.getByName(null), port, socketConnectTimeout)
     } else {
       Log.info("Using local server")
       localServer

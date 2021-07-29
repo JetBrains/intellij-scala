@@ -16,7 +16,7 @@ import com.intellij.psi.{PsiFile, PsiWhiteSpace}
 import com.intellij.util.text.CharArrayUtil
 import org.jetbrains.plugins.scala.Scala3Language
 import org.jetbrains.plugins.scala.editor.backspaceHandler.Scala3IndentationBasedSyntaxBackspaceHandler._
-import org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler
+import org.jetbrains.plugins.scala.editor.enterHandler.{EnterHandlerUtils, Scala3IndentationBasedSyntaxEnterHandler}
 import org.jetbrains.plugins.scala.editor.{ScalaEditorUtils, useIndentationBasedSyntax}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -234,8 +234,11 @@ object Scala3IndentationBasedSyntaxBackspaceHandler {
 
     // TODO: move the method from Scala3IndentationBasedSyntaxEnterHandler to some utility in `editor` package
     import Scala3IndentationBasedSyntaxEnterHandler.previousElementInIndentationContext
-    CodeStyle.getIndentOptions(file)
-    val result = previousElementInIndentationContext(elementAtCaret, searchFromOffset, documentText, indentOptions)
+    val caretIndentSize = {
+      val caretIndent = EnterHandlerUtils.calcCaretIndent(searchFromOffset, documentText, indentOptions.TAB_SIZE)
+      caretIndent.getOrElse(Int.MaxValue) // using MaxValue if the caret isn't inside code indent// using MaxValue if the caret isn't inside code indent
+    }
+    val result = previousElementInIndentationContext(elementAtCaret, caretIndentSize, indentOptions)
     result.map(_._2)
   }
 }

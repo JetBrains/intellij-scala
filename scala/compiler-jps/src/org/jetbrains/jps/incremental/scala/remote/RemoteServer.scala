@@ -18,7 +18,7 @@ import scala.concurrent.duration.{DurationInt, FiniteDuration}
 final class RemoteServer(
   override val address: InetAddress,
   override val port: Int,
-  override protected val socketReadTimeout: FiniteDuration
+  override protected val socketConnectTimeout: FiniteDuration
 ) extends Server
   with RemoteResourceOwner {
 
@@ -36,7 +36,7 @@ final class RemoteServer(
       // client.compilationEnd() is meant to be sent by remote server
       Right(ExitCode.OK)
     } catch {
-      case e: SocketTimeoutException => Left(ServerError.SocketReadTimeout(address, port, socketReadTimeout, e))
+      case e: SocketTimeoutException => Left(ServerError.SocketConnectTimeout(address, port, socketConnectTimeout, e))
       case e: ConnectException       => Left(ServerError.ConnectionError(address, port, e))
       case e: UnknownHostException   => Left(ServerError.UnknownHost(address, e))
     }

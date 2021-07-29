@@ -22,7 +22,7 @@ This is the main place where we store issues.
 # Contributing
 
 I you haven't do so yet, read the section on 
-[developing Scala plugin in the readme](https://github.com/JetBrains/intellij-scala#developing-scala-plugin).
+[setting-up-the-project in the readme](https://github.com/JetBrains/intellij-scala#setting-up-the-project).
 
 Reading the [IDEA platform architectural overview](https://www.jetbrains.org/intellij/sdk/docs/basics/architectural_overview.html)
 is strongly recommended before perusing the code. Unfortunately there is no

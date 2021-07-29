@@ -647,6 +647,50 @@ class Scala3EnterTest extends Scala3EnterBaseTest
          |    $CARET""".stripMargin
     )
 
+  def testAfterCodeInLastCaseClause_Unindented(): Unit = {
+    doEnterTest(
+      s"""42 match
+         |  case last  =>
+         |$CARET""".stripMargin,
+      s"""42 match
+         |  case last  =>
+         |
+         |$CARET""".stripMargin,
+      s"""42 match
+         |  case last  =>
+         |
+         |
+         |$CARET""".stripMargin,
+    )
+
+    doEnterTest(
+      s"""{
+         |  {
+         |    42 match
+         |      case last =>
+         |    $CARET
+         |  }
+         |}""".stripMargin,
+      s"""{
+         |  {
+         |    42 match
+         |      case last =>
+         |
+         |    $CARET
+         |  }
+         |}""".stripMargin,
+      s"""{
+         |  {
+         |    42 match
+         |      case last =>
+         |
+         |
+         |    $CARET
+         |  }
+         |}""".stripMargin,
+    )
+  }
+
   def testEnterHandlerShouldRespectIndentOptions(): Unit = {
     val settings = CodeStyle.getSettings(getProject).getCommonSettings(ScalaLanguage.INSTANCE)
     val indentOptions = settings.getIndentOptions
@@ -733,4 +777,194 @@ class Scala3EnterTest extends Scala3EnterBaseTest
     )
   }
 
+
+  private val AllContextsAcceptingAnything = {
+    import IndentedBlockContexts._
+    ControlFlow ++ AfterAssignOrArrowSign ++ TemplateDefinitions
+  }
+
+  private val AllContexts: Seq[String] = {
+    import IndentedBlockContexts._
+    AfterAssignOrArrowSign ++ ForEnumeratorsAll ++ ControlFlow ++ Extensions ++ TemplateDefinitions ++ GivenWith
+  }
+
+  private def runEnterTestInContexts(
+    before: String,
+    after: String,
+    indentedRegionContexts: Seq[String],
+    beforeAndAfterIndentSize: Int = 2
+  ): Unit = {
+    for {
+      wrapperContext <- WrapperCodeContexts.AllContexts
+      indentationContext <- indentedRegionContexts
+    } {
+      val contextFinal = Scala3TestDataBracelessCode.injectCodeWithIndentAdjust(wrapperContext.code, indentationContext)
+
+      val beforeIndented = TestIndentUtils.addIndentToAllLines(before, beforeAndAfterIndentSize)
+      val afterIndented = TestIndentUtils.addIndentToAllLines(after, beforeAndAfterIndentSize)
+
+      val beforeFinal = TestIndentUtils.injectCodeWithIndentAdjust("\n" + beforeIndented, contextFinal, CARET)
+      val afterFinal = TestIndentUtils.injectCodeWithIndentAdjust("\n" + afterIndented, contextFinal, CARET)
+      checkGeneratedTextAfterEnter(beforeFinal, afterFinal)
+    }
+  }
+
+  def testAfterComment_InTheEndOfIndentedRegion_EmptyRegion(): Unit = {
+    runEnterTestInContexts(
+      s"""// line comment$CARET""",
+      s"""// line comment
+         |$CARET""".stripMargin,
+      AllContexts
+    )
+
+    checkGeneratedTextAfterEnter(
+      s"""42 match
+         |  case _ =>
+         |    // line comment$CARET
+         |
+         |// separator
+         |
+         |42 match
+         |  case _ =>
+         |    // line comment$CARET""".stripMargin,
+      s"""42 match
+         |  case _ =>
+         |    // line comment
+         |    $CARET
+         |
+         |// separator
+         |
+         |42 match
+         |  case _ =>
+         |    // line comment
+         |    $CARET""".stripMargin
+    )
+  }
+
+  def testAfterComment_InTheEndOfIndentedRegion_NonEmptyRegion(): Unit = {
+    runEnterTestInContexts(
+      s"""println()
+         |// line comment$CARET""".stripMargin,
+      s"""println()
+         |// line comment
+         |$CARET""".stripMargin,
+      AllContexts
+    )
+
+    checkGeneratedTextAfterEnter(
+      s"""42 match
+         |  case _ =>
+         |    println()
+         |    // line comment$CARET
+         |
+         |// separator
+         |
+         |42 match
+         |  case _ =>
+         |    println()
+         |    // line comment$CARET""".stripMargin,
+      s"""42 match
+         |  case _ =>
+         |    println()
+         |    // line comment
+         |    $CARET
+         |
+         |// separator
+         |
+         |42 match
+         |  case _ =>
+         |    println()
+         |    // line comment
+         |    $CARET""".stripMargin
+    )
+  }
+
+  def testAfterComment_InTheEndOfIndentedBlock_UnindentedComment(): Unit = {
+    runEnterTestInContexts(
+      s"""  println()
+         |// line comment$CARET""".stripMargin,
+      s"""  println()
+         |// line comment
+         |$CARET""".stripMargin,
+      AllContexts,
+      beforeAndAfterIndentSize = 0
+    )
+
+    checkGeneratedTextAfterEnter(
+      s"""42 match
+         |  case _ =>
+         |
+         |// line comment$CARET
+         |
+         |// separator
+         |
+         |42 match
+         |  case _ =>
+         |
+         |// line comment$CARET""".stripMargin,
+      s"""42 match
+         |  case _ =>
+         |
+         |// line comment
+         |$CARET
+         |
+         |// separator
+         |
+         |42 match
+         |  case _ =>
+         |
+         |// line comment
+         |$CARET""".stripMargin
+    )
+  }
+
+  def testAfterLineCommentAfterIndentedCodeOnSameLine(): Unit = {
+    runEnterTestInContexts(
+      s"""1 // line comment$CARET""".stripMargin,
+      s"""1 // line comment
+         |$CARET""".stripMargin,
+      AllContextsAcceptingAnything
+    )
+
+    runEnterTestInContexts(
+      s"""1 // line comment 1
+         |2 // line comment 2$CARET
+         |""".stripMargin,
+      s"""1 // line comment 1
+         |2 // line comment 2
+         |$CARET
+         |""".stripMargin,
+      AllContextsAcceptingAnything
+    )
+  }
+
+  // FIXME when we fix parsing // line comments (we should attach them to the element on the line)
+//  def testBeforeLineCommentAfterIndentedCodeOnSameLine(): Unit = {
+//    runEnterTestInContexts(
+//      s"""1 $CARET// line comment""".stripMargin,
+//      s"""1 ${""}
+//         |$CARET// line comment""".stripMargin,
+//      AllContextsAcceptingAnything
+//    )
+//
+//    runEnterTestInContexts(
+//      s"""1 $CARET// line comment 1
+//         |2 $CARET// line comment 2""".stripMargin,
+//      s"""1
+//         |$CARET// line comment 1
+//         |2
+//         |$CARET// line comment 2""".stripMargin,
+//      AllContextsAcceptingAnything
+//    )
+//
+//    runEnterTestInContexts(
+//      s"""1$CARET   // line comment 1
+//         |2$CARET   // line comment 2""".stripMargin,
+//      s"""1
+//         |$CARET// line comment 1
+//         |2
+//         |$CARET// line comment 2""".stripMargin,
+//      AllContextsAcceptingAnything
+//    )
+//  }
 }

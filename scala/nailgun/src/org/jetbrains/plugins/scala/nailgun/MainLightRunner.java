@@ -24,7 +24,7 @@ public class MainLightRunner {
 
     @SuppressWarnings({"SameParameterValue", "OptionalGetWithoutIsPresent"})
     private static void runMainMethod(Path buildSystemDir, String[] args, ClassLoader classLoader) throws ReflectiveOperationException {
-        Class<?> mainClass = Utils.loadAndSetupMainClass(classLoader, buildSystemDir);
+        Class<?> mainClass = Utils.loadAndSetupServerMainNailClass(classLoader, buildSystemDir);
         Method mainMethod = Arrays.stream(mainClass.getDeclaredMethods()).filter(x -> x.getName().equals("main")).findFirst().get();
         mainMethod.invoke(null, (Object) args); // use as varargs, do not pass arra
     }

@@ -68,16 +68,11 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
           if (text.startsWith(CompileServerSharedMessages.CompileServerShutdownPrefix)) {
             Log.info(s"[$outputType] ${text.stripTrailing()}")
             if (text.contains(CompileServerSharedMessages.ProcessWasIdleFor)) {
+              _terminatedByIdleTimeout = true
               invokeLater {
-                _terminatedByIdleTimeout = true
                 CompileServerManager(project).showStoppedByIdleTimoutNotification()
               }
             }
-          }
-
-          //see com.martiansoftware.nailgun.NGServer.NGServerShutdowner
-          if (text.startsWith("NGServer shut down")) {
-            Log.info(s"[$outputType] ${text.stripTrailing()}")
           }
         }
 

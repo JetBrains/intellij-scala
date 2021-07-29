@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.ide.PowerSaveMode
 import com.intellij.openapi.Disposable
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager}
@@ -10,6 +11,7 @@ import com.intellij.openapi.roots.JavaProjectRootsUtil
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.{PsiFile, PsiJavaFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
+import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, ToNullSafe, inReadAction}
@@ -76,10 +78,16 @@ final class TriggerCompilerHighlightingService(project: Project)
     threadPool.shutdownNow()
   }
 
-  private def isHighlightingEnabled: Boolean =
-    !PowerSaveMode.isEnabled &&
+  @TestOnly
+  var isAutoTriggerEnabled: Boolean =
+    !ApplicationManager.getApplication.isUnitTestMode
+
+  private def isHighlightingEnabled: Boolean = {
+    isAutoTriggerEnabled &&
+      !PowerSaveMode.isEnabled &&
       ScalaCompileServerSettings.getInstance.COMPILE_SERVER_ENABLED &&
       ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)
+  }
 
   private def isHighlightingEnabledFor(psiFile: PsiFile, virtualFile: VirtualFile): Boolean = {
     lazy val isJavaOrScalaFile = psiFile match {

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package compiler
 
+import com.intellij.application.options.RegistryManager
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
@@ -12,10 +13,11 @@ import org.jetbrains.plugins.scala.server.CompileServerToken
 
 import java.net.{ConnectException, InetAddress, UnknownHostException}
 import java.nio.file.Path
+import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.control.NonFatal
 
 /**
- * @see [[NonServerRunner]]
+ * @see [[org.jetbrains.plugins.scala.worksheet.server.NonServerRunner]]
  */
 final class RemoteServerRunner(project: Project)
   extends RemoteResourceOwner {
@@ -23,6 +25,9 @@ final class RemoteServerRunner(project: Project)
   override protected val address: InetAddress = InetAddress.getByName(null)
 
   override protected val port: Int = ScalaCompileServerSettings.getInstance().COMPILE_SERVER_PORT
+
+  override protected val socketConnectTimeout: FiniteDuration =
+    RegistryManager.getInstance().intValue("scala.compile.server.socket.connect.timeout.milliseconds").milliseconds
 
   def buildProcess(command: CompileServerCommand, client: Client): CompilationProcess =
     buildProcess(command.id, command.asArgs, client)

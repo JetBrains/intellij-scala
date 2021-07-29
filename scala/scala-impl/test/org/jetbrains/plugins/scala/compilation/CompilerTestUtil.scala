@@ -7,6 +7,7 @@ import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.util.registry.{Registry, RegistryValue}
 import com.intellij.util.xmlb.XmlSerializerUtil
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
+import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 import scala.util.Try
@@ -156,16 +157,24 @@ object CompilerTestUtil {
         before.foreach(setter)
     }
 
-  private def withErrorsFromCompiler(project: Project, enabled: Boolean): RevertableChange =
-    withModifiedSetting(
+  private def withErrorsFromCompiler(project: Project, enabled: Boolean): RevertableChange = {
+    val revertible1 = withModifiedSetting(
       ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala2,
       ScalaProjectSettings.getInstance(project).setCompilerHighlightingScala2(_),
       enabled
-    ) |+| withModifiedSetting(
+    )
+    val revertible2 = withModifiedSetting(
       ScalaProjectSettings.getInstance(project).isCompilerHighlightingScala3,
       ScalaProjectSettings.getInstance(project).setCompilerHighlightingScala3(_),
       enabled
     )
+    val revertible3 = withModifiedSetting[Boolean](
+      TriggerCompilerHighlightingService.get(project).isAutoTriggerEnabled,
+      TriggerCompilerHighlightingService.get(project).isAutoTriggerEnabled = _,
+      true
+    )
+    revertible1 |+| revertible2 |+| revertible3
+  }
 
   def runWithErrorsFromCompiler(project: Project)(body: => Unit): Unit = {
     val revertable: RevertableChange = withErrorsFromCompiler(project, enabled = true)

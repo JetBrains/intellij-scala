@@ -1,12 +1,7 @@
 package org.jetbrains.jps.incremental.scala.remote
 
-import java.io._
-import java.nio.charset.StandardCharsets
-import java.nio.file.{Files, Path}
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
-import java.util.{Base64, Timer, TimerTask}
 import com.martiansoftware.nailgun.{NGContext, NGServer}
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.fs.BuildFSState
@@ -24,6 +19,12 @@ import org.jetbrains.plugins.scala.compiler.data.serialization.SerializationUtil
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
+import java.io._
+import java.nio.charset.StandardCharsets
+import java.nio.file.{Files, Path}
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.{Executors, ScheduledExecutorService, TimeUnit}
+import java.util.{Base64, Timer, TimerTask}
 import scala.concurrent.duration.{DurationInt, FiniteDuration}
 import scala.util.{Failure, Success, Try}
 
@@ -35,6 +36,14 @@ import scala.util.{Failure, Success, Try}
  *      [[org.jetbrains.plugins.scala.worksheet.server.NonServerRunner]]
  */
 object Main {
+
+  /**
+   * We need to remember original output streams, otherwise System.out/err can reference to stale [[com.martiansoftware.nailgun.ThreadLocalPrintStream]] values
+   * Please, see comment for the details https://youtrack.jetbrains.com/issue/SCL-19367#focus=Comments-27-5074050.0-0
+   */
+  private var originalStdOut: PrintStream = _
+  private var originalStdErr: PrintStream = _
+
   private val server = new LocalServer()
   private val worksheetServer = new WorksheetServer
 
@@ -46,12 +55,34 @@ object Main {
 
   private var buildSystemDir: Path = _
 
-  def setup(buildSystemDir: Path): Unit = {
+  // NOTE: we can't merge all setup methods, because in MainLightRunner (NonServerRunner) nailgun classes are not available
+  def setupBuildSystemDir(buildSystemDir: Path): Unit = {
     this.buildSystemDir = buildSystemDir
     Utils.setSystemRoot(buildSystemDir.toFile)
   }
 
-  def getCurrentParallelism(): Int = currentParallelism.get()
+  def setupServerShutdownTimer(server: NGServer): Unit = {
+    originalStdOut = System.out
+    originalStdErr = System.err
+
+    def assertDefaultStream(out: PrintStream, name: String): Unit = {
+      val streamClass = originalStdOut.getClass
+      assert(
+        streamClass == classOf[java.io.PrintStream],
+        s"Unexpected $name stream class: $streamClass. Please, ensure that 'setup' method is invoked before standard streams are patched with java.lang.System.set* methods"
+      )
+    }
+
+    assertDefaultStream(originalStdOut, "stdout")
+    assertDefaultStream(originalStdErr, "stderr")
+
+    if (server != null) {
+      // we need the server to shut down on timer even if no compilation was done (nailMain is not invoked)
+      resetShutdownTimer(server)
+    }
+  }
+
+  def getCurrentParallelism: Int = currentParallelism.get()
 
   /**
    * This method is called by NGServer
@@ -64,14 +95,16 @@ object Main {
    */
   def nailMain(context: NGContext): Unit = {
     cancelShutdownTimer()
-    serverLogic(
-      commandId = context.getCommand,
-      argsEncoded = context.getArgs.toSeq,
-      out = context.out,
-      port = context.getNGServer.getPort,
-      standalone = false
-    )
-    resetShutdownTimer(context)
+    try
+      serverLogic(
+        commandId = context.getCommand,
+        argsEncoded = context.getArgs.toSeq,
+        out = context.out,
+        port = context.getNGServer.getPort,
+        standalone = false
+      )
+    finally
+      resetShutdownTimer(context)
   }
 
   // TODO: more reliable "unexpected process termination"  SCL-19367
@@ -79,12 +112,8 @@ object Main {
   def nailShutdown(server: NGServer): Unit = {
     import CompileServerSharedMessages._
     val details = if (shutdownByTimout) s" ($ProcessWasIdleFor ${shutdownDelay.getOrElse("<unknown>")})" else ""
-    System.out.println(CompileServerShutdownPrefix + s"$details")
-
-    // `System.exit` is called by `NGServer.shutdown`
-    // It doesn't guarantee standard output streams flush
-    // (ideally this flush should be done by Nailgun itself)
-    System.out.flush()
+    originalStdOut.println(CompileServerShutdownPrefix + s"$details")
+    originalStdOut.flush() // just in case, System.exit (used in NGServer.shutdown) can skip flushing the streams
   }
 
   def main(args: Array[String]): Unit = {
@@ -289,9 +318,6 @@ object Main {
     }
   }
 
-  def initShutdownTimer(server: NGServer): Unit =
-    resetShutdownTimer(server)
-
   private def resetShutdownTimer(context: NGContext): Unit =
     resetShutdownTimer(context.getNGServer)
 
@@ -314,7 +340,7 @@ object Main {
   }
 
   private def shutdownDelay: Option[FiniteDuration] =
-    Option(System.getProperty("shutdown.delay")).map(_.toInt.minutes)
+    Option(System.getProperty("shutdown.delay.seconds")).map(_.toInt.seconds)
 }
 
 object MeteringScheduler {
@@ -329,7 +355,7 @@ object MeteringScheduler {
     executor = Executors.newScheduledThreadPool(1)
     meteringInfo = CompileServerMeteringInfo(0, 0)
     executor.scheduleWithFixedDelay({ () =>
-      val currentParallelism = Main.getCurrentParallelism()
+      val currentParallelism = Main.getCurrentParallelism
       val newMaxParallelism = math.max(meteringInfo.maxParallelism, currentParallelism)
 
       val currentHeapSizeMb = (Runtime.getRuntime.totalMemory / 1024 / 1024).toInt
