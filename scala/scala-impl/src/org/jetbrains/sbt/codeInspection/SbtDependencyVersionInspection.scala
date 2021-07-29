@@ -41,8 +41,6 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
 
         if (libDep.length < 3) return None
 
-        val scalaVers = SbtDependencyUtils.getAllScalaVersionsOrDefault(element)
-
         val groupId = libDep(0)
         val artifactId = libDep(1)
 
@@ -69,7 +67,10 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
           addVersion(groupId, artifactId)
         }
         else {
-          scalaVers.foreach(scalaVer => addVersion(groupId, SbtDependencyUtils.buildScalaDependencyString(artifactId, scalaVer)))
+          val scalaVers = if (SbtDependencyUtils.SCALA_DEPENDENCIES_WITH_MINOR_SCALA_VERSION_LIST contains s"$groupId:$artifactId")
+            SbtDependencyUtils.getAllScalaVersionsOrDefault(element) else
+            SbtDependencyUtils.getAllScalaVersionsOrDefault(element, majorOnly = true)
+          scalaVers.foreach(scalaVer => addVersion(groupId, SbtDependencyUtils.buildScalaArtifactIdString(groupId, artifactId, scalaVer)))
         }
 
         versions.foreach(ver => {

@@ -114,10 +114,11 @@ object CustomPackageSearchApiClient {
   private def createFullTextURL(text: String): String = s"$baseUrl/package?query=${encode(text)}"
 
   private def createSuggestPrefixURL(groupId: String, artifactId: String): String = {
+    val questionMark = if (groupId.nonEmpty || artifactId.nonEmpty) "?" else ""
     val groupParam = if (StringUtil.isEmpty(groupId)) "" else s"groupId=${encode(groupId.trim)}"
     val artifactParam = if (StringUtil.isEmpty(artifactId)) "" else s"artifactId=${encode(artifactId.trim)}"
     val text = if (groupParam.nonEmpty && artifactParam.nonEmpty) s"$groupParam&$artifactParam" else s"$groupParam$artifactParam"
-    s"$baseUrl/package$text"
+    s"$baseUrl/package$questionMark$text"
   }
 
   private def extractDepFromJson(pkg: JsValue): SbtExtendedArtifactInfo = {
@@ -178,7 +179,7 @@ object CustomPackageSearchApiClient {
                              artifactId: String,
                              contentTypes: ContentTypes = ContentTypes.Minimal
                             ): () => List[SbtExtendedArtifactInfo] = () => try {
-    if (groupId.isEmpty) {
+    if (groupId.nonEmpty) {
       val reqRes = handleRequest(createSuggestPrefixURL(groupId, artifactId), contentTypes.toString, timeoutInSeconds)
       extractDepsJson(reqRes)
 
@@ -197,7 +198,7 @@ object CustomPackageSearchApiClient {
                             searchParams: CustomPackageSearchParams,
                             contentType: ContentTypes = ContentTypes.Minimal,
                             consumer: SbtExtendedArtifactInfo => Unit): Future[List[SbtExtendedArtifactInfo]] = {
-    val cacheKey = s"$groupId:$artifactId"
+    val cacheKey = s"^$groupId:$artifactId"
     performSearch(cacheKey, searchParams, consumer, searchExactDependencyFromServer(groupId, artifactId, contentType))
   }
 
@@ -213,7 +214,7 @@ object CustomPackageSearchApiClient {
                    searchParams: CustomPackageSearchParams,
                    contentTypes: ContentTypes = ContentTypes.Minimal,
                    consumer: SbtExtendedArtifactInfo => Unit): Future[List[SbtExtendedArtifactInfo]] = {
-    val cacheKey = s"$groupId:$artifactId"
+    val cacheKey = s"_$groupId:$artifactId"
     performSearch(cacheKey, searchParams, consumer, searchPrefixFromServer(groupId, artifactId, contentTypes))
   }
 
@@ -247,17 +248,25 @@ object CustomPackageSearchApiHelper {
     val text = if (finalGroupId.nonEmpty && finalArtifactId.nonEmpty) s"$finalGroupId:$finalArtifactId" else finalGroupId + finalArtifactId
     if (fillArtifact) {
       CustomPackageSearchApiClient.searchPrefix(
-        groupId,
-        artifactId,
+        finalGroupId,
+        finalArtifactId,
         searchParams,
+        consumer = (artifact: SbtExtendedArtifactInfo) => if (finalGroupId == artifact.groupId) cld.add(artifact)
+      )
+      CustomPackageSearchApiClient.searchFullText(
+        text = text,
+        searchParams = searchParams,
+        consumer = (artifact: SbtExtendedArtifactInfo) => if (finalGroupId == artifact.groupId) cld.add(artifact)
+      )
+    }
+    else {
+      CustomPackageSearchApiClient.searchFullText(
+        text = text,
+        searchParams = searchParams,
         consumer = (artifact: SbtExtendedArtifactInfo) => cld.add(artifact)
       )
     }
-    CustomPackageSearchApiClient.searchFullText(
-      text = text,
-      searchParams = searchParams,
-      consumer = (artifact: SbtExtendedArtifactInfo) => cld.add(artifact)
-    )
+
   }
 
   def waitAndAdd(searchFuture: Future[List[SbtExtendedArtifactInfo]],

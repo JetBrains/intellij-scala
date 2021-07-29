@@ -37,7 +37,6 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       implicit val project: Project = place.getProject
 
       var versions = Map[String, List[String]]()
-      val scalaVers = SbtDependencyUtils.getAllScalaVersionsOrDefault(place, majorOnly = true)
 
       resultSet.restartCompletionOnAnyPrefixChange()
 
@@ -210,7 +209,10 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                   if (!isScalaLib) {
                     fillInVersions(groupId, artifactId, null)
                   } else {
-                    scalaVers.foreach(scalaVer => fillInVersions(groupId, SbtDependencyUtils.buildScalaDependencyString(artifactId, scalaVer), scalaVer))
+                    val scalaVers = if (SbtDependencyUtils.SCALA_DEPENDENCIES_WITH_MINOR_SCALA_VERSION_LIST contains s"$groupId:$artifactId")
+                      SbtDependencyUtils.getAllScalaVersionsOrDefault(place) else
+                      SbtDependencyUtils.getAllScalaVersionsOrDefault(place, majorOnly = true)
+                    scalaVers.foreach(scalaVer => fillInVersions(groupId, SbtDependencyUtils.buildScalaArtifactIdString(groupId, artifactId, scalaVer), scalaVer))
                   }
 
                   completeVersions(newResultSet)
