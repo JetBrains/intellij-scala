@@ -127,7 +127,7 @@ object ScalaBundleSorting {
 
   class Searcher {
     val pattern: Pattern =
-      """(?:(?:message|ErrMsg|nls)\s*\(\s*|groupKey=|key=)"(.+?)"""".r.pattern
+      """(?:(?:(?:message|ErrMsg|nls)\s*\(\s*|groupKey=|key=)"(.+?)")|(?:<categoryKey>(.+?)</categoryKey>)""".r.pattern
 
     def search(file: File): Seq[String] = {
       val result = Seq.newBuilder[String]
@@ -135,7 +135,13 @@ object ScalaBundleSorting {
       val scanner = new Scanner(reader)
       while (scanner.findWithinHorizon(pattern, 0) ne null) {
         val m = scanner.`match`()
-        result += m.group(1)
+
+        val g1 = m.group(1)
+        val g =
+          if (g1 != null) g1 // from message("blub")
+          else m.group(2)    // from <categoryKey>blub</categoryKey>
+        assert(g != null)
+        result += g
       }
 
       result.result()
