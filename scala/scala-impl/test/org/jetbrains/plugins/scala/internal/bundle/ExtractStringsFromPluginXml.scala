@@ -1,6 +1,4 @@
-package org.jetbrains.plugins.scala
-package internal
-package bundle
+package org.jetbrains.plugins.scala.internal.bundle
 
 import java.io.{File, PrintWriter}
 
