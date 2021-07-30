@@ -26,7 +26,7 @@ object ImportExpr extends ParsingRule {
     }
 
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
-      if (builder.scala3Features.`Scala 3 renaming imports` && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
+      if (builder.features.`Scala 3 renaming imports` && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword)) {
         // import a as b
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
@@ -52,7 +52,7 @@ object ImportExpr extends ParsingRule {
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() // Ate given
         InfixType.parse(builder)
-      case ScalaTokenTypes.tIDENTIFIER if builder.scala3Features.`Scala 3 renaming imports` =>
+      case ScalaTokenTypes.tIDENTIFIER if builder.features.`Scala 3 renaming imports` =>
         if (!builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar)) {
           val selectorsMarker = builder.mark()
           val selectorMarker = builder.mark()

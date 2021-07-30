@@ -493,7 +493,7 @@
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelImplicitClassByPackageIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScTopLevelExtensionByPackageIndex"/>
 
-        <filePropertyPusher implementation="org.jetbrains.plugins.scala.project.ScalaLanguageLevelPusher"/>
+        <filePropertyPusher implementation="org.jetbrains.plugins.scala.project.ScalaFeaturePusher"/>
 
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.lang.formatting.settings.inference.ScalaDocAsteriskAlignStyleIndexer"/>
         <fileBasedIndex implementation="org.jetbrains.plugins.scala.autoImport.ImportOrderingIndexer"/>

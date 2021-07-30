@@ -24,7 +24,7 @@ class SingleImportInspection extends LocalInspectionTool {
         importExpr.selectorSet.foreach {
           case selSet@ScImportSelectors(selector) if selSet.getFirstChild.elementType == ScalaTokenTypes.tLBRACE =>
             val isScala3AliasImport =
-              selector.scala3Features.`Scala 3 renaming imports` &&
+              selector.features.`Scala 3 renaming imports` &&
                 selector.findFirstChildByType(ScalaTokenType.AsKeyword).isDefined
             val isAliasImportInScala2 =
               !isScala3AliasImport &&

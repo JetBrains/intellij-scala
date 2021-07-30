@@ -272,10 +272,10 @@ package object project {
       scalaModuleSettings.exists(_.isSAMEnabled)
 
     def isSource3Enabled: Boolean =
-      scalaModuleSettings.exists(_.isSource3Enabled)
+      scalaModuleSettings.exists(_.hasSource3Flag)
 
-    def scala3Features: Scala3Features =
-      scalaModuleSettings.fold(Scala3Features.default)(_.scala3Features)
+    def features: ScalaFeatures =
+      scalaModuleSettings.fold(ScalaFeatures.default)(_.features)
 
     def isPartialUnificationEnabled: Boolean =
       scalaModuleSettings.exists(_.isPartialUnificationEnabled)
@@ -479,8 +479,8 @@ package object project {
 
     def isScala3OrSource3Enabled: Boolean = isDefinedInModuleOrProject(m => m.hasScala3 || m.isSource3Enabled)
 
-    def scala3Features: Scala3Features =
-      inThisModuleOrProject(_.scala3Features).getOrElse(Scala3Features.default)
+    def features: ScalaFeatures =
+      inThisModuleOrProject(_.features).getOrElse(ScalaFeatures.default)
 
     def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
 

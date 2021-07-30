@@ -32,19 +32,29 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   override final lazy val isStrictMode: Boolean =
     containingFile.exists(_.isCompilerStrictMode)
 
-  override final lazy val scala3Features: Scala3Features = {
-    def featuresByVersion(features: Scala3Features): Scala3Features =
-      features.inVersion(if (isScala3) ScalaVersion.Latest.Scala_3_0 else ScalaVersion.Latest.Scala_2_13)
+  override final lazy val features: ScalaFeatures = {
+    def featuresByVersion(features: ScalaFeatures): ScalaFeatures =
+      features.copy(if (isScala3) ScalaVersion.Latest.Scala_3_0 else ScalaVersion.Latest.Scala_2_13)
 
-    // If we don't have a module or a concrete scala version of the file
-    // force the version given by isScala
-    containingFile.flatMap(_.module) match {
-      case Some(module) =>
-        val features = module.scala3Features
-        //
-        if (module.scalaMinorVersion.isDefined) features
-        else featuresByVersion(features)
-      case None => featuresByVersion(Scala3Features.none)
+    def fallback = featuresByVersion(ScalaFeatures.default)
+
+    containingFile match {
+      case Some(file) =>
+        file.module match {
+          case Some(module) =>
+            val features = module.features
+
+            // If we don't have a module or a concrete scala version of the file
+            // force the version given by isScala
+            if (isScala3 == features.isScala3) features
+            else featuresByVersion(features)
+          case None =>
+            // try get from file
+            ScalaFeaturePusher.getFeatures(file)
+              .getOrElse(fallback)
+        }
+      case None =>
+        fallback
     }
   }
 
@@ -147,7 +157,7 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
   private var indentationStack = List(IndentationWidth.initial)
 
   def isScala3IndentationBasedSyntaxEnabled: Boolean =
-    scala3Features.indentationBasedSyntaxEnabled
+    features.indentationBasedSyntaxEnabled
 
   override def currentIndentationWidth: IndentationWidth =
     indentationStack.head
