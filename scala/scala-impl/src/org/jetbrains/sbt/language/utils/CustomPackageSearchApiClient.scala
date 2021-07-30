@@ -247,12 +247,6 @@ object CustomPackageSearchApiHelper {
     val finalArtifactId = formatString(artifactId)
     val text = if (finalGroupId.nonEmpty && finalArtifactId.nonEmpty) s"$finalGroupId:$finalArtifactId" else finalGroupId + finalArtifactId
     if (fillArtifact) {
-      CustomPackageSearchApiClient.searchPrefix(
-        finalGroupId,
-        finalArtifactId,
-        searchParams,
-        consumer = (artifact: SbtExtendedArtifactInfo) => if (finalGroupId == artifact.groupId) cld.add(artifact)
-      )
       CustomPackageSearchApiClient.searchFullText(
         text = text,
         searchParams = searchParams,
