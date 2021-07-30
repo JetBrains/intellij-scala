@@ -37,7 +37,7 @@ object CompoundType extends Type {
           false
         } else {
           var isCompound = false
-          val parseAndLikeWith = builder.scala3Features.`& instead of with` && !builder.isScala3
+          val parseAndLikeWith = builder.features.`& instead of with` && !builder.isScala3
           while (builder.getTokenType == ScalaTokenTypes.kWITH || (parseAndLikeWith && builder.getTokenText == "&")) {
             isCompound = true
             builder.advanceLexer() //Ate with or & (only in -Xsource:3)

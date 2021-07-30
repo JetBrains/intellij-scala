@@ -154,7 +154,7 @@ object StableId {
   }
 
   private def shouldStopBeforeDot(forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val s3f = builder.scala3Features
+    val s3f = builder.features
     val lookAhead = builder.lookAhead(1)
     lookAhead match {
       case `kTYPE` => true

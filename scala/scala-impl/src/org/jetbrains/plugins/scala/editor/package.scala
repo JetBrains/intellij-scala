@@ -130,7 +130,7 @@ package object editor {
   private[editor] def useIndentationBasedSyntax(file: PsiFile): Boolean =
     file.getLanguage.isKindOf(Scala3Language.INSTANCE) && {
       val settings = ScalaCodeStyleSettings.getInstance(file.getProject)
-      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX && file.scala3Features.indentationBasedSyntaxEnabled
+      settings.USE_SCALA3_INDENTATION_BASED_SYNTAX && file.features.indentationBasedSyntaxEnabled
     }
 
   private[editor] implicit class PsiWhiteSpaceOps(private val target: PsiWhiteSpace) extends AnyVal {

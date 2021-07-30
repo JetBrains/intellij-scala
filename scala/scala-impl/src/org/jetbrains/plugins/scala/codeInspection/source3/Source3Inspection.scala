@@ -40,7 +40,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
       return None
     }
 
-    val features = element.scala3Features
+    val features = element.features
     element match {
       case ScWildcardTypeElementUnderscore(wildcardTypeElement, underscore) if convertWildcardUnderscore && features.`? as wildcard marker` =>
         super.problemDescriptor(
@@ -150,8 +150,8 @@ object Source3Inspection {
     def isNotShadowingAlias = element.prevSibling.forall(_.elementType == ScalaTokenTypes.tDOT)
 
     def isInRightElement = element.getParent match {
-      case _: ScImportExpr => element.scala3Features.`Scala 3 wildcard imports`
-      case _: ScImportSelector => element.scala3Features.`Scala 3 wildcard imports in selector`
+      case _: ScImportExpr => element.features.`Scala 3 wildcard imports`
+      case _: ScImportSelector => element.features.`Scala 3 wildcard imports in selector`
       case _ => false
     }
 
