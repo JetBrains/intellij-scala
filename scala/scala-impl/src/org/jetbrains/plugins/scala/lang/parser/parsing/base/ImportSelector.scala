@@ -18,7 +18,7 @@ object ImportSelector extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark
     builder.getTokenType match {
-      case _ if builder.scala3Features.`Scala 3 wildcard imports in selector` && builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
+      case _ if builder.features.`Scala 3 wildcard imports in selector` && builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>
         importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)
         return true
       case ScalaTokenTypes.tUNDER =>
@@ -56,7 +56,7 @@ object ImportSelector extends ParsingRule {
       case ScalaTokenTypes.tFUNTYPE =>
         builder.advanceLexer() //Ate =>
         parseNamed()
-      case _ if builder.scala3Features.`Scala 3 renaming imports` && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword) =>
+      case _ if builder.features.`Scala 3 renaming imports` && builder.tryParseSoftKeyword(ScalaTokenType.AsKeyword) =>
         parseNamed()
       case _ =>
         importSelectorMarker.done(ScalaElementType.IMPORT_SELECTOR)

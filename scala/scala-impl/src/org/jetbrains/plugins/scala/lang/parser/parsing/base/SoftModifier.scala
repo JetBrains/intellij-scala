@@ -108,7 +108,7 @@ object LocalSoftModifier extends SoftModifier(
   Infix,
 ) {
   override protected def isAllowedInSource3(tokenType: ScalaModifierTokenType)(implicit builder: ScalaPsiBuilder): Boolean =
-    builder.scala3Features.`soft keywords open and infix` && {
+    builder.features.`soft keywords open and infix` && {
       val modifier = tokenType.modifier
       modifier == Open || modifier == Infix
     }

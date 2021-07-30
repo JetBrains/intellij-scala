@@ -25,7 +25,7 @@ object PostfixExpr extends ParsingRule {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER if
-          builder.scala3Features.`Scala 3 vararg splice syntax` &&
+          builder.features.`Scala 3 vararg splice syntax` &&
           builder.getTokenText == "*" &&
           builder.lookAhead(1) == ScalaTokenTypes.tRPARENTHESIS =>
         // Seq(a, ax*)

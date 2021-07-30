@@ -119,7 +119,7 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
 
   protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
     !builder.newlineBeforeCurrentToken || {
-      if (builder.scala3Features.`leading infix operator`) {
+      if (builder.features.`leading infix operator`) {
         // In scala 3 the infix operator may be on the next line
         // but only if it is a leading infix operator. (https://dotty.epfl.ch/docs/reference/changed-features/operators.html)
         // A leading infix operator is

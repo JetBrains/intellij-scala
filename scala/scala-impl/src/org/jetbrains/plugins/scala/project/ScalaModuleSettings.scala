@@ -98,7 +98,7 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
     case _ => false
   }
 
-  val isSource3Enabled: Boolean =
+  val hasSource3Flag: Boolean =
     additionalCompilerOptions.contains("-Xsource:3")
 
   val isPartialUnificationEnabled: Boolean =
@@ -116,12 +116,12 @@ private class ScalaModuleSettings(module: Module, val scalaVersionProvider: Scal
       case YnoPredefOrNoImports(imports)                         => imports
     }
 
-  val scala3Features: Scala3Features =
-    new Scala3Features(
+  val features: ScalaFeatures =
+    ScalaFeatures(
       scalaMinorVersion.getOrElse(ScalaVersion.default),
-      isSource3Enabled,
-      hasNoIndentFlag,
-      hasOldSyntaxFlag
+      hasSource3Flag = hasSource3Flag,
+      hasNoIndentFlag = hasNoIndentFlag,
+      hasOldSyntaxFlag = hasOldSyntaxFlag
     )
 }
 
