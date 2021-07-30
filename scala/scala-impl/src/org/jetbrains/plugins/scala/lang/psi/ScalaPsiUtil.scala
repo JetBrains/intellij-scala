@@ -231,6 +231,9 @@ object ScalaPsiUtil {
     ScSubstitutor.bind(typeParameters)(UndefinedType(_, level = 1))
   }
 
+  def isOnlyVisibleInLocalFile(elem: PsiElement): Boolean =
+    isLocalOrPrivate(elem) && !elem.getParent.is[PsiFile, ScPackageLike]
+
   @tailrec
   def isLocalOrPrivate(elem: PsiElement): Boolean = {
     (elem, elem.getContext) match {

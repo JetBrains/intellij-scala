@@ -285,9 +285,9 @@ class ScalaUnusedParameterInspectionTest extends ScalaUnusedSymbolInspectionTest
       |""".stripMargin
   )
 
-  def testHighlightCaseClassParamInPrivateTopLevelObject(): Unit = checkTextHasError(
+  def testHighlightCaseClassParamInPrivateTopLevelObject(): Unit = checkTextHasNoErrors(
     s"""
-       |private object ${START}Test$END {
+       |object Test {
        |  case class CC(a: Int)
        |}
        |""".stripMargin
