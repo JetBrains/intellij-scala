@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.codeInspection.unusedInspections.ScalaUnusedS
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isLocalOrPrivate, superValsSignatures}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, superValsSignatures}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScMethodLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerators, ScFunctionExpr}
@@ -48,14 +48,14 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     val elements: Seq[PsiElement] = element match {
       case fun: ScFunctionExpr => fun.parameters.filterNot(p => p.isWildcard || p.isImplicitParameter)
       case fun: ScMethodLike =>
-        val funIsPublic = !fun.containingClass.toOption.exists(isLocalOrPrivate)
+        val funIsPublic = !fun.containingClass.toOption.exists(isOnlyVisibleInLocalFile)
         def nonPrivateClassMemberParam(param: ScParameter): Boolean =
           funIsPublic && param.asOptionOf[ScClassParameter].exists(p => p.isClassMember && (!p.isPrivate))
         def overridingParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(isOverridingOrOverridden)
         def caseClassParam(param: ScParameter): Boolean =
           param.asOptionOf[ScClassParameter].exists(_.isCaseClassVal)
-        isLocalOrPrivate(fun).option(fun) ++:
+        isOnlyVisibleInLocalFile(fun).option(fun) ++:
           fun.parameters
           .filterNot(_.isWildcard)
           .filter(_.isPhysical)   // context bound are desugared into parameters, for example
@@ -85,7 +85,7 @@ class ScalaUnusedSymbolInspection extends HighlightingPassInspection {
     case fd: ScFunctionDefinition if ScalaMainMethodUtil.isMainMethod(fd) => false
     case f: ScFunction if f.isSpecial || isOverridingFunction(f) => false
     case _: ScMethodLike => true // handle in invoke
-    case _ => isLocalOrPrivate(elem)
+    case _ => isOnlyVisibleInLocalFile(elem)
   }
 }
 

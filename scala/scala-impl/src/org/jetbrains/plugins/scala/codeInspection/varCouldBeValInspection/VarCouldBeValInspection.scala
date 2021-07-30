@@ -10,7 +10,7 @@ import com.intellij.psi.search.searches.ReferencesSearch
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.codeInspection.unusedInspections.{HighlightingPassInspection, ProblemInfo}
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isLocalOrPrivate, isPossiblyAssignment}
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.{isOnlyVisibleInLocalFile, isPossiblyAssignment}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScVariableDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createValFromVarDefinition
@@ -30,7 +30,7 @@ class VarCouldBeValInspection extends HighlightingPassInspection {
 
   override def shouldProcessElement(element: PsiElement): Boolean = element match {
     case variable: ScVariableDefinition =>
-      isLocalOrPrivate(variable)
+      isOnlyVisibleInLocalFile(variable)
     case _ => false
   }
 
