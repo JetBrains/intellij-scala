@@ -180,7 +180,6 @@ final class CompileServerManager(project: Project) extends Disposable {
     }
   }
 
-  @RequiresEdt
   def showNotification(@Nls message: String, notificationType: NotificationType): Unit = {
     Notifications.Bus.notify(new Notification(NotificationGroupId, title, message, notificationType), project)
   }

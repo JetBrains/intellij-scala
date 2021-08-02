@@ -9,7 +9,7 @@ TODO: review macros expresisons, looks like most of them do not work now
             resource-bundle="messages.ScalaEditorBundle" key="template.for.main.method"
             toReformat="true" toShortenFQNames="true">
     <context>
-      <option name="SCALA_CODE" value="true"/>
+      <option name="SCALA_BLANK_LINE" value="true"/>
     </context>
   </template>
 
