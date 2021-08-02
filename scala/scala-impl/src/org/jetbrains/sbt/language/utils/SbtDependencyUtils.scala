@@ -229,19 +229,10 @@ object SbtDependencyUtils {
       res ++= getTopLevelLibraryDependencies(psiSbtFile).flatMap(
         libDep => getLibraryDependenciesOrPlacesFromPsi(libDep, mode))
 
-    val moduleName = module.getName
-
     def containsModuleName(proj: ScPatternDefinition, moduleName: String): Boolean =
-      proj.getText.contains("\"" + moduleName + "\"")
+      proj.getText.toLowerCase.contains("\"" + moduleName + "\"".toLowerCase)
 
-    val sbtProjectsInModule = getTopLevelSbtProjects(psiSbtFile).filter(proj => {
-      SbtUtil.getSbtModuleData(module) match {
-        case Some(moduleData: SbtModuleData) =>
-          proj.getText.contains(moduleData.id) || containsModuleName(proj, module.getName)
-        case _ =>
-          containsModuleName(proj, module.getName)
-      }
-    })
+    val sbtProjectsInModule = getTopLevelSbtProjects(psiSbtFile).filter(proj => containsModuleName(proj, module.getName))
 
     res ++= sbtProjectsInModule.
       flatMap(proj => getPossiblePsiFromProjectDefinition(proj)).
@@ -257,8 +248,6 @@ object SbtDependencyUtils {
                                      project: Project,
                                      module: OpenapiModule,
                                      mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
-    // Check whether the IDE is in Dumb Mode. If it is, return empty list instead proceeding
-//    if (DumbService.getInstance(module.getProject).isDumb) return Seq()
 
     val libDeps = inReadAction(
       for {
