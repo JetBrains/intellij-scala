@@ -7,8 +7,8 @@ import org.jetbrains.jps.incremental.scala.{Client, Server}
 import org.jetbrains.plugins.scala.compiler.data.{Arguments, CompilationData, CompilerData, SbtData}
 import org.jetbrains.plugins.scala.server.CompileServerToken
 
-import java.net.{ConnectException, InetAddress, SocketTimeoutException, UnknownHostException}
-import scala.concurrent.duration.{DurationInt, FiniteDuration}
+import java.net.{InetAddress, SocketException, SocketTimeoutException, UnknownHostException}
+import scala.concurrent.duration.FiniteDuration
 
 // TODO: this class can only be used in the JPS process, not in the Scala Compile Server process
 //  we should split compiler-jps module into several modules:
@@ -37,7 +37,7 @@ final class RemoteServer(
       Right(ExitCode.OK)
     } catch {
       case e: SocketTimeoutException => Left(ServerError.SocketConnectTimeout(address, port, socketConnectTimeout, e))
-      case e: ConnectException       => Left(ServerError.ConnectionError(address, port, e))
+      case e: SocketException        => Left(ServerError.ConnectionError(address, port, e))
       case e: UnknownHostException   => Left(ServerError.UnknownHost(address, e))
     }
   }

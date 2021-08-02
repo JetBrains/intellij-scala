@@ -26,9 +26,9 @@ trait RemoteResourceOwner {
   protected val currentDirectory: String = System.getProperty("user.dir")
 
   @throws[java.io.IOException]
-  @throws[java.net.SocketException]
-  @throws[java.net.ConnectException]
-  @throws[java.net.SocketTimeoutException]
+  @throws[java.net.ConnectException] // e.g. "connection reset" (e.g. when the server shutdown while we are reading from the socket)
+  @throws[java.net.SocketException] // e.g. "connection refused" (e.g. when creating the socket and the service is unavailable)
+  @throws[java.net.SocketTimeoutException] // e.g. if socket connection "handshake" exceeds some timeout
   @throws[java.net.UnknownHostException]
   def send(command: String, arguments: Seq[String], client: Client): Unit = {
     client.internalTrace(s"sending command to server: `$command`")
