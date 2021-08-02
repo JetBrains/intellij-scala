@@ -2,16 +2,19 @@ package org.jetbrains.plugins.scala.lang.parser.typing
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.typing.RandomTypingTest._
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.plugins.scala.{NightlyTests, ScalaVersion}
+import org.junit.experimental.categories.Category
 
 import java.io.File
 import scala.collection.mutable
 import scala.util.Random
 
+
+@Category(Array(classOf[NightlyTests]))
 class RandomTypingTest extends EditorActionTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
