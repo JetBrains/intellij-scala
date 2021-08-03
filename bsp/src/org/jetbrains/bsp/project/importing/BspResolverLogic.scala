@@ -147,7 +147,7 @@ private[importing] object BspResolverLogic {
           val sharedGeneratedSourcesForIds = sharedGeneratedSources.filterKeys(ids.contains)
           (
             sharedGeneratedSources.filterKeys(!sharedGeneratedSourcesForIds.keySet.contains(_)),
-            result + (ids.sortBy(_.getUri).toSeq -> sharedGeneratedSourcesForIds.values.flatten.toSeq)
+            result + (ids.sortBy(_.getUri) -> sharedGeneratedSourcesForIds.values.flatten.toSeq)
           )
       }._2
 
@@ -160,7 +160,7 @@ private[importing] object BspResolverLogic {
         val targets = targetIds.map(idToTarget)
         val sharingModules = targetIds.map(idToModule)
         val resources = targetIdsResources.find(_._1.diff(targetIds).isEmpty).toSeq.flatMap(_._2)
-        val genSources = idsGeneratedSources.get(targetIds.toSeq).toSeq.flatten
+        val genSources = idsGeneratedSources.get(targetIds).toSeq.flatten
         createSyntheticModuleDescription(targets, resources, sources, genSources, sharingModules)
       }
 
@@ -442,12 +442,18 @@ private[importing] object BspResolverLogic {
 
   private val jarSuffix = ".jar"
   private val sourcesSuffix = "-sources"
+  private val javadocSuffix = "-javadoc"
+  private def stripSuffixes(path: String) =
+    path
+      .stripSuffix(jarSuffix)
+      .stripSuffix(sourcesSuffix)
+      .stripSuffix(javadocSuffix)
   private def libraryPrefix(path: File) =
     if (path.getName.endsWith(jarSuffix))
-      Option(path.getCanonicalPath.stripSuffix(jarSuffix).stripSuffix(sourcesSuffix))
+      Option(stripSuffixes(path.getCanonicalPath))
     else None
   private def libraryName(path: File) =
-    path.getName.stripSuffix(jarSuffix).stripSuffix(sourcesSuffix)
+    stripSuffixes(path.getName)
 
   private[importing] def projectNode(workspace: File,
                                      projectModules: ProjectModules,
@@ -474,21 +480,31 @@ private[importing] object BspResolverLogic {
         Some(moduleNode)
       }
 
-    val projectLibraryDependencies: Map[String, LibraryData] =
+    val projectLibraryDependencies =
       projectModules.modules
         .flatMap(m => m.data.classpath ++
           m.data.classpathSources ++
           m.data.testClasspath ++
           m.data.testClasspathSources)
         .groupBy(libraryPrefix)
-        .flatMap { case (pathPrefix, jars) => pathPrefix.map(_ -> jars) } // ignore non-standard jar libs
-        .flatMap { case (pathPrefix, jars) =>
+        // ignore non-standard jar libs
+        .flatMap { case (pathPrefix, jars) => pathPrefix.map(p => p -> jars) }
+        .groupBy { case (_, files) => libraryName(files.head) }
+        .flatMap { case name -> prefixLibs =>
+          if (prefixLibs.size == 1) // use short name when unique
+            prefixLibs.map { case prefix -> files => prefix -> (name,files) }
+          // use full prefix when short name ambiguous
+          else prefixLibs.map { case prefix -> files => prefix -> (prefix,files) }
+        }
+        .flatMap { case (pathPrefix, (name, jars)) =>
           val binary = jars.find(_.getCanonicalPath.endsWith(pathPrefix + jarSuffix))
           val source = jars.find(_.getName.contains(sourcesSuffix))
+          val doc = jars.find(_.getName.contains(javadocSuffix))
           binary.map { bin =>
-            val data = new LibraryData(BSP.ProjectSystemId, libraryName(bin))
+            val data = new LibraryData(BSP.ProjectSystemId, name)
             data.addPath(LibraryPathType.BINARY, bin.getCanonicalPath)
             source.foreach(src => data.addPath(LibraryPathType.SOURCE, src.getCanonicalPath))
+            doc.foreach(doc => data.addPath(LibraryPathType.DOC, doc.getCanonicalPath))
             pathPrefix -> data
           }
         }
