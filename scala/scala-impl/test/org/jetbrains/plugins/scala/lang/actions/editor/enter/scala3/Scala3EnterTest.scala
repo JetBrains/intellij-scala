@@ -777,6 +777,14 @@ class Scala3EnterTest extends Scala3EnterBaseTest
     )
   }
 
+  def testEnterAtWhitespaceAfterBlockComment(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"/* blub */ $CARET test",
+      s"""/* blub */${" "}
+         |${CARET}test
+         |""".stripMargin.trim
+    )
+  }
 
   private val AllContextsAcceptingAnything = {
     import IndentedBlockContexts._

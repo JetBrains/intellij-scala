@@ -10,8 +10,8 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile, PsiWhiteSpace}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.editor.enterHandler.TemplateParentsEnterHandler.{isAfterParentsWithoutTemplateBody, isBetweenParentsAndTemplateBody}
-import org.jetbrains.plugins.scala.extensions.{&&, ElementType, ObjectExt, Parent, PrevSibling, PrevSiblingNotWhitespace, PsiElementExt}
+import org.jetbrains.plugins.scala.editor.enterHandler.TemplateParentsEnterHandler._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScTemplateBody, ScTemplateParents}
@@ -71,10 +71,11 @@ object TemplateParentsEnterHandler {
       case ws: PsiWhiteSpace =>
         // optimisation, handle cases when we press Enter on the same line with `with`
         if (hasContentBeforeOnSameLine(caretOffset, document.getCharsSequence)) {
-          val prevLeaf = PsiTreeUtil.prevCodeLeaf(ws)
-          val prevLeafEndOffset = prevLeaf.endOffset
-          val parents = prevLeaf.parentsInFile.takeWhile(_.endOffset <= prevLeafEndOffset): Iterator[PsiElement]
-          parents.exists(_.is[ScTemplateParents])
+          PsiTreeUtil.prevCodeLeaf(ws).nullSafe.exists { prevLeaf =>
+            val prevLeafEndOffset = prevLeaf.endOffset
+            val parents = prevLeaf.parentsInFile.takeWhile(_.endOffset <= prevLeafEndOffset): Iterator[PsiElement]
+            parents.exists(_.is[ScTemplateParents])
+          }
         }
         else false
       case null if caretOffset == document.getTextLength =>
