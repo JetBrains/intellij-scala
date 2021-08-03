@@ -2,47 +2,66 @@ package org.jetbrains.plugins.scala.lang.parser.typing
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.util.ui.EdtInvocationManager
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.parser.typing.RandomTypingTest._
+import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{NightlyTests, ScalaVersion}
 import org.junit.experimental.categories.Category
 
 import java.io.File
+import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
 import scala.util.Random
 
 
 @Category(Array(classOf[NightlyTests]))
-class RandomTypingTest extends EditorActionTestBase {
-
+class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/data3") {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+}
 
-  def test_random_files(): Unit = {
-    val amount = 100
+@Category(Array(classOf[NightlyTests]))
+class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/scala3Import/success") {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+}
 
-    val testfiles = TestUtils.getTestDataPath + "/parser/scala3Import/success"
-    val random = new Random
+@Category(Array(classOf[NightlyTests]))
+class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/data") {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version <= ScalaVersion.Latest.Scala_2_13
 
-    var allFiles = new File(testfiles).listFiles()
-    for (_ <- 1 to amount) {
-      val i = random.nextInt(allFiles.length)
-      val randomFile = allFiles(i)
-      allFiles = allFiles.patch(i, Nil, 1)
-      typeRandomly(randomFile, random.nextInt())
-    }
-  }
 
   //def test_specific(): Unit = {
   //  typeRandomly(
-  //    new File("/home/tobi/workspace/intellij-scala/community/scala/scala-impl/testdata/parser/scala3Import/success/i2973.test"),
-  //    -276617896
+  //    test_file,
+  //    test_seed,
   //  )
   //}
+}
+
+abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTestBase {
+  val logging = false
+
+  private def log(s: Any): Unit =
+    if (logging) println(s)
+
+  def test_all_files(): Unit = {
+    val random = new Random
+
+    val allFiles = new File(testFilePath).allFiles.to(ArraySeq)
+    println(s"Test ${allFiles.size} in $testFilePath:")
+    for ((file, i) <- allFiles.zipWithIndex) {
+      print(f"[${i + 1}%4s/${allFiles.length}] ")
+      typeRandomly(file, random.nextInt(Int.MaxValue))
+    }
+  }
+
+  def typeRandomly(path: String, seed: Int): Unit =
+    typeRandomly(new File(path), seed)
 
   def typeRandomly(file: File, seed: Int): Unit = {
-    println(s"Testing(seed = $seed}) ${file.getAbsolutePath}")
+    println(s"Testing(seed = $seed) ${file.getAbsolutePath}")
     val targetText = FileUtil.loadFile(file).replace("-----\n", "")
 
     try {
@@ -54,10 +73,15 @@ class RandomTypingTest extends EditorActionTestBase {
   }
 
   def typeRandomly(targetText: String, random: Random): Unit = {
-    def commit(): Unit =
+    val psiDocumentManager = PsiDocumentManager.getInstance(getProject)
+    def commit(): Unit = {
       inWriteCommandAction {
-        PsiDocumentManager.getInstance(getProject).commitAllDocuments()
+        psiDocumentManager.commitAllDocuments()
       }(getProject)
+
+      // process awt events... otherwise they will stack and we get a warning
+      EdtInvocationManager.dispatchAllInvocationEvents()
+    }
 
     val file = getFixture.configureByText("test.scala", "")
     val caretModel = getEditor.getCaretModel
@@ -91,7 +115,7 @@ class RandomTypingTest extends EditorActionTestBase {
         val end = (i + random.nextInt(5)) min file.getTextLength
         getEditor.getSelectionModel.setSelection(start, end)
         performBackspaceAction()
-        println(s"delete $start to $end")
+        log(s"delete $start to $end")
         i
       } else {
         val actions = actionsInPrefixWindow(file.getText, targetText, actionWindow)
@@ -100,7 +124,7 @@ class RandomTypingTest extends EditorActionTestBase {
             randomActionsLeftToRescue -= 1
             actions(random.nextInt(actions.length))
           } else actions.head
-        println(action)
+        log(action)
 
         action.content match {
           case Left(len) =>
@@ -118,7 +142,7 @@ class RandomTypingTest extends EditorActionTestBase {
 
       val result = file.getText
 
-      println(
+      log(
         s"""---------------------------
            |$result
            |---------------------------
@@ -127,9 +151,9 @@ class RandomTypingTest extends EditorActionTestBase {
 
       if (found.contains(result)) {
         needRescue = true
-        println("Found loop!")
+        log("Found loop!")
         if (randomActionsLeftToRescue <= 0) {
-          println("Force rescue...")
+          log("Force rescue...")
           val fixIdx = actionOffset + 15
 
           inWriteCommandAction {
@@ -137,13 +161,13 @@ class RandomTypingTest extends EditorActionTestBase {
             PsiDocumentManager.getInstance(getProject).commitAllDocuments()
           }(getProject)
 
-          println(
+          log(
             s"""---------------------------
                |$result
                |---------------------------
                |""".stripMargin
           )
-        } else println("Try to rescue through random action...")
+        } else log("Try to rescue through random action...")
       } else {
         needRescue = false
         found += result
