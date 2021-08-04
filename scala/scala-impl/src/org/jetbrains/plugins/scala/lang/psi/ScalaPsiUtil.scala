@@ -231,21 +231,18 @@ object ScalaPsiUtil {
     ScSubstitutor.bind(typeParameters)(UndefinedType(_, level = 1))
   }
 
-  def isOnlyVisibleInLocalFile(elem: PsiElement): Boolean =
-    isLocalOrPrivate(elem) && !elem.getParent.is[PsiFile, ScPackageLike]
-
   @tailrec
-  def isLocalOrPrivate(elem: PsiElement): Boolean = {
+  def isOnlyVisibleInLocalFile(elem: PsiElement): Boolean = {
     (elem, elem.getContext) match {
+      case (_,             _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions) =>
+        false
       case (mem: ScMember, _) if mem.getModifierList.accessModifier.exists(_.isUnqualifiedPrivateOrThis) =>
         true
-      case (_, _: ScPackageLike | _: ScalaFile | _: ScEarlyDefinitions) =>
-        false
       case (_: ScMember, body: ScExtensionBody) =>
-        isLocalOrPrivate(body.getParent)
+        isOnlyVisibleInLocalFile(body.getParent)
       case (mem: ScMember, _) =>
         val cls = mem.containingClass
-        (cls == null) || isLocalOrPrivate(cls)
+        (cls == null) || isOnlyVisibleInLocalFile(cls)
       case _ =>
         true
     }

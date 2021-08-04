@@ -66,6 +66,16 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
     checkTextHasNoErrors(code)
   }
 
+  def testNonPrivateInPrivateObject(): Unit = checkTextHasNoErrors(
+    """
+      |// should be highlighted, but might be used in the same package in another file
+      |// and we can only check local symbols
+      |private class Foo {
+      |  val s = 0
+      |}
+      |""".stripMargin
+  )
+
   def testRemoveMultiDeclaration(): Unit = {
     val code =
       s"""
@@ -517,7 +527,7 @@ class ScalaUnusedSymbolInspectionTest extends ScalaUnusedSymbolInspectionTestBas
   )
 
 
-  def testPublictTypeMemberInPrivateTrait(): Unit = checkTextHasNoErrors(
+  def testPublicTypeMemberInPrivateTrait(): Unit = checkTextHasNoErrors(
     s"""
       |private trait Test {
       |  type ${START}ty$END = Int
