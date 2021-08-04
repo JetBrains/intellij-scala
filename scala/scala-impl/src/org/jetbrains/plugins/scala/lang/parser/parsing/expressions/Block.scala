@@ -9,18 +9,19 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
-/**
-* @author Alexander Podkhalyuzin
-* Date: 06.03.2008
-*/
-
 /*
  * Block ::= {BlockStat semi}[ResultExpr]
  */
 object Block {
-  object ContentInBraces extends ParsingRule {
+  abstract class ContentInBraces extends ParsingRule {
+    def parseStmt()(implicit builder: ScalaPsiBuilder): Boolean
+
     override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-      if (!ResultExpr(stopOnOutdent = false) && BlockStat()) {
+      while(builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
+        builder.advanceLexer()
+      }
+
+      if (parseStmt()) {
         var hasSemicolon = false
         var rollbackMarker = builder.mark()
 
@@ -37,7 +38,7 @@ object Block {
 
         updateSemicolon()
 
-        while (!ResultExpr(stopOnOutdent = false) && BlockStat()) {
+        while (parseStmt()) {
           if (!hasSemicolon) {
             rollbackMarker.rollbackTo()
             builder error ErrMsg("semi.expected")
@@ -53,6 +54,11 @@ object Block {
       }
       true
     }
+  }
+
+  object ContentInBraces extends ContentInBraces {
+    override def parseStmt()(implicit builder: ScalaPsiBuilder): Boolean =
+      !ResultExpr(stopOnOutdent = false) && BlockStat()
   }
 
   object Braced extends ParsingRule {
