@@ -4,15 +4,9 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import com.jetbrains.packagesearch.intellij.plugin.extensibility.BuildSystemType
 import org.jetbrains.sbt.project.SbtProjectSystem
 
 object SbtDependencyCommon {
-  val buildSystemType = new BuildSystemType(
-    "SBT",
-    "sbt",
-    "scala"
-  )
   val libScopes = "Compile,Provided,Test"
   val defaultLibScope = "Compile"
   val scopeTerminology = "Configuration"
