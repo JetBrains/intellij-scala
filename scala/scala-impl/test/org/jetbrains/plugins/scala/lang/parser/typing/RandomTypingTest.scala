@@ -25,6 +25,13 @@ class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestD
 @Category(Array(classOf[NightlyTests]))
 class RandomTypingTest_in_Scala3_ImportedData extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/scala3Import/success") {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+
+  //def test_specific(): Unit = {
+  //  typeRandomly(
+  //    TestUtils.getTestDataPath + /parser/scala3Import/success/,
+  //    <test_seed>,
+  //  )
+  //}
 }
 
 @Category(Array(classOf[NightlyTests]))
@@ -34,8 +41,8 @@ class RandomTypingTest_in_Scala2 extends RandomTypingTestBase(TestUtils.getTestD
 
   //def test_specific(): Unit = {
   //  typeRandomly(
-  //    test_file,
-  //    test_seed,
+  //    TestUtils.getTestDataPath + /parser/data/,
+  //    <test_seed>,
   //  )
   //}
 }
