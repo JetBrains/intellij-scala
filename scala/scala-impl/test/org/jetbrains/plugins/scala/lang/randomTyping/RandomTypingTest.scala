@@ -1,11 +1,11 @@
-package org.jetbrains.plugins.scala.lang.parser.typing
+package org.jetbrains.plugins.scala.lang.randomTyping
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.ui.EdtInvocationManager
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.parser.typing.RandomTypingTest._
+import org.jetbrains.plugins.scala.lang.randomTyping.RandomTypingTest._
 import org.jetbrains.plugins.scala.project.template.FileExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{NightlyTests, ScalaVersion}
