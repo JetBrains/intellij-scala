@@ -67,9 +67,15 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
   def typeRandomly(path: String, seed: Int): Unit =
     typeRandomly(new File(path), seed)
 
+  private val separatorRegex = raw"\n-{5,}".r
+
   def typeRandomly(file: File, seed: Int): Unit = {
     println(s"Testing(seed = $seed) ${file.getAbsolutePath}")
-    val targetText = FileUtil.loadFile(file).replace("-----\n", "")
+    val targetText = {
+      val text = FileUtil.loadFile(file)
+      separatorRegex.findFirstMatchIn(text)
+        .fold(text)(m => text.substring(0, m.start))
+    }
 
     try {
       typeRandomly(targetText, new Random(seed))
@@ -112,6 +118,10 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
           random.nextDouble() < probabilityToDoRandomDeletion
       val actionOffset = if (doRandomDeletion) {
         randomDeletions += 1
+
+        // we don't need to find loops when deleting random stuff
+        found.clear()
+
         val interestingOffsets =
           for ((c, i) <- file.getText.zipWithIndex if "()[]{}\"':".contains(c)) yield i
 
