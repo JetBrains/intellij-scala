@@ -41,6 +41,8 @@ final class CompilerHighlightingService(project: Project)
 
   @volatile private var progressIndicator: Option[ProgressIndicator] = None
 
+  // TODO: add logging for all reasons of why the compilation is triggered
+  //  Currently there quite many: project open, editor change, file modification, explicit setting toggle
   def triggerIncrementalCompilation(delayedProgressShow: Boolean = true,
                                     beforeCompilation: () => Unit = () => (),
                                     afterCompilation: () => Unit = () => ()): Unit =
