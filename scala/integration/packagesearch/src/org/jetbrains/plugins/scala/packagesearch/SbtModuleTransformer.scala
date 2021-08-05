@@ -59,7 +59,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
             module,
             null,
             buildFile,
-            SbtDependencyCommon.buildSystemType,
+            PackageSearchSbtBundle.buildSystemType,
             SbtProjectModuleType,
             (_,_,_) => null
         )
@@ -71,7 +71,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     }
 
   } catch {
-    case e: Exception => null
+    case _: Exception => null
   }
 
   override def transformModules(project: Project, list: util.List[_ <: Module]): util.List[ProjectModule] = {
