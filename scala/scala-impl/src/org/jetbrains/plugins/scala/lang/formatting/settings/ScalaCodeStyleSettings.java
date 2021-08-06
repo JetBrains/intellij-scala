@@ -13,9 +13,7 @@ import com.intellij.util.xmlb.XmlSerializer;
 import com.intellij.util.xmlb.annotations.OptionTag;
 import com.intellij.util.xmlb.annotations.Property;
 import org.jdom.Element;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.*;
 import org.jetbrains.plugins.scala.ScalaBundle;
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil;
 import scala.collection.immutable.ArraySeq;
@@ -132,7 +130,21 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   public boolean SPACES_IN_IMPORTS = false;
   public boolean SPACES_AROUND_AT_IN_PATTERNS = false;
   public boolean NEWLINE_AFTER_ANNOTATIONS = false;
+
+  public static final int ALIGN_ON_COLON = 1;
+  public static final int ALIGN_ON_TYPE = 2;
+  public static final int[] TYPE_ANNOTATION_ALIGN_VALUES = new int[]{DO_NOT_ALIGN, ALIGN_ON_COLON, ALIGN_ON_TYPE};
+  public static final String[] TYPE_ANNOTATION_ALIGN_STRING = new String[]{"Do not align", "On colon", "On type",};
+
+  /**
+   * @deprecated This field is left for migration only. Use {@link #ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS}
+   * @see org.jetbrains.plugins.scala.lang.formatting.settings.migration.CodeStyleSettingsMigrationServiceBase
+   */
+  @SuppressWarnings("DeprecatedIsStillUsed")
+  @Deprecated
   public boolean ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false;
+  public int ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = DO_NOT_ALIGN;
+
   public boolean KEEP_COMMENTS_ON_SAME_LINE = true;
   public boolean SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = false;
 

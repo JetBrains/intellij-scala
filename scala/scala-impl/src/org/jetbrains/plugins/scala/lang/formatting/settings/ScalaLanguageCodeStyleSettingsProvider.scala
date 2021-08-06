@@ -8,7 +8,7 @@ import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.codeStyle.CodeStyleSettingsCustomizable.OptionAnchor
 import com.intellij.psi.codeStyle.LanguageCodeStyleSettingsProvider.SettingsType
 import com.intellij.psi.codeStyle._
-import org.jetbrains.annotations.NonNls
+import org.jetbrains.annotations.{Nls, NonNls}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaLanguageCodeStyleSettingsProvider._
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaLanguage}
@@ -216,21 +216,23 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
 
     consumer.showStandardOptions(settingsToEnable.toArray: _*)
 
-    def opt(@NonNls fieldName: String, title: String, groupName: String,
-            keysAndValues: (Array[String], Array[Int]) = null): Unit = {
-      val options = if (keysAndValues != null) Array(keysAndValues._1, keysAndValues._2) else Array()
+    def opt(@NonNls fieldName: String, @Nls title: String, @Nls groupName: String,
+            keysAndValues: Array[(String, Int)] = Array()): Unit = {
+      val options: Array[AnyRef] = if (keysAndValues.nonEmpty)
+        Array(keysAndValues.map(_._1), keysAndValues.map(_._2))
+      else
+        Array()
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, options: _*)
     }
 
     //noinspection SpellCheckingInspection
-    def opta(@NonNls fieldName: String, title: String, groupName: String,
+    def opta(@NonNls fieldName: String, @Nls title: String, @Nls groupName: String,
              anchor: OptionAnchor, @NonNls anchorField: String,
              keysAndValues: Array[(String, Int)] = Array()): Unit = {
-      val options: Array[AnyRef] = if (keysAndValues.nonEmpty) {
+      val options: Array[AnyRef] = if (keysAndValues.nonEmpty)
         Array(keysAndValues.map(_._1), keysAndValues.map(_._2))
-      } else {
+      else
         Array()
-      }
       consumer.showCustomOption(classOf[ScalaCodeStyleSettings], fieldName, title, groupName, anchor, anchorField, options: _*)
     }
 
@@ -244,7 +246,7 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       import WrappingAndBracesCustomGroupNames._
       val ExtendsWithList = appMessage("wrapping.extends.implements.list")
       opt("ALIGN_EXTENDS_WITH", appMessage("wrapping.align.when.multiline"), ExtendsWithList,
-        (ScalaCodeStyleSettings.EXTENDS_ALIGN_STRING, ScalaCodeStyleSettings.EXTENDS_ALIGN_VALUES))
+        ScalaCodeStyleSettings.EXTENDS_ALIGN_STRING zip ScalaCodeStyleSettings.EXTENDS_ALIGN_VALUES)
       opt("WRAP_BEFORE_WITH_KEYWORD", ScalaBundle.message("wrapping.and.braces.panel.wrap.before.with.keyword"), ExtendsWithList)
       opt("ALIGN_IF_ELSE", ScalaBundle.message("wrapping.and.braces.panel.align.if.else.statements"), appMessage("wrapping.if.statement"))
       opt("METHOD_BRACE_FORCE", ScalaBundle.message("wrapping.and.braces.panel.force.braces"), METHOD_DEFINITION, BRACE_OPTION_AND_VALUES)
@@ -255,7 +257,10 @@ class ScalaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsPr
       opt("PLACE_CLOSURE_PARAMETERS_ON_NEW_LINE", ScalaBundle.message("wrapping.and.braces.panel.parameters.on.new.line"), ANONYMOUS_METHOD)
 
       opt("NOT_CONTINUATION_INDENT_FOR_PARAMS", ScalaBundle.message("wrapping.and.braces.panel.use.normal.indent.for.parameters"), options.WRAPPING_METHOD_PARAMETERS)
-      opt("ALIGN_TYPES_IN_MULTILINE_DECLARATIONS", ScalaBundle.message("wrapping.and.braces.panel.align.parameter.types.in.multiline.declarations"), options.WRAPPING_METHOD_PARAMETERS)
+      opt("ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS", ScalaBundle.message("wrapping.and.braces.panel.align.parameter.types.in.multiline.declarations"), options.WRAPPING_METHOD_PARAMETERS, {
+        import ScalaCodeStyleSettings._
+        TYPE_ANNOTATION_ALIGN_STRING.zip(TYPE_ANNOTATION_ALIGN_VALUES)
+      })
       opt("INDENT_FIRST_PARAMETER", ScalaBundle.message("wrapping.and.braces.panel.indent.first.parameter.if.on.new.line"), options.WRAPPING_METHOD_PARAMETERS)
       opt("INDENT_FIRST_PARAMETER_CLAUSE", ScalaBundle.message("wrapping.and.braces.panel.indent.first.parameter.clause.if.on.new.line"), options.WRAPPING_METHOD_PARAMETERS)
 
@@ -381,10 +386,9 @@ object ScalaLanguageCodeStyleSettingsProvider {
     private var panel: ScalaTabbedCodeStylePanel = _
   }
 
-  private val BRACE_OPTION_AND_VALUES: (Array[String], Array[Int]) = (
-    CodeStyleSettingsCustomizableOptions.getInstance().BRACE_OPTIONS,
-    CodeStyleSettingsCustomizable.BRACE_VALUES
-  )
+  private val BRACE_OPTION_AND_VALUES: (Array[(String, Int)]) =
+    CodeStyleSettingsCustomizableOptions.getInstance().BRACE_OPTIONS
+      .zip(CodeStyleSettingsCustomizable.BRACE_VALUES)
 
   private def example(@NonNls str: String): String = str.stripMargin.withNormalizedSeparator
 

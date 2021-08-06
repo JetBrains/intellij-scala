@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
-import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedSetting
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
@@ -1681,8 +1680,8 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   }
 
   // SCL-8939, SCL-18820
-  def testAlignParameterTypes(): Unit = {
-    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+  def testAlignParameterTypes_AlignColon(): Unit = {
+    getScalaSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = ScalaCodeStyleSettings.ALIGN_ON_COLON
     getScalaSettings.INDENT_FIRST_PARAMETER = false
 
     def doTest_WithSpaceBeforeTypeColon(): Unit = doTextTest(
@@ -1741,9 +1740,69 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTest_WithSpaceBeforeTypeColon()
   }
 
+  def testAlignParameterTypes_AlignType(): Unit = {
+    getScalaSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = ScalaCodeStyleSettings.ALIGN_ON_TYPE
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
+
+    def doTest_WithSpaceBeforeTypeColon(): Unit = doTextTest(
+      """def foo(
+        |  aaaaaa: String,
+        |  aa: String,
+        |  aaaa: String
+        |) = ???
+        |
+        |class Wrapper {
+        |  def foo(
+        |    aaaaaa: String,
+        |    aa: String,
+        |    aaaa: String
+        |  ) // just declaration
+        |}
+        |
+        |class StudyRunScreenView(
+        |  private val aaaaaaa: String,
+        |  private val aa: String,
+        |  private val aaaa: String,
+        |  private val aaaaa: String,
+        |  private val a: String,
+        |  private val aaaaaaaaa: String) {
+        |}
+        |""".stripMargin,
+      """def foo(
+        |  aaaaaa: String,
+        |  aa:     String,
+        |  aaaa:   String
+        |) = ???
+        |
+        |class Wrapper {
+        |  def foo(
+        |    aaaaaa: String,
+        |    aa:     String,
+        |    aaaa:   String
+        |  ) // just declaration
+        |}
+        |
+        |class StudyRunScreenView(
+        |  private val aaaaaaa:   String,
+        |  private val aa:        String,
+        |  private val aaaa:      String,
+        |  private val aaaaa:     String,
+        |  private val a:         String,
+        |  private val aaaaaaaaa: String) {
+        |}
+        |""".stripMargin,
+      repeats = 4
+    )
+
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    doTest_WithSpaceBeforeTypeColon()
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    doTest_WithSpaceBeforeTypeColon()
+  }
+
   // SCL-8939, SCL-18820
   def testAlignParameterTypes_FirstParameterOnPrevLine(): Unit = {
-    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+    getScalaSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = ScalaCodeStyleSettings.ALIGN_ON_COLON
 
     doTextTest(
       """def foo(aaaaaa: String,
@@ -1787,7 +1846,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
   }
 
   def testAlignParameterTypes_MultipleParameterClauses(): Unit = {
-    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+    getScalaSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = ScalaCodeStyleSettings.ALIGN_ON_COLON
     getScalaSettings.INDENT_FIRST_PARAMETER = false
 
     doTextTest(
@@ -1815,7 +1874,7 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
 
   // SCL-8939, SCL-18820
   def testAlignParameterTypes_SpaceBeforeColon(): Unit = {
-    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+    getScalaSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = ScalaCodeStyleSettings.ALIGN_ON_COLON
     getScalaSettings.SPACE_BEFORE_TYPE_COLON = true
     getScalaSettings.INDENT_FIRST_PARAMETER = false
 

@@ -60,8 +60,18 @@ object CodeStyleSettingsMigrationServiceBase {
       MULTILINE_STRING_INSERT_MARGIN_ON_ENTER = MULTILINE_STRING_SUPORT >= MULTILINE_STRING_INSERT_MARGIN_CHAR
     })
 
+
+    @nowarn("cat=deprecation")
+    val AlignTypesInMultilineDeclarations_FromBooleanTo3Values: MigrationItem = MigrationItem(2, scalaSettings => {
+      if (scalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS) {
+        scalaSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS = ScalaCodeStyleSettings.ALIGN_ON_COLON
+        scalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = false // to remove it from persisted settings
+      }
+    })
+
     val all: Seq[MigrationItem] = Seq(
-      DecomposeMultilineStringSupportSettings
+      DecomposeMultilineStringSupportSettings,
+      AlignTypesInMultilineDeclarations_FromBooleanTo3Values
     )
   }
 }
