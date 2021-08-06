@@ -180,8 +180,9 @@ object CompileServerLauncher {
         val nailgunClasspath = nailgunCpFiles
           .map(_.canonicalPath).mkString(File.pathSeparator)
         val buildProcessClasspath = {
-          // in worksheet tests we reuse compile server between project
-          // so we initialize it before the first test starts
+          // in worksheet tests we reuse compile server between projects
+          // we initialize it before the first test starts, so the project is `null`
+          // TODO: make project "Option"
           val pluginsClasspath = if (isUnitTestMode && project == null) Seq() else
             new BuildProcessClasspathManager(project.unloadAwareDisposable).getBuildProcessPluginsClasspath(project).asScala
           val applicationClasspath = ClasspathBootstrap.getBuildProcessApplicationClasspath.asScala
@@ -289,7 +290,7 @@ object CompileServerLauncher {
               // this line, printed to the stdout of dev IDEA instance will cause debugger
               // to automatically attach to the process in main IDEA instance
               // (works only if `debugger.auto.attach.from.console` registry is enabled in main IDEA instance)
-              println(s"Listening for transport dt_socket at address: $debugAgentPort")
+              LOG.info(s"Listening for transport dt_socket at address: $debugAgentPort")
             }
             process
           }
@@ -363,7 +364,7 @@ object CompileServerLauncher {
     IntellijPlatformJars.jpsBuildersJar,
     IntellijPlatformJars.utilJar,
     IntellijPlatformJars.trove4jJar,
-    IntellijPlatformJars.protobufJava,
+    IntellijPlatformJars.protobufJava, // required for org.jetbrains.jps.incremental.scala.remote.Main.compileJpsLogic
     IntellijPlatformJars.fastUtilJar,
     LibraryJars.scalaParserCombinators,
     ScalaPluginJars.scalaLibraryJar,
@@ -375,7 +376,7 @@ object CompileServerLauncher {
     ScalaPluginJars.incrementalCompilerJar,
     ScalaPluginJars.compilerJpsJar,
     ScalaPluginJars.replInterface,
-  )
+  ).distinct
 
   def jvmParameters: Seq[String] = {
     val settings = ScalaCompileServerSettings.getInstance

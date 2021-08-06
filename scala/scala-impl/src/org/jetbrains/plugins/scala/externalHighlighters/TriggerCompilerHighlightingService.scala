@@ -117,17 +117,7 @@ final class TriggerCompilerHighlightingService(project: Project)
     def clearDocumentCompilerOutputDirectories(): Unit =
       DocumentCompiler.get(project).clearOutputDirectories()
 
-    val psiManager = PsiManager.getInstance(project)
-    val showErrorsFromCompilerEnabledAtLeastForOneOpenedFile =
-      FileEditorManager.getInstance(project).getAllEditors.exists { editor =>
-        val isShowErrorsFromCompilerEnabled = for {
-          virtualFile <- Option(editor.getFile)
-          psiFile <- Option(inReadAction(psiManager.findFile(virtualFile)))
-        } yield ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
-        isShowErrorsFromCompilerEnabled.exists(identity)
-      }
-
-    if (showErrorsFromCompilerEnabledAtLeastForOneOpenedFile) // SCL-18946
+    if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor)
       CompilerHighlightingService.get(project).triggerIncrementalCompilation(
         beforeCompilation = { () =>
           saveChangedDocuments()
@@ -138,6 +128,22 @@ final class TriggerCompilerHighlightingService(project: Project)
           triggerSelectedDocumentCompilation()
         }
       )
+  }
+
+  // SCL-18946
+  def showErrorsFromCompilerEnabledAtLeastForOneOpenEditor: Boolean = {
+    val psiManager = PsiManager.getInstance(project)
+
+    def isEnabledFor(editor: FileEditor): Boolean = {
+      val isShowErrorsFromCompilerEnabled = for {
+        virtualFile <- Option(editor.getFile)
+        psiFile <- Option(inReadAction(psiManager.findFile(virtualFile)))
+      } yield ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile)
+      isShowErrorsFromCompilerEnabled.getOrElse(false)
+    }
+
+    val openEditors = FileEditorManager.getInstance(project).getAllEditors
+    openEditors.exists(isEnabledFor)
   }
 
   private def triggerDocumentCompilation(document: Document,

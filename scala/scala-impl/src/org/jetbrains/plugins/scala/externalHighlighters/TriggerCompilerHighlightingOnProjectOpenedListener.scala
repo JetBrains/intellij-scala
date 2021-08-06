@@ -10,8 +10,10 @@ class TriggerCompilerHighlightingOnProjectOpenedListener
   override def projectOpened(project: Project): Unit =
     if (!ApplicationManager.getApplication.isUnitTestMode && !LightEdit.owns(project)) {
       DumbService.getInstance(project).runWhenSmart { () =>
-        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) &&
+          TriggerCompilerHighlightingService.get(project).showErrorsFromCompilerEnabledAtLeastForOneOpenEditor) {
           CompilerHighlightingService.get(project).triggerIncrementalCompilation(delayedProgressShow = false)
+        }
       }
     }
 }

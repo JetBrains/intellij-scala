@@ -372,7 +372,9 @@ lazy val nailgunRunners =
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       Compile/unmanagedJars += nailgunJar.value,
       packageFileMappings += nailgunJar.value -> "lib/jps/nailgun.jar",
-      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
+      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true),
+      packageFileMappings +=
+        baseDirectory.value / "target/com/martiansoftware/nailgun/NGSession.class" -> "lib/jps/nailgun.jar!/com/martiansoftware/nailgun/NGSession.class",
     )
 
 lazy val decompiler =
@@ -484,7 +486,11 @@ lazy val packageSearchIntegration =
   newProject("packagesearch", file("scala/integration/packagesearch"))
     .dependsOn(scalaImpl)
     .settings(
-      intellijPlugins += "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
+      // should be same plugins as in .../packagesearch/resources/META-INF/packagesearch.xml
+      intellijPlugins ++= Seq(
+        "com.jetbrains.packagesearch.intellij-plugin".toPlugin,
+        "com.intellij.externalSystem.dependencyUpdater".toPlugin,
+      ),
     )
 
 
