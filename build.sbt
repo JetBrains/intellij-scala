@@ -372,9 +372,7 @@ lazy val nailgunRunners =
       (Compile / scalacOptions) := outOfIDEAProcessScalacOptions,
       Compile/unmanagedJars += nailgunJar.value,
       packageFileMappings += nailgunJar.value -> "lib/jps/nailgun.jar",
-      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true),
-      packageFileMappings +=
-        baseDirectory.value / "target/com/martiansoftware/nailgun/NGSession.class" -> "lib/jps/nailgun.jar!/com/martiansoftware/nailgun/NGSession.class",
+      packageMethod := PackagingMethod.Standalone("lib/scala-nailgun-runner.jar", static = true)
     )
 
 lazy val decompiler =
