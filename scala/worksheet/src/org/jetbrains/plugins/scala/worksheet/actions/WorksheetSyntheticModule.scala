@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.worksheet.actions
 
 
-import java.nio.file.Path
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.diagnostic.PluginException
+import com.intellij.openapi.diagnostic.{Attachment, Logger}
+import com.intellij.openapi.extensions.PluginId
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
@@ -10,6 +11,10 @@ import org.jetbrains.plugins.scala.extensions.LoggerExt
 import org.jetbrains.plugins.scala.project.settings.CompilerProfileAwareModule
 import org.jetbrains.plugins.scala.worksheet.actions.WorksheetSyntheticModule.Log
 import org.jetbrains.plugins.scala.worksheet.settings.WorksheetFileSettings
+
+import java.nio.file.Path
+import java.util
+import scala.jdk.CollectionConverters.{MapHasAsScala, SeqHasAsJava}
 
 /**
  * Lightweight module meant to be attached to a PsiFile via [[org.jetbrains.plugins.scala.project.UserDataKeys.SCALA_ATTACHED_MODULE]].
