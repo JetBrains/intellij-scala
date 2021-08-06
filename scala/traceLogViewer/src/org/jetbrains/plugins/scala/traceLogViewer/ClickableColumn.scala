@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 
 import java.awt.event.{MouseAdapter, MouseEvent}
 
-trait ClickableColumn[Item] { this: ColumnInfo[Item, _] =>
+trait ClickableColumn[Item] { this: ColumnInfo[Item, ?] =>
   def onClick(view: TreeTableView, e: MouseEvent, item: Item, row: Int): Unit
 }
 

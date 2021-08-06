@@ -7,7 +7,7 @@ import com.intellij.util.ui.ColumnInfo
 import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.extensions.ToNullSafe
 import org.jetbrains.plugins.scala.traceLogViewer.ClickableColumn
-import org.jetbrains.plugins.scala.traceLogViewer.viewer.TraceLogModel._
+import org.jetbrains.plugins.scala.traceLogViewer.viewer.TraceLogModel.*
 import org.jetbrains.plugins.scala.traceLogger.TraceLogReader.EnclosingResult
 import org.jetbrains.plugins.scala.traceLogger.protocol.{StackTraceEntry, TraceLoggerEntry}
 import org.jetbrains.plugins.scala.traceLogger.{Data, TraceLogReader}
@@ -40,7 +40,7 @@ object TraceLogModel {
     new TraceLogModel(root)
   }
 
-  trait ToggleChildrenColumn extends ClickableColumn[Node] { this: ColumnInfo[Node, _] =>
+  trait ToggleChildrenColumn extends ClickableColumn[Node] { this: ColumnInfo[Node, ?] =>
     override def onClick(view: TreeTableView, e: MouseEvent, item: Node, row: Int): Unit = {
       if (e.getClickCount >= 2) {
         val tree = view.getTree
@@ -50,7 +50,7 @@ object TraceLogModel {
     }
   }
 
-  private val Columns: Array[ColumnInfo[Node, _]] = Array(
+  private val Columns: Array[ColumnInfo[Node, ?]] = Array(
     new ColumnInfo[Node, Node]("Function") with ClickableColumn[Node] {
       override def valueOf(item: Node): Node = item
       override def getRenderer(item: Node): TableCellRenderer = new TraceLogFunctionCellRenderer
@@ -95,7 +95,7 @@ object TraceLogModel {
     override def getIndex(node: TreeNode): Int = -1
     override def getAllowsChildren: Boolean = false
     override def isLeaf: Boolean = true
-    override def children(): util.Enumeration[_ <: TreeNode] = util.Collections.emptyEnumeration()
+    override def children(): util.Enumeration[? <: TreeNode] = util.Collections.emptyEnumeration()
   }
 
   final class EnclosingNode(_msg: String,
@@ -115,7 +115,7 @@ object TraceLogModel {
     override def getIndex(node: TreeNode): Int = childrenSeq.indexOf(node)
     override def getAllowsChildren: Boolean = true
     override def isLeaf: Boolean = childrenSeq.isEmpty
-    override def children(): util.Enumeration[_ <: TreeNode] = childrenSeq.iterator.asJavaEnumeration
+    override def children(): util.Enumeration[? <: TreeNode] = childrenSeq.iterator.asJavaEnumeration
   }
 
   private object NodesReader extends TraceLogReader {

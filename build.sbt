@@ -112,7 +112,7 @@ lazy val traceLogger = newProject(
 ).settings(
   libraryDependencies ++= DependencyGroups.traceLogger,
   libraryDependencies ++= Seq(Dependencies.scalaReflect, Dependencies.scalaCompiler),
-  scalacOptions ++= Seq(
+  Compile / scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",
     "-feature",
@@ -132,12 +132,13 @@ lazy val traceLogViewer = newProject(
   traceLogger,
   scalaImpl % "test->test;compile->compile"
 ).settings(
-  scalacOptions ++= Seq(
+  Compile / scalacOptions ++= Seq(
     "-deprecation",
     "-unchecked",
     "-feature",
     "-Xlint",
-    "-Xfatal-warnings"
+    "-Xfatal-warnings",
+    "-Xsource:3",
   ),
   // the internet says this is smart thing to do
   (Compile / console / scalacOptions) ~= {

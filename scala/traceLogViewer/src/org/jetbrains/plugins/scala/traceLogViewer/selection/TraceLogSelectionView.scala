@@ -20,7 +20,7 @@ import java.awt.event.{HierarchyEvent, MouseAdapter, MouseEvent}
 import java.nio.file.Files
 import javax.swing.RowSorter.SortKey
 import javax.swing.{JPanel, SortOrder}
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 object TraceLogSelectionView {
   private val ActionToolbarPlace = "scala-trace-log-selection-view-actionbar"

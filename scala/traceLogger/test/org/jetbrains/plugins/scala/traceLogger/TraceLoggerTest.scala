@@ -1,5 +1,7 @@
 package org.jetbrains.plugins.scala.traceLogger
 
+import scala.annotation.nowarn
+
 class TraceLoggerTest extends TraceLoggerTestBase {
   override def toString: Data = "[TraceLoggerTest]"
 
@@ -40,6 +42,7 @@ class TraceLoggerTest extends TraceLoggerTestBase {
       TraceLogger.log("done", b)
     }
 
+  @nowarn("msg=parameter value implicitArg in method func is never used")
   def test_func(): Unit = {
     doTest(
       """
