@@ -5,7 +5,7 @@ import javax.swing.Icon
 import com.intellij.ide.IdeView
 import com.intellij.ide.actions.CreateTemplateInPackageAction
 import com.intellij.ide.fileTemplates.{FileTemplateManager, JavaTemplateUtil}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys, PlatformDataKeys}
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
@@ -56,7 +56,7 @@ abstract class NewTypeDefinitionBase[T <: ScTemplateDefinition](@Nls txt: String
   }
 
   protected def isUnderSourceRoots(dataContext: DataContext): Boolean =
-    (dataContext getData PlatformDataKeys.MODULE.getName, dataContext getData LangDataKeys.IDE_VIEW.getName,
+    (dataContext getData PlatformCoreDataKeys.MODULE.getName, dataContext getData LangDataKeys.IDE_VIEW.getName,
      dataContext getData CommonDataKeys.PROJECT.getName) match {
       case (module: Module, view: IdeView, project: Project) =>
         if (!Option(module).exists(checkModule)) return false

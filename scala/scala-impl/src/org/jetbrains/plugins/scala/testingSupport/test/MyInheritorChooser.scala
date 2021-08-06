@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.junit.InheritorChooser
 import com.intellij.ide.util.PsiClassListCellRenderer
-import com.intellij.openapi.actionSystem.PlatformDataKeys
+import com.intellij.openapi.actionSystem.PlatformCoreDataKeys
 import com.intellij.openapi.fileEditor.TextEditor
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.util.Condition
@@ -11,6 +11,7 @@ import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi._
 import com.intellij.psi.search.searches.ClassInheritorsSearch
 import com.intellij.ui.components.JBList
+
 import javax.swing.ListCellRenderer
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -44,7 +45,7 @@ private class MyInheritorChooser(
       return true
     }
 
-    val fileEditor = PlatformDataKeys.FILE_EDITOR.getData(context.getDataContext)
+    val fileEditor = PlatformCoreDataKeys.FILE_EDITOR.getData(context.getDataContext)
     fileEditor match {
       case editor: TextEditor =>
         val document = editor.getEditor.getDocument

@@ -1,9 +1,6 @@
 package org.jetbrains.plugins.scala.lang.actions;
 
-import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.actionSystem.DataProvider;
-import com.intellij.openapi.actionSystem.LangDataKeys;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.project.Project;
@@ -57,7 +54,7 @@ public abstract class ActionTestBase extends ScalaFileSetTestCase {
     @Nullable
     public Object getData(@NotNull @NonNls String dataId) {
       if (LangDataKeys.LANGUAGE.is(dataId)) return myFile.getLanguage();
-      if (PlatformDataKeys.PROJECT.is(dataId)) return myFile.getProject();
+      if (PlatformCoreDataKeys.PROJECT.is(dataId)) return myFile.getProject();
       return null;
     }
   }

@@ -47,9 +47,9 @@ import com.intellij.testFramework.fixtures.IdeaProjectTestFixture;
 import com.intellij.testFramework.fixtures.IdeaTestFixtureFactory;
 import com.intellij.util.ArrayUtil;
 import com.intellij.util.ThrowableRunnable;
+import com.intellij.util.containers.CollectionFactory;
 import com.intellij.util.io.PathKt;
 import com.intellij.util.io.TestFileSystemItem;
-import com.intellij.util.text.FilePathHashingStrategy;
 import gnu.trove.THashSet;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -513,9 +513,10 @@ public abstract class ExternalSystemTestCase extends UsefulTestCase {
         assertEquals(new HashSet<T>(expected), new HashSet<T>(actual));
     }
 
+
     protected static void assertUnorderedPathsAreEqual(Collection<String> actual, Collection<String> expected) {
-        assertEquals(new SetWithToString<>(new THashSet<>(expected, FilePathHashingStrategy.create())),
-                new SetWithToString<>(new THashSet<>(actual, FilePathHashingStrategy.create())));
+        assertEquals(new SetWithToString<>(CollectionFactory.createFilePathSet(expected)),
+                new SetWithToString<>(CollectionFactory.createFilePathSet(actual)));
     }
 
     @SuppressWarnings("unchecked")

@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.conversion.copy.plainText
 
 import com.intellij.ide.{IdeView, PasteProvider}
-import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformDataKeys}
+import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext, LangDataKeys, PlatformCoreDataKeys, PlatformDataKeys}
 import com.intellij.openapi.fileEditor.OpenFileDescriptor
 import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.module.Module
@@ -82,7 +82,7 @@ private object ScalaFilePasteProvider {
   implicit class DataContextExt(private val context: DataContext) extends AnyVal {
     def maybeIdeView: Option[IdeView] = Option(LangDataKeys.IDE_VIEW.getData(context))
     def maybeProject: Option[Project] = Option(CommonDataKeys.PROJECT.getData(context))
-    def maybeModule: Option[Module] = Option(PlatformDataKeys.MODULE.getData(context))
+    def maybeModule: Option[Module] = Option(PlatformCoreDataKeys.MODULE.getData(context))
   }
 
   implicit class CopyPasteManagerExt(private val manager: CopyPasteManager) extends AnyVal {

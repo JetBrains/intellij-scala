@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package actions
+package org.jetbrains.plugins.scala.actions
 
 import com.intellij.ide.fileTemplates.actions.AttributesDefaults
 import com.intellij.openapi.actionSystem._
@@ -31,7 +30,7 @@ class NewPackageObjectAction extends LazyFileTemplateAction(
             .map(_.getQualifiedName)
             .exists(!_.isEmpty)
 
-    val module: Module = e.getDataContext.getData(PlatformDataKeys.MODULE.getName).asInstanceOf[Module]
+    val module: Module = e.getDataContext.getData(PlatformCoreDataKeys.MODULE.getName).asInstanceOf[Module]
     val isEnabled: Boolean = Option(module).exists(_.hasScala)
 
     e.getPresentation.setEnabled(hasPackage && isEnabled)
