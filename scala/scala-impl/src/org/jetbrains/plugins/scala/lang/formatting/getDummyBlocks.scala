@@ -46,7 +46,8 @@ object getDummyBlocks {
 
   private case class InterpolatedStringAlignments(quotes: Alignment, marginChar: Alignment)
   private val interpolatedStringAlignmentsKey: Key[InterpolatedStringAlignments] = Key.create("interpolated.string.alignment")
-  private val colonInTypeAnnotationAlignmentsKey: Key[Alignment] = Key.create("colon.in.type.annotation.alignments.key")
+  /** the alignment can be applied both to the colon and type annotation itself, depending on ScalaCodeStyleSettings.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS  */
+  private val typeParameterTypeAnnotationAlignmentsKey: Key[Alignment] = Key.create("colon.in.type.annotation.alignments.key")
 
   private val fieldGroupAlignmentKey: Key[Alignment] = Key.create("field.group.alignment.key")
 
@@ -71,8 +72,8 @@ object getDummyBlocks {
   private def cachedAlignment(literal: ScInterpolatedStringLiteral): Option[InterpolatedStringAlignments] =
     Option(literal.getUserData(interpolatedStringAlignmentsKey))
 
-  private def cachedColonInTypeAnnotationAlignment(clause: ScParameterClause): Option[Alignment] =
-    Option(clause.getUserData(colonInTypeAnnotationAlignmentsKey))
+  private def cachedParameterTypeAnnotationAlignment(clause: ScParameterClause): Option[Alignment] =
+    Option(clause.getUserData(typeParameterTypeAnnotationAlignmentsKey))
 
   // TODO: rename to isNonEmptyNode
   // TODO: rename FormatterUtil to ScalaFormatterUtil
@@ -195,7 +196,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
         //create and store alignment; required for support of multi-line interpolated strings (SCL-8665)
         interpolated.putUserData(interpolatedStringAlignmentsKey, buildQuotesAndMarginAlignments)
       case paramClause: ScParameterClause =>
-        paramClause.putUserData(colonInTypeAnnotationAlignmentsKey, Alignment.createAlignment(true))
+        paramClause.putUserData(typeParameterTypeAnnotationAlignmentsKey, Alignment.createAlignment(true))
       case psi@(_: ScValueOrVariable | _: ScFunction) if node.getFirstChildNode.getPsi.isInstanceOf[PsiComment] =>
         val childrenFiltered: Array[ASTNode] = node.getChildren(null).filter(isNotEmptyNode)
         val childHead :: childTail = childrenFiltered.toList
@@ -296,13 +297,18 @@ class getDummyBlocks(private val block: ScalaBlock) {
           case _ => null
         }
       case param: ScParameter =>
-        child.getElementType match {
-          case `tCOLON` if ss.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS =>
-            val parameterClause = Option(PsiTreeUtil.getParentOfType(param, classOf[ScParameterClause], false))
-            val alignmentOpt = parameterClause.flatMap(cachedColonInTypeAnnotationAlignment)
-            alignmentOpt.getOrElse(sharedAlignment)
-          case _ => sharedAlignment
+        import ScalaCodeStyleSettings._
+        val addAlignmentToChild = ss.ALIGN_PARAMETER_TYPES_IN_MULTILINE_DECLARATIONS match {
+          case ALIGN_ON_COLON => child.getElementType == tCOLON
+          case ALIGN_ON_TYPE  => child.getElementType == ScalaElementType.PARAM_TYPE
+          case _              => false
         }
+        if (addAlignmentToChild) {
+          val parameterClause = Option(PsiTreeUtil.getParentOfType(param, classOf[ScParameterClause], false))
+          val alignmentOpt = parameterClause.flatMap(cachedParameterTypeAnnotationAlignment)
+          alignmentOpt.getOrElse(sharedAlignment)
+        }
+        else sharedAlignment
       case literal: ScInterpolatedStringLiteral if child.getElementType == tINTERPOLATED_STRING_END =>
         cachedAlignment(literal).map(_.quotes).orNull
       case _ =>
