@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests
 
 import com.intellij.psi.codeStyle.CommonCodeStyleSettings
+import org.jetbrains.plugins.scala.compilation.CompilerTestUtil.withModifiedSetting
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 
@@ -1638,30 +1639,240 @@ class ScalaBugsTest extends AbstractScalaFormatterTestBase {
     doTextTest(before, after)
   }
 
-  def testSCL8939(): Unit = {
-    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
-    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
-    getScalaSettings.SPACE_BEFORE_TYPE_COLON = true
+  def testAlignParameterTypes_Disabled(): Unit = {
+    doTextTest(
+      """def foo(
+        |         aaaaa: String,
+        |         aaaaaaa: String,
+        |         aaa: Int,
+        |         aaaaaaaaaa: Int
+        |       ) = ???
+        |
+        |class Wrapper {
+        |  def foo(
+        |           aaaaaa: String,
+        |           aa: String,
+        |           aaaa: String
+        |         ) = ???
+        |}
+        |""".stripMargin,
+      actionRepeats = 3
+    )
 
-    val before =
-      """
-        |def foo(
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
+    doTextTest(
+      """def foo(
+        |  aaaaa: String,
+        |  aaaaaaa: String,
+        |  aaa: Int,
+        |  aaaaaaaaaa: Int
+        |) = ???
+        |
+        |class Wrapper {
+        |  def foo(
+        |    aaaaaa: String,
+        |    aa: String,
+        |    aaaa: String
+        |  ) = ???
+        |}
+        |""".stripMargin,
+      actionRepeats = 3
+    )
+  }
+
+  // SCL-8939, SCL-18820
+  def testAlignParameterTypes(): Unit = {
+    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
+
+    def doTest_WithSpaceBeforeTypeColon(): Unit = doTextTest(
+      """def foo(
+        |  aaaaaa: String,
+        |  aa: String,
+        |  aaaa: String
+        |) = ???
+        |
+        |class Wrapper {
+        |  def foo(
+        |    aaaaaa: String,
+        |    aa: String,
+        |    aaaa: String
+        |  ) // just declaration
+        |}
+        |
+        |class StudyRunScreenView(
+        |  private val aaaaaaa: String,
+        |  private val aa: String,
+        |  private val aaaa: String,
+        |  private val aaaaa: String,
+        |  private val a: String,
+        |  private val aaaaaaaaa: String) {
+        |}
+        |""".stripMargin,
+      """def foo(
+        |  aaaaaa: String,
+        |  aa    : String,
+        |  aaaa  : String
+        |) = ???
+        |
+        |class Wrapper {
+        |  def foo(
+        |    aaaaaa: String,
+        |    aa    : String,
+        |    aaaa  : String
+        |  ) // just declaration
+        |}
+        |
+        |class StudyRunScreenView(
+        |  private val aaaaaaa  : String,
+        |  private val aa       : String,
+        |  private val aaaa     : String,
+        |  private val aaaaa    : String,
+        |  private val a        : String,
+        |  private val aaaaaaaaa: String) {
+        |}
+        |""".stripMargin,
+      repeats = 4
+    )
+
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    doTest_WithSpaceBeforeTypeColon()
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    doTest_WithSpaceBeforeTypeColon()
+  }
+
+  // SCL-8939, SCL-18820
+  def testAlignParameterTypes_FirstParameterOnPrevLine(): Unit = {
+    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+
+    doTextTest(
+      """def foo(aaaaaa: String,
+        |        aa: String,
+        |        aaaa: String)
+        |
+        |class Wrapper {
+        |  def foo(aaaaaa: String,
+        |          aa: String,
+        |          aaaa: String)
+        |}
+        |
+        |class StudyRunScreenView(private val aaaaaaa: String,
+        |                         private val aa: String,
+        |                         private val aaaa: String,
+        |                         private val aaaaa: String,
+        |                         private val a: String,
+        |                         private val aaaaaaaaa: String) {
+        |}
+        |""".stripMargin,
+      """def foo(aaaaaa: String,
+        |        aa    : String,
+        |        aaaa  : String)
+        |
+        |class Wrapper {
+        |  def foo(aaaaaa: String,
+        |          aa    : String,
+        |          aaaa  : String)
+        |}
+        |
+        |class StudyRunScreenView(private val aaaaaaa  : String,
+        |                         private val aa       : String,
+        |                         private val aaaa     : String,
+        |                         private val aaaaa    : String,
+        |                         private val a        : String,
+        |                         private val aaaaaaaaa: String) {
+        |}
+        |""".stripMargin,
+      repeats = 4
+    )
+  }
+
+  def testAlignParameterTypes_MultipleParameterClauses(): Unit = {
+    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
+
+    doTextTest(
+      """def foo(
+        |  aaaaaa: String,
+        |  aa: String,
+        |  aaaa: String
+        |)(
+        |  bbbbbbbbbb: String,
+        |  bbbb: String,
+        |  bbbbbbbbbbb: String
+        |)""".stripMargin,
+      """def foo(
+        |  aaaaaa: String,
+        |  aa    : String,
+        |  aaaa  : String
+        |)(
+        |  bbbbbbbbbb : String,
+        |  bbbb       : String,
+        |  bbbbbbbbbbb: String
+        |)""".stripMargin,
+      repeats = 4
+    )
+  }
+
+  // SCL-8939, SCL-18820
+  def testAlignParameterTypes_SpaceBeforeColon(): Unit = {
+    getScalaSettings.ALIGN_TYPES_IN_MULTILINE_DECLARATIONS = true
+    getScalaSettings.SPACE_BEFORE_TYPE_COLON = true
+    getScalaSettings.INDENT_FIRST_PARAMETER = false
+
+    def doTest_WithSpaceBeforeTypeColon(): Unit = doTextTest(
+      """def foo(
         |  aaaaaa: String,
         |  aa: String,
         |  aaaa: String
         |)
-      """.stripMargin
-
-    val after =
-      """
-        |def foo(
+        |
+        |class Wrapper {
+        |  def foo(
+        |    aaaaaa: String,
+        |    aa: String,
+        |    aaaa: String
+        |  )
+        |}
+        |
+        |class StudyRunScreenView(
+        |  private val aaaaaaa: String,
+        |  private val aa: String,
+        |  private val aaaa: String,
+        |  private val aaaaa: String,
+        |  private val a: String,
+        |  private val aaaaaaaaa: String) {
+        |}
+        |""".stripMargin,
+      """def foo(
         |  aaaaaa : String,
         |  aa     : String,
         |  aaaa   : String
         |)
-      """.stripMargin
+        |
+        |class Wrapper {
+        |  def foo(
+        |    aaaaaa : String,
+        |    aa     : String,
+        |    aaaa   : String
+        |  )
+        |}
+        |
+        |class StudyRunScreenView(
+        |  private val aaaaaaa   : String,
+        |  private val aa        : String,
+        |  private val aaaa      : String,
+        |  private val aaaaa     : String,
+        |  private val a         : String,
+        |  private val aaaaaaaaa : String) {
+        |}
+        |""".stripMargin,
+      repeats = 4
+    )
 
-    doTextTest(before, after)
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = false
+    doTest_WithSpaceBeforeTypeColon()
+    getCommonSettings.ALIGN_MULTILINE_PARAMETERS = true
+    doTest_WithSpaceBeforeTypeColon()
   }
 
   def testSCL10477(): Unit = {

@@ -18,8 +18,13 @@ private[editor] object ScalaEditorUtils {
   @Nullable
   def findElementAtCaret_WithFixedEOF(file: PsiFile, documentLength: => Int, caretOffset: Int): PsiElement = {
     val elementAtCaret = file.findElementAt(caretOffset)
-    if (elementAtCaret == null && documentLength == caretOffset)
-      PsiTreeUtil.getDeepestLast(file)
+    if (elementAtCaret == null && documentLength == caretOffset) {
+      val deepest = PsiTreeUtil.getDeepestLast(file)
+      if (deepest eq file) // if file is empty, getDeepestLast returns the file
+        null
+      else
+        deepest
+    }
     else
       elementAtCaret
   }

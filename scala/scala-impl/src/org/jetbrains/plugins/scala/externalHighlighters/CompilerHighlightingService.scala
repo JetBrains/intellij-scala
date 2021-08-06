@@ -4,27 +4,28 @@ import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.codeInsight.template.TemplateManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.components.{Service, ServiceManager}
+import com.intellij.openapi.components.Service
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.editor.{Document, EditorFactory}
 import com.intellij.openapi.progress.util.ProgressIndicatorBase
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.ModificationTracker
 import com.intellij.openapi.wm.ex.{StatusBarEx, WindowManagerEx}
-import com.intellij.psi.PsiFile
 import com.intellij.util.ui.UIUtil
 import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.externalHighlighters.CompilerHighlightingService.Log
 import org.jetbrains.plugins.scala.externalHighlighters.compiler._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.util.RescheduledExecutor
 
 import scala.annotation.nowarn
-import scala.concurrent.{Await, Promise}
 import scala.concurrent.duration.Duration
+import scala.concurrent.{Await, Promise}
 import scala.util.Try
 
 @Service
@@ -40,6 +41,8 @@ final class CompilerHighlightingService(project: Project)
 
   @volatile private var progressIndicator: Option[ProgressIndicator] = None
 
+  // TODO: add logging for all reasons of why the compilation is triggered
+  //  Currently there quite many: project open, editor change, file modification, explicit setting toggle
   def triggerIncrementalCompilation(delayedProgressShow: Boolean = true,
                                     beforeCompilation: () => Unit = () => (),
                                     afterCompilation: () => Unit = () => ()): Unit =
@@ -115,7 +118,7 @@ final class CompilerHighlightingService(project: Project)
     val task: Task.Backgroundable = new Task.Backgroundable(project, taskMsg, true) {
       override def run(indicator: ProgressIndicator): Unit = CompilerLock.get(project).withLock {
         progressIndicator = Some(indicator)
-        val client = new CompilerEventGeneratingClient(project, indicator)
+        val client = new CompilerEventGeneratingClient(project, indicator, Log)
         val result = Try(compile(client))
         progressIndicator = None
         showIndicatorExecutor.cancel()
@@ -155,6 +158,8 @@ final class CompilerHighlightingService(project: Project)
 }
 
 object CompilerHighlightingService {
+
+  private val Log = Logger.getInstance(classOf[CompilerHighlightingService])
 
   def get(project: Project): CompilerHighlightingService =
     project.getService(classOf[CompilerHighlightingService])

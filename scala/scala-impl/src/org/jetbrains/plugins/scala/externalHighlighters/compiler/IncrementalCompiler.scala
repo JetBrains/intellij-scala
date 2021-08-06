@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.compiler.CompileServerClient
 
 import java.io.File
 
-object IncrementalCompiler {
+private[externalHighlighters] object IncrementalCompiler {
 
   def compile(project: Project, client: Client): Unit = {
     val projectPath = Option(project.getPresentableUrl)

@@ -55,12 +55,7 @@ final class ScalaTypedHandler extends TypedHandlerDelegate
     val offset = editor.offset
     val document = editor.getDocument
 
-    val element = file.findElementAt(offset - 1) match {
-      case null if offset == document.getTextLength =>
-        // eg when typing space in the end of worksheet
-        PsiTreeUtil.getDeepestLast(file)
-      case el => el
-    }
+    val element = ScalaEditorUtils.findElementAtCaret_WithFixedEOF(file, document.getTextLength - 1, offset - 1)
     if (element == null)
       return Result.CONTINUE
 

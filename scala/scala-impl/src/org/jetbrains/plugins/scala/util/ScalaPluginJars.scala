@@ -1,12 +1,11 @@
 package org.jetbrains.plugins.scala.util
 
-import com.google.protobuf.GeneratedMessageLite
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.util.PathUtil
 import gnu.trove.TByteArrayList
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap
 import org.jetbrains.jps.incremental.BuilderService
+import org.jetbrains.plugins.scala.extensions.invokeLater
 
 import java.io.File
 import scala.util.parsing.combinator.RegexParsers
@@ -42,7 +41,30 @@ object IntellijPlatformJars {
   val utilJar        = new File(PathUtil.getJarPathForClass(classOf[FileUtil]))
   val trove4jJar     = new File(PathUtil.getJarPathForClass(classOf[TByteArrayList]))
   val fastUtilJar    = new File(PathUtil.getJarPathForClass(classOf[Int2ObjectMap[_]]))
-  val protobufJava   = new File(PathUtil.getJarPathForClass(classOf[GeneratedMessageLite[_, _]]))
+
+  /**
+   * NOTE:<br>
+   * There are several protobuf classes in the plugin classpath.<br>
+   *  - The required classes (which are used by JPS) are located in "lib/protobuf-java-x.y.z.jar"<br>
+   *  - There are also protobuf classes bundled in `layoutlib-27.2.0.0.jar`<br>
+   *    The jar is used in the Android plugin, which goes by default in IDEA.<br>
+   *
+   * We need to ensure that we resolve the right class to avoid issues with communicating with JPS (e.g. SCL-19414).
+   */
+  val protobufJava: File = {
+    val result = new File(PathUtil.getJarPathForClass(classOf[com.google.protobuf.Message]))
+    // example in 2021.2: <idea system dir>/lib/protobuf-java-3.15.8.jar
+    val Regex = raw"""^.*?/lib/protobuf-java-\d+\.\d+\.\d+\.jar$$""".r
+    result.toString.replace("\\", "/").toLowerCase match {
+      case Regex() =>
+      case _ =>
+        invokeLater {
+          throw new AssertionError(s"Unexpected protobuf jar location: $result")
+          ()
+        }
+    }
+    result
+  }
 }
 
 object LibraryJars {
