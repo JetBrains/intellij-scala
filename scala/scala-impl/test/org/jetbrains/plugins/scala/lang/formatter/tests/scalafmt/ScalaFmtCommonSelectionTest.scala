@@ -7,7 +7,7 @@ class ScalaFmtCommonSelectionTest extends ScalaFmtCommonSelectionTestBase
 class ScalaFmtCommonSelectionTest_2_7 extends ScalaFmtCommonSelectionTestBase with UseConfig_2_7
 
 //noinspection RedundantBlock
-trait ScalaFmtCommonSelectionTestBase extends ScalaFmtTestBase with Markers {
+trait ScalaFmtCommonSelectionTestBase extends ScalaFmtSelectionTestBase with Markers {
 
   def testExprSelection(): Unit =
     doTextTest(

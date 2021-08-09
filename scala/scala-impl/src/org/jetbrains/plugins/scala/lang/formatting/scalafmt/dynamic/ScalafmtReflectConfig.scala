@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic
 
-import java.lang.reflect.Constructor
-
+import java.lang.reflect.{Constructor, Method}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.exceptions.ReflectionException
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.utils.ReflectUtils._
 
@@ -26,12 +25,10 @@ class ScalafmtReflectConfig private[dynamic](
 
   private val rewriteRulesMethod = Try(targetCls.getMethod("rewrite")).toOption
 
-  private val continuationIndentMethod         = Try(targetCls.getMethod("continuationIndent")).toOption
-  private val continuationIndentCallSiteMethod = Try(targetCls.getMethod("continuationIndentCallSite")).toOption
-  private val continuationIndentDefnSiteMethod = Try(targetCls.getMethod("continuationIndentDefnSite")).toOption
-
-  private val DefaultIndentCallSite = 2
-  private val DefaultIndentDefnSite = 4
+  // NOTE: since 3.0.0 was renamed from continuationIndent to indent
+  private val indentMethod: Option[Method] =
+    Try(targetCls.getMethod("continuationIndent"))
+      .orElse(Try(targetCls.getMethod("indent"))).toOption
 
   private val sbtDialect: Object =
     try dialectsCls.invokeStatic("Sbt") catch {
@@ -80,32 +77,40 @@ class ScalafmtReflectConfig private[dynamic](
       this
     }
 
-  val continuationIndentCallSite: Int =
-    continuationIndentMethod match {
-      case Some(method) => // >v0.4
+  val indents: ScalafmtIndents = ScalafmtIndents(
+    indentMain,
+    indentCallSite,
+    indentDefnSite,
+  )
+
+  private def indentMain: Int =
+    indentMethod match {
+      case Some(method) =>
+        val indentsObj = method.invoke(target)
+        Try(indentsObj.invokeAs[Int]("main")).recover {
+          case _: NoSuchMethodException =>
+            ScalafmtIndents.Default.main
+        }.get
+      case None =>
+        ScalafmtIndents.Default.main
+    }
+
+  private def indentCallSite: Int =
+    indentMethod match {
+      case Some(method) =>
         val indentsObj = method.invoke(target)
         indentsObj.invokeAs[Int]("callSite")
       case None =>
-        continuationIndentCallSiteMethod match {
-          case Some(method) => // >v0.2.0
-            method.invoke(target).asInstanceOf[Int]
-          case None =>
-            DefaultIndentCallSite
-        }
+        ScalafmtIndents.Default.callSite
     }
 
-  val continuationIndentDefnSite: Int =
-    continuationIndentMethod match {
+  private def indentDefnSite: Int =
+    indentMethod match {
       case Some(method) =>
         val indentsObj = method.invoke(target)
         indentsObj.invokeAs[Int]("defnSite")
       case None =>
-        continuationIndentDefnSiteMethod match {
-          case Some(method) =>
-            method.invoke(target).asInstanceOf[Int]
-          case None =>
-            DefaultIndentDefnSite
-        }
+        ScalafmtIndents.Default.defnSite
     }
 
   override def equals(obj: Any): Boolean = target.equals(obj)

@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
 import org.jetbrains.plugins.scala.util.Markers
 
-class ScalaFmtCustomConfigSelectionTest extends ScalaFmtTestBase with Markers {
+class ScalaFmtCustomConfigSelectionTest extends ScalaFmtSelectionTestBase with Markers {
 
   def testScl14129_avoidInfix(): Unit = {
     setScalafmtConfig("avoidInfix.conf")
