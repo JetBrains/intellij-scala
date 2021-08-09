@@ -20,602 +20,353 @@ class AutoBracesTypingTest extends AutoBraceTestBase {
 //    'e'
 //  )
 
+  def checkTypingInAllContexts_DoesNotWrapBodyWithBraces(bodyBefore: String, bodyAfter: String, typedChar: Char): Unit = {
+    allContexts.foreach(checkInContext(bodyBefore, bodyAfter, bodyAfter, _, checkGeneratedTextAfterTyping(_, _, typedChar)))
+  }
 
-  def testTypingAfterIndentation(): Unit = checkTypingInAllContexts(
+  def checkTypingInAllContexts_WrapsBodyWithBraces(bodyBefore: String, typedText: String): Unit = {
+    allContexts.foreach(checkTyping_WrapsBodyWithBraces(bodyBefore, _, typedText))
+  }
+
+  def checkTypingInUncontinuedContexts_WrapsBodyWithBraces(bodyBefore: String, typedChar: Char): Unit = {
+    uncontinuedContexts.foreach(checkTyping_WrapsBodyWithBraces(bodyBefore, _, typedChar.toString))
+  }
+
+  def checkTypingInAllContexts_WrapsBodyWithBraces(bodyBefore: String, typedChar: Char): Unit = {
+    checkTypingInAllContexts_WrapsBodyWithBraces(bodyBefore, typedChar.toString)
+  }
+
+  def checkTyping_WrapsBodyWithBraces(
+    bodyBefore: String,
+    context: BodyContext,
+    typedText: String,
+  ): Unit = {
+    val before = injectCodeWithIndentAdjust(bodyBefore, context.textWithoutContinuationPlaceholder)
+
+    val bodyWithTypedText = s"""${bodyBefore.replace(CARET, typedText + CARET)}"""
+
+    val afterWithSettingsTurnedOff = injectCodeWithIndentAdjust(bodyWithTypedText, context.textWithoutContinuationPlaceholder)
+
+    // for code with continuation, insert closing brace just before the continuation (with extra space)
+    // for code without continuation insert closing brace after the body actual (assuming body ends with single new line)
+    val after =
+      if (context.withContinuation)
+        injectCodeWithIndentAdjust(s" {$bodyWithTypedText", context.text).replace(ContinuationPlaceholder, "} ")
+      else
+        injectCodeWithIndentAdjust(s" {$bodyWithTypedText}\n", context.text)
+
+    checkWithSettingsOnAndOf(before, after, afterWithSettingsTurnedOff, checkGeneratedTextAfterTypingText(_, _, typedText))
+  }
+
+  def testTypingAfterIndentation(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  expr
-       |  x$CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  expr
-       |  x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingAfterIndentBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
+  def testTypingAfterIndentation_AfterComment(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
+       |  expr // comment
        |  $CARET
-       |  expr
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  x$CARET
-       |  expr
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  x$CARET
-       |  expr
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingAfterDoubleIndentation(): Unit = checkTypingInAllContexts(
+  def testTypingAfterIndentBeforeIndentedExpr(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
+       |  $CARET
+       |  expr
+       |""".stripMargin,
+    'x'
+  )
+
+  def testTypingAfterDoubleIndentation(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
+    s"""
        |  expr
        |   $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |   x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |   x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingAfterSecondIndentation(): Unit = checkTypingInAllContexts(
+  def testTypingAfterSecondIndentation(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  expr
        |   .prod
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  expr
-       |   .prod
-       |  x$CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  expr
-       |   .prod
-       |  x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingInUnindented(): Unit = checkTypingInAllContexts(
+  def testTypingInUnindented(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
     s"""
-       |def test =
        |  expr
        |$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingAfterEmptyLinesAndIndent(): Unit = checkTypingInAllContexts(
+  def testTypingAfterEmptyLinesAndIndent(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  expr
        |
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  expr
-       |
-       |  x$CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  expr
-       |
-       |  x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
   // SCL-17866
-  def testTypingAfterEmptyLinesWithOnlySpacesAndIndent(): Unit = checkTypingInAllContexts(
+  def testTypingAfterEmptyLinesWithOnlySpacesAndIndent(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  expr
        |$indent$indent
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  expr
-       |$indent$indent
-       |  x$CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  expr
-       |$indent$indent
-       |  x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingBetweenCommentAndIndentedExpr(): Unit = checkTypingInAllContexts(
+  def testTypingBetweenCommentAndIndentedExpr(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  // test
        |  $CARET
        |  expr
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  // test
-       |  x$CARET
-       |  expr
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  // test
-       |  x$CARET
-       |  expr
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingInsideOfIndentedCall(): Unit = checkTypingInAllContexts(
+  def testTypingInsideOfIndentedCall(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
     s"""
-       |def test =
        |  call(
        |  $CARET
        |  )
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  call(
        |  x$CARET
        |  )
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  call(
-       |  x$CARET
-       |  )
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
   // SCL-17794
-  def testClosingStringQuote(): Unit = checkTypingInAllContexts(
+  def testClosingStringQuote(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  "test"
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  "test"
-       |  "$CARET"
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  "test"
-       |  "$CARET"
-       |""".stripMargin -> ContinuationOnNewline,
-    '\"'
+       |""".stripMargin,
+    "\"\""
   )
 
   // SCL-17793
-  def testNoAutoBraceOnDot(): Unit = checkTypingInUncontinuedContexts(
+  def testNoAutoBraceOnDot(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
     s"""
-       |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |    .$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  expr
-       |    .$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     '.'
-  )
-
-  def testTypingBeforeContinuation(): Unit = checkTypingInContinuedContexts(
-    s"""
-       |try
-       |  expr
-       |  $CARET
-       |finally ()
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |try {
-       |  expr
-       |  a$CARET
-       |} finally ()
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |try
-       |  expr
-       |  a$CARET
-       |finally ()
-       |""".stripMargin -> ContinuationOnSameLine,
-    'a'
   )
 
   // todo: fix SCL-17843
   /*def testMultilineBeforeContinuation(): Unit = checkTypingInContinuedContexts(
     s"""
-       |try
        |  expr
        |  $CARET
        |
        |
        |
        |
-       |finally ()
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |try {
+       |""".stripMargin,
+    s""" {
        |  expr
        |  a$CARET
        |
        |
        |
        |
-       |} finally ()
-       |""".stripMargin -> ContinuationOnSameLine,
+       |}
+       |""".stripMargin,
     s"""
-       |try
        |  expr
        |  a$CARET
        |
        |
        |
        |
-       |finally ()
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
     'a'
   )*/
 
-  def testTypingAContinuationOfEquallyIndented(): Unit = checkTypingInAllContexts(
+  def testTypingAContinuationOfEquallyIndented(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
     s"""
-       |def test =
        |  if (true) 3
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  if (true) 3
        |  e$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  if (true) 3
-       |  e$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'e'
   )
 
-  def testAbandoningAContinuationOfEquallyIndented(): Unit = checkTypingInAllContexts(
+  def testAbandoningAContinuationOfEquallyIndented(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  if (true) 3
        |  e$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  if (true) 3
-       |  ex$CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  if (true) 3
-       |  ex$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testTypingANonContinuationOfEquallyIndented(): Unit = checkTypingInUncontinuedContexts(
+  def testTypingANonContinuationOfEquallyIndented(): Unit = checkTypingInUncontinuedContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  if (true) 3
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  if (true) 3
-       |  t$CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  if (true) 3
-       |  t$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     't'
   )
 
-  def testContinuingPostfix(): Unit = checkTypingInAllContexts(
+  def testContinuingPostfix(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
     s"""
-       |def test =
        |  expr +
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr +
        |    x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  expr +
-       |    x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testNotContinuingPostfix(): Unit = checkTypingInAllContexts(
+  def testNotContinuingPostfix(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  expr +
        |
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  expr +
-       |
-       |  x$CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  expr +
-       |
-       |  x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 
-  def testFinishingVal(): Unit = checkTypingInAllContexts(
+  def testFinishingVal(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  val$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  val $CARET
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  val $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     ' '
   )
 
-  def testFinishingValOnSameLine(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test = val$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = val $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = val $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+  def testFinishingValOnSameLine(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
+    s""" val$CARET
+       |""".stripMargin,
+    s""" val $CARET
+       |""".stripMargin,
     ' '
   )
 
-  def testFinishingValOnSameIndent(): Unit = checkTypingInAllContexts(
+  def testFinishingValOnSameIndent(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
     s"""
-       |def test =
        |val$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |val $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |val $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     ' '
   )
 
-  def testFinishingValWithSomethingBehind(): Unit = checkTypingInAllContexts(
+  def testFinishingValWithSomethingBehind(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  val${CARET}expr
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  val ${CARET}expr
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  val ${CARET}expr
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     ' '
   )
 
-  def testFinishingValWithDirectMultilineInfixBehind(): Unit = checkTypingInAllContexts(
+  def testFinishingValWithDirectMultilineInfixBehind(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
        |  val${CARET}expr +
        |    otherExpr
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  val ${CARET}expr +
-       |    otherExpr
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  val ${CARET}expr +
-       |    otherExpr
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     ' '
   )
 
-  def testFinishingValWithMultilineInfixBehind(): Unit = checkTypingInAllContexts(
+  def testFinishingValWithMultilineInfixBehind(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
-       |  val${CARET}-expr +
+       |  val$CARET-expr +
        |    otherExpr
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
+    ' '
+  )
+
+  def testFinishingValWithPrecedingComment(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test = {
-       |  val ${CARET}-expr +
-       |    otherExpr
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  val ${CARET}-expr +
-       |    otherExpr
-       |""".stripMargin -> ContinuationOnNewline,
+       |  // test
+       |  val$CARET
+       |""".stripMargin,
     ' '
   )
 
 
-  def testFinishingValWithPrecedingComment(): Unit = checkTypingInAllContexts(
+  def testFinishingValAfterDirectWithPrecedingComment(): Unit = checkTypingInAllContexts_WrapsBodyWithBraces(
     s"""
-       |def test =
-       |  // test
-       |  val${CARET}
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  // test
-       |  val ${CARET}
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  // test
-       |  val ${CARET}
-       |""".stripMargin -> ContinuationOnNewline,
-    ' '
-  )
-
-
-  def testFinishingValAfterDirectWithPrecedingComment(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test =
        |  // test
        |  val${CARET}x
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
-       |  // test
-       |  val ${CARET}x
-       |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test =
-       |  // test
-       |  val ${CARET}x
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     ' '
   )
 
   def testFinishingUnindentedVal(): Unit = checkGeneratedTextAfterTyping(
-    s"""
-       |def test = {
+    s""" {
        |  if (true) return
-       |  val${CARET}
+       |  val$CARET
        |}
        |""".stripMargin,
-    s"""
-       |def test = {
+    s""" {
        |  if (true) return
-       |  val ${CARET}
+       |  val $CARET
        |}
        |""".stripMargin,
     ' '
   )
 
   def testFinishingIndentedVal(): Unit = checkGeneratedTextAfterTyping(
-    s"""
-       |def test = {
+    s""" {
        |  if (true) return
-       |    val${CARET}
+       |    val$CARET
        |}
        |""".stripMargin,
-    s"""
-       |def test = {
+    s""" {
        |  if (true) return
-       |    val ${CARET}
+       |    val $CARET
        |}
        |""".stripMargin,
     ' '
   )
 
   //
-  def testBracesOnNextLineStyle(): Unit = checkTypingInAllContexts(
+  def testBracesOnNextLineStyle(): Unit = checkTypingInAllContexts_DoesNotWrapBodyWithBraces(
     s"""
-       |def test =
        |{
        |  expr
        |}
        |
        |$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |{
        |  expr
        |}
        |
        |x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |{
-       |  expr
-       |}
-       |
-       |x$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     'x'
   )
 

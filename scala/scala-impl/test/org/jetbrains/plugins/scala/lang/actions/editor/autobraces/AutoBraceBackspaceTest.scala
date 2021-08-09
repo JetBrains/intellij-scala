@@ -1,219 +1,200 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
 
 class AutoBraceBackspaceTest extends AutoBraceTestBase {
+
+  def checkBackspaceInAllContexts(bodyBefore: String,
+                                  bodyAfter: String,
+                                  bodyAfterWithSettingsTurnedOff: String): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts, checkGeneratedTextAfterBackspace)
+
+  def checkBackspaceInUncontinuedContexts(bodyBefore: String,
+                                          bodyAfter: String,
+                                          bodyAfterWithSettingsTurnedOff: String): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts, checkGeneratedTextAfterBackspace)
+
   def testDeletingLastExprBefore(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  e$CARET
        |  expr
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
     s"""
-       |def test =
        |  $CARET
        |  expr
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  $CARET
        |  expr
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   def testDeletingLastExprAfter(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  expr
        |  e$CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   def testDeletingSecondToLastExprWithComment(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  // comment
        |  expr
        |  e$CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  // comment
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  // comment
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   def testDeletingLastExprWithComment(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  // blub
        |  x$CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  // blub
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  // blub
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   def testDeletingLastExprWithStatement(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  val x = expr
        |  x$CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  val x = expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  val x = expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   /*def testDeletingQuotes(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s"""{
        |  expr
        |  "$CARET"
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s"""{
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )*/
 
   def testDeletingDoubleParenthesis(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  expr
        |  ($CARET)
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   // SCL-17867
   def testDeletingSingleParenthesis(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  expr
        |  ($CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  expr
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   def testDeletingOnlyPartOfSecondToLastExpr(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  expr
        |  call(
        |
        |  )$CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  expr
        |  call(
        |
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  expr
        |  call(
        |
        |  $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 
   // SCL-18041
   def testDeletingInner(): Unit = checkBackspaceInAllContexts(
-    s"""
-       |def test = {
+    s""" {
        |  if (true)
        |    a$CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  if (true)
        |    $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
-    s"""
-       |def test = {
+       |""".stripMargin,
+    s""" {
        |  if (true)
        |    $CARET
        |}
-       |""".stripMargin -> ContinuationOnSameLine,
+       |""".stripMargin,
   )
 }

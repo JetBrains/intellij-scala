@@ -3,7 +3,8 @@ package editor
 
 import com.intellij.psi.tree.IElementType
 import com.intellij.psi.util.PsiTreeUtil
-import com.intellij.psi.{PsiElement, PsiErrorElement}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiWhiteSpace}
+import org.jetbrains.plugins.scala.editor.enterHandler.Scala3IndentationBasedSyntaxEnterHandler
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -20,9 +21,8 @@ object AutoBraceUtils {
   }
 
   def previousExpressionInIndentationContext(element: PsiElement): Option[ScExpression] = {
-
     val orgStartOffset = element.endOffset
-    val lastRealElement = PsiTreeUtil.prevLeaf(element)
+    val lastRealElement = Scala3IndentationBasedSyntaxEnterHandler.getLastRealElement(element)
 
     // can be null e.g. if typing in the beginning of worksheet file
     if (lastRealElement == null)
