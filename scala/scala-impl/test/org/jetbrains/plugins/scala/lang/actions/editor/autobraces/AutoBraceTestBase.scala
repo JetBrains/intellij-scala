@@ -1,135 +1,128 @@
 package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
 
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
+import org.jetbrains.plugins.scala.extensions.StringExt
+import org.jetbrains.plugins.scala.lang.actions.editor.enter.scala3.TestIndentUtils
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
 abstract class AutoBraceTestBase extends EditorActionTestBase {
+  //helper variables used to insert trailing spaces, otherwise they will be removed from the code by IntelliJ
   val space = " "
   val indent = "  "
 
-  case class ContinuationNewlineSeparator(separator: String)
-  val ContinuationOnNewline = ContinuationNewlineSeparator("\n")
-  val ContinuationOnSameLine = ContinuationNewlineSeparator(" ")
+  protected val InjectedCodePlaceholder = "__InjectedCodePlaceholder__"
+  protected val ContinuationPlaceholder = "__ContinuationPlaceholder__"
 
-  val uncontinuedContexts = Seq(
-    """
-      |def test =
-      |""".stripMargin -> "",
-    """
-      |val test =
-      |""".stripMargin -> "",
-    """
-      |if (cond)
-      |""".stripMargin -> "",
-    """
-      |if (cond) thenBranch
-      |else
-      |""".stripMargin -> "",
-    """
-      |for (x <- xs)
-      |""".stripMargin -> "",
-    """
-      |for (x <- xs) yield
-      |""".stripMargin -> "",
-    """
-      |while (cond)
-      |""".stripMargin -> "",
-    """
-      |try something
-      |finally
-      |""".stripMargin -> "",
-  )
+  def injectCodeWithIndentAdjust(injectedCode: String, contextCode: String): String =
+    TestIndentUtils.injectCodeWithIndentAdjust(injectedCode, contextCode, InjectedCodePlaceholder)
 
-  val continuedContexts = Seq(
-    """
-      |if (cond)
-      |""".stripMargin -> "else elseBranch",
-    """
-      |try
-      |""".stripMargin -> "catch { e => something }",
-    """
-      |try
-      |""".stripMargin -> "finally something",
-  )
+  protected case class BodyContext(text: String, withContinuation: Boolean) {
+    if (withContinuation) {
+      assert(text.contains(ContinuationPlaceholder))
+    }
 
-  val allContexts = uncontinuedContexts ++ continuedContexts
+    def textWithoutContinuationPlaceholder: String = text.replace(ContinuationPlaceholder, "")
+  }
 
-  def checkBackspaceInAllContexts(bodyBefore: (String, ContinuationNewlineSeparator),
-                                  bodyAfter: (String, ContinuationNewlineSeparator),
-                                  bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator)): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts, checkGeneratedTextAfterBackspace)
+  protected val uncontinuedContexts: Seq[BodyContext] = Seq(
+    s"""
+       |def test =$InjectedCodePlaceholder
+       |""".stripMargin,
+    s"""
+       |val test =$InjectedCodePlaceholder
+       |""".stripMargin,
+    s"""
+       |if (cond)$InjectedCodePlaceholder
+       |""".stripMargin,
+    s"""
+       |if (cond) thenBranch
+       |else$InjectedCodePlaceholder
+       |""".stripMargin,
+    s"""
+       |for (x <- xs)$InjectedCodePlaceholder
+       |""".stripMargin,
+    s"""
+       |for (x <- xs) yield$InjectedCodePlaceholder
+       |""".stripMargin,
+    s"""
+       |while (cond)$InjectedCodePlaceholder
+       |""".stripMargin,
+    s"""
+       |try something
+       |finally$InjectedCodePlaceholder
+       |""".stripMargin,
 
-  def checkTypingInAllContexts(bodyBefore: (String, ContinuationNewlineSeparator),
-                               bodyAfter: (String, ContinuationNewlineSeparator),
-                               bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
-                               typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts, checkGeneratedTextAfterTyping(_, _, typedChar))
+    // Same, but without new line in the end
+    s"""
+       |def test =$InjectedCodePlaceholder""".stripMargin,
+  ).map(_.withNormalizedSeparator).map(BodyContext(_, withContinuation = false))
 
-  val continuedContextsPreviewStrings = Seq("try", " finally ()", "finally ()")
+  protected val continuedContexts: Seq[BodyContext] = Seq(
+    s"""
+      |if (cond)$InjectedCodePlaceholder
+      |${ContinuationPlaceholder}else elseBranch
+      |""".stripMargin,
+    s"""
+      |try$InjectedCodePlaceholder
+      |${ContinuationPlaceholder}catch { e => something }
+      |""".stripMargin,
+    s"""
+      |try$InjectedCodePlaceholder
+      |${ContinuationPlaceholder}finally something
+      |""".stripMargin,
+  ).map(_.withNormalizedSeparator).map(BodyContext(_, withContinuation = true))
 
-  def checkBackspaceInContinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
-                                        bodyAfter: (String, ContinuationNewlineSeparator),
-                                        bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator)): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts, checkGeneratedTextAfterBackspace, continuedContextsPreviewStrings)
+  protected val allContexts: Seq[BodyContext] =
+    uncontinuedContexts ++ continuedContexts
 
-  def checkTypingInContinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
-                                     bodyAfter: (String, ContinuationNewlineSeparator),
-                                     bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
-                                     typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, continuedContexts, checkGeneratedTextAfterTyping(_, _, typedChar), continuedContextsPreviewStrings)
+  private lazy val settings = ScalaApplicationSettings.getInstance()
 
-  def checkBackspaceInUncontinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
-                                          bodyAfter: (String, ContinuationNewlineSeparator),
-                                          bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator)): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts, checkGeneratedTextAfterBackspace)
+  protected def checkInAllContexts(
+    bodyBefore: String,
+    bodyAfter: String,
+    bodyAfterWithSettingsTurnedOff: String,
+    contexts: Seq[BodyContext],
+    check: (String, String) => Unit
+  ): Unit = {
+    contexts.foreach(checkInContext(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, _, check))
+  }
 
-  def checkTypingInUncontinuedContexts(bodyBefore: (String, ContinuationNewlineSeparator),
-                                       bodyAfter: (String, ContinuationNewlineSeparator),
-                                       bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
-                                       typedChar: Char): Unit =
-    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts, checkGeneratedTextAfterTyping(_, _, typedChar))
+  protected def checkInContext(
+    bodyBefore: String,
+    bodyAfter: String,
+    bodyAfterWithSettingsTurnedOff: String,
+    context: BodyContext,
+    check: (String, String) => Unit,
+  ): Unit = {
+    def bodyInContext(body: String): String =
+      injectCodeWithIndentAdjust(body, context.textWithoutContinuationPlaceholder)
 
+    val before = bodyInContext(bodyBefore)
+    val after = bodyInContext(bodyAfter)
+    val afterWithSettingsOff = bodyInContext(bodyAfterWithSettingsTurnedOff)
 
+    checkWithSettingsOnAndOf(before, after, afterWithSettingsOff, check)
+  }
 
+  protected def checkWithSettingsOnAndOf(
+    before: String,
+    after: String,
+    afterWithSettingsOff: String,
+    check: (String, String) => Unit,
+  ): Unit = {
 
-  def checkInAllContexts(bodyBefore: (String, ContinuationNewlineSeparator),
-                         bodyAfter: (String, ContinuationNewlineSeparator),
-                         bodyAfterWithSettingsTurnedOff: (String, ContinuationNewlineSeparator),
-                         contexts: Seq[(String, String)],
-                         check: (String, String) => Unit,
-                         removePreviewString: Seq[String] = Seq("def test =")): Unit = {
+    assert(!settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY)
+    assert(settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY)
 
-    def transform(body: String): String =
-      removePreviewString.foldLeft(body.trim)(_.replace(_, ""))
-
-    val settings = ScalaApplicationSettings.getInstance()
-
-    for ((context, contextContinuation) <- contexts) {
-      def buildBody(body: (String, ContinuationNewlineSeparator)): String = {
-        val (text, sep) = body
-
-        val postfix = {
-          if (contextContinuation.isEmpty) "\n"
-          else sep.separator + contextContinuation
-        }
-
-        context.trim + transform(text) + postfix
-      }
-
-      assert(!settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY)
-      assert(settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY)
-
-      val before = buildBody(bodyBefore)
-      try {
-        settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = true
-        check(before, buildBody(bodyAfter))
-        settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = false
-        settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = false
-        check(before, buildBody(bodyAfterWithSettingsTurnedOff))
-      } finally {
-        settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = false
-        settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = true
-      }
+    try {
+      settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = true
+      check(before, after)
+      settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = false
+      settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = false
+      check(before, afterWithSettingsOff)
+    } finally {
+      settings.HANDLE_BLOCK_BRACES_REMOVAL_AUTOMATICALLY = false
+      settings.HANDLE_BLOCK_BRACES_INSERTION_AUTOMATICALLY = true
     }
   }
 }

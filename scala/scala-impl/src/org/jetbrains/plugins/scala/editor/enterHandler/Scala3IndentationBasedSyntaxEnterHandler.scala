@@ -213,7 +213,11 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     result
   }
 
-  private def getLastRealElement(elementAtCaret: PsiElement): PsiElement = {
+  /**
+   * @param elementAtCaret non-whitespace - if the caret located is in the end of document<br>
+   *                       whitespace - otherwise
+   */
+  private[editor] def getLastRealElement(elementAtCaret: PsiElement): PsiElement = {
     val real0 = elementAtCaret match {
       case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws) match {
         case null => ws

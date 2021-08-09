@@ -2,115 +2,128 @@ package org.jetbrains.plugins.scala.lang.actions.editor.autobraces
 
 class AutoBraceEnterTest extends AutoBraceTestBase {
 
-  def testEnterAfterExpr(): Unit = checkTypingInUncontinuedContexts(
+  def checkEnterInAllContexts(bodyBefore: String,
+                              bodyAfter: String,
+                              bodyAfterWithSettingsTurnedOff: String): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, allContexts, checkGeneratedTextAfterEnter)
+
+  def checkEnterInUncontinuedContexts(bodyBefore: String,
+                                      bodyAfter: String,
+                                      bodyAfterWithSettingsTurnedOff: String): Unit =
+    checkInAllContexts(bodyBefore, bodyAfter, bodyAfterWithSettingsTurnedOff, uncontinuedContexts, checkGeneratedTextAfterEnter)
+
+  def testEnterAfterExpr(): Unit = checkEnterInUncontinuedContexts(
     s"""
-       |def test =
        |  expr$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    '\n'
+       |""".stripMargin
   )
 
-  def testEnterAfterExprAndIndentation(): Unit = checkTypingInUncontinuedContexts(
+  def testEnterAfterExpr_AfterComment(): Unit = checkEnterInUncontinuedContexts(
     s"""
-       |def test =
+       |  expr //comment$CARET
+       |""".stripMargin,
+    s"""
+       |  expr //comment
+       |  $CARET
+       |""".stripMargin,
+    s"""
+       |  expr //comment
+       |$CARET
+       |""".stripMargin
+  )
+
+  def testEnterAfterExpr_AfterComment_OnPrevLine(): Unit = checkEnterInUncontinuedContexts(
+    s"""
+       |  expr //comment$CARET
+       |""".stripMargin,
+    s"""
+       |  expr //comment
+       |  $CARET
+       |""".stripMargin,
+    s"""
+       |  expr //comment
+       |$CARET
+       |""".stripMargin
+  )
+
+  def testEnterAfterExprAndIndentation(): Unit = checkEnterInUncontinuedContexts(
+    s"""
        |  expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |$indent
        |$CARET
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  expr
        |$indent
        |$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    '\n'
+       |""".stripMargin
   )
 
-  def testEnterBeforeIndentedExpr(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test = $CARET
+  def testEnterBeforeIndentedExpr(): Unit = checkEnterInAllContexts(
+    s""" $CARET
        |  expr
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =$space
+       |""".stripMargin,
+    s"""$space
        |  $CARET
        |  expr
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =$space
+       |""".stripMargin,
+    s"""$space
        |  $CARET
        |  expr
-       |""".stripMargin -> ContinuationOnNewline,
-    '\n'
+       |""".stripMargin
   )
 
-  def testEnterAfterSecondIndentation(): Unit = checkTypingInAllContexts(
-    s"""
-       |def test =
-       |  expr
+  def testEnterAfterSecondIndentation(): Unit = checkEnterInAllContexts(
+    s"""  expr
        |   + expr
        |  $CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  expr
+       |""".stripMargin,
+    s"""  expr
        |   + expr
        |$indent
        |$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    s"""
-       |def test =
-       |  expr
+       |""".stripMargin,
+    s"""  expr
        |   + expr
        |$indent
        |$CARET
-       |""".stripMargin -> ContinuationOnNewline,
-    '\n'
+       |""".stripMargin
   )
 
 
-  def testEnterInsideOfIndentedCall(): Unit = checkTypingInAllContexts(
+  def testEnterInsideOfIndentedCall(): Unit = checkEnterInAllContexts(
     s"""
-       |def test =
        |  call($CARET)
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  call(
        |    $CARET
        |  )
-       |""".stripMargin -> ContinuationOnNewline,
+       |""".stripMargin,
     s"""
-       |def test =
        |  call(
        |    $CARET
        |  )
-       |""".stripMargin -> ContinuationOnNewline,
-    '\n'
+       |""".stripMargin
   )
 
   def testEnterInDoubleIndention(): Unit = checkGeneratedTextAfterEnter(
     s"""
-       |def test =
        |  if (true)$CARET
        |""".stripMargin,
     s"""
-       |def test =
        |  if (true)
        |    $CARET
        |""".stripMargin
@@ -118,13 +131,11 @@ class AutoBraceEnterTest extends AutoBraceTestBase {
 
   def testEnterAfterBlock(): Unit = checkGeneratedTextAfterEnter(
     s"""
-       |def test =
        |  if (true) {
        |    expr
        |  }$CARET
        |""".stripMargin,
     s"""
-       |def test =
        |  if (true) {
        |    expr
        |  }

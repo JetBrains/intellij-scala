@@ -13,6 +13,10 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 
+/**
+ * @see [[org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler.charTyped]]
+ * @see [[org.jetbrains.plugins.scala.editor.typedHandler.AutoBraceInsertionTools.shouldHandleAutoBracesBeforeTyped]]
+ */
 final class AutoBraceEnterHandler extends EnterHandlerDelegateAdapter {
 
   override def preprocessEnter(file: PsiFile, editor: Editor, caretOffsetRef: Ref[Integer], caretAdvance: Ref[Integer],
@@ -29,10 +33,20 @@ final class AutoBraceEnterHandler extends EnterHandlerDelegateAdapter {
 
     val caretOffset = caretOffsetRef.get.intValue
 
-    val element = file.findElementAt(caretOffset)
-    if (element == null || !hasFirstNewlineAfterCaret(element, caretOffset)) {
-      return Result.Continue
+    val element = file.findElementAt(caretOffset) match {
+      case null =>
+        if (editor.getDocument.getTextLength == caretOffset)
+          ScalaEditorUtils.deepestLastChild(file)
+        else
+          null
+      case el =>
+        if (hasFirstNewlineAfterCaret(el, caretOffset))
+          el
+        else
+          null
     }
+    if (element == null)
+      return Result.Continue
 
     val shouldIntend = AutoBraceUtils.previousExpressionInIndentationContext(element)
 
