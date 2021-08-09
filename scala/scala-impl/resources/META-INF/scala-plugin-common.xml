@@ -1764,6 +1764,7 @@
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType"/>
         <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtDisabledIndentRangesProvider"/>
+        <fileIndentOptionsProvider implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtFileIndentOptionsProvider"/>
 
         <postStartupActivity implementation="org.jetbrains.plugins.scala.lang.psi.compiled.ScalaCompilerLoader"/>
         <postStartupActivity implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.ScalaCompilerReferenceService$Startup"/>

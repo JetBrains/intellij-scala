@@ -1,56 +1,83 @@
 package org.jetbrains.plugins.scala.lang.formatter.tests.scalafmt
 
+import com.intellij.openapi.project.Project
+import com.intellij.testFramework.UsefulTestCase
+import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.formatter.AbstractScalaFormatterTestBase
-import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.{ScalafmtDynamicConfigService, ScalafmtDynamicService}
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicService.DefaultVersion
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDynamicDownloader.DownloadProgressListener
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.util.TestUtils
 
-trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase {
+import scala.collection.mutable
+
+trait ScalaFmtTestBase extends AbstractScalaFormatterTestBase with ScalaFmtForTestsSetupOps {
+
+  override protected def scalafmtConfigsBasePath: String =
+    TestUtils.getTestDataPath + "/formatter/scalafmt/"
 
   override def setUp(): Unit = {
     super.setUp()
-    val scalaSettings = getScalaSettings
-    scalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
-    scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
-    scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = false
-
-    scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS = true
-    getScalaSettings.SCALAFMT_CONFIG_PATH = ""
-    configIsSet = false
-
-    // emulate  `beforeAll` or `setupAll` that is not available in AbstractScalaFormatterTestBase
-    ScalaFmtTestBase.ensureScalafmtVersionsDownloaded
-  }
-
-  val configPath = TestUtils.getTestDataPath + "/formatter/scalafmt/"
-
-  private var configIsSet = false
-
-  final def setScalafmtConfig(configFile: String): Unit = {
-    if (configIsSet)
-      throw new AssertionError("scalafmt config should be set only once")
-    getScalaSettings.SCALAFMT_CONFIG_PATH = configPath + configFile
-    configIsSet = true
+    ScalaFmtForTestsSetupOps.ensureDownloaded(
+      DefaultVersion,
+      "2.7.5",
+      "2.5.3",
+    )
   }
 
   override protected def prepareText(actual: String): String =
     actual
 }
 
-object ScalaFmtTestBase {
-  // using val to emulate java static initializer,
-  val ensureScalafmtVersionsDownloaded: Unit = {
-    val versions = Seq(
-      DefaultVersion,
-      "2.7.5",
-      "2.5.3",
-    )
-    versions.foreach(ensureDownloaded)
+trait ScalaFmtSelectionTestBase extends ScalaFmtTestBase {
+  override def setUp(): Unit = {
+    super.setUp()
+    scalaSettings.SCALAFMT_USE_INTELLIJ_FORMATTER_FOR_RANGE_FORMAT = false
+  }
+}
+
+trait ScalaFmtForTestsSetupOps extends UsefulTestCase {
+
+  protected def getScalaSettings: ScalaCodeStyleSettings
+
+  override def setUp(): Unit = {
+    super.setUp()
+    val scalaSettings = getScalaSettings
+    scalaSettings.FORMATTER = ScalaCodeStyleSettings.SCALAFMT_FORMATTER
+    scalaSettings.SCALAFMT_SHOW_INVALID_CODE_WARNINGS = false
+
+    scalaSettings.SCALAFMT_FALLBACK_TO_DEFAULT_SETTINGS = true
+    getScalaSettings.SCALAFMT_CONFIG_PATH = ""
+    configIsSet = false
   }
 
-  private def ensureDownloaded(version: String): Unit = {
+  protected def scalafmtConfigsBasePath: String
+
+  protected def getProject: Project
+
+  private var configIsSet = false
+
+  final def setScalafmtConfig(configFile: String): Unit = {
+    if (configIsSet)
+      throw new AssertionError("scalafmt config should be set only once")
+    getScalaSettings.SCALAFMT_CONFIG_PATH = scalafmtConfigsBasePath + configFile
+    configIsSet = true
+  }
+}
+
+object ScalaFmtForTestsSetupOps {
+
+  def ensureDownloaded(versions: String*): Unit = {
+    versions.foreach(ensureDownloadedSingle)
+  }
+
+  private val alreadyDownloadedVersions = mutable.HashSet.empty[String]
+
+  private def ensureDownloadedSingle(version: String): Unit = synchronized {
+    if (alreadyDownloadedVersions.contains(version))
+      return
+
     val log: Any => Unit = println
 
     val defaultNote = if (version == DefaultVersion) " (default)" else ""
@@ -61,5 +88,7 @@ object ScalaFmtTestBase {
     }
     ScalafmtDynamicService.instance.ensureVersionIsResolved(version, Nil, stringToUnit)
     log(s"[END] $downloadingMessage")
+
+    alreadyDownloadedVersions += version
   }
 }
