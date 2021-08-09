@@ -86,7 +86,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
           scalaSettings.SCALAFMT_CONFIG_PATH = configPathNew
           updateConfigTextFromFile(vFile)
         }
-        ensureScalafmtResolved(vFile)
+        ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
       case None =>
         if (configPathChanged || configTextChangedInEditor) {
           if (configPathNew.isEmpty) {
@@ -113,7 +113,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
     scalafmtVersionLabel.setText(version + (if (isDefault) s" (${ScalaBundle.message("scalafmt.default")})" else ""))
   }
 
-  private def ensureScalafmtResolved(configFile: VirtualFile): Unit = {
+  private def ensureScalafmtResolvedAndUpdateVersionLabel(configFile: VirtualFile): Unit = {
     val project = projectOpt match {
       case Some(value) => value
       case None => return
@@ -248,7 +248,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       projectConfigFile(configPath) match {
         case Some(vFile) =>
           updateConfigTextFromFile(vFile)
-          ensureScalafmtResolved(vFile)
+          ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
         case None =>
           ensureDefaultScalafmtResolved()
       }
@@ -277,6 +277,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
           case Right(vFile) =>
             updateConfigTextFromFile(vFile)
             updateConfigVisibility()
+            ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
         }
       case None =>
     }
@@ -367,7 +368,7 @@ final class ScalaFmtSettingsPanel(settings: CodeStyleSettings) extends ScalaCode
       projectConfigFile(configPath) match {
         case Some(vFile) =>
           updateConfigTextFromFile(vFile)
-          ensureScalafmtResolved(vFile)
+          ensureScalafmtResolvedAndUpdateVersionLabel(vFile)
         case _ =>
           configText = None
           ensureDefaultScalafmtResolved()
