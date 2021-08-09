@@ -106,7 +106,8 @@ final class ScalafmtDynamicConfigServiceImpl(private implicit val project: Proje
     val settings = CodeStyle.getCustomSettings(psiFile, classOf[ScalaCodeStyleSettings])
     val configPath = settings.SCALAFMT_CONFIG_PATH
     val actualConfigPath = ScalafmtConfigUtils.actualConfigPath(configPath)
-    (settings, actualConfigPath, ScalafmtConfigUtils.projectConfigFile(project, actualConfigPath))
+    val configFile = ScalafmtConfigUtils.projectConfigFile(project, actualConfigPath)
+    (settings, actualConfigPath, configFile)
   }
 
   private def intellijDefaultConfig: Option[ScalafmtReflectConfig] = {
@@ -276,7 +277,8 @@ object ScalafmtDynamicConfigServiceImpl {
       case Some(path) =>
         val tri = Try {
           val file = new File(path)
-          FileUtils.writeStringToFile(file, "version = 2.5.0", Charset.forName("UTF-8"))
+          // TODO: implement detecting of the latest version from the Internet
+          FileUtils.writeStringToFile(file, "version = 2.7.5", Charset.forName("UTF-8"))
           val vFile = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(file)
           if (openInEditor)
             invokeLater {
