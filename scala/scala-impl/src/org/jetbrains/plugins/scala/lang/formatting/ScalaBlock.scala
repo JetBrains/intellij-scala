@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaBlock.{isConstructorArgO
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtDynamicConfigService
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtIndents
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -64,13 +65,11 @@ class ScalaBlock(val parentBlock: ScalaBlock,
 
   override def getChildAttributes(newChildIndex: Int): ChildAttributes = {
     val scalaSettings = settings.getCustomSettings(classOf[ScalaCodeStyleSettings])
-    val parent = getNode.getPsi
 
-    if (scalaSettings.USE_SCALAFMT_FORMATTER) {
-      getChildAttributesScalafmtInner(newChildIndex, parent)
-    } else {
+    if (scalaSettings.USE_SCALAFMT_FORMATTER)
+      getChildAttributesScalafmtInner(newChildIndex)
+    else
       getChildAttributesIntellijInner(newChildIndex, scalaSettings)
-    }
   }
 
   private def getChildAttributesIntellijInner(newChildIndex: Int, scalaSettings: ScalaCodeStyleSettings): ChildAttributes = {
@@ -211,28 +210,57 @@ class ScalaBlock(val parentBlock: ScalaBlock,
       })
   }
 
-  private def getChildAttributesScalafmtInner(newChildIndex: Int, parent: PsiElement): ChildAttributes = {
-    val file = parent.getContainingFile
+  /**
+   * Used to pass to intellij logic when scalafmt is enabled.<br>
+   * In case there are any changes in IntelliJ formatter settings (even though scalafmt is selected),
+   * we do not want these settings to be applicable in `getChildAttributesScalafmtInner`
+   */
+  private val DefaultScalaCodeStyleSettings = new ScalaCodeStyleSettings
+
+  // TODO: in latest scalafmt versions there are a lot of new more-precise indent values.
+  //  We should handle all of them to provide proper indent on Enter handler
+  //  see https://scalameta.org/scalafmt/docs/configuration.html#indentation
+  //  indent.main (handled)
+  //  indent.callSite (handled)
+  //  indent.defnSite (handled)
+  //  indent.significant (asked to remove it https://github.com/scalameta/scalafmt/issues)
+  //  indent.ctrlSite
+  //  indent.ctorSite
+  //  indent.caseSite
+  //  indent.extendSite
+  //  indent.withSiteRelativeToExtends
+  //  indent.commaSiteRelativeToExtends
+  //  indent.extraBeforeOpenParenDefnSite
+  //  indentOperator
+  private def getChildAttributesScalafmtInner(newChildIndex: Int): ChildAttributes = {
+    val blockFirstNode = getNode.getPsi
+
+    val file = blockFirstNode.getContainingFile
     val configManager = ScalafmtDynamicConfigService.instanceIn(file.getProject)
     val configOpt = configManager.configForFile(file, FmtVerbosity.FailSilent, resolveFast = true)
-    val (indentDefn, indentCall) = configOpt match {
-      case Some(config) => (config.continuationIndentDefnSite, config.continuationIndentCallSite)
-      case None => (2, 2)
+    val scalafmtIndents = configOpt.map(_.indents).getOrElse(ScalafmtIndents.Default)
+
+    val scalamtSpecificIndentOpt = blockFirstNode match {
+      case _: ScParameterClause if newChildIndex != 0 => Some(Indent.getSpaceIndent(scalafmtIndents.defnSite))
+      case _: ScArguments if newChildIndex != 0       => Some(Indent.getSpaceIndent(scalafmtIndents.callSite))
+      case _                                          => None
     }
-    val indent = parent match {
-      case _: ScParameterClause if newChildIndex != 0 =>
-        Indent.getSpaceIndent(indentDefn)
-      case _: ScArguments if newChildIndex != 0 =>
-        Indent.getSpaceIndent(indentCall)
-      case m: ScMatch if m.clauses.nonEmpty =>
-        Indent.getSpaceIndent(4)
-      case _: ScBlock | _: ScTemplateBody | _: ScMatch | _: ScCaseClauses | _: ScCaseClause =>
-        Indent.getSpaceIndent(2)
-      case _ if parent.getNode.getElementType == ScalaTokenTypes.kIF =>
-        Indent.getSpaceIndent(2)
-      case _ =>
-        Indent.getNoneIndent
+
+    val indent = scalamtSpecificIndentOpt.getOrElse {
+      //fallback to default intellij indent calculation logic
+      val intellijChildAttributes = getChildAttributesIntellijInner(newChildIndex, DefaultScalaCodeStyleSettings)
+      val intellijIndent = intellijChildAttributes.getChildIndent
+      val useScalafmtMainIndent = intellijIndent.getType match {
+        case Indent.Type.SPACES => false
+        case Indent.Type.NONE   => false
+        case _                  => true
+      }
+      if (useScalafmtMainIndent)
+        Indent.getSpaceIndent(scalafmtIndents.main)
+      else
+        intellijIndent
     }
+
     new ChildAttributes(indent, null)
   }
 
