@@ -29,6 +29,9 @@ object ScSymbolLiteralImpl {
 
   final case class Value(override val value: Symbol) extends ScLiteral.Value(value) {
 
+    // TODO: this should be presented depending on the scala version... syntax with ' is not available in newer versions
+    override def presentation: String = s"'${value.name}"
+
     override def wideType(implicit project: Project): ScType = cachedClass("scala.Symbol")
   }
 }
