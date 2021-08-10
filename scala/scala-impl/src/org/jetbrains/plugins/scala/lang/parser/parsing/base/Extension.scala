@@ -96,12 +96,19 @@ object ExtMethods extends ParsingRule {
 //        return true
     }
 
-    if (onlyOne) ExtMethod()
+    var extMethodsParsed = false
+    if (onlyOne) extMethodsParsed = ExtMethod()
     else builder.maybeWithIndentationWidth(baseIndentation) {
       parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("extension.method.expected")) {
-        ExtMethod()
+        extMethodsParsed = ExtMethod()
+        extMethodsParsed
       }
     }
+
+    if (!extMethodsParsed) {
+      builder error ErrMsg("expected.at.least.one.extension.method")
+    }
+
     blockIndentation.drop()
     End(builder.currentIndentationWidth)
     extDefinitionsMarker.done(ScalaElementType.EXTENSION_BODY)

@@ -58,7 +58,7 @@ class ScalaBlankLinesTest_MembersExhaustive(tuple: (String, String, String))
     val miSetter : Int => () = cs.BLANK_LINES_AROUND_METHOD_IN_INTERFACE = _
     val misSetter: Int => () = ss.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES = _
     val cSetter  : Int => () = cs.BLANK_LINES_AROUND_CLASS = _
-    val cisSetter: Int => () = ss.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES = _
+    val cisSetter: Int => () = ss.BLANK_LINES_AROUND_CLASS_IN_INNER_SCOPES = _
 
     val memberTypes = firstToken(first) :: firstToken(second) :: Nil
 

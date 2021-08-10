@@ -1312,6 +1312,39 @@ class ScalaBlankLinesTest2 extends AbstractScalaFormatterTestBase with LineComme
         |""".stripMargin
     )
 
+  def testLineCommentInFor(): Unit = {
+    doTextTestWithLineComments(
+      """for {
+        |  x <- 1 to 2
+        |  y <- 1 to 2
+        |  y <- 1 to 2
+        |} ???""".stripMargin
+    )
+
+    doTextTestWithLineComments(
+      """for {
+        |  x <- 1 to 2
+        |  y <- 1 to 2
+        |  y <- 1 to 2
+        |} yield ???""".stripMargin
+    )
+
+    doTextTestWithLineComments(
+      """for (
+        |  x <- 1 to 2;
+        |  y <- 1 to 2;
+        |  y <- 1 to 2
+        |) ???""".stripMargin
+    )
+
+    doTextTestWithLineComments(
+      """for (
+        |  x <- 1 to 2;
+        |  y <- 1 to 2;
+        |  y <- 1 to 2
+        |) yield ???""".stripMargin
+    )
+  }
 
   def testRandomTest(): Unit = {
     val after =
@@ -1437,7 +1470,7 @@ class ScalaBlankLinesTest2 extends AbstractScalaFormatterTestBase with LineComme
     )
   }
 
-  def testDoNotMoveSelfTypeOnPreviousLine(): Unit = {
+  def testDoNotMoveSelfTypeOnPreviousLineWithcomment(): Unit = {
     val before =
       """trait T { // comment
         |  self: Object =>
@@ -1756,4 +1789,132 @@ class ScalaBlankLinesTest2 extends AbstractScalaFormatterTestBase with LineComme
 
   private def removeLineComments(text: String) =
     text.replaceAll("//.*", "")
+
+  def testSemicolonShouldNotAffectBlankLines(): Unit = {
+    return // TODO: muted, fix SCL-19436, also test each setting separately
+
+    val settings = getCommonSettings
+
+    //settings.BLANK_LINES_BEFORE_PACKAGE // there cannot be any semicolon before package
+    settings.BLANK_LINES_AFTER_PACKAGE = 2
+
+    settings.BLANK_LINES_BEFORE_IMPORTS = 2
+    settings.BLANK_LINES_AFTER_IMPORTS = 2
+    settings.BLANK_LINES_AROUND_CLASS = 2
+    settings.BLANK_LINES_AROUND_FIELD = 2
+    settings.BLANK_LINES_AROUND_METHOD = 2
+    settings.BLANK_LINES_BEFORE_METHOD_BODY = 2
+    settings.BLANK_LINES_AROUND_FIELD_IN_INTERFACE = 2
+    settings.BLANK_LINES_AROUND_METHOD_IN_INTERFACE=2
+    settings.BLANK_LINES_AFTER_CLASS_HEADER=2
+    settings.BLANK_LINES_AFTER_ANONYMOUS_CLASS_HEADER=2
+    settings.BLANK_LINES_BEFORE_CLASS_END=2
+    getScalaSettings.BLANK_LINES_AROUND_METHOD_IN_INNER_SCOPES=2
+    getScalaSettings.BLANK_LINES_AROUND_FIELD_IN_INNER_SCOPES=2
+    getScalaSettings.BLANK_LINES_AROUND_CLASS_IN_INNER_SCOPES=2
+
+    val before =
+      """package a.b.c
+        |import x.y.z
+        |class A {
+        |  def foo = 1
+        |  val x = 1
+        |  import x.y.z
+        |  def method = {
+        |    val x = 1
+        |    def foo = 1
+        |    class A
+        |    import x.y.z
+        |  }
+        |}
+        |trait T {
+        |  def foo = 1
+        |  val x = 1
+        |  import x.y.z
+        |  new Anonymous {
+        |    def foo= 1
+        |  }
+        |}
+        |""".stripMargin
+    val after =
+      """package a.b.c
+        |
+        |
+        |import x.y.z
+        |
+        |
+        |class A {
+        |
+        |
+        |  def foo = 1
+        |
+        |
+        |  val x = 1
+        |
+        |
+        |  import x.y.z
+        |
+        |
+        |  def method = {
+        |
+        |
+        |    val x = 1
+        |
+        |
+        |    def foo = 1
+        |
+        |
+        |    class A
+        |    import x.y.z
+        |  }
+        |
+        |
+        |}
+        |
+        |
+        |trait T {
+        |
+        |
+        |  def foo = 1
+        |
+        |
+        |  val x = 1
+        |
+        |
+        |  import x.y.z
+        |
+        |
+        |  new Anonymous {
+        |
+        |
+        |    def foo = 1
+        |  }
+        |
+        |
+        |}
+        |""".stripMargin
+
+    doTextTest(
+      before,
+      after
+    )
+
+    def placeAfterEachNonEmptyLine(text: String, lineSuffix: String): String =
+      text.linesIterator.map(x => if(x.trim.isEmpty) x else x + lineSuffix).mkString("\n")
+
+    doTextTest(
+      placeAfterEachNonEmptyLine(before, ";"),
+      placeAfterEachNonEmptyLine(after, ";")
+    )
+
+    doTextTest(
+      placeAfterEachNonEmptyLine(before, " ; ;; ; ;;;  "),
+      placeAfterEachNonEmptyLine(after, ";;;;;;;")
+    )
+
+    doTextTest(
+      placeAfterEachNonEmptyLine(before, " ; ;; ; ;;;  // comment"),
+      placeAfterEachNonEmptyLine(after, ";;;;;;; // comment")
+    )
+  }
 }

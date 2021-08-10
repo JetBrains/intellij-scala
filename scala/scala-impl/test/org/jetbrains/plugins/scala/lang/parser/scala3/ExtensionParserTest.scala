@@ -579,4 +579,161 @@ class ExtensionParserTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_empty_extension_without_end_marker_or_colon(): Unit = checkTree(
+    """extension (x: String)
+      |extension (x: String)""".stripMargin,
+    """ScalaFile
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiErrorElement:Expected at least one extension method
+      |        <empty list>
+      |  PsiWhiteSpace('\n')
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiErrorElement:Expected at least one extension method
+      |        <empty list>""".stripMargin
+  )
+
+  def test_empty_extension_without_end_marker_or_colon_with_trailing_new_line(): Unit = checkTree(
+    """extension (x: String)
+      |extension (x: String)
+      |""".stripMargin,
+    """ScalaFile
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiErrorElement:Expected at least one extension method
+      |        <empty list>
+      |  PsiWhiteSpace('\n')
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiErrorElement:Expected at least one extension method
+      |        <empty list>
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def test_empty_extension_without_end_marker_or_colon_with_trailing_new_line_and_indent_spaces(): Unit = checkTree(
+    """extension (x: String)
+      |extension (x: String)
+      |  """.stripMargin,
+    """ScalaFile
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiErrorElement:Expected at least one extension method
+      |        <empty list>
+      |  PsiWhiteSpace('\n')
+      |  Extension on String
+      |    PsiElement(extension)('extension')
+      |    PsiWhiteSpace(' ')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: x
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('x')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: String
+      |              CodeReferenceElement: String
+      |                PsiElement(identifier)('String')
+      |        PsiElement())(')')
+      |    ScExtensionBody
+      |      PsiErrorElement:Expected at least one extension method
+      |        <empty list>
+      |  PsiWhiteSpace('\n  ')""".stripMargin
+  )
 }
