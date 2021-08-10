@@ -37,6 +37,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
     private JPanel myAlwaysUsedImportsPanel;
     private JCheckBox myImportRetativeToBasePackageCheckBox;
     private JPanel myImportRetativeToBasePackagePanel;
+    private JComboBox importSyntaxInSource3;
     private final DefaultListModel<String> myReferencesWithPrefixModel;
     private final DefaultListModel<String> alwaysUsedImportsModel;
     private final DefaultListModel<String> myImportLayoutModel;
@@ -110,6 +111,10 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         return importLayout;
     }
 
+    public boolean isForceScala2ImportSyntaxInSource() {
+        return importSyntaxInSource3.getSelectedIndex() == 1;
+    }
+
     @Override
     public void apply(CodeStyleSettings settings) {
         if (!isModified(settings)) return;
@@ -128,6 +133,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         scalaCodeStyleSettings.setImportsWithPrefix(getPrefixPackages());
         scalaCodeStyleSettings.setAlwaysUsedImports(getAlwaysUsedImports());
         scalaCodeStyleSettings.setImportLayout(getImportLayout());
+        scalaCodeStyleSettings.setForceScala2ImportSyntaxInSource3(isForceScala2ImportSyntaxInSource());
     }
 
     @Override
@@ -152,6 +158,8 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
                 importTheShortestPathCheckBox.isSelected()) return true;
         if (scalaCodeStyleSettings.isSortAsScalastyle() !=
                 sortScalastyleRb.isSelected()) return true;
+        if (scalaCodeStyleSettings.forceScala2ImportSyntaxInSource3() != isForceScala2ImportSyntaxInSource())
+            return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getImportsWithPrefix(), getPrefixPackages())) return true;
         if (!Arrays.deepEquals(scalaCodeStyleSettings.getAlwaysUsedImports(), getAlwaysUsedImports())) return true;
         return !Arrays.deepEquals(scalaCodeStyleSettings.getImportLayout(), getImportLayout());
@@ -191,6 +199,8 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         for (String layoutElement : scalaCodeStyleSettings.getImportLayout()) {
             myImportLayoutModel.add(myImportLayoutModel.size(), layoutElement);
         }
+
+        importSyntaxInSource3.setSelectedIndex(scalaCodeStyleSettings.forceScala2ImportSyntaxInSource3() ? 1 : 0);
     }
 
     private static void setValue(JSpinner spinner, int value) {
@@ -222,27 +232,27 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
      */
     private void $$$setupUI$$$() {
         contentPanel = new JPanel();
-        contentPanel.setLayout(new GridLayoutManager(11, 4, new Insets(0, 0, 0, 0), -1, -1));
+        contentPanel.setLayout(new GridLayoutManager(12, 4, new Insets(0, 0, 0, 0), -1, -1));
         contentPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10), null, TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, null, null));
         final Spacer spacer1 = new Spacer();
-        contentPanel.add(spacer1, new GridConstraints(10, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        contentPanel.add(spacer1, new GridConstraints(11, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         addImportStatementInCheckBox = new JCheckBox();
         addImportStatementInCheckBox.setSelected(false);
         this.$$$loadButtonText$$$(addImportStatementInCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.add.import.statement.in.closest.block"));
-        contentPanel.add(addImportStatementInCheckBox, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(addImportStatementInCheckBox, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         addFullQualifiedImportsCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(addFullQualifiedImportsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.add.fully.qualified.imports"));
-        contentPanel.add(addFullQualifiedImportsCheckBox, new GridConstraints(2, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(addFullQualifiedImportsCheckBox, new GridConstraints(3, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sortImportsCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(sortImportsCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.sort.imports.for.optimize.imports"));
-        contentPanel.add(sortImportsCheckBox, new GridConstraints(5, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(sortImportsCheckBox, new GridConstraints(6, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         importTheShortestPathCheckBox = new JCheckBox();
         importTheShortestPathCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(importTheShortestPathCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.use.the.shortest.path.when.trying.to.import.reference.with.already.imported.name"));
-        contentPanel.add(importTheShortestPathCheckBox, new GridConstraints(8, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(importTheShortestPathCheckBox, new GridConstraints(9, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         collectImportsWithTheCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(collectImportsWithTheCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.merge.imports.with.the.same.prefix.into.one.statement"));
-        contentPanel.add(collectImportsWithTheCheckBox, new GridConstraints(7, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(collectImportsWithTheCheckBox, new GridConstraints(8, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(1, 5, new Insets(0, 0, 0, 0), -1, -1));
         contentPanel.add(panel1, new GridConstraints(0, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -259,7 +269,7 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         panel1.add(spacer4, new GridConstraints(0, 4, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel2 = new JPanel();
         panel2.setLayout(new GridLayoutManager(1, 2, new Insets(0, 0, 0, 0), -1, -1));
-        contentPanel.add(panel2, new GridConstraints(9, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        contentPanel.add(panel2, new GridConstraints(10, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 0, 0), -1, -1));
         panel2.add(panel3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -287,23 +297,37 @@ public final class ImportsPanel extends ScalaCodeStylePanelBase {
         doNotChangePathCheckBox = new JCheckBox();
         doNotChangePathCheckBox.setSelected(true);
         this.$$$loadButtonText$$$(doNotChangePathCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.do.not.change.path.during.optimize.imports.for.local.imports"));
-        contentPanel.add(doNotChangePathCheckBox, new GridConstraints(4, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(doNotChangePathCheckBox, new GridConstraints(5, 0, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sortScalastyleRb = new JRadioButton();
         this.$$$loadButtonText$$$(sortScalastyleRb, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.scalastyle.consistent"));
-        contentPanel.add(sortScalastyleRb, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(sortScalastyleRb, new GridConstraints(7, 2, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         sortLexicographicallyRb = new JRadioButton();
         this.$$$loadButtonText$$$(sortLexicographicallyRb, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.lexicographically"));
-        contentPanel.add(sortLexicographicallyRb, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        contentPanel.add(sortLexicographicallyRb, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer5 = new Spacer();
-        contentPanel.add(spacer5, new GridConstraints(6, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        contentPanel.add(spacer5, new GridConstraints(7, 3, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final Spacer spacer6 = new Spacer();
-        contentPanel.add(spacer6, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, 1, null, new Dimension(20, -1), null, 0, false));
+        contentPanel.add(spacer6, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, 1, null, new Dimension(20, -1), null, 0, false));
         myImportRetativeToBasePackagePanel = new JPanel();
         myImportRetativeToBasePackagePanel.setLayout(new BorderLayout(0, 0));
-        contentPanel.add(myImportRetativeToBasePackagePanel, new GridConstraints(3, 1, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        contentPanel.add(myImportRetativeToBasePackagePanel, new GridConstraints(4, 1, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
         myImportRetativeToBasePackageCheckBox = new JCheckBox();
         this.$$$loadButtonText$$$(myImportRetativeToBasePackageCheckBox, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "except.for.base.package"));
         myImportRetativeToBasePackagePanel.add(myImportRetativeToBasePackageCheckBox, BorderLayout.CENTER);
+        final JPanel panel7 = new JPanel();
+        panel7.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+        contentPanel.add(panel7, new GridConstraints(1, 0, 1, 4, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final Spacer spacer7 = new Spacer();
+        panel7.add(spacer7, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        this.$$$loadLabelText$$$(label2, this.$$$getMessageFromBundle$$$("messages/ScalaBundle", "imports.panel.force.scala2.in.source3"));
+        panel7.add(label2, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        importSyntaxInSource3 = new JComboBox();
+        final DefaultComboBoxModel defaultComboBoxModel1 = new DefaultComboBoxModel();
+        defaultComboBoxModel1.addElement("Scala 3 (as, *)");
+        defaultComboBoxModel1.addElement("Scala 2 (=>, _)");
+        importSyntaxInSource3.setModel(defaultComboBoxModel1);
+        panel7.add(importSyntaxInSource3, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
 
     private static Method $$$cachedGetBundleMethod$$$ = null;

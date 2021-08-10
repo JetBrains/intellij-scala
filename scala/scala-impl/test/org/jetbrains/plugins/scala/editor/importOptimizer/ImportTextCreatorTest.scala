@@ -14,8 +14,9 @@ class ImportTextCreatorTest extends TestCase {
                             isUnicodeArrow: Boolean = false,
                             spacesInImports: Boolean = false,
                             scala3Features: ScalaFeatures = ScalaFeatures.default,
-                            nameOrdering: Option[Ordering[String]] = lexOrdering): String =
-    textCreator.getImportText(info, ImportTextGenerationOptions(isUnicodeArrow, spacesInImports, scala3Features, nameOrdering))
+                            nameOrdering: Option[Ordering[String]] = lexOrdering,
+                            forceScala2SyntaxInSource3: Boolean = false): String =
+    textCreator.getImportText(info, ImportTextGenerationOptions(isUnicodeArrow, spacesInImports, scala3Features, nameOrdering, forceScala2SyntaxInSource3))
 
   def testGetImportText_Root_And_Wildcard(): Unit = {
     val info = ImportInfo("scala.collection", hasWildcard = true, rootUsed = true)
@@ -77,6 +78,28 @@ class ImportTextCreatorTest extends TestCase {
       getImportText(info, spacesInImports = true, scala3Features = ScalaFeatures.`-Xsource:3 in 2.12.14 or 2.13.6`))
     assertEquals("import java.lang.*",
       getImportText(info, spacesInImports = true, scala3Features = ScalaFeatures.`-Xsource:3 in 2.12.15 or 2.13.7`))
+  }
+
+  def testForceScala2InSource3(): Unit = {
+    {
+      val info = ImportInfo("java.lang",
+        singleNames = Set("Integer", "Character", "Runtime"),
+        renames = Map("Long" -> "JLong", "Float" -> "JFloat"),
+        hiddenNames = Set("System"),
+        hasWildcard = true)
+      assertEquals("import java.lang.{ Character, Integer, Runtime, Float => JFloat, Long => JLong, System => _, _ }",
+        getImportText(info, spacesInImports = true, scala3Features = ScalaFeatures.`-Xsource:3 in 2.12.14 or 2.13.6`, forceScala2SyntaxInSource3 = true))
+      assertEquals("import java.lang.{ Character, Integer, Runtime, Float => JFloat, Long => JLong, System => _, _ }",
+        getImportText(info, spacesInImports = true, scala3Features = ScalaFeatures.`-Xsource:3 in 2.12.15 or 2.13.7`, forceScala2SyntaxInSource3 = true))
+    }
+
+    {
+      val info = ImportInfo("java.lang", hasWildcard = true)
+      assertEquals("import java.lang._",
+        getImportText(info, spacesInImports = true, scala3Features = ScalaFeatures.`-Xsource:3 in 2.12.14 or 2.13.6`, forceScala2SyntaxInSource3 = true))
+      assertEquals("import java.lang._",
+        getImportText(info, spacesInImports = true, scala3Features = ScalaFeatures.`-Xsource:3 in 2.12.15 or 2.13.7`, forceScala2SyntaxInSource3 = true))
+    }
   }
 
   def testGetImportText_No_Sorting(): Unit = {
