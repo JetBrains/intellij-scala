@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScInfixPattern, ScPattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSimpleTypeElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScMethodLike, ScReference, ScStableCodeReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{ScMethodLike, ScReference, ScStableCodeReference, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScValue, ScVariable}
@@ -32,7 +32,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticF
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.{Any, TypeParameter}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
-import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+import org.jetbrains.plugins.scala.lang.resolve.{ReferenceExpressionResolver, ScalaResolveResult}
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocTag}
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
@@ -50,12 +50,12 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   def qualifierPart(element: ScReference, typeAware: Boolean)
-                   (implicit holder: ScalaAnnotationHolder): Unit = {
-    element.qualifier match {
-      case None => checkNotQualifiedReferenceElement(element, typeAware)
-      case Some(_) => checkQualifiedReferenceElement(element, typeAware)
-    }
-  }
+                   (implicit holder: ScalaAnnotationHolder): Unit =
+    if (!element.getUserData(ReferenceExpressionResolver.ConstructorProxyHolderKey))
+      element.qualifier match {
+        case None => checkNotQualifiedReferenceElement(element, typeAware)
+        case Some(_) => checkQualifiedReferenceElement(element, typeAware)
+      }
 
   def annotateReference(reference: ScReference, inDesugaring: Boolean = false)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
@@ -78,14 +78,19 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
       def isKindProjector(genericCall: ScGenericCall): Boolean =
         genericCall.kindProjectorPluginEnabled && {
-           val refText = genericCall.referencedExpr.getText
-            refText == "Lambda" || refText == "λ"
+          val refText = genericCall.referencedExpr.getText
+          refText == "Lambda" || refText == "λ"
         }
 
       (targetElement, refContext) match {
         case (typeParamOwner: PsiNamedElement with ScTypeParametersOwner, genericCall: ScGenericCall)
             if !isKindProjector(genericCall) =>
-          val typeParams = typeParamOwner.typeParameters.map(TypeParameter(_))
+
+          val typeParams = (typeParamOwner match {
+            case ScalaConstructor(cons) => cons.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq.empty)
+            case fn                     => fn.typeParameters
+          }).map(TypeParameter(_))
+
           val stringPresentation = s"method ${typeParamOwner.name}"
 
           ScParameterizedTypeElementAnnotator.annotateTypeArgs(
@@ -99,9 +104,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
       if (!r.isApplicable()) {
         targetElement match {
-          case Constructor(_) =>
-          // don't handle constructors here
-
           case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
             refContext match {
               case genCall: ScGenericCall =>

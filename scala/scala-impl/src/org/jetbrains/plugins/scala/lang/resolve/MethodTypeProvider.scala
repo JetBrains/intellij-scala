@@ -1,19 +1,18 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import com.intellij.psi._
-import org.jetbrains.plugins.scala.extensions.{PsiMethodExt, PsiParameterExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMethodExt, PsiParameterExt, PsiTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, ScMethodLike, ScPrimaryConstructor}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{AuxiliaryConstructor, Constructor, ScMethodLike, ScPrimaryConstructor, ScalaConstructor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameterClause, ScParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
-import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
+import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaPsiTypeBridge}
 import org.jetbrains.plugins.scala.lang.psi.types.api.{TypeParameter, TypeParameterType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
-import org.jetbrains.plugins.scala.lang.psi.types.{ScParameterizedType, ScType}
-import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
 
 import scala.annotation.tailrec
 import scala.language.implicitConversions
@@ -125,7 +124,13 @@ object MethodTypeProvider {
       }
 
     override def methodType(returnType: Option[ScType]): ScType = {
-      val retType = returnType.getOrElse(element.returnType.getOrAny)
+      val retType =
+        returnType.getOrElse {
+          element match {
+            case ScalaConstructor.in(tdef: ScTypeDefinition) => tdef.`type`().getOrAny
+            case _                                           => element.returnType.getOrAny
+          }
+        }
       // TODO: it looks not OK that we return the return type instead of ScMethodType
       //  e.g we have following results
       //  def f0: String           = ???   //type: String
@@ -185,25 +190,25 @@ object MethodTypeProvider {
       }
     }
 
-    private def containingClassType: ScType = {
-      val clazz = element.containingClass
-      val typeParameters = clazz.typeParameters
-      val parentClazz = ScalaPsiUtil.getPlaceTd(clazz)
-      val designatorType: ScType =
-        if (parentClazz != null)
-          ScProjectionType(ScThisType(parentClazz), clazz)
-        else ScDesignatorType(clazz)
-      if (typeParameters.isEmpty) designatorType
-      else {
-        ScParameterizedType(designatorType, typeParameters.map(TypeParameterType(_)))
-      }
-    }
+    private def containingClassType: ScType = element.containingClass.`type`().getOrAny
   }
 
   private case class JavaMethodProvider(override val element: PsiMethod)
                                        (override implicit val scope: ElementScope)
     extends MethodTypeProvider[PsiMethod] {
-    override def typeParameters: Seq[PsiTypeParameter] = element.getTypeParameters.toSeq
+
+    override def typeParameters: Seq[PsiTypeParameter] = {
+      val clsTypeParameters =
+        if (element.isConstructor)
+          element
+            .getContainingClass
+            .toOption
+            .map(_.getTypeParameters)
+            .getOrElse(Array.empty[PsiTypeParameter])
+        else Array.empty[PsiTypeParameter]
+
+      (element.getTypeParameters ++ clsTypeParameters).toSeq
+    }
 
     override def methodType(returnType: Option[ScType] = None): ScType = {
       val retType = returnType.getOrElse(computeReturnType)
@@ -211,8 +216,9 @@ object MethodTypeProvider {
     }
 
     private def computeReturnType: ScType = element match {
-      case f: FakePsiMethod => f.retType
-      case _ => element.getReturnType.toScType()
+      case f: FakePsiMethod         => f.retType
+      case Constructor.ofClass(cls) => ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp))
+      case _                        => element.getReturnType.toScType()
     }
 
     private def parameters: Seq[Parameter] = element match {

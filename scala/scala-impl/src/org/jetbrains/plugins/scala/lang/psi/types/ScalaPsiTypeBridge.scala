@@ -4,14 +4,13 @@ package psi
 package types
 
 import com.intellij.psi.PsiClassType.ClassResolveResult
-import com.intellij.psi.PsiModifier.STATIC
 import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiImmediateClassType
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.constructTypeForPsiClass
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
-import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.ScalaPsiTypeBridge.RawTypeParamCollector
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType, ScThisType}
@@ -24,6 +23,7 @@ import scala.jdk.CollectionConverters._
 
 trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   typeSystem: api.TypeSystem =>
+
 
   override protected def toScTypeInner(psiType: PsiType,
                                        paramTopLevel: Boolean,
@@ -50,7 +50,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
           val substitutor = result.getSubstitutor
 
           val classTpe =
-            constructTypeForClass(clazz) { (typeParam, idx) =>
+            constructTypeForPsiClass(clazz) { (typeParam, idx) =>
               substitutor.substitute(typeParam) match {
                 case null                              => typeParamType(typeParam, rawExistentialArguments)
                 case wildcardType: PsiWildcardType     => existentialArg(s"_$$${idx + 1}", wildcardType, paramTopLevel = true)
@@ -78,13 +78,13 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
       val quantified = rawExistentialArgs match {
         case None =>
           val map = new RawTypeParamToExistentialMapBuilder(rawClassResult, paramTopLevel).buildMap
-          val quantified = constructTypeForClass(clazz) { (tp, _) =>
+          val quantified = constructTypeForPsiClass(clazz) { (tp, _) =>
             map.getOrElse(tp, TypeParameterType(tp))
           }
           map.values.foreach(_.initialize())
           quantified
         case Some(_) =>
-          constructTypeForClass(clazz) { (tp, _) =>
+          constructTypeForPsiClass(clazz) { (tp, _) =>
             ScExistentialArgument(tp.name, Seq.empty, Nothing, AnyRef)
           }
       }
@@ -116,29 +116,6 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
     ScExistentialArgument(name, Seq.empty, lower, upper)
   }
 
-  private def constructTypeForClass(clazz: PsiClass, withTypeParameters: Boolean = true)
-                                   (typeArgFun: (PsiTypeParameter, Int) => ScType): ScType = {
-
-    clazz match {
-      case PsiClassWrapper(definition) => constructTypeForClass(definition)(typeArgFun)
-      case _ =>
-        val designator = clazz.containingClass match {
-          case null   => ScDesignatorType(clazz)
-          case cClass =>
-            val isStatic = clazz.hasModifierProperty(STATIC)
-            val projected = constructTypeForClass(cClass, withTypeParameters = !isStatic)(typeArgFun)
-            ScProjectionType(projected, clazz)
-        }
-
-        if (withTypeParameters && clazz.hasTypeParameters)
-          ScParameterizedType(
-            designator,
-            clazz.getTypeParameters.toSeq.zipWithIndex.map(typeArgFun.tupled)
-          )
-        else designator
-    }
-
-  }
 
   override def toPsiType(`type`: ScType, noPrimitives: Boolean): PsiType = toPsiTypeInner(`type`, noPrimitives)
 
@@ -190,7 +167,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
         case typeAlias: ScTypeAlias if !visitedAliases.contains(typeAlias.physical) =>
           typeAlias.upperBound match {
             case Right(c: ScParameterizedType) =>
-              toPsiTypeInner(ScParameterizedType(c.designator, args.toSeq), noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs)
+              toPsiTypeInner(ScParameterizedType(c.designator, args), noPrimitives)(visitedAliases + typeAlias.physical, visitedExistentialArgs)
             case _ => javaObject
           }
         case _ => javaObject
@@ -235,7 +212,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   }
 
   private def expandIfAlias(scType: ScType): ScType = scType match {
-    case AliasType(ta: ScTypeAliasDefinition, _, upper) =>
+    case AliasType(_: ScTypeAliasDefinition, _, upper) =>
       upper match {
         case Failure(_) => projectContext.stdTypes.Any
         case Right(u)   => u
@@ -285,7 +262,7 @@ trait ScalaPsiTypeBridge extends api.PsiTypeBridge {
   }
 }
 
-private object ScalaPsiTypeBridge {
+object ScalaPsiTypeBridge {
 
   private class RawTypeParamCollector(rawTypeSubstitutor: PsiSubstitutor) extends PsiTypeMapper {
     private var rawTypeParameters: Set[PsiTypeParameter] = Set.empty
