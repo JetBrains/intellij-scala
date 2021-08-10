@@ -362,12 +362,9 @@ object ScalaImportOptimizer {
       }
     }
 
-    private def getImportTextData(importInfo: ImportInfo,
-                                  isUnicodeArrow: Boolean,
-                                  spacesInImports: Boolean,
-                                  scalaFeatures: ScalaFeatures,
-                                  nameOrdering: Option[Ordering[String]]): ImportTextData = {
+    private def getImportTextData(importInfo: ImportInfo, options: ImportTextGenerationOptions): ImportTextData = {
       import importInfo._
+      import options._
 
       val groupStrings = new ArrayBuffer[String]
 
@@ -406,24 +403,17 @@ object ScalaImportOptimizer {
       ImportTextData(prefix, dotOrNot, postfix)
     }
 
-    def getImportText(importInfo: ImportInfo,
-                      isUnicodeArrow: Boolean,
-                      spacesInImports: Boolean,
-                      scalaFeatures: ScalaFeatures,
-                      nameOrdering: Option[Ordering[String]]): String =
-      getImportTextData(importInfo, isUnicodeArrow, spacesInImports, scalaFeatures, nameOrdering).fullText
+    def getImportText(importInfo: ImportInfo, options: ImportTextGenerationOptions): String =
+      getImportTextData(importInfo, options).fullText
 
-    def getScalastyleSortableText(importInfo: ImportInfo): String =
-      getImportTextData(importInfo, isUnicodeArrow = false, spacesInImports = false, scalaFeatures = ScalaFeatures.default, nameOrdering = None)
+    def getScalastyleSortableText(importInfo: ImportInfo): String = {
+      val options = ImportTextGenerationOptions(isUnicodeArrow = false, spacesInImports = false, scalaFeatures = ScalaFeatures.default, nameOrdering = None)
+      getImportTextData(importInfo, options)
         .forScalastyleSorting
-
-    def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String = {
-      val ordering =
-        if (settings.scalastyleOrder) Some(ScalastyleSettings.nameOrdering)
-        else if (settings.sortImports) Some(Ordering.String)
-        else None
-      getImportText(importInfo, settings.isUnicodeArrow, settings.spacesInImports, settings.scalaFeatures, ordering)
     }
+
+    def getImportText(importInfo: ImportInfo, settings: OptimizeImportSettings): String =
+      getImportText(importInfo, ImportTextGenerationOptions.from(settings))
   }
 
   def optimizedImportInfos(rangeInfo: RangeInfo, settings: OptimizeImportSettings): Seq[ImportInfo] = {

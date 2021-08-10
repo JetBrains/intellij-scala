@@ -15,7 +15,7 @@ class ImportTextCreatorTest extends TestCase {
                             spacesInImports: Boolean = false,
                             scala3Features: ScalaFeatures = ScalaFeatures.default,
                             nameOrdering: Option[Ordering[String]] = lexOrdering): String =
-    textCreator.getImportText(info, isUnicodeArrow, spacesInImports, scala3Features, nameOrdering)
+    textCreator.getImportText(info, ImportTextGenerationOptions(isUnicodeArrow, spacesInImports, scala3Features, nameOrdering))
 
   def testGetImportText_Root_And_Wildcard(): Unit = {
     val info = ImportInfo("scala.collection", hasWildcard = true, rootUsed = true)
