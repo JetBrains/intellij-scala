@@ -4,9 +4,10 @@ import java.io.File
 import java.util.regex.Pattern
 import com.intellij.diagnostic.PluginException
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.io.FileUtil
 import com.intellij.serialization.PropertyMapping
 import org.jetbrains.annotations.Nls
-import org.jetbrains.idea.maven.indices.{MavenIndex, MavenIndicesManager}
+import org.jetbrains.idea.maven.indices.MavenIndicesManager
 import org.jetbrains.plugins.scala.NlsString
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.resolvers.indexes.{FakeMavenIndex, MavenProxyIndex, ResolverIndex}
@@ -63,7 +64,11 @@ final class SbtMavenResolver @PropertyMapping(Array("name", "root", "presentable
 
   override def toString = s"$root|maven|$name"
 
-  def normalizedRoot: String = MavenIndex.normalizePathOrUrl(root)
+  // Replicate from MavenIndex function normalizePathOrUrl
+  def normalizePathOrUrl(pathOrUrl: String): String =
+    FileUtil.toSystemIndependentName(pathOrUrl.trim).reverse.dropWhile(_ == '/').reverse
+
+  def normalizedRoot: String = normalizePathOrUrl(root)
 }
 
 final class SbtIvyResolver @PropertyMapping(Array("name", "root", "isLocal", "presentableName"))
