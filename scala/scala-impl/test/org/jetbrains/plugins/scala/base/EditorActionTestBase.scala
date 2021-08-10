@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.util.ShortCaretMarker
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
+import scala.util.control.NonFatal
 
 /**
   * @author adkozlov
@@ -71,7 +72,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     fileName: String = defaultFileName,
     trimTestDataText: Boolean = false,
     stripTrailingSpacesAfterAction: Boolean = false,
-  )(testBody: () => Unit): Unit = {
+  )(testBody: () => Unit): Unit = try {
     configureByText(textBefore, fileName, trimTestDataText)
 
     testBody()
@@ -89,23 +90,30 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
       PsiDocumentManager.getInstance(getProject).commitAllDocuments()
       EditorUtil.fillVirtualSpaceUntilCaret(InjectedLanguageEditorUtil.getTopLevelEditor(getEditor))
 
-      try checkCaretOffsets(expectedCarets, expectedText, stripTrailingSpacesAfterAction) catch {
-        case cf: org.junit.ComparisonFailure =>
-          // add "before" state to conveniently view failed tests
-          def afterWithBeforePrefix(after: String)=
-            s"""<<<Before>>>:
-               |$textBefore
-               |----------------------------------------------------
-               |<<<After>>>:
-               |$after""".stripMargin
-          val cfNew = new org.junit.ComparisonFailure(
-            cf.getMessage,
-            afterWithBeforePrefix(cf.getExpected),
-            afterWithBeforePrefix(cf.getActual)
-          )
-          throw cfNew
-      }
+      checkCaretOffsets(expectedCarets, expectedText, stripTrailingSpacesAfterAction)
     }
+  } catch {
+    case cf: org.junit.ComparisonFailure =>
+      // add "before" state to conveniently view failed tests
+      def afterWithBeforePrefix(after: String)=
+        s"""<<<Before>>>:
+           |$textBefore
+           |----------------------------------------------------
+           |<<<After>>>:
+           |$after""".stripMargin
+      val cfNew = new org.junit.ComparisonFailure(
+        cf.getMessage,
+        afterWithBeforePrefix(cf.getExpected),
+        afterWithBeforePrefix(cf.getActual)
+      )
+      throw cfNew
+
+    case NonFatal(other) =>
+      System.err.println(
+        s"""<<<Before>>>
+           |$textBefore""".stripMargin
+      )
+      throw other
   }
 
   protected def performTypingAction(charTyped: Char): Unit =

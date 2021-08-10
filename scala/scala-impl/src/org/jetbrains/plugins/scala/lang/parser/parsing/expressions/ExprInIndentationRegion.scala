@@ -78,8 +78,8 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
 
       @tailrec
       def parseRest(isBlock: Boolean): Boolean = {
-        val isInside = builder.findPreviousIndent.exists(_ >= indentationForExprBlock)
-        if (isInside) {
+        def isOutdent = builder.findPreviousIndent.exists(_ < indentationForExprBlock)
+        if (!isOutdent) {
           val tt = builder.getTokenType
           if (tt == ScalaTokenTypes.tSEMICOLON) {
             builder.advanceLexer() // ate ;

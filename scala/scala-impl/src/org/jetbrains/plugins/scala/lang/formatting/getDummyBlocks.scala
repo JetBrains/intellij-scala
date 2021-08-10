@@ -3,10 +3,8 @@ package lang
 package formatting
 
 import java.util
-
 import com.intellij.formatting._
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.{Key, TextRange}
 import com.intellij.psi._
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings}
@@ -18,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.formatting.ScalaWrapManager._
 import org.jetbrains.plugins.scala.lang.formatting.getDummyBlocks._
 import org.jetbrains.plugins.scala.lang.formatting.processors._
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes._
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.{ScCodeBlockElementType, ScalaElementType}
@@ -559,7 +558,7 @@ class getDummyBlocks(private val block: ScalaBlock) {
           case Nil =>
             addTail(children)
           case rParent :: yieldNodes =>
-            val enumerators = tail.head
+            val enumerators = tail.dropWhile(x => ScalaTokenTypes.COMMENTS_TOKEN_SET.contains(x.getElementType)).head
             val context = if (commonSettings.ALIGN_MULTILINE_FOR && !enumerators.getPsi.startsFromNewLine()) {
               val alignment = Alignment.createAlignment()
               Some(SubBlocksContext(Map(rParent -> alignment, enumerators -> alignment)))
