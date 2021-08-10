@@ -88,13 +88,10 @@ class ScConstructorInvocationImpl(node: ASTNode)
   }
 
   //todo: duplicate ScSimpleTypeElementImpl
-  def parameterize(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType = {
-    if (clazz.getTypeParameters.isEmpty) {
-      tp
-    } else {
+  def parameterize(tp: ScType, clazz: PsiClass, subst: ScSubstitutor): ScType =
+    if (clazz.getTypeParameters.isEmpty) tp
+    else
       ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
-    }
-  }
 
   override def shapeType(i: Int): TypeResult = {
     val seq = shapeMultiType(i)
@@ -108,31 +105,49 @@ class ScConstructorInvocationImpl(node: ASTNode)
 
   private def innerMultiType(i: Int, isShape: Boolean): Array[TypeResult] = {
     def FAILURE = Failure(ScalaBundle.message("can.t.resolve.type"))
-    def workWithResolveResult(constr: PsiMethod, r: ScalaResolveResult,
-                              subst: ScSubstitutor, s: ScSimpleTypeElement,
-                              ref: ScStableCodeReference): TypeResult = {
+
+    def workWithResolveResult(
+      constr: PsiMethod,
+      r:      ScalaResolveResult,
+      subst:  ScSubstitutor,
+      s:      ScSimpleTypeElement,
+      ref:    ScStableCodeReference
+    ): TypeResult = {
       val clazz = constr.containingClass
+
       val tp = r.getActualElement match {
         case ta: ScTypeAliasDefinition => subst(ta.aliasedType.getOrElse(return FAILURE))
         case _ =>
-          parameterize(ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = true).
-            getOrElse(return FAILURE), clazz, subst)
+          parameterize(
+            ScSimpleTypeElementImpl.calculateReferenceType(ref, shapesOnly = true).getOrElse(return FAILURE),
+            clazz,
+            subst
+          )
       }
+
       val res = constr match {
-        case fun: ScMethodLike =>
-          fun.nestedMethodType(i, Some(tp), subst).getOrElse(return FAILURE)
+        case fun: ScMethodLike => fun.nestedMethodType(i, Option(tp), subst).getOrElse(return FAILURE)
         case method: PsiMethod =>
           if (i > 0) return Failure(ScalaBundle.message("java.constructors.only.have.one.parameter.section"))
-          val methodType = method.methodTypeProvider(elementScope).methodType(Some(tp))
+          val methodType = method.methodTypeProvider(elementScope).methodType(Option(tp))
           subst(methodType)
       }
-      val typeParameters = r.getActualElement match {
+
+      val clsTypeParameters = r.getActualElement match {
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
           tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
           ptp.getTypeParameters.toSeq.map(TypeParameter(_))
-        case _ => return Right(res)
+        case _ => Seq.empty
       }
+
+      val typeParameters = r.element match {
+        case JavaConstructor(cons) => clsTypeParameters ++ cons.getTypeParameters.toSeq.map(TypeParameter(_))
+        case _                     => clsTypeParameters
+      }
+
+      if (typeParameters.isEmpty) return Right(res)
+
       s.getParent match {
         case p: ScParameterizedTypeElement =>
           val appSubst = ScSubstitutor.bind(typeParameters, p.typeArgList.typeArgs)(_.calcType)

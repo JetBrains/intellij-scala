@@ -12,7 +12,7 @@ object Constructor {
   object ofClass {
     def unapply(arg: PsiMethod): Option[PsiClass] = arg match {
       case Constructor(constr) => Option(constr.containingClass)
-      case _ => None
+      case _                   => None
     }
   }
 }
