@@ -151,8 +151,7 @@ private[scala3] class TestIndentUtilsTest extends TestCase {
         |  var x = 1
         |  var y = 2
         |  x + y
-        |}
-        |""".stripMargin.trim
+        |}""".stripMargin
     val context =
       s"""class A {
          |  class B {
@@ -170,6 +169,27 @@ private[scala3] class TestIndentUtilsTest extends TestCase {
         |    }
         |  }
         |}
+        |""".stripMargin
+    val actual = TestIndentUtils.injectCodeWithIndentAdjust(injected, context, Caret)
+    assertEquals(expected, actual)
+  }
+
+  def testInjectCodeToContext_3(): Unit = {
+    val injected =
+      """
+        |  1
+        |  2
+        |  3""".stripMargin
+    val context =
+      s"""def foo =
+         |  def bar = $Caret
+         |""".stripMargin
+    val expected =
+      s"""def foo =
+        |  def bar = ${""}
+        |    1
+        |    2
+        |    3
         |""".stripMargin
     val actual = TestIndentUtils.injectCodeWithIndentAdjust(injected, context, Caret)
     assertEquals(expected, actual)

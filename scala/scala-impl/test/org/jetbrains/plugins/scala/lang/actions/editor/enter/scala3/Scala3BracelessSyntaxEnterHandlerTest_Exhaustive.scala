@@ -95,9 +95,9 @@ private object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
     // Testing pressing Enter after different constructs which support indentation-based syntax
     //
     locally {
-      rootSuite += ("AfterAssignOrArrowSign", createTestsInAllWrapperContexts(IBC.AfterAssignOrArrowSign, CTT.BlockStatements :: Nil))
-      rootSuite += ("ForEnumeratorsAll", createTestsInAllWrapperContexts(IBC.ForEnumeratorsAll, CTT.BlockStatements :: Nil))
-      rootSuite += ("ControlFlow", createTestsInAllWrapperContexts(IBC.ControlFlow, CTT.BlockStatements :: Nil))
+      rootSuite += ("AfterAssignOrArrowSign", createTestsInAllWrapperContexts(IBC.AfterAssignOrArrowSign, CTT.BlockStatements :: CTT.BlockExpressions :: Nil))
+      rootSuite += ("ForEnumeratorsAll", createTestsInAllWrapperContexts(IBC.ForEnumeratorsAll, CTT.BlockStatements :: CTT.BlockExpressions :: Nil))
+      rootSuite += ("ControlFlow", createTestsInAllWrapperContexts(IBC.ControlFlow, CTT.BlockStatements :: CTT.BlockExpressions :: Nil))
       rootSuite += ("Extensions", createTestsInAllWrapperContexts(IBC.Extensions, CTT.DefDef :: Nil))
       rootSuite += ("TemplateDefinitions", createTestsInAllWrapperContexts(IBC.TemplateDefinitions, CTT.TemplateStat :: Nil))
       rootSuite += ("GivenWith", createTestsInAllWrapperContexts(IBC.GivenWith, CTT.TemplateStat :: Nil))
@@ -117,7 +117,7 @@ private object Scala3BracelessSyntaxEnterHandlerTest_Exhaustive {
 
       val wrapperContexts = WCC.TopLevel_LastStatement :: WCC.ClassWithBraces :: WCC.NestedClassWithColonWithoutEndMarker :: Nil
 
-      val codeToType = CTT.BlankLines :: CTT.BlockStatements :: Nil
+      val codeToType = CTT.BlankLines :: CTT.BlockStatements :: CTT.BlockExpressions :: Nil
 
       def addTestsWithCodeAfterCaret(
         groupName: String,

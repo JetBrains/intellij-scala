@@ -1,6 +1,6 @@
-import  a . super[   T ] . u. id;
+import  a . super[   T ] . u. id
 class a {}
 -----
-import a.super[T].u.id;
+import a.super[T].u.id
 
 class a {}

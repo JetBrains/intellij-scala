@@ -476,4 +476,62 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
       |""".stripMargin,
     repeats = 3
   )
+
+  def testSemicolon_InIndentationBlock(): Unit = doTextTest(
+    """class IndentationBased:
+      |  def foo =
+      |    1; 2
+      |
+      |  def foo =
+      |    1; 2;
+      |
+      |  def foo =
+      |    1; 2
+      |    1; 2;
+      |
+      |  def foo =
+      |    1; 2;
+      |    1; 2
+      |
+      |  def foo =
+      |    1; 2;
+      |    1; 2
+      |    1; 2;
+      |    1; 2
+      |    1; 2;
+      |""".stripMargin,
+    """class IndentationBased:
+      |  def foo =
+      |    1;
+      |    2
+      |
+      |  def foo =
+      |    1;
+      |    2;
+      |
+      |  def foo =
+      |    1;
+      |    2
+      |    1;
+      |    2;
+      |
+      |  def foo =
+      |    1;
+      |    2;
+      |    1;
+      |    2
+      |
+      |  def foo =
+      |    1;
+      |    2;
+      |    1;
+      |    2
+      |    1;
+      |    2;
+      |    1;
+      |    2
+      |    1;
+      |    2;
+      |""".stripMargin
+  )
 }

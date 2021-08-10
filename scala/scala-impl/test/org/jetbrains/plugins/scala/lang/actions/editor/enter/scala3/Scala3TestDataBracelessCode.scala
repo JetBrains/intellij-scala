@@ -33,6 +33,11 @@ object Scala3TestDataBracelessCode {
   // TODO: preformat test data before running tests in order to ensure that we use the correct indent
   object WrapperCodeContexts {
 
+    val Empty = CodeWithDebugName(
+      s"$InjectedCodePlaceholder",
+      "EmptyFile"
+    )
+
     val TopLevel =
       CodeWithDebugName(
         s"""$InjectedCodePlaceholder
@@ -416,6 +421,13 @@ object Scala3TestDataBracelessCode {
       s"""given intOrd: Ord[Int] with {$Caret
          |}""".stripMargin,
     )
+
+    val AllContextsAcceptingStatements: Seq[String] =
+      AfterAssignOrArrowSign ++
+        ControlFlow ++
+        TemplateDefinitions ++
+        ForEnumeratorsAll ++
+        GivenWith
   }
 
   //noinspection TypeAnnotation
@@ -438,6 +450,18 @@ object Scala3TestDataBracelessCode {
           |//line comment
           |x + y""".stripMargin,
         "Statements"
+      )
+
+    val BlockExpressions =
+      CodeWithDebugName(
+        """
+          |println(1)
+          |println(2)
+          |
+          |
+          |//line comment
+          |x + y""".stripMargin,
+        "Expressions"
       )
 
     val CaseClauses =

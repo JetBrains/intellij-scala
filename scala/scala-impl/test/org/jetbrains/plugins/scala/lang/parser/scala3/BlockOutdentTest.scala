@@ -477,4 +477,101 @@ class BlockOutdentTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def test_semicolons(): Unit = checkTree(
+    """
+      |object O:
+      |  xyz;
+      |
+      |  def foo1() =
+      |    x; y;
+      |  def foo2() =
+      |    x; y; z;
+      |    x; y; z;
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScObject: O
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('O')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement(:)(':')
+      |        PsiWhiteSpace('\n  ')
+      |        ReferenceExpression: xyz
+      |          PsiElement(identifier)('xyz')
+      |        PsiElement(;)(';')
+      |        PsiWhiteSpace('\n\n  ')
+      |        ScFunctionDefinition: foo1
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('foo1')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          BlockExpression
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiElement(;)(';')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: y
+      |              PsiElement(identifier)('y')
+      |            PsiElement(;)(';')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: foo2
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('foo2')
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          BlockExpression
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiElement(;)(';')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: y
+      |              PsiElement(identifier)('y')
+      |            PsiElement(;)(';')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: z
+      |              PsiElement(identifier)('z')
+      |            PsiElement(;)(';')
+      |            PsiWhiteSpace('\n    ')
+      |            ReferenceExpression: x
+      |              PsiElement(identifier)('x')
+      |            PsiElement(;)(';')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: y
+      |              PsiElement(identifier)('y')
+      |            PsiElement(;)(';')
+      |            PsiWhiteSpace(' ')
+      |            ReferenceExpression: z
+      |              PsiElement(identifier)('z')
+      |            PsiElement(;)(';')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
 }

@@ -252,4 +252,427 @@ class ScalaSpacingTest extends AbstractScalaFormatterTestBase {
         |""".stripMargin
     )(scalaSettings.SPACE_BEFORE_TYPE_PARAMETER_IN_DEF_LIST = _)
   }
+
+  def testSemicolon_InBlockWithBraces(): Unit = doTextTest(
+    """class WithBraces {
+      |  def foo = {
+      |    1; 2
+      |  }
+      |
+      |  def foo = {
+      |    1; 2;
+      |  }
+      |
+      |  def foo = {
+      |    1; 2; 1; 2; 3
+      |    1; 2; 3;
+      |  }
+      |}
+      |""".stripMargin,
+    """class WithBraces {
+      |  def foo = {
+      |    1;
+      |    2
+      |  }
+      |
+      |  def foo = {
+      |    1;
+      |    2;
+      |  }
+      |
+      |  def foo = {
+      |    1;
+      |    2;
+      |    1;
+      |    2;
+      |    3
+      |    1;
+      |    2;
+      |    3;
+      |  }
+      |}
+      |""".stripMargin
+  )
+
+  def testSemicolon_InForEnumerators(): Unit = {
+    val before =
+      """class InForEnumerators {
+        |  for {
+        |    x <- 1 to 2  ;   y <- 1 to 2
+        |    u <- 1 to 2  ;   v <- 1 to 2
+        |  } ???
+        |}
+        |""".stripMargin
+
+    assert(commonSettings.SPACE_AFTER_SEMICOLON)
+    doTextTest(before,
+      """class InForEnumerators {
+        |  for {
+        |    x <- 1 to 2; y <- 1 to 2
+        |    u <- 1 to 2; v <- 1 to 2
+        |  } ???
+        |}
+        |""".stripMargin
+    )
+
+    commonSettings.SPACE_AFTER_SEMICOLON = false
+    doTextTest(before,
+      """class InForEnumerators {
+        |  for {
+        |    x <- 1 to 2;y <- 1 to 2
+        |    u <- 1 to 2;v <- 1 to 2
+        |  } ???
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testTrailingSemicolonOnLineShouldBeAttachedToThePreviousLine(): Unit = {
+    doTextTest(
+      """package a.b.c
+        |
+        |;
+        |
+        |;;
+        |
+        |import scala.util._
+        |
+        |
+        |;
+        |
+        |
+        |class A {
+        |
+        |
+        |  ;
+        |
+        |  ;;
+        |
+        |
+        |  def foo1 = {
+        |    1
+        |
+        |
+        |    ;
+        |
+        |
+        |    2
+        |
+        |
+        |    ;
+        |  }
+        |
+        |  ;
+        |
+        |  ;;
+        |
+        |  def foo2 =
+        |    42
+        |
+        |    ;
+        |
+        |    ;
+        |
+        |
+        |  ;
+        |
+        |
+        |  for {
+        |    x <- 1 to 2
+        |
+        |
+        |    ;
+        |
+        |
+        |    y <- 1 to 2
+        |
+        |
+        |    ;
+        |
+        |
+        |    y <- 1 to 2
+        |  } ???
+        |}
+        |""".stripMargin,
+      """package a.b.c;;;
+        |
+        |import scala.util._;
+        |
+        |
+        |class A {
+        |
+        |
+        |  ;;;
+        |
+        |
+        |  def foo1 = {
+        |    1;
+        |
+        |
+        |    2;
+        |  };;;
+        |
+        |  def foo2 =
+        |    42;;;
+        |
+        |
+        |  for {
+        |    x <- 1 to 2;
+        |
+        |
+        |    y <- 1 to 2;
+        |
+        |
+        |    y <- 1 to 2
+        |  } ???
+        |}
+        |""".stripMargin
+    )
+  }
+
+  def testTrailingSemicolonOnLineShouldNotBeAttachedToThePreviousLineWithComment(): Unit = {
+    doTextTest(
+      """package a.b.c //comment
+        |
+        |;
+        |
+        |;;
+        |
+        |import scala.util._ //comment
+        |
+        |
+        |;
+        |
+        |
+        |class A { //comment
+        |
+        |
+        |  ;
+        |
+        |  ;;
+        |
+        |
+        |  def foo1 = { //comment
+        |    1 //comment
+        |
+        |
+        |    ;
+        |
+        |
+        |    2 //comment
+        |
+        |
+        |    ;
+        |  } //comment
+        |
+        |  ; //comment
+        |
+        |  ;;
+        |
+        |  def foo2 = //comment
+        |    42 //comment
+        |
+        |    ;
+        |
+        |    ;
+        |
+        |
+        |  ;
+        |
+        |
+        |  for { //comment
+        |    x <- 1 to 2 //comment
+        |
+        |
+        |    ;
+        |
+        |
+        |    y <- 1 to 2 //comment
+        |
+        |
+        |    ;
+        |
+        |
+        |    y <- 1 to 2 //comment
+        |  } ??? //comment
+        |
+        |  ;
+        |} //comment
+        |
+        |;
+        |""".stripMargin,
+      """package a.b.c //comment
+        |
+        |;;;
+        |
+        |import scala.util._ //comment
+        |
+        |
+        |;
+        |
+        |
+        |class A { //comment
+        |
+        |
+        |  ;;;
+        |
+        |
+        |  def foo1 = { //comment
+        |    1 //comment
+        |
+        |
+        |    ;
+        |
+        |
+        |    2 //comment
+        |
+        |
+        |    ;
+        |  } //comment
+        |
+        |  ; //comment
+        |
+        |  ;;
+        |
+        |  def foo2 = //comment
+        |    42 //comment
+        |
+        |  ;;;
+        |
+        |
+        |  for { //comment
+        |    x <- 1 to 2 //comment
+        |
+        |
+        |    ;
+        |
+        |
+        |    y <- 1 to 2 //comment
+        |
+        |
+        |    ;
+        |
+        |
+        |    y <- 1 to 2 //comment
+        |  } ??? //comment
+        |
+        |  ;
+        |} //comment
+        |
+        |;
+        |""".stripMargin
+    )
+  }
+
+  def testTrailingSemicolonInEmptyFile(): Unit = {
+    doTextTest(
+      """  ; ;; ;;; ;   // comment """,
+      """;;;;;;; // comment""",
+    )
+  }
+
+
+  def testSemicolonAfterBrace(): Unit = {
+    doTextTest(
+      """class A {;
+        |  42
+        |  def foo = {;
+        |    42
+        |  }
+        |}
+        |""".stripMargin,
+      """class A {
+        |  ;
+        |  42
+        |
+        |  def foo = {
+        |    ;
+        |    42
+        |  }
+        |}
+        |""".stripMargin,
+    )
+  }
+
+  def testDoWhile_NoNewLineEnforcedAfterWhile(): Unit = {
+    assert(!getCommonSettings.WHILE_ON_NEW_LINE)
+    doTextTest(
+      """do 42 while (true)
+        |
+        |do {
+        |  42
+        |} while (true)
+        |
+        |// Already contains new line, shouldn't be removed
+        |do 42
+        |while (true)
+        |
+        |do {
+        |  42
+        |}
+        |while (true)
+        |""".stripMargin
+    )
+  }
+
+  def testDoWhile_NewLineEnforcedAfterWhile(): Unit = {
+    getCommonSettings.WHILE_ON_NEW_LINE = true
+    doTextTest(
+      """//one-liners should remain one-liners
+        |do 42 while (true)
+        |
+        |do {
+        |  42
+        |} while (true)
+        |
+        |// Already contains new line, shouldn't be removed
+        |do 42
+        |while (true)
+        |
+        |do {
+        |  42
+        |}
+        |while (true)
+        |""".stripMargin,
+      """//one-liners should remain one-liners
+        |do 42 while (true)
+        |
+        |do {
+        |  42
+        |}
+        |while (true)
+        |
+        |// Already contains new line, shouldn't be removed
+        |do 42
+        |while (true)
+        |
+        |do {
+        |  42
+        |}
+        |while (true)
+        |""".stripMargin
+    )
+  }
+
+  def testDoWhile_WithColonAfterDoBody(): Unit = {
+    doTextTest(
+      """do 1 + 1 while (true)
+        |do 1 + 1; while (true)
+        |
+        |do {
+        |  1 + 1
+        |} while (true)
+        |do {
+        |  1 + 1
+        |}; while (true)
+        |
+        |do {
+        |  1 + 1
+        |} + 2; while (true)
+        |do {
+        |  1 + 1
+        |} + 2 while (true)
+        |""".stripMargin
+    )
+  }
 }

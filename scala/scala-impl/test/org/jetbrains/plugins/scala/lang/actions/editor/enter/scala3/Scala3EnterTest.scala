@@ -12,7 +12,7 @@ class Scala3EnterTest extends Scala3EnterBaseTest
 
   import Scala3TestDataBracelessCode._
 
-  private def doTypingTestInAllContexts(
+  private def doTypingTestInWrapperContexts(
     contextCode: String,
     codeToType: CodeWithDebugName,
     wrapperContexts: Seq[CodeWithDebugName]
@@ -25,11 +25,11 @@ class Scala3EnterTest extends Scala3EnterBaseTest
     }
 
   private def doEnterAfterFunctionTypeArrow(contextCode: String): Unit ={
-    doTypingTestInAllContexts(contextCode, CodeToType.BlankLines, WrapperCodeContexts.AllContexts)
+    doTypingTestInWrapperContexts(contextCode, CodeToType.BlankLines, WrapperCodeContexts.AllContexts)
     assert(contextCode.contains("=>"))
 
     val contextCode2 = contextCode.replace("=>", "?=>")
-    doTypingTestInAllContexts(contextCode2, CodeToType.BlankLines, WrapperCodeContexts.AllContexts)
+    doTypingTestInWrapperContexts(contextCode2, CodeToType.BlankLines, WrapperCodeContexts.AllContexts)
   }
 
   def testAfterFunctionTypeArrow_1(): Unit =
@@ -323,82 +323,82 @@ class Scala3EnterTest extends Scala3EnterBaseTest
 
   def testCaretIsIndentedToTheRightFromLastElementInIndentationContext_1(): Unit = doEnterTestWithAndWithoutTabs(
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |              $CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |              $CARET
+       |""".stripMargin,
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |
-      |            $CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |
+       |            $CARET
+       |""".stripMargin,
   )
 
   def testCaretIsUnindentedToTheLeftFromLastElementInIndentationContext_0(): Unit = doEnterTestWithAndWithoutTabs(
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |          $CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |          $CARET
+       |""".stripMargin,
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |
-      |        $CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |
+       |        $CARET
+       |""".stripMargin,
   )
 
   def testCaretIsUnindentedToTheLeftFromLastElementInIndentationContext_1(): Unit = doEnterTestWithAndWithoutTabs(
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |      $CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |      $CARET
+       |""".stripMargin,
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |
-      |    $CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |
+       |    $CARET
+       |""".stripMargin,
   )
 
   def testCaretIsUnindentedToTheLeftFromLastElementInIndentationContext_2(): Unit = doEnterTestWithAndWithoutTabs(
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |  $CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |  $CARET
+       |""".stripMargin,
     s"""class A:
-      |    def foo =
-      |        println("start")
-      |        if 2 + 2 == 42 then
-      |            println(1)
-      |            println(2)
-      |
-      |$CARET
-      |""".stripMargin,
+       |    def foo =
+       |        println("start")
+       |        if 2 + 2 == 42 then
+       |            println(1)
+       |            println(2)
+       |
+       |$CARET
+       |""".stripMargin,
   )
 
   def test_UnindentedCaret_InClass_WithBraces(): Unit = doEnterTest(
@@ -534,8 +534,8 @@ class Scala3EnterTest extends Scala3EnterBaseTest
       s"""def foo123: String =
          |  return$CARET
          |""".stripMargin
-    doTypingTestInAllContexts(contextCode, CodeToType.BlankLines, WrapperCodeContexts.AllContexts)
-    doTypingTestInAllContexts(contextCode, CodeToType.BlockStatements, WrapperCodeContexts.AllContexts)
+    doTypingTestInWrapperContexts(contextCode, CodeToType.BlankLines, WrapperCodeContexts.AllContexts)
+    doTypingTestInWrapperContexts(contextCode, CodeToType.BlockStatements, WrapperCodeContexts.AllContexts)
   }
 
   def testAfterCodeInCaseClause_EOF_1(): Unit = doEnterTest_NonStrippingTrailingSpaces(
@@ -786,43 +786,67 @@ class Scala3EnterTest extends Scala3EnterBaseTest
     )
   }
 
-  private val AllContextsAcceptingAnything = {
-    import IndentedBlockContexts._
-    ControlFlow ++ AfterAssignOrArrowSign ++ TemplateDefinitions
-  }
-
-  private val AllContexts: Seq[String] = {
-    import IndentedBlockContexts._
-    AfterAssignOrArrowSign ++ ForEnumeratorsAll ++ ControlFlow ++ Extensions ++ TemplateDefinitions ++ GivenWith
-  }
-
   private def runEnterTestInContexts(
-    before: String,
-    after: String,
+    bodyBefore: String,
+    bodyAfter: String,
     indentedRegionContexts: Seq[String],
-    beforeAndAfterIndentSize: Int = 2
+    wrapperContexts: Seq[CodeWithDebugName],
+    additionalBodyIndentSize: Int = 2,
+    additionalBodyPrefix: String = "\n",
   ): Unit = {
     for {
-      wrapperContext <- WrapperCodeContexts.AllContexts
+      wrapperContext <- wrapperContexts
       indentationContext <- indentedRegionContexts
     } {
       val contextFinal = Scala3TestDataBracelessCode.injectCodeWithIndentAdjust(wrapperContext.code, indentationContext)
 
-      val beforeIndented = TestIndentUtils.addIndentToAllLines(before, beforeAndAfterIndentSize)
-      val afterIndented = TestIndentUtils.addIndentToAllLines(after, beforeAndAfterIndentSize)
+      val beforeIndented = TestIndentUtils.addIndentToAllLines(bodyBefore, additionalBodyIndentSize)
+      val afterIndented = TestIndentUtils.addIndentToAllLines(bodyAfter, additionalBodyIndentSize)
 
-      val beforeFinal = TestIndentUtils.injectCodeWithIndentAdjust("\n" + beforeIndented, contextFinal, CARET)
-      val afterFinal = TestIndentUtils.injectCodeWithIndentAdjust("\n" + afterIndented, contextFinal, CARET)
+      val beforeFinal = TestIndentUtils.injectCodeWithIndentAdjust(additionalBodyPrefix + beforeIndented, contextFinal, CARET)
+      val afterFinal = TestIndentUtils.injectCodeWithIndentAdjust(additionalBodyPrefix + afterIndented, contextFinal, CARET)
       checkGeneratedTextAfterEnter(beforeFinal, afterFinal)
     }
   }
 
-  def testAfterComment_InTheEndOfIndentedRegion_EmptyRegion(): Unit = {
+  private def runEnterTestInAllWrapperContexts(
+    bodyBefore: String,
+    bodyAfter: String,
+    indentedRegionContexts: Seq[String],
+    additionalBodyIndentSize: Int = 2,
+    additionalBodyPrefix: String = "\n",
+  ): Unit = {
     runEnterTestInContexts(
+      bodyBefore,
+      bodyAfter,
+      indentedRegionContexts,
+      WrapperCodeContexts.AllContexts,
+      additionalBodyIndentSize
+    )
+  }
+
+  private def runEnterTestInAllIndentationBlockContexts(
+    bodyBefore: String,
+    bodyAfter: String,
+    additionalBodyIndentSize: Int = 2,
+    additionalBodyPrefix: String = "\n",
+  ): Unit = {
+    runEnterTestInContexts(
+      bodyBefore,
+      bodyAfter,
+      Scala3TestDataBracelessCode.IndentedBlockContexts.AllContextsAcceptingStatements,
+      Scala3TestDataBracelessCode.WrapperCodeContexts.Empty :: Nil,
+      additionalBodyIndentSize
+    )
+  }
+
+
+  def testAfterComment_InTheEndOfIndentedRegion_EmptyRegion(): Unit = {
+    runEnterTestInAllWrapperContexts(
       s"""// line comment$CARET""",
       s"""// line comment
          |$CARET""".stripMargin,
-      AllContexts
+      IndentedBlockContexts.AllContextsAcceptingStatements
     )
 
     checkGeneratedTextAfterEnter(
@@ -850,13 +874,13 @@ class Scala3EnterTest extends Scala3EnterBaseTest
   }
 
   def testAfterComment_InTheEndOfIndentedRegion_NonEmptyRegion(): Unit = {
-    runEnterTestInContexts(
+    runEnterTestInAllWrapperContexts(
       s"""println()
          |// line comment$CARET""".stripMargin,
       s"""println()
          |// line comment
          |$CARET""".stripMargin,
-      AllContexts
+      IndentedBlockContexts.AllContextsAcceptingStatements
     )
 
     checkGeneratedTextAfterEnter(
@@ -888,14 +912,14 @@ class Scala3EnterTest extends Scala3EnterBaseTest
   }
 
   def testAfterComment_InTheEndOfIndentedBlock_UnindentedComment(): Unit = {
-    runEnterTestInContexts(
+    runEnterTestInAllWrapperContexts(
       s"""  println()
          |// line comment$CARET""".stripMargin,
       s"""  println()
          |// line comment
          |$CARET""".stripMargin,
-      AllContexts,
-      beforeAndAfterIndentSize = 0
+      IndentedBlockContexts.AllContextsAcceptingStatements,
+      additionalBodyIndentSize = 0
     )
 
     checkGeneratedTextAfterEnter(
@@ -927,14 +951,14 @@ class Scala3EnterTest extends Scala3EnterBaseTest
   }
 
   def testAfterLineCommentAfterIndentedCodeOnSameLine(): Unit = {
-    runEnterTestInContexts(
+    runEnterTestInAllWrapperContexts(
       s"""1 // line comment$CARET""".stripMargin,
       s"""1 // line comment
          |$CARET""".stripMargin,
-      AllContextsAcceptingAnything
+      IndentedBlockContexts.AllContextsAcceptingStatements
     )
 
-    runEnterTestInContexts(
+    runEnterTestInAllWrapperContexts(
       s"""1 // line comment 1
          |2 // line comment 2$CARET
          |""".stripMargin,
@@ -942,37 +966,251 @@ class Scala3EnterTest extends Scala3EnterBaseTest
          |2 // line comment 2
          |$CARET
          |""".stripMargin,
-      AllContextsAcceptingAnything
+      IndentedBlockContexts.AllContextsAcceptingStatements
     )
   }
 
   // FIXME when we fix parsing // line comments (we should attach them to the element on the line)
-//  def testBeforeLineCommentAfterIndentedCodeOnSameLine(): Unit = {
-//    runEnterTestInContexts(
-//      s"""1 $CARET// line comment""".stripMargin,
-//      s"""1 ${""}
-//         |$CARET// line comment""".stripMargin,
-//      AllContextsAcceptingAnything
-//    )
-//
-//    runEnterTestInContexts(
-//      s"""1 $CARET// line comment 1
-//         |2 $CARET// line comment 2""".stripMargin,
-//      s"""1
-//         |$CARET// line comment 1
-//         |2
-//         |$CARET// line comment 2""".stripMargin,
-//      AllContextsAcceptingAnything
-//    )
-//
-//    runEnterTestInContexts(
-//      s"""1$CARET   // line comment 1
-//         |2$CARET   // line comment 2""".stripMargin,
-//      s"""1
-//         |$CARET// line comment 1
-//         |2
-//         |$CARET// line comment 2""".stripMargin,
-//      AllContextsAcceptingAnything
-//    )
-//  }
+  //  def testBeforeLineCommentAfterIndentedCodeOnSameLine(): Unit = {
+  //    runEnterTestInContexts(
+  //      s"""1 $CARET// line comment""".stripMargin,
+  //      s"""1 ${""}
+  //         |$CARET// line comment""".stripMargin,
+  //      IndentedBlockContexts.AllAcceptingAnything
+  //    )
+  //
+  //    runEnterTestInContexts(
+  //      s"""1 $CARET// line comment 1
+  //         |2 $CARET// line comment 2""".stripMargin,
+  //      s"""1
+  //         |$CARET// line comment 1
+  //         |2
+  //         |$CARET// line comment 2""".stripMargin,
+  //      IndentedBlockContexts.AllAcceptingAnything
+  //    )
+  //
+  //    runEnterTestInContexts(
+  //      s"""1$CARET   // line comment 1
+  //         |2$CARET   // line comment 2""".stripMargin,
+  //      s"""1
+  //         |$CARET// line comment 1
+  //         |2
+  //         |$CARET// line comment 2""".stripMargin,
+  //      IndentedBlockContexts.AllAcceptingAnything
+  //    )
+  //  }
+
+
+  def testAfterLastSemicolon(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1;$CARET
+         |""".stripMargin,
+      s"""1;
+         |$CARET
+         |""".stripMargin
+    )
+
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 + 1;$CARET
+         |""".stripMargin,
+      s"""1 + 1;
+         |$CARET
+         |""".stripMargin
+    )
+
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 + 1 +
+         |    1 + 1;$CARET
+         |""".stripMargin,
+      s"""1 + 1 +
+         |    1 + 1;
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_MultipleSemicolons(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1;;; ;; ;$CARET
+         |""".stripMargin,
+      s"""1;;; ;; ;
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_WithComment(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1; // comment$CARET
+         |""".stripMargin,
+      s"""1; // comment
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_SeveralExpressions(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1; 2; 3;$CARET
+         |""".stripMargin,
+      s"""1; 2; 3;
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_SeveralExpressions_WithComment(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1; 2; 3; // comment$CARET
+         |""".stripMargin,
+      s"""1; 2; 3; // comment
+         |$CARET
+         |""".stripMargin
+    )
+
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 + 1; 2 + 2; 3 + 3; // comment$CARET
+         |""".stripMargin,
+      s"""1 + 1; 2 + 2; 3 + 3; // comment
+         |$CARET
+         |""".stripMargin
+    )
+
+
+
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 + 1; 2 + 2; 3 + 3; // comment$CARET
+         |""".stripMargin,
+      s"""1 + 1; 2 + 2; 3 + 3; // comment
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_SeveralExpressions_SpacesAroundSemicolons(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1  ;   2  ;   3  ;  $CARET
+         |""".stripMargin,
+      s"""1  ;   2  ;   3  ;  ${""}
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_SeveralExpressions_NoTrailingSemicolon(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1; 2; 3$CARET
+         |""".stripMargin,
+      s"""1; 2; 3
+         |$CARET
+         |""".stripMargin
+    )
+
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 + 1; 2 + 2; 3 + 3$CARET
+         |""".stripMargin,
+      s"""1 + 1; 2 + 2; 3 + 3
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_SeveralExpressions_MultipleSemicolons(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 ;; ; 2  ; ;; 3 ; ;; // comment$CARET
+         |""".stripMargin,
+      s"""1 ;; ; 2  ; ;; 3 ; ;; // comment
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterLastSemicolon_SeveralExpressions_MultipleSemicolons_NoTrailingSemicolon(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 ;; ; 2  ; ;; 3$CARET
+         |""".stripMargin,
+      s"""1 ;; ; 2  ; ;; 3
+         |$CARET
+         |""".stripMargin
+    )
+
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1 + 1; 2 + 2; 3 + 3$CARET
+         |""".stripMargin,
+      s"""1 + 1; 2 + 2; 3 + 3
+         |$CARET
+         |""".stripMargin
+    )
+  }
+
+  def testAfterMiddleSemicolon_SeveralExpressions(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1; 2; ${CARET}3; 4;
+         |""".stripMargin,
+      s"""1; 2; ${""}
+         |${CARET}3; 4;
+         |""".stripMargin
+    )
+  }
+
+  def testAfterMiddleSemicolon_SeveralExpressions_1(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1; 2;$CARET 3; 4;
+         |""".stripMargin,
+      s"""1; 2;
+         |${CARET}3; 4;
+         |""".stripMargin
+    )
+  }
+
+  def testAfterMiddleSemicolon_SeveralExpressions_MultipleSemicolons(): Unit = {
+    runEnterTestInAllIndentationBlockContexts(
+      s"""1; ;; ; 2 ;  ;; ; $CARET 3; ;; 4;
+         |""".stripMargin,
+      s"""1; ;; ; 2 ;  ;; ; ${""}
+         |${CARET}3; ;; 4;
+         |""".stripMargin
+    )
+  }
+
+  // This is a wired case, we at least shouldn't fail on it
+  def testAfterSemicolons_WithEmptyLine(): Unit = {
+    checkGeneratedTextAfterEnter(
+      s"""class A:
+         |  def foo2 =
+         |    ; ;; ;$CARET
+         |""".stripMargin,
+      s"""class A:
+         |  def foo2 =
+         |    ; ;; ;
+         |    $CARET
+         |""".stripMargin
+    )
+
+    checkGeneratedTextAfterEnter(
+      s"""class A:
+         |  def foo2 =
+         |    ; ;; ; //comment$CARET
+         |""".stripMargin,
+      s"""class A:
+         |  def foo2 =
+         |    ; ;; ; //comment
+         |    $CARET
+         |""".stripMargin
+    )
+
+    checkGeneratedTextAfterEnter(
+      s"""class A:
+         |  def foo2 =
+         |    42
+         |    ; ;; ;$CARET
+         |""".stripMargin,
+      s"""class A:
+         |  def foo2 =
+         |    42
+         |    ; ;; ;
+         |    $CARET
+         |""".stripMargin
+    )
+  }
 }

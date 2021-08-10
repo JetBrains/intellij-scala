@@ -195,19 +195,46 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     //  according to http://dotty.epfl.ch/docs/reference/other-new-features/indentation.html
     //  "Indentation prefixes can consist of spaces and/or tabs. Indentation widths are the indentation prefixes themselves"
 
-    // TODO: ignore `;`
     val lastRealElement = getLastRealElement(elementAtCaret)
-    assert(lastRealElement != null)
-
-    val result = if (lastRealElement.is[PsiErrorElement])
+    val result = if (lastRealElement == null)
+      None
+    else if (lastRealElement.is[PsiErrorElement])
       None
     else {
       val elementAtCaretEndOffset = elementAtCaret.endOffset
 
-      val withParents0 = lastRealElement.withParentsInFile: Iterator[PsiElement]
-      val withParents1 = withParents0.takeWhile(e => e != null && e.endOffset <= elementAtCaretEndOffset)
-      val indented = withParents1.flatMap(parent => toIndentedElement(parent, caretIndentSize, indentOptions))
-      indented.headOption
+      var result: Option[(PsiElement, Int)] = None
+
+      // For a given last real elment on the line traverse the tree searching for an indented element
+      // (yes, it's not very pretty, but the logic of tree traversal is not simple and it's easier to modify the imperative code)
+      var current = lastRealElement
+      var continue = true
+      while (continue) {
+        if (current != null && current.endOffset <= elementAtCaretEndOffset && !current.is[PsiFile]) {
+          toIndentedElement(current, caretIndentSize, indentOptions) match {
+            case Some(value) =>
+              result = Some(value)
+              continue = false
+
+            case None =>
+              val nextElementToProcess = {
+                val prevCode = current.prevSiblingNotWhitespace.orNull
+                val isInSemicolonSeparatedList =
+                  current.elementType == ScalaTokenTypes.tSEMICOLON ||
+                    prevCode != null && prevCode.elementType == ScalaTokenTypes.tSEMICOLON
+                if (isInSemicolonSeparatedList)
+                  prevCode
+                else
+                  current.getParent
+              }
+              current = nextElementToProcess
+          }
+        }
+        else {
+          continue = false
+        }
+      }
+      result
     }
     //println(s"indentedElement: $result")
     result
@@ -216,22 +243,44 @@ object Scala3IndentationBasedSyntaxEnterHandler {
   /**
    * @param elementAtCaret non-whitespace - if the caret located is in the end of document<br>
    *                       whitespace - otherwise
+   * @example
+   * input:{{{
+   * def foo =
+   *   42 //comment<caret>
+   * }}}
+   * output: {{{
+   * 42
+   * }}}
+
+   * input:{{{
+   * def foo =
+   *   1; 2; 3; //comment<caret>
+   * }}}
+   * output: {{{
+   * ;
+   * }}}
+   * NOTE: the semicolons are handled later for Scala 3
    */
   private[editor] def getLastRealElement(elementAtCaret: PsiElement): PsiElement = {
-    val real0 = elementAtCaret match {
+    val beforeWhitespace = elementAtCaret match {
       case ws: PsiWhiteSpace => PsiTreeUtil.prevLeaf(ws) match {
-        case null => ws
+        case null =>
+          return null // can be null when getLastRealElement is called during typing in "auto-braces" feature
         case prev => prev
       }
       case el => el
     }
-    real0 match {
+
+    val withLineCommentSkipped = beforeWhitespace match {
+      // for line comment we use prevCodeLeaf instead of prevSibling
+      // because currently line comments are not attached to the line in indentation-based block
       case c: PsiComment if !c.startsFromNewLine() => PsiTreeUtil.prevCodeLeaf(c) match {
         case null => c
         case prev => prev
       }
       case el => el
     }
+    withLineCommentSkipped
   }
 
   private def toIndentedElement(
@@ -252,11 +301,14 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     // TODO: it should be just ScBlockStatement, without ScCommentOwner:
     //  according to the language spec, definitions are also block statements,
     //  but in our hierarchy they are not, we should try adding ScBlockStatement to all Definition PSI hierarchy
+    val isBlockChild = element.isInstanceOf[ScBlockStatement] ||
+      element.isInstanceOf[ScCommentOwner] ||
+      element.elementType == ScalaTokenTypes.tSEMICOLON
     element match {
       // An indentation region can start after one of the following tokens:
       // =  =>  ?=>  <-  catch  do  else  finally  for
       // if  match  return  then  throw  try  while  yield
-      case _: ScBlockStatement | _: ScCommentOwner =>
+      case _ if isBlockChild  =>
         val parent = element.getParent
 
         val isInsideIndentationBlock = parent match {
@@ -282,8 +334,10 @@ object Scala3IndentationBasedSyntaxEnterHandler {
                  ScalaTokenTypes.kTRY |
                  ScalaTokenTypes.kFINALLY |
 
-                 // NOTE: these expressions are handled specially, using some PSI extractors, because
-                 //  for them, it's not enough to check just previous token
+                 // NOTE: these expressions are handled specially, using some PSI extractors,
+                 //  For them  not enough to just check the previous token: previous token can be ')'
+                 //  or some element of condition / enumerator
+                 //
                  //ScalaTokenTypes.kIF |
                  //ScalaTokenTypes.kFOR |
                  //ScalaTokenTypes.kWHILE |
