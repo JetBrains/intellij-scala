@@ -16,7 +16,6 @@ import com.intellij.psi.impl.source.PsiFileImpl
 import com.intellij.psi.javadoc.PsiDocComment
 import com.intellij.psi.stubs.StubElement
 import com.intellij.psi.util.PsiTreeUtil
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.ScTypeDefinitionFactory
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
@@ -32,7 +31,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScTemplateParents}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createObjectWithContext
-import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.JavaIdentifier
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
 import org.jetbrains.plugins.scala.lang.psi.types._
@@ -41,9 +39,10 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScProjectionTy
 import org.jetbrains.plugins.scala.lang.psi.types.api.presentation.AccessModifierRenderer
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, CachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedWithRecursionGuard}
 import org.jetbrains.plugins.scala.projectView.FileKind
 
+import javax.swing.Icon
 import scala.annotation.tailrec
 
 abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateDefinitionStub[T],
@@ -90,10 +89,10 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
         ScProjectionType(projected, this)
     }
 
-    val result = typeParameters match {
-      case typeArgs if typeArgs.isEmpty => designator
-      case typeArgs => ScParameterizedType(designator, typeArgs.map(TypeParameterType(_)))
-    }
+    val result =
+      if (typeParameters.isEmpty) designator
+      else                        ScParameterizedType(designator, typeParameters.map(TypeParameterType(_)))
+
     Right(result)
   }
 
@@ -134,7 +133,7 @@ abstract class ScTypeDefinitionImpl[T <: ScTemplateDefinition](stub: ScTemplateD
       parentSourceMirror match {
         case td: ScTypeDefinitionImpl[_] => for (i <- td.typeDefinitions if name == i.name && hasSameScalaKind(i))
           return i
-        case _ => this
+        case _ =>
       }
     }
     this

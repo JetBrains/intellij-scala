@@ -175,10 +175,12 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
         if !resolveResult.isDynamic
         fun                                  <- resolveResult.element.asOptionOf[ScFunction]
         numArgumentClauses                   = countArgumentClauses(call)
-        clauses                              =
+
+        clauses =
           if (!ResolveUtils.isExtensionMethodCall(ref, fun)) fun.effectiveParameterClauses
           else                                               fun.effectiveParameterClauses.dropWhile(_.owner != fun)
-        problems                             = Compatibility.missedParameterClauseProblemsFor(clauses, numArgumentClauses)
+
+        problems = Compatibility.missedParameterClauseProblemsFor(clauses, numArgumentClauses)
         MissedParametersClause(missedClause) <- problems
       } {
         val endOffset = call.getTextRange.getEndOffset

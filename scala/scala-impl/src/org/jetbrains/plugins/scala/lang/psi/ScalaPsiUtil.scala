@@ -13,6 +13,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.psi.PsiModifier.STATIC
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightModifierList
 import com.intellij.psi.impl.source.PsiFileImpl
@@ -46,9 +47,11 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ApplyOrUpdateInvocation
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.TypeDefinitionMembers
+import org.jetbrains.plugins.scala.lang.psi.light.PsiClassWrapper
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility.Expression
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
+import org.jetbrains.plugins.scala.lang.psi.types.api.designator.{ScDesignatorType, ScProjectionType}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
@@ -1604,4 +1607,28 @@ object ScalaPsiUtil {
 
     "given_" + text
   }
+
+  def constructTypeForPsiClass(
+    clazz:              PsiClass,
+    withTypeParameters: Boolean = true
+  )(typeArgFun:         (PsiTypeParameter, Int) => ScType
+  ): ScType =
+    clazz match {
+      case PsiClassWrapper(definition) => constructTypeForPsiClass(definition)(typeArgFun)
+      case _ =>
+        val designator = clazz.containingClass match {
+          case null => ScDesignatorType(clazz)
+          case cClass =>
+            val isStatic  = clazz.hasModifierProperty(STATIC)
+            val projected = constructTypeForPsiClass(cClass, withTypeParameters = !isStatic)(typeArgFun)
+            ScProjectionType(projected, clazz)
+        }
+
+        if (withTypeParameters && clazz.hasTypeParameters)
+          ScParameterizedType(
+            designator,
+            clazz.getTypeParameters.toSeq.zipWithIndex.map(typeArgFun.tupled)
+          )
+        else designator
+    }
 }

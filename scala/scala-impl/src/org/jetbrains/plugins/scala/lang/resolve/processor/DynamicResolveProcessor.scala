@@ -54,13 +54,10 @@ object DynamicResolveProcessor {
   def dynamicResolveProcessor(ref: ScReferenceExpression,
                               qualifier: ScExpression,
                               fromProcessor: BaseProcessor): MethodResolveProcessor = {
-
-    import ref.projectContext
-
     val expressionsOrContext = ref.getContext match {
-      case postfix: ScPostfixExpr => Left(postfix)
+      case postfix: ScPostfixExpr               => Left(postfix)
       case MethodInvocation(`ref`, expressions) => Right(expressions)
-      case _ => Left(ref)
+      case _                                    => Left(ref)
     }
 
     val name = expressionsOrContext match {

@@ -66,7 +66,14 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
       case f                                => f
     }
 
-  override def getDeclarationScope: ScalaPsiElement = PsiTreeUtil.getContextOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
+  override def getDeclarationScope: ScalaPsiElement = {
+    val ctx = PsiTreeUtil.getContextOfType(this, classOf[ScParameterOwner], classOf[ScFunctionExpr])
+
+    ctx match {
+      case cons: ScPrimaryConstructor => cons.containingClass
+      case other                      => other
+    }
+  }
 
   def deprecatedName: Option[String]
 

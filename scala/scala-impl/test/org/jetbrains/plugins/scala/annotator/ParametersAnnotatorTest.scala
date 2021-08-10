@@ -5,6 +5,7 @@ import com.intellij.psi.PsiElement
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.element.{ScParameterAnnotator, ScParametersAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScParameterOwner
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
 
 abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
   final val Header = "class A; class B; class C;\n"
@@ -14,16 +15,12 @@ abstract class ParametersAnnotatorTestBase extends ScalaHighlightingTestBase {
     result
   }
 
-  override def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = {
+  override def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit =
     element match {
-      case owner: ScParameterOwner =>
-        ScParametersAnnotator.annotate(owner.clauses.get)
-        for (p <- owner.parameters) {
-          ScParameterAnnotator.annotate(p)
-        }
-      case _ =>
+      case parameters: ScParameters => ScParametersAnnotator.annotate(parameters)
+      case param: ScParameter       => ScParameterAnnotator.annotate(param)
+      case _                        =>
     }
-  }
 }
 
 class ParametersAnnotatorTest extends ParametersAnnotatorTestBase {
