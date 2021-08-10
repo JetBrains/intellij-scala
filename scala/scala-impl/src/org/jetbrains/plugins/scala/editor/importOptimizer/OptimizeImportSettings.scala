@@ -19,6 +19,7 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
                                   isUnicodeArrow: Boolean,
                                   spacesInImports: Boolean,
                                   scalaFeatures: ScalaFeatures,
+                                  forceScala2SyntaxInSource3: Boolean,
                                   classCountToUseImportOnDemand: Int,
                                   importLayout: Array[String],
                                   isAlwaysUsedImport: String => Boolean,
@@ -30,18 +31,19 @@ case class OptimizeImportSettings(addFullQualifiedImports: Boolean,
   private def this(s: ScalaCodeStyleSettings, scalastyleSettings: ScalastyleSettings, basePackage: Option[String], scalaFeatures: ScalaFeatures) = {
 
     this(
-      s.isAddFullQualifiedImports,
-      basePackage,
-      s.isDoNotChangeLocalImportsOnOptimize,
-      s.isSortImports,
-      s.isCollectImports,
-      s.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR,
-      s.SPACES_IN_IMPORTS,
-      scalaFeatures,
-      s.getClassCountToUseImportOnDemand,
-      s.getImportLayout,
-      s.isAlwaysUsedImport,
-      scalastyleSettings
+      addFullQualifiedImports = s.isAddFullQualifiedImports,
+      basePackage = basePackage,
+      isLocalImportsCanBeRelative = s.isDoNotChangeLocalImportsOnOptimize,
+      sortImports = s.isSortImports,
+      collectImports = s.isCollectImports,
+      isUnicodeArrow = s.REPLACE_CASE_ARROW_WITH_UNICODE_CHAR,
+      spacesInImports = s.SPACES_IN_IMPORTS,
+      scalaFeatures = scalaFeatures,
+      forceScala2SyntaxInSource3 = s.forceScala2ImportSyntaxInSource3,
+      classCountToUseImportOnDemand = s.getClassCountToUseImportOnDemand,
+      importLayout = s.getImportLayout,
+      isAlwaysUsedImport = s.isAlwaysUsedImport,
+      scalastyleSettings = scalastyleSettings
     )
   }
 }

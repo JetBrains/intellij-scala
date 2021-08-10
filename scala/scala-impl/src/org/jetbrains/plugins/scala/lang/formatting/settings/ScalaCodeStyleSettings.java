@@ -306,6 +306,7 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
   private boolean SORT_IMPORTS = true;
   private boolean SORT_AS_SCALASTYLE = false;
   private boolean COLLECT_IMPORTS_TOGETHER = true;
+  private boolean FORCE_SCALA2_IMPORT_SYNTAX_IN_SOURCE3 = false;
 
   private String[] ALWAYS_USED_IMPORTS = new String[0];
 
@@ -418,6 +419,14 @@ public class ScalaCodeStyleSettings extends CustomCodeStyleSettings {
 
   public void setCollectImports(boolean value) {
     COLLECT_IMPORTS_TOGETHER = value;
+  }
+
+  public boolean forceScala2ImportSyntaxInSource3() {
+    return FORCE_SCALA2_IMPORT_SYNTAX_IN_SOURCE3;
+  }
+
+  public void setForceScala2ImportSyntaxInSource3(boolean value) {
+    FORCE_SCALA2_IMPORT_SYNTAX_IN_SOURCE3 = value;
   }
 
   public boolean isImportShortestPathForAmbiguousReferences() {

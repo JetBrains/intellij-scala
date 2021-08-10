@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.source3.Source3Inspection._
 import org.jetbrains.plugins.scala.codeInspection.{AbstractFixOnPsiElement, AbstractRegisteredInspection, ScalaInspectionBundle}
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.{ScalaTokenType, ScalaTokenTypes}
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScConstructorPattern, ScNamingPattern, ScSeqWildcardPattern, ScTypePattern}
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScCompoundTypeElement, ScWildcardTypeElement}
@@ -40,6 +41,7 @@ class Source3Inspection extends AbstractRegisteredInspection {
       return None
     }
 
+    lazy val scala3ImportsAllowed = !ScalaCodeStyleSettings.getInstance(element.getProject).forceScala2ImportSyntaxInSource3()
     val features = element.features
     element match {
       case ScWildcardTypeElementUnderscore(wildcardTypeElement, underscore) if convertWildcardUnderscore && features.`? as wildcard marker` =>
@@ -58,14 +60,14 @@ class Source3Inspection extends AbstractRegisteredInspection {
               .asInstanceOf[ScFor].enumerators.head.generators.head
           }
         )
-      case ElementType(ScalaTokenTypes.tUNDER) if convertWildcardImport && isUpgradableImportWildcard(element) =>
+      case ElementType(ScalaTokenTypes.tUNDER) if scala3ImportsAllowed && convertWildcardImport && isUpgradableImportWildcard(element) =>
         super.problemDescriptor(
           element,
           createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.star")) { underscore =>
             ScalaPsiElementFactory.createImportFromTextWithContext("import a.*", underscore.getContext, null).lastLeaf
           }
         )
-      case ElementType(ScalaTokenTypes.tFUNTYPE) if convertImportAlias && features.`Scala 3 renaming imports` && element.getParent.is[ScImportSelector] =>
+      case ElementType(ScalaTokenTypes.tFUNTYPE) if scala3ImportsAllowed && convertImportAlias && features.`Scala 3 renaming imports` && element.getParent.is[ScImportSelector] =>
         super.problemDescriptor(
           element,
           createReplacingQuickFix(element, ScalaInspectionBundle.message("replace.with.as")) { arrow =>
@@ -128,21 +130,6 @@ object Source3Inspection {
   object ScWildcardTypeElementUnderscore {
     def unapply(wildcardType: ScWildcardTypeElement): Option[(ScWildcardTypeElement, PsiElement)] =
       wildcardType.findFirstChildByType(ScalaTokenTypes.tUNDER).map(wildcardType -> _)
-  }
-
-  // token '=>' and '_' (but only when not used for shadowing)
-  //  import base.{something => _, _}
-  //                         ^^    ^
-  //                            ^ <- not this
-  object UpgradableImportToken {
-    def unapply(e: PsiElement): Option[(PsiElement, ScImportStmt)] = {
-      def elementIfInImport = e.parents.findByType[ScImportStmt].map(e -> _)
-      e match {
-        case ElementType(ScalaTokenTypes.tFUNTYPE) => elementIfInImport
-        case ElementType(ScalaTokenTypes.tFUNTYPE) if e.getParent.is[ScImportSelectors] => elementIfInImport
-        case _ => None
-      }
-    }
   }
 
   private def isUpgradableImportWildcard(element: PsiElement): Boolean = {
