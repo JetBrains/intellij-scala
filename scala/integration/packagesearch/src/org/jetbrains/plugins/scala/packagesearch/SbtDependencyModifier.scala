@@ -5,6 +5,7 @@ import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDepende
 import com.intellij.externalSystem.ExternalDependencyModificator
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
 import com.intellij.psi.PsiManager
@@ -26,6 +27,7 @@ import java.util
 import scala.jdk.CollectionConverters._
 
 class SbtDependencyModifier extends ExternalDependencyModificator{
+  private val logger = Logger.getInstance(this.getClass)
 
   override def supports(module: OpenapiModule.Module): Boolean = SbtUtil.isSbtModule(module)
 
@@ -68,7 +70,8 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       }
     }
   } catch {
-    case e: Exception => throw(e)
+    case e: Exception =>
+      logger.error("Error occurs when adding dependency using package search plugin", e)
   }
 
   override def updateDependency(module: OpenapiModule.Module, currentDependency: UnifiedDependency, newDependency: UnifiedDependency): Unit = try {
@@ -115,7 +118,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     }
   } catch {
     case e: Exception =>
-      throw e
+      logger.error("Error occurs when updating dependency using package search plugin", e)
   }
 
   override def removeDependency(module: OpenapiModule.Module, toRemoveDependency: UnifiedDependency): Unit = try {
@@ -132,10 +135,10 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     }
   } catch {
     case e: Exception =>
-      throw e
+      logger.error("Error occurs when removing dependency using package search plugin", e)
   }
 
-  override def addRepository(module: OpenapiModule.Module, unifiedDependencyRepository: UnifiedDependencyRepository): Unit = {
+  override def addRepository(module: OpenapiModule.Module, unifiedDependencyRepository: UnifiedDependencyRepository): Unit = try {
     implicit val project: Project = module.getProject
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     if (sbtFileOpt == null) return
@@ -144,6 +147,9 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     val psiSbtFile = PsiManager.getInstance(project).findFile(sbtFile).asInstanceOf[ScalaFile]
 
     SbtDependencyUtils.addRepository(psiSbtFile, unifiedDependencyRepository)
+  } catch {
+    case e: Exception =>
+      logger.error("Error occurs when adding repository using package search plugin", e)
   }
 
   override def deleteRepository(module: OpenapiModule.Module, unifiedDependencyRepository: UnifiedDependencyRepository): Unit = {
@@ -203,13 +209,19 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     })
   } catch {
     case e: Exception =>
-      throw e
+      logger.error(s"Error occurs when obtaining the list of dependencies for module ${module.getName} using package search plugin", e)
+      List().asJava
   }
 
-  override def declaredRepositories(module: OpenapiModule.Module): util.List[UnifiedDependencyRepository] = {
-    SbtResolverUtils.projectResolvers(module.getProject).collect {
+  override def declaredRepositories(module: OpenapiModule.Module): util.List[UnifiedDependencyRepository] = try {
+    val res = SbtResolverUtils.projectResolvers(module.getProject).collect {
       case r: SbtMavenResolver =>
         new UnifiedDependencyRepository(r.name, r.presentableName, r.normalizedRoot)
     }.toList.asJava
+    res
+  } catch {
+    case e: Exception =>
+      logger.error(s"Error occurs when obtaining the list of supported repositories/resolvers for module ${module.getName} using package search plugin", e)
+      List().asJava
   }
 }
