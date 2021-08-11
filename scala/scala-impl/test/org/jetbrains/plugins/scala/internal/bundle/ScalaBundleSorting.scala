@@ -131,17 +131,20 @@ object ScalaBundleSorting {
 
     def search(file: File): Seq[String] = {
       val result = Seq.newBuilder[String]
-      val reader = Source.fromFile(file).bufferedReader()
-      val scanner = new Scanner(reader)
-      while (scanner.findWithinHorizon(pattern, 0) ne null) {
-        val m = scanner.`match`()
+      val scanner = new Scanner(Source.fromFile(file).bufferedReader())
+      try {
+        while (scanner.findWithinHorizon(pattern, 0) ne null) {
+          val m = scanner.`match`()
 
-        val g1 = m.group(1)
-        val g =
-          if (g1 != null) g1 // from message("blub")
-          else m.group(2)    // from <categoryKey>blub</categoryKey>
-        assert(g != null)
-        result += g
+          val g1 = m.group(1)
+          val g =
+            if (g1 != null) g1 // from message("blub")
+            else m.group(2) // from <categoryKey>blub</categoryKey>
+          assert(g != null)
+          result += g
+        }
+      } finally {
+        scanner.close()
       }
 
       result.result()
