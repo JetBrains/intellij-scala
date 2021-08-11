@@ -332,6 +332,115 @@ class Scala3FormatterBracelessSyntaxTest extends Scala3FormatterBaseTest {
        |""".stripMargin
   )
 
+  // NOTE:
+  // the requirement is soft, adding this test just to bake the behaviour in the tests
+  // in practice such code should be present only when typing new code,
+  // and such cases are handled by the Enter handler
+  def testDanglingCommentInTheEndOfIndentedBlock_ShouldTreatedAsNotPartOfBlock(): Unit = {
+    doTextTest(
+      """object Test:
+        |  1
+        |  // line comment
+        |
+        |def foo =
+        |  1
+        |  // line comment
+        |
+        |42 match
+        |  case _ =>
+        |  // line comment
+        |
+        |if true then
+        |  1
+        |  // line comment
+        |
+        |object Test:
+        |  1
+        |  /* block comment */
+        |
+        |object Test:
+        |  1
+        |  /** block comment */
+        |""".stripMargin,
+      """object Test:
+        |  1
+        |// line comment
+        |
+        |def foo =
+        |  1
+        |// line comment
+        |
+        |42 match
+        |  case _ =>
+        |// line comment
+        |
+        |if true then
+        |  1
+        |// line comment
+        |
+        |object Test:
+        |  1
+        |/* block comment */
+        |
+        |object Test:
+        |  1
+        |
+        |/** block comment */
+        |""".stripMargin
+    )
+
+    doTextTest(
+      """object Test:
+        |  println()
+        |  // line comment
+        |
+        |def foo =
+        |  println()
+        |  // line comment
+        |
+        |42 match
+        |  case 42 =>
+        |  // line comment
+        |
+        |if true then
+        |  println()
+        |  // line comment
+        |
+        |object Test:
+        |  println()
+        |  /* block comment */
+        |
+        |object Test:
+        |  println()
+        |  /** block comment */
+        |""".stripMargin,
+      """object Test:
+        |  println()
+        |// line comment
+        |
+        |def foo =
+        |  println()
+        |// line comment
+        |
+        |42 match
+        |  case 42 =>
+        |// line comment
+        |
+        |if true then
+        |  println()
+        |// line comment
+        |
+        |object Test:
+        |  println()
+        |/* block comment */
+        |
+        |object Test:
+        |  println()
+        |
+        |/** block comment */
+        |""".stripMargin
+    )  }
+
   def testThrow(): Unit = doTextTest(
     """throw
       |  1
