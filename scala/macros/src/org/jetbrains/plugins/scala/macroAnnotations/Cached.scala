@@ -144,7 +144,7 @@ object Cached {
 
                  val computed = try {
                    //null values are not allowed in ConcurrentHashMap, but we want to cache nullable functions
-                   _root_.scala.Some($cachedFunName)
+                   _root_.scala.Some($cachedFunName())
                  } finally {
                    $tracerName.calculationEnd()
                  }
@@ -204,7 +204,7 @@ object Cached {
                  $tracerName.calculationStart()
 
                  val computed = try {
-                   $cachedFunName
+                   $cachedFunName()
                  } finally {
                    $tracerName.calculationEnd()
                  }

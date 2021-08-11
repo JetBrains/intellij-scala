@@ -8,7 +8,7 @@ import java.nio.file.{Files, Path}
 import java.time.format.DateTimeFormatter
 import java.time.{Duration, Instant, ZoneId}
 import java.util.Comparator
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 import scala.jdk.StreamConverters.StreamHasToScala
 import scala.util.Try
 

@@ -143,7 +143,7 @@ abstract class UseSbtTestRunTest extends SbtProjectPlatformTestCase {
     val sdk = ProjectRootManager.getInstance(project).getProjectSdk
     assert(sdk != null, s"project sdk was null in project ${project.getName}")
 
-    val runComplete = Promise[Int]
+    val runComplete = Promise[Int]()
 
     EdtTestUtil.runInEdtAndWait { () =>
       val executor: Executor = Executor.EXECUTOR_EXTENSION_NAME.findExtension(classOf[DefaultRunExecutor])

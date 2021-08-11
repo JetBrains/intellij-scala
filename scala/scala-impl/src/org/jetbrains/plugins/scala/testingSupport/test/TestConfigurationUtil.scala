@@ -26,7 +26,7 @@ object TestConfigurationUtil {
 
   private def isPackageConfiguration(pack: PsiPackage, configuration: AbstractTestRunConfiguration): Boolean =
     configuration.testConfigurationData match {
-      case data: AllInPackageTestData => data.getTestPackagePath == pack.getQualifiedName
+      case data: AllInPackageTestData => data.testPackagePath == pack.getQualifiedName
       case _                          => false
     }
 

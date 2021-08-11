@@ -46,7 +46,7 @@ private[compilerReferences] class SbtCompilationWatcher(
         }
       }
 
-      val contents = builder.result
+      val contents = builder.result()
       contents.parseJson.convertTo[SbtCompilationInfo]
     }
 

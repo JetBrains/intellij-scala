@@ -14,7 +14,7 @@ class SbtProgramRunner extends GenericProgramRunner[RunnerSettings] with SbtProg
   override def execute(environment: ExecutionEnvironment, callback: ProgramRunner.Callback, state: RunProfileState): Unit = {
     state match {
       case sbtState: SbtCommandLineState => 
-        if (sbtState.configuration.getUseSbtShell) submitCommands(environment, sbtState) else super.execute(environment, callback, state)
+        if (sbtState.configuration.useSbtShell) submitCommands(environment, sbtState) else super.execute(environment, callback, state)
       case _ =>
     }
   }

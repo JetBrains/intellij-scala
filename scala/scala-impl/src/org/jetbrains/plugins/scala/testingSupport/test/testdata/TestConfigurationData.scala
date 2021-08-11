@@ -37,7 +37,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   type CheckResult = Either[RuntimeConfigurationException, Unit]
 
   protected final def getModule: Module = config.getModule
-  protected final def getProject: Project = config.getProject
+  final def getProject: Project = config.getProject
   protected final def checkModule: CheckResult =
     if (getModule != null) Right(())
     else Left(configurationException(ScalaBundle.message("test.run.config.module.is.not.specified")))
@@ -62,15 +62,15 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   }
 
   final def copyCommonFieldsFrom(other: TestConfigurationData): Unit = {
-    setSearchTest(other.getSearchTest)
-    setJavaOptions(other.getJavaOptions)
-    setTestArgs(other.getTestArgs)
-    setJrePath(other.getJrePath)
-    setShowProgressMessages(other.getShowProgressMessages)
-    setUseSbt(other.getUseSbt)
-    setUseUiWithSbt(other.getUseUiWithSbt)
+    setSearchTest(other.searchTest)
+    setJavaOptions(other.javaOptions)
+    setTestArgs(other.testArgs)
+    setJrePath(other.jrePath)
+    setShowProgressMessages(other.showProgressMessages)
+    setUseSbt(other.useSbt)
+    setUseUiWithSbt(other.useUiWithSbt)
     setWorkingDirectory(other.getWorkingDirectory)
-    setShortenClasspath(other.getShortenClasspath)
+    setShortenClasspath(other.shortenClasspath)
     envs = new java.util.HashMap(other.envs)
   }
 

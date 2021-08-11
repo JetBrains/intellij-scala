@@ -25,11 +25,11 @@ final class WorksheetProjectDefaultPersistentSettings
   override def getState: WorksheetProjectDefaultPersistentSettings.State = state
   override def loadState(state: WorksheetProjectDefaultPersistentSettings.State): Unit = XmlSerializerUtil.copyBean(state, this.state)
 
-  def getRunType: WorksheetExternalRunType = getState.getRunType
-  def isInteractive: Boolean = getState.isInteractive
-  def isMakeBeforeRun: Boolean = getState.isMakeBeforeRun
-  def getModuleName: Option[String] = Option(getState.getModuleName)
-  def getCompilerProfileName: Option[String] = Option(getState.getCompilerProfileName)
+  def getRunType: WorksheetExternalRunType = getState.getRunType()
+  def isInteractive: Boolean = getState.isInteractive()
+  def isMakeBeforeRun: Boolean = getState.isMakeBeforeRun()
+  def getModuleName: Option[String] = Option(getState.moduleName)
+  def getCompilerProfileName: Option[String] = Option(getState.compilerProfileName)
 
   override def setRunType(value: WorksheetExternalRunType): Unit = getState.setRunType(value)
   override def setInteractive(value: Boolean): Unit = getState.setInteractive(value)

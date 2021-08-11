@@ -53,7 +53,7 @@ final class ScTemplateParentsImpl private(stub: ScTemplateParentsStub, node: AST
     val builder = ArraySeq.newBuilder[ScType]
     val iterator = elements.iterator
     while (iterator.hasNext) {
-      builder += iterator.next.`type`().getOrAny
+      builder += iterator.next().`type`().getOrAny
     }
     builder.result()
   }

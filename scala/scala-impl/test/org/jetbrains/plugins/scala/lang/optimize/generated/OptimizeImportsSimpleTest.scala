@@ -6,7 +6,7 @@ class OptimizeImportsSimpleTest extends OptimizeImportsTestBase {
   override def folderPath: String = super.folderPath + "simple/"
 
 
-  protected override def sourceRootPath(): String = folderPath
+  protected override def sourceRootPath: String = folderPath
 
   def testFromRoot(): Unit = doTest()
 

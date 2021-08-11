@@ -74,7 +74,7 @@ object TypeParameter {
   ): TypeParameter =
     LightTypeParameter(name, typeParameters, lower, upper)
 
-  def unapply(tp: TypeParameter): Option[(PsiTypeParameter, Seq[TypeParameter], ScType, ScType)] =
+  def unapply(tp: TypeParameter): Some[(PsiTypeParameter, Seq[TypeParameter], ScType, ScType)] =
     Some(tp.psiTypeParameter, tp.typeParameters, tp.lowerType, tp.upperType)
 
   def javaPsiTypeParameterUpperType(typeParameter: PsiTypeParameter): ScType = {

@@ -132,7 +132,7 @@ final case class ScalafmtDynamic(
       configsCache.get(configPath) match {
         case Some((config, lastModified)) if lastModified.compareTo(currentTimestamp) == 0 =>
           Right(config)
-        case None =>
+        case _ =>
           for {
             config <- resolvingConfigDownloading(configPath)
           } yield {

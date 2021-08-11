@@ -227,7 +227,7 @@ abstract class CreateEntityQuickFix(ref: ScReferenceExpression, keyword: String)
   private def unambiguousSuper(supRef: ScSuperReference): Option[ScTypeDefinition] = {
     supRef.staticSuper match {
       case Some(ExtractClass(clazz: ScTypeDefinition)) => Some(clazz)
-      case None =>
+      case _ =>
         supRef.parentsInFile.toSeq.collect { case td: ScTemplateDefinition => td } match {
           case Seq(td) =>
             td.supers match {

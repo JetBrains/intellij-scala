@@ -44,7 +44,7 @@ class AdjustTypesTests extends AdjustTypesTestBase {
 
 class AdjustCatsTypeTest extends AdjustTypesTestBase {
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
+  override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader("org.typelevel" % "cats-core_2.11" % "0.4.0") :: Nil
 
   def testSCL10006(): Unit = doTest()

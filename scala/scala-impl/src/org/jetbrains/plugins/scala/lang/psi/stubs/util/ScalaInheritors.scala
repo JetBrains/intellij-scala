@@ -94,7 +94,7 @@ object ScalaInheritors {
     val extendsBlocks = extendsBlockIterable.iterator
 
     while (extendsBlocks.hasNext) {
-      val extendsBlock = extendsBlocks.next
+      val extendsBlock = extendsBlocks.next()
       extendsBlock.getParent match {
         case tp: ScTemplateDefinition =>
           // simple names are stored in index, but in decompiled files they are qualified
@@ -124,7 +124,7 @@ object ScalaInheritors {
     }
     val extendsBlocks = extendsBlocksIterable.iterator
     while (extendsBlocks.hasNext) {
-      val extendsBlock = extendsBlocks.next
+      val extendsBlock = extendsBlocks.next()
       extendsBlock.getParent match {
         case tp: ScTemplateDefinition => inheritorsBuilder += tp
         case _ =>

@@ -9,7 +9,6 @@ import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.externalSystem.test.ExternalSystemTestCase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.module.ModuleTypeManager;
 import com.intellij.openapi.module.StdModuleTypes;
 import com.intellij.openapi.module.impl.ModuleTypeManagerImpl;
 import com.intellij.openapi.projectRoots.Sdk;
@@ -69,7 +68,7 @@ public abstract class MavenImportingTestCase extends MavenTestCase {
 
     myCodeStyleSettingsTracker = new CodeStyleSettingsTracker(this::getCurrentCodeStyleSettings);
 
-    File settingsFile = MavenWorkspaceSettingsComponent.getInstance(myProject).getSettings().generalSettings.getEffectiveGlobalSettingsIoFile();
+    File settingsFile = MavenWorkspaceSettingsComponent.getInstance(myProject).getSettings().getGeneralSettings().getEffectiveGlobalSettingsIoFile();
     if (settingsFile != null) {
       VfsRootAccess.allowRootAccess(getTestRootDisposable(), settingsFile.getAbsolutePath());
     }

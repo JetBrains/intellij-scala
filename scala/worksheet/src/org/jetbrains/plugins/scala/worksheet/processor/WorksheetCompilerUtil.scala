@@ -62,11 +62,11 @@ object WorksheetCompilerUtil {
 
       val (currentContent, treeError) =
         Option(contentManager.findContent(ERROR_CONTENT_NAME)) match {
-          case Some(old) if old.getComponent.isInstanceOf[CompilerErrorTreeView] =>
+          case Some(old) if old.getComponent.is[CompilerErrorTreeView] =>
             val oldView = old.getComponent.asInstanceOf[CompilerErrorTreeView]
             addMessageToView(oldView)
             (old, oldView)
-          case None =>
+          case _ =>
             val newView = new CompilerErrorTreeView(project, null)
             addMessageToView(newView)
             //noinspection ReferencePassedToNls

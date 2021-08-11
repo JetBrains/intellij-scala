@@ -34,7 +34,7 @@ trait SbtProgramRunnerBase {
   }
   
   protected def checkRunProfile(profile: RunProfile): Boolean = profile match {
-    case sbtConf: SbtRunConfiguration if sbtConf.getUseSbtShell => true
+    case sbtConf: SbtRunConfiguration if sbtConf.useSbtShell => true
     case _ => false
   }
 }

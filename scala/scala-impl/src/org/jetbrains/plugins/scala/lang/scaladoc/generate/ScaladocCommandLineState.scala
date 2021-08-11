@@ -138,7 +138,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       }
     }
 
-    result.result
+    result.result()
   }
 
   override def createJavaParameters(): JavaParameters = {

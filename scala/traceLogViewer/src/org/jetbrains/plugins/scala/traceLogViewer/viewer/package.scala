@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.traceLogViewer
 import com.intellij.execution.filters.{CompositeFilter, ExceptionFilters}
 import com.intellij.openapi.project.ProjectManager
 import com.intellij.psi.search.GlobalSearchScope
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.traceLogger.protocol.StackTraceEntry
 
 package object viewer {

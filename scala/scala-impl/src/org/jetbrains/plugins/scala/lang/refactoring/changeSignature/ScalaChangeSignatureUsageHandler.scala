@@ -391,10 +391,9 @@ private[changeSignature] trait ScalaChangeSignatureUsageHandler {
       }
       else {
         argsInfo.byOldParameterIndex.get(oldIdx) match {
-          case None => return None
-          case Some(seq) if seq.size > 1 => return None
           case Some(Seq(assignStmt: ScAssignment)) => return Some(assignStmt.getText)
           case Some(Seq(expr)) => expr.getText
+          case _ => return None
         }
       }
     val argText = if (named) s"${newParam.getName} = $withoutName" else withoutName

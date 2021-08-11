@@ -21,9 +21,9 @@ import scala.annotation.nowarn
  */
 @nowarn("msg=ScalaLightPlatformCodeInsightTestCaseAdapter")
 abstract class CompletionTestBase extends base.ScalaLightPlatformCodeInsightTestCaseAdapter {
-  protected val caretMarker = "/*caret*/"
-
-  protected val extension: String = "scala"
+  // Must be lazy so it can be overriden without early initializers
+  protected lazy val caretMarker = "/*caret*/"
+  protected lazy val extension: String = "scala"
 
   def folderPath: String = baseRootPath + "completion/"
 

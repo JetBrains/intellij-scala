@@ -23,13 +23,13 @@ class ParametersRenderer(
       renderClause(child, buffer)
       buffer.append(clausesSeparator)
     }
-    buffer.result
+    buffer.result()
   }
 
   def renderClause(clause: ScParameterClause): String = {
     val buffer = new StringBuilder()
     renderClause(clause, buffer)
-    buffer.result
+    buffer.result()
   }
 
   def renderClause(clause: ScParameterClause, buffer: StringBuilder): Unit = {

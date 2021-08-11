@@ -104,7 +104,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
       case data: RegexpTestData       => setRegexps(data.regexps)
       case data: ClassTestData        =>
         data match {
-          case singleTest: SingleTestData =>  setTestName(singleTest.getTestName)
+          case singleTest: SingleTestData =>  setTestName(singleTest.testName)
           case _=>
         }
         setTestClassPath(data.testClassPath)
@@ -112,15 +112,15 @@ final class TestRunConfigurationForm(val myProject: Project) {
     }
 
     setTestKind(configurationData.getKind)
-    setSearchForTest(configurationData.getSearchTest)
+    setSearchForTest(configurationData.searchTest)
 
     resetSbtOptionsFrom(configuration)
 
     myCommonScalaParameters.reset(configurationData)
     myModuleSelector.reset(configuration)
-    myJrePathEditor.setPathOrName(configurationData.getJrePath, true)
+    myJrePathEditor.setPathOrName(configurationData.jrePath, true)
     setShortenCommandLine(configuration.getShortenCommandLine)
-    setShowProgressMessages(configurationData.getShowProgressMessages)
+    setShowProgressMessages(configurationData.showProgressMessages)
 
     mySuitePaths = configuration.javaSuitePaths.asScala
 

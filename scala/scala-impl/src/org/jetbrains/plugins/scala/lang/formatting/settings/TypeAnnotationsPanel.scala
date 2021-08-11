@@ -99,13 +99,13 @@ final class TypeAnnotationsPanel(settings: CodeStyleSettings) extends TypeAnnota
 
   override protected def getPanelInner: JComponent = myContent
 
-  override protected def isModified(settings: CodeStyleSettings): Boolean =
+  override def isModified(settings: CodeStyleSettings): Boolean =
     bindingsFor(settings).exists(!_.leftEqualsRight)
 
   override protected def resetImpl(settings: CodeStyleSettings): Unit =
     bindingsFor(settings).foreach(it => it.copyLeftToRight())
 
-  override protected def apply(settings: CodeStyleSettings): Unit = {
+  override def apply(settings: CodeStyleSettings): Unit = {
     bindingsFor(settings).foreach(it => it.copyRightToLeft())
 
     projectOpt.foreach { project =>

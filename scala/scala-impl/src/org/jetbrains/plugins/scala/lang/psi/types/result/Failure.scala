@@ -22,14 +22,12 @@ final class Failure(private[result] val cause: NlsString)
 
 object Failure {
 
-  import scala.util.{Either, Left}
+  import scala.util.Left
 
   def apply(@Nls cause: String)
            (implicit context: ProjectContext): Left[Failure, ScType] =
     Left(new Failure(NlsString(cause)))
 
-  def unapply(result: Either[Failure, ScType]): Option[NlsString] = result match {
-    case Left(failure) => Some(failure.cause)
-    case _ => None
-  }
+  def unapply(result: Left[Failure, ScType]): Some[NlsString] =
+    Some(result.value.cause)
 }

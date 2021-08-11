@@ -9,8 +9,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
  */
 
 trait Instruction {
-  def succ( /*put call env here*/ ): Iterable[Instruction]
-  def pred( /*put call env here*/ ): Iterable[Instruction]
+  def succ: Iterable[Instruction]
+  def pred: Iterable[Instruction]
 
   def addSucc(s: Instruction): Unit
   def addPred(p: Instruction): Unit

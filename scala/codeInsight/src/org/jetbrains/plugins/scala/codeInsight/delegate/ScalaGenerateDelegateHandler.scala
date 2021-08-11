@@ -28,6 +28,7 @@ import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResul
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.TypeAnnotationUtil
 
+import scala.annotation.nowarn
 import scala.collection.immutable.ArraySeq
 import scala.jdk.CollectionConverters._
 
@@ -48,10 +49,10 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
     if (!FileDocumentManager.getInstance.requestWriting(editor.getDocument, project)) return
     PsiDocumentManager.getInstance(project).commitAllDocuments()
 
-    val target = chooseTarget(file, editor, project)
+    val target = chooseTarget(file, editor)
     if (target == null) return
     val candidates = chooseMethods(target, file, editor, project)
-    if (candidates == null || candidates.length == 0) return
+    if (candidates == null || candidates.isEmpty) return
 
     val elementAtOffset = file.findElementAt(editor.getCaretModel.getOffset)
 
@@ -73,7 +74,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
           added
         }
 
-        if (!generatedMethods.isEmpty) {
+        if (generatedMethods.nonEmpty) {
           val firstMethod = generatedMethods(0)
           val body = firstMethod.body.get
           editor.getCaretModel.moveToOffset(body.getTextRange.getStartOffset)
@@ -116,15 +117,15 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
 
   private def delegateText(delegate: ClassMember): String = {
-    val delegateText = delegate match {
+    val delegateText = (delegate match {
       case field: ScalaFieldMember => field.name
       case ScMethodMember(PhysicalMethodSignature(method, _), _) =>
         method match {
-          case m: PsiMethod if m.isAccessor => m.getName
+          case m: PsiMethod if m.isAccessor => m.name
           case f: ScFunction if f.isEmptyParen => f.name + "()"
           case f: ScFunction if f.isParameterless => f.name
         }
-    }
+    }): @nowarn("msg=exhaustive")
     delegateText
   }
 
@@ -157,8 +158,8 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
 
       if (srr.implicitFunction.nonEmpty) return None
       element match {
-        case method: PsiMethod if method.isConstructor || method.getContainingClass == null => None
-        case method: PsiMethod if method.getContainingClass.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT => None
+        case method: PsiMethod if method.isConstructor || method.containingClass == null => None
+        case method: PsiMethod if method.containingClass.qualifiedName == CommonClassNames.JAVA_LANG_OBJECT => None
         case method: PsiMethod if !ResolveUtils.isAccessible(method, place, forCompletion = true) => None
         case method: PsiMethod => Some(ScMethodMember(method, subst))
         case _ => None
@@ -169,7 +170,7 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   }
 
   @Nullable
-  private def chooseTarget(file: PsiFile, editor: Editor, project: Project): ClassMember = {
+  private def chooseTarget(file: PsiFile, editor: Editor): ClassMember = {
     val elements = targetElements(file, editor)
     if (elements.isEmpty) null
     else if (ApplicationManager.getApplication.isUnitTestMode) elements.head
@@ -195,14 +196,13 @@ final class ScalaGenerateDelegateHandler extends GenerateDelegateHandler {
   private def targetsIn(clazz: ScTemplateDefinition): Seq[ClassMember] =
     ScalaOIUtil.getAllMembersToOverride(clazz)
       .filter(canBeTargetInClass(_, clazz))
-      .toSeq
 
   private def canBeTargetInClass(member: ClassMember, clazz: ScTemplateDefinition): Boolean = member match {
     case _: ScAliasMember => false
     case typed: ScalaTypedMember if typed.scType.isUnit => false
     case ScMethodMember(PhysicalMethodSignature(method, _), _) =>
       method match {
-        case m: PsiMethod if {val cl = m.getContainingClass; cl != null && cl.getQualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
+        case m: PsiMethod if {val cl = m.containingClass; cl != null && cl.qualifiedName == CommonClassNames.JAVA_LANG_OBJECT} => false
         case f: ScFunction => (f.isParameterless || f.isEmptyParen) && ResolveUtils.isAccessible(f, clazz)
         case m: PsiMethod => m.isAccessor && ResolveUtils.isAccessible(m, clazz)
         case _ => false

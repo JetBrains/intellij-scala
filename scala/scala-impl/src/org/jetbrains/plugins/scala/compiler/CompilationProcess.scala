@@ -12,7 +12,7 @@ trait CompilationProcess {
   def run(): Unit
 
   final def runSync(): Unit = {
-    val result = Promise[Unit]
+    val result = Promise[Unit]()
     addTerminationCallback {
       case Some(error) => result.failure(error)
       case None => result.success(())

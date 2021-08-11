@@ -248,7 +248,7 @@ class ScalaHighlightUsagesHandlerTest extends ScalaLightCodeInsightFixtureTestAd
 
   def assertHandlerIsNull(fileText: String): Unit = {
     myFixture.configureByText("dummy.scala", fileText)
-    assert(createHandler == null)
+    assert(createHandler() == null)
   }
 
   def doTest(fileText: String, expected: Seq[String]): Unit = {

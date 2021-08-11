@@ -1,12 +1,12 @@
 package org.jetbrains.plugins.scala.traceLogViewer.selection
 
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.*
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 import org.jetbrains.plugins.scala.util.UnloadAwareDisposable
 
 import java.io.IOException
-import java.nio.file.{ClosedWatchServiceException, FileSystems, Files, Paths, WatchService}
+import java.nio.file.{ClosedWatchServiceException, FileSystems, Files, WatchService}
 import scala.concurrent.duration.DurationInt
 
 object LogDirWatcher {
@@ -22,7 +22,7 @@ object LogDirWatcher {
     }
 
     try {
-      import java.nio.file.StandardWatchEventKinds._
+      import java.nio.file.StandardWatchEventKinds.*
 
       Files.createDirectories(dir)
 

@@ -173,7 +173,7 @@ class NonServerRunner(project: Project) {
           for (i <- 0 until n) {
             charBuffer(i) match {
               case '=' if i == 0 && text.isEmpty =>
-              case '=' if i == n - 1 || charBuffer.charAt(i + 1) != '=' =>
+              case '=' if i == n - 1 || charBuffer(i + 1) != '=' =>
                 if ((text.length + 1) % 4 == 0) {
                   text.append('=')
                 } else if ((text.length + 2) % 4 == 0) {

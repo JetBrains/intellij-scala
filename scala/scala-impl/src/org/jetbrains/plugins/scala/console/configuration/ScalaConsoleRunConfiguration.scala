@@ -64,7 +64,7 @@ class ScalaConsoleRunConfiguration(
 
   private def requireModule: Module = getModule.getOrElse(throw new ExecutionException(ScalaBundle.message("scala.console.config.module.is.not.specified")))
 
-  override protected def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
+  override def getValidModules: java.util.List[Module] = getProject.modulesWithScala.toList.asJava
 
   def apply(params: ScalaConsoleRunConfigurationForm): Unit = {
     javaOptions = params.getJavaOptions

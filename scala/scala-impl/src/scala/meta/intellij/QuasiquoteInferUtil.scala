@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import scala.annotation.nowarn
 import scala.meta.{Dialect, ScalaMetaBundle}
 import scala.meta._
 import scala.meta.inputs.Input
@@ -58,7 +59,7 @@ object QuasiquoteInferUtil {
         val parts = collectQQParts(qqparts)
         val classes = parts.map(_.pt)
         classes.map(classToScTypeString)
-      case Parsed.Error(_, cause, exc) =>
+      case _ =>
         Seq.empty
     }
     val types = typeStrings.map(createTypeFromText(_, stringContextApplicationRef, null))
@@ -82,14 +83,14 @@ object QuasiquoteInferUtil {
     val prefix = pat.reference.fold(throw new ParseException(null, ScalaMetaBundle.message("failed.to.get.qq.ref.in.pattern", pat.getText)))(_.getText)
     try {
       val parsed = parseQQExpr(prefix, patternText, qqdialect)
-      parsed match {
+      (parsed match {
         case Parsed.Success(qq) =>
           ScalaPsiElementFactory
             .createTypeElementFromText(s"scala.meta.${qq.productPrefix}")(PsiManager.getInstance(pat.getProject))
             .`type`()
         case Parsed.Error(_, message, _) =>
           Failure(NlsString.force(message))
-      }
+      }): @nowarn("msg=exhaustive")
     } catch {
       case _: ArrayIndexOutOfBoundsException =>  // workaround for meta parser failure on malformed quasiquotes
         createTypeFromText("scala.meta.Tree", pat, null).asTypeResult
@@ -104,14 +105,14 @@ object QuasiquoteInferUtil {
       scala.meta.dialects.QuasiquotePat(m.Dialect.standards("Scala211"), multiline = true)
     else
       scala.meta.dialects.QuasiquotePat(m.Dialect.standards("Scala211"), multiline = false)
-    parseQQExpr(prefix, patternText, qqDialect) match {
+    (parseQQExpr(prefix, patternText, qqDialect) match {
       case Parsed.Success(qqparts) =>
         val parts = collectQQParts(qqparts)
         val classes = parts.map(_.pt)
         classes.map(classToScTypeString)
       case Parsed.Error(_, cause, exc) =>
         Seq.empty
-    }
+    }): @nowarn("msg=match may not be exhaustive.")
   }
 
   private def parseQQExpr(prefix: String, text: String, dialect: m.Dialect): Parsed[m.Tree] = {

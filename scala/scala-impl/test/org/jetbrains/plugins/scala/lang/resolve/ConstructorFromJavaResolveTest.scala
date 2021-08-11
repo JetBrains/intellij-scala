@@ -8,7 +8,7 @@ class ConstructorFromJavaResolveTest extends ScalaResolveTestCase {
 
   override def folderPath: String = s"${super.folderPath}resolve/constructorFromJava"
 
-  override def sourceRootPath(): String = folderPath
+  override def sourceRootPath: String = folderPath
 
   def testScl8083(): Unit = {
     findReferenceAtCaret() match {

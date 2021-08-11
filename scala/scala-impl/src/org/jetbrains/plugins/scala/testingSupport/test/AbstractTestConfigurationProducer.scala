@@ -71,7 +71,7 @@ abstract class AbstractTestConfigurationProducer[T <: AbstractTestRunConfigurati
     }
   }
 
-  private def ensure(bool: Boolean, errorMessage: => String): Either[String, ()] =
+  private def ensure(bool: Boolean, errorMessage: => String): Either[String, Unit] =
     if (bool) Right(()) else Left(errorMessage)
 
   private def extendCreatedConfiguration(configuration: RunConfigurationBase[_], location: PsiElementLocation): Unit = {

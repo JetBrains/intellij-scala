@@ -175,7 +175,7 @@ object CachedMacroUtil {
     import c.universe.Quasiquote
     @nowarn("cat=deprecation")
     val enclosingName = c.enclosingClass match {
-      case df: c.universe.DefTreeApi => df.name.toString
+      case df: c.universe.DefTreeApi @unchecked => df.name.toString
       case _ => "________"
     }
     q"${enclosingName + "." + name.toString}"

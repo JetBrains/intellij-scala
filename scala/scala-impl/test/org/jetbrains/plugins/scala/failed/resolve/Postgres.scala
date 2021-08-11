@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.base.libraryLoaders.{IvyManagedLoader, Librar
 //lots of self type in library, maybe this is cause of problem
 class Postgres extends FailableResolveTest("postgresql") {
 
-  override protected def additionalLibraries(): Seq[LibraryLoader] =
+  override protected def additionalLibraries: Seq[LibraryLoader] =
     IvyManagedLoader("com.wda.sdbc" % "postgresql_2.11" % "0.5") :: Nil
 
   def testSCL8556(): Unit = doTest()

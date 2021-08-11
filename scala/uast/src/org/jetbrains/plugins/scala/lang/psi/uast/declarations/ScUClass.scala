@@ -234,7 +234,7 @@ private final class ScTemplateToPsiAnonymousClassAdapter(scTemplate: ScNewTempla
 final class ScUErrorClass(override protected val scElement: PsiClass,
                           override protected val parent: LazyUElement)
     extends UClassAdapter(scElement)
-    with ScUElement {
+    with ScUElement with ScUAnnotated {
 
   override type PsiFacade = PsiClass
 
@@ -260,7 +260,4 @@ final class ScUErrorClass(override protected val scElement: PsiClass,
 
   @Nullable
   override def getUastAnchor: UElement = createUIdentifier(scElement, this)
-
-  override def getUAnnotations: ju.List[UAnnotation] =
-    ju.Collections.emptyList()
 }

@@ -486,7 +486,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         }
         val newExpr = createExpressionWithContextFromText(exprText, owner.getContext, owner)
         evaluatorFor(newExpr)
-      case None =>
+      case _ =>
         throw EvaluationException(cannotFindMessage)
     }
 

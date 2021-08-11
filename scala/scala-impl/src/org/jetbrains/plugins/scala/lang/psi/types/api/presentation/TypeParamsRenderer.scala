@@ -72,7 +72,7 @@ class TypeParamsRenderer(
         buffer.append("]")
       }
 
-      buffer.result
+      buffer.result()
     }
 
   private def renderImpl(
@@ -109,7 +109,7 @@ class TypeParamsRenderer(
       buffer.append(boundsRenderer.boundText(tpFixed, ScalaTokenTypes.tCOLON)(typeRenderer))
     }
 
-    buffer.result
+    buffer.result()
   }
 }
 

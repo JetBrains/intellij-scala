@@ -40,7 +40,7 @@ trait IntegrationTestConfigAssertions {
     val config = configAndSettings.getConfiguration
     val testConfig = config.asInstanceOf[AbstractTestRunConfiguration]
     val packageData = assertIsA[AllInPackageTestData](testConfig.testConfigurationData)
-    assertEquals("package name are not equal", packageName, packageData.getTestPackagePath)
+    assertEquals("package name are not equal", packageName, packageData.testPackagePath)
   }
 
   private def assertModule(config: AbstractTestRunConfiguration): Unit =
@@ -55,7 +55,7 @@ trait IntegrationTestConfigAssertions {
     testNames: Seq[String],
     config: AbstractTestRunConfiguration
   ): Unit = {
-    val actualTestClass = config.testConfigurationData.asInstanceOf[ClassTestData].getTestClassPath
+    val actualTestClass = config.testConfigurationData.asInstanceOf[ClassTestData].testClassPath
     assertEquals(testClass, actualTestClass)
 
     config.testConfigurationData match {

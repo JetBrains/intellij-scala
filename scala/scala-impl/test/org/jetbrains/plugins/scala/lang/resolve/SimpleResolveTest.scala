@@ -10,7 +10,7 @@ abstract class SimpleResolveTest(dirName: String) extends ScalaResolveTestCase {
 
   override def folderPath: String = s"${super.folderPath}resolve/simple/$dirName"
 
-  override def sourceRootPath(): String = folderPath
+  override def sourceRootPath: String = folderPath
 
   def doTest(): Unit = {
     findReferenceAtCaret() match {

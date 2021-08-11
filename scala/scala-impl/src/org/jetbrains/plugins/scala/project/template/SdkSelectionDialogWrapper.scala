@@ -188,7 +188,7 @@ object SdkSelectionDialogWrapper {
 
   import SdkValidationError._
 
-  private def validateSdk(descriptor: ScalaSdkDescriptor): Either[SdkValidationError, ()] = {
+  private def validateSdk(descriptor: ScalaSdkDescriptor): Either[SdkValidationError, Unit] = {
     for {
       _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.compiler.classpath")))
       _ <- assertNoDuplicates(descriptor.compilerClasspath, NlsString(ScalaBundle.message("scala.sdk.component.name.library")))
@@ -197,7 +197,7 @@ object SdkSelectionDialogWrapper {
     } yield ()
   }
 
-  private def assertNoDuplicates(files: Seq[File], componentName: NlsString): Either[DuplicatedFiles, ()] = {
+  private def assertNoDuplicates(files: Seq[File], componentName: NlsString): Either[DuplicatedFiles, Unit] = {
     val nameToFiles = files.groupBy(_.getName)
     val duplicates = nameToFiles.filter(_._2.lengthCompare(1) > 0)
     if (duplicates.isEmpty)

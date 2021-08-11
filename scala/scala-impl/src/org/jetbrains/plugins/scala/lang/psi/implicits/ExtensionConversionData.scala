@@ -79,7 +79,6 @@ object ExtensionConversionHelper {
                     (implicit context: ProjectContext = foundInType.projectContext): ScalaResolveResult = {
 
     foundInType.resultUndef match {
-      case None => candidate
       case Some(ConstraintSystem(substitutor)) =>
         val parameterType = candidate.implicitParameterType
 
@@ -88,6 +87,7 @@ object ExtensionConversionHelper {
           subst = combinedSubstitutor,
           implicitParameterType = parameterType.map(combinedSubstitutor)
         )
+      case _ => candidate
     }
   }
 

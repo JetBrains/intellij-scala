@@ -249,7 +249,7 @@ package object extensions {
       val iterator = value.iterator
       var idx = 0
       while (iterator.hasNext) {
-        array(idx) = f(iterator.next)
+        array(idx) = f(iterator.next())
         idx += 1
       }
       array

@@ -28,7 +28,7 @@ class InspectionBasedIntention(@Nls family: String, inspection: LocalInspectionT
       case Some(Array(problem, _*)) =>
         setText(problem.getName)
         true
-      case None =>
+      case _ =>
         false
     }
   }

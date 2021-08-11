@@ -8,7 +8,7 @@ trait ParameterRendererLike {
   final def render(param: ScParameter): String = {
     val builder = new StringBuilder()
     render(param, builder)
-    builder.result
+    builder.result()
   }
 
   def render(param: ScParameter, buffer: StringBuilder): Unit
