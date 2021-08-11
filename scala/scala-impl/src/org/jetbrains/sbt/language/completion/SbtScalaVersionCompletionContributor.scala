@@ -9,12 +9,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiFileFactory
 import com.intellij.util.ProcessingContext
-import org.jetbrains.idea.maven.onlinecompletion.model.MavenRepositoryArtifactInfo
-import org.jetbrains.idea.reposearch.DependencySearchService
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
-import org.jetbrains.sbt.language.utils.PackageSearchApiHelper
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtExtendedArtifactInfo}
 
 import java.util.concurrent.ConcurrentLinkedDeque
 
@@ -27,37 +25,26 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
 
       var versionSeq: Seq[String] = Seq.empty
       val place = positionFromParameters(parameters)
-      val cld: ConcurrentLinkedDeque[MavenRepositoryArtifactInfo] = new ConcurrentLinkedDeque[MavenRepositoryArtifactInfo]()
-      val dependencySearch = DependencySearchService.getInstance(place.getProject)
+      val cld: ConcurrentLinkedDeque[SbtExtendedArtifactInfo] = new ConcurrentLinkedDeque[SbtExtendedArtifactInfo]()
 
       def isVersionStable(version: String): Boolean = {
         val unstablePattern = """.*[a-zA-Z-].*"""
         !version.matches(unstablePattern)
       }
 
-      def addVersion(groupId: String, artifactId: String): MavenRepositoryArtifactInfo => Unit = repo => {
-        if (repo.getGroupId == groupId && repo.getArtifactId == artifactId) {
-          repo.getItems.foreach(item => {
-            if (isVersionStable(item.getVersion)) {
-              versionSeq = versionSeq :+ item.getVersion
-            }
-          })
-        }
-      }
-
       def getVersionFromArtifact(groupId: String, artifactId: String): Unit = try {
-        val searchPromise = PackageSearchApiHelper.searchFullTextDependency(
-          groupId,
-          artifactId,
-          dependencySearch,
-          PackageSearchApiHelper.createSearchParameters(parameters),
-          cld,
-          false
-        )
-
-        PackageSearchApiHelper.waitAndAdd(searchPromise, cld, addVersion(groupId, artifactId))
+        val searchFuture = CustomPackageSearchApiHelper.searchDependencyVersions(groupId, artifactId, CustomPackageSearchParams(useCache = true), cld)
+        CustomPackageSearchApiHelper
+          .waitAndAdd(
+            searchFuture,
+            cld,
+            (lib: SbtExtendedArtifactInfo) => lib.versions.foreach(item =>
+              if (isVersionStable(item)) {
+                versionSeq = versionSeq :+ item
+              })
+          )
       } catch {
-        case e: Exception =>
+        case _: Exception =>
       }
 
       val scalaLangInstanceID = ScalaLanguage.INSTANCE.getID
