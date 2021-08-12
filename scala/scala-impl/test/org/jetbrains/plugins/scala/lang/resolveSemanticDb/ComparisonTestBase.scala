@@ -11,7 +11,6 @@ import java.nio.file.{Files, Path, Paths}
 import scala.jdk.StreamConverters._
 
 abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
-  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ComparisonTestBase])
 
   def doTest(testName: String, succeeds: Boolean): Unit

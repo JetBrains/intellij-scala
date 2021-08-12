@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.psi.PsiNamedElement
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
@@ -8,7 +9,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 
-
+abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+}
 
 abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 

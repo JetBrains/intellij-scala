@@ -11,9 +11,9 @@ import scala.collection.mutable
 import scala.jdk.CollectionConverters.IteratorHasAsScala
 
 /**
- * Generates [[org.jetbrains.plugins.scala.lang.resolveSemanticDb.generated.ReferenceComparisonTest]]
+ * Generates [[org.jetbrains.plugins.scala.lang.resolveSemanticDb.generated.ReferenceComparisonTest_Scala3]]
  */
-object ReferenceComparisonTestsGenerator {
+object ReferenceComparisonTestsGenerator_Scala3 {
   val excluded: Set[String] = Set(
     "large", "large2" // they're just very large with ~10k references/definitions
   )
@@ -62,7 +62,7 @@ object ReferenceComparisonTestsGenerator {
       if !excluded(testName)
     } {
 
-      val test: ReferenceComparisonTestBase = new ReferenceComparisonTestBase {
+      val test: ReferenceComparisonTestBase = new ReferenceComparisonTestBase_Scala3 {
         override  def runTestRunnable(testRunnable: ThrowableRunnable[Throwable]): Unit = {
           cases += 1
           val res = runTestToResult(testName)
