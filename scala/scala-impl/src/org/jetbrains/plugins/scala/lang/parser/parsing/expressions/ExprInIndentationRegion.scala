@@ -24,6 +24,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
     ScalaTokenTypes.kELSE,
     ScalaTokenTypes.kCATCH,
     ScalaTokenTypes.kFINALLY,
+    ScalaTokenTypes.tCOMMA,
   )
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
