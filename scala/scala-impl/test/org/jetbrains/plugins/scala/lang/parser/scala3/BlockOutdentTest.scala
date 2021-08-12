@@ -574,4 +574,252 @@ class BlockOutdentTest extends SimpleScala3ParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  def testLambdaWithInArgumentList_SingleLineLambda(): Unit = checkTree(
+    """def foo(accu: Int) =
+      |  Seq(
+      |    (accu: Int) => 42,
+      |    accu,
+      |    42
+      |  )
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: accu
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('accu')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: Seq
+      |        PsiElement(identifier)('Seq')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        PsiWhiteSpace('\n    ')
+      |        FunctionExpression
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: accu
+      |                AnnotationsList
+      |                  <empty list>
+      |                PsiElement(identifier)('accu')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace(' ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('42')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: accu
+      |          PsiElement(identifier)('accu')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('42')
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def testLambdaWithInArgumentList_SingleLineLambdaBodyOnNewLine(): Unit = checkTree(
+    """def foo(accu: Int) =
+      |  Seq(
+      |    (accu: Int) =>
+      |      42,
+      |    accu,
+      |    42
+      |  )
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: accu
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('accu')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: Seq
+      |        PsiElement(identifier)('Seq')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        PsiWhiteSpace('\n    ')
+      |        FunctionExpression
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: accu
+      |                AnnotationsList
+      |                  <empty list>
+      |                PsiElement(identifier)('accu')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          PsiWhiteSpace('\n      ')
+      |          IntegerLiteral
+      |            PsiElement(integer)('42')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: accu
+      |          PsiElement(identifier)('accu')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('42')
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
+
+  def testLambdaWithInArgumentList_IndentationBasedLambdaBodyOnNewLine(): Unit = checkTree(
+    """def foo(accu: Int) =
+      |  Seq(
+      |    (accu: Int) =>
+      |      println(1)
+      |      println(2)
+      |      42,
+      |    accu,
+      |    42
+      |  )
+      |""".stripMargin,
+    """ScalaFile
+      |  ScFunctionDefinition: foo
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('foo')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        Parameter: accu
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(identifier)('accu')
+      |          PsiElement(:)(':')
+      |          PsiWhiteSpace(' ')
+      |          ParameterType
+      |            SimpleType: Int
+      |              CodeReferenceElement: Int
+      |                PsiElement(identifier)('Int')
+      |        PsiElement())(')')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace('\n  ')
+      |    MethodCall
+      |      ReferenceExpression: Seq
+      |        PsiElement(identifier)('Seq')
+      |      ArgumentList
+      |        PsiElement(()('(')
+      |        PsiWhiteSpace('\n    ')
+      |        FunctionExpression
+      |          Parameters
+      |            ParametersClause
+      |              PsiElement(()('(')
+      |              Parameter: accu
+      |                AnnotationsList
+      |                  <empty list>
+      |                PsiElement(identifier)('accu')
+      |                PsiElement(:)(':')
+      |                PsiWhiteSpace(' ')
+      |                ParameterType
+      |                  SimpleType: Int
+      |                    CodeReferenceElement: Int
+      |                      PsiElement(identifier)('Int')
+      |              PsiElement())(')')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=>)('=>')
+      |          BlockExpression
+      |            PsiWhiteSpace('\n      ')
+      |            InfixExpression
+      |              MethodCall
+      |                ReferenceExpression: println
+      |                  PsiElement(identifier)('println')
+      |                ArgumentList
+      |                  PsiElement(()('(')
+      |                  IntegerLiteral
+      |                    PsiElement(integer)('1')
+      |                  PsiElement())(')')
+      |              PsiWhiteSpace('\n      ')
+      |              ReferenceExpression: println
+      |                PsiElement(identifier)('println')
+      |              ExpressionInParenthesis
+      |                PsiElement(()('(')
+      |                IntegerLiteral
+      |                  PsiElement(integer)('2')
+      |                PsiElement())(')')
+      |            PsiWhiteSpace('\n      ')
+      |            IntegerLiteral
+      |              PsiElement(integer)('42')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        ReferenceExpression: accu
+      |          PsiElement(identifier)('accu')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace('\n    ')
+      |        IntegerLiteral
+      |          PsiElement(integer)('42')
+      |        PsiWhiteSpace('\n  ')
+      |        PsiElement())(')')
+      |  PsiWhiteSpace('\n')""".stripMargin
+  )
 }
