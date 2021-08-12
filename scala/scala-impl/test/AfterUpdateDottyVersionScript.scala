@@ -6,7 +6,7 @@ import com.intellij.pom.java.LanguageLevel
 import junit.framework.{TestCase, TestFailure, TestResult, TestSuite}
 import org.jetbrains.plugins.scala.debugger.ScalaCompilerTestBase
 import org.jetbrains.plugins.scala.lang.parser.scala3.imported.{Scala3ImportedParserTest, Scala3ImportedParserTest_Move_Fixed_Tests}
-import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator}
+import org.jetbrains.plugins.scala.lang.resolveSemanticDb.{ComparisonTestBase, ReferenceComparisonTestsGenerator_Scala3}
 import org.jetbrains.plugins.scala.project.VirtualFileExt
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -331,7 +331,7 @@ object AfterUpdateDottyVersionScript {
         Files.copy(file.toPath, targetFilePath)
       }
 
-      ReferenceComparisonTestsGenerator.run()
+      ReferenceComparisonTestsGenerator_Scala3.run()
     }
   }
 
