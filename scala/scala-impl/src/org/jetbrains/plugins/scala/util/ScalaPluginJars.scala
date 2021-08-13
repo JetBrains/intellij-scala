@@ -44,17 +44,20 @@ object IntellijPlatformJars {
 
   /**
    * NOTE:<br>
-   * There are several protobuf classes in the plugin classpath.<br>
-   *  - The required classes (which are used by JPS) are located in "lib/protobuf-java-x.y.z.jar"<br>
-   *  - There are also protobuf classes bundled in `layoutlib-27.2.0.0.jar`<br>
-   *    The jar is used in the Android plugin, which goes by default in IDEA.<br>
+   * There are several protobuf classes in the classpath:<br>
+   *  - in `idea_system_root/lib/protobuf.jar`
+   *  - in `idea_system_root/plugins/java/lib/rt/protobuf-java6.jar` (bundled plugin)
+   *  - in `idea_system_root/plugins/android/lib/layoutlib.jar` (bundled plugin)
    *
-   * We need to ensure that we resolve the right class to avoid issues with communicating with JPS (e.g. SCL-19414).
+   * We need to ensure that we resolve the first, which is used by JPSs
+   * to avoid runtime errors in communicating with JPS (e.g. SCL-19414).
+   *
+   * @see [[org.jetbrains.jps.cmdline.ClasspathBootstrap.getBuildProcessApplicationClasspath]]
    */
   val protobufJava: File = {
     val result = new File(PathUtil.getJarPathForClass(classOf[com.google.protobuf.Message]))
     // example in 2021.2: <idea system dir>/lib/protobuf-java-3.15.8.jar
-    val Regex = raw"""^.*?/lib/protobuf-java-\d+\.\d+\.\d+\.jar$$""".r
+    val Regex = raw"""^.*?/lib/protobuf.jar$$""".r
     result.toString.replace("\\", "/").toLowerCase match {
       case Regex() =>
       case _ =>
