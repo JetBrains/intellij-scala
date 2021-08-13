@@ -337,4 +337,37 @@ class Scala3FormatterTest extends Scala3FormatterBaseTest {
       |  ExecutionContext ?=> T
       |""".stripMargin
   )
+
+  def testExport(): Unit = doTextTest(
+    """
+      |export a.*
+      |
+      |  export    a.b.c
+      |
+      |   export    a.b.{given}
+      |
+      |class A {
+      |export a.*
+      |
+      |        export    a.b.c
+      |
+      |   export    a.b.{given}
+      |}
+      |""".stripMargin,
+    """
+      |export a.*
+      |
+      |export a.b.c
+      |
+      |export a.b.{given}
+      |
+      |class A {
+      |  export a.*
+      |
+      |  export a.b.c
+      |
+      |  export a.b.{given}
+      |}
+      |""".stripMargin
+  )
 }

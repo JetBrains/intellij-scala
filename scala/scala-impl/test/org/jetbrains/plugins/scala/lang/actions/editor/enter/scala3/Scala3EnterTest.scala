@@ -1213,4 +1213,54 @@ class Scala3EnterTest extends Scala3EnterBaseTest
          |""".stripMargin
     )
   }
+
+  def testEnterAfterAllPossibleLines(): Unit = {
+    val lines =
+      """42
+        |ref
+        |
+        |obj.id = ???
+        |try 42 finally {}
+        |while (2 * 2 == 5) {}
+        |if true then {} else {}
+        |for { x <- 1 to 3 } do {}
+        |1 match { case _ => ??? }
+        |
+        |val value = ???
+        |var variable = ???
+        |def function = ???
+        |type MyType = String
+        |
+        |class A
+        |trait A
+        |object A
+        |
+        |import a.b.c
+        |export a.*
+        |
+        |extension (x: String) { def foo = ??? }
+        |given intOrd: Ord[Int] with {}
+        |""".stripMargin.linesIterator.filter(_.nonEmpty).toSeq
+
+    val context1 =
+      s"""class A:
+         |  $CARET
+         |""".stripMargin
+
+    val context2 =
+      s"""class A:
+         |  println(42)
+         |  $CARET
+         |""".stripMargin
+
+    lines.foreach { line =>
+      val before1 = context1.replace(CARET, s"$line$CARET")
+      val after1 = before1.replace(CARET, s"\n  $CARET")
+      checkGeneratedTextAfterEnter(before1, after1)
+
+      val before2 = context2.replace(CARET, s"$line$CARET")
+      val after2 = before2.replace(CARET, s"\n  $CARET")
+      checkGeneratedTextAfterEnter(before2, after2)
+    }
+  }
 }

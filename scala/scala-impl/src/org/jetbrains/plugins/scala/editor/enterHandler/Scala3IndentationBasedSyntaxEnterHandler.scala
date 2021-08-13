@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScCommentOwner, ScEnumCases, ScExtensionBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScExportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBody
 import org.jetbrains.plugins.scala.util.IndentUtil
 
@@ -301,7 +302,7 @@ object Scala3IndentationBasedSyntaxEnterHandler {
     // TODO: it should be just ScBlockStatement, without ScCommentOwner:
     //  according to the language spec, definitions are also block statements,
     //  but in our hierarchy they are not, we should try adding ScBlockStatement to all Definition PSI hierarchy
-    val isBlockChild = element.isInstanceOf[ScBlockStatement] ||
+    val isBlockChild = element.is[ScBlockStatement, ScExportStmt] ||
       element.isInstanceOf[ScCommentOwner] ||
       element.elementType == ScalaTokenTypes.tSEMICOLON
     element match {

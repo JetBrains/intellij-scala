@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
-import org.jetbrains.plugins.scala.lang.psi.stubs.ScImportStmtStub
-import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScImportStmtElementType
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
+import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScExportStmtElementType, ScImportOrExportStmtElementType, ScImportStmtElementType}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
@@ -34,18 +34,34 @@ import org.jetbrains.plugins.scala.util.ScEquivalenceUtil
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-/**
- * @author Alexander Podkhalyuzin
- *         Date: 20.02.2008
- */
-class ScImportStmtImpl(stub: ScImportStmtStub,
-                       nodeType: ScImportStmtElementType,
-                       node: ASTNode,
-                       override val toString: String)
-  extends ScalaStubBasedElementImpl(stub, nodeType, node)
-    with ScImportStmt {
+class ScImportStmtImpl(
+  stub: ScImportStmtStub,
+  nodeType: ScImportStmtElementType,
+  node: ASTNode,
+  toString: String
+) extends ScImportOrExportImpl[ScImportStmt, ScImportStmtStub](stub, nodeType, node, toString)
+  with ScImportStmt
 
-  import ScImportStmtImpl._
+class ScExportStmtImpl(
+  stub: ScExportStmtStub,
+  nodeType: ScExportStmtElementType,
+  node: ASTNode,
+  toString: String
+) extends ScImportOrExportImpl[ScExportStmt, ScExportStmtStub](stub, nodeType, node, toString)
+  with ScExportStmt
+
+abstract sealed class ScImportOrExportImpl[
+  Psi <: ScImportOrExportStmt,
+  Stub >: Null <: ScImportOrExportStmtStub[Psi]
+](
+  stub: Stub,
+  nodeType: ScImportOrExportStmtElementType[Psi, Stub],
+  node: ASTNode,
+  override val toString: String
+) extends ScalaStubBasedElementImpl(stub, nodeType, node)
+  with ScImportOrExportStmt {
+
+  import ScImportOrExportImpl._
 
   override def importExprs: Seq[ScImportExpr] =
     getStubOrPsiChildren(ScalaElementType.IMPORT_EXPR, JavaArrayFactoryUtil.ScImportExprFactory).toSeq
@@ -57,7 +73,8 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
     place:      PsiElement
   ): Boolean = {
 
-    val importsIterator = importExprs.takeWhile(_ != lastParent).reverseIterator
+    val importExpr1 = importExprs.takeWhile(_ != lastParent)
+    val importsIterator = importExpr1.reverseIterator
     while (importsIterator.hasNext) {
       val importExpr = importsIterator.next()
       ProgressManager.checkCanceled()
@@ -346,7 +363,7 @@ class ScImportStmtImpl(stub: ScImportStmtStub,
   }
 }
 
-object ScImportStmtImpl {
+object ScImportOrExportImpl {
   /** Utility methods to conditionally mark imports as used
    * only if qualifier is not already available
    * (e.g. comes from the same package or is implicitly imported)
