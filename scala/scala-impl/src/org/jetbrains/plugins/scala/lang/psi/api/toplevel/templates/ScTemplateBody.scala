@@ -19,6 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 trait ScTemplateBody extends ScalaPsiElement
   with ScControlFlowOwner
   with ScImportsHolder
+  with ScExportsHolder
   with ScBraceOwner {
 
   def members: Seq[ScMember]

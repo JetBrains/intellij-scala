@@ -1,15 +1,11 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package stubs
+package org.jetbrains.plugins.scala.lang.psi.stubs
 
 import com.intellij.psi.stubs.StubElement
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScExportStmt, ScImportOrExportStmt, ScImportStmt}
 
-/**
-  * User: Alexander Podkhalyuzin
-  * Date: 18.06.2009
-  */
-trait ScImportStmtStub extends StubElement[ScImportStmt] {
+trait ScImportOrExportStmtStub[Psi <: ScImportOrExportStmt] extends StubElement[Psi] {
   def importText: String
 }
+
+trait ScImportStmtStub extends ScImportOrExportStmtStub[ScImportStmt]
+trait ScExportStmtStub extends ScImportOrExportStmtStub[ScExportStmt]

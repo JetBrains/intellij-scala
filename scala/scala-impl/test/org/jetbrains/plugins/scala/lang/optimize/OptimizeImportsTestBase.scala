@@ -1,23 +1,18 @@
-package org.jetbrains.plugins.scala
-package lang
-package optimize
+package org.jetbrains.plugins.scala.lang.optimize
 
-
-import java.io.File
-
-import _root_.com.intellij.psi.impl.source.tree.TreeUtil
 import com.intellij.openapi.command.UndoConfirmationPolicy
 import com.intellij.openapi.util.io.FileUtil
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{CharsetToolkit, LocalFileSystem}
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.base.ScalaLightPlatformCodeInsightTestCaseAdapter
 import org.jetbrains.plugins.scala.editor.importOptimizer.{OptimizeImportSettings, ScalaImportOptimizer}
-import org.jetbrains.plugins.scala.extensions.executeWriteActionCommand
+import org.jetbrains.plugins.scala.extensions.{ElementType, StringExt, executeWriteActionCommand}
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.junit.Assert.{assertEquals, fail}
 
+import java.io.File
 import scala.annotation.nowarn
 
 /**
@@ -35,37 +30,58 @@ abstract class OptimizeImportsTestBase extends ScalaLightPlatformCodeInsightTest
     override def settings(file: PsiFile): OptimizeImportSettings = OptimizeImportsTestBase.this.settings(file)
   }
 
-  protected def doTest(): Unit = {
-    import _root_.org.junit.Assert._
+  protected def doTest(before: String): Unit = {
+    doTest(before, before)
+  }
 
-    val filePath = folderPath + getTestName(false) + ".scala"
-    val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
-    assert(file != null, "file " + filePath + " not found")
-    val fileText = StringUtil.convertLineSeparators(FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8))
-    configureFromFileTextAdapter(getTestName(false) + ".scala", fileText)
+  protected def doTest(before: String, after: String): Unit = {
+    configureFromFileTextAdapter(getTestName(false) + ".scala", before)
     val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
 
-    var res: String = null
-    var lastPsi = TreeUtil.findLastLeaf(scalaFile.getNode).getPsi
-
-    if (getTestName(true).startsWith("sorted")) ScalaCodeStyleSettings.getInstance(getProjectAdapter).setSortImports(true)
+    //why do we do that? SORT_IMPORTS is true by default
+    if (getTestName(true).startsWith("sorted"))
+      ScalaCodeStyleSettings.getInstance(getProjectAdapter).setSortImports(true)
 
     executeWriteActionCommand(
       importOptimizer.processFile(scalaFile),
-      "Test",
+      "OptimiseImportsInTestsCommand",
       UndoConfirmationPolicy.DO_NOT_REQUEST_CONFIRMATION
     )(getProjectAdapter)
 
-    res = scalaFile.getText.substring(0, lastPsi.getTextOffset).trim//getImportStatements.map(_.getText()).mkString("\n")
+    val actual = scalaFile.getText
+    assertEquals(after.withNormalizedSeparator, actual)
+  }
 
-    lastPsi = scalaFile.findElementAt(scalaFile.getText.length - 1)
-    val text = lastPsi.getText
-    val output = lastPsi.getNode.getElementType match {
-      case ScalaTokenTypes.tLINE_COMMENT => text.substring(2).trim
-      case ScalaTokenTypes.tBLOCK_COMMENT | ScalaTokenTypes.tDOC_COMMENT =>
-        text.substring(2, text.length - 2).trim
-      case _ => assertTrue("Test result must be in last comment statement.", false)
+  protected def doTest(): Unit = {
+    val (before, after) = extractTestData
+    doTest(before, after)
+  }
+
+  private def extractTestData: (String, String) = {
+    val fileText: String = {
+      val filePath = folderPath + getTestName(false) + ".scala"
+      val file = LocalFileSystem.getInstance.refreshAndFindFileByPath(filePath.replace(File.separatorChar, '/'))
+      assert(file != null, "file " + filePath + " not found")
+      FileUtil.loadFile(new File(file.getCanonicalPath), CharsetToolkit.UTF8).withNormalizedSeparator
     }
-    assertEquals(output, res)
+    extractTestData(fileText)
+  }
+
+  private def extractTestData(fileText: String): (String, String) = {
+    // NOTE: only to extract before & after data
+    configureFromFileTextAdapter(s"${getTestName(false)}_temp.scala", fileText)
+    val scalaFile = getFileAdapter.asInstanceOf[ScalaFile]
+
+    val lastComment = scalaFile.getLastChild match {
+      case c@ElementType(ScalaTokenTypes.tBLOCK_COMMENT) => c
+      case _ =>
+        fail("Test result must be in last block comment statement.").asInstanceOf[Nothing]
+    }
+
+    val text = scalaFile.getText
+    val before = text.substring(0, lastComment.getNode.getStartOffset).stripTrailing
+    val after = lastComment.getText.stripPrefix("/*").stripSuffix("*/").stripPrefix("\n").stripTrailing
+
+    (before, after)
   }
 }

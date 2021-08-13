@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl._
-import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScImportsHolder}
+import org.jetbrains.plugins.scala.lang.psi.{ScDeclarationSequenceHolder, ScExportsHolder, ScImportsHolder}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.{PrecedenceTypes, SubstitutablePrecedenceHelper}
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
@@ -26,7 +26,10 @@ import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
   * User: Dmitry Naydanov
   * Date: 12/12/12
   */
-trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsHolder {
+trait FileDeclarationsHolder
+  extends ScDeclarationSequenceHolder
+    with ScImportsHolder
+    with ScExportsHolder {
 
   import FileDeclarationsHolder._
   import ScPackageImpl._
@@ -38,7 +41,8 @@ trait FileDeclarationsHolder extends ScDeclarationSequenceHolder with ScImportsH
     if (isProcessLocalClasses(lastParent) &&
       !super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place)) return false
 
-    if (!super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)) return false
+    if (!processDeclarationsFromExports(processor, state, lastParent, place)) return false
+    if (!processDeclarationsFromImports(processor, state, lastParent, place)) return false
 
     if (this.context != null) return true
 
