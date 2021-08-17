@@ -393,6 +393,10 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   def testIncompleteIfThenElse(): Unit = assertErrors(
     "val v: Int = if (true) 1")
 
+  def testIncompleteMatch(): Unit = assertErrors(
+    "val v: Int = 1 match { case _ => }",
+    Error("", "Expression expected"))
+
   def testSCL10608(): Unit = {
     assertErrors(
       """
