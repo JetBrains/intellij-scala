@@ -50,7 +50,7 @@ class KindProjectorUtil(project: Project) {
 object KindProjectorUtil {
   val Lambda: String               = "Lambda"
   val LambdaSymbolic: String       = "λ"
-  val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?", "*", "+*", "-*", "-_", "+_")
+  val inlineSyntaxIds: Seq[String] = Seq("?", "+?", "-?", "*", "+*", "-*", "_", "-_", "+_")
 
   def apply(project: Project): KindProjectorUtil = project.getService(classOf[KindProjectorUtil])
 

@@ -1,9 +1,70 @@
 package org.jetbrains.plugins.scala.lang.types.kindProjector
 
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.project.settings.ScalaCompilerConfiguration
 
-class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdapter {
+
+abstract class KindProjectorHighlightingTestBase extends ScalaLightCodeInsightFixtureTestAdapter {
+  override protected def setUp(): Unit = {
+    super.setUp()
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val settings       = defaultProfile.getSettings
+
+    val newSettings = settings.copy(
+      plugins = settings.plugins :+ "kind-projector"
+    )
+
+    defaultProfile.setSettings(newSettings)
+  }
+}
+
+class KindProjectorHighlightingTestXSource3 extends KindProjectorHighlightingTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean =
+    version == LatestScalaVersions.Scala_2_13
+
+  override def setUp(): Unit = {
+    super.setUp()
+
+    val defaultProfile = ScalaCompilerConfiguration.instanceIn(getProject).defaultProfile
+    val settings       = defaultProfile.getSettings
+
+    val newSettings = settings.copy(
+      additionalCompilerOptions = settings.additionalCompilerOptions :+ "-P:kind-projector:underscore-placeholders" :+ "-Xsource:3"
+    )
+
+    defaultProfile.setSettings(newSettings)
+
+  }
+
+  def testUnderscorePlaceholders(): Unit =
+    checkTextHasNoErrors(
+      """
+        |trait Foo[F[+_]]
+        |def b: Foo[Either[Int, +_]] = ???
+        |""".stripMargin
+    )
+
+  def testUnderscorePlaceholdersSimpleUnderscore(): Unit = {
+    checkTextHasNoErrors(
+      """
+        |class TC[F[_]]
+        |object TC {
+        |  implicit val tc: TC[Either[Int, *]] = new TC
+        |  implicit val tc1: TC[Either[Long, +*]] = new TC
+        |}
+        |object App extends App {
+        |  println(implicitly[TC[Either[Int, _]]])
+        |  println(implicitly[TC[Either[Long, +_]]])
+        |}
+        |""".stripMargin
+    )
+  }
+}
+
+
+class KindProjectorHighlightingTest extends KindProjectorHighlightingTestBase {
   override protected def setUp(): Unit = {
     super.setUp()
 
@@ -12,7 +73,6 @@ class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdap
 
     val newSettings = settings.copy(
       plugins = settings.plugins :+ "kind-projector",
-      additionalCompilerOptions = settings.additionalCompilerOptions :+ "-P:kind-projector:underscore-placeholders"
     )
 
     defaultProfile.setSettings(newSettings)
@@ -155,14 +215,6 @@ class KindProjectorHighlightingTest extends ScalaLightCodeInsightFixtureTestAdap
         |trait Hk[F[_]]
         |
         |def test: Hk[Lambda[x => List[x]]] = ???
-        |""".stripMargin
-    )
-
-  def testUnderscorePlaceholders(): Unit =
-    checkTextHasNoErrors(
-      """
-        |trait Foo[F[+_]]
-        |def b: Foo[Either[Int, +_]] = ???
         |""".stripMargin
     )
 }
