@@ -8,6 +8,7 @@ import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerU
 import org.jetbrains.plugins.scala.extensions.{&&, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, api}
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
@@ -36,10 +37,15 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
     val compiled = element.getContainingFile.asOptionOf[ScalaFile].exists(_.isCompiled)
 
     if (!compiled) {
-      // Highlight type ascription differently from type mismatch (handled in ScTypedExpressionAnnotator), SCL-15544
       element match {
-        case Parent(_: ScTypedExpression) =>
-        case Parent((_: ScParenthesisedExpr) && Parent(_: ScTypedExpression)) =>
+        // Highlight type ascription differently from type mismatch (handled in ScTypedExpressionAnnotator), SCL-15544
+        case Parent(_: ScTypedExpression) | Parent((_: ScParenthesisedExpr) && Parent(_: ScTypedExpression)) => ()
+
+        // Highlight empty case clauses with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
+        case block: ScBlock if block.getParent.is[ScCaseClause] && block.exprs.isEmpty &&
+          typeAware && block.expectedType().exists(et => block.getTypeAfterImplicitConversion().tr.exists(!_.conforms(et))) =>
+            holder.createErrorAnnotation(block, ScalaBundle.message("expression.expected"))
+
         case _ => checkExpressionType(element, typeAware)
       }
     }

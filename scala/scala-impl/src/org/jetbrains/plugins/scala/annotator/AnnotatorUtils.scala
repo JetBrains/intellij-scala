@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDeclaration
@@ -58,12 +59,18 @@ object AnnotatorUtils {
           e == parent.getLastChild && parent.getNextSibling.isInstanceOf[PsiErrorElement]
       }
 
-    // Most often it's an incomplete if-then-else, #SCL-18862
+    // Most often it's an incomplete if-then-else, SCL-18862
     def isIfThen: Boolean = e match {
       case it: ScIf => it.elseExpression.isEmpty
       case _ => false  
     }
-    
+
+    // Most often it's an incomplete case clause, SCL-19447
+    def isEmptyCaseClause: Boolean = e match {
+      case block: ScBlock if block.getParent.is[ScCaseClause] => block.exprs.isEmpty
+      case _ => false
+    }
+
     // Don't show type mismatch for a whole function literal when result type doesn't match, SCL-16901
 
     def isFunctionLiteral = e match {
@@ -81,6 +88,7 @@ object AnnotatorUtils {
 
     hasParserErrors ||
       isIfThen ||
+      isEmptyCaseClause ||
       hasUnresolvedReferences ||
       !fromFunctionLiteral && (isFunctionLiteral || isResultOfFunctionLiteral)
   }
