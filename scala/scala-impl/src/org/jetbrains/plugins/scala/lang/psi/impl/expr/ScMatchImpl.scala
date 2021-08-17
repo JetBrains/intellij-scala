@@ -1,8 +1,4 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package impl
-package expr
+package org.jetbrains.plugins.scala.lang.psi.impl.expr
 
 import com.intellij.lang.ASTNode
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -17,9 +13,12 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
 class ScMatchImpl(node: ASTNode) extends ScExpressionImplBase(node) with ScMatch {
 
   protected override def innerType: TypeResult = {
-    val branchesTypes = expressions.map(_.`type`().getOrNothing)
-    val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_))
-    Right(branchesLub)
+    expressions.flatMap(_.`type`().toOption) match {
+      case Seq() => Failure("")
+      case branchesTypes =>
+        val branchesLub = branchesTypes.foldLeft(Nothing: ScType)(_.lub(_))
+        Right(branchesLub)
+    }
   }
 
   override def toString: String = "MatchStatement"
