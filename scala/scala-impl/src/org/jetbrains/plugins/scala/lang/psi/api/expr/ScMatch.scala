@@ -1,12 +1,8 @@
-package org.jetbrains.plugins.scala
-package lang
-package psi
-package api
-package expr
+package org.jetbrains.plugins.scala.lang.psi.api.expr
 
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.{ScCaseClause, ScCaseClauses}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 
 /**
   * @author Alexander Podkhalyuzin, ilyas
@@ -14,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createEx
 trait ScMatch extends ScExpression {
   def expression: Option[ScExpression] = findChild[ScExpression]
 
-  def expressions: Seq[ScExpression] = clauses.map(_.expr.getOrElse(createExpressionFromText("{}")))
+  def expressions: Seq[ScExpression] = clauses.flatMap(_.expr)
 
   @Nullable
   def caseClauses: Option[ScCaseClauses] = findChild[ScCaseClauses]
