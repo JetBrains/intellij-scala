@@ -25,11 +25,22 @@ object Type extends Type {
   //   In Scala 3.2, the meaning of _ changes from wildcard to placeholder for type parameter.
   //   The Scala 3.1 behavior is already available today under the -strict setting.
   //   In Scala >2.13.6 or >2.12.14 and when -Xsource:3 is given then ? is also ok
-  def parseWildcardStartToken()(implicit builder: ScalaPsiBuilder): Boolean =
-    if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
-      builder.advanceLexer()
-      true
-    } else builder.features.`? as wildcard marker` && builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
+  def parseWildcardStartToken()(implicit builder: ScalaPsiBuilder): Boolean = {
+    def tryParseUnderscore(): Boolean =
+      if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
+        builder.advanceLexer()
+        true
+      } else false
+
+    if (builder.features.`? as wildcard marker`) {
+      val parsedQuestionMark = builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
+
+      //-Xsource:3 -P:kind-projector:underscore-placeholders disable usage of _ as a wildcard
+      if (!parsedQuestionMark && !builder.kindProjectUnderscorePlaceholdersOptionEnabled) {
+        tryParseUnderscore()
+     } else parsedQuestionMark
+    } else tryParseUnderscore()
+  }
 }
 
 trait Type {
@@ -53,6 +64,13 @@ trait Type {
       true
     } else {
       builder.getTokenType match {
+        case ScalaTokenTypes.tUNDER =>
+          val refMarker = builder.mark()
+          builder.remapCurrentToken(ScalaTokenTypes.tIDENTIFIER)
+          builder.advanceLexer()
+          refMarker.done(ScalaElementType.REFERENCE)
+          typeMarker.done(ScalaElementType.SIMPLE_TYPE)
+          true
         case ScalaTokenTypes.tIDENTIFIER if builder.getTokenText == "*" =>
           typeMarker.drop()
           true

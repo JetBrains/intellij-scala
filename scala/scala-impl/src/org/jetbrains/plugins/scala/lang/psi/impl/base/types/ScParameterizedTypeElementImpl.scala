@@ -30,7 +30,7 @@ import scala.annotation.tailrec
 
 class ScParameterizedTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with ScParameterizedTypeElement {
   override def desugarizedText: String = {
-    val inlineSyntaxIds = Set("?", "+?", "-?", "*", "+*", "-*", "+_", "-_")
+    val inlineSyntaxIds = Set("?", "+?", "-?", "*", "+*", "-*", "_", "+_", "-_")
 
     def kindProjectorFunctionSyntax(elem: ScTypeElement): String = {
       def convertParameterized(param: ScParameterizedTypeElement): String = {
