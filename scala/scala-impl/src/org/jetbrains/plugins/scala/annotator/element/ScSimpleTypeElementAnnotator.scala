@@ -28,40 +28,41 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
       (ah.findAnnotationNoAliases("freestyle.free") != null) ||
         ah.findAnnotationNoAliases("freestyle.module") != null
     }
+
     def needTypeArgs: Boolean = {
       def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
 
       val canHaveTypeArgs = element.reference.map(_.resolve()).exists {
         case ah: ScAnnotationsHolder if isFreestyleAnnotated(ah) => false
-        case c: PsiClass => c.hasTypeParameters
-        case owner: ScTypeParametersOwner => owner.typeParameters.nonEmpty
-        case _ => false
+        case c: PsiClass                                         => c.hasTypeParameters
+        case owner: ScTypeParametersOwner                        => owner.typeParameters.nonEmpty
+        case _                                                   => false
       }
 
       if (!canHaveTypeArgs) return false
 
       element.getParent match {
-        case ScParameterizedTypeElement(`element`, _) => false
+        case ScParameterizedTypeElement(`element`, _)                        => false
         case tp: ScTypeParam if tp.contextBoundTypeElement.contains(element) => false
         case (_: ScTypeArgs) childOf (gc: ScGenericCall) =>
           gc.referencedExpr match {
             case ResolvesTo(f: ScFunction) => noHigherKinds(f)
-            case _ => false
+            case _                         => false
           }
         case (_: ScTypeArgs) childOf (parameterized: ScParameterizedTypeElement) =>
           parameterized.typeElement match {
             case ScSimpleTypeElement(ResolvesTo(target)) =>
               target match {
                 case ScPrimaryConstructor.ofClass(c) => noHigherKinds(c)
-                case owner: ScTypeParametersOwner => noHigherKinds(owner)
-                case _ => false
+                case owner: ScTypeParametersOwner    => noHigherKinds(owner)
+                case _                               => false
               }
             case _ => false
           }
         case infix: ScInfixTypeElement if infix.left == element || infix.rightOption.contains(element) =>
           infix.operation.resolve() match {
             case owner: ScTypeParametersOwner => noHigherKinds(owner)
-            case _ => false
+            case _                            => false
           }
         case _ => true
       }

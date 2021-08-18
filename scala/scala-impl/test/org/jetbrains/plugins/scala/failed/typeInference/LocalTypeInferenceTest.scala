@@ -12,21 +12,6 @@ class LocalTypeInferenceTest extends TypeInferenceTestBase {
 
   override def folderPath: String = super.folderPath + "bugs5/"
 
-  def testSCL9671(): Unit = doTest {
-    """
-      |object SCL9671 {
-      |  class U
-      |  class TU extends U
-      |  class F[T <: U]
-      |  class A[T <: U](x: F[T], y: Set[T] = Set.empty[T])
-      |
-      |  val f: F[TU] = new F
-      |  /*start*/new A(f)/*end*/
-      |}
-      |//SCL9671.A[SCL9671.TU]
-    """.stripMargin.trim
-  }
-
   def testSCL6482(): Unit = doTest {
     """
       |object SCL6482 {
@@ -38,7 +23,7 @@ class LocalTypeInferenceTest extends TypeInferenceTestBase {
       |//SCL6482.Foo[Int, Int]
     """.stripMargin.trim
   }
-  
+
   def testSCL6233(): Unit = doTest {
     """
       |  class EnumSetTest {
