@@ -32,12 +32,13 @@ object PatternGenerationStrategy {
       )
 
     def createClauses(prefix: Option[String] = None,
-                      suffix: Option[String] = None)
+                      suffix: Option[String] = None,
+                      rightHandSide: String = "")
                      (implicit project: Project): (Seq[PatternComponents], String) = {
       val components = strategy.patterns
 
       val clausesText = components
-        .map(_.canonicalClauseText)
+        .map(_.canonicalClauseText + rightHandSide)
         .mkString(
           prefix.getOrElse(ScalaKeyword.MATCH + " {\n"),
           "\n",
