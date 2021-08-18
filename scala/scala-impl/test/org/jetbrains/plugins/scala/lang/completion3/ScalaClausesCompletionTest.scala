@@ -626,9 +626,9 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Foo) match {
-         |  case FooImpl => $CARET
-         |  case Bar() =>
-         |  case baz: Baz =>
+         |  case FooImpl => $START$CARET???$END
+         |  case Bar() => ???
+         |  case baz: Baz => ???
          |}
          """.stripMargin
   )
@@ -643,10 +643,10 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       s"""import java.nio.file.FileVisitResult
          |
          |(_: FileVisitResult) match {
-         |  case FileVisitResult.CONTINUE => $CARET
-         |  case FileVisitResult.TERMINATE =>
-         |  case FileVisitResult.SKIP_SUBTREE =>
-         |  case FileVisitResult.SKIP_SIBLINGS =>
+         |  case FileVisitResult.CONTINUE => $START$CARET???$END
+         |  case FileVisitResult.TERMINATE => ???
+         |  case FileVisitResult.SKIP_SUBTREE => ???
+         |  case FileVisitResult.SKIP_SIBLINGS => ???
          |}
          """.stripMargin
   )
@@ -686,10 +686,10 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Margin.Margin) match {
-         |  case Margin.TOP => $CARET
-         |  case Margin.BOTTOM =>
-         |  case Margin.LEFT =>
-         |  case Margin.RIGHT =>
+         |  case Margin.TOP => $START$CARET???$END
+         |  case Margin.BOTTOM => ???
+         |  case Margin.LEFT => ???
+         |  case Margin.RIGHT => ???
          |}
        """.stripMargin
   )
@@ -716,10 +716,10 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Margin.Value) match {
-         |  case Margin.Top => $CARET
-         |  case Margin.Bottom =>
-         |  case Margin.Left =>
-         |  case Margin.Right =>
+         |  case Margin.Top => $START$CARET???$END
+         |  case Margin.Bottom => ???
+         |  case Margin.Left => ???
+         |  case Margin.Right => ???
          |}
        """.stripMargin
   )
@@ -754,7 +754,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Margin.Margin) match {
-         |  case Margin.NULL => $CARET
+         |  case Margin.NULL => $START$CARET???$END
          |}
        """.stripMargin,
     invocationCount = 2
@@ -774,7 +774,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |case class Bar(foos: Foo*) extends Foo
          |
          |(_: Foo) match {
-         |  case Bar(foos@_*) => $CARET
+         |  case Bar(foos@_*) => $START$CARET???$END
          |}
          """.stripMargin
   )
@@ -800,8 +800,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Foo) match {
-         |  case impl: FooImpl => $CARET
-         |  case _ =>
+         |  case impl: FooImpl => $START$CARET???$END
+         |  case _ => ???
          |}""".stripMargin
   )
 
@@ -816,8 +816,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
         s"""val maybeFoo = Option("foo")
            |
            |maybeFoo match {
-           |  case Some(value) => $CARET
-           |  case None        =>
+           |  case Some(value) => $START$CARET???$END
+           |  case None        => ???
            |}
        """.stripMargin
     )
@@ -829,8 +829,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          """.stripMargin,
     resultText =
       s"""(_: List[String]) match {
-         |  case Nil => $CARET
-         |  case ::(head, tl) =>
+         |  case Nil => $START$CARET???$END
+         |  case ::(head, tl) => ???
          |}
         """.stripMargin
   )
@@ -845,8 +845,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       s"""import scala.util.{Failure, Success, Try}
          |
          |(_: Try[Any]) match {
-         |  case Failure(exception) => $CARET
-         |  case Success(value) =>
+         |  case Failure(exception) => $START$CARET???$END
+         |  case Success(value) => ???
          |}
        """.stripMargin
   )
@@ -869,8 +869,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |val impl = new Foo() {}
          |
          |(_: Foo) match {
-         |  case Bar() => $CARET
-         |  case _ =>
+         |  case Bar() => $START$CARET???$END
+         |  case _ => ???
          |}
        """.stripMargin
   )
@@ -925,7 +925,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |object Bar
          |
          |(_: Foo) match {
-         |  case Bar() => $CARET
+         |  case Bar() => $START$CARET???$END
          |}
        """.stripMargin
   )
@@ -945,7 +945,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |case class Bar() extends Foo
          |
          |(_: Foo) match {
-         |  case Bar() => $CARET
+         |  case Bar() => $START$CARET???$END
          |}
          |???
        """.stripMargin
@@ -1015,8 +1015,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |case class Bar() extends Foo
          |
          |(_: Foo) match {
-         |  case Bar() => $CARET
-         |  case _ =>
+         |  case Bar() => $START$CARET???$END
+         |  case _ => ???
          |}
        """.stripMargin
   )
@@ -1035,7 +1035,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |case class Bar() extends Foo
          |
          |(_: Foo) match {
-         |  case Bar() => $CARET
+         |  case Bar() => $START$CARET???$END
          |}
        """.stripMargin
   )
@@ -1049,8 +1049,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
       resultText =
         s"""def foo(maybeString: Option[String]: Unit = {
            |  maybeString match {
-           |    case Some(value) => $CARET
-           |    case None        =>
+           |    case Some(value) => $START$CARET???$END
+           |    case None        => ???
            |  }
            |}""".stripMargin
     )
@@ -1076,8 +1076,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
         s"""class Bar() extends Foo
            |
            |(_: Foo) match {
-           |  case bar: Bar => $CARET
-           |  case _ =>
+           |  case bar: Bar => $START$CARET???$END
+           |  case _ => ???
            |}""".stripMargin
     )
   }
@@ -1112,8 +1112,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |  case Left(value) =>
          |  case Right(value) =>
          |    value match {
-         |      case Bar() => $CARET
-         |      case Baz() =>
+         |      case Bar() => $START$CARET???$END
+         |      case Baz() => ???
          |    }
          |}""".stripMargin
   )
@@ -1137,8 +1137,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Foo) match {
-         |  case Foo.Bar() => $CARET
-         |  case _ =>
+         |  case Foo.Bar() => $START$CARET???$END
+         |  case _ => ???
          |}""".stripMargin
   )
 
@@ -1161,8 +1161,8 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |}
          |
          |(_: Foo) match {
-         |  case Foo.Bar() => $CARET
-         |  case Foo.Baz =>
+         |  case Foo.Bar() => $START$CARET???$END
+         |  case Foo.Baz => ???
          |}""".stripMargin,
     invocationCount = 2
   )
@@ -1195,7 +1195,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |case class Bar() extends Foo
          |
          |(_: Option[Foo]).map {
-         |  case Bar() => $CARET
+         |  case Bar() => $START$CARET???$END
          |}
        """.stripMargin
   )
@@ -1216,7 +1216,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |case class Bar() extends Foo
          |
          |(_: Option[Foo]).collect {
-         |  case Bar() => $CARET
+         |  case Bar() => $START$CARET???$END
          |}
        """.stripMargin
   )
@@ -1237,7 +1237,7 @@ class ScalaClausesCompletionTest extends ScalaCodeInsightTestBase {
          |case class Bar() extends Foo
          |
          |(_: Foo) match {
-         |  case Bar() => $CARET
+         |  case Bar() => $START$CARET???$END
          |}
        """.stripMargin
   )

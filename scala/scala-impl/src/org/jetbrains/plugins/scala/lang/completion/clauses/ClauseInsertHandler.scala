@@ -70,6 +70,21 @@ private[clauses] abstract class ClauseInsertHandler[
       .moveToOffset(1 + spaceAndNextLeaf.getStartOffset)
   }
 
+  protected final def reformatAndMoveCaretExhaustive(targetClause: ScCaseClause,
+                                                     rangesToReformat: TextRange*)
+                                                    (implicit context: InsertionContext): Unit = {
+    val InsertionContextExt(editor, document, file, project) = context
+
+    import scala.jdk.CollectionConverters._
+    CodeStyleManager.getInstance(project).reformatText(file, rangesToReformat.asJava)
+
+    PsiDocumentManager.getInstance(context.getProject).doPostponedOperationsAndUnblockDocument(document)
+
+    val range = targetClause.getLastChild.getTextRange
+    editor.getCaretModel.moveToOffset(range.getStartOffset)
+    editor.getSelectionModel.setSelection(range.getStartOffset, range.getEndOffset)
+  }
+
   private def findNextLeaf(sibling: ScalaPsiElement) =
     getNextSiblingOfType(sibling, classOf[LeafPsiElement])
 }
