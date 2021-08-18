@@ -1,5 +1,4 @@
-package org.jetbrains.plugins.scala
-package project
+package org.jetbrains.plugins.scala.project
 
 import org.jetbrains.annotations.NonNls
 
@@ -8,7 +7,7 @@ import scala.Ordering.Implicits._
 /**
  * @author Pavel Fatin
  */
-// TODO Make universal (it seems that this class is now used in lots of places ourside the "proect" package).
+// TODO Make universal (move to a proper package) (it seems that this class is now used in lots of places ourside the "proect" package).
 case class Version(@NonNls presentation: String) extends Ordered[Version] {
 
   import Version._
@@ -89,7 +88,7 @@ object Version {
 
   /** zips and pads elements if left is shorter, but not right */
   private def zipLeft[A](left: Seq[A], right: Seq[A], fill: A): Seq[(A, A)] = {
-    var zipped = Seq.newBuilder[(A, A)]
+    val zipped = Seq.newBuilder[(A, A)]
 
     val lefts = left.iterator
     val rights = right.iterator
