@@ -112,7 +112,7 @@ object ExhaustiveMatchCompletionContributor {
     suffix: Option[String] = Some("")) extends ClauseInsertHandler[E] {
 
     override protected def handleInsert(implicit context: InsertionContext): Unit = {
-      val (components, clausesText) = strategy.createClauses(prefix, suffix)
+      val (components, clausesText) = strategy.createClauses(prefix, suffix, rightHandSide = " ???")
       replaceText(clausesText)
 
       onTargetElement { (statement: E) =>
@@ -121,7 +121,7 @@ object ExhaustiveMatchCompletionContributor {
         val clauses = caseClauses.caseClauses
         strategy.adjustTypes(components, clauses)
 
-        reformatAndMoveCaret(caseClauses, clauses.head, statement.getTextRange)
+        reformatAndMoveCaretExhaustive(clauses.head, statement.getTextRange)
       }
     }
   }
