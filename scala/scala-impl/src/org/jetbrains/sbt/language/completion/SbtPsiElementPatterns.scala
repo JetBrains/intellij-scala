@@ -52,7 +52,7 @@ object SbtPsiElementPatterns {
               other.getText == "scalaVersion"
           }
         case property: Property =>
-          property.getFirstChild.getText == "sbt.version" && property.getLastChild.getText.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
+          property.getKey == "sbt.version" && property.getValue.contains(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED)
         case _ => false
       }
     }

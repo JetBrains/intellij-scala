@@ -1,6 +1,6 @@
 package org.jetbrains.sbt.language.completion
 
-import com.intellij.codeInsight.completion.{CompletionContributor, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
+import com.intellij.codeInsight.completion.{CompletionContributor, CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.lang.properties.{PropertiesFileType, PropertiesLanguage}
 import com.intellij.lang.properties.psi.PropertiesFile
@@ -68,11 +68,11 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
         case _ =>
       }
 
-
+      def trimDummy(text: String) = text.replaceAll(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED, "").replaceAll("\"", "")
 
       val newResult = result.withRelevanceSorter(
         CompletionService.getCompletionService.defaultSorter(parameters, result.getPrefixMatcher).weigh(SbtDependencyVersionWeigher)
-      )
+      ).withPrefixMatcher(trimDummy(place.getText))
 
       implicit val project: Project = place.getProject
 
