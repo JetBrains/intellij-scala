@@ -38,7 +38,7 @@ import scala.util.control.Exception._
 
 object CompileServerLauncher {
 
-  private var serverInstance: Option[ServerInstance] = None
+  @volatile private var serverInstance: Option[ServerInstance] = None
   private val LOG = Logger.getInstance(getClass)
 
   private val NailgunRunnerFQN = "org.jetbrains.plugins.scala.nailgun.NailgunRunner"
@@ -403,8 +403,12 @@ object CompileServerLauncher {
   def ensureServerRunning(project: Project): Boolean = serverStartLock.synchronized {
     LOG.traceWithDebugInDev(s"ensureServerRunning [thread:${Thread.currentThread.getId}]")
     val reasons = restartReasons(project)
-    if (reasons.nonEmpty)
-      stop(timeoutMs = 3000L, debugReason = Some(s"needs to restart: ${reasons.mkString(", ")}"))
+    if (reasons.nonEmpty) {
+      val stopped = stop(timeoutMs = 3000L, debugReason = Some(s"needs to restart: ${reasons.mkString(", ")}"))
+      if (!stopped && ApplicationManager.getApplication.isUnitTestMode) {
+        LOG.error("couldn't stop compile server")
+      }
+    }
 
     running || tryToStart(project)
   }

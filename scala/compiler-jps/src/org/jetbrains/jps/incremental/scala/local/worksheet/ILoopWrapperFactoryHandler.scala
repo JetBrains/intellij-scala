@@ -1,10 +1,5 @@
 package org.jetbrains.jps.incremental.scala.local.worksheet
 
-import java.io.{File, PrintStream}
-import java.lang.reflect.InvocationTargetException
-import java.net.{URLClassLoader, URLDecoder}
-import java.nio.file.Path
-
 import org.jetbrains.jps.incremental.messages.BuildMessage.Kind
 import org.jetbrains.jps.incremental.scala.local.worksheet.repl_interface.ILoopWrapper
 import org.jetbrains.jps.incremental.scala.local.worksheet.util.IOUtils
@@ -12,9 +7,15 @@ import org.jetbrains.jps.incremental.scala.local.{CompilerFactoryImpl, NullLogge
 import org.jetbrains.jps.incremental.scala.{Client, compilerVersion}
 import org.jetbrains.plugins.scala.compiler.data.worksheet.WorksheetArgs
 import org.jetbrains.plugins.scala.compiler.data.{CompilerJars, SbtData}
+import org.jetbrains.plugins.scala.project.Version
 import sbt.internal.inc.{AnalyzingCompiler, RawCompiler}
 import sbt.util.{Level, Logger}
 import xsbti.compile.{ClasspathOptionsUtil, ScalaInstance}
+
+import java.io.{File, PrintStream}
+import java.lang.reflect.InvocationTargetException
+import java.net.{URLClassLoader, URLDecoder}
+import java.nio.file.Path
 
 class ILoopWrapperFactoryHandler {
   import ILoopWrapperFactoryHandler._
@@ -29,7 +30,7 @@ class ILoopWrapperFactoryHandler {
   ): Unit = try {
     val compilerJars = replContext.compilerJars
     val compilerVersionFromProperties  = compilerVersion(compilerJars.compiler)
-    val scalaVersion = compilerVersionFromProperties.fold(FallBackScalaVersion)(ScalaVersion)
+    val scalaVersion = compilerVersionFromProperties.fold(FallBackScalaVersion)(ScalaVersion.apply)
     val replWrapper = getOrCompileReplWrapper(replContext, scalaVersion, client)
 
     if (args.dropCachedReplInstance) {
@@ -156,21 +157,26 @@ object ILoopWrapperFactoryHandler {
   private def ILoopWrapper3Impl      = ILoopWrapperDescriptor("ILoopWrapper3Impl", Scala3ILoopWrapperVersion)
 
   private def wrapperClassNameFor(version: ScalaVersion): ILoopWrapperDescriptor = {
-    val v = version.value
-    val wrapper = if (v.startsWith("2.13.0")) ILoopWrapper213_0Impl
-    else if (v.startsWith("2.13")) ILoopWrapper213Impl
+    val versionStr = version.value.presentation
+
+    val wrapper = if (versionStr.startsWith("2.13.0")) ILoopWrapper213_0Impl
+    else if (versionStr.startsWith("2.13")) ILoopWrapper213Impl
     else if (version.isScala3) ILoopWrapper3Impl
     // note: lexicographic comparison is used, but it should work fine
-    else if (v >= "2.12.13") ILoopWrapper212_13Impl
+    else if (version.value >= Version("2.12.13")) ILoopWrapper212_13Impl
     else ILoopWrapper212Impl
     wrapper
   }
 
   private[worksheet] case class ReplWrapperCompiled(file: File, className: String, version: ScalaVersion)
 
-  private[worksheet] case class ScalaVersion(value: String) {
+  private[worksheet] case class ScalaVersion(value: Version) {
     // temp solution while dotty is evolving very fast
-    val isScala3: Boolean = value.startsWith("""3.""")
+    val isScala3: Boolean = value.presentation.startsWith("3.0")
+  }
+
+  private[worksheet] object ScalaVersion {
+    def apply(versionStr: String): ScalaVersion = ScalaVersion(Version(versionStr))
   }
 
   private val FallBackScalaVersion = ScalaVersion("2.12.0")
