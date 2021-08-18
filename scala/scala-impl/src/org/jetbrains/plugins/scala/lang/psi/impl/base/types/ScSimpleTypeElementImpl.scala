@@ -58,22 +58,32 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
       else
         ScParameterizedType(tp, clazz.getTypeParameters.map(TypeParameterType(_)).toSeq)
 
-    def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) = {
+    def getConstructorParams(constr: PsiMethod, subst: ScSubstitutor): (Seq[Seq[Parameter]], Boolean) =
       constr match {
         case ScalaConstructor(c) =>
           val clauses = c.effectiveParameterClauses
           (clauses.map(_.effectiveParameters.map { p =>
-            val paramType: ScType = subst(p.`type`().getOrAny)
-            new Parameter(p.name, p.deprecatedName, paramType, paramType, p.isDefaultParam,p.isRepeatedParameter,
-              p.isCallByNameParameter, p.index, Some(p), p.getDefaultExpression.flatMap(_.`type`().toOption))
-          }),
-            clauses.lastOption.exists(_.isImplicitOrUsing))
+            val paramType   = subst(p.`type`().getOrAny)
+            val defaultType = p.getDefaultExpression.flatMap(_.`type`().toOption).map(subst)
+
+            new Parameter(
+              p.name,
+              p.deprecatedName,
+              paramType,
+              paramType,
+              p.isDefaultParam,
+              p.isRepeatedParameter,
+              p.isCallByNameParameter,
+              p.index,
+              Option(p),
+              defaultType
+            )
+          }), clauses.lastOption.exists(_.isImplicitOrUsing))
         case JavaConstructor(c) =>
           (Seq(c.parameters.map { p =>
             Parameter(p.paramType(), isRepeated = p.isVarArgs, index = p.index)
           }), false)
       }
-    }
 
     def updateImplicits(tp: ScType, withExpected: Boolean, params: Seq[Seq[Parameter]], lastImplicit: Boolean): ScType = {
       val (innerRes, implicitParams) =
@@ -101,24 +111,42 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
     def typeForConstructor(
       ref:           ScStableCodeReference,
       constr:        PsiMethod,
-      subst:         ScSubstitutor,
+      _subst:         ScSubstitutor,
       parentElement: PsiNamedElement
     ): ScType = {
       val clazz = constr.containingClass
 
+      val (constrTypeParameters, constrSubst) = parentElement match {
+        case _: ScTypeAliasDefinition => (Seq.empty, ScSubstitutor.empty)
+        case owner: ScTypeParametersOwner if owner.typeParameters.nonEmpty =>
+          constr match {
+            case ScalaConstructor(c) =>
+              val params = c.getConstructorTypeParameters
+              val subst  = ScSubstitutor.bind(owner.typeParameters, params)(TypeParameterType(_))
+              (params, subst)
+            case JavaConstructor(cons) => (cons.getTypeParameters.toSeq, ScSubstitutor.empty)
+            case _                     => (Seq.empty, ScSubstitutor.empty)
+          }
+        case _ => (Seq.empty, ScSubstitutor.empty)
+      }
+
+      val subst = _subst followed constrSubst
+
       val tp = parentElement match {
         case ta: ScTypeAliasDefinition => ta.aliasedType.getOrElse(return Nothing)
-        case _                         => parametrise(calculateReferenceType(ref).getOrElse(return Nothing), clazz)
+        case _ => parametrise(calculateReferenceType(ref).getOrElse(return Nothing), clazz)
       }
 
       val res                    = subst(tp)
       val (params, lastImplicit) = getConstructorParams(constr, subst)
 
       val typeParameters: Seq[TypeParameter] = parentElement match {
+        case _: ScTypeParametersOwner if constrTypeParameters.nonEmpty =>
+          constrTypeParameters.map(TypeParameter(_))
         case tp: ScTypeParametersOwner if tp.typeParameters.nonEmpty =>
           tp.typeParameters.map(TypeParameter(_))
         case ptp: PsiTypeParameterListOwner if ptp.getTypeParameters.nonEmpty =>
-          (ptp.getTypeParameters ++ constr.getTypeParameters).toSeq.map(TypeParameter(_))
+          (ptp.getTypeParameters.toSeq ++ constrTypeParameters).map(TypeParameter(_))
         case _ =>
           updateImplicits(tp, withExpected = false, params = params, lastImplicit = lastImplicit)
           return res

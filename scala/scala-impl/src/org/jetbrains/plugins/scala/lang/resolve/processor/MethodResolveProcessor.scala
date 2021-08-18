@@ -268,6 +268,7 @@ object MethodResolveProcessor {
       tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresovledTps)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
+      case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
       case cons @ Constructor.ofClass(cls) =>
         (cls.getTypeParameters ++ cons.getTypeParameters).toSeq.map(TypeParameter(_))
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
@@ -289,7 +290,9 @@ object MethodResolveProcessor {
       val expected = eOption.get
 
       val retType: ScType = element match {
-        case ScalaConstructor.in(td: ScTypeDefinition) => substitutor(td.`type`().getOrNothing)
+        case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
+          val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
+          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
         case Constructor.ofClass(cls) =>
           substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
         case f: ScFunction
@@ -557,6 +560,7 @@ object MethodResolveProcessor {
     implicit val ctx: ProjectContext = element
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
+      case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
       case cons @ Constructor.ofClass(cls) => Option((cls.getTypeParameters ++ cons.getTypeParameters).toSeq)
       case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension)
       case t: ScTypeParametersOwner        => Option(t.typeParameters)
