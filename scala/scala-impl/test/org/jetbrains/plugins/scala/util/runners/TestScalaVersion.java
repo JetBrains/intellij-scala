@@ -7,7 +7,7 @@ public enum TestScalaVersion {
 
     Scala_2_10_0(false), Scala_2_10,
     Scala_2_11_0(false), Scala_2_11,
-    Scala_2_12_0(false), Scala_2_12_12, Scala_2_12,
+    Scala_2_12_0(false), Scala_2_12_6, Scala_2_12_12, Scala_2_12,
     Scala_2_13_0, Scala_2_13,
     Scala_3_0
     ;
@@ -31,6 +31,7 @@ public enum TestScalaVersion {
             case Scala_2_10: return LatestScalaVersions$.MODULE$.Scala_2_10();
             case Scala_2_11: return LatestScalaVersions$.MODULE$.Scala_2_11();
             case Scala_2_12: return LatestScalaVersions$.MODULE$.Scala_2_12();
+            case Scala_2_12_6: return LatestScalaVersions$.MODULE$.Scala_2_12().withMinor(6);
             case Scala_2_12_12: return LatestScalaVersions$.MODULE$.Scala_2_12().withMinor(12);
             case Scala_2_13: return LatestScalaVersions$.MODULE$.Scala_2_13();
             case Scala_2_10_0: return LatestScalaVersions$.MODULE$.Scala_2_10().withMinor(0);

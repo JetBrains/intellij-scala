@@ -46,8 +46,8 @@ private class ProcessWatcher(project: Project, process: Process, commandLine: St
 
   //true if process exited before timeout
   def destroyAndWait(ms: Long): Boolean = {
-    process.destroy()
-    process.waitFor(ms, TimeUnit.MILLISECONDS)
+    processHandler.destroyProcess()
+    processHandler.waitFor(ms)
   }
 
   private var _terminatedByIdleTimeout = false
