@@ -172,12 +172,6 @@ class ReturnExpressionAnnotatorTest extends AnnotatorSimpleTestCase {
     }
   }
 
-  def testTypeWrongExpressionMultiple(): Unit = {
-    assertMatches(messages("def f: A = { if(1 > 2) new B else new B }")) {
-      case Error("new B", TypeMismatch()) :: Error("new B", TypeMismatch()) :: Nil =>
-    }
-  }
-
   def testTypeReturnAndExpressionWrongType(): Unit = {
     assertMatches(messages("def f: A = { if(1 > 2) return new B; new B }")) {
       case Error("new B", TypeMismatch()) :: Error("}", TypeMismatch()) :: Nil =>
