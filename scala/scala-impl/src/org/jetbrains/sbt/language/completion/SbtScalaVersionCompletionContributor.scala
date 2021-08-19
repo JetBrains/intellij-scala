@@ -1,10 +1,11 @@
 package org.jetbrains.sbt.language.completion
 
-import com.intellij.codeInsight.completion.{CompletionContributor, CompletionInitializationContext, CompletionParameters, CompletionProvider, CompletionResultSet, CompletionService, CompletionType, InsertionContext}
+import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
+import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.LookupElement
-import com.intellij.lang.properties.{PropertiesFileType, PropertiesLanguage}
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.psi.impl.PropertyValueImpl
+import com.intellij.lang.properties.{PropertiesFileType, PropertiesLanguage}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiFileFactory
@@ -12,9 +13,10 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.extensions.inWriteAction
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
-import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtExtendedArtifactInfo}
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtDependencyUtils, SbtExtendedArtifactInfo}
 
 import java.util.concurrent.ConcurrentLinkedDeque
+import scala.jdk.CollectionConverters._
 
 class SbtScalaVersionCompletionContributor extends CompletionContributor{
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern || SbtPsiElementPatterns.propertiesFilePattern) &&
@@ -70,13 +72,11 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
 
       def trimDummy(text: String) = text.replaceAll(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED, "").replaceAll("\"", "")
 
-      val newResult = result.withRelevanceSorter(
-        CompletionService.getCompletionService.defaultSorter(parameters, result.getPrefixMatcher).weigh(SbtDependencyVersionWeigher)
-      ).withPrefixMatcher(trimDummy(place.getText))
+      val newResult = result.withRelevanceSorter(CompletionSorter.emptySorter().weigh(new RealPrefixMatchingWeigher).weigh(SbtDependencyVersionWeigher)).withPrefixMatcher(trimDummy(place.getText))
 
       implicit val project: Project = place.getProject
 
-      versionSeq.foreach(ver => newResult.addElement(new LookupElement {
+      val res = versionSeq.sortWith(SbtDependencyUtils.isGreaterStableVersion).map(ver => new LookupElement {
         override def getLookupString: String = ver
         override def handleInsert(context: InsertionContext):Unit = {
           val caretModel = context.getEditor.getCaretModel
@@ -97,10 +97,11 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
             }
           }
         }
-      }))
+      })
+      newResult.addAllElements(res.asJava)
       newResult.stopHere()
     } catch {
-      case e: Exception =>
+      case _: Exception =>
     }
   })
 }

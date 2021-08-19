@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion._
+import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.project.Project
@@ -29,6 +30,10 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
 
   extend(CompletionType.BASIC, PATTERN, new CompletionProvider[CompletionParameters] {
     override def addCompletions(params: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = try {
+
+      /* Disable ML Completion */
+
+
       val useCache: Boolean = if (params.isExtendedCompletion) false else true
       val searchParams = CustomPackageSearchParams(useCache = useCache)
       val stableVersionOnly: Boolean = if (params.isExtendedCompletion) false else true
@@ -110,9 +115,8 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
           throw e
       }
 
-      def addVersionResult(result: String, tailText: String, resultSet: CompletionResultSet):Unit = {
-        resultSet.addElement(new LookupElement {
-
+      def generateVersionLookupElement(result: String, tailText: String, weigh: Int = 0): LookupElement = {
+        PrioritizedLookupElement.withPriority(new LookupElement {
           override def getLookupString: String = result
 
           override def renderElement(presentation: LookupElementPresentation): Unit = {
@@ -121,7 +125,11 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
             presentation.setTailText(" ")
             presentation.appendTailTextItalic(tailText, true)
           }
-        })
+        }, weigh)
+      }
+
+      def addVersionResult(result: String, tailText: String, resultSet: CompletionResultSet):Unit = {
+        resultSet.addElement(generateVersionLookupElement(result, tailText))
       }
 
       def fillInVersions(groupId: String, artifactId: String, scalaVer: String): Unit = {
@@ -203,7 +211,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
                   val artifactId = s"${extractedContents(1).asInstanceOf[String]}"
                   if (groupId == null || groupId.isEmpty || artifactId == null || artifactId.isEmpty) return
 
-                  val newResultSet = resultSet.withRelevanceSorter(CompletionService.getCompletionService.defaultSorter(params, resultSet.getPrefixMatcher).weigh(SbtDependencyVersionWeigher))
+                  val newResultSet = resultSet.withRelevanceSorter(CompletionSorter.emptySorter().weigh(new RealPrefixMatchingWeigher).weigh(SbtDependencyVersionWeigher))
 
                   val isScalaLib = SbtDependencyUtils.isScalaLibraryDependency(libDepExprTuple._1)
                   if (!isScalaLib) {
