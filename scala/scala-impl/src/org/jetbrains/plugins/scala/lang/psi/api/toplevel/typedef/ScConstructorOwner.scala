@@ -24,7 +24,7 @@ trait ScConstructorOwner extends ScTypeDefinition
     _.unsafeClassParameters
   }
 
-  def secondaryConstructors: Seq[ScFunction] =  functions.filter {
+  def secondaryConstructors: Seq[ScFunction] = functions.filter {
     _.isConstructor
   }
 

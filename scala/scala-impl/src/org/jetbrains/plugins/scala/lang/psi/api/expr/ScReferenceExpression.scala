@@ -5,6 +5,7 @@ package api
 package expr
 
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameter
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -21,10 +22,7 @@ trait ScReferenceExpression extends ScExpression
 
   final def isQualified: Boolean = qualifier.isDefined
 
-  override final def qualifier: Option[ScExpression] = getFirstChild match {
-    case e: ScExpression => Some(e)
-    case _ => None
-  }
+  override final def qualifier: Option[ScExpression] = getFirstChild.asOptionOf[ScExpression]
 
   def assignment: ScAssignment
 

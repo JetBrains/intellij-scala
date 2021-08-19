@@ -3,9 +3,7 @@ package lang
 package resolve
 package processor
 
-import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi._
-import com.intellij.psi.util.PsiTreeUtil.isContextAncestor
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
@@ -14,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScObject, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScTypeParametersOwner, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScPackageImpl
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -23,9 +21,9 @@ import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{ScMethodType, ScTypePolymorphicType}
-import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
+import org.jetbrains.plugins.scala.lang.resolve.MethodTypeProvider._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.util.SAMUtil
@@ -95,14 +93,15 @@ class MethodResolveProcessor(override val ref: PsiElement,
               extensionContext         = extensionContext
             )
           )
-        case _: ScClass =>
         case o: ScObject if o.isPackageObject =>  // do not resolve to package object
         case obj: ScObject if ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall] =>
           val functionName = if (isUpdate) "update" else "apply"
+
           val typeResult = fromType match {
             case Some(tp) => Right(ScProjectionType(tp, obj))
-            case _ => obj.`type`()
+            case _        => obj.`type`()
           }
+
           val processor = new CollectMethodsProcessor(ref, functionName)
 
           // keep information about imports for proper precedence
@@ -111,20 +110,54 @@ class MethodResolveProcessor(override val ref: PsiElement,
 
           val sigs = processor.candidatesS.flatMap {
             case ScalaResolveResult(meth: PsiMethod, subst) => Some((meth, subst))
-            case _ => None
+            case _                                          => None
           }.toSeq
-          val seq = sigs.map {
+
+          val withAccessibilityCheck = sigs.map {
             case (m, subst) =>
-              new ScalaResolveResult(m, subst, importsUsed, renamed,
-                implicitConversion = implFunction, implicitType = implType, fromType = fromType, parentElement = Some(obj),
-                isAccessible = accessible && isAccessible(m, ref), isForwardReference = forwardReference,
-                unresolvedTypeParameters = unresolvedTypeParameters)
-          }.filter { r => !accessibility || r.isAccessible }
-          if (seq.nonEmpty) addResults(seq)
+              new ScalaResolveResult(
+                m,
+                subst,
+                importsUsed,
+                renamed,
+                implicitConversion       = implFunction,
+                implicitType             = implType,
+                fromType                 = fromType,
+                parentElement            = Some(obj),
+                isAccessible             = accessible && isAccessible(m, ref),
+                isForwardReference       = forwardReference,
+                unresolvedTypeParameters = unresolvedTypeParameters
+              )
+          }.filter(r => !accessibility || r.isAccessible)
+
+          if (withAccessibilityCheck.nonEmpty) addResults(withAccessibilityCheck)
           else addResult(new ScalaResolveResult(namedElement, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, isNamedParameter = isNamedParameter,
             fromType = fromType, isAccessible = accessible, isForwardReference = forwardReference,
             unresolvedTypeParameters = unresolvedTypeParameters))
+        case cls: PsiClass
+          if ref.isInScala3Module &&
+            (ref.getParent.isInstanceOf[ScMethodCall] || ref.getParent.isInstanceOf[ScGenericCall]) =>
+          // process constructor proxies
+          val constructors = cls.constructors
+
+          val withAccessibilityCheck =
+            constructors.view.map { cons =>
+              new ScalaResolveResult(
+                cons,
+                ScSubstitutor.empty,
+                importsUsed,
+                renamed,
+                implicitConversion = implFunction,
+                implicitType       = implType,
+                fromType           = fromType,
+                parentElement      = Option(cls),
+                isAccessible       = isAccessible(cons, ref),
+                isForwardReference = forwardReference,
+              )
+            }.filter(srr => !accessibility || srr.isAccessible)
+
+          addResults(withAccessibilityCheck)
         case synthetic: ScSyntheticFunction =>
           addResult(new ScalaResolveResult(synthetic, s, importsUsed, renamed,
             implicitConversion = implFunction, implicitType = implType, fromType = fromType, isAccessible = accessible,
@@ -182,8 +215,6 @@ class MethodResolveProcessor(override val ref: PsiElement,
 }
 
 object MethodResolveProcessor {
-  private lazy val LOG: Logger = Logger.getInstance("#org.jetbrains.plugins.scala.lang.resolve.processor.MethodResolveProcessor")
-
   private def problemsFor(
     c:                      ScalaResolveResult,
     checkWithImplicits:     Boolean,
@@ -237,6 +268,9 @@ object MethodResolveProcessor {
       tempSubstitutor.followed(ScSubstitutor.bind(prevTypeInfo ++ unresovledTps)(UndefinedType(_)))
 
     val typeParameters: Seq[TypeParameter] = prevTypeInfo ++ (element match {
+      case ScalaConstructor(cons) => cons.getConstructorTypeParameters.map(TypeParameter(_))
+      case cons @ Constructor.ofClass(cls) =>
+        (cls.getTypeParameters ++ cons.getTypeParameters).toSeq.map(TypeParameter(_))
       case fun: ScFunction => fun.typeParameters.map(TypeParameter(_))
       case fun: PsiMethod  => fun.getTypeParameters.map(TypeParameter(_)).toSeq
       case _               => Seq.empty
@@ -254,23 +288,32 @@ object MethodResolveProcessor {
       }
 
       val expected = eOption.get
+
       val retType: ScType = element match {
-        case f: ScFunction if f.paramClauses.clauses.length > 1 &&
-          !f.paramClauses.clauses(1).isImplicit =>
+        case cons @ ScalaConstructor.in(td: ScTypeDefinition) =>
+          val bindTypeParamsSubst = ScSubstitutor.bind(td.typeParameters, cons.getConstructorTypeParameters)(TypeParameterType(_))
+          substitutor(bindTypeParamsSubst(td.`type`().getOrNothing))
+        case Constructor.ofClass(cls) =>
+          substitutor(ScalaPsiUtil.constructTypeForPsiClass(cls)((tp, _) => TypeParameterType(tp)))
+        case f: ScFunction
+            if f.paramClauses.clauses.length > 1 &&
+              !f.paramClauses.clauses(1).isImplicit =>
           problems += ExpectedTypeMismatch //do not check expected types for more than one param clauses
           Nothing
         case f: ScFunction => substitutor(f.returnType.getOrNothing)
-        case f: ScFun => substitutor(f.retType)
-        case m: PsiMethod =>
-          Option(m.getReturnType).map { rt =>
-            substitutor(rt.toScType())
-          }.getOrElse(Nothing)
+        case f: ScFun      => substitutor(f.retType)
+        case m: PsiMethod  =>
+          Option(m.getReturnType)
+            .map(rt => substitutor(rt.toScType()))
+            .getOrElse(Nothing)
         case _ => Nothing
       }
+
       val conformance = retType.typeSystem.conformsInner(expected, retType)
       if (conformance.isLeft && !expected.equiv(api.Unit)) {
         problems += ExpectedTypeMismatch
       }
+
       result match {
         case Some(aResult) =>
           val constraints =
@@ -369,55 +412,25 @@ object MethodResolveProcessor {
       }
     }
 
-    def constructorCompatibility(constr: PsiMethod, classTypeParameters: Seq[PsiTypeParameter]): ConformanceExtResult = {
-      def isSubstituted(p: PsiTypeParameter): Boolean = {
-        val tpt = TypeParameterType(p)
-        substitutor(tpt) != tpt
-      }
-
-      val allTypeParametersDefined =
-        classTypeParameters.forall { p =>
-          isContextAncestor(p.getOwner, ref, true) || isSubstituted(p)
-        }
-
-      if (typeArgElements.isEmpty || allTypeParametersDefined) {
-        val result =
-          Compatibility.compatible(realResolveResult, substitutor, argumentClauses, checkWithImplicits, isShapeResolve)
-        problems ++= result.problems
-        result.copy(problems = problems.result())
-      } else {
-        val problem = InternalApplicabilityProblem(
-          ScalaBundle.message("not.all.type.parameters.are.defined", typeArgElements.mkString(", "), classTypeParameters.mkString(", "))
-        )
-        LOG.warn(problem.toString)
-        problems += problem
-        ConformanceExtResult(problems.result())
-      }
-    }
-
-    def scalaConstructorCompatibility(constr: ScMethodLike): ConformanceExtResult = {
-      val classTypeParameters = constr.getClassTypeParameters.map(_.typeParameters).getOrElse(Seq())
-      constructorCompatibility(constr, classTypeParameters)
-    }
-
-    def javaConstructorCompatibility(constr: PsiMethod): ConformanceExtResult = {
-      val classTypeParmeters = constr.containingClass.getTypeParameters
-      constructorCompatibility(constr, classTypeParmeters.toSeq)
-    }
-
     def checkSimpleApplication(
-      e:          PsiNamedElement,
       typeParams: Seq[PsiTypeParameter]
     ): ConformanceExtResult = {
-      val typeArgCount   = typeArgElements.length
-      val typeParamCount = typeParams.length
+      //if we are processing constuctor proxies, take class type parameters into account
+      val typeParamsWithCls = element match {
+        case Constructor.ofClass(cls) => typeParams ++ cls.getTypeParameters.toSeq
+        case _                        => typeParams
+      }
 
-      if (typeArgCount > 0 && typeArgCount != typeParamCount) {
+      val typeArgCount         = typeArgElements.length
+      val typeParamCount       = typeParamsWithCls.length
+      val isAliasedConstructor = realResolveResult.parentElement.exists(_.is[ScTypeAliasDefinition])
+
+      if (!isAliasedConstructor && typeArgCount > 0 && typeArgCount != typeParamCount) {
         if (typeParamCount == 0) problems += DoesNotTakeTypeParameters
         else if (typeParamCount < typeArgCount)
           problems ++= typeArgElements.drop(typeParamCount).map(ExcessTypeArgument)
         else
-          problems ++= typeParams
+          problems ++= typeParamsWithCls
             .drop(typeArgCount)
             .map(ptp => MissedTypeParameter(TypeParameter(ptp)))
 
@@ -464,16 +477,12 @@ object MethodResolveProcessor {
           problems += DoesNotTakeParameters
         }
         ConformanceExtResult(problems.result())
-      case _: PsiClass =>
-        ConformanceExtResult(problems.result())
-      case _: ScTypeAlias =>
-        ConformanceExtResult(problems.result())
+      case _: PsiClass    => ConformanceExtResult(problems.result())
+      case _: ScTypeAlias => ConformanceExtResult(problems.result())
       //Implicit Application
       case f: ScMethodLike if hasMalformedSignature(f) =>
         problems += MalformedDefinition(f.name)
         ConformanceExtResult(problems.result())
-      case ScalaConstructor(constructor) => scalaConstructorCompatibility(constructor)
-      case JavaConstructor(constructor) => javaConstructorCompatibility(constructor)
       case fun: ScFunction if (typeArgElements.isEmpty ||
               typeArgElements.length == fun.typeParameters.length) && fun.paramClauses.clauses.length == 1 &&
               fun.paramClauses.clauses.head.isImplicitOrUsing && //@TODO: multiple using clauses ???
@@ -489,8 +498,8 @@ object MethodResolveProcessor {
             typeArgElements.length == fun.getTypeParameters.length) && argumentClauses.isEmpty =>
         checkFunction(fun, fun.getTypeParameters.nonEmpty)
       //simple application including empty application
-      case tpOwner: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication(tpOwner, tpOwner.typeParameters)
-      case tpOwner: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication(tpOwner, tpOwner.getTypeParameters.toSeq)
+      case tpOwner: ScTypeParametersOwner with PsiNamedElement     => checkSimpleApplication(tpOwner.typeParameters)
+      case tpOwner: PsiTypeParameterListOwner with PsiNamedElement => checkSimpleApplication(tpOwner.getTypeParameters.toSeq)
       case _ =>
         if (typeArgElements.nonEmpty) problems += DoesNotTakeTypeParameters
         if (argumentClauses.nonEmpty) problems += DoesNotTakeParameters
@@ -499,10 +508,8 @@ object MethodResolveProcessor {
 
     if (result.problems.forall(_ == ExpectedTypeMismatch)) {
       val maybeResult = result.constraints match {
-        case undefined@ConstraintSystem(newSubstitutor) =>
-          val typeParamIds = typeParameters.map {
-            _.typeParamId
-          }.toSet
+        case undefined @ ConstraintSystem(newSubstitutor) =>
+          val typeParamIds = typeParameters.map(_.typeParamId).toSet
 
           var uSubst = undefined
           for (TypeParameter(tParam, _, lowerType, upperType) <- typeParameters) {
@@ -553,6 +560,8 @@ object MethodResolveProcessor {
     implicit val ctx: ProjectContext = element
 
     val maybeTypeParameters: Option[Seq[PsiTypeParameter]] = element match {
+      case ScalaConstructor(cons)          => Option(cons.getConstructorTypeParameters)
+      case cons @ Constructor.ofClass(cls) => Option((cls.getTypeParameters ++ cons.getTypeParameters).toSeq)
       case fun: ScFunction if !isExtension => Option(fun.typeParametersWithExtension)
       case t: ScTypeParametersOwner        => Option(t.typeParameters)
       case p: PsiTypeParameterListOwner    => Option(p.getTypeParameters.toSeq)
@@ -583,33 +592,33 @@ object MethodResolveProcessor {
     //We want to leave only fields and properties from inherited classes, this is important, because
     //field in base class is shadowed by private field from inherited class
     val input: Set[ScalaResolveResult] = _input.filter { r =>
-        r.element match {
-          case f: ScFunction if f.hasParameterClause => true
-          case b: ScTypedDefinition =>
-            b.nameContext match {
-              case m: ScMember =>
-                val clazz1: ScTemplateDefinition = m.containingClass
-                if (clazz1 == null) true
-                else {
-                  _input.forall { r2 =>
-                      r2.element match {
-                        case f: ScFunction if f.hasParameterClause => true
-                        case b2: ScTypedDefinition =>
-                          b2.nameContext match {
-                            case m2: ScMember =>
-                              val clazz2: ScTemplateDefinition = m2.containingClass
-                              if (clazz2 == null) true
-                              else clazz1.sameOrInheritor(clazz2)
-                            case _ => true
-                          }
+      r.element match {
+        case f: ScFunction if f.hasParameterClause => true
+        case b: ScTypedDefinition =>
+          b.nameContext match {
+            case m: ScMember =>
+              val clazz1: ScTemplateDefinition = m.containingClass
+              if (clazz1 == null) true
+              else {
+                _input.forall { r2 =>
+                  r2.element match {
+                    case f: ScFunction if f.hasParameterClause => true
+                    case b2: ScTypedDefinition =>
+                      b2.nameContext match {
+                        case m2: ScMember =>
+                          val clazz2: ScTemplateDefinition = m2.containingClass
+                          if (clazz2 == null) true
+                          else clazz1.sameOrInheritor(clazz2)
                         case _ => true
                       }
+                    case _ => true
                   }
                 }
-              case _ => true
-            }
-          case _ => true
-        }
+              }
+            case _ => true
+          }
+        case _ => true
+      }
     }
 
     var mapped   = checkResultsApplicability(proc, input, checkWithImplicits = false, useExpectedType)

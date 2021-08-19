@@ -283,7 +283,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       val tps = invoked match {
         case ref: ScReferenceExpression =>
           if (!withResolvedFunction) mapResolves(ref.shapeResolve, ref.shapeMultiType)
-          else mapResolves(ref.multiResolveScala(false), ref.multiType)
+          else                       mapResolves(ref.multiResolveScala(false), ref.multiType)
         case gen: ScGenericCall =>
           if (!withResolvedFunction) {
             val multiType = gen.shapeMultiType
@@ -679,6 +679,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
 
     def superSignature(name: String, containingClass: PsiClass) = {
       val sigs = TypeDefinitionMembers.getSignatures(containingClass).forName(name)
+
       sigs.nodesIterator.collectFirst {
         case node if node.info.paramLength == 0 =>
           node.primarySuper.map(_.info).filter(isParameterless)
@@ -686,15 +687,15 @@ class ExpectedTypesImpl extends ExpectedTypes {
     }
 
     val maybeName = m match {
-      case v: ScValueOrVariable => v.declaredNames.headOption
+      case v: ScValueOrVariable                     => v.declaredNames.headOption
       case cp: ScClassParameter if cp.isClassMember => Some(cp.name)
-      case _ => None
+      case _                                        => None
     }
 
     for {
-      name <- maybeName
+      name            <- maybeName
       containingClass <- m.containingClass.toOption
-      signature <- superSignature(name, containingClass)
+      signature       <- superSignature(name, containingClass)
     } yield {
       signature
     }
