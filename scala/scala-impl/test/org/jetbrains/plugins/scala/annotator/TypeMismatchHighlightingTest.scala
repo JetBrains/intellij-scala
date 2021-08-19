@@ -399,6 +399,45 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     "val v: Int = 1 match { case _ => }",
     Error("", "Expression expected"))
 
+  // Aggregate if, SCL-19460
+
+  def testIfFirst(): Unit = assertErrors(
+    "val v: String = if (true) 1 else \"2\"",
+    Hint("1", ": Int"),
+    Error("1", "Expression of type Int doesn't conform to expected type String"))
+
+  def testIfSecond(): Unit = assertErrors(
+    "val v: String = if (true) \"1\" else 2",
+    Hint("2", ": Int"),
+    Error("2", "Expression of type Int doesn't conform to expected type String"))
+
+  def testIfBoth(): Unit = assertErrors(
+    "val v: String = if (true) 1 else 2",
+    Hint("if (true) 1 else 2", "("), Hint("if (true) 1 else 2", "): Int"),
+    Error("if (true) 1 else 2", "Expression of type Int doesn't conform to expected type String"))
+
+  // Aggregate match, SCL-19460
+
+  def testMatchOneCaseOnly(): Unit = assertErrors(
+    "val v: String = 1 match { case _ => 1 }",
+    Hint("1", ": Int"),
+    Error("1", "Expression of type Int doesn't conform to expected type String"))
+
+  def testMatchOneCaseOfMany(): Unit = assertErrors(
+    "val v: String = 1 match { case _ => \"1\"; case _ => 2 }",
+    Hint("2", ": Int"),
+    Error("2", "Expression of type Int doesn't conform to expected type String"))
+
+  def testMatchAllCases(): Unit = assertErrors(
+    "val v: String = 1 match { case _ => 1; case _ => 2 }",
+    Hint("1 match { case _ => 1; case _ => 2 }", "("), Hint("1 match { case _ => 1; case _ => 2 }", "): Int"),
+    Error("1 match { case _ => 1; case _ => 2 }", "Expression of type Int doesn't conform to expected type String"))
+
+  def testMatchAllCasesUnit(): Unit = assertErrors(
+    "val v: Int = 1 match { case _ =>; case _ => }",
+    Error(";", "Expression expected"),
+    Error("", "Expression expected"))
+
   def testSCL10608(): Unit = {
     assertErrors(
       """

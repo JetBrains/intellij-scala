@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightSettings
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScInfixExpr, ScPostfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScFunctionExpr, ScIf, ScInfixExpr, ScMatch, ScPostfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, TypePresentationContext}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -25,7 +25,7 @@ object TypeMismatchHints {
   private[annotator] def createFor(element: PsiElement, expectedType: ScType, actualType: ScType)(implicit scheme: EditorColorsScheme, context: TypePresentationContext): AnnotatorHints = {
     val format = element match {
       case Parent(infix: ScInfixExpr) if infix.isRightAssoc && infix.argsElement == element => OuterParentheses
-      case _: ScInfixExpr | _: ScPostfixExpr | _: ScFunctionExpr => InnerParentheses
+      case _: ScInfixExpr | _: ScPostfixExpr | _: ScFunctionExpr | _: ScIf | _: ScMatch => InnerParentheses
       case _ => Plain
     }
 
