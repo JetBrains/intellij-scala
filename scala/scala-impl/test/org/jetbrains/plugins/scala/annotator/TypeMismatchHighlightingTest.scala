@@ -389,13 +389,31 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
   
   // Incomplete if-then-else, SCL-18862
 
+  def testIncompleteIfThenElseNoExpectedType(): Unit = assertErrors(
+    "val v = if (true) 1")
+
+  def testIncompleteIfThenElseExpectedTypeUnit(): Unit = assertErrors(
+    "val v: Unit = if (true) ()")
+
+  def testIncompleteIfThenElseExpectedTypeAny(): Unit = assertErrors(
+    "val v: Any = if (true) 1")
+
   def testIncompleteIfThenElse(): Unit = assertErrors(
     "val v: Int = if (true) 1",
     Error("", "'else' expected"))
 
   // Incomplete case clause, SCL-19447
 
-  def testIncompleteMatch(): Unit = assertErrors(
+  def testIncompleteCaseNoExpectedType(): Unit = assertErrors(
+    "val v = 1 match { case _ => }")
+
+  def testIncompleteCaseExpectedTypeUnit(): Unit = assertErrors(
+    "val v: Unit = 1 match { case _ => }")
+
+  def testIncompleteCaseExpectedTypeAny(): Unit = assertErrors(
+    "val v: Any = 1 match { case _ => }")
+
+  def testIncompleteCase(): Unit = assertErrors(
     "val v: Int = 1 match { case _ => }",
     Error("", "Expression expected"))
 
