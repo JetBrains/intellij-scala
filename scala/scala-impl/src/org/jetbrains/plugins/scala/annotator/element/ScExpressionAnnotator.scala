@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.project.ProjectContext
+import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
 
 import scala.annotation.tailrec
@@ -49,20 +50,37 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
         // Highlight if-then with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
         case it: ScIf if it.thenExpression.nonEmpty && it.elseExpression.isEmpty &&
-          typeAware && it.expectedType().exists(et => it.getTypeAfterImplicitConversion().tr.exists(!_.conforms(et))) =>
+          typeAware && it.expectedType().exists(et => it.`type`().exists(!_.conforms(et))) =>
           val offset = it.getTextOffset + it.getTextLength
           holder.createErrorAnnotation(TextRange.create(offset, offset), ScalaBundle.message("else.expected"))
             .setAfterEndOfLine(charAt(offset).contains('\n'))
 
         // Highlight empty case clauses with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
         case block: ScBlock if block.getParent.is[ScCaseClause] && block.exprs.isEmpty &&
-          typeAware && block.expectedType().exists(et => block.getTypeAfterImplicitConversion().tr.exists(!_.conforms(et))) =>
+          typeAware && block.expectedType().exists(et => block.`type`().exists(!_.conforms(et))) =>
           holder.createErrorAnnotation(block, ScalaBundle.message("expression.expected"))
             .setAfterEndOfLine(charAt(block.getTextOffset + block.getTextLength).contains('\n'))
 
         case _ => checkExpressionType(element, typeAware)
       }
     }
+  }
+
+  // TODO Can `type` do this automatically?
+  def adjusted(tpe: ScType, expected: Option[ScType]): ScType = if (expected.exists(_.is[ScLiteralType])) tpe else tpe.widenIfLiteral
+
+  def isAggregate(e: ScExpression): Boolean = e match {
+    case ScIf(_, thenExpr, elseExpr) =>
+      thenExpr.exists(_.`type`().exists(thenType => elseExpr.exists(_.`type`().exists(elseType => adjusted(thenType, e.expectedType()).equiv(adjusted(elseType, e.expectedType()))))))
+    case ScMatch(_, Seq(firstCase, otherCases @ _*)) if otherCases.nonEmpty && firstCase.resultExpr.isDefined && otherCases.forall(_.resultExpr.isDefined)=>
+      firstCase.expr.exists(_.`type`().exists(t0 => otherCases.forall(_.expr.exists(_.`type`().exists(tn => adjusted(t0, e.expectedType()).equiv(adjusted(tn, e.expectedType())))))))
+    case _ => false
+  }
+
+  def isAggregatePart(e: ScExpression): Boolean = e match {
+    case Parent(it @ ScIf(_, thenExpr, elseExpr)) if thenExpr.contains(e) || elseExpr.contains(e) => isAggregate(it)
+    case Parent(Parent(ScCaseClause(_, _, block) && Parent(Parent(m: ScMatch)))) if block.exists(_.getFirstChild == e) => isAggregate(m)
+    case _ => false
   }
 
   def checkExpressionType(element: ScExpression, typeAware: Boolean, fromFunctionLiteral: Boolean = false)
@@ -83,14 +101,16 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
         case _                                   => false
       }
 
+    val hintsEnabled = ScalaProjectSettings.in(element.getProject).isTypeMismatchHints
+
     // TODO rename (it's not about size, but about inner / outer expressions)
     def isTooBigToHighlight(expr: ScExpression): Boolean = expr match {
-      case _: ScMatch                                => true
+      case m: ScMatch                                => !(hintsEnabled && isAggregate(m))
       case bl: ScBlock if bl.resultExpression.isDefined => !fromFunctionLiteral
-      case i: ScIf if i.elseExpression.isDefined     => true
+      case i: ScIf if i.elseExpression.isDefined     => !(hintsEnabled && isAggregate(i))
       case _: ScFunctionExpr                         => !fromFunctionLiteral && (expr.getTextRange.getLength > 20 || expr.textContains('\n'))
       case _: ScTry                                  => true
-      case _                                         => false
+      case e                                         => hintsEnabled && isAggregatePart(e)
     }
 
     def shouldNotHighlight(expr: ScExpression): Boolean = expr.getContext match {
