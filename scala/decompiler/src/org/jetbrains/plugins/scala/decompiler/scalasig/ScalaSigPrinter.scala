@@ -771,7 +771,7 @@ object ScalaSigPrinter {
 
   private val defaultParamMarker = "$default$"
 
-  implicit class StringFixes(private val str: String) extends AnyVal {
+  private implicit class StringFixes(private val str: String) extends AnyVal {
     def decode: String = NameTransformer.decode(str)
 
     //noinspection MutatorLikeMethodIsParameterless

@@ -49,6 +49,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt, TermSignature}
 import org.jetbrains.plugins.scala.lang.psi.{ElementScope, ScalaPsiUtil}
+import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.util.ScEquivalenceUtil.areClassesEquivalent
 import org.jetbrains.plugins.scala.util.ScalaPluginUtils
@@ -475,6 +476,12 @@ package object extensions {
     def lowercased: String =
       if (string == null || string.length == 0 || !string.charAt(0).isUpper) string
       else string.updated(0, string.charAt(0).toLower)
+
+    def escapeNonIdentifiers: String = {
+      import ScalaNamesValidator.{isIdentifier, isKeyword}
+      if (!isIdentifier(string) || isKeyword(string) || string == "=") "`" + string + "`"
+      else string
+    }
   }
 
   object StringExt {

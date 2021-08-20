@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.ThrowableRunnable
-import org.jetbrains.plugins.scala.decompiler.scalasig.ScalaSigPrinter.StringFixes
+import org.jetbrains.plugins.scala.extensions.StringExt
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase.Result
 import org.jetbrains.plugins.scala.util.TestUtils
 
