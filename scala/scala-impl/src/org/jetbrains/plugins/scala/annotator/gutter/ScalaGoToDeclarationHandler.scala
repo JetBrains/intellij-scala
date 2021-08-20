@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.IsTemplateDefinitio
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackage
-import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScReference}
+import org.jetbrains.plugins.scala.lang.psi.api.base.{Constructor, ScEnd, ScReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScAssignment, ScEnumerator, ScSelfInvocation}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScEnumCase}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScEnumCase, ScFunction}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportSelectors
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
@@ -45,6 +45,12 @@ class ScalaGoToDeclarationHandler extends GotoDeclarationHandler {
     if (!sourceElement.getLanguage.isKindOf(ScalaLanguage.INSTANCE)) return null
 
     val maybeParent = sourceElement.parent
+    maybeParent match {
+      case Some(end: ScEnd) if end.endingElementDesignator == sourceElement =>
+        return end.resolve().toOption.toArray
+      case _ =>
+    }
+
     sourceElement.getNode.getElementType match {
       case IsTemplateDefinition() =>
         val typeDefinition = PsiTreeUtil.getParentOfType(element, classOf[ScTypeDefinition])

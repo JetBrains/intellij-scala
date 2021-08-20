@@ -1,15 +1,15 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
 import java.io.File
-
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.base.FailableTest
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
@@ -26,10 +26,10 @@ trait SimpleResolveTestBase {
 
   protected def folderPath: String = TestUtils.getTestDataPath + "/resolve/"
 
-  protected def getSrc(source: String, file: PsiFile): ScReference = {
+  protected def getSrc(source: String, file: PsiFile): PsiReference = {
     val srcOffset = source.replaceAll(REFTGT, "").indexOf(REFSRC)
     if (srcOffset != -1)
-      PsiTreeUtil.getParentOfType(file.findElementAt(srcOffset), classOf[ScReference])
+      file.findElementAt(srcOffset).withParents.map(_.getReference).find(_ != null).orNull
     else null
   }
 
@@ -46,8 +46,8 @@ trait SimpleResolveTestBase {
   protected def doResolveTest(target: PsiElement, sources: (String, String)*): Unit =
     doResolveTest(target = Some(target), shouldResolve = true, sources: _*)
 
-  protected def setupResolveTest(target: Option[PsiElement], sources: (String, String)*): (ScReference, PsiElement) = {
-    var src: ScReference = null
+  protected def setupResolveTest(target: Option[PsiElement], sources: (String, String)*): (PsiReference, PsiElement) = {
+    var src: PsiReference = null
     var tgt: PsiElement = target.orNull
 
     def configureFile(file: (String, String), configureFun: (String, String) => PsiFile): Unit = {
@@ -74,7 +74,7 @@ trait SimpleResolveTestBase {
     val (src, tgt) = setupResolveTest(target, sources: _*)
     val result = src.resolve()
     if (shouldPass) {
-      if (shouldResolve) Assert.assertNotNull(s"Failed to resolve element - '${src.getText}'", result)
+      if (shouldResolve) Assert.assertNotNull(s"Failed to resolve element - '${src.getElement.getText}'", result)
       else               Assert.assertNull("Reference '${src.getText}' must not resolve", result)
     } else if (result == null) {
       if (!shouldResolve) Assert.fail(failingPassed + ": failed to resolve element")
@@ -83,7 +83,7 @@ trait SimpleResolveTestBase {
 
     // we might want to check if reference simply resolves to something
     if (tgt != null)
-      if (shouldPass) Assert.assertTrue(s"Reference(${src.getText}) resolves to wrong place(${result.getText})", tgt == result)
+      if (shouldPass) Assert.assertTrue(s"Reference(${src.getElement.getText}) resolves to wrong place(${result.getText})", tgt == result)
        else           Assert.assertFalse(failingPassed, tgt == result)
   }
 

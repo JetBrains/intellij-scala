@@ -4,9 +4,9 @@ package psi
 package api
 package base
 
-import com.intellij.psi.PsiElement
+import com.intellij.psi.{PsiElement, PsiReference}
 
-trait ScEnd extends ScalaPsiElement {
+trait ScEnd extends ScalaPsiElement with PsiReference {
   /**
    * @return the token that designates which element is ended by this end-element
    */
