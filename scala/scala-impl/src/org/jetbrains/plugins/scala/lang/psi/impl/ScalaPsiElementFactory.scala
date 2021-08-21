@@ -891,7 +891,7 @@ object ScalaPsiElementFactory {
 
     val result = first.getPsi
     if (checkLength && result.getTextLength != seq.length) {
-      throw new IncorrectOperationException(s"Text length differs; actual: ${result.getText}, expected: $seq")
+      throw new ScalaPsiElementCreationException(s"Text length differs; actual: ${result.getText}, expected: $seq", null)
     }
     result
   }
