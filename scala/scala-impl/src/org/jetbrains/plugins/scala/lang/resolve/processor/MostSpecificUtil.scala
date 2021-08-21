@@ -66,7 +66,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     }
   }
 
-  def nextMostSpecific(rest: Set[ScalaResolveResult]): Option[ScalaResolveResult] = {
+  def nextMostSpecific(rest: Iterable[ScalaResolveResult]): Option[ScalaResolveResult] = {
     nextMostSpecificGeneric(rest.map(toInnerSRR)).map(_.repr)
   }
 
@@ -328,7 +328,7 @@ case class MostSpecificUtil(elem: PsiElement, length: Int) {
     (Some(found), builder.result())
   }
 
-  private def nextMostSpecificGeneric[T](rest: Set[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {
+  private def nextMostSpecificGeneric[T](rest: Iterable[InnerScalaResolveResult[T]]): Option[InnerScalaResolveResult[T]] = {
     if (rest.isEmpty) return None
     if (rest.size == 1) return Some(rest.head)
 

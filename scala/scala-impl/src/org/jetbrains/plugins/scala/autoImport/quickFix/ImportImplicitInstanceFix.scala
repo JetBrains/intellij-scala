@@ -11,11 +11,10 @@ import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportElementFix.isE
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector
-import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.TypeDoesntConformResult
 import org.jetbrains.plugins.scala.lang.psi.stubs.index.ImplicitInstanceIndex
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors.withStableInheritorsNames
+import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.util.CommonQualifiedNames.{AnyFqn, AnyRefFqn, JavaObjectFqn}
@@ -67,7 +66,7 @@ object ImportImplicitInstanceFix {
       case TypeToSearch(path, scType) => findCompatibleInstances(scType, owner).map(FoundImplicit(_, path, scType))
     }
     val alreadyImported =
-      ImplicitCollector.visibleImplicits(owner, None).flatMap(GlobalImplicitInstance.from)
+      ImplicitCollector.visibleImplicits(owner).flatMap(GlobalImplicitInstance.from)
 
     allInstances
       .distinctBy(_.instance)
@@ -106,7 +105,7 @@ object ImportImplicitInstanceFix {
       compatibleInstances(typeToSearch, owner.resolveScope, owner)
 
     val availableByType =
-      ImplicitCollector.implicitsFromType(owner, typeToSearch, None).flatMap(GlobalImplicitInstance.from)
+      ImplicitCollector.implicitsFromType(owner, typeToSearch).flatMap(GlobalImplicitInstance.from)
 
     allInstances -- availableByType
   }
@@ -137,11 +136,7 @@ object ImportImplicitInstanceFix {
     val srr = global.toScalaResolveResult
     collector.checkCompatible(srr, withLocalTypeInference = false)
       .orElse(collector.checkCompatible(srr, withLocalTypeInference = true))
-      .exists(isCompatible)
-  }
-
-  private def isCompatible(srr: ScalaResolveResult): Boolean = {
-    !srr.problems.contains(WrongTypeParameterInferred) && srr.implicitReason != TypeDoesntConformResult
+      .exists(ImplicitCollector.isValidImplicitResult)
   }
 
   private def implicitTypeToSearch(parameter: ScalaResolveResult): Option[ScType] =
