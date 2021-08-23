@@ -40,7 +40,7 @@ final class MakeExplicitAction extends AnAction(
       case value => value
     }
 
-    PlatformDataKeys.SELECTED_ITEM.getData(context) match {
+    PlatformCoreDataKeys.SELECTED_ITEM.getData(context) match {
       case Parameters(function: ScFunction, oldExpression, _, editor, elements) if
       oldExpression != null &&
         editor != null &&

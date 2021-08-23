@@ -64,7 +64,7 @@ class ScalaIntroduceParameterUsageProcessor extends ChangeSignatureUsageProcesso
 
   override def findConflicts(info: ChangeInfo, refUsages: Ref[Array[UsageInfo]]): MultiMap[PsiElement, String] = new MultiMap[PsiElement, String]()
 
-  override def registerConflictResolvers(snapshots: util.List[ResolveSnapshot],
+  override def registerConflictResolvers(snapshots: util.List[_ >: ResolveSnapshot],
                                          resolveSnapshotProvider: ResolveSnapshotProvider,
                                          usages: Array[UsageInfo],
                                          changeInfo: ChangeInfo): Unit = {}

@@ -30,11 +30,11 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
     val inst: Any = constructor.newInstance()
     val method = baseClass.getMethod("registerCustomShortcutSet", classOf[ShortcutSet], classOf[JComponent])
     method.invoke(inst, ActionManager.getInstance.getAction(IdeActions.ACTION_CALL_HIERARCHY).getShortcutSet, tree1)
-    type2TreeMap.put(CALLEE_TYPE, tree1)
+    type2TreeMap.put(getCalleeType, tree1)
     val tree2: JTree = createTree(false)
     PopupHandler.installPopupMenu(tree2, group, ActionPlaces.CALL_HIERARCHY_VIEW_POPUP)
     method.invoke(inst, ActionManager.getInstance.getAction(IdeActions.ACTION_CALL_HIERARCHY).getShortcutSet, tree2)
-    type2TreeMap.put(CALLER_TYPE, tree2)
+    type2TreeMap.put(getCallerType, tree2)
   }
 
   override protected def getElementFromDescriptor(descriptor: HierarchyNodeDescriptor): PsiElement = {
@@ -56,9 +56,9 @@ final class ScalaCallHierarchyBrowser(project: Project, method: PsiMethod)
   }
 
   override protected def createHierarchyTreeStructure(typeName: String, psiElement: PsiElement): HierarchyTreeStructure = {
-    if (CALLER_TYPE.equals(typeName))
+    if (getCallerType.equals(typeName))
       new ScalaCallerMethodsTreeStructure(myProject, psiElement.asInstanceOf[PsiMethod], getCurrentScopeType)
-    else if (CALLEE_TYPE.equals(typeName))
+    else if (getCalleeType.equals(typeName))
       new ScalaCalleeMethodsTreeStructure(myProject, psiElement.asInstanceOf[PsiMethod], getCurrentScopeType)
     else null
   }
