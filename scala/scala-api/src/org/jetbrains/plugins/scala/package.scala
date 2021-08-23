@@ -1,19 +1,14 @@
 package org.jetbrains.plugins
 
 import com.intellij.openapi.application.ApplicationManager.{getApplication => application}
-import com.intellij.openapi.application.ex.ApplicationManagerEx
 import com.intellij.openapi.util.Computable
-import com.intellij.util.SystemProperties
 
 package object scala {
 
   val ScalaLowerCase = "scala"
   val NotImplementedError = "???"
 
-  def isInternalMode: Boolean = application match {
-    case null => SystemProperties.is(ApplicationManagerEx.IS_INTERNAL_PROPERTY)
-    case application => application.isInternal
-  }
+  def isInternalMode: Boolean = application.isInternal
 
   def isUnitTestMode: Boolean = application.isUnitTestMode
 
