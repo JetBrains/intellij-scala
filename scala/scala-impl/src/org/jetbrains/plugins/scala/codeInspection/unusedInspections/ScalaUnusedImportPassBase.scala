@@ -3,7 +3,6 @@ package codeInspection
 package unusedInspections
 
 import java.util
-
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
@@ -12,6 +11,7 @@ import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
 import com.intellij.openapi.editor.Document
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions.Parent
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
 
@@ -29,10 +29,8 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
     unusedImports.filterNot(_.isAlwaysUsed).flatMap {
       (imp: ImportUsed) => {
         val psiOption: Option[PsiElement] = imp match {
-          case ImportExprUsed(expr) if !PsiTreeUtil.hasErrorElements(expr) =>
-            val impSt = expr.getParent.asInstanceOf[ScImportStmt]
-            if (impSt == null) None //todo: investigate this case, this cannot be null
-            else if (impSt.importExprs.size == 1) Some(impSt)
+          case ImportExprUsed(expr@Parent(importStmt: ScImportStmt)) if !PsiTreeUtil.hasErrorElements(expr) =>
+            if (importStmt.importExprs.size == 1) Some(importStmt)
             else Some(expr)
           case ImportSelectorUsed(sel) => Some(sel)
           case ImportWildcardSelectorUsed(e) if e.selectors.nonEmpty => Some(e.wildcardElement.get)

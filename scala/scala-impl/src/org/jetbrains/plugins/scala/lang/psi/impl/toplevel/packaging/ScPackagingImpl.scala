@@ -106,7 +106,7 @@ final class ScPackagingImpl private[psi](stub: ScPackagingStub,
     }
 
     if (isTreeWalkUp) {
-      if (!super[ScImportsHolder].processDeclarations(processor, state, lastParent, place))
+      if (!processDeclarationsFromImports(processor, state, lastParent, place))
         return false
     }
 

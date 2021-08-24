@@ -115,7 +115,7 @@ trait ScBlock extends ScExpression
       lastParent: PsiElement,
       place: PsiElement): Boolean =
     super[ScDeclarationSequenceHolder].processDeclarations(processor, state, lastParent, place) &&
-    super[ScImportsHolder].processDeclarations(processor, state, lastParent, place)
+      processDeclarationsFromImports(processor, state, lastParent, place)
 
   def needCheckExpectedType = true
 

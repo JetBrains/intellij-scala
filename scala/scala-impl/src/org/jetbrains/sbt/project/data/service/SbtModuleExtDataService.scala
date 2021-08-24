@@ -69,10 +69,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
 
       scalaLibraryWithSameVersion match {
         case Some(library) =>
-          if (!library.isScalaSdk) {
-            // library created but not yet marked as Scala SDK
-            ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, library, scalacClasspath)
-          }
+          ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, library, scalacClasspath)
         case None =>
           // example: Scala 3 (dotty) project https://github.com/lampepfl/dotty
           // TODO: dotty modules also have scala-library dependency (scala 2)
@@ -96,7 +93,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
                                        (implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
     val rootModel = modelsProvider.getModifiableRootModel(module)
     val testLibrary = rootModel.getModuleLibraryTable.createLibrary(s"scala-sdk-$compilerVersion")
-    ScalaSdkUtils.convertScalaLibraryToScalaSdk(modelsProvider, testLibrary, scalacClasspath)
+    ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, testLibrary, scalacClasspath)
   }
 
   private def isSameCompileVersionOrLanguageLevel(compilerVersion: String, scalaLibrary: Library): Boolean =

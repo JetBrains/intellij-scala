@@ -43,10 +43,10 @@ class ScImportExprImpl private (stub: ScImportExprStub, node: ASTNode)
     )
 
   override def deleteExpr(): Unit = {
-    val parent = getParent.asInstanceOf[ScImportStmt]
+    val parent = getParent.asInstanceOf[ScImportOrExportStmt]
     if (parent.importExprs.size == 1) {
       parent.getParent match {
-        case x: ScImportsHolder => x.deleteImportStmt(parent)
+        case x: ScImportsOrExportsHolder => x.deleteImportOrExportStmt(parent)
         case _ =>
       }
     } else {

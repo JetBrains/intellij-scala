@@ -23,7 +23,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScPatternDefinition, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportSelector, ScImportStmt}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory._
@@ -35,7 +35,44 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-trait ScImportsHolder extends ScalaPsiElement {
+sealed trait ScImportsOrExportsHolder extends ScalaPsiElement {
+
+  def deleteImportOrExportStmt(stmt: ScImportOrExportStmt): Unit = {
+    def remove(node: ASTNode): Unit = getNode.removeChild(node)
+    def shortenWhitespace(node: ASTNode): Unit = {
+      if (node == null) return
+      if (node.getText.count(_ == '\n') >= 2) {
+        val nl = createNewLine(node.getText.replaceFirst("[\n]", ""))(getManager)
+        getNode.replaceChild(node, nl.getNode)
+      }
+    }
+    def removeWhitespace(node: ASTNode): Unit = {
+      if (node == null) return
+      if (node.getPsi.is[PsiWhiteSpace]) {
+        if (node.getText.count(_ == '\n') < 2) remove(node)
+        else shortenWhitespace(node)
+      }
+    }
+    def removeSemicolonAndWhitespace(node: ASTNode): Unit = {
+      if (node == null) return
+      if (node.getElementType == ScalaTokenTypes.tSEMICOLON) {
+        removeWhitespace(node.getTreeNext)
+        remove(node)
+      }
+      else removeWhitespace(node)
+    }
+
+    val node = stmt.getNode
+    val next = node.getTreeNext
+    val prev = node.getTreePrev
+
+    removeSemicolonAndWhitespace(next)
+    remove(node)
+    shortenWhitespace(prev)
+  }
+}
+
+trait ScImportsHolder extends ScImportsOrExportsHolder {
 
   def getImportStatements: Seq[ScImportStmt] = {
     val stub =  this match {
@@ -49,19 +86,19 @@ trait ScImportsHolder extends ScalaPsiElement {
       findChildren[ScImportStmt]
   }
 
-  override def processDeclarations(processor: PsiScopeProcessor,
-      state : ResolveState,
-      lastParent: PsiElement,
-      place: PsiElement): Boolean = {
+  def processDeclarationsFromImports(
+    processor: PsiScopeProcessor,
+    state : ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement
+  ): Boolean = {
     if (lastParent != null) {
       val prevImports = previousImports(lastParent)
 
       //Resolve all references in previous import expressions in direct order to avoid SOE
       prevImports.foreach(updateResolveCaches)
 
-      val shouldStop =
-        prevImports.reverse
-          .find(!_.processDeclarations(processor, state, lastParent, place))
+      val shouldStop = prevImports.findLast(!_.processDeclarations(processor, state, lastParent, place))
 
       if (shouldStop.nonEmpty)
         return false
@@ -327,40 +364,6 @@ trait ScImportsHolder extends ScalaPsiElement {
   def plainDeleteSelector(sel: ScImportSelector): Unit = {
     sel.deleteSelector()
   }
-
-  def deleteImportStmt(stmt: ScImportStmt): Unit = {
-    def remove(node: ASTNode): Unit = getNode.removeChild(node)
-    def shortenWhitespace(node: ASTNode): Unit = {
-      if (node == null) return
-      if (node.getText.count(_ == '\n') >= 2) {
-        val nl = createNewLine(node.getText.replaceFirst("[\n]", ""))(getManager)
-        getNode.replaceChild(node, nl.getNode)
-      }
-    }
-    def removeWhitespace(node: ASTNode): Unit = {
-      if (node == null) return
-      if (node.getPsi.is[PsiWhiteSpace]) {
-        if (node.getText.count(_ == '\n') < 2) remove(node)
-        else shortenWhitespace(node)
-      }
-    }
-    def removeSemicolonAndWhitespace(node: ASTNode): Unit = {
-      if (node == null) return
-      if (node.getElementType == ScalaTokenTypes.tSEMICOLON) {
-        removeWhitespace(node.getTreeNext)
-        remove(node)
-      }
-      else removeWhitespace(node)
-    }
-
-    val node = stmt.getNode
-    val next = node.getTreeNext
-    val prev = node.getTreePrev
-
-    removeSemicolonAndWhitespace(next)
-    remove(node)
-    shortenWhitespace(prev)
-  }
 }
 
 object ScImportsHolder {
@@ -379,4 +382,46 @@ object ScImportsHolder {
         case packaging: ScPackaging => packaging
       }
     }
+}
+
+trait ScExportsHolder extends ScImportsOrExportsHolder {
+
+  // TODO: this is a dummy implementation copied from ScImportsHolder
+  //  it's wrong, but at least exports are resolved in the same scope where declared
+  //  to be improved in SCL-19437 (maybe remove this logic and use SyntheticMembersInjector instead
+  def processDeclarationsFromExports(
+    processor: PsiScopeProcessor,
+    state : ResolveState,
+    lastParent: PsiElement,
+    place: PsiElement
+  ): Boolean = {
+    if (lastParent != null) {
+      val prevExports = previousExports(lastParent)
+
+      //Resolve all references in previous exports expressions in direct order to avoid SOE
+      prevExports.foreach(updateResolveCaches)
+
+      val shouldStop = prevExports.findLast(!_.processDeclarations(processor, state, lastParent, place))
+
+      if (shouldStop.nonEmpty)
+        return false
+    }
+    true
+  }
+
+
+  @tailrec
+  private def previousExports(lastParent: PsiElement, acc: List[ScExportStmt] = Nil): List[ScExportStmt] = {
+    stubOrPsiPrevSibling(lastParent) match {
+      case null              => acc
+      case imp: ScExportStmt => previousExports(imp, imp :: acc)
+      case other             => previousExports(other, acc)
+    }
+  }
+
+  private def updateResolveCaches(exportStmt: ScExportStmt): Unit =
+    for {
+      expr <- exportStmt.importExprs
+      ref  <- expr.reference
+    } ref.multiResolveScala(false)
 }

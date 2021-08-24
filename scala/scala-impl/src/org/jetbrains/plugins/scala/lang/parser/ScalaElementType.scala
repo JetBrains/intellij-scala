@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.impl.statements.{ScEnumCaseImpl, ScE
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.imports.{ScExportStmtImpl, ScImportStmtImpl}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements._
-import org.jetbrains.plugins.scala.lang.psi.stubs.{ScImportStmtStub, ScTemplateDefinitionStub}
+import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportStmtStub, ScTemplateDefinitionStub}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.impl.ScDocResolvableCodeReferenceImpl
 
 sealed abstract class ScalaElementType(debugName: String,
@@ -45,23 +45,8 @@ object ScalaElementType {
   val IMPORT_SELECTORS = new ScImportSelectorsElementType
   val IMPORT_EXPR = new ScImportExprElementType
 
-  val ImportStatement = new ScImportStmtElementType("ScImportStatement") {
-
-    override protected def createPsi(stub: ScImportStmtStub,
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScImportStmtImpl(stub, nodeType, node, debugName)
-  }
-
-  val ExportStatement = new ScImportStmtElementType("ScExportStatement") {
-
-    override protected def createPsi(stub: ScImportStmtStub,
-                                     nodeType: this.type,
-                                     node: ASTNode,
-                                     debugName: String) =
-      new ScExportStmtImpl(stub, nodeType, node, debugName)
-  }
+  val ImportStatement = new ScImportStmtElementType
+  val ExportStatement = new ScExportStmtElementType
 
   val EXTENSION = new ScExtensionElementType
   val VALUE_DECLARATION: ScPropertyElementType[ScValueDeclaration] = ValueDeclaration

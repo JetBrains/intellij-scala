@@ -12,7 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTy
  */
 trait ScalaFile extends ScalaPsiElement
   with ScFile
-  with ScImportsHolder {
+  with ScImportsHolder
+  with ScExportsHolder {
 
   def firstPackaging: Option[ScPackaging]
 

@@ -2,6 +2,7 @@ package org.jetbrains.jps.incremental.scala.remote
 
 import org.jetbrains.plugins.scala.compiler.data.Arguments
 
+import java.nio.file.Path
 import scala.concurrent.duration.FiniteDuration
 
 sealed trait CompileServerCommand {
@@ -24,9 +25,13 @@ object CompileServerCommand {
     override def isCompileCommand: Boolean = true
   }
 
+  /**
+   * @param externalProjectConfig Some(path) in case build system supports storing project configuration outside `.idea` folder
+   */
   case class CompileJps(projectPath: String,
                         globalOptionsPath: String,
-                        dataStorageRootPath: String)
+                        dataStorageRootPath: String,
+                        externalProjectConfig: Option[String])
     extends CompileServerCommand {
 
     override def id: String = CommandIds.CompileJps
@@ -35,7 +40,7 @@ object CompileServerCommand {
       projectPath,
       globalOptionsPath,
       dataStorageRootPath
-    )
+    ) ++ externalProjectConfig
 
     override def isCompileCommand: Boolean = true
   }

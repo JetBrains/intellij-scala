@@ -46,10 +46,8 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
     if ScalaLanguageLevel.findByVersion(presentation).isDefined
 
     library <- scalaLibraries(module, modelsProvider)
-
-    if !library.isScalaSdk
   } {
-    ScalaSdkUtils.convertScalaLibraryToScalaSdk(
+    ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
       modelsProvider,
       library,
       compilerClasspath,
