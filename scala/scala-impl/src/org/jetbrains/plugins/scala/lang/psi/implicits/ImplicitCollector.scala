@@ -271,8 +271,11 @@ class ImplicitCollector(
 
         checkFunctionByType(c, withLocalTypeInference, checkFast)
       case _ =>
-        if (withLocalTypeInference) None //only functions may have local type inference
-        else                        simpleConformanceCheck(c)
+        if (withLocalTypeInference) {
+          if (withExtensions) Option(c.copy(implicitReason = TypeDoesntConformResult))
+          else                None
+        } //only functions may have local type inference
+        else simpleConformanceCheck(c)
     }
   }
 
@@ -319,13 +322,11 @@ class ImplicitCollector(
           val afterExtensionPredicate = compatible.filter(isValidImplicitResult).flatMap(applyExtensionPredicate)
 
           afterExtensionPredicate.foreach { r =>
-            //            if (isValidImplicitResult(r)) {
             val notMoreSpecific = mostSpecificUtil.notMoreSpecificThan(r)
             filteredCandidates.filterInPlace(notMoreSpecific)
             //this filter was added to make result deterministic
             results = results.filter(c => notMoreSpecific(c))
             results = results union Set(r)
-            //            }
           }
         case None => ()
       }
@@ -360,12 +361,10 @@ class ImplicitCollector(
         val subst = c.substitutor
         typeable.`type`() match {
           case Right(t) =>
-            if (!subst(t).conforms(tp))
-              reportWrong(c, TypeDoesntConformResult)
-            else
-              Some(c.copy(implicitReason = OkResult))
-          case _ =>
-            reportWrong(c, BadTypeResult)
+            if (!subst(t).conforms(tp)) {
+              reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
+            } else Option(c.copy(implicitReason = OkResult))
+          case _ => reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
         }
       case _ => None
     }
@@ -407,7 +406,7 @@ class ImplicitCollector(
     hasExplicitClause:       Boolean,
     hadDependents:           Boolean,
     expectedTypeConstraints: ConstraintSystem
-  ): Option[ScalaResolveResult] = TraceLogger.func {
+  ): Option[ScalaResolveResult] = /* TraceLogger.func */ {
     val fun            = c.element.asInstanceOf[ScFunction]
     val canContainExts = canContainExtension(c, hasExplicitClause)
 
@@ -569,7 +568,8 @@ class ImplicitCollector(
     def compute(): Option[ScalaResolveResult] = {
       nonValueFunTypes.methodType match {
         case None =>
-          Some(c.copy(implicitReason = OkResult))
+          if (c.implicitReason != NoResult) Option(c)
+          else                              Option(c.copy(implicitReason = OkResult))
 
         case Some(nonValueType0) =>
           try {
@@ -614,12 +614,13 @@ class ImplicitCollector(
   }
 
   private def reportWrong(
-    c:        ScalaResolveResult,
-    reason:   ImplicitResult,
-    problems: Seq[ApplicabilityProblem] = Seq.empty
+    c:                 ScalaResolveResult,
+    reason:            ImplicitResult,
+    problems:          Seq[ApplicabilityProblem] = Seq.empty,
+    propagateFailures: Boolean                   = false
   ): Option[ScalaResolveResult] =
-    if (fullInfo) Option(c.copy(problems = problems, implicitReason = reason))
-    else          None
+    if (fullInfo || propagateFailures) Option(c.copy(problems = problems, implicitReason = reason))
+    else                               None
 
   private def isPredefConforms(fun: ScFunction) = {
     val name = fun.name
@@ -655,9 +656,12 @@ class ImplicitCollector(
           if (checkFast) Option(c)
           else           checkFunctionType(c, nonValueFunctionTypes, undefinedConforms.constraints)
         } else if (canContainExtension(c, nonValueFunctionTypes.hasExplicitClause)) {
-          //Even though we know that `c` is not a valid candidate, we
-          //still proceed with it, because it might contain extensions,
-          //defined on its return type
+          //With the addition of extensions in Scala 3,
+          //we now cannot discard implicits based by their type right away,
+          //because they might contain extensions, defined on their "return type".
+          //So here and further down the function call tree we will not abort on
+          //non-fatal failures (everything except for not-found-implicit-parameters problems)
+          //and instead propagate them to the very end.
           checkFunctionType(
             c.copy(implicitReason = TypeDoesntConformResult),
             nonValueFunctionTypes,
