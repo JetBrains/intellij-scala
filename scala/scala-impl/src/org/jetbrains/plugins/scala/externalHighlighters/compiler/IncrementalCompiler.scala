@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.externalHighlighters.compiler
 
 import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.application.PathManager
-import com.intellij.openapi.project.Project
+import com.intellij.openapi.project.{Project, ProjectUtil, ProjectUtilCore}
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.util.io.PathKt
 import org.jetbrains.jps.incremental.Utils
@@ -23,10 +23,17 @@ private[externalHighlighters] object IncrementalCompiler {
       new File(PathKt.getSystemIndependentPath(BuildManager.getInstance.getBuildSystemDirectory(project))),
       projectPath
     ).getCanonicalPath
+
+    /** @see [[org.jetbrains.jps.incremental.scala.remote.Main.withModifiedExternalProjectPath]] */
+    val externalConfigurationDir =
+      if (ProjectUtilCore.isExternalStorageEnabled(project)) Some(ProjectUtil.getExternalConfigurationDir(project).toString)
+      else None
+
     val command = CompileServerCommand.CompileJps(
       projectPath = projectPath,
       globalOptionsPath = globalOptionsPath,
-      dataStorageRootPath = dataStorageRootPath
+      dataStorageRootPath = dataStorageRootPath,
+      externalConfigurationDir
     )
 
     CompileServerClient.get(project).execCommand(command, client)

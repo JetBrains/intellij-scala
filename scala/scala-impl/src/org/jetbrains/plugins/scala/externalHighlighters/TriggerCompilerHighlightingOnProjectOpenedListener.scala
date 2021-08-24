@@ -10,9 +10,13 @@ class TriggerCompilerHighlightingOnProjectOpenedListener
   override def projectOpened(project: Project): Unit =
     if (!ApplicationManager.getApplication.isUnitTestMode && !LightEdit.owns(project)) {
       DumbService.getInstance(project).runWhenSmart { () =>
-        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) &&
-          TriggerCompilerHighlightingService.get(project).showErrorsFromCompilerEnabledAtLeastForOneOpenEditor) {
-          CompilerHighlightingService.get(project).triggerIncrementalCompilation(delayedProgressShow = false)
+        if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
+          TriggerCompilerHighlightingService.get(project).showErrorsFromCompilerEnabledAtLeastForOneOpenEditor match {
+            case Some(editor) =>
+              val fileName = Option(editor.getFile).map(_.getName).getOrElse("<no file>")
+              CompilerHighlightingService.get(project).triggerIncrementalCompilation(s"project opened, editor with scala3 exists: $fileName", delayedProgressShow = false)
+            case _ =>
+          }
         }
       }
     }
