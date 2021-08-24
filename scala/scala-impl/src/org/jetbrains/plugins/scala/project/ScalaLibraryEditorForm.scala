@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.ComboBox
 import com.intellij.ui.IdeBorderFactory
 import com.intellij.uiDesigner.core.{GridConstraints, GridLayoutManager, Spacer}
 import com.intellij.util.ui.JBUI
+import org.jetbrains.plugins.scala.project.ScalaLibraryEditorForm._
 
 import java.awt._
 import javax.swing._
@@ -24,7 +25,7 @@ class ScalaLibraryEditorForm() {
   private val myLanguageLevel: ComboBox[ScalaLanguageLevel] = {
     val combo = new ComboBox[ScalaLanguageLevel]
     combo.setRenderer(new NamedValueRenderer)
-    combo.setModel(new DefaultComboBoxModel[ScalaLanguageLevel](ScalaLanguageLevel.values.reverse))
+    combo.setModel(new DefaultComboBoxModel[ScalaLanguageLevel](publishedScalaLanguageLevels))
     combo
   }
 
@@ -45,8 +46,27 @@ class ScalaLibraryEditorForm() {
   }
 
   def languageLevel: ScalaLanguageLevel = myLanguageLevel.getSelectedItem.asInstanceOf[ScalaLanguageLevel]
-  def languageLevel_=(languageLevel: ScalaLanguageLevel): Unit = myLanguageLevel.setSelectedItem(languageLevel)
+  def languageLevel_=(languageLevel: ScalaLanguageLevel): Unit = {
+    // in case some new major release candidate version of the scala compiler is used
+    // we want to display it's language leve anyway (it's not added to the combobox when creating new SDK)
+    val items = myLanguageLevel.items
+    if (!items.contains(languageLevel)) {
+      myLanguageLevel.setModel(new DefaultComboBoxModel[ScalaLanguageLevel]((languageLevel +: items).toArray))
+    }
+    myLanguageLevel.setSelectedItem(languageLevel)
+  }
 
   def classpath: Array[String] = myClasspathEditor.getPaths
   def classpath_=(classpath: Array[String]): Unit = myClasspathEditor.setPaths(classpath)
+}
+
+private object ScalaLibraryEditorForm {
+  private val publishedScalaLanguageLevels = ScalaLanguageLevel.publishedVersions.reverse
+
+  implicit class ComboBoxOps[T](private val target: ComboBox[T]) extends AnyVal {
+    def items: Seq[T] = {
+      val model = target.getModel
+      Seq.tabulate(model.getSize)(model.getElementAt)
+    }
+  }
 }

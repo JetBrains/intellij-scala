@@ -5,6 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import scala.Option;
 import scala.math.Ordered;
 
+import java.util.Arrays;
 import java.util.regex.Pattern;
 
 public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
@@ -14,7 +15,19 @@ public enum ScalaLanguageLevel implements Ordered<ScalaLanguageLevel>, Named {
     Scala_2_11("2.11"),
     Scala_2_12("2.12"),
     Scala_2_13("2.13"),
-    Scala_3_0("3.0");
+    Scala_3_0("3.0"),
+    //not yet released scala versions
+    //(added in order Scala SDK is properly created for new major release candidate versions of the scala compiler)
+    Scala_3_1("3.1"),
+    Scala_3_2("3.2"),
+    ;
+
+    public static final ScalaLanguageLevel latestPublishedVersion = Scala_3_0;
+    public static final ScalaLanguageLevel[] publishedVersions;
+
+    static {
+        publishedVersions = Arrays.stream(values()).takeWhile(x -> x.ordinal() <= latestPublishedVersion.ordinal()).toArray(ScalaLanguageLevel[]::new);
+    }
 
     @NotNull
     private final String myVersion;
