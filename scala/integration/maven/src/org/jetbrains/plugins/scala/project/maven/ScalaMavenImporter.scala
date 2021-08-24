@@ -109,15 +109,13 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
     }
     maybeScalaLibrary match {
       case Some(scalaLibrary) =>
-        if (!scalaLibrary.isScalaSdk) {
-          val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
-          ScalaSdkUtils.convertScalaLibraryToScalaSdk(
-            modelsProvider,
-            scalaLibrary,
-            compilerClasspathFull,
-            Some(compilerVersion)
-          )
-        }
+        val compilerClasspathFull = module.getProject.getUserData(MavenFullCompilerClasspathKey)
+        ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
+          modelsProvider,
+          scalaLibrary,
+          compilerClasspathFull,
+          Some(compilerVersion)
+        )
       case None =>
         val msg = s"Cannot find project Scala library $compilerVersion for module ${module.getName}"
         val exception = new IllegalArgumentException(msg)
