@@ -41,11 +41,19 @@ final class CompilerHighlightingService(project: Project)
 
   @volatile private var progressIndicator: Option[ProgressIndicator] = None
 
-  // TODO: add logging for all reasons of why the compilation is triggered
-  //  Currently there quite many: project open, editor change, file modification, explicit setting toggle
-  def triggerIncrementalCompilation(delayedProgressShow: Boolean = true,
-                                    beforeCompilation: () => Unit = () => (),
-                                    afterCompilation: () => Unit = () => ()): Unit =
+  private def debug(message: => String): Unit = {
+    if (Log.isDebugEnabled) {
+      Log.debug(s"[${project.getName}] ${message}")
+    }
+  }
+
+  def triggerIncrementalCompilation(
+    reasonForDebug: String,
+    delayedProgressShow: Boolean = true,
+    beforeCompilation: () => Unit = () => (),
+    afterCompilation: () => Unit = () => ()
+  ): Unit = {
+    debug(s"triggerIncrementalCompilation: $reasonForDebug")
     incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
       performCompilation(delayedProgressShow) { client =>
         beforeCompilation()
@@ -56,9 +64,14 @@ final class CompilerHighlightingService(project: Project)
         }
       }
     }
+  }
 
-  def triggerDocumentCompilation(document: Document,
-                                 afterCompilation: () => Unit = () => ()): Unit =
+  def triggerDocumentCompilation(
+    debugReason: String,
+    document: Document,
+    afterCompilation: () => Unit = () => ()
+  ): Unit = {
+    debug(s"triggerDocumentCompilation: $debugReason")
     scheduleDocumentCompilation(documentExecutor, document) { client =>
       try {
         DocumentCompiler.get(project).compile(document, client)
@@ -66,6 +79,7 @@ final class CompilerHighlightingService(project: Project)
         afterCompilation()
       }
     }
+  }
 
   def triggerWorksheetCompilation(psiFile: ScalaFile,
                                   document: Document,
@@ -78,14 +92,18 @@ final class CompilerHighlightingService(project: Project)
       }
     }
 
-  def cancel(): Unit =
+  def cancel(): Unit = {
+    debug("cancel")
     progressIndicator.foreach(_.cancel())
+  }
 
   def isCompiling: Boolean =
     progressIndicator.isDefined
 
-  override def dispose(): Unit =
+  override def dispose(): Unit = {
+    debug("dispose")
     progressIndicator = None
+  }
 
   // SCL-17295
   @nowarn("msg=pure expression")

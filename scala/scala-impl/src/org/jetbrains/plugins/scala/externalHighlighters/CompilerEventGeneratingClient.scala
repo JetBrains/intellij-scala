@@ -40,7 +40,7 @@ private class CompilerEventGeneratingClient(
   override def isCanceled: Boolean = indicator.isCanceled
 
   override def trace(exception: Throwable): Unit =
-    log.error(exception)
+    log.error(s"[${project.getName}] ${exception.getMessage}", exception)
 
   private def sendEvent(event: CompilerEvent): Unit =
     project.getMessageBus

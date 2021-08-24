@@ -36,20 +36,23 @@ final class TriggerCompilerHighlightingService(project: Project)
     if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile))
       virtualFile.findDocument.foreach { document =>
         val scalaFile = psiFile.asOptionOf[ScalaFile]
+        val debugReason = s"file content changed: ${psiFile.getName}"
         if (psiFile.isScalaWorksheet)
           scalaFile.foreach(triggerWorksheetCompilation(_, document, markHighlighted = None))
         else asyncAtomic {
           val changedFilesSizeBefore = changedFiles.size
           changedFiles += virtualFile
           if (changedFiles.size > 1 && changedFiles.size != changedFilesSizeBefore)
-            triggerIncrementalCompilation()
+            triggerIncrementalCompilation(debugReason)
           else
-            scalaFile.foreach(triggerDocumentCompilation(document, _, markHighlighted = None))
+            scalaFile.foreach(triggerDocumentCompilation(debugReason, document, _, markHighlighted = None))
         }
       }
 
   def triggerOnSelectionChange(editor: FileEditor): Unit =
-    if (isHighlightingEnabled)
+    if (isHighlightingEnabled) {
+      val fileName = Option(editor.getFile).map(_.getName).getOrElse("<no file>")
+      val debugReason = s"selected editor changed: $fileName"
       for {
         virtualFile <- editor.getFile.nullSafe
         psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
@@ -58,17 +61,19 @@ final class TriggerCompilerHighlightingService(project: Project)
         document <- inReadAction(virtualFile.findDocument)
       } asyncAtomic {
         val path = Paths.get(pathString)
-        if (changedFiles.nonEmpty)
-          triggerIncrementalCompilation()
+        if (changedFiles.nonEmpty) {
+          triggerIncrementalCompilation(debugReason)
+        }
         else if (!alreadyHighlighted.contains(path)) {
           psiFile match {
             case scalaFile: ScalaFile =>
               if (scalaFile.isWorksheetFile) triggerWorksheetCompilation(scalaFile, document, markHighlighted = Some(path))
-              else triggerDocumentCompilation(document, scalaFile, markHighlighted = Some(path))
+              else triggerDocumentCompilation(debugReason, document, scalaFile, markHighlighted = Some(path))
             case _ =>
           }
         }
       }
+    }
 
   override def dispose(): Unit = {
     synchronized {
@@ -98,7 +103,7 @@ final class TriggerCompilerHighlightingService(project: Project)
     virtualFile.isInLocalFileSystem && isJavaOrScalaFile
   }
 
-  private def triggerIncrementalCompilation(): Unit = {
+  private def triggerIncrementalCompilation(debugReason: String): Unit = {
     def saveChangedDocuments(): Unit = synchronized {
       changedFiles
         .flatMap { virtualFile => inReadAction(virtualFile.findDocument) }
@@ -117,8 +122,9 @@ final class TriggerCompilerHighlightingService(project: Project)
     def clearDocumentCompilerOutputDirectories(): Unit =
       DocumentCompiler.get(project).clearOutputDirectories()
 
-    if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor)
+    if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined)
       CompilerHighlightingService.get(project).triggerIncrementalCompilation(
+        debugReason,
         beforeCompilation = { () =>
           saveChangedDocuments()
         },
@@ -131,7 +137,7 @@ final class TriggerCompilerHighlightingService(project: Project)
   }
 
   // SCL-18946
-  def showErrorsFromCompilerEnabledAtLeastForOneOpenEditor: Boolean = {
+  def showErrorsFromCompilerEnabledAtLeastForOneOpenEditor: Option[FileEditor] = {
     val psiManager = PsiManager.getInstance(project)
 
     def isEnabledFor(editor: FileEditor): Boolean = {
@@ -143,15 +149,19 @@ final class TriggerCompilerHighlightingService(project: Project)
     }
 
     val openEditors = FileEditorManager.getInstance(project).getAllEditors
-    openEditors.exists(isEnabledFor)
+    openEditors.find(isEnabledFor)
   }
 
-  private def triggerDocumentCompilation(document: Document,
-                                         psiFile: ScalaFile,
-                                         markHighlighted: Option[Path]): Unit =
+  private def triggerDocumentCompilation(
+    debugReason: String,
+    document: Document,
+    psiFile: ScalaFile,
+    markHighlighted: Option[Path]
+  ): Unit =
     if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(psiFile))
       CompilerHighlightingService.get(project).triggerDocumentCompilation(
-        document = document,
+        debugReason,
+        document,
         afterCompilation = () => mark(markHighlighted)
       )
 

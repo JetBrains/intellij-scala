@@ -3,7 +3,6 @@ package org.jetbrains.plugins.scala.externalHighlighters
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.{DumbService, Project, ProjectManagerListener}
-import com.intellij.openapi.util.registry.{RegistryValue, RegistryValueListener}
 import com.intellij.psi.PsiManager
 import com.intellij.psi.impl.source.resolve.ResolveCache
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
@@ -21,22 +20,22 @@ class ToggleHighlightingModeListener
   
   override def projectOpened(project: Project): Unit = if (!ApplicationManager.getApplication.isUnitTestMode) {
 
-    project.subscribeToModuleRootChanged() { _ => compileOrEraseHighlightings(project) }
+    project.subscribeToModuleRootChanged() { _ => compileOrEraseHighlightings(s"project roots changed", project) }
 
     object listener extends CompilerHighlightingListener {
       override def compilerHighlightingScala2Changed(enabled: Boolean): Unit =
-        compileOrEraseHighlightings(project)
+        compileOrEraseHighlightings(s"highlighting mode toggled (Scala 2)", project)
       override def compilerHighlightingScala3Changed(enabled: Boolean): Unit =
-        compileOrEraseHighlightings(project)
+        compileOrEraseHighlightings(s"highlighting mode toggled (Scala 3)", project)
     }
     
     ScalaHighlightingMode.addSettingsListener(project)(listener)
   }
   
-  private def compileOrEraseHighlightings(project: Project): Unit =
+  private def compileOrEraseHighlightings(reasonForDebug: String, project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-        CompilerHighlightingService.get(project).triggerIncrementalCompilation(delayedProgressShow = false)
+        CompilerHighlightingService.get(project).triggerIncrementalCompilation(reasonForDebug, delayedProgressShow = false)
         AnnotatorHints.clearIn(project)
       } else {
         ExternalHighlighters.eraseAllHighlightings(project)

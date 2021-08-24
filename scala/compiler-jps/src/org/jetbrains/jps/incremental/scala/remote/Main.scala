@@ -1,8 +1,7 @@
 package org.jetbrains.jps.incremental.scala.remote
 
 import com.martiansoftware.nailgun.{NGContext, NGServer}
-import org.jetbrains.annotations.Nullable
-import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil}
+import org.jetbrains.jps.api.{BuildType, CmdlineProtoUtil, GlobalOptions}
 import org.jetbrains.jps.cmdline.{BuildRunner, JpsModelLoaderImpl}
 import org.jetbrains.jps.incremental.fs.BuildFSState
 import org.jetbrains.jps.incremental.messages.{BuildMessage, CustomBuilderMessage, ProgressMessage}
@@ -216,7 +215,7 @@ object Main {
   }
 
   private def compileJpsLogic(command: CompileServerCommand.CompileJps, client: Client): Unit = {
-    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath) = command
+    val CompileServerCommand.CompileJps(projectPath, globalOptionsPath, dataStorageRootPath, externalProjectConfig) = command
     val dataStorageRoot = new File(dataStorageRootPath)
     val loader = new JpsModelLoaderImpl(projectPath, globalOptionsPath, false, null)
     val buildRunner = new BuildRunner(loader)
@@ -237,7 +236,9 @@ object Main {
           ()
       }
     }
-    val descriptor = buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
+    val descriptor = withModifiedExternalProjectPath(externalProjectConfig) {
+      buildRunner.load(messageHandler, dataStorageRoot, new BuildFSState(true))
+    }
     val forceBuild = false
     val scopes = CmdlineProtoUtil.createAllModulesScopes(forceBuild)
 
@@ -255,6 +256,43 @@ object Main {
     } finally {
       client.compilationEnd(compiledFiles)
       descriptor.release()
+    }
+  }
+
+  private val ExternalProjectConfigPropertyLock = new Object
+
+  /**
+   * In case project configuration is stored externally (outside `.idea` folder) we need to provide the path to the external storage.
+   *
+   * @see [[org.jetbrains.jps.model.serialization.JpsProjectLoader.loadFromDirectory]]
+   * @see [[org.jetbrains.jps.model.serialization.JpsProjectLoader.resolveExternalProjectConfig]]
+   * @see [[org.jetbrains.jps.api.GlobalOptions.EXTERNAL_PROJECT_CONFIG]]
+   * @see [[com.intellij.compiler.server.BuildManager.launchBuildProcess]]
+   * @see [[org.jetbrains.plugins.scala.externalHighlighters.compiler.IncrementalCompiler.compile]]
+   */
+  private def withModifiedExternalProjectPath[T](externalProjectConfig: Option[String])(body: => T): T = {
+    externalProjectConfig match {
+      case Some(value) =>
+        //NOTE: We have use lock here because currently we can only pass the external project config path via System.get/setProperty
+        //This can lead to issues when incremental compilation is triggered for several projects which use compiler-based highlighting
+        //This is because Scala Compiler Server is currently reused between all projects and System.get/setProperty modifies global JVM state.
+        //TODO: Ideally we would need some way to pass the value to JpsProjectLoader more transparently
+        ExternalProjectConfigPropertyLock.synchronized {
+          val Key = GlobalOptions.EXTERNAL_PROJECT_CONFIG
+          val previousValue = System.getProperty(Key)
+          try {
+            System.setProperty(Key, value)
+            body
+          }
+          finally {
+            if (previousValue == null)
+              System.clearProperty(Key)
+            else
+              System.setProperty(Key, previousValue)
+          }
+        }
+      case _ =>
+        body
     }
   }
 

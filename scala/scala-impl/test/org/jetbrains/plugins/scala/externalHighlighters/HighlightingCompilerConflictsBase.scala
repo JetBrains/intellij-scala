@@ -88,7 +88,7 @@ abstract class HighlightingCompilerConflictsBase(compileServerLanguageLevel: Lan
         case _ => ()
       }
     })
-    CompilerHighlightingService.get(getProject).triggerIncrementalCompilation(delayedProgressShow = false)
+    CompilerHighlightingService.get(getProject).triggerIncrementalCompilation("manual trigger from tests", delayedProgressShow = false)
     Await.result(promise.future, 60.seconds)
   }
 }
