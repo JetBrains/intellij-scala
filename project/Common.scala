@@ -7,9 +7,6 @@ import scala.language.implicitConversions
 import scala.language.postfixOps
 
 object Common {
-  lazy val communityFullClasspath: TaskKey[Classpath] =
-    taskKey[Classpath]("scalaCommunity module's fullClasspath in Compile and Test scopes")
-
   private val globalJavacOptionsCommon = Seq(
     "-Xlint:unchecked"
   )

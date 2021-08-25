@@ -579,6 +579,3 @@ addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
 // run dfa tests directly in that module
 addCommandAlias("runDfaTests", "dfa/test")
 
-(ThisBuild / communityFullClasspath) :=
-  deduplicatedClasspath((scalaCommunity / Test / fullClasspath).value, (scalaCommunity / Compile / fullClasspath).value)
-
