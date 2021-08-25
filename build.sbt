@@ -191,7 +191,7 @@ lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
-      compilerShared,
+      compilerShared % "test->test;compile->compile",
       scalaApi,
       macroAnnotations,
       traceLogger,
