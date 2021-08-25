@@ -579,7 +579,7 @@ object ScalaPsiUtil {
     val s = namedElementSig(x)
     val signatures =
       if (withSelfType) TypeDefinitionMembers.getSelfTypeSignatures(clazz)
-      else TypeDefinitionMembers.getSignatures(clazz)
+      else              TypeDefinitionMembers.getSignatures(clazz)
     val sigs = signatures.forName(x.name)
     val builder = Seq.newBuilder[TermSignature]
     sigs.get(s) match {
@@ -1251,6 +1251,9 @@ object ScalaPsiUtil {
     val element = nameContext(signature.namedElement)
     isConcreteElement(element)
   }
+
+  def isExtensionMethodSignature(signature: Signature): Boolean =
+    signature.isExtensionMethod
 
   @annotation.tailrec
   private def simpleBoundName(bound: ScTypeElement): Option[String] = bound match {

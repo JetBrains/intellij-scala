@@ -593,7 +593,7 @@ object MethodResolveProcessor {
     //field in base class is shadowed by private field from inherited class
     val input: Set[ScalaResolveResult] = _input.filter { r =>
       r.element match {
-        case f: ScFunction if f.hasParameterClause => true
+        case f: ScFunction if f.parameterClausesWithExtension.nonEmpty => true
         case b: ScTypedDefinition =>
           b.nameContext match {
             case m: ScMember =>
@@ -602,7 +602,7 @@ object MethodResolveProcessor {
               else {
                 _input.forall { r2 =>
                   r2.element match {
-                    case f: ScFunction if f.hasParameterClause => true
+                    case f: ScFunction if f.parameterClausesWithExtension.nonEmpty => true
                     case b2: ScTypedDefinition =>
                       b2.nameContext match {
                         case m2: ScMember =>

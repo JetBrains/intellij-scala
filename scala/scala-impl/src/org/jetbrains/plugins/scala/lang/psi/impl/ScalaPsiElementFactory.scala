@@ -858,11 +858,12 @@ object ScalaPsiElementFactory {
       context
     ).getTreeElement
 
-    val contextLanguage = context.getLanguage
-    // can't use `contextLanguage` directly because for example ScalaDocLanguage is also kind of ScalaLanguage
+    val isScala3 = context.isInScala3File
+
     val language =
-      if (contextLanguage.isKindOf(Scala3Language.INSTANCE)) Scala3Language.INSTANCE
-      else ScalaLanguage.INSTANCE
+      if (isScala3) Scala3Language.INSTANCE
+      else          ScalaLanguage.INSTANCE
+
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 
     val seq = convertLineSeparators(text).trim
@@ -874,7 +875,6 @@ object ScalaPsiElementFactory {
       seq
     )
 
-    val isScala3 = context.isInScala3File
     val psiBuilder = new ScalaPsiBuilderImpl(delegate, isScala3)
     if (text.indexOf('\n') >= 0 && !ScalaPsiUtil.newLinesEnabled(context)) {
       psiBuilder.disableNewlines()
@@ -891,7 +891,7 @@ object ScalaPsiElementFactory {
 
     val result = first.getPsi
     if (checkLength && result.getTextLength != seq.length) {
-      throw new IncorrectOperationException(s"Text length differs; actual: ${result.getText}, expected: $seq")
+      throw new ScalaPsiElementCreationException(s"Text length differs; actual: ${result.getText}, expected: $seq", null)
     }
     result
   }

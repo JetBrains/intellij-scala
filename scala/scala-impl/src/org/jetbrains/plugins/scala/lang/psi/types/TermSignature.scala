@@ -12,8 +12,8 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.methodName
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScFieldId, ScMethodLike}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameters, ScTypeParam}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScFunctionDeclaration, ScFunctionDefinition, ScVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.light.{ScFunctionWrapper, ScPrimaryConstructorWrapper}
@@ -270,10 +270,13 @@ object TermSignature {
 }
 
 object PhysicalMethodSignature {
+  def typeParamsWithExtension(m: PsiMethod, extensionTypeParameters: Seq[ScTypeParam]): Seq[TypeParameter] =
+    extensionTypeParameters.map(TypeParameter(_)) ++ m.getTypeParameters.instantiate
+
   @tailrec
   def typesEval(method: PsiMethod): List[Seq[() => ScType]] = method match {
     case fun: ScFunction =>
-      fun.effectiveParameterClauses.toList
+      fun.parameterClausesWithExtension.toList
         .map(_.effectiveParameters.map(p => () => scalaParamType(p)))
 
     case wrapper: ScFunctionWrapper => typesEval(wrapper.delegate)
@@ -340,17 +343,18 @@ object PhysicalMethodSignature {
 }
 
 final class PhysicalMethodSignature(
-  val method: PsiMethod,
+  val method:               PsiMethod,
   override val substitutor: ScSubstitutor,
-  override val isExtensionMethod: Boolean = false
+  extensionTypeParameters:  Option[Seq[ScTypeParam]] = None
 ) extends TermSignature(
   method.name,
   PhysicalMethodSignature.typesEval(method),
-  method.getTypeParameters.instantiate,
+  PhysicalMethodSignature.typeParamsWithExtension(method, extensionTypeParameters.getOrElse(Seq.empty)),
   substitutor,
   method,
   PhysicalMethodSignature.hasRepeatedParam(method)
 ) {
 
-  override def isJava: Boolean = method.getLanguage == JavaLanguage.INSTANCE
+  override def isJava: Boolean            = method.getLanguage == JavaLanguage.INSTANCE
+  override def isExtensionMethod: Boolean = extensionTypeParameters.nonEmpty
 }

@@ -88,8 +88,13 @@ object ImplicitResolveResult {
     } yield resolveResult
 
     srr match {
-      case Some(ScalaResolveResult(ext @ ExtensionMethod(), subst)) =>
-        processor.execute(ext, ScalaResolveState.withSubstitutor(subst).withExtensionMethodMarker)
+      case Some(srr @ ScalaResolveResult(ext @ ExtensionMethod(), subst)) =>
+        val state = ScalaResolveState
+          .withSubstitutor(subst)
+          .withExtensionMethodMarker
+          .withUnresolvedTypeParams(srr.unresolvedTypeParameters.getOrElse(Seq.empty))
+
+        processor.execute(ext, state)
       case Some(conversion) =>
         for {
           resultType    <- ExtensionConversionHelper.specialExtractParameterType(conversion)

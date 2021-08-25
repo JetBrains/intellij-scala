@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, Parent, StubBasedExt}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScClassParameter, ScParameterClause}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScTypeAlias, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunction, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaFileImpl
@@ -81,13 +81,22 @@ trait ScMember extends ScalaPsiElement with ScModifierListOwner with PsiMember {
 
     val context = getContext
     val extendsBlock = found.extendsBlock
-    val isCorrect = context != null &&
-      (context == extendsBlock ||
-        extendsBlock.templateBody.contains(context) ||
-        extendsBlock.earlyDefinitions.contains(context) ||
-        found.physicalExtendsBlock.templateBody.contains(context)) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
 
-    if (isCorrect) found
+    def checkContext(ctx: PsiElement) = ctx != null &&
+      (ctx == extendsBlock ||
+        extendsBlock.templateBody.contains(ctx) ||
+        extendsBlock.earlyDefinitions.contains(ctx) ||
+        found.physicalExtendsBlock.templateBody.contains(ctx)) // in case a member is not present in the desugared extends block (e.g. deleted by a macro)
+
+    val isCorrectExtension = context match {
+      case eb: ScExtensionBody =>
+        //if this is an extension method, check context of an extension itself
+        checkContext(eb.getContext.getContext)
+      case _                  => false
+    }
+
+    if (checkContext(context)) found
+    else if (isCorrectExtension) found
     else null // See SCL-3178
   }
 

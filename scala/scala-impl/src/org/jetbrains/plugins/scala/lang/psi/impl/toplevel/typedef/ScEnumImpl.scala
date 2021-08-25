@@ -34,16 +34,12 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
   }
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
-  override def syntheticClass: Option[ScTypeDefinition] =
-    try {
-      val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(syntheticClassText, this.getContext, this)
-      cls.originalEnumElement        = this
-      cls.syntheticNavigationElement = this
-      Option(cls)
-    } catch {
-      case p: ProcessCanceledException => throw p
-      case _: Exception                => None
-    }
+  override def syntheticClass: Option[ScTypeDefinition] = {
+    val cls = ScalaPsiElementFactory.createTypeDefinitionWithContext(syntheticClassText, this.getContext, this)
+    cls.originalEnumElement        = this
+    cls.syntheticNavigationElement = this
+    Option(cls)
+  }
 
   //noinspection TypeAnnotation
   override protected def targetTokenType = EnumKeyword
