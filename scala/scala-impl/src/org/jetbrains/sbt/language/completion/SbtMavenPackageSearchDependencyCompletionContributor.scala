@@ -39,6 +39,10 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       val stableVersionOnly: Boolean = if (params.isExtendedCompletion) false else true
       val depLookUp = collection.mutable.Map[String, Boolean]()
       val place = positionFromParameters(params)
+
+      /* Skip the case of auto completion outside double quote */
+      if (!place.getContext.isInstanceOf[ScStringLiteral]) return
+
       implicit val project: Project = place.getProject
 
       var versions = Map[String, List[String]]()
@@ -112,7 +116,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         resultSet.stopHere()
       } catch {
         case e: Exception =>
-          throw e
+          logger.error("Exception arises when completing library dependency", e)
       }
 
       def generateVersionLookupElement(result: String, tailText: String, weigh: Int = 0): LookupElement = {
