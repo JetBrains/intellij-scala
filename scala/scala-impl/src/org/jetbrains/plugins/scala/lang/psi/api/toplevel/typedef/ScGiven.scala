@@ -15,8 +15,7 @@ trait ScGiven extends ScalaPsiElement
   with ScMember.WithBaseIconProvider
   with ScCommentOwner
   with ScDocCommentOwner
-  with ScParameterOwner
-  with ScTypeParametersOwner
+  with ScParameterOwner.WithContextBounds
   with ScDeclaredElementsHolder {
 
   def nameElement: Option[PsiElement]

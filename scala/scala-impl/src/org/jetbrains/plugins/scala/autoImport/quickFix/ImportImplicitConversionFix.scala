@@ -54,7 +54,7 @@ private class ConversionToImportComputation(ref: ScReferenceExpression) {
   private lazy val result: Result = {
     val visible =
       for {
-        result <- ImplicitCollector.visibleImplicits(ref, None)
+        result <- ImplicitCollector.visibleImplicits(ref)
         fun    <- result.element.asOptionOf[ScFunction]
         if fun.isImplicitConversion
       } yield fun

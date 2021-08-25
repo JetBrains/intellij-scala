@@ -5,6 +5,8 @@ package types
 package api
 
 import com.intellij.psi.PsiTypeParameter
+import org.jetbrains.plugins.scala.lang.psi.light.DummyLightTypeParam
+import org.jetbrains.plugins.scala.lang.psi.types.api.TypeParameterType.isMaskedExtensionTypeParameter
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 class TypeParameterType private (val typeParameter: TypeParameter)
@@ -40,8 +42,18 @@ class TypeParameterType private (val typeParameter: TypeParameter)
     falseUndef:  Boolean
   ): ConstraintsResult =
     `type` match {
-      case that: TypeParameterType if that.psiTypeParameter eq psiTypeParameter => constraints
-      case _                                                                    => ConstraintsResult.Left
+      case that: TypeParameterType =>
+        if (that.psiTypeParameter eq psiTypeParameter) constraints
+        else {
+          /** see
+           * [[org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector#maskTypeParametersInExtensions]]
+           */
+          if (isMaskedExtensionTypeParameter(this, that)
+            || isMaskedExtensionTypeParameter(that, this))
+            constraints
+          else ConstraintsResult.Left
+        }
+      case _ => ConstraintsResult.Left
     }
 
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitTypeParameterType(this)
@@ -55,6 +67,12 @@ class TypeParameterType private (val typeParameter: TypeParameter)
 }
 
 object TypeParameterType {
+  private def isMaskedExtensionTypeParameter(lhs: TypeParameterType, rhs: TypeParameterType): Boolean =
+    lhs.psiTypeParameter match {
+      case _: DummyLightTypeParam => lhs.lowerType.equiv(rhs) && lhs.upperType.equiv(rhs)
+      case _                      => false
+    }
+
   def apply(tp: TypeParameter): TypeParameterType =
     new TypeParameterType(tp)
 

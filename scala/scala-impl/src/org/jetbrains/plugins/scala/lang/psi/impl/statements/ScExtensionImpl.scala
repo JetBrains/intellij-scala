@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.{EXTENSION_BODY,
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.{ScParameter, ScParameterClause, ScParameters}
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunctionDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScExtensionBody, ScFunction, ScFunctionDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember.WithBaseIconProvider
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaStubBasedElementImpl
@@ -37,8 +37,10 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
   override def targetTypeElement: Option[ScTypeElement] =
     targetParameter.flatMap(_.typeElement)
 
-  override def extensionMethods: Seq[ScFunctionDefinition] =
-    extensionBody.fold(Seq.empty[ScFunctionDefinition])(_.functions)
+  override def declaredElements: Seq[ScFunction] = extensionMethods
+
+  override def extensionMethods: Seq[ScFunction] =
+    extensionBody.fold(Seq.empty[ScFunction])(_.functions)
 
   override def parameters: Seq[ScParameter] =
     clauses.toSeq.flatMap(_.clauses.flatMap(_.parameters))
@@ -49,11 +51,6 @@ class ScExtensionImpl(@Nullable stub: ScExtensionStub, @Nullable node: ASTNode)
   override def getContainingClass: PsiClass = null
 
   override def hasModifierProperty(name: String): Boolean = false
-
-  def effectiveParameterClauses: Seq[ScParameterClause] =
-    allClauses ++ clauses.flatMap(
-      ScalaPsiUtil.syntheticParamClause(this, _, isClassParameter = false)()
-    )
 
   override def processDeclarations(
     processor:  PsiScopeProcessor,

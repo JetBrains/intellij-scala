@@ -198,4 +198,79 @@ class Scala3ExtensionsTest extends ScalaLightCodeInsightFixtureTestAdapter {
       |}
       |""".stripMargin
   )
+
+  def testExtensionFromContextBound(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Functor[F[_]] {
+      |    extension [A, B](fa: F[A]) def map(f: A => B): F[B]
+      |  }
+      |
+      |  def foo[F[_]: Functor](fi: F[Int], toS: Int => String): F[String] = fi.map(toS)
+      |}
+      |""".stripMargin
+  )
+
+  def testExtensionFromTypeClassInstance(): Unit = checkTextHasNoErrors(
+    """
+      |trait Ord[A] {
+      |  extension (xs: A) def foo: Int = 123
+      |}
+      |
+      |trait List[T]
+      |object List {
+      |  implicit def ordList(implicit ord: Ord[Int]): Ord[List[Int]] = new Ord[List[Int]] {}
+      |}
+      |
+      |object A {
+      |  implicit val ordInt: Ord[Int] = new Ord[Int] {}
+      |
+      |  val xs: List[Int] = new List[Int] {}
+      |  println(xs.foo)
+      |}
+      |""".stripMargin
+  )
+
+  def testExtensionFromTypeClassInstanceNeg(): Unit = checkHasErrorAroundCaret(
+    s"""
+      |trait Ord[A] {
+      |  extension (xs: A) def foo: Int = 123
+      |}
+      |
+      |trait List[T]
+      |object List {
+      |  implicit def ordList(implicit ord: Ord[Int]): Ord[List[Int]] = new Ord[List[Int]] {}
+      |}
+      |
+      |object A {
+      |  val xs: List[Int] = new List[Int] {}
+      |  println(xs.f${CARET}oo)
+      |}
+      |""".stripMargin
+  )
+
+  def testExtensionFromGiven(): Unit = checkTextHasNoErrors(
+    """
+      |object A {
+      |  trait Monad[F[_]] {
+      |    extension[A,B](fa: F[A])
+      |      def flatMap(f: A => F[B]):F[B]
+      |  }
+      |
+      |  given optionMonad: Monad[Option] with
+      |    def pure[A](a: A) = Some(a)
+      |    extension[A,B](fa: Option[A])
+      |      def flatMap(f: A => Option[B]) = {
+      |        fa match {
+      |          case Some(a) =>
+      |            f(a)
+      |          case None =>
+      |            None
+      |        }
+      |      }
+      |
+      |  Option(123).flatMap(x => Option(x + 1))
+      |}
+      |""".stripMargin
+  )
 }

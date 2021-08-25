@@ -139,7 +139,7 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
           ext
             .extensionMethods
             .foreach(m => addSignature(
-              new PhysicalMethodSignature(m, subst, isExtensionMethod = true))
+              new PhysicalMethodSignature(m, subst, extensionTypeParameters = Option(ext.typeParameters)))
             )
         case _ =>
       }

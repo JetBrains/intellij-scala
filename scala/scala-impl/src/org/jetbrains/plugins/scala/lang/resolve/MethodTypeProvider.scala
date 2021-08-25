@@ -164,7 +164,7 @@ object MethodTypeProvider {
           val extTypeParams = ext.typeParameters
           val extParams     = ext.effectiveParameterClauses
 
-          val newMethodType = constructMethodType(regularMethodResult, extParams)
+          val newMethodType = s(constructMethodType(regularMethodResult, extParams))
 
           if (extTypeParams.nonEmpty) ScTypePolymorphicType(newMethodType, extTypeParams.map(TypeParameter(_)))
           else                        newMethodType
