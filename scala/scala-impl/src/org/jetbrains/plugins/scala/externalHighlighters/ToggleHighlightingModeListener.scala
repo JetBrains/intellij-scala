@@ -32,10 +32,10 @@ class ToggleHighlightingModeListener
     ScalaHighlightingMode.addSettingsListener(project)(listener)
   }
   
-  private def compileOrEraseHighlightings(reasonForDebug: String, project: Project): Unit =
+  private def compileOrEraseHighlightings(debugReason: String, project: Project): Unit =
     DumbService.getInstance(project).runWhenSmart { () =>
       if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project)) {
-        CompilerHighlightingService.get(project).triggerIncrementalCompilation(reasonForDebug, delayedProgressShow = false)
+        CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason, delayedProgressShow = false)
         AnnotatorHints.clearIn(project)
       } else {
         ExternalHighlighters.eraseAllHighlightings(project)

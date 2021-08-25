@@ -172,7 +172,7 @@ object ILoopWrapperFactoryHandler {
 
   private[worksheet] case class ScalaVersion(value: Version) {
     // temp solution while dotty is evolving very fast
-    val isScala3: Boolean = value.presentation.startsWith("3.0")
+    val isScala3: Boolean = value.presentation.startsWith("3.")
   }
 
   private[worksheet] object ScalaVersion {
