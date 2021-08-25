@@ -10,9 +10,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
 package object completion {
 
   val MODULE_ID_OPS = List("%", "%%")
-  val LIB_DEP_OPS = List("+=", "++=")
   val SBT_MODULE_ID_TYPE = List("sbt.ModuleID", "_root_.sbt.librarymanagement.ModuleID")
   val SEQ: String = "Seq"
+  val SEQ_ADD_OPS = Set("+=", "++=")
   val SBT_LIB_CONFIGURATION = "_root_.sbt.librarymanagement.Configuration"
   val SBT_ORG_ARTIFACT = "_root_.sbt.librarymanagement.DependencyBuilders.OrganizationArtifactName"
 

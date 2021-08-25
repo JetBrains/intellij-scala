@@ -1,0 +1,5 @@
+scalacOptions += "-class<caret>"
+
+/*
+-classpath
+*/

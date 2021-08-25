@@ -19,6 +19,7 @@
                   fieldName="MODULE$"/>
         <annotator language="Scala" implementationClass="org.jetbrains.sbt.annotator.SbtAnnotator"/>
         <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtDocumentationProvider" order="before ScalaDocumentationProvider"/>
+        <lang.documentationProvider language="Scala" implementationClass="org.jetbrains.sbt.editor.documentationProvider.SbtScalacOptionsDocumentationProvider"/>
         <lang.parserDefinition language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellParserDefinition"/>
 
         <externalSystemManager implementation="org.jetbrains.sbt.project.SbtExternalSystemManager"/>
@@ -83,10 +84,14 @@
         <completion.contributor language="any"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtScalaVersionCompletionContributor"
                                 order="first" id="sbtScalaVersionCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor"
+                                order="first, before sbtScalaVersionCompletionContributor" id="sbtScalacOptionsCompletionContributor"/>
         <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
                                 order="first"/>
 
         <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInDependencyStrings" order="first"/>
+        <completion.confidence language="Scala" implementationClass="org.jetbrains.sbt.language.completion.EnableAutoPopupInScalacOptionsStrings" order="first"/>
 
         <weigher key="completion" implementationClass="org.jetbrains.sbt.language.completion.SbtDefinitionWeigher"
                  id="scalaSbtDefinitionWeigher" order="before scalaContainingClassWeigher, before scalaMethodCompletionWeigher"/>
