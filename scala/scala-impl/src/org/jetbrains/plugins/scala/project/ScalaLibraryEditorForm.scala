@@ -48,7 +48,7 @@ class ScalaLibraryEditorForm() {
   def languageLevel: ScalaLanguageLevel = myLanguageLevel.getSelectedItem.asInstanceOf[ScalaLanguageLevel]
   def languageLevel_=(languageLevel: ScalaLanguageLevel): Unit = {
     // in case some new major release candidate version of the scala compiler is used
-    // we want to display it's language leve anyway (it's not added to the combobox when creating new SDK)
+    // we want to display it's language level anyway (it's not added to the combobox when creating new SDK)
     val items = myLanguageLevel.items
     if (!items.contains(languageLevel)) {
       myLanguageLevel.setModel(new DefaultComboBoxModel[ScalaLanguageLevel]((languageLevel +: items).toArray))

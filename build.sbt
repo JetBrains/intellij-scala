@@ -191,7 +191,7 @@ lazy val tastyRuntime = Project("tasty-runtime", file("tasty/runtime"))
 lazy val scalaImpl: sbt.Project =
   newProject("scala-impl", file("scala/scala-impl"))
     .dependsOn(
-      compilerShared,
+      compilerShared % "test->test;compile->compile",
       scalaApi,
       macroAnnotations,
       traceLogger,
@@ -574,7 +574,4 @@ addCommandAlias("runFastTestsScala", s"testOnly scala.* -- $fastTestOptions")
 
 // run dfa tests directly in that module
 addCommandAlias("runDfaTests", "dfa/test")
-
-(ThisBuild / communityFullClasspath) :=
-  deduplicatedClasspath((scalaCommunity / Test / fullClasspath).value, (scalaCommunity / Compile / fullClasspath).value)
 
