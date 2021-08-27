@@ -159,8 +159,9 @@ object TreePrinter {
       else {
         if (base.startsWith("scala.Tuple")) {
           elements.mkString("(", ", ", ")")
-        } else if (base.startsWith("scala.Function")) {
-          val s = (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + " => " + elements.last
+        } else if (base.startsWith("scala.Function") || base.startsWith("scala.ContextFunction")) {
+          val arrow = if (base.startsWith("scala.Function")) " => " else " ?=> "
+          val s = (if (elements.length == 2) elements.head else elements.init.mkString("(", ", ", ")")) + arrow + elements.last
           if (parensRequired) "(" + s + ")" else s
         } else {
           simple(base) + "[" + elements.mkString(", ") + "]"
@@ -177,6 +178,10 @@ object TreePrinter {
         case _ => textOfType(tpe)
       }
     case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
+
+    case Node(TYPEBOUNDStpt, _, _) => "?" + boundsIn(node)
+
+    case Node(LAMBDAtpt, _, children) => parametersIn(node) + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
 
     case _ => "" // TODO exhaustive match
   }
