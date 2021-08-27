@@ -1,12 +1,9 @@
 package org.jetbrains.plugins.scala.testingSupport.test
 
-import java.io.{File, FileOutputStream, IOException, PrintStream}
-import java.{util => ju}
-
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
-import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager, RunConfigurationExtension, ShortenCommandLine}
+import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
 import com.intellij.openapi.components.PathMacroManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
@@ -22,6 +19,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.ScalaTestFrameworkCommand
 import org.jetbrains.plugins.scala.testingSupport.test.exceptions.executionException
 import org.jetbrains.plugins.scala.testingSupport.test.utils.{JavaParametersModified, RawProcessOutputDebugLogger}
 
+import java.io.{File, IOException, PrintStream}
+import java.nio.charset.StandardCharsets
+import java.{util => ju}
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 
@@ -128,7 +128,7 @@ class ScalaTestFrameworkCommandLineState(
     programParameters: Seq[String]
   ): File = try {
     val tempFile: File = File.createTempFile("idea_scala_test_runner", ".tmp")
-    Using.resource(new PrintStream(new FileOutputStream(tempFile))) { printer =>
+    Using.resource(new PrintStream(tempFile, StandardCharsets.UTF_8.toString)) { printer =>
       programParameters.foreach(printer.println)
     }
     tempFile
