@@ -71,6 +71,7 @@ object TastyReaderTest {
       "types/Annotated",
       "types/Constant",
       "types/Function",
+      "types/FunctionContext",
       "types/Ident",
       "types/Lambda",
       "types/Literal",
