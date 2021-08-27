@@ -1354,6 +1354,14 @@
                          shortName="scala2InSource3" groupKey="group.code.style" groupPath="Scala"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 
+        <!-- Dataflow analysis inspections -->
+        <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaConstantConditionsInspection"
+                         bundle="messages.ScalaInspectionBundle"
+                         key="displayname.constant.conditions"
+                         groupPath="Scala" groupKey="group.dataflow.analysis"
+                         shortName="ConstantConditions"
+                         level="WARNING" enabledByDefault="true" language="Scala"/>
+
         <!--collection inspections-->
         <!--size-->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"
