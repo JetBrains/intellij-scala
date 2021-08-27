@@ -72,6 +72,7 @@ object TastyReaderTest {
       "types/Constant",
       "types/Function",
       "types/Ident",
+      "types/Lambda",
       "types/Literal",
       "types/Or",
       "types/Projection",

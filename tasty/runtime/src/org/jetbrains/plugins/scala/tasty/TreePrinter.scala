@@ -180,6 +180,8 @@ object TreePrinter {
 
     case Node(TYPEBOUNDStpt, _, _) => "?" + boundsIn(node)
 
+    case Node(LAMBDAtpt, _, children) => parametersIn(node) + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
+
     case _ => "" // TODO exhaustive match
   }
 
