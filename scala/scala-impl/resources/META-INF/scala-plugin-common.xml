@@ -197,7 +197,7 @@
         <problemHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemHighlightFilter"/>
         <problemFileHighlightFilter implementation="org.jetbrains.plugins.scala.annotator.ScalaProblemFileHighlightFilter"/>
 
-        <!--  Notification groups  -->
+        <!-- Notification groups -->
         <notificationGroup id="Scala Balloon Notifications" displayType="BALLOON"  key=""/>
         <notificationGroup id="Persistent Scala Notifications" displayType="STICKY_BALLOON" />
         <notificationGroup id="Scala ToolWindow Notifications" displayType="TOOL_WINDOW" toolWindowId="Messages"/>
@@ -351,22 +351,22 @@
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupJdkNotificationProvider"/>
         <editorNotificationProvider implementation="org.jetbrains.plugins.scala.project.notification.SetupScalaSdkNotificationProvider"/>
 
-        <!--Enter Handler for ScalaDoc -->
+        <!-- Enter Handler for ScalaDoc -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaDocTagEnterHandlerDelegate"/>
-        <!--/Handler-->
+        <!-- /Handler -->
 
-        <!--Enter Handler for inserting "+" in interpolated strings-->
+        <!-- Enter Handler for inserting "+" in interpolated strings -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.InterpolatedStringEnterHandler"
                               order="first"/>
-        <!--/Handler-->
+        <!-- /Handler -->
 
-        <!--Enter Handler for multiline strings-->
+        <!-- Enter Handler for multiline strings -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.MultilineStringEnterHandler" order="first"/>
-        <!--/Handler-->
+        <!-- /Handler -->
 
-        <!--Enter Handler for braces in closure braced blocks-->
+        <!-- Enter Handler for braces in closure braced blocks -->
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.EnterBetweenClosureBracesHandler"/>
-        <!--/Handler-->
+        <!-- /Handler -->
 
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.ScalaEnterAfterUnmatchedBraceHandler" order="first"/>
         <enterHandlerDelegate implementation="org.jetbrains.plugins.scala.editor.enterHandler.AddUnitTypeEnterHandler" order="first"/>
@@ -466,7 +466,7 @@
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaElementType$"/>
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.ScalaParserDefinition$"/>
         <stubElementTypeHolder class="org.jetbrains.plugins.scala.lang.parser.Scala3ParserDefinition$"/>
-        <!--Stub indices -->
+        <!-- Stub indices -->
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScAllClassNamesIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScShortClassNameIndex"/>
         <stubIndex implementation="org.jetbrains.plugins.scala.lang.psi.stubs.index.ScNotVisibleInJavaShortClassNameIndex"/>
@@ -576,7 +576,7 @@
         <filetype.decompiler filetype="SIG" implementationClass="org.jetbrains.plugins.scala.lang.psi.compiled.SigFileDecompiler"/>
 
         <!-- TODO Research whether it's possible to use only the following: -->
-<!--        <fileType name="TASTy" extensions="tasty" implementationClass="com.intellij.ide.highlighter.JavaClassFileType"/>-->
+        <!--<fileType name="TASTy" extensions="tasty" implementationClass="com.intellij.ide.highlighter.JavaClassFileType"/>-->
         <fileType name="TASTy" extensions="tasty" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileType$" fieldName="MODULE$"/>
         <fileType.fileViewProviderFactory filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileViewProviderFactory"/>
         <filetype.stubBuilder filetype="TASTy" implementationClass="org.jetbrains.plugins.scala.tasty.TastyFileStubBuilder"/>
@@ -809,7 +809,7 @@
 
         <patterns.patternClass className="org.jetbrains.plugins.scala.patterns.ScalaPatterns" alias="scala"/>
 
-        <!-- inspections -->
+        <!-- Inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.infiniteCycle.LoopVariableNotUpdatedInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.loop.variable.not.updated.inside.loop"
@@ -1144,7 +1144,7 @@
                          language="Scala" groupPath="Scala" groupKey="group.internal"
                          isInternal="true" level="WARNING" enabledByDefault="true"/>
 
-        <!--Syntactic simplification inspections (including syntactic sugaring), see SCL-10327-->
+        <!-- Syntactic simplification inspections (including syntactic sugaring), see SCL-10327 -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticSimplification.FunctionTupleSyntacticSugarInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.syntactic.sugar"
@@ -1194,7 +1194,7 @@
                          shortName="RedundantDefaultArgument" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
-        <!--Syntactic clarification inspections (including syntactic desugaring), see SCL-10327-->
+        <!-- Syntactic clarification inspections (including syntactic desugaring), see SCL-10327 -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.syntacticClarification.AutoTuplingInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.auto.tupling"
@@ -1209,7 +1209,7 @@
                 shortName="ConvertNullInitializerToUnderscore" level="WARNING"
                 enabledByDefault="true" language="Scala"/>
 
-        <!--Method signature inspections-->
+        <!-- Method signature inspections -->
         <localInspection
                 implementationClass="org.jetbrains.plugins.scala.codeInspection.methodSignature.AccessorLikeMethodInspection$EmptyParentheses"
                 bundle="messages.ScalaInspectionBundle"
@@ -1339,7 +1339,7 @@
                 language="Scala" level="INFORMATION"
                 enabledByDefault="true"/>
 
-        <!--Code style inspections-->
+        <!-- Code style inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scalastyle.ScalastyleCodeInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.scala.style.inspection"
@@ -1362,8 +1362,8 @@
                          shortName="ConstantConditions"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 
-        <!--collection inspections-->
-        <!--size-->
+        <!-- Collection inspections -->
+        <!-- Size -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EmptyCheckInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.simplifiable.empty.check"
@@ -1376,7 +1376,8 @@
                          groupPathKey="grouppath.scala.collections" groupKey="group.size"
                          shortName="SizeToLength" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <!--comparing-->
+
+        <!-- Comparing -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.EqualityToSameElementsInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.equals.on.arrays.and.iterators"
@@ -1407,7 +1408,8 @@
                          groupPathKey="grouppath.scala.collections" groupKey="group.comparing"
                          shortName="ComparingLength" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
-        <!--indices-->
+
+        <!-- Indices -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.ZipWithIndexInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.manually.zipping.with.indices"
@@ -1432,7 +1434,8 @@
                          groupPathKey="grouppath.scala.collections" groupKey="group.indices"
                          shortName="RangeToIndices" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <!--simplifications: filter and exists-->
+
+        <!-- Simplifications: filter and exists -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.FilterHeadOptionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.filter.and.headoption.to.find"
@@ -1493,7 +1496,8 @@
                          groupPathKey="grouppath.scala.collections" groupKey="group.simplifications.forall.and.exists"
                          shortName="ExistsForallReplace" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
-        <!--simplifications: other-->
+
+        <!-- Simplifications: other -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SimplifiableFoldOrReduceInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.simplifiable.fold.or.reduce.method"
@@ -1585,7 +1589,7 @@
                          shortName="MakeArrayToString" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
-        <!--maps-->
+        <!-- Maps -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.GetGetOrElseInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.get.and.getorelse.to.getorelse"
@@ -1629,7 +1633,7 @@
                          shortName="UnitInMap" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
-        <!--options-->
+        <!-- Options -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantHeadOrLastOptionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.redundant.headoption.or.lastoption"
@@ -1680,7 +1684,7 @@
                          shortName="SomeToOption" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
 
-        <!--other-->
+        <!-- Other -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.SortFilterInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.filter.after.sort"
@@ -1700,7 +1704,7 @@
                          shortName="UnzipSingleElement" level="WARNING"
                          enabledByDefault="true" language="Scala"/>
 
-        <!--Collections-->
+        <!-- Collections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.collections.RedundantCollectionConversionInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.redundant.collection.conversion"
@@ -1714,7 +1718,7 @@
                          shortName="SideEffectsInMonadicTransformation" level="WARNING"
                          enabledByDefault="false" language="Scala"/>
 
-        <!-- scaladoc inspections -->
+        <!-- Scaladoc inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.scaladoc.ScalaDocUnclosedTagWithoutParserInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.tag.unclosed"
@@ -1750,10 +1754,9 @@
                          key="displayname.wrong.scaladoc.element"
                          groupPath="Scala" groupKey="group.scaladoc" shortName="ScalaDocParserErrorInspection"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
+        <!-- End of scaladoc inspections -->
 
-        <!-- end of scaladoc inspections -->
-
-        <!-- resource leak inspections -->
+        <!-- Resource leak inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.resourceLeaks.SourceNotClosedInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="source.not.closed"
@@ -1762,16 +1765,15 @@
                          shortName="SourceNotClosed"
                          language="Scala" level="WARNING"
                          enabledByDefault="true"/>
-        <!-- end of resource leak inspections -->
+        <!-- End of resource leak inspections -->
 
         <!---->
-
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.specs2.BuiltinMatcherExistsInspection"
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.specs2.matchers"
                          shortName="Specs2Matchers" groupKey="group.specs2" groupPath="Scala"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
-        <!-- end of inspections -->
+        <!-- End of inspections -->
 
         <library.type implementation="org.jetbrains.plugins.scala.project.ScalaLibraryType"/>
         <disabledIndentRangesProvider implementation="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalaFmtDisabledIndentRangesProvider"/>
@@ -1822,7 +1824,8 @@
                   class="org.jetbrains.plugins.scala.compilationCharts.CompilationChartsBuildManagerListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.compilationCharts.ui.CompilationChartsBuildToolWindowNodeFactory"/>
-        <!-- Formatter listeners-->
+
+        <!-- Formatter listeners -->
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
                   class="org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtProjectListener"/>
         <listener topic="com.intellij.openapi.project.ProjectManagerListener"
