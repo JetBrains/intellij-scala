@@ -5,6 +5,7 @@ import org.specs2.execute.FailureDetails;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -140,7 +141,7 @@ public class TestRunnerUtil {
     if (!file.exists())
       throw new FileNotFoundException(String.format("argument file %s could not be found", file.getName()));
     else
-      return Files.lines(file.toPath()).map(String::trim).filter(x -> !x.isEmpty());
+      return Files.lines(file.toPath(), StandardCharsets.UTF_8).map(String::trim).filter(x -> !x.isEmpty());
   }
 
   public static String unescapeTestName(String testName) {
