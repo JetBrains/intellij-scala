@@ -178,6 +178,8 @@ object TreePrinter {
       }
     case Node(BYNAMEtpt, _, Seq(tpe)) => "=> " + simple(textOfType(tpe))
 
+    case Node(TYPEBOUNDStpt, _, _) => "?" + boundsIn(node)
+
     case _ => "" // TODO exhaustive match
   }
 
