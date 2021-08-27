@@ -183,6 +183,14 @@ object TreePrinter {
 
     case Node(LAMBDAtpt, _, children) => parametersIn(node) + " =>> " + children.lastOption.map(textOfType(_)).getOrElse("") // TODO check tree
 
+    case Node(REFINEDtpt, _, Seq(tr @ Node(TYPEREF, _, _), Node(DEFDEF, Seq(name), children), _ : _*)) if textOfType(tr) == "scala.PolyFunction" && name == "apply" => // TODO check tree
+      val (typeParams, tail1) = children.span(_.is(TYPEPARAM))
+      val (valueParams, tails2) = tail1.span(_.is(PARAM))
+      typeParams.map(_.name).mkString("[", ", ", "]") + " => " + {
+        val params = valueParams.flatMap(_.children.headOption.map(tpe => simple(textOfType(tpe)))).mkString(", ")
+        if (valueParams.length == 1) params else "(" + params + ")"
+      } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
+
     case _ => "" // TODO exhaustive match
   }
 
