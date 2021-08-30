@@ -36,9 +36,10 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val pack = JavaDirectoryService.getInstance.getPackage(dir)
         if (pack == null) return null
 
+        val packageObjects = typeDefinitions.filter(_.isPackageObject)
         val ranges: Seq[TextRange] = file.packagingRanges match {
           case Seq() => typeDefinitions.map(_.nameId.getTextRange)
-          case seq => seq
+          case seq => seq ++ packageObjects.map(_.nameId.getTextRange)
         }
 
         val possiblePackageQualifiers = typeDefinitions
@@ -70,9 +71,15 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         }
 
         if (pack.getQualifiedName != packageQualifier) {
-          val fixes = Seq(
-            new ScalaRenamePackageQuickFix(file, pack.getQualifiedName),
-            new ScalaMoveToPackageQuickFix(file, packageQualifier))
+          assert(packageObjects.size <= 1, "There should only be one package object here... otherwise we should have already aborted")
+
+          def renameQuickfix = new ScalaRenamePackageQuickFix(file, pack.getQualifiedName)
+          def moveQuickfix = new ScalaMoveToPackageQuickFix(file, packageQualifier)
+          // the special root/empty-name package cannot have a package object
+          val cannotRename = pack.getQualifiedName == "" && packageObjects.nonEmpty
+          val fixes =
+            if (cannotRename) Seq(moveQuickfix)
+            else Seq(renameQuickfix, moveQuickfix)
 
           problemDescriptors(fixes).toArray
         } else null

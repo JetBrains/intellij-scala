@@ -52,6 +52,18 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |object Test
          |""".stripMargin
     )
+
+    testQuickFix(
+      s"""package ${CARET}wrongName
+         |
+         |object Test
+         |""".stripMargin,
+      s"""package subdir
+         |
+         |object Test
+         |""".stripMargin,
+      "Set package name to 'subdir'"
+    )
   }
 
   def test_missing_package_decl(): Unit = inDirectory("subdir") {
@@ -61,16 +73,40 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |}
          |""".stripMargin
     )
+
+    testQuickFix(
+      s"""object ${CARET}Test {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      s"""package subdir
+         |
+         |object Test {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      "Set package name to 'subdir'"
+    )
   }
 
   def test_in_parent_package_decl(): Unit = inDirectory("subdir") {
     checkTextHasError(
       s"""package ${START}subdir.wrong$END
          |
-         |object Test {
-         |  val test = 3
-         |}
+         |object Test
          |""".stripMargin
+    )
+
+    testQuickFix(
+      s"""package ${CARET}subdir.wrong
+         |
+         |object Test
+         |""".stripMargin,
+      s"""package subdir
+         |
+         |object Test
+         |""".stripMargin,
+      "Set package name to 'subdir'"
     )
   }
 
@@ -98,10 +134,26 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
     checkTextHasError(
       s"""package ${START}subdir$END
          |
-         |package object wrongName {
-         |  val test = 3
+         |package object ${START}wrongName$END {
+         |  val x = 3
          |}
          |""".stripMargin
+    )
+
+    testQuickFix(
+      s"""package ${CARET}subdir
+         |
+         |package object wrongName {
+         |  val x = 3
+         |}
+         |""".stripMargin,
+      s"""package subdir
+         |
+         |package object subsubdir {
+         |  val x = 3
+         |}
+         |""".stripMargin,
+      "Set package name to 'subdir.subsubdir'"
     )
   }
 
@@ -109,10 +161,27 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
     checkTextHasError(
       s"""package ${START}wrongParent$END
          |
-         |package object subsubdir {
+         |package object ${START}subsubdir$END {
          |  val test = 3
          |}
          |""".stripMargin
+    )
+
+
+    testQuickFix(
+      s"""package ${CARET}wrongParent
+         |
+         |package object subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      s"""package subdir
+         |
+         |package object subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      "Set package name to 'subdir.subsubdir'"
     )
   }
 
@@ -123,26 +192,63 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |}
          |""".stripMargin
     )
+
+    testQuickFix(
+      s"""package object ${CARET}subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      s"""package subdir
+         |
+         |package object subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      "Set package name to 'subdir.subsubdir'"
+    )
   }
 
   def test_package_object_missing_parent_dir(): Unit = inDirectory("subdir") {
     checkTextHasError(
       s"""package ${START}subdir$END
          |
-         |package object subsubdir {
+         |package object ${START}subsubdir$END {
          |  val test = 3
          |}
          |""".stripMargin
     )
+
+    testQuickFix(
+      s"""package ${CARET}subdir
+         |
+         |package object subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      s"""package object subdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      "Set package name to 'subdir'"
+    )
   }
 
-  def test_package_object_missing_parent_root(): Unit =
+  def test_package_object_missing_parent_root(): Unit = {
     checkTextHasError(
       s"""package object ${START}subsubdir$END {
          |  val test = 3
          |}
          |""".stripMargin
     )
+
+    checkNotFixable(
+      s"""package object ${CARET}subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      hint => hint.startsWith("Set package name to") || hint == "Remove package statement"
+    )
+  }
 
   def test_package_block(): Unit = inDirectory("subdir/subsubdir") {
     checkTextHasNoErrors(

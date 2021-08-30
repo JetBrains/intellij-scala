@@ -190,7 +190,11 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
   }
 
   protected def checkNotFixable(text: String, hint: String): Unit = {
-    val maybeAction = findQuickFix(text, hint, failOnEmptyErrors = false)
+    checkNotFixable(text, _ == hint)
+  }
+
+  protected def checkNotFixable(text: String, hintFilter: String => Boolean): Unit = {
+    val maybeAction = findQuickFix(text, hintFilter, failOnEmptyErrors = false)
     assertTrue("Quick fix found.", maybeAction.isEmpty)
   }
 
@@ -199,9 +203,9 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
     assertFalse("Quick fix is available", action.isAvailable(getProject, getEditor, getFile))
   }
 
-  private def findQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): Option[IntentionAction] = {
+  private def findQuickFix(text: String, hintFilter: String => Boolean, failOnEmptyErrors: Boolean = true): Option[IntentionAction] = {
     val actions = findAllQuickFixes(text, failOnEmptyErrors)
-    actions.find(_.getText == hint)
+    actions.find(a => hintFilter(a.getText))
   }
 
   private def doFindQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): IntentionAction = {
