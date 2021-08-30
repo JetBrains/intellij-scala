@@ -47,7 +47,7 @@ object SbtScalacOptionsCompletionContributor {
   }
 
   private def lookupElementMatchingVersions(option: SbtScalacOptionInfo, scalaVersions: List[String])(implicit project: Project): Option[LookupElement] = {
-    val matchingVersions = scalaVersions.filter(version => option.scalaVersions.exists(_.major == version))
+    val matchingVersions = scalaVersions.filter(version => option.scalaVersions.exists(_.getVersion == version))
 
     if (matchingVersions.isEmpty) None
     else {

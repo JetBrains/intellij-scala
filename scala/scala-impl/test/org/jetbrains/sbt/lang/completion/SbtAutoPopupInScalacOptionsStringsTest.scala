@@ -6,7 +6,7 @@ import com.intellij.testFramework.fixtures.CompletionAutoPopupTester
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils
+import org.jetbrains.sbt.language.utils.{SbtScalacOptionInfo, SbtScalacOptionUtils}
 import org.junit.Assert.assertNull
 
 import scala.jdk.CollectionConverters._
@@ -32,7 +32,7 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
 
     val actualLookupItems = myFixture.getLookupElementStrings
 
-    UsefulTestCase.assertSameElements[String](actualLookupItems, expectedLookupItems.asJava)
+    UsefulTestCase.assertContainsElements[String](actualLookupItems, expectedLookupItems.asJava)
   }
 
   private def doTestNoAutoCompletion(textToType: String)(src: String): Unit = {
@@ -42,12 +42,12 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
     assertNull("Lookup shouldn't be shown", myTester.getLookup)
   }
 
-  def testAutoPopupInScalacOptionsString_AfterDash(): Unit = doTest("class", SbtScalacOptionUtils.getScalacOptions.filter(_.flag.startsWith("-class")).map(_.flag)) {
+  def testAutoPopupInScalacOptionsString_AfterDash(): Unit = doTest("class", loadFlags(_.flag.contains("-class"))) {
     s"""scalacOptions += "-$CARET"
        |""".stripMargin
   }
 
-  def testAutoPopupInScalacOptionsString_FromStart(): Unit = doTest("class", SbtScalacOptionUtils.getScalacOptions.filter(_.flag.contains("class")).map(_.flag)) {
+  def testAutoPopupInScalacOptionsString_FromStart(): Unit = doTest("class", loadFlags(_.flag.contains("class"))) {
     s"""scalacOptions ++= Seq("-verbose", "$CARET")
        |""".stripMargin
   }
@@ -61,4 +61,10 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
     s"""scalacOptions += "-verbose $CARET"
        |""".stripMargin
   }
+
+  private def loadFlags(filter: SbtScalacOptionInfo => Boolean): Seq[String] =
+    SbtScalacOptionUtils.getScalacOptions
+      .filter(_.scalaVersions.contains(version.languageLevel))
+      .filter(filter)
+      .map(_.flag)
 }
