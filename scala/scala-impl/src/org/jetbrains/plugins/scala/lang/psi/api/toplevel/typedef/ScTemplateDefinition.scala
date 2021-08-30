@@ -7,6 +7,7 @@ package typedef
 
 import com.intellij.psi._
 import com.intellij.psi.impl.source.tree.LeafPsiElement
+import org.jetbrains.annotations.Nullable
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScSelfTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
@@ -19,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.result._
  */
 trait ScTemplateDefinition extends ScNamedElement with PsiClassAdapter with Typeable {
 
+  @Nullable
   def qualifiedName: String = null
 
   def originalElement: Option[ScTemplateDefinition]
