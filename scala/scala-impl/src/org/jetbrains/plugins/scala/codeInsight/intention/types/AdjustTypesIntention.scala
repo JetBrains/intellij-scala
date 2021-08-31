@@ -25,6 +25,8 @@ class AdjustTypesIntention extends PsiElementBaseIntentionAction {
 
   private def findMaxReference(element: PsiElement): Option[PsiElement] =
     element.withParentsInFile
-      .takeWhile(_.is[LeafPsiElement, ScReference]).lastOption
+      .takeWhile(_.is[LeafPsiElement, ScReference])
+      .lastOption
+      .filter(_.is[ScReference])
       .filter(ref => ref.parentOfType[ScImportExpr].isEmpty)
 }
