@@ -6,5 +6,6 @@ package object dfa {
   object DfaConstantValue {
     case object True extends DfaConstantValue
     case object False extends DfaConstantValue
+    case object Unknown extends DfaConstantValue
   }
 }

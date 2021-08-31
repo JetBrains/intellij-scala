@@ -16,4 +16,10 @@ object ScalaDfaTypeUtils {
     case char: ScCharLiteral => DfTypes.intValue(char.getValue.toInt)
     case _ => DfType.TOP
   }
+
+  def dfTypeToReportedConstant(dfType: DfType): DfaConstantValue = dfType match {
+    case DfTypes.TRUE => DfaConstantValue.True
+    case DfTypes.FALSE => DfaConstantValue.False
+    case _ => DfaConstantValue.Unknown
+  }
 }
