@@ -308,13 +308,11 @@ class ProjectImportingTest extends ImportingTestCase
         val module_8_x_x_preview  = moduleX("module_8_x_x_preview", LanguageLevel.JDK_1_8, null) // no preview for Java 8
         val module_11_x_x_preview = moduleX("module_11_x_x_preview", LanguageLevel.JDK_11, null) // no preview for Java 11
         val module_14_x_x_preview = moduleX("module_14_x_x_preview", LanguageLevel.JDK_14, null) // no preview for Java 11
-        val module_15_x_x_preview = moduleX("module_15_x_x_preview", LanguageLevel.JDK_15_PREVIEW, null)
         val module_16_x_x_preview = moduleX("module_16_x_x_preview", LanguageLevel.JDK_16_PREVIEW, null)
 
         val module_x_x_8_preview  = moduleX("module_x_x_8_preview", LanguageLevel.JDK_1_8, "8")
         val module_x_x_11_preview = moduleX("module_x_x_11_preview", LanguageLevel.JDK_11, "11")
         val module_x_x_14_preview = moduleX("module_x_x_14_preview", LanguageLevel.JDK_14, "14")
-        val module_x_x_15_preview = moduleX("module_x_x_15_preview", LanguageLevel.JDK_15_PREVIEW, "15")
         val module_x_x_16_preview = moduleX("module_x_x_16_preview", LanguageLevel.JDK_16_PREVIEW, "16")
 
         modules := Seq(
@@ -324,8 +322,8 @@ class ProjectImportingTest extends ImportingTestCase
           module_8_x_x, module_11_x_x, module_14_x_x, module_15_x_x,
           module_x_8_x, module_x_11_x,
           module_x_x_8, module_x_x_11,
-          module_8_x_x_preview, module_11_x_x_preview, module_14_x_x_preview, module_15_x_x_preview, module_16_x_x_preview,
-          module_x_x_8_preview, module_x_x_11_preview, module_x_x_14_preview, module_x_x_15_preview, module_x_x_16_preview,
+          module_8_x_x_preview, module_11_x_x_preview, module_14_x_x_preview, module_16_x_x_preview,
+          module_x_x_8_preview, module_x_x_11_preview, module_x_x_14_preview, module_x_x_16_preview,
         )
       }
     ) finally {
