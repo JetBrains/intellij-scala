@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.psi.PsiFile
-import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.{AssertionMatchers, ScalaVersion}
 
-class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase with AssertionMatchers {
+abstract class ScalaPackageNameInspectionTestBase extends ScalaInspectionTestBase with AssertionMatchers {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaPackageNameInspection]
 
@@ -16,7 +16,8 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase with Assert
     s != null && s.startsWith("Package name")
 
   private var directory = Option.empty[String]
-  private def inDirectory(dir: String)(body: => Unit): Unit = {
+
+  protected def inDirectory(dir: String)(body: => Unit): Unit = {
     assert(directory.isEmpty)
     directory = Some(dir)
 
@@ -36,12 +37,15 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase with Assert
     }(getProject)
   }
 
-  private def testMoveQuickfix(code: String, resultDir: String, hint: String): Unit = {
+  protected def testMoveQuickfix(code: String, resultDir: String, hint: String): Unit = {
     testQuickFix(code, code.replace(CARET, ""), hint)
     val expectedPath = s"/src/$resultDir/${getFile.getName}".replace("//", "/")
     getFile.getVirtualFile.getPath shouldBe expectedPath
   }
 
+}
+
+class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTestBase {
   def test_simple(): Unit = inDirectory("subdir") {
     checkTextHasNoErrors(
       """package subdir
@@ -365,4 +369,79 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase with Assert
          |""".stripMargin
     )
   }
+}
+
+
+class ScalaPackageNameInspectionTest_Scala3 extends ScalaPackageNameInspectionTestBase {
+  override protected def supportedIn(version: ScalaVersion): Boolean = version >=  ScalaVersion.Latest.Scala_3_0
+
+  val toplevels = Seq(
+    "def test = 3",
+    "val test = 3",
+    "type Typ = Int"
+  )
+
+  def test_single_val(): Unit = inDirectory("subdir") {
+    for (toplevel <- toplevels)
+      checkTextHasNoErrors(
+        s"""package subdir
+           |
+           |$toplevel
+           |""".stripMargin
+      )
+  }
+
+  def test_single_toplevel_in_wrong_dir(): Unit = {
+    for (toplevel <- toplevels)
+      inDirectory("subdir") {
+        checkTextHasError(
+          s"""package ${START}wrong$END
+             |
+             |$toplevel
+             |""".stripMargin
+        )
+
+        testQuickFix(
+          s"""package ${CARET}wrong
+             |
+             |$toplevel
+             |""".stripMargin,
+          s"""package subdir
+             |
+             |$toplevel
+             |""".stripMargin,
+          "Set package name to 'subdir'"
+        )
+      }
+  }
+
+  def test_move_single_def(): Unit =
+    testMoveQuickfix(
+      s"""package ${CARET}wrong
+         |
+         |def test = 3
+         |""".stripMargin,
+      resultDir = "wrong",
+      hint      = "Move to package 'wrong'",
+    )
+
+  def test_move_single_val(): Unit =
+    testMoveQuickfix(
+      s"""package ${CARET}wrong
+         |
+         |val test = 3
+         |""".stripMargin,
+      resultDir = "wrong",
+      hint      = "Move to package 'wrong'",
+    )
+
+  def test_move_single_type(): Unit =
+    testMoveQuickfix(
+      s"""package ${CARET}wrong
+         |
+         |type X = Int
+         |""".stripMargin,
+      resultDir = "wrong",
+      hint      = "Move to package 'wrong'",
+    )
 }

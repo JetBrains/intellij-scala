@@ -7,14 +7,12 @@ import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
 import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
-
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.07.2009
- */
 
 class ScalaPackageNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
@@ -26,24 +24,32 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
       case file: ScalaFile if IntentionAvailabilityChecker.checkInspection(this, file) =>
         if (file.isScriptFile) return null
         if (file.isWorksheetFile) return null
-        val typeDefinitions = file.typeDefinitions
-        if (typeDefinitions.isEmpty) return null
+        val members = file.members
+        if (members.isEmpty) return null
 
         val dir = file.getContainingDirectory
         if (dir == null) return null
         val pack = JavaDirectoryService.getInstance.getPackage(dir)
         if (pack == null) return null
 
-        val packageObjects = typeDefinitions.filter(_.isPackageObject)
-        val ranges: Seq[TextRange] = file.packagingRanges match {
-          case Seq() => typeDefinitions.map(_.nameId.getTextRange)
+        lazy val packageObjects = members.collect { case td: ScTypeDefinition if td.isPackageObject => td }
+        def ranges: Seq[TextRange] = file.packagingRanges match {
+          case Seq() =>
+            // if there is no packaging statement, we annotate the members directly
+            // for this we only try to highlight the nameIds if possible
+            members.collect {
+              case named: ScNamedElement => Seq(named.nameId.getTextRange)
+              case v: ScValueOrVariable => v.declaredElements.map(_.nameId.getTextRange)
+              case e => Seq(e.getTextRange)
+            }
+            .flatten
           case seq => seq ++ packageObjects.map(_.nameId.getTextRange)
         }
 
-        val possiblePackageQualifiers = typeDefinitions
-          .map { td =>
-            val qualName = Option(td.qualifiedName).getOrElse("")
-            cleanKeywords(if (td.isPackageObject) qualName else parentQualifier(qualName))
+        val possiblePackageQualifiers = members
+          .map {
+            case po: ScTypeDefinition if po.isPackageObject => po.qualifiedName
+            case td => cleanKeywords(td.topLevelQualifier.getOrElse(""))
           }
           .distinct
         val packageQualifier = possiblePackageQualifiers match {
@@ -83,11 +89,6 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         } else null
       case _ => null
     }
-  }
-
-  private def parentQualifier(name: String): String = {
-    val dot = name.lastIndexOf('.')
-    if (dot >= 0) name.substring(0, dot) else ""
   }
 
   private def cleanKeywords(packageName: String): String = {

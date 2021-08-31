@@ -15,10 +15,6 @@ import org.jetbrains.plugins.scala.codeInspection.packageNameInspection.ScalaMov
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.07.2009
- */
 final class ScalaMoveToPackageQuickFix(_file: ScalaFile, packageName: String)
       extends AbstractFixOnPsiElement(ScalaMoveToPackageQuickFix.hint(packageName), _file) {
 

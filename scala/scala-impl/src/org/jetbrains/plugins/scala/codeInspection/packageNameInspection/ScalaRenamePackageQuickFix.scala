@@ -6,10 +6,6 @@ import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.extensions.startCommand
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-/**
- * User: Alexander Podkhalyuzin
- * Date: 08.07.2009
- */
 class ScalaRenamePackageQuickFix(myFile: ScalaFile, name: String)
       extends AbstractFixOnPsiElement(if (name == null || name.isEmpty) ScalaInspectionBundle.message("remove.package.statement") else ScalaInspectionBundle.message("rename.package.to", name), myFile) {
 
