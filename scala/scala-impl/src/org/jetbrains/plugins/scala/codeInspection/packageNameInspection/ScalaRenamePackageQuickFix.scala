@@ -3,7 +3,6 @@ package codeInspection
 package packageNameInspection
 
 import com.intellij.openapi.project.Project
-import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.startCommand
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 

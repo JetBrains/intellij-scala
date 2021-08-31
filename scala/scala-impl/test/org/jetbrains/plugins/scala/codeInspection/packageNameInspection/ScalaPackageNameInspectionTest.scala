@@ -2,10 +2,11 @@ package org.jetbrains.plugins.scala.codeInspection.packageNameInspection
 
 import com.intellij.codeInspection.LocalInspectionTool
 import com.intellij.psi.PsiFile
+import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionTestBase
 import org.jetbrains.plugins.scala.extensions._
 
-class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
+class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase with AssertionMatchers {
   override protected val classOfInspection: Class[_ <: LocalInspectionTool] =
     classOf[ScalaPackageNameInspection]
 
@@ -24,6 +25,7 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
     assert(directory.nonEmpty)
     directory = None
   }
+
   override def onFileCreated(file: PsiFile): Unit = directory.foreach { directory =>
     inWriteCommandAction {
       val subDir = directory.split('/').foldLeft(file.getVirtualFile.getParent) {
@@ -32,6 +34,12 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
       subDir.findChild(file.getName).toOption.foreach { existingFile => existingFile.delete(this) }
       file.getVirtualFile.move(this, subDir)
     }(getProject)
+  }
+
+  private def testMoveQuickfix(code: String, resultDir: String, hint: String): Unit = {
+    testQuickFix(code, code.replace(CARET, ""), hint)
+    val expectedPath = s"/src/$resultDir/${getFile.getName}".replace("//", "/")
+    getFile.getVirtualFile.getPath shouldBe expectedPath
   }
 
   def test_simple(): Unit = inDirectory("subdir") {
@@ -64,6 +72,15 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |""".stripMargin,
       "Set package name to 'subdir'"
     )
+
+    testMoveQuickfix(
+      s"""package ${CARET}wrongName
+         |
+         |object Test
+         |""".stripMargin,
+      resultDir = "wrongName",
+      hint      = "Move to package 'wrongName'",
+    )
   }
 
   def test_missing_package_decl(): Unit = inDirectory("subdir") {
@@ -87,6 +104,15 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |""".stripMargin,
       "Set package name to 'subdir'"
     )
+
+    testMoveQuickfix(
+      s"""object ${CARET}Test {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      resultDir = "",
+      hint      = "Move to default package",
+    )
   }
 
   def test_in_parent_package_decl(): Unit = inDirectory("subdir") {
@@ -107,6 +133,15 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |object Test
          |""".stripMargin,
       "Set package name to 'subdir'"
+    )
+
+    testMoveQuickfix(
+      s"""package ${CARET}subdir.wrong
+         |
+         |object Test
+         |""".stripMargin,
+      resultDir = "subdir/wrong",
+      hint      = "Move to package 'subdir.wrong'",
     )
   }
 
@@ -155,6 +190,17 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |""".stripMargin,
       "Set package name to 'subdir.subsubdir'"
     )
+
+    testMoveQuickfix(
+      s"""package ${CARET}subdir
+         |
+         |package object wrongName {
+         |  val x = 3
+         |}
+         |""".stripMargin,
+      resultDir = "subdir/wrongName",
+      hint      = "Move to package 'subdir.wrongName'",
+    )
   }
 
   def test_package_object_in_wrong_parent_dir(): Unit = inDirectory("subdir/subsubdir") {
@@ -183,6 +229,17 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |""".stripMargin,
       "Set package name to 'subdir.subsubdir'"
     )
+
+    testMoveQuickfix(
+      s"""package ${CARET}wrongParent
+         |
+         |package object subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      resultDir = "wrongParent/subsubdir",
+      hint      = "Move to package 'wrongParent.subsubdir'",
+    )
   }
 
   def test_package_object_missing_parent_package(): Unit = inDirectory("subdir/subsubdir") {
@@ -205,6 +262,15 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |}
          |""".stripMargin,
       "Set package name to 'subdir.subsubdir'"
+    )
+
+    testMoveQuickfix(
+      s"""package object ${CARET}subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      resultDir = "subsubdir",
+      hint      = "Move to package 'subsubdir'",
     )
   }
 
@@ -230,6 +296,17 @@ class ScalaPackageNameInspectionTest extends ScalaInspectionTestBase {
          |}
          |""".stripMargin,
       "Set package name to 'subdir'"
+    )
+
+    testMoveQuickfix(
+      s"""package ${CARET}subdir
+         |
+         |package object subsubdir {
+         |  val test = 3
+         |}
+         |""".stripMargin,
+      resultDir = "subdir/subsubdir",
+      hint      = "Move to package 'subdir.subsubdir'",
     )
   }
 
