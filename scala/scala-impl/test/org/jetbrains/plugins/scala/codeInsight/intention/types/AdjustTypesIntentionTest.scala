@@ -38,15 +38,4 @@ class AdjustTypesIntentionTest extends ScalaIntentionTestBase {
          |val test: scala.collection.mutable.Seq[String] = ???
          |""".stripMargin
   )
-
-  def test_example_4(): Unit = doTest(
-    text =
-      s"""
-         |val test: sca${START}la.collection.muta${END}ble.Seq[String] = ???
-         |""".stripMargin,
-    resultText =
-      s"""
-         |val test: scala.collection.mutable.Seq[String] = ???
-         |""".stripMargin
-  )
 }
