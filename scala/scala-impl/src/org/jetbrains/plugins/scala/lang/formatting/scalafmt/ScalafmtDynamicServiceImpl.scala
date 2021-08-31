@@ -20,6 +20,7 @@ import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.ScalafmtDyna
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.dynamic.{ScalafmtDynamicDownloader, ScalafmtReflect}
 import org.jetbrains.plugins.scala.util.ScalaCollectionsUtil
 
+import java.io.File
 import java.net.URL
 import scala.beans.BeanProperty
 import scala.collection.mutable
@@ -67,17 +68,36 @@ final class ScalafmtDynamicServiceImpl
     progressListener: DownloadProgressListener
   ): ResolveResult = {
     val resolveResult = formattersCache.get(version) match {
-      case Some(ResolveStatus.Resolved(scalaFmt)) => Right(scalaFmt)
-      case _ if resolveFast => Left(ScalafmtResolveError.NotFound(version))
-      case Some(ResolveStatus.DownloadInProgress) => Left(ScalafmtResolveError.DownloadInProgress(version))
+      case Some(ResolveStatus.Resolved(scalaFmt)) =>
+        Right(scalaFmt)
+      case _ if resolveFast =>
+        Left(ScalafmtResolveError.NotFound(version))
+      case Some(ResolveStatus.DownloadInProgress) =>
+        Left(ScalafmtResolveError.DownloadInProgress(version))
       case _ =>
-        if (state.resolvedVersions.containsKey(version)) {
-          val jarUrls = state.resolvedVersions.get(version).map(new URL(_))
-          resolveClassPath(version, jarUrls.toSeq)
-        } else if (downloadIfMissing) {
-          downloadAndResolve(version, extraResolvers, progressListener)
-        } else {
-          Left(ScalafmtResolveError.NotFound(version))
+        val fromCache: Option[ResolveResult] =
+          if (state.resolvedVersions.containsKey(version)) {
+            val jarUrls = state.resolvedVersions.get(version).map(new URL(_))
+            //user can remove `.ivy2/cache` so our resolve caches become stale
+            val missingFiles = jarUrls.map(url => new File(url.toURI)).filterNot(_.exists())
+            if (missingFiles.isEmpty) {
+              Some(resolveClassPath(version, jarUrls.toSeq))
+            } else {
+              Log.warn(s"Following jars are present in scalafmt dynamic resolve cache (version $version) but do not exist on disk:\n${missingFiles.mkString("  ", "\n  ", "  ")}")
+              state.resolvedVersions.remove(version)
+              None
+            }
+          }
+          else None
+
+        fromCache match {
+          case Some(value) => value
+          case _ =>
+            if (downloadIfMissing) {
+              downloadAndResolve(version, extraResolvers, progressListener)
+            } else {
+              Left(ScalafmtResolveError.NotFound(version))
+            }
         }
     }
 
