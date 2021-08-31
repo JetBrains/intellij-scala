@@ -33,7 +33,11 @@ final class ScalaMoveToPackageQuickFix(_file: ScalaFile, packageName: String)
         return
       }
 
-      val directory = MoveClassesOrPackagesUtil.chooseDestinationPackage(project, packageName, file.getContainingDirectory);
+      val directory = MoveClassesOrPackagesUtil.chooseDestinationPackage(
+        project,
+        packageName.replace("`", ""), // ugly hack to support most escaped package names... if they contain a dot... well, good night!
+        file.getContainingDirectory
+      )
       if (directory == null) {
         return
       }

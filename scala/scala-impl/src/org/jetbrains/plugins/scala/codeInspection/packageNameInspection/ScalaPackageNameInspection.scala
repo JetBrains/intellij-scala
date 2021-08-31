@@ -3,16 +3,19 @@ package codeInspection
 package packageNameInspection
 
 import com.intellij.codeInspection._
-import com.intellij.openapi.roots.ProjectRootManager
+import com.intellij.openapi.roots.{JavaProjectRootsUtil, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
+import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi._
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
-import org.jetbrains.plugins.scala.lang.refactoring.ScalaNamesValidator.isKeyword
-import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.isBacktickedName
 import org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker
+
+import scala.jdk.CollectionConverters._
 
 class ScalaPackageNameInspection extends LocalInspectionTool {
   override def isEnabledByDefault: Boolean = true
@@ -29,8 +32,10 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
 
         val dir = file.getContainingDirectory
         if (dir == null) return null
-        val pack = JavaDirectoryService.getInstance.getPackage(dir)
-        if (pack == null) return null
+        val packageNameByDir = packageNameFromFile(dir) match {
+          case Some(pack) => pack
+          case None => return null
+        }
 
         lazy val packageObjects = members.collect { case td: ScTypeDefinition if td.isPackageObject => td }
         def ranges: Seq[TextRange] = file.packagingRanges match {
@@ -49,7 +54,7 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val possiblePackageQualifiers = members
           .map {
             case po: ScTypeDefinition if po.isPackageObject => po.qualifiedName
-            case td => cleanKeywords(td.topLevelQualifier.getOrElse(""))
+            case td => td.topLevelQualifier.getOrElse("")
           }
           .distinct
         val packageQualifier = possiblePackageQualifiers match {
@@ -60,13 +65,13 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         }
 
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = {
-          var message = ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure", packageQualifier, pack.getQualifiedName)
+          var message = ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure", packageQualifier, packageNameByDir)
 
           // Specifically make sure that the file path doesn't repeat an existing package prefix (twice).
           for (virtualFile <- Option(file.getVirtualFile);
                sourceFolder <- Option(ProjectRootManager.getInstance(file.getProject).getFileIndex.getSourceFolder(virtualFile));
                packagePrefix = sourceFolder.getPackagePrefix if packagePrefix.nonEmpty
-               if (pack.getQualifiedName + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
+               if (packageNameByDir + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
             message += "\n\n" + ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)
           }
 
@@ -74,13 +79,13 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
             manager.createProblemDescriptor(file, range, message, ProblemHighlightType.GENERIC_ERROR_OR_WARNING, isOnTheFly, buffer: _*)
         }
 
-        if (pack.getQualifiedName != packageQualifier) {
+        if (packageNameByDir != packageQualifier) {
           assert(packageObjects.size <= 1, "There should only be one package object here... otherwise we should have already aborted")
 
-          def renameQuickfix = new ScalaRenamePackageQuickFix(file, pack.getQualifiedName)
+          def renameQuickfix = new ScalaRenamePackageQuickFix(file, packageNameByDir)
           def moveQuickfix = new ScalaMoveToPackageQuickFix(file, packageQualifier)
           // the special root/empty-name package cannot have a package object
-          val cannotRename = pack.getQualifiedName == "" && packageObjects.nonEmpty
+          val cannotRename = packageNameByDir == "" && packageObjects.nonEmpty
           val fixes =
             if (cannotRename) Seq(moveQuickfix)
             else Seq(renameQuickfix, moveQuickfix)
@@ -91,10 +96,23 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
     }
   }
 
-  private def cleanKeywords(packageName: String): String = {
-    packageName.split('.').map {
-      case isBacktickedName(name) if isKeyword(name) => name
-      case name => name
-    }.mkString(".")
+  /**
+   * stolen from [[com.intellij.core.CoreJavaFileManager.getPackage]]
+   * unfortunately we need our own implementation... otherwise we cannot handle escaped package names at all
+   */
+  private def packageNameFromFile(file: PsiDirectory): Option[String] = {
+    val vFile = file.getVirtualFile
+    JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala.iterator
+      .flatMap { root =>
+        if (VfsUtilCore.isAncestor(root, vFile, false)) {
+          FileUtil.getRelativePath(root.getPath, vFile.getPath, '/')
+            .toOption
+            .map {
+              case "." => ""
+              case rel => rel.split('/').map(_.escapeNonIdentifiers).mkString(".")
+            }
+        } else None
+      }
+      .headOption
   }
 }

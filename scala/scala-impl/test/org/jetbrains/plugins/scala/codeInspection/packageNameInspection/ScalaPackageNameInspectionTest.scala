@@ -369,6 +369,58 @@ class ScalaPackageNameInspectionTest_Scala2 extends ScalaPackageNameInspectionTe
          |""".stripMargin
     )
   }
+
+  def test_package_with_backticks(): Unit = inDirectory("subdir/sub.subdir") {
+    checkTextHasNoErrors(
+      s"""package subdir.`sub.subdir`
+         |
+         |class Test
+         |""".stripMargin
+    )
+  }
+
+  def test_package_object_with_backticks(): Unit = inDirectory("subdir/sub.subdir") {
+    checkTextHasNoErrors(
+      s"""package subdir
+         |
+         |package object `sub.subdir` {
+         |  val test = 3
+         |}
+         |""".stripMargin
+    )
+  }
+
+
+  def test_move_package_with_backticks(): Unit = inDirectory("subdir/sub.subdir") {
+    checkTextHasError(
+      s"""package ${START}subdir.`something.wrong`$END
+         |
+         |class Test
+         |""".stripMargin
+    )
+
+    testQuickFix(
+      s"""package ${CARET}subdir.`something.wrong`
+         |
+         |class Test
+         |""".stripMargin,
+      s"""package subdir.`sub.subdir`
+         |
+         |class Test
+         |""".stripMargin,
+      "Set package name to 'subdir.`sub.subdir`'"
+    )
+
+    // doesn't work when there are escaped dots in the package name... we are using too many java utils
+    testMoveQuickfix(
+      s"""package ${CARET}subdir.`something wrong`
+         |
+         |class Test
+         |""".stripMargin,
+      resultDir = "subdir/something wrong",
+      hint      = "Move to package 'subdir.`something wrong`'",
+    )
+  }
 }
 
 
