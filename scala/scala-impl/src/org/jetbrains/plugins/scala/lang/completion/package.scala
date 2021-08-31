@@ -324,7 +324,7 @@ package object completion {
                                       context: ProcessingContext,
                                       resultSet: CompletionResultSet): Unit =
       resultSet.getPrefixMatcher.getPrefix match {
-        case prefix if ScalaNamesValidator.isIdentifier(prefix) && prefix.forall(_.isLetterOrDigit) =>
+        case prefix if ScalaNamesValidator.isIdentifier(prefix) && !ScalaNamesValidator.isSoftKeyword(prefix) && prefix.forall(_.isLetterOrDigit) =>
           addCompletions(resultSet, prefix)(parameters, context)
         case _ =>
       }

@@ -45,6 +45,11 @@ object ScalaNamesValidator {
   def isIdentifier(name: String): Boolean =
     validator.isIdentifier(name, null)
 
-  private def validator =
+  private val softKeywords = SOFT_KEYWORDS.getTypes.map(_.toString).toSet
+
+  def isSoftKeyword(name: String): Boolean =
+    softKeywords(name)
+
+  private def validator: NamesValidator =
     LanguageNamesValidation.INSTANCE.forLanguage(ScalaLanguage.INSTANCE)
 }
