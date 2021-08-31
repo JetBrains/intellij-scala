@@ -1359,7 +1359,7 @@
                          bundle="messages.ScalaInspectionBundle"
                          key="displayname.constant.conditions"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
-                         shortName="ConstantConditions"
+                         shortName="DfaConstantConditions"
                          level="WARNING" enabledByDefault="true" language="Scala"/>
 
         <!-- Collection inspections -->
