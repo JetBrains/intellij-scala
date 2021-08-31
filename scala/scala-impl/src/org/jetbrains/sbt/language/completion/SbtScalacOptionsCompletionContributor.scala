@@ -8,6 +8,7 @@ import com.intellij.util.ProcessingContext
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor._
@@ -70,14 +71,22 @@ object SbtScalacOptionsCompletionContributor {
     override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
       context.commitDocument()
 
-      val elem = context.getFile.findElementAt(context.getTailOffset - 1)
+      val elem = context.getFile.findElementAt(context.getStartOffset)
 
       elem.getContext match {
-        case ref: ScReferenceExpression =>
-          // rewrite `-flag` to `"-flag"`
-          val `-` = ref.getPrevSibling
+        case ref: ScReferenceExpression if option.flag.startsWith("-") =>
+          // rewrite `-flag`, `--flag` to "-flag" and "--flag" respectively
+          // handle `-foo-bar-baz` and `--foo-bar-baz` cases as well
+          val startOffset = ref.startOffset
+          val endOffset = ref.endOffset + option.flag.dropWhile(_ == '-').length
+
           inWriteAction {
-            context.getDocument.replaceString(`-`.startOffset, ref.endOffset, option.quoted)
+            context.getDocument.replaceString(startOffset, endOffset, option.quoted)
+          }
+        case str: ScStringLiteral =>
+          // handle cases when string literal is invalid. E.g.: `"-flag` -> `"-flag"`
+          inWriteAction {
+            str.replace(ScalaPsiElementFactory.createElementFromText(option.quoted)(str.projectContext))
           }
         case _ =>
       }
