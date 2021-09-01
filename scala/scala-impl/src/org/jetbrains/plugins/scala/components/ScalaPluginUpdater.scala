@@ -196,32 +196,6 @@ object ScalaPluginUpdater {
     if (!appSettings.ASK_PLATFORM_UPDATE)
       return
 
-    def createPlatformChannelSwitchPopup(): Notification = {
-      val switchIDEAToEAPQuestion = ScalaBundle.message("switch.idea.to.eap.question", branch)
-      val yes = ScalaBundle.message("switch.yes")
-      val notNow = ScalaBundle.message("switch.not.now")
-      val ignore = ScalaBundle.message("switch.ignore.this.update")
-      val links =
-        s"""<p/><a href="Yes">$yes</a>""" +
-          s"""<p/><a href="No">$notNow</a>""" +
-          s"""<p/><a href="Ignore">$ignore</a>"""
-      val message = switchIDEAToEAPQuestion + links
-      GROUP.createNotification(
-        ScalaBundle.message("scala.plugin.update.failed"),
-        message,
-        NotificationType.WARNING
-      ).setListener(
-        (notification: Notification, event: HyperlinkEvent) => {
-          notification.expire()
-          event.getDescription match {
-            case "No"     => // do nothing, will ask next time
-            case "Yes"    => UpdateSettings.getInstance().setSelectedChannelStatus(ChannelStatus.EAP)
-            case "Ignore" => appSettings.ASK_PLATFORM_UPDATE = false
-          }
-        }
-      )
-    }
-
     def createPlatformUpdateSuggestPopup(): Notification = {
       GROUP.createNotification(
         ScalaBundle.message("idea.is.outdated.please.update", branch, suggestedVersion),
@@ -248,8 +222,6 @@ object ScalaPluginUpdater {
       }
 
     val notification = getPlatformUpdateResult match {
-      case Some(result) if isUpToDatePlatform(result) && !infoImpl.isEAP => // platform is up to date - suggest eap
-        Some(createPlatformChannelSwitchPopup())
       case Some(_: PlatformUpdates.Loaded) =>
         Some(createPlatformUpdateSuggestPopup())
       case _ => None
