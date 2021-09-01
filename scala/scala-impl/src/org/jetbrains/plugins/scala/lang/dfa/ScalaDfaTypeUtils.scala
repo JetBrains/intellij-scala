@@ -27,8 +27,7 @@ object ScalaDfaTypeUtils {
   }
 
   @Nls
-  def constantValueToProblemMessage(value: DfaConstantValue): String = {
-    val warningType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+  def constantValueToProblemMessage(value: DfaConstantValue, warningType: ProblemHighlightType): String = {
     value match {
       case DfaConstantValue.True => ScalaInspectionBundle.message("displayname.condition.always.true", warningType)
       case DfaConstantValue.False => ScalaInspectionBundle.message("displayname.condition.always.false", warningType)

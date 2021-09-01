@@ -1,19 +1,19 @@
 package org.jetbrains.plugins.scala.lang.dfa
 
-import com.intellij.codeInspection.ProblemsHolder
 import com.intellij.codeInspection.dataFlow.interpreter.{RunnerResult, StandardDataFlowInterpreter}
 import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstructionState}
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
-import org.jetbrains.annotations.Nls
+import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.constantValueToProblemMessage
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.jdk.CollectionConverters._
 
-class DfaConstantConditionsVisitor(problemsHolder: ProblemsHolder) extends ScalaRecursiveElementVisitor {
+class DfaConstantConditionsVisitor(problemsHolder: ProblemsHolder) extends ScalaElementVisitor {
 
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
     val factory = new DfaValueFactory(problemsHolder.getProject)
@@ -42,12 +42,21 @@ class DfaConstantConditionsVisitor(problemsHolder: ProblemsHolder) extends Scala
     listener.constantConditions
       .filter { case (_, value) => value != DfaConstantValue.Unknown }
       // TODO suppressing unwanted warnings
-      .foreach { case (anchor, value) => reportProblem(anchor, constantValueToProblemMessage(value), problemsHolder) }
+      .foreach { case (anchor, value) => reportProblem(anchor, value, problemsHolder) }
   }
 
-  private def reportProblem(anchor: ScalaDfaAnchor, @Nls message: String, problemsHolder: ProblemsHolder): Unit = {
+  private def reportProblem(anchor: ScalaDfaAnchor, value: DfaConstantValue, problemsHolder: ProblemsHolder): Unit = {
     anchor match {
-      case expressionAnchor: ScalaExpressionAnchor => problemsHolder.registerProblem(expressionAnchor.expression, message)
+      case expressionAnchor: ScalaExpressionAnchor =>
+        val expression = expressionAnchor.expression
+        val message = constantValueToProblemMessage(value, getProblemTypeForExpression(expressionAnchor.expression))
+        problemsHolder.registerProblem(expression, message)
     }
+  }
+
+  private def getProblemTypeForExpression(expression: ScExpression): ProblemHighlightType = expression match {
+    // TODO maybe other cases
+    case _: ScLiteral => ProblemHighlightType.WEAK_WARNING
+    case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
   }
 }
