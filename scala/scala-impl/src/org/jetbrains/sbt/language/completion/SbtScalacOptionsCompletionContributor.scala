@@ -5,7 +5,6 @@ import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.util.ProcessingContext
-import org.apache.commons.lang3.StringUtils
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
@@ -30,7 +29,7 @@ object SbtScalacOptionsCompletionContributor {
       val place = positionFromParameters(parameters)
       implicit val project: Project = place.getProject
 
-      val cleanPrefix = StringUtils.removeEnd(StringUtils.removeStart(place.getText, "\""), "\"")
+      val cleanPrefix = place.getText.stripPrefix("\"").stripSuffix("\"")
         .replace(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED, "")
 
       val newResultSet = resultSet.withPrefixMatcher(cleanPrefix)

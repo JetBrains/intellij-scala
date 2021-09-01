@@ -40,13 +40,9 @@ object SbtPsiElementPatterns {
     }
   })
 
-  def scalacOptionsPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isScalacOptionsPattern") {
-    override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {
-      elem match {
-        case expr: ScInfixExpr => matchesScalacOptions(expr.left) && SEQ_ADD_OPS.contains(expr.operation.refName)
-        case _ => false
-      }
-    }
+  def scalacOptionsPattern: Capture[ScInfixExpr] = psiElement(classOf[ScInfixExpr]).`with`(new PatternCondition[ScInfixExpr]("isScalacOptionsPattern") {
+    override def accepts(expr: ScInfixExpr, context: ProcessingContext): Boolean =
+      matchesScalacOptions(expr.left) && SEQ_ADD_OPS.contains(expr.operation.refName)
   })
 
   def versionPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isVersionPattern") {
