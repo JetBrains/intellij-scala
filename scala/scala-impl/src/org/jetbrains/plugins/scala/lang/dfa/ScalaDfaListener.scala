@@ -4,6 +4,7 @@ import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, DfaListener, Unsati
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.DfaValue
 import com.intellij.util.ThreeState
+import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.dfTypeToReportedConstant
 
 import scala.collection.mutable
 
@@ -18,6 +19,14 @@ class ScalaDfaListener extends DfaListener {
     case _ =>
   }
 
+  private def recordExpressionValue(anchor: ScalaDfaAnchor, state: DfaMemoryState, value: DfaValue): Unit = {
+    val newValue = dfTypeToReportedConstant(state.getDfType(value))
+    constantConditions.updateWith(anchor) {
+      case Some(oldValue) if oldValue != newValue => Some(DfaConstantValue.Unknown)
+      case _ => Some(newValue)
+    }
+  }
+
   override def onCondition(problem: UnsatisfiedConditionProblem, value: DfaValue,
                            failed: ThreeState, state: DfaMemoryState): Unit = problem match {
     case scalaProblem: ScalaDfaProblem => problems.updateWith(scalaProblem) {
@@ -25,13 +34,5 @@ class ScalaDfaListener extends DfaListener {
       case None => Some(failed)
     }
     case _ =>
-  }
-
-  private def recordExpressionValue(anchor: ScalaDfaAnchor, state: DfaMemoryState, value: DfaValue): Unit = {
-    val newValue = ScalaDfaTypeUtils.dfTypeToReportedConstant(state.getDfType(value))
-    constantConditions.updateWith(anchor) {
-      case Some(oldValue) if oldValue != newValue => Some(DfaConstantValue.Unknown)
-      case _ => Some(newValue)
-    }
   }
 }

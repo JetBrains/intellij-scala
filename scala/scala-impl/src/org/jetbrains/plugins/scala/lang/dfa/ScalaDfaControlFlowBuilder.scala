@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, FinishElementInstruction, PopInstruction, PushValueInstruction}
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
+import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression}
 
@@ -48,7 +49,7 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
   }
 
   private def processLiteral(literal: ScLiteral): Unit = {
-    flow.addInstruction(new PushValueInstruction(ScalaDfaTypeUtils.literalToDfType(literal), ScalaExpressionAnchor(literal)))
+    flow.addInstruction(new PushValueInstruction(literalToDfType(literal), ScalaExpressionAnchor(literal)))
   }
 
   private def pushUnknownValue(): Unit = flow.addInstruction(new PushValueInstruction(DfType.TOP))
