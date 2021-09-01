@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.ScalaFeatures.Bits
 import org.jetbrains.plugins.scala.util.BitMaskStorage
 
-
+// TODO: this will be refactored in 213.x
 final class ScalaFeatures private(private val bits: Int) extends AnyVal {
   @inline
   private def `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean =
@@ -14,6 +14,10 @@ final class ScalaFeatures private(private val bits: Int) extends AnyVal {
   @inline
   private def `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean =
     Bits.`in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`.read(bits)
+
+  @inline
+  private def `in >= 2.12.15 or 2.13.7 or 3`: Boolean =
+    Bits.`in >= 2.12.15 or 2.13.7 or 3`.read(bits)
 
 
   def languageLevel: ScalaLanguageLevel = Bits.languageLevel.read(bits)
@@ -35,7 +39,8 @@ final class ScalaFeatures private(private val bits: Int) extends AnyVal {
   def `soft keywords open and infix`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `leading infix operator`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
   def `? as wildcard marker`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
-  def `case in pattern bindings`: Boolean = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
+  def `case in pattern bindings`: Boolean =
+    `in >= 2.12.15 or 2.13.7 or 3` || `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`
 
   def copy(version: ScalaVersion,
            hasSource3Flag: Boolean = this.hasSource3Flag,
@@ -68,6 +73,8 @@ object ScalaFeatures {
       forMinorVersion(version, isScala3, _ >= minorVersion14 && hasSource3Flag, _ >= minorVersion6 && hasSource3Flag)
     val `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean =
       forMinorVersion(version, isScala3, _ > minorVersion14 && hasSource3Flag, _ > minorVersion6 && hasSource3Flag)
+    val `in >= 2.12.15 or 2.13.7 or 3`: Boolean =
+      forMinorVersion(version, isScala3, _ > minorVersion14, _ > minorVersion6)
 
     // http://dotty.epfl.ch/docs/reference/other-new-features/indentation.html
     // Significant indentation is enabled by default.
@@ -84,6 +91,7 @@ object ScalaFeatures {
       indentationBasedSyntaxEnabled = indentationBasedSyntaxEnabled,
       `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`,
       `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3` = `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`,
+      `in >= 2.12.15 or 2.13.7 or 3` = `in >= 2.12.15 or 2.13.7 or 3`
     )
   }
 
@@ -115,7 +123,8 @@ object ScalaFeatures {
                      hasOldSyntaxFlag: Boolean,
                      indentationBasedSyntaxEnabled: Boolean,
                      `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`: Boolean,
-                     `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean): ScalaFeatures = {
+                     `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`: Boolean,
+                     `in >= 2.12.15 or 2.13.7 or 3`: Boolean): ScalaFeatures = {
     val bits = Ref.create[Int]
 
     Bits.languageLevel.write(bits, languageLevel)
@@ -125,6 +134,7 @@ object ScalaFeatures {
     Bits.indentationBasedSyntaxEnabled.write(bits, indentationBasedSyntaxEnabled)
     Bits.`in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`.write(bits, `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3`)
     Bits.`in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3`)
+    Bits.`in >= 2.12.15 or 2.13.7 or 3`.write(bits, `in >= 2.12.15 or 2.13.7 or 3`)
 
     new ScalaFeatures(bits.get())
   }
@@ -139,6 +149,7 @@ object ScalaFeatures {
     val indentationBasedSyntaxEnabled = bool("indentationBasedSyntaxEnabled")
     val `in >= 2.12.14 or 2.13.6 with -XSource:3 or 3` = bool("in >= 2.12.14 or 2.13.6 with -XSource:3 or 3")
     val `in >= 2.12.15 or 2.13.7 with -XSource:3 or 3` = bool("in >= 2.12.15 or 2.13.7 with -XSource:3 or 3")
+    val `in >= 2.12.15 or 2.13.7 or 3` = bool("in >= 2.12.15 or 2.13.7 or 3")
 
     override val version: Int = finishAndMakeVersion()
   }
