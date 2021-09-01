@@ -40,9 +40,6 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
       val depLookUp = collection.mutable.Map[String, Boolean]()
       val place = positionFromParameters(params)
 
-      /* Skip the case of auto completion outside double quote */
-      if (!place.getContext.isInstanceOf[ScStringLiteral]) return
-
       implicit val project: Project = place.getProject
 
       var versions = Map[String, List[String]]()
@@ -77,9 +74,25 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
               val artifactExpr = SbtDependencyUtils.generateArtifactPsiExpression(SbtArtifactInfo(depList(0), depList(1), depList(2), SbtDependencyCommon.defaultLibScope))
               val caretModel = context.getEditor.getCaretModel
 
-              val psiElement = context.getFile.findElementAt(caretModel.getOffset)
+              val psiElement = context.getFile.findElementAt(context.getStartOffset)
 
               var parentElemToChange = psiElement.getContext
+
+              parentElemToChange match {
+                case ref: ScReferenceExpression =>
+                  // inserted outside of the string literal
+                  // replace inserted lookupString with placeholder and proceed
+
+                  val startOffset = ref.startOffset
+                  inWriteCommandAction {
+                    context.getDocument.replaceString(startOffset, startOffset + getLookupString.length, RENDERING_PLACEHOLDER)
+                  }
+                  context.commitDocument()
+                  parentElemToChange = context.getFile.findElementAt(startOffset)
+                  parentElemToChange = parentElemToChange.getParent
+                case _ =>
+              }
+
               while (parentElemToChange.getParent.isInstanceOf[ScInfixExpr] &&
                 MODULE_ID_OPS.contains(parentElemToChange.getParent.asInstanceOf[ScInfixExpr].operation.refName)
               )
@@ -89,19 +102,20 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
               inWriteCommandAction {
                 parentElemToChange match {
                   case exprList: ScArgumentExprList =>
-                    exprList.exprs.foreach(expr => {
+                    exprList.exprs.foreach { expr =>
                       if (expr.getText.contains(RENDERING_PLACEHOLDER)) {
                         val offset = expr.getTextOffset
                         expr.replace(artifactExpr)
-                        context.getEditor.getCaretModel.moveToOffset(offset + artifactExpr.getTextLength - 1)
+                        caretModel.moveToOffset(offset + artifactExpr.getTextLength - 1)
                       }
-                    })
+                    }
                   case patDef: ScPatternDefinition =>
                     patDef.expr.get.replace(artifactExpr)
-                    context.getEditor.getCaretModel.moveToOffset(patDef.getTextOffset + patDef.getTextLength - 1)
+                    caretModel.moveToOffset(patDef.getTextOffset + patDef.getTextLength - 1)
                   case infix: ScInfixExpr =>
                     infix.right.replace(artifactExpr)
-                    context.getEditor.getCaretModel.moveToOffset(infix.getTextOffset + infix.getTextLength - 1)
+                    caretModel.moveToOffset(infix.getTextOffset + infix.getTextLength - 1)
+                  case _ =>
                 }
               }
               context.commitDocument()
