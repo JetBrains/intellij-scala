@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 object ScalaDfaTypeUtils {
 
   def literalToDfType(literal: ScLiteral): DfType = literal match {
-    case ScNullLiteral(_) => DfTypes.NULL
+    case _: ScNullLiteral => DfTypes.NULL
     case int: ScIntegerLiteral => DfTypes.intValue(int.getValue)
     case long: ScLongLiteral => DfTypes.longValue(long.getValue)
     case float: ScFloatLiteral => DfTypes.floatValue(float.getValue)
@@ -27,11 +27,9 @@ object ScalaDfaTypeUtils {
   }
 
   @Nls
-  def constantValueToProblemMessage(value: DfaConstantValue, warningType: ProblemHighlightType): String = {
-    value match {
-      case DfaConstantValue.True => ScalaInspectionBundle.message("displayname.condition.always.true", warningType)
-      case DfaConstantValue.False => ScalaInspectionBundle.message("displayname.condition.always.false", warningType)
-      case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant value: $value")
-    }
+  def constantValueToProblemMessage(value: DfaConstantValue, warningType: ProblemHighlightType): String = value match {
+    case DfaConstantValue.True => ScalaInspectionBundle.message("displayname.condition.always.true", warningType)
+    case DfaConstantValue.False => ScalaInspectionBundle.message("displayname.condition.always.false", warningType)
+    case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant value: $value")
   }
 }

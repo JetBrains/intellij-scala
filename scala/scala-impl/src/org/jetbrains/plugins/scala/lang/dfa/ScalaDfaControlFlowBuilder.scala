@@ -32,25 +32,23 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
   }
 
   private def processBlock(block: ScBlockExpr): Unit = {
-    // TODO can it be done in a prettier way?
     val expressions = block.exprs
     if (expressions.isEmpty) {
       pushUnknownValue()
     } else {
-      expressions.foreach { expression =>
+      expressions.init.foreach { expression =>
         processExpression(expression)
-        if (expression != expressions.last) {
-          flow.addInstruction(new PopInstruction)
-        }
+        popReturnValue()
       }
 
+      processExpression(expressions.last)
       flow.addInstruction(new FinishElementInstruction(block))
     }
   }
 
+  private def pushUnknownValue(): Unit = flow.addInstruction(new PushValueInstruction(DfType.TOP))
+
   private def processLiteral(literal: ScLiteral): Unit = {
     flow.addInstruction(new PushValueInstruction(literalToDfType(literal), ScalaExpressionAnchor(literal)))
   }
-
-  private def pushUnknownValue(): Unit = flow.addInstruction(new PushValueInstruction(DfType.TOP))
 }

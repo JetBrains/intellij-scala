@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.jdk.CollectionConverters._
 
-class DfaConstantConditionsVisitor(problemsHolder: ProblemsHolder) extends ScalaElementVisitor {
+class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaElementVisitor {
 
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
     val factory = new DfaValueFactory(problemsHolder.getProject)
@@ -39,7 +39,7 @@ class DfaConstantConditionsVisitor(problemsHolder: ProblemsHolder) extends Scala
   }
 
   private def reportProblems(listener: ScalaDfaListener, problemsHolder: ProblemsHolder): Unit = {
-    listener.constantConditions
+    listener.collectConstantConditions
       .filter { case (_, value) => value != DfaConstantValue.Unknown }
       // TODO suppressing unwanted warnings
       .foreach { case (anchor, value) => reportProblem(anchor, value, problemsHolder) }
@@ -55,7 +55,7 @@ class DfaConstantConditionsVisitor(problemsHolder: ProblemsHolder) extends Scala
   }
 
   private def getProblemTypeForExpression(expression: ScExpression): ProblemHighlightType = expression match {
-    // TODO maybe other cases
+    // TODO maybe other cases later
     case _: ScLiteral => ProblemHighlightType.WEAK_WARNING
     case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
   }
