@@ -1,13 +1,39 @@
 package org.jetbrains.plugins.scala.lang.dfa
 
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
+import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 
 object ScalaDfaTypeUtils {
+
+  final object InfixOperators {
+    val Arithmetic: Map[String, LongRangeBinOp] = Map(
+      "+" -> LongRangeBinOp.PLUS,
+      "-" -> LongRangeBinOp.MINUS,
+      "*" -> LongRangeBinOp.MUL,
+      "/" -> LongRangeBinOp.DIV,
+      "%" -> LongRangeBinOp.MOD
+    )
+
+    val Relational: Map[String, RelationType] = Map(
+      "<" -> RelationType.LT,
+      "<=" -> RelationType.LE,
+      ">" -> RelationType.GT,
+      ">=" -> RelationType.GE,
+      "==" -> RelationType.EQ,
+      "!=" -> RelationType.NE
+    )
+
+    val Logical: Map[String, LogicalOperation] = Map(
+      "&&" -> LogicalOperation.And,
+      "||" -> LogicalOperation.Or
+    )
+  }
 
   def literalToDfType(literal: ScLiteral): DfType = literal match {
     case _: ScNullLiteral => DfTypes.NULL
