@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor._
-import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.SCALAC_OPTIONS_DOC_KEY
+import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.{SbtDependencyUtils, SbtScalacOptionInfo, SbtScalacOptionUtils}
 
 import scala.jdk.CollectionConverters._
@@ -51,15 +51,11 @@ object SbtScalacOptionsCompletionContributor {
 
     if (matchingVersions.isEmpty) None
     else {
-      // Dummy element used to provide Quick Doc for option
-      val dummyElement = ScalaPsiElementFactory.createNewLine()
-      dummyElement.putUserData(SCALAC_OPTIONS_DOC_KEY, option.description)
-
       val elem = LookupElementBuilder.create(option.flag)
         .withPresentableText(option.quoted)
         .withTailText(matchingVersions.mkString(" (", ", ", ")"))
         .withInsertHandler(new ScalacOptionInsertHandler(option))
-        .withPsiElement(dummyElement)
+        .withPsiElement(SbtScalacOptionDocHolder(option))
         .bold()
 
       Some(elem)

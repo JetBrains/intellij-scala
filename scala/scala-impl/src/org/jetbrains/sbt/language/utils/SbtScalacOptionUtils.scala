@@ -1,7 +1,9 @@
 package org.jetbrains.sbt.language.utils
 
 import com.intellij.openapi.util.{Key, ModificationTracker}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression}
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor
 import org.slf4j.LoggerFactory
@@ -25,6 +27,29 @@ object SbtScalacOptionUtils {
       op.refName == "/" && right.refName == SCALAC_OPTIONS
     case _ => false
   }
+
+  def withScalacOption[T](element: PsiElement)(onMismatch: => T, onMatch: ScStringLiteral => T): T =
+    element.getParent match {
+      case str: ScStringLiteral =>
+        str.getParent match {
+          case expr: ScInfixExpr if matchesScalacOptions(expr.left) && expr.operation.refName == "+=" =>
+            onMatch(str)
+          case args: ScArgumentExprList =>
+            args.getParent.getParent match {
+              case expr: ScInfixExpr if matchesScalacOptions(expr.left) && expr.operation.refName == "++=" =>
+                onMatch(str)
+              case _ => onMismatch
+            }
+          case _ => onMismatch
+        }
+      case _ => onMismatch
+    }
+
+  @Cached(ModificationTracker.NEVER_CHANGED, null)
+  def scalacOptionByFlag: Map[String, SbtScalacOptionInfo] =
+    getScalacOptions
+      .map(option => option.flag -> option)
+      .toMap
 
   @Cached(ModificationTracker.NEVER_CHANGED, null)
   def getScalacOptions: Seq[SbtScalacOptionInfo] = {
