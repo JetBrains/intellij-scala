@@ -89,9 +89,9 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
     val requiredType = implicitly[ClassTag[U]].runtimeClass
 
     //performance optimization
-    if (!isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
+    /*if (!isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
       return None
-    }
+    }*/
 
     //noinspection GetOrElseNull,ConvertibleToMethodValue
     val elementOpt: Option[Free[UElement]] =
@@ -322,9 +322,9 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
       element.standalone match {
         case _: U =>
 
-          if (isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
-            throw new AssertionError(s"${requiredType.getName} is not expected from ${sourcePsi.getClass.getName}, got ${element.standalone.getClass.getName}")
-          }
+          //if (isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
+          //  throw new AssertionError(s"${requiredType.getName} is not expected from ${sourcePsi.getClass.getName}, got ${element.standalone.getClass.getName}")
+          //}
 
           Some(element.asInstanceOf[Free[U]])
         case _ => None
