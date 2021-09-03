@@ -853,16 +853,19 @@ object ScalaPsiElementFactory {
                                          checkLength: Boolean = false)
                                         (parse: ScalaPsiBuilder => T)
                                         (implicit project: Project): PsiElement = {
-    val chameleon = DummyHolderFactory.createHolder(
-      PsiManager.getInstance(project),
-      context
-    ).getTreeElement
-
-    val isScala3 = context.isInScala3File
-
+    // NOTE: we can't use `contextLanguage` directly because for example ScalaDocLanguage is also kind of ScalaLanguage
+    val contextLanguage = context.getLanguage
+    val isScala3 = contextLanguage.isKindOf(Scala3Language.INSTANCE) || context.isInScala3File
     val language =
       if (isScala3) Scala3Language.INSTANCE
-      else          ScalaLanguage.INSTANCE
+      else ScalaLanguage.INSTANCE
+
+    val dummyHolder = DummyHolderFactory.createHolder(
+      PsiManager.getInstance(project),
+      language,
+      context,
+    )
+    val chameleon = dummyHolder.getTreeElement
 
     val parserDefinition = LanguageParserDefinitions.INSTANCE.forLanguage(language)
 

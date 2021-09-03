@@ -1,15 +1,39 @@
-package org.jetbrains.plugins.scala
-package annotator.modifiers
+package org.jetbrains.plugins.scala.annotator.modifiers
 
 import org.intellij.lang.annotations.Language
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, TypecheckerTests}
 import org.jetbrains.plugins.scala.annotator._
 import org.jetbrains.plugins.scala.base.SimpleTestCase
-import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScModifierList
 import org.junit.experimental.categories.Category
 
 @Category(Array(classOf[TypecheckerTests]))
-class ModifierCheckerTest extends SimpleTestCase {
+abstract class ModifierCheckerTestBase extends SimpleTestCase {
+  protected def scalaLanguage: com.intellij.lang.Language
+
+  protected def messages(@Language(value = "Scala") code: String) = {
+    val file = parseText(code, scalaLanguage)
+
+    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
+    file.depthFirst().foreach {
+      case modifierList: ScModifierList => ModifierChecker.checkModifiers(modifierList)
+      case _ =>
+    }
+    mock.annotations
+  }
+
+  val RedundantFinal = StartWith("'final' modifier is redundant")
+
+  case class StartWith(fragment: String) {
+    def unapply(s: String): Boolean = s.startsWith(fragment)
+  }
+}
+
+@Category(Array(classOf[TypecheckerTests]))
+class ModifierCheckerTest_Scala_2 extends ModifierCheckerTestBase {
+  override protected def scalaLanguage: com.intellij.lang.Language = ScalaLanguage.INSTANCE
+
   def testInnerObject(): Unit = {
     assertMatches(messages("object A { final object B }")) {
       case Nil => // SCL-10420
@@ -116,23 +140,47 @@ class ModifierCheckerTest extends SimpleTestCase {
     )
   }
 
-
-
-  private def messages(@Language(value = "Scala") code: String) = {
-    val file = code.parse
-
-    implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
-    file.depthFirst().foreach {
-      case modifierList: ScModifierList => ModifierChecker.checkModifiers(modifierList)
-      case _ =>
-    }
-    mock.annotations
+  protected val LazyValueCode =
+    """abstract class A {
+      |  lazy val value: String
+      |}
+      |""".stripMargin
+  def testLazyValue(): Unit = {
+    assertMessagesSorted(messages(LazyValueCode))(
+      Error("lazy", "lazy values may not be abstract")
+    )
   }
 
-  val RedundantFinal = StartWith("'final' modifier is redundant")
-
-  case class StartWith(fragment: String) {
-    def unapply(s: String): Boolean = s.startsWith(fragment)
+  protected val LazyVariableCode =
+    """abstract class A {
+      |  lazy var variable: String
+      |}
+      |""".stripMargin
+  def testLazyVariable(): Unit = {
+    assertMessagesSorted(messages(LazyVariableCode))(
+      Error("lazy", "'lazy' modifier allowed only with value definitions")
+    )
   }
 }
 
+@Category(Array(classOf[TypecheckerTests]))
+class ModifierCheckerTest_Scala_3 extends ModifierCheckerTest_Scala_2 {
+  override protected def scalaLanguage = Scala3Language.INSTANCE
+
+  override protected def messages(@Language(value = "Scala 3") code: String) =
+    super.messages(code)
+
+  override def testLazyValue(): Unit =
+    assertNothing(messages(LazyValueCode))
+
+  def testFinalInTopLevelDefinitionsWithAssignment(): Unit = {
+    assertNothing(messages(
+      """final val value = ???
+        |final lazy val lazyVal = ???
+        |final var variable = ???
+        |final def foo = ???
+        |final given x: Int = ???
+        |final type alias = String
+        |""".stripMargin))
+  }
+}

@@ -27,6 +27,8 @@ final class ScValueDeclarationImpl private[psi](stub: ScPropertyStub[ScValueDecl
 
   override def toString: String = "ScValueDeclaration: " + ifReadAllowed(declaredNames.mkString(", "))("")
 
+  override def isStable: Boolean = true
+
   override def declaredElements: Seq[ScFieldId] = getIdList.fieldIds
 
   override def `type`(): TypeResult = typeElement match {

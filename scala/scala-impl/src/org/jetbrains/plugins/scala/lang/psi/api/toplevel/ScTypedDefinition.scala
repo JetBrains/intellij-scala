@@ -19,14 +19,17 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 trait ScTypedDefinition extends ScNamedElement with Typeable {
 
   /**
-   * @return false for variable elements
+   * @return true - if the definition has a stable type<br>
+   *         false - otherwise
+   *
+   *       This particular method is about "stable type"
    */
   def isStable = true
 
   def isVar: Boolean = false
   def isVal: Boolean = false
 
-  // TODO Add ScMember.isAbstract, alss see isAbstarct in ScValue / ScVariable
+  // TODO Add ScMember.isAbstract, also see isAbstarct in ScValue / ScVariable
   def isAbstractMember: Boolean = nameContext match {
     case _: ScFunctionDefinition | _: ScPatternDefinition | _: ScVariableDefinition => false
     case _: ScClassParameter => false

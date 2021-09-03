@@ -5,6 +5,8 @@ package api
 package statements
 
 import com.intellij.psi.tree.IElementType
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.icons.Icons
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes.kVAR
@@ -35,5 +37,13 @@ trait ScVariable extends ScValueOrVariable {
       }
     }
     null
+  }
+
+  override def isStable: Boolean = {
+    //SCL-19477
+    if (this.isInScala3File)
+      typeElement.exists(_.singleton)
+    else
+      false
   }
 }

@@ -7,6 +7,8 @@ package literals
 
 trait ScSymbolLiteral extends ScLiteral {
   override protected type V = Symbol
+
+  override final def isSimpleLiteral: Boolean = false
 }
 
 object ScSymbolLiteral {

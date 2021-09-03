@@ -482,7 +482,10 @@ package object project {
     def features: ScalaFeatures =
       inThisModuleOrProject(_.features).getOrElse(ScalaFeatures.default)
 
-    def literalTypesEnabled: Boolean = isDefinedInModuleOrProject(_.literalTypesEnabled)
+    def literalTypesEnabled: Boolean = {
+      val file = element.getContainingFile
+      file != null && (file.getLanguage == Scala3Language.INSTANCE || file.isDefinedInModuleOrProject(_.literalTypesEnabled))
+    }
 
     def partialUnificationEnabled: Boolean = isDefinedInModuleOrProject(_.isPartialUnificationEnabled)
 
@@ -496,7 +499,7 @@ package object project {
 
     def defaultImports: Seq[String] = PrecedenceTypes.forElement(element).defaultImports
 
-    private def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
+    private[ProjectPsiElementExt] def isDefinedInModuleOrProject(predicate: Module => Boolean): Boolean =
       inThisModuleOrProject(predicate).getOrElse(false)
 
     private def inThisModuleOrProject[T](predicate: Module => T): Option[T] =

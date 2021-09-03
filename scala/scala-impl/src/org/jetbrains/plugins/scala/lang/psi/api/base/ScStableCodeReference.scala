@@ -23,8 +23,6 @@ trait ScStableCodeReference extends ScReference with ResolvableStableCodeReferen
 
   def getResolveResultVariants: Array[ScalaResolveResult]
 
-  protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult]
-
   def doResolve(processor: BaseProcessor, accessibilityCheck: Boolean = true): Array[ScalaResolveResult]
 }
 

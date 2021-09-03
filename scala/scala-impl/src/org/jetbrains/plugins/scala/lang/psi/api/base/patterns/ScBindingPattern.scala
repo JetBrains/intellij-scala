@@ -7,7 +7,6 @@ package patterns
 
 import com.intellij.navigation.NavigationItem
 import com.intellij.psi._
-import javax.swing.Icon
 import com.intellij.psi.javadoc.PsiDocComment
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.icons.Icons
@@ -16,12 +15,17 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScTemplateBod
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScEarlyDefinitions, ScNamedElement, ScTypedDefinition}
 
+import javax.swing.Icon
+
 trait ScBindingPattern extends ScPattern with ScNamedElement with ScTypedDefinition with NavigationItem with PsiDocCommentOwner {
   override def getTextOffset: Int = nameId.getTextRange.getStartOffset
 
   def isWildcard: Boolean = name == "_"
 
-  override def isStable: Boolean = !isVar
+  override def isStable: Boolean = nameContext match {
+    case v: ScValueOrVariable => v.isStable
+    case _                    => true
+  }
 
   override def isVar: Boolean = nameContext.is[ScVariable]
 

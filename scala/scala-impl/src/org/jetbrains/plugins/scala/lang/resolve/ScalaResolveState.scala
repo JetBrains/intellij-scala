@@ -73,6 +73,10 @@ trait ResolveStateOps extends Any {
   def withExtensionContext(ext: ScExtension): ResolveState =
     resolveState.put(EXTENSION_CONTEXT, ext)
 
+  //
+  // Getters
+  //
+
   def substitutor: ScSubstitutor =
     option(SUBSTITUTOR_KEY).getOrElse(ScSubstitutor.empty)
 

@@ -20,6 +20,8 @@ trait ScInterpolatedStringLiteral extends ScStringLiteral with ScInterpolated {
   def referenceName: String
 
   def desugaredExpression: Option[(ScReferenceExpression, ScMethodCall)]
+
+  override final def isSimpleLiteral: Boolean = false
 }
 
 object ScInterpolatedStringLiteral {

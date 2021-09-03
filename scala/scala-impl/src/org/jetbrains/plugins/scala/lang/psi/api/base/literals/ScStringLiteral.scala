@@ -8,6 +8,8 @@ trait ScStringLiteral extends ScLiteral
   with ContributedReferenceHost {
 
   override protected type V = String
+
+  override def isSimpleLiteral: Boolean = true
 }
 
 object ScStringLiteral {

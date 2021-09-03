@@ -7,6 +7,8 @@ package literals
 
 trait ScBooleanLiteral extends ScLiteral {
   override protected type V = java.lang.Boolean
+
+  override final def isSimpleLiteral: Boolean = true
 }
 
 object ScBooleanLiteral {

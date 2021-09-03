@@ -10,6 +10,8 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 
 trait ScNullLiteral extends ScLiteral {
   override protected type V = Null
+
+  override final def isSimpleLiteral: Boolean = false
 }
 
 object ScNullLiteral {

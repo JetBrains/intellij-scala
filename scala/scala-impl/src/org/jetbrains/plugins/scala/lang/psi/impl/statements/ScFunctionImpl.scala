@@ -15,8 +15,6 @@ import com.intellij.psi.tree.TokenSet
 import com.intellij.psi.util.MethodSignatureBackedByPsiMethod
 import com.intellij.util.PlatformIcons
 import com.intellij.util.containers.ContainerUtil
-
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.contextApplied.{ContextApplied, ContextAppliedUtil}
@@ -27,9 +25,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlock
 import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.ScExtendsBlock
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScMember, ScTrait, ScTypeDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiReferenceList
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createIdentifier
@@ -45,8 +43,9 @@ import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.{Failure, TypeResult}
 import org.jetbrains.plugins.scala.lang.psi.types.{PhysicalMethodSignature, ScType, TermSignature}
-import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData}
+import org.jetbrains.plugins.scala.macroAnnotations.{Cached, CachedInUserData, Measure}
 
+import javax.swing.Icon
 import scala.annotation.tailrec
 
 /**
@@ -62,7 +61,11 @@ abstract class ScFunctionImpl[F <: ScFunction](stub: ScFunctionStub[F],
     with ScTypeParametersOwner
     with ContextApplied.SyntheticElementsOwner {
 
-  override def isStable = false
+  override final def isStable: Boolean =
+    if (effectiveParameterClauses.nonEmpty)
+      false
+    else
+      this.isInScala3File && returnTypeElement.exists(_.singleton)
 
   override def nameId: PsiElement = {
     val n = getNode.findChildByType(ScalaTokenTypes.tIDENTIFIER) match {

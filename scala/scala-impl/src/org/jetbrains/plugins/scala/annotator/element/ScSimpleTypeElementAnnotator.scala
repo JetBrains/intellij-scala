@@ -5,10 +5,10 @@ package element
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.psi.PsiClass
 import org.jetbrains.plugins.scala.extensions.{ResolvesTo, childOf}
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs}
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScInfixTypeElement, ScParameterizedTypeElement, ScSimpleTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScAnnotationsHolder, ScPrimaryConstructor}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScGenericCall
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScGenericCall, ScTypedExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScPatternDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 
@@ -21,7 +21,7 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
     checkAbsentTypeArgs(element)
   }
 
-  private def checkAbsentTypeArgs(element: ScSimpleTypeElement)
+  private def checkAbsentTypeArgs(typeElement: ScSimpleTypeElement)
                                  (implicit holder: ScalaAnnotationHolder): Unit = {
     // Dirty hack(see SCL-12582): we shouldn't complain about missing type args since they will be added by a macro after expansion
     def isFreestyleAnnotated(ah: ScAnnotationsHolder): Boolean = {
@@ -32,18 +32,25 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
     def needTypeArgs: Boolean = {
       def noHigherKinds(owner: ScTypeParametersOwner) = !owner.typeParameters.exists(_.typeParameters.nonEmpty)
 
-      val canHaveTypeArgs = element.reference.map(_.resolve()).exists {
+      val typeElementResolved = typeElement.reference.map(_.resolve()) match {
+        case Some(r) => r
+        case _ =>
+          return false
+      }
+
+      val canHaveTypeArgs = typeElementResolved match {
         case ah: ScAnnotationsHolder if isFreestyleAnnotated(ah) => false
         case c: PsiClass                                         => c.hasTypeParameters
         case owner: ScTypeParametersOwner                        => owner.typeParameters.nonEmpty
         case _                                                   => false
       }
 
-      if (!canHaveTypeArgs) return false
+      if (!canHaveTypeArgs)
+        return false
 
-      element.getParent match {
-        case ScParameterizedTypeElement(`element`, _)                        => false
-        case tp: ScTypeParam if tp.contextBoundTypeElement.contains(element) => false
+      typeElement.getParent match {
+        case ScParameterizedTypeElement(`typeElement`, _)                        => false
+        case tp: ScTypeParam if tp.contextBoundTypeElement.contains(typeElement) => false
         case (_: ScTypeArgs) childOf (gc: ScGenericCall) =>
           gc.referencedExpr match {
             case ResolvesTo(f: ScFunction) => noHigherKinds(f)
@@ -59,18 +66,26 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
               }
             case _ => false
           }
-        case infix: ScInfixTypeElement if infix.left == element || infix.rightOption.contains(element) =>
+        case infix: ScInfixTypeElement if infix.left == typeElement || infix.rightOption.contains(typeElement) =>
           infix.operation.resolve() match {
             case owner: ScTypeParametersOwner => noHigherKinds(owner)
             case _                            => false
           }
-        case _ => true
+        case _ =>
+          //SCL-19477, this code is OK, no need in type argument
+          //def f[T]: "42" = ???
+          //val refOk: f.type = ???
+          typeElementResolved match {
+            case f: ScFunction => !f.isStable
+            case _             => true
+          }
       }
     }
 
-    if (needTypeArgs) {
-      val annotation = holder.createErrorAnnotation(element.getTextRange,
-        ScalaBundle.message("type.takes.type.parameters", element.getText))
+    val needTypeArgsRes = needTypeArgs
+    if (needTypeArgsRes) {
+      val annotation = holder.createErrorAnnotation(typeElement.getTextRange,
+        ScalaBundle.message("type.takes.type.parameters", typeElement.getText))
       annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
     }
   }

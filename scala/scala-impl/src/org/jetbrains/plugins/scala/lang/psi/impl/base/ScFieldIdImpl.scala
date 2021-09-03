@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.extensions.ifReadAllowed
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType.FIELD_ID
 import org.jetbrains.plugins.scala.lang.psi.api.base._
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValue, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScTypedDeclaration, ScValue, ScVariable, ScVariableDeclaration}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScImportableDeclarationsOwner
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScFieldIdStub
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
@@ -36,7 +36,7 @@ class ScFieldIdImpl private(stub: ScFieldIdStub, node: ASTNode)
 
   override def isStable: Boolean = getContext match {
     case l: ScIdList => l.getContext match {
-      case _: ScVariable => false
+      case v: ScVariable => v.isStable // it should be just ScVariableDeclaration (abstract var)
       case _ => true
     }
     case _ => true

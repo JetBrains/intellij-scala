@@ -3,14 +3,16 @@ package lang
 package psi
 package api
 
-import com.intellij.psi.{PsiElement, ResolveState}
 import com.intellij.psi.scope.PsiScopeProcessor
 import com.intellij.psi.search.GlobalSearchScope
+import com.intellij.psi.{PsiElement, ResolveState}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScExtension
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScPatternDefinition, ScVariableDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
+import org.jetbrains.plugins.scala.lang.resolve.processor.ProcessorUtils
 
 trait ScPackageLike extends PsiElement {
 
@@ -25,9 +27,25 @@ trait ScPackageLike extends PsiElement {
     state:     ResolveState,
     place:     PsiElement
   ): Boolean = {
-    getTopLevelDefs(place.resolveScope).forall {
-      case ext: ScExtension => ext.extensionMethods.forall(processor.execute(_, state))
-      case topLevelDef      => processor.execute(topLevelDef, state)
+    val processOnlyStable = ProcessorUtils.shouldProcessOnlyStable(processor)
+
+    def processWithStableFilter(psiElement: PsiElement): Boolean = {
+      val ignore = psiElement match {
+        case typed: ScTypedDefinition => processOnlyStable && !typed.isStable
+        case _                        => false
+      }
+      if (!ignore)
+        processor.execute(psiElement, state)
+      else
+        true
+    }
+
+    val topLevelDefs = getTopLevelDefs(place.resolveScope)
+    topLevelDefs.forall {
+      case ext: ScExtension             => if (!processOnlyStable) ext.extensionMethods.forall(processor.execute(_, state)) else true
+      case patDef: ScPatternDefinition  => patDef.bindings.forall(processWithStableFilter)
+      case varDef: ScVariableDefinition => varDef.bindings.forall(processWithStableFilter)
+      case topLevelDef                  => processWithStableFilter(topLevelDef)
     }
   }
 

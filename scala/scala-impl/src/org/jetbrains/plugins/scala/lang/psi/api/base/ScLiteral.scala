@@ -42,6 +42,27 @@ trait ScLiteral extends ScExpression
   def contentRange: TextRange
 
   def contentText: String
+
+  /**
+   * From https://docs.scala-lang.org/scala3/reference/syntax.html
+   * {{{
+   *  Singleton     ::=  SimpleRef
+   *                   |  SimpleLiteral
+   *                   |  Singleton ‘.’ id
+   *
+   *  SimpleLiteral ::=  [‘-’] integerLiteral
+   *                   |  [‘-’] floatingPointLiteral
+   *                   |  booleanLiteral
+   *                   |  characterLiteral
+   *                   |  stringLiteral
+   *
+   *  Literal       ::=  SimpleLiteral
+   *                   |  processedStringLiteral
+   *                   |  symbolLiteral
+   *                   |  ‘null’
+   * }}}
+   */
+  def isSimpleLiteral: Boolean
 }
 
 object ScLiteral {
@@ -53,6 +74,8 @@ object ScLiteral {
     private[psi] type T <: AnyVal
 
     private[psi] def unwrappedValue(value: V): T
+
+    override final def isSimpleLiteral: Boolean = true
   }
 
   private[psi] abstract class NumericCompanion[L <: Numeric] {

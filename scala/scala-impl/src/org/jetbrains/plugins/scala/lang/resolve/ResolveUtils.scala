@@ -43,14 +43,14 @@ import scala.annotation.tailrec
 object ResolveUtils {
   def kindMatches(element: PsiElement, kinds: Set[ResolveTargets.Value]): Boolean = kinds == null ||
           (element match {
-            case _: PsiPackage | _: ScPackaging => kinds contains PACKAGE
+            case _: PsiPackage | _: ScPackaging       => kinds contains PACKAGE
             case obj: ScObject if obj.isPackageObject => kinds contains PACKAGE
-            case _: ScObject => (kinds contains OBJECT) || (kinds contains METHOD)
-            case _: ScTypeVariableTypeElement => kinds contains CLASS
-            case _: ScTypeParam => kinds contains CLASS
-            case _: ScTypeAlias => kinds contains CLASS
-            case _: ScTypeDefinition => kinds contains CLASS
-            case _: ScSyntheticClass => kinds contains CLASS
+            case _: ScObject                          => (kinds contains OBJECT) || (kinds contains METHOD)
+            case _: ScTypeVariableTypeElement         => kinds contains CLASS
+            case _: ScTypeParam                       => kinds contains CLASS
+            case _: ScTypeAlias                       => kinds contains CLASS
+            case _: ScTypeDefinition                  => kinds contains CLASS
+            case _: ScSyntheticClass                  => kinds contains CLASS
             case c: PsiClass =>
               if (kinds contains CLASS) true
               else {

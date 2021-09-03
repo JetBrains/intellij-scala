@@ -5,9 +5,8 @@ package impl
 package statements
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiModifierListOwnerExt, ifReadAllowed}
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
@@ -32,6 +31,14 @@ final class ScPatternDefinitionImpl private[psi](stub: ScPropertyStub[ScPatternD
     if (names.isEmpty) "ScPatternDefinition"
     else "ScPatternDefinition: " + declaredNames.mkString(", ")
   }("")
+
+  override def isStable: Boolean =
+    if (this.hasModifierPropertyScala(ScalaModifier.LAZY))
+      this.hasFinalModifier || this.isTopLevel || // top level `lazy val x = 1` is effectively final
+        !this.isInScala3File || // in scala2 lazy val can be referenced with `.type` even without explicit type
+        typeElement.exists(_.singleton)
+    else
+      true
 
   override def bindings: Seq[ScBindingPattern] = Option(pList).map(_.bindings).getOrElse(Seq.empty)
 

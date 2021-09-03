@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
-import com.intellij.psi.{PsiClass, PsiMember, PsiMethod, PsiNamedElement}
+import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.api.PropertyMethods.{DefinitionRole, EQ, SETTER, isApplicable, methodName}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScPrimaryConstructor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScExtension, ScFunction, ScFunctionDefinition, ScTypeAlias, ScValue, ScValueOrVariable, ScVariable}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScNamedElement, ScTypedDefinition}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScGivenDefinition, ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.{PropertyMethods, ScalaPsiElement}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticClass
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
@@ -16,19 +16,19 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
-trait SignatureProcessor[T <: Signature] {
+sealed trait SignatureProcessor[T <: Signature] {
   type Sink = SignatureSink[T]
 
-  def shouldSkip(t: T): Boolean
+  protected def shouldSkip(t: T): Boolean
 
   def process(t: T, sink: Sink): Unit = {
     if (!shouldSkip(t))
       sink.put(t)
   }
 
-  def processJava(clazz: PsiClass, subst: ScSubstitutor, processor: Sink): Unit
+  protected def processJava(clazz: PsiClass, subst: ScSubstitutor, processor: Sink): Unit
 
-  def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit
+  protected def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit
 
   def processRefinement(cp: ScCompoundType, sink: Sink): Unit
 
@@ -51,21 +51,21 @@ trait SignatureProcessor[T <: Signature] {
 }
 
 object TypesCollector extends SignatureProcessor[TypeSignature] {
-  override def shouldSkip(t: TypeSignature): Boolean = t.namedElement match {
+
+  override protected def shouldSkip(t: TypeSignature): Boolean = t.namedElement match {
     case _: ScObject => true
     case _: ScTypeDefinition | _: ScTypeAlias => false
     case c: PsiClass => isStaticJava(c)
     case _ => true
   }
 
-
-  override def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
+  override protected def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
     for (inner <- clazz.getInnerClasses) {
       process(TypeSignature(inner, subst), sink)
     }
   }
 
-  override def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
+  override protected def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     for (member <- template.membersWithSynthetic.filterByType[ScNamedElement]) {
       member match {
         case e: ScEnum => e.syntheticClass.foreach(cls => process(TypeSignature(cls, subst), sink))
@@ -86,18 +86,18 @@ object TypesCollector extends SignatureProcessor[TypeSignature] {
   }
 }
 
-abstract class TermsCollector extends SignatureProcessor[TermSignature] {
+sealed abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 
   protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember]
 
-  override def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
+  override protected def shouldSkip(t: TermSignature): Boolean = t.namedElement match {
     case f: ScFunction => f.isConstructor
     case m: PsiMethod  => m.isConstructor || isStaticJava(m)
     case m: PsiMember  => isStaticJava(m)
     case _             => false
   }
 
-  override def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
+  override protected def processJava(clazz: PsiClass, subst: ScSubstitutor, sink: Sink): Unit = {
     for (method <- clazz.getMethods) {
       val phys = new PhysicalMethodSignature(method, subst)
       process(phys, sink)
@@ -109,7 +109,7 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
     }
   }
 
-  override def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
+  override protected def processScala(template: ScTemplateDefinition, subst: ScSubstitutor, sink: Sink): Unit = {
     implicit val ctx: ProjectContext = template
 
     def addSignature(s: TermSignature): Unit = {
@@ -199,27 +199,29 @@ abstract class TermsCollector extends SignatureProcessor[TermSignature] {
 }
 
 object TermsCollector extends TermsCollector {
-  override def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] =
+  override protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] =
     td.membersWithSynthetic
 }
 
 object StableTermsCollector extends TermsCollector {
-  override def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
-    val res = (td.members ++ td.syntheticMembers ++ td.syntheticTypeDefinitions)
-      .filter(mayContainStable)
-    res
+  override protected def relevantMembers(td: ScTemplateDefinition): Seq[ScMember] = {
+    // syntheticMethods added for SCL-19477
+    val members = td.members ++ td.syntheticMembers ++ td.syntheticMethods ++ td.syntheticTypeDefinitions
+    val filtered = members.filter(mayContainStable)
+    filtered
   }
 
-  override def shouldSkip(t: TermSignature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
+  override protected def shouldSkip(t: TermSignature): Boolean = !isStable(t.namedElement) || super.shouldSkip(t)
 
   private def isStable(named: PsiNamedElement): Boolean = named match {
-    case _: ScObject => true
+    case _: ScObject          => true
     case t: ScTypedDefinition => t.isStable
-    case _ => false
+    case _                    => false
   }
 
   private def mayContainStable(m: ScMember): Boolean = m match {
     case _: ScTypeDefinition | _: ScValue | _: ScPrimaryConstructor => true
+    case _: ScFunction | _: ScVariable                              => true // SCL-19477
     case _                                                          => false
   }
 }

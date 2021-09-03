@@ -19,4 +19,6 @@ final class ScLiteralTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(
     }
 
   override def getLiteral: ScLiteral = getFirstChild.asInstanceOf[ScLiteral]
+
+  override def singleton: Boolean = getLiteral.isSimpleLiteral
 }

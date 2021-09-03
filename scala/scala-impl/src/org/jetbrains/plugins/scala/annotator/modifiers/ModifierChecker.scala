@@ -86,12 +86,14 @@ private[annotator] object ModifierChecker {
                       Lazy
                     )
                   case _: ScValueDeclaration =>
-                    registerQuickFix(
-                      ScalaBundle.message("lazy.values.may.not.be.abstract"),
-                      modifierPsi,
-                      owner,
-                      Lazy
-                    )
+                    if (!modifierList.isInScala3File) {
+                      registerQuickFix(
+                        ScalaBundle.message("lazy.values.may.not.be.abstract"),
+                        modifierPsi,
+                        owner,
+                        Lazy
+                      )
+                    }
                   case _ =>
                     registerQuickFix(
                       ScalaBundle.message("lazy.modifier.is.not.allowed.here"),
@@ -138,6 +140,8 @@ private[annotator] object ModifierChecker {
                     } else {
                       checkDuplicates(modifierPsi, Final)
                     }
+                  case e: ScMember if e.getParent.is[ScalaFile] =>
+                    checkDuplicates(modifierPsi, Final)
                   case e: ScClassParameter =>
                     if (PsiTreeUtil.getParentOfType(e, classOf[ScTypeDefinition]).hasFinalModifier) {
                       if (checkDuplicates(modifierPsi, Final)) {

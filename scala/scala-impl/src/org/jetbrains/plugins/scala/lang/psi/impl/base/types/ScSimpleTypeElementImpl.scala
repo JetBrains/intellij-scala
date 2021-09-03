@@ -293,7 +293,8 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
           } else r
         }
 
-        ref.resolveNoConstructor match {
+        val resolvedNoConstructor = ref.resolveNoConstructor
+        resolvedNoConstructor match {
           case Array(ScalaResolveResult(psiTypeParameter: PsiTypeParameter, _)) =>
             Right(TypeParameterType(psiTypeParameter))
           case Array(ScalaResolveResult(tvar: ScTypeVariableTypeElement, _)) =>
@@ -322,14 +323,20 @@ class ScSimpleTypeElementImpl(node: ASTNode) extends ScalaPsiElementImpl(node) w
                 (calculateReferenceType(ref), ScSubstitutor.empty)
             }
             updateImplicitsWithoutLocalTypeInference(result, ss)
-          case _ => //resolve constructor with local type inference
-            ref.bind() match {
-              case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor =>
+          case Array(ScalaResolveResult(fun: ScFunction, _))  => //SCL-19477
+            Right(fun.returnType.getOrAny)
+          case _ =>
+            //resolve constructor with local type inference
+            val bindResult = ref.bind()
+            val result = bindResult match {
+              case Some(r@ScalaResolveResult(method: PsiMethod, subst: ScSubstitutor)) if !noConstructor    =>
                 Right(typeForConstructor(ref, method, subst, r.getActualElement))
               case Some(ScalaResolveResult(ta: ScTypeAlias, _: ScSubstitutor)) if ta.isExistentialTypeAlias =>
                 Right(ScExistentialArgument(ta))
-              case _ => calculateReferenceType(ref, shapesOnly = false)
+              case _                                                                                        =>
+                calculateReferenceType(ref, shapesOnly = false)
             }
+            result
         }
       case None => pathElement match {
         case ref: ScStableCodeReference => calculateReferenceType(ref)

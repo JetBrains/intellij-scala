@@ -68,29 +68,36 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         //see https://docs.scala-lang.org/overviews/macros/bundles.html
         if (isMacroImplReference(contextRef)) stableQualOrClass
         else stableQualRef
+
       case e: ScImportExpr => if (e.selectorSet.isDefined
               //import Class._ is not allowed
         || qualifier.isEmpty || e.hasWildcardSelector) stableQualRef
       else stableImportSelector
+
       case ste: ScSimpleTypeElement =>
         if (incomplete) noPackagesClassCompletion // todo use the settings to include packages
         else if (ste.getLastChild.is[PsiErrorElement]) stableQualRef
 
-        else if (ste.singleton) stableQualRef
+        else if (ste.singleton) {
+          val stableQual = if (this.isInScala3File) stableQualRef_Scala3 else stableQualRef
+          stableQual + ResolveTargets.HAS_STABLE_TYPE_MARKER
+        }
         else if (ste.annotation) annotCtor
         else stableClass
-      case _: ScTypeAlias => stableClass
-      case _: ScInterpolationPattern => stableImportSelector
-      case _: ScConstructorPattern => objectOrValue
-      case _: ScInfixPattern => objectOrValue
+
+      case _: ScTypeAlias                           => stableClass
+      case _: ScInterpolationPattern                => stableImportSelector
+      case _: ScConstructorPattern                  => objectOrValue
+      case _: ScInfixPattern                        => objectOrValue
       case _: ScThisReference | _: ScSuperReference => stableClassOrObject
-      case _: ScImportSelector => stableImportSelector
-      case _: ScInfixTypeElement => stableClass
-      case _: ScMacroDefinition => methodsOnly //reference in macro definition may be to method only
-      case _: ScDocSyntaxElement => stableImportSelector
-      case _ => stableQualRef
+      case _: ScImportSelector                      => stableImportSelector
+      case _: ScInfixTypeElement                    => stableClass
+      case _: ScMacroDefinition                     => methodsOnly //reference in macro definition may be to method only
+      case _: ScDocSyntaxElement                    => stableImportSelector
+      case _                                        => stableQualRef
     }
-    if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL else result
+    if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL
+    else result
   }
 
   override def nameId: PsiElement = findChildByType[PsiElement](ScalaTokenTypes.tIDENTIFIER)
@@ -164,7 +171,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
           else {
             if (qualifier.isDefined && !isPredefined) {
               isCorrectReference(c.name) match {
-                case Some(newRef) => return replaceThisBy(newRef)
+                case Some(newRef) =>
+                  return replaceThisBy(newRef)
                 case _ =>
               }
             }
@@ -264,8 +272,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     resolver.resolve(ScStableCodeReferenceImpl.this, incomplete)
   }
 
-  override protected def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
-    _qualifier() match {
+  private def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
+    val qualifierResult = _qualifier()
+    qualifierResult match {
       case None =>
         @scala.annotation.tailrec
         def treeWalkUp(place: PsiElement, lastParent: PsiElement): Unit = {
@@ -275,17 +284,21 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
             case p: ScTypeElement if p.analog.isDefined =>
               // this allows the type elements in a context or view bound to be path-dependent types, based on parameters.
               // See ScalaPsiUtil.syntheticParamClause and StableCodeReferenceElementResolver#computeEffectiveParameterClauses
-              if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this)) return
+              if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this))
+                return
               treeWalkUp(p.analog.get, lastParent)
                 // annotation should not walk through it's own annotee while resolving
             case p: ScAnnotationsHolder
               if processor.kinds.contains(ResolveTargets.ANNOTATION) && PsiTreeUtil.isContextAncestor(p, this, true) =>
                 treeWalkUp(place.getContext, place)
             case p =>
-              if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this)) return
+              if (!p.processDeclarations(processor, ScalaResolveState.empty, lastParent, this))
+                return
               place match {
                 case _: ScTemplateBody | _: ScExtendsBlock => // template body and inherited members are at the same level.
-                case _ => if (!processor.changedLevel) return
+                case _ =>
+                  if (!processor.changedLevel)
+                    return
               }
               treeWalkUp(place.getContext, place)
           }
@@ -452,12 +465,12 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     if (importStmt != null) {
       val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
       if (importHolder != null) {
-        val importExprs = importHolder.getImportStatements
+        val importExprsSeq = importHolder.getImportStatements
           .takeWhile(_ != importStmt)
           .flatMap(_.importExprs)
           .filter(_.hasWildcardSelector)
-          .iterator
 
+        val importExprs = importExprsSeq.iterator
         while (importExprs.hasNext) {
           val expr = importExprs.next()
           expr.reference.foreach(_.resolve())
@@ -465,7 +478,9 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       }
     }
 
-    if (!accessibilityCheck) processor.doNotCheckAccessibility()
+    if (!accessibilityCheck)
+      processor.doNotCheckAccessibility()
+
     //performance improvement
     ScalaPsiUtil.fileContext(this) match {
       case s: ScalaFile if s.isCompiled =>
@@ -497,9 +512,10 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     val candidates = processQualifier(processor)
     val filtered = candidates.filter(candidatesFilter)
 
-    if (accessibilityCheck && filtered.isEmpty)
+    val result = if (accessibilityCheck && filtered.isEmpty)
       doResolve(processor, accessibilityCheck = false)
     else
       filtered
+    result
   }
 }

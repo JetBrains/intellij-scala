@@ -28,6 +28,8 @@ trait ScTypeElement extends ScalaPsiElement with Typeable {
 
   override def `type`(): TypeResult = getType
 
+  def singleton: Boolean = false
+
   @CachedWithRecursionGuard(this, Failure(ScalaBundle.message("recursive.type.of.type.element")),
     BlockModificationTracker(this))
   private[types] def getType: TypeResult = innerType

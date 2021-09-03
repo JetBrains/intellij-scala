@@ -7,6 +7,8 @@ package literals
 
 trait ScCharLiteral extends ScLiteral {
   override protected type V = Character
+
+  override final def isSimpleLiteral: Boolean = true
 }
 
 object ScCharLiteral {

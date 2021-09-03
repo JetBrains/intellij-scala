@@ -5,7 +5,6 @@ package impl
 package toplevel
 package typedef
 
-import java.{util => ju}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightMethod
@@ -25,7 +24,9 @@ import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
 import org.jetbrains.plugins.scala.project.ProjectContext
-import org.jetbrains.plugins.scala.util.{CommonQualifiedNames, UnloadableThreadLocal}
+import org.jetbrains.plugins.scala.util.UnloadableThreadLocal
+
+import java.{util => ju}
 
 /**
  * @author ven
@@ -278,7 +279,7 @@ object TypeDefinitionMembers {
     val processMethods      = shouldProcessMethods(processor)
     val processMethodRefs   = shouldProcessMethodRefs(processor)
     val processValsForScala = isScalaProcessor && shouldProcessVals(processor)
-    val processOnlyStable   = shouldProcessOnlyStable(processor)
+    val processOnlyStable   = ProcessorUtils.shouldProcessOnlyStable(processor)
     val isImplicitProcessor = BaseProcessor.isImplicitProcessor(processor)
 
     def process(signature: Signature): Boolean = {
@@ -386,14 +387,6 @@ object TypeDefinitionMembers {
     if (processor.isInstanceOf[BaseProcessor]) return false
     val hint = processor.getHint(ElementClassHint.KEY)
     hint == null || hint.shouldProcess(ElementClassHint.DeclarationKind.CLASS)
-  }
-
-  private def shouldProcessOnlyStable(processor: PsiScopeProcessor): Boolean = {
-    processor match {
-      case BaseProcessor(kinds) =>
-        !kinds.contains(METHOD) && !kinds.contains(VAR)
-      case _ => false
-    }
   }
 
   private def mayProcessTypeSignature(processor: PsiScopeProcessor, typeSignature: TypeSignature): Boolean = {

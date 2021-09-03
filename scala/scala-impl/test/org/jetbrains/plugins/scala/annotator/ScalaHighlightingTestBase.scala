@@ -4,7 +4,7 @@ import com.intellij.psi.{PsiDocumentManager, PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.TypecheckerTests
 import org.jetbrains.plugins.scala.annotator.hints.AnnotatorHints
 import org.jetbrains.plugins.scala.base.ScalaFixtureTestCase
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{PsiElementExt, StringExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.util.assertions.MatcherAssertions
 import org.junit.Assert.fail
@@ -30,7 +30,20 @@ abstract class ScalaHighlightingTestBase extends ScalaFixtureTestCase with Match
     assertErrors(code, Nil: _*)
 
   def assertErrors(code: String, messages: Message*): Unit =
-    assertEqualsFailable(messages.mkString("\n"), errorsFromScalaCode(code).mkString("\n"))
+    assertErrorsText(code, messages.mkString("\n"))
+
+  def assertErrorsText(code: String, messagesConcatenated: String): Unit = {
+    // handle windows '\r', ignore empty lines
+    val messagesConcatenatedClean =
+      messagesConcatenated.withNormalizedSeparator.replaceAll("\\n\\n+", "\n").trim
+
+    val actualMessages = errorsFromScalaCode(code)
+    val actualMessagesConcatenated = actualMessages.mkString("\n")
+    assertEqualsFailable(
+      messagesConcatenatedClean,
+      actualMessagesConcatenated
+    )
+  }
 
   def errorsFromScalaCode(scalaFileText: String): List[Message] = {
     val fileName = s"dummy.scala"
