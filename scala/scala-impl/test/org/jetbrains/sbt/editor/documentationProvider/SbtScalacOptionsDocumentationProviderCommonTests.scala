@@ -8,9 +8,6 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
   self: SbtScalacOptionsDocumentationProviderTestBase =>
 
   private val NONEXISTENT_FLAG = "-flag-that-no-one-should-ever-add-to-compiler"
-
-  // TODO: Add "if in unit tests" to org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.getScalacOptions
-  //       and change all affected tests
   private val DEPRECATION_FLAG = "-deprecation"
   private val DEPRECATION_DESCRIPTION = "Emit warning and location for usages of deprecated APIs."
 

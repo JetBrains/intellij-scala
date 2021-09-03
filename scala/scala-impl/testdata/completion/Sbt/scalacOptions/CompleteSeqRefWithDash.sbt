@@ -6,5 +6,5 @@ scalacOptions ++= Seq(
 /*
 -bootclasspath
 -classpath
--javabootclasspath
+-Ydump-classes
 */

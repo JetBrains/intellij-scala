@@ -3,5 +3,5 @@ ThisBuild / scalacOptions += "class<caret>"
 /*
 -bootclasspath
 -classpath
--javabootclasspath
+-Ydump-classes
 */

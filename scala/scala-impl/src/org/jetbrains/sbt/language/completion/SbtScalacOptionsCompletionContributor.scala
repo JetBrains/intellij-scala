@@ -29,7 +29,10 @@ object SbtScalacOptionsCompletionContributor {
       val place = positionFromParameters(parameters)
       implicit val project: Project = place.getProject
 
-      val cleanPrefix = place.getText.stripPrefix("\"").stripSuffix("\"")
+      val cleanPrefix = place.getText
+        .stripPrefix("\"")
+        .dropWhile(_ == '-') // remove '-', '--', etc. from search
+        .stripSuffix("\"")
         .replace(CompletionInitializationContext.DUMMY_IDENTIFIER_TRIMMED, "")
 
       val newResultSet = resultSet.withPrefixMatcher(cleanPrefix)

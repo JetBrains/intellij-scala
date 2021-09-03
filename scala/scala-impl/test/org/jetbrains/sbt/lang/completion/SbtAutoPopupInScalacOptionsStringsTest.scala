@@ -6,7 +6,6 @@ import com.intellij.testFramework.fixtures.CompletionAutoPopupTester
 import com.intellij.testFramework.{TestModeFlags, UsefulTestCase}
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.language.utils.{SbtScalacOptionInfo, SbtScalacOptionUtils}
 import org.junit.Assert.assertNull
 
 import scala.jdk.CollectionConverters._
@@ -42,13 +41,26 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
     assertNull("Lookup shouldn't be shown", myTester.getLookup)
   }
 
-  def testAutoPopupInScalacOptionsString_AfterDash(): Unit = doTest("class", loadFlags(_.flag.contains("-class"))) {
+  private val CLASS_STR_TO_TYPE = "class"
+  private val CLASS_CONTAINING_FLAGS = Seq("-bootclasspath", "-classpath", "-Ydump-classes")
+
+  def testAutoPopupInScalacOptionsString_AfterDash(): Unit = doTest(CLASS_STR_TO_TYPE, CLASS_CONTAINING_FLAGS) {
     s"""scalacOptions += "-$CARET"
        |""".stripMargin
   }
 
-  def testAutoPopupInScalacOptionsString_FromStart(): Unit = doTest("class", loadFlags(_.flag.contains("class"))) {
+  def testAutoPopupInScalacOptionsString_FromStart(): Unit = doTest(CLASS_STR_TO_TYPE, CLASS_CONTAINING_FLAGS) {
     s"""scalacOptions ++= Seq("-verbose", "$CARET")
+       |""".stripMargin
+  }
+
+  def testAutoPopupInScalacOptionsString_CaseInsensitive_AfterDash(): Unit = doTest("xpr", Seq("-Xprint")) {
+    s"""scalacOptions += "-$CARET"
+       |""".stripMargin
+  }
+
+  def testAutoPopupInScalacOptionsString_CaseInsensitive_FromStart(): Unit = doTest("xpr", Seq("-Xprint")) {
+    s"""scalacOptions += "$CARET"
        |""".stripMargin
   }
 
@@ -57,14 +69,8 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
        |""".stripMargin
   }
 
-  def testAutoPopupInScalacOptionsString_Middle_Negative_AfterSpace(): Unit = doTestNoAutoCompletion("class") {
+  def testAutoPopupInScalacOptionsString_Middle_Negative_AfterSpace(): Unit = doTestNoAutoCompletion(CLASS_STR_TO_TYPE) {
     s"""scalacOptions += "-verbose $CARET"
        |""".stripMargin
   }
-
-  private def loadFlags(filter: SbtScalacOptionInfo => Boolean): Seq[String] =
-    SbtScalacOptionUtils.getScalacOptions
-      .filter(_.scalaVersions.contains(version.languageLevel))
-      .filter(filter)
-      .map(_.flag)
 }
