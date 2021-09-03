@@ -20,7 +20,7 @@ object ResolvableStableCodeReference {
           ref.getKinds(incomplete = false) diff StdKinds.methodRef
         }
       }
-      importResolverNoMethods.resolve(stableRef, incomplete)
+      importResolverNoMethods.resolve()
     }
 
     @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
@@ -31,35 +31,35 @@ object ResolvableStableCodeReference {
         }
       }
 
-      importResolverNoTypes.resolve(stableRef, incomplete)
+      importResolverNoTypes.resolve()
     }
 
     @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
     def resolveNoConstructor: Array[ScalaResolveResult] = {
       ProgressManager.checkCanceled()
       val noConstructorResolver = new StableCodeReferenceResolver(stableRef, false, false, true)
-      noConstructorResolver.resolve(stableRef, incomplete = false)
+      noConstructorResolver.resolve()
     }
 
     @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
     def resolveAllConstructors: Array[ScalaResolveResult] = {
       ProgressManager.checkCanceled()
       val resolverAllConstructors = new StableCodeReferenceResolver(stableRef, false, true, false)
-      resolverAllConstructors.resolve(stableRef, incomplete = false)
+      resolverAllConstructors.resolve()
     }
 
     @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
     def shapeResolve: Array[ScalaResolveResult] = {
       ProgressManager.checkCanceled()
       val shapesResolver = new StableCodeReferenceResolver(stableRef, true, false, false)
-      shapesResolver.resolve(stableRef, incomplete = false)
+      shapesResolver.resolve()
     }
 
     @CachedWithRecursionGuard(stableRef, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(stableRef))
     def shapeResolveConstr: Array[ScalaResolveResult] = {
       ProgressManager.checkCanceled()
       val shapesResolverAllConstructors = new StableCodeReferenceResolver(stableRef, true, true, false)
-      shapesResolverAllConstructors.resolve(stableRef, incomplete = false)
+      shapesResolverAllConstructors.resolve()
     }
   }
 }

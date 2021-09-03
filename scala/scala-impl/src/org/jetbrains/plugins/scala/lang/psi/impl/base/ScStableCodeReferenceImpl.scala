@@ -269,7 +269,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
   @CachedWithRecursionGuard(this, ScalaResolveResult.EMPTY_ARRAY, BlockModificationTracker(this))
   override def multiResolveScala(incomplete: Boolean): Array[ScalaResolveResult] = {
     val resolver = new StableCodeReferenceResolver(ScStableCodeReferenceImpl.this, false, false, false)
-    resolver.resolve(ScStableCodeReferenceImpl.this, incomplete)
+    resolver.resolve()
   }
 
   private def processQualifier(processor: BaseProcessor): Array[ScalaResolveResult] = {
