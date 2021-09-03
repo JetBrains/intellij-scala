@@ -417,7 +417,7 @@ object Compatibility {
             assign.rightExpression match {
               case rightExpression@Some(expr: ScExpression) =>
                 val maybeSeqType = rightExpression.collect {
-                  case typedStmt: ScTypedExpression if typedStmt.isSequenceArg => typedStmt
+                  case typedExpr: ScTypedExpression if typedExpr.isSequenceArg => typedExpr
                 }.flatMap {
                   seqTypeFor
                 }

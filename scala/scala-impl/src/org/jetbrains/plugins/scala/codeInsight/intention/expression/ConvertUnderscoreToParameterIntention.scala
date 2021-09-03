@@ -106,9 +106,9 @@ class ConvertUnderscoreToParameterIntention extends PsiElementBaseIntentionActio
       buf.append(un)
 
       u.getParent match {
-        case typedStmt: ScTypedExpression =>
+        case typedExpr: ScTypedExpression =>
           needBraces = true
-          buf.append(": ").append(typedStmt.`type`().get.canonicalText)
+          buf.append(": ").append(typedExpr.`type`().get.canonicalText)
         case _ =>
       }
 

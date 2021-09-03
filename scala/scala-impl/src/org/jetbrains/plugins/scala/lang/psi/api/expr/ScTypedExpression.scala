@@ -19,7 +19,7 @@ trait ScTypedExpression extends ScExpression {
   def isSequenceArg: Boolean = getLastChild.is[ScSequenceArg]
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit = {
-    visitor.visitTypedStmt(this)
+    visitor.visitTypedExpr(this)
   }
 }
 

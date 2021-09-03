@@ -125,7 +125,7 @@ ScalaFile
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypedStatement
+              TypedExpression
                 UnderscoreSection
                   PsiElement(_)('_')
                 PsiElement(:)(':')
@@ -135,7 +135,7 @@ ScalaFile
                     PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
               PsiWhiteSpace('  ')
-              TypedStatement
+              TypedExpression
                 UnderscoreSection
                   PsiElement(_)('_')
                 PsiElement(:)(':')
@@ -179,7 +179,7 @@ ScalaFile
                 PsiElement(integer)('1')
               PsiElement(,)(',')
               PsiWhiteSpace(' ')
-              TypedStatement
+              TypedExpression
                 UnderscoreSection
                   PsiElement(_)('_')
                 PsiElement(:)(':')
@@ -189,7 +189,7 @@ ScalaFile
                     PsiElement(identifier)('Boolean')
               PsiElement(,)(',')
               PsiWhiteSpace('  ')
-              TypedStatement
+              TypedExpression
                 UnderscoreSection
                   PsiElement(_)('_')
                 PsiElement(:)(':')

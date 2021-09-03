@@ -203,7 +203,7 @@ ScalaFile
             IntegerLiteral
               PsiElement(integer)('1')
             PsiElement(,)(',')
-            TypedStatement
+            TypedExpression
               MethodCall
                 ReferenceExpression: List
                   PsiElement(identifier)('List')

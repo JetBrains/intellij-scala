@@ -29,7 +29,7 @@ ScalaFile
     PsiWhiteSpace(' ')
     ExpressionInParenthesis
       PsiElement(()('(')
-      TypedStatement
+      TypedExpression
         ExpressionInParenthesis
           PsiElement(()('(')
           UnderscoreSection

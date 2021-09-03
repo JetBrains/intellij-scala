@@ -595,7 +595,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
         if (isDynamicNamed) paramTypeForDynamicNamed(findByIdx(params))
         else paramTypeForNamed(assign, params).getOrElse(findByIdx(params))
       }
-      case typedStmt: ScTypedExpression if typedStmt.isSequenceArg && params.nonEmpty =>
+      case typedExpr: ScTypedExpression if typedExpr.isSequenceArg && params.nonEmpty =>
         params.last.paramType.wrapIntoSeqType.map((_, None))
       case _ =>
         Some(findByIdx(params))

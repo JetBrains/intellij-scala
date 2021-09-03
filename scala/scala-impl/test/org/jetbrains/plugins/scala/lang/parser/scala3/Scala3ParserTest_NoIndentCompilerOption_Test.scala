@@ -207,7 +207,7 @@ class Scala3ParserTest_NoIndentCompilerOption_Test
       |  ReferenceExpression: Blue
       |    PsiElement(identifier)('Blue')
       |  PsiWhiteSpace('\n\n')
-      |  TypedStatement
+      |  TypedExpression
       |    ScNewTemplateDefinition: <anonymous>
       |      PsiElement(new)('new')
       |      PsiWhiteSpace(' ')

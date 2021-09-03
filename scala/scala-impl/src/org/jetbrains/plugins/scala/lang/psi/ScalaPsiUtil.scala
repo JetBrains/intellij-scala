@@ -869,7 +869,7 @@ object ScalaPsiUtil {
   *   ScPrefixExpr	              0                   0	                        0	                1             1	              1        |    1
   *   ScInfixExpr	                0                   0	                        0	                0          special            1        |    1
   *   ScPostfixExpr	              0                   0	                        0	                0             0	              1        |    1
-  *   ScTypedStmt	                0                   0	                        0	                0             0	              0        |    1
+  *   ScTypedExpr	                0                   0	                        0	                0             0	              0        |    1
   *   ScMatchStmt	                0                   0	                        0	                0             0	              0        |    1
 	*		-----------------------------------------------------------------------------------------------------------------------------------
   *	  Other                       0                   0	                        0	                0             0	              0             0

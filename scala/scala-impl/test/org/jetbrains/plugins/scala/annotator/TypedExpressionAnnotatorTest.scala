@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScTypedExpression
 
-class TypedStatementAnnotatorTest extends SimpleTestCase {
+class TypedExpressionAnnotatorTest extends SimpleTestCase {
   private final val Header = "class A; class B; object A extends A; object B extends B\n"
 
   def testFine(): Unit = {

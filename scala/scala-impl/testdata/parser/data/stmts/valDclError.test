@@ -63,7 +63,7 @@ ScalaFile
               PsiElement(identifier)('Some')
           PsiErrorElement:Wrong value declaration
             <empty list>
-        TypedStatement
+        TypedExpression
           ExpressionInParenthesis
             PsiElement(()('(')
             ReferenceExpression: x

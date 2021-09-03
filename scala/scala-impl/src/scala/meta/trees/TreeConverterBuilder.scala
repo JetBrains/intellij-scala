@@ -142,7 +142,7 @@ trait TreeConverterBuilder {
 
       override def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = super.visitNewTemplateDefinition(templ)
 
-      override def visitTypedStmt(stmt: ScTypedExpression): Unit = super.visitTypedStmt(stmt)
+      override def visitTypedExpr(stmt: ScTypedExpression): Unit = super.visitTypedExpr(stmt)
 
       override def visitTuple(tuple: ScTuple): Unit = super.visitTuple(tuple)
 

@@ -20,5 +20,5 @@ class ScTypedExpressionImpl(node: ASTNode) extends ScExpressionImplBase(node) wi
     }
   }
 
-  override def toString: String = "TypedStatement"
+  override def toString: String = "TypedExpression"
 }

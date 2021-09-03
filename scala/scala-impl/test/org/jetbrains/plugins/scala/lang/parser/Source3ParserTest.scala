@@ -228,7 +228,7 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sou
       |      PsiElement(identifier)('foo')
       |    ArgumentList
       |      PsiElement(()('(')
-      |      TypedStatement
+      |      TypedExpression
       |        ReferenceExpression: s
       |          PsiElement(identifier)('s')
       |        PsiElement(:)(':')
@@ -243,7 +243,7 @@ class Source3ParserTest extends ScalaLightCodeInsightFixtureTestAdapter with Sou
       |      PsiElement(identifier)('foo')
       |    ArgumentList
       |      PsiElement(()('(')
-      |      TypedStatement
+      |      TypedExpression
       |        ReferenceExpression: s
       |          PsiElement(identifier)('s')
       |        SequenceArgumentType

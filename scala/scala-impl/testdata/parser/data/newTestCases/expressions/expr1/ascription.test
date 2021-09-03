@@ -23,7 +23,7 @@ ScalaFile
       ScTemplateBody
         PsiElement({)('{')
         PsiWhiteSpace('\n  ')
-        TypedStatement
+        TypedExpression
           ReferenceExpression: x
             PsiElement(identifier)('x')
           PsiWhiteSpace(' ')

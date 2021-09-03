@@ -59,7 +59,7 @@ ScalaFile
           PsiWhiteSpace(' ')
           PsiElement(=)('=')
           PsiWhiteSpace(' ')
-          TypedStatement
+          TypedExpression
             NullLiteral
               PsiElement(null)('null')
             PsiElement(:)(':')

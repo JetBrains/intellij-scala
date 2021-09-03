@@ -157,7 +157,7 @@ abstract class ScalaElementVisitor extends PsiElementVisitor {
   def visitTry(tryStmt: ScTry): Unit = { visitExpression(tryStmt) }
   def visitParenthesisedExpr(expr: ScParenthesisedExpr): Unit = {visitExpression(expr)}
   def visitNewTemplateDefinition(templ: ScNewTemplateDefinition): Unit = {visitExpression(templ)}
-  def visitTypedStmt(stmt: ScTypedExpression): Unit = {visitExpression(stmt)}
+  def visitTypedExpr(stmt: ScTypedExpression): Unit = {visitExpression(stmt)}
   def visitTuple(tuple: ScTuple): Unit = {visitExpression(tuple)}
   def visitBlockExpression(block: ScBlockExpr): Unit = {visitExpression(block)}
   def visitUnderscoreExpression(under: ScUnderscoreSection): Unit = {visitExpression(under)}

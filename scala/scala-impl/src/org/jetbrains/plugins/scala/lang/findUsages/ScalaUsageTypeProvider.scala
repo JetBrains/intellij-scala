@@ -112,7 +112,7 @@ object ScalaUsageTypeProvider {
   implicit def stringToUsageType(@Nls name: String): UsageType = new UsageType(() => name)
   val Extractor: UsageType                 = ScalaBundle.message("usage.extractor")
   val ClassTypedPattern: UsageType         = ScalaBundle.message("usage.typed.pattern")
-  val TypedStatement: UsageType            = ScalaBundle.message("usage.typed.statement")
+  val TypedExpression: UsageType            = ScalaBundle.message("usage.typed.statement")
   val MethodApply: UsageType               = ScalaBundle.message("usage.method.apply")
   val ThisReference: UsageType             = ScalaBundle.message("usage.this.reference")
   val AccessModifier: UsageType            = ScalaBundle.message("usage.access.modifier")
@@ -193,8 +193,8 @@ object ScalaUsageTypeProvider {
         if (valueOrVariable.isLocal) CLASS_LOCAL_VAR_DECLARATION else CLASS_FIELD_DECLARATION
       case classParameter: ScClassParameter if isAppropriate(classParameter.typeElement) && classParameter.isClassMember =>
         CLASS_FIELD_DECLARATION
-      case typedStmt: ScTypedExpression if isAppropriate(typedStmt.typeElement) =>
-        TypedStatement
+      case typedExpr: ScTypedExpression if isAppropriate(typedExpr.typeElement) =>
+        TypedExpression
       case _: ScSelfTypeElement => SelfType
       case _: ScTypeAliasDeclaration | _: ScTypeParam => TypeBound
       case _: ScTypeAliasDefinition => TypeAlias
