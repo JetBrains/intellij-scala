@@ -173,12 +173,15 @@ private object ScalaModuleSettings {
 
   private def forSbtBuildModule(module: Module): Option[ScalaModuleSettings] =
     for {
-      sbtAndPluginsLib <- {
-        val processor: FindProcessor[libraries.Library] = _.getName.endsWith(org.jetbrains.sbt.Sbt.BuildLibraryName)
+      sbtAndPluginsOrRuntimeLib <- {
+        val processor: FindProcessor[libraries.Library] = { lib =>
+          lib.getName.endsWith(org.jetbrains.sbt.Sbt.BuildLibraryName) ||
+            LibraryExt.isRuntimeLibrary(lib.getName)
+        }
         OrderEnumerator.orderEntries(module).librariesOnly.forEachLibrary(processor)
         Option(processor.getFoundValue)
       }
-      scalaVersion <- scalaVersionFromForSbtClasspath(sbtAndPluginsLib)
+      scalaVersion <- scalaVersionFromForSbtClasspath(sbtAndPluginsOrRuntimeLib)
     } yield {
       val versionProvider = ScalaVersionProvider.fromFullVersion(scalaVersion)
       new ScalaModuleSettings(module, versionProvider)
