@@ -40,6 +40,8 @@ import org.jetbrains.plugins.scala.lang.resolve.{StableCodeReferenceResolver, _}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocResolvableCodeReference, ScDocSyntaxElement}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 
+import scala.annotation.tailrec
+
 /**
  * @author AlexanderPodkhalyuzin
  *         Date: 22.02.2008
@@ -460,8 +462,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case None        =>
     }
 
-    val importStmt = PsiTreeUtil.getContextOfType(this, true, classOf[ScImportStmt])
-
+    val importStmt = getEnclosingImportStatement
     if (importStmt != null) {
       val importHolder = PsiTreeUtil.getContextOfType(importStmt, true, classOf[ScImportsHolder])
       if (importHolder != null) {
@@ -517,5 +518,22 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     else
       filtered
     result
+  }
+
+  private def getEnclosingImportStatement: ScImportStmt = {
+    @tailrec
+    def inner(element: PsiElement): ScImportStmt = {
+      val context = element.getContext
+      context match {
+        case _: ScStableCodeReference   => inner(context)
+        case _: ScImportExpr |
+             _: ScImportSelector |
+             _: ScImportSelectors       => inner(context)
+        case importClause: ScImportStmt => importClause
+        case _                          => null
+      }
+    }
+
+    inner(this)
   }
 }
