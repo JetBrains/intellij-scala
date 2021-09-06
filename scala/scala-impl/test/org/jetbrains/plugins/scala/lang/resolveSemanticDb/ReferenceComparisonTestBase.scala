@@ -11,6 +11,8 @@ import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTes
 
 abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
+  // do not spam on in output in failed tests, we have too much of them currently
+  override protected def reportFailedTestContextDetails: Boolean = false
 }
 
 abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
