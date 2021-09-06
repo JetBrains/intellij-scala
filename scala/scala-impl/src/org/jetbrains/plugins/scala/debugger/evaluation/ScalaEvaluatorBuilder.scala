@@ -100,36 +100,36 @@ private[evaluation] class ScalaEvaluatorBuilder(val codeFragment: ScalaCodeFragm
 
   protected def evaluatorFor(element: PsiElement): Evaluator = {
     element match {
-      case implicitlyConvertedTo(expr) => evaluatorFor(expr)
-      case needsCompilation(message) => throw new NeedCompilationException(message)
+      case implicitlyConvertedTo(expr)     => evaluatorFor(expr)
+      case needsCompilation(message)       => throw new NeedCompilationException(message)
       case byNameParameterFunction(p, ref) => byNameParamEvaluator(ref, p, computeValue = false)
-      case thisFromFrame(eval) => eval
-      case expr: ScExpression =>
+      case thisFromFrame(eval)             => eval
+      case expr: ScExpression              =>
         val innerEval = expr match {
-          case lit: ScLiteral => literalEvaluator(lit)
-          case mc: ScMethodCall => scMethodCallEvaluator(mc)
-          case ref: ScReferenceExpression => refExpressionEvaluator(ref)
-          case t: ScThisReference => thisOrSuperEvaluator(t.reference, isSuper = false)
-          case t: ScSuperReference => thisOrSuperEvaluator(t.reference, isSuper = true)
-          case tuple: ScTuple => tupleEvaluator(tuple)
+          case lit: ScLiteral                 => literalEvaluator(lit)
+          case mc: ScMethodCall               => scMethodCallEvaluator(mc)
+          case ref: ScReferenceExpression     => refExpressionEvaluator(ref)
+          case t: ScThisReference             => thisOrSuperEvaluator(t.reference, isSuper = false)
+          case t: ScSuperReference            => thisOrSuperEvaluator(t.reference, isSuper = true)
+          case tuple: ScTuple                 => tupleEvaluator(tuple)
           case newTd: ScNewTemplateDefinition => newTemplateDefinitionEvaluator(newTd)
-          case inf: ScInfixExpr => infixExpressionEvaluator(inf)
-          case ScParenthesisedExpr(inner) => evaluatorFor(inner)
-          case p: ScPrefixExpr => prefixExprEvaluator(p)
-          case p: ScPostfixExpr => postfixExprEvaluator(p)
-          case stmt: ScIf => ifStmtEvaluator(stmt)
-          case ws: ScWhile => whileStmtEvaluator(ws)
-          case doSt: ScDo => doStmtEvaluator(doSt)
-          case block: ScBlock => blockExprEvaluator(block)
-          case call: ScGenericCall => methodCallEvaluator(call, Nil, Map.empty)
-          case stmt: ScAssignment => assignmentEvaluator(stmt)
-          case stmt: ScTypedExpression => evaluatorFor(stmt.expr)
-          case e => throw EvaluationException(ScalaBundle.message("evaluation.of.expression.is.not.supported", e.getText))
+          case inf: ScInfixExpr               => infixExpressionEvaluator(inf)
+          case ScParenthesisedExpr(inner)     => evaluatorFor(inner)
+          case p: ScPrefixExpr                => prefixExprEvaluator(p)
+          case p: ScPostfixExpr               => postfixExprEvaluator(p)
+          case stmt: ScIf                     => ifStmtEvaluator(stmt)
+          case ws: ScWhile                    => whileStmtEvaluator(ws)
+          case doSt: ScDo                     => doStmtEvaluator(doSt)
+          case block: ScBlock                 => blockExprEvaluator(block)
+          case call: ScGenericCall            => methodCallEvaluator(call, Nil, Map.empty)
+          case stmt: ScAssignment             => assignmentEvaluator(stmt)
+          case stmt: ScTypedExpression        => evaluatorFor(stmt.expr)
+          case e                              => throw EvaluationException(ScalaBundle.message("evaluation.of.expression.is.not.supported", e.getText))
         }
         postProcessExpressionEvaluator(expr, innerEval)
-      case pd: ScPatternDefinition => patternDefinitionEvaluator(pd)
-      case vd: ScVariableDefinition => variableDefinitionEvaluator(vd)
-      case e => throw EvaluationException(ScalaBundle.message("evaluation.of.element.is.not.supported", e.getText))
+      case pd: ScPatternDefinition         => patternDefinitionEvaluator(pd)
+      case vd: ScVariableDefinition        => variableDefinitionEvaluator(vd)
+      case e                               => throw EvaluationException(ScalaBundle.message("evaluation.of.element.is.not.supported", e.getText))
     }
   }
 

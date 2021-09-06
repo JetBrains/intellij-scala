@@ -455,7 +455,8 @@ object DebuggerUtil {
       case b: ScBindingPattern =>
         ScalaPsiUtil.nameContext(b) match {
           case v @ (_: ScValue | _: ScVariable) =>
-            !v.getContext.is[ScTemplateBody] && !v.getContext.is[ScEarlyDefinitions]
+            val context = v.getContext
+            !context.is[ScTemplateBody, ScEarlyDefinitions, ScalaFile]
           case _: ScCaseClause => true
           case _ => true //todo: for generator/enumerators
         }

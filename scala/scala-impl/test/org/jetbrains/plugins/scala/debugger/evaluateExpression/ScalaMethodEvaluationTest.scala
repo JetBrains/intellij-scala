@@ -83,23 +83,36 @@ class ScalaMethodEvaluationTest_3_0 extends ScalaMethodEvaluationTestBase {
        |import a.b.three
        |
        |@main
-       |def topLevel(): Unit =
+       |def TopLevel(): Unit =
        |  def local() = "local"
        |  println()$bp
        |
-       |private val ten = 10
+       |private val nineVar = 9
+       |private val tenVal = 10
        |private def fortyTwo(): Int = 42
        |""".stripMargin)
   @Test
-  def testtopLevel(): Unit =
+  def testTopLevel(): Unit =
     runDebugger() {
       waitForBreakpoint()
       evalEquals("one()", "1")
       evalEquals("two()", "2")
       evalEquals("three", "3")
-      evalEquals("ten", "10")
+      evalEquals("nineVar", "9")
+      evalEquals("tenVal", "10")
       evalEquals("fortyTwo()", "42")
       evalEquals("local()", "local")
+
+      // Bad syntax:
+      // Yes, in Scala 3 this is no a valid syntax.
+      // But why not to support it in debugger? The methods exist in the runtime anyway.
+      evalEquals("one", "1")
+      evalEquals("two", "2")
+      evalEquals("three()", "3")
+      evalEquals("nineVar()", "9")
+      evalEquals("tenVal()", "10")
+      evalEquals("fortyTwo", "42")
+      evalEquals("local", "local")
     }
 }
 

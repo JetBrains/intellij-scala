@@ -771,7 +771,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
     }
 
     val labeledOrSynthetic = labeledOrSyntheticEvaluator(ref, resolve)
-    if (labeledOrSynthetic.isDefined) return labeledOrSynthetic.get
+    if (labeledOrSynthetic.isDefined)
+      return labeledOrSynthetic.get
 
     val isLocalValue = DebuggerUtil.isLocalV(resolve)
 
@@ -780,7 +781,8 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         ScalaDuplexEvaluator(calcLocal(named), parameterEvaluator(fun, resolve))
       case p: ScParameter if p.isCallByNameParameter =>
         byNameParamEvaluator(ref, p, computeValue = true)
-      case obj: ScObject if isLocalValue => calcLocalObject(obj)
+      case obj: ScObject if isLocalValue =>
+        calcLocalObject(obj)
       case named: PsiNamedElement if isLocalValue =>
         calcLocal(named)
       case obj: ScObject =>
@@ -796,7 +798,7 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
         //methods of value classes have hidden argument with underlying value
         new ScalaLocalVariableEvaluator("$this", fileName)
       case _: ScClassParameter | _: ScBindingPattern =>
-        //this is scala "field"
+        //this is scala "field" or a top-level val/var
         val named = resolve.asInstanceOf[ScNamedElement]
         val name = NameTransformer.encode(named.name)
         val qualEval = qualifierEvaluator(qualifier, ref)
@@ -811,9 +813,11 @@ private[evaluation] trait ScalaEvaluatorBuilderUtil {
             val reserveEval = ScalaMethodEvaluator(qualEval, newName, null /* todo */ , Seq.empty,
               traitImplementation(resolve), DebuggerUtil.getSourcePositions(resolve.getNavigationElement))
             ScalaDuplexEvaluator(withSimpleNameEval, reserveEval)
-          case _ => withSimpleNameEval
+          case _ =>
+            withSimpleNameEval
         }
-      case field: PsiField => javaFieldEvaluator(field, ref)
+      case field: PsiField =>
+        javaFieldEvaluator(field, ref)
       case pack: ScPackage =>
         //let's try to find package object:
         val qual = (pack.getQualifiedName + ".package$").split('.').map(NameTransformer.encode).mkString(".")
