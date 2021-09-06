@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.ScalaFileType
 import org.jetbrains.plugins.scala.editor.DocumentExt
 import org.jetbrains.plugins.scala.extensions.{inWriteCommandAction, startCommand}
 import org.jetbrains.plugins.scala.util.ShortCaretMarker
+import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
 import org.junit.Assert._
 
 import scala.jdk.CollectionConverters._
@@ -94,19 +95,7 @@ abstract class EditorActionTestBase extends ScalaLightCodeInsightFixtureTestAdap
     }
   } catch {
     case cf: org.junit.ComparisonFailure =>
-      // add "before" state to conveniently view failed tests
-      def afterWithBeforePrefix(after: String)=
-        s"""<<<Before>>>:
-           |$textBefore
-           |----------------------------------------------------
-           |<<<After>>>:
-           |$after""".stripMargin
-      val cfNew = new org.junit.ComparisonFailure(
-        cf.getMessage,
-        afterWithBeforePrefix(cf.getExpected),
-        afterWithBeforePrefix(cf.getActual)
-      )
-      throw cfNew
+      throw cf.withBeforePrefix(textBefore)
 
     case NonFatal(other) =>
       System.err.println(

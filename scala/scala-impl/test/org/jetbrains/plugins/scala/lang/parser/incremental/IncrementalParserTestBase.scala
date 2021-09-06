@@ -5,9 +5,11 @@ import com.intellij.psi.impl.DebugUtil.psiToString
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{EditorActionTestBase, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.inWriteCommandAction
+import org.jetbrains.plugins.scala.extensions.{StringExt, inWriteCommandAction}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.util.MarkersUtils
+import org.jetbrains.plugins.scala.util.extensions.ComparisonFailureOps
+import org.junit.ComparisonFailure
 
 abstract class IncrementalParserTestBase extends EditorActionTestBase with AssertionMatchers {
   private implicit def p: Project = getProject
@@ -16,7 +18,7 @@ abstract class IncrementalParserTestBase extends EditorActionTestBase with Asser
 
 
   def doTest(text: String, replaceWith: String = ""): Unit = {
-    val (code, Seq(range)) = MarkersUtils.extractMarker(text, startMarker = START, endMarker = END)
+    val (code, Seq(range)) = MarkersUtils.extractMarker(text.withNormalizedSeparator, startMarker = START, endMarker = END)
 
     val editor = getFixture.getEditor match {
       case null =>
@@ -45,6 +47,9 @@ abstract class IncrementalParserTestBase extends EditorActionTestBase with Asser
       .replace("dummy.scala", "test.scala")
     val actualPsiText = psiToString(getFile, true)
 
-    actualPsiText shouldBe expectedPsiText
+    try actualPsiText shouldBe expectedPsiText catch {
+      case cf: ComparisonFailure =>
+        throw cf.withBeforePrefix(codeAfter)
+    }
   }
 }

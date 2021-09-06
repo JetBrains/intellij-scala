@@ -28,6 +28,8 @@ trait Markers {
    * line /start0/ /start1/ 2 /end1/ content/end0/
    */
   def extractNumberedMarkers(inputText: String): (String, Seq[TextRange]) = {
+    assertNoWindowsLineSeparator(inputText)
+
     def hasMarker(startName: String, endName: String): Boolean =
       inputText.contains(startName) && inputText.contains(endName)
 
@@ -79,6 +81,8 @@ trait Markers {
                      markers: Seq[(String, String)],
                      considerCaret: Boolean = false,
                      caretText: String = this.caretText): (String, Seq[(TextRange, Int)]) = {
+    assertNoWindowsLineSeparator(inputText)
+
     val (ranges, idxAdjust) = markers.zipWithIndex
       .foldLeft((Seq.empty[(TextRange, Int)], (_: Int) => 0)) {
         case ((prevRanges, prevIdxAdjust), ((startMarker, endMarker), markerIdx)) =>
@@ -115,6 +119,8 @@ trait Markers {
     findRangesAndAdjustment(inputText, startMarker, endMarker)._1
 
   private def findRangesAndAdjustment(inputText: String, startMarker: String, endMarker: String): (Seq[TextRange], Int => Int) = {
+    assertNoWindowsLineSeparator(inputText)
+
     val startReg = s"\\Q$startMarker\\E".r
     val endReg = s"\\Q$endMarker\\E".r
 
@@ -163,6 +169,17 @@ trait Markers {
 
     (ranges, adjustments.valuesIteratorFrom(_).next())
   }
+
+  private def assertNoWindowsLineSeparator(text: String): Unit = {
+    assertFalse(
+      """Windows line separator '\r' detected in test data. Please normalise your test data using one of the following helpers:
+        |  org.jetbrains.plugins.scala.extensions.StringExt.withNormalizedSeparator
+        |  com.intellij.openapi.util.text.StringUtil.convertLineSeparators(java.lang.String)
+        |  text.replace("\r", "")
+        |""".stripMargin,
+      text.contains("\r")
+    )
+  }
 }
 
 object MarkersUtils extends Markers
@@ -179,7 +196,7 @@ class MarkerUtilsTest extends TestCase with Markers with AssertionMatchers {
         |""".stripMargin
 
     val (result, ranges) = extractMarkers(
-      code,
+      code.withNormalizedSeparator,
       Seq("a", "b", "c").map(c => (s"<$c>", s"</$c>")),
       considerCaret = true
     )
