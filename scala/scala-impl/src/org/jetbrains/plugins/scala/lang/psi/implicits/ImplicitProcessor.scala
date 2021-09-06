@@ -4,7 +4,6 @@ package psi
 package implicits
 
 import java.{util => ju}
-
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.util.PsiTreeUtil
@@ -16,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScBindingPattern
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScTypeAliasDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
@@ -107,17 +107,25 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
   override def isImplicitProcessor: Boolean = true
 
   final def candidatesByPlace: Set[ScalaResolveResult] = {
-    // Collect implicit conversions from bottom to up
     @tailrec
     def treeWalkUp(element: PsiElement, lastParent: PsiElement): Unit =
       if (element != null &&
         element.processDeclarations(this, ScalaResolveState.empty, lastParent, getPlace)) {
+
+        val shouldStop = element match {
+          case expr: ScExpression =>
+            expr.contextFunctionParameters.exists(params =>
+              !params.forall(this.execute(_, ScalaResolveState.empty))
+            )
+          case _ => false
+        }
+
         val isNewLevel = element match {
           case _: ScTemplateBody | _: ScExtendsBlock => true // template body and inherited members are at the same level
           case _                                     => changedLevel
         }
 
-        if (isNewLevel) {
+        if (isNewLevel && !shouldStop) {
           treeWalkUp(element.getContext, element)
         }
       }

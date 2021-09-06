@@ -27,10 +27,6 @@ object Expr extends ParsingRule {
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark()
 
-    if (builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kIMPLICIT) {
-      builder.advanceLexer() // ate
-    }
-
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
         val pmarker = builder.mark()

@@ -97,7 +97,12 @@ trait ScParameter extends ScTypedDefinition with ScModifierListOwner
   def isContextParameter: Boolean = {
     val clause = PsiTreeUtil.getParentOfType(this, classOf[ScParameterClause])
     if (clause == null) return false
-    clause.isUsing
+
+    clause.isUsing ||
+      (owner match {
+        case fun: ScFunctionExpr => fun.isContext
+        case _                   => false
+      })
   }
 
   def isImplicitOrContextParameter: Boolean = isImplicitParameter || isContextParameter

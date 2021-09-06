@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
 import com.intellij.openapi.project.DumbService
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil
+
 import javax.swing.Icon
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
@@ -23,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypeParametersOwner
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsiElementCreationException
 import org.jetbrains.plugins.scala.lang.psi.light.ScLightField
 import org.jetbrains.plugins.scala.lang.psi.stubs.ScTemplateDefinitionStub
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.ScTemplateDefinitionElementType
@@ -156,9 +158,14 @@ class ScClassImpl(stub: ScTemplateDefinitionStub[ScClass],
 
   @CachedInUserData(this, ModTracker.libraryAware(this))
   private def syntheticImplicitMethod: Option[ScFunction] = {
-    val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
-    method.syntheticNavigationElement = this
-    Option(method)
+    try {
+      val method = ScalaPsiElementFactory.createMethodWithContext(implicitMethodText, this.getContext, this)
+      method.syntheticNavigationElement = this
+      Some(method)
+    } catch {
+      case p: ProcessCanceledException         => throw p
+      case _: ScalaPsiElementCreationException => None
+    }
   }
 
   override def psiFields: Array[PsiField] = {

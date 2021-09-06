@@ -424,7 +424,7 @@
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.utest.UTestTestFramework" order="first"/>
         <testFramework implementation="org.jetbrains.plugins.scala.testingSupport.test.munit.MUnitTestFramework"/>
 
-        <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses"/>
+        <java.elementFinder implementation="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClassElementFinder"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.finder.ScalaClassFinder"/>
         <java.elementFinder implementation="org.jetbrains.plugins.scala.runner.Scala3MainMethodSyntheticClassFinder"/>
         <java.shortNamesCache implementation="org.jetbrains.plugins.scala.caches.ScalaShortNamesCache"/>

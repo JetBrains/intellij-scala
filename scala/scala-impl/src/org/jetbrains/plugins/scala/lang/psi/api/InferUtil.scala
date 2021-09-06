@@ -86,7 +86,7 @@ object InferUtil {
     var constraints = ConstraintSystem.empty
 
     res match {
-      case t@ScTypePolymorphicType(mt@ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
+      case t @ ScTypePolymorphicType(mt @ ScMethodType(retType, _, isImplicit), _) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps, constraintsRec) =
           updateTypeWithImplicitParameters(t.copy(internalType = retType), element, coreElement, canThrowSCE, fullInfo = fullInfo)
@@ -104,7 +104,7 @@ object InferUtil {
           case _ => //shouldn't be there
             resInner = t.copy(internalType = mt.copy(result = updatedType))
         }
-      case ScTypePolymorphicType(mt@ScMethodType(retType, params, isImplicit), typeParams) if isImplicit =>
+      case ScTypePolymorphicType(mt @ ScMethodType(retType, params, isImplicit), typeParams) if isImplicit =>
         implicit val elementScope: ElementScope = mt.elementScope
 
         val splitMethodType = params.reverse.foldLeft(retType) {
@@ -155,7 +155,7 @@ object InferUtil {
 
         val dependentSubst = ScSubstitutor.paramToExprType(paramsForInferBuffer.result(), exprsBuffer.result())
         resInner = dependentSubst(resInner)
-      case mt@ScMethodType(retType, _, isImplicit) if !isImplicit =>
+      case mt @ ScMethodType(retType, _, isImplicit) if !isImplicit =>
         // See SCL-3516
         val (updatedType, ps, _) =
           updateTypeWithImplicitParameters(retType, element, coreElement, canThrowSCE, fullInfo = fullInfo)
@@ -164,11 +164,11 @@ object InferUtil {
         implicit val elementScope: ElementScope = mt.elementScope
 
         resInner = mt.copy(result = updatedType)
-      case ScMethodType(retType, params, isImplicit) if isImplicit =>
+      case ImplicitMethodOrFunctionType(retType, params) =>
         val (paramsForInfer, exprs, resolveResults) =
           findImplicits(params, coreElement, element, canThrowSCE, searchImplicitsRecursively)
 
-        implicitParameters = Some(resolveResults)
+        implicitParameters = Option(resolveResults)
         resInner = retType
         val dependentSubst = ScSubstitutor.paramToExprType(paramsForInfer, exprs)
         resInner = dependentSubst(resInner)
