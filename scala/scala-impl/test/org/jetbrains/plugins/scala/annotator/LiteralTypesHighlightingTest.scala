@@ -5,7 +5,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
 
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_2_13
 
-
   def testSip23Null(): Unit = doTest (
       Error("null", "Expression of type Null doesn't conform to expected type x.type") ::
       Error("null", "Expression of type Null doesn't conform to expected type y.type") :: Nil
@@ -18,11 +17,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testSip23Override_1(): Unit = doTest (
       Error("f2", "Overriding type 5 does not conform to base type 4") ::
         Error("f5", "Overriding type 5 does not conform to base type 4") :: Nil
-  )
-
-  def testSip23Symbols(): Unit = doTest(
-    Error("'s", "Cannot upcast Symbol to 's") ::
-      Error("'s", "Cannot upcast Symbol to 's") :: Nil
   )
 
   //TODO this should compile fine, will be fixed in compiler soon
@@ -137,8 +131,6 @@ class LiteralTypesHighlightingTest extends LiteralTypesHighlightingTestBase {
   def testSip23Initialization1(): Unit = doTest()
 
   def testSip23NarrowNoEmptyRefinements(): Unit = doTest()
-
-  def testSip23SymbolsPos(): Unit = doTest()
 
   def testSip23Narrow(): Unit = doTest()
 

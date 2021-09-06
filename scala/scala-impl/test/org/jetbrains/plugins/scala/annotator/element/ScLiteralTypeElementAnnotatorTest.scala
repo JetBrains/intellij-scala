@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.annotator.element
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.annotator.ScalaHighlightingTestBase
 
+/** see also [[org.jetbrains.plugins.scala.annotator.LiteralTypesHighlightingTestBase]] */
 abstract class ScLiteralTypeElementAnnotatorTestBase extends ScalaHighlightingTestBase {
   protected val SimpleLiteralTypeCode =
     """class A {

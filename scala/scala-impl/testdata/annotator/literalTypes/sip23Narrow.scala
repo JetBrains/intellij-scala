@@ -120,8 +120,6 @@ object Test {
   ns5: '*'
   val ns6 = "foo".narrow
   ns6: "foo"
-  val ns7 = 'a.narrow
-  ns7: 'a
 
   sealed trait Nat
   sealed trait Succ[N <: Nat] extends Nat
