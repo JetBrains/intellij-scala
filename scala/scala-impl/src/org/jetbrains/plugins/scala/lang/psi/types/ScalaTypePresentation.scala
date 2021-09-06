@@ -6,6 +6,7 @@ package types
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalLibraries.kindProjector.inspections.KindProjectorSimplifyTypeProjectionInspection
+import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType
 import org.jetbrains.plugins.scala.lang.parser.parsing.Associativity
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.operatorAssociativity
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScFieldId
@@ -330,11 +331,14 @@ trait ScalaTypePresentation extends api.TypePresentation {
         compoundTypeText(c)
       case ex: ScExistentialType =>
         existentialTypeText(ex, checkWildcard, needDotType)
-      case ScTypePolymorphicType(internalType, typeParameters) =>
-        typeParameters.map {
+      case pt@ScTypePolymorphicType(internalType, typeParameters) =>
+        val typeParametersTexts = typeParameters.map {
           case TypeParameter(parameter, _, lowerType, upperType) =>
             parameter.name + boundsRenderer.lowerBoundText(lowerType)(_.toString) + boundsRenderer.upperBoundText(upperType)(_.toString)
-        }.commaSeparated(model = Model.SquareBrackets) + " " + internalType.toString
+        }
+        val typeParametersText = typeParametersTexts.commaSeparated(model = Model.SquareBrackets)
+        val separator = if (pt.isLambdaTypeElement) TypeLambdaArrowWithSpaces else " "
+        typeParametersText + separator + internalType.toString
       case mt@ScMethodType(retType, params, _) =>
         implicit val elementScope: ElementScope = mt.elementScope
         innerTypeText(FunctionType(retType, params.map(_.paramType)), needDotType)
@@ -348,6 +352,7 @@ trait ScalaTypePresentation extends api.TypePresentation {
 }
 
 object ScalaTypePresentation {
-
   val ObjectTypeSuffix = ".type"
+
+  private val TypeLambdaArrowWithSpaces = s" ${ScalaTokenType.TypeLambdaArrow} "
 }

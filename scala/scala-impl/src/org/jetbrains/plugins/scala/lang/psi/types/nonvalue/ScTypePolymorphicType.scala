@@ -4,7 +4,6 @@ package psi
 package types
 package nonvalue
 
-import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.TypeParamIdOwner
 import org.jetbrains.plugins.scala.lang.psi.types.ConstraintSystem.SubstitutionBounds
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -13,7 +12,15 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.Pr
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.project.ProjectContext
 
-final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq[TypeParameter]) extends NonValueType {
+final case class ScTypePolymorphicType(
+  internalType: ScType,
+  typeParameters: Seq[TypeParameter],
+  // TODO: a dirty hack parameter, created in order ScalaTypePresentation.typeText generates proper text
+  //  for polymorphic type created from ScTypeLambdaTypeElementImpl
+  //  probably a dedicated type is required for ScTypeLambdaTypeElementImpl
+  //  (see test testdata/lang/resolveSemanticDb/source/i3976.scala
+  isLambdaTypeElement: Boolean = false
+) extends NonValueType {
   override implicit def projectContext: ProjectContext = internalType.projectContext
 
   def polymorphicTypeSubstitutor: ScSubstitutor =
@@ -171,4 +178,8 @@ final case class ScTypePolymorphicType(internalType: ScType, typeParameters: Seq
   override def visitType(visitor: ScalaTypeVisitor): Unit = visitor.visitTypePolymorphicType(this)
 
   override def typeDepth: Int = internalType.typeDepth.max(typeParameters.toArray.depth)
+}
+
+object ScTypePolymorphicType {
+  def unapply(arg: ScTypePolymorphicType): Option[(ScType, Seq[TypeParameter])] = Some((arg.internalType, arg.typeParameters))
 }

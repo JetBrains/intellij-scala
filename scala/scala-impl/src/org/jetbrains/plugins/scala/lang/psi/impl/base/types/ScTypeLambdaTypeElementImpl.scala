@@ -13,7 +13,7 @@ class ScTypeLambdaTypeElementImpl(node: ASTNode)
     with ScTypeLambdaTypeElement {
 
   override protected def innerType: TypeResult =
-    resultType.map(ScTypePolymorphicType(_, typeParameters.map(TypeParameter(_))))
+    resultType.map(ScTypePolymorphicType(_, typeParameters.map(TypeParameter(_)), isLambdaTypeElement = true))
 
   override def resultTypeElement: Option[ScTypeElement] = findChild[ScTypeElement]
   override def resultType: TypeResult                   = this.flatMapType(resultTypeElement)
