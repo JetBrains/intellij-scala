@@ -7,6 +7,7 @@ import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.{outPath, sourcePath}
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import scala.jdk.StreamConverters._
 
@@ -29,7 +30,7 @@ abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestAdapte
     for (filePath <- allPathsIn(source).toSeq) yield {
       myFixture.addFileToProject(
         sourceBasePath.relativize(filePath).toString,
-        FileUtil.loadFile(filePath.toFile)
+        FileUtil.loadFile(filePath.toFile, StandardCharsets.UTF_8)
       )
     }
   }

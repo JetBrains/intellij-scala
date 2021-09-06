@@ -40,7 +40,8 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
     for (file <- files.filterByType[ScalaFile]) {
       val semanticDbFile = store.files.find(_.path.contains(file.name)).get
-      for (ref <- file.elements.filterByType[ScReference].toArray) {
+      val references = file.elements.filterByType[ScReference].toArray
+      for (ref <- references) {
         refCount += 1
         val pos = textPosOf(ref.nameId)
         val refWithPos = s"${ref.refName} at ${pos.readableString} in ${file.name}"
