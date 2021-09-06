@@ -6,7 +6,7 @@ import junit.framework.TestResult
 import org.jetbrains.plugins.scala.base.ScalaFileSetTestCase
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.util.TestUtils
-import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage}
+import org.jetbrains.plugins.scala.{Scala3Language, ScalaLanguage, withPossibleSourceTypesCheck}
 import org.jetbrains.uast.UElement
 import org.jetbrains.uast.test.common.AllUastTypesKt.allUElementSubtypes
 import org.junit.Ignore
@@ -111,7 +111,7 @@ object GeneratePossibleSourceTypesMapping {
     class GatheringTestSuite(path: String, lang: Language, extensions: String*) extends ScalaFileSetTestCase(path, extensions: _*) {
       override protected def getLanguage: Language = lang
 
-      override protected def runTest(testName0: String, content: String, project: Project): Unit = {
+      override protected def runTest(testName0: String, content: String, project: Project): Unit = withPossibleSourceTypesCheck {
         println(s"Gathering from $testName0")
         val file = createLightFile(content, project)
 
