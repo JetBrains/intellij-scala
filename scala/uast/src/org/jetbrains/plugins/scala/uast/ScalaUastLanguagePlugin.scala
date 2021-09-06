@@ -4,16 +4,14 @@ package uast
 import com.intellij.lang.{DependentLanguage, Language}
 import com.intellij.openapi.application.{ApplicationManager, Experiments}
 import com.intellij.openapi.fileTypes.ExtensionFileNameMatcher
-import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiClassInitializer, PsiElement, PsiMethod, PsiVariable}
 import org.jetbrains.annotations.Nullable
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.uast._
-import org.jetbrains.uast.util.{ClassSet, ClassSetKt}
+import org.jetbrains.uast.util.{ClassSet, ClassSetsWrapper}
 
 import scala.language.postfixOps
 
@@ -127,8 +125,14 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
   override def isExpressionValueUsed(uExpression: UExpression): Boolean =
     throw new NotImplementedError // TODO: not implemented
 
-  override def getPossiblePsiSourceTypes(uastTypes: Class[_ <: UElement]*): ClassSet[PsiElement] =
-    ClassSetKt.classSetOf(classOf[ScalaPsiElement], classOf[LeafPsiElement])
+  override def getPossiblePsiSourceTypes(uastTypes: Class[_ <: UElement]*): ClassSet[PsiElement] = {
+    import ScalaUastSourceTypeMapping.possibleSourceTypes
+    uastTypes match {
+      case Seq() => possibleSourceTypes(classOf[UElement])
+      case Seq(one) => possibleSourceTypes(one)
+      case multiple => new ClassSetsWrapper[PsiElement](multiple.map(possibleSourceTypes).toArray)
+    }
+  }
 }
 
 object ScalaUastLanguagePlugin {
