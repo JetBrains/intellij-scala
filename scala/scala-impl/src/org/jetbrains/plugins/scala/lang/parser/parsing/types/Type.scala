@@ -26,20 +26,13 @@ object Type extends Type {
   //   The Scala 3.1 behavior is already available today under the -strict setting.
   //   In Scala >2.13.6 or >2.12.14 and when -Xsource:3 is given then ? is also ok
   def parseWildcardStartToken()(implicit builder: ScalaPsiBuilder): Boolean = {
-    def tryParseUnderscore(): Boolean =
-      if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
-        builder.advanceLexer()
-        true
-      } else false
+    val underscoresDisabled  = builder.underscoreWildcardsDisabled
+    val qMarkWildcardEnabled = builder.features.`? as wildcard marker`
 
-    if (builder.features.`? as wildcard marker`) {
-      val parsedQuestionMark = builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
-
-      //-Xsource:3 -P:kind-projector:underscore-placeholders disable usage of _ as a wildcard
-      if (!parsedQuestionMark && !builder.kindProjectUnderscorePlaceholdersOptionEnabled) {
-        tryParseUnderscore()
-     } else parsedQuestionMark
-    } else tryParseUnderscore()
+    if (!underscoresDisabled && builder.getTokenType == ScalaTokenTypes.tUNDER) {
+      builder.advanceLexer()
+      true
+    } else qMarkWildcardEnabled && builder.tryParseSoftKeyword(ScalaTokenType.WildcardTypeQuestionMark)
   }
 }
 

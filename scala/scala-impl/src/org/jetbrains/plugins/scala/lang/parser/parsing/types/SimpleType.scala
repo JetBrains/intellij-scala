@@ -103,12 +103,19 @@ trait SimpleType {
             else tupleMarker.done(ScalaElementType.TYPE_IN_PARENTHESIS)
         }
         builder.restoreNewlinesState()
+      case ScalaTokenTypes.tUNDER if builder.underscoreWildcardsDisabled =>
+        val simpleTypeMarker = builder.mark()
+        val refMarker = builder.mark()
+        builder.remapCurrentToken(ScalaTokenTypes.tIDENTIFIER)
+        builder.advanceLexer()
+        refMarker.done(ScalaElementType.REFERENCE)
+        simpleTypeMarker.done(ScalaElementType.SIMPLE_TYPE)
       case ScalaTokenTypes.kTHIS |
            ScalaTokenTypes.tIDENTIFIER |
            ScalaTokenTypes.kSUPER =>
         val newMarker = builder.mark()
         val refMarker = builder.mark()
-        if (builder.kindProjectUnderscorePlaceholdersOptionEnabled
+        if (builder.underscoreWildcardsDisabled
           && (builder.getTokenText == "+" || builder.getTokenText == "-")) {
           builder.advanceLexer()
           if (builder.getTokenText == "_") {

@@ -29,7 +29,7 @@ class KindProjectorSimplifyTypeProjectionInspection extends LocalInspectionTool 
         new ScalaElementVisitor {
           override def visitTypeProjection(projection: ScTypeProjection): Unit = projection match {
             case TypeLambda(alias) =>
-              if (alias.kindProjectorPluginEnabled) {
+              if (alias.kindProjectorEnabled) {
                 val aliasParam = alias.typeParameters
                 projection.parent match {
                   //should be handled by AppliedTypeLambdaCanBeSimplifiedInspection

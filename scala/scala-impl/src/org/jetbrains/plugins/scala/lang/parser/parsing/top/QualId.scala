@@ -41,10 +41,9 @@ object QualId extends ParsingRule {
             //recursively parse qualified identifier
             parseNext(newMarker)
           }
-          case _ => {
+          case _ =>
             //It's OK, let's close marker
             qualMarker.done(ScalaElementType.REFERENCE)
-          }
         }
       case _ =>
         builder error ScalaBundle.message("wrong.qual.identifier")
