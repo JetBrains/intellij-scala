@@ -3,6 +3,7 @@ package org.jetbrains.sbt.project
 import com.intellij.ide.projectWizard.ProjectSettingsStep
 import com.intellij.openapi.project.Project
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.template.SbtModuleBuilder
 
@@ -25,7 +26,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
 
   private def runCreateSbtProjectTest(projectName: String): Unit = {
     val scalaVersion = ScalaVersion.fromString("2.13.6").get
-    val sbtVersion = SbtModuleBuilder.LatestSbtVersion
+    val sbtVersion = Versions.SBT.LatestSbtVersion
 
     //noinspection TypeAnnotation
     val expectedProject = new project(projectName) {
@@ -69,7 +70,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
       projectName
     ) {
       case projectSettingsStep: ProjectSettingsStep =>
-        val settingsStep = projectSettingsStep.getSettingsStepTyped[SbtModuleBuilder#MySdkSettingsStep]
+        val settingsStep = projectSettingsStep.getSettingsStepTyped[SbtModuleBuilder.Step]
         settingsStep.setScalaVersion(scalaVersion)
         settingsStep.setSbtVersion(sbtVersion)
       case _ =>

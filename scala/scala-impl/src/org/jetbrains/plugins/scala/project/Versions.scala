@@ -79,7 +79,16 @@ object Versions {
 
   case object SBT extends Kind(
     Sbt1Entity :: Sbt013Entity :: Nil
-  )
+  ) {
+    val LatestSbtVersion = "1.5.4"
+    /** Scala3 is only supported since sbt 1.5.0 */
+    val MinSbtVersionForScala3 = "1.5.0"
+
+    def sbtVersionsForScala3(sbtVersions: Versions): Versions = Versions(
+      LatestSbtVersion,
+      sbtVersions.versions.filter(_ >= MinSbtVersionForScala3)
+    )
+  }
 
   // TODO: this should not be a part of a Versions object
   def loadLinesFrom(url: String): Try[Seq[String]] =

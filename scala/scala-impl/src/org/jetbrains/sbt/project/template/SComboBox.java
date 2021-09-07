@@ -1,6 +1,8 @@
 package org.jetbrains.sbt.project.template;
 
+import org.jetbrains.annotations.Nullable;
 import scala.Function1;
+import scala.Option;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,6 +24,11 @@ public class SComboBox<T> extends JComboBox<T> {
 
   public void setSelectedItemSafe(T anObject) {
     setSelectedItem(anObject);
+  }
+
+  @SuppressWarnings("unchecked")
+  public Option<T> getSelectedItemTyped() {
+    return Option.apply((T) getSelectedItem());
   }
 
   public void setTextRenderer(final Function1<String, String> renderer) {
