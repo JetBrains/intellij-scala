@@ -9,13 +9,12 @@ import org.jetbrains.sbt.language.utils.DependencyOrRepositoryPlaceInfo
 
 import javax.swing.{Icon, JComponent}
 
-private class SbtPossiblePlacesStep(wizard: AddDependencyOrRepositoryPreviewWizard, project: Project, fileLines: Seq[DependencyOrRepositoryPlaceInfo])
+private class SbtPossiblePlacesStep(wizard: AddDependencyPreviewWizard, project: Project, fileLines: Seq[DependencyOrRepositoryPlaceInfo])
   extends  Step {
 
   val panel = new SbtPossiblePlacesPanel(project, wizard, fileLines)
 
   override def _init(): Unit = {
-    wizard.setTitle(s"""${PackageSearchSbtBundle.message("packagesearch.dependency.sbt.possible.places.to.add.new")} ${wizard.getSubject}""")
     wizard.setSize( JBUIScale.scale(800), JBUIScale.scale(750))
     panel.myResultList.clearSelection()
     extensions.inWriteAction {

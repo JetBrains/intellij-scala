@@ -83,6 +83,10 @@ object ScalaBundleSorting {
       rootPath = scalaModDir + "integration/intellilang/",
       bundleMessagesRelativePath = "ScalaIntellilangBundle.properties",
     ),
+    ModuleInfo(
+      rootPath = scalaModDir + "integration/packagesearch/",
+      bundleMessagesRelativePath = "PackageSearchSbtBundle.properties",
+    ),
   )
 
   def main(args: Array[String]): Unit = sortAll(allModuleInfos)
