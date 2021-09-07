@@ -23,7 +23,7 @@ import javax.swing.{JList, JPanel, JSplitPane, ListSelectionModel, ScrollPaneCon
 import javax.swing.event.ListSelectionEvent
 import scala.jdk.CollectionConverters.IterableHasAsJava
 
-private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyOrRepositoryPreviewWizard, fileLines: Seq[DependencyOrRepositoryPlaceInfo]) extends JPanel {
+private class SbtPossiblePlacesPanel(project: Project, wizard: AddDependencyPreviewWizard, fileLines: Seq[DependencyOrRepositoryPlaceInfo]) extends JPanel {
   val myResultList: JBList[DependencyOrRepositoryPlaceInfo] = new JBList[DependencyOrRepositoryPlaceInfo]()
   var myCurEditor: Editor = createEditor()
 
