@@ -32,6 +32,7 @@ import org.jetbrains.plugins.scala.util.TestUtils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -48,7 +49,7 @@ import static org.junit.Assert.*;
  */
 public abstract class ScalaFileSetTestCase extends TestSuite {
 
-    protected ScalaFileSetTestCase(@NotNull @NonNls String path) {
+    protected ScalaFileSetTestCase(@NotNull @NonNls String path, String... testFileExtensions) {
         super();
 
         String pathProperty = System.getProperty("path");
@@ -57,7 +58,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
                 getTestDataPath() + path;
 
         findFiles(new File(customOrPropertyPath))
-                .filter(ScalaFileSetTestCase::isTestFile)
+                .filter(file -> isTestFile(file, testFileExtensions))
                 .map(ActualTest::new)
                 .forEach(this::addTest);
 
@@ -140,7 +141,7 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
             result = result.substring(1);
         }
 
-        if (result.trim().toLowerCase().equals("UNCHANGED_TAG")) {
+        if (result.trim().equalsIgnoreCase("UNCHANGED_TAG")) {
             assertEquals("Unchenged expected result expects only 1 input enty", 1, input.size());
             result = input.get(0);
         }
@@ -292,13 +293,17 @@ public abstract class ScalaFileSetTestCase extends TestSuite {
         }
     }
 
-    private static boolean isTestFile(@NotNull File file) {
+    private static boolean isTestFile(@NotNull File file, String[] testFileExtensions) {
         String path = file.getAbsolutePath();
         String name = file.getName();
 
+        if (testFileExtensions.length == 0) {
+            testFileExtensions = new String[] { ".test" };
+        }
+
         return !path.contains(".svn") &&
                 !path.contains(".cvs") &&
-                endsWith(name, ".test") &&
+                Arrays.stream(testFileExtensions).anyMatch(ext -> endsWith(name, ext)) &&
                 !startsWithChar(name, '_') &&
                 !"CVS".equals(name);
     }

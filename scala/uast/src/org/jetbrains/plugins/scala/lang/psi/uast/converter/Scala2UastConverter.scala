@@ -28,7 +28,7 @@ import org.jetbrains.plugins.scala.lang.psi.uast.expressions.ScUBlockExpression.
 import org.jetbrains.plugins.scala.lang.psi.uast.expressions._
 import org.jetbrains.plugins.scala.lang.psi.uast.internals.LazyUElement
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
-import org.jetbrains.plugins.scala.uast.ScalaUastLanguagePlugin
+import org.jetbrains.plugins.scala.uast.{ScalaUastLanguagePlugin, ScalaUastSourceTypeMapping}
 import org.jetbrains.plugins.scala.util.SAMUtil
 import org.jetbrains.uast._
 import org.jetbrains.uast.expressions.UInjectionHost
@@ -86,7 +86,7 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
     import ConverterUtils._
 
-    val requiredType = implicitly[ClassTag[U]].runtimeClass
+    val requiredType = implicitly[ClassTag[U]].runtimeClass.asInstanceOf[Class[U]]
 
     //performance optimization
     if (!isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
@@ -320,10 +320,10 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
 
     elementOpt.flatMap { element =>
       element.standalone match {
-        case _: U =>
+        case standalone: U =>
 
-          if (isUnitTestMode && !isPossibleToConvert(requiredType, sourcePsi)) {
-            throw new AssertionError(s"${requiredType.getName} is not expected from ${sourcePsi.getClass.getName}, got ${element.standalone.getClass.getName}")
+          if (isUnitTestMode && !possibleSourceTypesCheckIsActive && !isPossibleToConvert(requiredType, sourcePsi)) {
+            throw new AssertionError(s"${requiredType.getName} is not expected from ${sourcePsi.getClass.getName}, got ${standalone.getClass.getName}")
           }
 
           Some(element.asInstanceOf[Free[U]])
@@ -497,70 +497,36 @@ object Scala2UastConverter extends UastFabrics with ConverterExtension {
   }
 
   //todo: is there a better way to restrict possible conversions?
-  private def isPossibleToConvert[U](uastRequiredType: Class[U], scalaElement: PsiElement): Boolean = {
-    def isIdentifier: Boolean = scalaElement match {
+  private def isPossibleToConvert[U <: UElement](uastRequiredType: Class[U], scalaElement: PsiElement): Boolean = {
+    def additionalIdentifierCheck: Boolean = scalaElement match {
       case e: LeafPsiElement => e.getElementType == ScalaTokenTypes.tIDENTIFIER
       case _ => false
     }
 
-    def mayBeCallExpression: Boolean = scalaElement match {
-      case _: ScReferenceExpression |
-           _: MethodInvocation |
-           _: ScGenericCall |
-           _: ScNewTemplateDefinition => true
-      case _ => false
-    }
-
-    def mayBeMethod: Boolean = scalaElement match {
-      case _: ScMethodLike | _ :ScPrimaryConstructorWrapper | _: ScFunctionWrapper => true
-      case _ => false
-    }
-
-    def mayBeField: Boolean = scalaElement match {
+    def extraFieldCheck: Boolean = scalaElement match {
       case namePattern: ScReferencePattern =>
         Option(getParentOfType(namePattern, classOf[ScValueOrVariable])).exists(!_.isLocal)
       case classParam: ScClassParameter =>
         classParam.isClassMember
-      case _ => false
+      case _ => true
     }
 
-    def mayBeExpression: Boolean = scalaElement match {
-      case _: ScExpression => true
-
-      //for some reason ScStableCodeReference and some type elements generate UExpression
-      case _: ScReference => true
+    def extraExpressionCheck: Boolean = scalaElement match {
       case te: ScTypeElement => te.getFirstChild.is[ScReference]
-
-      case _: ScCaseClause => true
-      case _: ScCaseClauses => true
-
-      //ScUDeclarationsExpression
-      case _: ScValueOrVariable => true
 
       //ScULocalFunctionDeclarationExpression
       case e: ScFunctionDefinition => e.isLocal
 
-
-      case _ => false
+      case _ => true
     }
 
     //avoid converting everything to UAST when a particular type is expected
-    if      (uastRequiredType == classOf[ULiteralExpression]) scalaElement.is[ScLiteral]
-    else if (uastRequiredType == classOf[UInjectionHost]) scalaElement.is[ScStringLiteral]
-    else if (uastRequiredType == classOf[UImportStatement]) scalaElement.is[ScImportStmt]
-    else if (uastRequiredType == classOf[UIdentifier]) isIdentifier
-    else if (uastRequiredType == classOf[UCallExpression]) mayBeCallExpression
-    else if (uastRequiredType == classOf[UMethod]) mayBeMethod
-    else if (uastRequiredType == classOf[UClass]) scalaElement.is[ScTypeDefinition, ScTemplateBody]
-    else if (uastRequiredType == classOf[UAnonymousClass]) scalaElement.is[ScTemplateBody]
-    else if (uastRequiredType == classOf[UField]) mayBeField
-    else if (uastRequiredType == classOf[UParameter]) scalaElement.is[ScParameter]
-    else if (uastRequiredType == classOf[UExpression]) mayBeExpression
-    else if (uastRequiredType == classOf[UPolyadicExpression]) scalaElement.is[ScAssignment, ScInfixExpr]
-    else if (uastRequiredType == classOf[UFile]) scalaElement.is[ScalaFile]
-    else if (uastRequiredType == classOf[UAnnotation]) scalaElement.is[ScAnnotation, ScConstructorInvocation]
-    else if (uastRequiredType == classOf[UAnnotated]) scalaElement.is[ScAnnotationsHolder, ScExpression]
-    else true
+    ScalaUastSourceTypeMapping.canConvert(scalaElement, Array(uastRequiredType)) && (
+      if      (uastRequiredType == classOf[UIdentifier]) additionalIdentifierCheck
+      else if (uastRequiredType == classOf[UField]) extraFieldCheck
+      else if (uastRequiredType == classOf[UExpression]) extraExpressionCheck
+      else true
+    )
   }
 
   private class LazyAnyUParentUIdentifier(@Nullable sourcePsi: PsiElement)

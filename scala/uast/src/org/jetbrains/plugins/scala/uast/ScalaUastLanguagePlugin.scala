@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.uast.converter.Scala2UastConverter._
 import org.jetbrains.plugins.scala.lang.psi.uast.utils.NotNothing
 import org.jetbrains.uast._
+import org.jetbrains.uast.util.{ClassSet, ClassSetsWrapper}
 
 import scala.language.postfixOps
 
@@ -123,6 +124,15 @@ final class ScalaUastLanguagePlugin extends UastLanguagePlugin {
 
   override def isExpressionValueUsed(uExpression: UExpression): Boolean =
     throw new NotImplementedError // TODO: not implemented
+
+  override def getPossiblePsiSourceTypes(uastTypes: Class[_ <: UElement]*): ClassSet[PsiElement] = {
+    import ScalaUastSourceTypeMapping.possibleSourceTypes
+    uastTypes match {
+      case Seq() => possibleSourceTypes(classOf[UElement])
+      case Seq(one) => possibleSourceTypes(one)
+      case multiple => new ClassSetsWrapper[PsiElement](multiple.map(possibleSourceTypes).toArray)
+    }
+  }
 }
 
 object ScalaUastLanguagePlugin {
