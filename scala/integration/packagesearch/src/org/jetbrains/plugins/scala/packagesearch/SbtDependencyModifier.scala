@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaCode._
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyOrRepositoryPreviewWizard
+import org.jetbrains.plugins.scala.packagesearch.ui.AddDependencyPreviewWizard
 import org.jetbrains.sbt.SbtUtil
 import org.jetbrains.sbt.language.utils.SbtDependencyCommon.defaultLibScope
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.{GetDep, GetPlace}
@@ -59,7 +59,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       newDependency.getScope)
 
     ApplicationManager.getApplication.invokeLater { () =>
-      val wizard = new AddDependencyOrRepositoryPreviewWizard(
+      val wizard = new AddDependencyPreviewWizard(
         project,
         newArtifactInfo,
         dependencyPlaces)
