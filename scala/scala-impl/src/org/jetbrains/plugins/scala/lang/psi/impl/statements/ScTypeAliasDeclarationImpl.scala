@@ -79,7 +79,7 @@ final class ScTypeAliasDeclarationImpl private(stub: ScTypeAliasStub, node: ASTN
       override def getPresentableText: String = name
       override def getLocationString: String = {
         val containingClass = ScTypeAliasDeclarationImpl.this.containingClass
-        val qname = if (containingClass==null) containingClass.qualifiedName else ""
+        val qname = if (containingClass != null) containingClass.qualifiedName else ""
         "(" + qname + ")"
       }
       override def getIcon(open: Boolean): Icon = ScTypeAliasDeclarationImpl.this.getIcon(0)
