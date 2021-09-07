@@ -1,13 +1,9 @@
 package org.jetbrains.idea.devkit.scala.project
 
 import com.intellij.ide.projectWizard.ProjectSettingsStep
-import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep, WizardContext}
+import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SettingsStep}
 import com.intellij.openapi.application.ApplicationInfo
 import com.intellij.openapi.diagnostic.Logger
-import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager, Task}
-import com.intellij.openapi.project.Project
-import com.intellij.openapi.module.{ModifiableModuleModel, Module, ModuleManager}
-import com.intellij.openapi.roots.ui.configuration.ModulesProvider
 import com.intellij.util.net.HttpConfigurable
 import org.jetbrains.idea.devkit.scala.DevkitBundle
 import org.jetbrains.idea.devkit.scala.project.SbtIdeaPluginProjectBuilder.{NewProjectSettings, fetchLatestSbtIdeaVersion, toCamelCase, toDotSeparatedId}
@@ -22,7 +18,7 @@ import java.nio.file.Path
 import scala.io.Source
 import scala.util.Try
 
-class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
+final class SbtIdeaPluginProjectBuilder extends AbstractArchivedSbtProjectBuilder {
 
   private val LOG = Logger.getInstance(getClass)
 

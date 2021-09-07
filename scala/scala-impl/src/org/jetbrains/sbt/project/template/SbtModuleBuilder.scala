@@ -27,11 +27,7 @@ import java.awt.FlowLayout
 import java.io.File
 import javax.swing._
 
-/**
- * User: Dmitry Naydanov, Pavel Fatin
- * Date: 11/23/13
- */
-class SbtModuleBuilder extends SbtModuleBuilderBase {
+final class SbtModuleBuilder extends SbtModuleBuilderBase with SbtModuleBuilderOps {
 
   import SbtModuleBuilder._
   import Versions.{SBT => SbtKind, Scala => ScalaKind}
@@ -53,8 +49,6 @@ class SbtModuleBuilder extends SbtModuleBuilderBase {
     LatestSbtVersion,
     sbtVersions.versions.filter(_ >= minSbtVersionForScala3)
   )
-
-  override def getModuleType: ModuleType[_ <: ModuleBuilder] = JavaModuleType.getModuleType
 
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     val root = new File(getModuleFileDirectory)

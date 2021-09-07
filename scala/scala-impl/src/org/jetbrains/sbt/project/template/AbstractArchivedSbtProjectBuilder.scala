@@ -15,7 +15,7 @@ import java.util.regex.Pattern
 import java.util.zip.ZipInputStream
 import scala.util.Using
 
-abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilder {
+abstract class AbstractArchivedSbtProjectBuilder extends SbtModuleBuilderBase {
 
   protected def archiveURL: URL
 
