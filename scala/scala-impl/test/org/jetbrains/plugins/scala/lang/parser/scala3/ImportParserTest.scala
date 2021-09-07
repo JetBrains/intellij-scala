@@ -45,10 +45,23 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
 
   def test_given(): Unit = checkTree(
     """
+      |import x.y.given
       |import x.y.given Int
       |""".stripMargin,
     """
       |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: x.y
+      |        CodeReferenceElement: x
+      |          PsiElement(identifier)('x')
+      |        PsiElement(.)('.')
+      |        PsiElement(identifier)('y')
+      |      PsiElement(.)('.')
+      |      PsiElement(given)('given')
       |  PsiWhiteSpace('\n')
       |  ScImportStatement
       |    PsiElement(import)('import')
@@ -120,7 +133,7 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
 
   def test_selector(): Unit = checkTree(
     """
-      |import x.y.{a as b, given Int, given Test, *}
+      |import x.y.{a as b, given, given Int, given Test, *}
       |""".stripMargin,
     """
       |ScalaFile
@@ -148,6 +161,10 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |        PsiWhiteSpace(' ')
       |        ImportSelector
       |          PsiElement(given)('given')
+      |        PsiElement(,)(',')
+      |        PsiWhiteSpace(' ')
+      |        ImportSelector
+      |          PsiElement(given)('given')
       |          PsiWhiteSpace(' ')
       |          SimpleType: Int
       |            CodeReferenceElement: Int
@@ -165,6 +182,35 @@ class ImportParserTest extends SimpleScala3ParserTestBase {
       |        ImportSelector
       |          PsiElement(*)('*')
       |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |""".stripMargin
+  )
+
+  def test_given_next_line(): Unit = checkTree(
+    """
+      |import x.given
+      |println("test")
+      |""".stripMargin,
+    """
+      |ScalaFile
+      |  PsiWhiteSpace('\n')
+      |  ScImportStatement
+      |    PsiElement(import)('import')
+      |    PsiWhiteSpace(' ')
+      |    ImportExpression
+      |      CodeReferenceElement: x
+      |        PsiElement(identifier)('x')
+      |      PsiElement(.)('.')
+      |      PsiElement(given)('given')
+      |  PsiWhiteSpace('\n')
+      |  MethodCall
+      |    ReferenceExpression: println
+      |      PsiElement(identifier)('println')
+      |    ArgumentList
+      |      PsiElement(()('(')
+      |      StringLiteral
+      |        PsiElement(string content)('"test"')
+      |      PsiElement())(')')
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
