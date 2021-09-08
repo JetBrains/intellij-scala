@@ -47,8 +47,8 @@ final class SbtModuleBuilder(
     if (root.exists()) {
       locally {
         val settings = getExternalProjectSettings
-        settings.setResolveClassifiers(selections.resolveClassifiers)
-        settings.setResolveSbtClassifiers(selections.resolveSbtClassifiers)
+        settings.setResolveClassifiers(selections.downloadScalaSdkSources)
+        settings.setResolveSbtClassifiers(selections.downloadSbtSources)
       }
 
       setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))

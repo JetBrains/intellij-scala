@@ -6,8 +6,8 @@ private[template]
 final case class SbtModuleStepSelections(
   var sbtVersion: Option[String],
   var scalaVersion: Option[String],
-  var resolveClassifiers: Boolean,
-  var resolveSbtClassifiers: Boolean,
+  var downloadScalaSdkSources: Boolean,
+  var downloadSbtSources: Boolean,
   var packagePrefix: Option[String]
 ) {
 
@@ -45,8 +45,8 @@ object SbtModuleStepSelections {
     SbtModuleStepSelections(
       sbtVersion = scala.Option.empty,
       scalaVersion = scala.Option.empty,
-      resolveClassifiers = true,
-      resolveSbtClassifiers = false,
+      downloadScalaSdkSources = true,
+      downloadSbtSources = false,
       packagePrefix = scala.Option.empty
     )
 }

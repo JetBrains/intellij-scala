@@ -75,8 +75,8 @@ private[template] trait SbtModuleStepLike {
   private def initUiElementsModelFrom(selections: SbtModuleStepSelections): Unit = {
     sbtVersionComboBox.setSelectedItemSafe(selections.sbtVersion.orNull)
     scalaVersionComboBox.setSelectedItemSafe(selections.scalaVersion.orNull)
-    downloadSbtSourcesCheckbox.setSelected(selections.resolveSbtClassifiers)
-    downloadScalaSourcesCheckbox.setSelected(selections.resolveClassifiers)
+    downloadSbtSourcesCheckbox.setSelected(selections.downloadSbtSources)
+    downloadScalaSourcesCheckbox.setSelected(selections.downloadScalaSdkSources)
     packagePrefixField.setText(selections.packagePrefix.getOrElse(""))
   }
 
@@ -94,10 +94,10 @@ private[template] trait SbtModuleStepLike {
     }
 
     downloadScalaSourcesCheckbox.addChangeListener(_ =>
-      selections.resolveClassifiers = downloadScalaSourcesCheckbox.isSelected
+      selections.downloadScalaSdkSources = downloadScalaSourcesCheckbox.isSelected
     )
     downloadSbtSourcesCheckbox.addChangeListener { _ =>
-      selections.resolveSbtClassifiers = downloadSbtSourcesCheckbox.isSelected
+      selections.downloadSbtSources = downloadSbtSourcesCheckbox.isSelected
     }
 
     packagePrefixField.getDocument.addDocumentListener(
