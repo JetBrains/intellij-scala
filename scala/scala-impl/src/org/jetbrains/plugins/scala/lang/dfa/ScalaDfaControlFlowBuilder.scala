@@ -10,7 +10,7 @@ import com.intellij.codeInspection.dataFlow.value.{DfaValueFactory, RelationType
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{InfixOperators, literalToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
 
 class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val factory: DfaValueFactory) {
 
@@ -59,10 +59,16 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
       case block: ScBlockExpr => processBlock(block)
       case literal: ScLiteral => processLiteral(literal)
       case infixExpression: ScInfixExpr => processInfixExpression(infixExpression)
+      case ifExpression: ScIf => processIfExpression(ifExpression)
       case _ => println(s"Unsupported expression: $expression")
     }
 
     flow.finishElement(expression)
+  }
+
+  private def processExpressionIfPresent(container: Option[ScExpression]): Unit = container match {
+    case Some(expression) => processExpression(expression)
+    case None => pushUnknownValue()
   }
 
   private def processBlock(block: ScBlockExpr): Unit = {
@@ -136,5 +142,26 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
     processExpression(expression.right)
     setOffset(endOffset)
     pushInstruction(new ResultOfInstruction(anchor))
+  }
+
+  private def processIfExpression(expression: ScIf): Unit = {
+    for (condition <- expression.condition) {
+      val skipThenOffset = new DeferredOffset
+      val skipElseOffset = new DeferredOffset
+
+      processExpression(condition)
+      pushInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, condition))
+
+      pushInstruction(new FinishElementInstruction(null))
+      processExpressionIfPresent(expression.thenExpression)
+      pushInstruction(new GotoInstruction(skipElseOffset))
+      setOffset(skipThenOffset)
+
+      pushInstruction(new FinishElementInstruction(null))
+      processExpressionIfPresent(expression.elseExpression)
+      setOffset(skipElseOffset)
+
+      pushInstruction(new FinishElementInstruction(expression))
+    }
   }
 }
