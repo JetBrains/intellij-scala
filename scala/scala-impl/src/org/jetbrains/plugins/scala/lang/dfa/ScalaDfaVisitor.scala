@@ -8,7 +8,7 @@ import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.constantValueToProblemMessage
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.jdk.CollectionConverters._
@@ -21,7 +21,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     function.body.foreach(executeDataFlowAnalysis(_, problemsHolder, factory, memoryStates))
   }
 
-  private def executeDataFlowAnalysis(body: ScExpression, problemsHolder: ProblemsHolder, factory: DfaValueFactory,
+  private def executeDataFlowAnalysis(body: ScBlockStatement, problemsHolder: ProblemsHolder, factory: DfaValueFactory,
                                       memoryStates: Iterable[JvmDfaMemoryStateImpl]): Unit = {
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(body, factory)
     for (flow <- controlFlowBuilder.buildFlow()) {
@@ -46,21 +46,22 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
 
   private def reportProblem(anchor: ScalaDfaAnchor, value: DfaConstantValue, problemsHolder: ProblemsHolder): Unit = {
     anchor match {
-      case expressionAnchor: ScalaExpressionAnchor =>
-        val expression = expressionAnchor.expression
-        val message = constantValueToProblemMessage(value, getProblemTypeForExpression(expressionAnchor.expression))
-        if (!shouldSuppress(expression, value)) {
-          problemsHolder.registerProblem(expression, message)
+      case statementAnchor: ScalaStatementAnchor =>
+        val statement = statementAnchor.statement
+        val message = constantValueToProblemMessage(value, getProblemTypeForStatement(statementAnchor.statement))
+        if (!shouldSuppress(statement, value)) {
+          problemsHolder.registerProblem(statement, message)
         }
+      case _ =>
     }
   }
 
-  private def getProblemTypeForExpression(expression: ScExpression): ProblemHighlightType = expression match {
+  private def getProblemTypeForStatement(statement: ScBlockStatement): ProblemHighlightType = statement match {
     case _: ScLiteral => ProblemHighlightType.WEAK_WARNING
     case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
   }
 
-  private def shouldSuppress(expression: ScExpression, value: DfaConstantValue): Boolean = {
+  private def shouldSuppress(statement: ScBlockStatement, value: DfaConstantValue): Boolean = {
     // TODO implement
     false
   }

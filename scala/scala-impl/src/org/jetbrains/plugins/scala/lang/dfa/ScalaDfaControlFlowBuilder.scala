@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa
 
-import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, NumericBinaryInstruction}
+import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, JvmPushInstruction, NumericBinaryInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
@@ -9,16 +9,18 @@ import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.{DfaValueFactory, RelationType}
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{InfixOperators, literalToDfType}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScIf, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 
-class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val factory: DfaValueFactory) {
+class ScalaDfaControlFlowBuilder(private val body: ScBlockStatement, private val factory: DfaValueFactory) {
 
   private val flow = new ControlFlow(factory, body)
   private val trapTracker = new TrapTracker(factory, body)
 
   def buildFlow(): Option[ControlFlow] = {
-    processExpression(body)
+    processElement(body)
     popReturnValue()
     flow.finish()
     Some(flow)
@@ -32,11 +34,11 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
   private def setOffset(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 
   // TODO rewrite later into a proper instruction
-  private def pushUnknownCall(expression: ScExpression, argCount: Int): Unit = {
+  private def pushUnknownCall(statement: ScBlockStatement, argCount: Int): Unit = {
     popArguments(argCount)
 
     val resultType = DfType.TOP // TODO collect more precise information on type
-    pushInstruction(new PushValueInstruction(resultType, ScalaExpressionAnchor(expression)))
+    pushInstruction(new PushValueInstruction(resultType, ScalaStatementAnchor(statement)))
     pushInstruction(new FlushFieldsInstruction)
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
@@ -54,40 +56,42 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
   }
 
   // TODO refactor into a different design later, once some basic version works
-  private def processExpression(expression: ScExpression): Unit = {
-    expression match {
+  private def processElement(element: ScalaPsiElement): Unit = {
+    element match {
       case block: ScBlockExpr => processBlock(block)
       case literal: ScLiteral => processLiteral(literal)
       case infixExpression: ScInfixExpr => processInfixExpression(infixExpression)
       case ifExpression: ScIf => processIfExpression(ifExpression)
-      case _ => println(s"Unsupported expression: $expression")
+      case patternDefinition: ScPatternDefinition => processPatternDefinition(patternDefinition)
+      case referenceExpression: ScReferenceExpression => processReferenceExpression(referenceExpression)
+      case _ => println(s"Unsupported PSI element: $element")
     }
 
-    flow.finishElement(expression)
+    flow.finishElement(element)
   }
 
   private def processExpressionIfPresent(container: Option[ScExpression]): Unit = container match {
-    case Some(expression) => processExpression(expression)
+    case Some(expression) => processElement(expression)
     case None => pushUnknownValue()
   }
 
   private def processBlock(block: ScBlockExpr): Unit = {
-    val expressions = block.exprs
-    if (expressions.isEmpty) {
+    val statements = block.statements
+    if (statements.isEmpty) {
       pushUnknownValue()
     } else {
-      expressions.init.foreach { expression =>
-        processExpression(expression)
+      statements.init.foreach { statement =>
+        processElement(statement)
         popReturnValue()
       }
 
-      processExpression(expressions.last)
+      processElement(statements.last)
       pushInstruction(new FinishElementInstruction(block))
     }
   }
 
   private def processLiteral(literal: ScLiteral): Unit = {
-    pushInstruction(new PushValueInstruction(literalToDfType(literal), ScalaExpressionAnchor(literal)))
+    pushInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
   }
 
   // TODO more comprehensive handling later
@@ -101,35 +105,35 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
     } else if (InfixOperators.Logical.contains(operationToken)) {
       processLogicalExpression(infixExpression, InfixOperators.Logical(operationToken))
     } else {
-      processExpression(infixExpression.left)
-      processExpression(infixExpression.right)
+      processElement(infixExpression.left)
+      processElement(infixExpression.right)
       pushUnknownCall(infixExpression, 2)
     }
   }
 
   private def processArithmeticExpression(expression: ScInfixExpr, operation: LongRangeBinOp): Unit = {
-    processExpression(expression.left)
+    processElement(expression.left)
     // TODO check implicit conversions etc.
     // TODO check division by zero
-    processExpression(expression.right)
-    pushInstruction(new NumericBinaryInstruction(operation, ScalaExpressionAnchor(expression)))
+    processElement(expression.right)
+    pushInstruction(new NumericBinaryInstruction(operation, ScalaStatementAnchor(expression)))
   }
 
   private def processRelationalExpression(expression: ScInfixExpr, operation: RelationType): Unit = {
     val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
-    processExpression(expression.left)
+    processElement(expression.left)
     // TODO check types, for now we only want this (except for equality) to work on JVM primitive types, otherwise pushUnknownCall
     // TODO add implicit conversions etc.
-    processExpression(expression.right)
-    pushInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaExpressionAnchor(expression)))
+    processElement(expression.right)
+    pushInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaStatementAnchor(expression)))
   }
 
   private def processLogicalExpression(expression: ScInfixExpr, operation: LogicalOperation): Unit = {
-    val anchor = ScalaExpressionAnchor(expression)
+    val anchor = ScalaStatementAnchor(expression)
     val endOffset = new DeferredOffset
     val nextConditionOffset = new DeferredOffset
 
-    processExpression(expression.left)
+    processElement(expression.left)
 
     val valueNeededToContinue = operation == LogicalOperation.And
     pushInstruction(new ConditionalGotoInstruction(nextConditionOffset,
@@ -139,7 +143,7 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
 
     setOffset(nextConditionOffset)
     pushInstruction(new FinishElementInstruction(null))
-    processExpression(expression.right)
+    processElement(expression.right)
     setOffset(endOffset)
     pushInstruction(new ResultOfInstruction(anchor))
   }
@@ -149,7 +153,7 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
       val skipThenOffset = new DeferredOffset
       val skipElseOffset = new DeferredOffset
 
-      processExpression(condition)
+      processElement(condition)
       pushInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, condition))
 
       pushInstruction(new FinishElementInstruction(null))
@@ -162,6 +166,30 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
       setOffset(skipElseOffset)
 
       pushInstruction(new FinishElementInstruction(expression))
+    }
+  }
+
+  private def processPatternDefinition(definition: ScPatternDefinition): Unit = {
+    if (!definition.isSimple) {
+      pushUnknownValue()
+      return
+    }
+
+    val binding = definition.bindings.head
+    val dfaVariable = factory.getVarFactory.createVariableValue(ScalaVariableDescriptor(binding, binding.isStable))
+
+    processExpressionIfPresent(definition.expr)
+    pushInstruction(new SimpleAssignmentInstruction(ScalaStatementAnchor(definition), dfaVariable))
+  }
+
+  private def processReferenceExpression(expression: ScReferenceExpression): Unit = {
+    // TODO add qualified expressions, currently only simple ones
+    expression.getReference.bind().map(_.element) match {
+      // TODO check isStable, what exactly does it mean in those places?
+      case Some(element) => // TODO extract later + try to fix types/anchor, if possible
+        val dfaVariable = factory.getVarFactory.createVariableValue(ScalaVariableDescriptor(element, isStable = true))
+        pushInstruction(new JvmPushInstruction(dfaVariable, ScalaUnreportedElementAnchor(element)))
+      case _ => pushUnknownValue()
     }
   }
 }
