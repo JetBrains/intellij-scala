@@ -40,7 +40,7 @@ class NewSbtProjectWizardTest extends NewScalaProjectWizardTestBase with ExactMa
           libraryDependencies := Seq(scalaLibrary)
           sources := Seq("src/main/scala")
           testSources := Seq("src/test/scala")
-          excluded := Seq("target")
+          excluded := Seq("project/target", "target")
         },
         new module(s"$projectName-build") {
           // TODO: why `-build` module contains empty string? in UI the `project` folder is marked as `sources`.

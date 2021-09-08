@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.{ScalaLanguageLevel, Versions}
 import org.jetbrains.plugins.scala.util.ui.extensions.JComboBoxOps
 import org.jetbrains.plugins.scala.{ScalaBundle, ScalaVersion}
-import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.doSetupModule
+import org.jetbrains.sbt.project.template.SbtModuleBuilderUtil.{DefaultModuleContentEntryFolders, doSetupModule}
 import org.jetbrains.sbt.project.template.wizard.{SbtModuleStepLike, SbtModuleStepSelections}
 
 import java.awt.{Container, FlowLayout}
@@ -45,17 +45,11 @@ final class SbtModuleBuilder(
   override def createModule(moduleModel: ModifiableModuleModel): Module = {
     val root = new File(getModuleFileDirectory)
     if (root.exists()) {
-      val SbtModuleStepSelections(sbtVersionOpt, scalaVersionOpt, resolveClassifiers, resolveSbtClassifiers, packagePrefix) = selections
-      val sbtVersion = sbtVersionOpt.getOrElse(Versions.SBT.LatestSbtVersion)
-      val scalaVersion = scalaVersionOpt.getOrElse(ScalaVersion.Latest.Scala_2_13.minor)
-
       locally {
         val settings = getExternalProjectSettings
-        settings.setResolveClassifiers(resolveClassifiers)
-        settings.setResolveSbtClassifiers(resolveSbtClassifiers)
+        settings.setResolveClassifiers(selections.resolveClassifiers)
+        settings.setResolveSbtClassifiers(selections.resolveSbtClassifiers)
       }
-
-      createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, packagePrefix)
 
       setModuleFilePath(moduleFilePathUpdated(getModuleFilePath))
     }
@@ -63,8 +57,20 @@ final class SbtModuleBuilder(
     super.createModule(moduleModel)
   }
 
-  override def setupRootModel(model: ModifiableRootModel): Unit =
-    SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath)
+  override def setupRootModel(model: ModifiableRootModel): Unit = {
+    for {
+      contentPath <- Option(getContentEntryPath)
+    } {
+      val root = new File(contentPath)
+
+      val sbtVersion = selections.sbtVersion.getOrElse(Versions.SBT.LatestSbtVersion)
+      val scalaVersion = selections.scalaVersion.getOrElse(ScalaVersion.Latest.Scala_2_13.minor)
+      val packagePrefix = selections.packagePrefix
+
+      val contentEntryFolders = createProjectTemplateIn(root, getName, scalaVersion, sbtVersion, packagePrefix)
+      SbtModuleBuilderUtil.tryToSetupRootModel(model, getContentEntryPath, contentEntryFolders)
+    }
+  }
 
   override def setupModule(module: Module): Unit = {
     super.setupModule(module)
@@ -184,18 +190,22 @@ object SbtModuleBuilder {
     }
   }
 
-  // TODO: mark source roots even until the project is imported
-  private def createProjectTemplateIn(root: File,
-                                      @NonNls name: String,
-                                      @NonNls scalaVersion: String,
-                                      @NonNls sbtVersion: String,
-                                      packagePrefix: Option[String]): Unit = {
+  private def createProjectTemplateIn(
+    root: File,
+    @NonNls name: String,
+    @NonNls scalaVersion: String,
+    @NonNls sbtVersion: String,
+    packagePrefix: Option[String]
+  ): Option[DefaultModuleContentEntryFolders] = {
     val buildFile = root / Sbt.BuildFile
     val projectDir = root / Sbt.ProjectDirectory
 
     if (buildFile.createNewFile() && projectDir.mkdir()) {
-      (root / "src" / "main" / "scala").mkdirs()
-      (root / "src" / "test" / "scala").mkdirs()
+      val mainSourcesPath = "src/main/scala"
+      val testSourcesPath = "src/test/scala"
+
+      (root / mainSourcesPath).mkdirs()
+      (root / testSourcesPath).mkdirs()
 
       import io.FileUtil.writeToFile
 
@@ -222,6 +232,14 @@ object SbtModuleBuilder {
           """addSbtPlugin("org.jetbrains" % "sbt-ide-settings" % "1.1.0")"""
         )
       }
+
+      Some(DefaultModuleContentEntryFolders(
+        Seq(mainSourcesPath),
+        Seq(testSourcesPath),
+        Nil,
+        Nil,
+      ))
     }
+    else None
   }
 }

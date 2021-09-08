@@ -1,7 +1,5 @@
 package org.jetbrains.sbt.project.template
 
-import java.io.File
-
 import com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.model.project.{ModuleData, ProjectData}
@@ -9,24 +7,31 @@ import com.intellij.openapi.externalSystem.service.execution.ProgressExecutionMo
 import com.intellij.openapi.externalSystem.service.project.manage.ExternalProjectsManagerImpl
 import com.intellij.openapi.externalSystem.settings.AbstractExternalSystemSettings
 import com.intellij.openapi.externalSystem.util.{ExternalSystemApiUtil, ExternalSystemUtil}
-import com.intellij.openapi.module.{JavaModuleType, ModifiableModuleModel, Module, ModuleType}
 import com.intellij.openapi.fileEditor.FileDocumentManager
-import com.intellij.openapi.roots.ModifiableRootModel
+import com.intellij.openapi.module.Module
+import com.intellij.openapi.roots.{ContentEntry, ModifiableRootModel}
 import com.intellij.openapi.util.io.FileUtilRt
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import org.jetbrains.annotations.Nullable
+import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 
+import java.io.File
+
 object SbtModuleBuilderUtil {
 
-  def tryToSetupRootModel(model: ModifiableRootModel, @Nullable contentEntryPath: String): Unit = {
+  def tryToSetupRootModel(
+    model: ModifiableRootModel,
+    @Nullable contentEntryPath: String,
+    contentEntryFolders: Option[DefaultModuleContentEntryFolders] = None
+  ): Unit = {
     for {
       contentRootDir <- getOrCreateContentRootDir(contentEntryPath)
       vFile <- Option(LocalFileSystem.getInstance.refreshAndFindFileByIoFile(contentRootDir))
     } yield {
-      doSetupRootModel(model, vFile)
+      doSetupRootModel(model, vFile, contentEntryFolders)
     }
   }
 
@@ -76,9 +81,44 @@ object SbtModuleBuilderUtil {
     }
   }
 
-  private def doSetupRootModel(model: ModifiableRootModel, vContentRootDir: VirtualFile): Unit = {
-    model.addContentEntry(vContentRootDir)
+  private def doSetupRootModel(
+    model: ModifiableRootModel,
+    vContentRootDir: VirtualFile,
+    contentEntryFolders: Option[DefaultModuleContentEntryFolders]
+  ): Unit = {
+    val entry: ContentEntry = model.addContentEntry(vContentRootDir)
     model.inheritSdk()
+
+    contentEntryFolders.foreach(markDefaultModelContentEntryFolders(entry, vContentRootDir, _))
   }
 
+  private def markDefaultModelContentEntryFolders(
+    entry: ContentEntry,
+    vContentRootDir: VirtualFile,
+    folders: DefaultModuleContentEntryFolders,
+  ): Unit = {
+    def url(relativePath: String): String =
+      vContentRootDir.toString + "/" + relativePath
+
+    folders.sources.map(url).foreach(entry.addSourceFolder(_, JavaSourceRootType.SOURCE))
+    folders.testSources.map(url).foreach(entry.addSourceFolder(_, JavaSourceRootType.TEST_SOURCE))
+    folders.resources.map(url).foreach(entry.addSourceFolder(_, JavaResourceRootType.RESOURCE))
+    folders.testResources.map(url).foreach(entry.addSourceFolder(_, JavaResourceRootType.TEST_RESOURCE))
+    folders.excluded.map(url).foreach(entry.addExcludeFolder)
+  }
+
+  /**
+   * Represents set of folders to be marked as "source" or "test" or "excluded" folders
+   * after project is created and before sbt project reimport is finished.<br>
+   * Otherwise we would need to wait for the project reimport finish even to create a simple scala file in sources folder.
+   *
+   * NOTE: all paths are relative to model content root
+   */
+  final case class DefaultModuleContentEntryFolders(
+    sources: Seq[String],
+    testSources: Seq[String],
+    resources: Seq[String],
+    testResources: Seq[String],
+    excluded: Seq[String] = Seq("target", "project/target"),
+  )
 }
