@@ -821,9 +821,6 @@ private[importing] object BspResolverLogic {
 
         val scalaSdkLibrary = new LibraryData(BSP.ProjectSystemId, s"${ScalaSdkData.LibraryName}-${scalaSdkData.scalaVersion}")
 
-        scalaSdkData.scalacClasspath.forEach { path =>
-          scalaSdkLibrary.addPath(LibraryPathType.BINARY, path.getCanonicalPath)
-        }
         val scalaSdkLibraryDependencyData = new LibraryDependencyData(moduleData, scalaSdkLibrary, LibraryLevel.MODULE)
         scalaSdkLibraryDependencyData.setScope(DependencyScope.COMPILE)
 
