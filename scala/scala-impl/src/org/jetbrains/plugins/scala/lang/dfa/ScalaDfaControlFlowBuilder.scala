@@ -2,9 +2,10 @@ package org.jetbrains.plugins.scala.lang.dfa
 
 import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, NumericBinaryInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
+import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
-import com.intellij.codeInspection.dataFlow.types.DfType
+import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.{DfaValueFactory, RelationType}
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{InfixOperators, literalToDfType}
@@ -23,9 +24,12 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
     Some(flow)
   }
 
+  // TODO extract those reusable util methods, separate from actual expressions logic
   private def pushInstruction(instruction: Instruction): Unit = flow.addInstruction(instruction)
 
   private def pushUnknownValue(): Unit = pushInstruction(new PushValueInstruction(DfType.TOP))
+
+  private def setOffset(offset: DeferredOffset): Unit = offset.setOffset(flow.getInstructionCount)
 
   // TODO rewrite later into a proper instruction
   private def pushUnknownCall(expression: ScExpression, argCount: Int): Unit = {
@@ -82,14 +86,14 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
 
   // TODO more comprehensive handling later
   private def processInfixExpression(infixExpression: ScInfixExpr): Unit = {
-    val operationToken = infixExpression.operation.refName
+    val operationToken = infixExpression.operation.bind().get.name
 
     if (InfixOperators.Arithmetic.contains(operationToken)) {
       processArithmeticExpression(infixExpression, InfixOperators.Arithmetic(operationToken))
     } else if (InfixOperators.Relational.contains(operationToken)) {
       processRelationalExpression(infixExpression, InfixOperators.Relational(operationToken))
     } else if (InfixOperators.Logical.contains(operationToken)) {
-      // TODO handle
+      processLogicalExpression(infixExpression, InfixOperators.Logical(operationToken))
     } else {
       processExpression(infixExpression.left)
       processExpression(infixExpression.right)
@@ -112,5 +116,25 @@ class ScalaDfaControlFlowBuilder(private val body: ScExpression, private val fac
     // TODO add implicit conversions etc.
     processExpression(expression.right)
     pushInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaExpressionAnchor(expression)))
+  }
+
+  private def processLogicalExpression(expression: ScInfixExpr, operation: LogicalOperation): Unit = {
+    val anchor = ScalaExpressionAnchor(expression)
+    val endOffset = new DeferredOffset
+    val nextConditionOffset = new DeferredOffset
+
+    processExpression(expression.left)
+
+    val valueNeededToContinue = operation == LogicalOperation.And
+    pushInstruction(new ConditionalGotoInstruction(nextConditionOffset,
+      DfTypes.booleanValue(valueNeededToContinue), expression.left))
+    pushInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
+    pushInstruction(new GotoInstruction(endOffset))
+
+    setOffset(nextConditionOffset)
+    pushInstruction(new FinishElementInstruction(null))
+    processExpression(expression.right)
+    setOffset(endOffset)
+    pushInstruction(new ResultOfInstruction(anchor))
   }
 }

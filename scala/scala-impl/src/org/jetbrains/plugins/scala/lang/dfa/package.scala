@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.lang
 
-import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
-import com.intellij.codeInspection.dataFlow.value.RelationType
-
 package object dfa {
 
   sealed trait DfaConstantValue

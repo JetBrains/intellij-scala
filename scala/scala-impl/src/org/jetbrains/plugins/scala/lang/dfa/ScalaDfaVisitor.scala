@@ -41,7 +41,6 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
   private def reportProblems(listener: ScalaDfaListener, problemsHolder: ProblemsHolder): Unit = {
     listener.collectConstantConditions
       .filter { case (_, value) => value != DfaConstantValue.Unknown }
-      // TODO suppressing unwanted warnings
       .foreach { case (anchor, value) => reportProblem(anchor, value, problemsHolder) }
   }
 
@@ -50,13 +49,19 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
       case expressionAnchor: ScalaExpressionAnchor =>
         val expression = expressionAnchor.expression
         val message = constantValueToProblemMessage(value, getProblemTypeForExpression(expressionAnchor.expression))
-        problemsHolder.registerProblem(expression, message)
+        if (!shouldSuppress(expression, value)) {
+          problemsHolder.registerProblem(expression, message)
+        }
     }
   }
 
   private def getProblemTypeForExpression(expression: ScExpression): ProblemHighlightType = expression match {
-    // TODO maybe other cases later
     case _: ScLiteral => ProblemHighlightType.WEAK_WARNING
     case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
+  }
+
+  private def shouldSuppress(expression: ScExpression, value: DfaConstantValue): Boolean = {
+    // TODO implement
+    false
   }
 }
