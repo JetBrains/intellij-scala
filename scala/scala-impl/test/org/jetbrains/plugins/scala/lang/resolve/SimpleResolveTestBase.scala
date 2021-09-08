@@ -1,18 +1,18 @@
 package org.jetbrains.plugins.scala.lang.resolve
 
-import java.io.File
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.CharsetToolkit
-import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiFile, PsiReference}
 import com.intellij.testFramework.UsefulTestCase
 import org.jetbrains.plugins.scala.TestFixtureProvider
 import org.jetbrains.plugins.scala.base.FailableTest
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.util.TestUtils
 import org.junit.Assert
+
+import java.io.File
 
 
 /**
@@ -74,8 +74,8 @@ trait SimpleResolveTestBase {
     val (src, tgt) = setupResolveTest(target, sources: _*)
     val result = src.resolve()
     if (shouldPass) {
-      if (shouldResolve) Assert.assertNotNull(s"Failed to resolve element - '${src.getElement.getText}'", result)
-      else               Assert.assertNull("Reference '${src.getText}' must not resolve", result)
+      if (shouldResolve) Assert.assertNotNull(s"Failed to resolve element - '${src.getElement.getText}'.", result)
+      else               Assert.assertNull(s"Reference '${src.getElement.getText}' must not resolve.", result)
     } else if (result == null) {
       if (!shouldResolve) Assert.fail(failingPassed + ": failed to resolve element")
       else                return
@@ -89,6 +89,9 @@ trait SimpleResolveTestBase {
 
   protected def testNoResolve(sources: (String, String)*): Unit =
     doResolveTest(None, shouldResolve = false, sources: _*)
+
+  protected def testNoResolve(source: String, fileName: String = "dummy.scala"): Unit =
+    testNoResolve(source -> fileName)
 
   protected def doResolveTest(source: String, fileName: String = "dummy.scala"): Unit =
     doResolveTest(source -> fileName)

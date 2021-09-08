@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScGiven, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.base.types.ScSimpleTypeElementImpl
 import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrExportStmtStub, ScImportStmtStub}
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScExportStmtElementType, ScImportOrExportStmtElementType, ScImportStmtElementType}
@@ -72,7 +72,7 @@ abstract sealed class ScImportOrExportImpl[
     lastParent: PsiElement,
     place:      PsiElement
   ): Boolean = {
-
+    val isScala3 = this.isInScala3File
     val importExpr1 = importExprs.takeWhile(_ != lastParent)
     val importsIterator = importExpr1.reverseIterator
     while (importsIterator.hasNext) {
@@ -139,6 +139,39 @@ abstract sealed class ScImportOrExportImpl[
                   .flatMap(_.`type`().toOption)
             case _ => ScSimpleTypeElementImpl.calculateReferenceType(qualifier).toOption
           }
+
+        def wildcardProxyProcessor(bp: BaseProcessor, shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty): BaseProcessor = {
+          assert(bp == processor)
+
+          if (!isScala3 && shadowed.isEmpty) bp
+          else new BaseProcessor(bp.kinds) {
+            override def getHint[T](hintKey: Key[T]): T = bp.getHint(hintKey)
+
+            override def isImplicitProcessor: Boolean = bp.isImplicitProcessor
+
+            override def handleEvent(event: PsiScopeProcessor.Event, associated: Object): Unit =
+              bp.handleEvent(event, associated)
+
+            override def getClassKind: Boolean          = bp.getClassKind
+            override def setClassKind(b: Boolean): Unit = bp.setClassKind(b)
+
+            override protected def execute(namedElement: PsiNamedElement)
+                                          (implicit state: ResolveState): Boolean = {
+              if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(namedElement, p._2))) {
+                return true
+              }
+
+              // Do not import givens, they have to be imported via a given import (import test.given)
+              if (isScala3 && namedElement.is[ScGiven]) {
+                return true
+              }
+
+              val refType = qualifierType(isInPackageObject(namedElement))
+              val newState = state.withFromType(refType)
+              bp.execute(namedElement, newState)
+            }
+          }
+        }
 
         val resolveIterator = resolve.iterator
         while (resolveIterator.hasNext) {
@@ -223,7 +256,8 @@ abstract sealed class ScImportOrExportImpl[
                   case (cl: PsiClass, _, processor: BaseProcessor) if !cl.is[ScTemplateDefinition] =>
                     processor.processType(ScDesignatorType.static(cl), place, newState)
                   case (_, Some(value), processor: BaseProcessor) =>
-                    processor.processType(value, place, newState)
+                    wildcardProxyProcessor(processor)
+                      .processType(value, place, newState)
                   case _ =>
                     elem.processDeclarations(processor, newState, this, place)
                 }
@@ -281,30 +315,6 @@ abstract sealed class ScImportOrExportImpl[
                   case bp: BaseProcessor =>
                     ProgressManager.checkCanceled()
 
-                    val p1 = new BaseProcessor(bp.kinds) {
-                      override def getHint[T](hintKey: Key[T]): T = processor.getHint(hintKey)
-
-                      override def isImplicitProcessor: Boolean = bp.isImplicitProcessor
-
-                      override def handleEvent(event: PsiScopeProcessor.Event, associated: Object): Unit =
-                        processor.handleEvent(event, associated)
-
-                      override def getClassKind: Boolean          = bp.getClassKind
-                      override def setClassKind(b: Boolean): Unit = bp.setClassKind(b)
-
-                      override protected def execute(namedElement: PsiNamedElement)
-                                                    (implicit state: ResolveState): Boolean = {
-                        if (shadowed.exists(p => ScEquivalenceUtil.smartEquivalence(namedElement, p._2))) return true
-
-                        val refType = qualifierType(isInPackageObject(namedElement))
-                        val newState = state
-                          .withSubstitutor(subst)
-                          .withFromType(refType)
-
-                        processor.execute(namedElement, newState)
-                      }
-                    }
-
                     val newImportsUsed =
                       importsUsed ++ tryMarkImportExprUsed(processor, qualifierFqn, importExpr, wildcard = true)
 
@@ -321,7 +331,7 @@ abstract sealed class ScImportOrExportImpl[
                           return false
                       case _ =>
                         // In this case import optimizer should check for used selectors
-                        if (!elem.processDeclarations(p1, newState, this, place))
+                        if (!elem.processDeclarations(wildcardProxyProcessor(bp, shadowed), newState, this, place))
                           return false
                     }
                   case _ => true
