@@ -104,36 +104,8 @@ final class TriggerCompilerHighlightingService(project: Project)
   }
 
   private def triggerIncrementalCompilation(debugReason: String): Unit = {
-    def saveChangedDocuments(): Unit = synchronized {
-      changedFiles
-        .flatMap { virtualFile => inReadAction(virtualFile.findDocument) }
-        .foreach(_.syncToDisk(project))
-      changedFiles = Set.empty
-    }
-
-    def eraseAlreadyHighlighted(): Unit = synchronized {
-      alreadyHighlighted = Set.empty
-    }
-
-    def triggerSelectedDocumentCompilation(): Unit =
-      FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
-        .foreach(triggerOnSelectionChange)
-        
-    def clearDocumentCompilerOutputDirectories(): Unit =
-      DocumentCompiler.get(project).clearOutputDirectories()
-
     if (showErrorsFromCompilerEnabledAtLeastForOneOpenEditor.isDefined)
-      CompilerHighlightingService.get(project).triggerIncrementalCompilation(
-        debugReason,
-        beforeCompilation = { () =>
-          saveChangedDocuments()
-        },
-        afterCompilation = { () =>
-          eraseAlreadyHighlighted()
-          clearDocumentCompilerOutputDirectories()
-          triggerSelectedDocumentCompilation()
-        }
-      )
+      CompilerHighlightingService.get(project).triggerIncrementalCompilation(debugReason)
   }
 
   // SCL-18946
@@ -150,6 +122,20 @@ final class TriggerCompilerHighlightingService(project: Project)
 
     val openEditors = FileEditorManager.getInstance(project).getAllEditors
     openEditors.find(isEnabledFor)
+  }
+
+  def beforeIncrementalCompilation(): Unit = {
+    changedFiles
+      .flatMap { virtualFile => inReadAction(virtualFile.findDocument) }
+      .foreach(_.syncToDisk(project))
+    changedFiles = Set.empty
+  }
+
+  def afterIncrementalCompilation(): Unit = {
+    alreadyHighlighted = Set.empty
+    DocumentCompiler.get(project).clearOutputDirectories()
+    FileEditorManager.getInstance(project).getSelectedEditor.nullSafe
+      .foreach(triggerOnSelectionChange)
   }
 
   private def triggerDocumentCompilation(

@@ -2,6 +2,8 @@ package org.jetbrains.plugins.scala.externalHighlighters
 
 import com.intellij.codeInsight.lookup.LookupManager
 import com.intellij.codeInsight.template.TemplateManager
+import com.intellij.compiler.CompilerWorkspaceConfiguration
+import com.intellij.compiler.server.BuildManager
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.components.Service
@@ -17,7 +19,7 @@ import org.jetbrains.jps.incremental.scala.Client
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.CompileServerLauncher
 import org.jetbrains.plugins.scala.extensions.ObjectExt
-import org.jetbrains.plugins.scala.externalHighlighters.CompilerHighlightingService.Log
+import org.jetbrains.plugins.scala.externalHighlighters.CompilerHighlightingService.{Log, platformAutomakeEnabled}
 import org.jetbrains.plugins.scala.externalHighlighters.compiler._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
@@ -49,18 +51,25 @@ final class CompilerHighlightingService(project: Project)
 
   def triggerIncrementalCompilation(
     debugReason: String,
-    delayedProgressShow: Boolean = true,
-    beforeCompilation: () => Unit = () => (),
-    afterCompilation: () => Unit = () => ()
+    delayedProgressShow: Boolean = true
   ): Unit = {
     debug(s"triggerIncrementalCompilation: $debugReason")
-    incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
-      performCompilation(delayedProgressShow) { client =>
-        beforeCompilation()
-        try {
-          IncrementalCompiler.compile(project, client)
-        } finally {
-          afterCompilation()
+    if (platformAutomakeEnabled(project)) {
+      //we need to save documents right away or automake won't happen
+      TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
+
+      BuildManager.getInstance().scheduleAutoMake()
+      //afterIncrementalCompilation is invoked in AutomakeBuildManagerListener
+    }
+    else {
+      incrementalExecutor.schedule(ScalaHighlightingMode.compilationDelay) {
+        performCompilation(delayedProgressShow) { client =>
+          TriggerCompilerHighlightingService.get(project).beforeIncrementalCompilation()
+          try {
+            IncrementalCompiler.compile(project, client)
+          } finally {
+            TriggerCompilerHighlightingService.get(project).afterIncrementalCompilation()
+          }
         }
       }
     }
@@ -181,4 +190,7 @@ object CompilerHighlightingService {
 
   def get(project: Project): CompilerHighlightingService =
     project.getService(classOf[CompilerHighlightingService])
+
+  def platformAutomakeEnabled(project: Project): Boolean =
+    CompilerWorkspaceConfiguration.getInstance(project).MAKE_PROJECT_ON_SAVE
 }
