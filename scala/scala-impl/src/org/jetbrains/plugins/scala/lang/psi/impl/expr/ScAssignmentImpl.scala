@@ -47,7 +47,7 @@ class ScAssignmentImpl(node: ASTNode) extends ScExpressionImplBase(node) with Sc
   override def mirrorMethodCall: Option[ScMethodCall] = {
     leftExpression match {
       case ref: ScReferenceExpression =>
-        val text = s"${ref.refName}_=(${rightExpression.map(_.getText).getOrElse("")})"
+        val text = s"${ref.getText}_=(${rightExpression.map(_.getText).getOrElse("")})"
         val mirrorExpr = ScalaPsiElementFactory.createExpressionWithContextFromText(text, getContext, this)
         mirrorExpr match {
           case call@ScMethodCall(referenceExpression: ScReferenceExpression, _) =>

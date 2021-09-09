@@ -5,6 +5,8 @@ package org.jetbrains.plugins.scala.lang.psi.api.expr
  * Infix, Prefix and Postfix calls
  */
 trait ScSugarCallExpr extends ScExpression with MethodInvocation {
+  override def thisExpr: Option[ScExpression] = Some(getBaseExpr)
+
   def getBaseExpr: ScExpression
 
   def operation: ScReferenceExpression
