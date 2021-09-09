@@ -48,12 +48,9 @@ package object editor {
 
     def syncToDisk(project: Project): Unit =
       virtualFile.filter(_.isValid).foreach { file =>
-        val requestor = FileDocumentManager.getInstance
-        val text = textWithConvertedSeparators(file)
-        val modificationStamp = document.getModificationStamp
         invokeAndWait {
           inWriteAction {
-            LoadTextUtil.write(project, file, requestor, text, modificationStamp)
+            FileDocumentManager.getInstance.saveDocumentAsIs(document)
           }
         }
       }
