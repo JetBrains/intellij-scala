@@ -2,13 +2,12 @@ package org.jetbrains.jps.incremental.scala
 
 import java.io.File
 import java.{util => jutil}
-
 import com.intellij.util.containers.ContainerUtil
 import org.jetbrains.jps.ModuleChunk
 import org.jetbrains.jps.builders.java.{JavaModuleBuildTargetType, JavaSourceRootDescriptor}
 import org.jetbrains.jps.builders.{BuildTarget, DirtyFilesHolder}
 import org.jetbrains.jps.incremental.ModuleLevelBuilder.ExitCode
-import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.hasScala
+import org.jetbrains.jps.incremental.scala.InitialScalaBuilder.{hasScala, isScalaProject}
 import org.jetbrains.jps.incremental.{BuilderCategory, CompileContext, ModuleBuildTarget, ModuleLevelBuilder}
 import org.jetbrains.plugins.scala.compilerReferences.Builder.rebuildPropertyKey
 import org.jetbrains.plugins.scala.compilerReferences.Messages._
@@ -25,10 +24,17 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
   override def getCompilableFileExtensions: jutil.List[String] =
     List("scala", "java").asJava
 
-  override def buildStarted(context: CompileContext): Unit =
+  override def buildStarted(context: CompileContext): Unit = {
+    if (!isScalaProject(context))
+      return
+
     context.processMessage(CompilationStarted(shouldBeNonIncremental))
+  }
 
   override def buildFinished(context: CompileContext): Unit = {
+    if (!isScalaProject(context))
+      return
+
     if (shouldBeNonIncremental) {
       val pd                      = context.getProjectDescriptor
       val (allClasses, timestamp) = getAllClassesInfo(context)
@@ -61,34 +67,39 @@ class ScalaCompilerReferenceIndexBuilder extends ModuleLevelBuilder(BuilderCateg
     chunk:            ModuleChunk,
     dirtyFilesHolder: DirtyFilesHolder[JavaSourceRootDescriptor, ModuleBuildTarget],
     outputConsumer:   ModuleLevelBuilder.OutputConsumer
-  ): ExitCode = if (!shouldBeNonIncremental) {
-    val affectedModules = chunk.getModules.asScala.filter(hasScala(context, _)).map(_.getName).toSet
+  ): ExitCode = {
+    if (!isScalaProject(context))
+      return ExitCode.OK
 
-    val compiledClasses =
-      outputConsumer.getCompiledClasses
-        .values()
-        .iterator()
-        .asScala
-        .map(cc => CompiledClass(ContainerUtil.getFirstItem(cc.getSourceFiles), cc.getOutputFile))
-        .toSet
+    if (!shouldBeNonIncremental) {
+      val affectedModules = chunk.getModules.asScala.filter(hasScala(context, _)).map(_.getName).toSet
 
-    val timestamp = getTargetTimestamps(chunk.getTargets.asScala, context)
+      val compiledClasses =
+        outputConsumer.getCompiledClasses
+          .values()
+          .iterator()
+          .asScala
+          .map(cc => CompiledClass(ContainerUtil.getFirstItem(cc.getSourceFiles), cc.getOutputFile))
+          .toSet
 
-    val removedSources = for {
-      target      <- chunk.getTargets.asScala.toSet if target != null
-      removedFile <- dirtyFilesHolder.getRemovedFiles(target).asScala
-    } yield new File(removedFile)
+      val timestamp = getTargetTimestamps(chunk.getTargets.asScala, context)
 
-    val data = JpsCompilationInfo(
-      affectedModules,
-      removedSources,
-      compiledClasses,
-      timestamp
-    )
+      val removedSources = for {
+        target      <- chunk.getTargets.asScala.toSet if target != null
+        removedFile <- dirtyFilesHolder.getRemovedFiles(target).asScala
+      } yield new File(removedFile)
 
-    context.processMessage(ChunkCompilationInfo(data))
-    ExitCode.OK
-  } else ExitCode.OK
+      val data = JpsCompilationInfo(
+        affectedModules,
+        removedSources,
+        compiledClasses,
+        timestamp
+      )
+
+      context.processMessage(ChunkCompilationInfo(data))
+      ExitCode.OK
+    } else ExitCode.OK
+  }
 
   private[this] def getAllClassesInfo(context: CompileContext): (Set[CompiledClass], Long) = {
     val pd               = context.getProjectDescriptor
