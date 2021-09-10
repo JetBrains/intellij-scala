@@ -188,9 +188,8 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |$ContentEnd
          |$ContentStart
          |description of base method from BaseJavaClass
-         |<p>
          |$ContentEnd
-         |$SectionsStart<p>$SectionsEnd
+         |$SectionsStart$SectionsEnd
          |""".stripMargin
     )
   }
@@ -1144,13 +1143,12 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
       s"""${DefinitionStart}class <b>ScalaClass</b>
          |extends <a href="psi_element://JavaClass"><code>JavaClass</code></a>$DefinitionEnd
          |$ContentStart
-         |text from<u>scala</u>
-         |<p>
-         |text from <b>java</b><br>
-         |<code>code tag</code><br>
-         |<a href="psi_element://JavaClass"><code>JavaClass</code></a><br>
-         |<p>
-         |extra text from<u>scala</u>
+         |text from<u>scala</u><p>text from<b>java</b><br>
+         |<code><span style="">
+         |  <span style="">code&#32;tag</span>
+         |</span></code>
+         |<br><a href="psi_element://JavaClass"><code><span style="color:#000000;">JavaClass</span></code></a>
+         |<br><p>extra text from<u>scala</u>
          |$ContentEnd
          |""".stripMargin
     doGenerateDocBodyTest(fileText, expectedDoc)
