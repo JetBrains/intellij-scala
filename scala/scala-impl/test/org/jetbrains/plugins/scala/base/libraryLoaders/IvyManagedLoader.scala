@@ -19,7 +19,7 @@ case class IvyManagedLoader(dependencies: DependencyDescription*) extends Librar
       dependencyManager.resolve(dependencies: _*)
     )
     resolved.foreach { resolved =>
-      VfsRootAccess.allowRootAccess(resolved.file.getCanonicalPath): @nowarn("cat=deprecation")
+      VfsRootAccess.allowRootAccess(module, resolved.file.getCanonicalPath): @nowarn("cat=deprecation")
       PsiTestUtil.addLibrary(module, resolved.info.toString, resolved.file.getParent, resolved.file.getName)
     }
   }

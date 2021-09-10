@@ -27,7 +27,7 @@ trait ThirdPartyLibraryLoader extends LibraryLoader {
     val path = this.path
     val file = new File(path).getCanonicalFile
     assert(file.exists(), s"library root for $name does not exist at $file")
-    VfsRootAccess.allowRootAccess(path): @nowarn("cat=deprecation")
+    VfsRootAccess.allowRootAccess(module, path): @nowarn("cat=deprecation")
     PsiTestUtil.addLibrary(module, name, file.getParent, file.getName)
   }
 

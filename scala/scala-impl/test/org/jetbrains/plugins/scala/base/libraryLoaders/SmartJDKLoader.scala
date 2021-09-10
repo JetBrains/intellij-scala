@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package base
 package libraryLoaders
 
+import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.projectRoots.{JavaSdk, JavaSdkVersion, Sdk}
@@ -70,7 +71,7 @@ object SmartJDKLoader {
     Option(jdkTable.findJdk(jdkName)).getOrElse {
       val pathOption = SmartJDKLoader.discoverJDK(jdkVersion).map(_.getAbsolutePath)
       Assert.assertTrue(s"Couldn't find $jdkVersion", pathOption.isDefined)
-      VfsRootAccess.allowRootAccess(pathOption.get): @nowarn("cat=deprecation")
+      VfsRootAccess.allowRootAccess(ApplicationManager.getApplication, pathOption.get): @nowarn("cat=deprecation")
       val jdk = JavaSdk.getInstance.createJdk(jdkName, pathOption.get, false)
       inWriteAction { jdkTable.addJdk(jdk) }
       jdk
