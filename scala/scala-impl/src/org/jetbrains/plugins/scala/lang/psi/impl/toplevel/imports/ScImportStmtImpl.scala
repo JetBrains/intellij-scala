@@ -88,7 +88,7 @@ abstract sealed class ScImportOrExportImpl[
         val nameHint = processor.getHint(NameHint.KEY).nullSafe
         val name     = nameHint.fold("")(_.getName(state))
 
-        if (name != "" && !importExpr.hasWildcardSelector) {
+        if (name != "" && !importExpr.hasWildcardSelector && !importExpr.hasGivenSelector) {
           val decodedName   = clean(name)
           val importedNames = importExpr.importedNames.map(clean)
           if (!importedNames.contains(decodedName)) return true
@@ -140,10 +140,13 @@ abstract sealed class ScImportOrExportImpl[
             case _ => ScSimpleTypeElementImpl.calculateReferenceType(qualifier).toOption
           }
 
-        def wildcardProxyProcessor(bp: BaseProcessor, shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty): BaseProcessor = {
+        def wildcardProxyProcessor(bp: BaseProcessor,
+                                   hasWildcard: Boolean,
+                                   shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty,
+                                   givenImports: GivenImports = GivenImports.None): BaseProcessor = {
           assert(bp == processor)
 
-          if (!isScala3 && shadowed.isEmpty) bp
+          if (!isScala3 && shadowed.isEmpty && !givenImports.hasImports) bp
           else new BaseProcessor(bp.kinds) {
             override def getHint[T](hintKey: Key[T]): T = bp.getHint(hintKey)
 
@@ -161,8 +164,35 @@ abstract sealed class ScImportOrExportImpl[
                 return true
               }
 
-              // Do not import givens, they have to be imported via a given import (import test.given)
-              if (isScala3 && namedElement.is[ScGiven]) {
+              val importedByGiven = if (isScala3) {
+                // given elements are handled in a special way by given imports
+                namedElement match {
+                  case givenElement: ScGiven =>
+                    // check if there are any given imports
+                    givenImports match {
+                      case GivenImports.None =>
+                        // no given selector at all, so don't import, because normal wildcard doesn't import givens
+                        return true
+                      case GivenImports.Wildcard =>
+                        // wildcard given... proceed with importing
+                        true
+                      case GivenImports.Filtered(filters) =>
+                        // there are one or multiple given selectors with a type
+                        givenElement.`type`().map(state.substitutor) match {
+                          case Right(ty) if filters.exists(ty.conforms(_)) =>
+                            // given element conforms to one of the filters, so import
+                            true
+                          case _ =>
+                            // does not conform... do not import
+                            return true
+                        }
+                    }
+                  case _ =>
+                    false
+                }
+              } else false
+
+              if (!(importedByGiven || hasWildcard)) {
                 return true
               }
 
@@ -256,7 +286,7 @@ abstract sealed class ScImportOrExportImpl[
                   case (cl: PsiClass, _, processor: BaseProcessor) if !cl.is[ScTemplateDefinition] =>
                     processor.processType(ScDesignatorType.static(cl), place, newState)
                   case (_, Some(value), processor: BaseProcessor) =>
-                    wildcardProxyProcessor(processor)
+                    wildcardProxyProcessor(processor, hasWildcard = true)
                       .processType(value, place, newState)
                   case _ =>
                     elem.processDeclarations(processor, newState, this, place)
@@ -269,12 +299,21 @@ abstract sealed class ScImportOrExportImpl[
                 return false
             case Some(set) =>
               val shadowed  = mutable.HashSet.empty[(ScImportSelector, PsiElement)]
+              val givenImportsBuilder = GivenImports.newBuilder
               val selectors = set.selectors.iterator //for reducing stacktrace
 
               while (selectors.hasNext) {
                 val selector = selectors.next()
                 ProgressManager.checkCanceled()
                 selector.reference match {
+                  case _ if selector.isGivenSelector =>
+                    def typeFilter = selector.givenTypeElement.flatMap(_.`type`().toOption)
+                    typeFilter match {
+                      case Some(ty) =>
+                        givenImportsBuilder.addTypeFilter(ty)
+                      case None =>
+                        givenImportsBuilder.addWildcard()
+                    }
                   case Some(reference) =>
                     val isImportAlias = selector.isAliasedImport && !selector.importedName.contains(reference.refName)
                     if (isImportAlias) {
@@ -306,10 +345,12 @@ abstract sealed class ScImportOrExportImpl[
                   case _ =>
                 }
               }
+              val givenImports = givenImportsBuilder.result()
 
               // There is total import from stable id
               // import a.b.c.{d=>e, f=>_, _}
-              if (set.hasWildcard) {
+              val hasWildcard = set.hasWildcard
+              if (hasWildcard || givenImports.hasImports) {
                 if (!checkWildcardImports) return true
                 processor match {
                   case bp: BaseProcessor =>
@@ -324,17 +365,17 @@ abstract sealed class ScImportOrExportImpl[
                         .withSubstitutor(subst)
 
                     (elem, processor) match {
-                      case (cl: PsiClass, processor: BaseProcessor) if !cl.isInstanceOf[ScTemplateDefinition] =>
+                      case (cl: PsiClass, processor: BaseProcessor) if hasWildcard && !cl.is[ScTemplateDefinition] =>
                         val qualType = qualifierType(isInPackageObject(next.element))
 
                         if (!processor.processType(ScDesignatorType.static(cl), place, newState.withFromType(qualType)))
                           return false
                       case _ =>
                         // In this case import optimizer should check for used selectors
-                        if (!elem.processDeclarations(wildcardProxyProcessor(bp, shadowed), newState, this, place))
+                        if (!elem.processDeclarations(wildcardProxyProcessor(bp, hasWildcard = hasWildcard, shadowed, givenImports), newState, this, place))
                           return false
                     }
-                  case _ => true
+                  case _ =>
                 }
               }
 
@@ -411,5 +452,31 @@ object ScImportOrExportImpl {
       val isAlreadyAvailable = qualifierFqn.exists(helper.isAvailableQualifier)
       (!isAlreadyAvailable).option(importUsed)
     case _ => importUsed.toOption
+  }
+
+  sealed trait GivenImports extends Any {
+    def hasImports: Boolean = this != GivenImports.None
+  }
+  object GivenImports {
+    class Builder {
+      private var givenImports: GivenImports = None
+
+      def addWildcard(): Unit = givenImports = Wildcard
+      def addTypeFilter(ty: ScType): Unit =
+        givenImports match {
+          case Wildcard =>
+          case Filtered(set) => givenImports = Filtered(set + ty)
+          case None => givenImports = Filtered(Set(ty))
+        }
+
+      def result(): GivenImports = givenImports
+    }
+
+    def newBuilder: Builder = new Builder
+    def none: GivenImports = None
+
+    case object None extends GivenImports
+    case object Wildcard extends GivenImports
+    case class Filtered(types: Set[ScType]) extends AnyVal with GivenImports
   }
 }

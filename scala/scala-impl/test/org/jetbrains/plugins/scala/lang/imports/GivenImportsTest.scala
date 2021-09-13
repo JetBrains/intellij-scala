@@ -43,4 +43,131 @@ class GivenImportsTest extends ScalaLightCodeInsightFixtureTestAdapter with Simp
        |}
        |""".stripMargin
   )
+
+  def test_wildcard_given_import(): Unit = alsoInSelector(doResolveTest(_))(
+    s"""
+       |object Source {
+       |  ${REFTGT}given Int = 0
+       |}
+       |
+       |object Target {
+       |  import Source.given
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
+
+  def test_wildcard_given_import_does_not_import_implicit(): Unit = alsoInSelector(testNoResolve(_))(
+    s"""
+       |object Source {
+       |  implicit val given_Int: Int = 0
+       |}
+       |
+       |object Target {
+       |  import Source.given
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
+
+  def test_filtered_given_import_does_import_wanted_type(): Unit = alsoInSelector(doResolveTest(_))(
+    s"""
+       |object Source {
+       |  ${REFTGT}given Int = 0
+       |  given Short = 1
+       |}
+       |
+       |object Target {
+       |  import Source.given Int
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
+
+  def test_filtered_given_import_does_not_import_other_type(): Unit = alsoInSelector(testNoResolve(_))(
+    s"""
+       |object Source {
+       |  given Int = 0
+       |  given Short = 1
+       |}
+       |
+       |object Target {
+       |  import Source.given Short
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
+
+  def test_given_from_class(): Unit = alsoInSelector(doResolveTest(_))(
+    s"""
+       |class Source {
+       |  ${REFTGT}given Int = 0
+       |}
+       |
+       |object Target {
+       |  val source = new Source
+       |  import source.given
+       |
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
+
+  def test_given_from_generic_class(): Unit = alsoInSelector(doResolveTest(_))(
+    s"""
+       |class Source[T] {
+       |  ${REFTGT}given T = ???
+       |}
+       |
+       |def test(source: Source[Int]): Unit = {
+       |  import source.given
+       |
+       |  ${REFSRC}given_T
+       |}
+       |""".stripMargin
+  )
+
+  def test_given_from_generic_class_correct_filtered_type(): Unit = alsoInSelector(doResolveTest(_))(
+    s"""
+       |class Source[T] {
+       |  ${REFTGT}given T = ???
+       |}
+       |
+       |def test(source: Source[Int]): Unit = {
+       |  import source.given Int
+       |
+       |  ${REFSRC}given_T
+       |}
+       |""".stripMargin
+  )
+
+  def test_given_from_generic_class_wrong_filtered_type(): Unit = alsoInSelector(testNoResolve(_))(
+    s"""
+       |class Source[T] {
+       |  given T = ???
+       |}
+       |
+       |def test(source: Source[Int]): Unit = {
+       |  import source.given Short
+       |
+       |  ${REFSRC}given_T
+       |}
+       |""".stripMargin
+  )
+
+  def test_given_from_generic_class_wildcard_filtered_type(): Unit = alsoInSelector(doResolveTest(_))(
+    s"""
+       |trait Seq[T]
+       |
+       |class Source[T] {
+       |  ${REFTGT}given Seq[T] = ???
+       |}
+       |
+       |def test(source: Source[Int]): Unit = {
+       |  import source.given Seq[_]
+       |
+       |  ${REFSRC}given_Seq_T
+       |}
+       |""".stripMargin
+  )
 }
