@@ -45,7 +45,6 @@ abstract class TypingTestWithPerformanceTestBase extends ScalaFixtureTestCase {
 
     PlatformTestUtil
       .startPerformanceTest(testName, timeout.toMillis.toInt, testBody)
-      .ioBound()
       .assertTiming()
   }
 

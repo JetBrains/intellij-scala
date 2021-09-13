@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.externalHighlighters
 
+import com.intellij.ide.impl.TrustedProjects
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.registry.{Registry, RegistryValueListener}
 import com.intellij.psi.{PsiFile, PsiJavaFile}
@@ -26,8 +27,9 @@ object ScalaHighlightingMode {
       .subscribe(CompilerHighlightingListener.Topic, listener)
 
   def isShowErrorsFromCompilerEnabled(project: Project): Boolean =
-    showCompilerErrorsScala3(project) && project.hasScala3 ||
-      showCompilerErrorsScala2(project) && project.hasScala
+    TrustedProjects.isTrusted(project) &&
+      (showCompilerErrorsScala3(project) && project.hasScala3 ||
+        showCompilerErrorsScala2(project) && project.hasScala)
 
   def isShowErrorsFromCompilerEnabled(file: PsiFile): Boolean =
     file match {

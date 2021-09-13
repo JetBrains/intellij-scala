@@ -14,6 +14,7 @@ class DropProjectDataChangesBuildManagerListener
   extends BuildManagerListener {
 
   override def beforeBuildProcessStarted(project: Project, sessionId: UUID): Unit =
-    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project))
+    if (ScalaHighlightingMode.isShowErrorsFromCompilerEnabled(project) &&
+      !CompilerHighlightingService.platformAutomakeEnabled(project)) // clearState schedules automake and may lead to infinite compilation
       BuildManager.getInstance.clearState(project)
 }
