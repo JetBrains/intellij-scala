@@ -7,6 +7,7 @@ package imports
 
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScStableCodeReference
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 
 /**
   * @author Alexander Podkhalyuzin
@@ -24,4 +25,8 @@ trait ScImportSelector extends ScalaPsiElement {
   def deleteSelector(): Unit
 
   def isAliasedImport: Boolean
+
+  def isGivenSelector: Boolean
+
+  def givenTypeElement: Option[ScTypeElement]
 }

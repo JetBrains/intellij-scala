@@ -20,10 +20,12 @@ class ScImportSelectorStubImpl(parent: StubElement[_ <: PsiElement],
                                override val referenceText: Option[String],
                                override val importedName: Option[String],
                                override val isAliasedImport: Boolean,
-                               override val isWildcardSelector: Boolean)
+                               override val isWildcardSelector: Boolean,
+                               override val isGivenSelector: Boolean,
+                               override val typeText: Option[String])
   extends StubBase[ScImportSelector](parent, elementType) with ScImportSelectorStub with PsiOwner[ScImportSelector] {
 
-  private var referenceReference: SofterReference[Option[ScStableCodeReference]] = null
+  private var referenceReference: SofterReference[Option[ScStableCodeReference]] = _
 
   override def reference: Option[ScStableCodeReference] = {
     getFromOptionalReference(referenceReference) {
