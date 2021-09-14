@@ -44,6 +44,8 @@ object ScalaCompletionUtil {
       case _ => true
     })
 
+  def hasQualifier(ref: ScReferenceExpression): Boolean = !hasNoQualifier(ref)
+
   def shouldRunClassNameCompletion(dummyPosition: PsiElement,
                                    prefixMatcher: PrefixMatcher,
                                    checkInvocationCount: Boolean = true)

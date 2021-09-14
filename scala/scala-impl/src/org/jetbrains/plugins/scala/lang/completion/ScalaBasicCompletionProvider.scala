@@ -98,12 +98,14 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
         result.addAllElements(defaultLookupElements.asJava)
 
         //search members provided with implicit conversions after regular members are added to the result set
-        if (reference.isInstanceOf[ScReferenceExpression]) {
-          val implicitConversionProcessor = new ImplicitConversionProcessor(
-            reference, isInSimpleString, isInInterpolatedString, parameters.getInvocationCount
-          )
-          val extensions = implicitConversionProcessor.lookupElements()
-          result.addAllElements(extensions.asJava)
+        reference match {
+          case reference: ScReferenceExpression if hasQualifier(reference) =>
+            val implicitConversionProcessor = new ImplicitConversionProcessor(
+              reference, isInSimpleString, isInInterpolatedString, parameters.getInvocationCount
+            )
+            val extensions = implicitConversionProcessor.lookupElements()
+            result.addAllElements(extensions.asJava)
+          case _ =>
         }
 
         ProgressManager.checkCanceled()
