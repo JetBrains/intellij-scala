@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa
+package org.jetbrains.plugins.scala.lang.dfa.cfg
 
 import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, JvmPushInstruction, NumericBinaryInstruction}
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
@@ -9,6 +9,7 @@ import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.{DfaValueFactory, RelationType}
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{InfixOperators, literalToDfType}
+import org.jetbrains.plugins.scala.lang.dfa.{LogicalOperation, ScalaStatementAnchor, ScalaUnreportedElementAnchor, cfg}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -21,7 +22,9 @@ class ScalaDfaControlFlowBuilder(private val body: ScBlockStatement, private val
 
   def buildFlow(): Option[ControlFlow] = {
     processElement(body)
+    pushInstruction(new ReturnInstruction(factory, trapTracker.trapStack(), null))
     popReturnValue()
+
     flow.finish()
     Some(flow)
   }
@@ -176,7 +179,7 @@ class ScalaDfaControlFlowBuilder(private val body: ScBlockStatement, private val
     }
 
     val binding = definition.bindings.head
-    val dfaVariable = factory.getVarFactory.createVariableValue(ScalaVariableDescriptor(binding, binding.isStable))
+    val dfaVariable = factory.getVarFactory.createVariableValue(cfg.ScalaVariableDescriptor(binding, binding.isStable))
 
     processExpressionIfPresent(definition.expr)
     pushInstruction(new SimpleAssignmentInstruction(ScalaStatementAnchor(definition), dfaVariable))
@@ -187,7 +190,7 @@ class ScalaDfaControlFlowBuilder(private val body: ScBlockStatement, private val
     expression.getReference.bind().map(_.element) match {
       // TODO check isStable, what exactly does it mean in those places?
       case Some(element) => // TODO extract later + try to fix types/anchor, if possible
-        val dfaVariable = factory.getVarFactory.createVariableValue(ScalaVariableDescriptor(element, isStable = true))
+        val dfaVariable = factory.getVarFactory.createVariableValue(cfg.ScalaVariableDescriptor(element, isStable = true))
         pushInstruction(new JvmPushInstruction(dfaVariable, ScalaUnreportedElementAnchor(element)))
       case _ => pushUnknownValue()
     }

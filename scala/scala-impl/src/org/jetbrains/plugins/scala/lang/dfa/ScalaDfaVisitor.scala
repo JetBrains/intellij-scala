@@ -6,6 +6,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstruction
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.constantValueToProblemMessage
+import org.jetbrains.plugins.scala.lang.dfa.cfg.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
