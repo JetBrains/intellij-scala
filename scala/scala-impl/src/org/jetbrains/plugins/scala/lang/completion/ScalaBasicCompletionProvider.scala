@@ -377,7 +377,7 @@ object ScalaBasicCompletionProvider {
     }
 
   private def prefixedThisAndSupers(reference: ScReference): List[ScalaLookupItem] = reference match {
-    case expression: ScReferenceExpression if ScalaCompletionUtil.completeThis(expression) =>
+    case expression: ScReferenceExpression if ScalaCompletionUtil.hasNoQualifier(expression) =>
       val notInsideSeveralClasses = expression.contexts.filterByType[ScTemplateDefinition].size <= 1
 
       @tailrec
