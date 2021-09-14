@@ -72,7 +72,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
 
     position.getContext match {
       case reference: ScReferenceImpl =>
-        val processor = new PostProcessor(
+        val processor = new DefaultCompletionProcessor(
           reference,
           isInSimpleString,
           isInInterpolatedString,
@@ -97,6 +97,15 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
 
         result.addAllElements(defaultLookupElements.asJava)
 
+        //search members provided with implicit conversions after regular members are added to the result set
+        if (reference.isInstanceOf[ScReferenceExpression]) {
+          val implicitConversionProcessor = new ImplicitConversionProcessor(
+            reference, isInSimpleString, isInInterpolatedString, parameters.getInvocationCount
+          )
+          val extensions = implicitConversionProcessor.lookupElements()
+          result.addAllElements(extensions.asJava)
+        }
+
         ProgressManager.checkCanceled()
         result.addAllElements(prefixedThisAndSupers(reference).asJava)
 
@@ -113,7 +122,7 @@ private class ScalaBasicCompletionProvider extends CompletionProvider[Completion
           canonicalText = qualifierCastType.canonicalText
           newReference <- createReferenceWithQualifierType(canonicalText, reference)
 
-          processor = new PostProcessor(
+          processor = new DefaultCompletionProcessor(
             newReference,
             isInSimpleString,
             isInInterpolatedString,
@@ -141,15 +150,17 @@ object ScalaBasicCompletionProvider {
 
   import ScalaTokenTypes._
 
-  private class PostProcessor(override val getPlace: ScReferenceImpl,
-                              private val isInSimpleString: Boolean,
-                              private val isInInterpolatedString: Boolean,
-                              private val invocationCount: Int,
-                              private val qualifierType: Option[ScType] = None)
+  //doesn't search methods from implicit conversions by default, see ExtensionMethodProcessor
+  private class DefaultCompletionProcessor(override val getPlace: ScReferenceImpl,
+                                           private val isInSimpleString: Boolean,
+                                           private val isInInterpolatedString: Boolean,
+                                           private val invocationCount: Int,
+                                           private val qualifierType: Option[ScType] = None,
+                                           withImplicitConversions: Boolean = false)
     extends CompletionProcessor(
       getPlace.getKinds(incomplete = false, completion = true),
       getPlace,
-      withImplicitConversions = getPlace.isInstanceOf[ScReferenceExpression]
+      withImplicitConversions
     ) {
 
     private val _lookupElementsBuilder = ArraySeq.newBuilder[LookupElement]
@@ -168,6 +179,7 @@ object ScalaBasicCompletionProvider {
     }
 
     override protected final def postProcess(resolveResult: ScalaResolveResult): Unit = {
+      ProgressManager.checkCanceled()
       _lookupElementsBuilder ++= validLookupElement(resolveResult)
     }
 
@@ -236,6 +248,27 @@ object ScalaBasicCompletionProvider {
           case member: PsiMember => completion.isAccessible(member)(getPlace)
           case _ => true
         })
+  }
+
+  private class ImplicitConversionProcessor(getPlace: ScReferenceImpl,
+                                            isInSimpleString: Boolean,
+                                            isInInterpolatedString: Boolean,
+                                            invocationCount: Int,
+                                            qualifierType: Option[ScType] = None)
+    extends DefaultCompletionProcessor(
+      getPlace,
+      isInSimpleString,
+      isInInterpolatedString,
+      invocationCount,
+      qualifierType,
+      withImplicitConversions = true) {
+
+    override protected def validLookupElement(result: ScalaResolveResult): Option[LookupElement] = {
+      val isExtension = result.isExtension || result.implicitConversion.nonEmpty
+
+      if (!isExtension) None
+      else super.validLookupElement(result)
+    }
   }
 
   private def splitInterpolatedString(context: PsiElement,
