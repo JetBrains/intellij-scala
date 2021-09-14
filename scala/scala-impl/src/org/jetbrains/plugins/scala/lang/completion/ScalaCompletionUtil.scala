@@ -39,7 +39,7 @@ object ScalaCompletionUtil {
   val PREFIX_COMPLETION_KEY: Key[Boolean] = Key.create("prefix.completion.key")
 
   def completeThis(ref: ScReferenceExpression): Boolean =
-    ref.qualifier.isEmpty || (ref.getParent match {
+    ref.qualifier.isEmpty && (ref.getParent match {
       case e: ScSugarCallExpr => e.operation != ref
       case _ => true
     })
