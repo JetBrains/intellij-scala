@@ -67,7 +67,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
               case _: ScExpression =>
                 //we can expect that the type is same for left and right parts.
                 acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-                  ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+                  ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
             }
           } else {
             //so it's left expression
@@ -90,7 +90,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         val element = positionFromParameters(parameters)
         extractReference[PsiElement](element).foreach { case (ref, _) =>
           acceptTypes(ref.expectedType().toList, ref.getVariants, result, ref.resolveScope,
-            parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+            parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
         }
       }
     })
@@ -107,7 +107,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
           val fun: ScFunction = PsiTreeUtil.getContextOfType(ref, classOf[ScFunction])
           if (fun == null) return
           acceptTypes(Seq[ScType](fun.returnType.getOrAny), ref.getVariants, result,
-            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
         }
       }
     }
@@ -170,9 +170,9 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         extractReference[ScIf](element).foreach { case (ref, ifStmt) =>
           if (ifStmt.condition.getOrElse(null: ScExpression) == ref)
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
           else acceptTypes(ifStmt.expectedTypes(), ref.getVariants, result,
-            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
         }
       }
     }
@@ -191,9 +191,9 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         extractReference[ScWhile](element).foreach { case (ref, whileStmt) =>
           if (whileStmt.condition.getOrElse(null: ScExpression) == ref)
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
           else acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
         }
       }
     }
@@ -212,9 +212,9 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
         extractReference[ScDo](element).foreach { case (ref, doStmt) =>
           if (doStmt.condition.getOrElse(null: ScExpression) == ref)
             acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+              ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
           else acceptTypes(ref.expectedTypes(), ref.getVariants, result,
-            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+            ref.resolveScope, parameters.getInvocationCount > 1, ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
         }
       }
     }
@@ -244,7 +244,7 @@ final class ScalaSmartCompletionContributor extends ScalaCompletionContributor {
             }
           }
           acceptTypes(typez, ref.getVariants, result, ref.resolveScope, parameters.getInvocationCount > 1,
-            ScalaCompletionUtil.completeThis(ref), parameters.getOriginalPosition)(element)
+            ScalaCompletionUtil.hasNoQualifier(ref), parameters.getOriginalPosition)(element)
         }
       }
     }
@@ -306,7 +306,7 @@ object ScalaSmartCompletionContributor {
           resultSet,
           reference.resolveScope,
           parameters.getInvocationCount > 1,
-          ScalaCompletionUtil.completeThis(reference),
+          ScalaCompletionUtil.hasNoQualifier(reference),
           parameters.getOriginalPosition
         )(place)
         case _ =>
