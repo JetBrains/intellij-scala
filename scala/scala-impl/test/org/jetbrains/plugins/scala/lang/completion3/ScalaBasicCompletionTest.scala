@@ -756,6 +756,20 @@ class ScalaBasicCompletionTest extends ScalaBasicCompletionTestBase {
     item = "aaa.super"
   )
 
+  def testNoPrefixedSuperOnQualifier(): Unit = checkNoCompletion(
+    fileText =
+      s"""
+         |trait ttt
+         |class aaa extends ttt {
+         |  class bbb {
+         |    1.a$CARET
+         |  }
+         |}
+      """.stripMargin)(
+    _.getLookupString.contains(".super")
+  )
+
+
   def testCompanionTraitName(): Unit = doCompletionTest(
     fileText =
       s"""trait F$CARET
