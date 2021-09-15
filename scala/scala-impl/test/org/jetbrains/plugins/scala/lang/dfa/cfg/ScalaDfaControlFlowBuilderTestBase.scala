@@ -21,7 +21,7 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
           val controlFlowBuilder = new ScalaDfaControlFlowBuilder(body, factory)
           val flow = controlFlowBuilder.buildFlow().get
 
-          flow.toString.trim shouldBe expectedResult.trim
+          flow.toString.trim.linesIterator.map(_.trim).mkString("\n") shouldBe expectedResult.trim
         }
       }
     })

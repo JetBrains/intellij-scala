@@ -62,7 +62,9 @@ class ScalaDfaControlFlowBuilder(private val body: ScBlockStatement, private val
   private def processElement(element: ScalaPsiElement): Unit = {
     element match {
       case block: ScBlockExpr => processBlock(block)
+      case parenthesisedExpression: ScParenthesisedExpr => processParenthesisedExpression(parenthesisedExpression)
       case literal: ScLiteral => processLiteral(literal)
+      case _: ScUnitExpr => processUnitExpression()
       case infixExpression: ScInfixExpr => processInfixExpression(infixExpression)
       case ifExpression: ScIf => processIfExpression(ifExpression)
       case patternDefinition: ScPatternDefinition => processPatternDefinition(patternDefinition)
@@ -93,13 +95,22 @@ class ScalaDfaControlFlowBuilder(private val body: ScBlockStatement, private val
     }
   }
 
+  private def processParenthesisedExpression(expression: ScParenthesisedExpr): Unit = {
+    expression.innerElement.foreach(processElement)
+  }
+
   private def processLiteral(literal: ScLiteral): Unit = {
     pushInstruction(new PushValueInstruction(literalToDfType(literal), ScalaStatementAnchor(literal)))
   }
 
+  private def processUnitExpression(): Unit = pushUnknownValue()
+
   // TODO more comprehensive handling later
   private def processInfixExpression(infixExpression: ScInfixExpr): Unit = {
-    val operationToken = infixExpression.operation.bind().get.name
+    val operationToken = infixExpression.operation.bind().getOrElse {
+      pushUnknownCall(infixExpression, 0)
+      return
+    }.name
 
     if (InfixOperators.Arithmetic.contains(operationToken)) {
       processArithmeticExpression(infixExpression, InfixOperators.Arithmetic(operationToken))
@@ -192,7 +203,7 @@ class ScalaDfaControlFlowBuilder(private val body: ScBlockStatement, private val
       case Some(element) => // TODO extract later + try to fix types/anchor, if possible
         val dfaVariable = factory.getVarFactory.createVariableValue(cfg.ScalaVariableDescriptor(element, isStable = true))
         pushInstruction(new JvmPushInstruction(dfaVariable, ScalaUnreportedElementAnchor(element)))
-      case _ => pushUnknownValue()
+      case _ => pushUnknownCall(expression, 0)
     }
   }
 }
