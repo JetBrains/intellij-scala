@@ -27,12 +27,14 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
       case _ => withScalacOption(contextElement)(onMismatch = null, onMatch = wrapInDocHolder)
     }
 
-  private def wrapInDocHolder(str: ScStringLiteral): PsiElement =
+  private def wrapInDocHolder(str: ScStringLiteral): PsiElement = {
+    // FIXME: scalacOptionByFlag will only work with options without arguments
     scalacOptionByFlag.get(str.getValue)
       .map(SbtScalacOptionDocHolder(_)(str.getProject))
       .orNull
+  }
 
   private def generateScalacOptionDoc(option: SbtScalacOptionInfo): String =
-    option.description
+    option.descriptions.headOption.map(_._1).orNull // TODO: generate html with all descriptions
 
 }

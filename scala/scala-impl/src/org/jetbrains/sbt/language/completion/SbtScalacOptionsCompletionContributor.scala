@@ -2,7 +2,10 @@ package org.jetbrains.sbt.language.completion
 
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
+import com.intellij.codeInsight.template._
+import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
@@ -12,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor._
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
+import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 import org.jetbrains.sbt.language.utils.{SbtDependencyUtils, SbtScalacOptionInfo, SbtScalacOptionUtils}
 
 import scala.jdk.CollectionConverters._
@@ -52,20 +56,17 @@ object SbtScalacOptionsCompletionContributor {
   private def lookupElementMatchingVersions(option: SbtScalacOptionInfo, scalaVersions: List[String])(implicit project: Project): Option[LookupElement] = {
     val matchingVersions = scalaVersions.filter(version => option.scalaVersions.exists(_.getVersion == version))
 
-    if (matchingVersions.isEmpty) None
-    else {
-      val elem = LookupElementBuilder.create(option.flag)
-        .withPresentableText(option.quoted)
+    Option.when(matchingVersions.nonEmpty) {
+      LookupElementBuilder.create(option.argType, option.flag)
+        .withPresentableText(option.getText)
         .withTailText(matchingVersions.mkString(" (", ", ", ")"))
-        .withInsertHandler(new ScalacOptionInsertHandler(option))
+        .withInsertHandler(new ScalacOptionInsertHandler(option, scalaVersions))
         .withPsiElement(SbtScalacOptionDocHolder(option))
         .bold()
-
-      Some(elem)
     }
   }
 
-  private class ScalacOptionInsertHandler(option: SbtScalacOptionInfo) extends InsertHandler[LookupElement] {
+  private class ScalacOptionInsertHandler(option: SbtScalacOptionInfo, scalaVersions: List[String]) extends InsertHandler[LookupElement] {
     override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
       context.commitDocument()
 
@@ -76,19 +77,93 @@ object SbtScalacOptionsCompletionContributor {
           // rewrite `-flag`, `--flag` to "-flag" and "--flag" respectively
           // handle `-foo-bar-baz` and `--foo-bar-baz` cases as well
           val startOffset = ref.startOffset
-          val endOffset = ref.endOffset + option.flag.dropWhile(_ == '-').length
 
           inWriteAction {
-            context.getDocument.replaceString(startOffset, endOffset, option.quoted)
+            val endOffset = ref.endOffset + option.flag.dropWhile(_ == '-').length
+            context.getDocument.replaceString(startOffset, endOffset, option.getText)
+          }
+
+          // if option has arguments, build and run interactive template
+          if (option.argType != ArgType.No) {
+            context.commitDocument()
+
+            val offsetBeforeClosingQuote = startOffset + option.getText.length - 1
+
+            val templateContainerElement = context.getFile.findElementAt(offsetBeforeClosingQuote)
+
+            val builder = TemplateBuilderFactory.getInstance()
+              .createTemplateBuilder(templateContainerElement)
+              .asInstanceOf[TemplateBuilderImpl]
+
+            def replaceRange(offset: Int, len: Int, expr: Expression = scalacOptionArgumentExpression(option, scalaVersions)): Unit =
+              builder.replaceRange(TextRange.from(offset, len), expr)
+
+            option.argType match {
+              case ArgType.OneAfterPrefix(prefix) =>
+                val argument = option.flag.substring(prefix.length)
+
+                // for options like -J<flag> create one template variable: -J`<flag>`
+                // for options like -Dproperty=value create multiple variables: -D`property`=`value`
+                argument.split('=').foldLeft(startOffset + 1 + prefix.length) {
+                  case (offset, variableText) =>
+                    replaceRange(offset, variableText.length, new ConstantNode(variableText))
+                    // next variable offset skipping `=`
+                    offset + variableText.length + 1
+                }
+              case ArgType.Multiple =>
+                // remove `"` to be able to add variables BEFORE quote
+                replaceRange(offsetBeforeClosingQuote, len = 1)
+              case _ =>
+                replaceRange(offsetBeforeClosingQuote, len = 0)
+            }
+
+            val template = builder.buildTemplate()
+            context.getDocument.replaceString(templateContainerElement.startOffset, templateContainerElement.endOffset, "")
+
+            // TODO: is there a better way of doing "vararg" style insertion?
+            if (option.argType == ArgType.Multiple) {
+              option.choices.tail.foreach { case (choice, _) =>
+                template.addVariable(choice, scalacOptionArgumentExpression(option, scalaVersions, isFirst = false), null, false)
+              }
+              template.addTextSegment("\"")
+            }
+
+            TemplateManager.getInstance(context.getProject).startTemplate(context.getEditor, template)
           }
         case str: ScStringLiteral =>
           // handle cases when string literal is invalid. E.g.: `"-flag` -> `"-flag"`
           inWriteAction {
-            str.replace(ScalaPsiElementFactory.createElementFromText(option.quoted)(str.projectContext))
+            str.replace(ScalaPsiElementFactory.createElementFromText(option.getText)(str.projectContext))
           }
+
+        // TODO: handle option arguments in string literals
         case _ =>
       }
     }
+  }
+
+  /** Expression used in [[com.intellij.codeInsight.template.Template]] */
+  private def scalacOptionArgumentExpression(option: SbtScalacOptionInfo, projectScalaVersions: List[String],
+                                             isFirst: Boolean = true): Expression = {
+    val text = if (isFirst) {
+      "???" // TODO: use default value if any
+    } else ""
+
+    val lookupItems = option.choices.toList.flatMap { case (choice, scalaVersions) =>
+      val matchingVersions = projectScalaVersions.filter(version => scalaVersions.exists(_.getVersion == version))
+
+      Option.when(matchingVersions.nonEmpty) {
+        LookupElementBuilder.create(choice)
+          .withTailText(matchingVersions.mkString(" (", ", ", ")"))
+          .withInsertHandler { (context, _) =>
+            context.commitDocument()
+            if (!isFirst) inWriteAction(context.getDocument.insertString(context.getStartOffset, ","))
+          }
+          .bold()
+      }
+    }
+
+    new ConstantNode(text).withLookupItems(lookupItems.asJava)
   }
 
 }

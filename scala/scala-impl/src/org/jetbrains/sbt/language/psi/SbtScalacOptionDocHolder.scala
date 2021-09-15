@@ -8,6 +8,6 @@ import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
 
 final case class SbtScalacOptionDocHolder(option: SbtScalacOptionInfo)(implicit project: Project)
   extends LightElement(PsiManager.getInstance(project), ScalaLanguage.INSTANCE) {
-  override def getText: String = option.quoted
+  override def getText: String = option.flag
   override def toString: String = s"SbtScalacOptionDocHolder(${option.flag})"
 }

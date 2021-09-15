@@ -3,6 +3,7 @@ package org.jetbrains.sbt.editor.documentationProvider
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
+import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 
 trait SbtScalacOptionsDocumentationProviderCommonTests {
   self: SbtScalacOptionsDocumentationProviderTestBase =>
@@ -117,8 +118,10 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
   )
 
   def test_lookupElement(): Unit = {
+    val langLevel = version.languageLevel
     val description = "Scalac options lookup element documentation test description"
-    val option = SbtScalacOptionInfo("-test-flag", description, Set(version.languageLevel))
+    val descriptions = Map(description -> Set(langLevel))
+    val option = SbtScalacOptionInfo("-test-flag", descriptions, Map.empty, ArgType.No, Set(langLevel))
     val docHolder = SbtScalacOptionDocHolder(option)(self.getFixture.getProject)
 
     val expectedDoc = description
