@@ -1,7 +1,6 @@
 package org.jetbrains.plugins.scala.util
 
-import java.util.concurrent.ScheduledExecutorService
-
+import java.util.concurrent.{ScheduledExecutorService, ScheduledFuture}
 import com.intellij.openapi.Disposable
 import com.intellij.util.concurrency.AppExecutorUtil
 
@@ -17,7 +16,8 @@ abstract class ScheduledService(delay: FiniteDuration,
   require(delay.length > 0, "non-positive delay")
   require(terminationTimeout.length > 0, "non-positive termination timeout")
 
-  private var optionScheduler: Option[ScheduledExecutorService] = None
+  private var currentScheduler: Option[ScheduledExecutorService] = None
+  private var currentTask: Option[ScheduledFuture[_]] = None
 
   /**
    * Start scheduling process.
@@ -40,18 +40,20 @@ abstract class ScheduledService(delay: FiniteDuration,
 
   private def startSchedulingInternal(): Unit = synchronized {
     val schedulerName = this.getClass.getSimpleName
-    if (optionScheduler.nonEmpty)
+    if (currentScheduler.nonEmpty || currentTask.nonEmpty)
       throw new IllegalStateException(s"Scheduler '$schedulerName' is already scheduled")
     val newScheduler = AppExecutorUtil.createBoundedScheduledExecutorService(schedulerName, 1)
-    newScheduler.scheduleWithFixedDelay(runnable, delay.length, delay.length, delay.unit)
-    optionScheduler = Some(newScheduler)
+    currentTask = Some(newScheduler.scheduleWithFixedDelay(runnable, delay.length, delay.length, delay.unit))
+    currentScheduler = Some(newScheduler)
   }
 
   private def stopSchedulingInternal(): Unit = synchronized {
-    optionScheduler.foreach { scheduler =>
+    currentTask.foreach(_.cancel(false))
+    currentScheduler.foreach { scheduler =>
       scheduler.shutdownNow()
       scheduler.awaitTermination(terminationTimeout.length, terminationTimeout.unit)
     }
-    optionScheduler = None
+    currentTask = None
+    currentScheduler = None
   }
 }
