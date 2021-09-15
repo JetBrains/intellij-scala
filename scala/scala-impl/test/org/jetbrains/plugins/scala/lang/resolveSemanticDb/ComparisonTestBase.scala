@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.openapi.util.io.FileUtil
+import com.intellij.openapi.vfs.CharsetToolkit
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.{outPath, sourcePath}
 import org.jetbrains.plugins.scala.util.TestUtils
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.{Files, Path, Paths}
 import scala.jdk.StreamConverters._
 
@@ -29,7 +31,7 @@ abstract class ComparisonTestBase extends ScalaLightCodeInsightFixtureTestAdapte
     for (filePath <- allPathsIn(source).toSeq) yield {
       myFixture.addFileToProject(
         sourceBasePath.relativize(filePath).toString,
-        FileUtil.loadFile(filePath.toFile)
+        FileUtil.loadFile(filePath.toFile, StandardCharsets.UTF_8)
       )
     }
   }

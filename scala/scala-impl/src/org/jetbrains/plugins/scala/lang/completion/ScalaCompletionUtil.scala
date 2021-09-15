@@ -38,11 +38,13 @@ object ScalaCompletionUtil {
 
   val PREFIX_COMPLETION_KEY: Key[Boolean] = Key.create("prefix.completion.key")
 
-  def completeThis(ref: ScReferenceExpression): Boolean =
-    ref.qualifier.isEmpty || (ref.getParent match {
+  def hasNoQualifier(ref: ScReferenceExpression): Boolean =
+    ref.qualifier.isEmpty && (ref.getParent match {
       case e: ScSugarCallExpr => e.operation != ref
       case _ => true
     })
+
+  def hasQualifier(ref: ScReferenceExpression): Boolean = !hasNoQualifier(ref)
 
   def shouldRunClassNameCompletion(dummyPosition: PsiElement,
                                    prefixMatcher: PrefixMatcher,
