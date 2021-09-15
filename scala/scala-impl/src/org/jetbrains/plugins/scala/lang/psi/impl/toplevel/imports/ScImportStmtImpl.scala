@@ -24,6 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.stubs.{ScExportStmtStub, ScImportOrE
 import org.jetbrains.plugins.scala.lang.psi.stubs.elements.{ScExportStmtElementType, ScImportOrExportStmtElementType, ScImportStmtElementType}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
+import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
 import org.jetbrains.plugins.scala.lang.refactoring.util.ScalaNamesUtil.clean
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateExt
 import org.jetbrains.plugins.scala.lang.resolve.processor._
@@ -143,7 +144,7 @@ abstract sealed class ScImportOrExportImpl[
         def wildcardProxyProcessor(bp: BaseProcessor,
                                    hasWildcard: Boolean,
                                    shadowed: mutable.HashSet[(ScImportSelector, PsiElement)] = mutable.HashSet.empty,
-                                   givenImports: GivenImports = GivenImports.None): BaseProcessor = {
+                                   givenImports: GivenImports = GivenImports.empty): BaseProcessor = {
           assert(bp == processor)
 
           if (!isScala3 && shadowed.isEmpty && !givenImports.hasImports) bp
@@ -170,32 +171,20 @@ abstract sealed class ScImportOrExportImpl[
                 namedElement match {
                   case givenElement: ScGiven =>
                     // check if there are any given imports
-                    givenImports match {
-                      case GivenImports.None =>
-                        // no given selector at all, so don't import, because normal wildcard doesn't import givens
-                        return true
-                      case GivenImports.Wildcard(wildcardSelector) =>
-                        // wildcard given... proceed with importing
-                        newState = newState.withImportsUsed(newState.importsUsed ++ tryMarkImportSelectorUsed(processor, None, wildcardSelector))
+                    if (!givenImports.hasImports) {
+                      // no given selector at all, so don't import, because a normal wildcard doesn't import givens
+                      return true
+                    }
+
+                    val adjustedGivenElementType = givenElement.`type`().map(state.substitutor)
+                    givenImports.conformingGivenSelector(adjustedGivenElementType) match {
+                      case Some(conformingGivenSelector) =>
+                        val additionalImportsUsed = tryMarkImportSelectorUsed(processor, None, conformingGivenSelector)
+                        newState = newState.withImportsUsed(newState.importsUsed ++ additionalImportsUsed)
                         true
-                      case GivenImports.Filtered(filters) =>
-                        // there are one or multiple given selectors with a type
-                        givenElement.`type`().map(state.substitutor) match {
-                          case Right(ty) =>
-                            val importingElement = filters.collectFirst{ case (fTy, e) if ty.conforms(fTy) => e }
-                            importingElement match {
-                              case Some(e) =>
-                                // given element conforms to one of the filters, so import
-                                newState = newState.withImportsUsed(newState.importsUsed ++ tryMarkImportSelectorUsed(processor, None, e))
-                                true
-                              case None =>
-                                // does not conform... do not import
-                                return true
-                            }
-                          case _ =>
-                            // type couldn't be determined... do not import
-                            return true
-                        }
+                      case None =>
+                        // no selector conforms, so do not import
+                        return true
                     }
                   case _ =>
                     false
@@ -309,7 +298,7 @@ abstract sealed class ScImportOrExportImpl[
                 return false
             case Some(set) =>
               val shadowed  = mutable.HashSet.empty[(ScImportSelector, PsiElement)]
-              val givenImportsBuilder = GivenImports.newBuilder
+              val givenImports = GivenImports.empty
               val selectors = set.selectors.iterator //for reducing stacktrace
 
               while (selectors.hasNext) {
@@ -320,9 +309,9 @@ abstract sealed class ScImportOrExportImpl[
                     def typeFilter = selector.givenTypeElement.flatMap(_.`type`().toOption)
                     typeFilter match {
                       case Some(ty) =>
-                        givenImportsBuilder.addTypeFilter(ty, selector)
+                        givenImports.addTypeFilter(ty, selector)
                       case None =>
-                        givenImportsBuilder.addWildcard(selector)
+                        givenImports.addWildcard(selector)
                     }
                   case Some(reference) =>
                     val isImportAlias = selector.isAliasedImport && !selector.importedName.contains(reference.refName)
@@ -355,7 +344,6 @@ abstract sealed class ScImportOrExportImpl[
                   case _ =>
                 }
               }
-              val givenImports = givenImportsBuilder.result()
 
               // There is total import from stable id
               // import a.b.c.{d=>e, f=>_, _}
@@ -467,29 +455,34 @@ object ScImportOrExportImpl {
     case _ => importUsed.toOption
   }
 
-  sealed trait GivenImports extends Any {
-    def hasImports: Boolean = this != GivenImports.None
-  }
-  object GivenImports {
-    class Builder {
-      private var givenImports: GivenImports = None
+  class GivenImports {
+    private var wildcardSelector: Option[ScImportSelector] = None
+    private val filterSelectors: mutable.Map[ScType, ScImportSelector] = mutable.Map.empty
 
-      def addWildcard(wildcardSelector: ScImportSelector): Unit = givenImports = Wildcard(wildcardSelector)
-      def addTypeFilter(ty: ScType, e: ScImportSelector): Unit =
-        givenImports match {
-          case Wildcard(_) =>
-          case Filtered(set) => givenImports = Filtered(set + (ty -> e))
-          case None => givenImports = Filtered(Map(ty -> e))
-        }
+    def addWildcard(wildcardSelector: ScImportSelector): Unit =
+      if (this.wildcardSelector.isEmpty) {
+        this.wildcardSelector = Some(wildcardSelector)
+      }
 
-      def result(): GivenImports = givenImports
+    def addTypeFilter(ty: ScType, e: ScImportSelector): Unit = {
+      filterSelectors.updateWith(ty) {
+        case None => Some(e)
+        case Some(old) => Some(if (old.getTextLength < e.getTextLength) old else e)
+      }
     }
 
-    def newBuilder: Builder = new Builder
-    def none: GivenImports = None
+    def conformingGivenSelector(ty: TypeResult): Option[ScImportSelector] = ty match {
+      case Right(ty) =>
+        val conformingSelectors = filterSelectors.iterator.collect { case (fTy, e) if ty conforms fTy => e } ++ wildcardSelector
+        conformingSelectors.headOption
+      case Left(_) => wildcardSelector
+    }
 
-    case object None extends GivenImports
-    case class Wildcard(selector: ScImportSelector) extends GivenImports
-    case class Filtered(types: Map[ScType, ScImportSelector]) extends AnyVal with GivenImports
+    def hasWildcard: Boolean = wildcardSelector.isDefined
+    def hasImports: Boolean = hasWildcard || filterSelectors.nonEmpty
+  }
+
+  object GivenImports {
+    def empty: GivenImports = new GivenImports
   }
 }

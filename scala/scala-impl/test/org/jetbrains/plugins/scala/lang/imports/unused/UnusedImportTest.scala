@@ -318,8 +318,62 @@ class UnusedImportTest_InScala3 extends UnusedImportTestBase with MatcherAsserti
         |}
       """.stripMargin
 
+    assertNothing(messages(text))
+  }
+
+  def testUnusedGivenWildcardImportNextToUsedImports(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |  given Short = 0
+        |}
+        |
+        |object Target {
+        |  import Source.{given, given Short}
+        |  println(given_Short)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("given", "Unused import statement") :: Nil =>
+    }
+  }
+
+  def testUnusedGivenImportNextToUsedAnyGivenImports(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |  given Short = 0
+        |}
+        |
+        |object Target {
+        |  import Source.{given Any, given Short}
+        |  println(given_Short)
+        |}
+      """.stripMargin
+
     assertMatches(messages(text)) {
       case HighlightMessage("given Short", "Unused import statement") :: Nil =>
+    }
+  }
+
+  def testGivenImportWithSameTypeButDifferentRef(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |}
+        |
+        |object Target {
+        |  import Source.{given scala.Int, given Int}
+        |  println(given_Int)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("given scala.Int", "Unused import statement") :: Nil =>
     }
   }
 }
