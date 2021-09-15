@@ -232,4 +232,94 @@ class UnusedImportTest_InScala3 extends UnusedImportTestBase with MatcherAsserti
       case HighlightMessage("*", _) :: Nil =>
     }
   }
+
+  def testUnusedGivenImport(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |}
+        |
+        |object Target {
+        |  import Source.given
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("import Source.given", "Unused import statement") :: Nil =>
+    }
+  }
+
+  def testUsedGivenImport(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |}
+        |
+        |object Target {
+        |  import Source.given
+        |  println(given_Int)
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
+  def testUnusedGivenImportNextToUsedOne(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |  given Short = 0
+        |}
+        |
+        |object Target {
+        |  import Source.{given Int, given Short}
+        |  println(given_Int)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("given Short", "Unused import statement") :: Nil =>
+    }
+  }
+
+  def testTwoUsedGivenImports(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |  given Short = 0
+        |}
+        |
+        |object Target {
+        |  import Source.{given Int, given Short}
+        |  println(given_Int)
+        |  println(given_Short)
+        |}
+      """.stripMargin
+
+    assertNothing(messages(text))
+  }
+
+  def testGivenWildcardImportNextToUnusedImports(): Unit = {
+    val text =
+      """
+        |object Source {
+        |  given Int = 0
+        |  given Short = 0
+        |}
+        |
+        |object Target {
+        |  import Source.{given, given Short}
+        |  println(given_Int)
+        |  println(given_Short)
+        |}
+      """.stripMargin
+
+    assertMatches(messages(text)) {
+      case HighlightMessage("given Short", "Unused import statement") :: Nil =>
+    }
+  }
 }

@@ -170,4 +170,17 @@ class GivenImportsTest extends ScalaLightCodeInsightFixtureTestAdapter with Simp
        |}
        |""".stripMargin
   )
+
+  def test_shadowed_given(): Unit = testNoResolve(
+    s"""
+       |object Source {
+       |  given Int = 0
+       |}
+       |
+       |object Target {
+       |  import Source.{given_Int => _, given Int}
+       |  ${REFSRC}given_Int
+       |}
+       |""".stripMargin
+  )
 }

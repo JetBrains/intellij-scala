@@ -164,6 +164,7 @@ abstract sealed class ScImportOrExportImpl[
                 return true
               }
 
+              var newState = state
               val importedByGiven = if (isScala3) {
                 // given elements are handled in a special way by given imports
                 namedElement match {
@@ -173,17 +174,26 @@ abstract sealed class ScImportOrExportImpl[
                       case GivenImports.None =>
                         // no given selector at all, so don't import, because normal wildcard doesn't import givens
                         return true
-                      case GivenImports.Wildcard =>
+                      case GivenImports.Wildcard(wildcardSelector) =>
                         // wildcard given... proceed with importing
+                        newState = newState.withImportsUsed(newState.importsUsed ++ tryMarkImportSelectorUsed(processor, None, wildcardSelector))
                         true
                       case GivenImports.Filtered(filters) =>
                         // there are one or multiple given selectors with a type
                         givenElement.`type`().map(state.substitutor) match {
-                          case Right(ty) if filters.exists(ty.conforms(_)) =>
-                            // given element conforms to one of the filters, so import
-                            true
+                          case Right(ty) =>
+                            val importingElement = filters.collectFirst{ case (fTy, e) if ty.conforms(fTy) => e }
+                            importingElement match {
+                              case Some(e) =>
+                                // given element conforms to one of the filters, so import
+                                newState = newState.withImportsUsed(newState.importsUsed ++ tryMarkImportSelectorUsed(processor, None, e))
+                                true
+                              case None =>
+                                // does not conform... do not import
+                                return true
+                            }
                           case _ =>
-                            // does not conform... do not import
+                            // type couldn't be determined... do not import
                             return true
                         }
                     }
@@ -197,7 +207,7 @@ abstract sealed class ScImportOrExportImpl[
               }
 
               val refType = qualifierType(isInPackageObject(namedElement))
-              val newState = state.withFromType(refType)
+              newState = newState.withFromType(refType)
               bp.execute(namedElement, newState)
             }
           }
@@ -310,9 +320,9 @@ abstract sealed class ScImportOrExportImpl[
                     def typeFilter = selector.givenTypeElement.flatMap(_.`type`().toOption)
                     typeFilter match {
                       case Some(ty) =>
-                        givenImportsBuilder.addTypeFilter(ty)
+                        givenImportsBuilder.addTypeFilter(ty, selector)
                       case None =>
-                        givenImportsBuilder.addWildcard()
+                        givenImportsBuilder.addWildcard(selector)
                     }
                   case Some(reference) =>
                     val isImportAlias = selector.isAliasedImport && !selector.importedName.contains(reference.refName)
@@ -356,8 +366,11 @@ abstract sealed class ScImportOrExportImpl[
                   case bp: BaseProcessor =>
                     ProgressManager.checkCanceled()
 
+                    val wildcardExprUsed =
+                      if (hasWildcard) tryMarkImportExprUsed(processor, qualifierFqn, importExpr, wildcard = true)
+                      else None
                     val newImportsUsed =
-                      importsUsed ++ tryMarkImportExprUsed(processor, qualifierFqn, importExpr, wildcard = true)
+                      importsUsed ++ wildcardExprUsed
 
                     val newState =
                       state
@@ -380,13 +393,13 @@ abstract sealed class ScImportOrExportImpl[
               }
 
               //wildcard import first, to show that this imports are unused if they really are
-              set.selectors.foreach { selector =>
-                ProgressManager.checkCanceled()
-                for {
-                  element <- selector.reference
-                  result  <- element.multiResolveScala(false)
-                } {
-                  if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
+              for(selector <- set.selectors) {
+                if (!selector.isAliasedImport || selector.importedName == selector.reference.map(_.refName)) {
+                  ProgressManager.checkCanceled()
+                  for {
+                    element <- selector.reference
+                    result <- element.multiResolveScala(false)
+                  } {
                     val rSubst = result.substitutor
 
                     val newImportsUsed =
@@ -461,12 +474,12 @@ object ScImportOrExportImpl {
     class Builder {
       private var givenImports: GivenImports = None
 
-      def addWildcard(): Unit = givenImports = Wildcard
-      def addTypeFilter(ty: ScType): Unit =
+      def addWildcard(wildcardSelector: ScImportSelector): Unit = givenImports = Wildcard(wildcardSelector)
+      def addTypeFilter(ty: ScType, e: ScImportSelector): Unit =
         givenImports match {
-          case Wildcard =>
-          case Filtered(set) => givenImports = Filtered(set + ty)
-          case None => givenImports = Filtered(Set(ty))
+          case Wildcard(_) =>
+          case Filtered(set) => givenImports = Filtered(set + (ty -> e))
+          case None => givenImports = Filtered(Map(ty -> e))
         }
 
       def result(): GivenImports = givenImports
@@ -476,7 +489,7 @@ object ScImportOrExportImpl {
     def none: GivenImports = None
 
     case object None extends GivenImports
-    case object Wildcard extends GivenImports
-    case class Filtered(types: Set[ScType]) extends AnyVal with GivenImports
+    case class Wildcard(selector: ScImportSelector) extends GivenImports
+    case class Filtered(types: Map[ScType, ScImportSelector]) extends AnyVal with GivenImports
   }
 }
