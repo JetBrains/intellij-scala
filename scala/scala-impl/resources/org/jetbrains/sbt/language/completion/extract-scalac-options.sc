@@ -136,9 +136,8 @@ def getSecondElementOfTuple2(pair: Any)(implicit classLoader: ClassLoader): Any 
     .getDeclaredField("_2")
     .get(pair)
 
-// TODO: Would be useful to have some default value if any
 def createScalacOptionWithAliases(name: String, argType: ArgType, description: String,
-                                  aliases: List[String], choices: List[String])
+                                  aliases: List[String], choices: List[String], default: Option[String])
                                  (implicit langLevel: ScalaLanguageLevel): List[SbtScalacOptionInfo] = {
   val scalaVersions = Set(langLevel)
 
@@ -148,6 +147,7 @@ def createScalacOptionWithAliases(name: String, argType: ArgType, description: S
     choices = choices.map(_ -> scalaVersions).toMap,
     argType = argType,
     scalaVersions = scalaVersions,
+    defaultValue = default
   )
 
   scalacOption(name) :: aliases.map(scalacOption)
@@ -174,6 +174,7 @@ def convertScala3Settings(settings: List[Any])
 
   val nameField = declaredFieldByName(settingClass, "name")
   val descriptionField = declaredFieldByName(settingClass, "description")
+  val defaultField = declaredFieldByName(settingClass, "default")
   val prefixField = declaredFieldByName(settingClass, "prefix")
   val choicesField = declaredFieldByName(settingClass, "choices")
   val aliasesField = declaredFieldByName(settingClass, "aliases")
@@ -187,6 +188,13 @@ def convertScala3Settings(settings: List[Any])
     .asInstanceOf[String]
     .stripSuffix(".")
 
+  def defaultScalaVersionStr(setting: Any): String = scalaVersionToString(defaultField.get(setting))
+
+  def nonEmptyDefault(setting: Any): Option[String] =
+    Option(defaultField.get(setting))
+      .map(_.toString)
+      .filter(_.nonEmpty)
+
   settings.flatMap { setting =>
     val name = nameField.get(setting).asInstanceOf[String]
     val description = descriptionField.get(setting).asInstanceOf[String]
@@ -195,16 +203,22 @@ def convertScala3Settings(settings: List[Any])
 
     val tag = classTagField.get(setting)
 
-    val argType = tag match {
-      case BooleanTag | OptionTag => ArgType.No
-      case ListTag => ArgType.Multiple
-      case VersionTag => ArgType.OneAfterColon
+    val (defaultValue, argType) = tag match {
+      case BooleanTag | OptionTag =>
+        (None, ArgType.No)
+      case ListTag =>
+        (None, ArgType.Multiple)
+      case VersionTag =>
+        (Some(defaultScalaVersionStr(setting)), ArgType.OneAfterColon)
       case StringTag =>
         val prefix = prefixField.get(setting).asInstanceOf[String]
-        if (prefix.nonEmpty) ArgType.OneAfterPrefix(prefix)
-        else if (choices.nonEmpty) ArgType.OneAfterColon
-        else ArgType.OneSeparate
-      case IntTag | OutputTag => ArgType.OneSeparate
+        val argType =
+          if (prefix.nonEmpty) ArgType.OneAfterPrefix(prefix)
+          else if (choices.nonEmpty) ArgType.OneAfterColon
+          else ArgType.OneSeparate
+        (nonEmptyDefault(setting), argType)
+      case IntTag | OutputTag =>
+        (nonEmptyDefault(setting), ArgType.OneSeparate)
     }
 
     val choicesAsStr =
@@ -212,7 +226,7 @@ def convertScala3Settings(settings: List[Any])
       else choices.map(_.toString)
 
     createScalacOptionWithAliases(name = name, argType = argType, description = description,
-      aliases = aliases, choices = choicesAsStr)
+      aliases = aliases, choices = choicesAsStr, default = defaultValue)
   }
 }
 
@@ -222,6 +236,7 @@ def convertScala2Settings(settings: List[Any])
 
   val nameField = declaredFieldByName(settingClass, "name")
   val descriptionField = declaredFieldByName(settingClass, "helpDescription")
+  val valueMethod = settingClass.getMethod("value")
   val choicesMethod = settingClass.getMethod("choices")
   val aliasesMethod = settingClass.getMethod("abbreviations")
 
@@ -239,6 +254,19 @@ def convertScala2Settings(settings: List[Any])
 
   val prefixField = declaredFieldByName(prefixSettingClass, "prefix")
 
+  val scalaVersionClass = loadClass("scala.tools.nsc.settings.ScalaVersion")
+  val scalaVersionUnparseMethod = scalaVersionClass.getMethod("unparse")
+
+  def defaultScalaVersionStr(setting: Any): String = scalaVersionUnparseMethod
+    .invoke(valueMethod.invoke(setting))
+    .asInstanceOf[String]
+    .stripSuffix(".")
+
+  def nonEmptyDefault(setting: Any): Option[String] =
+    Option(valueMethod.invoke(setting))
+      .map(_.toString)
+      .filter(_.nonEmpty)
+
   settings
     .filterNot(isInternalOnlyMethod.invoke(_).asInstanceOf[Boolean])
     .flatMap { setting =>
@@ -247,30 +275,30 @@ def convertScala2Settings(settings: List[Any])
       val choices = iterableLikeToList(choicesMethod.invoke(setting)).asInstanceOf[List[String]]
       val aliases = iterableLikeToList(aliasesMethod.invoke(setting)).asInstanceOf[List[String]]
 
-      val argType =
+      val (defaultValue, argType) =
         if (booleanSettingClass isInstance setting)
-          ArgType.No
+          (None, ArgType.No)
         else if (prefixSettingClass isInstance setting)
-          ArgType.OneAfterPrefix(prefixField.get(setting).asInstanceOf[String])
+          (None, ArgType.OneAfterPrefix(prefixField.get(setting).asInstanceOf[String]))
         else if (intSettingClass isInstance setting)
-          ArgType.OneSeparate
+          (nonEmptyDefault(setting), ArgType.OneSeparate)
         else if (stringSettingClass isInstance setting)
-          ArgType.OneSeparate
+          (nonEmptyDefault(setting), ArgType.OneSeparate)
         else if (scalaVersionSettingClass isInstance setting)
-          ArgType.OneAfterColon
+          (Some(defaultScalaVersionStr(setting)), ArgType.OneAfterColon)
         else if (choiceSettingClass isInstance setting)
-          ArgType.OneAfterColon
+          (nonEmptyDefault(setting), ArgType.OneAfterColon)
         else if (multiChoiceSettingClass isInstance setting)
-          ArgType.Multiple
+          (None, ArgType.Multiple)
         else if (multiStringSettingClass isInstance setting)
-          ArgType.Multiple
+          (None, ArgType.Multiple)
         else {
           assert(phasesSettingClass isInstance setting, s"Unknown setting type: ${setting.getClass}")
-          ArgType.Multiple
+          (None, ArgType.Multiple)
         }
 
       createScalacOptionWithAliases(name = name, argType = argType, description = description,
-        aliases = aliases, choices = choices)
+        aliases = aliases, choices = choices, default = defaultValue)
     }
 }
 
@@ -338,8 +366,10 @@ def mergeScalacOptions(left: SbtScalacOptionInfo, right: SbtScalacOptionInfo): S
     s"\tleft is '${left.flag}' (${left.scalaVersions}), right is ${right.flag} (${right.scalaVersions})")
   assert(left.argType == right.argType, "Cannot merge scalac options with different arg types:\n" +
     s"\tleft[${left.flag}] is ${left.argType} (${left.scalaVersions}), right[${right.flag}] is ${right.argType} (${right.scalaVersions})")
+  assert(left.defaultValue == right.defaultValue, "Cannot merge scalac options with different default values:\n" +
+    s"\tleft[${left.flag}] is ${left.defaultValue} (${left.scalaVersions}), right[${right.flag}] is ${right.defaultValue} (${right.scalaVersions})")
 
-  assert(left.productArity == 2 + 3, "Make sure that all fields are processed during scalac options merge")
+  assert(left.productArity == 3 + 3, "Make sure that all fields are processed during scalac options merge")
 
   val descriptions = merge(left.descriptions, right.descriptions)
   val choices = merge(left.choices, right.choices)
@@ -359,7 +389,8 @@ val options = artifactsWithLanguageLevel
   // e.g.: -Ywarn-unused
   //    2.11        - BooleanSetting
   //    2.12, 2.13  - MultiChoiceSetting
-  .groupMapReduce(o => (o.flag, o.argType))(identity)(mergeScalacOptions)
+  // grouping by default has the same reasoning: some of the options have different default values
+  .groupMapReduce(o => (o.flag, o.argType, o.defaultValue))(identity)(mergeScalacOptions)
   .values
   .toList
   .sortBy(_.flag)

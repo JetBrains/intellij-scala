@@ -52,6 +52,7 @@
   "choices": {
 
   },
+  "defaultValue": ".",
   "descriptions": {
     "Specify where to find user class files.": ["2.13", "3.0"]
   },
@@ -63,6 +64,7 @@
     "always": ["3.0"],
     "never": ["3.0"]
   },
+  "defaultValue": "always",
   "descriptions": {
     "Colored output": ["3.0"]
   },
@@ -73,6 +75,7 @@
   "choices": {
 
   },
+  "defaultValue": ".scala_dependencies",
   "descriptions": {
     "Set dependency tracking file.": ["2.13"]
   },
@@ -114,6 +117,7 @@
   "choices": {
 
   },
+  "defaultValue": "dot",
   "descriptions": {
     "The path to the dot executable used to generate the inheritance diagrams. Eg: /usr/bin/dot": ["2.13"]
   },
@@ -124,6 +128,7 @@
   "choices": {
 
   },
+  "defaultValue": "5",
   "descriptions": {
     "The number of times to restart a malfunctioning dot process before disabling diagrams (default: 5)": ["2.13"]
   },
@@ -134,6 +139,7 @@
   "choices": {
 
   },
+  "defaultValue": "10",
   "descriptions": {
     "The timeout before the graphviz dot util is forcefully closed, in seconds (default: 10)": ["2.13"]
   },
@@ -144,6 +150,7 @@
   "choices": {
 
   },
+  "defaultValue": "15",
   "descriptions": {
     "The maximum number of superclasses or subclasses to show in a diagram": ["2.13"]
   },
@@ -154,6 +161,7 @@
   "choices": {
 
   },
+  "defaultValue": "10",
   "descriptions": {
     "The maximum number of implicitly converted classes to show in a diagram": ["2.13"]
   },
@@ -184,6 +192,7 @@
   "choices": {
     "html": ["2.13"]
   },
+  "defaultValue": "html",
   "descriptions": {
     "Selects in which format documentation is rendered. ([html])": ["2.13"]
   },
@@ -194,6 +203,7 @@
   "choices": {
 
   },
+  "defaultValue": "scala.tools.nsc.doc.html.Doclet",
   "descriptions": {
     "The fully qualified name of a doclet class, which will be used to generate the documentation": ["2.13"]
   },
@@ -254,6 +264,7 @@
   "choices": {
 
   },
+  "defaultValue": "UTF-8",
   "descriptions": {
     "Specify character encoding used by source files.": ["2.13", "3.0"]
   },
@@ -495,6 +506,7 @@
   "choices": {
 
   },
+  "defaultValue": "80",
   "descriptions": {
     "Set page width": ["3.0"]
   },
@@ -611,6 +623,7 @@
     "3.0-migration": ["3.0"],
     "future-migration": ["3.0"]
   },
+  "defaultValue": "3.0",
   "descriptions": {
     "source version": ["3.0"]
   },
@@ -640,6 +653,7 @@
     "17": ["2.13"],
     "14": ["2.13"]
   },
+  "defaultValue": "8",
   "descriptions": {
     "Target platform for object files. ([8],9,10,11,12,13,14,15,16,17)": ["2.13"]
   },
@@ -883,6 +897,7 @@
   "choices": {
 
   },
+  "defaultValue": "2147483647",
   "descriptions": {
     "max chars for printing refined types, abbreviate to `F {...}`": ["2.13"]
   },
@@ -1004,6 +1019,7 @@
   "choices": {
 
   },
+  "defaultValue": "-",
   "descriptions": {
     "Print all compiler arguments to the specified location. Use - to echo to the reporter.": ["2.13"]
   },
@@ -1219,6 +1235,7 @@
     "after": ["2.13"],
     "both": ["2.13"]
   },
+  "defaultValue": "before",
   "descriptions": {
     "Enable lint warnings on macro expansions. Default: `before`, `help` to list choices.": ["2.13"]
   },
@@ -1353,6 +1370,7 @@
   "choices": {
 
   },
+  "defaultValue": "-2147483648",
   "descriptions": {
     "Calls to @elidable methods are omitted if method priority is lower than argument": ["2.11", "2.12", "2.13"]
   },
@@ -1429,6 +1447,7 @@
   "choices": {
 
   },
+  "defaultValue": "8000",
   "descriptions": {
     "Timeout (in ms) for searching for import suggestions when errors are reported.": ["3.0"]
   },
@@ -1441,6 +1460,7 @@
     "vi": ["2.13"],
     "off": ["2.13"]
   },
+  "defaultValue": "emacs",
   "descriptions": {
     "Select JLine mode. Default: `emacs`, `help` to list choices.": ["2.13"]
   },
@@ -1569,6 +1589,7 @@
   "choices": {
 
   },
+  "defaultValue": "255",
   "descriptions": {
     "Maximum filename length for generated classes": ["2.11", "2.12"]
   },
@@ -1579,6 +1600,7 @@
   "choices": {
 
   },
+  "defaultValue": "2000000",
   "descriptions": {
     "Maximal number of inlined trees.": ["3.0"]
   },
@@ -1589,6 +1611,7 @@
   "choices": {
 
   },
+  "defaultValue": "32",
   "descriptions": {
     "Maximal number of successive inlines.": ["3.0"]
   },
@@ -1599,6 +1622,7 @@
   "choices": {
 
   },
+  "defaultValue": "100",
   "descriptions": {
     "Maximum errors to print": ["2.12", "2.13"]
   },
@@ -1609,6 +1633,7 @@
   "choices": {
 
   },
+  "defaultValue": "100",
   "descriptions": {
     "Maximum warnings to print": ["2.12", "2.13"]
   },
@@ -1619,6 +1644,7 @@
   "choices": {
 
   },
+  "defaultValue": "none",
   "descriptions": {
     "Warn about constructs whose behavior may have changed since version.": ["2.11", "2.12", "2.13", "3.0"]
   },
@@ -1631,6 +1657,7 @@
     "junit": ["2.12", "2.13", "3.0"],
     "false": ["2.12", "2.13", "3.0"]
   },
+  "defaultValue": "true",
   "descriptions": {
     "Generate forwarder methods in classes inhering concrete methods from traits. Default: `true`, `help` to list choices.": ["2.12", "2.13"],
     "Generate forwarder methods in classes inhering concrete methods from traits.": ["3.0"]
@@ -1737,6 +1764,7 @@
   "choices": {
 
   },
+  "defaultValue": "misc/scala-devel/plugins",
   "descriptions": {
     "Path to search for plugin archives.": ["2.11", "2.12", "2.13", "3.0"]
   },
@@ -1758,6 +1786,7 @@
   "choices": {
 
   },
+  "defaultValue": "-",
   "descriptions": {
     "Print all compiler arguments to the specified location. Use - to echo to the reporter.": ["2.12", "2.13"]
   },
@@ -1861,6 +1890,7 @@
   "choices": {
 
   },
+  "defaultValue": "scala.tools.nsc.reporters.ConsoleReporter",
   "descriptions": {
     "Specify a custom subclass of FilteringReporter for compiler messages.": ["2.12", "2.13"]
   },
@@ -1882,11 +1912,22 @@
   "choices": {
 
   },
+  "defaultValue": "Main",
   "descriptions": {
-    "Treat the source file as a script and wrap it in a main method.": ["2.11", "2.12", "2.13"]
+    "Treat the source file as a script and wrap it in a main method.": ["2.13"]
   },
   "flag": "-Xscript",
-  "scalaVersions": ["2.11", "2.12", "2.13"]
+  "scalaVersions": ["2.13"]
+}, {
+  "argType": "OneSeparate",
+  "choices": {
+
+  },
+  "descriptions": {
+    "Treat the source file as a script and wrap it in a main method.": ["2.11", "2.12"]
+  },
+  "flag": "-Xscript",
+  "scalaVersions": ["2.11", "2.12"]
 }, {
   "argType": "No",
   "choices": {
@@ -1934,13 +1975,34 @@
   "choices": {
 
   },
+  "defaultValue": "2.11.0",
   "descriptions": {
-    "Treat compiler input as Scala source for the specified version, see SI-8126.": ["2.11"],
-    "Treat compiler input as Scala source for the specified version, see scala/bug#8126.": ["2.12"],
+    "Treat compiler input as Scala source for the specified version, see SI-8126.": ["2.11"]
+  },
+  "flag": "-Xsource",
+  "scalaVersions": ["2.11"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
+
+  },
+  "defaultValue": "2.12.0",
+  "descriptions": {
+    "Treat compiler input as Scala source for the specified version, see scala/bug#8126.": ["2.12"]
+  },
+  "flag": "-Xsource",
+  "scalaVersions": ["2.12"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
+
+  },
+  "defaultValue": "2.13.0",
+  "descriptions": {
     "Enable features that will be available in a future version of Scala, for purposes of early migration and alpha testing.": ["2.13"]
   },
   "flag": "-Xsource",
-  "scalaVersions": ["2.11", "2.12", "2.13"]
+  "scalaVersions": ["2.13"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -2041,6 +2103,7 @@
     "GenASM": ["2.11"],
     "GenBCode": ["2.11"]
   },
+  "defaultValue": "GenASM",
   "descriptions": {
     "Choice of bytecode emitter. (GenASM,GenBCode) default:GenASM": ["2.11"]
   },
@@ -2051,6 +2114,7 @@
   "choices": {
 
   },
+  "defaultValue": "1",
   "descriptions": {
     "maximum worker threads for backend": ["2.12", "2.13"]
   },
@@ -2061,6 +2125,7 @@
   "choices": {
 
   },
+  "defaultValue": "0",
   "descriptions": {
     "backend threads worker queue size": ["2.12", "2.13"]
   },
@@ -2094,6 +2159,7 @@
     "last-modified": ["2.12", "2.13"],
     "always": ["2.12", "2.13"]
   },
+  "defaultValue": "none",
   "descriptions": {
     "Policy for caching class loaders for macros that are dynamically loaded. Default: `none`, `help` to list choices.": ["2.12", "2.13"]
   },
@@ -2106,6 +2172,7 @@
     "last-modified": ["2.12", "2.13"],
     "always": ["2.12", "2.13"]
   },
+  "defaultValue": "none",
   "descriptions": {
     "Policy for caching class loaders for compiler plugins that are dynamically loaded. Default: `none`, `help` to list choices.": ["2.12", "2.13"]
   },
@@ -2158,6 +2225,7 @@
     "recursive": ["2.11"],
     "flat": ["2.11"]
   },
+  "defaultValue": "recursive",
   "descriptions": {
     "Choose classpath scanning method. (recursive,flat) default:recursive": ["2.11"]
   },
@@ -2191,6 +2259,7 @@
     "adhoc": ["2.11"],
     "none": ["2.11"]
   },
+  "defaultValue": "pc",
   "descriptions": {
     "Select tab-completion in the REPL. (pc,adhoc,none) default:pc": ["2.11"]
   },
@@ -2322,6 +2391,7 @@
   "choices": {
 
   },
+  "defaultValue": "-2147483648",
   "descriptions": {
     "Print the stack trace when the tree with the given id is created.": ["3.0"]
   },
@@ -2340,17 +2410,29 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "inline": ["2.11", "2.12", "2.13"],
-    "method": ["2.11", "2.12", "2.13"],
+    "inline": ["2.11"],
+    "method": ["2.11"]
+  },
+  "defaultValue": "inline",
+  "descriptions": {
+    "Strategy used for translating lambdas into JVM code. (inline,method) default:inline": ["2.11"]
+  },
+  "flag": "-Ydelambdafy",
+  "scalaVersions": ["2.11"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
+    "inline": ["2.12", "2.13"],
+    "method": ["2.12", "2.13"],
     "method-ref": ["2.12"]
   },
+  "defaultValue": "method",
   "descriptions": {
-    "Strategy used for translating lambdas into JVM code. (inline,method) default:inline": ["2.11"],
     "Strategy used for translating lambdas into JVM code. (inline,[method],method-ref)": ["2.12"],
     "Strategy used for translating lambdas into JVM code. (inline,[method])": ["2.13"]
   },
   "flag": "-Ydelambdafy",
-  "scalaVersions": ["2.11", "2.12", "2.13"]
+  "scalaVersions": ["2.12", "2.13"]
 }, {
   "argType": "No",
   "choices": {
@@ -2672,6 +2754,7 @@
   "choices": {
 
   },
+  "defaultValue": "-1",
   "descriptions": {
     "compression level to use when writing jar files": ["2.12", "2.13"]
   },
@@ -2682,6 +2765,7 @@
   "choices": {
 
   },
+  "defaultValue": "scala.tools.nsc.util.DefaultJarFactory",
   "descriptions": {
     "factory for jar files": ["2.12", "2.13"]
   },
@@ -2694,6 +2778,7 @@
     "": ["3.0"],
     "underscores": ["3.0"]
   },
+  "defaultValue": "disable",
   "descriptions": {
     "Allow `*` as type lambda placeholder to be compatible with kind projector. When invoked as -Ykind-projector:underscores will repurpose `_` to be a type parameter placeholder, this will disable usage of underscore as a wildcard.": ["3.0"]
   },
@@ -2707,6 +2792,7 @@
     "rpo": ["2.11"],
     "dump": ["2.11"]
   },
+  "defaultValue": "rpo",
   "descriptions": {
     "Linearizer to use (normal,dfs,rpo,dump) default:rpo": ["2.11"]
   },
@@ -2785,6 +2871,7 @@
     "none": ["2.11", "2.12", "2.13"],
     "discard": ["2.11", "2.12", "2.13"]
   },
+  "defaultValue": "normal",
   "descriptions": {
     "Control expansion of macros, useful for scaladoc and presentation compiler (normal,none,discard) default:normal": ["2.11"],
     "Control expansion of macros, useful for scaladoc and presentation compiler. ([normal],none,discard)": ["2.12", "2.13"]
@@ -2993,16 +3080,28 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
-    "at-inline-annotated": ["2.11", "2.12", "2.13"],
-    "everything": ["2.11", "2.12", "2.13"],
+    "at-inline-annotated": ["2.11"],
+    "everything": ["2.11"]
+  },
+  "defaultValue": "at-inline-annotated",
+  "descriptions": {
+    "Set the heuristics for inlining decisions. (at-inline-annotated,everything) default:at-inline-annotated": ["2.11"]
+  },
+  "flag": "-Yopt-inline-heuristics",
+  "scalaVersions": ["2.11"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
+    "at-inline-annotated": ["2.12", "2.13"],
+    "everything": ["2.12", "2.13"],
     "default": ["2.12", "2.13"]
   },
+  "defaultValue": "default",
   "descriptions": {
-    "Set the heuristics for inlining decisions. (at-inline-annotated,everything) default:at-inline-annotated": ["2.11"],
     "Set the heuristics for inlining decisions. (at-inline-annotated,everything,[default])": ["2.12", "2.13"]
   },
   "flag": "-Yopt-inline-heuristics",
-  "scalaVersions": ["2.11", "2.12", "2.13"]
+  "scalaVersions": ["2.12", "2.13"]
 }, {
   "argType": "OneSeparate",
   "choices": {
@@ -3087,6 +3186,7 @@
   "choices": {
 
   },
+  "defaultValue": "20",
   "descriptions": {
     "off": ["2.11", "2.12", "2.13"]
   },
@@ -3140,6 +3240,7 @@
   "choices": {
 
   },
+  "defaultValue": "0",
   "descriptions": {
     "Wait number of ms after typing before starting typechecking": ["2.11", "2.12", "2.13"]
   },
@@ -3255,6 +3356,7 @@
     "format": ["2.13"],
     "text+format": ["2.13"]
   },
+  "defaultValue": "text",
   "descriptions": {
     "How to print trees when -Vprint is enabled. ([text],compact,format,text+format)": ["2.13"]
   },
@@ -3309,6 +3411,7 @@
   "choices": {
 
   },
+  "defaultValue": "profile.trace",
   "descriptions": {
     "Capture trace of compilation in Chrome Trace format": ["2.12", "2.13"]
   },
@@ -3353,6 +3456,7 @@
   "choices": {
 
   },
+  "defaultValue": "0",
   "descriptions": {
     "Set recursion depth used when locking symbols.": ["2.11", "2.12", "2.13"]
   },
@@ -3441,6 +3545,7 @@
     "object": ["2.11", "2.12", "2.13", "3.0"],
     "error": ["2.11", "2.12", "2.13", "3.0"]
   },
+  "defaultValue": "error",
   "descriptions": {
     "Resolve term conflicts (package,object,error) default:error": ["2.11"],
     "Resolve term conflicts. (package,object,[error])": ["2.12", "2.13"],
@@ -3473,6 +3578,7 @@
   "choices": {
 
   },
+  "defaultValue": "always",
   "descriptions": {
     "Control where we may get Scala 2 symbols from. This is either \"always\", \"never\", or a classpath.": ["3.0"]
   },
@@ -3483,6 +3589,7 @@
   "choices": {
 
   },
+  "defaultValue": "default",
   "descriptions": {
     "Specify a scala.tools.nsc.ScriptRunner (default, resident, shutdown, or a class name).": ["2.13"]
   },
@@ -3829,6 +3936,7 @@
     "after": ["2.12", "2.13"],
     "both": ["2.12", "2.13"]
   },
+  "defaultValue": "before",
   "descriptions": {
     "Enable lint warnings on macro expansions. Default: `before`, `help` to list choices.": ["2.12", "2.13"]
   },
@@ -3966,6 +4074,7 @@
   "choices": {
 
   },
+  "defaultValue": ".",
   "descriptions": {
     "Specify where to find user class files.": ["2.11", "2.12", "2.13", "3.0"]
   },
@@ -3977,6 +4086,7 @@
     "always": ["3.0"],
     "never": ["3.0"]
   },
+  "defaultValue": "always",
   "descriptions": {
     "Colored output": ["3.0"]
   },
@@ -3987,6 +4097,7 @@
   "choices": {
 
   },
+  "defaultValue": ".",
   "descriptions": {
     "Specify where to find user class files.": ["2.11", "2.12", "2.13", "3.0"]
   },
@@ -3997,6 +4108,7 @@
   "choices": {
 
   },
+  "defaultValue": ".",
   "descriptions": {
     "destination for generated classfiles.": ["2.11", "2.12", "2.13"],
     "Destination for generated classfiles.": ["3.0"]
@@ -4008,6 +4120,7 @@
   "choices": {
 
   },
+  "defaultValue": ".scala_dependencies",
   "descriptions": {
     "Set dependency tracking file.": ["2.11", "2.12", "2.13"]
   },
@@ -4051,6 +4164,7 @@
   "choices": {
 
   },
+  "defaultValue": "dot",
   "descriptions": {
     "The path to the dot executable used to generate the inheritance diagrams. Eg: /usr/bin/dot": ["2.11", "2.12", "2.13"]
   },
@@ -4061,6 +4175,7 @@
   "choices": {
 
   },
+  "defaultValue": "5",
   "descriptions": {
     "The number of times to restart a malfunctioning dot process before disabling diagrams (default: 5)": ["2.11", "2.12", "2.13"]
   },
@@ -4071,6 +4186,7 @@
   "choices": {
 
   },
+  "defaultValue": "10",
   "descriptions": {
     "The timeout before the graphviz dot util is forcefully closed, in seconds (default: 10)": ["2.11", "2.12", "2.13"]
   },
@@ -4081,6 +4197,7 @@
   "choices": {
 
   },
+  "defaultValue": "15",
   "descriptions": {
     "The maximum number of superclasses or subclasses to show in a diagram": ["2.11", "2.12", "2.13"]
   },
@@ -4091,6 +4208,7 @@
   "choices": {
 
   },
+  "defaultValue": "10",
   "descriptions": {
     "The maximum number of implicitly converted classes to show in a diagram": ["2.11", "2.12", "2.13"]
   },
@@ -4131,6 +4249,7 @@
   "choices": {
     "html": ["2.11", "2.12", "2.13"]
   },
+  "defaultValue": "html",
   "descriptions": {
     "Selects in which format documentation is rendered (html) default:html": ["2.11"],
     "Selects in which format documentation is rendered. ([html])": ["2.12", "2.13"]
@@ -4142,6 +4261,7 @@
   "choices": {
 
   },
+  "defaultValue": "scala.tools.nsc.doc.html.Doclet",
   "descriptions": {
     "The fully qualified name of a doclet class, which will be used to generate the documentation": ["2.11", "2.12", "2.13"]
   },
@@ -4203,6 +4323,7 @@
   "choices": {
 
   },
+  "defaultValue": "UTF-8",
   "descriptions": {
     "Specify character encoding used by source files.": ["2.11", "2.12", "2.13", "3.0"]
   },
@@ -4290,6 +4411,7 @@
     "notailcalls": ["2.11", "2.12", "2.13"],
     "none": ["2.11", "2.12", "2.13"]
   },
+  "defaultValue": "vars",
   "descriptions": {
     "Set level of generated debugging info. (none,source,line,vars,notailcalls) default:vars": ["2.11"],
     "Set level of generated debugging info. (none,source,line,[vars],notailcalls)": ["2.12", "2.13"]
@@ -4622,6 +4744,7 @@
   "choices": {
 
   },
+  "defaultValue": "80",
   "descriptions": {
     "Set page width": ["3.0"]
   },
@@ -4690,16 +4813,6 @@
   "flag": "-raw-output",
   "scalaVersions": ["2.11", "2.12", "2.13"]
 }, {
-  "argType": "OneSeparate",
-  "choices": {
-
-  },
-  "descriptions": {
-    "Compile for a specific version of the Java platform. Supported targets: 6, 7, 8, 9": ["2.12", "2.13"]
-  },
-  "flag": "-release",
-  "scalaVersions": ["2.12", "2.13"]
-}, {
   "argType": "OneAfterColon",
   "choices": {
     "8": ["3.0"],
@@ -4712,6 +4825,16 @@
   },
   "flag": "-release",
   "scalaVersions": ["3.0"]
+}, {
+  "argType": "OneSeparate",
+  "choices": {
+
+  },
+  "descriptions": {
+    "Compile for a specific version of the Java platform. Supported targets: 6, 7, 8, 9": ["2.12", "2.13"]
+  },
+  "flag": "-release",
+  "scalaVersions": ["2.12", "2.13"]
 }, {
   "argType": "No",
   "choices": {
@@ -4790,6 +4913,7 @@
     "3.0-migration": ["3.0"],
     "future-migration": ["3.0"]
   },
+  "defaultValue": "3.0",
   "descriptions": {
     "source version": ["3.0"]
   },
@@ -4810,6 +4934,7 @@
   "choices": {
 
   },
+  "defaultValue": ".",
   "descriptions": {
     "Specify workspace root directory.": ["3.0"]
   },
@@ -4829,28 +4954,51 @@
 }, {
   "argType": "OneAfterColon",
   "choices": {
+    "jvm-1.5": ["2.12"],
+    "jvm-1.6": ["2.12"],
+    "jvm-1.7": ["2.12"],
+    "jvm-1.8": ["2.12"]
+  },
+  "defaultValue": "jvm-1.8",
+  "descriptions": {
+    "Target platform for object files. All JVM 1.5 - 1.7 targets are deprecated. (jvm-1.5,jvm-1.6,jvm-1.7,[jvm-1.8])": ["2.12"]
+  },
+  "flag": "-target",
+  "scalaVersions": ["2.12"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
+    "jvm-1.5": ["2.11"],
+    "jvm-1.6": ["2.11"],
+    "jvm-1.7": ["2.11"],
+    "jvm-1.8": ["2.11"]
+  },
+  "defaultValue": "jvm-1.6",
+  "descriptions": {
+    "Target platform for object files. All JVM 1.5 targets are deprecated. (jvm-1.5,jvm-1.6,jvm-1.7,jvm-1.8) default:jvm-1.6": ["2.11"]
+  },
+  "flag": "-target",
+  "scalaVersions": ["2.11"]
+}, {
+  "argType": "OneAfterColon",
+  "choices": {
     "12": ["2.13"],
     "8": ["2.13"],
-    "jvm-1.7": ["2.11", "2.12"],
     "13": ["2.13"],
     "16": ["2.13"],
     "10": ["2.13"],
-    "jvm-1.8": ["2.11", "2.12"],
     "15": ["2.13"],
     "11": ["2.13"],
     "9": ["2.13"],
     "17": ["2.13"],
-    "14": ["2.13"],
-    "jvm-1.6": ["2.11", "2.12"],
-    "jvm-1.5": ["2.11", "2.12"]
+    "14": ["2.13"]
   },
+  "defaultValue": "8",
   "descriptions": {
-    "Target platform for object files. All JVM 1.5 targets are deprecated. (jvm-1.5,jvm-1.6,jvm-1.7,jvm-1.8) default:jvm-1.6": ["2.11"],
-    "Target platform for object files. All JVM 1.5 - 1.7 targets are deprecated. (jvm-1.5,jvm-1.6,jvm-1.7,[jvm-1.8])": ["2.12"],
     "Target platform for object files. ([8],9,10,11,12,13,14,15,16,17)": ["2.13"]
   },
   "flag": "-target",
-  "scalaVersions": ["2.11", "2.12", "2.13"]
+  "scalaVersions": ["2.13"]
 }, {
   "argType": "OneSeparate",
   "choices": {

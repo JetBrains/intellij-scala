@@ -10,13 +10,12 @@ final case class SbtScalacOptionInfo(flag: String,
                                      choices: Map[String, Set[ScalaLanguageLevel]],
                                      argType: ArgType,
                                      scalaVersions: Set[ScalaLanguageLevel],
+                                     defaultValue: Option[String],
                                     ) {
-  def quoted: String = s""""$flag""""
-
   def getText: String = argType match {
-    case ArgType.OneSeparate => s"""$quoted, """""
+    case ArgType.OneSeparate => s""""$flag", """""
     case ArgType.OneAfterColon | ArgType.Multiple => s""""$flag:""""
-    case _ => quoted
+    case _ => s""""$flag""""
   }
 }
 
@@ -68,5 +67,5 @@ object SbtScalacOptionInfo {
   }
 
   implicit val sbtScalacOptionInfoJsonFormat: RootJsonFormat[SbtScalacOptionInfo] =
-    jsonFormat5(SbtScalacOptionInfo.apply)
+    jsonFormat6(SbtScalacOptionInfo.apply)
 }

@@ -57,7 +57,7 @@ object SbtScalacOptionsCompletionContributor {
     val matchingVersions = scalaVersions.filter(version => option.scalaVersions.exists(_.getVersion == version))
 
     Option.when(matchingVersions.nonEmpty) {
-      LookupElementBuilder.create(option.argType, option.flag)
+      LookupElementBuilder.create(option, option.flag)
         .withPresentableText(option.getText)
         .withTailText(matchingVersions.mkString(" (", ", ", ")"))
         .withInsertHandler(new ScalacOptionInsertHandler(option, scalaVersions))
@@ -145,9 +145,7 @@ object SbtScalacOptionsCompletionContributor {
   /** Expression used in [[com.intellij.codeInsight.template.Template]] */
   private def scalacOptionArgumentExpression(option: SbtScalacOptionInfo, projectScalaVersions: List[String],
                                              isFirst: Boolean = true): Expression = {
-    val text = if (isFirst) {
-      "???" // TODO: use default value if any
-    } else ""
+    val text = if (isFirst) option.defaultValue.getOrElse("???") else ""
 
     val lookupItems = option.choices.toList.flatMap { case (choice, scalaVersions) =>
       val matchingVersions = projectScalaVersions.filter(version => scalaVersions.exists(_.getVersion == version))

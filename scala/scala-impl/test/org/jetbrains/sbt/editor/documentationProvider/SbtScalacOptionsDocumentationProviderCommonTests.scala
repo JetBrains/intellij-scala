@@ -121,7 +121,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
     val langLevel = version.languageLevel
     val description = "Scalac options lookup element documentation test description"
     val descriptions = Map(description -> Set(langLevel))
-    val option = SbtScalacOptionInfo("-test-flag", descriptions, Map.empty, ArgType.No, Set(langLevel))
+    val option = SbtScalacOptionInfo("-test-flag", descriptions, Map.empty, ArgType.No, Set(langLevel), None)
     val docHolder = SbtScalacOptionDocHolder(option)(self.getFixture.getProject)
 
     val expectedDoc = description
