@@ -144,6 +144,7 @@ package object extensions {
 
     def findScalaFile[F <: ScalaFile : ClassTag]: Option[F] =
       viewProvider.getPsi(ScalaLanguage.INSTANCE).asOptionOf[F]
+        .orElse(viewProvider.getPsi(Scala3Language.INSTANCE).asOptionOf[F])
 
     def findAnyScalaFile: Option[ScalaFile] =
       findScalaFile[ScalaFile]

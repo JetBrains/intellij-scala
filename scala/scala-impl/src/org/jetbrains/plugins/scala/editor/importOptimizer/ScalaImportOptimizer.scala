@@ -385,7 +385,7 @@ object ScalaImportOptimizer {
       val useScala3WildcardsInSelectors =
         scalaFeatures.`Scala 3 wildcard imports in selector` && scala3SyntaxAllowed
 
-      val arrow =
+      val renameArrow =
         if (useScala3RenamingImports) "as"
         else if (isUnicodeArrow) ScalaTypedHandler.unicodeCaseArrow
         else "=>"
@@ -393,10 +393,15 @@ object ScalaImportOptimizer {
         if (useScala3Wildcards) "*"
         else "_"
       addGroup(singleNames)
-      addGroup(renames.map { case (from, to) => s"$from $arrow $to" })
-      addGroup(hiddenNames.map(_ + s" $arrow _"))
+      addGroup(renames.map { case (from, to) => s"$from $renameArrow $to" })
+      addGroup(hiddenNames.map(_ + s" $renameArrow _"))
 
       if (hasWildcard) groupStrings += wildcard
+
+      addGroup(givenTypeTexts.map("given " + _))
+
+      if (hasGivenWildcard) groupStrings += "given"
+
       val space = if (spacesInImports) " " else ""
       val root = if (rootUsed) s"${_root_prefix}." else ""
       val hasAlias = renames.nonEmpty || hiddenNames.nonEmpty
