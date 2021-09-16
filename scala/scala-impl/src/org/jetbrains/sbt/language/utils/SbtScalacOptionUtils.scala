@@ -47,12 +47,6 @@ object SbtScalacOptionUtils {
     }
 
   @Cached(ModificationTracker.NEVER_CHANGED, null)
-  def scalacOptionByFlag: Map[String, SbtScalacOptionInfo] =
-    getScalacOptions
-      .map(option => option.flag -> option)
-      .toMap
-
-  @Cached(ModificationTracker.NEVER_CHANGED, null)
   def getScalacOptions: Seq[SbtScalacOptionInfo] = {
     if (ApplicationManager.getApplication.isUnitTestMode) return scalacOptionsForUnitTests
 
@@ -134,7 +128,7 @@ object SbtScalacOptionUtils {
         flag = "-Xprint",
         argType = ArgType.Multiple,
         choices = Map.empty,
-        descriptions = Map (
+        descriptions = Map(
           "Print out program after <phases>" -> Set(Scala_2_11, Scala_2_12, Scala_2_13),
           "Print out program after" -> Set(Scala_3_0)
         ),

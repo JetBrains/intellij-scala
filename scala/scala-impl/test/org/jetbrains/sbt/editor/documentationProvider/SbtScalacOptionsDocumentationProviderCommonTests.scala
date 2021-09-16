@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
+import com.intellij.lang.documentation.DocumentationMarkup
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
@@ -10,7 +11,12 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
 
   private val NONEXISTENT_FLAG = "-flag-that-no-one-should-ever-add-to-compiler"
   private val DEPRECATION_FLAG = "-deprecation"
-  private val DEPRECATION_DESCRIPTION = "Emit warning and location for usages of deprecated APIs."
+  private val DEPRECATION_DESCRIPTION = DocumentationMarkup.CONTENT_START +
+    "2.11, 3.0<br>Emit warning and location for usages of deprecated APIs." +
+    DocumentationMarkup.CONTENT_END +
+    DocumentationMarkup.CONTENT_START +
+    "2.12, 2.13<br>Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]" +
+    DocumentationMarkup.CONTENT_END
 
   private def getVersion(implicit ev: ScalaVersion): ScalaVersion = ev
 
@@ -124,7 +130,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
     val option = SbtScalacOptionInfo("-test-flag", descriptions, Map.empty, ArgType.No, Set(langLevel), None)
     val docHolder = SbtScalacOptionDocHolder(option)(self.getFixture.getProject)
 
-    val expectedDoc = description
+    val expectedDoc = DocumentationMarkup.CONTENT_START + langLevel.getVersion + "<br>" + description + DocumentationMarkup.CONTENT_END
     val actualDoc = generateDoc(docHolder, null)
     assertDocHtml(expectedDoc, actualDoc)
   }
