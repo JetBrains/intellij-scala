@@ -2,12 +2,15 @@ package org.jetbrains.plugins.scala.lang.dfa.cfg
 
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import org.jetbrains.plugins.scala.AssertionMatchers
-import org.jetbrains.plugins.scala.base.ScalaLightCodeInsightFixtureTestAdapter
+import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
+import org.jetbrains.plugins.scala.lang.dfa.cfg.transformations.ScalaPsiElementTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.junit.Assert.assertTrue
 
 abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
+
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ScalaDfaControlFlowBuilder])
 
   def test(code: String)(expectedResult: String): Unit = {
     val actualFile = configureFromFileText(code)
@@ -18,8 +21,9 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
         for (body <- function.body) {
           functionVisited = true
           val factory = new DfaValueFactory(getProject)
-          val controlFlowBuilder = new ScalaDfaControlFlowBuilder(body, factory)
-          val flow = controlFlowBuilder.buildFlow().get
+          val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
+          new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
+          val flow = controlFlowBuilder.build()
 
           flow.toString.trim.linesIterator.map(_.trim).mkString("\n") shouldBe expectedResult.trim
         }

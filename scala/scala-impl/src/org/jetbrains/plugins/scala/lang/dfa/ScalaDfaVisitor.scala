@@ -5,8 +5,10 @@ import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
 import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstructionState}
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
+import com.intellij.openapi.diagnostic.Logger
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.constantValueToProblemMessage
 import org.jetbrains.plugins.scala.lang.dfa.cfg.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.cfg.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
@@ -16,21 +18,30 @@ import scala.jdk.CollectionConverters._
 
 class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaElementVisitor {
 
+  private val Log = Logger.getInstance(classOf[ScalaDfaVisitor])
+
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
     val factory = new DfaValueFactory(problemsHolder.getProject)
     val memoryStates = List(new JvmDfaMemoryStateImpl(factory))
-    function.body.foreach(executeDataFlowAnalysis(_, problemsHolder, factory, memoryStates))
+
+    try {
+      function.body.foreach(executeDataFlowAnalysis(_, problemsHolder, factory, memoryStates))
+    } catch {
+      case exception: TransformationFailedException =>
+        Log.info(s"Dataflow analysis failed for function definition $function. Reason: $exception")
+    }
   }
 
   private def executeDataFlowAnalysis(body: ScBlockStatement, problemsHolder: ProblemsHolder, factory: DfaValueFactory,
                                       memoryStates: Iterable[JvmDfaMemoryStateImpl]): Unit = {
-    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(body, factory)
-    for (flow <- controlFlowBuilder.buildFlow()) {
-      val listener = new ScalaDfaListener
-      val interpreter = new StandardDataFlowInterpreter(flow, listener)
-      if (interpreter.interpret(buildInterpreterStates(memoryStates, flow).asJava) == RunnerResult.OK) {
-        reportProblems(listener, problemsHolder)
-      }
+    val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
+    new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
+    val flow = controlFlowBuilder.build()
+
+    val listener = new ScalaDfaListener
+    val interpreter = new StandardDataFlowInterpreter(flow, listener)
+    if (interpreter.interpret(buildInterpreterStates(memoryStates, flow).asJava) == RunnerResult.OK) {
+      reportProblems(listener, problemsHolder)
     }
   }
 
