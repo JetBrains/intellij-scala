@@ -44,7 +44,7 @@ object TechHubDownloadUtil {
           try {
             val contentLength: Int = request.getConnection.getContentLength
             substituteContentLength(progress, originalText, contentLength)
-            NetUtils.copyStreamContent(progress.orNull, request.getInputStream, output, contentLength)
+            NetUtils.copyStreamContent(progress.orNull, request.getInputStream, output, contentLength.toLong)
           }
           catch {
             case e: IOException =>
