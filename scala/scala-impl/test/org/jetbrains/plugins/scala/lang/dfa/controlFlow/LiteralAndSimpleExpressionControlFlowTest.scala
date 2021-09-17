@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 class LiteralAndSimpleExpressionControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 

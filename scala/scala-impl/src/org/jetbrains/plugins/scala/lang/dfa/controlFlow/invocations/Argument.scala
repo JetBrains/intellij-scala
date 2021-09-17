@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.invocations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
-import org.jetbrains.plugins.scala.lang.dfa.cfg.invocations.Argument.{ArgumentKind, PassingMechanism}
-import org.jetbrains.plugins.scala.lang.dfa.cfg.transformations.{ExpressionTransformer, Transformable, UnknownValueTransformer}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{ArgumentKind, PassingMechanism}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ExpressionTransformer, Transformable, UnknownValueTransformer}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 

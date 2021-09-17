@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa
+package org.jetbrains.plugins.scala.lang.dfa.framework
 
 import com.intellij.codeInspection.dataFlow.interpreter.{RunnerResult, StandardDataFlowInterpreter}
 import com.intellij.codeInspection.dataFlow.jvm.JvmDfaMemoryStateImpl
@@ -6,9 +6,9 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstruction
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.constantValueToProblemMessage
-import org.jetbrains.plugins.scala.lang.dfa.cfg.ScalaDfaControlFlowBuilder
-import org.jetbrains.plugins.scala.lang.dfa.cfg.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
+import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{DfaConstantValue, constantValueToProblemMessage}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement

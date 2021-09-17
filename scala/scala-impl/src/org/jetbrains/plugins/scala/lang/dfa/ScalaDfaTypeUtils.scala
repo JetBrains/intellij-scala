@@ -11,6 +11,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 
 object ScalaDfaTypeUtils {
 
+  sealed trait DfaConstantValue
+  final object DfaConstantValue {
+    case object True extends DfaConstantValue
+    case object False extends DfaConstantValue
+    case object Unknown extends DfaConstantValue
+  }
+
+  sealed trait LogicalOperation
+  final object LogicalOperation {
+    case object And extends LogicalOperation
+    case object Or extends LogicalOperation
+  }
+
   final object InfixOperators {
     val Arithmetic: Map[String, LongRangeBinOp] = Map(
       "+" -> LongRangeBinOp.PLUS,

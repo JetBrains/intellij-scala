@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
 import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, JvmPushInstruction, NumericBinaryInstruction}
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
@@ -6,9 +6,9 @@ import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
-import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{InfixOperators, literalToDfType}
-import org.jetbrains.plugins.scala.lang.dfa.cfg.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
-import org.jetbrains.plugins.scala.lang.dfa.{LogicalOperation, ScalaStatementAnchor, ScalaUnreportedElementAnchor}
+import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{InfixOperators, LogicalOperation, literalToDfType}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.framework.{ScalaStatementAnchor, ScalaUnreportedElementAnchor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition

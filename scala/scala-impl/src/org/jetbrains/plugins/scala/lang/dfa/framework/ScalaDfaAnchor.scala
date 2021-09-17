@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa
+package org.jetbrains.plugins.scala.lang.dfa.framework
 
 import com.intellij.codeInspection.dataFlow.lang.DfaAnchor
 import com.intellij.psi.PsiElement

@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import org.jetbrains.plugins.scala.lang.dfa.cfg.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 
 /**
  * Interface for abstractions over Scala PSI elements that can be transformed into the Intermediate Representation

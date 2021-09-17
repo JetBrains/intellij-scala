@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaVariableValue, VariableDescriptor}

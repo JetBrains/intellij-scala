@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.invocations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.dfa.cfg.invocations.Argument.{PassByValue, ThisArgument}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassByValue, ThisArgument}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 

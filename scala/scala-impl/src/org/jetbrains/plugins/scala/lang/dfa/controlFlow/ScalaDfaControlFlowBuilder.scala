@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
@@ -6,7 +6,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.CommonClassNames
-import org.jetbrains.plugins.scala.lang.dfa.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 

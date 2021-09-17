@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
 import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
-import org.jetbrains.plugins.scala.lang.dfa.ScalaStatementAnchor
-import org.jetbrains.plugins.scala.lang.dfa.cfg.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition}
 
 class DefinitionTransformer(definition: ScDefinitionWithAssignment) extends ScalaPsiElementTransformer(definition) {

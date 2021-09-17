@@ -1,6 +1,6 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import org.jetbrains.plugins.scala.lang.dfa.cfg.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 
 class UnknownValueTransformer extends Transformable {
 

@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import org.jetbrains.plugins.scala.lang.dfa.cfg.ScalaDfaControlFlowBuilder
-import org.jetbrains.plugins.scala.lang.dfa.cfg.invocations.InvocationInfo
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 
 class InvocationTransformer(invocation: MethodInvocation) extends ScalaPsiElementTransformer(invocation) {

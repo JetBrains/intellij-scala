@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.cfg.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
 import com.intellij.psi.PsiElement
 
