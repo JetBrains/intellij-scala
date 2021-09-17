@@ -21,5 +21,5 @@ object InvocationInfo {
   }
 
   private def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)],
-                                              isTupled: Boolean): List[Argument] = ???
+                                              isTupled: Boolean): Seq[Argument] = Nil // TODO implement
 }

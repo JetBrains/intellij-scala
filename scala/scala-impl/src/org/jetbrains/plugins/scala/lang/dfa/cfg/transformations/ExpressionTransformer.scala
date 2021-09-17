@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.dfa.cfg.{ScalaDfaControlFlowBuilder, Sca
 import org.jetbrains.plugins.scala.lang.dfa.{LogicalOperation, ScalaStatementAnchor, ScalaUnreportedElementAnchor}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class ExpressionTransformer(expression: ScExpression) extends ScalaPsiElementTransformer(expression) {
 
@@ -21,7 +22,9 @@ class ExpressionTransformer(expression: ScExpression) extends ScalaPsiElementTra
     case _: ScUnitExpr => transformUnitExpression(builder)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => transformReferenceExpression(reference, builder)
-    case infixExpression: ScInfixExpr => transformInfixExpression(infixExpression, builder)
+    case invocation: MethodInvocation => transformInvocation(invocation, builder)
+    case templateDefinition: ScTemplateDefinition => transformTemplateDefinition(templateDefinition, builder)
+    //    case infixExpression: ScInfixExpr => transformInfixExpression(infixExpression, builder)
     case _ => throw TransformationFailedException(expression, "Unsupported expression.")
   }
 
@@ -80,6 +83,16 @@ class ExpressionTransformer(expression: ScExpression) extends ScalaPsiElementTra
       case _ => builder.pushUnknownCall(expression, 0)
     }
   }
+
+  def transformInvocation(invocation: MethodInvocation, builder: ScalaDfaControlFlowBuilder): Unit = {
+    new InvocationTransformer(invocation).transform(builder)
+  }
+
+  def transformTemplateDefinition(templateDefinition: ScTemplateDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
+    // TODO implement
+    builder.pushUnknownValue()
+  }
+
 
   // TODO move all the methods below elsewhere once InvocationInfo works properly
   // convert this to invocation info then
