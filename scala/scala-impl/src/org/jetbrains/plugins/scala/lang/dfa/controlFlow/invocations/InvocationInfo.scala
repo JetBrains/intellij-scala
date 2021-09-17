@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{Pa
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
-// TODO Map[Argument, ScParameter] generated at some point
+// TODO parameterIndex -> argumentIndexOnStack mapping generated at some point
 case class InvocationInfo(invokedElement: Option[PsiElement], argsInEvaluationOrder: Seq[Argument])
 
 object InvocationInfo {

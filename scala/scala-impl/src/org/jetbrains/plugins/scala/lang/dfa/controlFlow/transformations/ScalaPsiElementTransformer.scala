@@ -5,6 +5,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssignment
 
+/**
+ * [[Transformable]] wrapper for all Scala PSI elements.
+ *
+ * It is the most likely entrypoint for building control flow for any Scala code.
+ * It passes responsibility further to specific transformers.
+ */
 class ScalaPsiElementTransformer(element: ScalaPsiElement) extends Transformable {
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {

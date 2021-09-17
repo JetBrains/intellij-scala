@@ -21,5 +21,5 @@ class InvocationTransformer(invocation: MethodInvocation) extends ScalaPsiElemen
   }
 
   // TODO implement
-  def transformSpecially(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = ???
+  private def transformSpecially(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = ???
 }
