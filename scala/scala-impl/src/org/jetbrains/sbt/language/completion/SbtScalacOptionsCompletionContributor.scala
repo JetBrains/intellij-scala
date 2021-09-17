@@ -12,7 +12,6 @@ import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor._
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
@@ -77,68 +76,68 @@ object SbtScalacOptionsCompletionContributor {
           // rewrite `-flag`, `--flag` to "-flag" and "--flag" respectively
           // handle `-foo-bar-baz` and `--foo-bar-baz` cases as well
           val startOffset = ref.startOffset
-
-          inWriteAction {
-            val endOffset = ref.endOffset + option.flag.dropWhile(_ == '-').length
-            context.getDocument.replaceString(startOffset, endOffset, option.getText)
-          }
-
-          // if option has arguments, build and run interactive template
-          if (option.argType != ArgType.No) {
-            context.commitDocument()
-
-            val offsetBeforeClosingQuote = startOffset + option.getText.length - 1
-
-            val templateContainerElement = context.getFile.findElementAt(offsetBeforeClosingQuote)
-
-            val builder = TemplateBuilderFactory.getInstance()
-              .createTemplateBuilder(templateContainerElement)
-              .asInstanceOf[TemplateBuilderImpl]
-
-            def replaceRange(offset: Int, len: Int, expr: Expression = scalacOptionArgumentExpression(option, scalaVersions)): Unit =
-              builder.replaceRange(TextRange.from(offset, len), expr)
-
-            option.argType match {
-              case ArgType.OneAfterPrefix(prefix) =>
-                val argument = option.flag.substring(prefix.length)
-
-                // for options like -J<flag> create one template variable: -J`<flag>`
-                // for options like -Dproperty=value create multiple variables: -D`property`=`value`
-                argument.split('=').foldLeft(startOffset + 1 + prefix.length) {
-                  case (offset, variableText) =>
-                    replaceRange(offset, variableText.length, new ConstantNode(variableText))
-                    // next variable offset skipping `=`
-                    offset + variableText.length + 1
-                }
-              case ArgType.Multiple =>
-                // remove `"` to be able to add variables BEFORE quote
-                replaceRange(offsetBeforeClosingQuote, len = 1)
-              case _ =>
-                replaceRange(offsetBeforeClosingQuote, len = 0)
-            }
-
-            val template = builder.buildTemplate()
-            context.getDocument.replaceString(templateContainerElement.startOffset, templateContainerElement.endOffset, "")
-
-            // TODO: is there a better way of doing "vararg" style insertion?
-            if (option.argType == ArgType.Multiple) {
-              option.choices.tail.foreach { case (choice, _) =>
-                template.addVariable(choice, scalacOptionArgumentExpression(option, scalaVersions, isFirst = false), null, false)
-              }
-              template.addTextSegment("\"")
-            }
-
-            TemplateManager.getInstance(context.getProject).startTemplate(context.getEditor, template)
-          }
+          val endOffset = ref.endOffset + option.flag.dropWhile(_ == '-').length
+          doHandleInsert(context)(startOffset, endOffset)
         case str: ScStringLiteral =>
           // handle cases when string literal is invalid. E.g.: `"-flag` -> `"-flag"`
-          inWriteAction {
-            str.replace(ScalaPsiElementFactory.createElementFromText(option.getText)(str.projectContext))
-          }
-
-        // TODO: handle option arguments in string literals
+          doHandleInsert(context)(str.startOffset, str.endOffset)
         case _ =>
       }
+    }
+
+    private def doHandleInsert(context: InsertionContext)(startOffset: Int, endOffset: Int): Unit = {
+      inWriteAction {
+        context.getDocument.replaceString(startOffset, endOffset, option.getText)
+      }
+
+      if (option.argType == ArgType.No) return
+
+      // if option has arguments, build and run interactive template
+      context.commitDocument()
+
+      val offsetBeforeClosingQuote = startOffset + option.getText.length - 1
+
+      val templateContainerElement = context.getFile.findElementAt(offsetBeforeClosingQuote)
+
+      val builder = TemplateBuilderFactory.getInstance()
+        .createTemplateBuilder(templateContainerElement)
+        .asInstanceOf[TemplateBuilderImpl]
+
+      def replaceRange(offset: Int, len: Int, expr: Expression = scalacOptionArgumentExpression(option, scalaVersions)): Unit =
+        builder.replaceRange(TextRange.from(offset, len), expr)
+
+      option.argType match {
+        case ArgType.OneAfterPrefix(prefix) =>
+          val argument = option.flag.substring(prefix.length)
+
+          // for options like -J<flag> create one template variable: -J`<flag>`
+          // for options like -Dproperty=value create multiple variables: -D`property`=`value`
+          argument.split('=').foldLeft(startOffset + 1 + prefix.length) {
+            case (offset, variableText) =>
+              replaceRange(offset, variableText.length, new ConstantNode(variableText))
+              // next variable offset skipping `=`
+              offset + variableText.length + 1
+          }
+        case ArgType.Multiple =>
+          // remove `"` to be able to add variables BEFORE quote
+          replaceRange(offsetBeforeClosingQuote, len = 1)
+        case _ =>
+          replaceRange(offsetBeforeClosingQuote, len = 0)
+      }
+
+      val template = builder.buildTemplate()
+      context.getDocument.replaceString(templateContainerElement.startOffset, templateContainerElement.endOffset, "")
+      context.getEditor.getCaretModel.moveToOffset(templateContainerElement.startOffset)
+
+      // TODO: is there a better way of doing "vararg" style insertion?
+      if (option.argType == ArgType.Multiple) {
+        option.choices.tail.foreach { case (choice, _) =>
+          template.addVariable(choice, scalacOptionArgumentExpression(option, scalaVersions, isFirst = false), null, false)
+        }
+        template.addTextSegment("\"")
+      }
+
+      TemplateManager.getInstance(context.getProject).startTemplate(context.getEditor, template)
     }
   }
 
