@@ -8,6 +8,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.psi._
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
@@ -30,9 +31,20 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         val members = file.members
         if (members.isEmpty) return null
 
+        val sourceFolder =
+          for {
+            virtualFile <- Option(file.getVirtualFile)
+            sourceFolder <- Option(ProjectRootManager.getInstance(file.getProject).getFileIndex.getSourceFolder(virtualFile))
+          } yield sourceFolder
+        val packagePrefix =
+          for {
+            sourceFolder <- sourceFolder
+            packagePrefix = sourceFolder.getPackagePrefix if packagePrefix.nonEmpty
+          } yield packagePrefix
+
         val dir = file.getContainingDirectory
         if (dir == null) return null
-        val packageNameByDir = packageNameFromFile(dir) match {
+        val packageNameByDir = packageNameFromFile(dir, packagePrefix) match {
           case Some(pack) => pack
           case None => return null
         }
@@ -65,13 +77,11 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         }
 
         def problemDescriptors(buffer: Seq[LocalQuickFix]): Seq[ProblemDescriptor] = {
+          @Nls
           var message = ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure", packageQualifier, packageNameByDir)
 
           // Specifically make sure that the file path doesn't repeat an existing package prefix (twice).
-          for (virtualFile <- Option(file.getVirtualFile);
-               sourceFolder <- Option(ProjectRootManager.getInstance(file.getProject).getFileIndex.getSourceFolder(virtualFile));
-               packagePrefix = sourceFolder.getPackagePrefix if packagePrefix.nonEmpty
-               if (packageNameByDir + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
+          for (packagePrefix <- packagePrefix; sourceFolder <- sourceFolder if (packageNameByDir + ".").startsWith(packagePrefix + "." + packagePrefix + ".")) {
             message += "\n\n" + ScalaInspectionBundle.message("package.names.does.not.correspond.to.directory.structure.package.prefix", sourceFolder.getFile.getName, packagePrefix)
           }
 
@@ -100,9 +110,9 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
    * stolen from [[com.intellij.core.CoreJavaFileManager.getPackage]]
    * unfortunately we need our own implementation... otherwise we cannot handle escaped package names at all
    */
-  private def packageNameFromFile(file: PsiDirectory): Option[String] = {
+  private def packageNameFromFile(file: PsiDirectory, packagePrefix: Option[String]): Option[String] = {
     val vFile = file.getVirtualFile
-    JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala.iterator
+    val withoutPrefix = JavaProjectRootsUtil.getSuitableDestinationSourceRoots(file.getProject).asScala.iterator
       .flatMap { root =>
         if (VfsUtilCore.isAncestor(root, vFile, false)) {
           FileUtil.getRelativePath(root.getPath, vFile.getPath, '/')
@@ -114,5 +124,10 @@ class ScalaPackageNameInspection extends LocalInspectionTool {
         } else None
       }
       .headOption
+
+    withoutPrefix.map {
+      case "" => packagePrefix.getOrElse("")
+      case name => packagePrefix.fold("")(_ + ".") + name
+    }
   }
 }
