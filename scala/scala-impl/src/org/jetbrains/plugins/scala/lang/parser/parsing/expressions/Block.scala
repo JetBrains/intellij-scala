@@ -9,6 +9,8 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
+import scala.annotation.tailrec
+
 /*
  * Block ::= {BlockStat semi}[ResultExpr]
  */
@@ -21,36 +23,40 @@ object Block {
         builder.advanceLexer()
       }
 
-      if (parseStmt()) {
-        var hasSemicolon = false
-        var rollbackMarker = builder.mark()
-
-        def updateSemicolon(): Unit = {
+      @tailrec
+      def parseNextStmt(): Unit = {
+        val hasSemicolon =
           builder.getTokenType match {
             case ScalaTokenTypes.tSEMICOLON =>
-              hasSemicolon = true
               while (builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
                 builder.advanceLexer()
               }
-            case _ => if (builder.newlineBeforeCurrentToken) hasSemicolon = true
+              true
+            case _ =>
+              builder.newlineBeforeCurrentToken
           }
-        }
 
-        updateSemicolon()
-
-        while (parseStmt()) {
-          if (!hasSemicolon) {
+        if (hasSemicolon) {
+          if (parseStmt()) {
+            parseNextStmt()
+          }
+        } else {
+          val rollbackMarker = builder.mark()
+          if (parseStmt()) {
+            // we were able to parse another statement, but there should have been an error before that
+            // so we rollback, insert the error, and parse the same statement again
             rollbackMarker.rollbackTo()
             builder error ErrMsg("semi.expected")
-            hasSemicolon = true
-            rollbackMarker = builder.mark()
+            parseStmt()
+            parseNextStmt()
           } else {
-            updateSemicolon()
             rollbackMarker.drop()
-            rollbackMarker = builder.mark()
           }
         }
-        rollbackMarker.drop()
+      }
+
+      if (parseStmt()) {
+        parseNextStmt()
       }
       true
     }

@@ -115,4 +115,84 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |  PsiWhiteSpace('\n')
       |""".stripMargin
   )
+
+  // SCL-16840
+  def test_semicolon_error_after_first_statement(): Unit = checkTree(
+    """
+      |def test(): Unit = {
+      |  //val dummy: String = ??? // line #1: commenting this line ...
+      |
+      |  if (true) {
+      |    ???
+      |  } if (false) { // line #2: ... will show the error here
+      |    ???
+      |  }
+      |}
+      |""".stripMargin.trim,
+    """
+      |ScalaFile
+      |  ScFunctionDefinition: test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(def)('def')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('test')
+      |    Parameters
+      |      ParametersClause
+      |        PsiElement(()('(')
+      |        PsiElement())(')')
+      |    PsiElement(:)(':')
+      |    PsiWhiteSpace(' ')
+      |    SimpleType: Unit
+      |      CodeReferenceElement: Unit
+      |        PsiElement(identifier)('Unit')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(=)('=')
+      |    PsiWhiteSpace(' ')
+      |    BlockExpression
+      |      PsiElement({)('{')
+      |      PsiWhiteSpace('\n  ')
+      |      PsiComment(comment)('//val dummy: String = ??? // line #1: commenting this line ...')
+      |      PsiWhiteSpace('\n\n  ')
+      |      IfStatement
+      |        PsiElement(if)('if')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(()('(')
+      |        BooleanLiteral
+      |          PsiElement(true)('true')
+      |        PsiElement())(')')
+      |        PsiWhiteSpace(' ')
+      |        BlockExpression
+      |          PsiElement({)('{')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: ???
+      |            PsiElement(identifier)('???')
+      |          PsiWhiteSpace('\n  ')
+      |          PsiElement(})('}')
+      |      PsiErrorElement:';' or newline expected
+      |        <empty list>
+      |      PsiWhiteSpace(' ')
+      |      IfStatement
+      |        PsiElement(if)('if')
+      |        PsiWhiteSpace(' ')
+      |        PsiElement(()('(')
+      |        BooleanLiteral
+      |          PsiElement(false)('false')
+      |        PsiElement())(')')
+      |        PsiWhiteSpace(' ')
+      |        BlockExpression
+      |          PsiElement({)('{')
+      |          PsiWhiteSpace(' ')
+      |          PsiComment(comment)('// line #2: ... will show the error here')
+      |          PsiWhiteSpace('\n    ')
+      |          ReferenceExpression: ???
+      |            PsiElement(identifier)('???')
+      |          PsiWhiteSpace('\n  ')
+      |          PsiElement(})('}')
+      |      PsiWhiteSpace('\n')
+      |      PsiElement(})('}')
+      |""".stripMargin
+  )
 }
