@@ -27,7 +27,7 @@ object RefineStatSeq extends ParsingRule {
         case ScalaTokenTypes.tSEMICOLON => builder.advanceLexer() //not interesting case
         //otherwise parse TopStat
         case _ =>
-          if (!RefineStat.parse(builder)) {
+          if (!RefineStat()) {
             builder error ScalaBundle.message("wrong.top.statment.declaration")
             return
           }

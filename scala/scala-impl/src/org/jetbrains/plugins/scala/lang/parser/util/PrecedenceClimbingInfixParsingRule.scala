@@ -22,8 +22,8 @@ abstract class PrecedenceClimbingInfixParsingRule extends ParsingRule {
   final override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     var markerStack = List.empty[PsiBuilder.Marker]
     var opStack = List.empty[String]
-    val infixMarker = builder.mark
-    var backupMarker = builder.mark
+    val infixMarker = builder.mark()
+    var backupMarker = builder.mark()
     var count = 0
     if (!parseFirstOperator()) {
       backupMarker.drop()

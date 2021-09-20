@@ -23,7 +23,7 @@ object CompilationUnit {
   import lexer.ScalaTokenType.ObjectKeyword
   import lexer.ScalaTokenTypes._
 
-  def parse()(implicit builder: ScalaPsiBuilder): ParserState = {
+  def apply()(implicit builder: ScalaPsiBuilder): ParserState = {
     var parseState: ParserState = EMPTY_STATE
 
     def parsePackagingBody(hasPackage: Boolean): Unit = {
@@ -65,12 +65,12 @@ object CompilationUnit {
             builder.getTokenType match {
               case `kPACKAGE` if !builder.lookAhead(kPACKAGE, ObjectKeyword) =>
                 // Parse package statement
-                val newMarker = builder.mark
+                val newMarker = builder.mark()
                 builder.advanceLexer() // Ate package
 
                 builder.getTokenType match {
                   case `tIDENTIFIER` =>
-                    QualId.parse(builder)
+                    QualId()
                     // Detect explicit packaging with curly braces
 
                     builder.getTokenType match {

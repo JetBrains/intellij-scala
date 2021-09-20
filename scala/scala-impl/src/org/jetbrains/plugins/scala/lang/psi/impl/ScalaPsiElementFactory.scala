@@ -256,7 +256,7 @@ object ScalaPsiElementFactory {
 
 
   def createEmptyClassParamClauseWithContext(context: PsiElement): ScParameterClause =
-    createElementWithContext[ScParameterClause]("()", context, contextLastChild(context))(top.params.ClassParamClause.parse)
+    createElementWithContext[ScParameterClause]("()", context, contextLastChild(context))(top.params.ClassParamClause()(_))
 
   def createClassParamClausesWithContext(@NonNls text: String, context: PsiElement): ScParameters =
     createElementWithContext[ScParameters](text, context, contextLastChild(context))(ClassParamClauses()(_))
@@ -274,7 +274,7 @@ object ScalaPsiElementFactory {
     }
 
   def createParamClausesWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScParameters =
-    createElementWithContext[ScParameters](text, context, child)(params.ParamClauses.parse)
+    createElementWithContext[ScParameters](text, context, child)(params.ParamClauses()(_))
 
   private def contextLastChild(element: PsiElement): PsiElement =
     stub(element)
@@ -798,12 +798,12 @@ object ScalaPsiElementFactory {
 
   def createReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScStableCodeReference](text, context, child) {
-      types.StableId.parse(_, parser.ScalaElementType.REFERENCE)
+      types.StableId(parser.ScalaElementType.REFERENCE)(_)
     }
 
   def createDocReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScDocResolvableCodeReference](text, context, child) {
-      types.StableId.parse(_, parser.ScalaElementType.DOC_REFERENCE)
+      types.StableId(parser.ScalaElementType.DOC_REFERENCE)(_)
     }
 
   // TODO method should be eliminated eventually
@@ -942,11 +942,11 @@ object ScalaPsiElementFactory {
     createExpressionFromText(s"1$whitespace+ 1").findElementAt(1)
 
   def createTypeElementFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeElement =
-    createElementWithContext[ScTypeElement](text, context, child)(types.ParamType.parseInner)
+    createElementWithContext[ScTypeElement](text, context, child)(types.ParamType.parseInner()(_))
 
   def createTypeParameterClauseFromTextWithContext(@NonNls text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause =
-    createElementWithContext[ScTypeParamClause](text, context, child)(params.TypeParamClause.parse(_))
+    createElementWithContext[ScTypeParamClause](text, context, child)(params.TypeParamClause()(_))
 
   def createWildcardPattern(implicit ctx: ProjectContext): ScWildcardPattern = {
     val element = createElementFromText("val _ = x")

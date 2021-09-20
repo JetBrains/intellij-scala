@@ -15,10 +15,10 @@ final class ScalaParser(isScala3: Boolean) extends PsiParser {
 
     rootElementType match {
       case ScCodeBlockElementType.BlockExpression =>
-        expressions.BlockExpr.parse(builder)
+        expressions.BlockExpr()
       case _ =>
         val rootMarker = delegate.mark()
-        CompilationUnit.parse()
+        CompilationUnit()
         rootMarker.done(rootElementType)
     }
 

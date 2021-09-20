@@ -20,7 +20,7 @@ object TypedFunParam extends ParsingRule {
           false
         } else {
           builder.advanceLexer()
-          if (!Type.parse(builder)) builder.error(ScalaBundle.message("wrong.type"))
+          if (!Type()) builder.error(ScalaBundle.message("wrong.type"))
           marker.done(ScalaElementType.PARAM)
           true
         }

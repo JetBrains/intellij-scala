@@ -23,21 +23,21 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 object Dcl {
 
   def apply(isMod: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val dclMarker = builder.mark
+    val dclMarker = builder.mark()
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     if (isMod) {
       Annotations.parseAndBindToLeft()(builder)
 
       //parse modifiers
-      val modifierMarker = builder.mark
-      while (Modifier.parse(builder)) {}
+      val modifierMarker = builder.mark()
+      while (Modifier()) {}
       modifierMarker.done(ScalaElementType.MODIFIERS)
     } else {
       //empty annotations
-      val annotationsMarker = builder.mark
+      val annotationsMarker = builder.mark()
       annotationsMarker.done(ScalaElementType.ANNOTATIONS)
       //empty modifiers
-      val modifierMarker = builder.mark
+      val modifierMarker = builder.mark()
       modifierMarker.done(ScalaElementType.MODIFIERS)
     }
     //Look for val,var,def or type

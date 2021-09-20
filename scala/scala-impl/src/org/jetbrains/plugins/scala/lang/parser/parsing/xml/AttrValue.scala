@@ -19,10 +19,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *             | ScalaExpr
  */
 
-object AttrValue {
+object AttrValue extends ParsingRule {
   private val VALID_ATTRIBUTE_TOKENS = TokenSet.create(ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN, ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF)
-  
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val attrValueMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER =>
@@ -36,7 +36,7 @@ object AttrValue {
           case _ => builder error ErrMsg("xml.attribute.end.expected")
         }
       case _ =>
-        if (ScalaExpr.parse(builder) || builder.skipExternalToken()) {
+        if (ScalaExpr() || builder.skipExternalToken()) {
         } else {
           attrValueMarker.drop()
           return false

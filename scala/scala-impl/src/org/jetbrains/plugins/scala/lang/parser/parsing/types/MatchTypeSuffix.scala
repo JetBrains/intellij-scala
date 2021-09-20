@@ -16,7 +16,7 @@ object MatchTypeSuffix extends ParsingRule {
         builder.advanceLexer()
         builder.enableNewlines()
         ParserUtils.parseLoopUntilRBrace() {
-          if (!TypeCaseClauses.parse(builder))
+          if (!TypeCaseClauses())
             builder.error(ScalaBundle.message("match.type.cases.expected"))
         }
         builder.restoreNewlinesState()

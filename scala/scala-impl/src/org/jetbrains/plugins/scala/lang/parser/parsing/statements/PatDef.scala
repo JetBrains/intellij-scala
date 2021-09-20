@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2InForDef
 object PatDef extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val patDefMarker = builder.mark
+    val patDefMarker = builder.mark()
 
     def parsePatterns(): Boolean = {
       if (!Pattern2InForDef()) {
@@ -67,7 +67,7 @@ object PatDef extends ParsingRule {
     }
 
 
-    val patternsMarker = builder.mark
+    val patternsMarker = builder.mark()
     if (!parsePatterns()) {
       patternsMarker.rollbackTo()
       patDefMarker.drop()

@@ -24,17 +24,14 @@ trait InfixType {
   @Nls
   protected def errorMessage: String
 
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, star = false)
-  def parse(builder: ScalaPsiBuilder, star: Boolean): Boolean = parse(builder,star,isPattern = false)
-  def parse(builder: ScalaPsiBuilder, star: Boolean, isPattern: Boolean): Boolean = {
+  final def apply(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.isScala3) {
       return parseInScala3(star, isPattern)(builder)
     }
-    implicit val b: ScalaPsiBuilder = builder
 
     var markerList = List.empty[PsiBuilder.Marker] //This list consist of markers for right-associated op
 
-    var infixTypeMarker = builder.mark
+    var infixTypeMarker = builder.mark()
     markerList ::= infixTypeMarker
 
     if (parseInfixWildcardType()) {
@@ -44,7 +41,7 @@ trait InfixType {
           return false
         case _ =>
       }
-    } else if (!componentType.parse(builder, star, isPattern)) {
+    } else if (!componentType(star, isPattern)) {
       infixTypeMarker.rollbackTo()
       return false
     }
@@ -74,9 +71,9 @@ trait InfixType {
             case Associativity.Right => builder error ScalaBundle.message("wrong.type.associativity")
           }
       }
-      parseId(builder)
+      parseId()
       if (assoc == Associativity.Right) {
-        val newMarker = builder.mark
+        val newMarker = builder.mark()
         markerList ::= newMarker
       }
       if (builder.twoNewlinesBeforeCurrentToken) {
@@ -84,7 +81,7 @@ trait InfixType {
       }
       if (parseInfixWildcardType()) {
         // ok continue
-      } else if (componentType.parse(builder, star, isPattern)) {
+      } else if (componentType(star, isPattern)) {
         couldBeVarArg = false
       } else {
         builder.error(errorMessage)
@@ -101,7 +98,7 @@ trait InfixType {
       if (assoc == Associativity.Left) {
         if (couldBeVarArg && builder.lookBack(ScalaTokenTypes.tIDENTIFIER) && count == 1) {
           infixTypeMarker.rollbackTo()
-          parseId(builder)
+          parseId()
           return false
         } else infixTypeMarker.drop()
       }
@@ -121,8 +118,8 @@ trait InfixType {
     true
   }
 
-  protected def parseId(builder: ScalaPsiBuilder, elementType: IElementType = ScalaElementType.REFERENCE): Unit = {
-    val idMarker = builder.mark
+  protected def parseId(elementType: IElementType = ScalaElementType.REFERENCE)(implicit builder: ScalaPsiBuilder): Unit = {
+    val idMarker = builder.mark()
     builder.advanceLexer() //Ate id
     idMarker.done(elementType)
   }
@@ -151,11 +148,11 @@ trait InfixType {
             case _ => true
           }
         } else {
-          componentType.parse(builder, star, isPattern)
+          componentType(star, isPattern)
         }
 
       override protected def parseOperator()(implicit builder: ScalaPsiBuilder): Boolean =
-        parseInfixWildcardType() || componentType.parse(builder, star, isPattern)
+        parseInfixWildcardType() || componentType(star, isPattern)
 
       override protected def shouldContinue(implicit builder: ScalaPsiBuilder): Boolean =
         (!isPattern || builder.getTokenText != "|") && super.shouldContinue

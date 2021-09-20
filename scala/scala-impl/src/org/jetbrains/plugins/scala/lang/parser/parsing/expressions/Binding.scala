@@ -19,10 +19,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
  */
 object Binding extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val paramMarker = builder.mark
+    val paramMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER | ScalaTokenTypes.tUNDER =>
-        builder.mark.done(ScalaElementType.ANNOTATIONS)
+        builder.mark().done(ScalaElementType.ANNOTATIONS)
         builder.advanceLexer()
       case _ =>
         paramMarker.drop()
@@ -32,7 +32,7 @@ object Binding extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :
-        if (!ParamType.parse(builder)) builder error ErrMsg("wrong.type")
+        if (!ParamType()) builder error ErrMsg("wrong.type")
       case _ =>
     }
 

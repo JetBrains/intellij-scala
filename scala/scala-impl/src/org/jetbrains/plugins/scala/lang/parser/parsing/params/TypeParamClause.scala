@@ -17,14 +17,13 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object TypeParamClause {
 
-  def parse(
-    builder:              ScalaPsiBuilder,
+  def apply(
     mayHaveVariance:      Boolean = true,
     mayHaveViewBounds:    Boolean = true,
     mayHaveContextBounds: Boolean = true
-  ): Boolean = {
-    val typeMarker = builder.mark
-    val parseTypeParam = () => TypeParam.parse(builder, mayHaveVariance, mayHaveViewBounds, mayHaveContextBounds)
+  )(implicit builder: ScalaPsiBuilder): Boolean = {
+    val typeMarker = builder.mark()
+    val parseTypeParam = () => TypeParam(mayHaveVariance, mayHaveViewBounds, mayHaveContextBounds)
 
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>

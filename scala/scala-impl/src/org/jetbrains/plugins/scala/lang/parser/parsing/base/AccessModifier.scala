@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object AccessModifier extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val marker = builder.mark
+    val marker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kPRIVATE | ScalaTokenTypes.kPROTECTED =>
         builder.advanceLexer() // Ate modifier

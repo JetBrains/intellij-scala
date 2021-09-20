@@ -13,14 +13,14 @@ object MatchType extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
-    if (!InfixType.parse(builder)) {
+    if (!InfixType()) {
       marker.rollbackTo()
       false
     } else // todo: handle indention
       builder.getTokenType match {
         case ScalaTokenTypes.kMATCH =>
           builder.advanceLexer()
-          MatchTypeSuffix.parse(builder)
+          MatchTypeSuffix()
           marker.done(ScalaElementType.MATCH_TYPE)
           true
         case _ =>

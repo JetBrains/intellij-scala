@@ -11,9 +11,9 @@ package object parser {
   implicit class PsiBuilderExt[B <: PsiBuilder](private val repr: B) extends AnyVal {
 
     def build(elementType: IElementType)
-             (parse: B => Boolean): Boolean = {
+             (parse: => Boolean): Boolean = {
       val marker = repr.mark()
-      val result = parse(repr)
+      val result = parse
 
       if (result) marker.done(elementType)
       else marker.rollbackTo()

@@ -22,7 +22,7 @@ import scala.annotation.tailrec
 
 object ImportSelectors extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val importSelectorMarkers = builder.mark
+    val importSelectorMarkers = builder.mark()
     //Look for {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>

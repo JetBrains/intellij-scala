@@ -96,7 +96,7 @@ object ParserUtils {
     }
   }
 
-  def parseBalancedParenthesis(builder: ScalaPsiBuilder, accepted: TokenSet, count: Int = 1): Boolean = {
+  def parseBalancedParenthesis(accepted: TokenSet, count: Int = 1)(implicit builder: ScalaPsiBuilder): Boolean = {
     var seen = 0
 
     builder.getTokenType match {
@@ -128,24 +128,24 @@ object ParserUtils {
   }
 
   // [,] id@_*
-  def parseVarIdWithWildcardBinding(builder: PsiBuilder, withComma: Boolean): Boolean =
-    builder.build(ScalaElementType.NAMING_PATTERN) { repr =>
+  def parseVarIdWithWildcardBinding(withComma: Boolean)(implicit builder: PsiBuilder): Boolean =
+    builder.build(ScalaElementType.NAMING_PATTERN) {
       if (withComma) {
-        repr.advanceLexer() // ,
+        builder.advanceLexer() // ,
       }
 
-      if (repr.invalidVarId) {
-        repr.advanceLexer() // id or _
-        repr.advanceLexer() // @ or :
-        eatShortSeqWildcardNext(repr)
+      if (builder.invalidVarId) {
+        builder.advanceLexer() // id or _
+        builder.advanceLexer() // @ or :
+        eatShortSeqWildcardNext()
       } else {
         false
       }
     }
 
   // _* (Scala 2 version of wildcard)
-  def eatShortSeqWildcardNext(builder: PsiBuilder): Boolean = {
-    val marker = builder.mark
+  def eatShortSeqWildcardNext()(implicit builder: PsiBuilder): Boolean = {
+    val marker = builder.mark()
     if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()
       if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && builder.getTokenText == "*") {

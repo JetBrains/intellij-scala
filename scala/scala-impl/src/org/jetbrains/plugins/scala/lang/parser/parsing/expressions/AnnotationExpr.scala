@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 object AnnotationExpr extends ParsingRule {
 
   def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val annotExprMarker = builder.mark
-    if (!Constructor.parse(builder, isAnnotation = true)) {
+    val annotExprMarker = builder.mark()
+    if (!Constructor.parse(isAnnotation = true)) {
       annotExprMarker.drop()
       return false
     }

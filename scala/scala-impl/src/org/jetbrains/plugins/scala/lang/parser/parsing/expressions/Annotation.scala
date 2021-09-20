@@ -17,18 +17,16 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object Annotation {
 
-  def parse(builder: ScalaPsiBuilder, countLinesAfterAnnotation: Boolean = true): Boolean = {
+  def apply(countLinesAfterAnnotation: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (builder.getTokenType != ScalaTokenTypes.tAT)
+      return false
+
     val rollbackMarker = builder.mark()
-    val annotMarker = builder.mark
-    builder.getTokenType match {
-      case ScalaTokenTypes.tAT => 
-        builder.advanceLexer() //Ate @
-      case _ =>
-        annotMarker.drop()
-        rollbackMarker.drop()
-        return false
-    }
-    if (!AnnotationExpr.parse(builder)) {
+    val annotMarker = builder.mark()
+
+    builder.advanceLexer() //Ate @
+
+    if (!AnnotationExpr()) {
       builder error ScalaBundle.message("wrong.annotation.expression")
       annotMarker.drop()
     } else {

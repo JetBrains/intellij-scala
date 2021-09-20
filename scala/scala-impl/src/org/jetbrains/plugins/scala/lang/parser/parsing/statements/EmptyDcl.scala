@@ -14,7 +14,7 @@ object EmptyDcl {
   def apply(isMod: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
     val dclMarker = builder.mark()
     if (isMod) {
-      while (Annotation.parse(builder)) {}
+      while (Annotation()) {}
       while (Modifier()) {}
     }
     builder.getTokenType match {

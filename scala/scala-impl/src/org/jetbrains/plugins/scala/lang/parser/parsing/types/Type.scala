@@ -46,18 +46,13 @@ object Type extends Type {
 trait Type {
   protected def infixType: InfixType
 
-  def parse(
-    builder:   ScalaPsiBuilder,
-    star:      Boolean = false,
-    isPattern: Boolean = false
-  ): Boolean = {
-    implicit val b: ScalaPsiBuilder = builder
-    val typeMarker = builder.mark
+  def apply(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val typeMarker = builder.mark()
 
-    if (InfixTypePrefix.parse(star, isPattern)) {
+    if (InfixTypePrefix(star, isPattern)) {
       typeMarker.drop()
       true
-    } else if (PolyFunOrTypeLambda.parse(star, isPattern)) {
+    } else if (PolyFunOrTypeLambda(star, isPattern)) {
       typeMarker.drop()
       true
     } else if (parseWildcardType(typeMarker, isPattern)) {
@@ -93,7 +88,7 @@ trait Type {
       case ScalaTokenTypes.tFUNTYPE =>
         val funMarker = typeMarker.precede()
         builder.advanceLexer() //Ate =>
-        if (!parse(builder, isPattern = isPattern)) {
+        if (!Type(isPattern = isPattern)) {
           builder error ScalaBundle.message("wrong.type")
         }
         funMarker.done(ScalaElementType.TYPE)

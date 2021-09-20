@@ -53,7 +53,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
     flags &= ~flag
 
   def parse(root: IElementType): Unit = {
-    val rootMarker = builder.mark
+    val rootMarker = builder.mark()
 
     /**
      * TODO: This is a very dirty hack.
@@ -323,7 +323,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
           builder.advanceLexer()
         if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && !isEndOfComment) {
           val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
-          StableId.parse(psiBuilder, forImport = true, DOC_CODE_LINK_VALUE)
+          StableId(DOC_CODE_LINK_VALUE, forImport = true)(psiBuilder)
         }
       case DOC_MONOSPACE_TAG =>
         parseUntilAndConvertToData(monospaceEndTokenSet)
@@ -482,7 +482,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
           builder.advanceLexer()
 
         val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
-        StableId.parse(psiBuilder, forImport = true, DOC_TAG_VALUE_TOKEN)
+        StableId(DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
       case _ => // do nothing
     }
 
@@ -526,7 +526,7 @@ final class MyScaladocParsing(private val builder: PsiBuilder) extends ScalaDocE
       case THROWS_TAG =>
         consumeWhiteSpaces()
         val psiBuilder = new ScalaPsiBuilderImpl(builder, isScala3 = false)
-        StableId.parse(psiBuilder, forImport = true, DOC_TAG_VALUE_TOKEN)
+        StableId(DOC_TAG_VALUE_TOKEN, forImport = true)(psiBuilder)
       case PARAM_TAG | TYPE_PARAM_TAG | DEFINE_TAG =>
         if (builder.lookAhead(DOC_WHITESPACE, DOC_TAG_VALUE_TOKEN)) {
           builder.advanceLexer() // ate space

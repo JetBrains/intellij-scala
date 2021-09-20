@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * STagP ::= < Name [S] >
  */
 
-object STagP {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object STagP extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val tagMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_START_TAG_START =>

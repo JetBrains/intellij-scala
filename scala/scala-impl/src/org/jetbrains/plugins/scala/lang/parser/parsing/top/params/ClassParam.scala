@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.ParamType
 object ClassParam extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val classParamMarker = builder.mark
+    val classParamMarker = builder.mark()
 
     Annotations()
 

@@ -21,7 +21,7 @@ object ParamClause extends ParsingRule {
     apply(mustBeUsing = false)
 
   def apply(mustBeUsing: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
-    val paramMarker = builder.mark
+    val paramMarker = builder.mark()
     if (builder.twoNewlinesBeforeCurrentToken) {
       paramMarker.drop()
       return false

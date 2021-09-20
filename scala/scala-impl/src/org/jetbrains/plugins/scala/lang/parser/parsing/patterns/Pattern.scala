@@ -14,11 +14,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * Patern ::= Pattern1 {'|' Pattern1}
  */
-object Pattern {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val patternMarker = builder.mark
-    if (!Pattern1.parse(builder)) {
+object Pattern extends ParsingRule {
+  def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val patternMarker = builder.mark()
+    if (!Pattern1()) {
       patternMarker.drop()
       return false
     }
@@ -26,7 +25,7 @@ object Pattern {
     while (builder.getTokenText == "|") {
       isComposite = true
       builder.advanceLexer() //Ate |
-      if (!Pattern1.parse(builder)) {
+      if (!Pattern1()) {
         builder error ScalaBundle.message("wrong.pattern")
       }
     }

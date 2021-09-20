@@ -29,7 +29,7 @@ object Pattern1 extends ParsingRule {
     val pattern2Parsed = Pattern2()
     if (pattern2Parsed && builder.getTokenType == tCOLON) {
       builder.advanceLexer() //Ate :
-      if (!TypePattern.parse(builder)) {
+      if (!TypePattern()) {
         builder.error(ScalaBundle.message("wrong.type"))
       }
       pattern1Marker.done(ScalaElementType.SCALA3_TYPED_PATTERN)
@@ -46,7 +46,7 @@ object Pattern1 extends ParsingRule {
       builder.getTokenType match {
         case `tCOLON` =>
           builder.advanceLexer() //Ate :
-          if (!TypePattern.parse(builder)) {
+          if (!TypePattern()) {
             builder.error(ScalaBundle.message("wrong.type"))
           }
           pattern1Marker.done(ScalaElementType.TYPED_PATTERN)

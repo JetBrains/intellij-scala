@@ -13,23 +13,23 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
  *              | Guard
  *              | 'val' Pattern1 '=' Expr
  */
-object Enumerator {
+object Enumerator extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val enumeratorMarker = builder.mark
+  def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val enumeratorMarker = builder.mark()
 
     def parseAfterPattern(hasPrefix: Boolean): Boolean = {
       builder.getTokenType match {
         case ScalaTokenTypes.tASSIGN =>
           builder.advanceLexer() //Ate =
-          if (!ExprInIndentationRegion.parse(builder)) {
+          if (!ExprInIndentationRegion()) {
             builder.error(ErrMsg("wrong.expression"))
           }
           enumeratorMarker.done(ScalaElementType.FOR_BINDING)
           true
         case ScalaTokenTypes.tCHOOSE =>
           enumeratorMarker.rollbackTo()
-          Generator.parse(builder)
+          Generator()
         case _                       =>
           if (hasPrefix) {
             builder.error(ErrMsg("choose.expected"))
@@ -43,13 +43,13 @@ object Enumerator {
     }
 
     def parseGeneratorOrBinding(hasPrefix: Boolean): Boolean =
-      if (Pattern1.parse(builder)) {
+      if (Pattern1()) {
         parseAfterPattern(hasPrefix)
       } else if (hasPrefix) {
         builder.error(ErrMsg("wrong.pattern"))
         enumeratorMarker.done(ScalaElementType.FOR_BINDING)
         true
-      } else if (!Guard.parse(builder, noIf = true)) {
+      } else if (!Guard(noIf = true)) {
         enumeratorMarker.rollbackTo()
         false
       } else {
@@ -59,7 +59,7 @@ object Enumerator {
 
     builder.getTokenType match {
       case ScalaTokenTypes.kIF =>
-        Guard.parse(builder)
+        Guard()
         enumeratorMarker.drop()
         true
       case ScalaTokenTypes.kVAL | ScalaTokenTypes.kCASE=>

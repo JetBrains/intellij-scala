@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 object FunTypeParamClause extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val funMarker = builder.mark
+    val funMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer() //Ate [
@@ -27,12 +27,12 @@ object FunTypeParamClause extends ParsingRule {
         funMarker.drop()
         return false
     }
-    if (!TypeParam.parse(builder, mayHaveVariance = false)) {
+    if (!TypeParam(mayHaveVariance = false)) {
       builder error ErrMsg("wrong.parameter")
     }
     while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRSQBRACKET)) {
       builder.advanceLexer() //Ate
-      if (!TypeParam.parse(builder, mayHaveVariance = false)) {
+      if (!TypeParam(mayHaveVariance = false)) {
         builder error ErrMsg("wrong.parameter")
       }
     }

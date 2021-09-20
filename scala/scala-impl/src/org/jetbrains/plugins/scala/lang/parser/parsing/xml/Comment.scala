@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Comment ::= <!-- comment -->
  */
 
-object Comment {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val commentMarker = builder.mark
+object Comment extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val commentMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_COMMENT_START => builder.advanceLexer()
       case _ =>

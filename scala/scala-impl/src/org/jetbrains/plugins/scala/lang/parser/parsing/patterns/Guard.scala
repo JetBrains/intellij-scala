@@ -13,10 +13,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{PostfixExpr,
   *         Date: 28.02.2008
   */
 object Guard {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = parse(builder, noIf = false) //deprecated if true
-  def parse(builder: ScalaPsiBuilder, noIf: Boolean): Boolean = {
-    val guardMarker = builder.mark
+  def apply(noIf: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
+    val guardMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kIF =>
         builder.advanceLexer() //Ate if
@@ -27,7 +25,7 @@ object Guard {
         }
     }
     // todo: handle indention
-    if (!PostfixExprInIndentationRegion.parse(builder)) {
+    if (!PostfixExprInIndentationRegion()) {
       if (noIf) {
         guardMarker.drop()
         return false

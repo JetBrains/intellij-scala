@@ -33,13 +33,13 @@ trait SimpleType {
   protected def typeArgs: TypeArgs
   protected def types: Types
 
-  def parse(builder: ScalaPsiBuilder, isPattern: Boolean, multipleSQBrackets: Boolean = true): Boolean = {
+  final def apply(isPattern: Boolean, multipleSQBrackets: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
     @tailrec
     def parseTail(curMarker: PsiBuilder.Marker, checkSQBracket: Boolean = true): Unit = {
       builder.getTokenType match {
         case ScalaTokenTypes.tLSQBRACKET if checkSQBracket =>
           val newMarker = curMarker.precede
-          typeArgs.parse(builder, isPattern)
+          typeArgs(isPattern)
           curMarker.done(ScalaElementType.TYPE_GENERIC_CALL)
           parseTail(newMarker, checkSQBracket = multipleSQBrackets)
         case ScalaTokenTypes.tINNER_CLASS =>
@@ -59,7 +59,7 @@ trait SimpleType {
       }
     }
     def parseLiteral(curMarker: PsiBuilder.Marker): Boolean = {
-      if (!Literal.parse(builder)) {
+      if (!Literal()) {
         curMarker.rollbackTo()
         return false
       }
@@ -67,16 +67,16 @@ trait SimpleType {
       true
     }
 
-    if (parseLiteral(builder.mark)) { //this is literal type
+    if (parseLiteral(builder.mark())) { //this is literal type
       return true
     }
-    val simpleMarker = builder.mark
+    val simpleMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
-        val tupleMarker = builder.mark
+        val tupleMarker = builder.mark()
         builder.advanceLexer()
         builder.disableNewlines()
-        val (_, isTuple) = types parse builder
+        val (_, isTuple) = types()
         builder.getTokenType match {
           case ScalaTokenTypes.tCOMMA =>
             builder.advanceLexer() //Ate ,
@@ -120,7 +120,7 @@ trait SimpleType {
           } else newMarker.rollbackTo()
         } else refMarker.drop()
 
-        Path parse(builder, ScalaElementType.REFERENCE)
+        Path(ScalaElementType.REFERENCE)
         builder.getTokenType match {
           case ScalaTokenTypes.tDOT =>
             builder.advanceLexer() //Ate .
@@ -130,18 +130,18 @@ trait SimpleType {
                 newMarker.done(ScalaElementType.SIMPLE_TYPE)
               case _ =>
                 newMarker.rollbackTo()
-                val fMarker = builder.mark
-                StableId parse(builder, ScalaElementType.REFERENCE)
+                val fMarker = builder.mark()
+                StableId(ScalaElementType.REFERENCE)
                 fMarker.done(ScalaElementType.SIMPLE_TYPE)
             }
           case _ =>
             newMarker.rollbackTo()
-            val fMarker = builder.mark
-            StableId parse(builder, ScalaElementType.REFERENCE)
+            val fMarker = builder.mark()
+            StableId(ScalaElementType.REFERENCE)
             fMarker.done(ScalaElementType.SIMPLE_TYPE)
         }
       case ScalaTokenType.SpliceStart =>
-        SplicedType.parse(builder)
+        SplicedType()
       case _ =>
         return rollbackCase(simpleMarker)
     }

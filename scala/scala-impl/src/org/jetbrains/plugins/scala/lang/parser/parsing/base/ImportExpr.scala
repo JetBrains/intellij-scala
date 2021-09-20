@@ -18,8 +18,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableI
 
 object ImportExpr extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val importExprMarker = builder.mark
-    if (!StableId.parse(builder, forImport = true, ScalaElementType.REFERENCE)) {
+    val importExprMarker = builder.mark()
+    if (!StableId(ScalaElementType.REFERENCE, forImport = true)) {
       builder error ErrMsg("identifier.expected")
       importExprMarker.drop()
       return true
@@ -52,7 +52,7 @@ object ImportExpr extends ParsingRule {
       case ScalaTokenType.GivenKeyword =>
         builder.advanceLexer() // Ate given
         if (!builder.newlineBeforeCurrentToken) {
-          InfixType.parse(builder)
+          InfixType()
         }
       case ScalaTokenTypes.tIDENTIFIER if builder.features.`Scala 3 renaming imports` =>
         if (!builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar)) {

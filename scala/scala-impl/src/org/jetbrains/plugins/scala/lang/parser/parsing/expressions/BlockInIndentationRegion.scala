@@ -36,7 +36,7 @@ object BlockInIndentationRegion extends ParsingRule {
           builder.advanceLexer()
 
         case _ =>
-          if (!BlockStat.parse(builder)) {
+          if (!BlockStat()) {
             builder.advanceLexer() // ate something
           }
       }

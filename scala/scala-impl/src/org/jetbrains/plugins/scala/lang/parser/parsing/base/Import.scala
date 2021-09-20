@@ -41,7 +41,7 @@ trait Import extends ParsingRule {
 
   @annotation.tailrec
   private def parseImportExpressions()(implicit builder: ScalaPsiBuilder): Unit = {
-    ImportExpr.parse(builder)
+    ImportExpr()
     builder.getTokenType match {
       case `tCOMMA` =>
         builder.advanceLexer() // Ate ,

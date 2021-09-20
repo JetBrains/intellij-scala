@@ -16,9 +16,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Attribute ::= S Name Eq AttValue
  */
 
-object Attribute {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val attributeMarker = builder.mark
+object Attribute extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val attributeMarker = builder.mark()
     /*builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_WHITE_SPACE => builder.advanceLexer()
       case _ => {
@@ -39,7 +39,7 @@ object Attribute {
         attributeMarker.done(ScalaElementType.XML_ATTRIBUTE)
         return true
     }
-    if (!AttrValue.parse(builder)) builder error ErrMsg("xml.attribute.value.expected")
+    if (!AttrValue()) builder error ErrMsg("xml.attribute.value.expected")
     attributeMarker.done(ScalaElementType.XML_ATTRIBUTE)
     true
   }

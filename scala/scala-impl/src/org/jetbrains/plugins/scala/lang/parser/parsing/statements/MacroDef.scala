@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Type, TypeArgs}
 object MacroDef extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val marker = builder.mark
+    val marker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer()
       case _ =>
@@ -31,7 +31,7 @@ object MacroDef extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
-            if (Type.parse(builder)) {
+            if (Type()) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
@@ -49,7 +49,7 @@ object MacroDef extends ParsingRule {
                         case _ =>
                           if (QualId()) {
                             if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                              TypeArgs.parse(builder, isPattern = false)
+                              TypeArgs(isPattern = false)
                             }
                             marker.drop()
                             true
@@ -87,7 +87,7 @@ object MacroDef extends ParsingRule {
                   case _ =>
                     if (QualId()) {
                       if (builder.getTokenType == ScalaTokenTypes.tLSQBRACKET) {
-                        TypeArgs.parse(builder, isPattern = false)
+                        TypeArgs(isPattern = false)
                       }
                       marker.drop()
                       true

@@ -18,8 +18,8 @@ object ClassParamClauses extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val classParamClausesMarker = builder.mark()
-    while (ClassParamClause.parse(builder)) {}
-    ImplicitClassParamClause.parse(builder)
+    while (ClassParamClause()) {}
+    ImplicitClassParamClause()
     classParamClausesMarker.done(ScalaElementType.PARAM_CLAUSES)
     true
   }

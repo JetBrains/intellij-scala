@@ -35,7 +35,7 @@ object TmplDef extends ParsingRule {
     Annotations.parseAndBindToLeft()
 
     val modifierMarker = builder.mark()
-    while (Modifier.parse(builder)) {
+    while (Modifier()) {
     }
     val caseState = isCaseState
     modifierMarker.done(MODIFIERS)

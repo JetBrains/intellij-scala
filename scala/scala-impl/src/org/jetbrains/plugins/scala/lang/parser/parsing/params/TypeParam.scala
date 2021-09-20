@@ -14,20 +14,17 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Bounds
  */
 object TypeParam {
 
-  def parse(
-    builder:              ScalaPsiBuilder,
+  def apply(
     mayHaveVariance:      Boolean = true,
     mayHaveViewBounds:    Boolean = true,
     mayHaveContextBounds: Boolean = true
-  ): Boolean = {
-    implicit val b: ScalaPsiBuilder = builder
-
+  )(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker         = builder.mark()
     val annotationMarker    = builder.mark()
     val errorMessageBuilder = List.newBuilder[String]
     var exist               = false
 
-    while (Annotation.parse(builder)) {
+    while (Annotation()(builder)) {
       exist = true
     }
 
@@ -53,23 +50,23 @@ object TypeParam {
     }
     builder.getTokenType match {
       case ScalaTokenTypes.tLSQBRACKET =>
-        TypeParamClause parse builder
+        TypeParamClause()
       case _ =>
     }
 
-    Bounds.parse(Bounds.LOWER)
-    Bounds.parse(Bounds.UPPER)
+    Bounds(Bounds.LOWER)
+    Bounds(Bounds.UPPER)
 
     var parsedViewBounds    = false
     var parsedContextBounds = false
 
-    while (Bounds.parse(Bounds.VIEW)) {
+    while (Bounds(Bounds.VIEW)) {
       if (!parsedViewBounds && !mayHaveViewBounds)
         errorMessageBuilder += ScalaBundle.message("view.bounds.not.allowed")
       parsedViewBounds = true
     }
 
-    while (Bounds.parse(Bounds.CONTEXT)) {
+    while (Bounds(Bounds.CONTEXT)) {
       if (!parsedContextBounds && !mayHaveContextBounds)
         errorMessageBuilder += ScalaBundle.message("context.bounds.not.allowed")
       parsedContextBounds = true

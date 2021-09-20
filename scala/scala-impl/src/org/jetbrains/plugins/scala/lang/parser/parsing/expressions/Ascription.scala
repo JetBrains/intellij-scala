@@ -29,7 +29,7 @@ object Ascription extends ParsingRule {
 
     builder.getTokenType match {
       case ScalaTokenTypes.tUNDER =>
-        val seqArgMarker = builder.mark
+        val seqArgMarker = builder.mark()
         builder.advanceLexer() //Ate _
         builder.getTokenText match {
           case "*" =>
@@ -42,10 +42,10 @@ object Ascription extends ParsingRule {
       case _ =>
     }
 
-    if (!Type.parse(builder)) {
-      val annotationsMarker = builder.mark
+    if (!Type()) {
+      val annotationsMarker = builder.mark()
       var x = 0
-      while (Annotation.parse(builder, countLinesAfterAnnotation = x > 0)) {
+      while (Annotation(countLinesAfterAnnotation = x > 0)) {
         x = x + 1
       }
       annotationsMarker.done(ScalaElementType.ANNOTATIONS)

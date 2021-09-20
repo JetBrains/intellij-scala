@@ -25,7 +25,7 @@ object BlockExpr extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.skipExternalToken()) return true
 
-    val blockExprMarker = builder.mark
+    val blockExprMarker = builder.mark()
     builder.getTokenType match {
       case `tLBRACE` =>
         builder.advanceLexer()
@@ -38,7 +38,7 @@ object BlockExpr extends ParsingRule {
     ParserUtils.parseLoopUntilRBrace() {
       builder.getTokenType match {
         case `kCASE` =>
-          val backMarker = builder.mark
+          val backMarker = builder.mark()
           builder.advanceLexer()
           builder.getTokenType match {
             case ClassKeyword | ObjectKeyword =>

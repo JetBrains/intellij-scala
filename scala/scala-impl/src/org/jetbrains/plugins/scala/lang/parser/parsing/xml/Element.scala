@@ -16,18 +16,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  *            | STag Content ETag
  */
 
-object Element {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    if (EmptyElemTag.parse(builder) || builder.skipExternalToken()) return true
+object Element extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    if (EmptyElemTag() || builder.skipExternalToken()) return true
 
     val elemMarker = builder.mark()
-    if (!STag.parse(builder)) {
+    if (!STag()) {
       elemMarker.drop()
       return false
     }
-    Content parse builder
-    if (!ETag.parse(builder)) builder error ErrMsg("xml.end.tag.expected")
+    Content()
+    if (!ETag()) {
+      builder error ErrMsg("xml.end.tag.expected")
+    }
     elemMarker.done(ScalaElementType.XML_ELEMENT)
-    return true
+    true
   }
 }

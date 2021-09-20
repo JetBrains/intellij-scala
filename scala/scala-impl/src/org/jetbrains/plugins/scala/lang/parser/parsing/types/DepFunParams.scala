@@ -17,7 +17,7 @@ object DepFunParams {
       case _                             => marker.drop(); return false
     }
 
-    if (!TypedFunParam.parse) {
+    if (!TypedFunParam()) {
       marker.rollbackTo()
       false
     } else {
@@ -26,7 +26,7 @@ object DepFunParams {
         builder.getTokenType == ScalaTokenTypes.tCOMMA &&
         !builder.consumeTrailingComma(ScalaTokenTypes.tLPARENTHESIS)) {
         builder.advanceLexer()
-        if (!TypedFunParam.parse) exit = true
+        if (!TypedFunParam()) exit = true
       }
 
       builder.getTokenType match {

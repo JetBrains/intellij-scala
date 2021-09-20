@@ -15,10 +15,9 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * ClassParamClause ::= [nl] '(' 'implicit' ClassParam {',' ClassParam} ')'
  */
-object ImplicitClassParamClause {
-
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val classParamMarker = builder.mark
+object ImplicitClassParamClause extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val classParamMarker = builder.mark()
     if (builder.twoNewlinesBeforeCurrentToken) {
       classParamMarker.rollbackTo()
       return false
@@ -37,14 +36,14 @@ object ImplicitClassParamClause {
             builder.error(ErrMsg("wrong.parameter"))
         }
         //ok, let's parse parameters
-        if (!ClassParam.parse(builder)) {
+        if (!ClassParam()) {
           classParamMarker.rollbackTo()
           builder.restoreNewlinesState()
           return false
         }
         while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
           builder.advanceLexer() //Ate ,
-          if (!ClassParam.parse(builder)) {
+          if (!ClassParam()) {
             builder.error(ErrMsg("wrong.parameter"))
           }
         }

@@ -23,7 +23,7 @@ abstract class CaseClause extends ParsingRule {
     true
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val caseClauseMarker = builder.mark
+    val caseClauseMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kCASE if isCaseKeywordAcceptable =>
         builder.advanceLexer()
@@ -32,11 +32,11 @@ abstract class CaseClause extends ParsingRule {
         caseClauseMarker.drop()
         return false
     }
-    if (!Pattern.parse(builder))
+    if (!Pattern())
       builder.error(ErrMsg("pattern.expected"))
     builder.getTokenType match {
       case ScalaTokenTypes.kIF =>
-        Guard parse builder
+        Guard()
       case _ =>
     }
     builder.getTokenType match {
@@ -77,7 +77,7 @@ object CaseClause extends CaseClause {
  */
 object CaseClauseInBracelessCaseClauses extends CaseClause {
   override protected def parseBody()(implicit builder: ScalaPsiBuilder): Unit = {
-    BlockInIndentationRegion.parse(builder)
+    BlockInIndentationRegion()
   }
 
   override protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean = {

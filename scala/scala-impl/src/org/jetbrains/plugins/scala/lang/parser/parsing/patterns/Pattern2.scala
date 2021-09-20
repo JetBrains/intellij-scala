@@ -44,7 +44,7 @@ abstract class Pattern2(forDef: Boolean) extends ParsingRule {
           if (builder.getTokenType == ScalaTokenTypes.tAT) {
             builder.advanceLexer() // ate @
             backupMarker.drop()
-            if (!Pattern3.parse(builder)) {
+            if (!Pattern3()) {
               idMarker.rollbackTo()
               pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
               val err = builder.mark()
@@ -69,7 +69,7 @@ abstract class Pattern2(forDef: Boolean) extends ParsingRule {
           case ScalaTokenTypes.tAT =>
             builder.advanceLexer() //Ate @
             backupMarker.drop()
-            if (!Pattern3.parse(builder)) {
+            if (!Pattern3()) {
               idMarker.rollbackTo()
               pattern2Marker.done(ScalaElementType.REFERENCE_PATTERN)
               val err = builder.mark()
@@ -88,7 +88,7 @@ abstract class Pattern2(forDef: Boolean) extends ParsingRule {
         backupMarker.drop()
     }
     pattern2Marker.drop()
-    Pattern3.parse(builder)
+    Pattern3()
   }
 }
 

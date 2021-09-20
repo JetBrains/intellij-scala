@@ -19,7 +19,7 @@ object FunSig extends ParsingRule {
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
       builder.advanceLexer()
       FunTypeParamClause()
-      ParamClauses parse builder
+      ParamClauses()
       true
     } else {
       builder error ScalaBundle.message("identifier.expected")

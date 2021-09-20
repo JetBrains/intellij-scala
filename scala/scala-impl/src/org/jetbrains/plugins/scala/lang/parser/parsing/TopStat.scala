@@ -44,10 +44,10 @@ object TopStat {
         if (state == SCRIPT_STATE) Some(EMPTY_STATE)
         else {
           if (builder.lookAhead(kPACKAGE, ObjectKeyword)) {
-            if (PackageObject.parse(builder)) Some(FILE_STATE)
+            if (PackageObject()) Some(FILE_STATE)
             else Some(EMPTY_STATE)
           } else {
-            if (Packaging.parse(builder)) Some(FILE_STATE)
+            if (Packaging()) Some(FILE_STATE)
             else Some(EMPTY_STATE)
           }
         }
@@ -56,7 +56,7 @@ object TopStat {
       case _ =>
         state match {
           case EMPTY_STATE =>
-            if (TmplDef.parse(builder)) None
+            if (TmplDef()) None
             else if (Def() || Dcl() || EmptyDcl()) {
               // in scala 3, definitions and declarations are allowed on top level
               // so we still don't know if it is a script or a file

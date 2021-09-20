@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val enumsMarker = builder.mark
+    val enumsMarker = builder.mark()
 
     val blockIndentation =
       if (isInIndentationRegion) BlockIndentation.create
@@ -26,7 +26,7 @@ abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRu
     // eat all semicolons (which is not correct), show error in ScForAnnotator
     CommonUtils.eatAllSemicolons(blockIndentation)
 
-    if (!Generator.parse(builder)) {
+    if (!Generator()) {
       blockIndentation.drop()
       enumsMarker.drop()
       return false
@@ -44,10 +44,10 @@ abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRu
         case ScalaTokenTypes.kCASE => false
         case InScala3(ScalaTokenTypes.kDO | ScalaTokenTypes.kYIELD) => continue = false; true
         case _ if builder.newlineBeforeCurrentToken => false
-        case _ if Guard.parse(builder) => true
+        case _ if Guard() => true
         case _ => continue = false; true
       }
-      continue &&= (guard || Enumerator.parse(builder))
+      continue &&= (guard || Enumerator())
     }
     blockIndentation.drop()
     enumsMarker.done(ScalaElementType.ENUMERATORS)

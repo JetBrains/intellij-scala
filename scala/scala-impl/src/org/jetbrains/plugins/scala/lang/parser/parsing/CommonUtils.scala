@@ -40,7 +40,7 @@ object CommonUtils {
           }
           else if (builder.getTokenType == ScalaTokenTypes.tLBRACE) {
             builder.advanceLexer()
-            if (!Pattern.parse(builder))
+            if (!Pattern())
               builder.error(ScalaBundle.message("wrong.pattern"))
             else if (builder.getTokenType != ScalaTokenTypes.tRBRACE) {
               builder.error(ScalaBundle.message("right.brace.expected"))
@@ -50,7 +50,7 @@ object CommonUtils {
               builder.advanceLexer()
           }
         }
-        else if (!BlockExpr.parse(builder)) {
+        else if (!BlockExpr()) {
           if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
             val idMarker = builder.mark()
             builder.advanceLexer()

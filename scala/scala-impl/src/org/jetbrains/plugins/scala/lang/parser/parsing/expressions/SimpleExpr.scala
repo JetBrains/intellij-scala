@@ -41,14 +41,14 @@ object SimpleExpr extends ParsingRule {
   import lexer.ScalaTokenTypes._
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val simpleMarker = builder.mark
+    val simpleMarker = builder.mark()
     var newMarker: PsiBuilder.Marker = null
     var state: Boolean = false //false means SimpleExpr, true SimpleExpr1
     builder.getTokenType match {
       case NewKeyword =>
         val iw = builder.currentIndentationWidth
         builder.advanceLexer() //Ate new
-        if (!ClassTemplateBlock.parse(builder)) {
+        if (!ClassTemplateBlock()) {
           builder error ErrMsg("identifier.expected")
           simpleMarker.drop()
           return false
@@ -59,7 +59,7 @@ object SimpleExpr extends ParsingRule {
       case `tLBRACE` =>
         newMarker = simpleMarker.precede
         simpleMarker.drop()
-        if (!BlockExpr.parse(builder)) {
+        if (!BlockExpr()) {
           newMarker.drop()
           return false
         }
@@ -118,9 +118,9 @@ object SimpleExpr extends ParsingRule {
         }
       case _ =>
         state = true
-        if (!Literal.parse(builder)) {
-          if (!XmlExpr.parse(builder)) {
-            if (!Path.parse(builder, ScalaElementType.REFERENCE_EXPRESSION)) {
+        if (!Literal()) {
+          if (!XmlExpr()) {
+            if (!Path(ScalaElementType.REFERENCE_EXPRESSION)) {
               simpleMarker.drop()
               return false
             }
@@ -161,7 +161,7 @@ object SimpleExpr extends ParsingRule {
           }
         case `tLPARENTHESIS` | `tLBRACE` if
         builder.getTokenType != tLPARENTHESIS || !builder.newlineBeforeCurrentToken =>
-          if (state && ArgumentExprs.parse(builder)) {
+          if (state && ArgumentExprs()) {
             val tMarker = marker.precede
             marker.done(ScalaElementType.METHOD_CALL)
             subparse(tMarker)
@@ -171,7 +171,7 @@ object SimpleExpr extends ParsingRule {
           }
         case `tLSQBRACKET` =>
           state = true
-          TypeArgs.parse(builder, isPattern = false)
+          TypeArgs(isPattern = false)
           val tMarker = marker.precede
           marker.done(ScalaElementType.GENERIC_CALL)
           subparse(tMarker)

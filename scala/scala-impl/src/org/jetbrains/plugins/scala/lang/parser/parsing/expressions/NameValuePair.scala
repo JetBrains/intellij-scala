@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object NameValuePair extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val nameMarker = builder.mark
+    val nameMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>
         builder.advanceLexer() //Ate val
@@ -36,7 +36,7 @@ object NameValuePair extends ParsingRule {
       case _ =>
         builder error ScalaBundle.message("assign.expected")
     }
-    if (!PrefixExpr.parse(builder)) {
+    if (!PrefixExpr()) {
       builder error ScalaBundle.message("wrong.expression")
     }
     nameMarker.done(ScalaElementType.NAME_VALUE_PAIR)

@@ -16,10 +16,10 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypesAsClassParams
 /*
  * ClassParamClause ::= [nl] '(' [ClassParam {',' ClassParam}] ')'
  */
-object ClassParamClause {
+object ClassParamClause extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val classParamMarker = builder.mark
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val classParamMarker = builder.mark()
     if (builder.twoNewlinesBeforeCurrentToken) {
       classParamMarker.rollbackTo()
       return false
@@ -39,10 +39,10 @@ object ClassParamClause {
 
         def parseNormalClassParams(): Unit = {
           //ok, let's parse parameters
-          if (ClassParam parse builder) {
+          if (ClassParam()) {
             while (builder.getTokenType == ScalaTokenTypes.tCOMMA && !builder.consumeTrailingComma(ScalaTokenTypes.tRPARENTHESIS)) {
               builder.advanceLexer() //Ate ,
-              if (!(ClassParam parse builder)) {
+              if (!(ClassParam())) {
                 builder error ErrMsg("wrong.parameter")
               }
             }
@@ -50,7 +50,7 @@ object ClassParamClause {
         }
 
         if (builder.isScala3 && builder.tryParseSoftKeyword(ScalaTokenType.UsingKeyword)) {
-          if (!TypesAsClassParams.parse(builder)) {
+          if (!TypesAsClassParams()) {
             parseNormalClassParams()
           }
         } else {

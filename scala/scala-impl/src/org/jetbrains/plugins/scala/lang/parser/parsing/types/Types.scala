@@ -21,10 +21,10 @@ object Types extends Types {
 trait Types {
   protected def `type`: ParamType
 
-  def parse(builder: ScalaPsiBuilder): (Boolean, Boolean) ={
+  final def apply()(implicit builder: ScalaPsiBuilder): (Boolean, Boolean) ={
     var isTuple = false
 
-    def parseTypes() = if (`type`.parseInner(builder)) {
+    def parseTypes() = if (`type`.parseInner()) {
       true
     } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()
@@ -33,7 +33,7 @@ trait Types {
       false
     }
 
-    val typesMarker = builder.mark
+    val typesMarker = builder.mark()
     if (!parseTypes()) {
       typesMarker.drop()
       return (false, isTuple)

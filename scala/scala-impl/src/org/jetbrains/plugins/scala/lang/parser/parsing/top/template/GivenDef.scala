@@ -46,7 +46,7 @@ object GivenDef {
 
   private def parseGivenAlias(hasSignature: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val aliasMarker = builder.mark()
-    if (Type.parse(builder) && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
+    if (Type() && builder.getTokenType == ScalaTokenTypes.tASSIGN) {
       if (!hasSignature) builder.mark().done(ScalaElementType.PARAM_CLAUSES)
 
       // given alias
@@ -120,9 +120,9 @@ object GivenSig extends ParsingRule {
       builder.advanceLexer() // ate id
     }
 
-    TypeParamClause.parse(builder)
+    TypeParamClause()
 
-    ParamClauses.parse(builder)
+    ParamClauses()
 
     if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
       builder.advanceLexer() // ate :

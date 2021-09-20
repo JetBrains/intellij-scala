@@ -18,12 +18,12 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 object PatVarDef extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder):Boolean = {
-    val patVarMarker = builder.mark
+    val patVarMarker = builder.mark()
 
     Annotations()(builder)
 
     //parse modifiers
-    val modifierMarker = builder.mark
+    val modifierMarker = builder.mark()
     while (Modifier()) {}
     modifierMarker.done(ScalaElementType.MODIFIERS)
     builder.getTokenType match {

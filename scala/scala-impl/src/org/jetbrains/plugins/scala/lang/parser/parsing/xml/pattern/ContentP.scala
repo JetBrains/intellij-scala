@@ -26,8 +26,8 @@ import scala.annotation.tailrec
  *              | ScalaPatterns
  */
 
-object ContentP {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object ContentP extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val contentMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
@@ -37,12 +37,11 @@ object ContentP {
     @tailrec
     def subparse(): Unit = {
       var isReturn = false
-      if (!CDSect.parse(builder) &&
-        !Comment.parse(builder) &&
-        !PI.parse(builder) &&
-        !Reference.parse(builder) &&
-        !ScalaPatterns.parse(builder) &&
-        !XmlPattern.parse(builder)) isReturn = true
+      if (!CDSect() &&
+        !Comment() &&
+        !PI() &&
+        !ScalaPatterns() &&
+        !XmlPattern()) isReturn = true
       builder.getTokenType match {
         case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
           builder.advanceLexer()

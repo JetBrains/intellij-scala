@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * ETag ::= </ Name [S] >
  */
 
-object ETag {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object ETag extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val tagMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_END_TAG_START =>

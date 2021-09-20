@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 object SelfType extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val selfTypeMarker = builder.mark
+    val selfTypeMarker = builder.mark()
     
     def handleFunArrow(): Unit = {
       builder.advanceLexer() //Ate '=>'
@@ -58,7 +58,7 @@ object SelfType extends ParsingRule {
         builder.advanceLexer() //Ate identifier
         handleLastPart()
       case ScalaTokenTypes.tLPARENTHESIS => 
-         if (ParserUtils.parseBalancedParenthesis(builder, TokenSets.SELF_TYPE_ID))
+         if (ParserUtils.parseBalancedParenthesis(TokenSets.SELF_TYPE_ID))
            handleLastPart() else selfTypeMarker.rollbackTo()
       case _ => selfTypeMarker.rollbackTo()
     }
@@ -66,8 +66,8 @@ object SelfType extends ParsingRule {
   }
 
   private def parseType()(implicit builder : ScalaPsiBuilder) : Boolean = {
-    val typeMarker = builder.mark
-    if (!InfixType.parse(builder, star = false, isPattern = true)) {
+    val typeMarker = builder.mark()
+    if (!InfixType(isPattern = true)) {
       typeMarker.drop()
       return false
     }

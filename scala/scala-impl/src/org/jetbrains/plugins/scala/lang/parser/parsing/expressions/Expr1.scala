@@ -43,7 +43,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
  */
 object Expr1 extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val exprMarker = builder.mark
+    val exprMarker = builder.mark()
     builder.getTokenType match {
       //----------------------if statement------------------------//
       case ScalaTokenTypes.kIF =>
@@ -108,7 +108,7 @@ object Expr1 extends ParsingRule {
         if (!ExprInIndentationRegion()) {
           builder error ErrMsg("wrong.expression")
         }
-        val catchMarker = builder.mark
+        val catchMarker = builder.mark()
         builder.getTokenType match {
           case ScalaTokenTypes.kCATCH =>
             builder.advanceLexer() //Ate catch
@@ -119,7 +119,7 @@ object Expr1 extends ParsingRule {
           case _ =>
             catchMarker.drop()
         }
-        val finallyMarker = builder.mark
+        val finallyMarker = builder.mark()
         builder.getTokenType match {
           case ScalaTokenTypes.kFINALLY =>
             builder.advanceLexer() //Ate finally
@@ -234,9 +234,7 @@ object Expr1 extends ParsingRule {
         return true
       //--------- higher kinded type lamdba --------//
       case InScala3(ScalaTokenTypes.tLSQBRACKET) =>
-        TypeParamClause.parse(builder,
-          mayHaveViewBounds = false,
-          mayHaveContextBounds = false)
+        TypeParamClause(mayHaveViewBounds = false, mayHaveContextBounds = false)
 
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE =>
@@ -249,11 +247,11 @@ object Expr1 extends ParsingRule {
         return true
       //--------------implicit closure--------------//
       case ScalaTokenTypes.kIMPLICIT =>
-        val ipmarker = builder.mark
+        val ipmarker = builder.mark()
         builder.advanceLexer() //Ate implicit
         builder.getTokenType match {
           case ScalaTokenTypes.tIDENTIFIER =>
-            val pmarker = builder.mark
+            val pmarker = builder.mark()
             builder.advanceLexer() //Ate id
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE =>
@@ -316,7 +314,7 @@ object Expr1 extends ParsingRule {
             exprMarker.done(ScalaElementType.ASSIGN_STMT)
             return true
           case ScalaTokenTypes.tCOLON =>
-            Ascription.parse(builder)
+            Ascription()
             exprMarker.done(ScalaElementType.TYPED_EXPR_STMT)
             return true
           case ScalaTokenTypes.tIDENTIFIER if
@@ -373,7 +371,7 @@ object Expr1 extends ParsingRule {
     if (!ExprInIndentationRegion()) {
       builder error ErrMsg("wrong.expression")
     }
-    val rollbackMarker = builder.mark
+    val rollbackMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tSEMICOLON =>
         builder.advanceLexer() //Ate semi

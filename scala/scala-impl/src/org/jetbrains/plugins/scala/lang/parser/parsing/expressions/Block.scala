@@ -69,7 +69,7 @@ object Block {
 
   object Braced extends ParsingRule {
     override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-      val blockMarker = builder.mark
+      val blockMarker = builder.mark()
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE =>
           builder.advanceLexer()

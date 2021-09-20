@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object SelfInvocation extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val selfMarker = builder.mark
+    val selfMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this

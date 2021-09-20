@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 object ClassTemplateBlock extends ParsingRule{
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val extendsMarker = builder.mark
+    val extendsMarker = builder.mark()
     var nonEmpty = false
 
     builder.getTokenType match {
@@ -28,7 +28,7 @@ object ClassTemplateBlock extends ParsingRule{
       case ScalaTokenTypes.tLBRACE =>
         nonEmpty = true
         //try to parse early definition if we can't => it's template body
-        if (EarlyDef parse builder) {
+        if (EarlyDef()) {
           NewExprParents()
           //parse template body
           builder.getTokenType match {

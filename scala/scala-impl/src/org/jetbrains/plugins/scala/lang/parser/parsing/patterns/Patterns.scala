@@ -12,11 +12,11 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 * @author Alexander Podkhalyuzin
 * Date: 29.02.2008
 */
-object Patterns {
+object Patterns extends ParsingRule {
 
-  def parse(builder: ScalaPsiBuilder): Boolean = {
-    val patternsMarker = builder.mark
-    if (!Pattern.parse(builder)) {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val patternsMarker = builder.mark()
+    if (!Pattern()) {
       builder.getTokenType match {
         case ScalaTokenTypes.tUNDER =>
           builder.advanceLexer()
@@ -35,7 +35,7 @@ object Patterns {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOMMA =>
         builder.advanceLexer() //Ate ,
-        while (Pattern.parse(builder)) {
+        while (Pattern()) {
           builder.getTokenType match {
             case ScalaTokenTypes.tCOMMA =>
               builder.advanceLexer() //Ate ,

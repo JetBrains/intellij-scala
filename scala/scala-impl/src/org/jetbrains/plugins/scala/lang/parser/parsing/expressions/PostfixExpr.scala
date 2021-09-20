@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object PostfixExpr extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val postfixMarker = builder.mark
+    val postfixMarker = builder.mark()
     if (!InfixExpr()) {
       postfixMarker.drop()
       return false
@@ -31,7 +31,7 @@ object PostfixExpr extends ParsingRule {
         // Seq(a, ax*)
         postfixMarker.drop()
       case ScalaTokenTypes.tIDENTIFIER if !builder.newlineBeforeCurrentToken =>
-        val refMarker = builder.mark
+        val refMarker = builder.mark()
         builder.advanceLexer() //Ate id
         refMarker.done(ScalaElementType.REFERENCE_EXPRESSION)
         /*builder.getTokenType match {

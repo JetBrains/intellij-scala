@@ -29,7 +29,7 @@ object TypePattern extends ParsingRule {
             builder.getTokenType match {
               case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
                 builder.advanceLexer() //Ate => or ?=>
-                if (!Type.parse(builder, isPattern = true)) {
+                if (!Type(isPattern = true)) {
                   builder error ScalaBundle.message("wrong.type")
                 }
               case _ =>
@@ -47,7 +47,7 @@ object TypePattern extends ParsingRule {
               case _ =>
                 builder error ScalaBundle.message("fun.sign.expected")
             }
-            if (!Type.parse(builder, isPattern = true)) {
+            if (!Type(isPattern = true)) {
               builder error ScalaBundle.message("wrong.type")
             }
             typeMarker.done(ScalaElementType.TYPE_PATTERN)
@@ -59,7 +59,7 @@ object TypePattern extends ParsingRule {
         }
       case _ =>
     }
-    if (!InfixType.parse(builder, star = false, isPattern = true)) {
+    if (!InfixType(isPattern = true)) {
       typeMarker.drop()
       return false
     }

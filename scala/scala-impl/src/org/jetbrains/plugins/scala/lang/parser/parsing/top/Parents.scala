@@ -17,7 +17,7 @@ sealed abstract class Parents(val allowCommaSeparatedParentsInScala3: Boolean = 
 
   protected def parseParent()(implicit builder: ScalaPsiBuilder): Boolean =
     if (builder.isScala3) Constructor()
-    else AnnotType.parse(builder, isPattern = false)
+    else AnnotType(isPattern = false)
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()

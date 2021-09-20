@@ -11,20 +11,20 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.ObjectDef
 /**
  * @author ilyas
  */
-object PackageObject {
+object PackageObject extends ParsingRule {
 
   import lexer.ScalaTokenType.ObjectKeyword
   import lexer.ScalaTokenTypes.kPACKAGE
 
-  def parse(builder: ScalaPsiBuilder) : Boolean = {
-    val marker = builder.mark
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    val marker = builder.mark()
     marker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 
     //empty annotations
     Annotations.parseEmptyAndBindLeft()(builder)
 
     //empty modifiers
-    val modifierMarker = builder.mark
+    val modifierMarker = builder.mark()
     modifierMarker.done(ScalaElementType.MODIFIERS)
 
     if (builder.getTokenType != kPACKAGE) {
@@ -41,7 +41,7 @@ object PackageObject {
     // Eat `object' modifier
     builder.advanceLexer()
 
-    if (ObjectDef parse builder) {
+    if (ObjectDef()) {
       marker.done(ScalaElementType.ObjectDefinition)
     } else {
       marker.drop()

@@ -21,7 +21,7 @@ object TypeCaseClause extends ParsingRule {
         return false
     }
 
-    if (!InfixType.parse(builder)) builder.error(ScalaBundle.message("wrong.type"))
+    if (!InfixType()) builder.error(ScalaBundle.message("wrong.type"))
 
     builder.getTokenType match {
       case ScalaTokenTypes.tFUNTYPE =>
@@ -34,7 +34,7 @@ object TypeCaseClause extends ParsingRule {
         return true
     }
 
-    if (!Type.parse(builder)) builder.error(ScalaBundle.message("wrong.type"))
+    if (!Type()) builder.error(ScalaBundle.message("wrong.type"))
     marker.done(ScalaElementType.TYPE_CASE_CLAUSE)
     true
   }

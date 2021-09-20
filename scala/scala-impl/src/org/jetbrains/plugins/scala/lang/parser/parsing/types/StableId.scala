@@ -25,10 +25,7 @@ import scala.annotation.tailrec
  */
 
 object StableId {
-
-  def parse(builder: ScalaPsiBuilder, element: IElementType): Boolean = parse(builder, forImport = false, element)
-
-  def parse(builder: ScalaPsiBuilder, forImport: Boolean, element: IElementType): Boolean = {
+  def apply(element: IElementType, forImport: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
@@ -41,9 +38,9 @@ object StableId {
             marker.done(element)
           builder.advanceLexer() // ate dot
           builder.getTokenType match {
-            case ScalaTokenTypes.tIDENTIFIER => parseQualId(builder, nm, element, forImport)
-            case ScalaTokenTypes.kTHIS => parseThisReference(builder, nm, element, forImport)
-            case ScalaTokenTypes.kSUPER => parseSuperReference(builder, nm, element, forImport)
+            case ScalaTokenTypes.tIDENTIFIER => parseQualId(nm, element, forImport)
+            case ScalaTokenTypes.kTHIS => parseThisReference(nm, element, forImport)
+            case ScalaTokenTypes.kSUPER => parseSuperReference(nm, element, forImport)
             case _ =>
               builder error ErrMsg("identifier.expected")
               nm.drop()
@@ -53,8 +50,8 @@ object StableId {
           marker.done(element)
           true
         }
-      case ScalaTokenTypes.kTHIS => parseThisReference(builder, marker, element, forImport)
-      case ScalaTokenTypes.kSUPER => parseSuperReference(builder, marker, element, forImport)
+      case ScalaTokenTypes.kTHIS => parseThisReference(marker, element, forImport)
+      case ScalaTokenTypes.kSUPER => parseSuperReference(marker, element, forImport)
       case _ =>
         marker.drop()
         false
@@ -62,7 +59,7 @@ object StableId {
     }
   }
 
-  def parseThisReference(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
+  def parseThisReference(marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val nm = marker.precede()
     builder.advanceLexer()
     if (builder.getTokenType != tDOT) {
@@ -72,10 +69,10 @@ object StableId {
       return true
     }
     marker.done(THIS_REFERENCE)
-    parseEndIdentifier(builder, nm, element, forImport)
+    parseEndIdentifier(nm, element, forImport)
   }
 
-  def parseSuperReference(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
+  def parseSuperReference(marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val nm = marker.precede()
     builder.advanceLexer()
     if (builder.getTokenType != tDOT && builder.getTokenType != tLSQBRACKET) {
@@ -84,12 +81,12 @@ object StableId {
       marker.done(SUPER_REFERENCE)
       return true
     }
-    parseClassQualifier(builder)
+    parseClassQualifier()
     marker.done(SUPER_REFERENCE)
-    parseEndIdentifier(builder, nm, element, forImport)
+    parseEndIdentifier(nm, element, forImport)
   }
 
-  def parseClassQualifier(builder: ScalaPsiBuilder): Unit = {
+  def parseClassQualifier()(implicit builder: ScalaPsiBuilder): Unit = {
     if (builder.getTokenType != tLSQBRACKET) return
     builder.advanceLexer()
     builder.disableNewlines()
@@ -111,7 +108,7 @@ object StableId {
 
 
   // For endings of 'this' and 'super' references
-  def parseEndIdentifier(builder: ScalaPsiBuilder, nm: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
+  def parseEndIdentifier(nm: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType != ScalaTokenTypes.tDOT) {
       builder.error(ErrMsg("dot.expected"))
     }
@@ -122,11 +119,11 @@ object StableId {
       return true
     }
     builder.advanceLexer()
-    if (builder.getTokenType == tDOT && !shouldStopBeforeDot(forImport)(builder)) {
+    if (builder.getTokenType == tDOT && !shouldStopBeforeDot(forImport)) {
       val nm1 = nm.precede()
       nm.done(element)
       builder.advanceLexer()
-      parseQualId(builder, nm1, element, forImport)
+      parseQualId(nm1, element, forImport)
     } else {
       nm.done(element)
       true
@@ -135,18 +132,18 @@ object StableId {
 
   // Begins from next id (not form dot)
   @tailrec
-  def parseQualId(builder: ScalaPsiBuilder, marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean): Boolean = {
+  def parseQualId(marker: PsiBuilder.Marker, element: IElementType, forImport: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType != tIDENTIFIER) {
       builder.error(ErrMsg("identifier.expected"))
       marker.drop()
       return true
     }
     builder.advanceLexer() // ate identifier
-    if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !shouldStopBeforeDot(forImport)(builder)) {
+    if (builder.getTokenType == tDOT && !builder.lookAhead(tDOT, kTYPE) && !shouldStopBeforeDot(forImport)) {
       val nm = marker.precede
       marker.done(element)
       builder.advanceLexer() // ate dot
-      parseQualId(builder, nm, element, forImport)
+      parseQualId(nm, element, forImport)
     } else {
       marker.done(element)
       true

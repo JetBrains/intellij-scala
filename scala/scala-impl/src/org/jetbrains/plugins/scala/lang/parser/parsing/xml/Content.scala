@@ -22,8 +22,8 @@ import scala.annotation.tailrec
  *             | ScalaExpr
  */
 
-object Content {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object Content extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val contentMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>
@@ -36,9 +36,8 @@ object Content {
     @tailrec
     def subparse(): Unit = {
       val isReturn =
-        if ((XmlContent.parse(builder) ||
-          Reference.parse(builder)) ||
-          ScalaExpr.parse(builder) ||
+        if (XmlContent() ||
+          ScalaExpr() ||
           builder.skipExternalToken())
           false
         else

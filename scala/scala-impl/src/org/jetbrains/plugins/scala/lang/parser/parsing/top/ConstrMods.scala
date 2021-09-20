@@ -20,7 +20,7 @@ object ConstrMods extends ParsingRule {
 
     val modifiersMarker = builder.mark()
     if (!builder.newlineBeforeCurrentToken) {
-      AccessModifier.parse(builder)
+      AccessModifier()
     }
     modifiersMarker.done(ScalaElementType.MODIFIERS)
 

@@ -23,9 +23,9 @@ object Pattern3 extends ParsingRule {
     type Stack[X] = List[X]
     var markerStack = List.empty[PsiBuilder.Marker]
     var opStack = List.empty[String]
-    var backupMarker = builder.mark
+    var backupMarker = builder.mark()
     var count = 0
-    if (!SimplePattern.parse(builder)) {
+    if (!SimplePattern()) {
       backupMarker.drop()
       return false
     }
@@ -55,15 +55,15 @@ object Pattern3 extends ParsingRule {
           exit = true
         }
       }
-      val idMarker = builder.mark
+      val idMarker = builder.mark()
       builder.advanceLexer() //Ate id
       idMarker.done(ScalaElementType.REFERENCE)
       if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(ScalaBundle.message("simple.pattern.expected"))
       }
       backupMarker.drop()
-      backupMarker = builder.mark
-      if (!SimplePattern.parse(builder)) {
+      backupMarker = builder.mark()
+      if (!SimplePattern()) {
         builder error ScalaBundle.message("simple.pattern.expected")
       }
     }

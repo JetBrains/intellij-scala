@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object Bindings extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val bindingsMarker = builder.mark
+    val bindingsMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>
         builder.advanceLexer() //Ate (

@@ -27,7 +27,7 @@ object InfixExpr extends PrecedenceClimbingInfixParsingRule {
   override protected def infixElementType: IElementType = ScalaElementType.INFIX_EXPR
 
   override protected def parseAfterOperatorId(opMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit =
-    if (TypeArgs.parse(builder, isPattern = false)) {
+    if (TypeArgs(isPattern = false)) {
       opMarker.precede.done(ScalaElementType.GENERIC_CALL)
     }
 }

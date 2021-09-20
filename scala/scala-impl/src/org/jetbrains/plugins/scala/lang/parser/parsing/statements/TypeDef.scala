@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, MatchType,
 object TypeDef extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val faultMarker = builder.mark
+    val faultMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>
         builder.advanceLexer() //Ate type
@@ -33,7 +33,7 @@ object TypeDef extends ParsingRule {
         faultMarker.rollbackTo()
         return false
     }
-    TypeParamClause.parse(builder)
+    TypeParamClause()
 
     if (builder.isScala3) {
       Bounds.parseSubtypeBounds()
@@ -42,7 +42,7 @@ object TypeDef extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tASSIGN =>
         builder.advanceLexer() //Ate =
-        if (Type.parse(builder)) {
+        if (Type()) {
           faultMarker.drop()
           true
         }

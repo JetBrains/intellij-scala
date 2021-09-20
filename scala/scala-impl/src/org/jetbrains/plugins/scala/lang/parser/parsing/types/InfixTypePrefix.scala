@@ -13,14 +13,14 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
  *                       | [[DepFunParams]] '=>' [[Type]]
  */
 object InfixTypePrefix {
-  def parse(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def apply(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     if (builder.isScala3 && DepFunParams.parse()) {
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
           builder.advanceLexer()
-          Type.parse(builder, star, isPattern)
+          Type(star, isPattern)
         case _ =>
           builder.error(ScalaBundle.message("fun.sign.expected"))
       }
@@ -38,7 +38,7 @@ object InfixTypePrefix {
         builder.advanceLexer() // 'given'
       } else givenMarker.drop()
 
-      if (InfixType.parse(builder, star, isPattern)) {
+      if (InfixType(star, isPattern)) {
         if (isImplicitFunctionType) {
           if (builder.getTokenType == ScalaTokenTypes.tRPARENTHESIS)
             builder.advanceLexer()
@@ -49,14 +49,14 @@ object InfixTypePrefix {
         builder.getTokenType match {
           case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
             builder.advanceLexer() //Ate => or ?=>
-            if (!Type.parse(builder, star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
+            if (!Type(star, isPattern)) builder.error(ScalaBundle.message("wrong.type"))
             marker.done(ScalaElementType.TYPE)
           case ScalaTokenTypes.kFOR_SOME =>
             ExistentialClause()
             marker.done(ScalaElementType.EXISTENTIAL_TYPE)
           case InScala3(ScalaTokenTypes.kMATCH) =>
             builder.advanceLexer()
-            MatchTypeSuffix.parse(builder)
+            MatchTypeSuffix()
             marker.done(ScalaElementType.MATCH_TYPE)
           case _ => marker.drop()
         }

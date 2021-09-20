@@ -15,7 +15,7 @@ object ConstrBlock extends ParsingRule {
   }
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val constrExprMarker = builder.mark
+    val constrExprMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer() //Ate {

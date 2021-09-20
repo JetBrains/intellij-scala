@@ -26,7 +26,7 @@ object EnumCase extends ParsingRule {
     Annotations()
 
     val modifierMarker = builder.mark()
-    while (Modifier.parse(builder)) {}
+    while (Modifier()) {}
     modifierMarker.done(MODIFIERS)
 
     builder.getTokenType match {

@@ -36,7 +36,7 @@ object Extension extends ParsingRule {
       return false
     }
 
-    TypeParamClause.parse(builder)
+    TypeParamClause()
     ExtensionParameterClauses()
     ExtMethods()
 
@@ -118,7 +118,7 @@ object ExtMethods extends ParsingRule {
 
 object ExtensionParameterClauses extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val paramMarker = builder.mark
+    val paramMarker = builder.mark()
     //@TODO: leading using clauses
     if (!ExtensionParameterClause()) builder.error(ErrMsg("param.clause.expected"))
 
@@ -180,11 +180,11 @@ object ExtensionParameterClauses extends ParsingRule {
  */
 object ExtMethod extends ParsingRule {
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val defMarker = builder.mark
+    val defMarker = builder.mark()
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     Annotations.parseAndBindToLeft()
 
-    val modifierMarker = builder.mark
+    val modifierMarker = builder.mark()
 
     def parseScalaMetaInline(): Boolean = builder.isMetaEnabled && builder.tryParseSoftKeyword(InlineKeyword)
     while (Modifier() || parseScalaMetaInline()) {}

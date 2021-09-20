@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * EmptyElemTag ::= '<' Name {Attribute} [S]'/>'
  */
 
-object EmptyElemTag {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object EmptyElemTag extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val tagMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_START_TAG_START =>
@@ -32,7 +32,7 @@ object EmptyElemTag {
         builder.advanceLexer()
       case _ => builder error ErrMsg("xml.name.expected")
     }
-    while (Attribute.parse(builder)) {}
+    while (Attribute()) {}
     builder.getTokenType match { //looks like this code became obsolete long ago
       case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
       case _ =>

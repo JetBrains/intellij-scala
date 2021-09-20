@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
 object FunDef extends ParsingRule {
 
   override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    val faultMarker = builder.mark
+    val faultMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kDEF => builder.advanceLexer()
       case _ =>
@@ -38,7 +38,7 @@ object FunDef extends ParsingRule {
         builder.getTokenType match {
           case ScalaTokenTypes.tCOLON =>
             builder.advanceLexer() //Ate :
-            if (Type.parse(builder)) {
+            if (Type()) {
               builder.getTokenType match {
                 case ScalaTokenTypes.tASSIGN =>
                   builder.advanceLexer() //Ate =
@@ -87,13 +87,13 @@ object FunDef extends ParsingRule {
         }
       case ScalaTokenTypes.kTHIS =>
         builder.advanceLexer() //Ate this
-        ParamClauses parse(builder, expectAtLeastOneClause = true)
+        ParamClauses(expectAtLeastOneClause = true)
 
         // just parse a type annotation here, even though it is not correct
         if (builder.getTokenType == ScalaTokenTypes.tCOLON) {
           val wrongTypeMarker = builder.mark()
           builder.advanceLexer() // Ate :
-          Type.parse(builder)
+          Type()
           wrongTypeMarker error ScalaBundle.message("auxiliary.constructor.may.not.have.a.type.annotation")
         }
 

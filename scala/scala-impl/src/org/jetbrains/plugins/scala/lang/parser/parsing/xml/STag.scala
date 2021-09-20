@@ -17,8 +17,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * STag ::= < Name {Attribute} [S] >
  */
 
-object STag {
-  def parse(builder: ScalaPsiBuilder): Boolean = {
+object STag extends ParsingRule {
+  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
     val tagMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_START_TAG_START =>
@@ -32,7 +32,7 @@ object STag {
         builder.advanceLexer()
       case _ => builder error ErrMsg("xml.name.expected")
     }
-    while (Attribute.parse(builder)) {}
+    while (Attribute()) {}
     builder.getTokenType match {
       case XmlTokenType.XML_WHITE_SPACE => builder.advanceLexer()
       case _ =>

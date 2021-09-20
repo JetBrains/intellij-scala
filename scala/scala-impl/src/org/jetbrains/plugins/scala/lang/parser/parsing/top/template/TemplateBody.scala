@@ -73,7 +73,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
     }
 
     builder.maybeWithIndentationWidth(baseIndentation) {
-      SelfType.parse(builder)
+      SelfType()
       parseRuleInBlockOrIndentationRegion(blockIndentation, baseIndentation, ErrMsg("def.dcl.expected")) {
         statementRule()
       }

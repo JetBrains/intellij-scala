@@ -21,7 +21,7 @@ object Quoted extends ParsingRule {
         marker.done(ScalaElementType.QUOTED_BLOCK)
       case ScalaTokenTypes.tLSQBRACKET =>
         builder.advanceLexer()
-        if (!Type.parse(builder)) {
+        if (!Type()) {
           builder error ErrMsg("type.expected")
           marker.drop()
         } else if (builder.getTokenType != ScalaTokenTypes.tRSQBRACKET) {
