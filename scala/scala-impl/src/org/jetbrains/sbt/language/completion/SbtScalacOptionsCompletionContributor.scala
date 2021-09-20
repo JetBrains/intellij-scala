@@ -132,7 +132,7 @@ object SbtScalacOptionsCompletionContributor {
 
       // TODO: is there a better way of doing "vararg" style insertion?
       if (option.argType == ArgType.Multiple) {
-        option.choices.tail.foreach { case (choice, _) =>
+        option.choices.foreach { case (choice, _) =>
           template.addVariable(choice, scalacOptionArgumentExpression(option, scalaVersions, isFirst = false), null, false)
         }
         template.addTextSegment("\"")
