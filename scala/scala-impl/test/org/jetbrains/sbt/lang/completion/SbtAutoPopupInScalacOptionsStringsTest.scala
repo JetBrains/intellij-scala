@@ -73,4 +73,12 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
     s"""scalacOptions += "-verbose $CARET"
        |""".stripMargin
   }
+
+  def testAutoPopupInScalacOptionsString_Negative_WrongType_Single(): Unit = doTestNoAutoCompletion(CLASS_STR_TO_TYPE) {
+    s"""scalacOptions ++= "$CARET""""
+  }
+
+  def testAutoPopupInScalacOptionsString_Negative_WrongType_Seq(): Unit = doTestNoAutoCompletion(CLASS_STR_TO_TYPE) {
+    s"""scalacOptions += Seq("$CARET")"""
+  }
 }

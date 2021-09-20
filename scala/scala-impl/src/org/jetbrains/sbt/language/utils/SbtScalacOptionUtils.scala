@@ -3,8 +3,10 @@ package org.jetbrains.sbt.language.utils
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.{Key, ModificationTracker}
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.codeInspection.collections.isSeq
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScArgumentExprList, ScExpression, ScInfixExpr, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor
 import org.slf4j.LoggerFactory
@@ -21,7 +23,7 @@ object SbtScalacOptionUtils {
 
   val SCALAC_OPTIONS_DOC_KEY: Key[String] = Key.create("SCALAC_OPTION_DOC")
 
-  def matchesScalacOptions(expr: ScExpression): Boolean = expr match {
+  def matchesScalacOptionsSbtSetting(expr: ScExpression): Boolean = expr match {
     case ref: ScReferenceExpression => ref.refName == SCALAC_OPTIONS
     // e.g.: ThisBuild / scalacOptions
     case ScInfixExpr(_, op, right: ScReferenceExpression) =>
@@ -32,18 +34,20 @@ object SbtScalacOptionUtils {
   def withScalacOption[T](element: PsiElement)(onMismatch: => T, onMatch: ScStringLiteral => T): T =
     element.getParent match {
       case str: ScStringLiteral =>
-        str.getParent match {
-          case expr: ScInfixExpr if matchesScalacOptions(expr.left) && expr.operation.refName == "+=" =>
-            onMatch(str)
-          case args: ScArgumentExprList =>
-            args.getParent.getParent match {
-              case expr: ScInfixExpr if matchesScalacOptions(expr.left) && expr.operation.refName == "++=" =>
-                onMatch(str)
-              case _ => onMismatch
-            }
-          case _ => onMismatch
-        }
+        if (isScalacOption(str)) onMatch(str) else onMismatch
       case _ => onMismatch
+    }
+
+  def isScalacOption(str: ScStringLiteral): Boolean = isScalacOptionInternal(str)
+
+  def isScalacOption(ref: ScReferenceExpression): Boolean = isScalacOptionInternal(ref)
+
+  private def isScalacOptionInternal(element: PsiElement): Boolean =
+    element.parents.exists {
+      case expr: ScInfixExpr =>
+        val op = expr.operation.refName
+        matchesScalacOptionsSbtSetting(expr.left) && (if (isSeq(expr.right)) op == "++=" else op == "+=")
+      case _ => false
     }
 
   @Cached(ModificationTracker.NEVER_CHANGED, null)

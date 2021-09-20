@@ -30,6 +30,15 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
     DEPRECATION_DESCRIPTION
   )
 
+  def test_topLevel_complexExpression_seq(): Unit = doGenerateDocTest(
+    s"""scalacOptions ++= {
+       |  if (1 == 2) {
+       |    Nil
+       |  } else Seq("${|}$DEPRECATION_FLAG")
+       |}""".stripMargin,
+    DEPRECATION_DESCRIPTION
+  )
+
   def test_inProjectSettings_single(): Unit = doGenerateDocTest(
     s"""
        |lazy val foo = project.in(file("foo"))
@@ -54,6 +63,21 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
     DEPRECATION_DESCRIPTION
   )
 
+  def test_inProjectSettings_complexExpression_seq(): Unit = doGenerateDocTest(
+    s"""
+       |lazy val foo = project.in(file("foo"))
+       |  .settings(
+       |    name := "foo",
+       |    scalaVersion := "$getVersion",
+       |    scalacOptions ++= {
+       |      if (1 == 2) {
+       |        Nil
+       |      } else Seq("${|}$DEPRECATION_FLAG")
+       |    }
+       |  )
+       |""".stripMargin,
+    DEPRECATION_DESCRIPTION
+  )
 
   def test_topLevel_single_notFound(): Unit = doGenerateDocTest(
     s"""scalacOptions += "${|}$NONEXISTENT_FLAG"""",

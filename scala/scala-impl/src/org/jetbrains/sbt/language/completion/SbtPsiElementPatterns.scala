@@ -10,10 +10,11 @@ import com.intellij.patterns.StandardPatterns.instanceOf
 import com.intellij.psi.PsiElement
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.ScalaFileType
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScInfixExpr
+import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.sbt.language.SbtFileType
-import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.matchesScalacOptions
+import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.isScalacOption
 
 object SbtPsiElementPatterns {
   def sbtFilePattern: Capture[PsiElement] = psiElement.inFile {
@@ -40,10 +41,15 @@ object SbtPsiElementPatterns {
     }
   })
 
-  def scalacOptionsPattern: Capture[ScInfixExpr] = psiElement(classOf[ScInfixExpr]).`with`(new PatternCondition[ScInfixExpr]("isScalacOptionsPattern") {
-    override def accepts(expr: ScInfixExpr, context: ProcessingContext): Boolean =
-      matchesScalacOptions(expr.left) && SEQ_ADD_OPS.contains(expr.operation.refName)
-  })
+  def scalacOptionsReferencePattern: Capture[ScReferenceExpression] = psiElement(classOf[ScReferenceExpression])
+    .`with`(new PatternCondition[ScReferenceExpression]("isScalacOptionsReferencePattern") {
+      override def accepts(expr: ScReferenceExpression, context: ProcessingContext): Boolean = isScalacOption(expr)
+    })
+
+  def scalacOptionsStringLiteralPattern: Capture[ScStringLiteral] = psiElement(classOf[ScStringLiteral])
+    .`with`(new PatternCondition[ScStringLiteral]("isScalacOptionsStringLiteralPattern") {
+      override def accepts(expr: ScStringLiteral, context: ProcessingContext): Boolean = isScalacOption(expr)
+    })
 
   def versionPattern: Capture[PsiElement] = psiElement(classOf[PsiElement]).`with`(new PatternCondition[PsiElement]("isVersionPattern") {
     override def accepts(elem: PsiElement, context: ProcessingContext): Boolean = {

@@ -25,7 +25,7 @@ class SbtScalacOptionsCompletionContributor extends CompletionContributor {
 
 object SbtScalacOptionsCompletionContributor {
   private val PATTERN = (SbtPsiElementPatterns.sbtFilePattern || SbtPsiElementPatterns.scalaFilePattern) &&
-    psiElement.inside(SbtPsiElementPatterns.scalacOptionsPattern)
+    (psiElement.inside(SbtPsiElementPatterns.scalacOptionsReferencePattern) || psiElement.inside(SbtPsiElementPatterns.scalacOptionsStringLiteralPattern))
 
   private val completionProvider = new CompletionProvider[CompletionParameters] {
     override def addCompletions(parameters: CompletionParameters, context: ProcessingContext, resultSet: CompletionResultSet): Unit = {
