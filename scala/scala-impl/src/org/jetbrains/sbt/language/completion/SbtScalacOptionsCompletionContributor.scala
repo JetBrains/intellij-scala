@@ -61,6 +61,7 @@ object SbtScalacOptionsCompletionContributor {
         .withTailText(matchingVersions.mkString(" (", ", ", ")"))
         .withInsertHandler(new ScalacOptionInsertHandler(option, scalaVersions))
         .withPsiElement(SbtScalacOptionDocHolder(option))
+        .withCaseSensitivity(false)
         .bold()
     }
   }

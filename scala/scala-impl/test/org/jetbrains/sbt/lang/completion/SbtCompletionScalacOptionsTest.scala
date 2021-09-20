@@ -35,4 +35,8 @@ class SbtCompletionScalacOptionsTest extends SbtCompletionTestBase with MockSbt_
   def testCompleteSingleStringLiteralWithDashAndScope(): Unit = doTest()
 
   def testCompleteSingleStringLiteralWithScope(): Unit = doTest()
+
+  def testCompleteLowerCase(): Unit = doTest()
+
+  def testCompleteUpperCase(): Unit = doTest()
 }
