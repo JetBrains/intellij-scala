@@ -10,15 +10,15 @@ import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.editor.documentationProvider.SbtScalacOptionsDocumentationProvider._
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
-import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.{getScalacOptions, withScalacOption}
+import org.jetbrains.sbt.language.utils.{SbtDependencyUtils, SbtScalacOptionInfo}
 
 class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvider {
   override def generateDoc(element: PsiElement, originalElement: PsiElement): String =
     element match {
-      case SbtScalacOptionDocHolder(option) =>
-        generateScalacOptionDoc(option)
+      case docHolder: SbtScalacOptionDocHolder =>
+        generateScalacOptionDoc(docHolder)
       case _ => null
     }
 
@@ -48,10 +48,13 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
       .orNull
   }
 
-  private def generateScalacOptionDoc(option: SbtScalacOptionInfo): String = {
+  private def generateScalacOptionDoc(docHolder: SbtScalacOptionDocHolder): String = {
+    val descriptions = getDescriptions(docHolder)
+    if (descriptions.isEmpty) return null
+
     val builder = new StringBuilder
 
-    option.descriptions.toList
+    descriptions
       .sortBy { case (_, versions) => versions.max }(implicitly[Ordering[ScalaLanguageLevel]].reverse)
       .foreach { case (description, versions) =>
         builder.append(DocumentationMarkup.CONTENT_START)
@@ -84,4 +87,17 @@ object SbtScalacOptionsDocumentationProvider {
 
       options.head.copy(descriptions = descriptions)
     }.toMap
+
+  private def getDescriptions(docHolder: SbtScalacOptionDocHolder) = {
+    val projectVersions = SbtDependencyUtils.getAllScalaVersionsOrDefault(docHolder, majorOnly = true).toSet
+
+    docHolder.option.descriptions.toList.flatMap {
+      case (description, versions) =>
+        val matchingVersions = versions.filter(version => projectVersions(version.getVersion))
+
+        Option.when(matchingVersions.nonEmpty) {
+          (description, matchingVersions)
+        }
+    }
+  }
 }

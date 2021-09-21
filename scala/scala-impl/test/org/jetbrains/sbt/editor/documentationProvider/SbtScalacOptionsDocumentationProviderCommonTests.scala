@@ -2,6 +2,7 @@ package org.jetbrains.sbt.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
 import org.jetbrains.plugins.scala.ScalaVersion
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
@@ -11,12 +12,24 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
 
   private val NONEXISTENT_FLAG = "-flag-that-no-one-should-ever-add-to-compiler"
   private val DEPRECATION_FLAG = "-deprecation"
-  private val DEPRECATION_DESCRIPTION = DocumentationMarkup.CONTENT_START +
-    "2.11, 3.0<br>Emit warning and location for usages of deprecated APIs." +
-    DocumentationMarkup.CONTENT_END +
+
+  private lazy val DEPRECATION_DESCRIPTION = {
+    import ScalaLanguageLevel._
+    val langLevel = getVersion.languageLevel
+
+    val description = langLevel match {
+      case Scala_2_11 | Scala_3_0 =>
+        "Emit warning and location for usages of deprecated APIs."
+      case Scala_2_12 | Scala_2_13 =>
+        "Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]"
+      case _ => throw new IllegalStateException(s"Unexpected language level: ${langLevel.getVersion}")
+    }
+
     DocumentationMarkup.CONTENT_START +
-    "2.12, 2.13<br>Emit warning and location for usages of deprecated APIs. See also -Wconf. [false]" +
-    DocumentationMarkup.CONTENT_END
+      langLevel.getVersion + "<br>" +
+      description +
+      DocumentationMarkup.CONTENT_END
+  }
 
   private def getVersion(implicit ev: ScalaVersion): ScalaVersion = ev
 

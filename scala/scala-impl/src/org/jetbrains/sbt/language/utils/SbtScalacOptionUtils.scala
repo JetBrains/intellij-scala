@@ -33,8 +33,8 @@ object SbtScalacOptionUtils {
 
   def withScalacOption[T](element: PsiElement)(onMismatch: => T, onMatch: ScStringLiteral => T): T =
     element.getParent match {
-      case str: ScStringLiteral =>
-        if (isScalacOption(str)) onMatch(str) else onMismatch
+      case str: ScStringLiteral if isScalacOption(str) =>
+        onMatch(str)
       case _ => onMismatch
     }
 
