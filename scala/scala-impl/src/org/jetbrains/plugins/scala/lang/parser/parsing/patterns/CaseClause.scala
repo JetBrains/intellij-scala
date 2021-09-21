@@ -22,7 +22,7 @@ abstract class CaseClause extends ParsingRule {
   protected def isCaseKeywordAcceptable(implicit builder: ScalaPsiBuilder): Boolean =
     true
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val caseClauseMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kCASE if isCaseKeywordAcceptable =>

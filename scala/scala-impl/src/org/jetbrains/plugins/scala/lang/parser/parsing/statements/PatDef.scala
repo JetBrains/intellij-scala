@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.Pattern2InForDef
  */
 object PatDef extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val patDefMarker = builder.mark()
 
     def parsePatterns(): Boolean = {

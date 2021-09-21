@@ -18,18 +18,18 @@ private[parsing] object Annotations extends ParsingRule {
   private val LeftEdgeBinder: WhitespacesAndCommentsBinder =
     (tokens: ju.List[_ <: IElementType], _: Boolean, _: WhitespacesAndCommentsBinder.TokenTextGetter) => tokens.size
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
-    parse()
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
+    parseAnnotations()
     true
   }
 
   def parseOnTheSameLine()(implicit builder: ScalaPsiBuilder): Boolean = {
-    parse(builder.newlineBeforeCurrentToken)
+    parseAnnotations(builder.newlineBeforeCurrentToken)
     true
   }
 
   def parseAndBindToLeft()(implicit builder: ScalaPsiBuilder): Unit = {
-    val marker = parse()
+    val marker = parseAnnotations()
     marker.setCustomEdgeTokenBinders(LeftEdgeBinder, null)
   }
 
@@ -39,8 +39,8 @@ private[parsing] object Annotations extends ParsingRule {
     marker.setCustomEdgeTokenBinders(LeftEdgeBinder, null)
   }
 
-  private def parse(newlineBeforeCurrentToken: Boolean = false)
-                   (implicit builder: ScalaPsiBuilder) = {
+  private def parseAnnotations(newlineBeforeCurrentToken: Boolean = false)
+                              (implicit builder: ScalaPsiBuilder) = {
     val marker = builder.mark()
 
     if (!newlineBeforeCurrentToken) {

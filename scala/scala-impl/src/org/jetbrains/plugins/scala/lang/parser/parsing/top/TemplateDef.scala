@@ -14,7 +14,7 @@ sealed abstract class TemplateDef extends ParsingRule {
 
   protected def extendsBlockRule: Template
 
-  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+  override final def parse(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>
         builder.advanceLexer() // Ate identifier

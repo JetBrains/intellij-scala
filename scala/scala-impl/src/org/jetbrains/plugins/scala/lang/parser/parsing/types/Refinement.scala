@@ -21,7 +21,7 @@ import scala.annotation.tailrec
  */
 object Refinement extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean =
     parseRefinements(hadOneRefinement = false)
 
   @tailrec

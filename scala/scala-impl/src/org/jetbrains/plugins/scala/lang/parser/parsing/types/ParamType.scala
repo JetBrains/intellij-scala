@@ -24,12 +24,12 @@ object ParamType extends ParamType {
 trait ParamType extends ParsingRule {
   protected def `type`: Type
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean =
     builder.build(ScalaElementType.PARAM_TYPE) {
-      parseInner()
+      parseWithoutScParamTypeCreation(builder)
     }
 
-  def parseInner()(implicit builder: ScalaPsiBuilder): Boolean = {
+  def parseWithoutScParamTypeCreation(implicit builder: ScalaPsiBuilder): Boolean = {
     val isByName = builder.getTokenType == ScalaTokenTypes.tFUNTYPE
     if (isByName) {
       builder.advanceLexer()

@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 object ScalaPatterns extends ParsingRule {
 
-  final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override final def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypesEx.SCALA_IN_XML_INJECTION_START =>
         builder.advanceLexer()

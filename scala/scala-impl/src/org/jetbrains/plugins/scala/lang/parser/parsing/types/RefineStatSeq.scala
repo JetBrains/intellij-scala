@@ -14,7 +14,7 @@ import scala.annotation.tailrec
 * Date: 28.02.2008
 */
 object RefineStatSeq extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     parseStats()
     true
   }

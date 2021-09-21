@@ -31,7 +31,7 @@ object Literal extends ParsingRule {
   import ScalaTokenType._
   import ScalaTokenTypes._
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     def advanceAndMarkDone(elementType: ScExpressionElementType,

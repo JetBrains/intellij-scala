@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object Pattern1 extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean =
     if (builder.isScala3) parseInScala3() else parseInScala2()
 
   private def parseInScala3()(implicit builder: ScalaPsiBuilder): Boolean = {

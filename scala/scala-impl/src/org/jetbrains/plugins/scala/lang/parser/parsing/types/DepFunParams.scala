@@ -3,13 +3,14 @@ package org.jetbrains.plugins.scala.lang.parser.parsing.types
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.ScalaElementType
+import org.jetbrains.plugins.scala.lang.parser.parsing.ParsingRule
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 
 /**
  * [[DepFunParams]] ::= '(' [[TypedFunParam]], { [[TypedFunParam]] } ')'
  */
-object DepFunParams {
-  def parse()(implicit builder: ScalaPsiBuilder): Boolean = {
+object DepFunParams extends ParsingRule {
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     builder.getTokenType match {

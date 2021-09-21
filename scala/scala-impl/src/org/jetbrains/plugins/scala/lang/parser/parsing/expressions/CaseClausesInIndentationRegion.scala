@@ -18,7 +18,7 @@ abstract class CaseClausesInIndentationRegion extends ParsingRule {
    */
   def allowExprCaseClause: Boolean
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3  || builder.getTokenType != ScalaTokenTypes.kCASE) {
       return false
     }

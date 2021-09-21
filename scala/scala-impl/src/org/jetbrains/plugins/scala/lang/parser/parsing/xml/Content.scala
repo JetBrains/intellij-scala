@@ -23,7 +23,7 @@ import scala.annotation.tailrec
  */
 
 object Content extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val contentMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_DATA_CHARACTERS =>

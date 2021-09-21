@@ -20,7 +20,7 @@ object EnumCase extends ParsingRule {
   import ScalaElementType.{EnumCase => SingleCase, _}
   import lexer.ScalaTokenTypes._
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     Annotations()

@@ -22,7 +22,7 @@ sealed abstract class Body(indentationCanStartWithoutColon: Boolean = false) ext
 
   protected def statementRule: Stat
 
-  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override final def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.enableNewlines()
 

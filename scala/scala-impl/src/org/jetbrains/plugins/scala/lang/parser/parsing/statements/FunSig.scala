@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.{FunTypeParamClaus
 //TODO: rewrite this
 object FunSig extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {
       builder.advanceLexer()
       FunTypeParamClause()

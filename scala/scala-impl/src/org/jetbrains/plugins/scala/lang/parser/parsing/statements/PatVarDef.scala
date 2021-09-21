@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
 */
 object PatVarDef extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder):Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val patVarMarker = builder.mark()
 
     Annotations()(builder)

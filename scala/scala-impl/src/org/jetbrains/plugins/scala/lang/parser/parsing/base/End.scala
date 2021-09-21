@@ -22,7 +22,7 @@ object End {
     ScalaTokenTypes.tIDENTIFIER,
   )
 
-  //override def apply()(implicit builder: ScalaPsiBuilder): Boolean = apply(builder.currentIndentationWidth)
+  //override def parse(implicit builder: ScalaPsiBuilder): Boolean = apply(builder.currentIndentationWidth)
 
   def apply(targetIndentationWidth: IndentationWidth)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3)

@@ -22,7 +22,7 @@ object BlockExpr extends ParsingRule {
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes._
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.skipExternalToken()) return true
 
     val blockExprMarker = builder.mark()

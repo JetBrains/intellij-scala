@@ -28,7 +28,7 @@ object BlockStat extends ParsingRule {
   import lexer.ScalaTokenTypes
 
   @tailrec
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kIMPORT =>
         Import()
@@ -49,7 +49,7 @@ object BlockStat extends ParsingRule {
         true
       case IsTemplateDefinition() =>
         TmplDef()
-      case _ if builder.skipExternalToken() => BlockStat()
+      case _ if builder.skipExternalToken() => BlockStat.parse(builder)
       case _ =>
         if (!Def() && !TmplDef()) {
           if (Dcl()) {

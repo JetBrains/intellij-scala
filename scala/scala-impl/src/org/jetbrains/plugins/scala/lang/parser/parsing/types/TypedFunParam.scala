@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * [[TypedFunParam]] ::= id ‘:’ [[Type]]
  */
 object TypedFunParam extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tIDENTIFIER =>

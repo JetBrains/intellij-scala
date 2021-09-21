@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object Element extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (EmptyElemTag() || builder.skipExternalToken()) return true
 
     val elemMarker = builder.mark()

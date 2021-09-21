@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.params.TypesAsClassParams
  */
 object ClassParamClause extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark()
     if (builder.twoNewlinesBeforeCurrentToken) {
       classParamMarker.rollbackTo()

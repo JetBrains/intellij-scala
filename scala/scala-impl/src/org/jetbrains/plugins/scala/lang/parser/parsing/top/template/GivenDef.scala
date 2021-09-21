@@ -113,7 +113,7 @@ object GivenDef {
 }
 
 object GivenSig extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val givenSigMarker = builder.mark()
 
     if (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER) {

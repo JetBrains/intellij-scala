@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 */
 object NameValuePair extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val nameMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kVAL =>

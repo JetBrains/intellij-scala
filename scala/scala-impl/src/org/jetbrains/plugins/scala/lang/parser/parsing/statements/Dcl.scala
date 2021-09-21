@@ -22,6 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.Annotations
  */
 object Dcl {
 
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = apply()
   def apply(isMod: Boolean = true)(implicit builder: ScalaPsiBuilder): Boolean = {
     val dclMarker = builder.mark()
     dclMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)

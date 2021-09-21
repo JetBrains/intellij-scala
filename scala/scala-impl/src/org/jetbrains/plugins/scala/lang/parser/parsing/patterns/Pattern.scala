@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * Patern ::= Pattern1 {'|' Pattern1}
  */
 object Pattern extends ParsingRule {
-  def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val patternMarker = builder.mark()
     if (!Pattern1()) {
       patternMarker.drop()

@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object InterpolationPattern extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
       case ScalaTokenTypes.tINTERPOLATED_STRING_ID =>
         CommonUtils.parseInterpolatedString(isPattern = true)

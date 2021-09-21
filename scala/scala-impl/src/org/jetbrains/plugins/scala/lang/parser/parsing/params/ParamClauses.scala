@@ -15,6 +15,8 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * ParamClauses ::= {ParamClause} [ImplicitParamClause]
  */
 object ParamClauses {
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = apply()
+
   def apply(expectAtLeastOneClause: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark()
     if (expectAtLeastOneClause) {

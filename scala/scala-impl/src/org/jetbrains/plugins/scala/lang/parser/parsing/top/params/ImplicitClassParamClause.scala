@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * ClassParamClause ::= [nl] '(' 'implicit' ClassParam {',' ClassParam} ')'
  */
 object ImplicitClassParamClause extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val classParamMarker = builder.mark()
     if (builder.twoNewlinesBeforeCurrentToken) {
       classParamMarker.rollbackTo()

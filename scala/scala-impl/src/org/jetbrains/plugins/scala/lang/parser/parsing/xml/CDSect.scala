@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 */
 
 object CDSect extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val cDataMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_CDATA_START => builder.advanceLexer()

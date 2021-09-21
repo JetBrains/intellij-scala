@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Type
  */
 object Ascription extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tCOLON =>
         builder.advanceLexer() //Ate :

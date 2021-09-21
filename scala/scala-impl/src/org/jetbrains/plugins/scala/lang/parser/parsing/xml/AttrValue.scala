@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 object AttrValue extends ParsingRule {
   private val VALID_ATTRIBUTE_TOKENS = TokenSet.create(ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_TOKEN, ScalaXmlTokenTypes.XML_CHAR_ENTITY_REF)
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val attrValueMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_ATTRIBUTE_VALUE_START_DELIMITER =>

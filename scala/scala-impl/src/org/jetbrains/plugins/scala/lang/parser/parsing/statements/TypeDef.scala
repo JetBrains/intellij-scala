@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{Bounds, MatchType,
 */
 object TypeDef extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val faultMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE =>

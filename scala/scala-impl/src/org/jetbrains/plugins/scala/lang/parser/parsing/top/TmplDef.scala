@@ -28,7 +28,7 @@ object TmplDef extends ParsingRule {
   import lexer.ScalaTokenType._
   import lexer.ScalaTokenTypes.kCASE
 
-  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override final def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val templateMarker = builder.mark()
     templateMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 

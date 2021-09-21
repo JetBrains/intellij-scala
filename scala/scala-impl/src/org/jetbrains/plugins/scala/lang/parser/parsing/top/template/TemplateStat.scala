@@ -19,7 +19,7 @@ sealed abstract class Stat extends ParsingRule {
   import lexer.ScalaTokenType.ExportKeyword
   import lexer.ScalaTokenTypes.kIMPORT
 
-  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+  override final def parse(implicit builder: ScalaPsiBuilder): Boolean =
     builder.getTokenType match {
       case `kIMPORT` => Import()
       case ExportKeyword => Export()

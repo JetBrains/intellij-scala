@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
  */
 abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val enumsMarker = builder.mark()
 
     val blockIndentation =

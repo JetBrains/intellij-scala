@@ -21,7 +21,7 @@ import scala.annotation.tailrec
 object Extension extends ParsingRule {
   private val extensionDefFollows = Set(ScalaTokenTypes.tLSQBRACKET, ScalaTokenTypes.tLPARENTHESIS)
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3) {
       return false
     }
@@ -47,7 +47,7 @@ object Extension extends ParsingRule {
 
 // TODO: add annotator which will mark extensions without extension methods
 object ExtMethods extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): true = {
+  override def parse(implicit builder: ScalaPsiBuilder): true = {
     val extDefinitionsMarker = builder.mark()
     val (blockIndentation, baseIndentation, onlyOne) = builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE  =>
@@ -117,7 +117,7 @@ object ExtMethods extends ParsingRule {
 }
 
 object ExtensionParameterClauses extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark()
     //@TODO: leading using clauses
     if (!ExtensionParameterClause()) builder.error(ErrMsg("param.clause.expected"))
@@ -129,7 +129,7 @@ object ExtensionParameterClauses extends ParsingRule {
   }
 
   object ExtensionParameterClause extends ParsingRule {
-    override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
       val paramMarker = builder.mark()
       if (builder.twoNewlinesBeforeCurrentToken) {
         paramMarker.drop()
@@ -179,7 +179,7 @@ object ExtensionParameterClauses extends ParsingRule {
  * ExtMethod ::=  {Annotation [nl]} {Modifier} ‘def’ DefDef
  */
 object ExtMethod extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val defMarker = builder.mark()
     defMarker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
     Annotations.parseAndBindToLeft()

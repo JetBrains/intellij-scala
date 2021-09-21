@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object Modifier extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case `kOVERRIDE` =>
       builder.advanceLexer() // Ate override
       true

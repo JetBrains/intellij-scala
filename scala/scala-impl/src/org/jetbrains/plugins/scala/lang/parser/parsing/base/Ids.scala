@@ -17,7 +17,7 @@ object Ids extends ParsingRule {
   import ScalaElementType._
   import lexer.ScalaTokenTypes._
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     if (parseId()) {
       parseIds()

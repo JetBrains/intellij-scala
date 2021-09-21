@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object Attribute extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val attributeMarker = builder.mark()
     /*builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_WHITE_SPACE => builder.advanceLexer()

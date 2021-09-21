@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{InfixType, StableI
  */
 
 object ImportExpr extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val importExprMarker = builder.mark()
     if (!StableId(ScalaElementType.REFERENCE, forImport = true)) {
       builder error ErrMsg("identifier.expected")

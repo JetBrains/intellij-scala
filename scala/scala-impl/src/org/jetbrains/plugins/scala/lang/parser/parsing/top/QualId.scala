@@ -21,7 +21,7 @@ import scala.annotation.tailrec
 
 object QualId extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     parseNext(builder.mark())
     true
   }

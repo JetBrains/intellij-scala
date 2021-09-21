@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 */
 
 object ImportSelector extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val importSelectorMarker = builder.mark()
     builder.getTokenType match {
       case _ if builder.features.`Scala 3 wildcard imports in selector` && builder.tryParseSoftKeyword(ScalaTokenType.WildcardStar) =>

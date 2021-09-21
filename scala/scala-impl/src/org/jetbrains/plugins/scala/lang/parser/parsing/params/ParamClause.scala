@@ -15,12 +15,11 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 /*
  * ParamClause ::= [nl] '(' [Params] ')'
  */
-object ParamClause extends ParsingRule {
+object ParamClause {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
-    apply(mustBeUsing = false)
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = apply()
 
-  def apply(mustBeUsing: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
+  def apply(mustBeUsing: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     val paramMarker = builder.mark()
     if (builder.twoNewlinesBeforeCurrentToken) {
       paramMarker.drop()

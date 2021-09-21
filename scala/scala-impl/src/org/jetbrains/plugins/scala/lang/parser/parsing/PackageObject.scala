@@ -16,7 +16,7 @@ object PackageObject extends ParsingRule {
   import lexer.ScalaTokenType.ObjectKeyword
   import lexer.ScalaTokenTypes.kPACKAGE
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     marker.setCustomEdgeTokenBinders(ScalaTokenBinders.PRECEDING_COMMENTS_TOKEN, null)
 

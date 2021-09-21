@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 import org.jetbrains.plugins.scala.lang.parser.{ErrMsg, ScalaElementType}
 
 object Quoted extends ParsingRule {
-  final override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  final override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     assert(builder.getTokenType == ScalaTokenType.QuoteStart)
     val marker = builder.mark()
     builder.advanceLexer()

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 */
 object ClassTemplateBlock extends ParsingRule{
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val extendsMarker = builder.mark()
     var nonEmpty = false
 

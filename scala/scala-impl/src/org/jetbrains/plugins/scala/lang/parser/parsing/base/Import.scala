@@ -19,7 +19,7 @@ trait Import extends ParsingRule {
 
   protected def elementType: IElementType
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     parseKeyword(keywordType, isObligatory = true)

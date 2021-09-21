@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * from the Scala Reference does not match the implementation in Parsers.scala.
  */
 object Expr extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val exprMarker = builder.mark()
 
     if (builder.isScala3 && builder.getTokenType == ScalaTokenTypes.kIMPLICIT) {

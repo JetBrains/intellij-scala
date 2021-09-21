@@ -27,7 +27,7 @@ sealed trait ExprInIndentationRegion extends ParsingRule {
     ScalaTokenTypes.tCOMMA,
   )
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (!builder.isScala3 || !builder.isScala3IndentationBasedSyntaxEnabled) {
       return exprParser()
     }
@@ -127,7 +127,7 @@ object PostfixExprInIndentationRegion extends ExprInIndentationRegion {
 object ConstrExprInIndentationRegion extends ExprInIndentationRegion {
   override protected def exprParser: ParsingRule = ConstBlockExpr
   override protected def exprPartParser: ParsingRule = new ParsingRule {
-    override def apply()(implicit builder: ScalaPsiBuilder): Boolean =
+    override def parse(implicit builder: ScalaPsiBuilder): Boolean =
       ConstBlockExpr.parseFirstConstrBlockExpr()
   }
   override protected def blockType: IElementType = ScalaElementType.CONSTR_BLOCK_EXPR
@@ -135,7 +135,7 @@ object ConstrExprInIndentationRegion extends ExprInIndentationRegion {
 
 
 private object ConstBlockExpr extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.getTokenType == ScalaTokenTypes.tLBRACE)
       ConstrBlock()
     else

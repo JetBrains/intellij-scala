@@ -20,7 +20,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 object LocalModifier extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case `kABSTRACT` |
          `kFINAL` |
          `kSEALED` |

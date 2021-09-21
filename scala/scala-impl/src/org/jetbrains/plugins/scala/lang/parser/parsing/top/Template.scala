@@ -22,7 +22,7 @@ sealed abstract class Template extends ParsingRule {
   protected def endedByMultipleNewlines(implicit builder: ScalaPsiBuilder): Boolean =
     builder.twoNewlinesBeforeCurrentToken
 
-  override final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override final def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     builder.getTokenType match {

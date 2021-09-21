@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
  */
 object Enumerator extends ParsingRule {
 
-  def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val enumeratorMarker = builder.mark()
 
     def parseAfterPattern(hasPrefix: Boolean): Boolean = {

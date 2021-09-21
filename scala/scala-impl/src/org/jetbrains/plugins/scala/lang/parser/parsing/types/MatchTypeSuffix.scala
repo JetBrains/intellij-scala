@@ -10,7 +10,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
  * [[MatchTypeSuffix]] ::= [[InfixType]] `match` [[TypeCaseClauses]]
  */
 object MatchTypeSuffix extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.tLBRACE =>
         builder.advanceLexer()

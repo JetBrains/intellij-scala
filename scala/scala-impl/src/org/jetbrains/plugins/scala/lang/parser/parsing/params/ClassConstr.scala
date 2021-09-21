@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.top.params.ClassParamClau
  */
 abstract class ClassConstr(val dropConstructorIfEmpty: Boolean) extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     TypeParamClause()
 
     val idx = builder.getCurrentOffset

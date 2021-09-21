@@ -21,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.statements.{Dcl, EmptyDcl
  */
 
 object ExistentialDclSeq extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenType match {
       case ScalaTokenTypes.kTYPE | ScalaTokenTypes.kVAL =>
         if (!Dcl(isMod = false)) {

@@ -15,7 +15,7 @@ sealed abstract class SoftModifier(modifiers: ScalaModifier*) extends ParsingRul
 
   import ScalaTokenTypes._
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case IsSoftModifier(tokenType) if isAllowed(tokenType) =>
       val marker = builder.mark()
 

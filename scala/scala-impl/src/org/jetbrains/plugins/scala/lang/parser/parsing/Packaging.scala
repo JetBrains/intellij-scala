@@ -15,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils.parseRuleInBlock
  */
 object Packaging extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder):Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val packMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.kPACKAGE =>

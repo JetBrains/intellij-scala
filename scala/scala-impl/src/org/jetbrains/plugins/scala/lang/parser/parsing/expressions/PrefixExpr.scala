@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.Path
  * PrefixExpr ::= ['-' | '+' | '~' | '!'] SimpleExpr
  */
 object PrefixExpr extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     builder.getTokenText match {
       case "-" | "+" | "~" | "!" =>
         val prefixMarker = builder.mark()

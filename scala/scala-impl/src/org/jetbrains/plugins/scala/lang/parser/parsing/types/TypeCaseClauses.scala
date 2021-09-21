@@ -8,7 +8,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * TypeCaseClauses ::= TypeCaseClause { TypeCaseClause }
  */
 object TypeCaseClauses extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
     if (!TypeCaseClause()) {

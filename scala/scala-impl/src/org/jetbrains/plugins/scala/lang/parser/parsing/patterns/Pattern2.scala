@@ -25,7 +25,7 @@ abstract class Pattern2(forDef: Boolean) extends ParsingRule {
     ScalaTokenTypes.tLPARENTHESIS,
   )
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     def testForId =
       !patternInForLookAhead.contains(builder.lookAhead(1))
 

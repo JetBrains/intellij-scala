@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * TypeParamClause ::= '[' VariantTypeParam {',' VariantTypeParam} ']'
  */
 object TypeParamClause {
-
+  def parse(implicit builder: ScalaPsiBuilder): Boolean = apply()
   def apply(
     mayHaveVariance:      Boolean = true,
     mayHaveViewBounds:    Boolean = true,

@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
  */
 object SelfType extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val selfTypeMarker = builder.mark()
     
     def handleFunArrow(): Unit = {

@@ -256,10 +256,10 @@ object ScalaPsiElementFactory {
 
 
   def createEmptyClassParamClauseWithContext(context: PsiElement): ScParameterClause =
-    createElementWithContext[ScParameterClause]("()", context, contextLastChild(context))(top.params.ClassParamClause()(_))
+    createElementWithContext[ScParameterClause]("()", context, contextLastChild(context))(top.params.ClassParamClause.parse(_))
 
   def createClassParamClausesWithContext(@NonNls text: String, context: PsiElement): ScParameters =
-    createElementWithContext[ScParameters](text, context, contextLastChild(context))(ClassParamClauses()(_))
+    createElementWithContext[ScParameters](text, context, contextLastChild(context))(ClassParamClauses.parse(_))
 
   def createConstructorFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScConstructorInvocation =
     createElementWithContext[ScConstructorInvocation](text, context, child){
@@ -743,7 +743,7 @@ object ScalaPsiElementFactory {
     }
   }
 
-  private def colon(name: String) = (if (isIdentifier(name + tCOLON)) " " else "") + tCOLON + " "
+  private def colon(name: String): String = (if (isIdentifier(name + tCOLON)) " " else "") + tCOLON + " "
 
   private def getOverrideImplementVariableSign(variable: ScTypedDefinition, substitutor: ScSubstitutor,
                                                body: Option[String], needsOverride: Boolean,
@@ -791,10 +791,10 @@ object ScalaPsiElementFactory {
     createElementWithContext[ScMember](text, context, child)(parsingStat.Def.parse(_))
 
   def createObjectWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScObject =
-    createElementWithContext[ScObject](text, context, child)(TmplDef()(_))
+    createElementWithContext[ScObject](text, context, child)(TmplDef.parse(_))
 
   def createTypeDefinitionWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeDefinition =
-    createElementWithContext[ScTypeDefinition](text, context, child)(TmplDef()(_))
+    createElementWithContext[ScTypeDefinition](text, context, child)(TmplDef.parse(_))
 
   def createReferenceFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScStableCodeReference =
     createElementWithContext[ScStableCodeReference](text, context, child) {
@@ -911,7 +911,7 @@ object ScalaPsiElementFactory {
     }
 
   def createImportFromTextWithContext(@NonNls text: String, context: PsiElement, child: PsiElement): ScImportStmt =
-    createElementWithContext[ScImportStmt](text, context, child)(Import()(_))
+    createElementWithContext[ScImportStmt](text, context, child)(Import.parse(_))
 
   def createTypeElementFromText(@NonNls text: String)
                                (implicit ctx: ProjectContext): ScTypeElement =
@@ -942,11 +942,11 @@ object ScalaPsiElementFactory {
     createExpressionFromText(s"1$whitespace+ 1").findElementAt(1)
 
   def createTypeElementFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeElement =
-    createElementWithContext[ScTypeElement](text, context, child)(types.ParamType.parseInner()(_))
+    createElementWithContext[ScTypeElement](text, context, child)(types.ParamType.parseWithoutScParamTypeCreation(_))
 
   def createTypeParameterClauseFromTextWithContext(@NonNls text: String, context: PsiElement,
                                                    child: PsiElement): ScTypeParamClause =
-    createElementWithContext[ScTypeParamClause](text, context, child)(params.TypeParamClause()(_))
+    createElementWithContext[ScTypeParamClause](text, context, child)(params.TypeParamClause.parse(_))
 
   def createWildcardPattern(implicit ctx: ProjectContext): ScWildcardPattern = {
     val element = createElementFromText("val _ = x")
@@ -954,10 +954,10 @@ object ScalaPsiElementFactory {
   }
 
   def createTemplateDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTemplateDefinition =
-    createElementWithContext[ScTemplateDefinition](text, context, child)(TmplDef()(_))
+    createElementWithContext[ScTemplateDefinition](text, context, child)(TmplDef.parse(_))
 
   def createDeclarationFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScDeclaration =
-    createElementWithContext[ScDeclaration](text, context, child)(parsingStat.Dcl()(_))
+    createElementWithContext[ScDeclaration](text, context, child)(parsingStat.Dcl.parse(_))
 
   def createTypeAliasDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeAliasDefinition =
     createElementWithContext[ScTypeAliasDefinition](text, context, child)(parsingStat.Def.parse(_))

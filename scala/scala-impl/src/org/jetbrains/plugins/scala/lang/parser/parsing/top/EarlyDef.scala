@@ -20,7 +20,7 @@ import scala.annotation.tailrec
  */
 object EarlyDef extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val earlyMarker = builder.mark()
     //Look for {
     builder.getTokenType match {

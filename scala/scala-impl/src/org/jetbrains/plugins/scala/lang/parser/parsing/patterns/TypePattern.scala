@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{ExistentialClause,
  * TypePattern ::= Type (but it can't be InfixType => Type (because case A => B => C?))
  */
 object TypePattern extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val typeMarker = builder.mark()
     builder.getTokenType match {
       case ScalaTokenTypes.tLPARENTHESIS =>

@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.patterns.{Guard, Pattern1
  */
 object Generator extends ParsingRule {
 
-  def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val genMarker = builder.mark()
     if (builder.getTokenType == ScalaTokenTypes.kVAL) builder.advanceLexer() //deprecated
     builder.getTokenType match {

@@ -7,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 
 abstract class Spliced(elementType: ScalaElementType) extends ParsingRule {
-  final def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  final def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
     assert(builder.getTokenType == ScalaTokenType.SpliceStart)
     builder.advanceLexer()

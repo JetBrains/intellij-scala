@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.types.{AnnotType, SimpleT
  */
 object Constructor extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = parse(isAnnotation = false)
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = parse(isAnnotation = false)
 
   def parse(isAnnotation: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val constrMarker = builder.mark()

@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  */
 
 object PI extends ParsingRule {
-  def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val PIMarker = builder.mark()
     builder.getTokenType match {
       case ScalaXmlTokenTypes.XML_PI_START => builder.advanceLexer()

@@ -24,7 +24,7 @@ trait Types {
   final def apply()(implicit builder: ScalaPsiBuilder): (Boolean, Boolean) ={
     var isTuple = false
 
-    def parseTypes() = if (`type`.parseInner()) {
+    def parseTypes(): Boolean = if (`type`.parseWithoutScParamTypeCreation(builder)) {
       true
     } else if (builder.getTokenType == ScalaTokenTypes.tUNDER) {
       builder.advanceLexer()

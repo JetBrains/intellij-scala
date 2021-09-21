@@ -16,7 +16,7 @@ object InfixTypePrefix {
   def apply(star: Boolean, isPattern: Boolean)(implicit builder: ScalaPsiBuilder): Boolean = {
     val marker = builder.mark()
 
-    if (builder.isScala3 && DepFunParams.parse()) {
+    if (builder.isScala3 && DepFunParams()) {
       builder.getTokenType match {
         case ScalaTokenTypes.tFUNTYPE | ScalaTokenType.ImplicitFunctionArrow =>
           builder.advanceLexer()

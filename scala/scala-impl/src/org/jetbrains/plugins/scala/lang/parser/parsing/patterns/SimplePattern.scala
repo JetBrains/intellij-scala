@@ -39,7 +39,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.{InScala3, ParserUtils}
  */
 object SimplePattern extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val simplePatternMarker = builder.mark()
 
     builder.getTokenType match {

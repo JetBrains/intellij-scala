@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
 sealed abstract class CaseClauses extends ParsingRule {
   protected def parseCaseClause()(implicit builder: ScalaPsiBuilder): Boolean
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val caseClausesMarker = builder.mark()
     if (!parseCaseClause()) {
       caseClausesMarker.drop()

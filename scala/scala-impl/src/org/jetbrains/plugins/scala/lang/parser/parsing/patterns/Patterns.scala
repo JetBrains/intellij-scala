@@ -14,7 +14,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.ParserUtils
 */
 object Patterns extends ParsingRule {
 
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val patternsMarker = builder.mark()
     if (!Pattern()) {
       builder.getTokenType match {

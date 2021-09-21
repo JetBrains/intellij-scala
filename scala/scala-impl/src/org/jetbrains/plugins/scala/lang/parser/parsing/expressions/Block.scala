@@ -18,7 +18,7 @@ object Block {
   abstract class ContentInBraces extends ParsingRule {
     def parseStmt()(implicit builder: ScalaPsiBuilder): Boolean
 
-    override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
       while(builder.getTokenType == ScalaTokenTypes.tSEMICOLON) {
         builder.advanceLexer()
       }
@@ -68,7 +68,7 @@ object Block {
   }
 
   object Braced extends ParsingRule {
-    override def apply()(implicit builder: ScalaPsiBuilder): Boolean = {
+    override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
       val blockMarker = builder.mark()
       builder.getTokenType match {
         case ScalaTokenTypes.tLBRACE =>

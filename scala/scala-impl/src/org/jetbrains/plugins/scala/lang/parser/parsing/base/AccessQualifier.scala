@@ -13,7 +13,7 @@ import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
  * AccessModifier ::= '[' (id | 'this') ']'
  */
 object AccessQualifier extends ParsingRule {
-  override def apply()(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
+  override def parse(implicit builder: ScalaPsiBuilder): Boolean = builder.getTokenType match {
     case ScalaTokenTypes.tLSQBRACKET =>
       builder.advanceLexer() // Ate [
       builder.disableNewlines()
