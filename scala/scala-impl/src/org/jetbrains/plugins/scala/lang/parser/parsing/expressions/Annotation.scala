@@ -4,8 +4,11 @@ package parser
 package parsing
 package expressions
 
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
+
+import scala.annotation.tailrec
 
 /**
  * @author Alexander Podkhalyuzin
@@ -37,5 +40,17 @@ object Annotation {
       return false
     } else rollbackMarker.drop()
     true
+  }
+
+  def skipUnattachedAnnotations(@Nls missingTargetMessage: => String)(implicit builder: ScalaPsiBuilder): Boolean = {
+    @tailrec
+    def parseAtLeastOneAnnotation(hadAnnotation: Boolean = false): Boolean =
+      if (Annotation()) parseAtLeastOneAnnotation(hadAnnotation = true) else hadAnnotation
+
+    val parsedOneAnnotation = parseAtLeastOneAnnotation()
+    if (parsedOneAnnotation) {
+      builder error missingTargetMessage
+    }
+    parsedOneAnnotation
   }
 }

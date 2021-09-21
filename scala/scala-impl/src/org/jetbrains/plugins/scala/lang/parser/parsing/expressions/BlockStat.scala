@@ -68,7 +68,7 @@ object BlockStat extends ParsingRule {
             //    // vs
             //    inline def test = 3
             //  }
-            Expr1()
+            Expr1() || Annotation.skipUnattachedAnnotations(ErrMsg("missing.statement.for.annotation"))
           }
         } else {
           true

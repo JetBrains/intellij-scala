@@ -5,9 +5,9 @@ package parsing
 package top
 package template
 
-import org.jetbrains.plugins.scala.lang.parser.parsing.base.{End, Export, Extension, Import}
+import org.jetbrains.plugins.scala.lang.parser.parsing.base.{Export, Extension, Import}
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
-import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr, Expr1}
+import org.jetbrains.plugins.scala.lang.parser.parsing.expressions.{Annotation, Expr}
 import org.jetbrains.plugins.scala.lang.parser.parsing.statements._
 
 /**
@@ -27,7 +27,8 @@ sealed abstract class Stat extends ParsingRule {
       case _ =>
         parseDeclaration() ||
           EmptyDcl() ||
-          Expr()
+          Expr() ||
+          Annotation.skipUnattachedAnnotations(ErrMsg("missing.statement.for.annotation"))
     }
 
   protected def parseDeclaration()(implicit builder: ScalaPsiBuilder): Boolean =

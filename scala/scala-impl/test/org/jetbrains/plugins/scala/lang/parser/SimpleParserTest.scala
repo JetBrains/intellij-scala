@@ -195,4 +195,81 @@ class SimpleParserTest extends SimpleScalaParserTestBase {
       |      PsiElement(})('}')
       |""".stripMargin
   )
+
+  def test_annotations_without_target(): Unit = checkTree(
+    """
+      |object Test {
+      |  def test = {
+      |    @a
+      |  }
+      |  @b
+      |}
+      |@c
+      |""".stripMargin.trim,
+    """
+      |ScalaFile
+      |  ScObject: Test
+      |    AnnotationsList
+      |      <empty list>
+      |    Modifiers
+      |      <empty list>
+      |    PsiElement(object)('object')
+      |    PsiWhiteSpace(' ')
+      |    PsiElement(identifier)('Test')
+      |    PsiWhiteSpace(' ')
+      |    ExtendsBlock
+      |      ScTemplateBody
+      |        PsiElement({)('{')
+      |        PsiWhiteSpace('\n  ')
+      |        ScFunctionDefinition: test
+      |          AnnotationsList
+      |            <empty list>
+      |          Modifiers
+      |            <empty list>
+      |          PsiElement(def)('def')
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(identifier)('test')
+      |          Parameters
+      |            <empty list>
+      |          PsiWhiteSpace(' ')
+      |          PsiElement(=)('=')
+      |          PsiWhiteSpace(' ')
+      |          BlockExpression
+      |            PsiElement({)('{')
+      |            PsiWhiteSpace('\n    ')
+      |            Annotation
+      |              PsiElement(@)('@')
+      |              AnnotationExpression
+      |                ConstructorInvocation
+      |                  SimpleType: a
+      |                    CodeReferenceElement: a
+      |                      PsiElement(identifier)('a')
+      |            PsiErrorElement:Missing statement for annotation
+      |              <empty list>
+      |            PsiWhiteSpace('\n  ')
+      |            PsiElement(})('}')
+      |        PsiWhiteSpace('\n  ')
+      |        Annotation
+      |          PsiElement(@)('@')
+      |          AnnotationExpression
+      |            ConstructorInvocation
+      |              SimpleType: b
+      |                CodeReferenceElement: b
+      |                  PsiElement(identifier)('b')
+      |        PsiErrorElement:Missing statement for annotation
+      |          <empty list>
+      |        PsiWhiteSpace('\n')
+      |        PsiElement(})('}')
+      |  PsiWhiteSpace('\n')
+      |  Annotation
+      |    PsiElement(@)('@')
+      |    AnnotationExpression
+      |      ConstructorInvocation
+      |        SimpleType: c
+      |          CodeReferenceElement: c
+      |            PsiElement(identifier)('c')
+      |  PsiErrorElement:Missing toplevel statement for annotation
+      |    <empty list>
+      |""".stripMargin
+  )
 }
