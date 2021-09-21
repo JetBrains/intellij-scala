@@ -7,11 +7,13 @@ import com.intellij.codeInsight.template.impl.ConstantNode
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor._
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
@@ -67,7 +69,8 @@ object SbtScalacOptionsCompletionContributor {
   }
 
   private class ScalacOptionInsertHandler(option: SbtScalacOptionInfo, scalaVersions: List[String]) extends InsertHandler[LookupElement] {
-    override def handleInsert(context: InsertionContext, item: LookupElement): Unit = {
+    override def handleInsert(ctx: InsertionContext, item: LookupElement): Unit = {
+      implicit val context: InsertionContext = ctx
       context.commitDocument()
 
       val elem = context.getFile.findElementAt(context.getStartOffset)
@@ -78,25 +81,49 @@ object SbtScalacOptionsCompletionContributor {
           // handle `-foo-bar-baz` and `--foo-bar-baz` cases as well
           val startOffset = ref.startOffset
           val endOffset = ref.endOffset + option.flag.dropWhile(_ == '-').length
-          doHandleInsert(context)(startOffset, endOffset)
+          doHandleInsert(startOffset, endOffset)
         case str: ScStringLiteral =>
           // handle cases when string literal is invalid. E.g.: `"-flag` -> `"-flag"`
-          doHandleInsert(context)(str.startOffset, str.endOffset)
+          doHandleInsert(str.startOffset, str.endOffset)
         case _ =>
       }
     }
 
-    private def doHandleInsert(context: InsertionContext)(startOffset: Int, endOffset: Int): Unit = {
-      inWriteAction {
-        context.getDocument.replaceString(startOffset, endOffset, option.getText)
+    private def doHandleInsert(startOffset: Int, endOffset: Int)(implicit context: InsertionContext): Unit = {
+      val newStartOffset = insertOption(startOffset, endOffset)
+      // if option has arguments, build and run interactive template
+      if (option.argType != ArgType.No) runOptionArgumentsTemplate(newStartOffset)
+    }
+
+    private def insertOption(startOffset: Int, endOffset: Int)(implicit context: InsertionContext): Int =
+      option.argType match {
+        case ArgType.OneSeparate =>
+          val element = context.getFile.findElementAt(startOffset)
+          val parent = SbtScalacOptionUtils.getScalacOptionsSbtSettingParent(element)
+
+          parent match {
+            // simple case `scalacOptions += "option", "argument"`
+            // rewrite to `scalacOptions ++= Seq("option", "argument")`
+            case Some(expr) if expr.operation.refName == "+=" && expr.right.startOffset == element.startOffset =>
+              context.getDocument.replaceString(startOffset, endOffset, s"Seq(${option.getText})")
+              context.commitDocument()
+              expr.operation.replace(ScalaPsiElementFactory.createElementFromText("++=")(expr.projectContext))
+              PsiDocumentManager.getInstance(context.getProject).doPostponedOperationsAndUnblockDocument(context.getDocument)
+              startOffset + 5 // '+' in operation + 'Seq('
+            case _ =>
+              context.getDocument.replaceString(startOffset, endOffset, option.getText)
+              startOffset
+          }
+
+        case _ =>
+          context.getDocument.replaceString(startOffset, endOffset, option.getText)
+          startOffset
       }
 
-      if (option.argType == ArgType.No) return
-
-      // if option has arguments, build and run interactive template
+    private def runOptionArgumentsTemplate(offset: Int)(implicit context: InsertionContext): Unit = {
       context.commitDocument()
 
-      val offsetBeforeClosingQuote = startOffset + option.getText.length - 1
+      val offsetBeforeClosingQuote = offset + option.getText.length - 1
 
       val templateContainerElement = context.getFile.findElementAt(offsetBeforeClosingQuote)
 
@@ -113,7 +140,7 @@ object SbtScalacOptionsCompletionContributor {
 
           // for options like -J<flag> create one template variable: -J`<flag>`
           // for options like -Dproperty=value create multiple variables: -D`property`=`value`
-          argument.split('=').foldLeft(startOffset + 1 + prefix.length) {
+          argument.split('=').foldLeft(offset + 1 + prefix.length) {
             case (offset, variableText) =>
               replaceRange(offset, variableText.length, new ConstantNode(variableText))
               // next variable offset skipping `=`

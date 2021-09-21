@@ -42,13 +42,15 @@ object SbtScalacOptionUtils {
 
   def isScalacOption(ref: ScReferenceExpression): Boolean = isScalacOptionInternal(ref)
 
-  private def isScalacOptionInternal(element: PsiElement): Boolean =
-    element.parents.exists {
-      case expr: ScInfixExpr =>
-        val op = expr.operation.refName
-        matchesScalacOptionsSbtSetting(expr.left) && (if (isSeq(expr.right)) op == "++=" else op == "+=")
-      case _ => false
+  def getScalacOptionsSbtSettingParent(element: PsiElement): Option[ScInfixExpr] =
+    element.parents.collectFirst {
+      case expr: ScInfixExpr if matchesScalacOptionsSbtSetting(expr.left) &&
+        (if (isSeq(expr.right)) expr.operation.refName == "++=" else expr.operation.refName == "+=") =>
+        expr
     }
+
+  private def isScalacOptionInternal(element: PsiElement): Boolean =
+    getScalacOptionsSbtSettingParent(element).isDefined
 
   @Cached(ModificationTracker.NEVER_CHANGED, null)
   def getScalacOptions: Seq[SbtScalacOptionInfo] = {

@@ -8,6 +8,9 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
   private val LOOKUP_ITEM = "-Yno-generic-signatures" // flag with multiple dashes
   private val RESULT_OPTION = s""""$LOOKUP_ITEM""""
 
+  private val LOOKUP_ITEM_WITH_SEPARATE_ARG = "-classpath"
+  private val RESULT_OPTION_WITH_SEPARATE_ARG = s"""Seq("$LOOKUP_ITEM_WITH_SEPARATE_ARG", ".")"""
+
   override protected def configureFromFileText(fileText: String): PsiFile =
     configureFromFileText(fileText, SbtFileType)
 
@@ -33,6 +36,30 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
          |scalacOptions += $RESULT_OPTION
          |""".stripMargin,
     item = LOOKUP_ITEM
+  )
+
+  def testTopLevel_SingleToSeq_OutsideOfStringLiteral(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions += $CARET
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions ++= $RESULT_OPTION_WITH_SEPARATE_ARG
+         |""".stripMargin,
+    item = LOOKUP_ITEM_WITH_SEPARATE_ARG
+  )
+
+  def testTopLevel_SingleToSeq_InsideOfStringLiteral(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |scalacOptions += "$CARET"
+         |""".stripMargin,
+    resultText =
+      s"""
+         |scalacOptions ++= $RESULT_OPTION_WITH_SEPARATE_ARG
+         |""".stripMargin,
+    item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
   def testTopLevel_SeqOneLine_OutsideOfStringLiteral(): Unit = doCompletionTest(
@@ -169,6 +196,50 @@ class SbtScalacOptionInsertHandlerTest extends ScalaCodeInsightTestBase {
          |  )
          |""".stripMargin,
     item = LOOKUP_ITEM
+  )
+
+  def testInProjectSettings_SingleToSeq_OutsideOfStringLiteral(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |lazy val foo = project.in(file("foo"))
+         |  .settings(
+         |    name := "foo",
+         |    scalaVersion := "${version.minor}",
+         |    scalacOptions += $CARET
+         |  )
+         |""".stripMargin,
+    resultText =
+      s"""
+         |lazy val foo = project.in(file("foo"))
+         |  .settings(
+         |    name := "foo",
+         |    scalaVersion := "${version.minor}",
+         |    scalacOptions ++= $RESULT_OPTION_WITH_SEPARATE_ARG
+         |  )
+         |""".stripMargin,
+    item = LOOKUP_ITEM_WITH_SEPARATE_ARG
+  )
+
+  def testInProjectSettings_SingleToSeq_InsideOfStringLiteral(): Unit = doCompletionTest(
+    fileText =
+      s"""
+         |lazy val foo = project.in(file("foo"))
+         |  .settings(
+         |    name := "foo",
+         |    scalaVersion := "${version.minor}",
+         |    scalacOptions += "$CARET"
+         |  )
+         |""".stripMargin,
+    resultText =
+      s"""
+         |lazy val foo = project.in(file("foo"))
+         |  .settings(
+         |    name := "foo",
+         |    scalaVersion := "${version.minor}",
+         |    scalacOptions ++= $RESULT_OPTION_WITH_SEPARATE_ARG
+         |  )
+         |""".stripMargin,
+    item = LOOKUP_ITEM_WITH_SEPARATE_ARG
   )
 
   def testInProjectSettings_SeqOneLine_OutsideOfStringLiteral(): Unit = doCompletionTest(
