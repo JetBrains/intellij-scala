@@ -4,7 +4,9 @@ import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.LogicalOperation
 
-object SpecialSupport {
+object SpecialSupportUtils {
+
+  val BooleanTypeClass: String = "scala.Boolean"
 
   val NumericTypeClasses: Seq[String] =
     for (typeName <- List("Int", "Long", "Float", "Double"))

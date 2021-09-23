@@ -1,10 +1,15 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import com.intellij.codeInspection.dataFlow.java.inst.NumericBinaryInstruction
+import com.intellij.codeInspection.dataFlow.java.inst.{BooleanBinaryInstruction, NumericBinaryInstruction}
+import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
+import com.intellij.codeInspection.dataFlow.lang.ir._
+import com.intellij.codeInspection.dataFlow.types.DfTypes
+import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.SpecialSupport.{NumericOperations, NumericTypeClasses}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.SpecialSupportUtils._
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
@@ -32,7 +37,9 @@ class InvocationTransformer(invocation: MethodInvocation) extends ScalaPsiElemen
   private def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                                      builder: ScalaDfaControlFlowBuilder): Boolean = {
     if (tryTransformNumericOperations(function, invocationInfo, builder)) true
-    else false // TODO instead of "false" other cases
+    else if (tryTransformRelationalExpressions(function, invocationInfo, builder)) true
+    else if (tryTransformLogicalOperations(function, invocationInfo, builder)) true
+    else false
   }
 
   private def tryTransformNormalFunctionSpecially(function: ScFunction, invocationInfo: InvocationInfo,
@@ -48,8 +55,8 @@ class InvocationTransformer(invocation: MethodInvocation) extends ScalaPsiElemen
     function.name == functionName && properReturnedClass
   }
 
-  private def tryTransformNumericOperations(function: ScSyntheticFunction, invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Boolean = {
-    tryTransformNumericOperations(function, invocationInfo, builder)
+  private def tryTransformNumericOperations(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
+                                            builder: ScalaDfaControlFlowBuilder): Boolean = {
     for (typeClass <- NumericTypeClasses; operationName <- NumericOperations.keys) {
       if (matchesSignature(function, operationName, typeClass)) {
         val operation = NumericOperations(operationName)
@@ -66,34 +73,53 @@ class InvocationTransformer(invocation: MethodInvocation) extends ScalaPsiElemen
     false
   }
 
-  /*
-  private def processRelationalExpression(builder: ScalaDfaControlFlowBuilder, expression: ScInfixExpr, operation: RelationType): Unit = {
-    val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
-    transformPsiElement(expression.left, builder)
-    // TODO check types, for now we only want this (except for equality) to work on JVM primitive types, otherwise pushUnknownCall
-    // TODO add implicit conversions etc.
-    transformPsiElement(expression.right, builder)
-    builder.pushInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaStatementAnchor(expression)))
+  private def tryTransformRelationalExpressions(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
+                                                builder: ScalaDfaControlFlowBuilder): Boolean = {
+    for (typeClass <- NumericTypeClasses; operationName <- RelationalOperations.keys) {
+      if (matchesSignature(function, operationName, typeClass)) {
+        val operation = RelationalOperations(operationName)
+        val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
+        val List(leftArg, rightArg, _*) = invocationInfo.argsInEvaluationOrder
+        leftArg.content.transform(builder)
+        // TODO check implicit conversions etc.
+        // TODO check division by zero
+        rightArg.content.transform(builder)
+        builder.pushInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent, ScalaStatementAnchor(invocation)))
+        return true
+      }
+    }
+
+    false
   }
 
-  private def processLogicalExpression(builder: ScalaDfaControlFlowBuilder, expression: ScInfixExpr, operation: LogicalOperation): Unit = {
-    val anchor = ScalaStatementAnchor(expression)
-    val endOffset = new DeferredOffset
-    val nextConditionOffset = new DeferredOffset
+  private def tryTransformLogicalOperations(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
+                                            builder: ScalaDfaControlFlowBuilder): Boolean = {
+    for (operationName <- LogicalOperations.keys) {
+      if (matchesSignature(function, operationName, BooleanTypeClass)) {
+        val operation = LogicalOperations(operationName)
+        val List(leftArg, rightArg, _*) = invocationInfo.argsInEvaluationOrder
 
-    transformPsiElement(expression.left, builder)
+        val anchor = ScalaStatementAnchor(invocation)
+        val endOffset = new DeferredOffset
+        val nextConditionOffset = new DeferredOffset
 
-    val valueNeededToContinue = operation == LogicalOperation.And
-    builder.pushInstruction(new ConditionalGotoInstruction(nextConditionOffset,
-      DfTypes.booleanValue(valueNeededToContinue), expression.left))
-    builder.pushInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
-    builder.pushInstruction(new GotoInstruction(endOffset))
+        leftArg.content.transform(builder)
 
-    builder.setOffset(nextConditionOffset)
-    builder.pushInstruction(new FinishElementInstruction(null))
-    transformPsiElement(expression.right, builder)
-    builder.setOffset(endOffset)
-    builder.pushInstruction(new ResultOfInstruction(anchor))
+        val valueNeededToContinue = operation == LogicalOperation.And
+        builder.pushInstruction(new ConditionalGotoInstruction(nextConditionOffset,
+          DfTypes.booleanValue(valueNeededToContinue), invocation.argumentExpressions.head))
+        builder.pushInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
+        builder.pushInstruction(new GotoInstruction(endOffset))
+
+        builder.setOffset(nextConditionOffset)
+        builder.pushInstruction(new FinishElementInstruction(null))
+        rightArg.content.transform(builder)
+        builder.setOffset(endOffset)
+        builder.pushInstruction(new ResultOfInstruction(anchor))
+        return true
+      }
+    }
+
+    false
   }
-   */
 }
