@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
+import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
@@ -32,7 +33,7 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
   /**
    * Finishes building of this control flow and returns its representation. It can be further
    * analysed using its ''toString'' method (which prints it in standard IR format)
-   * or modules like [[com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter]].
+   * or modules like [[DataFlowInterpreter]].
    *
    * @return [[com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow]] representation
    *         of instructions that have been pushed to this builder's stack.
