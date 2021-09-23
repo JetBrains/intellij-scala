@@ -528,7 +528,139 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "x, y"
   )
 
-  def testCaseClass(): Unit = doRawCompletionTest(
+  def testCaseClass(): Unit = doCompletionTest(
+    fileText =
+      s"""case class A(x: Int, y: Int)
+         |
+         |class B {
+         |  def bar(x: Int, y: Int) = {
+         |    A($CARET)
+         |  }
+         |}
+      """.stripMargin,
+    resultText =
+      s"""case class A(x: Int, y: Int)
+         |
+         |class B {
+         |  def bar(x: Int, y: Int) = {
+         |    A(x, y)$CARET
+         |  }
+         |}
+      """.stripMargin,
+    item = "x, y"
+  )
+
+  def testCaseClassLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""case class A(x: Int, y: Int)
+         |
+         |class B {
+         |  def bar(x: Int, y: Int) =
+         |    A($CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""case class A(x: Int, y: Int)
+         |
+         |class B {
+         |  def bar(x: Int, y: Int) =
+         |    A(x, y)$CARET
+         |}
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  def testBeforeParenthesisOnlyInCaseClass(): Unit = checkNoCompletion(
+    s"""case class A(x: Int, y: Int)
+       |
+       |class B {
+       |  def bar(x: Int, y: Int) =
+       |    A(x, $CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testAfterParenthesisOnlyInCaseClass(): Unit = checkNoCompletion(
+    s"""case class A(x: Int, y: Int)
+       |
+       |class B {
+       |  def bar(x: Int, y: Int) =
+       |    A($CARET, y)
+       |}
+       |""".stripMargin
+  )
+
+  def testPositionInCaseClass(): Unit = doCompletionTest(
+    fileText =
+      s"""case class A(x: Int, y: Int, z: Int)
+         |
+         |class B {
+         |  def bar(y: Int, z: Int) =
+         |    A(, $CARET)
+         |}
+         |""".stripMargin,
+    resultText =
+      s"""case class A(x: Int, y: Int, z: Int)
+         |
+         |class B {
+         |  def bar(y: Int, z: Int) =
+         |    A(, y, z)$CARET
+         |}
+         |""".stripMargin,
+    item = "y, z"
+  )
+
+  def testEmptyCaseClassArgumentsList(): Unit = checkNoCompletion(
+    s"""case class A()
+       |
+       |class B {
+       |  def bar() =
+       |    A($CARET)
+       |}
+       |""".stripMargin
+  )
+
+  def testTooShortCaseClassArgumentsList(): Unit = checkNoCompletion(
+    s"""case class A(x: Int)
+       |
+       |class B {
+       |  def bar(x: Int) =
+       |    A($CARET)
+       |}
+       |""".stripMargin
+  )
+
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoNameMatchingCaseClass(): Unit = super.checkNoCompletion(
+    fileText =
+      s"""case class A(x: Int, y: Int)
+         |
+         |class B {
+         |  def bar(x: Int, z: Int) =
+         |    A($CARET)
+         |}
+         |""".stripMargin
+  ) {
+    hasItemText(_, "x, y")(tailText = null)
+  }
+
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoTypeMatchingCaseClass(): Unit = super.checkNoCompletion(
+    fileText =
+      s"""case class A(x: Int, y: Int)
+         |
+         |class B {
+         |  def bar(x: Int, y: String) =
+         |    A($CARET)
+         |}
+         |""".stripMargin
+  ) {
+    hasItemText(_, "x, y")(tailText = null)
+  }
+
+  def testCaseClassAssignment(): Unit = doRawCompletionTest(
     fileText =
       s"""final case class Foo()(foo: Int, bar: Int)
          |
@@ -543,7 +675,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     hasItemText(_, "foo, bar")(tailText = " = ")
   }
 
-  def testPhysicalApplyMethod(): Unit = doCompletionTest(
+  def testPhysicalApplyMethodAssignment(): Unit = doCompletionTest(
     fileText =
       s"""final class Foo private(val foo: Int,
          |                        val bar: Int,
@@ -585,7 +717,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "foo, bar, baz"
   )
 
-  def testPhysicalApplyMethod2(): Unit = doCompletionTest(
+  def testPhysicalApplyMethodAssignment2(): Unit = doCompletionTest(
     fileText =
       s"""final class Foo private(val foo: Int,
          |                        val bar: Int,
@@ -627,7 +759,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
     item = "foo, bar"
   )
 
-  def testApplyCallLookupElement(): Unit = checkLookupElement(
+  def testApplyCallAssignmentLookupElement(): Unit = checkLookupElement(
     fileText =
       s"""final case class Foo(foo: Int, bar: Int)
          |
@@ -672,7 +804,7 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |""".stripMargin
   )
 
-  def testPositionInApplyCall(): Unit = doCompletionTest(
+  def testPositionInApplyCallAssignment(): Unit = doCompletionTest(
     fileText =
       s"""final case class Foo(foo: Int, bar: Int, baz: Int)
          |

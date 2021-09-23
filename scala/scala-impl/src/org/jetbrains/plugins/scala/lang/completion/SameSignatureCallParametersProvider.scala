@@ -10,7 +10,6 @@ import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.psi.{PsiElement, PsiMember, PsiMethod}
 import com.intellij.ui.LayeredIcon
 import com.intellij.util.ProcessingContext
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.completion.handlers.ScalaInsertHandler.AssignmentText
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
@@ -18,12 +17,15 @@ import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScParameterizedTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
+
+import javax.swing.Icon
 
 /**
  * @author Alefas
@@ -68,19 +70,22 @@ object SameSignatureCallParametersProvider {
           createFunctionArgumentsElements(
             reference,
             argumentToStart,
-            reference.qualifier.exists(_.isInstanceOf[ScSuperReference]),
+            reference.qualifier.exists(_.is[ScSuperReference]),
             parameters.getInvocationCount
           ) ++ createAssignmentElements(reference, argumentToStart)
         case _ => Iterable.empty
       }
     }
 
+    /** Complete function's arguments (including syntactic sugar for apply): `(foo, bar, baz)` starting from the given
+     * argument. Only applicable when there are variables with the same name and matching type in scope for every
+     * argument starting from argumentToStart */
     private def createFunctionArgumentsElements(reference: ScReferenceExpression,
                                                 argumentToStart: ArgumentToStart,
                                                 hasSuperQualifier: Boolean,
                                                 invocationCount: Int) = for {
-      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.completionVariants()
-      if method.name == reference.refName
+      ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.completionVariants() ++ reference.multiResolveScala(incomplete = true)
+      if method.name == CommonNames.Apply || method.name == reference.refName
 
       lookupElement <- createLookupElement(method, argumentToStart, substitutor) {
         findResolvableParameters(reference, invocationCount)
@@ -89,6 +94,8 @@ object SameSignatureCallParametersProvider {
       .withMoveCaretInsertionHandler
       .withSuperMethodParameters(hasSuperQualifier)
 
+    /** Complete apply method's arguments: `(foo = ???, bar = ???, baz = ???)` starting from the given argument
+     * and run an interactive [[com.intellij.codeInsight.template.Template]] */
     private def createAssignmentElements(reference: ScReferenceExpression,
                                          argumentToStart: ArgumentToStart) = for {
       ScalaResolveResult(function: ScFunction, substitutor) <- reference.multiResolveScala(incomplete = true).toSeq
