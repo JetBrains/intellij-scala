@@ -233,10 +233,6 @@ private[importing] object BspResolverLogic {
                                                     dependencyOutputs: Seq[File]
                                                   )(implicit gson: Gson): Option[ModuleDescription] = {
 
-    // all subdirectories of a source dir are automatically source dirs
-    val sourceRoots = filterRoots(sourceDirs)
-    val resourceRoots = filterRoots(resourceDirs)
-
     val moduleBase = Option(target.getBaseDirectory).map(_.toURI.toFile)
     val outputPath =
       scalacOptions.map(_.getClassDirectory.toURI.toFile)
@@ -276,7 +272,7 @@ private[importing] object BspResolverLogic {
     }
 
     val moduleDescriptionData = createModuleDescriptionData(
-      target, tags.toSeq, moduleBase, outputPath, sourceRoots, resourceRoots,
+      target, tags.toSeq, moduleBase, outputPath, sourceDirs, resourceDirs,
       classPathWithoutDependencyOutputs, dependencySourceDirs, langLevel)
 
     if (tags.contains(BuildTargetTag.NO_IDE)) None
@@ -697,22 +693,15 @@ private[importing] object BspResolverLogic {
       new DataNode[LibraryDependencyData](ProjectKeys.LIBRARY_DEPENDENCY, libraryTestDependencyData, moduleNode)
     moduleNode.addChild(libraryTestDependencyNode)
 
-    if (moduleType == SbtModuleType.instance) {
-      moduleBase.foreach { base =>
-        val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, base, moduleNode)
-        moduleNode.addChild(contentRootDataNode)
-      }
-    } else {
-      val contentRootData: Iterable[ContentRootData] = allSourceRoots.map { case (sourceType, root) =>
-        val data = getContentRoot(root.directory, moduleBase)
-        data.storePath(sourceType, root.directory.getCanonicalPath, root.packagePrefix.orNull)
-        data.getRootPath -> data
-      }.toMap.values // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
+    val contentRootData: Iterable[ContentRootData] = allSourceRoots.map { case (sourceType, root) =>
+      val data = getContentRoot(root.directory, moduleBase)
+      data.storePath(sourceType, root.directory.getCanonicalPath, root.packagePrefix.orNull)
+      data.getRootPath -> data
+    }.toMap.values // effectively deduplicate by content root path. ContentRootData does not implement equals correctly
 
-      contentRootData.foreach { data =>
-        val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
-        moduleNode.addChild(contentRootDataNode)
-      }
+    contentRootData.foreach { data =>
+      val contentRootDataNode = new DataNode[ContentRootData](ProjectKeys.CONTENT_ROOT, data, moduleNode)
+      moduleNode.addChild(contentRootDataNode)
     }
 
     val metadata = createBspMetadata(moduleDescription)
