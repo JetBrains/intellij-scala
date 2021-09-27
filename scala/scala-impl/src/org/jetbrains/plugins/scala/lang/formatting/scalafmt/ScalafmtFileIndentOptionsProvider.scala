@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala.lang.formatting.scalafmt
 
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiFile
 import com.intellij.psi.codeStyle.{CodeStyleSettings, CommonCodeStyleSettings, FileIndentOptionsProvider}
+import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtFileIndentOptionsProvider.Log
 import org.jetbrains.plugins.scala.lang.formatting.scalafmt.ScalafmtNotifications.FmtVerbosity.Silent
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -22,7 +24,12 @@ final class ScalafmtFileIndentOptionsProvider extends FileIndentOptionsProvider 
     if (!scalaSettings.USE_SCALAFMT_FORMATTER())
       return null
 
-    val configOpt = ScalafmtDynamicConfigService(file.getProject).configForFile(file, Silent, resolveFast = true)
+    val configOpt = try ScalafmtDynamicConfigService(file.getProject).configForFile(file, Silent, resolveFast = true) catch {
+      case reflective: ReflectiveOperationException if reflective.getMessage.contains("org.scalafmt.config.ScalafmtConfig") =>
+        Log.error("Can't get scalafmt configuration", reflective)
+        return null
+    }
+
     configOpt.map { config =>
       val indents = config.indents
       val options = new CommonCodeStyleSettings.IndentOptions()
@@ -31,4 +38,8 @@ final class ScalafmtFileIndentOptionsProvider extends FileIndentOptionsProvider 
       options
     }.orNull
   }
+}
+
+object ScalafmtFileIndentOptionsProvider {
+  private val Log = Logger.getInstance(getClass)
 }

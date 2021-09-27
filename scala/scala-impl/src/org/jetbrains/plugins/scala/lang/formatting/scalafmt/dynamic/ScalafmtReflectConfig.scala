@@ -46,7 +46,12 @@ class ScalafmtReflectConfig private[dynamic](
 
   def withSbtDialect: ScalafmtReflectConfig = {
     // TODO: maybe hold loaded classes in some helper class not to reload them each time?
-    val newTarget = target.invoke("withDialect", (dialectCls, sbtDialect))
+    val newTarget =
+      try target.invoke("forSbt")
+      catch {
+        case ReflectionException(_: NoSuchMethodException) =>
+          target.invoke("withDialect", (dialectCls, sbtDialect))
+      }
     new ScalafmtReflectConfig(fmtReflect, newTarget, classLoader)
   }
 
