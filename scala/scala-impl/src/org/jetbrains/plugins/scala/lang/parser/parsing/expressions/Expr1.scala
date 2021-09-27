@@ -183,16 +183,29 @@ object Expr1 extends ParsingRule {
             }
             builder.restoreNewlinesState()
           case ScalaTokenTypes.tLPARENTHESIS =>
-            builder.advanceLexer() //Ate (
-            builder.disableNewlines()
-            if (!Enumerators()) {
-              builder error ErrMsg("enumerators.expected")
+            //(scala3) check if '(' belongs to generator tuple pattern, examples:
+            //for (value, index) <- List("a", "b", "c").zipWithIndex do println(value)
+            //for (tupleValue) <- List("a", "b", "c").zipWithIndex do println(value)
+            val backupMarker = builder.mark()
+            val bracelessForStartingWithPatternGenerator =
+              builder.isScala3 && Enumerators() && isDoOrYield(builder)
+
+            if (bracelessForStartingWithPatternGenerator) {
+              backupMarker.drop()
             }
-            builder.getTokenType match {
-              case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer()
-              case _ => builder error ErrMsg("rparenthesis.expected")
+            else {
+              backupMarker.rollbackTo()
+              builder.advanceLexer() //Ate (
+              builder.disableNewlines()
+              if (!Enumerators()) {
+                builder error ErrMsg("enumerators.expected")
+              }
+              builder.getTokenType match {
+                case ScalaTokenTypes.tRPARENTHESIS => builder.advanceLexer()
+                case _=> builder error ErrMsg("rparenthesis.expected")
+              }
+              builder.restoreNewlinesState()
             }
-            builder.restoreNewlinesState()
 
           // NOTE: enumerators without brackets are not controlled by `-no-indent` flag
           // https://github.com/lampepfl/dotty/issues/12427#issuecomment-838979407
@@ -202,11 +215,8 @@ object Expr1 extends ParsingRule {
               builder error ErrMsg("enumerators.expected")
             }
             builder.restoreNewlinesState()
-
-            builder.getTokenType match {
-              case ScalaTokenTypes.kYIELD | ScalaTokenTypes.kDO =>
-              case _ =>
-                builder error ErrMsg("expected.do.or.yield")
+            if (!isDoOrYield(builder)) {
+              builder error ErrMsg("expected.do.or.yield")
             }
           case _ =>
             builder error ErrMsg("enumerators.expected")
@@ -336,6 +346,14 @@ object Expr1 extends ParsingRule {
     }
     exprMarker.rollbackTo()
     false
+  }
+
+  private def isDoOrYield(builder: ScalaPsiBuilder): Boolean = {
+    val tt = builder.getTokenType
+    tt match {
+      case ScalaTokenTypes.kYIELD | ScalaTokenTypes.kDO => true
+      case _                                            => false
+    }
   }
 
   private def parseIf(exprMarker: PsiBuilder.Marker)(implicit builder: ScalaPsiBuilder): Unit = {

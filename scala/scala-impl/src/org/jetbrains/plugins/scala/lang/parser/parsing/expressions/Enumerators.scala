@@ -12,7 +12,7 @@ import org.jetbrains.plugins.scala.lang.parser.util.InScala3
 /*
  * Enumerators ::= Generator {semi Enumerator | Guard}
  */
-abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRule {
+abstract class EnumeratorsBase(val isInIndentationRegion: Boolean) extends ParsingRule {
 
   override def parse(implicit builder: ScalaPsiBuilder): Boolean = {
     val enumsMarker = builder.mark()
@@ -55,7 +55,7 @@ abstract class Enumerators(val isInIndentationRegion: Boolean) extends ParsingRu
   }
 }
 
-object Enumerators extends Enumerators(isInIndentationRegion = false)
+object Enumerators extends EnumeratorsBase(isInIndentationRegion = false)
 
 /**
  * TODO: for poorly-indented enumerators we could show an error in annotator (but still parse the enumerators):
@@ -69,4 +69,4 @@ object Enumerators extends Enumerators(isInIndentationRegion = false)
  *  (note that braces are still optional, they are disabled with `-old-syntax` flag)
  *  see https://github.com/lampepfl/dotty/issues/12427#issuecomment-839654212
  */
-object EnumeratorsInIndentationRegion extends Enumerators(isInIndentationRegion = true)
+object EnumeratorsInIndentationRegion extends EnumeratorsBase(isInIndentationRegion = true)

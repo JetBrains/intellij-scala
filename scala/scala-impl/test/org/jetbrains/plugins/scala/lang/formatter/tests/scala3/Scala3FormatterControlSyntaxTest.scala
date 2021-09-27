@@ -265,6 +265,21 @@ class Scala3FormatterControlSyntaxTest extends Scala3FormatterBaseTest {
       |""".stripMargin
   )
 
+  def testFor_FirstGeneratorStartsWithTuplePattern(): Unit = doForYieldDoTest(
+    """for (value, index) <- List("a", "b", "c").zipWithIndex do
+      |  println(value)
+      |
+      |for ((value, index1), index2) <- List("a", "b", "c").zipWithIndex.zipWithIndex do
+      |  println(value)
+      |
+      |for
+      |  (value0, index0) <- List("a", "b", "c").zipWithIndex
+      |  ((value1, index1), index2) <- List("a", "b", "c").zipWithIndex.zipWithIndex
+      |do
+      |  println(value0)
+      |""".stripMargin
+  )
+
   // http://dotty.epfl.ch/docs/reference/other-new-features/control-syntax.html
   // A catch can be followed by a single case on the same line.
   // If there are multiple cases, these have to appear within braces (just like in Scala 2) or an INTENDED BLOCK.

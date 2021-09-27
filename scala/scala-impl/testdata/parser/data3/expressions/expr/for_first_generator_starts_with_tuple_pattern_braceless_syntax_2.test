@@ -1,0 +1,128 @@
+for ((value, index1), index2) <- List("a", "b", "c").zipWithIndex.zipWithIndex
+do
+  println(value)
+
+for ((value, index1), index2) <- List("a", "b", "c").zipWithIndex.zipWithIndex
+yield
+  println(value)
+-----
+ScalaFile
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    Enumerators
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                ReferencePattern: value
+                  PsiElement(identifier)('value')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferencePattern: index1
+                  PsiElement(identifier)('index1')
+              PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: index2
+              PsiElement(identifier)('index2')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: List("a", "b", "c").zipWithIndex.zipWithIndex
+          ReferenceExpression: List("a", "b", "c").zipWithIndex
+            MethodCall
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"a"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"b"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"c"')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('zipWithIndex')
+          PsiElement(.)('.')
+          PsiElement(identifier)('zipWithIndex')
+    PsiWhiteSpace('\n')
+    PsiElement(do)('do')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: println
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: value
+          PsiElement(identifier)('value')
+        PsiElement())(')')
+  PsiWhiteSpace('\n\n')
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    Enumerators
+      Generator
+        TuplePattern
+          PsiElement(()('(')
+          ArgumentPatterns
+            TuplePattern
+              PsiElement(()('(')
+              ArgumentPatterns
+                ReferencePattern: value
+                  PsiElement(identifier)('value')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                ReferencePattern: index1
+                  PsiElement(identifier)('index1')
+              PsiElement())(')')
+            PsiElement(,)(',')
+            PsiWhiteSpace(' ')
+            ReferencePattern: index2
+              PsiElement(identifier)('index2')
+          PsiElement())(')')
+        PsiWhiteSpace(' ')
+        PsiElement(<-)('<-')
+        PsiWhiteSpace(' ')
+        ReferenceExpression: List("a", "b", "c").zipWithIndex.zipWithIndex
+          ReferenceExpression: List("a", "b", "c").zipWithIndex
+            MethodCall
+              ReferenceExpression: List
+                PsiElement(identifier)('List')
+              ArgumentList
+                PsiElement(()('(')
+                StringLiteral
+                  PsiElement(string content)('"a"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"b"')
+                PsiElement(,)(',')
+                PsiWhiteSpace(' ')
+                StringLiteral
+                  PsiElement(string content)('"c"')
+                PsiElement())(')')
+            PsiElement(.)('.')
+            PsiElement(identifier)('zipWithIndex')
+          PsiElement(.)('.')
+          PsiElement(identifier)('zipWithIndex')
+    PsiWhiteSpace('\n')
+    PsiElement(yield)('yield')
+    PsiWhiteSpace('\n  ')
+    MethodCall
+      ReferenceExpression: println
+        PsiElement(identifier)('println')
+      ArgumentList
+        PsiElement(()('(')
+        ReferenceExpression: value
+          PsiElement(identifier)('value')
+        PsiElement())(')')

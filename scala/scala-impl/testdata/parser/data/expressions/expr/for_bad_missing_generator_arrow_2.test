@@ -1,0 +1,28 @@
+for {
+ (a, b)
+} {}
+-----
+ScalaFile
+  ForStatement
+    PsiElement(for)('for')
+    PsiWhiteSpace(' ')
+    PsiElement({)('{')
+    PsiWhiteSpace('\n ')
+    TuplePattern
+      PsiElement(()('(')
+      ArgumentPatterns
+        ReferencePattern: a
+          PsiElement(identifier)('a')
+        PsiElement(,)(',')
+        PsiWhiteSpace(' ')
+        ReferencePattern: b
+          PsiElement(identifier)('b')
+      PsiElement())(')')
+    PsiErrorElement:'<-' expected in generator statement
+      <empty list>
+    PsiWhiteSpace('\n')
+    PsiElement(})('}')
+    PsiWhiteSpace(' ')
+    BlockExpression
+      PsiElement({)('{')
+      PsiElement(})('}')

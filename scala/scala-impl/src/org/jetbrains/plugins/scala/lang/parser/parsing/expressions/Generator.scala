@@ -27,17 +27,20 @@ object Generator extends ParsingRule {
     builder.getTokenType match {
       case ScalaTokenTypes.tCHOOSE =>
         builder.advanceLexer()
+
+        if (!ExprInIndentationRegion()) {
+          builder error ErrMsg("wrong.expression")
+        }
+        genMarker.done(ScalaElementType.GENERATOR)
+        builder.getTokenType match {
+          case ScalaTokenTypes.kIF => Guard()
+          case _ =>
+        }
+        true
       case _ =>
         builder error ErrMsg("choose.expected")
+        genMarker.drop()
+        false
     }
-    if (!ExprInIndentationRegion()) {
-      builder error ErrMsg("wrong.expression")
-    }
-    genMarker.done(ScalaElementType.GENERATOR)
-    builder.getTokenType match {
-      case ScalaTokenTypes.kIF => Guard()
-      case _ =>
-    }
-    true
   }
 }

@@ -89,15 +89,19 @@ trait ScNamedElement extends ScalaPsiElement with PsiNameIdentifierOwner with Na
   }
 
   override def getPresentation: ItemPresentation = {
-    val clazz: ScTemplateDefinition =
-      nameContext.getParent match {
-        case _: ScTemplateBody | _: ScEarlyDefinitions =>
-          PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
-        case _ if this.isInstanceOf[ScClassParameter]  =>
-          PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
-        case _ => null
-      }
-
+    val clazz: ScTemplateDefinition = nameContext match {
+      case null =>
+        // can be null e.g. in bad `for` generator: for { x } {} (notice no `<-`)
+        null
+      case context =>
+        context.getParent match {
+          case _: ScTemplateBody | _: ScEarlyDefinitions =>
+            PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+          case _ if this.isInstanceOf[ScClassParameter]  =>
+            PsiTreeUtil.getParentOfType(this, classOf[ScTemplateDefinition], true)
+          case _ => null
+        }
+    }
     val parentMember = Option(PsiTreeUtil.getParentOfType(this, classOf[ScMember], false))
     new ItemPresentation {
       override def getPresentableText: String = name
