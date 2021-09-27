@@ -510,7 +510,7 @@ package object project {
 
   implicit class PathsListExt(private val list: PathsList) extends AnyVal {
 
-    def addScalaClassPath(module: Module): Unit =
+    def addScalaCompilerClassPath(module: Module): Unit =
       try {
         val files = module.scalaCompilerClasspath.asJava
         list.addAllFiles(files)

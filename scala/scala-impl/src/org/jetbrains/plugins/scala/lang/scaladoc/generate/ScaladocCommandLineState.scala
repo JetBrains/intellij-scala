@@ -30,7 +30,7 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
 
   setConsoleBuilder(TextConsoleBuilderFactory.getInstance.createBuilder(project))
 
-  private val MAIN_CLASS = "scala.tools.nsc.ScalaDoc"
+  private val MainClassScala2 = "scala.tools.nsc.ScalaDoc"
   private val classpathDelimeter = File.pathSeparator
   private var outputDir: String = ""
   private var showInBrowser: Boolean = false
@@ -155,12 +155,15 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
     val scalaModule = project.anyScalaModule.getOrElse {
       throw new ExecutionException("No modules with Scala SDK are configured")
     }
-    jp.getClassPath.addScalaClassPath(scalaModule)
+    jp.getClassPath.addScalaCompilerClassPath(scalaModule)
     jp.setCharset(null)
-    jp.setMainClass(MAIN_CLASS)
+    if (scalaModule.hasScala3) {
+      throw new ExecutionException(s"""Scaladoc generation is not supported for Scala 3, use sbt command instead""")
+    }
+    jp.setMainClass(MainClassScala2)
 
     val vmParamList = jp.getVMParametersList
-    if (maxHeapSize.length > 0) {
+    if (maxHeapSize.nonEmpty) {
       vmParamList.add(s"-Xmx${maxHeapSize}m")
       vmParamList.add(s"-Xmx${maxHeapSize}m")
     }
@@ -210,8 +213,8 @@ class ScaladocCommandLineState(env: ExecutionEnvironment, project: Project)
       } else {
         collectCPSources(OrderEnumerator.orderEntries(project), allEntries, allSourceEntries)
       }
-      allEntries.foreach(classpathWithFacet.append(_))
-      allSourceEntries.foreach(sourcepathWithFacet.append(_))
+      allEntries.foreach(classpathWithFacet.append)
+      allSourceEntries.foreach(sourcepathWithFacet.append)
     }
 
     var needFilter = false

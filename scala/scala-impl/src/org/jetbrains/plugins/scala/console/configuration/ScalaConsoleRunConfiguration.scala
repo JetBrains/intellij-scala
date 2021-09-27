@@ -168,7 +168,7 @@ class ScalaConsoleRunConfiguration(
       configureByModule(module, JavaParameters.JDK_AND_CLASSES_AND_TESTS)
 
       getVMParametersList.addParametersString(javaOptions)
-      getClassPath.addScalaClassPath(module)
+      getClassPath.addScalaCompilerClassPath(module)
       setShortenCommandLine(getShortenCommandLineMethod(Option(getJdk)), project)
       getClassPath.addRunners()
       setWorkingDirectory(workingDirectory)

@@ -78,7 +78,7 @@ private object WorksheetCompilerLocalEvaluator {
 
     val params = new JavaParameters()
 
-    params.getClassPath.addScalaClassPath(module)
+    params.getClassPath.addScalaCompilerClassPath(module)
     params.setUseDynamicClasspath(JdkUtil.useDynamicClasspath(project))
     params.getClassPath.addRunners()
     params.setWorkingDirectory(workingDirectory)
