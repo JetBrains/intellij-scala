@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-class ExpressionTransformer(expression: ScExpression) extends ScalaPsiElementTransformer(expression) {
+class ExpressionTransformer(private[controlFlow] val expression: ScExpression) extends ScalaPsiElementTransformer(expression) {
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = expression match {
     case block: ScBlockExpr => transformBlock(block, builder)
@@ -81,11 +81,11 @@ class ExpressionTransformer(expression: ScExpression) extends ScalaPsiElementTra
     }
   }
 
-  def transformInvocation(invocation: MethodInvocation, builder: ScalaDfaControlFlowBuilder): Unit = {
+  private def transformInvocation(invocation: MethodInvocation, builder: ScalaDfaControlFlowBuilder): Unit = {
     new InvocationTransformer(invocation).transform(builder)
   }
 
-  def transformTemplateDefinition(templateDefinition: ScTemplateDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
+  private def transformTemplateDefinition(templateDefinition: ScTemplateDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
     // TODO implement
     builder.pushUnknownValue()
   }

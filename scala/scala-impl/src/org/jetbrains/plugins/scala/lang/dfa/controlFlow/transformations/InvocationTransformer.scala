@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 
-class InvocationTransformer(invocation: MethodInvocation) extends ScalaPsiElementTransformer(invocation) {
+class InvocationTransformer(invocation: MethodInvocation) extends ExpressionTransformer(invocation) {
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
     if (!tryTransformWithSpecialSupport(builder)) {
@@ -25,6 +25,7 @@ class InvocationTransformer(invocation: MethodInvocation) extends ScalaPsiElemen
     }
   }
 
+  // TODO don't rely on the order of args in arInEvaluationOrder but on the mapping from params to the index in this list
   private def tryTransformWithSpecialSupport(builder: ScalaDfaControlFlowBuilder): Boolean = {
     val invocationInfo = InvocationInfo.fromMethodInvocation(invocation)
     invocationInfo.invokedElement match {
