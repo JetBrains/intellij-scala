@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
 class IfStatementControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 

@@ -1,9 +1,9 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaPsiElementTransformer
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.junit.Assert.assertTrue
