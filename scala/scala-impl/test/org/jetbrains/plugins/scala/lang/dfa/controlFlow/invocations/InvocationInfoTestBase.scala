@@ -7,6 +7,8 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassingMechanism, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.assertTrue
 
@@ -18,6 +20,16 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
   protected def markerStart: String = MarkersUtils.start()
 
   protected def markerEnd: String = MarkersUtils.end()
+
+  protected def verifyInvokedElement(invocationInfo: InvocationInfo, expectedText: String): Unit = {
+    val actualText = invocationInfo.invokedElement.get match {
+      case definition: ScFunctionDefinition => s"${definition.containingClass.name}#${definition.name}"
+      case synthetic: ScSyntheticFunction => s"$synthetic: ${synthetic.name}"
+      case _ => throw new IllegalArgumentException(s"Invoked element of unknown type: ${invocationInfo.invokedElement}")
+    }
+
+    actualText shouldBe expectedText
+  }
 
   protected def verifyArguments(invocationInfo: InvocationInfo, expectedArgCount: Int, expectedProperArgsInText: Seq[String],
                                 expectedMappedParamNames: Seq[String], expectedPassingMechanisms: Seq[PassingMechanism]): Unit = {

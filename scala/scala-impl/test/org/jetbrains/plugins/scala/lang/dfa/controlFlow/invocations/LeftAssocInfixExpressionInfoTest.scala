@@ -18,9 +18,10 @@ class LeftAssocInfixExpressionInfoTest extends InvocationInfoTestBase {
     val expectedMappedParamNames = List("") // mapped params in synthetic methods have empty names
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
+    verifyInvokedElement(invocationInfo, "Synthetic method: +")
     verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
-    verifyThisExpression(invocationInfo, expectedExpressionInText = "23")
+    verifyThisExpression(invocationInfo, "23")
   }
 
   def testCustomInfixExpressions(): Unit = {
@@ -44,8 +45,9 @@ class LeftAssocInfixExpressionInfoTest extends InvocationInfoTestBase {
     val expectedMappedParamNames = List("rhs")
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
+    verifyInvokedElement(invocationInfo, "AndWrapper#&")
     verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
-    verifyThisExpression(invocationInfo, expectedExpressionInText = "hello")
+    verifyThisExpression(invocationInfo, "hello")
   }
 }

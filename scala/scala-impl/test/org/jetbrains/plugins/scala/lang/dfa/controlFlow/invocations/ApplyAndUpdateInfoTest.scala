@@ -23,6 +23,7 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val expectedMappedParamNames = List("wrapped")
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
+    verifyInvokedElement(invocationInfo, "SomeStringWrapper#apply")
     verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
     verifyThisExpression(invocationInfo, "SomeStringWrapper")
