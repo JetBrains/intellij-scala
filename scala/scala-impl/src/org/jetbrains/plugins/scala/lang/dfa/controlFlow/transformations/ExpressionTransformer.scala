@@ -11,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
-class ExpressionTransformer(private[controlFlow] val expression: ScExpression) extends ScalaPsiElementTransformer(expression) {
+class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElementTransformer(expression) {
+
+  override def toString: String = s"ExpressionTransformer: $expression"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = expression match {
     case block: ScBlockExpr => transformBlock(block, builder)

@@ -4,5 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 
 class UnknownValueTransformer extends Transformable {
 
+  override def toString: String = "UnknownValueTransformer"
+
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = builder.pushUnknownValue()
 }

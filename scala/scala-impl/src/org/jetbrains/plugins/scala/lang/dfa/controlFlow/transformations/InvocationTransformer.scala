@@ -16,7 +16,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 
-class InvocationTransformer(invocation: MethodInvocation) extends ExpressionTransformer(invocation) {
+class InvocationTransformer(val invocation: MethodInvocation) extends ExpressionTransformer(invocation) {
+
+  override def toString: String = s"InvocationTransformer: $invocation"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
     if (!tryTransformWithSpecialSupport(builder)) {

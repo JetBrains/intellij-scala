@@ -5,7 +5,9 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition}
 
-class DefinitionTransformer(definition: ScDefinitionWithAssignment) extends ScalaPsiElementTransformer(definition) {
+class DefinitionTransformer(val definition: ScDefinitionWithAssignment) extends ScalaPsiElementTransformer(definition) {
+
+  override def toString: String = s"DefinitionTransformer: $definition"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = definition match {
     case patternDefinition: ScPatternDefinition => transformPatternDefinition(patternDefinition, builder)

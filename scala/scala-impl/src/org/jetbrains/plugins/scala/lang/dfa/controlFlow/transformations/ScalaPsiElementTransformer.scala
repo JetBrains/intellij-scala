@@ -11,7 +11,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssig
  * It is the most likely entrypoint for building control flow for any Scala code.
  * It passes responsibility further to specific transformers.
  */
-class ScalaPsiElementTransformer(element: ScalaPsiElement) extends Transformable {
+class ScalaPsiElementTransformer(val element: ScalaPsiElement) extends Transformable {
+
+  override def toString: String = s"ScalaPsiElementTransformer: $element"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
     val transformer = element match {
