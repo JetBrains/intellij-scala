@@ -41,6 +41,8 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
     assertNull("Lookup shouldn't be shown", myTester.getLookup)
   }
 
+  /// SCALAC OPTIONS
+
   private val CLASS_STR_TO_TYPE = "class"
   private val CLASS_CONTAINING_FLAGS = Seq("-bootclasspath", "-classpath", "-Ydump-classes")
 
@@ -80,5 +82,31 @@ class SbtAutoPopupInScalacOptionsStringsTest extends EditorActionTestBase {
 
   def testAutoPopupInScalacOptionsString_Negative_WrongType_Seq(): Unit = doTestNoAutoCompletion(CLASS_STR_TO_TYPE) {
     s"""scalacOptions += Seq("$CARET")"""
+  }
+
+  /// SCALAC OPTION ARGUMENTS
+
+  def testAutoPopupInScalacOptionsString_Args_AfterColon(): Unit = doTest("ex", Seq("experimental.macros", "existentials")) {
+    s"""scalacOptions += "-language:$CARET""""
+  }
+
+  def testAutoPopupInScalacOptionsString_Args_AfterComma(): Unit = doTest("ex", Seq("experimental.macros")) {
+    s"""scalacOptions += "-language:existentials,$CARET""""
+  }
+
+  def testAutoPopupInScalacOptionsString_Args_CamelHump(): Unit = doTest("reca", Seq("reflectiveCalls")) {
+    s"""scalacOptions += "-language:$CARET""""
+  }
+
+  def testAutoPopupInScalacOptionsString_Args_DotIsWordDelimeter(): Unit = doTest("exma", Seq("experimental.macros")) {
+    s"""scalacOptions += "-language:existentials,$CARET""""
+  }
+
+  def testAutoPopupInScalacOptionsString_Args_Negative_BeforeColon(): Unit = doTestNoAutoCompletion(CLASS_STR_TO_TYPE) {
+    s"""scalacOptions += "-language$CARET:""""
+  }
+
+  def testAutoPopupInScalacOptionsString_Args_Negative_NotInScalacOptions(): Unit = doTestNoAutoCompletion(CLASS_STR_TO_TYPE) {
+    s"""javacOptions += "-language:$CARET""""
   }
 }

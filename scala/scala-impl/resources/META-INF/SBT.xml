@@ -87,6 +87,9 @@
         <completion.contributor language="Scala"
                                 implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor"
                                 order="first, before sbtScalaVersionCompletionContributor" id="sbtScalacOptionsCompletionContributor"/>
+        <completion.contributor language="Scala"
+                                implementationClass="org.jetbrains.sbt.language.completion.SbtScalacOptionArgumentsCompletionContributor"
+                                order="first, before sbtScalacOptionsCompletionContributor" id="sbtScalacOptionArgumentsCompletionContributor"/>
         <completion.contributor language="sbtShell" implementationClass="org.jetbrains.sbt.shell.SbtShellCompletionContributor"
                                 order="first"/>
 

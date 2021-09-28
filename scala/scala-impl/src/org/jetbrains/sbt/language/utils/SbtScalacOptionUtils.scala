@@ -9,6 +9,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScInfixExpr, ScReferenceExpression}
 import org.jetbrains.plugins.scala.macroAnnotations.Cached
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor
+import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
 import org.slf4j.LoggerFactory
 import spray.json.DefaultJsonProtocol._
 import spray.json._
@@ -53,6 +54,16 @@ object SbtScalacOptionUtils {
     getScalacOptionsSbtSettingParent(element).isDefined
 
   @Cached(ModificationTracker.NEVER_CHANGED, null)
+  def scalacOptionsByFlag: Map[String, Seq[SbtScalacOptionInfo]] =
+    getScalacOptions.groupBy(_.flag)
+
+  @Cached(ModificationTracker.NEVER_CHANGED, null)
+  private def scalacOptionFlagsWithPrefix: Seq[(String, String)] = getScalacOptions.collect {
+    case SbtScalacOptionInfo(flag, _, _, ArgType.OneAfterPrefix(prefix), _, _) =>
+      prefix -> flag
+  }
+
+  @Cached(ModificationTracker.NEVER_CHANGED, null)
   def getScalacOptions: Seq[SbtScalacOptionInfo] = {
     if (ApplicationManager.getApplication.isUnitTestMode) return scalacOptionsForUnitTests
 
@@ -76,6 +87,16 @@ object SbtScalacOptionUtils {
         Seq.empty
     }
   }
+
+  def getScalacOptionsForLiteralValue(str: ScStringLiteral): Seq[SbtScalacOptionInfo] =
+    Option(str.getValue).filter(_.startsWith("-")).toSeq.flatMap { value =>
+      def prefixed: Seq[SbtScalacOptionInfo] =
+        scalacOptionFlagsWithPrefix
+          .collect { case (prefix, flag) if value.startsWith(prefix) => flag }
+          .flatMap(scalacOptionsByFlag.getOrElse(_, Seq.empty))
+
+      scalacOptionsByFlag.getOrElse(value.split(":", 2).head, prefixed)
+    }
 
   private def scalacOptionsForUnitTests: Seq[SbtScalacOptionInfo] = {
     import org.jetbrains.plugins.scala.project.ScalaLanguageLevel._
@@ -140,6 +161,27 @@ object SbtScalacOptionUtils {
         ),
         scalaVersions = versions,
         defaultValue = None,
+      ),
+      SbtScalacOptionInfo(
+        flag = "-language",
+        argType = ArgType.Multiple,
+        choices = Map(
+          "experimental.macros" -> Set(Scala_2_11, Scala_2_12, Scala_2_13),
+          "higherKinds" -> Set(Scala_2_11, Scala_2_12, Scala_2_13),
+          "existentials" -> Set(Scala_2_11, Scala_2_12, Scala_2_13),
+          "dynamics" -> Set(Scala_2_11, Scala_2_12, Scala_2_13),
+          "reflectiveCalls" -> Set(Scala_2_11, Scala_2_12, Scala_2_13),
+          "implicitConversions" -> Set(Scala_2_11, Scala_2_12, Scala_2_13),
+          "postfixOps" -> Set(Scala_2_11, Scala_2_12, Scala_2_13)
+        ),
+        descriptions = Map(
+          "Enable or disable language features: `_' for all, `-language:help' to list" -> Set(Scala_2_11),
+          "Enable or disable language features: `_' for all, `-language:help' to list choices." -> Set(Scala_2_12),
+          "Enable or disable language features" -> Set(Scala_2_13),
+          "Enable one or more language features." -> Set(Scala_3_0)
+        ),
+        scalaVersions = versions,
+        defaultValue = None
       )
     )
   }

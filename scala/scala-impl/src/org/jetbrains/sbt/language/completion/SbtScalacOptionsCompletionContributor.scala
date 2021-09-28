@@ -9,7 +9,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.util.ProcessingContext
-import org.jetbrains.plugins.scala.extensions.{PsiElementExt, inWriteAction}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromParameters}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
@@ -91,8 +91,16 @@ object SbtScalacOptionsCompletionContributor {
 
     private def doHandleInsert(startOffset: Int, endOffset: Int)(implicit context: InsertionContext): Unit = {
       val newStartOffset = insertOption(startOffset, endOffset)
-      // if option has arguments, build and run interactive template
-      if (option.argType != ArgType.No) runOptionArgumentsTemplate(newStartOffset)
+
+      (option.argType, option.defaultValue) match {
+        case (ArgType.No, _) =>
+        case (ArgType.OneAfterPrefix(prefix), _) =>
+          runPrefixedOptionArgumentsTemplate(newStartOffset, prefix)
+        case (_, Some(defaultValue)) =>
+          runOptionArgumentsTemplate(newStartOffset, defaultValue)
+        case _ =>
+          context.getEditor.getCaretModel.moveToOffset(newStartOffset + option.getText.length - 1)
+      }
     }
 
     private def insertOption(startOffset: Int, endOffset: Int)(implicit context: InsertionContext): Int =
@@ -120,75 +128,43 @@ object SbtScalacOptionsCompletionContributor {
           startOffset
       }
 
-    private def runOptionArgumentsTemplate(offset: Int)(implicit context: InsertionContext): Unit = {
+    private def runPrefixedOptionArgumentsTemplate(offset: Int, prefix: String)(implicit context: InsertionContext): Unit =
+      runOptionArgumentsTemplate(offset) { (builder, _) =>
+        val argumentText = option.flag.substring(prefix.length)
+
+        builder.replaceRange(
+          TextRange.from(offset + prefix.length + 1, argumentText.length),
+          new ConstantNode(argumentText)
+        )
+      }
+
+    private def runOptionArgumentsTemplate(offset: Int, defaultValue: String)(implicit context: InsertionContext): Unit =
+      runOptionArgumentsTemplate(offset) { (builder, offsetBeforeClosingQuote) =>
+
+        builder.replaceRange(
+          TextRange.from(offsetBeforeClosingQuote, 0),
+          new ConstantNode(defaultValue)
+        )
+      }
+
+    private def runOptionArgumentsTemplate(offset: Int)(replaceRange: (TemplateBuilderImpl, Int) => Unit)(implicit context: InsertionContext): Unit = {
       context.commitDocument()
 
       val offsetBeforeClosingQuote = offset + option.getText.length - 1
-
       val templateContainerElement = context.getFile.findElementAt(offsetBeforeClosingQuote)
 
       val builder = TemplateBuilderFactory.getInstance()
         .createTemplateBuilder(templateContainerElement)
         .asInstanceOf[TemplateBuilderImpl]
 
-      def replaceRange(offset: Int, len: Int, expr: Expression = scalacOptionArgumentExpression(option, scalaVersions)): Unit =
-        builder.replaceRange(TextRange.from(offset, len), expr)
-
-      option.argType match {
-        case ArgType.OneAfterPrefix(prefix) =>
-          val argument = option.flag.substring(prefix.length)
-
-          // for options like -J<flag> create one template variable: -J`<flag>`
-          // for options like -Dproperty=value create multiple variables: -D`property`=`value`
-          argument.split('=').foldLeft(offset + 1 + prefix.length) {
-            case (offset, variableText) =>
-              replaceRange(offset, variableText.length, new ConstantNode(variableText))
-              // next variable offset skipping `=`
-              offset + variableText.length + 1
-          }
-        case ArgType.Multiple =>
-          // remove `"` to be able to add variables BEFORE quote
-          replaceRange(offsetBeforeClosingQuote, len = 1)
-        case _ =>
-          replaceRange(offsetBeforeClosingQuote, len = 0)
-      }
+      replaceRange(builder, offsetBeforeClosingQuote)
 
       val template = builder.buildTemplate()
       context.getDocument.replaceString(templateContainerElement.startOffset, templateContainerElement.endOffset, "")
       context.getEditor.getCaretModel.moveToOffset(templateContainerElement.startOffset)
 
-      // TODO: is there a better way of doing "vararg" style insertion?
-      if (option.argType == ArgType.Multiple) {
-        option.choices.foreach { case (choice, _) =>
-          template.addVariable(choice, scalacOptionArgumentExpression(option, scalaVersions, isFirst = false), null, false)
-        }
-        template.addTextSegment("\"")
-      }
-
       TemplateManager.getInstance(context.getProject).startTemplate(context.getEditor, template)
     }
-  }
-
-  /** Expression used in [[com.intellij.codeInsight.template.Template]] */
-  private def scalacOptionArgumentExpression(option: SbtScalacOptionInfo, projectScalaVersions: List[String],
-                                             isFirst: Boolean = true): Expression = {
-    val text = if (isFirst) option.defaultValue.getOrElse("???") else ""
-
-    val lookupItems = option.choices.toList.flatMap { case (choice, scalaVersions) =>
-      val matchingVersions = projectScalaVersions.filter(version => scalaVersions.exists(_.getVersion == version))
-
-      Option.when(matchingVersions.nonEmpty) {
-        LookupElementBuilder.create(choice)
-          .withTailText(matchingVersions.mkString(" (", ", ", ")"))
-          .withInsertHandler { (context, _) =>
-            context.commitDocument()
-            if (!isFirst) inWriteAction(context.getDocument.insertString(context.getStartOffset, ","))
-          }
-          .bold()
-      }
-    }
-
-    new ConstantNode(text).withLookupItems(lookupItems.asJava)
   }
 
 }
