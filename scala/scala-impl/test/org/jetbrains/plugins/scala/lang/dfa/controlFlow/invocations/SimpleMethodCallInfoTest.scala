@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{Pa
 
 class SimpleMethodCallInfoTest extends InvocationInfoTestBase {
 
-  def testArgumentsInSimpleMethodCall(): Unit = {
+  def testSimpleMethodCall(): Unit = {
     val invocationInfo = generateInvocationInfoFor {
       s"""
          |class SomeClass {
