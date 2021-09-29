@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.editor.documentationProvider
 
 import com.intellij.lang.documentation.DocumentationMarkup
+import com.intellij.openapi.util.text.HtmlChunk
 import org.jetbrains.plugins.scala.ScalaVersion
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
@@ -13,7 +14,31 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
   private val NONEXISTENT_FLAG = "-flag-that-no-one-should-ever-add-to-compiler"
   private val DEPRECATION_FLAG = "-deprecation"
 
-  private lazy val DEPRECATION_DESCRIPTION = {
+  private def expectedDocumentation(langLevel: ScalaLanguageLevel, flag: String, description: String,
+                                    choices: Set[String] = Set.empty, defaultValue: Option[String] = None): String = {
+    def section(name: String, content: String) =
+      HtmlChunk.tag("tr").children(
+        DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.p().addText(name)),
+        DocumentationMarkup.SECTION_CONTENT_CELL.addText(content)
+      )
+
+    val descriptionSection = Option(section("Description", description))
+    val choicesSection =
+      Option.when(choices.nonEmpty)(section("Choices", choices.toList.sorted.mkString("[", ", ", "]")))
+    val defaultValueSection = defaultValue.map(section("Default value", _))
+    val sections = Seq(descriptionSection, choicesSection, defaultValueSection).flatten
+
+    val definition = DocumentationMarkup.DEFINITION_ELEMENT.child(HtmlChunk.tag("pre").child(HtmlChunk.text(flag).bold()))
+    val content = DocumentationMarkup.CONTENT_ELEMENT.children(
+      HtmlChunk.text(langLevel.getVersion),
+      DocumentationMarkup.SECTIONS_TABLE.children(sections: _*),
+      HtmlChunk.br()
+    )
+
+    definition.toString + content.toString
+  }
+
+  private lazy val DEPRECATION_DOC = {
     import ScalaLanguageLevel._
     val langLevel = getVersion.languageLevel
 
@@ -25,22 +50,19 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
       case _ => throw new IllegalStateException(s"Unexpected language level: ${langLevel.getVersion}")
     }
 
-    DocumentationMarkup.CONTENT_START +
-      langLevel.getVersion + "<br>" +
-      description +
-      DocumentationMarkup.CONTENT_END
+    expectedDocumentation(langLevel, DEPRECATION_FLAG, description)
   }
 
   private def getVersion(implicit ev: ScalaVersion): ScalaVersion = ev
 
   def test_topLevel_single(): Unit = doGenerateDocTest(
     s"""scalacOptions += "${|}$DEPRECATION_FLAG"""",
-    DEPRECATION_DESCRIPTION
+    DEPRECATION_DOC
   )
 
   def test_topLevel_seq(): Unit = doGenerateDocTest(
     s"""scalacOptions ++= Seq("${|}$DEPRECATION_FLAG")""",
-    DEPRECATION_DESCRIPTION
+    DEPRECATION_DOC
   )
 
   def test_topLevel_complexExpression_seq(): Unit = doGenerateDocTest(
@@ -49,7 +71,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
        |    Nil
        |  } else Seq("${|}$DEPRECATION_FLAG")
        |}""".stripMargin,
-    DEPRECATION_DESCRIPTION
+    DEPRECATION_DOC
   )
 
   def test_inProjectSettings_single(): Unit = doGenerateDocTest(
@@ -61,7 +83,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
        |    scalacOptions += "${|}$DEPRECATION_FLAG"
        |  )
        |""".stripMargin,
-    DEPRECATION_DESCRIPTION
+    DEPRECATION_DOC
   )
 
   def test_inProjectSettings_seq(): Unit = doGenerateDocTest(
@@ -73,7 +95,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
        |    scalacOptions ++= Seq("${|}$DEPRECATION_FLAG")
        |  )
        |""".stripMargin,
-    DEPRECATION_DESCRIPTION
+    DEPRECATION_DOC
   )
 
   def test_inProjectSettings_complexExpression_seq(): Unit = doGenerateDocTest(
@@ -89,7 +111,7 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
        |    }
        |  )
        |""".stripMargin,
-    DEPRECATION_DESCRIPTION
+    DEPRECATION_DOC
   )
 
   def test_topLevel_single_notFound(): Unit = doGenerateDocTest(
@@ -162,12 +184,15 @@ trait SbtScalacOptionsDocumentationProviderCommonTests {
 
   def test_lookupElement(): Unit = {
     val langLevel = version.languageLevel
+    val flag = "-test-flag"
     val description = "Scalac options lookup element documentation test description"
-    val descriptions = Map(description -> Set(langLevel))
-    val option = SbtScalacOptionInfo("-test-flag", descriptions, Map.empty, ArgType.No, Set(langLevel), None)
-    val docHolder = SbtScalacOptionDocHolder(option)(self.getFixture.getProject)
+    val descriptions = Map(langLevel -> description)
+    val defaultValue = Some("default test choice")
+    val choices = Map(langLevel -> Set(defaultValue.get, "test choice", "another test choice"))
+    val option = SbtScalacOptionInfo(flag, descriptions, choices, ArgType.No, Set(langLevel), defaultValue)
+    val docHolder = new SbtScalacOptionDocHolder(option)(self.getFixture.getProject)
 
-    val expectedDoc = DocumentationMarkup.CONTENT_START + langLevel.getVersion + "<br>" + description + DocumentationMarkup.CONTENT_END
+    val expectedDoc = expectedDocumentation(langLevel, flag, description, choices(langLevel), defaultValue)
     val actualDoc = generateDoc(docHolder, null)
     assertDocHtml(expectedDoc, actualDoc)
   }

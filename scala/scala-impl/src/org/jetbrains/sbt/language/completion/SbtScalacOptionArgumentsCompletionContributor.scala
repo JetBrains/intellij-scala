@@ -4,14 +4,13 @@ import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementBuilder}
 import com.intellij.patterns.PatternCondition
 import com.intellij.patterns.PlatformPatterns.psiElement
-import com.intellij.psi.PsiElement
 import com.intellij.psi.util.PsiTreeUtil.getContextOfType
 import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.scala.lang.completion._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.sbt.language.completion.SbtPsiElementPatterns.scalacOptionsStringLiteralPattern
 import org.jetbrains.sbt.language.completion.SbtScalacOptionArgumentsCompletionContributor._
-import org.jetbrains.sbt.language.utils.SbtDependencyUtils
+import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.{getScalacOptionsForLiteralValue, scalacOptionsByFlag}
 
 import scala.jdk.CollectionConverters._
@@ -42,28 +41,25 @@ object SbtScalacOptionArgumentsCompletionContributor {
         case ScalacOptionArgCompletion(flag, args, prefix) =>
           resultSet
             .withPrefixMatcher(prefix)
-            .addAllElements(completionsFor(strLiteral, flag, args).asJava)
+            .addAllElements(completionsFor(flag, args).asJava)
         case _ =>
       }
     }
 
-    private def completionsFor(place: PsiElement, flag: String, chosenArgs: Set[String])
+    private def completionsFor(flag: String, chosenArgs: Set[String])
                               (implicit parameters: CompletionParameters,
-                               context: ProcessingContext): Iterable[LookupElement] =
-      scalacOptionsByFlag.getOrElse(flag, Iterable.empty)
-        .flatMap { option =>
-          val projectScalaVersions = SbtDependencyUtils.getAllScalaVersionsOrDefault(place, majorOnly = true)
+                               context: ProcessingContext): Iterable[LookupElement] = {
+      lazy val projectScalaVersions = SbtScalacOptionUtils
+        .projectVersionsSorted(parameters.getEditor.getProject, reverse = true)
 
-          option.choices.toList.flatMap { case (choice, scalaVersions) =>
-            val matchingVersions = projectScalaVersions.filter(version => scalaVersions.exists(_.getVersion == version))
-
-            Option.when(matchingVersions.nonEmpty && !chosenArgs(choice)) {
-              LookupElementBuilder.create(choice)
-                .withTailText(matchingVersions.mkString(" (", ", ", ")"))
-                .bold()
-            }
-          }
-        }
+      for {
+        option <- scalacOptionsByFlag.getOrElse(flag, Iterable.empty)
+        matchingVersions = projectScalaVersions.filter(option.choices.keySet)
+        choice <- matchingVersions.toSet.flatMap(option.choices) &~ chosenArgs
+      } yield LookupElementBuilder.create(choice)
+        .withTailText(matchingVersions.map(_.getVersion).mkString(" (", ", ", ")"))
+        .bold()
+    }
   }
 }
 

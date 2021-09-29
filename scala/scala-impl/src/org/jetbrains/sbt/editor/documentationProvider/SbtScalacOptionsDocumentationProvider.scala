@@ -2,14 +2,13 @@ package org.jetbrains.sbt.editor.documentationProvider
 
 import com.intellij.lang.documentation.{AbstractDocumentationProvider, DocumentationMarkup}
 import com.intellij.openapi.editor.Editor
-import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.util.text.{HtmlBuilder, HtmlChunk}
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
-import org.jetbrains.sbt.editor.documentationProvider.SbtScalacOptionsDocumentationProvider._
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
+import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.{getScalacOptionsForLiteralValue, withScalacOption}
-import org.jetbrains.sbt.language.utils.{SbtDependencyUtils, SbtScalacOptionInfo}
 
 class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvider {
   override def generateDoc(element: PsiElement, originalElement: PsiElement): String =
@@ -30,57 +29,73 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
       case _ => withScalacOption(contextElement)(onMismatch = null, onMatch = wrapInDocHolder)
     }
 
-  private def wrapInDocHolder(str: ScStringLiteral): PsiElement =
-    getScalacOption(str)
-      .map(SbtScalacOptionDocHolder(_)(str.getProject))
-      .orNull
+  private def wrapInDocHolder(str: ScStringLiteral): PsiElement = {
+    val options = getScalacOptionsForLiteralValue(str)
+
+    if (options.isEmpty) null
+    else new SbtScalacOptionDocHolder(options)(str.getProject)
+  }
 
   private def generateScalacOptionDoc(docHolder: SbtScalacOptionDocHolder): String = {
-    val descriptions = getDescriptions(docHolder)
-    if (descriptions.isEmpty) return null
+    val projectVersions = SbtScalacOptionUtils.projectVersionsSorted(docHolder.getProject, reverse = true)
+    val options = docHolder.options
 
-    val builder = new StringBuilder
+    val descriptions = options.map(_.descriptions).reduce(_ ++ _)
+    val choices = options.map(_.choices).reduce(_ ++ _)
+    val defaultValues = (for {
+      option <- options
+      defaultValue <- option.defaultValue.toSeq
+      version <- option.scalaVersions
+    } yield version -> defaultValue).toMap
 
-    descriptions
-      .sortBy { case (_, versions) => versions.max }(implicitly[Ordering[ScalaLanguageLevel]].reverse)
-      .foreach { case (description, versions) =>
-        builder.append(DocumentationMarkup.CONTENT_START)
-          .append(versions.map(_.getVersion).mkString(", "))
-          .append("<br>")
-          .append(StringUtil.escapeXmlEntities(description))
-          .append(DocumentationMarkup.CONTENT_END)
-      }
+    val builder = new HtmlBuilder
+    appendDefinition(builder, docHolder.getText)
 
-    builder.result()
-  }
-}
-
-object SbtScalacOptionsDocumentationProvider {
-  private def mergeDescriptions(options: Seq[SbtScalacOptionInfo]): Option[SbtScalacOptionInfo] = {
-    def descriptions: Map[String, Set[ScalaLanguageLevel]] =
-      options.foldLeft(Map.empty[String, Set[ScalaLanguageLevel]]) { case (acc, option) =>
-        (acc.keySet ++ option.descriptions.keys).map { key =>
-          val values = acc.getOrElse(key, Set.empty) | option.descriptions.getOrElse(key, Set.empty)
-          key -> values
-        }.toMap
-      }
-
-    options.headOption.map(_.copy(descriptions = descriptions))
-  }
-
-  private def getScalacOption(str: ScStringLiteral): Option[SbtScalacOptionInfo] =
-    mergeDescriptions(getScalacOptionsForLiteralValue(str))
-
-  private def getDescriptions(docHolder: SbtScalacOptionDocHolder) = {
-    val projectVersions = SbtDependencyUtils.getAllScalaVersionsOrDefault(docHolder, majorOnly = true).toSet
-
-    docHolder.option.descriptions.toList.flatMap {
-      case (description, versions) =>
-        val matchingVersions = versions.filter(version => projectVersions(version.getVersion))
-
-        Option.when(matchingVersions.nonEmpty) {
-          (description, matchingVersions)
-        }
+    val contentBuilder = new HtmlBuilder
+    projectVersions.foreach { version =>
+      appendVersionSpecificSections(contentBuilder, version, descriptions, choices, defaultValues)
     }
+    val content = contentBuilder.wrapWith(DocumentationMarkup.CONTENT_ELEMENT)
+    builder.append(content)
+
+    builder.toString
+  }
+
+  private def appendDefinition(builder: HtmlBuilder, definitionContent: String): Unit = {
+    val definition = new HtmlBuilder()
+      .append(HtmlChunk.text(definitionContent).bold())
+      .wrapWith("pre")
+      .wrapWith(DocumentationMarkup.DEFINITION_ELEMENT)
+
+    builder.append(definition)
+  }
+
+  private def appendVersionSpecificSections(builder: HtmlBuilder, version: ScalaLanguageLevel,
+                                            descriptions: Map[ScalaLanguageLevel, String],
+                                            choices: Map[ScalaLanguageLevel, Set[String]],
+                                            defaultValues: Map[ScalaLanguageLevel, String]): Unit =
+    (descriptions.get(version), choices.get(version), defaultValues.get(version)) match {
+      case (None, None, None) =>
+      case (maybeDescription, maybeChoices, maybeDefaultValue) =>
+        builder.append(version.getVersion)
+
+        val sectionsBuilder = new HtmlBuilder
+
+        maybeDescription.foreach(appendSection(sectionsBuilder, "Description", _))
+        maybeChoices.filter(_.nonEmpty).map(_.toList.sorted.mkString("[", ", ", "]"))
+          .foreach(appendSection(sectionsBuilder, "Choices", _))
+        maybeDefaultValue.foreach(appendSection(sectionsBuilder, "Default value", _))
+
+        val sections = sectionsBuilder.wrapWith(DocumentationMarkup.SECTIONS_TABLE)
+
+        builder
+          .append(sections)
+          .br()
+    }
+
+  private def appendSection(builder: HtmlBuilder, sectionName: String, sectionContent: String): Unit = {
+    val headerCell = DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.text(sectionName).wrapWith("p"))
+    val contentCell = DocumentationMarkup.SECTION_CONTENT_CELL.addText(sectionContent)
+    builder.append(HtmlChunk.tag("tr").children(headerCell, contentCell))
   }
 }

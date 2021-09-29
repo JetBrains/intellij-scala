@@ -14,10 +14,11 @@ import org.jetbrains.plugins.scala.lang.completion.{CaptureExt, positionFromPara
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
+import org.jetbrains.plugins.scala.project.ScalaLanguageLevel
 import org.jetbrains.sbt.language.completion.SbtScalacOptionsCompletionContributor._
 import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionInfo.ArgType
-import org.jetbrains.sbt.language.utils.{SbtDependencyUtils, SbtScalacOptionInfo, SbtScalacOptionUtils}
+import org.jetbrains.sbt.language.utils.{SbtScalacOptionInfo, SbtScalacOptionUtils}
 
 import scala.jdk.CollectionConverters._
 
@@ -42,7 +43,8 @@ object SbtScalacOptionsCompletionContributor {
 
       val newResultSet = resultSet.withPrefixMatcher(cleanPrefix)
 
-      val scalaVersions = SbtDependencyUtils.getAllScalaVersionsOrDefault(place, majorOnly = true)
+      val scalaVersions = SbtScalacOptionUtils
+        .projectVersionsSorted(place.getProject, reverse = true)
 
       val elements = SbtScalacOptionUtils
         .getScalacOptions
@@ -54,21 +56,21 @@ object SbtScalacOptionsCompletionContributor {
     }
   }
 
-  private def lookupElementMatchingVersions(option: SbtScalacOptionInfo, scalaVersions: List[String])(implicit project: Project): Option[LookupElement] = {
-    val matchingVersions = scalaVersions.filter(version => option.scalaVersions.exists(_.getVersion == version))
+  private def lookupElementMatchingVersions(option: SbtScalacOptionInfo, scalaVersions: List[ScalaLanguageLevel])(implicit project: Project): Option[LookupElement] = {
+    val matchingVersions = scalaVersions.filter(option.scalaVersions)
 
     Option.when(matchingVersions.nonEmpty) {
       LookupElementBuilder.create(option, option.flag)
         .withPresentableText(option.getText)
-        .withTailText(matchingVersions.mkString(" (", ", ", ")"))
-        .withInsertHandler(new ScalacOptionInsertHandler(option, scalaVersions))
-        .withPsiElement(SbtScalacOptionDocHolder(option))
+        .withTailText(matchingVersions.map(_.getVersion).mkString(" (", ", ", ")"))
+        .withInsertHandler(new ScalacOptionInsertHandler(option))
+        .withPsiElement(new SbtScalacOptionDocHolder(option))
         .withCaseSensitivity(false)
         .bold()
     }
   }
 
-  private class ScalacOptionInsertHandler(option: SbtScalacOptionInfo, scalaVersions: List[String]) extends InsertHandler[LookupElement] {
+  private class ScalacOptionInsertHandler(option: SbtScalacOptionInfo) extends InsertHandler[LookupElement] {
     override def handleInsert(ctx: InsertionContext, item: LookupElement): Unit = {
       implicit val context: InsertionContext = ctx
       context.commitDocument()

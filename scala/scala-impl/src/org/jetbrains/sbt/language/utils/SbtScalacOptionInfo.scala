@@ -6,8 +6,8 @@ import spray.json.DefaultJsonProtocol._
 import spray.json._
 
 final case class SbtScalacOptionInfo(flag: String,
-                                     descriptions: Map[String, Set[ScalaLanguageLevel]],
-                                     choices: Map[String, Set[ScalaLanguageLevel]],
+                                     descriptions: Map[ScalaLanguageLevel, String],
+                                     choices: Map[ScalaLanguageLevel, Set[String]],
                                      argType: ArgType,
                                      scalaVersions: Set[ScalaLanguageLevel],
                                      defaultValue: Option[String],

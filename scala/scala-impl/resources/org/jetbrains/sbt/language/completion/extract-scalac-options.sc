@@ -143,8 +143,8 @@ def createScalacOptionWithAliases(name: String, argType: ArgType, description: S
 
   def scalacOption(flag: String) = SbtScalacOptionInfo(
     flag = flag,
-    descriptions = Map(description -> scalaVersions),
-    choices = choices.map(_ -> scalaVersions).toMap,
+    descriptions = scalaVersions.map(_ -> description).toMap,
+    choices = if (choices.nonEmpty) Map(langLevel -> choices.toSet) else Map.empty,
     argType = argType,
     scalaVersions = scalaVersions,
     defaultValue = default
@@ -356,11 +356,6 @@ def createClassLoaderWithArtifacts(scalaArtifacts: Seq[DependencyDescription]) =
   new URLClassLoader(compilerClasspath)
 }
 
-def merge[K, V](left: Map[K, Set[V]], right: Map[K, Set[V]]): Map[K, Set[V]] = (left.keySet ++ right.keys).map { key =>
-  val values = left.getOrElse(key, Set.empty) | right.getOrElse(key, Set.empty)
-  key -> values
-}.toMap
-
 def mergeScalacOptions(left: SbtScalacOptionInfo, right: SbtScalacOptionInfo): SbtScalacOptionInfo = {
   assert(left.flag == right.flag, "Cannot merge scalac options with different flags:\n" +
     s"\tleft is '${left.flag}' (${left.scalaVersions}), right is ${right.flag} (${right.scalaVersions})")
@@ -371,8 +366,8 @@ def mergeScalacOptions(left: SbtScalacOptionInfo, right: SbtScalacOptionInfo): S
 
   assert(left.productArity == 3 + 3, "Make sure that all fields are processed during scalac options merge")
 
-  val descriptions = merge(left.descriptions, right.descriptions)
-  val choices = merge(left.choices, right.choices)
+  val descriptions = left.descriptions ++ right.descriptions
+  val choices = left.choices ++ right.choices
   val versions = left.scalaVersions | right.scalaVersions
 
   right.copy(descriptions = descriptions, choices = choices, scalaVersions = versions)
