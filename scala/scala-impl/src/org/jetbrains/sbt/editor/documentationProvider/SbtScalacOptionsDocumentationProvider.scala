@@ -10,6 +10,8 @@ import org.jetbrains.sbt.language.psi.SbtScalacOptionDocHolder
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils
 import org.jetbrains.sbt.language.utils.SbtScalacOptionUtils.{getScalacOptionsForLiteralValue, withScalacOption}
 
+import scala.collection.mutable
+
 class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvider {
   override def generateDoc(element: PsiElement, originalElement: PsiElement): String =
     element match {
@@ -37,26 +39,9 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
   }
 
   private def generateScalacOptionDoc(docHolder: SbtScalacOptionDocHolder): String = {
-    val projectVersions = SbtScalacOptionUtils.projectVersionsSorted(docHolder.getProject, reverse = true)
-    val options = docHolder.options
-
-    val descriptions = options.map(_.descriptions).reduce(_ ++ _)
-    val choices = options.map(_.choices).reduce(_ ++ _)
-    val defaultValues = (for {
-      option <- options
-      defaultValue <- option.defaultValue.toSeq
-      version <- option.scalaVersions
-    } yield version -> defaultValue).toMap
-
     val builder = new HtmlBuilder
     appendDefinition(builder, docHolder.getText)
-
-    val contentBuilder = new HtmlBuilder
-    projectVersions.foreach { version =>
-      appendVersionSpecificSections(contentBuilder, version, descriptions, choices, defaultValues)
-    }
-    val content = contentBuilder.wrapWith(DocumentationMarkup.CONTENT_ELEMENT)
-    builder.append(content)
+    appendContent(builder, docHolder)
 
     builder.toString
   }
@@ -70,32 +55,69 @@ class SbtScalacOptionsDocumentationProvider extends AbstractDocumentationProvide
     builder.append(definition)
   }
 
-  private def appendVersionSpecificSections(builder: HtmlBuilder, version: ScalaLanguageLevel,
-                                            descriptions: Map[ScalaLanguageLevel, String],
-                                            choices: Map[ScalaLanguageLevel, Set[String]],
-                                            defaultValues: Map[ScalaLanguageLevel, String]): Unit =
-    (descriptions.get(version), choices.get(version), defaultValues.get(version)) match {
-      case (None, None, None) =>
-      case (maybeDescription, maybeChoices, maybeDefaultValue) =>
-        builder.append(version.getVersion)
+  private def appendContent(builder: HtmlBuilder, docHolder: SbtScalacOptionDocHolder): Unit = {
+    val options = docHolder.options
 
+    val descriptions = options.map(_.descriptions).reduce(_ ++ _)
+    val choices = options.map(_.choices).reduce(_ ++ _)
+    val defaultValues = (for {
+      option <- options
+      defaultValue <- option.defaultValue.toSeq
+      version <- option.scalaVersions
+    } yield version -> defaultValue).toMap
+
+    // generate details sections for each version, merge duplicates keeping insertion order
+    val detailsSectionsWithVersions = new LinkedHashMultiMap[String, ScalaLanguageLevel]
+    SbtScalacOptionUtils
+      .projectVersionsSorted(docHolder.getProject, reverse = true)
+      .foreach { version =>
+        generateDetailsSections(descriptions.get(version), choices.get(version), defaultValues.get(version)).foreach { details =>
+          // HtmlChunk doesn't implement equals/hashcode so it cannot be used as a map key
+          detailsSectionsWithVersions.add(details.toString, version)
+        }
+      }
+
+    val contentBuilder = new HtmlBuilder
+    detailsSectionsWithVersions.foreach { case (details, versions) =>
+      contentBuilder.append(versions.map(_.getVersion).mkString(", "))
+        .appendRaw(details)
+        .br()
+    }
+
+    val content = contentBuilder.wrapWith(DocumentationMarkup.CONTENT_ELEMENT)
+    builder.append(content)
+  }
+
+  private def generateDetailsSections(description: Option[String],
+                                      choices: Option[Set[String]],
+                                      defaultValue: Option[String]): Option[HtmlChunk.Element] =
+    (description, choices, defaultValue) match {
+      case (None, None, None) => None
+      case _ =>
         val sectionsBuilder = new HtmlBuilder
 
-        maybeDescription.foreach(appendSection(sectionsBuilder, "Description", _))
-        maybeChoices.filter(_.nonEmpty).map(_.toList.sorted.mkString("[", ", ", "]"))
+        description.foreach(appendSection(sectionsBuilder, "Description", _))
+        choices.filter(_.nonEmpty).map(_.toList.sorted.mkString("[", ", ", "]"))
           .foreach(appendSection(sectionsBuilder, "Choices", _))
-        maybeDefaultValue.foreach(appendSection(sectionsBuilder, "Default value", _))
+        defaultValue.foreach(appendSection(sectionsBuilder, "Default value", _))
 
         val sections = sectionsBuilder.wrapWith(DocumentationMarkup.SECTIONS_TABLE)
-
-        builder
-          .append(sections)
-          .br()
+        Some(sections)
     }
 
   private def appendSection(builder: HtmlBuilder, sectionName: String, sectionContent: String): Unit = {
     val headerCell = DocumentationMarkup.SECTION_HEADER_CELL.child(HtmlChunk.text(sectionName).wrapWith("p"))
     val contentCell = DocumentationMarkup.SECTION_CONTENT_CELL.addText(sectionContent)
     builder.append(HtmlChunk.tag("tr").children(headerCell, contentCell))
+  }
+}
+
+private class LinkedHashMultiMap[K, V] extends mutable.LinkedHashMap[K, Vector[V]] {
+  def add(key: K, value: V): this.type = {
+    this(key) = get(key) match {
+      case Some(values) => values :+ value
+      case None => Vector(value)
+    }
+    this
   }
 }
