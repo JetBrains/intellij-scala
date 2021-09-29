@@ -4,7 +4,7 @@ package unusedInspections
 
 import java.util
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
-import com.intellij.codeInsight.daemon.impl.{HighlightInfo, UpdateHighlightersUtil}
+import com.intellij.codeInsight.daemon.impl.{HighlightInfo, HighlightInfoType, UpdateHighlightersUtil}
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.{Annotation, AnnotationHolder}
@@ -25,7 +25,7 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
   def file: PsiFile
   def document: Document
 
-  def collectAnnotations(unusedImports: Iterable[ImportUsed], annotationHolder: AnnotationHolder): Iterable[Annotation] = {
+  def collectHighlightings(unusedImports: Iterable[ImportUsed]): Iterable[HighlightInfo] = {
     unusedImports.filterNot(_.isAlwaysUsed).flatMap {
       (imp: ImportUsed) => {
         val psiOption: Option[PsiElement] = imp match {
@@ -41,11 +41,15 @@ trait ScalaUnusedImportPassBase { self: TextEditorHighlightingPass =>
         val qName = imp.qualName
 
         psiOption.toSeq.flatMap { psi =>
-          val annotation = annotationHolder.createWarningAnnotation(psi, ScalaInspectionBundle.message("unused.import.statement")): @nowarn("cat=deprecation")
-          annotation setHighlightType ProblemHighlightType.LIKE_UNUSED_SYMBOL
-          getFixes.foreach(annotation.registerFix)
-          qName.foreach(name => annotation.registerFix(new MarkImportAsAlwaysUsed(name)))
-          Seq(annotation)
+          val highlightInfo =
+            HighlightInfo.newHighlightInfo(HighlightInfoType.UNUSED_SYMBOL)
+              .range(psi.getTextRange)
+              .descriptionAndTooltip(ScalaInspectionBundle.message("unused.import.statement"))
+              .create()
+
+          getFixes.foreach(action => highlightInfo.registerFix(action, null, null, null, null))
+          qName.foreach(name => highlightInfo.registerFix(new MarkImportAsAlwaysUsed(name), null, null, null, null))
+          Seq(highlightInfo)
         }
       }
     }
