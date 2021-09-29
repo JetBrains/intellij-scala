@@ -2,12 +2,13 @@ package org.jetbrains.plugins.scala
 package codeInspection
 package unusedInspections
 
-import java.util.Collections
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
+import com.intellij.codeInsight.daemon.impl.HighlightInfo.convertSeverity
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
-import com.intellij.lang.annotation.{Annotation, HighlightSeverity}
+import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.profile.codeInspection.InspectionProjectProfileManager
@@ -16,9 +17,9 @@ import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSup
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
-import scala.annotation.nowarn
-import scala.jdk.CollectionConverters._
+import java.util.Collections
 import scala.collection.mutable
+import scala.jdk.CollectionConverters._
 
 abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option[Document], inspection: HighlightingPassInspection)
   extends TextEditorHighlightingPass(file.getProject, document.orNull, /*runIntentionPassAfter*/ false) {
@@ -60,7 +61,6 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
     }
   }
 
-  @nowarn("cat=deprecation")
   private def processFile(): Unit = {
     if (isEnabled(file)) {
       val infos: Iterator[ProblemInfo] = file.depthFirst().filter {
@@ -72,13 +72,29 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
       }
       highlightInfos ++= infos.map { info =>
         val range = info.element.getTextRange
-        val annotation = new Annotation(range.getStartOffset, range.getEndOffset, severity, info.message, info.message)
-        annotation.setHighlightType(info.highlightingType)
-        info.fixes.foreach(annotation.registerFix(_, range, highlightKey))
-        HighlightInfo.fromAnnotation(annotation)
+        val infoType = toHighlightInfoType(info.highlightingType, severity)
+        val highlightInfo = HighlightInfo.newHighlightInfo(infoType)
+          .range(range)
+          .descriptionAndTooltip(info.message)
+          .create()
+        info.fixes.foreach { action =>
+          highlightInfo.registerFix(action, null, info.message, range, highlightKey)
+        }
+
+        highlightInfo
       }
     }
   }
 
   override def getInfos: java.util.List[HighlightInfo] = highlightInfos.asJava
+
+  private def toHighlightInfoType(problemHighlightType: ProblemHighlightType, severity: HighlightSeverity): HighlightInfoType =
+    problemHighlightType match {
+      case ProblemHighlightType.LIKE_UNUSED_SYMBOL => HighlightInfoType.UNUSED_SYMBOL
+      case ProblemHighlightType.LIKE_UNKNOWN_SYMBOL => HighlightInfoType.WRONG_REF
+      case ProblemHighlightType.LIKE_DEPRECATED => HighlightInfoType.DEPRECATED
+      case ProblemHighlightType.LIKE_MARKED_FOR_REMOVAL => HighlightInfoType.MARKED_FOR_REMOVAL
+      case ProblemHighlightType.POSSIBLE_PROBLEM => HighlightInfoType.POSSIBLE_PROBLEM
+      case _ => convertSeverity(severity)
+    }
 }
