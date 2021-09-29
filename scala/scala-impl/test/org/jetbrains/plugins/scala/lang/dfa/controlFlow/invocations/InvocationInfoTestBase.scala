@@ -5,11 +5,12 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
-import org.jetbrains.plugins.scala.extensions.ObjectExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassingMechanism, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
+import org.jetbrains.plugins.scala.lang.psi.fake.FakePsiMethod
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.assertTrue
@@ -36,7 +37,9 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
     val actualText = invocationInfo.invokedElement.get match {
       case definition: ScFunctionDefinition => s"${definition.containingClass.name}#${definition.name}"
       case synthetic: ScSyntheticFunction => s"$synthetic: ${synthetic.name}"
-      case _ => throw new IllegalArgumentException(s"Invoked element of unknown type: ${invocationInfo.invokedElement}")
+      case fakeMethod: FakePsiMethod => s"${fakeMethod.containingClass.name}#${fakeMethod.name}"
+      case _ => val invokedElement = invocationInfo.invokedElement.get
+        throw new IllegalArgumentException(s"Invoked element $invokedElement of unknown type ${invokedElement.getClass}")
     }
 
     actualText shouldBe expectedText
