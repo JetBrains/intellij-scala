@@ -11,7 +11,7 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |def main(): Int = {
-         |${markerStart}${invocationSyntax}${markerEnd}
+         |  ${markerStart}${invocationSyntax}${markerEnd}
          |}
          |""".stripMargin
 
@@ -37,14 +37,14 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |case class AndWrapper(wrapped: String) {
-         |def &(rhs: String): String = wrapped + rhs
-         |}
+         |  case class AndWrapper(wrapped: String) {
+         |    def &(rhs: String): String = wrapped + rhs
+         |  }
          |
-         |def main(): String = {
-         |val hello = AndWrapper("Hello ")
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): String = {
+         |    val hello = AndWrapper("Hello ")
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 

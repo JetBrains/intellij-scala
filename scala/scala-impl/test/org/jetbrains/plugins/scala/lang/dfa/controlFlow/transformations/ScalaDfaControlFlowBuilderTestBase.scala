@@ -36,9 +36,9 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
   protected def codeFromMethodBody(returnType: String)(body: String): String =
     s"""
        |class TestClass {
-       |def testMethod(arg1: Int, arg2: Int, arg3: Bool, arg4: String): $returnType = {
-       |$body
-       |}
+       |  def testMethod(arg1: Int, arg2: Int, arg3: Bool, arg4: String): $returnType = {
+       |    $body
+       |  }
        |}
        |""".stripMargin
 }

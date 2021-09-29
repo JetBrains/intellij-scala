@@ -8,13 +8,13 @@ class RegularMethodCallInfoTest extends InvocationInfoTestBase {
     val invocationInfo = generateInvocationInfoFor {
       s"""
          |class SomeClass {
-         |def simpleFun(firstArg: Int, secondArg: Boolean, thirdArg: String, fourthArg: Int): Int = {
-         |firstArg + fourthArg
-         |}
+         |  def simpleFun(firstArg: Int, secondArg: Boolean, thirdArg: String, fourthArg: Int): Int = {
+         |    firstArg + fourthArg
+         |  }
          |
-         |def main(): Int = {
-         |${markerStart}simpleFun(3 + 8, 5 > 9, "Hello", 9 * 4 - 2)${markerEnd}
-         |}
+         |  def main(): Int = {
+         |    ${markerStart}simpleFun(3 + 8, 5 > 9, "Hello", 9 * 4 - 2)${markerEnd}
+         |  }
          |}
          |""".stripMargin
     }
@@ -33,14 +33,14 @@ class RegularMethodCallInfoTest extends InvocationInfoTestBase {
     val invocationInfo = generateInvocationInfoFor {
       s"""
          |class AnotherClass {
-         |def funWithByNames(arg0: Int, arg1: => Boolean, arg2: String, arg3: => Int): Int = {
-         |firstArg + fourthArg
-         |}
+         |  def funWithByNames(arg0: Int, arg1: => Boolean, arg2: String, arg3: => Int): Int = {
+         |    firstArg + fourthArg
+         |  }
          |
-         |def main(): Int = {
-         |val x = 3
-         |${markerStart}funWithByNames(328944 * 22, 5 >= 3 && false, "Hello", -3324 + x)${markerEnd}
-         |}
+         |  def main(): Int = {
+         |    val x = 3
+         |    ${markerStart}funWithByNames(328944 * 22, 5 >= 3 && false, "Hello", -3324 + x)${markerEnd}
+         |  }
          |}
          |""".stripMargin
     }
@@ -59,14 +59,14 @@ class RegularMethodCallInfoTest extends InvocationInfoTestBase {
     val invocationInfo = generateInvocationInfoFor {
       s"""
          |object TestObject {
-         |class Something(z: Double) {
-         |def compareWith(x: Double, y: Double): Boolean = z < x && z < y
-         |}
+         |  class Something(z: Double) {
+         |    def compareWith(x: Double, y: Double): Boolean = z < x && z < y
+         |  }
          |
-         |def main(): Int = {
-         |val newSomething = new Something(12.34)
-         |${markerStart}newSomething.compareWith(19.52 * 2.5, -11.0034 * (-1))${markerEnd}
-         |}
+         |  def main(): Int = {
+         |    val newSomething = new Something(12.34)
+         |    ${markerStart}newSomething.compareWith(19.52 * 2.5, -11.0034 * (-1))${markerEnd}
+         |  }
          |}
          |""".stripMargin
     }

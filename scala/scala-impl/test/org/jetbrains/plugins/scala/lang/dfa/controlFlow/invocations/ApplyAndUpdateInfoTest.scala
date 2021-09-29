@@ -11,12 +11,12 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |case class SomeStringWrapper(wrapped: String)
+         |  case class SomeStringWrapper(wrapped: String)
          |
-         |def main(): String = {
-         |val somethingWrapped = ${markerStart}${invocationSyntax}${markerEnd}
-         |somethingWrapped.wrapped
-         |}
+         |  def main(): String = {
+         |    val somethingWrapped = ${markerStart}${invocationSyntax}${markerEnd}
+         |    somethingWrapped.wrapped
+         |  }
          |}
          |""".stripMargin
 
@@ -42,14 +42,14 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |object SomeClass {
-         |def apply(x: Int): Int = 2 * x + 3
-         |}
+         |  object SomeClass {
+         |    def apply(x: Int): Int = 2 * x + 3
+         |  }
          |
-         |def main(): String = {
-         |val x = ${markerStart}${invocationSyntax}${markerEnd}
-         |x + 2
-         |}
+         |  def main(): String = {
+         |    val x = ${markerStart}${invocationSyntax}${markerEnd}
+         |    x + 2
+         |  }
          |}
          |""".stripMargin
 
@@ -75,15 +75,15 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |class SomeClass(y: Int) {
-         |def apply(x: Int): Int = 2 * x + y
-         |}
+         |  class SomeClass(y: Int) {
+         |    def apply(x: Int): Int = 2 * x + y
+         |  }
          |
-         |def main(): String = {
-         |val obj = new SomeClass(33)
-         |val x = ${markerStart}${invocationSyntax}${markerEnd}
-         |x + 3
-         |}
+         |  def main(): String = {
+         |    val obj = new SomeClass(33)
+         |    val x = ${markerStart}${invocationSyntax}${markerEnd}
+         |    x + 3
+         |  }
          |}
          |""".stripMargin
 
@@ -109,10 +109,9 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |
-         |def main(): String = {
-         |val someList = ${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): String = {
+         |    val someList = ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -138,13 +137,11 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
+         |  def someFunc(x: Int): Int = x + 3
          |
-         |def someFunc(x: Int): Int = x + 3
-         |
-         |def main(): String = {
-         |
-         |val someList = ${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): Unit = {
+         |    val someList = ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -171,11 +168,10 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |
-         |def main(): String = {
-         |val someSet = Set(13, 13, 13, 1113, 8 * 15, 24, 9, 32992, 9, 33)
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): String = {
+         |    val someSet = Set(13, 13, 13, 1113, 8 * 15, 24, 9, 32992, 9, 33)
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -201,16 +197,15 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
+         |  class MyMutableCollection {
+         |    val arr = ArrayBuffer[Int](1, 2, 3, 4, 5, 6, 7)
+         |    def update(position: Int, value: Int): Unit = arr.insert(position, value * 2)
+         |  }
          |
-         |class MyMutableCollection {
-         |val arr = ArrayBuffer[Int](1, 2, 3, 4, 5, 6, 7)
-         |def update(position: Int, value: Int): Unit = arr.insert(position, value * 2)
-         |}
-         |
-         |def main(): String = {
-         |val collection = new MyMutableCollection
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): String = {
+         |    val collection = new MyMutableCollection
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -236,18 +231,18 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |class MyMutableCollection {
-         |val arr = ArrayBuffer[Int](1, 2, 3, 4, 5, 6, 7)
-         |def update(position1: Int, position2: String, position3: Boolean, value: Int): Unit = {
-         | if (position3) arr.insert(position1, value * 2)
-         | else arr.insert(position1, value * 7
-         |}
-         |}
+         |  class MyMutableCollection {
+         |    val arr = ArrayBuffer[Int](1, 2, 3, 4, 5, 6, 7)
+         |    def update(position1: Int, position2: String, position3: Boolean, value: Int): Unit = {
+         |      if (position3) arr.insert(position1, value * 2)
+         |      else arr.insert(position1, value * 7
+         |    }
+         |  }
          |
-         |def main(): String = {
-         |val collection = new MyMutableCollection
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): String = {
+         |    val collection = new MyMutableCollection
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -275,11 +270,10 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
          |import scala.collection.mutable.ArrayBuffer
          |
          |object Test {
-         |
-         |def main(): String = {
-         |val someMutableArray = ArrayBuffer(11339, 9 * 40, 9 - 4 - 4 - 4, -15)
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): String = {
+         |    val someMutableArray = ArrayBuffer(11339, 9 * 40, 9 - 4 - 4 - 4, -15)
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 

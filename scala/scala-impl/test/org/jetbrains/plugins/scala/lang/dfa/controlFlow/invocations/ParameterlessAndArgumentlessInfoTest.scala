@@ -11,14 +11,14 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |case class MyClass(wrapped: Int) {
-         |def someMethod: Int = wrapped + 5
-         |}
+         |  case class MyClass(wrapped: Int) {
+         |    def someMethod: Int = wrapped + 5
+         |  }
          |
-         |def main(): Int = {
-         |val myObj = MyClass(6) 
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): Int = {
+         |    val myObj = MyClass(6)
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -44,14 +44,14 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |case class MyClass(wrapped: Int) {
-         |def someMethod(): Int = wrapped + 5
-         |}
+         |  case class MyClass(wrapped: Int) {
+         |    def someMethod(): Int = wrapped + 5
+         |  }
          |
-         |def main(): Int = {
-         |val myObj = MyClass(6) 
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): Int = {
+         |    val myObj = MyClass(6)
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -79,10 +79,10 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
          |import scala.collection.mutable.ArrayBuffer
          |
          |object Test {
-         |def main(): Int = {
-         |val myArray = ArrayBuffer(3, 8, 5)
-         |${markerStart}${invocationSyntax}${markerEnd}
-         |}
+         |  def main(): Int = {
+         |    val myArray = ArrayBuffer(3, 8, 5)
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
          |}
          |""".stripMargin
 
@@ -105,9 +105,8 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
     val invocationInfo = generateInvocationInfoFor {
       s"""
          |def main(): Int = {
-         |val myList = List(5, 0, 4, 4, 4, 4)
-         |${markerStart}myList.size${markerEnd}
-         |}
+         |  val myList = List(5, 0, 4, 4, 4, 4)
+         |  ${markerStart}myList.size${markerEnd}
          |}
          |""".stripMargin
     }

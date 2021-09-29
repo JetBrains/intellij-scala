@@ -5,11 +5,11 @@ class IfStatementControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
   def testRegularIfs(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |if (3 < 2 && 5 <= 7) {
-      |5 + 2 - 20
+      |  5 + 2 - 20
       |} else if (12 == 13 || 13 != 5 || false) {
-      |7 + 3 * 6 % 2
+      |  7 + 3 * 6 % 2
       |} else {
-      |9 * 3
+      |  9 * 3
       |}
       |""".stripMargin
   }) {
@@ -80,7 +80,7 @@ class IfStatementControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
   def testIfsWithoutElseBranch(): Unit = test(codeFromMethodBody(returnType = "Any") {
     """
       |if (3 < 2 && 5 <= 7) {
-      |5 + 2 - 20
+      |  5 + 2 - 20
       |}
       |""".stripMargin
   }) {

@@ -11,8 +11,8 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |def main(): Int = {
-         |val myList = List("elem1", "elem3", "elem5", "", "elem6")
-         |${markerStart}${invocationSyntax}${markerEnd}
+         |  val myList = List("elem1", "elem3", "elem5", "", "elem6")
+         |  ${markerStart}${invocationSyntax}${markerEnd}
          |}
          |""".stripMargin
 
@@ -38,15 +38,15 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |case class MyObject(x: Int) {
-         |def >># : Int = x + 3
-         |}
+         |  case class MyObject(x: Int) {
+         |    def >># : Int = x + 3
+         |  }
          |
-         |def main(): Int = {
-         |val myObject = MyObject(6)
-         |val x = ${markerStart}${invocationSyntax}${markerEnd}
-         |if (x == 5) x else x + 2
-         |}
+         |  def main(): Int = {
+         |    val myObject = MyObject(6)
+         |    val x = ${markerStart}${invocationSyntax}${markerEnd}
+         |    if (x == 5) x else x + 2
+         |  }
          |}
          |""".stripMargin
 
@@ -72,8 +72,8 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |def main(): Int = {
-         |val condition = 3 + 2 >= 4 || 2 == 3
-         |${markerStart}${invocationSyntax}${markerEnd}
+         |  val condition = 3 + 2 >= 4 || 2 == 3
+         |  ${markerStart}${invocationSyntax}${markerEnd}
          |}
          |""".stripMargin
 
@@ -99,15 +99,15 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |case class MyObject(x: Int) {
-         |def unary_! : Boolean = x > 100
-         |}
+         |  case class MyObject(x: Int) {
+         |    def unary_! : Boolean = x > 100
+         |  }
          |
-         |def main(): Int = {
-         |val myObject = MyObject(52)
-         |val b = ${markerStart}${invocationSyntax}${markerEnd}
-         |if (b) 3 else 5
-         |}
+         |  def main(): Int = {
+         |    val myObject = MyObject(52)
+         |    val b = ${markerStart}${invocationSyntax}${markerEnd}
+         |    if (b) 3 else 5
+         |  }
          |}
          |""".stripMargin
 
