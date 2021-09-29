@@ -1,16 +1,20 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
+import com.intellij.openapi.util.TextRange
 import com.intellij.psi.util.PsiTreeUtil
+import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassingMechanism, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.assertTrue
+
+import scala.reflect.ClassTag
 
 
 abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
@@ -20,6 +24,13 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
   protected def markerStart: String = MarkersUtils.start()
 
   protected def markerEnd: String = MarkersUtils.end()
+
+  protected def generateInvocationInfoFor(code: String): InvocationInfo = {
+    extractInvocationUnderMarker(code) match {
+      case methodInvocation: MethodInvocation => InvocationInfo.fromMethodInvocation(methodInvocation)
+      case referenceExpression: ScReferenceExpression => InvocationInfo.fromReferenceExpression(referenceExpression)
+    }
+  }
 
   protected def verifyInvokedElement(invocationInfo: InvocationInfo, expectedText: String): Unit = {
     val actualText = invocationInfo.invokedElement.get match {
@@ -50,34 +61,35 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
     thisExpression.getText shouldBe expectedExpressionInText
   }
 
-  protected def generateInvocationInfoFor(code: String): InvocationInfo = {
-    val invocation = extractInvocationUnderMarker(code)
-    InvocationInfo.fromMethodInvocation(invocation)
-  }
-
-  protected def convertArgsToText(args: Seq[Argument]): Seq[String] = {
+  private def convertArgsToText(args: Seq[Argument]): Seq[String] = {
     args.map(extractExpressionFromArgument)
       .map(_.getText)
   }
 
-  protected def extractExpressionFromArgument(argument: Argument): ScExpression = argument.content match {
+  private def extractExpressionFromArgument(argument: Argument): ScExpression = argument.content match {
     case expressionTransformer: ExpressionTransformer => expressionTransformer.expression
     case _ => throw new IllegalArgumentException(s"Argument is not an expression: $argument")
   }
 
-  private def extractInvocationUnderMarker(code: String): MethodInvocation = {
-    val (codeWithoutMarkers, ranges) = MarkersUtils.extractNumberedMarkers(code.strip)
-    val actualFile = configureFromFileText(codeWithoutMarkers)
-
+  private def extractElementOfType[A <: PsiElement : ClassTag](actualFile: PsiFile, ranges: Seq[TextRange]): A = {
     val range = ranges.head
     val start = range.getStartOffset
     val end = range.getEndOffset
+    val runtimeClass = implicitly[ClassTag[A]].runtimeClass.asInstanceOf[Class[A]]
 
-    val elementUnderMarker =
-      if (start == end) PsiTreeUtil.getNonStrictParentOfType(actualFile.findElementAt(start), classOf[MethodInvocation])
-      else PsiTreeUtil.findElementOfClassAtRange(actualFile, start, end, classOf[MethodInvocation])
+    if (start == end) PsiTreeUtil.getNonStrictParentOfType(actualFile.findElementAt(start), runtimeClass)
+    else PsiTreeUtil.findElementOfClassAtRange(actualFile, start, end, runtimeClass)
+  }
 
-    assertTrue("There should be a method invocation under the marker", elementUnderMarker != null)
-    elementUnderMarker
+  private def extractInvocationUnderMarker(code: String): ScExpression = {
+    val (codeWithoutMarkers, ranges) = MarkersUtils.extractNumberedMarkers(code.strip)
+    val actualFile = configureFromFileText(codeWithoutMarkers)
+
+    val methodInvocationUnderMarker = extractElementOfType[MethodInvocation](actualFile, ranges)
+    val referenceExpressionUnderMarker = extractElementOfType[ScReferenceExpression](actualFile, ranges)
+
+    Option(methodInvocationUnderMarker)
+      .orElse(Option(referenceExpressionUnderMarker))
+      .getOrElse(throw new IllegalArgumentException("There is no invocation under the marker"))
   }
 }

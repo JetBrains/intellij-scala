@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassByValue, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ArgumentUtils.{ArgParamMapping, buildArgumentsInEvaluationOrder}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
 
 case class InvocationInfo(invokedElement: Option[PsiElement], argsInEvaluationOrder: Seq[Argument],
                           argsMappedToParams: Seq[ArgParamMapping])
@@ -18,5 +18,12 @@ object InvocationInfo {
     val properArguments = buildArgumentsInEvaluationOrder(invocation.matchedParameters) // TODO do I need to pass isTupled already here?
 
     InvocationInfo(target.map(_.element), thisArgument +: properArguments, Nil) // TODO generate and return mapping instead of Nil here
+  }
+
+  def fromReferenceExpression(referenceExpression: ScReferenceExpression): InvocationInfo = {
+    val target = referenceExpression.bind().map(_.element)
+    val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
+
+    InvocationInfo(target, List(thisArgument), Nil)
   }
 }

@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.PassByValue
 
-class LeftAssocInfixExpressionInfoTest extends InvocationInfoTestBase {
+class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
 
-  def testBuiltinInfixExpressions(): Unit = {
+  def testBuiltinInfixOperators(): Unit = {
     val sugaredSyntax = "23 + 16"
     val desugaredSyntax = "23.+(16)"
 
@@ -30,7 +30,7 @@ class LeftAssocInfixExpressionInfoTest extends InvocationInfoTestBase {
     }
   }
 
-  def testCustomInfixExpressions(): Unit = {
+  def testCustomInfixOperators(): Unit = {
     val sugaredSyntax = "hello & \"World\""
     val desugaredSyntax = "hello.&(\"World\")"
 

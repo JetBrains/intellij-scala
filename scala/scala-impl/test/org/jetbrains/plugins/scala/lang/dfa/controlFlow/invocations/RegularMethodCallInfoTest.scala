@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassByName, PassByValue}
 
-class SimpleMethodCallInfoTest extends InvocationInfoTestBase {
+class RegularMethodCallInfoTest extends InvocationInfoTestBase {
 
-  def testSimpleMethodCall(): Unit = {
+  def testSimpleMethodCalls(): Unit = {
     val invocationInfo = generateInvocationInfoFor {
       s"""
          |class SomeClass {
@@ -53,5 +53,32 @@ class SimpleMethodCallInfoTest extends InvocationInfoTestBase {
     verifyInvokedElement(invocationInfo, "AnotherClass#funWithByNames")
     verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
+  }
+
+  def testMethodCallsOnInstance(): Unit = {
+    val invocationInfo = generateInvocationInfoFor {
+      s"""
+         |object TestObject {
+         |class Something(z: Double) {
+         |def compareWith(x: Double, y: Double): Boolean = z < x && z < y
+         |}
+         |
+         |def main(): Int = {
+         |val newSomething = new Something(12.34)
+         |${markerStart}newSomething.compareWith(19.52 * 2.5, -11.0034 * (-1))${markerEnd}
+         |}
+         |}
+         |""".stripMargin
+    }
+
+    val expectedArgCount = 1 + 2
+    val expectedProperArgsInText = List("19.52 * 2.5", "-11.0034 * (-1)")
+    val expectedMappedParamNames = List("x", "y")
+    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+
+    verifyInvokedElement(invocationInfo, "Something#compareWith")
+    verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      expectedMappedParamNames, expectedPassingMechanisms)
+    verifyThisExpression(invocationInfo, "newSomething")
   }
 }

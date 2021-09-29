@@ -142,6 +142,7 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
          |def someFunc(x: Int): Int = x + 3
          |
          |def main(): String = {
+         |
          |val someList = ${markerStart}${invocationSyntax}${markerEnd}
          |}
          |}
@@ -200,6 +201,7 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
+         |
          |class MyMutableCollection {
          |val arr = ArrayBuffer[Int](1, 2, 3, 4, 5, 6, 7)
          |def update(position: Int, value: Int): Unit = arr.insert(position, value * 2)
