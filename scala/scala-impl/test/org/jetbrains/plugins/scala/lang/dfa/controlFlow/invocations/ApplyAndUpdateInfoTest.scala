@@ -220,7 +220,7 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
       verifyInvokedElement(invocationInfo, "MyMutableCollection#update")
       verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
-      //    verifyThisExpression(invocationInfo, "collection") TODO check why if thisExpr correctly returns None in the PSI?
+      verifyThisExpression(invocationInfo, "collection")
     }
   }
 
@@ -233,6 +233,8 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
          |object Test {
          |  class MyMutableCollection {
          |    val arr = ArrayBuffer[Int](1, 2, 3, 4, 5, 6, 7)
+         |    def foo(x: Int) = x + 3
+         |
          |    def update(position1: Int, position2: String, position3: Boolean, value: Int): Unit = {
          |      if (position3) arr.insert(position1, value * 2)
          |      else arr.insert(position1, value * 7
@@ -257,7 +259,7 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
       verifyInvokedElement(invocationInfo, "MyMutableCollection#update")
       verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
-      //    verifyThisExpression(invocationInfo, "collection") TODO check why if thisExpr correctly returns None in the PSI?
+      verifyThisExpression(invocationInfo, "collection")
     }
   }
 
@@ -288,7 +290,7 @@ class ApplyAndUpdateInfoTest extends InvocationInfoTestBase {
       verifyInvokedElement(invocationInfo, "ResizableArray#update")
       verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
-      // TODO check if this expression also here should be an unknown value
+      verifyThisExpression(invocationInfo, "someMutableArray")
     }
   }
 }
