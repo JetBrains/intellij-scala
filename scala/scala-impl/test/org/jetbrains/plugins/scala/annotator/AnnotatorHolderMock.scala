@@ -36,6 +36,7 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotatorHolderMockBase[Message
 }
 
 abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotationHolder {
+  @nowarn("cat=deprecation")
   protected val FakeAnnotation: ScalaAnnotation = {
     //noinspection DialogTitleCapitalization
     val annotation = new Annotation(0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")

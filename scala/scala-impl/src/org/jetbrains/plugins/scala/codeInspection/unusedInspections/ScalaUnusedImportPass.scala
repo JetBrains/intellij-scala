@@ -3,7 +3,6 @@ package codeInspection
 package unusedInspections
 
 import java.{util => ju}
-
 import com.intellij.codeInsight.daemon.impl._
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
@@ -21,6 +20,8 @@ import org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizer
 import org.jetbrains.plugins.scala.extensions.PsiFileExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
+
+import scala.annotation.nowarn
 
 /**
  * User: Alexander Podkhalyuzin
@@ -45,6 +46,7 @@ class ScalaUnusedImportPass(override val file: PsiFile, editor: Editor, override
   private var myHighlights: ju.List[HighlightInfo] = _
   private var myOptimizeImportsRunnable: Runnable = _
 
+  @nowarn("cat=deprecation")
   override def collectInformationWithProgress(progress: ProgressIndicator): Unit = file match {
     case _ if analysis.HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file) =>
       file.findScalaLikeFile match {

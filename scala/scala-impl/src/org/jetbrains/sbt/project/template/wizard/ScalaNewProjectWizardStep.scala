@@ -21,6 +21,7 @@ import org.jetbrains.plugins.scala.project.Versions
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.project.template.SbtModuleBuilder
 import org.jetbrains.sbt.project.template.wizard.kotlin_interop.ComboBoxKt_Wrapper
+import org.jetbrains.sbt.project.template.wizard.kotlin_interop.dsl.RowOps
 
 //noinspection ApiStatus,UnstableApiUsage
 final class ScalaNewProjectWizardStep(parentStep: NewProjectWizardLanguageStep)

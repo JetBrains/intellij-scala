@@ -3,7 +3,6 @@ package codeInspection
 package unusedInspections
 
 import java.util.Collections
-
 import com.intellij.codeHighlighting.TextEditorHighlightingPass
 import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.daemon.impl._
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.codeInspection.suppression.ScalaInspectionSup
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import scala.annotation.nowarn
 import scala.jdk.CollectionConverters._
 import scala.collection.mutable
 
@@ -60,6 +60,7 @@ abstract class InspectionBasedHighlightingPass(file: ScalaFile, document: Option
     }
   }
 
+  @nowarn("cat=deprecation")
   private def processFile(): Unit = {
     if (isEnabled(file)) {
       val infos: Iterator[ProblemInfo] = file.depthFirst().filter {

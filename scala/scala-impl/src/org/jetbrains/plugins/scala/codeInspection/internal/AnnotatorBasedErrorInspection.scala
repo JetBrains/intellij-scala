@@ -14,6 +14,8 @@ import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
 import org.jetbrains.plugins.scala.annotator.{ScalaAnnotation, ScalaAnnotationHolder, ScalaAnnotator}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
+import scala.annotation.nowarn
+
 /**
  * @author Alexander Podkhalyuzin
  */
@@ -77,6 +79,7 @@ object AnnotatorBasedErrorInspection {
 
   private class DummyAnnotationHolder(element: PsiElement, holder: ProblemsHolder) extends ScalaAnnotationHolder {
 
+    @nowarn("cat=deprecation")
     private val FakeAnnotation = new ScalaAnnotation(new Annotation(
       0,
       0,

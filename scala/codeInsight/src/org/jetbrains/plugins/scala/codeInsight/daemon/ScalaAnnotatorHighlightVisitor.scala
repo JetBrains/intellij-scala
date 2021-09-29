@@ -13,6 +13,8 @@ import org.jetbrains.plugins.scala.annotator.usageTracker.ScalaRefCountHolder
 import org.jetbrains.plugins.scala.caches.CachesUtil.fileModCount
 import org.jetbrains.plugins.scala.extensions.{PsiElementExt, PsiFileExt}
 
+import scala.annotation.nowarn
+
 /**
  * User: Alexander Podkhalyuzin
  * Date: 31.05.2010
@@ -42,6 +44,7 @@ final class ScalaAnnotatorHighlightVisitor(project: Project) extends HighlightVi
     myAnnotationHolder.clear()
   }
 
+  @nowarn("cat=deprecation")
   override def analyze(file: PsiFile,
                        updateWholeFile: Boolean,
                        holder: HighlightInfoHolder,

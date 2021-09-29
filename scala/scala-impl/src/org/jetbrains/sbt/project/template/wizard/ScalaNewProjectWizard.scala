@@ -1,5 +1,6 @@
 package org.jetbrains.sbt.project.template.wizard
 
+import com.intellij.ide.util.projectWizard.WizardContext
 import com.intellij.ide.wizard._
 import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard.ScalaLanguageText
 
@@ -9,7 +10,7 @@ import org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard.ScalaLang
  * @todo proper fields validation SCL-19509
  */
 final class ScalaNewProjectWizard extends NewProjectWizard {
-  override def isEnabled: Boolean = true
+  override def isEnabled(wizardContext: WizardContext): Boolean = true
 
   override def getName: String = ScalaLanguageText
 
