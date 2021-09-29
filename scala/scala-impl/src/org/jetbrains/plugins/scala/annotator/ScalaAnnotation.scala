@@ -4,7 +4,7 @@ import com.intellij.codeInsight.daemon.HighlightDisplayKey
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.Annotation
-import com.intellij.openapi.editor.colors.TextAttributesKey
+import com.intellij.openapi.editor.colors.{CodeInsightColors, TextAttributesKey}
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.annotations.Nls
@@ -49,4 +49,22 @@ class ScalaAnnotation(annotation: Annotation) {
 
   override def hashCode(): Int =
     annotation.hashCode()
+}
+
+object ScalaAnnotation {
+  object Empty extends ScalaAnnotation(null) {
+    override def registerFix(fix: IntentionAction): Unit = ()
+    override def registerFix(fix: IntentionAction, range: TextRange): Unit = ()
+    override def registerFix(fix: IntentionAction, range: TextRange, key: HighlightDisplayKey): Unit = ()
+    override def getStartOffset: Int = 0
+    override def getTextAttributes: TextAttributesKey = CodeInsightColors.ERRORS_ATTRIBUTES
+    override def setEnforcedTextAttributes(enforcedAttributes: TextAttributes): Unit = ()
+    override def setTooltip(tooltip: String): Unit = ()
+    override def setHighlightType(highlightType: ProblemHighlightType): Unit = ()
+    override def setTextAttributes(enforcedAttributes: TextAttributesKey): Unit = ()
+    override def toString: String = "FakeScalaAnnotation"
+    override def equals(obj: Any): Boolean = false
+    override def hashCode(): Int = 0
+    override def setAfterEndOfLine(afterEndOfLine: Boolean): Unit = ()
+  }
 }

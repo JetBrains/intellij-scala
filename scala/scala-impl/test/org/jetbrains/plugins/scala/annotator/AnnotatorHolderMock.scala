@@ -1,7 +1,7 @@
 package org.jetbrains.plugins.scala.annotator
 
 import com.intellij.lang.ASTNode
-import com.intellij.lang.annotation.{Annotation, AnnotationSession, HighlightSeverity}
+import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
@@ -36,12 +36,6 @@ class AnnotatorHolderMock(file: PsiFile) extends AnnotatorHolderMockBase[Message
 }
 
 abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotationHolder {
-  @nowarn("cat=deprecation")
-  protected val FakeAnnotation: ScalaAnnotation = {
-    //noinspection DialogTitleCapitalization
-    val annotation = new Annotation(0, 0, HighlightSeverity.WEAK_WARNING, "message", "tooltip")
-    new ScalaAnnotation(annotation)
-  }
 
   def annotations: List[T] = myAnnotations.reverse
 
@@ -52,7 +46,7 @@ abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotation
   override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): ScalaAnnotation = {
     val mockAnnotation = createMockAnnotation(severity, range, message)
     myAnnotations :::= mockAnnotation.toList
-    FakeAnnotation
+    ScalaAnnotation.Empty
   }
 
   override def getCurrentAnnotationSession: AnnotationSession = new AnnotationSession(file)
