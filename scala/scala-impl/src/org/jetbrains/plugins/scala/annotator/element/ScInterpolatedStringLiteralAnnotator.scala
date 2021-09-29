@@ -19,8 +19,6 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
     case Some(partReference: ScInterpolatedExpressionPrefix) =>
       partReference match {
         case Resolved(resolveResult) =>
-          usageTracker.UsageTracker
-            .registerUsedImports(partReference, resolveResult)
 
           for {
             (reference, call) <- literal.desugaredExpression

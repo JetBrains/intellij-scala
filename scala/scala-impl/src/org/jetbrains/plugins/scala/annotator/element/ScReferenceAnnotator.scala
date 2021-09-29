@@ -11,7 +11,6 @@ import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -66,8 +65,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
 
     for (r <- results) {
-
-      UsageTracker.registerUsedImports(reference, r)
 
       if (r.isAssignment) {
         annotateAssignmentReference(reference)
@@ -355,7 +352,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         case _ =>
       }
     }
-    UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
 
     checkAccessForReference(resolve, refElement)
 
@@ -461,8 +457,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   private def checkQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
                                             (implicit holder: ScalaAnnotationHolder): Unit = {
     val resolve = refElement.multiResolveScala(false)
-
-    UsageTracker.registerUsedElementsAndImports(refElement, resolve, checkWrite = true)
 
     checkAccessForReference(resolve, refElement)
     val resolveCount = resolve.length

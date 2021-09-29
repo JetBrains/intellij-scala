@@ -5,8 +5,6 @@ package template
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probableArgumentsFor
@@ -22,8 +20,6 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
   override def annotate(element: ImplicitArgumentsOwner, typeAware: Boolean = true)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     element.findImplicitArguments.foreach { params =>
-      UsageTracker.registerUsedElementsAndImports(element, params, checkWrite = false)
-
       val showImplictErrors = {
         val settings = ScalaProjectSettings.getInstance(element.getProject)
         settings.isShowNotFoundImplicitArguments || settings.isShowAmbiguousImplicitArguments

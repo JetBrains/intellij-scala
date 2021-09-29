@@ -36,7 +36,6 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScLongLiteralAnnotator ::
       ScIntegerLiteralAnnotator ::
       ScLiteralTypeElementAnnotator ::
-      ScMethodCallAnnotator ::
       ScMethodInvocationAnnotator ::
       ScNewTemplateDefinitionAnnotator ::
       ScFunctionExprAnnotator ::

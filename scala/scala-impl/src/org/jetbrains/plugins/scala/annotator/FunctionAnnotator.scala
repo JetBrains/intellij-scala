@@ -27,6 +27,8 @@ trait FunctionAnnotator {
 
   def annotateFunction(function: ScFunctionDefinition, typeAware: Boolean = true)
                       (implicit holder: ScalaAnnotationHolder): Unit = {
+    implicit val projectContext = function.projectContext
+
     if (!function.hasExplicitType && function.definedReturnType.isLeft) {
       val message = ScalaBundle.message("function.recursive.need.result.type", function.name)
       function.recursiveReferences.foreach {

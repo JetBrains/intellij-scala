@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReturn}
 import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -27,12 +26,6 @@ object ScReturnAnnotator extends ElementAnnotator[ScReturn] {
             ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
           }
         }
-
-        val importUsed = element.expr
-          .toSet[ScExpression]
-          .flatMap(_.getTypeAfterImplicitConversion().importsUsed)
-
-        registerUsedImports(element, importUsed)
       case Right(u) if u.isUnit && element.expr.nonEmpty => element.expr.foreach(redundantReturnExpression)
       case _                                        =>
     }

@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.codeInsight.daemon.impl.analysis.HighlightingLevelManager
 import com.intellij.codeInspection._
 import com.intellij.lang.annotation._
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -11,14 +12,13 @@ import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.impl.source.JavaDummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
+import org.jetbrains.plugins.scala.annotator.ScalaAnnotator.isSuitableForFile
 import org.jetbrains.plugins.scala.annotator.annotationHolder.ScalaAnnotationHolderAdapter
 import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.annotator.modifiers.ModifierChecker
 import org.jetbrains.plugins.scala.annotator.template._
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
-import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.types._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression.ExpressionTypeResult
@@ -35,7 +35,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.AfterUpdate.Pr
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScalaType}
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
-import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner, ProjectPsiElementExt}
+import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectPsiElementExt}
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
@@ -45,20 +45,21 @@ import scala.collection.mutable
  * User: Alexander Podkhalyuzin
  * Date: 23.06.2008
  */
-abstract class ScalaAnnotator protected()(implicit private val project: Project) extends Annotator
+class ScalaAnnotator extends Annotator
   with FunctionAnnotator
   with OverridingAnnotator
-  with ProjectContextOwner with DumbAware {
-
-  override final implicit def projectContext: ProjectContext = project
+  with DumbAware {
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit =
     annotate(element)(new ScalaAnnotationHolderAdapter(holder))
 
   def annotate(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = {
+    val file = element.getContainingFile
+    if (!isSuitableForFile(file))
+      return
 
     val typeAware = isAdvancedHighlightingEnabled(element)
-    val (compiled, isInSources) = element.getContainingFile match {
+    val (compiled, isInSources) = file match {
       case file: ScalaFile =>
         val isInSources = file.getVirtualFile.nullSafe.exists {
           ProjectRootManager.getInstance(file.getProject).getFileIndex.isInSourceContent
@@ -67,7 +68,7 @@ abstract class ScalaAnnotator protected()(implicit private val project: Project)
       case _ => (false, false)
     }
 
-    if (isInSources && (element eq element.getContainingFile)) {
+    if (isInSources && (element eq file)) {
       Stats.trigger {
         import FeatureKey._
         if (typeAware) annotatorTypeAware
@@ -110,11 +111,6 @@ abstract class ScalaAnnotator protected()(implicit private val project: Project)
       override def visitGenericCallExpression(call: ScGenericCall): Unit = {
         //todo: if (typeAware) checkGenericCallExpression(call, holder)
         super.visitGenericCallExpression(call)
-      }
-
-      override def visitFor(expr: ScFor): Unit = {
-        registerUsedImports(expr, ScalaPsiUtil.getExprImports(expr))
-        super.visitFor(expr)
       }
 
       override def visitFunctionDefinition(fun: ScFunctionDefinition): Unit = {
@@ -412,6 +408,16 @@ abstract class ScalaAnnotator protected()(implicit private val project: Project)
 }
 
 object ScalaAnnotator {
+
+  def isSuitableForFile(file: PsiFile): Boolean = {
+    val hasScala = file.hasScalaPsi
+    // TODO: we currently only check
+    //  HighlightingLevelManager.shouldInspect ~ "Highlighting: All Problems" in code analyses widget,
+    //  but we ignore HighlightingLevelManager.shouldInspect ~ "Highlighting: Syntax"
+    //  we should review all our annotators and split them accordingly
+    val shouldInspect = HighlightingLevelManager.getInstance(file.getProject).shouldInspect(file)
+    hasScala && (shouldInspect || isUnitTestMode)
+  }
 
   def apply(implicit project: Project): ScalaAnnotator = new ScalaAnnotator() {}
 

@@ -3,8 +3,6 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScSelfInvocation
 import org.jetbrains.plugins.scala.lang.psi.types.Compatibility
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
@@ -22,8 +20,6 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
       return
 
     val resolved: Seq[ScalaResolveResult] = element.multiResolve
-
-    UsageTracker.registerUsedElementsAndImports(element, results = resolved, checkWrite = false)
 
     if (resolved.exists(isConstructorMalformed)) {
       holder.createErrorAnnotation(element.thisElement,

@@ -3,10 +3,9 @@ package annotator
 package element
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiDocumentManager, PsiManager}
+import com.intellij.psi.PsiDocumentManager
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{annotationWithoutHighlighting, shouldIgnoreTypeMismatchIn, smartCheckConformance}
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddBreakoutQuickFix, ChangeTypeFix, WrapInOptionQuickFix}
-import org.jetbrains.plugins.scala.annotator.usageTracker.UsageTracker.registerUsedImports
 import org.jetbrains.plugins.scala.extensions.{&&, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
@@ -16,9 +15,9 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.DesignatorOwner
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
-import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
@@ -130,10 +129,8 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
 
     def checkExpressionTypeInner(fromUnderscore: Boolean): Unit = TraceLogger.func {
       val smartExpectedType = element.smartExpectedType(fromUnderscore)
-      val ExpressionTypeResult(exprType, importUsed, implicitFunction) =
+      val ExpressionTypeResult(exprType, _, implicitFunction) =
         element.getTypeAfterImplicitConversion(expectedOption = smartExpectedType, fromUnderscore = fromUnderscore)
-
-      registerUsedImports(element, importUsed)
 
       if (isTooBigToHighlight(element) || (!fromFunctionLiteral && isInArgumentPosition(element)) || shouldNotHighlight(element)) return
 
