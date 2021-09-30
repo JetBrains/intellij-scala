@@ -108,4 +108,68 @@ class RegularMethodCallInfoTest extends InvocationInfoTestBase {
       expectedMappedParamNames, expectedPassingMechanisms)
     verifyThisExpression(invocationInfo, "LocalDate")
   }
+
+  def testLocalFunctionsWithParams(): Unit = {
+    val sugaredSyntax = "local(5, 9)"
+    val desugaredSyntax = "local.apply(5, 9)"
+
+    val code = (invocationSyntax: String) =>
+      s"""
+         |object TestObject {
+         |
+         |  def main(): Int = {
+         |  	val local = (x, y) => x + y
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
+         |}
+         |
+         |""".stripMargin
+
+    for (invocationSyntax <- List(sugaredSyntax, desugaredSyntax)) {
+      val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
+
+      val expectedArgCount = 1 + 2
+      val expectedProperArgsInText = List("5", "9")
+      val expectedMappedParamNames = List("v1", "v2")
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+
+      verifyInvokedElement(invocationInfo, "Function2#apply")
+      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+        expectedMappedParamNames, expectedPassingMechanisms)
+      verifyThisExpression(invocationInfo, "local")
+    }
+  }
+
+  def testLocalFunctionsWithoutParams(): Unit = {
+    val sugaredSyntax = "local()"
+    val desugaredSyntax1 = "local.apply"
+    val desugaredSyntax2 = "local.apply()"
+
+    val code = (invocationSyntax: String) =>
+      s"""
+         |object TestObject {
+         |
+         |  def main(): Int = {
+         |  	val local = () => "Hi"
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |    5
+         |  }
+         |}
+         |
+         |""".stripMargin
+
+    for (invocationSyntax <- List(sugaredSyntax, desugaredSyntax1, desugaredSyntax2)) {
+      val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
+
+      val expectedArgCount = 1 + 0
+      val expectedProperArgsInText = Nil
+      val expectedMappedParamNames = Nil
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+
+      verifyInvokedElement(invocationInfo, "Function0#apply")
+      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+        expectedMappedParamNames, expectedPassingMechanisms)
+      verifyThisExpression(invocationInfo, "local")
+    }
+  }
 }

@@ -11,15 +11,17 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ArgumentFactory {
 
-  def buildArgumentsInEvaluationOrder(invocation: ImplicitArgumentsOwner, isTupledMethodInvocation: Boolean): Seq[Argument] = {
+  def buildArgumentsInEvaluationOrder(invocation: ImplicitArgumentsOwner, isTupled: Boolean): Seq[Argument] = {
     val (matchedParams, maybeVarargArgument) = partitionNormalAndVarargArgs(invocation)
 
-    if (isTupledMethodInvocation) List(buildTupledArgument(invocation.asInstanceOf[MethodInvocation]))
-    else matchedParams
-      .sortBy(ArgumentSorting.argumentPositionSortingKey)
-      .map { case (arg, param) =>
-        Argument(new ExpressionTransformer(arg), ProperArgument(param), getPassingMechanism(param))
-      } :++ maybeVarargArgument
+    invocation match {
+      case methodInvocation: MethodInvocation if isTupled => List(buildTupledArgument(methodInvocation))
+      case _ => matchedParams
+        .sortBy(ArgumentSorting.argumentPositionSortingKey)
+        .map { case (arg, param) =>
+          Argument(new ExpressionTransformer(arg), ProperArgument(param), getPassingMechanism(param))
+        } :++ maybeVarargArgument
+    }
   }
 
   private def partitionNormalAndVarargArgs(invocation: ImplicitArgumentsOwner): (Seq[(ScExpression, Parameter)], Option[Argument]) = {
