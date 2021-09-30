@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.PassByValue
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByName, PassByValue}
 
 class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
 
@@ -60,6 +60,36 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "hello")
+    }
+  }
+
+  def testLogicalOperators(): Unit = {
+    val sugaredSyntax = "predicate && otherPredicate"
+    val desugaredSyntax = "predicate.&&(otherPredicate)"
+
+    val code = (invocationSyntax: String) =>
+      s"""
+         |object Test {
+         |  def main(): Boolean = {
+         |    val predicate = 5 > 3 && 12 == 11
+         |    val otherPredicate = 333 > 10
+         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |  }
+         |}
+         |""".stripMargin
+
+    for (invocationSyntax <- List(sugaredSyntax, desugaredSyntax)) {
+      val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
+
+      val expectedArgCount = 1 + 1
+      val expectedProperArgsInText = List("otherPredicate")
+      val expectedMappedParamNames = List("")
+      val expectedPassingMechanisms = List(PassByValue, PassByName)
+
+      verifyInvokedElement(invocationInfo, "Synthetic method: &&")
+      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+        expectedMappedParamNames, expectedPassingMechanisms)
+      verifyThisExpression(invocationInfo, "predicate")
     }
   }
 }

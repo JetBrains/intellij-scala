@@ -13,8 +13,6 @@ import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.IncorrectOperationException
-
-import javax.swing.Icon
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.adapters.PsiClassAdapter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFun
@@ -29,6 +27,7 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveState.ResolveStateEx
 import org.jetbrains.plugins.scala.lang.resolve.processor.{BaseProcessor, ResolveProcessor}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
+import javax.swing.Icon
 import scala.annotation.nowarn
 import scala.collection.mutable
 
@@ -165,10 +164,10 @@ class ScSyntheticFunction(val name: String,
     }
   }
 
-  def this(name: String, retType: ScType, paramTypes: Seq[Seq[ScType]])
+  def this(name: String, retType: ScType, paramTypes: Seq[Seq[ScType]], paramsByName: Boolean = false)
           (implicit ctx: ProjectContext) =
     this(name, retType, paramTypes.mapWithIndex {
-      case (p, index) => p.map(Parameter(_, isRepeated = false, index = index))
+      case (p, index) => p.map(Parameter(_, isRepeated = false, isByName = paramsByName, index = index))
     }, Nil)
 
   val typeParams: Seq[ScSyntheticTypeParameter] =
@@ -271,9 +270,12 @@ class SyntheticClasses(project: Project) extends PsiElementFinder {
     import SyntheticClasses._
 
     val boolc = registerClass(Boolean, "Boolean")
-    for (op <- bool_bin_ops)
+    for (op <- bool_other_bin_ops)
       boolc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(Boolean))))
     boolc.addMethod(new ScSyntheticFunction("unary_!", Boolean, Nil))
+
+    for (op <- bool_bin_short_circuit_ops)
+      boolc.addMethod(new ScSyntheticFunction(op, Boolean, Seq(Seq(Boolean)), paramsByName = true))
 
     registerIntegerClass(registerNumericClass(registerClass(Char, "Char")))
     registerIntegerClass(registerNumericClass(registerClass(Int, "Int")))
@@ -516,7 +518,9 @@ object SyntheticClasses {
   val numeric_comp_ops: List[String] = "==" :: "!=" :: "<" :: ">" :: "<=" :: ">=" :: Nil
   val numeric_arith_ops: List[String] = "+" :: "-" :: "*" :: "/" :: "%" :: Nil
   val numeric_arith_unary_ops: List[String] = "+" :: "-" :: Nil
-  val bool_bin_ops: List[String] = "&&" :: "||" :: "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
+  val bool_bin_short_circuit_ops: List[String] = "&&" :: "||" :: Nil
+  val bool_other_bin_ops: List[String] = "&" :: "|" :: "==" :: "!=" :: "^" :: Nil
+  val bool_bin_ops: List[String] = bool_bin_short_circuit_ops ++ bool_other_bin_ops
   val bitwise_bin_ops: List[String] = "&" :: "|" :: "^" :: Nil
   val bitwise_shift_ops: List[String] = "<<" :: ">>" :: ">>>" :: Nil
 
