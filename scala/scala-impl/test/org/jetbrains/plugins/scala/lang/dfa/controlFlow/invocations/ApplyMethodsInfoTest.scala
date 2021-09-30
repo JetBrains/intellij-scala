@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.PassByValue
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.PassByValue
 
 class ApplyMethodsInfoTest extends InvocationInfoTestBase {
 
@@ -118,9 +118,9 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
     for (invocationSyntax <- List(sugaredSyntax, desugaredSyntax)) {
       val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
 
-      val expectedArgCount = 1 + 2
-      val expectedProperArgsInText = List("1113", "8 * 15")
-      val expectedMappedParamNames = List("xs", "xs")
+      val expectedArgCount = 1 + 1
+      val expectedProperArgsInText = List("1113 :: 8 * 15 :: Nil: _*")
+      val expectedMappedParamNames = List("xs")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "List#apply")
@@ -148,9 +148,9 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
     for (invocationSyntax <- List(sugaredSyntax, desugaredSyntax)) {
       val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
 
-      val expectedArgCount = 1 + 13
-      val expectedProperArgsInText = List("1113", "8 * 15", "24", "9", "32992", "9", "someFunc(33)", "44",
-        "47858", "45555", "6 - 6", "323", "44")
+      val expectedArgCount = 1 + 1
+      val expectedProperArgsInText = List("1113 :: 8 * 15 :: 24 :: 9 :: 32992 :: 9 :: someFunc(33) :: " +
+        "44 :: 47858 :: 45555 :: 6 - 6 :: 323 :: 44 :: Nil: _*")
       val expectedMappedParamNames = (1 until expectedArgCount).map(_ => "xs")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
