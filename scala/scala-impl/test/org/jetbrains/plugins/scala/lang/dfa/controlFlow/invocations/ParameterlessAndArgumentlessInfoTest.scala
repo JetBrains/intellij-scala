@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.PassByValue
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.PassByValue
 
 class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
 

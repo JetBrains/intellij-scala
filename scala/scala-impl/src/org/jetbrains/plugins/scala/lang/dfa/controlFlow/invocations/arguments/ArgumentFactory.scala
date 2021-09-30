@@ -1,7 +1,7 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassByName, PassByValue, PassingMechanism, ProperArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.SyntheticExpressionFactory.{wrapInSplatListExpression, wrapInTupleExpression}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByName, PassByValue, PassingMechanism, ProperArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction

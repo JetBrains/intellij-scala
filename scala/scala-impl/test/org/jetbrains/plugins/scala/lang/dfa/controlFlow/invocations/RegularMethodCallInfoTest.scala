@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassByName, PassByValue}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByName, PassByValue}
 
 class RegularMethodCallInfoTest extends InvocationInfoTestBase {
 
@@ -80,5 +80,32 @@ class RegularMethodCallInfoTest extends InvocationInfoTestBase {
     verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
     verifyThisExpression(invocationInfo, "newSomething")
+  }
+
+  def testJavaStaticMethods(): Unit = {
+    val invocationInfo = generateInvocationInfoFor {
+      s"""
+         |import java.time.LocalDate
+         |
+         |object TestObject {
+         |
+         |  def main(): Int = {
+         |  	val date = ${markerStart}LocalDate.of(2012, 11, 23)${markerEnd}
+         |  	date.getYear
+         |  }
+         |}
+         |
+         |""".stripMargin
+    }
+
+    val expectedArgCount = 1 + 3
+    val expectedProperArgsInText = List("2012", "11", "23")
+    val expectedMappedParamNames = List("year", "month", "dayOfMonth")
+    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+
+    verifyInvokedElement(invocationInfo, "LocalDate#of")
+    verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      expectedMappedParamNames, expectedPassingMechanisms)
+    verifyThisExpression(invocationInfo, "LocalDate")
   }
 }

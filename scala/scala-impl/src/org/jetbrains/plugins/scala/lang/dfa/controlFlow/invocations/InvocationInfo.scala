@@ -1,8 +1,9 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassByValue, ThisArgument}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ArgumentFactory.buildArgumentsInEvaluationOrder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByValue, ThisArgument}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.buildArgumentsInEvaluationOrder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.{ArgParamMapping, Argument}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScReferenceExpression}
 
 case class InvocationInfo(invokedElement: Option[PsiElement], argsInEvaluationOrder: Seq[Argument],

@@ -6,7 +6,8 @@ import com.intellij.psi.{PsiElement, PsiFile, PsiMethod}
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.Argument.{PassingMechanism, ProperArgument, ThisArgument}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassingMechanism, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition

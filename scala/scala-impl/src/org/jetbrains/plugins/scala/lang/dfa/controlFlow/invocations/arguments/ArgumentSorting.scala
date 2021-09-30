@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
 
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
