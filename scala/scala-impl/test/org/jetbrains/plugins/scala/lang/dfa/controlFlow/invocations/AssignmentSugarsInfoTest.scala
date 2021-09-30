@@ -244,4 +244,92 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       verifyThisExpression(invocationInfo, "sth")
     }
   }
+
+  // TODO requires changes in the PSI tree to get update and setter subcalls
+  //  def testOperatorEqualsCombinedWithUpdateAndApply(): Unit = {
+  //    val sugaredSyntaxMarkingApply = s"${markerStart}sth(3) += 15${markerEnd}"
+  //    val desugaredSyntaxMarkingApply = s"sth(3) = ${markerStart}sth(3)${markerEnd} + 15"
+  //    val sugaredSyntaxMarkingOperator = s"${markerStart}sth(3) += 15${markerEnd}"
+  //    val desugaredSyntaxMarkingOperator = s"sth(3) = ${markerStart}sth(3) + 15${markerEnd}"
+  //
+  //    val code = (invocationSyntaxWithMarkers: String) =>
+  //      s"""
+  //         |object Test {
+  //         |  case class Something(var x: Int) {
+  //         |    def apply(a: Int): Int = 3
+  //         |    def update(a: Int, b: Int): Unit = x += a * b
+  //         |  }
+  //         |
+  //         |  def main(): Int = {
+  //         |    val sth = Something(5)
+  //         |    ${invocationSyntaxWithMarkers}
+  //         |    sth.x
+  //         |  }
+  //         |}
+  //         |""".stripMargin
+  //
+  //    for (invocationSyntax <- List(sugaredSyntaxMarkingApply, desugaredSyntaxMarkingApply)) {
+  //      val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
+  //
+  //      val expectedArgCount = 1 + 1
+  //      val expectedProperArgsInText = List("3")
+  //      val expectedMappedParamNames = List("a")
+  //      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+  //
+  //      verifyInvokedElement(invocationInfo, "Something#apply")
+  //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+  //        expectedMappedParamNames, expectedPassingMechanisms)
+  //      verifyThisExpression(invocationInfo, "sth")
+  //    }
+  //
+  //    for (invocationSyntax <- List(sugaredSyntaxMarkingOperator, desugaredSyntaxMarkingOperator)) {
+  //      val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
+  //
+  //      val expectedArgCount = 1 + 1
+  //      val expectedProperArgsInText = List("15")
+  //      val expectedMappedParamNames = List("")
+  //      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+  //
+  //      verifyInvokedElement(invocationInfo, "Synthetic method: +")
+  //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+  //        expectedMappedParamNames, expectedPassingMechanisms)
+  //      verifyThisExpression(invocationInfo, "sth(3)")
+  //    }
+  //  }
+  //
+  //  def testOperatorEqualsCombinedWithSetter(): Unit = {
+  //    val sugaredSyntaxMarkingApply = s"${markerStart}sth.prop += xx${markerEnd}"
+  //    val desugaredSyntaxMarkingApply = s"sth.prop = ${markerStart}sth.prop + xx${markerEnd}"
+  //
+  //    val code = (invocationSyntaxWithMarkers: String) =>
+  //      s"""
+  //         |object Test {
+  //         |    case class Something(wrapped: Int) {
+  //         |      def prop: Int = 3
+  //         |      def prop_=(other: Int): Unit = prop = other * 2
+  //         |    }
+  //         |
+  //         |    def main(): Int = {
+  //         |      val sth = Something(5)
+  //         |      val xx = 33
+  //         |      ${invocationSyntaxWithMarkers}
+  //         |      sth.prop
+  //         |    }
+  //         |  }
+  //         |""".stripMargin
+  //
+  //    for (invocationSyntax <- List(sugaredSyntaxMarkingApply, desugaredSyntaxMarkingApply)) {
+  //      val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
+  //
+  //      val expectedArgCount = 1 + 1
+  //      val expectedProperArgsInText = List("xx")
+  //      val expectedMappedParamNames = List("")
+  //      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+  //
+  //      verifyInvokedElement(invocationInfo, "Synthetic method: +")
+  //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+  //        expectedMappedParamNames, expectedPassingMechanisms)
+  //      verifyThisExpression(invocationInfo, "sth.prop")
+  //    }
+  //  }
 }
