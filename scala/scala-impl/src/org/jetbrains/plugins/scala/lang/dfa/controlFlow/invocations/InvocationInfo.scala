@@ -23,8 +23,10 @@ object InvocationInfo {
 
   def fromReferenceExpression(referenceExpression: ScReferenceExpression): InvocationInfo = {
     val target = referenceExpression.bind().map(_.element)
-    val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
 
-    InvocationInfo(target, List(thisArgument), Nil)
+    val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
+    val properArguments = buildArgumentsInEvaluationOrder(referenceExpression, isTupledMethodInvocation = false)
+
+    InvocationInfo(target, thisArgument +: properArguments, Nil) // TODO mapping instead of Nil also here
   }
 }
