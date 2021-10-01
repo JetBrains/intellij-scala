@@ -29,7 +29,7 @@ class ILoopWrapperFactoryHandler {
     client: Client
   ): Unit = try {
     val compilerJars = replContext.compilerJars
-    val compilerVersionFromProperties  = compilerVersion(compilerJars.compiler)
+    val compilerVersionFromProperties  = compilerVersion(compilerJars.compilerJar)
     val scalaVersion = compilerVersionFromProperties.fold(FallBackScalaVersion)(ScalaVersion.apply)
     val replWrapper = getOrCompileReplWrapper(replContext, scalaVersion, client)
 

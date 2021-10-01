@@ -1,19 +1,12 @@
 package org.jetbrains.plugins.scala.compiler.data
 
 import org.jetbrains.jps.incremental.scala.{compilerVersionIn, containsScala3}
-import org.jetbrains.plugins.scala.compiler.data.CompilerJarsFactory.CompilerJarsResolveError
 import org.jetbrains.plugins.scala.util.JarUtil
 import org.jetbrains.plugins.scala.util.JarUtil.JarFileWithName
 
 import java.io.File
 
-trait CompilerJarsFactory {
-
-  def fromFiles(files: Seq[File]): Either[CompilerJarsResolveError, CompilerJars]
-}
-
-object CompilerJarsFactory
-  extends CompilerJarsFactory {
+object CompilerJarsFactory {
 
   sealed trait CompilerJarsResolveError
 
@@ -23,35 +16,38 @@ object CompilerJarsFactory
     case class FilesDoNotExist(files: Seq[File]) extends CompilerJarsResolveError
   }
 
-  override def fromFiles(files: Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
+  def fromFiles(files: Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
     val jarFiles = JarUtil.collectJars(files)
     fromJarFiles(jarFiles)
   }
 
   def fromJarFiles(files: Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
     val ioFiles = files.map(_.file)
+    val isScala3 = containsScala3(ioFiles)
     val compilerPrefix =
-      if (containsScala3(ioFiles)) "scala3"
+      if (isScala3) "scala3"
       else "scala"
 
+
     val init: Either[CompilerJarsResolveError, Seq[JarFileWithName]] = Right(Seq.empty)
-    val libraryJars = Set("scala-library", s"$compilerPrefix-library").foldLeft(init) { (acc, kind) =>
+    val libraryJarsE = Set("scala-library", s"$compilerPrefix-library").foldLeft(init) { (acc, kind) =>
       for {
         jars <- acc
         jar <- find(files, kind)
       } yield jars :+ jar
     }
+
     for {
-      libraries <- libraryJars
-      compiler <- find(files, s"$compilerPrefix-compiler")
-      extra = files.filterNot { file =>
-        file == compiler || libraries.contains(file)
-      }
-      _ <- scalaReflect(compiler, extra)
+      libraryJars <- libraryJarsE
+      // TODO: files is actually compiler classpath from Scala SDK
+      //  it contains redundant files for Scala3 (see SCL-19086)
+      compilerJars = files.filterNot(libraryJars.contains)
+      compilerJar <- find(files, s"$compilerPrefix-compiler")
+      _           <- scalaReflectIfRequired(compilerJar, compilerJars)
     } yield CompilerJars(
-      libraries = libraries.map(_.file),
-      compiler = compiler.file,
-      extra = extra.map(_.file)
+      libraryJars = libraryJars.map(_.file),
+      compilerJars = compilerJars.map(_.file),
+      compilerJar = compilerJar.file
     )
   }
 
@@ -64,7 +60,7 @@ object CompilerJarsFactory
     }
   }
 
-  private def scalaReflect(compiler: JarFileWithName, extra: Seq[JarFileWithName]): Either[CompilerJarsResolveError, Unit] =
-    if (compilerVersionIn(compiler.file, "2.10")) find(extra, "scala-reflect").map(_ => ())
+  private def scalaReflectIfRequired(compiler: JarFileWithName, compilerJars: Seq[JarFileWithName]): Either[CompilerJarsResolveError, Unit] =
+    if (compilerVersionIn(compiler.file, "2.10")) find(compilerJars, "scala-reflect").map(_ => ())
     else Right(())
 }

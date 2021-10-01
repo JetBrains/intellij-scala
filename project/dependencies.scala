@@ -8,7 +8,7 @@ object Versions {
   // run runtimeDependencies/update manually
   val sbtVersion: String = Sbt.latest
   val bloopVersion = "1.4.8-81-e170cd66"
-  val zincVersion = "1.4.3"
+  val zincVersion = "1.5.7"
   val intellijVersion = "213.4293.20"
   val bspVersion = "2.0.0-M14"
   val sbtStructureVersion: String = "2021.1.1"
@@ -108,7 +108,7 @@ object Dependencies {
   val zinc = "org.scala-sbt" %% "zinc" % zincVersion
   /** actually this is is compilerInterface (TODO: rename, cause naming difference is misleading) */
   val zincInterface = "org.scala-sbt" % "compiler-interface" % zincVersion
-  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.4.0"
+  val sbtInterface = "org.scala-sbt" % "util-interface" % "1.5.0"
 
   val compilerBridgeSources_2_10 = "org.scala-sbt" % "compiler-bridge_2.10" % zincVersion classifier "sources"
   val compilerBridgeSources_2_11 = "org.scala-sbt" % "compiler-bridge_2.11" % zincVersion classifier "sources"
