@@ -6,6 +6,7 @@ import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.psi.impl.PropertyValueImpl
 import com.intellij.lang.properties.{PropertiesFileType, PropertiesLanguage}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiFileFactory
@@ -46,6 +47,7 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
               })
           )
       } catch {
+        case c: ControlFlowException => throw c
         case _: Exception =>
       }
 
@@ -101,6 +103,7 @@ class SbtScalaVersionCompletionContributor extends CompletionContributor{
       newResult.addAllElements(res.asJava)
       newResult.stopHere()
     } catch {
+      case c: ControlFlowException => throw c
       case _: Exception =>
     }
   })

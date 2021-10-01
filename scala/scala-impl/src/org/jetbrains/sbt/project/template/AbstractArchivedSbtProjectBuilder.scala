@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.project.template
 
 import com.intellij.ide.util.projectWizard.{ModuleWizardStep, SdkSettingsStep, SettingsStep}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.module.{ModifiableModuleModel, Module}
 import com.intellij.openapi.projectRoots.{JavaSdk, SdkTypeId}
 import com.intellij.platform.templates.github.ZipUtil
@@ -97,6 +98,7 @@ object AbstractArchivedSbtProjectBuilder {
         else
           text -> (errors :+ s"Key '$from' not found")
       } catch {
+        case c: ControlFlowException => throw c
         case e: Exception =>
           text -> (errors :+ s"Exception during patching '$from': ${e.getMessage}'")
       }

@@ -5,7 +5,7 @@ import com.intellij.ide.plugins.{org => _, _}
 import com.intellij.ide.plugins.cl.PluginClassLoader
 import com.intellij.notification._
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.extensions.PluginId
 import com.intellij.util.PathUtil
 import org.jetbrains.annotations.Nls
@@ -163,6 +163,7 @@ class ScalaPluginVersionVerifierActivity extends RunOnceStartupActivity {
       val file = new File(pathToJar)
       file.getName.contains("-2.11")
     } catch {
+      case c: ControlFlowException => throw c
       case _: ClassNotFoundException => false
       case e: Exception =>
         ScalaPluginVersionVerifier.LOG.debug(e)

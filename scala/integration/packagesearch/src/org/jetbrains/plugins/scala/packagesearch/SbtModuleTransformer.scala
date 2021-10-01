@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.packagesearch
 
 import com.intellij.buildsystem.model.unified.UnifiedDependency
 import com.intellij.ide.util.PsiNavigationSupport
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
@@ -71,6 +72,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     }
 
   } catch {
+    case c: ControlFlowException => throw c
     case _: Exception => null
   }
 

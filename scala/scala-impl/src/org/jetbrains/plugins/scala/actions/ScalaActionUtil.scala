@@ -3,9 +3,9 @@ package actions
 
 import java.awt.Point
 import java.awt.event.{MouseEvent, MouseMotionAdapter}
-
 import com.intellij.codeInsight.hint.{HintManager, HintManagerImpl, HintUtil}
 import com.intellij.openapi.actionSystem.{ActionManager, AnAction, AnActionEvent, CommonDataKeys, Presentation}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Editor
 import com.intellij.psi.PsiFile
 import com.intellij.ui.LightweightHint
@@ -35,6 +35,7 @@ object ScalaActionUtil {
       case _ => disablePresentation(e)
     }
   } catch {
+    case c: ControlFlowException => throw c
     case _: Exception => disablePresentation(e)
   }
 

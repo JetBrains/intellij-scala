@@ -3,7 +3,7 @@ package org.jetbrains.sbt.language.completion
 import com.intellij.codeInsight.completion._
 import com.intellij.codeInsight.completion.impl.RealPrefixMatchingWeigher
 import com.intellij.codeInsight.lookup.{LookupElement, LookupElementPresentation}
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.project.Project
 import com.intellij.patterns.PlatformPatterns.psiElement
 import com.intellij.psi.PsiElement
@@ -129,6 +129,7 @@ class SbtMavenPackageSearchDependencyCompletionContributor extends CompletionCon
         addArtifactResult(s"${repo.groupId}:${repo.artifactId}:", fillArtifact, resultSet)
         resultSet.stopHere()
       } catch {
+        case c: ControlFlowException => throw c
         case e: Exception =>
           logger.error("Exception arises when completing library dependency", e)
       }

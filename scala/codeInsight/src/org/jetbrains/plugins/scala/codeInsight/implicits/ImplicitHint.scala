@@ -2,9 +2,8 @@ package org.jetbrains.plugins.scala.codeInsight.implicits
 
 import java.awt.Insets
 import java.lang.reflect.{Field, Modifier}
-
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.editor.{Editor, InlayModel}
 import com.intellij.openapi.util.Key
 import com.intellij.psi.PsiElement
@@ -62,6 +61,7 @@ object ImplicitHint {
 
     Some(myOriginalOffsetField)
   } catch {
+    case c: ControlFlowException => throw c
     case _: Throwable =>
       if (ApplicationManager.getApplication.isInternal) {
         val log = Logger.getInstance(classOf[Hint])

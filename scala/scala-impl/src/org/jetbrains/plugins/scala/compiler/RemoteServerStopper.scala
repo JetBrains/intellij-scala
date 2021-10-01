@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.compiler
 
-import java.net.InetAddress
-
 import org.jetbrains.jps.incremental.scala.remote.RemoteResourceOwner
+
+import java.net.InetAddress
 
 private class RemoteServerStopper(override val port: Int) extends RemoteResourceOwner {
   override protected val address: InetAddress = InetAddress.getByName(null)

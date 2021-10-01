@@ -106,7 +106,7 @@ object SyntheticMembersInjector {
       function.syntheticContainingClass = source
       builder += function
     } catch {
-      case p: ProcessCanceledException => throw p
+      case c: ControlFlowException => throw c
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
@@ -132,7 +132,7 @@ object SyntheticMembersInjector {
       updateSynthetic(td, context)
       builder += td
     } catch {
-      case p: ProcessCanceledException => throw p
+      case c: ControlFlowException => throw c
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }
@@ -161,7 +161,7 @@ object SyntheticMembersInjector {
       }
       builder += ScalaPsiElementFactory.createTypeElementFromText(supers, context, source)
     } catch {
-      case p: ProcessCanceledException => throw p
+      case c: ControlFlowException => throw c
       case e: Throwable =>
         logError(s"Error during parsing type element from injector: ${injector.getClass.getName}", e)
     }
@@ -189,7 +189,7 @@ object SyntheticMembersInjector {
       updateSynthetic(member, context)
       if (!member.hasModifierProperty("override")) builder += member
     } catch {
-      case p: ProcessCanceledException => throw p
+      case c: ControlFlowException => throw c
       case e: Throwable =>
         logError(s"Error during parsing template from injector: ${injector.getClass.getName}", e)
     }

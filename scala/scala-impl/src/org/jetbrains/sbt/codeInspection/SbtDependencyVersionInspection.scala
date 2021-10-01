@@ -1,6 +1,7 @@
 package org.jetbrains.sbt.codeInspection
 
 import com.intellij.codeInspection.{InspectionManager, LocalQuickFix, ProblemDescriptor, ProblemHighlightType}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.psi.PsiElement
@@ -14,7 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createExpressionFromText
 import org.jetbrains.sbt.SbtBundle
 import org.jetbrains.sbt.language.completion.SBT_ORG_ARTIFACT
-import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtExtendedArtifactInfo, SbtDependencyUtils}
+import org.jetbrains.sbt.language.utils.{CustomPackageSearchApiHelper, CustomPackageSearchParams, SbtDependencyUtils, SbtExtendedArtifactInfo}
 
 import java.util.concurrent.ConcurrentLinkedDeque
 import scala.collection.mutable
@@ -89,6 +90,7 @@ class SbtDependencyVersionInspection extends AbstractRegisteredInspection{
       case _ => None
     }
   } catch {
+    case c: ControlFlowException => throw c
     case _: Exception => None
   }
 }

@@ -2,11 +2,11 @@ package org.jetbrains.plugins.scala
 package actions
 
 import java.util.Properties
-
 import com.intellij.ide.IdeView
 import com.intellij.ide.actions.{CreateFileFromTemplateDialog, CreateTemplateInPackageAction}
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, JavaTemplateUtil}
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.fileTypes.ex.FileTypeManagerEx
 import com.intellij.openapi.module.{Module, ModuleType}
 import com.intellij.openapi.project.{DumbAware, Project}
@@ -164,6 +164,7 @@ object NewScalaTypeDefinitionAction {
       text = template.getText(properties)
     }
     catch {
+      case c: ControlFlowException => throw c
       case e: Exception =>
         throw new RuntimeException("Unable to load template for " + FileTemplateManager.getInstance(project).internalTemplateToSubject(templateName), e)
     }

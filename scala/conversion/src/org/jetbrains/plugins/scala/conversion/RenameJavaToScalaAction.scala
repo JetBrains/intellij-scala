@@ -4,6 +4,7 @@ package conversion
 import com.intellij.application.options.CodeStyle
 import com.intellij.notification.{NotificationDisplayType, NotificationType}
 import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent, CommonDataKeys, LangDataKeys}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.codeStyle.CodeStyleManager
 import com.intellij.psi.{PsiDocumentManager, PsiJavaFile}
@@ -54,6 +55,7 @@ class RenameJavaToScalaAction extends AnAction(
       enable()
     }
     catch {
+      case c: ControlFlowException => throw c
       case _: Exception => disable()
     }
 

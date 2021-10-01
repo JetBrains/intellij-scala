@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala
 package lang.refactoring.rename.inplace
 
-import java.util
-
 import com.intellij.codeInsight.TargetElementUtil
 import com.intellij.lang.{Language, LanguageNamesValidation}
 import com.intellij.openapi.command.CommandProcessor
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.{Editor, ScrollType}
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
@@ -14,9 +13,10 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.refactoring.rename.RenamePsiElementProcessor
 import com.intellij.refactoring.rename.inplace.{MemberInplaceRenamer, VariableInplaceRenamer}
 import com.intellij.refactoring.{RefactoringActionHandler, RefactoringBundle}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaRenameUtil
 import org.jetbrains.plugins.scala.lang.refactoring.util.{ScalaNamesUtil, ScalaRefactoringUtil}
+
+import java.util
 
 /**
  * Nikolay.Tropin
@@ -137,6 +137,7 @@ class ScalaMemberInplaceRenamer(elementToRename: PsiNamedElement,
   override def performInplaceRename(): Boolean = {
     try performInplaceRefactoring(null)
     catch {
+      case c: ControlFlowException => throw c
       case t: Throwable =>
         val element = getVariable
         val subst = getSubstituted

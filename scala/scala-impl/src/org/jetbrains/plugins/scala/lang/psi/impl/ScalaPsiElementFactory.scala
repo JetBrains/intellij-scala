@@ -5,6 +5,7 @@ package impl
 
 import java.{util => ju}
 import com.intellij.lang.{ASTNode, LanguageParserDefinitions, PsiBuilder, PsiBuilderFactory}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.progress.ProcessCanceledException
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil.convertLineSeparators
@@ -152,7 +153,7 @@ object ScalaPsiElementFactory {
     try {
       createExpressionWithContextFromText(text, context, context)
     } catch {
-      case p: ProcessCanceledException => throw p
+      case c: ControlFlowException => throw c
       case throwable: Throwable => throw elementCreationException("expression", text, context, throwable)
     }
   }
@@ -326,7 +327,7 @@ object ScalaPsiElementFactory {
         .getLastChildNode.getLastChildNode.getLastChildNode
     }
     catch {
-      case p: ProcessCanceledException => throw p
+      case c: ControlFlowException => throw c
       case throwable: Throwable => throw elementCreationException("identifier", name, cause = throwable)
     }
   }
@@ -349,7 +350,7 @@ object ScalaPsiElementFactory {
       importStatement.importExprs.head.reference.orNull
     }
     catch {
-      case p: ProcessCanceledException => throw p
+      case c: ControlFlowException => throw c
       case throwable: Throwable => throw elementCreationException("reference", name, cause = throwable)
     }
   }

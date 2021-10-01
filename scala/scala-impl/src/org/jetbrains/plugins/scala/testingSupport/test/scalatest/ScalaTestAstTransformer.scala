@@ -3,9 +3,8 @@ package org.jetbrains.plugins.scala.testingSupport.test.scalatest
 import java.io.File
 import java.lang.annotation.Annotation
 import java.net.{URL, URLClassLoader}
-
 import com.intellij.execution.Location
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.roots.{OrderEntry, OrderEnumerator, OrderRootType}
@@ -167,6 +166,7 @@ object ScalaTestAstTransformer {
           val suiteClass = loadClass(suiteTypeDef.qualifiedName, module)
           annotations = suiteClass.getAnnotations
         } catch {
+          case c: ControlFlowException => throw c
           case _: Exception =>
             LOG.debug("Failed to load suite class " + suiteTypeDef.qualifiedName)
         }

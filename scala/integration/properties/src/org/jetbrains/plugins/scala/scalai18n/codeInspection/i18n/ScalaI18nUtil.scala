@@ -4,10 +4,10 @@ package codeInspection
 package i18n
 
 import java.text.MessageFormat
-
 import com.intellij.codeInsight.AnnotationUtil
 import com.intellij.lang.properties.psi.PropertiesFile
 import com.intellij.lang.properties.{IProperty, PropertiesImplUtil, PropertiesReferenceManager}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ProjectRootManager
@@ -272,6 +272,7 @@ object ScalaI18nUtil {
                 maxCount = Math.max(maxCount, count)
               }
               catch {
+                case c: ControlFlowException => throw c
                 case _: Exception =>
               }
             }

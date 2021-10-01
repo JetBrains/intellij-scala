@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.extensions.&&
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil.inNameContext
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScStringLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScReferencePattern
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockExpr, ScExpression, ScInfixExpr, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaPsiElement}
 
@@ -13,14 +13,10 @@ import scala.annotation.tailrec
 
 object SbtDependencyTraverser {
 
-  def traverseStringLiteral(stringLiteral: ScStringLiteral)(callback: PsiElement => Boolean): Unit = try {
+  def traverseStringLiteral(stringLiteral: ScStringLiteral)(callback: PsiElement => Boolean): Unit =
     callback(stringLiteral)
-  } catch {
-    case e: Exception =>
-      throw e
-  }
 
-  def traverseInfixExpr(infixExpr: ScInfixExpr)(callback: PsiElement => Boolean): Unit = try {
+  def traverseInfixExpr(infixExpr: ScInfixExpr)(callback: PsiElement => Boolean): Unit = {
     if (!callback(infixExpr)) return
 
     def traverse(expr: ScExpression): Unit = {
@@ -46,12 +42,9 @@ object SbtDependencyTraverser {
       case _ =>
         traverse(infixExpr.left)
     }
-  } catch {
-    case e: Exception =>
-      throw e
   }
 
-  def traverseReferenceExpr(refExpr: ScReferenceExpression)(callback: PsiElement => Boolean): Unit = try {
+  def traverseReferenceExpr(refExpr: ScReferenceExpression)(callback: PsiElement => Boolean): Unit = {
     if (!callback(refExpr)) return
 
     refExpr.resolve() match {
@@ -68,12 +61,9 @@ object SbtDependencyTraverser {
       }
       case _ =>
     }
-  } catch {
-    case e: Exception =>
-      throw e
   }
 
-  def traverseMethodCall(call: ScMethodCall)(callback: PsiElement => Boolean): Unit = try {
+  def traverseMethodCall(call: ScMethodCall)(callback: PsiElement => Boolean): Unit = {
     if (!callback(call)) return
 
     call match {
@@ -85,12 +75,9 @@ object SbtDependencyTraverser {
         case _ =>
       }
     }
-  } catch {
-    case e: Exception =>
-      throw e
   }
 
-  def traversePatternDef(patternDef: ScPatternDefinition)(callback: PsiElement => Boolean): Unit = try {
+  def traversePatternDef(patternDef: ScPatternDefinition)(callback: PsiElement => Boolean): Unit = {
     if (!callback(patternDef)) return
 
     val maybeTypeName = patternDef.`type`().toOption
@@ -106,9 +93,6 @@ object SbtDependencyTraverser {
         case _ =>
       }
     }
-  } catch {
-    case e: Exception =>
-      throw e
   }
 
   def traverseSeq(seq: ScMethodCall)(callback: PsiElement => Boolean): Unit = {

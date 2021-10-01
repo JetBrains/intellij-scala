@@ -1,5 +1,6 @@
 package org.jetbrains.plugins.scala.lang.psi.util
 
+import com.intellij.openapi.diagnostic.ControlFlowException
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.SyntheticClasses
 
 object LiteralEvaluationUtil {
@@ -197,6 +198,7 @@ object LiteralEvaluationUtil {
         case _ => null
       }
     } catch {
+      case c: ControlFlowException => throw c
       case _: Exception => null
     }
   }

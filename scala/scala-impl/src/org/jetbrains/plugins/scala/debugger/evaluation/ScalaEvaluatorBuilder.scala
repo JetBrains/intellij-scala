@@ -4,6 +4,7 @@ import com.intellij.debugger.SourcePosition
 import com.intellij.debugger.engine.evaluation._
 import com.intellij.debugger.engine.evaluation.expression._
 import com.intellij.lang.java.JavaLanguage
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.{NlsString, ScalaBundle}
@@ -44,6 +45,7 @@ object ScalaEvaluatorBuilder extends EvaluatorBuilder {
     val cached: Option[Evaluator] = {
       try cache.get(position, codeFragment)
       catch {
+        case c: ControlFlowException => throw c
         case _: Exception =>
           cache.clear()
           None

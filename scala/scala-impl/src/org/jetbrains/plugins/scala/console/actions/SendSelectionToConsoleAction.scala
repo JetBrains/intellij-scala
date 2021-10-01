@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.console.actions
 
 import java.io.{IOException, OutputStream}
-
 import com.intellij.openapi.actionSystem._
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.console.{ScalaConsoleInfo, ScalaLanguageConsole}
 import org.jetbrains.plugins.scala.{ScalaBundle, extensions}
@@ -61,6 +61,7 @@ class SendSelectionToConsoleAction extends AnAction(
       }
     }
     catch {
+      case c: ControlFlowException => throw c
       case _: Exception => disable()
     }
   }

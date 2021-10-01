@@ -3,8 +3,8 @@ package org.jetbrains.sbt.language.utils
 import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDependencyRepository}
 import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.module.{ModuleManager, Module => OpenapiModule}
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
@@ -222,7 +222,7 @@ object SbtDependencyUtils {
 
   def getLibraryDependenciesOrPlacesUtil(module: OpenapiModule,
                                          psiSbtFile: ScalaFile,
-                                         mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
+                                         mode: GetMode): Seq[(PsiElement, String, PsiElement)] = {
     var res: Seq[(PsiElement, String, PsiElement)] = Seq()
     val sbtFileModule = psiSbtFile.module.orNull
     if (sbtFileModule != null && (sbtFileModule == module || sbtFileModule.getName == s"""${module.getName}-build"""))
@@ -239,15 +239,12 @@ object SbtDependencyUtils {
       flatMap(elem => getLibraryDependenciesOrPlacesFromPsi(elem, mode))
 
     res.distinct
-  } catch {
-    case e: Exception =>
-      throw e
   }
 
   def getLibraryDependenciesOrPlaces(sbtFileOpt: Option[VirtualFile],
                                      project: Project,
                                      module: OpenapiModule,
-                                     mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
+                                     mode: GetMode): Seq[(PsiElement, String, PsiElement)] = {
 
     val libDeps = inReadAction(
       for {
@@ -257,9 +254,6 @@ object SbtDependencyUtils {
       } yield deps
     )
     libDeps.getOrElse(Seq.empty)
-  } catch {
-    case e: Exception =>
-      throw (e)
   }
 
   def processLibraryDependencyFromExprAndString(elem: (ScExpression, String, ScExpression), preserve: Boolean = false): List[Any] = {
@@ -347,7 +341,7 @@ object SbtDependencyUtils {
    *         the second element is the configuration string (Lib mode)
    *         the third element is the parent PsiElement that contains library dependency and its configuration (Lib mode)
    */
-  def getLibraryDependenciesOrPlacesFromPsi(psi: PsiElement, mode: GetMode): Seq[(PsiElement, String, PsiElement)] = try {
+  def getLibraryDependenciesOrPlacesFromPsi(psi: PsiElement, mode: GetMode): Seq[(PsiElement, String, PsiElement)] = {
     var result: Seq[(PsiElement, String, PsiElement)] = List()
 
     def callbackDep(psiElement: PsiElement): Boolean = {
@@ -421,12 +415,9 @@ object SbtDependencyUtils {
     }
 
     result
-  } catch {
-    case e: Exception =>
-      throw e
   }
 
-  def getPossiblePsiFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = try {
+  def getPossiblePsiFromProjectDefinition(proj: ScPatternDefinition): Seq[PsiElement] = {
     var res: Seq[PsiElement] = List()
 
     def action(psiElement: PsiElement): Boolean = {
@@ -451,12 +442,9 @@ object SbtDependencyUtils {
     SbtDependencyTraverser.traversePatternDef(proj)(action)
 
     res
-  } catch {
-    case e: Exception =>
-      throw e
   }
 
-  def getTopLevelSbtProjects(psiSbtFile: ScalaFile): Seq[ScPatternDefinition] = try {
+  def getTopLevelSbtProjects(psiSbtFile: ScalaFile): Seq[ScPatternDefinition] = {
     var res: Seq[ScPatternDefinition] = List()
 
     psiSbtFile.acceptChildren(new ScalaElementVisitor {
@@ -473,9 +461,6 @@ object SbtDependencyUtils {
     })
 
     res
-  } catch {
-    case e: Exception =>
-      throw (e)
   }
 
   def getTopLevelLibraryDependencies(psiSbtFile: ScalaFile): Seq[ScInfixExpr] = {

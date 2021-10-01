@@ -9,6 +9,7 @@ import com.intellij.debugger.impl.DebuggerUtilsEx
 import com.intellij.debugger.jdi.VirtualMachineProxyImpl
 import com.intellij.debugger.requests.ClassPrepareRequestor
 import com.intellij.debugger.{MultiRequestPositionManager, NoDataException, PositionManager, SourcePosition}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.fileTypes.FileType
 import com.intellij.openapi.project.{DumbService, Project}
@@ -317,6 +318,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
         nonWhitespaceInner(firstElement, document)
       }
       catch {
+        case c: ControlFlowException => throw c
         case _: Throwable => firstElement
       }
     }
@@ -348,6 +350,7 @@ class ScalaPositionManager(val debugProcess: DebugProcess) extends PositionManag
             else false
         }
       } catch {
+        case c: ControlFlowException => throw c
         case _: Exception => None
       }
     }

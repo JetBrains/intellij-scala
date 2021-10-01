@@ -4,7 +4,7 @@ import com.google.common.cache.{Cache, CacheBuilder}
 import com.intellij.ide.plugins.PluginManagerCore
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ex.ApplicationInfoEx
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.util.concurrency.AppExecutorUtil
@@ -76,6 +76,7 @@ object CustomPackageSearchApiClient {
         throw new RuntimeException(s"Empty body response text")
     })
   } catch {
+    case c: ControlFlowException => throw c
     case _: Exception =>
       ""
   }
@@ -144,6 +145,7 @@ object CustomPackageSearchApiClient {
     }
     else Nil
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.warn("Problem arises when retrieving library dependency versions info from server", e)
       Nil
@@ -169,6 +171,7 @@ object CustomPackageSearchApiClient {
     }
     else Nil
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.warn("Problem arises when retrieving library dependencies from server using full-text search", e)
       Nil
@@ -187,6 +190,7 @@ object CustomPackageSearchApiClient {
     else Nil
 
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.warn("Problem arises when retrieving library dependencies from server using prefix search", e)
       Nil

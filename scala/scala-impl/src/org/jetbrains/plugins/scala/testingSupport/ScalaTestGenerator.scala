@@ -2,9 +2,9 @@ package org.jetbrains.plugins.scala
 package testingSupport
 
 import java.util.Properties
-
 import com.intellij.codeInsight.{CodeInsightBundle, CodeInsightUtil}
 import com.intellij.ide.fileTemplates.{FileTemplate, FileTemplateManager, FileTemplateUtil}
+import com.intellij.openapi.diagnostic.ControlFlowException
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.fileEditor.ex.IdeDocumentHistory
 import com.intellij.openapi.project.Project
@@ -76,6 +76,7 @@ class ScalaTestGenerator extends TestGenerator {
       }
     }
     catch {
+      case c: ControlFlowException => throw c
       case _: Exception => null
     }
   }

@@ -1,10 +1,9 @@
 package org.jetbrains.sbt.resolvers
 
 import java.io.File
-
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.progress.{ProcessCanceledException, ProgressIndicator, ProgressManager, Task}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.io.FileUtil
@@ -60,7 +59,7 @@ final class SbtIndexesManager(val project: Project) extends Disposable {
                 FileUtil.delete(ResolverIndex.indexesDir)
                 index.doUpdate(Some(indicator))
               } catch {
-                case pce: ProcessCanceledException => throw pce
+                case c: ControlFlowException => throw c
                 case e: Exception =>
                   ScalaProjectSettings.getInstance(project).setIvy2IndexingMode(Ivy2IndexingMode.Disabled)
                   e.addSuppressed(original)
@@ -86,7 +85,7 @@ final class SbtIndexesManager(val project: Project) extends Disposable {
     try {
       new IvyIndex(root, name, project)
     } catch {
-      case pce: ProcessCanceledException => throw pce
+      case c: ControlFlowException => throw c
       case e: Throwable =>  // workaround for severe persistent storage corruption
         val cccc = e.getMessage
         val zzz = e.getStackTrace
@@ -120,7 +119,7 @@ object SbtIndexesManager {
     try {
       FileUtil.delete(indexDir)
     } catch {
-      case pce: ProcessCanceledException => throw pce
+      case c: ControlFlowException => throw c
       case _ : Throwable =>
         notifyWarning(SbtBundle.message("sbt.resolverIndexer.indexDirIsCorruptedCantBeRemoved", indexDir.getAbsolutePath))
     }

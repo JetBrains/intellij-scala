@@ -3,9 +3,8 @@ package conversion
 package copy
 
 import java.lang.Boolean
-
 import com.intellij.codeInsight.editorActions._
-import com.intellij.openapi.diagnostic.{Attachment, Logger}
+import com.intellij.openapi.diagnostic.{Attachment, ControlFlowException, Logger}
 import com.intellij.openapi.editor.{Editor, RangeMarker}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.util.{Ref, TextRange}
@@ -90,6 +89,7 @@ class JavaCopyPastePostProcessor extends SingularCopyPastePostProcessor[Converte
       )
       Some(result)
     } catch {
+      case c: ControlFlowException => throw c
       case e: Exception =>
         val charSequence = file.charSequence
         val selections = (startOffsets lazyZip endOffsets).map((a, b) => charSequence.substring(a, b))

@@ -5,7 +5,7 @@ import com.intellij.buildsystem.model.unified.{UnifiedDependency, UnifiedDepende
 import com.intellij.externalSystem.ExternalDependencyModificator
 import com.intellij.openapi.actionSystem.{CommonDataKeys, DataContext}
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.diagnostic.Logger
+import com.intellij.openapi.diagnostic.{ControlFlowException, Logger}
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.{module => OpenapiModule}
 import com.intellij.psi.PsiManager
@@ -70,6 +70,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       }
     }
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.error("Error occurs when adding dependency using package search plugin", e)
   }
@@ -117,6 +118,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       }
     }
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.error("Error occurs when updating dependency using package search plugin", e)
   }
@@ -134,6 +136,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       case _ =>
     }
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.error("Error occurs when removing dependency using package search plugin", e)
   }
@@ -148,6 +151,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
 
     SbtDependencyUtils.addRepository(psiSbtFile, unifiedDependencyRepository)
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.error("Error occurs when adding repository using package search plugin", e)
   }
@@ -208,6 +212,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
       }).filter(_ != null).toList.asJava
     })
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.error(s"Error occurs when obtaining the list of dependencies for module ${module.getName} using package search plugin", e)
       List().asJava
@@ -220,6 +225,7 @@ class SbtDependencyModifier extends ExternalDependencyModificator{
     }.toList.asJava
     res
   } catch {
+    case c: ControlFlowException => throw c
     case e: Exception =>
       logger.error(s"Error occurs when obtaining the list of supported repositories/resolvers for module ${module.getName} using package search plugin", e)
       List().asJava
