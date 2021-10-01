@@ -3,12 +3,12 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.buildArgumentsInEvaluationOrder
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.{ArgParamMapping, Argument}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.{Argument, ParamArgMapping}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScInfixExpr, ScReferenceExpression}
 
 case class InvocationInfo(invokedElement: Option[InvokedElement],
                           argsInEvaluationOrder: Seq[Argument],
-                          argsMappedToParams: Seq[ArgParamMapping]) {
+                          paramsMappedToArgs: Seq[ParamArgMapping]) {
 
   def thisArgument: Option[Argument] = argsInEvaluationOrder.find(_.kind == ThisArgument)
 

@@ -7,4 +7,4 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
  * If the function has multiple parameter lists, the lists are treated as one long parameter sequence,
  * disregarding the boundaries between the original lists.
  */
-final case class ArgParamMapping(paramIndex: Int, argIndex: Int)
+final case class ParamArgMapping(paramIndex: Int, argIndex: Int)

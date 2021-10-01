@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
+package org.jetbrains.plugins.scala.lang.dfa.utils
 
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeBinOp
 import com.intellij.codeInspection.dataFlow.value.RelationType
-import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.LogicalOperation
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
 
 object SpecialSupportUtils {
 

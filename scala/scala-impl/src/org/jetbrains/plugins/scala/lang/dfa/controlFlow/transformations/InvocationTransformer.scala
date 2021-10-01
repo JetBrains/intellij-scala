@@ -6,11 +6,11 @@ import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.SpecialSupportUtils._
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
+import org.jetbrains.plugins.scala.lang.dfa.utils.SpecialSupportUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction

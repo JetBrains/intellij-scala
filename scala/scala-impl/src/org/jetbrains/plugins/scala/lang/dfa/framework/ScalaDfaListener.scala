@@ -4,7 +4,7 @@ import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, DfaListener, Unsati
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.DfaValue
 import com.intellij.util.ThreeState
-import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{DfaConstantValue, dfTypeToReportedConstant}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{DfaConstantValue, dfTypeToReportedConstant}
 
 import scala.collection.{MapView, mutable}
 

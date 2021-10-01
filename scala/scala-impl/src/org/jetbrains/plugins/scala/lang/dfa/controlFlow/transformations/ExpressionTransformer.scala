@@ -4,9 +4,9 @@ import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
-import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.framework.{ScalaStatementAnchor, ScalaUnreportedElementAnchor}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition

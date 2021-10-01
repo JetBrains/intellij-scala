@@ -6,9 +6,9 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstruction
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.diagnostic.Logger
-import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.{DfaConstantValue, constantValueToProblemMessage}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{DfaConstantValue, constantValueToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement

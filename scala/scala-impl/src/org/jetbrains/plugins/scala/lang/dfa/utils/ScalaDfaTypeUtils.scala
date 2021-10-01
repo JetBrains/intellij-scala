@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa
+package org.jetbrains.plugins.scala.lang.dfa.utils
 
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
