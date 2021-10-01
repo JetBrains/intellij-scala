@@ -39,6 +39,9 @@ private[codeInsight] class ImplicitHintsPass(private val editor: Editor, private
   private var hints: Seq[Hint] = Seq.empty
 
   override def doCollectInformation(indicator: ProgressIndicator): Unit = {
+    if (!ScalaAnnotator.isSuitableForFile(rootElement))
+      return
+
     hints = Seq.empty
 
     if (myDocument != null && rootElement.containingVirtualFile.isDefined) {
