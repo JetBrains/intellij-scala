@@ -9,7 +9,7 @@ import com.intellij.openapi.roots.{ProjectFileIndex, ProjectRootManager}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.impl.light.LightElement
-import com.intellij.psi.impl.source.JavaDummyHolder
+import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.ScalaAnnotator.isSuitableForFile
@@ -437,7 +437,7 @@ object ScalaAnnotator {
     file match {
       case scalaFile: ScalaFile =>
         settings.isTypeAwareHighlightingEnabled && !isLibrarySource(scalaFile) && !(ScalaHighlightingMode.showCompilerErrorsScala3(file.getProject) && scalaFile.isInScala3Module)
-      case _: JavaDummyHolder =>
+      case _: DummyHolder =>
         settings.isTypeAwareHighlightingEnabled
       case _ => false
     }

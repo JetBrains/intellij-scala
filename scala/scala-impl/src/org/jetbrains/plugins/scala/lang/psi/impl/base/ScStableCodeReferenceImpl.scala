@@ -7,7 +7,7 @@ package base
 import com.intellij.lang.ASTNode
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
-import com.intellij.psi.impl.source.JavaDummyHolder
+import com.intellij.psi.impl.source.DummyHolder
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.IncorrectOperationException
 import org.jetbrains.plugins.scala.autoImport.quickFix.{ClassToImport, ElementToImport, MemberToImport}
@@ -445,8 +445,8 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
         case c: PsiClass if c.name == c.qualifiedName =>
           c.getContainingFile match {
             case _: ScalaFile => true // scala classes are available from default package
-            /** in completion in [[ScalaFile]] [[JavaDummyHolder]] usually used as file */
-            case dummyHolder: JavaDummyHolder
+            /** in completion in [[ScalaFile]] [[DummyHolder]] usually used as file */
+            case dummyHolder: DummyHolder
               if Option(dummyHolder.getContext).map(_.getContainingFile).exists(_.is[ScalaFile]) =>
               true
             // Other classes from default package are available only for top-level Scala statements

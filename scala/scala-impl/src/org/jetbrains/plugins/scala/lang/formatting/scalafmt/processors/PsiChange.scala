@@ -112,7 +112,7 @@ private object PsiChange {
       }
     }
 
-    // After replaces sibling elements can become invalid  (their context become JavaDummyHolder)
+    // After replaces sibling elements can become invalid  (their context become DummyHolder)
     // If subsequent change refer to this sibling element the change becomes invalid too.
     // So we have to fix the referred element
     // NOTE: Insert is not handled due to I didn't find a case when it will be applicable yet
