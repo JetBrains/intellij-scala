@@ -27,7 +27,7 @@ object ArgumentFactory {
   private def partitionNormalAndVarargArgs(invocation: ImplicitArgumentsOwner): (Seq[(ScExpression, Parameter)], Option[Argument]) = {
     // TODO the case with empty vararg list doesn't work - we need another way of knowing if this function has a vararg param,
     //  even if there are no arguments matching it, fix it once I handle multiple parameter lists
-    // TODO implicit parameters don't work
+    // TODO implicit parameters don't work properly, left for later
     val maybeVarargParam = invocation.matchedParameters.map(_._2).find(_.psiParam.exists(_.isVarArgs))
     maybeVarargParam match {
       case Some(varargParam) =>

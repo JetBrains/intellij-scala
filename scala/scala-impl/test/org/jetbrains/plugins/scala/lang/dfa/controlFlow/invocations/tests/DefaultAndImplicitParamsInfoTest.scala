@@ -1,6 +1,7 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.tests
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.PassByValue
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfoTestBase
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByName, PassByValue}
 
 class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
 
@@ -11,7 +12,7 @@ class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
     val code = (invocationSyntax: String) =>
       s"""
          |object Test {
-         |  def someMethod(x: Int, y: Int, z: Int = 5): Int = x + 2 * y + z
+         |  def someMethod(x: Int, y: => Int, z: Int = 5): Int = x + 2 * y + z
          |
          |  def main(): Int = {
          |    ${markerStart}${invocationSyntax}${markerEnd}
@@ -25,7 +26,7 @@ class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 3
       val expectedProperArgsInText = List("4", "9", "5")
       val expectedMappedParamNames = List("x", "y", "z")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = List(PassByValue, PassByValue, PassByName, PassByValue)
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,

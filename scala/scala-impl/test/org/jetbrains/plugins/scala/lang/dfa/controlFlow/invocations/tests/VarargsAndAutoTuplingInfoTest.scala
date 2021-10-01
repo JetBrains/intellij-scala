@@ -1,5 +1,6 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.tests
 
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfoTestBase
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.PassByValue
 
 class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {

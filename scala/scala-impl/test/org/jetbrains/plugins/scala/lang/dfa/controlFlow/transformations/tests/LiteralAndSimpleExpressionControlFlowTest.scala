@@ -1,4 +1,6 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests
+
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaDfaControlFlowBuilderTestBase
 
 class LiteralAndSimpleExpressionControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 

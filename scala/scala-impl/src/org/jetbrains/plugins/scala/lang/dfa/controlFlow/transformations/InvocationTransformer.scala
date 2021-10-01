@@ -8,7 +8,7 @@ import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.ScalaDfaTypeUtils.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.SpecialSupportUtils._
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
@@ -31,8 +31,11 @@ class InvocationTransformer(val invocation: MethodInvocation) extends Expression
   private def tryTransformWithSpecialSupport(builder: ScalaDfaControlFlowBuilder): Boolean = {
     val invocationInfo = InvocationInfo.fromMethodInvocation(invocation)
     invocationInfo.invokedElement match {
-      case Some(function: ScSyntheticFunction) => tryTransformSyntheticFunctionSpecially(function, invocationInfo, builder)
-      case Some(function: ScFunction) => tryTransformNormalFunctionSpecially(function, invocationInfo, builder)
+      case Some(InvokedElement(psiElement)) => psiElement match {
+        case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo, builder)
+        case function: ScFunction => tryTransformNormalFunctionSpecially(function, invocationInfo, builder)
+        case _ => false
+      }
       case _ => false
     }
   }
