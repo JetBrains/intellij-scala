@@ -46,21 +46,35 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
   }
 
   protected def verifyArguments(invocationInfo: InvocationInfo, expectedArgCount: Int, expectedProperArgsInText: Seq[String],
-                                expectedMappedParamNames: Seq[String], expectedPassingMechanisms: Seq[PassingMechanism]): Unit = {
+                                expectedMappedParamNames: Seq[String], expectedPassingMechanisms: Seq[PassingMechanism],
+                                isRightAssociative: Boolean = false): Unit = {
     val args = invocationInfo.argsInEvaluationOrder
 
     args.size shouldBe expectedArgCount
-    args.head.kind shouldBe ThisArgument
-    assertTrue("All arguments except the first one should be proper arguments", args.tail.forall(_.kind.is[ProperArgument]))
-
-    val actualMappedParamNames = args.tail.map(_.kind.asInstanceOf[ProperArgument].parameterMapping.name)
-    actualMappedParamNames shouldBe expectedMappedParamNames
-    convertArgsToText(args.tail) shouldBe expectedProperArgsInText
+    args.count(_.kind == ThisArgument) shouldBe 1
+    collectProperArgsInText(args) shouldBe expectedProperArgsInText
+    collectActualMappedParamNames(args) shouldBe expectedMappedParamNames
     args.map(_.passingMechanism) shouldBe expectedPassingMechanisms
+
+    if (isRightAssociative) {
+      args(1).kind shouldBe ThisArgument
+      assertTrue("In a right associative call, the first argument should be a proper argument", args.head.kind.is[ProperArgument])
+    } else {
+      args.head.kind shouldBe ThisArgument
+      assertTrue("All arguments except the first one should be proper arguments", args.tail.forall(_.kind.is[ProperArgument]))
+    }
   }
 
+  private def collectActualMappedParamNames(args: Seq[Argument]): Seq[String] = args.map(_.kind).flatMap {
+    case ProperArgument(parameterMapping) => Some(parameterMapping.name)
+    case ThisArgument => None
+  }
+
+  private def collectProperArgsInText(args: Seq[Argument]): Seq[String] = convertArgsToText(args.filter(_.kind.is[ProperArgument]))
+
   protected def verifyThisExpression(invocationInfo: InvocationInfo, expectedExpressionInText: String): Unit = {
-    val thisExpression = extractExpressionFromArgument(invocationInfo.argsInEvaluationOrder.head)
+    val thisArgument = invocationInfo.argsInEvaluationOrder.find(_.kind == ThisArgument).get
+    val thisExpression = extractExpressionFromArgument(thisArgument)
     thisExpression.getText shouldBe expectedExpressionInText
   }
 

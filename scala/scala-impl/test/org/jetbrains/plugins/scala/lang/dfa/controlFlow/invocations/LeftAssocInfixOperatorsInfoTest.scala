@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Ar
 
 class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
 
-  def testBuiltinInfixOperators(): Unit = {
+  def testBuiltinLeftAssocInfixOperators(): Unit = {
     val sugaredSyntax = "23 + 16"
     val desugaredSyntax = "23.+(16)"
 
@@ -30,7 +30,7 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
     }
   }
 
-  def testCustomInfixOperators(): Unit = {
+  def testCustomLeftAssocInfixOperators(): Unit = {
     val sugaredSyntax = "hello & \"World\""
     val desugaredSyntax = "hello.&(\"World\")"
 
