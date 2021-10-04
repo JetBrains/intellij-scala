@@ -29,7 +29,7 @@ object InvocationInfo {
     val isTupled = target.exists(_.tuplingUsed)
 
     val thisArgument = Argument.fromExpression(invocation.thisExpr, ThisArgument, PassByValue)
-    val properArguments = buildArgumentsInEvaluationOrder(invocation.matchedParameters, isTupled).toList
+    val properArguments = buildArgumentsInEvaluationOrder(invocation.matchedParameters, invocation, isTupled).toList
 
     val arguments = invocation match {
       case infixExpression: ScInfixExpr if infixExpression.isRightAssoc =>
@@ -44,7 +44,8 @@ object InvocationInfo {
     val target = referenceExpression.bind().map(_.element)
 
     val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
-    val properArguments = buildArgumentsInEvaluationOrder(referenceExpression.matchedParameters, isTupled = false).toList
+    val properArguments = buildArgumentsInEvaluationOrder(referenceExpression.matchedParameters,
+      referenceExpression, isTupled = false).toList
 
     InvocationInfo(target.map(InvokedElement), List(thisArgument :: properArguments))
   }

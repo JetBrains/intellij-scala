@@ -1,8 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{ProperArgument, passingMechanism}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.{wrapInSplatListExpression, wrapInTupleExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -10,18 +9,15 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ArgumentFactory {
 
-  def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)], isTupled: Boolean): Seq[Argument] = {
+  def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)],
+                                      invocation: ImplicitArgumentsOwner,
+                                      isTupled: Boolean): Seq[Argument] = {
     val (matchedParams, maybeVarargArgument) = partitionNormalAndVarargArgs(matchedParameters)
-
-    if (isTupled) {
-      Nil // TODO fix
-      //      List(buildTupledArgument(methodInvocation))
-    } else {
-      matchedParams
+    invocation match {
+      case methodInvocation: MethodInvocation if isTupled => List(buildTupledArgument(methodInvocation))
+      case _ => matchedParams
         .sortBy(ArgumentSorting.argumentPositionSortingKey)
-        .map { case (arg, param) =>
-          Argument(new ExpressionTransformer(arg), ProperArgument(param), passingMechanism(param))
-        } :++ maybeVarargArgument
+        .map(Argument.fromArgParamMapping) :++ maybeVarargArgument
     }
   }
 
@@ -46,15 +42,13 @@ object ArgumentFactory {
       case function: ScFunction => function.parameters.head
     })
 
-    Argument(new ExpressionTransformer(tupleArgument), ProperArgument(tupleParameter),
-      passingMechanism(tupleParameter))
+    Argument.fromArgParamMapping((tupleArgument, tupleParameter))
   }
 
   private def buildSplatListArgument(varargContents: Seq[ScExpression], varargParam: Parameter): Argument = {
     implicit val projectContext: ProjectContext = varargContents.head.getProject
     val splatListArgument = wrapInSplatListExpression(varargContents)
 
-    Argument(new ExpressionTransformer(splatListArgument), ProperArgument(varargParam),
-      passingMechanism(varargParam))
+    Argument.fromArgParamMapping((splatListArgument, varargParam))
   }
 }

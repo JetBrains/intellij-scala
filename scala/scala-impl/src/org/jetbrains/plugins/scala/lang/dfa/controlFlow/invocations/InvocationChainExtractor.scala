@@ -51,12 +51,14 @@ object InvocationChainExtractor {
     val allMatchedArgs = call.matchedParameters +: restArgs.map(_._1.matchedParameters)
     val allArgExpressions = call.argumentExpressions +: restArgs.map(_._1.argumentExpressions)
 
+    implicit val context: ProjectContext = call.getProject
     // There might be more arguments than the function requires. In this case, we should still evaluate the arguments.
     val fixedArgs = allArgExpressions.zip(allMatchedArgs).map {
       case (expressions, argParams) => fixUnmatchedArguments(expressions, argParams)
     }
 
-    val sortedMatchedParameters = fixedArgs.map(buildArgumentsInEvaluationOrder(_, isTupled))
+    // TODO isTupled doesn't give enough information: if tupling is only used in one argument list, it doesn't catch that
+    val sortedMatchedParameters = fixedArgs.map(buildArgumentsInEvaluationOrder(_, call, isTupled))
 
     val thisArgument = Argument.fromExpression(call.thisExpr, ThisArgument, PassByValue)
     val argumentsListsWithThis = (thisArgument +: sortedMatchedParameters.head) +: sortedMatchedParameters.tail
@@ -65,14 +67,13 @@ object InvocationChainExtractor {
     invocationInfo :: collectInvocationsInfo(followingCalls)
   }
 
-  private def fixUnmatchedArguments(args: Seq[ScExpression],
-                                    matchedArgs: Seq[(ScExpression, Parameter)]): Seq[(ScExpression, Parameter)] = {
+  private def fixUnmatchedArguments(args: Seq[ScExpression], matchedArgs: Seq[(ScExpression, Parameter)])
+                                   (implicit context: ProjectContext): Seq[(ScExpression, Parameter)] = {
     val notMatchedArgs = args.filter {
       case ScAssignment(_, Some(actualArg)) => isNotAlreadyMatched(matchedArgs, actualArg)
       case argument => isNotAlreadyMatched(matchedArgs, argument)
     }
 
-    implicit val context: ProjectContext = args.head.getProject
     matchedArgs ++ buildFakeParameters(notMatchedArgs, matchedArgs.length)
   }
 
