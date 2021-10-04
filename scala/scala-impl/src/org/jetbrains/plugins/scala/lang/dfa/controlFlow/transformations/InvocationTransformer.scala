@@ -11,25 +11,32 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationI
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.utils.SpecialSupportUtils._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.MethodInvocation
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 
-class InvocationTransformer(val invocation: MethodInvocation) extends ExpressionTransformer(invocation) {
+// TODO modify to support MethodInvocation, ScMethodCall and ScReferenceExpression uniformly
+class InvocationTransformer(val invocation: ScMethodCall) extends ExpressionTransformer(invocation) {
 
   override def toString: String = s"InvocationTransformer: $invocation"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
-    if (!tryTransformWithSpecialSupport(builder)) {
-      //      builder.pushUnknownCall(invocation, invocationInfo.argsInEvaluationOrder.size)
+    val invocationsInfo = InvocationInfo.fromMethodCall(invocation)
+
+    if (!tryTransformWithSpecialSupport(invocationsInfo, builder)) {
+      // TODO still evaluate the arguments from InvocationInfo, even if the call is unresolved
+
+      // builder.pushUnknownCall(invocation, invocationInfo.argsInEvaluationOrder.size)
       builder.pushUnknownValue()
     }
   }
 
-  // TODO don't rely on the order of args in arInEvaluationOrder but on the mapping from params to the index in this list
-  private def tryTransformWithSpecialSupport(builder: ScalaDfaControlFlowBuilder): Boolean = {
-    val invocationInfo = InvocationInfo.fromMethodInvocation(invocation)
+  // TODO don't rely on the order of args in argsInEvaluationOrder but on the mapping from params to the index in this list
+  private def tryTransformWithSpecialSupport(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {
+    if (invocationsInfo.size > 1) return false
+    val invocationInfo = invocationsInfo.head
+
     invocationInfo.invokedElement match {
       case Some(InvokedElement(psiElement)) => psiElement match {
         case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo, builder)
@@ -66,7 +73,7 @@ class InvocationTransformer(val invocation: MethodInvocation) extends Expression
     for (typeClass <- NumericTypeClasses; operationName <- NumericOperations.keys) {
       if (matchesSignature(function, operationName, typeClass)) {
         val operation = NumericOperations(operationName)
-        val List(leftArg, rightArg, _*) = invocationInfo.argsInEvaluationOrder
+        val List(leftArg, rightArg, _*) = invocationInfo.argListsInEvaluationOrder.head
         leftArg.content.transform(builder)
         // TODO check implicit conversions etc.
         // TODO check division by zero
@@ -85,7 +92,7 @@ class InvocationTransformer(val invocation: MethodInvocation) extends Expression
       if (matchesSignature(function, operationName, typeClass)) {
         val operation = RelationalOperations(operationName)
         val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
-        val List(leftArg, rightArg, _*) = invocationInfo.argsInEvaluationOrder
+        val List(leftArg, rightArg, _*) = invocationInfo.argListsInEvaluationOrder.head
         leftArg.content.transform(builder)
         // TODO check implicit conversions etc.
         // TODO check division by zero
@@ -103,7 +110,7 @@ class InvocationTransformer(val invocation: MethodInvocation) extends Expression
     for (operationName <- LogicalOperations.keys) {
       if (matchesSignature(function, operationName, BooleanTypeClass)) {
         val operation = LogicalOperations(operationName)
-        val List(leftArg, rightArg, _*) = invocationInfo.argsInEvaluationOrder
+        val List(leftArg, rightArg, _*) = invocationInfo.argListsInEvaluationOrder.head
 
         val anchor = ScalaStatementAnchor(invocation)
         val endOffset = new DeferredOffset

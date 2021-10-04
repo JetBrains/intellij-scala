@@ -28,7 +28,7 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "List#::")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, isRightAssociative = evaluationOrderReversed)
       verifyThisExpression(invocationInfo, "someList")
 
@@ -63,7 +63,7 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "AndWrapper#&:")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, isRightAssociative = evaluationOrderReversed)
       verifyThisExpression(invocationInfo, "hello")
 
@@ -95,7 +95,7 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "List#::")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, isRightAssociative = evaluationOrderReversed)
       verifyThisExpression(invocationInfo, "444 :: 2 :: el2 :: 0 :: someList")
 

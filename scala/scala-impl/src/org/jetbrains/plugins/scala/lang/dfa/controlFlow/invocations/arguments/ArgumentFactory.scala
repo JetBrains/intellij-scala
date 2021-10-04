@@ -1,9 +1,8 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
 
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByName, PassByValue, PassingMechanism, ProperArgument}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{ProperArgument, passingMechanism}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.{wrapInSplatListExpression, wrapInTupleExpression}
-import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
@@ -11,30 +10,32 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ArgumentFactory {
 
-  def buildArgumentsInEvaluationOrder(invocation: ImplicitArgumentsOwner, isTupled: Boolean): Seq[Argument] = {
-    val (matchedParams, maybeVarargArgument) = partitionNormalAndVarargArgs(invocation)
+  def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)], isTupled: Boolean): Seq[Argument] = {
+    val (matchedParams, maybeVarargArgument) = partitionNormalAndVarargArgs(matchedParameters)
 
-    invocation match {
-      case methodInvocation: MethodInvocation if isTupled => List(buildTupledArgument(methodInvocation))
-      case _ => matchedParams
+    if (isTupled) {
+      Nil // TODO fix
+      //      List(buildTupledArgument(methodInvocation))
+    } else {
+      matchedParams
         .sortBy(ArgumentSorting.argumentPositionSortingKey)
         .map { case (arg, param) =>
-          Argument(new ExpressionTransformer(arg), ProperArgument(param), getPassingMechanism(param))
+          Argument(new ExpressionTransformer(arg), ProperArgument(param), passingMechanism(param))
         } :++ maybeVarargArgument
     }
   }
 
-  private def partitionNormalAndVarargArgs(invocation: ImplicitArgumentsOwner): (Seq[(ScExpression, Parameter)], Option[Argument]) = {
+  private def partitionNormalAndVarargArgs(matchedParameters: Seq[(ScExpression, Parameter)]): (Seq[(ScExpression, Parameter)], Option[Argument]) = {
     // TODO the case with empty vararg list doesn't work - we need another way of knowing if this function has a vararg param,
     //  even if there are no arguments matching it, fix it once I handle multiple parameter lists
     // TODO implicit parameters don't work properly, left for later
-    val maybeVarargParam = invocation.matchedParameters.map(_._2).find(_.psiParam.exists(_.isVarArgs))
+    val maybeVarargParam = matchedParameters.map(_._2).find(_.psiParam.exists(_.isVarArgs))
     maybeVarargParam match {
       case Some(varargParam) =>
-        val (argsMappedToVarargParam, normalArgs) = invocation.matchedParameters.reverse.partition(_._2 == varargParam)
+        val (argsMappedToVarargParam, normalArgs) = matchedParameters.reverse.partition(_._2 == varargParam)
         val varargArgument = buildSplatListArgument(argsMappedToVarargParam.map(_._1), varargParam)
         (normalArgs, Some(varargArgument))
-      case None => (invocation.matchedParameters, None)
+      case None => (matchedParameters, None)
     }
   }
 
@@ -46,7 +47,7 @@ object ArgumentFactory {
     })
 
     Argument(new ExpressionTransformer(tupleArgument), ProperArgument(tupleParameter),
-      getPassingMechanism(tupleParameter))
+      passingMechanism(tupleParameter))
   }
 
   private def buildSplatListArgument(varargContents: Seq[ScExpression], varargParam: Parameter): Argument = {
@@ -54,10 +55,6 @@ object ArgumentFactory {
     val splatListArgument = wrapInSplatListExpression(varargContents)
 
     Argument(new ExpressionTransformer(splatListArgument), ProperArgument(varargParam),
-      getPassingMechanism(varargParam))
-  }
-
-  private def getPassingMechanism(param: Parameter): PassingMechanism = {
-    if (param.isByName) PassByName else PassByValue
+      passingMechanism(varargParam))
   }
 }

@@ -32,7 +32,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "MyClass#someMethod")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "myObj")
     }
@@ -65,7 +65,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "MyClass#someMethod")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "myObj")
     }
@@ -96,7 +96,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "ArrayBuffer#clear")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "myArray")
     }
@@ -118,7 +118,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
     verifyInvokedElement(invocationInfo, "SeqLike#size")
-    verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
     verifyThisExpression(invocationInfo, "myList")
   }

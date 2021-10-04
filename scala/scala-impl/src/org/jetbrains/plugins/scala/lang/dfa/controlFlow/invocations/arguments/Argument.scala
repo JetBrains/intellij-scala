@@ -5,7 +5,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{Express
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
-case class Argument(content: Transformable, kind: ArgumentKind, passingMechanism: PassingMechanism)
+final case class Argument(content: Transformable, kind: ArgumentKind, passingMechanism: PassingMechanism)
 
 object Argument {
 
@@ -21,5 +21,14 @@ object Argument {
                      passingMechanism: PassingMechanism): Argument = {
     val transformer = expression.map(new ExpressionTransformer(_)).getOrElse(new UnknownValueTransformer)
     Argument(transformer, kind, passingMechanism)
+  }
+
+  def fromArgParamMapping(argParamMapping: (ScExpression, Parameter)): Argument = argParamMapping match {
+    case (argExpression, param) =>
+      Argument(new ExpressionTransformer(argExpression), ProperArgument(param), passingMechanism(param))
+  }
+
+  def passingMechanism(param: Parameter): PassingMechanism = {
+    if (param.isByName) PassByName else PassByValue
   }
 }

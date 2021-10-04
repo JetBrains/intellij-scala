@@ -26,7 +26,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "IterableLike#head")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "myList")
     }
@@ -60,7 +60,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "MyObject#>>#")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "myObject")
     }
@@ -87,7 +87,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "Synthetic method: unary_!")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "condition")
     }
@@ -121,7 +121,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "MyObject#unary_!")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "myObject")
     }

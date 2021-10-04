@@ -30,7 +30,7 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "SomeStringWrapper#apply")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "SomeStringWrapper")
     }
@@ -63,7 +63,7 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "SomeClass#apply")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "SomeClass")
     }
@@ -97,7 +97,7 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "SomeClass#apply")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "obj")
     }
@@ -125,7 +125,7 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "List#apply")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "List")
     }
@@ -156,7 +156,7 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "List#apply")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "List")
     }
@@ -185,7 +185,7 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "GenSetLike#apply")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
       verifyThisExpression(invocationInfo, "someSet")
     }

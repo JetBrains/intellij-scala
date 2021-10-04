@@ -22,7 +22,7 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
     case _: ScUnitExpr => transformUnitExpression(builder)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => transformReferenceExpression(reference, builder)
-    case invocation: MethodInvocation => transformInvocation(invocation, builder)
+    case methodCall: ScMethodCall => transformMethodCall(methodCall, builder)
     case templateDefinition: ScTemplateDefinition => transformTemplateDefinition(templateDefinition, builder)
     case _ => throw TransformationFailedException(expression, "Unsupported expression.")
   }
@@ -74,6 +74,8 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
   }
 
   private def transformReferenceExpression(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
+    // TODO check somehow if this reference expression is an invocation or not, if it is, handle it with InvocationTransformer
+
     // TODO add qualified expressions, currently only simple ones
     expression.getReference.bind().map(_.element) match {
       case Some(element) => // TODO extract later + try to fix types/anchor, if possible
@@ -83,8 +85,8 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
     }
   }
 
-  private def transformInvocation(invocation: MethodInvocation, builder: ScalaDfaControlFlowBuilder): Unit = {
-    new InvocationTransformer(invocation).transform(builder)
+  private def transformMethodCall(methodCall: ScMethodCall, builder: ScalaDfaControlFlowBuilder): Unit = {
+    new InvocationTransformer(methodCall).transform(builder)
   }
 
   private def transformTemplateDefinition(templateDefinition: ScTemplateDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {

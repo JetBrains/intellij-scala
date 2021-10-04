@@ -29,7 +29,7 @@ class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = List(PassByValue, PassByValue, PassByName, PassByValue)
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
     }
   }

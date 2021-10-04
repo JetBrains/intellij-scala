@@ -29,7 +29,7 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
     }
   }
@@ -58,7 +58,7 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
     }
   }
@@ -87,7 +87,7 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
-      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
     }
   }
@@ -111,7 +111,7 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
     verifyInvokedElement(invocationInfo, "Test#someMethod")
-    verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
   }
 
@@ -134,7 +134,7 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
 
     verifyInvokedElement(invocationInfo, "Test#someMethod")
-    verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
+    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
       expectedMappedParamNames, expectedPassingMechanisms)
   }
 }
