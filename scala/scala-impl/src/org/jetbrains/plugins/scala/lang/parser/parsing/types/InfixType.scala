@@ -5,7 +5,7 @@ package parsing
 package types
 
 import com.intellij.lang.PsiBuilder
-import com.intellij.psi.tree.IElementType
+import com.intellij.psi.tree.{IElementType, TokenSet}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.parser.parsing.builder.ScalaPsiBuilder
@@ -23,6 +23,12 @@ trait InfixType {
   protected def componentType: Type
   @Nls
   protected def errorMessage: String
+
+  private val varargStarFollowSet = TokenSet.create(
+    ScalaTokenTypes.tRPARENTHESIS,  // def test(x: Int*)       -- standard case
+    ScalaTokenTypes.tASSIGN,        // def test(x: Int* = 3)   -- this is allowed by syntax, but not by semantics
+    ScalaTokenTypes.tCOMMA,         // def test(x: Int*,)      -- especially with trailing comma
+  )
 
   final def apply(star: Boolean = false, isPattern: Boolean = false)(implicit builder: ScalaPsiBuilder): Boolean = {
     if (builder.isScala3) {
@@ -46,16 +52,21 @@ trait InfixType {
       return false
     }
 
-    var couldBeVarArg = false
     var count = 0
     var assoc: Associativity = Associativity.NoAssociativity
 
-    while (builder.getTokenType == ScalaTokenTypes.tIDENTIFIER && (!builder.newlineBeforeCurrentToken) &&
-      (!star || builder.getTokenText != "*") && (!isPattern || builder.getTokenText != "|")) {
+    def varargFollows =
+      builder.getTokenText == "*" && varargStarFollowSet.contains(builder.lookAhead(1))
+
+    while (
+      builder.getTokenType == ScalaTokenTypes.tIDENTIFIER &&
+      !builder.newlineBeforeCurrentToken &&
+      !(star && varargFollows) &&
+      !(isPattern && builder.getTokenText == "|")
+    ) {
       count = count+1
       //need to know associativity
       val s = builder.getTokenText
-      couldBeVarArg = if (count == 1 && s == "*") true else false
       
       s.last match {
         case ':' =>
@@ -79,11 +90,7 @@ trait InfixType {
       if (builder.twoNewlinesBeforeCurrentToken) {
         builder.error(errorMessage)
       }
-      if (parseInfixWildcardType()) {
-        // ok continue
-      } else if (componentType(star, isPattern)) {
-        couldBeVarArg = false
-      } else {
+      if (!parseInfixWildcardType() && !componentType(star, isPattern)) {
         builder.error(errorMessage)
       }
 
@@ -96,11 +103,7 @@ trait InfixType {
     //final ops closing
     if (count>0) {
       if (assoc == Associativity.Left) {
-        if (couldBeVarArg && builder.lookBack(ScalaTokenTypes.tIDENTIFIER) && count == 1) {
-          infixTypeMarker.rollbackTo()
-          parseId()
-          return false
-        } else infixTypeMarker.drop()
+        infixTypeMarker.drop()
       }
       else {
         markerList.head.drop()
