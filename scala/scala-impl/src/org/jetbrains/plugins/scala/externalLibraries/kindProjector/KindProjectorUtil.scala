@@ -52,17 +52,16 @@ class KindProjectorUtil(project: Project) {
 object KindProjectorUtil {
   sealed trait KindProjectorMode
 
-  object KindProjectorMode {
-    object Classic           extends KindProjectorMode
-    object Scala3Integrated  extends KindProjectorMode
-    object Scala3Underscores extends KindProjectorMode
-  }
-
   def syntaxIdsFor(e: PsiElement): Seq[String] =
     if (e.kindProjectorEnabled) {
-      if (e.underscoreWidlcardsDisabled)      underscoreInlineSyntax
-      else if (e.YKindProjectorOptionEnabled) starInlineSyntax
-      else                                    qMarkInlineSyntax ++ starInlineSyntax
+      val underscoreSyntax =
+        if (e.underscoreWidlcardsDisabled) underscoreInlineSyntax
+        else                               Seq.empty
+
+      underscoreSyntax ++ (
+        if (e.YKindProjectorOptionEnabled) starInlineSyntax
+        else                               qMarkInlineSyntax ++ starInlineSyntax
+      )
     } else Seq.empty
 
   val Lambda: String         = "Lambda"

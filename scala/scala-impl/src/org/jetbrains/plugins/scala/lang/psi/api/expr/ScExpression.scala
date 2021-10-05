@@ -4,7 +4,7 @@ package psi
 package api
 package expr
 
-import com.intellij.openapi.progress.{ProcessCanceledException, ProgressManager}
+import com.intellij.openapi.progress.ProgressManager
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.caches.BlockModificationTracker
 import org.jetbrains.plugins.scala.extensions._
@@ -13,10 +13,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.InferUtil.SafeCheckException
 import org.jetbrains.plugins.scala.lang.psi.api.base._
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals.ScIntegerLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.ScalaPsiElementCreationException
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
@@ -24,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorTyp
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.{Parameter, ScMethodType, ScTypePolymorphicType}
 import org.jetbrains.plugins.scala.lang.psi.types.result._
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
-import org.jetbrains.plugins.scala.macroAnnotations.{CachedInUserData, CachedWithRecursionGuard}
+import org.jetbrains.plugins.scala.macroAnnotations.CachedWithRecursionGuard
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
 import org.jetbrains.plugins.scala.project.ScalaLanguageLevel.{Scala_2_11, Scala_2_13}
 import org.jetbrains.plugins.scala.traceLogger.TraceLogger
@@ -178,23 +176,15 @@ object ScExpression {
 
     private def project = elementScope.projectContext
 
-    @CachedInUserData(expr, BlockModificationTracker(expr))
-    def contextFunctionParameters: Option[Seq[ScParameter]] = expectedType() match {
-      case Some(ContextFunctionType(_, paramTypes)) =>
-        val paramsText =
-          paramTypes
-            .mapWithIndex((tpe, i) => s"evidence$$$i: ${tpe.canonicalText}")
-            .mkString("(implicit ", ", ", ")")
-
-        try {
-          val clause = ScalaPsiElementFactory.createParamClausesWithContext(paramsText, expr.getContext, expr)
-          Option(clause.params)
-        } catch {
-          case p: ProcessCanceledException         => throw p
-          case _: ScalaPsiElementCreationException => Option(Seq.empty)
-        }
-      case _ => None
-    }
+    def contextFunctionParameters: Seq[ParameterizedType.LightContextFunctionParameter] =
+      expr match {
+        case fun: ScFunctionExpr if fun.isContext => Seq.empty
+        case _ =>
+          expectedType().toSeq.flatMap {
+            case p: ParameterizedType => p.contextParameters
+            case _                    => Seq.empty
+          }
+      }
 
     def expectedType(fromUnderscore: Boolean = true): Option[ScType] =
       expectedTypeEx(fromUnderscore).map(_._1)
@@ -270,7 +260,7 @@ object ScExpression {
               inferValueType(
                 widened
                   .dropMethodTypeEmptyParams(expr, expectedType)
-                  .synthesizeContextFunctionType(expectedType)
+                  .synthesizeContextFunctionType(expectedType, expr)
                   .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
               ).unpackedType
                .synthesizePartialFunctionType(expr, expectedType)
@@ -431,13 +421,27 @@ object ScExpression {
      * E is not already an context function literal, E is converted to a context function literal by rewriting it to
      * (x_1: T1, ..., x_n: Tn) ?=> E
      */
-    final def synthesizeContextFunctionType(pt: Option[ScType])(implicit scope: ElementScope): ScType =
+    final def synthesizeContextFunctionType(pt: Option[ScType], expr: ScExpression)(implicit scope: ElementScope): ScType =
       scType match {
         case cft @ ContextFunctionType(_, _) => cft
         case _ =>
           pt.map(_.removeAliasDefinitions()) match {
-            case Some(ContextFunctionType(_, paramTypes)) => ContextFunctionType((scType, paramTypes))
-            case _                                        => scType
+            case Some(cft: ParameterizedType) if ContextFunctionType.isContextFunctionType(cft) =>
+              //Trigger all usages by traversing ImplicitArgumentOwner children of this expr
+              expr.acceptChildren(new ScalaRecursiveElementVisitor {
+                override def visitScalaElement(element: ScalaPsiElement): Unit = {
+                  element match {
+                    case implicitOwner: ImplicitArgumentsOwner => implicitOwner.findImplicitArguments
+                    case _                                     => ()
+                  }
+
+                  super.visitScalaElement(element)
+                }
+              })
+
+              val actualParamTypes = expr.contextFunctionParameters.map(_.contextFunctionParameterType.getOrAny)
+              ContextFunctionType((scType, actualParamTypes))
+            case _ => scType
           }
     }
 
@@ -513,10 +517,6 @@ object ScExpression {
       }
     }
 
-    /**
-     * Unless expression is a context function literal or both exptected type and [[scType]] are
-     * context function types, we should search for context arguments.
-     */
     private def isContextFunctionExpected(pt: ScType): Boolean =
       (scType, pt) match {
         case (ContextFunctionType(_, _), ContextFunctionType(_, _)) => false

@@ -21,7 +21,9 @@ import org.jetbrains.plugins.scala.util.HashBuilder._
 
 import scala.annotation.tailrec
 
-final class ScParameterizedType private(override val designator: ScType, override val typeArguments: Seq[ScType]) extends ParameterizedType with ScalaType {
+final class ScParameterizedType private (override val designator: ScType, override val typeArguments: Seq[ScType])
+    extends ParameterizedType
+    with ScalaType {
 
   override protected def calculateAliasType: Option[AliasType] =
     designator match {
@@ -204,11 +206,14 @@ object ScParameterizedType {
         }
 
       // Simplify application of ScTypePolymorphicType encoding of type lambdas
-      case ScTypePolymorphicType(internalType, typeParameters) if internalType.isInstanceOf[ScParameterizedType] =>
-        val internal = internalType.asInstanceOf[ScParameterizedType]
+      case ScTypePolymorphicType(internal: ScParameterizedType, typeParameters) =>
         new ScParameterizedType(internal.designator, internal.typeArguments.map {
           case pType: TypeParameterType =>
-            typeParameters.zip(typeArgs).find{case (tParam, _) => TypeParameterType(tParam).equiv(pType)}.map(_._2).getOrElse(pType)
+            typeParameters
+              .zip(typeArgs)
+              .find { case (tParam, _) => TypeParameterType(tParam).equiv(pType) }
+              .map(_._2)
+              .getOrElse(pType)
           case aType =>
             aType
         })

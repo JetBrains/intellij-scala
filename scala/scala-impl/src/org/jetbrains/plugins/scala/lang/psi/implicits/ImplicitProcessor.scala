@@ -114,9 +114,7 @@ abstract class ImplicitProcessor(override val getPlace: PsiElement,
 
         val shouldStop = element match {
           case expr: ScExpression =>
-            expr.contextFunctionParameters.exists(params =>
-              !params.forall(this.execute(_, ScalaResolveState.empty))
-            )
+            !expr.contextFunctionParameters.forall(this.execute(_, ScalaResolveState.empty))
           case _ => false
         }
 
