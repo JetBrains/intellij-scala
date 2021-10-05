@@ -24,9 +24,10 @@ class NamedParametersInfoTest extends InvocationInfoTestBase {
     val expectedProperArgsInText = List("9999", "30", "93939", "15", "-10", "33 + 2 * 9")
     val expectedMappedParamNames = List("firstArg", "secondArg", "fifthArg", "thirdArg", "sixthArg", "fourthArg")
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+    val expectedParamToArgMapping = List(0, 1, 3, 5, 2, 4)
 
     verifyInvokedElement(invocationInfo, "SomeClass#simpleFun")
     verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
+      expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   }
 }

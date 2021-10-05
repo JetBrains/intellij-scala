@@ -27,11 +27,12 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("\"Wrap me\"")
       val expectedMappedParamNames = List("wrapped")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList.toList
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "SomeStringWrapper#apply")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "SomeStringWrapper")
     }
   }
@@ -61,10 +62,11 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("4")
       val expectedMappedParamNames = List("x")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "SomeClass#apply")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "SomeClass")
     }
   }
@@ -95,10 +97,11 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("5")
       val expectedMappedParamNames = List("x")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "SomeClass#apply")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "obj")
     }
   }
@@ -123,10 +126,11 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("1113 :: 8 * 15 :: Nil: _*")
       val expectedMappedParamNames = List("xs")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "List#apply")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "List")
     }
   }
@@ -154,10 +158,11 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
         "44 :: 47858 :: 45555 :: 6 - 6 :: 323 :: 44 :: Nil: _*")
       val expectedMappedParamNames = (1 until expectedArgCount).map(_ => "xs").toList
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "List#apply")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "List")
     }
   }
@@ -183,10 +188,11 @@ class ApplyMethodsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("120")
       val expectedMappedParamNames = List("elem")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "GenSetLike#apply")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "someSet")
     }
   }

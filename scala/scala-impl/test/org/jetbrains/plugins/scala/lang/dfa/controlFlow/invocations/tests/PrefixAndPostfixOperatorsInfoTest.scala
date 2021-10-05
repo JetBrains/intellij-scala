@@ -24,10 +24,11 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "IterableLike#head")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "myList")
     }
   }
@@ -58,10 +59,11 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "MyObject#>>#")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "myObject")
     }
   }
@@ -85,10 +87,11 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Synthetic method: unary_!")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "condition")
     }
   }
@@ -119,10 +122,11 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "MyObject#unary_!")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "myObject")
     }
   }

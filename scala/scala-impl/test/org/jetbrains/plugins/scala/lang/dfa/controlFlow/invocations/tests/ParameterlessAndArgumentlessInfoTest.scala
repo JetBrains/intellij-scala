@@ -30,10 +30,11 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "MyClass#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "myObj")
     }
   }
@@ -63,10 +64,11 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "MyClass#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "myObj")
     }
   }
@@ -94,10 +96,11 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "ArrayBuffer#clear")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "myArray")
     }
   }
@@ -116,10 +119,11 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
     val expectedProperArgsInText = Nil
     val expectedMappedParamNames = Nil
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+    val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
     verifyInvokedElement(invocationInfo, "SeqLike#size")
     verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
+      expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
     verifyThisExpression(invocationInfo, "myList")
   }
 }

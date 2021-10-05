@@ -27,10 +27,11 @@ class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("4", "9", "5")
       val expectedMappedParamNames = List("x", "y", "z")
       val expectedPassingMechanisms = List(PassByValue, PassByValue, PassByName, PassByValue)
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
     }
   }
 
@@ -57,10 +58,11 @@ class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
   //      val expectedProperArgsInText = List("something")
   //      val expectedMappedParamNames = List("x")
   //      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+  //      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
   //
   //      verifyInvokedElement(invocationInfo, "SomeObject#aMethod")
   //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
-  //        expectedMappedParamNames, expectedPassingMechanisms)
+  //        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   //    }
   //  }
 }

@@ -31,10 +31,11 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("4", "12")
       val expectedMappedParamNames = List("position", "value")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "MyMutableCollection#update")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "collection")
     }
   }
@@ -70,10 +71,11 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("4", "\"dddddx\"", "7 <= 8 && 9 > 4 * 2", "12")
       val expectedMappedParamNames = List("position1", "position2", "position3", "value")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "MyMutableCollection#update")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "collection")
     }
   }
@@ -101,16 +103,17 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("3", "15 + 2 * 9")
       val expectedMappedParamNames = List("idx", "elem")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "ResizableArray#update")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "someMutableArray")
     }
   }
 
   def testCustomSetterMethods(): Unit = {
-    val sugaredSyntax = "obj.property_=(12)"
+    val sugaredSyntax = "obj.property = 12"
     val desugaredSyntax = "obj.property_=(12)"
 
     val code = (invocationSyntax: String) =>
@@ -136,16 +139,17 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("12")
       val expectedMappedParamNames = List("newValue")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Something#property_=")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "obj")
     }
   }
 
   def testGeneratedSetterMethods(): Unit = {
-    val sugaredSyntax = "obj.property_=(12)"
+    val sugaredSyntax = "obj.property = 12"
     val desugaredSyntax = "obj.property_=(12)"
 
     val code = (invocationSyntax: String) =>
@@ -169,10 +173,11 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("12")
       val expectedMappedParamNames = List("") // fake PSI method with no parameters
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Something#property_=")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "obj")
     }
   }
@@ -204,10 +209,11 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("15")
       val expectedMappedParamNames = List("y")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Something#^^")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "sth")
     }
   }
@@ -238,10 +244,11 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("15")
       val expectedMappedParamNames = List("y")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Something#^^=")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "sth")
     }
   }
@@ -280,7 +287,7 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
   //
   //      verifyInvokedElement(invocationInfo, "Something#apply")
   //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
-  //        expectedMappedParamNames, expectedPassingMechanisms)
+  //        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   //      verifyThisExpression(invocationInfo, "sth")
   //    }
   //
@@ -294,7 +301,7 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
   //
   //      verifyInvokedElement(invocationInfo, "Synthetic method: +")
   //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
-  //        expectedMappedParamNames, expectedPassingMechanisms)
+  //        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   //      verifyThisExpression(invocationInfo, "sth(3)")
   //    }
   //  }
@@ -327,10 +334,11 @@ class AssignmentSugarsInfoTest extends InvocationInfoTestBase {
   //      val expectedProperArgsInText = List("xx")
   //      val expectedMappedParamNames = List("")
   //      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+  //      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
   //
   //      verifyInvokedElement(invocationInfo, "Synthetic method: +")
   //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,
-  //        expectedMappedParamNames, expectedPassingMechanisms)
+  //        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   //      verifyThisExpression(invocationInfo, "sth.prop")
   //    }
   //  }

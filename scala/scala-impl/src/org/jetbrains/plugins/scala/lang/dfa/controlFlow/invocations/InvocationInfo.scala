@@ -5,16 +5,28 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationCh
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.{buildArgumentsInEvaluationOrder, insertThisArgToArgList}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ParamToArgMapping.generateParamToArgMapping
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
+
 
 case class InvocationInfo(invokedElement: Option[InvokedElement],
                           argListsInEvaluationOrder: List[List[Argument]]) {
 
-  def thisArgument: Option[Argument] = argListsInEvaluationOrder.headOption.flatMap(_.find(_.kind == ThisArgument))
+  val thisArgument: Option[Argument] = argListsInEvaluationOrder.headOption.flatMap(_.find(_.kind == ThisArgument))
 
-  def properArguments: List[List[Argument]] = argListsInEvaluationOrder.map(_.filter(_.kind.is[ProperArgument]))
+  val properArguments: List[List[Argument]] = argListsInEvaluationOrder.map(_.filter(_.kind.is[ProperArgument]))
 
-  // TODO generate param to arg mapping via a method
+  /**
+   * If paramToArgMapping(paramIndex) = argIndex, then the returned mapping maps
+   * the parameter on position paramIndex in order in the function's parameter sequence
+   * to the argument on position argIndex in the evaluation order of arguments in an invocation of this function.
+   *
+   * If the function has multiple parameter/argument lists, the lists are flattened and the indices are counted
+   * disregarding the boundaries between the lists.
+   *
+   * @return list representing parameter-to-argument mapping for this invocation
+   */
+  val paramToArgMapping: List[Option[Int]] = generateParamToArgMapping(invokedElement, properArguments)
 }
 
 object InvocationInfo {

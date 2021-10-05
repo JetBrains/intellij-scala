@@ -22,10 +22,11 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
     val expectedProperArgsInText = List("7 :: 21 % 8 :: 50000 :: Nil: _*")
     val expectedMappedParamNames = List("x")
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+    val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
     verifyInvokedElement(invocationInfo, "Test#someMethod")
     verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
+      expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   }
 
   def testVarargsWithSplatOperator(): Unit = {
@@ -45,10 +46,11 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
     val expectedProperArgsInText = List("Seq(7, 21 % 8, 50000): _*")
     val expectedMappedParamNames = List("x")
     val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+    val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
     verifyInvokedElement(invocationInfo, "Test#someMethod")
     verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
+      expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   }
 
   def testAutoTupling(): Unit = {
@@ -73,10 +75,11 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("(7, 21 % 8, 50000)")
       val expectedMappedParamNames = List("x")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
     }
   }
 
@@ -102,10 +105,11 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("(7, 21 % 8, 50000)")
       val expectedMappedParamNames = List("x")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
     }
   }
 
@@ -131,10 +135,11 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("()")
       val expectedMappedParamNames = List("x")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
     }
   }
 }

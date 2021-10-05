@@ -41,6 +41,7 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
                                                  expectedProperArgsInText: List[String],
                                                  expectedMappedParamNames: List[String],
                                                  expectedPassingMechanisms: List[PassingMechanism],
+                                                 expectedParamToArgMapping: List[Int],
                                                  isRightAssociative: Boolean = false): Unit = {
     invocationInfo.argListsInEvaluationOrder.size shouldBe 1
     val args = invocationInfo.argListsInEvaluationOrder.head
@@ -51,6 +52,7 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
     convertArgsToText(properArgs) shouldBe expectedProperArgsInText
     properArgs.map(_.kind.asInstanceOf[ProperArgument].parameterMapping.name) shouldBe expectedMappedParamNames
     args.map(_.passingMechanism) shouldBe expectedPassingMechanisms
+    invocationInfo.paramToArgMapping.map(_.get) shouldBe expectedParamToArgMapping
 
     if (isRightAssociative) {
       assertTrue("In a right associative call, the first argument should be a proper argument", args.head.kind.is[ProperArgument])
@@ -66,6 +68,7 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
                                                     expectedProperArgsInText: List[List[String]],
                                                     expectedMappedParamNames: List[List[String]],
                                                     expectedPassingMechanisms: List[List[PassingMechanism]],
+                                                    expectedParamToArgMapping: List[Int],
                                                     isRightAssociative: Boolean = false): Unit = {
     invocationInfo.argListsInEvaluationOrder.size shouldBe expectedArgCount.size
     val args = invocationInfo.argListsInEvaluationOrder
@@ -78,6 +81,7 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
     properArgs.map(convertArgsToText) shouldBe expectedProperArgsInText
     properArgs.map(_.map(_.kind.asInstanceOf[ProperArgument].parameterMapping.name)) shouldBe expectedMappedParamNames
     args.map(_.map(_.passingMechanism)) shouldBe expectedPassingMechanisms
+    invocationInfo.paramToArgMapping.map(_.get) shouldBe expectedParamToArgMapping
 
     if (isRightAssociative) {
       assertTrue("In a right associative call, the first argument should be a proper argument",

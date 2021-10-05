@@ -23,10 +23,11 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("16")
       val expectedMappedParamNames = List("") // mapped params in synthetic methods have empty names
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Synthetic method: +")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "23")
     }
   }
@@ -56,10 +57,11 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("\"World\"")
       val expectedMappedParamNames = List("rhs")
       val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "AndWrapper#&")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "hello")
     }
   }
@@ -86,10 +88,11 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List("otherPredicate")
       val expectedMappedParamNames = List("")
       val expectedPassingMechanisms = List(PassByValue, PassByName)
+      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
 
       verifyInvokedElement(invocationInfo, "Synthetic method: &&")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "predicate")
     }
   }

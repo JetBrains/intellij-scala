@@ -28,10 +28,11 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
       val expectedMappedParamNames = List(List("a", "b"), List("c"), List("d", "e", "f"), List("g"))
       val expectedPassingMechanisms = List(List(PassByValue, PassByValue, PassByName), List(PassByValue),
         List(PassByValue, PassByName, PassByValue), List(PassByValue))
+      val expectedParamToArgMapping = (0 until expectedArgCount.sum - 1).toList
 
       verifyInvokedElement(invocationInfo, "SomeObject#manyParamLists")
       verifyArgumentsWithMultipleArgLists(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
     }
   }
 
@@ -53,10 +54,11 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
     val expectedMappedParamNames = List(List("b", "a"), List("c"), List("d", "f", "e"), List("g"))
     val expectedPassingMechanisms = List(List(PassByValue, PassByName, PassByValue), List(PassByValue),
       List(PassByValue, PassByValue, PassByName), List(PassByValue))
+    val expectedParamToArgMapping = List(1, 0, 2, 3, 5, 4, 6)
 
     verifyInvokedElement(invocationInfo, "SomeObject#manyParamLists")
     verifyArgumentsWithMultipleArgLists(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
+      expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   }
 
   def testMultipleArgumentListsWithDefaultParameters(): Unit = {
@@ -82,10 +84,11 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
       val expectedMappedParamNames = List(List("a", "b"), List("c"), List("d", "e", "f"), List("g"))
       val expectedPassingMechanisms = List(List(PassByValue, PassByValue, PassByName), List(PassByValue),
         List(PassByValue, PassByName, PassByValue), List(PassByValue))
+      val expectedParamToArgMapping = (0 until expectedArgCount.sum - 1).toList
 
       verifyInvokedElement(invocationInfo, "SomeObject#manyParamLists")
       verifyArgumentsWithMultipleArgLists(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
     }
   }
 
@@ -114,10 +117,11 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List(List("obj2"), List("5", "9"), List("obj2.x", "333"))
       val expectedMappedParamNames = List(List("other"), List("a", "b"), List("c", "d"))
       val expectedPassingMechanisms = (1 to 3).map(_ => List(PassByValue, PassByValue)).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount.sum - 1).toList
 
       verifyInvokedElement(invocationInfo, "Something#++++")
       verifyArgumentsWithMultipleArgLists(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
       verifyThisExpression(invocationInfo, "obj1")
     }
   }
@@ -147,10 +151,12 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
       val expectedProperArgsInText = List(List("obj1"), List("5", "9"), List("obj2.x", "333"))
       val expectedMappedParamNames = List(List("other"), List("a", "b"), List("c", "d"))
       val expectedPassingMechanisms = (1 to 3).map(_ => List(PassByValue, PassByValue)).toList
+      val expectedParamToArgMapping = (0 until expectedArgCount.sum - 1).toList
 
       verifyInvokedElement(invocationInfo, "Something#++++:")
       verifyArgumentsWithMultipleArgLists(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms, isRightAssociative = evaluationOrderReversed)
+        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping,
+        isRightAssociative = evaluationOrderReversed)
       verifyThisExpression(invocationInfo, "obj2")
     }
   }
@@ -175,9 +181,10 @@ class MultipleParameterListsInfoTest extends InvocationInfoTestBase {
     val expectedMappedParamNames = List(List("b", "a"), List("c"), List("d", "e", "f"), List("g"))
     val expectedPassingMechanisms = List(List(PassByValue, PassByName, PassByValue), List(PassByValue),
       List(PassByValue, PassByName, PassByValue), List(PassByValue))
+    val expectedParamToArgMapping = List(1, 0, 2, 3, 4, 5, 6)
 
     verifyInvokedElement(invocationInfo, "SomeObject#withVarargs")
     verifyArgumentsWithMultipleArgLists(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
+      expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
   }
 }
