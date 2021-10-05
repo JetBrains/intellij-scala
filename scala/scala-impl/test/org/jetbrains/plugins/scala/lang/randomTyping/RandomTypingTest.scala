@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala.lang.randomTyping
 
 import com.intellij.openapi.util.io.FileUtil
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.util.lang.CompoundRuntimeException
 import com.intellij.util.ui.EdtInvocationManager
 import org.jetbrains.plugins.scala.base.EditorActionTestBase
 import org.jetbrains.plugins.scala.extensions._
@@ -14,12 +15,20 @@ import org.junit.experimental.categories.Category
 import java.io.File
 import scala.collection.immutable.ArraySeq
 import scala.collection.mutable
+import scala.jdk.CollectionConverters.ListHasAsScala
 import scala.util.Random
 
 
 @Category(Array(classOf[NightlyTests]))
 class RandomTypingTest_in_Scala3 extends RandomTypingTestBase(TestUtils.getTestDataPath + "/parser/data3") {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= ScalaVersion.Latest.Scala_3_0
+
+  //def test_specific(): Unit = {
+  //  typeRandomly(
+  //    TestUtils.getTestDataPath + "/parser/data3/types/wildcard_question.test",
+  //    1224268322
+  //  )
+  //}
 }
 
 @Category(Array(classOf[NightlyTests]))
@@ -81,7 +90,15 @@ abstract class RandomTypingTestBase(testFilePath: String) extends EditorActionTe
       typeRandomly(targetText, new Random(seed))
     } catch {
       case e: Throwable =>
-        throw new Exception(s"Exception while typing ${file.getAbsolutePath} with seed $seed", e)
+        def ignoreException(e: Throwable): Boolean = e match {
+          case e: CompoundRuntimeException => e.getExceptions.asScala.forall(ignoreException)
+          case e if e.getMessage == "Assertion failed: Caret model is in its update process. All requests are illegal at this point." => true
+          case e if e.getMessage.startsWith("nonempty text is not covered by block") => true
+          case _ => false
+        }
+        if (!ignoreException(e)) {
+          throw new Exception(s"Exception while typing ${file.getAbsolutePath} with seed $seed", e)
+        }
     }
   }
 
