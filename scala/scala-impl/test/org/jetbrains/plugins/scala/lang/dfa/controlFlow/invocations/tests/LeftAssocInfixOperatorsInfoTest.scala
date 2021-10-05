@@ -22,7 +22,7 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("16")
       val expectedMappedParamNames = List("") // mapped params in synthetic methods have empty names
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "Synthetic method: +")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -55,7 +55,7 @@ class LeftAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("\"World\"")
       val expectedMappedParamNames = List("rhs")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "AndWrapper#&")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,

@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByValue, ThisArgument}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.buildArgumentsInEvaluationOrder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.{buildArgumentsInEvaluationOrder, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScParameterOwner}
 import org.jetbrains.plugins.scala.lang.psi.types.api
@@ -13,7 +13,6 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
 
-// TODO handle auto-tupling
 object InvocationChainExtractor {
 
   def innerInvocationChain(methodCall: ScMethodCall): List[MethodInvocation] = {
@@ -57,11 +56,10 @@ object InvocationChainExtractor {
       case (expressions, argParams) => fixUnmatchedArguments(expressions, argParams)
     }
 
-    // TODO isTupled doesn't give enough information: if tupling is only used in one argument list, it doesn't catch that
     val sortedMatchedParameters = fixedArgs.map(buildArgumentsInEvaluationOrder(_, call, isTupled))
-
     val thisArgument = Argument.fromExpression(call.thisExpr, ThisArgument, PassByValue)
-    val argumentsListsWithThis = (thisArgument +: sortedMatchedParameters.head) +: sortedMatchedParameters.tail
+    val argumentsListsWithThis = insertThisArgToArgList(call, sortedMatchedParameters.head, thisArgument) +:
+      sortedMatchedParameters.tail
 
     val invocationInfo = InvocationInfo(target.map(_.element).map(InvokedElement), argumentsListsWithThis)
     invocationInfo :: collectInvocationsInfo(followingCalls)

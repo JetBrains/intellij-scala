@@ -23,7 +23,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 0
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "IterableLike#head")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -57,7 +57,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 0
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "MyObject#>>#")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -84,7 +84,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 0
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "Synthetic method: unary_!")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -118,7 +118,7 @@ class PrefixAndPostfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 0
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "MyObject#unary_!")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,

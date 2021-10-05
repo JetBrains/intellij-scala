@@ -29,7 +29,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 0
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "MyClass#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -62,7 +62,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 0
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "MyClass#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -93,7 +93,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 0
       val expectedProperArgsInText = Nil
       val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "ArrayBuffer#clear")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -115,7 +115,7 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
     val expectedArgCount = 1 + 0
     val expectedProperArgsInText = Nil
     val expectedMappedParamNames = Nil
-    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
     verifyInvokedElement(invocationInfo, "SeqLike#size")
     verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,

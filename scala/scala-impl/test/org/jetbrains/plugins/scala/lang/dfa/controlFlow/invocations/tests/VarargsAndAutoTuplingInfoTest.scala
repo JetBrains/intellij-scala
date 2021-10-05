@@ -5,6 +5,52 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Ar
 
 class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
 
+  def testVarargsStandardCall(): Unit = {
+    val invocationInfo = generateInvocationInfoFor {
+      s"""
+         |object Test {
+         |  def someMethod(x: Int*): Int = x.sum
+         |
+         |  def main(): Int = {
+         |    ${markerStart}someMethod(7, 21 % 8, 50000)${markerEnd}
+         |  }
+         |}
+         |""".stripMargin
+    }
+
+    val expectedArgCount = 1 + 1
+    val expectedProperArgsInText = List("7 :: 21 % 8 :: 50000 :: Nil: _*")
+    val expectedMappedParamNames = List("x")
+    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+
+    verifyInvokedElement(invocationInfo, "Test#someMethod")
+    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      expectedMappedParamNames, expectedPassingMechanisms)
+  }
+
+  def testVarargsWithSplatOperator(): Unit = {
+    val invocationInfo = generateInvocationInfoFor {
+      s"""
+         |object Test {
+         |  def someMethod(x: Int*): Int = x.sum
+         |
+         |  def main(): Int = {
+         |    ${markerStart}someMethod(Seq(7, 21 % 8, 50000): _*)${markerEnd}
+         |  }
+         |}
+         |""".stripMargin
+    }
+
+    val expectedArgCount = 1 + 1
+    val expectedProperArgsInText = List("Seq(7, 21 % 8, 50000): _*")
+    val expectedMappedParamNames = List("x")
+    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+
+    verifyInvokedElement(invocationInfo, "Test#someMethod")
+    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      expectedMappedParamNames, expectedPassingMechanisms)
+  }
+
   def testAutoTupling(): Unit = {
     val sugaredSyntax = "someMethod(7, 21 % 8, 50000)"
     val desugaredSyntax = "someMethod((7, 21 % 8, 50000))"
@@ -26,7 +72,7 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("(7, 21 % 8, 50000)")
       val expectedMappedParamNames = List("x")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -55,7 +101,7 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("(7, 21 % 8, 50000)")
       val expectedMappedParamNames = List("x")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
@@ -84,57 +130,11 @@ class VarargsAndAutoTuplingInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("()")
       val expectedMappedParamNames = List("x")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "Test#someMethod")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms)
     }
-  }
-
-  def testVarargsStandardCall(): Unit = {
-    val invocationInfo = generateInvocationInfoFor {
-      s"""
-         |object Test {
-         |  def someMethod(x: Int*): Int = x.sum
-         |
-         |  def main(): Int = {
-         |    ${markerStart}someMethod(7, 21 % 8, 50000)${markerEnd}
-         |  }
-         |}
-         |""".stripMargin
-    }
-
-    val expectedArgCount = 1 + 1
-    val expectedProperArgsInText = List("7 :: 21 % 8 :: 50000 :: Nil: _*")
-    val expectedMappedParamNames = List("x")
-    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
-
-    verifyInvokedElement(invocationInfo, "Test#someMethod")
-    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
-  }
-
-  def testVarargsWithSplatOperator(): Unit = {
-    val invocationInfo = generateInvocationInfoFor {
-      s"""
-         |object Test {
-         |  def someMethod(x: Int*): Int = x.sum
-         |
-         |  def main(): Int = {
-         |    ${markerStart}someMethod(Seq(7, 21 % 8, 50000): _*)${markerEnd}
-         |  }
-         |}
-         |""".stripMargin
-    }
-
-    val expectedArgCount = 1 + 1
-    val expectedProperArgsInText = List("Seq(7, 21 % 8, 50000): _*")
-    val expectedMappedParamNames = List("x")
-    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
-
-    verifyInvokedElement(invocationInfo, "Test#someMethod")
-    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-      expectedMappedParamNames, expectedPassingMechanisms)
   }
 }

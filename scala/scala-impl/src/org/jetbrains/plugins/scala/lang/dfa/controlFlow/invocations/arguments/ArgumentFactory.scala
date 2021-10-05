@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
 
 import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.{wrapInSplatListExpression, wrapInTupleExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.project.ProjectContext
@@ -11,14 +11,22 @@ object ArgumentFactory {
 
   def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)],
                                       invocation: ImplicitArgumentsOwner,
-                                      isTupled: Boolean): Seq[Argument] = {
+                                      isTupled: Boolean): List[Argument] = {
     val (matchedParams, maybeVarargArgument) = partitionNormalAndVarargArgs(matchedParameters)
     invocation match {
       case methodInvocation: MethodInvocation if isTupled => List(buildTupledArgument(methodInvocation))
       case _ => matchedParams
         .sortBy(ArgumentSorting.argumentPositionSortingKey)
-        .map(Argument.fromArgParamMapping) :++ maybeVarargArgument
+        .map(Argument.fromArgParamMapping)
+        .toList :++ maybeVarargArgument
     }
+  }
+
+  def insertThisArgToArgList(invocation: MethodInvocation, properArgs: List[Argument],
+                             thisArgument: Argument): List[Argument] = invocation match {
+    case infixExpression: ScInfixExpr if infixExpression.isRightAssoc =>
+      properArgs.head :: thisArgument :: properArgs.tail
+    case _ => thisArgument :: properArgs
   }
 
   private def partitionNormalAndVarargArgs(matchedParameters: Seq[(ScExpression, Parameter)]): (Seq[(ScExpression, Parameter)], Option[Argument]) = {

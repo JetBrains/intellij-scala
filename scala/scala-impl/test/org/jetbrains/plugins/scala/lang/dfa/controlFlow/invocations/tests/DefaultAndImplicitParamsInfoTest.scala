@@ -56,7 +56,7 @@ class DefaultAndImplicitParamsInfoTest extends InvocationInfoTestBase {
   //      val expectedArgCount = 1 + 1
   //      val expectedProperArgsInText = List("something")
   //      val expectedMappedParamNames = List("x")
-  //      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+  //      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
   //
   //      verifyInvokedElement(invocationInfo, "SomeObject#aMethod")
   //      verifyArguments(invocationInfo, expectedArgCount, expectedProperArgsInText,

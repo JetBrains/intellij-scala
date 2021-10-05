@@ -38,9 +38,9 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
   }
 
   protected def verifyArgumentsWithSingleArgList(invocationInfo: InvocationInfo, expectedArgCount: Int,
-                                                 expectedProperArgsInText: Seq[String],
-                                                 expectedMappedParamNames: Seq[String],
-                                                 expectedPassingMechanisms: Seq[PassingMechanism],
+                                                 expectedProperArgsInText: List[String],
+                                                 expectedMappedParamNames: List[String],
+                                                 expectedPassingMechanisms: List[PassingMechanism],
                                                  isRightAssociative: Boolean = false): Unit = {
     invocationInfo.argListsInEvaluationOrder.size shouldBe 1
     val args = invocationInfo.argListsInEvaluationOrder.head
@@ -62,10 +62,10 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
     }
   }
 
-  protected def verifyArgumentsWithMultipleArgLists(invocationInfo: InvocationInfo, expectedArgCount: Seq[Int],
-                                                    expectedProperArgsInText: Seq[Seq[String]],
-                                                    expectedMappedParamNames: Seq[Seq[String]],
-                                                    expectedPassingMechanisms: Seq[Seq[PassingMechanism]],
+  protected def verifyArgumentsWithMultipleArgLists(invocationInfo: InvocationInfo, expectedArgCount: List[Int],
+                                                    expectedProperArgsInText: List[List[String]],
+                                                    expectedMappedParamNames: List[List[String]],
+                                                    expectedPassingMechanisms: List[List[PassingMechanism]],
                                                     isRightAssociative: Boolean = false): Unit = {
     invocationInfo.argListsInEvaluationOrder.size shouldBe expectedArgCount.size
     val args = invocationInfo.argListsInEvaluationOrder
@@ -94,5 +94,5 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
     thisExpression.getText shouldBe expectedExpressionInText
   }
 
-  private def convertArgsToText(args: Seq[Argument]): Seq[String] = args.map(extractExpressionFromArgument).map(_.getText)
+  private def convertArgsToText(args: List[Argument]): List[String] = args.map(extractExpressionFromArgument).map(_.getText)
 }

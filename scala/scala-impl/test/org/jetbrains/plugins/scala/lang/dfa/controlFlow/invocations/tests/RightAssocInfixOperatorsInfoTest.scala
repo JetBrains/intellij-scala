@@ -25,14 +25,12 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("element")
       val expectedMappedParamNames = List("x")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "List#::")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, isRightAssociative = evaluationOrderReversed)
       verifyThisExpression(invocationInfo, "someList")
-
-      // TODO generate and check the param -> arg mapping
     }
   }
 
@@ -60,14 +58,12 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("\"World\"")
       val expectedMappedParamNames = List("other")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "AndWrapper#&:")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, isRightAssociative = evaluationOrderReversed)
       verifyThisExpression(invocationInfo, "hello")
-
-      // TODO generate and check the param -> arg mapping
     }
   }
 
@@ -92,14 +88,12 @@ class RightAssocInfixOperatorsInfoTest extends InvocationInfoTestBase {
       val expectedArgCount = 1 + 1
       val expectedProperArgsInText = List("el1")
       val expectedMappedParamNames = List("x")
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue)
+      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
 
       verifyInvokedElement(invocationInfo, "List#::")
       verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
         expectedMappedParamNames, expectedPassingMechanisms, isRightAssociative = evaluationOrderReversed)
       verifyThisExpression(invocationInfo, "444 :: 2 :: el2 :: 0 :: someList")
-
-      // TODO generate and check the param -> arg mapping
     }
   }
 }
