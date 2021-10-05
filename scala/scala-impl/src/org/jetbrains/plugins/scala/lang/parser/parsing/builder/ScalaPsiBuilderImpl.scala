@@ -145,15 +145,6 @@ class ScalaPsiBuilderImpl(delegate: PsiBuilder, override val isScala3: Boolean) 
     case _ => true
   }
 
-  /**
-   * Note: if external highlighting in Scala3 is enabled parser errors are not shown
-   *
-   * @see [[org.jetbrains.plugins.scala.codeInsight.highlighting.ScalaHighlightErrorFilter]]
-   * @see [[org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode.showParserErrors]]
-   */
-  override def error(messageText: String): Unit =
-    super.error(messageText)
-
   private var indentationStack = List(IndentationWidth.initial)
 
   def isScala3IndentationBasedSyntaxEnabled: Boolean =

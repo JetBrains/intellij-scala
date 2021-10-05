@@ -16,8 +16,6 @@
 
         <highlightErrorFilter
                 implementation="org.jetbrains.plugins.scala.codeInsight.highlighting.ScalaDocHighlightErrorFilter"/>
-        <highlightErrorFilter
-                implementation="org.jetbrains.plugins.scala.codeInsight.highlighting.ScalaHighlightErrorFilter"/>
 
         <lang.quoteHandler language="Scala"
                            implementationClass="org.jetbrains.plugins.scala.codeInsight.editorActions.ScalaQuoteHandler"/>

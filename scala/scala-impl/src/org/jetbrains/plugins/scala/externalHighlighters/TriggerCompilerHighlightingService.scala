@@ -9,12 +9,13 @@ import com.intellij.openapi.fileEditor.{FileEditor, FileEditorManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.JavaProjectRootsUtil
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.psi.{PsiFile, PsiJavaFile, PsiManager}
+import com.intellij.psi.{PsiErrorElement, PsiFile, PsiJavaFile, PsiManager}
 import com.intellij.util.concurrency.AppExecutorUtil
 import org.jetbrains.annotations.TestOnly
 import org.jetbrains.plugins.scala.compiler.ScalaCompileServerSettings
 import org.jetbrains.plugins.scala.editor.DocumentExt
-import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiFileExt, ToNullSafe, inReadAction}
+import org.jetbrains.plugins.scala.extensions.{IterableOnceExt, ObjectExt, PsiElementExt, PsiFileExt, ToNullSafe, inReadAction}
+import org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingService.hasErrors
 import org.jetbrains.plugins.scala.externalHighlighters.compiler.DocumentCompiler
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.project.VirtualFileExt
@@ -33,7 +34,7 @@ final class TriggerCompilerHighlightingService(project: Project)
   private implicit val ec: ExecutionContext = ExecutionContext.fromExecutorService(threadPool)
 
   def triggerOnFileChange(psiFile: PsiFile, virtualFile: VirtualFile): Unit =
-    if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile))
+    if (isHighlightingEnabled && isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile))
       virtualFile.findDocument.foreach { document =>
         val scalaFile = psiFile.asOptionOf[ScalaFile]
         val debugReason = s"file content changed: ${psiFile.getName}"
@@ -56,7 +57,7 @@ final class TriggerCompilerHighlightingService(project: Project)
       for {
         virtualFile <- editor.getFile.nullSafe
         psiFile <- inReadAction(PsiManager.getInstance(project).findFile(virtualFile)).nullSafe
-        if isHighlightingEnabledFor(psiFile, virtualFile)
+        if isHighlightingEnabledFor(psiFile, virtualFile) && !hasErrors(psiFile)
         pathString <- virtualFile.getCanonicalPath.nullSafe
         document <- inReadAction(virtualFile.findDocument)
       } asyncAtomic {
@@ -174,4 +175,8 @@ object TriggerCompilerHighlightingService {
 
   def get(project: Project): TriggerCompilerHighlightingService =
     project.getService(classOf[TriggerCompilerHighlightingService])
+
+  private def hasErrors(psiFile: PsiFile): Boolean =
+    psiFile.elements.findByType[PsiErrorElement].isDefined
+
 }

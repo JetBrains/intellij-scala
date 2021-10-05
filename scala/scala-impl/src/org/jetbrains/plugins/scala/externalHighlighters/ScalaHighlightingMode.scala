@@ -61,11 +61,6 @@ object ScalaHighlightingMode {
   private def isShowErrorsFromCompilerEnabled(javaFile: PsiJavaFile): Boolean =
     showCompilerErrorsScala3(javaFile.getProject) && javaFile.isInScala3Module
 
-  def showParserErrors(file: PsiFile): Boolean = {
-    val shouldSkip = file.isInScala3Module && isShowErrorsFromCompilerEnabled(file)
-    !shouldSkip
-  }
-  
   private def nonNegativeDuration(key: String): FiniteDuration =
     Seq(Registry.get(key).asInteger, 0).max.millis
 
