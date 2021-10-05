@@ -20,7 +20,6 @@ class ScalaDefaultHighlightingSettingProvider extends DefaultHighlightingSetting
     else
       Option(PsiManager.getInstance(project).findFile(file)).filter(_.isInScala3Module)
         .collect {
-          case _: ScalaFile   => FileHighlightingSetting.SKIP_INSPECTION
           case _: PsiJavaFile => FileHighlightingSetting.SKIP_HIGHLIGHTING
         }
         .orNull
