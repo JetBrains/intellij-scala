@@ -88,6 +88,20 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
     }
   }
 
+  protected def verifyArgumentsInInvalidInvocation(invocationInfo: InvocationInfo, expectedArgCount: Int,
+                                                   expectedProperArgsInText: List[String]): Unit = {
+    invocationInfo.argListsInEvaluationOrder.size shouldBe 1
+    val args = invocationInfo.argListsInEvaluationOrder.head
+    val properArgs = invocationInfo.properArguments.flatten
+
+    args.size shouldBe expectedArgCount
+    args.count(_.kind == ThisArgument) shouldBe 1
+    convertArgsToText(properArgs) shouldBe expectedProperArgsInText
+
+    args.head.kind shouldBe ThisArgument
+    args.tail shouldBe properArgs
+  }
+
   protected def verifyThisExpression(invocationInfo: InvocationInfo, expectedExpressionInText: String): Unit = {
     val thisArgument = invocationInfo.thisArgument.get
     val thisExpression = extractExpressionFromArgument(thisArgument)

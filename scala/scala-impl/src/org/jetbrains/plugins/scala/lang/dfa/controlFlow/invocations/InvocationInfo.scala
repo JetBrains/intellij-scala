@@ -32,16 +32,16 @@ object InvocationInfo {
     val properArguments = buildArgumentsInEvaluationOrder(invocation.matchedParameters, invocation, isTupled)
     val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
 
-    InvocationInfo(target.map(_.element).map(InvokedElement), List(allArguments))
+    InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments))
   }
 
   def fromReferenceExpression(referenceExpression: ScReferenceExpression): InvocationInfo = {
-    val target = referenceExpression.bind().map(_.element)
+    val target = referenceExpression.bind()
 
     val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
     val properArguments = buildArgumentsInEvaluationOrder(referenceExpression.matchedParameters,
       referenceExpression, isTupled = false)
 
-    InvocationInfo(target.map(InvokedElement), List(thisArgument :: properArguments))
+    InvocationInfo(InvokedElement.fromTarget(target, Nil), List(thisArgument :: properArguments))
   }
 }

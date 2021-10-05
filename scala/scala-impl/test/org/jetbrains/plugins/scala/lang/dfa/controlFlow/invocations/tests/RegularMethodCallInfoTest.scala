@@ -119,7 +119,7 @@ class RegularMethodCallInfoTest extends InvocationInfoTestBase {
          |object TestObject {
          |
          |  def main(): Int = {
-         |  	val local = (x, y) => x + y
+         |  	val local = (x: Int, y: Int) => x + y
          |    ${markerStart}${invocationSyntax}${markerEnd}
          |  }
          |}

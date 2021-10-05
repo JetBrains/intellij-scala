@@ -61,7 +61,7 @@ object InvocationChainExtractor {
     val argumentsListsWithThis = insertThisArgToArgList(call, sortedMatchedParameters.head, thisArgument) +:
       sortedMatchedParameters.tail
 
-    val invocationInfo = InvocationInfo(target.map(_.element).map(InvokedElement), argumentsListsWithThis)
+    val invocationInfo = InvocationInfo(InvokedElement.fromTarget(target, call.applicationProblems), argumentsListsWithThis)
     invocationInfo :: collectInvocationsInfo(followingCalls)
   }
 
