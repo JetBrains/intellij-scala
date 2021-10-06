@@ -1,10 +1,11 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
 
-import com.intellij.psi.{PsiMethod, PsiParameter}
+import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvokedElement
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.ProperArgument
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
+import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 
 object ParamToArgMapping {
 
@@ -13,22 +14,22 @@ object ParamToArgMapping {
     val indexedArgs = properArguments.flatten.zipWithIndex
     val paramMappings = invokedElement.map { element =>
       element.psiElement match {
-        case function: ScFunction => function.parameters.map(getIndexOfMappingArgument(indexedArgs, _))
-        case synthetic: ScSyntheticFunction => synthetic.paramClauses.flatten.map(param => param.psiParam match {
-          case None => None
-          case Some(psiParam) => getIndexOfMappingArgument(indexedArgs, psiParam)
-        })
-        case psiMethod: PsiMethod => psiMethod.getParameterList.getParameters.map(getIndexOfMappingArgument(indexedArgs, _)).toList
+        case function: ScFunction => function.parameters
+          .map(param => getIndexOfMappingArgument(indexedArgs, _.psiParam.contains(param)))
+        case synthetic: ScSyntheticFunction => synthetic.paramClauses.flatten
+          .map(param => getIndexOfMappingArgument(indexedArgs, _ == param))
+        case psiMethod: PsiMethod => psiMethod.getParameterList.getParameters
+          .map(param => getIndexOfMappingArgument(indexedArgs, _.psiParam.contains(param))).toList
       }
     }
 
     paramMappings.map(_.toList).getOrElse(Nil)
   }
 
-  private def getIndexOfMappingArgument(indexedArgs: List[(Argument, Int)], parameter: PsiParameter): Option[Int] = {
+  private def getIndexOfMappingArgument(indexedArgs: List[(Argument, Int)], paramEquals: Parameter => Boolean): Option[Int] = {
     val matchingArgs = indexedArgs.filter {
       case (arg, _) => arg.kind match {
-        case ProperArgument(mapping) => mapping.psiParam.contains(parameter)
+        case ProperArgument(mapping) => paramEquals(mapping)
         case _ => false
       }
     }

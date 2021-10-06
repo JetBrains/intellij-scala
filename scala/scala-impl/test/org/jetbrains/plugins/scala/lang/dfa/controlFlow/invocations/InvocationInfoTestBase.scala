@@ -10,7 +10,6 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethod
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.assertTrue
 
-
 abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[InvocationInfo])
