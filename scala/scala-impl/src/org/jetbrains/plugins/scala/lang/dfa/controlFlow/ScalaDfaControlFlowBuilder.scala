@@ -20,8 +20,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
  *
  * '''Visitor:''' To generate a control flow representation for a PSI element (or other syntactic construct),
  * wrap this element in a proper [[Transformable]]
- * instance. Then pass it an instance of this builder by calling ''transformable.transform(builder)''.
- * After that, call ''builder.build()'' to finalize building and collect the result.
+ * instance. Then pass it an instance of this builder by calling ```transformable.transform(builder)```.
+ * After that, call ```builder.build()``` to finalize building and collect the result.
  *
  * @author Gerard Dróżdż
  */
@@ -32,7 +32,7 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
 
   /**
    * Finishes building of this control flow and returns its representation. It can be further
-   * analysed using its ''toString'' method (which prints it in standard IR format)
+   * analysed using its ```toString``` method (which prints it in standard IR format)
    * or modules like [[DataFlowInterpreter]].
    *
    * @return [[com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow]] representation
