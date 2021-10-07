@@ -4,27 +4,22 @@ package editor.importOptimizer
 
 import com.intellij.concurrency.JobLauncher
 import com.intellij.lang.{ImportOptimizer, LanguageImportStatements}
-import com.intellij.notification.{Notification, NotificationDisplayType, NotificationGroup, NotificationType}
-import com.intellij.openapi.actionSystem.{AnAction, AnActionEvent}
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.progress.{ProgressIndicator, ProgressManager}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.EmptyRunnable
 import com.intellij.psi._
-import com.intellij.psi.codeStyle.CodeStyleSettingsManager
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.util.containers.ContainerUtil
-import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.editor.ScalaEditorBundle
 import org.jetbrains.plugins.scala.editor.typedHandler.ScalaTypedHandler
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.{ScConstructorInvocation, ScReference, ScStableCodeReference}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScFor, ScMethodCall}
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportSelectorUsed, ImportUsed, ImportWildcardSelectorUsed}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.{ImportExprUsed, ImportUsed}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.{ScImportExpr, ScImportStmt}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
@@ -34,12 +29,11 @@ import org.jetbrains.plugins.scala.lang.psi.{ScImportsHolder, ScalaPsiUtil}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 import org.jetbrains.plugins.scala.project.ProjectPsiElementExt
-import org.jetbrains.plugins.scala.settings.ScalaApplicationSettings
 import org.jetbrains.plugins.scala.statistics.{FeatureKey, Stats}
 
 import java.util
 import java.util.concurrent.atomic.AtomicInteger
-import scala.annotation.{nowarn, tailrec}
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.jdk.CollectionConverters._
@@ -450,7 +444,7 @@ object ScalaImportOptimizer {
       }
     }
 
-    if (sortImports) notifyAboutNewImportLayout(buffer, firstPsi.getFile.getProject) {
+    if (sortImports) {
       sortImportInfos(buffer, settings)
     }
 
@@ -462,47 +456,6 @@ object ScalaImportOptimizer {
     updateRootPrefix(result)
 
     result.toSeq
-  }
-
-  // TODO Remove the import layout notification in 2021.1+
-  private def notifyAboutNewImportLayout(buffer: mutable.Buffer[ImportInfo], project: Project)(sort: => Unit): Unit = {
-    val hadJavaGroupAtTheTop = buffer.length > 1 && buffer.head.prefixQualifier.startsWith("java") && !buffer.last.prefixQualifier.startsWith("java")
-
-    sort
-
-    val settings = ScalaApplicationSettings.getInstance
-    val style = ScalaCodeStyleSettings.getInstance(project)
-
-    if (settings.SUGGEST_LEGACY_IMPORT_LAYOUT && style.getImportLayout.sameElements(ScalaCodeStyleSettings.DEFAULT_IMPORT_LAYOUT)) {
-
-      if (hadJavaGroupAtTheTop && !buffer.head.prefixQualifier.startsWith("java.")) {
-        val notification = {
-          @nowarn
-          val group = new NotificationGroup(ScalaEditorBundle.message("import.layout.group"), NotificationDisplayType.STICKY_BALLOON, true)
-          group.createNotification(ScalaEditorBundle.message("import.layout.updated.title"), ScalaEditorBundle.message("import.layout.updated.description"), NotificationType.INFORMATION)
-        }
-
-        def action(@Nls name: String)(f: () => Unit) = new AnAction(name) {
-          override def actionPerformed(e: AnActionEvent): Unit = f()
-        }
-
-        def hide(): Unit = Option(notification.getBalloon).foreach(_.hide())
-
-        notification.setCollapseDirection(Notification.CollapseActionsDirection.KEEP_LEFTMOST)
-
-        notification
-          .addAction(action(ScalaEditorBundle.message("import.optimizer.got.it"))(() => hide()))
-          .addAction(action(ScalaEditorBundle.message("import.optimizer.switch.to.legacy.scheme")){ () =>
-            style.setImportLayout(ScalaCodeStyleSettings.LEGACY_IMPORT_LAYOUT)
-            CodeStyleSettingsManager.getInstance(project).notifyCodeStyleSettingsChanged()
-            hide()
-          })
-
-        notification.notify(project)
-
-        settings.SUGGEST_LEGACY_IMPORT_LAYOUT = false
-      }
-    }
   }
 
   def updateRootPrefix(importInfos: mutable.Buffer[ImportInfo]): Unit = {
