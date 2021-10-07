@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.codeInsight.hints.methodChains
 
 import java.util
-
 import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+
 import javax.swing.JComponent
 import kotlin.Unit.{INSTANCE => kUnit}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.hints.ScalaHintsSettings
 import org.jetbrains.plugins.scala.codeInsight.implicits.ImplicitHints
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
@@ -16,7 +17,11 @@ import org.jetbrains.plugins.scala.extensions.StringExt
 
 import scala.jdk.CollectionConverters._
 
-class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(true, "Scala.ScalaMethodChainInlayHintsSettingsModel") {
+class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(
+  true,
+  "Scala.ScalaMethodChainInlayHintsSettingsModel",
+  ScalaLanguage.INSTANCE
+) {
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -118,4 +123,10 @@ class ScalaMethodChainInlayHintsSettingsModel(project: Project) extends InlayPro
     settings.reset()
     settingsPanel.reset()
   }
+
+  override def getDescription: String = null
+
+  override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
+
+  override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
 }

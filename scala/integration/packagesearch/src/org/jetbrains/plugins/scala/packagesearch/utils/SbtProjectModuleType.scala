@@ -16,7 +16,7 @@ object SbtProjectModuleType extends ProjectModuleType{
 
   override def defaultScope(project: Project): String = SbtDependencyCommon.defaultLibScope
 
-  override def scopes(project: Project): util.List[String] = {
+  override def userDefinedScopes(project: Project): util.List[String] = {
     SbtDependencyCommon.libScopes.split(",").toList.asJava
   }
 

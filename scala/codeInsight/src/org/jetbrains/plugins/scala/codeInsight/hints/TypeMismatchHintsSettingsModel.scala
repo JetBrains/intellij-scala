@@ -2,20 +2,25 @@ package org.jetbrains.plugins.scala.codeInsight.hints
 
 import java.awt.{BorderLayout, FlowLayout}
 import java.util
-
 import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import com.intellij.ui.components.labels.LinkLabel
+
 import javax.swing.{JComponent, JLabel, JPanel}
-import org.jetbrains.plugins.scala.DesktopUtils
+import org.jetbrains.plugins.scala.{DesktopUtils, ScalaLanguage}
 import org.jetbrains.plugins.scala.annotator.TypeMismatchHints
 import org.jetbrains.plugins.scala.codeInsight.ScalaCodeInsightBundle
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
-class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(true, "Scala.TypeMismatchHintsSettingsModel") {
+//noinspection UnstableApiUsage
+class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(
+  true,
+  "Scala.TypeMismatchHintsSettingsModel",
+  ScalaLanguage.INSTANCE
+) {
   object settings {
     private val global = ScalaProjectSettings.getInstance(project)
 
@@ -76,4 +81,10 @@ class TypeMismatchHintsSettingsModel(project: Project) extends InlayProviderSett
   override def reset(): Unit = {
     settings.reset()
   }
+
+  override def getDescription: String = null
+
+  override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
+
+  override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
 }

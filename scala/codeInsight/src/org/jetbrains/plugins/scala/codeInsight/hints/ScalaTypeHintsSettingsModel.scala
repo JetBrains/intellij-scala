@@ -1,15 +1,16 @@
 package org.jetbrains.plugins.scala.codeInsight.hints
 
 import java.util
-
 import com.intellij.codeInsight.hints.ImmediateConfigurable
 import com.intellij.codeInsight.hints.settings.InlayProviderSettingsModel
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.progress.DumbProgressIndicator
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
+
 import javax.swing.JComponent
 import kotlin.Unit.{INSTANCE => kUnit}
+import org.jetbrains.plugins.scala.ScalaLanguage
 import org.jetbrains.plugins.scala.codeInsight.implicits.{ImplicitHints, ImplicitHintsPass}
 import org.jetbrains.plugins.scala.codeInsight.{ScalaCodeInsightBundle, ScalaCodeInsightSettings, hints}
 import org.jetbrains.plugins.scala.extensions.StringExt
@@ -17,7 +18,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 import scala.jdk.CollectionConverters._
 
-class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(true, "Scala.ScalaTypeHintsSettingsModel") {
+//noinspection UnstableApiUsage
+class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSettingsModel(
+  true,
+  "Scala.ScalaTypeHintsSettingsModel",
+  ScalaLanguage.INSTANCE
+) {
   // have a temporary version of the settings, so apply/cancel mechanism works
   object settings {
     private val global = ScalaCodeInsightSettings.getInstance()
@@ -122,4 +128,10 @@ class ScalaTypeHintsSettingsModel(project: Project) extends InlayProviderSetting
   override def reset(): Unit = {
     settings.reset()
   }
+
+  override def getDescription: String = null
+
+  override def getCaseDescription(aCase: ImmediateConfigurable.Case): String = null
+
+  override def getCasePreview(aCase: ImmediateConfigurable.Case): String = null
 }
