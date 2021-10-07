@@ -107,20 +107,6 @@ abstract class AbstractTestRunConfiguration(
     else
       super.getModules
 
-  override def getSearchScope: GlobalSearchScope = {
-    val superScope = Option(super.getSearchScope)
-    val notBuildModulesScope = GlobalSearchScope.notScope(buildModulesScope(getProject))
-    superScope.foldLeft(notBuildModulesScope)(_.union(_))
-  }
-
-  private def buildModulesScope(project: Project): GlobalSearchScope = {
-    val buildModules = project.modules.filter(_.isBuildModule)
-    if (buildModules.nonEmpty)
-      GlobalSearchScope.union(buildModules.map(GlobalSearchScope.moduleScope).asJavaCollection)
-    else
-      GlobalSearchScope.EMPTY_SCOPE
-  }
-
   private def configurationScope: GlobalSearchScope =
     getModule match {
       case null   => projectScope(getProject)
