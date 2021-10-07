@@ -1360,7 +1360,7 @@
                          key="displayname.constant.conditions"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaConstantConditions"
-                         level="WARNING" enabledByDefault="true" language="Scala"/>
+                         level="WARNING" enabledByDefault="false" language="Scala"/>
 
         <!-- Collection inspections -->
         <!-- Size -->
