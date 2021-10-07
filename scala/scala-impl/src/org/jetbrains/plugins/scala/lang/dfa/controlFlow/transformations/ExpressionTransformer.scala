@@ -4,11 +4,14 @@ import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
+import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.framework.{ScalaStatementAnchor, ScalaUnreportedElementAnchor}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElementTransformer(expression) {
@@ -22,9 +25,14 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
     case literal: ScLiteral => transformLiteral(literal, builder)
     case _: ScUnitExpr => transformUnitExpression(builder)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
-    case reference: ScReferenceExpression => transformReferenceExpression(reference, builder)
+    case reference: ScReferenceExpression => if (isReferenceExpressionInvocation(reference))
+      transformInvocation(reference, builder) else transformReferenceExpression(reference, builder)
     case templateDefinition: ScTemplateDefinition => transformTemplateDefinition(templateDefinition, builder)
     case _ => throw TransformationFailedException(expression, "Unsupported expression.")
+  }
+
+  private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
+    expression.bind().map(_.element).exists(element => element.is[ScFunction] || element.is[PsiMethod])
   }
 
   private def transformBlock(block: ScBlockExpr, builder: ScalaDfaControlFlowBuilder): Unit = {
@@ -74,8 +82,6 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
   }
 
   private def transformReferenceExpression(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    // TODO check somehow if this reference expression is an invocation or not, if it is, handle it with InvocationTransformer
-
     // TODO add qualified expressions, currently only simple ones
     expression.getReference.bind().map(_.element) match {
       case Some(element) => // TODO extract later + try to fix types/anchor, if possible
@@ -85,8 +91,8 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
     }
   }
 
-  private def transformInvocation(invocation: MethodInvocation, builder: ScalaDfaControlFlowBuilder): Unit = {
-    new InvocationTransformer(invocation).transform(builder)
+  private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
+    new InvocationTransformer(invocationExpression).transform(builder)
   }
 
   private def transformTemplateDefinition(templateDefinition: ScTemplateDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {

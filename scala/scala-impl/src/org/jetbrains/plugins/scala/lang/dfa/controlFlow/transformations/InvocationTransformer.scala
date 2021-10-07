@@ -12,18 +12,19 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationI
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.utils.SpecialSupportUtils._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-class InvocationTransformer(val invocation: MethodInvocation) extends ExpressionTransformer(invocation) {
+class InvocationTransformer(val invocation: ScExpression) extends ExpressionTransformer(invocation) {
 
   override def toString: String = s"InvocationTransformer: $invocation"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
-    // TODO add reference expression invocations
     val invocationsInfo = invocation match {
       case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
-      case _ => List(InvocationInfo.fromMethodInvocation(invocation))
+      case methodInvocation: MethodInvocation => List(InvocationInfo.fromMethodInvocation(methodInvocation))
+      case referenceExpression: ScReferenceExpression => List(InvocationInfo.fromReferenceExpression(referenceExpression))
+      case _ => throw TransformationFailedException(expression, "Expression of this type cannot be transformed as an invocation.")
     }
 
     if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
@@ -133,7 +134,7 @@ class InvocationTransformer(val invocation: MethodInvocation) extends Expression
 
         val valueNeededToContinue = operation == LogicalOperation.And
         builder.pushInstruction(new ConditionalGotoInstruction(nextConditionOffset,
-          DfTypes.booleanValue(valueNeededToContinue), invocation.argumentExpressions.head))
+          DfTypes.booleanValue(valueNeededToContinue)))
         builder.pushInstruction(new PushValueInstruction(DfTypes.booleanValue(!valueNeededToContinue), anchor))
         builder.pushInstruction(new GotoInstruction(endOffset))
 
