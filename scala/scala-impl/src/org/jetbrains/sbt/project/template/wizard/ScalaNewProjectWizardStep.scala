@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.JavaUiBundle
@@ -106,3 +107,4 @@ final class ScalaNewProjectWizardStep(parentStep: NewProjectWizardLanguageStep)
     })
   }
 }
+*/

@@ -1,3 +1,4 @@
+/*
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.util.projectWizard.WizardContext
@@ -21,3 +22,4 @@ final class ScalaNewProjectWizard extends NewProjectWizard {
 object ScalaNewProjectWizard {
   private[wizard] val ScalaLanguageText = "Scala"
 }
+*/
