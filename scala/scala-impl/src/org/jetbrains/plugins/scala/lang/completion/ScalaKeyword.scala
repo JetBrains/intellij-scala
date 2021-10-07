@@ -49,4 +49,13 @@ object ScalaKeyword {
   val WITH = "with"
   val YIELD = "yield"
 
+  // Scala 3
+  val INFIX = "infix"
+  val INLINE = "inline"
+  val OPAQUE = "opaque"
+  val OPEN = "open"
+  val TRANSPARENT = "transparent"
+
+  val SOFT_MODIFIERS = Set(INFIX, INLINE, OPAQUE, OPEN, TRANSPARENT)
+
 }

@@ -7,6 +7,7 @@ package definitions
 import com.intellij.psi._
 import com.intellij.psi.filters.ElementFilter
 import org.jetbrains.annotations.NonNls
+import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
 import org.jetbrains.plugins.scala.lang.psi.api.base.patterns.ScCaseClause
@@ -20,7 +21,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 */
 class DefTypeFilter extends ElementFilter {
   override def isAcceptable(element: Object, context: PsiElement): Boolean = {
-    if (context.isInstanceOf[PsiComment]) return false
+    if (context.is[PsiComment]) return false
     val leaf = getLeafByOffset(context.getTextRange.getStartOffset, context)
     if (leaf != null) {
       val parent = leaf.getParent
@@ -36,6 +37,7 @@ class DefTypeFilter extends ElementFilter {
           if (awful(parent, leaf))
             return true
         case _ =>
+          return checkAfterSoftModifier(parent, leaf)
       }
     }
     false

@@ -2,8 +2,6 @@ package org.jetbrains.plugins.scala
 package lang
 package completion
 
-import java.util.regex.{Matcher, Pattern}
-
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
 import com.intellij.openapi.project.Project
@@ -12,7 +10,7 @@ import com.intellij.psi._
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi.search.GlobalSearchScope.notScope
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
-import org.jetbrains.plugins.scala.extensions.PsiElementExt
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.lexer._
 import org.jetbrains.plugins.scala.lang.parser._
 import org.jetbrains.plugins.scala.lang.psi.ScDeclarationSequenceHolder
@@ -26,6 +24,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
+
+import java.util.regex.{Matcher, Pattern}
 
 /**
 * User: Alexander Podkhalyuzin
@@ -86,7 +86,7 @@ object ScalaCompletionUtil {
   def getForAll(parent: PsiElement, leaf: PsiElement): (Boolean, Boolean) = {
     parent match {
       case _: ScalaFile =>
-        if (leaf.getNextSibling != null && leaf.getNextSibling.getNextSibling.isInstanceOf[ScPackaging] &&
+        if (leaf.getNextSibling != null && leaf.getNextSibling.getNextSibling.is[ScPackaging] &&
                 leaf.getNextSibling.getNextSibling.getText.indexOf('{') == -1)
           return (true, false)
       case _ =>
@@ -94,7 +94,7 @@ object ScalaCompletionUtil {
     parent match {
       case _: ScalaFile | _: ScPackaging =>
         var node = leaf.getPrevSibling
-        if (node.isInstanceOf[PsiWhiteSpace]) node = node.getPrevSibling
+        if (node.is[PsiWhiteSpace]) node = node.getPrevSibling
         node match {
           case x: PsiErrorElement =>
             val s = ErrMsg("wrong.top.statment.declaration")
@@ -124,7 +124,22 @@ object ScalaCompletionUtil {
       leaf.getPrevSibling.getPrevSibling.getNode.getElementType != kDEF) &&
       (parent.getPrevSibling == null || parent.getPrevSibling.getPrevSibling == null ||
         (parent.getPrevSibling.getPrevSibling.getNode.getElementType != ScalaElementType.MATCH_STMT ||
-          !parent.getPrevSibling.getPrevSibling.getLastChild.isInstanceOf[PsiErrorElement]))
+          !parent.getPrevSibling.getPrevSibling.getLastChild.is[PsiErrorElement]))
+  }
+
+  def checkAfterSoftModifier(parent: PsiElement, leaf: PsiElement): Boolean = {
+    if (!parent.is[ScReferenceExpression]) return false
+
+    def check(ref: ScReferenceExpression): Boolean =
+      ref.isInScala3File && ScalaKeyword.SOFT_MODIFIERS.contains(ref.refName) && awful(parent, leaf)
+
+    parent.getParent match {
+      // soft_modifier parent<caret>
+      case ScPostfixExpr(ref: ScReferenceExpression, `parent`) => check(ref)
+      // ... soft_modifier parent<caret>
+      case ScInfixExpr(_, ref: ScReferenceExpression, `parent`) => check(ref)
+      case _ => false
+    }
   }
 
   def checkClassWith(clazz: ScTypeDefinition, additionText: String, manager: PsiManager): Boolean = {
