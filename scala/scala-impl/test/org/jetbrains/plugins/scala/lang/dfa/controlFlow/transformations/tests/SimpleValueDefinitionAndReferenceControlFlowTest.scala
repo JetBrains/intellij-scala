@@ -84,7 +84,7 @@ class SimpleValueDefinitionAndReferenceControlFlowTest extends ScalaDfaControlFl
       |""".stripMargin
   }
 
-  def testReferencesToUnknownValues(): Unit = test(codeFromMethodBody(returnType = "Int") {
+  def testUnknownReferences(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 15
       |val y = x + `k` * anotherUnknown
@@ -96,9 +96,9 @@ class SimpleValueDefinitionAndReferenceControlFlowTest extends ScalaDfaControlFl
       |1: ASSIGN_TO x
       |2: POP
       |3: PUSH x
-      |4: PUSH_VAL TOP
-      |5: FLUSH_ALL_FIELDS
-      |6: NUMERIC_OP +
+      |4: POP
+      |5: PUSH_VAL TOP
+      |6: FLUSH_ALL_FIELDS
       |7: ASSIGN_TO y
       |8: POP
       |9: PUSH y

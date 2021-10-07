@@ -8,8 +8,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssig
 /**
  * [[Transformable]] wrapper for all Scala PSI elements.
  *
- * It is the most likely entrypoint for building control flow for any Scala code.
- * It passes responsibility further to specific transformers.
+ * It is the most likely entrypoint for building control flow for Scala code.
+ * It passes responsibility further to more specific transformers.
  */
 class ScalaPsiElementTransformer(val element: ScalaPsiElement) extends Transformable {
 

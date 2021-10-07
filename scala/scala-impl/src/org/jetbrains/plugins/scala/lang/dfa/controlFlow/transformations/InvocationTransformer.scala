@@ -7,40 +7,46 @@ import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.utils.SpecialSupportUtils._
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScMethodCall
-import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-
-// TODO modify to support MethodInvocation, ScMethodCall and ScReferenceExpression uniformly
-class InvocationTransformer(val invocation: ScMethodCall) extends ExpressionTransformer(invocation) {
+class InvocationTransformer(val invocation: MethodInvocation) extends ExpressionTransformer(invocation) {
 
   override def toString: String = s"InvocationTransformer: $invocation"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
-    val invocationsInfo = InvocationInfo.fromMethodCall(invocation)
+    // TODO add reference expression invocations
+    val invocationsInfo = invocation match {
+      case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
+      case _ => List(InvocationInfo.fromMethodInvocation(invocation))
+    }
 
-    if (!tryTransformWithSpecialSupport(invocationsInfo, builder)) {
-      // TODO still evaluate the arguments from InvocationInfo, even if the call is unresolved
-
-      // builder.pushUnknownCall(invocation, invocationInfo.argsInEvaluationOrder.size)
-      builder.pushUnknownValue()
+    if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
+      invocationsInfo.foreach(transformMethodInvocation(_, builder))
     }
   }
 
-  // TODO don't rely on the order of args in argsInEvaluationOrder but on the mapping from params to the index in this list
-  private def tryTransformWithSpecialSupport(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {
+  // TODO extract later to a special IR instruction + add special support
+  private def transformMethodInvocation(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
+    val args = invocationInfo.argListsInEvaluationOrder.flatten
+    args.foreach(_.content.transform(builder))
+    builder.popArguments(args.size)
+    builder.pushUnknownValue()
+    builder.pushInstruction(new FlushFieldsInstruction)
+  }
+
+  private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {
     if (invocationsInfo.size > 1) return false
     val invocationInfo = invocationsInfo.head
 
     invocationInfo.invokedElement match {
       case Some(InvokedElement(psiElement)) => psiElement match {
         case function: ScSyntheticFunction => tryTransformSyntheticFunctionSpecially(function, invocationInfo, builder)
-        case function: ScFunction => tryTransformNormalFunctionSpecially(function, invocationInfo, builder)
         case _ => false
       }
       case _ => false
@@ -49,15 +55,11 @@ class InvocationTransformer(val invocation: ScMethodCall) extends ExpressionTran
 
   private def tryTransformSyntheticFunctionSpecially(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                                      builder: ScalaDfaControlFlowBuilder): Boolean = {
-    if (tryTransformNumericOperations(function, invocationInfo, builder)) true
+    if (!verifyArgumentsForBinarySyntheticOperator(invocationInfo.argListsInEvaluationOrder)) false
+    else if (tryTransformNumericOperations(function, invocationInfo, builder)) true
     else if (tryTransformRelationalExpressions(function, invocationInfo, builder)) true
     else if (tryTransformLogicalOperations(function, invocationInfo, builder)) true
     else false
-  }
-
-  private def tryTransformNormalFunctionSpecially(function: ScFunction, invocationInfo: InvocationInfo,
-                                                  builder: ScalaDfaControlFlowBuilder): Boolean = {
-    false
   }
 
   private def matchesSignature(function: ScSyntheticFunction, functionName: String, returnedClass: String): Boolean = {
@@ -68,12 +70,23 @@ class InvocationTransformer(val invocation: ScMethodCall) extends ExpressionTran
     function.name == functionName && properReturnedClass
   }
 
+  private def verifyArgumentsForBinarySyntheticOperator(arguments: List[List[Argument]]): Boolean = {
+    arguments.size == 1 && arguments.head.size == 2
+  }
+
+  private def argumentsForBinarySyntheticOperator(invocationInfo: InvocationInfo): (Argument, Argument) = {
+    val args = invocationInfo.argListsInEvaluationOrder
+    assert(verifyArgumentsForBinarySyntheticOperator(args))
+    val List(leftArg, rightArg) = args.head
+    (leftArg, rightArg)
+  }
+
   private def tryTransformNumericOperations(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                             builder: ScalaDfaControlFlowBuilder): Boolean = {
     for (typeClass <- NumericTypeClasses; operationName <- NumericOperations.keys) {
       if (matchesSignature(function, operationName, typeClass)) {
         val operation = NumericOperations(operationName)
-        val List(leftArg, rightArg, _*) = invocationInfo.argListsInEvaluationOrder.head
+        val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
         leftArg.content.transform(builder)
         // TODO check implicit conversions etc.
         // TODO check division by zero
@@ -88,11 +101,11 @@ class InvocationTransformer(val invocation: ScMethodCall) extends ExpressionTran
 
   private def tryTransformRelationalExpressions(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                                 builder: ScalaDfaControlFlowBuilder): Boolean = {
-    for (typeClass <- NumericTypeClasses; operationName <- RelationalOperations.keys) {
-      if (matchesSignature(function, operationName, typeClass)) {
+    for (operationName <- RelationalOperations.keys) {
+      if (matchesSignature(function, operationName, BooleanTypeClass)) {
         val operation = RelationalOperations(operationName)
         val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
-        val List(leftArg, rightArg, _*) = invocationInfo.argListsInEvaluationOrder.head
+        val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
         leftArg.content.transform(builder)
         // TODO check implicit conversions etc.
         // TODO check division by zero
@@ -110,7 +123,7 @@ class InvocationTransformer(val invocation: ScMethodCall) extends ExpressionTran
     for (operationName <- LogicalOperations.keys) {
       if (matchesSignature(function, operationName, BooleanTypeClass)) {
         val operation = LogicalOperations(operationName)
-        val List(leftArg, rightArg, _*) = invocationInfo.argListsInEvaluationOrder.head
+        val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
 
         val anchor = ScalaStatementAnchor(invocation)
         val endOffset = new DeferredOffset

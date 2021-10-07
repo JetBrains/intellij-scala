@@ -18,11 +18,11 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = expression match {
     case block: ScBlockExpr => transformBlock(block, builder)
     case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised, builder)
+    case invocation: MethodInvocation => transformInvocation(invocation, builder)
     case literal: ScLiteral => transformLiteral(literal, builder)
     case _: ScUnitExpr => transformUnitExpression(builder)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => transformReferenceExpression(reference, builder)
-    case methodCall: ScMethodCall => transformMethodCall(methodCall, builder)
     case templateDefinition: ScTemplateDefinition => transformTemplateDefinition(templateDefinition, builder)
     case _ => throw TransformationFailedException(expression, "Unsupported expression.")
   }
@@ -85,8 +85,8 @@ class ExpressionTransformer(val expression: ScExpression) extends ScalaPsiElemen
     }
   }
 
-  private def transformMethodCall(methodCall: ScMethodCall, builder: ScalaDfaControlFlowBuilder): Unit = {
-    new InvocationTransformer(methodCall).transform(builder)
+  private def transformInvocation(invocation: MethodInvocation, builder: ScalaDfaControlFlowBuilder): Unit = {
+    new InvocationTransformer(invocation).transform(builder)
   }
 
   private def transformTemplateDefinition(templateDefinition: ScTemplateDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
