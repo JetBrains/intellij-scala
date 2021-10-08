@@ -151,14 +151,7 @@ object SbtExternalSystemManager {
       throw new ExternalSystemException(SbtBundle.message("sbt.import.noCustomJvmFound"))
     }
 
-    // workaround for https://youtrack.jetbrains.com/issue/IDEA-188247
-    // TODO remove when fix is in platform (2018.2 at latest)
-    if (realExe.isFile) realExe
-    else {
-      val parent = realExe.getParentFile
-      val javaExe = if (SystemInfo.isWindows) "java.exe" else "java"
-      parent / javaExe
-    }
+    realExe
   }
 
   private def getAndroidEnvironmentVariables(projectJdkName: Option[String]): Map[String, String] =
