@@ -78,11 +78,7 @@ final class SbtFileImpl private[language](provider: FileViewProvider)
         }
       } yield module
 
-      moduleByUri.orElse {
-        // TODO remove in 2018.3+
-        // this is the old way of finding a build module which breaks if the way the module name is assigned changes
-        Option(manager.findModuleByName(module.getName + Sbt.BuildModuleSuffix))
-      }.fold(DefinitionModule(module): TargetModule) { module =>
+      moduleByUri.fold(DefinitionModule(module): TargetModule) { module =>
         SbtModuleWithScope(module, module.getModuleWithDependenciesAndLibrariesScope(false))
       }
   }
