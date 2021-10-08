@@ -122,7 +122,6 @@ public class ScalaProjectSettings implements PersistentStateComponent<ScalaProje
 
   // This is only needed cause previously collection type setting was integer value
   // now it is a enum, but we want to migrate old integers to enums
-  // TODO: remove somewhere in 2020.2/3 when most of the users will install new idea (and migrate the settings)
   public static class ScalaCollectionHighlightingLevelConverter extends Converter<ScalaCollectionHighlightingLevel> {
     @Nullable
     @Override
