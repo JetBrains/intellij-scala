@@ -1,10 +1,6 @@
 package org.jetbrains.jps.incremental.scala
 package local
 
-import java.io.File
-import java.net.URLClassLoader
-
-import com.intellij.openapi.diagnostic.{Logger => JpsLogger}
 import org.jetbrains.jps.incremental.scala.local.CompilerFactoryImpl._
 import org.jetbrains.plugins.scala.compiler.IncrementalityType
 import org.jetbrains.plugins.scala.compiler.data.{CompilerData, CompilerJars, SbtData}
@@ -14,6 +10,9 @@ import sbt.internal.inc.javac.JavaTools
 import sbt.io.Path
 import sbt.util.Logger
 import xsbti.compile.{ScalaInstance => _, _}
+
+import java.io.File
+import java.net.URLClassLoader
 
 /**
  * @author Pavel Fatin
@@ -28,7 +27,16 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
       case IncrementalityType.SBT =>
         val javac = {
           val scala = getScalaInstance(compilerData.compilerJars)
-            .getOrElse(new ScalaInstance("stub", null, null, Array.empty[File], new File(""), Array.empty[File], None))
+            .getOrElse(new ScalaInstance(
+              version = "stub",
+              loader = null,
+              loaderCompilerOnly = null,
+              loaderLibraryOnly = null,
+              libraryJars = Array.empty[File],
+              compilerJars = Array.empty[File],
+              allJars = Array.empty[File],
+              explicitActual = None)
+            )
           val classpathOptions = ClasspathOptionsUtil.javac(false)
           JavaTools.directOrFork(scala, classpathOptions, compilerData.javaHome.map(_.toPath))
         }
@@ -69,7 +77,7 @@ class CompilerFactoryImpl(sbtData: SbtData) extends CompilerFactory {
 }
 
 object CompilerFactoryImpl {
-  private val Log: JpsLogger = JpsLogger.getInstance(CompilerFactoryImpl.getClass.getName)
+
   private val scalaInstanceCache = new Cache[CompilerJars, ScalaInstance](3)
 
   private var classLoadersMap = Map[Seq[File], ClassLoader]()
@@ -107,18 +115,20 @@ object CompilerFactoryImpl {
     }
 
     val classLoader = getOrCreateClassLoader(jars.allJars)
-    val loaderLibraryOnly = getOrCreateClassLoader(jars.libraries)
+    val loaderCompilerOnly = getOrCreateClassLoader(jars.libraryJars ++ jars.compilerJars)
+    val loaderLibraryOnly = getOrCreateClassLoader(jars.libraryJars)
 
     val version = compilerVersion(classLoader)
 
     new ScalaInstance(
-      version.getOrElse("unknown"),
-      classLoader,
-      loaderLibraryOnly,
-      jars.libraries.toArray,
-      jars.compiler,
-      jars.allJars.toArray,
-      version
+      version = version.getOrElse("unknown"),
+      loader = classLoader,
+      loaderCompilerOnly,
+      loaderLibraryOnly = loaderLibraryOnly,
+      libraryJars = jars.libraryJars.toArray,
+      compilerJars = jars.compilerJars.toArray,
+      allJars = jars.allJars.toArray,
+      explicitActual = version
     )
   }
 

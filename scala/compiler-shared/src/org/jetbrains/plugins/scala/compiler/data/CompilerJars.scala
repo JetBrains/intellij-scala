@@ -5,15 +5,20 @@ import org.jetbrains.jps.incremental.scala.containsScala3
 import java.io.File
 
 /**
- * @author Pavel Fatin
+ * @param libraryJars  scala-library.jar, for scala3 projects also contains scala3-library_3.jar
+ * @param compilerJars jar files required to instantiate scala compiler '''NOTE: doesn't include library files'''<br>
+ *                     (TODO: note it currently contains redundant files SCL-19086)
+ * @param compilerJar  scala-compiler or scala3-compiler_3 jar
+ * @see sbt.internal.inc.ScalaInstance<br>
+ *      https://github.com/sbt/zinc/pull/960
  */
-case class CompilerJars(libraries: Seq[File],
-                        compiler: File,
-                        extra: Seq[File]) {
+case class CompilerJars(libraryJars: Seq[File],
+                        compilerJars: Seq[File],
+                        compilerJar: File) {
 
-  def hasScala3: Boolean =
-    containsScala3(extra)
+  lazy val hasScala3: Boolean =
+    containsScala3(allJars)
 
   def allJars: Seq[File] =
-    libraries ++ extra :+ compiler
+    libraryJars ++ compilerJars
 }

@@ -107,8 +107,8 @@ object CompilerDataFactory
   //noinspection SameParameterValue
   private def hasVersions(modules: Set[JpsModule], versions: String*) =
     modules.exists {
-      compilerJarsIn(_).forall {
-        case CompilerJars(_, compiler, _) => compilerVersionIn(compiler, versions: _*)
+      compilerJarsIn(_).forall { cj =>
+        compilerVersionIn(cj.compilerJar, versions: _*)
       }
     }
 
@@ -177,15 +177,16 @@ object CompilerDataFactory
       options.add("-nowarn")
     }
 
-    if (!compilerOptions.ADDITIONAL_OPTIONS_STRING.isEmpty) {
+    if (compilerOptions.ADDITIONAL_OPTIONS_STRING.nonEmpty) {
       // TODO extract VM options
       options.addAll(compilerOptions.ADDITIONAL_OPTIONS_STRING.split("\\s+").toSeq.asJava)
     }
   }
 
-  private def compilerJarsIn(module: JpsModule): Option[CompilerJars] =
-    SettingsManager.getScalaSdk(module)
-      .flatMap(compilerJarsInSdk(_).toOption)
+  private def compilerJarsIn(module: JpsModule): Option[CompilerJars] = {
+    val sdk = SettingsManager.getScalaSdk(module)
+    sdk.flatMap(compilerJarsInSdk(_).toOption)
+  }
 
   private def compilerJarsInSdk(sdk: JpsLibrary): Either[CompilerJarsResolveError, CompilerJars] = {
     val files = compilerClasspath(sdk)
