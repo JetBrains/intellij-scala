@@ -48,8 +48,7 @@ object ScTypedExpressionAnnotator extends ElementAnnotator[ScTypedExpression] {
         }
         val message = ScalaBundle.message("cannot.upcast.type.to.other.type", wideActual.presentableText, expected.presentableText)
         ranges.foreach { range =>
-          val annotation = holder.createErrorAnnotation(range, message)
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
+          holder.createErrorAnnotation(range, message, ReportHighlightingErrorQuickFix)
         }
       }
     }

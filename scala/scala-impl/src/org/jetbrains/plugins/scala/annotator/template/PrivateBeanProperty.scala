@@ -3,7 +3,7 @@ package annotator
 package template
 
 import com.intellij.psi.util.PsiTreeUtil
-import org.jetbrains.plugins.scala.ScalaBundle
+import org.jetbrains.plugins.scala.annotator.quickfix.ModifierQuickFix.{MakeProtected, MakePublic}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScMember
@@ -23,13 +23,13 @@ object PrivateBeanProperty extends AnnotatorPart[ScAnnotation] {
           for {
             privateModifier <- property.getModifierList.accessModifier
             if privateModifier.isPrivate
-
-            errorAnnotation = holder.createErrorAnnotation(privateModifier,
-              ScalaBundle.message("annotator.error.bean.property.should.not.be.private"))
           } {
-            import quickfix.ModifierQuickFix._
-            errorAnnotation.registerFix(new MakePublic(property))
-            errorAnnotation.registerFix(new MakeProtected(property))
+            val fixes = Seq(new MakePublic(property), new MakeProtected(property))
+            holder.createErrorAnnotation(
+              privateModifier,
+              ScalaBundle.message("annotator.error.bean.property.should.not.be.private"),
+              fixes
+            )
           }
         case _ =>
       }

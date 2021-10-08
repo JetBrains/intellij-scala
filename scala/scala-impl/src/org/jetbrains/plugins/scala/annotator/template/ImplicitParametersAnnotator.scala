@@ -2,9 +2,13 @@ package org.jetbrains.plugins.scala
 package annotator
 package template
 
+import com.intellij.lang.annotation.HighlightSeverity
+import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.annotator.hints
+import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitInstanceFix
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector.probableArgumentsFor
@@ -39,14 +43,16 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
       case params =>
         val presentableTypes = params
           .map(_.implicitSearchState.map(_.presentableTypeText).getOrElse(ScalaBundle.message("unknown.type")))
-
-        val annotation = holder.createErrorAnnotation(lastLineRange(element), message(presentableTypes))
-
         val notFound = parameters.filter(_.isNotFoundImplicitParameter)
-        annotation.registerFix(ImportImplicitInstanceFix(() => notFound, element))
 
-        //make annotation invisible in editor in favor of inlay hint
-        adjustTextAttributesOf(annotation)
+        // TODO Can we detect a "current" color scheme in a "current" editor somehow?
+        implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
+
+        holder.newAnnotation(HighlightSeverity.ERROR, message(presentableTypes))
+          .range(lastLineRange(element))
+          .withFix(ImportImplicitInstanceFix(() => notFound, element))
+          .enforcedTextAttributes(onlyErrorStripeAttributes)  //make annotation invisible in editor in favor of inlay hint
+          .create()
     }
 
 
@@ -66,14 +72,6 @@ object ImplicitParametersAnnotator extends AnnotatorPart[ImplicitArgumentsOwner]
 
     if (lastLineBreak >= 0) range.intersection(range.shiftRight(lastLineBreak + 1))
     else range
-  }
-
-  private def adjustTextAttributesOf(annotation: ScalaAnnotation): Unit = {
-    val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
-    val attributes = new TextAttributes()
-    attributes.setEffectType(null)
-    attributes.setErrorStripeColor(errorStripeColor)
-    annotation.setEnforcedTextAttributes(attributes)
   }
 
   def message(types: Seq[String]): String =

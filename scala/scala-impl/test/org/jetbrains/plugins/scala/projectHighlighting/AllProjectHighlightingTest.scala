@@ -11,7 +11,7 @@ import com.intellij.psi.impl.PsiManagerEx
 import com.intellij.psi.search.FileTypeIndex
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
 import com.intellij.testFramework.fixtures.CodeInsightTestFixture
-import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, ScalaAnnotation, ScalaAnnotator}
+import org.jetbrains.plugins.scala.annotator.{AnnotatorHolderMock, Message, ScalaAnnotator}
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.finder.SourceFilterScope
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaFile, ScalaPsiElement}
@@ -108,14 +108,12 @@ object AllProjectHighlightingTest {
     }
 
     val fileName = relPath.getOrElse(relativePathOf(scalaFile))
-    val mock = new AnnotatorHolderMock(scalaFile){
-      override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation = {
-        reporter.reportError(fileName, range, message)
-        super.createErrorAnnotation(range, message)
-      }
-
-      override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation = {
-        createErrorAnnotation(elt.getTextRange, message)
+    val mock = new AnnotatorHolderMock(scalaFile) {
+      override def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Option[Message] = {
+        if (severity == HighlightSeverity.ERROR) {
+          reporter.reportError(fileName, range, message)
+        }
+        super.createMockAnnotation(severity, range, message)
       }
     }
 

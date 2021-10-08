@@ -14,8 +14,7 @@ object ScReturnAnnotator extends ElementAnnotator[ScReturn] {
 
     val function = element.method.getOrElse {
       val error      = ScalaBundle.message("return.outside.method.definition")
-      val annotation = holder.createErrorAnnotation(element.keyword, error)
-      annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+      holder.createErrorAnnotation(element.keyword, error, ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
       return
     }
 

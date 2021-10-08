@@ -155,12 +155,14 @@ trait OverridingAnnotator {
     val memberNameId = namedElement.nameId
     if (superSignaturesWithSelfType.isEmpty) {
       if (member.hasModifierProperty(OVERRIDE)) {
-        val annotation = holder.createErrorAnnotation(
+        holder.createErrorAnnotation(
           memberNameId,
-          ScalaBundle.message("member.overrides.nothing", memberType, namedElement.name)
+          ScalaBundle.message("member.overrides.nothing", memberType, namedElement.name),
+          Seq(
+            new Remove(member, memberNameId, Override),
+            new PullUpQuickFix(member, namedElement.name)
+          )
         )
-        annotation.registerFix(new Remove(member, memberNameId, Override))
-        annotation.registerFix(new PullUpQuickFix(member, namedElement.name))
       }
     } else {
       val isMismatchedExtension =
@@ -187,11 +189,6 @@ trait OverridingAnnotator {
         val hasConcreteSuper = superSignatures.exists(isConcrete)
 
         if (hasConcreteSuper && !member.hasModifierProperty(OVERRIDE)) {
-          val annotation = holder.createErrorAnnotation(
-            memberNameId,
-            ScalaBundle.message("member.needs.override.modifier", memberType, namedElement.name)
-          )
-
           val maybeQuickFix: Option[Add] = namedElement match {
             case param: ScClassParameter if param.isCaseClassVal && !(param.isVal || param.isVar) =>
               superSignaturesWithSelfType.headOption.collect {
@@ -213,7 +210,12 @@ trait OverridingAnnotator {
               }
             case _ => Some(new Add(member, memberNameId, Override))
           }
-          maybeQuickFix.foreach(annotation.registerFix)
+
+          holder.createErrorAnnotation(
+            memberNameId,
+            ScalaBundle.message("member.needs.override.modifier", memberType, namedElement.name),
+            maybeQuickFix
+          )
         }
         //fix for SCL-7831
         var overridesFinal = false

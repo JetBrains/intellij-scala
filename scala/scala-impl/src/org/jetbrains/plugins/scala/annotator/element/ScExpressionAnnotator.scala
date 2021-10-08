@@ -2,9 +2,11 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiDocumentManager
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{annotationWithoutHighlighting, shouldIgnoreTypeMismatchIn, smartCheckConformance}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{shouldIgnoreTypeMismatchIn, smartCheckConformance}
 import org.jetbrains.plugins.scala.annotator.quickfix.{AddBreakoutQuickFix, ChangeTypeFix, WrapInOptionQuickFix}
 import org.jetbrains.plugins.scala.extensions.{&&, _}
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
@@ -51,15 +53,28 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
         case it: ScIf if it.thenExpression.nonEmpty && it.elseExpression.isEmpty &&
           typeAware && it.expectedType().exists(et => it.`type`().exists(!_.conforms(et))) =>
           val offset = it.getTextOffset + it.getTextLength
-          holder.createErrorAnnotation(TextRange.create(offset, offset), ScalaBundle.message("else.expected"))
-            .setAfterEndOfLine(charAt(offset).contains('\n'))
+
+          val builder =
+            holder.newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("else.expected"))
+              .range(TextRange.create(offset, offset))
+
+          if (charAt(offset).contains('\n')) {
+            builder.afterEndOfLine
+          }
+          builder.create()
 
         // Highlight empty case clauses with non-Unit expected type as incomplete rather than type mismatch, SCL-19447
         case block: ScBlock if block.getParent.is[ScCaseClause] && block.exprs.isEmpty &&
           typeAware && block.expectedType().exists(et => block.`type`().exists(!_.conforms(et))) =>
-          holder.createErrorAnnotation(block, ScalaBundle.message("expression.expected"))
-            .setAfterEndOfLine(charAt(block.getTextOffset + block.getTextLength).contains('\n'))
 
+          val builder =
+            holder.newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("expression.expected"))
+              .range(block)
+
+          if (charAt(block.getTextOffset + block.getTextLength).contains('\n')) {
+            builder.afterEndOfLine
+          }
+          builder.create()
         case _ => checkExpressionType(element, typeAware)
       }
     }
@@ -163,56 +178,59 @@ object ScExpressionAnnotator extends ElementAnnotator[ScExpression] {
               if (shouldIgnoreTypeMismatchIn(element, fromFunctionLiteral)) {
                 return
               }
-              val annotation = {
-                val target = element match {
-                  // TODO fine-grained ranges
-                  // When present, highlight type ascription, not expression, SCL-15544
-                  case typedExpression: ScTypedExpression =>
-                    (typedExpression.typeElement, typedExpression.expr.getTypeAfterImplicitConversion().tr) match {
-                      // Don't show additional type mismatch when there's an error in type ascription (handled in ScTypedExpressionAnnotator), SCL-15544
-                      case (Some(typeElement), Right(actualType)) if !actualType.conforms(typeElement.calcType) => return
-                      case _ =>
-                    }
-                    typedExpression.typeElement.getOrElse(element)
-                  case _ => element
-                }
-
-                // Don't show type mismatch when the expression is of a singleton type that has an apply method, while a non-singleton type is expected, SCL-17669
-                tp match {
-                  case t: DesignatorOwner if t.isSingleton => () // Expected type is a singleton type
-                  case _ => exprType match {
-                    case Right(t: DesignatorOwner) if t.isSingleton =>
-                      t.element.asOptionOf[ScTypeDefinition].flatMap(_.methodsByName("apply").headOption).map(_.method) match {
-                        case Some(method: ScFunctionDefinition) =>
-                          val missingParameters = method.parameters.map(p => p.getName + ": " + p.`type`().getOrNothing.presentableText(target)).mkString(", ")
-                          holder.createErrorAnnotation(target, ScalaBundle.message("annotator.error.unspecified.value.parameters", missingParameters))
-                          return
-                        case None => () // The type has no apply method
-                        case _ => ???
-                      }
-                    case _ => () // The expression is not of a singleton type
-                  }
-                }
-
-                TypeMismatchError.register(target, tp, exprType.getOrNothing, blockLevel = 2, canBeHint = !element.is[ScTypedExpression]) { (expected, actual) =>
-                  ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
-                }
+              var fixes: Seq[(IntentionAction, TextRange)] = Seq.empty
+              def addFix(fix: IntentionAction, range: TextRange = element.getTextRange): Unit = {
+                fixes :+= (fix, element.getTextRange)
               }
+
               if (WrapInOptionQuickFix.isAvailable(element, expectedType, exprType)) {
-                val wrapInOptionFix = new WrapInOptionQuickFix(element, expectedType, exprType)
-                annotation.registerFix(wrapInOptionFix)
+                addFix(new WrapInOptionQuickFix(element, expectedType, exprType))
               }
               if (AddBreakoutQuickFix.isAvailable(element)) {
-                annotation.registerFix(new AddBreakoutQuickFix(element))
+                addFix(new AddBreakoutQuickFix(element))
               }
               typeElement match {
                 case Some(te) if te.getContainingFile == element.getContainingFile =>
-                  val fix = new ChangeTypeFix(te, exprType.getOrNothing)
-                  annotation.registerFix(fix)
-                  val teAnnotation = annotationWithoutHighlighting(te)
-                  teAnnotation.registerFix(fix)
+                  val changeTypeFix = new ChangeTypeFix(te, exprType.getOrNothing)
+                  addFix(changeTypeFix)
+                  addFix(changeTypeFix, te.getTextRange)
                 case _ =>
               }
+              val target = element match {
+                // TODO fine-grained ranges
+                // When present, highlight type ascription, not expression, SCL-15544
+                case typedExpression: ScTypedExpression =>
+                  (typedExpression.typeElement, typedExpression.expr.getTypeAfterImplicitConversion().tr) match {
+                    // Don't show additional type mismatch when there's an error in type ascription (handled in ScTypedExpressionAnnotator), SCL-15544
+                    case (Some(typeElement), Right(actualType)) if !actualType.conforms(typeElement.calcType) => return
+                    case _ =>
+                  }
+                  typedExpression.typeElement.getOrElse(element)
+                case _ => element
+              }
+
+              // Don't show type mismatch when the expression is of a singleton type that has an apply method, while a non-singleton type is expected, SCL-17669
+              tp match {
+                case t: DesignatorOwner if t.isSingleton => () // Expected type is a singleton type
+                case _ => exprType match {
+                  case Right(t: DesignatorOwner) if t.isSingleton =>
+                    t.element.asOptionOf[ScTypeDefinition].flatMap(_.methodsByName("apply").headOption).map(_.method) match {
+                      case Some(method: ScFunctionDefinition) =>
+                        val missingParameters = method.parameters.map(p => p.getName + ": " + p.`type`().getOrNothing.presentableText(target)).mkString(", ")
+                        holder.createErrorAnnotation(target, ScalaBundle.message("annotator.error.unspecified.value.parameters", missingParameters))
+                        return
+                      case None => () // The type has no apply method
+                      case _ => ???
+                    }
+                  case _ => () // The expression is not of a singleton type
+                }
+              }
+
+              TypeMismatchError.register(target, tp, exprType.getOrNothing,
+                blockLevel = 2, canBeHint = !element.is[ScTypedExpression], fixes) { (expected, actual) =>
+                ScalaBundle.message("expr.type.does.not.conform.expected.type", actual, expected)
+              }
+
             }
           }
         case _ => //do nothing

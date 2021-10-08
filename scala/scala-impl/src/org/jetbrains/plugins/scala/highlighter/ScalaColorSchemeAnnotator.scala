@@ -1,7 +1,8 @@
 package org.jetbrains.plugins.scala
 package highlighter
 
-import com.intellij.lang.annotation.{AnnotationHolder, Annotator}
+import com.intellij.lang.annotation.{AnnotationHolder, Annotator, HighlightSeverity}
+import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.editor.colors.TextAttributesKey
 import com.intellij.psi._
 import org.jetbrains.annotations.Nls
@@ -35,7 +36,7 @@ class ScalaColorSchemeAnnotator extends Annotator {
   import ScalaColorSchemeAnnotator._
 
   override def annotate(element: PsiElement, holder: AnnotationHolder): Unit = {
-    highlightElement(element, new ScalaAnnotationHolderAdapter(holder))
+    highlightElement(element)(new ScalaAnnotationHolderAdapter(holder))
   }
 }
 
@@ -56,15 +57,121 @@ object ScalaColorSchemeAnnotator {
     }
   }
 
-  def highlightReferenceElement(refElement: ScReference, holder: ScalaAnnotationHolder): Unit = {
-    implicit val project: ProjectContext = refElement.projectContext
+  def highlightReferenceElement(refElement: ScReference)(implicit holder: ScalaAnnotationHolder): Unit = {
+    annotateCollectionType(refElement)
 
+    val project: ProjectContext = refElement.projectContext
+
+    if (refElement.parentOfType(classOf[ScConstructorInvocation], strict = false)
+      .exists(_.getParent.is[ScAnnotationExpr])) return
+
+    val resolvedElement = refElement.resolve()
+
+    val QualNameToType = project.stdTypes.QualNameToType
+
+    val attributes = resolvedElement match {
+      case c: PsiClass if QualNameToType.contains(c.qualifiedName) => //this is td, it's important!
+        DefaultHighlighter.PREDEF
+      case x: ScClass if x.getModifierList.isAbstract =>
+        DefaultHighlighter.ABSTRACT_CLASS
+      case _: ScTypeParam =>
+        DefaultHighlighter.TYPEPARAM
+      case x: ScTypeAlias =>
+        DefaultHighlighter.TYPE_ALIAS
+      case _: ScClass if referenceIsToCompanionObjectOfClass(refElement) =>
+        DefaultHighlighter.OBJECT
+      case _: ScClass =>
+        DefaultHighlighter.CLASS
+      case _: ScObject =>
+        DefaultHighlighter.OBJECT
+      case _: ScTrait =>
+        DefaultHighlighter.TRAIT
+      case x: PsiClass if x.isInterface =>
+        DefaultHighlighter.TRAIT
+      case x: PsiClass if x.getModifierList != null && x.getModifierList.hasModifierProperty("abstract") =>
+        DefaultHighlighter.ABSTRACT_CLASS
+      case _: PsiClass if refElement.is[ScStableCodeReference] =>
+        DefaultHighlighter.CLASS
+      case _: PsiClass if refElement.is[ScReferenceExpression] =>
+        DefaultHighlighter.OBJECT
+      case x: ScBindingPattern =>
+        val parent = x.nameContext
+        parent match {
+          case r@(_: ScValue | _: ScVariable) =>
+            getParentByStub(parent) match {
+              case _: ScTemplateBody | _: ScEarlyDefinitions =>
+                r match {
+                  case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                    DefaultHighlighter.LAZY
+                  case v: ScValue if isHighlightableScalaTestKeyword(v) =>
+                    DefaultHighlighter.SCALATEST_KEYWORD
+                  case _: ScValue => DefaultHighlighter.VALUES
+                  case _: ScVariable => DefaultHighlighter.VARIABLES
+                  case _ => DefaultLanguageHighlighterColors.IDENTIFIER
+                }
+              case _ =>
+                r match {
+                  case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
+                    DefaultHighlighter.LOCAL_LAZY
+                  case _: ScValue => DefaultHighlighter.LOCAL_VALUES
+                  case _: ScVariable => DefaultHighlighter.LOCAL_VARIABLES
+                  case _ => DefaultLanguageHighlighterColors.IDENTIFIER
+                }
+            }
+          case _: ScCaseClause =>
+            DefaultHighlighter.PATTERN
+          case _: ScGenerator | _: ScForBinding =>
+            DefaultHighlighter.GENERATOR
+          case _ => DefaultLanguageHighlighterColors.IDENTIFIER
+        }
+      case x: PsiField =>
+        if (!x.hasModifierProperty("final")) DefaultHighlighter.VARIABLES
+        else DefaultHighlighter.VALUES
+      case x: ScParameter if x.isAnonymousParameter => DefaultHighlighter.ANONYMOUS_PARAMETER
+      case _: ScParameter => DefaultHighlighter.PARAMETER
+      case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) =>
+        if (isHighlightableScalaTestKeyword(x.asInstanceOf[ScFunction])) {
+          DefaultHighlighter.SCALATEST_KEYWORD
+        } else {
+          val fun = x.asInstanceOf[ScFunction]
+          val clazz = fun.containingClass
+          clazz match {
+            case o: ScObject if o.syntheticMethods.contains(fun) =>
+              DefaultHighlighter.OBJECT_METHOD_CALL
+            case _ =>
+              DefaultLanguageHighlighterColors.IDENTIFIER
+          }
+          getParentByStub(x) match {
+            case _: ScTemplateBody | _: ScEarlyDefinitions =>
+              getParentByStub(getParentByStub(getParentByStub(x))) match {
+                case _: ScClass | _: ScTrait =>
+                  DefaultHighlighter.METHOD_CALL
+                case _: ScObject =>
+                  DefaultHighlighter.OBJECT_METHOD_CALL
+                case _ => DefaultLanguageHighlighterColors.IDENTIFIER
+              }
+            case _ =>
+              DefaultHighlighter.LOCAL_METHOD_CALL
+          }
+        }
+      case x: PsiMethod =>
+        if (x.getModifierList != null && x.getModifierList.hasModifierProperty("static")) {
+          DefaultHighlighter.OBJECT_METHOD_CALL
+        } else {
+          DefaultHighlighter.METHOD_CALL
+        }
+      case _ => DefaultLanguageHighlighterColors.IDENTIFIER
+    }
+    createInfoAnnotation(refElement.nameId, attributes)
+  }
+
+  private def annotateCollectionType(refElement: ScReference)(implicit holder: ScalaAnnotationHolder): Unit = {
     def annotateCollectionByType(resolvedType: ScType): Unit = {
       val resolvedTypeName = resolvedType.presentableText(TypePresentationContext.emptyContext)
       if (ScalaNamesUtil.isOperatorName(
         resolvedTypeName.substring(0, resolvedTypeName.segmentLength(_ != '.')))) return
 
-      val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(project)
+      val scalaProjectSettings: ScalaProjectSettings = ScalaProjectSettings.getInstance(refElement.getProject)
 
       scalaProjectSettings.getCollectionTypeHighlightingLevel match {
         case ScalaCollectionHighlightingLevel.None                           => return
@@ -91,8 +198,7 @@ object ScalaColorSchemeAnnotator {
         if (SCALA_FACTORY_METHODS_NAMES.contains(refElement.nameId.getText)) {
           return
         }
-        val annotation = holder.createInfoAnnotation(refElement.nameId, annotationText)
-        annotation.setTextAttributes(annotationAttributes)
+        createInfoAnnotation(refElement.nameId, annotationAttributes, annotationText)
       }
 
       val text = resolvedType.canonicalText
@@ -121,257 +227,155 @@ object ScalaColorSchemeAnnotator {
       annotateCollectionByType(ScalaType.designator(resolvedClazz))
     }
 
-    def isHighlightableScalaTestKeyword(fun: ScMember): Boolean = {
-      fun.getContainingClass != null &&
-        ScalaTestHighlighterUtil.isHighlightableScalaTestKeyword(fun.getContainingClass.getQualifiedName, fun match {
-          case p: ScPatternDefinition => p.bindings.headOption.map(_.getName).orNull
-          case _ => fun.getName
-        }, fun.getProject)
-    }
-
-    if (refElement.parentOfType(classOf[ScConstructorInvocation], strict = false)
-      .exists(_.getParent.isInstanceOf[ScAnnotationExpr])) return
-
     val resolvedElement = refElement.resolve()
-    if (refElement.parentOfType(classOf[ScImportExpr]).isEmpty && resolvedElement.isInstanceOf[PsiClass]) {
-      annotateCollection(resolvedElement.asInstanceOf[PsiClass])
-    }
-
-    val annotation = holder.createInfoAnnotation(refElement.nameId, null)
-    val QualNameToType = project.stdTypes.QualNameToType
 
     resolvedElement match {
-      case c: PsiClass if QualNameToType.contains(c.qualifiedName) => //this is td, it's important!
-        annotation.setTextAttributes(DefaultHighlighter.PREDEF)
-      case x: ScClass if x.getModifierList.isAbstract =>
-        annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-      case _: ScTypeParam =>
-        annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
+      case c: PsiClass if refElement.parentOfType(classOf[ScImportExpr]).isEmpty =>
+        annotateCollection(c)
       case x: ScTypeAlias =>
         x.getOriginalElement match {
           case originalElement: ScTypeAliasDefinition =>
             originalElement.aliasedType.foreach(annotateCollectionByType)
           case _ =>
         }
-        annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
-      case _: ScClass if referenceIsToCompanionObjectOfClass(refElement) =>
-        annotation.setTextAttributes(DefaultHighlighter.OBJECT)
-      case _: ScClass =>
-        annotation.setTextAttributes(DefaultHighlighter.CLASS)
-      case _: ScObject =>
-        annotation.setTextAttributes(DefaultHighlighter.OBJECT)
-      case _: ScTrait =>
-        annotation.setTextAttributes(DefaultHighlighter.TRAIT)
-      case x: PsiClass if x.isInterface =>
-        annotation.setTextAttributes(DefaultHighlighter.TRAIT)
-      case x: PsiClass if x.getModifierList != null && x.getModifierList.hasModifierProperty("abstract") =>
-        annotation.setTextAttributes(DefaultHighlighter.ABSTRACT_CLASS)
-      case _: PsiClass if refElement.isInstanceOf[ScStableCodeReference] =>
-        annotation.setTextAttributes(DefaultHighlighter.CLASS)
-      case _: PsiClass if refElement.isInstanceOf[ScReferenceExpression] =>
-        annotation.setTextAttributes(DefaultHighlighter.OBJECT)
       case x: ScBindingPattern =>
-        val parent = x.nameContext
-        parent match {
-          case r@(_: ScValue | _: ScVariable) =>
+        x.nameContext match {
+          case _: ScValue | _: ScVariable =>
             Option(x.containingClass).foreach(a => if (SCALA_PREDEFINED_OBJECTS.contains(a.qualifiedName)) {
               x.`type`().foreach(annotateCollectionByType)
             })
-
-            getParentByStub(parent) match {
-              case _: ScTemplateBody | _: ScEarlyDefinitions =>
-                r match {
-                  case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
-                    annotation.setTextAttributes(DefaultHighlighter.LAZY)
-                  case v: ScValue if isHighlightableScalaTestKeyword(v) =>
-                    annotation.setTextAttributes(DefaultHighlighter.SCALATEST_KEYWORD)
-                  case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.VALUES)
-                  case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
-                  case _ =>
-                }
-              case _ =>
-                r match {
-                  case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
-                    annotation.setTextAttributes(DefaultHighlighter.LOCAL_LAZY)
-                  case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VALUES)
-                  case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VARIABLES)
-                  case _ =>
-                }
-            }
           case _: ScCaseClause =>
-            annotation.setTextAttributes(DefaultHighlighter.PATTERN)
+            DefaultHighlighter.PATTERN
           case _: ScGenerator | _: ScForBinding =>
-            annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
+            DefaultHighlighter.GENERATOR
           case _ =>
         }
-      case x: PsiField =>
-        if (!x.hasModifierProperty("final")) annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
-        else annotation.setTextAttributes(DefaultHighlighter.VALUES)
-      case x: ScParameter if x.isAnonymousParameter => annotation.setTextAttributes(DefaultHighlighter.ANONYMOUS_PARAMETER)
-      case _: ScParameter => annotation.setTextAttributes(DefaultHighlighter.PARAMETER)
       case x@(_: ScFunctionDefinition | _: ScFunctionDeclaration | _: ScMacroDefinition) =>
         if (SCALA_FACTORY_METHODS_NAMES.contains(x.asInstanceOf[PsiMethod].getName) || x.asInstanceOf[PsiMethod].isConstructor) {
           x.parentOfType(classOf[PsiClass]).foreach(annotateCollection)
-        }
-        if (isHighlightableScalaTestKeyword(x.asInstanceOf[ScFunction])) {
-          annotation.setTextAttributes(DefaultHighlighter.SCALATEST_KEYWORD)
-        } else {
-          val fun = x.asInstanceOf[ScFunction]
-          val clazz = fun.containingClass
-          clazz match {
-            case o: ScObject if o.syntheticMethods.contains(fun) =>
-              annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
-              return
-            case _ =>
-          }
-          getParentByStub(x) match {
-            case _: ScTemplateBody | _: ScEarlyDefinitions =>
-              getParentByStub(getParentByStub(getParentByStub(x))) match {
-                case _: ScClass | _: ScTrait =>
-                  annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
-                case _: ScObject =>
-                  annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
-                case _ =>
-              }
-            case _ =>
-              annotation.setTextAttributes(DefaultHighlighter.LOCAL_METHOD_CALL)
-          }
         }
       case x: PsiMethod =>
         if (x.isConstructor) {
           x.parentOfType(classOf[PsiClass]).foreach(annotateCollection)
         }
-        if (x.getModifierList != null && x.getModifierList.hasModifierProperty("static")) {
-          annotation.setTextAttributes(DefaultHighlighter.OBJECT_METHOD_CALL)
-        } else {
-          annotation.setTextAttributes(DefaultHighlighter.METHOD_CALL)
-        }
-      case _ => //println("" + x + " " + x.getText)
+      case _ =>
     }
+
   }
 
-  def highlightElement(element: PsiElement, holder: ScalaAnnotationHolder): Unit = {
+  def highlightElement(element: PsiElement)(implicit holder: ScalaAnnotationHolder): Unit = {
     element match {
-      case r: ScReference => highlightReferenceElement(r, holder)
-      case x: ScAnnotation => visitAnnotation(x, holder)
-      case x: ScParameter => visitParameter(x, holder)
-      case x: ScCaseClause => visitCaseClause(x, holder)
-      case x: ScGenerator => visitGenerator(x, holder)
-      case x: ScForBinding => visitForBinding(x, holder)
-      case x: ScTypeAlias => visitTypeAlias(x, holder)
+      case r: ScReference => highlightReferenceElement(r)
+      case x: ScAnnotation => visitAnnotation(x)
+      case x: ScParameter => visitParameter(x)
+      case x: ScCaseClause => visitCaseClause(x)
+      case x: ScGenerator => visitGenerator(x)
+      case x: ScForBinding => visitForBinding(x)
+      case x: ScTypeAlias => visitTypeAlias(x)
       case _ =>
         import ScalaTokenTypes.SOFT_KEYWORDS
         val elementType = element.getNode.getElementType
         if (SOFT_KEYWORDS.contains(elementType)) {
           // TODO: investigate ways to highlight soft keywords in another way
-          val annotation = holder.createInfoAnnotation(element, null)
-          annotation.setTextAttributes(DefaultHighlighter.KEYWORD)
+          holder
+            .newSilentAnnotation(HighlightSeverity.INFORMATION)
+            .textAttributes(DefaultHighlighter.KEYWORD)
+            .create()
+          createInfoAnnotation(element, DefaultHighlighter.KEYWORD)
         } else if (elementType == ScalaTokenTypes.tIDENTIFIER) {
           getParentByStub(element) match {
             case _: ScNameValuePair =>
-              val annotation = holder.createInfoAnnotation(element, null)
-              annotation.setTextAttributes(DefaultHighlighter.ANNOTATION_ATTRIBUTE)
+              createInfoAnnotation(element, DefaultHighlighter.ANNOTATION_ATTRIBUTE)
             case _: ScTypeParam =>
-              val annotation = holder.createInfoAnnotation(element, null)
-              annotation.setTextAttributes(DefaultHighlighter.TYPEPARAM)
+              createInfoAnnotation(element, DefaultHighlighter.TYPEPARAM)
             case clazz: ScClass =>
-              val annotation = holder.createInfoAnnotation(clazz.nameId, null)
-              val attributes = if (clazz.getModifierList.isAbstract) DefaultHighlighter.ABSTRACT_CLASS
-              else DefaultHighlighter.CLASS
-              annotation.setTextAttributes(attributes)
+              val attributes =
+                if (clazz.getModifierList.isAbstract) DefaultHighlighter.ABSTRACT_CLASS
+                else DefaultHighlighter.CLASS
+              createInfoAnnotation(element, attributes)
             case _: ScObject =>
-              val annotation = holder.createInfoAnnotation(element, null)
-              annotation.setTextAttributes(DefaultHighlighter.OBJECT)
+              createInfoAnnotation(element, DefaultHighlighter.OBJECT)
             case _: ScTrait =>
-              val annotation = holder.createInfoAnnotation(element, null)
-              annotation.setTextAttributes(DefaultHighlighter.TRAIT)
+              createInfoAnnotation(element, DefaultHighlighter.TRAIT)
             case x: ScBindingPattern =>
               x.nameContext match {
                 case r@(_: ScValue | _: ScVariable) =>
                   getParentByStub(r) match {
                     case _: ScTemplateBody | _: ScEarlyDefinitions =>
-                      val annotation = holder.createInfoAnnotation(element, null)
-                      r match {
+                      val attributes = r match {
                         case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
-                          annotation.setTextAttributes(DefaultHighlighter.LAZY)
-                        case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.VALUES)
-                        case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.VARIABLES)
-                        case _ =>
+                          DefaultHighlighter.LAZY
+                        case _: ScValue => DefaultHighlighter.VALUES
+                        case _: ScVariable => DefaultHighlighter.VARIABLES
+                        case _ => DefaultLanguageHighlighterColors.IDENTIFIER
                       }
+                      createInfoAnnotation(element, attributes)
                     case _ =>
-                      val annotation = holder.createInfoAnnotation(element, null)
-                      r match {
+                      val attributes = r match {
                         case mod: ScModifierListOwner if mod.hasModifierProperty("lazy") =>
-                          annotation.setTextAttributes(DefaultHighlighter.LOCAL_LAZY)
-                        case _: ScValue => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VALUES)
-                        case _: ScVariable => annotation.setTextAttributes(DefaultHighlighter.LOCAL_VARIABLES)
-                        case _ =>
+                          DefaultHighlighter.LOCAL_LAZY
+                        case _: ScValue => DefaultHighlighter.LOCAL_VALUES
+                        case _: ScVariable => DefaultHighlighter.LOCAL_VARIABLES
+                        case _ => DefaultLanguageHighlighterColors.IDENTIFIER
                       }
+                      createInfoAnnotation(element, attributes)
                   }
                 case _: ScCaseClause =>
-                  val annotation = holder.createInfoAnnotation(element, null)
-                  annotation.setTextAttributes(DefaultHighlighter.PATTERN)
+                  createInfoAnnotation(element, DefaultHighlighter.PATTERN)
                 case _: ScGenerator | _: ScForBinding =>
-                  val annotation = holder.createInfoAnnotation(element, null)
-                  annotation.setTextAttributes(DefaultHighlighter.GENERATOR)
+                  createInfoAnnotation(element, DefaultHighlighter.GENERATOR)
                 case _ =>
               }
             case _: ScFunctionDefinition | _: ScFunctionDeclaration =>
-              val annotation = holder.createInfoAnnotation(element, null)
-              annotation.setTextAttributes(DefaultHighlighter.METHOD_DECLARATION)
+              createInfoAnnotation(element, DefaultHighlighter.METHOD_DECLARATION)
             case _ =>
           }
         }
     }
   }
 
-  private def visitAnnotation(annotation: ScAnnotation, holder: ScalaAnnotationHolder): Unit = {
-    val annotation1 = holder.createInfoAnnotation(annotation.getFirstChild, null)
-    annotation1.setTextAttributes(DefaultHighlighter.ANNOTATION)
-    val element = annotation.annotationExpr.constructorInvocation.typeElement
-    val annotation2 = holder.createInfoAnnotation(element, null)
-    annotation2.setTextAttributes(DefaultHighlighter.ANNOTATION)
+  private def visitAnnotation(annotation: ScAnnotation)(implicit holder: ScalaAnnotationHolder): Unit = {
+    createInfoAnnotation(annotation.getFirstChild, DefaultHighlighter.ANNOTATION)
+    createInfoAnnotation(annotation.annotationExpr.constructorInvocation.typeElement, DefaultHighlighter.ANNOTATION)
   }
 
-  private def visitTypeAlias(typeAlias: ScTypeAlias, holder: ScalaAnnotationHolder): Unit = {
-    val annotation = holder.createInfoAnnotation(typeAlias.nameId, null)
-    annotation.setTextAttributes(DefaultHighlighter.TYPE_ALIAS)
+  private def visitTypeAlias(typeAlias: ScTypeAlias)(implicit holder: ScalaAnnotationHolder): Unit = {
+    createInfoAnnotation(typeAlias.nameId, DefaultHighlighter.TYPE_ALIAS)
   }
 
-  private def visitParameter(param: ScParameter, holder: ScalaAnnotationHolder): Unit = {
+  private def visitParameter(param: ScParameter)(implicit holder: ScalaAnnotationHolder): Unit = {
     val nameId = param.nameId
 
     //in scala 3 parameters may be anonymous and we create synthetic name id for them
     if (!nameId.isPhysical)
       return
 
-    val annotation = holder.createInfoAnnotation(nameId, null)
     val attributesKey =
       if (param.isAnonymousParameter) DefaultHighlighter.ANONYMOUS_PARAMETER
       else DefaultHighlighter.PARAMETER
-    annotation.setTextAttributes(attributesKey)
+    createInfoAnnotation(nameId, attributesKey)
+
   }
 
-  private def visitPattern(pattern: ScPattern, holder: ScalaAnnotationHolder, attribute: TextAttributesKey): Unit = {
+  private def visitPattern(pattern: ScPattern, attribute: TextAttributesKey)(implicit holder: ScalaAnnotationHolder): Unit = {
     for (binding <- pattern.bindings if !binding.isWildcard) {
-      val annotation = holder.createInfoAnnotation(binding.nameId, null)
-      annotation.setTextAttributes(attribute)
+      createInfoAnnotation(binding.nameId, attribute)
     }
   }
 
-  private def visitCaseClause(clause: ScCaseClause, holder: ScalaAnnotationHolder): Unit = {
+  private def visitCaseClause(clause: ScCaseClause)(implicit holder: ScalaAnnotationHolder): Unit = {
     clause.pattern match {
-      case Some(x) => visitPattern(x, holder, DefaultHighlighter.PATTERN)
+      case Some(x) => visitPattern(x, DefaultHighlighter.PATTERN)
       case None =>
     }
   }
 
-  private def visitGenerator(generator: ScGenerator, holder: ScalaAnnotationHolder): Unit = {
-    visitPattern(generator.pattern, holder, DefaultHighlighter.GENERATOR)
+  private def visitGenerator(generator: ScGenerator)(implicit holder: ScalaAnnotationHolder): Unit = {
+    visitPattern(generator.pattern, DefaultHighlighter.GENERATOR)
   }
 
-  private def visitForBinding(forBinding: ScForBinding, holder: ScalaAnnotationHolder): Unit = {
-    visitPattern(forBinding.pattern, holder, DefaultHighlighter.GENERATOR)
+  private def visitForBinding(forBinding: ScForBinding)(implicit holder: ScalaAnnotationHolder): Unit = {
+    visitPattern(forBinding.pattern, DefaultHighlighter.GENERATOR)
   }
 
   private def referenceIsToCompanionObjectOfClass(r: ScReference): Boolean = {
@@ -379,5 +383,24 @@ object ScalaColorSchemeAnnotator {
       case _: ScMethodCall | _: ScReferenceExpression => true // These references to 'Foo' should be 'object' references: case class Foo(a: Int); Foo(1); Foo.apply(1).
       case _ => false
     }
+  }
+
+  private def createInfoAnnotation(psiElement: PsiElement, attributes: TextAttributesKey, message: String = null)(implicit holder: ScalaAnnotationHolder): Unit = {
+    val builder =
+      if (message == null) holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+      else holder.newAnnotation(HighlightSeverity.INFORMATION, message)
+    builder
+      .range(psiElement)
+      .textAttributes(attributes)
+      .create()
+  }
+
+  private def isHighlightableScalaTestKeyword(m: ScMember): Boolean = {
+    m.containingClass != null &&
+      ScalaTestHighlighterUtil.isHighlightableScalaTestKeyword(
+        m.containingClass.qualifiedName,
+        m.names.headOption.orNull,
+        m.getProject
+      )
   }
 }

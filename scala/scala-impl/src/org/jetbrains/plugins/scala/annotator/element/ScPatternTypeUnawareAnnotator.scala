@@ -47,13 +47,19 @@ object ScPatternTypeUnawareAnnotator extends ElementAnnotator[ScPattern] {
       case Some(binder) =>
         binder.elementType match {
           case ScalaTokenTypes.tCOLON if !pattern.isInScala3Module =>
-            val annotation = holder.createWarningAnnotation(binder, ScalaBundle.message("vararg.pattern.with.colon.requires.scala3"))
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-            annotation.registerFix(new ReplaceNamingPatternBindingElementInScala2Fix(binder))
+            holder.createWarningAnnotation(
+              binder,
+              ScalaBundle.message("vararg.pattern.with.colon.requires.scala3"),
+              ProblemHighlightType.GENERIC_ERROR,
+              new ReplaceNamingPatternBindingElementInScala2Fix(binder)
+            )
           case ScalaTokenTypes.tAT if pattern.isInScala3Module =>
-            val annotation = holder.createWarningAnnotation(binder, ScalaBundle.message("vararg.pattern.with.at.deprecated.since.scala3"))
-            annotation.setHighlightType(compatHighlightType(pattern))
-            annotation.registerFix(new ReplaceNamingPatternBindingElementInScala3Fix(pattern))
+            holder.createWarningAnnotation(
+              binder,
+              ScalaBundle.message("vararg.pattern.with.at.deprecated.since.scala3"),
+              compatHighlightType(pattern),
+              new ReplaceNamingPatternBindingElementInScala3Fix(pattern)
+            )
           case _ =>
         }
       case _ =>

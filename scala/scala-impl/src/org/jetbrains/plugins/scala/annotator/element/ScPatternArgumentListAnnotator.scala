@@ -16,8 +16,11 @@ object ScPatternArgumentListAnnotator extends ElementAnnotator[ScPatternArgument
     def process(pattern: ScPattern): Unit =
       pattern match {
         case seqWildcard: ScSeqWildcardPattern if iterator.hasNext=>
-          val annotation = holder.createWarningAnnotation(seqWildcard, ScalaBundle.message("vararg.pattern.must.be.last.pattern"))
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+          holder.createWarningAnnotation(
+            seqWildcard,
+            ScalaBundle.message("vararg.pattern.must.be.last.pattern"),
+            ProblemHighlightType.GENERIC_ERROR
+          )
         case _ =>
       }
 

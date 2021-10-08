@@ -12,8 +12,11 @@ object ScValueOrVariableAnnotator extends ElementAnnotator[ScValueOrVariable] {
                        (implicit holder: ScalaAnnotationHolder): Unit =
     if (!element.isInScala3Module) {
       element.annotationAscription.foreach { (ascription: ScAnnotations) =>
-        val annotation = holder.createWarningAnnotation(ascription, ScalaBundle.message("annotation.ascriptions.in.pattern.definitions.require.scala3"))
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+        holder.createWarningAnnotation(
+          ascription,
+          ScalaBundle.message("annotation.ascriptions.in.pattern.definitions.require.scala3"),
+          ProblemHighlightType.GENERIC_ERROR
+        )
       }
     }
 }

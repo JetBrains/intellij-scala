@@ -9,21 +9,18 @@ import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.project.{ProjectPsiElementExt, ScalaLanguageLevel}
 
 package object annotator {
-  def conditionalError(
-    condition:    PsiElement => Boolean,
+  def errorOrWarning(
+    errorCondition: PsiElement => Boolean,
     e:            PsiElement,
-    @Nls message: String,
-    severityF:    HighlightSeverity = HighlightSeverity.WARNING,
-    severityT:    HighlightSeverity = HighlightSeverity.ERROR,
-  )(implicit
+    @Nls message: String)(implicit
     holder: ScalaAnnotationHolder
   ): Unit = {
-    val severity = if (condition(e)) severityT else severityF
-    holder.createAnnotation(severity, e.getTextRange, message)
+    if (errorCondition(e)) holder.createErrorAnnotation(e, message)
+    else holder.createWarningAnnotation(e, message)
   }
 
   def errorIf2_13(e: PsiElement, @Nls message: String)(implicit holder: ScalaAnnotationHolder): Unit =
-    conditionalError(_.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13), e, message)
+    errorOrWarning(_.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_13), e, message)
 
   private[annotator] sealed abstract class IntegerKind(val radix: Int,
                                                        protected val prefix: String,

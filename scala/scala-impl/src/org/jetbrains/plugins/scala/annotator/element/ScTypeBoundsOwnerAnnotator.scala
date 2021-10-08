@@ -21,11 +21,10 @@ object ScTypeBoundsOwnerAnnotator extends ElementAnnotator[ScTypeBoundsOwner] {
         if !lower.conforms(upper)
       } {
         implicit val tcp: TypePresentationContext = element
-        val annotation = holder.createErrorAnnotation(
+        holder.createErrorAnnotation(
           element,
           ScalaBundle.message("lower.bound.conform.to.upper", upper.presentableText, lower.presentableText)
         )
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
       }
     }
   }

@@ -29,7 +29,7 @@ class TypeCollectionAnotatorTest extends ScalaLightPlatformCodeInsightTestCaseAd
     val holder = new AnnotatorHolderMock(getFileAdapter)
 
     getFileAdapter.asInstanceOf[ScalaFile].breadthFirst().foreach {
-      case refElement: ScReference => ScalaColorSchemeAnnotator.highlightReferenceElement(refElement, holder)
+      case refElement: ScReference => ScalaColorSchemeAnnotator.highlightReferenceElement(refElement)(holder)
       case _ =>
     }
     holder

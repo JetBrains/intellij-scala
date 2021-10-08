@@ -17,24 +17,21 @@ object CaseClassWithoutParamList extends AnnotatorPart[ScClass] {
 
   override def annotate(element: ScClass, typeAware: Boolean)
                        (implicit holder: ScalaAnnotationHolder): Unit = {
-    def createAnnotation(nameId: PsiElement) = {
+    def createAnnotation(nameId: PsiElement, fixes: Iterable[IntentionAction]) = {
       if (element.scalaLanguageLevel.exists(_ >= ScalaLanguageLevel.Scala_2_11)) {
         val message = ScalaBundle.message("case.classes.without.parameter.list.not.allowed")
-        holder.createErrorAnnotation(nameId, message)
+        holder.createErrorAnnotation(nameId, message, fixes)
       }
       else {
         val message = ScalaBundle.message("case.classes.without.parameter.list.deprecated")
-        val deprAnnot = holder.createWarningAnnotation(nameId, message)
-        deprAnnot.setHighlightType(ProblemHighlightType.LIKE_DEPRECATED)
-        deprAnnot
+        holder.createWarningAnnotation(nameId, message, ProblemHighlightType.LIKE_DEPRECATED, fixes)
       }
     }
 
     if (element.isCase && !element.clauses.exists(_.clauses.nonEmpty)) {
       val nameId = element.nameId
-      val annotation = createAnnotation(nameId)
       val fixes = Seq(new ConvertToObjectFix(element), new AddEmptyParenthesesToPrimaryConstructorFix(element))
-      fixes.foreach(fix => annotation.registerFix(fix, nameId.getTextRange))
+      createAnnotation(nameId, fixes)
     }
   }
 }

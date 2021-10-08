@@ -129,8 +129,11 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
               case scalaObject: ScObject => scalaObject.nameId.getTextRange
             }
 
-            val annotation = holder.createErrorAnnotation(range, objectCreationImpossibleMessage(undefined: _*))
-            annotation.registerFix(new ImplementMethodsQuickFix(element))
+            holder.createErrorAnnotation(
+              range,
+              objectCreationImpossibleMessage(undefined: _*),
+              new ImplementMethodsQuickFix(element)
+            )
           }
         case _ =>
       }
@@ -246,8 +249,7 @@ object ScTemplateDefinitionAnnotator extends ElementAnnotator[ScTemplateDefiniti
           maybeModifierFix ++ maybeImplementFix
 
         }
-        val annotation = holder.createErrorAnnotation(nameId, message.nls)
-        fixes.foreach(annotation.registerFix)
+        holder.createErrorAnnotation(nameId, message.nls, fixes)
       }
   }
 

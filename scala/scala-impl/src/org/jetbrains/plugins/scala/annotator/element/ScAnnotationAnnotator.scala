@@ -31,8 +31,11 @@ object ScAnnotationAnnotator extends ElementAnnotator[ScAnnotation] {
     import scala.meta.intellij.psi._
     if (element.isMetaMacro) {
       if (!MetaExpansionsManager.isUpToDate(element)) {
-        val warning = holder.createWarningAnnotation(element, ScalaBundle.message("scala.meta.recompile"))
-        warning.registerFix(new RecompileAnnotationAction(element))
+        holder.createWarningAnnotation(
+          element,
+          ScalaBundle.message("scala.meta.recompile"),
+          new RecompileAnnotationAction(element)
+        )
       }
       val result = element.parent.flatMap(_.parent) match {
         case Some(ah: ScAnnotationsHolder) => ah.metaExpand

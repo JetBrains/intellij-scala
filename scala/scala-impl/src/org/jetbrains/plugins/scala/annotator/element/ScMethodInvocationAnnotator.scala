@@ -96,12 +96,12 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
           .map("'" + _.presentableText + "'")
           .getOrElse(ScalaBundle.message("does.not.take.parameter.default.target"))
         val message = ScalaBundle.message("annotator.error.target.does.not.take.parameters", targetName)
-        val annotation = holder.createErrorAnnotation(call.argsElement, message)
-        (call, call.getInvokedExpr) match {
+        val fix = (call, call.getInvokedExpr) match {
           case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
-            annotation.registerFix(new CreateApplyQuickFix(td, c))
-          case _ =>
+            Some(new CreateApplyQuickFix(td, c))
+          case _ => None
         }
+        holder.createErrorAnnotation(call.argsElement, message, fix)
       case ExcessArgument(_) => // simultaneously handled above
       case TypeMismatch(expression, expectedType) =>
         if (countMatches && !typeMismatchShown) {

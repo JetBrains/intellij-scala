@@ -16,8 +16,7 @@ object ScEnumeratorsAnnotator extends ElementAnnotator[ScEnumerators] {
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     val msg = ScalaBundle.message("semicolon.not.allowed.here")
     findErroneousSemicolons(enumerators).foreach { errSemicolon =>
-      val annotation = holder.createErrorAnnotation(errSemicolon, msg)
-      annotation.registerFix(new RemoveErrorSemicolonIntentionAction(enumerators))
+      holder.createErrorAnnotation(errSemicolon, msg, new RemoveErrorSemicolonIntentionAction(enumerators))
     }
   }
 

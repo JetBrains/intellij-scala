@@ -63,9 +63,11 @@ abstract class OverloadingTestBase extends ScalaLightCodeInsightFixtureTestAdapt
           case _ => expression
         }
         val (actualText, expText) = TypePresentation.different(actual, expected)(expr)
-        val annotation = holder.createErrorAnnotation(expr,
-          ScalaBundle.message("type.mismatch.found.required", actualText, expText))
-        annotation.registerFix(ReportHighlightingErrorQuickFix)
+        val annotation = holder.createErrorAnnotation(
+          expr,
+          ScalaBundle.message("type.mismatch.found.required", actualText, expText),
+          ReportHighlightingErrorQuickFix
+        )
       }
     }
   }

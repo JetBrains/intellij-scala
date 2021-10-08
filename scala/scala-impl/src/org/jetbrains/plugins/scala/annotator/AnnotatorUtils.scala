@@ -1,7 +1,9 @@
 package org.jetbrains.plugins.scala
 package annotator
 
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.{PsiElement, PsiErrorElement, PsiNamedElement}
@@ -102,8 +104,7 @@ object AnnotatorUtils {
         modOwner.getModifierList.accessModifier match {
           case Some(am) if am.isUnqualifiedPrivateOrThis =>
             for (e <- toHighlight) {
-              val annotation = holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"))
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+              holder.createErrorAnnotation(e, ScalaBundle.message("abstract.member.not.have.private.modifier"), ProblemHighlightType.GENERIC_ERROR)
             }
           case _ =>
         }
@@ -129,15 +130,6 @@ object AnnotatorUtils {
     }
   }
 
-  def annotationWithoutHighlighting(te: PsiElement)
-                                   (implicit holder: ScalaAnnotationHolder): ScalaAnnotation = {
-    val teAnnotation = holder.createErrorAnnotation(te, null)
-    teAnnotation.setHighlightType(ProblemHighlightType.INFORMATION)
-    val emptyAttr = new TextAttributes()
-    teAnnotation.setEnforcedTextAttributes(emptyAttr)
-    teAnnotation
-  }
-
   /**
     * This method will return checked conformance if it's possible to check it.
     * In other way it will return true to avoid red code.
@@ -160,10 +152,9 @@ object AnnotatorUtils {
                             elementToHighlight: PsiElement)
                            (implicit holder: ScalaAnnotationHolder): Unit = {
     if (ScalaProjectSettings.getInstance(elementToHighlight.getProject).isShowImplicitConversions) {
-      val range = elementToHighlight.getTextRange
-      val annotation = holder.createInfoAnnotation(range, null)
-      annotation.setTextAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
-      annotation.setAfterEndOfLine(false)
+      holder.newSilentAnnotation(HighlightSeverity.INFORMATION)
+        .range(elementToHighlight.getTextRange)
+        .textAttributes(DefaultHighlighter.IMPLICIT_CONVERSIONS)
     }
   }
 

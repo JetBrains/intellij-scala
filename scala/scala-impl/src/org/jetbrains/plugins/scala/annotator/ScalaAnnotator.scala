@@ -369,8 +369,7 @@ class ScalaAnnotator extends Annotator
           case _ => ???
         }
 
-        val annotation = holder.createErrorAnnotation(toHighlight, message)
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+        holder.createErrorAnnotation(toHighlight, message)
       }
     }
 

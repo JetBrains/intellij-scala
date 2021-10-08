@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiFile
 import org.jetbrains.plugins.scala.annotator.quickfix._
 import org.jetbrains.plugins.scala.extensions.{&&, Parent}
+import org.jetbrains.plugins.scala.lang.lexer.ScalaModifier
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScAnnotation
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
@@ -38,29 +39,31 @@ trait FunctionAnnotator {
 
     for {
       annotation <- findTailRecursionAnnotation(function)
-      quickFix = new RemoveAnnotationQuickFix(annotation)
     } {
+      val removeAnnotationFix = new RemoveAnnotationQuickFix(annotation)
+
       val functionNameId = function.nameId
 
       if (!canBeTailRecursive(function)) {
-        val annotation = holder.createErrorAnnotation(
+        holder.createErrorAnnotation(
           functionNameId,
-          ScalaBundle.message("method.annotated.with.tailrec.is.neither.private.nor.final")
+          ScalaBundle.message("method.annotated.with.tailrec.is.neither.private.nor.final"),
+          Seq(
+            new ModifierQuickFix.Add(function, functionNameId, ScalaModifier.Private),
+            new ModifierQuickFix.Add(function, functionNameId, ScalaModifier.Final),
+            removeAnnotationFix
+          )
         )
-
-        import lang.lexer.ScalaModifier
-        def registerAddQuickFix(modifier: ScalaModifier): Unit =
-          annotation.registerFix(new ModifierQuickFix.Add(function, functionNameId, modifier))
-
-        registerAddQuickFix(ScalaModifier.Private)
-        registerAddQuickFix(ScalaModifier.Final)
-        annotation.registerFix(quickFix)
       }
 
       if (typeAware) {
-        val annotations = function.recursiveReferencesGrouped match {
+        function.recursiveReferencesGrouped match {
           case references if references.noRecursion =>
-            Seq(holder.createErrorAnnotation(functionNameId, ScalaBundle.message("method.annotated.with.tailrec.contains.no.recursive.calls")))
+            holder.createErrorAnnotation(
+              functionNameId,
+              ScalaBundle.message("method.annotated.with.tailrec.contains.no.recursive.calls"),
+              Seq(removeAnnotationFix)
+            )
           case references =>
             for {
               reference <- references.ordinaryRecursive
@@ -68,10 +71,12 @@ trait FunctionAnnotator {
                 case methodCall: ScMethodCall => methodCall
                 case _ => reference
               }
-            } yield holder.createErrorAnnotation(target, ScalaBundle.message("recursive.call.not.in.tail.position"))
+            } yield holder.createErrorAnnotation(
+              target,
+              ScalaBundle.message("recursive.call.not.in.tail.position"),
+              Seq(removeAnnotationFix)
+            )
         }
-
-        annotations.foreach(_.registerFix(quickFix))
       }
     }
 
@@ -90,8 +95,11 @@ trait FunctionAnnotator {
           case retStmt: ScReturn  => retStmt.expr.flatMap(_.`type`().toOption).getOrElse(Any)
           case expr: ScExpression => expr.`type`().getOrAny
         }
-        val annotation = holder.createErrorAnnotation(usage.asInstanceOf[ScReturn].keyword, message)
-        annotation.registerFix(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
+        holder.createErrorAnnotation(
+          usage.asInstanceOf[ScReturn].keyword,
+          message,
+          Seq(new AddReturnTypeFix(function, returnTypes.toSeq.lub()))
+        )
       }
     }
   }

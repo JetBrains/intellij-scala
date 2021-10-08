@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
-import com.intellij.codeInspection.ProblemHighlightType
+import com.intellij.lang.annotation.HighlightSeverity
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils._
 import org.jetbrains.plugins.scala.annotator.quickfix.ChangeTypeFix
 import org.jetbrains.plugins.scala.extensions._
@@ -35,8 +35,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
           val candidates = processor.candidates
           if (candidates.length != 1) {
             val error = ScalaBundle.message("method.is.not.member", memberName, tp.presentableText(expr))
-            val annotation = holder.createErrorAnnotation(expr, error)
-            annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+            holder.createErrorAnnotation(expr, error)
           } else if (checkReturnTypeIsBoolean) {
             val maybeType = candidates(0) match {
               case ScalaResolveResult(fun: ScFunction, subst) => fun.returnType.map(subst).toOption
@@ -45,8 +44,7 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
 
             if (!maybeType.exists(_.equiv(Boolean))) {
               val error = ScalaBundle.message("expected.type.boolean", memberName)
-              val annotation = holder.createErrorAnnotation(expr, error)
-              annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+              holder.createErrorAnnotation(expr, error)
             }
           } else {
             element.getContext match {
@@ -63,15 +61,17 @@ object ScCatchBlockAnnotator extends ElementAnnotator[ScCatchBlock] {
                       if (typeAware) {
                         val (retTypeText, expectedTypeText) = TypePresentation.different(returnType.getOrNothing, tp)(t)
                         val error = ScalaBundle.message("expr.type.does.not.conform.expected.type", retTypeText, expectedTypeText)
-                        val annotation = holder.createErrorAnnotation(expr, error)
                         typeElement match {
                           //Don't highlight te if it's outside of original file.
                           case Some(te) if te.containingFile == t.containingFile =>
                             val fix = new ChangeTypeFix(te, returnType.getOrNothing)
-                            annotation.registerFix(fix)
-                            val teAnnotation = annotationWithoutHighlighting(te)
-                            teAnnotation.registerFix(fix)
+                            holder.newAnnotation(HighlightSeverity.ERROR, error)
+                              .range(expr)
+                              .withFix(fix)
+                              .newFix(fix).range(te.getTextRange).registerFix //quickfix on type element
+                              .create()
                           case _ =>
+                            holder.createErrorAnnotation(expr, error)
                         }
                       }
                     }

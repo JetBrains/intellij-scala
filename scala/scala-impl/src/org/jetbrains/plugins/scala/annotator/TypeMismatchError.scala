@@ -1,12 +1,14 @@
 package org.jetbrains.plugins.scala.annotator
 
+import com.intellij.codeInsight.intention.IntentionAction
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.colors.{EditorColorsManager, EditorColorsScheme}
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.annotationHolder.DelegateAnnotationHolder
+import org.jetbrains.plugins.scala.annotator.hints.onlyErrorStripeAttributes
 import org.jetbrains.plugins.scala.annotator.quickfix.{EnableTypeMismatchHints, ReportHighlightingErrorQuickFix}
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockExpr
 import org.jetbrains.plugins.scala.lang.psi.types.api.TypePresentation
@@ -14,9 +16,11 @@ import org.jetbrains.plugins.scala.lang.psi.types.{ScLiteralType, ScType, TypePr
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
 private object TypeMismatchError {
-  def register(element: PsiElement, expectedType: ScType, actualType: ScType, blockLevel: Int = 0, canBeHint: Boolean = true)
+  def register(element: PsiElement, expectedType: ScType, actualType: ScType,
+               blockLevel: Int = 0, canBeHint: Boolean = true,
+               fixes: Iterable[(IntentionAction, TextRange)] = Nil)
               (formatMessage: (String, String) => String)
-              (implicit holder: ScalaAnnotationHolder): ScalaAnnotation = {
+              (implicit holder: ScalaAnnotationHolder): Unit = {
     val annotatedElement = elementAt(element, blockLevel)
     implicit val context: TypePresentationContext = TypePresentationContext(annotatedElement)
 
@@ -36,19 +40,27 @@ private object TypeMismatchError {
 
     val highlightExpression = !ScalaProjectSettings.in(element.getProject).isTypeMismatchHints || !canBeHint
 
-    // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
-    val annotation = if (ApplicationManager.getApplication.isUnitTestMode || highlightExpression) {
-      holder.createErrorAnnotation(annotatedElement, message)
-    } else {
-      val annotation = holder.createErrorAnnotation(lastLineRangeOf(annotatedElement), message)
-      adjustTextAttributesOf(annotation)
-      annotation
+    val builder = holder.newAnnotation(HighlightSeverity.ERROR, message)
+      .tooltip(TypeMismatchHints.tooltipFor(expectedType, adjustedActualType))
+      .withFix(ReportHighlightingErrorQuickFix)
+      .withFix(EnableTypeMismatchHints)
+
+    for ((fix, range) <- fixes) {
+      builder.newFix(fix).range(range).registerFix
     }
 
-    // See org.jetbrains.plugins.scala.annotator.TypeMismatchTooltipsHandler
-    annotation.setTooltip(TypeMismatchHints.tooltipFor(expectedType, adjustedActualType))
-    annotation.registerFix(ReportHighlightingErrorQuickFix)
-    annotation.registerFix(EnableTypeMismatchHints)
+    // TODO Can we detect a "current" color scheme in a "current" editor somehow?
+    implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
+
+    // TODO type mismatch hints are experimental (SCL-15250), don't affect annotator / highlighting tests
+    if (ApplicationManager.getApplication.isUnitTestMode || highlightExpression) {
+      builder.range(annotatedElement)
+    } else {
+      builder.range(lastLineRangeOf(annotatedElement))
+        .enforcedTextAttributes(onlyErrorStripeAttributes)
+    }
+
+    builder.create()
 
     if (!highlightExpression) {
       val delegateElement = holder match {
@@ -57,13 +69,8 @@ private object TypeMismatchError {
         case _ => annotatedElement
       }
 
-      // TODO Can we detect a "current" color scheme in a "current" editor somehow?
-      implicit val scheme: EditorColorsScheme = EditorColorsManager.getInstance().getGlobalScheme
-
       TypeMismatchHints.createFor(delegateElement, expectedType, adjustedActualType).putTo(delegateElement)
     }
-
-    annotation
   }
 
   private def elementAt(element: PsiElement, blockLevel: Int) = blockLevel match {
@@ -79,14 +86,6 @@ private object TypeMismatchError {
         case _ => element
       }
     case 0 => element
-  }
-
-  private def adjustTextAttributesOf(annotation: ScalaAnnotation): Unit = {
-    val errorStripeColor = annotation.getTextAttributes.getDefaultAttributes.getErrorStripeColor
-    val attributes = new TextAttributes()
-    attributes.setEffectType(null)
-    attributes.setErrorStripeColor(errorStripeColor)
-    annotation.setEnforcedTextAttributes(attributes)
   }
 
   private def lastLineRangeOf(element: PsiElement) = {

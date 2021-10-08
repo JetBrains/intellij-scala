@@ -71,4 +71,12 @@ package object hints {
     }
     result
   }
+
+  def onlyErrorStripeAttributes(implicit scheme: EditorColorsScheme): TextAttributes = {
+    val errorStripeColor = scheme.getAttributes(CodeInsightColors.ERRORS_ATTRIBUTES).getErrorStripeColor
+    val attributes = new TextAttributes()
+    attributes.setEffectType(null)
+    attributes.setErrorStripeColor(errorStripeColor)
+    attributes
+  }
 }

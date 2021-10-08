@@ -84,9 +84,11 @@ object ScSimpleTypeElementAnnotator extends ElementAnnotator[ScSimpleTypeElement
 
     val needTypeArgsRes = needTypeArgs
     if (needTypeArgsRes) {
-      val annotation = holder.createErrorAnnotation(typeElement.getTextRange,
-        ScalaBundle.message("type.takes.type.parameters", typeElement.getText))
-      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
+      holder.createErrorAnnotation(
+        typeElement,
+        ScalaBundle.message("type.takes.type.parameters", typeElement.getText),
+        ProblemHighlightType.GENERIC_ERROR
+      )
     }
   }
 }

@@ -1,9 +1,9 @@
 package org.jetbrains.plugins.scala.annotator
 
-import com.intellij.lang.ASTNode
 import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiElement, PsiFile}
+import com.intellij.psi.PsiFile
+import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.extensions.IterableOnceExt
 
 import scala.annotation.nowarn
@@ -43,52 +43,20 @@ abstract class AnnotatorHolderMockBase[T](file: PsiFile) extends ScalaAnnotation
 
   def createMockAnnotation(severity: HighlightSeverity, range: TextRange, message: String): Option[T]
 
-  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String): ScalaAnnotation = {
-    val mockAnnotation = createMockAnnotation(severity, range, message)
-    myAnnotations :::= mockAnnotation.toList
-    ScalaAnnotation.Empty
-  }
-
   override def getCurrentAnnotationSession: AnnotationSession = new AnnotationSession(file)
-
-  override def createInfoAnnotation(range: TextRange, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.INFORMATION, range, message)
-
-  override def createInfoAnnotation(node: ASTNode, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.INFORMATION, node.getTextRange, message)
-
-  override def createInfoAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.INFORMATION, elt.getTextRange, message)
-
-  override def createWarningAnnotation(range: TextRange, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.WARNING, range, message)
-
-  override def createWarningAnnotation(node: ASTNode, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.WARNING, node.getTextRange, message)
-
-  override def createWarningAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.WARNING, elt.getTextRange, message)
-
-  override def createErrorAnnotation(range: TextRange, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.ERROR, range, message)
-
-  override def createErrorAnnotation(node: ASTNode, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.ERROR, node.getTextRange, message)
-
-  override def createErrorAnnotation(elt: PsiElement, message: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.ERROR, elt.getTextRange, message)
-
-  override def createWeakWarningAnnotation(p1: TextRange, p2: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.WEAK_WARNING, p1, p2)
-
-  override def createWeakWarningAnnotation(p1: ASTNode, p2: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.WEAK_WARNING, p1.getTextRange, p2)
-
-  override def createWeakWarningAnnotation(p1: PsiElement, p2: String): ScalaAnnotation =
-    createAnnotation(HighlightSeverity.WEAK_WARNING, p1.getTextRange, p2)
 
   override def isBatchMode: Boolean = false
 
-  override def createAnnotation(severity: HighlightSeverity, range: TextRange, message: String, htmlTooltip: String): ScalaAnnotation =
-    createAnnotation(severity, range, message)
+  override def newAnnotation(severity: HighlightSeverity, message: String): ScalaAnnotationBuilder =
+    new DummyAnnotationBuilder(severity, message)
+
+  override def newSilentAnnotation(severity: HighlightSeverity): ScalaAnnotationBuilder =
+    new DummyAnnotationBuilder(severity, null)
+
+  private class DummyAnnotationBuilder(severity: HighlightSeverity, @Nls message: String)
+    extends DummyScalaAnnotationBuilder(severity, message) {
+
+    override def onCreate(severity: HighlightSeverity, message: String, range: TextRange): Unit =
+      myAnnotations :::= createMockAnnotation(severity, range, message).toList
+  }
 }

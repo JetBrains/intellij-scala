@@ -36,9 +36,11 @@ object ScSelfInvocationAnnotator extends ElementAnnotator[ScSelfInvocation] {
 
     resolved match {
       case Seq() =>
-        val annotation = holder.createErrorAnnotation(element.thisElement,
-          ScalaBundle.message("annotator.error.cannot.find.constructor.for.this.call"))
-        annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
+        holder.createErrorAnnotation(
+          element.thisElement,
+          ScalaBundle.message("annotator.error.cannot.find.constructor.for.this.call"),
+          ProblemHighlightType.LIKE_UNKNOWN_SYMBOL
+        )
 
       case Seq(r@ScConstructorResolveResult(constr)) if constr.effectiveParameterClauses.length > 1 && !isConstructorMalformed(r) =>
         // if there is only one well-formed, resolved, scala constructor with multiple parameter clauses,

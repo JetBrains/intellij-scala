@@ -3,7 +3,7 @@ package annotator
 package element
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.AnnotationSession
+import com.intellij.lang.annotation.{AnnotationSession, HighlightSeverity}
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.annotator.annotationHolder.{DelegateAnnotationHolder, ErrorIndication}
@@ -12,6 +12,8 @@ import org.jetbrains.plugins.scala.codeInspection.caseClassParamInspection.Remov
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScEnumerator, ScGenerator}
 
+import scala.math.Ordering.Implicits._
+
 object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
 
   override def annotate(element: ScGenerator, typeAware: Boolean)
@@ -19,16 +21,22 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
     checkGenerator(element, typeAware)
 
     element.valKeyword.foreach { valKeyword =>
-      val annotation = holder.createWarningAnnotation(valKeyword, ScalaBundle.message("enumerators.generator.val.keyword.found"))
-      annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-      annotation.registerFix(new RemoveValFromGeneratorIntentionAction(element))
+      holder.createWarningAnnotation(
+        valKeyword,
+        ScalaBundle.message("enumerators.generator.val.keyword.found"),
+        ProblemHighlightType.GENERIC_ERROR,
+        new RemoveValFromGeneratorIntentionAction(element)
+      )
     }
 
     if (!element.features.`case in pattern bindings`) {
       element.caseKeyword.foreach { caseKeyword =>
-        val annotation = holder.createWarningAnnotation(caseKeyword, ScalaBundle.message("for.pattern.bindings.require.scala3"))
-        annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-        annotation.registerFix(new RemoveCaseFromPatternedEnumeratorFix(element))
+        holder.createWarningAnnotation(
+          caseKeyword,
+          ScalaBundle.message("for.pattern.bindings.require.scala3"),
+          ProblemHighlightType.GENERIC_ERROR,
+          new RemoveCaseFromPatternedEnumeratorFix(element)
+        )
       }
     }
   }
@@ -94,10 +102,26 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
   private def delegateHolderFor(target: PsiElement, session: AnnotationSession)
                                (implicit holder: ScalaAnnotationHolder): DelegateAnnotationHolder with ErrorIndication =
     new DelegateAnnotationHolder(session) with ErrorIndication {
+      private var _hadError = false
+      override def hadError: Boolean = _hadError
 
       override protected val element: Some[PsiElement] = Some(target)
 
       override protected def transformRange(range: TextRange): TextRange = target.getTextRange
+
+      override def newAnnotation(severity: HighlightSeverity, message: String): ScalaAnnotationBuilder = {
+        if (severity >= HighlightSeverity.ERROR) {
+          _hadError = true
+        }
+        super.newAnnotation(severity, message)
+      }
+
+      override def newSilentAnnotation(severity: HighlightSeverity): ScalaAnnotationBuilder = {
+        if (severity >= HighlightSeverity.ERROR) {
+          _hadError = true
+        }
+        super.newSilentAnnotation(severity)
+      }
     }
 }
 

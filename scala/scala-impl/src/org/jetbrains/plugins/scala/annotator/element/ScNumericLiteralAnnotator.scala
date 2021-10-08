@@ -31,18 +31,10 @@ sealed abstract class ScNumericLiteralAnnotator[L <: Numeric : reflect.ClassTag]
       case _ => literal
     }
 
-    for {
-      level <- languageLevel
-      if kind == Oct
-
-      (message, severity) <- level match {
-        case Scala_2_10 => Some(ScalaBundle.message("octal.literals.deprecated"), HighlightSeverity.WARNING)
-        case level if level >= Scala_2_11 => Some(ScalaBundle.message("octal.literals.removed"), HighlightSeverity.ERROR)
-        case _ => None
-      }
-
-      annotation = holder.createAnnotation(severity, target.getTextRange, message)
-    } annotation.registerFix(new ConvertOctToHex(literal, isLong))
+    if (kind == Oct && languageLevel.exists(_ >= Scala_2_11)) {
+      val message = ScalaBundle.message("octal.literals.removed")
+      holder.createErrorAnnotation(target.getTextRange, message, new ConvertOctToHex(literal, isLong))
+    }
 
     val number = kind(text, isLong)
     number.lastIndexOf('_') match {
@@ -106,10 +98,10 @@ object ScLongLiteralAnnotator extends ScNumericLiteralAnnotator[ScLongLiteral](i
     annotate(literal) match {
       case Some((target, _)) if ConvertMarker.isApplicableTo(literal) =>
         val range = literal.getTextRange
-        holder.createWarningAnnotation(
-          TextRange.from(range.getEndOffset - 1, 1),
-          ScalaBundle.message("lowercase.long.marker")
-        ).registerFix(new ConvertMarker(literal), range)
+        holder.newAnnotation(HighlightSeverity.WARNING, ScalaBundle.message("lowercase.long.marker"))
+          .range(TextRange.from(range.getEndOffset - 1, 1))
+          .newFix(new ConvertMarker(literal)).range(range).registerFix
+          .create()
       case _ =>
     }
   }
@@ -121,14 +113,14 @@ object ScIntegerLiteralAnnotator extends ScNumericLiteralAnnotator[ScIntegerLite
                        (implicit holder: ScalaAnnotationHolder): Unit = {
     annotate(literal) match {
       case Some((target, true)) =>
-        val annotation = holder.createErrorAnnotation(
-          target,
-          ScalaBundle.message("integer.literal.is.out.of.range")
-        )
-
-        if (target.expectedType().forall(ConvertToLong.isApplicableTo(literal, _))) {
-          annotation.registerFix(new ConvertToLong(literal))
+        val maybeFix = Option.when(target.expectedType().forall(ConvertToLong.isApplicableTo(literal, _))) {
+          new ConvertToLong(literal)
         }
+        holder.createErrorAnnotation(
+          target,
+          ScalaBundle.message("integer.literal.is.out.of.range"),
+          maybeFix
+        )
       case _ =>
     }
   }

@@ -4,7 +4,6 @@ package element
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
@@ -144,8 +143,9 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
                   holder.createErrorAnnotation(
                     range,
-                    ScalaBundle.message("annotator.error.sunspecified.value.parameters", missed.mkString(", "))
-                  ).registerFixesByUsages(reference)
+                    ScalaBundle.message("annotator.error.sunspecified.value.parameters", missed.mkString(", ")),
+                    createFixesByUsages(reference)
+                  )
                 }
                 val (problems, fun) = call.applyOrUpdateElement match {
                   case Some(rr) =>
@@ -165,8 +165,9 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
 
                     holder.createErrorAnnotation(
                       range,
-                      ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun))
-                    ).registerFixesByUsages(reference)
+                      ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun)),
+                      createFixesByUsages(reference)
+                    )
                   }
                 }
 
@@ -174,14 +175,16 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case DoesNotTakeParameters =>
                     holder.createErrorAnnotation(
                       call.argsElement,
-                      ScalaBundle.message("annotator.error.target.does.not.take.parameters", fun.name)
-                    ).registerFixesByUsages(reference)
+                      ScalaBundle.message("annotator.error.target.does.not.take.parameters", fun.name),
+                      createFixesByUsages(reference)
+                    )
                   case ExcessArgument(argument) =>
                     if (inDesugaring) {
                       holder.createErrorAnnotation(
                         argument,
-                        ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun))
-                      ).registerFixesByUsages(reference)
+                        ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun)),
+                        createFixesByUsages(reference)
+                      )
                     }
                   case TypeMismatch(expression, expectedType) =>
                     if (countMatches && !typeMismatchShown) {
@@ -225,8 +228,9 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
                   case MissedParametersClause(_) =>
                     holder.createErrorAnnotation(
                       reference,
-                      ScalaBundle.message("annotator.error.missing.arguments.for.method", nameWithSignature(f))
-                    ).registerFixesByUsages(reference)
+                      ScalaBundle.message("annotator.error.missing.arguments.for.method", nameWithSignature(f)),
+                      createFixesByUsages(reference)
+                    )
                   case _ =>
                 }
               case _ =>
@@ -254,12 +258,12 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     val ref: Option[PsiElement] = refElementOpt.flatMap(_.resolve().toOption)
     val reassignment = ref.exists(ScalaPsiUtil.isReadonly)
     if (reassignment) {
-      val annotation = holder.createErrorAnnotation(reference, ScalaBundle.message("annotator.error.reassignment.to.val"))
-      ref.get match {
-        case named: PsiNamedElement if ScalaPsiUtil.nameContext(named).isInstanceOf[ScValue] =>
-          annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(named).asInstanceOf[ScValue]))
-        case _ =>
+      val maybeFix = ref.get match {
+        case ScalaPsiUtil.inNameContext(v: ScValue) =>
+          Some(new ValToVarQuickFix(v))
+        case _ => None
       }
+      holder.createErrorAnnotation(reference, ScalaBundle.message("annotator.error.reassignment.to.val"), maybeFix)
     }
   }
 
@@ -276,13 +280,11 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     refElement match {
       case _: ScDocResolvableCodeReference =>
         if (resolve.isEmpty) {
-          val annotation = holder.createAnnotation(
-            HighlightSeverity.WARNING,
-            refElement.getTextRange,
-            ScalaBundle.message("cannot.resolve", refElement.refName)
+          holder.createWarningAnnotation(
+            refElement,
+            ScalaBundle.message("cannot.resolve", refElement.refName),
+            ScalaImportTypeFix(refElement)
           )
-
-          annotation.registerFix(ScalaImportTypeFix(refElement))
         }
         return
       case _ =>
@@ -400,15 +402,19 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         val refWithoutArgs = ScalaPsiElementFactory.createReferenceFromText(refElement.getText, parent.getContext, parent)
         if (refWithoutArgs != null && refWithoutArgs.multiResolveScala(false).exists(!_.getElement.isInstanceOf[PsiPackage])) {
           // We can't resolve the method call A(arg1, arg2), but we can resolve A. Highlight this differently.
-          val error = errorWithRefName(refElement.refName)
-          val annotation = holder.createErrorAnnotation(refElement.nameId, error)
-          annotation.setHighlightType(ProblemHighlightType.GENERIC_ERROR)
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
-          refWithoutArgs match {
-            case ResolvesTo(obj: ScObject) => annotation.registerFix(fix(obj))
-            case InstanceOfClass(td: ScTypeDefinition) => annotation.registerFix(fix(td))
-            case _ =>
+          val message = errorWithRefName(refElement.refName)
+          val typeDefFix = refWithoutArgs match {
+            case ResolvesTo(obj: ScObject) => fix(obj) :: Nil
+            case InstanceOfClass(td: ScTypeDefinition) => fix(td) :: Nil
+            case _ => Nil
           }
+
+          holder.createErrorAnnotation(
+            refElement.nameId,
+            message,
+            ReportHighlightingErrorQuickFix :: typeDefFix
+          )
+
           true
         } else false
       }
@@ -438,20 +444,17 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   private def createUnknownSymbolProblem(reference: ScReference)
                                         (implicit holder: ScalaAnnotationHolder) = {
     val identifier = reference.nameId
-    val annotation = holder.createErrorAnnotation(
+    val fixes =
+      UnresolvedReferenceFixProvider.fixesFor(reference) :+
+        ReportHighlightingErrorQuickFix :++
+        createFixesByUsages(reference) // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
+
+    holder.createErrorAnnotation(
       identifier,
-      ScalaBundle.message("cannot.resolve", identifier.getText)
+      ScalaBundle.message("cannot.resolve", identifier.getText),
+      ProblemHighlightType.LIKE_UNKNOWN_SYMBOL,
+      fixes
     )
-    annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-
-    val fixes = UnresolvedReferenceFixProvider.fixesFor(reference)
-
-    annotation.registerFixes(fixes)
-    annotation.registerFix(ReportHighlightingErrorQuickFix)
-    // TODO We can now use UnresolvedReferenceFixProvider to decoupte custom fixes from the annotator
-    annotation.registerFixesByUsages(reference)
-
-    annotation
   }
 
   private def checkQualifiedReferenceElement(refElement: ScReference, typeAware: Boolean)
@@ -585,59 +588,47 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
     }
   }
 
-  private implicit class ScalaAnnotationExt(private val annotation: ScalaAnnotation) extends AnyVal {
+  def createFixesByUsages(reference: ScReference): List[CreateFromUsageQuickFixBase] =
+    reference match {
+      case reference: ScReferenceExpression => createFixesByUsages(reference)
+      case reference: ScStableCodeReference => createFixesByUsages(reference)
+      case _ => Nil
+    }
 
-    def registerFixes(fixes: Iterable[IntentionAction]): Unit =
-      fixes.foreach(annotation.registerFix)
+  private[this] def createFixesByUsages(reference: ScReferenceExpression): List[CreateFromUsageQuickFixBase] =
+    reference.getParent match {
+      case _: ScMethodCall =>
+        val isUpperCased = reference.refName.headOption.exists(_.isUpper)
+        new CreateMethodQuickFix(reference) ::
+          (if (isUpperCased)
+            new CreateCaseClassQuickFix(reference) :: Nil
+          else
+            Nil)
+      case ScInfixExpr(_, `reference`, _) =>
+        new CreateMethodQuickFix(reference) :: Nil
+      case (_: ScGenericCall) childOf (_: ScMethodCall) =>
+        new CreateMethodQuickFix(reference) :: Nil
+      case _: ScGenericCall =>
+        new CreateParameterlessMethodQuickFix(reference) :: Nil
+      case _ =>
+        new CreateParameterlessMethodQuickFix(reference) ::
+          new CreateValueQuickFix(reference) ::
+          new CreateVariableQuickFix(reference) ::
+          new CreateObjectQuickFix(reference) ::
+          Nil
+    }
 
-    def registerFixesByUsages(reference: ScReference): Unit =
-      registerFixes(ScalaAnnotationExt.createFixesByUsages(reference))
-  }
-
-  private object ScalaAnnotationExt {
-
-    private def createFixesByUsages(reference: ScReference): List[CreateFromUsageQuickFixBase] =
-      reference match {
-        case reference: ScReferenceExpression => createFixesByUsages(reference)
-        case reference: ScStableCodeReference => createFixesByUsages(reference)
-        case _ => Nil
-      }
-
-    private[this] def createFixesByUsages(reference: ScReferenceExpression): List[CreateFromUsageQuickFixBase] =
-      reference.getParent match {
-        case _: ScMethodCall =>
-          val isUpperCased = reference.refName.headOption.exists(_.isUpper)
-          new CreateMethodQuickFix(reference) ::
-            (if (isUpperCased)
-              new CreateCaseClassQuickFix(reference) :: Nil
-            else
-              Nil)
-        case ScInfixExpr(_, `reference`, _) =>
-          new CreateMethodQuickFix(reference) :: Nil
-        case (_: ScGenericCall) childOf (_: ScMethodCall) =>
-          new CreateMethodQuickFix(reference) :: Nil
-        case _: ScGenericCall =>
-          new CreateParameterlessMethodQuickFix(reference) :: Nil
-        case _ =>
-          new CreateParameterlessMethodQuickFix(reference) ::
-            new CreateValueQuickFix(reference) ::
-            new CreateVariableQuickFix(reference) ::
-            new CreateObjectQuickFix(reference) ::
-            Nil
-      }
-
-    private[this] def createFixesByUsages(reference: ScStableCodeReference): List[CreateTypeDefinitionQuickFix] =
-      reference.getParent match {
-        case st: ScSimpleTypeElement if st.singleton => Nil
-        case pattern@(_: ScConstructorPattern | _: ScInfixPattern) =>
+  private[this] def createFixesByUsages(reference: ScStableCodeReference): List[CreateTypeDefinitionQuickFix] =
+    reference.getParent match {
+      case st: ScSimpleTypeElement if st.singleton => Nil
+      case pattern@(_: ScConstructorPattern | _: ScInfixPattern) =>
+        new CreateCaseClassQuickFix(reference) ::
+          new CreateExtractorObjectQuickFix(reference, pattern.asInstanceOf[ScPattern]) ::
+          Nil
+      case _ =>
+        new CreateTraitQuickFix(reference) ::
+          new CreateClassQuickFix(reference) ::
           new CreateCaseClassQuickFix(reference) ::
-            new CreateExtractorObjectQuickFix(reference, pattern.asInstanceOf[ScPattern]) ::
-            Nil
-        case _ =>
-          new CreateTraitQuickFix(reference) ::
-            new CreateClassQuickFix(reference) ::
-            new CreateCaseClassQuickFix(reference) ::
-            Nil
-      }
-  }
+          Nil
+    }
 }

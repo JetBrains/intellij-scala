@@ -31,12 +31,12 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
             new AnnotationSession(call.getContainingFile)
           )
         case _ =>
-          val annotation = holder.createErrorAnnotation(
+          holder.createErrorAnnotation(
             partReference.getTextRange,
-            ScalaBundle.message("cannot.resolve.in.StringContext", partReference.refName)
+            ScalaBundle.message("cannot.resolve.in.StringContext", partReference.refName),
+            ProblemHighlightType.LIKE_UNKNOWN_SYMBOL,
+            ImportImplicitConversionFixes(partReference)
           )
-          annotation.setHighlightType(ProblemHighlightType.LIKE_UNKNOWN_SYMBOL)
-          ImportImplicitConversionFixes(partReference).foreach(annotation.registerFix)
       }
     case _ =>
   }
@@ -56,9 +56,6 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
       }
     }
 
-  /**
-   * @see [[ScInterpolated.getStringContextExpression]] implementation dependent
-   */
   @annotation.tailrec
   private[this] def createOffsetToRangeMap(iterator: Iterator[ScExpression],
                                            length: Int = 1, // "("

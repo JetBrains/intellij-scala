@@ -2,6 +2,7 @@ package org.jetbrains.plugins.scala
 package annotator
 package element
 
+import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
@@ -135,20 +136,18 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       holder
         .createErrorAnnotation(
           arg,
-          ScalaBundle
-            .message("type.arg.does.not.conform.to.upper.bound", argTyText, upper.presentableText, param.name)
+          ScalaBundle.message("type.arg.does.not.conform.to.upper.bound", argTyText, upper.presentableText, param.name),
+          ReportHighlightingErrorQuickFix
         )
-        .registerFix(ReportHighlightingErrorQuickFix)
     }
 
     if (!substitute(lower).conforms(argTy)) {
       holder
         .createErrorAnnotation(
           arg,
-          ScalaBundle
-            .message("type.arg.does.not.conform.to.lower.bound", argTyText, lower.presentableText, param.name)
+          ScalaBundle.message("type.arg.does.not.conform.to.lower.bound", argTyText, lower.presentableText, param.name),
+          ReportHighlightingErrorQuickFix
         )
-        .registerFix(ReportHighlightingErrorQuickFix)
     }
   }
 
@@ -171,9 +170,11 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
           val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
           if (actualDiff.exists(_.hasError)) {
             val expectedDiff = TypeConstructorDiff.forExpected(expectedTyConstr, actualTyConstr, substitute)
-            val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("type.constructor.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
-            annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
-            annotation.registerFix(ReportHighlightingErrorQuickFix)
+            holder.newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("type.constructor.does.not.conform", argTy.presentableText, expectedDiff.flatten.map(_.text).mkString))
+              .range(arg)
+              .tooltip(tooltipForDiffTrees(ScalaBundle.message("type.constructor.mismatch"), expectedDiff, actualDiff))
+              .withFix(ReportHighlightingErrorQuickFix)
+              .create()
           }
         case ty if ty.isNothing || ty.isAny => // nothing and any are ok
         case _ =>
@@ -182,9 +183,11 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
           val actualDiff = TypeConstructorDiff.forActual(expectedTyConstr, actualTyConstr, substitute)
 
           val paramText  = param.psiTypeParameter.asInstanceOf[ScTypeParam].typeParameterText
-          val annotation = holder.createErrorAnnotation(arg, ScalaBundle.message("expected.type.constructor", paramText))
-          annotation.registerFix(ReportHighlightingErrorQuickFix)
-          annotation.setTooltip(tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff))
+          holder.newAnnotation(HighlightSeverity.ERROR, ScalaBundle.message("expected.type.constructor", paramText))
+            .range(arg)
+            .tooltip(tooltipForDiffTrees(ScalaBundle.message("expected.type.constructor", ""), expectedDiff, actualDiff))
+            .withFix(ReportHighlightingErrorQuickFix)
+            .create()
       }
     }
   }

@@ -92,7 +92,7 @@ object ScFunctionExprAnnotator extends ElementAnnotator[ScFunctionExpr] {
       parameter.typeElement.flatMap(_.`type`().toOption).filter(!expectedType.conforms(_)).foreach { _ =>
         val message = ScalaBundle.message("type.mismatch.expected", expectedType.presentableText(parameter), parameter.typeElement.get.getText)
         val ranges = mismatchRangesIn(parameter.typeElement.get, expectedType)(parameter)
-        ranges.foreach(holder.createErrorAnnotation(_, message).registerFix(ReportHighlightingErrorQuickFix))
+        ranges.foreach(holder.createErrorAnnotation(_, message, ReportHighlightingErrorQuickFix))
         typeMismatch = true
       }
     }

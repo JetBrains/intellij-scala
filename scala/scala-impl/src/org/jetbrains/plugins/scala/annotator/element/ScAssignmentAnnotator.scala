@@ -3,7 +3,6 @@ package annotator
 package element
 
 import com.intellij.psi.{PsiClass, PsiField, PsiMethod}
-import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
 import org.jetbrains.plugins.scala.codeInspection.varCouldBeValInspection.ValToVarQuickFix
 import org.jetbrains.plugins.scala.extensions._
@@ -74,9 +73,8 @@ object ScAssignmentAnnotator extends ElementAnnotator[ScAssignment] {
                   case c: PsiClass if c.isAnnotationType => //do nothing
                   case _ => holder.createErrorAnnotation(element, reassignementToVal)
                 }
-              case _: ScValue =>
-                val annotation = holder.createErrorAnnotation(element, reassignementToVal)
-                annotation.registerFix(new ValToVarQuickFix(ScalaPsiUtil.nameContext(r.element).asInstanceOf[ScValue]))
+              case v: ScValue =>
+                holder.createErrorAnnotation(element, reassignementToVal, new ValToVarQuickFix(v))
               case _ => holder.createErrorAnnotation(element, reassignementToVal)
             }
           case _ =>
