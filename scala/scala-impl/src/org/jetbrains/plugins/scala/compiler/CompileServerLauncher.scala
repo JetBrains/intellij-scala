@@ -270,10 +270,7 @@ object CompileServerLauncher {
                   val isExpectedProcessTermination = watcher.isTerminatedByIdleTimeout || instance.stopped
                   if (!isExpectedProcessTermination) {
                     invokeLater {
-                      // TODO: remove `isInternal` check in 2021.3
-                      if (ApplicationManager.getApplication.isInternal) {
-                        CompileServerManager(project).showNotification(ScalaBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
-                      }
+                      CompileServerManager(project).showNotification(ScalaBundle.message("compile.server.terminated.unexpectedly.0.port.1.pid", instance.port, instance.pid), NotificationType.WARNING)
                       LOG.warn(s"Compile server terminated unexpectedly: ${instance.summary}")
                     }
                   }
