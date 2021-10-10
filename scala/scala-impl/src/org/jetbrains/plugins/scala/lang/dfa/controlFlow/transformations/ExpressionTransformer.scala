@@ -25,7 +25,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case _: ScUnitExpr => transformUnitExpression(builder)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => if (isReferenceExpressionInvocation(reference))
-      transformInvocation(reference, builder) else transformReferenceExpression(reference, builder)
+      transformInvocation(reference, builder) else transformReference(reference, builder)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
@@ -79,7 +79,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     }
   }
 
-  private def transformReferenceExpression(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
+  private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
     val referencedVariableDescriptor = ScalaDfaVariableDescriptor.fromReferenceExpression(expression)
     referencedVariableDescriptor match {
       case Some(descriptor) => builder.pushVariable(descriptor, expression)
