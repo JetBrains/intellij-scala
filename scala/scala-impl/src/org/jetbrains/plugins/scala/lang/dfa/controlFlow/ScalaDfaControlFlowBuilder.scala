@@ -1,6 +1,7 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow
 
 import com.intellij.codeInspection.dataFlow.interpreter.DataFlowInterpreter
+import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
@@ -10,7 +11,7 @@ import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.Transformable
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 
 /**
  * Stack-based bytecode-like control flow builder for Scala that supports analysis of dataflow.
@@ -58,6 +59,11 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     Option(transfer).foreach(transfer => pushInstruction(new EnsureInstruction(null, RelationType.EQ, DfType.TOP, transfer)))
+  }
+
+  def pushVariable(descriptor: ScalaVariableDescriptor, expression: ScExpression): Unit = {
+    val dfaVariable = createVariable(descriptor)
+    pushInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
   }
 
   def popReturnValue(): Unit = pushInstruction(new PopInstruction)

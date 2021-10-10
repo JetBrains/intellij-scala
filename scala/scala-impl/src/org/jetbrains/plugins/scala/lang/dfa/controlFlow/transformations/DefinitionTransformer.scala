@@ -17,21 +17,22 @@ class DefinitionTransformer(val transformedDefinition: ScDefinitionWithAssignmen
   }
 
   private def transformPatternDefinition(definition: ScPatternDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
-    transformSimpleDefinition(definition, builder)
+    transformSimpleDefinition(definition, builder, definition.isStable)
   }
 
   private def transformVariableDefinition(definition: ScVariableDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
-    transformSimpleDefinition(definition, builder)
+    transformSimpleDefinition(definition, builder, isStable = false)
   }
 
-  private def transformSimpleDefinition(definition: ScValueOrVariableDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
+  private def transformSimpleDefinition(definition: ScValueOrVariableDefinition, builder: ScalaDfaControlFlowBuilder,
+                                        isStable: Boolean): Unit = {
     if (!definition.isSimple) {
       builder.pushUnknownValue()
       return
     }
 
     val binding = definition.bindings.head
-    val dfaVariable = builder.createVariable(ScalaVariableDescriptor(binding, binding.isStable))
+    val dfaVariable = builder.createVariable(ScalaVariableDescriptor(binding, isStable))
 
     transformIfPresent(definition.expr, builder)
     builder.pushInstruction(new SimpleAssignmentInstruction(ScalaStatementAnchor(definition), dfaVariable))

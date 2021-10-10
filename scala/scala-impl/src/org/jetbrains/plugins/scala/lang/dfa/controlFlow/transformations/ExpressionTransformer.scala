@@ -1,13 +1,12 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import com.intellij.codeInspection.dataFlow.java.inst.JvmPushInstruction
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
-import org.jetbrains.plugins.scala.lang.dfa.framework.{ScalaStatementAnchor, ScalaUnreportedElementAnchor}
+import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -83,12 +82,10 @@ class ExpressionTransformer(val transformedExpression: ScExpression)
   }
 
   private def transformReferenceExpression(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    // TODO add qualified expressions, currently only simple ones
-    expression.getReference.bind().map(_.element) match {
-      case Some(element) => // TODO extract later + try to fix types/anchor, if possible
-        val dfaVariable = builder.createVariable(ScalaVariableDescriptor(element, isStable = true))
-        builder.pushInstruction(new JvmPushInstruction(dfaVariable, ScalaUnreportedElementAnchor(element)))
-      case _ => builder.pushUnknownCall(expression, 0)
+    val referencedVariableDescriptor = ScalaVariableDescriptor.fromReferenceExpression(expression)
+    referencedVariableDescriptor match {
+      case Some(descriptor) => builder.pushVariable(descriptor, expression)
+      case None => builder.pushUnknownCall(expression, 0)
     }
   }
 
