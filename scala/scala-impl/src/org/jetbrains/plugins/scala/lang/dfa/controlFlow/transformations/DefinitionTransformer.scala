@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
-import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 
 class DefinitionTransformer(val transformedDefinition: ScDefinitionWithAssignment)
   extends ScalaPsiElementTransformer(transformedDefinition) {
@@ -12,10 +12,19 @@ class DefinitionTransformer(val transformedDefinition: ScDefinitionWithAssignmen
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = transformedDefinition match {
     case patternDefinition: ScPatternDefinition => transformPatternDefinition(patternDefinition, builder)
+    case variableDefinition: ScVariableDefinition => transformVariableDefinition(variableDefinition, builder)
     case _ => throw TransformationFailedException(transformedDefinition, "Unsupported definition.")
   }
 
   private def transformPatternDefinition(definition: ScPatternDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
+    transformSimpleDefinition(definition, builder)
+  }
+
+  private def transformVariableDefinition(definition: ScVariableDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
+    transformSimpleDefinition(definition, builder)
+  }
+
+  private def transformSimpleDefinition(definition: ScValueOrVariableDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
     if (!definition.isSimple) {
       builder.pushUnknownValue()
       return
