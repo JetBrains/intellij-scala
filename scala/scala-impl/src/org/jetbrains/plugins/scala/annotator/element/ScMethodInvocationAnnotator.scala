@@ -3,20 +3,21 @@ package annotator
 package element
 
 import com.intellij.openapi.util.TextRange
-import com.intellij.psi.{PsiComment, PsiElement, PsiWhiteSpace}
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.registerTypeMismatchError
+import com.intellij.psi._
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{registerTypeMismatchError, withoutNonHighlightables}
 import org.jetbrains.plugins.scala.annotator.createFromUsage.{CreateApplyQuickFix, InstanceOfClass}
+import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator.{createFixesByUsages, nameWithSignature}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.externalHighlighters.ScalaHighlightingMode
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinition
+import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
-import org.jetbrains.plugins.scala.lang.resolve.ResolveUtils
+import org.jetbrains.plugins.scala.lang.resolve.{ResolveUtils, ScalaResolveResult}
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.annotation.tailrec
@@ -32,31 +33,21 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
     }
   }
 
-  def annotateMethodInvocation(call: MethodInvocation)
+  def annotateMethodInvocation(call: MethodInvocation, inDesugaring: Boolean = false)
                               (implicit holder: ScalaAnnotationHolder): Unit = {
     implicit val ctx: ProjectContext = call
     implicit val tpc: TypePresentationContext = TypePresentationContext(call)
 
     // this has to be checked in every case
     checkMissingArgumentClauses(call)
+    val currentFile = holder.getCurrentAnnotationSession.getFile
 
-    //do we need to check it:
-    call.getEffectiveInvokedExpr match {
-      case ref: ScReference =>
-        ref.bind() match {
-          case Some(rr) if rr.notCheckedResolveResult || rr.isDynamic => //it's unhandled case
-          case Some(rr) if rr.element.is[ScParameter] => // this was previously handled by ScReferenceAnnotator, but didn't make sense there
-          case _ =>
-            call.applyOrUpdateElement match {
-              case Some(r) if r.isDynamic => //it's still unhandled
-              case _ => return //it's definetely handled case
-            }
-        }
-      case _ => //unhandled case (only ref expressions was checked)
-    }
+    val (elem, problems) = funAndProblemsFor(call)
 
-    val problems = call.applyOrUpdateElement.map(_.problems).getOrElse(call.applicationProblems)
+    val ref = call.getEffectiveInvokedExpr.asOptionOf[ScReferenceExpression]
+
     val missed = for (MissedValueParameter(p) <- problems) yield p.name + ": " + p.paramType.presentableText
+
 
     if(missed.nonEmpty) {
       val range = call.argumentExpressions.lastOption
@@ -83,18 +74,30 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
 
     val firstExcessiveArgument = problems.filterByType[ExcessArgument].map(_.argument).minByOption(_.getTextOffset)
     firstExcessiveArgument.foreach { argument =>
-      val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("(")).lastOption
-      val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
-      holder.createErrorAnnotation(range, ScalaBundle.message("annotator.error.too.many.arguments"))
+      val range =
+        if (inDesugaring) argument.getTextRange
+        else {
+          val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("(")).lastOption
+          opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
+        }
+
+      val fixes = ref.toList.flatMap(createFixesByUsages)
+      val message = elem.fold(ScalaBundle.message("annotator.error.too.many.arguments")) { elem =>
+        ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(elem))
+      }
+      holder.createErrorAnnotation(range, message, fixes)
     }
 
     //todo: better error explanation?
     //todo: duplicate
-    problems.foreach {
+    withoutNonHighlightables(problems, currentFile).foreach {
       case DoesNotTakeParameters =>
-        val targetName = call.getInvokedExpr.`type`().toOption
-          .map("'" + _.presentableText + "'")
+        val targetName = elem.map(_.name)
+          .orElse {
+            call.getInvokedExpr.`type`().toOption.map("'" + _.presentableText + "'")
+          }
           .getOrElse(ScalaBundle.message("does.not.take.parameter.default.target"))
+
         val message = ScalaBundle.message("annotator.error.target.does.not.take.parameters", targetName)
         val fix = (call, call.getInvokedExpr) match {
           case (c: ScMethodCall, InstanceOfClass(td: ScTypeDefinition)) =>
@@ -133,6 +136,21 @@ object ScMethodInvocationAnnotator extends ElementAnnotator[MethodInvocation] {
       case NotFoundImplicitParameter(_) =>
       case WrongTypeParameterInferred =>
     }
+  }
+
+  private def funAndProblemsFor(call: MethodInvocation): (Option[PsiNamedElement], Seq[ApplicabilityProblem]) = {
+    call.applyOrUpdateElement.map(rr => (Some(rr.element), rr.problems))
+      .getOrElse {
+        call.getEffectiveInvokedExpr match {
+          case ref: ScReferenceExpression =>
+            ref.bind() match {
+              case Some(rr @ ScalaResolveResult(f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction), _)) =>
+                (Some(f), rr.problems)
+              case _ => (None, call.applicationProblems)
+            }
+          case _ => (None, call.applicationProblems)
+        }
+      }
   }
 
   private def isAmbiguousOverload(problems: Seq[ApplicabilityProblem]): Boolean =

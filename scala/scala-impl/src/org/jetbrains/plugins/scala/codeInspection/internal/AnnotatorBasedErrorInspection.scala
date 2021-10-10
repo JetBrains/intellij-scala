@@ -12,6 +12,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiElement, PsiElementVisitor, PsiJavaFile}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.annotator.{DummyScalaAnnotationBuilder, ScalaAnnotationBuilder, ScalaAnnotationHolder, ScalaAnnotator}
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 
 /**
@@ -93,8 +94,11 @@ object AnnotatorBasedErrorInspection {
     private class MyAnnotationBuilder(severity: HighlightSeverity, message: String = null)
       extends DummyScalaAnnotationBuilder(severity, message) {
 
-      override def onCreate(severity: HighlightSeverity, @Nls message: String, range: TextRange): Unit =
-        holder.registerProblem(element, range, message)
+      override def onCreate(severity: HighlightSeverity, @Nls message: String, range: TextRange): Unit = {
+        val rangeInElement = range.shiftLeft(element.startOffset)
+        holder.registerProblem(element, rangeInElement, message)
+      }
+
     }
 
   }

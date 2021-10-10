@@ -4,10 +4,9 @@ package element
 
 import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.openapi.util.TextRange
 import com.intellij.psi._
 import com.intellij.psi.util.PsiTreeUtil.{findCommonContext, findFirstContext}
-import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.{highlightImplicitView, registerTypeMismatchError}
+import org.jetbrains.plugins.scala.annotator.AnnotatorUtils.highlightImplicitView
 import org.jetbrains.plugins.scala.annotator.createFromUsage._
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.autoImport.quickFix.ScalaImportTypeFix
@@ -102,127 +101,8 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
         targetElement match {
           case f @ (_: ScFunction | _: PsiMethod | _: ScSyntheticFunction) =>
             refContext match {
-              case genCall: ScGenericCall =>
-                /* done by ScParameterizedTypeElementAnnotator.annotateTypeArgs
-                val missing = for (MissedTypeParameter(p) <- r.problems) yield p.name
-                missing match {
-                  case Seq() =>
-                  case as =>
-                    holder.createErrorAnnotation(genCall.typeArgs,
-                      ScalaBundle.message("annotator.error.unspecified.type.parameters", as.mkString(", ")))
-                }
-                 */
-                withoutNonHighlightables(r.problems, holder).foreach {
-                  case MissedTypeParameter(_) =>
-                  // handled in bulk above
-                  case DoesNotTakeTypeParameters =>
-                    // handled by ScParameterizedTypeElementAnnotator.annotateTypeArgs
-                    //holder.createErrorAnnotation(genCall.typeArgs,
-                    //  ScalaBundle.message("annotator.error.does.not.take.type.parameters", f.name))
-                  case ExcessTypeArgument(_) =>
-                    // handled by ScParameterizedTypeElementAnnotator.annotateTypeArgs
-                    //holder.createErrorAnnotation(arg,
-                    //  ScalaBundle.message("annotator.error.too.many.type.arguments", f.name))
-                  case DefaultTypeParameterMismatch(expected, actual) =>
-                    holder.createErrorAnnotation(
-                      genCall.typeArgs,
-                      ScalaBundle.message("type.mismatch.default.args.expected.actual", expected, actual))
-                  case _ =>
-                }
-              case call: MethodInvocation =>
-                implicit val tpc: TypePresentationContext = TypePresentationContext(call)
-                val missed =
-                  for (MissedValueParameter(p) <- r.problems) yield p.name + ": " + p.paramType.presentableText
-
-                if (missed.nonEmpty) {
-                  val range = if (inDesugaring) call.argsElement.getTextRange else {
-                    call.argumentExpressions.lastOption
-                      .map(e => new TextRange(e.getTextRange.getEndOffset - 1, call.argsElement.getTextRange.getEndOffset))
-                      .getOrElse(call.argsElement.getTextRange)
-                  }
-
-                  holder.createErrorAnnotation(
-                    range,
-                    ScalaBundle.message("annotator.error.sunspecified.value.parameters", missed.mkString(", ")),
-                    createFixesByUsages(reference)
-                  )
-                }
-                val (problems, fun) = call.applyOrUpdateElement match {
-                  case Some(rr) =>
-                    (rr.problems, rr.element)
-                  case _ => (r.problems, f)
-                }
-
-                val countMatches = !problems.exists(_.is[MissedValueParameter, ExcessArgument])
-
-                var typeMismatchShown = false
-
-                if (!inDesugaring) {
-                  val firstExcessiveArgument = problems.filterByType[ExcessArgument].map(_.argument).filter(inSameFile(_, holder)).minByOption(_.getTextOffset)
-                  firstExcessiveArgument.foreach { argument =>
-                    val opening = argument.prevSiblings.takeWhile(e => e.is[PsiWhiteSpace, PsiComment] || e.textMatches(",") || e.textMatches("(")).lastOption
-                    val range = opening.map(e => new TextRange(e.getTextOffset, argument.getTextOffset + 1)).getOrElse(argument.getTextRange)
-
-                    holder.createErrorAnnotation(
-                      range,
-                      ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun)),
-                      createFixesByUsages(reference)
-                    )
-                  }
-                }
-
-                withoutNonHighlightables(problems, holder).foreach {
-                  case DoesNotTakeParameters =>
-                    holder.createErrorAnnotation(
-                      call.argsElement,
-                      ScalaBundle.message("annotator.error.target.does.not.take.parameters", fun.name),
-                      createFixesByUsages(reference)
-                    )
-                  case ExcessArgument(argument) =>
-                    if (inDesugaring) {
-                      holder.createErrorAnnotation(
-                        argument,
-                        ScalaBundle.message("annotator.error.too.many.arguments.method", nameWithSignature(fun)),
-                        createFixesByUsages(reference)
-                      )
-                    }
-                  case TypeMismatch(expression, expectedType) =>
-                    if (countMatches && !typeMismatchShown) {
-                      expression.`type`().foreach {
-                        registerTypeMismatchError(_, expectedType, expression)
-                      }
-                      typeMismatchShown = true
-                    }
-                  case MissedValueParameter(_) => // simultaneously handled above
-                  case UnresolvedParameter(_) => // don't show function inapplicability, unresolved
-                  case MalformedDefinition(name) =>
-                    holder.createErrorAnnotation(call.getInvokedExpr,
-                      ScalaBundle.message("annotator.error.name.has.malformed.definition", name))
-                  case ExpansionForNonRepeatedParameter(expression) =>
-                    holder.createErrorAnnotation(expression,
-                      ScalaBundle.message("annotator.error.expansion.for.non.repeated.parameter"))
-                  case PositionalAfterNamedArgument(argument) =>
-                    holder.createErrorAnnotation(argument,
-                      ScalaBundle.message("annotator.error.positional.after.named.argument"))
-                  case ParameterSpecifiedMultipleTimes(assignment) =>
-                    holder.createErrorAnnotation(assignment.leftExpression,
-                      ScalaBundle.message("annotator.error.parameter.specified.multiple.times"))
-                  case WrongTypeParameterInferred => //todo: ?
-                  case ExpectedTypeMismatch => //will be reported later
-                  case AmbiguousImplicitParameters(_) =>
-                  case DefaultTypeParameterMismatch(_, _) =>
-                  case DoesNotTakeTypeParameters =>
-                  case ExcessTypeArgument(_) =>
-                  case MissedParametersClause(_) =>
-                  case MissedTypeParameter(_) =>
-                  case NotFoundImplicitParameter(_) =>
-
-                  case IncompleteCallSyntax(_) =>
-                  case InternalApplicabilityProblem(description) =>
-                    throw new AssertionError(
-                      "Internal applicability problem should not be get to the annotator, but found: " + description
-                    )
-                }
+              case _: ScGenericCall =>
+              case _: MethodInvocation =>
               case _ if !reference.is[ScInterpolatedPatternPrefix] =>
                 r.problems.foreach {
                   case MissedParametersClause(_) =>
@@ -533,38 +413,6 @@ object ScReferenceAnnotator extends ElementAnnotator[ScReference] {
   }
 
   private def parenthesise(items: Seq[_]) = items.mkString("(", ", ", ")")
-
-  // some properties cannot be shown because they are synthetic for example.
-  // filter these out
-  private def withoutNonHighlightables(
-    problems: Seq[ApplicabilityProblem],
-    holder:   ScalaAnnotationHolder
-  ): Seq[ApplicabilityProblem] = problems.filter {
-    case PositionalAfterNamedArgument(argument)      => inSameFile(argument, holder)
-    case ParameterSpecifiedMultipleTimes(assignment) => inSameFile(assignment, holder)
-    case UnresolvedParameter(assignment)             => inSameFile(assignment, holder)
-    case ExpansionForNonRepeatedParameter(argument)  => inSameFile(argument, holder)
-    case ExcessArgument(argument)                    => inSameFile(argument, holder)
-    case MissedParametersClause(clause)              => inSameFile(clause, holder)
-    case TypeMismatch(expression, _)                 => inSameFile(expression, holder)
-    case ExcessTypeArgument(argument)                => inSameFile(argument, holder)
-    case MalformedDefinition(_)                      => true
-    case DoesNotTakeParameters                       => true
-    case MissedValueParameter(_)                     => true
-    case DefaultTypeParameterMismatch(_, _)          => true
-    case WrongTypeParameterInferred                  => true
-    case DoesNotTakeTypeParameters                   => true
-    case MissedTypeParameter(_)                      => true
-    case ExpectedTypeMismatch                        => true
-    case NotFoundImplicitParameter(_)                => true
-    case AmbiguousImplicitParameters(_)              => true
-    case IncompleteCallSyntax(_)                     => true
-    case InternalApplicabilityProblem(_)             => true
-  }
-
-  private def inSameFile(elem: PsiElement, holder: ScalaAnnotationHolder): Boolean = {
-    elem != null && elem.getContainingFile.getViewProvider.getVirtualFile == holder.getCurrentAnnotationSession.getFile.getViewProvider.getVirtualFile
-  }
 
   private def highlightImplicitMethod(expr: ScExpression, resolveResult: ScalaResolveResult, refElement: ScReference,
                                       fun: PsiNamedElement)

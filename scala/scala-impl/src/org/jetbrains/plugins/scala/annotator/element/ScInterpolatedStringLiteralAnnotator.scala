@@ -7,8 +7,8 @@ import com.intellij.lang.annotation.AnnotationSession
 import com.intellij.openapi.util.TextRange
 import org.jetbrains.plugins.scala.autoImport.quickFix.ImportImplicitConversionFixes
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.base.{ScInterpolated, ScInterpolatedStringLiteral}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.base.ScInterpolatedStringLiteral
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.expr.ScInterpolatedExpressionPrefix
 
 /** see also [[ScStringLiteralAnnotator]] */
@@ -18,15 +18,16 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
                        (implicit holder: ScalaAnnotationHolder): Unit = literal.reference match {
     case Some(partReference: ScInterpolatedExpressionPrefix) =>
       partReference match {
-        case Resolved(resolveResult) =>
+        case Resolved(_) =>
 
           for {
             (reference, call) <- literal.desugaredExpression
 
-            offsetToRange = createOffsetToRangeMap(literal.getInjections.iterator)
+            offsetToRange = createSyntheticToRealRangeMap(literal.getInjections, call.argumentExpressions)
               .withDefaultValue(partReference.getTextRange)
           } annotateDesugared(
             reference,
+            call,
             offsetToRange,
             new AnnotationSession(call.getContainingFile)
           )
@@ -42,32 +43,20 @@ object ScInterpolatedStringLiteralAnnotator extends ElementAnnotator[ScInterpola
   }
 
   private def annotateDesugared(reference: ScReferenceExpression,
-                                offsetToRange: Map[Int, TextRange],
+                                call: MethodInvocation,
+                                syntheticToReal: Map[TextRange, TextRange],
                                 session: AnnotationSession)
-                               (implicit holder: ScalaAnnotationHolder): Unit =
-    ScReferenceAnnotator.annotateReference(reference, inDesugaring = true) {
+                               (implicit holder: ScalaAnnotationHolder): Unit = {
+    val delegateHolder = new annotationHolder.DelegateAnnotationHolder(session) {
 
-      new annotationHolder.DelegateAnnotationHolder(session) {
-
-        private val shift = reference.getTextRange.getEndOffset
-
-        override protected def transformRange(range: TextRange): TextRange =
-          offsetToRange(range.getStartOffset - shift)
-      }
+      override protected def transformRange(range: TextRange): TextRange =
+        syntheticToReal(range)
     }
+    ScReferenceAnnotator.annotateReference(reference, inDesugaring = true)(delegateHolder)
+    ScMethodInvocationAnnotator.annotateMethodInvocation(call, inDesugaring = true)(delegateHolder)
+  }
 
-  @annotation.tailrec
-  private[this] def createOffsetToRangeMap(iterator: Iterator[ScExpression],
-                                           length: Int = 1, // "("
-                                           result: Map[Int, TextRange] = Map.empty): Map[Int, TextRange] =
-    if (iterator.hasNext) {
-      val injection = iterator.next()
-      createOffsetToRangeMap(
-        iterator,
-        length + injection.getTextLength + 2, // ", "
-        result + (length -> injection.getTextRange)
-      )
-    } else {
-      result
-    }
+  private[this] def createSyntheticToRealRangeMap(injections: Seq[ScExpression],
+                                                  syntheticArgs: Seq[ScExpression]): Map[TextRange, TextRange] =
+    syntheticArgs.map(_.getTextRange).zip(injections.map(_.getTextRange)).toMap
 }

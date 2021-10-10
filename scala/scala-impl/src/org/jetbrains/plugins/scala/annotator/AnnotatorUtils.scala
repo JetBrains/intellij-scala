@@ -1,12 +1,10 @@
 package org.jetbrains.plugins.scala
 package annotator
 
-import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.lang.annotation.HighlightSeverity
-import com.intellij.openapi.editor.markup.TextAttributes
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.{PsiElement, PsiErrorElement, PsiNamedElement}
+import com.intellij.psi.{PsiElement, PsiErrorElement, PsiFile, PsiNamedElement}
 import org.jetbrains.plugins.scala.annotator.template.kindOf
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.highlighter.DefaultHighlighter
@@ -20,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTypeDefinitio
 import org.jetbrains.plugins.scala.lang.psi.types.api.FunctionType
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.ScMethodType
 import org.jetbrains.plugins.scala.lang.psi.types.result.TypeResult
-import org.jetbrains.plugins.scala.lang.psi.types.{ScType, ScTypeExt}
+import org.jetbrains.plugins.scala.lang.psi.types.{AmbiguousImplicitParameters, ApplicabilityProblem, DefaultTypeParameterMismatch, DoesNotTakeParameters, DoesNotTakeTypeParameters, ExcessArgument, ExcessTypeArgument, ExpansionForNonRepeatedParameter, ExpectedTypeMismatch, IncompleteCallSyntax, InternalApplicabilityProblem, MalformedDefinition, MissedParametersClause, MissedTypeParameter, MissedValueParameter, NotFoundImplicitParameter, ParameterSpecifiedMultipleTimes, PositionalAfterNamedArgument, ScType, ScTypeExt, TypeMismatch, UnresolvedParameter, WrongTypeParameterInferred}
 import org.jetbrains.plugins.scala.project.ProjectContext
 import org.jetbrains.plugins.scala.settings.ScalaProjectSettings
 
@@ -168,5 +166,37 @@ object AnnotatorUtils {
           definition.name
         )
       )
+  }
+
+  def inSameFile(elem: PsiElement, file: PsiFile): Boolean = {
+    elem != null && elem.getContainingFile.getViewProvider.getVirtualFile == file.getViewProvider.getVirtualFile
+  }
+
+  // some properties cannot be shown because they are synthetic for example.
+  // filter these out
+  def withoutNonHighlightables(
+    problems: Seq[ApplicabilityProblem],
+    currentFile: PsiFile
+  ): Seq[ApplicabilityProblem] = problems.filter {
+    case PositionalAfterNamedArgument(argument)      => inSameFile(argument, currentFile)
+    case ParameterSpecifiedMultipleTimes(assignment) => inSameFile(assignment, currentFile)
+    case UnresolvedParameter(assignment)             => inSameFile(assignment, currentFile)
+    case ExpansionForNonRepeatedParameter(argument)  => inSameFile(argument, currentFile)
+    case ExcessArgument(argument)                    => inSameFile(argument, currentFile)
+    case MissedParametersClause(clause)              => inSameFile(clause, currentFile)
+    case TypeMismatch(expression, _)                 => inSameFile(expression, currentFile)
+    case ExcessTypeArgument(argument)                => inSameFile(argument, currentFile)
+    case MalformedDefinition(_)                      => true
+    case DoesNotTakeParameters                       => true
+    case MissedValueParameter(_)                     => true
+    case DefaultTypeParameterMismatch(_, _)          => true
+    case WrongTypeParameterInferred                  => true
+    case DoesNotTakeTypeParameters                   => true
+    case MissedTypeParameter(_)                      => true
+    case ExpectedTypeMismatch                        => true
+    case NotFoundImplicitParameter(_)                => true
+    case AmbiguousImplicitParameters(_)              => true
+    case IncompleteCallSyntax(_)                     => true
+    case InternalApplicabilityProblem(_)             => true
   }
 }

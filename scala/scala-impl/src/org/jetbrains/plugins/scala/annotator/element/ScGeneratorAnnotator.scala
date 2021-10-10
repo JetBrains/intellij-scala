@@ -86,6 +86,7 @@ object ScGeneratorAnnotator extends ElementAnnotator[ScGenerator] {
               val errorHolder = delegateHolderFor(nextGen, session)
               // TODO decouple
               desugaredGenerator.callExpr.foreach(ScReferenceAnnotator.annotateReference(_, inDesugaring = true)(errorHolder))
+              ScMethodInvocationAnnotator.annotateMethodInvocation(desugaredGenerator.analogMethodCall, inDesugaring = true)(errorHolder)
               foundMonadicError = errorHolder.hadError
             }
           }

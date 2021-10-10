@@ -18,7 +18,7 @@ class FunctionLiteralParameterTest extends ScalaHighlightingTestBase {
 
     assertMessages(errorsFromScalaCode(code))(
       Error("123", "Type mismatch, expected: String, actual: Int"),
-      Error(", 4", "Too many arguments")
+      Error(", 4", "Too many arguments for method apply(T1)")
     )
   }
 
