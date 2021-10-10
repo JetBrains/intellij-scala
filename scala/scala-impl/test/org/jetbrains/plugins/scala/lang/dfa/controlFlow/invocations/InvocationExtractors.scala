@@ -31,7 +31,7 @@ object InvocationExtractors {
   }
 
   def extractExpressionFromArgument(argument: Argument): ScExpression = argument.content match {
-    case expressionTransformer: ExpressionTransformer => expressionTransformer.expression
+    case expressionTransformer: ExpressionTransformer => expressionTransformer.transformedExpression
     case _ => throw new IllegalArgumentException(s"Argument is not an expression: $argument")
   }
 }

@@ -5,13 +5,14 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuil
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition}
 
-class DefinitionTransformer(val definition: ScDefinitionWithAssignment) extends ScalaPsiElementTransformer(definition) {
+class DefinitionTransformer(val transformedDefinition: ScDefinitionWithAssignment)
+  extends ScalaPsiElementTransformer(transformedDefinition) {
 
-  override def toString: String = s"DefinitionTransformer: $definition"
+  override def toString: String = s"DefinitionTransformer: $transformedDefinition"
 
-  override def transform(builder: ScalaDfaControlFlowBuilder): Unit = definition match {
+  override def transform(builder: ScalaDfaControlFlowBuilder): Unit = transformedDefinition match {
     case patternDefinition: ScPatternDefinition => transformPatternDefinition(patternDefinition, builder)
-    case _ => throw TransformationFailedException(definition, "Unsupported definition.")
+    case _ => throw TransformationFailedException(transformedDefinition, "Unsupported definition.")
   }
 
   private def transformPatternDefinition(definition: ScPatternDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
