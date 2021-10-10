@@ -61,7 +61,7 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
     Option(transfer).foreach(transfer => pushInstruction(new EnsureInstruction(null, RelationType.EQ, DfType.TOP, transfer)))
   }
 
-  def pushVariable(descriptor: ScalaVariableDescriptor, expression: ScExpression): Unit = {
+  def pushVariable(descriptor: ScalaDfaVariableDescriptor, expression: ScExpression): Unit = {
     val dfaVariable = createVariable(descriptor)
     pushInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
   }
@@ -80,5 +80,5 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
 
   def finishElement(element: ScalaPsiElement): Unit = flow.finishElement(element)
 
-  def createVariable(descriptor: ScalaVariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)
+  def createVariable(descriptor: ScalaDfaVariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)
 }

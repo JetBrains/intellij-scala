@@ -9,7 +9,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{isStableEle
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
 
-case class ScalaVariableDescriptor(variable: PsiElement, override val isStable: Boolean)
+case class ScalaDfaVariableDescriptor(variable: PsiElement, override val isStable: Boolean)
   extends JvmVariableDescriptor {
 
   override def toString: String = variable match {
@@ -23,12 +23,12 @@ case class ScalaVariableDescriptor(variable: PsiElement, override val isStable: 
   }
 }
 
-object ScalaVariableDescriptor {
+object ScalaDfaVariableDescriptor {
 
-  def fromReferenceExpression(expression: ScReferenceExpression): Option[ScalaVariableDescriptor] = {
+  def fromReferenceExpression(expression: ScReferenceExpression): Option[ScalaDfaVariableDescriptor] = {
     // TODO add qualified expressions, currently only simple ones
     expression.getReference.bind()
       .map(_.element)
-      .map(element => ScalaVariableDescriptor(element, isStableElement(element)))
+      .map(element => ScalaDfaVariableDescriptor(element, isStableElement(element)))
   }
 }

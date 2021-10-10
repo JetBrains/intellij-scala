@@ -5,7 +5,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaVariableDescriptor}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -82,7 +82,7 @@ class ExpressionTransformer(val transformedExpression: ScExpression)
   }
 
   private def transformReferenceExpression(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    val referencedVariableDescriptor = ScalaVariableDescriptor.fromReferenceExpression(expression)
+    val referencedVariableDescriptor = ScalaDfaVariableDescriptor.fromReferenceExpression(expression)
     referencedVariableDescriptor match {
       case Some(descriptor) => builder.pushVariable(descriptor, expression)
       case None => builder.pushUnknownCall(expression, 0)
