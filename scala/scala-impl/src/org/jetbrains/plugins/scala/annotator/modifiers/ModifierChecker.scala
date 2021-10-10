@@ -103,7 +103,7 @@ private[annotator] object ModifierChecker {
                 }
               case FINAL =>
                 owner match {
-                  case _: ScDeclaration =>
+                  case d: ScDeclaration if !d.hasAnnotation("scala.native") =>
                     createErrorWithQuickFix(
                       ScalaBundle.message("final.modifier.not.with.declarations"),
                       modifierPsi,
