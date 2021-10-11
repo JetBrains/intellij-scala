@@ -295,4 +295,96 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "trait"
   )
 
+  /// EXTENSION
+
+  def testExtensionTopLevel(): Unit = doCompletionTest(
+    fileText = s"ex$CARET",
+    resultText = s"extension $CARET",
+    item = "extension"
+  )
+
+  def testExtensionInsideObject(): Unit = doCompletionTest(
+    fileText =
+      s"""object O:
+         |  ex$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |  extension $CARET
+         |""".stripMargin,
+    item = "extension"
+  )
+
+  def testNoCompletionSoftModifierAfterExtension(): Unit = checkNoBasicCompletion(
+    fileText = s"extension in$CARET",
+    item = "inline"
+  )
+
+  def testNoCompletionHardModifierAfterExtension(): Unit = checkNoBasicCompletion(
+    fileText = s"extension pr$CARET",
+    item = "private"
+  )
+
+  def testExtensionDefOneLine(): Unit = doCompletionTest(
+    fileText = s"extension (i: Int) d$CARET",
+    resultText = s"extension (i: Int) def $CARET",
+    item = "def"
+  )
+
+  def testExtensionDef(): Unit = doCompletionTest(
+    fileText =
+      s"""extension (i: Int)
+         |  d$CARET""".stripMargin,
+    resultText =
+      s"""extension (i: Int)
+         |  def $CARET""".stripMargin,
+    item = "def"
+  )
+
+  def testExtensionDef2(): Unit = doCompletionTest(
+    fileText =
+      s"""extension (i: Int)
+         |  def square = i * i
+         |  d$CARET""".stripMargin,
+    resultText =
+      s"""extension (i: Int)
+         |  def square = i * i
+         |  def $CARET""".stripMargin,
+    item = "def"
+  )
+
+  def testExtensionDef3(): Unit = doCompletionTest(
+    fileText =
+      s"""extension (i: Int)
+         |  d$CARET
+         |  def square = i * i""".stripMargin,
+    resultText =
+      s"""extension (i: Int)
+         |  def $CARET
+         |  def square = i * i""".stripMargin,
+    item = "def"
+  )
+
+  def testExtensionDefInsideBraces(): Unit = doCompletionTest(
+    fileText =
+      s"""extension (i: Int) {
+         |  d$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""extension (i: Int) {
+         |  def $CARET
+         |}""".stripMargin,
+    item = "def"
+  )
+
+  def testExtensionDefWithTypeParamAndUsing(): Unit = doCompletionTest(
+    fileText =
+      s"""extension [T](x: T)(using n: Numeric[T])
+         |  d$CARET""".stripMargin,
+    resultText =
+      s"""extension [T](x: T)(using n: Numeric[T])
+         |  def $CARET""".stripMargin,
+    item = "def"
+  )
+
 }
