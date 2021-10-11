@@ -50,6 +50,7 @@ object ScalaKeyword {
   val YIELD = "yield"
 
   // Scala 3
+  val DERIVES = "derives"
   val EXTENSION = "extension"
   val INFIX = "infix"
   val INLINE = "inline"

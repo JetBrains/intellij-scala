@@ -387,4 +387,94 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "def"
   )
 
+  /// DERIVES
+
+  def testDerivesClass(): Unit = doCompletionTest(
+    fileText = s"class Test d$CARET",
+    resultText = s"class Test derives $CARET",
+    item = "derives"
+  )
+
+  def testDerivesTrait(): Unit = doCompletionTest(
+    fileText = s"trait Test d$CARET",
+    resultText = s"trait Test derives $CARET",
+    item = "derives"
+  )
+
+  def testDerivesCaseClass(): Unit = doCompletionTest(
+    fileText = s"case class Test d$CARET",
+    resultText = s"case class Test derives $CARET",
+    item = "derives"
+  )
+
+  def testDerivesObject(): Unit = doCompletionTest(
+    fileText = s"object Test d$CARET",
+    resultText = s"object Test derives $CARET",
+    item = "derives"
+  )
+
+  def testDerivesEnum(): Unit = doCompletionTest(
+    fileText = s"enum Test d$CARET",
+    resultText = s"enum Test derives $CARET",
+    item = "derives"
+  )
+
+  def testDerivesBeforeSemicolon(): Unit = doCompletionTest(
+    fileText = s"class Test d$CARET;",
+    resultText = s"class Test derives $CARET;",
+    item = "derives"
+  )
+
+  def testDerivesBeforeId(): Unit = doCompletionTest(
+    fileText = s"class Test d$CARET Show",
+    resultText = s"class Test derives ${CARET}Show",
+    item = "derives"
+  )
+
+  def testDerivesBetweenClasses(): Unit = doCompletionTest(
+    fileText =
+      s"""class Test d$CARET
+         |class Test2""".stripMargin,
+    resultText =
+      s"""class Test derives $CARET
+         |class Test2""".stripMargin,
+    item = "derives"
+  )
+
+  def testDerivesBeforeBody(): Unit = doCompletionTest(
+    fileText =
+      s"""class Test d$CARET {
+         |}""".stripMargin,
+    resultText =
+      s"""class Test derives $CARET{
+         |}""".stripMargin,
+    item = "derives"
+  )
+
+  def testDerivesBeforeColon(): Unit = doCompletionTest(
+    fileText = s"class Test d$CARET:",
+    resultText = s"class Test derives $CARET:",
+    item = "derives"
+  )
+
+  def testDerivesBeforeObjectBody(): Unit = doCompletionTest(
+    fileText =
+      s"""object Test d$CARET {
+         |}""".stripMargin,
+    resultText =
+      s"""object Test derives $CARET{
+         |}""".stripMargin,
+    item = "derives"
+  )
+
+  def testNoCompletionDerivesBeforeExtends(): Unit = checkNoBasicCompletion(
+    fileText = s"object Obj d$CARET extends",
+    item = "derives"
+  )
+
+  def testNoCompletionDerivesBeforeDerives(): Unit = checkNoBasicCompletion(
+    fileText = s"object Obj d$CARET derives",
+    item = "derives"
+  )
+
 }
