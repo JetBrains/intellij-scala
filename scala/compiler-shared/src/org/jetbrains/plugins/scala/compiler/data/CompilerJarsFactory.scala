@@ -16,13 +16,13 @@ object CompilerJarsFactory {
     case class FilesDoNotExist(files: Seq[File]) extends CompilerJarsResolveError
   }
 
-  def fromFiles(files: Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
-    val jarFiles = JarUtil.collectJars(files)
-    fromJarFiles(jarFiles)
+  def fromFiles(scalacJars: Seq[File]): Either[CompilerJarsResolveError, CompilerJars] = {
+    val withName = JarUtil.collectJars(scalacJars)
+    fromJarFiles(withName)
   }
 
-  def fromJarFiles(files: Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
-    val ioFiles = files.map(_.file)
+  def fromJarFiles(scalacJars: Seq[JarFileWithName]): Either[CompilerJarsResolveError, CompilerJars] = {
+    val ioFiles = scalacJars.map(_.file)
     val isScala3 = containsScala3(ioFiles)
     val compilerPrefix =
       if (isScala3) "scala3"
@@ -33,16 +33,14 @@ object CompilerJarsFactory {
     val libraryJarsE = Set("scala-library", s"$compilerPrefix-library").foldLeft(init) { (acc, kind) =>
       for {
         jars <- acc
-        jar <- find(files, kind)
+        jar <- find(scalacJars, kind)
       } yield jars :+ jar
     }
 
     for {
       libraryJars <- libraryJarsE
-      // TODO: files is actually compiler classpath from Scala SDK
-      //  it contains redundant files for Scala3 (see SCL-19086)
-      compilerJars = files.filterNot(libraryJars.contains)
-      compilerJar <- find(files, s"$compilerPrefix-compiler")
+      compilerJars = scalacJars.filterNot(libraryJars.contains)
+      compilerJar <- find(scalacJars, s"$compilerPrefix-compiler")
       _           <- scalaReflectIfRequired(compilerJar, compilerJars)
     } yield CompilerJars(
       libraryJars = libraryJars.map(_.file),

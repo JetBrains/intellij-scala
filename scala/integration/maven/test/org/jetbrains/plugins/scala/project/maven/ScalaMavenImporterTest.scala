@@ -20,6 +20,8 @@ class ScalaMavenImporterTest
     with ProjectStructureMatcher
     with ExactMatch {
 
+  import ProjectStructureMatcher.ProjectComparisonOptions.Implicit.default
+
   private def testProjectDir: File = {
     val testDataPath = TestUtils.getTestDataPath + "/../../integration/maven/testdata/maven/projects"
     val file = new File(testDataPath, getTestName(true))
@@ -77,7 +79,7 @@ class ScalaMavenImporterTest
   def testWithScala2(): Unit =
     runImportingTest_Common("testWithScala2", "projectWithScala2", Seq(
       new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("2.13.6").get)}") {
-        classes := Seq(
+        libClasses := Seq(
           "org/scala-lang/scala-library/2.13.6/scala-library-2.13.6.jar"
         ).map(mavenLocalArtifact)
         scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_2_13, Seq(
@@ -86,18 +88,18 @@ class ScalaMavenImporterTest
           "org/scala-lang/scala-reflect/2.13.6/scala-reflect-2.13.6.jar",
           "org/jline/jline/3.19.0/jline-3.19.0.jar",
           "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
-        ).map(mavenLocalArtifact)))
+        ).map(mavenLocalArtifact), extraClasspath = Nil))
       }
     ))
 
   def testWithScala3(): Unit =
     runImportingTest_Common("testWithScala3", "projectWithScala3", Seq(
       new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("2.13.5").get)}") {
-        classes := Seq("org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar").map(mavenLocalArtifact)
+        libClasses := Seq("org/scala-lang/scala-library/2.13.5/scala-library-2.13.5.jar").map(mavenLocalArtifact)
         scalaSdkSettings := None
       },
       new library(s"Maven: ${scalaLibraryDescription(ScalaVersion.fromString("3.0.0").get)}") {
-        classes := Seq("org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar").map(mavenLocalArtifact)
+        libClasses := Seq("org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar").map(mavenLocalArtifact)
         scalaSdkSettings := Some(ScalaSdkAttributes(ScalaLanguageLevel.Scala_3_0, Seq(
           "com/google/protobuf/protobuf-java/3.7.0/protobuf-java-3.7.0.jar",
           "net/java/dev/jna/jna/5.3.1/jna-5.3.1.jar",
@@ -112,7 +114,7 @@ class ScalaMavenImporterTest
           "org/scala-lang/tasty-core_3/3.0.0/tasty-core_3-3.0.0.jar",
           "org/scala-sbt/compiler-interface/1.3.5/compiler-interface-1.3.5.jar",
           "org/scala-sbt/util-interface/1.3.0/util-interface-1.3.0.jar"
-        ).map(mavenLocalArtifact)))
+        ).map(mavenLocalArtifact), extraClasspath = Nil))
       }
     ))
 }

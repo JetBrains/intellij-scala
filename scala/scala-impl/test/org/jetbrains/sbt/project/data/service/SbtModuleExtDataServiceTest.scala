@@ -228,7 +228,7 @@ class SbtModuleExtDataServiceTest extends ProjectDataServiceTestCase {
         moduleFileDirectoryPath := getProject.getBasePath + "/module1"
         externalConfigPath := getProject.getBasePath + "/module1"
         scalaLibrary.foreach(libraryDependencies += _)
-        arbitraryNodes += new ModuleExtNode(SbtModuleExtData(scalaVersion, Seq.empty, scalacOptions, sdk, javacOptions))
+        arbitraryNodes += new ModuleExtNode(SbtModuleExtData(scalaVersion, Seq.empty, Seq.empty, scalacOptions, sdk, javacOptions))
       }
     }.build.toDataNode
 

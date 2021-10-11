@@ -24,14 +24,25 @@ public final class ScalaLibraryPropertiesState {
     )
     private final String[] compilerClasspath;
 
+    @SuppressWarnings("deprecation")
+    @Tag("scaladoc-extra-classpath")
+    @AbstractCollection(
+            surroundWithTag = false,
+            elementTag = "root",
+            elementValueAttribute = "url"
+    )
+    private final String[] scaladocExtraClasspath;
+
     public ScalaLibraryPropertiesState() {
-        this(ScalaLanguageLevel.getDefault(), ArrayUtil.EMPTY_STRING_ARRAY);
+        this(ScalaLanguageLevel.getDefault(), ArrayUtil.EMPTY_STRING_ARRAY, ArrayUtil.EMPTY_STRING_ARRAY);
     }
 
     public ScalaLibraryPropertiesState(ScalaLanguageLevel languageLevel,
-                                       String[] compilerClasspath) {
+                                       String[] compilerClasspath,
+                                       String[] scaladocExtraClasspath) {
         this.languageLevel = languageLevel;
         this.compilerClasspath = compilerClasspath;
+        this.scaladocExtraClasspath = scaladocExtraClasspath;
     }
 
     public ScalaLanguageLevel getLanguageLevel() {
@@ -42,6 +53,10 @@ public final class ScalaLibraryPropertiesState {
         return compilerClasspath;
     }
 
+    public String[] getScaladocExtraClasspath() {
+        return scaladocExtraClasspath;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -49,11 +64,12 @@ public final class ScalaLibraryPropertiesState {
 
         ScalaLibraryPropertiesState that = (ScalaLibraryPropertiesState) o;
         return languageLevel == that.languageLevel &&
-                Arrays.equals(compilerClasspath, that.compilerClasspath);
+                Arrays.equals(compilerClasspath, that.compilerClasspath) &&
+                Arrays.equals(scaladocExtraClasspath, that.scaladocExtraClasspath);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(languageLevel, Arrays.hashCode(compilerClasspath));
+        return Objects.hash(languageLevel, Arrays.hashCode(compilerClasspath), Arrays.hashCode(scaladocExtraClasspath));
     }
 }

@@ -114,6 +114,7 @@ class ScalaMavenImporter extends MavenImporter("org.scala-tools", "maven-scala-p
           modelsProvider,
           scalaLibrary,
           compilerClasspathFull,
+          scaladocExtraClasspath = Nil, // TODO SCL-17219
           Some(compilerVersion)
         )
       case None =>

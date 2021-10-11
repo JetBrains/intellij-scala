@@ -34,10 +34,10 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
     for {
       dataNode <- dataToImport
       module <- modelsProvider.getIdeModuleByNode(dataNode)
-      SbtModuleExtData(scalaVersion, scalacClasspath, scalacOptions, sdk, javacOptions, packagePrefix, basePackage) = dataNode.getData
+      SbtModuleExtData(scalaVersion, scalacClasspath, scaladocExtraClasspath, scalacOptions, sdk, javacOptions, packagePrefix, basePackage) = dataNode.getData
     } {
       module.configureScalaCompilerSettingsFrom("sbt", scalacOptions.asScala)
-      Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq)(modelsProvider))
+      Option(scalaVersion).foreach(configureScalaSdk(module, _, scalacClasspath.asScala.toSeq, scaladocExtraClasspath.asScala.toSeq)(modelsProvider))
       configureOrInheritSdk(module, Option(sdk))(modelsProvider)
       importJavacOptions(module, javacOptions.asScala.toSeq)(project, modelsProvider)
 
@@ -59,7 +59,8 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
   private def configureScalaSdk(
     module: Module,
     compilerVersion: String,
-    scalacClasspath: Seq[File]
+    scalacClasspath: Seq[File],
+    scaladocExtraClasspath: Seq[File]
   )(
     implicit modelsProvider: IdeModifiableModelsProvider
   ): Unit = {
@@ -69,7 +70,7 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
 
       scalaLibraryWithSameVersion match {
         case Some(library) =>
-          ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, library, scalacClasspath)
+          ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, library, scalacClasspath, scaladocExtraClasspath)
         case None =>
           // example: Scala 3 (dotty) project https://github.com/lampepfl/dotty
           // TODO: dotty modules also have scala-library dependency (scala 2)
@@ -80,20 +81,20 @@ final class SbtModuleExtDataService extends ScalaAbstractProjectDataService[SbtM
           //  So as a solution, when we convert scala-library to scala sdk we should probably create a copy of it
           //  (which in it's turn might be reused in all modules which depend on the library as on SDK)
           //  see also: org.jetbrains.plugins.scala.project.ScalaModuleSettings SCL-18166, SCL-18867
-          createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath)
+          createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath, scaladocExtraClasspath)
       }
     }
     else {
       // example: Scala project https://github.com/scala/scala
-      createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath)
+      createModuleLevelScalaSdk(module, compilerVersion, scalacClasspath, scaladocExtraClasspath)
     }
   }
 
-  private def createModuleLevelScalaSdk(module: Module, compilerVersion: String, scalacClasspath: Seq[File])
+  private def createModuleLevelScalaSdk(module: Module, compilerVersion: String, scalacClasspath: Seq[File], scaladocExtraClasspath: Seq[File])
                                        (implicit modelsProvider: IdeModifiableModelsProvider): Unit = {
     val rootModel = modelsProvider.getModifiableRootModel(module)
     val testLibrary = rootModel.getModuleLibraryTable.createLibrary(s"scala-sdk-$compilerVersion")
-    ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, testLibrary, scalacClasspath)
+    ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, testLibrary, scalacClasspath, scaladocExtraClasspath)
   }
 
   private def isSameCompileVersionOrLanguageLevel(compilerVersion: String, scalaLibrary: Library): Boolean =

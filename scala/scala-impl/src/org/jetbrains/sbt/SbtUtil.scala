@@ -1,17 +1,13 @@
 package org.jetbrains.sbt
 
-import java.io.{BufferedInputStream, File, FileInputStream}
-import java.net.URI
-import java.util.Properties
-import java.util.jar.JarFile
-
 import com.intellij.execution.configurations.ParametersList
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.externalSystem.model.project.ModuleData
 import com.intellij.openapi.externalSystem.model.{DataNode, Key, ProjectKeys}
 import com.intellij.openapi.externalSystem.service.project.ProjectDataManager
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
-import com.intellij.openapi.module.{Module, ModuleManager}
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.util.BooleanFunction
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
@@ -19,6 +15,10 @@ import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
 import org.jetbrains.sbt.project.data.SbtModuleData
 
+import java.io.{BufferedInputStream, File, FileInputStream}
+import java.net.URI
+import java.util.Properties
+import java.util.jar.JarFile
 import scala.jdk.CollectionConverters._
 import scala.util.Using
 /**
@@ -168,8 +168,8 @@ object SbtUtil {
   def getSbtModuleData(project: Project, moduleId: String): Option[SbtModuleData] = {
     val emptyURI = new URI("")
 
-    getModuleData(project, moduleId, SbtModuleData.Key)
-      .find(_.buildURI != emptyURI)
+    val moduleDataSeq = getModuleData(project, moduleId, SbtModuleData.Key)
+    moduleDataSeq.find(_.buildURI != emptyURI)
   }
 
   def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
@@ -180,19 +180,31 @@ object SbtUtil {
 
     val dataManager = ProjectDataManager.getInstance()
 
-    // TODO instead of silently not running a task, collect failures, report to user
-    val maybeNodes = for {
-      projectInfo <- Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
-      projectStructure <- Option(projectInfo.getExternalProjectStructure)
-      moduleDataNode <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE, predicate))
-      dataNodes <- Option(ExternalSystemApiUtil.findAll(moduleDataNode, key))
+    val projectDataEither = Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
+      .orElse {
+        // in tests org.jetbrains.sbt.project.SbtProjectImportingTest `project.getBasePath` doesn't equal to actual external project data
+        // I am not sure if it's the best workaround, cause AFAIK currently we do not properly support externally-stored projects for SBT in IntelliJ
+        if (ApplicationManager.getApplication.isUnitTestMode)
+          dataManager.getExternalProjectsData(project, SbtProjectSystem.Id).asScala.toSeq match {
+            case Seq(pd) => Some(pd)
+            case many    => throw new AssertionError(s"Expected single external project data, but got\n${many.mkString("\n")}")
+          }
+        else None
+      }
+
+
+    val maybeNodes: Either[String, Iterable[K]] = for {
+      projectInfo      <- projectDataEither.toRight(s"can't detect sbt external project data for project $project)")
+      projectStructure <- Option(projectInfo.getExternalProjectStructure).toRight(s"no external project structure for project $project, $projectInfo")
+      moduleDataNode   <- Option(ExternalSystemApiUtil.find(projectStructure, ProjectKeys.MODULE, predicate)).toRight(s"can't find module data node for project $project, $projectInfo")
     } yield {
-      dataNodes.asScala.map { node =>
+      val dataNodes = ExternalSystemApiUtil.findAll(moduleDataNode, key).asScala
+      dataNodes.map { node =>
         dataManager.ensureTheDataIsReadyToUse(node)
         node.getData
       }
     }
-
+    // TODO: do we need to report it to user? we need to
     maybeNodes.getOrElse(Nil)
   }
 

@@ -320,7 +320,12 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
 
     val moduleFilesDirectory = new File(root, Sbt.ModulesDirectory)
     val projectToModule = createModules(projects, libraryNodes, moduleFilesDirectory)
-    projectNode.addAll(projectToModule.values)
+
+    //Sort modules by id to make project imports more reproducible
+    //In particular this will easy testing of `org.jetbrains.sbt.project.SbtProjectImportingTest.testSCL13600`
+    //(note, still the order can be different on different machine, casue id depends on URI)
+    val modulesSorted: Seq[ModuleNode] = projectToModule.values.toSeq.sortBy(_.getId)
+    projectNode.addAll(modulesSorted)
 
     val sharedSourceModules = createSharedSourceModules(projectToModule, libraryNodes, moduleFilesDirectory)
     projectNode.addAll(sharedSourceModules)
@@ -436,37 +441,18 @@ class SbtProjectResolver extends ExternalSystemProjectResolver[SbtExecutionSetti
     val sdk = android.map(_.targetVersion).map(AndroidJdk)
       .orElse(java.flatMap(_.home).map(JdkByHome))
 
-    // HACK: in `dotty` project itself, `scalaInstance` reports different scala-library version for `libraryJars` and `compilerJars`
-    // Because of bug SCL-19086  we merge all the jars in a single `allJars` and scalac classpath gets duplicated entreis
-    // In this workaround we imply that scalac classpath should have the latest library version and deduplicate it.
-    // TODO: remove the hack when SCL-19086 is fixed in `sbt-structure`
-    val scalacClasspath: Seq[File] = {
-      val allJars = scala.fold(Seq.empty[File])(_.jars)
-      val scala2Libraries = allJars.filter(isScala2Library)
-      val withDeduplicatedScala2Lbrary = if (scala2Libraries.size > 1) {
-        val latestLibrary = scala2Libraries.maxBy(_.getName) // assuming that lexical order is the same as fair by-version order
-        allJars.filter { file =>
-          !isScala2Library(file) || file == latestLibrary
-        }
-      }
-      else
-        allJars
-      withDeduplicatedScala2Lbrary
-    }
-
     val data = SbtModuleExtData(
-      scala.map(_.version),
-      scalacClasspath,
-      scala.fold(Seq.empty[String])(_.options),
-      sdk,
-      java.fold(Seq.empty[String])(_.options),
-      packagePrefix,
-      basePackages.headOption // TODO Rename basePackages to basePackage in sbt-ide-settings?
+      scalaVersion           = scala.map(_.version),
+      scalacClasspath        = scala.fold(Seq.empty[File])(_.allCompilerJars),
+      scaladocExtraClasspath = scala.fold(Seq.empty[File])(_.extraJars),
+      scalacOptions          = scala.fold(Seq.empty[String])(_.options),
+      sdk                    = sdk,
+      javacOptions           = java.fold(Seq.empty[String])(_.options),
+      packagePrefix          = packagePrefix,
+      basePackage            = basePackages.headOption // TODO Rename basePackages to basePackage in sbt-ide-settings?
     )
     new ModuleExtNode(data)
   }
-
-  private def isScala2Library(file: File): Boolean = file.getName.startsWith("scala-library-")
 
   private def createTaskData(project: sbtStructure.ProjectData): Seq[SbtTaskNode] = {
     project.tasks.map { t =>

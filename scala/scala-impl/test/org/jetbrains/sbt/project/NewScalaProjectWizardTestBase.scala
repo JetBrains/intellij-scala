@@ -7,6 +7,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.roots.{LanguageLevelProjectExtension, ProjectRootManager}
 import org.jetbrains.plugins.scala.SlowTests
+import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.junit.Assert
 import org.junit.Assert.{assertNotNull, assertTrue, fail}
 import org.junit.experimental.categories.Category
@@ -18,6 +19,9 @@ import scala.reflect.{ClassTag, classTag}
 abstract class NewScalaProjectWizardTestBase extends NewProjectWizardTestCase
   with ProjectStructureMatcher
   with ProjectStructureExpectedLibrariesOps {
+
+  protected implicit def comparisonOptions: ProjectComparisonOptions =
+    ProjectComparisonOptions.Implicit.default
 
   override protected def setUp(): Unit = {
     super.setUp()

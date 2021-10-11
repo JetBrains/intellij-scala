@@ -7,7 +7,6 @@ import java.io.File
 /**
  * @param libraryJars  scala-library.jar, for scala3 projects also contains scala3-library_3.jar
  * @param compilerJars jar files required to instantiate scala compiler '''NOTE: doesn't include library files'''<br>
- *                     (TODO: note it currently contains redundant files SCL-19086)
  * @param compilerJar  scala-compiler or scala3-compiler_3 jar
  * @see sbt.internal.inc.ScalaInstance<br>
  *      https://github.com/sbt/zinc/pull/960

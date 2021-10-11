@@ -55,7 +55,7 @@ case class JdkData @PropertyMapping(Array("javaHome", "javaVersion"))(
 ) extends BspEntityData
 
 @SerialVersionUID(3)
-case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scalacOptions"))(
+case class ScalaSdkData @PropertyMapping(Array("scalaOrganization", "scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions"))(
   @NotNull scalaOrganization: String,
   @Nullable scalaVersion: String,
   @NotNull scalacClasspath: util.List[File],

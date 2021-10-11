@@ -86,7 +86,12 @@ class ScalaGradleDataService extends ScalaAbstractProjectDataService[ScalaModelD
 
       scalaLibraryWithSameVersion match {
         case Some(library) =>
-          ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(modelsProvider, library, compilerClasspath)
+          ScalaSdkUtils.ensureScalaLibraryIsConvertedToScalaSdk(
+            modelsProvider,
+            library,
+            compilerClasspath,
+            scaladocExtraClasspath = Nil // TODO SCL-17219
+          )
         case None =>
           showScalaLibraryNotFoundWarning(compilerVersion, moduleName)
       }

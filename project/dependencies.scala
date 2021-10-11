@@ -11,7 +11,7 @@ object Versions {
   val zincVersion = "1.5.7"
   val intellijVersion = "213.4928.7"
   val bspVersion = "2.0.0-M14"
-  val sbtStructureVersion: String = "2021.1.1"
+  val sbtStructureVersion: String = "2021.3.0"
   val sbtIdeaShellVersion: String = "2021.1.0"
   val compilerIndicesVersion = "1.0.13"
   val scalaMetaVersion = "4.3.12"

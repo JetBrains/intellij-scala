@@ -1,5 +1,4 @@
-package org.jetbrains.sbt
-package project
+package org.jetbrains.sbt.project
 
 import com.intellij.compiler.CompilerConfiguration
 import com.intellij.compiler.impl.javaCompiler.javac.JavacConfiguration
@@ -17,6 +16,7 @@ import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.project.external.JdkByName
 import org.jetbrains.plugins.scala.{ScalaVersion, SlowTests}
 import org.jetbrains.sbt.settings.SbtSettings
+import org.jetbrains.sbt.{RichFile, inWriteAction}
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.experimental.categories.Category
@@ -27,15 +27,16 @@ import scala.annotation.nowarn
 import scala.jdk.CollectionConverters.SeqHasAsJava
 
 @Category(Array(classOf[SlowTests]))
-class ProjectImportingTest extends ImportingTestCase
+class SbtProjectImportingTest extends ImportingTestCase
   with ProjectStructureExpectedLibrariesOps
-  with InexactMatch {
+  with ExactMatch {
 
   import ProjectStructureDsl._
+  import ProjectStructureMatcher.ProjectComparisonOptions.Implicit.default
 
   def testSimple(): Unit = {
-    val scalaLibrary = expectedScalaLibrary(ScalaVersion.fromString("2.13.5").get)
-    runSimpleTest("simple", scalaLibrary)
+    val scalaLibrary = expectedScalaLibrary("2.13.5")
+    runSimpleTest("simple", scalaLibrary :: Nil)
 
     // Adding the assertion here not to create a separate heavy test for such a tiny check
     // org.jetbrains.plugins.scala.project.ProjectExt#modulesWithScala
@@ -46,35 +47,46 @@ class ProjectImportingTest extends ImportingTestCase
     )
   }
 
-  def testSimpleDoNotUseCoursier(): Unit = {
-    val scalaLibrary = expectedScalaLibraryFromIvy(ScalaVersion.fromString("2.12.10").get)
-    runSimpleTest("simpleDoNotUseCoursier", scalaLibrary)
+  //noinspection RedundantDefaultArgument
+  def testSimple_Scala3(): Unit = {
+    val scalaLibraries = Seq(
+      expectedScalaLibrary("3.0.2", isSdk = true),
+      expectedScalaLibrary("2.13.6", isSdk = false),
+    )
+    runSimpleTest("simple-scala3", scalaLibraries)
   }
 
-  private def runSimpleTest(projectName: String, expectedScalaLibrary: library): Unit =
+  def testSimpleDoNotUseCoursier(): Unit = {
+    val scalaLibrary = expectedScalaLibraryFromIvy(ScalaVersion.fromString("2.12.10").get)
+    runSimpleTest("simpleDoNotUseCoursier", scalaLibrary :: Nil)
+  }
+
+  private def runSimpleTest(projectName: String, expectedScalaLibraries: Seq[library]): Unit =
     runTest(
       new project(projectName) {
-        libraries += expectedScalaLibrary
+        libraries := expectedScalaLibraries
 
-        modules += new module(projectName) {
-          contentRoots += getProjectPath
-          ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
-          testSources := Seq("src/test/scala", "src/test/java")
-          resources := Seq("src/main/resources")
-          testResources := Seq("src/test/resources")
-          excluded := Seq("target")
-          libraryDependencies += expectedScalaLibrary
-        }
-
-        modules += new module(s"$projectName-build") {
-          ProjectStructureDsl.sources := Seq("")
-          excluded := Seq("project/target", "target")
-        }
-      })
+        modules := Seq(
+          new module(projectName) {
+            contentRoots += getProjectPath
+            ProjectStructureDsl.sources := Seq("src/main/scala", "src/main/java")
+            testSources := Seq("src/test/scala", "src/test/java")
+            resources := Seq("src/main/resources")
+            testResources := Seq("src/test/resources")
+            excluded := Seq("target")
+            libraryDependencies := expectedScalaLibraries
+          },
+          new module(s"$projectName-build") {
+            ProjectStructureDsl.sources := Seq("")
+            excluded := Seq("project/target", "target")
+          }
+        )
+      }
+    )
 
   def testProjectWithUppercaseName(): Unit = runTest {
     new project("MyProjectWithUppercaseName") {
-      lazy val scalaLibrary: library = expectedScalaLibrary(ScalaVersion.fromString("2.13.6").get)
+      lazy val scalaLibrary: library = expectedScalaLibrary("2.13.6")
       libraries += scalaLibrary
 
       modules := Seq(
@@ -103,32 +115,42 @@ class ProjectImportingTest extends ImportingTestCase
 
   def testUnmanagedDependency(): Unit = runTest(
     new project("unmanagedDependency") {
+      val scalaLibrary: library = expectedScalaLibrary("2.13.6")
+      libraries := Seq(scalaLibrary)
+
       modules += new module("unmanagedDependency") {
         lazy val unmanagedLibrary: library = new library("sbt: unmanaged-jars") {
-          classes += (testProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
+          libClasses += (testProjectDir / "lib" / "unmanaged.jar").getAbsolutePath
         }
-        libraries += unmanagedLibrary
-        libraryDependencies += unmanagedLibrary
+
+        libraries := Seq(unmanagedLibrary)
+        libraryDependencies := Seq(unmanagedLibrary, scalaLibrary)
       }
     }
   )
 
   def testSharedSources(): Unit = runTest(
-    new project("sharedSources") {
+    new project("sharedSourcesProject") {
+      lazy val root: module = new module("sharedSourcesProject") {
+        contentRoots := Seq(getProjectPath)
+        sources := Seq("src/main/scala")
+        moduleDependencies := Nil
+      }
+
       lazy val sharedSourcesModule: module = new module("sharedSources-sources") {
-        contentRoots += getProjectPath + "/shared"
-        ProjectStructureDsl.sources += "src/main/scala"
+        contentRoots := Seq(getProjectPath + "/shared")
+        sources := Seq("src/main/scala")
       }
 
       lazy val foo: module = new module("foo") {
-        moduleDependencies += sharedSourcesModule
+        moduleDependencies := Seq(sharedSourcesModule)
       }
 
       lazy val bar: module = new module("bar") {
-        moduleDependencies += sharedSourcesModule
+        moduleDependencies := Seq(sharedSourcesModule)
       }
 
-      modules := Seq(foo, bar, sharedSourcesModule)
+      modules := Seq(root, foo, bar, sharedSourcesModule)
     }
   )
 
@@ -144,8 +166,8 @@ class ProjectImportingTest extends ImportingTestCase
   )
 
   /**
-    * SCL-12520: Generate shared sources module when it is only used form a single other module
-    */
+   * SCL-12520: Generate shared sources module when it is only used form a single other module
+   */
   def testSCL12520(): Unit = runTest(
     new project("scl12520") {
       val sharedModule: module = new module("p1-sources") {
@@ -165,74 +187,92 @@ class ProjectImportingTest extends ImportingTestCase
   )
 
   /**
-    * SCL-13600: generate all modules when there is a duplicate project id in the sbt build
-    * due to references to different builds, or multiple sbt projects being imported independently from IDEA
-    */
+   * SCL-13600: generate all modules when there is a duplicate project id in the sbt build
+   * due to references to different builds, or multiple sbt projects being imported independently from IDEA
+   */
   def testSCL13600(): Unit = runTest(
     new project("scl13600") {
-      val buildURI: URI = new File(getHomePath).getCanonicalFile.toURI
-      lazy val base: module = new module("root") {
+      val buildURI: URI = testProjectDir.getCanonicalFile.toURI
+      lazy val root: module = new module("root") {
         sbtBuildURI := buildURI
         sbtProjectId := "root"
 
-        moduleDependencies += new dependency(c1) {
-          isExported := true
-        }
-        moduleDependencies += new dependency(c2) {
-          isExported := true
-        }
+        moduleDependencies := Seq(
+          new dependency(c1) { isExported := true },
+          new dependency(c2) { isExported := true },
+        )
       }
 
-      lazy val c1: module = new module("root") {
-        sbtBuildURI := buildURI.resolve("c1")
-        sbtProjectId := "root"
+      lazy val c1: module = new module("c1") {
+        sbtBuildURI := buildURI.resolve("c1/")
+        sbtProjectId := "c1"
+        moduleDependencies := Seq()
       }
-      lazy val c2: module = new module("root") {
-        sbtBuildURI := buildURI.resolve("c2")
+      lazy val c1Root: module = new module("c1.root", Array("root")) {
+        sbtBuildURI := buildURI.resolve("c1/")
         sbtProjectId := "root"
+        moduleDependencies := Seq()
       }
 
-      modules := Seq(base,c1,c2)
+      lazy val c2: module = new module("c2") {
+        sbtBuildURI := buildURI.resolve("c2/")
+        sbtProjectId := "c2"
+        moduleDependencies := Seq()
+      }
+      lazy val c2Root: module = new module("c2.root", Array("root")) {
+        sbtBuildURI := buildURI.resolve("c2/")
+        sbtProjectId := "root"
+        moduleDependencies := Seq()
+      }
+
+      modules := Seq(root, c1, c1Root, c2, c2Root)
     }
   )
 
   def testSCL14635(): Unit = runTest(
     new project("SCL-14635") {
-      private val buildURI: URI = new File(getHomePath).getCanonicalFile.toURI
+      private val buildURI: URI = testProjectDir.getCanonicalFile.toURI
       private val buildModulesGroup = Array("sbt-build-modules")
 
       lazy val base: module = new module("SCL-14635") {
         sbtBuildURI := buildURI
-        sbtProjectId := "SCL-14635"
+        sbtProjectId := "root"
       }
 
       // NOTE: sbtIdeaPlugin also has inner module named `sbt-idea-plugin` (with dashes), but it's separate, non-root module
       lazy val ideaPluginRoot: module = new module("sbtIdeaPlugin") {
         sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-plugin")
+        sbtProjectId := "sbtIdeaPlugin"
       }
-      lazy val ideaPluginRootBuild: module = new module("sbtIdeaPlugin-build", buildModulesGroup)
 
       lazy val ideaPluginInnerModule = new module("sbt-idea-plugin")
 
       lazy val ideaShell: module = new module("sbt-idea-shell") {
-        sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-shell")
+        sbtBuildURI := new URI("git://github.com/JetBrains/sbt-idea-shell#master")
+        sbtProjectId := "sbt-idea-shell"
       }
-      lazy val ideaShellBuild: module = new module("sbt-idea-shell-build", buildModulesGroup)
 
       lazy val ideSettings: module = new module("sbt-ide-settings") {
         sbtBuildURI := new URI("https://github.com/JetBrains/sbt-ide-settings.git")
+        sbtProjectId := "sbt-ide-settings"
       }
-      lazy val ideSettingsBuild: module = new module("sbt-ide-settings-build", buildModulesGroup)
 
       modules := Seq(
         base,
         ideaPluginRoot,
-        ideaPluginRootBuild,
         ideaPluginInnerModule,
         ideaShell,
-        ideaShellBuild,
         ideSettings,
-        ideSettingsBuild
+
+        new module("sbt-declarative-core"),
+        new module("sbt-declarative-packaging"),
+        new module("sbt-declarative-visualizer"),
+
+        //build-modules
+        new module("SCL-14635-build", buildModulesGroup),
+        new module("sbtIdeaPlugin-build", buildModulesGroup),
+        new module("sbt-idea-shell-build", buildModulesGroup),
+        new module("sbt-ide-settings-build", buildModulesGroup)
       )
     }
   )
@@ -453,12 +493,10 @@ class ProjectImportingTest extends ImportingTestCase
     assertEquals(defaultCompilerOptions.MAXIMUM_HEAP_SIZE, compilerOptions.MAXIMUM_HEAP_SIZE)
     assertEquals(defaultCompilerOptions.PREFER_TARGET_JDK_COMPILER, compilerOptions.PREFER_TARGET_JDK_COMPILER)
   }
-
 }
 
-object ProjectImportingTest {
+object SbtProjectImportingTest {
   implicit class StringOps(str: String) {
     def toURI: URI = new File(str).getCanonicalFile.toURI
   }
-
 }

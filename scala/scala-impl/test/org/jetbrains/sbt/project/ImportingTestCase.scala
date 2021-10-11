@@ -1,5 +1,4 @@
-package org.jetbrains.sbt
-package project
+package org.jetbrains.sbt.project
 
 import java.io.File
 import com.intellij.openapi.diagnostic.Logger
@@ -9,7 +8,9 @@ import com.intellij.openapi.externalSystem.test.ExternalSystemImportingTestCase
 import com.intellij.openapi.projectRoots.impl.JavaAwareProjectJdkTableImpl
 import com.intellij.openapi.vfs.LocalFileSystem
 import org.jetbrains.plugins.scala.util.TestUtils
+import org.jetbrains.sbt.Sbt
 import org.jetbrains.sbt.project.ProjectStructureDsl._
+import org.jetbrains.sbt.project.ProjectStructureMatcher.ProjectComparisonOptions
 import org.jetbrains.sbt.project.settings.SbtProjectSettings
 import org.junit.Assert.assertNotNull
 
@@ -28,13 +29,15 @@ abstract class ImportingTestCase extends ExternalSystemImportingTestCase with Pr
     new File(testdataPath, getTestName(true))
   }
 
-  def runTest(expected: project): Unit = {
+  def runTest(expected: project)
+             (implicit compareOptions: ProjectComparisonOptions): Unit = {
     importProject()
     assertProjectsEqual(expected, myProject)
     assertNoNotificationsShown(myProject)
   }
 
-  def runTestWithSdk(sdk: com.intellij.openapi.projectRoots.Sdk, expected: project): Unit = {
+  def runTestWithSdk(sdk: com.intellij.openapi.projectRoots.Sdk, expected: project)
+                    (implicit compareOptions: ProjectComparisonOptions): Unit = {
     importProject(sdk)
     assertProjectsEqual(expected, myProject)
     assertNoNotificationsShown(myProject)

@@ -135,11 +135,17 @@ object SbtCommandData {
     SbtCommandData(name, toJavaMap(help.toMap))
 }
 
-// TODO: rename to SbtModuleExtData?
-@SerialVersionUID(2)
-case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage")) (
+/**
+ * @param scalacClasspath        contains jars required to create scala compiler instance
+ * @param scaladocExtraClasspath contains extra jars required to run ScalaDoc in Scala 3<br>
+ *                               Needs to be added to `scalacClasspath`<br>
+ *                               For Scala 2 it is empty, because scaladoc generation is built into compiler
+ */
+@SerialVersionUID(3)
+case class SbtModuleExtData @PropertyMapping(Array("scalaVersion", "scalacClasspath", "scaladocExtraClasspath", "scalacOptions", "sdk", "javacOptions", "packagePrefix", "basePackage")) (
   @Nullable scalaVersion: String,
   scalacClasspath: JList[File],
+  scaladocExtraClasspath: JList[File],
   scalacOptions: JList[String],
   @Nullable sdk: SdkReference,
   javacOptions: JList[String],
@@ -153,6 +159,7 @@ object SbtModuleExtData {
   def apply(
     scalaVersion: Option[String],
     scalacClasspath: Seq[File] = Seq.empty,
+    scaladocExtraClasspath: Seq[File] = Seq.empty,
     scalacOptions: Seq[String] = Seq.empty,
     sdk: Option[SdkReference] = None,
     javacOptions: Seq[String] = Seq.empty,
@@ -162,6 +169,7 @@ object SbtModuleExtData {
     SbtModuleExtData(
       scalaVersion.orNull,
       scalacClasspath.toJavaList,
+      scaladocExtraClasspath.toJavaList,
       scalacOptions.toJavaList,
       sdk.orNull,
       javacOptions.toJavaList,

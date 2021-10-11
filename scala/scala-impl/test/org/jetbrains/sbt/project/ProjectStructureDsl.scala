@@ -32,7 +32,7 @@ object ProjectStructureDsl {
   object sbtBuildURI         extends Attribute[URI]("sbtBuildURI")                              with ModuleAttribute
   object sbtProjectId        extends Attribute[String]("sbtProjectId")                          with ModuleAttribute
   object contentRoots        extends Attribute[Seq[String]]("contentRoots")                     with ModuleAttribute
-  object sources             extends Attribute[Seq[String]]("sources")                          with ModuleAttribute with LibraryAttribute
+  object sources             extends Attribute[Seq[String]]("sources")                          with ModuleAttribute
   object testSources         extends Attribute[Seq[String]]("testSources")                      with ModuleAttribute
   object resources           extends Attribute[Seq[String]]("resources")                        with ModuleAttribute
   object testResources       extends Attribute[Seq[String]]("testResources")                    with ModuleAttribute
@@ -40,14 +40,21 @@ object ProjectStructureDsl {
   object moduleDependencies  extends Attribute[Seq[dependency[module]]]("moduleDependencies")   with ModuleAttribute
   object libraryDependencies extends Attribute[Seq[dependency[library]]]("libraryDependencies") with ModuleAttribute
 
-  object classes          extends Attribute[Seq[String]]("classes")                         with LibraryAttribute
-  object javadocs         extends Attribute[Seq[String]]("javadocs")                        with LibraryAttribute
+  object libClasses       extends Attribute[Seq[String]]("libraryClasses")                         with LibraryAttribute
+  object libSources       extends Attribute[Seq[String]]("librarySources")                         with LibraryAttribute
+  object libJavadocs      extends Attribute[Seq[String]]("libraryJavadocs")                        with LibraryAttribute
   object scalaSdkSettings extends Attribute[Option[ScalaSdkAttributes]]("scalaSdkSettings") with LibraryAttribute
 
-  case class ScalaSdkAttributes(languageLevel: ScalaLanguageLevel, classpath: Option[Seq[String]])
+  case class ScalaSdkAttributes(languageLevel: ScalaLanguageLevel, classpath: Option[Seq[String]], extraClasspath: Option[Seq[String]])
   object ScalaSdkAttributes {
+    def apply(languageLevel: ScalaLanguageLevel, classpath: Option[Seq[String]]): ScalaSdkAttributes =
+      new ScalaSdkAttributes(languageLevel, classpath, None)
+
     def apply(languageLevel: ScalaLanguageLevel, classpath: Seq[String]): ScalaSdkAttributes =
-      new ScalaSdkAttributes(languageLevel, Some(classpath))
+      new ScalaSdkAttributes(languageLevel, Some(classpath), None)
+
+    def apply(languageLevel: ScalaLanguageLevel, classpath: Seq[String], extraClasspath: Seq[String]): ScalaSdkAttributes =
+      new ScalaSdkAttributes(languageLevel, Some(classpath), Some(extraClasspath))
   }
 
   object isExported extends Attribute[Boolean]("isExported")    with DependencyAttribute
@@ -87,6 +94,9 @@ object ProjectStructureDsl {
       new AttributeDef(attribute, attributes)
     protected implicit def defineAttributeSeq[T](attribute: Attribute[Seq[T]] with ModuleAttribute)(implicit m: Manifest[Seq[T]]): AttributeSeqDef[T] =
       new AttributeSeqDef(attribute, attributes)
+
+    def isBuildModule: Boolean =
+      name.contains("-build")
   }
 
   class library(override val name: String) extends Attributed with Named {
@@ -107,7 +117,7 @@ object ProjectStructureDsl {
 
   implicit def library2libraryDependency(library: library): dependency[library] =
     new dependency(library)
-  implicit def libraries2libraryDependencices(libraries: Seq[library]): Seq[dependency[library]] =
+  implicit def libraries2libraryDependencies(libraries: Seq[library]): Seq[dependency[library]] =
     libraries.map(library2libraryDependency)
 }
 

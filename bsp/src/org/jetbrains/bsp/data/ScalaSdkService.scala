@@ -51,6 +51,10 @@ class ScalaSdkService extends ScalaAbstractProjectDataService[ScalaSdkData, Libr
       modelsProvider,
       library,
       compilerClasspath,
+      // TODO: currently we agreed that BSP implementation should just omit Scala3 doc jars in `ScalaBuildTarget.jars` field
+      //  and we should probably create a separate request to obtain scaladoc classpath
+      //  see https://github.com/build-server-protocol/build-server-protocol/issues/229
+      scaladocExtraClasspath = Nil,
       Some(presentation)
     )
   }

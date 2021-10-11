@@ -1,9 +1,9 @@
 lazy val foo = project.in(file("foo")).settings(
-  unmanagedSourceDirectories in Compile += baseDirectory.in(ThisBuild).value / "shared" / "src" / "main" / "scala"
+  Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "shared" / "src" / "main" / "scala"
 )
 
 lazy val bar = project.in(file("bar")).settings(
-  unmanagedSourceDirectories in Compile += baseDirectory.in(ThisBuild).value / "shared" / "src" / "main" / "scala"
+  Compile / unmanagedSourceDirectories += (ThisBuild / baseDirectory).value / "shared" / "src" / "main" / "scala"
 )
 
-lazy val sharedSources = project.in(file(".")).aggregate(foo, bar)
+lazy val sharedSourcesProject = project.in(file(".")).aggregate(foo, bar)

@@ -8,21 +8,21 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots
 import com.intellij.openapi.roots.impl.libraries.LibraryEx
 import com.intellij.openapi.roots.libraries.Library
-import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleOrderEntry, ModuleRootManager}
+import com.intellij.openapi.roots.{LanguageLevelModuleExtensionImpl, ModuleRootManager}
 import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.util.{CommonProcessors, PathUtil}
 import org.jetbrains.jps.model.java.{JavaResourceRootType, JavaSourceRootType}
 import org.jetbrains.jps.model.module.JpsModuleSourceRootType
 import org.jetbrains.plugins.scala.project.external.{SdkReference, SdkUtils, ShownNotification, ShownNotificationsKey}
-import org.jetbrains.plugins.scala.project.{ProjectExt, ScalaLibraryProperties}
+import org.jetbrains.plugins.scala.project.{ModuleExt, ProjectExt, ScalaLibraryProperties}
 import org.jetbrains.sbt.DslUtils.MatchType
 import org.jetbrains.sbt.project.ProjectStructureDsl._
 import org.jetbrains.sbt.project.ProjectStructureMatcher.AttributeMatchType
-import org.jetbrains.sbt.project.data.SbtModuleData
-import org.junit.Assert
 import org.junit.Assert.{assertFalse, assertTrue, fail}
+import org.junit.{Assert, ComparisonFailure}
 
+import java.io.File
 import scala.jdk.CollectionConverters._
 
 trait ProjectStructureMatcher {
@@ -41,7 +41,7 @@ trait ProjectStructureMatcher {
                                         (mt: Option[DslUtils.MatchType]): Unit =
     assertMatch(what, expected.sorted, actual.sorted)(mt)
 
-  def assertProjectsEqual(expected: project, actual: Project): Unit = {
+  def assertProjectsEqual(expected: project, actual: Project)(implicit compareOptions: ProjectComparisonOptions): Unit = {
     assertEquals("Project name", expected.name, actual.getName)
     expected.foreach0(sdk)(assertProjectSdkEqual(actual))
     expected.foreach(libraries)(assertProjectLibrariesEqual(actual))
@@ -49,7 +49,7 @@ trait ProjectStructureMatcher {
     expected.foreach0(javaTargetBytecodeLevel)(assertProjectJavaTargetBytecodeLevel(actual))
     expected.foreach0(javacOptions)(assertProjectJavacOptions(actual))
 
-    expected.foreach(modules)(assertProjectModulesEqual(actual))
+    expected.foreach(modules)(assertProjectModulesEqual(actual)(_))
   }
 
   private implicit def namedImplicit[T <: Named]: HasName[T] =
@@ -67,12 +67,6 @@ trait ProjectStructureMatcher {
   private implicit val ideaLibraryEntryNameImplicit: HasName[roots.LibraryOrderEntry] =
     (entry: roots.LibraryOrderEntry) => entry.getLibraryName
 
-  private implicit val ideaModuleImplicit: HasModule[Module] =
-    (module: Module) => module
-
-  private implicit val ideaModuleEntryModuleImplicit: HasModule[ModuleOrderEntry] =
-    (entry: roots.ModuleOrderEntry) => entry.getModule
-
   private def assertProjectSdkEqual(project: Project)(expectedSdkRef: SdkReference): Unit = {
     val expectedSdk = SdkUtils.findProjectSdk(expectedSdkRef).getOrElse {
       fail(s"Sdk $expectedSdkRef nof found").asInstanceOf[Nothing]
@@ -81,10 +75,17 @@ trait ProjectStructureMatcher {
     assertEquals("Project SDK", expectedSdk, actualSdk)
   }
 
-  private def assertProjectModulesEqual(project: Project)(expectedModules: Seq[module])(mt: Option[MatchType]): Unit = {
-    val actualModules = ModuleManager.getInstance(project).getModules.toSeq
+  private def assertProjectModulesEqual(project: Project)
+                                       (expectedModules: Seq[module])(mt: Option[MatchType])
+                                       (implicit compareOptions: ProjectComparisonOptions): Unit = {
+    val actualModulesAll = ModuleManager.getInstance(project).getModules.toSeq
+    val actualModules = if (compareOptions.strictCheckForBuildModules || expectedModules.exists(_.isBuildModule))
+      actualModulesAll
+    else
+      actualModulesAll.filterNot(_.isBuildModule)
     assertNamesEqual("Project module", expectedModules, actualModules)(mt)
-    pairModules(expectedModules, actualModules).foreach((assertModulesEqual _).tupled)
+    val pairs = pairModules(expectedModules, actualModules)
+    pairs.foreach((assertModulesEqual _).tupled)
   }
 
   private def assertModulesEqual(expected: module, actual: Module): Unit = {
@@ -105,6 +106,16 @@ trait ProjectStructureMatcher {
     expected.foreach(javacOptions)(assertModuleJavacOptions(actual))
 
     assertGroupEqual(expected, actual)
+
+    lazy val sbtModuleData = SbtUtil.getSbtModuleData(actual).getOrElse {
+      fail(s"Can't get module data for module: $actual (${actual.getModuleFilePath})").asInstanceOf[Nothing]
+    }
+    expected.foreach(sbtBuildURI)(buildURI => _ => {
+      assertEquals(s"SBT build URI (module $actual)", buildURI, sbtModuleData.buildURI)
+    })
+    expected.foreach(sbtProjectId)(projectId => _ => {
+      assertEquals(s"SBT project module id (module $actual)", projectId, sbtModuleData.id)
+    })
   }
 
   protected def assertModuleJavaLanguageLevel(module: Module)(expected: LanguageLevel): Unit = {
@@ -205,9 +216,9 @@ trait ProjectStructureMatcher {
   }
 
   private def assertLibraryContentsEqual(expected: library, actual: Library): Unit = {
-    expected.foreach(classes)(assertLibraryFilesEqual(actual, roots.OrderRootType.CLASSES))
-    expected.foreach(sources)(assertLibraryFilesEqual(actual, roots.OrderRootType.SOURCES))
-    expected.foreach(javadocs)(assertLibraryFilesEqual(actual, roots.JavadocOrderRootType.getInstance))
+    expected.foreach(libClasses)(assertLibraryFilesEqual(actual, roots.OrderRootType.CLASSES))
+    expected.foreach(libSources)(assertLibraryFilesEqual(actual, roots.OrderRootType.SOURCES))
+    expected.foreach(libJavadocs)(assertLibraryFilesEqual(actual, roots.JavadocOrderRootType.getInstance))
   }
 
   // TODO: support non-local library contents (if necessary)
@@ -233,11 +244,14 @@ trait ProjectStructureMatcher {
         val sdkProperties = actualLibrary.properties
         assertEquals("Scala SDK language level", expectedScalaSdk.languageLevel, sdkProperties.languageLevel)
 
-        expectedScalaSdk.classpath.foreach { classpath =>
-          val expectedClassPath = classpath.map(normalizePathSeparators).sorted.mkString("\n")
-          val actualClasspath = sdkProperties.compilerClasspath.map(_.getAbsolutePath).map(normalizePathSeparators).sorted.mkString("\n")
-          assertEquals("Scala SDK classpath", expectedClassPath, actualClasspath)
+        def testClasspath(name: String, expectedClasspathStr: Seq[String], actualClasspathFile: Seq[File]): Unit = {
+          val expectedClassPathNorm = expectedClasspathStr.map(normalizePathSeparators).sorted.mkString("\n")
+          val actualClasspathNorm = actualClasspathFile.map(_.getAbsolutePath).map(normalizePathSeparators).sorted.mkString("\n")
+          assertEquals(name, expectedClassPathNorm, actualClasspathNorm)
         }
+
+        expectedScalaSdk.classpath.foreach(testClasspath("Scala SDK classpath", _, sdkProperties.compilerClasspath))
+        expectedScalaSdk.extraClasspath.foreach(testClasspath("Scala SDK extra classpath", _, sdkProperties.scaladocExtraClasspath))
     }
   }
 
@@ -269,35 +283,11 @@ trait ProjectStructureMatcher {
     org.junit.Assert.assertEquals(s"$what mismatch", expected, actual)
   }
 
-  /**
-    * this hack should make old tests work unchanged and as expected.
-    * when module names can be duplicate, need to use more specialized code that will only work for sbt
-    * (the test dsl is also used for gradle importing tests)
-    */
-  private def pairModules[T <: Attributed, U](expected: Seq[T], actual: Seq[U])(implicit nameOfT: HasName[T], nameOfU: HasName[U], moduleOf: HasModule[U]) =
-    if (expected.map(nameOfT.apply).distinct.length == expected.length)
-      pairByName(expected, actual)
-    else
-      pairBySbtId(expected, actual)
+  private def pairModules[T <: Attributed, U](expected: Seq[T], actual: Seq[U])(implicit nameOfT: HasName[T], nameOfU: HasName[U]) =
+    pairByName(expected, actual)
 
   private def pairByName[T, U](expected: Seq[T], actual: Seq[U])(implicit nameOfT: HasName[T], nameOfU: HasName[U]): Seq[(T, U)] =
     expected.flatMap(e => actual.find(a => nameOfU(a) == nameOfT(e)).map((e, _)))
-
-  private def pairBySbtId[T <: Attributed, U](expected: Seq[T], actual: Seq[U])(implicit moduleOf: HasModule[U]): Seq[(T, U)] = {
-    expected.flatMap { e =>
-      val uri = e.get(sbtBuildURI).get
-      val id = e.get(sbtProjectId).get
-      actual.find { m =>
-        SbtUtil.getSbtModuleData(moduleOf(m)) match {
-          case Some(SbtModuleData(projectId, buildURI)) =>
-            projectId == id && buildURI == uri
-          case _ => false
-        }
-      }
-        .map((e,_))
-        .toIterable
-    }
-  }
 
   protected def assertNoNotificationsShown(myProject: Project): Unit = {
     myProject.getUserData(ShownNotificationsKey) match {
@@ -341,10 +331,6 @@ object ProjectStructureMatcher {
     def apply(obj: T): String
   }
 
-  trait HasModule[T] {
-    def apply(t: T): Module
-  }
-
   private implicit def convertMatchType(mt: DslUtils.MatchType): AttributeMatchType = mt match {
     case MatchType.Exact   => AttributeMatchType.Exact
     case MatchType.Inexact => AttributeMatchType.Inexact
@@ -362,13 +348,28 @@ object ProjectStructureMatcher {
     object Inexact extends AttributeMatchType {
       override def assertMatch[T](what: String, expected: Seq[T], actual: Seq[T]): Unit =
         expected.foreach { it =>
-          assertTrue(
-            s"""$what mismatch (should contain at least '$it')
-               |Expected [ ${expected.toList} ]
-               |Actual   [ ${actual.toList} ]""".stripMargin,
-            actual.contains(it)
-          )
+          if (!actual.contains(it)) {
+            val message =
+              s"""$what mismatch (should contain at least '$it')
+                 |Expected [ ${expected.toList} ]
+                 |Actual   [ ${actual.toList} ]""".stripMargin
+            val prefix = "!!! INEXACT COMPARISON !!!\n"
+            throw new ComparisonFailure(message, prefix + expected.mkString("\n"), prefix + actual.mkString("\n"))
+          }
         }
+    }
+  }
+
+  /**
+   * @param strictCheckForBuildModules if `false` then if expected project structure doesn't contain `-build` modules it will not be considered as a test failure<br>
+   *                                   if `true` then all the modules will be checked
+   * @note there is also [[org.jetbrains.sbt.DslUtils.MatchType]]
+   */
+  case class ProjectComparisonOptions(strictCheckForBuildModules: Boolean)
+
+  object ProjectComparisonOptions {
+    object Implicit {
+      implicit def default: ProjectComparisonOptions = ProjectComparisonOptions(strictCheckForBuildModules = false)
     }
   }
 }

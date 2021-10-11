@@ -12,6 +12,7 @@ import java.io.File
 final case class ScalaSdkDescriptor(version: Option[String], // Why is it Option? Shouldn't SDK version always be known?
                                     label: Option[String],
                                     compilerClasspath: Seq[File],
+                                    scaladocExtraClasspath: Seq[File],
                                     libraryFiles: Seq[File],
                                     sourceFiles: Seq[File],
                                     docFiles: Seq[File])

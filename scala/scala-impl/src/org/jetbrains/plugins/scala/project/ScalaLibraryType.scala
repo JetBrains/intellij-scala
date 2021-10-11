@@ -51,10 +51,11 @@ final class ScalaLibraryType extends LibraryType[ScalaLibraryProperties](ScalaLi
 
       private def formState = new ScalaLibraryPropertiesState(
         form.languageLevel,
-        form.classpath
+        form.classpath,
+        // NOTE: currently do not support editing scaladocExtraClasspathFrom UI, so just propagate old settings
+        properties.scaladocExtraClasspath.map(_.getAbsolutePath).toArray
       )
     }
-
 }
 
 //noinspection TypeAnnotation
@@ -85,12 +86,12 @@ object ScalaLibraryType {
     override def getDefaultLevel = projectRoot.LibrariesContainer.LibraryLevel.GLOBAL
 
     private def createNewScalaLibrary(descriptor: ScalaSdkDescriptor) = {
-      val ScalaSdkDescriptor(version, _, compilerClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
+      val ScalaSdkDescriptor(version, _, compilerClasspath, scaladocExtraClasspath, libraryFiles, sourceFiles, docFiles) = descriptor
 
       new NewLibraryConfiguration(
         "scala-sdk-" + version.getOrElse(Version.Default),
         ScalaLibraryType(),
-        ScalaLibraryProperties(version, compilerClasspath)
+        ScalaLibraryProperties(version, compilerClasspath, scaladocExtraClasspath)
       ) {
         override def addRoots(editor: libraryEditor.LibraryEditor): Unit = {
           addRootsInner(libraryFiles, OrderRootType.CLASSES)(editor)

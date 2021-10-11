@@ -1,8 +1,9 @@
 import coursier.cache.FileCache
 import coursier.core.Dependency
+import coursier.ivy.IvyRepository
 import coursier.maven.MavenRepository
 import coursier.util.Artifact
-import coursier.{Classifier, Fetch, Module, ModuleName, Organization, moduleNameString, organizationString}
+import coursier.{Classifier, Fetch, Module, ModuleName, Organization, moduleNameString, organizationString, util}
 import sbt.Keys.baseDirectory
 import sbt._
 import sbt.io.IO
@@ -41,7 +42,7 @@ object LocalRepoPackager extends AutoPlugin {
       sig ++ checksums
     }
 
-    val fetch = Fetch()
+    val fetch: Fetch[util.Task] = Fetch()
       .withDependencies(depsWithExclusions)
       .allArtifactTypes()
       .addClassifiers(Classifier.javadoc, Classifier.sources)
@@ -58,8 +59,12 @@ object LocalRepoPackager extends AutoPlugin {
     val fetched = fetch.run().map(_.toPath)
     val srcTrg = for {
       src <- fetched
-      root <- mavenRepoRoots(fetch)
-    } yield (src, root.relativize(src))
+      root <- repositoryRoots(fetch, src)
+    } yield {
+      val relativePath = root.relativize(src)
+      assert(!relativePath.toString.contains(".."), s"""Relative path must not contain special name ".." (parent folder): $relativePath (root: $root, file: $src)""")
+      (src, relativePath)
+    }
 
     // replace javadocs with dummies because they are large and mostly useless, but some resolvers error out if they are missing
     val dummyJavadocJar = resourceDir / "dummy-javadoc.jar"
@@ -76,14 +81,18 @@ object LocalRepoPackager extends AutoPlugin {
 
   def relativeJarPath(dep: Dependency): Path = {
     val fetch = Fetch().addDependencies(dep).noExtraArtifacts()
-    val roots = mavenRepoRoots(fetch)
-    fetch
+
+    val artifact = fetch
       .runResult()
       .detailedArtifacts
       .find(_._1.moduleVersion == dep.moduleVersion)
       .map(_._4.toPath)
-      .flatMap(p => roots.map(_.relativize(p)).headOption)
-      .head
+
+    val res: Seq[Path] = for {
+      artifact <- artifact.toSeq
+      root     <- repositoryRoots(fetch, artifact)
+    } yield root.relativize(artifact)
+    res.head
   }
 
   def sbtDep(org: String, moduleName: String, version: String, sbtVersion: String): Dependency = {
@@ -100,14 +109,27 @@ object LocalRepoPackager extends AutoPlugin {
     Dependency(mod, version)
   }
 
-  private def mavenRepoRoots(fetch: Fetch[coursier.util.Task]): Seq[Path] = {
+  private def repositoryRoots(fetch: Fetch[coursier.util.Task], artifact: Path): Seq[Path] = {
     val cacheRoot = fetch.cache.asInstanceOf[FileCache[Any]].location.toPath
-    fetch.repositories.collect {
-      case repo: MavenRepository =>
-        val root = new URI(repo.root)
-        val relativeRepoRoot = Paths.get(root.getScheme, root.getSchemeSpecificPart)
-        cacheRoot.resolve(relativeRepoRoot)
-    }
+
+    //we check for ivy, mainly for artifacts published locally for testing purposes
+    val isFromIvy = artifact.toString.contains(".ivy2")
+    if (isFromIvy)
+      fetch.repositories.collect {
+        case repo: IvyRepository =>
+          val rootStr = repo.pattern.chunks.collectFirst { case c if c.string.contains("file:/") => c.string }.getOrElse {
+            throw new RuntimeException(s"Can't determine .ivy2 root for coursier repo $repo, for artifact $artifact")
+          }
+          val root = new URI(rootStr)
+          new File(root).toPath
+      }
+    else
+      fetch.repositories.collect {
+        case repo: MavenRepository =>
+          val root = new URI(repo.root)
+          val relativeRepoRoot = Paths.get(root.getScheme, root.getSchemeSpecificPart)
+          cacheRoot.resolve(relativeRepoRoot)
+      }
   }
 
 }

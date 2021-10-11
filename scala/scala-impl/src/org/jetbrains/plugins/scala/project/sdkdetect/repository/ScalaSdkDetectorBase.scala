@@ -82,10 +82,11 @@ abstract class ScalaSdkDetectorBase extends ScalaSdkDetector
       val descriptor = ScalaSdkDescriptor(
         compilerVersion,
         label,
-        compilerClasspath = files(binaryComponents)(requiredBinaryArtifacts.contains),
-        libraryFiles      = files(binaryComponents)(ScalaLibraryAndModulesArtifacts.contains),
-        sourceFiles       = files(sourcesComponents)(ScalaLibraryAndModulesArtifacts.contains),
-        docFiles          = files(docsComponents)(ScalaLibraryAndModulesArtifacts.contains)
+        compilerClasspath      = files(binaryComponents)(requiredBinaryArtifacts.contains),
+        scaladocExtraClasspath = Nil, // TODO SCL-17219
+        libraryFiles           = files(binaryComponents)(ScalaLibraryAndModulesArtifacts.contains),
+        sourceFiles            = files(sourcesComponents)(ScalaLibraryAndModulesArtifacts.contains),
+        docFiles               = files(docsComponents)(ScalaLibraryAndModulesArtifacts.contains)
       )
 
       Right(descriptor)
