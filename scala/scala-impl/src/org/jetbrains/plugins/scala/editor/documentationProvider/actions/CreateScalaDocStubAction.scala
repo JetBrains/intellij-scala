@@ -18,7 +18,7 @@ import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunctionDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScDocCommentOwner, ScTrait}
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocCommentFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaDocCommentFromText
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocComment
 
 import scala.collection.mutable
@@ -129,7 +129,7 @@ object CreateScalaDocStubAction {
   private[documentationProvider]
   def createStub(docOwner: ScDocCommentOwner, psiDocument: Document): Unit = {
     val stubText = ScalaDocStubGenerator.createScalaDocStub(docOwner).trim
-    val newComment = createDocCommentFromText(stubText)(docOwner.getManager)
+    val newComment = createScalaDocCommentFromText(stubText)(docOwner.getManager)
     val project = docOwner.getProject
     val docCommentEnd = docOwner.getTextRange.getStartOffset
 

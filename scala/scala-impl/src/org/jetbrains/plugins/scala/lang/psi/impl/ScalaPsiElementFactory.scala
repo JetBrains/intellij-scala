@@ -963,55 +963,78 @@ object ScalaPsiElementFactory {
   def createTypeAliasDefinitionFromText(@NonNls text: String, context: PsiElement, child: PsiElement): ScTypeAliasDefinition =
     createElementWithContext[ScTypeAliasDefinition](text, context, child)(parsingStat.Def.parse(_))
 
-  def createDocCommentFromText(@NonNls text: String)
-                              (implicit ctx: ProjectContext): ScDocComment =
-    createDocComment(s"/**\n$text\n*/")
+  //============================================================
+  // ScalaDoc elements
+  //============================================================
 
-  def createMonospaceSyntaxFromText(@NonNls text: String)
-                                   (implicit ctx: ProjectContext): ScDocSyntaxElement = {
-    val comment = createDocCommentFromText(s"`$text`")
+  def createScalaDocComment(@NonNls prefix: String)
+                           (implicit context: ProjectContext): ScDocComment = {
+    val definitions = createScalaFileFromText(s"$prefix class a").typeDefinitions
+    definitions.head.docComment.orNull
+  }
+
+  def createScalaDocMonospaceSyntaxFromText(@NonNls text: String)
+                                           (implicit ctx: ProjectContext): ScDocSyntaxElement =
+    createScalaDocSyntaxElementFromText("`", text, "`")
+
+  /** @param linkContent examples:<br>
+   *                     https://google.com<br>
+   *                     org.example.MyClass
+   *                     org.example.MyClass link description
+   */
+  def createScalaDocLinkSyntaxFromText(@NonNls linkContent: String)
+                                      (implicit ctx: ProjectContext): ScDocSyntaxElement =
+    createScalaDocSyntaxElementFromText("[[", linkContent, "]]")
+
+  private def createScalaDocSyntaxElementFromText(@NonNls left: String, @NonNls text: String, @NonNls right: String)
+                                                 (implicit ctx: ProjectContext): ScDocSyntaxElement = {
+    val comment = createScalaDocCommentFromText(s"$left$text$right")
     val paragraph = PsiTreeUtil.findChildOfType(comment, classOf[ScDocParagraph])
     val result = PsiTreeUtil.findChildOfType(paragraph, classOf[ScDocSyntaxElement])
     result
   }
 
-  def createDocHeaderElement(length: Int)
-                            (implicit ctx: ProjectContext): PsiElement = {
+  def createScalaDocCommentFromText(@NonNls text: String)
+                                   (implicit ctx: ProjectContext): ScDocComment =
+    createScalaDocComment(s"/**\n$text\n*/")
+
+  def createScalaDocHeaderElement(length: Int)
+                                 (implicit ctx: ProjectContext): PsiElement = {
     val text = s"/**=header${StringUtils.repeat("=", length)}*/"
-    val comment = createDocComment(text)
+    val comment = createScalaDocComment(text)
     val paragraph = PsiTreeUtil.findChildOfType(comment, classOf[ScDocParagraph])
     val headerElement = paragraph.getFirstChild
     val result = headerElement.getLastChild
     result
   }
 
-  def createDocWhiteSpaceWithNewLine(implicit ctx: ProjectContext): PsiElement = {
-    val node = createDocComment(s"/**\n *\n*/").getNode
+  def createScalaDocWhiteSpaceWithNewLine(implicit ctx: ProjectContext): PsiElement = {
+    val node = createScalaDocComment(s"/**\n *\n*/").getNode
     node.getChildren(null)(1).getPsi
   }
 
-  def createLeadingAsterisk(implicit ctx: ProjectContext): PsiElement =
-    createDocCommentFromText(" *").getNode.getChildren(null)(2).getPsi
+  def createScalaDocLeadingAsterisk(implicit ctx: ProjectContext): PsiElement =
+    createScalaDocCommentFromText(" *").getNode.getChildren(null)(2).getPsi
 
-  def createDocSimpleData(@NonNls text: String)
-                         (implicit ctx: ProjectContext): PsiElement =
-    createDocComment(s"/**$text*/").getNode.getChildren(null)(1).getPsi
+  def createScalaDocSimpleData(@NonNls text: String)
+                              (implicit ctx: ProjectContext): PsiElement =
+    createScalaDocComment(s"/**$text*/").getNode.getChildren(null)(1).getPsi
 
-  def createDocTagValue(@NonNls text: String)
-                       (implicit ctx: ProjectContext): PsiElement =
+  def createScalaDocTagValue(@NonNls text: String)
+                            (implicit ctx: ProjectContext): PsiElement =
     createClassWithBody(
       s"""/**@param $text
          |*/""".stripMargin).docComment.orNull
       .getNode.getChildren(null)(1).getChildren(null)(2).getPsi
 
-  def createDocTagName(@NonNls name: String)
-                      (implicit ctx: ProjectContext): PsiElement =
+  def createScalaDocTagName(@NonNls name: String)
+                           (implicit ctx: ProjectContext): PsiElement =
     createScalaFileFromText("/**@" + name + " qwerty */")
       .typeDefinitions.head.docComment.get.getNode.getChildren(null)(1).getChildren(null)(0).getPsi
 
-  def createDocLinkValue(@NonNls text: String)
-                        (implicit ctx: ProjectContext): ScDocResolvableCodeReference =
-    createDocComment(s"/**[[$text]]*/")
+  def createScalaDocLinkValue(@NonNls text: String)
+                             (implicit ctx: ProjectContext): ScDocResolvableCodeReference =
+    createScalaDocComment(s"/**[[$text]]*/")
       .getNode.getChildren(null)(1).getChildren(null)(1).getPsi.asInstanceOf[ScDocResolvableCodeReference]
 
   def createXmlEndTag(@NonNls tagName: String)
@@ -1074,11 +1097,6 @@ object ScalaPsiElementFactory {
   private[this] def createMemberFromText(@NonNls text: String)
                                         (implicit context: ProjectContext): ScMember =
     createClassWithBody(text).members.head
-
-  def createDocComment(@NonNls prefix: String)
-                      (implicit context: ProjectContext): ScDocComment =
-    createScalaFileFromText(s"$prefix class a").typeDefinitions.head
-      .docComment.orNull
 
   private[this] def elementCreationException(@NonNls kind: String, @NonNls text: String,
                                              context: PsiElement = null,

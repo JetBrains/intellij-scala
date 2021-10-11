@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.scaladoc.psi.impl
 
 import com.intellij.lang.ASTNode
-import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
+import com.intellij.psi.PsiErrorElement
+import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementImpl
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
@@ -18,18 +18,17 @@ class ScDocInlinedTagImpl(node: ASTNode) extends ScalaPsiElementImpl(node) with 
   override def nameElement: ScPsiDocToken =
     findChildByType[ScPsiDocToken](ScalaDocTokenType.DOC_TAG_NAME)
 
-  override def valueElement: Option[PsiElement] =
-    nameElement
+  override def valueText: Option[String] = {
+    val valueElements = nameElement
       .nextSiblings
-      .filter { s =>
-        s.elementType match {
-          case ScalaDocTokenType.DOC_WHITESPACE | ScalaDocTokenType.DOC_INLINE_TAG_END =>
-            false
-          case _ =>
-            s.getTextLength > 0
-        }
-      }
-      .headOption
+      //inline tag starts with error element (for some reason) and whitespace
+      .dropWhile(c => c.is[PsiErrorElement] || c.elementType == ScalaDocTokenType.DOC_WHITESPACE)
+      .takeWhile(_.elementType != ScalaDocTokenType.DOC_INLINE_TAG_END)
+    val result =
+      if (valueElements.isEmpty) None
+      else Some(valueElements.map(_.getText).mkString)
+    result
+  }
 
   override protected def acceptScala(visitor: ScalaElementVisitor): Unit =
     visitor.visitInlinedTag(this)

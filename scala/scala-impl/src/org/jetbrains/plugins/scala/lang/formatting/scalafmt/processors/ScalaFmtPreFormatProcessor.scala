@@ -280,9 +280,9 @@ object ScalaFmtPreFormatProcessor {
 
     val elementsInCopy = this.getElementsOfRange(firstElementInCopy, lastElementInCopy).toArray
 
-    import ScalaPsiElementFactory.{createDocComment, createNewLine}
-    val startMarkers: Seq[PsiElement] = firstElementInCopy.prependSiblings(createDocComment(StartMarker), createNewLine())
-    val endMarkers: Seq[PsiElement] = lastElementInCopy.appendSiblings(createNewLine(), createDocComment(EndMarker))
+    import ScalaPsiElementFactory.{createScalaDocComment, createNewLine}
+    val startMarkers: Seq[PsiElement] = firstElementInCopy.prependSiblings(createScalaDocComment(StartMarker), createNewLine())
+    val endMarkers: Seq[PsiElement] = lastElementInCopy.appendSiblings(createNewLine(), createScalaDocComment(EndMarker))
 
     def canContainRemovableChildren(element: PsiElement): Boolean = element match {
       case _: ScBlock | _: ScTemplateBody | _: ScalaFile | _: ScPackaging | _: ScPatternDefinition => true

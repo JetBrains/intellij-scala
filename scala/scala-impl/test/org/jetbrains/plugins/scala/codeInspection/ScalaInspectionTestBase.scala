@@ -182,7 +182,18 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
     val action = doFindQuickFix(text, hint)
 
     executeWriteActionCommand() {
-      action.invoke(getProject, getEditor, getFile)
+       action.invoke(getProject, getEditor, getFile)
+    }(getProject)
+
+    val expectedFileText = createTestText(expected)
+    getFixture.checkResult(normalize(expectedFileText), /*stripTrailingSpaces = */ true)
+  }
+
+  protected def testQuickFixAllInFile(text: String, expected: String, hint: String): Unit = {
+    val actions = doFindQuickFixes(text, hint)
+
+    executeWriteActionCommand() {
+      actions.foreach(_.invoke(getProject, getEditor, getFile))
     }(getProject)
 
     val expectedFileText = createTestText(expected)
@@ -208,12 +219,14 @@ abstract class ScalaAnnotatorQuickFixTestBase extends ScalaHighlightsTestBase {
     actions.find(a => hintFilter(a.getText))
   }
 
-  private def doFindQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): IntentionAction = {
+  private def doFindQuickFix(text: String, hint: String, failOnEmptyErrors: Boolean = true): IntentionAction =
+    doFindQuickFixes(text, hint, failOnEmptyErrors).head
+
+  private def doFindQuickFixes(text: String, hint: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] = {
     val actions = findAllQuickFixes(text, failOnEmptyErrors)
-    val action = actions.find(_.getText == hint).getOrElse(
-      fail(s"Quick fix not found. Available actions:\n${actions.map(_.getText).mkString("\n")}").asInstanceOf[Nothing]
-    )
-    action
+    val actionsMatching = actions.filter(_.getText == hint)
+    assert(actionsMatching.nonEmpty, s"Quick fixes not found. Available actions:\n${actions.map(_.getText).mkString("\n")}")
+    actionsMatching
   }
 
   private def findAllQuickFixes(text: String, failOnEmptyErrors: Boolean = true): Seq[IntentionAction] =

@@ -6,7 +6,7 @@ import com.intellij.codeInspection._
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createMonospaceSyntaxFromText
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.parsing.MyScaladocParsing
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocInlinedTag
 
@@ -52,11 +52,21 @@ final class ScalaDocInlinedTagReplaceQuickFix(inlinedTag: ScDocInlinedTag)
 
   override protected def doApplyFix(tag: ScDocInlinedTag)
                                    (implicit project: Project): Unit = {
-    val text = tag.valueElement
-      .map(_.getText)
-      .map(_.replace("`", MyScaladocParsing.escapeSequencesForWiki("`")))
-      .getOrElse("")
-
-    tag.replace(createMonospaceSyntaxFromText(text))
+    val textNew = tag.valueText.map(escaped).getOrElse("")
+    val elementNew = tag.name match {
+      case "code" =>
+        ScalaPsiElementFactory.createScalaDocSimpleData(s"<pre>$textNew</pre>")
+      case "link" | "linkplain" =>
+        ScalaPsiElementFactory.createScalaDocLinkSyntaxFromText(textNew)
+      case _ =>
+        ScalaPsiElementFactory.createScalaDocMonospaceSyntaxFromText(textNew)
+    }
+    tag.replace(elementNew)
   }
+
+  private def escaped(text: String): String =
+    MyScaladocParsing.escapeSequencesForWiki.foldLeft(text) {
+      case (acc, (from, to)) =>
+        acc.replace(from, to)
+    }
 }

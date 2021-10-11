@@ -25,7 +25,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDocLinkValue, createReferenceExpressionFromText}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaDocLinkValue, createReferenceExpressionFromText}
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.ScDocResolvableCodeReference
 
 sealed abstract class ScalaAddImportAction[Psi <: PsiElement, Elem <: ElementToImport](
@@ -184,7 +184,7 @@ object ScalaAddImportAction {
 
     //use fully qualified name instead of adding imports for scaladoc references
     override protected def doAddImport(toImport: ElementToImport): Unit = {
-      ref.replace(createDocLinkValue(toImport.qualifiedName)(ref.getManager))
+      ref.replace(createScalaDocLinkValue(toImport.qualifiedName)(ref.getManager))
     }
   }
 

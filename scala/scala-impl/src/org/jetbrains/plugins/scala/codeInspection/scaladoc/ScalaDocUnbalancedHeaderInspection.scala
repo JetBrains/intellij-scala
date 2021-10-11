@@ -80,7 +80,7 @@ class ScalaDocHeaderBalanceQuickFix(opening: PsiElement, closing: PsiElement)
   override protected def doApplyFix(openTag: PsiElement, closeTag: PsiElement)
                                    (implicit project: Project): Unit = {
     if (ScalaDocUnbalancedHeaderInspection.isApplicable(openTag, closeTag)) {
-      val newCloseTag = createDocHeaderElement(openTag.getText.length())
+      val newCloseTag = createScalaDocHeaderElement(openTag.getText.length())
       closeTag.replace(newCloseTag)
     }
   }
@@ -95,8 +95,8 @@ class ScalaDocMoveTextToNewLineQuickFix(
 
   override protected def doApplyFix(first: PsiElement, second: PsiElement)(implicit project: Project): Unit = {
     val parent = first.getParent
-    parent.addBefore(createDocWhiteSpaceWithNewLine, first)
-    val addedAst = parent.addBefore(createLeadingAsterisk, first)
+    parent.addBefore(createScalaDocWhiteSpaceWithNewLine, first)
+    val addedAst = parent.addBefore(createScalaDocLeadingAsterisk, first)
 
     CodeStyleManager.getInstance(project)
       .reformatText(parent.getContainingFile, addedAst.startOffset, first.endOffset)

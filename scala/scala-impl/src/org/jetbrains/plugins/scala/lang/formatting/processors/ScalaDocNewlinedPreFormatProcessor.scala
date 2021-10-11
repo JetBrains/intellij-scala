@@ -11,7 +11,7 @@ import org.jetbrains.plugins.scala.extensions.{ElementType, IteratorExt, PsiElem
 import org.jetbrains.plugins.scala.lang.formatting.FormatterUtil.isDocWhiteSpace
 import org.jetbrains.plugins.scala.lang.formatting.settings.ScalaCodeStyleSettings
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createDocWhiteSpaceWithNewLine, createLeadingAsterisk}
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createScalaDocWhiteSpaceWithNewLine, createScalaDocLeadingAsterisk}
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 import org.jetbrains.plugins.scala.lang.scaladoc.parser.ScalaDocElementTypes
 import org.jetbrains.plugins.scala.lang.scaladoc.psi.api.{ScDocComment, ScDocList, ScDocParagraph, ScDocTag}
@@ -121,20 +121,20 @@ final class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with S
     if (nextElement != null && ScalaDocNewlinedPreFormatProcessor.isNewLine(element)) {
       val newLinesCount = element.getText.count(_ == '\n')
       for (_ <- 2 to newLinesCount) {
-        parent.addBefore(createDocWhiteSpaceWithNewLine, element)
-        parent.addBefore(createLeadingAsterisk, element)
+        parent.addBefore(createScalaDocWhiteSpaceWithNewLine, element)
+        parent.addBefore(createScalaDocLeadingAsterisk, element)
       }
 
       val newElement: PsiElement =
         if (newLinesCount > 1)
-          element.replace(createDocWhiteSpaceWithNewLine)
+          element.replace(createScalaDocWhiteSpaceWithNewLine)
         else
           element
 
       nextElement.elementType match {
         case ScalaDocTokenType.DOC_COMMENT_LEADING_ASTERISKS | ScalaDocTokenType.DOC_COMMENT_END =>
         case  _ =>
-          parent.addAfter(createLeadingAsterisk, newElement)
+          parent.addAfter(createScalaDocLeadingAsterisk, newElement)
       }
     } else {
       //since siblings can be replaced, first we should materialize the list
@@ -176,8 +176,8 @@ final class ScalaDocNewlinedPreFormatProcessor extends PreFormatProcessor with S
 
       inWriteAction {
         for (_ <- 1 to newlinesNew - newlinesOld) {
-          parent.addBefore(createLeadingAsterisk, lastWs)
-          parent.addAfter(createDocWhiteSpaceWithNewLine, prev)
+          parent.addBefore(createScalaDocLeadingAsterisk, lastWs)
+          parent.addAfter(createScalaDocWhiteSpaceWithNewLine, prev)
         }
       }
     }

@@ -6,7 +6,7 @@ import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
-import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createDocSimpleData
+import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.createScalaDocSimpleData
 import org.jetbrains.plugins.scala.lang.scaladoc.lexer.ScalaDocTokenType
 
 /**
@@ -30,7 +30,7 @@ trait ScalaDocWithSyntaxSurrounder extends Surrounder {
     val surroundedText = new StringBuilder()
     elements.foreach(surroundedText append _.getText)
 
-    var newExpr = createDocSimpleData(getNewExprText(surroundedText.toString()))(element.getManager)
+    var newExpr = createScalaDocSimpleData(getNewExprText(surroundedText.toString()))(element.getManager)
 
     while (newExpr != null && newExpr.getNode.getElementType != ScalaDocTokenType.DOC_COMMENT_END) {
       element.getParent.addBefore(newExpr, element)
