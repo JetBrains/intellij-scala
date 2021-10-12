@@ -865,4 +865,109 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "yield"
   )
 
+  /// CASE in "quiet" try-catch
+
+  private val throwingFunctionDefinition =
+    s"""import java.io.*
+       |
+       |@throws[IOException]
+       |def boom = throw new InterruptedIOException("boom")
+       |""".stripMargin
+
+  def testTryCatch(): Unit = doCompletionTest(
+    fileText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch case $CARET
+         |""".stripMargin,
+    item = "case"
+  )
+
+  def testTryCatchIndented(): Unit = doCompletionTest(
+    fileText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  case $CARET
+         |""".stripMargin,
+    item = "case"
+  )
+
+  def testTryCatchIndentedBeforeCaseClause(): Unit = doCompletionTest(
+    fileText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  c$CARET
+         |  case e: IOException => println("Got IO exception: " + e.getMessage)
+         |""".stripMargin,
+    resultText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  case $CARET
+         |  case e: IOException => println("Got IO exception: " + e.getMessage)
+         |""".stripMargin,
+    item = "case"
+  )
+
+  def testTryCatchIndentedAfterCaseClause(): Unit = doCompletionTest(
+    fileText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  case e: InterruptedIOException => println("Got interrupted IO exception: " + e.getMessage)
+         |  c$CARET
+         |""".stripMargin,
+    resultText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  case e: InterruptedIOException => println("Got interrupted IO exception: " + e.getMessage)
+         |  case $CARET
+         |""".stripMargin,
+    item = "case"
+  )
+
+  def testTryCatchIndentedBetweenCaseClauses(): Unit = doCompletionTest(
+    fileText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  case e: InterruptedIOException => println("Got interrupted IO exception: " + e.getMessage)
+         |  c$CARET
+         |  case e: Exception => println("Got exception: " + e.getMessage)
+         |""".stripMargin,
+    resultText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch
+         |  case e: InterruptedIOException => println("Got interrupted IO exception: " + e.getMessage)
+         |  case $CARET
+         |  case e: Exception => println("Got exception: " + e.getMessage)
+         |""".stripMargin,
+    item = "case"
+  )
+
+  def testNoCompletionTryCatchNotIndentedBeforeIndentedCaseClause(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""$throwingFunctionDefinition
+         |
+         |try boom catch c$CARET
+         |  case e: IOException => println("Got IO exception: " + e.getMessage)
+         |""".stripMargin,
+    item = "case"
+  )
+
 }
