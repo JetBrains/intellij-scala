@@ -52,18 +52,21 @@ class ReferenceExpressionControlFlowTest extends ScalaDfaControlFlowBuilderTestB
       |1: ASSIGN_TO x
       |2: POP
       |3: PUSH x
-      |4: POP
-      |5: PUSH_VAL TOP
-      |6: FLUSH_ALL_FIELDS
-      |7: ASSIGN_TO y
-      |8: POP
-      |9: PUSH y
-      |10: PUSH_VAL 2
-      |11: NUMERIC_OP +
-      |12: FINISH BlockExpression
-      |13: RETURN
-      |14: POP
-      |15: RETURN
+      |4: PUSH_VAL TOP
+      |5: FLUSH_ALL_FIELDS
+      |6: PUSH_VAL TOP
+      |7: FLUSH_ALL_FIELDS
+      |8: CALL <unknown>
+      |9: NUMERIC_OP +
+      |10: ASSIGN_TO y
+      |11: POP
+      |12: PUSH y
+      |13: PUSH_VAL 2
+      |14: NUMERIC_OP +
+      |15: FINISH BlockExpression
+      |16: RETURN
+      |17: POP
+      |18: RETURN
       |""".stripMargin
   }
 

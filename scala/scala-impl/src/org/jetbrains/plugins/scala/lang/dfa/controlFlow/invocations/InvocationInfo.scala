@@ -4,7 +4,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationChainExtractor.{innerInvocationChain, splitInvocationChain}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.{buildArgumentsInEvaluationOrder, insertThisArgToArgList}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.{buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ParamToArgMapping.generateParamToArgMapping
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
 
@@ -62,7 +62,8 @@ object InvocationInfo {
     val isTupled = target.exists(_.tuplingUsed)
 
     val thisArgument = Argument.fromExpression(invocation.thisExpr, ThisArgument, PassByValue)
-    val properArguments = buildArgumentsInEvaluationOrder(invocation.matchedParameters, invocation, isTupled)
+    val properArguments = buildAllArguments(List(invocation.matchedParameters),
+      List(invocation.argumentExpressions), invocation, isTupled).head
     val allArguments = insertThisArgToArgList(invocation, properArguments, thisArgument)
 
     InvocationInfo(InvokedElement.fromTarget(target, invocation.applicationProblems), List(allArguments))
@@ -72,8 +73,8 @@ object InvocationInfo {
     val target = referenceExpression.bind()
 
     val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
-    val properArguments = buildArgumentsInEvaluationOrder(referenceExpression.matchedParameters,
-      referenceExpression, isTupled = false)
+    val properArguments = buildAllArguments(List(referenceExpression.matchedParameters), List(),
+      referenceExpression, isTupled = false).head
 
     InvocationInfo(InvokedElement.fromTarget(target, Nil), List(thisArgument :: properArguments))
   }

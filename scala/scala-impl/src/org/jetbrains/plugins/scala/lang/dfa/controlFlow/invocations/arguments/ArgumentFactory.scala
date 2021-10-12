@@ -2,16 +2,48 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments
 
 import org.jetbrains.plugins.scala.lang.dfa.utils.SyntheticExpressionFactory.{wrapInSplatListExpression, wrapInTupleExpression}
 import org.jetbrains.plugins.scala.lang.psi.api.ImplicitArgumentsOwner
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScInfixExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScAssignment, ScExpression, ScInfixExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
+import org.jetbrains.plugins.scala.lang.psi.types.api
 import org.jetbrains.plugins.scala.lang.psi.types.nonvalue.Parameter
 import org.jetbrains.plugins.scala.project.ProjectContext
 
 object ArgumentFactory {
 
-  def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)],
-                                      invocation: ImplicitArgumentsOwner,
-                                      isTupled: Boolean): List[Argument] = {
+  def buildAllArguments(matchedArguments: Seq[Seq[(ScExpression, Parameter)]], argumentExpressions: Seq[Seq[ScExpression]],
+                        invocation: ImplicitArgumentsOwner, isTupled: Boolean): List[List[Argument]] = {
+    implicit val context: ProjectContext = invocation.getProject
+    // There might be more arguments than the function requires. In this case, we should still evaluate all of the arguments.
+    val fixedArgs = argumentExpressions.zip(matchedArguments).map {
+      case (expressions, argParams) => fixUnmatchedArguments(expressions, argParams)
+    }
+
+    fixedArgs.map(buildArgumentsInEvaluationOrder(_, invocation, isTupled)).toList
+  }
+
+  private def fixUnmatchedArguments(args: Seq[ScExpression], matchedArgs: Seq[(ScExpression, Parameter)])
+                                   (implicit context: ProjectContext): Seq[(ScExpression, Parameter)] = {
+    val notMatchedArgs = args.filter {
+      case ScAssignment(_, Some(actualArg)) => isNotAlreadyMatched(matchedArgs, actualArg)
+      case argument => isNotAlreadyMatched(matchedArgs, argument)
+    }
+
+    matchedArgs ++ buildFakeParameters(notMatchedArgs, matchedArgs.length)
+  }
+
+  private def isNotAlreadyMatched(matchedArgs: Seq[(ScExpression, Parameter)], arg: ScExpression): Boolean = {
+    !matchedArgs.exists(_._1 == arg)
+  }
+
+  private def buildFakeParameters(args: Seq[ScExpression], initialIndex: Int)
+                                 (implicit context: ProjectContext): Seq[(ScExpression, Parameter)] = {
+    for ((argument, index) <- args.zipWithIndex)
+      yield argument -> Parameter(api.Any, isRepeated = false, index = index + initialIndex)
+  }
+
+  private def buildArgumentsInEvaluationOrder(matchedParameters: Seq[(ScExpression, Parameter)],
+                                              invocation: ImplicitArgumentsOwner,
+                                              isTupled: Boolean): List[Argument] = {
     val (matchedParams, maybeVarargArgument) = partitionNormalAndVarargArgs(matchedParameters)
     invocation match {
       case methodInvocation: MethodInvocation if isTupled => List(buildTupledArgument(methodInvocation))
