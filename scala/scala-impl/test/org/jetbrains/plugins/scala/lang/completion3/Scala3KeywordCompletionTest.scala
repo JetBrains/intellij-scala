@@ -477,7 +477,7 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "derives"
   )
 
-  /// THEN
+  /// if - THEN
 
   def testThen(): Unit = doCompletionTest(
     fileText = s"if 1 == 2 t$CARET",
@@ -573,7 +573,7 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "then"
   )
 
-  /// ELSE
+  /// if - then - ELSE
 
   def testElse(): Unit = doCompletionTest(
     fileText = s"if 1 == 2 then 7 e$CARET",
@@ -615,6 +615,82 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
          |else $CARET
          |""".stripMargin,
     item = "else"
+  )
+
+  /// while - DO
+
+  def testDoInWhileLoop(): Unit = doCompletionTest(
+    fileText = s"while 1 == 2 d$CARET",
+    resultText = s"while 1 == 2 do $CARET",
+    item = "do"
+  )
+
+  def testDoInWhileLoopAfterParens(): Unit = doCompletionTest(
+    fileText = s"while (1 == 2) d$CARET",
+    resultText = s"while (1 == 2) do $CARET",
+    item = "do"
+  )
+
+  def testDoInWhileLoopAfterBlockCondition(): Unit = doCompletionTest(
+    fileText =
+      s"""var x = 5
+         |while {
+         |  x -= 2
+         |  x > 0
+         |} d$CARET
+         |""".stripMargin,
+    resultText =
+      s"""var x = 5
+         |while {
+         |  x -= 2
+         |  x > 0
+         |} do $CARET
+         |""".stripMargin,
+    item = "do"
+  )
+
+  def testDoInWhileLoopAfterBlockConditionInParens(): Unit = doCompletionTest(
+    fileText =
+      s"""var x = 5
+         |while ({
+         |  x -= 2
+         |  x > 0
+         |}) d$CARET
+         |""".stripMargin,
+    resultText =
+      s"""var x = 5
+         |while ({
+         |  x -= 2
+         |  x > 0
+         |}) do $CARET
+         |""".stripMargin,
+    item = "do"
+  )
+
+  def testDoInWhileLoopAfterBlockConditionAndComments(): Unit = doCompletionTest(
+    fileText =
+      s"""var x = 5
+         |while {
+         |  x -= 2
+         |  x > 0
+         |}
+         |  // some comment
+         |  /* another
+         |     comment */
+         |  d$CARET
+         |""".stripMargin,
+    resultText =
+      s"""var x = 5
+         |while {
+         |  x -= 2
+         |  x > 0
+         |}
+         |  // some comment
+         |  /* another
+         |     comment */
+         |  do $CARET
+         |""".stripMargin,
+    item = "do"
   )
 
 }
