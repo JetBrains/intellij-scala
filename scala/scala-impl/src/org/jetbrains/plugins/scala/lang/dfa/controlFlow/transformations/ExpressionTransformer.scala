@@ -12,12 +12,12 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 
-class ExpressionTransformer(val transformedExpression: ScExpression)
-  extends ScalaPsiElementTransformer(transformedExpression) {
+class ExpressionTransformer(val wrappedExpression: ScExpression)
+  extends ScalaPsiElementTransformer(wrappedExpression) {
 
-  override def toString: String = s"ExpressionTransformer: $transformedExpression"
+  override def toString: String = s"ExpressionTransformer: $wrappedExpression"
 
-  override def transform(builder: ScalaDfaControlFlowBuilder): Unit = transformedExpression match {
+  override def transform(builder: ScalaDfaControlFlowBuilder): Unit = wrappedExpression match {
     case block: ScBlockExpr => transformBlock(block, builder)
     case parenthesised: ScParenthesisedExpr => transformParenthesisedExpression(parenthesised, builder)
     case invocation: MethodInvocation => transformInvocation(invocation, builder)
@@ -26,7 +26,7 @@ class ExpressionTransformer(val transformedExpression: ScExpression)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => if (isReferenceExpressionInvocation(reference))
       transformInvocation(reference, builder) else transformReferenceExpression(reference, builder)
-    case _ => throw TransformationFailedException(transformedExpression, "Unsupported expression.")
+    case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {

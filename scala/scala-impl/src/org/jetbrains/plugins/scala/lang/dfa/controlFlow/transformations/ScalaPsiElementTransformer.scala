@@ -11,19 +11,19 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDefinitionWithAssig
  * It is the most likely entrypoint for building control flow for Scala code.
  * It passes responsibility further to more specific transformers.
  */
-class ScalaPsiElementTransformer(val transformedElement: ScalaPsiElement) extends Transformable {
+class ScalaPsiElementTransformer(val wrappedElement: ScalaPsiElement) extends Transformable {
 
-  override def toString: String = s"ScalaPsiElementTransformer: $transformedElement"
+  override def toString: String = s"ScalaPsiElementTransformer: $wrappedElement"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
-    val transformer = transformedElement match {
+    val transformer = wrappedElement match {
       case expression: ScExpression => new ExpressionTransformer(expression)
       case definition: ScDefinitionWithAssignment => new DefinitionTransformer(definition)
-      case _ => throw TransformationFailedException(transformedElement, "Unsupported PSI element.")
+      case _ => throw TransformationFailedException(wrappedElement, "Unsupported PSI element.")
     }
 
     transformer.transform(builder)
-    builder.finishElement(transformedElement)
+    builder.finishElement(wrappedElement)
   }
 
   protected def transformPsiElement(element: ScalaPsiElement, builder: ScalaDfaControlFlowBuilder): Unit = {

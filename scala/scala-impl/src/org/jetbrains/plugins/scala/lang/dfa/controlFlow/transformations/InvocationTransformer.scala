@@ -15,17 +15,17 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.SpecialSupportUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
-class InvocationTransformer(val transformedInvocation: ScExpression)
-  extends ExpressionTransformer(transformedInvocation) {
+class InvocationTransformer(val wrappedInvocation: ScExpression)
+  extends ExpressionTransformer(wrappedInvocation) {
 
-  override def toString: String = s"InvocationTransformer: $transformedInvocation"
+  override def toString: String = s"InvocationTransformer: $wrappedInvocation"
 
   override def transform(builder: ScalaDfaControlFlowBuilder): Unit = {
-    val invocationsInfo = transformedInvocation match {
+    val invocationsInfo = wrappedInvocation match {
       case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
       case methodInvocation: MethodInvocation => List(InvocationInfo.fromMethodInvocation(methodInvocation))
       case referenceExpression: ScReferenceExpression => List(InvocationInfo.fromReferenceExpression(referenceExpression))
-      case _ => throw TransformationFailedException(transformedInvocation,
+      case _ => throw TransformationFailedException(wrappedInvocation,
         "Expression of this type cannot be transformed as an invocation.")
     }
 
@@ -94,7 +94,7 @@ class InvocationTransformer(val transformedInvocation: ScExpression)
         // TODO check implicit conversions etc.
         // TODO check division by zero
         rightArg.content.transform(builder)
-        builder.pushInstruction(new NumericBinaryInstruction(operation, ScalaStatementAnchor(transformedInvocation)))
+        builder.pushInstruction(new NumericBinaryInstruction(operation, ScalaStatementAnchor(wrappedInvocation)))
         return true
       }
     }
@@ -114,7 +114,7 @@ class InvocationTransformer(val transformedInvocation: ScExpression)
         // TODO check division by zero
         rightArg.content.transform(builder)
         builder.pushInstruction(new BooleanBinaryInstruction(operation, forceEqualityByContent,
-          ScalaStatementAnchor(transformedInvocation)))
+          ScalaStatementAnchor(wrappedInvocation)))
         return true
       }
     }
@@ -129,7 +129,7 @@ class InvocationTransformer(val transformedInvocation: ScExpression)
         val operation = LogicalOperations(operationName)
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
 
-        val anchor = ScalaStatementAnchor(transformedInvocation)
+        val anchor = ScalaStatementAnchor(wrappedInvocation)
         val endOffset = new DeferredOffset
         val nextConditionOffset = new DeferredOffset
 
