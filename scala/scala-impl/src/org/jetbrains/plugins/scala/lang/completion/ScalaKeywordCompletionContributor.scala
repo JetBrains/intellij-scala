@@ -56,6 +56,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
   registerStandardCompletion(new definitions.ValueDefinitionFilter, VAL)
   registerStandardCompletion(new expression.StatementFilter, FOR, WHILE, DO, TRY, RETURN, THROW, IF)
   registerStandardCompletion(new expression.DoFilter, DO)
+  registerStandardCompletion(new expression.DoYieldFilter, DO, YIELD)
   registerStandardCompletion(new expression.WhileFilter, WHILE)
   registerStandardCompletion(new expression.CatchFilter, CATCH)
   registerStandardCompletion(new expression.FinallyFilter, FINALLY)

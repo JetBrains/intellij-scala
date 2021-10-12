@@ -693,4 +693,176 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "do"
   )
 
+  /// for - DO
+
+  def testDoInForLoop(): Unit = doCompletionTest(
+    fileText = s"for x <- 1 to 3 d$CARET",
+    resultText = s"for x <- 1 to 3 do $CARET",
+    item = "do"
+  )
+
+  def testDoInForLoopAfterIf(): Unit = doCompletionTest(
+    fileText = s"for x <- 1 to 3 if x % 2 == 0 d$CARET",
+    resultText = s"for x <- 1 to 3 if x % 2 == 0 do $CARET",
+    item = "do"
+  )
+
+  def testDoInForLoopAfterIfAndNewLine(): Unit = doCompletionTest(
+    fileText =
+      s"""for x <- 1 to 3 if x % 2 == 0
+         |d$CARET""".stripMargin,
+    resultText =
+      s"""for x <- 1 to 3 if x % 2 == 0
+         |do $CARET""".stripMargin,
+    item = "do"
+  )
+
+  def testDoInForLoopAfterParens(): Unit = doCompletionTest(
+    fileText = s"for (x <- 1 to 3) d$CARET",
+    resultText = s"for (x <- 1 to 3) do $CARET",
+    item = "do"
+  )
+
+  def testDoInForLoopMultiline(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |d$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |do $CARET
+         |""".stripMargin,
+    item = "do"
+  )
+
+  def testDoInForLoopAfterBlock(): Unit = doCompletionTest(
+    fileText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |} d$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |} do $CARET
+         |""".stripMargin,
+    item = "do"
+  )
+
+  def testDoInForLoopMultilineAfterComments(): Unit = doCompletionTest(
+    fileText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |}
+         |  // some comment
+         |  /* another
+         |     comment */
+         |  d$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |}
+         |  // some comment
+         |  /* another
+         |     comment */
+         |  do $CARET
+         |""".stripMargin,
+    item = "do"
+  )
+
+  /// for - YIELD
+
+  def testYieldInForLoop(): Unit = doCompletionTest(
+    fileText = s"for x <- 1 to 3 y$CARET",
+    resultText = s"for x <- 1 to 3 yield $CARET",
+    item = "yield"
+  )
+
+  def testYieldInForLoopAfterIf(): Unit = doCompletionTest(
+    fileText = s"for x <- 1 to 3 if x % 2 == 0 y$CARET",
+    resultText = s"for x <- 1 to 3 if x % 2 == 0 yield $CARET",
+    item = "yield"
+  )
+
+  def testYieldInForLoopAfterIfAndNewLine(): Unit = doCompletionTest(
+    fileText =
+      s"""for x <- 1 to 3 if x % 2 == 0
+         |y$CARET""".stripMargin,
+    resultText =
+      s"""for x <- 1 to 3 if x % 2 == 0
+         |yield $CARET""".stripMargin,
+    item = "yield"
+  )
+
+  def testYieldInForLoopAfterParens(): Unit = doCompletionTest(
+    fileText = s"for (x <- 1 to 3) y$CARET",
+    resultText = s"for (x <- 1 to 3) yield $CARET",
+    item = "yield"
+  )
+
+  def testYieldInForLoopMultiline(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |y$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |yield $CARET
+         |""".stripMargin,
+    item = "yield"
+  )
+
+  def testYieldInForLoopAfterBlock(): Unit = doCompletionTest(
+    fileText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |} y$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |} yield $CARET
+         |""".stripMargin,
+    item = "yield"
+  )
+
+  def testYieldInForLoopMultilineAfterComments(): Unit = doCompletionTest(
+    fileText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |}
+         |  // some comment
+         |  /* another
+         |     comment */
+         |  y$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for {
+         |  x <- 1 to 3
+         |  y <- 2 to 3
+         |}
+         |  // some comment
+         |  /* another
+         |     comment */
+         |  yield $CARET
+         |""".stripMargin,
+    item = "yield"
+  )
+
 }

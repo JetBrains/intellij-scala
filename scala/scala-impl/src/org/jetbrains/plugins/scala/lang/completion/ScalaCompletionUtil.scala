@@ -206,13 +206,15 @@ object ScalaCompletionUtil {
     checkWith(manager.getProject, text)
   }
 
-  def checkReplace(elem: PsiElement, additionText: String, manager: PsiManager): Boolean = {
+  def checkReplace(elem: PsiElement, additionText: String): Boolean = {
+    val project = elem.getProject
+    val language = if (elem.isInScala3File) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
     val typeText = elem.getText
     var text = "class a { " + typeText + "}"
     if (!text.contains(DUMMY_IDENTIFIER_TRIMMED)) return false
     text = text.replaceAll("\\w*" + DUMMY_IDENTIFIER_TRIMMED, " " + additionText + " ")
 
-    checkWith(manager.getProject, text)
+    checkWith(project, text, language)
   }
 
   private def checkErrors(elem: PsiElement): Boolean = {
