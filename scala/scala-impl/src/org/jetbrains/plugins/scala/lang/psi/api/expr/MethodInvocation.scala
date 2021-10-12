@@ -16,6 +16,16 @@ import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 // and Method calls to handle them uniformly
 trait MethodInvocation extends ScExpression with ScalaPsiElement {
   /**
+   * @return expression that will be the this-ref of the call
+   */
+  def thisExpr: Option[ScExpression]
+
+  /*
+   * @return the target of the invocation
+   */
+  def target: Option[ScalaResolveResult]
+
+  /**
     * For Infix, Postfix and Prefix expressions
     * it's reference expression for operation
     *

@@ -26,6 +26,8 @@ import org.jetbrains.plugins.scala.lang.resolve.processor.precedence.PrecedenceT
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectContextOwner}
 import org.jetbrains.plugins.scala.util.HashBuilder._
 
+import scala.annotation.tailrec
+
 /**
  * @param parentElement class for constructor or object/val of `apply/unapply` methods
  */
@@ -288,6 +290,13 @@ class ScalaResolveResult(
     }
     precedence
   }
+
+  @tailrec
+  final def mostInnerResolveResult: ScalaResolveResult =
+    innerResolveResult match {
+      case Some(inner) => inner.mostInnerResolveResult
+      case None => this
+    }
 
   //for name-based extractor
   def isEmpty: Boolean = false

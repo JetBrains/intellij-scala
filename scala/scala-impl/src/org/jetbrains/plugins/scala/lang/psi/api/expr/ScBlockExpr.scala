@@ -40,4 +40,8 @@ object ScBlockExpr {
   object Statements {
     def unapplySeq(e: ScBlockExpr): Some[Seq[ScBlockStatement]] = Some(e.statements)
   }
+
+  object withCaseClauses {
+    def unapply(block: ScBlockExpr): Option[ScCaseClauses] = block.caseClauses
+  }
 }
