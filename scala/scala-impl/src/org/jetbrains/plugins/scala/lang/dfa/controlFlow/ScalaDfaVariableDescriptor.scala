@@ -26,7 +26,6 @@ case class ScalaDfaVariableDescriptor(variable: PsiElement, override val isStabl
 object ScalaDfaVariableDescriptor {
 
   def fromReferenceExpression(expression: ScReferenceExpression): Option[ScalaDfaVariableDescriptor] = {
-    // TODO add qualified expressions, currently only simple ones
     expression.getReference.bind()
       .map(_.element)
       .map(element => ScalaDfaVariableDescriptor(element, isStableElement(element)))

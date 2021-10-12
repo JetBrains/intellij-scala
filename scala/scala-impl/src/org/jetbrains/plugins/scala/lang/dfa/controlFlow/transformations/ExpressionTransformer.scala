@@ -11,7 +11,6 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfT
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScTemplateDefinition
 
 class ExpressionTransformer(val transformedExpression: ScExpression)
   extends ScalaPsiElementTransformer(transformedExpression) {
@@ -27,7 +26,6 @@ class ExpressionTransformer(val transformedExpression: ScExpression)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => if (isReferenceExpressionInvocation(reference))
       transformInvocation(reference, builder) else transformReferenceExpression(reference, builder)
-    case templateDefinition: ScTemplateDefinition => transformTemplateDefinition(templateDefinition, builder)
     case _ => throw TransformationFailedException(transformedExpression, "Unsupported expression.")
   }
 
@@ -91,10 +89,5 @@ class ExpressionTransformer(val transformedExpression: ScExpression)
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
     new InvocationTransformer(invocationExpression).transform(builder)
-  }
-
-  private def transformTemplateDefinition(templateDefinition: ScTemplateDefinition, builder: ScalaDfaControlFlowBuilder): Unit = {
-    // TODO implement
-    builder.pushUnknownValue()
   }
 }
