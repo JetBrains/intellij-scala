@@ -68,6 +68,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
   registerStandardCompletion(new other.ForSomeFilter, FOR_SOME)
   registerStandardCompletion(new expression.MatchFilter, MATCH)
   registerStandardCompletion(new expression.IfFilter, IF)
+  registerStandardCompletion(new expression.ThenFilter, THEN)
   registerFor(afterDotPattern, new other.TypeFilter, TYPE)
 
 }

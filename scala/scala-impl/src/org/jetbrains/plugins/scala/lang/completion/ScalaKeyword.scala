@@ -56,6 +56,7 @@ object ScalaKeyword {
   val INLINE = "inline"
   val OPAQUE = "opaque"
   val OPEN = "open"
+  val THEN = "then"
   val TRANSPARENT = "transparent"
 
   val SOFT_MODIFIERS = Set(INFIX, INLINE, OPAQUE, OPEN, TRANSPARENT)

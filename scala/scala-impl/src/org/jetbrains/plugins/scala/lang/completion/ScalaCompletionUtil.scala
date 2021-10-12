@@ -4,6 +4,7 @@ package completion
 
 import com.intellij.codeInsight.JavaProjectCodeInsightSettings
 import com.intellij.codeInsight.completion.{CompletionParameters, CompletionUtil, PrefixMatcher}
+import com.intellij.lang.Language
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Key
 import com.intellij.psi._
@@ -145,57 +146,45 @@ object ScalaCompletionUtil {
   def checkClassWith(clazz: ScTypeDefinition, additionText: String, manager: PsiManager): Boolean = {
     val classText: String = clazz.getText
     val text = replaceDummy(classText + " " + additionText)
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+
+    checkWith(manager.getProject, text)
   }
 
-  def checkElseWith(text: String, manager: PsiManager): Boolean = {
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+  def checkElseWith(text: String, context: PsiElement): Boolean = {
+    val language = if (context.isInScala3File) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
+    val fileText = "class a {\n" + text + "\n}"
+
+    checkWith(context.getProject, fileText, language)
   }
+
+  def checkThenWith(text: String, context: PsiElement): Boolean = context.isInScala3File &&
+    checkWith(context.getProject, text, Scala3Language.INSTANCE)
 
   def checkDoWith(text: String, manager: PsiManager): Boolean = {
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, "class a {\n" + text + "\n}").asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+    val fileText = "class a {\n" + text + "\n}"
+
+    checkWith(manager.getProject, fileText)
   }
 
   def checkTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
     val typeText = typez.getText
     val text = replaceDummy("class a { x:" + typeText + " " + additionText + "}")
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+
+    checkWith(manager.getProject, text)
   }
 
   def checkAnyTypeWith(typez: ScTypeElement, additionText: String, manager: PsiManager): Boolean = {
     val typeText = typez.getText
     val text = replaceDummy("class a { val x:" + typeText + " " + additionText + "}")
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+
+    checkWith(manager.getProject, text)
   }
 
   def checkAnyWith(typez: PsiElement, additionText: String, manager: PsiManager): Boolean = {
     val typeText = typez.getText
     val text = replaceDummy("class a { " + typeText + " " + additionText + "}")
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+
+    checkWith(manager.getProject, text)
   }
 
   import CompletionUtil.DUMMY_IDENTIFIER_TRIMMED
@@ -213,11 +202,8 @@ object ScalaCompletionUtil {
   def checkNewWith(news: ScNewTemplateDefinition, additionText: String, manager: PsiManager): Boolean = {
     val newsText = news.getText
     val text = replaceDummy("class a { " + newsText + " " + additionText + "}")
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+
+    checkWith(manager.getProject, text)
   }
 
   def checkReplace(elem: PsiElement, additionText: String, manager: PsiManager): Boolean = {
@@ -226,11 +212,7 @@ object ScalaCompletionUtil {
     if (!text.contains(DUMMY_IDENTIFIER_TRIMMED)) return false
     text = text.replaceAll("\\w*" + DUMMY_IDENTIFIER_TRIMMED, " " + additionText + " ")
 
-    val DUMMY = "dummy."
-    val dummyFile = PsiFileFactory.getInstance(manager.getProject).
-      createFileFromText(DUMMY + ScalaFileType.INSTANCE.getDefaultExtension,
-        ScalaFileType.INSTANCE, text).asInstanceOf[ScalaFile]
-    !checkErrors(dummyFile)
+    checkWith(manager.getProject, text)
   }
 
   private def checkErrors(elem: PsiElement): Boolean = {
@@ -280,9 +262,16 @@ object ScalaCompletionUtil {
           .filterNot(o => isInExcludedPackage(o.qualifiedName, member.getProject))
     }
 
-
   def isInExcludedPackage(qualifiedName: String, project: Project): Boolean =
     JavaProjectCodeInsightSettings.getSettings(project).isExcluded(qualifiedName)
+
+  private def checkWith(project: Project, fileText: String, language: Language = ScalaFileType.INSTANCE.getLanguage): Boolean = {
+    val fileName = "dummy." + ScalaFileType.INSTANCE.getDefaultExtension
+    val dummyFile = PsiFileFactory.getInstance(project).
+      createFileFromText(fileName, language, fileText)
+      .asInstanceOf[ScalaFile]
+    !checkErrors(dummyFile)
+  }
 
   @CachedInUserData(clazz, BlockModificationTracker(clazz))
   private def inheritorObjectsInProject(clazz: ScTemplateDefinition): Set[ScObject] = {

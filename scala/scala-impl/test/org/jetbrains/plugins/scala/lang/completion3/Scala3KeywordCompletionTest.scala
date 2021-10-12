@@ -477,4 +477,144 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "derives"
   )
 
+  /// THEN
+
+  def testThen(): Unit = doCompletionTest(
+    fileText = s"if 1 == 2 t$CARET",
+    resultText = s"if 1 == 2 then $CARET",
+    item = "then"
+  )
+
+  def testThenAfterParens(): Unit = doCompletionTest(
+    fileText = s"if (1 == 2) t$CARET",
+    resultText = s"if (1 == 2) then $CARET",
+    item = "then"
+  )
+
+  def testThenAfterElseIf(): Unit = doCompletionTest(
+    fileText =
+      s"""val x = 0
+         |if x < 0 then
+         |  "negative"
+         |else if x == 0 t$CARET
+         |""".stripMargin,
+    resultText =
+      s"""val x = 0
+         |if x < 0 then
+         |  "negative"
+         |else if x == 0 then $CARET
+         |""".stripMargin,
+    item = "then"
+  )
+
+  def testThenAfterBlockCondition(): Unit = doCompletionTest(
+    fileText =
+      s"""if {
+         |    val xs = Seq(1, 2, 3)
+         |    val ys = Seq(2, 4, 6)
+         |    xs(1) == ys.head
+         |  }
+         |    t$CARET
+         |""".stripMargin,
+    resultText =
+      s"""if {
+         |    val xs = Seq(1, 2, 3)
+         |    val ys = Seq(2, 4, 6)
+         |    xs(1) == ys.head
+         |  }
+         |    then $CARET
+         |""".stripMargin,
+    item = "then"
+  )
+
+  def testThenAfterBlockConditionInParens(): Unit = doCompletionTest(
+    fileText =
+      s"""if ({
+         |    val xs = Seq(1, 2, 3)
+         |    val ys = Seq(2, 4, 6)
+         |    xs(1) == ys.head
+         |  })
+         |    t$CARET
+         |""".stripMargin,
+    resultText =
+      s"""if ({
+         |    val xs = Seq(1, 2, 3)
+         |    val ys = Seq(2, 4, 6)
+         |    xs(1) == ys.head
+         |  })
+         |    then $CARET
+         |""".stripMargin,
+    item = "then"
+  )
+
+  def testThenAfterBlockConditionAndComments(): Unit = doCompletionTest(
+    fileText =
+      s"""if {
+         |    val xs = Seq(1, 2, 3)
+         |    val ys = Seq(2, 4, 6)
+         |    xs(1) == ys.head
+         |  }
+         |    // some comment
+         |    /* another
+         |       comment */
+         |    t$CARET
+         |""".stripMargin,
+    resultText =
+      s"""if {
+         |    val xs = Seq(1, 2, 3)
+         |    val ys = Seq(2, 4, 6)
+         |    xs(1) == ys.head
+         |  }
+         |    // some comment
+         |    /* another
+         |       comment */
+         |    then $CARET
+         |""".stripMargin,
+    item = "then"
+  )
+
+  /// ELSE
+
+  def testElse(): Unit = doCompletionTest(
+    fileText = s"if 1 == 2 then 7 e$CARET",
+    resultText = s"if 1 == 2 then 7 else $CARET",
+    item = "else"
+  )
+
+  def testElseMultiline(): Unit = doCompletionTest(
+    fileText =
+      s"""val x = 0
+         |if x < 0 then
+         |  "negative"
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""val x = 0
+         |if x < 0 then
+         |  "negative"
+         |else $CARET
+         |""".stripMargin,
+    item = "else"
+  )
+
+  def testElseMultiline2(): Unit = doCompletionTest(
+    fileText =
+      s"""val x = 0
+         |if x < 0 then
+         |  "negative"
+         |else if x == 0 then
+         |  "zero"
+         |e$CARET
+         |""".stripMargin,
+    resultText =
+      s"""val x = 0
+         |if x < 0 then
+         |  "negative"
+         |else if x == 0 then
+         |  "zero"
+         |else $CARET
+         |""".stripMargin,
+    item = "else"
+  )
+
 }
