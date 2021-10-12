@@ -198,10 +198,15 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
 
     if (fromMacroExpansion.isDefined) return fromMacroExpansion
 
-    def resolveResultIsFunction = maybeResolveResult.exists {
+    def resolveResultIsPostfixOrPrefixFunction = maybeResolveResult.exists {
       rr =>
         val e = rr.element
-        e.isInstanceOf[ScFun] || e.is[ScFunction]
+
+        def isFun = e.isInstanceOf[ScFun] || e.is[ScFunction]
+
+        def isPostfixOrPrefix = isInstanceOf[ScPrefixExpr] || isInstanceOf[ScPostfixExpr]
+
+        isFun && isPostfixOrPrefix
     }
 
     val maybeTuple = invokedNonValueType match {
@@ -211,7 +216,7 @@ abstract class MethodInvocationImpl(node: ASTNode) extends ScExpressionImplBase(
         Some((returnType, parameters, Some(pTpe)))
       case ScMethodType(returnType, parameters, _) =>
         Some((returnType, parameters, None))
-      case ty if resolveResultIsFunction =>
+      case ty if resolveResultIsPostfixOrPrefixFunction =>
         Some((ty, Seq.empty, None))
       case _ => None
     }
