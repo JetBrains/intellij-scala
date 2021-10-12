@@ -18,8 +18,9 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
 
     actualFile.accept(new ScalaRecursiveElementVisitor {
       override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
-        for (body <- function.body) {
+        for (body <- function.body if !functionVisited) {
           functionVisited = true
+
           val factory = new DfaValueFactory(getProject)
           val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
           new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
@@ -41,9 +42,11 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
        |}
        |
        |class TestClass {
-       |  def testMethod(arg1: Int, arg2: Int, arg3: Bool, arg4: String): $returnType = {
+       |  def testMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): $returnType = {
        |    $body
        |  }
+       |
+       |  def anotherMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): Int = arg2 - arg1
        |}
        |""".stripMargin
 }

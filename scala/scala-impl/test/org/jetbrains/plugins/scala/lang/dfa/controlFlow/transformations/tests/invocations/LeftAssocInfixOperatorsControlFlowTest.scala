@@ -1,8 +1,8 @@
-package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests
+package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.tests.invocations
 
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaDfaControlFlowBuilderTestBase
 
-class InfixExpressionControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
+class LeftAssocInfixOperatorsControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
   def testArithmeticOperators(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
