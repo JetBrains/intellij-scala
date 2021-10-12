@@ -6,10 +6,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Ar
 class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
 
   def testCustomMethodsWithoutParentheses(): Unit = {
-    val unparenthesizedSyntax = "myObj.someMethod"
-    val parenthesizedSyntax = "myObj.someMethod()"
-
-    val code = (invocationSyntax: String) =>
+    val invocationInfo = generateInvocationInfoFor {
       s"""
          |object Test {
          |  case class MyClass(wrapped: Int) {
@@ -18,25 +15,22 @@ class ParameterlessAndArgumentlessInfoTest extends InvocationInfoTestBase {
          |
          |  def main(): Int = {
          |    val myObj = MyClass(6)
-         |    ${markerStart}${invocationSyntax}${markerEnd}
+         |    ${markerStart}myObj.someMethod${markerEnd}
          |  }
          |}
          |""".stripMargin
-
-    for (invocationSyntax <- List(unparenthesizedSyntax, parenthesizedSyntax)) {
-      val invocationInfo = generateInvocationInfoFor(code(invocationSyntax))
-
-      val expectedArgCount = 1 + 0
-      val expectedProperArgsInText = Nil
-      val expectedMappedParamNames = Nil
-      val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
-      val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
-
-      verifyInvokedElement(invocationInfo, "MyClass#someMethod")
-      verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
-        expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
-      verifyThisExpression(invocationInfo, "myObj")
     }
+
+    val expectedArgCount = 1 + 0
+    val expectedProperArgsInText = Nil
+    val expectedMappedParamNames = Nil
+    val expectedPassingMechanisms = (1 to expectedArgCount).map(_ => PassByValue).toList
+    val expectedParamToArgMapping = (0 until expectedArgCount - 1).toList
+
+    verifyInvokedElement(invocationInfo, "MyClass#someMethod")
+    verifyArgumentsWithSingleArgList(invocationInfo, expectedArgCount, expectedProperArgsInText,
+      expectedMappedParamNames, expectedPassingMechanisms, expectedParamToArgMapping)
+    verifyThisExpression(invocationInfo, "myObj")
   }
 
   def testCustomParameterlessMethodsWithParentheses(): Unit = {
