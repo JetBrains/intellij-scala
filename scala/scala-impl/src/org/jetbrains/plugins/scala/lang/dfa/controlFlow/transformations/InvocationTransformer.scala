@@ -5,9 +5,11 @@ import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
+import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
@@ -30,17 +32,22 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
     }
 
     if (!tryTransformIntoSpecialRepresentation(invocationsInfo, builder)) {
-      invocationsInfo.foreach(transformMethodInvocation(_, builder))
+      invocationsInfo.tail.foreach(invocation => {
+        transformMethodInvocation(invocation, builder)
+        builder.popReturnValue()
+      })
+
+      transformMethodInvocation(invocationsInfo.head, builder)
     }
   }
 
-  // TODO extract later to a special IR instruction + add special support
   private def transformMethodInvocation(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
     val args = invocationInfo.argListsInEvaluationOrder.flatten
     args.foreach(_.content.transform(builder))
-    builder.popArguments(args.size)
-    builder.pushUnknownValue()
-    builder.pushInstruction(new FlushFieldsInstruction)
+
+    val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
+    builder.pushInstruction(new ScalaInvocationInstruction(invocationInfo,
+      ScalaStatementAnchor(wrappedInvocation), transfer))
   }
 
   private def tryTransformIntoSpecialRepresentation(invocationsInfo: Seq[InvocationInfo], builder: ScalaDfaControlFlowBuilder): Boolean = {

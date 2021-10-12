@@ -6,7 +6,7 @@ import com.intellij.codeInspection.dataFlow.jvm.TrapTracker
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
-import com.intellij.codeInspection.dataFlow.value.{DfaValueFactory, DfaVariableValue, RelationType}
+import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.Transformable
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
@@ -81,4 +81,6 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
   def finishElement(element: ScalaPsiElement): Unit = flow.finishElement(element)
 
   def createVariable(descriptor: ScalaDfaVariableDescriptor): DfaVariableValue = factory.getVarFactory.createVariableValue(descriptor)
+
+  def maybeTransferValue(exceptionName: String): Option[DfaControlTransferValue] = Option(trapTracker.maybeTransferValue(exceptionName))
 }
