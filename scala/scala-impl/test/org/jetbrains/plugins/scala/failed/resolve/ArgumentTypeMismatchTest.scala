@@ -2,10 +2,10 @@ package org.jetbrains.plugins.scala.failed.resolve
 
 import org.intellij.lang.annotations.Language
 import org.jetbrains.plugins.scala.annotator.AnnotatorHolderMock
-import org.jetbrains.plugins.scala.annotator.element.ScReferenceAnnotator
+import org.jetbrains.plugins.scala.annotator.element.ElementAnnotator
 import org.jetbrains.plugins.scala.base.SimpleTestCase
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, PsiElementExt}
-import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 
 /**
   * @author Roman.Shein
@@ -67,9 +67,8 @@ class ArgumentTypeMismatchTest extends SimpleTestCase {
     val file = code.parse
     implicit val mock: AnnotatorHolderMock = new AnnotatorHolderMock(file)
 
-    // TODO use the general annotate() method
-    file.depthFirst().filterByType[ScReference].foreach {
-      ScReferenceAnnotator.annotateReference(_)
+    file.depthFirst().filterByType[ScalaPsiElement].foreach {
+      ElementAnnotator.annotate(_)
     }
     mock.annotations
   }

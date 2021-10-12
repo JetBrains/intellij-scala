@@ -1147,7 +1147,7 @@ class ScalaDocumentationProviderTest extends ScalaDocumentationProviderTestBase 
          |<code><span style="">
          |  <span style="">code&#32;tag</span>
          |</span></code>
-         |<br><a href="psi_element://JavaClass"><code><span style="color:#000000;">JavaClass</span></code></a>
+         |<br><a href="psi_element://JavaClass"><code><span style="color:#0000ff;">JavaClass</span></code></a>
          |<br><p>extra text from<u>scala</u>
          |$ContentEnd
          |""".stripMargin
