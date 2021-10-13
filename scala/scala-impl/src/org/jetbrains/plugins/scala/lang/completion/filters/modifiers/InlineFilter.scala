@@ -7,7 +7,6 @@ import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiElementExt}
 import org.jetbrains.plugins.scala.lang.completion.ScalaCompletionUtil._
 import org.jetbrains.plugins.scala.lang.completion.ScalaKeyword
 import org.jetbrains.plugins.scala.lang.completion.filters.modifiers.InlineFilter._
-import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScReferenceExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
@@ -37,12 +36,6 @@ class InlineFilter extends ElementFilter {
 }
 
 object InlineFilter {
-  private def isAfterLeftParen(elem: PsiElement): Boolean = {
-    val prev = elem.getPrevSibling
-
-    prev != null && prev.getNode != null && prev.getNode.getElementType == ScalaTokenTypes.tLPARENTHESIS
-  }
-
   private def isInlineFunction(elem: PsiElement): Boolean = elem match {
     case fn: ScFunction => fn.hasModifierPropertyScala(ScalaKeyword.INLINE)
     case _ => false

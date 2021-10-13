@@ -970,4 +970,60 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "case"
   )
 
+  /// USING
+
+  def testNoCompletionUsingTopLevel(): Unit = checkNoBasicCompletion(
+    fileText = s"u$CARET",
+    item = "using"
+  )
+
+  def testNoCompletionUsingInsideObject(): Unit = checkNoBasicCompletion(
+    fileText =
+      s"""object O:
+         |  u$CARET
+         |""".stripMargin,
+    item = "using"
+  )
+
+  def testUsingParamOfDef(): Unit = doCompletionTest(
+    fileText = s"def foo($CARET)",
+    resultText = s"def foo(using $CARET)",
+    item = "using"
+  )
+
+  def testUsingParamOfClass(): Unit = doCompletionTest(
+    fileText = s"class Foo($CARET)",
+    resultText = s"class Foo(using $CARET)",
+    item = "using"
+  )
+
+  def testUsingParamOfInlinePrivateDef(): Unit = doCompletionTest(
+    fileText = s"inline private def foo($CARET)",
+    resultText = s"inline private def foo(using $CARET)",
+    item = "using"
+  )
+
+  def testUsingParamOfDefBeforeFirstParam(): Unit = doCompletionTest(
+    fileText = s"def foo($CARET s: String, i: Int)",
+    resultText = s"def foo(using ${CARET}s: String, i: Int)",
+    item = "using"
+  )
+
+  def testUsingParamOfDefInSecondParamList(): Unit = doCompletionTest(
+    fileText = s"def foo(s: String)($CARET)",
+    resultText = s"def foo(s: String)(using $CARET)",
+    item = "using"
+  )
+
+  def testNoCompletionUsingParamOfDefAfterFirstParam(): Unit = checkNoBasicCompletion(
+    fileText = s"def foo(s: String, $CARET)",
+    item = "using"
+  )
+
+  def testUsingArg(): Unit = doCompletionTest(
+    fileText = s"foo($CARET)",
+    resultText = s"foo(using $CARET)",
+    item = "using"
+  )
+
 }
