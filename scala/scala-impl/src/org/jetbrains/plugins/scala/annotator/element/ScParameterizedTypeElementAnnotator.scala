@@ -7,6 +7,7 @@ import com.intellij.openapi.util.TextRange
 import com.intellij.psi.{PsiComment, PsiWhiteSpace}
 import org.jetbrains.plugins.scala.annotator.quickfix.ReportHighlightingErrorQuickFix
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.externalLibraries.kindProjector.KindProjectorUtil
 import org.jetbrains.plugins.scala.lang.psi.api.base.types.{ScParameterizedTypeElement, ScTypeArgs, ScTypeElement}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScTypeParam
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScProjectionType
@@ -31,15 +32,23 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       case _                                                         => ScSubstitutor.empty
     }
 
+    val teText = element.typeElement.getText
+    val isKindProjectorLambda =
+      teText == KindProjectorUtil.Lambda ||
+        teText == KindProjectorUtil.LambdaSymbolic ||
+        KindProjectorUtil.syntaxIdsFor(element).contains(teText)
+
     prefixType.foreach { tpe =>
       val typeParams = extractTypeParameters(tpe)
 
-      annotateTypeArgs(
-        typeParams,
-        element.typeArgList,
-        projSubstitutor,
-        tpe.presentableText(element)
-      )
+      if (!isKindProjectorLambda) {
+        annotateTypeArgs(
+          typeParams,
+          element.typeArgList,
+          projSubstitutor,
+          tpe.presentableText(element)
+        )
+      }
     }
   }
 
