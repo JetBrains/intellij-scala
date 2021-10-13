@@ -16,6 +16,7 @@ import org.jetbrains.sbt.language.utils.{SbtDependencyCommon, SbtDependencyUtils
 
 import java.io.File
 import java.util
+import java.util.Collections.emptyList
 import scala.jdk.CollectionConverters._
 
 class SbtModuleTransformer(private val project: Project) extends ModuleTransformer {
@@ -51,7 +52,10 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     }
   }
 
-  def obtainProjectModulesFor(module: Module):ProjectModule = try {
+  private def obtainProjectModulesFor(module: Module): Option[ProjectModule] = try {
+    if (!SbtUtil.isSbtModule(module))
+      return None
+
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     sbtFileOpt match {
       case Some(buildFile: VirtualFile) =>
@@ -62,21 +66,24 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
             buildFile,
             PackageSearchSbtBundle.buildSystemType,
             SbtProjectModuleType,
-            (_,_,_) => null
+            ScalaKotlinHelper.toKotlinFunction((_, _, _) => null),
+            emptyList()
         )
-        if (!DumbService.getInstance(project).isDumb)
-          ScalaKotlinHelper.createNavigatableProjectModule(projectModule, createNavigableDependencyCallback(project, module))
-        else
-          projectModule
-      case _ => null
+        Some {
+          if (!DumbService.getInstance(project).isDumb)
+            ScalaKotlinHelper.createNavigatableProjectModule(projectModule, createNavigableDependencyCallback(project, module))
+          else
+            projectModule
+        }
+      case _ => None
     }
 
   } catch {
     case c: ControlFlowException => throw c
-    case _: Exception => null
+    case _: Exception => None
   }
 
   override def transformModules(project: Project, list: util.List[_ <: Module]): util.List[ProjectModule] = {
-    list.asScala.map(module => obtainProjectModulesFor(module)).filter(_ != null).distinct.asJava
+    list.asScala.flatMap(module => obtainProjectModulesFor(module)).distinct.asJava
   }
 }

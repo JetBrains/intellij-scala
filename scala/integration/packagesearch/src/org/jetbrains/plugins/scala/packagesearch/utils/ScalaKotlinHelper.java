@@ -21,8 +21,14 @@ public class ScalaKotlinHelper {
                 projectModule.getBuildFile(),
                 projectModule.getBuildSystemType(),
                 projectModule.getModuleType(),
-                (s, s2, packageVersion) -> f.apply(s, s2, packageVersion)
+                toKotlinFunction(f)
         );
+    }
+
+    public static kotlin.jvm.functions.Function3<String, String, PackageVersion, Navigatable> toKotlinFunction(
+            scala.Function3<String, String, PackageVersion, Navigatable> f
+    ) {
+        return f::apply;
     }
 
 }
