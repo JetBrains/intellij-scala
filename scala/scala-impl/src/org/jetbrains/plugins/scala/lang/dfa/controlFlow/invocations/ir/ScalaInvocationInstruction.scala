@@ -29,8 +29,6 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
                                  exceptionTransfer: Option[DfaControlTransferValue])
   extends ExpressionPushingInstruction(invocationAnchor) {
 
-  case class MethodEffect(returnValue: DfaValue, isPure: Boolean)
-
   override def toString: String = {
     val invokedElementString = invocationInfo.invokedElement
       .map(_.toString)

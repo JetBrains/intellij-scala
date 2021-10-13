@@ -25,14 +25,14 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     val memoryStates = List(new JvmDfaMemoryStateImpl(factory))
 
     try {
-      function.body.foreach(executeDataFlowAnalysis(_, problemsHolder, factory, memoryStates))
+      function.body.foreach(executeDataFlowAnalysis(_, factory, memoryStates))
     } catch {
       case exception: TransformationFailedException =>
-        Log.info(s"Dataflow analysis failed for function definition $function. Reason: $exception")
+        Log.info(s"Dataflow analysis failed for function definition $function. Reason:\n$exception")
     }
   }
 
-  private def executeDataFlowAnalysis(body: ScBlockStatement, problemsHolder: ProblemsHolder, factory: DfaValueFactory,
+  private def executeDataFlowAnalysis(body: ScBlockStatement, factory: DfaValueFactory,
                                       memoryStates: Iterable[JvmDfaMemoryStateImpl]): Unit = {
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
     new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
@@ -41,7 +41,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     val listener = new ScalaDfaListener
     val interpreter = new StandardDataFlowInterpreter(flow, listener)
     if (interpreter.interpret(buildInterpreterStates(memoryStates, flow).asJava) == RunnerResult.OK) {
-      reportProblems(listener, problemsHolder)
+      reportProblems(listener)
     }
   }
 
@@ -50,13 +50,13 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     memoryStates.map(new DfaInstructionState(flow.getInstruction(0), _)).toList
   }
 
-  private def reportProblems(listener: ScalaDfaListener, problemsHolder: ProblemsHolder): Unit = {
+  private def reportProblems(listener: ScalaDfaListener): Unit = {
     listener.collectConstantConditions
       .filter { case (_, value) => value != DfaConstantValue.Unknown }
-      .foreach { case (anchor, value) => reportProblem(anchor, value, problemsHolder) }
+      .foreach { case (anchor, value) => reportProblem(anchor, value) }
   }
 
-  private def reportProblem(anchor: ScalaDfaAnchor, value: DfaConstantValue, problemsHolder: ProblemsHolder): Unit = {
+  private def reportProblem(anchor: ScalaDfaAnchor, value: DfaConstantValue): Unit = {
     anchor match {
       case statementAnchor: ScalaStatementAnchor =>
         val statement = statementAnchor.statement
