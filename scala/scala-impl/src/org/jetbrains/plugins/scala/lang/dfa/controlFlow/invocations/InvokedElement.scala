@@ -2,8 +2,10 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations
 
 import com.intellij.psi.{PsiElement, PsiMember, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions.{ObjectExt, PsiMemberExt, PsiNamedElementExt}
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
-import org.jetbrains.plugins.scala.lang.psi.types.ApplicabilityProblem
+import org.jetbrains.plugins.scala.lang.psi.types.api.Any
+import org.jetbrains.plugins.scala.lang.psi.types.{ApplicabilityProblem, ScType}
 import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 
 case class InvokedElement(psiElement: PsiElement) {
@@ -24,6 +26,12 @@ case class InvokedElement(psiElement: PsiElement) {
   def qualifiedName: Option[String] = psiElement match {
     case namedMember: PsiNamedElement with PsiMember => namedMember.qualifiedNameOpt
     case _ => None
+  }
+
+  def returnType: ScType = psiElement match {
+    case synthetic: ScSyntheticFunction => synthetic.retType
+    case function: ScFunction => function.returnType.getOrAny
+    case _ => Any(psiElement.getProject)
   }
 }
 

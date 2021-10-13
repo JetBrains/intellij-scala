@@ -12,6 +12,7 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaDfaAnchor
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
 
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
@@ -71,7 +72,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
   private def findMethodEffect(stateBefore: DfaMemoryState, argumentValues: Map[Argument, DfaValue])
                               (implicit factory: DfaValueFactory): MethodEffect = {
-    invocationInfo.invokedElement match {
+    invocationInfo.invokedElement.map(_.psiElement) match {
       case Some(psiMethod: PsiMethod) => Option(CustomMethodHandlers.find(psiMethod)) match {
         case Some(handler) => findMethodEffectWithJavaCustomHandler(stateBefore,
           argumentValues, handler, psiMethod)
@@ -83,8 +84,12 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
   private def findMethodEffectForScalaMethod(stateBefore: DfaMemoryState, argumentValues: Map[Argument, DfaValue])
                                             (implicit factory: DfaValueFactory): MethodEffect = {
-    // TODO implement
-    MethodEffect(unknownValue, isPure = false)
+    // TODO implement special support
+    val returnType = invocationInfo.invokedElement
+      .map(element => scTypeToDfType(element.returnType))
+      .getOrElse(DfType.TOP)
+
+    MethodEffect(factory.fromDfType(returnType), isPure = false)
   }
 
   private def findMethodEffectWithJavaCustomHandler(stateBefore: DfaMemoryState,
