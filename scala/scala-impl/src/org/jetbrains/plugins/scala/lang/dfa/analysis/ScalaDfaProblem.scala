@@ -1,4 +1,4 @@
-package org.jetbrains.plugins.scala.lang.dfa.framework
+package org.jetbrains.plugins.scala.lang.dfa.analysis
 
 import com.intellij.codeInspection.dataFlow.lang.UnsatisfiedConditionProblem
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression

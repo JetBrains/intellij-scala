@@ -8,8 +8,8 @@ import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.CommonClassNames
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.Transformable
-import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 

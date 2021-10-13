@@ -7,11 +7,11 @@ import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
-import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
 import org.jetbrains.plugins.scala.lang.dfa.utils.SpecialSupportUtils._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}

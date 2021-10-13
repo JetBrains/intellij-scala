@@ -4,6 +4,7 @@ import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import org.jetbrains.plugins.scala.AssertionMatchers
 import org.jetbrains.plugins.scala.base.{ScalaLightCodeInsightFixtureTestAdapter, SharedTestProjectToken}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
+import org.jetbrains.plugins.scala.lang.dfa.defaultCodeTemplate
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaRecursiveElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 import org.junit.Assert.assertTrue
@@ -11,6 +12,8 @@ import org.junit.Assert.assertTrue
 abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
 
   override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ScalaDfaControlFlowBuilder])
+
+  protected def codeFromMethodBody(returnType: String)(body: String): String = defaultCodeTemplate(returnType)(body)
 
   def test(code: String)(expectedResult: String): Unit = {
     val actualFile = configureFromFileText(code)
@@ -33,23 +36,4 @@ abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightF
 
     assertTrue("No function definition has been visited", functionVisited)
   }
-
-  protected def codeFromMethodBody(returnType: String)(body: String): String =
-    s"""
-       |import java.util
-       |import java.lang.Math.abs
-       |
-       |class OtherClass {
-       |  val otherField: Int = 1244
-       |  val yetAnotherField: String = "Hello again"
-       |}
-       |
-       |class TestClass {
-       |  def testMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): $returnType = {
-       |    $body
-       |  }
-       |
-       |  def anotherMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): Int = arg2 - arg1
-       |}
-       |""".stripMargin
 }

@@ -9,9 +9,9 @@ import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValue, DfaValueFactory}
 import com.intellij.codeInspection.dataFlow.{CustomMethodHandlers, DfaCallArguments, MutationSignature}
 import com.intellij.psi.PsiMethod
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
 
 import scala.jdk.CollectionConverters._

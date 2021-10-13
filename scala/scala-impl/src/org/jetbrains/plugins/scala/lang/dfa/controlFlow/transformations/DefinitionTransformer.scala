@@ -1,8 +1,8 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
 import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
-import org.jetbrains.plugins.scala.lang.dfa.framework.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 
 class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
