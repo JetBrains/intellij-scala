@@ -2,7 +2,6 @@ package org.jetbrains.plugins.scala
 package debugger.evaluation
 
 import java.io.File
-
 import com.intellij.debugger.DebuggerManagerEx
 import com.intellij.debugger.impl.{DebuggerManagerListener, DebuggerSession}
 import com.intellij.openapi.Disposable
@@ -15,6 +14,7 @@ import org.jetbrains.jps.incremental.scala.remote.CommandIds
 import org.jetbrains.jps.incremental.scala.{Client, DummyClient}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.compiler.{CompileServerLauncher, RemoteServerConnectorBase, RemoteServerRunner, ScalaCompileServerSettings}
+import org.jetbrains.plugins.scala.extensions.executeOnPooledThread
 import org.jetbrains.plugins.scala.project.ProjectExt
 
 import scala.annotation.{nowarn, tailrec}
@@ -25,33 +25,9 @@ import scala.collection.mutable.ListBuffer
  * Nikolay.Tropin
  * 2014-10-07
  */
-class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with EvaluatorCompileHelper {
+class ScalaEvaluatorCompileHelper(project: Project) extends EvaluatorCompileHelper {
 
   private val tempFiles = mutable.Set[File]()
-
-  private val listener = new DebuggerManagerListener {
-    override def sessionAttached(session: DebuggerSession): Unit = {
-      if (EvaluatorCompileHelper.needCompileServer && project.hasScala) {
-        CompileServerLauncher.ensureServerRunning(project)
-      }
-    }
-
-    override def sessionDetached(session: DebuggerSession): Unit = {
-      clearTempFiles()
-
-      if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
-        CompileServerLauncher.ensureServerNotRunning(project)
-      }
-    }
-  }
-
-  if (!ApplicationManager.getApplication.isUnitTestMode) {
-    DebuggerManagerEx.getInstanceEx(project).addDebuggerManagerListener(listener): @nowarn("cat=deprecation")
-  }
-
-  override def dispose(): Unit = {
-    DebuggerManagerEx.getInstanceEx(project).removeDebuggerManagerListener(listener): @nowarn("cat=deprecation")
-  }
 
   private def clearTempFiles(): Unit = {
     tempFiles.foreach(FileUtil.delete)
@@ -75,7 +51,9 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
   }
 
   def compile(files: Seq[File], module: Module, outputDir: File): Array[(File, String)] = {
-    assert(CompileServerLauncher.ensureServerRunning(project))
+    if (EvaluatorCompileHelper.needCompileServer) {
+      CompileServerLauncher.ensureServerRunning(project)
+    }
     val connector = new ServerConnector(module, files, outputDir)
     try {
       connector.compile() match {
@@ -102,6 +80,17 @@ class ScalaEvaluatorCompileHelper(project: Project) extends Disposable with Eval
 object ScalaEvaluatorCompileHelper {
   def instance(project: Project): ScalaEvaluatorCompileHelper =
     project.getService(classOf[ScalaEvaluatorCompileHelper])
+
+  private class Listener(project: Project) extends DebuggerManagerListener {
+
+    override def sessionDetached(session: DebuggerSession): Unit = {
+      instance(project).clearTempFiles()
+
+      if (!ScalaCompileServerSettings.getInstance().COMPILE_SERVER_ENABLED && EvaluatorCompileHelper.needCompileServer) {
+        CompileServerLauncher.ensureServerNotRunning(project)
+      }
+    }
+  }
 }
 
 

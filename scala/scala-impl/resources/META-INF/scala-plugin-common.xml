@@ -1866,6 +1866,10 @@
 
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
                   class="org.jetbrains.plugins.scala.externalHighlighters.TriggerCompilerHighlightingOnEditorSelectionChangedListener"/>
+
+        <listener topic="com.intellij.debugger.impl.DebuggerManagerListener"
+                  class="org.jetbrains.plugins.scala.debugger.evaluation.ScalaEvaluatorCompileHelper$Listener"/>
+
     </projectListeners>
     <actions>
         <action id="Scala.NewClass" class="org.jetbrains.plugins.scala.actions.NewScalaTypeDefinitionAction">
