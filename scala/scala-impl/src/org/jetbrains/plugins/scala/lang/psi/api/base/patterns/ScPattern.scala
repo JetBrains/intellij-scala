@@ -153,11 +153,14 @@ object ScPattern {
             }
           case _ => None
         }
-        case named: ScNamingPattern => named.expectedType
-        case _: ScGenerator =>
-          pattern.analogInDesugaredForExpr flatMap { _.expectedType }
-        case forBinding: ScForBinding =>
-          forBinding.expr.flatMap { _.`type`().toOption }
+        case named: ScNamingPattern           => named.expectedType
+        case _: ScGenerator                   => pattern.analogInDesugaredForExpr.flatMap(_.expectedType)
+        case forBinding: ScForBinding         => forBinding.expr.flatMap(_.`type`().toOption)
+        case sc3TypedPattern: Sc3TypedPattern =>
+          for {
+            typePattern  <- sc3TypedPattern.typePattern
+            ascribedType <- typePattern.typeElement.`type`().toOption
+          } yield sc3TypedPattern.expectedType.fold(ascribedType)(_.glb(ascribedType))
         case _ => None
       }
     }
