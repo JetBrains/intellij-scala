@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef
 
 import org.jetbrains.plugins.scala.extensions.{Model, StringsExt}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScEnum, ScObject, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScEnum, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.EnumMembersInjector.{injectEnumCase, methodsForCompanionObject}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 

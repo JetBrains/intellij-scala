@@ -7,7 +7,7 @@ package templates
 
 import com.intellij.lang.ASTNode
 import com.intellij.psi.PsiClass
-import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScTemplateDerivesFactory, ScTemplateParentsFactory}
+import org.jetbrains.plugins.scala.JavaArrayFactoryUtil.{ScDerivesClauseFactory, ScTemplateParentsFactory}
 import org.jetbrains.plugins.scala.caches.{BlockModificationTracker, ModTracker}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenTypes
@@ -201,8 +201,8 @@ class ScExtendsBlockImpl private(stub: ScExtendsBlockStub, node: ASTNode)
   override def templateParents: Option[ScTemplateParents] =
     getStubOrPsiChildren(TEMPLATE_PARENTS, ScTemplateParentsFactory).headOption
 
-  override def templateDerives: Option[ScTemplateDerives] =
-    getStubOrPsiChildren(TEMPLATE_DERIVES, ScTemplateDerivesFactory).headOption
+  override def derivesClause: Option[ScDerivesClause] =
+    getStubOrPsiChildren(DERIVES_CLAUSE, ScDerivesClauseFactory).headOption
 
   override def earlyDefinitions: Option[ScEarlyDefinitions] =
     this.stubOrPsiChild(EARLY_DEFINITIONS)

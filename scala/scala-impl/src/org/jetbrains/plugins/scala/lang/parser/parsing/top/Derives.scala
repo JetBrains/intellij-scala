@@ -14,7 +14,7 @@ object Derives extends ParsingRule {
     val marker = builder.mark()
     if (builder.tryParseSoftKeyword(ScalaTokenType.DerivesKeyword)) {
       parseNext()
-      marker.done(ScalaElementType.TEMPLATE_DERIVES)
+      marker.done(ScalaElementType.DERIVES_CLAUSE)
     } else marker.drop()
 
     true

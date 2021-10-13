@@ -16,7 +16,8 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScDeclaredElementsHol
 trait ScObject extends ScTypeDefinition
   with ScTypedDefinition
   with ScMember
-  with ScDeclaredElementsHolder {
+  with ScDeclaredElementsHolder
+  with ScDerivesClauseOwner {
 
   //Is this object generated as case class companion module
   private var flag = false

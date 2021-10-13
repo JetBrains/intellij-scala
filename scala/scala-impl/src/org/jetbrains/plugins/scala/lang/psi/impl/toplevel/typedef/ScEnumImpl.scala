@@ -6,7 +6,6 @@ package toplevel
 package typedef
 
 import com.intellij.lang.ASTNode
-import com.intellij.openapi.progress.ProcessCanceledException
 import org.jetbrains.plugins.scala.caches.ModTracker
 import org.jetbrains.plugins.scala.lang.lexer.ScalaTokenType.EnumKeyword
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScEnumCase
@@ -29,8 +28,9 @@ final class ScEnumImpl(stub: ScTemplateDefinitionStub[ScEnum],
     val typeParametersText = typeParametersClause.fold("")(_.getTextByStub)
     val supersText         = superTypes.map(_.canonicalText).mkString(" with ")
     val constructorText    = constructor.fold("")(_.getText)
+    val derivesText        = derivesClause.fold("")(_.getText)
 
-    s"sealed abstract class $name$typeParametersText$constructorText extends $supersText"
+    s"sealed abstract class $name$typeParametersText$constructorText extends $supersText $derivesText"
   }
 
   @CachedInUserData(this, ModTracker.libraryAware(this))

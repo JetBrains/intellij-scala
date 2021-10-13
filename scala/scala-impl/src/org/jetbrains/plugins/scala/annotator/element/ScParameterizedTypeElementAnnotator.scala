@@ -31,15 +31,16 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
       case _                                                         => ScSubstitutor.empty
     }
 
-    for {
-      tpe        <- prefixType
-      typeParams <- extractTypeParameters(tpe)
-    } annotateTypeArgs(
-      typeParams,
-      element.typeArgList,
-      projSubstitutor,
-      tpe.presentableText(element)
-    )
+    prefixType.foreach { tpe =>
+      val typeParams = extractTypeParameters(tpe)
+
+      annotateTypeArgs(
+        typeParams,
+        element.typeArgList,
+        projSubstitutor,
+        tpe.presentableText(element)
+      )
+    }
   }
 
   def annotateTypeArgs(
@@ -194,6 +195,7 @@ object ScParameterizedTypeElementAnnotator extends ElementAnnotator[ScParameteri
 
   private object TypeParameters {
     import org.jetbrains.plugins.scala.lang.psi.types.extractTypeParameters
-    def unapply(ty: ScType): Option[Seq[TypeParameter]] = extractTypeParameters(ty)
+    def unapply(ty: ScType): Option[Seq[TypeParameter]] =
+      Option(extractTypeParameters(ty))
   }
 }

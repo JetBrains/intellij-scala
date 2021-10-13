@@ -24,7 +24,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScReferenceExpression, ScS
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScMacroDefinition._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFunction, ScMacroDefinition, ScTypeAlias}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates.{ScExtendsBlock, ScTemplateBody, ScDerivesClause}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.{ScPackaging, ScTypedDefinition}
 import org.jetbrains.plugins.scala.lang.psi.api.{ScPackage, ScalaFile}
@@ -96,6 +96,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
       case _: ScInfixTypeElement                    => stableClass
       case _: ScMacroDefinition                     => methodsOnly //reference in macro definition may be to method only
       case _: ScDocSyntaxElement                    => stableImportSelector
+      case _: ScDerivesClause                       => stableClass
       case _                                        => stableQualRef
     }
     if (completion) result + ResolveTargets.PACKAGE + ResolveTargets.OBJECT + ResolveTargets.VAL
@@ -459,7 +460,7 @@ class ScStableCodeReferenceImpl(node: ASTNode) extends ScReferenceImpl(node) wit
     ScStableCodeReferenceExtraResolver.resolveWithFileCheck(this) match {
       case Some(element) =>
         return Array(new ScalaResolveResult(element))
-      case None        =>
+      case None =>
     }
 
     val importStmt = getEnclosingImportStatement

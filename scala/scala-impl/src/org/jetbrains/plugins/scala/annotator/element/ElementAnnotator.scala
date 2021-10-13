@@ -12,7 +12,7 @@ abstract class ElementAnnotator[T: reflect.ClassTag] {
   private def doAnnotate(element: ScalaPsiElement, typeAware: Boolean)
                         (implicit holder: ScalaAnnotationHolder): Unit = element match {
     case element: T => annotate(element, typeAware)
-    case _ =>
+    case _          =>
   }
 }
 
@@ -64,6 +64,7 @@ object ElementAnnotator extends ElementAnnotator[ScalaPsiElement] {
       ScEnumCaseAnnotator ::
       ScPolyFunctionTypeElementAnnotator ::
       ScPolyFunctionExprAnnotator ::
+      ScDerivesClauseAnnotator ::
       Nil
 
   override def annotate(element: ScalaPsiElement, typeAware: Boolean = true)
