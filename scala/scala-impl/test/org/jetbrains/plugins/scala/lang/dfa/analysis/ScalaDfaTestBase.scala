@@ -12,7 +12,7 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestAdapter 
 
   protected def codeFromMethodBody(returnType: String)(body: String): String = defaultCodeTemplate(returnType)(body)
 
-  def test(code: String)(expectedResult: Seq[(String, String)]): Unit = {
+  def test(code: String)(expectedResult: (String, String)*): Unit = {
     val actualFile = configureFromFileText(code)
 
     val inspectionManager = InspectionManager.getInstance(getProject)
@@ -30,6 +30,6 @@ abstract class ScalaDfaTestBase extends ScalaLightCodeInsightFixtureTestAdapter 
       case MockProblemDescriptor(psiElement, message) => psiElement.getText -> message
     }
 
-    actualResult.sorted shouldBe expectedResult.sorted
+    actualResult.sorted shouldBe expectedResult.toList.sorted
   }
 }

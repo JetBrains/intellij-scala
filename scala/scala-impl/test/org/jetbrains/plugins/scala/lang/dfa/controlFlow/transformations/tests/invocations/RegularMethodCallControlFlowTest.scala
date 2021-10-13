@@ -4,10 +4,10 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ScalaDfa
 
 class RegularMethodCallControlFlowTest extends ScalaDfaControlFlowBuilderTestBase {
 
-  def testSimpleMethodCalls(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
+  def testSimpleMethodCalls(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
       |val x = 15
-      |otherMethod(1000 * 3 - 9, x, 5 > 3, "Something")
+      |anotherMethod(1000 * 3 - 9, x, 5 > 3, "Something")
       |""".stripMargin
   }) {
     """
@@ -25,7 +25,7 @@ class RegularMethodCallControlFlowTest extends ScalaDfaControlFlowBuilderTestBas
       |11: PUSH_VAL 3
       |12: BOOLEAN_OP >
       |13: PUSH_VAL TOP
-      |14: CALL <unknown>
+      |14: CALL TestClass#anotherMethod
       |15: FINISH BlockExpression
       |16: RETURN
       |17: POP

@@ -5,7 +5,6 @@ import com.intellij.psi.{PsiElement, PsiFile}
 
 import scala.collection.mutable.ArrayBuffer
 
-
 class MockProblemsHolder(file: PsiFile, inspectionManager: InspectionManager)
   extends ProblemsHolder(inspectionManager, file, false) {
 

@@ -2,10 +2,15 @@ package org.jetbrains.plugins.scala.lang
 
 package object dfa {
 
+  object Messages {
+    val ConditionAlwaysTrue = "Condition is always true"
+    val ConditionAlwaysFalse = "Condition is always false"
+  }
+
   def defaultCodeTemplate(returnType: String)(body: String): String =
     s"""
        |import java.util
-       |import java.lang.Math.abs
+       |import java.lang.Math._
        |
        |class OtherClass {
        |  val otherField: Int = 1244

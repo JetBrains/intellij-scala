@@ -35,6 +35,6 @@ class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
     val dfaVariable = builder.createVariable(ScalaDfaVariableDescriptor(binding, isStable && binding.isStable))
 
     transformIfPresent(definition.expr, builder)
-    builder.pushInstruction(new SimpleAssignmentInstruction(ScalaStatementAnchor(definition), dfaVariable))
+    builder.pushInstruction(new SimpleAssignmentInstruction(definition.expr.map(ScalaStatementAnchor(_)).orNull, dfaVariable))
   }
 }

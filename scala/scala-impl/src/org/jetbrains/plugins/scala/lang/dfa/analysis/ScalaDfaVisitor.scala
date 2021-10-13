@@ -6,12 +6,14 @@ import com.intellij.codeInspection.dataFlow.lang.ir.{ControlFlow, DfaInstruction
 import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.diagnostic.Logger
+import com.intellij.psi.PsiElement
+import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{DfaConstantValue, constantValueToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import scala.jdk.CollectionConverters._
@@ -74,7 +76,26 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
   }
 
   private def shouldSuppress(statement: ScBlockStatement, value: DfaConstantValue): Boolean = {
-    // TODO implement
-    false
+    val parent = findProperParent(statement)
+    statement match {
+      // TODO more complete implementation
+      case _: ScLiteral => true
+      case infix: ScInfixExpr => parent match {
+        case Some(parentInfix: ScInfixExpr) => parentInfix.operation.refName == infix.operation.refName
+        case _ => false
+      }
+      case _ => false
+    }
+  }
+
+  private def findProperParent(statement: ScBlockStatement): Option[PsiElement] = {
+    var parent = statement.parent
+    while (parent match {
+      case Some(_: ScParenthesisedExpr) => true
+      case _ => false
+    }) {
+      parent = parent.get.asInstanceOf[ScParenthesisedExpr].innerElement
+    }
+    parent
   }
 }
