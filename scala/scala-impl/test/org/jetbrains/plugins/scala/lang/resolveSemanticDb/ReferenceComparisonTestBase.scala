@@ -1,13 +1,13 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.psi.PsiNamedElement
-import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScNamedElement
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
+import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
 
 abstract class ReferenceComparisonTestBase_Scala3 extends ReferenceComparisonTestBase {
   override protected def supportedIn(version: ScalaVersion): Boolean = version >= LatestScalaVersions.Scala_3_0
@@ -40,7 +40,10 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
     for (file <- files.filterByType[ScalaFile]) {
       val semanticDbFile = store.files.find(_.path.contains(file.name)).get
-      val references = file.elements.filterByType[ScReference].toArray
+      val references = file
+        .depthFirst(!_.is[ScImportStmt]) // don't look into ScImportStmt, some weird stuff is going on in semanticdb
+        .filterByType[ScReference]
+        .toArray
       for (ref <- references) {
         refCount += 1
         val pos = textPosOf(ref.nameId)
@@ -56,14 +59,27 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
           var atLeastOneSuccess = false
           var allSuccess = true
 
-          for(semanticDbTarget <- semanticDbReferences.flatMap(_.symbol)) {
+          // sometimes we resolve to AnyRef instead of Object and the other way around... don't bother with these mistakes
+          def stripBases(s: String): String =
+            s.stripPrefix("scala/AnyRef#")
+              .stripPrefix("scala/Any#")
+              .stripPrefix("java/lang/Object#")
+              .stripPrefix("java/lang/CharSequence#")
+
+          for(semanticDbRef <- semanticDbReferences if !semanticDbRef.pointsToLocal) {
+            import ScalaPluginSymbolPrinter.print
+            val semanticDbTargetPos = semanticDbRef.symbol.map(_.position)
+            val targetText = stripBases(semanticDbRef.info.symbol.replaceAll(raw"\(\+\d+\)", "()"))
             didTest = true
-            val ourTargets = resolved.flatMap(r => Seq(r.element) ++ r.parentElement).filterByType[ScNamedElement]
-            if (!ourTargets.exists(posOfNavigationElementWithAdjustedEscapeId(_) == semanticDbTarget.position)) {
+            val ourTargets = resolved.flatMap(r => Seq(r.element) ++ r.parentElement).filterByType[PsiNamedElement]
+            val textFits = ourTargets.exists(t => print(t).map(stripBases).forall(_ == targetText))
+            val positionFits = semanticDbTargetPos.exists(targetPos => ourTargets.exists(posOfNavigationElementWithAdjustedEscapeId(_) == targetPos))
+
+            if (!textFits && !positionFits) {
               val ours = ourTargets
-                .map(e => s"${e.name} at ${textPosOf(e.getNavigationElement).readableString}")
+                .map(e => s"${print(e).get} at ${textPosOf(e.getNavigationElement).readableString}")
                 .mkString("\n")
-              problems :+= s"$refWithPos resolves to $semanticDbTarget in semanticdb, but we resolve to:\n$ours"
+              problems :+= s"$refWithPos resolves to $targetText in semanticdb, but we resolve to:\n$ours"
               allSuccess = false
             } else {
               atLeastOneSuccess = true

@@ -28,6 +28,7 @@ class SDbOccurrence(val info: SymbolOccurrence, _symbol: => Option[SDbSymbol]) {
   def position: TextPos = TextPos(range.startLine, range.startCharacter)
   def isDefinition: Boolean = info.role.isDefinition
   def isReference: Boolean = info.role.isReference
+  lazy val pointsToLocal: Boolean = info.symbol.matches(raw"local\d+")
 
   override def toString: String =s"${info.symbol}(${range.mkString})" + (
     if (isReference) s" -> ${symbol.fold("<no symbol>")(_.toString)}"
