@@ -12,8 +12,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.LogicalOperation
-import org.jetbrains.plugins.scala.lang.dfa.utils.SpecialSupportUtils._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 

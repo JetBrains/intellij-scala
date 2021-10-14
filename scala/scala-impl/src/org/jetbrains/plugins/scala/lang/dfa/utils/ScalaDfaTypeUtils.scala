@@ -8,6 +8,7 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
@@ -15,19 +16,6 @@ import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 
 object ScalaDfaTypeUtils {
-
-  sealed trait DfaConstantValue
-  final object DfaConstantValue {
-    case object True extends DfaConstantValue
-    case object False extends DfaConstantValue
-    case object Unknown extends DfaConstantValue
-  }
-
-  sealed trait LogicalOperation
-  final object LogicalOperation {
-    case object And extends LogicalOperation
-    case object Or extends LogicalOperation
-  }
 
   def literalToDfType(literal: ScLiteral): DfType = literal match {
     case _: ScNullLiteral => DfTypes.NULL

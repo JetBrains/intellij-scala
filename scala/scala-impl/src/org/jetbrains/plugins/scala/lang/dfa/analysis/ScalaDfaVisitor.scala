@@ -10,7 +10,8 @@ import com.intellij.psi.PsiElement
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{DfaConstantValue, constantValueToProblemMessage}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.constantValueToProblemMessage
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScInfixExpr, ScParenthesisedExpr}

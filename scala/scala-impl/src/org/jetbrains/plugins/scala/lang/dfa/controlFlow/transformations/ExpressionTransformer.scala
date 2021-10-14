@@ -26,7 +26,12 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => if (isReferenceExpressionInvocation(reference))
       transformInvocation(reference, builder) else transformReference(reference, builder)
+    case typedExpression: ScTypedExpression => transformTypedExpression(typedExpression, builder)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
+  }
+
+  protected def transformExpression(expression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
+    new ExpressionTransformer(expression).transform(builder)
   }
 
   private def isReferenceExpressionInvocation(expression: ScReferenceExpression): Boolean = {
@@ -49,7 +54,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformParenthesisedExpression(parenthesised: ScParenthesisedExpr, builder: ScalaDfaControlFlowBuilder): Unit = {
-    parenthesised.innerElement.foreach(transformPsiElement(_, builder))
+    parenthesised.innerElement.foreach(transformExpression(_, builder))
   }
 
   private def transformLiteral(literal: ScLiteral, builder: ScalaDfaControlFlowBuilder): Unit = {
@@ -63,7 +68,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
       val skipThenOffset = new DeferredOffset
       val skipElseOffset = new DeferredOffset
 
-      transformPsiElement(condition, builder)
+      transformExpression(condition, builder)
       builder.pushInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, condition))
 
       builder.pushInstruction(new FinishElementInstruction(null))
@@ -89,5 +94,9 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
     new InvocationTransformer(invocationExpression).transform(builder)
+  }
+
+  private def transformTypedExpression(typedExpression: ScTypedExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
+    transformExpression(typedExpression.expr, builder)
   }
 }

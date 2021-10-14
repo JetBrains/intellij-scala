@@ -4,13 +4,15 @@ import com.intellij.codeInspection.dataFlow.lang.{DfaAnchor, DfaListener, Unsati
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.value.DfaValue
 import com.intellij.util.ThreeState
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{DfaConstantValue, dfTypeToReportedConstant}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.dfTypeToReportedConstant
 
 import scala.collection.{MapView, mutable}
 
 class ScalaDfaListener extends DfaListener {
 
   private val constantConditions = mutable.Map[ScalaDfaAnchor, DfaConstantValue]()
+
   private val unsatisfiedConditions = mutable.Map[ScalaDfaProblem, ThreeState]()
 
   def collectConstantConditions: MapView[ScalaDfaAnchor, DfaConstantValue] = constantConditions.view

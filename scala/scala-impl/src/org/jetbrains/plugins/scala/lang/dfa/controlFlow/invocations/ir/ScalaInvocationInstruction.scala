@@ -12,6 +12,7 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.CollectionsSpecialSupport.findSpecialSupport
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
 
 import scala.jdk.CollectionConverters._
@@ -82,12 +83,15 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
   private def findMethodEffectForScalaMethod(stateBefore: DfaMemoryState, argumentValues: Map[Argument, DfaValue])
                                             (implicit factory: DfaValueFactory): MethodEffect = {
-    // TODO implement special support
     val returnType = invocationInfo.invokedElement
       .map(element => scTypeToDfType(element.returnType))
       .getOrElse(DfType.TOP)
 
-    MethodEffect(factory.fromDfType(returnType), isPure = false)
+    findSpecialSupport(invocationInfo, argumentValues) match {
+      case Some(methodEffect) => val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
+        methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
+      case _ => MethodEffect(factory.fromDfType(returnType), isPure = false)
+    }
   }
 
   private def findMethodEffectWithJavaCustomHandler(stateBefore: DfaMemoryState,
