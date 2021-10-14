@@ -49,6 +49,9 @@ class SbtProjectSettings extends ExternalProjectSettings {
   @BeanProperty
   var allowSbtVersionOverride = true
 
+  @BeanProperty
+  var preferScala2 = false // TODO Set to "true" when the sbt-structure dependency is updated.
+
   @Nullable
   @BeanProperty
   var sbtVersion: String = _

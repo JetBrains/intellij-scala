@@ -98,7 +98,8 @@ object SbtExternalSystemManager {
       projectSettings.resolveSbtClassifiers,
       projectSettings.useSbtShellForImport,
       projectSettings.enableDebugSbtShell,
-      projectSettings.allowSbtVersionOverride
+      projectSettings.allowSbtVersionOverride,
+      projectSettings.preferScala2
     )
   }
 

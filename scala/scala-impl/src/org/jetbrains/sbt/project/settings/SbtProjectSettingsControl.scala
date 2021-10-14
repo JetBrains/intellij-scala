@@ -59,6 +59,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
       extraControls.allowSbtVersionOverrideCheckBox.isSelected != settings.allowSbtVersionOverride
+      (extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0) != settings.preferScala2
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
@@ -73,6 +74,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     extraControls.useSbtShellForBuildCheckBox.setSelected(settings.buildWithShell)
     extraControls.remoteDebugSbtShellCheckBox.setSelected(settings.enableDebugSbtShell)
     extraControls.allowSbtVersionOverrideCheckBox.setSelected(settings.allowSbtVersionOverride)
+    extraControls.scalaVersionPreferenceComboBox.setSelectedIndex(if (settings.preferScala2) 0 else 1)
   }
 
   override def updateInitialExtraSettings(): Unit = {
@@ -86,6 +88,7 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
     settings.useSbtShellForImport = extraControls.useSbtShellForImportCheckBox.isSelected
     settings.enableDebugSbtShell = extraControls.remoteDebugSbtShellCheckBox.isSelected
     settings.allowSbtVersionOverride = extraControls.allowSbtVersionOverrideCheckBox.isSelected
+    settings.preferScala2 = extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0
 
     val useSbtShellForBuildSettingChanged =
       settings.useSbtShellForBuild != extraControls.useSbtShellForBuildCheckBox.isSelected

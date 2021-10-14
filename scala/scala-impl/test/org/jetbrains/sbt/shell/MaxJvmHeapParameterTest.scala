@@ -23,7 +23,7 @@ class MaxJvmHeapParameterTest extends TestCase {
     }
 
     val settings = new SbtExecutionSettings(null, null, userOpts, hiddenDefaultSize, null, null, null, null,
-                                            false, false, false, false, false ,false)
+                                            false, false, false, false, false ,false, true)
 
     SbtProcessManager.buildVMParameters(settings, workingDir)
   }

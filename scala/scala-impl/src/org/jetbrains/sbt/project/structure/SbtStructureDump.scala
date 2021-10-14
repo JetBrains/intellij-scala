@@ -47,7 +47,8 @@ class SbtStructureDump {
   def dumpFromShell(project: Project,
                     structureFilePath: String,
                     options: Seq[String],
-                    reporter: BuildReporter
+                    reporter: BuildReporter,
+                    preferScala2: Boolean,
                    ): Future[BuildMessages] = {
 
     reporter.start()
@@ -63,7 +64,7 @@ class SbtStructureDump {
         ideaPort.fold("")(port => s"; set ideaPort in Global := $port")
       } else ""
 
-    val cmd = s";reload; $setCmd ;*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
+    val cmd = s";reload; $setCmd ;${if (preferScala2) "preferScala2;" else ""}*/*:dumpStructureTo $structureFilePath; session clear-all $ideaPortSetting"
     val aggregator = shellMessageAggregator(EventId(s"dump:${UUID.randomUUID()}"), shell, reporter)
 
     shell.command(cmd, BuildMessages.empty, aggregator)
@@ -77,6 +78,7 @@ class SbtStructureDump {
                       environment: Map[String, String],
                       sbtLauncher: File,
                       sbtStructureJar: File,
+                      preferScala2: Boolean,
                      )
                      (implicit reporter: BuildReporter)
   : Try[BuildMessages] = {
@@ -92,9 +94,12 @@ class SbtStructureDump {
 
     val sbtCommandArgs = List.empty
 
-    val sbtCommands = Seq(
-      setCommands,
-      s"""apply -cp "${normalizePath(sbtStructureJar)}" org.jetbrains.sbt.CreateTasks""",
+    val sbtCommands = (
+      Seq(
+        setCommands,
+        s"""apply -cp "${normalizePath(sbtStructureJar)}" org.jetbrains.sbt.CreateTasks"""
+      ) :++
+      (if (preferScala2) Seq("preferScala2") else Seq.empty) :+
       s"*/*:dumpStructure"
     ).mkString(";", ";", "")
 

@@ -21,5 +21,6 @@ class SbtExecutionSettings(val realProjectPath: String,
                            val resolveSbtClassifiers: Boolean,
                            val useShellForImport: Boolean,
                            val shellDebugMode: Boolean,
-                           val allowSbtVersionOverride: Boolean
+                           val allowSbtVersionOverride: Boolean,
+                           val preferScala2: Boolean,
                           ) extends ExternalSystemExecutionSettings
