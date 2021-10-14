@@ -18,7 +18,7 @@ class DerivesFilter extends ElementFilter {
 
     errorBeforeDerivesStart match {
       case Some((_: PsiErrorElement) && PrevSibling(typeDefBeforeError: ScTypeDefinition)) =>
-        if (typeDefBeforeError.extendsBlock.templateDerives.isDefined) false
+        if (typeDefBeforeError.extendsBlock.derivesClause.isDefined) false
         else {
           // Do not suggest `derives` before `extends` or another `derives`
           !leaf.nextVisibleLeaf.exists(l => isExtendsKeyword(l) || isDerivesSoftKeyword(l))
