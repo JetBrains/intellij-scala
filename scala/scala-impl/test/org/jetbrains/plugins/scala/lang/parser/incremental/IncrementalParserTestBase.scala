@@ -18,7 +18,7 @@ abstract class IncrementalParserTestBase extends EditorActionTestBase with Asser
 
 
   def doTest(text: String, replaceWith: String = ""): Unit = {
-    val (code, Seq(range)) = MarkersUtils.extractMarker(text.withNormalizedSeparator, startMarker = START, endMarker = END)
+    val (code, Seq(range)) = MarkersUtils.extractMarker(text, startMarker = START, endMarker = END)
 
     val editor = getFixture.getEditor match {
       case null =>

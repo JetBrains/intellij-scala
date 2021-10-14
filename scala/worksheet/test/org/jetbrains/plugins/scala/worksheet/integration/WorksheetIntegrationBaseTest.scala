@@ -246,7 +246,7 @@ abstract class WorksheetIntegrationBaseTest
   protected def preprocessViewerText(text: String): (String, Seq[Folding]) = {
     val (textFixed, ranges) = {
       val markers = IndexedSeq((foldStart, foldEnd), (foldStartExpanded, foldEndExpanded))
-      MarkersUtils.extractMarkers(text.withNormalizedSeparator, markers)
+      MarkersUtils.extractMarkers(text, markers)
     }
     val foldings = ranges.map { case (TextRangeExt(startOffset, endOffset), markerType) =>
       Folding(startOffset, endOffset, isExpanded = markerType == 1)

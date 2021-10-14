@@ -28,16 +28,16 @@ trait Markers {
    * line /start0/ /start1/ 2 /end1/ content/end0/
    */
   def extractNumberedMarkers(inputText: String): (String, Seq[TextRange]) = {
-    assertNoWindowsLineSeparator(inputText)
+    val normalizedInput = inputText.withNormalizedSeparator
 
     def hasMarker(startName: String, endName: String): Boolean =
-      inputText.contains(startName) && inputText.contains(endName)
+      normalizedInput.contains(startName) && normalizedInput.contains(endName)
 
     val hasNormalStartMarker = hasMarker(startMarker, endMarker)
     val numberedMarkers = LazyList.from(0).takeWhile(i => hasMarker(startMarker(i), endMarker(i)))
 
     val (resultText, ranges) = extractMarkers(
-      inputText,
+      normalizedInput,
       hasNormalStartMarker.fold(Seq((startMarker, endMarker)), Seq.empty) ++
         numberedMarkers.map(i => (startMarker(i), endMarker(i))),
       considerCaret = true
@@ -81,16 +81,16 @@ trait Markers {
                      markers: Seq[(String, String)],
                      considerCaret: Boolean = false,
                      caretText: String = this.caretText): (String, Seq[(TextRange, Int)]) = {
-    assertNoWindowsLineSeparator(inputText)
+    val normalizedInput = inputText.withNormalizedSeparator
 
     val (ranges, idxAdjust) = markers.zipWithIndex
       .foldLeft((Seq.empty[(TextRange, Int)], (_: Int) => 0)) {
         case ((prevRanges, prevIdxAdjust), ((startMarker, endMarker), markerIdx)) =>
-          val (ranges, idxAdjust) = findRangesAndAdjustment(inputText, startMarker, endMarker)
+          val (ranges, idxAdjust) = findRangesAndAdjustment(normalizedInput, startMarker, endMarker)
           (prevRanges ++ ranges.map(_ -> markerIdx), i => prevIdxAdjust(i) + idxAdjust(i))
       }
 
-    val caret = considerCaret.option(inputText.indexOf(caretText)).filter(_ >= 0)
+    val caret = considerCaret.option(normalizedInput.indexOf(caretText)).filter(_ >= 0)
     def adjustIndexForMarkersAndCaret(i: Int): Int =
       i - idxAdjust(i) - caret.exists(i > _).fold(caretText.length, 0)
 
@@ -105,7 +105,7 @@ trait Markers {
           (newRange, markerIdx)
       }
 
-    val textFixed = markers.foldLeft(inputText) {
+    val textFixed = markers.foldLeft(normalizedInput) {
       case (text, (startMarker, endMarker)) =>
         text
           .replace(startMarker, "")
@@ -196,7 +196,7 @@ class MarkerUtilsTest extends TestCase with Markers with AssertionMatchers {
         |""".stripMargin
 
     val (result, ranges) = extractMarkers(
-      code.withNormalizedSeparator,
+      code,
       Seq("a", "b", "c").map(c => (s"<$c>", s"</$c>")),
       considerCaret = true
     )

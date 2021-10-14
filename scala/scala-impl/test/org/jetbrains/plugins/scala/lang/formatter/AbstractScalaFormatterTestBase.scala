@@ -124,7 +124,7 @@ abstract class AbstractScalaFormatterTestBase extends LightIdeaTestCase {
    * NOTE: for now it only supports selection of a whole valid node
    */
   protected def doAllRangesTextTest(text: String, checkResult: Boolean = true): Unit = {
-    val (textClean, selections) = MarkersUtils.extractMarker(text.withNormalizedSeparator)
+    val (textClean, selections) = MarkersUtils.extractMarker(text)
     val selection: TextRange = selections match {
       case head :: Nil => head
       case Nil         => TextRange.create(0, textClean.length)
@@ -265,8 +265,8 @@ private object AbstractScalaFormatterTestBase {
       new TestData(textBefore, Some(textAfter), fileName, action, ranges, actionRepeats, checkAfterEachIteration = false)
 
     def apply(before: String, after: String, fileName: String, action: Action, actionRepeats: Int, checkAfterEachIteration: Boolean): TestData = {
-      val (beforeWithoutMarkers, selectedTextRanges) = MarkersUtils.extractNumberedMarkers(before.withNormalizedSeparator)
-      val (afterWithoutMarkers, _) = MarkersUtils.extractNumberedMarkers(after.withNormalizedSeparator)
+      val (beforeWithoutMarkers, selectedTextRanges) = MarkersUtils.extractNumberedMarkers(before)
+      val (afterWithoutMarkers, _) = MarkersUtils.extractNumberedMarkers(after)
       TestData(beforeWithoutMarkers, Some(afterWithoutMarkers), fileName, action, selectedTextRanges, actionRepeats, checkAfterEachIteration)
     }
 
