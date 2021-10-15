@@ -1,12 +1,10 @@
-/*
 package org.jetbrains.sbt.project.template.wizard
 
 import com.intellij.ide.JavaUiBundle
-import com.intellij.ide.projectWizard.generators.NewProjectWizardSdkData
 import com.intellij.ide.util.projectWizard.{AbstractModuleBuilder, ModuleBuilder}
 import com.intellij.ide.wizard._
 import com.intellij.openapi.module.{Module, StdModuleTypes}
-import com.intellij.openapi.observable.properties.{GraphProperty, GraphPropertyImpl}
+import com.intellij.openapi.observable.properties.{GraphPropertyImpl, PropertyGraph}
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.impl.DependentSdkType
 import com.intellij.openapi.projectRoots.{JavaSdkType, Sdk, SdkTypeId}
@@ -26,9 +24,8 @@ import org.jetbrains.sbt.project.template.wizard.kotlin_interop.dsl.RowOps
 
 //noinspection ApiStatus,UnstableApiUsage
 final class ScalaNewProjectWizardStep(parentStep: NewProjectWizardLanguageStep)
-  extends AbstractNewProjectWizardChildStep(parentStep)
-    with SbtModuleStepLike
-    with NewProjectWizardSdkData {
+  extends AbstractNewProjectWizardStep(parentStep)
+    with SbtModuleStepLike {
 
   override protected val selections: SbtModuleStepSelections = SbtModuleStepSelections.default
 
@@ -36,8 +33,10 @@ final class ScalaNewProjectWizardStep(parentStep: NewProjectWizardLanguageStep)
   override protected lazy val availableSbtVersions: Versions = Versions.SBT.loadVersionsWithProgress()
   override protected lazy val availableSbtVersionsForScala3: Versions = Versions.SBT.sbtVersionsForScala3(availableSbtVersions)
 
+  @inline private def propertyGraph: PropertyGraph = getPropertyGraph
+
   // detect when scala language is selected in the "New Project Wizard"
-  getPropertyGraph.afterPropagation { () =>
+  propertyGraph.afterPropagation { () =>
     if (parentStep.getLanguage == ScalaNewProjectWizard.ScalaLanguageText) {
       initSelectionsAndUi()
     }
@@ -46,9 +45,7 @@ final class ScalaNewProjectWizardStep(parentStep: NewProjectWizardLanguageStep)
 
   private var sdkComboBox: Cell[JdkComboBox] = _
 
-  override def getSdkComboBox: Cell[JdkComboBox] = sdkComboBox
-  override def getSdkProperty: GraphProperty[Sdk] = new GraphPropertyImpl(getPropertyGraph, () => null)
-  override def getSdk: Sdk = getSdkProperty.get()
+  private val sdkProperty: GraphPropertyImpl[Sdk] = new GraphPropertyImpl(propertyGraph, () => null)
 
   override def setupProject(project: Project): Unit = {
     val sbtModuleBuilder = new SbtModuleBuilder(this.selections)
@@ -76,7 +73,7 @@ final class ScalaNewProjectWizardStep(parentStep: NewProjectWizardLanguageStep)
     panel.row(JavaUiBundle.message("label.project.wizard.new.project.jdk"), (row: Row) => {
       val javaSdkFilter: kotlin.jvm.functions.Function1[SdkTypeId, java.lang.Boolean] =
         (it: SdkTypeId) => it.isInstanceOf[JavaSdkType] && !it.is[DependentSdkType]
-      sdkComboBox = JdkComboBoxKt.sdkComboBox(row, getContext, getSdkProperty, StdModuleTypes.JAVA.getId, javaSdkFilter, null, null, null, null)
+      sdkComboBox = JdkComboBoxKt.sdkComboBox(row, getContext, sdkProperty, StdModuleTypes.JAVA.getId, javaSdkFilter, null, null, null, null)
       ComboBoxKt_Wrapper.columns(sdkComboBox, TextFieldKt.COLUMNS_MEDIUM)
       KUnit
     })
@@ -107,4 +104,4 @@ final class ScalaNewProjectWizardStep(parentStep: NewProjectWizardLanguageStep)
     })
   }
 }
-*/
+

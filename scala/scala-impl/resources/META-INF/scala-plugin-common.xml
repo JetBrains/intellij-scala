@@ -93,7 +93,7 @@
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
-<!--        <newProjectWizard implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>-->
+        <newProjectWizard.language implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
         <refactoring.moveMemberHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMemberHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersHandler" order="first" id="scalaMoveMembersHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first, after scalaMoveMembersHandler"/>
