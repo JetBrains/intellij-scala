@@ -11,6 +11,7 @@ import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.ScalaInvocationInstruction
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
@@ -40,9 +41,15 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
     }
   }
 
+  private def addAdditionalAssertions(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
+    addCollectionAccessAssertions(wrappedInvocation, invocationInfo, builder)
+  }
+
   private def transformMethodInvocation(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
     val args = invocationInfo.argListsInEvaluationOrder.flatten
     args.foreach(_.content.transform(builder))
+
+    addAdditionalAssertions(invocationInfo, builder)
 
     val transfer = builder.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
     builder.pushInstruction(new ScalaInvocationInstruction(invocationInfo,

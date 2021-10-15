@@ -7,11 +7,12 @@ import com.intellij.codeInspection.dataFlow.value.DfaValueFactory
 import com.intellij.codeInspection.{ProblemHighlightType, ProblemsHolder}
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.psi.PsiElement
+import com.intellij.util.ThreeState
 import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.constantValueToProblemMessage
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{constantValueToProblemMessage, exceptionNameToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScInfixExpr, ScParenthesisedExpr}
@@ -24,19 +25,18 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
   private val Log = Logger.getInstance(classOf[ScalaDfaVisitor])
 
   override def visitFunctionDefinition(function: ScFunctionDefinition): Unit = {
-    val factory = new DfaValueFactory(problemsHolder.getProject)
-    val memoryStates = List(new JvmDfaMemoryStateImpl(factory))
-
     try {
-      function.body.foreach(executeDataFlowAnalysis(_, factory, memoryStates))
+      function.body.foreach(executeDataFlowAnalysis)
     } catch {
       case exception: TransformationFailedException =>
         Log.info(s"Dataflow analysis failed for function definition $function. Reason:\n$exception")
     }
   }
 
-  private def executeDataFlowAnalysis(body: ScBlockStatement, factory: DfaValueFactory,
-                                      memoryStates: Iterable[JvmDfaMemoryStateImpl]): Unit = {
+  private def executeDataFlowAnalysis(body: ScBlockStatement): Unit = {
+    val factory = new DfaValueFactory(problemsHolder.getProject)
+    val memoryStates = List(new JvmDfaMemoryStateImpl(factory))
+
     val controlFlowBuilder = new ScalaDfaControlFlowBuilder(factory, body)
     new ScalaPsiElementTransformer(body).transform(controlFlowBuilder)
     val flow = controlFlowBuilder.build()
@@ -56,10 +56,14 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
   private def reportProblems(listener: ScalaDfaListener): Unit = {
     listener.collectConstantConditions
       .filter { case (_, value) => value != DfaConstantValue.Unknown }
-      .foreach { case (anchor, value) => reportProblem(anchor, value) }
+      .foreach { case (anchor, value) => reportConstantCondition(anchor, value) }
+
+    listener.collectUnsatisfiedConditions
+      .filter { case (_, occurred) => occurred == ThreeState.YES }
+      .foreach { case (problem, _) => reportUnsatisfiedProblem(problem) }
   }
 
-  private def reportProblem(anchor: ScalaDfaAnchor, value: DfaConstantValue): Unit = {
+  private def reportConstantCondition(anchor: ScalaDfaAnchor, value: DfaConstantValue): Unit = {
     anchor match {
       case statementAnchor: ScalaStatementAnchor =>
         val statement = statementAnchor.statement
@@ -67,6 +71,15 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
         if (!shouldSuppress(statement, value)) {
           problemsHolder.registerProblem(statement, message)
         }
+      case _ =>
+    }
+  }
+
+  private def reportUnsatisfiedProblem(problem: ScalaDfaProblem): Unit = {
+    problem match {
+      case ScalaCollectionAccessProblem(_, accessExpression, exceptionName) =>
+        val message = exceptionNameToProblemMessage(exceptionName)
+        problemsHolder.registerProblem(accessExpression, message)
       case _ =>
     }
   }

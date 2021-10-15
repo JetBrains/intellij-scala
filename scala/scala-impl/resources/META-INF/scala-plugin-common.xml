@@ -1357,7 +1357,7 @@
         <!-- Dataflow analysis inspections -->
         <localInspection implementationClass="org.jetbrains.plugins.scala.codeInspection.dfa.DfaConstantConditionsInspection"
                          bundle="messages.ScalaInspectionBundle"
-                         key="displayname.constant.conditions"
+                         key="displayname.dataflow.analysis.constant.conditions"
                          groupPath="Scala" groupKey="group.dataflow.analysis"
                          shortName="DfaConstantConditions"
                          level="WARNING" enabledByDefault="false" language="Scala"/>

@@ -12,7 +12,7 @@ import com.intellij.psi.PsiMethod
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.CollectionsSpecialSupport.findSpecialSupport
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.CollectionsSpecialSupport.findSpecialSupportForCollections
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
 
 import scala.jdk.CollectionConverters._
@@ -44,6 +44,9 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
     if (!methodEffect.isPure || JavaDfaHelpers.mayLeakFromType(methodEffect.returnValue.getDfType)) {
       argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
+    }
+
+    if (!methodEffect.isPure) {
       stateBefore.flushFields()
     }
 
@@ -87,7 +90,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
       .map(element => scTypeToDfType(element.returnType))
       .getOrElse(DfType.TOP)
 
-    findSpecialSupport(invocationInfo, argumentValues) match {
+    findSpecialSupportForCollections(invocationInfo, argumentValues) match {
       case Some(methodEffect) => val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
         methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
       case _ => MethodEffect(factory.fromDfType(returnType), isPure = false)

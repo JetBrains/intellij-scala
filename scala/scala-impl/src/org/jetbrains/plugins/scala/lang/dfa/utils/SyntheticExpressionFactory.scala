@@ -16,4 +16,8 @@ object SyntheticExpressionFactory {
     if (varargContents.isEmpty) code"Nil: _*".asInstanceOf[ScExpression]
     code"$tupleContentsInText :: Nil: _*".asInstanceOf[ScExpression]
   }
+
+  def createIntegerLiteralExpression(value: Int)(implicit context: ProjectContext): ScExpression = {
+    code"$value".asInstanceOf[ScExpression]
+  }
 }

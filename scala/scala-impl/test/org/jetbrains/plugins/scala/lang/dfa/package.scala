@@ -5,6 +5,8 @@ package object dfa {
   object Messages {
     val ConditionAlwaysTrue = "Condition is always true"
     val ConditionAlwaysFalse = "Condition is always false"
+    val InvocationIndexOutOfBounds = "Invocation will produce IndexOutOfBoundsException. Index is always out of bounds"
+    val InvocationNoSuchElement = "Invocation will produce NoSuchElementException. Collection is always empty"
   }
 
   def defaultCodeTemplate(returnType: String)(body: String): String =

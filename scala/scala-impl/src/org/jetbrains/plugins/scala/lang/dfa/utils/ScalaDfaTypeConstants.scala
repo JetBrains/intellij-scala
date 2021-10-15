@@ -18,9 +18,17 @@ object ScalaDfaTypeConstants {
     case object Or extends LogicalOperation
   }
 
-  val ScalaCollectionImmutable = "scala.collection.immutable"
+  val ScalaCollection = "scala.collection"
 
-  val BooleanTypeClass: String = "scala.Boolean"
+  val ScalaCollectionImmutable = s"$ScalaCollection.immutable"
+
+  val ScalaNil = "scala.Nil"
+
+  val BooleanTypeClass = "scala.Boolean"
+
+  val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
+
+  val NoSuchElementExceptionName = "java.util.NoSuchElementException"
 
   val NumericTypeClasses: Seq[String] =
     for (typeName <- List("Int", "Long", "Float", "Double"))

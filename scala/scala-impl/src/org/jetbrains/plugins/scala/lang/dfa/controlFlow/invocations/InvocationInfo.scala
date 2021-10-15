@@ -74,7 +74,7 @@ object InvocationInfo {
 
     val thisArgument = Argument.fromExpression(referenceExpression.qualifier, ThisArgument, PassByValue)
     val properArguments = buildAllArguments(List(referenceExpression.matchedParameters), List(),
-      referenceExpression, isTupled = false).head
+      referenceExpression, isTupled = false).headOption.getOrElse(Nil)
 
     InvocationInfo(InvokedElement.fromTarget(target, Nil), List(thisArgument :: properArguments))
   }
