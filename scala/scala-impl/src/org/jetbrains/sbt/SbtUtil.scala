@@ -187,7 +187,7 @@ object SbtUtil {
         if (ApplicationManager.getApplication.isUnitTestMode)
           dataManager.getExternalProjectsData(project, SbtProjectSystem.Id).asScala.toSeq match {
             case Seq(pd) => Some(pd)
-            case many    => throw new AssertionError(s"Expected single external project data, but got\n${many.mkString("\n")}")
+            case _       => None
           }
         else None
       }
