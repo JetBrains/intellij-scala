@@ -9,10 +9,13 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
+import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
@@ -87,5 +90,10 @@ object ScalaDfaTypeUtils {
     case valueOrVariable: ScValueOrVariable => valueOrVariable.isStable
     case typedDefinition: ScTypedDefinition => typedDefinition.isStable
     case _ => false
+  }
+
+  def extractExpressionFromArgument(argument: Argument): Option[ScExpression] = argument.content match {
+    case expressionTransformer: ExpressionTransformer => Some(expressionTransformer.wrappedExpression)
+    case _ => None
   }
 }

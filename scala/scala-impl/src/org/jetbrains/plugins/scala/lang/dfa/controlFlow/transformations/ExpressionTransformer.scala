@@ -86,24 +86,23 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    addNotNullAssertion(expression, builder)
-
     if (isReferenceExpressionInvocation(expression)) {
       new InvocationTransformer(expression).transform(builder)
-    } else ScalaDfaVariableDescriptor.fromReferenceExpression(expression) match {
-      case Some(descriptor) => builder.pushVariable(descriptor, expression)
-      case _ => builder.pushUnknownCall(expression, 0)
+    } else {
+      expression.qualifier.foreach(addNotNullAssertion(_, expression, builder))
+      ScalaDfaVariableDescriptor.fromReferenceExpression(expression) match {
+        case Some(descriptor) => builder.pushVariable(descriptor, expression)
+        case _ => builder.pushUnknownCall(expression, 0)
+      }
     }
   }
 
-  private def addNotNullAssertion(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    for (qualifier <- expression.qualifier) {
-      transformExpression(qualifier, builder)
-
-      val transfer = builder.maybeTransferValue(NullPointerExceptionName)
-      val problem = ScalaNullAccessProblem(expression)
-      builder.pushInstruction(new EnsureInstruction(problem, RelationType.NE, DfTypes.NULL, transfer.orNull))
-    }
+  protected def addNotNullAssertion(qualifier: ScExpression, accessExpression: ScExpression,
+                                    builder: ScalaDfaControlFlowBuilder): Unit = {
+    transformExpression(qualifier, builder)
+    val transfer = builder.maybeTransferValue(NullPointerExceptionName)
+    val problem = ScalaNullAccessProblem(accessExpression)
+    builder.pushInstruction(new EnsureInstruction(problem, RelationType.NE, DfTypes.NULL, transfer.orNull))
   }
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
