@@ -13,4 +13,4 @@ case class ScalaCollectionAccessProblem(lengthDescriptor: DerivedVariableDescrip
   override def getLengthDescriptor: DerivedVariableDescriptor = lengthDescriptor
 }
 
-case class ScalaCastProblem(castExpression: ScExpression, targetType: ScExpression) extends ScalaDfaProblem
+case class ScalaNullAccessProblem(accessExpression: ScExpression) extends ScalaDfaProblem

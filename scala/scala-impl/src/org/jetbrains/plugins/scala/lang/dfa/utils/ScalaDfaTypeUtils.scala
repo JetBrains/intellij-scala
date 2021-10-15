@@ -47,15 +47,19 @@ object ScalaDfaTypeUtils {
   def constantValueToProblemMessage(value: DfaConstantValue, warningType: ProblemHighlightType): String = value match {
     case DfaConstantValue.True => ScalaInspectionBundle.message("condition.always.true", warningType)
     case DfaConstantValue.False => ScalaInspectionBundle.message("condition.always.false", warningType)
-    case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant value: $value")
+    case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant: $value")
   }
 
   @Nls
   def exceptionNameToProblemMessage(exceptionName: String): String = {
     val warningType = ProblemHighlightType.GENERIC_ERROR_OR_WARNING
     exceptionName match {
-      case IndexOutOfBoundsExceptionName => ScalaInspectionBundle.message("invocation.index.out.of.bounds", warningType)
-      case NoSuchElementExceptionName => ScalaInspectionBundle.message("invocation.no.such.element", warningType)
+      case IndexOutOfBoundsExceptionName =>
+        ScalaInspectionBundle.message("invocation.index.out.of.bounds", warningType)
+      case NoSuchElementExceptionName =>
+        ScalaInspectionBundle.message("invocation.no.such.element", warningType)
+      case NullPointerExceptionName =>
+        ScalaInspectionBundle.message("invocation.null.pointer", warningType)
       case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA exception: $exceptionName")
     }
   }

@@ -12,6 +12,7 @@ import org.jetbrains.plugins.scala.extensions.PsiElementExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuilder
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{constantValueToProblemMessage, exceptionNameToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -32,7 +33,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
       case transformationFailed: TransformationFailedException =>
         Log.info(errorMessage(function.name, transformationFailed.toString))
       case _: EmptyStackException => Log.info(errorMessage(function.name, "empty stack"))
-      case _ => Log.info(errorMessage(function.name, "other"))
+      case _: Exception => Log.info(errorMessage(function.name, "other"))
     }
   }
 
@@ -75,7 +76,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
       case statementAnchor: ScalaStatementAnchor =>
         val statement = statementAnchor.statement
         val message = constantValueToProblemMessage(value, getProblemTypeForStatement(statementAnchor.statement))
-        if (!shouldSuppress(statement, value)) {
+        if (!shouldSuppress(statement)) {
           problemsHolder.registerProblem(statement, message)
         }
       case _ =>
@@ -87,6 +88,9 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
       case ScalaCollectionAccessProblem(_, accessExpression, exceptionName) =>
         val message = exceptionNameToProblemMessage(exceptionName)
         problemsHolder.registerProblem(accessExpression, message)
+      case ScalaNullAccessProblem(accessExpression) =>
+        val message = exceptionNameToProblemMessage(NullPointerExceptionName)
+        problemsHolder.registerProblem(accessExpression, message)
       case _ =>
     }
   }
@@ -96,7 +100,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     case _ => ProblemHighlightType.GENERIC_ERROR_OR_WARNING
   }
 
-  private def shouldSuppress(statement: ScBlockStatement, value: DfaConstantValue): Boolean = {
+  private def shouldSuppress(statement: ScBlockStatement): Boolean = {
     val parent = findProperParent(statement)
     statement match {
       // TODO more complete implementation
