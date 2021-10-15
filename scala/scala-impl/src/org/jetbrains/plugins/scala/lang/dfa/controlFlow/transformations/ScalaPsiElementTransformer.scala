@@ -33,7 +33,7 @@ class ScalaPsiElementTransformer(val wrappedElement: ScalaPsiElement) extends Tr
   protected def transformIfPresent(container: Option[ScalaPsiElement], builder: ScalaDfaControlFlowBuilder): Unit = {
     container match {
       case Some(element) => transformPsiElement(element, builder)
-      case None => builder.pushUnknownValue()
+      case _ => builder.pushUnknownValue()
     }
   }
 }

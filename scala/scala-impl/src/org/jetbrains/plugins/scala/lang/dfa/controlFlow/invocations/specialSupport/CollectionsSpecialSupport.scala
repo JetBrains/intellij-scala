@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationIn
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.MethodEffect
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.SpecialSupportUtils.{retrieveListSize, retrieveSingleProperArgumentValue}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.dfTypeImmutableCollection
 
 //noinspection UnstableApiUsage

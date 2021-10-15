@@ -28,7 +28,7 @@ class ScalaDfaListener extends DfaListener {
                            failed: ThreeState, state: DfaMemoryState): Unit = unsatisfiedCondition match {
     case scalaProblem: ScalaDfaProblem => unsatisfiedConditions.updateWith(scalaProblem) {
       case Some(oldInfo) => Some(oldInfo.merge(failed))
-      case None => Some(failed)
+      case _ => Some(failed)
     }
     case _ =>
   }

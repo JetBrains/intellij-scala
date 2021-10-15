@@ -18,21 +18,26 @@ object ScalaDfaTypeConstants {
     case object Or extends LogicalOperation
   }
 
-  val ScalaCollection = "scala.collection"
+  final object Packages {
 
-  val ScalaCollectionImmutable = s"$ScalaCollection.immutable"
+    val ScalaNumericTypes: Seq[String] =
+      for (typeName <- List("Int", "Long", "Float", "Double"))
+        yield "scala." + typeName
 
-  val ScalaNil = "scala.Nil"
+    val ScalaBoolean = "scala.Boolean"
 
-  val BooleanTypeClass = "scala.Boolean"
+    val ScalaNil = "scala.Nil"
 
-  val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
+    val ScalaCollection = "scala.collection"
 
-  val NoSuchElementExceptionName = "java.util.NoSuchElementException"
+    val ScalaCollectionImmutable = s"$ScalaCollection.immutable"
 
-  val NumericTypeClasses: Seq[String] =
-    for (typeName <- List("Int", "Long", "Float", "Double"))
-      yield "scala." + typeName
+    val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
+
+    val NoSuchElementExceptionName = "java.util.NoSuchElementException"
+
+    val NullPointerExceptionName = "java.util.NullPointerException"
+  }
 
   val NumericOperations: Map[String, LongRangeBinOp] = Map(
     "+" -> LongRangeBinOp.PLUS,

@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Ar
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.ScalaInvocationInstruction
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.CollectionAccessAssertions.addCollectionAccessAssertions
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationInfo, InvokedElement}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
@@ -99,7 +100,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
 
   private def tryTransformNumericOperations(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                             builder: ScalaDfaControlFlowBuilder): Boolean = {
-    for (typeClass <- NumericTypeClasses; operationName <- NumericOperations.keys) {
+    for (typeClass <- ScalaNumericTypes; operationName <- NumericOperations.keys) {
       if (matchesSignature(function, operationName, typeClass)) {
         val operation = NumericOperations(operationName)
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
@@ -118,7 +119,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
   private def tryTransformRelationalExpressions(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                                 builder: ScalaDfaControlFlowBuilder): Boolean = {
     for (operationName <- RelationalOperations.keys) {
-      if (matchesSignature(function, operationName, BooleanTypeClass)) {
+      if (matchesSignature(function, operationName, ScalaBoolean)) {
         val operation = RelationalOperations(operationName)
         val forceEqualityByContent = operation == RelationType.EQ || operation == RelationType.NE
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
@@ -138,7 +139,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
   private def tryTransformLogicalOperations(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                             builder: ScalaDfaControlFlowBuilder): Boolean = {
     for (operationName <- LogicalOperations.keys) {
-      if (matchesSignature(function, operationName, BooleanTypeClass)) {
+      if (matchesSignature(function, operationName, ScalaBoolean)) {
         val operation = LogicalOperations(operationName)
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
 

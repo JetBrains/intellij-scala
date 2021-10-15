@@ -69,7 +69,7 @@ object ArgumentFactory {
         val (argsMappedToVarargParam, normalArgs) = matchedParameters.reverse.partition(_._2 == varargParam)
         val varargArgument = buildSplatListArgument(argsMappedToVarargParam.map(_._1), varargParam)
         (normalArgs, Some(varargArgument))
-      case None => (matchedParameters, None)
+      case _ => (matchedParameters, None)
     }
   }
 

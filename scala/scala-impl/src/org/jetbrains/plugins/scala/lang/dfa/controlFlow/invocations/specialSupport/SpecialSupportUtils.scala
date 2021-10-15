@@ -3,7 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupp
 import com.intellij.codeInspection.dataFlow.types.{DfIntConstantType, DfReferenceType, DfType, DfTypes}
 import com.intellij.codeInspection.dataFlow.value.DfaValue
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.ScalaCollectionImmutable
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 
 object SpecialSupportUtils {
 
@@ -18,11 +18,11 @@ object SpecialSupportUtils {
     if (dfaValue.getDfType.toString == s"$ScalaCollectionImmutable.Nil$$") {
       Some(DfTypes.intValue(0).getValue.toInt)
     } else {
-      collectionSizeFromType(dfaValue.getDfType)
+      collectionSizeFromDfType(dfaValue.getDfType)
     }
   }
 
-  private def collectionSizeFromType(dfType: DfType): Option[Int] = dfType match {
+  private def collectionSizeFromDfType(dfType: DfType): Option[Int] = dfType match {
     case referenceType: DfReferenceType => referenceType.getSpecialFieldType match {
       case intConstant: DfIntConstantType => Some(intConstant.getValue.intValue)
       case _ => None
