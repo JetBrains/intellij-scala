@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
+import java.util.EmptyStackException
 import scala.jdk.CollectionConverters._
 
 class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaElementVisitor {
@@ -28,9 +29,15 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
     try {
       function.body.foreach(executeDataFlowAnalysis)
     } catch {
-      case exception: TransformationFailedException =>
-        Log.info(s"Dataflow analysis failed for function definition $function. Reason:\n$exception")
+      case transformationFailed: TransformationFailedException =>
+        Log.info(errorMessage(function.name, transformationFailed.toString))
+      case _: EmptyStackException => Log.info(errorMessage(function.name, "empty stack"))
+      case _ => Log.info(errorMessage(function.name, "other"))
     }
+  }
+
+  private def errorMessage(functionName: String, reason: String): String = {
+    s"Dataflow analysis failed for function definition $functionName. Reason: $reason"
   }
 
   private def executeDataFlowAnalysis(body: ScBlockStatement): Unit = {
