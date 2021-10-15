@@ -183,12 +183,10 @@ object SbtUtil {
     val projectDataEither = Option(dataManager.getExternalProjectData(project, SbtProjectSystem.Id, project.getBasePath))
       .orElse {
         // in tests org.jetbrains.sbt.project.SbtProjectImportingTest `project.getBasePath` doesn't equal to actual external project data
-        // I am not sure if it's the best workaround, cause AFAIK currently we do not properly support externally-stored projects for SBT in IntelliJ
-        if (ApplicationManager.getApplication.isUnitTestMode)
-          dataManager.getExternalProjectsData(project, SbtProjectSystem.Id).asScala.toSeq match {
-            case Seq(pd) => Some(pd)
-            case _       => None
-          }
+        if (ApplicationManager.getApplication.isUnitTestMode) {
+          val externalProjectsData = dataManager.getExternalProjectsData(project, SbtProjectSystem.Id).asScala
+          externalProjectsData.find(_.getExternalProjectStructure.getData.getInternalName == project.getName)
+        }
         else None
       }
 
