@@ -1,6 +1,5 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport
 
-import com.intellij.codeInspection.dataFlow.Mutability
 import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
@@ -8,7 +7,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Ar
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.MethodEffect
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.SpecialSupportUtils.{retrieveListSize, retrieveSingleProperArgumentValue}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.dfTypeCollectionOfSize
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.dfTypeImmutableCollection
 
 //noinspection UnstableApiUsage
 object CollectionsSpecialSupport {
@@ -37,7 +36,7 @@ object CollectionsSpecialSupport {
   private def supportListFactoryApply(invocationInfo: InvocationInfo,
                                       argumentValues: Map[Argument, DfaValue]): Option[DfType] = {
     if (invocationInfo.properArguments.flatten.isEmpty) { // proper vararg argument is empty
-      Some(dfTypeCollectionOfSize(0))
+      Some(dfTypeImmutableCollection(0))
     } else retrieveSingleProperArgumentValue(invocationInfo.properArguments, argumentValues).map(_.getDfType)
   }
 
@@ -46,7 +45,6 @@ object CollectionsSpecialSupport {
     invocationInfo.thisArgument
       .flatMap(argumentValues.get)
       .flatMap(retrieveListSize)
-      .map(size => dfTypeCollectionOfSize(size + 1))
-      .map(_.meet(Mutability.UNMODIFIABLE.asDfType()))
+      .map(size => dfTypeImmutableCollection(size + 1))
   }
 }

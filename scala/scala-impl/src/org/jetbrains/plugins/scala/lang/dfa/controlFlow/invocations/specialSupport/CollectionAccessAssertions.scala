@@ -14,6 +14,8 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 object CollectionAccessAssertions {
 
+  final case class CollectionAccessAssertion(index: Transformable, exceptionName: String)
+
   def addCollectionAccessAssertions(invocationExpression: ScExpression,
                                     invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
     for (CollectionAccessAssertion(accessedIndex, exceptionName) <- findAccessAssertion(invocationInfo)) {
@@ -39,7 +41,7 @@ object CollectionAccessAssertions {
       invokedName match {
         case name if !name.startsWith(ScalaCollection) => None
         case name if name.endsWith("head") => Some(CollectionAccessAssertion(indexZero, NoSuchElementExceptionName))
-        case name if name.endsWith("LinearSeqOptimized.apply") || name.endsWith("LinearSeqOps.apply") =>
+        case name if name.endsWith("LinearSeqOptimized.apply") || name.endsWith("LinearSeqOps.apply") || name.endsWith("IterableOps.apply") =>
           singleProperArgument(properArgs).map(arg => CollectionAccessAssertion(arg.content, IndexOutOfBoundsExceptionName))
         case _ => None
       }

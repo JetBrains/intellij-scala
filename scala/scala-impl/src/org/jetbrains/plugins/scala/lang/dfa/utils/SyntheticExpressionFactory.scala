@@ -14,7 +14,7 @@ object SyntheticExpressionFactory {
   def wrapInSplatListExpression(varargContents: Seq[ScExpression])(implicit context: ProjectContext): ScExpression = {
     val tupleContentsInText = varargContents.map(_.getText).mkString(" :: ")
     if (varargContents.isEmpty) code"Nil: _*".asInstanceOf[ScExpression]
-    code"$tupleContentsInText :: Nil: _*".asInstanceOf[ScExpression]
+    else code"$tupleContentsInText :: Nil: _*".asInstanceOf[ScExpression]
   }
 
   def createIntegerLiteralExpression(value: Int)(implicit context: ProjectContext): ScExpression = {

@@ -42,11 +42,8 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
     val argumentValues = collectArgumentValuesFromStack(stateBefore)
     val methodEffect = findMethodEffect(stateBefore, argumentValues)
 
-    if (!methodEffect.isPure || JavaDfaHelpers.mayLeakFromType(methodEffect.returnValue.getDfType)) {
-      argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
-    }
-
     if (!methodEffect.isPure) {
+      argumentValues.values.foreach(JavaDfaHelpers.dropLocality(_, stateBefore))
       stateBefore.flushFields()
     }
 
@@ -110,6 +107,8 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
     val dfaCallArguments = new DfaCallArguments(thisArgumentValue, properArgumentValues.toArray, mutationSignature)
     val dfaReturnValue = Option(handler.getMethodResultValue(dfaCallArguments, stateBefore, factory, psiMethod))
 
-    MethodEffect(dfaReturnValue.getOrElse(unknownValue), mutationSignature.isPure)
+    val returnValue = dfaReturnValue.getOrElse(unknownValue)
+    val isPure = mutationSignature.isPure && !JavaDfaHelpers.mayLeakFromType(returnValue.getDfType)
+    MethodEffect(returnValue, isPure)
   }
 }

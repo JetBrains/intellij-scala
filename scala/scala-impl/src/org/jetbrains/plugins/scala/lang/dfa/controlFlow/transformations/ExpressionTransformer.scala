@@ -85,8 +85,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   }
 
   private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
-    val referencedVariableDescriptor = ScalaDfaVariableDescriptor.fromReferenceExpression(expression)
-    referencedVariableDescriptor match {
+    ScalaDfaVariableDescriptor.fromReferenceExpression(expression) match {
       case Some(descriptor) => builder.pushVariable(descriptor, expression)
       case None => builder.pushUnknownCall(expression, 0)
     }

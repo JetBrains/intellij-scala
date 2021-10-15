@@ -1,24 +1,29 @@
 package org.jetbrains.plugins.scala.lang.dfa.utils
 
 import com.intellij.codeInspection.ProblemHighlightType
-import com.intellij.codeInspection.dataFlow.TypeConstraints
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
+import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
-import org.jetbrains.plugins.scala.extensions.PsiClassExt
+import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 
+//noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
 
-  def dfTypeCollectionOfSize(size: Int): DfType = SpecialField.COLLECTION_SIZE.asDfType(DfTypes.intValue(size))
+  def dfTypeImmutableCollection(size: Int): DfType = {
+    SpecialField.COLLECTION_SIZE.asDfType(DfTypes.intValue(size))
+      .meet(Mutability.UNMODIFIABLE.asDfType())
+  }
 
   def literalToDfType(literal: ScLiteral): DfType = literal match {
     case _: ScNullLiteral => DfTypes.NULL
@@ -57,7 +62,7 @@ object ScalaDfaTypeUtils {
   //noinspection UnstableApiUsage
   def scTypeToDfType(scType: ScType): DfType = scType.extractClass match {
     case Some(psiClass) if psiClass.qualifiedName.startsWith(s"$ScalaCollectionImmutable.Nil") =>
-      dfTypeCollectionOfSize(0)
+      dfTypeImmutableCollection(0)
     case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
     case Some(psiClass) => psiClass.qualifiedName match {
       case "scala.Int" => DfTypes.INT
@@ -74,6 +79,7 @@ object ScalaDfaTypeUtils {
   }
 
   def isStableElement(element: PsiNamedElement): Boolean = element match {
+    case valueOrVariable: ScValueOrVariable => valueOrVariable.isStable
     case typedDefinition: ScTypedDefinition => typedDefinition.isStable
     case _ => false
   }
