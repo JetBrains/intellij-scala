@@ -11,7 +11,7 @@ import org.junit.Assert.assertTrue
 
 abstract class ScalaDfaControlFlowBuilderTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
 
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ScalaDfaControlFlowBuilder])
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[ScalaDfaControlFlowBuilderTestBase])
 
   protected def codeFromMethodBody(returnType: String)(body: String): String = defaultCodeTemplate(returnType)(body)
 

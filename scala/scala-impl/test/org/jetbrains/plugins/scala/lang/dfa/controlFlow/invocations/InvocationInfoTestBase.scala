@@ -12,7 +12,7 @@ import org.junit.Assert.assertTrue
 
 abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAdapter with AssertionMatchers {
 
-  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[InvocationInfo])
+  override protected def sharedProjectToken: SharedTestProjectToken = SharedTestProjectToken(classOf[InvocationInfoTestBase])
 
   protected def markerStart: String = MarkersUtils.start()
 
