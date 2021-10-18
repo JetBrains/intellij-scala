@@ -1,3 +1,3 @@
 package package1.package2
 
-trait Flat
+trait Prefix
