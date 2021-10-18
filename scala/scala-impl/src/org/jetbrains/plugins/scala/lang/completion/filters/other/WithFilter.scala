@@ -38,6 +38,8 @@ class WithFilter extends ElementFilter {
           leaf1.getTextRange.getEndOffset != leaf.getTextRange.getStartOffset) leaf1 = null
         leaf1 match {
           case null =>
+          case g: ScGivenDefinition =>
+            return checkGivenWith(g, "with { ??? }")
           case x: ScTypeDefinition =>
             return checkClassWith(x, "with A", x.getManager)
         }

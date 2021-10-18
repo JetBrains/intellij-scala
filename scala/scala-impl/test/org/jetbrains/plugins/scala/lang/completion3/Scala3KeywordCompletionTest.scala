@@ -1471,4 +1471,54 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "given"
   )
 
+  /// given - WITH
+
+  def testWithOnGiven(): Unit = doCompletionTest(
+    fileText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |
+         |given intOrd: Ord[Int] w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |
+         |given intOrd: Ord[Int] with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithOnAnonymousGiven(): Unit = doCompletionTest(
+    fileText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |
+         |given Ord[Int] w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |
+         |given Ord[Int] with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
+  def testWithOnGenericAnonymousGivenWithDependencies(): Unit = doCompletionTest(
+    fileText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |
+         |given [T](using Ord[T]): Ord[List[T]] w$CARET
+         |""".stripMargin,
+    resultText =
+      s"""trait Ord[T]:
+         |  def compare(x: T, y: T): Int
+         |
+         |given [T](using Ord[T]): Ord[List[T]] with $CARET
+         |""".stripMargin,
+    item = "with"
+  )
+
 }

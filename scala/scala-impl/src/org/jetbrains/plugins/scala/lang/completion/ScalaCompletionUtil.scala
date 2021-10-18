@@ -22,7 +22,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScTypeElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.templates._
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScMember, ScObject, ScTemplateDefinition, ScTypeDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef._
 import org.jetbrains.plugins.scala.lang.psi.stubs.util.ScalaInheritors
 import org.jetbrains.plugins.scala.macroAnnotations.CachedInUserData
 
@@ -148,6 +148,13 @@ object ScalaCompletionUtil {
     val text = replaceDummy(classText + " " + additionText)
 
     checkWith(manager.getProject, text)
+  }
+
+  def checkGivenWith(definition: ScGivenDefinition, additionText: String): Boolean = {
+    val language = if (definition.isInScala3File) Scala3Language.INSTANCE else ScalaLanguage.INSTANCE
+    val fileText = replaceDummy(definition.getText + " " + additionText)
+
+    checkWith(definition.getProject, fileText, language)
   }
 
   def checkElseWith(text: String, context: PsiElement): Boolean = {
