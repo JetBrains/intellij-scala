@@ -1026,6 +1026,31 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "using"
   )
 
+  def testUsingInGiven(): Unit = doCompletionTest(
+    fileText = s"given foo(u$CARET)",
+    resultText = s"given foo(using $CARET)",
+    item = "using"
+  )
+
+  def testUsingInAnonymousGiven(): Unit = doCompletionTest(
+    fileText = s"given (u$CARET)",
+    resultText = s"given (using $CARET)",
+    item = "using"
+  )
+
+  def testUsingInGenericGiven(): Unit = doCompletionTest(
+    fileText = s"given foo[T](u$CARET)",
+    resultText = s"given foo[T](using $CARET)",
+    item = "using"
+  )
+
+  // TODO: implement this (SCL-19010)
+//  def testUsingInAnonymousGenericGiven(): Unit = doCompletionTest(
+//    fileText = s"given [T](u$CARET)",
+//    resultText = s"given [T](using $CARET)",
+//    item = "using"
+//  )
+
   /// GIVEN
 
   def testGivenTopLevel(): Unit = doCompletionTest(
