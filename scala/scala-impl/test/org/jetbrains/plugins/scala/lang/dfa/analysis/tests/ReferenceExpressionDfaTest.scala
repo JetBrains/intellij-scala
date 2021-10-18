@@ -34,4 +34,23 @@ class ReferenceExpressionDfaTest extends ScalaDfaTestBase {
     "p1.age >= 20" -> ConditionAlwaysTrue,
     "p1.grades(5)" -> InvocationIndexOutOfBounds
   )
+
+  def testAccessingRegularClassParameters(): Unit = test {
+    """
+      |object Test {
+      |  class Person(val age: Int, val grades: List[Int])
+      |
+      |  def main(p2: Person): Int = {
+      |    val grades = List(3, 4, 1)
+      |    val p1 = new Person(22, grades)
+      |    p1 == p2 // test if p1 is not assigned with a wrong type
+      |    p1.age >= 20
+      |    p1.grades(5)
+      |  }
+      |}
+      |""".stripMargin
+  }(
+    "p1.age >= 20" -> ConditionAlwaysTrue,
+    "p1.grades(5)" -> InvocationIndexOutOfBounds
+  )
 }

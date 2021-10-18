@@ -28,6 +28,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case ifExpression: ScIf => transformIfExpression(ifExpression, builder)
     case reference: ScReferenceExpression => transformReference(reference, builder)
     case typedExpression: ScTypedExpression => transformTypedExpression(typedExpression, builder)
+    case newTemplateDefinition: ScNewTemplateDefinition => transformNewTemplateDefinition(newTemplateDefinition, builder)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
@@ -111,5 +112,10 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
 
   private def transformTypedExpression(typedExpression: ScTypedExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
     transformExpression(typedExpression.expr, builder)
+  }
+
+  private def transformNewTemplateDefinition(newTemplateDefinition: ScNewTemplateDefinition,
+                                             builder: ScalaDfaControlFlowBuilder): Unit = {
+    new InvocationTransformer(newTemplateDefinition).transform(builder)
   }
 }

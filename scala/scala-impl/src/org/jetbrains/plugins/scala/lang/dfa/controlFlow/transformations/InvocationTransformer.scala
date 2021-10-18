@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationI
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.extractExpressionFromArgument
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
 class InvocationTransformer(val wrappedInvocation: ScExpression)
@@ -29,6 +29,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
       case methodCall: ScMethodCall => InvocationInfo.fromMethodCall(methodCall)
       case methodInvocation: MethodInvocation => List(InvocationInfo.fromMethodInvocation(methodInvocation))
       case referenceExpression: ScReferenceExpression => List(InvocationInfo.fromReferenceExpression(referenceExpression))
+      case constructorInvocation: ScNewTemplateDefinition => List(InvocationInfo.fromConstructorInvocation(constructorInvocation))
       case _ => throw TransformationFailedException(wrappedInvocation,
         "Expression of this type cannot be transformed as an invocation.")
     }

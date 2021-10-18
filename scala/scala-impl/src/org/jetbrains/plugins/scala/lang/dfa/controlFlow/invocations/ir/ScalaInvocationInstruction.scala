@@ -91,13 +91,16 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
       .map(element => scTypeToDfType(element.returnType))
       .getOrElse(DfType.TOP)
 
-    findSpecialSupportForClasses(invocationInfo, argumentValues)
-      .foreach(assignClassParameterValues(_, interpreter, stateBefore))
-
-    findSpecialSupportForCollections(invocationInfo, argumentValues) match {
-      case Some(methodEffect) => val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
+    findSpecialSupportForClasses(invocationInfo, argumentValues) match {
+      case Some((classParamValues, methodEffect)) =>
+        assignClassParameterValues(classParamValues, interpreter, stateBefore)
+        val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
         methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
-      case _ => MethodEffect(factory.fromDfType(returnType), isPure = false)
+      case _ => findSpecialSupportForCollections(invocationInfo, argumentValues) match {
+        case Some(methodEffect) => val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
+          methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
+        case _ => MethodEffect(factory.fromDfType(returnType), isPure = false)
+      }
     }
   }
 

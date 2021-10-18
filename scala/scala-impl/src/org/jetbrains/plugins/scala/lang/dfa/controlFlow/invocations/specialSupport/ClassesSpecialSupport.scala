@@ -1,23 +1,34 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport
 
+import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.ProperArgument
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.MethodEffect
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.SpecialSupportUtils.{containingScalaClass, containingScalaObject, isPsiClassCase, scalaClass}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages.Apply
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{containingScalaObject, isPsiClassCase, scalaClass}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 
 object ClassesSpecialSupport {
 
   def findSpecialSupportForClasses(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue])
-                                  (implicit factory: DfaValueFactory): Option[Map[ScClassParameter, DfaValue]] = {
-    for {
+                                  (implicit factory: DfaValueFactory): Option[(Map[ScClassParameter, DfaValue], MethodEffect)] = {
+    val caseClassInfo = for {
       caseClass <- findReturnedCaseClassIfFactoryApplyCall(invocationInfo)
       classParamValues <- mapArgumentValuesToClassParameters(argumentValues, caseClass.parameters)
-    } yield classParamValues
+    } yield (classParamValues, MethodEffect(factory.fromDfType(DfType.TOP), isPure = true))
+
+    val regularClassInfo = for {
+      regularClass <- findReturnedClassIfConstructorCall(invocationInfo)
+      classParamValues <- mapArgumentValuesToClassParameters(argumentValues, regularClass.parameters)
+      returnType = scTypeToDfType(regularClass.`type`().getOrAny)
+    } yield (classParamValues, MethodEffect(factory.fromDfType(returnType), isPure = false))
+
+    caseClassInfo.orElse(regularClassInfo)
   }
 
   private def findReturnedCaseClassIfFactoryApplyCall(invocationInfo: InvocationInfo): Option[ScClass] = for {
@@ -29,6 +40,14 @@ object ClassesSpecialSupport {
     containingObject <- containingScalaObject(invokedElement.psiElement)
     if containingObject.isSynthetic && containingObject.name == returnedClass.name
   } yield returnedClass
+
+  private def findReturnedClassIfConstructorCall(invocationInfo: InvocationInfo): Option[ScClass] = for {
+    invokedElement <- invocationInfo.invokedElement
+    invokedName <- invokedElement.simpleName
+    containingClass <- containingScalaClass(invokedElement.psiElement)
+    if containingClass.parameters.size == invocationInfo.properArguments.flatten.size
+    if invokedName == containingClass.name
+  } yield containingClass
 
   private def mapArgumentValuesToClassParameters(argumentValues: Map[Argument, DfaValue],
                                                  classParameters: Seq[ScClassParameter]): Option[Map[ScClassParameter, DfaValue]] = {

@@ -5,18 +5,21 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.psi.{PsiElement, PsiFile}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScExpression, ScNewTemplateDefinition, ScReferenceExpression}
 
 import scala.reflect.ClassTag
 
 object InvocationExtractors {
 
-  def extractInvocationUnderMarker(file: PsiFile, ranges: Seq[TextRange]): ScExpression = {
+  def extractInvocationUnderMarker(file: PsiFile, ranges: Seq[TextRange]): ScalaPsiElement = {
     val methodInvocationUnderMarker = extractElementOfType[MethodInvocation](file, ranges)
     val referenceExpressionUnderMarker = extractElementOfType[ScReferenceExpression](file, ranges)
+    val constructorInvocationUnderMarker = extractElementOfType[ScNewTemplateDefinition](file, ranges)
 
     Option(methodInvocationUnderMarker)
       .orElse(Option(referenceExpressionUnderMarker))
+      .orElse(Option(constructorInvocationUnderMarker))
       .getOrElse(throw new IllegalArgumentException("There is no invocation under the marker"))
   }
 

@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Ar
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassByValue, ProperArgument, ThisArgument}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ArgumentFactory.{buildAllArguments, insertThisArgToArgList}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.ParamToArgMapping.generateParamToArgMapping
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 
 /**
  * An abstraction to represent all possible Scala invocations in a standardized, convenient, syntax-agnostic way.
@@ -77,5 +77,21 @@ object InvocationInfo {
       referenceExpression, isTupled = false).headOption.getOrElse(Nil)
 
     InvocationInfo(InvokedElement.fromTarget(target, Nil), List(thisArgument :: properArguments))
+  }
+
+  def fromConstructorInvocation(newTemplateDefinition: ScNewTemplateDefinition): InvocationInfo = {
+    val invocationInfo = newTemplateDefinition.constructorInvocation.map { constructorInvocation =>
+      val target = constructorInvocation.reference.flatMap(_.bind())
+      val isTupled = target.exists(_.tuplingUsed)
+
+      val thisArgument = Argument.fromExpression(None, ThisArgument, PassByValue)
+      val properArguments = buildAllArguments(List(constructorInvocation.matchedParameters),
+        constructorInvocation.arguments.map(_.exprs), newTemplateDefinition, isTupled)
+      val allArguments = (thisArgument :: properArguments.head) :: properArguments.tail
+
+      InvocationInfo(InvokedElement.fromTarget(target, Nil), allArguments)
+    }
+
+    invocationInfo.getOrElse(InvocationInfo(None, Nil))
   }
 }

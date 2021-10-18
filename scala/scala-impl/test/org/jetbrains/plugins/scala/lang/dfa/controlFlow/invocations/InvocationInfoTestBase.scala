@@ -6,7 +6,7 @@ import org.jetbrains.plugins.scala.extensions.ObjectExt
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationExtractors.{extractExpressionFromArgument, extractInvocationUnderMarker}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.{PassingMechanism, ProperArgument, ThisArgument}
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScReferenceExpression}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScMethodCall, ScNewTemplateDefinition, ScReferenceExpression}
 import org.jetbrains.plugins.scala.util.MarkersUtils
 import org.junit.Assert.assertTrue
 
@@ -28,6 +28,7 @@ abstract class InvocationInfoTestBase extends ScalaLightCodeInsightFixtureTestAd
         invocationsInfo.head
       case methodInvocation: MethodInvocation => InvocationInfo.fromMethodInvocation(methodInvocation)
       case referenceExpression: ScReferenceExpression => InvocationInfo.fromReferenceExpression(referenceExpression)
+      case newTemplateDefinition: ScNewTemplateDefinition => InvocationInfo.fromConstructorInvocation(newTemplateDefinition)
     }
   }
 
