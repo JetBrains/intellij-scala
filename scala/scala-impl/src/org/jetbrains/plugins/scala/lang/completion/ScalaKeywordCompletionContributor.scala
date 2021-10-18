@@ -48,6 +48,7 @@ final class ScalaKeywordCompletionContributor extends ScalaCompletionContributor
   registerStandardCompletion(new modifiers.ImplicitFilter, IMPLICIT)
   registerStandardCompletion(new modifiers.InlineFilter, INLINE)
   registerStandardCompletion(new modifiers.UsingFilter, USING)
+  registerStandardCompletion(new modifiers.GivenFilter, GIVEN)
   registerStandardCompletion(new modifiers.CaseFilter, CASE)
   registerStandardCompletion(new toplevel.ExtensionFilter, EXTENSION)
   registerStandardCompletion(new toplevel.ImportFilter, IMPORT)

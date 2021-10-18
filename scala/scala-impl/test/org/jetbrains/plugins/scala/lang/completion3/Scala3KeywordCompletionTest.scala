@@ -1026,4 +1026,449 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "using"
   )
 
+  /// GIVEN
+
+  def testGivenTopLevel(): Unit = doCompletionTest(
+    fileText = s"g$CARET",
+    resultText = s"given $CARET",
+    item = "given"
+  )
+
+  def testGivenInsideObject(): Unit = doCompletionTest(
+    fileText =
+      s"""object O:
+         |  g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |  given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testGivenAfterHardModifier(): Unit = doCompletionTest(
+    fileText = s"private g$CARET",
+    resultText = s"private given $CARET",
+    item = "given"
+  )
+
+  def testGivenAfterSoftModifier(): Unit = doCompletionTest(
+    fileText = s"transparent inline g$CARET",
+    resultText = s"transparent inline given $CARET",
+    item = "given"
+  )
+
+  def testNoCompletionHardModifierAfterGiven(): Unit = checkNoBasicCompletion(
+    fileText = s"given pr$CARET",
+    item = "private"
+  )
+
+  /// pattern-bound GIVEN
+
+  def testPatternBoundGivenInForOneLine(): Unit = doCompletionTest(
+    fileText = s"for g$CARET",
+    resultText = s"for given $CARET",
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForBeforeAnotherStatement(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  g$CARET
+         |
+         |println()""".stripMargin,
+    resultText =
+      s"""for
+         |  given $CARET
+         |
+         |println()""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForMultiline(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForAfterGenerator(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 2
+         |  g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 2
+         |  given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForBetweenGeneratorAndBinding(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 2
+         |  g$CARET
+         |  y = 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 2
+         |  given $CARET
+         |  y = 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForBetweenGenerators(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 2
+         |  g$CARET
+         |  y <- 5 to 7
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 2
+         |  given $CARET
+         |  y <- 5 to 7
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForBeforeBinding(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  g$CARET
+         |  y = 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  given $CARET
+         |  y = 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForBeforeGenerator(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  g$CARET
+         |  y <- 5 to 7
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  given $CARET
+         |  y <- 5 to 7
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForInSimpleNamedPattern(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  foo @ g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  foo @ given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForInSimpleNamedPatternAfterGenerator(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForInSimpleNamedPatternAfterGeneratorBeforeAnotherStatement(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ g$CARET
+         |
+         |println()
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ given $CARET
+         |
+         |println()
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForInSimpleNamedPatternBeforeGenerator(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  foo @ g$CARET
+         |  x <- 1 to 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  foo @ given $CARET
+         |  x <- 1 to 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForInSimpleNamedPatternBeforeBinding(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  foo @ g$CARET
+         |  x = 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  foo @ given $CARET
+         |  x = 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForInSimpleNamedPatternBetweenGenerators(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ g$CARET
+         |  y <- 1 to 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ given $CARET
+         |  y <- 1 to 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForInSimpleNamedPatternBetweenGeneratorAndBinding(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ g$CARET
+         |  y = 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 5
+         |  foo @ given $CARET
+         |  y = 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForTuple(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  (42, g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  (42, given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForTupleAfterGenerator(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 5
+         |  (42, g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 5
+         |  (42, given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForTupleBeforeGenerator(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  (42, g$CARET
+         |  x <- 1 to 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  (42, given $CARET
+         |  x <- 1 to 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForTupleBeforeBinding(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  (42, g$CARET
+         |  x = 5
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  (42, given $CARET
+         |  x = 5
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForNamedPatternInTupleAfterGenerator(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 5
+         |  (42, foo @ g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 5
+         |  (42, foo @ given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInForNamedPatternInTupleAfterGeneratorBeforeAnotherStatement(): Unit = doCompletionTest(
+    fileText =
+      s"""for
+         |  x <- 1 to 5
+         |  (42, foo @ g$CARET
+         |
+         |println()
+         |""".stripMargin,
+    resultText =
+      s"""for
+         |  x <- 1 to 5
+         |  (42, foo @ given $CARET
+         |
+         |println()
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMatch(): Unit = doCompletionTest(
+    fileText =
+      s""""foo" match
+         |  case g$CARET
+         |""".stripMargin,
+    resultText =
+      s""""foo" match
+         |  case given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMatchWithBraces(): Unit = doCompletionTest(
+    fileText =
+      s""""foo" match {
+         |  case g$CARET
+         |}
+         |""".stripMargin,
+    resultText =
+      s""""foo" match {
+         |  case given $CARET
+         |}
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMatchSimpleNamedPattern(): Unit = doCompletionTest(
+    fileText =
+      s""""foo" match
+         |  case foo @ g$CARET
+         |""".stripMargin,
+    resultText =
+      s""""foo" match
+         |  case foo @ given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMatchInTuple(): Unit = doCompletionTest(
+    fileText =
+      s"""(7, "foo") match
+         |  case (_, g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""(7, "foo") match
+         |  case (_, given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMatchNamedPatternInTuple(): Unit = doCompletionTest(
+    fileText =
+      s"""(7, "foo") match
+         |  case (_, foo @ g$CARET
+         |""".stripMargin,
+    resultText =
+      s"""(7, "foo") match
+         |  case (_, foo @ given $CARET
+         |""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMap(): Unit = doCompletionTest(
+    fileText =
+      s"""(1 to 5) map {
+         |  case g$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""(1 to 5) map {
+         |  case given $CARET
+         |}""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMapSimpleNamedPattern(): Unit = doCompletionTest(
+    fileText =
+      s"""(1 to 5) map {
+         |  case foo @ g$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""(1 to 5) map {
+         |  case foo @ given $CARET
+         |}""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMapInTuple(): Unit = doCompletionTest(
+    fileText =
+      s"""List((1, "foo"), (2, "bar")) map {
+         |  case (i, g$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""List((1, "foo"), (2, "bar")) map {
+         |  case (i, given $CARET
+         |}""".stripMargin,
+    item = "given"
+  )
+
+  def testPatternBoundGivenInMapNamedPatternInTuple(): Unit = doCompletionTest(
+    fileText =
+      s"""List((1, "foo"), (2, "bar")) map {
+         |  case (i, str @ g$CARET
+         |}""".stripMargin,
+    resultText =
+      s"""List((1, "foo"), (2, "bar")) map {
+         |  case (i, str @ given $CARET
+         |}""".stripMargin,
+    item = "given"
+  )
+
 }
