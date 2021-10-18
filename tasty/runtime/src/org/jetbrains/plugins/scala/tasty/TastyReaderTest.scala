@@ -17,13 +17,13 @@ import scala.collection.mutable
 // match types
 // super
 // annotation: parameter, type, string, array
+// quoted identifiers
 // TODO Nothing -> Any when for parameter (variance)
 // TODO type trees
 // TODO different name kinds, FQN
 // TODO symbol names `foo`
 // TODO val a, b; val (a, b)
 // TODO transparent inline def quotes in the same file
-// TODO normal package object
 //
 // TODO refactor code
 // TODO StringBuilder

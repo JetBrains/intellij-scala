@@ -19,20 +19,19 @@ object TreePrinter {
       (typedef.nextSibling.exists(isImplicitConversion) || typedef.nextSibling.exists(_.nextSibling.exists(_.nextSibling.exists(isImplicitConversion))))
   }
 
-  extension (nodes: Seq[Node]) {
-    def withoutImports: Seq[Node] = nodes.filterNot(_.tag == IMPORT)
-  }
-
   def textOf(node: Node, definition: Option[Node] = None)(using privateMembers: Boolean = false): String = node match { // TODO settings
-    case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) => children.withoutImports match {
+    case Node(PACKAGE, _, Seq(Node(TERMREFpkg, Seq(name), _), children: _*)) => children.filterNot(_.tag == IMPORT) match {
       case Seq(node @ Node(PACKAGE, _, _), _: _*) => textOf(node)
       case children =>
-        (if (name == "<empty>") "" else ("package " + name + "\n\n")) + (children match {
-          case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*)
-            if (name1.endsWith("$package") && name2.endsWith("$package$")) || (name1 == "package" && name2 == "package$") => // TODO use name type, not contents
+        val containsPackageObject = children match {
+          case Seq(Node(VALDEF, Seq("package"), _: _*), Node(TYPEDEF, Seq("package$"), _), _: _*) => true // TODO use name type, not contents
+          case _ => false
+        }
+        (if (name == "<empty>") "" else ("package " + (if (containsPackageObject) name.split('.').init.mkString(".") else name) + "\n\n")) + (children match {
+          case Seq(Node(VALDEF, Seq(name1), _: _*), Node(TYPEDEF, Seq(name2), Seq(template, _: _*)), _: _*) if (name1.endsWith("$package") && name2.endsWith("$package$")) => // TODO use name type, not contents
             template.children.filter(it => it.is(DEFDEF, VALDEF, TYPEDEF) && it.names != Seq("<init>")).map(textOf(_)).filter(_.nonEmpty).mkString("\n\n")
           case _ =>
-            children.map(textOf(_)).filter(_.nonEmpty).mkString("\n\n")
+            children.map(textOf(_, if (containsPackageObject) Some(node) else None)).filter(_.nonEmpty).mkString("\n\n")
         })
     }
 
@@ -45,13 +44,15 @@ object TreePrinter {
       val isGivenImplicitClass = isGivenImplicitClass0(node)
       val isTypeMember = !template.is(TEMPLATE)
       val isAnonymousGiven = (isGivenObject || isGivenImplicitClass) && name.startsWith("given_") // TODO common method
+      val isPackageObject = isObject && definition.exists(_.is(PACKAGE))
       val keyword =
         if (isEnum) (if (node.hasFlag(CASE)) "case " else "enum ")
-        else if (isObject) (if (isGivenObject) "" else "object ")
+        else if (isObject) (if (isGivenObject) "" else (if (isPackageObject) "package object " else "object "))
         else if (node.hasFlag(TRAIT)) "trait "
         else if (isTypeMember) "type "
         else if (isGivenImplicitClass) "given " else "class "
-      val identifier = if (isObject) node.previousSibling.fold(name)(_.name) else name // TODO check type
+      val identifier = if (isPackageObject) definition.get.children.headOption.flatMap(_.name.split('.').lastOption).getOrElse("") // TODO check
+        else (if (isObject) node.previousSibling.fold(name)(_.name) else name) // TODO check type
       val modifiers = modifiersIn(if (isObject) node.previousSibling.getOrElse(node) else node,
         if (isGivenImplicitClass) Set(GIVEN) else (if (isEnum) Set(ABSTRACT, SEALED, CASE, FINAL) else (if (isTypeMember) Set.empty else Set(OPAQUE))), isParameter = false) + (if (isImplicitClass) "implicit " else "")
       textOfAnnotationIn(node) +
@@ -139,18 +140,14 @@ object TreePrinter {
     if (s4.nonEmpty) s4 else "Nothing" // TODO Remove when all types are supported
   }
 
-  private def textOfTypeWithQual(qual: Node, name: String): String =
-    if (name.endsWith("$package") || name.endsWith("$package$")) textOfType(qual)
-    else textOfType(qual) + "." + name
-
   private def textOfType(node: Node, parensRequired: Boolean = false): String = node match { // TODO proper settings
     case Node(IDENTtpt, _, Seq(tail)) => textOfType(tail)
     case Node(SINGLETONtpt, _, Seq(tail)) =>
       val literal = textOfConstant(tail)
       if (literal.nonEmpty) literal else textOfType(tail) + ".type"
     case const @ Node(UNITconst | TRUEconst | FALSEconst | BYTEconst | SHORTconst | INTconst | LONGconst | FLOATconst | DOUBLEconst | CHARconst | STRINGconst | NULLconst, _, _: _*) => textOfConstant(const)
-    case Node(TYPEREF, Seq(name), Seq(tail)) => textOfTypeWithQual(tail, name)
-    case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfTypeWithQual(tail, name) // TODO why there's "package" in rare cases?
+    case Node(TYPEREF, Seq(name), Seq(tail)) => textOfType(tail) + "." + name
+    case Node(TERMREF, Seq(name), Seq(tail)) => if (name == "package") textOfType(tail) else textOfType(tail) + "." + name // TODO why there's "package" in rare cases?
     case Node(THIS, _, _) => "this" // TODO prefix
     case Node(TYPEREFsymbol | TYPEREFdirect | TERMREFsymbol | TERMREFdirect, _, _) => node.refName.getOrElse("") // TODO
     case Node(SELECTtpt | SELECT, Seq(name), Seq(tail)) =>
