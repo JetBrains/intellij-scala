@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.testdata
 
-import java.{util => ju}
-
 import com.intellij.execution.configurations.RuntimeConfigurationException
 import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExternalizablePath, ShortenCommandLine}
 import com.intellij.openapi.module.Module
@@ -9,6 +7,7 @@ import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.util.xmlb.{Accessor, XmlSerializer}
 import org.apache.commons.lang3.StringUtils
 import org.jdom.Element
+import org.jetbrains.jps.model.serialization.PathMacroUtil
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.project.ProjectExt
 import org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider
@@ -16,7 +15,8 @@ import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationFo
 import org.jetbrains.plugins.scala.testingSupport.test.{AbstractTestRunConfiguration, SearchForTest, TestKind, exceptions}
 import org.jetbrains.plugins.scala.util.JdomExternalizerMigrationHelper
 
-import scala.beans.BeanProperty
+import java.{util => ju}
+import scala.beans.{BeanProperty, BooleanBeanProperty}
 import scala.jdk.CollectionConverters._
 
 /**
@@ -59,6 +59,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     setWorkingDirectory(form.getWorkingDirectory)
     setShortenClasspath(form.getShortenCommandLine)
     envs = form.getEnvironmentVariables
+    setPassParentEnvs(form.isPassParentEnvs)
   }
 
   final def copyCommonFieldsFrom(other: TestConfigurationData): Unit = {
@@ -72,6 +73,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
     setWorkingDirectory(other.getWorkingDirectory)
     setShortenClasspath(other.shortenClasspath)
     envs = new java.util.HashMap(other.envs)
+    setPassParentEnvs(other.passParentEnvs)
   }
 
   /** NOTE: overridden implementations must call super method */
@@ -113,9 +115,9 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   @BeanProperty var envs                : java.util.Map[String, String] = new java.util.HashMap[String, String]()
   @BeanProperty var shortenClasspath    : ShortenCommandLine            = null // null is valid value, see ConfigurationWithCommandLineShortener doc
 
-  private var _passParentEnvs: Boolean = false // TODO: use
+  @BooleanBeanProperty var passParentEnvs: Boolean = false
 
-  private var workingDirectory: String     = ""
+  private var workingDirectory: String     = "$" + PathMacroUtil.PROJECT_DIR_MACRO_NAME + "$"
   def setWorkingDirectory(s: String): Unit = workingDirectory = ExternalizablePath.urlValue(s)
   def getWorkingDirectory: String          = ExternalizablePath.localPathValue(workingDirectory)
 
@@ -135,8 +137,6 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
 
   override def setProgramParameters(value: String): Unit = testArgs = value
   override def getProgramParameters: String = testArgs
-  override def setPassParentEnvs(passParentEnvs: Boolean): Unit = _passParentEnvs = passParentEnvs
-  override def isPassParentEnvs: Boolean = _passParentEnvs
 }
 
 object TestConfigurationData {

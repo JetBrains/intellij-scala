@@ -1,8 +1,5 @@
 package org.jetbrains.plugins.scala.testingSupport.test.ui
 
-import java.awt._
-import java.util
-
 import com.intellij.application.options.ModuleDescriptionsComboBox
 import com.intellij.execution.configuration.BrowseModuleValueActionListener
 import com.intellij.execution.ui._
@@ -17,10 +14,9 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.ui.{EditorTextField, EditorTextFieldWithBrowseButton, EnumComboBoxModel, IdeBorderFactory}
 import com.intellij.uiDesigner.core.{GridConstraints, Spacer}
 import com.intellij.util.ui.JBUI
-import javax.swing._
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.ScalaBundle
-import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
+import org.jetbrains.plugins.scala.extensions.IteratorExt
 import org.jetbrains.plugins.scala.lang.psi.ScalaPsiUtil
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.settings.SimpleMappingListCellRenderer
@@ -30,6 +26,9 @@ import org.jetbrains.plugins.scala.testingSupport.test.ui.TestRunConfigurationFo
 import org.jetbrains.plugins.scala.util.ui.TextWithMnemonic.AbstractButtonExt
 import org.jetbrains.sbt.settings.SbtSettings
 
+import java.awt._
+import java.util
+import javax.swing._
 import scala.jdk.CollectionConverters._
 
 //noinspection ConvertNullInitializerToUnderscore
@@ -117,6 +116,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
     resetSbtOptionsFrom(configuration)
 
     myCommonScalaParameters.reset(configurationData)
+    myCommonScalaParameters.setModuleContext(configuration.getModule)
     myModuleSelector.reset(configuration)
     myJrePathEditor.setPathOrName(configurationData.jrePath, true)
     setShortenCommandLine(configuration.getShortenCommandLine)
@@ -153,6 +153,7 @@ final class TestRunConfigurationForm(val myProject: Project) {
   def getUseUiWithSbt: Boolean = myUseUiWithSbt.isSelected
   def getJavaOptions: String = myCommonScalaParameters.getVMParameters
   def getEnvironmentVariables: util.Map[String, String] = myCommonScalaParameters.getEnvironmentVariables
+  def isPassParentEnvs: Boolean = myCommonScalaParameters.isPassParentEnvs
   def getWorkingDirectory: String = myCommonScalaParameters.getWorkingDirectoryAccessor.getText
   def getTestArgs: String = myCommonScalaParameters.getProgramParameters
   def getShowProgressMessages: Boolean = myShowProgressMessagesCheckBox.isSelected

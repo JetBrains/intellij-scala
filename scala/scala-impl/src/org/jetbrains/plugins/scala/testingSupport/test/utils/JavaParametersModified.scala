@@ -22,7 +22,7 @@ private[test] class JavaParametersModified extends JavaParameters {
   import JavaParameters._
 
   /**
-   * copied from [[com.intellij.execution.configurations.JavaParameters]]
+   * copied from [[com.intellij.execution.configurations.JavaParameters.configureByProject]]
    * modified to include non-build modules classpath only
    */
   override def configureByProject(project: Project, classPathType: Int, jdk: Sdk): Unit = {

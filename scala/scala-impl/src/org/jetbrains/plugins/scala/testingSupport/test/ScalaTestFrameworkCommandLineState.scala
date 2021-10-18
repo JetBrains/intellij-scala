@@ -3,13 +3,12 @@ package org.jetbrains.plugins.scala.testingSupport.test
 import com.intellij.execution.configurations.{JavaCommandLineState, JavaParameters, ParametersList}
 import com.intellij.execution.runners.{ExecutionEnvironment, ProgramRunner}
 import com.intellij.execution.testframework.sm.SMTestRunnerConnectionUtil
-import com.intellij.execution.{ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
-import com.intellij.openapi.components.PathMacroManager
-import com.intellij.openapi.module.Module
+import com.intellij.execution.{CommonProgramRunConfigurationParameters, ExecutionResult, Executor, JavaRunConfigurationExtensionManager, ShortenCommandLine}
 import com.intellij.openapi.projectRoots.{ProjectJdkTable, Sdk}
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.newvfs.ManagingFS
 import com.intellij.openapi.vfs.newvfs.persistent.PersistentFSImpl
+import com.intellij.util.EnvironmentUtil
 import org.apache.commons.lang3.StringUtils
 import org.jetbrains.annotations.ApiStatus
 import org.jetbrains.plugins.scala.extensions.{IteratorExt, ObjectExt}
@@ -45,14 +44,11 @@ class ScalaTestFrameworkCommandLineState(
 
     params.setCharset(null)
 
-    val envs = new ju.HashMap[String, String](testConfigurationData.envs)
-    params.setEnv(envs)
+    val envs: Map[String, String] = VariablesExpander.getEnvVariablesExpanded(testConfigurationData)
+    params.setEnv(envs.asJava)
+    params.setPassParentEnvs(testConfigurationData.isPassParentEnvs)
 
-    val vmParams = {
-      val params0 = testConfigurationData.javaOptions
-      val params1 = expandPath(params0)
-      expandEnvs(params1, envs.asScala)
-    }
+    val vmParams: String = VariablesExpander.expandVmOptions(testConfigurationData.javaOptions, envs)
     params.getVMParametersList.addParametersString(vmParams)
 
     // automatically fiters non-applicable extensions
@@ -63,8 +59,8 @@ class ScalaTestFrameworkCommandLineState(
       params.getVMParametersList.addParametersString(s"-agentlib:jdwp=transport=dt_socket,server=y,suspend=$suspend,address=5009")
     }
 
-    val workingDir = testConfigurationData.getWorkingDirectory
-    params.setWorkingDirectory(expandPath(workingDir))
+    val workingDirEffective = VariablesExpander.getWorkingDirExpanded(configuration)
+    params.setWorkingDirectory(workingDirEffective)
 
     params.getClassPath.addRunners()
     params.setMainClass(runnerInfo.runnerClass)
@@ -143,7 +139,7 @@ class ScalaTestFrameworkCommandLineState(
     val other = ParametersList.parse(testConfigurationData.testArgs)
     ScalaTestRunnerProgramArgs(
       classesAndTests,
-      progress ++ other
+      (progress ++ other).map(VariablesExpander.expandProgramArgument)
     )
   }
 
@@ -176,17 +172,48 @@ class ScalaTestFrameworkCommandLineState(
 
     executionResult
   }
+
+  /**
+   * @see [[org.jetbrains.plugins.scala.testingSupport.test.ui.CommonScalaParametersPanel.isMacroSupportEnabled]]
+   * @see [[org.jetbrains.plugins.scala.testingSupport.test.ui.CommonScalaParametersPanel.initMacroSupport]]
+   */
+  protected object VariablesExpander {
+    import com.intellij.execution.util.ProgramParametersUtil
+
+    /** Expands all kinds of path variables/macro in working directory, examples: $PROJECT_DIR$, $MODULE_WORKING_DIR$, etc... */
+    def getWorkingDirExpanded(configuration: AbstractTestRunConfiguration): String =
+      ProgramParametersUtil.getWorkingDir(configuration.testConfigurationData, project, module)
+
+    def expandProgramArgument(arg: String): String =
+      ProgramParametersUtil.expandPathAndMacros(arg, module, project)
+
+    /** expands path, macro and env variables */
+    def expandVmOptions(vmOptions: String, envs: Map[String, String]): String = {
+      val expandedPaths = ProgramParametersUtil.expandPathAndMacros(vmOptions, module, project)
+      //injection of environment variables to VM options was added within SCL-4812
+      // I am not sure why, because no one asked for that, and it doesn't work for any other Run Configuration ATM
+      val expandedEnvs = expandEnvs(expandedPaths, envs)
+      expandedEnvs
+    }
+
+    /**
+     * Expands parents environment variables and paths <br>
+     * Similar logic is located in [[com.intellij.execution.util.ProgramParametersConfigurator#configureConfiguration]]<br>
+     * It might be Exported to some utility method in [[ProgramParametersUtil]]
+     */
+    def getEnvVariablesExpanded(configuration: CommonProgramRunConfigurationParameters): Map[String, String] = {
+      val envs = new ju.HashMap[String, String](configuration.getEnvs)
+      if (configuration.isPassParentEnvs) {
+        EnvironmentUtil.inlineParentOccurrences(envs)
+      }
+      envs.asScala.view.mapValues(ProgramParametersUtil.expandPath(_, module, project)).toMap
+    }
+  }
 }
 
 object ScalaTestFrameworkCommandLineState {
 
-  private def expandPath(text: String)(implicit module: Module): String =
-    Some(text)
-      .map(PathMacroManager.getInstance(module.getProject).expandPath)
-      .map(PathMacroManager.getInstance(module).expandPath)
-      .get
-
-  private def expandEnvs(text: String, envs: collection.Map[String, String]) =
+  private def expandEnvs(text: String, envs: collection.Map[String, String]): String =
     envs.foldLeft(text) { case (text, (key, value)) =>
       StringUtil.replace(text, "$" + key + "$", value, false)
     }
