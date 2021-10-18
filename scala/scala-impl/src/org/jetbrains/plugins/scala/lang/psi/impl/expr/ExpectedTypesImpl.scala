@@ -320,7 +320,7 @@ class ExpectedTypesImpl extends ExpectedTypes {
       //see SLS[6.11]
       case b: ScBlockExpr =>
         b.resultExpression match {
-          case Some(e) if b.needCheckExpectedType && e == sameInContext => expectedTypesUnwrapContextFunction(e, fromUnderscore = true)
+          case Some(e) if b.needCheckExpectedType && e == sameInContext => expectedTypesUnwrapContextFunction(b, fromUnderscore = true)
           case _                                                        => Array.empty
         }
       //see SLS[6.16]
