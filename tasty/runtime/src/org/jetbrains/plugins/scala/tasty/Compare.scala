@@ -18,25 +18,25 @@ object Compare {
   // libraryDependencies += "org.typelevel" %% "cats-effect" % "3.1.1",
   // libraryDependencies += "org.scala-lang" %% "scala3-compiler" % "3.0.0",
   private val Libraries = Seq(
-    ("scala3-library", "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar"),
-    ("scalatest-core", "org/scalatest/scalatest-core_3/3.2.9/scalatest-core_3-3.2.9.jar"),
-    ("scalatest-funspec", "org/scalatest/scalatest-funspec_3/3.2.9/scalatest-funspec_3-3.2.9.jar"),
-    ("scalatest-funspec", "org/scalatest/scalatest-funsuite_3/3.2.9/scalatest-funsuite_3-3.2.9.jar"),
-    ("zio", "dev/zio/zio_3/1.0.9/zio_3-1.0.9.jar"),
-    ("zio-streams", "dev/zio/zio-streams_3/1.0.9/zio-streams_3-1.0.9.jar"),
-    ("cats-core", "org/typelevel/cats-core_3/2.6.1/cats-core_3-2.6.1.jar"),
-    ("cats-effect", "org/typelevel/cats-effect_3/3.1.1/cats-effect_3-3.1.1.jar"),
-    ("scala3-compiler", "org/scala-lang/scala3-compiler_3/3.0.0/scala3-compiler_3-3.0.0.jar"),
+    "org/scala-lang/scala3-library_3/3.0.0/scala3-library_3-3.0.0.jar",
+    "org/scalatest/scalatest-core_3/3.2.9/scalatest-core_3-3.2.9.jar",
+    "org/scalatest/scalatest-funspec_3/3.2.9/scalatest-funspec_3-3.2.9.jar",
+    "org/scalatest/scalatest-funsuite_3/3.2.9/scalatest-funsuite_3-3.2.9.jar",
+    "dev/zio/zio_3/1.0.9/zio_3-1.0.9.jar",
+    "dev/zio/zio-streams_3/1.0.9/zio-streams_3-1.0.9.jar",
+    "org/typelevel/cats-core_3/2.6.1/cats-core_3-2.6.1.jar",
+    "org/typelevel/cats-effect_3/3.1.1/cats-effect_3-3.1.1.jar",
+    "org/scala-lang/scala3-compiler_3/3.0.0/scala3-compiler_3-3.0.0.jar",
   )
 
   def main(args: Array[String]): Unit = {
     assert(new File(OutputDir).getParentFile.exists)
 
-    Libraries.foreach {case (name, binaries) =>
+    Libraries.foreach { binaries =>
       println("Parsing TASTy:\t\t" + binaries)
       new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + binaries))).pipe { in =>
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".tasty")).foreach { entry =>
-          val file = new File(s"$OutputDir/$name/${entry.getName}")
+          val file = new File(s"$OutputDir/${entry.getName}")
           file.getParentFile.mkdirs()
           val tree = TreeReader.treeFrom(in.readAllBytes())
 //          Files.write(Paths.get(file.getPath.replaceFirst("\\.tasty", ".tree")), tree.toString.getBytes)
@@ -49,9 +49,9 @@ object Compare {
       println("Extracting sources:\t" + sources)
       new JarInputStream(new BufferedInputStream(new FileInputStream(Repository + "/" + sources))).pipe { in =>
         Iterator.continually(in.getNextEntry).takeWhile(_ != null).filter(_.getName.endsWith(".scala")).foreach { entry =>
-          val file = new File(s"$OutputDir/$name/${entry.getName}")
+          val file = new File(s"$OutputDir/${entry.getName}")
           file.getParentFile.mkdirs()
-          val s = new String(in.readAllBytes)
+          val s = new String(in.readAllBytes) // TODO store pre-compiled regex
             .replaceAll(raw"(?m)^\s*import.*?$$", "") // Import
             .replaceAll(raw"\s*//.*?\n", "") // Line comment
             .replaceAll(raw"(?s)/\*.*?\*/", "") // Block comment
