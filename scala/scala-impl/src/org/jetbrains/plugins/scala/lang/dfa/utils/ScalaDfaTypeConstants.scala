@@ -37,6 +37,8 @@ object ScalaDfaTypeConstants {
     val NoSuchElementExceptionName = "java.util.NoSuchElementException"
 
     val NullPointerExceptionName = "java.util.NullPointerException"
+
+    val Apply = "apply"
   }
 
   val NumericOperations: Map[String, LongRangeBinOp] = Map(

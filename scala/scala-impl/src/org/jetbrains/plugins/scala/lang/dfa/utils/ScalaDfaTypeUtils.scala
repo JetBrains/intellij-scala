@@ -5,7 +5,7 @@ import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
 import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
 import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
-import com.intellij.psi.PsiNamedElement
+import com.intellij.psi.{PsiClass, PsiElement, PsiMember, PsiNamedElement}
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
@@ -18,6 +18,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.base.literals._
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScExpression
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScValueOrVariable
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScTypedDefinition
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 import org.jetbrains.plugins.scala.lang.psi.types.ScType
 import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 
@@ -95,5 +96,22 @@ object ScalaDfaTypeUtils {
   def extractExpressionFromArgument(argument: Argument): Option[ScExpression] = argument.content match {
     case expressionTransformer: ExpressionTransformer => Some(expressionTransformer.wrappedExpression)
     case _ => None
+  }
+
+  def scalaClass(psiClass: PsiClass): Option[ScClass] = psiClass match {
+    case scalaClass: ScClass => Some(scalaClass)
+    case _ => None
+  }
+
+  def isPsiClassCase(psiClass: PsiClass): Boolean = psiClass match {
+    case typeDefinition: ScTypeDefinition => typeDefinition.isCase
+    case _ => false
+  }
+
+  def containingScalaObject(element: PsiElement): Option[ScObject] = element match {
+    case member: PsiMember => member.containingClass match {
+      case scalaObject: ScObject => Some(scalaObject)
+      case _ => None
+    }
   }
 }

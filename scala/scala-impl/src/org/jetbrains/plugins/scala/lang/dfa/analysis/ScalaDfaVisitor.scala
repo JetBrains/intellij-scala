@@ -16,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{constantValueToProblemMessage, exceptionNameToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
-import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScInfixExpr, ScParenthesisedExpr}
+import org.jetbrains.plugins.scala.lang.psi.api.expr.{MethodInvocation, ScBlockStatement, ScInfixExpr, ScParenthesisedExpr}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunctionDefinition
 
 import java.util.EmptyStackException
@@ -103,7 +103,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
   private def shouldSuppress(statement: ScBlockStatement): Boolean = {
     val parent = findProperParent(statement)
     statement match {
-      // TODO more complete implementation
+      case invocation: MethodInvocation if invocation.applicationProblems.nonEmpty => true
       case _: ScLiteral => true
       case infix: ScInfixExpr => parent match {
         case Some(parentInfix: ScInfixExpr) => parentInfix.operation.refName == infix.operation.refName
