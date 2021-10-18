@@ -79,6 +79,7 @@ object TastyReaderTest {
       "member/Var",
       "package1/package2/package",
       "package1/package2/Nested",
+      "package1/package2/NestedImport",
       "package1/package2/Prefix",
       "package1/package2/Scope",
       "package1/Members",

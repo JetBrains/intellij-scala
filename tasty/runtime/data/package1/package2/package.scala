@@ -1,7 +1,7 @@
 package package1/**//*.package2*/
 /**/
-import scala.util.ChainingSyntax
+import scala.collection.mutable.Seq
 /**/
 /**/package object package2 {
-  /**/def member: /**//*scala.util.*/ChainingSyntax = ???/**/
+  /**/def member: Int = ???/**/
 }/**/
