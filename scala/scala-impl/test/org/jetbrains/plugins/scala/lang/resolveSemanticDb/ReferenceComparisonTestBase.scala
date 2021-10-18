@@ -4,6 +4,7 @@ import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
+import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
@@ -49,11 +50,23 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
         val pos = textPosOf(ref.nameId)
         val refWithPos = s"${ref.refName} at ${pos.readableString} in ${file.name}"
         val resolved = ref.multiResolveScala(false).toSeq
+        val ourTargets = resolved
+          .flatMap(r => Seq(r.element) ++ r.parentElement)
+          .filterByType[PsiNamedElement]
+          .flatMap {
+            case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
+              Seq(typeDef) :++ typeDef.aliasedType.toOption.flatMap(_.extractClass)
+            case x =>
+              Seq(x)
+          }
+
+        // don't look into ScImportStmt, some weird stuff is going on in semanticdb
+        def isInImport = ref.contexts.exists(_.is[ScImportStmt])
 
         if (resolved.isEmpty) {
           problems :+= s"Couldn't resolve $refWithPos"
           failedToResolve += 1
-        } else {
+        } else if (!isInImport) {
           val semanticDbReferences = semanticDbFile.referencesAt(pos)
           var didTest = false
           var atLeastOneSuccess = false
@@ -69,9 +82,8 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
           for(semanticDbRef <- semanticDbReferences if !semanticDbRef.pointsToLocal) {
             import ScalaPluginSymbolPrinter.print
             val semanticDbTargetPos = semanticDbRef.symbol.map(_.position)
-            val targetText = stripBases(semanticDbRef.info.symbol.replaceAll(raw"\(\+\d+\)", "()"))
+            val targetText = stripBases(ScalaPluginSymbolPrinter.sanitizeSemanticDbName(semanticDbRef.info.symbol))
             didTest = true
-            val ourTargets = resolved.flatMap(r => Seq(r.element) ++ r.parentElement).filterByType[PsiNamedElement]
             val textFits = ourTargets.exists(t => print(t).map(stripBases).forall(_ == targetText))
             val positionFits = semanticDbTargetPos.exists(targetPos => ourTargets.exists(posOfNavigationElementWithAdjustedEscapeId(_) == targetPos))
 
@@ -79,7 +91,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
               val ours = ourTargets
                 .map(e => s"${print(e).get} at ${textPosOf(e.getNavigationElement).readableString}")
                 .mkString("\n")
-              problems :+= s"$refWithPos resolves to $targetText in semanticdb, but we resolve to:\n$ours"
+              problems :+= s"$refWithPos resolves to $targetText in semanticdb (${semanticDbTargetPos.map(_.readableString).getOrElse("<no position>")}), but we resolve to:\n$ours"
               allSuccess = false
             } else {
               atLeastOneSuccess = true

@@ -5,20 +5,26 @@ import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
+import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias, ScValueOrVariable}
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction, SyntheticClasses}
 
 object ScalaPluginSymbolPrinter {
+  def sanitizeSemanticDbName(s: String): String =
+    s.replaceAll(raw"\(\+\d+\)", "()") // remove overloading index
+      .replaceAll(raw"[^#./()]+\$$package.", "") // ignore package object path part
+
   def print(e: PsiNamedElement): Option[String] = {
     val buffer = new StringBuilder()
 
     def add(s: String): Unit = buffer ++= s
 
     def escaped(s: String): String =
-      if (s.headOption.exists(_.isUnicodeIdentifierStart) && s.forall(_.isUnicodeIdentifierPart)) s
+      if (s.headOption.exists(c => c.isUnicodeIdentifierStart || c == '_') && s.forall(_.isUnicodeIdentifierPart)) s
       else s"`$s`"
 
     def addName(name: String): Unit = {
@@ -54,10 +60,13 @@ object ScalaPluginSymbolPrinter {
               add("<[error]>")
               return
           }
-        case (_: ScBlockStatement, ctx: ScPackaging) =>
+        case (p: ScClassParameter, _) if p.isClassMember =>
+          addSymName(p.containingClass)
+          return
+        case (_: ScBlockStatement | _: ScTypeAlias, ctx: ScPackaging) =>
           // this is for toplevel statements
           addFqn(ctx.fqn)
-          add("/package$package.")
+          add("/")
           return
         case _ =>
       }
@@ -80,8 +89,6 @@ object ScalaPluginSymbolPrinter {
     def addSymName(e: PsiNamedElement): Unit = {
       if (e.name == null)
         return
-      if (e.is[PsiFile])
-        return
       addOwner(e)
 
       e match {
@@ -91,6 +98,10 @@ object ScalaPluginSymbolPrinter {
       }
 
       e match {
+        case p: ScClassParameter if p.isClassMember =>
+          addName(p.name)
+          add(".")
+          return
         case p@(_: PsiParameter | _: PsiAnnotationMethodImpl) =>
           add("(")
           addName(p.name)
@@ -107,6 +118,8 @@ object ScalaPluginSymbolPrinter {
         case _: ScPackageLike => add("/")
         case o: ScObject if o.isPackageObject => add("/package.")
         case _: ScObject => add(".")
+        case _: PsiEnumConstant => add(".")
+        case f: PsiField if f.hasModifierProperty(PsiModifier.FINAL) => add(".")
         //case c: PsiClass if c.isInterface && isInImport => add(".")
         case _: PsiClass | _: PsiType | _: ScTypeAlias | _: ScSyntheticClass => add("#")
         case _: PsiField | _ : ScFun | _: PsiMethod | _: ScValueOrVariable => add("().")
@@ -115,7 +128,16 @@ object ScalaPluginSymbolPrinter {
 
     }
 
-    addSymName(e)
+    if (e.contexts.exists(_.is[ScRefinement])) {
+      return None
+    }
+
+    e match {
+      case p: ScPackageLike if p.fqn == "" =>
+        add("_root_/")
+      case _ =>
+        addSymName(e)
+    }
 
     Some(buffer.result().replace("scala/runtime/stdLibPatches/", "scala/"))
   }
