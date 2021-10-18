@@ -456,6 +456,42 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     Error(";", "Expression expected"),
     Error("", "Expression expected"))
 
+//  def testTry(): Unit = assertErrors(
+//    "val v: String = try 1",
+//    Hint("1", ": Int"),
+//    Error("1", "Expression of type Int doesn't conform to expected type String"))
+//
+//  def testTryCatchBlock(): Unit = assertErrors(
+//    "val v: String = try 1 catch { case _ => \"2\" }",
+//    Hint("1", ": Int", offsetDelta = 1), // TODO 0
+//    Error("1", "Expression of type Int doesn't conform to expected type String"))
+//
+//  def testTryCatchOneCaseOnly(): Unit = assertErrors(
+//    "val v: String = try \"1\" catch { case _ => 2 }",
+//    Hint("2", ": Int"),
+//    Error("2", "Expression of type Int doesn't conform to expected type String"))
+//
+//  def testTryCatchOneCaseOfMany(): Unit = assertErrors(
+//    "val v: String = try \"1\" catch { case _ => \"2\"; case _ => 3 }",
+//    Hint("3", ": Int"),
+//    Error("3", "Expression of type Int doesn't conform to expected type String"))
+//
+//  def testTryCatchBlockAndOneCase(): Unit = assertErrors(
+//    "val v: String = try 1 catch { case _ => 2 }",
+//    Hint("try 1 catch { case _ => 2 }", "("), Hint("try 1 catch { case _ => 2 }", "): Int"),
+//    Error("try 1 catch { case _ => 2 }", "Expression of type Int doesn't conform to expected type String"))
+//
+//  def testTryCatchBlockAndAllCases(): Unit = assertErrors(
+//    "val v: String = try 1 catch { case _ => 2; case _ => 3 }",
+//    Hint("try 1 catch { case _ => 2 }", "("), Hint("try 1 catch { case _ => 2 }", "): Int"),
+//    Error("try 1 catch { case _ => 2 }", "Expression of type Int doesn't conform to expected type String"))
+//
+//  def testTryCatchBlockAndOneCaseUnit(): Unit = assertErrors(
+//    "val v: String = try {} catch { case _ => }",
+//    Hint("{}", ": Unit"),
+//    Error("{}", "Expression of type Unit doesn't conform to expected type String"),
+//    Error("", "Expression expected"))
+
   def testSCL10608(): Unit = {
     assertErrors(
       """
@@ -471,4 +507,12 @@ class TypeMismatchHighlightingTest extends ScalaHighlightingTestBase {
     )
   }
 
+  // TODO
+  // Aggregate try-catch (why error for { case _ => x } block ?
+  // aggregation: nesting
+  // if | else is not separate, TastyReader.read(...): Either[String, TastyFile]
+  // try | catch is not separate
+  // splitBy(children)(_.tag == )
+  // if (it => it.name =|)
+  // {} in case, then for Scala 3
 }

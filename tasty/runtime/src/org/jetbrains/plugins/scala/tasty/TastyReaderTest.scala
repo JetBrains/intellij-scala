@@ -9,6 +9,52 @@ import java.io.File
 import java.nio.file.{FileSystems, Files, Path}
 import scala.collection.mutable
 
+// Anonymous Context Parameters?
+// infix types
+// abstract extension
+// hkt as arg, lambda
+// structural, refinement
+// match types
+// super
+// annotation: parameter, type, string, array
+// TODO Nothing -> Any when for parameter (variance)
+// TODO type trees
+// TODO different name kinds, FQN
+// TODO symbol names `foo`
+// TODO val a, b; val (a, b)
+// TODO transparent inline def quotes in the same file
+// TODO normal package object
+//
+// TODO refactor code
+// TODO StringBuilder
+// TODO children lazy loading
+// TODO Use Scala 2 (either read or copy tasty-core)
+// TODO exhaustive matches
+// TODO getOrElse(throw exception)
+// TODO gzip
+//
+// TODO rely on signed name instead of Apply template parent calls?
+// TODO FunctionN, TupleN
+// TODO infix types (not just & and |)
+// TODO self type
+// TODO abstract override (order)
+// TODO = derived ?
+// TODO modifiers order
+// TODO option to skip private definitions
+// TODO detect anonymous givens more reliably?
+// TODO how to merge object / implicit class / enum members, index?
+// TODO re-elaborate context bounds?
+// TODO package objects as package objects?
+// TODO default argument constants?
+// TODO group enum cases
+// TODO group extension methods
+// TODO combinedUsingClauses?
+// TODO use Unit method result instead of Int
+// TODO use objects instead of traits?
+// TODO benchmark
+// TODO correspondence between parametric type definitions and type lambdas - which to use?
+//
+// TODO method to parse a JAR, compare results, benchmark
 // TODO Convert to unit tests (depends on https://youtrack.jetbrains.com/issue/SCL-19023)
 // TODO Convert ./data to test data
 object TastyReaderTest {
