@@ -6,6 +6,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
+import org.jetbrains.plugins.scala.lang.resolve.ScalaResolveResult
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ComparisonTestBase.outPath
 import org.jetbrains.plugins.scala.lang.resolveSemanticDb.ReferenceComparisonTestBase._
 import org.jetbrains.plugins.scala.{LatestScalaVersions, ScalaVersion}
@@ -44,54 +45,34 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
       val references = file
         .depthFirst(!_.is[ScImportStmt]) // don't look into ScImportStmt, some weird stuff is going on in semanticdb
         .filterByType[ScReference]
-        .toArray
+        .map(RefInfo.fromRef)
+        .toSeq
       for (ref <- references) {
         refCount += 1
-        val pos = textPosOf(ref.nameId)
-        val refWithPos = s"${ref.refName} at ${pos.readableString} in ${file.name}"
-        val resolved = ref.multiResolveScala(false).toSeq
-        val ourTargets = resolved
-          .flatMap(r => Seq(r.element) ++ r.parentElement)
-          .filterByType[PsiNamedElement]
-          .flatMap {
-            case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
-              Seq(typeDef) :++ typeDef.aliasedType.toOption.flatMap(_.extractClass)
-            case x =>
-              Seq(x)
-          }
 
-        // don't look into ScImportStmt, some weird stuff is going on in semanticdb
-        def isInImport = ref.contexts.exists(_.is[ScImportStmt])
-
-        if (resolved.isEmpty) {
-          problems :+= s"Couldn't resolve $refWithPos"
+        if (ref.failedToResolve) {
+          problems :+= s"Couldn't resolve $ref"
           failedToResolve += 1
-        } else if (!isInImport) {
-          val semanticDbReferences = semanticDbFile.referencesAt(pos)
+        } else {
+          val semanticDbReferences = semanticDbFile.referencesAt(ref.pos)
           var didTest = false
           var atLeastOneSuccess = false
           var allSuccess = true
 
-          // sometimes we resolve to AnyRef instead of Object and the other way around... don't bother with these mistakes
-          def stripBases(s: String): String =
-            s.stripPrefix("scala/AnyRef#")
-              .stripPrefix("scala/Any#")
-              .stripPrefix("java/lang/Object#")
-              .stripPrefix("java/lang/CharSequence#")
-
+          if (!ref.targets.exists(target => isInRefinement(target.e)))
           for(semanticDbRef <- semanticDbReferences if !semanticDbRef.pointsToLocal) {
-            import ScalaPluginSymbolPrinter.print
-            val semanticDbTargetPos = semanticDbRef.symbol.map(_.position)
-            val targetText = stripBases(ScalaPluginSymbolPrinter.sanitizeSemanticDbName(semanticDbRef.info.symbol))
             didTest = true
-            val textFits = ourTargets.exists(t => print(t).map(stripBases).forall(_ == targetText))
-            val positionFits = semanticDbTargetPos.exists(targetPos => ourTargets.exists(posOfNavigationElementWithAdjustedEscapeId(_) == targetPos))
+            val semanticDbTargetPos = semanticDbRef.symbol.map(_.position)
+            val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.info.symbol)
+            val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol)
+            val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
 
             if (!textFits && !positionFits) {
-              val ours = ourTargets
-                .map(e => s"${print(e).get} at ${textPosOf(e.getNavigationElement).readableString}")
+              val ours = ref.targets
+                .map(target => s"${target.symbol} at ${target.position}")
                 .mkString("\n")
-              problems :+= s"$refWithPos resolves to $targetText in semanticdb (${semanticDbTargetPos.map(_.readableString).getOrElse("<no position>")}), but we resolve to:\n$ours"
+              val semPos = semanticDbTargetPos.fold("<no position>")(_.toString)
+              problems :+= s"$ref resolves to $semanticDbTargetSymbol in semanticdb ($semPos), but we resolve to:\n$ours"
               allSuccess = false
             } else {
               atLeastOneSuccess = true
@@ -136,7 +117,43 @@ object ReferenceComparisonTestBase {
 
   def posOfNavigationElementWithAdjustedEscapeId(e: PsiNamedElement): TextPos = {
     val pos = textPosOf(e.getNavigationElement)
-    if (e.name.startsWith("`")) pos.copy(col = pos.col + 1)
+    if (Option(e.name).exists(_.startsWith("`"))) pos.copy(col = pos.col + 1)
     else pos
+  }
+
+  case class RefTarget(e: PsiNamedElement) {
+    lazy val symbol: String = ComparisonSymbol.fromPsi(e)
+    def adjustedPosition: TextPos = posOfNavigationElementWithAdjustedEscapeId(e)
+    def position: TextPos = textPosOf(e.getNavigationElement)
+  }
+
+  case class RefInfo(name: String,
+                     pos: TextPos,
+                     resolved: Seq[ScalaResolveResult],
+                     fileName: String) {
+    override def toString: String = s"$name at $pos in $fileName"
+
+    lazy val targets: Seq[RefTarget] = resolved
+      .flatMap(r => Seq(r.element) ++ r.parentElement)
+      .filterByType[PsiNamedElement]
+      .flatMap {
+        case typeDef: ScTypeAliasDefinition if !typeDef.hasModifierPropertyScala("opaque") =>
+          Seq(typeDef) :++ typeDef.aliasedType.toOption.flatMap(_.extractClass)
+        case x =>
+          Seq(x)
+      }
+      .map(RefTarget)
+
+    def failedToResolve: Boolean = resolved.isEmpty
+  }
+
+  object RefInfo {
+    def fromRef(ref: ScReference): RefInfo =
+      RefInfo(
+        ref.refName,
+        textPosOf(ref.nameId),
+        ref.multiResolveScala(false).toSeq,
+        ref.getContainingFile.name
+      )
   }
 }

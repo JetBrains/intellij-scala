@@ -13,12 +13,21 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.ScPackaging
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.{ScSyntheticClass, ScSyntheticFunction, SyntheticClasses}
 
-object ScalaPluginSymbolPrinter {
-  def sanitizeSemanticDbName(s: String): String =
-    s.replaceAll(raw"\(\+\d+\)", "()") // remove overloading index
-      .replaceAll(raw"[^#./()]+\$$package.", "") // ignore package object path part
+object ComparisonSymbol {
+  // sometimes we resolve to AnyRef instead of Object and the other way around... don't bother with these mistakes
+  private def stripBases(s: String): String =
+    s.stripPrefix("scala/AnyRef#")
+      .stripPrefix("scala/Any#")
+      .stripPrefix("java/lang/Object#")
+      .stripPrefix("java/lang/CharSequence#")
 
-  def print(e: PsiNamedElement): Option[String] = {
+  def fromSemanticDb(s: String): String =
+    stripBases(
+      s.replaceAll(raw"\(\+\d+\)", "()") // remove overloading index
+      .replaceAll(raw"[^#./()]+\$$package.", "") // ignore package object path part
+    )
+
+  def fromPsi(e: PsiNamedElement): String = {
     val buffer = new StringBuilder()
 
     def add(s: String): Unit = buffer ++= s
@@ -57,8 +66,7 @@ object ScalaPluginSymbolPrinter {
               add("java/lang/String#")
               return
             case None =>
-              add("<[error]>")
-              return
+              throw new Exception(s"Cannot create comparison symbol for unknown synthetic function $s")
           }
         case (p: ScClassParameter, _) if p.isClassMember =>
           addSymName(p.containingClass)
@@ -128,8 +136,8 @@ object ScalaPluginSymbolPrinter {
 
     }
 
-    if (e.contexts.exists(_.is[ScRefinement])) {
-      return None
+    if (isInRefinement(e)) {
+      throw new Exception(s"Cannot create comparison symbol in refinement for $e")
     }
 
     e match {
@@ -139,6 +147,6 @@ object ScalaPluginSymbolPrinter {
         addSymName(e)
     }
 
-    Some(buffer.result().replace("scala/runtime/stdLibPatches/", "scala/"))
+    stripBases(buffer.result().replace("scala/runtime/stdLibPatches/", "scala/"))
   }
 }

@@ -1,6 +1,8 @@
 package org.jetbrains.plugins.scala.lang
 
 import com.intellij.psi.{PsiElement, PsiFile}
+import org.jetbrains.plugins.scala.extensions._
+import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 
 import scala.meta.internal.semanticdb
 
@@ -16,7 +18,7 @@ package object resolveSemanticDb {
   }
 
   case class TextPos(line: Int, col: Int) {
-    def readableString: String = s"${line + 1}:${col + 1}"
+    override def toString: String = s"${line + 1}:${col + 1}"
   }
 
   def textPosOf(e: PsiElement): TextPos = textPosOf(e.getTextOffset, e.getContainingFile)
@@ -29,4 +31,6 @@ package object resolveSemanticDb {
     val col = offset - (offsetText.lastIndexOf('\n') + 1)
     TextPos(line, col)
   }
+
+  def isInRefinement(e: PsiElement): Boolean = e.contexts.exists(_.is[ScRefinement])
 }
