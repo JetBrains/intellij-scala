@@ -3,21 +3,7 @@ package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
-class MethodsWithSpecialSupportDfaTest extends ScalaDfaTestBase {
-
-  def testSpecialSupportForLists(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
-    """
-      |val list1 = List(3, 5, 8)
-      |val list2 = 3 :: 5 :: Nil
-      |val list3 = List(3, 6)
-      |list1 == list2
-      |list1 == list3
-      |list2 == list3
-      |""".stripMargin
-  })(
-    "list1 == list2" -> ConditionAlwaysFalse,
-    "list1 == list3" -> ConditionAlwaysFalse
-  )
+class OtherMethodsSpecialSupportDfaTest extends ScalaDfaTestBase {
 
   def testJavaMethodsWithCustomHandlers(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
     """
