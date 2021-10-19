@@ -115,7 +115,7 @@ abstract class TestConfigurationData(config: AbstractTestRunConfiguration)
   @BeanProperty var envs                : java.util.Map[String, String] = new java.util.HashMap[String, String]()
   @BeanProperty var shortenClasspath    : ShortenCommandLine            = null // null is valid value, see ConfigurationWithCommandLineShortener doc
 
-  @BooleanBeanProperty var passParentEnvs: Boolean = false
+  @BooleanBeanProperty var passParentEnvs: Boolean = true
 
   private var workingDirectory: String     = "$" + PathMacroUtil.PROJECT_DIR_MACRO_NAME + "$"
   def setWorkingDirectory(s: String): Unit = workingDirectory = ExternalizablePath.urlValue(s)
