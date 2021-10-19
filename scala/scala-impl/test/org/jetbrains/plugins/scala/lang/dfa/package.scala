@@ -8,6 +8,8 @@ package object dfa {
 
     val ConditionAlwaysFalse = "Condition is always false"
 
+    val ExpressionAlwaysZero = "Expression always evaluates to 0"
+
     val InvocationIndexOutOfBounds = "Invocation will produce IndexOutOfBoundsException. Index is always out of bounds"
 
     val InvocationNoSuchElement = "Invocation will produce NoSuchElementException. Collection is always empty"
@@ -24,6 +26,8 @@ package object dfa {
        |  val otherField: Int = 1244
        |  val yetAnotherField: String = "Hello again"
        |}
+       |
+       |case class Student(age: Int, grades: List[Int])
        |
        |class TestClass {
        |  def testMethod(arg1: Int, arg2: Int, arg3: Boolean, arg4: String): $returnType = {

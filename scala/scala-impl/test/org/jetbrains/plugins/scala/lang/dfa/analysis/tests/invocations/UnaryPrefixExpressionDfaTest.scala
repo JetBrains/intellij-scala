@@ -24,7 +24,11 @@ class UnaryPrefixExpressionDfaTest extends ScalaDfaTestBase {
     "z == 0" -> ConditionAlwaysTrue,
     "y < 0" -> ConditionAlwaysTrue,
     "y < -3" -> ConditionAlwaysFalse,
-    "5 + +5 + (+9) + -2 == 17" -> ConditionAlwaysTrue
+    "5 + +5 + (+9) + -2 == 17" -> ConditionAlwaysTrue,
+    "z" -> ExpressionAlwaysZero,
+    "+0" -> ExpressionAlwaysZero,
+    "-0" -> ExpressionAlwaysZero,
+    "-0" -> ExpressionAlwaysZero
   )
 
   def testLogicalUnaryOperators(): Unit = test(codeFromMethodBody(returnType = "Boolean") {
@@ -56,6 +60,8 @@ class UnaryPrefixExpressionDfaTest extends ScalaDfaTestBase {
     "y < 100" -> ConditionAlwaysFalse,
     "y <= 150" -> ConditionAlwaysFalse,
     "y > 20" -> ConditionAlwaysTrue,
-    "w < 8" -> ConditionAlwaysTrue
+    "w < 8" -> ConditionAlwaysTrue,
+    "if (p2) 0 else 1" -> ExpressionAlwaysZero,
+    "u" -> ExpressionAlwaysZero
   )
 }

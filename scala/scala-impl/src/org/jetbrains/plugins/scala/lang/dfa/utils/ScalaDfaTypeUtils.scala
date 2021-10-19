@@ -43,13 +43,17 @@ object ScalaDfaTypeUtils {
   def dfTypeToReportedConstant(dfType: DfType): DfaConstantValue = dfType match {
     case DfTypes.TRUE => DfaConstantValue.True
     case DfTypes.FALSE => DfaConstantValue.False
-    case _ => DfaConstantValue.Unknown
+    case _ => Option(dfType.getConstantOfType(classOf[Number]))
+      .filter(value => value.intValue() == 0 || value.longValue() == 0L)
+      .map(_ => DfaConstantValue.Zero)
+      .getOrElse(DfaConstantValue.Unknown)
   }
 
   @Nls
   def constantValueToProblemMessage(value: DfaConstantValue, warningType: ProblemHighlightType): String = value match {
     case DfaConstantValue.True => ScalaInspectionBundle.message("condition.always.true", warningType)
     case DfaConstantValue.False => ScalaInspectionBundle.message("condition.always.false", warningType)
+    case DfaConstantValue.Zero => ScalaInspectionBundle.message("expression.always.zero", warningType)
     case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant: $value")
   }
 

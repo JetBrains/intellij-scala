@@ -13,6 +13,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.ScalaDfaControlFlowBuild
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, TransformationFailedException}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.DfaConstantValue
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators.LogicalBinary
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{constantValueToProblemMessage, exceptionNameToProblemMessage}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaElementVisitor
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
@@ -106,7 +107,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
       case _: ScExpression if parent.exists(_.is[ScPrefixExpr]) => true
       case invocation: MethodInvocation if invocation.applicationProblems.nonEmpty => true
       case _: ScLiteral => true
-      case infix: ScInfixExpr => parent match {
+      case infix: ScInfixExpr if LogicalBinary.contains(infix.operation.refName) => parent match {
         case Some(parentInfix: ScInfixExpr) => parentInfix.operation.refName == infix.operation.refName
         case _ => false
       }
@@ -120,7 +121,7 @@ class ScalaDfaVisitor(private val problemsHolder: ProblemsHolder) extends ScalaE
       case Some(_: ScParenthesisedExpr) => true
       case _ => false
     }) {
-      parent = parent.get.asInstanceOf[ScParenthesisedExpr].innerElement
+      parent = parent.get.parent
     }
     parent
   }
