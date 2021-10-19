@@ -16,6 +16,7 @@ object ScalaDfaTypeConstants {
   final object LogicalOperation {
     case object And extends LogicalOperation
     case object Or extends LogicalOperation
+    case object Not extends LogicalOperation
   }
 
   final object Packages {
@@ -41,25 +42,37 @@ object ScalaDfaTypeConstants {
     val Apply = "apply"
   }
 
-  val NumericOperations: Map[String, LongRangeBinOp] = Map(
-    "+" -> LongRangeBinOp.PLUS,
-    "-" -> LongRangeBinOp.MINUS,
-    "*" -> LongRangeBinOp.MUL,
-    "/" -> LongRangeBinOp.DIV,
-    "%" -> LongRangeBinOp.MOD
-  )
+  final object SyntheticOperators {
 
-  val RelationalOperations: Map[String, RelationType] = Map(
-    "<" -> RelationType.LT,
-    "<=" -> RelationType.LE,
-    ">" -> RelationType.GT,
-    ">=" -> RelationType.GE,
-    "==" -> RelationType.EQ,
-    "!=" -> RelationType.NE
-  )
+    val NumericBinary: Map[String, LongRangeBinOp] = Map(
+      "+" -> LongRangeBinOp.PLUS,
+      "-" -> LongRangeBinOp.MINUS,
+      "*" -> LongRangeBinOp.MUL,
+      "/" -> LongRangeBinOp.DIV,
+      "%" -> LongRangeBinOp.MOD
+    )
 
-  val LogicalOperations: Map[String, LogicalOperation] = Map(
-    "&&" -> LogicalOperation.And,
-    "||" -> LogicalOperation.Or
-  )
+    val RelationalBinary: Map[String, RelationType] = Map(
+      "<" -> RelationType.LT,
+      "<=" -> RelationType.LE,
+      ">" -> RelationType.GT,
+      ">=" -> RelationType.GE,
+      "==" -> RelationType.EQ,
+      "!=" -> RelationType.NE
+    )
+
+    val LogicalBinary: Map[String, LogicalOperation] = Map(
+      "&&" -> LogicalOperation.And,
+      "||" -> LogicalOperation.Or
+    )
+
+    val NumericUnary: Map[String, LongRangeBinOp] = Map(
+      "unary_+" -> LongRangeBinOp.PLUS,
+      "unary_-" -> LongRangeBinOp.MINUS
+    )
+
+    val LogicalUnary: Map[String, LogicalOperation] = Map(
+      "unary_!" -> LogicalOperation.Not
+    )
+  }
 }
