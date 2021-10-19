@@ -1546,4 +1546,24 @@ class Scala3KeywordCompletionTest extends ScalaCodeInsightTestBase {
     item = "with"
   )
 
+  /// EXPORT
+
+  def testExportTopLevel(): Unit = doCompletionTest(
+    fileText = s"ex$CARET",
+    resultText = s"export $CARET",
+    item = "export"
+  )
+
+  def testExportInsideObject(): Unit = doCompletionTest(
+    fileText =
+      s"""object O:
+         |  ex$CARET
+         |""".stripMargin,
+    resultText =
+      s"""object O:
+         |  export $CARET
+         |""".stripMargin,
+    item = "export"
+  )
+
 }

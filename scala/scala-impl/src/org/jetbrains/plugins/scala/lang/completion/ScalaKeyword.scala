@@ -51,6 +51,7 @@ object ScalaKeyword {
 
   // Scala 3
   val DERIVES = "derives"
+  val EXPORT = "export"
   val EXTENSION = "extension"
   val GIVEN = "given"
   val INFIX = "infix"
