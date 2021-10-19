@@ -1,7 +1,5 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 
-import com.intellij.codeInspection.dataFlow.lang.ir.SimpleAssignmentInstruction
-import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScDefinitionWithAssignment, ScPatternDefinition, ScValueOrVariableDefinition, ScVariableDefinition}
 
@@ -27,14 +25,12 @@ class DefinitionTransformer(val wrappedDefinition: ScDefinitionWithAssignment)
   private def transformSimpleDefinition(definition: ScValueOrVariableDefinition, builder: ScalaDfaControlFlowBuilder,
                                         isStable: Boolean): Unit = {
     if (!definition.isSimple) {
-      builder.pushUnknownValue()
+      builder.pushUnknownCall(definition, 0)
       return
     }
 
     val binding = definition.bindings.head
-    val dfaVariable = builder.createVariable(ScalaDfaVariableDescriptor(binding, isStable && binding.isStable))
-
-    transformIfPresent(definition.expr, builder)
-    builder.pushInstruction(new SimpleAssignmentInstruction(definition.expr.map(ScalaStatementAnchor(_)).orNull, dfaVariable))
+    val descriptor = ScalaDfaVariableDescriptor(binding, isStable && binding.isStable)
+    builder.assignVariableValue(descriptor, definition.expr)
   }
 }

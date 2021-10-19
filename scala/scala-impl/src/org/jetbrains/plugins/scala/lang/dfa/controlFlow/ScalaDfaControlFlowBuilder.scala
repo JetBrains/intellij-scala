@@ -9,7 +9,7 @@ import com.intellij.codeInspection.dataFlow.types.DfType
 import com.intellij.codeInspection.dataFlow.value.{DfaControlTransferValue, DfaValueFactory, DfaVariableValue, RelationType}
 import com.intellij.psi.CommonClassNames
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.Transformable
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.{ScalaPsiElementTransformer, Transformable}
 import org.jetbrains.plugins.scala.lang.psi.api.ScalaPsiElement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.{ScBlockStatement, ScExpression}
 
@@ -52,18 +52,29 @@ class ScalaDfaControlFlowBuilder(private val factory: DfaValueFactory, context: 
 
   def pushUnknownCall(statement: ScBlockStatement, argCount: Int): Unit = {
     popArguments(argCount)
-
-    val resultType = DfType.TOP // TODO collect more precise information on type
-    pushInstruction(new PushValueInstruction(resultType, ScalaStatementAnchor(statement)))
+    pushInstruction(new PushValueInstruction(DfType.TOP, ScalaStatementAnchor(statement)))
     pushInstruction(new FlushFieldsInstruction)
 
     val transfer = trapTracker.maybeTransferValue(CommonClassNames.JAVA_LANG_THROWABLE)
-    Option(transfer).foreach(transfer => pushInstruction(new EnsureInstruction(null, RelationType.EQ, DfType.TOP, transfer)))
+    Option(transfer).foreach(transfer =>
+      pushInstruction(new EnsureInstruction(null, RelationType.EQ, DfType.TOP, transfer)))
   }
 
   def pushVariable(descriptor: ScalaDfaVariableDescriptor, expression: ScExpression): Unit = {
     val dfaVariable = createVariable(descriptor)
     pushInstruction(new JvmPushInstruction(dfaVariable, ScalaStatementAnchor(expression)))
+  }
+
+  def assignVariableValue(descriptor: ScalaDfaVariableDescriptor, valueExpression: Option[ScExpression]): Unit = {
+    val dfaVariable = createVariable(descriptor)
+    val anchor = valueExpression.map(ScalaStatementAnchor(_)).orNull
+
+    valueExpression match {
+      case Some(element) => new ScalaPsiElementTransformer(element).transform(this)
+      case _ => pushUnknownValue()
+    }
+
+    pushInstruction(new SimpleAssignmentInstruction(anchor, dfaVariable))
   }
 
   def popReturnValue(): Unit = pushInstruction(new PopInstruction)

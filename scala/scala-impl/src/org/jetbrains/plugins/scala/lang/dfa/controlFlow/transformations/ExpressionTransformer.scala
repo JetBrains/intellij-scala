@@ -4,7 +4,7 @@ import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
 import com.intellij.codeInspection.dataFlow.value.RelationType
-import com.intellij.psi.PsiMethod
+import com.intellij.psi.{PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.{ScalaNullAccessProblem, ScalaStatementAnchor}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
@@ -29,6 +29,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case reference: ScReferenceExpression => transformReference(reference, builder)
     case typedExpression: ScTypedExpression => transformTypedExpression(typedExpression, builder)
     case newTemplateDefinition: ScNewTemplateDefinition => transformNewTemplateDefinition(newTemplateDefinition, builder)
+    case assignment: ScAssignment => transformAssignment(assignment, builder)
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
@@ -66,24 +67,22 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   private def transformUnitExpression(builder: ScalaDfaControlFlowBuilder): Unit = builder.pushUnknownValue()
 
   private def transformIfExpression(ifExpression: ScIf, builder: ScalaDfaControlFlowBuilder): Unit = {
-    for (condition <- ifExpression.condition) {
-      val skipThenOffset = new DeferredOffset
-      val skipElseOffset = new DeferredOffset
+    val skipThenOffset = new DeferredOffset
+    val skipElseOffset = new DeferredOffset
 
-      transformExpression(condition, builder)
-      builder.pushInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, condition))
+    transformIfPresent(ifExpression.condition, builder)
+    builder.pushInstruction(new ConditionalGotoInstruction(skipThenOffset, DfTypes.FALSE, ifExpression.condition.orNull))
 
-      builder.pushInstruction(new FinishElementInstruction(null))
-      transformIfPresent(ifExpression.thenExpression, builder)
-      builder.pushInstruction(new GotoInstruction(skipElseOffset))
-      builder.setOffset(skipThenOffset)
+    builder.pushInstruction(new FinishElementInstruction(null))
+    transformIfPresent(ifExpression.thenExpression, builder)
+    builder.pushInstruction(new GotoInstruction(skipElseOffset))
+    builder.setOffset(skipThenOffset)
 
-      builder.pushInstruction(new FinishElementInstruction(null))
-      transformIfPresent(ifExpression.elseExpression, builder)
-      builder.setOffset(skipElseOffset)
+    builder.pushInstruction(new FinishElementInstruction(null))
+    transformIfPresent(ifExpression.elseExpression, builder)
+    builder.setOffset(skipElseOffset)
 
-      builder.pushInstruction(new FinishElementInstruction(ifExpression))
-    }
+    builder.pushInstruction(new FinishElementInstruction(ifExpression))
   }
 
   private def transformReference(expression: ScReferenceExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
@@ -117,5 +116,17 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
   private def transformNewTemplateDefinition(newTemplateDefinition: ScNewTemplateDefinition,
                                              builder: ScalaDfaControlFlowBuilder): Unit = {
     new InvocationTransformer(newTemplateDefinition).transform(builder)
+  }
+
+  private def transformAssignment(assignment: ScAssignment, builder: ScalaDfaControlFlowBuilder): Unit = {
+    assignment.leftExpression match {
+      case reference: ScReferenceExpression => reference.bind().map(_.element) match {
+        case Some(element: PsiNamedElement) =>
+          val descriptor = ScalaDfaVariableDescriptor(element, isStable = false)
+          builder.assignVariableValue(descriptor, assignment.rightExpression)
+        case _ => builder.pushUnknownCall(assignment, 0)
+      }
+      case _ => builder.pushUnknownCall(assignment, 0)
+    }
   }
 }
