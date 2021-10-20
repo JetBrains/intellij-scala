@@ -1,11 +1,10 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
+import com.intellij.psi._
 import com.intellij.psi.impl.source.PsiAnnotationMethodImpl
 import com.intellij.psi.search.GlobalSearchScope
-import com.intellij.psi._
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.psi.api.ScPackageLike
-import org.jetbrains.plugins.scala.lang.psi.api.base.types.ScRefinement
 import org.jetbrains.plugins.scala.lang.psi.api.expr.ScBlockStatement
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
 import org.jetbrains.plugins.scala.lang.psi.api.statements.{ScFun, ScTypeAlias, ScValueOrVariable}
@@ -32,9 +31,12 @@ object ComparisonSymbol {
 
     def add(s: String): Unit = buffer ++= s
 
-    def escaped(s: String): String =
-      if (s.headOption.exists(c => c.isUnicodeIdentifierStart || c == '_') && s.forall(_.isUnicodeIdentifierPart)) s
+    def escaped(s: String): String = {
+      def isStart(c: Char): Boolean = c.isUnicodeIdentifierStart || c == '_' || c == '$'
+      def isPart(c: Char): Boolean = c.isUnicodeIdentifierPart || c == '$'
+      if (s.headOption.forall(isStart) && s.forall(isPart)) s
       else s"`$s`"
+    }
 
     def addName(name: String): Unit = {
       assert(name != null)

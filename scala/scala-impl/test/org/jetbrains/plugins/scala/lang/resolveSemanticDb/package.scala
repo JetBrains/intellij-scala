@@ -13,6 +13,12 @@ package object resolveSemanticDb {
       range.startLine <= pos.line && pos.line <= range.endLine &&
         range.startCharacter <= pos.col && pos.col < range.endCharacter
 
+    def isEmpty: Boolean =
+      range.startLine == range.endLine && range.startCharacter == range.endCharacter
+
+    def is(pos: TextPos): Boolean =
+      range.isEmpty && range.startLine == pos.line && range.startCharacter == pos.col
+
     def mkString: String =
       s"${range.startLine}:${range.startCharacter}..${range.endLine}:${range.endCharacter}"
   }

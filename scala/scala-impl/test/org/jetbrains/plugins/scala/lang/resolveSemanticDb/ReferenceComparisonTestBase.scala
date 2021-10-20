@@ -2,7 +2,7 @@ package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.psi.api.ScalaFile
+import org.jetbrains.plugins.scala.lang.psi.api.{ImplicitArgumentsOwner, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScReference
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScTypeAliasDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.ScImportStmt
@@ -47,44 +47,60 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
         .filterByType[ScReference]
         .map(RefInfo.fromRef)
         .toSeq
-      for (ref <- references) {
+      val implicitArgs = file
+        .depthFirst()
+        .filterByType[ImplicitArgumentsOwner]
+        .flatMap(RefInfo.forImplicitArguments)
+      for (ref <- references ++ implicitArgs) {
         refCount += 1
 
         if (ref.failedToResolve) {
-          problems :+= s"Couldn't resolve $ref"
+          problems :+= s"Couldn't resolve $ref" + ref.problems.fold("")(" (Problems:" + _ + ")")
           failedToResolve += 1
         } else {
-          val semanticDbReferences = semanticDbFile.referencesAt(ref.pos)
+          val semanticDbReferences = semanticDbFile.referencesAt(ref.pos, empty = ref.isImplicit)
           var didTest = false
           var atLeastOneSuccess = false
           var allSuccess = true
+          var newProblems = List.empty[String]
 
-          if (!ref.targets.exists(target => isInRefinement(target.e)))
-          for(semanticDbRef <- semanticDbReferences if !semanticDbRef.pointsToLocal) {
-            didTest = true
-            val semanticDbTargetPos = semanticDbRef.symbol.map(_.position)
-            val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.info.symbol)
-            val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol)
-            val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
+          if (!ref.targets.exists(target => isInRefinement(target.e))) {
+            def ignoreSemanticDbRef(ref: SDbOccurrence): Boolean = {
+              // ignore locals and implicits involving ClassTag
+              ref.pointsToLocal || ref.info.symbol.contains("ClassTag")
+            }
 
-            if (!textFits && !positionFits) {
-              val ours = ref.targets
-                .map(target => s"${target.symbol} at ${target.position}")
-                .mkString("\n")
-              val semPos = semanticDbTargetPos.fold("<no position>")(_.toString)
-              problems :+= s"$ref resolves to $semanticDbTargetSymbol in semanticdb ($semPos), but we resolve to:\n$ours"
-              allSuccess = false
-            } else {
-              atLeastOneSuccess = true
+            for(semanticDbRef <- semanticDbReferences if !ignoreSemanticDbRef(semanticDbRef)) {
+              didTest = true
+              val semanticDbTargetPos = semanticDbRef.symbol.map(_.position)
+              val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.info.symbol)
+              val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol)
+              val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
+
+              if (!textFits && !positionFits) {
+                val ours = ref.targets
+                  .map(target => s"${target.symbol} at ${target.position}")
+                  .mkString("\n")
+                val semPos = semanticDbTargetPos.fold("<no position>")(_.toString)
+                newProblems :+= s"$ref resolves to $semanticDbTargetSymbol in semanticdb ($semPos), but we resolve to:\n$ours"
+                allSuccess = false
+              } else {
+                atLeastOneSuccess = true
+              }
             }
           }
 
           if (didTest) {
             testedRefs += 1
-            if (allSuccess)
+            if (ref.isImplicit && atLeastOneSuccess) {
               completeCorrect += 1
-            else if (atLeastOneSuccess)
-              partialCorrect += 1
+            } else {
+              problems ++= newProblems
+              if (allSuccess)
+                completeCorrect += 1
+              else if (atLeastOneSuccess)
+                partialCorrect += 1
+            }
           }
         }
       }
@@ -130,7 +146,9 @@ object ReferenceComparisonTestBase {
   case class RefInfo(name: String,
                      pos: TextPos,
                      resolved: Seq[ScalaResolveResult],
-                     fileName: String) {
+                     fileName: String,
+                     problems: Option[String],
+                     isImplicit: Boolean) {
     override def toString: String = s"$name at $pos in $fileName"
 
     lazy val targets: Seq[RefTarget] = resolved
@@ -144,7 +162,13 @@ object ReferenceComparisonTestBase {
       }
       .map(RefTarget)
 
-    def failedToResolve: Boolean = resolved.isEmpty
+    /*lazy val problems: Option[String] = {
+      val resultsWithProblems = resolved.filter(_.problems.nonEmpty)
+      if (resultsWithProblems.nonEmpty && resultsWithProblems.sizeIs == resolved.size)
+        Some(resultsWithProblems.map(rr => rr.problems.mkString(" and ") + s" for ${rr.name}").mkString(", "))
+      else None
+    }*/
+    def failedToResolve: Boolean = resolved.isEmpty || problems.nonEmpty
   }
 
   object RefInfo {
@@ -153,7 +177,31 @@ object ReferenceComparisonTestBase {
         ref.refName,
         textPosOf(ref.nameId),
         ref.multiResolveScala(false).toSeq,
-        ref.getContainingFile.name
+        ref.getContainingFile.name,
+        None,
+        isImplicit = false
       )
+
+    def forImplicitArguments(iao: ImplicitArgumentsOwner): Seq[RefInfo] = {
+      iao.findImplicitArguments match {
+        case Some(iargs) =>
+          iargs.zipWithIndex.flatMap { case (rr, i) =>
+            val file = iao.getContainingFile
+            Some(RefInfo(
+              s"implicit-param:$i",
+              textPosOf(iao.endOffset, file),
+              Seq(rr),
+              file.name,
+              rr.problems match {
+                case Seq() => None
+                case problems => Some(problems.mkString(", "))
+              },
+              isImplicit = true
+            ))
+          }
+        case None =>
+          Seq.empty
+      }
+    }
   }
 }

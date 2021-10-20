@@ -8,8 +8,8 @@ import scala.meta.internal.semanticdb.{Locator, SymbolInformation, SymbolOccurre
 class SDbFile(val path: String, _occurrences: => Seq[SDbOccurrence]) {
   lazy val occurrences: Seq[SDbOccurrence] = _occurrences
 
-  def referencesAt(pos: TextPos): Seq[SDbOccurrence] =
-    occurrences.filter(_.isReference).filter(_.range.contains(pos))
+  def referencesAt(pos: TextPos, empty: Boolean): Seq[SDbOccurrence] =
+    occurrences.filter(_.isReference).filter(if (empty) _.range.is(pos) else _.range.contains(pos))
 }
 
 class SDbSymbol(_file: => SDbFile, val info: SymbolInformation)(_definition: => SDbOccurrence) {
