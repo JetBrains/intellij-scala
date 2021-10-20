@@ -196,6 +196,10 @@ object TreePrinter {
         if (valueParams.length == 1) params else "(" + params + ")"
       } + " => " + tails2.headOption.map(tpe => simple(textOfType(tpe))).getOrElse("")
 
+    case Node(REFINEDtpt, _, Seq(tpe, members: _*)) =>
+      val prefix = textOfType(tpe)
+      (if (prefix == "java.lang.Object") "" else simple(prefix) + " ") + "{ " + members.map(textOf(_)).mkString("; ") + " }"
+
     case _ => "" // TODO exhaustive match
   }
 

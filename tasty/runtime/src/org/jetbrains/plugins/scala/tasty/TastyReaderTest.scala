@@ -13,11 +13,9 @@ import scala.collection.mutable
 // infix types
 // abstract extension
 // hkt as arg, lambda
-// structural, refinement
 // match types
 // super
 // annotation: parameter, type, string, array
-// quoted identifiers
 // TODO Nothing -> Any when for parameter (variance)
 // TODO type trees
 // TODO different name kinds, FQN
@@ -125,6 +123,7 @@ object TastyReaderTest {
       "types/Literal",
       "types/Or",
       "types/Projection",
+      "types/Refinement",
       "types/Refs",
       "types/Select",
       "types/Singleton",
