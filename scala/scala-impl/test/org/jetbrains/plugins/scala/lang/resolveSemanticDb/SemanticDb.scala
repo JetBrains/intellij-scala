@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.resolveSemanticDb
 
-import java.nio.file.Path
+import java.nio.file.{Files, Path}
 import scala.collection.mutable
 import scala.meta.internal.semanticdb.Locator
 
@@ -18,7 +18,34 @@ case class SDbFile(path: String, references: Seq[SDbRef]) {
     references.filter(if (empty) _.range.is(pos) else _.range.contains(pos))
 }
 
-case class SemanticDbStore(files: Seq[SDbFile])
+case class SemanticDbStore(files: Seq[SDbFile]) {
+  def serialized: String = {
+    val b = new StringBuilder
+
+    for (file <- files) {
+      b ++= "Document "
+      b ++= file.path
+      b += '\n'
+
+      for (ref <- file.references) {
+        b ++= s"(${ref.position}..${ref.endPosition}) ${ref.symbol}"
+        ref.targetPosition.foreach { targetPosition =>
+          b ++= s" -> $targetPosition"
+        }
+        b += '\n'
+      }
+
+      b += '\n'
+    }
+
+    val resultText = b.result()
+
+    // check that serialize and fromText work together
+    assert(this == SemanticDbStore.fromText(resultText))
+
+    resultText
+  }
+}
 
 object SemanticDbStore {
   def fromSemanticDbPath(path: Path): SemanticDbStore = {
@@ -49,5 +76,43 @@ object SemanticDbStore {
       .toSeq
 
     SemanticDbStore(files)
+  }
+
+  def fromText(text: String): SemanticDbStore = {
+    val lines = text.linesIterator
+    val files = Seq.newBuilder[SDbFile]
+
+    while (lines.hasNext) {
+      val pathLine = lines.next()
+      assert(pathLine.startsWith("Document "))
+      val path = pathLine.stripPrefix("Document ")
+
+      val refs =
+        for (refLine <- lines.takeWhile(_.nonEmpty)) yield {
+          refLine match {
+            case RefFromLine(ref) => ref
+            case s => throw new Exception("not a refline: " + s)
+          }
+        }
+
+      files += SDbFile(path, refs.toSeq)
+    }
+    SemanticDbStore(files.result())
+  }
+
+  private object RefFromLine {
+    private val pos = raw"(\d+):(\d+)"
+    private val RefLineParts = raw"\($pos\.\.$pos\) (.+?)(?: -> $pos)?".r
+
+    def unapply(s: String): Option[SDbRef] = {
+      s match {
+        case RefLineParts(startLine, startCol, endLine, endCol, symbol, targetLine, targetCol) =>
+          val targetPosition =
+            if (targetLine == null) None
+            else Some(TextPos(targetLine.toInt, targetCol.toInt))
+          Some(SDbRef(symbol, TextPos(startLine.toInt, startCol.toInt), TextPos(endLine.toInt, endCol.toInt), targetPosition))
+        case _ => None
+      }
+    }
   }
 }

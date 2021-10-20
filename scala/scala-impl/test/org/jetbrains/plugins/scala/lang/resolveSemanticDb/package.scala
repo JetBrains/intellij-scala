@@ -22,25 +22,27 @@ package object resolveSemanticDb {
   }
 
   case class TextPos(line: Int, col: Int) {
-    override def toString: String = s"${line + 1}:${col + 1}"
+    override def toString: String = s"$line:$col"
   }
 
   object TextPos {
+    def fromZeroBased(line: Int, col: Int): TextPos =
+      TextPos(line + 1, col + 1)
     def ofStart(range: semanticdb.Range): TextPos =
-      TextPos(range.startLine, range.startCharacter)
+      fromZeroBased(range.startLine, range.startCharacter)
     def ofEnd(range: semanticdb.Range): TextPos =
-      TextPos(range.endLine, range.endCharacter)
-
-  }
-  def textPosOf(e: PsiElement): TextPos = textPosOf(e.getTextOffset, e.getContainingFile)
-  def textPosOf(offset: Int, file: PsiFile): TextPos = {
-    if (offset < 0) {
-      return TextPos(-1, -1)
+      fromZeroBased(range.endLine, range.endCharacter)
+    def of(e: PsiElement): TextPos = at(e.getTextOffset, e.getContainingFile)
+    def at(offset: Int, file: PsiFile): TextPos = {
+      if (offset < 0) {
+        return TextPos(-1, -1)
+      }
+      val offsetText = file.getText.substring(0, offset)
+      val line = offsetText.count(_ == '\n')
+      val lastLineStart = offsetText.lastIndexOf('\n') + 1
+      val col = offset - lastLineStart
+      TextPos.fromZeroBased(line, col)
     }
-    val offsetText = file.getText.substring(0, offset)
-    val line = offsetText.count(_ == '\n')
-    val col = offset - (offsetText.lastIndexOf('\n') + 1)
-    TextPos(line, col)
   }
 
   def isInRefinement(e: PsiElement): Boolean = e.contexts.exists(_.is[ScRefinement])

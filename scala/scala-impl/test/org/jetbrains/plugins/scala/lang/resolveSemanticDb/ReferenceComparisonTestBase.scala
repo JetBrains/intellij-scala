@@ -132,7 +132,7 @@ object ReferenceComparisonTestBase {
   }
 
   def posOfNavigationElementWithAdjustedEscapeId(e: PsiNamedElement): TextPos = {
-    val pos = textPosOf(e.getNavigationElement)
+    val pos = TextPos.of(e.getNavigationElement)
     if (Option(e.name).exists(_.startsWith("`"))) pos.copy(col = pos.col + 1)
     else pos
   }
@@ -140,7 +140,7 @@ object ReferenceComparisonTestBase {
   case class RefTarget(e: PsiNamedElement) {
     lazy val symbol: String = ComparisonSymbol.fromPsi(e)
     def adjustedPosition: TextPos = posOfNavigationElementWithAdjustedEscapeId(e)
-    def position: TextPos = textPosOf(e.getNavigationElement)
+    def position: TextPos = TextPos.of(e.getNavigationElement)
   }
 
   case class RefInfo(name: String,
@@ -175,7 +175,7 @@ object ReferenceComparisonTestBase {
     def fromRef(ref: ScReference): RefInfo =
       RefInfo(
         ref.refName,
-        textPosOf(ref.nameId),
+        TextPos.of(ref.nameId),
         ref.multiResolveScala(false).toSeq,
         ref.getContainingFile.name,
         None,
@@ -189,7 +189,7 @@ object ReferenceComparisonTestBase {
             val file = iao.getContainingFile
             Some(RefInfo(
               s"implicit-param:$i",
-              textPosOf(iao.endOffset, file),
+              TextPos.at(iao.endOffset, file),
               Seq(rr),
               file.name,
               rr.problems match {
