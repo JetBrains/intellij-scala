@@ -19,7 +19,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction
 import org.jetbrains.plugins.scala.lang.psi.api.statements.ScFunction.CommonNames
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScParameter
-import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScTemplateDefinition}
+import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScClass
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory.{createExpressionFromText, createExpressionWithContextFromText}
 import org.jetbrains.plugins.scala.lang.psi.types.recursiveUpdate.ScSubstitutor
 import org.jetbrains.plugins.scala.lang.psi.types.result.Typeable
@@ -87,12 +87,8 @@ object SameSignatureCallParametersProvider {
       ScalaResolveResult(method: ScMethodLike, substitutor) <- reference.completionVariants() ++ reference.multiResolveScala(incomplete = true)
       if method.name == CommonNames.Apply || method.name == reference.refName
 
-      lookupElement <- createLookupElement(method, argumentToStart, substitutor) {
-        findResolvableParameters(reference, invocationCount)
-      }
+      lookupElement <- createFunctionLookupElement(reference, method, argumentToStart, substitutor, invocationCount, hasSuperQualifier)
     } yield lookupElement
-      .withMoveCaretInsertionHandler
-      .withSuperMethodParameters(hasSuperQualifier)
 
     /** Complete apply method's arguments: `(foo = ???, bar = ???, baz = ???)` starting from the given argument
      * and run an interactive [[com.intellij.codeInsight.template.Template]] */
@@ -101,43 +97,22 @@ object SameSignatureCallParametersProvider {
       ScalaResolveResult(function: ScFunction, substitutor) <- reference.multiResolveScala(incomplete = true).toSeq
       if function.isApplyMethod
 
-      lookupElement <- createLookupElement(function, argumentToStart, substitutor) {
-        findMethodParameters(function)
-      }
+      lookupElement <- createAssignmentLookupElement(function, argumentToStart, substitutor)
     } yield lookupElement
-      .withTailText(AssignmentText)
-      .withInsertHandler(new AssignmentsInsertHandler)
 
-    private def findResolvableParameters(reference: PsiElement,
-                                         invocationCount: Int)
-                                        (parameters: Seq[ScParameter]) = for {
-      parameter <- parameters
-      name = parameter.name
-
-      expression = createExpressionWithContextFromText(
-        name,
-        reference.getContext,
-        reference
-      ).asInstanceOf[ScReferenceExpression]
-
-      iconable <- expression.resolve match {
-        case method: PsiMethod if method.isConstructor || !method.isParameterless => None
-        case member: PsiMember if !isAccessible(member, invocationCount)(reference) => None
-        case iconable => Option(iconable)
-      }
-    } yield name -> ExpressionArgument(expression, iconable)
   }
 
   private final class ConstructorParametersCompletionProvider extends ScalaCompletionProvider {
 
     override protected def completionsFor(position: PsiElement)
                                          (implicit parameters: CompletionParameters,
-                                          context: ProcessingContext): Iterable[LookupElementBuilder] =
-      getContextOfType(position, classOf[ScTemplateDefinition]) match {
-        case ClassConstructor(constructor) =>
-          val argumentsList = findArgumentsList(position)
-          val constructorInvocation = argumentsList.getContext.asInstanceOf[ScConstructorInvocation]
-
+                                          context: ProcessingContext): Iterable[LookupElementBuilder] = {
+      val constructorInvocation = getContextOfType(position, classOf[ScConstructorInvocation])
+      if (constructorInvocation == null) Iterable.empty
+      else {
+        val argumentsList = findArgumentsList(position)
+        if (argumentsList == null) Iterable.empty
+        else {
           constructorInvocation.typeElement match {
             case typeElement@Typeable(tp) =>
               tp.extractClassType match {
@@ -145,20 +120,31 @@ object SameSignatureCallParametersProvider {
                 case Some((clazz: ScClass, substitutor)) if (if (clazz.hasTypeParameters) typeElement.is[ScParameterizedTypeElement] else true) =>
                   val argumentToStart = new ArgumentToStart(argumentsList)(constructorInvocation.arguments.indexOf(argumentsList))
 
-                  for {
-                    extractedClassConstructor <- clazz.constructors
-
-                    lookupElement <- createLookupElement(extractedClassConstructor, argumentToStart, substitutor) {
-                      findMethodParameters(constructor)
-                    }
-                  } yield lookupElement
-                    .withMoveCaretInsertionHandler
-                    .withSuperMethodParameters(true)
+                  createConstructorArgumentsElements(
+                    position,
+                    clazz,
+                    argumentToStart,
+                    substitutor,
+                    parameters.getInvocationCount
+                  ) ++ createAssignmentElements(clazz, argumentToStart, substitutor)
                 case _ => Iterable.empty
               }
             case _ => Iterable.empty
           }
-        case _ => Iterable.empty
+        }
+      }
+    }
+
+    private def createConstructorArgumentsElements(context: PsiElement, clazz: ScClass, argumentToStart: ArgumentToStart,
+                                                   substitutor: ScSubstitutor, invocationCount: Int) =
+      clazz.constructors.flatMap { extractedClassConstructor =>
+        createFunctionLookupElement(context, extractedClassConstructor, argumentToStart, substitutor,
+          invocationCount, hasSuperQualifier = true)
+      }
+
+    private def createAssignmentElements(clazz: ScClass, argumentToStart: ArgumentToStart, substitutor: ScSubstitutor) =
+      clazz.constructors.flatMap { extractedClassConstructor =>
+        createAssignmentLookupElement(extractedClassConstructor, argumentToStart, substitutor)
       }
   }
 
@@ -196,6 +182,44 @@ object SameSignatureCallParametersProvider {
 
   private[this] final case class ParameterArgument(override protected val typeable: ScParameter)
     extends Argument(typeable, typeable)
+
+  private def createFunctionLookupElement(context: PsiElement,
+                                          method: ScMethodLike,
+                                          argumentToStart: ArgumentToStart,
+                                          substitutor: ScSubstitutor,
+                                          invocationCount: Int,
+                                          hasSuperQualifier: Boolean): Option[LookupElementBuilder] =
+    createLookupElement(method, argumentToStart, substitutor) {
+      findResolvableParameters(context, invocationCount)
+    }.map { builder =>
+      builder.withMoveCaretInsertionHandler.withSuperMethodParameters(hasSuperQualifier)
+    }
+
+  private[this] def createAssignmentLookupElement(method: ScMethodLike,
+                                                  argumentToStart: ArgumentToStart,
+                                                  substitutor: ScSubstitutor): Option[LookupElementBuilder] =
+    createLookupElement(method, argumentToStart, substitutor)(findMethodParameters(method)).map { builder =>
+      builder.withTailText(AssignmentText).withInsertHandler(new AssignmentsInsertHandler)
+    }
+
+  private[this] def findResolvableParameters(reference: PsiElement,
+                                             invocationCount: Int)
+                                            (parameters: Seq[ScParameter]): Seq[(String, ExpressionArgument)] = for {
+    parameter <- parameters
+    name = parameter.name
+
+    expression = createExpressionWithContextFromText(
+      name,
+      reference.getContext,
+      reference
+    ).asInstanceOf[ScReferenceExpression]
+
+    iconable <- expression.resolve match {
+      case method: PsiMethod if method.isConstructor || !method.isParameterless => None
+      case member: PsiMember if !isAccessible(member, invocationCount)(reference) => None
+      case iconable => Option(iconable)
+    }
+  } yield name -> ExpressionArgument(expression, iconable)
 
   private[this] def findMethodParameters(method: ScMethodLike): Seq[ScParameter] => Seq[(String, ParameterArgument)] = { _ =>
     method
@@ -312,11 +336,6 @@ object SameSignatureCallParametersProvider {
 
   private[this] def findArgumentsList(position: PsiElement) =
     getContextOfType(position, classOf[ScArgumentExprList])
-
-  private[this] object ClassConstructor {
-
-    def unapply(`class`: ScClass): Option[ScPrimaryConstructor] = `class`.constructor
-  }
 
   private[this] implicit class LookupElementBuilderExt(private val builder: LookupElementBuilder) extends AnyVal {
 

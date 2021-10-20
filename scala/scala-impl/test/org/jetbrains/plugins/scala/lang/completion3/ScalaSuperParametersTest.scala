@@ -129,23 +129,330 @@ class ScalaSuperParametersTest extends ScalaCodeInsightTestBase {
        |""".stripMargin
   )
 
-  def testNoNameMatchingConstructor(): Unit = checkNoBasicCompletion(
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoNameMatchingConstructor(): Unit = super.checkNoCompletion(
     fileText =
       s"""class A(x: Int, y: Int)
          |
          |class B(x: Int, z: Int) extends A($CARET)
-         |""".stripMargin,
-    item = "x, y"
-  )
+         |""".stripMargin
+  ) {
+    hasItemText(_, "x, y")(tailText = null)
+  }
 
-  def testNoTypeMatchingConstructor(): Unit = checkNoBasicCompletion(
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoTypeMatchingConstructor(): Unit = super.checkNoCompletion(
     fileText =
       s"""class A(x: Int, y: Int)
          |
          |class B(x: Int, y: String) extends A($CARET)
+         |""".stripMargin
+  ) {
+    hasItemText(_, "x, y")(tailText = null)
+  }
+
+  def testConstructorAssignment(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B extends A($CARET)
          |""".stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B extends A(x = ???, y = ???)$CARET
+         |""".stripMargin,
+  ) {
+    hasItemText(_, "x, y")(tailText = " = ")
+  }
+
+  def testPositionInConstructorAssignment(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |class B extends A(, $CARET)
+         |""".stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |class B extends A(, y = ???, z = ???)$CARET
+         |""".stripMargin,
+    item = "y, z"
+  )
+
+  def testConstructorAssignmentLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B(x: Int) extends A(x$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |class B(x: Int) extends A(x = ???, y = ???)$CARET
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  def testConstructorCallAfterNew(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |new A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |new A(x, y)$CARET
+        """.stripMargin,
     item = "x, y"
   )
+
+  def testConstructorCallAfterNew2(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A(x, y, z)$CARET
+        """.stripMargin,
+    item = "x, y, z"
+  )
+
+  def testConstructorCallAfterNew3(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A(x, y)$CARET
+        """.stripMargin,
+    item = "x, y"
+  )
+
+  def testConstructorCallAfterNew3Smart(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int) {
+         |  def this(x: Int, y: Int, z: Int) = this(x, y)
+         |}
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A(x, y)$CARET
+        """.stripMargin,
+    item = "x, y",
+    completionType = CompletionType.SMART
+  )
+
+  def testConstructorCallAfterNewLookupElement(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |new A($CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |new A(x, y)$CARET
+        """.stripMargin,
+    item = "x, y",
+    isSuper = true,
+    icons = PATTERN_VAL, PATTERN_VAL
+  )
+
+  def testAfterParenthesisOnlyInConstructorAfterNew(): Unit = checkNoCompletion(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |new A(x, $CARET)
+        """.stripMargin
+  )
+
+  def testBeforeParenthesisOnlyInConstructorAfterNew(): Unit = checkNoCompletion(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: Int = ???
+         |
+         |new A($CARET, y)
+        """.stripMargin
+  )
+
+  def testPositionInConstructorAfterNew(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A(, $CARET)
+        """.stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |val y: Int = ???
+         |val z: Int = ???
+         |
+         |new A(, y, z)$CARET
+        """.stripMargin,
+    item = "y, z"
+  )
+
+  def testEmptyConstructorAfterNew(): Unit = checkNoCompletion(
+    s"""class A()
+       |
+       |val x: Int = ???
+       |val y: Int = ???
+       |
+       |new A($CARET)
+       |""".stripMargin
+  )
+
+  def testTooShortConstructorAfterNew(): Unit = checkNoCompletion(
+    s"""class A(x: Int)
+       |
+       |val x: Int = ???
+       |val y: Int = ???
+       |
+       |new A($CARET)
+       |""".stripMargin
+  )
+
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoNameMatchingConstructorAfterNew(): Unit = super.checkNoCompletion(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val z: Int = ???
+         |
+         |new A($CARET)
+         |""".stripMargin
+  ) {
+    hasItemText(_, "x, y")(tailText = null)
+  }
+
+  // should have (x = ???, y = ???) but not (x, y)
+  def testNoTypeMatchingConstructorAfterNew(): Unit = super.checkNoCompletion(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |val x: Int = ???
+         |val y: String = ???
+         |
+         |new A($CARET)
+         |""".stripMargin
+  ) {
+    hasItemText(_, "x, y")(tailText = null)
+  }
+
+  def testConstructorAssignmentAfterNew(): Unit = doRawCompletionTest(
+    fileText =
+      s"""class A()(x: Int, y: Int)
+         |
+         |new A()(x$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""class A()(x: Int, y: Int)
+         |
+         |new A()(x = ???, y = ???)$CARET
+         |""".stripMargin,
+  ) {
+    hasItemText(_, "x, y")(tailText = " = ")
+  }
+
+  def testPositionInContructorAssignmentAfterNew(): Unit = doCompletionTest(
+    fileText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |new A(, $CARET)
+         |""".stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int, z: Int)
+         |
+         |new A(, y = ???, z = ???)$CARET
+         |""".stripMargin,
+    item = "y, z"
+  )
+
+  def testConstructorAssignmentLookupElementAfterNew(): Unit = checkLookupElement(
+    fileText =
+      s"""class A(x: Int, y: Int)
+         |
+         |new A(x$CARET)
+         |""".stripMargin,
+    resultText =
+      s"""class A(x: Int, y: Int)
+         |
+         |new A(x = ???, y = ???)$CARET
+         |""".stripMargin,
+    item = "x, y",
+    isSuper = false,
+    icons = PARAMETER, PARAMETER
+  )
+
+  ////////////////////
 
   def testSuperCall(): Unit = doCompletionTest(
     fileText =
