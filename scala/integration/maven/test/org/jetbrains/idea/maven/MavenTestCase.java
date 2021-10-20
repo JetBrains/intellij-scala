@@ -37,7 +37,6 @@ import org.jetbrains.idea.maven.indices.MavenIndicesManager;
 import org.jetbrains.idea.maven.project.*;
 import org.jetbrains.idea.maven.server.MavenServerManager;
 import org.jetbrains.idea.maven.utils.MavenProgressIndicator;
-import org.junit.Assert;
 
 import java.awt.*;
 import java.io.File;
@@ -48,8 +47,6 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static org.fest.assertions.Assertions.assertThat;
 
 public abstract class MavenTestCase extends UsefulTestCase {
   protected static final String MAVEN_COMPILER_PROPERTIES = "<properties>\n" +
