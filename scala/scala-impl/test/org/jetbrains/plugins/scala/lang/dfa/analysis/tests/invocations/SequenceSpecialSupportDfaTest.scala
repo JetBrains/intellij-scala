@@ -115,4 +115,39 @@ class SequenceSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list3(5)" -> InvocationIndexOutOfBounds,
     "list1.map(_ * 2).map(y => y - 3) == list2" -> ConditionAlwaysFalse
   )
+
+  def testFilterMethod(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |val list1 = List(4, 6, 20, 55)
+      |val list2 = 30 :: list1
+      |val list3 = list1.filter(_ > 3)
+      |list3 == list1
+      |list1.filter(x => x == 4) == list2
+      |list3(1)
+      |list3(5)
+      |""".stripMargin
+  })(
+    "list3(5)" -> InvocationIndexOutOfBounds,
+    "list1.filter(x => x == 4) == list2" -> ConditionAlwaysFalse
+  )
+
+  def testSizeMethod(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |val list1 = List(4, 6, 20, 55)
+      |val list2 = 30 :: list1
+      |val list3 = list1.filter(_ > 3)
+      |val x = list1.size
+      |x == 3
+      |list3.size > 2
+      |list3.size < 6
+      |list2.size != 5
+      |list3 == list1
+      |list1.filter(x => x == 4).size < 6
+      |""".stripMargin
+  })(
+    "x == 3" -> ConditionAlwaysFalse,
+    "list3.size < 6" -> ConditionAlwaysTrue,
+    "list2.size != 5" -> ConditionAlwaysFalse,
+    "list1.filter(x => x == 4).size < 6" -> ConditionAlwaysTrue,
+  )
 }

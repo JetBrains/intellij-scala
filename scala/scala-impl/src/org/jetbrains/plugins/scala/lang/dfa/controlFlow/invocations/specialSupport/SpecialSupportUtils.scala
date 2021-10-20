@@ -2,7 +2,8 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupp
 
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
-import com.intellij.codeInspection.dataFlow.types.{DfIntConstantType, DfReferenceType, DfType}
+import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
+import com.intellij.codeInspection.dataFlow.types.{DfIntConstantType, DfIntegralType, DfReferenceType, DfType}
 import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember}
 import org.jetbrains.plugins.scala.extensions._
@@ -16,12 +17,23 @@ object SpecialSupportUtils {
     if (properArguments.flatten.size == 1) argumentValues.get(properArguments.flatten.head) else None
   }
 
-  def collectionSizeFromDfaValueInState(dfaValue: DfaValue, state: DfaMemoryState)
-                                       (implicit factory: DfaValueFactory): Option[Int] = {
+  def collectionSpecificSizeFromDfaValueInState(dfaValue: DfaValue, state: DfaMemoryState)
+                                               (implicit factory: DfaValueFactory): Option[Int] = {
     tryRetrieveCollectionSizeDirectly(dfaValue.getDfType) match {
       case Some(size) => Some(size)
       case _ => state.getDfType(SpecialField.COLLECTION_SIZE.createValue(factory, dfaValue)) match {
         case intConstant: DfIntConstantType => Some(intConstant.getValue.intValue)
+        case _ => None
+      }
+    }
+  }
+
+  def collectionSizeRangeFromDfaValueInState(dfaValue: DfaValue, state: DfaMemoryState)
+                                            (implicit factory: DfaValueFactory): Option[LongRangeSet] = {
+    tryRetrieveCollectionSizeDirectly(dfaValue.getDfType) match {
+      case Some(size) => Some(LongRangeSet.point(size))
+      case _ => state.getDfType(SpecialField.COLLECTION_SIZE.createValue(factory, dfaValue)) match {
+        case integralType: DfIntegralType => Some(integralType.getRange)
         case _ => None
       }
     }

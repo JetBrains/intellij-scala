@@ -26,9 +26,13 @@ import org.jetbrains.plugins.scala.lang.psi.types.api.Any
 //noinspection UnstableApiUsage
 object ScalaDfaTypeUtils {
 
-  def dfTypeImmutableCollection(size: Int): DfType = {
-    SpecialField.COLLECTION_SIZE.asDfType(DfTypes.intValue(size))
+  def dfTypeImmutableCollectionFromSizeDfType(sizeDfType: DfType): DfType = {
+    SpecialField.COLLECTION_SIZE.asDfType(sizeDfType)
       .meet(Mutability.UNMODIFIABLE.asDfType())
+  }
+
+  def dfTypeImmutableCollectionFromSize(size: Int): DfType = {
+    dfTypeImmutableCollectionFromSizeDfType(DfTypes.intValue(size))
   }
 
   def literalToDfType(literal: ScLiteral): DfType = literal match {
@@ -76,7 +80,7 @@ object ScalaDfaTypeUtils {
   //noinspection UnstableApiUsage
   def scTypeToDfType(scType: ScType): DfType = scType.extractClass match {
     case Some(psiClass) if psiClass.qualifiedName.startsWith(s"$ScalaCollectionImmutable.Nil") =>
-      dfTypeImmutableCollection(0)
+      dfTypeImmutableCollectionFromSize(0)
     case Some(psiClass) if scType == Any(psiClass.getProject) => DfType.TOP
     case Some(psiClass) => psiClass.qualifiedName match {
       case "scala.Int" => DfTypes.INT

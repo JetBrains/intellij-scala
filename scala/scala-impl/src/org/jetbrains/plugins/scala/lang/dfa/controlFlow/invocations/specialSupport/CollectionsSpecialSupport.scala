@@ -1,14 +1,15 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport
 
 import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
-import com.intellij.codeInspection.dataFlow.types.DfType
-import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
+import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
+import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
+import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory, RelationType}
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationInfo
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.ir.MethodEffect
-import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.SpecialSupportUtils.{collectionSizeFromDfaValueInState, retrieveSingleProperArgumentValue}
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.SpecialSupportUtils.{collectionSizeRangeFromDfaValueInState, collectionSpecificSizeFromDfaValueInState, retrieveSingleProperArgumentValue}
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.dfTypeImmutableCollection
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{dfTypeImmutableCollectionFromSize, dfTypeImmutableCollectionFromSizeDfType}
 
 //noinspection UnstableApiUsage
 object CollectionsSpecialSupport {
@@ -24,8 +25,12 @@ object CollectionsSpecialSupport {
         (supportConsOperator(invocationInfo, argumentValues, state), true)
       case name if name.endsWith("immutable.List.apply") || name.endsWith("IterableFactory.apply") =>
         (supportListFactoryApply(invocationInfo, argumentValues), true)
-      case name if name.endsWith("TraversableLike.map") =>
+      case name if name.endsWith("immutable.List.map") || name.endsWith("TraversableLike.map") =>
         (supportSequenceMap(invocationInfo, argumentValues, state), false)
+      case name if name.endsWith("immutable.List.filter") || name.endsWith("TraversableLike.filter") =>
+        (supportSequenceFilter(invocationInfo, argumentValues, state), false)
+      case name if name.endsWith("SeqOps.size") || name.endsWith("SeqLike.size") =>
+        (supportSequenceSize(invocationInfo, argumentValues, state), true)
       case name if name.startsWith(ScalaCollectionImmutable) => (None, true)
       case _ => (None, false)
     }
@@ -40,26 +45,50 @@ object CollectionsSpecialSupport {
   private def supportListFactoryApply(invocationInfo: InvocationInfo,
                                       argumentValues: Map[Argument, DfaValue]): Option[DfType] = {
     if (invocationInfo.properArguments.flatten.isEmpty) { // Proper vararg argument is empty
-      Some(dfTypeImmutableCollection(0))
+      Some(dfTypeImmutableCollectionFromSize(0))
     } else retrieveSingleProperArgumentValue(invocationInfo.properArguments, argumentValues).map(_.getDfType)
   }
 
   private def supportConsOperator(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
                                   state: DfaMemoryState)(implicit factory: DfaValueFactory): Option[DfType] = {
-    val previousSize = retrievePreviousSizeOfCollection(invocationInfo, argumentValues, state, sizeDifference = 0)
-    previousSize.map(_ + 1).map(dfTypeImmutableCollection)
+    val previousSize = retrievePreviousSpecificSizeOfCollection(invocationInfo, argumentValues, state)
+    previousSize.map(_ + 1).map(dfTypeImmutableCollectionFromSize)
   }
 
   private def supportSequenceMap(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
                                  state: DfaMemoryState)(implicit factory: DfaValueFactory): Option[DfType] = {
-    val previousSize = retrievePreviousSizeOfCollection(invocationInfo, argumentValues, state, sizeDifference = 0)
-    previousSize.map(dfTypeImmutableCollection)
+    val previousSize = retrievePreviousSpecificSizeOfCollection(invocationInfo, argumentValues, state)
+    previousSize.map(dfTypeImmutableCollectionFromSize)
   }
 
-  private def retrievePreviousSizeOfCollection(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
-                                               state: DfaMemoryState, sizeDifference: Int)
-                                              (implicit factory: DfaValueFactory): Option[Int] = {
+  private def supportSequenceFilter(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
+                                    state: DfaMemoryState)(implicit factory: DfaValueFactory): Option[DfType] = {
+    val previousSize = retrievePreviousSpecificSizeOfCollection(invocationInfo, argumentValues, state)
+    previousSize.map(DfTypes.intValue)
+      .map(_.fromRelation(RelationType.LE))
+      .map(_.meet(DfTypes.intValue(0).fromRelation(RelationType.GE)))
+      .map(dfTypeImmutableCollectionFromSizeDfType)
+  }
+
+  private def supportSequenceSize(invocationInfo: InvocationInfo, argumentValues: Map[Argument, DfaValue],
+                                  state: DfaMemoryState)(implicit factory: DfaValueFactory): Option[DfType] = {
+    val previousSize = retrievePreviousSizeRangeOfCollection(invocationInfo, argumentValues, state)
+    previousSize.map(DfTypes.intRange)
+  }
+
+  private def retrievePreviousSizeRangeOfCollection(invocationInfo: InvocationInfo,
+                                                    argumentValues: Map[Argument, DfaValue],
+                                                    state: DfaMemoryState)
+                                                   (implicit factory: DfaValueFactory): Option[LongRangeSet] = {
     val thisArgDfaValue = invocationInfo.thisArgument.flatMap(argumentValues.get)
-    thisArgDfaValue.flatMap(collectionSizeFromDfaValueInState(_, state))
+    thisArgDfaValue.flatMap(collectionSizeRangeFromDfaValueInState(_, state))
+  }
+
+  private def retrievePreviousSpecificSizeOfCollection(invocationInfo: InvocationInfo,
+                                                       argumentValues: Map[Argument, DfaValue],
+                                                       state: DfaMemoryState)
+                                                      (implicit factory: DfaValueFactory): Option[Int] = {
+    val thisArgDfaValue = invocationInfo.thisArgument.flatMap(argumentValues.get)
+    thisArgDfaValue.flatMap(collectionSpecificSizeFromDfaValueInState(_, state))
   }
 }
