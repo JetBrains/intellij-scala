@@ -8,9 +8,24 @@ import org.jetbrains.plugins.scala.project.ProjectContext
 
 object OtherMethodsSpecialSupport {
 
-  val CommonMethodsMapping: Map[(String, String), String] = Map(
-    (s"$ScalaMath.abs", ScalaInt) -> s"$JavaLangMath.abs(0)",
-    (s"$ScalaMath.abs", ScalaLong) -> s"$JavaLangMath.abs(0L)"
+  val CommonMethodsMapping: Map[(String, String), String] = Map() ++
+    unaryMathFunctionMappings("abs") ++
+    unaryMathFunctionMappings("sqrt") ++
+    binaryMathFunctionMappings("max") ++
+    binaryMathFunctionMappings("min")
+
+  private def unaryMathFunctionMappings(functionName: String): Seq[((String, String), String)] = List(
+    (s"$ScalaMath.$functionName", ScalaInt) -> s"$JavaLangMath.$functionName(0)",
+    (s"$ScalaMath.$functionName", ScalaLong) -> s"$JavaLangMath.$functionName(0L)",
+    (s"$ScalaMath.$functionName", ScalaDouble) -> s"$JavaLangMath.$functionName(0.0)",
+    (s"$ScalaMath.$functionName", ScalaFloat) -> s"$JavaLangMath.$functionName(0.0F)"
+  )
+
+  private def binaryMathFunctionMappings(functionName: String): Seq[((String, String), String)] = List(
+    (s"$ScalaMath.$functionName", ScalaInt) -> s"$JavaLangMath.$functionName(0, 0)",
+    (s"$ScalaMath.$functionName", ScalaLong) -> s"$JavaLangMath.$functionName(0L, 0L)",
+    (s"$ScalaMath.$functionName", ScalaDouble) -> s"$JavaLangMath.$functionName(0.0, 0.0)",
+    (s"$ScalaMath.$functionName", ScalaFloat) -> s"$JavaLangMath.$functionName(0.0F, 0.0F)"
   )
 
   def psiMethodFromText(text: String)(implicit projectContext: ProjectContext): Option[PsiMethod] = {

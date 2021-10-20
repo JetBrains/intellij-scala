@@ -9,10 +9,12 @@ class InfixOperatorsDfaTest extends ScalaDfaTestBase {
     """
       |3 > 2
       |22 <= 3 * 7
+      |3.0 > 2.2
       |""".stripMargin
   })(
     "3 > 2" -> ConditionAlwaysTrue,
-    "22 <= 3 * 7" -> ConditionAlwaysFalse
+    "22 <= 3 * 7" -> ConditionAlwaysFalse,
+    "3.0 > 2.2" -> ConditionAlwaysTrue
   )
 
   def testLogicalOperatorsAndBooleanLiteralSuppression(): Unit =
