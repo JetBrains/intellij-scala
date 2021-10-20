@@ -30,6 +30,8 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     case typedExpression: ScTypedExpression => transformTypedExpression(typedExpression, builder)
     case newTemplateDefinition: ScNewTemplateDefinition => transformNewTemplateDefinition(newTemplateDefinition, builder)
     case assignment: ScAssignment => transformAssignment(assignment, builder)
+    case underscoreSection: ScUnderscoreSection => builder.pushUnknownValue()
+    case functionExpression: ScFunctionExpr => builder.pushUnknownValue()
     case _ => throw TransformationFailedException(wrappedExpression, "Unsupported expression.")
   }
 
@@ -103,6 +105,7 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     val transfer = builder.maybeTransferValue(NullPointerExceptionName)
     val problem = ScalaNullAccessProblem(accessExpression)
     builder.pushInstruction(new EnsureInstruction(problem, RelationType.NE, DfTypes.NULL, transfer.orNull))
+    builder.popReturnValue()
   }
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {

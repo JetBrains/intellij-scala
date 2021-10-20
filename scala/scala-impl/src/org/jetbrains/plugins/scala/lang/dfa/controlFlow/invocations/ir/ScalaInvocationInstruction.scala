@@ -120,7 +120,7 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
         Some(methodEffect)
       case _ => None
     }
-    val collectionsEnhancement = findSpecialSupportForCollections(invocationInfo, argumentValues)
+    val collectionsEnhancement = findSpecialSupportForCollections(invocationInfo, argumentValues, stateBefore)
 
     val enhancement = classesEnhancement.orElse(collectionsEnhancement)
     enhancement.map(enhanceReturnType(returnType, _))

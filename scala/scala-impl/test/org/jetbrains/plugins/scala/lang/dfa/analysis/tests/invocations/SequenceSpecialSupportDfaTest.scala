@@ -10,13 +10,17 @@ class SequenceSpecialSupportDfaTest extends ScalaDfaTestBase {
       |val list1 = List(3, 5, 8)
       |val list2 = 3 :: 5 :: Nil
       |val list3 = List(3, 6)
+      |val list4 = 5 :: 4 :: list3
       |list1 == list2
       |list1 == list3
       |list2 == list3
+      |list4 == List(5, 9, 3, 2)
+      |list4 == List(5, 9, 3)
       |""".stripMargin
   })(
     "list1 == list2" -> ConditionAlwaysFalse,
-    "list1 == list3" -> ConditionAlwaysFalse
+    "list1 == list3" -> ConditionAlwaysFalse,
+    "list4 == List(5, 9, 3)" -> ConditionAlwaysFalse
   )
 
   def testApplyAccessOnLists(): Unit = test(codeFromMethodBody(returnType = "Int") {
@@ -96,5 +100,19 @@ class SequenceSpecialSupportDfaTest extends ScalaDfaTestBase {
     "list3.head" -> InvocationNoSuchElement,
     "x < 500" -> ConditionAlwaysTrue,
     "x < 500" -> ConditionAlwaysTrue
+  )
+
+  def testMapMethod(): Unit = test(codeFromMethodBody(returnType = "Int") {
+    """
+      |val list1 = List(4, 6, 20, 55)
+      |val list2 = 30 :: list1
+      |val list3 = list1.map(_ * 2)
+      |list1.map(_ * 2).map(y => y - 3) == list2
+      |list3(1)
+      |list3(5)
+      |""".stripMargin
+  })(
+    "list3(5)" -> InvocationIndexOutOfBounds,
+    "list1.map(_ * 2).map(y => y - 3) == list2" -> ConditionAlwaysFalse
   )
 }

@@ -1,28 +1,33 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport
 
+import com.intellij.codeInspection.dataFlow.jvm.SpecialField
+import com.intellij.codeInspection.dataFlow.memory.DfaMemoryState
 import com.intellij.codeInspection.dataFlow.types.{DfIntConstantType, DfReferenceType, DfType}
-import com.intellij.codeInspection.dataFlow.value.DfaValue
+import com.intellij.codeInspection.dataFlow.value.{DfaValue, DfaValueFactory}
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember}
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.{ScClass, ScObject, ScTypeDefinition}
 
 object SpecialSupportUtils {
 
   def retrieveSingleProperArgumentValue(properArguments: List[List[Argument]],
                                         argumentValues: Map[Argument, DfaValue]): Option[DfaValue] = {
-    if (properArguments.flatten.size == 1)
-      argumentValues.get(properArguments.flatten.head)
-    else None
+    if (properArguments.flatten.size == 1) argumentValues.get(properArguments.flatten.head) else None
   }
 
-  def retrieveListSize(dfaValue: DfaValue): Option[Int] = {
-    if (dfaValue.getDfType.toString == s"$ScalaCollectionImmutable.Nil$$") Some(0)
-    else collectionSizeFromDfType(dfaValue.getDfType)
+  def collectionSizeFromDfaValueInState(dfaValue: DfaValue, state: DfaMemoryState)
+                                       (implicit factory: DfaValueFactory): Option[Int] = {
+    tryRetrieveCollectionSizeDirectly(dfaValue.getDfType) match {
+      case Some(size) => Some(size)
+      case _ => state.getDfType(SpecialField.COLLECTION_SIZE.createValue(factory, dfaValue)) match {
+        case intConstant: DfIntConstantType => Some(intConstant.getValue.intValue)
+        case _ => None
+      }
+    }
   }
 
-  private def collectionSizeFromDfType(dfType: DfType): Option[Int] = dfType match {
+  private def tryRetrieveCollectionSizeDirectly(dfType: DfType): Option[Int] = dfType match {
     case referenceType: DfReferenceType => referenceType.getSpecialFieldType match {
       case intConstant: DfIntConstantType => Some(intConstant.getValue.intValue)
       case _ => None
