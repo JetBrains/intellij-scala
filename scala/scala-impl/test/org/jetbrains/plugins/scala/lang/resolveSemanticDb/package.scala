@@ -8,25 +8,30 @@ import scala.meta.internal.semanticdb
 
 package object resolveSemanticDb {
 
-  implicit class RangeOps(private val range: semanticdb.Range) extends AnyVal {
+  implicit class RangeOps(private val range: (TextPos, TextPos)) extends AnyVal {
     def contains(pos: TextPos): Boolean =
-      range.startLine <= pos.line && pos.line <= range.endLine &&
-        range.startCharacter <= pos.col && pos.col < range.endCharacter
+      range._1.line <= pos.line && pos.line <= range._2.line &&
+        range._1.col <= pos.col && pos.col < range._2.col
 
     def isEmpty: Boolean =
-      range.startLine == range.endLine && range.startCharacter == range.endCharacter
+      range._1 == range._2
 
     def is(pos: TextPos): Boolean =
-      range.isEmpty && range.startLine == pos.line && range.startCharacter == pos.col
+      range.isEmpty && range._1 == pos
 
-    def mkString: String =
-      s"${range.startLine}:${range.startCharacter}..${range.endLine}:${range.endCharacter}"
   }
 
   case class TextPos(line: Int, col: Int) {
     override def toString: String = s"${line + 1}:${col + 1}"
   }
 
+  object TextPos {
+    def ofStart(range: semanticdb.Range): TextPos =
+      TextPos(range.startLine, range.startCharacter)
+    def ofEnd(range: semanticdb.Range): TextPos =
+      TextPos(range.endLine, range.endCharacter)
+
+  }
   def textPosOf(e: PsiElement): TextPos = textPosOf(e.getTextOffset, e.getContainingFile)
   def textPosOf(offset: Int, file: PsiFile): TextPos = {
     if (offset < 0) {

@@ -31,7 +31,7 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
 
   protected def runTestToResult(testName: String): Result = {
     val files = setupFiles(testName)
-    val store = SemanticDbStore(outPath.resolve(testName))
+    val store = SemanticDbStore.fromSemanticDbPath(outPath.resolve(testName))
 
     var problems = Seq.empty[String]
     var refCount = 0
@@ -65,15 +65,15 @@ abstract class ReferenceComparisonTestBase extends ComparisonTestBase {
           var newProblems = List.empty[String]
 
           if (!ref.targets.exists(target => isInRefinement(target.e))) {
-            def ignoreSemanticDbRef(ref: SDbOccurrence): Boolean = {
+            def ignoreSemanticDbRef(ref: SDbRef): Boolean = {
               // ignore locals and implicits involving ClassTag
-              ref.pointsToLocal || ref.info.symbol.contains("ClassTag")
+              ref.pointsToLocal || ref.symbol.contains("ClassTag")
             }
 
             for(semanticDbRef <- semanticDbReferences if !ignoreSemanticDbRef(semanticDbRef)) {
               didTest = true
-              val semanticDbTargetPos = semanticDbRef.symbol.map(_.position)
-              val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.info.symbol)
+              val semanticDbTargetPos = semanticDbRef.targetPosition
+              val semanticDbTargetSymbol = ComparisonSymbol.fromSemanticDb(semanticDbRef.symbol)
               val textFits = ref.targets.exists(_.symbol == semanticDbTargetSymbol)
               val positionFits = semanticDbTargetPos.exists(ref.targets.map(_.adjustedPosition).contains)
 
