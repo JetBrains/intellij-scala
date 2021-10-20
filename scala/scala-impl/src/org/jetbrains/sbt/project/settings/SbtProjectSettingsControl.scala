@@ -58,8 +58,8 @@ class SbtProjectSettingsControl(context: Context, initialSettings: SbtProjectSet
       extraControls.useSbtShellForImportCheckBox.isSelected != settings.useSbtShellForImport ||
       extraControls.useSbtShellForBuildCheckBox.isSelected != settings.useSbtShellForBuild ||
       extraControls.remoteDebugSbtShellCheckBox.isSelected != settings.enableDebugSbtShell ||
-      extraControls.allowSbtVersionOverrideCheckBox.isSelected != settings.allowSbtVersionOverride
-      (extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0) != settings.preferScala2
+      extraControls.allowSbtVersionOverrideCheckBox.isSelected != settings.allowSbtVersionOverride ||
+      extraControls.scalaVersionPreferenceComboBox.getSelectedIndex == 0 != settings.preferScala2
   }
 
   override protected def resetExtraSettings(isDefaultModuleCreation: Boolean): Unit = {
