@@ -5,6 +5,7 @@ import com.intellij.openapi.command.WriteCommandAction
 import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.{ModuleManager, Module => OpenapiModule}
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.{LocalFileSystem, VirtualFile}
 import com.intellij.psi.{PsiElement, PsiFile, PsiManager}
@@ -15,7 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.statements.ScPatternDefinition
 import org.jetbrains.plugins.scala.lang.psi.api.{ScalaElementVisitor, ScalaFile}
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.project.{ProjectContext, ProjectExt, ProjectPsiElementExt}
-import org.jetbrains.sbt.SbtUtil.getSbtModuleData
+import org.jetbrains.sbt.SbtUtil.{getBuildModuleData, getSbtModuleData}
 import org.jetbrains.sbt.language.utils.SbtDependencyUtils.GetMode.GetDep
 import org.jetbrains.sbt.project.data.{SbtModuleData, SbtModuleExtData}
 import org.jetbrains.sbt.{RichFile, Sbt, SbtUtil, language}
@@ -660,25 +661,31 @@ object SbtDependencyUtils {
     }
   }
 
-  def getSbtFileOpt(module: OpenapiModule): Option[VirtualFile] = {
-    val project = module.getProject
-    val sbtProj: File = getSbtModuleData(module) match {
-      case Some(sbtModuleData: SbtModuleData) => new File(sbtModuleData.buildURI.toString.stripPrefix("file:"))
-      case _ => null
-    }
-    if (sbtProj == null) return null
-    val sbtFilePath = sbtProj / Sbt.BuildFile
-    if (sbtFilePath.exists()) {
-      val virtualSbtFilePath = LocalFileSystem.getInstance().findFileByPath(sbtFilePath.getAbsolutePath)
-      Some(virtualSbtFilePath)
-    }
-    else { // get top level sbt file
-      val baseDir: VirtualFile = project.baseDir
-      val sbtFileOpt = baseDir.findChild(Sbt.BuildFile) match {
-        case buildFile if buildFile != null && buildFile.exists() => Some(buildFile)
-        case _ => baseDir.getChildren.find(language.SbtFileType.isMyFileType)
-      }
-      sbtFileOpt
-    }
+  def getSbtFileFromBuildModule(buildModule: OpenapiModule): Option[VirtualFile] = {
+    val sbtFiles = ModuleRootManager.getInstance(buildModule)
+      .getContentRoots
+      .flatMap(f => f.getChildren.filter(_.getName.endsWith(Sbt.Extension)))
+
+    sbtFiles.find(_.getName == Sbt.BuildFile)
+      .orElse(sbtFiles.headOption)
   }
+
+  /** Find the corresponding sbt build module for an sbt module */
+  def getBuildModule(module: OpenapiModule): Option[OpenapiModule] = {
+    val project = module.getProject
+    val moduleManager = ModuleManager.getInstance(project)
+    val buildModules = for {
+      moduleData <- getSbtModuleData(module).to(Seq)
+      m <- moduleManager.getModules
+      projectId = ExternalSystemApiUtil.getExternalProjectId(m)
+      sbtModuleData <- getBuildModuleData(project, projectId)
+      if moduleData.buildURI == sbtModuleData.buildFor
+    } yield m
+    buildModules.headOption // we only expect zero or one here
+  }
+
+  def getSbtFileOpt(module: OpenapiModule): Option[VirtualFile] =
+    getBuildModule(module)
+      .flatMap(getSbtFileFromBuildModule)
+      .orElse(getSbtFileFromBuildModule(module)) // if module is itself a build module
 }

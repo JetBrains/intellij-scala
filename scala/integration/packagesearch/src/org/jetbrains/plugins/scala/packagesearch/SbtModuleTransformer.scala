@@ -3,6 +3,7 @@ package org.jetbrains.plugins.scala.packagesearch
 import com.intellij.buildsystem.model.unified.UnifiedDependency
 import com.intellij.ide.util.PsiNavigationSupport
 import com.intellij.openapi.diagnostic.ControlFlowException
+import com.intellij.openapi.externalSystem.util.ExternalSystemApiUtil
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.{DumbService, Project}
 import com.intellij.openapi.roots.ModuleRootManager
@@ -30,7 +31,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     })
   }
 
-  def createNavigableDependencyCallback(project: Project,
+  private def createNavigableDependencyCallback(project: Project,
                                         module: Module): (String, String, PackageVersion) =>
     Navigatable = (groupId: String, artifactId: String, packageVersion: PackageVersion) => {
 
@@ -52,9 +53,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     }
   }
 
-  private def obtainProjectModulesFor(module: Module): Option[ProjectModule] = try {
-    if (!SbtUtil.isSbtModule(module))
-      return None
+  private def obtainProjectModulesFor(module: Module, dumbMode: Boolean): Option[ProjectModule] = try {
 
     val sbtFileOpt = SbtDependencyUtils.getSbtFileOpt(module)
     sbtFileOpt match {
@@ -70,7 +69,7 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
             emptyList()
         )
         Some {
-          if (!DumbService.getInstance(project).isDumb)
+          if (!dumbMode)
             ScalaKotlinHelper.createNavigatableProjectModule(projectModule, createNavigableDependencyCallback(project, module))
           else
             projectModule
@@ -83,7 +82,16 @@ class SbtModuleTransformer(private val project: Project) extends ModuleTransform
     case _: Exception => None
   }
 
-  override def transformModules(project: Project, list: util.List[_ <: Module]): util.List[ProjectModule] = {
-    list.asScala.flatMap(module => obtainProjectModulesFor(module)).distinct.asJava
+  override def transformModules(project: Project, nativeModules: util.List[_ <: Module]): util.List[ProjectModule] = {
+    val dumbMode = DumbService.isDumb(project)
+
+    nativeModules.asScala
+      .filter { m =>
+        SbtUtil.isSbtModule(m) &&
+          SbtUtil.getBuildModuleData(project, ExternalSystemApiUtil.getExternalProjectId(m)).isDefined
+      }
+      .flatMap(m => obtainProjectModulesFor(m, dumbMode))
+      .distinct
+      .asJava
   }
 }

@@ -13,7 +13,7 @@ import com.intellij.util.BooleanFunction
 import org.jetbrains.plugins.scala.buildinfo.BuildInfo
 import org.jetbrains.plugins.scala.project.Version
 import org.jetbrains.sbt.project.SbtProjectSystem
-import org.jetbrains.sbt.project.data.SbtModuleData
+import org.jetbrains.sbt.project.data.{SbtBuildModuleData, SbtModuleData}
 
 import java.io.{BufferedInputStream, File, FileInputStream}
 import java.net.URI
@@ -170,6 +170,13 @@ object SbtUtil {
 
     val moduleDataSeq = getModuleData(project, moduleId, SbtModuleData.Key)
     moduleDataSeq.find(_.buildURI.uri != emptyURI)
+  }
+
+  def getBuildModuleData(project: Project, moduleId: String): Option[SbtBuildModuleData] = {
+    val emptyURI = new URI("")
+
+    getModuleData(project, moduleId, SbtBuildModuleData.Key)
+      .find(_.buildFor != emptyURI)
   }
 
   def getModuleData[K](project: Project, moduleId: String, key: Key[K]): Iterable[K] = {
