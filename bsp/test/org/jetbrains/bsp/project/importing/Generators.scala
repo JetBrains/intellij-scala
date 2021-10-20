@@ -91,8 +91,9 @@ object Generators {
     scalaOrganization <- arbitrary[String]
     scalaVersion <- arbitrary[Option[String]]
     scalacClasspath <- arbitrary[File].list
+    scaladocExtraClasspath <- arbitrary[File].list
     scalacOptions <- arbitrary[String].list
-  } yield ScalaSdkData(scalaOrganization, scalaVersion.orNull, scalacClasspath, scalacOptions)
+  } yield ScalaSdkData(scalaOrganization, scalaVersion.orNull, scalacClasspath, scaladocExtraClasspath, scalacOptions)
 
   def genJdkData: Gen[JdkData] = for {
     javaHome <- genFileUri

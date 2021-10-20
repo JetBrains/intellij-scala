@@ -52,6 +52,7 @@ private[importing] object BspResolverLogic {
       scalaOrganization = target.getScalaOrganization,
       scalaVersion = target.getScalaVersion,
       scalacClasspath = target.getJars.asScala.map(_.toURI.toFile).asJava,
+      scaladocExtraClasspath = Collections.emptyList(), // FIXME pass in actual data when obtainable from BSP: https://github.com/build-server-protocol/build-server-protocol/issues/229
       scalacOptions = scalaOptionsStrings
     )
     (jdk, scala)
