@@ -15,8 +15,10 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.InvocationIn
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.ClassesSpecialSupport.findSpecialSupportForClasses
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.CollectionsSpecialSupport.findSpecialSupportForCollections
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport.OtherMethodsSpecialSupport.{CommonMethodsMapping, psiMethodFromText}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{findArgumentsPrimitiveType, scTypeToDfType}
 import org.jetbrains.plugins.scala.lang.psi.api.statements.params.ScClassParameter
+import org.jetbrains.plugins.scala.project.ProjectContext
 
 import scala.jdk.CollectionConverters._
 import scala.language.postfixOps
@@ -74,13 +76,35 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
 
   private def findMethodEffect(interpreter: DataFlowInterpreter, stateBefore: DfaMemoryState, argumentValues: Map[Argument, DfaValue])
                               (implicit factory: DfaValueFactory): MethodEffect = {
-    invocationInfo.invokedElement.map(_.psiElement) match {
-      case Some(psiMethod: PsiMethod) => Option(CustomMethodHandlers.find(psiMethod)) match {
-        case Some(handler) => findMethodEffectWithJavaCustomHandler(stateBefore,
-          argumentValues, handler, psiMethod)
-        case _ => findMethodEffectForScalaMethod(interpreter, stateBefore, argumentValues)
-      }
-      case _ => findMethodEffectForScalaMethod(interpreter, stateBefore, argumentValues)
+    invocationInfo.invokedElement match {
+      case None => MethodEffect(unknownValue, isPure = false)
+      case Some(invokedElement) =>
+        implicit val projectContext: ProjectContext = invokedElement.psiElement.getProject
+
+        val specialHandler = findArgumentsPrimitiveType(argumentValues)
+          .flatMap { argumentsType =>
+            invokedElement.qualifiedName
+              .flatMap(CommonMethodsMapping.get(_, argumentsType))
+              .flatMap(psiMethodFromText)
+              .map(method => (method, Option(CustomMethodHandlers.find(method))))
+          }
+
+        val specialMethodEffect = specialHandler match {
+          case Some((method, Some(handler))) => Some(findMethodEffectWithJavaCustomHandler(stateBefore,
+            argumentValues, handler, method))
+          case _ => None
+        }
+
+        specialMethodEffect.getOrElse {
+          invokedElement.psiElement match {
+            case psiMethod: PsiMethod => Option(CustomMethodHandlers.find(psiMethod)) match {
+              case Some(handler) => findMethodEffectWithJavaCustomHandler(stateBefore,
+                argumentValues, handler, psiMethod)
+              case _ => findMethodEffectForScalaMethod(interpreter, stateBefore, argumentValues)
+            }
+            case _ => findMethodEffectForScalaMethod(interpreter, stateBefore, argumentValues)
+          }
+        }
     }
   }
 
@@ -91,17 +115,22 @@ class ScalaInvocationInstruction(invocationInfo: InvocationInfo, invocationAncho
       .map(element => scTypeToDfType(element.returnType))
       .getOrElse(DfType.TOP)
 
-    findSpecialSupportForClasses(invocationInfo, argumentValues) match {
-      case Some((classParamValues, methodEffect)) =>
-        assignClassParameterValues(classParamValues, interpreter, stateBefore)
-        val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
-        methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
-      case _ => findSpecialSupportForCollections(invocationInfo, argumentValues) match {
-        case Some(methodEffect) => val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
-          methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
-        case _ => MethodEffect(factory.fromDfType(returnType), isPure = false)
-      }
+    val classesEnhancement = findSpecialSupportForClasses(invocationInfo, argumentValues) match {
+      case Some((classParamValues, methodEffect)) => assignClassParameterValues(classParamValues, interpreter, stateBefore)
+        Some(methodEffect)
+      case _ => None
     }
+    val collectionsEnhancement = findSpecialSupportForCollections(invocationInfo, argumentValues)
+
+    val enhancement = classesEnhancement.orElse(collectionsEnhancement)
+    enhancement.map(enhanceReturnType(returnType, _))
+      .getOrElse(MethodEffect(factory.fromDfType(returnType), isPure = false))
+  }
+
+  private def enhanceReturnType(returnType: DfType, methodEffect: MethodEffect)
+                               (implicit factory: DfaValueFactory): MethodEffect = {
+    val enhancedType = methodEffect.returnValue.getDfType.meet(returnType)
+    methodEffect.copy(returnValue = factory.fromDfType(enhancedType))
   }
 
   private def assignClassParameterValues(classParameterValues: Map[ScClassParameter, DfaValue],

@@ -117,7 +117,7 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
 
   private def tryTransformBinaryNumericOperator(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                                 builder: ScalaDfaControlFlowBuilder): Boolean = {
-    for (typeClass <- ScalaNumericTypes; operationName <- NumericBinary.keys) {
+    for (typeClass <- List(ScalaInt, ScalaLong); operationName <- NumericBinary.keys) {
       if (matchesSignature(function, operationName, typeClass)) {
         val (leftArg, rightArg) = argumentsForBinarySyntheticOperator(invocationInfo)
         leftArg.content.transform(builder)
@@ -184,12 +184,12 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
 
   private def tryTransformUnaryNumericOperator(function: ScSyntheticFunction, invocationInfo: InvocationInfo,
                                                builder: ScalaDfaControlFlowBuilder): Boolean = {
-    for (typeClass <- ScalaNumericTypes; operationName <- NumericUnary.keys) {
+    for (typeClass <- List(ScalaInt, ScalaLong); operationName <- NumericUnary.keys) {
       if (matchesSignature(function, operationName, typeClass)) {
         val singleThisArg = invocationInfo.argListsInEvaluationOrder.head.head
         val returnDfType = scTypeToDfType(function.retType).asInstanceOf[DfIntegralType]
 
-        builder.pushInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0))))
+        builder.pushInstruction(new PushValueInstruction(returnDfType.meetRange(LongRangeSet.point(0L))))
         singleThisArg.content.transform(builder)
 
         builder.pushInstruction(new NumericBinaryInstruction(NumericUnary(operationName), ScalaStatementAnchor(wrappedInvocation)))

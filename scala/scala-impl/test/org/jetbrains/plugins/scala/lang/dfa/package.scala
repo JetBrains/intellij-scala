@@ -20,7 +20,8 @@ package object dfa {
   def defaultCodeTemplate(returnType: String)(body: String): String =
     s"""
        |import java.util
-       |import java.lang.Math._
+       |import java.lang.Math
+       |import scala.math._
        |
        |class OtherClass {
        |  val otherField: Int = 1244

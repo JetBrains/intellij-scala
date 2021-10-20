@@ -1,6 +1,6 @@
 package org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.specialSupport
 
-import com.intellij.codeInspection.dataFlow.types.{DfIntConstantType, DfReferenceType, DfType, DfTypes}
+import com.intellij.codeInspection.dataFlow.types.{DfIntConstantType, DfReferenceType, DfType}
 import com.intellij.codeInspection.dataFlow.value.DfaValue
 import com.intellij.psi.{PsiClass, PsiElement, PsiMember}
 import org.jetbrains.plugins.scala.extensions._
@@ -18,11 +18,8 @@ object SpecialSupportUtils {
   }
 
   def retrieveListSize(dfaValue: DfaValue): Option[Int] = {
-    if (dfaValue.getDfType.toString == s"$ScalaCollectionImmutable.Nil$$") {
-      Some(DfTypes.intValue(0).getValue.toInt)
-    } else {
-      collectionSizeFromDfType(dfaValue.getDfType)
-    }
+    if (dfaValue.getDfType.toString == s"$ScalaCollectionImmutable.Nil$$") Some(0)
+    else collectionSizeFromDfType(dfaValue.getDfType)
   }
 
   private def collectionSizeFromDfType(dfType: DfType): Option[Int] = dfType match {

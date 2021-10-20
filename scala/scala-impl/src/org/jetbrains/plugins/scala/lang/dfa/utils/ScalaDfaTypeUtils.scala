@@ -3,13 +3,15 @@ package org.jetbrains.plugins.scala.lang.dfa.utils
 import com.intellij.codeInspection.ProblemHighlightType
 import com.intellij.codeInspection.dataFlow.jvm.SpecialField
 import com.intellij.codeInspection.dataFlow.rangeSet.LongRangeSet
-import com.intellij.codeInspection.dataFlow.types.{DfType, DfTypes}
+import com.intellij.codeInspection.dataFlow.types._
+import com.intellij.codeInspection.dataFlow.value.DfaValue
 import com.intellij.codeInspection.dataFlow.{Mutability, TypeConstraints}
 import com.intellij.psi.PsiNamedElement
 import org.jetbrains.annotations.Nls
 import org.jetbrains.plugins.scala.codeInspection.ScalaInspectionBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument
+import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.arguments.Argument.ProperArgument
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations.ExpressionTransformer
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
@@ -88,6 +90,16 @@ object ScalaDfaTypeUtils {
       case _ => TypeConstraints.exactClass(psiClass).asDfType().meet(DfTypes.OBJECT_OR_NULL)
     }
     case _ => DfType.TOP
+  }
+
+  def findArgumentsPrimitiveType(argumentValues: Map[Argument, DfaValue]): Option[String] = {
+    argumentValues.filter(_._1.kind.is[ProperArgument]).values.headOption.map(_.getDfType) match {
+      case Some(_: DfIntType) => Some(ScalaInt)
+      case Some(_: DfLongType) => Some(ScalaLong)
+      case Some(_: DfDoubleType) => Some(ScalaDouble)
+      case Some(_: DfFloatType) => Some(ScalaFloat)
+      case _ => None
+    }
   }
 
   def isStableElement(element: PsiNamedElement): Boolean = element match {

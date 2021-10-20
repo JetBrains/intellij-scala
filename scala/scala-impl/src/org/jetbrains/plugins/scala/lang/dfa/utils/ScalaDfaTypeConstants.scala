@@ -22,9 +22,15 @@ object ScalaDfaTypeConstants {
 
   final object Packages {
 
-    val ScalaNumericTypes: Seq[String] =
-      for (typeName <- List("Int", "Long", "Float", "Double"))
-        yield "scala." + typeName
+    val ScalaPrefix = "scala."
+
+    val ScalaInt = "scala.Int"
+
+    val ScalaLong = "scala.Long"
+
+    val ScalaDouble = "scala.Double"
+
+    val ScalaFloat = "scala.Float"
 
     val ScalaBoolean = "scala.Boolean"
 
@@ -33,6 +39,10 @@ object ScalaDfaTypeConstants {
     val ScalaCollection = "scala.collection"
 
     val ScalaCollectionImmutable = s"$ScalaCollection.immutable"
+
+    val ScalaMath = "scala.math"
+
+    val JavaLangMath = "java.lang.Math"
 
     val IndexOutOfBoundsExceptionName = "java.lang.IndexOutOfBoundsException"
 
