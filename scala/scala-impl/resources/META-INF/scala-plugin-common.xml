@@ -2,32 +2,34 @@
 <idea-plugin>
 
     <extensionPoints>
-        <extensionPoint name="scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker" dynamic="true"/>
-        <extensionPoint name="scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier" dynamic="true"/>
-        <extensionPoint name="dependencyAwareInjectionSettings" interface="org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings" dynamic="true"/>
-        <extensionPoint name="scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" dynamic="true"/>
-        <extensionPoint name="memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension" dynamic="true"/>
-        <extensionPoint name="scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor" dynamic="true"/>
-        <extensionPoint name="scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer" dynamic="true"/>
-        <extensionPoint name="evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper" dynamic="true"/>
-        <extensionPoint name="syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector" dynamic="true"/>
-        <extensionPoint name="testWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider" dynamic="true"/>
-        <extensionPoint name="parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer" dynamic="true"/>
-        <extensionPoint name="scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver" dynamic="true"/>
-        <extensionPoint name="genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider" dynamic="true"/>
-        <extensionPoint name="compileServerClasspathProvider" beanClass="org.jetbrains.plugins.scala.compiler.CompileServerClasspathProvider" dynamic="true"/>
-        <extensionPoint name="compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider" dynamic="true"/>
-        <extensionPoint name="sdkResolver" interface="org.jetbrains.plugins.scala.project.external.SdkResolver" dynamic="true"/>
-        <extensionPoint name="unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
-        <extensionPoint name="interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
-        <extensionPoint name="fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaIntentionAvailabilityChecker" interface="org.jetbrains.plugins.scala.util.IntentionAvailabilityChecker" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaPluginVersionVerifier" interface="org.jetbrains.plugins.scala.components.ScalaPluginVersionVerifier" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.dependencyAwareInjectionSettings" interface="org.jetbrains.plugins.scala.settings.uiControls.DependencyAwareInjectionSettings" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaLanguageDerivative" interface="org.jetbrains.plugins.scala.finder.ScalaLanguageDerivative" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.memberElementTypesExtension" interface="org.jetbrains.plugins.scala.util.MemberElementTypesExtension" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaElementToRenameContributor" interface="org.jetbrains.plugins.scala.lang.refactoring.rename.ScalaElementToRenameContributor" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaSyntheticClassProducer" interface="org.jetbrains.plugins.scala.lang.resolve.SyntheticClassProducer" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.evaluatorCompileHelper" interface="org.jetbrains.plugins.scala.debugger.evaluation.EvaluatorCompileHelper" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.syntheticMemberInjector" interface="org.jetbrains.plugins.scala.lang.psi.impl.toplevel.typedef.SyntheticMembersInjector" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.testWorkingDirectoryProvider" interface="org.jetbrains.plugins.scala.testingSupport.TestWorkingDirectoryProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.parameterInfoEnhancer" interface="org.jetbrains.plugins.scala.lang.parameterInfo.ScalaParameterInfoEnhancer" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.scalaDynamicTypeResolver" interface="org.jetbrains.plugins.scala.lang.resolve.DynamicTypeReferenceResolver" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.genericTypeNamesProvider" interface="org.jetbrains.plugins.scala.lang.refactoring.namesSuggester.genericTypes.GenericTypeNamesProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.compileServerClasspathProvider" beanClass="org.jetbrains.plugins.scala.compiler.CompileServerClasspathProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.compileServerVmOptionsProvider" interface="org.jetbrains.plugins.scala.compiler.CompileServerVmOptionsProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.sdkResolver" interface="org.jetbrains.plugins.scala.project.external.SdkResolver" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.unresolvedReferenceFixProvider" interface="org.jetbrains.plugins.scala.annotator.UnresolvedReferenceFixProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.interpolatedStringMacroTypeProvider" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.InterpolatedStringMacroTypeProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.fileDeclarationsContributor" interface="org.jetbrains.plugins.scala.lang.psi.api.FileDeclarationsContributor" dynamic="true"/>
 
         <!-- EP extracted during extraction of worksheet module -->
-        <extensionPoint name="importUsedProvider" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider" dynamic="true"/>
-        <extensionPoint name="importOptimizerHelper" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizerHelper" dynamic="true"/>
-        <extensionPoint name="referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
-        <extensionPoint name="worksheetCompiler" interface="org.jetbrains.plugins.scala.externalHighlighters.compiler.WorksheetHighlightingCompiler" dynamic="true"/>
-        <extensionPoint name="compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.importUsedProvider" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ImportInfoProvider" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.importOptimizerHelper" interface="org.jetbrains.plugins.scala.editor.importOptimizer.ScalaImportOptimizerHelper" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.referenceExtraResolver" interface="org.jetbrains.plugins.scala.lang.psi.impl.base.ScStableCodeReferenceExtraResolver" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.worksheetCompiler" interface="org.jetbrains.plugins.scala.externalHighlighters.compiler.WorksheetHighlightingCompiler" dynamic="true"/>
+        <extensionPoint qualifiedName="org.intellij.scala.compilerSettingsProfileProvider" interface="org.jetbrains.plugins.scala.codeInspection.feature.ScalaCompilerSettingsProfileProvider" dynamic="true"/>
+
+        <extensionPoint qualifiedName="com.intellij.newProjectWizard.scala.buildSystem" interface="org.jetbrains.sbt.project.template.wizard.buildSystem.BuildSystemScalaNewProjectWizard" dynamic="true"/>
     </extensionPoints>
 
     <extensions defaultExtensionNs="org.intellij.scala">
@@ -93,7 +95,11 @@
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.compiler.ScalaBuildProcessParametersProvider"/>
         <buildProcess.parametersProvider implementation="org.jetbrains.plugins.scala.findUsages.compilerReferences.CompilerIndicesBuildProcessParametersProvider"/>
         <projectTemplatesFactory implementation="org.jetbrains.plugins.scala.project.template.ScalaProjectTemplatesFactory"/>
+
         <newProjectWizard.language implementation="org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard"/>
+        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.SbtScalaNewProjectWizard" />
+        <newProjectWizard.scala.buildSystem implementation="org.jetbrains.sbt.project.template.wizard.buildSystem.IntelliJScalaNewProjectWizard" />
+
         <refactoring.moveMemberHandler language="Scala" implementationClass="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMemberHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.members.ScalaMoveMembersHandler" order="first" id="scalaMoveMembersHandler"/>
         <refactoring.moveHandler implementation="org.jetbrains.plugins.scala.lang.refactoring.move.ScalaMoveClassesOrPackagesHandler" order="first, after scalaMoveMembersHandler"/>

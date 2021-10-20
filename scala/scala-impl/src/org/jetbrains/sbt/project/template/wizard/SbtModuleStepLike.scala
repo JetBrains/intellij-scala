@@ -5,24 +5,14 @@ import com.intellij.ui.components.{JBCheckBox, JBTextField}
 import org.jetbrains.plugins.scala.ScalaBundle
 import org.jetbrains.plugins.scala.extensions._
 import org.jetbrains.plugins.scala.project.Versions
-import org.jetbrains.plugins.scala.project.template.ScalaVersionDownloadingDialog
+import org.jetbrains.plugins.scala.project.template.{PackagePrefixStepLike, ScalaVersionDownloadingDialog}
 import org.jetbrains.sbt.SbtBundle
-import org.jetbrains.sbt.project.template.SComboBox
+import org.jetbrains.sbt.project.template.{SComboBox, SbtModuleBuilderSelections}
 
-/**
- * The trait contains common logic which is reused in two different "New Project Wizard" APIs.
- *
- * Currently (2021.3) there are two APIs:
- *  1. "OLD", where new project step is created in<br>
- *     [[org.jetbrains.sbt.project.template.SbtModuleBuilder.modifySettingsStep]]
- *  1. "NEW", where new project step is created in <br>
- *     [[org.jetbrains.sbt.project.template.wizard.ScalaNewProjectWizard.createStep]]
- */
-//TODO: hide "package prefix" in "Advanced settings"
-//TODO: add "artifact coordinates" settings like in Maven or Gradle
-private[template] trait SbtModuleStepLike {
 
-  protected def selections: SbtModuleStepSelections
+private[template] trait SbtModuleStepLike extends PackagePrefixStepLike {
+
+  protected def selections: SbtModuleBuilderSelections
 
   //
   // Scala & Sbt versions, initialized lazily from the Internet
@@ -35,24 +25,23 @@ private[template] trait SbtModuleStepLike {
   //
   // Raw UI elements
   //
-  protected final val sbtVersionComboBox: SComboBox[String] = new SComboBox[String]
-  protected final val scalaVersionComboBox: SComboBox[String] = new SComboBox[String]
+  protected val sbtVersionComboBox: SComboBox[String] = new SComboBox[String]
+  protected val scalaVersionComboBox: SComboBox[String] = new SComboBox[String]
 
-  protected final val downloadSbtSourcesCheckbox: JBCheckBox = applyTo(new JBCheckBox(SbtBundle.message("sbt.module.step.download.sources")))(
+  protected val sbtLabelText: String = SbtBundle.message("sbt.settings.sbt")
+  protected val scalaLabelText: String = SbtBundle.message("sbt.settings.scala")
+
+  protected val downloadSbtSourcesCheckbox: JBCheckBox = applyTo(new JBCheckBox(SbtBundle.message("sbt.module.step.download.sources")))(
     _.setToolTipText(SbtBundle.message("sbt.download.sbt.sources"))
   )
-  protected final val downloadScalaSourcesCheckbox: JBCheckBox = applyTo(new JBCheckBox(SbtBundle.message("sbt.module.step.download.sources")))(
+  protected val downloadScalaSourcesCheckbox: JBCheckBox = applyTo(new JBCheckBox(SbtBundle.message("sbt.module.step.download.sources")))(
     _.setToolTipText(SbtBundle.message("sbt.download.scala.standard.library.sources"))
-  )
-
-  protected final val packagePrefixField: JBTextField = applyTo(new JBTextField())(
-    _.getEmptyText.setText(ScalaBundle.message("package.prefix.example"))
   )
 
   /**
    * Initializes selections and UI elements only once
    */
-  protected final def initSelectionsAndUi(): Unit = {
+  protected def initSelectionsAndUi(): Unit = {
     _initSelectionsAndUi
   }
   private lazy val _initSelectionsAndUi: Unit = {
@@ -72,12 +61,12 @@ private[template] trait SbtModuleStepLike {
     updateSupportedSbtVersionsForSelectedScalaVersion()
   }
 
-  private def initUiElementsModelFrom(selections: SbtModuleStepSelections): Unit = {
+  private def initUiElementsModelFrom(selections: SbtModuleBuilderSelections): Unit = {
     sbtVersionComboBox.setSelectedItemSafe(selections.sbtVersion.orNull)
     scalaVersionComboBox.setSelectedItemSafe(selections.scalaVersion.orNull)
     downloadSbtSourcesCheckbox.setSelected(selections.downloadSbtSources)
     downloadScalaSourcesCheckbox.setSelected(selections.downloadScalaSdkSources)
-    packagePrefixField.setText(selections.packagePrefix.getOrElse(""))
+    packagePrefixTextField.setText(selections.packagePrefix.getOrElse(""))
   }
 
   /**
@@ -100,8 +89,8 @@ private[template] trait SbtModuleStepLike {
       selections.downloadSbtSources = downloadSbtSourcesCheckbox.isSelected
     }
 
-    packagePrefixField.getDocument.addDocumentListener(
-      (_ => selections.packagePrefix = Option(packagePrefixField.getText).filter(_.nonEmpty)): DocumentAdapter
+    packagePrefixTextField.getDocument.addDocumentListener(
+      (_ => selections.packagePrefix = Option(packagePrefixTextField.getText).filter(_.nonEmpty)): DocumentAdapter
     )
   }
 

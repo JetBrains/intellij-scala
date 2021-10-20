@@ -69,6 +69,7 @@ import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Futu
 import scala.jdk.CollectionConverters._
 import scala.reflect.ClassTag
 import scala.runtime.NonLocalReturnControl
+import scala.tools.nsc.io.File
 import scala.util.control.Exception.catching
 import scala.util.{Failure, Success, Try}
 
@@ -1623,6 +1624,8 @@ package object extensions {
       withParents.drop(1)
     def withParents: Iterator[Path] =
       Iterator.iterate(path)(_.getParent).takeWhile(_ != null)
+    def systemIndependentPathString: String =
+      path.toString.replace(java.io.File.separatorChar, '/')
   }
 
   object executionContext {

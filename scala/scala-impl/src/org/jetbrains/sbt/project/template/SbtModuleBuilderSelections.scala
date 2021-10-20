@@ -1,9 +1,8 @@
-package org.jetbrains.sbt.project.template.wizard
+package org.jetbrains.sbt.project.template
 
 import org.jetbrains.plugins.scala.project.Versions
 
-private[template]
-final case class SbtModuleStepSelections(
+final case class SbtModuleBuilderSelections(
   var sbtVersion: Option[String],
   var scalaVersion: Option[String],
   var downloadScalaSdkSources: Boolean,
@@ -39,10 +38,10 @@ final case class SbtModuleStepSelections(
   }
 }
 
-object SbtModuleStepSelections {
+object SbtModuleBuilderSelections {
 
-  def default: SbtModuleStepSelections =
-    SbtModuleStepSelections(
+  def default: SbtModuleBuilderSelections =
+    SbtModuleBuilderSelections(
       sbtVersion = scala.Option.empty,
       scalaVersion = scala.Option.empty,
       downloadScalaSdkSources = true,
