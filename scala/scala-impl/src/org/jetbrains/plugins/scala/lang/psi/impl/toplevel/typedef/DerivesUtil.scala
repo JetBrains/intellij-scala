@@ -126,22 +126,26 @@ object DerivesUtil {
    *             to produce `CanEqual[Foo[A_L, B_L, C_L], Foo[A_R, B_R, C_R]]`
    */
   def deriveCanEqual(owner: ScDerivesClauseOwner): String = {
-    def prependSuffisToname(tps: Seq[TypeParameter], suffix: String): Seq[String] =
+    def prependSuffixToName(tps: Seq[TypeParameter], suffix: String): Seq[String] =
       tps.map(tp => s"${tp.name}_$suffix")
 
     val ownerTypeParams = owner.typeParameters.map(TypeParameter(_))
     val typeKindedTps   = ownerTypeParams.filter(isTypeKinded)
 
-    val leftParams      = prependSuffisToname(typeKindedTps, "L")
-    val rightParams     = prependSuffisToname(typeKindedTps, "R")
-
     val pairwiseInstances =
       if (typeKindedTps.isEmpty) ""
-      else leftParams.zip(rightParams).map { case (l, r) => s"CanEqual[$l, $r]" }.mkString("(using ", ", ", ")")
+      else
+        prependSuffixToName(typeKindedTps, "L")
+          .zip(prependSuffixToName(typeKindedTps, "R"))
+          .map { case (l, r) => s"CanEqual[$l, $r]" }.mkString("(using ", ", ", ")")
 
-    val leftParamsText  = typeParamsString(prependSuffisToname(ownerTypeParams, "L"))
-    val rightParamsText = typeParamsString(prependSuffisToname(ownerTypeParams, "R"))
-    s"given derived$$CanEqual$pairwiseInstances: CanEqual[${owner.name}$leftParamsText, ${owner.name}$rightParamsText] = ???"
+    val leftParams = prependSuffixToName(ownerTypeParams, "L")
+    val rightParams = prependSuffixToName(ownerTypeParams, "R")
+    val allParamsText = typeParamsString(leftParams ++ rightParams)
+
+    s"""given derived$$CanEqual$allParamsText$pairwiseInstances:
+       |CanEqual[${owner.name}${typeParamsString(leftParams)},
+       |         ${owner.name}${typeParamsString(rightParams)}] = ???""".stripMargin
   }
 
   /**

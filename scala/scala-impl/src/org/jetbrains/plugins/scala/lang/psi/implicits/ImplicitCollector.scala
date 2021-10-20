@@ -15,6 +15,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.toplevel.typedef.ScObject
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiManager
 import org.jetbrains.plugins.scala.lang.psi.implicits.ExtensionConversionHelper.extensionConversionCheck
 import org.jetbrains.plugins.scala.lang.psi.implicits.ImplicitCollector._
+import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator._
@@ -366,7 +367,7 @@ class ImplicitCollector(
               case ConstraintSystem(subst) =>
                 //Update synthetic parameters, coming from expected context-function type
                 typeable match {
-                  case contextParam: ParameterizedType.LightContextFunctionParameter if !isImplicitConversion =>
+                  case contextParam: LightContextFunctionParameter if !isImplicitConversion =>
                     contextParam.updateWithSubst(subst)
                   case _ => ()
                 }

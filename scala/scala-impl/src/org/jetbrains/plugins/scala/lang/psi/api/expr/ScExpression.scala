@@ -16,6 +16,7 @@ import org.jetbrains.plugins.scala.lang.psi.api.expr.ExpectedTypes.ParameterType
 import org.jetbrains.plugins.scala.lang.psi.api.toplevel.imports.usages.ImportUsed
 import org.jetbrains.plugins.scala.lang.psi.impl.ScalaPsiElementFactory
 import org.jetbrains.plugins.scala.lang.psi.implicits.ScImplicitlyConvertible
+import org.jetbrains.plugins.scala.lang.psi.light.LightContextFunctionParameter
 import org.jetbrains.plugins.scala.lang.psi.types._
 import org.jetbrains.plugins.scala.lang.psi.types.api._
 import org.jetbrains.plugins.scala.lang.psi.types.api.designator.ScDesignatorType
@@ -176,7 +177,7 @@ object ScExpression {
 
     private def project = elementScope.projectContext
 
-    def contextFunctionParameters: Seq[ParameterizedType.LightContextFunctionParameter] =
+    def contextFunctionParameters: Seq[LightContextFunctionParameter] =
       expr match {
         case fun: ScFunctionExpr if fun.isContext => Seq.empty
         case _ =>
@@ -260,9 +261,9 @@ object ScExpression {
               inferValueType(
                 widened
                   .dropMethodTypeEmptyParams(expr, expectedType)
-                  .synthesizeContextFunctionType(expectedType, expr)
                   .updateWithExpected(expr, maybeSAMpt.orElse(expectedType), fromUnderscore)
-              ).unpackedType
+              ).synthesizeContextFunctionType(expectedType, expr)
+               .unpackedType
                .synthesizePartialFunctionType(expr, expectedType)
 
             if (ignoreBaseType) Right(valueType)
@@ -508,7 +509,14 @@ object ScExpression {
           case _                            => None
         }
 
+      def isTrivialSAM: Boolean = expected match {
+        case FunctionType(_, _)        => true
+        case ContextFunctionType(_, _) => true
+        case _                         => false
+      }
+
       if (!expr.isSAMEnabled) None
+      else if (isTrivialSAM) None
       else expr match {
         case ScFunctionExpr(_, _) if fromUnderscore                      => checkForSAM(scType)
         case _ if !fromUnderscore && ScalaPsiUtil.isAnonExpression(expr) => checkForSAM(scType)
