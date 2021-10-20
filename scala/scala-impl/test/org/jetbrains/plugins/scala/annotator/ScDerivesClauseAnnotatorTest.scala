@@ -20,9 +20,8 @@ class ScDerivesClauseAnnotatorTest extends AnnotatorSimpleTestCase {
       )
     )(
       Error("Foo", "No implicit arguments of type: Foo[Int]"),
-      Error("Foo", "Expression of type Foo[Nothing] doesn't conform to expected type Foo[A]"),
-      Error("Foo", null)
-  )
+      Error("Foo", "Expression of type Foo[Nothing] doesn't conform to expected type Foo[A]")
+    )
 
   def testTypesDoNotMatch(): Unit =
     assertMessages(
@@ -34,10 +33,7 @@ class ScDerivesClauseAnnotatorTest extends AnnotatorSimpleTestCase {
           |case class A() derives Foo
           |""".stripMargin
       )
-    )(
-      Error("Foo", "Expression of type Foo[Int] doesn't conform to expected type Foo[A]"),
-      Error("Foo", null)
-    )
+    )(Error("Foo", "Expression of type Foo[Int] doesn't conform to expected type Foo[A]"))
 
   def testNonClassType(): Unit =
     assertMessages(

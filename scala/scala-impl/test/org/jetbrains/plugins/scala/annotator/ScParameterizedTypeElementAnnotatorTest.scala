@@ -346,20 +346,23 @@ class ScParameterizedTypeElementAnnotatorTest_scala_2 extends ScParameterizedTyp
 }
 
 class ScParameterizedTypeElementAnnotatorTest_scala_3 extends ScParameterizedTypeElementAnnotatorTestBase {
-  override protected val language: Language  = Scala3Language.INSTANCE
+  override protected val language: Language = Scala3Language.INSTANCE
 
   def testTypeLambdaAsTypeConstuctor(): Unit = assertNothing(messages(
     """
+      |trait List[A]
+      |trait Foo
+      |
       |def foo[F[_], A](fa: F[A]): F[A] = fa
       |foo[[X] =>> List[X], Int](???)
-      |type TL = [A] =>> String
+      |type TL = [A] =>> Foo
       |foo[TL, Int](???)
       |type TL2 = [X] =>> [Y] =>> List[X]
-      |foo[TL2[String], Int](???)
+      |foo[TL2[Foo], Int](???)
       |type TL3[A] = [B, D] =>> [C] =>> Int
-      |foo[TL3[Int][String, Double], Int](???)
+      |foo[TL3[Int][Foo, Double], Int](???)
       |type TL4 = TL
-      |foo[TL4, String](???)
+      |foo[TL4, Foo](???)
       |""".stripMargin
   ))
 }

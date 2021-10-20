@@ -374,7 +374,7 @@ class ImplicitCollector(
 
                 Option(c.copy(implicitReason = OkResult))
               case _ =>
-                reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
+                reportWrong(c, TypeDoesntConformResult, propagateFailures = withExtensions)
             }
           case _ => reportWrong(c, BadTypeResult, propagateFailures = withExtensions)
         }

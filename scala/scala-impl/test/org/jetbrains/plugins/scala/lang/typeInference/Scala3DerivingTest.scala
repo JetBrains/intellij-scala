@@ -51,7 +51,7 @@ class Scala3DerivingTest extends ImplicitParametersTestBase {
        |class Foo[A, B, C[_], D[_, _]](a: A, b: B, c: C[A], d: D[A, B]) derives scala.CanEqual
        |object Foo {
        |  given cq: CanEqual[Double, Int] = ???
-       |  ${START}implicitly[CanEqual[Foo[Double, String, List, [X, Y] => Int], Foo[Int, String, Option, [X,  Y] => String]]]$END
+       |  ${START}implicitly[CanEqual[Foo[Double, String, List, [X, Y] =>> Int], Foo[Int, String, Option, [X,  Y] =>> String]]]$END
        |}
        |""".stripMargin
   )
