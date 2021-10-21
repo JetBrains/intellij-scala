@@ -10,6 +10,7 @@ object ScalaDfaTypeConstants {
     case object True extends DfaConstantValue
     case object False extends DfaConstantValue
     case object Zero extends DfaConstantValue
+    case object Null extends DfaConstantValue
     case object Unknown extends DfaConstantValue
   }
 

@@ -1,19 +1,17 @@
-package org.jetbrains.plugins.scala.lang.dfa.analysis.tests.invocations
+package org.jetbrains.plugins.scala.lang.dfa.analysis.tests
 
 import org.jetbrains.plugins.scala.lang.dfa.Messages._
 import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaDfaTestBase
 
-class NullPointerExceptionDfaTest extends ScalaDfaTestBase {
+class AlwaysNullDfaTest extends ScalaDfaTestBase {
 
   def testReferencesToNullIfSimpleReference(): Unit = test(codeFromMethodBody(returnType = "Int") {
     """
-      |case class Person(age: Int)
-      |
-      |val x: Person = null
+      |val x: Student = null
       |x.age
       |""".stripMargin
   })(
-    "x.age" -> InvocationNullPointer
+    "x" -> ExpressionAlwaysNull
   )
 
   def testReferencesToNullIfInvocation(): Unit = test(codeFromMethodBody(returnType = "Int") {
@@ -22,7 +20,8 @@ class NullPointerExceptionDfaTest extends ScalaDfaTestBase {
       |x.distinct
       |""".stripMargin
   })(
-    "x.distinct" -> InvocationNullPointer,
+    "x" -> ExpressionAlwaysNull,
+    "if (2 <= 3) null else List(2, 3)" -> ExpressionAlwaysNull,
     "2 <= 3" -> ConditionAlwaysTrue
   )
 
@@ -32,7 +31,7 @@ class NullPointerExceptionDfaTest extends ScalaDfaTestBase {
       |list.map(foo)
       |""".stripMargin
   })(
-    "list.map(foo)" -> InvocationNullPointer
+    "list" -> ExpressionAlwaysNull
   )
 
   def testNullReferencesInSugaredCalls(): Unit = test(codeFromMethodBody(returnType = "Int") {
@@ -45,6 +44,6 @@ class NullPointerExceptionDfaTest extends ScalaDfaTestBase {
       |3 +*: p
       |""".stripMargin
   })(
-    "3 +*: p" -> InvocationNullPointer
+    "p" -> ExpressionAlwaysNull
   )
 }

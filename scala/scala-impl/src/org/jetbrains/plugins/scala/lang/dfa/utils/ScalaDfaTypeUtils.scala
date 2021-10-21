@@ -51,6 +51,7 @@ object ScalaDfaTypeUtils {
   def dfTypeToReportedConstant(dfType: DfType): DfaConstantValue = dfType match {
     case DfTypes.TRUE => DfaConstantValue.True
     case DfTypes.FALSE => DfaConstantValue.False
+    case DfTypes.NULL => DfaConstantValue.Null
     case _ => Option(dfType.getConstantOfType(classOf[Number]))
       .filter(value => value.intValue() == 0 || value.longValue() == 0L)
       .map(_ => DfaConstantValue.Zero)
@@ -62,6 +63,7 @@ object ScalaDfaTypeUtils {
     case DfaConstantValue.True => ScalaInspectionBundle.message("condition.always.true", warningType)
     case DfaConstantValue.False => ScalaInspectionBundle.message("condition.always.false", warningType)
     case DfaConstantValue.Zero => ScalaInspectionBundle.message("expression.always.zero", warningType)
+    case DfaConstantValue.Null => ScalaInspectionBundle.message("expression.always.null", warningType)
     case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA constant: $value")
   }
 
@@ -73,8 +75,6 @@ object ScalaDfaTypeUtils {
         ScalaInspectionBundle.message("invocation.index.out.of.bounds", warningType)
       case NoSuchElementExceptionName =>
         ScalaInspectionBundle.message("invocation.no.such.element", warningType)
-      case NullPointerExceptionName =>
-        ScalaInspectionBundle.message("invocation.null.pointer", warningType)
       case _ => throw new IllegalStateException(s"Trying to report an unexpected DFA exception: $exceptionName")
     }
   }

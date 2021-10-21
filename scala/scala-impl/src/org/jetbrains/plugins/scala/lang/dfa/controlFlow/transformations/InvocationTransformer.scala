@@ -17,7 +17,7 @@ import org.jetbrains.plugins.scala.lang.dfa.controlFlow.invocations.{InvocationI
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.SyntheticOperators._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants._
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.{extractExpressionFromArgument, scTypeToDfType}
+import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.scTypeToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
 import org.jetbrains.plugins.scala.lang.psi.impl.toplevel.synthetic.ScSyntheticFunction
 
@@ -46,10 +46,6 @@ class InvocationTransformer(val wrappedInvocation: ScExpression)
   }
 
   private def addAdditionalAssertions(invocationInfo: InvocationInfo, builder: ScalaDfaControlFlowBuilder): Unit = {
-    invocationInfo.thisArgument
-      .flatMap(extractExpressionFromArgument)
-      .foreach(thisExpression => addNotNullAssertion(thisExpression, wrappedInvocation, builder))
-
     addCollectionAccessAssertions(wrappedInvocation, invocationInfo, builder)
   }
 

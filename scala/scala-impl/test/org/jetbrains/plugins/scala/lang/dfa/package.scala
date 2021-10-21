@@ -10,11 +10,11 @@ package object dfa {
 
     val ExpressionAlwaysZero = "Expression always evaluates to 0"
 
+    val ExpressionAlwaysNull = "Expression always evaluates to null"
+
     val InvocationIndexOutOfBounds = "Invocation will produce IndexOutOfBoundsException. Index is always out of bounds"
 
     val InvocationNoSuchElement = "Invocation will produce NoSuchElementException. Collection is always empty"
-
-    val InvocationNullPointer = "Invocation will produce NullPointerException. Object is always null"
   }
 
   def commonCodeTemplate(returnType: String)(body: String): String =

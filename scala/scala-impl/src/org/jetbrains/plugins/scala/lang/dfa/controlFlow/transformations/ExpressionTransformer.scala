@@ -3,12 +3,10 @@ package org.jetbrains.plugins.scala.lang.dfa.controlFlow.transformations
 import com.intellij.codeInspection.dataFlow.lang.ir.ControlFlow.DeferredOffset
 import com.intellij.codeInspection.dataFlow.lang.ir._
 import com.intellij.codeInspection.dataFlow.types.DfTypes
-import com.intellij.codeInspection.dataFlow.value.RelationType
 import com.intellij.psi.{PsiMethod, PsiNamedElement}
 import org.jetbrains.plugins.scala.extensions._
-import org.jetbrains.plugins.scala.lang.dfa.analysis.{ScalaNullAccessProblem, ScalaStatementAnchor}
+import org.jetbrains.plugins.scala.lang.dfa.analysis.ScalaStatementAnchor
 import org.jetbrains.plugins.scala.lang.dfa.controlFlow.{ScalaDfaControlFlowBuilder, ScalaDfaVariableDescriptor}
-import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeConstants.Packages._
 import org.jetbrains.plugins.scala.lang.dfa.utils.ScalaDfaTypeUtils.literalToDfType
 import org.jetbrains.plugins.scala.lang.psi.api.base.ScLiteral
 import org.jetbrains.plugins.scala.lang.psi.api.expr._
@@ -91,21 +89,16 @@ class ExpressionTransformer(val wrappedExpression: ScExpression)
     if (isReferenceExpressionInvocation(expression)) {
       new InvocationTransformer(expression).transform(builder)
     } else {
-      expression.qualifier.foreach(addNotNullAssertion(_, expression, builder))
+      expression.qualifier.foreach { qualifier =>
+        transformExpression(qualifier, builder)
+        builder.popReturnValue()
+      }
+
       ScalaDfaVariableDescriptor.fromReferenceExpression(expression) match {
         case Some(descriptor) => builder.pushVariable(descriptor, expression)
         case _ => builder.pushUnknownCall(expression, 0)
       }
     }
-  }
-
-  protected def addNotNullAssertion(qualifier: ScExpression, accessExpression: ScExpression,
-                                    builder: ScalaDfaControlFlowBuilder): Unit = {
-    transformExpression(qualifier, builder)
-    val transfer = builder.maybeTransferValue(NullPointerExceptionName)
-    val problem = ScalaNullAccessProblem(accessExpression)
-    builder.pushInstruction(new EnsureInstruction(problem, RelationType.NE, DfTypes.NULL, transfer.orNull))
-    builder.popReturnValue()
   }
 
   private def transformInvocation(invocationExpression: ScExpression, builder: ScalaDfaControlFlowBuilder): Unit = {
